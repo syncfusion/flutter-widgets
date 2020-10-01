@@ -1,0 +1,145 @@
+{
+  "noSelectedDateCalendarLabel": "No selected date",
+  "@noSelectedDateCalendarLabel": {
+    "description": "Describes the selected date in calendar widget",
+    "type": "text"
+  },
+
+  "noEventsCalendarLabel": "No events",
+    "@noEventsCalendarLabel": {
+      "description": "Describes the events in calendar widget",
+      "type": "text"
+  },
+
+  "scheduleViewNewEventLabel": "Nothing planned. Tap to create.",
+    "@scheduleViewNewEventLabel": {
+      "description": "Describes the display date in a calendar widget",
+      "type": "text"
+  },
+
+  "ofDataPagerLabel": "of",
+    "@ofDataPagerLabel": {
+      "description": "Label that is displayed in the information panel of DataPager to represent the currently selected page in number of pages.",
+      "type": "text"
+  },
+
+  "pagesDataPagerLabel": "pages",
+    "@pagesDataPagerLabel": {
+      "description": "Label that is displayed in the information panel of DataPager to represent the currently selected page in number of pages.",
+      "type": "text"
+  },
+
+  "itemsDataPagerLabel": "items",
+    "@itemsDataPagerLabel": {
+      "description": "Label that is displayed in the information panel of DataPager to represent the number of items.",
+      "type": "text"
+  },
+
+  "pdfBookmarksLabel": "Bookmarks",
+    "@pdfBookmarksLabel": {
+      "description": "Label that is displayed in the bookmark view header of PdfViewer.",
+      "type": "text"
+  },
+
+  "pdfNoBookmarksLabel": "No bookmarks found",
+    "@pdfNoBookmarksLabel": {
+      "description": "Label that is displayed in the bookmark view of PdfViewer when there is no bookmark found in loaded PDF document.",
+      "type": "text"
+  },
+
+  "pdfScrollStatusOfLabel": "of",
+    "@pdfScrollStatusOfLabel": {
+      "description": "Label that represents the `of` word in the scroll status of PdfViewer.",
+      "type": "text"
+  },
+
+  "pdfGoToPageLabel": "Go to page",
+    "@pdfGoToPageLabel": {
+      "description": "Label that is displayed in the pagination dialog header of PdfViewer",
+      "type": "text"
+  },
+
+  "pdfEnterPageNumberLabel": "Enter page number",
+    "@pdfEnterPageNumberLabel": {
+      "description": "Label that is displayed in the text field of pagination dialog in the PdfViewer.",
+      "type": "text"
+  },
+
+  "pdfInvalidPageNumberLabel": "Please enter a valid number",
+    "@pdfInvalidPageNumberLabel": {
+      "description": "Label that is displayed in the pagination dialog of PdfViewer when an invalid number is entered in the text field.",
+      "type": "text"
+  },
+
+  "pdfPaginationDialogOkLabel": "OK",
+    "@pdfPaginationDialogOkLabel": {
+      "description": "Label that is displayed in the pagination dialog of PdfViewer to represent the OK confirmation button.",
+      "type": "text"
+  },
+
+  "pdfPaginationDialogCancelLabel": "CANCEL",
+    "@pdfPaginationDialogCancelLabel": {
+      "description": "Label that is displayed in the pagination dialog of PdfViewer to represent the CANCEL confirmation button.",
+      "type": "text"
+  },
+
+  "allowedViewDayLabel": "Day",
+    "@allowedViewDayLabel": {
+      "description": "Label that is displayed in the calendar header view when allowed views have calendar day view.",
+      "type": "text"
+  },
+
+  "allowedViewWeekLabel": "Week",
+    "@allowedViewWeekLabel": {
+      "description": "Label that is displayed in the calendar header view when allowed views have calendar week view.",
+      "type": "text"
+  },
+
+  "allowedViewWorkWeekLabel": "Work Week",
+    "@allowedViewWorkWeekLabel": {
+      "description": "Label that is displayed in the calendar header view when allowed views have calendar work week view.",
+      "type": "text"
+  },
+
+  "allowedViewMonthLabel": "Month",
+    "@allowedViewMonthLabel": {
+      "description": "Label that is displayed in the calendar header view when allowed views have calendar month view.",
+      "type": "text"
+  },
+
+  "allowedViewScheduleLabel": "Schedule",
+    "@allowedViewScheduleLabel": {
+      "description": "Label that is displayed in the calendar header view when allowed views have calendar schedule view.",
+      "type": "text"
+  },
+
+  "allowedViewTimelineDayLabel": "Timeline Day",
+    "@allowedViewTimelineDayLabel": {
+      "description": "Label that is displayed in the calendar header view when allowed views have calendar timeline day view.",
+      "type": "text"
+  },
+
+  "allowedViewTimelineWeekLabel": "Timeline Week",
+    "@allowedViewTimelineWeekLabel": {
+      "description": "Label that is displayed in the calendar header view when allowed views have calendar timeline week view.",
+      "type": "text"
+  },
+
+  "allowedViewTimelineWorkWeekLabel": "Timeline Work Week",
+    "@allowedViewTimelineWorkWeekLabel": {
+      "description": "Label that is displayed in the calendar header view when allowed views have calendar timeline work view.",
+      "type": "text"
+  },
+
+  "allowedViewTimelineMonthLabel": "Timeline Month",
+    "@allowedViewTimelineMonthLabel": {
+      "description": "Label that is displayed in the calendar header view when allowed views have calendar timeline month view.",
+      "type": "text"
+  },
+
+  "todayLabel": "Today",
+    "@todayLabel": {
+      "description": "Label that is displayed in the calendar header view when calendar shows date picker on header interaction.",
+      "type": "text"
+  }
+}
