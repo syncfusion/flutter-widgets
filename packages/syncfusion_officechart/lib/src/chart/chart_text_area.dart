@@ -3,15 +3,15 @@ part of officechart;
 /// Represent the Chart Text Area.
 class ChartTextArea {
   /// Create an instances of [ChartTextArea] class.
-  ChartTextArea(Object parent) {
-    _parent = parent;
-    if (parent is Chart) {
-      _chart = parent;
-    } else if (parent is ChartCategoryAxis) {
-      _chart = (parent)._chart;
-    } else if (parent is ChartValueAxis) {
-      _chart = (parent)._chart;
-    } else if (parent is ChartSerie) _chart = (parent)._chart;
+  ChartTextArea(Object _parent) {
+    _parent = _parent;
+    if (_parent is Chart) {
+      _chart = _parent;
+    } else if (_parent is ChartCategoryAxis) {
+      _chart = (_parent)._chart;
+    } else if (_parent is ChartValueAxis) {
+      _chart = (_parent)._chart;
+    } else if (_parent is ChartSerie) _chart = (_parent)._chart;
     _createFont();
   }
 
@@ -29,6 +29,7 @@ class ChartTextArea {
   }
 
   /// Parent object.
+  // ignore: unused_field
   Object _parent;
 
   /// Reprent the font.
@@ -36,11 +37,6 @@ class ChartTextArea {
 
   /// Boolean value indicates whether other elements in chart can overlap this text area.
   final bool _overlay = false;
-
-  /// Parent.
-  Object get parent {
-    return _parent;
-  }
 
   /// Gets bold.
   bool get bold {

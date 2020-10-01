@@ -1,4 +1,4 @@
-![syncfusion_flutter_officechart_banner]()
+![syncfusion_flutter_officechart_banner](https://cdn.syncfusion.com/content/images/Flutter-OfficeChart-Banner.png)
 
 # Syncfusion Flutter OfficeChart
 

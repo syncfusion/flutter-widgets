@@ -1,3 +1,12 @@
+/// Syncfusion Flutter Maps is a data visualization library written natively in 
+/// Dart for creating beautiful and customizable maps.
+///
+/// To use, import `package:syncfusion_flutter_maps/maps.dart`;
+///
+/// See also:
+/// * [Syncfusion Flutter Maps product page](https://www.syncfusion.com/flutter-widgets/flutter-maps)
+/// * [User guide documentation](https://help.syncfusion.com/flutter/maps/overview)
+
 library maps;
 
 import 'dart:async';

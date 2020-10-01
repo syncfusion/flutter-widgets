@@ -1,6 +1,36 @@
-## [18.3.35-beta] - 10/01/2020
+## [18.3.35] - 10/01/2020
 
-No changes.
+## Slider
+
+### Features
+
+* **Material design improvements** - The following UI improvements have been made based on the latest Material design guidelines: 
+
+    * Difference in active and inactive track height.
+    * Shadow support for the thumbs.
+    * Changes in default divider radius.
+
+## Range Slider
+
+### Features
+
+* **Material design improvements** - The following UI improvements have been made based on the latest Material design guidelines: 
+
+    * Difference in default active and inactive track height.
+    * Shadow support for the thumbs.
+    * Overlapping stroke for thumb and tooltip.
+    * Changes in default divider radius.
+
+## Range Selector
+
+### Features
+
+* **Material design improvements** - The following UI improvements have been made based on the latest Material design guidelines: 
+
+    * Difference in default active and inactive track height.
+    * Shadow support for the thumbs.
+    * Overlapping stroke for thumb and tooltip.
+    * Changes in default divider radius.
 
 ## [18.2.59-beta] - 09/23/2020
 

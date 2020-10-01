@@ -21,7 +21,7 @@ class ChartSerialization {
   };
 
   /// serializes charts from the worksheet.
-  void saveCharts(Worksheet sheet) {
+  void _saveCharts(Worksheet sheet) {
     for (final Chart chart in (sheet.charts as ChartCollection).innerList) {
       sheet.workbook.chartCount++;
       final builder = XmlBuilder();
@@ -40,10 +40,10 @@ class ChartSerialization {
           });
         }
         builder.element('c:chart', nest: () {
-          if (chart.hasTitle) serializeTitle(builder, chart.chartTitleArea);
-          serializePlotArea(builder, chart);
+          if (chart.hasTitle) _serializeTitle(builder, chart.chartTitleArea);
+          _serializePlotArea(builder, chart);
           if (chart.series.count > 0 && chart.hasLegend) {
-            serializeLegend(builder, chart.legend);
+            _serializeLegend(builder, chart.legend);
           }
           builder.element('c:plotVisOnly', nest: () {
             builder.attribute('val', '1');
@@ -52,19 +52,19 @@ class ChartSerialization {
             builder.attribute('val', 'gap');
           });
         });
-        serializeFill(
+        _serializeFill(
             builder, chart.linePattern, chart.linePatternColor, false);
-        serializePrinterSettings(builder, chart);
+        _serializePrinterSettings(builder, chart);
       });
       final stringXml = builder.buildDocument().copy().toString();
       final List<int> bytes = utf8.encode(stringXml);
-      addToArchive(bytes,
+      _addToArchive(bytes,
           'xl/charts/chart' + sheet.workbook.chartCount.toString() + '.xml');
     }
   }
 
   /// serializes chart's legend.
-  void serializeLegend(XmlBuilder builder, ChartLegend chartLegend) {
+  void _serializeLegend(XmlBuilder builder, ChartLegend chartLegend) {
     builder.element('c:legend', nest: () {
       builder.element('c:legendPos', nest: () {
         final ExcelLegendPosition legendPostion = chartLegend.position;
@@ -78,7 +78,7 @@ class ChartSerialization {
         builder.attribute('val', positionStr);
       });
       if (chartLegend._hasTextArea) {
-        serializeDefaultTextAreaProperties(builder, chartLegend.textArea);
+        _serializeDefaultTextAreaProperties(builder, chartLegend.textArea);
       }
       builder.element('c:layout', nest: () {});
       builder.element('c:overlay', nest: () {
@@ -89,7 +89,7 @@ class ChartSerialization {
   }
 
   /// serializes chart's drawing.
-  void serializeChartDrawing(XmlBuilder builder, Worksheet sheet) {
+  void _serializeChartDrawing(XmlBuilder builder, Worksheet sheet) {
     for (final Chart chart in (sheet.charts as ChartCollection).innerList) {
       builder.element('xdr:twoCellAnchor', nest: () {
         builder.attribute('editAs', 'twoCell');
@@ -159,7 +159,7 @@ class ChartSerialization {
   }
 
   /// serialize default text area properties.
-  void serializeDefaultTextAreaProperties(
+  void _serializeDefaultTextAreaProperties(
       XmlBuilder builder, ChartTextArea textArea) {
     builder.element('c:txPr', nest: () {
       builder.element('a:bodyPr ', nest: () {});
@@ -194,7 +194,7 @@ class ChartSerialization {
   }
 
   /// serialize printer settings of charts
-  void serializePrinterSettings(XmlBuilder builder, Chart chart) {
+  void _serializePrinterSettings(XmlBuilder builder, Chart chart) {
     builder.element('c:printSettings', nest: () {
       builder.element('c:headerFooter', nest: () {
         builder.attribute('scaleWithDoc', '1');
@@ -214,7 +214,7 @@ class ChartSerialization {
   }
 
   /// serialize chart title.
-  void serializeTitle(XmlBuilder builder, ChartTextArea chartTextArea) {
+  void _serializeTitle(XmlBuilder builder, ChartTextArea chartTextArea) {
     builder.element('c:title', nest: () {
       if (chartTextArea._hasText) {
         builder.element('c:tx', nest: () {
@@ -227,7 +227,7 @@ class ChartSerialization {
                 builder.element('a:defRPr', nest: () {});
               });
               builder.element('a:r', nest: () {
-                serializeParagraphRunProperties(builder, chartTextArea);
+                _serializeParagraphRunProperties(builder, chartTextArea);
                 builder.element('a:t', nest: () {
                   builder.text(chartTextArea.text);
                 });
@@ -240,12 +240,12 @@ class ChartSerialization {
       builder.element('c:overlay', nest: () {
         builder.attribute('val', chartTextArea._overlay ? '1' : '0');
       });
-      serializeFill(builder, ExcelChartLinePattern.none, null, false);
+      _serializeFill(builder, ExcelChartLinePattern.none, null, false);
     });
   }
 
   /// serialize paragraph run properties.
-  void serializeParagraphRunProperties(
+  void _serializeParagraphRunProperties(
       XmlBuilder builder, ChartTextArea textArea) {
     builder.element('a:rPr', nest: () {
       builder.attribute('lang', 'en-US');
@@ -274,22 +274,22 @@ class ChartSerialization {
   }
 
   /// serialize plotarea of the chart
-  void serializePlotArea(XmlBuilder builder, Chart chart) {
+  void _serializePlotArea(XmlBuilder builder, Chart chart) {
     builder.element('c:plotArea', nest: () {
       builder.element('c:layout', nest: () {});
       if (chart._series.count > 0) {
-        serializeMainChartTypeTag(builder, chart);
+        _serializeMainChartTypeTag(builder, chart);
       } else {
-        serializeEmptyChart(builder, chart);
-        serializeAxes(builder, chart);
+        _serializeEmptyChart(builder, chart);
+        _serializeAxes(builder, chart);
       }
-      serializeFill(builder, chart.plotArea.linePattern,
+      _serializeFill(builder, chart.plotArea.linePattern,
           chart.plotArea.linePatternColor, false);
     });
   }
 
   /// serializes main chart tag.
-  void serializeMainChartTypeTag(XmlBuilder builder, Chart chart) {
+  void _serializeMainChartTypeTag(XmlBuilder builder, Chart chart) {
     if (builder == null) throw ("writer - Value can't be null");
 
     if (chart == null) throw ("chart - Value can't be null");
@@ -298,34 +298,34 @@ class ChartSerialization {
       case ExcelChartType.bar:
       case ExcelChartType.barStacked:
       case ExcelChartType.columnStacked:
-        serializeBarChart(builder, chart);
+        _serializeBarChart(builder, chart);
         break;
 
       case ExcelChartType.line:
       case ExcelChartType.lineStacked:
-        serializeLineChart(builder, chart);
+        _serializeLineChart(builder, chart);
         break;
 
       case ExcelChartType.pie:
-        serializePieChart(builder, chart);
+        _serializePieChart(builder, chart);
         break;
     }
   }
 
   /// serializes Line chart.
-  void serializeLineChart(XmlBuilder builder, Chart chart) {
+  void _serializeLineChart(XmlBuilder builder, Chart chart) {
     if (builder == null) throw ("writer - Value can't be null");
 
     if (chart == null) throw ("chart - Value can't be null");
 
     builder.element('c:lineChart', nest: () {
-      serializeChartGrouping(builder, chart);
+      _serializeChartGrouping(builder, chart);
       builder.element('c:varyColors', nest: () {
         builder.attribute('val', 0);
       });
       for (int i = 0; i < chart.series.count; i++) {
         final ChartSerie firstSerie = chart.series[i];
-        serializeSerie(builder, firstSerie);
+        _serializeSerie(builder, firstSerie);
       }
       builder.element('c:gapWidth', nest: () {
         builder.attribute('val', 150);
@@ -337,11 +337,11 @@ class ChartSerialization {
         builder.attribute('val', 57253888);
       });
     });
-    serializeAxes(builder, chart);
+    _serializeAxes(builder, chart);
   }
 
   /// serializes Bar/ColumnClustered chart.
-  void serializeBarChart(XmlBuilder builder, Chart chart) {
+  void _serializeBarChart(XmlBuilder builder, Chart chart) {
     if (builder == null) throw ("writer - Value can't be null");
 
     if (chart == null) throw ("chart - Value can't be null");
@@ -352,13 +352,13 @@ class ChartSerialization {
       builder.element('c:barDir', nest: () {
         builder.attribute('val', strDirection);
       });
-      serializeChartGrouping(builder, chart);
+      _serializeChartGrouping(builder, chart);
       builder.element('c:varyColors', nest: () {
         builder.attribute('val', 0);
       });
       for (int i = 0; i < chart.series.count; i++) {
         final ChartSerie firstSerie = chart.series[i];
-        serializeSerie(builder, firstSerie);
+        _serializeSerie(builder, firstSerie);
       }
       builder.element('c:gapWidth', nest: () {
         builder.attribute('val', 150);
@@ -375,11 +375,11 @@ class ChartSerialization {
         builder.attribute('val', 57253888);
       });
     });
-    serializeAxes(builder, chart);
+    _serializeAxes(builder, chart);
   }
 
   ///   serialize chart grouping.
-  void serializeChartGrouping(XmlBuilder builder, Chart chart) {
+  void _serializeChartGrouping(XmlBuilder builder, Chart chart) {
     String strGrouping;
     if (chart._getIsClustered(chart.chartType)) {
       strGrouping = 'clustered';
@@ -394,7 +394,7 @@ class ChartSerialization {
   }
 
   /// serializes pie chart.
-  void serializePieChart(XmlBuilder builder, Chart chart) {
+  void _serializePieChart(XmlBuilder builder, Chart chart) {
     if (builder == null) throw ("writer - Value can't be null");
 
     if (chart == null) throw ("chart - Value can't be null");
@@ -405,7 +405,7 @@ class ChartSerialization {
       });
       for (int i = 0; i < chart.series.count; i++) {
         final ChartSerie firstSerie = chart.series[i];
-        serializeSerie(builder, firstSerie);
+        _serializeSerie(builder, firstSerie);
       }
       builder.element('c:firstSliceAng', nest: () {
         builder.attribute('val', 0);
@@ -414,7 +414,7 @@ class ChartSerialization {
   }
 
   /// serializes series of chart.
-  void serializeSerie(XmlBuilder builder, ChartSerie firstSerie) {
+  void _serializeSerie(XmlBuilder builder, ChartSerie firstSerie) {
     builder.element('c:ser', nest: () {
       builder.element('c:idx', nest: () {
         builder.attribute('val', firstSerie._index);
@@ -426,13 +426,13 @@ class ChartSerialization {
         builder.element('c:tx', nest: () {
           final String strName = firstSerie._nameOrFormula;
           if (strName.isNotEmpty) {
-            serializeStringReference(
+            _serializeStringReference(
                 builder, strName, firstSerie, 'text', null);
           }
         });
       }
       if (firstSerie.linePattern != ExcelChartLinePattern.none) {
-        serializeFill(
+        _serializeFill(
             builder, firstSerie.linePattern, firstSerie.linePatternColor, true);
       }
       if (firstSerie._serieType == ExcelChartType.line) {
@@ -462,7 +462,7 @@ class ChartSerialization {
           });
           final ChartTextArea textArea = firstSerie.dataLabels.textArea;
           if (textArea != null) {
-            serializeChartTextArea(builder, textArea);
+            _serializeChartTextArea(builder, textArea);
           }
           builder.element('c:showLegendKey', nest: () {
             builder.attribute('val', 0);
@@ -519,11 +519,11 @@ class ChartSerialization {
                   builder.element('c:formatCode',
                       nest: firstRange.numberFormat);
                 }
-                serializeNumCacheValues(builder, firstSerie, tempSheet);
+                _serializeNumCacheValues(builder, firstSerie, tempSheet);
               });
             });
           } else {
-            serializeStringReference(
+            _serializeStringReference(
                 builder,
                 firstSerie._categoryLabels.addressGlobal,
                 firstSerie,
@@ -559,7 +559,7 @@ class ChartSerialization {
               } else {
                 builder.element('c:formatCode', nest: 'General');
               }
-              serializeNumCacheValues(builder, firstSerie, tempSheet);
+              _serializeNumCacheValues(builder, firstSerie, tempSheet);
             });
           });
         });
@@ -573,7 +573,7 @@ class ChartSerialization {
   }
 
   /// serializes chart text area.
-  void serializeChartTextArea(XmlBuilder builder, ChartTextArea textArea) {
+  void _serializeChartTextArea(XmlBuilder builder, ChartTextArea textArea) {
     builder.element('c:txPr', nest: () {
       builder.element('a:bodyPr ', nest: () {});
       builder.element('a:lstStyle', nest: () {});
@@ -608,7 +608,7 @@ class ChartSerialization {
   }
 
   /// serializes number cache values.
-  void serializeNumCacheValues(
+  void _serializeNumCacheValues(
       XmlBuilder builder, ChartSerie firstSerie, Worksheet dataSheet) {
     final Range serieRange = firstSerie._values;
     final int count = serieRange.count;
@@ -631,22 +631,22 @@ class ChartSerialization {
   }
 
   /// serializes string cache reference.
-  void serializeStringReference(XmlBuilder builder, String range,
+  void _serializeStringReference(XmlBuilder builder, String range,
       ChartSerie firstSerie, String tagName, Worksheet dataSheet) {
     builder.element('c:strRef', nest: () {
       builder.element('c:f', nest: range);
       builder.element('c:strCache', nest: () {
         if (tagName == 'cat') {
-          serializeCategoryTagCacheValues(builder, firstSerie, dataSheet);
+          _serializeCategoryTagCacheValues(builder, firstSerie, dataSheet);
         } else {
-          serializeTextTagCacheValues(builder, firstSerie);
+          _serializeTextTagCacheValues(builder, firstSerie);
         }
       });
     });
   }
 
   /// serializes catergory cache values.
-  void serializeCategoryTagCacheValues(
+  void _serializeCategoryTagCacheValues(
       XmlBuilder builder, ChartSerie firstSerie, Worksheet dataSheet) {
     final Range serieRange = firstSerie._categoryLabels;
     final int count = serieRange.count;
@@ -669,7 +669,7 @@ class ChartSerialization {
   }
 
   /// serializes text cache values.
-  void serializeTextTagCacheValues(XmlBuilder builder, ChartSerie firstSerie) {
+  void _serializeTextTagCacheValues(XmlBuilder builder, ChartSerie firstSerie) {
     builder.element('c:ptCount', nest: () {
       builder.attribute('val', 1);
     });
@@ -682,7 +682,7 @@ class ChartSerialization {
   }
 
   /// serializes fill for the charts.
-  void serializeFill(XmlBuilder builder, ExcelChartLinePattern linePattern,
+  void _serializeFill(XmlBuilder builder, ExcelChartLinePattern linePattern,
       String lineColor, bool hasSerie) {
     builder.element('c:spPr', nest: () {
       if (lineColor == null) {
@@ -719,17 +719,17 @@ class ChartSerialization {
   }
 
   /// serializes axies of the series.
-  void serializeAxes(XmlBuilder builder, Chart chart) {
+  void _serializeAxes(XmlBuilder builder, Chart chart) {
     if (chart._isCategoryAxisAvail) {
-      serializeCategoryAxis(builder, chart.primaryCategoryAxis);
+      _serializeCategoryAxis(builder, chart.primaryCategoryAxis);
     }
     if (chart._isValueAxisAvail) {
-      serializeValueAxis(builder, chart.primaryValueAxis);
+      _serializeValueAxis(builder, chart.primaryValueAxis);
     }
   }
 
   /// serializes empty charts.
-  void serializeEmptyChart(XmlBuilder builder, Chart chart) {
+  void _serializeEmptyChart(XmlBuilder builder, Chart chart) {
     builder.element('c:barChart', nest: () {
       builder.element('c:barDir', nest: () {
         builder.attribute('val', 'col');
@@ -740,7 +740,7 @@ class ChartSerialization {
       builder.element('c:varyColors', nest: () {
         builder.attribute('val', 0);
       });
-      serializeEmptyChartDataLabels(builder);
+      _serializeEmptyChartDataLabels(builder);
       builder.element('c:gapWidth', nest: () {
         builder.attribute('val', 150);
       });
@@ -754,7 +754,7 @@ class ChartSerialization {
   }
 
   /// serializes category axis of the chart.
-  void serializeCategoryAxis(XmlBuilder builder, ChartCategoryAxis axis) {
+  void _serializeCategoryAxis(XmlBuilder builder, ChartCategoryAxis axis) {
     builder.element('c:catAx', nest: () {
       builder.element('c:axId', nest: () {
         builder.attribute('val', 59983360);
@@ -771,7 +771,7 @@ class ChartSerialization {
         builder.attribute('val', 'b');
       });
       if (axis._hasAxisTitle) {
-        serializeChartTextArea(builder, axis.titleArea);
+        _serializeChartTextArea(builder, axis.titleArea);
       }
       if (axis.numberFormat != null &&
           axis.numberFormat != '' &&
@@ -818,7 +818,7 @@ class ChartSerialization {
   }
 
   /// serializes Value axis of the chart.
-  void serializeValueAxis(XmlBuilder builder, ChartValueAxis axis) {
+  void _serializeValueAxis(XmlBuilder builder, ChartValueAxis axis) {
     builder.element('c:valAx', nest: () {
       builder.element('c:axId', nest: () {
         builder.attribute('val', 57253888);
@@ -845,7 +845,7 @@ class ChartSerialization {
         builder.attribute('val', 'l');
       });
       if (axis._hasAxisTitle) {
-        serializeChartTextArea(builder, axis.titleArea);
+        _serializeChartTextArea(builder, axis.titleArea);
       }
       if (axis.numberFormat != null &&
           axis.numberFormat != '' &&
@@ -883,7 +883,7 @@ class ChartSerialization {
   }
 
   /// serializes empty chart's datalabels.
-  void serializeEmptyChartDataLabels(XmlBuilder builder) {
+  void _serializeEmptyChartDataLabels(XmlBuilder builder) {
     builder.element('c:dLbls', nest: () {
       builder.element('c:showLegendKey', nest: () {
         builder.attribute('val', 0);
@@ -907,7 +907,7 @@ class ChartSerialization {
   }
 
   /// Add the workbook data with filename to ZipArchive.
-  void addToArchive(List<int> data, String fileName) {
+  void _addToArchive(List<int> data, String fileName) {
     final ArchiveFile item = ArchiveFile(fileName, data.length, data);
     _workbook.archive.addFile(item);
   }

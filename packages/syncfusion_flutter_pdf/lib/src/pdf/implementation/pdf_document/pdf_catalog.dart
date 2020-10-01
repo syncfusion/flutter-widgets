@@ -16,7 +16,7 @@ class _PdfCatalog extends _PdfDictionary {
   PdfSectionCollection _sections;
   // ignore: unused_field
   PdfDocument _document;
-  // ignore: unused_field
+  // ignore: unused_element
   PdfSectionCollection get _pages => _sections;
   set _pages(PdfSectionCollection sections) {
     if (_sections != sections) {

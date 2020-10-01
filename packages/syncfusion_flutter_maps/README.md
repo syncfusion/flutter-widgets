@@ -55,13 +55,13 @@ Create a highly interactive and customizable maps widget that has features set i
 
 **Zooming and panning** - Zoom in shape layer for a closer look at a specific region by pinching, scrolling the mouse wheel or track pad, or using the toolbar on the web. Pan the map to navigate across the regions.
 
-![maps zoompan](http://cdn.syncfusion.com/content/images/zoompan.gif)
+![maps zoompan](https://cdn.syncfusion.com/content/images/zoompan.gif)
 
 ### Tile layer
 
 **Markers** - Show markers for the tile layer in the specific latitudes and longitudes.
 
-![tile layer marker](http://cdn.syncfusion.com/content/images/Tile_withmarker.png)
+![tile layer marker](https://cdn.syncfusion.com/content/images/Tile_withmarker.png)
 
 **Zooming and panning** - Zoom in tile layer for a closer look at a specific region by pinching, scrolling the mouse wheel or track pad, or using the toolbar on the web. Pan the map to navigate across the regions.
 
