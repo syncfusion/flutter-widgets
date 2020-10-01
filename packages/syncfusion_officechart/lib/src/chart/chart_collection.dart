@@ -17,24 +17,16 @@ class ChartCollection extends ChartHelper {
   /// Parent worksheet.
   Worksheet _worksheet;
 
-  /// Parent Serializer
-  ChartSerialization _chartSerialization;
-
-  /// Parent Chart .
-  Chart _chart;
-
-  /// Inner list.
-  List<Chart> _innerList;
-
   /// Represents parent worksheet.
   Worksheet get worksheet {
     return _worksheet;
   }
 
-  /// Represents parent Chart .
-  Chart get chart {
-    return _chart;
-  }
+  /// Parent Serializer
+  ChartSerialization _chartSerialization;
+
+  /// Inner list.
+  List<Chart> _innerList;
 
   /// Represents the innerlist
   List<Chart> get innerList {
@@ -61,10 +53,10 @@ class ChartCollection extends ChartHelper {
   /// ```
   Chart add() {
     final Chart chart = Chart(_worksheet);
-    chart._series = ChartSeriesCollection(worksheet, chart);
-    chart._primaryCategoryAxis = ChartCategoryAxis(worksheet, chart);
-    chart._primaryValueAxis = ChartValueAxis(worksheet, chart);
-    chart._plotArea = ChartPlotArea(worksheet, chart);
+    chart._series = ChartSeriesCollection(_worksheet, chart);
+    chart._primaryCategoryAxis = ChartCategoryAxis(_worksheet, chart);
+    chart._primaryValueAxis = ChartValueAxis(_worksheet, chart);
+    chart._plotArea = ChartPlotArea(_worksheet, chart);
     innerList.add(chart);
     chart.name = 'Chart' + innerList.length.toString();
     chart.index = innerList.length;
@@ -83,7 +75,7 @@ class ChartCollection extends ChartHelper {
   void serializeCharts(Worksheet sheet) {
     _chartSerialization ??= ChartSerialization(sheet.workbook);
 
-    _chartSerialization.saveCharts(sheet);
+    _chartSerialization._saveCharts(sheet);
   }
 
   /// Serialize the chart drawings.
@@ -91,6 +83,6 @@ class ChartCollection extends ChartHelper {
   void serializeChartDrawing(XmlBuilder builder, Worksheet sheet) {
     _chartSerialization ??= ChartSerialization(sheet.workbook);
 
-    _chartSerialization.serializeChartDrawing(builder, sheet);
+    _chartSerialization._serializeChartDrawing(builder, sheet);
   }
 }

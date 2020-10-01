@@ -1,6 +1,20 @@
 ## [18.3.35-beta] - 10/01/2020
 
-No changes.
+**Features** 
+
+* Tile layer
+* Zooming and panning in both layers
+* Custom widget for tooltips
+* Legend for bubbles
+* Improvement in interaction animations and web platform hovering
+
+**Breaking changes** 
+
+* The `showLegend` property has been removed and the same behavior can be achieved by setting the `legendSource` property to `MapElement.none`.
+* The `toggledShapeColor` has been changed to `toggledItemColor` in `SfMapsThemeData` and `MapLegendSettings`.
+* The `toggledShapeStrokeColor` has been changed to `toggledItemStrokeColor` in `SfMapsThemeData` and `MapLegendSettings`.
+* The `toggledShapeStrokeWidth` has been changed to `toggledItemStrokeWidth` in `SfMapsThemeData` and `MapLegendSettings`.
+* The `toggledShapeOpacity` has been changed to `toggledItemOpacity` in `MapLegendSettings`.
 
 ## [18.2.59-beta] - 09/23/2020
 

@@ -1,7 +1,7 @@
 name: syncfusion_flutter_pdfviewer
 description: Syncfusion Flutter PDF Viewer is used to display a PDF document seamlessly and efficiently.
 version: 18.3.35-beta
-repository: https://gitlab.syncfusion.com/essential-studio/flutter-pdfviewer
+repository: https://github.com/syncfusion/flutter-widgets/tree/master/packages/syncfusion_flutter_pdfviewer
 
 environment:
   sdk: ">=2.1.0 <3.0.0"

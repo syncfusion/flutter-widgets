@@ -15,6 +15,50 @@ class Chart {
   /// Parent worksheet.
   Worksheet _worksheet;
 
+  /// DataRange for the chart series.
+  Range _dataRange;
+
+  /// DataRange for the chart serieValues used in helper methods.
+  Range _serieValue;
+
+  /// True if series are in rows in DataRange;
+  /// otherwise False.
+  bool _bSeriesInRows = true;
+
+  /// Collection of all the series of this chart.
+  ChartSeriesCollection _series;
+
+  /// Get or Set primaryCategoryAxis
+  ChartCategoryAxis _primaryCategoryAxis;
+
+  /// Get or Set primary value axis
+  ChartValueAxis _primaryValueAxis;
+
+  /// Represent the chart text area object.
+  ChartTextArea _textArea;
+
+  /// Represent the default chart title name.
+  final String _defaultChartTitle = 'Chart Title';
+
+  /// Represent the indicates whether show the legend or not.
+  bool _bHasLegend = false;
+
+  /// Represent the chart legend.
+  ChartLegend _legend;
+
+  /// Represent the clustered chart collection.
+  final List<ExcelChartType> _chartsCluster = [
+    ExcelChartType.bar,
+    ExcelChartType.column,
+  ];
+
+  /// Represent the stacked chart collection.
+  final List<ExcelChartType> _stackedCharts = [
+    ExcelChartType.barStacked,
+    ExcelChartType.columnStacked,
+    ExcelChartType.lineStacked,
+  ];
+
   /// Represent chart index.
   int index;
 
@@ -106,25 +150,6 @@ class Chart {
   /// ```
   int rightColumn;
 
-  /// DataRange for the chart series.
-  Range _dataRange;
-
-  /// DataRange for the chart serieValues used in helper methods.
-  Range _serieValue;
-
-  /// True if series are in rows in DataRange;
-  /// otherwise False.
-  bool _bSeriesInRows = true;
-
-  /// Collection of all the series of this chart.
-  ChartSeriesCollection _series;
-
-  /// Get or Set primaryCategoryAxis
-  ChartCategoryAxis _primaryCategoryAxis;
-
-  /// Get or Set primary value axis
-  ChartValueAxis _primaryValueAxis;
-
   /// Excel chart type
   ///
   /// ```dart
@@ -147,31 +172,6 @@ class Chart {
   /// workbook.save('ChartType.xlsx');
   /// ```
   ExcelChartType chartType = ExcelChartType.bar;
-
-  /// Represent the chart text area object.
-  ChartTextArea _textArea;
-
-  /// Represent the default chart title name.
-  final String _defaultChartTitle = 'Chart Title';
-
-  /// Represent the indicates whether show the legend or not.
-  bool _bHasLegend = false;
-
-  /// Represent the chart legend.
-  ChartLegend _legend;
-
-  /// Represent the clustered chart collection.
-  final List<ExcelChartType> _chartsCluster = [
-    ExcelChartType.bar,
-    ExcelChartType.column,
-  ];
-
-  /// Represent the stacked chart collection.
-  final List<ExcelChartType> _stackedCharts = [
-    ExcelChartType.barStacked,
-    ExcelChartType.columnStacked,
-    ExcelChartType.lineStacked,
-  ];
 
   /// Gets the boolean value to display the chart legend, True by default.
   bool get hasLegend {
