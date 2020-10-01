@@ -1,0 +1,22 @@
+name: core_example
+description: This project holds information about registering a license key with Syncfusion Flutter Widgets.
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  syncfusion_flutter_charts:
+    path: ../syncfusion_flutter_charts
+
+  cupertino_icons: ^0.1.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+
+  uses-material-design: true

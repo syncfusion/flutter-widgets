@@ -1,0 +1,15 @@
+name: syncfusion_flutter_barcodes
+description: Syncfusion Flutter barcodes widget is used to generate and display data in the machine-readable, industry-standard 1D and 2D barcodes.
+version: 18.3.35
+homepage: https://github.com/syncfusion/flutter-examples
+
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  syncfusion_flutter_core:
+    path: ../syncfusion_flutter_core
+
+flutter:

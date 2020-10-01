@@ -1,0 +1,89 @@
+# Pedantic package: The Dart analyzer settings and best practices used internally at Google.
+include: package:pedantic/analysis_options.yaml
+
+# Analysis from Flutter stable channel
+# https://github.com/flutter/flutter/blob/stable/packages/flutter/lib/analysis_options_user.yaml
+
+# Specify analysis options.
+#
+# Until there are meta linter rules, each desired lint must be explicitly enabled.
+# See: https://github.com/dart-lang/linter/issues/288
+#
+# For a list of lints, see: http://dart-lang.github.io/linter/lints/
+# See the configuration guide for more
+# https://github.com/dart-lang/sdk/tree/master/pkg/analyzer#configuring-the-analyzer
+#
+# There are four similar analysis options files in the flutter repos:
+#   - analysis_options.yaml
+#   - packages/flutter/lib/analysis_options_user.yaml (this file)
+#   - https://github.com/flutter/plugins/blob/master/analysis_options.yaml
+#   - https://github.com/flutter/engine/blob/master/analysis_options.yaml
+#
+# This file contains the analysis options used by "flutter analyze" and the
+# dartanalyzer when analyzing code outside the flutter repository. It isn't named
+# 'analysis_options.yaml' because otherwise editors would use it when analyzing
+# the flutter tool itself.
+#
+# When editing, make sure you keep this and /analysis_options.yaml consistent.
+
+analyzer:
+  errors:
+    # treat missing required parameters as a warning (not a hint)
+    missing_required_param: warning
+    omit_local_variable_types: ignore
+    include_file_not_found: ignore
+
+linter:
+  rules:
+    # these rules are documented on and in the same order as
+    # the Dart Lint rules page to make maintenance easier
+    # https://github.com/dart-lang/linter/blob/master/example/all.yaml
+    # - always_declare_return_types
+    # - always_specify_types
+    # - annotate_overrides
+    # - avoid_as
+    - avoid_web_libraries_in_flutter
+    - await_only_futures
+    - camel_case_types
+    - cancel_subscriptions
+    - close_sinks
+    # - comment_references # we do not presume as to what people want to reference in their dartdocs
+    # - constant_identifier_names # https://github.com/dart-lang/linter/issues/204
+    - control_flow_in_finally
+    - empty_statements
+    - hash_and_equals
+    - implementation_imports
+    # - invariant_booleans
+    # - iterable_contains_unrelated_type
+    # - library_prefixes
+    # - list_remove_unrelated_type
+    # - literal_only_boolean_expressions
+    - non_constant_identifier_names
+    # - one_member_abstracts
+    # - only_throw_errors
+    # - overridden_fields
+    - package_api_docs
+    - package_names
+    - package_prefixed_library_names
+    # - prefer_mixin # https://github.com/dart-lang/language/issues/32
+    # - public_member_api_docs
+    # - sort_constructors_first
+    # - sort_unnamed_constructors_first
+    # - super_goes_last # no longer needed w/ Dart 2
+    - test_types_in_equals
+    - throw_in_finally
+    # - type_annotate_public_apis # subset of always_specify_types
+    # - unawaited_futures
+    - unnecessary_brace_in_string_interps
+    - unnecessary_getters_setters
+    - unnecessary_statements
+
+    # The below linters are added manually
+    - directives_ordering
+    - file_names
+    - lines_longer_than_80_chars
+    - public_member_api_docs
+    - prefer_final_in_for_each
+    - sort_constructors_first
+    - avoid_as
+    - prefer_final_locals

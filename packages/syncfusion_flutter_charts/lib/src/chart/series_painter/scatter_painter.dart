@@ -1,0 +1,73 @@
+part of charts;
+
+class _ScatterChartPainter extends CustomPainter {
+  _ScatterChartPainter(
+      {this.chartState,
+      this.seriesRenderer,
+      this.isRepaint,
+      this.animationController,
+      ValueNotifier<num> notifier,
+      this.painterKey})
+      : chart = chartState._chart,
+        super(repaint: notifier);
+  final SfCartesianChartState chartState;
+  final SfCartesianChart chart;
+  final bool isRepaint;
+  final Animation<double> animationController;
+  final ScatterSeriesRenderer seriesRenderer;
+  final _PainterKey painterKey;
+
+  /// Painter method for scatter series
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.save();
+    double animationFactor;
+    final ScatterSeries<dynamic, dynamic> series = seriesRenderer._series;
+    if (seriesRenderer._visible) {
+      assert(
+          series.animationDuration != null
+              ? series.animationDuration >= 0
+              : true,
+          'The animation duration of the scatter series must be greater or equal to 0.');
+      final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer;
+      final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer;
+      final List<CartesianChartPoint<dynamic>> dataPoints =
+          seriesRenderer._dataPoints;
+      animationFactor = seriesRenderer._seriesAnimation != null
+          ? seriesRenderer._seriesAnimation.value
+          : 1;
+      final Rect axisClipRect = _calculatePlotOffset(
+          chartState._chartAxis._axisClipRect,
+          Offset(
+              xAxisRenderer._axis.plotOffset, yAxisRenderer._axis.plotOffset));
+      canvas.clipRect(axisClipRect);
+      final int seriesIndex = painterKey.index;
+      seriesRenderer._storeSeriesProperties(chartState, seriesIndex);
+      int segmentIndex = -1;
+      for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
+        final CartesianChartPoint<dynamic> currentPoint =
+            dataPoints[pointIndex];
+        seriesRenderer._calculateRegionData(chartState, seriesRenderer,
+            painterKey.index, currentPoint, pointIndex);
+        if (currentPoint.isVisible && !currentPoint.isGap) {
+          seriesRenderer._drawSegment(
+              canvas,
+              seriesRenderer._createSegments(currentPoint, segmentIndex += 1,
+                  seriesIndex, animationFactor));
+        }
+      }
+      if (series.animationDuration <= 0 ||
+          animationFactor >= chartState._seriesDurationFactor) {
+        seriesRenderer._renderSeriesElements(
+            chart, canvas, seriesRenderer._seriesElementAnimation);
+      }
+      if (animationFactor >= 1) {
+        chartState._setPainterKey(painterKey.index, painterKey.name, true);
+      }
+    }
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(_ScatterChartPainter oldDelegate) => isRepaint;
+}

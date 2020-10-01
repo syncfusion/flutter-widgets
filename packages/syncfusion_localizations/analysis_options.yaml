@@ -1,0 +1,8 @@
+include: package:syncfusion_flutter_core/analysis_options.yaml
+
+analyzer:
+  errors:
+    include_file_not_found: ignore
+    lines_longer_than_80_chars: ignore
+  exclude:
+    - lib/src/l10n/generated_syncfusion_localizations.dart
