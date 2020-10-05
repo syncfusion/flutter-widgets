@@ -3,7 +3,7 @@ part of xlsio;
 /// <summary>
 /// Class used for Character Token.
 /// </summary>
-class CharacterToken extends FormatTokenBase {
+class _CharacterToken extends _FormatTokenBase {
   /// <summary>
   /// Start of the token.
   /// </summary>
@@ -16,7 +16,7 @@ class CharacterToken extends FormatTokenBase {
   /// Tries to parse format string.
   /// </summary>
   @override
-  int tryParse(String strFormat, int iIndex) {
+  int _tryParse(String strFormat, int iIndex) {
     if (strFormat == null) throw ('strFormat - string cannot be null.');
 
     final int iFormatLength = strFormat.length;
@@ -48,8 +48,8 @@ class CharacterToken extends FormatTokenBase {
   /// Applies format to the value.
   /// </summary>
   @override
-  String applyFormat(double value, bool bShowHiddenSymbols, CultureInfo culture,
-      FormatSection section) {
+  String _applyFormat(double value, bool bShowHiddenSymbols,
+      CultureInfo culture, _FormatSection section) {
     return _strFormat;
   }
 
@@ -57,7 +57,8 @@ class CharacterToken extends FormatTokenBase {
   /// Applies format to the value.
   /// </summary>
   @override
-  String applyFormatString(String value, bool bShowHiddenSymbols) {
+  // ignore: unused_element
+  String _applyFormatString(String value, bool bShowHiddenSymbols) {
     return _strFormat;
   }
 
@@ -65,7 +66,7 @@ class CharacterToken extends FormatTokenBase {
   /// Gets type of the token. Read-only.
   /// </summary>
   @override
-  TokenType get tokenType {
-    return TokenType.character;
+  _TokenType get _tokenType {
+    return _TokenType.character;
   }
 }

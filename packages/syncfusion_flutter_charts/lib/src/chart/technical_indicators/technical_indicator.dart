@@ -425,6 +425,7 @@ class TechnicalIndicatorsRenderer {
       CartesianChartPoint<dynamic> sourcePoint,
       CartesianSeries<dynamic, dynamic> series,
       int index,
+      //ignore: unused_element
       [TechnicalIndicators<dynamic, dynamic> indicator]) {
     final CartesianChartPoint<dynamic> point =
         CartesianChartPoint<dynamic>(x, null);

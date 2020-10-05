@@ -3,17 +3,17 @@ part of xlsio;
 /// Represents cell style xfs.
 class CellStyleXfs {
   /// Represents number format id.
-  int numberFormatId;
+  int _numberFormatId;
 
   /// Represents font id.
-  int fontId;
+  int _fontId;
 
   /// Represents fill id.
-  int fillId;
+  int _fillId;
 
   /// Represents border id.
-  int borderId;
+  int _borderId;
 
   /// Represents alignment.
-  Alignment alignment;
+  Alignment _alignment;
 }

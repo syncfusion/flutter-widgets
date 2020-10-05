@@ -136,12 +136,16 @@ class _ChartSeries {
                         ? (xPointValue >= xMin) && (xPointValue <= xMax)
                         : xMin != null
                             ? xPointValue >= xMin
-                            : xMax != null ? xPointValue <= xMax : false) ||
+                            : xMax != null
+                                ? xPointValue <= xMax
+                                : false) ||
                     ((yMin != null && yMax != null)
                         ? (yVal >= yMin) && (yVal <= yMax)
                         : yMin != null
                             ? yVal >= yMin
-                            : yMax != null ? yVal <= yMax : false)
+                            : yMax != null
+                                ? yVal <= yMax
+                                : false)
                 : true) {
               _isXVisibleRange = true;
               _isYVisibleRange = true;

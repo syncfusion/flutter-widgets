@@ -5,7 +5,7 @@ class Stack {
   final Queue _queue = Queue();
 
   /// Represent the count.
-  int get count {
+  int get _count {
     return _queue.length;
   }
 

@@ -424,7 +424,9 @@ Color _getCircularDataLabelColor(ChartPoint<dynamic> currentPoint,
       ? 'Pie'
       : seriesRenderer._seriesType == 'doughnut'
           ? 'Doughnut'
-          : seriesRenderer._seriesType == 'radialbar' ? 'RadialBar' : 'Default';
+          : seriesRenderer._seriesType == 'radialbar'
+              ? 'RadialBar'
+              : 'Default';
   switch (seriesType) {
     case 'Pie':
     case 'Doughnut':

@@ -162,7 +162,9 @@ class TmaIndicator<T, D> extends TechnicalIndicators<T, D> {
 
   /// To return list of spliced values
   List<num> _splice<num>(List<num> list, int index,
-      [num howMany, num elements]) {
+      //ignore: unused_element
+      [num howMany,
+      num elements]) {
     if (elements != null) {
       list.insertAll(index, <num>[elements]);
     }

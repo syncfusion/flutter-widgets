@@ -541,11 +541,15 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
             if (_seriesType == 'splinerangearea') {
               // ignore: prefer_if_null_operators
               currentPoint.low = currentPoint.low == null
-                  ? pointIndex != 0 ? prevPoint.low ?? 0 : 0
+                  ? pointIndex != 0
+                      ? prevPoint.low ?? 0
+                      : 0
                   : currentPoint.low;
               // ignore: prefer_if_null_operators
               currentPoint.high = currentPoint.high == null
-                  ? pointIndex != 0 ? prevPoint.high ?? 0 : 0
+                  ? pointIndex != 0
+                      ? prevPoint.high ?? 0
+                      : 0
                   : currentPoint.high;
             } else {
               currentPoint.y = pointIndex != 0 ? prevPoint.y : 0;
@@ -557,11 +561,15 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
           if (_seriesType == 'splinerangearea') {
             // ignore: prefer_if_null_operators
             currentPoint.low = currentPoint.low == null
-                ? pointIndex != 0 ? prevPoint.low ?? 0 : 0
+                ? pointIndex != 0
+                    ? prevPoint.low ?? 0
+                    : 0
                 : currentPoint.low;
             // ignore: prefer_if_null_operators
             currentPoint.high = currentPoint.high == null
-                ? pointIndex != 0 ? prevPoint.high ?? 0 : 0
+                ? pointIndex != 0
+                    ? prevPoint.high ?? 0
+                    : 0
                 : currentPoint.high;
           }
           currentPoint.y = pointIndex != 0 &&

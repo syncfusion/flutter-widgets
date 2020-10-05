@@ -493,7 +493,9 @@ class PdfGrid extends PdfLayoutElement {
       PdfPage page}) {
     ArgumentError.checkNotNull(bounds);
     _initialWidth = bounds.width == 0
-        ? page != null ? page.getClientSize().width : graphics.clientSize.width
+        ? page != null
+            ? page.getClientSize().width
+            : graphics.clientSize.width
         : bounds.width;
     _isWidthSet = true;
     if (graphics != null) {

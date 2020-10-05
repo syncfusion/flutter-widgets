@@ -3,7 +3,7 @@ part of xlsio;
 /// <summary>
 /// Class used for Month Token.
 /// </summary>
-class MonthToken extends FormatTokenBase {
+class _MonthToken extends _FormatTokenBase {
   /// <summary>
   /// Regular expression for minutes part of the format:
   /// </summary>
@@ -13,17 +13,17 @@ class MonthToken extends FormatTokenBase {
   /// Tries to parse format string.
   /// </summary>
   @override
-  int tryParse(String strFormat, int iIndex) {
-    return tryParseRegex(_monthRegex, strFormat, iIndex);
+  int _tryParse(String strFormat, int iIndex) {
+    return _tryParseRegex(_monthRegex, strFormat, iIndex);
   }
 
   /// <summary>
   /// Applies format to the value.
   /// </summary>
   @override
-  String applyFormat(double value, bool bShowHiddenSymbols, CultureInfo culture,
-      FormatSection section) {
-    final DateTime date = Range.fromOADate(value);
+  String _applyFormat(double value, bool bShowHiddenSymbols,
+      CultureInfo culture, _FormatSection section) {
+    final DateTime date = Range._fromOADate(value);
     final DateFormat formatter = DateFormat(_strFormat.toUpperCase());
     final String formatted = formatter.format(date);
     return formatted;
@@ -33,7 +33,8 @@ class MonthToken extends FormatTokenBase {
   /// Applies format to the value.
   /// </summary>
   @override
-  String applyFormatString(String value, bool bShowHiddenSymbols) {
+  // ignore: unused_element
+  String _applyFormatString(String value, bool bShowHiddenSymbols) {
     return '';
   }
 
@@ -41,7 +42,7 @@ class MonthToken extends FormatTokenBase {
   /// Gets type of the token. Read-only.
   /// </summary>
   @override
-  TokenType get tokenType {
-    return TokenType.month;
+  _TokenType get _tokenType {
+    return _TokenType.month;
   }
 }

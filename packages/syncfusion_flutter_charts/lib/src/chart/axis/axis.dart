@@ -2712,10 +2712,14 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
     /// Restrict zoom factor and zoom position values between 0 to 1
     axisRenderer._zoomFactor = axisRenderer._zoomFactor > 1
         ? 1
-        : axisRenderer._zoomFactor < 0 ? 0 : axisRenderer._zoomFactor;
+        : axisRenderer._zoomFactor < 0
+            ? 0
+            : axisRenderer._zoomFactor;
     axisRenderer._zoomPosition = axisRenderer._zoomPosition > 1
         ? 1
-        : axisRenderer._zoomPosition < 0 ? 0 : axisRenderer._zoomPosition;
+        : axisRenderer._zoomPosition < 0
+            ? 0
+            : axisRenderer._zoomPosition;
     if (_chartState._oldAxisRenderers != null &&
         _chartState._oldAxisRenderers.isNotEmpty) {
       oldAxisRenderer =

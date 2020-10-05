@@ -80,7 +80,7 @@ class ColumnCollection {
   }
 
   /// clear the column.
-  void clear() {
+  void _clear() {
     if (_innerList != null) {
       _innerList.clear();
     }

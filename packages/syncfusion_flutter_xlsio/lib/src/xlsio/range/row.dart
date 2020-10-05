@@ -42,9 +42,9 @@ class Row {
   }
 
   /// clear the row.
-  void clear() {
+  void _clear() {
     if (_ranges != null) {
-      _ranges.clear();
+      _ranges._clear();
     }
   }
 }

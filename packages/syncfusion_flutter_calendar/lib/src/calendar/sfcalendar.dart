@@ -2891,7 +2891,9 @@ class _SfCalendarState extends State<SfCalendar>
           ? _nextDates[0]
           : (index < 0
               ? _previousDates[-index - 2]
-              : index >= _nextDates.length - 1 ? null : _nextDates[index + 1]);
+              : index >= _nextDates.length - 1
+                  ? null
+                  : _nextDates[index + 1]);
 
       /// Check the following scenarios for rendering month label at last when
       /// the week holds different month dates

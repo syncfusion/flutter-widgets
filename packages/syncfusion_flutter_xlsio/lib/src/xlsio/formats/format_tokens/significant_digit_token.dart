@@ -3,7 +3,7 @@ part of xlsio;
 /// <summary>
 /// Class used for Significant Digit Token.
 /// </summary>
-class SignificantDigitToken extends DigitToken {
+class _SignificantDigitToken extends _DigitToken {
   /// <summary>
   /// Format character.
   /// </summary>
@@ -13,7 +13,7 @@ class SignificantDigitToken extends DigitToken {
   /// Tries to parse format string.
   /// </summary>
   @override
-  int tryParse(String strFormat, int iIndex) {
+  int _tryParse(String strFormat, int iIndex) {
     if (strFormat == null) throw ('strFormat');
 
     final int iFormatLength = strFormat.length;
@@ -26,7 +26,7 @@ class SignificantDigitToken extends DigitToken {
 
     final String chCurrent = strFormat[iIndex];
 
-    if (isNumeric(chCurrent)) {
+    if (_isNumeric(chCurrent)) {
       iIndex++;
       _strFormat = chCurrent;
     } else if (strFormat[iIndex] == '\\' &&
@@ -38,7 +38,7 @@ class SignificantDigitToken extends DigitToken {
   }
 
   ///Checking the string is numeric or not.
-  bool isNumeric(String s) {
+  bool _isNumeric(String s) {
     if (s == null) {
       return false;
     }
@@ -48,8 +48,8 @@ class SignificantDigitToken extends DigitToken {
   /// <summary>
   /// Format character. Read-only.
   /// </summary>
-  @override
-  String get formatChar {
+  // ignore: unused_element
+  String get _formatChar {
     if (_strFormat == null) return _defaultFormatChar;
     return _strFormat;
   }
@@ -58,7 +58,7 @@ class SignificantDigitToken extends DigitToken {
   /// Gets type of the token. Read-only.
   /// </summary>
   @override
-  TokenType get tokenType {
-    return TokenType.significantDigit;
+  _TokenType get _tokenType {
+    return _TokenType.significantDigit;
   }
 }

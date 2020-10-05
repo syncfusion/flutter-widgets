@@ -31,7 +31,7 @@ class WorksheetCollection {
       // ignore: prefer_final_locals
       for (int i = 0, len = innerList.length; i < len; i++) {
         final Worksheet sheet = innerList[i];
-        if (equalsIgnoreCase(sheet.name, index)) {
+        if (_equalsIgnoreCase(sheet.name, index)) {
           return sheet;
         }
       }
@@ -42,11 +42,19 @@ class WorksheetCollection {
   }
 
   /// Check Whether the strings are equal.
-  bool equalsIgnoreCase(String string1, String string2) {
+  bool _equalsIgnoreCase(String string1, String string2) {
     return string1.toLowerCase() == string2.toLowerCase();
   }
 
   /// Add worksheet to the collection.
+  ///
+  /// /// ```dart
+  /// final Workbook workbook = Workbook();
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// workbook.worksheets.create(2);
+  /// workbook.save('AddWorksheet.xlsx');
+  /// workbook.dispose();
+  /// ```
   void create(int count) {
     while (count > 0) {
       add();
@@ -55,13 +63,21 @@ class WorksheetCollection {
   }
 
   /// Add a worksheet to the workbook.
+  ///
+  /// /// ```dart
+  /// final Workbook workbook = Workbook();
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// final Worksheet sheet2 = workbook.worksheets.add();
+  /// workbook.save('AddWorksheet.xlsx');
+  /// workbook.dispose();
+  /// ```
   Worksheet add() {
     final Worksheet worksheet = Worksheet(_book);
     addWithSheet(worksheet);
     return worksheet;
   }
 
-  /// Add worksheet to the collection.
+  /// Add worksheet with name to the collection .
   ///
   /// ```dart
   /// Workbook workbook = new Workbook();
@@ -92,10 +108,10 @@ class WorksheetCollection {
   }
 
   /// Clear the worksheet.
-  void clear() {
+  void _clear() {
     if (_worksheets != null) {
       for (final Worksheet sheet in _worksheets) {
-        sheet.clear();
+        sheet._clear();
       }
       _worksheets.clear();
     }

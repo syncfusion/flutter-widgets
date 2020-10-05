@@ -20,10 +20,10 @@ class MergeCell {
 
 /// Represents the extended format cell
 
-class ExtendCell {
+class _ExtendCell {
   /// Gets/Sets X value.
-  int x;
+  int _x;
 
   /// Gets/Sets Y value.
-  int y;
+  int _y;
 }

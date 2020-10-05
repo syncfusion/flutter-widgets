@@ -7,7 +7,6 @@ class Range {
     _worksheet = worksheet;
   }
 
-  // Fields
   /// Represents the row in range.
   int row;
 
@@ -19,13 +18,12 @@ class Range {
 
   /// Represents the last column in range.
   int lastColumn;
-  String _rowColumn;
 
   /// Represents the cell type.
   CellType type;
 
   /// Represents the save type.
-  String saveType;
+  String _saveType;
   String _formula;
   double _number;
   String _text;
@@ -34,9 +32,9 @@ class Range {
   Style _cellStyle;
 
   /// Represent the index of the Range.
-  int index;
+  int _index;
   int _textIndex;
-  Column _colObj;
+  Column _columnObj;
   Worksheet _worksheet;
   int _styleIndex;
   BuiltInStyles _builtInStyle;
@@ -56,7 +54,7 @@ class Range {
   bool _isDefaultFormat = true;
 
   /// General format.
-  static const String DEF_GENERAL_FORMAT = 'General';
+  static const String _defaultGeneralFormat = 'General';
 
   /// Whitspace for the numberformat.
   static const String _defaultEmptyDigit = ' ';
@@ -66,10 +64,6 @@ class Range {
 
   ///Equivalent symbol for formula.
   static const String _defaultEquivalent = '=';
-
-  // set index(int value) {
-  //   _index = value;
-  // }
 
   /// Gets the Range reference along with its sheet name in format "'Sheet1'!$A$1". Read-only.
   ///
@@ -83,33 +77,19 @@ class Range {
   /// ```
   String get addressGlobal {
     final String result = worksheet.name + '!';
-    final String cell0 = '\$' + getCellNameWithSymbol(row, column);
+    final String cell0 = '\$' + _getCellNameWithSymbol(row, column);
 
     if (isSingleRange) {
       return result + cell0;
     } else {
-      final String cell1 = '\$' + getCellNameWithSymbol(lastRow, lastColumn);
+      final String cell1 = '\$' + _getCellNameWithSymbol(lastRow, lastColumn);
       return result + cell0 + ':' + cell1;
     }
   }
 
-  // /// Index of an sharedstring used for text.
-  // int get textIndex {
-  //   return _textIndex;
-  // }
-
-  // set textIndex(int value) {
-  //   _textIndex = value;
-  // }
-
-  /// Represent the address of the range.
-  String get rowColumn {
-    return _rowColumn;
-  }
-
   /// Represents the reference name.
-  String get refName {
-    return getCellName(row, column);
+  String get addressLocal {
+    return _getCellName(row, column);
   }
 
   /// Represent the range formula.
@@ -117,7 +97,7 @@ class Range {
     if (isSingleRange) {
       return _formula;
     } else {
-      return getRangeFormula();
+      return getFormula();
     }
   }
 
@@ -140,7 +120,7 @@ class Range {
     if (isSingleRange) {
       return _number;
     } else {
-      return getRangeNumber();
+      return _getNumber();
     }
   }
 
@@ -162,7 +142,7 @@ class Range {
     if (isSingleRange) {
       return _text;
     } else {
-      return getRangeText();
+      return getText();
     }
   }
 
@@ -185,7 +165,7 @@ class Range {
     if (isSingleRange) {
       return _dateTime;
     } else {
-      return getRangeDateTime();
+      return getDateTime();
     }
   }
 
@@ -254,8 +234,8 @@ class Range {
   String get calculatedValue {
     if (formula != null) {
       if (worksheet.calcEngine != null) {
-        final String cellRef = refName;
-        return worksheet.calcEngine.pullUpdatedValue(cellRef);
+        final String cellRef = addressLocal;
+        return worksheet.calcEngine._pullUpdatedValue(cellRef);
       }
       return null;
     } else {
@@ -289,11 +269,11 @@ class Range {
     }
     if (format != null && format != '') {
       if (format.contains('\\')) {
-        format = checkAndGetDateUncustomizedString(format);
+        format = _checkAndGetDateUncustomizedString(format);
       }
 
-      format = checkForAccountingString(format);
-      format.replaceAllMapped(FormatParserImpl._numberFormatRegex, (match) {
+      format = _checkForAccountingString(format);
+      format.replaceAllMapped(_FormatParser._numberFormatRegex, (match) {
         return '';
       });
     }
@@ -332,10 +312,10 @@ class Range {
   }
 
   /// Gets number format object corresponding to this Range. Read-only.
-  FormatImpl get innerNumberFormat {
+  _Format get _innerNumberFormat {
     int iFormatIndex = cellStyle.numberFormatIndex;
     if (workbook.innerFormats.count > 14 &&
-        !workbook.innerFormats.contains(iFormatIndex)) iFormatIndex = 14;
+        !workbook.innerFormats._contains(iFormatIndex)) iFormatIndex = 14;
     return workbook.innerFormats[iFormatIndex];
   }
 
@@ -367,7 +347,7 @@ class Range {
       } else if (_cellStyle != null &&
           !workbook._saving &&
           (_cellStyle as CellStyle).isGlobalStyle) {
-        _cellStyle = (_cellStyle as CellStyle).clone();
+        _cellStyle = (_cellStyle as CellStyle)._clone();
       }
       return _cellStyle;
     }
@@ -389,7 +369,7 @@ class Range {
   /// ```
   set cellStyle(CellStyle value) {
     if (isSingleRange) {
-      _cellStyle = value.clone();
+      _cellStyle = value._clone();
       _setRange();
     } else {
       // ignore: prefer_final_locals
@@ -404,11 +384,6 @@ class Range {
         }
       }
     }
-  }
-
-  /// Represent the column object of the range.
-  Column get columnObj {
-    return _colObj;
   }
 
   /// Represent the worksheet of the range.
@@ -503,8 +478,8 @@ class Range {
 
   /// Represents the column width.
   double get columnWidth {
-    if (_colObj != null) {
-      return _colObj.width;
+    if (_columnObj != null) {
+      return _columnObj.width;
     }
     return 0;
   }
@@ -521,15 +496,15 @@ class Range {
   /// ```
   set columnWidth(double value) {
     if (isSingleRange) {
-      if (_colObj == null) {
+      if (_columnObj == null) {
         if (worksheet.columns != null && worksheet.columns.contains(column)) {
-          _colObj = worksheet.columns.getColumn(column);
+          _columnObj = worksheet.columns.getColumn(column);
         } else {
-          _colObj = worksheet.columns.add();
-          _colObj.index = column;
+          _columnObj = worksheet.columns.add();
+          _columnObj.index = column;
         }
       }
-      _colObj.width = value;
+      _columnObj.width = value;
     } else {
       // ignore: prefer_final_locals
       for (int iRow = row, iLastRow = lastRow; iRow <= iLastRow; iRow++) {
@@ -557,7 +532,7 @@ class Range {
   /// workbook.dispose();
   /// ```
   List<Range> get cells {
-    if (_cells == null && !_bCells) infillCells();
+    if (_cells == null && !_bCells) _infillCells();
     if (_cells == null) throw Exception('Null cells');
     return _cells;
   }
@@ -589,7 +564,7 @@ class Range {
     if (isSingleRange) {
       _number = number;
       type = CellType.number;
-      saveType = 'n';
+      _saveType = 'n';
       _setRange();
     } else {
       // ignore: prefer_final_locals
@@ -605,7 +580,7 @@ class Range {
   }
 
   /// Set number value to the range.
-  double getRangeNumber() {
+  double _getNumber() {
     final double dValue = worksheet.getRangeByIndex(row, column).number;
     if (dValue == null) return dValue;
     // ignore: prefer_final_locals
@@ -631,18 +606,18 @@ class Range {
   /// ```
   void setText(String text) {
     int sharedStringIndex = 0;
-    if (workbook.sharedStrings != null &&
-        workbook.sharedStrings.containsKey(text)) {
-      sharedStringIndex = workbook.sharedStrings[text];
+    if (workbook._sharedStrings != null &&
+        workbook._sharedStrings.containsKey(text)) {
+      sharedStringIndex = workbook._sharedStrings[text];
     } else {
-      sharedStringIndex = workbook.sharedStrings.length;
-      workbook.sharedStrings[text] = sharedStringIndex;
-      workbook.sharedStringCount++;
+      sharedStringIndex = workbook._sharedStrings.length;
+      workbook._sharedStrings[text] = sharedStringIndex;
+      workbook._sharedStringCount++;
     }
     if (isSingleRange) {
       _text = text;
       type = CellType.text;
-      saveType = 's';
+      _saveType = 's';
       _textIndex = sharedStringIndex;
       _setRange();
     } else {
@@ -659,7 +634,7 @@ class Range {
   }
 
   /// Get text value to the range.
-  String getRangeText() {
+  String getText() {
     final String strValue = worksheet.getRangeByIndex(row, column).text;
     if (strValue == null) {
       return null;
@@ -703,11 +678,11 @@ class Range {
       _cellStyle.numberFormatIndex = 14;
     }
     if (isSingleRange) {
-      _number = toOADate(dateTime);
+      _number = _toOADate(dateTime);
       _dateTime = dateTime;
       type = CellType.dateTime;
       _cellStyle = _cellStyle;
-      saveType = 'n';
+      _saveType = 'n';
       _setRange();
     } else {
       // ignore: prefer_final_locals
@@ -723,7 +698,7 @@ class Range {
   }
 
   /// Get Range Date time value.
-  DateTime getRangeDateTime() {
+  DateTime getDateTime() {
     final DateTime minimumDateValue = DateTime(0001, 1, 1, 0, 0, 0);
     Range range = worksheet.getRangeByIndex(row, column);
     final double dValue = range.number;
@@ -773,7 +748,7 @@ class Range {
   }
 
   /// Get formula value to the range.
-  String getRangeFormula() {
+  String getFormula() {
     final String strValue = worksheet.getRangeByIndex(row, column).formula;
     if (strValue == null) return strValue;
     // ignore: prefer_final_locals
@@ -823,20 +798,20 @@ class Range {
   }
 
   /// Set formula number value to the range.
-  void setFormulaNumberValue(double number) {
+  void _setFormulaNumberValue(double number) {
     _number = number;
   }
 
   /// Set formula string value to the range.
-  void setFormulaStringValue(String text) {
+  void _setFormulaStringValue(String text) {
     _text = text;
-    saveType = 'str';
+    _saveType = 'str';
   }
 
   /// Set formula DateTime value to the range.
-  void setFormulaDateValue(DateTime dateTime) {
+  void _setFormulaDateValue(DateTime dateTime) {
     _dateTime = dateTime;
-    _number = toOADate(dateTime);
+    _number = _toOADate(dateTime);
     if (_cellStyle != null) {
       _cellStyle = CellStyle(workbook);
     }
@@ -844,33 +819,33 @@ class Range {
   }
 
   /// Set formula boolean value.
-  void setFormulaBooleanValue(String value) {
+  void _setFormulaBooleanValue(String value) {
     if (value == 'TRUE') {
       _boolean = '1';
     } else {
       _boolean = '0';
     }
-    saveType = 'b';
+    _saveType = 'b';
   }
 
   /// Set formula error string value.
-  void setFormulaErrorStringValue(String eValue) {
+  void _setFormulaErrorStringValue(String eValue) {
     _errorValue = eValue.split(' ').toList().removeAt(1).toString();
-    saveType = 'e';
+    _saveType = 'e';
   }
 
   /// Get cell name from row and column.
-  static String getCellName(int row, int column) {
-    return getColumnName(column) + row.toString();
+  static String _getCellName(int row, int column) {
+    return _getColumnName(column) + row.toString();
   }
 
   /// Get cell name from row and column.
-  static String getCellNameWithSymbol(int row, int column) {
-    return getColumnName(column) + '\$' + row.toString();
+  static String _getCellNameWithSymbol(int row, int column) {
+    return _getColumnName(column) + '\$' + row.toString();
   }
 
   /// Get column name from column.
-  static String getColumnName(int col) {
+  static String _getColumnName(int col) {
     col--;
     String strColumnName = '';
     do {
@@ -882,7 +857,7 @@ class Range {
   }
 
   /// Check for escape sequence added string and removes it.
-  String checkAndGetDateUncustomizedString(String inputFormat) {
+  String _checkAndGetDateUncustomizedString(String inputFormat) {
     bool removed = false;
     if ((inputFormat.contains(',') ||
             inputFormat.contains('.') ||
@@ -917,10 +892,10 @@ class Range {
   }
 
   /// Check for quotes added to format string.
-  String checkForAccountingString(String inputFormat) {
+  String _checkForAccountingString(String inputFormat) {
     if ((inputFormat.contains('\"'))) {
       final String currencySymbol =
-          workbook.cultureInfo.numberFormat.currencySymbol;
+          workbook.cultureInfo.numberFormat._currencySymbol;
       final int currencyIndex = inputFormat.indexOf(currencySymbol);
       if (currencyIndex != -1) {
         inputFormat = inputFormat.replaceAll(
@@ -944,21 +919,21 @@ class Range {
       case CellType.number:
       case CellType.dateTime:
         final double dValue = number;
-        return getNumberOrDateTime(innerNumberFormat, dValue, row, column);
+        return _getNumberOrDateTime(_innerNumberFormat, dValue, row, column);
         break;
       case CellType.formula:
-        final bool bUpdate = updateNumberFormat();
-        updateCellValue(worksheet, column, row, true);
-        FormatImpl formatImpl;
+        final bool bUpdate = _updateNumberFormat();
+        _updateCellValue(worksheet, column, row, true);
+        _Format formatImpl;
         if (bUpdate) {
           formatImpl =
               worksheet.workbook.innerFormats[_cellStyle.numberFormatIndex];
         } else {
-          formatImpl = innerNumberFormat;
+          formatImpl = _innerNumberFormat;
         }
         if (text != null) return text;
         if (number != null || dateTime != null) {
-          return getNumberOrDateTime(formatImpl, number, row, column);
+          return _getNumberOrDateTime(formatImpl, number, row, column);
         }
         break;
       default:
@@ -968,10 +943,10 @@ class Range {
   }
 
   /// Gets the number or date time.
-  String getNumberOrDateTime(
-      FormatImpl formatImpl, double dValue, int row, int column) {
+  String _getNumberOrDateTime(
+      _Format formatImpl, double dValue, int row, int column) {
     String displayText = '';
-    final ExcelFormatType formatType1 = formatImpl.getFormatTypeFromDouble(0);
+    final ExcelFormatType formatType1 = formatImpl._getFormatTypeFromDouble(0);
 
     switch (formatType1) {
       case ExcelFormatType.number:
@@ -986,7 +961,7 @@ class Range {
               return '#DIV/0!';
             } else {
               final NumberFormat formatter =
-                  NumberFormat(numberFormat, workbook.culture);
+                  NumberFormat(numberFormat, workbook._culture);
               String displayText = formatter.format(dValue);
               if (displayText.contains('\$') || displayText.endsWith('*')) {
                 if (displayText.startsWith('_(')) {
@@ -1007,12 +982,12 @@ class Range {
           dValue = number;
           if (dValue < 60) dValue++;
           if (dValue >
-                  toOADate(workbook
-                      .cultureInfo.dateTimeFormat.maxSupportedDateTime) ||
+                  _toOADate(workbook
+                      .cultureInfo.dateTimeFormat._maxSupportedDateTime) ||
               (dValue < 0)) {
             displayText = '######';
           } else {
-            displayText = formatImpl.applyFormat(dValue, false, this);
+            displayText = formatImpl._applyFormat(dValue, false, this);
           }
         }
         return displayText;
@@ -1024,22 +999,22 @@ class Range {
   }
 
   /// Update the cell value when calc engine is enabled.
-  static void updateCellValue(
+  static void _updateCellValue(
       Worksheet worksheet, int column, int row, bool updateCellVaue) {
     if (worksheet.calcEngine != null && updateCellVaue) {
-      final String cellRef = RangeInfo.getAlphaLabel(column) + row.toString();
-      worksheet.calcEngine.pullUpdatedValue(cellRef);
+      final String cellRef = RangeInfo._getAlphaLabel(column) + row.toString();
+      worksheet.calcEngine._pullUpdatedValue(cellRef);
     }
   }
 
   /// Updates the format for formula based display text.
-  bool updateNumberFormat() {
+  bool _updateNumberFormat() {
     final CalcEngine calcEngine = _worksheet.calcEngine;
     bool updated = false;
-    if (numberFormat == DEF_GENERAL_FORMAT && formula != null) {
+    if (numberFormat == _defaultGeneralFormat && formula != null) {
       final DateTimeFormatInfo dateTime =
           worksheet.workbook.cultureInfo.dateTimeFormat;
-      final String formula = getFormula(this.formula);
+      final String formula = _getFormulaWithoutSymbol(this.formula);
       switch (formula) {
         case 'TIME':
           numberFormat = dateTime.shortTimePattern;
@@ -1064,14 +1039,14 @@ class Range {
       if (calcEngine != null && !calcEngine.excelLikeComputations) {
         calcEngine.excelLikeComputations = true;
       }
-    } else if (calcEngine != null && numberFormat != DEF_GENERAL_FORMAT) {
+    } else if (calcEngine != null && numberFormat != _defaultGeneralFormat) {
       calcEngine.excelLikeComputations = false;
     }
     return updated;
   }
 
   /// Returns the formula function name.
-  static String getFormula(String formula) {
+  static String _getFormulaWithoutSymbol(String formula) {
     if (formula != null) {
       formula = formula.replaceAll(_defaultEquivalent, _defaultEmptyDigit);
       formula = formula.trim();
@@ -1149,7 +1124,7 @@ class Range {
   }
 
   /// Convert date to OA value.
-  static double toOADate(DateTime date) {
+  static double _toOADate(DateTime date) {
     var ticks = 0;
     ticks = _dateToTicks(date.year, (date.month), date.day) +
         _timeToTicks(date.hour, date.minute, date.second);
@@ -1170,7 +1145,7 @@ class Range {
   }
 
   /// Returns a DateTime equivalent to the specified OLE Automation Date.
-  static DateTime fromOADate(double doubleOLEValue) {
+  static DateTime _fromOADate(double doubleOLEValue) {
     if (doubleOLEValue < -657435.0 || doubleOLEValue > 2958465.99999999) {
       throw Exception('Not an valid OLE value.');
     }
@@ -1262,7 +1237,7 @@ class Range {
   }
 
   /// Fill internal collection by references on cells.
-  void infillCells() {
+  void _infillCells() {
     if (!_bCells) {
       _cells = [];
 
@@ -1280,9 +1255,9 @@ class Range {
   }
 
   /// Releases the unmanaged resources used by the XmlReader and optionally releases the managed resources.
-  void clear() {
+  void _clear() {
     if (_cellStyle != null) {
-      (_cellStyle as CellStyle).clear();
+      (_cellStyle as CellStyle)._clear();
       _cellStyle = null;
     }
   }

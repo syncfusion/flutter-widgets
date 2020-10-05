@@ -68,4 +68,3 @@ part 'src/calendar/resource_view/resource_view.dart';
 part './src/calendar/appointment_layout/appointment_layout.dart';
 part './src/calendar/appointment_layout/agenda_view_layout.dart';
 part './src/calendar/appointment_layout/allday_appointment_layout.dart';
-

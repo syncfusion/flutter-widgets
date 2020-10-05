@@ -33,6 +33,7 @@ double _getMinMax(double value, double min, double max) {
 }
 
 // Measure the text and return the text size
+//ignore: unused_element
 Size _getTextSize(String textValue, GaugeTextStyle textStyle, [int angle]) {
   Size size;
   final TextPainter textPainter = TextPainter(

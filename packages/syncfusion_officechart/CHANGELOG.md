@@ -1,3 +1,8 @@
+## [18.3.35-beta.1] - 10/02/2020
+
+**Features**
+* Updated the code with respect to coding standards.
+
 ## [18.3.35-beta] - 10/01/2020
 
 Initial release

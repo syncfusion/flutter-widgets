@@ -3,7 +3,7 @@ part of xlsio;
 /// <summary>
 /// Class used for Minute Token.
 /// </summary>
-class MinuteToken extends FormatTokenBase {
+class _MinuteToken extends _FormatTokenBase {
   /// <summary>
   /// Regular expression for minutes part of the format:
   /// </summary>
@@ -12,28 +12,29 @@ class MinuteToken extends FormatTokenBase {
   /// <summary>
   /// Long type of the format.
   /// </summary>
-  static const String DEF_FORMAT_LONG = '00';
+  // ignore: unused_field
+  static const String _DEF_FORMAT_LONG = '00';
 
   /// <summary>
   /// Tries to parse format string.
   /// </summary>
   @override
-  int tryParse(String strFormat, int iIndex) {
-    return tryParseRegex(_minuteRegex, strFormat, iIndex);
+  int _tryParse(String strFormat, int iIndex) {
+    return _tryParseRegex(_minuteRegex, strFormat, iIndex);
   }
 
   /// <summary>
   /// Applies format to the value.
   /// </summary>
   @override
-  String applyFormat(double value, bool bShowHiddenSymbols, CultureInfo culture,
-      FormatSection section) {
-    final DateTime date = Range.fromOADate(value);
+  String _applyFormat(double value, bool bShowHiddenSymbols,
+      CultureInfo culture, _FormatSection section) {
+    final DateTime date = Range._fromOADate(value);
 
     int iMinute = date.minute;
     final int iSecond = date.second;
     final int iMilliSecond = date.millisecond;
-    if (iMilliSecond >= SecondToken._defaultMilliSecondHalf && iSecond == 59) {
+    if (iMilliSecond >= _SecondToken._defaultMilliSecondHalf && iSecond == 59) {
       if (!section._isMilliSecondFormatValue) {
         iMinute++;
       } else {
@@ -52,7 +53,8 @@ class MinuteToken extends FormatTokenBase {
   /// Applies format to the value.
   /// </summary>
   @override
-  String applyFormatString(String value, bool bShowHiddenSymbols) {
+  // ignore: unused_element
+  String _applyFormatString(String value, bool bShowHiddenSymbols) {
     return '';
   }
 
@@ -60,7 +62,7 @@ class MinuteToken extends FormatTokenBase {
   /// This method is called after format string was changed.
   /// </summary>
   @override
-  void onFormatChange() {
+  void _onFormatChange() {
     _strFormat = _strFormat.toLowerCase();
   }
 
@@ -68,7 +70,7 @@ class MinuteToken extends FormatTokenBase {
   /// Gets type of the token. Read-only.
   /// </summary>
   @override
-  TokenType get tokenType {
-    return TokenType.minute;
+  _TokenType get _tokenType {
+    return _TokenType.minute;
   }
 }

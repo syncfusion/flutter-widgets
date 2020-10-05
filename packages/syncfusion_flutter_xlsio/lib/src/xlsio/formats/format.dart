@@ -1,54 +1,54 @@
 part of xlsio;
 
 /// Represents the format Impl class.
-class FormatImpl {
+class _Format {
   /// Initializes new instance of the format.
-  FormatImpl(FormatsCollection parent, [int index, String strFormat]) {
+  _Format(FormatsCollection parent, [int index, String strFormat]) {
     _parent = parent;
-    this.index = index;
-    formatString = strFormat;
+    _index = index;
+    _formatString = strFormat;
   }
 
   FormatsCollection _parent;
 
   /// Format index used in other records.
-  int index = 0;
+  int _index = 0;
 
   /// Format string.
-  String formatString;
+  String _formatString;
 
   /// Parsed format.
-  FormatSectionCollection _parsedFormat;
+  _FormatSectionCollection _parsedFormat;
 
   /// Reference to the format parser.
-  final _parser = FormatParserImpl();
+  final _parser = _FormatParser();
 
   /// Returns format type for a specified value.
-  ExcelFormatType getFormatTypeFromDouble(double value) {
-    prepareFormat();
+  ExcelFormatType _getFormatTypeFromDouble(double value) {
+    _prepareFormat();
     return _parsedFormat._getFormatTypeFromDouble(value);
   }
 
   /// Checks whether format is already parsed, if it isn't than parses it.
-  void prepareFormat() {
+  void _prepareFormat() {
     if (_parsedFormat != null) return;
 
-    final formatString = this.formatString;
-    _parsedFormat = _parser.parse(_parent.parent, formatString);
+    final formatString = _formatString;
+    _parsedFormat = _parser._parse(_parent.parent, formatString);
   }
 
   /// Applies format to the value.
-  String applyFormat(double value, bool bShowHiddenSymbols, [Range cell]) {
-    prepareFormat();
+  String _applyFormat(double value, bool bShowHiddenSymbols, [Range cell]) {
+    _prepareFormat();
     return _parsedFormat._applyFormat(value, bShowHiddenSymbols, cell);
   }
 
   /// clear the format.
-  void clear() {
+  void _clear() {
     _parser._clear();
     if (_parsedFormat != null) {
       _parsedFormat._dispose();
-      _parsedFormat.innerList.clear();
+      _parsedFormat._innerList.clear();
     }
     _parsedFormat = null;
   }

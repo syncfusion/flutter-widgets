@@ -18,14 +18,14 @@ class Borders {
   Border all;
 
   /// Represent the workbook.
-  Workbook workbook;
+  Workbook _workbook;
 }
 
 /// Represents cell borders
 class BordersCollection implements Borders {
   /// Creates an new instances of borders.
   BordersCollection(Workbook book) {
-    workbook = book;
+    _workbook = book;
     left = CellBorder(LineStyle.none, '#000000');
     right = CellBorder(LineStyle.none, '#000000');
     top = CellBorder(LineStyle.none, '#000000');
@@ -50,7 +50,7 @@ class BordersCollection implements Borders {
 
   /// Represent the workbook.
   @override
-  Workbook workbook;
+  Workbook _workbook;
 
   /// Represent the left border.
   @override
@@ -118,13 +118,13 @@ class BordersCollection implements Borders {
   }
 
   /// Clone method of BordersCollecton.
-  BordersCollection clone() {
-    final BordersCollection bordersCollection = BordersCollection(workbook);
-    bordersCollection.all = all.clone();
-    bordersCollection.left = left.clone();
-    bordersCollection.right = right.clone();
-    bordersCollection.top = top.clone();
-    bordersCollection.bottom = bottom.clone();
+  BordersCollection _clone() {
+    final BordersCollection bordersCollection = BordersCollection(_workbook);
+    bordersCollection.all = all._clone();
+    bordersCollection.left = left._clone();
+    bordersCollection.right = right._clone();
+    bordersCollection.top = top._clone();
+    bordersCollection.bottom = bottom._clone();
     return bordersCollection;
   }
 
@@ -149,7 +149,7 @@ class BordersCollection implements Borders {
   int get hashCode => hashValues(all, left, right, top, bottom);
 
   /// Crear all the borders.
-  void clear() {
+  void _clear() {
     if (_all != null) {
       _all = null;
     }
@@ -177,7 +177,7 @@ class BordersCollectionWrapper implements Borders {
   /// Creates an new instances of borders.
   BordersCollectionWrapper(List<Range> arrRanges, Workbook book) {
     _arrRanges = arrRanges;
-    workbook = book;
+    _workbook = book;
     _bordersCollection = [];
     for (final Range range in _arrRanges) {
       _bordersCollection.add(range.cellStyle.borders);
@@ -201,7 +201,7 @@ class BordersCollectionWrapper implements Borders {
 
   /// Represent the workbook.
   @override
-  Workbook workbook;
+  Workbook _workbook;
 
   List<Range> _arrRanges;
   List<Borders> _bordersCollection;
@@ -317,11 +317,12 @@ class BordersCollectionWrapper implements Borders {
   }
 
   /// Clear the borders.
-  void clear() {
+  // ignore: unused_element
+  void _clear() {
     final int last = _arrRanges.length;
     for (int index = 0; index < last; index++) {
       final Range range = _arrRanges[index];
-      (range.cellStyle.borders as BordersCollection).clear();
+      (range.cellStyle.borders as BordersCollection)._clear();
     }
   }
 }

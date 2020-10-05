@@ -192,7 +192,9 @@ class _ChartAxis {
                 rect.height;
             axisRenderer._totalSize = crosPosition - axisRenderer._totalSize < 0
                 ? (crosPosition - axisRenderer._totalSize).abs()
-                : !axis.placeLabelsNearAxisLine ? labelSize : 0;
+                : !axis.placeLabelsNearAxisLine
+                    ? labelSize
+                    : 0;
           }
           _bottomSize += axisRenderer._totalSize;
           _bottomAxesCount
@@ -210,7 +212,9 @@ class _ChartAxis {
             axisRenderer._totalSize = crosPosition + axisRenderer._totalSize >
                     rect.height
                 ? ((crosPosition + axisRenderer._totalSize) - rect.height).abs()
-                : !axis.placeLabelsNearAxisLine ? labelSize : 0;
+                : !axis.placeLabelsNearAxisLine
+                    ? labelSize
+                    : 0;
           }
           _topSize += axisRenderer._totalSize;
           _topAxesCount.add(_AxisSize(axisRenderer, axisRenderer._totalSize));
@@ -228,7 +232,9 @@ class _ChartAxis {
                 rect.width;
             axisRenderer._totalSize = crosPosition - axisRenderer._totalSize < 0
                 ? (crosPosition - axisRenderer._totalSize).abs()
-                : !axis.placeLabelsNearAxisLine ? labelSize : 0;
+                : !axis.placeLabelsNearAxisLine
+                    ? labelSize
+                    : 0;
           }
           _leftSize += axisRenderer._totalSize;
           _leftAxesCount.add(_AxisSize(axisRenderer, axisRenderer._totalSize));
@@ -245,7 +251,9 @@ class _ChartAxis {
             axisRenderer._totalSize = crosPosition + axisRenderer._totalSize >
                     rect.width
                 ? ((crosPosition + axisRenderer._totalSize) - rect.width).abs()
-                : !axis.placeLabelsNearAxisLine ? labelSize : 0;
+                : !axis.placeLabelsNearAxisLine
+                    ? labelSize
+                    : 0;
           }
           _rightSize += axisRenderer._totalSize;
           _rightAxesCount.add(_AxisSize(axisRenderer, axisRenderer._totalSize));

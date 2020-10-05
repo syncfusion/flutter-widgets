@@ -123,7 +123,9 @@ class _TimelineView extends CustomPainter {
     const double padding = 0.5;
     top = top == 0 ? padding : top;
     height = height == size.height
-        ? top == padding ? height - (padding * 2) : height - padding
+        ? top == padding
+            ? height - (padding * 2)
+            : height - padding
         : height;
     double width = timeIntervalHeight;
     double difference = 0;
@@ -495,7 +497,9 @@ class _TimelineViewHeaderView extends CustomPainter {
         : timelineViewHeaderScrollController.offset ~/ childWidth;
     _xPosition = !isTimelineMonth
         ? timelineViewHeaderScrollController.offset
-        : isRTL ? size.width - childWidth : _xPosition;
+        : isRTL
+            ? size.width - childWidth
+            : _xPosition;
 
     TextStyle viewHeaderDayTextStyle =
         calendarTheme.brightness == Brightness.light

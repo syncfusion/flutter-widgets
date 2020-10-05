@@ -72,13 +72,13 @@ class RowCollection {
   }
 
   /// Clear the row.
-  void clear() {
+  void _clear() {
     if (_innerList != null) {
       for (int i = 0; i < _innerList.length; i++) {
         final Row row = _innerList[i];
         _innerList[i] = null;
 
-        if (row != null) row.clear();
+        if (row != null) row._clear();
       }
       _innerList = null;
     }

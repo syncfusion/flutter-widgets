@@ -3,7 +3,7 @@ part of xlsio;
 /// <summary>
 /// Class used for MilliSecond Token.
 /// </summary>
-class MilliSecondToken extends FormatTokenBase {
+class _MilliSecondToken extends _FormatTokenBase {
   //Class constants
   /// <summary>
   /// Long format.
@@ -19,7 +19,7 @@ class MilliSecondToken extends FormatTokenBase {
   /// Tries to parse format string.
   /// </summary>
   @override
-  int tryParse(String strFormat, int iIndex) {
+  int _tryParse(String strFormat, int iIndex) {
     throw ('NotImplementedException');
   }
 
@@ -27,9 +27,9 @@ class MilliSecondToken extends FormatTokenBase {
   /// Applies format to the value.
   /// </summary>
   @override
-  String applyFormat(double value, bool bShowHiddenSymbols, CultureInfo culture,
-      FormatSection section) {
-    final DateTime date = Range.fromOADate(value);
+  String _applyFormat(double value, bool bShowHiddenSymbols,
+      CultureInfo culture, _FormatSection section) {
+    final DateTime date = Range._fromOADate(value);
 
     int iMilliSecond = date.millisecond;
     final int iFormatLen = _strFormat.length;
@@ -39,7 +39,7 @@ class MilliSecondToken extends FormatTokenBase {
     if (iFormatLen < _defaultMaxLen) {
       final int iPow = _defaultMaxLen - iFormatLen;
       iMilliSecond =
-          FormatSection._round(iMilliSecond / math.pow(10, iPow)).toInt();
+          _FormatSection._round(iMilliSecond / math.pow(10, iPow)).toInt();
       strNativeFormat = _strFormat.substring(1, 1 + iFormatLen - 1);
     } else {
       strNativeFormat = _defaultFormatLong;
@@ -55,7 +55,8 @@ class MilliSecondToken extends FormatTokenBase {
   /// Applies format to the value.
   /// </summary>
   @override
-  String applyFormatString(String value, bool bShowHiddenSymbols) {
+  // ignore: unused_element
+  String _applyFormatString(String value, bool bShowHiddenSymbols) {
     return '';
   }
 
@@ -63,7 +64,7 @@ class MilliSecondToken extends FormatTokenBase {
   /// Gets type of the token. Read-only.
   /// </summary>
   @override
-  TokenType get tokenType {
-    return TokenType.milliSecond;
+  _TokenType get _tokenType {
+    return _TokenType.milliSecond;
   }
 }

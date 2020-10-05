@@ -4,26 +4,26 @@ part of xlsio;
 class Workbook {
   /// Creates an new instances of the Workbook.
   Workbook([int count]) {
-    initializeWorkbook(null, null, count);
+    _initializeWorkbook(null, null, count);
   }
 
   /// Creates an new instances of the Workbook with currency.
   Workbook.withCulture(String culture, [String currency, int count]) {
     if (count != null) {
-      initializeWorkbook(culture, currency, count);
+      _initializeWorkbook(culture, currency, count);
     } else {
-      initializeWorkbook(culture, currency, 1);
+      _initializeWorkbook(culture, currency, 1);
     }
   }
 
   /// Represents zip archive to save the workbook.
-  Archive _archive;
+  Archive _archives;
 
   /// Represents the shared string dictionary.
   Map<String, int> _sharedString;
 
   /// Represents the shared string count in the workbook.
-  int sharedStringCount = 0;
+  int _sharedStringCount = 0;
 
   /// Represents the maximum row count in the workbook.
   final int _maxRowCount = 1048576;
@@ -32,10 +32,10 @@ class Workbook {
   final int _maxColumnCount = 16384;
 
   /// Represents the cell style collection in the workbok.
-  Map<String, GlobalStyle> _cellStyles;
+  Map<String, _GlobalStyle> _cellStyles;
 
   /// Represents the merged cell collection in the workbok.
-  Map<String, ExtendStyle> _mergedCellsStyle;
+  Map<String, _ExtendStyle> _mergedCellsStyles;
 
   /// Represents the worksheet collection.
   WorksheetCollection _worksheets;
@@ -56,28 +56,29 @@ class Workbook {
   StylesCollection _styles;
 
   /// Represents the CellXf collection in the workbook.
-  List<CellXfs> cellXfs;
+  List<CellXfs> _cellXfs;
 
   /// Represents the CellStyleXf collection in the workbook.
-  List<CellStyleXfs> cellStyleXfs;
+  List<CellStyleXfs> _cellStyleXfs;
 
   /// Represents the print title collection.
   Map<int, String> _printTitles;
 
   /// Represents the current culture.
-  String culture;
+  String _culture;
 
   /// Represents the current culture currency.
-  String currency;
+  // ignore: unused_field
+  String _currency;
 
   /// Represents the RGB colors.
   Map<String, String> _rgbColors;
 
   /// Represents the drawing count in the workbook.
-  int drawingCount = 0;
+  int _drawingCount = 0;
 
   /// Represents the image count in the workbook.
-  int imageCount = 0;
+  int _imageCount = 0;
 
   /// Represents the chart count in the workbook.
   int chartCount = 0;
@@ -89,7 +90,8 @@ class Workbook {
   FormatsCollection _rawFormats;
 
   /// Indicates whether all the formula in the workbook is evaluated.
-  bool enabledCalcEngine;
+  // ignore: unused_field
+  bool _enabledCalcEngine;
 
   /// Represents the culture info.
   CultureInfo _cultureInfo;
@@ -108,66 +110,40 @@ class Workbook {
     96 / 72.0 / 12700 // EMU
   ];
 
-  /// Indicates whether the workbook is Parsed.
-  // bool get isParsed {
-  //   return _isParsing;
-  // }
-
-  // set isParsed(bool value) {
-  //   _isParsing = value;
-  // }
-
   /// Represents zip archive to save the workbook.
   Archive get archive {
-    _archive ??= Archive();
-    return _archive;
+    _archives ??= Archive();
+    return _archives;
   }
 
   set archive(Archive value) {
-    _archive = value;
+    _archives = value;
   }
 
   /// Represents the shared string list.
-  Map<String, int> get sharedStrings {
+  Map<String, int> get _sharedStrings {
     return _sharedString;
   }
 
-  // set sharedStrings(Map<String, int> value) {
-  //   _sharedString = value;
-  // }
-
-  /// Represents the shared string count in the workbook.
-  // int get sharedStringCount {
-  //   return _sharedStringCount;
-  // }
-
-  // set sharedStringCount(int value) {
-  //   _sharedStringCount = value;
-  // }
-
   /// Gets dictionary with default content types.
-  Map get defaultContentTypes {
+  Map get _defaultContentType {
     return _defaultContentTypes;
   }
 
   /// Represents the cell style collection in the workbok.
-  Map<String, GlobalStyle> get globalStyles {
-    _cellStyles ??= <String, GlobalStyle>{};
+  Map<String, _GlobalStyle> get _globalStyles {
+    _cellStyles ??= <String, _GlobalStyle>{};
     return _cellStyles;
   }
 
-  set globalStyles(Map<String, GlobalStyle> value) {
-    _cellStyles = value;
-  }
-
   /// Represents the merged cell collection in the workbok.
-  Map<String, ExtendStyle> get mergedCellsStyle {
-    _mergedCellsStyle ??= <String, ExtendStyle>{};
-    return _mergedCellsStyle;
+  Map<String, _ExtendStyle> get _mergedCellsStyle {
+    _mergedCellsStyles ??= <String, _ExtendStyle>{};
+    return _mergedCellsStyles;
   }
 
-  set mergedCellsStyle(Map<String, ExtendStyle> value) {
-    _mergedCellsStyle = value;
+  set _mergedCellsStyle(Map<String, _ExtendStyle> value) {
+    _mergedCellsStyles = value;
   }
 
   /// Represents the worksheet collection.
@@ -186,79 +162,16 @@ class Workbook {
     _builtInProperties = value;
   }
 
-  // /// Represents the border collection in the workbook.
-  // List<Borders> get borders {
-  //   return _borders;
-  // }
-
-  // set borders(List<Borders> value) {
-  //   _borders = value;
-  // }
-
-  // /// Represents the Fill collection in the workbook.
-  // Map<String, int> get fills {
-  //   return _fills;
-  // }
-
-  // set fills(Map<String, int> value) {
-  //   _fills = value;
-  // }
-
   /// Represents the cell style collection in the workbook.
   StylesCollection get styles {
     _styles ??= StylesCollection(this);
     return _styles;
   }
 
-  // /// Represents the CellXf collection in the workbook.
-  // List<CellXfs> get cellXfs {
-  //   return _cellXfs;
-  // }
-
-  // set cellXfs(List<CellXfs> value) {
-  //   _cellXfs = value;
-  // }
-
-  // /// Represents the CellStyleXf collection in the workbook.
-  // List<CellStyleXfs> get cellStyleXfs {
-  //   return _cellStyleXfs;
-  // }
-
-  // set cellStyleXfs(List<CellStyleXfs> value) {
-  //   _cellStyleXfs = value;
-  // }
-
   /// Represents the unit conversion list.
-  List<double> get unitProportions {
+  List<double> get _unitProportions {
     return _unitsProportions;
   }
-
-  /// Represents the print title collection.
-  // Map<int, String> get printTitles {
-  //   return _printTitles;
-  // }
-
-  // set printTitles(Map<int, String> value) {
-  //   _printTitles = value;
-  // }
-
-  // /// Represents the current culture.
-  // String get culture {
-  //   return _culture;
-  // }
-
-  // set culture(String value) {
-  //   _culture = value;
-  // }
-
-  // /// Represents the current culture currency.
-  // String get currency {
-  //   return _currency;
-  // }
-
-  // set currency(String value) {
-  //   _currency = value;
-  // }
 
   /// Represents the current culture info.
   CultureInfo get cultureInfo {
@@ -271,19 +184,19 @@ class Workbook {
   }
 
   /// Initialize the workbook.
-  void initializeWorkbook(
+  void _initializeWorkbook(
       String givenCulture, String givenCurrency, int count) {
     if (givenCulture != null) {
-      culture = givenCulture;
+      _culture = givenCulture;
     } else {
-      culture = 'en-US';
+      _culture = 'en-US';
     }
     if (givenCurrency != null) {
-      currency = givenCurrency;
+      _currency = givenCurrency;
     } else {
-      currency = 'USD';
+      _currency = 'USD';
     }
-    _cultureInfo = CultureInfo(culture);
+    _cultureInfo = CultureInfo(_culture);
     _initialize();
     if (count != null) {
       _worksheets = WorksheetCollection(this, count);
@@ -298,14 +211,16 @@ class Workbook {
     borders = [];
     _styles = StylesCollection(this);
     _rawFormats = FormatsCollection(this);
-    _rawFormats.insertDefaultFormats();
+    _rawFormats._insertDefaultFormats();
     fills = <String, int>{};
     _styles.addStyle(CellStyle(this));
     fonts.add(Font());
-    cellXfs = [];
-    cellStyleXfs = [];
-    drawingCount = 0;
-    imageCount = 0;
+    _cellXfs = [];
+    _cellStyleXfs = [];
+    _drawingCount = 0;
+    _imageCount = 0;
+    _sharedStringCount = 0;
+    chartCount = 0;
   }
 
   /// Saves workbook with the specified file name.
@@ -315,7 +230,7 @@ class Workbook {
     }
     _saving = true;
     final SerializeWorkbook serializer = SerializeWorkbook(this);
-    serializer.saveInternal();
+    serializer._saveInternal();
     final bytes = ZipEncoder().encode(archive);
 
     File(fileName).writeAsBytes(bytes);
@@ -326,7 +241,7 @@ class Workbook {
   List<int> saveStream() {
     _saving = true;
     final SerializeWorkbook serializer = SerializeWorkbook(this);
-    serializer.saveInternal();
+    serializer._saveInternal();
     final bytes = ZipEncoder().encode(archive);
 
     _saving = false;
@@ -334,7 +249,7 @@ class Workbook {
   }
 
   /// Check whether the cell style font already exists.
-  ExtendCompareStyle _isNewFont(CellStyle toCompareStyle) {
+  _ExtendCompareStyle _isNewFont(CellStyle toCompareStyle) {
     bool result = false;
     int index = 0;
     for (final Font font in fonts) {
@@ -354,15 +269,15 @@ class Workbook {
       }
     }
     index -= 1;
-    final ExtendCompareStyle style = ExtendCompareStyle();
-    style.index = index;
-    style.result = result;
+    final _ExtendCompareStyle style = _ExtendCompareStyle();
+    style._index = index;
+    style._result = result;
     return style;
   }
 
   /// Check whether the cell border already exists.
   static bool _isNewBorder(CellStyle toCompareStyle) {
-    final CellStyle bStyle = CellStyle(toCompareStyle.workbook);
+    final CellStyle bStyle = CellStyle(toCompareStyle._workbook);
     if (_isAllBorder(toCompareStyle.borders)) {
       return (bStyle.borders.all.color == toCompareStyle.borders.all.color &&
           bStyle.borders.all.lineStyle == toCompareStyle.borders.all.lineStyle);
@@ -384,25 +299,25 @@ class Workbook {
 
   /// Check if line style and color is applied for all borders.
   static bool _isAllBorder(Borders toCompareBorder) {
-    final CellStyle allBorderStyle = CellStyle(toCompareBorder.workbook);
+    final CellStyle allBorderStyle = CellStyle(toCompareBorder._workbook);
     return allBorderStyle.borders.all.color != toCompareBorder.all.color ||
         allBorderStyle.borders.all.lineStyle != toCompareBorder.all.lineStyle;
   }
 
   /// Gets the culture info.
-  CultureInfo getCultureInfo() {
+  CultureInfo _getCultureInfo() {
     return _cultureInfo;
   }
 
   /// Dispose  objects.
   void dispose() {
-    if (_archive != null) {
-      _archive.files.clear();
-      _archive = null;
+    if (_archives != null) {
+      _archives.files.clear();
+      _archives = null;
     }
 
     if (_worksheets != null) {
-      _worksheets.clear();
+      _worksheets._clear();
       _worksheets = null;
     }
 
@@ -437,23 +352,23 @@ class Workbook {
     }
 
     if (_styles != null) {
-      _styles.clear();
+      _styles._clear();
       _styles = null;
     }
 
-    if (cellXfs != null) {
-      cellXfs.clear();
-      cellXfs = null;
+    if (_cellXfs != null) {
+      _cellXfs.clear();
+      _cellXfs = null;
     }
 
     if (_rawFormats != null) {
-      _rawFormats.clear();
+      _rawFormats._clear();
       _rawFormats = null;
     }
 
-    if (cellStyleXfs != null) {
-      cellStyleXfs.clear();
-      cellStyleXfs = null;
+    if (_cellStyleXfs != null) {
+      _cellStyleXfs.clear();
+      _cellStyleXfs = null;
     }
 
     if (_printTitles != null) {

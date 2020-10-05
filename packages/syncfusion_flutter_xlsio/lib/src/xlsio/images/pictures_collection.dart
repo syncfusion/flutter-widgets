@@ -74,10 +74,10 @@ class PicturesCollection {
   }
 
   /// clear the Picture.
-  void clear() {
+  void _clear() {
     if (_pictures != null) {
       for (final Picture picture in _pictures) {
-        picture.clear();
+        picture._clear();
       }
       _pictures.clear();
     }

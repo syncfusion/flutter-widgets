@@ -8,16 +8,7 @@ class Worksheet {
   }
 
   /// set summary row below
-  /// True if summary row is below. otherwise, False.
-  ///
-  /// ```dart
-  /// Workbook workbook = new Workbook();
-  /// Worksheet sheet = workbook.worksheets[0];
-  /// sheet.isSummaryRowBelow = false;
-  /// workbook.save('IsSummaryBelow.xlsx');
-  /// workbook.dispose();
-  ///  ```
-  bool isSummaryRowBelow = true;
+  final bool _isSummaryRowBelow = true;
 
   /// Represent the worksheet index.
   int index;
@@ -150,14 +141,14 @@ class Worksheet {
       if (range == null) {
         range = Range(this);
         range.row = rowIndex;
-        range.column = range.index = columnIndex;
+        range.column = range._index = columnIndex;
       }
       range.lastRow = rowIndex;
       range.lastColumn = columnIndex;
     } else {
       range = Range(this);
       range.row = rowIndex;
-      range.column = range.index = columnIndex;
+      range.column = range._index = columnIndex;
       range.lastRow = lastRowIndex;
       range.lastColumn = lastColumnIndex;
     }
@@ -229,15 +220,15 @@ class Worksheet {
   }
 
   /// Convert seconds into minute and minutes into hour.
-  static String convertSecondsMinutesToHours(String value, double dNumber) {
+  static String _convertSecondsMinutesToHours(String value, double dNumber) {
     bool isDateValue = false;
     if ((dNumber % 1) == 0) isDateValue = true;
     final CultureInfo currentCulture = CultureInfo.currentCulture;
     if (!isDateValue &&
         (dNumber > -657435.0) &&
         (dNumber < 2958465.99999999) &&
-        Range.fromOADate(dNumber).millisecond >
-            SecondToken._defaultMilliSecondHalf) {
+        Range._fromOADate(dNumber).millisecond >
+            _SecondToken._defaultMilliSecondHalf) {
       final String decimalSeparator =
           currentCulture.numberFormat.numberDecimalSeparator;
       final RegExp regex = RegExp('([0-9]*:[0-9]*:[0-9]*\"' +
@@ -249,10 +240,10 @@ class Worksheet {
       final matches = regex.allMatches(value);
       for (final Match match in matches) {
         final String semiColon = currentCulture.dateTimeFormat.timeSeparator;
-        final String valueFormat = SecondToken._defaultFormatLong;
+        final String valueFormat = _SecondToken._defaultFormatLong;
         final List<String> timeValues =
             match.pattern.toString().split(semiColon.toString());
-        final int minutesValue = Range.fromOADate(dNumber).minute;
+        final int minutesValue = Range._fromOADate(dNumber).minute;
         String updatedValue = timeValues[0];
         int updateMinutesValue = 0;
         switch (timeValues.length) {
@@ -270,7 +261,7 @@ class Worksheet {
             }
             break;
           case 3:
-            final int secondsValue = Range.fromOADate(dNumber).second;
+            final int secondsValue = Range._fromOADate(dNumber).second;
             final int updatedSecondsValue = secondsValue +
                 (timeValues[timeValues.length - 1].contains(decimalSeparator)
                     ? 0
@@ -353,12 +344,12 @@ class Worksheet {
   /// sheet.enableSheetCalculations();
   /// ```
   void enableSheetCalculations() {
-    _book.enabledCalcEngine = true;
+    _book._enabledCalcEngine = true;
     if (calcEngine == null) {
       CalcEngine.parseArgumentSeparator =
-          _book.getCultureInfo().textInfo.argumentSeparator;
+          _book._getCultureInfo().textInfo.argumentSeparator;
       CalcEngine.parseDecimalSeparator =
-          _book.getCultureInfo().numberFormat.numberDecimalSeparator;
+          _book._getCultureInfo().numberFormat.numberDecimalSeparator;
 
       calcEngine = CalcEngine(this);
       calcEngine.useDatesInCalculations = true;
@@ -379,7 +370,7 @@ class Worksheet {
             (CalcEngine._modelToSheetID.containsKey(sheet))) {
           CalcEngine._modelToSheetID.remove(sheet);
         }
-        sheet.calcEngine.registerGridAsSheet(sheet.name, sheet, sheetFamilyID);
+        sheet.calcEngine._registerGridAsSheet(sheet.name, sheet, sheetFamilyID);
       }
     }
   }
@@ -395,7 +386,7 @@ class Worksheet {
   }
 
   /// Get the value from the specified cell.
-  Object getValueRowCol(int iRow, int iColumn) {
+  Object _getValueRowCol(int iRow, int iColumn) {
     final Range range = getRangeByIndex(iRow, iColumn);
     if (range.formula != null) {
       return range.formula;
@@ -408,14 +399,14 @@ class Worksheet {
   }
 
   /// Sets value for the specified cell.
-  void setValueRowCol(String value, int iRow, int iColumn) {
+  void _setValueRowCol(String value, int iRow, int iColumn) {
     if (value == null) throw Exception('null value');
     final Range range = getRangeByIndex(iRow, iColumn);
     final CellType valType = range.type;
     if (value.isNotEmpty && value[0] == '=') {
       range.setFormula(value.substring(1));
     } else {
-      final CultureInfo cultureInfo = _book.getCultureInfo();
+      final CultureInfo cultureInfo = _book._getCultureInfo();
       final double doubleValue = double.tryParse(value);
       final DateTime dateValue = DateTime.tryParse(value);
       final bool bDateTime =
@@ -441,23 +432,23 @@ class Worksheet {
         isNumber = _checkIsNumber(value, cultureInfo);
       }
 
-      for (final String v in calcEngine.formulaErrorStrings) {
+      for (final String v in calcEngine._formulaErrorStrings) {
         if (value == v) istext = true;
       }
 
       if (valType == CellType.formula) {
         if (isNumber && !bDateTime) {
-          range.setFormulaNumberValue(doubleValue);
+          range._setFormulaNumberValue(doubleValue);
         } else if (bDateTime) {
-          range.setFormulaDateValue(dateValue);
+          range._setFormulaDateValue(dateValue);
         } else if (isboolean) {
-          range.setFormulaBooleanValue(value);
+          range._setFormulaBooleanValue(value);
         } else if (iserrorStrings) {
-          range.setFormulaErrorStringValue(value);
+          range._setFormulaErrorStringValue(value);
         } else if (value.contains('Exception:', 0) || istext) {
           range.setText(value);
         } else {
-          range.setFormulaStringValue(value);
+          range._setFormulaStringValue(value);
         }
       } else {
         if (isNumber && !bDateTime) {
@@ -554,7 +545,8 @@ class Worksheet {
   }
 
   /// This API supports the .NET Framework infrastructure and is not intended to be used directly from your code.
-  int getRowCount() {
+  // ignore: unused_element
+  int _getRowCount() {
     return rows.count;
   }
 
@@ -567,8 +559,8 @@ class Worksheet {
         final Row row = rows[i];
         if (row != null) {
           for (final Range cell in row.ranges.innerList) {
-            if (cell != null && firstCol > cell.index) {
-              firstCol = cell.index;
+            if (cell != null && firstCol > cell._index) {
+              firstCol = cell._index;
             }
           }
         }
@@ -587,8 +579,8 @@ class Worksheet {
         final Row row = rows[i];
         if (row != null) {
           for (final Range cell in row.ranges.innerList) {
-            if (cell != null && firstCol < cell.index) {
-              firstCol = cell.index;
+            if (cell != null && firstCol < cell._index) {
+              firstCol = cell._index;
             }
           }
         }
@@ -599,22 +591,23 @@ class Worksheet {
   }
 
   /// This API supports the .NET Framework infrastructure and is not intended to be used directly from your code.
-  int getColumnCount() {
+  // ignore: unused_element
+  int _getColumnCount() {
     return getLastColumn() - getFirstColumn();
   }
 
   /// Clear the worksheet.
-  void clear() {
+  void _clear() {
     if (_rows != null) {
-      _rows.clear();
+      _rows._clear();
     }
 
     if (_columns != null) {
-      _columns.clear();
+      _columns._clear();
     }
 
     if (_pictures != null) {
-      _pictures.clear();
+      _pictures._clear();
     }
   }
 }

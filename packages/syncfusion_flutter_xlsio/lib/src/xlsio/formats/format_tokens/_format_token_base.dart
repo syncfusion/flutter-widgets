@@ -3,7 +3,7 @@ part of xlsio;
 /// <summary>
 /// Base class for formula tokens.
 /// </summary>
-abstract class FormatTokenBase {
+abstract class _FormatTokenBase {
   /// <summary>
   /// Part of format.
   /// </summary>
@@ -13,12 +13,12 @@ abstract class FormatTokenBase {
   /// <summary>
   /// Tries to parse format string.
   /// </summary>
-  int tryParse(String strFormat, int iIndex);
+  int _tryParse(String strFormat, int iIndex);
 
   /// <summary>
   /// Tries to parse format string using regular expression.
   /// </summary>
-  int tryParseRegex(RegExp regex, String strFormat, int iIndex) {
+  int _tryParseRegex(RegExp regex, String strFormat, int iIndex) {
     if (regex == null) throw ("regex - Value can't be null");
 
     if (strFormat == null) throw ("strFormat - Value can't be null");
@@ -32,10 +32,10 @@ abstract class FormatTokenBase {
     }
     final Match m = regex.matchAsPrefix(strFormat, iIndex);
     if (regex.hasMatch(strFormat) && m != null && m.start == iIndex) {
-      format = regex.stringMatch(strFormat);
+      _format = regex.stringMatch(strFormat);
       iIndex += _strFormat.length;
       if (m.end != iIndex) {
-        format = _strFormat + _strFormat;
+        _format = _strFormat + _strFormat;
         iIndex = m.end;
       }
     }
@@ -45,36 +45,38 @@ abstract class FormatTokenBase {
   /// <summary>
   /// Applies format to the value.
   /// </summary>
-  String applyFormat(double value, bool bShowHiddenSymbols, CultureInfo culture,
-      FormatSection section);
+  String _applyFormat(double value, bool bShowHiddenSymbols,
+      CultureInfo culture, _FormatSection section);
 
   /// <summary>
   /// Applies format to the value.
   /// </summary>
-  String applyFormatString(String value, bool bShowHiddenSymbols);
+  // ignore: unused_element
+  String _applyFormatString(String value, bool bShowHiddenSymbols);
 
   /// <summary>
   /// Gets or sets format of the token.
   /// </summary>
-  String get format {
+  String get _format {
     return _strFormat;
   }
 
-  set format(String value) {
+  set _format(String value) {
     if (value == null) throw ('value - string cannot be null.');
 
     if (value.isEmpty) throw ('value - string cannot be empty.');
 
     if (_strFormat != value) {
       _strFormat = value;
-      onFormatChange();
+      _onFormatChange();
     }
   }
 
   /// <summary>
   /// Searches for string from strings array in the format starting from the specified position.
   /// </summary>
-  int findString(
+  // ignore: unused_element
+  int _findString(
       List<String> arrStrings, String strFormat, int iIndex, bool bIgnoreCase) {
     if (strFormat == null) throw ('strFormat - string cannot be null.');
 
@@ -91,12 +93,12 @@ abstract class FormatTokenBase {
   /// <summary>
   /// This method is called after format string was changed.
   /// </summary>
-  void onFormatChange() {}
+  void _onFormatChange() {}
 
   /// <summary>
   /// Gets type of the token. Read-only.
   /// </summary>
-  TokenType get tokenType {
-    return TokenType.general;
+  _TokenType get _tokenType {
+    return _TokenType.general;
   }
 }

@@ -122,11 +122,13 @@ class CellStyle implements Style {
   }
 
   /// Gets number format object.
-  FormatImpl get numberFormatObject {
+  _Format get numberFormatObject {
     //MS Excel sets 14th index by default if the index is out of range for any the datatype.
     //So, using the same here in XlsIO.
     if (_book.innerFormats.count > 14 &&
-        !_book.innerFormats.contains(numberFormatIndex)) numberFormatIndex = 14;
+        !_book.innerFormats._contains(numberFormatIndex)) {
+      numberFormatIndex = 14;
+    }
     return _book.innerFormats[numberFormatIndex];
   }
 
@@ -134,24 +136,24 @@ class CellStyle implements Style {
 
   /// Returns or sets the format code for the object. Read/write String.
   String get numberFormat {
-    return numberFormatObject.formatString;
+    return numberFormatObject._formatString;
   }
 
   @override
 
   /// Sets the number format.
   set numberFormat(String value) {
-    numberFormatIndex = _book.innerFormats.findOrCreateFormat(value);
+    numberFormatIndex = _book.innerFormats._findOrCreateFormat(value);
   }
 
   /// Represents the wookbook
-  Workbook get workbook {
+  Workbook get _workbook {
     return _book;
   }
 
   /// clone method of cell style
-  CellStyle clone() {
-    final CellStyle _cellStyle = CellStyle(workbook);
+  CellStyle _clone() {
+    final CellStyle _cellStyle = CellStyle(_workbook);
     _cellStyle.name = name;
     _cellStyle.backColor = backColor;
     _cellStyle.fontName = fontName;
@@ -170,7 +172,7 @@ class CellStyle implements Style {
     _cellStyle.numberFormat = numberFormat;
     _cellStyle.numberFormatIndex = numberFormatIndex;
     _cellStyle.isGlobalStyle = isGlobalStyle;
-    _cellStyle.borders = borders.clone();
+    _cellStyle.borders = borders._clone();
     return _cellStyle;
   }
 
@@ -220,9 +222,9 @@ class CellStyle implements Style {
       borders);
 
   /// clear the borders
-  void clear() {
+  void _clear() {
     if (_borders != null) {
-      (_borders as BordersCollection).clear();
+      (_borders as BordersCollection)._clear();
       _borders = null;
     }
   }
