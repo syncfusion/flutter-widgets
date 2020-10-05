@@ -182,6 +182,7 @@ class _BoxPlotQuartileValues {
   _BoxPlotQuartileValues(
       {this.minimum,
       this.maximum,
+      //ignore: unused_element
       List<num> outliers,
       this.upperQuartile,
       this.lowerQuartile,

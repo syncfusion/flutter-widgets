@@ -9,7 +9,6 @@ import 'package:syncfusion_flutter_xlsio/xlsio.dart';
 import 'package:archive/archive.dart';
 import 'package:xml/xml.dart';
 
-
 //Src
 part 'src/chart/chart_impl.dart';
 part 'src/chart/chart_plotarea.dart';

@@ -10,6 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  vector_math: ">=1.1.0 <3.0.0"
   path_provider: ^1.6.18
   syncfusion_flutter_core:
     path: ../syncfusion_flutter_core

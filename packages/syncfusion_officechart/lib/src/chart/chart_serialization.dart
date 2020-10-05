@@ -74,7 +74,9 @@ class ChartSerialization {
                 ? 'l'
                 : legendPostion == ExcelLegendPosition.right
                     ? 'r'
-                    : legendPostion == ExcelLegendPosition.top ? 't' : 'r';
+                    : legendPostion == ExcelLegendPosition.top
+                        ? 't'
+                        : 'r';
         builder.attribute('val', positionStr);
       });
       if (chartLegend._hasTextArea) {

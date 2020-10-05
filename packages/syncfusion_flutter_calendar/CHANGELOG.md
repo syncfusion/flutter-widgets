@@ -1,4 +1,8 @@
 ## [18.3.35] - 10/01/2020
+**Bug fixes**
+* Now, the appointment will render on the correct timeslot, when the local set as French,  Canada, and in `Eastern Standard Time`.
+* Now, the appointments will render on the correct timeslot, when the start time of the time slot is set as a different value.
+
 **Features**
 * Timeline month view support
 * Resource view support
@@ -13,10 +17,6 @@
 * The `timeIntervalHeight` property will not work for timeline views, use the `timeIntervalWidth` property instead for the timeline views alone.
 * The default value for the `timeIntervalWidth` is changed from 40 to 60.
 * The appointment UI width is reduced in the day, week, and workweek views.
-
-** Bug fixes**
-* Now, the appointment will render on the correct timeslot, when the local set as French,  Canada, and in `Eastern Standard Time`.
-* Now, the appointments will render on the correct timeslot, when the start time of the time slot is set as a different value.
 
 ## [18.2.59] - 09/23/2020
 No changes.

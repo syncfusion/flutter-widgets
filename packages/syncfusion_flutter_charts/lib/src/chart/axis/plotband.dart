@@ -633,7 +633,9 @@ class _PlotBandPainter extends CustomPainter {
           ? plotBand.repeatUntil is DateTime
               ? plotBand.repeatUntil.millisecondsSinceEpoch
               : plotBand.repeatUntil
-          : endValue is DateTime ? endValue.millisecondsSinceEpoch : endValue;
+          : endValue is DateTime
+              ? endValue.millisecondsSinceEpoch
+              : endValue;
     } else if (axisRenderer is CategoryAxisRenderer) {
       startValue = startValue is num
           ? startValue
@@ -642,7 +644,9 @@ class _PlotBandPainter extends CustomPainter {
           ? plotBand.repeatUntil is num
               ? plotBand.repeatUntil.floor()
               : axisRenderer._labels.indexOf(plotBand.repeatUntil)
-          : endValue is num ? endValue : axisRenderer._labels.indexOf(endValue);
+          : endValue is num
+              ? endValue
+              : axisRenderer._labels.indexOf(endValue);
     } else if (axisRenderer is LogarithmicAxisRenderer ||
         axisRenderer is NumericAxisRenderer) {
       endValue = isNeedRepeat ? plotBand.repeatUntil : endValue;

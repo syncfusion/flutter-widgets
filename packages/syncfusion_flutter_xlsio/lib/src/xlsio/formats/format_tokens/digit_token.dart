@@ -3,13 +3,13 @@ part of xlsio;
 /// <summary>
 /// Class used for describing Digit Tokens.
 /// </summary>
-abstract class DigitToken extends SingleCharToken {
+abstract class _DigitToken extends _SingleCharToken {
   /// <summary>
   /// Applies format to the value.
   /// </summary>
   @override
-  String applyFormat(double value, bool bShowHiddenSymbols, CultureInfo culture,
-      FormatSection section) {
+  String _applyFormat(double value, bool bShowHiddenSymbols,
+      CultureInfo culture, _FormatSection section) {
     final int iDigit = 0;
     return _getDigitString(value, iDigit, bShowHiddenSymbols);
   }
@@ -18,7 +18,8 @@ abstract class DigitToken extends SingleCharToken {
   /// Applies format to the value.
   /// </summary>
   @override
-  String applyFormatString(String value, bool bShowHiddenSymbols) {
+  // ignore: unused_element
+  String _applyFormatString(String value, bool bShowHiddenSymbols) {
     return value;
   }
 
@@ -34,7 +35,7 @@ abstract class DigitToken extends SingleCharToken {
   }
 
   @override
-  int tryParse(String strFormat, int iIndex) {
+  int _tryParse(String strFormat, int iIndex) {
     return iIndex;
   }
 }

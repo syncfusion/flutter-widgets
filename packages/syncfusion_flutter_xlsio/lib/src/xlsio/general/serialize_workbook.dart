@@ -7,14 +7,11 @@ class SerializeWorkbook {
     _workbook = workbook;
   }
 
-  /// Decode the Zip file
-  Archive archive = Archive();
-
   /// Workbook to serialize.
   Workbook _workbook;
 
   /// Serialize workbook
-  void saveInternal() {
+  void _saveInternal() {
     _updateGlobalStyles();
     _saveWorkbook();
     _saveWorksheets();
@@ -88,7 +85,7 @@ class SerializeWorkbook {
       builder.attribute('xmlns:mc',
           'http://schemas.openxmlformats.org/markup-compatibility/2006');
 
-      if (!sheet.isSummaryRowBelow) {
+      if (!sheet._isSummaryRowBelow) {
         builder.element('sheetPr', nest: () {
           builder.element('OutlinePr', nest: () {
             builder.attribute('summaryBelow', '0');
@@ -138,16 +135,16 @@ class SerializeWorkbook {
                         cell._styleIndex = -1;
                       }
                       builder.element('c', nest: () {
-                        builder.attribute('r', cell.refName);
-                        if (cell.saveType != null) {
-                          builder.attribute('t', cell.saveType);
+                        builder.attribute('r', cell.addressLocal);
+                        if (cell._saveType != null) {
+                          builder.attribute('t', cell._saveType);
                         }
                         if (cell._styleIndex != -1) {
                           builder.attribute('s', cell._styleIndex.toString());
                         }
                         String strFormula = cell.formula;
                         if (strFormula != null && strFormula != '') {
-                          if (strFormula[0] == '=' && cell.saveType != 's') {
+                          if (strFormula[0] == '=' && cell._saveType != 's') {
                             strFormula =
                                 strFormula.substring(1).replaceAll('\'', '\"');
                             builder.element('f', nest: strFormula);
@@ -166,7 +163,7 @@ class SerializeWorkbook {
                           } else if (cell.number != null) {
                             builder.element('v', nest: cell.number.toString());
                           } else if (cell.text != null) {
-                            if (cell.saveType == 's') {
+                            if (cell._saveType == 's') {
                               builder.element('v',
                                   nest: cell._textIndex.toString());
                             } else {
@@ -216,7 +213,7 @@ class SerializeWorkbook {
       });
       if ((sheet.pictures != null && sheet.pictures.count > 0) ||
           (sheet.charts != null && sheet.chartCount > 0)) {
-        _workbook.drawingCount++;
+        _workbook._drawingCount++;
         _saveDrawings(sheet);
         if (sheet.charts != null && sheet.chartCount > 0) {
           sheet.charts.serializeCharts(sheet);
@@ -339,19 +336,19 @@ class SerializeWorkbook {
             builder.element('xdr:clientData', nest: () {});
           });
           final imageData = picture.imageData;
-          _workbook.imageCount += 1;
+          _workbook._imageCount += 1;
           String imgPath;
           if (Picture.isJpeg(imageData)) {
             imgPath =
-                'xl/media/image' + _workbook.imageCount.toString() + '.jpeg';
-            if (!_workbook.defaultContentTypes.containsKey('jpeg')) {
-              _workbook.defaultContentTypes['jpeg'] = 'image/jpeg';
+                'xl/media/image' + _workbook._imageCount.toString() + '.jpeg';
+            if (!_workbook._defaultContentTypes.containsKey('jpeg')) {
+              _workbook._defaultContentTypes['jpeg'] = 'image/jpeg';
             }
           } else {
             imgPath =
-                'xl/media/image' + _workbook.imageCount.toString() + '.png';
-            if (!_workbook.defaultContentTypes.containsKey('png')) {
-              _workbook.defaultContentTypes['png'] = 'image/png';
+                'xl/media/image' + _workbook._imageCount.toString() + '.png';
+            if (!_workbook._defaultContentTypes.containsKey('png')) {
+              _workbook._defaultContentTypes['png'] = 'image/png';
             }
           }
           _addToArchive(imageData, imgPath);
@@ -362,7 +359,7 @@ class SerializeWorkbook {
     final stringXml = builder.buildDocument().copy().toString();
     final bytes = utf8.encode(stringXml);
     _addToArchive(bytes,
-        'xl/drawings/drawing' + (_workbook.drawingCount).toString() + '.xml');
+        'xl/drawings/drawing' + (_workbook._drawingCount).toString() + '.xml');
   }
 
   /// Serialize drawing relations.
@@ -391,7 +388,7 @@ class SerializeWorkbook {
       }
       if (sheet.pictures.count != 0) {
         final length = sheet.pictures.count;
-        int id = _workbook.imageCount - sheet.pictures.count;
+        int id = _workbook._imageCount - sheet.pictures.count;
         for (int i = 1; i <= length; i++) {
           id++;
           builder.element('Relationship', nest: () {
@@ -415,7 +412,7 @@ class SerializeWorkbook {
     _addToArchive(
         bytes,
         'xl/drawings/_rels/drawing' +
-            (_workbook.drawingCount).toString() +
+            (_workbook._drawingCount).toString() +
             '.xml.rels');
   }
 
@@ -457,7 +454,7 @@ class SerializeWorkbook {
 
         picture.lastRowOffset = (rowHiddenHeight * picture.lastRowOffset) / 256;
         picture.lastRowOffset =
-            (picture.lastRowOffset / _workbook.unitProportions[7])
+            (picture.lastRowOffset / _workbook._unitProportions[7])
                 .round()
                 .toDouble();
         break;
@@ -507,7 +504,7 @@ class SerializeWorkbook {
 
         picture.lastColOffset = (colHiddenWidth * picture.lastColOffset) / 1024;
         picture.lastColOffset =
-            (picture.lastColOffset / _workbook.unitProportions[7])
+            (picture.lastColOffset / _workbook._unitProportions[7])
                 .round()
                 .toDouble();
 
@@ -522,7 +519,7 @@ class SerializeWorkbook {
 
   /// Converts the given value to pixels.
   double _convertToPixels(double value) {
-    return value * _workbook.unitProportions[6];
+    return value * _workbook._unitProportions[6];
   }
 
   /// Converts column width to pixels.
@@ -557,7 +554,7 @@ class SerializeWorkbook {
           builder.attribute(
               'Target',
               '../drawings/drawing' +
-                  _workbook.drawingCount.toString() +
+                  _workbook._drawingCount.toString() +
                   '.xml');
         });
       } else if (sheet.charts != null && sheet.chartCount > 0) {
@@ -568,7 +565,7 @@ class SerializeWorkbook {
           builder.attribute(
               'Target',
               '../drawings/drawing' +
-                  _workbook.drawingCount.toString() +
+                  _workbook._drawingCount.toString() +
                   '.xml');
         });
       }
@@ -592,15 +589,15 @@ class SerializeWorkbook {
   /// Serialize workbook shared string.
   void _saveSharedString() {
     final builder = XmlBuilder();
-    final length = _workbook.sharedStrings.length;
-    if (_workbook.sharedStrings != null && length > 0) {
+    final length = _workbook._sharedStrings.length;
+    if (_workbook._sharedStrings != null && length > 0) {
       builder.processing('xml', 'version="1.0"');
       builder.element('sst', nest: () {
         builder.attribute('xmlns',
             'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
         builder.attribute('uniqueCount', length.toString());
-        builder.attribute('count', _workbook.sharedStringCount.toString());
-        _workbook.sharedStrings.forEach((key, value) {
+        builder.attribute('count', _workbook._sharedStringCount.toString());
+        _workbook._sharedStrings.forEach((key, value) {
           if (key.indexOf('<r>') != 0) {
             builder.element('si', nest: () {
               builder.element('t', nest: () {
@@ -767,7 +764,7 @@ class SerializeWorkbook {
           builder.attribute('ContentType',
               'application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml');
         });
-        if ((_workbook.imageCount > 0 &&
+        if ((_workbook._imageCount > 0 &&
                 _workbook.worksheets[i].pictures != null &&
                 _workbook.worksheets[i].pictures.count > 0) ||
             _workbook.worksheets[i].charts != null &&
@@ -795,17 +792,17 @@ class SerializeWorkbook {
         }
       }
 
-      if (_workbook.imageCount > 0) {
-        for (final key in _workbook.defaultContentTypes.keys) {
+      if (_workbook._imageCount > 0) {
+        for (final key in _workbook._defaultContentType.keys) {
           builder.element('Default', nest: () {
             builder.attribute('Extension', key);
             builder.attribute(
-                'ContentType', _workbook.defaultContentTypes[key]);
+                'ContentType', _workbook._defaultContentTypes[key]);
           });
         }
       }
 
-      if (_workbook.sharedStringCount > 0) {
+      if (_workbook._sharedStringCount > 0) {
         builder.element('Override', nest: () {
           builder.attribute('PartName', '/xl/sharedStrings.xml');
           builder.attribute('ContentType',
@@ -847,7 +844,7 @@ class SerializeWorkbook {
             'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles');
         builder.attribute('Target', 'styles.xml');
       });
-      if (_workbook.sharedStringCount > 0) {
+      if (_workbook._sharedStringCount > 0) {
         count = ++count;
         builder.element('Relationship', nest: () {
           builder.attribute('Id', 'rId' + count.toString());
@@ -932,12 +929,12 @@ class SerializeWorkbook {
         if (cellStyle.name == null) {
           _workbook.styles.addStyle(cellStyle);
         }
-        final globalStyle = GlobalStyle();
-        globalStyle.name = cellStyle.name;
-        globalStyle.xfId = cellStyle.index;
-        globalStyle.numberFormat = cellStyle.numberFormat;
-        globalStyle.builtinId = cellStyle._builtinId;
-        _workbook.globalStyles[globalStyle.name] = globalStyle;
+        final globalStyle = _GlobalStyle();
+        globalStyle._name = cellStyle.name;
+        globalStyle._xfId = cellStyle.index;
+        globalStyle._numberFormat = cellStyle.numberFormat;
+        globalStyle._builtinId = cellStyle._builtinId;
+        _workbook._globalStyles[globalStyle._name] = globalStyle;
       }
     }
   }
@@ -946,11 +943,11 @@ class SerializeWorkbook {
   int _processCellStyle(CellStyle style, Workbook workbook) {
     final int index = workbook.styles.innerList.indexOf(style);
     if (style.isGlobalStyle && index >= 0) {
-      processNumFormatId(style, workbook);
+      _processNumFormatId(style, workbook);
       if (style.name == null) workbook.styles.addStyle(style);
       return style.index;
     } else if (index == -1) {
-      processNumFormatId(style, workbook);
+      _processNumFormatId(style, workbook);
       workbook.styles.addStyle(style);
       return style.index;
     } else {
@@ -959,10 +956,10 @@ class SerializeWorkbook {
   }
 
   /// Process the number format for cell style.
-  void processNumFormatId(CellStyle style, Workbook workbook) {
+  void _processNumFormatId(CellStyle style, Workbook workbook) {
     if (style.numberFormat != 'General' &&
-        !_workbook.innerFormats.contains(style.numberFormatIndex)) {
-      _workbook.innerFormats.createFormat(style.numberFormat);
+        !_workbook.innerFormats._contains(style.numberFormatIndex)) {
+      _workbook.innerFormats._createFormat(style.numberFormat);
     }
   }
 
@@ -972,15 +969,16 @@ class SerializeWorkbook {
       CellStyleXfs cellXfs;
       if (style.isGlobalStyle) {
         cellXfs = CellXfs();
-        if (_workbook.globalStyles.containsKey(style.name)) {
-          (cellXfs as CellXfs).xfId = _workbook.globalStyles[style.name].xfId;
+        if (_workbook._globalStyles.containsKey(style.name)) {
+          (cellXfs as CellXfs)._xfId =
+              _workbook._globalStyles[style.name]._xfId;
         }
       } else {
         cellXfs = CellXfs();
-        (cellXfs as CellXfs).xfId = 0;
+        (cellXfs as CellXfs)._xfId = 0;
       }
       final compareFontResult = _workbook._isNewFont(style);
-      if (!compareFontResult.result) {
+      if (!compareFontResult._result) {
         final font = Font();
         font.bold = style.bold;
         font.italic = style.italic;
@@ -989,79 +987,79 @@ class SerializeWorkbook {
         font.underline = style.underline;
         font.color = ('FF' + style.fontColor.replaceAll('#', ''));
         _workbook.fonts.add(font);
-        cellXfs.fontId = _workbook.fonts.length - 1;
+        cellXfs._fontId = _workbook.fonts.length - 1;
       } else {
-        cellXfs.fontId = compareFontResult.index;
+        cellXfs._fontId = compareFontResult._index;
       }
       if (style.backColor != 'none') {
         final backColor = 'FF' + style.backColor.replaceAll('#', '');
         if (_workbook.fills.containsKey(backColor)) {
           final fillId = _workbook.fills[backColor];
-          cellXfs.fillId = fillId;
+          cellXfs._fillId = fillId;
         } else {
           final fillId = _workbook.fills.length + 2;
           _workbook.fills[backColor] = fillId;
-          cellXfs.fillId = fillId;
+          cellXfs._fillId = fillId;
         }
       } else {
-        cellXfs.fillId = 0;
+        cellXfs._fillId = 0;
       }
 
       //Add border
       if (!Workbook._isNewBorder(style)) {
         _workbook.borders.add(style.borders);
-        cellXfs.borderId = _workbook.borders.length;
+        cellXfs._borderId = _workbook.borders.length;
       } else {
-        cellXfs.borderId = 0;
+        cellXfs._borderId = 0;
       }
 
       //Add Number Format
       if (style.numberFormat != 'GENERAL') {
-        if (_workbook.innerFormats.contains(style.numberFormatIndex)) {
+        if (_workbook.innerFormats._contains(style.numberFormatIndex)) {
           final format = _workbook.innerFormats[style.numberFormatIndex];
-          cellXfs.numberFormatId = format.index;
+          cellXfs._numberFormatId = format._index;
         } else {
-          cellXfs.numberFormatId =
-              _workbook.innerFormats.createFormat(style.numberFormat);
+          cellXfs._numberFormatId =
+              _workbook.innerFormats._createFormat(style.numberFormat);
         }
       } else {
         if (style.numberFormat == 'GENERAL' && style.numberFormatIndex == 14) {
-          cellXfs.numberFormatId = 14;
+          cellXfs._numberFormatId = 14;
         } else {
-          cellXfs.numberFormatId = 0;
+          cellXfs._numberFormatId = 0;
         }
       }
       //Add alignment
-      cellXfs.alignment = Alignment();
-      cellXfs.alignment.indent = style.indent;
-      cellXfs.alignment.horizontal =
+      cellXfs._alignment = Alignment();
+      cellXfs._alignment.indent = style.indent;
+      cellXfs._alignment.horizontal =
           style.hAlign.toString().split('.').toList().removeAt(1).toString();
-      cellXfs.alignment.vertical =
+      cellXfs._alignment.vertical =
           style.vAlign.toString().split('.').toList().removeAt(1).toString();
-      cellXfs.alignment.wrapText = style.wrapText ? 1 : 0;
-      cellXfs.alignment.rotation = style.rotation;
+      cellXfs._alignment.wrapText = style.wrapText ? 1 : 0;
+      cellXfs._alignment.rotation = style.rotation;
 
       if (style.isGlobalStyle) {
-        _workbook.cellStyleXfs.add(cellXfs);
-        _workbook.cellXfs.add(cellXfs as CellXfs);
+        _workbook._cellStyleXfs.add(cellXfs);
+        _workbook._cellXfs.add(cellXfs as CellXfs);
       } else {
         //Add cellxfs
-        _workbook.cellXfs.add(cellXfs as CellXfs);
+        _workbook._cellXfs.add(cellXfs as CellXfs);
       }
     }
   }
 
   /// Serialize number formats.
   void _saveNumberFormats(final builder) {
-    final arrFormats = _workbook.innerFormats.getUsedFormats();
+    final arrFormats = _workbook.innerFormats._getUsedFormats();
     if (arrFormats.isNotEmpty) {
       builder.element('numFmts', nest: () {
         builder.attribute('count', arrFormats.length.toString());
         for (var i = 0; i < arrFormats.length; i++) {
           builder.element('numFmt', nest: () {
-            builder.attribute('numFmtId', arrFormats[i].index.toString());
+            builder.attribute('numFmtId', arrFormats[i]._index.toString());
             final String formatString =
-                arrFormats[i].formatString.replaceAll('\'', '\"');
+                arrFormats[i]._formatString.replaceAll('\'', '\"');
             builder.attribute('formatCode', formatString.toString());
           });
         }
@@ -1194,21 +1192,21 @@ class SerializeWorkbook {
   void _saveCellStyleXfs(final builder) {
     builder.element('cellStyleXfs', nest: () {
       builder.attribute(
-          'count', (_workbook.cellStyleXfs.length + 1).toString());
+          'count', (_workbook._cellStyleXfs.length + 1).toString());
       builder.element('xf', nest: () {
         builder.attribute('numFmtId', '0');
         builder.attribute('fontId', '0');
         builder.attribute('fillId', '0');
         builder.attribute('borderId', '0');
       });
-      if (_workbook.cellStyleXfs.isNotEmpty) {
-        for (final CellStyleXfs cellStyleXfs in _workbook.cellStyleXfs) {
+      if (_workbook._cellStyleXfs.isNotEmpty) {
+        for (final CellStyleXfs cellStyleXfs in _workbook._cellStyleXfs) {
           builder.element('xf', nest: () {
             builder.attribute(
-                'numFmtId', cellStyleXfs.numberFormatId.toString());
-            builder.attribute('fontId', cellStyleXfs.fontId.toString());
-            builder.attribute('fillId', cellStyleXfs.fillId.toString());
-            builder.attribute('borderId', cellStyleXfs.borderId.toString());
+                'numFmtId', cellStyleXfs._numberFormatId.toString());
+            builder.attribute('fontId', cellStyleXfs._fontId.toString());
+            builder.attribute('fillId', cellStyleXfs._fillId.toString());
+            builder.attribute('borderId', cellStyleXfs._borderId.toString());
           });
         }
       }
@@ -1218,15 +1216,15 @@ class SerializeWorkbook {
   /// Serialize cell styles xfs.
   void _saveCellXfs(final builder) {
     builder.element('cellXfs', nest: () {
-      builder.attribute('count', _workbook.cellXfs.length.toString());
-      if (_workbook.cellXfs.isNotEmpty) {
-        for (final CellXfs cellXf in _workbook.cellXfs) {
+      builder.attribute('count', _workbook._cellXfs.length.toString());
+      if (_workbook._cellXfs.isNotEmpty) {
+        for (final CellXfs cellXf in _workbook._cellXfs) {
           builder.element('xf', nest: () {
-            builder.attribute('numFmtId', cellXf.numberFormatId.toString());
-            builder.attribute('fontId', cellXf.fontId.toString());
-            builder.attribute('fillId', cellXf.fillId.toString());
-            builder.attribute('borderId', cellXf.borderId.toString());
-            builder.attribute('xfId', cellXf.xfId.toString());
+            builder.attribute('numFmtId', cellXf._numberFormatId.toString());
+            builder.attribute('fontId', cellXf._fontId.toString());
+            builder.attribute('fillId', cellXf._fillId.toString());
+            builder.attribute('borderId', cellXf._borderId.toString());
+            builder.attribute('xfId', cellXf._xfId.toString());
             _saveAlignment(cellXf, builder);
           });
         }
@@ -1237,25 +1235,26 @@ class SerializeWorkbook {
   /// Serialize alignment.
   void _saveAlignment(CellStyleXfs cellXf, final builder) {
     builder.element('alignment', nest: () {
-      if (cellXf.alignment.horizontal != null) {
+      if (cellXf._alignment.horizontal != null) {
         builder.attribute(
-            'horizontal', cellXf.alignment.horizontal.toLowerCase());
+            'horizontal', cellXf._alignment.horizontal.toLowerCase());
       }
-      if (cellXf.alignment.indent != 0) {
-        builder.attribute('indent', cellXf.alignment.indent.toString());
-      } else if (cellXf.alignment.rotation != 0) {
-        builder.attribute('textRotation', cellXf.alignment.rotation.toString());
+      if (cellXf._alignment.indent != 0) {
+        builder.attribute('indent', cellXf._alignment.indent.toString());
+      } else if (cellXf._alignment.rotation != 0) {
+        builder.attribute(
+            'textRotation', cellXf._alignment.rotation.toString());
       }
-      if (cellXf.alignment.vertical != null) {
-        builder.attribute('vertical', cellXf.alignment.vertical.toLowerCase());
+      if (cellXf._alignment.vertical != null) {
+        builder.attribute('vertical', cellXf._alignment.vertical.toLowerCase());
       }
-      builder.attribute('wrapText', cellXf.alignment.wrapText.toString());
+      builder.attribute('wrapText', cellXf._alignment.wrapText.toString());
     });
   }
 
   /// Serialize cell styles.
   void _saveGlobalCellstyles(final builder) {
-    final length = _workbook.globalStyles.length + 1;
+    final length = _workbook._globalStyles.length + 1;
     builder.element('cellStyles', nest: () {
       builder.attribute('count', length.toString());
       builder.element('cellStyle', nest: () {
@@ -1263,15 +1262,15 @@ class SerializeWorkbook {
         builder.attribute('xfId', '0');
         builder.attribute('builtinId', '0');
       });
-      _workbook.globalStyles.forEach((key, value) {
+      _workbook._globalStyles.forEach((key, value) {
         builder.element('cellStyle', nest: () {
           if (key != null) {
             builder.attribute('name', key);
             builder.attribute(
-                'xfId', _workbook.globalStyles[key].xfId.toString());
-            if (_workbook.globalStyles[key].builtinId != 0) {
+                'xfId', _workbook._globalStyles[key]._xfId.toString());
+            if (_workbook._globalStyles[key]._builtinId != 0) {
               builder.attribute('builtinId',
-                  _workbook.globalStyles[key].builtinId.toString());
+                  _workbook._globalStyles[key]._builtinId.toString());
             }
           }
         });
@@ -1284,21 +1283,21 @@ class SerializeWorkbook {
       Range cell, int rowIndex, MergedCellCollection mergeCells) {
     if (cell.rowSpan != 0 || cell.columnSpan != 0) {
       final mCell = MergeCell();
-      mCell.x = cell.index;
+      mCell.x = cell._index;
       mCell.width = cell.columnSpan;
       mCell.y = rowIndex;
       mCell.height = cell.rowSpan;
-      final startCell = Range.getCellName(mCell.y, mCell.x);
-      final endCell =
-          Range.getCellName(rowIndex + mCell.height, cell.index + mCell.width);
+      final startCell = Range._getCellName(mCell.y, mCell.x);
+      final endCell = Range._getCellName(
+          rowIndex + mCell.height, cell._index + mCell.width);
       mCell._reference = startCell + ':' + endCell;
       mergeCells.addCell(mCell);
-      final start = ExtendCell();
-      start.x = mCell.x;
-      start.y = mCell.y;
-      final end = ExtendCell();
-      end.x = cell.index + mCell.width;
-      end.y = rowIndex + mCell.height;
+      final start = _ExtendCell();
+      start._x = mCell.x;
+      start._y = mCell.y;
+      final end = _ExtendCell();
+      end._x = cell._index + mCell.width;
+      end._y = rowIndex + mCell.height;
       _updatedMergedCellStyles(start, end, cell);
     }
     return mergeCells;
@@ -1306,18 +1305,18 @@ class SerializeWorkbook {
 
   /// Update merged cell styles
   void _updatedMergedCellStyles(
-      ExtendCell sCell, ExtendCell eCell, Range cell) {
+      _ExtendCell sCell, _ExtendCell eCell, Range cell) {
     final workbook = cell.workbook;
-    for (int x = sCell.x; x <= eCell.x; x++) {
-      for (int y = sCell.y; y <= eCell.y; y++) {
-        final extendStyle = ExtendStyle();
-        extendStyle.x = x;
-        extendStyle.y = y;
-        extendStyle.styleIndex = cell._styleIndex;
-        if (workbook.mergedCellsStyle.containsKey(Range.getCellName(y, x))) {
-          workbook.mergedCellsStyle.remove(Range.getCellName(y, x));
+    for (int x = sCell._x; x <= eCell._x; x++) {
+      for (int y = sCell._y; y <= eCell._y; y++) {
+        final extendStyle = _ExtendStyle();
+        extendStyle._x = x;
+        extendStyle._y = y;
+        extendStyle._styleIndex = cell._styleIndex;
+        if (workbook._mergedCellsStyle.containsKey(Range._getCellName(y, x))) {
+          workbook._mergedCellsStyle.remove(Range._getCellName(y, x));
         }
-        workbook.mergedCellsStyle[Range.getCellName(y, x)] = extendStyle;
+        workbook._mergedCellsStyle[Range._getCellName(y, x)] = extendStyle;
       }
     }
   }

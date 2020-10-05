@@ -3,7 +3,7 @@ part of xlsio;
 /// <summary>
 /// Class used for character token.
 /// </summary>
-abstract class SingleCharToken extends FormatTokenBase {
+abstract class _SingleCharToken extends _FormatTokenBase {
   /// <summary>
   /// Gets format character. Read-only.
   /// </summary>
@@ -13,7 +13,7 @@ abstract class SingleCharToken extends FormatTokenBase {
   /// Tries to parse format string.
   /// </summary>
   @override
-  int tryParse(String strFormat, int iIndex) {
+  int _tryParse(String strFormat, int iIndex) {
     if (strFormat == null) throw ('strFormat - string cannot be null');
 
     final int iFormatLength = strFormat.length;

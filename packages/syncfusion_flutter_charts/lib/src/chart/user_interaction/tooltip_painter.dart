@@ -433,18 +433,28 @@ class _TooltipPainter extends CustomPainter {
           _getLabelValue(point.cumulativeValue, axisRenderer._axis, digits);
     }
     if (tooltip.format != null) {
-      resultantString = (seriesRenderer._seriesType.contains('range') || seriesRenderer._seriesType == 'hilo') && !isTrendLine
+      resultantString = (seriesRenderer._seriesType.contains('range') || seriesRenderer._seriesType == 'hilo') &&
+              !isTrendLine
           ? (tooltip.format
               .replaceAll('point.x', values[0])
               .replaceAll('point.high', highValue)
               .replaceAll('point.low', lowValue)
               .replaceAll('seriesRenderer._series.name',
                   seriesRenderer._series.name ?? seriesRenderer._seriesName))
-          : (seriesRenderer._seriesType.contains('hiloopenclose') || seriesRenderer._seriesType.contains('candle')) && !isTrendLine
-              ? (tooltip.format.replaceAll('point.x', values[0]).replaceAll('point.high', highValue).replaceAll('point.low', lowValue).replaceAll('point.open', openValue).replaceAll('point.close', closeValue).replaceAll(
-                  'seriesRenderer._series.name',
-                  seriesRenderer._series.name ?? seriesRenderer._seriesName))
-              : (seriesRenderer._seriesType.contains('boxandwhisker')) && !isTrendLine
+          : (seriesRenderer._seriesType.contains('hiloopenclose') || seriesRenderer._seriesType.contains('candle')) &&
+                  !isTrendLine
+              ? (tooltip.format
+                  .replaceAll('point.x', values[0])
+                  .replaceAll('point.high', highValue)
+                  .replaceAll('point.low', lowValue)
+                  .replaceAll('point.open', openValue)
+                  .replaceAll('point.close', closeValue)
+                  .replaceAll(
+                      'seriesRenderer._series.name',
+                      seriesRenderer._series.name ??
+                          seriesRenderer._seriesName))
+              : (seriesRenderer._seriesType.contains('boxandwhisker')) &&
+                      !isTrendLine
                   ? (tooltip.format
                       .replaceAll('point.x', values[0])
                       .replaceAll('point.minimum', minimumValue)
@@ -835,7 +845,9 @@ class _TooltipPainter extends CustomPainter {
       final double tooltipRightEnd = x + (rect.width / 2);
       xPos = xPos < boundaryRect.left
           ? boundaryRect.left
-          : tooltipRightEnd > totalWidth ? totalWidth - rect.width : xPos;
+          : tooltipRightEnd > totalWidth
+              ? totalWidth - rect.width
+              : xPos;
       yPos = yPos - (pointerLength / 2);
     } else {
       isTop = false;
@@ -848,7 +860,9 @@ class _TooltipPainter extends CustomPainter {
       final double tooltipRightEnd = x + (rect.width / 2);
       xPos = xPos < boundaryRect.left
           ? boundaryRect.left
-          : tooltipRightEnd > totalWidth ? totalWidth - rect.width : xPos;
+          : tooltipRightEnd > totalWidth
+              ? totalWidth - rect.width
+              : xPos;
     }
     if (xPos <= boundaryRect.left + 5) {
       xPos = xPos + 5;

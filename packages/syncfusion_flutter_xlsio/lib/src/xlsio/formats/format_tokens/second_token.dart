@@ -3,7 +3,7 @@ part of xlsio;
 /// <summary>
 /// Class used for Seconds Token.
 /// </summary>
-class SecondToken extends FormatTokenBase {
+class _SecondToken extends _FormatTokenBase {
   /// <summary>
   /// Regular expression for minutes part of the format:
   /// </summary>
@@ -22,28 +22,29 @@ class SecondToken extends FormatTokenBase {
   /// <summary>
   /// Indicates whether number of seconds must be rounded.
   /// </summary>
-  bool roundValue = true;
+  // ignore: prefer_final_fields
+  bool _roundValue = true;
 
   /// <summary>
   /// Tries to parse format string.
   /// </summary>
   @override
-  int tryParse(String strFormat, int iIndex) {
-    return tryParseRegex(_secondRegex, strFormat, iIndex);
+  int _tryParse(String strFormat, int iIndex) {
+    return _tryParseRegex(_secondRegex, strFormat, iIndex);
   }
 
   /// <summary>
   /// Applies format to the value.
   /// </summary>
   @override
-  String applyFormat(double value, bool bShowHiddenSymbols, CultureInfo culture,
-      FormatSection section) {
-    final DateTime date = Range.fromOADate(value);
+  String _applyFormat(double value, bool bShowHiddenSymbols,
+      CultureInfo culture, _FormatSection section) {
+    final DateTime date = Range._fromOADate(value);
 
     int iSecond = date.second;
     final int iMilliSecond = date.millisecond;
 
-    if (roundValue && iMilliSecond >= _defaultMilliSecondHalf) iSecond++;
+    if (_roundValue && iMilliSecond >= _defaultMilliSecondHalf) iSecond++;
 
     if (_strFormat.length > 1) {
       /// when second is more than 59, display it as 00.
@@ -57,7 +58,8 @@ class SecondToken extends FormatTokenBase {
   /// Applies format to the value.
   /// </summary>
   @override
-  String applyFormatString(String value, bool bShowHiddenSymbols) {
+  // ignore: unused_element
+  String _applyFormatString(String value, bool bShowHiddenSymbols) {
     return '';
   }
 
@@ -65,7 +67,7 @@ class SecondToken extends FormatTokenBase {
   /// Gets type of the token. Read-only.
   /// </summary>
   @override
-  TokenType get tokenType {
-    return TokenType.second;
+  _TokenType get _tokenType {
+    return _TokenType.second;
   }
 }

@@ -39,4 +39,3 @@ part './src/barcode_generator/two_dimensional/error_correction_codewords.dart';
 part './src/barcode_generator/two_dimensional/qr_code_symbology.dart';
 part './src/barcode_generator/two_dimensional/qr_code_values.dart';
 part './src/barcode_generator/two_dimensional/datamatrix_symbology.dart';
-

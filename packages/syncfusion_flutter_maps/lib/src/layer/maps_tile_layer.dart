@@ -3,7 +3,7 @@ part of maps;
 /// Tile layer which renders the tiles returned from the Web Map Tile
 /// Services (WMTS) like OpenStreetMap, Bing Maps, Google Maps, TomTom etc.
 ///
-/// The [MapTileLayer.urlTemplate] accepts the URL in WMTS format 
+/// The [MapTileLayer.urlTemplate] accepts the URL in WMTS format
 /// i.e. {z} — zoom level, {x} and {y} — tile coordinates.
 ///
 /// This URL might vary slightly depends on the providers. The formats can be,
@@ -17,7 +17,7 @@ part of maps;
 /// The subscription key may be needed for some of the providers. Please include
 /// them in the [MapTileLayer.urlTemplate] itself as mentioned in above example.
 /// Please note that the format may vary between the each map providers. You can
-/// check the exact URL format needed for the providers in their official 
+/// check the exact URL format needed for the providers in their official
 /// websites.
 ///
 /// Regarding the tile rendering, at the lowest zoom level (Level 0), the map is
@@ -32,8 +32,8 @@ part of maps;
 ///
 /// However, based on the size of the [SfMaps] widget,
 /// [MapTileLayer.initialFocalLatLng] and [MapTileLayer.initialZoomLevel] number
-/// of initial tiles needed in the view port alone will be rendered. 
-/// While zooming and panning, new tiles will be requested and rendered on 
+/// of initial tiles needed in the view port alone will be rendered.
+/// While zooming and panning, new tiles will be requested and rendered on
 /// demand based on the current zoom level and focal point.
 /// The current zoom level and focal point can be obtained from the
 /// [MapZoomPanBehavior.zoomLevel] and [MapZoomPanBehavior.focalLatLng]
@@ -59,7 +59,7 @@ part of maps;
 /// ```
 ///
 /// See also:
-/// * For enabling zooming and panning, set [MapTileLayer.zoomPanBehavior] 
+/// * For enabling zooming and panning, set [MapTileLayer.zoomPanBehavior]
 /// with the instance of [MapZoomPanBehavior].
 class MapTileLayer extends MapLayer {
   /// Creates a [MapTileLayer].
@@ -88,7 +88,7 @@ class MapTileLayer extends MapLayer {
 
   /// URL to request the tiles from the providers.
   ///
-  /// The [MapTileLayer.urlTemplate] accepts the URL in WMTS format 
+  /// The [MapTileLayer.urlTemplate] accepts the URL in WMTS format
   /// i.e. {z} — zoom level, {x} and {y} — tile coordinates.
   ///
   /// This URL might vary slightly depends on the providers. The formats can be,
@@ -100,8 +100,8 @@ class MapTileLayer extends MapLayer {
   /// current center point and the zoom level.
   ///
   /// The subscription key may be needed for some of the providers. Please
-  /// include them in the [MapTileLayer.urlTemplate] itself as mentioned in 
-  /// above example. Please note that the format may vary between the each 
+  /// include them in the [MapTileLayer.urlTemplate] itself as mentioned in
+  /// above example. Please note that the format may vary between the each
   /// map providers. You can check the exact URL format needed for the providers
   /// in their official websites.
   ///
@@ -153,8 +153,8 @@ class MapTileLayer extends MapLayer {
   ///
   /// Some of the providers provide different map types. For example, Bing Maps
   /// provide map types like Road, Aerial, AerialWithLabels etc. These types too
-  /// can be passed in the [MapTileLayer.urlTemplate] itself as shown in the 
-  /// above example. You can check the official websites of the tile providers 
+  /// can be passed in the [MapTileLayer.urlTemplate] itself as shown in the
+  /// above example. You can check the official websites of the tile providers
   /// to know about the available types and the code for it.
   ///
   /// See also:
@@ -165,11 +165,11 @@ class MapTileLayer extends MapLayer {
   /// Represents the initial focal latitude and longitude position.
   ///
   /// Based on the size of the [SfMaps] widget,[MapTileLayer.initialFocalLatLng]
-  /// and [MapTileLayer.initialZoomLevel] number of initial tiles needed in the 
-  /// view port alone will be rendered. While zooming and panning, new tiles 
-  /// will be requested and rendered on demand based on the current zoom level 
-  /// and focal point. The current zoom level and focal point can be obtained 
-  /// from the [MapZoomPanBehavior.zoomLevel] and 
+  /// and [MapTileLayer.initialZoomLevel] number of initial tiles needed in the
+  /// view port alone will be rendered. While zooming and panning, new tiles
+  /// will be requested and rendered on demand based on the current zoom level
+  /// and focal point. The current zoom level and focal point can be obtained
+  /// from the [MapZoomPanBehavior.zoomLevel] and
   /// [MapZoomPanBehavior.focalLatLng].
   ///
   /// This properties cannot be changed dynamically.
@@ -177,7 +177,7 @@ class MapTileLayer extends MapLayer {
   /// Defaults to `MapLatLng(0.0, 0.0)`.
   ///
   /// See also:
-  /// * For enabling zooming and panning, set [MapTileLayer.zoomPanBehavior] 
+  /// * For enabling zooming and panning, set [MapTileLayer.zoomPanBehavior]
   /// with the instance of [MapZoomPanBehavior].
   /// * [MapZoomPanBehavior.focalLatLng], to dynamically change the center
   /// position.
@@ -187,11 +187,11 @@ class MapTileLayer extends MapLayer {
   /// Represents the initial zooming level.
   ///
   /// Based on the size of the [SfMaps] widget,[MapTileLayer.initialFocalLatLng]
-  /// and [MapTileLayer.initialZoomLevel] number of initial tiles needed in the 
-  /// view port alone will be rendered. While zooming and panning, new tiles 
-  /// will be requested and rendered on demand based on the current zoom level 
-  /// and focal point. The current zoom level and focal point can be obtained 
-  /// from the [MapZoomPanBehavior.zoomLevel] and 
+  /// and [MapTileLayer.initialZoomLevel] number of initial tiles needed in the
+  /// view port alone will be rendered. While zooming and panning, new tiles
+  /// will be requested and rendered on demand based on the current zoom level
+  /// and focal point. The current zoom level and focal point can be obtained
+  /// from the [MapZoomPanBehavior.zoomLevel] and
   /// [MapZoomPanBehavior.focalLatLng].
   ///
   /// This properties cannot be changed dynamically.
@@ -199,7 +199,7 @@ class MapTileLayer extends MapLayer {
   /// Defaults to 1.
   ///
   /// See also:
-  /// * For enabling zooming and panning, set [MapTileLayer.zoomPanBehavior] 
+  /// * For enabling zooming and panning, set [MapTileLayer.zoomPanBehavior]
   /// with the instance of [MapZoomPanBehavior].
   /// * [MapZoomPanBehavior.focalLatLng], to dynamically change the center
   /// position.

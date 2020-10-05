@@ -6,37 +6,45 @@ class FormatsCollection {
   Workbook _parent;
 
   /// Represents the Decimal Seprator.
-  static const String decimalSeparator = '.';
+  // ignore: unused_field
+  static const String _decimalSeparator = '.';
 
   /// Represents the Thousand seprator.
-  static const String thousandSeparator = ',';
+  // ignore: unused_field
+  static const String _thousandSeparator = ',';
 
   /// Represents the percentage in decimal numbers.
-  static const String percentage = '%';
+  // ignore: unused_field
+  static const String _percentage = '%';
 
   /// Represents the fraction symbol.
-  static const String fraction = '/';
+  // ignore: unused_field
+  static const String _fraction = '/';
 
   /// Represents the index of the date format.
-  static const String date = 'date';
+  // ignore: unused_field
+  static const String _date = 'date';
 
   /// Represents the time separator.
-  static const String time = ':';
+  // ignore: unused_field
+  static const String _time = ':';
 
   /// Represents the Exponenet Symbol.
   static const String exponent = 'E';
 
   /// Represents the Minus symbol.
-  static const String minus = '-';
+  // ignore: unused_field
+  static const String _minus = '-';
 
   /// Represents the Currency Symbol.
-  static const String currency = '\$';
+  // ignore: unused_field
+  static const String _currency = '\$';
 
   /// Represents the default exponential Symbol.
-  static const String default_exponential = 'E+';
+  static const String _default_exponential = 'E+';
 
   /// Index to the first user-defined number format.
-  static const int default_first_custom_index = 163;
+  static const int _default_first_custom_index = 163;
 
   /// Default format Strings.
   final _defaultFormatString = [
@@ -79,13 +87,13 @@ class FormatsCollection {
   ];
 
   /// Maximum number formats count in a workbook. 36 Default + 206 Custom formats.
-  static const int max_formats_count = 242;
+  static const int _max_formats_count = 242;
 
-  /// Index-to-FormatImpl.
-  Map<int, FormatImpl> _rawFormats = <int, FormatImpl>{};
+  /// Index-to-_Format.
+  Map<int, _Format> _rawFormats = <int, _Format>{};
 
-  /// Dictionary. Key - format string, value - FormatImpl.
-  Map<String, FormatImpl> _hashFormatStrings = <String, FormatImpl>{};
+  /// Dictionary. Key - format string, value - _Format.
+  Map<String, _Format> _hashFormatStrings = <String, _Format>{};
 
   /// Gets the number of elements contained in the collection. Read-only
   int get count {
@@ -98,7 +106,7 @@ class FormatsCollection {
   }
 
   /// Indexer of the class
-  FormatImpl operator [](index) => _rawFormats[index];
+  _Format operator [](index) => _rawFormats[index];
 
   /// Initializes new instance and sets its application and parent objects.
   // ignore: sort_constructors_first
@@ -109,17 +117,17 @@ class FormatsCollection {
   /// <summary>
   /// Inserts all default formats into list.
   /// </summary>
-  void insertDefaultFormats() {
-    FormatImpl curFormat;
+  void _insertDefaultFormats() {
+    _Format curFormat;
     int iFormatIndex = 0;
     final int iLength = _defaultFormatString.length;
     for (int iIndex = 0; iIndex < iLength; iIndex++) {
-      curFormat = FormatImpl(this);
-      curFormat.index = iFormatIndex;
-      curFormat.formatString = _defaultFormatString[iIndex];
-      if (!_rawFormats.containsKey(curFormat.index)) {
-        _rawFormats[curFormat.index] = curFormat;
-        _hashFormatStrings[curFormat.formatString] = curFormat;
+      curFormat = _Format(this);
+      curFormat._index = iFormatIndex;
+      curFormat._formatString = _defaultFormatString[iIndex];
+      if (!_rawFormats.containsKey(curFormat._index)) {
+        _rawFormats[curFormat._index] = curFormat;
+        _hashFormatStrings[curFormat._formatString] = curFormat;
       }
       if (iFormatIndex == 22) iFormatIndex = 36;
       iFormatIndex++;
@@ -127,8 +135,8 @@ class FormatsCollection {
   }
 
   /// Gets all used formats.
-  List<FormatImpl> getUsedFormats() {
-    final List<FormatImpl> result = [];
+  List<_Format> _getUsedFormats() {
+    final List<_Format> result = [];
 
     final List<int> keys = _rawFormats.keys.toList();
     final int index = keys.indexOf(49);
@@ -138,9 +146,9 @@ class FormatsCollection {
 
     if (index >= 0 && index < iCount - 1) {
       for (int i = index + 1; i < iCount; i++) {
-        final FormatImpl format = _rawFormats[keys[i]];
+        final _Format format = _rawFormats[keys[i]];
 
-        if (format.index >= default_first_custom_index) result.add(format);
+        if (format._index >= _default_first_custom_index) result.add(format);
       }
     }
 
@@ -148,27 +156,27 @@ class FormatsCollection {
   }
 
   /// Searches for format with specified format string and creates one if a match is not found.
-  int findOrCreateFormat(String formatString) {
+  int _findOrCreateFormat(String formatString) {
     return _hashFormatStrings.containsKey(formatString)
-        ? _hashFormatStrings[formatString].index
-        : createFormat(formatString);
+        ? _hashFormatStrings[formatString]._index
+        : _createFormat(formatString);
   }
 
   /// Method that creates format object based on the format string and registers it in the workbook.
-  int createFormat(String formatString) {
+  int _createFormat(String formatString) {
     if (formatString == null) throw Exception('formatString');
 
     if (formatString.isEmpty) {
       throw Exception('formatString - string cannot be empty');
     }
-    if (formatString.contains(default_exponential.toLowerCase())) {
+    if (formatString.contains(_default_exponential.toLowerCase())) {
       formatString = formatString.replaceAll(
-          default_exponential.toLowerCase(), default_exponential);
+          _default_exponential.toLowerCase(), _default_exponential);
     }
 //      formatString = GetCustomizedString(formatString);
     if (_hashFormatStrings.containsKey(formatString)) {
-      final FormatImpl format = _hashFormatStrings[formatString];
-      return format.index;
+      final _Format format = _hashFormatStrings[formatString];
+      return format._index;
     }
     if (_parent.cultureInfo._culture == 'en-US') {
       final String localStr = formatString.replaceAll('\'\$\'', '\$');
@@ -177,8 +185,8 @@ class FormatsCollection {
       for (final String formatStr in _hashFormatStrings.keys) {
         if (formatStr.replaceAll('\\', '').replaceAll('\'\$\'', '\$') ==
             localStr) {
-          final FormatImpl format = _hashFormatStrings[formatStr];
-          return format.index;
+          final _Format format = _hashFormatStrings[formatStr];
+          return format._index;
         }
       }
     }
@@ -186,14 +194,16 @@ class FormatsCollection {
     int index = _rawFormats.keys.toList()[iCount - 1];
 
     /// NOTE: By Microsoft, indexes less than 163 are reserved for build-in formats.
-    if (index < default_first_custom_index) index = default_first_custom_index;
+    if (index < _default_first_custom_index) {
+      index = _default_first_custom_index;
+    }
     index++;
 
-    if (iCount < max_formats_count) {
-      final FormatImpl format = FormatImpl(this);
-      format.formatString = formatString;
-      format.index = index;
-      register(format);
+    if (iCount < _max_formats_count) {
+      final _Format format = _Format(this);
+      format._formatString = formatString;
+      format._index = index;
+      _register(format);
     } else {
       return 0;
     }
@@ -201,30 +211,30 @@ class FormatsCollection {
   }
 
   /// Determines whether the IDictionary contains an element with the specified key.
-  bool contains(int key) {
+  bool _contains(int key) {
     return _rawFormats.containsKey(key);
   }
 
   /// Determines whether the IDictionary contains an element with the specified key.
-  bool containsFormat(String format) {
+  // ignore: unused_element
+  bool _containsFormat(String format) {
     return _hashFormatStrings.containsKey(format);
   }
 
   /// Adding formats to collection
-  void register(FormatImpl format) {
+  void _register(_Format format) {
     if (format == null) throw Exception('format');
 
-    _rawFormats[format.index] = format;
-    _hashFormatStrings[format.formatString] = format;
+    _rawFormats[format._index] = format;
+    _hashFormatStrings[format._formatString] = format;
   }
 
   /// <summary>
   ///  Removes all elements from the IDictionary.
   /// </summary>
-  void clear() {
-    for (final MapEntry<String, FormatImpl> formatImpl
-        in _hashFormatStrings.entries) {
-      formatImpl.value.clear();
+  void _clear() {
+    for (final MapEntry<String, _Format> format in _hashFormatStrings.entries) {
+      format.value._clear();
     }
     _rawFormats.clear();
     _hashFormatStrings.clear();

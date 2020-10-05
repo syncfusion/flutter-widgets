@@ -900,7 +900,9 @@ class _TrackballPainter extends CustomPainter {
       final double tooltipRightEnd = x + (labelRect.width / 2);
       xPos = xPos < boundaryRect.left
           ? boundaryRect.left
-          : tooltipRightEnd > totalWidth ? totalWidth - labelRect.width : xPos;
+          : tooltipRightEnd > totalWidth
+              ? totalWidth - labelRect.width
+              : xPos;
       yPos = yPos - pointerLength;
       if (yPos + labelRect.height >= boundaryRect.bottom) {
         yPos = boundaryRect.bottom - labelRect.height;
@@ -1322,8 +1324,11 @@ class _TrackballPainter extends CustomPainter {
               final double width =
                   j > 0 ? _measureText(str1[j - 1], labelStyle).width : 0;
               previousWidth += width;
-              final String colon =
-                  boldString.isNotEmpty ? '' : j > 0 ? ' :' : '';
+              final String colon = boldString.isNotEmpty
+                  ? ''
+                  : j > 0
+                      ? ' :'
+                      : '';
               labelStyle = TextStyle(
                   fontWeight:
                       ((headerText && boldString.isEmpty) || xFormat || isBold)
@@ -1788,11 +1793,13 @@ class _TrackballPainter extends CustomPainter {
                           .toString() +
                       '\n' +
                       'LowerQuartile : ' +
-                      _getLabelValue(lowerQuartileValue, cartesianSeriesRenderer._yAxisRenderer._axis)
+                      _getLabelValue(lowerQuartileValue,
+                              cartesianSeriesRenderer._yAxisRenderer._axis)
                           .toString() +
                       '\n' +
                       'UpperQuartile : ' +
-                      _getLabelValue(upperQuartileValue, cartesianSeriesRenderer._yAxisRenderer._axis)
+                      _getLabelValue(upperQuartileValue,
+                              cartesianSeriesRenderer._yAxisRenderer._axis)
                           .toString()
                   : 'High : ' +
                       _getLabelValue(highValue, cartesianSeriesRenderer._yAxisRenderer._axis)
@@ -1807,14 +1814,16 @@ class _TrackballPainter extends CustomPainter {
                           .toString() +
                       '\n' +
                       'Close : ' +
-                      _getLabelValue(closeValue, cartesianSeriesRenderer._yAxisRenderer._axis)
+                      _getLabelValue(closeValue,
+                              cartesianSeriesRenderer._yAxisRenderer._axis)
                           .toString()
               : 'High : ' +
                   _getLabelValue(highValue, cartesianSeriesRenderer._yAxisRenderer._axis)
                       .toString() +
                   '\n' +
                   'Low : ' +
-                  _getLabelValue(lowValue, cartesianSeriesRenderer._yAxisRenderer._axis).toString();
+                  _getLabelValue(lowValue, cartesianSeriesRenderer._yAxisRenderer._axis)
+                      .toString();
     }
     return labelValue;
   }

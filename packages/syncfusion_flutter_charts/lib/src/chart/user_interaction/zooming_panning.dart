@@ -428,7 +428,11 @@ class ZoomPanBehaviorRenderer with ZoomBehavior {
           num origin = axisRenderer._orientation == AxisOrientation.horizontal
               ? xPos / _chartState._chartAxis._axisClipRect.width
               : 1 - (yPos / _chartState._chartAxis._axisClipRect.height);
-          origin = origin > 1 ? 1 : origin < 0 ? 0 : origin;
+          origin = origin > 1
+              ? 1
+              : origin < 0
+                  ? 0
+                  : origin;
           zoomFactor = (cumulative == 1) ? 1 : _minMax(1 / cumulative, 0, 1);
           _zoomPosition = (cumulative == 1)
               ? 0
@@ -777,7 +781,11 @@ class ZoomPanBehaviorRenderer with ZoomBehavior {
           origin = axisRenderer._orientation == AxisOrientation.horizontal
               ? mouseX / _chartState._chartAxis._axisClipRect.width
               : 1 - (mouseY / _chartState._chartAxis._axisClipRect.height);
-          origin = origin > 1 ? 1 : origin < 0 ? 0 : origin;
+          origin = origin > 1
+              ? 1
+              : origin < 0
+                  ? 0
+                  : origin;
           zoomFactor = (cumulative == 1) ? 1 : _minMax(1 / cumulative, 0, 1);
           zoomPosition = (cumulative == 1)
               ? 0

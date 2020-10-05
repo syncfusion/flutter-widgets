@@ -26,7 +26,7 @@ class CellBorder implements Border {
   String color = '#000000';
 
   /// Clone method of Cell Border.
-  CellBorder clone() {
+  CellBorder _clone() {
     final CellBorder cellBorder = CellBorder(lineStyle, color);
     return cellBorder;
   }

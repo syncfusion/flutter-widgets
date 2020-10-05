@@ -39,13 +39,13 @@ class RangeCollection {
   /// Indexer set of the class
   operator []=(index, value) {
     if (_iCount <= index) {
-      updateSize(index + 1);
+      _updateSize(index + 1);
     }
     _innerList[index] = value;
   }
 
   /// Updates count of storage array.
-  void updateSize(int iCount) {
+  void _updateSize(int iCount) {
     if (iCount > _iCount) {
       final int iBufCount = _iCount * 2;
 
@@ -67,13 +67,13 @@ class RangeCollection {
   }
 
   /// clear the Range.
-  void clear() {
+  void _clear() {
     if (_innerList != null) {
       for (int i = 0; i < _innerList.length; i++) {
         final Range range = _innerList[i];
         _innerList[i] = null;
 
-        if (range != null) range.clear();
+        if (range != null) range._clear();
       }
       _innerList = null;
     }

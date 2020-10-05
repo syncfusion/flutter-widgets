@@ -193,7 +193,9 @@ _ChartLocation _calculatePoint(
       ? _calculateLogBaseValue(x > 1 ? x : 1, xAxis.logBase)
       : x;
   y = yAxis is LogarithmicAxis
-      ? y != null ? _calculateLogBaseValue(y > 1 ? y : 1, yAxis.logBase) : 0
+      ? y != null
+          ? _calculateLogBaseValue(y > 1 ? y : 1, yAxis.logBase)
+          : 0
       : y;
   x = _valueToCoefficient(x, xAxisRenderer);
   y = _valueToCoefficient(y, yAxisRenderer);
@@ -815,7 +817,9 @@ Rect _getTransposedShadowRect(
                       ? (math.min(point1.y, point2.y) -
                           stackedColumnSeries.trackBorderWidth -
                           stackedColumnSeries.trackPadding)
-                      : isStackedBar ? rect.top : rect.top,
+                      : isStackedBar
+                          ? rect.top
+                          : rect.top,
       isColumn || isRangeColumn || isHistogram
           ? _chartState._chartAxis._axisClipRect.width
           : isStackedColumn
@@ -1170,6 +1174,7 @@ void _calculateSideBySidePositions(
 /// Find the column and bar series collection in axes.
 List<CartesianSeriesRenderer> _findSeriesCollection(
     SfCartesianChartState _chartState,
+    //ignore: unused_element
     [bool isRect]) {
   final List<CartesianSeriesRenderer> seriesRendererCollection =
       <CartesianSeriesRenderer>[];

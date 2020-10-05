@@ -186,7 +186,9 @@ class _RenderMapDataLabel extends _ShapeLayerChildRenderBoxBase {
       mapDataSource.forEach((String key, _MapModel model) {
         dataLabelText = defaultController.isInInteractive
             ? model.visibleDataLabelText
-            : hasMapper ? model.dataLabelText : model.primaryKey;
+            : hasMapper
+                ? model.dataLabelText
+                : model.primaryKey;
         if (dataLabelText == null) {
           return;
         }

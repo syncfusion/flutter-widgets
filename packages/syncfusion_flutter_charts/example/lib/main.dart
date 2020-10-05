@@ -2,29 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 void main() {
-  return runApp(ChartApp());
+  return runApp(_ChartApp());
 }
 
-class ChartApp extends StatelessWidget {
+class _ChartApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Chart Demo',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: MyHomePage(),
+      home: _MyHomePage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
+class _MyHomePage extends StatefulWidget {
   // ignore: prefer_const_constructors_in_immutables
-  MyHomePage({Key key}) : super(key: key);
+  _MyHomePage({Key key}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<_MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,25 +39,25 @@ class _MyHomePageState extends State<MyHomePage> {
             legend: Legend(isVisible: true),
             // Enable tooltip
             tooltipBehavior: TooltipBehavior(enable: true),
-            series: <ChartSeries<SalesData, String>>[
-              LineSeries<SalesData, String>(
-                  dataSource: <SalesData>[
-                    SalesData('Jan', 35),
-                    SalesData('Feb', 28),
-                    SalesData('Mar', 34),
-                    SalesData('Apr', 32),
-                    SalesData('May', 40)
+            series: <ChartSeries<_SalesData, String>>[
+              LineSeries<_SalesData, String>(
+                  dataSource: <_SalesData>[
+                    _SalesData('Jan', 35),
+                    _SalesData('Feb', 28),
+                    _SalesData('Mar', 34),
+                    _SalesData('Apr', 32),
+                    _SalesData('May', 40)
                   ],
-                  xValueMapper: (SalesData sales, _) => sales.year,
-                  yValueMapper: (SalesData sales, _) => sales.sales,
+                  xValueMapper: (_SalesData sales, _) => sales.year,
+                  yValueMapper: (_SalesData sales, _) => sales.sales,
                   // Enable data label
                   dataLabelSettings: DataLabelSettings(isVisible: true))
             ]));
   }
 }
 
-class SalesData {
-  SalesData(this.year, this.sales);
+class _SalesData {
+  _SalesData(this.year, this.sales);
 
   final String year;
   final double sales;

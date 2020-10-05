@@ -12,7 +12,7 @@ class FormulaInfo {
 /// that may be referenced by other formulas.
 class RangeInfo {
   /// GetAlphaLabel is a method that retrieves a String value for the column whose numerical index is passed in.
-  static String getAlphaLabel(int col) {
+  static String _getAlphaLabel(int col) {
     final List<String> cols = List<String>(10);
     int n = 0;
     while (col > 0 && n < 9) {

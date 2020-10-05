@@ -3,7 +3,7 @@ part of xlsio;
 /// <summary>
 /// Class used for Fraction tokens.
 /// </summary>
-class FractionToken extends SingleCharToken {
+class _FractionToken extends _SingleCharToken {
   /// <summary>
   /// Format character.
   /// </summary>
@@ -13,7 +13,7 @@ class FractionToken extends SingleCharToken {
   /// Initializes a new instance of the FractionToken class.
   /// </summary>
   // ignore: sort_constructors_first
-  FractionToken() {
+  _FractionToken() {
     formatChar = _defaultFormatChar;
   }
 
@@ -21,8 +21,8 @@ class FractionToken extends SingleCharToken {
   /// Applies format to the value.
   /// </summary>
   @override
-  String applyFormat(double value, bool bShowHiddenSymbols, CultureInfo culture,
-      FormatSection section) {
+  String _applyFormat(double value, bool bShowHiddenSymbols,
+      CultureInfo culture, _FormatSection section) {
     return (section != null && section.formatType == ExcelFormatType.dateTime)
         ? culture.dateTimeFormat.dateSeparator
         : _strFormat;
@@ -32,7 +32,7 @@ class FractionToken extends SingleCharToken {
   /// Tries to parse format string.
   /// </summary>
   @override
-  int tryParse(String strFormat, int iIndex) {
+  int _tryParse(String strFormat, int iIndex) {
     if (strFormat == null) throw ('strFormat');
 
     final int iFormatLength = strFormat.length;
@@ -60,7 +60,8 @@ class FractionToken extends SingleCharToken {
   /// Applies format to the value.
   /// </summary>
   @override
-  String applyFormatString(String value, bool bShowHiddenSymbols) {
+  // ignore: unused_element
+  String _applyFormatString(String value, bool bShowHiddenSymbols) {
     return _strFormat;
   }
 
@@ -68,7 +69,7 @@ class FractionToken extends SingleCharToken {
   /// Gets type of the token. Read-only.
   /// </summary>
   @override
-  TokenType get tokenType {
-    return TokenType.fraction;
+  _TokenType get _tokenType {
+    return _TokenType.fraction;
   }
 }

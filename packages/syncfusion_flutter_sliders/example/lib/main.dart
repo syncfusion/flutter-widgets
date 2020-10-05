@@ -76,15 +76,14 @@ class _MyHomePageState extends State<MyHomePage> {
                       child: SfCartesianChart(
                         margin: const EdgeInsets.all(0),
                         primaryXAxis: DateTimeAxis(
-                          minimum: dateMin,
-                          maximum: dateMax,
+                          minimum: _dateMin,
+                          maximum: _dateMax,
                           isVisible: false,
                         ),
-                        primaryYAxis:
-                    NumericAxis(isVisible: false, maximum: 4),
+                        primaryYAxis: NumericAxis(isVisible: false, maximum: 4),
                         series: <SplineAreaSeries<Data, DateTime>>[
                           SplineAreaSeries<Data, DateTime>(
-                              dataSource: chartData,
+                              dataSource: _chartData,
                               xValueMapper: (Data sales, _) => sales.x,
                               yValueMapper: (Data sales, _) => sales.y)
                         ],

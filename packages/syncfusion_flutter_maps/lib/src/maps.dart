@@ -76,7 +76,7 @@ part of maps;
 /// Tile layer which renders the tiles returned from the Web Map Tile
 /// Services (WMTS) like OpenStreetMap, Bing Maps, Google Maps, TomTom etc.
 ///
-/// The [MapTileLayer.urlTemplate] accepts the URL in WMTS format 
+/// The [MapTileLayer.urlTemplate] accepts the URL in WMTS format
 /// i.e. {z} — zoom level, {x} and {y} — tile coordinates.
 ///
 /// This URL might vary slightly depends on the providers. The formats can be,
@@ -89,8 +89,8 @@ part of maps;
 ///
 /// The subscription key may be needed for some of the providers. Please include
 /// them in the [MapTileLayer.urlTemplate] itself as mentioned in above example.
-/// Please note that the format may vary between the each map providers. 
-/// You can check the exact URL format needed for the providers in their 
+/// Please note that the format may vary between the each map providers.
+/// You can check the exact URL format needed for the providers in their
 /// official websites.
 ///
 /// Regarding the tile rendering, at the lowest zoom level (Level 0), the map is
@@ -105,8 +105,8 @@ part of maps;
 ///
 /// However, based on the size of the [SfMaps] widget,
 /// [MapTileLayer.initialFocalLatLng] and [MapTileLayer.initialZoomLevel] number
-/// of initial tiles needed in the view port alone will be rendered. 
-/// While zooming and panning, new tiles will be requested and rendered on 
+/// of initial tiles needed in the view port alone will be rendered.
+/// While zooming and panning, new tiles will be requested and rendered on
 /// demand based on the current zoom level and focal point.
 /// The current zoom level and focal point can be obtained from the
 /// [MapZoomPanBehavior.zoomLevel] and [MapZoomPanBehavior.focalLatLng]
@@ -136,7 +136,7 @@ part of maps;
 /// bubbles, legends, selection etc.
 /// * [MapShapeLayerDelegate], for providing the data for the elements like data
 /// labels, tooltip, bubbles, legends etc.
-/// * For enabling zooming and panning, set [MapTileLayer.zoomPanBehavior] 
+/// * For enabling zooming and panning, set [MapTileLayer.zoomPanBehavior]
 /// with the instance of [MapZoomPanBehavior].
 
 class SfMaps extends StatefulWidget {

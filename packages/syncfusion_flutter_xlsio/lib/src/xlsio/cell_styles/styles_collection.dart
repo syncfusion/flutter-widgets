@@ -34,7 +34,7 @@ class StylesCollection {
   }
 
   /// Default styles names.
-  List<String> defaultStyleNames = [
+  final List<String> _defaultStyleNames = [
     'normal',
     'rowLevel_',
     'colLevel_',
@@ -112,17 +112,17 @@ class StylesCollection {
     }
 
     if (_dictStyles.containsKey(styleName) &&
-        !workbook.styles.defaultStyleNames.contains(styleName)) {
+        !workbook.styles._defaultStyleNames.contains(styleName)) {
       throw Exception('Name of style must be unique.');
     }
 
     final Style style = CellStyle(_book, styleName);
     (style as CellStyle).isGlobalStyle = true;
     int index = 0;
-    if (workbook.styles.defaultStyleNames.contains(style.name)) {
-      initializeStyleCollections(style.name, style);
+    if (workbook.styles._defaultStyleNames.contains(style.name)) {
+      _initializeStyleCollections(style.name, style);
       (style as CellStyle)._builtinId =
-          workbook.styles.defaultStyleNames.indexOf(style.name);
+          workbook.styles._defaultStyleNames.indexOf(style.name);
     }
     index = workbook.styles._styles.length;
     style.index = index;
@@ -155,7 +155,7 @@ class StylesCollection {
   }
 
   /// Intialize the style collections.
-  void initializeStyleCollections(String styleName, CellStyle style) {
+  void _initializeStyleCollections(String styleName, CellStyle style) {
     switch (styleName) {
       case 'bad':
         style.backColor = '#FFC7CE';
@@ -410,10 +410,10 @@ class StylesCollection {
   }
 
   /// clear the cell style.
-  void clear() {
+  void _clear() {
     if (_styles != null) {
       for (final CellStyle style in _styles) {
-        style.clear();
+        style._clear();
       }
       _styles.clear();
     }

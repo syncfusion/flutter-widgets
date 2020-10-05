@@ -3,7 +3,7 @@ part of xlsio;
 /// <summary>
 /// Represents possible token types.
 /// </summary>
-enum TokenType {
+enum _TokenType {
   /// <summary>
   /// Represents unknown format token.
   /// </summary>

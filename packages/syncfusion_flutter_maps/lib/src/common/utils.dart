@@ -105,8 +105,11 @@ void _readJsonFile(Map<String, dynamic> data) {
       shapeFileData.decodedJsonData.containsKey('features');
   final bool hasGeometries =
       shapeFileData.decodedJsonData.containsKey('geometries');
-  final String key =
-      hasFeatures ? 'features' : hasGeometries ? 'geometries' : null;
+  final String key = hasFeatures
+      ? 'features'
+      : hasGeometries
+          ? 'geometries'
+          : null;
   final int jsonLength =
       key.isEmpty ? 0 : shapeFileData.decodedJsonData[key].length;
 

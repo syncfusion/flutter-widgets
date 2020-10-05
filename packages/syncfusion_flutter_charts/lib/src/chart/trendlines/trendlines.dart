@@ -629,7 +629,9 @@ class TrendlineRenderer {
       final dynamic xVal =
           point.xValue != null && (math.log(point.xValue)).isFinite
               ? math.log(point.xValue)
-              : (point.x is String) ? point.xValue : point.x;
+              : (point.x is String)
+                  ? point.xValue
+                  : point.x;
       xValues.add(xVal);
       if (!(seriesRenderer._series is RangeAreaSeries<dynamic, dynamic> ||
           seriesRenderer._series is RangeColumnSeries<dynamic, dynamic> ||
@@ -701,7 +703,9 @@ class TrendlineRenderer {
       final dynamic xVal =
           (point.xValue != null && (math.log(point.xValue)).isFinite)
               ? math.log(point.xValue)
-              : (point.x is String) ? point.xValue : point.x;
+              : (point.x is String)
+                  ? point.xValue
+                  : point.x;
       xLogValue.add(xVal);
       if (!(seriesRenderer._series is RangeAreaSeries<dynamic, dynamic> ||
           seriesRenderer._series is RangeColumnSeries<dynamic, dynamic> ||

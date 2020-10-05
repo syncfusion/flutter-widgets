@@ -3,7 +3,7 @@ part of xlsio;
 /// <summary>
 /// Class used for YearToken.
 /// </summary>
-class YearToken extends FormatTokenBase {
+class _YearToken extends _FormatTokenBase {
   /// <summary>
   /// Regular expression for minutes part of the format:
   /// </summary>
@@ -13,17 +13,17 @@ class YearToken extends FormatTokenBase {
   /// Tries to parse format string.
   /// </summary>
   @override
-  int tryParse(String strFormat, int iIndex) {
-    return tryParseRegex(_yearRegex, strFormat, iIndex);
+  int _tryParse(String strFormat, int iIndex) {
+    return _tryParseRegex(_yearRegex, strFormat, iIndex);
   }
 
   /// <summary>
   /// Applies format to the value.
   /// </summary>
   @override
-  String applyFormat(double value, bool bShowHiddenSymbols, CultureInfo culture,
-      FormatSection section) {
-    final DateTime date = Range.fromOADate(value);
+  String _applyFormat(double value, bool bShowHiddenSymbols,
+      CultureInfo culture, _FormatSection section) {
+    final DateTime date = Range._fromOADate(value);
     final int iYear = date.year;
 
     if (_strFormat.length > 2) {
@@ -37,7 +37,8 @@ class YearToken extends FormatTokenBase {
   /// Applies format to the value.
   /// </summary>
   @override
-  String applyFormatString(String value, bool bShowHiddenSymbols) {
+  // ignore: unused_element
+  String _applyFormatString(String value, bool bShowHiddenSymbols) {
     return '';
   }
 
@@ -45,7 +46,7 @@ class YearToken extends FormatTokenBase {
   /// Gets type of the token. Read-only.
   /// </summary>
   @override
-  TokenType get tokenType {
-    return TokenType.year;
+  _TokenType get _tokenType {
+    return _TokenType.year;
   }
 }

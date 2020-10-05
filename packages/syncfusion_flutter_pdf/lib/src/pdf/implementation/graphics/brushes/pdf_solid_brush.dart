@@ -16,7 +16,11 @@ class PdfSolidBrush implements PdfBrush {
 
   @override
   bool operator ==(Object other) {
-    return other is PdfSolidBrush ? color == other.color ? true : false : false;
+    return other is PdfSolidBrush
+        ? color == other.color
+            ? true
+            : false
+        : false;
   }
 
   @override

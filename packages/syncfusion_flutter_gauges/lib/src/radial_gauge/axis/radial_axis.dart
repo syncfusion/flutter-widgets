@@ -853,11 +853,15 @@ class RadialAxisRenderer extends GaugeAxisRenderer {
     final double xValue = x +
         (midPoint.dx == 0
             ? 0
-            : (x - midPoint.dx) >= radius ? 0 : (x - midPoint.dx));
+            : (x - midPoint.dx) >= radius
+                ? 0
+                : (x - midPoint.dx));
     final double yValue = y +
         (midPoint.dy == 0
             ? 0
-            : (y - midPoint.dy) >= radius ? 0 : (y - midPoint.dy));
+            : (y - midPoint.dy) >= radius
+                ? 0
+                : (y - midPoint.dy));
     return Offset(xValue, yValue);
   }
 
@@ -909,11 +913,15 @@ class RadialAxisRenderer extends GaugeAxisRenderer {
     final double xValue = x +
         (midRegionPoint.dx == 0
             ? 0
-            : (x - midRegionPoint.dx) >= radius ? 0 : (x - midRegionPoint.dx));
+            : (x - midRegionPoint.dx) >= radius
+                ? 0
+                : (x - midRegionPoint.dx));
     final double yValue = y +
         (midRegionPoint.dy == 0
             ? 0
-            : (y - midRegionPoint.dy) >= radius ? 0 : (y - midRegionPoint.dy));
+            : (y - midRegionPoint.dy) >= radius
+                ? 0
+                : (y - midRegionPoint.dy));
     return Offset(xValue, yValue);
   }
 
@@ -1044,7 +1052,9 @@ class RadialAxisRenderer extends GaugeAxisRenderer {
   double _getAxisOffset() {
     double offset = 0;
     offset = _isTicksOutside
-        ? _axis.showTicks ? (_maximumTickLength + _actualTickOffset) : 0
+        ? _axis.showTicks
+            ? (_maximumTickLength + _actualTickOffset)
+            : 0
         : 0;
     offset += _isLabelsOutside
         ? _axis.showLabels

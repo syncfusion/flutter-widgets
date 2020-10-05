@@ -3,12 +3,12 @@ part of xlsio;
 /// <summary>
 /// Class used for UnknownToken.
 /// </summary>
-class UnknownToken extends FormatTokenBase {
+class _UnknownToken extends _FormatTokenBase {
   /// <summary>
   /// Tries to parse format string.
   /// </summary>
   @override
-  int tryParse(String strFormat, int iIndex) {
+  int _tryParse(String strFormat, int iIndex) {
     if (strFormat == null) throw ('strFormat');
 
     final int iFormatLength = strFormat.length;
@@ -23,8 +23,8 @@ class UnknownToken extends FormatTokenBase {
   /// Applies format to the value.
   /// </summary>
   @override
-  String applyFormat(double value, bool bShowHiddenSymbols, CultureInfo culture,
-      FormatSection section) {
+  String _applyFormat(double value, bool bShowHiddenSymbols,
+      CultureInfo culture, _FormatSection section) {
     if (_strFormat == 'g' || _strFormat == 'G') {
       return '';
     } else {
@@ -36,7 +36,8 @@ class UnknownToken extends FormatTokenBase {
   /// Applies format to the value.
   /// </summary>
   @override
-  String applyFormatString(String value, bool bShowHiddenSymbols) {
+  // ignore: unused_element
+  String _applyFormatString(String value, bool bShowHiddenSymbols) {
     return _strFormat;
   }
 
@@ -44,7 +45,7 @@ class UnknownToken extends FormatTokenBase {
   /// Gets type of the token. Read-only.
   /// </summary>
   @override
-  TokenType get tokenType {
-    return TokenType.unknown;
+  _TokenType get _tokenType {
+    return _TokenType.unknown;
   }
 }

@@ -244,27 +244,43 @@ void _calculateDataLabelPosition(
           point.label3 = point.dataLabelMapper ??
               _getLabelText(
                   point.open > point.close
-                      ? !inversed ? point.close : point.open
-                      : !inversed ? point.open : point.close,
+                      ? !inversed
+                          ? point.close
+                          : point.open
+                      : !inversed
+                          ? point.open
+                          : point.close,
                   seriesRenderer);
           point.label4 = point.dataLabelMapper ??
               _getLabelText(
                   point.open > point.close
-                      ? !inversed ? point.open : point.close
-                      : !inversed ? point.close : point.open,
+                      ? !inversed
+                          ? point.open
+                          : point.close
+                      : !inversed
+                          ? point.close
+                          : point.open,
                   seriesRenderer);
         } else {
           point.label3 = point.dataLabelMapper ??
               _getLabelText(
                   point.lowerQuartile > point.upperQuartile
-                      ? !inversed ? point.upperQuartile : point.lowerQuartile
-                      : !inversed ? point.lowerQuartile : point.upperQuartile,
+                      ? !inversed
+                          ? point.upperQuartile
+                          : point.lowerQuartile
+                      : !inversed
+                          ? point.lowerQuartile
+                          : point.upperQuartile,
                   seriesRenderer);
           point.label4 = point.dataLabelMapper ??
               _getLabelText(
                   point.lowerQuartile > point.upperQuartile
-                      ? !inversed ? point.lowerQuartile : point.upperQuartile
-                      : !inversed ? point.upperQuartile : point.lowerQuartile,
+                      ? !inversed
+                          ? point.lowerQuartile
+                          : point.upperQuartile
+                      : !inversed
+                          ? point.upperQuartile
+                          : point.lowerQuartile,
                   seriesRenderer);
           point.label5 = point.dataLabelMapper ??
               _getLabelText(point.median, seriesRenderer);
@@ -421,7 +437,9 @@ List<_ChartLocation> _getAlignedLabelLocations(
             dataLabel.alignment,
             (isRangeSeries
                     ? point.high
-                    : isBoxSeries ? point.maximum : point.yValue) <
+                    : isBoxSeries
+                        ? point.maximum
+                        : point.yValue) <
                 0,
             transposed);
     if (isRangeSeries || isBoxSeries) {
@@ -434,7 +452,9 @@ List<_ChartLocation> _getAlignedLabelLocations(
                   dataLabel.alignment,
                   (isRangeSeries
                           ? point.low
-                          : isBoxSeries ? point.minimum : point.yValue) <
+                          : isBoxSeries
+                              ? point.minimum
+                              : point.yValue) <
                       0,
                   transposed);
     }
@@ -447,7 +467,9 @@ List<_ChartLocation> _getAlignedLabelLocations(
             dataLabel.alignment,
             (isRangeSeries
                     ? point.high
-                    : isBoxSeries ? point.maximum : point.yValue) <
+                    : isBoxSeries
+                        ? point.maximum
+                        : point.yValue) <
                 0,
             transposed);
     if (isRangeSeries || isBoxSeries) {
@@ -460,7 +482,9 @@ List<_ChartLocation> _getAlignedLabelLocations(
                   dataLabel.alignment,
                   (isRangeSeries
                           ? point.low
-                          : isBoxSeries ? point.minimum : point.yValue) <
+                          : isBoxSeries
+                              ? point.minimum
+                              : point.yValue) <
                       0,
                   transposed);
     }
@@ -487,8 +511,11 @@ List<_ChartLocation> _getLabelLocations(
       seriesRenderer._seriesType.contains('candle');
   final bool isBoxSeries = seriesRenderer._seriesType.contains('boxandwhisker');
   final bool inversed = seriesRenderer._yAxisRenderer._axis.isInversed;
-  final num value =
-      isRangeSeries ? point.high : isBoxSeries ? point.maximum : point.yValue;
+  final num value = isRangeSeries
+      ? point.high
+      : isBoxSeries
+          ? point.maximum
+          : point.yValue;
   final bool minus = (value < 0 && !inversed) || (!(value < 0) && inversed);
   if (!_chartState._requireInvertedAxis) {
     chartLocation.y = !isBoxSeries
@@ -1834,34 +1861,33 @@ bool _isLabelWithinRange(CartesianSeriesRenderer seriesRenderer,
   bool withInRange = true;
   final bool isBoxSeries = seriesRenderer._seriesType.contains('boxandwhisker');
   if (!(seriesRenderer._yAxisRenderer is LogarithmicAxisRenderer)) {
-    withInRange =
-        _withInRange(point.xValue, seriesRenderer._xAxisRenderer._visibleRange) &&
-            (seriesRenderer._seriesType.contains('range') ||
-                    seriesRenderer._seriesType == 'hilo'
+    withInRange = _withInRange(
+            point.xValue, seriesRenderer._xAxisRenderer._visibleRange) &&
+        (seriesRenderer._seriesType.contains('range') ||
+                seriesRenderer._seriesType == 'hilo'
+            ? (_withInRange(isBoxSeries ? point.minimum : point.low,
+                    seriesRenderer._yAxisRenderer._visibleRange) ||
+                _withInRange(isBoxSeries ? point.maximum : point.high,
+                    seriesRenderer._yAxisRenderer._visibleRange))
+            : seriesRenderer._seriesType == 'hiloopenclose' ||
+                    seriesRenderer._seriesType.contains('candle') ||
+                    isBoxSeries
                 ? (_withInRange(isBoxSeries ? point.minimum : point.low,
-                        seriesRenderer._yAxisRenderer._visibleRange) ||
+                        seriesRenderer._yAxisRenderer._visibleRange) &&
                     _withInRange(isBoxSeries ? point.maximum : point.high,
+                        seriesRenderer._yAxisRenderer._visibleRange) &&
+                    _withInRange(isBoxSeries ? point.lowerQuartile : point.open,
+                        seriesRenderer._yAxisRenderer._visibleRange) &&
+                    _withInRange(
+                        isBoxSeries ? point.upperQuartile : point.close,
                         seriesRenderer._yAxisRenderer._visibleRange))
-                : seriesRenderer._seriesType == 'hiloopenclose' ||
-                        seriesRenderer._seriesType.contains('candle') ||
-                        isBoxSeries
-                    ? (_withInRange(isBoxSeries ? point.minimum : point.low,
-                            seriesRenderer._yAxisRenderer._visibleRange) &&
-                        _withInRange(isBoxSeries ? point.maximum : point.high,
-                            seriesRenderer._yAxisRenderer._visibleRange) &&
-                        _withInRange(
-                            isBoxSeries ? point.lowerQuartile : point.open,
-                            seriesRenderer._yAxisRenderer._visibleRange) &&
-                        _withInRange(
-                            isBoxSeries ? point.upperQuartile : point.close,
-                            seriesRenderer._yAxisRenderer._visibleRange))
-                    : _withInRange(
-                        seriesRenderer._seriesType.contains('100')
-                            ? point.cumulativeValue
-                            : seriesRenderer._seriesType == 'waterfall'
-                                ? point.endValue ?? 0
-                                : point.yValue,
-                        seriesRenderer._yAxisRenderer._visibleRange));
+                : _withInRange(
+                    seriesRenderer._seriesType.contains('100')
+                        ? point.cumulativeValue
+                        : seriesRenderer._seriesType == 'waterfall'
+                            ? point.endValue ?? 0
+                            : point.yValue,
+                    seriesRenderer._yAxisRenderer._visibleRange));
   }
   return withInRange;
 }

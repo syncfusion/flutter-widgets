@@ -3,7 +3,7 @@ part of xlsio;
 /// <summary>
 /// Class used for format constants.
 /// </summary>
-class FormatConstants {
+class _FormatConstants {
   /// <summary>
   /// Number of hours in a day.
   /// </summary>
@@ -17,5 +17,6 @@ class FormatConstants {
   /// <summary>
   /// Number of minutes in a day.
   /// </summary>
+  // ignore: unused_field
   static const int _minutesInDay = _hoursInDay * _minutesInHour;
 }

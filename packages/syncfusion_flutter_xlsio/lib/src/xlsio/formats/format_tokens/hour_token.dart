@@ -1,7 +1,7 @@
 part of xlsio;
 
 // ignore: public_member_api_docs
-class HourToken extends FormatTokenBase {
+class _HourToken extends _FormatTokenBase {
   /// <summary>
   /// Regular expression for hours part of the format:
   /// </summary>
@@ -10,17 +10,18 @@ class HourToken extends FormatTokenBase {
   /// <summary>
   /// Defined 12hr format.
   /// </summary>
-  static const String dEF_FORMAT = 'h';
+  static const String _defaultFormat = 'h';
 
   /// <summary>
   /// Long format.
   /// </summary>
-  static const String dEF_FORMAT_LONG = '00';
+  static const String _defaultFormatLong = '00';
 
   /// <summary>
   /// Indicates whether token should be formatted using am/pm time format.
   /// </summary>
-  bool isAmPm = false;
+  // ignore: prefer_final_fields
+  bool _isAmPm = false;
 
   @override
   String _strFormat;
@@ -29,21 +30,21 @@ class HourToken extends FormatTokenBase {
   /// Tries to parse format string.
   /// </summary>
   @override
-  int tryParse(String strFormat, int iIndex) {
-    return tryParseRegex(hourRegex, strFormat, iIndex);
+  int _tryParse(String strFormat, int iIndex) {
+    return _tryParseRegex(hourRegex, strFormat, iIndex);
   }
 
   /// <summary>
   /// Applies format to the value.
   /// </summary>
   @override
-  String applyFormat(double value, bool bShowHiddenSymbols, CultureInfo culture,
-      FormatSection section) {
-    final DateTime date = Range.fromOADate(value);
+  String _applyFormat(double value, bool bShowHiddenSymbols,
+      CultureInfo culture, _FormatSection section) {
+    final DateTime date = Range._fromOADate(value);
     int iHour = date.hour;
-    if (isAmPm) iHour = int.parse(DateFormat(dEF_FORMAT).format(date));
+    if (_isAmPm) iHour = int.parse(DateFormat(_defaultFormat).format(date));
     if (_strFormat.length > 1) {
-      return NumberFormat(dEF_FORMAT_LONG).format(iHour);
+      return NumberFormat(_defaultFormatLong).format(iHour);
     } else {
       return iHour.toString();
     }
@@ -53,7 +54,8 @@ class HourToken extends FormatTokenBase {
   /// Applies format to the value.
   /// </summary>
   @override
-  String applyFormatString(String value, bool bShowHiddenSymbols) {
+  // ignore: unused_element
+  String _applyFormatString(String value, bool bShowHiddenSymbols) {
     return '';
   }
 
@@ -61,7 +63,7 @@ class HourToken extends FormatTokenBase {
   /// Gets type of the token. Read-only.
   /// </summary>
   @override
-  TokenType get tokenType {
-    return TokenType.hour;
+  _TokenType get _tokenType {
+    return _TokenType.hour;
   }
 }

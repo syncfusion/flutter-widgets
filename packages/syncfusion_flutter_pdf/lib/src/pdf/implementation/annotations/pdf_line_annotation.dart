@@ -609,8 +609,12 @@ class PdfLineAnnotation extends PdfAnnotation {
       final bool isContainsMeasure = _dictionary._items
           .containsKey(_PdfName(_DictionaryProperties.measure));
       final double length = caption == 'Top'
-          ? isContainsMeasure ? 2 * font.height : font.height
-          : isContainsMeasure ? 3 * (font.height / 2) : font.height / 2;
+          ? isContainsMeasure
+              ? 2 * font.height
+              : font.height
+          : isContainsMeasure
+              ? 3 * (font.height / 2)
+              : font.height / 2;
       captionPosition = _getAxisValue(centerPoint, angle + 90, length);
     } else {
       captionPosition = _getAxisValue(centerPoint, angle + 90,

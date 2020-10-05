@@ -3,7 +3,7 @@ part of xlsio;
 /// <summary>
 /// Contains Am Pm Token descriptions.
 /// </summary>
-class AmPmToken extends FormatTokenBase {
+class _AmPmToken extends _FormatTokenBase {
   final _aMPMRegex = RegExp('[Am/PM]{4,}');
 
   /// <summary>
@@ -25,7 +25,7 @@ class AmPmToken extends FormatTokenBase {
   /// Tries to parse format string.
   /// </summary>
   @override
-  int tryParse(String strFormat, int iIndex) {
+  int _tryParse(String strFormat, int iIndex) {
     if (strFormat == null) throw ('strFormat');
 
     final int iFormatLength = strFormat.length;
@@ -35,16 +35,16 @@ class AmPmToken extends FormatTokenBase {
     if (iIndex < 0 || iIndex > iFormatLength - 1) {
       throw ('iIndex - Value cannot be less than 0 and greater than than format length - 1.');
     }
-    return tryParseRegex(_aMPMRegex, strFormat, iIndex);
+    return _tryParseRegex(_aMPMRegex, strFormat, iIndex);
   }
 
   /// <summary>
   /// Applies format to the value.
   /// </summary>
   @override
-  String applyFormat(double value, bool bShowHiddenSymbols, CultureInfo culture,
-      FormatSection section) {
-    final DateTime date = Range.fromOADate(value);
+  String _applyFormat(double value, bool bShowHiddenSymbols,
+      CultureInfo culture, _FormatSection section) {
+    final DateTime date = Range._fromOADate(value);
 
     final int iHour = date.hour;
 
@@ -59,14 +59,16 @@ class AmPmToken extends FormatTokenBase {
   /// Applies format to the value.
   /// </summary>
   @override
-  String applyFormatString(String value, bool bShowHiddenSymbols) {
+  // ignore: unused_element
+  String _applyFormatString(String value, bool bShowHiddenSymbols) {
     throw Exception();
   }
 
   /// <summary>
   /// Checks the AMPM is other pattern.
   /// </summary>
-  static String checkAndApplyAMPM(String format) {
+  // ignore: unused_element
+  static String _checkAndApplyAMPM(String format) {
     if (format == null) throw ("format - Value can't be null");
     return format;
   }
@@ -75,7 +77,7 @@ class AmPmToken extends FormatTokenBase {
   /// Gets type of the token. Read-only.
   /// </summary>
   @override
-  TokenType get tokenType {
-    return TokenType.amPm;
+  _TokenType get _tokenType {
+    return _TokenType.amPm;
   }
 }

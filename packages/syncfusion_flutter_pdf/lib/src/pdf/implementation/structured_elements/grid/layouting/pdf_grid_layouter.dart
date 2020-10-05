@@ -442,7 +442,9 @@ class _PdfGridLayouter extends _ElementLayouter {
               _currentPage._section == param.page._section;
           _currentBounds.y = format.paginateBounds.top == 0
               ? _grid._defaultBorder.top.width / 2
-              : format == null ? 0 : format.paginateBounds.top;
+              : format == null
+                  ? 0
+                  : format.paginateBounds.top;
           if (_currentPage != null) {
             final Map<String, dynamic> pageLayoutResult =
                 _raiseBeforePageLayout(

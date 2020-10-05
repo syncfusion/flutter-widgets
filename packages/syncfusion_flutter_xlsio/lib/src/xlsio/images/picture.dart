@@ -16,9 +16,6 @@ class Picture {
   static const List<int> _jpegSignature = <int>[255, 216];
   static const List<int> _pngSignature = <int>[137, 80, 78, 71, 13, 10, 26, 10];
 
-  /// Gets/Sets the image String.
-  String image;
-
   /// Gets/Sets the image data.
   List<int> _imageData;
 
@@ -89,7 +86,7 @@ class Picture {
   }
 
   /// clear the image data.
-  void clear() {
+  void _clear() {
     if (_imageData != null) {
       _imageData = null;
     }

@@ -12,7 +12,6 @@ import 'package:archive/archive.dart';
 import 'package:xml/xml.dart';
 import 'package:image/image.dart' as img;
 import 'package:syncfusion_officecore/officecore.dart';
-
 import 'package:intl/intl.dart';
 import 'package:intl/number_symbols_data.dart';
 import 'package:intl/number_symbols.dart';
@@ -53,7 +52,6 @@ part 'src/xlsio/formats/format_tokens/hour_24_token.dart';
 part 'src/xlsio/formats/format_tokens/hour_token.dart';
 part 'src/xlsio/formats/format_tokens/milli_second_token.dart';
 part 'src/xlsio/formats/format_tokens/minute_token.dart';
-part 'src/xlsio/formats/format_tokens/minute_total_token.dart';
 part 'src/xlsio/formats/format_tokens/month_token.dart';
 part 'src/xlsio/formats/format_tokens/second_token.dart';
 part 'src/xlsio/formats/format_tokens/significant_digit_token.dart';
