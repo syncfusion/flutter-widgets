@@ -560,6 +560,11 @@ bool _isAppointmentDateWithinVisibleDateRange(
 }
 
 Location _timeZoneInfoToOlsonTimeZone(String windowsTimeZoneId) {
+  try {
+    var location = timeZoneDatabase.get(windowsTimeZoneId);
+    return location;
+  } catch (ignored) {}
+
   final Map<String, String> olsonWindowsTimes = <String, String>{};
   olsonWindowsTimes['AUS Central Standard Time'] = 'Australia/Darwin';
   olsonWindowsTimes['AUS Eastern Standard Time'] = 'Australia/Sydney';
