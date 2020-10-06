@@ -1057,7 +1057,7 @@ class _PickerViewState extends State<_PickerView>
         return;
       }
 
-      _drawSelection(selectedDate);
+
       widget.updatePickerStateDetails(_pickerStateDetails);
     }
   }
