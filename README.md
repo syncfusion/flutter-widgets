@@ -30,7 +30,7 @@ Also, you can view the samples code from [this repository](https://github.com/sy
 
 ## Packages
 
-| Package/Plugin | Widgets/libraries | Pub | Points | Popularity |
+| <div style="width:150px">Package/Plugin</div> | <div style="width:150px">Widgets/libraries</div> | <div style="width:100px">Pub</div> | <div style="width:100px">Points</div> | <div style="width:100px">Popularity</div> |
 |----------------|-------------------|-----|--------|------------|
 | [syncfusion_flutter_charts](./packages/syncfusion_flutter_charts/) | <ul><li>SfCartesianChart</li><li>SfCircularChart</li><li>SfPyramidChart</li><li>SfFunnelChart</li></ul> | [![pub package](https://img.shields.io/pub/v/syncfusion_flutter_charts.svg)](https://pub.dev/packages/syncfusion_flutter_charts) | [![pub points](https://badges.bar/syncfusion_flutter_charts/pub%20points)](https://pub.dev/packages/syncfusion_flutter_charts/score) |  [![popularity](https://badges.bar/syncfusion_flutter_charts/popularity)](https://pub.dev/packages/syncfusion_flutter_charts/score) |
 | [syncfusion_flutter_calendar](./packages/syncfusion_flutter_calendar/) | <ul><li>SfCalendar</li></ul> | [![pub package](https://img.shields.io/pub/v/syncfusion_flutter_calendar.svg)](https://pub.dev/packages/syncfusion_flutter_calendar) | [![pub points](https://badges.bar/syncfusion_flutter_calendar/pub%20points)](https://pub.dev/packages/syncfusion_flutter_calendar/score) |  [![popularity](https://badges.bar/syncfusion_flutter_calendar/popularity)](https://pub.dev/packages/syncfusion_flutter_calendar/score) |
