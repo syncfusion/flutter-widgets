@@ -47,7 +47,7 @@ table th:nth-of-type(4) {
  width: 15%;
 }
 </style>
-| Package/Plugin | Widgets/libraries | Pub | Points | Popularity |
+| Package/Plugin | Widgets/libraries | <div style="width:300px">Pub</div> | Points | Popularity |
 |----------------|-------------------|-----|--------|------------|
 | [syncfusion_flutter_charts](./packages/syncfusion_flutter_charts/) | <ul><li>SfCartesianChart</li><li>SfCircularChart</li><li>SfPyramidChart</li><li>SfFunnelChart</li></ul> | [![pub package](https://img.shields.io/pub/v/syncfusion_flutter_charts.svg)](https://pub.dev/packages/syncfusion_flutter_charts) | [![pub points](https://badges.bar/syncfusion_flutter_charts/pub%20points)](https://pub.dev/packages/syncfusion_flutter_charts/score) |  [![popularity](https://badges.bar/syncfusion_flutter_charts/popularity)](https://pub.dev/packages/syncfusion_flutter_charts/score) |
 | [syncfusion_flutter_calendar](./packages/syncfusion_flutter_calendar/) | <ul><li>SfCalendar</li></ul> | [![pub package](https://img.shields.io/pub/v/syncfusion_flutter_calendar.svg)](https://pub.dev/packages/syncfusion_flutter_calendar) | [![pub points](https://badges.bar/syncfusion_flutter_calendar/pub%20points)](https://pub.dev/packages/syncfusion_flutter_calendar/score) |  [![popularity](https://badges.bar/syncfusion_flutter_calendar/popularity)](https://pub.dev/packages/syncfusion_flutter_calendar/score) |
