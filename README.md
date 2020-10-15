@@ -30,6 +30,23 @@ Also, you can view the samples code from [this repository](https://github.com/sy
 
 ## Packages
 
+<style>
+table th:first-of-type {
+ width: 25%;
+}
+table th:nth-of-type(2) {
+ width: 25%;
+}
+table th:nth-of-type(3) {
+ width: 20%;
+}
+table th:nth-of-type(4) {
+ width: 15%;
+}
+table th:nth-of-type(4) {
+ width: 15%;
+}
+</style>
 | Package/Plugin | Widgets/libraries | Pub | Points | Popularity |
 |----------------|-------------------|-----|--------|------------|
 | [syncfusion_flutter_charts](./packages/syncfusion_flutter_charts/) | <ul><li>SfCartesianChart</li><li>SfCircularChart</li><li>SfPyramidChart</li><li>SfFunnelChart</li></ul> | [![pub package](https://img.shields.io/pub/v/syncfusion_flutter_charts.svg)](https://pub.dev/packages/syncfusion_flutter_charts) | [![pub points](https://badges.bar/syncfusion_flutter_charts/pub%20points)](https://pub.dev/packages/syncfusion_flutter_charts/score) |  [![popularity](https://badges.bar/syncfusion_flutter_charts/popularity)](https://pub.dev/packages/syncfusion_flutter_charts/score) |
