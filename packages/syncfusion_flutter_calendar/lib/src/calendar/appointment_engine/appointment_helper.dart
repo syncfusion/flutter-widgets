@@ -671,7 +671,7 @@ Location _timeZoneInfoToOlsonTimeZone(String windowsTimeZoneId) {
     final String timeZone = olsonWindowsTimes[windowsTimeZoneId];
     return getLocation(timeZone);
   } else {
-    return null;
+    return timeZoneDatabase.get(windowsTimeZoneId);
   }
 }
 
