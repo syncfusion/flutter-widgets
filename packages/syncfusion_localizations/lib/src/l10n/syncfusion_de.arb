@@ -12,7 +12,7 @@
 "pdfEnterPageNumberLabel" : "Geben Sie die Seitenzahl ein", 
 "pdfInvalidPageNumberLabel" : "Bitte geben Sie eine gültige Nummer ein", 
 "pdfPaginationDialogOkLabel" : "OK", 
-"pdfPaginationDialogCancelLabel" : "STORNIEREN", 
+"pdfPaginationDialogCancelLabel" : "ABBRECHEN", 
 "allowedViewDayLabel" : "Tag", 
 "allowedViewWeekLabel" : "Woche", 
 "allowedViewWorkWeekLabel" : "Arbeitswoche", 
