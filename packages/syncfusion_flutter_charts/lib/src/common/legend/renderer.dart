@@ -56,7 +56,9 @@ class _LegendRenderer with _CustomizeLegend {
     final String legendText = legendItem.text;
     final List<Color> palette = chartState._chart.palette;
     TrendlineRenderer trendlineRenderer;
-    Color color = legendItem.iconColor ?? palette[index % palette.length];
+    Color color = legendItem.trendline?.color ??
+        legendItem.iconColor ??
+        palette[index % palette.length];
     color =
         legendRenderer._renderer.getLegendIconColor(index, legendItem, color);
     final Size textSize = legendItem.textSize;
@@ -223,7 +225,9 @@ class _LegendRenderer with _CustomizeLegend {
                 path,
                 (legendRenderContext.series is CartesianSeries &&
                         !legendRenderContext.isSelect &&
-                        legendRenderContext.series.gradient != null)
+                        legendRenderContext.series.gradient != null &&
+                        (legendRenderContext.trendline == null ||
+                            legendRenderContext.trendline.color == null))
                     ? _getLinearGradientPaint(
                         legendRenderContext.series.gradient,
                         path.getBounds(),
