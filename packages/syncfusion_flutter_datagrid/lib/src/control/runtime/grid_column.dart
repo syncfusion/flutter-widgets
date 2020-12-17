@@ -3,7 +3,37 @@ part of datagrid;
 /// Provides the base functionalities for all the column types in [SfDataGrid].
 class GridColumn {
   /// Creates the [GridColumn] for [SfDataGrid] widget.
-  GridColumn() {
+  GridColumn(
+      {@required this.mappingName,
+      ColumnWidthMode columnWidthMode,
+      Alignment textAlignment,
+      Alignment headerTextAlignment,
+      bool softWrap,
+      TextOverflow headerTextOverflow,
+      bool headerTextSoftWrap,
+      bool visible,
+      bool allowSorting,
+      double minimumWidth,
+      double maximumWidth,
+      double width,
+      this.maxLines,
+      this.overflow,
+      this.headerText,
+      this.headerStyle,
+      this.cellStyle,
+      this.padding,
+      this.headerPadding})
+      : columnWidthMode = columnWidthMode ?? ColumnWidthMode.none,
+        textAlignment = textAlignment ?? Alignment.centerLeft,
+        headerTextAlignment = headerTextAlignment ?? Alignment.center,
+        softWrap = softWrap ?? false,
+        headerTextOverflow = headerTextOverflow ?? TextOverflow.ellipsis,
+        headerTextSoftWrap = headerTextSoftWrap ?? false,
+        visible = visible ?? true,
+        allowSorting = allowSorting ?? true,
+        minimumWidth = minimumWidth ?? double.nan,
+        maximumWidth = maximumWidth ?? double.nan,
+        width = width ?? double.nan {
     _actualWidth = double.nan;
     _autoWidth = double.nan;
   }
@@ -17,29 +47,13 @@ class GridColumn {
   /// Defaults to [ColumnWidthMode.none]
   ///
   /// Also refer [ColumnWidthMode]
-  ColumnWidthMode columnWidthMode = ColumnWidthMode.none;
+  final ColumnWidthMode columnWidthMode;
 
   /// The name to map the data member in the underlying data object of
   /// datasource.
   ///
   /// Defaults to null
-  String get mappingName => _mappingName;
-  String _mappingName;
-
-  /// The name to map the data member in the underlying data object of
-  ///  datasource.
-  ///
-  /// If [headerText] is not set, [mappingName] will be displayed as text
-  /// in header cell.
-  ///
-  /// Defaults to null
-  set mappingName(String newValue) {
-    if (_mappingName == newValue) {
-      return;
-    }
-
-    _mappingName = newValue;
-  }
+  final String mappingName;
 
   /// The cell type of the column which denotes renderer associated with column.
   String get cellType => _cellType;
@@ -48,42 +62,41 @@ class GridColumn {
   /// How the text in cells except header cell is aligned.
   ///
   /// Defaults to null
-  Alignment textAlignment = Alignment.centerLeft;
+  final Alignment textAlignment;
 
   /// How the text in header cell is aligned.
   ///
   /// Defaults to null
-  Alignment headerTextAlignment = Alignment.center;
+  final Alignment headerTextAlignment;
 
   /// An optional maximum number of lines for the text to span, wrapping
   /// if necessary in cells except header cell.
   ///
   /// Defaults to null
-  int maxLines;
+  final int maxLines;
 
   /// How visual overflow should be handled in cells except header cell.
   ///
   /// Defaults to null
   ///
   /// Also refer [TextOverflow]
-  TextOverflow overflow;
+  final TextOverflow overflow;
 
   /// Whether the text should break at soft line breaks.
   ///
   /// Defaults to false
-  bool softWrap = false;
+  final bool softWrap;
 
   /// The actual display width of the column when auto fitted based on
   /// [SfDataGrid.columnWidthMode] or [columnWidthMode].
   ///
   /// Defaults to [double.nan]
-  double get actualWidth => _actualWidth;
   double _actualWidth;
 
   /// The text which displays in header cell.
   ///
   /// Defaults to null.
-  String headerText;
+  final String headerText;
 
   /// The minimum width of the column.
   ///
@@ -91,7 +104,7 @@ class GridColumn {
   /// [minimumWidth]
   ///
   /// Defaults to [double.nan]
-  double minimumWidth = double.nan;
+  final double minimumWidth;
 
   /// The maximum width of the column.
   ///
@@ -99,19 +112,19 @@ class GridColumn {
   /// [maximumWidth]
   ///
   /// Defaults to [double.nan]
-  double maximumWidth = double.nan;
+  final double maximumWidth;
 
   /// Decides how visual overflow of header text should be handled.
   ///
   /// Defaults to Ellipsis
   ///
   /// Also refer [TextOverflow]
-  TextOverflow headerTextOverflow = TextOverflow.ellipsis;
+  final TextOverflow headerTextOverflow;
 
   /// Decides Whether the header text should break at soft line breaks.
   ///
   /// Defaults to false
-  bool headerTextSoftWrap = false;
+  final bool headerTextSoftWrap;
 
   /// The width of the column.
   ///
@@ -121,15 +134,21 @@ class GridColumn {
   /// [maximumWidth] is set to [width].
   ///
   /// Defaults to [double.nan]
-  double width = double.nan;
+  final double width;
 
   /// The amount of space between the contents of the cell and the cell's
   /// border.
   ///
-  /// This is also applicable for header cells.
+  /// This is applicable for grid cells alone.
   ///
   /// Defaults to 16
-  EdgeInsetsGeometry padding = const EdgeInsets.all(16);
+  final EdgeInsetsGeometry padding;
+
+  /// The amount of space between the contents of the header cell and the
+  /// header cell's border.
+  ///
+  /// Defaults to 16
+  final EdgeInsetsGeometry headerPadding;
 
   /// The style of the header cell in the column.
   ///
@@ -142,10 +161,11 @@ class GridColumn {
   ///     body: SfDataGrid(
   ///       source: _employeeDataSource,
   ///       columns: [
-  ///         GridNumericColumn(mappingName: 'id', headerText: 'ID')
-  ///           ..headerStyle = DataGridHeaderCellStyle(
-  ///              textStyle:
-  ///                TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+  ///         GridNumericColumn(mappingName: 'id', headerText: 'ID',
+  ///                     headerStyle : DataGridHeaderCellStyle(
+  ///                           textStyle: TextStyle(
+  ///                              color: Colors.red,
+  ///                              fontWeight: FontWeight.bold))),
   ///         GridTextColumn(mappingName: 'name', headerText: 'Name'),
   ///         GridTextColumn(mappingName: 'designation',
   ///             headerText: 'Designation'),
@@ -156,7 +176,7 @@ class GridColumn {
   /// }
   ///
   /// ```
-  DataGridHeaderCellStyle headerStyle;
+  final DataGridHeaderCellStyle headerStyle;
 
   /// The style of the cells in the column except header cell.
   ///
@@ -169,9 +189,9 @@ class GridColumn {
   ///     body: SfDataGrid(
   ///       source: _employeeDataSource,
   ///       columns: [
-  ///         GridNumericColumn(mappingName: 'id', headerText: 'ID')
-  ///           ..cellStyle = DataGridCellStyle(
-  ///             textStyle: TextStyle(color: Colors.red)),
+  ///         GridNumericColumn(mappingName: 'id', headerText: 'ID',
+  ///            cellStyle : DataGridCellStyle(
+  ///              textStyle: TextStyle(color: Colors.red))),
   ///         GridTextColumn(mappingName: 'name', headerText: 'Name'),
   ///         GridTextColumn(mappingName: 'designation',
   ///             headerText: 'Designation'),
@@ -182,12 +202,12 @@ class GridColumn {
   /// }
   ///
   /// ```
-  DataGridCellStyle cellStyle;
+  final DataGridCellStyle cellStyle;
 
   /// Whether column should be hidden.
   ///
   /// Defaults to false.
-  bool visible = true;
+  final bool visible;
 
   /// Decides whether user can sort the column simply by tapping the column
   /// header.
@@ -204,7 +224,7 @@ class GridColumn {
   /// [SortColumnDetails] objects to sort the columns in [SfDataGrid].
   /// * [DataGridSource.sort] - call this method when you are adding the
   /// [SortColumnDetails] programmatically to [DataGridSource.sortedColumns].
-  bool allowSorting = true;
+  final bool allowSorting;
 
   /// Gets the formatted value based on the given format.
   ///
@@ -233,22 +253,55 @@ class GridColumn {
 ///   return SfDataGrid(
 ///     source: employeeDataSource,
 ///     columns: [
-///     GridTextColumn(mappingName: 'name')
-///     ..headerText = 'Name',
-///     GridTextColumn(mappingName: 'designation')
-///     ..headerText = 'Designation',
+///     GridTextColumn(mappingName: 'name', headerText : 'Name'),
+///     GridTextColumn(mappingName: 'designation', headerText : 'Designation'),
 ///   ],
 ///   );
 /// }
 /// ```
 class GridTextColumn extends GridColumn {
   /// Creates a String column using [mappingName] and [headerText].
-  GridTextColumn({@required String mappingName, String headerText}) {
-    this.mappingName = mappingName;
-    this.headerText = headerText;
+  GridTextColumn(
+      {@required String mappingName,
+      ColumnWidthMode columnWidthMode,
+      Alignment textAlignment,
+      Alignment headerTextAlignment,
+      bool softWrap,
+      TextOverflow headerTextOverflow,
+      EdgeInsetsGeometry padding,
+      EdgeInsetsGeometry headerPadding,
+      bool headerTextSoftWrap,
+      bool visible,
+      bool allowSorting,
+      double minimumWidth,
+      double maximumWidth,
+      double width,
+      int maxLines,
+      TextOverflow overflow,
+      String headerText,
+      DataGridHeaderCellStyle headerStyle,
+      DataGridCellStyle cellStyle})
+      : super(
+            mappingName: mappingName,
+            columnWidthMode: columnWidthMode,
+            textAlignment: textAlignment,
+            headerTextAlignment: headerTextAlignment ?? Alignment.centerLeft,
+            softWrap: softWrap,
+            headerTextOverflow: headerTextOverflow,
+            headerTextSoftWrap: headerTextSoftWrap,
+            visible: visible,
+            allowSorting: allowSorting,
+            minimumWidth: minimumWidth,
+            maximumWidth: maximumWidth,
+            width: width,
+            maxLines: maxLines,
+            overflow: overflow ?? TextOverflow.ellipsis,
+            headerText: headerText,
+            headerStyle: headerStyle,
+            cellStyle: cellStyle,
+            padding: padding,
+            headerPadding: headerPadding) {
     _cellType = 'TextField';
-    headerTextAlignment = Alignment.centerLeft;
-    overflow = TextOverflow.ellipsis;
   }
 }
 
@@ -262,22 +315,56 @@ class GridTextColumn extends GridColumn {
 ///   return SfDataGrid(
 ///     source: employeeDataSource(),
 ///     columns: [
-///      GridNumericColumn(mappingName: 'id')
-///      ..headerText = 'ID',
-///      GridNumericColumn(mappingName: 'salary')
-///      ..headerText = 'Salary',
+///      GridNumericColumn(mappingName: 'id', headerText : 'ID'),
+///      GridNumericColumn(mappingName: 'salary', headerText : 'Salary'),
 ///   ],
 ///   );
 /// }
 /// ```
 class GridNumericColumn extends GridColumn {
   /// Creates a numeric column using [mappingName] and [headerText].
-  GridNumericColumn({@required String mappingName, String headerText}) {
-    this.mappingName = mappingName;
-    this.headerText = headerText;
+  GridNumericColumn({
+    @required String mappingName,
+    this.numberFormat,
+    ColumnWidthMode columnWidthMode,
+    Alignment textAlignment,
+    Alignment headerTextAlignment,
+    bool softWrap,
+    TextOverflow headerTextOverflow,
+    EdgeInsetsGeometry padding,
+    EdgeInsetsGeometry headerPadding,
+    bool headerTextSoftWrap,
+    bool visible,
+    bool allowSorting,
+    double minimumWidth,
+    double maximumWidth,
+    double width,
+    int maxLines,
+    TextOverflow overflow,
+    String headerText,
+    DataGridHeaderCellStyle headerStyle,
+    DataGridCellStyle cellStyle,
+  }) : super(
+            mappingName: mappingName,
+            columnWidthMode: columnWidthMode,
+            textAlignment: textAlignment ?? Alignment.centerRight,
+            headerTextAlignment: headerTextAlignment ?? Alignment.centerRight,
+            softWrap: softWrap,
+            headerTextOverflow: headerTextOverflow,
+            headerTextSoftWrap: headerTextSoftWrap,
+            visible: visible,
+            allowSorting: allowSorting,
+            minimumWidth: minimumWidth,
+            maximumWidth: maximumWidth,
+            width: width,
+            maxLines: maxLines,
+            overflow: overflow,
+            headerText: headerText,
+            headerStyle: headerStyle,
+            cellStyle: cellStyle,
+            padding: padding,
+            headerPadding: headerPadding) {
     _cellType = 'Numeric';
-    textAlignment = Alignment.centerRight;
-    headerTextAlignment = Alignment.centerRight;
   }
 
   /// [intl.NumberFormat] to format a number in a locale-specific way.
@@ -295,15 +382,15 @@ class GridNumericColumn extends GridColumn {
   ///         GridTextColumn(mappingName: 'name', headerText: 'Name'),
   ///         GridTextColumn(mappingName: 'designation',
   ///             headerText: 'Designation'),
-  ///         GridNumericColumn(mappingName: 'salary', headerText: 'Salary')
-  ///           ..numberFormat =
-  ///             NumberFormat.currency(locale: 'en_US', symbol: '\$')
+  ///         GridNumericColumn(mappingName: 'salary', headerText: 'Salary',
+  ///           numberFormat :
+  ///                    NumberFormat.currency(locale: 'en_US', symbol: '\$'))
   ///       ],
   ///     ),
   ///   );
   /// }
   /// ```
-  intl.NumberFormat numberFormat;
+  final intl.NumberFormat numberFormat;
 
   @override
   String getFormattedValue(Object cellValue) {
@@ -329,17 +416,53 @@ class GridNumericColumn extends GridColumn {
 ///        return employees[rowIndex].image;
 ///      },
 ///     columns: [
-///      GridWidgetColumn(mappingName: image)
-///      ..headerText = 'Image',
+///      GridWidgetColumn(mappingName: image, headerText : 'Image'),
 ///   ],
 ///   );
 /// }
 /// ```
 class GridWidgetColumn extends GridColumn {
   /// Creates a widget column using [mappingName] and [headerText].
-  GridWidgetColumn({@required String mappingName, String headerText}) {
-    this.mappingName = mappingName;
-    this.headerText = headerText;
+  GridWidgetColumn(
+      {@required String mappingName,
+      ColumnWidthMode columnWidthMode,
+      Alignment textAlignment,
+      Alignment headerTextAlignment,
+      bool softWrap,
+      TextOverflow headerTextOverflow,
+      EdgeInsetsGeometry padding,
+      EdgeInsetsGeometry headerPadding,
+      bool headerTextSoftWrap,
+      bool visible,
+      bool allowSorting,
+      double minimumWidth,
+      double maximumWidth,
+      double width,
+      int maxLines,
+      TextOverflow overflow,
+      String headerText,
+      DataGridHeaderCellStyle headerStyle,
+      DataGridCellStyle cellStyle})
+      : super(
+            mappingName: mappingName,
+            columnWidthMode: columnWidthMode,
+            textAlignment: textAlignment,
+            headerTextAlignment: headerTextAlignment,
+            softWrap: softWrap,
+            headerTextOverflow: headerTextOverflow,
+            headerTextSoftWrap: headerTextSoftWrap,
+            visible: visible,
+            allowSorting: allowSorting,
+            minimumWidth: minimumWidth,
+            maximumWidth: maximumWidth,
+            width: width,
+            maxLines: maxLines,
+            overflow: overflow,
+            headerText: headerText,
+            headerStyle: headerStyle,
+            cellStyle: cellStyle,
+            padding: padding,
+            headerPadding: headerPadding) {
     _cellType = 'Widget';
   }
 }
@@ -354,22 +477,57 @@ class GridWidgetColumn extends GridColumn {
 ///   return SfDataGrid(
 ///     source: employeeDataSource(),
 ///     columns: [
-///      GridNumericColumn(mappingName: 'id')
-///      ..headerText = 'ID',
-///      GridDateTimeColumn(mappingName: 'dateofjoining')
-///      ..headerText = 'Date of Joining',
+///      GridNumericColumn(mappingName: 'id', headerText : 'ID'),
+///      GridDateTimeColumn(mappingName: 'dateofjoining',
+///              headerText : 'Date of Joining'),
 ///   ],
 ///   );
 /// }
 /// ```
 class GridDateTimeColumn extends GridColumn {
   /// Creates a datetime column using [mappingName] and [headerText].
-  GridDateTimeColumn({@required String mappingName, String headerText}) {
-    this.mappingName = mappingName;
-    this.headerText = headerText;
+  GridDateTimeColumn(
+      {@required String mappingName,
+      this.dateFormat,
+      ColumnWidthMode columnWidthMode,
+      Alignment textAlignment,
+      Alignment headerTextAlignment,
+      bool softWrap,
+      TextOverflow headerTextOverflow,
+      EdgeInsetsGeometry padding,
+      EdgeInsetsGeometry headerPadding,
+      bool headerTextSoftWrap,
+      bool visible,
+      bool allowSorting,
+      double minimumWidth,
+      double maximumWidth,
+      double width,
+      int maxLines,
+      TextOverflow overflow,
+      String headerText,
+      DataGridHeaderCellStyle headerStyle,
+      DataGridCellStyle cellStyle})
+      : super(
+            mappingName: mappingName,
+            columnWidthMode: columnWidthMode,
+            textAlignment: textAlignment ?? Alignment.centerRight,
+            headerTextAlignment: headerTextAlignment ?? Alignment.centerRight,
+            softWrap: softWrap,
+            headerTextOverflow: headerTextOverflow,
+            headerTextSoftWrap: headerTextSoftWrap,
+            visible: visible,
+            allowSorting: allowSorting,
+            minimumWidth: minimumWidth,
+            maximumWidth: maximumWidth,
+            width: width,
+            maxLines: maxLines,
+            overflow: overflow,
+            headerText: headerText,
+            headerStyle: headerStyle,
+            cellStyle: cellStyle,
+            padding: padding,
+            headerPadding: headerPadding) {
     _cellType = 'DateTime';
-    textAlignment = Alignment.centerRight;
-    headerTextAlignment = Alignment.centerRight;
   }
 
   /// [intl.DateFormat] to format the dates in a locale-sensitive manner.
@@ -385,15 +543,15 @@ class GridDateTimeColumn extends GridColumn {
   ///         GridNumericColumn(mappingName: 'id', headerText: 'ID'),
   ///         GridTextColumn(mappingName: 'name', headerText: 'Name'),
   ///         GridDateTimeColumn(
-  ///             mappingName: 'dateOfJoining', headerText: 'Date of Joining')
-  ///           ..dateFormat = DateFormat('dd/MM/yyyy'),
+  ///             mappingName: 'dateOfJoining', headerText: 'Date of Joining',
+  ///             dateFormat : DateFormat('dd/MM/yyyy')),
   ///         GridNumericColumn(mappingName: 'salary', headerText: 'Salary'),
   ///       ],
   ///     ),
   ///   );
   /// }
   /// ```
-  intl.DateFormat dateFormat;
+  final intl.DateFormat dateFormat;
 
   final intl.DateFormat _defaultDateFormat = intl.DateFormat('dd-MM-yyyy');
 

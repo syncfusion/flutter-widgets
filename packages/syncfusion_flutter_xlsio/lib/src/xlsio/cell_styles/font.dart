@@ -12,6 +12,14 @@ class Font {
     italic = false;
     color = 'FF000000';
   }
+  Font._withNameSize(String fontFamilyName, double fontSize) {
+    name = fontFamilyName;
+    size = fontSize;
+    underline = false;
+    bold = false;
+    italic = false;
+    color = 'FF000000';
+  }
 
   /// Gets/sets font bold.
   bool bold;
@@ -23,7 +31,7 @@ class Font {
   bool underline;
 
   /// Gets/sets font size.
-  int size;
+  double size;
 
   /// Gets/sets font name.
   String name;

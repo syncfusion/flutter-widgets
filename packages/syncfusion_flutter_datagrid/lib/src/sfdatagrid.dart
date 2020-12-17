@@ -53,6 +53,13 @@ typedef DataGridCellDoubleTapCallback = void Function(
 typedef DataGridCellLongPressCallback = void Function(
     DataGridCellLongPressDetails details);
 
+/// The signature of [DataGridSource.handleLoadMoreRows] function.
+typedef LoadMoreRows = Future<void> Function();
+
+/// Signature for the [SfDataGrid.loadMoreViewBuilder] function.
+typedef LoadMoreViewBuilder = Widget Function(
+    BuildContext context, LoadMoreRows loadMoreRows);
+
 /// A material design datagrid.
 ///
 /// DataGrid lets you display and manipulate data in a tabular view. It is built
@@ -118,24 +125,24 @@ typedef DataGridCellLongPressCallback = void Function(
 ///   final int salary;
 /// }
 ///
-/// class EmployeeDataSource extends DataGridSource{
+/// class EmployeeDataSource extends DataGridSource<Employee> {
 ///   @override
-///   List<Object> get dataSource => _employees;
+///   List<Employee> get dataSource => _employees;
 ///
 ///   @override
-///   getCellValue(int rowIndex, String columnName){
+///   getValue(Employee employee, String columnName){
 ///     switch (columnName) {
 ///       case 'id':
-///         return _employees[rowIndex].id;
+///         return employee.id;
 ///         break;
 ///       case 'name':
-///         return _employees[rowIndex].name;
+///         return employee.name;
 ///         break;
 ///       case 'salary':
-///         return _employees[rowIndex].salary;
+///         return employee.salary;
 ///         break;
 ///       case 'designation':
-///         return _employees[rowIndex].designation;
+///         return employee.designation;
 ///         break;
 ///       default:
 ///         return ‘ ’;
@@ -156,6 +163,7 @@ class SfDataGrid extends StatefulWidget {
       double headerRowHeight,
       double defaultColumnWidth,
       GridLinesVisibility gridLinesVisibility,
+      GridLinesVisibility headerGridLinesVisibility,
       ColumnWidthCalculationMode columnWidthCalculationMode,
       ColumnWidthCalculationRange columnWidthCalculationRange,
       ColumnWidthMode columnWidthMode,
@@ -170,6 +178,7 @@ class SfDataGrid extends StatefulWidget {
       bool allowTriStateSorting,
       bool showSortNumbers,
       SortingGestureType sortingGestureType,
+      List<StackedHeaderRow> stackedHeaderRows,
       this.selectionManager,
       this.controller,
       this.columnSizer,
@@ -186,7 +195,11 @@ class SfDataGrid extends StatefulWidget {
       this.onCellTap,
       this.onCellDoubleTap,
       this.onCellSecondaryTap,
-      this.onCellLongPress})
+      this.onCellLongPress,
+      bool isScrollbarAlwaysShown,
+      ScrollPhysics horizontalScrollPhysics,
+      ScrollPhysics verticalScrollPhysics,
+      this.loadMoreViewBuilder})
       : assert(source != null),
         assert(columns != null),
         assert(frozenColumnsCount != null && frozenColumnsCount >= 0),
@@ -196,9 +209,11 @@ class SfDataGrid extends StatefulWidget {
         assert(footerFrozenRowsCount != null && footerFrozenRowsCount >= 0),
         rowHeight = rowHeight,
         headerRowHeight = headerRowHeight,
-        defaultColumnWidth = defaultColumnWidth ?? (kIsWeb ? 100.0 : 90.0),
+        defaultColumnWidth = defaultColumnWidth,
         gridLinesVisibility =
             gridLinesVisibility ?? GridLinesVisibility.horizontal,
+        headerGridLinesVisibility =
+            headerGridLinesVisibility ?? GridLinesVisibility.horizontal,
         columnWidthCalculationMode =
             columnWidthCalculationMode ?? ColumnWidthCalculationMode.textSize,
         columnWidthMode = columnWidthMode ?? ColumnWidthMode.none,
@@ -211,6 +226,12 @@ class SfDataGrid extends StatefulWidget {
         allowTriStateSorting = allowTriStateSorting ?? false,
         showSortNumbers = showSortNumbers ?? false,
         sortingGestureType = sortingGestureType ?? SortingGestureType.tap,
+        stackedHeaderRows = stackedHeaderRows ?? const <StackedHeaderRow>[],
+        isScrollbarAlwaysShown = isScrollbarAlwaysShown ?? false,
+        horizontalScrollPhysics =
+            horizontalScrollPhysics ?? const AlwaysScrollableScrollPhysics(),
+        verticalScrollPhysics =
+            verticalScrollPhysics ?? const AlwaysScrollableScrollPhysics(),
         super(key: key);
 
   /// The height of each row except the column header.
@@ -294,6 +315,19 @@ class SfDataGrid extends StatefulWidget {
   ///
   /// Also refer [GridLinesVisibility]
   final GridLinesVisibility gridLinesVisibility;
+
+  /// How the border should be visible in header cells.
+  ///
+  /// Decides whether vertical or horizontal or both the borders or no borders should be drawn.
+  ///
+  /// [GridLinesVisibility.horizontal] will be useful if you are using [stackedHeaderRows] to improve the readability.
+  ///
+  /// Defaults to [GridLinesVisibility.horizontal]
+  ///
+  /// Also refer [GridLinesVisibility].
+  ///
+  /// See also, [gridLinesVisibility] – To set the border for cells other than header cells.
+  final GridLinesVisibility headerGridLinesVisibility;
 
   /// Invoked when the style for each cell is applied.
   ///
@@ -608,6 +642,187 @@ class SfDataGrid extends StatefulWidget {
   /// [allowSorting]
   final SortingGestureType sortingGestureType;
 
+  /// The collection of [StackedHeaderRow].
+  ///
+  /// Stacked headers enable you to display headers that span across multiple
+  /// columns and rows. These rows are displayed above to the regular column
+  /// headers.
+  ///
+  /// ```dart
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return SfDataGrid(source: _employeeDataSource, columns: <GridColumn>[
+  ///     GridNumericColumn(mappingName: 'orderID', headerText: 'ID'),
+  ///     GridDateTimeColumn(
+  ///          mappingName: 'orderDate', headerText: 'Order Date'),
+  ///     GridTextColumn(
+  ///         mappingName: 'designation', headerText: 'Designation'),
+  ///     GridNumericColumn(mappingName: 'salary', headerText: 'Salary')
+  ///   ], stackedHeaderRows: [
+  ///     StackedHeaderRow(stackedColumns: [
+  ///       StackedColumn(
+  ///         childColumns: " orderID, orderDate", headerText: "Order Details"),
+  ///     ])
+  ///   ]);
+  /// }
+  /// ```
+  final List<StackedHeaderRow> stackedHeaderRows;
+
+  /// Indicates whether the horizontal and vertical scrollbars should always
+  /// be visible. When false, both the scrollbar will be shown during scrolling
+  /// and will fade out otherwise. When true, both the scrollbar will always be
+  /// visible and never fade out.
+  ///
+  /// Defaults to false
+  final bool isScrollbarAlwaysShown;
+
+  /// How the horizontal scroll view should respond to user input.
+  /// For example, determines how the horizontal scroll view continues to animate after the user stops dragging the scroll view.
+  ///
+  /// Defaults to AlwaysScrollableScrollPhysics()
+  final ScrollPhysics horizontalScrollPhysics;
+
+  /// How the vertical scroll view should respond to user input.
+  /// For example, determines how the vertical scroll view continues to animate after the user stops dragging the scroll view.
+  ///
+  /// Defaults to AlwaysScrollableScrollPhysics()
+  final ScrollPhysics verticalScrollPhysics;
+
+  /// A builder that sets the widget to display at the bottom of the datagrid
+  /// when vertical scrolling reaches the end of the datagrid.
+  ///
+  /// You should override [DataGridSource.handleLoadMoreRows] method to load
+  /// more rows and then notify the datagrid about the changes. The
+  /// [DataGridSource.handleLoadMoreRows] can be called to load more rows from
+  /// this builder using [loadMoreRows] function which is passed as a parameter
+  /// to this builder.
+  ///
+  /// ## Infinite scrolling
+  ///
+  /// The example below demonstrates infinite scrolling by showing the circular
+  /// progress indicator until the rows are loaded when vertical scrolling
+  /// reaches the end of the datagrid,
+  ///
+  /// ```dart
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     appBar: AppBar(title: Text('Syncfusion Flutter DataGrid')),
+  ///     body: SfDataGrid(
+  ///       source: employeeDataSource,
+  ///       loadMoreViewBuilder:
+  ///           (BuildContext context, LoadMoreRows loadMoreRows) {
+  ///         Future<String> loadRows() async {
+  ///           await loadMoreRows();
+  ///           return Future<String>.value('Completed');
+  ///         }
+  ///
+  ///         return FutureBuilder<String>(
+  ///           initialData: 'loading',
+  ///           future: loadRows(),
+  ///           builder: (context, snapShot) {
+  ///             if (snapShot.data == 'loading') {
+  ///               return Container(
+  ///                   height: 98.0,
+  ///                   color: Colors.white,
+  ///                   width: double.infinity,
+  ///                   alignment: Alignment.center,
+  ///                   child: CircularProgressIndicator(valueColor:
+  ///                             AlwaysStoppedAnimation(Colors.deepPurple)));
+  ///             } else {
+  ///               return SizedBox.fromSize(size: Size.zero);
+  ///             }
+  ///           },
+  ///         );
+  ///       },
+  ///       columns: <GridColumn>[
+  ///         GridNumericColumn(mappingName: 'id', headerText: 'ID'),
+  ///         GridTextColumn(mappingName: 'name', headerText: 'Name'),
+  ///         GridTextColumn(
+  ///             mappingName: 'designation', headerText: 'Designation'),
+  ///         GridNumericColumn(mappingName: 'salary', headerText: 'Salary'),
+  ///       ],
+  ///     ),
+  ///   );
+  /// }
+  /// ```
+  ///
+  /// ## Load more button
+  ///
+  /// The example below demonstrates how to show the button when vertical
+  /// scrolling is reached at the end of the datagrid and display the circular
+  /// indicator when you tap that button. In the onPressed flatbutton callback,
+  /// you can call the [loadMoreRows] function to add more rows.
+  ///
+  /// ```dart
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     appBar: AppBar(title: Text('Syncfusion Flutter DataGrid')),
+  ///     body: SfDataGrid(
+  ///       source: employeeDataSource,
+  ///       loadMoreViewBuilder:
+  ///           (BuildContext context, LoadMoreRows loadMoreRows) {
+  ///         bool showIndicator = false;
+  ///         return StatefulBuilder(
+  ///             builder: (BuildContext context, StateSetter setState) {
+  ///           if (showIndicator) {
+  ///             return Container(
+  ///                 height: 98.0,
+  ///                 color: Colors.white,
+  ///                 width: double.infinity,
+  ///                 alignment: Alignment.center,
+  ///                 child: CircularProgressIndicator(valueColor:
+  ///                           AlwaysStoppedAnimation(Colors.deepPurple)));
+  ///           } else {
+  ///             return Container(
+  ///               height: 98.0,
+  ///               color: Colors.white,
+  ///               width: double.infinity,
+  ///               alignment: Alignment.center,
+  ///               child: Container(
+  ///                 height: 36.0,
+  ///                 width: 142.0,
+  ///                 child: FlatButton(
+  ///                   color: Colors.deepPurple,
+  ///                   child: Text('LOAD MORE',
+  ///                       style: TextStyle(color: Colors.white)),
+  ///                   onPressed: () async {
+  ///                     if (context is StatefulElement &&
+  ///                         context.state != null &&
+  ///                         context.state.mounted) {
+  ///                       setState(() {
+  ///                         showIndicator = true;
+  ///                       });
+  ///                     }
+  ///                     await loadMoreRows();
+  ///                     if (context is StatefulElement &&
+  ///                         context.state != null &&
+  ///                         context.state.mounted) {
+  ///                       setState(() {
+  ///                         showIndicator = false;
+  ///                       });
+  ///                     }
+  ///                   },
+  ///                 ),
+  ///               ),
+  ///             );
+  ///           }
+  ///         });
+  ///       },
+  ///       columns: <GridColumn>[
+  ///         GridNumericColumn(mappingName: 'id', headerText: 'ID'),
+  ///         GridTextColumn(mappingName: 'name', headerText: 'Name'),
+  ///         GridTextColumn(
+  ///             mappingName: 'designation', headerText: 'Designation'),
+  ///         GridNumericColumn(mappingName: 'salary', headerText: 'Salary'),
+  ///       ],
+  ///     ),
+  ///   );
+  /// }
+  /// ```
+  final LoadMoreViewBuilder loadMoreViewBuilder;
+
   @override
   State<StatefulWidget> createState() => _SfDataGridState();
 }
@@ -679,7 +894,7 @@ class _SfDataGridState extends State<SfDataGrid> {
         _dataGridSettings.controller = widget.controller ?? DataGridController()
           .._dataGridStateDetails = _dataGridStateDetails;
 
-    _controller?.addListener(_handleDataGridSourceChanged);
+    _controller?.addListener(_handleDataSourceChangeListeners);
     //AutoFit controller initializing
     _columnSizer = widget.columnSizer ?? ColumnSizer()
       .._dataGridStateDetails = _dataGridStateDetails;
@@ -722,11 +937,21 @@ class _SfDataGridState extends State<SfDataGrid> {
       .._isGridLoaded = true;
   }
 
+  void _updateVisualDensity() {
+    final baseDensity = _dataGridSettings.visualDensity.baseSizeAdjustment;
+
+    _dataGridSettings.headerRowHeight = widget.headerRowHeight ??
+        _dataGridSettings.headerRowHeight + baseDensity.dy;
+
+    _dataGridSettings.rowHeight =
+        widget.rowHeight ?? _dataGridSettings.rowHeight + baseDensity.dy;
+  }
+
   void _initializeDataGridDataSource() {
     if (_source != widget.source) {
-      _source?.removeListener(_handleDataGridSourceChanged);
+      _removeDataGridSourceListeners();
       _source = widget.source;
-      _source?.addListener(_handleDataGridSourceChanged);
+      _addDataGridSourceListeners();
     }
     _source._updateDataSource();
   }
@@ -755,6 +980,8 @@ class _SfDataGridState extends State<SfDataGrid> {
     _cellRenderers['Widget'] = GridCellWidgetRenderer(_dataGridStateDetails);
     _cellRenderers['DateTime'] =
         GridCellDateTimeRenderer(_dataGridStateDetails);
+    _cellRenderers['StackedHeader'] =
+        _GridStackedHeaderCellRenderer(_dataGridStateDetails);
 
     if (widget.onCellRenderersCreated != null) {
       widget.onCellRenderersCreated(_cellRenderers);
@@ -814,15 +1041,14 @@ class _SfDataGridState extends State<SfDataGrid> {
             widget.source._effectiveDataSource.length, -1);
       }
 
-      if (!_suspendDataPagerUpdate) {
-        widget.source.notifyListeners();
-      }
-
       _container
         .._updateRowAndColumnCount()
         .._refreshView()
         .._isDirty = true;
     });
+    if (_dataGridSettings.source.shouldRecalculateColumnWidths()) {
+      _dataGridSettings.columnSizer._resetAutoCalculation();
+    }
   }
 
   void _processSorting() {
@@ -853,7 +1079,11 @@ class _SfDataGridState extends State<SfDataGrid> {
     _container._needToRefreshColumn = true;
   }
 
-  void _handleDataGridSourceChanged(
+  void _handleNotifyListeners() {
+    _processUpdateDataSource();
+  }
+
+  void _handleDataSourceChangeListeners(
       {RowColumnIndex rowColumnIndex,
       String propertyName,
       bool recalculateRowHeight}) {
@@ -890,6 +1120,13 @@ class _SfDataGridState extends State<SfDataGrid> {
     if (rowColumnIndex == null && propertyName == 'Sorting') {
       _processSorting();
     }
+
+    if (propertyName == 'hoverOnHeaderCell') {
+      setState(() {
+        // To rebuild the datagrid on hovering the header cell. isDirtly already
+        // been set in header cell widget itself
+      });
+    }
   }
 
   void _updateDataGridStateDetails() {
@@ -902,9 +1139,11 @@ class _SfDataGridState extends State<SfDataGrid> {
           widget.rowHeight ?? (_dataGridSettings.rowHeight ?? _rowHeight)
       ..headerRowHeight = widget.headerRowHeight ??
           (_dataGridSettings.headerRowHeight ?? _headerRowHeight)
+      ..visualDensity = _dataGridSettings.visualDensity
+      ..defaultColumnWidth =
+          widget.defaultColumnWidth ?? _dataGridSettings.defaultColumnWidth
       ..source = _source
       ..columns = _columns
-      ..defaultColumnWidth = widget.defaultColumnWidth
       ..headerLineCount = _container._headerLineCount
       ..onQueryCellStyle = widget.onQueryCellStyle
       ..onQueryRowStyle = widget.onQueryRowStyle
@@ -913,6 +1152,7 @@ class _SfDataGridState extends State<SfDataGrid> {
       ..onQueryRowHeight = widget.onQueryRowHeight
       ..dataGridThemeData = _dataGridThemeData
       ..gridLinesVisibility = widget.gridLinesVisibility
+      ..headerGridLinesVisibility = widget.headerGridLinesVisibility
       ..columnWidthMode = widget.columnWidthMode
       ..columnSizer = _columnSizer
       ..columnWidthCalculationMode = widget.columnWidthCalculationMode
@@ -936,7 +1176,12 @@ class _SfDataGridState extends State<SfDataGrid> {
       ..allowTriStateSorting = widget.allowTriStateSorting
       ..sortingGestureType = widget.sortingGestureType
       ..showSortNumbers = widget.showSortNumbers
-      ..isControlKeyPressed = false;
+      ..isControlKeyPressed = false
+      ..stackedHeaderRows = widget.stackedHeaderRows
+      ..isScrollbarAlwaysShown = widget.isScrollbarAlwaysShown
+      ..horizontalScrollPhysics = widget.horizontalScrollPhysics
+      ..verticalScrollPhysics = widget.verticalScrollPhysics
+      ..loadMoreViewBuilder = widget.loadMoreViewBuilder;
   }
 
   _DataGridSettings _onDataGridStateDetailsChanged() => _dataGridSettings;
@@ -968,6 +1213,8 @@ class _SfDataGridState extends State<SfDataGrid> {
         oldWidget.allowMultiColumnSorting != widget.allowMultiColumnSorting;
     final isShowSortNumbersChanged =
         oldWidget.showSortNumbers != widget.showSortNumbers;
+    final isStackedHeaderRowsChanged = !listEquals<StackedHeaderRow>(
+        oldWidget.stackedHeaderRows, widget.stackedHeaderRows);
     if (isSourceChanged ||
         isColumnsChanged ||
         isDataSourceChanged ||
@@ -979,6 +1226,7 @@ class _SfDataGridState extends State<SfDataGrid> {
         isSortingChanged ||
         isMultiColumnSortingChanged ||
         isShowSortNumbersChanged ||
+        isStackedHeaderRowsChanged ||
         oldWidget.rowHeight != widget.rowHeight ||
         oldWidget.headerRowHeight != widget.headerRowHeight ||
         oldWidget.defaultColumnWidth != widget.defaultColumnWidth ||
@@ -999,16 +1247,21 @@ class _SfDataGridState extends State<SfDataGrid> {
       }
 
       if (isDataGridControllerChanged) {
-        oldWidget.controller?.removeListener(_handleDataGridSourceChanged);
+        oldWidget.controller?.removeListener(_handleDataSourceChangeListeners);
 
         _controller =
             _dataGridSettings.controller = widget.controller ?? _controller
               .._dataGridStateDetails = _dataGridStateDetails;
 
-        _controller?.addListener(_handleDataGridSourceChanged);
+        _controller?.addListener(_handleDataSourceChangeListeners);
       }
 
       _initializeProperties();
+
+      if (isStackedHeaderRowsChanged) {
+        _onStackedHeaderRowsPropertyChanged(oldWidget, widget);
+      }
+
       _container._refreshDefaultLineSize();
 
       _updateSelectionController(
@@ -1025,6 +1278,7 @@ class _SfDataGridState extends State<SfDataGrid> {
           isColumnSizerChanged ||
           isFrozenColumnPaneChanged ||
           isSortingChanged ||
+          isStackedHeaderRowsChanged ||
           widget.allowSorting && isMultiColumnSortingChanged ||
           widget.allowSorting &&
               widget.allowMultiColumnSorting &&
@@ -1035,7 +1289,10 @@ class _SfDataGridState extends State<SfDataGrid> {
         }
       }
 
-      if (isSourceChanged || isDataSourceChanged || isFrozenRowPaneChanged) {
+      if (isSourceChanged ||
+          isDataSourceChanged ||
+          isFrozenRowPaneChanged ||
+          isStackedHeaderRowsChanged) {
         _container._refreshView();
       }
 
@@ -1080,6 +1337,18 @@ class _SfDataGridState extends State<SfDataGrid> {
     }
   }
 
+  void _onStackedHeaderRowsPropertyChanged(
+      SfDataGrid oldWidget, SfDataGrid widget) {
+    _container._refreshHeaderLineCount();
+    if (oldWidget.stackedHeaderRows.isNotEmpty) {
+      _container.rowGenerator.items
+          .removeWhere((row) => row.rowType == RowType.stackedHeaderRow);
+    }
+    if (widget.onQueryRowHeight != null) {
+      _container.rowHeightManager.reset();
+    }
+  }
+
   void _ensureSelectionProperties() {
     if (_controller.selectedRows.isNotEmpty) {
       _rowSelectionManager?.onSelectedRowsChanged();
@@ -1118,12 +1387,21 @@ class _SfDataGridState extends State<SfDataGrid> {
     _dataGridSettings.boxPainter = decoration.createBoxPainter();
   }
 
+  void _addDataGridSourceListeners() {
+    _source?.addListener(_handleDataSourceChangeListeners);
+    _source?.addListener(_handleNotifyListeners);
+  }
+
+  void _removeDataGridSourceListeners() {
+    _source?.removeListener(_handleDataSourceChangeListeners);
+    _source?.removeListener(_handleNotifyListeners);
+  }
+
   @override
   void didChangeDependencies() {
     textDirection = Directionality.of(context);
     dataGridThemeData = SfDataGridTheme.of(context);
-    _dataGridSettings.textScaleFactor =
-        MediaQuery.of(context, nullOk: true)?.textScaleFactor ?? 1.0;
+    _dataGridSettings.textScaleFactor = MediaQuery.textScaleFactorOf(context);
     _dataGridSettings.headerRowHeight = widget.headerRowHeight ??
         (_dataGridSettings.textScaleFactor > 1.0
             ? 56.0 * _dataGridSettings.textScaleFactor
@@ -1132,6 +1410,14 @@ class _SfDataGridState extends State<SfDataGrid> {
         (_dataGridSettings.textScaleFactor > 1.0
             ? 49.0 * _dataGridSettings.textScaleFactor
             : 49.0);
+    final ThemeData themeData = Theme.of(context);
+    _dataGridSettings._isDesktop = kIsWeb ||
+        themeData.platform == TargetPlatform.macOS ||
+        themeData.platform == TargetPlatform.windows;
+    _dataGridSettings.defaultColumnWidth =
+        widget.defaultColumnWidth ?? (_dataGridSettings._isDesktop ? 100 : 90);
+    _dataGridSettings.visualDensity = themeData.visualDensity;
+    _updateVisualDensity();
     super.didChangeDependencies();
   }
 
@@ -1143,7 +1429,7 @@ class _SfDataGridState extends State<SfDataGrid> {
 
   @override
   Widget build(BuildContext context) {
-    if (kIsWeb) {
+    if (_dataGridSettings._isDesktop) {
       _updateBoxPainter();
     }
 
@@ -1174,8 +1460,8 @@ class _SfDataGridState extends State<SfDataGrid> {
 
   @override
   void dispose() {
-    _source?.removeListener(_handleDataGridSourceChanged);
-    _controller?.removeListener(_handleDataGridSourceChanged);
+    _removeDataGridSourceListeners();
+    _controller?.removeListener(_handleDataSourceChangeListeners);
     _dataGridSettings
       ..gridPaint = null
       ..boxPainter = null
@@ -1204,6 +1490,7 @@ class _DataGridSettings {
   QueryRowHeightCallback onQueryRowHeight;
   TextDirection textDirection;
   GridLinesVisibility gridLinesVisibility;
+  GridLinesVisibility headerGridLinesVisibility;
   ColumnWidthMode columnWidthMode;
   ColumnSizer columnSizer;
   ColumnWidthCalculationMode columnWidthCalculationMode;
@@ -1220,6 +1507,7 @@ class _DataGridSettings {
   ScrollController verticalController;
   ScrollController horizontalController;
   FocusNode dataGridFocusNode;
+  VisualDensity visualDensity;
   double viewWidth;
   double viewHeight;
   Paint gridPaint;
@@ -1239,4 +1527,10 @@ class _DataGridSettings {
   bool showSortNumbers;
   SortingGestureType sortingGestureType;
   bool isControlKeyPressed;
+  bool _isDesktop;
+  List<StackedHeaderRow> stackedHeaderRows;
+  bool isScrollbarAlwaysShown;
+  ScrollPhysics horizontalScrollPhysics;
+  ScrollPhysics verticalScrollPhysics;
+  LoadMoreViewBuilder loadMoreViewBuilder;
 }

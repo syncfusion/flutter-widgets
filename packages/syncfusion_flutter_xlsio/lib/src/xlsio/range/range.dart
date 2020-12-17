@@ -65,6 +65,15 @@ class Range {
   ///Equivalent symbol for formula.
   static const String _defaultEquivalent = '=';
 
+  /// A boolean variable that indicates if display text of this range is called from AutoFitColumns().
+  // ignore: prefer_final_fields
+  bool _bAutofitText = false;
+
+  /// Checks whether Range is a part of merged Range.
+  bool get _isMerged {
+    return rowSpan != 0 || columnSpan != 0;
+  }
+
   /// Gets the Range reference along with its sheet name in format "'Sheet1'!$A$1". Read-only.
   ///
   /// ```dart
@@ -72,7 +81,8 @@ class Range {
   /// Worksheet sheet = workbook.worksheets[0];
   /// Range range = sheet.getRangeByName('A1');
   /// String address = range.addressGlobal;
-  /// workbook.save('AddressGlobal.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('AddressGlobal.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
   String get addressGlobal {
@@ -88,6 +98,16 @@ class Range {
   }
 
   /// Represents the reference name.
+  ///
+  /// ```dart
+  /// Workbook workbook = new Workbook();
+  /// Worksheet sheet = workbook.worksheets[0];
+  /// Range range = sheet.getRangeByName('A1');
+  /// String address = range.addressLocal;
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('AddressLocal.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
   String get addressLocal {
     return _getCellName(row, column);
   }
@@ -106,9 +126,10 @@ class Range {
   /// ```dart
   /// Workbook workbook = new Workbook();
   /// Worksheet sheet = workbook.worksheets[0];
-  /// Range range = sheet.getRangeByName('A1');
-  /// range.fromula = '=10+10';
-  /// workbook.save('Formula.xlsx');
+  /// Range range = sheet.getRangeByName('C1');
+  /// range.formula = '=A1+B1';
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Formula.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
   set formula(String value) {
@@ -120,7 +141,7 @@ class Range {
     if (isSingleRange) {
       return _number;
     } else {
-      return _getNumber();
+      return getNumber();
     }
   }
 
@@ -130,7 +151,8 @@ class Range {
   /// Worksheet sheet = workbook.worksheets[0];
   /// Range range = sheet.getRangeByName('A1');
   /// range.number = 44;
-  /// workbook.save('Number.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Number.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
   set number(double value) {
@@ -153,7 +175,8 @@ class Range {
   /// Worksheet sheet = workbook.worksheets[0];
   /// Range range = sheet.getRangeByName('A1');
   /// range.text = 'Hello World';
-  /// workbook.save('Text.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Text.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
   set text(String value) {
@@ -176,7 +199,8 @@ class Range {
   /// Worksheet sheet = workbook.worksheets[0];
   /// Range range = sheet.getRangeByName('A1');
   /// range.dateTime = DateTime(2011, 1, 20, 20, 37, 80);
-  /// workbook.save('DateTime.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('DateTime.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
   set dateTime(DateTime value) {
@@ -194,7 +218,8 @@ class Range {
   /// Worksheet sheet = workbook.worksheets[0];
   /// Range range = sheet.getRangeByName('A1');
   /// range.value = 44;
-  /// workbook.save('value.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Value.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
   set value(Object value) {
@@ -210,7 +235,8 @@ class Range {
   /// range.value = '1/1/2015';
   /// range.numberFormat = 'dd-MMM-yyyy';
   /// String displayText = range.displayText;
-  /// workbook.save('displayText.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('DisplayText.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
   String get displayText {
@@ -228,7 +254,8 @@ class Range {
   /// //Initializes Calculate Engine to perform calculation
   /// sheet.enableSheetCalculations();
   /// String calculatedValue = range.calculatedValue;
-  /// workbook.save('CalculatedValue.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('CalculatedValue.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
   String get calculatedValue {
@@ -289,7 +316,8 @@ class Range {
   /// range.value = '1/1/2015';
   /// range.numberFormat = 'dd-MMM-yyyy';
   /// String displayText = range.displayText;
-  /// workbook.save('NumberFormat.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('NumberFormat.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
   set numberFormat(String value) {
@@ -336,7 +364,8 @@ class Range {
   /// Worksheet sheet = workbook.worksheets[0];
   /// Style rangeStyle = sheet.getRangeByName('A1').cellStyle;
   /// rangeStyle.bold = true;
-  /// workbook.save('CellstyleRange.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('CellStyleRange.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
   Style get cellStyle {
@@ -364,7 +393,8 @@ class Range {
   /// workbook.styles.addStyle(cellStyle);
   /// Range range1 = sheet.getRangeByIndex(1, 1);
   /// range1.cellStyle = cellStyle;
-  /// workbook.save('CellstyleRange.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('CellStyleRange.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
   set cellStyle(CellStyle value) {
@@ -408,7 +438,8 @@ class Range {
   /// Worksheet sheet = workbook.worksheets[0];
   /// Range range = sheet.getRangeByName('A1');
   /// range.builtInStyle = BuiltInStyles.accent1;
-  /// workbook.save('BuiltInStyle.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('BuiltInStyle.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
   set builtInStyle(BuiltInStyles value) {
@@ -444,14 +475,15 @@ class Range {
     return 0;
   }
 
-  /// sets the height of all the rows in the range, measured in points.
+  /// Sets the height of all the rows in the range, measured in points.
   ///
   /// ```dart
   /// Workbook workbook = new Workbook();
   /// Worksheet sheet = workbook.worksheets[0];
   /// Range range = sheet.getRangeByName('A1');
   /// range.rowHeight = 25;
-  /// workbook.save('RowHeight.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('RowHeight.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
   set rowHeight(double value) {
@@ -491,7 +523,8 @@ class Range {
   /// Worksheet sheet = workbook.worksheets[0];
   /// Range range = sheet.getRangeByName('A1');
   /// range.columnWidth = 25;
-  /// workbook.save('ColumnWidth.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('ColumnWidth.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
   set columnWidth(double value) {
@@ -526,9 +559,10 @@ class Range {
   /// List<Range> cells = sheet.getRangeByName('A1').cells;
   /// for (Range range in cells)
   /// {
-  ///       // Do some manipulations
-  ///   }
-  /// workbook.save('Cells.xlsx');
+  ///     // Do some manipulations
+  /// }
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('RangeCells.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
   List<Range> get cells {
@@ -542,12 +576,13 @@ class Range {
     final RowCollection rows = worksheet.rows;
     if (rows[row] != null) {
       currRow = rows[row];
+      currRow.ranges[column] = this;
     } else {
       currRow = Row(worksheet);
       currRow.index = row;
       rows[row] = currRow;
+      currRow.ranges[column] = this;
     }
-    currRow.ranges[column] = this;
   }
 
   /// Set number value to the range.
@@ -557,7 +592,8 @@ class Range {
   /// Worksheet sheet = workbook.worksheets[0];
   /// Range range = sheet.getRangeByName('A1');
   /// range.setNumber(44);
-  /// workbook.save('Number.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Number.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
   void setNumber(double number) {
@@ -580,7 +616,7 @@ class Range {
   }
 
   /// Set number value to the range.
-  double _getNumber() {
+  double getNumber() {
     final double dValue = worksheet.getRangeByIndex(row, column).number;
     if (dValue == null) return dValue;
     // ignore: prefer_final_locals
@@ -601,7 +637,8 @@ class Range {
   /// Worksheet sheet = workbook.worksheets[0];
   /// Range range = sheet.getRangeByName('A1');
   /// range.setText('Hello');
-  /// workbook.save('Text.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Text.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
   void setText(String text) {
@@ -669,7 +706,8 @@ class Range {
   /// Worksheet sheet = workbook.worksheets[0];
   /// Range range = sheet.getRangeByName('A1');
   /// range.setDateTime(DateTime(2011, 1, 20, 20, 37, 80));
-  /// workbook.save('DateTime.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('DateTime.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
   void setDateTime(DateTime dateTime) {
@@ -728,6 +766,16 @@ class Range {
   }
 
   /// Set formula value to the range.
+  ///
+  /// ```dart
+  /// Workbook workbook = new Workbook();
+  /// Worksheet sheet = workbook.worksheets[0];
+  /// Range range = sheet.getRangeByName('C1');
+  /// range.setFormula('=A1+B1');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Formula.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
   void setFormula(String formula) {
     if (isSingleRange) {
       if (formula[0] != '=') formula = '=' + formula;
@@ -770,7 +818,8 @@ class Range {
   /// Worksheet sheet = workbook.worksheets[0];
   /// Range range = sheet.getRangeByName('A1');
   /// range.setValue('Hello World');
-  /// workbook.save('value.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Value.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
   void setValue(Object value) {
@@ -959,7 +1008,7 @@ class Range {
               displayText = dValue.toString();
             } else if (dValue.isInfinite) {
               return '#DIV/0!';
-            } else {
+            } else if (numberFormat != 'General' && numberFormat != '@') {
               final NumberFormat formatter =
                   NumberFormat(numberFormat, workbook._culture);
               String displayText = formatter.format(dValue);
@@ -970,6 +1019,12 @@ class Range {
                 displayText = displayText.replaceAll('_(', '');
                 displayText = displayText.replaceAll('_)', '');
                 displayText = displayText.replaceAll('-??', '');
+              }
+              return displayText;
+            } else {
+              String displayText = dValue.toString();
+              if (displayText.endsWith('.0')) {
+                displayText = displayText.substring(0, displayText.length - 2);
               }
               return displayText;
             }
@@ -1192,7 +1247,8 @@ class Range {
   ///  Range range1 = sheet.getRangeByName('A1:D4');
   ///  //Merging cells
   ///  range1.merge();
-  ///  workbook.save('Merge.xlsx');
+  ///  List<int> bytes = workbook.saveAsStream();
+  ///  File('Merge.xlsx').writeAsBytes(bytes);
   ///  workbook.dispose();
   /// ```
   void merge() {
@@ -1223,7 +1279,8 @@ class Range {
   ///  Range range1 = sheet.getRangeByName('A1:D4');
   ///  //Merging cells
   ///  range1.unmerge();
-  ///  workbook.save('UnMerge.xlsx');
+  ///  List<int> bytes = workbook.saveAsStream();
+  ///  File('Unmerge.xlsx').writeAsBytes(bytes);
   ///  workbook.dispose();
   /// ```
   void unmerge() {
@@ -1251,6 +1308,111 @@ class Range {
         }
       }
       _bCells = true;
+    }
+  }
+
+  /// Changes the width of the columns and height of the rows in the Range to achieve the best fit.
+  /// ```dart
+  ///  Workbook workbook = new Workbook();
+  ///  Worksheet sheet = workbook.worksheets[0];
+  ///
+  ///  //Auto-fit columns
+  ///  Range range = sheet.getRangeByName('A1:D4');
+  ///  range.autofit();
+  ///
+  ///  List<int> bytes = workbook.saveAsStream();
+  ///  File('AutoFit.xlsx').writeAsBytes(bytes);
+  ///  workbook.dispose();
+  /// ```
+  void autoFit() {
+    autoFitColumns();
+    autoFitRows();
+  }
+
+  /// Changes the width of the columns in the Range to achieve the best fit.
+  /// ```dart
+  ///  Workbook workbook = new Workbook();
+  ///  Worksheet sheet = workbook.worksheets[0];
+  ///
+  ///  //Auto-fit columns
+  ///  Range range = sheet.getRangeByName('A1:D4');
+  ///  range.autofitColumns();
+  ///
+  ///  List<int> bytes = workbook.saveAsStream();
+  ///  File('AutoFitColumns.xlsx').writeAsBytes(bytes);
+  ///  workbook.dispose();
+  /// ```
+  void autoFitColumns() {
+    _autoFitToColumn(row, lastRow);
+  }
+
+  /// Changes the height of the rows in the Range to achieve the best fit.
+  /// ```dart
+  ///  Workbook workbook = new Workbook();
+  ///  Worksheet sheet = workbook.worksheets[0];
+  ///
+  ///  //Auto-fit columns
+  ///  Range range = sheet.getRangeByName('A1:D4');
+  ///  range.autofitRows();
+  ///
+  ///  List<int> bytes = workbook.saveAsStream();
+  ///  File('AutoFitRows.xlsx').writeAsBytes(bytes);
+  ///  workbook.dispose();
+  /// ```
+  void autoFitRows() {
+    for (int i = row; i <= lastRow; i++) {
+      _worksheet._autoFitToRow(i, column, lastColumn);
+    }
+  }
+
+  /// Auto fits the column from specified first to last column.
+  void _autoFitToColumn(int firstColumn, int lastColumn) {
+    final int iFirstRow = row;
+    final int iLastRow = lastRow;
+    if (iFirstRow == 0 || iLastRow == 0 || iFirstRow > iLastRow) {
+      return;
+    }
+
+    if (firstColumn < 1 || firstColumn > workbook._maxColumnCount) {
+      throw Exception('firstColumn');
+    }
+
+    if (lastColumn < 1 || lastColumn > workbook._maxColumnCount) {
+      throw Exception('lastColumn');
+    }
+
+    final _AutoFitManager autoFitManager =
+        _AutoFitManager(iFirstRow, firstColumn, iLastRow, lastColumn, this);
+    autoFitManager._measureToFitColumn();
+  }
+
+  /// Determines whether the Range is Merged or not.
+  static List _isMergedCell(Range range, bool isRow, int num4) {
+    if (range._rowSpan != 0 && range._colSpan != 0) {
+      if (isRow && range._rowSpan == 1) {
+        num4 = range._colSpan;
+      } else if (range._colSpan == 1) {
+        num4 = range._rowSpan;
+      }
+      return [num4, true];
+    }
+    return [num4, false];
+  }
+
+  /// Sets row height.
+  void _setRowHeight(double value, bool bIsBadFontHeight) {
+    if (value < 0 || value > _worksheet._defaultMaxHeight) {
+      throw Exception('Row Height must be in range from 0 to 409.5');
+    }
+    int firstRowValue = row;
+    int lastRowValue = lastRow;
+    if (((lastRow - row) > (workbook._maxRowCount - (lastRow - row))) &&
+        lastRow == workbook._maxRowCount) {
+      firstRowValue = 1;
+      lastRowValue = row - 1;
+    }
+    for (int i = firstRowValue; i <= lastRowValue; i++) {
+      _worksheet._innerSetRowHeight(i, value, bIsBadFontHeight, 6);
     }
   }
 

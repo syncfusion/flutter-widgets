@@ -80,6 +80,7 @@ class _TooltipTemplateState extends State<_TooltipTemplate>
   Widget build(BuildContext context) {
     Widget tooltipWidget;
     isOutOfBoundInTop = false;
+    num paddingTop;
     const double arrowHeight = 5.0, arrowWidth = 10.0;
     if (widget.show) {
       if (needMeasure) {
@@ -97,10 +98,16 @@ class _TooltipTemplateState extends State<_TooltipTemplate>
             tooltipSize.height);
         final Offset tooltipLocation =
             _getTooltipLocation(tooltipRect, widget.clipRect);
-
+        if (widget.rect.top < widget.clipRect.top) {
+          paddingTop = widget.clipRect.top + arrowHeight;
+          top = tooltipLocation.dy;
+        }
         final Offset arrowLocation = Offset(
             tooltipLocation.dx, isOutOfBoundInTop ? top : top - arrowHeight);
         top = isOutOfBoundInTop ? top + arrowHeight : tooltipRect.top;
+        if (widget.rect.top >= widget.clipRect.top) {
+          paddingTop = top;
+        }
         tooltipWidget = Stack(children: <Widget>[
           CustomPaint(
               size: Size(arrowHeight, arrowWidth),
@@ -114,7 +121,8 @@ class _TooltipTemplateState extends State<_TooltipTemplate>
                   tooltipSize)),
           Container(
               child: Padding(
-                  padding: EdgeInsets.fromLTRB(tooltipLocation.dx, top, 0, 0),
+                  padding:
+                      EdgeInsets.fromLTRB(tooltipLocation.dx, paddingTop, 0, 0),
                   child: ScaleTransition(
                       scale: _animation, child: widget.template)))
         ]);
@@ -172,12 +180,27 @@ class _TooltipTemplateState extends State<_TooltipTemplate>
     if (widget.show &&
         mounted &&
         ((prevTooltipValue == null && currentTooltipValue == null) ||
+            ((widget.chartState is SfCartesianChartState &&
+                widget.chartState._chartSeries
+                    .visibleSeriesRenderers[seriesIndex]._isRectSeries &&
+                widget.tooltipBehavior.tooltipPosition !=
+                    TooltipPosition.auto)) ||
             (prevTooltipValue?.seriesIndex !=
                     currentTooltipValue?.seriesIndex ||
+                prevTooltipValue?.outlierIndex !=
+                    currentTooltipValue?.outlierIndex ||
                 prevTooltipValue?.pointIndex !=
                     currentTooltipValue?.pointIndex))) {
-      needMeasure = true;
-      tooltipSize = const Size(0, 0);
+      final bool reRender = (widget
+              .chartState._tooltipBehaviorRenderer._isHovering &&
+          prevTooltipValue != null &&
+          currentTooltipValue != null &&
+          prevTooltipValue.seriesIndex == currentTooltipValue.seriesIndex &&
+          prevTooltipValue.pointIndex == currentTooltipValue.pointIndex &&
+          prevTooltipValue.outlierIndex == currentTooltipValue.outlierIndex);
+      needMeasure = !reRender;
+      _controller.duration = Duration(milliseconds: reRender ? 0 : 300);
+      tooltipSize = reRender ? tooltipSize : const Size(0, 0);
       setState(() {});
     }
   }

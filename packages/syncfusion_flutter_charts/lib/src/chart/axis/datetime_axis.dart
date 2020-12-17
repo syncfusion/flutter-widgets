@@ -10,80 +10,85 @@ part of charts;
 ///
 class DateTimeAxis extends ChartAxis {
   /// Creating an argument constructor of DateTimeAxis class.
-  DateTimeAxis(
-      {String name,
-      bool isVisible,
-      AxisTitle title,
-      AxisLine axisLine,
-      ChartRangePadding rangePadding,
-      AxisLabelIntersectAction labelIntersectAction,
-      ChartDataLabelPosition labelPosition,
-      TickPosition tickPosition,
-      EdgeLabelPlacement edgeLabelPlacement,
-      double zoomFactor,
-      double zoomPosition,
-      bool enableAutoIntervalOnZooming,
-      int labelRotation,
-      bool isInversed,
-      bool opposedPosition,
-      int minorTicksPerInterval,
-      int maximumLabels,
-      double plotOffset,
-      MajorTickLines majorTickLines,
-      MinorTickLines minorTickLines,
-      MajorGridLines majorGridLines,
-      MinorGridLines minorGridLines,
-      TextStyle labelStyle,
-      this.dateFormat,
-      DateTimeIntervalType intervalType,
-      InteractiveTooltip interactiveTooltip,
-      this.labelFormat,
-      this.minimum,
-      this.maximum,
-      LabelAlignment labelAlignment,
-      double interval,
-      this.visibleMinimum,
-      this.visibleMaximum,
-      dynamic crossesAt,
-      String associatedAxisName,
-      bool placeLabelsNearAxisLine,
-      List<PlotBand> plotBands,
-      RangeController rangeController,
-      int desiredIntervals})
-      : intervalType = intervalType ?? DateTimeIntervalType.auto,
+  DateTimeAxis({
+    String name,
+    bool isVisible,
+    AxisTitle title,
+    AxisLine axisLine,
+    ChartRangePadding rangePadding,
+    AxisLabelIntersectAction labelIntersectAction,
+    ChartDataLabelPosition labelPosition,
+    TickPosition tickPosition,
+    EdgeLabelPlacement edgeLabelPlacement,
+    double zoomFactor,
+    double zoomPosition,
+    bool enableAutoIntervalOnZooming,
+    int labelRotation,
+    bool isInversed,
+    bool opposedPosition,
+    int minorTicksPerInterval,
+    int maximumLabels,
+    double plotOffset,
+    MajorTickLines majorTickLines,
+    MinorTickLines minorTickLines,
+    MajorGridLines majorGridLines,
+    MinorGridLines minorGridLines,
+    TextStyle labelStyle,
+    this.dateFormat,
+    DateTimeIntervalType intervalType,
+    InteractiveTooltip interactiveTooltip,
+    this.labelFormat,
+    this.minimum,
+    this.maximum,
+    LabelAlignment labelAlignment,
+    double interval,
+    this.visibleMinimum,
+    this.visibleMaximum,
+    dynamic crossesAt,
+    String associatedAxisName,
+    bool placeLabelsNearAxisLine,
+    List<PlotBand> plotBands,
+    RangeController rangeController,
+    int desiredIntervals,
+    double maximumLabelWidth,
+    double labelsExtent,
+  })  : intervalType = intervalType ?? DateTimeIntervalType.auto,
         super(
-            name: name,
-            isVisible: isVisible,
-            isInversed: isInversed,
-            opposedPosition: opposedPosition,
-            rangePadding: rangePadding,
-            plotOffset: plotOffset,
-            labelRotation: labelRotation,
-            labelIntersectAction: labelIntersectAction,
-            minorTicksPerInterval: minorTicksPerInterval,
-            maximumLabels: maximumLabels,
-            labelStyle: labelStyle,
-            title: title,
-            labelAlignment: labelAlignment,
-            axisLine: axisLine,
-            majorTickLines: majorTickLines,
-            minorTickLines: minorTickLines,
-            majorGridLines: majorGridLines,
-            minorGridLines: minorGridLines,
-            edgeLabelPlacement: edgeLabelPlacement,
-            labelPosition: labelPosition,
-            tickPosition: tickPosition,
-            zoomFactor: zoomFactor,
-            zoomPosition: zoomPosition,
-            enableAutoIntervalOnZooming: enableAutoIntervalOnZooming,
-            interactiveTooltip: interactiveTooltip,
-            interval: interval,
-            crossesAt: crossesAt,
-            associatedAxisName: associatedAxisName,
-            placeLabelsNearAxisLine: placeLabelsNearAxisLine,
-            plotBands: plotBands,
-            rangeController: rangeController,
-            desiredIntervals: desiredIntervals);
+          name: name,
+          isVisible: isVisible,
+          isInversed: isInversed,
+          opposedPosition: opposedPosition,
+          rangePadding: rangePadding,
+          plotOffset: plotOffset,
+          labelRotation: labelRotation,
+          labelIntersectAction: labelIntersectAction,
+          minorTicksPerInterval: minorTicksPerInterval,
+          maximumLabels: maximumLabels,
+          labelStyle: labelStyle,
+          title: title,
+          labelAlignment: labelAlignment,
+          axisLine: axisLine,
+          majorTickLines: majorTickLines,
+          minorTickLines: minorTickLines,
+          majorGridLines: majorGridLines,
+          minorGridLines: minorGridLines,
+          edgeLabelPlacement: edgeLabelPlacement,
+          labelPosition: labelPosition,
+          tickPosition: tickPosition,
+          zoomFactor: zoomFactor,
+          zoomPosition: zoomPosition,
+          enableAutoIntervalOnZooming: enableAutoIntervalOnZooming,
+          interactiveTooltip: interactiveTooltip,
+          interval: interval,
+          crossesAt: crossesAt,
+          associatedAxisName: associatedAxisName,
+          placeLabelsNearAxisLine: placeLabelsNearAxisLine,
+          plotBands: plotBands,
+          rangeController: rangeController,
+          desiredIntervals: desiredIntervals,
+          maximumLabelWidth: maximumLabelWidth,
+          labelsExtent: labelsExtent,
+        );
 
   ///Formats the date-time axis labels. The default data-time axis label can be formatted
   ///with various built-in date formats.
@@ -213,8 +218,8 @@ class DateTimeAxisRenderer extends ChartAxisRenderer {
         !seriesType.contains('range') &&
         !seriesType.contains('hilo') &&
         !seriesType.contains('candle') &&
-        !seriesType.contains('boxandwhisker') &&
-        !seriesType.contains('waterfall')) {
+        seriesType != 'boxandwhisker' &&
+        seriesType != 'waterfall') {
       seriesRenderer._minimumY ??= point.yValue;
       seriesRenderer._maximumY ??= point.yValue;
     }
@@ -229,8 +234,8 @@ class DateTimeAxisRenderer extends ChartAxisRenderer {
           (!seriesType.contains('range') &&
               !seriesType.contains('hilo') &&
               !seriesType.contains('candle') &&
-              !seriesType.contains('boxandwhisker') &&
-              !seriesType.contains('waterfall'))) {
+              seriesType != 'boxandwhisker' &&
+              seriesType != 'waterfall')) {
         seriesRenderer._minimumY =
             math.min(seriesRenderer._minimumY, point.yValue);
         seriesRenderer._maximumY =
@@ -252,7 +257,7 @@ class DateTimeAxisRenderer extends ChartAxisRenderer {
         _lowMin = _findMinValue(_lowMin ?? point.minimum, point.minimum);
         _lowMax = _findMaxValue(_lowMax ?? point.minimum, point.minimum);
       }
-      if (seriesType.contains('waterfall')) {
+      if (seriesType == 'waterfall') {
         /// Empty point is not applicable for Waterfall series.
         point.yValue ??= 0;
         seriesRenderer._minimumY =
@@ -265,7 +270,7 @@ class DateTimeAxisRenderer extends ChartAxisRenderer {
       if (seriesType.contains('range') ||
           seriesType.contains('hilo') ||
           seriesType.contains('candle') ||
-          seriesType.contains('boxandwhisker')) {
+          seriesType == 'boxandwhisker') {
         _lowMin ??= 0;
         _lowMax ??= 5;
         _highMin ??= 0;
@@ -303,7 +308,7 @@ class DateTimeAxisRenderer extends ChartAxisRenderer {
     _calculateActualRange();
     if (_actualRange != null) {
       applyRangePadding(_actualRange, _actualRange.interval);
-      if (type == null && type != 'AxisCross') {
+      if (type == null && type != 'AxisCross' && _dateTimeAxis.isVisible) {
         generateVisibleLabels();
       }
     }
@@ -765,7 +770,9 @@ class DateTimeAxisRenderer extends ChartAxisRenderer {
     _min = range.minimum.toInt();
     _max = range.maximum.toInt();
     ActualRangeChangedArgs rangeChangedArgs;
-    if (_dateTimeAxis.minimum == null && _dateTimeAxis.maximum == null) {
+    if (_dateTimeAxis.isVisible &&
+        _dateTimeAxis.minimum == null &&
+        _dateTimeAxis.maximum == null) {
       final ChartRangePadding rangePadding =
           _calculateRangePadding(this, _chart);
       final DateTime minimum = DateTime.fromMillisecondsSinceEpoch(_min);
@@ -826,7 +833,7 @@ class DateTimeAxisRenderer extends ChartAxisRenderer {
       _zoomPosition =
           (_visibleRange.minimum - _actualRange.minimum) / range.delta;
     }
-    if (_chart.onActualRangeChanged != null) {
+    if (_dateTimeAxis.isVisible && _chart.onActualRangeChanged != null) {
       rangeChangedArgs = ActualRangeChangedArgs(_name, _dateTimeAxis,
           range.minimum, range.maximum, range.interval, _orientation);
       rangeChangedArgs.visibleMin = _visibleRange.minimum;
@@ -839,7 +846,11 @@ class DateTimeAxisRenderer extends ChartAxisRenderer {
       _visibleRange.maximum = rangeChangedArgs.visibleMax is DateTime
           ? rangeChangedArgs.visibleMax.millisecondsSinceEpoch
           : rangeChangedArgs.visibleMax;
+      _visibleRange.delta = _visibleRange.maximum - _visibleRange.minimum;
       _visibleRange.interval = rangeChangedArgs.visibleInterval;
+      _zoomFactor = _visibleRange.delta / (range.delta);
+      _zoomPosition =
+          (_visibleRange.minimum - _actualRange.minimum) / range.delta;
     }
   }
 

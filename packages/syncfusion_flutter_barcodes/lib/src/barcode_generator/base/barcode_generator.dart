@@ -1,4 +1,44 @@
-part of barcodes;
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
+import '../common/barcode_renderer.dart';
+import '../one_dimensional/codabar_symbology.dart';
+import '../one_dimensional/code128_symbology.dart';
+import '../one_dimensional/code128a_symbology.dart';
+import '../one_dimensional/code128b_symbology.dart';
+import '../one_dimensional/code128c_symbology.dart';
+
+import '../one_dimensional/code39_extended_symbology.dart';
+import '../one_dimensional/code39_symbology.dart';
+import '../one_dimensional/code93_symbology.dart';
+
+import '../one_dimensional/ean13_symbology.dart';
+import '../one_dimensional/ean8_symbology.dart';
+import '../one_dimensional/upca_symbology.dart';
+import '../one_dimensional/upce_symbology.dart';
+
+import '../renderers/one_dimensional/codabar_renderer.dart';
+
+import '../renderers/one_dimensional/code128A_renderer.dart';
+import '../renderers/one_dimensional/code128B_renderer.dart';
+import '../renderers/one_dimensional/code128C_renderer.dart';
+import '../renderers/one_dimensional/code128_renderer.dart';
+import '../renderers/one_dimensional/code39_extended_renderer.dart';
+import '../renderers/one_dimensional/code39_renderer.dart';
+import '../renderers/one_dimensional/code93_renderer.dart';
+import '../renderers/one_dimensional/ean13_renderer.dart';
+import '../renderers/one_dimensional/ean8_renderer.dart';
+import '../renderers/one_dimensional/symbology_base_renderer.dart';
+import '../renderers/one_dimensional/upca_renderer.dart';
+import '../renderers/one_dimensional/upce_renderer.dart';
+import '../renderers/two_dimensional/datamatrix_renderer.dart';
+import '../renderers/two_dimensional/qr_code_renderer.dart';
+import '../two_dimensional/datamatrix_symbology.dart';
+import '../two_dimensional/qr_code_symbology.dart';
+
+import '../utils/helper.dart';
+import 'symbology_base.dart';
 
 /// Create barcode to generate and display data in a machine-readable
 /// industry-standard 1D and 2D barcodes.
@@ -226,6 +266,8 @@ class _SfBarcodeGeneratorState extends State<SfBarcodeGenerator> {
   /// Specifies the text size
   Size _textSize;
 
+  SymbologyRenderer _symbologyRenderer;
+
   @override
   void didChangeDependencies() {
     _barcodeTheme = SfBarcodeTheme.of(context);
@@ -237,22 +279,64 @@ class _SfBarcodeGeneratorState extends State<SfBarcodeGenerator> {
     if (widget.showValue &&
         (oldWidget.value != widget.value ||
             oldWidget.textStyle != widget.textStyle)) {
-      _textSize = _measureText(widget.value.toString(), widget.textStyle);
+      _textSize = measureText(widget.value.toString(), widget.textStyle);
+    }
+
+    if (widget.symbology != oldWidget.symbology) {
+      _createSymbologyRenderer();
     }
 
     super.didUpdateWidget(oldWidget);
   }
 
   @override
+  void initState() {
+    _createSymbologyRenderer();
+    super.initState();
+  }
+
+  void _createSymbologyRenderer() {
+    if (widget.symbology is Codabar) {
+      _symbologyRenderer = CodabarRenderer(symbology: widget.symbology);
+    } else if (widget.symbology is Code39Extended) {
+      _symbologyRenderer = Code39ExtendedRenderer(symbology: widget.symbology);
+    } else if (widget.symbology is Code39) {
+      _symbologyRenderer = Code39Renderer(symbology: widget.symbology);
+    } else if (widget.symbology is Code93) {
+      _symbologyRenderer = Code93Renderer(symbology: widget.symbology);
+    } else if (widget.symbology is Code128) {
+      _symbologyRenderer = Code128Renderer(symbology: widget.symbology);
+    } else if (widget.symbology is Code128A) {
+      _symbologyRenderer = Code128ARenderer(symbology: widget.symbology);
+    } else if (widget.symbology is Code128B) {
+      _symbologyRenderer = Code128BRenderer(symbology: widget.symbology);
+    } else if (widget.symbology is Code128C) {
+      _symbologyRenderer = Code128CRenderer(symbology: widget.symbology);
+    } else if (widget.symbology is EAN8) {
+      _symbologyRenderer = EAN8Renderer(symbology: widget.symbology);
+    } else if (widget.symbology is EAN13) {
+      _symbologyRenderer = EAN13Renderer(symbology: widget.symbology);
+    } else if (widget.symbology is UPCA) {
+      _symbologyRenderer = UPCARenderer(symbology: widget.symbology);
+    } else if (widget.symbology is UPCE) {
+      _symbologyRenderer = UPCERenderer(symbology: widget.symbology);
+    } else if (widget.symbology is QRCode) {
+      _symbologyRenderer = QRCodeRenderer(symbology: widget.symbology);
+    } else if (widget.symbology is DataMatrix) {
+      _symbologyRenderer = DataMatrixRenderer(symbology: widget.symbology);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (widget.showValue && _textSize == null) {
-      _textSize = _measureText(widget.value.toString(), widget.textStyle);
+      _textSize = measureText(widget.value.toString(), widget.textStyle);
     }
-    widget.symbology._getIsValidateInput(widget.value);
-    widget.symbology._textSize = _textSize;
+    _symbologyRenderer.getIsValidateInput(widget.value);
+    _symbologyRenderer.textSize = _textSize;
     return Container(
       color: widget.backgroundColor ?? _barcodeTheme.backgroundColor,
-      child: _SfBarcodeGeneratorRenderObjectWidget(
+      child: SfBarcodeGeneratorRenderObjectWidget(
           value: widget.value,
           symbology: widget.symbology,
           foregroundColor: widget.barColor ?? _barcodeTheme.barColor,
@@ -266,6 +350,7 @@ class _SfBarcodeGeneratorState extends State<SfBarcodeGenerator> {
               fontStyle: widget.textStyle.fontStyle,
               fontWeight: widget.textStyle.fontWeight,
               textBaseline: widget.textStyle.textBaseline),
+          symbologyRenderer: _symbologyRenderer,
           textSize: _textSize,
           textAlign: widget.textAlign),
     );

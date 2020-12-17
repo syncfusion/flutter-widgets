@@ -22,6 +22,9 @@ enum RowType {
 
   /// Specifies the data row that displays the row data.
   dataRow,
+
+  /// Specifies the StackedHeaderRow that displays the stacked header text.
+  stackedHeaderRow,
 }
 
 /// Describes the possible values for cell types.
@@ -37,6 +40,9 @@ enum CellType {
 
   /// Specifies the row header cell.
   rowHeaderCell,
+
+  /// Specifies the stacked header cell.
+  stackedHeaderCell,
 }
 
 /// Determines how border lines should be shown in [SfDataGrid].

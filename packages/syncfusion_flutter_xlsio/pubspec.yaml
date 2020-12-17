@@ -13,5 +13,6 @@ dependencies:
   archive: ^2.0.13
   image: ^2.1.18
   intl: ^0.16.1
+  crypto: ^2.1.5
   syncfusion_officecore: 
     path: ../syncfusion_officecore

@@ -1,4 +1,4 @@
-part of barcodes;
+import '../one_dimensional/code128_symbology.dart';
 
 /// The [Code128B] (or chars set B) barcode includes all the standard upper
 /// case, alphanumeric keyboard characters and punctuation characters
@@ -10,14 +10,4 @@ class Code128B extends Code128 {
   /// The arguments [module] must be non-negative and greater than 0.
   ///
   Code128B({int module}) : super(module: module);
-
-  @override
-  bool _getIsValidateInput(String value) {
-    for (int i = 0; i < value.length; i++) {
-      if (!_code128BCharacterSets.contains(value[i])) {
-        throw 'The provided input cannot be encoded : ' + value[i];
-      }
-    }
-    return true;
-  }
 }

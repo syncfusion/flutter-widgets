@@ -14,13 +14,9 @@ abstract class SfLocalizations {
 
   /// Label that is displayed when there are no events for a
   /// selected date in a calendar widget.
-  /// This label is displayed under agenda section in month view.
+  /// This label is displayed when there are no events on today date and display date in schedule view and
+  /// displayed under agenda section in month view.
   String get noEventsCalendarLabel;
-
-  /// Label that is displayed when there are no events on today date and
-  /// display date in a calendar widget.
-  /// This label is displayed in calendar schedule view.
-  String get scheduleViewNewEventLabel;
 
   /// Label that is displayed in the calendar header view when allowed views
   /// have calendar day view.
@@ -61,6 +57,78 @@ abstract class SfLocalizations {
   /// Label that is displayed in the calendar header view when calendar shows
   /// date picker on header interaction.
   String get todayLabel;
+
+  /// The header string for the first month of hirji calendar
+  String get muharramLabel;
+
+  /// The header string for the second month of hirji calendar
+  String get safarLabel;
+
+  /// The header string for the third month of hirji calendar
+  String get rabi1Label;
+
+  /// The header string for the fourth month of hirji calendar
+  String get rabi2Label;
+
+  /// The header string for the fifth month of hirji calendar
+  String get jumada1Label;
+
+  /// The header string for the sixth month of hirji calendar
+  String get jumada2Label;
+
+  /// The header string for the seventh month of hirji calendar
+  String get rajabLabel;
+
+  /// The header string for the eight month of hirji calendar
+  String get shaabanLabel;
+
+  /// The header string for the ninth month of hirji calendar
+  String get ramadanLabel;
+
+  /// The header string for the tenth month of hirji calendar
+  String get shawwalLabel;
+
+  /// The header string for the eleventh month of hirji calendar
+  String get dhualqiLabel;
+
+  /// The header string for the twelfth month of hirji calendar
+  String get dhualhiLabel;
+
+  /// The header string for the first month of hirji calendar
+  String get shortMuharramLabel;
+
+  /// The header string for the second month of hirji calendar
+  String get shortSafarLabel;
+
+  /// The header string for the third month of hirji calendar
+  String get shortRabi1Label;
+
+  /// The header string for the fourth month of hirji calendar
+  String get shortRabi2Label;
+
+  /// The header string for the fifth month of hirji calendar
+  String get shortJumada1Label;
+
+  /// The header string for the sixth month of hirji calendar
+  String get shortJumada2Label;
+
+  /// The header string for the seventh month of hirji calendar
+  String get shortRajabLabel;
+
+  /// The header string for the eight month of hirji calendar
+  String get shortShaabanLabel;
+
+  /// The header string for the ninth month of hirji calendar
+  String get shortRamadanLabel;
+
+  /// The header string for the tenth month of hirji calendar
+  String get shortShawwalLabel;
+
+  /// The header string for the eleventh month of hirji calendar
+  String get shortDhualqiLabel;
+
+  /// The header string for the twelfth month of hirji calendar
+  String get shortDhualhiLabel;
 
   /// Label that is displayed in the information panel of DataPager to represent
   /// the currently selected page in number of pages.
@@ -182,9 +250,6 @@ class _DefaultLocalizations implements SfLocalizations {
   String get noEventsCalendarLabel => 'No events';
 
   @override
-  String get scheduleViewNewEventLabel => 'Nothing planned. Tap to create.';
-
-  @override
   String get allowedViewDayLabel => 'DAY';
 
   @override
@@ -213,6 +278,78 @@ class _DefaultLocalizations implements SfLocalizations {
 
   @override
   String get todayLabel => 'TODAY';
+
+  @override
+  String get muharramLabel => 'Muharram';
+
+  @override
+  String get safarLabel => 'Safar';
+
+  @override
+  String get rabi1Label => 'Rabi\' al-awwal';
+
+  @override
+  String get rabi2Label => 'Rabi\' al-thani';
+
+  @override
+  String get jumada1Label => 'Jumada al-awwal';
+
+  @override
+  String get jumada2Label => 'Jumada al-thani';
+
+  @override
+  String get rajabLabel => 'Rajab';
+
+  @override
+  String get shaabanLabel => 'Sha\'aban';
+
+  @override
+  String get ramadanLabel => 'Ramadan';
+
+  @override
+  String get shawwalLabel => 'Shawwal';
+
+  @override
+  String get dhualqiLabel => 'Dhu al-Qi\'dah';
+
+  @override
+  String get dhualhiLabel => 'Dhu al-Hijjah';
+
+  @override
+  String get shortMuharramLabel => 'Muh.';
+
+  @override
+  String get shortSafarLabel => 'Saf.';
+
+  @override
+  String get shortRabi1Label => 'Rabi. I';
+
+  @override
+  String get shortRabi2Label => 'Rabi. II';
+
+  @override
+  String get shortJumada1Label => 'Jum. I';
+
+  @override
+  String get shortJumada2Label => 'Jum. II';
+
+  @override
+  String get shortRajabLabel => 'Raj.';
+
+  @override
+  String get shortShaabanLabel => 'Sha.';
+
+  @override
+  String get shortRamadanLabel => 'Ram.';
+
+  @override
+  String get shortShawwalLabel => 'Shaw.';
+
+  @override
+  String get shortDhualqiLabel => 'Dhu\'l-Q';
+
+  @override
+  String get shortDhualhiLabel => 'Dhu\'l-H';
 
   @override
   String get ofDataPagerLabel => 'of';

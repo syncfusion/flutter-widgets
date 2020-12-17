@@ -150,16 +150,19 @@ void _renderCircularDataLabel(
           seriesRenderer._series.dataLabelSettings.color;
       if (chart.onDataLabelRender != null &&
           !seriesRenderer._renderPoints[pointIndex].labelRenderEvent) {
-        seriesRenderer._renderPoints[pointIndex].labelRenderEvent = true;
-        dataLabelArgs = DataLabelRenderArgs(
-            seriesRenderer, seriesRenderer._renderPoints, pointIndex);
+        dataLabelArgs = DataLabelRenderArgs(seriesRenderer,
+            seriesRenderer._renderPoints, pointIndex, pointIndex);
         dataLabelArgs.text = label;
         dataLabelArgs.textStyle = dataLabelStyle;
         dataLabelArgs.color = dataLabelSettingsRenderer._color;
         chart.onDataLabelRender(dataLabelArgs);
-        label = dataLabelArgs.text;
+        label = point.text = dataLabelArgs.text;
         dataLabelStyle = dataLabelArgs.textStyle;
+        pointIndex = dataLabelArgs.pointIndex;
         dataLabelSettingsRenderer._color = dataLabelArgs.color;
+        if (animation.status == AnimationStatus.completed) {
+          seriesRenderer._dataPoints[pointIndex].labelRenderEvent = true;
+        }
       }
       final Size textSize = _measureText(label, dataLabelStyle);
 
@@ -611,10 +614,13 @@ void _triggerCircularDataLabelEvent(
     CircularSeriesRenderer seriesRenderer,
     SfCircularChartState chartState,
     Offset position) {
+  final int seriesIndex = 0;
   final DataLabelSettings dataLabel = seriesRenderer._series.dataLabelSettings;
   for (int index = 0; index < seriesRenderer._dataPoints.length; index++) {
     final ChartPoint<dynamic> point = seriesRenderer._dataPoints[index];
-    if (seriesRenderer._dataPoints[index].labelRect.contains(position)) {
+    if (dataLabel.isVisible &&
+        seriesRenderer._dataPoints[index].labelRect != null &&
+        seriesRenderer._dataPoints[index].labelRect.contains(position)) {
       if (dataLabel.labelPosition == ChartDataLabelPosition.inside) {
         final Offset labelLocation = _degreeToPoint(point.midAngle,
             (point.innerRadius + point.outerRadius) / 2, point.center);
@@ -628,7 +634,7 @@ void _triggerCircularDataLabelEvent(
       }
       if (chart.onDataLabelTapped != null) {
         _dataLabelTapEvent(chart, seriesRenderer._series.dataLabelSettings,
-            index, point, position);
+            index, point, position, seriesIndex);
       }
     }
   }

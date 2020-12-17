@@ -2,16 +2,23 @@ part of pdf;
 
 class _PdfTransparency implements _IPdfWrapper {
   //Constructor
-  _PdfTransparency(double stroke, double fill, PdfBlendMode mode) {
+  _PdfTransparency(double stroke, double fill, PdfBlendMode mode,
+      {bool conformance = false}) {
     _dictionary = _PdfDictionary();
     if (stroke < 0) {
       throw ArgumentError.value(
           stroke, 'stroke', 'The value cannot be less then zero.');
     }
-
     if (fill < 0) {
       throw ArgumentError.value(
           fill, 'fill', 'The value cannot be less then zero.');
+    }
+    //NOTE : This is needed to attain PDF/A conformance. Since PDF/A1B
+    //does not support transparency key.
+    if (conformance) {
+      stroke = 1;
+      fill = 1;
+      mode = (mode != PdfBlendMode.normal) ? PdfBlendMode.normal : mode;
     }
     _dictionary[_DictionaryProperties.stroke] = _PdfNumber(stroke);
     _dictionary[_DictionaryProperties.fill] = _PdfNumber(fill);

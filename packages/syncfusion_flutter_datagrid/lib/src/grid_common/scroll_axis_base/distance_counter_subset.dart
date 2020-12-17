@@ -11,7 +11,7 @@ part of datagrid;
 // PixelScrollAxis's SetFooterLineCount method.
 // ignore: unused_element
 class _DistanceCounterSubset extends _DistanceCounterCollectionBase
-    with _DistanceCounterCollectionBase {
+    with _DistancesHostBase {
   /// Initializes a new instance of the DistanceCounterSubset class.
   ///
   /// * trackedParentCollection - _required_ - The parent collection for which
@@ -26,6 +26,7 @@ class _DistanceCounterSubset extends _DistanceCounterCollectionBase
   int start = 0;
 
   /// Gets an object that implements the `Distances` property.
+  @override
   _DistanceCounterCollectionBase get distances => _distances;
 
   /// Gets an distance the `Distances` property.

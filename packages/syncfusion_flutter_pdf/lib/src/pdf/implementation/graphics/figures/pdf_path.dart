@@ -11,8 +11,8 @@ class PdfPath extends PdfShapeElement {
       PdfBrush brush,
       PdfFillMode fillMode,
       List<Offset> points,
-      List<int> pathTypes})
-      : super._(pen: pen) {
+      List<int> pathTypes}) {
+    super.pen = pen;
     if (points != null && pathTypes != null) {
       addPath(points, pathTypes);
     }
@@ -205,6 +205,7 @@ class PdfPath extends PdfShapeElement {
     _pathTypes.add(pointType);
   }
 
+  @override
   _Rectangle _getBoundsInternal() {
     final List<Offset> points = _points;
     _Rectangle bounds = _Rectangle.empty;

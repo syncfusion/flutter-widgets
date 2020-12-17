@@ -43,6 +43,8 @@ abstract class ChartAxis {
     bool placeLabelsNearAxisLine,
     List<PlotBand> plotBands,
     this.rangeController,
+    double maximumLabelWidth,
+    double labelsExtent,
   })  : isVisible = isVisible ?? true,
         anchorRangeToVisiblePoints = anchorRangeToVisiblePoints ?? true,
         interactiveTooltip = interactiveTooltip ?? InteractiveTooltip(),
@@ -75,7 +77,9 @@ abstract class ChartAxis {
         zoomFactor = zoomFactor ?? 1,
         zoomPosition = zoomPosition ?? 0,
         enableAutoIntervalOnZooming = enableAutoIntervalOnZooming ?? true,
-        plotBands = plotBands ?? <PlotBand>[];
+        plotBands = plotBands ?? <PlotBand>[],
+        maximumLabelWidth = maximumLabelWidth,
+        labelsExtent = labelsExtent;
 
   ///Toggles the visibility of the axis.
   ///
@@ -598,6 +602,77 @@ abstract class ChartAxis {
   ///}
   ///```
   final RangeController rangeController;
+
+  /// Specifies maximum text width for axis labels.
+  ///
+  /// If an axis label exceeds the specified width, it will get trimmed and ellipse(...) will be
+  /// added at the end of the trimmed text. By default, the labels will not be trimmed.
+  ///
+  /// Complete label text will be shown in a tooltip when tapping/clicking over the trimmed axis labels.
+  ///
+  /// Defaults to `null`.
+  ///
+  ///```dart
+  ///Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfCartesianChart(
+  ///           primaryXAxis: CategoryAxis(maximumLabelWidth: 80),
+  ///           series: [
+  ///             BarSeries<ChartData, String>(
+  ///               dataSource: <ChartData>[
+  ///                 ChartData(x: 'Goldin Finance 117', y: 597),
+  ///                 ChartData(x: 'Ping An Finance Center', y: 599),
+  ///                 ChartData(x: 'Makkah Clock Royal Tower', y: 601),
+  ///                 ChartData(x: 'Shanghai Tower', y: 632),
+  ///                 ChartData(x: 'Burj Khalifa', y: 828)
+  ///               ],
+  ///               xValueMapper: (ChartData sales, _) => sales.x,
+  ///               yValueMapper: (ChartData sales, _) => sales.y
+  ///             )
+  ///           ],
+  ///       )
+  ///    );
+  ///}
+  ///```
+  final double maximumLabelWidth;
+
+  ///Specifies the fixed width for the axis labels. This width represents the space between axis line and
+  /// axis title.
+  ///
+  ///If an axis label exceeds the specified value, as like [maximumLabelWidth] feature, axis label
+  /// will get trimmed and ellipse(...) will be added at the end of the trimmed text.
+  ///
+  ///Additionally, if an axis label width is within the specified value, white space will be added
+  /// at the beginning for remaining width. This is done to maintain uniform bounds and to eliminate
+  /// axis label flickering on zooming/panning.
+  ///
+  ///Complete label text will be shown in a tooltip when tapping/clicking over the trimmed axis labels.
+  ///
+  ///Defaults to `null`.
+  ///
+  ///```dart
+  ///Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfCartesianChart(
+  ///           primaryXAxis: CategoryAxis(labelsExtent: 70),
+  ///           series: [
+  ///             BarSeries<ChartData, String>(
+  ///               dataSource: <ChartData>[
+  ///                 ChartData(x: 'Goldin Finance 117', y: 597),
+  ///                 ChartData(x: 'Ping An Finance Center', y: 599),
+  ///                 ChartData(x: 'Makkah Clock Royal Tower', y: 601),
+  ///                 ChartData(x: 'Shanghai Tower', y: 632),
+  ///                 ChartData(x: 'Burj Khalifa', y: 828)
+  ///               ],
+  ///               xValueMapper: (ChartData sales, _) => sales.x,
+  ///               yValueMapper: (ChartData sales, _) => sales.y
+  ///             )
+  ///           ],
+  ///       )
+  ///    );
+  ///}
+  ///```
+  final double labelsExtent;
 }
 
 /// Holds the axis label information.
@@ -608,7 +683,8 @@ abstract class ChartAxis {
 ///
 class AxisLabel {
   /// Creating an argument constructor of AxisLabel class.
-  AxisLabel(this.labelStyle, this.labelSize, this.text, this.value);
+  AxisLabel(this.labelStyle, this.labelSize, this.text, this.value,
+      this.trimmedText, this.renderText);
 
   /// Specifies the label text style.
   ///
@@ -630,6 +706,12 @@ class AxisLabel {
 
   /// Contains the text of the label.
   String text;
+
+  /// Contains the trimmed text of the label.
+  String trimmedText;
+
+  /// Contains the label text to be rendered.
+  String renderText;
 
   /// Holds the value of the visible range of the axis.
   num value;
@@ -1308,7 +1390,8 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
           if (axis.majorGridLines.width > 0 &&
               renderType == 'outside' &&
               (axis.plotOffset > 0 ||
-                  (i != 0 && i != length - 1) ||
+                  (i != 0 &&
+                      (isBetweenTicks ? i != length - 1 : i != length)) ||
                   (axisBounds.left <= pointX &&
                       axisBounds.right >= pointX &&
                       !_chartState._requireInvertedAxis))) {
@@ -1654,7 +1737,8 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
       num tempInterval, pointX, pointY, previousLabelEnd;
       for (int i = 0; i < visibleLabels.length; i++) {
         final AxisLabel label = visibleLabels[i];
-        final String labelText = axisRenderer.getAxisLabel(axis, label.text, i);
+        final String labelText =
+            axisRenderer.getAxisLabel(axis, label.renderText, i);
 
         textStyle = label.labelStyle;
         textStyle = _getTextStyle(
@@ -1770,7 +1854,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
       num tempInterval, pointX, pointY, previousEnd;
       for (int i = 0; i < visibleLabels.length; i++) {
         final String labelText =
-            axisRenderer.getAxisLabel(axis, visibleLabels[i].text, i);
+            axisRenderer.getAxisLabel(axis, visibleLabels[i].renderText, i);
         final int angle =
             axisRenderer.getAxisLabelAngle(axisRenderer, labelText, i);
         assert(angle - angle.floor() == 0,
@@ -2073,8 +2157,20 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
             : axisBounds.left + textSize.height / 2;
       }
     }
-    axisRenderer._visibleLabels[i]._labelRegion =
+    final Rect currentRegion =
         Rect.fromLTWH(pointX, pointY, textSize.width, textSize.height);
+    final bool isIntersect = i > 0 &&
+        i < axisRenderer._visibleLabels.length - 1 &&
+        axis.labelIntersectAction == AxisLabelIntersectAction.hide &&
+        axis.labelRotation % 180 == 0 &&
+        axisRenderer._visibleLabels[i - 1]._labelRegion != null &&
+        (axisRenderer._axis.isInversed == false
+            ? currentRegion.left <
+                axisRenderer._visibleLabels[i - 1]._labelRegion.right
+            : currentRegion.right >
+                axisRenderer._visibleLabels[i - 1]._labelRegion.left);
+    axisRenderer._visibleLabels[i]._labelRegion =
+        !isIntersect ? currentRegion : null;
     return pointX;
   }
 
@@ -2461,18 +2557,50 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
   void _triggerLabelRenderEvent(String labelText, num labelValue) {
     AxisLabelRenderArgs axisLabelArgs;
     TextStyle fontStyle = _axis.labelStyle;
+
+    final String actualText = labelText;
+    Size textSize = _measureText(labelText, _axis.labelStyle, 0);
+    if (_axis.maximumLabelWidth != null || _axis.labelsExtent != null) {
+      if (_axis.maximumLabelWidth != null) {
+        assert(_axis.maximumLabelWidth >= 0,
+            'maximumLabelWidth must not be negative');
+      }
+      if (_axis.labelsExtent != null) {
+        assert(_axis.labelsExtent >= 0, 'labelsExtent must not be negative');
+      }
+      if ((_axis.maximumLabelWidth != null &&
+              textSize.width > _axis.maximumLabelWidth) ||
+          (_axis.labelsExtent != null && textSize.width > _axis.labelsExtent)) {
+        labelText = _trimAxisLabelsText(
+            labelText,
+            _axis.labelsExtent ?? _axis.maximumLabelWidth,
+            _axis.labelStyle,
+            this);
+      }
+      textSize = _measureText(labelText, _axis.labelStyle, 0);
+    }
+    final String trimmedText =
+        labelText.contains('...') || labelText.isEmpty ? labelText : null;
+    String renderText = trimmedText ?? actualText;
     if (_chart.onAxisLabelRender != null) {
       axisLabelArgs =
           AxisLabelRenderArgs(labelValue, _name, _orientation, _axis);
-      axisLabelArgs.text = labelText;
+      axisLabelArgs.text = actualText;
       axisLabelArgs.textStyle = fontStyle;
+      // axisLabelArgs.trimmedText = trimmedText;
       _chart.onAxisLabelRender(axisLabelArgs);
-      labelText = axisLabelArgs.text;
       fontStyle = axisLabelArgs.textStyle;
+      // if (actualText != axisLabelArgs.text && trimmedText == null) {
+      renderText = axisLabelArgs.text;
+      // } else if (trimmedText != axisLabelArgs.trimmedText &&
+      //     trimmedText != null) {
+      // renderText = axisLabelArgs.trimmedText;
+      // }
     }
     final Size labelSize =
-        _measureText(labelText, fontStyle, _axis.labelRotation);
-    _visibleLabels.add(AxisLabel(fontStyle, labelSize, labelText, labelValue));
+        _measureText(renderText, fontStyle, _axis.labelRotation);
+    _visibleLabels.add(AxisLabel(
+        fontStyle, labelSize, actualText, labelValue, trimmedText, renderText));
   }
 
   /// Calculate the maximum lable's size
@@ -2609,9 +2737,9 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
         break;
       case AxisLabelIntersectAction.wrap:
         label._labelCollection = _gettingLabelCollection(
-            label.text, labelMaximumWidth, axisRenderer);
+            label.renderText, labelMaximumWidth, axisRenderer);
         if (label._labelCollection.isNotEmpty) {
-          label.text = label._labelCollection[0];
+          label.renderText = label._labelCollection[0];
         }
         height = label.labelSize.height * label._labelCollection.length;
         if (height > maximumLabelHeight) {
@@ -2657,7 +2785,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
 
   /// To get the label collection
   List<String> _gettingLabelCollection(
-      String currentLabel, num maximumWidth, ChartAxisRenderer axisRenderer) {
+      String currentLabel, num labelsExtent, ChartAxisRenderer axisRenderer) {
     final ChartAxis axis = axisRenderer._axis;
     final List<String> textCollection = currentLabel.split(RegExp(' '));
     final List<String> labelCollection = <String>[];
@@ -2665,33 +2793,12 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
     for (int i = 0; i < textCollection.length; i++) {
       text = textCollection[i];
       (_measureText(text, axis.labelStyle, axisRenderer._labelRotation).width <
-              maximumWidth)
+              labelsExtent)
           ? labelCollection.add(text)
           : labelCollection.add(_trimAxisLabelsText(
-              text, maximumWidth, axis.labelStyle, axisRenderer));
+              text, labelsExtent, axis.labelStyle, axisRenderer));
     }
     return labelCollection;
-  }
-
-  /// To trim the specific label text
-  String _trimAxisLabelsText(String text, num maximumWidth,
-      TextStyle labelStyle, ChartAxisRenderer axisRenderer) {
-    String label = text;
-    num size = _measureText(
-            text, axisRenderer._axis.labelStyle, axisRenderer._labelRotation)
-        .width;
-    if (size > maximumWidth) {
-      final int textLength = text.length;
-      for (int i = textLength - 1; i >= 0; --i) {
-        label = text.substring(0, i) + '...';
-        size =
-            _measureText(label, labelStyle, axisRenderer._labelRotation).width;
-        if (size <= maximumWidth) {
-          return label;
-        }
-      }
-    }
-    return label;
   }
 
   ///Below method is for changing range while zooming

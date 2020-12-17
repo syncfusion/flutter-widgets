@@ -49,13 +49,16 @@ class ChartCollection extends ChartHelper {
   /// ChartCollection chart = ChartCollection(sheet);
   /// chart.add();
   /// sheet.charts = chart;
-  /// workbook.save('EmptyChart.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('EmptyChart.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
   /// ```
   Chart add() {
     final Chart chart = Chart(_worksheet);
     chart._series = ChartSeriesCollection(_worksheet, chart);
     chart._primaryCategoryAxis = ChartCategoryAxis(_worksheet, chart);
     chart._primaryValueAxis = ChartValueAxis(_worksheet, chart);
+    chart._primaryValueAxis.hasMajorGridLines = true;
     chart._plotArea = ChartPlotArea(_worksheet, chart);
     innerList.add(chart);
     chart.name = 'Chart' + innerList.length.toString();

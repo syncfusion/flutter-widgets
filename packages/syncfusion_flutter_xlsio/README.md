@@ -26,6 +26,9 @@ The Excel package is a non-UI and reusable Flutter library to create Excel docum
     - [Apply formatting](#apply-formatting)
     - [Add images](#add-images)
     - [Add charts](#add-charts)
+    - [Add hyperlinks](#add-hyperlinks)
+    - [Manipulate rows and Columns](#manipulate-rows-and-columns)
+    - [Protect workbook and worksheets](#Protect-workbook-and-worksheets)
 - [Support and feedback](#support-and-feedback)
 - [About Syncfusion](#about-syncfusion)
 
@@ -38,6 +41,9 @@ The following are the key features of Syncfusion Flutter XlsIO.
 *	Add formulas to Excel worksheet cells
 *	Add images to Excel worksheet
 *	Add charts to Excel worksheet
+* Add hyperlinks to Excel worksheet
+* Manipulate rows and columns of Excel worksheet
+* Add protection to Excel document.
 
 ## Get the demo application
 
@@ -82,7 +88,8 @@ final Workbook workbook = new Workbook();
 //Accessing worksheet via index.
 workbook.worksheets[0];
 // Save the document.
-workbook.save('CreateExcel.xlsx');
+List<int> bytes = workbook.saveAsStream();
+File('CreateExcel.xlsx').writeAsBytes(bytes);
 //Dispose the workbook.
 workbook.dispose();
 
@@ -104,7 +111,8 @@ sheet.getRangeByName('A3').setNumber(44);
 //Add DateTime
 sheet.getRangeByName('A5').setDateTime(DateTime(2020,12,12,1,10,20));
 // Save the document.
-workbook.save('AddingTextNumberDateTime.xlsx');
+List<int> bytes = workbook.saveAsStream();
+File('AddingTextNumberDateTime.xlsx').writeAsBytes(bytes);
 //Dispose the workbook.
 workbook.dispose();
 
@@ -130,7 +138,8 @@ sheet.enableSheetCalculations();
 sheet.getRangeByName('A3').setFormula('=A1+A2');
 
 // Save the document.
-workbook.save('AddingFormula.xlsx');
+List<int> bytes = workbook.saveAsStream();
+File('AddingFormula.xlsx').writeAsBytes(bytes);
 //Dispose the workbook.
 workbook.dispose();
 
@@ -170,7 +179,8 @@ globalStyle.setNumberFormat = '_(\$* #,##0_)';;
 //Apply GlobalStyle
 sheet.getRangeByName('A1').cellStyle = globalStyle;
 // Save the document.
-workbook.save('ApplyGlobalStyle .xlsx');
+List<int> bytes = workbook.saveAsStream();
+File('ApplyGlobalStyle.xlsx').writeAsBytes(bytes);
 //Dispose the workbook.
 workbook.dispose();
 
@@ -190,7 +200,8 @@ final Worksheet sheet = workbook.worksheets[0];
 sheet.getRangeByName('A1').builtInStyle = BuiltInStyles.linkedCell;
 
 // Save the document.
-workbook.save('ApplyBuildInStyle.xlsx');
+List<int> bytes = workbook.saveAsStream();
+File('ApplyBuildInStyle.xlsx').writeAsBytes(bytes);
 //Dispose the workbook.
 workbook.dispose();
 
@@ -212,7 +223,8 @@ range.setNumber(100);
 range.numberFormat = '\S#,##0.00';
 
 // Save the document.
-workbook.save('ApplyNumberFormat .xlsx');
+List<int> bytes = workbook.saveAsStream();
+File('ApplyNumberFormat.xlsx').writeAsBytes(bytes);
 //Dispose the workbook.
 workbook.dispose();
 
@@ -230,10 +242,12 @@ final Workbook workbook = new Workbook();
 final Worksheet sheet = workbook.worksheets[0];
 
 //Adding a picture
-final Picture picture = sheet.pictures.addFile(1, 1, 'images.png');
+final List<int> bytes = File('image.png').readAsBytesSync();
+final Picture picture = sheet.picutes.addStream(1, 1, bytes);
 
 // Save the document.
-workbook.save('AddingImage.xlsx');
+List<int> bytes = workbook.saveAsStream();
+File('AddingImage.xlsx').writeAsBytes(bytes);
 //Dispose the workbook.
 workbook.dispose();
 
@@ -279,8 +293,216 @@ chart.chartType = ExcelChartType.column;
 chart.dataRange = sheet.getRangeByName('A1:B4');
 
 // Save the document.
-workbook.save('CreateExcel.xlsx');
+List<int> bytes = workbook.saveAsStream();
+File('ExcelCharts.xlsx').writeAsBytes(bytes);
 //Dispose the workbook.
+workbook.dispose();
+
+```
+
+### Add hyperlinks
+
+Use the following code to add hyperlinks to Excel worksheet.
+
+```dart
+// Create a new Excel Document.
+final Workbook workbook = Workbook();
+
+// Accessing sheet via index.
+final Worksheet sheet = workbook.worksheets[0];
+
+//Creating a Hyperlink for a Website.
+final Hyperlink hyperlink = sheet.hyperlinks.add(sheet.getRangeByName('A1'),
+    HyperlinkType.url, 'https://www.syncfusion.com');
+hyperlink.screenTip =
+    'To know more about Syncfusion products, go through this link.';
+hyperlink.textToDisplay = 'Syncfusion';
+
+// Save and dispose workbook.
+final List<int> bytes = workbook.saveAsStream();
+File('Hyperlinks.xlsx').writeAsBytes(bytes);
+workbook.dispose();
+
+```
+
+### Manipulate rows and Columns
+
+This section covers how rows and columns are manipulated in Excel Worksheets.
+
+**Apply Autofits**
+
+Use the following code to apply autofits to single cells of the Excel worksheet.
+
+```dart
+// Create a new Excel Document.
+final Workbook workbook = Workbook();
+
+// Accessing sheet via index.
+final Worksheet sheet = workbook.worksheets[0];
+
+final Range range = sheet.getRangeByName('A1');
+range.setText('WrapTextWrapTextWrapTextWrapText');
+range.cellStyle.wrapText = true;
+
+final Range range1 = sheet.getRangeByName('B1');
+range1.setText('This is long text');
+
+// AutoFit applied to a single row
+sheet.autoFitRow(1);
+
+// AutoFit applied to a single Column.
+sheet.autoFitColumn(2);
+
+// Save and dispose workbook.
+final List<int> bytes = workbook.saveAsStream();
+File('AutoFit.xlsx').writeAsBytes(bytes);
+workbook.dispose();
+
+```
+
+Use the following code to apply autofits to multiple cells of the Excel worksheet.
+
+```dart
+// Create a new Excel Document.
+final Workbook workbook = Workbook();
+
+// Accessing sheet via index.
+final Worksheet sheet = workbook.worksheets[0];
+
+// Assigning text to cells
+final Range range = sheet.getRangeByName('A1:D1');
+range.setText('This is Long Text');
+final Range range1 = sheet.getRangeByName('A2:A5');
+range1.setText('This is Long Text using AutoFit Columns and Rows');
+range1.cellStyle.wrapText = true;
+
+// Auto-Fit column the range
+range.autoFitColumns();
+
+// Auto-Fit row the range
+range1.autoFitRows();
+
+// Save and dispose workbook.
+final List<int> bytes = workbook.saveAsStream();
+File('AutoFits.xlsx').writeAsBytes(bytes);
+workbook.dispose();
+
+```
+**Insert/Delete Rows and Colums**
+
+Use the following code to insert rows and columns to the Excel worksheet.
+
+```dart
+// Create a new Excel Document.
+final Workbook workbook = Workbook();
+
+// Accessing sheet via index.
+final Worksheet sheet = workbook.worksheets[0];
+
+Range range = sheet.getRangeByName('A1');
+range.setText('Hello');
+
+range = sheet.getRangeByName('B1');
+range.setText('World');
+
+// Insert a row
+sheet.insertRow(1, 1, ExcelInsertOptions.formatAsAfter);
+
+// Insert a column.
+sheet.insertColumn(2, 1, ExcelInsertOptions.formatAsBefore);
+
+// Save and dispose workbook.
+final List<int> bytes = workbook.saveAsStream();
+File('InsertRowandColumn.xlsx').writeAsBytes(bytes);
+workbook.dispose();
+
+```
+
+Use the following code to delete rows and columns of Excel worksheet.
+
+```dart
+// Create a new Excel Document.
+final Workbook workbook = Workbook();
+
+// Accessing sheet via index.
+final Worksheet sheet = workbook.worksheets[0];
+
+Range range = sheet.getRangeByName('A2');
+range.setText('Hello');
+
+range = sheet.getRangeByName('C2');
+range.setText('World');
+
+// Delete a row
+sheet.deleteRow(1, 1);
+
+// Delete a column.
+sheet.deleteColumn(2, 1);
+
+// Save and dispose workbook.
+final List<int> bytes = workbook.saveAsStream();
+File('DeleteRowandColumn.xlsx').writeAsBytes(bytes);
+workbook.dispose();
+
+```
+
+### Protect workbook and worksheets
+
+This section covers the various protection options in the Excel document.
+
+**Protect Workbook**
+
+Use the following code to protect workbook of Excel document.
+
+```dart
+// Create a new Excel Document.
+final Workbook workbook = Workbook();
+
+// Accessing sheet via index.
+final Worksheet sheet = workbook.worksheets[0];
+
+// Assigning text to cells
+final Range range = sheet.getRangeByName('A1');
+range.setText('WorkBook Protected');
+
+final bool isProtectWindow = true;
+final bool isProtectContent = true;
+
+// Protect Workbook
+workbook.protect(isProtectWindow, isProtectContent, 'password');
+
+// Save and dispose workbook.
+final List<int> bytes = workbook.saveAsStream();
+File('WorkbookProtect.xlsx').writeAsBytes(bytes);
+workbook.dispose();
+
+```
+
+**Protect Worksheets**
+
+Use the following code to protect worksheets in the Excel document.
+
+```dart
+// Create a new Excel Document.
+final Workbook workbook = Workbook();
+
+// Accessing sheet via index.
+final Worksheet sheet = workbook.worksheets[0];
+
+// Assigning text to cells
+final Range range = sheet.getRangeByName('A1');
+range.setText('Worksheet Protected');
+
+// ExcelSheetProtectionOption
+final ExcelSheetProtectionOption options = ExcelSheetProtectionOption();
+options.all = true;
+
+// Protecting the Worksheet by using a Password
+sheet.protect('Password', options);
+
+// Save and dispose workbook.
+final List<int> bytes = workbook.saveAsStream();
+File('WorksheetProtect.xlsx').writeAsBytes(bytes);
 workbook.dispose();
 
 ```

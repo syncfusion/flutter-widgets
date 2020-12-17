@@ -1,4 +1,21 @@
-part of sliders;
+import 'dart:async';
+import 'dart:math' as math;
+import 'dart:ui';
+import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart' show DateFormat, NumberFormat;
+import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart'
+    show
+        GestureArenaTeam,
+        TapGestureRecognizer,
+        HorizontalDragGestureRecognizer;
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
+
+import 'common.dart';
+import 'constants.dart';
+import 'render_slider_base.dart';
+import 'slider_shapes.dart';
 
 /// A Material Design slider.
 ///
@@ -92,6 +109,7 @@ part of sliders;
 /// date labels.
 /// * [SfSliderThemeData](https://pub.dev/documentation/syncfusion_flutter_core/latest/theme/SfSliderThemeData-class.html), for customizing the visual appearance of the slider.
 class SfSlider extends StatefulWidget {
+  /// Creates a [SfSlider].
   const SfSlider(
       {Key key,
       this.min = 0.0,
@@ -105,7 +123,7 @@ class SfSlider extends StatefulWidget {
       this.showTicks = false,
       this.showLabels = false,
       this.showDivisors = false,
-      this.showTooltip = false,
+      this.enableTooltip = false,
       this.activeColor,
       this.inactiveColor,
       this.labelPlacement,
@@ -334,8 +352,8 @@ class SfSlider extends StatefulWidget {
   ///      min: DateTime(2015, 01, 01),
   ///      max: DateTime(2020, 01, 01),
   ///      value: _value,
-  ///     showTooltip: true,
-  ///     stepDuration: SliderDuration(years: 1, months: 6),
+  ///      enableTooltip: true,
+  ///      stepDuration: SliderDuration(years: 1, months: 6),
   ///      interval: 2,
   ///      showLabels: true,
   ///      showTicks: true,
@@ -503,7 +521,7 @@ class SfSlider extends StatefulWidget {
   /// By default, tooltip text is formatted with either [numberFormat] or
   /// [dateFormat].
   ///
-  /// This snippet shows how to show tooltip in [SfSlider].
+  /// This snippet shows how to enable tooltip in [SfSlider].
   ///
   /// ```dart
   /// double _value = 4.0;
@@ -515,7 +533,7 @@ class SfSlider extends StatefulWidget {
   ///   interval: 1,
   ///   showTicks: true,
   ///   showLabels: true,
-  ///   showTooltip: true,
+  ///   enableTooltip: true,
   ///   onChanged: (dynamic newValue) {
   ///     setState(() {
   ///       _value = newValue;
@@ -528,7 +546,7 @@ class SfSlider extends StatefulWidget {
   ///
   /// * [tooltipTextFormatterCallback], for changing the default tooltip text.
   /// * [SfSliderThemeData](https://pub.dev/documentation/syncfusion_flutter_core/latest/theme/SfSliderThemeData-class.html), for customizing the appearance of the tooltip text.
-  final bool showTooltip;
+  final bool enableTooltip;
 
   /// Color applied to the inactive track and active divisors.
   ///
@@ -768,7 +786,7 @@ class SfSlider extends StatefulWidget {
   ///   value: _value,
   ///   interval: 4,
   ///   showLabels: true,
-  ///   showTooltip: true,
+  ///   enableTooltip: true,
   ///   dateFormat: DateFormat('h a'),
   ///   dateIntervalType: DateIntervalType.hours,
   ///   tooltipTextFormatterCallback:
@@ -845,7 +863,7 @@ class SfSlider extends StatefulWidget {
   ///  showLabels: true,
   ///  showTicks: true,
   ///  interval: 20,
-  ///  showTooltip: true,
+  ///  enableTooltip: true,
   ///  tooltipShape: SfPaddleTooltipShape(),
   ///  onChanged: (dynamic newValue) {
   ///    setState(() {
@@ -861,7 +879,8 @@ class SfSlider extends StatefulWidget {
   /// Defaults to `null`.
   ///
   /// It is possible to set any widget inside the thumb. If the widget
-  /// exceeds the size of the thumb, increase the [thumbRadius] based on it.
+  /// exceeds the size of the thumb, increase the
+  /// [SfSliderThemeData.thumbRadius] based on it.
   ///
   /// This snippet shows how to show thumb icon in [SfSlider].
   ///
@@ -875,7 +894,7 @@ class SfSlider extends StatefulWidget {
   ///   interval: 1,
   ///   showTicks: true,
   ///   showLabels: true,
-  ///   showTooltip: true,
+  ///   enableTooltip: true,
   ///   onChanged: (dynamic newValue) {
   ///     setState(() {
   ///       _value = newValue;
@@ -897,6 +916,61 @@ class SfSlider extends StatefulWidget {
 
   @override
   _SfSliderState createState() => _SfSliderState();
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<dynamic>('value', value));
+    properties.add(DiagnosticsProperty<dynamic>('min', min));
+    properties.add(DiagnosticsProperty<dynamic>('max', max));
+    properties.add(ObjectFlagProperty<ValueChanged<double>>(
+        'onChanged', onChanged,
+        ifNull: 'disabled'));
+    properties.add(DoubleProperty('interval', interval));
+    properties.add(DoubleProperty('stepSize', stepSize));
+    if (stepDuration != null) {
+      properties.add(stepDuration.toDiagnosticsNode(name: 'stepDuration'));
+    }
+    properties.add(IntProperty('minorTicksPerInterval', minorTicksPerInterval));
+    properties.add(FlagProperty('showTicks',
+        value: showTicks,
+        ifTrue: 'Ticks are showing',
+        ifFalse: 'Ticks are not showing',
+        showName: false));
+    properties.add(FlagProperty('showLabels',
+        value: showLabels,
+        ifTrue: 'Labels are showing',
+        ifFalse: 'Labels are not showing',
+        showName: false));
+    properties.add(FlagProperty('showDivisors',
+        value: showDivisors,
+        ifTrue: 'Divisors are  showing',
+        ifFalse: 'Divisors are not showing',
+        showName: false));
+    properties.add(FlagProperty('enableTooltip',
+        value: enableTooltip,
+        ifTrue: 'Tooltip is enabled',
+        ifFalse: 'Tooltip is disabled',
+        showName: false));
+    properties.add(ColorProperty('activeColor', activeColor));
+    properties.add(ColorProperty('inactiveColor', inactiveColor));
+    properties
+        .add(EnumProperty<LabelPlacement>('labelPlacement', labelPlacement));
+    properties
+        .add(DiagnosticsProperty<NumberFormat>('numberFormat', numberFormat));
+    if (value.runtimeType == DateTime) {
+      properties.add(StringProperty('dateFormat',
+          'Formatted value is ' + (dateFormat.format(value.start)).toString()));
+    }
+    properties.add(
+        EnumProperty<DateIntervalType>('dateIntervalType', dateIntervalType));
+    properties.add(ObjectFlagProperty<TooltipTextFormatterCallback>.has(
+        'tooltipTextFormatterCallback', tooltipTextFormatterCallback));
+    properties.add(ObjectFlagProperty<LabelFormatterCallback>.has(
+        'labelFormatterCallback', labelFormatterCallback));
+    properties.add(ObjectFlagProperty<ValueChanged<dynamic>>.has(
+        'semanticFormatterCallback', semanticFormatterCallback));
+  }
 }
 
 class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
@@ -1052,7 +1126,7 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
         showTicks: widget.showTicks,
         showLabels: widget.showLabels,
         showDivisors: widget.showDivisors,
-        showTooltip: widget.showTooltip,
+        enableTooltip: widget.enableTooltip,
         inactiveColor:
             widget.inactiveColor ?? themeData.primaryColor.withOpacity(0.24),
         activeColor: widget.activeColor ?? themeData.primaryColor,
@@ -1065,12 +1139,12 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
         tooltipTextFormatterCallback:
             widget.tooltipTextFormatterCallback ?? _getFormattedTooltipText,
         semanticFormatterCallback: widget.semanticFormatterCallback,
-        trackShape: widget.trackShape ?? _SfTrackShape(),
-        divisorShape: widget.divisorShape ?? _SfDivisorShape(),
-        overlayShape: widget.overlayShape ?? _SfOverlayShape(),
-        thumbShape: widget.thumbShape ?? _SfThumbShape(),
-        tickShape: widget.tickShape ?? _SfTickShape(),
-        minorTickShape: widget.minorTickShape ?? _SfMinorTickShape(),
+        trackShape: widget.trackShape ?? SfTrackShape(),
+        divisorShape: widget.divisorShape ?? SfDivisorShape(),
+        overlayShape: widget.overlayShape ?? SfOverlayShape(),
+        thumbShape: widget.thumbShape ?? SfThumbShape(),
+        tickShape: widget.tickShape ?? SfTickShape(),
+        minorTickShape: widget.minorTickShape ?? SfMinorTickShape(),
         tooltipShape: widget.tooltipShape ?? SfRectangularTooltipShape(),
         sliderThemeData: _getSliderThemeData(themeData, isActive),
         thumbIcon: widget.thumbIcon,
@@ -1092,7 +1166,7 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
       this.showTicks,
       this.showLabels,
       this.showDivisors,
-      this.showTooltip,
+      this.enableTooltip,
       this.inactiveColor,
       this.activeColor,
       this.labelPlacement,
@@ -1126,7 +1200,7 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
   final bool showTicks;
   final bool showLabels;
   final bool showDivisors;
-  final bool showTooltip;
+  final bool enableTooltip;
 
   final Color inactiveColor;
   final Color activeColor;
@@ -1166,7 +1240,7 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
       showTicks: showTicks,
       showLabels: showLabels,
       showDivisors: showDivisors,
-      showTooltip: showTooltip,
+      enableTooltip: enableTooltip,
       inactiveColor: inactiveColor,
       activeColor: activeColor,
       labelPlacement: labelPlacement,
@@ -1204,7 +1278,7 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
       ..showTicks = showTicks
       ..showLabels = showLabels
       ..showDivisors = showDivisors
-      ..showTooltip = showTooltip
+      ..enableTooltip = enableTooltip
       ..inactiveColor = inactiveColor
       ..activeColor = activeColor
       ..labelPlacement = labelPlacement
@@ -1230,9 +1304,9 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
 class _RenderSliderElement extends RenderObjectElement {
   _RenderSliderElement(_SliderRenderObjectWidget slider) : super(slider);
 
-  final Map<_ChildElements, Element> _slotToChild = <_ChildElements, Element>{};
+  final Map<ChildElements, Element> _slotToChild = <ChildElements, Element>{};
 
-  final Map<Element, _ChildElements> _childToSlot = <Element, _ChildElements>{};
+  final Map<Element, ChildElements> _childToSlot = <Element, ChildElements>{};
 
   @override
   _SliderRenderObjectWidget get widget => super.widget;
@@ -1240,7 +1314,7 @@ class _RenderSliderElement extends RenderObjectElement {
   @override
   _RenderSlider get renderObject => super.renderObject;
 
-  void _mountChild(Widget newWidget, _ChildElements slot) {
+  void _mountChild(Widget newWidget, ChildElements slot) {
     final Element oldChild = _slotToChild[slot];
     final Element newChild = updateChild(oldChild, newWidget, slot);
     if (oldChild != null) {
@@ -1253,7 +1327,7 @@ class _RenderSliderElement extends RenderObjectElement {
     }
   }
 
-  void _updateChild(Widget widget, _ChildElements slot) {
+  void _updateChild(Widget widget, ChildElements slot) {
     final Element oldChild = _slotToChild[slot];
     final Element newChild = updateChild(oldChild, widget, slot);
     if (oldChild != null) {
@@ -1266,14 +1340,14 @@ class _RenderSliderElement extends RenderObjectElement {
     }
   }
 
-  void _updateRenderObject(RenderObject child, _ChildElements slot) {
+  void _updateRenderObject(RenderObject child, ChildElements slot) {
     switch (slot) {
-      case _ChildElements.startThumbIcon:
+      case ChildElements.startThumbIcon:
         renderObject.thumbIcon = child;
         break;
-      case _ChildElements.endThumbIcon:
+      case ChildElements.endThumbIcon:
         break;
-      case _ChildElements.child:
+      case ChildElements.child:
         break;
     }
   }
@@ -1286,28 +1360,28 @@ class _RenderSliderElement extends RenderObjectElement {
   @override
   void mount(Element parent, dynamic newSlot) {
     super.mount(parent, newSlot);
-    _mountChild(widget.thumbIcon, _ChildElements.startThumbIcon);
+    _mountChild(widget.thumbIcon, ChildElements.startThumbIcon);
   }
 
   @override
   void update(_SliderRenderObjectWidget newWidget) {
     super.update(newWidget);
     assert(widget == newWidget);
-    _updateChild(widget.thumbIcon, _ChildElements.startThumbIcon);
+    _updateChild(widget.thumbIcon, ChildElements.startThumbIcon);
   }
 
   @override
-  void insertChildRenderObject(RenderObject child, dynamic slotValue) {
+  void insertRenderObjectChild(RenderObject child, dynamic slotValue) {
     assert(child is RenderBox);
-    assert(slotValue is _ChildElements);
-    final _ChildElements slot = slotValue;
+    assert(slotValue is ChildElements);
+    final ChildElements slot = slotValue;
     _updateRenderObject(child, slot);
     assert(renderObject.childToSlot.keys.contains(child));
     assert(renderObject.slotToChild.keys.contains(slot));
   }
 
   @override
-  void removeChildRenderObject(RenderObject child) {
+  void removeRenderObjectChild(RenderObject child, dynamic slot) {
     assert(child is RenderBox);
     assert(renderObject.childToSlot.keys.contains(child));
     _updateRenderObject(null, renderObject.childToSlot[child]);
@@ -1316,12 +1390,13 @@ class _RenderSliderElement extends RenderObjectElement {
   }
 
   @override
-  void moveChildRenderObject(RenderObject child, dynamic slotValue) {
+  void moveRenderObjectChild(
+      RenderObject child, dynamic oldSlot, dynamic newSlot) {
     assert(false, 'not reachable');
   }
 }
 
-class _RenderSlider extends _RenderBaseSlider {
+class _RenderSlider extends RenderBaseSlider {
   _RenderSlider({
     dynamic min,
     dynamic max,
@@ -1334,7 +1409,7 @@ class _RenderSlider extends _RenderBaseSlider {
     bool showTicks,
     bool showLabels,
     bool showDivisors,
-    bool showTooltip,
+    bool enableTooltip,
     Color inactiveColor,
     Color activeColor,
     LabelPlacement labelPlacement,
@@ -1366,7 +1441,7 @@ class _RenderSlider extends _RenderBaseSlider {
             showTicks: showTicks,
             showLabels: showLabels,
             showDivisors: showDivisors,
-            showTooltip: showTooltip,
+            enableTooltip: enableTooltip,
             labelPlacement: labelPlacement,
             numberFormat: numberFormat,
             dateFormat: dateFormat,
@@ -1411,7 +1486,7 @@ class _RenderSlider extends _RenderBaseSlider {
     _tooltipAnimation = CurvedAnimation(
         parent: _state.tooltipAnimationController, curve: Curves.fastOutSlowIn);
 
-    _updateTextPainter();
+    updateTextPainter();
 
     if (isDateTime) {
       _valueInMilliseconds = value.millisecondsSinceEpoch.toDouble();
@@ -1428,11 +1503,11 @@ class _RenderSlider extends _RenderBaseSlider {
 
   double _valueInMilliseconds;
 
-  final Map<_ChildElements, RenderBox> slotToChild =
-      <_ChildElements, RenderBox>{};
+  final Map<ChildElements, RenderBox> slotToChild =
+      <ChildElements, RenderBox>{};
 
-  final Map<RenderBox, _ChildElements> childToSlot =
-      <RenderBox, _ChildElements>{};
+  final Map<RenderBox, ChildElements> childToSlot =
+      <RenderBox, ChildElements>{};
 
   dynamic get value => _value;
   dynamic _value;
@@ -1506,7 +1581,7 @@ class _RenderSlider extends _RenderBaseSlider {
   RenderBox _thumbIcon;
 
   set thumbIcon(RenderBox value) {
-    _thumbIcon = _updateChild(_thumbIcon, value, _ChildElements.startThumbIcon);
+    _thumbIcon = _updateChild(_thumbIcon, value, ChildElements.startThumbIcon);
   }
 
   bool get isInteractive => onChanged != null;
@@ -1521,7 +1596,7 @@ class _RenderSlider extends _RenderBaseSlider {
   }
 
   RenderBox _updateChild(
-      RenderBox oldChild, RenderBox newChild, _ChildElements slot) {
+      RenderBox oldChild, RenderBox newChild, ChildElements slot) {
     if (oldChild != null) {
       dropChild(oldChild);
       childToSlot.remove(oldChild);
@@ -1536,7 +1611,7 @@ class _RenderSlider extends _RenderBaseSlider {
   }
 
   void _onTapDown(TapDownDetails details) {
-    currentPointerType = _PointerType.down;
+    currentPointerType = PointerType.down;
     currentX = globalToLocal(details.globalPosition).dx;
     _beginInteraction();
   }
@@ -1552,7 +1627,7 @@ class _RenderSlider extends _RenderBaseSlider {
 
   void _onDragUpdate(DragUpdateDetails details) {
     isInteractionEnd = false;
-    currentPointerType = _PointerType.move;
+    currentPointerType = PointerType.move;
     currentX = globalToLocal(details.globalPosition).dx;
     _updateValue();
     markNeedsPaint();
@@ -1569,7 +1644,7 @@ class _RenderSlider extends _RenderBaseSlider {
   void _beginInteraction() {
     isInteractionEnd = false;
     _state.overlayController.forward();
-    if (_showTooltip) {
+    if (enableTooltip) {
       willDrawTooltip = true;
       _state.tooltipAnimationController.forward();
       _state.tooltipDelayTimer?.cancel();
@@ -1601,7 +1676,7 @@ class _RenderSlider extends _RenderBaseSlider {
   void _endInteraction() {
     if (!isInteractionEnd) {
       _state.overlayController.reverse();
-      if (_showTooltip && _state.tooltipDelayTimer == null) {
+      if (enableTooltip && _state.tooltipDelayTimer == null) {
         _state.tooltipAnimationController.reverse();
         if (_state.tooltipAnimationController.status ==
             AnimationStatus.dismissed) {
@@ -1609,7 +1684,7 @@ class _RenderSlider extends _RenderBaseSlider {
         }
       }
 
-      currentPointerType = _PointerType.up;
+      currentPointerType = PointerType.up;
       isInteractionEnd = true;
       markNeedsPaint();
     }
@@ -1625,7 +1700,7 @@ class _RenderSlider extends _RenderBaseSlider {
       Offset actualTrackOffset, Rect trackRect) {
     if (willDrawTooltip) {
       final Paint paint = Paint()
-        ..color = _sliderThemeData.tooltipBackgroundColor
+        ..color = sliderThemeData.tooltipBackgroundColor
         ..style = PaintingStyle.fill
         ..strokeWidth = 0;
 
@@ -1634,14 +1709,14 @@ class _RenderSlider extends _RenderBaseSlider {
       final String tooltipText = tooltipTextFormatterCallback(
           actualText, getFormattedText(actualText));
       final TextSpan textSpan =
-          TextSpan(text: tooltipText, style: _sliderThemeData.tooltipTextStyle);
+          TextSpan(text: tooltipText, style: sliderThemeData.tooltipTextStyle);
       textPainter.text = textSpan;
       textPainter.layout();
 
       tooltipShape.paint(context, thumbCenter,
           Offset(actualTrackOffset.dx, tooltipStartY), textPainter,
           parentBox: this,
-          sliderThemeData: _sliderThemeData,
+          sliderThemeData: sliderThemeData,
           paint: paint,
           animation: _tooltipAnimation,
           trackRect: trackRect);
@@ -1713,7 +1788,7 @@ class _RenderSlider extends _RenderBaseSlider {
 
     // Drawing track.
     final Rect trackRect =
-        trackShape.getPreferredRect(this, _sliderThemeData, actualTrackOffset);
+        trackShape.getPreferredRect(this, sliderThemeData, actualTrackOffset);
     final double thumbPosition =
         getFactorFromValue(actualValue) * trackRect.width;
     final Offset thumbCenter =
@@ -1722,9 +1797,9 @@ class _RenderSlider extends _RenderBaseSlider {
     trackShape.paint(context, actualTrackOffset, thumbCenter, null, null,
         parentBox: this,
         currentValue: _value,
-        themeData: _sliderThemeData,
+        themeData: sliderThemeData,
         enableAnimation: _stateAnimation,
-        textDirection: _textDirection);
+        textDirection: textDirection);
 
     if (showLabels || showTicks || showDivisors) {
       drawLabelsTicksAndDivisors(context, trackRect, offset, thumbCenter, null,
@@ -1735,7 +1810,7 @@ class _RenderSlider extends _RenderBaseSlider {
     overlayShape.paint(context, thumbCenter,
         parentBox: this,
         currentValue: _value,
-        themeData: _sliderThemeData,
+        themeData: sliderThemeData,
         animation: _overlayAnimation);
 
     // Drawing thumb.
@@ -1743,9 +1818,9 @@ class _RenderSlider extends _RenderBaseSlider {
         parentBox: this,
         child: _thumbIcon,
         currentValue: _value,
-        themeData: _sliderThemeData,
+        themeData: sliderThemeData,
         enableAnimation: _stateAnimation,
-        textDirection: _textDirection);
+        textDirection: textDirection);
 
     _drawTooltip(context, thumbCenter, offset, actualTrackOffset, trackRect);
   }
@@ -1773,5 +1848,28 @@ class _RenderSlider extends _RenderBaseSlider {
             '${getPrevSemanticValue(value, semanticActionUnit)}';
       }
     }
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(StringProperty(
+        'thumbSize', thumbShape.getPreferredSize(sliderThemeData).toString()));
+    properties.add(StringProperty(
+        'activeDivisorSize',
+        divisorShape
+            .getPreferredSize(sliderThemeData, isActive: true)
+            .toString()));
+    properties.add(StringProperty(
+        'inactiveDivisorSize',
+        divisorShape
+            .getPreferredSize(sliderThemeData, isActive: false)
+            .toString()));
+    properties.add(StringProperty('overlaySize',
+        overlayShape.getPreferredSize(sliderThemeData).toString()));
+    properties.add(StringProperty(
+        'tickSize', tickShape.getPreferredSize(sliderThemeData).toString()));
+    properties.add(StringProperty('minorTickSize',
+        minorTickShape.getPreferredSize(sliderThemeData).toString()));
   }
 }

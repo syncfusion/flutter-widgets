@@ -88,6 +88,10 @@ class _TimeRulerView extends CustomPainter {
         i <= (isTimelineView ? horizontalLinesCount - 1 : horizontalLinesCount);
         i++) {
       if (isTimelineView) {
+        canvas.save();
+        canvas.clipRect(
+            Rect.fromLTWH(xPosition, 0, timeIntervalHeight, size.height));
+        canvas.restore();
         canvas.drawLine(
             Offset(xPosition, 0), Offset(xPosition, size.height), _linePainter);
       }

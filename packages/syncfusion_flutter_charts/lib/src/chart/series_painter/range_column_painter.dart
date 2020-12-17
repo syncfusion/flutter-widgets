@@ -48,6 +48,10 @@ class _RangeColumnChartPainter extends CustomPainter {
           : 1;
 
       int segmentIndex = -1;
+      if (seriesRenderer._visibleDataPoints == null ||
+          seriesRenderer._visibleDataPoints.isNotEmpty) {
+        seriesRenderer._visibleDataPoints = <CartesianChartPoint<dynamic>>[];
+      }
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
         seriesRenderer._calculateRegionData(

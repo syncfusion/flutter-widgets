@@ -46,9 +46,6 @@ class _TrendlinePainter extends CustomPainter {
             final Path path = Path();
             final Paint paint = Paint();
             paint.strokeWidth = trendline.width;
-            paint.color = trendlineRenderer._fillColor
-                .withOpacity(trendlineRenderer._opacity);
-            paint.style = PaintingStyle.stroke;
             if (seriesRenderer._reAnimate ||
                 (trendline.animationDuration > 0 &&
                     seriesRenderer._oldSeries == null)) {
@@ -62,6 +59,9 @@ class _TrendlinePainter extends CustomPainter {
                 chartState._chartSeries.visibleSeriesRenderers
                     .indexOf(seriesRenderer),
                 seriesRenderer._seriesName);
+            paint.color = trendlineRenderer._fillColor
+                .withOpacity(trendlineRenderer._opacity);
+            paint.style = PaintingStyle.stroke;
             if (trendline.type == TrendlineType.linear) {
               path.moveTo(trendlineRenderer._points[0].dx,
                   trendlineRenderer._points[0].dy);
@@ -137,8 +137,8 @@ class _TrendlinePainter extends CustomPainter {
                           ? Colors.transparent
                           : ((point.pointColorMapper != null)
                               ? point.pointColorMapper
-                              : trendline.markerSettings.borderColor ??
-                                  trendlineRenderer._fillColor)
+                              : trendlineRenderer._fillColor ??
+                                  trendline.markerSettings.borderColor)
                       ..strokeWidth = trendline.markerSettings.borderWidth
                       ..style = PaintingStyle.stroke;
 

@@ -1,7 +1,9 @@
 import 'dart:core';
 import 'dart:typed_data';
 import 'dart:ui';
-
+import 'package:syncfusion_flutter_pdf/pdf.dart';
+import 'package:syncfusion_flutter_pdfviewer/src/control/pdfviewer_canvas.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +11,25 @@ import 'package:flutter/material.dart';
 /// Wrapper class of [Image] widget which shows the PDF pages as an image
 class PdfPageView extends StatefulWidget {
   /// Constructs PdfPageView instance with the given parameters.
-  PdfPageView({Key key, this.imageStream, this.width, this.height})
+  PdfPageView(
+      {Key key,
+      this.imageStream,
+      this.width,
+      this.height,
+      this.pageSpacing,
+      this.pdfDocument,
+      this.pdfPages,
+      this.pageIndex,
+      this.scrollController,
+      this.pdfViewerController,
+      this.enableDocumentLinkAnnotation,
+      this.enableTextSelection,
+      this.onTextSelectionChanged,
+      this.onTextSelectionDragStarted,
+      this.onTextSelectionDragEnded,
+      this.searchTextHighlightColor,
+      this.textCollection,
+      this.pdfTextSearchResult})
       : super(key: key);
 
   /// Image stream
@@ -20,15 +40,63 @@ class PdfPageView extends StatefulWidget {
 
   /// Height of page
   final double height;
+
+  /// Space between pages
+  final double pageSpacing;
+
+  /// Instance of [PdfDocument]
+  final PdfDocument pdfDocument;
+
+  /// If true, document link annotation is enabled.
+  final bool enableDocumentLinkAnnotation;
+
+  /// Index of  page
+  final int pageIndex;
+
+  /// Information about PdfPage
+  final Map<int, PdfPageInfo> pdfPages;
+
+  /// Instance of [ScrollController]
+  final ScrollController scrollController;
+
+  /// Instance of [PdfViewerController]
+  final PdfViewerController pdfViewerController;
+
+  /// If false,text selection is disabled.Default value is true.
+  final bool enableTextSelection;
+
+  /// Triggers when text selection is changed.
+  final PdfTextSelectionChangedCallback onTextSelectionChanged;
+
+  /// Triggers when text selection dragging started.
+  final VoidCallback onTextSelectionDragStarted;
+
+  /// Triggers when text selection dragging ended.
+  final VoidCallback onTextSelectionDragEnded;
+
+  ///Highlighting color of searched text
+  final Color searchTextHighlightColor;
+
+  ///searched text details
+  final List<MatchedItem> textCollection;
+
+  /// PdfTextSearchResult instance
+  final PdfTextSearchResult pdfTextSearchResult;
+
   @override
   State<StatefulWidget> createState() {
-    return _PdfPageViewState();
+    return PdfPageViewState();
   }
 }
 
 /// State for [PdfPageView]
-class _PdfPageViewState extends State<PdfPageView> {
+class PdfPageViewState extends State<PdfPageView> {
   SfPdfViewerThemeData _pdfViewerThemeData;
+  final GlobalKey _canvasKey = GlobalKey();
+
+  /// CanvasRenderBox getter for accessing canvas properties.
+  CanvasRenderBox get canvasRenderBox =>
+      _canvasKey?.currentContext?.findRenderObject();
 
   @override
   void didChangeDependencies() {
@@ -45,30 +113,86 @@ class _PdfPageViewState extends State<PdfPageView> {
   @override
   Widget build(BuildContext context) {
     if (widget.imageStream != null) {
-      final Widget page = Image.memory(widget.imageStream,
+      final Widget page = Container(
+          height: widget.height + widget.pageSpacing,
+          child: Column(children: [
+            Image.memory(widget.imageStream,
+                width: widget.width,
+                height: widget.height,
+                fit: BoxFit.fitWidth,
+                alignment: Alignment.center),
+            Container(
+              height: widget.pageSpacing,
+              color: _pdfViewerThemeData.backgroundColor,
+            )
+          ]));
+      if (widget.textCollection != null) {
+        final Widget canvas = PdfViewerCanvas(
+          key: _canvasKey,
+          pdfDocument: widget.pdfDocument,
           width: widget.width,
           height: widget.height,
-          fit: BoxFit.fitWidth,
-          alignment: Alignment.center);
-      return Container(
-        color: Colors.white,
-        foregroundDecoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-                width: 4, color: _pdfViewerThemeData.backgroundColor),
+          pageIndex: widget.pageIndex,
+          pdfPages: widget.pdfPages,
+          scrollController: widget.scrollController,
+          pdfViewerController: widget.pdfViewerController,
+          enableDocumentLinkNavigation: widget.enableDocumentLinkAnnotation,
+          onTextSelectionChanged: widget.onTextSelectionChanged,
+          onTextSelectionDragStarted: widget.onTextSelectionDragStarted,
+          onTextSelectionDragEnded: widget.onTextSelectionDragEnded,
+          enableTextSelection: widget.enableTextSelection,
+          searchTextHighlightColor: widget.searchTextHighlightColor,
+          textCollection: widget.textCollection,
+          pdfTextSearchResult: widget.pdfTextSearchResult,
+        );
+
+        return Stack(
+          children: [
+            Container(
+              color: Colors.white,
+              child: page,
+            ),
+            Container(
+                height: widget.height, width: widget.width, child: canvas),
+          ],
+        );
+      } else {
+        return Stack(children: [
+          Container(
+            color: Colors.white,
+            child: page,
           ),
-        ),
-        child: page,
-      );
+          Container(
+            width: widget.width,
+            height: widget.height,
+            child: PdfViewerCanvas(
+                key: _canvasKey,
+                pdfDocument: widget.pdfDocument,
+                width: widget.width,
+                height: widget.height,
+                pageIndex: widget.pageIndex,
+                pdfPages: widget.pdfPages,
+                scrollController: widget.scrollController,
+                pdfViewerController: widget.pdfViewerController,
+                enableDocumentLinkNavigation:
+                    widget.enableDocumentLinkAnnotation,
+                onTextSelectionChanged: widget.onTextSelectionChanged,
+                onTextSelectionDragStarted: widget.onTextSelectionDragStarted,
+                onTextSelectionDragEnded: widget.onTextSelectionDragEnded,
+                enableTextSelection: widget.enableTextSelection),
+          ),
+        ]);
+      }
     } else {
       return Container(
-        height: widget.height,
+        height: widget.height + widget.pageSpacing,
         width: widget.width,
         color: Colors.white,
         foregroundDecoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(
-                width: 4, color: _pdfViewerThemeData.backgroundColor),
+                width: widget.pageSpacing,
+                color: _pdfViewerThemeData.backgroundColor),
           ),
         ),
       );

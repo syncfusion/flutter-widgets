@@ -268,6 +268,7 @@ class RangeColumnSeriesRenderer extends XyDataSeriesRenderer {
   /// To add range column segments in segments list
   ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
       int pointIndex, int seriesIndex, num animateFactor) {
+    _isRectSeries = true;
     final RangeColumnSegment segment = createSegment();
     final List<CartesianSeriesRenderer> oldSeriesRenderers =
         _chartState._oldSeriesRenderers;

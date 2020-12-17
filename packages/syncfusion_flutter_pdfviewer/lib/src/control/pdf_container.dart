@@ -13,6 +13,8 @@ class PdfContainer extends StatefulWidget {
   /// Creates a instance of PdfContainer.
   PdfContainer({
     Key key,
+    this.initialScrollOffset,
+    this.initialZoomLevel,
     this.enableDoubleTapZooming = true,
     this.onZoomLevelChanged,
     this.pdfController,
@@ -26,6 +28,12 @@ class PdfContainer extends StatefulWidget {
         assert(scaleEnabled != null),
         assert(enableDoubleTapZooming != null),
         super(key: key);
+
+  /// Represents the initial zoom level to be applied when the [SfPdfViewer] widget is loaded.
+  final double initialZoomLevel;
+
+  /// Represents the initial scroll offset position to be displayed when the [SfPdfViewer] widget is loaded.
+  final Offset initialScrollOffset;
 
   /// An object that can be used to control the position to which this scroll
   /// view is scrolled.
@@ -700,6 +708,17 @@ class PdfContainerState extends State<PdfContainer>
     _pdfController = widget.pdfController;
     _pdfController?.addListener(_onControllerValueChange);
     viewMatrix = Matrix4.identity();
+    if (widget.initialZoomLevel > 1) {
+      if (widget.initialZoomLevel >= _minScale &&
+          widget.initialZoomLevel <= _maxScale) {
+        viewMatrix = _matrixScale(
+          viewMatrix,
+          widget.initialZoomLevel,
+        );
+        _scale = widget.initialZoomLevel;
+        _previousScale = _scale;
+      }
+    }
     if (_pdfController.zoomLevel != null) {
       if (_pdfController.zoomLevel < _minScale ||
           _pdfController.zoomLevel > _maxScale) {
@@ -707,16 +726,25 @@ class PdfContainerState extends State<PdfContainer>
       } else {
         viewMatrix = _matrixScale(
           viewMatrix,
-          _pdfController.zoomLevel,
+          (widget.initialZoomLevel > _pdfController.zoomLevel)
+              ? _pdfController.zoomLevel / widget.initialZoomLevel
+              : _pdfController.zoomLevel,
         );
+
         _scale = _pdfController.zoomLevel;
-        _previousScale = _scale;
+        _previousScale = widget.initialZoomLevel;
       }
     }
+
     _animationController = AnimationController(
       vsync: this,
     );
-
+    if (widget.initialScrollOffset != null) {
+      Future.delayed(Duration.zero, () async {
+        viewMatrix = _matrixTranslate(
+            viewMatrix, Offset(widget.initialScrollOffset.dx, 0));
+      });
+    }
     // Added a listener for the scrolling.
     widget.scrollController.addListener(_updateOrigin);
   }

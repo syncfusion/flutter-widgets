@@ -7,6 +7,9 @@ abstract class DataCellBase {
     _isVisible = true;
     _isEnsured = false;
     _isDirty = false;
+    _columnSpan = 0;
+    _rowSpan = 0;
+    _ishover = false;
   }
 
   Widget _columnElement;
@@ -27,6 +30,8 @@ abstract class DataCellBase {
 
   bool _isDirty;
 
+  bool _ishover;
+
   String _displayText;
 
   /// The column index of the [DataCell].
@@ -43,6 +48,12 @@ abstract class DataCellBase {
 
   /// Decides whether the [DataCell] has the currentcell.
   bool isCurrentCell = false;
+
+  int _columnSpan;
+
+  int _rowSpan;
+
+  StackedHeaderCell _stackedHeaderCell;
 
   /// Decides whether the [DataCell] is visible.
   bool get isVisible => _isVisible;

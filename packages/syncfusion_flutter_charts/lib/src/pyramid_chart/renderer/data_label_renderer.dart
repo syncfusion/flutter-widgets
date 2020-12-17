@@ -136,16 +136,19 @@ void _renderPyramidDataLabel(
           seriesRenderer._series.dataLabelSettings.color;
       if (chart.onDataLabelRender != null &&
           !seriesRenderer._renderPoints[pointIndex].labelRenderEvent) {
-        seriesRenderer._renderPoints[pointIndex].labelRenderEvent = true;
-        dataLabelArgs = DataLabelRenderArgs(
-            seriesRenderer, seriesRenderer._renderPoints, pointIndex);
+        dataLabelArgs = DataLabelRenderArgs(seriesRenderer,
+            seriesRenderer._renderPoints, pointIndex, pointIndex);
         dataLabelArgs.text = label;
         dataLabelArgs.textStyle = dataLabelStyle;
         dataLabelArgs.color = dataLabelSettingsRenderer._color;
         chart.onDataLabelRender(dataLabelArgs);
-        label = dataLabelArgs.text;
+        label = point.text = dataLabelArgs.text;
         dataLabelStyle = dataLabelArgs.textStyle;
+        pointIndex = dataLabelArgs.pointIndex;
         dataLabelSettingsRenderer._color = dataLabelArgs.color;
+        if (animation.status == AnimationStatus.completed) {
+          seriesRenderer._dataPoints[pointIndex].labelRenderEvent = true;
+        }
       }
       dataLabelStyle = chart.onDataLabelRender == null
           ? _getDataLabelTextStyle(
@@ -448,16 +451,20 @@ void _triggerPyramidDataLabelEvent(
     PyramidSeriesRenderer seriesRenderer,
     SfPyramidChartState chartState,
     Offset position) {
+  final int seriesIndex = 0;
   for (int pointIndex = 0;
       pointIndex < seriesRenderer._renderPoints.length;
       pointIndex++) {
+    final DataLabelSettings dataLabel =
+        seriesRenderer._series.dataLabelSettings;
     final PointInfo<dynamic> point = seriesRenderer._renderPoints[pointIndex];
     final Offset labelLocation = point.symbolLocation;
-    if (chart.onDataLabelTapped != null &&
+    if (dataLabel.isVisible &&
+        seriesRenderer._renderPoints[pointIndex].labelRect != null &&
         seriesRenderer._renderPoints[pointIndex].labelRect.contains(position)) {
       position = Offset(labelLocation.dx, labelLocation.dy);
       _dataLabelTapEvent(chart, seriesRenderer._series.dataLabelSettings,
-          pointIndex, point, position);
+          pointIndex, point, position, seriesIndex);
     }
   }
 }

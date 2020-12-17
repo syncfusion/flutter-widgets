@@ -377,8 +377,20 @@ class _PyramidSeries {
         _chartState._chartSeries.visibleSeriesRenderers[0];
     // final PyramidSeries<dynamic, dynamic> series = seriesRenderer._series;
     final SfPyramidChartState chartState = _chartState;
+    int currentSelectedIndex;
     if (seriesRenderer._isSelectionEnable && mode == chart.selectionGesture) {
       if (chartState._selectionData.isNotEmpty) {
+        if (!chart.enableMultiSelection &&
+            _chartState._selectionData.isNotEmpty &&
+            _chartState._selectionData.length > 1) {
+          if (_chartState._selectionData.contains(pointIndex)) {
+            currentSelectedIndex = pointIndex;
+          }
+          _chartState._selectionData.clear();
+          if (currentSelectedIndex != null) {
+            _chartState._selectionData.add(pointIndex);
+          }
+        }
         for (int i = 0; i < chartState._selectionData.length; i++) {
           final int selectionIndex = chartState._selectionData[i];
           if (!chart.enableMultiSelection) {
@@ -416,10 +428,9 @@ class _PyramidSeries {
       if (_chartState._selectionData.isNotEmpty) {
         for (int i = 0; i < _chartState._selectionData.length; i++) {
           final int selectionIndex = _chartState._selectionData[i];
-          if (chart.onSelectionChanged != null &&
-              selectionIndex == currentPointIndex) {
+          if (chart.onSelectionChanged != null) {
             chart.onSelectionChanged(_getSelectionEventArgs(
-                seriesRenderer, seriesIndex, currentPointIndex));
+                seriesRenderer, seriesIndex, selectionIndex));
           }
           if (currentPointIndex == selectionIndex) {
             pointStyle = _StyleOptions(
@@ -456,7 +467,8 @@ class _PyramidSeries {
   /// To perform selection event and return selectionArgs
   SelectionArgs _getSelectionEventArgs(
       dynamic seriesRenderer, num seriesIndex, num pointIndex) {
-    if (seriesRenderer != null) {
+    final SfPyramidChart chart = seriesRenderer._chartState._chart;
+    if (seriesRenderer != null && pointIndex < chart.series.dataSource.length) {
       final dynamic selectionBehavior = seriesRenderer._selectionBehavior;
       _selectionArgs =
           SelectionArgs(seriesRenderer, seriesIndex, pointIndex, pointIndex);

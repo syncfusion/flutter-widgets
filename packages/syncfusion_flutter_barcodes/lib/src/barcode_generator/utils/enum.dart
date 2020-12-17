@@ -1,5 +1,3 @@
-part of barcodes;
-
 /// Represents the input character symbol.
 enum CodeType {
   ///CodeType.uncodable represents the input symbol is not codable.

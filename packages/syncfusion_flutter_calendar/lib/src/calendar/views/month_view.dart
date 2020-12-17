@@ -249,8 +249,7 @@ class _MonthViewRenderObjectWidget extends MultiChildRenderObjectWidget {
   }
 }
 
-class _MonthViewRenderObject extends RenderBox
-    with ContainerRenderObjectMixin<RenderBox, _CalendarParentData> {
+class _MonthViewRenderObject extends _CustomCalendarRenderObject {
   _MonthViewRenderObject(
       this._visibleDates,
       this._visibleAppointments,
@@ -555,18 +554,11 @@ class _MonthViewRenderObject extends RenderBox
     _calendarCellNotifier?.addListener(markNeedsPaint);
   }
 
-  /// attach will called when the render object removed from view.
+  /// detach will called when the render object removed from view.
   @override
   void detach() {
     _calendarCellNotifier?.removeListener(markNeedsPaint);
     super.detach();
-  }
-
-  @override
-  void setupParentData(RenderObject child) {
-    if (child.parentData is! _CalendarParentData) {
-      child.parentData = _CalendarParentData();
-    }
   }
 
   @override
@@ -630,56 +622,6 @@ class _MonthViewRenderObject extends RenderBox
         }
       }
     }
-  }
-
-  @override
-  void describeSemanticsConfiguration(SemanticsConfiguration config) {
-    super.describeSemanticsConfiguration(config);
-    config.isSemanticBoundary = true;
-  }
-
-  @override
-  void assembleSemanticsNode(
-    SemanticsNode node,
-    SemanticsConfiguration config,
-    Iterable<SemanticsNode> children,
-  ) {
-    final List<CustomPainterSemantics> semantics = _getSemanticsBuilder(size);
-    final List<SemanticsNode> semanticsNodes = <SemanticsNode>[];
-    for (int i = 0; i < semantics.length; i++) {
-      final CustomPainterSemantics currentSemantics = semantics[i];
-      final SemanticsNode newChild = SemanticsNode(
-        key: currentSemantics.key,
-      );
-
-      final SemanticsProperties properties = currentSemantics.properties;
-      final SemanticsConfiguration config = SemanticsConfiguration();
-      if (properties.label != null) {
-        config.label = properties.label;
-      }
-      if (properties.textDirection != null) {
-        config.textDirection = properties.textDirection;
-      }
-
-      newChild.updateWith(
-        config: config,
-        // As of now CustomPainter does not support multiple tree levels.
-        childrenInInversePaintOrder: const <SemanticsNode>[],
-      );
-
-      newChild
-        ..rect = currentSemantics.rect
-        ..transform = currentSemantics.transform
-        ..tags = currentSemantics.tags;
-
-      semanticsNodes.add(newChild);
-    }
-
-    final List<SemanticsNode> finalChildren = <SemanticsNode>[];
-    finalChildren.addAll(semanticsNodes);
-    finalChildren.addAll(children);
-
-    super.assembleSemanticsNode(node, config, finalChildren);
   }
 
   Paint _linePainter;
@@ -949,7 +891,7 @@ class _MonthViewRenderObject extends RenderBox
   String _getAccessibilityText(DateTime date, int index) {
     final String accessibilityText =
         DateFormat('EEE, dd/MMMM/yyyy').format(date).toString();
-    if (_blackoutDatesIndex.contains(index)) {
+    if (_blackoutDatesIndex != null && _blackoutDatesIndex.contains(index)) {
       return accessibilityText + ', Blackout date';
     }
 
@@ -992,4 +934,8 @@ class _MonthViewRenderObject extends RenderBox
 
     return semanticsBuilder;
   }
+
+  @override
+  List<CustomPainterSemantics> Function(Size size) get semanticsBuilder =>
+      _getSemanticsBuilder;
 }

@@ -44,6 +44,7 @@ class _FontStructure {
   }
 
   //Fields
+  bool isWhiteSpace = false;
   bool isSameFont = false;
   String _fontEncoding;
   _PdfDictionary fontDictionary;
@@ -90,6 +91,7 @@ class _FontStructure {
   List<String> standardFontNames;
   List<String> standardCJKFontNames;
   List<String> cjkEncoding;
+  List<String> _windows1252MapTable;
 
 //Properties
   String get fontEncoding => _fontEncoding ??= getFontEncoding();
@@ -244,6 +246,263 @@ class _FontStructure {
       'Times-BoldItalic',
       'Symbol',
       'ZapfDingbats'
+    ];
+    _windows1252MapTable = <String>[
+      '\0',
+      '\u0001',
+      '\u0002',
+      '\u0003',
+      '\u0004',
+      '\u0005',
+      '\u0006',
+      '\a',
+      '\b',
+      '\t',
+      '\n',
+      '\v',
+      '\f',
+      '\r',
+      '\u000e',
+      '\u000f',
+      '\u0010',
+      '\u0011',
+      '\u0012',
+      '\u0013',
+      '\u0014',
+      '\u0015',
+      '\u0016',
+      '\u0017',
+      '\u0018',
+      '\u0019',
+      '\u001a',
+      '\u001b',
+      '\u001c',
+      '\u001d',
+      '\u001e',
+      '\u001f',
+      ' ',
+      '!',
+      '"',
+      '#',
+      '\$',
+      '%',
+      '&',
+      '\'',
+      '(',
+      ')',
+      '*',
+      '+',
+      ',',
+      '-',
+      '.',
+      '/',
+      '0',
+      '1',
+      '2',
+      '3',
+      '4',
+      '5',
+      '6',
+      '7',
+      '8',
+      '9',
+      ':',
+      ';',
+      '<',
+      '=',
+      '>',
+      '?',
+      '@',
+      'A',
+      'B',
+      'C',
+      'D',
+      'E',
+      'F',
+      'G',
+      'H',
+      'I',
+      'J',
+      'K',
+      'L',
+      'M',
+      'N',
+      'O',
+      'P',
+      'Q',
+      'R',
+      'S',
+      'T',
+      'U',
+      'V',
+      'W',
+      'X',
+      'Y',
+      'Z',
+      '[',
+      '\\',
+      ']',
+      '^',
+      '_',
+      '`',
+      'a',
+      'b',
+      'c',
+      'd',
+      'e',
+      'f',
+      'g',
+      'h',
+      'i',
+      'j',
+      'k',
+      'l',
+      'm',
+      'n',
+      'o',
+      'p',
+      'q',
+      'r',
+      's',
+      't',
+      'u',
+      'v',
+      'w',
+      'x',
+      'y',
+      'z',
+      '{',
+      '|',
+      '}',
+      '~',
+      '\u007f',
+      '€',
+      '\u0081',
+      '‚',
+      'ƒ',
+      '„',
+      '…',
+      '†',
+      '‡',
+      'ˆ',
+      '‰',
+      'Š',
+      '‹',
+      'Œ',
+      '\u008d',
+      'Ž',
+      '\u008f',
+      '\u0090',
+      '‘',
+      '’',
+      '“',
+      '”',
+      '•',
+      '–',
+      '—',
+      '˜',
+      '™',
+      'š',
+      '›',
+      'œ',
+      '\u009d',
+      'ž',
+      'Ÿ',
+      ' ',
+      '¡',
+      '¢',
+      '£',
+      '¤',
+      '¥',
+      '¦',
+      '§',
+      '¨',
+      '©',
+      'ª',
+      '«',
+      '¬',
+      '­',
+      '®',
+      '¯',
+      '°',
+      '±',
+      '²',
+      '³',
+      '´',
+      'µ',
+      '¶',
+      '·',
+      '¸',
+      '¹',
+      'º',
+      '»',
+      '¼',
+      '½',
+      '¾',
+      '¿',
+      'À',
+      'Á',
+      'Â',
+      'Ã',
+      'Ä',
+      'Å',
+      'Æ',
+      'Ç',
+      'È',
+      'É',
+      'Ê',
+      'Ë',
+      'Ì',
+      'Í',
+      'Î',
+      'Ï',
+      'Ð',
+      'Ñ',
+      'Ò',
+      'Ó',
+      'Ô',
+      'Õ',
+      'Ö',
+      '×',
+      'Ø',
+      'Ù',
+      'Ú',
+      'Û',
+      'Ü',
+      'Ý',
+      'Þ',
+      'ß',
+      'à',
+      'á',
+      'â',
+      'ã',
+      'ä',
+      'å',
+      'æ',
+      'ç',
+      'è',
+      'é',
+      'ê',
+      'ë',
+      'ì',
+      'í',
+      'î',
+      'ï',
+      'ð',
+      'ñ',
+      'ò',
+      'ó',
+      'ô',
+      'õ',
+      'ö',
+      '÷',
+      'ø',
+      'ú',
+      'û',
+      'ü',
+      'ý',
+      'þ',
+      'ÿ'
     ];
   }
 
@@ -2261,6 +2520,9 @@ class _FontStructure {
     if (decodedText.contains('\u0092')) {
       decodedText = decodedText.replaceAll('\u0092', '’');
     }
+    isWhiteSpace = (decodedText == null ||
+        decodedText.isEmpty ||
+        decodedText.trimRight() == '');
     return decodedText;
   }
 
@@ -2372,6 +2634,9 @@ class _FontStructure {
       }
     }
     decodedText = skipEscapeSequence(decodedText);
+    isWhiteSpace = (decodedText == null ||
+        decodedText.isEmpty ||
+        decodedText.trimRight() == '');
     return decodedList;
   }
 
@@ -2564,6 +2829,9 @@ class _FontStructure {
         break;
     }
     decodedText = skipEscapeSequence(decodedText);
+    isWhiteSpace = (decodedText == null ||
+        decodedText.isEmpty ||
+        decodedText.trimRight() == '');
     return decodedList;
   }
 
@@ -2587,6 +2855,8 @@ class _FontStructure {
         i++;
       }
     }
+    isWhiteSpace =
+        (result == null || result.isEmpty || result.trimRight() == '');
     return result;
   }
 
@@ -2738,6 +3008,9 @@ class _FontStructure {
     if (!isTextExtraction) {
       encodedText = skipEscapeSequence(encodedText);
     }
+    isWhiteSpace = (encodedText == null ||
+        encodedText.isEmpty ||
+        encodedText.trimRight() == '');
     return encodedText;
   }
 
@@ -3963,9 +4236,10 @@ class _FontStructure {
         } else {
           if (fontEncoding != 'MacRomanEncoding') {
             final List<int> charbytes = <int>[decimalValue.toUnsigned(8)];
-            temp = utf8.decode(charbytes);
-            final List<String> tempchar = <String>[
-              utf8.decode(<int>[decimalValue.toUnsigned(8)])
+            temp = _getWindows1252DecodedText(charbytes);
+            List<String> tempchar;
+            tempchar = <String>[
+              _getWindows1252DecodedText(<int>[decimalValue.toUnsigned(8)])
             ];
             int charvalue = 0;
             for (final String tempchar1 in tempchar) {
@@ -4049,6 +4323,16 @@ class _FontStructure {
       }
     }
     return decodedText;
+  }
+
+  String _getWindows1252DecodedText(List<int> charcodes) {
+    String result = '';
+    charcodes.forEach((int code) {
+      if (code >= 0 && code < 256) {
+        result += _windows1252MapTable[code];
+      }
+    });
+    return result;
   }
 
 // Decodes the HEX encoded string and returns Decoded string.

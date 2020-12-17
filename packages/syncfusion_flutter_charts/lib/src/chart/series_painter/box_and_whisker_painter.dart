@@ -49,9 +49,11 @@ class _BoxAndWhiskerPainter extends CustomPainter {
       animationFactor = seriesRenderer._seriesAnimation != null
           ? seriesRenderer._seriesAnimation.value
           : 1;
-      final _VisibleRange sideBySideInfo =
-          _calculateSideBySideInfo(seriesRenderer, chartState);
       int segmentIndex = -1;
+      if (seriesRenderer._visibleDataPoints == null ||
+          seriesRenderer._visibleDataPoints.isNotEmpty) {
+        seriesRenderer._visibleDataPoints = <CartesianChartPoint<dynamic>>[];
+      }
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
         assert(point.y != null,
@@ -60,7 +62,7 @@ class _BoxAndWhiskerPainter extends CustomPainter {
         (point.y).sort();
         seriesRenderer._findBoxPlotValues(point.y, point, series.boxPlotMode);
         seriesRenderer._calculateRegionData(chartState, seriesRenderer,
-            painterKey.index, point, pointIndex, sideBySideInfo);
+            painterKey.index, point, pointIndex, seriesRenderer.sideBySideInfo);
         if (point.isVisible && !point.isGap) {
           seriesRenderer._drawSegment(
               canvas,

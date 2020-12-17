@@ -16,6 +16,10 @@ class ChartCategoryAxis extends ChartAxis {
     value = _sheet;
   }
 
+  /// True to cut unused plot area. otherwise False. Default for area and surface charts.
+  // ignore: prefer_final_fields
+  bool _isBetween = false;
+
   /// Parent chart.
   Chart _chart;
 

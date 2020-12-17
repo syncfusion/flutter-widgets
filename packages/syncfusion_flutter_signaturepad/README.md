@@ -16,13 +16,13 @@ This library is used to capture a signature through drawing gestures. You can us
 
 ## Table of contents
 
-- [SignaturePad features](#signature_pad_features)
-- [Get the demo application](#get_the_demo)
-- [Useful links](#useful_links)
+- [SignaturePad features](#signaturepad-features)
+- [Get the demo application](#get-the-demo-application)
+- [Useful links](#other-useful-links)
 - [Installation](#installation)
-- [SignaturePad Getting Started](#slider_getting_started)
-- [Support and feedback](#support_and_feedback)
-- [About Syncfusion](#about_syncfusion)
+- [SignaturePad Getting Started](#getting-started)
+- [Support and feedback](#support-and-feedback)
+- [About Syncfusion](#about-syncfusion)
 
 ## SignaturePad features
 
@@ -53,7 +53,7 @@ Take a look at the following to learn more about the Syncfusion Flutter Signatur
 
 ## Installation
 
-Install the latest version from [pub.dev](https://pub.dev/packages/syncfusion_flutter_sliders#-installing-tab-).
+Install the latest version from [pub.dev](https://pub.dev/packages/syncfusion_flutter_signaturepad/install).
 
 ## Getting started
 
@@ -63,7 +63,7 @@ Import the following package.
 import 'package:syncfusion_flutter_signaturepad/signaturepad.dart';
 ```
 
-### **Add SignaturePad to widget tree **
+### Add SignaturePad to widget tree
 
 Add the SignaturePad widget as a child of any widget. Here, the SignaturePad widget is added as a child of the Container widget.
 
@@ -80,7 +80,7 @@ Add the SignaturePad widget as a child of any widget. Here, the SignaturePad wid
   
 ```
 
-### **Add SignaturePad elements **
+### Add SignaturePad elements
 
 Update elements such as stroke color, minimum stroke width, maximum stroke width, and background color to capture a realistic signature. In the following code example, the SignaturePad is added inside a Container widget to get a size for it. 
 
@@ -220,7 +220,7 @@ You can clear the signature drawn in the SignaturePad using the clear() method a
   }
 ```
 
-## Support and feedback 
+## Support and feedback
 
 * If you have any questions, you can reach out to our [Syncfusion support team](https://www.syncfusion.com/support/directtrac/incidents/newincident) or post question on our [community forums](https://www.syncfusion.com/forums) . Submit a feature request or a bug through our [feedback portal](https://www.syncfusion.com/feedback/flutter).
 * To renew your subscription, click [renew](https://www.syncfusion.com/sales/products) or contact our sales team at salessupport@syncfusion.com | Toll Free: 1-888-9 DOTNET.

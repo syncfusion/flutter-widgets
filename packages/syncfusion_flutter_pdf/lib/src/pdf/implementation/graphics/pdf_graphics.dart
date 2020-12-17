@@ -45,6 +45,8 @@ class PdfGraphics {
   _PdfStringLayoutResult _stringLayoutResult;
   _PdfAutomaticFieldInfoCollection _automaticFields;
   Map<_TransparencyData, _PdfTransparency> _trasparencies;
+  PdfLayer _documentLayer;
+
   //Properties
   /// Gets or sets the current color space of the document
   PdfColorSpace colorSpace;
@@ -60,7 +62,13 @@ class PdfGraphics {
     return _transformationMatrix;
   }
 
-  PdfPage get _page => _layer.page;
+  PdfPage get _page {
+    if (_documentLayer != null) {
+      return _documentLayer._page;
+    } else {
+      return _layer.page;
+    }
+  }
 
   /// Gets the automatic fields.
   _PdfAutomaticFieldInfoCollection get _autoFields {
@@ -175,22 +183,26 @@ class PdfGraphics {
 
   /// Draws a line connecting the two points specified by the coordinate pairs.
   void drawLine(PdfPen pen, Offset point1, Offset point2) {
+    _beginMarkContent();
     _stateControl(pen, null, null, null);
     _streamWriter._beginPath(point1.dx, point1.dy);
     _streamWriter._appendLineSegment(point2.dx, point2.dy);
     _streamWriter._strokePath();
+    _endMarkContent();
     (_getResources() as _PdfResources)
         ._requireProcset(_DictionaryProperties.pdf);
   }
 
   /// Draws a rectangle specified by a pen, a brush and a Rect structure.
   void drawRectangle({PdfPen pen, PdfBrush brush, Rect bounds}) {
+    _beginMarkContent();
     _stateControl(pen, brush, null, null);
     bounds != null
         ? _streamWriter._appendRectangle(
             bounds.left, bounds.top, bounds.width, bounds.height)
         : _streamWriter._appendRectangle(0, 0, 0, 0);
     _drawPath(pen, brush, PdfFillMode.winding, false);
+    _endMarkContent();
     (_getResources() as _PdfResources)
         ._requireProcset(_DictionaryProperties.pdf);
   }
@@ -280,7 +292,10 @@ class PdfGraphics {
       transparency = _trasparencies[transparencyData];
     }
     if (transparency == null) {
-      transparency = _PdfTransparency(alpha, alphaBrush, mode);
+      transparency = _PdfTransparency(alpha, alphaBrush, mode,
+          conformance: _layer != null
+              ? _page._document._conformanceLevel == PdfConformanceLevel.a1b
+              : false);
       _trasparencies[transparencyData] = transparency;
     }
     final _PdfResources resources = _getResources();
@@ -292,6 +307,7 @@ class PdfGraphics {
   }
 
   void _drawImage(PdfImage image, Rect rectangle) {
+    _beginMarkContent();
     final _Rectangle bounds = _Rectangle.fromRect(rectangle);
     PdfGraphicsState beforeOrientation;
     final int angle = image._jpegOrientationAngle.toInt();
@@ -347,6 +363,7 @@ class PdfGraphics {
     if (beforeOrientation != null) {
       restore(beforeOrientation);
     }
+    _endMarkContent();
     (_getResources() as _PdfResources)
         ._requireProcset(_DictionaryProperties.grayScaleImage);
     (_getResources() as _PdfResources)
@@ -389,6 +406,32 @@ class PdfGraphics {
   }
 
   void _drawTemplate(PdfTemplate template, Offset location, Size size) {
+    _beginMarkContent();
+    if (_layer != null &&
+        _page._document != null &&
+        _page._document._conformanceLevel != PdfConformanceLevel.none &&
+        template.graphics._currentFont != null &&
+        (template.graphics._currentFont is PdfStandardFont ||
+            template.graphics._currentFont is PdfCjkStandardFont)) {
+      throw ArgumentError(
+          'All the fonts must be embedded in ${_page._document._conformanceLevel.toString()} document.');
+    } else if (_layer != null &&
+        _page._document != null &&
+        _page._document._conformanceLevel == PdfConformanceLevel.a1b &&
+        template.graphics._currentFont != null &&
+        template.graphics._currentFont is PdfTrueTypeFont) {
+      (template.graphics._currentFont as PdfTrueTypeFont)
+          ._fontInternal
+          ._initializeCidSet();
+    }
+    if ((_layer != null || _documentLayer != null) &&
+        template._isLoadedPageTemplate) {
+      _PdfCrossTable crossTable;
+      crossTable = _page._section._document._crossTable;
+      if ((template._isReadonly) || (template._isLoadedPageTemplate)) {
+        template._cloneResources(crossTable);
+      }
+    }
     final double scaleX =
         (template.size.width > 0) ? size.width / template.size.width : 1;
     final double scaleY =
@@ -396,7 +439,65 @@ class PdfGraphics {
     final bool hasScale = !(scaleX == 1 && scaleY == 1);
     final PdfGraphicsState state = save();
     final _PdfTransformationMatrix matrix = _PdfTransformationMatrix();
-    matrix._translate(location.dx, -(location.dy + size.height));
+    if ((_layer != null || _documentLayer != null) &&
+        _page != null &&
+        template._isLoadedPageTemplate) {
+      bool needTransformation = false;
+      if (_page._dictionary.containsKey(_DictionaryProperties.cropBox) &&
+          _page._dictionary.containsKey(_DictionaryProperties.mediaBox)) {
+        _PdfArray cropBox;
+        _PdfArray mediaBox;
+        if (_page._dictionary[_DictionaryProperties.cropBox]
+            is _PdfReferenceHolder) {
+          cropBox = (_page._dictionary[_DictionaryProperties.cropBox]
+                  as _PdfReferenceHolder)
+              .object as _PdfArray;
+        } else {
+          cropBox =
+              _page._dictionary[_DictionaryProperties.cropBox] as _PdfArray;
+        }
+        if (_page._dictionary[_DictionaryProperties.mediaBox]
+            is _PdfReferenceHolder) {
+          mediaBox = (_page._dictionary[_DictionaryProperties.mediaBox]
+                  as _PdfReferenceHolder)
+              .object as _PdfArray;
+        } else {
+          mediaBox =
+              _page._dictionary[_DictionaryProperties.mediaBox] as _PdfArray;
+        }
+        if (cropBox != null && mediaBox != null) {
+          if (cropBox.toRectangle() == mediaBox.toRectangle()) {
+            needTransformation = true;
+          }
+        }
+      }
+      if (_page._dictionary.containsKey(_DictionaryProperties.mediaBox)) {
+        _PdfArray mBox;
+        if (_page._dictionary[_DictionaryProperties.mediaBox]
+            is _PdfReferenceHolder) {
+          mBox = (_page._dictionary[_DictionaryProperties.mediaBox]
+                  as _PdfReferenceHolder)
+              .object as _PdfArray;
+        } else {
+          mBox = _page._dictionary[_DictionaryProperties.mediaBox] as _PdfArray;
+        }
+        if (mBox != null) {
+          if ((mBox[3] as _PdfNumber).value == 0) {
+            needTransformation = true;
+          }
+        }
+      }
+      if ((_page._origin.dx >= 0 && _page._origin.dy >= 0) ||
+          needTransformation) {
+        matrix._translate(location.dx, -(location.dy + size.height));
+      } else if ((_page._origin.dx >= 0 && _page._origin.dy <= 0)) {
+        matrix._translate(location.dx, -(location.dy + size.height));
+      } else {
+        matrix._translate(location.dx, -(location.dy + 0));
+      }
+    } else {
+      matrix._translate(location.dx, -(location.dy + size.height));
+    }
     if (hasScale) {
       matrix._scale(scaleX, scaleY);
     }
@@ -405,6 +506,7 @@ class PdfGraphics {
     final _PdfName name = resources._getName(template);
     _streamWriter._executeObject(name);
     restore(state);
+    _endMarkContent();
     //Transfer automatic fields from template.
     final PdfGraphics g = template.graphics;
 
@@ -514,10 +616,17 @@ class PdfGraphics {
     translateTransform(x, y);
   }
 
-  void _setLayer(PdfPageLayer layer) {
-    _layer = layer;
-    if (layer.page != null) {
-      layer.page._beginSave = () {
+  void _setLayer(PdfPageLayer pageLayer, [PdfLayer pdfLayer]) {
+    PdfPage page;
+    if (pageLayer != null) {
+      _layer = pageLayer;
+      page = pageLayer.page;
+    } else if (pdfLayer != null) {
+      _documentLayer = pdfLayer;
+      page = pdfLayer._page;
+    }
+    if (page != null) {
+      page._beginSave = () {
         if (_automaticFields != null) {
           for (final _PdfAutomaticFieldInfo fieldInfo
               in _automaticFields._list) {
@@ -571,6 +680,7 @@ class PdfGraphics {
     ArgumentError.checkNotNull(result);
     ArgumentError.checkNotNull(font);
     if (!result._isEmpty) {
+      _beginMarkContent();
       _applyStringSettings(font, pen, brush, format, layoutRectangle);
       final double textScaling = format != null ? format._scalingFactor : 100.0;
       if (textScaling != _previousTextScaling) {
@@ -602,6 +712,7 @@ class PdfGraphics {
       _streamWriter._endText();
       _underlineStrikeoutText(
           pen, brush, result, font, layoutRectangle, format);
+      _endMarkContent();
     }
   }
 
@@ -1009,6 +1120,18 @@ class PdfGraphics {
 
   void _fontControl(PdfFont font, PdfStringFormat format, bool saveState) {
     if (font != null) {
+      if ((font is PdfStandardFont || font is PdfCjkStandardFont) &&
+          _layer != null &&
+          _page._document != null &&
+          _page._document._conformanceLevel != PdfConformanceLevel.none) {
+        throw ArgumentError(
+            'All the fonts must be embedded in ${_page._document._conformanceLevel.toString()} document.');
+      } else if (font is PdfTrueTypeFont &&
+          _layer != null &&
+          _page._document != null &&
+          _page._document._conformanceLevel == PdfConformanceLevel.a1b) {
+        font._fontInternal._initializeCidSet();
+      }
       final PdfSubSuperscript current =
           format != null ? format.subSuperscript : PdfSubSuperscript.none;
       final PdfSubSuperscript privious = _currentStringFormat != null
@@ -1193,19 +1316,23 @@ class PdfGraphics {
   void drawBezier(Offset startPoint, Offset firstControlPoint,
       Offset secondControlPoint, Offset endPoint,
       {PdfPen pen}) {
+    _beginMarkContent();
     _stateControl(pen, null, null, null);
     final _PdfStreamWriter sw = _streamWriter;
     sw._beginPath(startPoint.dx, startPoint.dy);
     sw._appendBezierSegment(firstControlPoint.dx, firstControlPoint.dy,
         secondControlPoint.dx, secondControlPoint.dy, endPoint.dx, endPoint.dy);
     sw._strokePath();
+    _endMarkContent();
   }
 
   /// Draws a GraphicsPath defined by a pen, a brush and path
   void drawPath(PdfPath path, {PdfPen pen, PdfBrush brush}) {
+    _beginMarkContent();
     _stateControl(pen, brush, null, null);
     _buildUpPath(path._points, path._pathTypes);
     _drawPath(pen, brush, path._fillMode, false);
+    _endMarkContent();
   }
 
   /// Draws a pie shape defined by an ellipse specified by a Rect structure
@@ -1213,21 +1340,25 @@ class PdfGraphics {
   void drawPie(Rect bounds, double startAngle, double sweepAngle,
       {PdfPen pen, PdfBrush brush}) {
     if (sweepAngle != 0) {
+      _beginMarkContent();
       _stateControl(pen, brush, null, null);
       _constructArcPath(bounds.left, bounds.top, bounds.left + bounds.width,
           bounds.top + bounds.height, startAngle, sweepAngle);
       _streamWriter._appendLineSegment(
           bounds.left + bounds.width / 2, bounds.top + bounds.height / 2);
       _drawPath(pen, brush, PdfFillMode.winding, true);
+      _endMarkContent();
     }
   }
 
   /// Draws an ellipse specified by a bounding Rect structure.
   void drawEllipse(Rect bounds, {PdfPen pen, PdfBrush brush}) {
+    _beginMarkContent();
     _stateControl(pen, brush, null, null);
     _constructArcPath(
         bounds.left, bounds.top, bounds.right, bounds.bottom, 0, 360);
     _drawPath(pen, brush, PdfFillMode.winding, true);
+    _endMarkContent();
   }
 
   /// Draws an arc representing a portion of an ellipse specified
@@ -1235,15 +1366,18 @@ class PdfGraphics {
   void drawArc(Rect bounds, double startAngle, double sweepAngle,
       {PdfPen pen}) {
     if (sweepAngle != 0) {
+      _beginMarkContent();
       _stateControl(pen, null, null, null);
       _constructArcPath(bounds.left, bounds.top, bounds.left + bounds.width,
           bounds.top + bounds.height, startAngle, sweepAngle);
       _drawPath(pen, null, PdfFillMode.winding, false);
+      _endMarkContent();
     }
   }
 
   /// Draws a polygon defined by a brush, an array of [Offset] structures.
   void drawPolygon(List<Offset> points, {PdfPen pen, PdfBrush brush}) {
+    _beginMarkContent();
     if (points.isEmpty) {
       return;
     }
@@ -1255,6 +1389,7 @@ class PdfGraphics {
           points.elementAt(i).dx, points.elementAt(i).dy);
     }
     _drawPath(pen, brush, PdfFillMode.winding, true);
+    _endMarkContent();
   }
 
   void _buildUpPath(List<Offset> points, List<_PathPointType> types) {
@@ -1395,6 +1530,26 @@ class PdfGraphics {
       }
     }
     return pointList;
+  }
+
+  void _beginMarkContent() {
+    if (_documentLayer != null) {
+      _documentLayer._beginLayer(this);
+    }
+  }
+
+  void _endMarkContent() {
+    if (_documentLayer != null) {
+      if (_documentLayer._isEndState &&
+          _documentLayer._parentLayer.isNotEmpty) {
+        for (int i = 0; i < _documentLayer._parentLayer.length; i++) {
+          _streamWriter._write('EMC\n');
+        }
+      }
+      if (_documentLayer._isEndState) {
+        _streamWriter._write('EMC\n');
+      }
+    }
   }
 }
 

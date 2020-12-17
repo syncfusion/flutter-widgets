@@ -22,19 +22,27 @@ class _SplineRangeAreaChartPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     Rect clipRect;
     double animationFactor;
-    _ChartLocation currentPointLow,
-        currentPointHigh,
-        renderPointlow,
-        renderPointhigh;
+    _ChartLocation currentPointLow, currentPointHigh, oldPointLow, oldPointHigh;
     final int pointsLength = seriesRenderer._dataPoints.length;
-    CartesianChartPoint<dynamic> prevPoint, point;
-    List<_ControlPoints> controlPointslow;
+    CartesianChartPoint<dynamic> prevPoint, point, oldChartPoint;
     final Path _path = Path();
     final Path _strokePath = Path();
     final List<CartesianChartPoint<dynamic>> dataPoints =
         seriesRenderer._dataPoints;
-    _ChartLocation renderControlPointlow1, renderControlPointlow2;
+    CartesianSeriesRenderer oldSeriesRenderer;
     final List<Offset> _points = <Offset>[];
+    final ChartAxisRenderer xAxisRenderer = seriesRenderer?._xAxisRenderer;
+    final ChartAxisRenderer yAxisRenderer = seriesRenderer?._yAxisRenderer;
+    final List<CartesianSeriesRenderer> oldSeriesRenderers =
+        chartState._oldSeriesRenderers;
+    num currentPointLowX,
+        currentPointLowY,
+        currentPointHighX,
+        currentPointHighY,
+        startControlX,
+        startControlY,
+        endControlX,
+        endControlY;
     seriesRenderer?._drawHighControlPoints?.clear();
     seriesRenderer?._drawLowControlPoints?.clear();
 
@@ -42,6 +50,10 @@ class _SplineRangeAreaChartPainter extends CustomPainter {
     if (seriesRenderer._visible) {
       canvas.save();
       final int seriesIndex = painterKey.index;
+
+      oldSeriesRenderer = _getOldSeriesRenderer(
+          chartState, seriesRenderer, seriesIndex, oldSeriesRenderers);
+
       seriesRenderer._storeSeriesProperties(chartState, seriesIndex);
       final bool isTransposed = chartState._requireInvertedAxis;
       final SplineRangeAreaSeries<dynamic, dynamic> series =
@@ -52,8 +64,6 @@ class _SplineRangeAreaChartPainter extends CustomPainter {
               : true,
           'The animation duration of the spline range area series must be greater or equal to 0.');
       SplineRangeAreaSegment splineRangeAreaSegment;
-      final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer;
-      final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer;
       final Rect axisClipRect = _calculatePlotOffset(
           chartState._chartAxis._axisClipRect,
           Offset(
@@ -69,67 +79,134 @@ class _SplineRangeAreaChartPainter extends CustomPainter {
         _performLinearAnimation(
             chartState, xAxisRenderer._axis, canvas, animationFactor);
       }
-      _calculateSplineAreaControlPoints(seriesRenderer);
+      if (!seriesRenderer._hasDataLabelTemplate) {
+        _calculateSplineAreaControlPoints(seriesRenderer);
+      }
 
+      if (seriesRenderer._visibleDataPoints == null ||
+          seriesRenderer._visibleDataPoints.isNotEmpty) {
+        seriesRenderer._visibleDataPoints = <CartesianChartPoint<dynamic>>[];
+      }
       for (int pointIndex = 0; pointIndex < pointsLength; pointIndex++) {
         point = seriesRenderer._dataPoints[pointIndex];
         seriesRenderer._calculateRegionData(
             chartState, seriesRenderer, painterKey.index, point, pointIndex);
         if (point.isVisible && !point.isDrop) {
+          oldChartPoint = _getOldChartPoint(
+              chartState,
+              seriesRenderer,
+              SplineRangeAreaSegment,
+              seriesIndex,
+              pointIndex,
+              oldSeriesRenderer,
+              oldSeriesRenderers);
+          if (oldChartPoint != null) {
+            oldPointHigh = _calculatePoint(
+                oldChartPoint.xValue,
+                oldChartPoint.high,
+                oldSeriesRenderer._xAxisRenderer,
+                oldSeriesRenderer._yAxisRenderer,
+                isTransposed,
+                series,
+                axisClipRect);
+          } else {
+            oldPointHigh = null;
+          }
           currentPointLow = _calculatePoint(point.xValue, point.low,
               xAxisRenderer, yAxisRenderer, isTransposed, series, axisClipRect);
           currentPointHigh = _calculatePoint(point.xValue, point.high,
               xAxisRenderer, yAxisRenderer, isTransposed, series, axisClipRect);
-          renderPointhigh = _calculatePoint(point.xValue, point.high,
-              xAxisRenderer, yAxisRenderer, isTransposed, series, axisClipRect);
           _points.add(Offset(currentPointLow.x, currentPointLow.y));
           _points.add(Offset(currentPointHigh.x, currentPointHigh.y));
+
+          currentPointLowX = currentPointLow.x;
+          currentPointLowY = currentPointLow.y;
+
+          if (oldPointHigh != null) {
+            if (isTransposed) {
+              currentPointHighX = _getAnimateValue(
+                  animationFactor,
+                  currentPointHighX,
+                  oldPointHigh.x,
+                  currentPointHigh.x,
+                  seriesRenderer);
+              currentPointHighY = currentPointHigh.y;
+            } else {
+              currentPointHighX = currentPointHigh.x;
+              currentPointHighY = _getAnimateValue(
+                  animationFactor,
+                  currentPointHighY,
+                  oldPointHigh.y,
+                  currentPointHigh.y,
+                  seriesRenderer);
+            }
+            if (point.highStartControl != null) {
+              startControlX = _getAnimateValue(
+                  animationFactor,
+                  startControlX,
+                  oldChartPoint.highStartControl.x,
+                  point.highStartControl.x,
+                  seriesRenderer);
+              startControlY = _getAnimateValue(
+                  animationFactor,
+                  startControlY,
+                  oldChartPoint.highStartControl.y,
+                  point.highStartControl.y,
+                  seriesRenderer);
+            } else {
+              startControlX = startControlY = null;
+            }
+            if (point.highEndControl != null) {
+              endControlX = _getAnimateValue(
+                  animationFactor,
+                  endControlX,
+                  oldChartPoint.highEndControl.x,
+                  point.highEndControl.x,
+                  seriesRenderer);
+              endControlY = _getAnimateValue(
+                  animationFactor,
+                  endControlY,
+                  oldChartPoint.highEndControl.y,
+                  point.highEndControl.y,
+                  seriesRenderer);
+            } else {
+              endControlX = endControlY = null;
+            }
+          } else {
+            currentPointHighX = currentPointHigh?.x;
+            currentPointHighY = currentPointHigh?.y;
+            startControlX = point.highStartControl?.x;
+            startControlY = point.highStartControl?.y;
+            endControlX = point.highEndControl?.x;
+            endControlY = point.highEndControl?.y;
+          }
+          // if (pointIndex == 3) print('$startControlX -- $startControlY,,,,$endControlX -- $endControlY');
           if (prevPoint == null ||
               dataPoints[pointIndex - 1].isGap == true ||
               (dataPoints[pointIndex].isGap == true) ||
               (dataPoints[pointIndex - 1].isVisible == false &&
                   series.emptyPointSettings.mode == EmptyPointMode.gap)) {
-            _path.moveTo(currentPointLow.x, currentPointLow.y);
-            _path.lineTo(currentPointHigh.x, currentPointHigh.y);
-            _strokePath.moveTo(currentPointHigh.x, currentPointHigh.y);
+            _path.moveTo(currentPointLowX, currentPointLowY);
+            _path.lineTo(currentPointHighX, currentPointHighY);
+            _strokePath.moveTo(currentPointHighX, currentPointHighY);
           } else if (pointIndex == dataPoints.length - 1 ||
               dataPoints[pointIndex + 1].isGap == true) {
-            _path.cubicTo(
-                point.highStartControl.x,
-                point.highStartControl.y,
-                point.highEndControl.x,
-                point.highEndControl.y,
-                renderPointhigh.x,
-                renderPointhigh.y);
+            _path.cubicTo(startControlX, startControlY, endControlX,
+                endControlY, currentPointHighX, currentPointHighY);
 
-            _strokePath.cubicTo(
-                point.highStartControl.x,
-                point.highStartControl.y,
-                point.highEndControl.x,
-                point.highEndControl.y,
-                renderPointhigh.x,
-                renderPointhigh.y);
+            _strokePath.cubicTo(startControlX, startControlY, endControlX,
+                endControlY, currentPointHighX, currentPointHighY);
 
-            _path.lineTo(currentPointLow.x, currentPointLow.y);
+            _path.lineTo(currentPointLowX, currentPointLowY);
 
-            _strokePath.lineTo(currentPointHigh.x, currentPointHigh.y);
-            _strokePath.moveTo(currentPointLow.x, currentPointLow.y);
+            _strokePath.lineTo(currentPointHighX, currentPointHighY);
+            _strokePath.moveTo(currentPointLowX, currentPointLowY);
           } else {
-            _path.cubicTo(
-                point.highStartControl.x,
-                point.highStartControl.y,
-                point.highEndControl.x,
-                point.highEndControl.y,
-                renderPointhigh.x,
-                renderPointhigh.y);
+            _path.cubicTo(startControlX, startControlY, endControlX,
+                endControlY, currentPointHighX, currentPointHighY);
 
-            _strokePath.cubicTo(
-                point.highStartControl.x,
-                point.highStartControl.y,
-                point.highEndControl.x,
-                point.highEndControl.y,
-                renderPointhigh.x,
-                renderPointhigh.y);
+            _strokePath.cubicTo(startControlX, startControlY, endControlX,
+                endControlY, currentPointHighX, currentPointHighY);
           }
 
           prevPoint = point;
@@ -145,97 +222,103 @@ class _SplineRangeAreaChartPainter extends CustomPainter {
           pointIndex--) {
         point = dataPoints[pointIndex];
         if (point.isVisible && !point.isDrop) {
+          oldChartPoint = _getOldChartPoint(
+              chartState,
+              seriesRenderer,
+              SplineRangeAreaSegment,
+              seriesIndex,
+              pointIndex,
+              oldSeriesRenderer,
+              oldSeriesRenderers);
+          if (oldChartPoint != null) {
+            oldPointLow = _calculatePoint(
+                oldChartPoint.xValue,
+                oldChartPoint.low,
+                oldSeriesRenderer._xAxisRenderer,
+                oldSeriesRenderer._yAxisRenderer,
+                isTransposed,
+                series,
+                axisClipRect);
+          } else {
+            oldPointLow = null;
+          }
           currentPointLow = _calculatePoint(point.xValue, point.low,
               xAxisRenderer, yAxisRenderer, isTransposed, series, axisClipRect);
           currentPointHigh = _calculatePoint(point.xValue, point.high,
               xAxisRenderer, yAxisRenderer, isTransposed, series, axisClipRect);
 
+          if (oldPointLow != null) {
+            if (isTransposed) {
+              currentPointLowX = _getAnimateValue(
+                  animationFactor,
+                  currentPointLowX,
+                  oldPointLow.x,
+                  currentPointLow.x,
+                  seriesRenderer);
+              currentPointLowY = currentPointLow.y;
+            } else {
+              currentPointLowX = currentPointLow.x;
+              currentPointLowY = _getAnimateValue(
+                  animationFactor,
+                  currentPointLowY,
+                  oldPointLow.y,
+                  currentPointLow.y,
+                  seriesRenderer);
+            }
+            if (point.lowStartControl != null) {
+              startControlX = _getAnimateValue(
+                  animationFactor,
+                  startControlX,
+                  oldChartPoint.lowStartControl.x,
+                  point.lowStartControl.x,
+                  seriesRenderer);
+              startControlY = _getAnimateValue(
+                  animationFactor,
+                  startControlY,
+                  oldChartPoint.lowStartControl.y,
+                  point.lowStartControl.y,
+                  seriesRenderer);
+            } else {
+              startControlX = startControlY = null;
+            }
+            if (point.lowEndControl != null) {
+              endControlX = _getAnimateValue(
+                  animationFactor,
+                  endControlX,
+                  oldChartPoint.lowEndControl.x,
+                  point.lowEndControl.x,
+                  seriesRenderer);
+              endControlY = _getAnimateValue(
+                  animationFactor,
+                  endControlY,
+                  oldChartPoint.lowEndControl.y,
+                  point.lowEndControl.y,
+                  seriesRenderer);
+            } else {
+              endControlX = endControlY = null;
+            }
+          } else {
+            currentPointLowX = currentPointLow?.x;
+            currentPointLowY = currentPointLow?.y;
+            startControlX = point.lowStartControl?.x;
+            startControlY = point.lowStartControl?.y;
+            endControlX = point.lowEndControl?.x;
+            endControlY = point.lowEndControl?.y;
+          }
+
           if (dataPoints[pointIndex + 1].isGap == true) {
-            _strokePath.moveTo(currentPointLow.x, currentPointLow.y);
-            _path.moveTo(currentPointLow.x, currentPointLow.y);
+            _strokePath.moveTo(currentPointLowX, currentPointLowY);
+            _path.moveTo(currentPointLowX, currentPointLowY);
           } else if (dataPoints[pointIndex].isGap != true) {
             if (pointIndex + 1 == dataPoints.length - 1 &&
                 dataPoints[pointIndex + 1].isDrop) {
-              _strokePath.moveTo(currentPointLow.x, currentPointLow.y);
+              _strokePath.moveTo(currentPointLowX, currentPointLowY);
             } else {
-              controlPointslow = seriesRenderer
-                  ._drawLowControlPoints[
-                      seriesRenderer._dataPoints.indexOf(point)]
-                  ._listControlPoints;
-
-              renderPointlow = _calculatePoint(
-                  point.xValue,
-                  point.low,
-                  xAxisRenderer,
-                  yAxisRenderer,
-                  seriesRenderer._chartState._requireInvertedAxis,
-                  series,
-                  axisClipRect);
-
-              renderControlPointlow1 = _calculatePoint(
-                  controlPointslow[0].controlPoint1,
-                  controlPointslow[0].controlPoint2,
-                  xAxisRenderer,
-                  yAxisRenderer,
-                  seriesRenderer._chartState._requireInvertedAxis,
-                  series,
-                  axisClipRect);
-
-              renderControlPointlow2 = _calculatePoint(
-                  controlPointslow[1].controlPoint1,
-                  controlPointslow[1].controlPoint2,
-                  xAxisRenderer,
-                  yAxisRenderer,
-                  seriesRenderer._chartState._requireInvertedAxis,
-                  series,
-                  axisClipRect);
-              _strokePath.cubicTo(
-                  renderControlPointlow2.x,
-                  renderControlPointlow2.y,
-                  renderControlPointlow1.x,
-                  renderControlPointlow1.y,
-                  renderPointlow.x,
-                  renderPointlow.y);
+              _strokePath.cubicTo(endControlX, endControlY, startControlX,
+                  startControlY, currentPointLowX, currentPointLowY);
             }
-            controlPointslow = seriesRenderer
-                ._drawLowControlPoints[
-                    seriesRenderer._dataPoints.indexOf(point)]
-                ._listControlPoints;
-
-            renderPointlow = _calculatePoint(
-                point.xValue,
-                point.low,
-                xAxisRenderer,
-                yAxisRenderer,
-                seriesRenderer._chartState._requireInvertedAxis,
-                series,
-                axisClipRect);
-
-            renderControlPointlow1 = _calculatePoint(
-                controlPointslow[0].controlPoint1,
-                controlPointslow[0].controlPoint2,
-                xAxisRenderer,
-                yAxisRenderer,
-                seriesRenderer._chartState._requireInvertedAxis,
-                series,
-                axisClipRect);
-
-            renderControlPointlow2 = _calculatePoint(
-                controlPointslow[1].controlPoint1,
-                controlPointslow[1].controlPoint2,
-                xAxisRenderer,
-                yAxisRenderer,
-                seriesRenderer._chartState._requireInvertedAxis,
-                series,
-                axisClipRect);
-
-            _path.cubicTo(
-                renderControlPointlow2.x,
-                renderControlPointlow2.y,
-                renderControlPointlow1.x,
-                renderControlPointlow1.y,
-                renderPointlow.x,
-                renderPointlow.y);
+            _path.cubicTo(endControlX, endControlY, startControlX,
+                startControlY, currentPointLowX, currentPointLowY);
           }
         }
       }

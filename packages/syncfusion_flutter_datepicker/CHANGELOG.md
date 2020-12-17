@@ -1,6 +1,21 @@
+## [13.4.30-beta]
+**Features**
+* Hijri date picker support is provided.
+* The custom builder support is provided for the month cells and year cells in the date range picker.
+* Vertical date picker support provided.
+
+## [18.3.47-beta] - 11/03/2020
+**Bug fixes**
+* Now, the 24th-month date view in the `SfDateRangePicker` is rendering correctly.
+
+## [18.3.44-beta] - 10/27/2020
+**Bug fixes**
+* Now, the `startRangeSelectionColor` and `endRangeSelectionColor` have been applied properly to the range selection of month view with `selectionShape` as a rectangle.
+* Now, when defining the image for the `cellDecoration` property, the 'DateRangePickerMonthCellStyle' works correctly.
+
 ## [18.3.35-beta] - 10/01/2020
 **Bug fixes**
-* Now, the `endDate` of `PickerDateRange` will not prior to the `startDate` in the `DateRangePickerSelectionChangedArgs`.
+* Now, the `endDate` of `PickerDateRange` in `DateRangePickerSelectionChangedArgs` will not be set before the `startDate`.
 
 ## [18.2.59-beta] - 09/23/2020 
 No changes.

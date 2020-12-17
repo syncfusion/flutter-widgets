@@ -165,14 +165,17 @@ class CrosshairBehavior {
     final CrosshairBehaviorRenderer crosshairBehaviorRenderer =
         chartState._crosshairBehaviorRenderer;
     if (coordinateUnit != 'pixel') {
-      crosshairBehaviorRenderer
-          ._crosshairPainter.chartState._crosshairWithoutTouch = false;
       final CartesianSeriesRenderer seriesRenderer = crosshairBehaviorRenderer
           ._crosshairPainter.chartState._chartSeries.visibleSeriesRenderers[0];
+      final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer;
       final _ChartLocation location = _calculatePoint(
-          x is DateTime ? x.millisecondsSinceEpoch : x,
+          x is DateTime
+              ? x.millisecondsSinceEpoch
+              : (x is String && xAxisRenderer is CategoryAxisRenderer)
+                  ? xAxisRenderer._labels.indexOf(x)
+                  : x,
           y,
-          seriesRenderer._xAxisRenderer,
+          xAxisRenderer,
           seriesRenderer._yAxisRenderer,
           seriesRenderer._chartState._requireInvertedAxis,
           seriesRenderer._series,
@@ -188,11 +191,8 @@ class CrosshairBehavior {
       crosshairBehaviorRenderer._crosshairPainter
           ._generateAllPoints(Offset(x.toDouble(), y));
       crosshairBehaviorRenderer._crosshairPainter.canResetPath = false;
-      if (crosshairBehaviorRenderer
-          ._crosshairPainter.chartState._crosshairWithoutTouch) {
-        crosshairBehaviorRenderer
-            ._crosshairPainter.chartState._crosshairRepaintNotifier.value++;
-      }
+      crosshairBehaviorRenderer
+          ._crosshairPainter.chartState._crosshairRepaintNotifier.value++;
     }
   }
 
@@ -216,6 +216,8 @@ class CrosshairBehavior {
             seriesRenderer._dataPoints[pointIndex].markerPoint.x,
             seriesRenderer._dataPoints[pointIndex].markerPoint.y));
         crosshairBehaviorRenderer._crosshairPainter.canResetPath = false;
+        crosshairBehaviorRenderer
+            ._crosshairPainter.chartState._crosshairRepaintNotifier.value++;
       }
     }
   }
@@ -232,18 +234,24 @@ class CrosshairBehavior {
       if (crosshairBehaviorRenderer._crosshairPainter.timer != null) {
         crosshairBehaviorRenderer._crosshairPainter.timer.cancel();
       }
-      if (!shouldAlwaysShow) {
-        final double duration = (hideDelay == 0 &&
-                crosshairBehaviorRenderer
-                    ._crosshairPainter.chartState._enableDoubleTap)
-            ? 200
-            : hideDelay;
-        crosshairBehaviorRenderer._crosshairPainter.timer =
-            Timer(Duration(milliseconds: duration.toInt()), () {
-          crosshairBehaviorRenderer
-              ._crosshairPainter.chartState._crosshairRepaintNotifier.value++;
-          crosshairBehaviorRenderer._crosshairPainter.canResetPath = true;
-        });
+      if (!_chartState._isTouchUp) {
+        crosshairBehaviorRenderer
+            ._crosshairPainter.chartState._trackballRepaintNotifier.value++;
+        crosshairBehaviorRenderer._crosshairPainter.canResetPath = true;
+      } else {
+        if (!shouldAlwaysShow) {
+          final double duration = (hideDelay == 0 &&
+                  crosshairBehaviorRenderer
+                      ._crosshairPainter.chartState._enableDoubleTap)
+              ? 200
+              : hideDelay;
+          crosshairBehaviorRenderer._crosshairPainter.timer =
+              Timer(Duration(milliseconds: duration.toInt()), () {
+            crosshairBehaviorRenderer
+                ._crosshairPainter.chartState._crosshairRepaintNotifier.value++;
+            crosshairBehaviorRenderer._crosshairPainter.canResetPath = true;
+          });
+        }
       }
     }
   }
@@ -313,6 +321,8 @@ class CrosshairBehaviorRenderer with ChartBehavior {
 
   /// To draw cross hair line
   void _drawLine(Canvas canvas, Paint paint, int seriesIndex) {
+    assert(_crosshairBehavior.lineWidth >= 0,
+        'Line width value of crosshair should be greater than 0.');
     if (_crosshairPainter != null) {
       _crosshairPainter._drawCrosshairLine(canvas, paint, seriesIndex);
     }

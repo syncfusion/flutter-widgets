@@ -1,3 +1,26 @@
+## [13.4.30]
+**Features**
+* The custom builder support is provided for the time region and the appointment views in the calendar.
+* Provided the interaction support for the resource header. 
+* Support is provided to the right end padding for the cell touch region when the cell has an appointment in the calendar.
+
+**Enhancements**
+* The animation for view switching, selection ripple effect, and header picker pop-up animation is improved.
+
+
+## [18.3.50] - 11/17/2020
+**Bug fixes**
+* Now, the time of the `displayDate` of `CalendarController` is working properly with the `timeInterval` changes.
+
+
+## [18.3.48] - 11/11/2020
+**Bug fixes**
+* Now, the `SfCalendar` time zone support has been enhanced to IANA time zone support.
+
+
+## [18.3.38] - 10/07/2020
+No changes.
+
 ## [18.3.35] - 10/01/2020
 **Bug fixes**
 * Now, the appointment will render on the correct timeslot, when the local set as French,  Canada, and in `Eastern Standard Time`.
@@ -17,6 +40,7 @@
 * The `timeIntervalHeight` property will not work for timeline views, use the `timeIntervalWidth` property instead for the timeline views alone.
 * The default value for the `timeIntervalWidth` is changed from 40 to 60.
 * The appointment UI width is reduced in the day, week, and workweek views.
+* Now, the `view` property from the `SfCalendar` does not work dynamically. To switch the view dynamically, use the same property from the `CalendarController`.
 
 ## [18.2.59] - 09/23/2020
 No changes.

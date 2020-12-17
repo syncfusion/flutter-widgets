@@ -50,6 +50,8 @@ class NumericAxis extends ChartAxis {
     int decimalPlaces,
     int desiredIntervals,
     RangeController rangeController,
+    double maximumLabelWidth,
+    double labelsExtent,
   })  : decimalPlaces = decimalPlaces ?? 3,
         super(
           name: name,
@@ -84,6 +86,8 @@ class NumericAxis extends ChartAxis {
           plotBands: plotBands,
           desiredIntervals: desiredIntervals,
           rangeController: rangeController,
+          maximumLabelWidth: maximumLabelWidth,
+          labelsExtent: labelsExtent,
         );
 
   ///Formats the numeric axis labels.
@@ -226,8 +230,8 @@ class NumericAxisRenderer extends ChartAxisRenderer {
         !seriesType.contains('range') &&
         !seriesType.contains('hilo') &&
         !seriesType.contains('candle') &&
-        !seriesType.contains('boxandwhisker') &&
-        !seriesType.contains('waterfall')) {
+        seriesType != 'boxandwhisker' &&
+        seriesType != 'waterfall') {
       seriesRenderer._minimumY ??= point.yValue;
       seriesRenderer._maximumY ??= point.yValue;
     }
@@ -243,8 +247,8 @@ class NumericAxisRenderer extends ChartAxisRenderer {
           (!seriesType.contains('range') &&
               !seriesType.contains('hilo') &&
               !seriesType.contains('candle') &&
-              !seriesType.contains('boxandwhisker') &&
-              !seriesType.contains('waterfall'))) {
+              seriesType != 'boxandwhisker' &&
+              seriesType != 'waterfall')) {
         seriesRenderer._minimumY =
             math.min(seriesRenderer._minimumY, point.yValue);
         seriesRenderer._maximumY =
@@ -266,7 +270,7 @@ class NumericAxisRenderer extends ChartAxisRenderer {
         _lowMin = _findMinValue(_lowMin ?? point.minimum, point.minimum);
         _lowMax = _findMaxValue(_lowMax ?? point.minimum, point.minimum);
       }
-      if (seriesType.contains('waterfall')) {
+      if (seriesType == 'waterfall') {
         /// Empty point is not applicable for Waterfall series.
         point.yValue ??= 0;
         seriesRenderer._minimumY = _findMinValue(
@@ -279,7 +283,7 @@ class NumericAxisRenderer extends ChartAxisRenderer {
       if (seriesType.contains('range') ||
           seriesType.contains('hilo') ||
           seriesType.contains('candle') ||
-          seriesType.contains('boxandwhisker')) {
+          seriesType == 'boxandwhisker') {
         _lowMin ??= 0;
         _lowMax ??= 5;
         _highMin ??= 0;
@@ -320,7 +324,7 @@ class NumericAxisRenderer extends ChartAxisRenderer {
     _calculateActualRange();
     if (_actualRange != null) {
       applyRangePadding(_actualRange, _actualRange.interval);
-      if (type == null && type != 'AxisCross') {
+      if (type == null && type != 'AxisCross' && _numericAxis.isVisible) {
         generateVisibleLabels();
       }
     }
@@ -364,7 +368,8 @@ class NumericAxisRenderer extends ChartAxisRenderer {
   @override
   void applyRangePadding(_VisibleRange range, num interval) {
     ActualRangeChangedArgs rangeChangedArgs;
-    if (!(_numericAxis.minimum != null && _numericAxis.maximum != null)) {
+    if (_numericAxis.isVisible &&
+        !(_numericAxis.minimum != null && _numericAxis.maximum != null)) {
       ///Calculating range padding
       _applyRangePadding(this, _chartState, range, interval);
     }
@@ -390,7 +395,7 @@ class NumericAxisRenderer extends ChartAxisRenderer {
       _zoomPosition =
           (_visibleRange.minimum - _actualRange.minimum) / range.delta;
     }
-    if (_chart.onActualRangeChanged != null) {
+    if (_numericAxis.isVisible && _chart.onActualRangeChanged != null) {
       rangeChangedArgs = ActualRangeChangedArgs(_name, _numericAxis,
           range.minimum, range.maximum, range.interval, _orientation);
       rangeChangedArgs.visibleMin = _visibleRange.minimum;
@@ -399,7 +404,11 @@ class NumericAxisRenderer extends ChartAxisRenderer {
       _chart.onActualRangeChanged(rangeChangedArgs);
       _visibleRange.minimum = rangeChangedArgs.visibleMin;
       _visibleRange.maximum = rangeChangedArgs.visibleMax;
+      _visibleRange.delta = _visibleRange.maximum - _visibleRange.minimum;
       _visibleRange.interval = rangeChangedArgs.visibleInterval;
+      _zoomFactor = _visibleRange.delta / range.delta;
+      _zoomPosition =
+          (_visibleRange.minimum - _actualRange.minimum) / range.delta;
     }
   }
 

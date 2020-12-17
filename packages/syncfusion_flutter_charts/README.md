@@ -8,26 +8,42 @@ Syncfusion Flutter Charts is a data visualization library written natively in Da
 
 Create various types of cartesian or circular charts with seamless interaction, responsiveness, and smooth animation. It has a rich set of features, and it is completely customizable and extendable.
 
+This [syncfusion_flutter_charts](https://pub.dev/packages/syncfusion_flutter_charts) package includes the following widgets
+
+* [SfCartesianChart](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCartesianChart-class.html)
+* [SfCircularChart](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfCircularChart-class.html)
+* [SfPyramidChart](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfPyramidChart-class.html)
+* [SfFunnelChart](https://pub.dev/documentation/syncfusion_flutter_charts/latest/charts/SfFunnelChart-class.html)
+* [SfSparkLineChart](https://pub.dev/documentation/syncfusion_flutter_charts/latest/sparkcharts/SfSparkLineChart-class.html)
+* [SfSparkAreaChart](https://pub.dev/documentation/syncfusion_flutter_charts/latest/sparkcharts/SfSparkAreaChart-class.html)
+* [SfSparkBarChart](https://pub.dev/documentation/syncfusion_flutter_charts/latest/sparkcharts/SfSparkBarChart-class.html)
+* [SfSparkWinLossChart](https://pub.dev/documentation/syncfusion_flutter_charts/latest/sparkcharts/SfSparkWinLossChart-class.html)
+
 **Disclaimer:** This is a commercial package. To use this package, you need to have either Syncfusion Commercial License or Syncfusion Community license. For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
 
 **Note:** Our packages are now compatible with Flutter for Web. However, this will be in Beta until Flutter for Web becomes stable.
 
 ## Table of contents
 - [Chart features](#chart-features)
+- [Spark Charts features](#spark-charts-features)
 - [Get the demo application](#get-the-demo-application)
 - [Useful links](#useful-links)
 - [Installation](#installation)
-- [Getting started](#getting-started)
+- [Chart getting started](#chart-getting-started)
   - [Add chart to the widget tree](#add-chart-to-the-widget-tree)
   - [Bind data source](#bind-data-source)
   - [Add chart elements](#add-chart-elements)
+- [Spark Charts getting started](#spark-charts-getting-started)
+  - [Add spark charts to the widget tree](#add-spark-charts-to-the-widget-tree)
+  - [Bind spark charts data source](#bind-spark-charts-data-source)
+  - [Add spark charts elements](#add-spark-charts-elements)
 - [Support and Feedback](#support-and-feedback)
 - [About Syncfusion](#about-syncfusion)
 
 ## Chart features
 
 * **Chart types** - Provides functionality for rendering 25+ chart types, namely line, spline, column, bar, area, bubble, scatter, step line, fast line, range column, range area, step area, spline area, stacked charts, 100% stacked charts, pie, doughnut, radial bar, pyramid, funnel, etc. Each chart type is easily configured and customized with built-in features for creating stunning visual effects.
-![flutter_chart_types](https://cdn.syncfusion.com/content/images/FTControl/Charts/charttypes_till_100Stacked_series.png)
+![flutter_chart_types](https://cdn.syncfusion.com/content/images/FTControl/Charts/chart_types.png)
 
 * **Axis types** - Plot various types of data in a graph with the help of numeric, category, date-time and log axis types. The built-in axis features allow to customize an axis elements further to make the axis more readable.
 ![flutter_chart_axis_types](https://cdn.syncfusion.com/content/images/FTControl/chart-axis-types.png)
@@ -40,6 +56,29 @@ Create various types of cartesian or circular charts with seamless interaction, 
 
 * **Dynamic update** - Updates the chart dynamically with live data that changes over seconds or minutes like stock prices, temperature, speed, etc.
 ![flutter_chart_user_interactions](https://cdn.syncfusion.com/content/images/FTControl/Charts/live_updates.gif)
+
+## Spark Charts features
+
+Spark charts (micro charts) are lightweight charts that fit in a very small area. They display the trend of the data and convey quick information to the user.
+
+* **Chart types** - Support to render line, area, column and win-loss chart types.
+![spark_chart_types](https://cdn.syncfusion.com/content/images/FTControl/spark_chart_types.jpg)
+
+* **Axis types** - Spark charts provides support for numeric, category and date-time axes.
+![spark_chart_axis_types](https://cdn.syncfusion.com/content/images/FTControl/spark_chart_axis_types.jpg)
+
+* **Markers and data labels** - Support to render markers and data labels on high, low, first, last and all data points.
+![spark_chart_markers_data_label](https://cdn.syncfusion.com/content/images/FTControl/spark_chart_marker_data_label.jpg)
+
+* **Trackball** - Display additional information about data points on interaction with the chart.
+![spark_chart_trackball](https://cdn.syncfusion.com/content/images/FTControl/spark_chart_trackball.gif)
+
+* **Plot band** - Highlight a particular vertical range using a specific color.
+![spark_chart_plotband](https://cdn.syncfusion.com/content/images/FTControl/spark_chart_plotband.jpg)
+
+* **Live update** - Spark charts can be used in the live update.
+![spark_chart_live](https://cdn.syncfusion.com/content/images/FTControl/spark_chart_live_update.gif)
+
 
 ## Get the demo application
 
@@ -65,7 +104,7 @@ Take a look at the following to learn more about Syncfusion Flutter charts:
 
 Install the latest version from [pub](https://pub.dartlang.org/packages/syncfusion_flutter_charts#-installing-tab-).
 
-## Getting started
+## Chart getting started
 
 Import the following package.
 
@@ -82,13 +121,19 @@ Widget build(BuildContext context) {
   return Scaffold(
     body: Center(
         child: Container(
-          child: SfCartesianChart(
-          )
+          child: SfCartesianChart()
         )
       )
   );
 }
 ```
+
+**Note**
+
+* Use `SfCartesianChart` widget to render line, spline, area, column, bar, bubble, scatter, step line, and fast line charts.
+* Use `SfCircularChart` widget to render pie, doughnut, and radial bar charts.
+* Use `SfPyramidChart` and `SfFunnelChart` to render pyramid and funnel charts respectively.
+
 ### Bind data source
 
 Based on data, initialize the appropriate axis type and series type. In the series, map the data source and the fields for x and y data points. To render a line chart with category axis, initialize appropriate properties.
@@ -130,12 +175,6 @@ class SalesData {
 }
 
 ```
-
-**Note**
-
-* Use `SfCartesianChart` widget to render line, spline, area, column, bar, bubble, scatter, step line, and fast line charts.
-* Use `SfCircularChart` widget to render pie, doughnut, and radial bar charts.
-* Use `SfPyramidChart` and `SfFunnelChart` to render pyramid and funnel charts respectively.
 
 ### Add chart elements
 
@@ -182,6 +221,87 @@ Widget build(BuildContext context) {
 The following screenshot illustrates the result of the above code sample.
 
 ![simple line chart](https://cdn.syncfusion.com/content/images/FTControl/simple-line-chart.gif)
+
+## Spark Charts getting started
+
+Import the following package.
+
+```dart
+import 'package:syncfusion_flutter_charts/sparkcharts.dart';
+```
+
+### Add spark charts to the widget tree
+
+Add the spark charts widget as a child of any widget. Here, the spark charts widget is added as a child of container widget.
+
+```dart
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: Center(
+        child: Container(
+          child: SfSparkLineChart()
+        )
+      )
+  );
+}
+```
+
+**Note**
+
+Use `SfSparkAreaChart`, `SfSparkColumnChart` and `SfSparkWinLossChart` widgets to render area, column and win-loss charts respectively.
+
+### Bind spark charts data source
+Based on data and your requirement, initialize the series and bind the data to spark charts.
+
+```dart
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: Center(
+        child: Container(
+          child: SfSparkLineChart(
+              data: <double>[
+                1, 5, -6, 0, 1, -2, 7, -7, -4, -10, 13, -6, 7, 5, 11, 5, 3
+              ],
+            )
+        )
+      )
+  );
+}
+```
+
+**Note:**  Needs to add the data source to render a spark chart.
+
+### Add spark charts elements
+
+Add the spark charts elements such as marker, data label, and trackball to display additional information about the data plotted in the spark charts.
+
+```dart
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: Center(
+        child: Container(
+          child: SfSparkLineChart(
+              //Enable the trackball
+              trackball: SparkChartTrackball(
+                  activationMode: SparkChartActivationMode.tap),
+              //Enable marker
+              marker: SparkChartMarker(
+                  displayMode: MarkerDisplayMode.all),
+              //Enable data label
+              labelDisplayMode: LabelDisplayMode.all,
+              data: <double>[
+                1, 5, -6, 0, 1, -2, 7, -7, -4, -10, 13, -6, 7, 5, 11, 5, 3
+              ],
+            )
+        )
+      )
+  );
+}
+```
+![spark_chart_default_line](https://cdn.syncfusion.com/content/images/FTControl/spark_chart_marker_data_label.jpg)
 
 ## Support and Feedback
 

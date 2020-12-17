@@ -252,10 +252,10 @@ class RadialAxis extends GaugeAxis {
   /// ```
   final bool showLastLabel;
 
-  /// The callback that is called when an axis label is created.
+  /// Callback that gets triggered when an axis label is created.
   ///
   /// The [RadialAxis] passes the [AxisLabelCreatedArgs] to the callback
-  /// is used to change text value and rotate the
+  /// used to change text value and rotate the
   /// text based on angle.
   /// ```dart
   /// Widget build(BuildContext context) {
@@ -276,9 +276,9 @@ class RadialAxis extends GaugeAxis {
   /// ```
   final ValueChanged<AxisLabelCreatedArgs> onLabelCreated;
 
-  /// The callback that is called when an axis is tapped.
+  ///  Callback, which is triggered by tapping an axis.
   ///
-  /// The [RadialAxis] passes the tapped axis value to the callback.
+  /// [RadialAxis] returns the tapped axis value to the callback.
   ///
   /// ``` dart
   /// Widget build(BuildContext context) {

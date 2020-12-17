@@ -139,11 +139,11 @@ class _TooltipPainter extends CustomPainter {
       <CartesianSeriesRenderer>[];
   String header;
   Rect boundaryRect = const Rect.fromLTWH(0, 0, 0, 0);
+  Rect _tooltipRect;
   dynamic tooltip;
   dynamic _chartState;
-  dynamic currentSeries;
+  dynamic currentSeries, dataPoint;
   num pointIndex;
-  DataMarkerType markerType;
   double markerSize;
   Color markerColor;
   CartesianSeriesRenderer seriesRenderer;
@@ -238,8 +238,10 @@ class _TooltipPainter extends CustomPainter {
               tooltipBehaviorRenderer._painter.prevTooltipValue =
                   TooltipValue(i, count, outlierTooltipIndex);
               currentSeries = seriesRenderer;
-              pointIndex = count;
-              markerType = seriesRenderer._series.markerSettings.shape;
+              pointIndex = _chart is SfCartesianChart
+                  ? regionRect[4].visiblePointIndex
+                  : count;
+              dataPoint = regionRect[4];
               Color seriesColor = seriesRenderer._seriesColor;
               if (seriesRenderer._seriesType == 'waterfall') {
                 seriesColor = _getWaterfallSeriesColor(seriesRenderer._series,
@@ -251,29 +253,15 @@ class _TooltipPainter extends CustomPainter {
               tooltipPosition = (outlierTooltipIndex >= 0)
                   ? regionRect[6][outlierTooltipIndex]
                   : regionRect[1];
-              if (seriesRenderer._seriesType == 'bubble' && !isTrendLine) {
-                padding = Offset(region.center.dx - region.centerLeft.dx,
-                    2 * (region.center.dy - region.topCenter.dy));
-                tooltipPosition = Offset(tooltipPosition.dx, paddedRegion.top);
-              } else if (seriesRenderer._seriesType == 'scatter') {
-                padding = Offset(seriesRenderer._series.markerSettings.width,
-                    seriesRenderer._series.markerSettings.height / 2);
-                tooltipPosition =
-                    Offset(tooltipPosition.dx, tooltipPosition.dy);
-              } else if (seriesRenderer._seriesType.contains('rangearea')) {
-                padding = Offset(seriesRenderer._series.markerSettings.width,
-                    seriesRenderer._series.markerSettings.height / 2);
-                tooltipPosition =
-                    Offset(tooltipPosition.dx, tooltipPosition.dy);
-              } else {
-                padding = (seriesRenderer._series.markerSettings.isVisible)
-                    ? Offset(
-                        seriesRenderer._series.markerSettings.width / 2,
-                        seriesRenderer._series.markerSettings.height / 2 +
-                            seriesRenderer._series.markerSettings.borderWidth /
-                                2)
-                    : const Offset(2, 2);
-              }
+              final List<Offset> paddingData = !(seriesRenderer._isRectSeries &&
+                      tooltipBehaviorRenderer
+                              ._tooltipBehavior.tooltipPosition !=
+                          TooltipPosition.auto)
+                  ? _getTooltipPaddingData(seriesRenderer, isTrendLine, region,
+                      paddedRegion, tooltipPosition)
+                  : <Offset>[const Offset(2, 2), tooltipPosition];
+              padding = paddingData[0];
+              tooltipPosition = paddingData[1];
               dataValues = values;
               dataRect = regionRect;
               isContains = mouseTooltip = true;
@@ -538,6 +526,9 @@ class _TooltipPainter extends CustomPainter {
                   chartPoint.center);
       currentSeries = pointRegion.seriesIndex;
       pointIndex = pointRegion.pointIndex;
+      dataPoint = _chartState
+          ._chartSeries.visibleSeriesRenderers[0]._dataPoints[pointIndex];
+      final int digits = chart.tooltipBehavior.decimalPlaces;
       String header = chart.tooltipBehavior.header;
       header = (header == null)
           // ignore: prefer_if_null_operators
@@ -555,7 +546,7 @@ class _TooltipPainter extends CustomPainter {
       if (chart.tooltipBehavior.format != null) {
         final String resultantString = chart.tooltipBehavior.format
             .replaceAll('point.x', chartPoint.x.toString())
-            .replaceAll('point.y', chartPoint.y.toString())
+            .replaceAll('point.y', _getDecimalLabelValue(chartPoint.y, digits))
             .replaceAll(
                 'series.name',
                 _chartState
@@ -570,7 +561,9 @@ class _TooltipPainter extends CustomPainter {
             ._calculateLocation(location);
       } else {
         _chartState._tooltipBehaviorRenderer._painter.stringValue =
-            chartPoint.x.toString() + ' : ' + chartPoint.y.toString();
+            (chartPoint.x.toString() +
+                ' : ' +
+                _getDecimalLabelValue(chartPoint.y, digits));
         _chartState._tooltipBehaviorRenderer._painter
             ._calculateLocation(location);
       }
@@ -579,6 +572,7 @@ class _TooltipPainter extends CustomPainter {
       chart.tooltipBehavior.hide();
       isContains = false;
     }
+    mouseTooltip = isContains;
     if (!isContains) {
       tooltipBehaviorRenderer._painter.prevTooltipValue =
           tooltipBehaviorRenderer._painter.currentTooltipValue = null;
@@ -597,7 +591,10 @@ class _TooltipPainter extends CustomPainter {
     const num seriesIndex = 0;
     pointIndex =
         _chartState._tooltipPointIndex ?? _chartState._currentActive.pointIndex;
+    dataPoint = _chartState
+        ._chartSeries.visibleSeriesRenderers[0]._dataPoints[pointIndex];
     _chartState._tooltipPointIndex = null;
+    final int digits = chart.tooltipBehavior.decimalPlaces;
     if (chart.tooltipBehavior.enable) {
       tooltipBehaviorRenderer._painter.prevTooltipValue =
           TooltipValue(seriesIndex, pointIndex);
@@ -635,7 +632,7 @@ class _TooltipPainter extends CustomPainter {
       if (chart.tooltipBehavior.format != null) {
         final String resultantString = chart.tooltipBehavior.format
             .replaceAll('point.x', chartPoint.x.toString())
-            .replaceAll('point.y', chartPoint.y.toString())
+            .replaceAll('point.y', _getDecimalLabelValue(chartPoint.y, digits))
             .replaceAll(
                 'series.name',
                 _chartState._chartSeries.visibleSeriesRenderers[seriesIndex]
@@ -647,7 +644,9 @@ class _TooltipPainter extends CustomPainter {
             ._calculateLocation(location);
       } else {
         _chartState._tooltipBehaviorRenderer._painter.stringValue =
-            chartPoint.x.toString() + ' : ' + chartPoint.y.toString();
+            chartPoint.x.toString() +
+                ' : ' +
+                _getDecimalLabelValue(chartPoint.y, digits);
         _chartState._tooltipBehaviorRenderer._painter
             ._calculateLocation(location);
       }
@@ -656,6 +655,7 @@ class _TooltipPainter extends CustomPainter {
       chart.tooltipBehavior.hide();
       isContains = false;
     }
+    mouseTooltip = isContains;
     if (!isContains) {
       chartState._tooltipBehaviorRenderer._painter._painter.prevTooltipValue =
           chartState._tooltipBehaviorRenderer._painter._painter
@@ -692,24 +692,29 @@ class _TooltipPainter extends CustomPainter {
     isRight = false;
     double height = 0, width = 0, headerTextWidth = 0, headerTextHeight = 0;
     TooltipArgs tooltipArgs;
+    Size textSize, headerSize;
     markerSize = 0;
 
-    if (x != null && y != null && stringValue != null) {
-      final int seriesIndex = _chartState
-          ._tooltipBehaviorRenderer._painter.currentTooltipValue.seriesIndex;
-      final dynamic dataPoint = _chartState._chartSeries
-          .visibleSeriesRenderers[seriesIndex]._dataPoints[pointIndex];
-
+    if (x != null &&
+        y != null &&
+        stringValue != null &&
+        (!(_chart is SfCartesianChart) || !_chartState._requireAxisTooltip)) {
+      final int seriesIndex = _chart is SfCartesianChart
+          ? currentSeries._segments[0]._seriesIndex
+          : currentSeries;
       if (_chart.onTooltipRender != null && !dataPoint.isTooltipRenderEvent) {
         dataPoint.isTooltipRenderEvent = true;
-        const num index = 0;
         tooltipArgs = TooltipArgs(
             _chart is SfCartesianChart
-                ? currentSeries._segments[index]._seriesIndex
+                ? currentSeries._segments[0]._seriesIndex
                 : currentSeries,
             _chartState
                 ._chartSeries.visibleSeriesRenderers[seriesIndex]._dataPoints,
-            pointIndex);
+            pointIndex,
+            _chart is SfCartesianChart
+                ? _chartState._chartSeries.visibleSeriesRenderers[seriesIndex]
+                    ._visibleDataPoints[pointIndex].overallDataPointIndex
+                : pointIndex);
         tooltipArgs.text = stringValue;
         tooltipArgs.header = header;
         tooltipArgs.locationX = x;
@@ -721,64 +726,22 @@ class _TooltipPainter extends CustomPainter {
         y = tooltipArgs.locationY;
       }
       if (tooltipAnimation.status == AnimationStatus.completed) {
-        dataPoint.isTooltipRenderEvent = false;
+        dataPoint?.isTooltipRenderEvent = false;
       }
     }
 
     totalWidth = boundaryRect.left.toDouble() + boundaryRect.width.toDouble();
-    //ignore: prefer_final_locals
-    TextStyle _textStyle = tooltip.textStyle;
-    final TextStyle textStyle = TextStyle(
-        color: _textStyle.color ?? _chartState._chartTheme.tooltipLabelColor,
-        fontSize: _textStyle.fontSize,
-        fontFamily: _textStyle.fontFamily,
-        fontWeight: _textStyle.fontWeight,
-        fontStyle: _textStyle.fontStyle,
-        inherit: _textStyle.inherit,
-        backgroundColor: _textStyle.backgroundColor,
-        letterSpacing: _textStyle.letterSpacing,
-        wordSpacing: _textStyle.wordSpacing,
-        textBaseline: _textStyle.textBaseline,
-        height: _textStyle.height,
-        locale: _textStyle.locale,
-        foreground: _textStyle.foreground,
-        background: _textStyle.background,
-        shadows: _textStyle.shadows,
-        fontFeatures: _textStyle.fontFeatures,
-        decoration: _textStyle.decoration,
-        decorationColor: _textStyle.decorationColor,
-        decorationStyle: _textStyle.decorationStyle,
-        decorationThickness: _textStyle.decorationThickness,
-        debugLabel: _textStyle.debugLabel,
-        fontFamilyFallback: _textStyle.fontFamilyFallback);
-    width = _measureText(stringValue, textStyle).width;
-    height = _measureText(stringValue, textStyle).height;
+    final TextStyle textStyle =
+        _getTooltiptextStyle(tooltip.textStyle, false, true);
+    textSize = _measureText(stringValue, textStyle);
+    width = textSize.width;
+    height = textSize.height;
     if (header != null && header.isNotEmpty) {
-      final TextStyle headerTextStyle = TextStyle(
-          color: _textStyle.color ?? _chartState._chartTheme.tooltipLabelColor,
-          fontSize: _textStyle.fontSize,
-          fontFamily: _textStyle.fontFamily,
-          fontStyle: _textStyle.fontStyle,
-          fontWeight: FontWeight.bold,
-          inherit: _textStyle.inherit,
-          backgroundColor: _textStyle.backgroundColor,
-          letterSpacing: _textStyle.letterSpacing,
-          wordSpacing: _textStyle.wordSpacing,
-          textBaseline: _textStyle.textBaseline,
-          height: _textStyle.height,
-          locale: _textStyle.locale,
-          foreground: _textStyle.foreground,
-          background: _textStyle.background,
-          shadows: _textStyle.shadows,
-          fontFeatures: _textStyle.fontFeatures,
-          decoration: _textStyle.decoration,
-          decorationColor: _textStyle.decorationColor,
-          decorationStyle: _textStyle.decorationStyle,
-          decorationThickness: _textStyle.decorationThickness,
-          debugLabel: _textStyle.debugLabel,
-          fontFamilyFallback: _textStyle.fontFamilyFallback);
-      headerTextWidth = _measureText(header, headerTextStyle).width;
-      headerTextHeight = _measureText(header, headerTextStyle).height + 10;
+      final TextStyle headerTextStyle =
+          _getTooltiptextStyle(tooltip.textStyle, true, true);
+      headerSize = _measureText(header, headerTextStyle);
+      headerTextWidth = headerSize.width;
+      headerTextHeight = headerSize.height + 10;
       width = width > headerTextWidth ? width : headerTextWidth;
     }
 
@@ -803,12 +766,30 @@ class _TooltipPainter extends CustomPainter {
   void _calculateBackgroundRect(
       Canvas canvas, double height, double width, double headerTextHeight) {
     double widthPadding = 15;
+    Rect boundaryRect;
     if (_chart is SfCartesianChart &&
         tooltip.canShowMarker != null &&
         tooltip.canShowMarker &&
         chartTooltipState._needMarker) {
       markerSize = 5;
       widthPadding = 17;
+    }
+    if (_chart is SfCartesianChart &&
+        (!_chartState._requireAxisTooltip &&
+            (currentTooltipValue != null &&
+                currentTooltipValue.seriesIndex != null))) {
+      boundaryRect = _chartState._chartAxis._axisClipRect;
+    } else if ((_chart is SfCartesianChart) &&
+        (_chartState._requireAxisTooltip ||
+            (currentTooltipValue != null &&
+                currentTooltipValue.seriesIndex == null))) {
+      boundaryRect = _chartState._containerRect;
+    } else {
+      if (_chart is SfCartesianChart) {
+        return;
+      } else {
+        boundaryRect = _chartState._chartAreaRect;
+      }
     }
 
     Rect rect = Rect.fromLTWH(x, y, width + (2 * markerSize) + widthPadding,
@@ -832,7 +813,7 @@ class _TooltipPainter extends CustomPainter {
     }
 
     if (y > pointerLength + rect.height && y > boundaryRect.top) {
-      if (_chart is SfCartesianChart) {
+      if (_chart is SfCartesianChart && !_chartState._requireAxisTooltip) {
         if (currentSeries._seriesType == 'bubble') {
           padding = 2;
         }
@@ -843,11 +824,15 @@ class _TooltipPainter extends CustomPainter {
       nosePointY = rect.top - padding;
       nosePointX = rect.left;
       final double tooltipRightEnd = x + (rect.width / 2);
-      xPos = xPos < boundaryRect.left
-          ? boundaryRect.left
-          : tooltipRightEnd > totalWidth
-              ? totalWidth - rect.width
-              : xPos;
+      if (_chart is SfCartesianChart && _chartState._requireAxisTooltip) {
+        xPos = xPos < boundaryRect.left ? boundaryRect.left : xPos;
+      } else {
+        xPos = xPos < boundaryRect.left
+            ? boundaryRect.left
+            : tooltipRightEnd > totalWidth
+                ? totalWidth - rect.width
+                : xPos;
+      }
       yPos = yPos - (pointerLength / 2);
     } else {
       isTop = false;
@@ -858,11 +843,15 @@ class _TooltipPainter extends CustomPainter {
       nosePointX = rect.left;
       nosePointY = (y >= boundaryRect.top ? y : boundaryRect.top) + padding;
       final double tooltipRightEnd = x + (rect.width / 2);
-      xPos = xPos < boundaryRect.left
-          ? boundaryRect.left
-          : tooltipRightEnd > totalWidth
-              ? totalWidth - rect.width
-              : xPos;
+      if (_chart is SfCartesianChart && _chartState._requireAxisTooltip) {
+        xPos = xPos < boundaryRect.left ? boundaryRect.left : xPos;
+      } else {
+        xPos = xPos < boundaryRect.left
+            ? boundaryRect.left
+            : tooltipRightEnd > totalWidth
+                ? totalWidth - rect.width
+                : xPos;
+      }
     }
     if (xPos <= boundaryRect.left + 5) {
       xPos = xPos + 5;
@@ -870,6 +859,13 @@ class _TooltipPainter extends CustomPainter {
       xPos = xPos - 5;
     }
     rect = Rect.fromLTWH(xPos, yPos, rect.width, rect.height);
+    if (boundaryRect.right < rect.right &&
+        _chart is SfCartesianChart &&
+        _chartState._requireAxisTooltip) {
+      const padding = 5;
+      rect = Rect.fromLTRB(boundaryRect.right - width - padding, rect.top,
+          boundaryRect.right + padding, rect.bottom);
+    }
     _drawTooltipBackground(canvas, rect, nosePointX, nosePointY, borderRadius,
         isTop, arrowPath, isLeft, isRight, tooltipAnimation);
   }
@@ -960,6 +956,8 @@ class _TooltipPainter extends CustomPainter {
           rectF.width * animationFactor,
           rectF.height * animationFactor);
 
+      _tooltipRect = rect;
+
       final RRect tooltipRect = RRect.fromRectAndCorners(
         rect,
         bottomLeft: Radius.circular(borderRadius),
@@ -969,20 +967,15 @@ class _TooltipPainter extends CustomPainter {
       );
       _drawTooltipPath(canvas, tooltipRect, rect, backgroundPath, isTop, isLeft,
           isRight, startX, endX, animationFactor, xPos, yPos);
-
-      final TextStyle textStyle = TextStyle(
-          color: tooltip.textStyle.color?.withOpacity(tooltip.opacity) ??
-              _chartState._chartTheme.tooltipLabelColor,
-          fontSize: tooltip.textStyle.fontSize * animationFactor,
-          fontFamily: tooltip.textStyle.fontFamily,
-          fontWeight: tooltip.textStyle.fontWeight,
-          fontStyle: tooltip.textStyle.fontStyle);
+      final TextStyle textStyle = _getTooltiptextStyle(
+          tooltip.textStyle, false, false, animationFactor);
       final Size result = _measureText(stringValue, textStyle);
       _drawTooltipText(canvas, tooltipRect, textStyle, result, animationFactor);
       if (_chart is SfCartesianChart &&
           tooltip.canShowMarker &&
           chartTooltipState._needMarker) {
-        _drawTooltipMarker(canvas, tooltipRect, textStyle, animationFactor);
+        _drawTooltipMarker(
+            canvas, tooltipRect, textStyle, animationFactor, result);
       }
       xPos = null;
       yPos = null;
@@ -1010,25 +1003,33 @@ class _TooltipPainter extends CustomPainter {
       factor = rect.bottom;
       backgroundPath.moveTo(rect.right - 20, factor);
       backgroundPath.lineTo(xPos, yPos);
-      backgroundPath.lineTo(rect.right - 20, rect.top + rect.height / 2);
+      backgroundPath.lineTo(rect.right, factor - borderRadius);
+      backgroundPath.arcToPoint(Offset(rect.right - borderRadius, factor),
+          radius: Radius.circular(borderRadius));
       backgroundPath.lineTo(rect.right - 20, factor);
     } else if (!isTop && isRight) {
       factor = rect.top;
       backgroundPath.moveTo(rect.right - 20, factor);
       backgroundPath.lineTo(xPos, yPos);
-      backgroundPath.lineTo(rect.right - 20, rect.top + rect.height / 2);
+      backgroundPath.lineTo(rect.right, factor + borderRadius);
+      backgroundPath.arcToPoint(Offset(rect.right - borderRadius, factor),
+          radius: Radius.circular(borderRadius), clockwise: false);
       backgroundPath.lineTo(rect.right - 20, factor);
     } else if (isTop && isLeft) {
       factor = rect.bottom;
       backgroundPath.moveTo(rect.left + 20, factor);
       backgroundPath.lineTo(xPos, yPos);
-      backgroundPath.lineTo(rect.left + 20, rect.top + rect.height / 2);
+      backgroundPath.lineTo(rect.left, factor - borderRadius);
+      backgroundPath.arcToPoint(Offset(rect.left + borderRadius, factor),
+          radius: Radius.circular(borderRadius), clockwise: false);
       backgroundPath.lineTo(rect.left + 20, factor);
     } else if (!isTop && isLeft) {
       factor = rect.top;
       backgroundPath.moveTo(rect.left + 20, factor);
       backgroundPath.lineTo(xPos, yPos);
-      backgroundPath.lineTo(rect.left + 20, rect.top + rect.height / 2);
+      backgroundPath.lineTo(rect.left, factor + borderRadius);
+      backgroundPath.arcToPoint(Offset(rect.left + borderRadius, factor),
+          radius: Radius.circular(borderRadius));
       backgroundPath.lineTo(rect.left + 20, factor);
     } else {
       if (isTop) {
@@ -1079,8 +1080,8 @@ class _TooltipPainter extends CustomPainter {
 
   /// draw marker inside the tooltip
   void _drawTooltipMarker(Canvas canvas, RRect tooltipRect, TextStyle textStyle,
-      double animationFactor) {
-    final Size tooltipStringResult = _measureText(stringValue, textStyle);
+      double animationFactor, Size tooltipMarkerResult) {
+    final Size tooltipStringResult = tooltipMarkerResult;
     if (tooltip.shared) {
       Size result1 = const Size(0, 0);
       String str = '';
@@ -1117,7 +1118,7 @@ class _TooltipPainter extends CustomPainter {
       Canvas canvas) {
     _seriesRenderer._isMarkerRenderEvent = true;
     final Path markerPath = _getMarkerShapesPath(
-        markerType,
+        _seriesRenderer._series.markerSettings.shape,
         markerPoint,
         Size((2 * markerSize) * animationFactor,
             (2 * markerSize) * animationFactor),
@@ -1138,7 +1139,7 @@ class _TooltipPainter extends CustomPainter {
       markerPaint = _getLinearGradientPaint(
           _seriesRenderer._series.gradient,
           _getMarkerShapesPath(
-                  markerType,
+                  _seriesRenderer._series.markerSettings.shape,
                   Offset(markerPoint.dx, markerPoint.dy),
                   Size((2 * markerSize) * animationFactor,
                       (2 * markerSize) * animationFactor),
@@ -1159,35 +1160,11 @@ class _TooltipPainter extends CustomPainter {
       Size result, double animationFactor) {
     const double padding = 10;
     final num _maxLinesOfTooltipContent = _getMaxLinesContent(stringValue);
-    //ignore: prefer_final_locals
-    TextStyle _textStyle = tooltip.textStyle;
     if (header != null && header.isNotEmpty) {
-      final TextStyle headerTextStyle = TextStyle(
-          color: tooltip.textStyle.color?.withOpacity(tooltip.opacity) ??
-              _chartState._chartTheme.tooltipLabelColor,
-          fontSize: tooltip.textStyle.fontSize * animationFactor,
-          fontFamily: tooltip.textStyle.fontFamily,
-          fontStyle: tooltip.textStyle.fontStyle,
-          fontWeight: FontWeight.bold,
-          inherit: _textStyle.inherit,
-          backgroundColor: _textStyle.backgroundColor,
-          letterSpacing: _textStyle.letterSpacing,
-          wordSpacing: _textStyle.wordSpacing,
-          textBaseline: _textStyle.textBaseline,
-          height: _textStyle.height,
-          locale: _textStyle.locale,
-          foreground: _textStyle.foreground,
-          background: _textStyle.background,
-          shadows: _textStyle.shadows,
-          fontFeatures: _textStyle.fontFeatures,
-          decoration: _textStyle.decoration,
-          decorationColor: _textStyle.decorationColor,
-          decorationStyle: _textStyle.decorationStyle,
-          decorationThickness: _textStyle.decorationThickness,
-          debugLabel: _textStyle.debugLabel,
-          fontFamilyFallback: _textStyle.fontFamilyFallback);
+      final TextStyle headerTextStyle =
+          _getTooltiptextStyle(tooltip.textStyle, true, false, animationFactor);
       final Size headerResult = _measureText(header, headerTextStyle);
-
+      final num _maxLinesOfHeader = _getMaxLinesContent(header);
       _drawText(
           tooltip,
           canvas,
@@ -1196,18 +1173,29 @@ class _TooltipPainter extends CustomPainter {
               (tooltipRect.left + tooltipRect.width / 2) -
                   headerResult.width / 2,
               tooltipRect.top + padding / 2),
-          headerTextStyle);
+          headerTextStyle,
+          _maxLinesOfHeader);
 
       final Paint dividerPaint = Paint();
       dividerPaint.color = _chartState._chartTheme.tooltipLabelColor
           .withOpacity(tooltip.opacity);
       dividerPaint.strokeWidth = 0.5 * animationFactor;
       dividerPaint.style = PaintingStyle.stroke;
+      num lineOffset = 0;
+      if (tooltip != null &&
+          tooltip.format != null &&
+          tooltip.format.isNotEmpty) {
+        if (tooltip.textAlignment == ChartAlignment.near) {
+          lineOffset = padding;
+        } else if (tooltip.textAlignment == ChartAlignment.far) {
+          lineOffset = -padding;
+        }
+      }
       if (animationFactor > 0.5) {
         canvas.drawLine(
-            Offset(tooltipRect.left + padding,
+            Offset(tooltipRect.left + padding - lineOffset,
                 tooltipRect.top + headerResult.height + padding),
-            Offset(tooltipRect.right - padding,
+            Offset(tooltipRect.right - padding - lineOffset,
                 tooltipRect.top + headerResult.height + padding),
             dividerPaint);
       }
@@ -1236,20 +1224,59 @@ class _TooltipPainter extends CustomPainter {
     }
   }
 
+  /// Get the text style of tooltip.
+  TextStyle _getTooltiptextStyle(
+      TextStyle textStyle, bool isHeader, bool isMeasureText,
+      [double animationFactor]) {
+    /// Default size of tooltip text, if the user is not spcified the font size.
+    const int textSize = 12;
+    final TextStyle tooltipTextStyle = TextStyle(
+        color: textStyle.color?.withOpacity(tooltip.opacity) ??
+            _chartState._chartTheme.tooltipLabelColor,
+        fontSize: isMeasureText
+            ? textStyle.fontSize
+            : (textStyle.fontSize ?? textSize) * animationFactor,
+        fontWeight: isHeader ? FontWeight.bold : textStyle.fontWeight,
+        fontFamily: textStyle.fontFamily,
+        fontStyle: textStyle.fontStyle,
+        inherit: textStyle.inherit,
+        backgroundColor: textStyle.backgroundColor,
+        letterSpacing: textStyle.letterSpacing,
+        wordSpacing: textStyle.wordSpacing,
+        textBaseline: textStyle.textBaseline,
+        height: textStyle.height,
+        locale: textStyle.locale,
+        foreground: textStyle.foreground,
+        background: textStyle.background,
+        shadows: textStyle.shadows,
+        fontFeatures: textStyle.fontFeatures,
+        decoration: textStyle.decoration,
+        decorationColor: textStyle.decorationColor,
+        decorationStyle: textStyle.decorationStyle,
+        decorationThickness: textStyle.decorationThickness,
+        debugLabel: textStyle.debugLabel,
+        fontFamilyFallback: textStyle.fontFamilyFallback);
+    return tooltipTextStyle;
+  }
+
   ///draw tooltip text
   void _drawText(dynamic tooltip, Canvas canvas, String text, Offset point,
       TextStyle style,
       [int maxLines, int rotation]) {
     TextAlign tooltipTextAlign = TextAlign.start;
+    num pointX = point.dx;
     if (tooltip != null &&
         tooltip.format != null &&
         tooltip.format.isNotEmpty) {
       if (tooltip.textAlignment == ChartAlignment.near) {
         tooltipTextAlign = TextAlign.start;
-      } else if (tooltip.textAlignment == ChartAlignment.center) {
-        tooltipTextAlign = TextAlign.center;
+        pointX =
+            _chartState._tooltipBehaviorRenderer._painter._tooltipRect.left;
       } else if (tooltip.textAlignment == ChartAlignment.far) {
         tooltipTextAlign = TextAlign.end;
+        pointX =
+            _chartState._tooltipBehaviorRenderer._painter._tooltipRect.right -
+                _measureText(text, style).width;
       }
     }
 
@@ -1262,7 +1289,7 @@ class _TooltipPainter extends CustomPainter {
         maxLines: maxLines ?? 1);
     tp.layout();
     canvas.save();
-    canvas.translate(point.dx, point.dy);
+    canvas.translate(pointX, point.dy);
     if (rotation != null && rotation > 0) {
       canvas.rotate(_degreeToRadian(rotation));
     }
@@ -1285,7 +1312,11 @@ class _TooltipPainter extends CustomPainter {
       final bool needAnimate = !(_chart is SfCartesianChart) &&
           (tooltipBehaviorRenderer._painter.currentTooltipValue?.pointIndex ==
               tooltipBehaviorRenderer._painter.prevTooltipValue?.pointIndex) &&
+          _chartState._chartSeries.currentSeries.explode &&
           !(tooltip.tooltipPosition == TooltipPosition.pointer);
+      chartTooltipState.animationController.duration = Duration(
+          milliseconds:
+              tooltipBehaviorRenderer._tooltipBehavior.animationDuration);
       if ((tooltipBehaviorRenderer._painter.prevTooltipValue != null &&
               tooltipBehaviorRenderer._painter.currentTooltipValue == null) ||
           needAnimate) {
@@ -1293,7 +1324,8 @@ class _TooltipPainter extends CustomPainter {
         tooltipBehaviorRenderer._painter.currentTooltipValue =
             tooltipBehaviorRenderer._painter.prevTooltipValue;
       } else {
-        if (tooltip.tooltipPosition == TooltipPosition.pointer) {
+        if (tooltip.tooltipPosition == TooltipPosition.pointer &&
+            (!(_chart is SfCartesianChart) || currentSeries._isRectSeries)) {
           chartTooltipState.animationController.forward(from: 0.0);
           tooltipBehaviorRenderer._painter.currentTooltipValue =
               tooltipBehaviorRenderer._painter.prevTooltipValue;
@@ -1326,6 +1358,9 @@ class _TooltipPainter extends CustomPainter {
         _chartState._tooltipBehaviorRenderer._painter != null &&
         _chartState
             ._tooltipBehaviorRenderer._painter._chartState._animateCompleted) {
+      chartTooltipState.animationController.duration = Duration(
+          milliseconds: _chartState
+              ._tooltipBehaviorRenderer._tooltipBehavior.animationDuration);
       chartTooltipState.animationController.forward(from: 0.0);
       _chartState._tooltipBehaviorRenderer._painter.canResetPath = false;
       //render
@@ -1396,6 +1431,40 @@ class _TooltipPainter extends CustomPainter {
     }
   }
 
+  /// To show the axis label tooltip for trimmed axes label texts.
+  void _showAxisTooltip(Offset position, dynamic chart, String text) {
+    final _TooltipPainter painter =
+        _chartState._tooltipBehaviorRenderer._painter;
+    if (painter != null) {
+      painter.canResetPath = false;
+      painter.header = '';
+      painter.stringValue = text;
+      painter._calculateLocation(position);
+      chartTooltipState._needMarker = false;
+      if ((painter.prevTooltipValue != null) &&
+          (painter.prevTooltipValue.pointIndex ==
+              painter.currentTooltipValue.pointIndex)) {
+        chartTooltipState.animationController.duration =
+            Duration(milliseconds: 0);
+        chartTooltipState.animationController.forward(from: 0.0);
+      } else {
+        chartTooltipState.animationController.duration = Duration(
+            milliseconds: _chartState
+                ._tooltipBehaviorRenderer._tooltipBehavior.animationDuration);
+        chartTooltipState.animationController.forward(from: 0.0);
+      }
+
+      if (painter.timer != null) {
+        painter.timer.cancel();
+      }
+    }
+    painter.timer = Timer(Duration(milliseconds: tooltip.duration.toInt()), () {
+      chartTooltipState.show = false;
+      chartTooltipState.tooltipRepaintNotifier.value++;
+      painter.canResetPath = true;
+    });
+  }
+
   /// To hide the tooltip when the timer ends
   void hide() {
     final TooltipBehaviorRenderer tooltipBehaviorRenderer =
@@ -1428,9 +1497,24 @@ class _TooltipPainter extends CustomPainter {
       }
       if (tooltipBehaviorRenderer._painter.prevTooltipValue != null &&
           tooltipBehaviorRenderer._painter.currentTooltipValue == null) {
+        chartTooltipState.animationController.duration = Duration(
+            milliseconds:
+                tooltipBehaviorRenderer._tooltipBehavior.animationDuration);
         chartTooltipState.animationController.forward(from: 0.0);
         tooltipBehaviorRenderer._painter.currentTooltipValue =
             tooltipBehaviorRenderer._painter.prevTooltipValue;
+      } else if (tooltipBehaviorRenderer._painter.prevTooltipValue != null &&
+          tooltipBehaviorRenderer._painter.currentTooltipValue != null &&
+          tooltipBehaviorRenderer._tooltipBehavior.tooltipPosition !=
+              TooltipPosition.auto &&
+          (!(seriesRenderer is CartesianSeriesRenderer) ||
+              seriesRenderer._isRectSeries) &&
+          tooltipBehaviorRenderer._painter.currentTooltipValue.seriesIndex ==
+              tooltipBehaviorRenderer._painter.prevTooltipValue.seriesIndex &&
+          tooltipBehaviorRenderer._painter.currentTooltipValue.pointIndex ==
+              tooltipBehaviorRenderer._painter.prevTooltipValue.pointIndex) {
+        chartTooltipState.animationController.duration = Duration(seconds: 0);
+        chartTooltipState.animationController.forward(from: 0.0);
       }
       if (!mouseTooltip) {
         hide();

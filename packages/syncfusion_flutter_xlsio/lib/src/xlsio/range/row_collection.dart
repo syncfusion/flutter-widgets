@@ -71,6 +71,18 @@ class RowCollection {
     return row;
   }
 
+  /// Get a row from rows collection based on row index.
+  Row _getRow(int rowIndex) {
+    for (final Row row in innerList) {
+      if (row != null) {
+        if (row.index == rowIndex) {
+          return row;
+        }
+      }
+    }
+    return null;
+  }
+
   /// Clear the row.
   void _clear() {
     if (_innerList != null) {

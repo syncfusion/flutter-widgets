@@ -973,6 +973,9 @@ typedef ChartValueMapper<T, R> = R Function(T datum, int index);
 typedef ChartWidgetBuilder<T> = Widget Function(dynamic data, dynamic point,
     dynamic series, int pointIndex, int seriesIndex);
 
+typedef ChartTrackballBuilder<T> = Widget Function(
+    BuildContext context, TrackballDetails trackballDetails);
+
 // Custom renderer for series
 typedef ChartSeriesRendererFactory<T, D> = ChartSeriesRenderer Function(
     ChartSeries<T, D> series);

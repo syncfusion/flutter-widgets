@@ -21,8 +21,9 @@ class _SplineAreaChartPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     double animationFactor;
-    CartesianChartPoint<dynamic> prevPoint, point;
-    _ChartLocation currentPoint, originPoint;
+    CartesianChartPoint<dynamic> prevPoint, point, oldChartPoint;
+    CartesianSeriesRenderer oldSeriesRenderer;
+    _ChartLocation currentPoint, originPoint, oldPointLocation;
     final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer;
     final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer;
     Rect clipRect;
@@ -33,12 +34,15 @@ class _SplineAreaChartPainter extends CustomPainter {
     final List<Offset> _points = <Offset>[];
     final num crossesAt = _getCrossesAtValue(seriesRenderer, chartState);
     final num origin = crossesAt ?? 0;
+    num startControlX, startControlY, endControlX, endControlY;
     if (seriesRenderer._visible) {
       assert(
           series.animationDuration != null
               ? series.animationDuration >= 0
               : true,
           'The animation duration of the spline area series must be greater or equal to 0.');
+      final List<CartesianSeriesRenderer> oldSeriesRenderers =
+          chartState._oldSeriesRenderers;
       final List<CartesianChartPoint<dynamic>> dataPoints =
           seriesRenderer._dataPoints;
       canvas.save();
@@ -53,6 +57,10 @@ class _SplineAreaChartPainter extends CustomPainter {
       animationFactor = seriesRenderer._seriesAnimation != null
           ? seriesRenderer._seriesAnimation.value
           : 1;
+
+      oldSeriesRenderer = _getOldSeriesRenderer(
+          chartState, seriesRenderer, seriesIndex, oldSeriesRenderers);
+
       if (seriesRenderer._reAnimate ||
           ((!(chartState._widgetNeedUpdate || chartState._isLegendToggled) ||
                   !chartState._oldSeriesKeys.contains(series.key)) &&
@@ -60,13 +68,38 @@ class _SplineAreaChartPainter extends CustomPainter {
         _performLinearAnimation(
             chartState, xAxisRenderer._axis, canvas, animationFactor);
       }
-      _calculateSplineAreaControlPoints(seriesRenderer);
+      if (!seriesRenderer._hasDataLabelTemplate) {
+        _calculateSplineAreaControlPoints(seriesRenderer);
+      }
 
+      if (seriesRenderer._visibleDataPoints == null ||
+          seriesRenderer._visibleDataPoints.isNotEmpty) {
+        seriesRenderer._visibleDataPoints = <CartesianChartPoint<dynamic>>[];
+      }
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
         seriesRenderer._calculateRegionData(
             chartState, seriesRenderer, painterKey.index, point, pointIndex);
         if (point.isVisible && !point.isDrop) {
+          //Stores the old data point details of the corresponding point index
+          oldChartPoint = _getOldChartPoint(
+              chartState,
+              seriesRenderer,
+              SplineAreaSegment,
+              seriesIndex,
+              pointIndex,
+              oldSeriesRenderer,
+              oldSeriesRenderers);
+          oldPointLocation = oldChartPoint != null
+              ? _calculatePoint(
+                  oldChartPoint.xValue,
+                  oldChartPoint.yValue,
+                  oldSeriesRenderer._xAxisRenderer,
+                  oldSeriesRenderer._yAxisRenderer,
+                  isTransposed,
+                  oldSeriesRenderer._series,
+                  axisClipRect)
+              : null;
           currentPoint = _calculatePoint(point.xValue, point.yValue,
               xAxisRenderer, yAxisRenderer, isTransposed, series, axisClipRect);
           originPoint = _calculatePoint(
@@ -77,13 +110,63 @@ class _SplineAreaChartPainter extends CustomPainter {
               isTransposed,
               series,
               axisClipRect);
-          final num x = currentPoint.x;
-          final num y = currentPoint.y;
+          num x = currentPoint.x;
+          num y = currentPoint.y;
+          startControlX = startControlY = endControlX = endControlY = null;
           _points.add(Offset(currentPoint.x, currentPoint.y));
           final bool closed =
               series.emptyPointSettings.mode == EmptyPointMode.drop
                   ? _getSeriesVisibility(dataPoints, pointIndex)
                   : false;
+
+          //calculates animation values for control points and data points
+          if (oldPointLocation != null) {
+            if (isTransposed) {
+              x = _getAnimateValue(animationFactor, x, oldPointLocation.x,
+                  currentPoint.x, seriesRenderer);
+            } else {
+              y = _getAnimateValue(animationFactor, y, oldPointLocation.y,
+                  currentPoint.y, seriesRenderer);
+            }
+            if (point.startControl != null) {
+              startControlY = _getAnimateValue(
+                  animationFactor,
+                  startControlY,
+                  oldChartPoint.startControl.y,
+                  point.startControl.y,
+                  seriesRenderer);
+              startControlX = _getAnimateValue(
+                  animationFactor,
+                  startControlX,
+                  oldChartPoint.startControl.x,
+                  point.startControl.x,
+                  seriesRenderer);
+            }
+            if (point.endControl != null) {
+              endControlX = _getAnimateValue(
+                  animationFactor,
+                  endControlX,
+                  oldChartPoint.endControl.x,
+                  point.endControl.x,
+                  seriesRenderer);
+              endControlY = _getAnimateValue(
+                  animationFactor,
+                  endControlY,
+                  oldChartPoint.endControl.y,
+                  point.endControl.y,
+                  seriesRenderer);
+            }
+          } else {
+            if (point.startControl != null) {
+              startControlX = point.startControl.x;
+              startControlY = point.startControl.y;
+            }
+            if (point.endControl != null) {
+              endControlX = point.endControl.x;
+              endControlY = point.endControl.y;
+            }
+          }
+
           if (prevPoint == null ||
               dataPoints[pointIndex - 1].isGap == true ||
               (dataPoints[pointIndex].isGap == true) ||
@@ -102,41 +185,31 @@ class _SplineAreaChartPainter extends CustomPainter {
             _path.lineTo(x, y);
           } else if (pointIndex == dataPoints.length - 1 ||
               dataPoints[pointIndex + 1].isGap == true) {
-            _strokePath.cubicTo(point.startControl.x, point.startControl.y,
-                point.endControl.x, point.endControl.y, x, y);
+            _strokePath.cubicTo(
+                startControlX, startControlY, endControlX, endControlY, x, y);
             if (series.borderDrawMode == BorderDrawMode.excludeBottom) {
               _strokePath.lineTo(originPoint.x, originPoint.y);
             } else if (series.borderDrawMode == BorderDrawMode.all) {
               _strokePath.lineTo(originPoint.x, originPoint.y);
               _strokePath.close();
             }
-            _path.cubicTo(point.startControl.x, point.startControl.y,
-                point.endControl.x, point.endControl.y, x, y);
+            _path.cubicTo(
+                startControlX, startControlY, endControlX, endControlY, x, y);
             _path.lineTo(originPoint.x, originPoint.y);
           } else {
-            _strokePath.cubicTo(point.startControl.x, point.startControl.y,
-                point.endControl.x, point.endControl.y, x, y);
-            _path.cubicTo(point.startControl.x, point.startControl.y,
-                point.endControl.x, point.endControl.y, x, y);
+            _strokePath.cubicTo(
+                startControlX, startControlY, endControlX, endControlY, x, y);
+            _path.cubicTo(
+                startControlX, startControlY, endControlX, endControlY, x, y);
 
             if (closed) {
-              _path.cubicTo(
-                  point.startControl.x,
-                  point.startControl.y,
-                  point.endControl.x,
-                  point.endControl.y,
-                  originPoint.x,
-                  originPoint.y);
+              _path.cubicTo(startControlX, startControlY, endControlX,
+                  endControlY, originPoint.x, originPoint.y);
               if (series.borderDrawMode == BorderDrawMode.excludeBottom) {
                 _strokePath.lineTo(originPoint.x, originPoint.y);
               } else if (series.borderDrawMode == BorderDrawMode.all) {
-                _strokePath.cubicTo(
-                    point.startControl.x,
-                    point.startControl.y,
-                    point.endControl.x,
-                    point.endControl.y,
-                    originPoint.x,
-                    originPoint.y);
+                _strokePath.cubicTo(startControlX, startControlY, endControlX,
+                    endControlY, originPoint.x, originPoint.y);
                 _strokePath.close();
               }
             }

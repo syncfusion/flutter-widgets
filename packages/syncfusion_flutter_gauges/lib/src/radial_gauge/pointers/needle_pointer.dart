@@ -86,7 +86,7 @@ class NeedlePointer extends GaugePointer {
 
   /// The style to use for the needle tail.
   ///
-  /// Defaults to null.
+  /// Defaults to `null`..
   ///
   /// Also refer [TailStyle].
   ///
@@ -194,7 +194,7 @@ class NeedlePointer extends GaugePointer {
 
   /// Specifies the color of the needle pointer.
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
@@ -214,7 +214,7 @@ class NeedlePointer extends GaugePointer {
   /// [gradient] of [NeedlePointer] only support [LinearGradient]. You can use
   /// this to display the depth effect of the needle pointer.
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {

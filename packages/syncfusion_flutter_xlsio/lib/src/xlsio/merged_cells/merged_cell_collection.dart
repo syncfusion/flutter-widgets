@@ -24,12 +24,12 @@ class MergedCellCollection {
     for (final MergeCell mCell in innerList) {
       if (MergedCellCollection._isIntersecting(mCell, mergeCell)) {
         final MergeCell intersectingCell = MergeCell();
-        intersectingCell.x = math.min(mCell.x, mergeCell.x);
-        intersectingCell.y = math.min(mCell.y, mergeCell.y);
+        intersectingCell.x = min(mCell.x, mergeCell.x);
+        intersectingCell.y = min(mCell.y, mergeCell.y);
         intersectingCell.width =
-            math.max(mCell.width + mCell.y, mergeCell.width + mergeCell.x);
+            max(mCell.width + mCell.y, mergeCell.width + mergeCell.x);
         intersectingCell.height =
-            math.max(mCell.height + mCell.y, mergeCell.height + mergeCell.y);
+            max(mCell.height + mCell.y, mergeCell.height + mergeCell.y);
         intersectingCell._reference =
             (this[count]._reference.split(':')[0].toString()) +
                 ':' +

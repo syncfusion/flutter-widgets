@@ -447,14 +447,14 @@ class TechnicalIndicatorsRenderer {
         !name.contains('Line')) {
       final IndicatorRenderArgs indicatorArgs = IndicatorRenderArgs(
           indicator, _index, chart.indicators[_index].seriesName, _dataPoints);
-      indicatorArgs.indicatorname = name;
+      indicatorArgs.indicatorName = name;
       indicatorArgs.signalLineColor = color;
       indicatorArgs.signalLineWidth = width;
       indicatorArgs.lineDashArray = indicator.dashArray;
       chart.onIndicatorRender(indicatorArgs);
       color = indicatorArgs.signalLineColor;
       width = indicatorArgs.signalLineWidth;
-      name = indicatorArgs.indicatorname;
+      name = indicatorArgs.indicatorName;
       _dashArray = indicatorArgs.lineDashArray;
     }
     final CartesianSeries<dynamic, dynamic> series = name == 'rangearea'

@@ -284,6 +284,12 @@ class CartesianChartPoint<D> {
   // ignore: prefer_final_fields
   bool isTooltipRenderEvent = false;
 
+  //specifies the style of data label in the onDataLabelEvent
+  TextStyle _dataLabelStyle;
+
+  //specifies the color of the data label in onDataLabelEvent
+  Color _dataLabelColor;
+
   /// Stores the chart location.
   _ChartLocation openPoint,
       closePoint,
@@ -294,7 +300,9 @@ class CartesianChartPoint<D> {
       centerLowPoint,
       centerHighPoint,
       currentPoint,
+      // ignore:unused_field
       _nextPoint,
+      // ignore:unused_field
       _midPoint,
       startControl,
       endControl,
@@ -327,9 +335,6 @@ class CartesianChartPoint<D> {
 
   /// control points for spline range area series.
   List<_ControlPoints> controlPointslow;
-
-  /// Store the visible range.
-  _VisibleRange sideBySideInfo;
 
   /// Store the List of region.
   List<Rect> regions;
@@ -423,6 +428,9 @@ class CartesianChartPoint<D> {
 
   /// Store the region data of the data point.
   List<String> regionData;
+
+  /// Store the visible point index.
+  int visiblePointIndex;
 }
 
 class _ChartLocation {
@@ -626,10 +634,12 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
   void _animationStatusListener(AnimationStatus status) {
     if (_chartState != null && status == AnimationStatus.completed) {
       _reAnimate = false;
+      _animationCompleted = true;
       _chartState?._animationCompleteCount++;
       _setAnimationStatus(_chartState);
     } else if (_chartState != null && status == AnimationStatus.forward) {
       _chartState?._animateCompleted = false;
+      _animationCompleted = false;
     }
   }
 
@@ -677,6 +687,15 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
       CartesianChartPoint<dynamic> _nextPoint,
       num midX,
       num midY]) {
+    if (_withInRange(seriesRenderer._dataPoints[pointIndex].xValue,
+        seriesRenderer._xAxisRenderer._visibleRange)) {
+      seriesRenderer._visibleDataPoints
+          .add(seriesRenderer._dataPoints[pointIndex]);
+      if (seriesRenderer._visibleDataPoints.isNotEmpty) {
+        seriesRenderer._dataPoints[pointIndex].visiblePointIndex =
+            seriesRenderer._visibleDataPoints.length - 1;
+      }
+    }
     _chart = _chartState._chart;
     final ChartAxis xAxis = _xAxisRenderer._axis;
     final ChartAxis yAxis = _yAxisRenderer._axis;
@@ -690,6 +709,7 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
         _seriesType == 'histogram' ||
         _seriesType == 'waterfall';
     CartesianChartPoint<dynamic> point;
+
     final num markerHeight = _series.markerSettings.height,
         markerWidth = _series.markerSettings.width;
     final bool isPointSeries =
@@ -703,8 +723,22 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
         _visible) {
       point = _dataPoints[pointIndex];
       if (point.region == null ||
+          seriesRenderer._calculateRegion ||
           _seriesType.contains('stackedcolumn') ||
           _seriesType.contains('stackedbar')) {
+        if (seriesRenderer._calculateRegion &&
+            _dataPoints.length == pointIndex - 1) {
+          seriesRenderer._calculateRegion = false;
+        }
+
+        /// side by side range calculated
+        seriesRenderer.sideBySideInfo = (_isRectSeries ||
+                (_seriesType.contains('candle') ||
+                    _seriesType.contains('hilo') ||
+                    _seriesType.contains('histogram') ||
+                    _seriesType.contains('box')))
+            ? _calculateSideBySideInfo(seriesRenderer, _chartState)
+            : seriesRenderer.sideBySideInfo;
         if (_isRectSeries) {
           _calculateRectSeriesRegion(point, pointIndex, this, _chartState);
         } else if (isPointSeries) {
@@ -726,7 +760,7 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
         }
       }
       if (_chart.tooltipBehavior != null &&
-          _chart.tooltipBehavior.enable &&
+          (_chart.tooltipBehavior.enable || _chart.onPointTapped != null) &&
           _seriesType != 'boxandwhisker') {
         _calculateTooltipRegion(point, seriesIndex, this, _chartState);
       }

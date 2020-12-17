@@ -41,7 +41,7 @@ Create a highly interactive and customizable maps widget that has features set i
 
 ![maps selection](https://cdn.syncfusion.com/content/images/Flutter/pub_images/maps_images/map_selection.png)
 
-**Legend** - Use legends to provide clear information on the data plotted in the map. You can use the legend toggling feature to visualize only the shapes that need to be interpreted.
+**Legend** - Use legends to provide clear information on the data plotted in the map. You can use the legend toggling feature to visualize only the shapes that need to be interpreted. It is also possible to use a bar-style legend with an optional gradient background.
 
 ![maps legend](https://cdn.syncfusion.com/content/images/Flutter/pub_images/maps_images/map_legend.png)
 
@@ -49,9 +49,15 @@ Create a highly interactive and customizable maps widget that has features set i
 
 ![color mapping](https://cdn.syncfusion.com/content/images/Flutter/pub_images/maps_images/color_mapping.png)
 
-**Tooltip** - Display additional information about the shapes and bubbles using a customizable tooltip on a map.
+**Tooltip** - Display additional information about the shapes, bubbles, and markers using a customizable tooltip on a map.
 
 ![maps tooltip](https://cdn.syncfusion.com/content/images/Flutter/pub_images/maps_images/map_tooltip.png)
+
+**Shape sublayer**
+Add a shape sublayer with GeoJSON data on another shape layer to show more details about a particular region.
+
+**Vector layer**
+Add shapes such as polylines, lines, polygons, circles, and arcs as a sublayer in the shape layer.
 
 **Zooming and panning** - Zoom in shape layer for a closer look at a specific region by pinching, scrolling the mouse wheel or track pad, or using the toolbar on the web. Pan the map to navigate across the regions.
 
@@ -59,9 +65,21 @@ Create a highly interactive and customizable maps widget that has features set i
 
 ### Tile layer
 
-**Markers** - Show markers for the tile layer in the specific latitudes and longitudes.
+**Markers** - Show markers for the tile layer in the specific latitudes and longitudes. Display additional information about the markers using a customizable tooltip on a map.
 
 ![tile layer marker](https://cdn.syncfusion.com/content/images/Tile_withmarker.png)
+
+**Shape sublayer**
+Add a shape sublayer with GeoJSON data on the tile layer to show more details about a particular region.
+
+![tile layer shape sublayer](https://cdn.syncfusion.com/content/images/FTControl/tile_shapesublayer.jpg)
+
+**Vector layer**
+Add shapes such as polylines, lines, polygons, circles, and arcs as a sublayer in the tile layer.
+
+![tile layer arc](https://cdn.syncfusion.com/content/images/FTControl/arc.jpg)
+
+![tile layer polyline](https://cdn.syncfusion.com/content/images/FTControl/polyline.jpg)
 
 **Zooming and panning** - Zoom in tile layer for a closer look at a specific region by pinching, scrolling the mouse wheel or track pad, or using the toolbar on the web. Pan the map to navigate across the regions.
 
@@ -115,9 +133,9 @@ Widget build(BuildContext context) {
 
 ### Add a GeoJSON file
 
-The `layers` in `SfMaps` contains collection of `MapShapeLayer`. The actual geographical rendering is done in the each `MapShapeLayer`. The `delegate` property of the `MapShapeLayer` is of type `MapShapeLayerDelegate`. The path of the .json file which contains the GeoJSON data has to be set to the `shapeFile` property of the `MapShapeLayerDelegate`.
+The `layers` in `SfMaps` contains collection of `MapShapeLayer`. The actual geographical rendering is done in the each `MapShapeLayer`. The `source` property of the `MapShapeLayer` is of type `MapShapeSource`. The path of the .json file which contains the GeoJSON data has to be set to the `shapeFile` property of the `MapShapeSource`.
 
-The `shapeDataField` property of the `MapShapeLayerDelegate` is used to refer the unique field name in the .json file to identify each shapes. In 'Mapping the data source' section of this document, this `shapeDataField` will be used to map with respective value returned in `primaryValueMapper` from the data source.
+The `shapeDataField` property of the `MapShapeSource` is used to refer the unique field name in the .json file to identify each shapes. In 'Mapping the data source' section of this document, this `shapeDataField` will be used to map with respective value returned in `primaryValueMapper` from the data source.
 
 ```dart
 @override
@@ -126,8 +144,8 @@ Widget build(BuildContext context) {
     body: SfMaps(
       layers: [
         MapShapeLayer(
-          delegate: const MapShapeLayerDelegate(
-            shapeFile: 'assets/australia.json',
+          source: MapShapeSource.asset(
+            'assets/australia.json',
             shapeDataField: 'STATE_NAME',
           ),
         ),
@@ -169,8 +187,8 @@ Widget build(BuildContext context) {
     body: SfMaps(
        layers: <MapShapeLayer>[
          MapShapeLayer(
-           delegate: MapShapeLayerDelegate(
-             shapeFile: 'assets/australia.json',
+           source: MapShapeSource.asset(
+             'assets/australia.json',
              shapeDataField: 'STATE_NAME',
              dataCount: data.length,
              primaryValueMapper: (int index) => data[index].state,
@@ -195,11 +213,11 @@ Add the basic maps elements such as title, data labels, legend, and tooltip as s
 
 * **Title** - You can add a title to the maps to provide a quick information about the data plotted in the map using the `title` property in the `SfMaps`.
 
-* **Data label** - You can show data labels using the `showDataLabels` property in the `MapShapeLayer` and also, it is possible to show data labels only for the particular shapes/or show custom text using the `dataLabelMapper` property in the `MapShapeLayerDelegate`.
+* **Data label** - You can show data labels using the `showDataLabels` property in the `MapShapeLayer` and also, it is possible to show data labels only for the particular shapes/or show custom text using the `dataLabelMapper` property in the `MapShapeSource`.
 
-* **Legend** - You can show legend using the `showLegend` property in the `MapShapeLayer`. The icon color of the legend is applied based on the color returned in the `shapeColorValueMapper` property in the `MapShapeLayerDelegate`. It is possible to customize the legend item's color and text using the `shapeColorMappers` property in the `MapShapeLayerDelegate`.
+* **Legend** - You can show legend using the `showLegend` property in the `MapShapeLayer`. The icon color of the legend is applied based on the color returned in the `shapeColorValueMapper` property in the `MapShapeSource`. It is possible to customize the legend item's color and text using the `shapeColorMappers` property in the `MapShapeSource`.
 
-* **Tooltip** - You can enable tooltip for the shapes using the `enableShapeTooltip` property in the `MapShapeLayer` and also, it is possible to enable tooltip only for the particular shapes/or show custom text using the `shapeTooltipTextMapper` property in the `MapShapeLayerDelegate`.
+* **Tooltip** - You can enable tooltip only for the particular shapes/or show custom text using the `shapeTooltipBuilder` property in the `MapShapeLayer`.
 
 ```dart
 List<Model> data;
@@ -225,41 +243,44 @@ void initState() {
 
 @override
 Widget build(BuildContext context) {
+  final ThemeData themeData = Theme.of(context);
   return Scaffold(
     body: Container(
       height: 520,
       child: Center(
         child: SfMaps(
-          title: const MapTitle(text: 'Australia map'),
+          title: const MapTitle('Australia map'),
           layers: <MapShapeLayer>[
             MapShapeLayer(
-              delegate: MapShapeLayerDelegate(
-                shapeFile: 'assets/australia.json',
+              source: MapShapeSource.asset(
+                'assets/australia.json',
                 shapeDataField: 'STATE_NAME',
                 dataCount: data.length,
                 primaryValueMapper: (int index) => data[index].state,
                 dataLabelMapper: (int index) => data[index].stateCode,
                 shapeColorValueMapper: (int index) => data[index].color,
-                shapeTooltipTextMapper: (int index) => data[index].stateCode,
               ),
+              legend: MapLegend(MapElement.shape),
               showDataLabels: true,
-              showLegend: true,
-              enableShapeTooltip: true,
-              tooltipSettings: MapTooltipSettings(color: Colors.grey[700],
-                  strokeColor: Colors.white, strokeWidth: 2
-              ),
+              shapeTooltipBuilder: (BuildContext context, int index) {
+                return Padding(
+                  padding: const EdgeInsets.all(7),
+                  child: Text(data[index].stateCode,
+                    style: themeData.textTheme.caption
+                      .copyWith(color: themeData.colorScheme.surface)),
+                );
+              },
+              tooltipSettings: MapTooltipSettings(
+                  color: Colors.grey[700],
+                  strokeColor: Colors.white,
+                  strokeWidth: 2),
               strokeColor: Colors.white,
               strokeWidth: 0.5,
               dataLabelSettings: MapDataLabelSettings(
                   textStyle: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize:
-                      Theme
-                          .of(context)
-                          .textTheme
-                          .caption
-                          .fontSize)),
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: themeData.textTheme.caption.fontSize)),
             ),
           ],
         ),

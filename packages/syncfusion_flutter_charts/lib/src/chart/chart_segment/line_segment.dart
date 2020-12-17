@@ -18,7 +18,7 @@ class LineSegment extends ChartSegment {
 
   Color _pointColorMapper;
 
-  bool _needAnimate;
+  bool _needAnimate, _newlyAddedSegment = false;
 
   Rect _axisClipRect;
 
@@ -105,6 +105,8 @@ class LineSegment extends ChartSegment {
   /// Draws segment in series bounds.
   @override
   void onPaint(Canvas canvas) {
+    num prevX, prevY;
+    LineSegment prevSegment;
     final Rect rect = _calculatePlotOffset(
         _seriesRenderer._chartState._chartAxis._axisClipRect,
         Offset(_seriesRenderer._xAxisRenderer._axis.plotOffset,
@@ -124,11 +126,25 @@ class LineSegment extends ChartSegment {
               currentSegmentIndex)
           ? _currentSegment._oldSeriesRenderer._segments[currentSegmentIndex]
           : null;
+      if (currentSegmentIndex > 0) {
+        prevSegment =
+            (_currentSegment._oldSeriesRenderer._segments.length - 1 >=
+                    currentSegmentIndex - 1)
+                ? _currentSegment
+                    ._oldSeriesRenderer._segments[currentSegmentIndex - 1]
+                : null;
+      }
       _oldX1 = _oldSegment?._x1;
       _oldY1 = _oldSegment?._y1;
       _oldX2 = _oldSegment?._x2;
       _oldY2 = _oldSegment?._y2;
-
+      if (_oldSegment == null && _chartState._widgetNeedUpdate) {
+        _newlyAddedSegment = true;
+        prevX = prevSegment?._x2;
+        prevY = prevSegment?._y2;
+      } else {
+        _newlyAddedSegment = false;
+      }
       if (_oldSegment != null &&
           (_oldX1.isNaN || _oldX2.isNaN) &&
           _seriesRenderer._chartState._oldAxisRenderers != null &&
@@ -170,20 +186,34 @@ class LineSegment extends ChartSegment {
           _oldY2 = _second.y;
         }
       }
-      _animateLineTypeSeries(
-        canvas,
-        _seriesRenderer,
-        strokePaint,
-        animationFactor,
-        _currentSegment._x1,
-        _currentSegment._y1,
-        _currentSegment._x2,
-        _currentSegment._y2,
-        _oldX1,
-        _oldY1,
-        _oldX2,
-        _oldY2,
-      );
+      if (_newlyAddedSegment) {
+        _animateToPoint(
+            canvas,
+            _seriesRenderer,
+            strokePaint,
+            animationFactor,
+            _currentSegment._x1,
+            _currentSegment._y1,
+            _currentSegment._x2,
+            _currentSegment._y2,
+            prevX,
+            prevY);
+      } else {
+        _animateLineTypeSeries(
+          canvas,
+          _seriesRenderer,
+          strokePaint,
+          animationFactor,
+          _currentSegment._x1,
+          _currentSegment._y1,
+          _currentSegment._x2,
+          _currentSegment._y2,
+          _oldX1,
+          _oldY1,
+          _oldX2,
+          _oldY2,
+        );
+      }
     } else {
       if (_series.dashArray[0] != 0 && _series.dashArray[1] != 0) {
         _path.moveTo(_x1, _y1);

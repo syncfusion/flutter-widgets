@@ -68,9 +68,36 @@ class StepLineSegment extends ChartSegment {
   /// Calculates the rendering bounds of a segment.
   @override
   void calculateSegmentPoints() {
-    _currentLocation = _currentPoint.currentPoint;
-    _nextLocation = _currentPoint._nextPoint;
-    _midLocation = _currentPoint._midPoint;
+    final ChartAxisRenderer _xAxisRenderer = _seriesRenderer._xAxisRenderer;
+    final ChartAxisRenderer _yAxisRenderer = _seriesRenderer._yAxisRenderer;
+    final Rect _axisClipRect = _calculatePlotOffset(
+        _chartState._chartAxis._axisClipRect,
+        Offset(_seriesRenderer._xAxisRenderer._axis.plotOffset,
+            _seriesRenderer._yAxisRenderer._axis.plotOffset));
+    _currentLocation = _calculatePoint(
+        _currentPoint.xValue,
+        _currentPoint.yValue,
+        _xAxisRenderer,
+        _yAxisRenderer,
+        _seriesRenderer._chartState._requireInvertedAxis,
+        _seriesRenderer._series,
+        _axisClipRect);
+    _nextLocation = _calculatePoint(
+        _nextPoint.xValue,
+        _nextPoint.yValue,
+        _xAxisRenderer,
+        _yAxisRenderer,
+        _seriesRenderer._chartState._requireInvertedAxis,
+        _seriesRenderer._series,
+        _axisClipRect);
+    _midLocation = _calculatePoint(
+        _midX,
+        _midY,
+        _xAxisRenderer,
+        _yAxisRenderer,
+        _seriesRenderer._chartState._requireInvertedAxis,
+        _seriesRenderer._series,
+        _axisClipRect);
     _x1 = _currentLocation.x;
     _y1 = _currentLocation.y;
     _x2 = _nextLocation.x;

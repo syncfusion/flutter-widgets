@@ -46,6 +46,8 @@ part 'src/calendar/views/timeline_view.dart';
 part 'src/calendar/views/selection_view.dart';
 part 'src/calendar/views/time_ruler_view.dart';
 part 'src/calendar/views/schedule_view.dart';
+part 'src/calendar/views/custom_calendar_button.dart';
+part 'src/calendar/views/multi_child_container.dart';
 
 part './src/calendar/settings/time_slot_view_settings.dart';
 part './src/calendar/settings/month_view_settings.dart';

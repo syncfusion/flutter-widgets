@@ -147,8 +147,9 @@ class _RowGenerator {
   DataRowBase _createHeaderRow(
       int rowIndex, _VisibleLinesCollection visibleColumns) {
     final _DataGridSettings dataGridSettings = dataGridStateDetails();
+    DataRowBase dr;
     if (rowIndex == _GridIndexResolver.getHeaderIndex(dataGridSettings)) {
-      final dr = DataRow()
+      dr = DataRow()
         .._dataGridStateDetails = dataGridStateDetails
         ..rowIndex = rowIndex
         ..rowRegion = RowRegion.header
@@ -157,9 +158,31 @@ class _RowGenerator {
         .._key = ObjectKey(dr)
         .._initializeDataRow(visibleColumns);
       return dr;
+    } else if (dataGridSettings.stackedHeaderRows != null &&
+        rowIndex < dataGridSettings.stackedHeaderRows.length) {
+      dr = _SpannedDataRow();
+      dr._key = ObjectKey(dr);
+      dr.rowIndex = rowIndex;
+      dr._dataGridStateDetails = dataGridStateDetails;
+      dr.rowRegion = RowRegion.header;
+      dr.rowType = RowType.stackedHeaderRow;
+      _createStackedHeaderCell(
+          dataGridSettings.stackedHeaderRows[rowIndex], rowIndex);
+      dr._initializeDataRow(visibleColumns);
+      return dr;
     } else {
       return _createDataRow(rowIndex, visibleColumns,
           rowRegion: RowRegion.header);
+    }
+  }
+
+  void _createStackedHeaderCell(StackedHeaderRow header, int rowIndex) {
+    final _DataGridSettings dataGridSettings = dataGridStateDetails();
+    for (final column in header.cells) {
+      final List<int> childSequence = _StackedHeaderHelper._getChildSequence(
+          dataGridSettings, column, rowIndex);
+      childSequence.sort();
+      column._childColumnIndexes = childSequence;
     }
   }
 
@@ -181,9 +204,10 @@ class _RowGenerator {
 
   void _updateRow(List<DataRowBase> rows, int index, RowRegion region) {
     if (region == RowRegion.header) {
+      DataRowBase dr;
       final _DataGridSettings dataGridSettings = dataGridStateDetails();
       if (index == _GridIndexResolver.getHeaderIndex(dataGridSettings)) {
-        var dr = rows.firstWhere((row) => row.rowType == RowType.headerRow,
+        dr = rows.firstWhere((row) => row.rowType == RowType.headerRow,
             orElse: () => null);
         if (dr != null) {
           dr
@@ -194,6 +218,26 @@ class _RowGenerator {
             ..rowType = RowType.headerRow
             .._rowIndexChanged();
           dr = null;
+        } else {
+          dr = _createHeaderRow(
+              index, _SfDataGridHelper.getVisibleLines(dataGridStateDetails()));
+          items.add(dr);
+          dr = null;
+        }
+      } else if (index < dataGridSettings.stackedHeaderRows.length) {
+        dr = rows.firstWhere((r) => r.rowType == RowType.stackedHeaderRow,
+            orElse: () => null);
+        if (dr != null) {
+          dr._key = dr._key;
+          dr.rowIndex = index;
+          _dataGridStateDetails = dataGridStateDetails;
+          dr.rowRegion = RowRegion.header;
+          dr.rowType = RowType.stackedHeaderRow;
+          dr._rowIndexChanged();
+          _createStackedHeaderCell(
+              dataGridSettings.stackedHeaderRows[index], index);
+          dr._initializeDataRow(
+              dataGridSettings.container.scrollRows.getVisibleLines());
         } else {
           dr = _createHeaderRow(
               index, _SfDataGridHelper.getVisibleLines(dataGridStateDetails()));

@@ -59,12 +59,12 @@ class ChartTextArea {
   }
 
   /// Gets font size.
-  int get size {
+  double get size {
     return _font.size;
   }
 
   /// Sets font size.
-  set size(int value) {
+  set size(double value) {
     _font.size = value;
   }
 

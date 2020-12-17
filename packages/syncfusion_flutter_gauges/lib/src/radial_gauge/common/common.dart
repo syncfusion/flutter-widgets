@@ -15,7 +15,9 @@ typedef MarkerPointerRendererFactory<MarkerPointerRenderer>
 typedef NeedlePointerRendererFactory<NeedlePointerRenderer>
     = NeedlePointerRenderer Function();
 
-/// A style in which paint text.
+/// This class has the property of the guage text style.
+///
+/// Provides the options of color, font family, font style, font size, and font-weight to customize the appearance.
 class GaugeTextStyle {
   /// Creates a gauge text style with default or required properties.
   GaugeTextStyle(
@@ -25,19 +27,25 @@ class GaugeTextStyle {
       this.fontWeight = FontWeight.normal,
       this.fontSize = 12});
 
-  /// The color to use when painting the text.
+  /// To set the color of guage text.
   Color color;
 
-  /// The name of the font to use when painting the text (e.g., Roboto)
+  /// To set the font family to guage text.
+  ///
+  ///Defaults to `Roboto`.
   String fontFamily;
 
-  /// The typeface variant to use when drawing the text (e.g., italics)
+  /// To set the font style to guage text.
   FontStyle fontStyle;
 
-  /// The typeface thickness to use when painting the text (e.g., bold).
+  /// To set the font weight to guage text.
+  ///
+  /// Defaults to FontWeight.normal
   FontWeight fontWeight;
 
-  /// The size of glyphs (in logical pixels) to use when painting the text.
+  /// To set the font size to guage text
+  ///
+  /// Defaults to `12`.
   double fontSize;
 
   @override
@@ -127,8 +135,8 @@ class GaugeTitle {
   ///
   /// Using [TextStyle] to add the style to the axis labels.
   ///
-  /// Defaults to the [TextStyle] property with font size is 12.0
-  /// and font family is Segoe UI.
+  /// Defaults to the [TextStyle] property with font size `12.0`
+  /// and font family `Segoe UI`.
   ///
   /// Also refer [TextStyle]
   ///
@@ -154,7 +162,7 @@ class GaugeTitle {
   ///
   /// Changing the background color will cause the gauge title to the new color.
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -171,7 +179,7 @@ class GaugeTitle {
 
   /// The color that fills the border with the title of the gauge.
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   ///```dart
   /// Widget build(BuildContext context) {
   ///    return Container(
@@ -188,7 +196,7 @@ class GaugeTitle {
 
   /// Specifies the border width of the gauge title.
   ///
-  /// Defaults to 0
+  /// Defaults to `0`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
@@ -213,7 +221,7 @@ class GaugeTitle {
   /// of gauge and the [GaugeAlignment.far] places the gauge title at the
   /// end of the gauge.
   ///
-  /// Defaults to [GaugeAlignment.center]
+  /// Defaults to `GaugeAlignment.center`.
   ///
   /// Also refer [GaugeAlignment]
   ///
@@ -299,7 +307,7 @@ class MajorTickStyle {
   /// tick length is 20(0.2 * 100) logical pixels. if [lengthUnit] is
   /// [GaugeSizeUnit.logicalPixel], defined value is set to the tick length.
   ///
-  /// Defaults to 7 and [lengthUnit] is [GaugeSizeUnit.logicalPixel]
+  /// Defaults to `7` and [lengthUnit] is `GaugeSizeUnit.logicalPixel`.
   ///
   /// ``` dart
   ///Widget build(BuildContext context) {
@@ -317,7 +325,7 @@ class MajorTickStyle {
   ///
   /// Using [GaugeSizeUnit], tick length size is calculated.
   ///
-  /// Defaults to [GaugeSizeUnit.logicalPixel]
+  /// Defaults to `GaugeSizeUnit.logicalPixel`.
   ///
   /// Also refer [GaugeSizeUnit]
   ///
@@ -336,7 +344,7 @@ class MajorTickStyle {
 
   /// Specifies the thickness of tick in logical pixels.
   ///
-  /// Defaults to 1.5
+  /// Defaults to `1.5`.
   ///
   /// ```dart
   ///Widget build(BuildContext context) {
@@ -352,7 +360,7 @@ class MajorTickStyle {
 
   /// Specifies the color of tick.
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   ///
   /// ```dart
   ///Widget build(BuildContext context) {
@@ -368,7 +376,7 @@ class MajorTickStyle {
 
   /// Specifies the dash array to draw the dashed line.
   ///
-  /// Defaults to null.
+  /// Defaults to `null`.
   /// ```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
@@ -481,7 +489,7 @@ class AxisLineStyle {
   ///
   /// Using [GaugeSizeUnit], axis line thickness is calculated.
   ///
-  /// Defaults to [GaugeSizeUnit.logicalPixel].
+  /// Defaults to `GaugeSizeUnit.logicalPixel`.
   ///
   /// Also refer [GaugeSizeUnit].
   ///
@@ -511,7 +519,7 @@ class AxisLineStyle {
   /// If [thicknessUnit] is [GaugeSizeUnit.logicalPixel], the defined value
   /// for axis line thickness is set.
   ///
-  /// Defaults to 10 and [thicknessUnit] is [GaugeSizeUnit.logicalPixel].
+  /// Defaults to `10` and [thicknessUnit] is `GaugeSizeUnit.logicalPixel`.
   ///
   /// ```dart
   ///Widget build(BuildContext context) {
@@ -527,7 +535,7 @@ class AxisLineStyle {
 
   /// Specifies the color of axis line.
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   /// ```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
@@ -547,7 +555,7 @@ class AxisLineStyle {
   /// * [CornerStyle.startCurve] renders the rounded corner on start side.
   /// * [CornerStyle.endCurve] renders the rounded corner on end side.
   ///
-  /// Defaults to [CornerStyle.bothFlat].
+  /// Defaults to `CornerStyle.bothFlat`.
   ///
   /// Also refer [CornerStyle].
   ///
@@ -565,7 +573,7 @@ class AxisLineStyle {
 
   /// Specifies the dash array for axis line to draw the dashed line.
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   /// ```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
@@ -583,7 +591,7 @@ class AxisLineStyle {
   /// [gradient] of [AxisLineStyle] only support [SweepGradient] and
   /// specified [SweepGradient.stops] are applied within the axis range value.
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   ///
   /// ```dart
   ///Widget build(BuildContext context) {
@@ -640,13 +648,13 @@ class CircularAxisLabel {
   CircularAxisLabel(
       this.labelStyle, this.text, this.index, this._needsRotateLabel);
 
-  /// The style to use for the axis label text.
+  /// Style for axis label text.
   GaugeTextStyle labelStyle;
 
   /// Holds the size of axis label
   Size labelSize;
 
-  /// The text to display
+  /// Text to display
   String text;
 
   /// Specifies the axis index position
@@ -712,7 +720,7 @@ class ValueChangingArgs {
   bool cancel;
 }
 
-/// A style in which draw pointer tail.
+/// Style for drawing pointer's tail.
 ///
 /// ```dart
 ///Widget build(BuildContext context) {
@@ -745,7 +753,7 @@ class TailStyle {
 
   /// Specifies the color of the tail.
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
@@ -762,7 +770,7 @@ class TailStyle {
 
   /// Specifies the width of the tail.
   ///
-  /// Defaults to 0
+  /// Defaults to `0`.
   /// ``` dart
   ///Widget build(BuildContext context) {
   ///    return Container(
@@ -789,7 +797,7 @@ class TailStyle {
   /// if [lengthUnit] is [GaugeSizeUnit.logicalPixel], defined value length
   /// from axis center.
   ///
-  /// Defaults to 0 and [lengthUnit] is [GaugeSizeUnit.factor].
+  /// Defaults to `0` and [lengthUnit] is `GaugeSizeUnit.factor`.
   ///
   /// ``` dart
   ///Widget build(BuildContext context) {
@@ -810,7 +818,7 @@ class TailStyle {
   ///
   /// Using [GaugeSizeUnit], pointer tail length is calculated.
   ///
-  /// Defaults to [GaugeSizeUnit.factor].
+  /// Defaults to `GaugeSizeUnit.factor`.
   ///
   /// Also refer [GaugeSizeUnit]
   ///
@@ -831,7 +839,7 @@ class TailStyle {
 
   /// Specifies the border width of tail.
   ///
-  /// Defaults to 0
+  /// Defaults to `0`.
   ///
   /// ``` dart
   ///Widget build(BuildContext context) {
@@ -850,7 +858,7 @@ class TailStyle {
 
   /// Specifies the border color of tail.
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   /// ``` dart
   ///Widget build(BuildContext context) {
   ///    return Container(
@@ -871,7 +879,7 @@ class TailStyle {
   /// [gradient] of [TailStyle] only support [LinearGradient].
   /// You can use this to display the depth effect of the needle pointer.
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   ///
   /// ``` dart
   ///Widget build(BuildContext context) {
@@ -971,7 +979,7 @@ class KnobStyle {
   /// if [sizeUnit] is [GaugeSizeUnit.logicalPixel], defined value is
   /// set to the knob radius.
   ///
-  /// Defaults to 0.08 and [sizeUnit] is [GaugeSizeUnit.factor].
+  /// Defaults to 0.08 and `sizeUnit` is `GaugeSizeUnit.factor`.
   ///
   /// ```dart
   ///Widget build(BuildContext context) {
@@ -990,7 +998,7 @@ class KnobStyle {
   ///
   /// Using [GaugeSizeUnit], pointer knob radius size is calculated.
   ///
-  /// Defaults to [GaugeSizeUnit.factor].
+  /// Defaults to `GaugeSizeUnit.factor`.
   ///
   /// Also refer [GaugeSizeUnit]
   ///
@@ -1011,7 +1019,7 @@ class KnobStyle {
 
   /// Specifies the knob border width in logical pixel.
   ///
-  /// Defaults to 0
+  /// Defaults to `0`.
   /// ```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
@@ -1029,7 +1037,7 @@ class KnobStyle {
 
   /// Specifies the knob color.
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   /// ```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
@@ -1046,7 +1054,7 @@ class KnobStyle {
 
   /// Specifies the knob border color.
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   /// ```dart
   ///Widget build(BuildContext context) {
   ///    return Container(

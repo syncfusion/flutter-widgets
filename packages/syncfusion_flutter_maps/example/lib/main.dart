@@ -57,27 +57,34 @@ class _MyHomePageState extends State<MyHomePage> {
         height: 520,
         child: Center(
           child: SfMaps(
-            title: const MapTitle(text: 'Australia map'),
+            title: const MapTitle('Australia map'),
             layers: <MapShapeLayer>[
               MapShapeLayer(
-                delegate: MapShapeLayerDelegate(
-                  shapeFile: 'assets/australia.json',
+                source: MapShapeSource.asset(
+                  'assets/australia.json',
                   shapeDataField: 'STATE_NAME',
                   dataCount: _data.length,
                   primaryValueMapper: (int index) => _data[index].state,
                   dataLabelMapper: (int index) => _data[index].stateCode,
                   shapeColorValueMapper: (int index) => _data[index].color,
-                  shapeTooltipTextMapper: (int index) => _data[index].stateCode,
                 ),
                 showDataLabels: true,
-                legendSource: MapElement.shape,
-                enableShapeTooltip: true,
+                legend: MapLegend(MapElement.shape),
                 tooltipSettings: MapTooltipSettings(
                     color: Colors.grey[700],
                     strokeColor: Colors.white,
                     strokeWidth: 2),
                 strokeColor: Colors.white,
                 strokeWidth: 0.5,
+                shapeTooltipBuilder: (BuildContext context, int index) {
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      _data[index].stateCode,
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  );
+                },
                 dataLabelSettings: MapDataLabelSettings(
                     textStyle: TextStyle(
                         color: Colors.black,

@@ -105,29 +105,34 @@ class _DataLabelPainter extends CustomPainter {
           cartesianChartState._chartSeries.visibleSeriesRenderers[i];
       DataLabelSettingsRenderer dataLabelSettingsRenderer;
       if (seriesRenderer._series.dataLabelSettings.isVisible &&
-          (seriesRenderer._animationController.status ==
-                  AnimationStatus.completed ||
+          (seriesRenderer._animationCompleted ||
               seriesRenderer._series.animationDuration == 0 ||
               !cartesianChartState._initialRender) &&
           (!seriesRenderer._needAnimateSeriesElements ||
               (cartesianChartState._seriesDurationFactor <
                       seriesRenderer._animationController.value ||
-                  seriesRenderer._series.animationDuration == 0)) &&
+                  seriesRenderer._series.animationDuration == 0) ||
+              (seriesRenderer._animationController.status ==
+                  AnimationStatus.dismissed)) &&
           seriesRenderer._series.dataLabelSettings.builder == null) {
-        for (int j = 0; j < seriesRenderer._dataPoints.length; j++) {
-          if (seriesRenderer._visible &&
-              seriesRenderer._series.dataLabelSettings != null) {
-            seriesRenderer._dataLabelSettingsRenderer =
-                dataLabelSettingsRenderer = DataLabelSettingsRenderer(
-                    seriesRenderer._series.dataLabelSettings);
-            dataLabelSettingsRenderer?._renderDataLabel(
-                cartesianChartState,
-                seriesRenderer,
-                seriesRenderer._dataPoints[j],
-                animation,
-                canvas,
-                j,
-                dataLabelSettingsRenderer);
+        seriesRenderer._dataLabelSettingsRenderer =
+            DataLabelSettingsRenderer(seriesRenderer._series.dataLabelSettings);
+        if (seriesRenderer._visibleDataPoints != null &&
+            seriesRenderer._visibleDataPoints.isNotEmpty) {
+          for (int j = 0; j < seriesRenderer._visibleDataPoints.length; j++) {
+            if (seriesRenderer._visible &&
+                seriesRenderer._series.dataLabelSettings != null) {
+              dataLabelSettingsRenderer =
+                  seriesRenderer._dataLabelSettingsRenderer;
+              dataLabelSettingsRenderer?._renderDataLabel(
+                  cartesianChartState,
+                  seriesRenderer,
+                  seriesRenderer._visibleDataPoints[j],
+                  animation,
+                  canvas,
+                  j,
+                  dataLabelSettingsRenderer);
+            }
           }
         }
         if (animation.value >= 1) {
@@ -150,10 +155,10 @@ void _calculateRectSeriesRegion(
   final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer;
   final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer;
   final num crossesAt = _getCrossesAtValue(seriesRenderer, _chartState);
+  final num sideBySideMinimumVal = seriesRenderer.sideBySideInfo.minimum;
 
-  /// side by side range calculated
-  final _VisibleRange sideBySideInfo =
-      _calculateSideBySideInfo(seriesRenderer, _chartState);
+  final num sideBySideMaximumVal = seriesRenderer.sideBySideInfo.maximum;
+
   final num origin =
       crossesAt ?? math.max(yAxisRenderer._visibleRange.minimum, 0);
 
@@ -162,15 +167,15 @@ void _calculateRectSeriesRegion(
               seriesRenderer._seriesType.contains('stackedbar')) &&
           seriesRenderer is _StackedSeriesRenderer
       ? _calculateRectangle(
-          point.xValue + sideBySideInfo.minimum,
+          point.xValue + sideBySideMinimumVal,
           seriesRenderer._stackingValues[0].endValues[pointIndex],
-          point.xValue + sideBySideInfo.maximum,
+          point.xValue + sideBySideMaximumVal,
           crossesAt ??
               seriesRenderer._stackingValues[0].startValues[pointIndex],
           seriesRenderer,
           _chartState)
       : _calculateRectangle(
-          point.xValue + sideBySideInfo.minimum,
+          point.xValue + sideBySideMinimumVal,
           seriesRenderer._seriesType == 'rangecolumn'
               ? point.high
               : seriesRenderer._seriesType == 'boxandwhisker'
@@ -178,7 +183,7 @@ void _calculateRectSeriesRegion(
                   : seriesRenderer._seriesType == 'waterfall'
                       ? point.endValue
                       : point.yValue,
-          point.xValue + sideBySideInfo.maximum,
+          point.xValue + sideBySideMaximumVal,
           seriesRenderer._seriesType == 'rangecolumn'
               ? point.low
               : seriesRenderer._seriesType == 'boxandwhisker'
@@ -198,9 +203,9 @@ void _calculateRectSeriesRegion(
       seriesRenderer._seriesType != 'waterfall' &&
       series.isTrackVisible) {
     final Rect shadowPointRect = _calculateShadowRectangle(
-        point.xValue + sideBySideInfo.minimum,
+        point.xValue + sideBySideMinimumVal,
         seriesRenderer._seriesType == 'rangecolumn' ? point.high : point.yValue,
-        point.xValue + sideBySideInfo.maximum,
+        point.xValue + sideBySideMaximumVal,
         seriesRenderer._seriesType == 'rangecolumn' ? point.high : origin,
         seriesRenderer,
         _chartState,
@@ -238,7 +243,7 @@ void _calculateRectSeriesRegion(
   if (seriesRenderer._seriesType == 'waterfall') {
     /// The below values are used to find the chart location of the connector lines of each data point.
     point.originValueLeftPoint = _calculatePoint(
-        point.xValue + sideBySideInfo.minimum,
+        point.xValue + sideBySideMinimumVal,
         point.originValue,
         xAxisRenderer,
         yAxisRenderer,
@@ -249,7 +254,7 @@ void _calculateRectSeriesRegion(
             Offset(xAxisRenderer._axis.plotOffset,
                 yAxisRenderer._axis.plotOffset)));
     point.originValueRightPoint = _calculatePoint(
-        point.xValue + sideBySideInfo.maximum,
+        point.xValue + sideBySideMaximumVal,
         point.originValue,
         xAxisRenderer,
         yAxisRenderer,
@@ -260,7 +265,7 @@ void _calculateRectSeriesRegion(
             Offset(xAxisRenderer._axis.plotOffset,
                 yAxisRenderer._axis.plotOffset)));
     point.endValueLeftPoint = _calculatePoint(
-        point.xValue + sideBySideInfo.minimum,
+        point.xValue + sideBySideMinimumVal,
         point.endValue,
         xAxisRenderer,
         yAxisRenderer,
@@ -271,7 +276,7 @@ void _calculateRectSeriesRegion(
             Offset(xAxisRenderer._axis.plotOffset,
                 yAxisRenderer._axis.plotOffset)));
     point.endValueRightPoint = _calculatePoint(
-        point.xValue + sideBySideInfo.maximum,
+        point.xValue + sideBySideMaximumVal,
         point.endValue,
         xAxisRenderer,
         yAxisRenderer,
@@ -360,6 +365,9 @@ void _calculatePathSeriesRegion(
     num midY]) {
   final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer;
   final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer;
+  final num sideBySideMinimumVal = seriesRenderer?.sideBySideInfo?.minimum;
+
+  final num sideBySideMaximumVal = seriesRenderer?.sideBySideInfo?.maximum;
   if (seriesRenderer._seriesType != 'rangearea' &&
       seriesRenderer._seriesType != 'splinerangearea' &&
       (!seriesRenderer._seriesType.contains('hilo')) &&
@@ -374,7 +382,7 @@ void _calculatePathSeriesRegion(
           point.controlPoint[0].controlPoint2,
           xAxisRenderer,
           yAxisRenderer,
-          seriesRenderer._chartState._requireInvertedAxis,
+          _chartState._requireInvertedAxis,
           seriesRenderer._series,
           rect);
       point.endControl = _calculatePoint(
@@ -382,7 +390,7 @@ void _calculatePathSeriesRegion(
           point.controlPoint[1].controlPoint2,
           xAxisRenderer,
           yAxisRenderer,
-          seriesRenderer._chartState._requireInvertedAxis,
+          _chartState._requireInvertedAxis,
           seriesRenderer._series,
           rect);
     }
@@ -396,7 +404,7 @@ void _calculatePathSeriesRegion(
           point.controlPoint[0].controlPoint2,
           xAxisRenderer,
           yAxisRenderer,
-          seriesRenderer._chartState._requireInvertedAxis,
+          _chartState._requireInvertedAxis,
           seriesRenderer._series,
           rect);
       point.endControl = _calculatePoint(
@@ -404,7 +412,7 @@ void _calculatePathSeriesRegion(
           point.controlPoint[1].controlPoint2,
           xAxisRenderer,
           yAxisRenderer,
-          seriesRenderer._chartState._requireInvertedAxis,
+          _chartState._requireInvertedAxis,
           seriesRenderer._series,
           rect);
     }
@@ -501,7 +509,6 @@ void _calculatePathSeriesRegion(
         _chartState._requireInvertedAxis,
         seriesRenderer._series,
         rect);
-
     if (seriesRenderer._seriesType == 'splinerangearea' &&
         pointIndex != 0 &&
         pointIndex <= seriesRenderer._dataPoints.length - 1) {
@@ -514,13 +521,38 @@ void _calculatePathSeriesRegion(
           point.controlPointshigh[0].controlPoint2,
           xAxisRenderer,
           yAxisRenderer,
-          seriesRenderer._chartState._requireInvertedAxis,
+          _chartState._requireInvertedAxis,
           seriesRenderer._series,
           rect);
 
       point.highEndControl = _calculatePoint(
           point.controlPointshigh[1].controlPoint1,
           point.controlPointshigh[1].controlPoint2,
+          xAxisRenderer,
+          yAxisRenderer,
+          _chartState._requireInvertedAxis,
+          seriesRenderer._series,
+          rect);
+    }
+    if (seriesRenderer._seriesType == 'splinerangearea' &&
+        pointIndex >= 0 &&
+        pointIndex <= seriesRenderer._dataPoints.length - 2) {
+      point.controlPointslow = seriesRenderer
+          ._drawLowControlPoints[seriesRenderer._dataPoints.indexOf(point)]
+          ._listControlPoints;
+
+      point.lowStartControl = _calculatePoint(
+          point.controlPointslow[0].controlPoint1,
+          point.controlPointslow[0].controlPoint2,
+          xAxisRenderer,
+          yAxisRenderer,
+          seriesRenderer._chartState._requireInvertedAxis,
+          seriesRenderer._series,
+          rect);
+
+      point.lowEndControl = _calculatePoint(
+          point.controlPointslow[1].controlPoint1,
+          point.controlPointslow[1].controlPoint2,
           xAxisRenderer,
           yAxisRenderer,
           seriesRenderer._chartState._requireInvertedAxis,
@@ -536,7 +568,7 @@ void _calculatePathSeriesRegion(
           point.low,
           seriesRenderer._xAxisRenderer,
           seriesRenderer._yAxisRenderer,
-          seriesRenderer._chartState._requireInvertedAxis,
+          _chartState._requireInvertedAxis,
           seriesRenderer._series,
           rect);
       point.highPoint = _calculatePoint(
@@ -544,7 +576,7 @@ void _calculatePathSeriesRegion(
           point.high,
           seriesRenderer._xAxisRenderer,
           seriesRenderer._yAxisRenderer,
-          seriesRenderer._chartState._requireInvertedAxis,
+          _chartState._requireInvertedAxis,
           seriesRenderer._series,
           rect);
     } else if ((seriesRenderer._seriesType == 'hiloopenclose' ||
@@ -553,25 +585,25 @@ void _calculatePathSeriesRegion(
         point.close != null &&
         point.low != null &&
         point.high != null) {
-      final num center = (point.xValue + sideBySideInfo.minimum) +
-          (((point.xValue + sideBySideInfo.maximum) -
-                  (point.xValue + sideBySideInfo.minimum)) /
+      final num center = (point.xValue + sideBySideMinimumVal) +
+          (((point.xValue + sideBySideMaximumVal) -
+                  (point.xValue + sideBySideMinimumVal)) /
               2);
       point.openPoint = _calculatePoint(
-          point.xValue + sideBySideInfo.minimum,
+          point.xValue + sideBySideMinimumVal,
           point.open,
           seriesRenderer._xAxisRenderer,
           seriesRenderer._yAxisRenderer,
-          seriesRenderer._chartState._requireInvertedAxis,
+          _chartState._requireInvertedAxis,
           seriesRenderer._series,
           rect);
 
       point.closePoint = _calculatePoint(
-          point.xValue + sideBySideInfo.maximum,
+          point.xValue + sideBySideMaximumVal,
           point.close,
           seriesRenderer._xAxisRenderer,
           seriesRenderer._yAxisRenderer,
-          seriesRenderer._chartState._requireInvertedAxis,
+          _chartState._requireInvertedAxis,
           seriesRenderer._series,
           rect);
       if (seriesRenderer._series.dataLabelSettings.isVisible) {
@@ -580,7 +612,7 @@ void _calculatePathSeriesRegion(
             point.open,
             seriesRenderer._xAxisRenderer,
             seriesRenderer._yAxisRenderer,
-            seriesRenderer._chartState._requireInvertedAxis,
+            _chartState._requireInvertedAxis,
             seriesRenderer._series,
             rect);
 
@@ -589,7 +621,7 @@ void _calculatePathSeriesRegion(
             point.close,
             seriesRenderer._xAxisRenderer,
             seriesRenderer._yAxisRenderer,
-            seriesRenderer._chartState._requireInvertedAxis,
+            _chartState._requireInvertedAxis,
             seriesRenderer._series,
             rect);
       }
@@ -599,7 +631,7 @@ void _calculatePathSeriesRegion(
           point.high,
           seriesRenderer._xAxisRenderer,
           seriesRenderer._yAxisRenderer,
-          seriesRenderer._chartState._requireInvertedAxis,
+          _chartState._requireInvertedAxis,
           seriesRenderer._series,
           rect);
 
@@ -608,24 +640,24 @@ void _calculatePathSeriesRegion(
           point.low,
           seriesRenderer._xAxisRenderer,
           seriesRenderer._yAxisRenderer,
-          seriesRenderer._chartState._requireInvertedAxis,
+          _chartState._requireInvertedAxis,
           seriesRenderer._series,
           rect);
 
       point.lowPoint = _calculatePoint(
-          point.xValue + sideBySideInfo.minimum,
+          point.xValue + sideBySideMinimumVal,
           point.low,
           seriesRenderer._xAxisRenderer,
           seriesRenderer._yAxisRenderer,
-          seriesRenderer._chartState._requireInvertedAxis,
+          _chartState._requireInvertedAxis,
           seriesRenderer._series,
           rect);
       point.highPoint = _calculatePoint(
-          point.xValue + sideBySideInfo.maximum,
+          point.xValue + sideBySideMaximumVal,
           point.high,
           seriesRenderer._xAxisRenderer,
           seriesRenderer._yAxisRenderer,
-          seriesRenderer._chartState._requireInvertedAxis,
+          _chartState._requireInvertedAxis,
           seriesRenderer._series,
           rect);
     }
@@ -636,9 +668,9 @@ void _calculatePathSeriesRegion(
         point.upperQuartile != null &&
         point.lowerQuartile != null &&
         point.median != null) {
-      final num center = (point.xValue + sideBySideInfo.minimum) +
-          (((point.xValue + sideBySideInfo.maximum) -
-                  (point.xValue + sideBySideInfo.minimum)) /
+      final num center = (point.xValue + sideBySideMinimumVal) +
+          (((point.xValue + sideBySideMaximumVal) -
+                  (point.xValue + sideBySideMinimumVal)) /
               2);
       point.centerMeanPoint = _calculatePoint(
           center,
@@ -650,7 +682,7 @@ void _calculatePathSeriesRegion(
           rect);
 
       point.minimumPoint = _calculatePoint(
-          point.xValue + sideBySideInfo.minimum,
+          point.xValue + sideBySideMinimumVal,
           point.minimum,
           seriesRenderer._xAxisRenderer,
           seriesRenderer._yAxisRenderer,
@@ -659,7 +691,7 @@ void _calculatePathSeriesRegion(
           rect);
 
       point.maximumPoint = _calculatePoint(
-          point.xValue + sideBySideInfo.maximum,
+          point.xValue + sideBySideMaximumVal,
           point.maximum,
           seriesRenderer._xAxisRenderer,
           seriesRenderer._yAxisRenderer,
@@ -686,7 +718,7 @@ void _calculatePathSeriesRegion(
           rect);
 
       point.lowerQuartilePoint = _calculatePoint(
-          point.xValue + sideBySideInfo.minimum,
+          point.xValue + sideBySideMinimumVal,
           point.lowerQuartile,
           seriesRenderer._xAxisRenderer,
           seriesRenderer._yAxisRenderer,
@@ -695,7 +727,7 @@ void _calculatePathSeriesRegion(
           rect);
 
       point.upperQuartilePoint = _calculatePoint(
-          point.xValue + sideBySideInfo.maximum,
+          point.xValue + sideBySideMaximumVal,
           point.upperQuartile,
           seriesRenderer._xAxisRenderer,
           seriesRenderer._yAxisRenderer,
@@ -704,7 +736,7 @@ void _calculatePathSeriesRegion(
           rect);
 
       point.medianPoint = _calculatePoint(
-          point.xValue + sideBySideInfo.minimum,
+          point.xValue + sideBySideMinimumVal,
           point.median,
           seriesRenderer._xAxisRenderer,
           seriesRenderer._yAxisRenderer,
@@ -724,7 +756,7 @@ void _calculatePathSeriesRegion(
     point.region = seriesRenderer._seriesType.contains('hilo') ||
             seriesRenderer._seriesType.contains('candle') ||
             seriesRenderer._seriesType.contains('boxandwhisker')
-        ? !seriesRenderer._chartState._requireInvertedAxis
+        ? !_chartState._requireInvertedAxis
             ? Rect.fromLTWH(
                 point.markerPoint.x,
                 point.markerPoint.y,
@@ -742,9 +774,9 @@ void _calculatePathSeriesRegion(
             point.markerPoint2.y);
     if (seriesRenderer._seriesType.contains('boxandwhisker')) {
       point.boxRectRegion = _calculateRectangle(
-          point.xValue + sideBySideInfo.minimum,
+          point.xValue + sideBySideMinimumVal,
           point.upperQuartile,
-          point.xValue + sideBySideInfo.maximum,
+          point.xValue + sideBySideMaximumVal,
           point.lowerQuartile,
           seriesRenderer,
           _chartState);
@@ -774,12 +806,13 @@ void _calculateTooltipRegion(
   final SfCartesianChart chart = _chartState._chart;
   final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer;
   final CartesianSeries<dynamic, dynamic> series = seriesRenderer._series;
-  final num crossesAt =
-      _getCrossesAtValue(seriesRenderer, seriesRenderer._chartState);
+  final num crossesAt = _getCrossesAtValue(seriesRenderer, _chartState);
   if ((series.enableTooltip != null ||
-          seriesRenderer._chart.trackballBehavior != null) &&
+          seriesRenderer._chart.trackballBehavior != null ||
+          chart.onPointTapped != null) &&
       (series.enableTooltip ||
-          seriesRenderer._chart.trackballBehavior.enable) &&
+          seriesRenderer._chart.trackballBehavior.enable ||
+          chart.onPointTapped != null) &&
       point != null &&
       !point.isGap &&
       !point.isDrop &&
@@ -936,7 +969,7 @@ void _drawDashedLine(
       even = true;
     }
   }
-  if (even == false && !kIsWeb) {
+  if (even == false) {
     paint.isAntiAlias = false;
     canvas.drawPath(
         _dashPath(

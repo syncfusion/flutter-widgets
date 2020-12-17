@@ -54,11 +54,18 @@ class _SplineChartPainter extends CustomPainter {
         _performLinearAnimation(
             chartState, xAxisRenderer._axis, canvas, animationFactor);
       }
-      _calculateSplineAreaControlPoints(seriesRenderer);
+      if (!seriesRenderer._hasDataLabelTemplate) {
+        _calculateSplineAreaControlPoints(seriesRenderer);
+      }
 
       int segmentIndex = -1;
 
       CartesianChartPoint<dynamic> point, _nextPoint, startPoint, endPoint;
+
+      if (seriesRenderer._visibleDataPoints == null ||
+          seriesRenderer._visibleDataPoints.isNotEmpty) {
+        seriesRenderer._visibleDataPoints = <CartesianChartPoint<dynamic>>[];
+      }
 
       ///Draw spline for spline series
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {

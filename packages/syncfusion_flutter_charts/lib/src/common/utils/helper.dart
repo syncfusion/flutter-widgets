@@ -7,10 +7,14 @@ typedef DataLabelTapCallback = void Function(DataLabelTapDetails onTapArgs);
 
 /// [onDataLabelTapped] event for all series.
 void _dataLabelTapEvent(dynamic chart, DataLabelSettings dataLabelSettings,
-    int pointIndex, dynamic point, Offset position) {
+    int pointIndex, dynamic point, Offset position, int seriesIndex) {
   DataLabelTapDetails datalabelArgs;
-  datalabelArgs = DataLabelTapDetails(0, pointIndex,
-      chart is SfCartesianChart ? point.label : point.text, dataLabelSettings);
+  datalabelArgs = DataLabelTapDetails(
+      seriesIndex,
+      pointIndex,
+      chart is SfCartesianChart ? point.label : point.text,
+      dataLabelSettings,
+      chart is SfCartesianChart ? point.overallDataPointIndex : pointIndex);
   datalabelArgs.position = position;
   chart.onDataLabelTapped(datalabelArgs);
   position = datalabelArgs.position;

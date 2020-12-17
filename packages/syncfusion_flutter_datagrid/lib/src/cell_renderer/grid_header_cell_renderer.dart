@@ -19,12 +19,11 @@ class GridHeaderCellRenderer
         style: dataCell._cellStyle?.textStyle ??
             _dataGridStateDetails().dataGridThemeData.headerStyle.textStyle,
       );
-
       dataCell._columnElement = GridHeaderCell(
         key: dataCell._key,
         dataCell: dataCell,
         alignment: dataCell.gridColumn.headerTextAlignment,
-        padding: dataCell.gridColumn.padding,
+        padding: dataCell.gridColumn.headerPadding,
         backgroundColor: dataCell._cellStyle?.backgroundColor ??
             _dataGridStateDetails()
                 .dataGridThemeData
@@ -41,6 +40,21 @@ class GridHeaderCellRenderer
 
   @override
   void setCellStyle(DataCellBase dataCell) {
+    TextStyle getDefaultHeaderTextStyle() {
+      return _dataGridStateDetails().dataGridThemeData.brightness ==
+              Brightness.light
+          ? TextStyle(
+              fontFamily: 'Roboto',
+              fontWeight: FontWeight.w500,
+              fontSize: 14,
+              color: Colors.black87)
+          : TextStyle(
+              fontFamily: 'Roboto',
+              fontWeight: FontWeight.w500,
+              fontSize: 14,
+              color: Color.fromRGBO(255, 255, 255, 1));
+    }
+
     if (dataCell != null) {
       dataCell
         ..cellValue =
@@ -51,11 +65,18 @@ class GridHeaderCellRenderer
             // Uncomment the below code if the mentioned report has resolved from framework side
             // https://github.com/flutter/flutter/issues/29702
             //this._dataGridStateDetails().dataGridThemeData?.headerStyle?.backgroundColor,
-            textStyle: dataCell.gridColumn.headerStyle?.textStyle ??
-                _dataGridStateDetails()
-                    .dataGridThemeData
-                    ?.headerStyle
-                    ?.textStyle);
+            textStyle: dataCell._ishover
+                ? (dataCell.gridColumn.headerStyle?.hoverTextStyle ??
+                    _dataGridStateDetails()
+                        .dataGridThemeData
+                        .headerStyle
+                        .hoverTextStyle)
+                : (dataCell.gridColumn.headerStyle?.textStyle ??
+                    _dataGridStateDetails()
+                        .dataGridThemeData
+                        ?.headerStyle
+                        ?.textStyle ??
+                    getDefaultHeaderTextStyle()));
     }
   }
 }

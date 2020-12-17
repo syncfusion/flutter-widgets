@@ -3,19 +3,11 @@ part of xlsio;
 /// <summary>
 /// Class used for Fraction tokens.
 /// </summary>
-class _FractionToken extends _SingleCharToken {
+class _FractionToken extends _FormatTokenBase {
   /// <summary>
   /// Format character.
   /// </summary>
   static const String _defaultFormatChar = '/';
-
-  /// <summary>
-  /// Initializes a new instance of the FractionToken class.
-  /// </summary>
-  // ignore: sort_constructors_first
-  _FractionToken() {
-    formatChar = _defaultFormatChar;
-  }
 
   /// <summary>
   /// Applies format to the value.
@@ -45,11 +37,11 @@ class _FractionToken extends _SingleCharToken {
 
     final String chCurrent = strFormat[iIndex];
 
-    if (chCurrent == formatChar) {
+    if (chCurrent == _defaultFormatChar) {
       iIndex++;
       _strFormat = chCurrent.toString();
     } else if (strFormat[iIndex] == '\\' &&
-        strFormat[iIndex + 1] == formatChar) {
+        strFormat[iIndex + 1] == _defaultFormatChar) {
       _strFormat = strFormat[iIndex + 1].toString();
       iIndex = iIndex + 2;
     }

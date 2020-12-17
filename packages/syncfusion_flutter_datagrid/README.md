@@ -35,6 +35,10 @@ The Syncfusion Flutter DataGrid is used to display and manipulate data in a tabu
 
 * **Styling** - Customize the appearance of cells and headers. Conditional styling is also supported.
 
+* **Stacked headers** - Show unbound header rows. Unbound header rows span stacked header columns across multiple rows and columns.
+
+* **Load more** - Display an interactive view when the grid reaches its maximum offset while scrolling down. Tapping the interactive view triggers a callback to add more data from the data source of the grid at run time.
+
 * **Paging** - Load data in segments. It is useful when loading huge amounts of data.
 
 * **Theme** - Use a dark or light theme.

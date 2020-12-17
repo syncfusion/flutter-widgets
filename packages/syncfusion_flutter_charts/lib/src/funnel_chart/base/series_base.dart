@@ -384,8 +384,20 @@ class _FunnelSeries {
     final FunnelSeriesRenderer seriesRenderer =
         _chartState._chartSeries.visibleSeriesRenderers[0];
     final List<int> selectionData = _chartState._selectionData;
+    int currentSelectedIndex;
     if (seriesRenderer._isSelectionEnable && mode == chart.selectionGesture) {
       if (selectionData.isNotEmpty) {
+        if (!chart.enableMultiSelection &&
+            _chartState._selectionData.isNotEmpty &&
+            _chartState._selectionData.length > 1) {
+          if (_chartState._selectionData.contains(pointIndex)) {
+            currentSelectedIndex = pointIndex;
+          }
+          _chartState._selectionData.clear();
+          if (currentSelectedIndex != null) {
+            _chartState._selectionData.add(pointIndex);
+          }
+        }
         for (int i = 0; i < selectionData.length; i++) {
           final int selectionIndex = selectionData[i];
           if (!chart.enableMultiSelection) {
@@ -425,10 +437,9 @@ class _FunnelSeries {
       if (selectionData.isNotEmpty) {
         for (int i = 0; i < selectionData.length; i++) {
           final int selectionIndex = selectionData[i];
-          if (chart.onSelectionChanged != null &&
-              selectionIndex == currentPointIndex) {
+          if (chart.onSelectionChanged != null) {
             chart.onSelectionChanged(_getSelectionEventArgs(
-                seriesRenderer, seriesIndex, currentPointIndex));
+                seriesRenderer, seriesIndex, selectionIndex));
           }
           if (currentPointIndex == selectionIndex) {
             pointStyle = _StyleOptions(
@@ -466,7 +477,8 @@ class _FunnelSeries {
   SelectionArgs _getSelectionEventArgs(
       dynamic seriesRenderer, num seriesIndex, num pointIndex) {
     final FunnelSeries<dynamic, dynamic> series = seriesRenderer._series;
-    if (series != null) {
+    final SfFunnelChart chart = seriesRenderer._chartState._chart;
+    if (series != null && pointIndex < chart.series.dataSource.length) {
       final dynamic selectionBehavior = seriesRenderer._selectionBehavior;
       _selectionArgs =
           SelectionArgs(seriesRenderer, seriesIndex, pointIndex, pointIndex);

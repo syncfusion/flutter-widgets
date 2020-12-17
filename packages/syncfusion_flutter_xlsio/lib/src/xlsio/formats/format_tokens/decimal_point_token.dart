@@ -3,7 +3,7 @@ part of xlsio;
 /// <summary>
 /// Class used for describing DecimalSeparatorToken.
 /// </summary>
-class _DecimalPointToken extends _SingleCharToken {
+class _DecimalPointToken extends _FormatTokenBase {
   /// <summary>
   /// Format character.
   /// </summary>

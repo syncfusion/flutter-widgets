@@ -16,7 +16,7 @@ part of pdf;
 /// //Dispose the document.
 /// doc.dispose();
 /// ```
-abstract class PdfImage implements _IPdfWrapper {
+abstract class PdfImage extends PdfShapeElement implements _IPdfWrapper {
   //Fields
   double _jpegOrientationAngle;
   _PdfStream _imageStream;

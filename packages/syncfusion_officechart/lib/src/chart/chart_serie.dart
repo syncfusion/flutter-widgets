@@ -75,7 +75,9 @@ class ChartSerie {
   /// serie.linePattern = ExcelChartLinePattern.dash;
   /// chart.isSeriesInRows = false;
   /// sheet.charts = charts;
-  /// workbook.save('Chart.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Chart.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
   /// ```
   ChartDataLabels get dataLabels {
     return _dataLabels ??= ChartDataLabels(this);

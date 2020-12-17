@@ -20,6 +20,8 @@ class _SelectionRenderer {
   List<ChartSegment> selectedSegments;
   List<ChartSegment> unselectedSegments;
   SelectionType selectionType;
+  int overallPointIndex;
+  bool selected = false;
 
   ////Selects or deselects the specified data point in the series.
   ///
@@ -63,6 +65,9 @@ class _SelectionRenderer {
             select = selectionBehaviorRenderer._selectionRenderer
                 .isCartesianSelection(
                     chart, seriesRender, pointIndex, seriesIndex);
+            selected = pointIndex != null;
+            overallPointIndex =
+                seriesRender._dataPoints[pointIndex].visiblePointIndex;
           }
         } else {
           _chartState._renderDatalabelRegions = <Rect>[];
@@ -195,28 +200,40 @@ class _SelectionRenderer {
                 selectionArgs != null &&
                 selectionArgs.selectedColor != null
             ? selectionArgs.selectedColor
-            : selectionBehavior.selectedColor ??
-                segment._defaultFillColor.color;
+            : _chartState._selectionArgs != null &&
+                    _chartState._selectionArgs.selectedColor != null
+                ? _chartState._selectionArgs.selectedColor
+                : selectionBehavior.selectedColor ??
+                    segment._defaultFillColor.color;
       }
       fillOpacity = chartEventSelection != null &&
               selectionArgs != null &&
               selectionArgs.selectedColor != null
           ? selectionArgs.selectedColor.opacity
-          : selectionBehavior.selectedOpacity ?? series.opacity;
+          : _chartState._selectionArgs != null &&
+                  _chartState._selectionArgs.selectedColor != null
+              ? _chartState._selectionArgs.selectedColor.opacity
+              : selectionBehavior.selectedOpacity ?? series.opacity;
     } else {
       if (series is CartesianSeries) {
         fillColor = chartEventSelection != null &&
                 selectionArgs != null &&
                 selectionArgs.unselectedColor != null
             ? selectionArgs.unselectedColor
-            : selectionBehavior.unselectedColor ??
-                segment._defaultFillColor.color;
+            : _chartState._selectionArgs != null &&
+                    _chartState._selectionArgs.unselectedColor != null
+                ? _chartState._selectionArgs.unselectedColor
+                : selectionBehavior.unselectedColor ??
+                    segment._defaultFillColor.color;
       }
       fillOpacity = chartEventSelection != null &&
               selectionArgs != null &&
               selectionArgs.unselectedColor != null
           ? selectionArgs.unselectedColor.opacity
-          : selectionBehavior.unselectedOpacity ?? series.opacity;
+          : _chartState._selectionArgs != null &&
+                  _chartState._selectionArgs.unselectedColor != null
+              ? _chartState._selectionArgs.unselectedColor.opacity
+              : selectionBehavior.unselectedOpacity ?? series.opacity;
     }
     final Paint selectedFillPaint = Paint();
     selectedFillPaint.color = fillColor.withOpacity(fillOpacity);
@@ -251,29 +268,44 @@ class _SelectionRenderer {
                 seriesType == 'stackedline100' ||
                 seriesType.contains('hilo') ||
                 seriesType == 'candle' ||
-                seriesType.contains('boxandwhisker')
-            ? strokeColor = chartEventSelection != null
+                seriesType == 'boxandwhisker'
+            ? strokeColor = chartEventSelection != null &&
+                    selectionArgs != null &&
+                    selectionArgs.selectedColor != null
                 ? selectionArgs.selectedColor
-                : selectionBehavior.selectedColor ??
-                    segment._defaultFillColor.color
+                : _chartState._selectionArgs != null &&
+                        _chartState._selectionArgs.selectedColor != null
+                    ? _chartState._selectionArgs.selectedColor
+                    : selectionBehavior.selectedColor ??
+                        segment._defaultFillColor.color
             : strokeColor = chartEventSelection != null &&
                     selectionArgs != null &&
                     selectionArgs.selectedBorderColor != null
                 ? selectionArgs.selectedBorderColor
-                : selectionBehavior.selectedBorderColor ?? series.borderColor;
+                : _chartState._selectionArgs != null &&
+                        _chartState._selectionArgs.selectedBorderColor != null
+                    ? _chartState._selectionArgs.selectedBorderColor
+                    : selectionBehavior.selectedBorderColor ??
+                        series.borderColor;
       }
 
       strokeOpacity = chartEventSelection != null &&
               selectionArgs != null &&
               selectionArgs.selectedBorderColor != null
           ? selectionArgs.selectedBorderColor.opacity
-          : selectionBehavior.selectedOpacity ?? series.opacity;
+          : _chartState._selectionArgs != null &&
+                  _chartState._selectionArgs.selectedBorderColor != null
+              ? _chartState._selectionArgs.selectedBorderColor.opacity
+              : selectionBehavior.selectedOpacity ?? series.opacity;
 
       strokeWidth = chartEventSelection != null &&
               selectionArgs != null &&
               selectionArgs.selectedBorderWidth != null
           ? selectionArgs.selectedBorderWidth
-          : selectionBehavior.selectedBorderWidth ?? series.borderWidth;
+          : _chartState._selectionArgs != null &&
+                  _chartState._selectionArgs.selectedBorderWidth != null
+              ? _chartState._selectionArgs.selectedBorderWidth
+              : selectionBehavior.selectedBorderWidth ?? series.borderWidth;
     } else {
       if (series is CartesianSeries) {
         segment is LineSegment ||
@@ -287,24 +319,37 @@ class _SelectionRenderer {
                 segment is BoxAndWhiskerSegment
             ? strokeColor = chartEventSelection != null && selectionArgs != null
                 ? selectionArgs.unselectedColor
-                : selectionBehavior.unselectedColor ??
-                    segment._defaultFillColor.color
+                : _chartState._selectionArgs != null &&
+                        _chartState._selectionArgs.unselectedColor != null
+                    ? _chartState._selectionArgs.unselectedColor
+                    : selectionBehavior.unselectedColor ??
+                        segment._defaultFillColor.color
             : strokeColor = chartEventSelection != null &&
                     selectionArgs != null &&
                     selectionArgs.unselectedBorderColor != null
                 ? selectionArgs.unselectedBorderColor
-                : selectionBehavior.unselectedBorderColor ?? series.borderColor;
+                : _chartState._selectionArgs != null &&
+                        _chartState._selectionArgs.unselectedBorderColor != null
+                    ? _chartState._selectionArgs.unselectedBorderColor
+                    : selectionBehavior.unselectedBorderColor ??
+                        series.borderColor;
       }
       strokeOpacity = chartEventSelection != null &&
               selectionArgs != null &&
               selectionArgs.unselectedColor != null
           ? selectionArgs.unselectedColor.opacity
-          : selectionBehavior.unselectedOpacity ?? series.opacity;
+          : _chartState._selectionArgs != null &&
+                  _chartState._selectionArgs.unselectedColor != null
+              ? _chartState._selectionArgs.unselectedColor.opacity
+              : selectionBehavior.unselectedOpacity ?? series.opacity;
       strokeWidth = chartEventSelection != null &&
               selectionArgs != null &&
               selectionArgs.unselectedBorderWidth != null
           ? selectionArgs.unselectedBorderWidth
-          : selectionBehavior.unselectedBorderWidth ?? series.borderWidth;
+          : _chartState._selectionArgs != null &&
+                  _chartState._selectionArgs.unselectedBorderWidth != null
+              ? _chartState._selectionArgs.unselectedBorderWidth
+              : selectionBehavior.unselectedBorderWidth ?? series.borderWidth;
     }
     final Paint selectedStrokePaint = Paint();
     selectedStrokePaint.color = strokeColor;
@@ -545,9 +590,15 @@ class _SelectionRenderer {
     chart = chartAssign;
     seriesRenderer = seriesAssign;
 
-    if (chart.onSelectionChanged != null) {
-      chart.onSelectionChanged(getSelectionEventArgs(
-          seriesRenderer._series, seriesIndex, pointIndex, seriesRenderer));
+    if (chart.onSelectionChanged != null && selected) {
+      chart.onSelectionChanged(getSelectionEventArgs(seriesRenderer._series,
+          seriesIndex, overallPointIndex, seriesRenderer));
+      selected = false;
+    }
+
+    /// Maintained the event arguments on zooming, device orientation change.
+    if (selectionArgs != null) {
+      _chartState._selectionArgs = selectionArgs;
     }
 
     /// For point mode
@@ -584,8 +635,10 @@ class _SelectionRenderer {
           /// To identify that tapped segment in any one of the selected segment
           if (selectedSegment != null) {
             for (int k = 0; k < selectedSegments.length; k++) {
-              if (selectedSegment._currentPoint ==
-                  selectedSegments[k]._currentPoint) {
+              if (selectedSegment.currentSegmentIndex ==
+                      selectedSegments[k].currentSegmentIndex &&
+                  selectedSegment._seriesIndex ==
+                      selectedSegments[k]._seriesIndex) {
                 multiSelect = true;
                 break;
               }
@@ -601,8 +654,10 @@ class _SelectionRenderer {
                   ._segments[selectedSegments[j].currentSegmentIndex];
 
               /// Applying default settings when last selected segment becomes unselected
-              if ((selectedSegment._currentPoint ==
-                      selectedSegments[j]._currentPoint) &&
+              if ((selectedSegment.currentSegmentIndex ==
+                          selectedSegments[j].currentSegmentIndex &&
+                      selectedSegment._seriesIndex ==
+                          selectedSegments[j]._seriesIndex) &&
                   (selectedSegments.length == 1)) {
                 final Paint fillPaint =
                     getDefaultFillColor(null, null, currentSegment);
@@ -619,8 +674,10 @@ class _SelectionRenderer {
               }
 
               /// Applying unselected color for unselected segments in multiSelect option
-              else if (selectedSegment._currentPoint ==
-                  selectedSegments[j]._currentPoint) {
+              else if (selectedSegment.currentSegmentIndex ==
+                      selectedSegments[j].currentSegmentIndex &&
+                  selectedSegment._seriesIndex ==
+                      selectedSegments[j]._seriesIndex) {
                 final Paint fillPaint = getFillColor(false, currentSegment);
                 currentSegment.fillPaint = fillPaint;
                 final Paint strokePaint = getStrokeColor(false, currentSegment);
@@ -637,6 +694,7 @@ class _SelectionRenderer {
           }
         }
       } else {
+        unselectedSegments?.clear();
         isSamePointSelect = changeColorAndPopSelectedSegments(
             selectedSegments, isSamePointSelect);
       }
@@ -680,6 +738,8 @@ class _SelectionRenderer {
               _selectedSegmentsColors(selectedSegments);
             }
           }
+        } else {
+          isSelected = true;
         }
       }
     }
@@ -696,7 +756,9 @@ class _SelectionRenderer {
         for (int k = 0; k < seriesRenderer._segments.length; k++) {
           currentSegment = seriesRenderer._segments[k];
           final ChartSegment compareSegment = seriesRenderer._segments[k];
-          if (currentSegment._segmentRect != compareSegment._segmentRect) {
+          if (currentSegment.currentSegmentIndex !=
+                  compareSegment.currentSegmentIndex &&
+              currentSegment._seriesIndex != compareSegment._seriesIndex) {
             isSelected = false;
           }
         }
@@ -938,6 +1000,8 @@ class _SelectionRenderer {
           }
         }
       } else {
+        unselectedSegments?.clear();
+
         ///Executes when multiSelect is not enable
         isSamePointSelect = changeColorAndPopSelectedSegments(
             selectedSegments, isSamePointSelect);
@@ -990,6 +1054,8 @@ class _SelectionRenderer {
             /// Giving Color to selected segments
             _selectedSegmentsColors(selectedSegments);
           }
+        } else {
+          isSelected = true;
         }
       }
     }
@@ -1005,7 +1071,9 @@ class _SelectionRenderer {
     for (int k = 0; k < seriesRenderer._segments.length; k++) {
       currentSegment = seriesRenderer._segments[k];
       if (currentSegment._segmentRect.contains(position)) {
+        selected = true;
         selectedSegment = seriesRenderer._segments[k];
+        overallPointIndex = selectedSegment?._currentPoint?.visiblePointIndex;
       }
     }
     if (selectedSegment == null) {
@@ -1129,6 +1197,7 @@ class _SelectionRenderer {
 
     for (final CartesianChartPoint<dynamic> dataPoint in nearestDataPoints) {
       dataPointIndex = seriesRenderer._dataPoints.indexOf(dataPoint);
+      overallPointIndex = dataPoint.visiblePointIndex;
       previousIndex = seriesRenderer._dataPoints.indexOf(dataPoint) - 1;
       previousIndex < 0
           ? previousDataPointIndex = dataPointIndex
@@ -1302,6 +1371,7 @@ class _SelectionRenderer {
           : false;
       if (isSelect) {
         cartesianPointIndex = getCartesianPointIndex(position);
+        selected = cartesianPointIndex != null;
         select = seriesRenderer._selectionBehaviorRenderer._selectionRenderer
             .isCartesianSelection(chart, seriesRenderer, cartesianPointIndex,
                 cartesianSeriesIndex);
@@ -1359,7 +1429,7 @@ class _SelectionRenderer {
       num pointIndex, CartesianSeriesRenderer seriesRender) {
     if (series != null) {
       selectionArgs = SelectionArgs(seriesRenderer, seriesIndex, pointIndex,
-          seriesRender._dataPoints[pointIndex].overallDataPointIndex);
+          seriesRender._visibleDataPoints[pointIndex].overallDataPointIndex);
       final dynamic selectionBehavior = seriesRenderer._selectionBehavior;
       selectionArgs.selectedBorderColor = selectionBehavior.selectedBorderColor;
       selectionArgs.unselectedBorderColor =

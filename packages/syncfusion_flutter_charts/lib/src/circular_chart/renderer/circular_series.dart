@@ -1226,10 +1226,9 @@ class CircularSeriesRenderer extends ChartSeriesRenderer {
       if (_chartState._selectionData.isNotEmpty) {
         for (int i = 0; i < _chartState._selectionData.length; i++) {
           final int selectionIndex = _chartState._selectionData[i];
-          if (chart.onSelectionChanged != null &&
-              selectionIndex == currentPointIndex) {
+          if (chart.onSelectionChanged != null) {
             chart.onSelectionChanged(_getSelectionEventArgs(
-                seriesRenderer, seriesIndex, currentPointIndex));
+                seriesRenderer, seriesIndex, selectionIndex));
           }
           if (currentPointIndex == selectionIndex) {
             pointStyle = _StyleOptions(

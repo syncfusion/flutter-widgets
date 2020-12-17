@@ -83,19 +83,19 @@ class SfDataPagerThemeData with Diagnosticable {
 
     itemBorderRadius ??= BorderRadius.circular(50);
 
+    itemBorderColor ??= Colors.transparent;
+
     selectedItemColor ??= Color.fromRGBO(33, 150, 243, 1);
 
-    selectedItemTextStyle = TextStyle(
+    selectedItemTextStyle ??= TextStyle(
         color: Color.fromRGBO(255, 255, 255, 1),
         fontSize: 14,
         fontFamily: 'Roboto',
         fontWeight: FontWeight.w400);
 
-    disabledItemColor ??= isLight
-        ? Color.fromRGBO(0, 0, 0, 0.36)
-        : Color.fromRGBO(255, 255, 255, 0.36);
+    disabledItemColor ??= Colors.transparent;
 
-    disabledItemTextStyle = TextStyle(
+    disabledItemTextStyle ??= TextStyle(
         color: isLight
             ? Color.fromRGBO(0, 0, 0, 0.36)
             : Color.fromRGBO(255, 255, 255, 0.36));

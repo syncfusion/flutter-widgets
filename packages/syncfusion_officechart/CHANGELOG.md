@@ -1,3 +1,9 @@
+## [Unreleased]
+
+**Features**
+
+* Provided support for adding the chart types: Area, AreaStacked, AreaStacked100, ColumnStacked100, BarStacked100, LineStacked100.
+
 ## [18.3.35-beta.1] - 10/02/2020
 
 **Features**

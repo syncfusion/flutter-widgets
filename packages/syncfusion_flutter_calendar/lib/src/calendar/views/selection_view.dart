@@ -57,10 +57,12 @@ class _SelectionPainter extends CustomPainter {
     if (view != CalendarView.month && !isTimeline) {
       width -= timeLabelWidth;
     }
+
+    final bool isResourceEnabled =
+        isTimeline && _isResourceEnabled(calendar.dataSource, view);
     if ((selectedDate == null && _appointmentView == null) ||
         visibleDates != _updateCalendarStateDetails._currentViewVisibleDates ||
-        (_isResourceEnabled(calendar.dataSource, view) &&
-            selectedResourceIndex == -1)) {
+        (isResourceEnabled && selectedResourceIndex == -1)) {
       return;
     }
 
@@ -79,7 +81,7 @@ class _SelectionPainter extends CustomPainter {
 
       /// The selection view must render on the resource area alone, when the
       /// resource enabled.
-      if (selectedResourceIndex >= 0) {
+      if (isResourceEnabled && selectedResourceIndex >= 0) {
         _cellHeight = resourceItemHeight;
       }
     }
@@ -320,9 +322,16 @@ class _SelectionPainter extends CustomPainter {
   void _drawAppointmentSelection(Canvas canvas) {
     Rect rect = _appointmentView.appointmentRect.outerRect;
     rect = Rect.fromLTRB(rect.left, rect.top, rect.right, rect.bottom);
-    _boxPainter = selectionDecoration.createBoxPainter();
+    _boxPainter =
+        selectionDecoration.createBoxPainter(_updateSelectionDecorationPainter);
     _boxPainter.paint(canvas, Offset(rect.left, rect.top),
         ImageConfiguration(size: rect.size));
+  }
+
+  /// Used to pass the argument of create box painter and it is called when
+  /// decoration have asynchronous data like image.
+  void _updateSelectionDecorationPainter() {
+    repaintNotifier.value = !repaintNotifier.value;
   }
 
   void _drawSlotSelection(double width, double height, Canvas canvas) {
@@ -339,7 +348,8 @@ class _SelectionPainter extends CustomPainter {
             ? _yPosition + _cellHeight - padding
             : _yPosition + _cellHeight);
 
-    _boxPainter = selectionDecoration.createBoxPainter();
+    _boxPainter =
+        selectionDecoration.createBoxPainter(_updateSelectionDecorationPainter);
     _boxPainter.paint(canvas, Offset(rect.left, rect.top),
         ImageConfiguration(size: rect.size, textDirection: TextDirection.ltr));
   }

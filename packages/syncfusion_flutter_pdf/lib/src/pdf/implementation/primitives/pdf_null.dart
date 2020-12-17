@@ -68,4 +68,7 @@ class _PdfNull implements _IPdfPrimitive {
       _status = null;
     }
   }
+
+  @override
+  _IPdfPrimitive _clone(_PdfCrossTable crossTable) => _PdfNull();
 }

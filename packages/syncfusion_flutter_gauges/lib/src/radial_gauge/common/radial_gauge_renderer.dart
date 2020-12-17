@@ -22,8 +22,6 @@ class _AxisContainer extends StatelessWidget {
       final Offset tapPosition =
           renderBox.globalToLocal(details.globalPosition);
       for (num i = 0; i < _gauge.axes.length; i++) {
-        final RadialAxisRenderer axisRenderer =
-            _renderingDetails.axisRenderers[i];
         final List<_GaugePointerRenderer> _pointerRenderers =
             _renderingDetails.gaugePointerRenderers[i];
         if (_gauge.axes[i].pointers != null &&
@@ -32,37 +30,8 @@ class _AxisContainer extends StatelessWidget {
             final GaugePointer pointer = _gauge.axes[i].pointers[j];
             final _GaugePointerRenderer pointerRenderer = _pointerRenderers[j];
             if (pointer.enableDragging && pointerRenderer._isDragStarted) {
-              final Rect rect = Rect.fromLTRB(
-                  axisRenderer._axisRect.left + axisRenderer._axisCenter.dx,
-                  axisRenderer._axisRect.top + axisRenderer._axisCenter.dy,
-                  axisRenderer._axisRect.right + axisRenderer._axisCenter.dx,
-                  axisRenderer._axisRect.bottom + axisRenderer._axisCenter.dy);
-              if (pointer is RangePointer) {
-                final double actualCenterX = pointerRenderer._pointerRect.left +
-                    axisRenderer._axisCenter.dx +
-                    axisRenderer._radius;
-                final double actualCenterY = pointerRenderer._pointerRect.top +
-                    axisRenderer._axisCenter.dy +
-                    axisRenderer._radius;
-                final double x = tapPosition.dx - actualCenterX;
-                final double y = tapPosition.dy - actualCenterY;
-
-                /// Checks whether the tapped position is available inside the
-                /// radius of range pointer
-                final bool isInside = (x * x) + (y * y) <=
-                    (axisRenderer._radius * axisRenderer._radius);
-                if (isInside) {
-                  pointerRenderer._updateDragValue(
-                      tapPosition.dx, tapPosition.dy, _renderingDetails);
-                }
-              }
-
-              /// Checks whether the tapped position is available inside the
-              /// rect of needle or marker pointer
-              else if (rect.contains(tapPosition)) {
-                pointerRenderer._updateDragValue(
-                    tapPosition.dx, tapPosition.dy, _renderingDetails);
-              }
+              pointerRenderer._updateDragValue(
+                  tapPosition.dx, tapPosition.dy, _renderingDetails);
             }
           }
         }
@@ -209,6 +178,12 @@ class _AxisContainer extends StatelessWidget {
                   renderer._isDragStarted = false;
                 }
               } else {
+                Rect pointerRect = pointerRenderer._pointerRect;
+                pointerRect = Rect.fromLTRB(
+                    pointerRect.left - 20,
+                    pointerRect.top - 20,
+                    pointerRect.right - 20,
+                    pointerRect.bottom - 20);
                 if (pointerRenderer._pointerRect.contains(tapPosition)) {
                   pointerRenderer._isDragStarted = true;
                   pointerRenderer._createPointerValueChangeStartArgs();

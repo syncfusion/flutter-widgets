@@ -182,6 +182,24 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
     child = checkHeaderCellConstraints(child);
     final alignment = !isSortIconLoaded ? widget.alignment : null;
 
+    EdgeInsets _getPadding(DataCellBase dataCell, EdgeInsets padding) {
+      final dataGridSettings = dataCell._dataRow?._dataGridStateDetails();
+
+      if (dataGridSettings == null) {
+        return const EdgeInsets.all(0.0);
+      }
+
+      final visualDensityPadding = dataGridSettings.visualDensity.vertical * 2;
+
+      padding ??= EdgeInsets.all(16) +
+          EdgeInsets.fromLTRB(
+              0.0, visualDensityPadding, 0.0, visualDensityPadding);
+
+      return padding != null && padding.isNonNegative
+          ? padding
+          : EdgeInsets.zero;
+    }
+
     return Container(
         key: widget.key,
         clipBehavior: Clip.antiAlias,
@@ -193,17 +211,78 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
           key: widget.key,
           backgroundColor: widget.backgroundColor,
           alignment: alignment,
-          padding: widget.padding,
+          padding: headerCellWidget == null
+              ? _getPadding(widget.dataCell, widget.padding)
+              : null,
         ));
+  }
+
+  Color _getHoverBackgroundColor() {
+    final _DataGridSettings dataGridSettings =
+        widget.dataCell?._dataRow?._dataGridStateDetails();
+    if (dataGridSettings == null) {
+      return null;
+    }
+
+    final hoverColor = (widget.dataCell.gridColumn?.headerStyle?.hoverColor ??
+            dataGridSettings.dataGridThemeData.headerStyle?.hoverColor) ??
+        ((dataGridSettings.dataGridThemeData.brightness == Brightness.light)
+            ? Color.fromRGBO(245, 245, 245, 1)
+            : Color.fromRGBO(66, 66, 66, 1));
+    return hoverColor;
+  }
+
+  void onMouseHover() {
+    final _DataGridSettings dataGridSettings =
+        widget.dataCell?._dataRow?._dataGridStateDetails();
+
+    if (dataGridSettings != null && widget.dataCell != null) {
+      widget.dataCell
+        .._ishover = true
+        .._isDirty = true
+        .._updateColumn();
+      dataGridSettings.source
+          .notifyDataSourceListeners(propertyName: 'hoverOnHeaderCell');
+    }
+  }
+
+  void onMouseExit() {
+    final _DataGridSettings dataGridSettings =
+        widget.dataCell?._dataRow?._dataGridStateDetails();
+
+    if (dataGridSettings != null && widget.dataCell != null) {
+      widget.dataCell
+        .._ishover = false
+        .._isDirty = true
+        .._updateColumn();
+      dataGridSettings.source
+          .notifyDataSourceListeners(propertyName: 'hoverOnHeaderCell');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final Widget child = Semantics(
       label: widget.dataCell.cellValue.toString(),
-      child: _wrapInsideGestureDetector(),
+      child: MouseRegion(
+        onHover: (event) {
+          onMouseHover();
+        },
+        onExit: (event) {
+          onMouseExit();
+        },
+        child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              mouseCursor: SystemMouseCursors.basic,
+              highlightColor: Colors.transparent,
+              splashColor: Colors.transparent,
+              hoverColor: _getHoverBackgroundColor(),
+              onTap: () {},
+              child: _wrapInsideGestureDetector(),
+            )),
+      ),
     );
-
     return _GridCellRenderObjectWidget(
       key: widget.key,
       dataCell: widget.dataCell,
@@ -303,7 +382,7 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
         column.allowSorting &&
         dataGridSettings.allowSorting) {
       final sortColumnName = column.mappingName;
-      final allowMultiSort = kIsWeb
+      final allowMultiSort = dataGridSettings._isDesktop
           ? (dataGridSettings.isControlKeyPressed &&
               dataGridSettings.allowMultiColumnSorting)
           : dataGridSettings.allowMultiColumnSorting;

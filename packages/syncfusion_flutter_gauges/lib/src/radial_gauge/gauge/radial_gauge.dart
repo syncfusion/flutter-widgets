@@ -61,7 +61,7 @@ class SfRadialGauge extends StatefulWidget {
   /// To specify title description to [GaugeTitle.text] property and
   /// title style to [GaugeTitle.textStyle] property.
   ///
-  /// Defaults to null.
+  /// Defaults to `null`..
   ///
   /// Also refer [GaugeTitle].
   ///

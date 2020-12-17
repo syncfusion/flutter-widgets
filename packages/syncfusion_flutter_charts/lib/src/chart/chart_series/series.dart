@@ -1319,6 +1319,149 @@ class ChartSeriesController {
     }
   }
 
+  /// Converts logical pixel value to the data point value.
+  ///
+  /// The [pixelToPoint] method takes logical pixel value as input and returns a chart data point.
+  ///
+  /// Since this method is in the series controller, x and y-axis associated with this particular series will be
+  /// considering for conversion value.
+  ///
+  /// _Note_: This method is only applicable for cartesian chart, not for the circular, pyramid,
+  /// and funnel charts.
+  ///
+  ///```dart
+  /// Widget build(BuildContext context) {
+  ///  ChartSeriesController seriesController;
+  ///    return Container(
+  ///          child: SfCartesianChart(
+  ///           series: <CartesianSeries<ChartSampleData, num>>[
+  ///             LineSeries<ChartSampleData, num>(
+  ///               onRendererCreated: (ChartSeriesController controller) {
+  ///                 seriesController = controller;
+  ///               },
+  ///             )
+  ///           ],
+  ///           onChartTouchInteractionUp: (ChartTouchInteractionArgs args) {
+  ///             final Offset value = Offset(args.position.dx, args.position.dy);
+  ///             CartesianChartPoint<dynamic> chartpoint =
+  ///               seriesController.pixelToPoint(value);
+  ///             print('X point: ${chartpoint.x}');
+  ///             print('Y point: ${chartpoint.y}');
+  ///         }
+  ///       )
+  ///     );
+  /// }
+  ///```
+
+  CartesianChartPoint<dynamic> pixelToPoint(Offset position) {
+    ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer;
+    ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer;
+
+    final ChartAxis xAxis = xAxisRenderer._axis;
+    final ChartAxis yAxis = yAxisRenderer._axis;
+
+    final CartesianSeries<dynamic, dynamic> series = seriesRenderer._series;
+
+    final Rect rect = seriesRenderer._chartState._chartAxis._axisClipRect;
+
+    if (series.xAxisName != null || series.yAxisName != null) {
+      for (final ChartAxisRenderer axisRenderer
+          in seriesRenderer._chartState._chartAxis._axisRenderersCollection) {
+        if (xAxis.name == series.xAxisName) {
+          xAxisRenderer = axisRenderer;
+        } else if (yAxis.name == series.yAxisName) {
+          yAxisRenderer = axisRenderer;
+        }
+      }
+    } else {
+      xAxisRenderer = xAxisRenderer;
+      yAxisRenderer = yAxisRenderer;
+    }
+
+    num xValue = _pointToXValue(
+        seriesRenderer._chartState._requireInvertedAxis,
+        xAxisRenderer,
+        xAxisRenderer._bounds,
+        position.dx - (rect.left + xAxis.plotOffset),
+        position.dy - (rect.top + yAxis.plotOffset));
+    num yValue = _pointToYValue(
+        seriesRenderer._chartState._requireInvertedAxis,
+        yAxisRenderer,
+        yAxisRenderer._bounds,
+        position.dx - (rect.left + xAxis.plotOffset),
+        position.dy - (rect.top + yAxis.plotOffset));
+
+    if (xAxisRenderer is LogarithmicAxisRenderer) {
+      final LogarithmicAxis axis = xAxis;
+      xValue = math.pow(xValue, _calculateLogBaseValue(xValue, axis.logBase));
+    } else {
+      xValue = xValue;
+    }
+    if (yAxisRenderer is LogarithmicAxisRenderer) {
+      final LogarithmicAxis axis = yAxis;
+      yValue = math.pow(yValue, _calculateLogBaseValue(yValue, axis.logBase));
+    } else {
+      yValue = yValue;
+    }
+    return CartesianChartPoint<dynamic>(xValue, yValue);
+  }
+
+  /// Converts chart data point value to logical pixel value.
+  ///
+  /// The [pointToPixel] method takes chart data point value as input and returns logical pixel value.
+  ///
+  /// Since this method is in the series controller, x and y-axis associated with this particular series will be
+  /// considering for conversion value.
+  ///
+  /// _Note_: This method is only applicable for cartesian chart, not for the circular, pyramid,
+  /// and funnel charts.
+  ///
+  ///```dart
+  /// Widget build(BuildContext context) {
+  ///  ChartSeriesController seriesController;
+  ///    return Container(
+  ///          child: SfCartesianChart(
+  ///           series: <CartesianSeries<ChartSampleData, num>>[
+  ///             ColumnSeries<ChartSampleData, num>(
+  ///               onRendererCreated: (ChartSeriesController controller) {
+  ///                 seriesController = controller;
+  ///               },
+  ///             )
+  ///           ],
+  ///           onPointTapped: (PointTapArgs args) {
+  ///             CartesianChartPoint<dynamic> chartPoint =
+  ///                 CartesianChartPoint<dynamic>(data[args.pointIndex].x,
+  ///                     data[args.pointIndex].y);
+  ///             Offset pointLocation = seriesController.pointToPixel(chartPoint);
+  ///             print('X location: ${pointLocation.x}');
+  ///             print('Y location: ${pointLocation.y}');
+  ///           },
+  ///       )
+  ///     );
+  /// }
+  ///```
+  Offset pointToPixel(CartesianChartPoint<dynamic> point) {
+    final num x = point.x;
+    final num y = point.y;
+
+    final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer;
+    final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer;
+
+    final bool isInverted = seriesRenderer._chartState._requireInvertedAxis;
+
+    final CartesianSeries<dynamic, dynamic> series = seriesRenderer._series;
+    final _ChartLocation location = _calculatePoint(
+        x,
+        y,
+        xAxisRenderer,
+        yAxisRenderer,
+        isInverted,
+        series,
+        seriesRenderer._chartState._containerRect);
+
+    return Offset(location.x, location.y);
+  }
+
   ///If you wish to perform initial animation again in the existing series, this method can be called.
   /// On calling this method, this particular series will be animated again based on the [animationDuration]
   /// property's value in the series. If the value is 0, then the animation will not be performed.
@@ -1360,6 +1503,9 @@ class ChartSeriesController {
           chartState._tooltipBehaviorRenderer._tooltipTemplate;
       final _TrackballPainter trackballPainter =
           chartState._trackballBehaviorRenderer._trackballPainter;
+      final TrackballBehaviorRenderer trackballBehaviorRenderer =
+          chartState._trackballBehaviorRenderer;
+
       //This hides the tooltip if rendered for this current series renderer
       if (tooltip != null &&
           tooltip.enable &&
@@ -1370,11 +1516,23 @@ class ChartSeriesController {
         tooltip.hide();
       }
       //This hides the trackball if rendered for this current series renderer
-      if (trackball != null && trackball.enable) {
-        for (final point in trackballPainter.chartPointInfo) {
+      if (trackball != null &&
+          trackball.enable &&
+          trackballBehaviorRenderer != null) {
+        for (final point in trackballBehaviorRenderer._chartPointInfo) {
           if (point.seriesRenderer == seriesRenderer) {
-            trackball.hide();
-            break;
+            if (trackballPainter != null) {
+              chartState._trackballRepaintNotifier.value++;
+              trackballPainter.canResetPath = true;
+              break;
+            } else {
+              final GlobalKey key =
+                  trackballBehaviorRenderer._trackballTemplate.key;
+              final _TrackballTemplateState trackballTemplateState =
+                  key.currentState;
+              trackballTemplateState.hideTrackballTemplate();
+              break;
+            }
           }
         }
       }
@@ -1488,7 +1646,14 @@ class ChartSeriesController {
       axisRenderer._calculateRangeAndInterval(chartState);
     }
     if (needXRecalculation || needYRecalculation) {
-      chartState._renderAxis.state.axisRepaintNotifier.value++;
+      chartState._renderOutsideAxis.state.axisRepaintNotifier.value++;
+      chartState._renderInsideAxis.state.axisRepaintNotifier.value++;
+      for (final seriesRenderer
+          in chartState._chartSeries.visibleSeriesRenderers) {
+        _repaintSeries(chartState, seriesRenderer);
+      }
+    } else {
+      _repaintSeries(chartState, seriesRenderer);
     }
     //This makes the update data source method work with dynamic animation(scheduled for release)
     // seriesRenderer._needsAnimation = seriesRenderer._needAnimateSeriesElements =
@@ -1498,7 +1663,16 @@ class ChartSeriesController {
     // seriesRenderer._chartState._animationCompleteCount = 0;
     // seriesRenderer._chartState._forwardAnimation(
     //     seriesRenderer, seriesRenderer._series.animationDuration);
+  }
+
+  //This method repaints the series and its elements for the given series renderer
+  void _repaintSeries(SfCartesianChartState chartState,
+      CartesianSeriesRenderer seriesRenderer) {
+    seriesRenderer._calculateRegion = true;
     seriesRenderer._repaintNotifier.value++;
+    if (seriesRenderer._series.dataLabelSettings.isVisible) {
+      chartState._renderDataLabel.state.dataLabelRepaintNotifier.value++;
+    }
   }
 }
 
@@ -1508,7 +1682,8 @@ abstract class CartesianSeriesRenderer extends ChartSeriesRenderer {
   String _seriesType;
 
   /// Whether to check the series is rect series or not
-  bool _isRectSeries;
+  // ignore: prefer_final_fields
+  bool _isRectSeries = false;
 
   final List<_ListControlPoints> _drawControlPoints = <_ListControlPoints>[];
 
@@ -1535,8 +1710,14 @@ abstract class CartesianSeriesRenderer extends ChartSeriesRenderer {
   List<CartesianChartPoint<dynamic>> _dataPoints =
       <CartesianChartPoint<dynamic>>[];
 
+  /// Holds the collection of cartesian visible data points
+  List<CartesianChartPoint<dynamic>> _visibleDataPoints;
+
   /// Holds the collection of old data points
   List<CartesianChartPoint<dynamic>> _oldDataPoints;
+
+  /// Holds the old series initial selected data indexes
+  List<int> _oldSelectedIndexes;
 
   /// Holds the information for x Axis
   ChartAxisRenderer _xAxisRenderer;
@@ -1600,6 +1781,8 @@ abstract class CartesianSeriesRenderer extends ChartSeriesRenderer {
   //ignore: prefer_final_fields
   bool _reAnimate = false;
 
+  bool _calculateRegion = false;
+
   //ignore: prefer_final_fields
   Animation<double> _seriesAnimation;
 
@@ -1629,6 +1812,15 @@ abstract class CartesianSeriesRenderer extends ChartSeriesRenderer {
 
   // ignore: prefer_final_fields
   bool _isMarkerRenderEvent = false;
+
+  // bool for animation status
+  bool _animationCompleted;
+
+  // ignore: prefer_final_fields
+  bool _hasDataLabelTemplate = false;
+
+  // ignore: prefer_final_fields
+  _VisibleRange sideBySideInfo;
 
   /// To create segment for series
   ChartSegment createSegment();

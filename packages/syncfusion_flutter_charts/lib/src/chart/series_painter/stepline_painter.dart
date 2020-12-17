@@ -58,6 +58,11 @@ class _StepLineChartPainter extends CustomPainter {
           _nextPoint;
       num midX, midY;
 
+      if (seriesRenderer._visibleDataPoints == null ||
+          seriesRenderer._visibleDataPoints.isNotEmpty) {
+        seriesRenderer._visibleDataPoints = <CartesianChartPoint<dynamic>>[];
+      }
+
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         currentPoint = dataPoints[pointIndex];
         if ((currentPoint.isVisible && !currentPoint.isGap) &&

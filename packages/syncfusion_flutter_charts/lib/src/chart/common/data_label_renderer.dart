@@ -77,33 +77,34 @@ void _calculateDataLabelPosition(
   }
   DataLabelRenderArgs dataLabelArgs;
   TextStyle dataLabelStyle = dataLabelSettingsRenderer._textStyle;
-  DataLabelSettings labelSettings;
-  labelSettings = DataLabelSettings(color: dataLabel.color);
-  final DataLabelSettingsRenderer labelSettingsRenderer =
-      DataLabelSettingsRenderer(labelSettings);
   //ignore: prefer_conditional_assignment
   if (dataLabelSettingsRenderer._originalStyle == null) {
     dataLabelSettingsRenderer._originalStyle = dataLabel.textStyle;
   }
   dataLabelStyle = dataLabelSettingsRenderer._originalStyle;
-  labelSettingsRenderer._color = dataLabel.color;
   if (chart.onDataLabelRender != null &&
-      !seriesRenderer._dataPoints[index].labelRenderEvent) {
-    seriesRenderer._dataPoints[index].labelRenderEvent = true;
-    dataLabelArgs =
-        DataLabelRenderArgs(seriesRenderer, seriesRenderer._dataPoints, index);
+      !seriesRenderer._visibleDataPoints[index].labelRenderEvent) {
+    seriesRenderer._visibleDataPoints[index].labelRenderEvent = true;
+    dataLabelArgs = DataLabelRenderArgs(
+        seriesRenderer._series,
+        seriesRenderer._dataPoints,
+        index,
+        seriesRenderer._visibleDataPoints[index].overallDataPointIndex);
     dataLabelArgs.text = label;
     dataLabelArgs.textStyle = dataLabelStyle;
-    dataLabelArgs.color = labelSettingsRenderer._color;
+    dataLabelArgs.color = dataLabelSettingsRenderer._color;
     chart.onDataLabelRender(dataLabelArgs);
     label = point.label = dataLabelArgs.text;
-    dataLabelStyle = dataLabelArgs.textStyle;
     index = dataLabelArgs.pointIndex;
-    labelSettingsRenderer._color = dataLabelArgs.color;
+    point._dataLabelStyle = dataLabelArgs.textStyle;
+    point._dataLabelColor = dataLabelArgs.color;
   }
   dataLabelSettingsRenderer._textStyle = dataLabelStyle;
-  dataLabelSettingsRenderer._color = labelSettingsRenderer._color;
-  labelSettingsRenderer._color = null;
+  if (chart.onDataLabelRender != null) {
+    dataLabelSettingsRenderer._color = point._dataLabelColor;
+    dataLabelSettingsRenderer._textStyle = point._dataLabelStyle;
+    dataLabelStyle = dataLabelSettingsRenderer._textStyle;
+  }
   if (point != null &&
       point.isVisible &&
       point.isGap != true &&
@@ -1151,9 +1152,9 @@ void _drawDataLabel(
     DataLabelSettingsRenderer dataLabelSettingsRenderer) {
   double x = 0;
   double y = 0;
-  if (dataLabel.offset != null) {
-    x = dataLabel.offset.dx;
-    y = dataLabel.offset.dy;
+  if (dataLabelSettingsRenderer._offset != null) {
+    x = dataLabelSettingsRenderer._offset.dx;
+    y = dataLabelSettingsRenderer._offset.dy;
   }
   final double opacity =
       seriesRenderer._needAnimateSeriesElements && dataLabelAnimation != null
@@ -1221,21 +1222,25 @@ void _drawDataLabel(
 
 void _triggerDataLabelEvent(SfCartesianChart chart,
     List<CartesianSeriesRenderer> visibleSeriesRenderer, Offset position) {
-  for (int i = 0; i < visibleSeriesRenderer.length; i++) {
-    final CartesianSeriesRenderer seriesRenderer = visibleSeriesRenderer[i];
+  for (int seriesIndex = 0;
+      seriesIndex < visibleSeriesRenderer.length;
+      seriesIndex++) {
+    final CartesianSeriesRenderer seriesRenderer =
+        visibleSeriesRenderer[seriesIndex];
     final List<CartesianChartPoint<dynamic>> dataPoints =
-        seriesRenderer._dataPoints;
+        seriesRenderer._visibleDataPoints;
     for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
       if (seriesRenderer._series.dataLabelSettings.isVisible &&
+          dataPoints[pointIndex].dataLabelRegion != null &&
           dataPoints[pointIndex].dataLabelRegion.contains(position)) {
         final CartesianChartPoint<dynamic> point = dataPoints[pointIndex];
         final Offset position =
             Offset(point.labelLocation.x, point.labelLocation.y);
         _dataLabelTapEvent(chart, seriesRenderer._series.dataLabelSettings,
-            pointIndex, point, position);
+            pointIndex, point, position, seriesIndex);
+        break;
       }
     }
-    break;
   }
 }
 

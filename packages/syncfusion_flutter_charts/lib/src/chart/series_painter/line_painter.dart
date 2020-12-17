@@ -57,6 +57,10 @@ class _LineChartPainter extends CustomPainter {
           startPoint,
           endPoint;
 
+      if (seriesRenderer._visibleDataPoints == null ||
+          seriesRenderer._visibleDataPoints.isNotEmpty) {
+        seriesRenderer._visibleDataPoints = <CartesianChartPoint<dynamic>>[];
+      }
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         currentPoint = dataPoints[pointIndex];
         seriesRenderer._calculateRegionData(

@@ -581,72 +581,74 @@ class _ImageRenderer {
       } else {
         text = structure.decodeTextExtraction(text, _resources.isSameFont());
       }
-      final _TextElement element = _TextElement(text, documentMatrix);
-      element.fontStyle = structure.fontStyle;
-      element.fontName = structure.fontName;
-      element.fontSize = fontSize;
-      element.textScaling = _textScaling;
-      element.fontEncoding = structure.fontEncoding;
-      element.fontGlyphWidths = structure.fontGlyphWidths;
-      element.defaultGlyphWidth = structure.defaultGlyphWidth;
-      element._text = text;
-      element.unicodeCharMapTable = structure.unicodeCharMapTable;
-      final Map<int, int> glyphWidths = structure.fontGlyphWidths;
-      element.characterMapTable = structure.characterMapTable;
-      element.reverseMapTable = structure.reverseMapTable;
-      element.structure = structure;
-      element.isEmbeddedFont = structure.isEmbedded;
-      element.currentTransformationMatrix = currentTransformationMatrix;
-      element.textLineMatrix = textMatrix;
-      element._rise = objects.rise;
-      element.transformMatrix = documentMatrix;
-      element.documentMatrix = documentMatrix;
-      element.fontId = currentFont;
-      element.octDecMapTable = structure.octDecMapTable;
-      element.textHorizontalScaling = objects._horizontalScaling;
-      element.zapfPostScript = structure.zapfPostScript;
-      element.lineWidth = objects._mitterLength;
-      element.renderingMode = _renderingMode;
-      element.pageRotation = pageRotation;
-      element.zoomFactor = zoomFactor;
-      element.substitutedFontsList = _substitutedFontsList;
-      element.wordSpacing = objects.wordSpacing;
-      element.characterSpacing = objects.characterSpacing;
-      final _MatrixHelper tempTextMatrix = _MatrixHelper(0, 0, 0, 0, 0, 0);
-      tempTextMatrix.type = _MatrixTypes.identity;
-      if (_isCurrentPositionChanged) {
-        _isCurrentPositionChanged = false;
-        _endTextPosition = currentLocation;
-        _textElementWidth = element._render(
-            _graphicsObject,
-            Offset(_endTextPosition.dx,
-                _endTextPosition.dy + ((-textLeading) / 4)),
-            _textScaling,
-            glyphWidths,
-            structure._type1GlyphHeight,
-            structure.differenceTable,
-            structure.differencesDictionary,
-            structure.differenceEncoding,
-            tempTextMatrix);
-        imageRenderGlyphList.addAll(element.textElementGlyphList);
-      } else {
-        _endTextPosition = Offset(
-            _endTextPosition.dx + _textElementWidth, _endTextPosition.dy);
-        _textElementWidth = element._render(
-            _graphicsObject,
-            Offset(
-                _endTextPosition.dx, _endTextPosition.dy + (-textLeading / 4)),
-            _textScaling,
-            glyphWidths,
-            structure._type1GlyphHeight,
-            structure.differenceTable,
-            structure.differencesDictionary,
-            structure.differenceEncoding,
-            tempTextMatrix);
-        imageRenderGlyphList.addAll(element.textElementGlyphList);
-      }
-      if (_isExtractLineCollection) {
-        extractTextElement.add(element);
+      if (!structure.isWhiteSpace) {
+        final _TextElement element = _TextElement(text, documentMatrix);
+        element.fontStyle = structure.fontStyle;
+        element.fontName = structure.fontName;
+        element.fontSize = fontSize;
+        element.textScaling = _textScaling;
+        element.fontEncoding = structure.fontEncoding;
+        element.fontGlyphWidths = structure.fontGlyphWidths;
+        element.defaultGlyphWidth = structure.defaultGlyphWidth;
+        element._text = text;
+        element.unicodeCharMapTable = structure.unicodeCharMapTable;
+        final Map<int, int> glyphWidths = structure.fontGlyphWidths;
+        element.characterMapTable = structure.characterMapTable;
+        element.reverseMapTable = structure.reverseMapTable;
+        element.structure = structure;
+        element.isEmbeddedFont = structure.isEmbedded;
+        element.currentTransformationMatrix = currentTransformationMatrix;
+        element.textLineMatrix = textMatrix;
+        element._rise = objects.rise;
+        element.transformMatrix = documentMatrix;
+        element.documentMatrix = documentMatrix;
+        element.fontId = currentFont;
+        element.octDecMapTable = structure.octDecMapTable;
+        element.textHorizontalScaling = objects._horizontalScaling;
+        element.zapfPostScript = structure.zapfPostScript;
+        element.lineWidth = objects._mitterLength;
+        element.renderingMode = _renderingMode;
+        element.pageRotation = pageRotation;
+        element.zoomFactor = zoomFactor;
+        element.substitutedFontsList = _substitutedFontsList;
+        element.wordSpacing = objects.wordSpacing;
+        element.characterSpacing = objects.characterSpacing;
+        final _MatrixHelper tempTextMatrix = _MatrixHelper(0, 0, 0, 0, 0, 0);
+        tempTextMatrix.type = _MatrixTypes.identity;
+        if (_isCurrentPositionChanged) {
+          _isCurrentPositionChanged = false;
+          _endTextPosition = currentLocation;
+          _textElementWidth = element._render(
+              _graphicsObject,
+              Offset(_endTextPosition.dx,
+                  _endTextPosition.dy + ((-textLeading) / 4)),
+              _textScaling,
+              glyphWidths,
+              structure._type1GlyphHeight,
+              structure.differenceTable,
+              structure.differencesDictionary,
+              structure.differenceEncoding,
+              tempTextMatrix);
+          imageRenderGlyphList.addAll(element.textElementGlyphList);
+        } else {
+          _endTextPosition = Offset(
+              _endTextPosition.dx + _textElementWidth, _endTextPosition.dy);
+          _textElementWidth = element._render(
+              _graphicsObject,
+              Offset(_endTextPosition.dx,
+                  _endTextPosition.dy + (-textLeading / 4)),
+              _textScaling,
+              glyphWidths,
+              structure._type1GlyphHeight,
+              structure.differenceTable,
+              structure.differencesDictionary,
+              structure.differenceEncoding,
+              tempTextMatrix);
+          imageRenderGlyphList.addAll(element.textElementGlyphList);
+        }
+        if (_isExtractLineCollection) {
+          extractTextElement.add(element);
+        }
       }
     }
   }
@@ -677,67 +679,77 @@ class _ImageRenderer {
         encodedTextBytes[z] = bytes[j];
         z++;
       }
-      final _TextElement element = _TextElement(text, documentMatrix);
-      element.fontStyle = structure.fontStyle;
-      element.fontName = structure.fontName;
-      element.fontSize = fontSize;
-      element.textScaling = _textScaling;
-      element.encodedTextBytes = encodedTextBytes;
-      element.fontEncoding = structure.fontEncoding;
-      element.fontGlyphWidths = structure.fontGlyphWidths;
-      element.defaultGlyphWidth = structure.defaultGlyphWidth;
-      element.renderingMode = _renderingMode;
-      element.unicodeCharMapTable = structure.unicodeCharMapTable;
-      final Map<int, int> glyphWidths = structure.fontGlyphWidths;
-      element.cidToGidReverseMapTable = structure.cidToGidReverseMapTable;
-      element.characterMapTable = structure.characterMapTable;
-      element.reverseMapTable = structure.reverseMapTable;
-      // //element.fontfile2Glyph = structure.glyphFontFile2;
-      element.structure = structure;
-      element.isEmbeddedFont = structure.isEmbedded;
-      element.currentTransformationMatrix = currentTransformationMatrix;
-      element.textLineMatrix = textMatrix;
-      element._rise = objects.rise;
-      element.transformMatrix = documentMatrix;
-      element.documentMatrix = documentMatrix;
-      element.fontId = currentFont;
-      element.octDecMapTable = structure.octDecMapTable;
-      element.textHorizontalScaling = objects._horizontalScaling;
-      element.zapfPostScript = structure.zapfPostScript;
-      element.lineWidth = objects._mitterLength;
-      element.renderingMode = _renderingMode;
-      element.pageRotation = pageRotation;
-      element.zoomFactor = zoomFactor;
-      element.substitutedFontsList = _substitutedFontsList;
-      if (structure.flags != null) {
-        element.fontFlag = structure.flags.value.toInt();
-      }
-      element.wordSpacing = objects.wordSpacing;
-      element.characterSpacing = objects.characterSpacing;
-      final _MatrixHelper tempTextMatrix = _MatrixHelper(0, 0, 0, 0, 0, 0);
-      tempTextMatrix.type = _MatrixTypes.identity;
-      if (_isCurrentPositionChanged) {
-        _isCurrentPositionChanged = false;
-        _endTextPosition = currentLocation;
-      } else {
-        _endTextPosition = Offset(
-            _endTextPosition.dx + _textElementWidth, _endTextPosition.dy);
-      }
-      _textElementWidth = element._renderWithSpacing(
-          _graphicsObject,
-          Offset(_endTextPosition.dx, _endTextPosition.dy - fontSize),
-          decodedList,
-          characterSpacings,
-          _textScaling,
-          glyphWidths,
-          structure._type1GlyphHeight,
-          structure.differenceTable,
-          structure.differencesDictionary,
-          structure.differenceEncoding,
-          tempTextMatrix);
-      imageRenderGlyphList.addAll(element.textElementGlyphList);
-      if (_isExtractLineCollection) {
-        extractTextElement.add(element);
+      if (!structure.isWhiteSpace) {
+        final List<int> bytes = utf8
+            .encode(structure.getEncodedText(text, _resources.isSameFont()));
+        final Map<int, int> encodedTextBytes = <int, int>{};
+        int z = 0;
+        for (int j = 0; j < bytes.length; j = j + 2) {
+          encodedTextBytes[z] = bytes[j];
+          z++;
+        }
+        final _TextElement element = _TextElement(text, documentMatrix);
+        element.fontStyle = structure.fontStyle;
+        element.fontName = structure.fontName;
+        element.fontSize = fontSize;
+        element.textScaling = _textScaling;
+        element.encodedTextBytes = encodedTextBytes;
+        element.fontEncoding = structure.fontEncoding;
+        element.fontGlyphWidths = structure.fontGlyphWidths;
+        element.defaultGlyphWidth = structure.defaultGlyphWidth;
+        element.renderingMode = _renderingMode;
+        element.unicodeCharMapTable = structure.unicodeCharMapTable;
+        final Map<int, int> glyphWidths = structure.fontGlyphWidths;
+        element.cidToGidReverseMapTable = structure.cidToGidReverseMapTable;
+        element.characterMapTable = structure.characterMapTable;
+        element.reverseMapTable = structure.reverseMapTable;
+        // //element.fontfile2Glyph = structure.glyphFontFile2;
+        element.structure = structure;
+        element.isEmbeddedFont = structure.isEmbedded;
+        element.currentTransformationMatrix = currentTransformationMatrix;
+        element.textLineMatrix = textMatrix;
+        element._rise = objects.rise;
+        element.transformMatrix = documentMatrix;
+        element.documentMatrix = documentMatrix;
+        element.fontId = currentFont;
+        element.octDecMapTable = structure.octDecMapTable;
+        element.textHorizontalScaling = objects._horizontalScaling;
+        element.zapfPostScript = structure.zapfPostScript;
+        element.lineWidth = objects._mitterLength;
+        element.renderingMode = _renderingMode;
+        element.pageRotation = pageRotation;
+        element.zoomFactor = zoomFactor;
+        element.substitutedFontsList = _substitutedFontsList;
+        if (structure.flags != null) {
+          element.fontFlag = structure.flags.value.toInt();
+        }
+        element.wordSpacing = objects.wordSpacing;
+        element.characterSpacing = objects.characterSpacing;
+        final _MatrixHelper tempTextMatrix = _MatrixHelper(0, 0, 0, 0, 0, 0);
+        tempTextMatrix.type = _MatrixTypes.identity;
+        if (_isCurrentPositionChanged) {
+          _isCurrentPositionChanged = false;
+          _endTextPosition = currentLocation;
+        } else {
+          _endTextPosition = Offset(
+              _endTextPosition.dx + _textElementWidth, _endTextPosition.dy);
+        }
+        _textElementWidth = element._renderWithSpacing(
+            _graphicsObject,
+            Offset(_endTextPosition.dx, _endTextPosition.dy - fontSize),
+            decodedList,
+            characterSpacings,
+            _textScaling,
+            glyphWidths,
+            structure._type1GlyphHeight,
+            structure.differenceTable,
+            structure.differencesDictionary,
+            structure.differenceEncoding,
+            tempTextMatrix);
+        imageRenderGlyphList.addAll(element.textElementGlyphList);
+        if (_isExtractLineCollection) {
+          extractTextElement.add(element);
+        }
       }
     }
   }

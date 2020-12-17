@@ -5,9 +5,11 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:ui';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:xml/xml.dart';
 
 part 'src/pdf/implementation/pdf_document/pdf_document.dart';
 part 'src/pdf/implementation/pdf_document/pdf_catalog.dart';
@@ -179,6 +181,18 @@ part 'src/pdf/implementation/exporting/pdf_text_extractor/matrix_helper.dart';
 part 'src/pdf/implementation/exporting/pdf_text_extractor/glyph.dart';
 part 'src/pdf/implementation/exporting/pdf_text_extractor/text_element.dart';
 part 'src/pdf/implementation/exporting/pdf_text_extractor/graphic_object_data_collection.dart';
+part 'src/pdf/implementation/pdf_document/pdf_document_information.dart';
+part 'src/pdf/implementation/xmp/xmp_metadata.dart';
+part 'src/pdf/implementation/color_space/pdf_icc_color_profile.dart';
+part 'src/pdf/implementation/pages/pdf_layer_collection.dart';
+part 'src/pdf/implementation/pages/pdf_layer.dart';
+part 'src/pdf/implementation/pdf_document/pdf_catalog_names.dart';
+part 'src/pdf/implementation/pdf_document/attachments/pdf_attachment.dart';
+part 'src/pdf/implementation/pdf_document/attachments/pdf_attachment_collection.dart';
+part 'src/pdf/implementation/general/embedded_file.dart';
+part 'src/pdf/implementation/general/embedded_file_specification.dart';
+part 'src/pdf/implementation/general/file_specification_base.dart';
+part 'src/pdf/implementation/general/embedded_file_params.dart';
 
 /// Compression
 part 'src/pdf/implementation/compression/compressed_stream_writer.dart';
@@ -193,3 +207,12 @@ part 'src/pdf/implementation/compression/pdf_zlib_compressor.dart';
 part 'src/pdf/implementation/compression/compressed_stream_reader.dart';
 part 'src/pdf/implementation/compression/decompressor_huffman_tree.dart';
 part 'src/pdf/implementation/compression/pdf_png_filter.dart';
+
+/// Security
+part 'src/pdf/implementation/security/pdf_security.dart';
+part 'src/pdf/implementation/security/pdf_encryptor.dart';
+part 'src/pdf/implementation/security/enum.dart';
+part 'src/pdf/implementation/security/digital_signature/cryptography/aes_engine.dart';
+part 'src/pdf/implementation/security/digital_signature/cryptography/aes_cipher.dart';
+part 'src/pdf/implementation/security/digital_signature/cryptography/cipher_block_chaining_mode.dart';
+

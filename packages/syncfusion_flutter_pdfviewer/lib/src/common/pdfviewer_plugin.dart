@@ -42,7 +42,9 @@ class PdfViewerPlugin {
   Future<Map<int, List>> _getImage(int pageIndex) async {
     final List images = await _channel.invokeMethod(
         'getimage', <String, dynamic>{'index': pageIndex, 'path': _pdfPath});
-    _renderedPages[pageIndex] = images[0];
+    if (_renderedPages != null) {
+      _renderedPages[pageIndex] = images[0];
+    }
     return _renderedPages;
   }
 
@@ -53,18 +55,18 @@ class PdfViewerPlugin {
     for (int pageIndex = startPageIndex;
         pageIndex <= endPageIndex;
         pageIndex++) {
-      if (!_renderedPages.containsKey(pageIndex)) {
+      if (_renderedPages != null && !_renderedPages.containsKey(pageIndex)) {
         await _getImage(pageIndex);
       }
     }
     final pdfPage = [];
-    _renderedPages.forEach((key, value) {
+    _renderedPages?.forEach((key, value) {
       if (!(key >= startPageIndex && key <= endPageIndex)) {
         pdfPage.add(key);
       }
     });
     pdfPage.forEach((index) {
-      _renderedPages.remove(index);
+      _renderedPages?.remove(index);
     });
     return _renderedPages;
   }

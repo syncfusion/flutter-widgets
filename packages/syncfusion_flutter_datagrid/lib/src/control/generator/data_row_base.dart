@@ -70,16 +70,38 @@ abstract class DataRowBase {
           .scrollColumns
           .getVisibleLineAtLineIndex(index);
 
-  double _getColumnSize(int index, bool lineNull) {
-    if (lineNull) {
+  _VisibleLineInfo _getRowVisibleLineInfo(int index) => _dataGridStateDetails()
+      .container
+      .scrollRows
+      .getVisibleLineAtLineIndex(index);
+
+  double _getColumnWidth(int startIndex, int endIndex) {
+    if (startIndex != endIndex) {
       final currentPos = _dataGridStateDetails()
           .container
           .scrollColumns
-          .rangeToRegionPoints(index, index, true);
+          .rangeToRegionPoints(startIndex, endIndex, true);
       return currentPos[1].length;
     }
 
-    final line = _getColumnVisibleLineInfo(index);
+    final line = _getColumnVisibleLineInfo(startIndex);
+    if (line == null) {
+      return 0;
+    }
+
+    return line.size;
+  }
+
+  double _getRowHeight(int startIndex, int endIndex) {
+    if (startIndex != endIndex) {
+      final currentPos = _dataGridStateDetails()
+          .container
+          .scrollRows
+          .rangeToRegionPoints(startIndex, endIndex, true);
+      return currentPos[1].length;
+    }
+
+    final line = _getRowVisibleLineInfo(startIndex);
     if (line == null) {
       return 0;
     }

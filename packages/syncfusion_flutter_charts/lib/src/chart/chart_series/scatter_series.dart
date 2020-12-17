@@ -188,7 +188,7 @@ class ScatterSeriesRenderer extends XyDataSeriesRenderer {
     final Size size =
         Size(_series.markerSettings.width, _series.markerSettings.height);
     final Path markerPath = _getMarkerShapesPath(_series.markerSettings.shape,
-        Offset(pointX, pointY), size, seriesRenderer);
+        Offset(pointX, pointY), size, seriesRenderer, index);
     canvas.drawPath(markerPath, fillPaint);
     canvas.drawPath(markerPath, strokePaint);
   }

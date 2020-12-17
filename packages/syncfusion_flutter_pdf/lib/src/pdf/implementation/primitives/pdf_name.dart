@@ -108,4 +108,7 @@ class _PdfName implements _IPdfPrimitive {
       _status = null;
     }
   }
+
+  @override
+  _IPdfPrimitive _clone(_PdfCrossTable crossTable) => _PdfName(_name);
 }

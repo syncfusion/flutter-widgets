@@ -1,29 +1,43 @@
 part of pdf;
 
 class _PdfString implements _IPdfPrimitive {
-  _PdfString(String value) {
+  _PdfString(String value, [bool encrypted]) {
     ArgumentError.checkNotNull(value, 'value');
-    if (value.isEmpty) {
-      this.value = '';
-    } else {
-      this.value = value;
-      data = <int>[];
-      for (int i = 0; i < value.length; i++) {
-        data.add(value.codeUnitAt(i).toUnsigned(8));
+    if (encrypted != null) {
+      if (!encrypted && value.isNotEmpty) {
+        data = _hexToBytes(value);
+        if (data.isNotEmpty) {
+          this.value = _byteToString(data);
+        }
+      } else {
+        this.value = value;
       }
+      _isHex = true;
+    } else {
+      if (value.isEmpty) {
+        this.value = '';
+      } else {
+        this.value = value;
+        data = <int>[];
+        for (int i = 0; i < value.length; i++) {
+          data.add(value.codeUnitAt(i).toUnsigned(8));
+        }
+      }
+      _isHex = false;
     }
-    _isHex = false;
+    decrypted = false;
+    isParentDecrypted = false;
   }
 
   _PdfString.fromBytes(List<int> value) {
     ArgumentError.checkNotNull(value, 'value');
-    if (value.isEmpty) {
-      throw ArgumentError.value(value, 'value is empty');
-    } else {
-      data = value;
+    data = value;
+    if (value.isNotEmpty) {
       this.value = String.fromCharCodes(data);
     }
     _isHex = true;
+    decrypted = false;
+    isParentDecrypted = false;
   }
 
   //Constants
@@ -40,32 +54,58 @@ class _PdfString implements _IPdfPrimitive {
   _ObjectStatus _status;
   bool _isHex;
   _ForceEncoding encode = _ForceEncoding.none;
+  _PdfCrossTable _crossTable;
+  _PdfString _clonedObject;
+  bool isParentDecrypted;
 
   //Implementations
-  List<int> _pdfEncode() {
-    List<int> result = <int>[];
+  List<int> _pdfEncode(PdfDocument document) {
+    final List<int> result = <int>[];
     result.add(_isHex
         ? _PdfString.hexStringMark.codeUnitAt(0)
         : _PdfString.stringMark.codeUnitAt(0));
+    List<int> tempData;
+    bool needStartMark = false;
     if (_isHex) {
-      result.addAll(_getHexBytes(data));
+      tempData = _getHexBytes(data);
     } else if (isAsciiEncode) {
       final List<int> data = _escapeSymbols(value);
+      tempData = <int>[];
       for (int i = 0; i < data.length; i++) {
-        result.add(data[i].toUnsigned(8));
+        tempData.add(data[i].toUnsigned(8));
       }
     } else if (utf8.encode(value).length != value.length) {
-      result = _toUnicodeArray(value, true);
-      result = _escapeSymbols(result);
+      tempData = _toUnicodeArray(value, true);
+      tempData = _escapeSymbols(result);
+      needStartMark = true;
+    } else {
+      tempData = <int>[];
+      for (int i = 0; i < value.length; i++) {
+        tempData.add(value.codeUnitAt(i).toUnsigned(8));
+      }
+    }
+    bool hex = false;
+    tempData = _encryptIfNeeded(tempData, document);
+    for (int i = 0; i < tempData.length; i++) {
+      if ((tempData[i] >= 48 && tempData[i] <= 57) ||
+          (tempData[i] >= 65 && tempData[i] <= 70) ||
+          (tempData[i] >= 97 && tempData[i] <= 102)) {
+        hex = true;
+      } else {
+        hex = false;
+        break;
+      }
+    }
+    if (_isHex && !hex) {
+      tempData = _getHexBytes(tempData);
+    }
+    result.addAll(tempData);
+    if (needStartMark) {
       result.insert(
           0,
           _isHex
               ? _PdfString.hexStringMark.codeUnitAt(0)
               : _PdfString.stringMark.codeUnitAt(0));
-    } else {
-      for (int i = 0; i < value.length; i++) {
-        result.add(value.codeUnitAt(i).toUnsigned(8));
-      }
     }
     result.add(_isHex
         ? _PdfString.hexStringMark.codeUnitAt(1)
@@ -155,6 +195,51 @@ class _PdfString implements _IPdfPrimitive {
     return String.fromCharCodes(data, 0, length);
   }
 
+  List<int> _hexToBytes(String value) {
+    final List<int> hexNumbers = <int>[];
+    for (int i = 0; i < value.length; i++) {
+      final int charCode = value.codeUnitAt(i);
+      if ((charCode >= 48 && charCode <= 57) ||
+          (charCode >= 65 && charCode <= 70) ||
+          (charCode >= 97 && charCode <= 102)) {
+        hexNumbers.add(_parseHex(charCode));
+      }
+    }
+    return _hexDigitsToNumbers(hexNumbers);
+  }
+
+  List<int> _hexDigitsToNumbers(List<int> hexNumbers) {
+    int value = 0;
+    bool start = true;
+    final List<int> list = <int>[];
+    hexNumbers.forEach((int digit) {
+      if (start) {
+        value = (digit << 4).toUnsigned(8);
+        start = false;
+      } else {
+        value += digit;
+        list.add(value);
+        start = true;
+      }
+    });
+    if (!start) {
+      list.add(value);
+    }
+    return list;
+  }
+
+  int _parseHex(int c) {
+    int value = 0;
+    if (c >= 48 && c <= 57) {
+      value = (c - 48).toUnsigned(8);
+    } else if (c >= 65 && c <= 70) {
+      value = (c - 55).toUnsigned(8);
+    } else if (c >= 97 && c <= 102) {
+      value = (c - 87).toUnsigned(8);
+    }
+    return value;
+  }
+
   //_IPdfPrimitive members
   @override
   bool get isSaving {
@@ -206,7 +291,7 @@ class _PdfString implements _IPdfPrimitive {
   @override
   void save(_IPdfWriter writer) {
     ArgumentError.checkNotNull(writer, 'writer');
-    writer._write(_pdfEncode());
+    writer._write(_pdfEncode(writer._document));
   }
 
   @override
@@ -217,6 +302,45 @@ class _PdfString implements _IPdfPrimitive {
     }
     if (_status != null) {
       _status = null;
+    }
+  }
+
+  @override
+  _IPdfPrimitive _clone(_PdfCrossTable crossTable) {
+    if (_clonedObject != null && _clonedObject._crossTable == crossTable) {
+      return _clonedObject;
+    } else {
+      _clonedObject = null;
+    }
+    final _PdfString newString = _PdfString(value);
+    newString.encode = encode;
+    newString._isHex = _isHex;
+    newString._crossTable = crossTable;
+    _clonedObject = newString;
+    return newString;
+  }
+
+  List<int> _encryptIfNeeded(List<int> data, PdfDocument document) {
+    ArgumentError.checkNotNull(data, 'value cannor be null');
+    final PdfSecurity security = (document == null) ? null : document.security;
+    if (security == null || !security._encryptor.encrypt) {
+      return data;
+    } else {
+      data = security._encryptor
+          ._encryptData(document._currentSavingObject._objNum, data, true);
+    }
+    return _escapeSymbols(data);
+  }
+
+  bool decrypted;
+  void decrypt(_PdfEncryptor encryptor, int currentObjectNumber) {
+    if (encryptor != null && !decrypted && !isParentDecrypted) {
+      decrypted = true;
+      value = _byteToString(data);
+      final List<int> bytes =
+          encryptor._encryptData(currentObjectNumber, data, false);
+      value = _byteToString(bytes);
+      data = bytes;
     }
   }
 }

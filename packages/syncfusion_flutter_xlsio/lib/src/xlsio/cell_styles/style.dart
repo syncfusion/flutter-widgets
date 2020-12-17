@@ -18,7 +18,7 @@ class Style {
   String fontName;
 
   /// Gets/sets font size.
-  int fontSize;
+  double fontSize;
 
   /// Gets/sets font color.
   String fontColor;
@@ -52,4 +52,7 @@ class Style {
 
   /// Gets/sets cell numberFormat.
   String numberFormat;
+
+  /// Gets/Sets cell Lock
+  bool locked;
 }

@@ -118,8 +118,8 @@ class CellStyleWrapper implements Style {
   }
 
   @override
-  int get fontSize {
-    int fontSizeStyle = 11;
+  double get fontSize {
+    double fontSizeStyle = 11;
     bool first = true;
 
     final int last = _arrRanges.length;
@@ -137,7 +137,7 @@ class CellStyleWrapper implements Style {
   }
 
   @override
-  set fontSize(int value) {
+  set fontSize(double value) {
     final int last = _arrRanges.length;
     for (int index = 0; index < last; index++) {
       final Range range = _arrRanges[index];
@@ -507,6 +507,36 @@ class CellStyleWrapper implements Style {
     for (int index = 0; index < last; index++) {
       final Range range = _arrRanges[index];
       (range.cellStyle as CellStyle).isGlobalStyle = value;
+    }
+  }
+
+  @override
+
+  /// Represents the locked.
+  bool get locked {
+    bool locked = true;
+    bool first = true;
+
+    final int last = _arrRanges.length;
+    for (int index = 0; index < last; index++) {
+      final Range range = _arrRanges[index];
+
+      if (first) {
+        locked = (range.cellStyle as CellStyle).locked;
+        first = false;
+      } else if ((range.cellStyle as CellStyle).locked != locked) {
+        return false;
+      }
+    }
+    return locked;
+  }
+
+  @override
+  set locked(bool value) {
+    final int last = _arrRanges.length;
+    for (int index = 0; index < last; index++) {
+      final Range range = _arrRanges[index];
+      (range.cellStyle as CellStyle).locked = value;
     }
   }
 }

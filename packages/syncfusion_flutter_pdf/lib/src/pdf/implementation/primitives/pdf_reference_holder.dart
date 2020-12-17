@@ -111,7 +111,9 @@ class _PdfReferenceHolder implements _IPdfPrimitive {
   @override
   void save(_IPdfWriter writer) {
     ArgumentError.checkNotNull(writer, 'writer');
-    object.isSaving = !writer._document._isLoadedDocument;
+    if (!writer._document._isLoadedDocument) {
+      object.isSaving = true;
+    }
     final _PdfCrossTable crossTable = writer._document._crossTable;
     _PdfReference pdfReference;
     if (writer._document.fileStructure.incrementalUpdate &&
@@ -148,5 +150,61 @@ class _PdfReferenceHolder implements _IPdfPrimitive {
     if (_status != null) {
       _status = null;
     }
+  }
+
+  @override
+  _IPdfPrimitive _clone(_PdfCrossTable crossTable) {
+    _PdfReferenceHolder refHolder;
+    _IPdfPrimitive temp;
+    _PdfReference reference;
+    if (object is _PdfNumber) {
+      return _PdfNumber((object as _PdfNumber).value);
+    }
+
+    if (object is _PdfDictionary) {
+      // Meaning the referenced page is not available for import.
+      final _PdfName type = _PdfName(_DictionaryProperties.type);
+      final _PdfDictionary dict = object as _PdfDictionary;
+      if (dict.containsKey(type)) {
+        final _PdfName pageName = dict[type] as _PdfName;
+        if (pageName != null) {
+          if (pageName._name == 'Page') {
+            return _PdfNull();
+          }
+        }
+      }
+    }
+    if (object is _PdfName) {
+      return _PdfName((object as _PdfName)._name);
+    }
+
+    // Resolves circular references.
+    if (crossTable._prevReference != null &&
+        crossTable._prevReference.contains(this.reference)) {
+      _IPdfPrimitive obj;
+      if (crossTable._document != null) {
+        obj = this.crossTable._getObject(this.reference);
+      } else {
+        obj = this.crossTable._getObject(this.reference).clonedObject;
+      }
+      if (obj != null) {
+        reference = crossTable._getReference(obj);
+        return _PdfReferenceHolder.fromReference(reference, crossTable);
+      } else {
+        return _PdfNull();
+      }
+    }
+    if (this.reference != null) {
+      crossTable._prevReference.add(this.reference);
+    }
+    if (!(object is _PdfCatalog)) {
+      temp = object._clone(crossTable);
+    } else {
+      temp = crossTable._document._catalog;
+    }
+
+    reference = crossTable._getReference(temp);
+    refHolder = _PdfReferenceHolder.fromReference(reference, crossTable);
+    return refHolder;
   }
 }

@@ -14,6 +14,8 @@ class _PdfStream extends _PdfDictionary {
       _copyDictionary(dictionary);
       this[_DictionaryProperties.length] = _PdfNumber(_dataStream.length);
     }
+    decrypted = false;
+    _blockEncryption = false;
   }
 
   //Constants
@@ -23,8 +25,10 @@ class _PdfStream extends _PdfDictionary {
   //Fields
   List<int> _dataStream;
   bool _compress;
+  _PdfStream _clonedObject;
   @override
   bool _isChanged;
+  bool _blockEncryption;
 
   //Properties
   bool get compress {
@@ -270,7 +274,25 @@ class _PdfStream extends _PdfDictionary {
     final _SavePdfPrimitiveArgs beginSaveArguments =
         _SavePdfPrimitiveArgs(writer);
     _onBeginSave(beginSaveArguments);
-    final List<int> data = _compressContent(writer);
+    List<int> data = _compressContent(writer);
+    final PdfSecurity security = writer._document.security;
+    if (security != null &&
+        security._encryptor != null &&
+        !security._encryptor._encryptMetadata &&
+        containsKey(_DictionaryProperties.type)) {
+      final _IPdfPrimitive primitive = _items[_DictionaryProperties.type];
+      if (primitive != null && primitive is _PdfName) {
+        final _PdfName fileType = primitive;
+        if (fileType == null ||
+            (fileType != null &&
+                fileType._name != _DictionaryProperties.metadata)) {
+          data = _encryptContent(data, writer);
+        }
+      }
+    } else {
+      data = _encryptContent(data, writer);
+    }
+
     this[_DictionaryProperties.length] = _PdfNumber(data.length);
     super._saveDictionary(writer, false);
     writer._write(prefix);
@@ -295,5 +317,41 @@ class _PdfStream extends _PdfDictionary {
       _dataStream.clear();
       _dataStream = null;
     }
+  }
+
+  @override
+  _IPdfPrimitive _clone(_PdfCrossTable crossTable) {
+    if (_clonedObject != null && _clonedObject._crossTable == crossTable) {
+      return _clonedObject;
+    } else {
+      _clonedObject = null;
+    }
+    final _PdfDictionary dict = super._clone(crossTable) as _PdfDictionary;
+    final _PdfStream newStream = _PdfStream(dict, _dataStream);
+    newStream.compress = _compress;
+    _clonedObject = newStream;
+    return newStream;
+  }
+
+  @override
+  bool decrypted;
+
+  void decrypt(_PdfEncryptor encryptor, int currentObjectNumber) {
+    if (encryptor != null && !decrypted) {
+      decrypted = true;
+      _dataStream =
+          encryptor._encryptData(currentObjectNumber, _dataStream, false);
+      _modify();
+    }
+  }
+
+  List<int> _encryptContent(List<int> data, _IPdfWriter writer) {
+    final PdfDocument doc = writer._document;
+    final _PdfEncryptor encryptor = doc.security._encryptor;
+    if (encryptor.encrypt && !_blockEncryption) {
+      data =
+          encryptor._encryptData(doc._currentSavingObject._objNum, data, true);
+    }
+    return data;
   }
 }

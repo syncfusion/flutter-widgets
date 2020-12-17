@@ -31,10 +31,7 @@ class _GridIndexResolver {
 
     rowIndex = rowIndex +
         _GridIndexResolver.resolveStartIndexBasedOnPosition(dataGridSettings);
-    if (rowIndex >= 0 &&
-        rowIndex <=
-            dataGridSettings.container.rowCount -
-                dataGridSettings.headerLineCount) {
+    if (rowIndex >= 0 && rowIndex <= dataGridSettings.container.rowCount) {
       return rowIndex;
     } else {
       return -1;
@@ -110,7 +107,7 @@ class _GridIndexResolver {
     }
 
     final rowIndex = dataGridSettings.container.frozenRows -
-        (dataGridSettings.headerLineCount * 2);
+        (dataGridSettings.headerLineCount + 1);
     return _GridIndexResolver.resolveToRowIndex(dataGridSettings, rowIndex);
   }
 
@@ -124,5 +121,104 @@ class _GridIndexResolver {
         dataGridSettings.container.footerFrozenRows -
         dataGridSettings.headerLineCount;
     return _GridIndexResolver.resolveToRowIndex(dataGridSettings, rowIndex);
+  }
+}
+
+@protected
+class _StackedHeaderHelper {
+  static List<int> _getChildSequence(_DataGridSettings dataGridSettings,
+      StackedHeaderCell column, int rowIndex) {
+    final List<int> childSequenceNo = [];
+
+    if (column != null &&
+        (column.columnNames != null || column.columnNames.isNotEmpty)) {
+      final childColumns = column.columnNames;
+      for (final child in childColumns) {
+        final columns = dataGridSettings.columns;
+        for (int i = 0; i < columns.length; ++i) {
+          if (columns[i].mappingName == child) {
+            childSequenceNo.add(i);
+            break;
+          }
+        }
+      }
+    }
+    return childSequenceNo;
+  }
+
+  static int _getRowSpan(_DataGridSettings dataGridSettings, int rowindex,
+      int columnIndex, bool isStackedHeader,
+      {String mappingName, StackedHeaderCell stackedHeaderCell}) {
+    int rowSpan = 0;
+    int startIndex = 0;
+    int endIndex = 0;
+    if (isStackedHeader) {
+      final List<List<int>> spannedColumns =
+          _getConsecutiveRanges(stackedHeaderCell._childColumnIndexes);
+      final List<int> spannedColumn = spannedColumns.singleWhere(
+          (element) => element.first == columnIndex,
+          orElse: () => null);
+      if (spannedColumn != null) {
+        startIndex = spannedColumn.reduce(min);
+        endIndex = startIndex + spannedColumn.length - 1;
+      }
+      rowindex = rowindex - 1;
+    } else {
+      if (rowindex >= dataGridSettings.stackedHeaderRows.length) {
+        return rowSpan;
+      }
+    }
+
+    while (rowindex >= 0) {
+      final stackedHeaderRow = dataGridSettings.stackedHeaderRows[rowindex];
+      for (final stackedColumn in stackedHeaderRow.cells) {
+        if (stackedColumn != null && isStackedHeader) {
+          final List<List<int>> columnsRange =
+              _getConsecutiveRanges(stackedColumn._childColumnIndexes);
+          for (final column in columnsRange) {
+            if ((startIndex >= column.first && startIndex <= column.last) ||
+                (endIndex >= column.first && endIndex <= column.last)) {
+              return rowSpan;
+            }
+          }
+        } else if (stackedColumn != null &&
+            (stackedColumn.columnNames != null ||
+                stackedColumn.columnNames.isNotEmpty)) {
+          final children = stackedColumn.columnNames;
+          for (int child = 0; child < children.length; child++) {
+            if (children[child] == mappingName) {
+              return rowSpan;
+            }
+          }
+        }
+      }
+
+      rowSpan += 1;
+      rowindex -= 1;
+    }
+
+    return rowSpan;
+  }
+
+  static List<List<int>> _getConsecutiveRanges(List<int> columnsIndex) {
+    int endIndex = 1;
+    final List<List<int>> list = [];
+    if (columnsIndex.isEmpty) {
+      return list;
+    }
+    for (int i = 1; i <= columnsIndex.length; i++) {
+      if (i == columnsIndex.length ||
+          columnsIndex[i] - columnsIndex[i - 1] != 1) {
+        if (endIndex == 1) {
+          list.add(columnsIndex.sublist(i - endIndex, (i - endIndex) + 1));
+        } else {
+          list.add(columnsIndex.sublist(i - endIndex, i));
+        }
+        endIndex = 1;
+      } else {
+        endIndex++;
+      }
+    }
+    return list;
   }
 }

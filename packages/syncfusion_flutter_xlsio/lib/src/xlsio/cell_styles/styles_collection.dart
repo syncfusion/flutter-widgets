@@ -406,6 +406,11 @@ class StylesCollection {
       case 'percent':
         style.numberFormat = '0%';
         break;
+
+      case 'hyperlink':
+        style.fontColor = '#0000FF';
+        style.underline = true;
+        break;
     }
   }
 

@@ -30,6 +30,7 @@ class _CrossTable {
   int _generationNumber;
   Map<int, List<_ObjectInformation>> _allTables;
   _PdfReferenceHolder _documentCatalog;
+  _PdfEncryptor _encryptor;
 
   //Properties
   _ObjectInformation operator [](int key) => _returnValue(key);
@@ -55,6 +56,15 @@ class _CrossTable {
       }
     }
     return _documentCatalog;
+  }
+
+  _PdfEncryptor get encryptor {
+    return _encryptor;
+  }
+
+  set encryptor(_PdfEncryptor value) {
+    ArgumentError.checkNotNull(value);
+    _encryptor = value;
   }
 
   //Implementation
@@ -341,6 +351,9 @@ class _CrossTable {
       final _ObjectInformation oi = this[archiveNumber];
       final _PdfParser parser = oi.parser;
       archive = parser._parseOffset(oi._offset) as _PdfStream;
+      if (encryptor != null && !encryptor._encryptOnlyAttachment) {
+        archive.decrypt(encryptor, archiveNumber);
+      }
       archive._decompress();
       _archives[archiveNumber] = archive;
     }

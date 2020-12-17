@@ -6,140 +6,284 @@
   },
 
   "noEventsCalendarLabel": "No events",
-    "@noEventsCalendarLabel": {
+  "@noEventsCalendarLabel": {
       "description": "Describes the events in calendar widget",
       "type": "text"
   },
 
   "scheduleViewNewEventLabel": "Nothing planned. Tap to create.",
-    "@scheduleViewNewEventLabel": {
+  "@scheduleViewNewEventLabel": {
       "description": "Describes the display date in a calendar widget",
       "type": "text"
   },
 
   "ofDataPagerLabel": "of",
-    "@ofDataPagerLabel": {
+  "@ofDataPagerLabel": {
       "description": "Label that is displayed in the information panel of DataPager to represent the currently selected page in number of pages.",
       "type": "text"
   },
 
   "pagesDataPagerLabel": "pages",
-    "@pagesDataPagerLabel": {
+  "@pagesDataPagerLabel": {
       "description": "Label that is displayed in the information panel of DataPager to represent the currently selected page in number of pages.",
       "type": "text"
   },
 
   "itemsDataPagerLabel": "items",
-    "@itemsDataPagerLabel": {
+  "@itemsDataPagerLabel": {
       "description": "Label that is displayed in the information panel of DataPager to represent the number of items.",
       "type": "text"
   },
 
   "pdfBookmarksLabel": "Bookmarks",
-    "@pdfBookmarksLabel": {
+  "@pdfBookmarksLabel": {
       "description": "Label that is displayed in the bookmark view header of PdfViewer.",
       "type": "text"
   },
 
   "pdfNoBookmarksLabel": "No bookmarks found",
-    "@pdfNoBookmarksLabel": {
+  "@pdfNoBookmarksLabel": {
       "description": "Label that is displayed in the bookmark view of PdfViewer when there is no bookmark found in loaded PDF document.",
       "type": "text"
   },
 
   "pdfScrollStatusOfLabel": "of",
-    "@pdfScrollStatusOfLabel": {
+  "@pdfScrollStatusOfLabel": {
       "description": "Label that represents the `of` word in the scroll status of PdfViewer.",
       "type": "text"
   },
 
   "pdfGoToPageLabel": "Go to page",
-    "@pdfGoToPageLabel": {
+  "@pdfGoToPageLabel": {
       "description": "Label that is displayed in the pagination dialog header of PdfViewer",
       "type": "text"
   },
 
   "pdfEnterPageNumberLabel": "Enter page number",
-    "@pdfEnterPageNumberLabel": {
+  "@pdfEnterPageNumberLabel": {
       "description": "Label that is displayed in the text field of pagination dialog in the PdfViewer.",
       "type": "text"
   },
 
   "pdfInvalidPageNumberLabel": "Please enter a valid number",
-    "@pdfInvalidPageNumberLabel": {
+  "@pdfInvalidPageNumberLabel": {
       "description": "Label that is displayed in the pagination dialog of PdfViewer when an invalid number is entered in the text field.",
       "type": "text"
   },
 
   "pdfPaginationDialogOkLabel": "OK",
-    "@pdfPaginationDialogOkLabel": {
+  "@pdfPaginationDialogOkLabel": {
       "description": "Label that is displayed in the pagination dialog of PdfViewer to represent the OK confirmation button.",
       "type": "text"
   },
 
   "pdfPaginationDialogCancelLabel": "CANCEL",
-    "@pdfPaginationDialogCancelLabel": {
+  "@pdfPaginationDialogCancelLabel": {
       "description": "Label that is displayed in the pagination dialog of PdfViewer to represent the CANCEL confirmation button.",
       "type": "text"
   },
 
   "allowedViewDayLabel": "Day",
-    "@allowedViewDayLabel": {
+  "@allowedViewDayLabel": {
       "description": "Label that is displayed in the calendar header view when allowed views have calendar day view.",
       "type": "text"
   },
 
   "allowedViewWeekLabel": "Week",
-    "@allowedViewWeekLabel": {
+  "@allowedViewWeekLabel": {
       "description": "Label that is displayed in the calendar header view when allowed views have calendar week view.",
       "type": "text"
   },
 
   "allowedViewWorkWeekLabel": "Work Week",
-    "@allowedViewWorkWeekLabel": {
+  "@allowedViewWorkWeekLabel": {
       "description": "Label that is displayed in the calendar header view when allowed views have calendar work week view.",
       "type": "text"
   },
 
   "allowedViewMonthLabel": "Month",
-    "@allowedViewMonthLabel": {
+  "@allowedViewMonthLabel": {
       "description": "Label that is displayed in the calendar header view when allowed views have calendar month view.",
       "type": "text"
   },
 
   "allowedViewScheduleLabel": "Schedule",
-    "@allowedViewScheduleLabel": {
+  "@allowedViewScheduleLabel": {
       "description": "Label that is displayed in the calendar header view when allowed views have calendar schedule view.",
       "type": "text"
   },
 
   "allowedViewTimelineDayLabel": "Timeline Day",
-    "@allowedViewTimelineDayLabel": {
+  "@allowedViewTimelineDayLabel": {
       "description": "Label that is displayed in the calendar header view when allowed views have calendar timeline day view.",
       "type": "text"
   },
 
   "allowedViewTimelineWeekLabel": "Timeline Week",
-    "@allowedViewTimelineWeekLabel": {
+  "@allowedViewTimelineWeekLabel": {
       "description": "Label that is displayed in the calendar header view when allowed views have calendar timeline week view.",
       "type": "text"
   },
 
   "allowedViewTimelineWorkWeekLabel": "Timeline Work Week",
-    "@allowedViewTimelineWorkWeekLabel": {
+  "@allowedViewTimelineWorkWeekLabel": {
       "description": "Label that is displayed in the calendar header view when allowed views have calendar timeline work view.",
       "type": "text"
   },
 
   "allowedViewTimelineMonthLabel": "Timeline Month",
-    "@allowedViewTimelineMonthLabel": {
+  "@allowedViewTimelineMonthLabel": {
       "description": "Label that is displayed in the calendar header view when allowed views have calendar timeline month view.",
       "type": "text"
   },
 
   "todayLabel": "Today",
-    "@todayLabel": {
+  "@todayLabel": {
       "description": "Label that is displayed in the calendar header view when calendar shows date picker on header interaction.",
+      "type": "text"
+  },
+
+  "muharramLabel": "Muharram",
+  "@muharramLabel": {
+      "description": "The header string for the first month of hirji calendar.",
+      "type": "text"
+  },
+
+  "safarLabel": "Safar",
+  "@safarLabel": {
+      "description": "The header string for the second month of hirji calendar.",
+      "type": "text"
+  },
+
+  "rabi1Label": "Rabi' al-awwal",
+  "@rabi1Label": {
+      "description": "The header string for the third month of hirji calendar.",
+      "type": "text"
+  },
+
+  "rabi2Label": "Rabi' al-thani",
+  "@rabi2Label": {
+      "description": "The header string for the fourth month of hirji calendar.",
+      "type": "text"
+  },
+
+  "jumada1Label": "Jumada al-awwal",
+  "@jumada1Label": {
+      "description": "The header string for the fifth month of hirji calendar.",
+      "type": "text"
+  },
+
+  "jumada2Label": "Jumada al-thani",
+  "@jumada2Label": {
+      "description": "The header string for the sixth month of hirji calendar.",
+      "type": "text"
+  },
+
+  "rajabLabel": "Rajab",
+  "@rajabLabel": {
+      "description": "The header string for the seventh month of hirji calendar.",
+      "type": "text"
+  },
+
+  "shaabanLabel": "Sha'aban",
+  "@shaabanLabel": {
+      "description": "The header string for the eight month of hirji calendar.",
+      "type": "text"
+  },
+
+  "ramadanLabel": "Ramadan",
+  "@ramadanLabel": {
+      "description": "The header string for the ninth month of hirji calendar.",
+      "type": "text"
+  },
+
+  "shawwalLabel": "Shawwal",
+  "@shawwalLabel": {
+      "description": "The header string for the tenth month of hirji calendar.",
+      "type": "text"
+  },
+
+  "dhualqiLabel": "Dhu al-Qi'dah",
+  "@dhualqiLabel": {
+      "description": "The header string for the eleventh month of hirji calendar.",
+      "type": "text"
+  },
+
+  "dhualhiLabel": "Dhu al-Hijjah",
+  "@dhualhiLabel": {
+      "description": "The header string for the twelfth month of hirji calendar.",
+      "type": "text"
+  },
+
+  "shortMuharramLabel": "Muh.",
+  "@shortMuharramLabel": {
+      "description": "The header string for the first month of hirji calendar.",
+      "type": "text"
+  },
+
+  "shortSafarLabel": "Saf.",
+  "@shortSafarLabel": {
+      "description": "The header string for the second month of hirji calendar.",
+      "type": "text"
+  },
+
+  "shortRabi1Label": "Rabi. I",
+  "@shortRabi1Label": {
+      "description": "The header string for the third month of hirji calendar.",
+      "type": "text"
+  },
+
+  "shortRabi2Label": "Rabi. II",
+  "@shortRabi2Label": {
+      "description": "The header string for the fourth month of hirji calendar.",
+      "type": "text"
+  },
+
+  "shortJumada1Label": "Jum. I",
+  "@shortJumada1Label": {
+      "description": "The header string for the fifth month of hirji calendar.",
+      "type": "text"
+  },
+
+  "shortJumada2Label": "Jum. II",
+  "@shortJumada2Label": {
+      "description": "The header string for the sixth month of hirji calendar.",
+      "type": "text"
+  },
+
+  "shortRajabLabel": "Raj.",
+  "@shortRajabLabel": {
+      "description": "The header string for the seventh month of hirji calendar.",
+      "type": "text"
+  },
+
+  "shortShaabanLabel": "Sha.",
+  "@shortShaabanLabel": {
+      "description": "The header string for the eight month of hirji calendar.",
+      "type": "text"
+  },
+
+  "shortRamadanLabel": "Ram.",
+  "@shortRamadanLabel": {
+      "description": "The header string for the ninth month of hirji calendar.",
+      "type": "text"
+  },
+
+  "shortShawwalLabel": "Shaw.",
+  "@shortShawwalLabel": {
+      "description": "The header string for the tenth month of hirji calendar.",
+      "type": "text"
+  },
+
+  "shortDhualqiLabel": "Dhu'l-Q",
+  "@shortDhualqiLabel": {
+      "description": "The header string for the eleventh month of hirji calendar.",
+      "type": "text"
+  },
+
+  "shortDhualhiLabel": "Dhu'l-H",
+  "@shortDhualhiLabel": {
+      "description": "The header string for the twelfth month of hirji calendar.",
       "type": "text"
   }
 }

@@ -169,8 +169,8 @@ class ChartSerialization {
       builder.element('a:p', nest: () {
         builder.element('a:pPr', nest: () {
           builder.element('a:defRPr', nest: () {
-            final int size = textArea.size * 100;
-            builder.attribute('sz', size.toString());
+            final double size = textArea.size * 100;
+            builder.attribute('sz', size.toInt().toString());
             builder.attribute('b', textArea.bold ? '1' : '0');
             builder.attribute('i', textArea.italic ? '1' : '0');
             if (textArea.color != null) {
@@ -251,8 +251,8 @@ class ChartSerialization {
       XmlBuilder builder, ChartTextArea textArea) {
     builder.element('a:rPr', nest: () {
       builder.attribute('lang', 'en-US');
-      final int size = textArea.size * 100;
-      builder.attribute('sz', size.toString());
+      final double size = textArea.size * 100;
+      builder.attribute('sz', size.toInt().toString());
       builder.attribute('b', textArea.bold ? '1' : '0');
       builder.attribute('i', textArea.italic ? '1' : '0');
       builder.attribute('baseline', '0');
@@ -297,15 +297,24 @@ class ChartSerialization {
     if (chart == null) throw ("chart - Value can't be null");
     switch (chart.chartType) {
       case ExcelChartType.column:
+      case ExcelChartType.columnStacked:
+      case ExcelChartType.columnStacked100:
       case ExcelChartType.bar:
       case ExcelChartType.barStacked:
-      case ExcelChartType.columnStacked:
+      case ExcelChartType.barStacked100:
         _serializeBarChart(builder, chart);
         break;
 
       case ExcelChartType.line:
       case ExcelChartType.lineStacked:
+      case ExcelChartType.lineStacked100:
         _serializeLineChart(builder, chart);
+        break;
+
+      case ExcelChartType.area:
+      case ExcelChartType.areaStacked:
+      case ExcelChartType.areaStacked100:
+        _serializeAreaChart(builder, chart);
         break;
 
       case ExcelChartType.pie:
@@ -329,9 +338,6 @@ class ChartSerialization {
         final ChartSerie firstSerie = chart.series[i];
         _serializeSerie(builder, firstSerie);
       }
-      builder.element('c:gapWidth', nest: () {
-        builder.attribute('val', 150);
-      });
       builder.element('c:axId', nest: () {
         builder.attribute('val', 59983360);
       });
@@ -350,7 +356,7 @@ class ChartSerialization {
 
     builder.element('c:barChart', nest: () {
       final String strDirection =
-          chart.chartType.toString().contains('Bar') ? 'bar' : 'col';
+          chart.chartType.toString().contains('bar') ? 'bar' : 'col';
       builder.element('c:barDir', nest: () {
         builder.attribute('val', strDirection);
       });
@@ -365,10 +371,36 @@ class ChartSerialization {
       builder.element('c:gapWidth', nest: () {
         builder.attribute('val', 150);
       });
-      if (chart._getIsStacked(chart.chartType)) {
+      if (chart._getIsStacked(chart.chartType) ||
+          chart._getIs100(chart.chartType)) {
         builder.element('c:overlap', nest: () {
           builder.attribute('val', '100');
         });
+      }
+      builder.element('c:axId', nest: () {
+        builder.attribute('val', 59983360);
+      });
+      builder.element('c:axId', nest: () {
+        builder.attribute('val', 57253888);
+      });
+    });
+    _serializeAxes(builder, chart);
+  }
+
+  /// serializes Area chart.
+  void _serializeAreaChart(XmlBuilder builder, Chart chart) {
+    if (builder == null) throw ("writer - Value can't be null");
+
+    if (chart == null) throw ("chart - Value can't be null");
+
+    builder.element('c:areaChart', nest: () {
+      _serializeChartGrouping(builder, chart);
+      builder.element('c:varyColors', nest: () {
+        builder.attribute('val', 0);
+      });
+      for (int i = 0; i < chart.series.count; i++) {
+        final ChartSerie firstSerie = chart.series[i];
+        _serializeSerie(builder, firstSerie);
       }
       builder.element('c:axId', nest: () {
         builder.attribute('val', 59983360);
@@ -385,6 +417,8 @@ class ChartSerialization {
     String strGrouping;
     if (chart._getIsClustered(chart.chartType)) {
       strGrouping = 'clustered';
+    } else if (chart._getIs100(chart.chartType)) {
+      strGrouping = 'percentStacked';
     } else if (chart._getIsStacked(chart.chartType)) {
       strGrouping = 'stacked';
     } else {
@@ -582,8 +616,8 @@ class ChartSerialization {
       builder.element('a:p', nest: () {
         builder.element('a:pPr', nest: () {
           builder.element('a:defRPr', nest: () {
-            final int size = textArea.size * 100;
-            builder.attribute('sz', size.toString());
+            final double size = textArea.size * 100;
+            builder.attribute('sz', size.toInt().toString());
             builder.attribute('b', textArea.bold ? '1' : '0');
             builder.attribute('i', textArea.italic ? '1' : '0');
             builder.attribute('baseline', '0');
@@ -878,8 +912,11 @@ class ChartSerialization {
       builder.element('c:crosses', nest: () {
         builder.attribute('val', 'autoZero');
       });
+      final Chart chart = axis._parentChart;
+      final String strCrossBetween =
+          chart.primaryCategoryAxis._isBetween ? 'between' : 'midCat';
       builder.element('c:crossBetween', nest: () {
-        builder.attribute('val', 'between');
+        builder.attribute('val', strCrossBetween);
       });
     });
   }

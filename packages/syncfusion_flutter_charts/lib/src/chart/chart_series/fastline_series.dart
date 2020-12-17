@@ -94,6 +94,10 @@ class FastLineSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of FastLineSeriesRenderer class.
   FastLineSeriesRenderer();
 
+  //ignore: prefer_final_fields
+  List<CartesianChartPoint<dynamic>> _overallDataPoints =
+      <CartesianChartPoint<dynamic>>[];
+
   ///Adds the segment to the segments list
   ChartSegment _createSegments(
       int seriesIndex, SfCartesianChart chart, num animateFactor,

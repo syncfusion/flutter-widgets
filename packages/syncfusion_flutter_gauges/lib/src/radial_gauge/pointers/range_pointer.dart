@@ -73,7 +73,7 @@ class RangePointer extends GaugePointer {
   /// When you specify [pointerOffset] is negative, the range pointer will be
   /// positioned outside the axis.
   ///
-  /// Defaults to 0 and [sizeUnit] is [GaugeSizeUnit.logicalPixel]
+  /// Defaults to `0` and [sizeUnit] is `GaugeSizeUnit.logicalPixel`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
@@ -93,7 +93,7 @@ class RangePointer extends GaugePointer {
   ///
   /// Using [GaugeSizeUnit], range pointer position is calculated.
   ///
-  /// Defaults to [GaugeSizeUnit.logicalPixel].
+  /// Defaults to `GaugeSizeUnit.logicalPixel`.
   ///
   /// Also refer [GaugeSizeUnit].
   ///
@@ -124,7 +124,7 @@ class RangePointer extends GaugePointer {
   /// if [sizeUnit] is [GaugeSizeUnit.logicalPixel], defined value is set
   /// to the pointer width.
   ///
-  /// Defaults to 10 and [sizeUnit] is [GaugeSizeUnit.logicalPixel]
+  /// Defaults to `10` and [sizeUnit] is `GaugeSizeUnit.logicalPixel`.
   ///
   /// ```Dart
   /// Widget build(BuildContext context) {
@@ -140,7 +140,7 @@ class RangePointer extends GaugePointer {
 
   /// Specifies the range pointer color.
   ///
-  /// Defaults to  null
+  /// Defaults to  `null`.
   /// ```dart
   /// Widget build(BuildContext context) {
   ///    return Container(
@@ -161,7 +161,7 @@ class RangePointer extends GaugePointer {
   /// [CornerStyle.startCurve] renders the rounded corner on start side.
   /// [CornerStyle.endCurve] renders the rounded corner on end side.
   ///
-  /// Defaults to [CornerStyle.bothFlat]
+  /// Defaults to `CornerStyle.bothFlat`.
   ///
   /// Also refer [CornerStyle]
   ///
@@ -183,7 +183,7 @@ class RangePointer extends GaugePointer {
   /// [gradient] of [RangePointer] only support [SweepGradient] and
   /// specified [SweepGradient.stops] are applied within the pointer value.
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
@@ -204,7 +204,7 @@ class RangePointer extends GaugePointer {
 
   /// Specifies the dash array to draw the dashed line.
   ///
-  /// Defaults to null.
+  /// Defaults to `null`.
   /// ```dart
   ///Widget build(BuildContext context) {
   ///    return Container(

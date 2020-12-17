@@ -116,12 +116,14 @@ class CalcEngine {
   final _expressionCannotEndWithAnOperator = 5;
   final _invalidCharactersFollowingAnOperator = 6;
   final _mismatchedParentheses = 8;
+  final _requiresASingleArgument = 10;
   final _requires3Args = 11;
   final _badIndex = 14;
   final _tooComplex = 15;
   final _missingFormula = 17;
   final _improperFormula = 18;
   final _cellEmpty = 20;
+  final _badFormula = 21;
   final _emptyExpression = 22;
   final _mismatchedTics = 24;
   final _wrongNumberArguments = 25;
@@ -132,6 +134,7 @@ class CalcEngine {
   final _checkDanglingStack = false;
   bool _isRangeOperand = false;
   bool _multiTick = false;
+  bool _isInteriorFunction = false;
   double _dateTime1900Double;
   final _dateTime1900 = DateTime(1900, 1, 1, 0, 0, 0);
 
@@ -169,11 +172,15 @@ class CalcEngine {
   final String _tempSheetPlaceHolder = String.fromCharCode(133);
 
   final int _columnMaxCount = -1;
+  // ignore: unused_field
+  int _hitCount = 0;
   Map _libraryFunctions;
   final String _validFunctionNameChars = '_';
   final bool _getValueFromArgPreserveLeadingZeros = false;
   bool _ignoreCellValue = false;
   bool _findNamedRange = false;
+  // ignore: unused_field
+  bool _exteriorFormula = false;
   bool _isIndexInteriorFormula = false;
   bool _isErrorString = false;
 
@@ -366,6 +373,17 @@ class CalcEngine {
     _addFunction('Min', '_computeMin');
     _addFunction('Count', '_computeCount');
     _addFunction('If', '_computeIf');
+    _addFunction('Index', '_computeIndex');
+    _addFunction('Match', '_computeMatch');
+    _addFunction('And', '_computeAnd');
+    _addFunction('Or', '_computeOr');
+    _addFunction('Not', '_computeNot');
+    _addFunction('Today', '_computeToday');
+    _addFunction('Now', '_computeNow');
+    _addFunction('Trim', '_computeTrim');
+    _addFunction('Concatenate', '_computeConcatenate');
+    _addFunction('Upper', '_computeUpper');
+    _addFunction('Lower', '_computeLower');
   }
 
   /// A method that increases the calculation level of the CalcEngine.
@@ -593,6 +611,7 @@ class CalcEngine {
           if (_errorStrings.contains(s)) return s;
           _stack._push(_getValueFromParentObject(s, true));
         } else if (formula[i] == 'q') {
+          formula = _computeInteriorFunctions(formula);
           final int ii = formula.substring(i + 1).indexOf(_leftBracket);
           if (ii > 0) {
             int bracketCount = 0;
@@ -1097,7 +1116,7 @@ class CalcEngine {
                   _isErrorString = false;
                   return _errorStrings[x].toString();
                 }
-                _stack._push(math.pow(d1, d).toString());
+                _stack._push(pow(d1, d).toString());
                 i = i + 1;
               }
 
@@ -1190,6 +1209,39 @@ class CalcEngine {
       case '_computeIf':
         return _computeIf(args);
         break;
+      case '_computeIndex':
+        return _computeIndex(args);
+        break;
+      case '_computeMatch':
+        return _computeMatch(args);
+        break;
+      case '_computeAnd':
+        return _computeAnd(args);
+        break;
+      case '_computeOr':
+        return _computeOr(args);
+        break;
+      case '_computeNot':
+        return _computeNot(args);
+        break;
+      case '_computeToday':
+        return _computeToday(args);
+        break;
+      case '_computeNow':
+        return _computeNow(args);
+        break;
+      case '_computeTrim':
+        return _computeTrim(args);
+        break;
+      case '_computeConcatenate':
+        return _computeConcatenate(args);
+        break;
+      case '_computeUpper':
+        return _computeUpper(args);
+        break;
+      case '_computeLower':
+        return _computeLower(args);
+        break;
       default:
         return args;
         break;
@@ -1208,9 +1260,7 @@ class CalcEngine {
     }
     for (final r in ranges) {
       adjustRange = r;
-      ////is a cellrange
-      // ignore: prefer_contains
-      if (adjustRange.indexOf(':') > -1 && _isRange(adjustRange)) {
+      if (adjustRange.contains(':') && _isRange(adjustRange)) {
         if (r.startsWith(_tic)) {
           return _errorStrings[1].toString();
         }
@@ -1322,7 +1372,7 @@ class CalcEngine {
 
   /// Returns the maximum value of all values listed in the argument.
   String _computeMax(String range) {
-    double max = -double.maxFinite;
+    double maxValue = -double.maxFinite;
     double d;
     String s1;
     final List<String> ranges = _splitArgsPreservingQuotedCommas(range);
@@ -1353,7 +1403,7 @@ class CalcEngine {
           if (s1.isNotEmpty) {
             d = double.tryParse(s1.replaceAll(_tic, ''));
             if (d != null) {
-              max = math.max(max, d);
+              maxValue = max(maxValue, d);
             } else if (_errorStrings.contains(s1)) {
               return s1;
             }
@@ -1370,7 +1420,7 @@ class CalcEngine {
         if (s1.isNotEmpty) {
           d = double.tryParse(s1.replaceAll(_tic, ''));
           if (d != null) {
-            max = math.max(max, d);
+            maxValue = max(maxValue, d);
           } else {
             if (s1.startsWith(_tic)) {
               return _errorStrings[1].toString();
@@ -1379,8 +1429,8 @@ class CalcEngine {
         }
       }
     }
-    if (max != -double.maxFinite) {
-      return max.toString();
+    if (maxValue != -double.maxFinite) {
+      return maxValue.toString();
     }
 
     return '0';
@@ -1388,7 +1438,7 @@ class CalcEngine {
 
   /// Returns the minimum value of all values listed in the argument.
   String _computeMin(String range) {
-    double min = double.maxFinite;
+    double minValue = double.maxFinite;
     double d;
     String s1;
     final List<String> ranges = _splitArgsPreservingQuotedCommas(range);
@@ -1422,7 +1472,7 @@ class CalcEngine {
           if (s1.isNotEmpty) {
             double.tryParse(s1.replaceAll(_tic, ''));
             if (d != null) {
-              min = math.min(min, d);
+              minValue = min(minValue, d);
             }
           }
         }
@@ -1437,7 +1487,7 @@ class CalcEngine {
         if (s1.isNotEmpty) {
           d = double.tryParse(s1.replaceAll(_tic, ''));
           if (d != null) {
-            min = math.min(min, d);
+            minValue = min(minValue, d);
           } else {
             if (s1.startsWith(_tic)) {
               return _errorStrings[1].ToString();
@@ -1446,8 +1496,8 @@ class CalcEngine {
         }
       }
     }
-    if (min != double.maxFinite) {
-      return min.toString();
+    if (minValue != double.maxFinite) {
+      return minValue.toString();
     }
 
     return '0';
@@ -1620,6 +1670,432 @@ class CalcEngine {
     return s1;
   }
 
+  /// Returns the value at a specified row and column from within a given range.
+  String _computeIndex(String arg) {
+    String result;
+    if (arg == null || arg == '') {
+      return _formulaErrorStrings[_invalidArguments];
+    }
+    final List<String> args = _splitArgsPreservingQuotedCommas(arg);
+    final int argCount = args.length;
+    if (argCount < 2 || args.isEmpty) {
+      return _formulaErrorStrings[_wrongNumberArguments];
+    }
+    for (int index = 1; index < argCount; index++) {
+      //To check third argument since it is optional
+      if (index <= (argCount - 1)) {
+        //To Check #NAME?,#VALUE! error string for argument 2,3 since it is numeric type
+        final String checkString2 = _getValueFromArg(args[1]);
+        if (_errorStrings.contains(checkString2)) {
+          return checkString2;
+        }
+      }
+    }
+    String r = args[0];
+    r = r.replaceAll(_tic, ' ');
+    int i = r.indexOf(':');
+    ////Single Cell
+    if (i == -1) {
+      if (_isCellReference(r)) {
+        r = r + ':' + r;
+      }
+    }
+    final String sheet = _getSheetToken(r);
+    i = r.indexOf(':');
+    int row = (argCount == 1)
+        ? 1
+        : double.tryParse(_getValueFromArg(args[1])).toInt();
+    int col = (argCount <= 2)
+        ? 1
+        : double.tryParse(_getValueFromArg(args[2])).toInt();
+    int top = _getRowIndex(r.substring(0, i));
+    int bottom = _getRowIndex(r.substring(i + 1));
+    if (!(top != -1 || bottom == -1) == (top == -1 || bottom != -1)) {
+      return _errorStrings[5].toString();
+    }
+    if (top == -1 && _grid is Worksheet) {
+      top = (_grid).getFirstRow();
+    }
+    if (bottom == -1 && _grid is Worksheet) {
+      bottom = (_grid).getLastRow();
+    }
+    int left = _getColIndex(r.substring(0, i));
+    int right = _getColIndex(r.substring(i + 1));
+    if (left == -1 && _grid is Worksheet) {
+      left = (_grid).getFirstColumn();
+    }
+    if (right == -1 && _grid is Worksheet) {
+      right = (_grid).getLastColumn();
+    }
+    if (argCount == 2 && row > bottom - top + 1) {
+      col = row;
+      row = 1;
+    }
+    if (row > bottom - top + 1 || col > right - left + 1) {
+      return _errorStrings[2].toString();
+    }
+
+    row = _getRowIndex(r.substring(0, i)) + (row <= 0 ? row : row - 1);
+    if (_getRowIndex(r.substring(0, i)) == -1 && _grid is Worksheet) {
+      row = (_grid).getFirstRow();
+    }
+    col = _getColIndex(r.substring(0, i)) + (col <= 0 ? col : col - 1);
+    if (_getColIndex(r.substring(0, i)) == -1 && _grid is Worksheet) {
+      col = (_grid).getFirstColumn();
+    }
+
+    result = _getValueFromArg(
+        sheet + RangeInfo._getAlphaLabel(col) + row.toString());
+    if (!_isIndexInteriorFormula && result.isEmpty) {
+      return '0';
+    }
+    return result;
+  }
+
+  /// Finds the index a specified value in a lookup_range.
+  String _computeMatch(String arg) {
+    if (arg == null || arg == '') {
+      return _formulaErrorStrings[_invalidArguments];
+    }
+    final List<String> args = _splitArgsPreservingQuotedCommas(arg);
+    final int argCount = args.length;
+    if (argCount != 3 && argCount != 2 || arg.isEmpty) {
+      return _formulaErrorStrings[_wrongNumberArguments];
+    }
+    // To Check the error String
+    final String checkString = _getValueFromArg(args[0]);
+    if (_errorStrings.contains(checkString)) {
+      return checkString;
+    }
+    int m = 1;
+    List<String> cells = [];
+    final String r = args[1].replaceAll(_tic, ' ');
+    final int i = r.indexOf(':');
+    if (argCount == 3) {
+      // To Check the error String
+      final String checkString = _getValueFromArg(args[2]);
+      if (_errorStrings.contains(checkString)) {
+        return checkString;
+      }
+      String thirdArg = _getValueFromArg(args[2]);
+      thirdArg = thirdArg.replaceAll(_tic, ' ');
+      m = double.tryParse(thirdArg).toInt();
+      if (thirdArg.contains(_tic) &&
+          (thirdArg.contains(_trueValueStr) ||
+              thirdArg.contains(_falseValueStr))) {
+        return _errorStrings[1].toString();
+      } else if (thirdArg == _falseValueStr) {
+        m = 0;
+      } else if (thirdArg == _trueValueStr) {
+        m = 1;
+      }
+    }
+    final String searchItem =
+        _getValueFromArg(args[0]).replaceAll(_tic, ' ').toUpperCase();
+    if (searchItem == null || searchItem == '') {
+      return _errorStrings[5].toString();
+    }
+    if (i > -1) {
+      int row1 = _getRowIndex(r.substring(0, i + 1));
+      int row2 = _getRowIndex(r.substring(0, i + 1));
+      int col1 = _getColIndex(r.substring(0, i + 1));
+      int col2 = _getColIndex(r.substring(0, i + 1));
+      if (_grid is Worksheet) {
+        if (!(row1 != -1 || row2 == -1) == (row1 == -1 || row2 != -1)) {
+          return _errorStrings[5].toString();
+        }
+        if (row1 == -1) {
+          row1 = (_grid).getFirstRow();
+        }
+        if (col1 == -1) {
+          col1 = (_grid).getFirstColumn();
+        }
+        if (row2 == -1) {
+          row2 = (_grid).getLastRow();
+        }
+        if (col2 == -1) {
+          col2 = (_grid).getLastColumn();
+        }
+      }
+    }
+    if (cells == null || (cells != null && cells.isEmpty)) {
+      cells = _getCellsFromArgs(_stripTics(r));
+    }
+    int index = 1;
+    int emptyValueIndex = 0;
+    String oldValue;
+    String newValue;
+    for (final String s in cells) {
+      if (_isCellReference(s.replaceAll(_tic, ' '))) {
+        newValue = _getValueFromArg(s).replaceAll(_tic, ' ').toUpperCase();
+      } else {
+        newValue = s.replaceAll(_tic, '').toUpperCase();
+      }
+      if (oldValue != null) {
+        if (m == 1) {
+          if (_matchCompare(newValue, oldValue) < 0 && newValue == searchItem) {
+            index--;
+            break;
+          } else if (m == -1) {
+            if (_matchCompare(newValue, oldValue) > 0) {
+              index = -1;
+              break;
+            }
+          }
+        }
+      }
+      if ((m == 0 || m == 1) && _matchCompare(searchItem, newValue) == 0) {
+        break;
+      } else if (m == 1 && _matchCompare(searchItem, newValue) < 0) {
+        index--;
+        break;
+      } else if (m == -1 && _matchCompare(searchItem, newValue) > 0) {
+        index--;
+        break;
+      }
+      if (m == 1 && newValue == null) {
+        emptyValueIndex++;
+      } else {
+        index++;
+      }
+      if (oldValue == null && newValue != null) {
+        index = index + emptyValueIndex;
+        emptyValueIndex = 0;
+      }
+      oldValue = newValue;
+    }
+    if (index > 0 && index <= cells.length) {
+      return index.toString();
+    } else {
+      return '#N/A';
+    }
+  }
+
+  /// Removes outer quote marks from a string with no inner quote marks.
+  String _stripTics(String s) {
+    if (s.length > 1 && s[0] == _tic[0] && s[s.length - 1] == _tic[0]) {
+      if (s.substring(1, s.length - 2).contains(_tic)) {
+        s = s.substring(1, s.length - 2);
+      } else if (_multiTick) {
+        s = s.substring(1, s.length - 2);
+      }
+    }
+    return s;
+  }
+
+  int _matchCompare(Object o1, Object o2) {
+    final String s1 = o1.toString();
+    final String s2 = o2.toString();
+    final double d1 = double.tryParse(s1);
+    final double d2 = double.tryParse(s2);
+    if (s1.contains('.') || s2.contains('.')) {
+      return d1.compareTo(d2);
+    } else {
+      return s1.compareTo(s2);
+    }
+  }
+
+  /// Returns the And of all values treated as logical values listed in the argument.
+  String _computeAnd(String range) {
+    bool sum = true;
+    if (range == null || range.isEmpty) {
+      return _formulaErrorStrings[_wrongNumberArguments].toString();
+    }
+    String s1;
+    double d;
+    final List<String> ranges = _splitArgsPreservingQuotedCommas(range);
+    for (final String r in ranges) {
+      if (_splitArguments(r, ':').length > 1 &&
+          _isCellReference(r.replaceAll(_tic, ''))) {
+        for (final String s in _getCellsFromArgs(r)) {
+          try {
+            s1 = _getValueFromArg(s);
+            if (_errorStrings.contains(s1)) {
+              return s1;
+            }
+          } catch (e) {
+            _exceptionThrown = true;
+            return _errorStrings[4].ToString();
+          }
+          d = double.tryParse(s1);
+          sum &= s1 == ''
+              ? _trueValueStr.toLowerCase() == 'true'
+              : ((s1 == _trueValueStr) || d != null && d != 0);
+          if (!sum) {
+            return _falseValueStr;
+          }
+        }
+      } else {
+        try {
+          s1 = _getValueFromArg(r);
+          if (s1.startsWith(_tic) &&
+              (r.replaceAll(_tic, '').toLowerCase() != 'true')) {
+            return _errorStrings[1].toString();
+          }
+          if (ranges.length == 1) {
+            if (s1 == null && s1.isEmpty) {
+              return _errorStrings[1].toString();
+            }
+          }
+          if (_errorStrings.contains(s1)) {
+            return s1;
+          }
+
+          if (DateTime.tryParse(s1) != null) {
+            return _trueValueStr;
+          } else if ((double.tryParse(s1) == null) &&
+              s1 != '' &&
+              !(s1.replaceAll(_tic, '').toLowerCase() == 'true' ||
+                  s1.replaceAll(_tic, '').toLowerCase() == 'false')) {
+            return (_isCellReference(r))
+                ? _errorStrings[1].toString()
+                : _errorStrings[5].toString();
+          }
+        } catch (e) {
+          _exceptionThrown = true;
+          return _errorStrings[4].toString();
+        }
+        d = double.tryParse(s1);
+        sum &= ((s1.replaceAll(_tic, '').toLowerCase() == 'true') ||
+            d != null && d != 0);
+        if (!sum) {
+          return _falseValueStr;
+        }
+      }
+    }
+    return sum ? _trueValueStr : _falseValueStr;
+  }
+
+  /// Returns the And of all values treated as logical values listed in the argument.
+  String _computeOr(String range) {
+    bool sum = false;
+    if (range == null || range.isEmpty) {
+      return _formulaErrorStrings[_wrongNumberArguments].toString();
+    }
+    String s1;
+    double d;
+    final List<String> ranges = _splitArgsPreservingQuotedCommas(range);
+    for (final String r in ranges) {
+      if (_splitArguments(r, ':').length > 1 &&
+          _isCellReference(r.replaceAll(_tic, ''))) {
+        for (final String s in _getCellsFromArgs(r)) {
+          try {
+            s1 = _getValueFromArg(s);
+            if (_errorStrings.contains(s1)) {
+              return s1;
+            }
+          } catch (e) {
+            _exceptionThrown = true;
+            return _errorStrings[4].ToString();
+          }
+          d = double.tryParse(s1);
+          sum &= s1 == ''
+              ? _trueValueStr.toLowerCase() == 'true'
+              : ((s1 == _trueValueStr) || d != null && d != 0);
+          if (!sum) {
+            return _falseValueStr;
+          }
+        }
+      } else {
+        try {
+          s1 = _getValueFromArg(r);
+          if (s1.startsWith(_tic) &&
+              (r.replaceAll(_tic, '').toLowerCase() != 'true')) {
+            return _errorStrings[1].toString();
+          }
+          if (ranges.length == 1) {
+            if (s1 == null && s1.isEmpty) {
+              return _errorStrings[1].toString();
+            }
+          }
+          if (_errorStrings.contains(s1)) {
+            return s1;
+          }
+
+          if (DateTime.tryParse(s1) != null) {
+            return _trueValueStr;
+          } else if ((double.tryParse(s1) == null) &&
+              s1 != '' &&
+              !(s1.replaceAll(_tic, '').toLowerCase() == 'true' ||
+                  s1.replaceAll(_tic, '').toLowerCase() == 'false')) {
+            return (_isCellReference(r))
+                ? _errorStrings[1].toString()
+                : _errorStrings[5].toString();
+          }
+        } catch (e) {
+          _exceptionThrown = true;
+          return _errorStrings[4].toString();
+        }
+        d = double.tryParse(s1);
+        sum |= ((s1.replaceAll(_tic, '').toLowerCase() == 'true') ||
+            d != null && d != 0);
+        if (sum) {
+          return _trueValueStr;
+        }
+      }
+    }
+    return sum ? _trueValueStr : _falseValueStr;
+  }
+
+  ///  Flips the logical value represented by the argument.
+  String _computeNot(String args) {
+    double d1;
+    String s = args;
+    ////parsed formula
+    if (args.isNotEmpty &&
+        !_isLetter(args.codeUnitAt(0)) &&
+        _indexOfAny(args, [parseArgumentSeparator, ':']) > -1) {
+      return _formulaErrorStrings[_requiresASingleArgument];
+    } else {
+      try {
+        s = _getValueFromArg(s);
+        d1 = double.tryParse(s);
+        if (s == (_trueValueStr)) {
+          s = _falseValueStr;
+        } else if (s == (_falseValueStr)) {
+          s = _trueValueStr;
+        } else if (d1 != null) {
+          ////Flip the value.
+          if (d1.abs() > 1e-10) {
+            s = _falseValueStr;
+          } else {
+            s = _trueValueStr;
+          }
+        }
+      } catch (e) {
+        _exceptionThrown = true;
+        return e.toString();
+      }
+    }
+    return s;
+  }
+
+  /// A method to split the arguments using argument seperator.
+  List<String> _splitArguments(String args, String argSeperator) {
+    final List<String> splitArg = [];
+    int start = 0;
+    int ticCount = 0;
+    for (int i = 0; i < args.length; i++) {
+      if (args[i] == '"') {
+        if (ticCount == 0) {
+          ticCount++;
+        } else {
+          ticCount = 0;
+        }
+      }
+      if ((args[i] == (argSeperator) && ticCount != 1)) {
+        splitArg.add(args.substring(start, i - start));
+        start = i + 1;
+      }
+      if (i == (args.length - 1)) {
+        splitArg.add(args.substring(start, i - start + 1));
+      }
+    }
+
+    final List<String> argList = splitArg;
+    return argList;
+  }
+
   /// A Virtual method to compute the value based on the argument passed in.
   String _getValueFromArg(String arg) {
     if (_textIsEmpty(arg)) {
@@ -1629,6 +2105,24 @@ class CalcEngine {
     arg = arg.replaceAll('u', '-');
     arg = arg.replaceAll('~', _tic + _tic);
 
+    if (!_isUpper(arg[0]) &&
+        (_isDigit(arg[0].codeUnitAt(0)) ||
+            arg[0] == parseDecimalSeparator ||
+            arg[0] == '+' ||
+            arg[0] == '-' ||
+            arg[0] == 'n' ||
+            (arg.length == 1 && (arg[0] == 'i' || arg[0] == 'j')))) {
+      if (arg[0] == 'n') {
+        arg = arg.substring(1);
+      }
+      d = double.tryParse(arg);
+      if (d != null) {
+        return _getValueFromArgPreserveLeadingZeros ? arg : d.toString();
+      } else if (arg.startsWith(_trueValueStr) ||
+          arg.startsWith(_falseValueStr)) {
+        return arg;
+      }
+    }
     if (_ignoreCellValue &&
         !(arg.startsWith(_trueValueStr) || arg.startsWith(_falseValueStr))) {
       _ignoreCellValue = false;
@@ -1766,6 +2260,17 @@ class CalcEngine {
         if (needToCheckRightSide) {
           ////check right side
           j = i + 1;
+
+          if (range[j] == _sheetToken) {
+            j++;
+            while (j < range.length && range[j] != _sheetToken) {
+              j++;
+            }
+
+            if (j < range.length) {
+              j++;
+            }
+          }
 
           ////handle possible sheetnames
           if (j < range.length - 6 && range[j] == _charTIC) {
@@ -2256,6 +2761,26 @@ class CalcEngine {
               }
               left = text.substring(j, j + leftErrorIndex + 1);
               leftIndex = j;
+            } else if (text[j] == _rightBracket) {
+              ////Library member.
+              int bracketCount = 0;
+              int k = j - 1;
+              while (k > 0 && (text[k] != 'q' || bracketCount != 0)) {
+                if (text[k] == 'q') {
+                  bracketCount--;
+                } else if (text[k] == _rightBracket) {
+                  bracketCount++;
+                }
+
+                k--;
+              }
+
+              if (k < 0) {
+                throw Exception(_formulaErrorStrings[_badLibrary]);
+              }
+
+              left = text.substring(k, j + 1);
+              leftIndex = k;
             } else if (!_isDigit(text.codeUnitAt(j)) &&
                 text[j] != '%' &&
                 (!text.contains(':') ||
@@ -2997,12 +3522,12 @@ class CalcEngine {
       maxCol = maxRow = _intMinValue;
       for (final tempArgs in argList) {
         d = _getRowIndex(tempArgs);
-        minRow = math.min(minRow, d);
-        maxRow = math.max(maxRow, d);
+        minRow = min(minRow, d);
+        maxRow = max(maxRow, d);
 
         d = _getColIndex(tempArgs);
-        minCol = math.min(minCol, d);
-        maxCol = math.max(maxCol, d);
+        minCol = min(minCol, d);
+        maxCol = max(maxCol, d);
       }
       row1 = minRow;
       row2 = maxRow;
@@ -3368,4 +3893,375 @@ class CalcEngine {
     }
     return text;
   }
+
+  String _computeInteriorFunctions(String formula) {
+    try {
+      if (_textIsEmpty(formula)) {
+        return formula;
+      }
+
+      ////int q = formula.LastIndexOf('q');
+      int q = _findLastqNotInBrackets(formula);
+      while (q > 0) {
+        final int last = formula.substring(q).indexOf(_rightBracket);
+        if (last == -1) {
+          return _formulaErrorStrings[_badFormula];
+        }
+
+        String s = formula.substring(q, q + last + 1);
+
+        // To check if the function contains CELL formula embedded with other formulas like INDEX,IF...
+        final int q1 = _findLastqNotInBrackets(formula.substring(0, q));
+        final String s1 = q1 >= 0
+            ? formula.substring(
+                q1, q1 + formula.substring(q1).indexOf(_rightBracket))
+            : '';
+
+        // Below code has been added to check whether the Value formula is interior of SUMPRODUCT
+        if ((s.contains('qVALUE') ||
+                s.contains('qINT') ||
+                s.contains('qROW')) &&
+            s1.contains('SUMPRODUCT')) _exteriorFormula = true;
+
+        if (s1.contains('qINDEX') &&
+            (s1.contains('qCELL') ||
+                s1.contains('qCOUNT') ||
+                s1.contains('qOFFSET'))) {
+          _isIndexInteriorFormula = true;
+          // Below code has been added to calculate when the index is embedded formula and the index array condtains index formula.
+          if (s.startsWith('qINDEX')) {
+            _hitCount = _computedValueLevel + 1;
+          }
+        }
+
+        s = _computedValue(s);
+        if (s != null &&
+            s.isNotEmpty &&
+            s[0] == _tic[0] &&
+            s[s.length - 1] == _tic[0]) {
+          String newS = s.substring(1, 1 + s.length - 2);
+          if (newS.contains(_tic)) {
+            _multiTick = true;
+            newS = newS.replaceAll(_tic, '|');
+          }
+          s = _tic + newS + _tic;
+        }
+        if (!_isInteriorFunction) s = _markupResultToIncludeInFormula(s);
+
+        _isInteriorFunction = false;
+        formula = formula.substring(0, q) + s + formula.substring(q + last + 1);
+        q = _findLastqNotInBrackets(formula);
+      }
+    } catch (e) {
+      _exceptionThrown = true;
+      return e.toString();
+    }
+
+    return formula;
+  }
+
+  int _findLastqNotInBrackets(String s) {
+    int found = -1;
+    bool lastBracket = false;
+    int i = s.length - 1;
+    while (i > -1) {
+      if (s[i] == 'q' && lastBracket) {
+        found = i;
+        break;
+      }
+
+      if (s[i] == _leftBracket) {
+        lastBracket = true;
+      } else if (s[i] == _rightBracket) {
+        lastBracket = false;
+      }
+
+      i--;
+    }
+
+    return found;
+  }
+
+  String _markupResultToIncludeInFormula(String s) {
+    if (s.isNotEmpty && s[0] == '-' && double.tryParse(s) != null) {
+      s = 'nu' + s.substring(1);
+    } else if (s.isNotEmpty &&
+        (s[0] == _tic[0] || s[0] == _bMarker || s[0] == '#')) {
+      ////Pass on the String...
+    } else if (s.startsWith('TRUE') || s.startsWith('FALSE')) {
+      ////Pass on the bool...
+    } else {
+      if (double.tryParse(s) != null) {
+        s = s.replaceAll(parseArgumentSeparator, String.fromCharCode(32));
+
+        s = 'n' + s;
+      } else {
+        //WPF-37458- To pass the computed result of interior functions in single cell array formula
+        if (!_isRange(s) &&
+            s.startsWith(_braceLeft) &&
+            s.endsWith(_braceRight)) {
+          s = s.replaceAll('{', '').replaceAll('}', '');
+          String strValue = '';
+          final List<String> ranges = _splitArgsPreservingQuotedCommas(s);
+          for (final String r in ranges) {
+            if (double.tryParse(r) != null) {
+              strValue += 'n' + r + parseArgumentSeparator;
+            }
+          }
+          s = strValue.substring(0, strValue.length - 2);
+        } else if (!_isRange(s)) {
+          s = _tic + s + _tic;
+        }
+      }
+    }
+    return s;
+  }
+
+  /// Removes all leading and trailing white-space characters.
+  String _computeTrim(String args) {
+    String s = _getValueFromArg(args).trim();
+    int len = 0;
+
+    ////strip out interior double, triple, etc spaces...
+    while (s.length != len) {
+      len = s.length;
+      s = s.replaceAll('  ', ' ');
+    }
+    return s;
+  }
+
+  /// Returns the current date and time as a date serial number.
+  String _computeNow(String argList) {
+    if (argList != null && argList.isNotEmpty) {
+      return _formulaErrorStrings[_wrongNumberArguments];
+    }
+    final DateTime dt = DateTime.now();
+    if (excelLikeComputations) {
+      return dt.toString();
+    }
+    return Range._toOADate(dt).toString();
+  }
+
+  /// Returns the current date as a date serial number.
+  String _computeToday(String argList) {
+    if (argList != null && argList.isNotEmpty) {
+      return _formulaErrorStrings[_wrongNumberArguments];
+    }
+    final DateTime dt = DateTime.now();
+
+    if (excelLikeComputations) {
+      final DateTime result = DateTime.tryParse(dt.year.toString() +
+          '/' +
+          dt.month.toString() +
+          '/' +
+          dt.day.toString());
+      if (result != null) {
+        final String date = DateFormat(
+                _grid.workbook.cultureInfo.dateTimeFormat.shortDatePattern)
+            .format(result);
+        return date;
+      }
+    }
+
+    //Below code has been modified to return the General format value when Today formula is interior function.
+    if (_computedValueLevel > 1) {
+      return _getSerialDateTimeFromDate(dt).toString();
+    } else {
+      return _getSerialDateFromDate(dt.year, dt.month, dt.day).toString();
+    }
+  }
+
+  /// Returns a single character String.
+  String _computeConcatenate(String range) {
+    String text = '';
+    final List<String> sb = [_tic];
+
+    // Below code has been added to calculate the cell ranges(eg:A1:A5B1:B5a)
+    if (!range.contains(parseArgumentSeparator.toString())) {
+      range = _adjustRangeArg(range);
+    }
+    final List<String> ar = _isSeparatorInTIC(range) ////range.IndexOf(TIC) > 0
+        ? _getStringArray(range)
+        : _splitArgsPreservingQuotedCommas(range);
+    if (range == null || range.isEmpty) {
+      return _formulaErrorStrings[_wrongNumberArguments];
+    }
+    for (final String r in ar) {
+      String toAppend = r;
+
+      final String argumentValue = _getValueFromArg(r);
+      if (_errorStrings.contains(argumentValue)) {
+        return argumentValue;
+      }
+      if (r.contains(':') && _isCellReference(r)) {
+        return _errorStrings[1].toString();
+      }
+      if (r == '' || r[0] != _tic[0]) {
+        toAppend = _getValueFromArg(r);
+      }
+
+      if (sb.length > 1 && sb[sb.length - 1] == _tic[0]) {
+        sb.removeAt(sb.length - 1);
+      }
+
+      if (toAppend.isNotEmpty && toAppend[0] == _tic[0]) {
+        sb.add(toAppend.substring(1));
+      } else {
+        sb.add(toAppend);
+      }
+    }
+
+    if (sb[sb.length - 1] != _tic[0]) {
+      sb.add(_tic);
+    }
+
+    text = sb.join();
+    if (text.contains('#N/A')) {
+      text = '#N/A';
+    }
+
+    if (excelLikeComputations) {
+      final String newText =
+          text.substring(text.indexOf(_tic) + 1, text.lastIndexOf(_tic) - 1);
+      return newText;
+    }
+    return text;
+  }
+
+  // Accepts a possible parsed formula and returns the calculated value without quotes.
+  ///
+  /// <remarks>
+  /// This method is useful in custom functions if you want to allow
+  /// your custom functions to handle parsed formulas as arguments. In
+  /// this case, calling this method at the beginning of your custom function
+  /// will allow you custom function to work only with computed values, and not
+  /// have to handle parsed formulas directly.
+  /// </remarks>
+  String _adjustRangeArg(String range) {
+    if (range.length > 1 &&
+        range[0] == _bMarker &&
+        range[range.length - 1] == _bMarker &&
+        !range.substring(1, range.length - 2).contains(_bMarker)) {
+      range = _computedValue(range);
+    }
+
+    if (range.length > 1 &&
+        range[0] == _tic[0] &&
+        range[range.length - 1] == _tic[0]) {
+      range = range.substring(1, range.length - 2);
+    }
+    return range;
+  }
+
+  /// Returns True if the ParseArgumentSeparator character is included in a String.
+  bool _isSeparatorInTIC(String s) {
+    int i = s.indexOf(_tic) + 1;
+    bool inTic = true;
+    while (i > 0 && i < s.length) {
+      if (s[i] == parseArgumentSeparator && inTic) {
+        return true;
+      }
+
+      if (s[i] == _tic[0]) {
+        inTic = !inTic;
+      }
+
+      i++;
+    }
+
+    return false;
+  }
+
+  /// Returns an array of Strings from an argument list.
+  List<String> _getStringArray(String s) {
+    final List<String> argList = [];
+
+    int argStart = 0;
+    bool inQuote = false;
+    for (int argEnd = 0; argEnd < s.length; argEnd++) {
+      final String ch = s[argEnd];
+      if (ch == _tic[0]) {
+        inQuote = !inQuote;
+      } else if (!inQuote && ch == parseArgumentSeparator) {
+        argList.add(s.substring(argStart, argEnd - argStart));
+        argStart = argEnd + 1;
+      }
+    }
+
+    argList.add(s.substring(argStart));
+    return argList;
+  }
+
+  int _getSerialDateFromDate(int y, int m, int d) {
+    int days = 0;
+    if (y < 1900) {
+      y += 1900;
+    }
+
+    bool isValidMonth = false;
+    while (!isValidMonth) {
+      while (m > 12) {
+        m -= 12;
+        y++;
+      }
+      // to check month as negative or not
+      while (m < 1 && y > 1900) {
+        m += 12;
+        y--;
+      }
+
+      // to check month and year
+      if (y < 1900 || (m < 1 && y <= 1900)) {
+        return -1;
+      }
+
+      isValidMonth = true;
+      final date = DateTime(y, m, 1);
+      int x = DateTime(date.year, date.month + 1, date.day - 1).day;
+      // to check day with month in the string (for e.g day value as 32303)
+      while (d > x) {
+        d -= x;
+        m++;
+        if (m > 12) {
+          m -= 12;
+          y++;
+        }
+        final date = DateTime(y, m, 1);
+        x = (DateTime(date.year, date.month + 1, date.day - 1)).day;
+        isValidMonth = false;
+      }
+      while (d < 1) {
+        m--;
+        final date = DateTime(y, m + 1, 1);
+        x = (DateTime(date.year, date.month, date.day).add(Duration(hours: -1)))
+            .day;
+        d = x + d;
+      }
+    }
+    days = 1 + ((DateTime(y, m, d, 0, 0, 0).difference(_dateTime1900))).inDays;
+    if (_treat1900AsLeapYear && days > 59) {
+      days += 1;
+    }
+
+    return days;
+  }
+
+  /// Converts text to lowercase.
+  String _computeLower(String args) {
+    return _getValueFromArg(args).toLowerCase();
+  }
+
+  /// Converts text to uppercase.
+  String _computeUpper(String args) {
+    return _getValueFromArg(args).toUpperCase();
+  }
+
+  // DateTime _getDateFromSerialDate(int days) {
+  //   days -= 1;
+  //   if (_treat1900AsLeapYear && days > 59) {
+  //     days -= 1;
+  //   }
+
+  //   return _dateTime1900.add(Duration(days: days));
+  // }
 }

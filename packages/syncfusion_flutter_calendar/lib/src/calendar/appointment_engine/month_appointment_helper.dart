@@ -1,11 +1,11 @@
 part of calendar;
 
 _AppointmentView _getAppointmentView(
-    Appointment appointment, _AppointmentPainter appointmentPainter,
+    Appointment appointment, List<_AppointmentView> appointmentCollection,
     [int resourceIndex]) {
   _AppointmentView appointmentRenderer;
-  for (int i = 0; i < appointmentPainter._appointmentCollection.length; i++) {
-    final _AppointmentView view = appointmentPainter._appointmentCollection[i];
+  for (int i = 0; i < appointmentCollection.length; i++) {
+    final _AppointmentView view = appointmentCollection[i];
     if (view.appointment == null) {
       appointmentRenderer = view;
       break;
@@ -17,7 +17,7 @@ _AppointmentView _getAppointmentView(
     appointmentRenderer.appointment = appointment;
     appointmentRenderer.canReuse = false;
     appointmentRenderer.resourceIndex = resourceIndex;
-    appointmentPainter._appointmentCollection.add(appointmentRenderer);
+    appointmentCollection.add(appointmentRenderer);
   }
 
   appointmentRenderer.appointment = appointment;
@@ -27,10 +27,13 @@ _AppointmentView _getAppointmentView(
 }
 
 void _createVisibleAppointments(
-    _AppointmentPainter appointmentPainter, int startIndex, int endIndex) {
-  for (int i = 0; i < appointmentPainter._appointmentCollection.length; i++) {
-    final _AppointmentView appointmentView =
-        appointmentPainter._appointmentCollection[i];
+    List<_AppointmentView> appointmentCollection,
+    List<Appointment> visibleAppointments,
+    List<DateTime> visibleDates,
+    int startIndex,
+    int endIndex) {
+  for (int i = 0; i < appointmentCollection.length; i++) {
+    final _AppointmentView appointmentView = appointmentCollection[i];
     appointmentView.endIndex = -1;
     appointmentView.startIndex = -1;
     appointmentView.isSpanned = false;
@@ -39,22 +42,22 @@ void _createVisibleAppointments(
     appointmentView.canReuse = true;
   }
 
-  if (appointmentPainter.visibleAppointments == null) {
+  if (visibleAppointments == null) {
     return;
   }
 
-  for (int i = 0; i < appointmentPainter.visibleAppointments.length; i++) {
-    final Appointment appointment = appointmentPainter.visibleAppointments[i];
+  for (int i = 0; i < visibleAppointments.length; i++) {
+    final Appointment appointment = visibleAppointments[i];
     if (!appointment._isSpanned &&
         appointment._actualStartTime.day == appointment._actualEndTime.day &&
         appointment._actualStartTime.month ==
             appointment._actualEndTime.month) {
       final _AppointmentView appointmentView =
-          _createAppointmentView(appointmentPainter);
+          _createAppointmentView(appointmentCollection);
       appointmentView.appointment = appointment;
       appointmentView.canReuse = false;
       appointmentView.startIndex =
-          _getDateIndex(appointment._actualStartTime, appointmentPainter);
+          _getDateIndex(appointment._actualStartTime, visibleDates);
 
       /// Check the index value before the view start index then assign the
       /// start index as visible start index
@@ -70,7 +73,7 @@ void _createVisibleAppointments(
       }
 
       appointmentView.endIndex =
-          _getDateIndex(appointment._actualEndTime, appointmentPainter);
+          _getDateIndex(appointment._actualEndTime, visibleDates);
 
       /// Check the index value after the view end index then assign the
       /// end index as visible end index
@@ -85,17 +88,16 @@ void _createVisibleAppointments(
         appointmentView.endIndex = endIndex;
       }
 
-      if (!appointmentPainter._appointmentCollection
-          .contains(appointmentView)) {
-        appointmentPainter._appointmentCollection.add(appointmentView);
+      if (!appointmentCollection.contains(appointmentView)) {
+        appointmentCollection.add(appointmentView);
       }
     } else {
       final _AppointmentView appointmentView =
-          _createAppointmentView(appointmentPainter);
+          _createAppointmentView(appointmentCollection);
       appointmentView.appointment = appointment;
       appointmentView.canReuse = false;
       appointmentView.startIndex =
-          _getDateIndex(appointment._actualStartTime, appointmentPainter);
+          _getDateIndex(appointment._actualStartTime, visibleDates);
 
       /// Check the index value before the view start index then assign the
       /// start index as visible start index
@@ -111,7 +113,7 @@ void _createVisibleAppointments(
       }
 
       appointmentView.endIndex =
-          _getDateIndex(appointment._actualEndTime, appointmentPainter);
+          _getDateIndex(appointment._actualEndTime, visibleDates);
 
       /// Check the index value after the view end index then assign the
       /// end index as visible end index
@@ -127,13 +129,14 @@ void _createVisibleAppointments(
       }
 
       _createAppointmentInfoForSpannedAppointment(
-          appointmentView, appointmentPainter);
+          appointmentView, appointmentCollection);
     }
   }
 }
 
 void _createAppointmentInfoForSpannedAppointment(
-    _AppointmentView appointmentView, _AppointmentPainter appointmentPainter) {
+    _AppointmentView appointmentView,
+    List<_AppointmentView> appointmentCollection) {
   if (appointmentView.startIndex ~/ _kNumberOfDaysInWeek !=
       appointmentView.endIndex ~/ _kNumberOfDaysInWeek) {
     final int endIndex = appointmentView.endIndex;
@@ -143,23 +146,23 @@ void _createAppointmentInfoForSpannedAppointment(
                 1)
             .toInt();
     appointmentView.isSpanned = true;
-    if (appointmentPainter._appointmentCollection != null &&
-        !appointmentPainter._appointmentCollection.contains(appointmentView)) {
-      appointmentPainter._appointmentCollection.add(appointmentView);
+    if (appointmentCollection != null &&
+        !appointmentCollection.contains(appointmentView)) {
+      appointmentCollection.add(appointmentView);
     }
 
     final _AppointmentView appointmentView1 =
-        _createAppointmentView(appointmentPainter);
+        _createAppointmentView(appointmentCollection);
     appointmentView1.appointment = appointmentView.appointment;
     appointmentView1.canReuse = false;
     appointmentView1.startIndex = appointmentView.endIndex + 1;
     appointmentView1.endIndex = endIndex;
     _createAppointmentInfoForSpannedAppointment(
-        appointmentView1, appointmentPainter);
+        appointmentView1, appointmentCollection);
   } else {
     appointmentView.isSpanned = true;
-    if (!appointmentPainter._appointmentCollection.contains(appointmentView)) {
-      appointmentPainter._appointmentCollection.add(appointmentView);
+    if (!appointmentCollection.contains(appointmentView)) {
+      appointmentCollection.add(appointmentView);
     }
   }
 }
@@ -221,9 +224,9 @@ bool _isInterceptAppointments(
   return false;
 }
 
-void _updateAppointmentPosition(_AppointmentPainter appointmentPainter) {
-  appointmentPainter._appointmentCollection
-      .sort((_AppointmentView app1, _AppointmentView app2) {
+void _updateAppointmentPosition(List<_AppointmentView> appointmentCollection,
+    Map<int, List<_AppointmentView>> indexAppointments) {
+  appointmentCollection.sort((_AppointmentView app1, _AppointmentView app2) {
     if (app1.appointment?._actualStartTime != null &&
         app2.appointment?._actualStartTime != null) {
       return app1.appointment._actualStartTime
@@ -232,17 +235,18 @@ void _updateAppointmentPosition(_AppointmentPainter appointmentPainter) {
 
     return 0;
   });
-  appointmentPainter._appointmentCollection.sort(
-      (_AppointmentView app1, _AppointmentView app2) =>
-          _orderAppointmentViewBySpanned(app1, app2));
+  appointmentCollection.sort((_AppointmentView app1, _AppointmentView app2) =>
+      _orderAppointmentViewBySpanned(app1, app2));
 
-  for (int j = 0; j < appointmentPainter._appointmentCollection.length; j++) {
-    final _AppointmentView appointmentView =
-        appointmentPainter._appointmentCollection[j];
+  for (int j = 0; j < appointmentCollection.length; j++) {
+    final _AppointmentView appointmentView = appointmentCollection[j];
+    if (appointmentView.canReuse || appointmentView.appointment == null) {
+      continue;
+    }
+
     appointmentView.position = 1;
     appointmentView.maxPositions = 1;
-    _setAppointmentPosition(
-        appointmentPainter._appointmentCollection, appointmentView, j);
+    _setAppointmentPosition(appointmentCollection, appointmentView, j);
 
     /// Add the appointment views to index appointment based on start and end
     /// index. It is used to get the visible index appointments.
@@ -252,28 +256,26 @@ void _updateAppointmentPosition(_AppointmentPainter appointmentPainter) {
       /// Check the index already have appointments, if exists then add the
       /// current appointment to that collection, else create the index and
       /// create new collection with current appointment.
-      if (appointmentPainter._indexAppointments.containsKey(i)) {
+      if (indexAppointments.containsKey(i)) {
         final List<_AppointmentView> existingAppointments =
-            appointmentPainter._indexAppointments[i];
+            indexAppointments[i];
         existingAppointments.add(appointmentView);
-        appointmentPainter._indexAppointments[i] = existingAppointments;
+        indexAppointments[i] = existingAppointments;
       } else {
-        appointmentPainter._indexAppointments[i] = <_AppointmentView>[
-          appointmentView
-        ];
+        indexAppointments[i] = <_AppointmentView>[appointmentView];
       }
     }
   }
 }
 
-int _getDateIndex(DateTime date, _AppointmentPainter appointmentPainter) {
-  DateTime dateTime = appointmentPainter.visibleDates[
-      appointmentPainter.visibleDates.length - _kNumberOfDaysInWeek];
+int _getDateIndex(DateTime date, List<DateTime> visibleDates) {
+  final int count = visibleDates.length;
+  DateTime dateTime = visibleDates[count - _kNumberOfDaysInWeek];
   int row = 0;
-  for (int i = appointmentPainter.visibleDates.length - _kNumberOfDaysInWeek;
+  for (int i = count - _kNumberOfDaysInWeek;
       i >= 0;
       i -= _kNumberOfDaysInWeek) {
-    DateTime currentDate = appointmentPainter.visibleDates[i];
+    DateTime currentDate = visibleDates[i];
     currentDate = DateTime(currentDate.year, currentDate.month, currentDate.day,
         currentDate.hour, currentDate.minute, currentDate.second);
     if (currentDate.isBefore(date) ||
@@ -306,10 +308,10 @@ int _getDateIndex(DateTime date, _AppointmentPainter appointmentPainter) {
 }
 
 _AppointmentView _createAppointmentView(
-    _AppointmentPainter appointmentPainter) {
+    List<_AppointmentView> appointmentCollection) {
   _AppointmentView appointmentView;
-  for (int i = 0; i < appointmentPainter._appointmentCollection.length; i++) {
-    final _AppointmentView view = appointmentPainter._appointmentCollection[i];
+  for (int i = 0; i < appointmentCollection.length; i++) {
+    final _AppointmentView view = appointmentCollection[i];
     if (view.canReuse) {
       appointmentView = view;
       break;
@@ -329,10 +331,15 @@ _AppointmentView _createAppointmentView(
 }
 
 void _updateAppointment(
-    _AppointmentPainter appointmentPainter, int startIndex, int endIndex) {
-  _createVisibleAppointments(appointmentPainter, startIndex, endIndex);
-  if (appointmentPainter.visibleAppointments != null &&
-      appointmentPainter.visibleAppointments.isNotEmpty) {
-    _updateAppointmentPosition(appointmentPainter);
+    List<Appointment> visibleAppointments,
+    List<_AppointmentView> appointmentCollection,
+    List<DateTime> visibleDates,
+    Map<int, List<_AppointmentView>> indexAppointments,
+    int startIndex,
+    int endIndex) {
+  _createVisibleAppointments(appointmentCollection, visibleAppointments,
+      visibleDates, startIndex, endIndex);
+  if (visibleAppointments != null && visibleAppointments.isNotEmpty) {
+    _updateAppointmentPosition(appointmentCollection, indexAppointments);
   }
 }

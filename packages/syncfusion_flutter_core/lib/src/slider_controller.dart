@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// Coordinates between [SfRangeSelector] and the widget which listens to it.
@@ -177,7 +178,7 @@ import 'package:flutter/material.dart';
 ///   }
 /// }
 /// ```
-class RangeController extends ChangeNotifier {
+class RangeController extends DiagnosticableTree with ChangeNotifier {
   /// Creates a new instance of [RangeController].
   ///
   /// The [start] represents the currently selected value of the range selector.
@@ -242,4 +243,11 @@ class RangeController extends ChangeNotifier {
   /// It can be either [double] or [DateTime].
   dynamic get previousEnd => _previousEnd;
   dynamic _previousEnd;
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<dynamic>('start', start));
+    properties.add(DiagnosticsProperty<dynamic>('end', end));
+  }
 }

@@ -63,7 +63,7 @@ class _CreateOfficeChartState extends State<CreateOfficeChartStatefulWidget> {
     final Workbook workbook = Workbook(0);
     //Adding a Sheet with name to workbook.
     final Worksheet sheet1 = workbook.worksheets.addWithName('Budget');
-    sheet1.showGridLines = false;
+    sheet1.showGridlines = false;
 
     sheet1.enableSheetCalculations();
     sheet1.getRangeByIndex(1, 1).columnWidth = 19.86;
@@ -166,7 +166,7 @@ class _CreateOfficeChartState extends State<CreateOfficeChartStatefulWidget> {
     chart.rightColumn = 5;
     sheet1.charts = charts;
 
-    final List<int> bytes = workbook.saveStream();
+    final List<int> bytes = workbook.saveAsStream();
     workbook.dispose();
 
     //Get the storage folder location using path_provider package.

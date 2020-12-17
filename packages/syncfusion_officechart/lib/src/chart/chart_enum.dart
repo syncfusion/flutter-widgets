@@ -5,23 +5,41 @@ enum ExcelChartType {
   /// Represents the clustered column chart.
   column,
 
-  /// Represents the line chart.
-  line,
+  /// Represents the column stacked chart.
+  columnStacked,
+
+  /// Represents the 100% stacked column chart.
+  columnStacked100,
 
   /// Represents the clustered bar chart.
   bar,
 
-  /// Represents the Pie chart.
-  pie,
-
   /// Represents the bar stacked chart.
   barStacked,
 
-  /// Represents the column stacked chart.
-  columnStacked,
+  /// Represents the 100% stacked bar chart.
+  barStacked100,
+
+  /// Represents the line chart.
+  line,
 
   /// Represents the line stacked chart.
   lineStacked,
+
+  /// Represents the  100% stacked line chart.
+  lineStacked100,
+
+  /// Represents the Pie chart.
+  pie,
+
+  /// Represents the area chart.
+  area,
+
+  /// Represents the stacked area chart.
+  areaStacked,
+
+  /// Represents the 100% stacked area chart.
+  areaStacked100
 }
 
 /// Specifies the line pattern for the border.
