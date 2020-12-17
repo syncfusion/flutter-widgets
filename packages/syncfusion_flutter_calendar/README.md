@@ -29,11 +29,11 @@ The Syncfusion Flutter Calendar widget has built-in configurable views that prov
 
 * **Multiple calendar views** - A wide range of built-in view modes are available: day, week, workweek, month, schedule, timeline day, timeline week, timeline workweek. The control allows you to conveniently customize every view with unique, view-specific options.
  
-![multiple_calenda_views](https://cdn.syncfusion.com/content/images/FTControl/Flutter/flutter-calendar-schedule.png)
+![multiple_calenda_views](https://cdn.syncfusion.com/content/images/FTControl/Calendar/flutter-calendar-views.png)
 
 * **Appointments** - Appointments contain information on events scheduled at specific times. In addition to default appointments, users can use their own collections to connect a business entity to an appointment by mapping their fields, such as start time, end time, subject, notes, and recurrence.
 
-![appointments](https://cdn.syncfusion.com/content/images/FTControl/Flutter/flutter-calendar-schedule-view-appointments.png)
+![appointments](https://cdn.syncfusion.com/content/images/FTControl/Calendar/flutter-calendar-appointments.png)
 
 * **Recurring appointments** - Easily configure recurring events to be repeated on a daily, weekly, monthly, or yearly basis with optimized recurrence options. You can also skip or change the occurrence of a recurring appointment. 
 
@@ -45,9 +45,11 @@ The Syncfusion Flutter Calendar widget has built-in configurable views that prov
 
 * **Resource view** - Display resources as a discrete view integrated with the calendar, to display appointments of each resource in a timeline view to enhance viewability. You can customize everything from the display name, resource panel size, background color and image of the resource view.
 
+![resource_view](https://cdn.syncfusion.com/content/images/FTControl/Calendar/flutter-calendar-resource-view.png)
+
 * **Schedule view** - Show a list of scheduled appointments grouped by week, between set minimum and maximum dates, with the schedule view. You can customize everything from the date and time formats to the styling of each header.
 
-![schedule_view](https://cdn.syncfusion.com/content/images/FTControl/Flutter/flutter-calendar-schedule-view-appointments-web.png)
+![schedule_view](https://cdn.syncfusion.com/content/images/FTControl/Calendar/flutter-calendar-schedule-view.png)
 
 * **Special time regions** - Disable interactions and selections for specific time ranges. This is useful when you want to block user interaction during holidays or another special events and to highlight those time slots.
 
@@ -63,7 +65,11 @@ The Syncfusion Flutter Calendar widget has built-in configurable views that prov
 
 * **Blackout dates** - Disable any date in a month and timeline month view of a calendar to make it inactive. Easily prevent the selection of weekends and holidays by disabling them.
 
+![blackout_dates](https://cdn.syncfusion.com/content/images/FTControl/Calendar/flutter-calendar-blackoutdates.png)
+
 * **Customize leading and trailing dates** - Hide the days of the next month and previous month in calendar to enhance the appearance.
+
+![leading_trailing_dates](https://cdn.syncfusion.com/content/images/FTControl/Calendar/flutter-calendar-leading-trailing-dates.png)
 
 * **Custom start and end hours** - Display the event calendar timeslot views with specific time durations by hiding the unwanted hours.  
 
@@ -73,7 +79,11 @@ The Syncfusion Flutter Calendar widget has built-in configurable views that prov
 
 * **Quick view navigation** - Navigate among calendar views easily using the header date picker views button in the calendar header and clicking month cell and view headers.
 
-* **Builder** - Allows to design and set own custom view to the month cells and month header of schedule view of the calendar. 
+![quick_view_navigation](https://cdn.syncfusion.com/content/images/FTControl/Calendar/flutter-calendar-quickview-navigation.png)
+
+* **Builders** - Allows you to design and set your own custom view to the month cells, month header of schedule view, special time regions, and appointments view of the calendar.
+
+![bulders_in_calendar](https://cdn.syncfusion.com/content/images/FTControl/Calendar/builders.png)
 
 * **Appearance customization or Theming** - Provide a uniform and consistent look to the Calendar’s appearance and format. Theming support to provide a consistent look to the calendar.
 

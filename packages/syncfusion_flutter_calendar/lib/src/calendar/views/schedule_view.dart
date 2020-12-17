@@ -42,7 +42,7 @@ class _ScheduleLabelPainter extends CustomPainter {
       this.isMonthLabel,
       this.isRTL,
       this.locale,
-      this.isScheduleWebUI,
+      this.useMobilePlatformUI,
       this.agendaViewNotifier,
       this.calendarTheme,
       this._localizations,
@@ -57,7 +57,7 @@ class _ScheduleLabelPainter extends CustomPainter {
   final String locale;
   final ScheduleViewSettings scheduleViewSettings;
   final SfLocalizations _localizations;
-  final bool isScheduleWebUI;
+  final bool useMobilePlatformUI;
   final ValueNotifier<_ScheduleViewHoveringDetails> agendaViewNotifier;
   final SfCalendarThemeData calendarTheme;
   final bool isDisplayDate;
@@ -83,7 +83,7 @@ class _ScheduleLabelPainter extends CustomPainter {
   void _addDisplayDateLabel(Canvas canvas, Size size) {
     /// Add the localized add new appointment text for display date view.
     final TextSpan span = TextSpan(
-      text: _localizations.scheduleViewNewEventLabel,
+      text: _localizations.noEventsCalendarLabel,
       style: scheduleViewSettings.weekHeaderSettings.weekTextStyle ??
           const TextStyle(
               color: Colors.grey, fontSize: 15, fontFamily: 'Roboto'),
@@ -109,7 +109,16 @@ class _ScheduleLabelPainter extends CustomPainter {
         isSameDate(agendaViewNotifier.value.hoveringDate, startDate)) {
       _backgroundPainter ??= Paint();
       const double padding = 5;
-      if (isScheduleWebUI) {
+      if (useMobilePlatformUI) {
+        final Rect rect = Rect.fromLTWH(
+            0, padding, size.width - 2, size.height - (2 * padding));
+        _backgroundPainter.color =
+            calendarTheme.selectionBorderColor.withOpacity(0.4);
+        _backgroundPainter.style = PaintingStyle.stroke;
+        _backgroundPainter.strokeWidth = 2;
+        canvas.drawRect(rect, _backgroundPainter);
+        _backgroundPainter.style = PaintingStyle.fill;
+      } else {
         const double viewPadding = 2;
         final Rect rect = Rect.fromLTWH(
             0,
@@ -119,15 +128,6 @@ class _ScheduleLabelPainter extends CustomPainter {
         _backgroundPainter.color = Colors.grey.withOpacity(0.1);
         canvas.drawRRect(RRect.fromRectAndRadius(rect, Radius.circular(4)),
             _backgroundPainter);
-      } else {
-        final Rect rect = Rect.fromLTWH(
-            0, padding, size.width - 2, size.height - (2 * padding));
-        _backgroundPainter.color =
-            calendarTheme.selectionBorderColor.withOpacity(0.4);
-        _backgroundPainter.style = PaintingStyle.stroke;
-        _backgroundPainter.strokeWidth = 2;
-        canvas.drawRect(rect, _backgroundPainter);
-        _backgroundPainter.style = PaintingStyle.fill;
       }
     }
   }
@@ -280,7 +280,7 @@ class _ScheduleLabelPainter extends CustomPainter {
                     .toString();
       } else {
         cellHeight = size.height;
-        accessibilityText = _localizations.scheduleViewNewEventLabel;
+        accessibilityText = _localizations.noEventsCalendarLabel;
       }
     } else {
       cellHeight = scheduleViewSettings.monthHeaderSettings.height;
@@ -330,7 +330,6 @@ class _ScheduleAppointmentView extends Stack {
             RepaintBoundary(child: header)
           ],
           alignment: alignment ?? AlignmentDirectional.topStart,
-          overflow: Overflow.clip,
         );
 
   @override

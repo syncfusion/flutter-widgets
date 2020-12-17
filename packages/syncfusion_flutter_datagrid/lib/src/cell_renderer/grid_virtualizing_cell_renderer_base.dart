@@ -73,10 +73,32 @@ abstract class GridVirtualizingCellRendererBase<T1 extends Widget,
     final _DataGridSettings dataGridSettings = _dataGridStateDetails();
 
     if (dataCell._dataRow != null && dataCell._dataRow.isSelectedRow) {
-      return _getSelectionStyle().textStyle;
+      return _getSelectionStyle().textStyle ??
+          (dataGridSettings.dataGridThemeData.brightness == Brightness.light
+              ? TextStyle(
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.w400,
+                  fontSize: 14,
+                  color: const Color.fromRGBO(0, 0, 0, 0.87))
+              : TextStyle(
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.w400,
+                  fontSize: 14,
+                  color: const Color.fromRGBO(255, 255, 255, 1)));
     } else {
       return dataCell.gridColumn.cellStyle?.textStyle ??
-          dataGridSettings.dataGridThemeData?.cellStyle?.textStyle;
+          dataGridSettings.dataGridThemeData?.cellStyle?.textStyle ??
+          (dataGridSettings.dataGridThemeData.brightness == Brightness.light
+              ? TextStyle(
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.w400,
+                  fontSize: 14,
+                  color: Colors.black87)
+              : TextStyle(
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.w400,
+                  fontSize: 14,
+                  color: Color.fromRGBO(255, 255, 255, 1)));
     }
   }
 

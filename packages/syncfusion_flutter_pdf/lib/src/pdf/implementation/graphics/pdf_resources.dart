@@ -7,6 +7,7 @@ class _PdfResources extends _PdfDictionary {
 
   //Fields
   Map<_IPdfPrimitive, _PdfName> _resourceNames;
+  final _PdfDictionary _properties = _PdfDictionary();
 
   //Properties
   Map<_IPdfPrimitive, _PdfName> get _names => _getNames();

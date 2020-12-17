@@ -2,11 +2,6 @@ part of pdf;
 
 /// Base class for the main shapes.
 abstract class PdfShapeElement extends PdfLayoutElement {
-  // constructor
-  PdfShapeElement._({PdfPen pen}) {
-    this.pen = pen;
-  }
-
   // fields
   PdfPen _pen;
   PdfBrush _brush;
@@ -35,4 +30,6 @@ abstract class PdfShapeElement extends PdfLayoutElement {
     final PdfLayoutResult result = layouter._layout(param);
     return result;
   }
+
+  _Rectangle _getBoundsInternal();
 }

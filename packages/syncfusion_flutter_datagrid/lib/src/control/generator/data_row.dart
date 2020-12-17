@@ -149,8 +149,10 @@ class DataRow extends DataRowBase {
     }
   }
 
-  DataCellBase _createColumn(int index, {int columnHeightIncrementation = 0}) {
+  DataCellBase _createColumn(int index) {
     final _DataGridSettings dataGridSettings = _dataGridStateDetails();
+    final canIncrementHeight = rowType == RowType.headerRow &&
+        dataGridSettings.stackedHeaderRows.isNotEmpty;
     final dc = DataCell()
       .._dataRow = this
       ..columnIndex = index
@@ -171,6 +173,12 @@ class DataRow extends DataRowBase {
             ? dataGridSettings.cellRenderers[dc.gridColumn._cellType]
             : dataGridSettings.cellRenderers['TextField']
         .._cellType = CellType.gridCell;
+    }
+    if (canIncrementHeight) {
+      final rowSpan = _StackedHeaderHelper._getRowSpan(
+          dataGridSettings, dc._dataRow.rowIndex - 1, index, false,
+          mappingName: dc.gridColumn.mappingName);
+      dc._rowSpan = rowSpan;
     }
 
     dc._columnElement = dc._onInitializeColumnElement(false);
@@ -199,6 +207,8 @@ class DataRow extends DataRowBase {
 
   void _updateColumn(DataCellBase dc, int index) {
     final _DataGridSettings dataGridSettings = _dataGridStateDetails();
+    final canIncrementHeight = rowType == RowType.headerRow &&
+        dataGridSettings.stackedHeaderRows.isNotEmpty;
     if (dc != null) {
       if (index < 0 || index >= dataGridSettings.container.columnCount) {
         dc._isVisible = false;
@@ -213,6 +223,14 @@ class DataRow extends DataRowBase {
         dc.gridColumn = dataGridSettings.columns[columnIndex];
         _checkForCurrentCell(dataGridSettings, dc);
         _updateRenderer(dataGridSettings, dc, dc.gridColumn);
+        if (canIncrementHeight) {
+          final rowSpan = _StackedHeaderHelper._getRowSpan(
+              dataGridSettings, dc._dataRow.rowIndex - 1, index, false,
+              mappingName: dc.gridColumn.mappingName);
+          dc._rowSpan = rowSpan;
+        } else {
+          dc._rowSpan = 0;
+        }
         dc
           .._columnElement = dc._onInitializeColumnElement(false)
           .._isEnsured = true;

@@ -322,7 +322,7 @@ class ColumnSizer {
         columns.remove(column);
         for (final removedColumn in removedColumns) {
           if (!columns.contains(removedColumn)) {
-            removedWidth += removedColumn.actualWidth;
+            removedWidth += removedColumn._actualWidth;
             columns.add(removedColumn);
           }
         }
@@ -474,7 +474,7 @@ class ColumnSizer {
       {bool setWidth = true}) {
     if (setWidth) {
       column._actualWidth = _getCellWidth(column);
-      return column.actualWidth;
+      return column._actualWidth;
     } else {
       return _getCellWidth(column);
     }
@@ -485,14 +485,14 @@ class ColumnSizer {
     final columnIndex = dataGridSettings.columns.indexOf(column);
     final width = _getColumnWidth(column, columnWidth);
     column._actualWidth = width;
-    dataGridSettings.container.columnWidths[columnIndex] = column.actualWidth;
+    dataGridSettings.container.columnWidths[columnIndex] = column._actualWidth;
     return width;
   }
 
   double _getColumnWidth(GridColumn column, double columnWidth) {
     final _DataGridSettings dataGridSettings = _dataGridStateDetails();
     final columnIndex = dataGridSettings.columns.indexOf(column);
-    if (column.width < column.actualWidth) {
+    if (column.width < column._actualWidth) {
       return columnWidth;
     }
 
@@ -554,10 +554,10 @@ class ColumnSizer {
           dataGridSettings.container.scrollRows.getVisibleLines();
       firstVisibleIndex =
           visibleLines.firstBodyVisibleIndex <= visibleLines.length - 1
-              ? visibleLines[visibleLines.firstBodyVisibleIndex].lineIndex - 1
+              ? visibleLines[visibleLines.firstBodyVisibleIndex].lineIndex
               : 0;
       lastVisibleIndex =
-          dataGridSettings.container.scrollRows.lastBodyVisibleLineIndex - 1;
+          dataGridSettings.container.scrollRows.lastBodyVisibleLineIndex;
     } else {
       firstVisibleIndex = 0;
       lastVisibleIndex =
@@ -577,8 +577,11 @@ class ColumnSizer {
           resultWidth = textWidth;
         }
       } else {
-        final currentRowIndex =
-            _GridIndexResolver.resolveToRecordIndex(dataGridSettings, rowIndex);
+        final currentRowIndex = (dataGridSettings.columnWidthCalculationRange ==
+                ColumnWidthCalculationRange.visibleRows)
+            ? _GridIndexResolver.resolveToRecordIndex(
+                dataGridSettings, rowIndex)
+            : rowIndex;
         final String text = _getDisplayText(currentRowIndex, column);
         if (text.length >= stringLength) {
           stringLength = text.length;
@@ -601,14 +604,16 @@ class ColumnSizer {
   double getCellWidth(GridColumn column, int rowIndex) {
     double textWidth = 0.0;
     final _DataGridSettings dataGridSettings = _dataGridStateDetails();
-    final currentRowIndex =
-        _GridIndexResolver.resolveToRecordIndex(dataGridSettings, rowIndex);
+    final currentRowIndex = (dataGridSettings.columnWidthCalculationRange ==
+            ColumnWidthCalculationRange.visibleRows)
+        ? _GridIndexResolver.resolveToRecordIndex(dataGridSettings, rowIndex)
+        : rowIndex;
     final formattedText = _getDisplayText(currentRowIndex, column);
     if (formattedText != null && formattedText.length >= _textLength ||
-        _previousColumnWidth >= column.actualWidth) {
+        _previousColumnWidth >= column._actualWidth) {
       textWidth = _measureTextWidth(formattedText, column, rowIndex);
       _textLength = formattedText.length;
-      _previousColumnWidth = column.actualWidth;
+      _previousColumnWidth = column._actualWidth;
     }
 
     return textWidth.roundToDouble();
@@ -628,10 +633,10 @@ class ColumnSizer {
           _GridIndexResolver.resolveToRecordIndex(dataGridSettings, rowIndex);
       final formattedText = _getDisplayText(currentRowIndex, column);
       if (formattedText != null && formattedText.length >= _textLength ||
-          _previousColumnWidth >= column.actualWidth) {
+          _previousColumnWidth >= column._actualWidth) {
         textHeight = _measureTextHeight(formattedText, column, rowIndex);
         _textLength = formattedText.length;
-        _previousColumnWidth = column.actualWidth;
+        _previousColumnWidth = column._actualWidth;
       }
 
       return textHeight.roundToDouble();
@@ -695,6 +700,11 @@ class ColumnSizer {
     int stringLength = 0;
     final isInDefaultMode = dataGridSettings.columnWidthCalculationMode ==
         ColumnWidthCalculationMode.textSize;
+    if (dataGridSettings.stackedHeaderRows.isNotEmpty &&
+        rowIndex <= dataGridSettings.stackedHeaderRows.length - 1) {
+      return dataGridSettings.headerRowHeight;
+    }
+
     for (int columnIndex = 0;
         columnIndex < dataGridSettings.columns.length;
         columnIndex++) {
@@ -784,6 +794,32 @@ class ColumnSizer {
     return cellTextStyle;
   }
 
+  EdgeInsetsGeometry _getPadding(int rowIndex, GridColumn column) {
+    final _DataGridSettings dataGridSettings = _dataGridStateDetails();
+
+    if (rowIndex == _GridIndexResolver.getHeaderIndex(dataGridSettings)) {
+      if (column.headerPadding != null) {
+        return column.headerPadding;
+      } else {
+        final visualDensityPadding =
+            dataGridSettings.visualDensity.vertical * 2;
+        return EdgeInsets.all(16) +
+            EdgeInsets.fromLTRB(
+                0.0, visualDensityPadding, 0.0, visualDensityPadding);
+      }
+    } else {
+      if (column.padding != null) {
+        return column.padding;
+      } else {
+        final visualDensityPadding =
+            dataGridSettings.visualDensity.vertical * 2;
+        return EdgeInsets.all(16) +
+            EdgeInsets.fromLTRB(
+                0.0, visualDensityPadding, 0.0, visualDensityPadding);
+      }
+    }
+  }
+
   double _measureTextWidth(
       String displayText, GridColumn column, int rowIndex) {
     final cellTextStyle = _getCellTextStyle(rowIndex, column);
@@ -805,10 +841,12 @@ class ColumnSizer {
     final gridLinesVisibility = dataGridSettings.gridLinesVisibility;
     final Size gridLineStrokeWidthSize =
         _getGridLineStrokeWidthSize(gridLinesVisibility, rowIndex, columnIndex);
+
+    final padding = _getPadding(rowIndex, column);
     // Removing padding and stroke width values also to the column hight calculation
     final double actualColumnWidth = columnWidth -
         _getSortIconWidth(column) -
-        (column.padding.horizontal + gridLineStrokeWidthSize.width);
+        (padding.horizontal + gridLineStrokeWidthSize.width);
     return _calculateTextSize(
             column, displayText, cellTextStyle, actualColumnWidth, rowIndex)
         .height;
@@ -882,10 +920,10 @@ class ColumnSizer {
         textDirection: TextDirection.ltr)
       ..layout(maxWidth: width);
     textSize = textPainter.size;
-
-    if (column.padding != null) {
-      textSize = Size(textSize.width + column.padding.horizontal,
-          textSize.height + column.padding.vertical);
+    final padding = _getPadding(rowIndex, column);
+    if (padding != null) {
+      textSize = Size(textSize.width + padding.horizontal,
+          textSize.height + padding.vertical);
     }
     return Size(textSize.width + gridLineStrokeWidthSize.width,
         textSize.height + gridLineStrokeWidthSize.height);

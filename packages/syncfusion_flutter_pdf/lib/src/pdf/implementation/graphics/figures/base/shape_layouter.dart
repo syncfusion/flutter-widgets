@@ -13,9 +13,12 @@ class _ShapeLayouter extends _ElementLayouter {
   @override
   PdfLayoutResult _layoutInternal(_PdfLayoutParams param) {
     ArgumentError.checkNotNull(param, 'param');
-    final PdfPage currentPage = param.page;
+    PdfPage currentPage = param.page;
     _Rectangle currentBounds = param.bounds;
-    final _Rectangle shapeLayoutBounds = _Rectangle.empty;
+    _Rectangle shapeLayoutBounds = _Rectangle.empty;
+    if (element is PdfImage) {
+      shapeLayoutBounds = element._getBoundsInternal();
+    }
     PdfLayoutResult result;
     _ShapeLayoutResult pageResult = _ShapeLayoutResult();
     pageResult._page = currentPage;
@@ -32,8 +35,16 @@ class _ShapeLayouter extends _ElementLayouter {
         endArgs = _raiseEndPageLayout(pageResult);
         cancel = (endArgs == null) ? false : endArgs.cancel;
       }
-      result = _getLayoutResult(pageResult);
-      break;
+      if (!pageResult._end && !cancel) {
+        currentBounds = _getPaginateBounds(param);
+        shapeLayoutBounds = _getNextShapeBounds(shapeLayoutBounds, pageResult);
+        currentPage = (endArgs == null || endArgs.nextPage == null)
+            ? _getNextPage(currentPage)
+            : endArgs.nextPage;
+      } else {
+        result = _getLayoutResult(pageResult);
+        break;
+      }
     }
     return result;
   }
@@ -66,13 +77,18 @@ class _ShapeLayouter extends _ElementLayouter {
         !(param.format.breakType == PdfLayoutBreakType.fitElement &&
             !fitToPage &&
             currentPage == param.page);
+    bool shapeFinished = false;
     if (canDraw) {
       final _Rectangle drawRectangle =
           _getDrawBounds(currentBounds, shapeLayoutBounds);
       _drawShape(currentPage.graphics, currentBounds.rect, drawRectangle);
       result._bounds =
           _getPageResultBounds(currentBounds, shapeLayoutBounds).rect;
+      shapeFinished =
+          currentBounds.height.toInt() >= shapeLayoutBounds.height.toInt();
     }
+    result._end =
+        shapeFinished || param.format.layoutType == PdfLayoutType.onePage;
     result._page = currentPage;
     return result;
   }
@@ -100,7 +116,8 @@ class _ShapeLayouter extends _ElementLayouter {
 
   _Rectangle _getDrawBounds(
       _Rectangle currentBounds, _Rectangle shapeLayoutBounds) {
-    final _Rectangle result = currentBounds;
+    final _Rectangle result = _Rectangle(currentBounds.x, currentBounds.y,
+        currentBounds.width, currentBounds.height);
     result.y -= shapeLayoutBounds.y;
     result.height += shapeLayoutBounds.y;
     return result;
@@ -128,6 +145,13 @@ class _ShapeLayouter extends _ElementLayouter {
     return result;
   }
 
+  _Rectangle _getNextShapeBounds(
+      _Rectangle shapeLayoutBounds, _ShapeLayoutResult pageResult) {
+    shapeLayoutBounds.y += pageResult._bounds.height;
+    shapeLayoutBounds.height -= pageResult._bounds.height;
+    return shapeLayoutBounds;
+  }
+
   EndPageLayoutArgs _raiseEndPageLayout(_ShapeLayoutResult pageResult) {
     EndPageLayoutArgs args;
     if (element._raisePageLayouted) {
@@ -146,6 +170,13 @@ class _ShapeLayouter extends _ElementLayouter {
 }
 
 class _ShapeLayoutResult {
+  //Constructor
+  _ShapeLayoutResult() {
+    _bounds = Rect.fromLTWH(0, 0, 0, 0);
+    _end = false;
+  }
+  //Fields
   PdfPage _page;
   Rect _bounds;
+  bool _end;
 }

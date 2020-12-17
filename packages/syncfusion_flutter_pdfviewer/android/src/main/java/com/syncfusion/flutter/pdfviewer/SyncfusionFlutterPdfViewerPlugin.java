@@ -16,6 +16,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -24,7 +25,6 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
 
 /** SyncfusionFlutterPdfViewerPlugin */
 public class SyncfusionFlutterPdfViewerPlugin implements FlutterPlugin, MethodCallHandler {
@@ -46,6 +46,8 @@ public class SyncfusionFlutterPdfViewerPlugin implements FlutterPlugin, MethodCa
   ParcelFileDescriptor fileDescriptor;
   /// PDF document path.
   String pdfPath;
+  /// PDF Runnable
+  PdfRunnable bitmapRunnable;
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
     channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "syncfusion_flutter_pdfviewer");
@@ -61,9 +63,10 @@ public class SyncfusionFlutterPdfViewerPlugin implements FlutterPlugin, MethodCa
   // them functionally equivalent. Only one of onAttachedToEngine or registerWith will be called
   // depending on the user's project. onAttachedToEngine or registerWith must both be defined
   // in the same class.
-  public static void registerWith(Registrar registrar) {
+  @SuppressWarnings("deprecation")
+  public static void registerWith(io.flutter.plugin.common.PluginRegistry.Registrar registrar) {
     final MethodChannel channel = new MethodChannel(registrar.messenger(), "syncfusion_flutter_pdfviewer");
-    channel.setMethodCallHandler(new SyncfusionFlutterPdfViewerPlugin());
+    channel.setMethodCallHandler(new SyncfusionFlutterPdfViewerPlugin()); 
   }
 
   @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -167,7 +170,7 @@ public class SyncfusionFlutterPdfViewerPlugin implements FlutterPlugin, MethodCa
     try {
       reinitializePdfRenderer(path);
       ExecutorService executor = Executors.newCachedThreadPool();
-      PdfRunnable bitmapRunnable = new PdfRunnable(renderer, resultPdf, pageIndex);
+      bitmapRunnable = new PdfRunnable(renderer, resultPdf, pageIndex);
       executor.submit(bitmapRunnable);
     } catch (Exception e) {
       resultPdf.error(e.getMessage(), e.getLocalizedMessage(), e.getMessage());
@@ -181,6 +184,7 @@ public class SyncfusionFlutterPdfViewerPlugin implements FlutterPlugin, MethodCa
     if (pageHeight != null)
       pageHeight = null;
     if (renderer != null) {
+      bitmapRunnable.dispose();
       renderer.close();
       renderer = null;
     }
@@ -199,20 +203,32 @@ public class SyncfusionFlutterPdfViewerPlugin implements FlutterPlugin, MethodCa
 /// This runnable executes all the image fetch in separate thread.
 class PdfRunnable implements Runnable
 {
-    private ArrayList bitmaps = null;
+    private List<byte[]> bitmaps = null;
     private PdfRenderer renderer;
     private Result resultPdf;
     private int pageIndex;
+    private PdfRenderer.Page page;
 
-    PdfRunnable(PdfRenderer renderer, Result resultPdf,int pageIndex) {
+    PdfRunnable(PdfRenderer renderer, Result resultPdf,  int pageIndex) {
       this.resultPdf = resultPdf;
       this.renderer = renderer;
       this.pageIndex = pageIndex;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void run() {
-      final PdfRenderer.Page page = renderer.openPage(pageIndex - 1);
+    public void dispose()
+    {
+      bitmaps = null;
+      if(page != null)
+      {
+        page.close();
+        page = null;
+      }
+    }
+
+  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+  public void run() {
+      page = renderer.openPage(pageIndex - 1);
       int width = (int) (page.getWidth() * 1.75);
       int height = (int) (page.getHeight() * 1.75);
       final Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
@@ -220,6 +236,7 @@ class PdfRunnable implements Runnable
       final Rect rect = new Rect(0, 0, width, height);
       page.render(bitmap, rect, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
       page.close();
+      page = null;
       ByteArrayOutputStream outStream = new ByteArrayOutputStream();
       bitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream);
       bitmaps = new ArrayList<>();

@@ -24,11 +24,13 @@ class _RangeAreaChartPainter extends CustomPainter {
     Rect clipRect;
     final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer;
     final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer;
+    CartesianSeriesRenderer oldSeriesRenderer;
     final List<CartesianChartPoint<dynamic>> dataPoints =
         seriesRenderer._dataPoints;
-    CartesianChartPoint<dynamic> point, prevPoint;
+    CartesianChartPoint<dynamic> point, prevPoint, oldPoint;
     final Path _path = Path();
-    _ChartLocation currentPointLow, currentPointHigh;
+    _ChartLocation currentPointLow, currentPointHigh, oldPointLow, oldPointHigh;
+    num currentLowX, currentLowY, currentHighX, currentHighY;
     double animationFactor;
     final Path _borderPath = Path();
     RangeAreaSegment rangeAreaSegment;
@@ -39,6 +41,8 @@ class _RangeAreaChartPainter extends CustomPainter {
               ? series.animationDuration >= 0
               : true,
           'The animation duration of the range area series must be greater or equal to 0.');
+      final List<CartesianSeriesRenderer> oldSeriesRenderers =
+          chartState._oldSeriesRenderers;
       canvas.save();
       final int seriesIndex = painterKey.index;
       seriesRenderer._storeSeriesProperties(chartState, seriesIndex);
@@ -48,6 +52,10 @@ class _RangeAreaChartPainter extends CustomPainter {
           Offset(
               xAxisRenderer._axis.plotOffset, yAxisRenderer._axis.plotOffset));
       canvas.clipRect(axisClipRect);
+
+      oldSeriesRenderer = _getOldSeriesRenderer(
+          chartState, seriesRenderer, seriesIndex, oldSeriesRenderers);
+
       animationFactor = seriesRenderer._seriesAnimation != null
           ? seriesRenderer._seriesAnimation.value
           : 1;
@@ -58,34 +66,89 @@ class _RangeAreaChartPainter extends CustomPainter {
         _performLinearAnimation(
             chartState, xAxisRenderer._axis, canvas, animationFactor);
       }
+      if (seriesRenderer._visibleDataPoints == null ||
+          seriesRenderer._visibleDataPoints.isNotEmpty) {
+        seriesRenderer._visibleDataPoints = <CartesianChartPoint<dynamic>>[];
+      }
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
         seriesRenderer._calculateRegionData(
             chartState, seriesRenderer, painterKey.index, point, pointIndex);
         if (point.isVisible && !point.isDrop) {
+          oldPoint = _getOldChartPoint(
+              chartState,
+              seriesRenderer,
+              RangeAreaSegment,
+              seriesIndex,
+              pointIndex,
+              oldSeriesRenderer,
+              oldSeriesRenderers);
+          if (oldPoint != null) {
+            oldPointLow = _calculatePoint(
+                oldPoint.xValue,
+                oldPoint.low,
+                oldSeriesRenderer._xAxisRenderer,
+                oldSeriesRenderer._yAxisRenderer,
+                isTransposed,
+                oldSeriesRenderer._series,
+                axisClipRect);
+            oldPointHigh = _calculatePoint(
+                oldPoint.xValue,
+                oldPoint.high,
+                oldSeriesRenderer._xAxisRenderer,
+                oldSeriesRenderer._yAxisRenderer,
+                isTransposed,
+                oldSeriesRenderer._series,
+                axisClipRect);
+          } else {
+            oldPointLow = oldPointHigh = null;
+          }
           currentPointLow = _calculatePoint(point.xValue, point.low,
               xAxisRenderer, yAxisRenderer, isTransposed, series, axisClipRect);
           currentPointHigh = _calculatePoint(point.xValue, point.high,
               xAxisRenderer, yAxisRenderer, isTransposed, series, axisClipRect);
           _points.add(Offset(currentPointLow.x, currentPointLow.y));
           _points.add(Offset(currentPointHigh.x, currentPointHigh.y));
+
+          currentLowX = currentPointLow?.x;
+          currentLowY = currentPointLow?.y;
+          currentHighX = currentPointHigh?.x;
+          currentHighY = currentPointHigh?.y;
+          if (oldPointLow != null) {
+            if (chart.isTransposed) {
+              currentLowX = _getAnimateValue(animationFactor, currentLowX,
+                  oldPointLow.x, currentPointLow.x, seriesRenderer);
+            } else {
+              currentLowY = _getAnimateValue(animationFactor, currentLowY,
+                  oldPointLow.y, currentPointLow.y, seriesRenderer);
+            }
+          }
+          if (oldPointHigh != null) {
+            if (chart.isTransposed) {
+              currentHighX = _getAnimateValue(animationFactor, currentHighX,
+                  oldPointHigh.x, currentPointHigh.x, seriesRenderer);
+            } else {
+              currentHighY = _getAnimateValue(animationFactor, currentHighY,
+                  oldPointHigh.y, currentPointHigh.y, seriesRenderer);
+            }
+          }
           if (prevPoint == null ||
               dataPoints[pointIndex - 1].isGap == true ||
               (dataPoints[pointIndex].isGap == true) ||
               (dataPoints[pointIndex - 1].isVisible == false &&
                   series.emptyPointSettings.mode == EmptyPointMode.gap)) {
-            _path.moveTo(currentPointLow.x, currentPointLow.y);
-            _path.lineTo(currentPointHigh.x, currentPointHigh.y);
-            _borderPath.moveTo(currentPointHigh.x, currentPointHigh.y);
+            _path.moveTo(currentLowX, currentLowY);
+            _path.lineTo(currentHighX, currentHighY);
+            _borderPath.moveTo(currentHighX, currentHighY);
           } else if (pointIndex == dataPoints.length - 1 ||
               dataPoints[pointIndex + 1].isGap == true) {
-            _path.lineTo(currentPointHigh.x, currentPointHigh.y);
-            _path.lineTo(currentPointLow.x, currentPointLow.y);
-            _borderPath.lineTo(currentPointHigh.x, currentPointHigh.y);
-            _borderPath.moveTo(currentPointLow.x, currentPointLow.y);
+            _path.lineTo(currentHighX, currentHighY);
+            _path.lineTo(currentLowX, currentLowY);
+            _borderPath.lineTo(currentHighX, currentHighY);
+            _borderPath.moveTo(currentLowX, currentLowY);
           } else {
-            _borderPath.lineTo(currentPointHigh.x, currentPointHigh.y);
-            _path.lineTo(currentPointHigh.x, currentPointHigh.y);
+            _borderPath.lineTo(currentHighX, currentHighY);
+            _path.lineTo(currentHighX, currentHighY);
           }
           prevPoint = point;
         }
@@ -99,22 +162,73 @@ class _RangeAreaChartPainter extends CustomPainter {
           pointIndex--) {
         point = dataPoints[pointIndex];
         if (point.isVisible && !point.isDrop) {
+          oldPoint = _getOldChartPoint(
+              chartState,
+              seriesRenderer,
+              RangeAreaSegment,
+              seriesIndex,
+              pointIndex,
+              oldSeriesRenderer,
+              oldSeriesRenderers);
+          if (oldPoint != null) {
+            oldPointLow = _calculatePoint(
+                oldPoint.xValue,
+                oldPoint.low,
+                oldSeriesRenderer._xAxisRenderer,
+                oldSeriesRenderer._yAxisRenderer,
+                isTransposed,
+                oldSeriesRenderer._series,
+                axisClipRect);
+            oldPointHigh = _calculatePoint(
+                oldPoint.xValue,
+                oldPoint.high,
+                oldSeriesRenderer._xAxisRenderer,
+                oldSeriesRenderer._yAxisRenderer,
+                isTransposed,
+                oldSeriesRenderer._series,
+                axisClipRect);
+          } else {
+            oldPointLow = oldPointHigh = null;
+          }
           currentPointLow = _calculatePoint(point.xValue, point.low,
               xAxisRenderer, yAxisRenderer, isTransposed, series, axisClipRect);
           currentPointHigh = _calculatePoint(point.xValue, point.high,
               xAxisRenderer, yAxisRenderer, isTransposed, series, axisClipRect);
 
+          currentLowX = currentPointLow?.x;
+          currentLowY = currentPointLow?.y;
+          currentHighX = currentPointHigh?.x;
+          currentHighY = currentPointHigh?.y;
+
+          if (oldPointLow != null) {
+            if (chart.isTransposed) {
+              currentLowX = _getAnimateValue(animationFactor, currentLowX,
+                  oldPointLow.x, currentPointLow.x, seriesRenderer);
+            } else {
+              currentLowY = _getAnimateValue(animationFactor, currentLowY,
+                  oldPointLow.y, currentPointLow.y, seriesRenderer);
+            }
+          }
+          if (oldPointHigh != null) {
+            if (chart.isTransposed) {
+              currentHighX = _getAnimateValue(animationFactor, currentHighX,
+                  oldPointHigh.x, currentPointHigh.x, seriesRenderer);
+            } else {
+              currentHighY = _getAnimateValue(animationFactor, currentHighY,
+                  oldPointHigh.y, currentPointHigh.y, seriesRenderer);
+            }
+          }
           if (dataPoints[pointIndex + 1].isGap == true) {
-            _borderPath.moveTo(currentPointLow.x, currentPointLow.y);
-            _path.moveTo(currentPointLow.x, currentPointLow.y);
+            _borderPath.moveTo(currentLowX, currentLowY);
+            _path.moveTo(currentLowX, currentLowY);
           } else if (dataPoints[pointIndex].isGap != true) {
             if (pointIndex + 1 == dataPoints.length - 1 &&
                 dataPoints[pointIndex + 1].isDrop) {
-              _borderPath.moveTo(currentPointLow.x, currentPointLow.y);
+              _borderPath.moveTo(currentLowX, currentLowY);
             } else {
-              _borderPath.lineTo(currentPointLow.x, currentPointLow.y);
+              _borderPath.lineTo(currentLowX, currentLowY);
             }
-            _path.lineTo(currentPointLow.x, currentPointLow.y);
+            _path.lineTo(currentLowX, currentLowY);
           }
 
           prevPoint = point;

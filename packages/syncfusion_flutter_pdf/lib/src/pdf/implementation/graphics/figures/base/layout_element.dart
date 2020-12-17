@@ -11,7 +11,10 @@ abstract class PdfLayoutElement {
   bool get _raisePageLayouted => endPageLayout != null;
 
   //Public methods
-  /// Draws an element on the Graphics.
+  /// Draws an element on the graphics or page.
+  ///
+  /// If both graphics and page provide in the arguments
+  /// then page takes more precedence than graphics
   PdfLayoutResult draw(
       {PdfGraphics graphics,
       PdfPage page,

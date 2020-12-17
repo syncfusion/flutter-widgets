@@ -1962,20 +1962,6 @@ class _TreeTableEntrySourceCollection extends _ListBase {
     inner = _TreeTable(false);
   }
 
-  ///Initializes a new instance of the `TreeTableEntrySourceCollection` class.
-  ///
-  /// * inner - _required_ - Tree table
-  _TreeTableEntrySourceCollection.fromInner(_TreeTableBase inner) {
-    inner = inner;
-  }
-
-  ///Initializes a new instance of the `TreeTableEntrySourceCollection` class.
-  ///
-  /// * sorted - _required_ - Boolean value
-  _TreeTableEntrySourceCollection.fromSorted(bool sorted) {
-    inner = _TreeTable(sorted);
-  }
-
   _TreeTableBase inner;
 
   /// Gets the number of objects in this collection.

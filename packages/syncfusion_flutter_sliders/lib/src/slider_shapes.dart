@@ -1,7 +1,17 @@
-part of sliders;
+import 'dart:math' as math;
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 
-/// Base class for [SfRangeSlider] and [SfRangeSelector] track shapes.
-abstract class SfTrackShape {
+import 'common.dart';
+import 'constants.dart';
+import 'render_slider_base.dart';
+
+/// Base class for [SfSlider], [SfRangeSlider] and [SfRangeSelector] track
+/// shapes.
+class SfTrackShape {
+  /// Enables subclasses to provide constant constructors.
   const SfTrackShape();
 
   /// Returns the size based on the values passed to it.
@@ -10,22 +20,24 @@ abstract class SfTrackShape {
       {bool isActive}) {
     final double maxRadius = math.max(themeData.overlayRadius,
         math.max(themeData.thumbRadius, themeData.tickSize.width / 2));
+    final double maxTrackHeight =
+        math.max(themeData.activeTrackHeight, themeData.inactiveTrackHeight);
     final double left = offset.dx + maxRadius;
     double top = offset.dy;
     if (isActive != null) {
-      final double maxTrackHeight =
-          math.max(themeData.activeTrackHeight, themeData.inactiveTrackHeight);
       top += isActive
           ? (maxTrackHeight - themeData.activeTrackHeight) / 2
           : (maxTrackHeight - themeData.inactiveTrackHeight) / 2;
     }
-    final double width = parentBox.size.width - 2 * maxRadius;
-    final double height = isActive == null
-        ? math.max(themeData.activeTrackHeight, themeData.inactiveTrackHeight)
-        : (isActive
-            ? themeData.activeTrackHeight
-            : themeData.inactiveTrackHeight);
-    return Rect.fromLTWH(left, top, width, height);
+    final double right = left + parentBox.size.width - (2 * maxRadius);
+    final double bottom = top +
+        (isActive == null
+            ? maxTrackHeight
+            : (isActive
+                ? themeData.activeTrackHeight
+                : themeData.inactiveTrackHeight));
+    return Rect.fromLTRB(
+        math.min(left, right), top, math.max(left, right), bottom);
   }
 
   /// Paints the track based on the values passed to it.
@@ -90,26 +102,46 @@ abstract class SfTrackShape {
       Radius radius,
       PaintingContext context,
       Rect activeTrackRect) {
+    Offset leftThumbCenter;
+    Offset rightThumbCenter;
+    Paint leftTrackPaint;
+    Paint rightTrackPaint;
+    Rect leftTrackRect;
+    Rect rightTrackRect;
     if (textDirection == TextDirection.rtl) {
       if (thumbCenter == null) {
-        final Offset temp = startThumbCenter;
-        startThumbCenter = endThumbCenter;
-        endThumbCenter = temp;
+        // For range slider and range selector widget.
+        leftThumbCenter = endThumbCenter;
+        rightThumbCenter = startThumbCenter;
       } else {
-        final Paint temp = activePaint;
-        activePaint = inactivePaint;
-        inactivePaint = temp;
+        // For slider widget.
+        leftTrackPaint = inactivePaint;
+        rightTrackPaint = activePaint;
+        leftTrackRect = inactiveTrackRect;
+        rightTrackRect = activeTrackRect;
+      }
+    } else {
+      if (thumbCenter == null) {
+        // For range slider and range selector widget.
+        leftThumbCenter = startThumbCenter;
+        rightThumbCenter = endThumbCenter;
+      } else {
+        // For slider widget.
+        leftTrackPaint = activePaint;
+        rightTrackPaint = inactivePaint;
+        leftTrackRect = activeTrackRect;
+        rightTrackRect = inactiveTrackRect;
       }
     }
 
     if (thumbCenter == null) {
       // Drawing range slider track.
-      _drawRangeSliderTrack(inactiveTrackRect, startThumbCenter, radius,
-          context, inactivePaint, activeTrackRect, endThumbCenter, activePaint);
+      _drawRangeSliderTrack(inactiveTrackRect, leftThumbCenter, radius, context,
+          inactivePaint, activeTrackRect, rightThumbCenter, activePaint);
     } else {
       // Drawing slider track.
-      _drawSliderTrack(activeTrackRect, thumbCenter, radius, context,
-          activePaint, inactiveTrackRect, inactivePaint);
+      _drawSliderTrack(leftTrackRect, thumbCenter, radius, context,
+          leftTrackPaint, rightTrackRect, rightTrackPaint);
     }
   }
 
@@ -180,11 +212,13 @@ abstract class SfTrackShape {
   }
 }
 
-/// Base class for [SfRangeSlider] and [SfRangeSelector] thumb shapes.
-abstract class SfThumbShape {
+/// Base class for [SfSlider], [SfRangeSlider] and [SfRangeSelector] thumb
+/// shapes.
+class SfThumbShape {
+  /// Enables subclasses to provide constant constructors.
   const SfThumbShape();
 
-  bool _isThumbOverlap(_RenderBaseSlider parentBox) {
+  bool _isThumbOverlap(RenderBaseSlider parentBox) {
     return parentBox.showOverlappingThumbStroke;
   }
 
@@ -211,20 +245,20 @@ abstract class SfThumbShape {
         themeData.thumbStrokeWidth > 0;
 
     final bool showThumbShadow = themeData.thumbColor != Colors.transparent;
-    final _RenderBaseSlider parentRenderBox = parentBox;
+    final RenderBaseSlider parentRenderBox = parentBox;
     if (showThumbShadow) {
       final Path path = Path();
       final bool isThumbActive =
           (parentRenderBox.activeThumb == thumb || thumb == null) &&
               parentRenderBox.currentPointerType != null &&
-              parentRenderBox.currentPointerType != _PointerType.up;
+              parentRenderBox.currentPointerType != PointerType.up;
       path.addOval(
           Rect.fromCircle(center: center, radius: themeData.thumbRadius));
       final double thumbElevation = isThumbActive
           ? parentRenderBox.thumbElevationTween.evaluate(enableAnimation)
-          : _defaultElevation;
+          : defaultElevation;
 
-      context.canvas.drawShadow(path, _shadowColor, thumbElevation, true);
+      context.canvas.drawShadow(path, shadowColor, thumbElevation, true);
     }
 
     if (!isThumbStroke &&
@@ -280,8 +314,10 @@ abstract class SfThumbShape {
   }
 }
 
-/// Base class for [SfRangeSlider] and [SfRangeSelector] divisors shapes.
-abstract class SfDivisorShape {
+/// Base class for [SfSlider], [SfRangeSlider] and [SfRangeSelector] divisors
+/// shapes.
+class SfDivisorShape {
+  /// Enables subclasses to provide constant constructors.
   const SfDivisorShape();
 
   /// Returns the size based on the values passed to it.
@@ -362,8 +398,10 @@ abstract class SfDivisorShape {
   }
 }
 
-/// Base class for [SfRangeSlider] and [SfRangeSelector] overlay shapes.
-abstract class SfOverlayShape {
+/// Base class for [SfSlider], [SfRangeSlider] and [SfRangeSelector] overlay
+/// shapes.
+class SfOverlayShape {
+  /// Enables subclasses to provide constant constructors.
   const SfOverlayShape();
 
   /// Returns the size based on the values passed to it.
@@ -391,8 +429,10 @@ abstract class SfOverlayShape {
   }
 }
 
-/// Base class for [SfRangeSlider] and [SfRangeSelector] major tick shapes.
-abstract class SfTickShape {
+/// Base class for [SfSlider], [SfRangeSlider] and [SfRangeSelector] major tick
+/// shapes.
+class SfTickShape {
+  /// Enables subclasses to provide constant constructors.
   const SfTickShape();
 
   /// Returns the size based on the values passed to it.
@@ -442,6 +482,7 @@ abstract class SfTickShape {
 
 /// A base class which is used to render rectangular or paddle shape tooltip.
 abstract class SfTooltipShape {
+  /// Enables subclasses to provide constant constructors.
   const SfTooltipShape();
 
   /// Draws the tooltip based on the values passed in the arguments.
@@ -454,17 +495,7 @@ abstract class SfTooltipShape {
       Rect trackRect});
 }
 
-class _SfTrackShape extends SfTrackShape {}
-
-class _SfDivisorShape extends SfDivisorShape {}
-
-class _SfOverlayShape extends SfOverlayShape {}
-
-class _SfThumbShape extends SfThumbShape {}
-
-class _SfTickShape extends SfTickShape {}
-
-class _SfMinorTickShape extends SfTickShape {
+class SfMinorTickShape extends SfTickShape {
   @override
   Size getPreferredSize(SfSliderThemeData themeData) {
     return Size.copy(themeData.minorTickSize);
@@ -511,7 +542,7 @@ class _SfMinorTickShape extends SfTickShape {
 
 /// A class which is used to render paddle shape tooltip.
 class SfPaddleTooltipShape extends SfTooltipShape {
-  bool _isTooltipOverlapStroke(_RenderBaseSlider parentBox) {
+  bool _isTooltipOverlapStroke(RenderBaseSlider parentBox) {
     return parentBox.showOverlappingTooltipStroke;
   }
 
@@ -671,7 +702,7 @@ class SfPaddleTooltipShape extends SfTooltipShape {
       SfSliderThemeData sliderThemeData) {
     final Path path = Path();
     path.moveTo(
-        neckDifference / 2, topNeckCenter.dy + topNeckRadius * _moveNeckValue);
+        neckDifference / 2, topNeckCenter.dy + topNeckRadius * moveNeckValue);
     // Drawn top paddle shape.
     path.arcTo(
         Rect.fromCircle(
@@ -748,14 +779,14 @@ class SfPaddleTooltipShape extends SfTooltipShape {
     _drawPaddleTooltip(
         parentBox,
         textPainter,
-        _minPaddleTopCircleRadius,
-        _neckDifference,
+        minPaddleTopCircleRadius,
+        neckDifference,
         sliderThemeData,
-        _defaultThumbRadius,
-        _minBottomNeckRadius,
-        _textPadding,
+        defaultThumbRadius,
+        minBottomNeckRadius,
+        textPadding,
         offset,
-        _moveNeckValue,
+        moveNeckValue,
         thumbCenter,
         trackRect,
         context,
@@ -766,18 +797,17 @@ class SfPaddleTooltipShape extends SfTooltipShape {
 
 /// A class which is used to render rectangular shape tooltip.
 class SfRectangularTooltipShape extends SfTooltipShape {
-  bool _isTooltipOverlapStroke(_RenderBaseSlider parentBox) {
+  bool _isTooltipOverlapStroke(RenderBaseSlider parentBox) {
     return parentBox.showOverlappingTooltipStroke;
   }
 
   Path _updateRectangularTooltipWidth(
       Size textSize, double tooltipStartY, Rect trackRect, double dx) {
-    final double dy = tooltipStartY + _tooltipTriangleHeight;
+    final double dy = tooltipStartY + tooltipTriangleHeight;
     final double tooltipWidth =
-        textSize.width < _minTooltipWidth ? _minTooltipWidth : textSize.width;
-    final double tooltipHeight = textSize.height < _minTooltipHeight
-        ? _minTooltipHeight
-        : textSize.height;
+        textSize.width < minTooltipWidth ? minTooltipWidth : textSize.width;
+    final double tooltipHeight =
+        textSize.height < minTooltipHeight ? minTooltipHeight : textSize.height;
     final double halfTooltipWidth = tooltipWidth / 2;
 
     double rightLineWidth = dx + halfTooltipWidth > trackRect.right
@@ -789,7 +819,7 @@ class SfRectangularTooltipShape extends SfTooltipShape {
     rightLineWidth = leftLineWidth < halfTooltipWidth
         ? halfTooltipWidth - leftLineWidth + rightLineWidth
         : rightLineWidth;
-    const double halfTooltipTriangleWidth = _tooltipTriangleWidth / 2;
+    const double halfTooltipTriangleWidth = tooltipTriangleWidth / 2;
 
     return _getRectangularPath(tooltipStartY, rightLineWidth,
         halfTooltipTriangleWidth, dy, tooltipHeight, leftLineWidth);
@@ -806,36 +836,36 @@ class SfRectangularTooltipShape extends SfTooltipShape {
     path.moveTo(0, -tooltipStartY);
     //    /
     final bool canAdjustTooltipNose =
-        rightLineWidth > halfTooltipTriangleWidth + _cornerRadius / 2;
+        rightLineWidth > halfTooltipTriangleWidth + cornerRadius / 2;
     path.lineTo(
         canAdjustTooltipNose ? halfTooltipTriangleWidth : rightLineWidth,
-        -dy - (canAdjustTooltipNose ? 0 : _cornerRadius / 2));
+        -dy - (canAdjustTooltipNose ? 0 : cornerRadius / 2));
     //      ___
     //     /
-    path.lineTo(rightLineWidth - _cornerRadius, -dy);
+    path.lineTo(rightLineWidth - cornerRadius, -dy);
     //      ___|
     //     /
     path.quadraticBezierTo(
-        rightLineWidth, -dy, rightLineWidth, -dy - _cornerRadius);
-    path.lineTo(rightLineWidth, -dy - tooltipHeight + _cornerRadius);
+        rightLineWidth, -dy, rightLineWidth, -dy - cornerRadius);
+    path.lineTo(rightLineWidth, -dy - tooltipHeight + cornerRadius);
     //  _______
     //      ___|
     //     /
     path.quadraticBezierTo(rightLineWidth, -dy - tooltipHeight,
-        rightLineWidth - _cornerRadius, -dy - tooltipHeight);
-    path.lineTo(-leftLineWidth + _cornerRadius, -dy - tooltipHeight);
+        rightLineWidth - cornerRadius, -dy - tooltipHeight);
+    path.lineTo(-leftLineWidth + cornerRadius, -dy - tooltipHeight);
     //  _______
     // |    ___|
     //     /
     path.quadraticBezierTo(-leftLineWidth, -dy - tooltipHeight, -leftLineWidth,
-        -dy - tooltipHeight + _cornerRadius);
-    path.lineTo(-leftLineWidth, -dy - _cornerRadius);
+        -dy - tooltipHeight + cornerRadius);
+    path.lineTo(-leftLineWidth, -dy - cornerRadius);
     //  ________
     // |___  ___|
     //      /
     if (leftLineWidth > halfTooltipTriangleWidth) {
       path.quadraticBezierTo(
-          -leftLineWidth, -dy, -leftLineWidth + _cornerRadius, -dy);
+          -leftLineWidth, -dy, -leftLineWidth + cornerRadius, -dy);
       path.lineTo(-halfTooltipTriangleWidth, -dy);
     }
     //  ________
@@ -854,10 +884,10 @@ class SfRectangularTooltipShape extends SfTooltipShape {
       Paint paint,
       Animation<double> animation,
       Rect trackRect}) {
-    final double leftPadding = _tooltipTextPadding.dx / 2;
+    final double leftPadding = tooltipTextPadding.dx / 2;
     final double minLeftX = trackRect.left;
     final Path path = _updateRectangularTooltipWidth(
-        textPainter.size + _tooltipTextPadding,
+        textPainter.size + tooltipTextPadding,
         offset.dy,
         trackRect,
         thumbCenter.dx);
@@ -898,8 +928,8 @@ class SfRectangularTooltipShape extends SfTooltipShape {
             trackRect.left -
             thumbCenter.dx;
     final double dy = offset.dy +
-        _tooltipTriangleHeight +
-        (pathRect.size.height - _tooltipTriangleHeight) / 2 +
+        tooltipTriangleHeight +
+        (pathRect.size.height - tooltipTriangleHeight) / 2 +
         textPainter.height / 2;
     textPainter.paint(context.canvas, Offset(dx, -dy));
     context.canvas.restore();

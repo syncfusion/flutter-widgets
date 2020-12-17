@@ -1,4 +1,5 @@
-part of sliders;
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 /// Signature for formatting or changing the whole numeric or date label text.
 typedef LabelFormatterCallback = String Function(
@@ -22,7 +23,7 @@ typedef TooltipTextFormatterCallback = String Function(
     /// if the actual value is [DateTime], it is formatted by [dateFormat].
     String formattedText);
 
-/// The value will be either [double] or [DateTime] based on the [values].
+/// The value will be either [double] or [DateTime] based on the `values`.
 typedef SfSliderSemanticFormatterCallback = String Function(dynamic value);
 
 typedef SfRangeSliderSemanticFormatterCallback = String Function(
@@ -45,53 +46,53 @@ enum LabelPlacement {
 enum DateIntervalType {
   /// Date interval is year.
   ///
-  /// For example, if [min] is DateTime(2000, 01, 01, 00) and
-  /// [max] is DateTime(2005, 12, 31, 24) and [interval] is 1 and
-  /// [dateIntervalType] is [years] then range slider
+  /// For example, if `min` is DateTime(2000, 01, 01, 00) and
+  /// `max` is DateTime(2005, 12, 31, 24) and `interval` is 1 and
+  /// `dateIntervalType` is [years] then range slider
   /// will render labels for 2000, 2001, 2002, 2003, 2004, 2005 respectively.
   years,
 
   /// Date interval is month.
   ///
-  /// For example, if [min] is DateTime(2000, 01, 01, 00) and
-  /// [max] is DateTime(2000, 12, 31, 24) and [interval] is 3 and
-  /// [dateIntervalType] is [months] then range slider will render labels
+  /// For example, if `min` is DateTime(2000, 01, 01, 00) and
+  /// `max` is DateTime(2000, 12, 31, 24) and `interval` is 3 and
+  /// `dateIntervalType` is [months] then range slider will render labels
   /// for [Jan 01, 2000], [Apr 01, 2000], [Jul 01, 2000], [Oct 01, 2000]
   /// and [Jan 01, 2001] respectively.
   months,
 
   /// Date interval is day.
   ///
-  /// For example, if [min] is DateTime(2000, 01, 01, 00) and
-  /// [max] is DateTime(2000, 01, 25, 24) and [interval] is 5 and
-  /// [dateIntervalType] is [days] then range slider will render labels
+  /// For example, if `min` is DateTime(2000, 01, 01, 00) and
+  /// `max` is DateTime(2000, 01, 25, 24) and `interval` is 5 and
+  /// `dateIntervalType` is [days] then range slider will render labels
   /// for [Jan 01, 2000], [Jan 06, 2000], [Jan 11, 2000], [Jan 16, 2000],
   /// [Jan 21, 2001] and [Jan 26, 2001] respectively.
   days,
 
   /// Date interval is hour.
   ///
-  /// For example, if [min] is DateTime(2000, 01, 01, 09) and
-  /// [max] is DateTime(2000, 01, 01, 17) and [interval] is 4 and
-  /// [dateIntervalType] is [hours] then range slider will render labels for
+  /// For example, if `min` is DateTime(2000, 01, 01, 09) and
+  /// `max` is DateTime(2000, 01, 01, 17) and `interval` is 4 and
+  /// `dateIntervalType` is [hours] then range slider will render labels for
   /// [Jan 01, 2000 09:00], [Jan 01, 2000 13:00], and [Jan 01, 2000 17:00]
   /// respectively.
   hours,
 
   /// Date interval is minute.
   ///
-  /// For example, if [min] is DateTime(2000, 01, 01, 09) and
-  /// [max] is DateTime(2000, 01, 01, 10) and [interval] is 15 and
-  /// [dateIntervalType] is [minutes] then range slider will render labels for
+  /// For example, if `min` is DateTime(2000, 01, 01, 09) and
+  /// `max` is DateTime(2000, 01, 01, 10) and `interval` is 15 and
+  /// `dateIntervalType` is [minutes] then range slider will render labels for
   /// [Jan 01, 2000 09:00], [Jan 01, 2000 09:15], [Jan 01, 2000 09:30],
   /// [Jan 01, 2000 09:45]and [Jan 01, 2000 10:00] respectively.
   minutes,
 
   /// Date interval is second.
   ///
-  /// For example, if [min] is DateTime(2000, 01, 01, 09, 00) and
-  /// [max] is DateTime(2000, 01, 01, 09, 01) and [interval] is 20 and
-  /// [dateIntervalType] is [seconds] then range slider will render labels for
+  /// For example, if `min` is DateTime(2000, 01, 01, 09, 00) and
+  /// `max` is DateTime(2000, 01, 01, 09, 01) and `interval` is 20 and
+  /// `dateIntervalType` is [seconds] then range slider will render labels for
   /// [Jan 01, 2000 09:00:00], [Jan 01, 2000 09:00:20], [Jan 01, 2000 09:00:40],
   /// and [Jan 01, 2000 09:01:00] respectively.
   seconds
@@ -106,18 +107,7 @@ enum SfThumb {
   end
 }
 
-/// Represents the [SfRangeSlider] or [SfRangeSelector] child elements.
-enum _ChildElements {
-  /// Represents the icon for [SfRangeValues.start] thumb.
-  startThumbIcon,
-
-  /// Represents the icon for [SfRangeValues.start] thumb.
-  endThumbIcon,
-
-  /// Represents the content of [SfRangeSelector].
-  child,
-}
-
+/// Represents the dragging behavior of the [SfRangeSelector] thumbs.
 enum SliderDragMode {
   /// When [SliderDragMode] is set to [SliderDragMode.onThumb],
   /// individual thumb can be moved by dragging it.
@@ -136,20 +126,10 @@ enum SliderDragMode {
   both
 }
 
-enum _PointerType {
-  down,
-
-  move,
-
-  up
-}
-
-const double _minPreferredTouchWidth = 20;
-
 /// Represents the current selected values of [SfRangeSlider]
 /// and [SfRangeSelector].
 @immutable
-class SfRangeValues {
+class SfRangeValues extends DiagnosticableTree {
   /// Represents the current selected values of [SfRangeSlider]
   /// and [SfRangeSelector].
   const SfRangeValues(this.start, this.end);
@@ -160,7 +140,7 @@ class SfRangeValues {
   /// Represents the [SfRangeValues.end] thumb.
   final dynamic end;
 
-  SfRangeValues _copyWith({dynamic start, dynamic end}) {
+  SfRangeValues copyWith({dynamic start, dynamic end}) {
     // HACK: In web, 0.00 and 0 are considered as identical.
     // So, we had considered both double and int.
     if (start != null &&
@@ -179,14 +159,21 @@ class SfRangeValues {
 
     return SfRangeValues(start ?? this.start, end ?? this.end);
   }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<dynamic>('start', start));
+    properties.add(DiagnosticsProperty<dynamic>('end', end));
+  }
 }
 
 /// The class which is used to set step duration for date discrete support.
 ///
 /// See also:
 ///
-/// * [interval], for setting the interval.
-class SliderStepDuration {
+/// * `interval`, for setting the interval.
+class SliderStepDuration extends DiagnosticableTree {
   /// The discrete position is calculated by adding the arguments
   /// given in the [SliderStepDuration] object.
   /// By default, all arguments values are zero.
@@ -198,35 +185,68 @@ class SliderStepDuration {
       this.minutes = 0,
       this.seconds = 0});
 
+  /// Moves the thumbs based on years.
+  ///
+  /// For example, if `min` is DateTime(2000, 01, 01) and
+  /// `max` is DateTime(2006, 01, 01) and `SliderDuration(years: 2)` then the
+  /// thumb will get moved at DateTime(2000, 01, 01), DateTime(2002, 07, 01),
+  /// DateTime(2004, 01, 01), and DateTime(2006, 07, 01).
   final int years;
+
+  /// Moves the thumbs based on months.
+  ///
+  /// For example, if `min` is DateTime(2000, 01, 01) and
+  /// `max` is DateTime(2000, 10, 01) and `SliderDuration(months: 3)` then the
+  /// thumb will get moved at DateTime(2000, 01, 01), DateTime(2000, 04, 01),
+  /// DateTime(2000, 07, 01), and DateTime(2000, 10, 01).
   final int months;
+
+  /// Moves the thumbs based on days.
+  ///
+  /// For example, if `min` is DateTime(2000, 01, 01) and
+  /// `max` is DateTime(2000, 01, 20) and `SliderDuration(days: 5)` then the
+  /// thumb will get moved at DateTime(2000, 01, 01), DateTime(2000, 01, 06),
+  /// DateTime(2000, 01, 11), DateTime(2000, 01, 16), and
+  /// DateTime(2000, 01, 20).
   final int days;
+
+  /// Moves the thumbs based on hours.
+  ///
+  /// For example, if `min` is DateTime(2000, 01, 01, 05) and
+  /// `max` is DateTime(2006, 01, 01, 20) and `SliderDuration(hours: 5)` then
+  /// the thumb will get moved at DateTime(2000, 01, 01, 05),
+  /// DateTime(2000, 01, 01, 11), DateTime(2000, 01, 01, 16),
+  /// and DateTime(2000, 01, 01, 20).
   final int hours;
+
+  /// Moves the thumbs based on minutes.
+  ///
+  /// For example, if `min` is DateTime(2000, 01, 01, 05, 10) and
+  /// `max` is DateTime(2006, 01, 01, 05, 40) and `SliderDuration(minutes: 10)`
+  /// then the thumb will get moved at DateTime(2000, 01, 01, 05, 10),
+  /// DateTime(2000, 01, 01, 05, 20), DateTime(2000, 01, 01, 05, 30),
+  /// and DateTime(2000, 01, 01, 05, 40).
   final int minutes;
+
+  /// Moves the thumbs based on seconds.
+  ///
+  /// For example, if `min` is DateTime(2000, 01, 01, 05, 10, 00) and
+  /// `max` is DateTime(2006, 01, 01, 05, 12, 00) and
+  /// `SliderDuration(seconds: 30)` then the thumb will get moved at
+  /// DateTime(2006, 01, 01, 05, 10, 00), DateTime(2006, 01, 01, 05, 10, 30)),
+  /// DateTime(2006, 01, 01, 05, 11, 00), DateTime(2006, 01, 01, 05, 11, 30),
+  /// and DateTime(2006, 01, 01, 05, 12, 00).
   final int seconds;
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+
+    properties.add(IntProperty('years', years));
+    properties.add(IntProperty('months', months));
+    properties.add(IntProperty('days', days));
+    properties.add(IntProperty('hours', hours));
+    properties.add(IntProperty('minutes', minutes));
+    properties.add(IntProperty('seconds', seconds));
+  }
 }
-
-// Minimum tooltip radius
-const double _minPaddleTopCircleRadius = 16;
-// Difference between paddle top circle and neck radius
-const double _neckDifference = 3.0;
-// minimum bottom neck radius
-const double _minBottomNeckRadius = 4.0;
-// Thumb radius is greater than default thumb radius,
-// increasing the bottom neck radius based on thumb radius.
-const double _defaultThumbRadius = 10.0;
-// To get the shape of the paddle,
-// move the neck as quarters of paddle circle radius.
-const double _moveNeckValue = 0.25;
-const double _textPadding = 8.0;
-
-const Offset _tooltipTextPadding = Offset(15, 15);
-const double _tooltipTriangleHeight = 7;
-const double _tooltipTriangleWidth = 12;
-const double _minTooltipWidth = 47.0;
-const double _minTooltipHeight = 37.0;
-const double _cornerRadius = 4.0;
-
-const double _defaultElevation = 1.0;
-const double _tappedElevation = 6.0;
-const Color _shadowColor = Colors.black;

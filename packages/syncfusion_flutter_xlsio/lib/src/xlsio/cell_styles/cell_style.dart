@@ -21,6 +21,7 @@ class CellStyle implements Style {
     _builtinId = 0;
     borders = BordersCollection(_book);
     isGlobalStyle = false;
+    locked = true;
     if (name != null) this.name = name;
   }
 
@@ -48,7 +49,7 @@ class CellStyle implements Style {
   @override
 
   /// Gets/sets font size.
-  int fontSize;
+  double fontSize;
 
   @override
 
@@ -105,6 +106,11 @@ class CellStyle implements Style {
   Workbook _book;
 
   int _builtinId;
+
+  @override
+
+  /// Gets/Sets cell Lock
+  bool locked;
 
   @override
 
@@ -172,6 +178,7 @@ class CellStyle implements Style {
     _cellStyle.numberFormat = numberFormat;
     _cellStyle.numberFormatIndex = numberFormatIndex;
     _cellStyle.isGlobalStyle = isGlobalStyle;
+    _cellStyle.locked = locked;
     _cellStyle.borders = borders._clone();
     return _cellStyle;
   }
@@ -196,7 +203,8 @@ class CellStyle implements Style {
         baseStyle.indent == toCompareStyle.indent &&
         baseStyle.rotation == toCompareStyle.rotation &&
         baseStyle.wrapText == toCompareStyle.wrapText &&
-        baseStyle.borders == toCompareStyle.borders);
+        baseStyle.borders == toCompareStyle.borders &&
+        baseStyle.locked == toCompareStyle.locked);
   }
 
   @override
@@ -219,6 +227,7 @@ class CellStyle implements Style {
       numberFormat,
       numberFormatIndex,
       isGlobalStyle,
+      locked,
       borders);
 
   /// clear the borders

@@ -383,7 +383,6 @@ class ZoomPanBehavior {
         _bindZoomEvent(chart, axisRenderer, zoomResetArgs, chart.onZoomReset);
       }
     }
-    chartState._isLegendToggled = false;
     zoomPanBehaviorRenderer._createZoomState();
   }
 }
@@ -450,10 +449,11 @@ class ZoomPanBehaviorRenderer with ZoomBehavior {
           axisRenderer._bounds = const Rect.fromLTWH(0, 0, 0, 0);
           axisRenderer._visibleLabels = <AxisLabel>[];
         }
-        if (zoomFactor < (_zoomPanBehavior.maximumZoomLevel ?? 0.1)) {
-          axisRenderer._zoomFactor = _zoomPanBehavior.maximumZoomLevel ?? 0.1;
+        final num maxZoomFactor = _zoomPanBehavior.maximumZoomLevel ?? 0.1;
+        if (zoomFactor < maxZoomFactor) {
+          axisRenderer._zoomFactor = maxZoomFactor;
           axisRenderer._zoomPosition = 0.0;
-          zoomFactor = _zoomPanBehavior.maximumZoomLevel ?? 0.1;
+          zoomFactor = maxZoomFactor;
         }
       }
 
@@ -710,6 +710,12 @@ class ZoomPanBehaviorRenderer with ZoomBehavior {
             (selectionMax - selectionMin) / _zoomAxes[axisIndex].actualDelta;
         currentZoomPosition = currentPosition < 0 ? 0 : currentPosition;
         currentZoomFactor = currentFactor > 1 ? 1 : currentFactor;
+        final num maxZoomFactor = _zoomPanBehavior.maximumZoomLevel ?? 0.1;
+        if (currentZoomFactor < maxZoomFactor) {
+          axisRenderer._zoomFactor = maxZoomFactor;
+          axisRenderer._zoomPosition = 0.0;
+          currentZoomFactor = maxZoomFactor;
+        }
         onPinch(axisRenderer, currentZoomPosition, currentZoomFactor);
       }
       if (chart.onZooming != null) {
@@ -758,7 +764,7 @@ class ZoomPanBehaviorRenderer with ZoomBehavior {
     _chartState._zoomProgress = true;
     _calculateZoomAxesRange(_chart);
     _isPanning = _chart.zoomPanBehavior.enablePanning;
-    ZoomPanArgs zoomStartArgs;
+    ZoomPanArgs zoomStartArgs, zoomResetArgs;
     for (int axisIndex = 0;
         axisIndex < _chartState._chartAxis._axisRenderersCollection.length;
         axisIndex++) {
@@ -801,9 +807,21 @@ class ZoomPanBehaviorRenderer with ZoomBehavior {
           axisRenderer._zoomFactor = zoomFactor;
           axisRenderer._bounds = const Rect.fromLTWH(0, 0, 0, 0);
           axisRenderer._visibleLabels = <AxisLabel>[];
+          final num maxZoomFactor = _zoomPanBehavior.maximumZoomLevel ?? 0.1;
+          if (zoomFactor < maxZoomFactor) {
+            axisRenderer._zoomFactor = maxZoomFactor;
+            axisRenderer._zoomPosition = 0.0;
+            zoomFactor = maxZoomFactor;
+          }
           if (_chart.onZoomEnd != null) {
             ZoomPanArgs zoomEndArgs;
             _bindZoomEvent(_chart, axisRenderer, zoomEndArgs, _chart.onZoomEnd);
+          }
+          if (axisRenderer._zoomFactor.toInt() == 1 &&
+              axisRenderer._zoomPosition.toInt() == 0 &&
+              _chart.onZoomReset != null) {
+            _bindZoomEvent(
+                _chart, axisRenderer, zoomResetArgs, _chart.onZoomReset);
           }
         }
       }

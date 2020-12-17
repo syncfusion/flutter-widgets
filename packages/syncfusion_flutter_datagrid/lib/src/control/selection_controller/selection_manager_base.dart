@@ -82,8 +82,7 @@ class SelectionManagerBase extends ChangeNotifier {
   }
 
   int _getPreviousRowIndex(
-      _DataGridSettings dataGridSettings, int currentRowIndex,
-      {bool isSelection = false}) {
+      _DataGridSettings dataGridSettings, int currentRowIndex) {
     final lastRowIndex =
         _SelectionHelper.getLastNavigatingRowIndex(dataGridSettings);
     if (currentRowIndex > lastRowIndex) {
@@ -117,7 +116,7 @@ class SelectionManagerBase extends ChangeNotifier {
     var gridColumn = dataGridSettings.columns[resolvedIndex];
     if (gridColumn == null ||
         !gridColumn.visible ||
-        gridColumn.actualWidth == 0.0) {
+        gridColumn._actualWidth == 0.0) {
       gridColumn = _getNextGridColumn(dataGridSettings,
           moveToRight ? columnIndex + 1 : columnIndex - 1, moveToRight);
     }

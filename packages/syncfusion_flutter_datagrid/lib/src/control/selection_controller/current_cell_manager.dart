@@ -225,7 +225,7 @@ class _CurrentCellManager {
   void _updateBorderForMultipleSelection(_DataGridSettings dataGridSettings,
       {RowColumnIndex previousRowColumnIndex,
       RowColumnIndex nextRowColumnIndex}) {
-    if (kIsWeb &&
+    if (dataGridSettings._isDesktop &&
         dataGridSettings.navigationMode == GridNavigationMode.row &&
         dataGridSettings.selectionMode == SelectionMode.multiple) {
       if (previousRowColumnIndex != null) {

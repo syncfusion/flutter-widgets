@@ -1,22 +1,20 @@
+/// Syncfusion Flutter Sliders library is written natively in Dart for creating
+/// highly interactive and UI-rich slider controls for filtering purposes.
+///
+/// To use, import `package:syncfusion_flutter_sliders/sliders.dart`;
+///
+/// See also:
+/// * [Syncfusion Flutter Slider product page](https://www.syncfusion.com/flutter-widgets/flutter-slider)
+/// * [Syncfusion Flutter Range Slider product page](https://www.syncfusion.com/flutter-widgets/flutter-range-slider)
+/// * [Syncfusion Flutter Range Selector product page](https://www.syncfusion.com/flutter-widgets/flutter-range-selector)
+/// * [User guide documentation for Slider](https://help.syncfusion.com/flutter/slider/overview)
+/// * [User guide documentation for Range Slider](https://help.syncfusion.com/flutter/range-slider/overview)
+/// * [User guide documentation for Range Selector](https://help.syncfusion.com/flutter/range-selector/overview)
+
 library sliders;
 
-import 'dart:async';
-import 'dart:math' as math;
-import 'dart:ui';
-import 'package:intl/intl.dart' show DateFormat, NumberFormat;
-import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart'
-    show
-        GestureArenaTeam,
-        TapGestureRecognizer,
-        HorizontalDragGestureRecognizer;
-import 'package:flutter/rendering.dart';
-import 'package:syncfusion_flutter_core/core.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
-
-part 'src/common.dart';
-part 'src/slider.dart';
-part 'src/range_slider.dart';
-part 'src/range_selector.dart';
-part 'src/slider_shapes.dart';
-part 'src/render_slider_base.dart';
+export 'src/common.dart';
+export 'src/range_selector.dart';
+export 'src/range_slider.dart';
+export 'src/slider.dart';
+export 'src/slider_shapes.dart' hide SfMinorTickShape;

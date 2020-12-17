@@ -69,49 +69,33 @@ enum LineStyle {
 
 /// Possible format types.
 enum ExcelFormatType {
-  /// <summary>
   /// Represents unknown format type.
-  /// </summary>
   unknown,
 
-  /// <summary>
   /// Represents general number format.
-  /// </summary>
   general,
 
-  /// <summary>
   /// Represents text number format.
-  /// </summary>
   text,
 
-  /// <summary>
   /// Represents number number format.
-  /// </summary>
   number,
 
-  /// <summary>
   /// Represents datetime number format.
-  /// </summary>
   dateTime,
 
   /// <summary>
   /// Represents percentage number format.
-  /// </summary>
+
   percentage,
 
-  /// <summary>
   /// Represents currency number format.
-  /// </summary>
   currency,
 
-  /// <summary>
   /// Represents decimal percentage number format.
-  /// </summary>
   decimalPercentage,
 
-  /// <summary>
   /// Represents Exponential number format.
-  /// </summary>
   exponential,
 }
 
@@ -257,4 +241,111 @@ enum BuiltInStyles {
 
   /// Indicates Explanatory Text style.
   explanatoryText,
+
+  /// Indicates Hyperlink style.
+  hyperlink,
+}
+
+/// Possible types of hyperlinks.
+
+enum HyperlinkType {
+  /// No hyperlink.
+  none,
+
+  /// Represents the Url hyperlink type.
+  url,
+
+  /// Represents the File hyperlink type.
+
+  file,
+
+  /// Represents the Unc hyperlink type.
+  unc,
+
+  /// Represents the Workbook hyperlink type.
+  workbook
+}
+
+/// Represents a possible insert options in Excel.
+enum ExcelInsertOptions {
+  /// Indicates that after insert operation inserted rows/columns
+  /// must be formatted as row above or column left.
+  formatAsBefore,
+
+  /// Indicates that after insert operation inserted rows/columns
+  /// must be formatted as row below or column right.
+  formatAsAfter,
+
+  /// Indicates that after insert operation inserted rows/columns
+  /// must have default format.
+  formatDefault,
+}
+
+/// Represents sheet protection flags enums.
+enum ExcelSheetProtection {
+  /// Represents none flags.
+  none,
+
+  /// True to protect shapes.
+  objects,
+
+  /// True to protect scenarios.
+  scenarios,
+
+  /// True allows the user to format any cell on a protected worksheet.
+  formattingCells,
+
+  /// True allows the user to format any column on a protected worksheet.
+  formattingColumns,
+
+  /// True allows the user to format any row on a protected.
+  formattingRows,
+
+  /// True allows the user to insert columns on the protected worksheet.
+  insertingColumns,
+
+  /// True allows the user to insert rows on the protected worksheet.
+  insertingRows,
+
+  /// True allows the user to insert hyperlinks on the worksheet.
+  insertingHyperlinks,
+
+  /// True allows the user to delete columns on the protected worksheet,
+  /// where every cell in the column to be deleted is unlocked.
+  deletingColumns,
+
+  /// True allows the user to delete rows on the protected worksheet,
+  /// where every cell in the row to be deleted is unlocked.
+  deletingRows,
+
+  /// True to protect locked cells.
+  lockedCells,
+
+  /// True allows the user to sort on the protected worksheet.
+  sorting,
+
+  /// True allows the user to set filters on the protected worksheet.
+  /// Users can change filter criteria but can not enable or disable an auto filter.
+  filtering,
+
+  /// True allows the user to use pivot table reports on the protected worksheet.
+  usingPivotTables,
+
+  /// True to protect the user interface, but not macros.
+  unLockedCells,
+
+  /// True to protect content.
+  content,
+
+  /// Represents all flags
+  all,
+}
+
+/// Specify the hyperlink attached object name.
+enum ExcelHyperlinkAttachedType {
+  /// Represent IRange object.
+  range,
+
+  /// Represent IShape object.
+  shape,
 }

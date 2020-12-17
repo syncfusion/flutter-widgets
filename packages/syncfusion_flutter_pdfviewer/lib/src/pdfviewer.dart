@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:async/async.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -17,7 +18,11 @@ import 'common/pdf_provider.dart';
 import 'control/enums.dart';
 import 'control/pagination.dart';
 import 'control/pdfviewer_callback_details.dart';
-import 'control/scroll_head.dart';
+import 'control/scroll_head_overlay.dart';
+
+/// Signature for [SfPdfViewer.onTextSelectionChanged] callback.
+typedef PdfTextSelectionChangedCallback = void Function(
+    PdfTextSelectionChangedDetails details);
 
 /// Signature for [SfPdfViewer.onDocumentLoaded] callback.
 typedef PdfDocumentLoadedCallback = void Function(
@@ -97,20 +102,32 @@ class SfPdfViewer extends StatefulWidget {
       {Key key,
       AssetBundle bundle,
       this.canShowScrollHead = true,
+      this.pageSpacing = 4,
       this.controller,
       this.onZoomLevelChanged,
       this.canShowScrollStatus = true,
       this.onPageChanged,
       this.onDocumentLoaded,
       this.enableDoubleTapZooming = true,
+      this.enableTextSelection = true,
+      this.onTextSelectionChanged,
       this.onDocumentLoadFailed,
-      this.canShowPaginationDialog = true})
+      this.enableDocumentLinkAnnotation = true,
+      this.canShowPaginationDialog = true,
+      this.initialScrollOffset = Offset.zero,
+      this.initialZoomLevel = 1,
+      this.searchTextHighlightColor = const Color(0xFFE56E00)})
       : _provider = AssetPdf(name, bundle),
         assert(canShowScrollHead != null),
         assert(canShowScrollHead != null),
         assert(canShowScrollStatus != null),
         assert(enableDoubleTapZooming != null),
         assert(canShowPaginationDialog != null),
+        assert(initialZoomLevel != null),
+        assert(initialScrollOffset != null),
+        assert(pageSpacing != null && pageSpacing >= 0),
+        assert(enableDocumentLinkAnnotation != null),
+        assert(searchTextHighlightColor != null),
         super(key: key);
 
   /// Creates a widget that displays the PDF document obtained from the network.
@@ -138,19 +155,31 @@ class SfPdfViewer extends StatefulWidget {
   SfPdfViewer.network(String src,
       {Key key,
       this.canShowScrollHead = true,
+      this.pageSpacing = 4,
       this.controller,
       this.onZoomLevelChanged,
       this.canShowScrollStatus = true,
       this.onPageChanged,
       this.enableDoubleTapZooming = true,
+      this.enableTextSelection = true,
+      this.onTextSelectionChanged,
       this.onDocumentLoaded,
       this.onDocumentLoadFailed,
-      this.canShowPaginationDialog = true})
+      this.enableDocumentLinkAnnotation = true,
+      this.canShowPaginationDialog = true,
+      this.initialScrollOffset = Offset.zero,
+      this.initialZoomLevel = 1,
+      this.searchTextHighlightColor = const Color(0xFFE56E00)})
       : _provider = NetworkPdf(src),
         assert(canShowScrollHead != null),
         assert(canShowScrollStatus != null),
+        assert(initialZoomLevel != null),
+        assert(initialScrollOffset != null),
         assert(enableDoubleTapZooming != null),
         assert(canShowPaginationDialog != null),
+        assert(pageSpacing != null && pageSpacing >= 0),
+        assert(enableDocumentLinkAnnotation != null),
+        assert(searchTextHighlightColor != null),
         super(key: key);
 
   /// Creates a widget that displays the PDF document obtained from [Uint8List].
@@ -177,19 +206,31 @@ class SfPdfViewer extends StatefulWidget {
   SfPdfViewer.memory(Uint8List bytes,
       {Key key,
       this.canShowScrollHead = true,
+      this.pageSpacing = 4,
       this.controller,
       this.onZoomLevelChanged,
       this.canShowScrollStatus = true,
       this.onPageChanged,
       this.enableDoubleTapZooming = true,
+      this.enableTextSelection = true,
+      this.onTextSelectionChanged,
       this.onDocumentLoaded,
       this.onDocumentLoadFailed,
-      this.canShowPaginationDialog = true})
+      this.enableDocumentLinkAnnotation = true,
+      this.canShowPaginationDialog = true,
+      this.initialScrollOffset = Offset.zero,
+      this.initialZoomLevel = 1,
+      this.searchTextHighlightColor = const Color(0xFFE56E00)})
       : _provider = MemoryPdf(bytes),
         assert(canShowScrollHead != null),
         assert(canShowScrollStatus != null),
+        assert(initialZoomLevel != null),
+        assert(initialScrollOffset != null),
         assert(enableDoubleTapZooming != null),
         assert(canShowPaginationDialog != null),
+        assert(pageSpacing != null && pageSpacing >= 0),
+        assert(enableDocumentLinkAnnotation != null),
+        assert(searchTextHighlightColor != null),
         super(key: key);
 
   /// Creates a widget that displays the PDF document obtained from [File].
@@ -217,26 +258,156 @@ class SfPdfViewer extends StatefulWidget {
   ///   }
   /// }
   /// ```
-  SfPdfViewer.file(File file,
-      {Key key,
-      this.canShowScrollHead = true,
-      this.controller,
-      this.onZoomLevelChanged,
-      this.canShowScrollStatus = true,
-      this.onPageChanged,
-      this.enableDoubleTapZooming = true,
-      this.onDocumentLoaded,
-      this.onDocumentLoadFailed,
-      this.canShowPaginationDialog = true})
-      : _provider = FilePdf(file),
+  SfPdfViewer.file(
+    File file, {
+    Key key,
+    this.canShowScrollHead = true,
+    this.pageSpacing = 4,
+    this.controller,
+    this.onZoomLevelChanged,
+    this.canShowScrollStatus = true,
+    this.onPageChanged,
+    this.enableDoubleTapZooming = true,
+    this.enableTextSelection = true,
+    this.onTextSelectionChanged,
+    this.onDocumentLoaded,
+    this.onDocumentLoadFailed,
+    this.enableDocumentLinkAnnotation = true,
+    this.canShowPaginationDialog = true,
+    this.initialScrollOffset = Offset.zero,
+    this.initialZoomLevel = 1,
+    this.searchTextHighlightColor = const Color(0xFFE56E00),
+  })  : _provider = FilePdf(file),
         assert(canShowScrollHead != null),
         assert(canShowScrollStatus != null),
+        assert(initialZoomLevel != null),
+        assert(initialScrollOffset != null),
         assert(enableDoubleTapZooming != null),
         assert(canShowPaginationDialog != null),
+        assert(pageSpacing != null && pageSpacing >= 0),
+        assert(enableDocumentLinkAnnotation != null),
+        assert(searchTextHighlightColor != null),
         super(key: key);
 
   /// PDF file provider.
   final PdfProvider _provider;
+
+  /// Represents the initial zoom level to be applied when the [SfPdfViewer] widget is loaded.
+  ///
+  /// Defaults to 1.0
+  ///
+  /// This example demonstrates how to set the initial zoom level to the [SfPdfViewer].
+  ///
+  /// ```dart
+  /// class MyAppState extends State<MyApp>{
+  ///
+  ///  PdfViewerController _pdfViewerController;
+  ///
+  ///  @override
+  ///  void initState(){
+  ///    _pdfViewerController = PdfViewerController();
+  ///    super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return MaterialApp(
+  ///      home: Scaffold(
+  ///        appBar: AppBar(
+  ///           title: Text('Syncfusion Flutter PdfViewer'),
+  ///        ),
+  ///        body: SfPdfViewer.asset(
+  ///          'assets/flutter-succinctly.pdf',
+  ///          controller: _pdfViewerController,
+  ///          initialZoomLevel: 2.0,
+  ///        ),
+  ///      ),
+  ///    );
+  ///  }
+  ///}
+  /// ```
+  final double initialZoomLevel;
+
+  /// Represents the initial scroll offset position to be displayed when the [SfPdfViewer] widget is loaded.
+  ///
+  /// Defaults to Offset(0, 0)
+  ///
+  /// This example demonstrates how to set the initial scroll offset position to the [SfPdfViewer].
+  ///
+  /// ```dart
+  /// class MyAppState extends State<MyApp>{
+  ///
+  ///  PdfViewerController _pdfViewerController;
+  ///
+  ///  @override
+  ///  void initState(){
+  ///    _pdfViewerController = PdfViewerController();
+  ///    super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return MaterialApp(
+  ///      home: Scaffold(
+  ///        appBar: AppBar(
+  ///           title: Text('Syncfusion Flutter PdfViewer'),
+  ///        ),
+  ///        body: SfPdfViewer.asset(
+  ///          'assets/flutter-succinctly.pdf',
+  ///          controller: _pdfViewerController,
+  ///          initialScrollOffset: Offset(100.0, 10.0),
+  ///        ),
+  ///      ),
+  ///    );
+  ///  }
+  ///}
+  /// ```
+  final Offset initialScrollOffset;
+
+  /// Indicates whether the document link annotation navigation can be performed or not.
+  ///
+  /// If this property is set as `false`, then the document link annotation will not be navigated.
+  ///
+  /// Defaults to `true`.
+  final bool enableDocumentLinkAnnotation;
+
+  /// Represents the spacing (in pixels) between the PDF pages.
+  ///
+  /// If this property is set as `0.0`, then the spacing between the PDF pages will be removed.
+  ///
+  /// Defaults to 4.0
+  ///
+  /// This example demonstrates how to set the page spacing in the [SfPdfViewer].
+  ///
+  /// ```dart
+  /// class MyAppState extends State<MyApp>{
+  ///
+  ///  PdfViewerController _pdfViewerController;
+  ///
+  /// @override
+  /// void initState(){
+  ///  _pdfViewerController = PdfViewerController();
+  ///  super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///   return MaterialApp(
+  ///      home: Scaffold(
+  ///        appBar: AppBar(
+  ///           title: Text('Syncfusion Flutter PdfViewer'),
+  ///        ),
+  ///        body: SfPdfViewer.asset(
+  ///          'assets/flutter-succinctly.pdf',
+  ///          controller: _pdfViewerController,
+  ///          pageSpacing: 0.0,
+  ///        ),
+  ///      ),
+  ///    );
+  ///  }
+  ///}
+  /// ```
+  final double pageSpacing;
 
   /// An object that is used to control the navigation and zooming operations
   /// in the [SfPdfViewer].
@@ -331,6 +502,26 @@ class SfPdfViewer extends StatefulWidget {
   /// Defaults to `true`.
   final bool enableDoubleTapZooming;
 
+  /// Indicates whether the text selection can be performed or not.
+  ///
+  /// The text selection can be performed by long pressing any text present in the document.
+  /// If this property is set as `false`, then the text selection will not happen.
+  ///
+  /// Defaults to `true`.
+  ///
+  /// _Note:_ The images in the document will not be selected and also, the multiple page
+  /// text selection is not supported for now.
+  final bool enableTextSelection;
+
+  /// The text search highlight color to be displayed on the instances found.
+  ///
+  /// To differentiate, the current instance highlight color opacity (w.r.t this property) will be
+  /// higher than the other instances. The current instance highlight color opacity will be 60%
+  /// and the other instances color opacity will be 30%.
+  ///
+  /// Defaults to Color(0xFFE56E00)
+  final Color searchTextHighlightColor;
+
   /// Called after the document is loaded in [SfPdfViewer].
   ///
   /// The [document] in the [PdfDocumentLoadedDetails] will have the loaded PdfDocument
@@ -367,6 +558,65 @@ class SfPdfViewer extends StatefulWidget {
   /// See also: [PdfZoomDetails].
   final PdfZoomLevelChangedCallback onZoomLevelChanged;
 
+  /// Called when the text is selected or deselected in [SfPdfViewer].
+  ///
+  /// The [globalSelectedRegion] and [selectedText] values in the
+  /// [PdfTextSelectionChangedDetails] will be updated when the text
+  /// is selected or deselected.
+  ///
+  /// See also: [PdfTextSelectionChangedDetails].
+  ///
+  /// This example demonstrates how to show the context menu after the text selection using the [onTextSelectionChanged] callback.
+  ///
+  /// ```dart
+  /// class _MyHomePageState extends State<MyHomePage> {
+  ///  OverlayEntry _overlayEntry;
+  ///  final GlobalKey<SfPdfViewerState> _pdfViewerKey = GlobalKey();
+  ///  final PdfViewerController _pdfViewerController = PdfViewerController();
+  ///  void _showContextMenu(BuildContext context,PdfTextSelectionChangedDetails details) {
+  ///    final OverlayState _overlayState = Overlay.of(context);
+  ///    _overlayEntry = OverlayEntry(
+  ///      builder: (context) => Positioned(
+  ///        top: details.globalSelectedRegion.top - 55,
+  ///        left: details.globalSelectedRegion.bottomLeft.dx,
+  ///        child:
+  ///        FlatButton(child: Text('Copy',style: TextStyle(fontSize: 17),),onPressed: (){
+  ///          Clipboard.setData(ClipboardData(text: details.selectedText));
+  ///          _pdfViewerController.clearSelection();
+  ///        },color: Colors.white,),
+  ///      ),
+  ///    );
+  ///    _overlayState.insert(_overlayEntry);
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(
+  ///        title: Text(widget.title),
+  ///      ),
+  ///      body: SfPdfViewer.asset(
+  ///        'assets/sample.pdf',
+  ///        enableTextSelection: true,
+  ///        onTextSelectionChanged:
+  ///            (PdfTextSelectionChangedDetails details) {
+  ///          if (details.selectedText == null && _overlayEntry != null) {
+  ///            _overlayEntry.remove();
+  ///            _overlayEntry = null;
+  ///          } else if (details.selectedText != null &&
+  ///          _overlayEntry == null) {
+  ///            _showContextMenu(context, details);
+  ///          }
+  ///        },
+  ///        key: _pdfViewerKey,
+  ///        controller: _pdfViewerController,
+  ///      ),
+  ///    );
+  ///  }
+  /// }
+  /// ```
+  final PdfTextSelectionChangedCallback onTextSelectionChanged;
+
   /// Called when the page changes in [SfPdfViewer].
   ///
   /// Called in the following scenarios where the page changes
@@ -394,11 +644,16 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
   PdfViewerPlugin _plugin;
   ScrollController _scrollController;
   PdfViewerController _pdfViewerController;
+  CancelableOperation _getPdfFileCancellableOperation,
+      _pdfDocumentLoadCancellableOperation,
+      _getHeightCancellableOperation,
+      _getWidthCancellableOperation;
   double _scrollHeadOffset;
   List _originalHeight;
   List _originalWidth;
   bool _isScrollHeadDragged;
   bool _isScrolled;
+  bool _isScrollControllerInitiated = false;
   Orientation _deviceOrientation;
   double _viewportWidth;
   double _offsetBeforeOrientationChange;
@@ -406,12 +661,17 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
   int _previousPageNumber;
   PdfDocument _document;
   bool _hasError;
+  bool _panEnabled;
+  bool _isTextSelectionCleared;
   bool _isLoadCallbackInvoked;
   double _actualViewportHeight;
   double _actualViewportMaxScroll;
   final Map<int, PdfPageInfo> _pdfPages = {};
   final GlobalKey<BookmarkViewControllerState> _bookmarkKey = GlobalKey();
   final GlobalKey<PdfContainerState> _pdfContainerKey = GlobalKey();
+  final Map<int, GlobalKey<PdfPageViewState>> _pdfPagesKey = {};
+  List<MatchedItem> _textCollection;
+  PdfTextExtractor _pdfTextExtractor;
 
   /// PdfViewer theme data.
   SfPdfViewerThemeData _pdfViewerThemeData;
@@ -426,18 +686,31 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController();
+    _pdfViewerController = widget.controller ?? PdfViewerController();
+    _pdfViewerController.addListener(_handleControllerValueChange);
+    if (widget.key is PageStorageKey) {
+      final double offset = PageStorage.of(context).readState(context);
+      _scrollController = ScrollController(initialScrollOffset: offset ?? 0);
+      final double zoomLevel = PageStorage.of(context)?.readState(context,
+          identifier: 'zoomLevel_' + widget.key.toString());
+      if (zoomLevel != null) {
+        _pdfViewerController.zoomLevel = zoomLevel;
+      }
+    } else {
+      _scrollController =
+          ScrollController(initialScrollOffset: widget.initialScrollOffset.dy);
+    }
     _scrollHeadOffset = 0.0;
     _actualViewportHeight = _actualViewportMaxScroll = 0.0;
     _isScrolled = true;
     _offsetBeforeOrientationChange = 0;
     _isScrollHeadDragged = true;
     _hasError = false;
+    _panEnabled = true;
+    _isTextSelectionCleared = false;
     _loadPdfDocument(false);
     _previousPageNumber = 1;
     _isLoadCallbackInvoked = false;
-    _pdfViewerController = widget.controller ?? PdfViewerController();
-    _pdfViewerController.addListener(_handleControllerValueChange);
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -473,6 +746,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     }
 
     if (oldWidget._provider.getUserPath() != widget._provider.getUserPath()) {
+      _pdfViewerController.clearSelection();
       // PDF document gets loaded only when the user changes
       // the input source of PDF document.
       _loadPdfDocument(true);
@@ -481,6 +755,10 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    _getPdfFileCancellableOperation?.cancel();
+    _pdfDocumentLoadCancellableOperation?.cancel();
+    _getHeightCancellableOperation?.cancel();
+    _getWidthCancellableOperation?.cancel();
     _pdfViewerThemeData = null;
     _scrollController.dispose();
     imageCache.clear();
@@ -488,8 +766,16 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     _disposeCollection(_originalHeight);
     _disposeCollection(_originalWidth);
     _pdfPages?.clear();
+    _pdfPagesKey?.clear();
     _document?.dispose();
     _document = null;
+    _pdfPagesKey[_pdfViewerController.pageNumber]
+        ?.currentState
+        ?.canvasRenderBox
+        ?.dispose();
+    if (widget.onTextSelectionChanged != null) {
+      widget.onTextSelectionChanged(PdfTextSelectionChangedDetails(null, null));
+    }
     _pdfViewerController.removeListener(_handleControllerValueChange);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
@@ -520,30 +806,44 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     imageCache.clear();
     _hasError = false;
     _isLoadCallbackInvoked = false;
+    _pdfPagesKey?.clear();
   }
 
   /// Loads a PDF document and gets the page count from Plugin
   void _loadPdfDocument(bool isPdfChanged) async {
     try {
-      final String pdfPath = await (widget._provider.getPdfPath(context));
+      _getPdfFileCancellableOperation = CancelableOperation.fromFuture(
+        widget._provider.getPdfPath(context),
+      );
+      final String pdfPath = await _getPdfFileCancellableOperation.value;
       if (isPdfChanged) {
         _reset();
       }
       _plugin = PdfViewerPlugin(pdfPath);
-      await _getPdfFile(pdfPath);
+      _pdfDocumentLoadCancellableOperation =
+          CancelableOperation.fromFuture(_getPdfFile(pdfPath));
+      _document = await _pdfDocumentLoadCancellableOperation.value;
+      if (_document != null) {
+        _pdfTextExtractor = PdfTextExtractor(_document);
+      }
+      if (_document != null && widget.onDocumentLoaded != null) {
+        widget.onDocumentLoaded(PdfDocumentLoadedDetails(_document));
+      }
       final int pageCount = await _plugin.initializePdfRenderer();
       _pdfViewerController._pageCount = pageCount;
       if (pageCount > 0) {
         _pdfViewerController._pageNumber = 1;
       }
-      _pdfViewerController.zoomLevel = _pdfViewerController.zoomLevel ?? 1;
-      _getPagesHeight();
-      _getPagesWidth();
+      _pdfViewerController.zoomLevel ??= widget.initialZoomLevel;
+      _getHeightCancellableOperation =
+          CancelableOperation.fromFuture(_plugin.getPagesHeight());
+      _originalHeight = await _getHeightCancellableOperation.value;
+      _getWidthCancellableOperation =
+          CancelableOperation.fromFuture(_plugin.getPagesWidth());
+      _originalWidth = await _getWidthCancellableOperation.value;
     } catch (e) {
       _pdfViewerController._reset();
-      setState(() {
-        _hasError = true;
-      });
+      _hasError = true;
       final String errorMessage = e.toString();
       if (errorMessage.contains('Invalid cross reference table') ||
           errorMessage.contains('FormatException: Invalid radix-10 number') ||
@@ -577,18 +877,46 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
               'Error', 'There was an error opening this document.'));
         }
       }
+    } finally {
+      _checkMount();
     }
   }
 
   /// Get the file of the Pdf.
-  Future _getPdfFile(String value) async {
+  Future<PdfDocument> _getPdfFile(String value) async {
     if (value != null) {
       final File pdfFile = File(value);
       final bytes = await pdfFile.readAsBytes();
       if (bytes != null) {
-        setState(() {
-          _document = PdfDocument(inputBytes: bytes);
-        });
+        return PdfDocument(inputBytes: bytes);
+      }
+    }
+    return null;
+  }
+
+  /// Notify the scroll Listener after [ScrollController] attached.
+  void _isScrollPositionAttached() {
+    if (_scrollController.hasClients && !_isScrollControllerInitiated) {
+      _scrollControllerInitiated();
+      _isScrollControllerInitiated = true;
+      _isLoadCallbackInvoked = true;
+    }
+  }
+
+  /// Invoke the [PdfViewerController] methods on document load time.
+  void _scrollControllerInitiated() {
+    if (!_isScrollControllerInitiated) {
+      if (_pdfViewerController._horizontalOffset != null ||
+          _pdfViewerController._verticalOffset != null) {
+        _pdfViewerController.jumpTo(
+            xOffset: _pdfViewerController._horizontalOffset,
+            yOffset: _pdfViewerController._verticalOffset);
+      }
+      if (_scrollController.hasClients &&
+          _pdfViewerController._pageNavigator != null &&
+          _pdfViewerController._pageNavigator.option != null) {
+        _pdfViewerController.notifyPropertyChangedListeners(
+            property: 'pageNavigate');
       }
     }
   }
@@ -631,6 +959,10 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
         ),
       ],
     );
+
+    // call PdfViewerController methods after ScrollController attached.
+    _isScrollPositionAttached();
+
     final isPdfLoaded = (_pdfViewerController.pageCount > 0 &&
         _originalWidth != null &&
         _originalHeight != null);
@@ -658,11 +990,14 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                           Center(
                             child: PdfContainer(
                               key: _pdfContainerKey,
+                              panEnabled: _panEnabled,
                               onZoomLevelChanged: widget.onZoomLevelChanged,
                               pdfController: _pdfViewerController,
                               scrollController: _scrollController,
                               enableDoubleTapZooming:
                                   widget.enableDoubleTapZooming,
+                              initialScrollOffset: widget.initialScrollOffset,
+                              initialZoomLevel: widget.initialZoomLevel,
                               itemBuilder: (BuildContext context, int index) {
                                 if (index == 0) {
                                   totalHeight = 0;
@@ -675,25 +1010,54 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                                     _originalWidth[index],
                                     _originalHeight[index],
                                     _viewportConstraints.maxWidth);
+                                if (!_pdfPagesKey.containsKey(pageIndex)) {
+                                  _pdfPagesKey[pageIndex] = GlobalKey();
+                                }
                                 final PdfPageView page = PdfPageView(
+                                  key: _pdfPagesKey[pageIndex],
                                   imageStream: _pdfImages[pageIndex],
                                   width: calculatedSize.width,
                                   height: calculatedSize.height,
+                                  pageSpacing: widget.pageSpacing,
+                                  pdfDocument: _document,
+                                  pdfPages: _pdfPages,
+                                  scrollController: _scrollController,
+                                  pdfViewerController: _pdfViewerController,
+                                  enableDocumentLinkAnnotation:
+                                      widget.enableDocumentLinkAnnotation,
+                                  pageIndex: index,
+                                  onTextSelectionChanged:
+                                      widget.onTextSelectionChanged,
+                                  onTextSelectionDragStarted:
+                                      _handleTextSelectionDragStarted,
+                                  onTextSelectionDragEnded:
+                                      _handleTextSelectionDragEnded,
+                                  enableTextSelection:
+                                      widget.enableTextSelection,
+                                  textCollection: _textCollection,
+                                  searchTextHighlightColor:
+                                      widget.searchTextHighlightColor,
+                                  pdfTextSearchResult:
+                                      _pdfViewerController._pdfTextSearchResult,
                                 );
                                 _pdfPages[pageIndex] =
                                     PdfPageInfo(totalHeight, calculatedSize);
-                                totalHeight += calculatedSize.height;
+                                totalHeight +=
+                                    calculatedSize.height + widget.pageSpacing;
                                 _updateOffsetOnOrientationChange(
                                     _offsetBeforeOrientationChange,
                                     pageIndex,
                                     totalHeight);
-                                if (widget.onDocumentLoaded != null &&
-                                    pageIndex ==
-                                        _pdfViewerController.pageCount &&
-                                    !_isLoadCallbackInvoked) {
-                                  _isLoadCallbackInvoked = true;
-                                  widget.onDocumentLoaded(
-                                      PdfDocumentLoadedDetails(_document));
+                                if (_pdfPagesKey[
+                                                _pdfViewerController.pageNumber]
+                                            ?.currentState
+                                            ?.canvasRenderBox !=
+                                        null &&
+                                    !_isTextSelectionCleared) {
+                                  _isTextSelectionCleared = true;
+                                  Future.delayed(Duration.zero, () async {
+                                    _clearSelection();
+                                  });
                                 }
                                 return page;
                               },
@@ -702,7 +1066,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
                           Visibility(
                               visible: widget.canShowScrollHead &&
                                   _pdfViewerController.pageCount > 1,
-                              child: ScrollHead(
+                              child: ScrollHeadOverlay(
                                   canShowPaginationDialog:
                                       widget.canShowPaginationDialog,
                                   scrollHeadOffset: _scrollHeadOffset,
@@ -740,23 +1104,10 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
   /// or device's back button. ALso we can close the bookmark programmatically by
   /// using Navigator.pop(context);
   void openBookmarkView() {
+    if (widget.onTextSelectionChanged != null) {
+      widget.onTextSelectionChanged(PdfTextSelectionChangedDetails(null, null));
+    }
     _bookmarkKey.currentState?.open();
-  }
-
-  /// Get the height of the PDF pages.
-  void _getPagesHeight() async {
-    final List originalHeight = await _plugin.getPagesHeight();
-    setState(() {
-      _originalHeight = originalHeight;
-    });
-  }
-
-  /// Get the width of the PDF pages.
-  void _getPagesWidth() async {
-    final List originalWidth = await _plugin.getPagesWidth();
-    setState(() {
-      _originalWidth = originalWidth;
-    });
   }
 
   /// Get the rendered pages from plugin.
@@ -786,11 +1137,18 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     if (_isScrolled) {
       renderedPages =
           _plugin?.getSpecificPages(startPage, endPage)?.then((value) {
-        setState(() {});
         return value;
       });
+      renderedPages.whenComplete(_checkMount);
     }
     return renderedPages;
+  }
+
+  // Checks whether the current Widget is mounted and then relayout the Widget.
+  void _checkMount() {
+    if (super.mounted) {
+      setState(() {});
+    }
   }
 
   /// Triggers the page changed callback when current page number is changed
@@ -808,6 +1166,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
         _previousPageNumber = _pdfViewerController.pageNumber;
       }
     }
+    _checkMount();
   }
 
   /// Whenever orientation is changed, PDF page is changed based on viewport
@@ -826,7 +1185,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
         if (_viewportWidth != null) {
           final targetOffset = initialOffset * totalHeight;
           WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-            _pdfViewerController.jumpTo(yOffset: targetOffset);
+            _scrollController.jumpTo(targetOffset);
             _updateScrollHeadPosition(
                 _scrollController.position.viewportDimension);
           });
@@ -858,18 +1217,24 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
       if (_isScrollHeadDragged) {
         _previousPageNumber = _pdfViewerController.pageNumber;
       }
+      _pdfPagesKey[_pdfViewerController.pageNumber]
+          ?.currentState
+          ?.canvasRenderBox
+          ?.scrollStarted();
       _isScrolled = false;
     } else if (notification is ScrollUpdateNotification) {
       _updateScrollHeadPosition(_scrollController.position.viewportDimension);
-      _isScrolled = false;
+      _isScrolled = _isLoadCallbackInvoked ? false : true;
     } else if (notification is ScrollEndNotification) {
+      _pdfPagesKey[_pdfViewerController.pageNumber]
+          ?.currentState
+          ?.canvasRenderBox
+          ?.scrollEnded();
       _updateScrollHeadPosition(_scrollController.position.viewportDimension);
-      setState(() {
-        if (_isScrollHeadDragged) {
-          _isScrolled = true;
-          _pageChanged();
-        }
-      });
+      if (_isScrollHeadDragged) {
+        _isScrolled = true;
+        _pageChanged();
+      }
     }
   }
 
@@ -880,26 +1245,32 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
         if (_scrollController.offset > 0) {
           final positionRatio = (_scrollController.position.pixels /
               (maxScrollExtent ?? _scrollController.position.maxScrollExtent));
-          setState(() {
-            // Calculating the scroll head position based on ratio of
-            // current position with ListView's MaxScrollExtent
-            _scrollHeadOffset =
-                (positionRatio * (height - kPdfScrollHeadHeight));
-            // As the returned values are in double.
-            // The ceil of the value will be applied
-            // ex. 1.2 means 2 will be current page number
-            _pdfViewerController._pageNumber =
-                _getPageNumber(_scrollController.offset);
-          });
+          // Calculating the scroll head position based on ratio of
+          // current position with ListView's MaxScrollExtent
+          _scrollHeadOffset = (positionRatio * (height - kPdfScrollHeadHeight));
+          // As the returned values are in double.
+          // The ceil of the value will be applied
+          // ex. 1.2 means 2 will be current page number
+          _pdfViewerController._pageNumber =
+              _getPageNumber(_scrollController.offset);
         } else {
           // This conditions gets hit when scrolled to 0.0 offset
-          setState(() {
-            _scrollHeadOffset = 0.0;
-            _pdfViewerController._pageNumber = 1;
-          });
+          _scrollHeadOffset = 0.0;
+          _pdfViewerController._pageNumber = 1;
         }
+        _checkMount();
       }
     }
+  }
+
+  /// Triggers when text selection dragging started.
+  void _handleTextSelectionDragStarted() {
+    _panEnabled = false;
+  }
+
+  /// Triggers when text selection dragging ended.
+  void _handleTextSelectionDragEnded() {
+    _panEnabled = true;
   }
 
   /// updates UI when scroll head drag is started.
@@ -915,38 +1286,34 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
 
     // Based on the dragOffset the pdf pages must be scrolled
     // and scroll position must be updated
-    setState(() {
-      // This if clause condition can be split into three behaviors.
-      // 1. Normal case - Here, based on scroll head position ratio with
-      // viewport height, scroll view position is changed.
-      // 2. End to End cases -
-      // There few case, where 0.0000123(at start) and 0.99999934(at end)
-      // factors are computed. For these case, scroll to their ends
-      // in scrollview. Similarly, for out of bound drag offsets.
-      if (dragOffset < scrollHeadPosition &&
-          dragOffset >= 0 &&
-          _scrollHeadOffset != null) {
-        _scrollController.jumpTo(_scrollController.position.maxScrollExtent *
-            (dragOffset / scrollHeadPosition));
-        _scrollHeadOffset = dragOffset;
+    // This if clause condition can be split into three behaviors.
+    // 1. Normal case - Here, based on scroll head position ratio with
+    // viewport height, scroll view position is changed.
+    // 2. End to End cases -
+    // There few case, where 0.0000123(at start) and 0.99999934(at end)
+    // factors are computed. For these case, scroll to their ends
+    // in scrollview. Similarly, for out of bound drag offsets.
+    if (dragOffset < scrollHeadPosition &&
+        dragOffset >= 0 &&
+        _scrollHeadOffset != null) {
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent *
+          (dragOffset / scrollHeadPosition));
+      _scrollHeadOffset = dragOffset;
+    } else {
+      if (dragOffset < 0) {
+        _scrollController.jumpTo(_scrollController.position.minScrollExtent);
+        _scrollHeadOffset = 0.0;
       } else {
-        if (dragOffset < 0) {
-          _scrollController.jumpTo(_scrollController.position.minScrollExtent);
-          _scrollHeadOffset = 0.0;
-        } else {
-          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-          _scrollHeadOffset = scrollHeadPosition;
-        }
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+        _scrollHeadOffset = scrollHeadPosition;
       }
-    });
+    }
   }
 
   /// updates UI when scroll head drag is ended.
   void _handleScrollHeadDragEnd(DragEndDetails details) {
-    setState(() {
-      _isScrollHeadDragged = true;
-      _isScrolled = true;
-    });
+    _isScrollHeadDragged = true;
+    _isScrolled = true;
     _pageChanged();
   }
 
@@ -957,6 +1324,7 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
 
   /// Jump to the bookmark location.
   void _jumpToBookmark(PdfBookmark bookmark) {
+    _clearSelection();
     double heightPercentage;
     double bookmarkOffset;
     PdfPage pdfPage;
@@ -987,12 +1355,28 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
     _scrollController.jumpTo(offset);
   }
 
+  /// clears the text selection.
+  bool _clearSelection() {
+    return _pdfPagesKey[_pdfViewerController.pageNumber]
+        ?.currentState
+        ?.canvasRenderBox
+        ?.clearSelection();
+  }
+
   /// Call the method according to property name.
   void _handleControllerValueChange({String property}) {
     if (property == 'jumpToBookmark') {
       _jumpToBookmark(_pdfViewerController._pdfBookmark);
+    } else if (property == 'zoomLevel') {
+      PageStorage.of(context).writeState(
+          context, _pdfViewerController.zoomLevel,
+          identifier: 'zoomLevel_' + widget.key.toString());
+    } else if (property == 'clearTextSelection') {
+      _pdfViewerController._clearTextSelection = _clearSelection();
     } else if (property == 'jumpTo') {
+      _clearSelection();
       if (_scrollController != null &&
+          _scrollController.hasClients &&
           _pdfViewerController._verticalOffset != null) {
         final yOffset = _pdfViewerController._verticalOffset;
         if (yOffset < _scrollController.position.minScrollExtent) {
@@ -1008,7 +1392,10 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
             ?.jumpHorizontally(_pdfViewerController._horizontalOffset);
       }
     } else if (property == 'pageNavigate') {
-      if (_pdfViewerController._pageNavigator != null) {
+      _clearSelection();
+      if (_pdfViewerController._pageNavigator != null &&
+          _scrollController != null &&
+          _scrollController.hasClients) {
         switch (_pdfViewerController._pageNavigator.option) {
           case Navigation.jumpToPage:
             if (_pdfViewerController._pageNavigator.index > 0 &&
@@ -1039,6 +1426,73 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
             break;
         }
       }
+    } else if (property == 'searchText') {
+      if (_pdfViewerController._searchText != null) {
+        _pdfViewerController._pdfTextSearchResult
+            .removeListener(_handleTextSearch);
+
+        _textCollection = _pdfTextExtractor.findText(
+          [_pdfViewerController._searchText],
+          searchOption:
+              _pdfViewerController._textSearchOption.toString().isNotEmpty ||
+                      _pdfViewerController._textSearchOption != null
+                  ? _pdfViewerController._textSearchOption
+                  : TextSearchOption.both,
+        );
+
+        if (_textCollection.isEmpty) {
+          _pdfViewerController._pdfTextSearchResult?._currentOccurrenceIndex =
+              0;
+
+          _pdfViewerController._pdfTextSearchResult?._totalSearchTextCount = 0;
+          _pdfViewerController._pdfTextSearchResult?._updateResult(false);
+        } else {
+          if (_pdfViewerController.pageNumber == 1) {
+            if (_pdfViewerController.pageNumber - 1 !=
+                _textCollection[0].pageIndex) {
+              _pdfViewerController.jumpTo(
+                  yOffset:
+                      _pdfPages[_textCollection[0].pageIndex + 1].pageOffset);
+            }
+            _pdfViewerController._pdfTextSearchResult?._currentOccurrenceIndex =
+                1;
+          } else {
+            for (int i = 0; i < _textCollection.length; i++) {
+              if (_textCollection[i].pageIndex ==
+                  _pdfViewerController.pageNumber - 1) {
+                _pdfViewerController.jumpTo(
+                    yOffset:
+                        _pdfPages[_textCollection[i].pageIndex + 1].pageOffset);
+                _pdfViewerController
+                    ._pdfTextSearchResult?._currentOccurrenceIndex = i + 1;
+                break;
+              } else {
+                if (_textCollection[i].pageIndex >
+                    _pdfViewerController.pageNumber - 1) {
+                  if (_textCollection[i].pageIndex + 1 >=
+                      _pdfViewerController.pageCount) {
+                    _pdfViewerController
+                        .jumpToPage(_pdfViewerController.pageCount);
+                  } else {
+                    _pdfViewerController.jumpTo(
+                        yOffset: _pdfPages[_textCollection[i].pageIndex + 1]
+                            .pageOffset);
+                  }
+                  _pdfViewerController
+                      ._pdfTextSearchResult?._currentOccurrenceIndex = i + 1;
+                  break;
+                }
+              }
+            }
+          }
+
+          _pdfViewerController._pdfTextSearchResult?._totalSearchTextCount =
+              _textCollection.length;
+          _pdfViewerController._pdfTextSearchResult?._updateResult(true);
+        }
+        _pdfViewerController._pdfTextSearchResult
+            .addListener(_handleTextSearch);
+      }
     }
   }
 
@@ -1059,6 +1513,173 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
       }
     }
     return pageNumber;
+  }
+
+  /// Call the method according to property name.
+  void _handleTextSearch({String property}) {
+    if (property == 'nextInstance') {
+      int _pageNumber;
+      bool matched = true;
+      if (_textCollection[_pdfViewerController
+                      ._pdfTextSearchResult.currentInstanceIndex -
+                  1]
+              .pageIndex ==
+          _pdfViewerController.pageNumber - 1) {
+        _pdfViewerController._pdfTextSearchResult._currentOccurrenceIndex =
+            _pdfViewerController._pdfTextSearchResult.currentInstanceIndex + 1;
+      } else {
+        for (int i = 0; i < _textCollection.length; i++) {
+          if (_textCollection[i].pageIndex ==
+              _pdfViewerController.pageNumber - 1) {
+            if (_textCollection[i].pageIndex != _pageNumber) {
+              _pdfViewerController
+                  ._pdfTextSearchResult._currentOccurrenceIndex = i + 1;
+              _pageNumber = _textCollection[i].pageIndex;
+              matched = false;
+            }
+          } else if (_textCollection[i].pageIndex >
+              _pdfViewerController.pageNumber - 1) {
+            if (matched) {
+              _pdfViewerController
+                  ._pdfTextSearchResult._currentOccurrenceIndex = i + 1;
+            }
+            break;
+          }
+        }
+      }
+
+      if (_pdfViewerController._pdfTextSearchResult.currentInstanceIndex - 1 ==
+          _pdfViewerController._pdfTextSearchResult.totalInstanceCount) {
+        _pdfViewerController._pdfTextSearchResult._currentOccurrenceIndex = 1;
+      }
+      final int currentInstancePageIndex = (_textCollection[_pdfViewerController
+                      ._pdfTextSearchResult.currentInstanceIndex -
+                  1]
+              .pageIndex +
+          1);
+
+      final double topOffset = _textCollection[
+              _pdfViewerController._pdfTextSearchResult.currentInstanceIndex -
+                  1]
+          .bounds
+          .top;
+
+      final double heightPercentage =
+          _originalHeight[currentInstancePageIndex - 1] /
+              _pdfPages[currentInstancePageIndex].pageSize.height;
+
+      if (_deviceOrientation == Orientation.landscape) {
+        if (_pdfPages[currentInstancePageIndex].pageOffset +
+                    (topOffset / heightPercentage) <=
+                _scrollController.offset ||
+            _pdfPages[currentInstancePageIndex].pageOffset +
+                    (topOffset / heightPercentage) >=
+                _scrollController.offset +
+                    _scrollController.position.viewportDimension) {
+          _pdfViewerController.jumpTo(
+              yOffset: (_pdfPages[currentInstancePageIndex].pageOffset +
+                  (topOffset / heightPercentage)));
+        }
+      } else {
+        if (currentInstancePageIndex != _pdfViewerController.pageNumber) {
+          _pdfViewerController.jumpToPage(currentInstancePageIndex);
+        }
+        if (_pdfPages[currentInstancePageIndex].pageOffset +
+                    (topOffset / heightPercentage) <=
+                _scrollController.offset ||
+            _pdfPages[currentInstancePageIndex].pageOffset +
+                    (topOffset / heightPercentage) >=
+                _scrollController.offset +
+                    _scrollController.position.viewportDimension) {
+          _pdfViewerController.jumpTo(
+              yOffset: (_pdfPages[currentInstancePageIndex].pageOffset +
+                  (topOffset / heightPercentage)));
+        }
+      }
+    } else if (property == 'previousInstance') {
+      _clearSelection();
+      bool matched = true;
+      if (_textCollection[_pdfViewerController
+                      ._pdfTextSearchResult.currentInstanceIndex -
+                  1]
+              .pageIndex ==
+          _pdfViewerController.pageNumber - 1) {
+        _pdfViewerController._pdfTextSearchResult._currentOccurrenceIndex =
+            _pdfViewerController._pdfTextSearchResult.currentInstanceIndex - 1;
+      } else {
+        for (int i = 0; i < _textCollection.length; i++) {
+          if (_textCollection[i].pageIndex ==
+              _pdfViewerController.pageNumber - 1) {
+            _pdfViewerController._pdfTextSearchResult._currentOccurrenceIndex =
+                i + 1;
+            matched = false;
+          } else if (_textCollection[i].pageIndex >
+              _pdfViewerController.pageNumber - 1) {
+            if (matched) {
+              _pdfViewerController._pdfTextSearchResult
+                  ._currentOccurrenceIndex = i - 1 == 0 ? 1 : i;
+            }
+            break;
+          }
+        }
+      }
+
+      if (_pdfViewerController._pdfTextSearchResult.currentInstanceIndex - 1 <
+          0) {
+        _pdfViewerController._pdfTextSearchResult._currentOccurrenceIndex =
+            _pdfViewerController._pdfTextSearchResult.totalInstanceCount;
+      }
+
+      final int currentInstancePageIndex = (_textCollection[_pdfViewerController
+                      ._pdfTextSearchResult.currentInstanceIndex -
+                  1]
+              .pageIndex +
+          1);
+
+      final double topOffset = _textCollection[
+              _pdfViewerController._pdfTextSearchResult.currentInstanceIndex -
+                  1]
+          .bounds
+          .top;
+
+      final double heightPercentage =
+          _originalHeight[currentInstancePageIndex - 1] /
+              _pdfPages[currentInstancePageIndex].pageSize.height;
+
+      if (_deviceOrientation == Orientation.landscape) {
+        if (_pdfPages[currentInstancePageIndex].pageOffset +
+                    (topOffset / heightPercentage) <=
+                _scrollController.offset ||
+            _pdfPages[currentInstancePageIndex].pageOffset +
+                    (topOffset / heightPercentage) >=
+                _scrollController.offset +
+                    _scrollController.position.viewportDimension) {
+          _pdfViewerController.jumpTo(
+              yOffset: (_pdfPages[currentInstancePageIndex].pageOffset +
+                  (topOffset / heightPercentage)));
+        }
+      } else {
+        if (currentInstancePageIndex != _pdfViewerController.pageNumber) {
+          _pdfViewerController.jumpToPage(currentInstancePageIndex);
+        }
+        if (_pdfPages[currentInstancePageIndex].pageOffset +
+                    (topOffset / heightPercentage) <=
+                _scrollController.offset ||
+            _pdfPages[currentInstancePageIndex].pageOffset +
+                    (topOffset / heightPercentage) >=
+                _scrollController.offset +
+                    _scrollController.position.viewportDimension) {
+          _pdfViewerController.jumpTo(
+              yOffset: (_pdfPages[currentInstancePageIndex].pageOffset +
+                  (topOffset / heightPercentage)));
+        }
+      }
+    } else if (property == 'clear') {
+      _textCollection = null;
+      _pdfViewerController._pdfTextSearchResult._currentOccurrenceIndex = 0;
+      _pdfViewerController._pdfTextSearchResult._totalSearchTextCount = 0;
+      _pdfViewerController._pdfTextSearchResult._updateResult(false);
+    }
   }
 }
 
@@ -1121,13 +1742,19 @@ class SfPdfViewerState extends State<SfPdfViewer> with WidgetsBindingObserver {
 /// ```
 class PdfViewerController extends _ValueChangeNotifier {
   /// Zoom level
-  double _zoomLevel = 1.0;
+  double _zoomLevel;
 
   /// Current page number
   int _currentPageNumber = 0;
 
   /// Total number of pages in Pdf.
   int _totalPages = 0;
+
+  /// Searched text value
+  String _searchText;
+
+  /// option for text search
+  TextSearchOption _textSearchOption;
 
   /// Sets the current page number.
   set _pageNumber(int num) {
@@ -1144,6 +1771,9 @@ class PdfViewerController extends _ValueChangeNotifier {
   /// PdfBookmark instance
   PdfBookmark _pdfBookmark;
 
+  /// PdfTextSearchResult instance
+  final PdfTextSearchResult _pdfTextSearchResult = PdfTextSearchResult();
+
   /// Vertical Offset
   double _verticalOffset;
 
@@ -1152,6 +1782,9 @@ class PdfViewerController extends _ValueChangeNotifier {
 
   /// Represents different page navigation option
   Pagination _pageNavigator;
+
+  /// Returns `true`, if the text selection is cleared properly.
+  bool _clearTextSelection = false;
 
   /// Zoom level of a document in the [SfPdfViewer].
   ///
@@ -1785,12 +2418,226 @@ class PdfViewerController extends _ValueChangeNotifier {
     notifyPropertyChangedListeners(property: 'pageNavigate');
   }
 
+  /// Searches the given text in the document.
+  ///
+  /// Returns the [PdfTextSearchResult] object using which the search
+  /// navigation can be performed on the instances found.
+  ///
+  /// * text - _required_ - The text to be searched in the document.
+  /// * searchOption - _optional_ - Defines the constants that specify the
+  /// option for text search.
+  ///
+  /// This example demonstrates how to search text in [SfPdfViewer].
+  ///
+  /// ```dart
+  /// class MyAppState extends State<MyApp> {
+  ///
+  /// PdfViewerController _pdfViewerController;
+  /// PdfTextSearchResult _searchResult;
+  ///
+  /// @override
+  /// void initState() {
+  ///   _pdfViewerController = PdfViewerController();
+  ///   super.initState();
+  /// }
+  ///
+  /// void _showDialog(BuildContext context)
+  /// {
+  ///   showDialog(
+  ///     context: context,
+  ///     builder: (BuildContext context) {
+  ///       return AlertDialog(
+  ///         title: Text('Search Result'),
+  ///         content: Text("No more occurrences found. Would you like to continue to search from the beginning?"),
+  ///         actions: <Widget>[
+  ///           FlatButton(
+  ///             child: Text('YES'),
+  ///             onPressed: () {
+  ///               _searchResult?.nextInstance();
+  ///               Navigator.of(context).pop();
+  ///             },
+  ///           ),
+  ///           FlatButton(
+  ///             child: Text('NO'),
+  ///             onPressed: () {
+  ///               _searchResult?.clear();
+  ///               Navigator.of(context).pop();
+  ///             },
+  ///           ),
+  ///         ],
+  ///       );
+  ///     },
+  ///   );
+  /// }
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///    return MaterialApp(
+  ///      home: Scaffold(
+  ///         appBar: AppBar(
+  ///           title: Text('Syncfusion Flutter PdfViewer'),
+  ///           actions: <Widget>[
+  ///             IconButton(
+  ///               icon: Icon(
+  ///                 Icons.search,
+  ///                 color: Colors.white,
+  ///               ),
+  ///               onPressed: () async {
+  ///                 _searchResult = await _pdfViewerController?.searchText(
+  ///                     'PDF', searchOption: TextSearchOption.caseSensitive);
+  ///                setState(() {});
+  ///              },
+  ///            ),
+  ///            Visibility(
+  ///              visible: _searchResult?.hasResult ?? false,
+  ///              child: IconButton(
+  ///                icon: Icon(
+  ///                  Icons.clear,
+  ///                  color: Colors.white,
+  ///                ),
+  ///                onPressed: () {
+  ///                  setState(() {
+  ///                    _searchResult.clear();
+  ///                  });
+  ///                },
+  ///              ),
+  ///            ),
+  ///             Visibility(
+  ///               visible: _searchResult?.hasResult ?? false,
+  ///               child: IconButton(
+  ///                 icon: Icon(
+  ///                   Icons.keyboard_arrow_up,
+  ///                   color: Colors.white,
+  ///                 ),
+  ///                 onPressed: () {
+  ///                   if (_searchResult?.currentInstanceIndex ==
+  ///                       _searchResult?.totalInstanceCount) {
+  ///                     _showDialog(context);
+  ///                   }
+  ///                   else {
+  ///                     _searchResult?.nextInstance();
+  ///                   }
+  ///                 },
+  ///               ),
+  ///             ),
+  ///             Visibility(
+  ///               visible: _searchResult?.hasResult ?? false,
+  ///               child: IconButton(
+  ///                 icon: Icon(
+  ///                   Icons.keyboard_arrow_down,
+  ///                   color: Colors.white,
+  ///                 ),
+  ///                 onPressed: () {
+  ///                   _searchResult?.previousInstance();
+  ///                 },
+  ///               ),
+  ///             ),
+  ///           ],
+  ///         ),
+  ///         body:
+  ///         SfPdfViewer.asset(
+  ///             'assets/flutter-succinctly.pdf',
+  ///             controller: _pdfViewerController,
+  ///             searchTextHighlightColor: Colors.blue
+  ///         )
+  ///     );
+  ///   }
+  ///}
+  ///'''
+  Future<PdfTextSearchResult> searchText(String searchText,
+      {TextSearchOption searchOption}) async {
+    _searchText = searchText;
+    _textSearchOption = searchOption;
+    notifyPropertyChangedListeners(property: 'searchText');
+    return _pdfTextSearchResult;
+  }
+
+  /// Clears the text selection in [SfPdfViewer].
+  ///
+  /// Returns `true`, if the text selection is cleared properly.
+  bool clearSelection() {
+    notifyPropertyChangedListeners(property: 'clearTextSelection');
+    return _clearTextSelection;
+  }
+
   /// Resets the controller value when widget is updated.
   void _reset() {
     _zoomLevel = 1.0;
     _currentPageNumber = 0;
     _totalPages = 0;
     notifyPropertyChangedListeners();
+  }
+}
+
+/// PdfTextSearchResult holds the details of TextSearch
+class PdfTextSearchResult extends _ValueChangeNotifier {
+  /// Current instance number of the searched text.
+  int _currentInstanceIndex = 0;
+
+  /// Total search text instances found in the PDF document.
+  int _totalInstanceCount = 0;
+
+  /// Indicates whether the text search context is alive for searching
+  bool _hasResult = false;
+
+  /// Sets the current highlighted search text index in the document.
+  set _currentOccurrenceIndex(int num) {
+    _currentInstanceIndex = num;
+    notifyPropertyChangedListeners(property: 'currentInstance');
+  }
+
+  /// The current highlighted search text index in the document.
+  int get currentInstanceIndex {
+    return _currentInstanceIndex;
+  }
+
+  /// Sets the total instance of the searched text in the PDF document.
+  set _totalSearchTextCount(int totalInstanceCount) {
+    _totalInstanceCount = totalInstanceCount;
+    notifyPropertyChangedListeners(property: 'totalInstance');
+  }
+
+  /// Indicates the total instance of the searched text in the PDF document.
+  int get totalInstanceCount {
+    return _totalInstanceCount;
+  }
+
+  /// Updates whether the text search context is alive for searching
+  void _updateResult(bool hasResult) {
+    _hasResult = hasResult;
+    notifyPropertyChangedListeners(property: 'result');
+  }
+
+  /// Indicates whether the text search context is alive for searching
+  bool get hasResult {
+    return _hasResult;
+  }
+
+  /// Moves to the next searched text instance in the document.
+  ///
+  /// Using this method, the [SfPdfViewer] will move to the next searched text instance
+  /// in the document. If this method is called after reaching the last instance,
+  /// then the first instance will be again highlighted and the process continues.
+  void nextInstance() {
+    notifyPropertyChangedListeners(property: 'nextInstance');
+  }
+
+  /// Moves to the previous searched text instance in the document.
+  ///
+  /// Using this method, the [SfPdfViewer] will move to the previous searched text
+  /// instance in the document. If this method is called from the first instance,
+  /// then the last (previous) instance will be highlighted and the process continues.
+  void previousInstance() {
+    notifyPropertyChangedListeners(property: 'previousInstance');
+  }
+
+  /// Clears the [PdfTextSearchResult] object and cancels the search process.
+  ///
+  /// Once this method is called, the search process will be cancelled in the UI and
+  /// the [PdfTextSearchResult] object will be cleared, which in turn changes the
+  /// [hasResult] property value to 'false`.
+  void clear() {
+    notifyPropertyChangedListeners(property: 'clear');
   }
 }
 

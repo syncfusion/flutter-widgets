@@ -56,8 +56,9 @@ class _CrosshairPainter extends CustomPainter {
   void _drawCrosshairLine(Canvas canvas, Paint paint, int index) {
     if (chartState._crosshairBehaviorRenderer._position != null) {
       final Path dashArrayPath = Path();
-      if (chart.crosshairBehavior.lineType == CrosshairLineType.horizontal ||
-          chart.crosshairBehavior.lineType == CrosshairLineType.both) {
+      if ((chart.crosshairBehavior.lineType == CrosshairLineType.horizontal ||
+              chart.crosshairBehavior.lineType == CrosshairLineType.both) &&
+          chart.crosshairBehavior.lineWidth != 0) {
         dashArrayPath.moveTo(chartState._chartAxis._axisClipRect.left,
             chartState._crosshairBehaviorRenderer._position.dy);
         dashArrayPath.lineTo(chartState._chartAxis._axisClipRect.right,
@@ -67,8 +68,9 @@ class _CrosshairPainter extends CustomPainter {
                 paint, dashArrayPath)
             : canvas.drawPath(dashArrayPath, paint);
       }
-      if (chart.crosshairBehavior.lineType == CrosshairLineType.vertical ||
-          chart.crosshairBehavior.lineType == CrosshairLineType.both) {
+      if ((chart.crosshairBehavior.lineType == CrosshairLineType.vertical ||
+              chart.crosshairBehavior.lineType == CrosshairLineType.both) &&
+          chart.crosshairBehavior.lineWidth != 0) {
         dashArrayPath.moveTo(chartState._crosshairBehaviorRenderer._position.dx,
             chartState._chartAxis._axisClipRect.top);
         dashArrayPath.lineTo(chartState._crosshairBehaviorRenderer._position.dx,
@@ -573,7 +575,14 @@ class _CrosshairPainter extends CustomPainter {
         position.dy -
             (chartState._chartAxis._axisClipRect.top +
                 axisRenderer._axis.plotOffset));
-    return _getInteractiveTooltipLabel(value, axisRenderer);
+    String resultantString =
+        _getInteractiveTooltipLabel(value, axisRenderer).toString();
+    if (axisRenderer._axis.interactiveTooltip.format != null) {
+      final String stringValue = axisRenderer._axis.interactiveTooltip.format
+          .replaceAll('{value}', resultantString);
+      resultantString = stringValue;
+    }
+    return resultantString;
   }
 
   /// To find the y value of crosshair
@@ -588,7 +597,14 @@ class _CrosshairPainter extends CustomPainter {
         position.dy -
             (chartState._chartAxis._axisClipRect.top +
                 axisRenderer._axis.plotOffset));
-    return _getInteractiveTooltipLabel(value, axisRenderer);
+    String resultantString =
+        _getInteractiveTooltipLabel(value, axisRenderer).toString();
+    if (axisRenderer._axis.interactiveTooltip.format != null) {
+      final String stringValue = axisRenderer._axis.interactiveTooltip.format
+          .replaceAll('{value}', resultantString);
+      resultantString = stringValue;
+    }
+    return resultantString;
   }
 
   /// To add the tooltip for crosshair

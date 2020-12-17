@@ -35,19 +35,16 @@ class PicturesCollection {
   }
 
   /// Add styles to the collection
-  Picture addFile(int topRow, int leftColumn, String fileName) {
-    if (fileName == null || fileName == '') {
-      throw Exception('name should not be null or empty');
-    }
-
-    final Picture picture = Picture(File(fileName).readAsBytesSync());
-    picture.row = topRow;
-    picture.column = leftColumn;
-    _pictures.add(picture);
-    return picture;
-  }
-
-  /// Add styles to the collection
+  ///
+  /// ```dart
+  /// Workbook workbook = new Workbook();
+  /// Worksheet sheet = workbook.worksheets[0];
+  /// List<int> bytes = File('image.png').readAsBytesSync();
+  /// sheet.picutes.addStream(1, 1, bytes);
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Picutes.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
   Picture addStream(int topRow, int leftColumn, List<int> stream) {
     if (stream == null || stream.isEmpty) {
       throw Exception('stream should not be null or empty');
@@ -61,6 +58,16 @@ class PicturesCollection {
   }
 
   /// Add styles to the collection
+  ///
+  /// ```dart
+  /// Workbook workbook = new Workbook();
+  /// Worksheet sheet = workbook.worksheets[0];
+  /// String base64Image = base64Encode(File('image.png').readAsBytesSync());
+  /// sheet.picutes.addBase64(1, 1, base64Image);
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Picutes.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
   Picture addBase64(int topRow, int leftColumn, String base64Data) {
     if (base64Data == null || base64Data == '') {
       throw Exception('base64Data should not be null or empty');

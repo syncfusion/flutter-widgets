@@ -44,6 +44,10 @@ class _ScatterChartPainter extends CustomPainter {
       final int seriesIndex = painterKey.index;
       seriesRenderer._storeSeriesProperties(chartState, seriesIndex);
       int segmentIndex = -1;
+      if (seriesRenderer._visibleDataPoints == null ||
+          seriesRenderer._visibleDataPoints.isNotEmpty) {
+        seriesRenderer._visibleDataPoints = <CartesianChartPoint<dynamic>>[];
+      }
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         final CartesianChartPoint<dynamic> currentPoint =
             dataPoints[pointIndex];

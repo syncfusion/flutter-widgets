@@ -323,3 +323,23 @@ num _findAngleDeviation(num innerRadius, num outerRadius, num totalAngle) {
 
   return (deviation * 360) / 100;
 }
+
+/// It returns the actual label value for tooltip and data label etc
+dynamic _getDecimalLabelValue(dynamic value, [int showDigits]) {
+  if (value.toString().split('.').length > 1) {
+    final String str = value.toString();
+    final List<dynamic> list = str.split('.');
+    value = double.parse(value.toStringAsFixed(showDigits ?? 3));
+    value = (list[1] == '0' ||
+            list[1] == '00' ||
+            list[1] == '000' ||
+            list[1] == '0000' ||
+            list[1] == '00000' ||
+            list[1] == '000000' ||
+            list[1] == '0000000')
+        ? value.round()
+        : value;
+  }
+  final dynamic text = value;
+  return text.toString();
+}

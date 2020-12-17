@@ -40,6 +40,7 @@ class _ChartSeries {
   /// Find the data points for each series
   void _populateDataPoints(List<CartesianSeriesRenderer> seriesRendererList) {
     _chartState._totalAnimatingSeries = 0;
+    bool isSelectionRangeChangeByEvent = false;
     for (final CartesianSeriesRenderer seriesRenderer in seriesRendererList) {
       final CartesianSeries<dynamic, dynamic> series = seriesRenderer._series;
       final ChartIndexedValueMapper<num> _bubbleSize = series.sizeValueMapper;
@@ -56,6 +57,9 @@ class _ChartSeries {
       yValues = <num>[];
       sumOfYvalues = 0;
       seriesRenderer._dataPoints = <CartesianChartPoint<dynamic>>[];
+      if (seriesRenderer is FastLineSeriesRenderer) {
+        seriesRenderer._overallDataPoints = <CartesianChartPoint<dynamic>>[];
+      }
       seriesRenderer._xValues = <dynamic>[];
       if (!isStacked100 && seriesRenderer._seriesType.contains('100')) {
         isStacked100 = true;
@@ -86,12 +90,15 @@ class _ChartSeries {
       if (series.dataSource != null) {
         dynamic xVal;
         dynamic yVal;
+        num low, high;
         num maxYValue = 0;
         for (int pointIndex = 0; pointIndex < series.dataSource.length;) {
           currentPoint = _getChartPoint(
               seriesRenderer, series.dataSource[pointIndex], pointIndex);
           xVal = currentPoint?.x;
           yVal = currentPoint?.y;
+          high = currentPoint?.high;
+          low = currentPoint?.low;
           currentPoint?.overallDataPointIndex = pointIndex;
           if (seriesRenderer is WaterfallSeriesRenderer) {
             yVal ??= 0;
@@ -126,12 +133,37 @@ class _ChartSeries {
               _isYVisibleRange = false;
             }
 
-            if ((!(_chartState._zoomedState == true ||
+            if (_chartState._chart.onSelectionChanged != null &&
+                (xMin != null ||
+                    xMax != null ||
+                    yMin != null ||
+                    yMax != null) &&
+                _chartState._oldSeriesRenderers != null &&
+                _chartState._oldSeriesRenderers.isNotEmpty) {
+              final int seriesIndex = _chartState
+                  ._chartSeries.visibleSeriesRenderers
+                  .indexOf(seriesRenderer);
+              final CartesianSeriesRenderer _oldSeriesRenderer =
+                  _chartState._oldSeriesRenderers.length - 1 >= seriesIndex
+                      ? _chartState._oldSeriesRenderers[seriesIndex]
+                      : null;
+              if (_oldSeriesRenderer != null) {
+                isSelectionRangeChangeByEvent =
+                    _oldSeriesRenderer._minimumX != xMin ||
+                        _oldSeriesRenderer._maximumX != xMax ||
+                        _oldSeriesRenderer._minimumY != yMin ||
+                        _oldSeriesRenderer._maximumY != yMax;
+              }
+            }
+
+            if ((!(isSelectionRangeChangeByEvent ||
+                        _chartState._zoomedState == true ||
                         _chartState._zoomProgress) &&
                     (xMin != null ||
                         xMax != null ||
                         yMin != null ||
-                        yMax != null))
+                        yMax != null) &&
+                    (yVal != null || (low != null && high != null)))
                 ? ((xMin != null && xMax != null)
                         ? (xPointValue >= xMin) && (xPointValue <= xMax)
                         : xMin != null
@@ -140,11 +172,11 @@ class _ChartSeries {
                                 ? xPointValue <= xMax
                                 : false) ||
                     ((yMin != null && yMax != null)
-                        ? (yVal >= yMin) && (yVal <= yMax)
+                        ? ((yVal ?? low) >= yMin) && ((yVal ?? high) <= yMax)
                         : yMin != null
-                            ? yVal >= yMin
+                            ? (yVal ?? low) >= yMin
                             : yMax != null
-                                ? yVal <= yMax
+                                ? (yVal ?? high) <= yMax
                                 : false)
                 : true) {
               _isXVisibleRange = true;
@@ -167,14 +199,14 @@ class _ChartSeries {
               if (seriesType.contains('range') ||
                       seriesType.contains('hilo') ||
                       seriesType.contains('candle') ||
-                      seriesType.contains('boxandwhisker')
+                      seriesType == 'boxandwhisker'
                   ? seriesType == 'hiloopenclose' ||
                           seriesType.contains('candle')
                       ? (currentPoint.low == null ||
                           currentPoint.high == null ||
                           currentPoint.open == null ||
                           currentPoint.close == null)
-                      : seriesType.contains('boxandwhisker')
+                      : seriesType == 'boxandwhisker'
                           ? (currentPoint.minimum == null ||
                               currentPoint.maximum == null ||
                               currentPoint.lowerQuartile == null ||
@@ -183,7 +215,7 @@ class _ChartSeries {
                               currentPoint.high == null)
                   : currentPoint.y == null) {
                 if (seriesRenderer is XyDataSeriesRenderer &&
-                    !seriesType.contains('waterfall')) {
+                    seriesType != 'waterfall') {
                   seriesRenderer.calculateEmptyPointValue(
                       pointIndex, currentPoint, seriesRenderer);
                 }
@@ -193,9 +225,9 @@ class _ChartSeries {
               if ((seriesType.contains('range') ||
                       seriesType.contains('hilo') ||
                       seriesType.contains('candle') ||
-                      seriesType.contains('boxandwhisker')) &&
+                      seriesType == 'boxandwhisker') &&
                   currentPoint.isVisible) {
-                if (seriesType.contains('boxandwhisker')) {
+                if (seriesType == 'boxandwhisker') {
                   final num max = currentPoint.maximum;
                   final num min = currentPoint.minimum;
                   currentPoint.maximum = math.max<num>(max, min);
@@ -264,6 +296,9 @@ class _ChartSeries {
             _findSeriesMinMax(seriesRenderer);
           }
         }
+      }
+      if (seriesRenderer is FastLineSeriesRenderer) {
+        seriesRenderer._overallDataPoints.addAll(seriesRenderer._dataPoints);
       }
     }
   }

@@ -5,6 +5,8 @@ class _PdfDictionary implements _IPdfPrimitive, _IPdfChangable {
   _PdfDictionary([_PdfDictionary dictionary]) {
     _items = <_PdfName, _IPdfPrimitive>{};
     _copyDictionary(dictionary);
+    _encrypt = true;
+    decrypted = false;
   }
 
   //Constants
@@ -18,6 +20,10 @@ class _PdfDictionary implements _IPdfPrimitive, _IPdfChangable {
   int _objectCollectionIndex;
   int _position;
   _ObjectStatus _status;
+  _PdfCrossTable _crossTable;
+  bool _archive = true;
+  bool _encrypt;
+  bool decrypted;
 
   //Properties
   /// Get the PdfDictionary items.
@@ -43,6 +49,13 @@ class _PdfDictionary implements _IPdfPrimitive, _IPdfChangable {
 
   /// Get the values of the item.
   List<_IPdfPrimitive> get value => _items.values;
+
+  bool get encrypt => _encrypt;
+
+  set encrypt(bool value) {
+    _encrypt = value;
+    modify();
+  }
 
   //Implementation
   void _copyDictionary(_PdfDictionary dictionary) {
@@ -156,7 +169,15 @@ class _PdfDictionary implements _IPdfPrimitive, _IPdfChangable {
       _onBeginSave(args);
     }
     if (count > 0) {
+      final _PdfEncryptor encryptor = writer._document.security._encryptor;
+      final bool state = encryptor.encrypt;
+      if (!_encrypt) {
+        encryptor.encrypt = false;
+      }
       _saveItems(writer);
+      if (!_encrypt) {
+        encryptor.encrypt = state;
+      }
     }
     writer._write(suffix);
     writer._write(_Operators.newLine);
@@ -198,6 +219,12 @@ class _PdfDictionary implements _IPdfPrimitive, _IPdfChangable {
         : 0;
   }
 
+  _PdfString _getString(String propertyName) {
+    final _IPdfPrimitive primitive =
+        _PdfCrossTable._dereference(this[propertyName]);
+    return (primitive != null && primitive is _PdfString) ? primitive : null;
+  }
+
   bool _checkChanges() {
     bool result = false;
     final List<_PdfName> keys = _items.keys.toList();
@@ -235,20 +262,21 @@ class _PdfDictionary implements _IPdfPrimitive, _IPdfChangable {
   void _setDateTime(String key, DateTime dateTime) {
     final _PdfString pdfString = this[key] as _PdfString;
     final DateFormat dateFormat = DateFormat('yyyyMMddHHmmss');
+    final int regionMinutes = dateTime.timeZoneOffset.inMinutes ~/ 11;
+    String offsetMinutes = regionMinutes.toString();
+    if (regionMinutes >= 0 && regionMinutes <= 9) {
+      offsetMinutes = '0' + offsetMinutes;
+    }
+    final int regionHours = dateTime.timeZoneOffset.inHours;
+    String offsetHours = regionHours.toString();
+    if (regionHours >= 0 && regionHours <= 9) {
+      offsetHours = '0' + offsetHours;
+    }
     if (pdfString != null) {
-      pdfString.value = dateFormat.format(dateTime);
+      pdfString.value =
+          "D:${dateFormat.format(dateTime)}+$offsetHours'+$offsetMinutes'";
       modify();
     } else {
-      final int regionMinutes = dateTime.minute;
-      String offsetMinutes = regionMinutes.toString();
-      if (regionMinutes >= 0 && regionMinutes <= 9) {
-        offsetMinutes = '0' + offsetMinutes;
-      }
-      final int regionHours = dateTime.hour;
-      String offsetHours = regionHours.toString();
-      if (regionHours >= 0 && regionHours <= 9) {
-        offsetHours = '0' + offsetHours;
-      }
       this[key] = _PdfString('D:' +
           dateFormat.format(dateTime) +
           '+' +
@@ -277,14 +305,9 @@ class _PdfDictionary implements _IPdfPrimitive, _IPdfChangable {
       dateTimeString.value = dateTimeString.value.replaceFirst('191', '20');
     }
     final bool containPrefixD = dateTimeString.value.contains(prefixD);
-    String dateTimeFormat = 'yyyyMMddHHmmss';
-    if (dateTimeString.value.length <= 8) {
-      dateTimeFormat = 'yyyyMMdd';
-    } else if (dateTimeString.value.length <= 10) {
-      dateTimeFormat = 'yyyyMMddHH';
-    } else if (dateTimeString.value.length <= 12) {
-      dateTimeFormat = 'yyyyMMddHHmm';
-    }
+    final String dateTimeFormat = 'yyyyMMddHHmmss';
+    dateTimeString.value =
+        dateTimeString.value.padRight(dateTimeFormat.length, '0');
     String localTime = ''.padRight(dateTimeFormat.length);
     if (dateTimeString.value.isEmpty) {
       return DateTime.now();
@@ -296,8 +319,12 @@ class _PdfDictionary implements _IPdfPrimitive, _IPdfChangable {
     }
     final String dateWithT =
         localTime.substring(0, 8) + 'T' + localTime.substring(8);
-    final DateTime dateTime = DateTime.parse(dateWithT);
-    return dateTime;
+    try {
+      final DateTime dateTime = DateTime.parse(dateWithT);
+      return dateTime;
+    } catch (e) {
+      return DateTime.now();
+    }
   }
 
   //_IPdfChangable members
@@ -412,6 +439,37 @@ class _PdfDictionary implements _IPdfPrimitive, _IPdfChangable {
     if (_endSave != null) {
       _endSave(this, args);
     }
+  }
+
+  @override
+  _IPdfPrimitive _clone(_PdfCrossTable crossTable) {
+    if (!(this is _PdfStream)) {
+      if (clonedObject != null &&
+          (clonedObject is _PdfDictionary == true) &&
+          (clonedObject as _PdfDictionary)._crossTable == crossTable) {
+        return clonedObject;
+      } else {
+        clonedObject = null;
+      }
+    }
+    final _PdfDictionary newDict = _PdfDictionary();
+    _items.forEach((_PdfName key, _IPdfPrimitive value) {
+      final _PdfName name = key;
+      final _IPdfPrimitive obj = value;
+      final _IPdfPrimitive newObj = obj._clone(crossTable);
+      if (!(newObj is _PdfNull)) {
+        newDict[name] = newObj;
+      }
+    });
+    newDict._archive = _archive;
+    newDict.status = _status;
+    newDict.freezeChanges(this);
+    newDict._crossTable = crossTable;
+
+    if (!(this is _PdfStream)) {
+      clonedObject = newDict;
+    }
+    return newDict;
   }
 }
 

@@ -127,7 +127,13 @@ class SfDataGridThemeData with Diagnosticable {
                 fontSize: 14,
                 color: Colors.black87),
             backgroundColor: Color.fromRGBO(255, 255, 255, 1),
-            sortIconColor: Colors.black54)
+            sortIconColor: Colors.black54,
+            hoverColor: Color.fromRGBO(245, 245, 245, 1),
+            hoverTextStyle: TextStyle(
+                fontFamily: 'Roboto',
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+                color: Colors.black87))
         : const DataGridHeaderCellStyle(
             textStyle: TextStyle(
                 fontFamily: 'Roboto',
@@ -135,7 +141,13 @@ class SfDataGridThemeData with Diagnosticable {
                 fontSize: 14,
                 color: Color.fromRGBO(255, 255, 255, 1)),
             backgroundColor: Color.fromRGBO(33, 33, 33, 1),
-            sortIconColor: Colors.white54);
+            sortIconColor: Colors.white54,
+            hoverColor: Color.fromRGBO(66, 66, 66, 1),
+            hoverTextStyle: TextStyle(
+                fontFamily: 'Roboto',
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+                color: Color.fromRGBO(255, 255, 255, 1)));
     cellStyle ??= isLight
         ? const DataGridCellStyle(
             textStyle: TextStyle(
@@ -551,19 +563,33 @@ class DataGridHeaderCellStyle extends DataGridCellStyle {
   /// Create a [DataGridHeaderCellStyle] that's used to configure
   /// a style for the header cells in [SfDataGrid].
   const DataGridHeaderCellStyle(
-      {Color backgroundColor, TextStyle textStyle, this.sortIconColor})
+      {Color backgroundColor,
+      TextStyle textStyle,
+      this.sortIconColor,
+      this.hoverColor,
+      this.hoverTextStyle})
       : super(backgroundColor: backgroundColor, textStyle: textStyle);
 
   /// The color of the sort icon which indicates the ascending or descending
   /// order.
   final Color sortIconColor;
 
+  /// The background color of header cells when a pointer is hovering over it
+  /// in [SfDataGrid].
+  final Color hoverColor;
+
+  /// The style for text of header cells when a pointer is hovering over it
+  /// in [SfDataGrid].
+  final TextStyle hoverTextStyle;
+
   @override
   int get hashCode {
     final List<Object> values = <Object>[
       textStyle,
       backgroundColor,
-      sortIconColor
+      sortIconColor,
+      hoverColor,
+      hoverTextStyle
     ];
     return hashList(values);
   }
@@ -579,7 +605,9 @@ class DataGridHeaderCellStyle extends DataGridCellStyle {
     return other is DataGridHeaderCellStyle &&
         other.backgroundColor == backgroundColor &&
         other.textStyle == textStyle &&
-        other.sortIconColor == sortIconColor;
+        other.sortIconColor == sortIconColor &&
+        other.hoverColor == hoverColor &&
+        other.hoverTextStyle == hoverTextStyle;
   }
 
   /// Linearly interpolate between two styles.
@@ -592,7 +620,9 @@ class DataGridHeaderCellStyle extends DataGridCellStyle {
     return DataGridHeaderCellStyle(
         backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
         textStyle: TextStyle.lerp(a.textStyle, b.textStyle, t),
-        sortIconColor: Color.lerp(a.sortIconColor, b.sortIconColor, t));
+        sortIconColor: Color.lerp(a.sortIconColor, b.sortIconColor, t),
+        hoverColor: Color.lerp(a.hoverColor, b.hoverColor, t),
+        hoverTextStyle: TextStyle.lerp(a.hoverTextStyle, b.hoverTextStyle, t));
   }
 }
 

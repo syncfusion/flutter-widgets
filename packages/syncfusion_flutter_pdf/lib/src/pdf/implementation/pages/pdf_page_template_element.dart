@@ -150,6 +150,7 @@ class PdfPageTemplateElement {
     ArgumentError.checkNotNull(document, 'document');
     final PdfPage page = layer.page;
     final Rect bounds = _calculateBounds(page, document);
+    layer._page._isDefaultGraphics = true;
     layer.graphics.drawPdfTemplate(_template, bounds.topLeft, bounds.size);
   }
 

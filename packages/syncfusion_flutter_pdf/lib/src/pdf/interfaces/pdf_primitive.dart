@@ -22,4 +22,6 @@ class _IPdfPrimitive {
   void save(_IPdfWriter writer) {}
 
   void dispose() {}
+
+  _IPdfPrimitive _clone(_PdfCrossTable crossTable) => null;
 }

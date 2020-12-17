@@ -3,11 +3,29 @@ part of xlsio;
 /// <summary>
 /// Class used for Significant Digit Token.
 /// </summary>
-class _SignificantDigitToken extends _DigitToken {
+class _SignificantDigitToken extends _FormatTokenBase {
   /// <summary>
   /// Format character.
   /// </summary>
   final _defaultFormatChar = '0';
+
+  /// <summary>
+  /// Applies format to the value.
+  /// </summary>
+  @override
+  String _applyFormat(double value, bool bShowHiddenSymbols,
+      CultureInfo culture, _FormatSection section) {
+    return _strFormat;
+  }
+
+  /// <summary>
+  /// Applies format to the value.
+  /// </summary>
+  @override
+  // ignore: unused_element
+  String _applyFormatString(String value, bool bShowHiddenSymbols) {
+    return _strFormat;
+  }
 
   /// <summary>
   /// Tries to parse format string.
@@ -30,7 +48,7 @@ class _SignificantDigitToken extends _DigitToken {
       iIndex++;
       _strFormat = chCurrent;
     } else if (strFormat[iIndex] == '\\' &&
-        strFormat[iIndex + 1] == formatChar) {
+        strFormat[iIndex + 1] == _formatChar) {
       _strFormat = strFormat[iIndex + 1];
       iIndex = iIndex + 2;
     }
@@ -48,7 +66,6 @@ class _SignificantDigitToken extends _DigitToken {
   /// <summary>
   /// Format character. Read-only.
   /// </summary>
-  // ignore: unused_element
   String get _formatChar {
     if (_strFormat == null) return _defaultFormatChar;
     return _strFormat;

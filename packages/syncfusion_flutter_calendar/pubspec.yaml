@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  timezone: 0.5.7
+  timezone: 0.5.9
   syncfusion_flutter_core:
     path: ../syncfusion_flutter_core
 

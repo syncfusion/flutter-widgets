@@ -1,3 +1,75 @@
+ ## Unreleased
+
+### Chart
+
+**Features**
+
+* Support for defining the maximum width of the axis labels is provided.
+* Provided template support for the trackball.
+* Support for converting a logical pixel value to a chart data point and vice versa has been provided. 
+* Now, you can get the `viewportPointIndex` from `onDataLabelTapped`, `onSelectionChanged` and other applicable events.
+* Provided `maximumZoomLevel` support for pinch-zooming in the Cartesian chart.
+
+### Spark Charts `Preview`
+
+**Features**
+
+* Provided support for Line, Area, Column, and Win-loss chart types.
+* Provided support for Numeric, Category, and Date-time axis types.
+* Provided marker and data label supports.
+* Provided trackball support to display additional information about the data points.
+* Provided plot band support to highlight a particular vertical range.
+
+## [18.3.52] - 12/01/2020
+
+**Bugs**
+* Now the zooming will reset properly on the zoom out.
+* The legend's width and height properties will work as intended.
+* The trackball tooltip will not throw an exception when the tooltip is hidden using `onTrackballPositionChanging` event.
+
+## [18.3.50] - 11/17/2020
+
+**Features**
+* Now, we can get the `overallPointIndex` from `onDataLabelTapped` and `onSelectionChanged` events.
+* Provided `maximumZoomLevel` support for pinch-zooming in the cartesian chart.
+
+## [18.3.48+1] - 11/12/2020 
+
+**Bugs**
+* The selection is working properly with `initialSelectedDataIndexes` property.
+
+## [18.3.48] - 11/11/2020
+
+**Bugs**
+* The trackball is showing properly with public methods.
+
+## [18.3.47] - 11/05/2020
+
+**Bugs**
+* The tooltip builder will not throw any exceptions in Circular charts.
+
+## [18.3.44] - 10/27/2020
+
+**Bugs**
+* The zoomed column chart with custom tooltip will not throw any exceptions.
+* Now, the rounded corners will be applied properly to the column type charts.
+
+## [18.3.42] - 10/19/2020
+
+**Bugs**
+* Now, after resetting the zoomed chart using the public method, the visible range can be set.
+* The circular chart will not throw any exception when wrapped with the Column widget.
+
+## [18.3.40] - 10/13/2020
+
+**Bugs**
+* Now the chart series will not animate on resetting the zoom. 
+
+## [18.3.38] - 10/07/2020
+
+**Bugs**
+* Now the spline area series will animate properly on adding new data points dynamically. 
+
 ## [18.3.35] - 10/01/2020
 
 **Features**

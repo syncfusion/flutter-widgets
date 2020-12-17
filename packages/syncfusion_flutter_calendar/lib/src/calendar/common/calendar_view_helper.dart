@@ -5,9 +5,19 @@ bool _isRTLLayout(BuildContext context) {
   return direction != null && direction == TextDirection.rtl;
 }
 
-/// Check the schedule view web needs web UI or not.
-bool _isScheduleWebUI(double width) {
-  return kIsWeb && width > _kMobileViewWidth;
+/// Determine the current platform needs mobile platform UI.
+/// The [_kMobileViewWidth] value is a breakpoint for mobile platform.
+bool _isMobileLayoutUI(double width, bool isMobileLayout) {
+  return isMobileLayout || width <= _kMobileViewWidth;
+}
+
+/// Determine the current platform is mobile platform(android or iOS).
+bool _isMobileLayout(TargetPlatform platform) {
+  if (kIsWeb) {
+    return false;
+  }
+
+  return platform == TargetPlatform.android || platform == TargetPlatform.iOS;
 }
 
 /// Check the list is empty or not.
@@ -43,6 +53,9 @@ Size _getTextWidgetWidth(
     text,
     style: style,
     maxLines: 1,
+    softWrap: false,
+    textDirection: TextDirection.ltr,
+    textAlign: TextAlign.left,
   ).build(context);
 
   /// Create and layout the render object based on allocated width and height.
@@ -55,14 +68,18 @@ Size _getTextWidgetWidth(
   ));
 
   /// Get the size of text by using render object.
-  final TextBox lastBox = renderObject
-      .getBoxesForSelection(
-          TextSelection(baseOffset: 0, extentOffset: text.length))
-      .last;
+  final List<TextBox> textBox = renderObject.getBoxesForSelection(
+      TextSelection(baseOffset: 0, extentOffset: text.length));
+  double textWidth = 0;
+  double textHeight = 0;
+  for (final TextBox box in textBox) {
+    textWidth += box.right - box.left;
+    final double currentBoxHeight = box.bottom - box.top;
+    textHeight = textHeight > currentBoxHeight ? textHeight : currentBoxHeight;
+  }
 
   /// 10 padding added for text box(left and right side both as 5).
-  return Size(
-      (lastBox.right - lastBox.left) + 10, (lastBox.bottom - lastBox.top) + 10);
+  return Size(textWidth + 10, textHeight + 10);
 }
 
 Map<CalendarView, String> _getCalendarViewsText(SfLocalizations localizations) {
@@ -101,11 +118,11 @@ DateTime _getMonthEndDate(DateTime date) {
 
 /// Return day label width based on schedule view setting.
 double _getAgendaViewDayLabelWidth(
-    ScheduleViewSettings scheduleViewSettings, double width) {
+    ScheduleViewSettings scheduleViewSettings, bool useMobilePlatformUI) {
   if (scheduleViewSettings == null ||
       scheduleViewSettings.dayHeaderSettings == null ||
       scheduleViewSettings.dayHeaderSettings.width == -1) {
-    return (kIsWeb && width > _kMobileViewWidth) ? 150 : 50;
+    return useMobilePlatformUI ? 50 : 150;
   }
 
   return scheduleViewSettings.dayHeaderSettings.width;
@@ -152,6 +169,34 @@ bool _isDateCollectionEqual(
 
   for (int i = 0; i < datesCount; i++) {
     if (!isSameDate(originalDates[i], copyDates[i])) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/// Check both the collections are equal or not.
+bool _isCollectionEqual<T>(List<T> collection1, List<T> collection2) {
+  if (collection1 == collection2) {
+    return true;
+  }
+
+  if (_isEmptyList(collection1) && _isEmptyList(collection2)) {
+    return true;
+  }
+
+  if (collection1 == null || collection2 == null) {
+    return false;
+  }
+
+  final int collectionCount = collection1.length;
+  if (collectionCount != collection2.length) {
+    return false;
+  }
+
+  for (int i = 0; i < collectionCount; i++) {
+    if (collection1[i] != collection2[i]) {
       return false;
     }
   }
@@ -505,15 +550,14 @@ bool _isAutoTimeIntervalHeight(SfCalendar calendar, CalendarView view) {
 }
 
 /// Returns the default time interval width for timeline views.
-double _getTimeIntervalWidth(
-    double timeIntervalHeight, CalendarView view, double width) {
+double _getTimeIntervalWidth(double timeIntervalHeight, CalendarView view,
+    double width, bool isMobilePlatform) {
   if (timeIntervalHeight >= 0) {
     return timeIntervalHeight;
   }
 
   if (view == CalendarView.timelineMonth &&
-      kIsWeb &&
-      width > _kMobileViewWidth) {
+      !_isMobileLayoutUI(width, isMobilePlatform)) {
     return 160;
   }
 
@@ -522,12 +566,18 @@ double _getTimeIntervalWidth(
 
 /// Returns the time interval width based on property value, also arrange the
 /// time slots into the view port size.
-double _getTimeIntervalHeight(SfCalendar calendar, CalendarView view,
-    double width, double height, int visibleDatesCount, double allDayHeight) {
+double _getTimeIntervalHeight(
+    SfCalendar calendar,
+    CalendarView view,
+    double width,
+    double height,
+    int visibleDatesCount,
+    double allDayHeight,
+    bool isMobilePlatform) {
   final bool isTimelineView = _isTimelineView(view);
   double timeIntervalHeight = isTimelineView
-      ? _getTimeIntervalWidth(
-          calendar.timeSlotViewSettings.timeIntervalWidth, view, width)
+      ? _getTimeIntervalWidth(calendar.timeSlotViewSettings.timeIntervalWidth,
+          view, width, isMobilePlatform)
       : calendar.timeSlotViewSettings.timeIntervalHeight;
 
   if (!_isAutoTimeIntervalHeight(calendar, view)) {

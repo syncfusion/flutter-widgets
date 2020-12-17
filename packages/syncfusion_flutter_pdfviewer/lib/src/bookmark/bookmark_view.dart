@@ -95,6 +95,7 @@ class BookmarkViewControllerState extends State<BookmarkView> {
   }
 
   Future<void> _handleClose() async {
+    widget.controller.clearSelection();
     if (showBookmark) {
       setState(() {
         _isExpanded = false;

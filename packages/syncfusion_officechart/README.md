@@ -27,6 +27,8 @@ The Excel package is a non-UI and reusable Flutter library to create different E
     - [Add line chart](#add-line-chart)
     - [Add stacked chart](#add-stacked-chart)
     - [Add chart elements](#add-chart-elements)
+    - [Add area chart](#add-area-chart)
+    - [Add stacked 100 chart](#add-stacked-100-chart)
 - [Support and feedback](#support-and-feedback)
 - [About Syncfusion](#about-syncfusion)
 
@@ -41,6 +43,8 @@ The following are the chart features of Syncfusion Flutter OfficeChart.
 * Add bar chart to Excel worksheet.
 * Add stacked chart to Excel worksheet.
 * Add Chart elements.
+* Add area chart to Excel worksheet.
+* Add stacked100 chart to Excel worksheet.
 
 ## Get the demo application
 
@@ -105,12 +109,13 @@ chart.dataRange = sheet.getRangeByName('A1:B4');
 // set charts to worksheet.
 sheet.charts = charts;
 // save and dispose the workbook.
-workbook.save('Chart.xlsx');
+List<int> bytes = workbook.saveAsStream();
+File('Chart.xlsx').writeAsBytes(bytes);
 workbook.dispose();
 ```
 ### Add pie chart
 
-Use the following code to add pie chart to excel worksheet.
+Use the following code to add pie chart to Excel worksheet.
 
 ```dart
 // Create a new Excel document.
@@ -141,13 +146,14 @@ chart1.isSeriesInRows = false;
 // set charts to worksheet.
 sheet.charts = charts;
 // save and dispose the workbook.
-workbook.save('PieChart.xlsx');
+List<int> bytes = workbook.saveAsStream();
+File('PieChart.xlsx').writeAsBytes(bytes);
 workbook.dispose();
 ```
 
 ### Add column chart
 
-Use the following code to add column chart to excel worksheet.
+Use the following code to add column chart to Excel worksheet.
 
 ```dart
 // Create a new Excel document.
@@ -178,13 +184,14 @@ chart1.isSeriesInRows = false;
 // set charts to worksheet.
 sheet.charts = charts;
 // save and dispose the workbook.
-workbook.save('ExcelColumnChart.xlsx');
+List<int> bytes = workbook.saveAsStream();
+File('ExcelColumnChart.xlsx').writeAsBytes(bytes);
 workbook.dispose();
 ```
 
 ### Add bar chart
 
-Use the following code to add bar chart to excel worksheet.
+Use the following code to add bar chart to Excel worksheet.
 
 ```dart
 // Create a new Excel document.
@@ -222,13 +229,14 @@ chart1.isSeriesInRows = false;
 // set charts to worksheet.
 sheet.charts = charts;
 // save and dispose the workbook.
-workbook.save('BarChart.xlsx');
+List<int> bytes = workbook.saveAsStream();
+File('BarChart.xlsx').writeAsBytes(bytes);
 workbook.dispose();
 ```
 
 ### Add line chart
 
-Use the following code to add line chart to excel worksheet.
+Use the following code to add line chart to Excel worksheet.
 
 ```dart
 // Create a new Excel document.
@@ -260,7 +268,8 @@ chart.isSeriesInRows = false;
 // set charts to worksheet.
 sheet.charts = charts;
 //save and dispose workbook.
-workbook.save('LineChart.xlsx');
+List<int> bytes = workbook.saveAsStream();
+File('LineChart.xlsx').writeAsBytes(bytes);
 workbook.dispose();
 ```
 
@@ -270,7 +279,7 @@ This section covers the various stacked chart.
 
 **Stacked Column chart**
 
-Use the following code to add stacked column chart to excel worksheet.
+Use the following code to add stacked column chart to Excel worksheet.
 
 ```dart
 // Create a new Excel document.
@@ -308,13 +317,14 @@ chart1.isSeriesInRows = false;
 // set charts to worksheet.
 sheet.charts = charts;
 //save and dispose workbook.
-workbook.save('ColunmStackedChart.xlsx');
+List<int> bytes = workbook.saveAsStream();
+File('ColunmStackedChart.xlsx').writeAsBytes(bytes);
 workbook.dispose();
 ```
 
 **Stacked bar chart**
 
-Use the following code to add stacked bar chart to excel worksheet.
+Use the following code to add stacked bar chart to Excel worksheet.
 
 ```dart
 // Create a new Excel document.
@@ -352,13 +362,14 @@ chart1.isSeriesInRows = false;
 // set charts to worksheet.
 sheet.charts = charts;
 //save and dispose workbook.
-workbook.save('BarStackedChart.xlsx');
+List<int> bytes = workbook.saveAsStream();
+File('BarStackedChart.xlsx').writeAsBytes(bytes);
 workbook.dispose();
 ```
 
 **Stacked Line chart**
 
-Use the following code to add stacked line chart to excel worksheet.
+Use the following code to add stacked line chart to Excel worksheet.
 
 ```dart
 // Create a new Excel document.
@@ -396,12 +407,79 @@ chart1.isSeriesInRows = false;
 // set charts to worksheet.
 sheet.charts = charts;
 //save and dispose workbook.
-workbook.save('LineStackedChart.xlsx');
+List<int> bytes = workbook.saveAsStream();
+File('LineStackedChart.xlsx').writeAsBytes(bytes);
 workbook.dispose();
 ```
+
+**Stacked Area chart**
+
+Use the following code to add stacked area chart to Excel worksheet.
+
+```dart
+// Create a new Excel document.
+final Workbook workbook = Workbook();
+// Accessing worksheet via index.
+final Worksheet sheet = workbook.worksheets[0];
+// Setting value in the cell.
+sheet.getRangeByName('A1').text = 'Fruits';
+sheet.getRangeByName('A2').text = 'Apples';
+sheet.getRangeByName('A3').text = 'Grapes';
+sheet.getRangeByName('A4').text = 'Bananas';
+sheet.getRangeByName('A5').text = 'Oranges';
+sheet.getRangeByName('A6').text = 'Melons';
+sheet.getRangeByName('B1').text = 'Joey';
+sheet.getRangeByName('B2').number = 5;
+sheet.getRangeByName('B3').number = 4;
+sheet.getRangeByName('B4').number = 4;
+sheet.getRangeByName('B5').number = 2;
+sheet.getRangeByName('B6').number = 2;
+sheet.getRangeByName('C1').text = 'Mathew';
+sheet.getRangeByName('C2').number = 3;
+sheet.getRangeByName('C3').number = 5;
+sheet.getRangeByName('C4').number = 4;
+sheet.getRangeByName('C5').number = 1;
+sheet.getRangeByName('C6').number = 7;
+sheet.getRangeByName('D1').text = 'Peter';
+sheet.getRangeByName('D2').number = 2;
+sheet.getRangeByName('D3').number = 2;
+sheet.getRangeByName('D4').number = 3;
+sheet.getRangeByName('D5').number = 5;
+sheet.getRangeByName('D6').number = 6;
+
+// Create an instances of chart collection.
+final ChartCollection charts = ChartCollection(sheet);
+// Add the chart.
+final Chart chart = charts.add();
+// Set Chart Type.
+chart.chartType = ExcelChartType.areaStacked;
+// Set data range in the worksheet.
+chart.dataRange = sheet.getRangeByName('A1:D6');
+chart.isSeriesInRows = false;
+
+//Set Chart Title
+chart.chartTitle = 'Stacked Area Chart';
+
+//Set Legend
+chart.hasLegend = true;
+chart.legend.position = ExcelLegendPosition.bottom;
+
+//Positioning the chart in the worksheet
+chart.topRow = 8;
+chart.leftColumn = 1;
+chart.bottomRow = 23;
+chart.rightColumn = 8;
+// set charts to worksheet.
+sheet.charts = charts;
+// save and dispose the workbook.
+final List<int> bytes = workbook.saveAsStream();
+workbook.dispose();
+File('AreaStackedChart.xlsx').writeAsBytes(bytes);
+```
+
 ### Add chart elements
 
-Use the following code to add chart elements to excel worksheet.
+Use the following code to add chart elements to Excel worksheet.
 
 ```dart
 // Create a new Excel document.
@@ -461,9 +539,341 @@ serie.dataLabels.textArea.fontName = 'Arial';
 // set charts to worksheet.
 sheet.charts = charts;
 //save and dispose workbook.
-workbook.save('ChartElement.xlsx');
+List<int> bytes = workbook.saveAsStream();
+File('ChartElement.xlsx').writeAsBytes(bytes);
 workbook.dispose();
 ```
+
+### Add area chart
+
+Use the following code to add area chart to Excel worksheet.
+
+```dart
+// Create a new Excel document.
+final Workbook workbook = Workbook();
+// Accessing worksheet via index.
+final Worksheet sheet = workbook.worksheets[0];
+// Setting value in the cell.
+sheet.getRangeByName('A1').text = 'Fruits';
+sheet.getRangeByName('A2').text = 'Apples';
+sheet.getRangeByName('A3').text = 'Grapes';
+sheet.getRangeByName('A4').text = 'Bananas';
+sheet.getRangeByName('A5').text = 'Oranges';
+sheet.getRangeByName('A6').text = 'Melons';
+sheet.getRangeByName('B1').text = 'Joey';
+sheet.getRangeByName('B2').number = 5;
+sheet.getRangeByName('B3').number = 4;
+sheet.getRangeByName('B4').number = 4;
+sheet.getRangeByName('B5').number = 2;
+sheet.getRangeByName('B6').number = 2;
+sheet.getRangeByName('C1').text = 'Mathew';
+sheet.getRangeByName('C2').number = 3;
+sheet.getRangeByName('C3').number = 5;
+sheet.getRangeByName('C4').number = 4;
+sheet.getRangeByName('C5').number = 1;
+sheet.getRangeByName('C6').number = 7;
+sheet.getRangeByName('D1').text = 'Peter';
+sheet.getRangeByName('D2').number = 2;
+sheet.getRangeByName('D3').number = 2;
+sheet.getRangeByName('D4').number = 3;
+sheet.getRangeByName('D5').number = 5;
+sheet.getRangeByName('D6').number = 6;
+
+// Create an instances of chart collection.
+final ChartCollection charts = ChartCollection(sheet);
+// Add the chart.
+final Chart chart = charts.add();
+// Set Chart Type.
+chart.chartType = ExcelChartType.area;
+// Set data range in the worksheet.
+chart.dataRange = sheet.getRangeByName('A1:D6');
+chart.isSeriesInRows = false;
+
+//Set Chart Title
+chart.chartTitle = 'Area Chart';
+
+//Set Legend
+chart.hasLegend = true;
+chart.legend.position = ExcelLegendPosition.bottom;
+
+//Positioning the chart in the worksheet
+chart.topRow = 8;
+chart.leftColumn = 1;
+chart.bottomRow = 23;
+chart.rightColumn = 8;
+// set charts to worksheet.
+sheet.charts = charts;
+// save and dispose the workbook.
+final List<int> bytes = workbook.saveAsStream();
+workbook.dispose();
+File('AreaChart.xlsx').writeAsBytes(bytes);
+```
+
+### Add stacked 100 chart
+
+This section covers the various stacked 100 chart.
+
+**Stacked 100 Column chart**
+
+Use the following code to add stacked 100 column chart to Excel worksheet.
+
+```dart
+// Create a new Excel document.
+final Workbook workbook = Workbook();
+// Accessing worksheet via index.
+final Worksheet sheet = workbook.worksheets[0];
+// Setting value in the cell.
+sheet.getRangeByName('A1').text = 'Fruits';
+sheet.getRangeByName('A2').text = 'Apples';
+sheet.getRangeByName('A3').text = 'Grapes';
+sheet.getRangeByName('A4').text = 'Bananas';
+sheet.getRangeByName('A5').text = 'Oranges';
+sheet.getRangeByName('A6').text = 'Melons';
+sheet.getRangeByName('B1').text = 'Joey';
+sheet.getRangeByName('B2').number = 5;
+sheet.getRangeByName('B3').number = 4;
+sheet.getRangeByName('B4').number = 4;
+sheet.getRangeByName('B5').number = 2;
+sheet.getRangeByName('B6').number = 2;
+sheet.getRangeByName('C1').text = 'Mathew';
+sheet.getRangeByName('C2').number = 3;
+sheet.getRangeByName('C3').number = 5;
+sheet.getRangeByName('C4').number = 4;
+sheet.getRangeByName('C5').number = 1;
+sheet.getRangeByName('C6').number = 7;
+sheet.getRangeByName('D1').text = 'Peter';
+sheet.getRangeByName('D2').number = 2;
+sheet.getRangeByName('D3').number = 2;
+sheet.getRangeByName('D4').number = 3;
+sheet.getRangeByName('D5').number = 5;
+sheet.getRangeByName('D6').number = 6;
+
+// Create an instances of chart collection.
+final ChartCollection charts = ChartCollection(sheet);
+// Add the chart.
+final Chart chart = charts.add();
+// Set Chart Type.
+chart.chartType = ExcelChartType.columnStacked100;
+// Set data range in the worksheet.
+chart.dataRange = sheet.getRangeByName('A1:D6');
+chart.isSeriesInRows = false;
+
+//Set Chart Title
+chart.chartTitle = 'Stacked 100 Column Chart';
+
+//Set Legend
+chart.hasLegend = true;
+chart.legend.position = ExcelLegendPosition.bottom;
+
+//Positioning the chart in the worksheet
+chart.topRow = 8;
+chart.leftColumn = 1;
+chart.bottomRow = 23;
+chart.rightColumn = 8;
+// set charts to worksheet.
+sheet.charts = charts;
+// save and dispose the workbook.
+final List<int> bytes = workbook.saveAsStream();
+workbook.dispose();
+File('ColumnStacked100Chart.xlsx').writeAsBytes(bytes);
+```
+
+**Stacked 100 bar chart**
+
+Use the following code to add stacked 100 bar chart to Excel worksheet.
+
+```dart
+// Create a new Excel document.
+final Workbook workbook = Workbook();
+// Accessing worksheet via index.
+final Worksheet sheet = workbook.worksheets[0];
+// Setting value in the cell.
+sheet.getRangeByName('A1').text = 'Fruits';
+sheet.getRangeByName('A2').text = 'Apples';
+sheet.getRangeByName('A3').text = 'Grapes';
+sheet.getRangeByName('A4').text = 'Bananas';
+sheet.getRangeByName('A5').text = 'Oranges';
+sheet.getRangeByName('A6').text = 'Melons';
+sheet.getRangeByName('B1').text = 'Joey';
+sheet.getRangeByName('B2').number = 5;
+sheet.getRangeByName('B3').number = 4;
+sheet.getRangeByName('B4').number = 4;
+sheet.getRangeByName('B5').number = 2;
+sheet.getRangeByName('B6').number = 2;
+sheet.getRangeByName('C1').text = 'Mathew';
+sheet.getRangeByName('C2').number = 3;
+sheet.getRangeByName('C3').number = 5;
+sheet.getRangeByName('C4').number = 4;
+sheet.getRangeByName('C5').number = 1;
+sheet.getRangeByName('C6').number = 7;
+sheet.getRangeByName('D1').text = 'Peter';
+sheet.getRangeByName('D2').number = 2;
+sheet.getRangeByName('D3').number = 2;
+sheet.getRangeByName('D4').number = 3;
+sheet.getRangeByName('D5').number = 5;
+sheet.getRangeByName('D6').number = 6;
+
+// Create an instances of chart collection.
+final ChartCollection charts = ChartCollection(sheet);
+// Add the chart.
+final Chart chart = charts.add();
+// Set Chart Type.
+chart.chartType = ExcelChartType.barStacked100;
+// Set data range in the worksheet.
+chart.dataRange = sheet.getRangeByName('A1:D6');
+chart.isSeriesInRows = false;
+
+//Set Chart Title
+chart.chartTitle = 'Stacked 100 bar Chart';
+
+//Set Legend
+chart.hasLegend = true;
+chart.legend.position = ExcelLegendPosition.bottom;
+
+//Positioning the chart in the worksheet
+chart.topRow = 8;
+chart.leftColumn = 1;
+chart.bottomRow = 23;
+chart.rightColumn = 8;
+// set charts to worksheet.
+sheet.charts = charts;
+// save and dispose the workbook.
+final List<int> bytes = workbook.saveAsStream();
+workbook.dispose();
+File('BarStacked100Chart.xlsx').writeAsBytes(bytes);
+```
+
+**Stacked 100 Line chart**
+
+Use the following code to add stacked 100 line chart to Excel worksheet.
+
+```dart
+// Create a new Excel document.
+final Workbook workbook = Workbook();
+// Accessing worksheet via index.
+final Worksheet sheet = workbook.worksheets[0];
+// Setting value in the cell.
+sheet.getRangeByName('A1').text = 'Fruits';
+sheet.getRangeByName('A2').text = 'Apples';
+sheet.getRangeByName('A3').text = 'Grapes';
+sheet.getRangeByName('A4').text = 'Bananas';
+sheet.getRangeByName('A5').text = 'Oranges';
+sheet.getRangeByName('A6').text = 'Melons';
+sheet.getRangeByName('B1').text = 'Joey';
+sheet.getRangeByName('B2').number = 5;
+sheet.getRangeByName('B3').number = 4;
+sheet.getRangeByName('B4').number = 4;
+sheet.getRangeByName('B5').number = 2;
+sheet.getRangeByName('B6').number = 2;
+sheet.getRangeByName('C1').text = 'Mathew';
+sheet.getRangeByName('C2').number = 3;
+sheet.getRangeByName('C3').number = 5;
+sheet.getRangeByName('C4').number = 4;
+sheet.getRangeByName('C5').number = 1;
+sheet.getRangeByName('C6').number = 7;
+sheet.getRangeByName('D1').text = 'Peter';
+sheet.getRangeByName('D2').number = 2;
+sheet.getRangeByName('D3').number = 2;
+sheet.getRangeByName('D4').number = 3;
+sheet.getRangeByName('D5').number = 5;
+sheet.getRangeByName('D6').number = 6;
+
+// Create an instances of chart collection.
+final ChartCollection charts = ChartCollection(sheet);
+// Add the chart.
+final Chart chart = charts.add();
+// Set Chart Type.
+chart.chartType = ExcelChartType.lineStacked100;
+// Set data range in the worksheet.
+chart.dataRange = sheet.getRangeByName('A1:D6');
+chart.isSeriesInRows = false;
+
+//Set Chart Title
+chart.chartTitle = 'Stacked 100 line Chart';
+
+//Set Legend
+chart.hasLegend = true;
+chart.legend.position = ExcelLegendPosition.bottom;
+
+//Positioning the chart in the worksheet
+chart.topRow = 8;
+chart.leftColumn = 1;
+chart.bottomRow = 23;
+chart.rightColumn = 8;
+// set charts to worksheet.
+sheet.charts = charts;
+// save and dispose the workbook.
+final List<int> bytes = workbook.saveAsStream();
+workbook.dispose();
+File('lineStacked100Chart.xlsx').writeAsBytes(bytes);
+
+```
+
+**Stacked 100 Area chart**
+
+Use the following code to add stacked 100 area chart to Excel worksheet.
+
+```dart
+// Create a new Excel document.
+final Workbook workbook = Workbook();
+// Accessing worksheet via index.
+final Worksheet sheet = workbook.worksheets[0];
+// Setting value in the cell.
+sheet.getRangeByName('A1').text = 'Fruits';
+sheet.getRangeByName('A2').text = 'Apples';
+sheet.getRangeByName('A3').text = 'Grapes';
+sheet.getRangeByName('A4').text = 'Bananas';
+sheet.getRangeByName('A5').text = 'Oranges';
+sheet.getRangeByName('A6').text = 'Melons';
+sheet.getRangeByName('B1').text = 'Joey';
+sheet.getRangeByName('B2').number = 5;
+sheet.getRangeByName('B3').number = 4;
+sheet.getRangeByName('B4').number = 4;
+sheet.getRangeByName('B5').number = 2;
+sheet.getRangeByName('B6').number = 2;
+sheet.getRangeByName('C1').text = 'Mathew';
+sheet.getRangeByName('C2').number = 3;
+sheet.getRangeByName('C3').number = 5;
+sheet.getRangeByName('C4').number = 4;
+sheet.getRangeByName('C5').number = 1;
+sheet.getRangeByName('C6').number = 7;
+sheet.getRangeByName('D1').text = 'Peter';
+sheet.getRangeByName('D2').number = 2;
+sheet.getRangeByName('D3').number = 2;
+sheet.getRangeByName('D4').number = 3;
+sheet.getRangeByName('D5').number = 5;
+sheet.getRangeByName('D6').number = 6;
+
+// Create an instances of chart collection.
+final ChartCollection charts = ChartCollection(sheet);
+// Add the chart.
+final Chart chart = charts.add();
+// Set Chart Type.
+chart.chartType = ExcelChartType.areaStacked100;
+// Set data range in the worksheet.
+chart.dataRange = sheet.getRangeByName('A1:D6');
+chart.isSeriesInRows = false;
+
+//Set Chart Title
+chart.chartTitle = 'Stacked 100 Area Chart';
+
+//Set Legend
+chart.hasLegend = true;
+chart.legend.position = ExcelLegendPosition.bottom;
+
+//Positioning the chart in the worksheet
+chart.topRow = 8;
+chart.leftColumn = 1;
+chart.bottomRow = 23;
+chart.rightColumn = 8;
+// set charts to worksheet.
+sheet.charts = charts;
+// save and dispose the workbook.
+final List<int> bytes = workbook.saveAsStream();
+workbook.dispose();
+File('AreaStacked100Chart.xlsx').writeAsBytes(bytes);
+```
+
 ## Support and feedback
 
 * For any other queries, contact our [Syncfusion support team](https://www.syncfusion.com/support/directtrac/incidents/newincident) or post the queries through the [Community forums](https://www.syncfusion.com/forums). You can also submit a feature request or a bug through our [Feedback portal](https://www.syncfusion.com/feedback/flutter).

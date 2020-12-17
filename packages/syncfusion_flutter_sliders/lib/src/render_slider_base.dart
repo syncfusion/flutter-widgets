@@ -1,8 +1,20 @@
-part of sliders;
+import 'dart:math' as math;
+import 'dart:ui';
 
-class _RenderBaseSlider extends RenderProxyBox
+import 'package:flutter/gestures.dart'
+    show TapGestureRecognizer, HorizontalDragGestureRecognizer;
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:intl/intl.dart' show DateFormat, NumberFormat;
+import 'package:syncfusion_flutter_core/theme.dart';
+
+import 'common.dart';
+import 'constants.dart';
+import 'slider_shapes.dart';
+
+class RenderBaseSlider extends RenderProxyBox
     with RelayoutWhenSystemFontsChangeMixin {
-  _RenderBaseSlider({
+  RenderBaseSlider({
     dynamic min,
     dynamic max,
     double interval,
@@ -12,7 +24,7 @@ class _RenderBaseSlider extends RenderProxyBox
     bool showTicks,
     bool showLabels,
     bool showDivisors,
-    bool showTooltip,
+    bool enableTooltip,
     LabelPlacement labelPlacement,
     NumberFormat numberFormat,
     DateFormat dateFormat,
@@ -38,7 +50,7 @@ class _RenderBaseSlider extends RenderProxyBox
         _showTicks = showTicks,
         _showLabels = showLabels,
         _showDivisors = showDivisors,
-        _showTooltip = showTooltip,
+        _enableTooltip = enableTooltip,
         _labelPlacement = labelPlacement,
         _numberFormat = numberFormat,
         _dateFormat = dateFormat,
@@ -68,7 +80,7 @@ class _RenderBaseSlider extends RenderProxyBox
     _minorTickPositions = <double>[];
 
     thumbElevationTween =
-        Tween<double>(begin: _defaultElevation, end: _tappedElevation);
+        Tween<double>(begin: defaultElevation, end: tappedElevation);
   }
 
   final double minTrackWidth = kMinInteractiveDimension * 3;
@@ -118,7 +130,7 @@ class _RenderBaseSlider extends RenderProxyBox
 
   Tween<double> thumbElevationTween;
 
-  _PointerType currentPointerType;
+  PointerType currentPointerType;
 
   dynamic get min => _min;
   dynamic _min;
@@ -223,13 +235,13 @@ class _RenderBaseSlider extends RenderProxyBox
     markNeedsLayout();
   }
 
-  bool get showTooltip => _showTooltip;
-  bool _showTooltip;
-  set showTooltip(bool value) {
-    if (_showTooltip == value) {
+  bool get enableTooltip => _enableTooltip;
+  bool _enableTooltip;
+  set enableTooltip(bool value) {
+    if (_enableTooltip == value) {
       return;
     }
-    _showTooltip = value;
+    _enableTooltip = value;
   }
 
   LabelPlacement get labelPlacement => _labelPlacement;
@@ -392,7 +404,7 @@ class _RenderBaseSlider extends RenderProxyBox
       return;
     }
     _textDirection = value;
-    _updateTextPainter();
+    updateTextPainter();
     markNeedsPaint();
   }
 
@@ -404,7 +416,7 @@ class _RenderBaseSlider extends RenderProxyBox
       return;
     }
     _mediaQueryData = value;
-    _updateTextPainter();
+    updateTextPainter();
     markNeedsLayout();
   }
 
@@ -466,7 +478,7 @@ class _RenderBaseSlider extends RenderProxyBox
       ? _stepDuration ?? adjustmentUnit
       : _stepSize ?? adjustmentUnit;
 
-  void _updateTextPainter() {
+  void updateTextPainter() {
     textPainter
       ..textDirection = _textDirection
       ..textScaleFactor = _mediaQueryData.textScaleFactor;
@@ -795,13 +807,13 @@ class _RenderBaseSlider extends RenderProxyBox
   Rect getRectangularTooltipRect(TextPainter textPainter, Offset offset,
       Offset thumbCenter, Rect trackRect, SfSliderThemeData themeData) {
     final double rectangularTooltipHeight =
-        textPainter.height + _tooltipTextPadding.dy > _minTooltipHeight
-            ? textPainter.height + _tooltipTextPadding.dy
-            : _minTooltipHeight;
+        textPainter.height + tooltipTextPadding.dy > minTooltipHeight
+            ? textPainter.height + tooltipTextPadding.dy
+            : minTooltipHeight;
     final double halfTextWidth =
-        textPainter.width + _tooltipTextPadding.dx > _minTooltipWidth
-            ? (textPainter.width + _tooltipTextPadding.dx) / 2
-            : _minTooltipWidth / 2;
+        textPainter.width + tooltipTextPadding.dx > minTooltipWidth
+            ? (textPainter.width + tooltipTextPadding.dx) / 2
+            : minTooltipWidth / 2;
 
     double rightLineWidth = thumbCenter.dx + halfTextWidth > trackRect.right
         ? trackRect.right - thumbCenter.dx
@@ -818,7 +830,7 @@ class _RenderBaseSlider extends RenderProxyBox
     final double top = thumbCenter.dy -
         rectangularTooltipHeight -
         offset.dy -
-        _tooltipTriangleHeight;
+        tooltipTriangleHeight;
     final double bottom = thumbCenter.dy - offset.dy;
 
     return Rect.fromLTRB(left, top, right, bottom);
@@ -827,15 +839,15 @@ class _RenderBaseSlider extends RenderProxyBox
   Rect getPaddleTooltipRect(TextPainter textPainter, Offset offset,
       Offset thumbCenter, Rect trackRect, SfSliderThemeData themeData) {
     final double paddleTooltipRadius =
-        textPainter.height > _minPaddleTopCircleRadius
+        textPainter.height > minPaddleTopCircleRadius
             ? textPainter.height
-            : _minPaddleTopCircleRadius;
-    final double topNeckRadius = paddleTooltipRadius - _neckDifference;
+            : minPaddleTopCircleRadius;
+    final double topNeckRadius = paddleTooltipRadius - neckDifference;
     final double bottomNeckRadius =
-        themeData.thumbRadius > _minPaddleTopCircleRadius * _moveNeckValue
-            ? themeData.thumbRadius - _neckDifference
+        themeData.thumbRadius > minPaddleTopCircleRadius * moveNeckValue
+            ? themeData.thumbRadius - neckDifference
             : 4.0;
-    final double halfTextWidth = textPainter.width / 2 + _textPadding;
+    final double halfTextWidth = textPainter.width / 2 + textPadding;
     final double halfPaddleWidth = halfTextWidth > paddleTooltipRadius
         ? halfTextWidth
         : paddleTooltipRadius;
@@ -845,9 +857,9 @@ class _RenderBaseSlider extends RenderProxyBox
     final double right = thumbCenter.dx + halfPaddleWidth - shift;
     final double top = thumbCenter.dy -
         paddleTooltipRadius -
-        paddleTooltipRadius * (1.0 - _moveNeckValue) -
+        paddleTooltipRadius * (1.0 - moveNeckValue) -
         topNeckRadius -
-        offset.dy * (1.0 - _moveNeckValue) -
+        offset.dy * (1.0 - moveNeckValue) -
         bottomNeckRadius;
     final double bottom = thumbCenter.dy + themeData.thumbRadius;
     return Rect.fromLTRB(left, top, right, bottom);
@@ -1006,7 +1018,9 @@ class _RenderBaseSlider extends RenderProxyBox
         // interval as _max - _min.
         final double intervalDiff = isDateTime
             ? 1
-            : _interval != null && _interval > 0 ? _interval : _max - _min;
+            : _interval != null && _interval > 0
+                ? _interval
+                : _max - _min;
         textValue += intervalDiff;
         dateTimePos += 1;
       }
@@ -1236,7 +1250,7 @@ class _RenderBaseSlider extends RenderProxyBox
   void systemFontsDidChange() {
     super.systemFontsDidChange();
     textPainter.markNeedsLayout();
-    _updateTextPainter();
+    updateTextPainter();
   }
 
   @override

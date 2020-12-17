@@ -1,6 +1,71 @@
-## [18.3.35-beta] - 10/01/2020
+## [Unreleased]
+
+**Breaking changes**
+
+* The method `extractTextWithLine` has been removed and add new method `extractTextLines` instead.
+
+**Features**
+
+* Support provided to encrypt or decrypt a PDF document.
+* Support provided to create, read, and edit layers in a PDF document.
+* Support provided to create PDF conformance document.
+* Support provided to extract text with the layout.
+* Support provided to draw an image with pagination.
+* Support provided to add an attachment to the PDF document.
+* Support provided to add document information in a PDF document.
+
+**Bugs**
+
+* The bookmark parsing issue has been resolved now.
+
+## [18.3.52-beta] - 12/01/2020
+
+* The method `extractTextWithLine` from `PdfTextExtractor` has been deprecated and added new method called `extractTextLines` instead.
+
+## [18.3.51-beta] - 11/24/2020
+
+**Bugs**
+
+* The typecasting issue has been resolved now.
+
+## [18.3.48-beta] - 11/11/2020
 
 No changes.
+
+## [18.3.47-beta] - 11/05/2020
+
+No changes.
+
+## [18.3.44-beta] - 10/27/2020
+
+No changes.
+
+## [18.3.42-beta] - 10/20/2020
+
+No changes.
+
+## [18.3.40-beta] - 10/13/2020
+
+No changes.
+
+## [18.3.38-beta] - 10/07/2020
+
+No changes.
+
+## [18.3.35-beta] - 10/01/2020
+
+**Features**
+
+* Support provided to parse the existing PDF document.
+* Support provided to add or remove the PDF pages in an existing PDF document.
+* Support provided to add the graphical content to the existing PDF document page.
+* Provided the incremental update support for the existing PDF document.
+* Support provided to create and load the annotations in a new or existing PDF document.
+* Support provided to load the existing PDF document bookmarks with its destination.
+* Support provided to extract the text in an existing PDF document along with its bounds.
+* Support provided to find the text in an existing PDF document along with its bounds and page index.
+* Support provided to flatten the supported annotations in an existing PDF document.
+* Support provided to save the PDF document with a cross-reference stream.
 
 ## [18.2.59-beta.1] - 09/24/2020
 
@@ -10,9 +75,7 @@ No changes.
 
 ## [18.2.59-beta] - 09/23/2020
 
-**Bugs**
-
-* Now, the issue with package version solving failed has been resolved.
+No changes.
 
 ## [18.2.57-beta] - 09/08/2020
 
@@ -22,7 +85,7 @@ No changes.
 
 No changes.
 
-## [18.2.55-beta] - 08/25/2020 
+## [18.2.55-beta] - 08/25/2020
 
 No changes.
 

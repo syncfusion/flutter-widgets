@@ -39,7 +39,7 @@ class _MilliSecondToken extends _FormatTokenBase {
     if (iFormatLen < _defaultMaxLen) {
       final int iPow = _defaultMaxLen - iFormatLen;
       iMilliSecond =
-          _FormatSection._round(iMilliSecond / math.pow(10, iPow)).toInt();
+          _FormatSection._round(iMilliSecond / pow(10, iPow)).toInt();
       strNativeFormat = _strFormat.substring(1, 1 + iFormatLen - 1);
     } else {
       strNativeFormat = _defaultFormatLong;

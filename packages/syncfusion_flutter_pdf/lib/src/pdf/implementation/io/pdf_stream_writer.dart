@@ -181,7 +181,7 @@ class _PdfStreamWriter implements _IPdfWriter {
 
   void _writeText(dynamic value) {
     if (value is _PdfString) {
-      _stream._write(value._pdfEncode());
+      _stream._write(value._pdfEncode(null));
     } else if (value is List<int>) {
       _stream._write(_PdfString.stringMark[0]);
       _stream._write(value);

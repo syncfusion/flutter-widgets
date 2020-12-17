@@ -22,8 +22,15 @@ class _StepAreaChartPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     Rect clipRect;
     double animationFactor;
-    CartesianChartPoint<dynamic> prevPoint, point;
-    _ChartLocation currentPoint, originPoint, previousPoint;
+    CartesianChartPoint<dynamic> prevPoint, point, oldChartPoint;
+    _ChartLocation currentPoint,
+        originPoint,
+        previousPoint,
+        oldPoint,
+        prevOldPoint;
+    CartesianSeriesRenderer oldSeriesRenderer;
+    final List<CartesianSeriesRenderer> oldSeriesRenderers =
+        chartState._oldSeriesRenderers;
     final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer;
     final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer;
     final StepAreaSeries<dynamic, dynamic> _series = seriesRenderer._series;
@@ -50,6 +57,10 @@ class _StepAreaChartPainter extends CustomPainter {
           Offset(seriesRenderer._xAxisRenderer._axis.plotOffset,
               seriesRenderer._yAxisRenderer._axis.plotOffset));
       canvas.clipRect(axisClipRect);
+
+      oldSeriesRenderer = _getOldSeriesRenderer(
+          chartState, seriesRenderer, seriesIndex, oldSeriesRenderers);
+
       seriesRenderer._storeSeriesProperties(chartState, seriesIndex);
       animationFactor = seriesRenderer._seriesAnimation != null
           ? seriesRenderer._seriesAnimation.value
@@ -63,11 +74,33 @@ class _StepAreaChartPainter extends CustomPainter {
             canvas, animationFactor);
       }
 
+      if (seriesRenderer._visibleDataPoints == null ||
+          seriesRenderer._visibleDataPoints.isNotEmpty) {
+        seriesRenderer._visibleDataPoints = <CartesianChartPoint<dynamic>>[];
+      }
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
         seriesRenderer._calculateRegionData(
             chartState, seriesRenderer, painterKey.index, point, pointIndex);
         if (point.isVisible) {
+          oldChartPoint = _getOldChartPoint(
+              chartState,
+              seriesRenderer,
+              StepAreaSegment,
+              seriesIndex,
+              pointIndex,
+              oldSeriesRenderer,
+              oldSeriesRenderers);
+          oldPoint = oldChartPoint != null
+              ? _calculatePoint(
+                  oldChartPoint.xValue,
+                  oldChartPoint.yValue,
+                  oldSeriesRenderer._xAxisRenderer,
+                  oldSeriesRenderer._yAxisRenderer,
+                  chart.isTransposed,
+                  oldSeriesRenderer._series,
+                  axisClipRect)
+              : null;
           currentPoint = _calculatePoint(
               point.xValue,
               point.yValue,
@@ -95,9 +128,20 @@ class _StepAreaChartPainter extends CustomPainter {
               series,
               axisClipRect);
           _points.add(Offset(currentPoint.x, currentPoint.y));
-          _drawStepAreaPath(_path, _strokePath, prevPoint, currentPoint,
-              originPoint, previousPoint, pointIndex, _series);
+          _drawStepAreaPath(
+              _path,
+              _strokePath,
+              prevPoint,
+              currentPoint,
+              originPoint,
+              previousPoint,
+              oldPoint,
+              prevOldPoint,
+              pointIndex,
+              animationFactor,
+              _series);
           prevPoint = point;
+          prevOldPoint = oldPoint;
         }
       }
 
@@ -149,14 +193,29 @@ class _StepAreaChartPainter extends CustomPainter {
       _ChartLocation currentPoint,
       _ChartLocation originPoint,
       _ChartLocation previousPoint,
+      _ChartLocation oldPoint,
+      _ChartLocation prevOldPoint,
       int pointIndex,
+      double animationFactor,
       StepAreaSeries<dynamic, dynamic> stepAreaSeries) {
-    final num x = currentPoint.x;
-    final num y = currentPoint.y;
+    num x = currentPoint.x;
+    num y = currentPoint.y;
+    num previousPointY = previousPoint?.y;
     final bool closed =
         stepAreaSeries.emptyPointSettings.mode == EmptyPointMode.drop
             ? _getSeriesVisibility(seriesRenderer._dataPoints, pointIndex)
             : false;
+    if (oldPoint != null) {
+      if (chartState._chart.isTransposed) {
+        x = _getAnimateValue(
+            animationFactor, x, oldPoint.x, currentPoint.x, seriesRenderer);
+      } else {
+        y = _getAnimateValue(
+            animationFactor, y, oldPoint.y, currentPoint.y, seriesRenderer);
+        previousPointY = _getAnimateValue(animationFactor, previousPointY,
+            prevOldPoint?.y, previousPoint?.y, seriesRenderer);
+      }
+    }
     if (prevPoint == null ||
         seriesRenderer._dataPoints[pointIndex - 1].isGap == true ||
         (seriesRenderer._dataPoints[pointIndex].isGap == true) ||
@@ -179,7 +238,7 @@ class _StepAreaChartPainter extends CustomPainter {
       _path.lineTo(x, y);
     } else if (pointIndex == seriesRenderer._dataPoints.length - 1 ||
         seriesRenderer._dataPoints[pointIndex + 1].isGap == true) {
-      _strokePath.lineTo(x, previousPoint.y);
+      _strokePath.lineTo(x, previousPointY);
       _strokePath.lineTo(x, y);
       if (stepAreaSeries.borderDrawMode == BorderDrawMode.excludeBottom) {
         _strokePath.lineTo(originPoint.x, originPoint.y);
@@ -187,12 +246,12 @@ class _StepAreaChartPainter extends CustomPainter {
         _strokePath.lineTo(originPoint.x, originPoint.y);
         _strokePath.close();
       }
-      _path.lineTo(x, previousPoint.y);
+      _path.lineTo(x, previousPointY);
       _path.lineTo(x, y);
       _path.lineTo(originPoint.x, originPoint.y);
     } else {
-      _path.lineTo(x, previousPoint.y);
-      _strokePath.lineTo(x, previousPoint.y);
+      _path.lineTo(x, previousPointY);
+      _strokePath.lineTo(x, previousPointY);
       _strokePath.lineTo(x, y);
       _path.lineTo(x, y);
       if (closed) {

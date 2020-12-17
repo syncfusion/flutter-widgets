@@ -99,7 +99,7 @@ class MarkerPointer extends GaugePointer {
 
   /// Specifies the color for marker pointer.
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
@@ -154,7 +154,7 @@ class MarkerPointer extends GaugePointer {
   ///
   /// [imageUrl] is required when setting [MarkerType.image].
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
@@ -175,7 +175,7 @@ class MarkerPointer extends GaugePointer {
   ///
   /// [text] is required when setting [MarkerType.text].
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
@@ -199,7 +199,7 @@ class MarkerPointer extends GaugePointer {
   /// Defaults to the [GaugeTextStyle] property with font size is 12.0 and
   /// font family is Segoe UI.
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
@@ -277,7 +277,7 @@ class MarkerPointer extends GaugePointer {
   /// [MarkerType.diamond], [MarkerType.invertedTriangle],
   /// [MarkerType.triangle] and [MarkerType.rectangle].
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {

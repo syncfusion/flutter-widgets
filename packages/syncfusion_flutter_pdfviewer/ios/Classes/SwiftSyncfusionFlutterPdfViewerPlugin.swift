@@ -70,16 +70,10 @@ public class SwiftSyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
   // Initializes the PDF Renderer and returns the page count.
    private func initializePdfRenderer( call: FlutterMethodCall, result: @escaping FlutterResult)
        {
-           do{
-               self.url = try URL(fileURLWithPath: call.arguments as! String)
-            self.document = try CGPDFDocument(url as CFURL)!
+           self.url =  URL(fileURLWithPath: call.arguments as! String)
+           self.document =  CGPDFDocument(url as CFURL)
            self.pageCount = NSNumber(value: self.document!.numberOfPages)
            result(self.pageCount.stringValue);
-           }
-           catch
-           {
-               result("Flutter Plugin Error");
-           }
     }
     
     // Reinitailize PDF Renderer if the given document URL is different from current document URL
@@ -88,7 +82,7 @@ public class SwiftSyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
         if(self.url == nil || self.url.absoluteString != path.absoluteString)
             {
               self.url = path
-              self.document = try CGPDFDocument(url as CFURL)!
+              self.document = CGPDFDocument(url as CFURL)!
               self.pageCount = NSNumber(value: self.document!.numberOfPages)
         }
     }

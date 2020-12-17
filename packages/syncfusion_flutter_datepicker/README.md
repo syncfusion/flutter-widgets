@@ -33,6 +33,14 @@ The Syncfusion Flutter Date Range Picker is a lightweight widget that allows use
 
 ![multi_date_picker_view](https://cdn.syncfusion.com/content/images/FTControl/Flutter/flutter-daterangepicker-multidatepicker.png)
 
+* **Vertical picker** - Displays two Date Range Pickers side by side in a vertical direction, allowing you to select ranges of dates within two separate months easily.
+
+![vertical_date_picker](https://cdn.syncfusion.com/content/images/FTControl/date+range+picker/side_by_side.png)
+
+* **Hijri date picker** - In addition to the Gregorian calendar, the date range picker supports displaying the Islamic calendar (Hijri date picker).
+
+![hijri_date_picker](https://cdn.syncfusion.com/content/images/FTControl/date+range+picker/hijricalendar.png)
+
 * **Quick navigation** - Navigate back and forth the date-range views and between different view modes.
 
 * **Enable/disable built-in view switching** - Restrict users from navigating to different picker views by disabling view switching. Select values in terms of month, year, or decade with this feature enabled.
@@ -58,6 +66,10 @@ The Syncfusion Flutter Date Range Picker is a lightweight widget that allows use
 ![highlight_holidays_and_weekends](https://cdn.syncfusion.com/content/images/FTControl/Flutter/daterangepicker/customization.png)
 
 * **Appearance customization** - Change the look and feel of the date range picker by customizing its default appearance and style using Flutter decorations.
+
+* **Builder** - Allows you to design and set your own custom view to the month and year cells of the date range picker.
+
+![builders_in_datepicker](https://cdn.syncfusion.com/content/images/FTControl/date+range+picker/cell_builder.png)
 
 * **Right to left(RTL)** - Right-to-left direction support for users working in RTL languages like Hebrew and Arabic.
 

@@ -1,185 +1,5 @@
 part of calendar;
 
-class _HeaderViewPainter extends CustomPainter {
-  _HeaderViewPainter(
-      this.headerStyle,
-      this.calendarTheme,
-      this.isRTL,
-      this.headerText,
-      this.showDatePickerButton,
-      this.isPickerShown,
-      this.mouseHoverPosition,
-      this.textScaleFactor);
-
-  final CalendarHeaderStyle headerStyle;
-  final SfCalendarThemeData calendarTheme;
-  final bool isRTL;
-  final Offset mouseHoverPosition;
-  final bool showDatePickerButton;
-  final bool isPickerShown;
-  final double textScaleFactor;
-  final String headerText;
-  TextPainter _textPainter;
-  Paint _hoverPainter;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
-    const double padding = 5;
-    double xPosition = 5.0;
-    _textPainter = _textPainter ?? TextPainter();
-    _textPainter.textDirection = TextDirection.ltr;
-    _textPainter.maxLines = 1;
-    _textPainter.textWidthBasis = TextWidthBasis.longestLine;
-    _textPainter.textScaleFactor = textScaleFactor;
-
-    final TextStyle style =
-        headerStyle.textStyle ?? calendarTheme.headerTextStyle;
-
-    final TextSpan span = TextSpan(text: headerText, style: style);
-    _textPainter.text = span;
-
-    if (headerStyle.textAlign == TextAlign.justify) {
-      _textPainter.textAlign = headerStyle.textAlign;
-    }
-
-    _textPainter.layout(minWidth: 0, maxWidth: size.width - xPosition);
-
-    final double pickerIconWidth =
-        showDatePickerButton ? style.fontSize ?? 14 : 0;
-    if (headerStyle.textAlign == TextAlign.right ||
-        headerStyle.textAlign == TextAlign.end) {
-      xPosition = size.width - _textPainter.width - padding - pickerIconWidth;
-    } else if (headerStyle.textAlign == TextAlign.center) {
-      xPosition = size.width / 2 - _textPainter.width / 2 - pickerIconWidth / 2;
-      xPosition = xPosition < 0 ? 0 : xPosition;
-    }
-
-    if (isRTL) {
-      xPosition = size.width - _textPainter.width - padding - pickerIconWidth;
-      if (headerStyle.textAlign == TextAlign.right ||
-          headerStyle.textAlign == TextAlign.end) {
-        xPosition = 5.0;
-      } else if (headerStyle.textAlign == TextAlign.center) {
-        xPosition =
-            size.width / 2 - _textPainter.width / 2 - pickerIconWidth / 2;
-        xPosition = xPosition < 0 ? 0 : xPosition;
-      }
-    }
-
-    if (mouseHoverPosition != null) {
-      _addMouseHovering(canvas, size, xPosition, padding, pickerIconWidth);
-    }
-
-    if (kIsWeb && showDatePickerButton && isPickerShown) {
-      _hoverPainter ??= Paint();
-      _hoverPainter.color = Colors.grey.withOpacity(0.3);
-      final double verticalPadding = 2;
-      canvas.drawRect(
-          Rect.fromLTWH(
-              xPosition - padding,
-              verticalPadding,
-              _textPainter.width + (padding * 2) + pickerIconWidth,
-              size.height - (verticalPadding * 2)),
-          _hoverPainter);
-    }
-
-    xPosition = xPosition + (isRTL ? pickerIconWidth : 0);
-    _textPainter.paint(
-        canvas, Offset(xPosition, size.height / 2 - _textPainter.height / 2));
-    if (isRTL) {
-      _drawDatePickerArrow(canvas, xPosition, style, size.width, size.height);
-    } else {
-      _drawDatePickerArrow(canvas, xPosition + _textPainter.width, style,
-          size.width, size.height);
-    }
-  }
-
-  void _drawDatePickerArrow(Canvas canvas, double xPosition, TextStyle style,
-      double width, double height) {
-    if (!showDatePickerButton) {
-      return;
-    }
-
-    Color arrowColor = style.color ?? Colors.black87;
-    arrowColor = arrowColor.withOpacity(arrowColor.opacity * 0.6);
-    final TextSpan span = TextSpan(
-        text: String.fromCharCode(isPickerShown
-            ? Icons.arrow_drop_up.codePoint
-            : Icons.arrow_drop_down.codePoint),
-        style: style.copyWith(
-            color: arrowColor,
-            fontFamily: 'MaterialIcons',
-            fontSize: style.fontSize ?? 14));
-    _textPainter.text = span;
-    _textPainter.layout(minWidth: 0, maxWidth: width - xPosition);
-    _textPainter.paint(
-        canvas,
-        Offset(xPosition - (isRTL ? _textPainter.width : 0),
-            height / 2 - _textPainter.height / 2));
-  }
-
-  void _addMouseHovering(Canvas canvas, Size size, double xPosition,
-      double padding, double pickerIconWidth) {
-    _hoverPainter ??= Paint();
-    final double verticalPadding = 2;
-    if (xPosition <= mouseHoverPosition.dx &&
-        xPosition + _textPainter.width + pickerIconWidth >=
-            mouseHoverPosition.dx) {
-      _hoverPainter.color = (calendarTheme.brightness != null &&
-                  calendarTheme.brightness == Brightness.dark
-              ? Colors.white
-              : Colors.black87)
-          .withOpacity(0.04);
-      canvas.drawRect(
-          Rect.fromLTWH(
-              xPosition - padding,
-              verticalPadding,
-              _textPainter.width + (padding * 2) + pickerIconWidth,
-              size.height - (2 * verticalPadding)),
-          _hoverPainter);
-    }
-  }
-
-  /// overrides this property to build the semantics information which uses to
-  /// return the required information for accessibility, need to return the list
-  /// of custom painter semantics which contains the rect area and the semantics
-  /// properties for accessibility
-  @override
-  SemanticsBuilderCallback get semanticsBuilder {
-    return (Size size) {
-      return <CustomPainterSemantics>[
-        CustomPainterSemantics(
-          rect: Offset.zero & size,
-          properties: SemanticsProperties(
-            label: headerText,
-            textDirection: TextDirection.ltr,
-          ),
-        ),
-      ];
-    };
-  }
-
-  @override
-  bool shouldRebuildSemantics(CustomPainter oldDelegate) {
-    final _HeaderViewPainter oldWidget = oldDelegate;
-    return oldWidget.headerText != headerText;
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    final _HeaderViewPainter oldWidget = oldDelegate;
-    return oldWidget.headerStyle != headerStyle ||
-        oldWidget.calendarTheme != calendarTheme ||
-        oldWidget.isRTL != isRTL ||
-        oldWidget.showDatePickerButton != showDatePickerButton ||
-        oldWidget.isPickerShown != isPickerShown ||
-        oldWidget.headerText != headerText ||
-        oldWidget.mouseHoverPosition != mouseHoverPosition ||
-        oldWidget.textScaleFactor != textScaleFactor;
-  }
-}
-
 @immutable
 class _CalendarHeaderView extends StatefulWidget {
   const _CalendarHeaderView(
@@ -210,7 +30,8 @@ class _CalendarHeaderView extends StatefulWidget {
       this.headerTapCallback,
       this.headerLongPressCallback,
       this.todayHighlightColor,
-      this.textScaleFactor);
+      this.textScaleFactor,
+      this.isMobilePlatform);
 
   final List<DateTime> visibleDates;
   final CalendarHeaderStyle headerStyle;
@@ -240,13 +61,13 @@ class _CalendarHeaderView extends StatefulWidget {
   final bool isPickerShown;
   final double textScaleFactor;
   final Color todayHighlightColor;
+  final bool isMobilePlatform;
 
   @override
   _CalendarHeaderViewState createState() => _CalendarHeaderViewState();
 }
 
 class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
-  Offset _mouseHoverPosition;
   Map<CalendarView, String> _calendarViews;
 
   @override
@@ -269,7 +90,8 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isWebView = kIsWeb && widget.width > _kMobileViewWidth;
+    final bool useMobilePlatformUI =
+        _isMobileLayoutUI(widget.width, widget.isMobilePlatform);
     double arrowWidth = 0;
     double headerWidth = widget.width;
 
@@ -319,7 +141,7 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
     /// Today icon shown when the date picker enabled on calendar.
     if (widget.showDatePickerButton) {
       todayIconWidth = iconWidth;
-      if (isWebView) {
+      if (!useMobilePlatformUI) {
         /// 5 as padding for around today text view.
         final Size todayButtonSize = _getTextWidgetWidth(
             todayText, widget.height, widget.width - totalArrowWidth, context,
@@ -330,11 +152,11 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
     }
 
     double headerTextWidth = 0;
-    if (kIsWeb) {
+    if (!widget.isMobilePlatform) {
       final Size headerTextSize = _getTextWidgetWidth(
           headerString,
           widget.height,
-          widget.width - totalArrowWidth - todayIconWidth - 5,
+          widget.width - totalArrowWidth - todayIconWidth - padding,
           context,
           style: widget.headerStyle.textStyle ??
               widget.calendarTheme.headerTextStyle);
@@ -348,7 +170,26 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
 
     if (isNeedViewSwitchOption) {
       calendarViewWidth = iconWidth;
-      if (isWebView) {
+      if (useMobilePlatformUI) {
+        maxHeaderHeight =
+            maxHeaderHeight != 0 && maxHeaderHeight <= widget.height
+                ? maxHeaderHeight
+                : widget.height;
+
+        /// Render allowed views icon on mobile view.
+        calendarViewIcon = _getCalendarViewWidget(
+            useMobilePlatformUI,
+            false,
+            calendarViewWidth,
+            maxHeaderHeight,
+            style,
+            arrowColor,
+            headerTextColor,
+            widget.view,
+            widget.isMobilePlatform ? false : widget.viewChangeNotifier.value,
+            defaultCalendarViewTextSize,
+            semanticLabel: 'CalendarView');
+      } else {
         /// Assign divider width when today icon text shown.
         dividerWidth = widget.showDatePickerButton ? 5 : 0;
 
@@ -390,7 +231,7 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
           for (int i = 0; i < allowedViewsLength; i++) {
             final CalendarView currentView = widget.allowedViews[i];
             children.add(_getCalendarViewWidget(
-                isWebView,
+                useMobilePlatformUI,
                 false,
                 calendarViewsWidth[currentView],
                 maxHeaderHeight,
@@ -419,7 +260,7 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
           calendarViewWidth =
               calendarViewSize.width + padding + headerIconTextWidth;
           children.add(_getCalendarViewWidget(
-              isWebView,
+              useMobilePlatformUI,
               true,
               calendarViewWidth,
               maxHeaderHeight,
@@ -431,25 +272,6 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
               defaultCalendarViewTextSize,
               semanticLabel: 'CalendarView'));
         }
-      } else {
-        maxHeaderHeight =
-            maxHeaderHeight != 0 && maxHeaderHeight <= widget.height
-                ? maxHeaderHeight
-                : widget.height;
-
-        /// Render allowed views icon on mobile view.
-        calendarViewIcon = _getCalendarViewWidget(
-            isWebView,
-            false,
-            calendarViewWidth,
-            maxHeaderHeight,
-            style,
-            arrowColor,
-            headerTextColor,
-            widget.view,
-            kIsWeb ? widget.viewChangeNotifier.value : false,
-            defaultCalendarViewTextSize,
-            semanticLabel: 'CalendarView');
       }
     }
 
@@ -490,12 +312,26 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
         headerHeight == widget.height ? headerHeight * 0.6 : headerHeight * 0.8;
     arrowSize = arrowSize > 25 ? 25 : arrowSize;
     arrowSize = arrowSize * widget.textScaleFactor;
-    final bool isCenterAlignment = kIsWeb &&
+    final bool isCenterAlignment = !widget.isMobilePlatform &&
         (navigationArrowEnabled || isNeedViewSwitchOption) &&
         widget.headerStyle.textAlign != null &&
         (widget.headerStyle.textAlign == TextAlign.center ||
             widget.headerStyle.textAlign == TextAlign.justify);
-    final Widget headerText = !kIsWeb
+
+    Alignment _getHeaderAlignment() {
+      if (widget.headerStyle.textAlign == null ||
+          widget.headerStyle.textAlign == TextAlign.left ||
+          widget.headerStyle.textAlign == TextAlign.start) {
+        return widget.isRTL ? Alignment.centerRight : Alignment.centerLeft;
+      } else if (widget.headerStyle.textAlign == TextAlign.right ||
+          widget.headerStyle.textAlign == TextAlign.end) {
+        return widget.isRTL ? Alignment.centerLeft : Alignment.centerRight;
+      }
+
+      return Alignment.center;
+    }
+
+    final Widget headerText = widget.isMobilePlatform
         ? Container(
             alignment: Alignment.center,
             color: widget.headerStyle.backgroundColor ??
@@ -503,122 +339,156 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
             width: isCenterAlignment && headerWidth > 200 ? 200 : headerWidth,
             height: headerHeight,
             padding: const EdgeInsets.all(2),
-            child: FlatButton(
-              //// set splash color as transparent when header does not have
-              // date piker.
-              splashColor:
-                  !widget.showDatePickerButton ? Colors.transparent : null,
-              highlightColor:
-                  !widget.showDatePickerButton ? Colors.transparent : null,
-              hoverColor:
-                  !widget.showDatePickerButton ? Colors.transparent : null,
-              color: widget.headerStyle.backgroundColor ??
-                  widget.calendarTheme.headerBackgroundColor,
-              onPressed: () {
-                widget.headerTapCallback(
-                    calendarViewWidth + dividerWidth + todayIconWidth);
-              },
-              onLongPress: () {
-                widget.headerLongPressCallback(
-                    calendarViewWidth + dividerWidth + todayIconWidth);
-              },
-              padding: const EdgeInsets.all(0),
-              child: Semantics(
-                label: headerString,
-                child: Container(
-                    width: isCenterAlignment && headerWidth > 200
-                        ? 200
-                        : headerWidth,
-                    height: headerHeight,
-                    alignment: Alignment.centerLeft,
-                    padding: EdgeInsets.symmetric(horizontal: 5),
-                    child: Row(
-                      mainAxisAlignment: _getAlignmentFromTextAlign(),
-                      children: widget.showDatePickerButton
-                          ? [
-                              Text(
-                                headerString,
-                                style: widget.headerStyle.textStyle ??
-                                    widget.calendarTheme.headerTextStyle,
-                                maxLines: 1,
-                              ),
-                              Icon(
-                                widget.isPickerShown
-                                    ? Icons.arrow_drop_up
-                                    : Icons.arrow_drop_down,
-                                color: arrowColor,
-                                size: (widget.headerStyle.textStyle ??
-                                            widget
-                                                .calendarTheme.headerTextStyle)
-                                        .fontSize ??
-                                    14,
-                              )
-                            ]
-                          : [
-                              Text(
-                                headerString,
-                                style: widget.headerStyle.textStyle ??
-                                    widget.calendarTheme.headerTextStyle,
-                                maxLines: 1,
-                              )
-                            ],
-                    )),
-              ),
-            ),
+            child: Material(
+                color: widget.headerStyle.backgroundColor ??
+                    widget.calendarTheme.headerBackgroundColor,
+                child: InkWell(
+                  //// set splash color as transparent when header does not have
+                  // date piker.
+                  splashColor:
+                      !widget.showDatePickerButton ? Colors.transparent : null,
+                  highlightColor:
+                      !widget.showDatePickerButton ? Colors.transparent : null,
+                  hoverColor:
+                      !widget.showDatePickerButton ? Colors.transparent : null,
+                  splashFactory: _CustomSplashFactory(),
+                  onTap: () {
+                    widget.headerTapCallback(
+                        calendarViewWidth + dividerWidth + todayIconWidth);
+                  },
+                  onLongPress: () {
+                    widget.headerLongPressCallback(
+                        calendarViewWidth + dividerWidth + todayIconWidth);
+                  },
+                  child: Semantics(
+                    label: headerString,
+                    child: Container(
+                        width: isCenterAlignment && headerWidth > 200
+                            ? 200
+                            : headerWidth,
+                        height: headerHeight,
+                        alignment: Alignment.centerLeft,
+                        padding: EdgeInsets.symmetric(horizontal: 5),
+                        child: Row(
+                          mainAxisAlignment: _getAlignmentFromTextAlign(),
+                          children: widget.showDatePickerButton
+                              ? [
+                                  Flexible(
+                                      child: Text(headerString,
+                                          style: widget.headerStyle.textStyle ??
+                                              widget.calendarTheme
+                                                  .headerTextStyle,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.clip,
+                                          softWrap: false,
+                                          textDirection: TextDirection.ltr)),
+                                  Icon(
+                                    widget.isPickerShown
+                                        ? Icons.arrow_drop_up
+                                        : Icons.arrow_drop_down,
+                                    color: arrowColor,
+                                    size: (widget.headerStyle.textStyle ??
+                                                widget.calendarTheme
+                                                    .headerTextStyle)
+                                            .fontSize ??
+                                        14,
+                                  )
+                                ]
+                              : [
+                                  Flexible(
+                                      child: Text(headerString,
+                                          style: widget.headerStyle.textStyle ??
+                                              widget.calendarTheme
+                                                  .headerTextStyle,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.clip,
+                                          softWrap: false,
+                                          textDirection: TextDirection.ltr))
+                                ],
+                        )),
+                  ),
+                )),
           )
-        : GestureDetector(
-            child: MouseRegion(
-                onEnter: (PointerEnterEvent event) {
-                  _updateMouseHoveringPosition(
-                      event.position,
-                      arrowWidth,
-                      isCenterAlignment && headerWidth > 200
-                          ? 200
-                          : headerWidth,
-                      calendarViewWidth,
-                      todayIconWidth,
-                      dividerWidth);
-                },
-                onHover: (PointerHoverEvent event) {
-                  _updateMouseHoveringPosition(
-                      event.position,
-                      arrowWidth,
-                      isCenterAlignment && headerWidth > 200
-                          ? 200
-                          : headerWidth,
-                      calendarViewWidth,
-                      todayIconWidth,
-                      dividerWidth);
-                },
-                onExit: (PointerExitEvent event) {
-                  setState(() {
-                    _mouseHoverPosition = null;
-                  });
-                },
-                child: RepaintBoundary(
-                    child: CustomPaint(
-                  painter: _HeaderViewPainter(
-                      widget.headerStyle,
-                      widget.calendarTheme,
-                      widget.isRTL,
-                      headerString,
-                      widget.showDatePickerButton,
-                      widget.isPickerShown,
-                      _mouseHoverPosition,
-                      widget.textScaleFactor),
-                  size: isCenterAlignment
-                      ? Size(
-                          headerWidth > 200 ? 200 : headerWidth, headerHeight)
-                      : Size(headerWidth, headerHeight),
-                ))),
-            onTapUp: (TapUpDetails details) {
-              widget.headerTapCallback(
-                  calendarViewWidth + dividerWidth + todayIconWidth);
-            },
-            onLongPressStart: (LongPressStartDetails details) {
-              widget.headerLongPressCallback(
-                  calendarViewWidth + dividerWidth + todayIconWidth);
-            });
+        : Container(
+            alignment: _getHeaderAlignment(),
+            color: widget.headerStyle.backgroundColor ??
+                widget.calendarTheme.headerBackgroundColor,
+            width: isCenterAlignment && headerWidth > 200 ? 200 : headerWidth,
+            height: headerHeight,
+            padding: const EdgeInsets.all(2),
+            child: Material(
+                color: widget.headerStyle.backgroundColor ??
+                    widget.calendarTheme.headerBackgroundColor,
+                child: InkWell(
+                  //// set splash color as transparent when header does not have
+                  // date piker.
+                  splashColor:
+                      !widget.showDatePickerButton ? Colors.transparent : null,
+                  highlightColor:
+                      !widget.showDatePickerButton ? Colors.transparent : null,
+                  splashFactory: _CustomSplashFactory(),
+                  onTap: () {
+                    widget.headerTapCallback(
+                        calendarViewWidth + dividerWidth + todayIconWidth);
+                  },
+                  onLongPress: () {
+                    widget.headerLongPressCallback(
+                        calendarViewWidth + dividerWidth + todayIconWidth);
+                  },
+                  child: Semantics(
+                    label: headerString,
+                    child: Container(
+                        color:
+                            widget.showDatePickerButton && widget.isPickerShown
+                                ? Colors.grey.withOpacity(0.3)
+                                : widget.headerStyle.backgroundColor ??
+                                    widget.calendarTheme.headerBackgroundColor,
+                        width: isCenterAlignment && headerTextWidth > 200
+                            ? 200
+                            : headerTextWidth,
+                        height: headerHeight,
+                        alignment: Alignment.center,
+                        padding: EdgeInsets.symmetric(horizontal: 5),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: widget.showDatePickerButton
+                              ? [
+                                  Flexible(
+                                      child: Text(headerString,
+                                          style: widget.headerStyle.textStyle ??
+                                              widget.calendarTheme
+                                                  .headerTextStyle,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.clip,
+                                          softWrap: false,
+                                          textDirection: TextDirection.ltr)),
+                                  Icon(
+                                    widget.isPickerShown
+                                        ? Icons.arrow_drop_up
+                                        : Icons.arrow_drop_down,
+                                    color: arrowColor,
+                                    size: (widget.headerStyle.textStyle ??
+                                                widget.calendarTheme
+                                                    .headerTextStyle)
+                                            .fontSize ??
+                                        14,
+                                  )
+                                ]
+                              : [
+                                  Flexible(
+                                      child: Text(headerString,
+                                          style: widget.headerStyle.textStyle ??
+                                              widget.calendarTheme
+                                                  .headerTextStyle,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.clip,
+                                          softWrap: false,
+                                          textDirection: TextDirection.ltr))
+                                ],
+                        )),
+                  ),
+                )),
+          );
 
     final Container leftArrow = Container(
       alignment: Alignment.center,
@@ -627,32 +497,35 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
       width: arrowWidth,
       height: headerHeight,
       padding: const EdgeInsets.all(2),
-      child: FlatButton(
-        //// set splash color as transparent when arrow reaches min date(disabled)
-        splashColor: prevArrowColor != arrowColor ? Colors.transparent : null,
-        highlightColor:
-            prevArrowColor != arrowColor ? Colors.transparent : null,
-        hoverColor: prevArrowColor != arrowColor ? Colors.transparent : null,
-        color: widget.headerStyle.backgroundColor ??
-            widget.calendarTheme.headerBackgroundColor,
-        onPressed: _backward,
-        padding: const EdgeInsets.all(0),
-        child: Semantics(
-          label: 'Backward',
-          child: Container(
-              width: arrowWidth,
-              height: headerHeight,
-              alignment: Alignment.center,
-              child: Icon(
-                widget.navigationDirection ==
-                        MonthNavigationDirection.horizontal
-                    ? Icons.chevron_left
-                    : Icons.keyboard_arrow_up,
-                color: prevArrowColor,
-                size: arrowSize,
-              )),
-        ),
-      ),
+      child: Material(
+          color: widget.headerStyle.backgroundColor ??
+              widget.calendarTheme.headerBackgroundColor,
+          child: InkWell(
+            //// set splash color as transparent when arrow reaches min date(disabled)
+            splashColor:
+                prevArrowColor != arrowColor ? Colors.transparent : null,
+            highlightColor:
+                prevArrowColor != arrowColor ? Colors.transparent : null,
+            hoverColor:
+                prevArrowColor != arrowColor ? Colors.transparent : null,
+            splashFactory: _CustomSplashFactory(),
+            onTap: _backward,
+            child: Semantics(
+              label: 'Backward',
+              child: Container(
+                  width: arrowWidth,
+                  height: headerHeight,
+                  alignment: Alignment.center,
+                  child: Icon(
+                    widget.navigationDirection ==
+                            MonthNavigationDirection.horizontal
+                        ? Icons.chevron_left
+                        : Icons.keyboard_arrow_up,
+                    color: prevArrowColor,
+                    size: arrowSize,
+                  )),
+            ),
+          )),
     );
 
     final Container rightArrow = Container(
@@ -662,32 +535,35 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
       width: arrowWidth,
       height: headerHeight,
       padding: const EdgeInsets.all(2),
-      child: FlatButton(
-        //// set splash color as transparent when arrow reaches max date(disabled)
-        splashColor: nextArrowColor != arrowColor ? Colors.transparent : null,
-        highlightColor:
-            nextArrowColor != arrowColor ? Colors.transparent : null,
-        hoverColor: nextArrowColor != arrowColor ? Colors.transparent : null,
-        color: widget.headerStyle.backgroundColor ??
-            widget.calendarTheme.headerBackgroundColor,
-        onPressed: _forward,
-        padding: const EdgeInsets.all(0),
-        child: Semantics(
-          label: 'Forward',
-          child: Container(
-              width: arrowWidth,
-              height: headerHeight,
-              alignment: Alignment.center,
-              child: Icon(
-                widget.navigationDirection ==
-                        MonthNavigationDirection.horizontal
-                    ? Icons.chevron_right
-                    : Icons.keyboard_arrow_down,
-                color: nextArrowColor,
-                size: arrowSize,
-              )),
-        ),
-      ),
+      child: Material(
+          color: widget.headerStyle.backgroundColor ??
+              widget.calendarTheme.headerBackgroundColor,
+          child: InkWell(
+            //// set splash color as transparent when arrow reaches max date(disabled)
+            splashColor:
+                nextArrowColor != arrowColor ? Colors.transparent : null,
+            highlightColor:
+                nextArrowColor != arrowColor ? Colors.transparent : null,
+            hoverColor:
+                nextArrowColor != arrowColor ? Colors.transparent : null,
+            splashFactory: _CustomSplashFactory(),
+            onTap: _forward,
+            child: Semantics(
+              label: 'Forward',
+              child: Container(
+                  width: arrowWidth,
+                  height: headerHeight,
+                  alignment: Alignment.center,
+                  child: Icon(
+                    widget.navigationDirection ==
+                            MonthNavigationDirection.horizontal
+                        ? Icons.chevron_right
+                        : Icons.keyboard_arrow_down,
+                    color: nextArrowColor,
+                    size: arrowSize,
+                  )),
+            ),
+          )),
     );
 
     final Widget todayIcon = Container(
@@ -697,74 +573,66 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
       width: todayIconWidth,
       height: headerHeight,
       padding: const EdgeInsets.all(2),
-      child: FlatButton(
-        color: widget.headerStyle.backgroundColor ??
-            widget.calendarTheme.headerBackgroundColor,
-        onPressed: () {
-          widget.removePicker();
-          widget.controller.displayDate = DateTime.now();
-        },
-        padding: const EdgeInsets.all(0),
-        child: Semantics(
-          label: todayText,
-          child: isWebView
-              ? Container(
-                  width: todayIconWidth,
-                  alignment: Alignment.center,
-                  child: Text(
-                    todayText,
-                    style: TextStyle(
-                        color: headerTextColor,
-                        fontSize: defaultCalendarViewTextSize),
-                    maxLines: 1,
-                  ))
-              : Container(
-                  width: todayIconWidth,
-                  height: headerHeight,
-                  alignment: Alignment.center,
-                  child: Icon(
-                    Icons.today,
-                    color: style.color,
-                    size: style.fontSize,
-                  )),
-        ),
-      ),
+      child: Material(
+          color: widget.headerStyle.backgroundColor ??
+              widget.calendarTheme.headerBackgroundColor,
+          child: InkWell(
+            splashFactory: _CustomSplashFactory(),
+            onTap: () {
+              widget.removePicker();
+              widget.controller.displayDate = DateTime.now();
+            },
+            child: Semantics(
+              label: todayText,
+              child: useMobilePlatformUI
+                  ? Container(
+                      width: todayIconWidth,
+                      height: headerHeight,
+                      alignment: Alignment.center,
+                      child: Icon(
+                        Icons.today,
+                        color: style.color,
+                        size: style.fontSize,
+                      ))
+                  : Container(
+                      width: todayIconWidth,
+                      alignment: Alignment.center,
+                      child: Text(
+                        todayText,
+                        style: TextStyle(
+                            color: headerTextColor,
+                            fontSize: defaultCalendarViewTextSize),
+                        maxLines: 1,
+                        textDirection: TextDirection.ltr,
+                      )),
+            ),
+          )),
     );
 
-    final Widget dividerWidget =
-        widget.showDatePickerButton && isNeedViewSwitchOption && isWebView
-            ? Container(
-                alignment: Alignment.center,
-                color: widget.headerStyle.backgroundColor ??
-                    widget.calendarTheme.headerBackgroundColor,
-                width: dividerWidth,
-                height: headerHeight,
-                padding: const EdgeInsets.symmetric(vertical: 5),
-                child: VerticalDivider(
-                  color: Colors.grey,
-                  thickness: 0.5,
-                ))
-            : Container(
-                width: 0,
-                height: 0,
-              );
+    final Widget dividerWidget = widget.showDatePickerButton &&
+            isNeedViewSwitchOption &&
+            !useMobilePlatformUI
+        ? Container(
+            alignment: Alignment.center,
+            color: widget.headerStyle.backgroundColor ??
+                widget.calendarTheme.headerBackgroundColor,
+            width: dividerWidth,
+            height: headerHeight,
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            child: VerticalDivider(
+              color: Colors.grey,
+              thickness: 0.5,
+            ))
+        : Container(
+            width: 0,
+            height: 0,
+          );
 
     List<Widget> rowChildren = <Widget>[];
     if (widget.headerStyle.textAlign == null ||
         widget.headerStyle.textAlign == TextAlign.left ||
         widget.headerStyle.textAlign == TextAlign.start) {
-      if (kIsWeb) {
-        rowChildren = <Widget>[
-          leftArrow,
-          rightArrow,
-          headerText,
-          todayIcon,
-          dividerWidget,
-        ];
-        isWebView
-            ? rowChildren.addAll(children)
-            : rowChildren.add(calendarViewIcon);
-      } else {
+      if (widget.isMobilePlatform) {
         rowChildren = <Widget>[
           headerText,
           todayIcon,
@@ -772,6 +640,17 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
           leftArrow,
           rightArrow,
         ];
+      } else {
+        rowChildren = <Widget>[
+          leftArrow,
+          rightArrow,
+          headerText,
+          todayIcon,
+          dividerWidget,
+        ];
+        useMobilePlatformUI
+            ? rowChildren.add(calendarViewIcon)
+            : rowChildren.addAll(children);
       }
 
       return Row(
@@ -780,17 +659,7 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
           children: rowChildren);
     } else if (widget.headerStyle.textAlign == TextAlign.right ||
         widget.headerStyle.textAlign == TextAlign.end) {
-      if (kIsWeb) {
-        isWebView
-            ? rowChildren.addAll(children)
-            : rowChildren.add(calendarViewIcon);
-
-        rowChildren.add(dividerWidget);
-        rowChildren.add(todayIcon);
-        rowChildren.add(headerText);
-        rowChildren.add(leftArrow);
-        rowChildren.add(rightArrow);
-      } else {
+      if (widget.isMobilePlatform) {
         rowChildren = <Widget>[
           leftArrow,
           rightArrow,
@@ -798,6 +667,16 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
           todayIcon,
           headerText,
         ];
+      } else {
+        useMobilePlatformUI
+            ? rowChildren.add(calendarViewIcon)
+            : rowChildren.addAll(children);
+
+        rowChildren.add(dividerWidget);
+        rowChildren.add(todayIcon);
+        rowChildren.add(headerText);
+        rowChildren.add(leftArrow);
+        rowChildren.add(rightArrow);
       }
 
       return Row(
@@ -805,7 +684,16 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: rowChildren);
     } else {
-      if (kIsWeb) {
+      if (widget.isMobilePlatform) {
+        rowChildren = <Widget>[
+          leftArrow,
+          headerText,
+          todayIcon,
+          dividerWidget,
+          calendarViewIcon,
+          rightArrow,
+        ];
+      } else {
         rowChildren = <Widget>[
           leftArrow,
           headerText,
@@ -813,20 +701,9 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
           todayIcon,
           dividerWidget,
         ];
-        isWebView
-            ? rowChildren.addAll(children)
-            : rowChildren.add(calendarViewIcon);
-      } else {
-        rowChildren = <Widget>[
-          leftArrow,
-          headerText,
-          todayIcon,
-          dividerWidget,
-        ];
-        isWebView
-            ? rowChildren.addAll(children)
-            : rowChildren.add(calendarViewIcon);
-        rowChildren.add(rightArrow);
+        useMobilePlatformUI
+            ? rowChildren.add(calendarViewIcon)
+            : rowChildren.addAll(children);
       }
 
       return Row(
@@ -857,7 +734,7 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
   }
 
   Widget _getCalendarViewWidget(
-      bool isWebView,
+      bool useMobilePlatformUI,
       bool isNeedIcon,
       double width,
       double height,
@@ -876,74 +753,79 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
       width: width,
       height: height,
       padding: EdgeInsets.all(2),
-      child: FlatButton(
-        color: isHighlighted && (isNeedIcon || !isWebView)
-            ? Colors.grey.withOpacity(0.3)
-            : widget.headerStyle.backgroundColor ??
-                widget.calendarTheme.headerBackgroundColor,
-        onPressed: () {
-          if (isNeedIcon || !isWebView) {
-            widget.viewChangeNotifier.value = !widget.viewChangeNotifier.value;
-          } else {
-            widget.controller.view = view;
-          }
-        },
-        padding: const EdgeInsets.all(0),
-        child: Semantics(
-          label: semanticLabel ?? text,
-          child: isWebView
-              ? (isNeedIcon
+      child: Material(
+          color: isHighlighted && (isNeedIcon || useMobilePlatformUI)
+              ? Colors.grey.withOpacity(0.3)
+              : widget.headerStyle.backgroundColor ??
+                  widget.calendarTheme.headerBackgroundColor,
+          child: InkWell(
+            splashFactory: _CustomSplashFactory(),
+            onTap: () {
+              if (isNeedIcon || useMobilePlatformUI) {
+                widget.viewChangeNotifier.value =
+                    !widget.viewChangeNotifier.value;
+              } else {
+                widget.controller.view = view;
+              }
+            },
+            child: Semantics(
+              label: semanticLabel ?? text,
+              child: useMobilePlatformUI
                   ? Container(
                       width: width,
                       height: height,
                       alignment: Alignment.center,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
+                      child: Icon(
+                        Icons.more_vert,
+                        color: style.color,
+                        size: style.fontSize,
+                      ))
+                  : (isNeedIcon
+                      ? Container(
+                          width: width,
+                          height: height,
+                          alignment: Alignment.center,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                text,
+                                style: TextStyle(
+                                    color: headerTextColor,
+                                    fontSize: defaultCalendarViewTextSize),
+                                maxLines: 1,
+                                textDirection: TextDirection.ltr,
+                              ),
+                              Icon(
+                                widget.viewChangeNotifier.value
+                                    ? Icons.arrow_drop_up
+                                    : Icons.arrow_drop_down,
+                                color: arrowColor,
+                                size: (widget.headerStyle.textStyle ??
+                                            widget
+                                                .calendarTheme.headerTextStyle)
+                                        .fontSize ??
+                                    14,
+                              )
+                            ],
+                          ))
+                      : Container(
+                          width: width,
+                          height: height,
+                          alignment: Alignment.center,
+                          child: Text(
                             text,
                             style: TextStyle(
-                                color: headerTextColor,
+                                color: isHighlighted
+                                    ? widget.todayHighlightColor ??
+                                        widget.calendarTheme.todayHighlightColor
+                                    : headerTextColor,
                                 fontSize: defaultCalendarViewTextSize),
                             maxLines: 1,
-                          ),
-                          Icon(
-                            widget.viewChangeNotifier.value
-                                ? Icons.arrow_drop_up
-                                : Icons.arrow_drop_down,
-                            color: arrowColor,
-                            size: (widget.headerStyle.textStyle ??
-                                        widget.calendarTheme.headerTextStyle)
-                                    .fontSize ??
-                                14,
-                          )
-                        ],
-                      ))
-                  : Container(
-                      width: width,
-                      height: height,
-                      alignment: Alignment.center,
-                      child: Text(
-                        text,
-                        style: TextStyle(
-                            color: isHighlighted
-                                ? widget.todayHighlightColor ??
-                                    widget.calendarTheme.todayHighlightColor
-                                : headerTextColor,
-                            fontSize: defaultCalendarViewTextSize),
-                        maxLines: 1,
-                      )))
-              : Container(
-                  width: width,
-                  height: height,
-                  alignment: Alignment.center,
-                  child: Icon(
-                    Icons.more_vert,
-                    color: style.color,
-                    size: style.fontSize,
-                  )),
-        ),
-      ),
+                            textDirection: TextDirection.ltr,
+                          ))),
+            ),
+          )),
     );
   }
 
@@ -1027,49 +909,5 @@ class _CalendarHeaderViewState extends State<_CalendarHeaderView> {
     }
 
     return null;
-  }
-
-  void _updateMouseHoveringPosition(
-      Offset globalPosition,
-      double arrowWidth,
-      double headerWidth,
-      double calendarViewWidth,
-      double todayIconWidth,
-      double dividerWidth) {
-    final RenderBox box = context.findRenderObject();
-    final Offset localPosition = box.globalToLocal(globalPosition);
-    double xPosition = localPosition.dx;
-
-    if ((widget.headerStyle.textAlign == null ||
-        widget.headerStyle.textAlign == TextAlign.left ||
-        widget.headerStyle.textAlign == TextAlign.start)) {
-      xPosition = localPosition.dx -
-          (widget.isRTL
-              ? calendarViewWidth + todayIconWidth + dividerWidth
-              : arrowWidth * 2);
-    } else if (widget.headerStyle.textAlign == TextAlign.center ||
-        widget.headerStyle.textAlign == TextAlign.justify) {
-      final double _headerStartPosition = ((widget.width -
-              headerWidth -
-              (arrowWidth * 2) -
-              calendarViewWidth -
-              dividerWidth -
-              todayIconWidth) /
-          2);
-      xPosition = localPosition.dx -
-          _headerStartPosition -
-          (widget.isRTL
-              ? arrowWidth + calendarViewWidth + dividerWidth + todayIconWidth
-              : arrowWidth);
-    } else {
-      xPosition = localPosition.dx -
-          (widget.isRTL
-              ? arrowWidth * 2
-              : calendarViewWidth + dividerWidth + todayIconWidth);
-    }
-
-    setState(() {
-      _mouseHoverPosition = Offset(xPosition, localPosition.dy);
-    });
   }
 }

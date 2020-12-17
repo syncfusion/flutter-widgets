@@ -37,7 +37,6 @@ class PdfGrid extends PdfLayoutElement {
   bool _hasColumnSpan;
   bool _hasRowSpan;
   PdfFont _defaultFont;
-  DataTable _dataSource;
   bool _headerRow = true;
   bool _bandedRow = true;
   bool _bandedColumn;
@@ -71,16 +70,6 @@ class PdfGrid extends PdfLayoutElement {
   PdfGridHeaderCollection get headers {
     _headers ??= PdfGridHeaderCollection(this);
     return _headers;
-  }
-
-  /// Gets the data bind to the [PdfGrid] by associating it with an external data source.
-  DataTable get dataSource => _dataSource;
-
-  /// Sets the data bind to the [PdfGrid] by associating it with an external data source.
-  set dataSource(DataTable value) {
-    ArgumentError.checkNotNull(value);
-    _dataSource = value;
-    _setData(this, value);
   }
 
   /// Gets the grid style.
@@ -129,46 +118,6 @@ class PdfGrid extends PdfLayoutElement {
     _isBuiltinStyle = false;
     _defaultFont = PdfStandardFont(PdfFontFamily.helvetica, 8);
     _defaultBorder = PdfBorders();
-  }
-
-  PdfGrid _setData(PdfGrid grid, DataTable source) {
-    final List<DataColumn> dataColumns = source.columns;
-    if (dataColumns.isNotEmpty) {
-      grid.headers.clear();
-      grid.rows._rows.clear();
-      grid.rows._rows.length = 0;
-      grid.columns.add(count: dataColumns.length);
-      grid.headers.add(1);
-      for (int i = 0; i < dataColumns.length; i++) {
-        final Widget cell = dataColumns[i].label;
-        if (cell is Text) {
-          grid.headers[0].cells[i].value = cell.data;
-        } else if (cell is DataTable) {
-          grid.headers[0].cells[i].value = _setData(PdfGrid(), cell);
-        }
-      }
-    }
-    final List<DataRow> dataRows = source.rows;
-    if (dataRows.isNotEmpty) {
-      final int columnCount = dataRows[0].cells.length;
-      if (grid.columns.count <= 0 && columnCount > 0) {
-        grid.columns.add(count: columnCount);
-      }
-      for (int i = 0; i < dataRows.length; i++) {
-        final DataRow dataRow = dataRows[i];
-        final PdfGridRow gridRow = grid.rows.add();
-        for (int j = 0; j < columnCount; j++) {
-          final DataCell dataCell = dataRow.cells[j];
-          final Widget cell = dataCell.child;
-          if (cell is Text) {
-            gridRow.cells[j].value = cell.data;
-          } else if (cell is DataTable) {
-            gridRow.cells[j].value = _setData(PdfGrid(), cell);
-          }
-        }
-      }
-    }
-    return grid;
   }
 
   _Size _measure() {

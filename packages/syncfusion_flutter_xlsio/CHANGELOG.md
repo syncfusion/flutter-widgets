@@ -1,3 +1,21 @@
+## [Unreleased]
+
+**Features**
+
+* Provided support to add hyperlinks to texts and images.
+* Provided support to insert or delete rows and columns.
+* Provided support to autofit rows and columns.
+* Provided support to add logical functions, string functions, and nested formulas.
+* Provided support to protect workbooks and worksheets.
+
+## [18.3.40] - 10/13/2020
+
+**API Changes**
+* Changed the property name for Worksheet showGridLines to showGridlines.
+* Changed the method name for Workbook class saveStream to saveAsStream.
+* Removed the save method from Workbook class.
+* Removed the addFile method from PicturesCollection class.
+
 ## [18.3.35-beta.1] - 10/02/2020
 
 **Features**

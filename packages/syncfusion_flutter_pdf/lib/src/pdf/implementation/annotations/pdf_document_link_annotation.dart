@@ -42,18 +42,35 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
     if (_dictionary.containsKey(_DictionaryProperties.dest)) {
       final _IPdfPrimitive obj =
           _crossTable._getObject(_dictionary[_DictionaryProperties.dest]);
-      final _PdfArray array = obj as _PdfArray;
+      _PdfArray array;
+      if (obj is _PdfArray) {
+        array = obj;
+      } else if (_crossTable._document != null &&
+          _crossTable._document._isLoadedDocument) {
+        if (obj is _PdfName || obj is _PdfString) {
+          array = _crossTable._document._getNamedDestination(obj);
+        }
+      }
       PdfPage page;
-      if (array[0] is _PdfReferenceHolder) {
+      if (array != null && array[0] is _PdfReferenceHolder) {
         final _PdfDictionary dic = _crossTable
             ._getObject(array[0] as _PdfReferenceHolder) as _PdfDictionary;
         page = _crossTable._document.pages._getPage(dic);
         final _PdfName mode = array[1] as _PdfName;
         if (page != null && mode != null) {
           if (mode._name == 'XYZ') {
-            final _PdfNumber left = array[2] as _PdfNumber;
-            final _PdfNumber top = array[3] as _PdfNumber;
-            final _PdfNumber zoom = array[4] as _PdfNumber;
+            _PdfNumber left;
+            _PdfNumber top;
+            _PdfNumber zoom;
+            if (array[2] is _PdfNumber) {
+              left = array[2] as _PdfNumber;
+            }
+            if (array[3] is _PdfNumber) {
+              top = array[3] as _PdfNumber;
+            }
+            if (array[4] is _PdfNumber) {
+              zoom = array[4] as _PdfNumber;
+            }
             final double topValue =
                 (top == null) ? 0 : page.size.height - (top.value.toDouble());
             final double leftValue = (left == null) ? 0 : left.value.toDouble();
@@ -61,11 +78,15 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
             if (zoom != null) {
               _destination.zoom = zoom.value.toDouble();
             }
+            _destination.mode = PdfDestinationMode.location;
           } else if (mode._name == 'Fit') {
             _destination = PdfDestination(page);
             _destination.mode = PdfDestinationMode.fitToPage;
           } else if (mode._name == 'FitH') {
-            final _PdfNumber top = array[2] as _PdfNumber;
+            _PdfNumber top;
+            if (array[2] is _PdfNumber) {
+              top = array[2] as _PdfNumber;
+            }
             final double topValue = (page.size.height - top.value).toDouble();
             _destination = PdfDestination(page, Offset(0, topValue));
             _destination.mode = PdfDestinationMode.fitH;
@@ -91,8 +112,16 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
       if (obj is _PdfReferenceHolder) {
         obj = (obj as _PdfReferenceHolder).object;
       }
-      final _PdfArray array = obj as _PdfArray;
-      if (array != null) {
+      _PdfArray array;
+      if (obj is _PdfArray) {
+        array = obj;
+      } else if (_crossTable._document != null &&
+          _crossTable._document._isLoadedDocument) {
+        if (obj is _PdfName || obj is _PdfString) {
+          array = _crossTable._document._getNamedDestination(obj);
+        }
+      }
+      if (array != null && array[0] is _PdfReferenceHolder) {
         final _PdfReferenceHolder holder = array[0] as _PdfReferenceHolder;
         PdfPage page;
         if (holder != null) {
@@ -106,15 +135,27 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
         if (page != null) {
           final _PdfName mode = array[1] as _PdfName;
           if (mode._name == 'FitBH' || mode._name == 'FitH') {
-            final _PdfNumber top = array[2] as _PdfNumber;
+            _PdfNumber top;
+            if (array[2] is _PdfNumber) {
+              top = array[2] as _PdfNumber;
+            }
             final double topValue =
                 (top == null) ? 0 : page.size.height - (top.value.toDouble());
             _destination = PdfDestination(page, Offset(0, topValue));
             _destination.mode = PdfDestinationMode.fitH;
           } else if (mode._name == 'XYZ') {
-            final _PdfNumber left = array[2] as _PdfNumber;
-            final _PdfNumber top = array[3] as _PdfNumber;
-            final _PdfNumber zoom = array[4] as _PdfNumber;
+            _PdfNumber left;
+            _PdfNumber top;
+            _PdfNumber zoom;
+            if (array[2] is _PdfNumber) {
+              left = array[2] as _PdfNumber;
+            }
+            if (array[3] is _PdfNumber) {
+              top = array[3] as _PdfNumber;
+            }
+            if (array[4] is _PdfNumber) {
+              zoom = array[4] as _PdfNumber;
+            }
             if (page != null) {
               final double topValue =
                   (top == null) ? 0 : page.size.height - (top.value.toDouble());

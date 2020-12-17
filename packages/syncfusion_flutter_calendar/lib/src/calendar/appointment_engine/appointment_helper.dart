@@ -37,10 +37,9 @@ DateTime _getMaxAppointmentDate(
     DateTime maxDate,
     DateTime displayDate,
     ScheduleViewSettings scheduleViewSettings,
-    double viewWidth) {
+    bool useMobilePlatformUI) {
   /// return default max date when [hideEmptyAgendaDays] as false
-  if (!(scheduleViewSettings.hideEmptyScheduleWeek ||
-      (kIsWeb && viewWidth > _kMobileViewWidth))) {
+  if (!scheduleViewSettings.hideEmptyScheduleWeek && useMobilePlatformUI) {
     return maxDate;
   }
 
@@ -142,10 +141,9 @@ DateTime _getMinAppointmentDate(
     DateTime minDate,
     DateTime displayDate,
     ScheduleViewSettings scheduleViewSettings,
-    double viewWidth) {
+    bool useMobilePlatformUI) {
   /// return default min date when [hideEmptyAgendaDays] as false
-  if (!(scheduleViewSettings.hideEmptyScheduleWeek ||
-      (kIsWeb && viewWidth > _kMobileViewWidth))) {
+  if (!scheduleViewSettings.hideEmptyScheduleWeek && useMobilePlatformUI) {
     return minDate;
   }
 
@@ -671,7 +669,7 @@ Location _timeZoneInfoToOlsonTimeZone(String windowsTimeZoneId) {
     final String timeZone = olsonWindowsTimes[windowsTimeZoneId];
     return getLocation(timeZone);
   } else {
-    return null;
+    return getLocation(windowsTimeZoneId);
   }
 }
 
@@ -916,7 +914,7 @@ int _orderAppointmentsAscending(bool value, bool value1) {
 }
 
 void _setAppointmentPositionAndMaxPosition(
-    Object parent,
+    List<_AppointmentView> appointmentCollection,
     SfCalendar calendar,
     CalendarView view,
     List<Appointment> visibleAppointments,
@@ -962,14 +960,8 @@ void _setAppointmentPositionAndMaxPosition(
     }
 
     List<_AppointmentView> intersectingApps;
-    _AppointmentView currentAppView;
-    if (parent is _AppointmentPainter) {
-      currentAppView =
-          _getAppointmentView(currentAppointment, parent, resourceIndex);
-    } else {
-      final _SfCalendarState state = parent;
-      currentAppView = state._getAppointmentView(currentAppointment);
-    }
+    final _AppointmentView currentAppView = _getAppointmentView(
+        currentAppointment, appointmentCollection, resourceIndex);
 
     for (int position = 0; position < maxColsCount; position++) {
       bool isIntersecting = false;
@@ -1088,21 +1080,49 @@ DateTime _convertTimeToAppointmentTimeZone(
     //// Convert the date to appointment time zone
     if (appTimeZoneId == 'Dateline Standard Time') {
       convertedDate = subtractDuration(date.toUtc(), const Duration(hours: 12));
+      //// Above mentioned converted date hold the date value which is equal to original date, but the time zone value changed.
+      //// E.g., Nov 3- 9.00 AM IST equal to Nov 2- 10.30 PM EST
+      //// So convert the Appointment time zone date to current time zone date.
+      convertedDate = DateTime(
+          date.year - (convertedDate.year - date.year),
+          date.month - (convertedDate.month - date.month),
+          date.day - (convertedDate.day - date.day),
+          date.hour - (convertedDate.hour - date.hour),
+          date.minute - (convertedDate.minute - date.minute),
+          date.second);
     } else {
-      convertedDate =
-          TZDateTime.from(date, _timeZoneInfoToOlsonTimeZone(appTimeZoneId));
-    }
+      /// Create the specified date on appointment time zone.
+      /// Eg., Appointment Time zone as Eastern time zone(-5.00) and it date is
+      /// Nov 1 10AM, create the date using location.
+      final DateTime timeZoneDate = TZDateTime(
+          _timeZoneInfoToOlsonTimeZone(appTimeZoneId),
+          date.year,
+          date.month,
+          date.day,
+          date.hour,
+          date.minute,
+          date.second);
 
-    //// Above mentioned converted date hold the date value which is equal to original date, but the time zone value changed.
-    //// E.g., Nov 3- 9.00 AM IST equal to Nov 2- 10.30 PM EST
-    //// So convert the Appointment time zone date to current time zone date.
-    convertedDate = DateTime(
-        date.year - (convertedDate.year - date.year),
-        date.month - (convertedDate.month - date.month),
-        date.day - (convertedDate.day - date.day),
-        date.hour - (convertedDate.hour - date.hour),
-        date.minute - (convertedDate.minute - date.minute),
-        date.second);
+      final Duration offset = DateTime.now().timeZoneOffset;
+
+      /// Convert the appointment time zone date to local date.
+      ///  Eg., Nov 1 10AM(EST) UTC value as Nov 1 3(UTC) add local
+      ///  time zone offset(IST +5.30) return Nov 1 8PM.
+      final DateTime localTimeZoneDate =
+          addDuration(timeZoneDate.toUtc(), offset);
+
+      /// Resulted date as Nov 1 8PM but its time zone as EST so create the
+      /// local time date based on resulted date.
+      /// We does not use from method in TZDateTime because we does not
+      /// know the local time zone location.
+      convertedDate = DateTime(
+          localTimeZoneDate.year,
+          localTimeZoneDate.month,
+          localTimeZoneDate.day,
+          localTimeZoneDate.hour,
+          localTimeZoneDate.minute,
+          localTimeZoneDate.second);
+    }
   }
 
   if (calendarTimeZoneId != null && calendarTimeZoneId != '') {
@@ -1113,21 +1133,33 @@ DateTime _convertTimeToAppointmentTimeZone(
     if (calendarTimeZoneId == 'Dateline Standard Time') {
       actualConvertedDate =
           subtractDuration(convertedDate.toUtc(), const Duration(hours: 12));
+      //// Above mentioned actual converted date hold the date value which is equal to converted date, but the time zone value changed.
+      //// So convert the schedule time zone date to current time zone date for rendering the appointment.
+      return DateTime(
+          convertedDate.year + (actualConvertedDate.year - convertedDate.year),
+          convertedDate.month +
+              (actualConvertedDate.month - convertedDate.month),
+          convertedDate.day + (actualConvertedDate.day - convertedDate.day),
+          convertedDate.hour + (actualConvertedDate.hour - convertedDate.hour),
+          convertedDate.minute +
+              (actualConvertedDate.minute - convertedDate.minute),
+          convertedDate.second);
     } else {
-      actualConvertedDate = TZDateTime.from(
-          convertedDate, _timeZoneInfoToOlsonTimeZone(calendarTimeZoneId));
-    }
+      final Location location =
+          _timeZoneInfoToOlsonTimeZone(calendarTimeZoneId);
 
-    //// Above mentioned actual converted date hold the date value which is equal to converted date, but the time zone value changed.
-    //// So convert the schedule time zone date to current time zone date for rendering the appointment.
-    return DateTime(
-        convertedDate.year + (actualConvertedDate.year - convertedDate.year),
-        convertedDate.month + (actualConvertedDate.month - convertedDate.month),
-        convertedDate.day + (actualConvertedDate.day - convertedDate.day),
-        convertedDate.hour + (actualConvertedDate.hour - convertedDate.hour),
-        convertedDate.minute +
-            (actualConvertedDate.minute - convertedDate.minute),
-        convertedDate.second);
+      /// Convert the local time to calendar time zone.
+      actualConvertedDate = TZDateTime.from(convertedDate, location);
+
+      /// Return the calendar time zone value with local time zone.
+      return DateTime(
+          actualConvertedDate.year,
+          actualConvertedDate.month,
+          actualConvertedDate.day,
+          actualConvertedDate.hour,
+          actualConvertedDate.minute,
+          actualConvertedDate.second);
+    }
   }
 
   return convertedDate;

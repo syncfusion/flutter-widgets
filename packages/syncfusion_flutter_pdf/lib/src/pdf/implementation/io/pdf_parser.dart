@@ -546,9 +546,13 @@ class _PdfParser {
     _match(_next, _TokenType.hexStringStart);
     _advance();
     String sb = '';
+    bool isHex = true;
     while (_next != _TokenType.hexStringEnd) {
       String text = _lexer.text;
-      if (_next == _TokenType.hexStringWeirdEscape) {
+      if (_next == _TokenType.hexStringWeird) {
+        isHex = false;
+      } else if (_next == _TokenType.hexStringWeirdEscape) {
+        isHex = false;
         text = text.substring(1);
       }
       sb += text;
@@ -556,7 +560,7 @@ class _PdfParser {
     }
     _match(_next, _TokenType.hexStringEnd);
     _advance();
-    final _PdfString result = _PdfString(sb);
+    final _PdfString result = _PdfString(sb, !isHex);
     return result;
   }
 

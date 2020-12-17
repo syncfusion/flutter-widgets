@@ -128,7 +128,11 @@ class _RenderVirtualizingCellsWidget extends RenderBox
 
       if (dataRow.rowIndex >
           _GridIndexResolver.getHeaderIndex(dataGridSettings)) {
-        origin -= dataGridSettings.headerRowHeight;
+        final double headerRowsHeight = container.scrollRows
+            .rangeToRegionPoints(
+                0, dataGridSettings.headerLineCount - 1, true)[1]
+            .length;
+        origin -= headerRowsHeight;
       }
 
       // Clipping the column when frozen row applied
@@ -174,6 +178,60 @@ class _RenderVirtualizingCellsWidget extends RenderBox
     final _DataGridSettings dataGridSettings = dataRow._dataGridStateDetails();
     final rect = _getRowRect(dataGridSettings, offset);
     var backgroundColor = Colors.transparent;
+
+    Color getDefaultSelectionBackgroundColor() {
+      return dataGridSettings.dataGridThemeData.brightness == Brightness.light
+          ? Color.fromRGBO(238, 238, 238, 1)
+          : Color.fromRGBO(48, 48, 48, 1);
+    }
+
+    Color getDefaultHeaderBackgroundColor() {
+      return dataGridSettings.dataGridThemeData.brightness == Brightness.light
+          ? Color.fromRGBO(255, 255, 255, 1)
+          : Color.fromRGBO(33, 33, 33, 1);
+    }
+
+    void drawSpannedRowBackgroundColor(Color backgroundColor) {
+      final bool isRowSpanned =
+          dataRow._visibleColumns.any((dataCell) => dataCell._rowSpan > 0);
+
+      if (isRowSpanned) {
+        _RenderGridCell child = lastChild;
+        while (child != null) {
+          final _VirtualizingCellWidgetParentData childParentData =
+              child.parentData;
+          final dataCell = child.dataCell;
+          final lineInfo =
+              dataRow._getColumnVisibleLineInfo(dataCell.columnIndex);
+          if (dataCell._rowSpan > 0 && lineInfo != null) {
+            final columnRect = child.columnRect;
+            final cellClipRect = child.cellClipRect;
+            final height = dataRow._getRowHeight(
+                dataCell.rowIndex - dataCell._rowSpan, dataCell.rowIndex);
+            Rect cellRect = Rect.zero;
+            if (child.cellClipRect != null) {
+              double left = columnRect.left;
+              double width = cellClipRect.width;
+              if (cellClipRect.left > 0 && columnRect.width <= width) {
+                left += cellClipRect.left;
+                width = columnRect.width - cellClipRect.left;
+              } else if (cellClipRect.left > 0 && width < columnRect.width) {
+                left += cellClipRect.left;
+              }
+
+              cellRect = Rect.fromLTWH(left, columnRect.top, width, height);
+            } else {
+              cellRect = Rect.fromLTWH(
+                  columnRect.left, columnRect.top, columnRect.width, height);
+            }
+            dataGridSettings.gridPaint?.color = backgroundColor;
+            context.canvas.drawRect(cellRect, dataGridSettings.gridPaint);
+          }
+          child = childParentData.previousSibling;
+        }
+      }
+    }
+
     if (dataGridSettings != null &&
         dataGridSettings.gridPaint != null &&
         dataRow != null) {
@@ -182,7 +240,13 @@ class _RenderVirtualizingCellsWidget extends RenderBox
       if (dataRow.rowRegion == RowRegion.header &&
           dataRow.rowType == RowType.headerRow) {
         backgroundColor =
-            dataGridSettings.dataGridThemeData.headerStyle.backgroundColor;
+            dataGridSettings.dataGridThemeData.headerStyle.backgroundColor ??
+                getDefaultHeaderBackgroundColor();
+        drawSpannedRowBackgroundColor(backgroundColor);
+      } else if (dataRow.rowRegion == RowRegion.header &&
+          dataRow.rowType == RowType.stackedHeaderRow) {
+        backgroundColor = getDefaultHeaderBackgroundColor();
+        drawSpannedRowBackgroundColor(backgroundColor);
       } else {
         backgroundColor = dataRow.isSelectedRow
             ? dataRow.rowStyle != null &&
@@ -194,12 +258,18 @@ class _RenderVirtualizingCellsWidget extends RenderBox
                         0.5)
                     .backgroundColor
                 : dataGridSettings
-                    .dataGridThemeData.selectionStyle.backgroundColor
+                        .dataGridThemeData.selectionStyle.backgroundColor ??
+                    getDefaultSelectionBackgroundColor()
             : dataRow.rowStyle != null
                 ? dataRow.rowStyle.backgroundColor ??
                     dataGridSettings.dataGridThemeData.cellStyle.backgroundColor
                 : dataGridSettings.dataGridThemeData.cellStyle.backgroundColor;
       }
+
+      // Default theme color are common for both the HeaderBackgroundColor and
+      // CellBackgroundColor, so we have checked commonly at outside of the
+      // condition
+      backgroundColor ??= getDefaultHeaderBackgroundColor();
 
       dataGridSettings.gridPaint?.color = backgroundColor;
       context.canvas.drawRect(rect, dataGridSettings.gridPaint);
@@ -207,10 +277,6 @@ class _RenderVirtualizingCellsWidget extends RenderBox
   }
 
   void _drawCurrentRowBorder(PaintingContext context, Offset offset) {
-    if (!kIsWeb) {
-      return;
-    }
-
     final _DataGridSettings dataGridSettings = dataRow._dataGridStateDetails();
 
     if (dataGridSettings.boxPainter != null &&
@@ -287,6 +353,26 @@ class _RenderVirtualizingCellsWidget extends RenderBox
   }
 
   @override
+  bool hitTest(BoxHitTestResult result, {Offset position}) {
+    final bool isRowSpanned =
+        dataRow._visibleColumns.any((dataCell) => dataCell._rowSpan > 0);
+
+    if (isRowSpanned) {
+      _RenderGridCell child = lastChild;
+      while (child != null) {
+        final _VirtualizingCellWidgetParentData childParentData =
+            child.parentData;
+        if (child.columnRect != null && child.columnRect.contains(position)) {
+          return super.hitTest(result,
+              position: Offset(position.dx.abs(), position.dy.abs()));
+        }
+        child = childParentData.previousSibling;
+      }
+    }
+    return super.hitTest(result, position: position);
+  }
+
+  @override
   void performLayout() {
     void _layout({RenderBox child, double width, double height}) {
       child.layout(BoxConstraints.tightFor(width: width, height: height),
@@ -298,18 +384,15 @@ class _RenderVirtualizingCellsWidget extends RenderBox
       final _VirtualizingCellWidgetParentData _parentData = child.parentData;
       final _RenderGridCell gridCell = child;
       if (dataRow.isVisible && gridCell.dataCell.isVisible) {
-        size = constraints
-            .constrain(Size(constraints.maxWidth, constraints.maxHeight));
         final Rect columnRect =
             gridCell._measureColumnRect(constraints.maxHeight);
+        size = constraints.constrain(Size(columnRect.width, columnRect.height));
         _parentData
           ..width = columnRect.width
           ..height = columnRect.height
           ..cellClipRect = gridCell.cellClipRect;
         _layout(
-            child: child,
-            width: _parentData.width,
-            height: constraints.maxHeight);
+            child: child, width: _parentData.width, height: _parentData.height);
         _parentData.offset = Offset(columnRect.left, columnRect.top);
       } else {
         size = constraints.constrain(Size.zero);
@@ -348,8 +431,10 @@ class _RenderVirtualizingCellsWidget extends RenderBox
       }
       child = childParentData.nextSibling;
     }
-
-    _drawCurrentRowBorder(context, offset);
+    final _DataGridSettings dataGridSettings = dataRow._dataGridStateDetails();
+    if (dataGridSettings._isDesktop) {
+      _drawCurrentRowBorder(context, offset);
+    }
   }
 }
 

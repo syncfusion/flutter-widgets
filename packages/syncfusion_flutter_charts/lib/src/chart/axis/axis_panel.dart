@@ -175,9 +175,10 @@ class _ChartAxis {
                   ? 0
                   : (axisRenderer._orientation == AxisOrientation.horizontal)
                       ? axisRenderer._maximumLabelSize.height
-                      : axisRenderer._maximumLabelSize.width) +
+                      : (axis.labelsExtent != null && axis.labelsExtent > 0)
+                          ? axis.labelsExtent
+                          : axisRenderer._maximumLabelSize.width) +
               _innerPadding;
-
       axisRenderer._totalSize = titleSize + tickSize + labelSize;
       if (axisRenderer._orientation == AxisOrientation.horizontal) {
         if (!axis.opposedPosition) {

@@ -20,30 +20,129 @@ class Picture {
   List<int> _imageData;
 
   /// Gets/Sets the image row.
+  ///
+  /// ```dart
+  /// Workbook workbook = new Workbook();
+  /// Worksheet sheet = workbook.worksheets[0];
+  /// List<int> bytes = File('image.png').readAsBytesSync();
+  /// Picture picture = sheet.picutes.addStream(1, 1, bytes);
+  /// picture.row = 2;
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Picutes.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
   int row;
 
   /// Gets/Sets the image column.
+  ///
+  /// ```dart
+  /// Workbook workbook = new Workbook();
+  /// Worksheet sheet = workbook.worksheets[0];
+  /// List<int> bytes = File('image.png').readAsBytesSync();
+  /// Picture picture = sheet.picutes.addStream(1, 1, bytes);
+  /// picture.column = 2;
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Picutes.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
   int column;
 
   /// Gets/Sets the image last row.
+  ///
+  /// ```dart
+  /// Workbook workbook = new Workbook();
+  /// Worksheet sheet = workbook.worksheets[0];
+  /// List<int> bytes = File('image.png').readAsBytesSync();
+  /// Picture picture = sheet.picutes.addStream(1, 1, bytes);
+  /// picture.lastRow = 15;
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Picutes.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
   int lastRow;
 
   /// Gets/Sets the image last column.
+  ///
+  /// ```dart
+  /// Workbook workbook = new Workbook();
+  /// Worksheet sheet = workbook.worksheets[0];
+  /// List<int> bytes = File('image.png').readAsBytesSync();
+  /// Picture picture = sheet.picutes.addStream(1, 1, bytes);
+  /// picture.lastColumn = 15;
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Picutes.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
   int lastColumn;
 
   /// Gets/Sets the image width.
+  ///
+  /// ```dart
+  /// Workbook workbook = new Workbook();
+  /// Worksheet sheet = workbook.worksheets[0];
+  /// List<int> bytes = File('image.png').readAsBytesSync();
+  /// Picture picture = sheet.picutes.addStream(1, 1, bytes);
+  /// picture.width = 150;
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Picutes.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
   int width;
 
   /// Gets/Sets the image height.
+  ///
+  /// ```dart
+  /// Workbook workbook = new Workbook();
+  /// Worksheet sheet = workbook.worksheets[0];
+  /// List<int> bytes = File('image.png').readAsBytesSync();
+  /// Picture picture = sheet.picutes.addStream(1, 1, bytes);
+  /// picture.height = 100;
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Picutes.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
   int height;
 
   /// Gets/Sets the image horizontal flip.
+  ///
+  /// ```dart
+  /// Workbook workbook = new Workbook();
+  /// Worksheet sheet = workbook.worksheets[0];
+  /// List<int> bytes = File('image.png').readAsBytesSync();
+  /// Picture picture = sheet.picutes.addStream(1, 1, bytes);
+  /// picture.horizontalFlip = true;
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Picutes.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
   bool horizontalFlip = false;
 
   /// Gets/Sets the image vertical flip.
+  ///
+  /// ```dart
+  /// Workbook workbook = new Workbook();
+  /// Worksheet sheet = workbook.worksheets[0];
+  /// List<int> bytes = File('image.png').readAsBytesSync();
+  /// Picture picture = sheet.picutes.addStream(1, 1, bytes);
+  /// picture.verticalFlip = true;
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Picutes.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
   bool verticalFlip = false;
 
   /// Gets/Sets the image rotation.
+  ///
+  /// ```dart
+  /// Workbook workbook = new Workbook();
+  /// Worksheet sheet = workbook.worksheets[0];
+  /// List<int> bytes = File('image.png').readAsBytesSync();
+  /// Picture picture = sheet.picutes.addStream(1, 1, bytes);
+  /// picture.rotation = 30;
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Picutes.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
   int rotation = 0;
 
   /// Gets/Sets the image last row offset.
@@ -56,6 +155,10 @@ class Picture {
   List<int> get imageData {
     return _imageData;
   }
+
+  // ignore: prefer_final_fields
+  bool _isHyperlink = false;
+  Hyperlink _link;
 
   /// Check whether the picture is png.
   static bool isPng(List<int> imageData) {

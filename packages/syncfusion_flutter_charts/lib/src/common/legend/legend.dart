@@ -149,7 +149,9 @@ class _ChartLegend {
                 legend.overflowMode == LegendItemOverflowMode.none) {
               if (maxLegendWidth + currentWidth <= maxRenderWidth) {
                 legendWidth += currentWidth;
-                legendHeight = max(legendHeight, currentHeight);
+                legendHeight = currentHeight > maxRenderHeight
+                    ? maxRenderHeight
+                    : max(legendHeight, currentHeight);
                 needRender = true;
               } else {
                 needRender = false;
@@ -172,7 +174,9 @@ class _ChartLegend {
                 legend.overflowMode == LegendItemOverflowMode.none) {
               if (maxLegendHeight + currentHeight <= maxRenderHeight) {
                 legendHeight += currentHeight;
-                legendWidth = max(legendWidth, currentWidth);
+                legendWidth = currentWidth > maxRenderWidth
+                    ? maxRenderWidth
+                    : max(legendWidth, currentWidth);
                 needRender = true;
               } else {
                 needRender = false;
@@ -249,6 +253,28 @@ class _ChartLegend {
         if (!_chartState._legendToggleStates.contains(legendRenderContext)) {
           _chartState._legendToggleStates.add(legendRenderContext);
         }
+      } else if (_chartState._widgetNeedUpdate &&
+          (seriesRenderer._oldSeries != null &&
+              (series.isVisible &&
+                  !_chartState._legendToggling &&
+                  seriesRenderer._visible))) {
+        final List<CartesianSeriesRenderer> visibleSeriesRenderers =
+            _chartState._chartSeries.visibleSeriesRenderers;
+        final String legendItemText =
+            visibleSeriesRenderers[index]._series.legendItemText ??
+                series.name ??
+                'Series $index';
+        final int seriesIndex = visibleSeriesRenderers.indexOf(seriesRenderer);
+        final legendToggle = <_LegendRenderContext>[]
+          //ignore: prefer_spread_collections
+          ..addAll(_chartState._legendToggleStates);
+        for (final legendContext in _chartState._legendToggleStates) {
+          if (seriesIndex == legendContext.seriesIndex &&
+              legendContext.text == legendItemText) {
+            legendToggle.remove(legendContext);
+          }
+        }
+        _chartState._legendToggleStates = legendToggle;
       }
     }
   }

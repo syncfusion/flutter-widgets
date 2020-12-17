@@ -28,6 +28,8 @@ class _PdfArray implements _IPdfPrimitive, _IPdfChangable {
   int _objectCollectionIndex;
   int _position;
   _ObjectStatus _status;
+  _PdfArray _clonedObject;
+  _PdfCrossTable _crossTable;
 
   //Properties
   _IPdfPrimitive operator [](int index) => _getElement(index);
@@ -214,5 +216,21 @@ class _PdfArray implements _IPdfPrimitive, _IPdfChangable {
     if (freezer is _PdfParser || freezer is _PdfDictionary) {
       _isChanged = false;
     }
+  }
+
+  @override
+  _IPdfPrimitive _clone(_PdfCrossTable crossTable) {
+    if (_clonedObject != null && _clonedObject._crossTable == crossTable) {
+      return _clonedObject;
+    } else {
+      _clonedObject = null;
+    }
+    final _PdfArray newArray = _PdfArray();
+    for (final _IPdfPrimitive obj in _elements) {
+      newArray._add(obj._clone(crossTable));
+    }
+    newArray._crossTable = crossTable;
+    _clonedObject = newArray;
+    return newArray;
   }
 }

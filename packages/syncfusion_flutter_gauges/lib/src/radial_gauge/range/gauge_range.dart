@@ -60,7 +60,7 @@ class GaugeRange {
   ///
   /// The [startValue] must be greater than the minimum value of the axis.
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
@@ -81,7 +81,7 @@ class GaugeRange {
   ///
   /// The [endValue] must be less than the maximum value of the axis.
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   ///
   /// ```dart
   ///Widget build(BuildContext context) {
@@ -108,7 +108,7 @@ class GaugeRange {
   /// if [sizeUnit] is [GaugeSizeUnit.logicalPixel], the defined value is set
   /// for the start width of the range.
   ///
-  /// Defaults to 10 and [sizeUnit] is [GaugeSizeUnit.logicalPixel]
+  /// Defaults to `10` and [sizeUnit] is `GaugeSizeUnit.logicalPixel`.
   ///
   /// ```dart
   ///Widget build(BuildContext context) {
@@ -135,7 +135,7 @@ class GaugeRange {
   /// If [sizeUnit] is [GaugeSizeUnit.logicalPixel], the defined value is set
   /// for the end width of the range.
   ///
-  /// Defaults to 10 and [sizeUnit] is [GaugeSizeUnit.logicalPixel]
+  /// Defaults to `10` and [sizeUnit] is `GaugeSizeUnit.logicalPixel`.
   ///
   /// ```dart
   ///Widget build(BuildContext context) {
@@ -155,7 +155,7 @@ class GaugeRange {
   ///
   /// Using [GaugeSizeUnit], range position and size is calculated.
   ///
-  /// Defaults to [GaugeSizeUnit.logicalPixel].
+  /// Defaults to `GaugeSizeUnit.logicalPixel`.
   ///
   /// Also refer [GaugeSizeUnit].
   ///
@@ -189,7 +189,7 @@ class GaugeRange {
   /// When you specify [rangeOffset] is negative, the range will be positioned
   /// outside the axis.
   ///
-  /// Defaults to 0 and [sizeUnit] is [GaugeSizeUnit.logicalPixel]
+  /// Defaults to `0` and [sizeUnit] is `GaugeSizeUnit.logicalPixel`.
   ///
   /// ```dart
   ///Widget build(BuildContext context) {
@@ -206,7 +206,7 @@ class GaugeRange {
 
   /// Specifies the range color.
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   /// ```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
@@ -224,8 +224,8 @@ class GaugeRange {
   ///
   /// Using [GaugeTextStyle] to add the style to the axis labels.
   ///
-  /// Defaults to the [GaugeTextStyle] property with font size is 12.0 and
-  /// font family is Segoe UI.
+  /// Defaults to the [GaugeTextStyle] property with font size  `12.0` and
+  /// font family `Segoe UI`.
   ///
   /// Also refer [GaugeTextStyle].
   ///
@@ -248,7 +248,7 @@ class GaugeRange {
   ///
   /// [label] style is customized by [labelStyle].
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   /// ```dart
   /// Widget build(BuildContext context) {
   ///    return Container(
@@ -267,7 +267,7 @@ class GaugeRange {
   /// [gradient] of [GaugeRange] only support [SweepGradient] and
   /// specified [SweepGradient.stops] are applied within the range value.
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {

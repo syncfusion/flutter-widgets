@@ -5,6 +5,7 @@ void main() {
   return runApp(MyApp());
 }
 
+/// Creates the barcode generator
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

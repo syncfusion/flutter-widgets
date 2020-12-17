@@ -11,31 +11,23 @@
 /// * [Knowledge base](https://www.syncfusion.com/kb/flutter)
 library barcodes;
 
-import 'dart:convert' show utf8;
-import 'dart:ui';
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
-
 // export barcode library
-part './src/barcode_generator/base/barcode_generator.dart';
-part './src/barcode_generator/base/symbology_base.dart';
-part './src/barcode_generator/one_dimensional/codabar_symbology.dart';
-part './src/barcode_generator/one_dimensional/code39_symbology.dart';
-part './src/barcode_generator/one_dimensional/code39_extended_symbology.dart';
-part './src/barcode_generator/one_dimensional/code93_symbology.dart';
-part './src/barcode_generator/one_dimensional/code128_symbology.dart';
-part './src/barcode_generator/one_dimensional/code128a_symbology.dart';
-part './src/barcode_generator/one_dimensional/code128b_symbology.dart';
-part './src/barcode_generator/one_dimensional/code128c_symbology.dart';
-part './src/barcode_generator/one_dimensional/ean8_symbology.dart';
-part './src/barcode_generator/one_dimensional/ean13_symbology.dart';
-part './src/barcode_generator/one_dimensional/upca_symbology.dart';
-part './src/barcode_generator/one_dimensional/upce_symbology.dart';
-part './src/barcode_generator/utils/helper.dart';
-part './src/barcode_generator/utils/enum.dart';
-part './src/barcode_generator/common/barcode_renderer.dart';
-part './src/barcode_generator/two_dimensional/error_correction_codewords.dart';
-part './src/barcode_generator/two_dimensional/qr_code_symbology.dart';
-part './src/barcode_generator/two_dimensional/qr_code_values.dart';
-part './src/barcode_generator/two_dimensional/datamatrix_symbology.dart';
+export './src/barcode_generator/base/barcode_generator.dart';
+export './src/barcode_generator/base/symbology_base.dart';
+export './src/barcode_generator/one_dimensional/codabar_symbology.dart';
+export './src/barcode_generator/one_dimensional/code128_symbology.dart';
+export './src/barcode_generator/one_dimensional/code128a_symbology.dart';
+export './src/barcode_generator/one_dimensional/code128b_symbology.dart';
+export './src/barcode_generator/one_dimensional/code128c_symbology.dart';
+
+export './src/barcode_generator/one_dimensional/code39_extended_symbology.dart';
+export './src/barcode_generator/one_dimensional/code39_symbology.dart';
+export './src/barcode_generator/one_dimensional/code93_symbology.dart';
+
+export './src/barcode_generator/one_dimensional/ean13_symbology.dart';
+export './src/barcode_generator/one_dimensional/ean8_symbology.dart';
+export './src/barcode_generator/one_dimensional/upca_symbology.dart';
+export './src/barcode_generator/one_dimensional/upce_symbology.dart';
+export './src/barcode_generator/two_dimensional/datamatrix_symbology.dart';
+export './src/barcode_generator/two_dimensional/qr_code_symbology.dart';
+export './src/barcode_generator/utils/enum.dart';

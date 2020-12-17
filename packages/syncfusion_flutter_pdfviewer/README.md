@@ -57,7 +57,7 @@ Explore the full capabilities of our Flutter widgets on your device by installin
 
 Take a look at the following to learn more about Syncfusion Flutter PDF Viewer:
 
-* [Syncfusion Flutter PDF Viewer product page](https://www.syncfusion.com/flutter-widgets/flutter-pdfviewer)
+* [Syncfusion Flutter PDF Viewer product page](https://www.syncfusion.com/flutter-widgets/flutter-pdf-viewer)
 * [User guide documentation](https://help.syncfusion.com/flutter/pdf-viewer/overview)
 
 ## Installation

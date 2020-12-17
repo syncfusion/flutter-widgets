@@ -128,15 +128,13 @@ void _drawDashedPath(Canvas canvas, _CustomPaintStyle style, Offset moveToPoint,
         even = true;
       }
     }
-    if (even == false && !kIsWeb) {
+    if (even == false) {
       canvas.drawPath(
           _dashPath(
             path,
             dashArray: _CircularIntervalList<double>(dashArray),
           ),
           paint);
-    } else {
-      canvas.drawPath(path, paint);
     }
   } else {
     canvas.drawPath(path, paint);
@@ -165,7 +163,7 @@ num _calculateLogBaseValue(num value, num base) =>
 
 /// To check if value is within range
 bool _withInRange(num value, _VisibleRange range) =>
-    (value <= range.maximum) && (value >= range.minimum);
+    value != null && (value <= range.maximum) && (value >= range.minimum);
 
 /// To find the proper series color of each point in waterfall chart,
 /// which includes intermediate sum, total sum and negative point.
@@ -1581,9 +1579,12 @@ dynamic _getInteractiveTooltipLabel(
   final ChartAxis axis = axisRenderer._axis;
   if (axisRenderer is CategoryAxisRenderer) {
     value = value < 0 ? 0 : value;
-    value = axisRenderer._labels[
-        (value.round() >= axisRenderer._labels.length ? value - 1 : value)
-            .round()];
+    value = axisRenderer._labels[(value.round() >= axisRenderer._labels.length
+            ? (value.round() > axisRenderer._labels.length
+                ? axisRenderer._labels.length - 1
+                : value - 1)
+            : value)
+        .round()];
   } else if (axisRenderer is DateTimeAxisRenderer) {
     final DateTimeAxis _dateTimeAxis = axisRenderer._axis;
     final DateFormat dateFormat =
@@ -1605,7 +1606,11 @@ Path _getMarkerShapesPath(DataMarkerType markerType, Offset position, Size size,
   if (seriesRenderer._chart?.onMarkerRender != null &&
       !seriesRenderer._isMarkerRenderEvent) {
     final MarkerRenderArgs event = _triggerMarkerRenderEvent(
-        seriesRenderer, size, markerType, index, animationController);
+        seriesRenderer,
+        size,
+        markerType,
+        seriesRenderer._dataPoints[index].visiblePointIndex,
+        animationController);
     markerType = event?.shape;
     size = Size(event.markerHeight, event.markerWidth);
   }
@@ -2062,6 +2067,10 @@ void _stackedAreaPainter(
           rect);
       _path.moveTo(point1.x, point1.y);
       _strokePath.moveTo(point1.x, point1.y);
+      if (seriesRenderer._visibleDataPoints == null ||
+          seriesRenderer._visibleDataPoints.isNotEmpty) {
+        seriesRenderer._visibleDataPoints = <CartesianChartPoint<dynamic>>[];
+      }
       for (int pointIndex = 0;
           pointIndex < seriesRenderer._dataPoints.length;
           pointIndex++) {
@@ -2225,6 +2234,10 @@ void _stackedRectPainter(Canvas canvas, dynamic seriesRenderer,
             seriesRenderer._yAxisRenderer?._axis?.plotOffset));
     canvas.clipRect(axisClipRect);
     int segmentIndex = -1;
+    if (seriesRenderer._visibleDataPoints == null ||
+        seriesRenderer._visibleDataPoints.isNotEmpty) {
+      seriesRenderer._visibleDataPoints = <CartesianChartPoint<dynamic>>[];
+    }
     for (int pointIndex = 0;
         pointIndex < seriesRenderer._dataPoints.length;
         pointIndex++) {
@@ -2305,6 +2318,10 @@ void _stackedLinePainter(
     int segmentIndex = -1;
     double currentCummulativePos, nextCummulativePos;
     CartesianChartPoint<dynamic> startPoint, endPoint, currentPoint, _nextPoint;
+    if (seriesRenderer._visibleDataPoints == null ||
+        seriesRenderer._visibleDataPoints.isNotEmpty) {
+      seriesRenderer._visibleDataPoints = <CartesianChartPoint<dynamic>>[];
+    }
     for (int pointIndex = 0;
         pointIndex < seriesRenderer._dataPoints.length;
         pointIndex++) {
@@ -2560,15 +2577,19 @@ MarkerRenderArgs _triggerMarkerRenderEvent(
     CartesianSeriesRenderer seriesRenderer,
     Size size,
     DataMarkerType markerType,
-    int index,
+    int pointIndex,
     Animation<double> animationController) {
   MarkerRenderArgs markerargs;
+  final num seriesIndex = seriesRenderer
+      ._chartState._chartSeries.visibleSeriesRenderers
+      .indexOf(seriesRenderer);
   final XyDataSeries<dynamic, dynamic> series = seriesRenderer._series;
   final MarkerSettingsRenderer markerSettingsRenderer =
       seriesRenderer._markerSettingsRenderer;
   markerSettingsRenderer._color = series.markerSettings.color;
   if (seriesRenderer._chart.onMarkerRender != null) {
-    markerargs = MarkerRenderArgs(index);
+    markerargs = MarkerRenderArgs(pointIndex, seriesIndex,
+        seriesRenderer._visibleDataPoints[pointIndex].overallDataPointIndex);
     markerargs.markerHeight = size.height;
     markerargs.markerWidth = size.width;
     markerargs.shape = markerType;
@@ -3228,4 +3249,112 @@ num _getCrossesAtValue(
     }
   }
   return crossesAt;
+}
+
+List<Offset> _getTooltipPaddingData(CartesianSeriesRenderer seriesRenderer,
+    bool isTrendLine, Rect region, Rect paddedRegion, Offset tooltipPosition) {
+  Offset padding, position;
+  if (seriesRenderer._seriesType == 'bubble' && !isTrendLine) {
+    padding = Offset(region.center.dx - region.centerLeft.dx,
+        2 * (region.center.dy - region.topCenter.dy));
+    position = Offset(tooltipPosition.dx, paddedRegion.top);
+  } else if (seriesRenderer._seriesType == 'scatter') {
+    padding = Offset(seriesRenderer._series.markerSettings.width,
+        seriesRenderer._series.markerSettings.height / 2);
+    position = Offset(tooltipPosition.dx, tooltipPosition.dy);
+  } else if (seriesRenderer._seriesType.contains('rangearea')) {
+    padding = Offset(seriesRenderer._series.markerSettings.width,
+        seriesRenderer._series.markerSettings.height / 2);
+    position = Offset(tooltipPosition.dx, tooltipPosition.dy);
+  } else {
+    padding = (seriesRenderer._series.markerSettings.isVisible)
+        ? Offset(
+            seriesRenderer._series.markerSettings.width / 2,
+            seriesRenderer._series.markerSettings.height / 2 +
+                seriesRenderer._series.markerSettings.borderWidth / 2)
+        : const Offset(2, 2);
+  }
+  return <Offset>[padding, position ?? tooltipPosition];
+}
+
+//Returns the old series renderer instance for the given series renderer
+CartesianSeriesRenderer _getOldSeriesRenderer(
+    SfCartesianChartState chartState,
+    CartesianSeriesRenderer seriesRenderer,
+    int seriesIndex,
+    List<CartesianSeriesRenderer> oldSeriesRenderers) {
+  if (chartState._widgetNeedUpdate &&
+      seriesRenderer._xAxisRenderer._zoomFactor == 1 &&
+      seriesRenderer._yAxisRenderer._zoomFactor == 1 &&
+      oldSeriesRenderers != null &&
+      oldSeriesRenderers.isNotEmpty &&
+      oldSeriesRenderers.length - 1 >= seriesIndex &&
+      oldSeriesRenderers[seriesIndex]._seriesName ==
+          seriesRenderer._seriesName) {
+    return oldSeriesRenderers[seriesIndex];
+  } else {
+    return null;
+  }
+}
+
+//Returns the old chart point for the given point and series index if present.
+CartesianChartPoint _getOldChartPoint(
+    SfCartesianChartState chartState,
+    CartesianSeriesRenderer seriesRenderer,
+    Type segmentType,
+    int seriesIndex,
+    int pointIndex,
+    CartesianSeriesRenderer oldSeriesRenderer,
+    List<CartesianSeriesRenderer> oldSeriesRenderers) {
+  return !seriesRenderer._reAnimate &&
+          (seriesRenderer._series.animationDuration > 0 &&
+              chartState._widgetNeedUpdate &&
+              !chartState._isLegendToggled &&
+              oldSeriesRenderers != null &&
+              oldSeriesRenderers.isNotEmpty &&
+              oldSeriesRenderer != null &&
+              oldSeriesRenderer._segments.isNotEmpty &&
+              oldSeriesRenderer._segments[0].runtimeType == segmentType &&
+              oldSeriesRenderers.length - 1 >= seriesIndex &&
+              oldSeriesRenderer._dataPoints.length - 1 >= pointIndex)
+      ? oldSeriesRenderer._dataPoints[pointIndex]
+      : null;
+}
+
+/// To trim the specific label text
+String _trimAxisLabelsText(String text, num labelsExtent, TextStyle labelStyle,
+    ChartAxisRenderer axisRenderer) {
+  String label = text;
+  num size = _measureText(
+          text, axisRenderer._axis.labelStyle, axisRenderer._labelRotation)
+      .width;
+  if (size > labelsExtent) {
+    final int textLength = text.length;
+    for (int i = textLength - 1; i >= 0; --i) {
+      label = text.substring(0, i) + '...';
+      size = _measureText(label, labelStyle, axisRenderer._labelRotation).width;
+      if (size <= labelsExtent) {
+        return label == '...' ? '' : label;
+      }
+    }
+  }
+  return label == '...' ? '' : label;
+}
+
+/// Boolean to check whether it is necessary to render the axis tooltip.
+bool _shouldShowAxisTooltip(SfCartesianChartState chartState) {
+  bool requireAxisTooltip = false;
+  for (int i = 0;
+      i < chartState._chartAxis._axisRenderersCollection.length;
+      i++) {
+    requireAxisTooltip = chartState._chartAxis._axisRenderersCollection[i]._axis
+                .maximumLabelWidth !=
+            null ||
+        chartState._chartAxis._axisRenderersCollection[i]._axis.labelsExtent !=
+            null;
+    if (requireAxisTooltip) {
+      break;
+    }
+  }
+  return requireAxisTooltip;
 }

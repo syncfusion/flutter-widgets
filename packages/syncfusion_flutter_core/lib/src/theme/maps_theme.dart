@@ -152,7 +152,6 @@ class SfMapsThemeData with Diagnosticable {
     Color selectionColor,
     Color selectionStrokeColor,
     double selectionStrokeWidth,
-    TextStyle tooltipTextStyle,
     Color tooltipColor,
     Color tooltipStrokeColor,
     double tooltipStrokeWidth,
@@ -217,7 +216,6 @@ class SfMapsThemeData with Diagnosticable {
       bubbleHoverStrokeWidth: bubbleHoverStrokeWidth,
       selectionColor: selectionColor,
       selectionStrokeColor: selectionStrokeColor,
-      tooltipTextStyle: tooltipTextStyle,
       tooltipColor: tooltipColor,
       tooltipStrokeColor: tooltipStrokeColor,
       tooltipStrokeWidth: tooltipStrokeWidth,
@@ -261,7 +259,6 @@ class SfMapsThemeData with Diagnosticable {
     @required this.selectionColor,
     @required this.selectionStrokeColor,
     @required this.selectionStrokeWidth,
-    @required this.tooltipTextStyle,
     @required this.tooltipColor,
     @required this.tooltipStrokeColor,
     @required this.tooltipStrokeWidth,
@@ -752,27 +749,6 @@ class SfMapsThemeData with Diagnosticable {
   /// ```
   final double selectionStrokeWidth;
 
-  /// Specifies the textStyle for tooltip text.
-  ///
-  /// ```dart
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///      body: Center(
-  ///        child: SfTheme(
-  ///          data: SfThemeData(
-  ///            mapsThemeData: SfMapsThemeData(
-  ///              tooltipTextStyle: TextStyle(color: Colors.black,
-  ///              fontWeight: FontWeight.bold)
-  ///            )
-  ///          ),
-  ///          child: SfMaps(),
-  ///        ),
-  ///      )
-  ///   );
-  /// }
-  /// ```
-  final TextStyle tooltipTextStyle;
-
   /// Specifies the fill color for tooltip.
   ///
   /// ```dart
@@ -956,7 +932,6 @@ class SfMapsThemeData with Diagnosticable {
     Color selectionColor,
     Color selectionStrokeColor,
     double selectionStrokeWidth,
-    TextStyle tooltipTextStyle,
     Color tooltipColor,
     Color tooltipStrokeColor,
     double tooltipStrokeWidth,
@@ -994,7 +969,6 @@ class SfMapsThemeData with Diagnosticable {
       selectionColor: selectionColor ?? this.selectionColor,
       selectionStrokeColor: selectionStrokeColor ?? this.selectionStrokeColor,
       selectionStrokeWidth: selectionStrokeWidth ?? this.selectionStrokeWidth,
-      tooltipTextStyle: tooltipTextStyle ?? this.tooltipTextStyle,
       tooltipColor: tooltipColor ?? this.tooltipColor,
       tooltipStrokeColor: tooltipStrokeColor ?? this.tooltipStrokeColor,
       tooltipStrokeWidth: tooltipStrokeWidth ?? this.tooltipStrokeWidth,
@@ -1048,8 +1022,6 @@ class SfMapsThemeData with Diagnosticable {
           Color.lerp(a.selectionStrokeColor, b.selectionStrokeColor, t),
       selectionStrokeWidth:
           lerpDouble(a.selectionStrokeWidth, b.selectionStrokeWidth, t),
-      tooltipTextStyle:
-          TextStyle.lerp(a.tooltipTextStyle, b.tooltipTextStyle, t),
       tooltipColor: Color.lerp(a.tooltipColor, b.tooltipColor, t),
       tooltipStrokeColor:
           Color.lerp(a.tooltipStrokeColor, b.tooltipStrokeColor, t),
@@ -1095,7 +1067,6 @@ class SfMapsThemeData with Diagnosticable {
         other.selectionColor == selectionColor &&
         other.selectionStrokeColor == selectionStrokeColor &&
         other.selectionStrokeWidth == selectionStrokeWidth &&
-        other.tooltipTextStyle == tooltipTextStyle &&
         other.tooltipColor == tooltipColor &&
         other.tooltipStrokeColor == tooltipStrokeColor &&
         other.tooltipStrokeWidth == tooltipStrokeWidth &&
@@ -1129,7 +1100,6 @@ class SfMapsThemeData with Diagnosticable {
       selectionColor,
       selectionStrokeColor,
       selectionStrokeWidth,
-      tooltipTextStyle,
       tooltipColor,
       tooltipStrokeColor,
       tooltipStrokeWidth,
@@ -1196,9 +1166,6 @@ class SfMapsThemeData with Diagnosticable {
         defaultValue: defaultData.selectionStrokeColor));
     properties.add(DoubleProperty('selectionStrokeWidth', selectionStrokeWidth,
         defaultValue: defaultData.selectionStrokeWidth));
-    properties.add(DiagnosticsProperty<TextStyle>(
-        'tooltipTextStyle', tooltipTextStyle,
-        defaultValue: defaultData.tooltipTextStyle));
     properties.add(ColorProperty('tooltipColor', tooltipColor,
         defaultValue: defaultData.tooltipColor));
     properties.add(ColorProperty('tooltipStrokeColor', tooltipStrokeColor,

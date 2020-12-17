@@ -386,7 +386,15 @@ class _VisualContainerHelper {
   }
 
   void _refreshHeaderLineCount() {
-    dataGridStateDetails().headerLineCount = 1;
+    final dataGridSettings = dataGridStateDetails();
+    _headerLineCount = 1;
+    if (dataGridSettings.stackedHeaderRows != null &&
+        dataGridSettings.stackedHeaderRows.isNotEmpty) {
+      _headerLineCount += dataGridSettings.stackedHeaderRows.length;
+      dataGridSettings.headerLineCount = _headerLineCount;
+    } else {
+      dataGridSettings.headerLineCount = 1;
+    }
   }
 
   void _updateRowAndColumnCount() {

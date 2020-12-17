@@ -51,7 +51,8 @@ class NetworkPdf extends PdfProvider {
       final HttpClientRequest request = await client.getUrl(Uri.parse(_url));
       final HttpClientResponse response = await request.close();
       final bytes = await consolidateHttpClientResponseBytes(response);
-      final Directory directory = await path_provider.getTemporaryDirectory();
+      Directory directory = await path_provider.getTemporaryDirectory();
+      directory = await directory.createTemp('.syncfusion');
       final filename = _url.substring(_url.lastIndexOf('/') + 1);
       File sample = File('${directory.path}/$filename');
       sample = await sample.writeAsBytes(bytes, flush: true);
@@ -88,7 +89,8 @@ class MemoryPdf extends PdfProvider {
   @override
   Future<String> getPdfPath(BuildContext context) async {
     try {
-      final Directory directory = await path_provider.getTemporaryDirectory();
+      Directory directory = await path_provider.getTemporaryDirectory();
+      directory = await directory.createTemp('.syncfusion');
       final File sample = File('${directory.path}/sample.pdf');
       await sample.writeAsBytes(_bytes, flush: true);
       _pdfBytes = _bytes;
@@ -135,7 +137,8 @@ class AssetPdf extends PdfProvider {
   @override
   Future<String> getPdfPath(BuildContext context) async {
     try {
-      final Directory directory = await path_provider.getTemporaryDirectory();
+      Directory directory = await path_provider.getTemporaryDirectory();
+      directory = await directory.createTemp('.syncfusion');
       final filename = _pdfPath.substring(_pdfPath.lastIndexOf('/') + 1);
       final File sample = File('${directory.path}/$filename');
       final bytes = await ((_bundle != null)
@@ -172,7 +175,8 @@ class FilePdf extends PdfProvider {
   @override
   Future<String> getPdfPath(BuildContext context) async {
     try {
-      final Directory directory = await path_provider.getTemporaryDirectory();
+      Directory directory = await path_provider.getTemporaryDirectory();
+      directory = await directory.createTemp('.syncfusion');
       final filename = _file.path.substring(_file.path.lastIndexOf('/') + 1);
       final File sample = File('${directory.path}/$filename');
       final Uint8List bytes = File(_file.path).readAsBytesSync();

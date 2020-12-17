@@ -66,6 +66,18 @@ class RangeCollection {
     return range;
   }
 
+  /// Get a cell from cells collection based on column.
+  Range _getCell(int columnIndex) {
+    for (final Range range in innerList) {
+      if (range != null) {
+        if (range._index == columnIndex) {
+          return range;
+        }
+      }
+    }
+    return null;
+  }
+
   /// clear the Range.
   void _clear() {
     if (_innerList != null) {

@@ -33,6 +33,29 @@ class PdfTemplate implements _IPdfWrapper {
     _isReadonly = true;
   }
 
+  PdfTemplate._(Offset origin, Size size, List<int> stream,
+      _PdfDictionary resources, bool isLoadedPage)
+      : super() {
+    if (size == Size.zero) {
+      ArgumentError('The size of the new PdfTemplate can\'t be empty.');
+    }
+    ArgumentError.checkNotNull(stream, 'stream');
+    _content = _PdfStream();
+    if (origin.dx < 0 || origin.dy < 0) {
+      _setSize(size.width, size.height, origin);
+    } else {
+      _setSize(size.width, size.height);
+    }
+    _initialize();
+    _content._dataStream.addAll(stream);
+    if (resources != null) {
+      _content[_DictionaryProperties.resources] = _PdfDictionary(resources);
+      _resources = _PdfResources(resources);
+    }
+    _isLoadedPageTemplate = isLoadedPage;
+    _isReadonly = true;
+  }
+
   //Fields
   _Size _size;
   _PdfStream _content;
@@ -40,6 +63,7 @@ class PdfTemplate implements _IPdfWrapper {
   _PdfResources _resources;
   bool _writeTransformation;
   bool _isReadonly = false;
+  bool _isLoadedPageTemplate = false;
 
   //Properties
   /// Gets the size of the template.
@@ -85,10 +109,16 @@ class PdfTemplate implements _IPdfWrapper {
     return _resources;
   }
 
-  void _setSize(double width, double height) {
-    final _Rectangle rectangle = _Rectangle(0, 0, width, height);
-    _content[_DictionaryProperties.bBox] = _PdfArray.fromRectangle(rectangle);
-    _size = _Size(width, height);
+  void _setSize(double width, double height, [Offset origin]) {
+    if (origin != null) {
+      final _PdfArray array = _PdfArray([origin.dx, origin.dy, width, height]);
+      _content[_DictionaryProperties.bBox] = array;
+      _size = _Size(width, height);
+    } else {
+      final _Rectangle rectangle = _Rectangle(0, 0, width, height);
+      _content[_DictionaryProperties.bBox] = _PdfArray.fromRectangle(rectangle);
+      _size = _Size(width, height);
+    }
   }
 
   void _setBounds(Rect bounds) {
@@ -96,6 +126,25 @@ class PdfTemplate implements _IPdfWrapper {
     final _PdfArray val = _PdfArray.fromRectangle(rect);
     _content[_DictionaryProperties.bBox] = val;
     _size = rect.size;
+  }
+
+  void _initialize() {
+    _content[_DictionaryProperties.type] =
+        _PdfName(_DictionaryProperties.xObject);
+    _content[_DictionaryProperties.subtype] =
+        _PdfName(_DictionaryProperties.form);
+  }
+
+  void _cloneResources(_PdfCrossTable crossTable) {
+    if (_resources != null && crossTable != null) {
+      final List<_PdfReference> prevReference = crossTable._prevReference;
+      crossTable._prevReference = <_PdfReference>[];
+      final _PdfDictionary resourceDict =
+          _resources._clone(crossTable) as _PdfDictionary;
+      crossTable._prevReference.addAll(prevReference);
+      _resources = _PdfResources(resourceDict);
+      _content[_DictionaryProperties.resources] = resourceDict;
+    }
   }
 
   //_IPdfWrapper members

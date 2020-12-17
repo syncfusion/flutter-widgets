@@ -158,6 +158,14 @@ enum CalendarElement {
   /// appointment display mode as the appointment and the platform
   /// on the web page.
   moreAppointmentRegion,
+
+  /// - CalendarElement.resourceHeader, Indicates that the region in the
+  /// resource panel, the view is on left side of timeline views, to display the
+  /// assigned resources in view.
+  ///
+  /// _Note: _This element applies to the timeline views with resource assigned
+  /// to the calendar data source.
+  resourceHeader
 }
 
 /// Action performed in data source

@@ -57,16 +57,10 @@ class _AreaChartPainter extends CustomPainter {
           Offset(
               xAxisRenderer._axis.plotOffset, yAxisRenderer._axis.plotOffset));
       canvas.clipRect(axisClipRect);
-      if (widgetNeedUpdate &&
-          xAxisRenderer._zoomFactor == 1 &&
-          yAxisRenderer._zoomFactor == 1 &&
-          oldSeriesRenderers != null &&
-          oldSeriesRenderers.isNotEmpty &&
-          oldSeriesRenderers.length - 1 >= seriesIndex &&
-          oldSeriesRenderers[seriesIndex]._seriesName ==
-              seriesRenderer._seriesName) {
-        oldSeriesRenderer = oldSeriesRenderers[seriesIndex];
-      }
+
+      oldSeriesRenderer = _getOldSeriesRenderer(
+          chartState, seriesRenderer, seriesIndex, oldSeriesRenderers);
+
       if (seriesRenderer._reAnimate ||
           ((!(widgetNeedUpdate || isLegendToggled) ||
                   !chartState._oldSeriesKeys.contains(series.key)) &&
@@ -74,24 +68,17 @@ class _AreaChartPainter extends CustomPainter {
         _performLinearAnimation(
             chartState, xAxisRenderer._axis, canvas, animationFactor);
       }
+      if (seriesRenderer._visibleDataPoints == null ||
+          seriesRenderer._visibleDataPoints.isNotEmpty) {
+        seriesRenderer._visibleDataPoints = <CartesianChartPoint<dynamic>>[];
+      }
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
         seriesRenderer._calculateRegionData(
             chartState, seriesRenderer, painterKey.index, point, pointIndex);
         if (point.isVisible && !point.isDrop) {
-          _point = !seriesRenderer._reAnimate &&
-                  (series.animationDuration > 0 &&
-                      widgetNeedUpdate &&
-                      !isLegendToggled &&
-                      oldSeriesRenderers != null &&
-                      oldSeriesRenderers.isNotEmpty &&
-                      oldSeriesRenderer != null &&
-                      oldSeriesRenderer._segments.isNotEmpty &&
-                      oldSeriesRenderer._segments[0] is AreaSegment &&
-                      oldSeriesRenderers.length - 1 >= seriesIndex &&
-                      oldSeriesRenderer._dataPoints.length - 1 >= pointIndex)
-              ? oldSeriesRenderer._dataPoints[pointIndex]
-              : null;
+          _point = _getOldChartPoint(chartState, seriesRenderer, AreaSegment,
+              seriesIndex, pointIndex, oldSeriesRenderer, oldSeriesRenderers);
           _oldPoint = _point != null
               ? _calculatePoint(
                   _point.xValue,

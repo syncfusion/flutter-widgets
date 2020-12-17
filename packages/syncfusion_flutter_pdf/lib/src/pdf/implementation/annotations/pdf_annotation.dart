@@ -430,6 +430,23 @@ abstract class PdfAnnotation implements _IPdfWrapper {
   }
 
   void _save() {
+    if (_page._document != null &&
+        _page._document._conformanceLevel != PdfConformanceLevel.none) {
+      if (this is PdfActionAnnotation &&
+          _page._document._conformanceLevel == PdfConformanceLevel.a1b) {
+        throw ArgumentError(
+            'The specified annotation type is not supported by PDF/A1-B or PDF/A1-A standard documents.');
+      }
+      //This is needed to attain specific PDF/A conformance.
+      if (!(this is PdfLinkAnnotation) &&
+          !setAppearance &&
+          (_page._document._conformanceLevel == PdfConformanceLevel.a2b ||
+              _page._document._conformanceLevel == PdfConformanceLevel.a3b)) {
+        throw ArgumentError(
+            'The appearance dictionary doesn\'t contain an entry. Enable setAppearance in PdfAnnotation class to overcome this error.');
+      }
+      _dictionary._setNumber(_DictionaryProperties.f, 4);
+    }
     if (_border != null) {
       if (_isLineBorder()) {
         _dictionary.setProperty(_DictionaryProperties.bs, border);

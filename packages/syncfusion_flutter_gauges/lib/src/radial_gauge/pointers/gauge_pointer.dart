@@ -19,7 +19,7 @@ abstract class GaugePointer {
   /// Changing the pointer value will cause the pointer to animate to the
   /// new value.
   ///
-  /// Defaults to 0
+  /// Defaults to `0`.
   /// ```dart
   /// Widget build(BuildContext context) {
   ///    return Container(
@@ -38,7 +38,7 @@ abstract class GaugePointer {
   /// It provides an option to drag a pointer from one value to another.
   /// It is used to change the value at run time.
   ///
-  /// Defaults to false
+  /// Defaults to `false`.
   /// ```dart
   /// Widget build(BuildContext context) {
   ///    return Container(
@@ -178,7 +178,7 @@ abstract class GaugePointer {
   /// to animate to the new value.
   /// The animation duration is specified by [animationDuration].
   ///
-  /// Defaults to false
+  /// Defaults to `false`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
@@ -197,7 +197,7 @@ abstract class GaugePointer {
   ///
   /// Duration is defined in milliseconds.
   ///
-  /// Defaults to 1000
+  /// Defaults to `1000`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
@@ -217,7 +217,7 @@ abstract class GaugePointer {
   /// Different type of animation provides visually appealing way
   /// when the pointer moves from one value to another.
   ///
-  /// Defaults to [AnimationType.linear]
+  /// Defaults to `AnimationType.linear`.
   ///
   /// Also refer [AnimationType]
   ///
@@ -333,6 +333,7 @@ abstract class _GaugePointerRenderer {
     // Restricts the dragging of pointer once the maximum value of axis
     // is reached
     if (_axisRenderer._sweepAngle != 360 &&
+        niceInterval != _axis.maximum / 2 &&
         ((actualValue.round() <= niceInterval &&
                 _currentValue >= _axis.maximum - niceInterval) ||
             (actualValue.round() >= _axis.maximum - niceInterval &&

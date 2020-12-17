@@ -41,6 +41,7 @@ class _UnicodeTrueTypeFont {
   String _subsetName;
   Map<String, String> _usedChars;
   _PdfDictionary _fontDescriptor;
+  _PdfStream _cidStream;
 
   //Implementation
   void _initialize(List<int> fontData, double size) {
@@ -378,5 +379,55 @@ class _UnicodeTrueTypeFont {
 
   double _getCharWidth(String charCode) {
     return _reader._getCharWidth(charCode);
+  }
+
+  void _initializeCidSet() {
+    _cidStream = _PdfStream();
+    _cidStream._beginSave = _cidBeginSave;
+    _fontDescriptor._beginSave = _fontDescriptorBeginSave;
+  }
+
+  //Runs before Cid will be saved.
+  void _cidBeginSave(Object sender, _SavePdfPrimitiveArgs ars) {
+    _generateCidSet();
+  }
+
+  //Runs before font Dictionary will be saved.
+  void _fontDescriptorBeginSave(Object sender, _SavePdfPrimitiveArgs ars) {
+    if ((_usedChars != null && _usedChars.isNotEmpty) &&
+        !_fontDescriptor.containsKey(_DictionaryProperties.cidSet)) {
+      _fontDescriptor[_DictionaryProperties.cidSet] =
+          _PdfReferenceHolder(_cidStream);
+    }
+  }
+
+  //This is important for PDF/A conformance validation
+  void _generateCidSet() {
+    final List<int> dummyBits = [
+      0x80,
+      0x40,
+      0x20,
+      0x10,
+      0x08,
+      0x04,
+      0x02,
+      0x01
+    ];
+    if (_usedChars != null && _usedChars.isNotEmpty) {
+      final Map<int, int> glyphChars = _reader._getGlyphChars(_usedChars);
+      List<int> charBytes;
+      if (glyphChars.isNotEmpty) {
+        final List<int> cidChars = glyphChars.keys.toList();
+        cidChars.sort();
+        final int last = cidChars[cidChars.length - 1];
+        charBytes = List<int>((last ~/ 8) + 1);
+        charBytes.fillRange(0, ((last ~/ 8) + 1), 0);
+        for (int i = 0; i < cidChars.length; i++) {
+          final int cid = cidChars[i];
+          charBytes[cid ~/ 8] |= dummyBits[cid % 8];
+        }
+      }
+      _cidStream._write(charBytes);
+    }
   }
 }

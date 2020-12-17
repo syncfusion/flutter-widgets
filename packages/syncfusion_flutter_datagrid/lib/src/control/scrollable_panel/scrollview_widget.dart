@@ -20,6 +20,10 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
   double _height = 0.0;
   bool _isScrolling = false;
 
+  // This flag is used to restrict the load more view from being shown for
+  // every moment when datagrid reached at bottom on vertical scrolling.
+  bool _isLoadMoreViewLoaded = false;
+
   @override
   void initState() {
     _verticalController = ScrollController()..addListener(_verticalListener);
@@ -64,6 +68,7 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
       _container.setRowHeights();
       _isScrolling = true;
       _container._isDirty = true;
+      _isLoadMoreViewLoaded = false;
     });
   }
 
@@ -142,9 +147,11 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
 
   void _addScrollView(List<Widget> children) {
     final double extentWidth = _container.extentWidth;
-    final double headerRowHeight = _dataGridSettings.container.rowHeights[0];
-    final double extentHeight = _container.extentHeight - headerRowHeight;
-    final double scrollViewHeight = _height - headerRowHeight;
+    final double headerRowsHeight = _container.scrollRows
+        .rangeToRegionPoints(0, _dataGridSettings.headerLineCount - 1, true)[1]
+        .length;
+    final double extentHeight = _container.extentHeight - headerRowsHeight;
+    final double scrollViewHeight = _height - headerRowsHeight;
 
     final Size containerSize = Size(
         _canDisableHorizontalScrolling(_dataGridSettings)
@@ -157,20 +164,22 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
                 : scrollViewHeight));
 
     final Widget scrollView = Scrollbar(
+      isAlwaysShown: _dataGridSettings.isScrollbarAlwaysShown,
       controller: _horizontalController,
       child: SingleChildScrollView(
           controller: _horizontalController,
           scrollDirection: Axis.horizontal,
-          physics: const AlwaysScrollableScrollPhysics(),
+          physics: _dataGridSettings.horizontalScrollPhysics,
           child: ConstrainedBox(
               constraints: BoxConstraints(
                 minWidth: min(_width, extentWidth),
               ),
               child: Scrollbar(
+                isAlwaysShown: _dataGridSettings.isScrollbarAlwaysShown,
                 controller: _verticalController,
                 child: SingleChildScrollView(
                   controller: _verticalController,
-                  physics: const AlwaysScrollableScrollPhysics(),
+                  physics: _dataGridSettings.verticalScrollPhysics,
                   child: ConstrainedBox(
                       constraints: BoxConstraints(
                         minHeight: min(scrollViewHeight, extentHeight),
@@ -184,7 +193,7 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
     );
 
     final Positioned wrapScrollView = Positioned.fill(
-      top: headerRowHeight,
+      top: headerRowsHeight,
       child: scrollView,
     );
 
@@ -196,16 +205,33 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
         _canDisableHorizontalScrolling(_dataGridSettings)
             ? _width
             : max(_width, _container.extentWidth);
-    List<Widget> _buildHeaderRows() => _rowGenerator.items
-        .where((rows) =>
-            rows.rowRegion == RowRegion.header &&
-            rows.rowType == RowType.headerRow)
-        .map<Widget>((dataRow) => _HeaderCellsWidget(
-              key: dataRow._key,
-              dataRow: dataRow,
-              isDirty: _container._isDirty || dataRow._isDirty,
-            ))
-        .toList(growable: false);
+
+    List<Widget> _buildHeaderRows() {
+      final List<Widget> headerRows = [];
+      if (_dataGridSettings.stackedHeaderRows.isNotEmpty) {
+        headerRows.addAll(_rowGenerator.items
+            .where((rows) =>
+                rows.rowRegion == RowRegion.header &&
+                rows.rowType == RowType.stackedHeaderRow)
+            .map<Widget>((dataRow) => _HeaderCellsWidget(
+                  key: dataRow._key,
+                  dataRow: dataRow,
+                  isDirty: _container._isDirty || dataRow._isDirty,
+                ))
+            .toList(growable: false));
+      }
+      headerRows.addAll(_rowGenerator.items
+          .where((rows) =>
+              rows.rowRegion == RowRegion.header &&
+              rows.rowType == RowType.headerRow)
+          .map<Widget>((dataRow) => _HeaderCellsWidget(
+                key: dataRow._key,
+                dataRow: dataRow,
+                isDirty: _container._isDirty || dataRow._isDirty,
+              ))
+          .toList(growable: false));
+      return headerRows;
+    }
 
     double getStartX() {
       if (_dataGridSettings.textDirection == TextDirection.ltr) {
@@ -228,18 +254,52 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
 
     if (_rowGenerator.items.isNotEmpty) {
       final List<Widget> headerRows = _buildHeaderRows();
-      for (final row in headerRows) {
+      for (int i = 0; i < headerRows.length; i++) {
+        final lineInfo = _container.scrollRows.getVisibleLineAtLineIndex(i);
         final Positioned header = Positioned.directional(
             textDirection: _dataGridSettings.textDirection,
             start: getStartX(),
-            top: 0.0,
-            height: _dataGridSettings.container.rowHeights[0],
+            top: lineInfo?.origin,
+            height: lineInfo?.size,
             // FLUT-1971 Changed the header row widget as extendwidth instead of
             // device width to resloved the issue of apply sorting to the
             // invisible columns.
             width: containerWidth,
-            child: row);
+            child: headerRows[i]);
         children.add(header);
+      }
+    }
+  }
+
+  void _addLoadMoreView(List<Widget> children) {
+    Future<void> loadMoreRows() async {
+      _isLoadMoreViewLoaded = true;
+      await _dataGridSettings.source.handleLoadMoreRows();
+    }
+
+    if (_verticalController.hasClients &&
+        _dataGridSettings.loadMoreViewBuilder != null) {
+      if (_verticalController.offset >=
+              _verticalController.position.maxScrollExtent &&
+          !_isLoadMoreViewLoaded) {
+        final loadMoreView =
+            _dataGridSettings.loadMoreViewBuilder(context, loadMoreRows);
+
+        if (loadMoreView != null) {
+          final loadMoreAlignment =
+              _dataGridSettings.textDirection == TextDirection.ltr
+                  ? Alignment.bottomLeft
+                  : Alignment.bottomRight;
+
+          children.add(Positioned(
+              top: 0.0,
+              width: _width,
+              height: _height,
+              child: Align(
+                alignment: loadMoreAlignment,
+                child: loadMoreView,
+              )));
+        }
       }
     }
   }
@@ -352,6 +412,8 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
     _addHeaderRows(children);
 
     _addScrollView(children);
+
+    _addLoadMoreView(children);
 
     _container._isDirty = false;
     _isScrolling = false;

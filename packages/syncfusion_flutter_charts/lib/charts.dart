@@ -185,6 +185,7 @@ part './src/chart/user_interaction/tooltip_painter.dart';
 part './src/chart/user_interaction/tooltip_template.dart';
 part './src/chart/user_interaction/trackball.dart';
 part './src/chart/user_interaction/trackball_painter.dart';
+part './src/chart/user_interaction/trackball_template.dart';
 part './src/chart/user_interaction/zooming_painter.dart';
 part './src/chart/user_interaction/zooming_panning.dart';
 part './src/chart/utils/enum.dart';

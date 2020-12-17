@@ -83,6 +83,10 @@ class _FastLineChartPainter extends CustomPainter {
 
       ///Eliminating nearest points
       CartesianChartPoint<dynamic> currentPoint;
+      if (seriesRenderer._visibleDataPoints == null ||
+          seriesRenderer._visibleDataPoints.isNotEmpty) {
+        seriesRenderer._visibleDataPoints = <CartesianChartPoint<dynamic>>[];
+      }
       for (int pointIndex = 0;
           pointIndex < seriesRenderer._dataPoints.length;
           pointIndex++) {

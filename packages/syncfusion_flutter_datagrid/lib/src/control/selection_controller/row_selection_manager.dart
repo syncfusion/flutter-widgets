@@ -501,7 +501,7 @@ class RowSelectionManager extends SelectionManagerBase {
         _selectedRows.selectedRow.isNotEmpty) {
       final lastRecord = _selectedRows.selectedRow.last;
       _addCurrentCell(lastRecord, dataGridSettings, isSelectionChanging: true);
-    } else if (kIsWeb &&
+    } else if (dataGridSettings._isDesktop &&
         dataGridSettings.navigationMode == GridNavigationMode.row) {
       final lastRecord = _selectedRows.selectedRow.last;
       final rowIndex =
@@ -550,7 +550,7 @@ class RowSelectionManager extends SelectionManagerBase {
       if (lastRecord != null) {
         _addSelection(lastRecord, dataGridSettings);
       }
-    } else if (kIsWeb &&
+    } else if (dataGridSettings._isDesktop &&
         dataGridSettings.selectionMode == SelectionMode.multiple) {
       final currentRowColumnIndex =
           RowColumnIndex(dataGridSettings.currentCell.rowIndex, null);

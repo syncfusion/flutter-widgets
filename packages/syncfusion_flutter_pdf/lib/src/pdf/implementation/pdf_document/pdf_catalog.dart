@@ -10,12 +10,22 @@ class _PdfCatalog extends _PdfDictionary {
   _PdfCatalog.fromDocument(PdfDocument document, _PdfDictionary catalog)
       : super(catalog) {
     _document = document;
+    if (containsKey(_DictionaryProperties.names)) {
+      final _IPdfPrimitive obj =
+          _PdfCrossTable._dereference(this[_DictionaryProperties.names]);
+      if (obj is _PdfDictionary) {
+        _catalogNames = _PdfCatalogNames(obj);
+      }
+    }
+    readMetadata();
     freezeChanges(this);
   }
 
   PdfSectionCollection _sections;
   // ignore: unused_field
   PdfDocument _document;
+  _XmpMetadata _metadata;
+  _PdfCatalogNames _catalogNames;
   // ignore: unused_element
   PdfSectionCollection get _pages => _sections;
   set _pages(PdfSectionCollection sections) {
@@ -32,5 +42,68 @@ class _PdfCatalog extends _PdfDictionary {
           as _PdfDictionary;
     }
     return dests;
+  }
+
+  _PdfCatalogNames get _names {
+    if (_catalogNames == null) {
+      _catalogNames = _PdfCatalogNames();
+      this[_DictionaryProperties.names] = _PdfReferenceHolder(_catalogNames);
+    }
+    return _catalogNames;
+  }
+
+  //Implementation
+  /// Reads Xmp from the document.
+  void readMetadata() {
+    //Read metadata if present.
+    final _IPdfPrimitive rhMetadata = this[_DictionaryProperties.metadata];
+    if (_PdfCrossTable._dereference(rhMetadata) is _PdfStream) {
+      final _PdfStream xmpStream = _PdfCrossTable._dereference(rhMetadata);
+      bool isFlateDecode = false;
+      if (xmpStream.containsKey(_DictionaryProperties.filter)) {
+        _IPdfPrimitive obj = xmpStream[_DictionaryProperties.filter];
+        if (obj is _PdfReferenceHolder) {
+          final _PdfReferenceHolder rh = obj;
+          obj = rh.object;
+        }
+        if (obj != null) {
+          if (obj is _PdfName) {
+            final _PdfName filter = obj;
+
+            if (filter._name == _DictionaryProperties.flateDecode) {
+              isFlateDecode = true;
+            }
+          } else if (obj is _PdfArray) {
+            final _PdfArray filter = obj;
+            for (final pdfFilter in filter._elements) {
+              final _PdfName filtername = pdfFilter as _PdfName;
+              if (filtername._name == _DictionaryProperties.flateDecode) {
+                isFlateDecode = true;
+              }
+            }
+          }
+        }
+      }
+
+      if (xmpStream.compress || isFlateDecode) {
+        try {
+          xmpStream._decompress();
+        } catch (e) {
+          //non-compressed stream will throws exception when try to decompress
+        }
+      }
+      XmlDocument xmp;
+      try {
+        xmp = XmlDocument.parse(utf8.decode(xmpStream._dataStream));
+      } catch (e) {
+        xmpStream._decompress();
+        try {
+          xmp = XmlDocument.parse(utf8.decode(xmpStream._dataStream));
+        } catch (e1) {
+          return;
+        }
+      }
+      _metadata = _XmpMetadata.fromXmlDocument(xmp);
+    }
   }
 }

@@ -103,10 +103,6 @@ class StepLineSeriesRenderer extends XyDataSeriesRenderer {
         _chartState._oldSeriesRenderers;
     _isRectSeries = false;
     segment.currentSegmentIndex = pointIndex;
-    segment.points
-        .add(Offset(currentPoint.markerPoint.x, currentPoint.markerPoint.y));
-    segment.points
-        .add(Offset(currentPoint._nextPoint.x, currentPoint._nextPoint.y));
     segment._seriesIndex = seriesIndex;
     segment._seriesRenderer = this;
     segment._series = _series;
@@ -127,6 +123,8 @@ class StepLineSeriesRenderer extends XyDataSeriesRenderer {
       segment._oldSeriesRenderer = _oldSeriesRenderers[segment._seriesIndex];
     }
     segment.calculateSegmentPoints();
+    segment.points.add(Offset(segment._x1, segment._y1));
+    segment.points.add(Offset(segment._x2, segment._y2));
     customizeSegment(segment);
     segment.strokePaint = segment.getStrokePaint();
     segment.fillPaint = segment.getFillPaint();

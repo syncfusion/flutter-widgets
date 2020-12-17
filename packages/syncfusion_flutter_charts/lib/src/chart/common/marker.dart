@@ -211,6 +211,8 @@ class MarkerSettingsRenderer {
       Canvas canvas,
       int markerIndex,
       [int outlierIndex]) {
+    final bool isDataPointVisible = _isLabelWithinRange(
+        seriesRenderer, seriesRenderer._dataPoints[markerIndex]);
     Paint strokePaint, fillPaint;
     final XyDataSeries<dynamic, dynamic> series = seriesRenderer._series;
     final Size size =
@@ -235,35 +237,41 @@ class MarkerSettingsRenderer {
     _color = series.markerSettings.color;
     _borderWidth = series.markerSettings.borderWidth;
     if (!isBoxSeries) {
-      seriesRenderer._markerShapes.add(_getMarkerShapesPath(
-          markerType,
-          Offset(point.markerPoint.x, point.markerPoint.y),
-          size,
-          seriesRenderer,
-          markerIndex,
-          null,
-          animationController));
+      seriesRenderer._markerShapes.add(isDataPointVisible
+          ? _getMarkerShapesPath(
+              markerType,
+              Offset(point.markerPoint.x, point.markerPoint.y),
+              size,
+              seriesRenderer,
+              markerIndex,
+              null,
+              animationController)
+          : null);
     } else {
-      seriesRenderer._markerShapes.add(_getMarkerShapesPath(
-          markerType,
-          Offset(point.outliersPoint[outlierIndex].x,
-              point.outliersPoint[outlierIndex].y),
-          size,
-          seriesRenderer,
-          markerIndex,
-          null,
-          animationController));
+      seriesRenderer._markerShapes.add(isDataPointVisible
+          ? _getMarkerShapesPath(
+              markerType,
+              Offset(point.outliersPoint[outlierIndex].x,
+                  point.outliersPoint[outlierIndex].y),
+              size,
+              seriesRenderer,
+              markerIndex,
+              null,
+              animationController)
+          : null);
     }
     if (seriesRenderer._seriesType.contains('range') ||
         seriesRenderer._seriesType == 'hilo') {
-      seriesRenderer._markerShapes2.add(_getMarkerShapesPath(
-          markerType,
-          Offset(point.markerPoint2.x, point.markerPoint2.y),
-          size,
-          seriesRenderer,
-          markerIndex,
-          null,
-          animationController));
+      seriesRenderer._markerShapes2.add(isDataPointVisible
+          ? _getMarkerShapesPath(
+              markerType,
+              Offset(point.markerPoint2.x, point.markerPoint2.y),
+              size,
+              seriesRenderer,
+              markerIndex,
+              null,
+              animationController)
+          : null);
     }
     strokePaint = Paint()
       ..color = point.isEmpty == true
@@ -328,7 +336,10 @@ class MarkerSettingsRenderer {
         (point.markerPoint != null ||
             point.outliersPoint[outlierIndex] != null) &&
         point.isGap != true &&
-        (!isScatter || series.markerSettings.shape == DataMarkerType.image)) {
+        (!isScatter || series.markerSettings.shape == DataMarkerType.image) &&
+        seriesRenderer
+                ._markerShapes[isBoxSeries ? outlierIndex : markerIndex] !=
+            null) {
       seriesRenderer.drawDataMarker(
           isBoxSeries ? outlierIndex : markerIndex,
           canvas,

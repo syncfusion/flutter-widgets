@@ -16,4 +16,7 @@ class CellStyleXfs {
 
   /// Represents alignment.
   Alignment _alignment;
+
+  /// Represent protection.
+  int _locked;
 }

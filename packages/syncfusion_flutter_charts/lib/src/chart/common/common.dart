@@ -311,6 +311,9 @@ class _ChartPointInfo {
   /// Low Y position of financial series
   double lowYPosition;
 
+  /// High X position of financial series
+  double highXPosition;
+
   /// High Y position of financial series
   double highYPosition;
 
@@ -343,6 +346,9 @@ class _ChartPointInfo {
 
   /// Upper x position of box plot series
   double upperYPosition;
+
+  // Maximum x position forr vox plot series
+  double maxXPosition;
 
   /// series index value
   num seriesIndex;
@@ -409,6 +415,22 @@ class TrackballMarkerSettings extends MarkerSettings {
   final TrackballVisibilityMode markerVisibility;
 }
 
+///Options to show the details of the trackball template.
+class TrackballDetails {
+  ///Constructor of TrackballDetails class.
+  TrackballDetails(
+      [this.point,
+      this.series,
+      this.pointIndex,
+      this.seriesIndex,
+      this.groupingModeInfo]);
+  final CartesianChartPoint<dynamic> point;
+  final CartesianSeries<dynamic, dynamic> series;
+  final int pointIndex;
+  final int seriesIndex;
+  final TrackballGroupingModeInfo groupingModeInfo;
+}
+
 /// To get cartesian type data label saturation color
 Color _getDataLabelSaturationColor(
     CartesianChartPoint<dynamic> currentPoint,
@@ -450,10 +472,13 @@ Color _getDataLabelSaturationColor(
         break;
       case 'Column':
         color = (!currentPoint.dataLabelSaturationRegionInside &&
-                ((labelPosition == ChartDataLabelAlignment.outer &&
-                        alignment != ChartAlignment.near) ||
+                (labelPosition == ChartDataLabelAlignment.outer ||
                     (labelPosition == ChartDataLabelAlignment.top &&
                         alignment == ChartAlignment.far) ||
+                    (seriesRenderer._seriesType == 'rangecolumn'
+                        ? (labelPosition == ChartDataLabelAlignment.top &&
+                            alignment == ChartAlignment.near)
+                        : false) ||
                     (labelPosition == ChartDataLabelAlignment.auto &&
                         (!seriesRenderer._seriesType.contains('100') &&
                             seriesRenderer._seriesType != 'stackedbar' &&
@@ -694,8 +719,11 @@ void _animateTransposedRectSeries(
   }
 
   canvas.drawRRect(
-      RRect.fromRectAndRadius(
-          rect ?? segmentRect?.middleRect, segmentRect.blRadius),
+      RRect.fromRectAndCorners(rect ?? segmentRect?.middleRect,
+          bottomLeft: segmentRect.blRadius,
+          bottomRight: segmentRect.brRadius,
+          topLeft: segmentRect.tlRadius,
+          topRight: segmentRect.trRadius),
       fillPaint);
 }
 
@@ -836,8 +864,11 @@ void _animateNormalRectSeries(
         oldSegmentRect, oldSeriesVisible, isSingleSeries, animationFactor);
   }
   canvas.drawRRect(
-      RRect.fromRectAndRadius(
-          rect ?? segmentRect?.middleRect, segmentRect.blRadius),
+      RRect.fromRectAndCorners(rect ?? segmentRect?.middleRect,
+          bottomLeft: segmentRect.blRadius,
+          bottomRight: segmentRect.brRadius,
+          topLeft: segmentRect.tlRadius,
+          topRight: segmentRect.trRadius),
       fillPaint);
 }
 
@@ -997,9 +1028,12 @@ void _drawAnimatedStackedRect(
                 ? top = (segmentRect.top + segmentRect.height) - height
                 : top = prevRegion.top - height;
 
-    segmentRect = RRect.fromRectAndRadius(
+    segmentRect = RRect.fromRectAndCorners(
         Rect.fromLTWH(segmentRect.left, top, segmentRect.width, height),
-        segmentRect.blRadius);
+        bottomLeft: segmentRect.blRadius,
+        bottomRight: segmentRect.brRadius,
+        topLeft: segmentRect.tlRadius,
+        topRight: segmentRect.trRadius);
     currentPoint.region =
         Rect.fromLTWH(segmentRect.left, top, segmentRect.width, height);
     canvas.drawRRect(segmentRect, fillPaint);
@@ -1023,9 +1057,12 @@ void _drawAnimatedStackedRect(
                 ? right = (segmentRect.right - segmentRect.width) + width
                 : right = prevRegion.right + width;
 
-    segmentRect = RRect.fromRectAndRadius(
+    segmentRect = RRect.fromRectAndCorners(
         Rect.fromLTWH(right - width, top1, width, height1),
-        segmentRect.blRadius);
+        bottomLeft: segmentRect.blRadius,
+        bottomRight: segmentRect.brRadius,
+        topLeft: segmentRect.tlRadius,
+        topRight: segmentRect.trRadius);
     currentPoint.region =
         Rect.fromLTWH(segmentRect.left, right, segmentRect.width, width);
     canvas.drawRRect(segmentRect, fillPaint);
@@ -1093,6 +1130,28 @@ void _animateLineTypeSeries(
   seriesRenderer._seriesType == 'spline'
       ? path.cubicTo(x3, y3, x4, y4, x2, y2)
       : path.lineTo(x2, y2);
+  _drawDashedLine(canvas, seriesRenderer._series.dashArray, strokePaint, path);
+}
+
+void _animateToPoint(
+    Canvas canvas,
+    CartesianSeriesRenderer seriesRenderer,
+    Paint strokePaint,
+    double animationFactor,
+    num x1,
+    num y1,
+    num x2,
+    num y2,
+    num prevX,
+    num prevY) {
+  final Path path = Path();
+  prevX ??= x1;
+  prevY ??= y1;
+  final num newX1 = prevX + (x1 - prevX) * animationFactor;
+  final num newY1 = prevY + (y1 - prevY) * animationFactor;
+  path.moveTo(newX1, newY1);
+  path.lineTo(newX1 + (x2 - newX1) * animationFactor,
+      newY1 + (y2 - newY1) * animationFactor);
   _drawDashedLine(canvas, seriesRenderer._series.dashArray, strokePaint, path);
 }
 
@@ -1241,8 +1300,11 @@ void _animateRangeColumn(
     }
   }
   canvas.drawRRect(
-      RRect.fromRectAndRadius(
-          Rect.fromLTWH(left, top, width, height), segmentRect.blRadius),
+      RRect.fromRectAndCorners(Rect.fromLTWH(left, top, width, height),
+          bottomLeft: segmentRect.blRadius,
+          bottomRight: segmentRect.brRadius,
+          topLeft: segmentRect.tlRadius,
+          topRight: segmentRect.trRadius),
       fillPaint);
 }
 
@@ -1880,7 +1942,7 @@ void _calculateImage(
     if (chart.plotAreaBackgroundImage != null) {
       chartState._backgroundImage =
           await _getImageInfo(chart.plotAreaBackgroundImage);
-      chartState._renderAxis.state.axisRepaintNotifier.value++;
+      chartState._renderOutsideAxis.state.axisRepaintNotifier.value++;
     }
     if (chart.legend.image != null) {
       chartState._legendIconImage = await _getImageInfo(chart.legend.image);

@@ -15,6 +15,7 @@ class GridCellWidgetRenderer<T1, T2>
       dataCell._columnElement = GridWidgetCell(
         key: dataCell._key,
         dataCell: dataCell,
+        padding: dataCell.gridColumn.padding ?? EdgeInsets.zero,
         backgroundColor: dataCell._cellStyle?.backgroundColor,
         isDirty:
             _dataGridStateDetails().container._isDirty || dataCell._isDirty,

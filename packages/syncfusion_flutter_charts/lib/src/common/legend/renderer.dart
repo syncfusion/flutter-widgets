@@ -82,7 +82,7 @@ class _LegendRenderer with _CustomizeLegend {
             textStyle: legend.textStyle,
             fontColor: legendRenderer._renderer.getLegendTextColor(
                 index, legendItem, chartState._chartTheme.legendTextColor));
-
+    canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
     _drawLegendShape(
         index,
         iconOffset,

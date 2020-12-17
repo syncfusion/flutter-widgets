@@ -112,7 +112,7 @@ abstract class GaugeAxis {
   ///
   /// The range of the axis scale is starting from this value.
   ///
-  /// Defaults to 0
+  /// Defaults to `0`.
   /// ```dart
   /// Widget build(BuildContext context) {
   ///    return Container(
@@ -129,7 +129,7 @@ abstract class GaugeAxis {
   ///
   /// The range of the axis scale is end with this value.
   ///
-  /// Defaults to 100
+  /// Defaults to `100`.
   /// ```dart
   /// Widget build(BuildContext context) {
   ///    return Container(
@@ -149,7 +149,7 @@ abstract class GaugeAxis {
   /// interval will be measured automatically based on scale range
   /// along with the available width.
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   /// ```dart
   /// Widget build(BuildContext context) {
   ///    return Container(
@@ -164,7 +164,7 @@ abstract class GaugeAxis {
 
   /// Add minor ticks count per interval.
   ///
-  /// Defaults to 1
+  /// Defaults to `1`.
   /// ```dart
   /// Widget build(BuildContext context) {
   ///    return Container(
@@ -179,7 +179,7 @@ abstract class GaugeAxis {
 
   /// Whether to show the labels on the axis of the gauge.
   ///
-  /// Defaults to true
+  /// Defaults to `true`.
   /// ```dart
   /// Widget build(BuildContext context) {
   ///    return Container(
@@ -194,7 +194,7 @@ abstract class GaugeAxis {
 
   /// Whether to show the axis line of the gauge.
   ///
-  /// Defaults to true
+  /// Defaults to `true`.
   /// ```dart
   /// Widget build(BuildContext context) {
   ///    return Container(
@@ -209,7 +209,7 @@ abstract class GaugeAxis {
 
   /// Whether to show the ticks on the axis of the gauge.
   ///
-  /// Defaults to true
+  /// Defaults to `true`.
   /// ```dart
   /// Widget build(BuildContext context) {
   ///    return Container(
@@ -235,7 +235,7 @@ abstract class GaugeAxis {
   /// If [offsetUnit] is [GaugeSizeUnit.logicalPixel], the defined value
   /// distance ticks will move from the axis line.
   ///
-  /// Defaults to 0 and [offsetUnit] is [GaugeSizeUnit.logicalPixel].
+  /// Defaults to `0` and [offsetUnit] is `GaugeSizeUnit.logicalPixel`.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
@@ -262,7 +262,7 @@ abstract class GaugeAxis {
   /// If [offsetUnit] is [GaugeSizeUnit.logicalPixel], the defined value
   /// distance labels will move from the end of the tick.
   ///
-  /// Defaults to 15 and [offsetUnit] is [GaugeSizeUnit.logicalPixel].
+  /// Defaults to `15` and [offsetUnit] is `GaugeSizeUnit.logicalPixel`.
   ///```dart
   /// Widget build(BuildContext context) {
   ///    return Container(
@@ -280,7 +280,7 @@ abstract class GaugeAxis {
   /// Axis is rendered by default in the clockwise direction and can be
   /// inverted to render the axis element in the counter clockwise direction.
   ///
-  /// Defaults to false
+  /// Defaults to `false`.
   /// ```dart
   /// Widget build(BuildContext context) {
   ///    return Container(
@@ -296,7 +296,7 @@ abstract class GaugeAxis {
   /// The maximum number of labels to be displayed in 100 logical
   /// pixels on the axis.
   ///
-  /// Defaults to 3
+  /// Defaults to `3`.
   ///```dart
   /// Widget build(BuildContext context) {
   ///    return Container(
@@ -311,7 +311,7 @@ abstract class GaugeAxis {
 
   /// Whether to use the range color for axis elements such as labels and ticks.
   ///
-  /// Defaults to false
+  /// Defaults to `false`.
   /// ```dart
   /// Widget build(BuildContext context) {
   ///    return Container(
@@ -332,7 +332,7 @@ abstract class GaugeAxis {
   /// The labels can be customized by adding the desired text as prefix
   /// or suffix.
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   /// ```dart
   /// Widget build(BuildContext context) {
   ///    return Container(
@@ -347,7 +347,7 @@ abstract class GaugeAxis {
 
   /// Formats the axis labels with globalized label formats.
   ///
-  /// Defaults to null.
+  /// Defaults to `null`.
   ///
   /// Also refer [NumberFormat].
   ///
@@ -370,7 +370,7 @@ abstract class GaugeAxis {
   /// If [ElementsPosition.outside], the position of the tick is outside the
   /// axis line.
   ///
-  /// Defaults to [ElementsPosition.inside].
+  /// Defaults to `ElementsPosition.inside`.
   ///
   /// Also refer [ElementsPosition].
   ///
@@ -393,7 +393,7 @@ abstract class GaugeAxis {
   /// If [ElementsPosition.outside], the position of the labels is outside the
   /// axis line.
   ///
-  /// Defaults to [ElementsPosition.inside]
+  /// Defaults to `ElementsPosition.inside`.
   ///
   /// Also refer [ElementsPosition]
   ///
@@ -413,8 +413,8 @@ abstract class GaugeAxis {
   ///
   /// Using [GaugeTextStyle] to add the style to the axis labels.
   ///
-  /// Defaults to the [GaugeTextStyle] property with font size is 12.0 and
-  /// font family is Segoe UI.
+  /// Defaults to the [GaugeTextStyle] property with font size `12.0` and
+  /// font family `Segoe UI`.
   ///
   /// Also refer [GaugeTextStyle]
   ///
@@ -435,8 +435,8 @@ abstract class GaugeAxis {
   ///
   /// Using [AxisLineStyle] to add the customized style to the axis line.
   ///
-  /// Defaults to the [AxisLineStyle] property with thickness is 10
-  /// logical pixels.
+  /// Defaults to the [AxisLineStyle] property with thickness `10
+  /// logical pixels`.
   ///
   /// Also refer [AxisLineStyle]
   ///
@@ -458,8 +458,8 @@ abstract class GaugeAxis {
   /// Using [MajorTickStyle] to add the customized style to the axis
   /// major tick line.
   ///
-  /// Defaults to the [MajorTickStyle] property with length is 10 logical
-  /// pixels.
+  /// Defaults to the [MajorTickStyle] property with length `10 logical
+  /// pixels`.
   ///
   /// Also refer [MajorTickStyle]
   ///
@@ -482,8 +482,8 @@ abstract class GaugeAxis {
   /// Using [MinorTickStyle] to add the customized style to the axis minor tick
   /// line.
   ///
-  /// Defaults to the [MinorTickStyle] property with length is 5
-  /// logical pixels.
+  /// Defaults to the [MinorTickStyle] property with length `5
+  /// logical pixels`.
   ///
   /// Also refer [MinorTickStyle].
   ///
@@ -505,7 +505,7 @@ abstract class GaugeAxis {
   ///
   /// Using [GaugeSizeUnit], axis ticks and label position is calculated.
   ///
-  /// Defaults to [GaugeSizeUnit.logicalPixel].
+  /// Defaults to `GaugeSizeUnit.logicalPixel`.
   ///```dart
   /// Widget build(BuildContext context) {
   ///    return Container(

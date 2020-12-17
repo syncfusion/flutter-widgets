@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 
 /// Holds the details for the [SfPdfViewer.onPageChanged] callback,
@@ -98,5 +100,30 @@ class PdfDocumentLoadFailedDetails {
   /// Error description of the document load failed condition.
   String get description {
     return _description;
+  }
+}
+
+/// Holds the details for the [SfPdfViewer.onTextSelectionChanged] callback,
+/// such as [globalSelectedRegion] and [selectedText].
+class PdfTextSelectionChangedDetails {
+  ///
+  PdfTextSelectionChangedDetails(
+      String selectedText, Rect globalSelectedRegion) {
+    _selectedText = selectedText;
+    _globalSelectedRegion = globalSelectedRegion;
+  }
+
+  String _selectedText;
+
+  /// Selected text value.
+  String get selectedText {
+    return _selectedText;
+  }
+
+  Rect _globalSelectedRegion;
+
+  /// The global bounds information of the selected text region.
+  Rect get globalSelectedRegion {
+    return _globalSelectedRegion;
   }
 }

@@ -10,6 +10,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' as intl show DateFormat, NumberFormat;
 import 'package:flutter/foundation.dart' show kIsWeb;
+
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
 
@@ -28,6 +29,7 @@ part './src/control/scrollable_panel/visual_container_helper.dart';
 //Runtime
 part './src/control/runtime/grid_column.dart';
 part './src/control/runtime/column_sizer.dart';
+part './src/control/runtime/stacked_header.dart';
 
 //Generator
 part './src/control/generator/row_generator.dart';
@@ -35,6 +37,7 @@ part './src/control/generator/data_row.dart';
 part './src/control/generator/data_row_base.dart';
 part './src/control/generator/data_cell.dart';
 part './src/control/generator/data_cell_base.dart';
+part './src/control/generator/spanned_data_row.dart';
 
 //Helper
 part './src/control/helper/enums.dart';
@@ -57,6 +60,7 @@ part './src/cell_renderer/grid_header_cell_renderer.dart';
 part './src/cell_renderer/grid_cell_numeric_field_renderer.dart';
 part './src/cell_renderer/grid_cell_widget_renderer.dart';
 part './src/cell_renderer/grid_cell_datetime_renderer.dart';
+part './src/cell_renderer/grid_cell_stacked_header_renderer.dart';
 
 //Selection Controller
 part './src/control/selection_controller/row_selection_manager.dart';
@@ -69,9 +73,6 @@ part './src/control/selection_controller/current_cell_manager.dart';
 part './src/grid_common/list_base.dart';
 part './src/grid_common/list_generic_base.dart';
 part './src/grid_common/math_helper.dart';
-part './src/grid_common/collections/generic_tree_table.dart';
-part './src/grid_common/collections/generic_tree_table_with_counter.dart';
-part './src/grid_common/collections/generic_tree_table_with_summary.dart';
 part './src/grid_common/collections/tree_table.dart';
 part './src/grid_common/collections/tree_table_with_counter.dart';
 part './src/grid_common/collections/tree_table_with_summary.dart';

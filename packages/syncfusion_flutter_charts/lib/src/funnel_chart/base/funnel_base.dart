@@ -446,6 +446,7 @@ class SfFunnelChartState extends State<SfFunnelChart>
   List<Rect> _dataLabelTemplateRegions;
   List<int> _selectionData;
   int _tooltipPointIndex;
+  //ignore: unused_field
   FunnelSeriesRenderer _seriesRenderer;
   Orientation _oldDeviceOrientation;
   Orientation _deviceOrientation;
@@ -498,7 +499,7 @@ class SfFunnelChartState extends State<SfFunnelChart>
         : _deviceOrientation;
     _deviceOrientation = MediaQuery.of(context).orientation;
     return RepaintBoundary(
-        child: Container(
+        child: _ChartContainer(
             child: GestureDetector(
                 child: Container(
                     decoration: BoxDecoration(
@@ -603,7 +604,7 @@ class SfFunnelChartState extends State<SfFunnelChart>
     _legendToggleStates = <_LegendRenderContext>[];
     _legendToggleTemplateStates = <_MeasureWidgetContext>[];
     _explodedPoints = <int>[];
-    _animateCompleted = true;
+    _animateCompleted = false;
     _isLegendToggled = false;
     _widgetNeedUpdate = false;
     _dataLabelTemplateRegions = <Rect>[];
@@ -618,7 +619,11 @@ class SfFunnelChartState extends State<SfFunnelChart>
   // In this method, create and update the series renderer for each series //
   void _createAndUpdateSeriesRenderer([SfFunnelChart oldWidget]) {
     if (widget.series != null) {
-      final FunnelSeriesRenderer oldSeriesRenderer = _seriesRenderer;
+      final FunnelSeriesRenderer oldSeriesRenderer =
+          oldWidget != null && oldWidget.series != null
+              ? _chartSeries.visibleSeriesRenderers[0]
+              : null;
+
       dynamic series;
       series = widget.series;
 
@@ -841,8 +846,7 @@ class _FunnelPlotArea extends StatelessWidget {
       if (series.animationDuration > 0 &&
           !chartState._didSizeChange &&
           (chartState._oldDeviceOrientation == chartState._deviceOrientation) &&
-          (chartState._initialRender ||
-              chartState._widgetNeedUpdate ||
+          ((!chartState._widgetNeedUpdate && chartState._initialRender) ||
               chartState._isLegendToggled)) {
         chartState._animationController.duration =
             Duration(milliseconds: series.animationDuration.toInt());
@@ -886,12 +890,11 @@ class _FunnelPlotArea extends StatelessWidget {
           .add(RepaintBoundary(child: CustomPaint(painter: seriesPainter)));
       chartState._renderDataLabel = _FunnelDataLabelRenderer(
           chartState: chartState,
-          show: series.animationDuration > 0 &&
-                  (chartState._deviceOrientation ==
-                      chartState._oldDeviceOrientation) &&
-                  !chartState._didSizeChange
-              ? false
-              : chartState._animateCompleted);
+          show: !chartState._widgetNeedUpdate
+              ? chartState._animationController.status ==
+                      AnimationStatus.completed ||
+                  chartState._animationController.duration == null
+              : true);
       chartState._chartWidgets.add(chartState._renderDataLabel);
     }
   }
@@ -904,13 +907,12 @@ class _FunnelPlotArea extends StatelessWidget {
         chartState._tooltipBehaviorRenderer._tooltipTemplate = _TooltipTemplate(
             show: false,
             clipRect: chartState._chartContainerRect,
-            duration: chart.tooltipBehavior.duration);
-        // chartState._tooltipBehaviorRenderer._sfChart = chart;
-        //  chart.tooltipBehavior._chartState = chartState;
+            tooltipBehavior: chart.tooltipBehavior,
+            duration: chart.tooltipBehavior.duration,
+            chartState: chartState);
         chartState._chartWidgets
             .add(chartState._tooltipBehaviorRenderer._tooltipTemplate);
       } else {
-        // chartState._tooltipBehaviorRenderer._sfChart = chart;
         chartState._tooltipBehaviorRenderer._chartTooltip =
             _ChartTooltipRenderer(chartState: chartState);
         chartState._chartWidgets
@@ -930,7 +932,7 @@ class _FunnelPlotArea extends StatelessWidget {
       }
     }
     if (index != null) {
-      pointTapArgs = PointTapArgs(0, index, seriesRenderer._dataPoints);
+      pointTapArgs = PointTapArgs(0, index, seriesRenderer._dataPoints, index);
       chart.onPointTapped(pointTapArgs);
     }
   }
@@ -946,14 +948,6 @@ class _FunnelPlotArea extends StatelessWidget {
     num pointIndex;
     final FunnelSeriesRenderer seriesRenderer =
         chartState._chartSeries.visibleSeriesRenderers[seriesIndex];
-    if (chart.onPointTapped != null && seriesRenderer != null) {
-      _calculatePointSeriesIndex(
-          chart, seriesRenderer, chartState._tapPosition);
-    }
-    if (chart.onDataLabelTapped != null && seriesRenderer != null) {
-      _triggerFunnelDataLabelEvent(
-          chart, seriesRenderer, chartState, chartState._tapPosition);
-    }
     ChartTouchInteractionArgs touchArgs;
     for (int j = 0; j < seriesRenderer._renderPoints.length; j++) {
       if (seriesRenderer._renderPoints[j].isVisible) {
@@ -1019,6 +1013,7 @@ class _FunnelPlotArea extends StatelessWidget {
       chartState._chartSeries
           ._seriesPointSelection(pointIndex, ActivationMode.doubleTap);
       if (chart.tooltipBehavior.enable &&
+          chartState._animateCompleted &&
           chart.tooltipBehavior.activationMode == ActivationMode.doubleTap) {
         if (chart.tooltipBehavior.builder != null) {
           _showFunnelTooltipTemplate();
@@ -1051,6 +1046,7 @@ class _FunnelPlotArea extends StatelessWidget {
         }
       }
       if (chart.tooltipBehavior.enable &&
+          chartState._animateCompleted &&
           chart.tooltipBehavior.activationMode == ActivationMode.longPress) {
         if (chart.tooltipBehavior.builder != null) {
           _showFunnelTooltipTemplate();
@@ -1068,6 +1064,14 @@ class _FunnelPlotArea extends StatelessWidget {
     chartState._tooltipBehaviorRenderer._isHovering = false;
     chartState._tapPosition = renderBox.globalToLocal(event.position);
     ChartTouchInteractionArgs touchArgs;
+    if (chart.onPointTapped != null && seriesRenderer != null) {
+      _calculatePointSeriesIndex(
+          chart, seriesRenderer, chartState._tapPosition);
+    }
+    if (chart.onDataLabelTapped != null && seriesRenderer != null) {
+      _triggerFunnelDataLabelEvent(
+          chart, seriesRenderer, chartState, chartState._tapPosition);
+    }
     if (chartState._tapPosition != null) {
       if (chartState._currentActive != null &&
           chartState._currentActive.series != null &&
@@ -1082,6 +1086,7 @@ class _FunnelPlotArea extends StatelessWidget {
             chartState._currentActive.pointIndex, ActivationMode.singleTap);
       }
       if (chart.tooltipBehavior.enable &&
+          chartState._animateCompleted &&
           chart.tooltipBehavior.activationMode == ActivationMode.singleTap &&
           chartState._currentActive != null &&
           chartState._currentActive.series != null) {
@@ -1137,6 +1142,7 @@ class _FunnelPlotArea extends StatelessWidget {
     }
     if (chartState._tapPosition != null) {
       if (chart.tooltipBehavior.enable &&
+          chartState._animateCompleted &&
           chartState._currentActive != null &&
           chartState._currentActive.series != null) {
         chartState._tooltipBehaviorRenderer._isHovering = true;

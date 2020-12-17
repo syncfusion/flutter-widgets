@@ -235,4 +235,16 @@ class PdfBitmap extends PdfImage {
       }
     }
   }
+
+  @override
+  void _drawInternal(PdfGraphics graphics, _Rectangle bounds) {
+    ArgumentError.checkNotNull(graphics);
+    graphics.drawImage(
+        this, Rect.fromLTWH(0, 0, _width * 0.75, _height * 0.75));
+  }
+
+  @override
+  _Rectangle _getBoundsInternal() {
+    return _Rectangle(0, 0, width * 0.75, height * 0.75);
+  }
 }

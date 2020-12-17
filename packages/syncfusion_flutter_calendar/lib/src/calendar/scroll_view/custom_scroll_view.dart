@@ -7,7 +7,6 @@ class _CustomScrollView extends StatefulWidget {
       this.view,
       this.width,
       this.height,
-      this.visibleAppointments,
       this.agendaSelectedDate,
       this.isRTL,
       this.locale,
@@ -18,6 +17,8 @@ class _CustomScrollView extends StatefulWidget {
       this.removePicker,
       this.resourcePanelScrollController,
       this.textScaleFactor,
+      this.isMobilePlatform,
+      this.fadeInController,
       {this.updateCalendarState,
       this.getCalendarState});
 
@@ -33,11 +34,12 @@ class _CustomScrollView extends StatefulWidget {
   final VoidCallback removePicker;
   final _UpdateCalendarState getCalendarState;
   final ValueNotifier<DateTime> agendaSelectedDate;
-  final List<Appointment> visibleAppointments;
   final List<TimeRegion> specialRegions;
   final ScrollController resourcePanelScrollController;
   final double textScaleFactor;
+  final bool isMobilePlatform;
   final List<DateTime> blackoutDates;
+  final AnimationController fadeInController;
 
   @override
   _CustomScrollViewState createState() => _CustomScrollViewState();
@@ -93,6 +95,21 @@ class _CustomScrollViewState extends State<_CustomScrollView>
   /// manipulations(add, remove, reset).
   List<CalendarResource> _resourceCollection;
 
+  /// The variable stores the timeline view scroll start position used to
+  /// decide the scroll as timeline scroll or scroll view on scroll update.
+  double _timelineScrollStartPosition = 0;
+
+  /// The variable used to store the scroll start position to calculate the
+  /// scroll difference on scroll update.
+  double _timelineStartPosition = 0;
+
+  /// Boolean value used to trigger the horizontal end animation when user
+  /// stops the scroll at middle.
+  bool _isNeedTimelineScrollEnd = false;
+
+  /// Used to perform the drag or scroll in timeline view.
+  Drag _drag;
+
   FocusNode _focusNode;
 
   @override
@@ -118,7 +135,10 @@ class _CustomScrollViewState extends State<_CustomScrollView>
         vsync: this,
         animationBehavior: AnimationBehavior.normal);
     _tween = Tween<double>(begin: 0.0, end: 0.1);
-    _animation = _tween.animate(_animationController)
+    _animation = _tween.animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.ease,
+    ))
       ..addListener(animationListener);
 
     _timeRegions = _cloneList(widget.specialRegions);
@@ -148,6 +168,16 @@ class _CustomScrollViewState extends State<_CustomScrollView>
 
     if (oldWidget.view != widget.view) {
       _children.clear();
+
+      /// Switching timeline view from non timeline view or non timeline view
+      /// from timeline view creates the scroll layout as new because we handle
+      /// the scrolling touch for timeline view in this widget, so current
+      /// widget tree differ on timeline and non timeline views, so it creates
+      /// new widget tree.
+      if (_isTimelineView(widget.view) != _isTimelineView(oldWidget.view)) {
+        _currentChildIndex = 1;
+      }
+
       _updateVisibleDates();
       _position = 0;
     }
@@ -210,6 +240,26 @@ class _CustomScrollViewState extends State<_CustomScrollView>
         oldWidget.locale != widget.locale ||
         oldWidget.calendar.selectionDecoration !=
             widget.calendar.selectionDecoration) {
+      final bool isTimelineView = _isTimelineView(widget.view);
+      if (widget.view != CalendarView.month &&
+          (oldWidget.calendar.timeSlotViewSettings.timeInterval !=
+                  widget.calendar.timeSlotViewSettings.timeInterval ||
+              (!isTimelineView &&
+                  oldWidget.calendar.timeSlotViewSettings.timeIntervalHeight !=
+                      widget
+                          .calendar.timeSlotViewSettings.timeIntervalHeight) ||
+              (isTimelineView &&
+                  oldWidget.calendar.timeSlotViewSettings.timeIntervalWidth !=
+                      widget
+                          .calendar.timeSlotViewSettings.timeIntervalWidth))) {
+        if (_currentChildIndex == 0) {
+          _previousViewKey.currentState._retainScrolledDateTime();
+        } else if (_currentChildIndex == 1) {
+          _currentViewKey.currentState._retainScrolledDateTime();
+        } else if (_currentChildIndex == 2) {
+          _nextViewKey.currentState._retainScrolledDateTime();
+        }
+      }
       _children.clear();
       _position = 0;
     }
@@ -296,59 +346,74 @@ class _CustomScrollViewState extends State<_CustomScrollView>
       bottomPosition = bottomPosition ?? -widget.height;
     }
 
+    final bool isTimelineView = _isTimelineView(widget.view);
+    final Widget customScrollWidget = GestureDetector(
+      child: CustomScrollViewerLayout(
+          _addViews(),
+          widget.view != CalendarView.month ||
+                  widget.calendar.monthViewSettings.navigationDirection ==
+                      MonthNavigationDirection.horizontal
+              ? CustomScrollDirection.horizontal
+              : CustomScrollDirection.vertical,
+          _position,
+          _currentChildIndex),
+      onTapDown: (TapDownDetails details) {
+        if (!_focusNode.hasFocus) {
+          _focusNode.requestFocus();
+        }
+      },
+      onHorizontalDragStart: isTimelineView ? null : _onHorizontalStart,
+      onHorizontalDragUpdate: isTimelineView ? null : _onHorizontalUpdate,
+      onHorizontalDragEnd: isTimelineView ? null : _onHorizontalEnd,
+      onVerticalDragStart: widget.view == CalendarView.month &&
+              widget.calendar.monthViewSettings.navigationDirection ==
+                  MonthNavigationDirection.vertical
+          ? _onVerticalStart
+          : null,
+      onVerticalDragUpdate: widget.view == CalendarView.month &&
+              widget.calendar.monthViewSettings.navigationDirection ==
+                  MonthNavigationDirection.vertical
+          ? _onVerticalUpdate
+          : null,
+      onVerticalDragEnd: widget.view == CalendarView.month &&
+              widget.calendar.monthViewSettings.navigationDirection ==
+                  MonthNavigationDirection.vertical
+          ? _onVerticalEnd
+          : null,
+    );
+
     return Stack(
       children: <Widget>[
         Positioned(
-          left: leftPosition,
-          right: rightPosition,
-          bottom: bottomPosition,
-          top: topPosition,
-          child: RawKeyboardListener(
-            focusNode: _focusNode,
-            onKey: _onKeyDown,
-            child: GestureDetector(
-              child: CustomScrollViewerLayout(
-                  _addViews(),
-                  widget.view != CalendarView.month ||
-                          widget.calendar.monthViewSettings
-                                  .navigationDirection ==
-                              MonthNavigationDirection.horizontal
-                      ? CustomScrollDirection.horizontal
-                      : CustomScrollDirection.vertical,
-                  _position,
-                  _currentChildIndex),
-              onTapDown: (TapDownDetails details) {
-                if (!_focusNode.hasFocus) {
-                  _focusNode.requestFocus();
-                }
-              },
-              onHorizontalDragStart: (DragStartDetails details) {
-                _onHorizontalStart(details);
-              },
-              onHorizontalDragUpdate: (DragUpdateDetails details) {
-                _onHorizontalUpdate(details);
-              },
-              onHorizontalDragEnd: (DragEndDetails details) {
-                _onHorizontalEnd(details);
-              },
-              onVerticalDragStart: widget.view == CalendarView.month &&
-                      widget.calendar.monthViewSettings.navigationDirection ==
-                          MonthNavigationDirection.vertical
-                  ? _onVerticalStart
-                  : null,
-              onVerticalDragUpdate: widget.view == CalendarView.month &&
-                      widget.calendar.monthViewSettings.navigationDirection ==
-                          MonthNavigationDirection.vertical
-                  ? _onVerticalUpdate
-                  : null,
-              onVerticalDragEnd: widget.view == CalendarView.month &&
-                      widget.calendar.monthViewSettings.navigationDirection ==
-                          MonthNavigationDirection.vertical
-                  ? _onVerticalEnd
-                  : null,
-            ),
-          ),
-        ),
+            left: leftPosition,
+            right: rightPosition,
+            bottom: bottomPosition,
+            top: topPosition,
+            child: RawKeyboardListener(
+              focusNode: _focusNode,
+              onKey: _onKeyDown,
+              child: isTimelineView
+                  ? Listener(
+                      onPointerSignal: _handlePointerSignal,
+                      child: RawGestureDetector(
+                          gestures: {
+                            HorizontalDragGestureRecognizer:
+                                GestureRecognizerFactoryWithHandlers<
+                                    HorizontalDragGestureRecognizer>(
+                              () => HorizontalDragGestureRecognizer(),
+                              (HorizontalDragGestureRecognizer instance) {
+                                instance..onUpdate = _handleDragUpdate;
+                                instance..onStart = _handleDragStart;
+                                instance..onEnd = _handleDragEnd;
+                                instance..onCancel = _handleDragCancel;
+                              },
+                            )
+                          },
+                          behavior: HitTestBehavior.opaque,
+                          child: customScrollWidget),
+                    )
+                  : customScrollWidget,
+            )),
       ],
     );
   }
@@ -365,6 +430,164 @@ class _CustomScrollViewState extends State<_CustomScrollView>
     }
 
     super.dispose();
+  }
+
+  /// Get the scroll layout current child view state based on its visible dates.
+  GlobalKey<_CalendarViewState> _getCurrentViewByVisibleDates() {
+    _CalendarView view;
+    for (int i = 0; i < _children.length; i++) {
+      final _CalendarView currentView = _children[i];
+      if (currentView.visibleDates == _currentViewVisibleDates) {
+        view = currentView;
+        break;
+      }
+    }
+
+    if (view == null) {
+      return null;
+    }
+    return view.key;
+  }
+
+  /// Handle start of the scroll, set the scroll start position and check
+  /// the start position as start or end of timeline scroll controller.
+  /// If the timeline view scroll starts at min or max scroll position then
+  /// move the previous view to end of the scroll or move the next view to
+  /// start of the scroll and set the drag as timeline scroll controller drag.
+  void _handleDragStart(DragStartDetails details) {
+    if (!_isTimelineView(widget.view)) {
+      return;
+    }
+    final GlobalKey<_CalendarViewState> viewKey =
+        _getCurrentViewByVisibleDates();
+    _timelineScrollStartPosition =
+        viewKey.currentState._scrollController.position.pixels;
+    _timelineStartPosition = details.globalPosition.dx;
+    _isNeedTimelineScrollEnd = false;
+
+    /// If the timeline view scroll starts at min or max scroll position then
+    /// move the previous view to end of the scroll or move the next view to
+    /// start of the scroll
+    if (_timelineScrollStartPosition >=
+        viewKey.currentState._scrollController.position.maxScrollExtent) {
+      _positionTimelineView();
+    } else if (_timelineScrollStartPosition <=
+        viewKey.currentState._scrollController.position.minScrollExtent) {
+      _positionTimelineView();
+    }
+
+    /// Set the drag as timeline scroll controller drag.
+    if (viewKey.currentState._scrollController.hasClients &&
+        viewKey.currentState._scrollController.position != null) {
+      _drag = viewKey.currentState._scrollController.position
+          .drag(details, _disposeDrag);
+    }
+  }
+
+  /// Handles the scroll update, if the scroll moves after the timeline max
+  /// scroll position or before the timeline min scroll position then check the
+  /// scroll start position if it is start or end of the timeline scroll view
+  /// then pass the touch to custom scroll view and set the timeline view
+  /// drag as null;
+  void _handleDragUpdate(DragUpdateDetails details) {
+    if (!_isTimelineView(widget.view)) {
+      return;
+    }
+    final GlobalKey<_CalendarViewState> viewKey =
+        _getCurrentViewByVisibleDates();
+
+    /// Calculate the scroll difference by current scroll position and start
+    /// scroll position.
+    final double difference =
+        details.globalPosition.dx - _timelineStartPosition;
+    if (_timelineScrollStartPosition >=
+            viewKey.currentState._scrollController.position.maxScrollExtent &&
+        ((difference < 0 && !widget.isRTL) ||
+            (difference > 0 && widget.isRTL))) {
+      /// Set the scroll position as timeline scroll start position and the
+      /// value used on horizontal update method.
+      _scrollStartPosition = _timelineStartPosition;
+      _drag?.cancel();
+
+      /// Move the touch(drag) to custom scroll view.
+      _onHorizontalUpdate(details);
+
+      /// Enable boolean value used to trigger the horizontal end animation on
+      /// drag end.
+      _isNeedTimelineScrollEnd = true;
+
+      /// Remove the timeline view drag or scroll.
+      _disposeDrag();
+      return;
+    } else if (_timelineScrollStartPosition <=
+            viewKey.currentState._scrollController.position.minScrollExtent &&
+        ((difference > 0 && !widget.isRTL) ||
+            (difference < 0 && widget.isRTL))) {
+      /// Set the scroll position as timeline scroll start position and the
+      /// value used on horizontal update method.
+      _scrollStartPosition = _timelineStartPosition;
+      _drag?.cancel();
+
+      /// Move the touch(drag) to custom scroll view.
+      _onHorizontalUpdate(details);
+
+      /// Enable boolean value used to trigger the horizontal end animation on
+      /// drag end.
+      _isNeedTimelineScrollEnd = true;
+
+      /// Remove the timeline view drag or scroll.
+      _disposeDrag();
+      return;
+    }
+
+    _drag?.update(details);
+  }
+
+  /// Handle the scroll end to update the timeline view scroll or custom scroll
+  /// view scroll based on [_isNeedTimelineScrollEnd] value
+  void _handleDragEnd(DragEndDetails details) {
+    if (_isNeedTimelineScrollEnd) {
+      _isNeedTimelineScrollEnd = false;
+      _onHorizontalEnd(details);
+      return;
+    }
+
+    _isNeedTimelineScrollEnd = false;
+    _drag?.end(details);
+  }
+
+  /// Handle drag cancel related operations.
+  void _handleDragCancel() {
+    _isNeedTimelineScrollEnd = false;
+    _drag?.cancel();
+  }
+
+  /// Remove the drag when the touch(drag) passed to custom scroll view.
+  void _disposeDrag() {
+    _drag = null;
+  }
+
+  /// Handle the pointer scroll when a pointer signal occurs over this object.
+  /// eg., track pad scroll.
+  void _handlePointerSignal(PointerSignalEvent event) {
+    final GlobalKey<_CalendarViewState> viewKey =
+        _getCurrentViewByVisibleDates();
+    if (event is PointerScrollEvent &&
+        viewKey.currentState._scrollController.position != null) {
+      final double scrolledPosition =
+          widget.isRTL ? -event.scrollDelta.dx : event.scrollDelta.dx;
+      final double targetScrollOffset = math.min(
+          math.max(
+              viewKey.currentState._scrollController.position.pixels +
+                  scrolledPosition,
+              viewKey.currentState._scrollController.position.minScrollExtent),
+          viewKey.currentState._scrollController.position.maxScrollExtent);
+      if (targetScrollOffset !=
+          viewKey.currentState._scrollController.position.pixels) {
+        viewKey.currentState._scrollController.position
+            .jumpTo(targetScrollOffset);
+      }
+    }
   }
 
   void _updateVisibleDates() {
@@ -555,6 +778,7 @@ class _CustomScrollViewState extends State<_CustomScrollView>
         widget.resourcePanelScrollController,
         _resourceCollection,
         widget.textScaleFactor,
+        widget.isMobilePlatform,
         key: _previousViewKey,
         updateCalendarState: (_UpdateCalendarStateDetails details) {
           _updateCalendarViewStateDetails(details);
@@ -581,6 +805,7 @@ class _CustomScrollViewState extends State<_CustomScrollView>
         widget.resourcePanelScrollController,
         _resourceCollection,
         widget.textScaleFactor,
+        widget.isMobilePlatform,
         key: _currentViewKey,
         updateCalendarState: (_UpdateCalendarStateDetails details) {
           _updateCalendarViewStateDetails(details);
@@ -608,6 +833,7 @@ class _CustomScrollViewState extends State<_CustomScrollView>
         widget.resourcePanelScrollController,
         _resourceCollection,
         widget.textScaleFactor,
+        widget.isMobilePlatform,
         key: _nextViewKey,
         updateCalendarState: (_UpdateCalendarStateDetails details) {
           _updateCalendarViewStateDetails(details);
@@ -623,6 +849,7 @@ class _CustomScrollViewState extends State<_CustomScrollView>
       return _children;
     }
 
+    widget.getCalendarState(_updateCalendarStateDetails);
     final _CalendarView previousView = _updateViews(
         _previousView, _previousViewKey, _previousViewVisibleDates);
     final _CalendarView currentView =
@@ -650,6 +877,8 @@ class _CustomScrollViewState extends State<_CustomScrollView>
       GlobalKey<_CalendarViewState> viewKey, List<DateTime> visibleDates) {
     final int index = _children.indexOf(view);
 
+    final _AppointmentLayout appointmentLayout =
+        viewKey.currentState._appointmentLayoutKey.currentWidget;
     // update the view with the visible dates on swiping end.
     if (view.visibleDates != visibleDates) {
       view = _CalendarView(
@@ -670,6 +899,7 @@ class _CustomScrollViewState extends State<_CustomScrollView>
         widget.resourcePanelScrollController,
         _resourceCollection,
         widget.textScaleFactor,
+        widget.isMobilePlatform,
         key: viewKey,
         updateCalendarState: (_UpdateCalendarStateDetails details) {
           _updateCalendarViewStateDetails(details);
@@ -681,9 +911,8 @@ class _CustomScrollViewState extends State<_CustomScrollView>
 
       _children[index] = view;
     } // check and update the visible appointments in the view
-    else if (viewKey.currentState._appointmentPainter != null &&
-        viewKey.currentState._appointmentPainter.visibleAppointments !=
-            widget.visibleAppointments) {
+    else if (!_isCollectionEqual(appointmentLayout.visibleAppointments.value,
+        _updateCalendarStateDetails._visibleAppointments)) {
       if (widget.view != CalendarView.month && !_isTimelineView(widget.view)) {
         view = _CalendarView(
           widget.calendar,
@@ -703,6 +932,7 @@ class _CustomScrollViewState extends State<_CustomScrollView>
           widget.resourcePanelScrollController,
           _resourceCollection,
           widget.textScaleFactor,
+          widget.isMobilePlatform,
           key: viewKey,
           updateCalendarState: (_UpdateCalendarStateDetails details) {
             _updateCalendarViewStateDetails(details);
@@ -713,22 +943,12 @@ class _CustomScrollViewState extends State<_CustomScrollView>
         );
         _children[index] = view;
       } else if (view.visibleDates == _currentViewVisibleDates) {
+        appointmentLayout.visibleAppointments.value =
+            _updateCalendarStateDetails._visibleAppointments;
         if (widget.view == CalendarView.month &&
             widget.calendar.monthCellBuilder != null) {
-          viewKey.currentState._appointmentPainter.visibleAppointments =
-              widget.visibleAppointments;
-          if (!_isEmptyList(viewKey
-                  .currentState._monthView.visibleAppointmentNotifier.value) ||
-              !_isEmptyList(widget.visibleAppointments)) {
-            viewKey.currentState._monthView.visibleAppointmentNotifier.value =
-                widget.visibleAppointments;
-          }
-        } else {
-          viewKey.currentState._appointmentPainter.visibleAppointments =
-              widget.visibleAppointments;
-          viewKey.currentState._appointmentPainter.calendar = widget.calendar;
-          viewKey.currentState._appointmentNotifier.value =
-              !viewKey.currentState._appointmentNotifier.value;
+          viewKey.currentState._monthView.visibleAppointmentNotifier.value =
+              _updateCalendarStateDetails._visibleAppointments;
         }
       }
     }
@@ -756,6 +976,7 @@ class _CustomScrollViewState extends State<_CustomScrollView>
         widget.resourcePanelScrollController,
         _resourceCollection,
         widget.textScaleFactor,
+        widget.isMobilePlatform,
         key: viewKey,
         updateCalendarState: (_UpdateCalendarStateDetails details) {
           _updateCalendarViewStateDetails(details);
@@ -812,8 +1033,13 @@ class _CustomScrollViewState extends State<_CustomScrollView>
 
     for (int i = 0; i < _children.length; i++) {
       final GlobalKey<_CalendarViewState> viewKey = _children[i].key;
-      viewKey.currentState._selectedResourceIndex = 0;
-      viewKey.currentState._selectionPainter.selectedResourceIndex = 0;
+      if (_isResourceEnabled(widget.calendar.dataSource, widget.view)) {
+        viewKey.currentState._selectedResourceIndex = 0;
+        viewKey.currentState._selectionPainter.selectedResourceIndex = 0;
+      } else {
+        viewKey.currentState._selectedResourceIndex = -1;
+        viewKey.currentState._selectionPainter.selectedResourceIndex = -1;
+      }
     }
   }
 
@@ -953,24 +1179,17 @@ class _CustomScrollViewState extends State<_CustomScrollView>
       _updateAllDayPanel();
     }
 
-    if (_currentChildIndex == 0) {
-      _currentChildIndex = 1;
-    } else if (_currentChildIndex == 1) {
-      _currentChildIndex = 2;
-    } else if (_currentChildIndex == 2) {
-      _currentChildIndex = 0;
-    }
-
-    if (kIsWeb) {
-      setState(() {
-        /// set state called to call the build method to fix the date doesn't
-        /// update properly issue on web, in Andriod and iOS the build method
-        /// called automatically when the animation ends but in web it doesn't
-        /// work on that way, hence we have manually called the build method by
-        /// adding setstate and i have logged and issue in framework once i got
-        /// the solution will remove this setstate
-      });
-    }
+    setState(() {
+      /// Update the custom scroll layout current child index when the
+      /// animation ends.
+      if (_currentChildIndex == 0) {
+        _currentChildIndex = 1;
+      } else if (_currentChildIndex == 1) {
+        _currentChildIndex = 2;
+      } else if (_currentChildIndex == 2) {
+        _currentChildIndex = 0;
+      }
+    });
 
     _resetPosition();
     _updateAppointmentPainter();
@@ -993,29 +1212,28 @@ class _CustomScrollViewState extends State<_CustomScrollView>
       _updateAllDayPanel();
     }
 
-    if (_currentChildIndex == 0) {
-      _currentChildIndex = 2;
-    } else if (_currentChildIndex == 1) {
-      _currentChildIndex = 0;
-    } else if (_currentChildIndex == 2) {
-      _currentChildIndex = 1;
-    }
+    setState(() {
+      /// Update the custom scroll layout current child index when the
+      /// animation ends.
+      if (_currentChildIndex == 0) {
+        _currentChildIndex = 2;
+      } else if (_currentChildIndex == 1) {
+        _currentChildIndex = 0;
+      } else if (_currentChildIndex == 2) {
+        _currentChildIndex = 1;
+      }
+    });
 
-    if (kIsWeb) {
-      setState(() {
-        /// set state called to call the build method to fix the date doesn't
-        /// update properly issue on web, in Android and iOS the build method
-        /// called automatically when the animation ends but in web it doesn't
-        /// work on that way, hence we have manually called the build method by
-        /// adding 'setState' and i have logged and issue in framework once i
-        /// got the solution will remove this 'setState'
-      });
-    }
     _resetPosition();
     _updateAppointmentPainter();
   }
 
   void _moveToNextViewWithAnimation() {
+    if (!widget.isMobilePlatform) {
+      _moveToNextWebViewWithAnimation();
+      return;
+    }
+
     if (!_canMoveToNextView(
         widget.view,
         widget.calendar.monthViewSettings.numberOfWeeksInView,
@@ -1053,7 +1271,7 @@ class _CustomScrollViewState extends State<_CustomScrollView>
       _tween.end = -widget.width;
     }
 
-    _animationController.duration = const Duration(milliseconds: 500);
+    _animationController.duration = const Duration(milliseconds: 250);
     _animationController
         .forward()
         .then<dynamic>((dynamic value) => _updateNextView());
@@ -1063,6 +1281,11 @@ class _CustomScrollViewState extends State<_CustomScrollView>
   }
 
   void _moveToPreviousViewWithAnimation() {
+    if (!widget.isMobilePlatform) {
+      _moveToPreviousWebViewWithAnimation();
+      return;
+    }
+
     if (!_canMoveToPreviousView(
         widget.view,
         widget.calendar.monthViewSettings.numberOfWeeksInView,
@@ -1100,13 +1323,128 @@ class _CustomScrollViewState extends State<_CustomScrollView>
       _tween.end = widget.width;
     }
 
-    _animationController.duration = const Duration(milliseconds: 500);
+    _animationController.duration = const Duration(milliseconds: 250);
     _animationController
         .forward()
         .then<dynamic>((dynamic value) => _updatePreviousView());
 
     /// updates the current view visible dates when the view swiped.
     _updateCurrentViewVisibleDates();
+  }
+
+  void _moveToPreviousWebViewWithAnimation() {
+    if (!_canMoveToPreviousView(
+        widget.view,
+        widget.calendar.monthViewSettings.numberOfWeeksInView,
+        widget.calendar.minDate,
+        widget.calendar.maxDate,
+        _currentViewVisibleDates,
+        widget.calendar.timeSlotViewSettings.nonWorkingDays,
+        widget.isRTL)) {
+      return;
+    }
+
+    // Resets the controller to backward it again, the animation will backward
+    // only from the dismissed state
+    if (widget.fadeInController.isCompleted ||
+        widget.fadeInController.isDismissed) {
+      widget.fadeInController.reset();
+    } else {
+      return;
+    }
+
+    // Handled for time line view, to move the previous and next view to it's
+    // start and end position accordingly
+    if (_isTimelineView(widget.view)) {
+      _positionTimelineView(isScrolledToEnd: false);
+    } else if (!_isTimelineView(widget.view) &&
+        widget.view != CalendarView.month) {
+      _updateDayViewScrollPosition();
+    }
+
+    /// updates the current view visible dates when the view swiped.
+    _updateCurrentViewVisibleDates();
+    _position = 0;
+    widget.fadeInController.forward();
+    _updateSelection();
+    _updatePreviousViewVisibleDates();
+
+    /// Updates the all day panel of the view, when the all day panel expanded
+    /// and the view swiped with the expanded all day panel, and when we swipe
+    /// back to the view or swipes three times will render the all day panel as
+    /// expanded, to collapse the all day panel in day, week and work week view,
+    /// we have added this condition and called the method.
+    if (widget.view != CalendarView.month && !_isTimelineView(widget.view)) {
+      _updateAllDayPanel();
+    }
+
+    if (_currentChildIndex == 0) {
+      _currentChildIndex = 2;
+    } else if (_currentChildIndex == 1) {
+      _currentChildIndex = 0;
+    } else if (_currentChildIndex == 2) {
+      _currentChildIndex = 1;
+    }
+
+    _updateAppointmentPainter();
+  }
+
+  void _moveToNextWebViewWithAnimation() {
+    if (!_canMoveToNextView(
+        widget.view,
+        widget.calendar.monthViewSettings.numberOfWeeksInView,
+        widget.calendar.minDate,
+        widget.calendar.maxDate,
+        _currentViewVisibleDates,
+        widget.calendar.timeSlotViewSettings.nonWorkingDays,
+        widget.isRTL)) {
+      return;
+    }
+
+    // Resets the controller to forward it again, the animation will forward
+    // only from the dismissed state
+    if (widget.fadeInController.isCompleted ||
+        widget.fadeInController.isDismissed) {
+      widget.fadeInController.reset();
+    } else {
+      return;
+    }
+
+    // Handled for time line view, to move the previous and next view to it's
+    // start and end position accordingly
+    if (_isTimelineView(widget.view)) {
+      _positionTimelineView(isScrolledToEnd: false);
+    } else if (!_isTimelineView(widget.view) &&
+        widget.view != CalendarView.month) {
+      _updateDayViewScrollPosition();
+    }
+
+    /// updates the current view visible dates when the view swiped
+    _updateCurrentViewVisibleDates(isNextView: true);
+
+    _position = 0;
+    widget.fadeInController.forward();
+    _updateSelection();
+    _updateNextViewVisibleDates();
+
+    /// Updates the all day panel of the view, when the all day panel expanded
+    /// and the view swiped with the expanded all day panel, and when we swipe
+    /// back to the view or swipes three times will render the all day panel as
+    /// expanded, to collapse the all day panel in day, week and work week view,
+    /// we have added this condition and called the method.
+    if (widget.view != CalendarView.month && !_isTimelineView(widget.view)) {
+      _updateAllDayPanel();
+    }
+
+    if (_currentChildIndex == 0) {
+      _currentChildIndex = 1;
+    } else if (_currentChildIndex == 1) {
+      _currentChildIndex = 2;
+    } else if (_currentChildIndex == 2) {
+      _currentChildIndex = 0;
+    }
+
+    _updateAppointmentPainter();
   }
 
   // resets position to zero on the swipe end to avoid the unwanted date updates
@@ -1135,42 +1473,43 @@ class _CustomScrollViewState extends State<_CustomScrollView>
         return;
       }
 
-      double scrolledPosition = 0;
-      if (_currentChildIndex == 0) {
-        scrolledPosition =
-            _previousViewKey.currentState._scrollController.offset;
-      } else if (_currentChildIndex == 1) {
-        scrolledPosition =
-            _currentViewKey.currentState._scrollController.offset;
-      } else if (_currentChildIndex == 2) {
-        scrolledPosition = _nextViewKey.currentState._scrollController.offset;
-      }
-
-      if (_previousViewKey.currentState._scrollController.offset !=
-              scrolledPosition &&
-          _previousViewKey
-                  .currentState._scrollController.position.maxScrollExtent >=
-              scrolledPosition) {
-        _previousViewKey.currentState._scrollController
-            .jumpTo(scrolledPosition);
-      }
-
-      if (_currentViewKey.currentState._scrollController.offset !=
-              scrolledPosition &&
-          _currentViewKey
-                  .currentState._scrollController.position.maxScrollExtent >=
-              scrolledPosition) {
-        _currentViewKey.currentState._scrollController.jumpTo(scrolledPosition);
-      }
-
-      if (_nextViewKey.currentState._scrollController.offset !=
-              scrolledPosition &&
-          _nextViewKey
-                  .currentState._scrollController.position.maxScrollExtent >=
-              scrolledPosition) {
-        _nextViewKey.currentState._scrollController.jumpTo(scrolledPosition);
-      }
+      _updateDayViewScrollPosition();
     });
+  }
+
+  /// Update the current day view view scroll position to other views.
+  void _updateDayViewScrollPosition() {
+    double scrolledPosition = 0;
+    if (_currentChildIndex == 0) {
+      scrolledPosition = _previousViewKey.currentState._scrollController.offset;
+    } else if (_currentChildIndex == 1) {
+      scrolledPosition = _currentViewKey.currentState._scrollController.offset;
+    } else if (_currentChildIndex == 2) {
+      scrolledPosition = _nextViewKey.currentState._scrollController.offset;
+    }
+
+    if (_previousViewKey.currentState._scrollController.offset !=
+            scrolledPosition &&
+        _previousViewKey
+                .currentState._scrollController.position.maxScrollExtent >=
+            scrolledPosition) {
+      _previousViewKey.currentState._scrollController.jumpTo(scrolledPosition);
+    }
+
+    if (_currentViewKey.currentState._scrollController.offset !=
+            scrolledPosition &&
+        _currentViewKey
+                .currentState._scrollController.position.maxScrollExtent >=
+            scrolledPosition) {
+      _currentViewKey.currentState._scrollController.jumpTo(scrolledPosition);
+    }
+
+    if (_nextViewKey.currentState._scrollController.offset !=
+            scrolledPosition &&
+        _nextViewKey.currentState._scrollController.position.maxScrollExtent >=
+            scrolledPosition) {
+      _nextViewKey.currentState._scrollController.jumpTo(scrolledPosition);
+    }
   }
 
   int _getRowOfDate(
@@ -1723,21 +2062,6 @@ class _CustomScrollViewState extends State<_CustomScrollView>
 
   void _onHorizontalUpdate(DragUpdateDetails dragUpdateDetails) {
     widget.removePicker();
-    // Handled for time line view to manually update the scroll position of the
-    // scroll view of time line view while pass the touch to the scroll view
-    if (_isTimelineView(widget.view)) {
-      _position = dragUpdateDetails.globalPosition.dx - _scrollStartPosition;
-      for (int i = 0; i < _children.length; i++) {
-        if (_children[i].visibleDates == _currentViewVisibleDates) {
-          final GlobalKey<_CalendarViewState> viewKey = _children[i].key;
-          if (viewKey.currentState._isUpdateTimelineViewScroll(
-              _scrollStartPosition, dragUpdateDetails.globalPosition.dx)) {
-            return;
-          }
-          break;
-        }
-      }
-    }
 
     if (widget.calendar.monthViewSettings.navigationDirection ==
             MonthNavigationDirection.horizontal ||
@@ -1778,20 +2102,6 @@ class _CustomScrollViewState extends State<_CustomScrollView>
 
   void _onHorizontalEnd(DragEndDetails dragEndDetails) {
     widget.removePicker();
-    // Handled for time line view to manually update the scroll position of the
-    // scroll view of time line view while pass the touch to the scroll view
-    if (_isTimelineView(widget.view)) {
-      for (int i = 0; i < _children.length; i++) {
-        if (_children[i].visibleDates == _currentViewVisibleDates) {
-          final GlobalKey<_CalendarViewState> viewKey = _children[i].key;
-          if (viewKey.currentState._isAnimateTimelineViewScroll(
-              _position, dragEndDetails.primaryVelocity)) {
-            return;
-          }
-          break;
-        }
-      }
-    }
 
     if (widget.calendar.monthViewSettings.navigationDirection ==
             MonthNavigationDirection.horizontal ||
@@ -2133,11 +2443,12 @@ class _CustomScrollViewState extends State<_CustomScrollView>
       if (widget.view == CalendarView.month &&
           widget.calendar.monthCellBuilder != null) {
         if (view.visibleDates == _currentViewVisibleDates) {
-          if (!_isEmptyList(viewKey
-                  .currentState._monthView.visibleAppointmentNotifier.value) ||
-              !_isEmptyList(widget.visibleAppointments)) {
+          widget.getCalendarState(_updateCalendarStateDetails);
+          if (!_isCollectionEqual(
+              viewKey.currentState._monthView.visibleAppointmentNotifier.value,
+              _updateCalendarStateDetails._visibleAppointments)) {
             viewKey.currentState._monthView.visibleAppointmentNotifier.value =
-                widget.visibleAppointments;
+                _updateCalendarStateDetails._visibleAppointments;
           }
         } else {
           if (!_isEmptyList(viewKey
@@ -2147,8 +2458,20 @@ class _CustomScrollViewState extends State<_CustomScrollView>
           }
         }
       } else {
-        viewKey.currentState._appointmentNotifier.value =
-            !viewKey.currentState._appointmentNotifier.value;
+        final _AppointmentLayout appointmentLayout =
+            viewKey.currentState._appointmentLayoutKey.currentWidget;
+        if (view.visibleDates == _currentViewVisibleDates) {
+          widget.getCalendarState(_updateCalendarStateDetails);
+          if (!_isCollectionEqual(appointmentLayout.visibleAppointments.value,
+              _updateCalendarStateDetails._visibleAppointments)) {
+            appointmentLayout.visibleAppointments.value =
+                _updateCalendarStateDetails._visibleAppointments;
+          }
+        } else {
+          if (!_isEmptyList(appointmentLayout.visibleAppointments.value)) {
+            appointmentLayout.visibleAppointments.value = null;
+          }
+        }
       }
     }
   }

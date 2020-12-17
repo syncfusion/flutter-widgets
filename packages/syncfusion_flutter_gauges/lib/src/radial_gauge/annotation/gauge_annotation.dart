@@ -40,7 +40,7 @@ class GaugeAnnotation {
   ///
   /// Applied widget added over a gauge with respect to [angle] or [axisValue].
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   ///
   /// ```dart
   ///Widget build(BuildContext context) {
@@ -62,7 +62,7 @@ class GaugeAnnotation {
   /// The annotation is positioned on the basis of the calculated
   /// direction and distance.
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   ///
   /// ```dart
   ///Widget build(BuildContext context) {
@@ -83,7 +83,7 @@ class GaugeAnnotation {
   /// * [GaugeAlignment.near] aligns the annotation widget to near.
   /// * [GaugeAlignment.far] aligns the annotation widget to far.
   ///
-  /// Defaults to [GaugeAlignment.center]
+  /// Defaults to `GaugeAlignment.center`.
   ///
   /// Also refer [GaugeAlignment]
   ///
@@ -107,7 +107,7 @@ class GaugeAnnotation {
   /// * [GaugeAlignment.near] aligns the annotation widget to near.
   /// * [GaugeAlignment.far] aligns the annotation widget to far.
   ///
-  /// Defaults to [GaugeAlignment.center]
+  /// Defaults to `GaugeAlignment.center`.
   ///
   /// Also refer [GaugeAlignment]
   ///
@@ -131,7 +131,7 @@ class GaugeAnnotation {
   ///
   /// [positionFactor] must be between 0 to 1.
   ///
-  /// Defaults to 0
+  /// Defaults to `0`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -153,7 +153,7 @@ class GaugeAnnotation {
   /// by [positionFactor]. The annotation is positioned on the basis
   /// of the calculated direction and distance.
   ///
-  /// Defaults to null
+  /// Defaults to `null`.
   ///
   /// ```dart
   ///Widget build(BuildContext context) {

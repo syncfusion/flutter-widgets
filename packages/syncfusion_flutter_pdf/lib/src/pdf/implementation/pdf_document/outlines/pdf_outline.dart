@@ -10,6 +10,8 @@ class PdfBookmark extends PdfBookmarkBase {
     ArgumentError.checkNotNull(parent, 'parent');
     ArgumentError.checkNotNull(title, 'title');
     _parent = parent;
+    _dictionary.setProperty(
+        _DictionaryProperties.parent, _PdfReferenceHolder(parent));
     _previous = previous;
     _next = next;
     this.title = title;

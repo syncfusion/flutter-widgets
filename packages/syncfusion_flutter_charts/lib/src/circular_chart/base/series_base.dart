@@ -425,8 +425,20 @@ class _CircularSeries {
     final SfCircularChartState chartState = _chartState;
     final CircularSeriesRenderer seriesRenderer =
         _chartState._chartSeries.visibleSeriesRenderers[seriesIndex];
+    int currentSelectedIndex;
     if (seriesRenderer._isSelectionEnable && mode == chart.selectionGesture) {
       if (chartState._selectionData.isNotEmpty) {
+        if (!chart.enableMultiSelection &&
+            chartState._selectionData.isNotEmpty &&
+            chartState._selectionData.length > 1) {
+          if (chartState._selectionData.contains(pointIndex)) {
+            currentSelectedIndex = pointIndex;
+          }
+          chartState._selectionData.clear();
+          if (currentSelectedIndex != null) {
+            chartState._selectionData.add(pointIndex);
+          }
+        }
         for (int i = 0; i < chartState._selectionData.length; i++) {
           final int selectionIndex = chartState._selectionData[i];
           if (!chart.enableMultiSelection) {

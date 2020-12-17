@@ -138,16 +138,19 @@ void _renderFunnelDataLabel(
           seriesRenderer._series.dataLabelSettings.color;
       if (chart.onDataLabelRender != null &&
           !seriesRenderer._renderPoints[pointIndex].labelRenderEvent) {
-        seriesRenderer._renderPoints[pointIndex].labelRenderEvent = true;
-        dataLabelArgs = DataLabelRenderArgs(
-            seriesRenderer, seriesRenderer._renderPoints, pointIndex);
+        dataLabelArgs = DataLabelRenderArgs(seriesRenderer,
+            seriesRenderer._renderPoints, pointIndex, pointIndex);
         dataLabelArgs.text = label;
         dataLabelArgs.textStyle = dataLabelStyle;
         dataLabelArgs.color = dataLabelSettingsRenderer._color;
         chart.onDataLabelRender(dataLabelArgs);
-        label = dataLabelArgs.text;
+        label = point.text = dataLabelArgs.text;
         dataLabelStyle = dataLabelArgs.textStyle;
+        pointIndex = dataLabelArgs.pointIndex;
         dataLabelSettingsRenderer._color = dataLabelArgs.color;
+        if (animation.status == AnimationStatus.completed) {
+          seriesRenderer._dataPoints[pointIndex].labelRenderEvent = true;
+        }
       }
       dataLabelStyle = chart.onDataLabelRender == null
           ? _getDataLabelTextStyle(
@@ -462,14 +465,18 @@ void _triggerFunnelDataLabelEvent(
     FunnelSeriesRenderer seriesRenderer,
     SfFunnelChartState chartState,
     Offset position) {
+  final int seriesIndex = 0;
   for (int index = 0; index < seriesRenderer._renderPoints.length; index++) {
     final PointInfo<dynamic> point = seriesRenderer._renderPoints[index];
+    final DataLabelSettings dataLabel =
+        seriesRenderer._series.dataLabelSettings;
     final Offset labelLocation = point.symbolLocation;
-    if (chart.onDataLabelTapped != null &&
+    if (dataLabel.isVisible &&
+        seriesRenderer._renderPoints[index].labelRect != null &&
         seriesRenderer._renderPoints[index].labelRect.contains(position)) {
       position = Offset(labelLocation.dx, labelLocation.dy);
       _dataLabelTapEvent(chart, seriesRenderer._series.dataLabelSettings, index,
-          point, position);
+          point, position, seriesIndex);
     }
   }
 }

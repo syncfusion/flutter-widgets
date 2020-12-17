@@ -138,7 +138,7 @@ Widget build(BuildContext context) {
        interval: 20,
        showTicks: true,
        showLabels: true,
-       showTooltip: true,
+       enableTooltip: true,
        minorTicksPerInterval: 1,
        onChanged: (dynamic value){
          setState(() {
@@ -199,7 +199,7 @@ Widget build(BuildContext context) {
         interval: 20,
         showTicks: true,
         showLabels: true,
-        showTooltip: true,
+        enableTooltip: true,
         minorTicksPerInterval: 1,
         onChanged: (SfRangeValues values){
           setState(() {

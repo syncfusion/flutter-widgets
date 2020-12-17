@@ -10,6 +10,9 @@ class SerializeWorkbook {
   /// Workbook to serialize.
   Workbook _workbook;
 
+  /// Relation id
+  final List<String> _relationId = [];
+
   /// Serialize workbook
   void _saveInternal() {
     _updateGlobalStyles();
@@ -39,13 +42,12 @@ class SerializeWorkbook {
         builder.attribute('codeName', 'ThisWorkbook');
         builder.attribute('defaultThemeVersion', '153222');
       });
-
+      _serializeWorkbookProtection(builder);
       builder.element('bookViews', nest: () {
         builder.element('workbookView', nest: () {
           builder.attribute('activeTab', '0');
         });
       });
-
       builder.element('sheets', nest: () {
         for (int i = 0; i < _workbook.worksheets.count; i++) {
           builder.element('sheet', nest: () {
@@ -61,12 +63,64 @@ class SerializeWorkbook {
     _addToArchive(bytes, 'xl/workbook.xml');
   }
 
+  /// Serializes workbook protection options.
+  void _serializeWorkbookProtection(final builder) {
+    if (_workbook._bWindowProtect || _workbook._bCellProtect) {
+      builder.element('workbookProtection', nest: () {
+        if (_workbook._password != null) {
+          final int usPassword = _workbook._isPassword;
+          if (usPassword != 0) {
+            builder.attribute('workbookPassword', usPassword.toRadixString(16));
+          }
+        }
+        _serializeAttributes(
+            builder, 'lockStructure', _workbook._bCellProtect, false);
+        _serializeAttributes(
+            builder, 'lockWindows', _workbook._bWindowProtect, false);
+      });
+    }
+  }
+
+  /// serialize Attributes
+  void _serializeAttributes(
+      final builder, String attributeName, bool value, bool defaultValue) {
+    String strValue;
+    if (value != defaultValue) {
+      strValue = value ? '1' : '0';
+    }
+    if (strValue != null) builder.attribute(attributeName, strValue);
+  }
+
   /// Serialize worksheets.
   void _saveWorksheets() {
     final length = _workbook.worksheets.count;
     for (int i = 0; i < length; i++) {
       final worksheet = _workbook.worksheets[i];
+      _updateHyperlinkCells(worksheet);
       _saveWorksheet(worksheet, i);
+    }
+  }
+
+  /// Update the Hyperlink cells
+  void _updateHyperlinkCells(Worksheet worksheet) {
+    for (final Hyperlink hyperlink in worksheet.hyperlinks.innerList) {
+      final Row row = worksheet.rows._getRow(hyperlink._row);
+      if (row != null) {
+        final Range cell = row.ranges._getCell(hyperlink._column);
+        if (cell != null) {
+          if (hyperlink.textToDisplay != null &&
+              cell.number == null &&
+              cell.text == null) {
+            cell.value = hyperlink.textToDisplay;
+          } else if (cell.text != null) {
+            cell.value = cell.text;
+          } else if (cell.number != null) {
+            cell.value = cell.number;
+          } else {
+            cell.value = hyperlink.address;
+          }
+        }
+      }
     }
   }
 
@@ -135,47 +189,48 @@ class SerializeWorkbook {
                         cell._styleIndex = -1;
                       }
                       builder.element('c', nest: () {
+                        String strFormula = cell.formula;
                         builder.attribute('r', cell.addressLocal);
-                        if (cell._saveType != null) {
+                        if (cell._saveType != null &&
+                            (strFormula == null ||
+                                strFormula == '' ||
+                                strFormula[0] != '=' ||
+                                cell._saveType == 's')) {
                           builder.attribute('t', cell._saveType);
                         }
                         if (cell._styleIndex != -1) {
                           builder.attribute('s', cell._styleIndex.toString());
                         }
-                        String strFormula = cell.formula;
-                        if (strFormula != null && strFormula != '') {
-                          if (strFormula[0] == '=' && cell._saveType != 's') {
-                            strFormula =
-                                strFormula.substring(1).replaceAll('\'', '\"');
-                            builder.element('f', nest: strFormula);
-                          }
-                          if (sheet.calcEngine != null &&
-                              cell.number == null &&
-                              cell.text == null &&
-                              cell._boolean == null &&
-                              cell._errorValue == null) {
-                            builder.element('v',
-                                nest: cell.calculatedValue.toString());
-                          } else if (cell._errorValue != null) {
-                            builder.element('v', nest: cell._errorValue);
-                          } else if (cell._boolean != null) {
-                            builder.element('v', nest: cell._boolean);
-                          } else if (cell.number != null) {
-                            builder.element('v', nest: cell.number.toString());
-                          } else if (cell.text != null) {
-                            if (cell._saveType == 's') {
-                              builder.element('v',
-                                  nest: cell._textIndex.toString());
-                            } else {
-                              builder.element('v', nest: cell.text);
-                            }
-                          }
+                        String cellValue;
+                        if (sheet.calcEngine != null &&
+                            cell.number == null &&
+                            cell.text == null &&
+                            cell._boolean == null &&
+                            cell._errorValue == null) {
+                          cellValue = cell.calculatedValue;
+                        } else if (cell._errorValue != null) {
+                          cellValue = cell._errorValue;
+                        } else if (cell._boolean != null) {
+                          cellValue = cell._boolean;
                         } else if (cell.number != null) {
-                          builder.element('v', nest: cell.number.toString());
+                          cellValue = cell.number.toString();
                         } else if (cell.text != null) {
-                          builder.element('v',
-                              nest: cell._textIndex.toString());
+                          if (cell._saveType == 's') {
+                            cellValue = cell._textIndex.toString();
+                          } else {
+                            cellValue = cell.text;
+                          }
                         }
+                        if (strFormula != null &&
+                            strFormula != '' &&
+                            strFormula[0] == '=' &&
+                            cell._saveType != 's') {
+                          builder.attribute('t', cell._saveType);
+                          strFormula =
+                              strFormula.substring(1).replaceAll('\'', '\"');
+                          builder.element('f', nest: strFormula);
+                        }
+                        builder.element('v', nest: cellValue);
                       });
                     }
                   }
@@ -185,6 +240,31 @@ class SerializeWorkbook {
           }
         }
       });
+      if (sheet._isPasswordProtected) {
+        final ExcelSheetProtectionOption protection = sheet._innerProtection;
+        builder.element('sheetProtection', nest: () {
+          if (sheet._algorithmName != null) {
+            builder.attribute('algorithmName', sheet._algorithmName);
+            builder.attribute('hashValue', base64.encode(sheet._hashValue));
+            builder.attribute('saltValue', base64.encode(sheet._saltValue));
+            builder.attribute('spinCount', sheet._spinCount);
+          } else if (sheet._isPassword != 1) {
+            final String password = sheet._isPassword.toRadixString(16);
+            builder.attribute('password', password);
+          }
+          List<String> attributes;
+          List<bool> flags;
+          List<bool> defaultValues;
+          attributes = sheet._protectionAttributes;
+          flags = sheet._flag;
+          defaultValues = sheet._defaultValues;
+          // ignore: prefer_final_locals
+          for (int i = 0, iCount = attributes.length; i < iCount; i++) {
+            _serializeProtectionAttribute(
+                builder, attributes[i], flags[i], defaultValues[i], protection);
+          }
+        });
+      }
       if (sheet.mergeCells != null && sheet.mergeCells.innerList.isNotEmpty) {
         builder.element('mergeCells', nest: () {
           builder.attribute(
@@ -196,7 +276,7 @@ class SerializeWorkbook {
           }
         });
       }
-
+      _serializeHyperlinks(builder, sheet);
       builder.element('pageMargins', nest: () {
         builder.attribute('left', '0.75');
         builder.attribute('right', '0.75');
@@ -219,7 +299,22 @@ class SerializeWorkbook {
           sheet.charts.serializeCharts(sheet);
         }
         builder.element('drawing', nest: () {
-          builder.attribute('r:id', 'rId1');
+          int id = 1;
+          final String rId = 'rId1';
+          if (_relationId != null) {
+            if (sheet.hyperlinks.count > 0) {
+              for (int i = 0; i < sheet.hyperlinks.count; i++) {
+                if (sheet.hyperlinks[i]._attachedType ==
+                        ExcelHyperlinkAttachedType.range &&
+                    sheet.hyperlinks[i].type != HyperlinkType.workbook) {
+                  id++;
+                }
+              }
+            }
+            builder.attribute('r:id', 'rId' + id.toString());
+          } else {
+            builder.attribute('r:id', rId);
+          }
         });
       }
       final rel = _saveSheetRelations(sheet);
@@ -230,6 +325,59 @@ class SerializeWorkbook {
     final bytes = utf8.encode(stringXml);
     _addToArchive(
         bytes, 'xl/worksheets' '/sheet' + (index + 1).toString() + '.xml');
+  }
+
+  /// Serializes single protection option.
+  void _serializeProtectionAttribute(final builder, String attributeName,
+      bool flag, bool defaultValue, ExcelSheetProtectionOption protection) {
+    final bool value = flag;
+    _serializeAttributes(builder, attributeName, value, defaultValue);
+  }
+
+  /// Serialize hyperlinks
+  void _serializeHyperlinks(final builder, Worksheet sheet) {
+    if (sheet.hyperlinks != null && sheet.hyperlinks.count > 0) {
+      final int iCount = sheet.hyperlinks.count;
+      final List<String> hyperLinkType = List(iCount);
+      for (int i = 0; i < sheet.hyperlinks.count; i++) {
+        final Hyperlink hyperLink = sheet.hyperlinks[i];
+        hyperLinkType[i] = hyperLink._attachedType
+            .toString()
+            .split('.')
+            .toList()
+            .removeAt(1)
+            .toString();
+      }
+      if (iCount == 0 || !hyperLinkType.contains('range')) {
+        return;
+      }
+      builder.element('hyperlinks', nest: () {
+        for (final Hyperlink link in sheet.hyperlinks.innerList) {
+          if (link._attachedType == ExcelHyperlinkAttachedType.range) {
+            builder.element('hyperlink', nest: () {
+              if (link.type == HyperlinkType.workbook) {
+                builder.attribute('ref', link.reference);
+                builder.attribute('location', link.address);
+              } else {
+                builder.attribute('ref', link.reference);
+                final String id = link._rId.toString();
+                final String rId = 'rId' + id.toString();
+                builder.attribute('r:id', rId);
+                _relationId.add(rId);
+              }
+              if (link.screenTip != null) {
+                builder.attribute('tooltip', link.screenTip);
+              }
+              if (link.textToDisplay != null) {
+                builder.attribute('display', link.textToDisplay);
+              } else {
+                builder.attribute('display', link.address);
+              }
+            });
+          }
+        }
+      });
+    }
   }
 
   /// Serialize drawings
@@ -246,8 +394,11 @@ class SerializeWorkbook {
         sheet.charts.serializeChartDrawing(builder, sheet);
       }
       final idIndex = 0 + chartCount;
+      final List<String> idRelation = [];
       if (sheet.pictures.count != 0) {
         int imgId = 0;
+        int idHyperlink = 1;
+        int hyperlinkCount = 0;
         for (final Picture picture in sheet.pictures.innerList) {
           if (picture.height != 0 && picture.width != 0) {
             if (picture.lastRow == null ||
@@ -285,12 +436,31 @@ class SerializeWorkbook {
             });
 
             builder.element('xdr:pic', nest: () {
+              builder.attribute('macro', '');
               builder.element('xdr:nvPicPr', nest: () {
                 builder.element('xdr:cNvPr', nest: () {
                   builder.attribute('id', imgId);
                   builder.attribute('name', 'Picture' + imgId.toString());
+                  if (picture._isHyperlink) {
+                    builder.element('a:hlinkClick', nest: () {
+                      builder.attribute('xmlns:r',
+                          'http://schemas.openxmlformats.org/officeDocument/2006/relationships');
+                      int id = idIndex + imgId + idHyperlink;
+                      String rId = 'rId' + id.toString();
+                      if (idRelation.contains(rId)) {
+                        id = id + 1;
+                        rId = 'rId' + id.toString();
+                      }
+                      builder.attribute('r:id', rId);
+                      idRelation.add(rId);
+                      sheet._hyperlinkRelationId.add(rId);
+                      idHyperlink++;
+                      if (picture._link.screenTip != null) {
+                        builder.attribute('tooltip', picture._link.screenTip);
+                      }
+                    });
+                  }
                 });
-
                 builder.element('xdr:cNvPicPr', nest: () {
                   builder.element('a:picLocks', nest: () {
                     builder.attribute('noChangeAspect', 1);
@@ -302,8 +472,30 @@ class SerializeWorkbook {
                 builder.element('a:blip', nest: () {
                   builder.attribute('xmlns:r',
                       'http://schemas.openxmlformats.org/officeDocument/2006/relationships');
-                  builder.attribute(
-                      'r:embed', 'rId' + (idIndex + imgId).toString());
+                  int id;
+                  String rId;
+                  if (idRelation == null) {
+                    id = idIndex + imgId + hyperlinkCount;
+                    rId = 'rId' + id.toString();
+                    builder.attribute('r:embed', rId);
+                    idRelation.add(rId);
+                  } else {
+                    id = idIndex + imgId + hyperlinkCount;
+                    rId = 'rId' + id.toString();
+                    if (idRelation.contains(rId)) {
+                      id = id + 1;
+                      rId = 'rId' + id.toString();
+                      if (idRelation.contains(rId)) {
+                        id = id + 1;
+                        rId = 'rId' + id.toString();
+                      }
+                    }
+                    builder.attribute('r:embed', rId);
+                    idRelation.add(rId);
+                    if (picture._isHyperlink) {
+                      hyperlinkCount++;
+                    }
+                  }
                   builder.attribute('cstate', 'print');
                 });
 
@@ -386,9 +578,35 @@ class SerializeWorkbook {
         }
         idIndex = length;
       }
+      if (sheet.hyperlinks != null && sheet.hyperlinks.count > 0) {
+        final length = sheet.hyperlinks.count;
+        int j = 0;
+        for (int i = 0; i < length; i++) {
+          if (sheet.hyperlinks[i]._attachedType ==
+              ExcelHyperlinkAttachedType.shape) {
+            builder.element('Relationship', nest: () {
+              builder.attribute('Id', sheet._hyperlinkRelationId[j]);
+              builder.attribute('Type',
+                  'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink');
+              if (sheet.hyperlinks[i].type == HyperlinkType.workbook) {
+                String address = sheet.hyperlinks[i].address;
+                address = address.startsWith('#') ? address : '#' + address;
+                builder.attribute('Target', address);
+              } else {
+                builder.attribute('Target', sheet.hyperlinks[i].address);
+              }
+              if (sheet.hyperlinks[i].type != HyperlinkType.workbook) {
+                builder.attribute('TargetMode', 'External');
+              }
+            });
+            j++;
+          }
+        }
+      }
       if (sheet.pictures.count != 0) {
         final length = sheet.pictures.count;
         int id = _workbook._imageCount - sheet.pictures.count;
+        int idHyperlink = 0;
         for (int i = 1; i <= length; i++) {
           id++;
           builder.element('Relationship', nest: () {
@@ -398,10 +616,20 @@ class SerializeWorkbook {
             } else {
               imgPath = '/xl/media/image' + id.toString() + '.jpeg';
             }
-            builder.attribute('Id', 'rId' + (idIndex + i).toString());
-            builder.attribute('Type',
-                'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image');
-            builder.attribute('Target', imgPath);
+            if (sheet.pictures[i - 1]._isHyperlink) {
+              builder.attribute(
+                  'Id', 'rId' + (idIndex + i + idHyperlink).toString());
+              builder.attribute('Type',
+                  'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image');
+              builder.attribute('Target', imgPath);
+              idHyperlink++;
+            } else {
+              builder.attribute(
+                  'Id', 'rId' + (idIndex + i + idHyperlink).toString());
+              builder.attribute('Type',
+                  'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image');
+              builder.attribute('Target', imgPath);
+            }
           });
         }
       }
@@ -426,11 +654,11 @@ class SerializeWorkbook {
       double iRowHeight;
       if (sheet.rows.count != 0 &&
           iCurRow - 1 < sheet.rows.count &&
-          sheet.rows[iCurRow - 1] != null) {
-        iRowHeight = _convertToPixels((sheet.rows[iCurRow - 1].height == null ||
-                sheet.rows[iCurRow - 1].height == 0)
+          sheet.rows[iCurRow] != null) {
+        iRowHeight = _convertToPixels((sheet.rows[iCurRow].height == null ||
+                sheet.rows[iCurRow].height == 0)
             ? 15
-            : sheet.rows[iCurRow - 1].height);
+            : sheet.rows[iCurRow].height);
       } else {
         iRowHeight = _convertToPixels(15);
       }
@@ -441,13 +669,13 @@ class SerializeWorkbook {
         picture.lastRowOffset = (iCurOffset + (iCurHeight * 256 / iRowHeight));
         double rowHiddenHeight;
         if (sheet.rows.count != 0 &&
-            iCurRow - 1 < sheet.rows.count &&
-            sheet.rows[iCurRow - 1] != null) {
+            iCurRow < sheet.rows.count &&
+            sheet.rows[iCurRow] != null) {
           rowHiddenHeight = _convertToPixels(
-              (sheet.rows[iCurRow - 1].height == null ||
-                      sheet.rows[iCurRow - 1].height == 0)
+              (sheet.rows[iCurRow].height == null ||
+                      sheet.rows[iCurRow].height == 0)
                   ? 15
-                  : sheet.rows[iCurRow - 1].height);
+                  : sheet.rows[iCurRow].height);
         } else {
           rowHiddenHeight = _convertToPixels(15);
         }
@@ -497,7 +725,7 @@ class SerializeWorkbook {
           colHiddenWidth = _columnWidthToPixels(
               sheet.columns[iCurCol - 1].width == 0
                   ? 8.43
-                  : sheet.columns[iCurCol].width);
+                  : sheet.columns[iCurCol - 1].width);
         } else {
           colHiddenWidth = _columnWidthToPixels(8.43);
         }
@@ -541,14 +769,43 @@ class SerializeWorkbook {
   /// Serialize sheet relations.
   List<int> _saveSheetRelations(Worksheet sheet) {
     final builder = XmlBuilder();
-
     builder.processing('xml', 'version="1.0"');
     builder.element('Relationships', nest: () {
       builder.namespace(
           'http://schemas.openxmlformats.org/package/2006/relationships');
+
+      if (sheet.hyperlinks != null && sheet.hyperlinks.count > 0) {
+        for (final Hyperlink link in sheet.hyperlinks.innerList) {
+          if (link._attachedType == ExcelHyperlinkAttachedType.range &&
+              link.type != HyperlinkType.workbook) {
+            builder.element('Relationship', nest: () {
+              builder.attribute('Id', 'rId' + link._rId.toString());
+              builder.attribute('Type',
+                  'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink');
+              builder.attribute('Target', link.address);
+              builder.attribute('TargetMode', 'External');
+            });
+          }
+        }
+      }
       if (sheet.pictures != null && sheet.pictures.count > 0) {
         builder.element('Relationship', nest: () {
-          builder.attribute('Id', 'rId1');
+          int id = 1;
+          final String rId = 'rId1';
+          if (_relationId != null) {
+            if (sheet.hyperlinks.count > 0) {
+              for (int i = 0; i < sheet.hyperlinks.count; i++) {
+                if (sheet.hyperlinks[i]._attachedType ==
+                        ExcelHyperlinkAttachedType.range &&
+                    sheet.hyperlinks[i].type != HyperlinkType.workbook) {
+                  id++;
+                }
+              }
+            }
+            builder.attribute('Id', 'rId' + id.toString());
+          } else {
+            builder.attribute('Id', rId);
+          }
           builder.attribute('Type',
               'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing');
           builder.attribute(
@@ -559,7 +816,22 @@ class SerializeWorkbook {
         });
       } else if (sheet.charts != null && sheet.chartCount > 0) {
         builder.element('Relationship', nest: () {
-          builder.attribute('Id', 'rId1');
+          int id = 1;
+          final String rId = 'rId1';
+          if (_relationId != null) {
+            if (sheet.hyperlinks.count > 0) {
+              for (int i = 0; i < sheet.hyperlinks.count; i++) {
+                if (sheet.hyperlinks[i]._attachedType ==
+                        ExcelHyperlinkAttachedType.range &&
+                    sheet.hyperlinks[i].type != HyperlinkType.workbook) {
+                  id++;
+                }
+              }
+            }
+            builder.attribute('Id', 'rId' + id.toString());
+          } else {
+            builder.attribute('Id', rId);
+          }
           builder.attribute('Type',
               'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing');
           builder.attribute(
@@ -579,7 +851,7 @@ class SerializeWorkbook {
     builder.element('sheetViews', nest: () {
       builder.element('sheetView', nest: () {
         builder.attribute('workbookViewId', '0');
-        if (!sheet.showGridLines) {
+        if (!sheet.showGridlines) {
           builder.attribute('showGridLines', '0');
         }
       });
@@ -942,7 +1214,9 @@ class SerializeWorkbook {
   /// Process the cell style.
   int _processCellStyle(CellStyle style, Workbook workbook) {
     final int index = workbook.styles.innerList.indexOf(style);
-    if (style.isGlobalStyle && index >= 0) {
+    if (style.isGlobalStyle &&
+        index >= 0 &&
+        index > workbook.styles.innerList.length - 1) {
       _processNumFormatId(style, workbook);
       if (style.name == null) workbook.styles.addStyle(style);
       return style.index;
@@ -1039,6 +1313,10 @@ class SerializeWorkbook {
       cellXfs._alignment.wrapText = style.wrapText ? 1 : 0;
       cellXfs._alignment.rotation = style.rotation;
 
+      // Add protection
+      if (!style.locked) {
+        cellXfs._locked = style.locked ? 1 : 0;
+      }
       if (style.isGlobalStyle) {
         _workbook._cellStyleXfs.add(cellXfs);
         _workbook._cellXfs.add(cellXfs as CellXfs);
@@ -1226,9 +1504,17 @@ class SerializeWorkbook {
             builder.attribute('borderId', cellXf._borderId.toString());
             builder.attribute('xfId', cellXf._xfId.toString());
             _saveAlignment(cellXf, builder);
+            _saveProtection(cellXf, builder);
           });
         }
       }
+    });
+  }
+
+  ///Serialize Protection.
+  void _saveProtection(CellStyleXfs cellXf, final builder) {
+    builder.element('protection', nest: () {
+      builder.attribute('locked', cellXf._locked.toString());
     });
   }
 

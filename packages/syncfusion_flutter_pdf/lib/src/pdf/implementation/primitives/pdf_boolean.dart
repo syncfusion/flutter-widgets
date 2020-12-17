@@ -73,4 +73,7 @@ class _PdfBoolean implements _IPdfPrimitive {
       _status = null;
     }
   }
+
+  @override
+  _IPdfPrimitive _clone(_PdfCrossTable crossTable) => _PdfBoolean(value);
 }

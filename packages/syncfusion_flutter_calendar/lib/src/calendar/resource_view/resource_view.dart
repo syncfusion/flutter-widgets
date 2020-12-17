@@ -9,7 +9,8 @@ class _ResourceContainer extends CustomPainter {
       this.calendarTheme,
       this.notifier,
       this.isRTL,
-      this.textScaleFactor)
+      this.textScaleFactor,
+      this.mouseHoverPosition)
       : super(repaint: notifier);
 
   final List<CalendarResource> resources;
@@ -20,6 +21,7 @@ class _ResourceContainer extends CustomPainter {
   final ValueNotifier<bool> notifier;
   final bool isRTL;
   final double textScaleFactor;
+  final Offset mouseHoverPosition;
   Paint _circlePainter;
   TextPainter _namePainter;
   final double _borderThickness = 5;
@@ -64,6 +66,11 @@ class _ResourceContainer extends CustomPainter {
         _circlePainter.style = PaintingStyle.stroke;
         canvas.drawLine(Offset(0, yPosition), Offset(size.width, yPosition),
             _circlePainter);
+
+        if (mouseHoverPosition != null) {
+          _addHovering(canvas, size, yPosition);
+        }
+
         yPosition += resourceItemHeight;
         canvas.restore();
       }
@@ -73,8 +80,28 @@ class _ResourceContainer extends CustomPainter {
         _drawResourceBackground(canvas, size, resource, yPosition);
         _drawDisplayName(
             resource, canvas, size, yPosition, actualItemHeight, radius);
+        if (mouseHoverPosition != null) {
+          _addHovering(canvas, size, yPosition);
+        }
         yPosition += resourceItemHeight;
       }
+    }
+  }
+
+  void _addHovering(Canvas canvas, Size size, double yPosition) {
+    _circlePainter ??= Paint();
+    if (mouseHoverPosition.dy > yPosition &&
+        mouseHoverPosition.dy < (yPosition + resourceItemHeight)) {
+      _circlePainter.style = PaintingStyle.fill;
+      _circlePainter.color = (calendarTheme.brightness != null &&
+                  calendarTheme.brightness == Brightness.dark
+              ? Colors.white
+              : Colors.black87)
+          .withOpacity(0.04);
+      final double padding = 0.5;
+      canvas.drawRect(
+          Rect.fromLTWH(0, yPosition, size.width, resourceItemHeight - padding),
+          _circlePainter);
     }
   }
 
@@ -228,7 +255,8 @@ class _ResourceContainer extends CustomPainter {
     return oldWidget.resourceItemHeight != resourceItemHeight ||
         oldWidget.resources != resources ||
         oldWidget.resourceViewSettings != resourceViewSettings ||
-        oldWidget._isImageLoaded != _isImageLoaded;
+        oldWidget._isImageLoaded != _isImageLoaded ||
+        oldWidget.mouseHoverPosition != mouseHoverPosition;
   }
 
   List<CustomPainterSemantics> _getSemanticsBuilder(Size size) {

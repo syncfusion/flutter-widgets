@@ -40,6 +40,7 @@ class PdfPage implements _IPdfWrapper {
   final _PdfArray _annotsReference = _PdfArray();
   bool _isTextExtraction;
   bool _graphicStateUpdated;
+  bool _isDefaultGraphics = false;
 
   /// Raises before the page saves.
   Function _beginSave;
@@ -70,7 +71,14 @@ class PdfPage implements _IPdfWrapper {
     }
   }
 
-  Offset get _origin => _section.pageSettings._origin.offset;
+  Offset get _origin {
+    if (_section != null) {
+      return _section.pageSettings._origin.offset;
+    } else {
+      return Offset.zero;
+    }
+  }
+
   PdfDocument get _document {
     if (_isLoadedPage) {
       return _pdfDocument;
@@ -109,7 +117,10 @@ class PdfPage implements _IPdfWrapper {
   }
 
   /// Gets the graphics of the [DefaultLayer].
-  PdfGraphics get graphics => defaultLayer.graphics;
+  PdfGraphics get graphics {
+    _isDefaultGraphics = true;
+    return defaultLayer.graphics;
+  }
 
   /// Gets the collection of the page's layers (Read only).
   PdfPageLayerCollection get layers {
@@ -460,6 +471,20 @@ class PdfPage implements _IPdfWrapper {
       }
     }
     _annotations = PdfAnnotationCollection._(this);
+  }
+
+  /// Creates a template from the page content.
+  PdfTemplate createTemplate() {
+    return _getContent();
+  }
+
+  PdfTemplate _getContent() {
+    final List<int> combinedData = layers._combineContent(false);
+    final _PdfDictionary resources = _PdfCrossTable._dereference(
+        _dictionary[_DictionaryProperties.resources]) as _PdfDictionary;
+    final PdfTemplate template =
+        PdfTemplate._(_origin, size, combinedData, resources, _isLoadedPage);
+    return template;
   }
 
   //_IPdfWrapper elements

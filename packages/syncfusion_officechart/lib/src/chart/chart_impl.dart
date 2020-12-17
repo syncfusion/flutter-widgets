@@ -49,7 +49,7 @@ class Chart {
   /// Represent the clustered chart collection.
   final List<ExcelChartType> _chartsCluster = [
     ExcelChartType.bar,
-    ExcelChartType.column,
+    ExcelChartType.column
   ];
 
   /// Represent the stacked chart collection.
@@ -57,7 +57,19 @@ class Chart {
     ExcelChartType.barStacked,
     ExcelChartType.columnStacked,
     ExcelChartType.lineStacked,
+    ExcelChartType.areaStacked,
   ];
+
+  /// Represent 100% charts.Here each value in a series is shown as a portion of 100%.
+  final List<ExcelChartType> _charts100 = [
+    ExcelChartType.columnStacked100,
+    ExcelChartType.barStacked100,
+    ExcelChartType.lineStacked100,
+    ExcelChartType.areaStacked100
+  ];
+
+  /// Chart type.
+  ExcelChartType _chartType = ExcelChartType.column;
 
   /// Represent chart index.
   int index;
@@ -80,7 +92,9 @@ class Chart {
   /// chart.dataRange = sheet.getRangeByName('A1:B4');
   /// chart.topRow = 8;
   /// sheet.charts = charts;
-  /// workbook.save('Chart.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Chart.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
   /// ```
   int topRow;
 
@@ -102,7 +116,9 @@ class Chart {
   /// chart.dataRange = sheet.getRangeByName('A1:B4');
   /// chart.leftColumn = 4;
   /// sheet.charts = charts;
-  /// workbook.save('Chart.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Chart.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
   /// ```
   int leftColumn;
 
@@ -124,7 +140,9 @@ class Chart {
   /// chart.dataRange = sheet.getRangeByName('A1:B4');
   /// chart.bottomRow = 10;
   /// sheet.charts = charts;
-  /// workbook.save('Chart.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Chart.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
   /// ```
   int bottomRow;
 
@@ -146,7 +164,9 @@ class Chart {
   /// chart.dataRange = sheet.getRangeByName('A1:B4');
   /// chart.rightColumn = 8;
   /// sheet.charts = charts;
-  /// workbook.save('Chart.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Chart.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
   /// ```
   int rightColumn;
 
@@ -169,9 +189,20 @@ class Chart {
   /// chart.dataRange = sheet.getRangeByName('A1:B4');
   /// chart.isSeriesInRows = false;
   /// sheet.charts = charts;
-  /// workbook.save('ChartType.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('ChartType.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
   /// ```
-  ExcelChartType chartType = ExcelChartType.bar;
+  ExcelChartType get chartType {
+    return _chartType;
+  }
+
+  set chartType(ExcelChartType value) {
+    _chartType = value;
+    if (!_chartType.toString().contains('area')) {
+      _primaryCategoryAxis._isBetween = true;
+    }
+  }
 
   /// Gets the boolean value to display the chart legend, True by default.
   bool get hasLegend {
@@ -197,7 +228,8 @@ class Chart {
   /// chart.dataRange = sheet.getRangeByName('A1:B4');
   /// chart.hasLegend = false;
   /// sheet.charts = charts;
-  /// workbook.save('ChartHasLegend.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('ChartHasLegend.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
   set hasLegend(bool value) {
@@ -226,7 +258,9 @@ class Chart {
   /// chart.dataRange = sheet.getRangeByName('A1:B4');
   /// chart.linePattern = ExcelChartLinePattern.dashDot;
   /// sheet.charts = charts;
-  /// workbook.save('ChartLinePattern.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('ChartLinePattern.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
   /// ```
   ExcelChartLinePattern linePattern = ExcelChartLinePattern.none;
 
@@ -249,7 +283,9 @@ class Chart {
   /// chart.linePattern = ExcelChartLinePattern.dashDot;
   /// chart.linePatternColor = "#FFFF00";
   /// sheet.charts = charts;
-  /// workbook.save('ChartLineColor.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('ChartLineColor.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
   /// ```
   String linePatternColor;
 
@@ -271,7 +307,9 @@ class Chart {
   /// chart.dataRange = sheet.getRangeByName('A1:B4');
   /// chart.legend.position = ExcelLegendPosition.bottom;
   /// sheet.charts = charts;
-  /// workbook.save('ChartLegendPosition.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('ChartLegendPosition.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
   /// ```
   ChartLegend get legend {
     return _legend;
@@ -295,7 +333,9 @@ class Chart {
   /// chart.name = "Sales";
   /// chart.dataRange = sheet.getRangeByName('A1:B4');
   /// sheet.charts = charts;
-  /// workbook.save('ChartName.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('ChartName.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
   /// ```
   String name;
 
@@ -321,7 +361,9 @@ class Chart {
   /// chart.chartTitleArea.size = 15;
   /// chart.chartTitleArea.fontName = 'Arial';
   /// sheet.charts = charts;
-  /// workbook.save('ChartTitleArea.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('ChartTitleArea.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
   /// ```
   ChartTextArea get chartTitleArea {
     if (_textArea == null) _createChartTitle();
@@ -352,7 +394,9 @@ class Chart {
   /// chart.dataRange = sheet.getRangeByName('A1:B4');
   /// chart.chartTitle = 'Sales';
   /// sheet.charts = charts;
-  /// workbook.save('ChartTitle.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('ChartTitle.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
   /// ```
   set chartTitle(String title) {
     chartTitleArea.text = title;
@@ -388,7 +432,9 @@ class Chart {
   /// chart.dataRange = sheet.getRangeByName('A1:B4');
   /// chart.hasTitle = true;
   /// sheet.charts = charts;
-  /// workbook.save('ChartHasTitle.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('ChartHasTitle.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
   /// ```
   set hasTitle(bool value) {
     if (_textArea != null) {
@@ -438,7 +484,9 @@ class Chart {
   /// chart.dataRange = sheet.getRangeByName('A1:B4');
   /// chart.isSeriesInRows = false;
   /// sheet.charts = charts;
-  /// workbook.save('Chart.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Chart.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
   /// ```
   set isSeriesInRows(bool value) {
     final int iCount = _series.count;
@@ -482,7 +530,9 @@ class Chart {
   /// chart.plotArea.linePattern = ExcelChartLinePattern.dashDot;
   /// chart.plotArea.linePatternColor = '#0000FF';
   /// sheet.charts = charts;
-  /// workbook.save('Chart.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Chart.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
   /// ```
   ChartPlotArea get plotArea {
     return _plotArea;
@@ -509,7 +559,9 @@ class Chart {
   /// chart.primaryCategoryAxis.title = 'X axis';
   /// chart.primaryCategoryAxis.titleArea.bold = true;
   /// sheet.charts = charts;
-  /// workbook.save('Chart.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Chart.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
   /// ```
   ChartCategoryAxis get primaryCategoryAxis {
     return _primaryCategoryAxis;
@@ -536,7 +588,9 @@ class Chart {
   /// chart.primaryValueAxis.title = 'Y axis';
   /// chart.primaryValueAxis.titleArea.bold = true;
   /// sheet.charts = charts;
-  /// workbook.save('Chart.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Chart.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
   /// ```
   ChartValueAxis get primaryValueAxis {
     return _primaryValueAxis;
@@ -570,7 +624,9 @@ class Chart {
   /// chart.chartType = ExcelChartType.bar;
   /// chart.dataRange = sheet.getRangeByName('A1:B4');
   /// sheet.charts = charts;
-  /// workbook.save('Chart.xlsx');
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Chart.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
   /// ```
   set dataRange(Range value) {
     if (_dataRange != value) {
@@ -787,5 +843,10 @@ class Chart {
   /// Indicates whether if given chart type is clustered chart or not.
   bool _getIsClustered(ExcelChartType chartType) {
     return (_chartsCluster.contains(chartType));
+  }
+
+  /// Indicates whether if given chart type is clustered chart or not.
+  bool _getIs100(ExcelChartType chartType) {
+    return (_charts100.contains(chartType));
   }
 }

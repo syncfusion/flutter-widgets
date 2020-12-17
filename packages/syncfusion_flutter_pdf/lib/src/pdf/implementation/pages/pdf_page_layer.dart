@@ -20,7 +20,7 @@ class PdfPageLayer implements _IPdfWrapper {
   _PdfStream _content;
   PdfPage _page;
   bool _clipPageTemplates;
-  //ignore:unused_field
+
   String _name;
   PdfGraphics _graphics;
   //ignore:unused_field
@@ -28,6 +28,12 @@ class PdfPageLayer implements _IPdfWrapper {
   PdfGraphicsState _graphicsState;
   bool _isEndState = false;
   bool _isSaved = false;
+  _PdfDictionary _dictionary;
+  bool _visible = true;
+  String _layerID;
+  _PdfDictionary _printOption;
+  _PdfDictionary _usage;
+  _PdfReferenceHolder _referenceHolder;
 
   //Properties
   /// Gets parent page of the layer.
@@ -42,6 +48,36 @@ class PdfPageLayer implements _IPdfWrapper {
     return _graphics;
   }
 
+  /// Gets the name of the layer
+  String get name {
+    return _name;
+  }
+
+  /// Sets the name of the layer
+  set name(String value) {
+    _name = value;
+    _layerID ??= 'OCG_' + _PdfResources._globallyUniqueIdentifier;
+  }
+
+  /// Gets the visibility of the page layer.
+  bool get visible {
+    if (_dictionary != null &&
+        _dictionary.containsKey(_DictionaryProperties.visible)) {
+      _visible =
+          (_dictionary[_DictionaryProperties.visible] as _PdfBoolean).value;
+    }
+    return _visible;
+  }
+
+  /// Sets the visibility of the page layer.
+  set visible(bool value) {
+    _visible = value;
+    if (_dictionary != null) {
+      _dictionary[_DictionaryProperties.visible] = _PdfBoolean(value);
+    }
+    _setVisibility(_visible);
+  }
+
   //Implementation
   void _initialize(PdfPage pdfPage, bool clipPageTemplates) {
     if (pdfPage != null) {
@@ -51,6 +87,7 @@ class PdfPageLayer implements _IPdfWrapper {
     }
     _clipPageTemplates = clipPageTemplates;
     _content = _PdfStream();
+    _dictionary = _PdfDictionary();
   }
 
   void _initializeGraphics(PdfPage page) {
@@ -68,6 +105,7 @@ class PdfPageLayer implements _IPdfWrapper {
       double ury = 0;
       final _PdfArray mediaBox = page._dictionary._getValue(
           _DictionaryProperties.mediaBox, _DictionaryProperties.parent);
+      final _PdfReferenceHolder referenceHolder = _PdfReferenceHolder(this);
       if (mediaBox != null) {
         // Lower Left X co-ordinate Value.
         llx = (mediaBox[0] as _PdfNumber).value.toDouble();
@@ -92,9 +130,19 @@ class PdfPageLayer implements _IPdfWrapper {
           final Size pageSize =
               Size([cropX, cropRX].reduce(max), [cropY, cropRY].reduce(max));
           _graphics = PdfGraphics._(pageSize, resources, _content);
+          if (!page._contents._contains(referenceHolder) &&
+              !page._isDefaultGraphics &&
+              !_isContainsPageContent(page._contents, referenceHolder)) {
+            page._contents._add(referenceHolder);
+          }
         } else {
           _graphics = PdfGraphics._(page.size, resources, _content);
           _graphics._cropBox = cropBox;
+          if (!page._contents._contains(referenceHolder) &&
+              !page._isDefaultGraphics &&
+              !_isContainsPageContent(page._contents, referenceHolder)) {
+            page._contents._add(referenceHolder);
+          }
         }
       } else if ((llx < 0 || lly < 0 || urx < 0 || ury < 0) &&
           (lly.abs().floor() == page.size.height.abs().floor()) &&
@@ -114,9 +162,19 @@ class PdfPageLayer implements _IPdfWrapper {
           }
           pageSize = Size([llx, urx].reduce(max), [lly, ury].reduce(max));
           _graphics = PdfGraphics._(pageSize, resources, _content);
+          if (!page._contents._contains(referenceHolder) &&
+              !page._isDefaultGraphics &&
+              !_isContainsPageContent(page._contents, referenceHolder)) {
+            page._contents._add(referenceHolder);
+          }
         }
       } else {
         _graphics = PdfGraphics._(page.size, resources, _content);
+        if (!page._contents._contains(referenceHolder) &&
+            !page._isDefaultGraphics &&
+            !_isContainsPageContent(page._contents, referenceHolder)) {
+          page._contents._add(referenceHolder);
+        }
       }
 
       if (isPageHasMediaBox) {
@@ -132,6 +190,10 @@ class PdfPageLayer implements _IPdfWrapper {
       _content._beginSave = _beginSaveContent;
     }
     _graphicsState = _graphics.save();
+    if (name != null && name.isNotEmpty) {
+      _graphics._streamWriter._write('/OC /' + _layerID + ' BDC\n');
+      _isEndState = true;
+    }
     _graphics._initializeCoordinates();
     if (_graphics._hasTransparencyBrush) {
       _graphics._setTransparencyGroup(page);
@@ -221,6 +283,87 @@ class PdfPageLayer implements _IPdfWrapper {
       _graphicsState = null;
     }
     _isSaved = true;
+  }
+
+  void _setVisibility(bool value) {
+    _PdfDictionary oCProperties;
+    if (_page._document._catalog
+        .containsKey(_DictionaryProperties.ocProperties)) {
+      oCProperties = _PdfCrossTable._dereference(
+              _page._document._catalog[_DictionaryProperties.ocProperties])
+          as _PdfDictionary;
+    }
+    if (oCProperties != null) {
+      final _PdfDictionary defaultView =
+          oCProperties[_DictionaryProperties.defaultView] as _PdfDictionary;
+      if (defaultView != null) {
+        _PdfArray ocgON = defaultView[_DictionaryProperties.ocgOn] as _PdfArray;
+        _PdfArray ocgOFF =
+            defaultView[_DictionaryProperties.ocgOff] as _PdfArray;
+        if (_referenceHolder != null) {
+          if (value == false) {
+            if (ocgON != null) {
+              _removeContent(ocgON, _referenceHolder);
+            }
+            if (ocgOFF == null) {
+              ocgOFF = _PdfArray();
+              defaultView._items[_PdfName(_DictionaryProperties.ocgOff)] =
+                  ocgOFF;
+            }
+            ocgOFF._insert(ocgOFF.count, _referenceHolder);
+          } else if (value == true) {
+            if (ocgOFF != null) {
+              _removeContent(ocgOFF, _referenceHolder);
+            }
+            if (ocgON == null) {
+              ocgON = _PdfArray();
+              defaultView._items[_PdfName(_DictionaryProperties.ocgOn)] = ocgON;
+            }
+            ocgON._insert(ocgON.count, _referenceHolder);
+          }
+        }
+      }
+    }
+  }
+
+  bool _isContainsPageContent(
+      _PdfArray content, _PdfReferenceHolder referenceHolder) {
+    for (int i = 0; i < content.count; i++) {
+      if (content._elements[i] is _PdfReferenceHolder) {
+        final _PdfReferenceHolder holder = content._elements[i];
+        if (holder.reference != null && referenceHolder.reference != null) {
+          if (holder.reference._objNum == referenceHolder.reference._objNum) {
+            return true;
+          }
+        } else {
+          if (identical(holder, referenceHolder)) {
+            return true;
+          } else if (identical(holder._object, referenceHolder._object)) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  void _removeContent(_PdfArray content, _PdfReferenceHolder referenceHolder) {
+    bool flag = false;
+    for (int i = 0; i < content.count; i++) {
+      if (content._elements[i] is _PdfReferenceHolder) {
+        final _PdfReferenceHolder holder = content._elements[i];
+        if (holder.reference != null && referenceHolder.reference != null) {
+          if (holder.reference._objNum == referenceHolder.reference._objNum) {
+            content._elements.removeAt(i);
+            flag = true;
+            i--;
+          }
+        }
+      }
+    }
+    if (flag) {
+      content._isChanged = true;
+    }
   }
 
   //_IPdfWrapper elements

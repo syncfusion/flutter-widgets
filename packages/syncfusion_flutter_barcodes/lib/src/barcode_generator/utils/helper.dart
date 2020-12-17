@@ -1,7 +1,10 @@
-part of barcodes;
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import '../utils/enum.dart';
 
-// Measure the text and return the text size
-Size _measureText(String textValue, TextStyle textStyle) {
+/// Measure the text and return the text size
+Size measureText(String textValue, TextStyle textStyle) {
   Size size;
   final TextPainter textPainter = TextPainter(
     textAlign: TextAlign.center,
@@ -13,7 +16,8 @@ Size _measureText(String textValue, TextStyle textStyle) {
   return size;
 }
 
-int _getVersionNumber(QRCodeVersion qrCodeVersion) {
+/// Returns the code version number
+int getVersionNumber(QRCodeVersion qrCodeVersion) {
   switch (qrCodeVersion) {
     case QRCodeVersion.version01:
       return 1;
@@ -102,7 +106,8 @@ int _getVersionNumber(QRCodeVersion qrCodeVersion) {
   return 0;
 }
 
-QRCodeVersion _getVersionBasedOnNumber(int qrCodeVersion) {
+/// Returns the version based on number
+QRCodeVersion getVersionBasedOnNumber(int qrCodeVersion) {
   switch (qrCodeVersion) {
     case 1:
       return QRCodeVersion.version01;
@@ -191,7 +196,8 @@ QRCodeVersion _getVersionBasedOnNumber(int qrCodeVersion) {
   return QRCodeVersion.auto;
 }
 
-int _getDataMatrixSize(DataMatrixSize dataMatrixSize) {
+/// Returns the data matrix size
+int getDataMatrixSize(DataMatrixSize dataMatrixSize) {
   switch (dataMatrixSize) {
     case DataMatrixSize.size10x10:
       return 1;

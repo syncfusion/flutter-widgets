@@ -51,32 +51,18 @@ class CustomScrollViewerLayout extends MultiChildRenderObjectWidget {
   final int _currentChildIndex;
 
   @override
-  RenderObject createRenderObject(BuildContext context) {
+  _CustomScrollViewLayout createRenderObject(BuildContext context) {
     return _CustomScrollViewLayout(
         _navigationDirection, _position, _currentChildIndex);
   }
 
   @override
-  void updateRenderObject(BuildContext context, RenderObject renderObject) {
-    final _CustomScrollViewLayout panel = context.findRenderObject();
-    if (panel._navigationDirection != _navigationDirection) {
-      panel._navigationDirection = _navigationDirection;
-    }
-
-    if (panel._position != null && _position == null) {
-      panel._position = null;
-      panel.markNeedsLayout();
-    }
-
-    if (panel._currentChildIndex != _currentChildIndex) {
-      panel._currentChildIndex = _currentChildIndex;
-      panel.markNeedsLayout();
-    }
-
-    if (panel._position != _position) {
-      panel._position = _position;
-      panel.markNeedsLayout();
-    }
+  void updateRenderObject(
+      BuildContext context, _CustomScrollViewLayout renderObject) {
+    renderObject
+      ..position = _position
+      ..navigationDirection = _navigationDirection
+      ..currentChildIndex = _currentChildIndex;
   }
 }
 
@@ -86,11 +72,45 @@ class _CustomScrollViewLayout extends RenderWrap {
 
   CustomScrollDirection _navigationDirection;
 
+  CustomScrollDirection get navigationDirection => _navigationDirection;
+
+  set navigationDirection(CustomScrollDirection value) {
+    if (_navigationDirection == value) {
+      return;
+    }
+
+    _navigationDirection = value;
+  }
+
   // holds the index of the current displaying view
   int _currentChildIndex;
 
+  int get currentChildIndex => _currentChildIndex;
+
+  set currentChildIndex(int value) {
+    if (_currentChildIndex == value) {
+      return;
+    }
+
+    _currentChildIndex = value;
+    _position = 0;
+    _updateChild();
+    markNeedsLayout();
+  }
+
   // _position contains distance that the view swiped
   double _position;
+
+  double get position => _position;
+
+  set position(double value) {
+    if (_position == value) {
+      return;
+    }
+
+    _position = value;
+    markNeedsLayout();
+  }
 
   // used to position the children on the panel on swiping.
   dynamic _currentChild, _firstChild, _lastChild;
@@ -128,7 +148,7 @@ class _CustomScrollViewLayout extends RenderWrap {
       lastChildXPos = 0;
     }
 
-    //// sets the position as zero to restrict the view update when the view refreshed without swiping the view
+    // sets the position as zero to restrict the view update when the view refreshed without swiping the view
     if (_position == width || _position == -width) {
       if (_currentChild.parentData.offset.dx == width) {
         _position = 0;

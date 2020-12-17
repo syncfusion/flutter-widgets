@@ -441,6 +441,7 @@ class DataLabelSettingsRenderer {
   /// Creates an argument constructor for DataLabelSettings renderer class
   DataLabelSettingsRenderer(this._dataLabelSettings) {
     _angle = _dataLabelSettings.angle;
+    _offset = _dataLabelSettings.offset;
   }
 
   final DataLabelSettings _dataLabelSettings;
@@ -452,6 +453,8 @@ class DataLabelSettingsRenderer {
   TextStyle _originalStyle;
 
   int _angle;
+
+  Offset _offset;
 
   /// To render charts with data labels
   void _renderDataLabel(
