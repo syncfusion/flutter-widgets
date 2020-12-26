@@ -78,11 +78,11 @@ class _MyHomePageState extends State<_MyHomePage> {
                       BoxDecoration(border: Border.all(color: Colors.grey)))),
           SizedBox(height: 10),
           Row(children: <Widget>[
-            FlatButton(
+            TextButton(
               child: Text('ToImage'),
               onPressed: _handleSaveButtonPressed,
             ),
-            FlatButton(
+            TextButton(
               child: Text('Clear'),
               onPressed: _handleClearButtonPressed,
             )
