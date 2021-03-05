@@ -365,7 +365,7 @@ class _SfMapsState extends State<SfMaps> {
                       (BuildContext context, BoxConstraints constraints) {
                     return Stack(
                       alignment: Alignment.center,
-                      children: <Widget>[widget.layers.last],
+                      children: widget.layers,
                     );
                   }),
                 ),
@@ -373,7 +373,7 @@ class _SfMapsState extends State<SfMaps> {
             )
           : Stack(
               alignment: Alignment.center,
-              children: <Widget>[widget.layers.last],
+              children: widget.layers,
             ),
     );
   }
