@@ -1,17 +1,8 @@
-/// Determines different page navigation.
-enum Navigation {
-  /// Performs page navigation to specific page
-  jumpToPage,
+/// Represents different pdf interaction modes.
+enum PdfInteractionMode {
+  /// Enables the text selection mode in a desktop browser to select the text using mouse dragging.
+  selection,
 
-  /// Navigates to first page
-  firstPage,
-
-  /// Navigates to next page
-  nextPage,
-
-  /// Navigates to last page
-  lastPage,
-
-  /// Navigates to previous page
-  previousPage
+  /// Enables the panning mode in a desktop browser to move or scroll through the pages using mouse dragging.
+  pan
 }

@@ -10,10 +10,10 @@ class _PdfFontMetrics {
   double descent = 0;
 
   /// Gets name of the font.
-  String name;
+  String name = '';
 
   /// Gets PostScript Name of the font.
-  String postScriptName;
+  String? postScriptName;
 
   /// Gets size of the font.
   double size = 0;
@@ -31,28 +31,28 @@ class _PdfFontMetrics {
   int lineGap = 0;
 
   /// Subscript size factor.
-  double subscriptSizeFactor = 0;
+  double? subscriptSizeFactor = 0;
 
   /// Superscript size factor.
-  double superscriptSizeFactor;
-  _WidthTable _widthTable;
+  double? superscriptSizeFactor;
+  _WidthTable? _widthTable;
 
   /// Indicate whether the true type font reader font has bold style.
-  bool isBold;
+  bool? isBold;
 
   //Implementation
   /// Calculates size of the font depending on the subscript/superscript value.
-  double _getSize([PdfStringFormat format]) {
-    double _size = size;
+  double? _getSize([PdfStringFormat? format]) {
+    double? _size = size;
     if (format != null) {
       switch (format.subSuperscript) {
         case PdfSubSuperscript.subscript:
-          _size /= 1.5;
+          _size = _size / 1.5;
           break;
         case PdfSubSuperscript.superscript:
-          _size /= 1.5;
+          _size = _size / 1.5;
           break;
-        case PdfSubSuperscript.none:
+        default:
           break;
       }
     }
@@ -60,31 +60,31 @@ class _PdfFontMetrics {
   }
 
   /// Returns height taking into consideration font's size.
-  double _getHeight(PdfStringFormat format) {
+  double _getHeight(PdfStringFormat? format) {
     return _getDescent(format) < 0
         ? (_getAscent(format) - _getDescent(format) + _getLineGap(format))
         : (_getAscent(format) + _getDescent(format) + _getLineGap(format));
   }
 
   /// Returns descent taking into consideration font's size.
-  double _getDescent(PdfStringFormat format) {
-    return descent * PdfFont._characterSizeMultiplier * _getSize(format);
+  double _getDescent(PdfStringFormat? format) {
+    return descent * PdfFont._characterSizeMultiplier * _getSize(format)!;
   }
 
   /// Returns ascent taking into consideration font's size.
-  double _getAscent(PdfStringFormat format) {
-    return ascent * PdfFont._characterSizeMultiplier * _getSize(format);
+  double _getAscent(PdfStringFormat? format) {
+    return ascent * PdfFont._characterSizeMultiplier * _getSize(format)!;
   }
 
   /// Returns Line gap taking into consideration font's size.
-  double _getLineGap(PdfStringFormat format) {
-    return lineGap * PdfFont._characterSizeMultiplier * _getSize(format);
+  double _getLineGap(PdfStringFormat? format) {
+    return lineGap * PdfFont._characterSizeMultiplier * _getSize(format)!;
   }
 }
 
 /// The base class for a width table.
 abstract class _WidthTable {
-  int operator [](int index);
+  int? operator [](int index);
 
   /// Toes the array.
   _PdfArray toArray();
@@ -94,20 +94,19 @@ abstract class _WidthTable {
 class _StandardWidthTable extends _WidthTable {
   //Constructor
   _StandardWidthTable(List<int> widths) : super() {
-    ArgumentError.checkNotNull(widths, 'widths');
     _widths = widths;
   }
   // Fields
-  List<int> _widths;
+  List<int>? _widths;
   //Properties
   @override
-  int operator [](int index) => _returnValue(index);
-  int _returnValue(int index) {
-    if (index < 0 || index >= _widths.length) {
+  int? operator [](int index) => _returnValue(index);
+  int? _returnValue(int index) {
+    if (index < 0 || index >= _widths!.length) {
       throw ArgumentError.value(
           index, 'The character is not supported by the font.');
     }
-    return _widths[index];
+    return _widths![index];
   }
 
   @override
@@ -124,7 +123,7 @@ class _CjkWidthTable extends _WidthTable {
   }
 
   /// Local variable to store the width.
-  List<_CjkWidth> width;
+  late List<_CjkWidth> width;
 
   /// Local variable to store the default width.
   int defaultWidth;
@@ -141,9 +140,6 @@ class _CjkWidthTable extends _WidthTable {
   }
 
   void add(_CjkWidth widths) {
-    if (widths == null) {
-      throw ArgumentError('widths');
-    }
     width.add(widths);
   }
 
@@ -210,18 +206,17 @@ class _CjkSameWidth extends _CjkWidth {
 /// Implements capabilities to control a sequent range of characters
 /// with different width.
 class _CjkDifferentWidth extends _CjkWidth {
-  _CjkDifferentWidth(this.from, this.width) {
-    if (width == null) {
-      throw ArgumentError('widths');
-    }
+  _CjkDifferentWidth(from, width) {
+    this.from = from;
+    this.width = width;
   }
 
   /// The form
   @override
-  int from;
+  late int from;
 
   /// The width
-  List<int> width;
+  late List<int> width;
 
   /// Gets the ending character.
   @override

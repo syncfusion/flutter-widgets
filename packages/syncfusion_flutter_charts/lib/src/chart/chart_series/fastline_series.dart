@@ -15,36 +15,36 @@ part of charts;
 class FastLineSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of FastLineSeries class.
   FastLineSeries(
-      {ValueKey<String> key,
-      ChartSeriesRendererFactory<T, D> onCreateRenderer,
-      @required List<T> dataSource,
-      @required ChartValueMapper<T, D> xValueMapper,
-      @required ChartValueMapper<T, num> yValueMapper,
-      ChartValueMapper<T, dynamic> sortFieldValueMapper,
-      ChartValueMapper<T, String> dataLabelMapper,
-      String xAxisName,
-      String yAxisName,
-      Color color,
-      double width,
-      List<double> dashArray,
-      LinearGradient gradient,
-      MarkerSettings markerSettings,
-      EmptyPointSettings emptyPointSettings,
-      List<Trendline> trendlines,
-      DataLabelSettings dataLabelSettings,
-      SortingOrder sortingOrder,
-      bool isVisible,
-      String name,
-      bool enableTooltip,
-      double animationDuration,
+      {ValueKey<String>? key,
+      ChartSeriesRendererFactory<T, D>? onCreateRenderer,
+      required List<T> dataSource,
+      required ChartValueMapper<T, D> xValueMapper,
+      required ChartValueMapper<T, num> yValueMapper,
+      ChartValueMapper<T, dynamic>? sortFieldValueMapper,
+      ChartValueMapper<T, String>? dataLabelMapper,
+      String? xAxisName,
+      String? yAxisName,
+      Color? color,
+      double? width,
+      List<double>? dashArray,
+      LinearGradient? gradient,
+      MarkerSettings? markerSettings,
+      EmptyPointSettings? emptyPointSettings,
+      List<Trendline>? trendlines,
+      DataLabelSettings? dataLabelSettings,
+      SortingOrder? sortingOrder,
+      bool? isVisible,
+      String? name,
+      bool? enableTooltip,
+      double? animationDuration,
       // ignore: deprecated_member_use_from_same_package
-      SelectionSettings selectionSettings,
-      SelectionBehavior selectionBehavior,
-      bool isVisibleInLegend,
-      LegendIconType legendIconType,
-      String legendItemText,
-      double opacity,
-      SeriesRendererCreatedCallback onRendererCreated})
+      SelectionSettings? selectionSettings,
+      SelectionBehavior? selectionBehavior,
+      bool? isVisibleInLegend,
+      LegendIconType? legendIconType,
+      String? legendItemText,
+      double? opacity,
+      SeriesRendererCreatedCallback? onRendererCreated})
       : super(
             key: key,
             onCreateRenderer: onCreateRenderer,
@@ -80,7 +80,7 @@ class FastLineSeries<T, D> extends XyDataSeries<T, D> {
   FastLineSeriesRenderer createRenderer(ChartSeries<T, D> series) {
     FastLineSeriesRenderer seriesRenderer;
     if (onCreateRenderer != null) {
-      seriesRenderer = onCreateRenderer(series);
+      seriesRenderer = onCreateRenderer!(series) as FastLineSeriesRenderer;
       assert(seriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return seriesRenderer;
@@ -100,14 +100,15 @@ class FastLineSeriesRenderer extends XyDataSeriesRenderer {
 
   ///Adds the segment to the segments list
   ChartSegment _createSegments(
-      int seriesIndex, SfCartesianChart chart, num animateFactor,
-      [List<Offset> _points]) {
+      int seriesIndex, SfCartesianChart chart, double animateFactor,
+      [List<Offset>? _points]) {
     final FastLineSegment segment = createSegment();
-    segment._series = _series;
+    segment._series = _series as XyDataSeries;
     segment._seriesIndex = seriesIndex;
     segment._seriesRenderer = this;
     segment.animationFactor = animateFactor;
-    segment.points = _points;
+    if (_points != null) segment.points = _points;
+    segment._oldSegmentIndex = 0;
     customizeSegment(segment);
     segment._chart = chart;
     _segments.add(segment);
@@ -118,22 +119,22 @@ class FastLineSeriesRenderer extends XyDataSeriesRenderer {
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     if (segment._seriesRenderer._isSelectionEnable) {
-      final SelectionBehaviorRenderer selectionBehaviorRenderer =
+      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
           segment._seriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer._selectionRenderer
-          ._checkWithSelectionState(_segments[0], _chart);
+      selectionBehaviorRenderer?._selectionRenderer
+          ?._checkWithSelectionState(_segments[0], _chart);
     }
     segment.onPaint(canvas);
   }
 
   /// Creates a segment for a data point in the series.
   @override
-  ChartSegment createSegment() => FastLineSegment();
+  FastLineSegment createSegment() => FastLineSegment();
 
   /// Changes the series color, border color, and border width.
   @override
   void customizeSegment(ChartSegment segment) {
-    final FastLineSegment fastLineSegment = segment;
+    final FastLineSegment fastLineSegment = segment as FastLineSegment;
     fastLineSegment._color = fastLineSegment._seriesRenderer._seriesColor;
     fastLineSegment._strokeColor = fastLineSegment._seriesRenderer._seriesColor;
     fastLineSegment._strokeWidth = fastLineSegment._series.width;
@@ -145,9 +146,9 @@ class FastLineSeriesRenderer extends XyDataSeriesRenderer {
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer seriesRenderer]) {
-    canvas.drawPath(seriesRenderer._markerShapes[index], fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes[index], strokePaint);
+      [CartesianSeriesRenderer? seriesRenderer]) {
+    canvas.drawPath(seriesRenderer!._markerShapes[index]!, fillPaint);
+    canvas.drawPath(seriesRenderer._markerShapes[index]!, strokePaint);
   }
 
   /// Draws data label text of the appropriate data point in a series.

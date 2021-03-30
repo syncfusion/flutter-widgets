@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "არჩეული თარიღი არ არის", 
 "noEventsCalendarLabel" : "არანაირი მოვლენა", 
-"scheduleViewNewEventLabel" : "არაფერია დაგეგმილი. შეეხეთ შესაქმნელად.", 
 "ofDataPagerLabel" : "საქართველოს", 
 "pagesDataPagerLabel" : "გვერდები", 
 "itemsDataPagerLabel" : "საგნები", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "ვერძი", 
 "shortShawwalLabel" : "შოუ", 
 "shortDhualqiLabel" : "დულ-ქ", 
-"shortDhualhiLabel" : "დულ-ჰ"
+"shortDhualhiLabel" : "დულ-ჰ", 
+"daySpanCountLabel" : "Დღეს"
 }

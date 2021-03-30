@@ -23,7 +23,7 @@ class Code39 extends Symbology {
   /// a modulo 43 checksum can be added,
   /// if the [enableCheckSum] is true.
   ///
-  Code39({int module, this.enableCheckSum = true}) : super(module: module);
+  Code39({int? module, this.enableCheckSum = true}) : super(module: module);
 
   /// Whether to add a checksum on the far right side of the barcode.
   ///

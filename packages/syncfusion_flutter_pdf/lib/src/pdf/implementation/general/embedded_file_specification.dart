@@ -4,15 +4,13 @@ part of pdf;
 class _PdfEmbeddedFileSpecification extends _PdfFileSpecificationBase {
   //Constructor
   /// Initializes a new instance of the [PdfEmbeddedFileSpecification] class
-  _PdfEmbeddedFileSpecification(String fileName, List<int> data)
-      : super(fileName) {
-    ArgumentError.checkNotNull(data, 'data');
+  _PdfEmbeddedFileSpecification(String fileName, List<int> data) : super() {
     _embeddedFile = _EmbeddedFile(fileName, data);
     description = fileName;
   }
 
   //Fields
-  _EmbeddedFile _embeddedFile;
+  late _EmbeddedFile _embeddedFile;
   String _description = '';
   final _PdfDictionary _dict = _PdfDictionary();
   // ignore: prefer_final_fields
@@ -49,7 +47,8 @@ class _PdfEmbeddedFileSpecification extends _PdfFileSpecificationBase {
   @override
   void _save() {
     _dict[_DictionaryProperties.f] = _PdfReferenceHolder(_embeddedFile);
-    final _PdfString str = _PdfString(_formatFileName(fileName, false));
+    final _PdfString str =
+        _PdfString(_formatFileName(_embeddedFile.fileName, false));
     _dictionary.setProperty(_DictionaryProperties.f, str);
     _dictionary.setProperty(_DictionaryProperties.uf, str);
   }

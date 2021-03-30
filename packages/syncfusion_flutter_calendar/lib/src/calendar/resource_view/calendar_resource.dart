@@ -1,4 +1,5 @@
-part of calendar;
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 /// The resource data for calendar.
 ///
@@ -61,14 +62,16 @@ part of calendar;
 ///}
 ///
 /// ```
-class CalendarResource {
+class CalendarResource with Diagnosticable {
   /// Creates an resource data for [SfCalendar].
   ///
   /// An object that contains properties to hold the detailed information
   /// about the data, which will be rendered in [SfCalendar].
   CalendarResource(
-      {this.displayName, @required this.id, this.image, Color color})
-      : color = color ?? Colors.lightBlue;
+      {this.displayName = '',
+      required this.id,
+      this.image,
+      this.color = Colors.lightBlue});
 
   /// The name which displayed on the [CalendarResource] view of [SfCalendar].
   ///
@@ -215,5 +218,36 @@ class CalendarResource {
   ///}
   ///
   /// ```
-  final ImageProvider image;
+  final ImageProvider? image;
+
+  @override
+  bool operator ==(dynamic other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    final CalendarResource resource = other;
+    return resource.displayName == displayName &&
+        resource.id == id &&
+        resource.image == image &&
+        resource.color == color;
+  }
+
+  @override
+  int get hashCode {
+    return hashValues(displayName, id, image, color);
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+
+    properties.add(ColorProperty('color', color));
+    properties.add(StringProperty('displayName', displayName));
+    properties.add(DiagnosticsProperty<Object>('id', id));
+    properties.add(DiagnosticsProperty<ImageProvider>('image', image));
+  }
 }

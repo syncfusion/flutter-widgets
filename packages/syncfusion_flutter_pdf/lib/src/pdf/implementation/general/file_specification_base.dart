@@ -4,16 +4,12 @@ part of pdf;
 abstract class _PdfFileSpecificationBase implements _IPdfWrapper {
   //Constructor.
   /// Initializes a new instance of the [PdfFileSpecificationBase] class.
-  _PdfFileSpecificationBase(String fileName) {
-    ArgumentError.checkNotNull(fileName, 'fileName');
+  _PdfFileSpecificationBase() {
     _initialize();
   }
 
   //Fields
   final _PdfDictionary _dictionary = _PdfDictionary();
-
-  /// Gets or sets the name of the file.
-  String fileName;
 
   //Implementations.
   //Initializes instance.
@@ -28,7 +24,6 @@ abstract class _PdfFileSpecificationBase implements _IPdfWrapper {
     const String oldSlash = '\\';
     const String newSlash = '/';
     const String driveDelimiter = ':';
-    ArgumentError.checkNotNull(fileName, 'fileName');
     if (fileName.isEmpty) {
       throw ArgumentError('fileName, String can not be empty');
     }
@@ -44,7 +39,7 @@ abstract class _PdfFileSpecificationBase implements _IPdfWrapper {
   }
 
   //Handles the BeginSave event of the m_dictionary control.
-  void _dictionaryBeginSave(Object sender, _SavePdfPrimitiveArgs ars) {
+  void _dictionaryBeginSave(Object sender, _SavePdfPrimitiveArgs? ars) {
     _save();
   }
 
@@ -56,7 +51,8 @@ abstract class _PdfFileSpecificationBase implements _IPdfWrapper {
   _IPdfPrimitive get _element => _dictionary;
 
   @override
-  set _element(_IPdfPrimitive value) {
+  // ignore: unused_element
+  set _element(_IPdfPrimitive? value) {
     throw ArgumentError('primitive element can\'t be set');
   }
 }

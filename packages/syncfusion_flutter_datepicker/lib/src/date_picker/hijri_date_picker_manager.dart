@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
@@ -44,7 +45,7 @@ import 'picker_helper.dart';
 ///
 /// ```
 @immutable
-class HijriDatePickerMonthViewSettings {
+class HijriDatePickerMonthViewSettings with Diagnosticable {
   /// Creates a date range picker month view settings for date range picker.
   ///
   /// The properties allows to customize the month view of
@@ -53,14 +54,11 @@ class HijriDatePickerMonthViewSettings {
       {this.firstDayOfWeek = 7,
       this.dayFormat = 'EE',
       this.viewHeaderHeight = 30,
-      DateRangePickerViewHeaderStyle viewHeaderStyle,
+      this.viewHeaderStyle = const DateRangePickerViewHeaderStyle(),
       this.enableSwipeSelection = true,
       this.blackoutDates,
       this.specialDates,
-      List<int> weekendDays})
-      : viewHeaderStyle =
-            viewHeaderStyle ?? const DateRangePickerViewHeaderStyle(),
-        weekendDays = weekendDays ?? const <int>[6, 7];
+      this.weekendDays = const <int>[6, 7]});
 
   /// Formats a text in the [SfHijriDateRangePicker] month view view header.
   ///
@@ -238,7 +236,7 @@ class HijriDatePickerMonthViewSettings {
   ///  }
   ///
   /// ```
-  final List<HijriDateTime> blackoutDates;
+  final List<HijriDateTime>? blackoutDates;
 
   /// In the month view of [SfHijriDateRangePicker] highlights the unique dates
   /// with different style rather than the other dates style.
@@ -276,7 +274,7 @@ class HijriDatePickerMonthViewSettings {
   ///  }
   ///
   /// ```
-  final List<HijriDateTime> specialDates;
+  final List<HijriDateTime>? specialDates;
 
   /// The weekends for month view in [SfHijriDateRangePicker].
   ///
@@ -327,6 +325,22 @@ class HijriDatePickerMonthViewSettings {
   }
 
   @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(IterableDiagnostics(blackoutDates)
+        .toDiagnosticsNode(name: 'blackoutDates'));
+    properties.add(IterableDiagnostics(specialDates)
+        .toDiagnosticsNode(name: 'specialDates'));
+    properties.add(IntProperty('firstDayOfWeek', firstDayOfWeek));
+    properties.add(DoubleProperty('viewHeaderHeight', viewHeaderHeight));
+    properties.add(StringProperty('dayFormat', dayFormat));
+    properties.add(DiagnosticsProperty<bool>(
+        'enableSwipeSelection', enableSwipeSelection));
+    properties.add(viewHeaderStyle.toDiagnosticsNode(name: 'viewHeaderStyle'));
+    properties.add(IterableProperty<int>('weekendDays', weekendDays));
+  }
+
+  @override
   int get hashCode {
     return hashValues(
         dayFormat,
@@ -334,9 +348,9 @@ class HijriDatePickerMonthViewSettings {
         viewHeaderStyle,
         enableSwipeSelection,
         viewHeaderHeight,
-        specialDates,
-        blackoutDates,
-        weekendDays);
+        hashList(specialDates),
+        hashList(blackoutDates),
+        hashList(weekendDays));
   }
 }
 
@@ -377,7 +391,7 @@ class HijriDatePickerMonthViewSettings {
 ///
 /// ```
 @immutable
-class HijriDatePickerYearCellStyle {
+class HijriDatePickerYearCellStyle with Diagnosticable {
   /// Creates a date range picker year cell style for date range picker.
   ///
   /// The properties allows to customize the year cells in year view of
@@ -419,7 +433,7 @@ class HijriDatePickerYearCellStyle {
   ///  }
   ///
   /// ```
-  final TextStyle textStyle;
+  final TextStyle? textStyle;
 
   /// The text style for the text in the today cell of [SfHijriDateRangePicker]
   /// year and decade view.
@@ -450,7 +464,7 @@ class HijriDatePickerYearCellStyle {
   ///  }
   ///
   /// ```
-  final TextStyle todayTextStyle;
+  final TextStyle? todayTextStyle;
 
   /// The text style for the text in the disabled dates cell of
   /// [SfHijriDateRangePicker] year and decade view.
@@ -483,7 +497,7 @@ class HijriDatePickerYearCellStyle {
   ///  }
   ///
   /// ```
-  final TextStyle disabledDatesTextStyle;
+  final TextStyle? disabledDatesTextStyle;
 
   /// The decoration for the disabled cells of [SfHijriDateRangePicker]
   /// year and decade view.
@@ -518,7 +532,7 @@ class HijriDatePickerYearCellStyle {
   ///  }
   ///
   /// ```
-  final Decoration disabledDatesDecoration;
+  final Decoration? disabledDatesDecoration;
 
   /// The decoration for the cells of [SfHijriDateRangePicker] year and decade
   /// view.
@@ -550,7 +564,7 @@ class HijriDatePickerYearCellStyle {
   ///  }
   ///
   /// ```
-  final Decoration cellDecoration;
+  final Decoration? cellDecoration;
 
   /// The decoration for the today cell of [SfHijriDateRangePicker] year and
   /// decade view.
@@ -582,7 +596,7 @@ class HijriDatePickerYearCellStyle {
   ///  }
   ///
   /// ```
-  final Decoration todayCellDecoration;
+  final Decoration? todayCellDecoration;
 
   @override
   bool operator ==(dynamic other) {
@@ -600,6 +614,22 @@ class HijriDatePickerYearCellStyle {
         otherStyle.cellDecoration == cellDecoration &&
         otherStyle.todayCellDecoration == todayCellDecoration &&
         otherStyle.disabledDatesTextStyle == disabledDatesTextStyle;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<TextStyle>('textStyle', textStyle));
+    properties
+        .add(DiagnosticsProperty<TextStyle>('todayTextStyle', todayTextStyle));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'disabledDatesTextStyle', disabledDatesTextStyle));
+    properties.add(DiagnosticsProperty<Decoration>(
+        'disabledDatesDecoration', disabledDatesDecoration));
+    properties
+        .add(DiagnosticsProperty<Decoration>('cellDecoration', cellDecoration));
+    properties.add(DiagnosticsProperty<Decoration>(
+        'todayCellDecoration', todayCellDecoration));
   }
 
   @override
@@ -648,7 +678,7 @@ class HijriDatePickerYearCellStyle {
 ///
 /// ```
 @immutable
-class HijriDatePickerMonthCellStyle {
+class HijriDatePickerMonthCellStyle with Diagnosticable {
   /// Creates a date range picker month cell style for date range picker.
   ///
   /// The properties allows to customize the month cells in month view of
@@ -697,7 +727,7 @@ class HijriDatePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final TextStyle textStyle;
+  final TextStyle? textStyle;
 
   /// The text style for the text in the today cell of [SfHijriDateRangePicker]
   /// month view.
@@ -730,7 +760,7 @@ class HijriDatePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final TextStyle todayTextStyle;
+  final TextStyle? todayTextStyle;
 
   /// The text style for the text in the disabled dates cell of
   /// [SfHijriDateRangePicker] month view.
@@ -767,7 +797,7 @@ class HijriDatePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final TextStyle disabledDatesTextStyle;
+  final TextStyle? disabledDatesTextStyle;
 
   /// The text style for the text in the blackout dates cell of
   /// [SfHijriDateRangePicker] month view.
@@ -801,7 +831,7 @@ class HijriDatePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final TextStyle blackoutDateTextStyle;
+  final TextStyle? blackoutDateTextStyle;
 
   /// The text style for the text in the weekend dates cell of
   /// [SfHijriDateRangePicker] month view.
@@ -835,7 +865,7 @@ class HijriDatePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final TextStyle weekendTextStyle;
+  final TextStyle? weekendTextStyle;
 
   /// The text style for the text in the special dates cell of
   /// [SfHijriDateRangePicker] month view.
@@ -868,7 +898,7 @@ class HijriDatePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final TextStyle specialDatesTextStyle;
+  final TextStyle? specialDatesTextStyle;
 
   /// The decoration for the special date cells of [SfHijriDateRangePicker]
   /// month view.
@@ -901,7 +931,7 @@ class HijriDatePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final Decoration specialDatesDecoration;
+  final Decoration? specialDatesDecoration;
 
   /// The decoration for the weekend date cells of [SfHijriDateRangePicker]
   /// month view.
@@ -934,7 +964,7 @@ class HijriDatePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final Decoration weekendDatesDecoration;
+  final Decoration? weekendDatesDecoration;
 
   /// The decoration for the blackout date cells of [SfHijriDateRangePicker]
   /// month view.
@@ -967,7 +997,7 @@ class HijriDatePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final Decoration blackoutDatesDecoration;
+  final Decoration? blackoutDatesDecoration;
 
   /// The decoration for the disabled date cells of [SfHijriDateRangePicker]
   /// month view.
@@ -1007,7 +1037,7 @@ class HijriDatePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final Decoration disabledDatesDecoration;
+  final Decoration? disabledDatesDecoration;
 
   /// The decoration for the month cells of [SfHijriDateRangePicker] month view.
   ///
@@ -1039,7 +1069,7 @@ class HijriDatePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final Decoration cellDecoration;
+  final Decoration? cellDecoration;
 
   /// The decoration for the today text cell of [SfHijriDateRangePicker] month
   /// view.
@@ -1072,7 +1102,7 @@ class HijriDatePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final Decoration todayCellDecoration;
+  final Decoration? todayCellDecoration;
 
   @override
   bool operator ==(dynamic other) {
@@ -1099,8 +1129,36 @@ class HijriDatePickerMonthCellStyle {
   }
 
   @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<TextStyle>('textStyle', textStyle));
+    properties
+        .add(DiagnosticsProperty<TextStyle>('todayTextStyle', todayTextStyle));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'blackoutDateTextStyle', blackoutDateTextStyle));
+    properties.add(
+        DiagnosticsProperty<TextStyle>('weekendTextStyle', weekendTextStyle));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'specialDatesTextStyle', specialDatesTextStyle));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'disabledDatesTextStyle', disabledDatesTextStyle));
+    properties.add(DiagnosticsProperty<Decoration>(
+        'disabledDatesDecoration', disabledDatesDecoration));
+    properties
+        .add(DiagnosticsProperty<Decoration>('cellDecoration', cellDecoration));
+    properties.add(DiagnosticsProperty<Decoration>(
+        'todayCellDecoration', todayCellDecoration));
+    properties.add(DiagnosticsProperty<Decoration>(
+        'blackoutDatesDecoration', blackoutDatesDecoration));
+    properties.add(DiagnosticsProperty<Decoration>(
+        'weekendDatesDecoration', weekendDatesDecoration));
+    properties.add(DiagnosticsProperty<Decoration>(
+        'specialDatesDecoration', specialDatesDecoration));
+  }
+
+  @override
   int get hashCode {
-    return hashList(<Object>[
+    return hashList(<dynamic>[
       textStyle,
       todayTextStyle,
       disabledDatesTextStyle,
@@ -1204,19 +1262,19 @@ class HijriDatePickerMonthCellStyle {
 ///
 /// ```
 class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
-  HijriDateTime _selectedDate;
-  List<HijriDateTime> _selectedDates;
-  HijriDateRange _selectedRange;
-  List<HijriDateRange> _selectedRanges;
-  HijriDateTime _displayDate;
-  HijriDatePickerView _view;
+  HijriDateTime? _selectedDate;
+  List<HijriDateTime>? _selectedDates;
+  HijriDateRange? _selectedRange;
+  List<HijriDateRange>? _selectedRanges;
+  HijriDateTime? _displayDate;
+  HijriDatePickerView? _view;
 
   /// The selected date in the [SfHijriDateRangePicker].
   ///
   /// It is only applicable when the [selectionMode] set as
   /// [DateRangePickerSelectionMode.single] for other selection modes this
   /// property will return as null.
-  HijriDateTime get selectedDate => _selectedDate;
+  HijriDateTime? get selectedDate => _selectedDate;
 
   /// Selects the given date programmatically in the [SfHijriDateRangePicker] by
   /// checking that the date falls in between the minimum and maximum date
@@ -1261,7 +1319,7 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
   ///}
   ///
   /// ```
-  set selectedDate(HijriDateTime date) {
+  set selectedDate(HijriDateTime? date) {
     if (isSameDate(_selectedDate, date)) {
       return;
     }
@@ -1275,7 +1333,7 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
   /// It is only applicable when the [selectionMode] set as
   /// [DateRangePickerSelectionMode.multiple] for other selection modes
   /// this property will return as null.
-  List<HijriDateTime> get selectedDates => _selectedDates;
+  List<HijriDateTime>? get selectedDates => _selectedDates;
 
   /// Selects the given dates programmatically in the [SfHijriDateRangePicker]
   /// by checking that the dates falls in between the minimum and maximum date
@@ -1323,12 +1381,13 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
   ///}
   ///
   /// ```
-  set selectedDates(List<HijriDateTime> dates) {
+  set selectedDates(List<HijriDateTime>? dates) {
     if (DateRangePickerHelper.isDateCollectionEquals(_selectedDates, dates)) {
       return;
     }
 
-    _selectedDates = DateRangePickerHelper.cloneList(dates);
+    _selectedDates =
+        DateRangePickerHelper.cloneList(dates)!.cast<HijriDateTime>();
     notifyPropertyChangedListeners('selectedDates');
   }
 
@@ -1337,7 +1396,7 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
   /// It is only applicable when the [selectionMode] set as
   /// [DateRangePickerSelectionMode.range] for other selection modes this
   /// property will return as null.
-  HijriDateRange get selectedRange => _selectedRange;
+  HijriDateRange? get selectedRange => _selectedRange;
 
   /// Selects the given date range programmatically in the
   /// [SfHijriDateRangePicker] by checking that the range of dates falls in
@@ -1382,7 +1441,7 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
   ///}
   ///
   /// ```
-  set selectedRange(HijriDateRange range) {
+  set selectedRange(HijriDateRange? range) {
     if (DateRangePickerHelper.isRangeEquals(_selectedRange, range)) {
       return;
     }
@@ -1396,7 +1455,7 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
   /// It is only applicable when the [selectionMode] set as
   /// [DateRangePickerSelectionMode.multiRange] for other selection modes
   /// this property will return as null.
-  List<HijriDateRange> get selectedRanges => _selectedRanges;
+  List<HijriDateRange>? get selectedRanges => _selectedRanges;
 
   /// Selects the given date ranges programmatically in the
   /// [SfHijriDateRangePicker] by checking that the ranges of dates falls in
@@ -1444,12 +1503,13 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
   ///}
   ///
   /// ```
-  set selectedRanges(List<HijriDateRange> ranges) {
+  set selectedRanges(List<HijriDateRange>? ranges) {
     if (DateRangePickerHelper.isDateRangesEquals(_selectedRanges, ranges)) {
       return;
     }
 
-    _selectedRanges = DateRangePickerHelper.cloneList(ranges);
+    _selectedRanges =
+        DateRangePickerHelper.cloneList(ranges)!.cast<HijriDateRange>();
     notifyPropertyChangedListeners('selectedRanges');
   }
 
@@ -1460,7 +1520,7 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
   /// If the [HijriDatePickerMonthViewSettings.numberOfWeeksInView]
   /// property set with value other then 6, this will return the first visible
   /// date of the current month.
-  HijriDateTime get displayDate => _displayDate;
+  HijriDateTime? get displayDate => _displayDate;
 
   /// Navigates to the given date programmatically without any animation in the
   /// [SfHijriDateRangePicker] by checking that the date falls in between the
@@ -1499,7 +1559,7 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
   ///}
   ///
   /// ```
-  set displayDate(HijriDateTime date) {
+  set displayDate(HijriDateTime? date) {
     if (isSameDate(_displayDate, date)) {
       return;
     }
@@ -1510,7 +1570,7 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
 
   /// The current visible [HijriDatePickerView] of
   /// [SfHijriDateRangePicker].
-  HijriDatePickerView get view => _view;
+  HijriDatePickerView? get view => _view;
 
   /// Set the [HijriDatePickerView] for the [SfHijriDateRangePicker].
   ///
@@ -1544,7 +1604,7 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
   ///}
   ///
   /// ```
-  set view(HijriDatePickerView value) {
+  set view(HijriDatePickerView? value) {
     if (_view == value) {
       return;
     }
@@ -1607,7 +1667,7 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
   ///}
   ///
   /// ```
-  VoidCallback forward;
+  VoidCallback? forward;
 
   /// Moves to the previous view programmatically with animation by checking
   /// that the previous view dates falls between the minimum and maximum date
@@ -1664,7 +1724,23 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
   ///}
   ///
   /// ```
-  VoidCallback backward;
+  VoidCallback? backward;
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+        .add(DiagnosticsProperty<HijriDateTime>('displayDate', displayDate));
+    properties
+        .add(DiagnosticsProperty<HijriDateTime>('selectedDate', selectedDate));
+    properties.add(IterableDiagnostics(selectedDates)
+        .toDiagnosticsNode(name: 'selectedDates'));
+    properties.add(
+        DiagnosticsProperty<HijriDateRange>('selectedRange', selectedRange));
+    properties.add(IterableDiagnostics(selectedRanges)
+        .toDiagnosticsNode(name: 'selectedRanges'));
+    properties.add(EnumProperty<HijriDatePickerView>('view', view));
+  }
 }
 
 /// Available views for [SfHijriDateRangePicker].
@@ -1703,13 +1779,44 @@ class HijriDatePickerViewChangedArgs {
 /// Defines a range of dates, covers the dates in between the given [startDate]
 /// and [endDate] as a range.
 @immutable
-class HijriDateRange {
+class HijriDateRange with Diagnosticable {
   /// Creates a picker date range with the given start and end date.
   const HijriDateRange(this.startDate, this.endDate);
 
   /// The start date of the range.
-  final HijriDateTime startDate;
+  final HijriDateTime? startDate;
 
   /// The end date of the range.
-  final HijriDateTime endDate;
+  final HijriDateTime? endDate;
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<HijriDateTime>('startDate', startDate));
+    properties.add(DiagnosticsProperty<HijriDateTime>('endDate', endDate));
+  }
+}
+
+/// Signature for a function that creates a widget based on date range picker
+/// cell details.
+typedef HijriDateRangePickerCellBuilder = Widget Function(
+    BuildContext context, HijriDateRangePickerCellDetails cellDetails);
+
+/// Contains the details that needed on calendar cell builder.
+class HijriDateRangePickerCellDetails {
+  /// Constructor to store the details that needed on calendar cell builder.
+  HijriDateRangePickerCellDetails(
+      {required this.date, required this.bounds, required this.visibleDates});
+
+  /// Date value associated with the picker cell in month, year, decade and
+  /// century views.
+  final HijriDateTime date;
+
+  /// Position and size of the widget.
+  final Rect bounds;
+
+  /// Visible dates value associated with the current picker month, year,
+  /// decade and century views. It is used to get the cell, leading and
+  /// trailing dates details.
+  final List<HijriDateTime> visibleDates;
 }

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
-import '../utils.dart';
+import '../common.dart';
 
-typedef _ListenerEntry = void Function(
-    [MarkerAction action, List<int> indices]);
+typedef _ListenerEntry = void Function(MarkerAction action,
+    [List<int>? indices]);
 
 /// Base class of [MapShapeLayerController] and [MapTileLayerController].
 abstract class MapLayerController extends ChangeNotifier {
-  ObserverList<_ListenerEntry> _listeners = ObserverList<_ListenerEntry>();
+  ObserverList<_ListenerEntry>? _listeners = ObserverList<_ListenerEntry>();
 
   /// Adds marker dynamically in the provided index.
   ///
@@ -40,8 +40,8 @@ abstract class MapLayerController extends ChangeNotifier {
   }
 
   /// Call all the registered listeners.
-  void _notifyMarkerListeners([MarkerAction action, List<int> indices]) {
-    for (final _ListenerEntry listener in _listeners) {
+  void _notifyMarkerListeners(MarkerAction action, [List<int>? indices]) {
+    for (final _ListenerEntry listener in _listeners!) {
       listener(action, indices);
     }
   }
@@ -49,18 +49,20 @@ abstract class MapLayerController extends ChangeNotifier {
   @override
   void addListener(Object listener) {
     if (listener is _ListenerEntry) {
-      _listeners.add(listener);
+      _listeners!.add(listener);
     } else {
-      super.addListener(listener);
+      // ignore: avoid_as
+      super.addListener(listener as VoidCallback);
     }
   }
 
   @override
   void removeListener(Object listener) {
     if (listener is _ListenerEntry) {
-      _listeners.remove(listener);
+      _listeners!.remove(listener);
     } else {
-      super.addListener(listener);
+      // ignore: avoid_as
+      super.removeListener(listener as VoidCallback);
     }
   }
 

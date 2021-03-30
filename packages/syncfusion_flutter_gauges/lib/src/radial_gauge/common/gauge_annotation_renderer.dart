@@ -1,21 +1,31 @@
-part of gauges;
+import 'dart:math' as math;
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import '../annotation/gauge_annotation.dart';
+import '../axis/radial_axis.dart';
+import '../gauge/radial_gauge.dart';
+import '../renderers/radial_axis_renderer_base.dart';
+import '../utils/enum.dart';
+import '../utils/helper.dart';
+import 'radial_gauge_renderer.dart';
 
 /// Represents the annotation renderer
 ///
 // ignore: must_be_immutable
-class _AnnotationRenderer extends StatefulWidget {
+class AnnotationRenderer extends StatefulWidget {
   ///Creates the annotation renderer
   ///
   // ignore: prefer_const_constructors_in_immutables
-  _AnnotationRenderer(
-      {Key key,
-      this.annotation,
-      this.gauge,
-      this.axis,
+  AnnotationRenderer(
+      {Key? key,
+      required this.annotation,
+      required this.gauge,
+      required this.axis,
       this.interval,
-      this.duration,
-      this.renderingDetails,
-      this.axisRenderer})
+      required this.duration,
+      required this.renderingDetails,
+      required this.axisRenderer})
       : super(
           key: key,
         );
@@ -30,33 +40,34 @@ class _AnnotationRenderer extends StatefulWidget {
   final RadialAxis axis;
 
   /// Specifies the interval duration
-  final List<double> interval;
+  final List<double?>? interval;
 
   /// Specifies the animation duration
   final int duration;
 
   /// Hold the radial gauge animation details
-  final _RenderingDetails renderingDetails;
+  final RenderingDetails renderingDetails;
 
-  final RadialAxisRenderer axisRenderer;
+  /// Holds the radial axis renderer
+  final RadialAxisRendererBase axisRenderer;
 
   @override
   State<StatefulWidget> createState() {
-    return _AnnotationRendererState();
+    return AnnotationRendererState();
   }
 }
 
 /// Represents the annotation renderer state
-class _AnnotationRendererState extends State<_AnnotationRenderer>
+class AnnotationRendererState extends State<AnnotationRenderer>
     with SingleTickerProviderStateMixin {
   /// Holds the animation controller
-  AnimationController animationController;
+  AnimationController? animationController;
 
   /// Holds the animation value
-  Animation<double> animation;
+  Animation<double>? animation;
 
   /// Specifies the offset of positioning the annotation
-  Offset annotationPosition;
+  late Offset annotationPosition;
 
   @override
   void initState() {
@@ -65,8 +76,8 @@ class _AnnotationRendererState extends State<_AnnotationRenderer>
       animationController = AnimationController(vsync: this)
         ..duration = Duration(milliseconds: widget.duration);
       animation = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
-          parent: animationController,
-          curve: Interval(widget.interval[0], widget.interval[1],
+          parent: animationController!,
+          curve: Interval(widget.interval![0]!, widget.interval![1]!,
               curve: Curves.fastOutSlowIn)));
     }
     super.initState();
@@ -74,37 +85,37 @@ class _AnnotationRendererState extends State<_AnnotationRenderer>
 
   // Calculate the pixel position in axis to place the annotation widget.
   void _calculateAxisPosition(GaugeAnnotation annotation, RadialAxis axis,
-      RadialAxisRenderer axisRenderer) {
-    final double value = annotation.positionFactor ?? 0;
-    final double offset = value * (axisRenderer._radius);
+      RadialAxisRendererBase axisRenderer) {
+    final double value = annotation.positionFactor;
+    final double offset = value * (axisRenderer.radius);
     final double angle = _calculateActualAngle(annotation, axis, axisRenderer);
-    final double radian = _getDegreeToRadian(angle);
+    final double radian = getDegreeToRadian(angle);
     if (!axis.canScaleToFit) {
-      final double x = (axisRenderer._axisSize.width / 2) +
-          (offset - (axisRenderer._actualAxisWidth / 2)) * math.cos(radian) -
-          axisRenderer._centerX;
-      final double y = (axisRenderer._axisSize.height / 2) +
-          (offset - (axisRenderer._actualAxisWidth / 2)) * math.sin(radian) -
-          axisRenderer._centerY;
+      final double x = (axisRenderer.axisSize.width / 2) +
+          (offset - (axisRenderer.actualAxisWidth / 2)) * math.cos(radian) -
+          axisRenderer.centerX;
+      final double y = (axisRenderer.axisSize.height / 2) +
+          (offset - (axisRenderer.actualAxisWidth / 2)) * math.sin(radian) -
+          axisRenderer.centerY;
       annotationPosition = Offset(x, y);
     } else {
-      final double x = axisRenderer._axisCenter.dx +
-          (offset - (axisRenderer._actualAxisWidth / 2)) * math.cos(radian);
-      final double y = axisRenderer._axisCenter.dy +
-          (offset - (axisRenderer._actualAxisWidth / 2)) * math.sin(radian);
+      final double x = axisRenderer.axisCenter.dx +
+          (offset - (axisRenderer.actualAxisWidth / 2)) * math.cos(radian);
+      final double y = axisRenderer.axisCenter.dy +
+          (offset - (axisRenderer.actualAxisWidth / 2)) * math.sin(radian);
       annotationPosition = Offset(x, y);
     }
   }
 
   /// Calculates the actual angle value
   double _calculateActualAngle(GaugeAnnotation annotation, RadialAxis axis,
-      RadialAxisRenderer axisRenderer) {
+      RadialAxisRendererBase axisRenderer) {
     double actualValue = 0;
     if (annotation.angle != null) {
-      actualValue = annotation.angle;
+      actualValue = annotation.angle!;
     } else if (annotation.axisValue != null) {
-      actualValue = (axisRenderer.valueToFactor(annotation.axisValue) *
-              axisRenderer._sweepAngle) +
+      actualValue = (axisRenderer.valueToFactor(annotation.axisValue!) *
+              axisRenderer.sweepAngle) +
           axis.startAngle;
     }
     return actualValue;
@@ -113,15 +124,15 @@ class _AnnotationRendererState extends State<_AnnotationRenderer>
   /// To update the load time animation of annotation
   void _updateAnimation() {
     if (widget.gauge.axes[widget.gauge.axes.length - 1] == widget.axis &&
-        widget.axis.annotations[widget.axis.annotations.length - 1] ==
+        widget.axis.annotations![widget.axis.annotations!.length - 1] ==
             widget.annotation &&
-        animation.value == 1) {
+        animation!.value == 1) {
       widget.renderingDetails.needsToAnimateAnnotation = false;
     }
   }
 
   @override
-  void didUpdateWidget(_AnnotationRenderer oldWidget) {
+  void didUpdateWidget(AnnotationRenderer oldWidget) {
     _calculateAxisPosition(widget.annotation, widget.axis, widget.axisRenderer);
     super.didUpdateWidget(oldWidget);
   }
@@ -129,14 +140,14 @@ class _AnnotationRendererState extends State<_AnnotationRenderer>
   @override
   Widget build(BuildContext context) {
     if (widget.renderingDetails.needsToAnimateAnnotation) {
-      animationController.forward(from: 0);
+      animationController!.forward(from: 0);
       return AnimatedBuilder(
-          animation: animationController,
+          animation: animationController!,
           child: widget.annotation.widget,
-          builder: (BuildContext context, Widget _widget) {
+          builder: (BuildContext context, Widget? _widget) {
             _updateAnimation();
             return Opacity(
-                opacity: animation.value,
+                opacity: animation!.value,
                 child: _AnnotationRenderObject(
                     child: widget.annotation.widget,
                     position: annotationPosition,
@@ -155,7 +166,7 @@ class _AnnotationRendererState extends State<_AnnotationRenderer>
   @override
   void dispose() {
     if (animationController != null) {
-      animationController
+      animationController!
           .dispose(); // Need to dispose the animation controller instance
       // otherwise it will cause memory leak
     }
@@ -166,11 +177,11 @@ class _AnnotationRendererState extends State<_AnnotationRenderer>
 /// Represents the render object for annotation widget.
 class _AnnotationRenderObject extends SingleChildRenderObjectWidget {
   const _AnnotationRenderObject(
-      {Key key,
-      Widget child,
-      this.position,
-      this.horizontalAlignment,
-      this.verticalAlignment})
+      {Key? key,
+      required Widget child,
+      required this.position,
+      required this.horizontalAlignment,
+      required this.verticalAlignment})
       : super(key: key, child: child);
 
   /// Specifies the offset position for annotation
@@ -204,7 +215,7 @@ class _AnnotationRenderObject extends SingleChildRenderObjectWidget {
 class _RenderAnnotationWidget extends RenderShiftedBox {
   _RenderAnnotationWidget(
       this._position, this._horizontalAlignment, this._verticalAlignment,
-      [RenderBox child])
+      [RenderBox? child])
       : super(child);
 
   /// Holds the annotation position
@@ -253,22 +264,23 @@ class _RenderAnnotationWidget extends RenderShiftedBox {
   void performLayout() {
     final BoxConstraints constraints = this.constraints;
     if (child != null) {
-      child.layout(constraints, parentUsesSize: true);
-      size = constraints.constrain(Size(child.size.width, child.size.height));
-      if (child.parentData is BoxParentData) {
-        final BoxParentData childParentData = child.parentData;
+      child!.layout(constraints, parentUsesSize: true);
+      size = constraints.constrain(Size(child!.size.width, child!.size.height));
+      if (child!.parentData is BoxParentData) {
+        final BoxParentData childParentData =
+            child!.parentData as BoxParentData;
         final double dx = position.dx -
             (horizontalAlignment == GaugeAlignment.near
                 ? 0
                 : horizontalAlignment == GaugeAlignment.center
-                    ? child.size.width / 2
-                    : child.size.width);
+                    ? child!.size.width / 2
+                    : child!.size.width);
         final double dy = position.dy -
             (verticalAlignment == GaugeAlignment.near
                 ? 0
                 : verticalAlignment == GaugeAlignment.center
-                    ? child.size.height / 2
-                    : child.size.height);
+                    ? child!.size.height / 2
+                    : child!.size.height);
         childParentData.offset = Offset(dx, dy);
       }
     } else {

@@ -16,45 +16,41 @@ class _PdfReferenceHolder implements _IPdfPrimitive {
   }
 
   _PdfReferenceHolder.fromReference(
-      _PdfReference reference, _PdfCrossTable crossTable) {
+      _PdfReference reference, _PdfCrossTable? crossTable) {
     if (crossTable != null) {
       this.crossTable = crossTable;
     } else {
       throw ArgumentError.value(crossTable, 'crossTable value cannot be null');
     }
-    if (reference != null) {
-      this.reference = reference;
-    } else {
-      throw ArgumentError.value(reference, 'reference value cannot be null');
-    }
+    this.reference = reference;
   }
 
   //Fields
-  _IPdfPrimitive _object;
-  _PdfReference reference;
-  bool _isSaving;
-  int _objectCollectionIndex;
-  int _position;
-  _ObjectStatus _status;
-  _PdfCrossTable crossTable;
-  int _objectIndex = -1;
+  _IPdfPrimitive? _object;
+  _PdfReference? reference;
+  bool? _isSaving;
+  int? _objectCollectionIndex;
+  int? _position;
+  _ObjectStatus? _status;
+  late _PdfCrossTable crossTable;
+  int? _objectIndex = -1;
 
   //_IPdfPrimitive members
-  _IPdfPrimitive get object {
+  _IPdfPrimitive? get object {
     if (reference != null || _object == null) {
       _object = _obtainObject();
     }
     return _object;
   }
 
-  set object(_IPdfPrimitive value) {
+  set object(_IPdfPrimitive? value) {
     _object = value;
   }
 
-  int get index {
-    final _PdfMainObjectCollection items = crossTable._items;
-    _objectIndex = items._getObjectIndex(reference);
-    if (_objectIndex < 0) {
+  int? get index {
+    final _PdfMainObjectCollection items = crossTable._items!;
+    _objectIndex = items._getObjectIndex(reference!);
+    if (_objectIndex! < 0) {
       crossTable._getObject(reference);
       _objectIndex = items._count - 1;
     }
@@ -62,78 +58,79 @@ class _PdfReferenceHolder implements _IPdfPrimitive {
   }
 
   @override
-  bool get isSaving {
+  bool? get isSaving {
     _isSaving ??= false;
     return _isSaving;
   }
 
   @override
-  set isSaving(bool value) {
+  set isSaving(bool? value) {
     _isSaving = value;
   }
 
   @override
-  int get objectCollectionIndex {
+  int? get objectCollectionIndex {
     _objectCollectionIndex ??= 0;
     return _objectCollectionIndex;
   }
 
   @override
-  set objectCollectionIndex(int value) {
+  set objectCollectionIndex(int? value) {
     _objectCollectionIndex = value;
   }
 
   @override
-  int get position {
+  int? get position {
     _position ??= -1;
     return _position;
   }
 
   @override
-  set position(int value) {
+  set position(int? value) {
     _position = value;
   }
 
   @override
-  _ObjectStatus get status {
+  _ObjectStatus? get status {
     _status ??= _ObjectStatus.none;
     return _status;
   }
 
   @override
-  set status(_ObjectStatus value) {
+  set status(_ObjectStatus? value) {
     _status = value;
   }
 
   @override
-  _IPdfPrimitive clonedObject;
+  _IPdfPrimitive? clonedObject;
 
   @override
-  void save(_IPdfWriter writer) {
-    ArgumentError.checkNotNull(writer, 'writer');
-    if (!writer._document._isLoadedDocument) {
-      object.isSaving = true;
-    }
-    final _PdfCrossTable crossTable = writer._document._crossTable;
-    _PdfReference pdfReference;
-    if (writer._document.fileStructure.incrementalUpdate &&
-        writer._document._isStreamCopied) {
-      if (reference == null) {
-        pdfReference = crossTable._getReference(object);
-      } else {
-        pdfReference = reference;
+  void save(_IPdfWriter? writer) {
+    if (writer != null) {
+      if (!writer._document!._isLoadedDocument) {
+        object!.isSaving = true;
       }
-    } else {
-      pdfReference = crossTable._getReference(object);
+      final _PdfCrossTable? crossTable = writer._document!._crossTable;
+      _PdfReference? pdfReference;
+      if (writer._document!.fileStructure.incrementalUpdate &&
+          writer._document!._isStreamCopied) {
+        if (reference == null) {
+          pdfReference = crossTable!._getReference(object);
+        } else {
+          pdfReference = reference;
+        }
+      } else {
+        pdfReference = crossTable!._getReference(object);
+      }
+      pdfReference!.save(writer);
     }
-    pdfReference.save(writer);
   }
 
-  _IPdfPrimitive _obtainObject() {
-    _IPdfPrimitive obj;
+  _IPdfPrimitive? _obtainObject() {
+    _IPdfPrimitive? obj;
     if (reference != null) {
-      if (index >= 0) {
-        obj = crossTable._items._getObject(reference);
+      if (index! >= 0) {
+        obj = crossTable._items!._getObject(reference!);
       }
     } else if (_object != null) {
       obj = _object;
@@ -144,7 +141,7 @@ class _PdfReferenceHolder implements _IPdfPrimitive {
   @override
   void dispose() {
     if (reference != null) {
-      reference.dispose();
+      reference!.dispose();
       reference = null;
     }
     if (_status != null) {
@@ -155,10 +152,10 @@ class _PdfReferenceHolder implements _IPdfPrimitive {
   @override
   _IPdfPrimitive _clone(_PdfCrossTable crossTable) {
     _PdfReferenceHolder refHolder;
-    _IPdfPrimitive temp;
+    _IPdfPrimitive? temp;
     _PdfReference reference;
     if (object is _PdfNumber) {
-      return _PdfNumber((object as _PdfNumber).value);
+      return _PdfNumber((object as _PdfNumber).value!);
     }
 
     if (object is _PdfDictionary) {
@@ -166,7 +163,7 @@ class _PdfReferenceHolder implements _IPdfPrimitive {
       final _PdfName type = _PdfName(_DictionaryProperties.type);
       final _PdfDictionary dict = object as _PdfDictionary;
       if (dict.containsKey(type)) {
-        final _PdfName pageName = dict[type] as _PdfName;
+        final _PdfName? pageName = dict[type] as _PdfName?;
         if (pageName != null) {
           if (pageName._name == 'Page') {
             return _PdfNull();
@@ -180,12 +177,12 @@ class _PdfReferenceHolder implements _IPdfPrimitive {
 
     // Resolves circular references.
     if (crossTable._prevReference != null &&
-        crossTable._prevReference.contains(this.reference)) {
-      _IPdfPrimitive obj;
+        crossTable._prevReference!.contains(this.reference)) {
+      _IPdfPrimitive? obj;
       if (crossTable._document != null) {
         obj = this.crossTable._getObject(this.reference);
       } else {
-        obj = this.crossTable._getObject(this.reference).clonedObject;
+        obj = this.crossTable._getObject(this.reference)!.clonedObject;
       }
       if (obj != null) {
         reference = crossTable._getReference(obj);
@@ -195,12 +192,12 @@ class _PdfReferenceHolder implements _IPdfPrimitive {
       }
     }
     if (this.reference != null) {
-      crossTable._prevReference.add(this.reference);
+      crossTable._prevReference!.add(this.reference);
     }
     if (!(object is _PdfCatalog)) {
-      temp = object._clone(crossTable);
+      temp = object!._clone(crossTable);
     } else {
-      temp = crossTable._document._catalog;
+      temp = crossTable._document!._catalog;
     }
 
     reference = crossTable._getReference(temp);

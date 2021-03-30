@@ -1,6 +1,6 @@
 part of pdf;
 
 class _IPdfChangable {
-  bool changed;
+  bool? changed;
   void freezeChanges(Object freezer) {}
 }

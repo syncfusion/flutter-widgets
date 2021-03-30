@@ -4,11 +4,7 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart' show DateFormat, NumberFormat;
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart'
-    show
-        GestureArenaTeam,
-        TapGestureRecognizer,
-        HorizontalDragGestureRecognizer;
+import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
@@ -20,7 +16,8 @@ import 'slider_shapes.dart';
 /// A Material Design slider.
 ///
 /// Used to select a value between [min] and [max].
-/// It supports both numeric and date values.
+/// It supports horizontal and vertical orientations.
+/// It also supports both numeric and date values.
 ///
 /// The slider elements are:
 ///
@@ -109,43 +106,135 @@ import 'slider_shapes.dart';
 /// date labels.
 /// * [SfSliderThemeData](https://pub.dev/documentation/syncfusion_flutter_core/latest/theme/SfSliderThemeData-class.html), for customizing the visual appearance of the slider.
 class SfSlider extends StatefulWidget {
-  /// Creates a [SfSlider].
+  /// Creates a horizontal [SfSlider].
   const SfSlider(
-      {Key key,
+      {Key? key,
       this.min = 0.0,
       this.max = 1.0,
-      @required this.value,
-      @required this.onChanged,
+      required this.value,
+      required this.onChanged,
       this.interval,
       this.stepSize,
       this.stepDuration,
-      this.minorTicksPerInterval,
+      this.minorTicksPerInterval = 0,
       this.showTicks = false,
       this.showLabels = false,
       this.showDivisors = false,
       this.enableTooltip = false,
       this.activeColor,
       this.inactiveColor,
-      this.labelPlacement,
+      this.labelPlacement = LabelPlacement.onTicks,
       this.numberFormat,
       this.dateFormat,
       this.dateIntervalType,
       this.labelFormatterCallback,
       this.tooltipTextFormatterCallback,
       this.semanticFormatterCallback,
-      this.trackShape,
-      this.divisorShape,
-      this.overlayShape,
-      this.thumbShape,
-      this.tickShape,
-      this.minorTickShape,
-      this.tooltipShape,
+      this.trackShape = const SfTrackShape(),
+      this.divisorShape = const SfDivisorShape(),
+      this.overlayShape = const SfOverlayShape(),
+      this.thumbShape = const SfThumbShape(),
+      this.tickShape = const SfTickShape(),
+      this.minorTickShape = const SfMinorTickShape(),
+      this.tooltipShape = const SfRectangularTooltipShape(),
       this.thumbIcon})
-      : assert(min != null),
+      : _sliderType = SliderType.horizontal,
+        _tooltipPosition = null,
+        assert(min != null),
         assert(max != null),
         assert(min != max),
         assert(interval == null || interval > 0),
         super(key: key);
+
+  /// Creates a vertical [SfSlider].
+  ///
+  /// ## TooltipPosition
+  ///
+  /// Enables tooltip in left or right position for vertical slider.
+  ///
+  /// Defaults to [SliderTooltipPosition.left].
+  ///
+  /// ## Example
+  ///
+  /// This snippet shows how to create a vertical SfSlider with right side
+  /// tooltip.
+  ///
+  /// ```dart
+  /// double _value = 4.0;
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return MaterialApp(
+  ///      home: Scaffold(
+  ///          body: Center(
+  ///              child: SfSlider.vertical(
+  ///                     min: 0.0,
+  ///                     max: 10.0,
+  ///                     value: _value,
+  ///                     enableTooltip: true,
+  ///                     tooltipPosition: SliderTooltipPosition.right,
+  ///                     onChanged: (dynamic newValue) {
+  ///                         setState(() {
+  ///                             _value = newValue;
+  ///                         });
+  ///                   },
+  ///              )
+  ///           )
+  ///       )
+  ///   );
+  /// }
+  /// ```
+  ///
+  /// See also:
+  ///
+  /// * Check the default constructor for horizontal slider.
+  const SfSlider.vertical(
+      {Key? key,
+      this.min = 0.0,
+      this.max = 1.0,
+      required this.value,
+      required this.onChanged,
+      this.interval,
+      this.stepSize,
+      this.stepDuration,
+      this.minorTicksPerInterval = 0,
+      this.showTicks = false,
+      this.showLabels = false,
+      this.showDivisors = false,
+      this.enableTooltip = false,
+      this.activeColor,
+      this.inactiveColor,
+      this.labelPlacement = LabelPlacement.onTicks,
+      this.numberFormat,
+      this.dateFormat,
+      this.dateIntervalType,
+      this.labelFormatterCallback,
+      this.tooltipTextFormatterCallback,
+      this.semanticFormatterCallback,
+      this.trackShape = const SfTrackShape(),
+      this.divisorShape = const SfDivisorShape(),
+      this.overlayShape = const SfOverlayShape(),
+      this.thumbShape = const SfThumbShape(),
+      this.tickShape = const SfTickShape(),
+      this.minorTickShape = const SfMinorTickShape(),
+      this.tooltipShape = const SfRectangularTooltipShape(),
+      this.thumbIcon,
+      SliderTooltipPosition tooltipPosition = SliderTooltipPosition.left})
+      : _sliderType = SliderType.vertical,
+        _tooltipPosition = tooltipPosition,
+        assert(tooltipShape is! SfPaddleTooltipShape),
+        assert(min != null),
+        assert(max != null),
+        assert(min != max),
+        assert(interval == null || interval > 0),
+        super(key: key);
+
+  /// This is used to determine the type of the slider which is horizontal or
+  /// vertical.
+  final SliderType _sliderType;
+
+  /// This is only applicable for vertical sliders.
+  final SliderTooltipPosition? _tooltipPosition;
 
   /// The minimum value that the user can select.
   ///
@@ -233,7 +322,7 @@ class SfSlider extends StatefulWidget {
   ///   },
   /// )
   /// ```
-  final ValueChanged<dynamic> onChanged;
+  final ValueChanged<dynamic>? onChanged;
 
   /// Splits the slider into given interval.
   /// It is mandatory if labels, major ticks and divisors are needed.
@@ -302,7 +391,7 @@ class SfSlider extends StatefulWidget {
   /// * [showDivisors], to render divisors at given interval.
   /// * [showTicks], to render major ticks at given interval.
   /// * [showLabels], to render labels at given interval.
-  final double interval;
+  final double? interval;
 
   /// Option to select discrete value.
   ///
@@ -330,7 +419,7 @@ class SfSlider extends StatefulWidget {
   ///    },
   /// )
   /// ```
-  final double stepSize;
+  final double? stepSize;
 
   /// Option to select discrete date values.
   ///
@@ -373,7 +462,7 @@ class SfSlider extends StatefulWidget {
   /// * [interval], for setting the interval.
   /// * [dateIntervalType], for changing the interval type.
   /// * [dateFormat] for formatting the date labels.
-  final SliderStepDuration stepDuration;
+  final SliderStepDuration? stepDuration;
 
   /// Number of smaller ticks between two major ticks.
   ///
@@ -577,7 +666,7 @@ class SfSlider extends StatefulWidget {
   ///
   /// * [SfSliderThemeData](https://pub.dev/documentation/syncfusion_flutter_core/latest/theme/SfSliderThemeData-class.html), for customizing the individual
   /// inactive slider element’s visual.
-  final Color inactiveColor;
+  final Color? inactiveColor;
 
   /// Color applied to the active track, thumb, overlay, and inactive divisors.
   ///
@@ -607,7 +696,7 @@ class SfSlider extends StatefulWidget {
   /// See also:
   ///
   /// * [SfSliderThemeData](https://pub.dev/documentation/syncfusion_flutter_core/latest/theme/SfSliderThemeData-class.html), for customizing the individual active slider element’s visual.
-  final Color activeColor;
+  final Color? activeColor;
 
   /// Option to place the labels either between the major ticks or
   /// on the major ticks.
@@ -664,7 +753,7 @@ class SfSlider extends StatefulWidget {
   /// See also:
   ///
   /// * [labelFormatterCallback], for formatting the numeric and date labels.
-  final NumberFormat numberFormat;
+  final NumberFormat? numberFormat;
 
   /// Formats the date labels. It is mandatory for date [SfSlider].
   ///
@@ -703,7 +792,7 @@ class SfSlider extends StatefulWidget {
   /// * [numberFormat], for formatting the numeric labels.
   /// * [labelFormatterCallback], for formatting the numeric and date label.
   /// * [dateIntervalType], for changing the interval type.
-  final DateFormat dateFormat;
+  final DateFormat? dateFormat;
 
   /// The type of date interval. It is mandatory for date [SfSlider].
   ///
@@ -735,7 +824,7 @@ class SfSlider extends StatefulWidget {
   ///   },
   /// )
   /// ```
-  final DateIntervalType dateIntervalType;
+  final DateIntervalType? dateIntervalType;
 
   /// Signature for formatting or changing the whole numeric or date label text.
   ///
@@ -766,7 +855,7 @@ class SfSlider extends StatefulWidget {
   ///   },
   /// )
   /// ```
-  final LabelFormatterCallback labelFormatterCallback;
+  final LabelFormatterCallback? labelFormatterCallback;
 
   /// Signature for formatting or changing the whole tooltip label text.
   ///
@@ -800,7 +889,7 @@ class SfSlider extends StatefulWidget {
   ///   },
   /// )
   /// ```
-  final TooltipTextFormatterCallback tooltipTextFormatterCallback;
+  final TooltipTextFormatterCallback? tooltipTextFormatterCallback;
 
   /// The callback used to create a semantic value from the slider's value.
   ///
@@ -829,7 +918,7 @@ class SfSlider extends StatefulWidget {
   ///  },
   ///  )
   /// ```
-  final SfSliderSemanticFormatterCallback semanticFormatterCallback;
+  final SfSliderSemanticFormatterCallback? semanticFormatterCallback;
 
   /// Base class for [SfSlider] track shapes.
   final SfTrackShape trackShape;
@@ -912,7 +1001,7 @@ class SfSlider extends StatefulWidget {
   ///
   /// * [thumbShape], for customizing the thumb shape.
   /// * [SfSliderThemeData](https://pub.dev/documentation/syncfusion_flutter_core/latest/theme/SfSliderThemeData-class.html), for customizing the individual active slider element’s visual.
-  final Widget thumbIcon;
+  final Widget? thumbIcon;
 
   @override
   _SfSliderState createState() => _SfSliderState();
@@ -929,7 +1018,7 @@ class SfSlider extends StatefulWidget {
     properties.add(DoubleProperty('interval', interval));
     properties.add(DoubleProperty('stepSize', stepSize));
     if (stepDuration != null) {
-      properties.add(stepDuration.toDiagnosticsNode(name: 'stepDuration'));
+      properties.add(stepDuration!.toDiagnosticsNode(name: 'stepDuration'));
     }
     properties.add(IntProperty('minorTicksPerInterval', minorTicksPerInterval));
     properties.add(FlagProperty('showTicks',
@@ -958,9 +1047,11 @@ class SfSlider extends StatefulWidget {
         .add(EnumProperty<LabelPlacement>('labelPlacement', labelPlacement));
     properties
         .add(DiagnosticsProperty<NumberFormat>('numberFormat', numberFormat));
-    if (value.runtimeType == DateTime) {
-      properties.add(StringProperty('dateFormat',
-          'Formatted value is ' + (dateFormat.format(value.start)).toString()));
+    if (value.runtimeType == DateTime && dateFormat != null) {
+      properties.add(StringProperty(
+          'dateFormat',
+          'Formatted value is ' +
+              (dateFormat!.format(value.start)).toString()));
     }
     properties.add(
         EnumProperty<DateIntervalType>('dateIntervalType', dateIntervalType));
@@ -974,15 +1065,15 @@ class SfSlider extends StatefulWidget {
 }
 
 class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
-  AnimationController overlayController;
-  AnimationController stateController;
-  AnimationController tooltipAnimationController;
-  Timer tooltipDelayTimer;
+  late AnimationController overlayController;
+  late AnimationController stateController;
+  late AnimationController tooltipAnimationController;
+  Timer? tooltipDelayTimer;
   final Duration duration = const Duration(milliseconds: 100);
 
   void _onChanged(dynamic value) {
     if (value != widget.value) {
-      widget.onChanged(value);
+      widget.onChanged!(value);
     }
   }
 
@@ -1003,23 +1094,19 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
     sliderThemeData = sliderThemeData.copyWith(
       activeTrackHeight: sliderThemeData.activeTrackHeight,
       inactiveTrackHeight: sliderThemeData.inactiveTrackHeight,
-      tickSize: sliderThemeData.tickSize,
-      minorTickSize: sliderThemeData.minorTickSize,
       tickOffset: sliderThemeData.tickOffset,
-      labelOffset: sliderThemeData.labelOffset ??
-          (widget.showTicks ? const Offset(0.0, 5.0) : const Offset(0.0, 13.0)),
       inactiveLabelStyle: sliderThemeData.inactiveLabelStyle ??
-          themeData.textTheme.bodyText1.copyWith(
+          themeData.textTheme.bodyText1!.copyWith(
               color: isActive
-                  ? themeData.textTheme.bodyText1.color.withOpacity(0.87)
+                  ? themeData.textTheme.bodyText1!.color!.withOpacity(0.87)
                   : themeData.colorScheme.onSurface.withOpacity(0.32)),
       activeLabelStyle: sliderThemeData.activeLabelStyle ??
-          themeData.textTheme.bodyText1.copyWith(
+          themeData.textTheme.bodyText1!.copyWith(
               color: isActive
-                  ? themeData.textTheme.bodyText1.color.withOpacity(0.87)
+                  ? themeData.textTheme.bodyText1!.color!.withOpacity(0.87)
                   : themeData.colorScheme.onSurface.withOpacity(0.32)),
       tooltipTextStyle: sliderThemeData.tooltipTextStyle ??
-          themeData.textTheme.bodyText1.copyWith(
+          themeData.textTheme.bodyText1!.copyWith(
               color: sliderThemeData.brightness == Brightness.light
                   ? const Color.fromRGBO(255, 255, 255, 1)
                   : const Color.fromRGBO(0, 0, 0, 1)),
@@ -1083,8 +1170,23 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
       activeDivisorStrokeWidth: sliderThemeData.activeDivisorStrokeWidth,
       inactiveDivisorStrokeWidth: sliderThemeData.inactiveDivisorStrokeWidth,
     );
-
-    return sliderThemeData;
+    if (widget._sliderType == SliderType.vertical) {
+      return sliderThemeData.copyWith(
+          tickSize: sliderThemeData.tickSize ?? const Size(8.0, 1.0),
+          minorTickSize: sliderThemeData.minorTickSize ?? const Size(5.0, 1.0),
+          labelOffset: sliderThemeData.labelOffset ??
+              (widget.showTicks
+                  ? const Offset(5.0, 0.0)
+                  : const Offset(13.0, 0.0)));
+    } else {
+      return sliderThemeData.copyWith(
+          tickSize: sliderThemeData.tickSize ?? const Size(1.0, 8.0),
+          minorTickSize: sliderThemeData.minorTickSize ?? const Size(1.0, 5.0),
+          labelOffset: sliderThemeData.labelOffset ??
+              (widget.showTicks
+                  ? const Offset(0.0, 5.0)
+                  : const Offset(0.0, 13.0)));
+    }
   }
 
   @override
@@ -1100,9 +1202,9 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    overlayController?.dispose();
-    stateController?.dispose();
-    tooltipAnimationController?.dispose();
+    overlayController.dispose();
+    stateController.dispose();
+    tooltipAnimationController.dispose();
 
     super.dispose();
   }
@@ -1122,7 +1224,7 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
         interval: widget.interval,
         stepSize: widget.stepSize,
         stepDuration: widget.stepDuration,
-        minorTicksPerInterval: widget.minorTicksPerInterval ?? 0,
+        minorTicksPerInterval: widget.minorTicksPerInterval,
         showTicks: widget.showTicks,
         showLabels: widget.showLabels,
         showDivisors: widget.showDivisors,
@@ -1130,7 +1232,7 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
         inactiveColor:
             widget.inactiveColor ?? themeData.primaryColor.withOpacity(0.24),
         activeColor: widget.activeColor ?? themeData.primaryColor,
-        labelPlacement: widget.labelPlacement ?? LabelPlacement.onTicks,
+        labelPlacement: widget.labelPlacement,
         numberFormat: widget.numberFormat ?? NumberFormat('#.##'),
         dateIntervalType: widget.dateIntervalType,
         dateFormat: widget.dateFormat,
@@ -1139,62 +1241,68 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
         tooltipTextFormatterCallback:
             widget.tooltipTextFormatterCallback ?? _getFormattedTooltipText,
         semanticFormatterCallback: widget.semanticFormatterCallback,
-        trackShape: widget.trackShape ?? SfTrackShape(),
-        divisorShape: widget.divisorShape ?? SfDivisorShape(),
-        overlayShape: widget.overlayShape ?? SfOverlayShape(),
-        thumbShape: widget.thumbShape ?? SfThumbShape(),
-        tickShape: widget.tickShape ?? SfTickShape(),
-        minorTickShape: widget.minorTickShape ?? SfMinorTickShape(),
-        tooltipShape: widget.tooltipShape ?? SfRectangularTooltipShape(),
+        trackShape: widget.trackShape,
+        divisorShape: widget.divisorShape,
+        overlayShape: widget.overlayShape,
+        thumbShape: widget.thumbShape,
+        tickShape: widget.tickShape,
+        minorTickShape: widget.minorTickShape,
+        tooltipShape: widget.tooltipShape,
         sliderThemeData: _getSliderThemeData(themeData, isActive),
         thumbIcon: widget.thumbIcon,
+        tooltipPosition: widget._tooltipPosition,
+        sliderType: widget._sliderType,
         state: this);
   }
 }
 
 class _SliderRenderObjectWidget extends RenderObjectWidget {
   const _SliderRenderObjectWidget(
-      {Key key,
-      this.min,
-      this.max,
-      this.value,
-      this.onChanged,
-      this.interval,
-      this.stepSize,
-      this.stepDuration,
-      this.minorTicksPerInterval,
-      this.showTicks,
-      this.showLabels,
-      this.showDivisors,
-      this.enableTooltip,
-      this.inactiveColor,
-      this.activeColor,
-      this.labelPlacement,
-      this.numberFormat,
-      this.dateFormat,
-      this.dateIntervalType,
-      this.labelFormatterCallback,
-      this.tooltipTextFormatterCallback,
-      this.semanticFormatterCallback,
-      this.trackShape,
-      this.divisorShape,
-      this.overlayShape,
-      this.thumbShape,
-      this.tickShape,
-      this.minorTickShape,
-      this.tooltipShape,
-      this.sliderThemeData,
-      this.thumbIcon,
-      this.state})
+      {Key? key,
+      required this.min,
+      required this.max,
+      required this.value,
+      required this.onChanged,
+      required this.interval,
+      required this.stepSize,
+      required this.stepDuration,
+      required this.minorTicksPerInterval,
+      required this.showTicks,
+      required this.showLabels,
+      required this.showDivisors,
+      required this.enableTooltip,
+      required this.inactiveColor,
+      required this.activeColor,
+      required this.labelPlacement,
+      required this.numberFormat,
+      required this.dateFormat,
+      required this.dateIntervalType,
+      required this.labelFormatterCallback,
+      required this.tooltipTextFormatterCallback,
+      required this.semanticFormatterCallback,
+      required this.trackShape,
+      required this.divisorShape,
+      required this.overlayShape,
+      required this.thumbShape,
+      required this.tickShape,
+      required this.minorTickShape,
+      required this.tooltipShape,
+      required this.sliderThemeData,
+      required this.thumbIcon,
+      required this.state,
+      required this.sliderType,
+      required this.tooltipPosition})
       : super(key: key);
 
+  final SliderType sliderType;
+  final SliderTooltipPosition? tooltipPosition;
   final dynamic min;
   final dynamic max;
   final dynamic value;
-  final ValueChanged<dynamic> onChanged;
-  final double interval;
-  final double stepSize;
-  final SliderStepDuration stepDuration;
+  final ValueChanged<dynamic>? onChanged;
+  final double? interval;
+  final double? stepSize;
+  final SliderStepDuration? stepDuration;
   final int minorTicksPerInterval;
 
   final bool showTicks;
@@ -1207,12 +1315,12 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
 
   final LabelPlacement labelPlacement;
   final NumberFormat numberFormat;
-  final DateIntervalType dateIntervalType;
-  final DateFormat dateFormat;
+  final DateIntervalType? dateIntervalType;
+  final DateFormat? dateFormat;
   final SfSliderThemeData sliderThemeData;
   final LabelFormatterCallback labelFormatterCallback;
   final TooltipTextFormatterCallback tooltipTextFormatterCallback;
-  final SfSliderSemanticFormatterCallback semanticFormatterCallback;
+  final SfSliderSemanticFormatterCallback? semanticFormatterCallback;
   final SfDivisorShape divisorShape;
   final SfTrackShape trackShape;
   final SfTickShape tickShape;
@@ -1220,7 +1328,7 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
   final SfOverlayShape overlayShape;
   final SfThumbShape thumbShape;
   final SfTooltipShape tooltipShape;
-  final Widget thumbIcon;
+  final Widget? thumbIcon;
   final _SfSliderState state;
 
   @override
@@ -1229,39 +1337,40 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderSlider(
-      min: min,
-      max: max,
-      value: value,
-      onChanged: onChanged,
-      minorTicksPerInterval: minorTicksPerInterval,
-      interval: interval,
-      stepSize: stepSize,
-      stepDuration: stepDuration,
-      showTicks: showTicks,
-      showLabels: showLabels,
-      showDivisors: showDivisors,
-      enableTooltip: enableTooltip,
-      inactiveColor: inactiveColor,
-      activeColor: activeColor,
-      labelPlacement: labelPlacement,
-      numberFormat: numberFormat,
-      dateFormat: dateFormat,
-      dateIntervalType: dateIntervalType,
-      labelFormatterCallback: labelFormatterCallback,
-      tooltipTextFormatterCallback: tooltipTextFormatterCallback,
-      semanticFormatterCallback: semanticFormatterCallback,
-      trackShape: trackShape,
-      divisorShape: divisorShape,
-      overlayShape: overlayShape,
-      thumbShape: thumbShape,
-      tickShape: tickShape,
-      minorTickShape: minorTickShape,
-      tooltipShape: tooltipShape,
-      sliderThemeData: sliderThemeData,
-      textDirection: Directionality.of(context),
-      mediaQueryData: MediaQuery.of(context),
-      state: state,
-    );
+        min: min,
+        max: max,
+        value: value,
+        onChanged: onChanged,
+        minorTicksPerInterval: minorTicksPerInterval,
+        interval: interval,
+        stepSize: stepSize,
+        stepDuration: stepDuration,
+        showTicks: showTicks,
+        showLabels: showLabels,
+        showDivisors: showDivisors,
+        enableTooltip: enableTooltip,
+        inactiveColor: inactiveColor,
+        activeColor: activeColor,
+        labelPlacement: labelPlacement,
+        numberFormat: numberFormat,
+        dateFormat: dateFormat,
+        dateIntervalType: dateIntervalType,
+        labelFormatterCallback: labelFormatterCallback,
+        tooltipTextFormatterCallback: tooltipTextFormatterCallback,
+        semanticFormatterCallback: semanticFormatterCallback,
+        trackShape: trackShape,
+        divisorShape: divisorShape,
+        overlayShape: overlayShape,
+        thumbShape: thumbShape,
+        tickShape: tickShape,
+        minorTickShape: minorTickShape,
+        tooltipShape: tooltipShape,
+        sliderThemeData: sliderThemeData,
+        sliderType: sliderType,
+        tooltipPosition: tooltipPosition,
+        textDirection: Directionality.of(context),
+        mediaQueryData: MediaQuery.of(context),
+        state: state);
   }
 
   @override
@@ -1279,8 +1388,6 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
       ..showLabels = showLabels
       ..showDivisors = showDivisors
       ..enableTooltip = enableTooltip
-      ..inactiveColor = inactiveColor
-      ..activeColor = activeColor
       ..labelPlacement = labelPlacement
       ..numberFormat = numberFormat
       ..dateFormat = dateFormat
@@ -1296,6 +1403,7 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
       ..minorTickShape = minorTickShape
       ..tooltipShape = tooltipShape
       ..sliderThemeData = sliderThemeData
+      ..tooltipPosition = tooltipPosition
       ..textDirection = Directionality.of(context)
       ..mediaQueryData = MediaQuery.of(context);
   }
@@ -1309,27 +1417,17 @@ class _RenderSliderElement extends RenderObjectElement {
   final Map<Element, ChildElements> _childToSlot = <Element, ChildElements>{};
 
   @override
-  _SliderRenderObjectWidget get widget => super.widget;
+  _SliderRenderObjectWidget get widget =>
+      // ignore: avoid_as
+      super.widget as _SliderRenderObjectWidget;
 
   @override
-  _RenderSlider get renderObject => super.renderObject;
+  // ignore: avoid_as
+  _RenderSlider get renderObject => super.renderObject as _RenderSlider;
 
-  void _mountChild(Widget newWidget, ChildElements slot) {
-    final Element oldChild = _slotToChild[slot];
-    final Element newChild = updateChild(oldChild, newWidget, slot);
-    if (oldChild != null) {
-      _slotToChild.remove(slot);
-      _childToSlot.remove(oldChild);
-    }
-    if (newChild != null) {
-      _slotToChild[slot] = newChild;
-      _childToSlot[newChild] = slot;
-    }
-  }
-
-  void _updateChild(Widget widget, ChildElements slot) {
-    final Element oldChild = _slotToChild[slot];
-    final Element newChild = updateChild(oldChild, widget, slot);
+  void _updateChild(Widget? widget, ChildElements slot) {
+    final Element? oldChild = _slotToChild[slot];
+    final Element? newChild = updateChild(oldChild, widget, slot);
     if (oldChild != null) {
       _childToSlot.remove(oldChild);
       _slotToChild.remove(slot);
@@ -1340,10 +1438,11 @@ class _RenderSliderElement extends RenderObjectElement {
     }
   }
 
-  void _updateRenderObject(RenderObject child, ChildElements slot) {
+  void _updateRenderObject(RenderObject? child, ChildElements slot) {
     switch (slot) {
       case ChildElements.startThumbIcon:
-        renderObject.thumbIcon = child;
+        // ignore: avoid_as
+        renderObject.thumbIcon = child as RenderBox?;
         break;
       case ChildElements.endThumbIcon:
         break;
@@ -1358,9 +1457,9 @@ class _RenderSliderElement extends RenderObjectElement {
   }
 
   @override
-  void mount(Element parent, dynamic newSlot) {
+  void mount(Element? parent, dynamic newSlot) {
     super.mount(parent, newSlot);
-    _mountChild(widget.thumbIcon, ChildElements.startThumbIcon);
+    _updateChild(widget.thumbIcon, ChildElements.startThumbIcon);
   }
 
   @override
@@ -1371,7 +1470,7 @@ class _RenderSliderElement extends RenderObjectElement {
   }
 
   @override
-  void insertRenderObjectChild(RenderObject child, dynamic slotValue) {
+  void insertRenderObjectChild(RenderObject child, ChildElements slotValue) {
     assert(child is RenderBox);
     assert(slotValue is ChildElements);
     final ChildElements slot = slotValue;
@@ -1381,10 +1480,10 @@ class _RenderSliderElement extends RenderObjectElement {
   }
 
   @override
-  void removeRenderObjectChild(RenderObject child, dynamic slot) {
+  void removeRenderObjectChild(RenderObject child, ChildElements slot) {
     assert(child is RenderBox);
     assert(renderObject.childToSlot.keys.contains(child));
-    _updateRenderObject(null, renderObject.childToSlot[child]);
+    _updateRenderObject(null, renderObject.childToSlot[child]!);
     assert(!renderObject.childToSlot.keys.contains(child));
     assert(!renderObject.slotToChild.keys.contains(slot));
   }
@@ -1396,44 +1495,50 @@ class _RenderSliderElement extends RenderObjectElement {
   }
 }
 
-class _RenderSlider extends RenderBaseSlider {
+class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
   _RenderSlider({
-    dynamic min,
-    dynamic max,
-    dynamic value,
-    ValueChanged<dynamic> onChanged,
-    double interval,
-    double stepSize,
-    SliderStepDuration stepDuration,
-    int minorTicksPerInterval,
-    bool showTicks,
-    bool showLabels,
-    bool showDivisors,
-    bool enableTooltip,
-    Color inactiveColor,
-    Color activeColor,
-    LabelPlacement labelPlacement,
-    NumberFormat numberFormat,
-    DateFormat dateFormat,
-    DateIntervalType dateIntervalType,
-    LabelFormatterCallback labelFormatterCallback,
-    TooltipTextFormatterCallback tooltipTextFormatterCallback,
-    SfSliderSemanticFormatterCallback semanticFormatterCallback,
-    SfTrackShape trackShape,
-    SfDivisorShape divisorShape,
-    SfOverlayShape overlayShape,
-    SfThumbShape thumbShape,
-    SfTickShape tickShape,
-    SfTickShape minorTickShape,
-    SfTooltipShape tooltipShape,
-    SfSliderThemeData sliderThemeData,
-    TextDirection textDirection,
-    MediaQueryData mediaQueryData,
-    @required _SfSliderState state,
-  })  : _state = state,
+    required dynamic min,
+    required dynamic max,
+    required dynamic value,
+    required ValueChanged<dynamic>? onChanged,
+    required double? interval,
+    required double? stepSize,
+    required SliderStepDuration? stepDuration,
+    required int minorTicksPerInterval,
+    required bool showTicks,
+    required bool showLabels,
+    required bool showDivisors,
+    required bool enableTooltip,
+    required Color inactiveColor,
+    required Color activeColor,
+    required LabelPlacement labelPlacement,
+    required NumberFormat numberFormat,
+    required DateFormat? dateFormat,
+    required DateIntervalType? dateIntervalType,
+    required LabelFormatterCallback labelFormatterCallback,
+    required TooltipTextFormatterCallback tooltipTextFormatterCallback,
+    required SfSliderSemanticFormatterCallback? semanticFormatterCallback,
+    required SfTrackShape trackShape,
+    required SfDivisorShape divisorShape,
+    required SfOverlayShape overlayShape,
+    required SfThumbShape thumbShape,
+    required SfTickShape tickShape,
+    required SfTickShape minorTickShape,
+    required SfTooltipShape tooltipShape,
+    required SfSliderThemeData sliderThemeData,
+    required SliderType sliderType,
+    required SliderTooltipPosition? tooltipPosition,
+    required TextDirection textDirection,
+    required MediaQueryData mediaQueryData,
+    required _SfSliderState state,
+  })   : _state = state,
+        _value = value,
+        _semanticFormatterCallback = semanticFormatterCallback,
+        _onChanged = onChanged,
         super(
             min: min,
             max: max,
+            sliderType: sliderType,
             interval: interval,
             stepSize: stepSize,
             stepDuration: stepDuration,
@@ -1455,22 +1560,28 @@ class _RenderSlider extends RenderBaseSlider {
             tickShape: tickShape,
             minorTickShape: minorTickShape,
             tooltipShape: tooltipShape,
+            tooltipPosition: tooltipPosition,
             sliderThemeData: sliderThemeData,
             textDirection: textDirection,
             mediaQueryData: mediaQueryData) {
-    _value = value;
-    _semanticFormatterCallback = semanticFormatterCallback;
-    _onChanged = onChanged;
-    _inactiveColor = inactiveColor;
-    _activeColor = activeColor;
     final GestureArenaTeam team = GestureArenaTeam();
+    if (sliderType == SliderType.horizontal) {
+      horizontalDragGestureRecognizer = HorizontalDragGestureRecognizer()
+        ..team = team
+        ..onStart = _onDragStart
+        ..onUpdate = _onDragUpdate
+        ..onEnd = _onDragEnd
+        ..onCancel = _onDragCancel;
+    }
 
-    dragGestureRecognizer = HorizontalDragGestureRecognizer()
-      ..team = team
-      ..onStart = _onDragStart
-      ..onUpdate = _onDragUpdate
-      ..onEnd = _onDragEnd
-      ..onCancel = _onDragCancel;
+    if (sliderType == SliderType.vertical) {
+      verticalDragGestureRecognizer = VerticalDragGestureRecognizer()
+        ..team = team
+        ..onStart = _onVerticalDragStart
+        ..onUpdate = _onVerticalDragUpdate
+        ..onEnd = _onVerticalDragEnd
+        ..onCancel = _onVerticalDragCancel;
+    }
 
     tapGestureRecognizer = TapGestureRecognizer()
       ..team = team
@@ -1495,13 +1606,13 @@ class _RenderSlider extends RenderBaseSlider {
 
   final _SfSliderState _state;
 
-  Animation<double> _overlayAnimation;
+  late Animation<double> _overlayAnimation;
 
-  Animation<double> _stateAnimation;
+  late Animation<double> _stateAnimation;
 
-  Animation<double> _tooltipAnimation;
+  late Animation<double> _tooltipAnimation;
 
-  double _valueInMilliseconds;
+  double? _valueInMilliseconds;
 
   final Map<ChildElements, RenderBox> slotToChild =
       <ChildElements, RenderBox>{};
@@ -1524,10 +1635,10 @@ class _RenderSlider extends RenderBaseSlider {
     markNeedsPaint();
   }
 
-  ValueChanged<dynamic> get onChanged => _onChanged;
-  ValueChanged<dynamic> _onChanged;
+  ValueChanged<dynamic>? get onChanged => _onChanged;
+  ValueChanged<dynamic>? _onChanged;
 
-  set onChanged(ValueChanged<dynamic> value) {
+  set onChanged(ValueChanged<dynamic>? value) {
     if (value == _onChanged) {
       return;
     }
@@ -1544,32 +1655,11 @@ class _RenderSlider extends RenderBaseSlider {
     }
   }
 
-  Color get inactiveColor => _inactiveColor;
-  Color _inactiveColor;
-
-  set inactiveColor(Color value) {
-    if (_inactiveColor == value) {
-      return;
-    }
-    _inactiveColor = value;
-    markNeedsPaint();
-  }
-
-  Color get activeColor => _activeColor;
-  Color _activeColor;
-
-  set activeColor(Color value) {
-    if (_activeColor == value) {
-      return;
-    }
-    _activeColor = value;
-    markNeedsPaint();
-  }
-
-  SfSliderSemanticFormatterCallback get semanticFormatterCallback =>
+  SfSliderSemanticFormatterCallback? get semanticFormatterCallback =>
       _semanticFormatterCallback;
-  SfSliderSemanticFormatterCallback _semanticFormatterCallback;
-  set semanticFormatterCallback(SfSliderSemanticFormatterCallback value) {
+  SfSliderSemanticFormatterCallback? _semanticFormatterCallback;
+
+  set semanticFormatterCallback(SfSliderSemanticFormatterCallback? value) {
     if (_semanticFormatterCallback == value) {
       return;
     }
@@ -1577,10 +1667,10 @@ class _RenderSlider extends RenderBaseSlider {
     markNeedsSemanticsUpdate();
   }
 
-  RenderBox get thumbIcon => _thumbIcon;
-  RenderBox _thumbIcon;
+  RenderBox? get thumbIcon => _thumbIcon;
+  RenderBox? _thumbIcon;
 
-  set thumbIcon(RenderBox value) {
+  set thumbIcon(RenderBox? value) {
     _thumbIcon = _updateChild(_thumbIcon, value, ChildElements.startThumbIcon);
   }
 
@@ -1591,12 +1681,22 @@ class _RenderSlider extends RenderBaseSlider {
   // The returned list is ordered for hit testing.
   Iterable<RenderBox> get children sync* {
     if (_thumbIcon != null) {
-      yield _thumbIcon;
+      yield _thumbIcon!;
     }
   }
 
-  RenderBox _updateChild(
-      RenderBox oldChild, RenderBox newChild, ChildElements slot) {
+  dynamic get _increasedValue {
+    return getNextSemanticValue(value, semanticActionUnit,
+        actualValue: actualValue);
+  }
+
+  dynamic get _decreasedValue {
+    return getPrevSemanticValue(value, semanticActionUnit,
+        actualValue: actualValue);
+  }
+
+  RenderBox? _updateChild(
+      RenderBox? oldChild, RenderBox? newChild, ChildElements slot) {
     if (oldChild != null) {
       dropChild(oldChild);
       childToSlot.remove(oldChild);
@@ -1612,7 +1712,9 @@ class _RenderSlider extends RenderBaseSlider {
 
   void _onTapDown(TapDownDetails details) {
     currentPointerType = PointerType.down;
-    currentX = globalToLocal(details.globalPosition).dx;
+    mainAxisOffset = (sliderType == SliderType.vertical
+        ? globalToLocal(details.globalPosition).dy
+        : globalToLocal(details.globalPosition).dx);
     _beginInteraction();
   }
 
@@ -1621,14 +1723,14 @@ class _RenderSlider extends RenderBaseSlider {
   }
 
   void _onDragStart(DragStartDetails details) {
-    currentX = globalToLocal(details.globalPosition).dx;
+    mainAxisOffset = globalToLocal(details.globalPosition).dx;
     _beginInteraction();
   }
 
   void _onDragUpdate(DragUpdateDetails details) {
     isInteractionEnd = false;
     currentPointerType = PointerType.move;
-    currentX = globalToLocal(details.globalPosition).dx;
+    mainAxisOffset = globalToLocal(details.globalPosition).dx;
     _updateValue();
     markNeedsPaint();
   }
@@ -1638,6 +1740,27 @@ class _RenderSlider extends RenderBaseSlider {
   }
 
   void _onDragCancel() {
+    _endInteraction();
+  }
+
+  void _onVerticalDragStart(DragStartDetails details) {
+    mainAxisOffset = globalToLocal(details.globalPosition).dy;
+    _beginInteraction();
+  }
+
+  void _onVerticalDragUpdate(DragUpdateDetails details) {
+    isInteractionEnd = false;
+    currentPointerType = PointerType.move;
+    mainAxisOffset = globalToLocal(details.globalPosition).dy;
+    _updateValue();
+    markNeedsPaint();
+  }
+
+  void _onVerticalDragEnd(DragEndDetails details) {
+    _endInteraction();
+  }
+
+  void _onVerticalDragCancel() {
     _endInteraction();
   }
 
@@ -1665,11 +1788,11 @@ class _RenderSlider extends RenderBaseSlider {
 
   void _updateValue() {
     final double factor = getFactorFromCurrentPosition();
-    final double valueFactor = lerpDouble(actualMin, actualMax, factor);
+    final double valueFactor = lerpDouble(actualMin, actualMax, factor)!;
     final dynamic newValue = getActualValue(valueInDouble: valueFactor);
 
     if (newValue != _value) {
-      onChanged(newValue);
+      onChanged!(newValue);
     }
   }
 
@@ -1700,12 +1823,13 @@ class _RenderSlider extends RenderBaseSlider {
       Offset actualTrackOffset, Rect trackRect) {
     if (willDrawTooltip) {
       final Paint paint = Paint()
-        ..color = sliderThemeData.tooltipBackgroundColor
+        ..color = sliderThemeData.tooltipBackgroundColor!
         ..style = PaintingStyle.fill
         ..strokeWidth = 0;
 
-      final dynamic actualText =
-          getValueFromPosition(thumbCenter.dx - offset.dx);
+      final dynamic actualText = sliderType == SliderType.vertical
+          ? getValueFromPosition(trackRect.bottom - thumbCenter.dy)
+          : getValueFromPosition(thumbCenter.dx - offset.dx);
       final String tooltipText = tooltipTextFormatterCallback(
           actualText, getFormattedText(actualText));
       final TextSpan textSpan =
@@ -1725,13 +1849,32 @@ class _RenderSlider extends RenderBaseSlider {
 
   void increaseAction() {
     if (isInteractive) {
-      onChanged(getNextSemanticValue(value, semanticActionUnit));
+      onChanged!(_increasedValue);
     }
   }
 
   void decreaseAction() {
     if (isInteractive) {
-      onChanged(getPrevSemanticValue(value, semanticActionUnit));
+      onChanged!(_decreasedValue);
+    }
+  }
+
+  void _handleEnter(PointerEnterEvent event) {
+    _state.overlayController.forward();
+    if (enableTooltip) {
+      willDrawTooltip = true;
+      _state.tooltipAnimationController.forward();
+    }
+  }
+
+  void _handleExit(PointerExitEvent event) {
+    // Ensuring whether the thumb is drag or move
+    // not needed to call controller's reverse.
+    if (currentPointerType != PointerType.move) {
+      _state.overlayController.reverse();
+      if (enableTooltip) {
+        _state.tooltipAnimationController.reverse();
+      }
     }
   }
 
@@ -1743,10 +1886,10 @@ class _RenderSlider extends RenderBaseSlider {
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
-    _overlayAnimation?.addListener(markNeedsPaint);
-    _stateAnimation?.addListener(markNeedsPaint);
-    _tooltipAnimation?.addListener(markNeedsPaint);
-    _tooltipAnimation?.addStatusListener(_handleTooltipAnimationStatusChange);
+    _overlayAnimation.addListener(markNeedsPaint);
+    _stateAnimation.addListener(markNeedsPaint);
+    _tooltipAnimation.addListener(markNeedsPaint);
+    _tooltipAnimation.addStatusListener(_handleTooltipAnimationStatusChange);
     for (final RenderBox child in children) {
       child.attach(owner);
     }
@@ -1754,16 +1897,28 @@ class _RenderSlider extends RenderBaseSlider {
 
   @override
   void detach() {
-    _overlayAnimation?.removeListener(markNeedsPaint);
-    _stateAnimation?.removeListener(markNeedsPaint);
-    _tooltipAnimation?.removeListener(markNeedsPaint);
-    _tooltipAnimation
-        ?.removeStatusListener(_handleTooltipAnimationStatusChange);
+    _overlayAnimation.removeListener(markNeedsPaint);
+    _stateAnimation.removeListener(markNeedsPaint);
+    _tooltipAnimation.removeListener(markNeedsPaint);
+    _tooltipAnimation.removeStatusListener(_handleTooltipAnimationStatusChange);
     super.detach();
     for (final RenderBox child in children) {
       child.detach();
     }
   }
+
+  @override
+  MouseCursor get cursor => MouseCursor.defer;
+
+  @override
+  PointerEnterEventListener get onEnter => _handleEnter;
+
+  @override
+  PointerExitEventListener get onExit => _handleExit;
+
+  @override
+  // ignore: override_on_non_overriding_member
+  bool get validForMouseTracker => true;
 
   @override
   bool hitTestSelf(Offset position) => isInteractive;
@@ -1779,27 +1934,40 @@ class _RenderSlider extends RenderBaseSlider {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    final Offset actualTrackOffset = Offset(
-        offset.dx,
-        offset.dy +
-            (size.height - actualHeight) / 2 +
-            trackOffset.dy -
-            maxTrackHeight / 2);
+    final Offset actualTrackOffset = sliderType == SliderType.vertical
+        ? Offset(
+            offset.dx +
+                (size.width - actualHeight) / 2 +
+                trackOffset.dy -
+                maxTrackHeight / 2,
+            offset.dy)
+        : Offset(
+            offset.dx,
+            offset.dy +
+                (size.height - actualHeight) / 2 +
+                trackOffset.dy -
+                maxTrackHeight / 2);
 
     // Drawing track.
     final Rect trackRect =
         trackShape.getPreferredRect(this, sliderThemeData, actualTrackOffset);
-    final double thumbPosition =
-        getFactorFromValue(actualValue) * trackRect.width;
-    final Offset thumbCenter =
-        Offset(trackRect.left + thumbPosition, trackRect.center.dy);
+    final double thumbPosition = getFactorFromValue(actualValue) *
+        (sliderType == SliderType.vertical
+            ? trackRect.height
+            : trackRect.width);
+    final Offset thumbCenter = sliderType == SliderType.vertical
+        ? Offset(trackRect.center.dx, trackRect.bottom - thumbPosition)
+        : Offset(trackRect.left + thumbPosition, trackRect.center.dy);
 
     trackShape.paint(context, actualTrackOffset, thumbCenter, null, null,
         parentBox: this,
         currentValue: _value,
+        currentValues: null,
         themeData: sliderThemeData,
         enableAnimation: _stateAnimation,
-        textDirection: textDirection);
+        textDirection: textDirection,
+        activePaint: null,
+        inactivePaint: null);
 
     if (showLabels || showTicks || showDivisors) {
       drawLabelsTicksAndDivisors(context, trackRect, offset, thumbCenter, null,
@@ -1811,7 +1979,9 @@ class _RenderSlider extends RenderBaseSlider {
         parentBox: this,
         currentValue: _value,
         themeData: sliderThemeData,
-        animation: _overlayAnimation);
+        animation: _overlayAnimation,
+        thumb: null,
+        paint: null);
 
     // Drawing thumb.
     thumbShape.paint(context, thumbCenter,
@@ -1820,7 +1990,9 @@ class _RenderSlider extends RenderBaseSlider {
         currentValue: _value,
         themeData: sliderThemeData,
         enableAnimation: _stateAnimation,
-        textDirection: textDirection);
+        textDirection: textDirection,
+        thumb: null,
+        paint: null);
 
     _drawTooltip(context, thumbCenter, offset, actualTrackOffset, trackRect);
   }
@@ -1828,24 +2000,19 @@ class _RenderSlider extends RenderBaseSlider {
   @override
   void describeSemanticsConfiguration(SemanticsConfiguration config) {
     super.describeSemanticsConfiguration(config);
-
     config.isSemanticBoundary = isInteractive;
     if (isInteractive) {
       config.textDirection = textDirection;
       config.onIncrease = increaseAction;
       config.onDecrease = decreaseAction;
       if (semanticFormatterCallback != null) {
-        config.value = semanticFormatterCallback(value);
-        config.increasedValue = semanticFormatterCallback(
-            getNextSemanticValue(value, semanticActionUnit));
-        config.decreasedValue = semanticFormatterCallback(
-            getPrevSemanticValue(value, semanticActionUnit));
+        config.value = semanticFormatterCallback!(value);
+        config.increasedValue = semanticFormatterCallback!(_increasedValue);
+        config.decreasedValue = semanticFormatterCallback!(_decreasedValue);
       } else {
         config.value = '$value';
-        config.increasedValue =
-            '${getNextSemanticValue(value, semanticActionUnit)}';
-        config.decreasedValue =
-            '${getPrevSemanticValue(value, semanticActionUnit)}';
+        config.increasedValue = '$_increasedValue';
+        config.decreasedValue = '$_decreasedValue';
       }
     }
   }

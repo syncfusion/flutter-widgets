@@ -1,4 +1,13 @@
-part of calendar;
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_calendar/src/calendar/appointment_engine/appointment_helper.dart';
+import 'package:syncfusion_flutter_calendar/src/calendar/common/calendar_view_helper.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart'
+    show IterableDiagnostics;
+
+import '../../../calendar.dart';
+import '../common/enums.dart';
+import '../resource_view/calendar_resource.dart';
 
 /// An object that maintains the data source for [SfCalendar].
 ///
@@ -124,7 +133,105 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   ///  }
   /// }
   ///```
-  List<dynamic> appointments;
+  List<dynamic>? appointments;
+
+  /// Returns the appointments in the specified date range.
+  ///
+  /// startDate - required - The starting date from which
+  /// to obtain the appointments.
+  ///
+  /// endDate - optional - The end date till which
+  /// to obtain the visible appointments.
+  ///
+  /// ```dart
+  ///
+  /// class MyAppState extends State<MyApp> {
+  ///
+  ///   CalendarController _calendarController;
+  ///   _AppointmentDataSource _dataSource;
+  ///
+  ///   @override
+  ///   initState() {
+  ///     _calendarController = CalendarController();
+  ///     _dataSource = _getCalendarDataSource();
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return MaterialApp(
+  ///       home: Scaffold(
+  ///         body: SfCalendar(
+  ///           view: CalendarView.month,
+  ///           controller: _calendarController,
+  ///           dataSource: _dataSource,
+  ///           onViewChanged: (ViewChangedDetails details) {
+  ///             List<DateTime> dates = details.visibleDates;
+  ///             String calendarTimeZone = '';
+  ///             List<Object> appointment = _dataSource.getVisibleAppointments(
+  ///                 dates[0], calendarTimeZone,
+  ///                 dates[(details.visibleDates.length) - 1]);
+  ///           },
+  ///         ),
+  ///       ),
+  ///     );
+  ///   }
+  /// }
+  ///
+  /// _AppointmentDataSource _getCalendarDataSource() {
+  ///   List<Appointment> appointments = <Appointment>[];
+  ///   appointments.add(Appointment(
+  ///     startTime: DateTime(2020, 11, 27, 9),
+  ///     endTime: DateTime(2020, 11, 27, 9).add(Duration(hours: 2)),
+  ///     subject: 'Meeting',
+  ///     color: Colors.cyanAccent,
+  ///     startTimeZone: '',
+  ///     endTimeZone: '',
+  ///     recurrenceRule: 'FREQ=DAILY;INTERVAL=2;COUNT=5',
+  ///   ));
+  ///   appointments.add(Appointment(
+  ///       startTime: DateTime(2020, 11, 28, 5),
+  ///       endTime: DateTime(2020, 11, 30, 7),
+  ///       subject: 'Discussion',
+  ///       color: Colors.orangeAccent,
+  ///       startTimeZone: '',
+  ///       endTimeZone: '',
+  ///       isAllDay: true
+  ///   ));
+  ///   return _AppointmentDataSource(appointments);
+  /// }}
+  ///
+  /// class _AppointmentDataSource extends CalendarDataSource {
+  ///   _AppointmentDataSource(List<Appointment> source) {
+  ///     appointments = source;
+  ///   }
+  /// }
+  /// ```
+  List<Appointment> getVisibleAppointments(
+      DateTime startDate, String calendarTimeZone,
+      [DateTime? endDate]) {
+    endDate ??= startDate;
+
+    /// Converts the given appointment type to calendar appointment, to handle
+    /// the internal operations like timezone converting.
+    /// Calendar appointment is an internal class to handle the appointment
+    /// rendering on view.
+    List<CalendarAppointment> calendarAppointments =
+        AppointmentHelper.generateCalendarAppointments(this, calendarTimeZone);
+
+    calendarAppointments = AppointmentHelper.getVisibleAppointments(
+        startDate, endDate, calendarAppointments, calendarTimeZone, false,
+        canCreateNewAppointment: false);
+
+    final List<Appointment> visibleAppointments = <Appointment>[];
+
+    for (int i = 0; i < calendarAppointments.length; i++) {
+      visibleAppointments
+          .add(calendarAppointments[i].convertToCalendarAppointment());
+    }
+
+    return visibleAppointments;
+  }
 
   /// The collection of resource to be displayed in the timeline views of
   /// [SfCalendar].
@@ -142,7 +249,7 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// }
   ///
   /// ```
-  List<CalendarResource> resources;
+  List<CalendarResource>? resources;
 
   /// Maps the custom appointments start time to the [Appointment].
   ///
@@ -163,8 +270,7 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   ///    return appointments[index].from;
   ///  }
   /// ```
-  @protected
-  DateTime getStartTime(int index) => null;
+  DateTime getStartTime(int index) => DateTime.now();
 
   /// Maps the custom appointments end time to the [Appointment].
   ///
@@ -185,8 +291,7 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   ///    return appointments[index].to;
   ///  }
   /// ```
-  @protected
-  DateTime getEndTime(int index) => null;
+  DateTime getEndTime(int index) => DateTime.now();
 
   /// Maps the custom appointments subject to the [Appointment].
   ///
@@ -204,7 +309,6 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   ///    return appointments[index].title;
   ///  }
   /// ```
-  @protected
   String getSubject(int index) => '';
 
   /// Maps the custom appointments isAllDay to the [Appointment].
@@ -223,7 +327,6 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   ///    return appointments[index].isAllDay;
   ///  }
   /// ```
-  @protected
   bool isAllDay(int index) => false;
 
   /// Maps the custom appointments color to the [Appointment].
@@ -242,7 +345,6 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   ///    return appointments[index].background;
   ///  }
   /// ```
-  @protected
   Color getColor(int index) => Colors.lightBlue;
 
   /// Maps the custom appointments notes to the [Appointment].
@@ -261,8 +363,7 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   ///    return appointments[index].notes;
   ///  }
   /// ```
-  @protected
-  String getNotes(int index) => '';
+  String? getNotes(int index) => null;
 
   /// Maps the custom appointments location to the [Appointment].
   ///
@@ -280,8 +381,7 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   ///    return appointments[index].place;
   ///  }
   /// ```
-  @protected
-  String getLocation(int index) => '';
+  String? getLocation(int index) => null;
 
   /// Maps the custom appointments start time zone to the [Appointment].
   ///
@@ -299,8 +399,7 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   ///    return appointments[index].fromZone;
   ///  }
   /// ```
-  @protected
-  String getStartTimeZone(int index) => '';
+  String? getStartTimeZone(int index) => null;
 
   /// Maps the custom appointments end time zone to the [Appointment].
   ///
@@ -318,8 +417,7 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   ///    return appointments[index].toZone;
   ///  }
   /// ```
-  @protected
-  String getEndTimeZone(int index) => '';
+  String? getEndTimeZone(int index) => null;
 
   /// Maps the custom appointments recurrence rule to the [Appointment].
   ///
@@ -337,8 +435,7 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   ///    return appointments[index].recurrenceRule;
   ///  }
   /// ```
-  @protected
-  String getRecurrenceRule(int index) => '';
+  String? getRecurrenceRule(int index) => null;
 
   /// Maps the custom appointments recurrenceExceptionDates to the [Appointment]
   ///
@@ -356,8 +453,7 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   ///    return appointments[index].exceptionDates;
   ///  }
   /// ```
-  @protected
-  List<DateTime> getRecurrenceExceptionDates(int index) => null;
+  List<DateTime>? getRecurrenceExceptionDates(int index) => null;
 
   /// Maps the custom appointment resource ids to the [Appointment] resource
   /// ids.
@@ -376,8 +472,45 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   ///    return appointments[index].resourceIds;
   ///  }
   /// ```
+  List<Object>? getResourceIds(int index) => null;
+
+  /// Called when loadMoreAppointments function is called from the
+  /// loadMoreWidgetBuilder.
+  /// Call the [notifyListeners] to notify the calendar for data source changes.
+  ///
+  /// See also: [SfCalendar.loadMoreWidgetBuilder]
+  ///
+  /// ```dart
+  ///  @override
+  ///  void handleLoadMore(DateTime startDate, DateTime endDate){
+  ///  await Future.delayed(Duration(seconds: 5));
+  ///    List<Appointment> newColl = <Appointment>[];
+  ///    for (DateTime date = startDate;
+  ///        date.isBefore(endDate);
+  ///        date = date.add(Duration(days: 1))) {
+  ///      newColl.add(Appointment(
+  ///        startTime: date,
+  ///        endTime: date.add(Duration(hours: 2)),
+  ///        subject: 'Meeting',
+  ///        color: Colors.red,
+  ///      ));
+  ///    }
+  ///
+  ///    appointments.addAll(newColl);
+  ///    notifyListeners(CalendarDataSourceAction.add, newColl);
+  ///  }
+  /// ```
   @protected
-  List<Object> getResourceIds(int index) => null;
+  Future<void> handleLoadMore(DateTime startDate, DateTime endDate) async {}
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(IterableDiagnostics<dynamic>(appointments)
+        .toDiagnosticsNode(name: 'appointments'));
+    properties.add(IterableDiagnostics<CalendarResource>(resources)
+        .toDiagnosticsNode(name: 'resources'));
+  }
 }
 
 /// Signature for callback that reports that a appointment collection set to the
@@ -388,8 +521,8 @@ typedef CalendarDataSourceCallback = void Function(
     CalendarDataSourceAction, List<dynamic>);
 
 /// Notifier used to notify the action performed in the [CalendarDataSource]
-class CalendarDataSourceChangeNotifier {
-  List<CalendarDataSourceCallback> _listeners;
+class CalendarDataSourceChangeNotifier with Diagnosticable {
+  List<CalendarDataSourceCallback>? _listeners;
 
   /// Calls the listener every time the collection in the [CalendarDataSource]
   /// changed
@@ -397,7 +530,7 @@ class CalendarDataSourceChangeNotifier {
   /// Listeners can be removed with [removeListener]
   void addListener(CalendarDataSourceCallback listener) {
     _listeners ??= <CalendarDataSourceCallback>[];
-    _listeners.add(listener);
+    _listeners!.add(listener);
   }
 
   /// remove the listener used for notify the data source changes.
@@ -414,7 +547,7 @@ class CalendarDataSourceChangeNotifier {
       return;
     }
 
-    _listeners.remove(listener);
+    _listeners!.remove(listener);
   }
 
   /// Call all the registered listeners.
@@ -437,10 +570,8 @@ class CalendarDataSourceChangeNotifier {
       return;
     }
 
-    for (final CalendarDataSourceCallback listener in _listeners) {
-      if (listener != null) {
-        listener(type, data);
-      }
+    for (final CalendarDataSourceCallback listener in _listeners!) {
+      listener(type, data);
     }
   }
 

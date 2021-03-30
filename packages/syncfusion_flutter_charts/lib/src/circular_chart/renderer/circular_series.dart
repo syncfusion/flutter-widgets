@@ -19,37 +19,39 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
       this.xValueMapper,
       this.yValueMapper,
       this.pointColorMapper,
+      this.pointShaderMapper,
       this.pointRadiusMapper,
       this.dataLabelMapper,
       this.sortFieldValueMapper,
-      int startAngle,
-      int endAngle,
-      String radius,
-      String innerRadius,
-      bool explode,
-      bool explodeAll,
+      int? startAngle,
+      int? endAngle,
+      String? radius,
+      String? innerRadius,
+      bool? explode,
+      bool? explodeAll,
       this.explodeIndex,
-      ActivationMode explodeGesture,
-      String explodeOffset,
+      ActivationMode? explodeGesture,
+      String? explodeOffset,
       this.groupTo,
       this.groupMode,
-      String gap,
-      double opacity,
-      EmptyPointSettings emptyPointSettings,
-      Color borderColor,
-      double borderWidth,
-      DataLabelSettings dataLabelSettings,
-      bool enableTooltip,
-      bool enableSmartLabels,
+      this.pointRenderMode,
+      String? gap,
+      double? opacity,
+      EmptyPointSettings? emptyPointSettings,
+      Color? borderColor,
+      double? borderWidth,
+      DataLabelSettings? dataLabelSettings,
+      bool? enableTooltip,
+      bool? enableSmartLabels,
       this.name,
-      double animationDuration,
+      double? animationDuration,
       // ignore: deprecated_member_use_from_same_package
-      SelectionSettings selectionSettings,
-      SelectionBehavior selectionBehavior,
-      SortingOrder sortingOrder,
-      LegendIconType legendIconType,
-      CornerStyle cornerStyle,
-      List<int> initialSelectedDataIndexes})
+      SelectionSettings? selectionSettings,
+      SelectionBehavior? selectionBehavior,
+      SortingOrder? sortingOrder,
+      LegendIconType? legendIconType,
+      CornerStyle? cornerStyle,
+      List<int>? initialSelectedDataIndexes})
       : startAngle = startAngle ?? 0,
         animationDuration = animationDuration ?? 1500,
         endAngle = endAngle ?? 360,
@@ -128,7 +130,7 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   @override
   final DataLabelSettings dataLabelSettings;
 
-  _ChartSeriesRender _renderer;
+  _ChartSeriesRender? _renderer;
 
   ///A collection of data required for rendering the series.
   ///
@@ -155,7 +157,7 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///}
   ///```
   @override
-  final List<T> dataSource;
+  final List<T>? dataSource;
 
   ///Maps the field name, which will be considered as x-values.
   ///
@@ -186,7 +188,7 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///}
   ///```
   @override
-  final ChartIndexedValueMapper<D> xValueMapper;
+  final ChartIndexedValueMapper<D>? xValueMapper;
 
   ///Maps the field name, which will be considered as y-values.
   ///
@@ -217,7 +219,7 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///}
   ///```
   @override
-  final ChartIndexedValueMapper<num> yValueMapper;
+  final ChartIndexedValueMapper<num>? yValueMapper;
 
   ///Maps the field name, which will be considered as x-values.
   ///
@@ -248,7 +250,56 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///}
   ///```
   @override
-  final ChartIndexedValueMapper<Color> pointColorMapper;
+  final ChartIndexedValueMapper<Color>? pointColorMapper;
+
+  ///Returns the shaders to fill each data point.
+  ///
+  ///The data points of pie, doughnut and radial bar charts can be filled with [gradient](https://api.flutter.dev/flutter/dart-ui/Gradient-class.html)
+  /// (linear, radial and sweep gradient) and [image shaders](https://api.flutter.dev/flutter/dart-ui/ImageShader-class.html).
+  ///
+  ///A shader specified in a data source cell will be applied to that specific data point. Also, a data point may have gradient
+  /// and another data point may have image shader.
+  ///
+  ///The user can also get the data, index, color and rect values of the specific data point from [ChartShaderMapper] and
+  /// can use in this method, for creating shaders.
+  ///
+  ///Defaults to `null`.
+  ///
+  ///```dart
+  ///Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfCircularChart(
+  ///            series: <PieSeries<ChartData, String>>[
+  ///              PieSeries<ChartData, String>(
+  ///                dataSource: <ChartData>[
+  ///                   ChartData('USA', 10, ui.Gradient.radial(Offset(112.4, 140.0), 90, [
+  ///                            Colors.pink,
+  ///                            Colors.red,
+  ///                          ], [
+  ///                            0.25,
+  ///                          0.5,
+  ///                          ]),),
+  ///                   ChartData('China', 11, ui.Gradient.sweep(Offset(112.4, 140.0),[
+  ///                            Colors.pink,
+  ///                            Colors.red,
+  ///                          ], [
+  ///                            0.25,
+  ///                          0.5,
+  ///                          ]),),
+  ///                ],
+  ///                pointShaderMapper: (ChartData data, _, Color color, Rect rect) => data.pointShader,
+  ///              ),
+  ///             ],
+  ///        ));
+  ///}
+  ///class ChartData {
+  ///   ChartData(this.xVal, this.yVal, [this.pointColor]);
+  ///   final String xVal;
+  ///   final int yVal;
+  ///   final Shader pointShader;
+  ///}
+  ///```
+  final ChartShaderMapper<dynamic>? pointShaderMapper;
 
   ///Maps the field name, which will be considered for calculating the radius of
   /// all the data points.
@@ -279,7 +330,7 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///   final String radius;
   ///}
   ///```
-  final ChartIndexedValueMapper<String> pointRadiusMapper;
+  final ChartIndexedValueMapper<String>? pointRadiusMapper;
 
   ///Maps the field name, which will be considered as text for the data points.
   ///
@@ -310,7 +361,7 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///}
   ///```
   @override
-  final ChartIndexedValueMapper<String> dataLabelMapper;
+  final ChartIndexedValueMapper<String>? dataLabelMapper;
 
   ///Field in the data source for performing sorting. Sorting will be performed
   ///based on this field.
@@ -342,7 +393,7 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///}
   ///```
   @override
-  final ChartIndexedValueMapper<dynamic> sortFieldValueMapper;
+  final ChartIndexedValueMapper<dynamic>? sortFieldValueMapper;
 
   ///Data label placement without collision.
   ///
@@ -650,7 +701,7 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///        ));
   ///}
   ///```
-  final int explodeIndex;
+  final int? explodeIndex;
 
   ///Offset of exploded slice. The value ranges from 0% to 100%.
   ///
@@ -712,7 +763,7 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///        ));
   ///}
   ///```
-  final double groupTo;
+  final double? groupTo;
 
   ///Slice can also be grouped based on the data points value or based on index.
   ///
@@ -733,7 +784,24 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///        ));
   ///}
   ///```
-  final CircularChartGroupMode groupMode;
+  final CircularChartGroupMode? groupMode;
+
+  ///Defines the painting mode of the data points.
+  ///
+  ///The data points in pie and doughnut chart can be filled either with solid colors or with sweep gradient
+  /// by using this property.
+  ///
+  ///* If `PointRenderMode.segment` is specified, the data points are filled with solid colors from palette
+  /// or with the colors mentioned in [pointColorMapping] property.
+  ///* If `PointRenderMode.gradient` is specified, a sweep gradient is formed with the solid colors and fills
+  /// the data points.
+  ///
+  ///`Note:` This property is applicable only if the [onCreateShader] or [pointShaderMapper] is null.
+  ///
+  ///Also refer [PointRenderMode].
+  ///
+  ///Defaults to `pointRenderMode.segment`.
+  final PointRenderMode? pointRenderMode;
 
   ///Specifies the gap between the radial bars in percentage.
   ///
@@ -792,7 +860,7 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///}
   ///```
   @override
-  final String name;
+  final String? name;
 
   ///Duration for animating the data points.
   ///
@@ -859,7 +927,7 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///        ));
   ///}
   ///```
-  final ValueKey<String> key;
+  final ValueKey<String>? key;
 
   ///Used to create the renderer for custom series.
   ///
@@ -892,7 +960,7 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///       // custom implementation here...
   ///  }
   ///```
-  final ChartSeriesRendererFactory<T, D> onCreateRenderer;
+  final ChartSeriesRendererFactory<T, D>? onCreateRenderer;
 
   ///Triggers when the series renderer is created.
 
@@ -919,16 +987,16 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
   ///        ));
   ///}
   ///```
-  final CircularSeriesRendererCreatedCallback onRendererCreated;
+  final CircularSeriesRendererCreatedCallback? onRendererCreated;
 
   /// To calculate empty point values
   @override
   void calculateEmptyPointValue(
       int pointIndex, ChartPoint<dynamic> currentPoint,
-      [CircularSeriesRenderer seriesRenderer]) {
+      [CircularSeriesRenderer? seriesRenderer]) {
     final EmptyPointSettings empty = emptyPointSettings;
-    final List<ChartPoint<dynamic>> dataPoints = seriesRenderer._dataPoints;
-    final int pointLength = dataPoints.length;
+    final List<ChartPoint<dynamic>>? dataPoints = seriesRenderer?._dataPoints;
+    final int pointLength = dataPoints!.length;
     final ChartPoint<dynamic> point = dataPoints[pointIndex];
     if (point.y == null) {
       switch (empty.mode) {
@@ -958,17 +1026,17 @@ class CircularSeries<T, D> extends ChartSeries<T, D>
 }
 
 /// To get visible point index
-int _getVisiblePointIndex(
-    List<ChartPoint<dynamic>> points, String loc, int index) {
+int? _getVisiblePointIndex(
+    List<ChartPoint<dynamic>?> points, String loc, int index) {
   if (loc == 'before') {
     for (int i = index; i >= 0; i--) {
-      if (points[i - 1].isVisible) {
+      if (points[i - 1]!.isVisible) {
         return i - 1;
       }
     }
   } else {
     for (int i = index; i < points.length; i++) {
-      if (points[i + 1].isVisible) {
+      if (points[i + 1]!.isVisible) {
         return i + 1;
       }
     }
@@ -978,7 +1046,7 @@ int _getVisiblePointIndex(
 
 abstract class _CircularChartSegment {
   /// To get point color of current point
-  Color getPointColor(
+  Color? getPointColor(
       CircularSeriesRenderer seriesRenderer,
       ChartPoint<dynamic> point,
       int pointIndex,
@@ -989,7 +1057,7 @@ abstract class _CircularChartSegment {
   /// To get opacity of current point
   double getOpacity(
       CircularSeriesRenderer seriesRenderer,
-      ChartPoint<dynamic> point,
+      ChartPoint<dynamic>? point,
       int pointIndex,
       int seriesIndex,
       double opacity);
@@ -997,18 +1065,18 @@ abstract class _CircularChartSegment {
   /// To get Stroke color of current point
   Color getPointStrokeColor(
       CircularSeriesRenderer seriesRenderer,
-      ChartPoint<dynamic> point,
+      ChartPoint<dynamic>? point,
       int pointIndex,
       int seriesIndex,
       Color strokeColor);
 
   /// To get Stroke width of current point
-  double getPointStrokeWidth(
+  num getPointStrokeWidth(
       CircularSeriesRenderer seriesRenderer,
-      ChartPoint<dynamic> point,
+      ChartPoint<dynamic>? point,
       int pointIndex,
       int seriesIndex,
-      double strokeWidth);
+      num strokeWidth);
 }
 
 abstract class _LabelSegment {
@@ -1030,8 +1098,8 @@ abstract class _LabelSegment {
       SfCircularChartState _chartState);
 
   /// To get data label color
-  Color getDataLabelColor(CircularSeriesRenderer seriesRenderer,
-      ChartPoint<dynamic> point, int pointIndex, int seriesIndex, Color color);
+  Color? getDataLabelColor(CircularSeriesRenderer seriesRenderer,
+      ChartPoint<dynamic> point, int pointIndex, int seriesIndex, Color? color);
 
   /// To get the data label stroke color
   Color getDataLabelStrokeColor(
@@ -1055,20 +1123,20 @@ class _ChartSeriesRender with _CircularChartSegment, _LabelSegment {
 
   /// To get point color
   @override
-  Color getPointColor(
+  Color? getPointColor(
           CircularSeriesRenderer seriesRenderer,
           ChartPoint<dynamic> point,
           int pointIndex,
           int seriesIndex,
           Color color,
           double opacity) =>
-      color?.withOpacity(opacity);
+      color.withOpacity(opacity);
 
   /// To get point stroke color
   @override
   Color getPointStrokeColor(
           CircularSeriesRenderer seriesRenderer,
-          ChartPoint<dynamic> point,
+          ChartPoint<dynamic>? point,
           int pointIndex,
           int seriesIndex,
           Color strokeColor) =>
@@ -1076,12 +1144,12 @@ class _ChartSeriesRender with _CircularChartSegment, _LabelSegment {
 
   /// To get point stroke width
   @override
-  double getPointStrokeWidth(
+  num getPointStrokeWidth(
           CircularSeriesRenderer seriesRenderer,
-          ChartPoint<dynamic> point,
+          ChartPoint<dynamic>? point,
           int pointIndex,
           int seriesIndex,
-          double strokeWidth) =>
+          num strokeWidth) =>
       strokeWidth;
 
   /// To return label text
@@ -1118,12 +1186,12 @@ class _ChartSeriesRender with _CircularChartSegment, _LabelSegment {
 
   /// To return label color
   @override
-  Color getDataLabelColor(
+  Color? getDataLabelColor(
           CircularSeriesRenderer seriesRenderer,
           ChartPoint<dynamic> point,
           int pointIndex,
           int seriesIndex,
-          Color color) =>
+          Color? color) =>
       color;
 
   /// To return label stroke color
@@ -1133,7 +1201,7 @@ class _ChartSeriesRender with _CircularChartSegment, _LabelSegment {
           ChartPoint<dynamic> point,
           int pointIndex,
           int seriesIndex,
-          Color strokeColor) =>
+          Color? strokeColor) =>
       strokeColor ?? point.fill;
 
   /// To return label stroke width
@@ -1150,7 +1218,7 @@ class _ChartSeriesRender with _CircularChartSegment, _LabelSegment {
   @override
   double getOpacity(
           CircularSeriesRenderer seriesRenderer,
-          ChartPoint<dynamic> point,
+          ChartPoint<dynamic>? point,
           int pointIndex,
           int seriesIndex,
           double opacity) =>
@@ -1159,52 +1227,59 @@ class _ChartSeriesRender with _CircularChartSegment, _LabelSegment {
 
 /// Creates a series renderer for Circular series
 class CircularSeriesRenderer extends ChartSeriesRenderer {
-  CircularSeries<dynamic, dynamic> _series;
+  late CircularSeries<dynamic, dynamic> _series;
 
-  String _seriesType;
+  late String _seriesType;
 
-  List<ChartPoint<dynamic>> _dataPoints;
+  late List<ChartPoint<dynamic>> _dataPoints;
 
-  List<ChartPoint<dynamic>> _renderPoints;
+  List<ChartPoint<dynamic>>? _renderPoints;
 
-  List<ChartPoint<dynamic>> _oldRenderPoints;
+  List<ChartPoint<dynamic>>? _oldRenderPoints;
 
-  num _sumOfPoints;
+  late num _sumOfPoints;
 
-  num _start;
+  late num _start;
 
-  num _end;
+  late num _end;
 
-  num _totalAngle;
+  late num _totalAngle;
 
-  num _currentRadius;
+  late num _currentRadius;
 
-  num _currentInnerRadius;
+  late num _currentInnerRadius;
 
-  Offset _center;
+  Offset? _center;
 
-  List<_Region> _pointRegions;
+  late List<_Region> _pointRegions;
 
   // ignore:unused_field
-  Rect _rect;
+  late Rect _rect;
 
-  SelectionArgs _selectionArgs;
+  // Path saved for radial bar series
+  List<Path> _renderPaths = [];
+
+  List<dynamic> _renderList = [];
+
+  num? _innerRadialradius;
+
+  SelectionArgs? _selectionArgs;
 
   //Determines whether there is a need for animation
-  bool _needsAnimation;
+  late bool _needsAnimation;
 
   ///We can redraw the series with updating or creating new points by using this controller.If we need to access the redrawing methods
   ///in this before we must get the ChartSeriesController onRendererCreated event.
-  CircularSeriesController _controller;
+  CircularSeriesController? _controller;
 
-  SfCircularChartState _chartState;
+  late SfCircularChartState _chartState;
 
   /// Repaint notifier for series
-  ValueNotifier<int> _repaintNotifier;
+  late ValueNotifier<int> _repaintNotifier;
 
-  DataLabelSettingsRenderer _dataLabelSettingsRenderer;
+  late DataLabelSettingsRenderer _dataLabelSettingsRenderer;
 
-  SelectionBehaviorRenderer _selectionBehaviorRenderer;
+  late SelectionBehaviorRenderer _selectionBehaviorRenderer;
 
   dynamic _selectionBehavior;
 
@@ -1212,49 +1287,49 @@ class CircularSeriesRenderer extends ChartSeriesRenderer {
   bool _isSelectionEnable = false;
 
   /// To set style properties for selected points
-  _StyleOptions _selectPoint(
+  _StyleOptions? _selectPoint(
       int currentPointIndex,
       CircularSeriesRenderer seriesRenderer,
       SfCircularChart chart,
-      ChartPoint<dynamic> point) {
-    _StyleOptions pointStyle;
+      ChartPoint<dynamic>? point) {
+    _StyleOptions? pointStyle;
     final dynamic selection = _series.selectionBehavior.enable
         ? _series.selectionBehavior
         : _series.selectionSettings;
-    const num seriesIndex = 0;
+    const int seriesIndex = 0;
     if (selection.enable) {
       if (_chartState._selectionData.isNotEmpty) {
         for (int i = 0; i < _chartState._selectionData.length; i++) {
           final int selectionIndex = _chartState._selectionData[i];
           if (chart.onSelectionChanged != null) {
-            chart.onSelectionChanged(_getSelectionEventArgs(
+            chart.onSelectionChanged!(_getSelectionEventArgs(
                 seriesRenderer, seriesIndex, selectionIndex));
           }
           if (currentPointIndex == selectionIndex) {
             pointStyle = _StyleOptions(
-                seriesRenderer._selectionArgs != null
-                    ? seriesRenderer._selectionArgs.selectedColor
+                fill: seriesRenderer._selectionArgs != null
+                    ? seriesRenderer._selectionArgs!.selectedColor
                     : selection.selectedColor,
-                seriesRenderer._selectionArgs != null
-                    ? seriesRenderer._selectionArgs.selectedBorderWidth
+                strokeWidth: seriesRenderer._selectionArgs != null
+                    ? seriesRenderer._selectionArgs!.selectedBorderWidth
                     : selection.selectedBorderWidth,
-                seriesRenderer._selectionArgs != null
-                    ? seriesRenderer._selectionArgs.selectedBorderColor
+                strokeColor: seriesRenderer._selectionArgs != null
+                    ? seriesRenderer._selectionArgs!.selectedBorderColor
                     : selection.selectedBorderColor,
-                selection.selectedOpacity);
+                opacity: selection.selectedOpacity);
             break;
           } else if (i == _chartState._selectionData.length - 1) {
             pointStyle = _StyleOptions(
-                seriesRenderer._selectionArgs != null
-                    ? seriesRenderer._selectionArgs.unselectedColor
+                fill: seriesRenderer._selectionArgs != null
+                    ? seriesRenderer._selectionArgs!.unselectedColor
                     : selection.unselectedColor,
-                seriesRenderer._selectionArgs != null
-                    ? _selectionArgs.unselectedBorderWidth
+                strokeWidth: seriesRenderer._selectionArgs != null
+                    ? _selectionArgs!.unselectedBorderWidth
                     : selection.unselectedBorderWidth,
-                seriesRenderer._selectionArgs != null
-                    ? seriesRenderer._selectionArgs.unselectedBorderColor
+                strokeColor: seriesRenderer._selectionArgs != null
+                    ? seriesRenderer._selectionArgs!.unselectedBorderColor
                     : selection.unselectedBorderColor,
-                selection.unselectedOpacity);
+                opacity: selection.unselectedOpacity);
           }
         }
       }
@@ -1264,11 +1339,14 @@ class CircularSeriesRenderer extends ChartSeriesRenderer {
 
   /// To perform slection event and return Selection Args
   SelectionArgs _getSelectionEventArgs(
-      dynamic seriesRenderer, num seriesIndex, num pointIndex) {
+      dynamic seriesRenderer, int seriesIndex, int pointIndex) {
     if (seriesRenderer != null) {
       final dynamic selectionBehavior = seriesRenderer._selectionBehavior;
-      final SelectionArgs args =
-          SelectionArgs(seriesRenderer, seriesIndex, pointIndex, pointIndex);
+      final SelectionArgs args = SelectionArgs(
+          seriesRenderer: seriesRenderer,
+          seriesIndex: seriesIndex,
+          viewportPointIndex: pointIndex,
+          pointIndex: pointIndex);
       args.selectedBorderColor = selectionBehavior.selectedBorderColor;
       args.selectedBorderWidth = selectionBehavior.selectedBorderWidth;
       args.selectedColor = selectionBehavior.selectedColor;
@@ -1281,92 +1359,94 @@ class CircularSeriesRenderer extends ChartSeriesRenderer {
   }
 
   /// To calculate point start and end angle
-  num _circularRenderPoint(
+  num? _circularRenderPoint(
       SfCircularChart chart,
       CircularSeriesRenderer seriesRenderer,
       ChartPoint<dynamic> point,
-      num pointStartAngle,
-      num innerRadius,
-      num outerRadius,
+      num? pointStartAngle,
+      num? innerRadius,
+      num? outerRadius,
       Canvas canvas,
-      num seriesIndex,
-      num pointIndex,
+      int seriesIndex,
+      int pointIndex,
       num animationDegreeValue,
       num animationRadiusValue,
       bool isAnyPointSelect,
-      ChartPoint<dynamic> oldPoint,
-      [List<ChartPoint<dynamic>> oldPointList]) {
+      ChartPoint<dynamic>? oldPoint,
+      List<ChartPoint<dynamic>?>? oldPointList) {
     final bool isDynamicUpdate = oldPoint != null;
-    final num oldStartAngle = oldPoint?.startAngle;
-    final num oldEndAngle = oldPoint?.endAngle;
-    num pointEndAngle, degree;
+    final num? oldStartAngle = oldPoint?.startAngle;
+    final num? oldEndAngle = oldPoint?.endAngle;
+    num? degree, pointEndAngle;
 
     /// below lines for dynamic dataSource changes
     if (isDynamicUpdate) {
       if (!oldPoint.isVisible && point.isVisible) {
         final num val = point.startAngle == seriesRenderer._start
             ? seriesRenderer._start
-            : oldPointList[
-                    _getVisiblePointIndex(oldPointList, 'before', pointIndex)]
-                .endAngle;
-        pointStartAngle = val - (val - point.startAngle) * animationDegreeValue;
-        pointEndAngle = val + (point.endAngle - val) * animationDegreeValue;
+            : oldPointList![
+                    _getVisiblePointIndex(oldPointList, 'before', pointIndex)!]!
+                .endAngle!;
+        pointStartAngle =
+            val - (val - point.startAngle!) * animationDegreeValue;
+        pointEndAngle = val + (point.endAngle! - val) * animationDegreeValue;
         degree = pointEndAngle - pointStartAngle;
       } else if (oldPoint.isVisible && !point.isVisible) {
-        if (oldPoint.startAngle.round() == seriesRenderer._start &&
-            (oldPoint.endAngle.round() == seriesRenderer._end ||
-                oldPoint.endAngle.round() == 360 + seriesRenderer._end)) {
-          pointStartAngle = oldPoint.startAngle;
-          pointEndAngle = oldPoint.endAngle -
-              (oldPoint.endAngle - oldPoint.startAngle) * animationDegreeValue;
+        if (oldPoint.startAngle!.round() == seriesRenderer._start &&
+            (oldPoint.endAngle!.round() == seriesRenderer._end ||
+                oldPoint.endAngle!.round() == 360 + seriesRenderer._end)) {
+          pointStartAngle = oldPoint.startAngle!;
+          pointEndAngle = oldPoint.endAngle! -
+              (oldPoint.endAngle! - oldPoint.startAngle!) *
+                  animationDegreeValue;
         } else if (oldPoint.startAngle == oldPoint.endAngle) {
-          pointStartAngle = pointEndAngle = oldPoint.startAngle;
+          pointStartAngle = pointEndAngle = oldPoint.startAngle!;
         } else {
-          pointStartAngle = oldPoint.startAngle -
-              (oldPoint.startAngle -
+          pointStartAngle = oldPoint.startAngle! -
+              (oldPoint.startAngle! -
                       (oldPoint.startAngle == seriesRenderer._start
                           ? seriesRenderer._start
                           : seriesRenderer
-                              ._renderPoints[_getVisiblePointIndex(
-                                  seriesRenderer._renderPoints,
+                              ._renderPoints![_getVisiblePointIndex(
+                                  seriesRenderer._renderPoints!,
                                   'before',
-                                  pointIndex)]
-                              .endAngle)) *
+                                  pointIndex)!]
+                              .endAngle!)) *
                   animationDegreeValue;
-          pointEndAngle = oldPoint.endAngle -
-              (oldPoint.endAngle -
-                      ((oldPoint.endAngle.round() == seriesRenderer._end ||
-                              oldPoint.endAngle.round() ==
+          pointEndAngle = oldPoint.endAngle! -
+              (oldPoint.endAngle! -
+                      ((oldPoint.endAngle!.round() == seriesRenderer._end ||
+                              oldPoint.endAngle!.round() ==
                                   360 + seriesRenderer._end)
-                          ? oldPoint.endAngle
+                          ? oldPoint.endAngle!
                           : seriesRenderer
-                              ._renderPoints[_getVisiblePointIndex(
-                                  seriesRenderer._renderPoints,
+                              ._renderPoints![_getVisiblePointIndex(
+                                  seriesRenderer._renderPoints!,
                                   'after',
-                                  pointIndex)]
-                              .startAngle)) *
+                                  pointIndex)!]
+                              .startAngle!)) *
                   animationDegreeValue;
         }
         degree = pointEndAngle - pointStartAngle;
       } else if (point.isVisible && oldPoint.isVisible) {
-        pointStartAngle = (point.startAngle > oldStartAngle)
+        pointStartAngle = (point.startAngle! > oldStartAngle!)
             ? oldStartAngle +
-                ((point.startAngle - oldStartAngle) * animationDegreeValue)
+                ((point.startAngle! - oldStartAngle) * animationDegreeValue)
             : oldStartAngle -
-                ((oldStartAngle - point.startAngle) * animationDegreeValue);
-        pointEndAngle = (point.endAngle > oldEndAngle)
+                ((oldStartAngle - point.startAngle!) * animationDegreeValue);
+        pointEndAngle = (point.endAngle! > oldEndAngle!)
             ? oldEndAngle +
-                ((point.endAngle - oldEndAngle) * animationDegreeValue)
+                ((point.endAngle! - oldEndAngle) * animationDegreeValue)
             : oldEndAngle -
-                ((oldEndAngle - point.endAngle) * animationDegreeValue);
+                ((oldEndAngle - point.endAngle!) * animationDegreeValue);
         degree = pointEndAngle - pointStartAngle;
       }
     } else if (point.isVisible) {
-      degree = animationDegreeValue * point.degree;
-      pointEndAngle = pointStartAngle + degree;
+      degree = animationDegreeValue * point.degree!;
+      pointEndAngle = pointStartAngle! + degree;
     }
-    outerRadius = _chartState._initialRender
-        ? animationRadiusValue * outerRadius
+    outerRadius = _chartState._initialRender!
+        ? animationRadiusValue * outerRadius!
         : outerRadius;
     _calculatePath(
         pointIndex,
@@ -1391,53 +1471,54 @@ class CircularSeriesRenderer extends ChartSeriesRenderer {
       int seriesIndex,
       SfCircularChart chart,
       CircularSeriesRenderer seriesRenderer,
-      ChartPoint<dynamic> point,
-      ChartPoint<dynamic> oldPoint,
+      ChartPoint<dynamic>? point,
+      ChartPoint<dynamic>? oldPoint,
       Canvas canvas,
-      num degree,
-      num innerRadius,
-      num outerRadius,
-      num pointStartAngle,
-      num pointEndAngle,
+      num? degree,
+      num? innerRadius,
+      num? outerRadius,
+      num? pointStartAngle,
+      num? pointEndAngle,
       bool isDynamicUpdate) {
-    Path renderPath;
+    Path? renderPath;
     final CornerStyle cornerStyle = _series.cornerStyle;
-    num actualStartAngle, actualEndAngle;
+    late num actualStartAngle, actualEndAngle;
     if (!isDynamicUpdate ||
         (isDynamicUpdate &&
-            ((oldPoint.isVisible && point.isVisible) ||
-                (oldPoint.isVisible && !point.isVisible) ||
-                (!oldPoint.isVisible && point.isVisible)))) {
-      innerRadius = innerRadius ?? oldPoint.innerRadius;
-      outerRadius = outerRadius ?? oldPoint.outerRadius;
+            ((oldPoint!.isVisible && point!.isVisible) ||
+                (oldPoint.isVisible && !point!.isVisible) ||
+                (!oldPoint.isVisible && point!.isVisible)))) {
+      innerRadius = innerRadius ?? oldPoint!.innerRadius;
+      outerRadius = outerRadius ?? oldPoint!.outerRadius;
       if (cornerStyle != CornerStyle.bothFlat) {
         final num angleDeviation =
-            _findAngleDeviation(innerRadius, outerRadius, 360);
+            _findAngleDeviation(innerRadius!, outerRadius!, 360);
         actualStartAngle = (cornerStyle == CornerStyle.startCurve ||
                 cornerStyle == CornerStyle.bothCurve)
-            ? (pointStartAngle + angleDeviation)
-            : pointStartAngle;
+            ? (pointStartAngle! + angleDeviation)
+            : pointStartAngle!;
         actualEndAngle = (cornerStyle == CornerStyle.endCurve ||
                 cornerStyle == CornerStyle.bothCurve)
-            ? (pointEndAngle - angleDeviation)
-            : pointEndAngle;
+            ? (pointEndAngle! - angleDeviation)
+            : pointEndAngle!;
       }
       renderPath = Path();
       renderPath = (cornerStyle == CornerStyle.startCurve ||
               cornerStyle == CornerStyle.endCurve ||
               cornerStyle == CornerStyle.bothCurve)
           ? _getRoundedCornerArcPath(
-              innerRadius,
-              outerRadius,
-              point.center ?? oldPoint.center,
+              innerRadius!,
+              outerRadius!,
+              point!.center ?? oldPoint!.center,
               actualStartAngle,
               actualEndAngle,
               degree,
-              cornerStyle)
+              cornerStyle,
+              point)
           : _getArcPath(
-              innerRadius,
-              outerRadius,
-              point.center ?? oldPoint.center,
+              innerRadius!,
+              outerRadius!,
+              point!.center ?? oldPoint!.center!,
               pointStartAngle,
               pointEndAngle,
               degree,
@@ -1454,66 +1535,161 @@ class CircularSeriesRenderer extends ChartSeriesRenderer {
       int seriesIndex,
       SfCircularChart chart,
       CircularSeriesRenderer seriesRenderer,
-      ChartPoint<dynamic> point,
+      ChartPoint<dynamic>? point,
       Canvas canvas,
-      Path renderPath,
-      num degree,
-      num innerRadius) {
-    if (point.isVisible) {
+      Path? renderPath,
+      num? degree,
+      num? innerRadius) {
+    if (point != null && point.isVisible) {
       final _Region pointRegion = _Region(
-          _degreesToRadians(point.startAngle),
-          _degreesToRadians(point.endAngle),
-          point.startAngle,
-          point.endAngle,
+          _degreesToRadians(point.startAngle!),
+          _degreesToRadians(point.endAngle!),
+          point.startAngle!,
+          point.endAngle!,
           seriesIndex,
           pointIndex,
           point.center,
           innerRadius,
-          point.outerRadius);
+          point.outerRadius!);
       seriesRenderer._pointRegions.add(pointRegion);
     }
-    final _StyleOptions style =
+    final _StyleOptions? style =
         _selectPoint(pointIndex, seriesRenderer, chart, point);
-    final Color fillColor = style != null && style.fill != null
+
+    final Color? fillColor = style != null && style.fill != null
         ? style.fill
-        : (point.fill != Colors.transparent
-            ? seriesRenderer._series._renderer.getPointColor(
+        : (point != null && point.fill != Colors.transparent
+            ? seriesRenderer._series._renderer?.getPointColor(
                 seriesRenderer,
                 point,
                 pointIndex,
                 seriesIndex,
                 point.fill,
                 seriesRenderer._series.opacity)
-            : point.fill);
+            : point!.fill);
 
-    final Color strokeColor = style != null && style.strokeColor != null
+    final Color? strokeColor = style != null && style.strokeColor != null
         ? style.strokeColor
-        : seriesRenderer._series._renderer.getPointStrokeColor(
-            seriesRenderer, point, pointIndex, seriesIndex, point.strokeColor);
+        : seriesRenderer._series._renderer?.getPointStrokeColor(
+            seriesRenderer, point, pointIndex, seriesIndex, point!.strokeColor);
 
-    final double strokeWidth = style != null && style.strokeWidth != null
+    final num? strokeWidth = style != null && style.strokeWidth != null
         ? style.strokeWidth
-        : seriesRenderer._series._renderer.getPointStrokeWidth(
-            seriesRenderer, point, pointIndex, seriesIndex, point.strokeWidth);
+        : seriesRenderer._series._renderer?.getPointStrokeWidth(
+            seriesRenderer, point, pointIndex, seriesIndex, point!.strokeWidth);
 
     assert(seriesRenderer._series.opacity >= 0,
         'The opacity value will not accept negative numbers.');
     assert(seriesRenderer._series.opacity <= 1,
         'The opacity value must be less than 1.');
-    final double opacity = style != null && style.opacity != null
+    final double? opacity = style != null && style.opacity != null
         ? style.opacity
-        : _series._renderer.getOpacity(seriesRenderer, point, pointIndex,
+        : _series._renderer?.getOpacity(seriesRenderer, point, pointIndex,
             seriesIndex, seriesRenderer._series.opacity);
 
-    if (renderPath != null && degree > 0) {
-      _drawPath(
-          canvas,
-          _StyleOptions(
-              fillColor,
-              _chartState._animateCompleted ? strokeWidth : 0,
-              strokeColor,
-              opacity),
-          renderPath);
+    Shader? _renderModeShader;
+
+    if (chart.series[0].pointRenderMode == PointRenderMode.gradient &&
+        point?.shader == null) {
+      final List<Color> colorsList = [];
+      final List<double> stopsList = [];
+      num initStops = 0;
+      for (int i = 0; i < seriesRenderer._renderPoints!.length; i++) {
+        point = seriesRenderer._renderPoints![i];
+        if (point.isVisible) {
+          colorsList.add(point.fill);
+          if (stopsList.isEmpty) {
+            initStops = (point.y! / _sumOfPoints) / 4;
+            stopsList.add(point.y! / _sumOfPoints - initStops);
+          } else {
+            if (stopsList.length == 1) {
+              stopsList.add(
+                  (point.y! / _sumOfPoints + stopsList.last) + initStops / 1.5);
+            } else {
+              stopsList.add(point.y! / _sumOfPoints + stopsList.last);
+            }
+          }
+        }
+      }
+
+      _renderModeShader = dart_ui.Gradient.sweep(
+          _center!,
+          colorsList,
+          stopsList,
+          TileMode.clamp,
+          degreeToRadian(chart.series[0].startAngle),
+          degreeToRadian(chart.series[0].endAngle),
+          _resolveTransform(
+              Rect.fromCircle(
+                center: _center!,
+                radius: point!.outerRadius!.toDouble(),
+              ),
+              TextDirection.ltr));
+    }
+
+    if (renderPath != null && degree! > 0) {
+      if (seriesRenderer is DoughnutSeriesRenderer) {
+        seriesRenderer._innerRadialradius =
+            !(point!.isVisible) || (seriesRenderer._innerRadialradius == null)
+                ? innerRadius
+                : seriesRenderer._innerRadialradius;
+      }
+      if (point != null && point.isVisible) {
+        point._pathRect = Rect.fromCircle(
+          center: _center!,
+          radius: point.outerRadius!.toDouble(),
+        );
+      }
+      seriesRenderer._renderPaths.add(renderPath);
+      if (chart.onCreateShader != null &&
+          point != null &&
+          point.isVisible &&
+          point.shader == null) {
+        Rect? innerRect;
+        if (seriesRenderer is DoughnutSeriesRenderer &&
+            seriesRenderer._innerRadialradius != null) {
+          innerRect = Rect.fromCircle(
+            center: _center!,
+            radius: seriesRenderer._innerRadialradius!.toDouble(),
+          );
+        } else {
+          innerRect = null;
+        }
+        if (point.isVisible) {
+          _renderList.clear();
+          seriesRenderer._renderList.add(_StyleOptions(
+              fill: fillColor!,
+              strokeWidth: _chartState._animateCompleted ? strokeWidth! : 0,
+              strokeColor: strokeColor!,
+              opacity: opacity));
+          seriesRenderer._renderList.add(point._pathRect);
+          seriesRenderer._renderList.add(innerRect);
+        }
+      } else {
+        _drawPath(
+            canvas,
+            _StyleOptions(
+                fill: fillColor!,
+                strokeWidth: _chartState._animateCompleted ? strokeWidth! : 0,
+                strokeColor: strokeColor!,
+                opacity: opacity),
+            renderPath,
+            point!._pathRect,
+            point.shader ?? _renderModeShader);
+        if (point != null &&
+            (_renderModeShader != null || point.shader != null)) {
+          if (strokeColor != null &&
+              strokeWidth != null &&
+              strokeWidth > 0 &&
+              _chartState._animateCompleted) {
+            final Paint paint = Paint();
+            paint.color = strokeColor;
+            paint.strokeWidth = strokeWidth.toDouble();
+            paint.style = PaintingStyle.stroke;
+            canvas.drawPath(renderPath, paint);
+          }
+        }
+      }
     }
   }
 }
@@ -1547,7 +1723,7 @@ class CircularSeriesController {
   ///        ));
   ///}
   ///```
-  final CircularSeriesRenderer seriesRenderer;
+  late final CircularSeriesRenderer seriesRenderer;
 
   ///Used to process only the newly added, updated and removed data points in a series,
   /// instead of processing all the data points.
@@ -1600,12 +1776,12 @@ class CircularSeriesController {
   /// }
   ///```
   void updateDataSource(
-      {List<int> addedDataIndexes,
-      List<int> removedDataIndexes,
-      List<int> updatedDataIndexes,
-      int addedDataIndex,
-      int removedDataIndex,
-      int updatedDataIndex}) {
+      {List<int>? addedDataIndexes,
+      List<int>? removedDataIndexes,
+      List<int>? updatedDataIndexes,
+      int? addedDataIndex,
+      int? removedDataIndex,
+      int? updatedDataIndex}) {
     if (removedDataIndexes != null && removedDataIndexes.isNotEmpty) {
       _removeDataPointsList(removedDataIndexes);
     } else if (removedDataIndex != null) {
@@ -1636,8 +1812,8 @@ class CircularSeriesController {
   void _addOrUpdateDataPoint(int index, bool needUpdate) {
     final CircularSeries<dynamic, dynamic> series = seriesRenderer._series;
     if (index >= 0 &&
-        series.dataSource.length > index &&
-        series.dataSource[index] != null) {
+        series.dataSource!.length > index &&
+        series.dataSource![index] != null) {
       final ChartPoint<dynamic> _currentPoint =
           _getCircularPoint(seriesRenderer, index);
       if (_currentPoint.x != null) {
@@ -1680,16 +1856,16 @@ class CircularSeriesController {
   void _updateCircularSeries() {
     final SfCircularChartState _chartState = seriesRenderer._chartState;
     _chartState._chartSeries._processDataPoints(seriesRenderer);
-    _chartState._chartSeries?._calculateAngleAndCenterPositions(seriesRenderer);
+    _chartState._chartSeries._calculateAngleAndCenterPositions(seriesRenderer);
     seriesRenderer._repaintNotifier.value++;
     if (seriesRenderer._series.dataLabelSettings.isVisible &&
         _chartState._renderDataLabel != null) {
-      _chartState._renderDataLabel.state.render();
+      _chartState._renderDataLabel!.state.render();
     }
     if (seriesRenderer._series.dataLabelSettings.isVisible &&
         _chartState._chartTemplate != null &&
-        _chartState._chartTemplate.state != null) {
-      _chartState._chartTemplate.state.templateRender();
+        _chartState._chartTemplate!.state != null) {
+      _chartState._chartTemplate!.state.templateRender();
     }
   }
 }

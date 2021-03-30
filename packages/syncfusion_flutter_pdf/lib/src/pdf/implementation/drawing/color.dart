@@ -7,26 +7,26 @@ class _Color {
   static const int argbGreebShift = 8;
   static const int argbBlueShift = 0;
 
-  int _value;
+  int? _value;
   final _KnownColor _knownColor;
 
   int get r {
-    return ((value >> argbRedShift) & 0xFF).toUnsigned(8);
+    return ((value! >> argbRedShift) & 0xFF).toUnsigned(8);
   }
 
   int get g {
-    return ((value >> argbGreebShift) & 0xFF).toUnsigned(8);
+    return ((value! >> argbGreebShift) & 0xFF).toUnsigned(8);
   }
 
   int get b {
-    return ((value >> argbBlueShift) & 0xFF).toUnsigned(8);
+    return ((value! >> argbBlueShift) & 0xFF).toUnsigned(8);
   }
 
   int get a {
-    return ((value >> argbAlphaShift) & 0xFF).toUnsigned(8);
+    return ((value! >> argbAlphaShift) & 0xFF).toUnsigned(8);
   }
 
-  int get value {
+  int? get value {
     _value ??= _KnownColorTable().knowColorToArgb(_knownColor);
     return _value;
   }
@@ -182,7 +182,7 @@ class _KnownColorTable {
     colorTable[0xa7] = -6632142;
   }
 
-  int knowColorToArgb(_KnownColor color) {
+  int? knowColorToArgb(_KnownColor color) {
     if (getKnownColor(color) <= getKnownColor(_KnownColor.menuHighlight)) {
       return colorTable[getKnownColor(color)];
     }

@@ -3,14 +3,13 @@ part of datagrid;
 /// Provides the base functionalities to process the selection in [SfDataGrid].
 class SelectionManagerBase extends ChangeNotifier {
   /// Creates the [SelectionManagerBase].
-  SelectionManagerBase({_DataGridStateDetails dataGridStateDetails}) {
-    _dataGridStateDetails = dataGridStateDetails;
+  SelectionManagerBase() {
     _selectedRows = _SelectedRowCollection()..selectedRow = [];
   }
 
-  _SelectedRowCollection _selectedRows;
+  late _SelectedRowCollection _selectedRows;
 
-  _DataGridStateDetails _dataGridStateDetails;
+  late _DataGridStateDetails _dataGridStateDetails;
 
   /// Processes the selection operation when tap a cell.
   void handleTap(RowColumnIndex rowColumnIndex) {}
@@ -40,27 +39,36 @@ class SelectionManagerBase extends ChangeNotifier {
 
   void _onRowColumnChanged(int recordLength, int columnLength) {}
 
+  void _handleSelectionPropertyChanged(
+      {RowColumnIndex? rowColumnIndex,
+      String? propertyName,
+      bool recalculateRowHeight = false}) {}
+
   void _updateSelectionController(
       {bool isSelectionModeChanged = false,
       bool isNavigationModeChanged = false,
       bool isDataSourceChanged = false}) {}
 
-  bool _raiseSelectionChanging({List<Object> oldItems, List<Object> newItems}) {
+  bool _raiseSelectionChanging(
+      {List<DataGridRow> oldItems = const [],
+      List<DataGridRow> newItems = const []}) {
     final _DataGridSettings dataGridSettings = _dataGridStateDetails();
     if (dataGridSettings.onSelectionChanging == null) {
       return true;
     }
 
-    return dataGridSettings.onSelectionChanging(newItems, oldItems) ?? true;
+    return dataGridSettings.onSelectionChanging!(newItems, oldItems);
   }
 
-  void _raiseSelectionChanged({List<Object> oldItems, List<Object> newItems}) {
+  void _raiseSelectionChanged(
+      {List<DataGridRow> oldItems = const [],
+      List<DataGridRow> newItems = const []}) {
     final _DataGridSettings dataGridSettings = _dataGridStateDetails();
     if (dataGridSettings.onSelectionChanged == null) {
       return;
     }
 
-    dataGridSettings.onSelectionChanged(newItems, oldItems);
+    dataGridSettings.onSelectionChanged!(newItems, oldItems);
   }
 
   int _getPreviousColumnIndex(
@@ -105,7 +113,7 @@ class SelectionManagerBase extends ChangeNotifier {
     return previousIndex;
   }
 
-  GridColumn _getNextGridColumn(
+  GridColumn? _getNextGridColumn(
       _DataGridSettings dataGridSettings, int columnIndex, bool moveToRight) {
     final resolvedIndex = _GridIndexResolver.resolveToGridVisibleColumnIndex(
         dataGridSettings, columnIndex);
@@ -113,10 +121,8 @@ class SelectionManagerBase extends ChangeNotifier {
       return null;
     }
 
-    var gridColumn = dataGridSettings.columns[resolvedIndex];
-    if (gridColumn == null ||
-        !gridColumn.visible ||
-        gridColumn._actualWidth == 0.0) {
+    GridColumn? gridColumn = dataGridSettings.columns[resolvedIndex];
+    if (!gridColumn.visible || gridColumn._actualWidth == 0.0) {
       gridColumn = _getNextGridColumn(dataGridSettings,
           moveToRight ? columnIndex + 1 : columnIndex - 1, moveToRight);
     }
@@ -171,16 +177,5 @@ class SelectionManagerBase extends ChangeNotifier {
     }
 
     return nextIndex;
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is SelectionManagerBase && runtimeType == other.runtimeType;
-
-  @override
-  int get hashCode {
-    final List<Object> _hashList = [this];
-    return hashList(_hashList);
   }
 }

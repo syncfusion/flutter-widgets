@@ -9,41 +9,88 @@ import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../../maps.dart';
 import '../behavior/zoom_pan_behavior.dart';
-import '../controller/default_controller.dart';
-import '../elements/shapes.dart';
-import '../enum.dart';
+import '../common.dart';
+import '../controller/map_controller.dart';
 import '../layer/layer_base.dart';
 import '../utils.dart';
+import 'shape_layer.dart';
+import 'tile_layer.dart';
 
-double _getDesiredValue(double value, MapController controller) {
-  return controller.tileCurrentLevelDetails != null
-      ? value / controller.tileCurrentLevelDetails.scale
-      : value /
+/// This enum supported only for circle and polygon shapes.
+enum _VectorFillType { inner, outer }
+
+double _getCurrentWidth(double width, MapController controller) {
+  return controller.layerType == LayerType.tile
+      ? width / controller.tileCurrentLevelDetails.scale
+      : width /
           (controller.gesture == Gesture.scale ? controller.localScale : 1);
 }
 
-Offset _getTranslationOffset(MapController controller, bool isTileLayer) {
-  return isTileLayer
-      ? -controller.tileCurrentLevelDetails.origin
+Offset _getTranslation(MapController controller) {
+  return controller.layerType == LayerType.tile
+      ? -controller.tileCurrentLevelDetails.origin!
       : controller.shapeLayerOffset;
 }
 
-Offset _updatePointsToScaledPosition(Offset point, MapController controller) {
-  if (controller.tileCurrentLevelDetails != null) {
-    return Offset(point.dx * controller.tileCurrentLevelDetails.scale,
-            point.dy * controller.tileCurrentLevelDetails.scale) +
+Offset _getScaledOffset(Offset offset, MapController controller) {
+  if (controller.layerType == LayerType.tile) {
+    return Offset(offset.dx * controller.tileCurrentLevelDetails.scale,
+            offset.dy * controller.tileCurrentLevelDetails.scale) +
         controller.tileCurrentLevelDetails.translatePoint;
   }
 
-  return point;
+  return offset;
+}
+
+void _drawInvertedPath(
+    PaintingContext context,
+    Path path,
+    MapController controller,
+    Paint fillPaint,
+    Paint strokePaint,
+    Offset offset) {
+  // Path.combine option is not supported in web platform, so we have obtained
+  // inverted rendering using [Path.fillType] for web and [Path.combine] for
+  // other platforms.
+  if (kIsWeb) {
+    context.canvas.drawPath(
+        Path()
+          ..addPath(path, offset)
+          ..addRect(controller.visibleBounds!)
+          ..fillType = PathFillType.evenOdd,
+        fillPaint);
+    context.canvas.drawPath(path, strokePaint);
+  } else {
+    context.canvas
+      ..drawPath(
+          Path.combine(
+            PathOperation.difference,
+            Path()..addRect(controller.visibleBounds!),
+            path,
+          ),
+          fillPaint)
+      ..drawPath(path, strokePaint);
+  }
+}
+
+Color _getHoverColor(
+    Color? elementColor, Color layerColor, SfMapsThemeData themeData) {
+  final Color color = elementColor ?? layerColor;
+  final bool canAdjustHoverOpacity =
+      double.parse(color.opacity.toStringAsFixed(2)) != hoverColorOpacity;
+  return themeData.shapeHoverColor != null &&
+          themeData.shapeHoverColor != Colors.transparent
+      ? themeData.shapeHoverColor!
+      : color.withOpacity(
+          canAdjustHoverOpacity ? hoverColorOpacity : minHoverOpacity);
 }
 
 /// Base class for all vector layers.
 abstract class MapVectorLayer extends MapSublayer {
   /// Creates a [MapVectorLayer].
   const MapVectorLayer({
-    Key key,
-    IndexedWidgetBuilder tooltipBuilder,
+    Key? key,
+    IndexedWidgetBuilder? tooltipBuilder,
   }) : super(key: key, tooltipBuilder: tooltipBuilder);
 }
 
@@ -51,33 +98,64 @@ abstract class MapVectorLayer extends MapSublayer {
 /// [MapTileLayer].
 ///
 /// ```dart
-/// @override
-/// Widget build(BuildContext context) {
-///  return Scaffold(
-///    body: SfMaps(
-///      layers: [
-///       MapShapeLayer(
-///          source: MapShapeSource.asset(
-///             "assets/world_map.json",
-///              shapeDataField: "continent",
-///          ),
-///          sublayers: [
-///           MapLineLayer(
-///              lines: List<MapLine>.generate(
-///               lines.length,
-///                (int index) {
-///                 return MapLine(
-///                    from: lines[index].from,
-///                    to: lines[index].to,
-///                  );
-///                },
-///              ).toSet(),
-///            ),
-///          ],
-///        ),
-///      ],
-///    ),
-/// );
+///   List<Model> _lines;
+///   MapZoomPanBehavior _zoomPanBehavior;
+///   MapShapeSource _mapSource;
+///
+///   @override
+///   void initState() {
+///     _zoomPanBehavior = MapZoomPanBehavior(
+///       focalLatLng: MapLatLng(40.7128, -95.3698),
+///       zoomLevel: 3,
+///     );
+///
+///     _mapSource = MapShapeSource.asset(
+///       "assets/world_map.json",
+///       shapeDataField: "continent",
+///     );
+///
+///     _lines = <Model>[
+///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+///     ];
+///
+///     super.initState();
+///   }
+///
+///   @override
+///   Widget build(BuildContext context) {
+///     return Scaffold(
+///       body: SfMaps(
+///         layers: [
+///           MapShapeLayer(
+///             source: _mapSource,
+///             zoomPanBehavior: _zoomPanBehavior,
+///             sublayers: [
+///               MapLineLayer(
+///                 lines: List<MapLine>.generate(
+///                   _lines.length,
+///                   (int index) {
+///                     return MapLine(
+///                       from: _lines[index].from,
+///                       to: _lines[index].to,
+///                     );
+///                   },
+///                 ).toSet(),
+///               ),
+///             ],
+///           ),
+///         ],
+///       ),
+///     );
+///   }
+///
+/// class Model {
+///   Model(this.from, this.to);
+///
+///   MapLatLng from;
+///   MapLatLng to;
 /// }
 /// ```
 ///
@@ -89,14 +167,13 @@ abstract class MapVectorLayer extends MapSublayer {
 class MapLineLayer extends MapVectorLayer {
   /// Creates the [MapLineLayer].
   MapLineLayer({
-    Key key,
-    @required this.lines,
+    Key? key,
+    required this.lines,
     this.animation,
     this.color,
     this.width = 2,
-    IndexedWidgetBuilder tooltipBuilder,
-  })  : assert(lines != null),
-        super(key: key, tooltipBuilder: tooltipBuilder);
+    IndexedWidgetBuilder? tooltipBuilder,
+  }) : super(key: key, tooltipBuilder: tooltipBuilder);
 
   /// A collection of [MapLine].
   ///
@@ -104,33 +181,64 @@ class MapLineLayer extends MapVectorLayer {
   /// straight line.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///       MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
-  ///          sublayers: [
-  ///           MapLineLayer(
-  ///              lines: List<MapLine>.generate(
-  ///               lines.length,
-  ///                (int index) {
-  ///                 return MapLine(
-  ///                    from: lines[index].from,
-  ///                    to: lines[index].to,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  ///          ],
-  ///        ),
-  ///      ],
-  ///    ),
-  /// );
+  /// List<Model> _lines;
+  /// MapZoomPanBehavior _zoomPanBehavior;
+  /// MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _zoomPanBehavior = MapZoomPanBehavior(
+  ///      focalLatLng: MapLatLng(40.7128, -95.3698),
+  ///      zoomLevel: 3,
+  ///    );
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "continent",
+  ///    );
+  ///
+  ///    _lines = <Model>[
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+  ///    ];
+  ///
+  ///    super.initState();
+  ///  }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             zoomPanBehavior: _zoomPanBehavior,
+  ///             sublayers: [
+  ///               MapLineLayer(
+  ///                 lines: List<MapLine>.generate(
+  ///                   _lines.length,
+  ///                   (int index) {
+  ///                     return MapLine(
+  ///                       from: _lines[index].from,
+  ///                       to: _lines[index].to,
+  ///                     );
+  ///                   },
+  ///                 ).toSet(),
+  ///               ),
+  ///             ],
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  ///
+  /// class Model {
+  ///   Model(this.from, this.to);
+  ///
+  ///   MapLatLng from;
+  ///   MapLatLng to;
   /// }
   /// ```
   final Set<MapLine> lines;
@@ -142,62 +250,87 @@ class MapLineLayer extends MapVectorLayer {
   /// the animation flow, curve, duration and listen to the animation status.
   ///
   /// ```dart
-  /// AnimationController _animationController;
-  /// Animation _animation;
+  ///   AnimationController _animationController;
+  ///   Animation _animation;
+  ///   MapZoomPanBehavior _zoomPanBehavior;
+  ///   MapShapeSource _mapSource;
+  ///   List<Model> _lines;
   ///
-  /// @override
-  /// void initState() {
-  ///   _animationController = AnimationController(
-  ///      duration: Duration(seconds: 3),
-  ///      vsync: this,
-  ///   );
+  ///   @override
+  ///   void initState() {
+  ///     _zoomPanBehavior = MapZoomPanBehavior(
+  ///       focalLatLng: MapLatLng(40.7128, -95.3698),
+  ///       zoomLevel: 3,
+  ///     );
   ///
-  ///  _animation = CurvedAnimation(
-  ///    parent: _animationController,
-  ///    curve: Curves.easeInOut),
-  ///  );
+  ///     _mapSource = MapShapeSource.asset(
+  ///       "assets/world_map.json",
+  ///       shapeDataField: "continent",
+  ///     );
   ///
-  ///  _animationController.forward(from: 0);
-  ///  super.initState();
+  ///     _lines = <Model>[
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+  ///     ];
+  ///
+  ///     _animationController = AnimationController(
+  ///       duration: Duration(seconds: 3),
+  ///       vsync: this,
+  ///     );
+  ///
+  ///     _animation =
+  ///         CurvedAnimation(parent: _animationController,
+  ///         curve: Curves.easeInOut);
+  ///
+  ///     _animationController.forward(from: 0);
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             zoomPanBehavior: _zoomPanBehavior,
+  ///             sublayers: [
+  ///               MapLineLayer(
+  ///                 lines: List<MapLine>.generate(
+  ///                   _lines.length,
+  ///                   (int index) {
+  ///                     return MapLine(
+  ///                       from: _lines[index].from,
+  ///                       to: _lines[index].to,
+  ///                     );
+  ///                   },
+  ///                 ).toSet(),
+  ///                 animation: _animation,
+  ///               ),
+  ///             ],
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  ///
+  ///   @override
+  ///   void dispose() {
+  ///     _animationController?.dispose();
+  ///     super.dispose();
+  ///   }
   /// }
   ///
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///       MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
-  ///          sublayers: [
-  ///           MapLineLayer(
-  ///              lines: List<MapLine>.generate(
-  ///               lines.length,
-  ///                (int index) {
-  ///                 return MapLine(
-  ///                    from: lines[index].from,
-  ///                    to: lines[index].to,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///              animation: _animation,
-  ///            ),
-  ///          ],
-  ///        ),
-  ///      ],
-  ///    ),
-  /// );
-  /// }
+  /// class Model {
+  ///   Model(this.from, this.to);
   ///
-  ///  @override
-  ///  void dispose() {
-  ///    animationController?.dispose();
-  ///    super.dispose();
-  ///  }
+  ///   MapLatLng from;
+  ///   MapLatLng to;
+  /// }
   /// ```
-  final Animation animation;
+  final Animation? animation;
 
   /// The color of all the [lines].
   ///
@@ -205,41 +338,71 @@ class MapLineLayer extends MapVectorLayer {
   /// property.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///       MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
-  ///          sublayers: [
-  ///           MapLineLayer(
-  ///              lines: List<MapLine>.generate(
-  ///               lines.length,
-  ///                (int index) {
-  ///                 return MapLine(
-  ///                    from: lines[index].from,
-  ///                    to: lines[index].to,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///              color: Colors.green,
-  ///              width: 2,
-  ///            ),
-  ///          ],
-  ///        ),
-  ///      ],
-  ///    ),
-  /// );
+  /// List<Model> _lines;
+  /// MapZoomPanBehavior _zoomPanBehavior;
+  /// MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _zoomPanBehavior = MapZoomPanBehavior(
+  ///      focalLatLng: MapLatLng(40.7128, -95.3698),
+  ///      zoomLevel: 3,
+  ///    );
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "continent",
+  ///    );
+  ///
+  ///    _lines = <Model>[
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+  ///    ];
+  ///
+  ///    super.initState();
+  ///  }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             zoomPanBehavior: _zoomPanBehavior,
+  ///             sublayers: [
+  ///               MapLineLayer(
+  ///                 lines: List<MapLine>.generate(
+  ///                   _lines.length,
+  ///                   (int index) {
+  ///                     return MapLine(
+  ///                       from: _lines[index].from,
+  ///                       to: _lines[index].to,
+  ///                     );
+  ///                   },
+  ///                 ).toSet(),
+  ///                 color: Colors.green,
+  ///               ),
+  ///             ],
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  ///
+  /// class Model {
+  ///   Model(this.from, this.to);
+  ///
+  ///   MapLatLng from;
+  ///   MapLatLng to;
   /// }
   /// ```
   ///
   /// See also:
   /// [width], to set the width.
-  final Color color;
+  final Color? color;
 
   /// The width of all the [lines].
   ///
@@ -247,34 +410,65 @@ class MapLineLayer extends MapVectorLayer {
   /// property.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///       MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
-  ///          sublayers: [
-  ///           MapLineLayer(
-  ///              lines: List<MapLine>.generate(
-  ///               lines.length,
-  ///                (int index) {
-  ///                 return MapLine(
-  ///                    from: lines[index].from,
-  ///                    to: lines[index].to,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///              width: 2,
-  ///            ),
-  ///          ],
-  ///        ),
-  ///      ],
-  ///    ),
-  /// );
+  /// List<Model> _lines;
+  /// MapZoomPanBehavior _zoomPanBehavior;
+  /// MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _zoomPanBehavior = MapZoomPanBehavior(
+  ///      focalLatLng: MapLatLng(40.7128, -95.3698),
+  ///      zoomLevel: 3,
+  ///    );
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "continent",
+  ///    );
+  ///
+  ///    _lines = <Model>[
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+  ///    ];
+  ///
+  ///    super.initState();
+  ///  }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             zoomPanBehavior: _zoomPanBehavior,
+  ///             sublayers: [
+  ///               MapLineLayer(
+  ///                 lines: List<MapLine>.generate(
+  ///                   _lines.length,
+  ///                   (int index) {
+  ///                     return MapLine(
+  ///                       from: _lines[index].from,
+  ///                       to: _lines[index].to,
+  ///                     );
+  ///                   },
+  ///                 ).toSet(),
+  ///                 width: 2,
+  ///               ),
+  ///             ],
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  ///
+  /// class Model {
+  ///   Model(this.from, this.to);
+  ///
+  ///   MapLatLng from;
+  ///   MapLatLng to;
   /// }
   /// ```
   ///
@@ -293,23 +487,41 @@ class MapLineLayer extends MapVectorLayer {
       lineLayer: this,
     );
   }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    if (lines.isNotEmpty) {
+      final _DebugVectorShapeTree pointerTreeNode =
+          _DebugVectorShapeTree(lines);
+      properties.add(pointerTreeNode.toDiagnosticsNode());
+    }
+    properties.add(ObjectFlagProperty<Animation>.has('animation', animation));
+    properties.add(ObjectFlagProperty<IndexedWidgetBuilder>.has(
+        'tooltip', tooltipBuilder));
+    if (color != null) {
+      properties.add(ColorProperty('color', color));
+    }
+
+    properties.add(DoubleProperty('width', width));
+  }
 }
 
 class _MapLineLayer extends StatefulWidget {
   _MapLineLayer({
-    this.lines,
-    this.animation,
-    this.color,
-    this.width,
-    this.tooltipBuilder,
-    this.lineLayer,
+    required this.lines,
+    required this.animation,
+    required this.color,
+    required this.width,
+    required this.tooltipBuilder,
+    required this.lineLayer,
   });
 
   final Set<MapLine> lines;
-  final Animation animation;
-  final Color color;
+  final Animation? animation;
+  final Color? color;
   final double width;
-  final IndexedWidgetBuilder tooltipBuilder;
+  final IndexedWidgetBuilder? tooltipBuilder;
   final MapLineLayer lineLayer;
 
   @override
@@ -318,8 +530,10 @@ class _MapLineLayer extends StatefulWidget {
 
 class _MapLineLayerState extends State<_MapLineLayer>
     with SingleTickerProviderStateMixin {
-  AnimationController _hoverAnimationController;
-  SfMapsThemeData _mapsThemeData;
+  MapController? _controller;
+  late AnimationController _hoverAnimationController;
+  late SfMapsThemeData _mapsThemeData;
+  late MapLayerInheritedWidget ancestor;
 
   @override
   void initState() {
@@ -329,8 +543,19 @@ class _MapLineLayerState extends State<_MapLineLayer>
   }
 
   @override
+  void didChangeDependencies() {
+    if (_controller == null) {
+      ancestor = context
+          .dependOnInheritedWidgetOfExactType<MapLayerInheritedWidget>()!;
+      _controller = ancestor.controller;
+    }
+    super.didChangeDependencies();
+  }
+
+  @override
   void dispose() {
-    _hoverAnimationController?.dispose();
+    _controller = null;
+    _hoverAnimationController.dispose();
     super.dispose();
   }
 
@@ -339,9 +564,11 @@ class _MapLineLayerState extends State<_MapLineLayer>
     final ThemeData themeData = Theme.of(context);
     final bool isDesktop = kIsWeb ||
         themeData.platform == TargetPlatform.macOS ||
-        themeData.platform == TargetPlatform.windows;
-    _mapsThemeData = SfMapsTheme.of(context);
+        themeData.platform == TargetPlatform.windows ||
+        themeData.platform == TargetPlatform.linux;
+    _mapsThemeData = SfMapsTheme.of(context)!;
     return _MapLineLayerRenderObject(
+      controller: _controller,
       lines: widget.lines,
       animation: widget.animation,
       color: widget.color ??
@@ -354,36 +581,42 @@ class _MapLineLayerState extends State<_MapLineLayer>
       themeData: _mapsThemeData,
       isDesktop: isDesktop,
       hoverAnimationController: _hoverAnimationController,
+      state: this,
     );
   }
 }
 
 class _MapLineLayerRenderObject extends LeafRenderObjectWidget {
   const _MapLineLayerRenderObject({
-    this.lines,
-    this.animation,
-    this.color,
-    this.width,
-    this.tooltipBuilder,
-    this.lineLayer,
-    this.themeData,
-    this.isDesktop,
-    this.hoverAnimationController,
+    required this.controller,
+    required this.lines,
+    required this.animation,
+    required this.color,
+    required this.width,
+    required this.tooltipBuilder,
+    required this.lineLayer,
+    required this.themeData,
+    required this.isDesktop,
+    required this.hoverAnimationController,
+    required this.state,
   });
 
+  final MapController? controller;
   final Set<MapLine> lines;
-  final Animation animation;
+  final Animation? animation;
   final Color color;
   final double width;
-  final IndexedWidgetBuilder tooltipBuilder;
+  final IndexedWidgetBuilder? tooltipBuilder;
   final MapLineLayer lineLayer;
   final SfMapsThemeData themeData;
   final bool isDesktop;
   final AnimationController hoverAnimationController;
+  final _MapLineLayerState state;
 
   @override
   _RenderMapLine createRenderObject(BuildContext context) {
     return _RenderMapLine(
+      controller: controller,
       lines: lines,
       animation: animation,
       color: color,
@@ -394,6 +627,7 @@ class _MapLineLayerRenderObject extends LeafRenderObjectWidget {
       themeData: themeData,
       isDesktop: isDesktop,
       hoverAnimationController: hoverAnimationController,
+      state: state,
     );
   }
 
@@ -401,29 +635,32 @@ class _MapLineLayerRenderObject extends LeafRenderObjectWidget {
   void updateRenderObject(BuildContext context, _RenderMapLine renderObject) {
     renderObject
       ..lines = lines
-      .._animation = animation
+      ..animation = animation
       ..color = color
       ..width = width
       ..tooltipBuilder = tooltipBuilder
       ..context = context
-      ..lineLayer = lineLayer
-      ..themeData = themeData;
+      ..themeData = themeData
+      ..state = state;
   }
 }
 
 class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
   _RenderMapLine({
-    Set<MapLine> lines,
-    Animation animation,
-    Color color,
-    double width,
-    IndexedWidgetBuilder tooltipBuilder,
-    BuildContext context,
-    MapLineLayer lineLayer,
-    SfMapsThemeData themeData,
-    bool isDesktop,
-    AnimationController hoverAnimationController,
-  })  : _lines = lines,
+    required MapController? controller,
+    required Set<MapLine> lines,
+    required Animation? animation,
+    required Color color,
+    required double width,
+    required IndexedWidgetBuilder? tooltipBuilder,
+    required BuildContext context,
+    required MapLineLayer lineLayer,
+    required SfMapsThemeData themeData,
+    required bool isDesktop,
+    required AnimationController hoverAnimationController,
+    required this.state,
+  })   : _controller = controller,
+        _lines = lines,
         _animation = animation,
         _color = color,
         _width = width,
@@ -438,52 +675,54 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
     _reverseHoverColor = ColorTween();
     _hoverColorAnimation = CurvedAnimation(
         parent: hoverAnimationController, curve: Curves.easeInOut);
-    linesInList = _lines?.toList();
+    linesInList = _lines.toList();
     _tapGestureRecognizer = TapGestureRecognizer()..onTapUp = _handleTapUp;
   }
 
-  TapGestureRecognizer _tapGestureRecognizer;
-  MapController controller;
-  AnimationController hoverAnimationController;
-  RenderSublayerContainer vectorLayerContainer;
-  MapLineLayer lineLayer;
-  BuildContext context;
-  MapLine selectedLine;
+  final MapController? _controller;
+  _MapLineLayerState state;
   int selectedIndex = -1;
   double touchTolerance = 5;
-  List<MapLine> linesInList;
-  List<Offset> selectedLinePoints;
-  Animation<double> _hoverColorAnimation;
-  ColorTween _forwardHoverColor;
-  ColorTween _reverseHoverColor;
-  MapLine _previousHoverItem;
-  MapLine _currentHoverItem;
-  bool isDesktop;
+
+  late TapGestureRecognizer _tapGestureRecognizer;
+  late AnimationController hoverAnimationController;
+  late MapLineLayer lineLayer;
+  late BuildContext context;
+  late Animation<double> _hoverColorAnimation;
+  late ColorTween _forwardHoverColor;
+  late ColorTween _reverseHoverColor;
+  late bool isDesktop;
+
+  MapLine? selectedLine;
+  List<MapLine>? linesInList;
+  List<Offset>? selectedLinePoints;
+  MapLine? _previousHoverItem;
+  MapLine? _currentHoverItem;
 
   Set<MapLine> get lines => _lines;
   Set<MapLine> _lines;
-  set lines(Set<MapLine> value) {
+  set lines(Set<MapLine>? value) {
     assert(value != null);
     if (_lines == value || value == null) {
       return;
     }
     _lines = value;
-    linesInList = _lines?.toList();
+    linesInList = _lines.toList();
     markNeedsPaint();
   }
 
-  Animation get animation => _animation;
-  Animation _animation;
-  set animation(Animation value) {
+  Animation? get animation => _animation;
+  Animation? _animation;
+  set animation(Animation? value) {
     if (_animation == value) {
       return;
     }
     _animation = value;
   }
 
-  IndexedWidgetBuilder get tooltipBuilder => _tooltipBuilder;
-  IndexedWidgetBuilder _tooltipBuilder;
-  set tooltipBuilder(IndexedWidgetBuilder value) {
+  IndexedWidgetBuilder? get tooltipBuilder => _tooltipBuilder;
+  IndexedWidgetBuilder? _tooltipBuilder;
+  set tooltipBuilder(IndexedWidgetBuilder? value) {
     if (_tooltipBuilder == value) {
       return;
     }
@@ -528,8 +767,9 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
 
   void _updateHoverItemTween() {
     if (isDesktop) {
-      final Color hoverStrokeColor = _getHoverColor(selectedLine);
-      final Color beginColor = selectedLine.color ?? _color;
+      final Color hoverStrokeColor =
+          _getHoverColor(selectedLine?.color, _color, _themeData);
+      final Color beginColor = selectedLine?.color ?? _color;
 
       if (_previousHoverItem != null) {
         _reverseHoverColor.begin = hoverStrokeColor;
@@ -544,19 +784,8 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
     }
   }
 
-  Color _getHoverColor(MapLine line) {
-    final Color color = line.color ?? _color;
-    final bool canAdjustHoverOpacity =
-        double.parse(color.opacity.toStringAsFixed(2)) != hoverColorOpacity;
-    return _themeData.shapeHoverColor != null &&
-            _themeData.shapeHoverColor != Colors.transparent
-        ? _themeData.shapeHoverColor
-        : color.withOpacity(
-            canAdjustHoverOpacity ? hoverColorOpacity : minHoverOpacity);
-  }
-
   void _handleTapUp(TapUpDetails details) {
-    selectedLine.onTap?.call();
+    selectedLine?.onTap?.call();
     _handleInteraction(details.localPosition);
   }
 
@@ -567,10 +796,11 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
       _updateHoverItemTween();
     }
 
-    final RenderSublayerContainer vectorParent = parent;
     final ShapeLayerChildRenderBoxBase tooltipRenderer =
-        vectorParent.tooltipKey?.currentContext?.findRenderObject();
-    tooltipRenderer?.hideTooltip();
+        _controller!.tooltipKey!.currentContext!.findRenderObject()
+            // ignore: avoid_as
+            as ShapeLayerChildRenderBoxBase;
+    tooltipRenderer.hideTooltip();
   }
 
   void _handleZooming(MapZoomDetails details) {
@@ -581,22 +811,16 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
     markNeedsPaint();
   }
 
-  void _handleReset() {
-    markNeedsPaint();
-  }
-
-  void _handleRefresh() {
-    markNeedsPaint();
-  }
-
-  void _handleInteraction(Offset position) {
-    final RenderSublayerContainer vectorParent = parent;
-    if (vectorParent.tooltipKey != null && _tooltipBuilder != null) {
+  void _handleInteraction(Offset position,
+      [PointerKind kind = PointerKind.touch]) {
+    if (_controller?.tooltipKey != null && _tooltipBuilder != null) {
       final ShapeLayerChildRenderBoxBase tooltipRenderer =
-          vectorParent.tooltipKey.currentContext.findRenderObject();
-      if (selectedLinePoints != null && selectedLinePoints.isNotEmpty) {
-        final Offset startPoint = selectedLinePoints[0];
-        final Offset endPoint = selectedLinePoints[1];
+          _controller!.tooltipKey!.currentContext!.findRenderObject()
+              // ignore: avoid_as
+              as ShapeLayerChildRenderBoxBase;
+      if (selectedLinePoints != null && selectedLinePoints!.isNotEmpty) {
+        final Offset startPoint = selectedLinePoints![0];
+        final Offset endPoint = selectedLinePoints![1];
         final Offset lineMidPosition = Offset(
             min(startPoint.dx, endPoint.dx) +
                 ((startPoint.dx - endPoint.dx).abs() / 2),
@@ -608,7 +832,8 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
           selectedIndex,
           null,
           MapLayerElement.vector,
-          vectorParent.getSublayerIndex(lineLayer),
+          kind,
+          state.ancestor.sublayers!.indexOf(lineLayer),
           position,
         );
       }
@@ -619,13 +844,13 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
   MouseCursor get cursor => SystemMouseCursors.basic;
 
   @override
-  PointerEnterEventListener get onEnter => null;
+  PointerEnterEventListener? get onEnter => null;
 
   // As onHover property of MouseHoverAnnotation was removed only in the
   // beta channel, once it is moved to stable, will remove this property.
   @override
   // ignore: override_on_non_overriding_member
-  PointerHoverEventListener get onHover => null;
+  PointerHoverEventListener? get onHover => null;
 
   @override
   PointerExitEventListener get onExit => _handlePointerExit;
@@ -636,16 +861,16 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
 
   @override
   bool hitTestSelf(Offset position) {
-    if (_animation != null && !_animation.isCompleted) {
+    if (_animation != null && !_animation!.isCompleted) {
       return false;
     }
 
-    final bool isTileLayer = controller.tileCurrentLevelDetails != null;
-    final Size boxSize = isTileLayer ? controller.totalTileSize : size;
-    final Offset translationOffset =
-        _getTranslationOffset(controller, isTileLayer);
-    int index = linesInList.length - 1;
-    for (final MapLine line in linesInList?.reversed) {
+    final Size boxSize = _controller?.layerType == LayerType.tile
+        ? _controller!.totalTileSize!
+        : size;
+    final Offset translationOffset = _getTranslation(_controller!);
+    int index = linesInList!.length - 1;
+    for (final MapLine line in linesInList!.reversed) {
       final double width = line.width ?? _width;
       if (line.onTap != null || _tooltipBuilder != null || isDesktop) {
         final double actualTouchTolerance =
@@ -655,23 +880,23 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
           line.from.longitude,
           boxSize,
           translationOffset,
-          controller.shapeLayerSizeFactor,
+          _controller!.shapeLayerSizeFactor,
         );
         Offset endPoint = pixelFromLatLng(
           line.to.latitude,
           line.to.longitude,
           boxSize,
           translationOffset,
-          controller.shapeLayerSizeFactor,
+          _controller!.shapeLayerSizeFactor,
         );
-        startPoint = _updatePointsToScaledPosition(startPoint, controller);
-        endPoint = _updatePointsToScaledPosition(endPoint, controller);
+        startPoint = _getScaledOffset(startPoint, _controller!);
+        endPoint = _getScaledOffset(endPoint, _controller!);
 
         if (_liesPointOnLine(
             startPoint, endPoint, actualTouchTolerance, position)) {
           selectedLine = line;
           selectedIndex = index;
-          selectedLinePoints
+          selectedLinePoints!
             ..clear()
             ..add(startPoint)
             ..add(endPoint);
@@ -688,45 +913,45 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
   void handleEvent(PointerEvent event, HitTestEntry entry) {
     if (event is PointerDownEvent) {
       _tapGestureRecognizer.addPointer(event);
-    } else if (event is PointerHoverEvent) {
-      if (isDesktop && _currentHoverItem != selectedLine) {
+    } else if (event is PointerHoverEvent && isDesktop) {
+      if (_currentHoverItem != selectedLine) {
         _previousHoverItem = _currentHoverItem;
         _currentHoverItem = selectedLine;
         _updateHoverItemTween();
       }
 
-      final RenderBox renderBox = context.findRenderObject();
-      _handleInteraction(renderBox.globalToLocal(event.position));
+      // ignore: avoid_as
+      final RenderBox renderBox = context.findRenderObject() as RenderBox;
+      _handleInteraction(
+          renderBox.globalToLocal(event.position), PointerKind.hover);
     }
   }
 
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
-    vectorLayerContainer = parent;
-    controller = vectorLayerContainer.controller;
-    if (controller != null) {
-      controller
+    if (_controller != null) {
+      _controller!
         ..addZoomingListener(_handleZooming)
         ..addPanningListener(_handlePanning)
-        ..addResetListener(_handleReset)
-        ..addRefreshListener(_handleRefresh);
+        ..addResetListener(markNeedsPaint)
+        ..addRefreshListener(markNeedsPaint);
     }
     _animation?.addListener(markNeedsPaint);
-    _hoverColorAnimation?.addListener(markNeedsPaint);
+    _hoverColorAnimation.addListener(markNeedsPaint);
   }
 
   @override
   void detach() {
-    if (controller != null) {
-      controller
+    if (_controller != null) {
+      _controller!
         ..removeZoomingListener(_handleZooming)
         ..removePanningListener(_handlePanning)
-        ..removeResetListener(_handleReset)
-        ..removeRefreshListener(_handleRefresh);
+        ..removeResetListener(markNeedsPaint)
+        ..removeRefreshListener(markNeedsPaint);
     }
     _animation?.removeListener(markNeedsPaint);
-    _hoverColorAnimation?.removeListener(markNeedsPaint);
+    _hoverColorAnimation.removeListener(markNeedsPaint);
     linesInList?.clear();
     linesInList = null;
     super.detach();
@@ -742,21 +967,21 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    if (_animation != null && _animation.value == 0.0) {
+    if (_animation != null && _animation!.value == 0.0) {
       return;
     }
     context.canvas.save();
     Offset startPoint;
     Offset endPoint;
-    final bool isTileLayer = controller.tileCurrentLevelDetails != null;
     final Paint paint = Paint()
       ..isAntiAlias = true
       ..style = PaintingStyle.stroke;
     Path path = Path();
-    final Size boxSize = isTileLayer ? controller.totalTileSize : size;
-    final Offset translationOffset =
-        _getTranslationOffset(controller, isTileLayer);
-    controller.applyTransform(context, offset, true);
+    final Size boxSize = _controller?.layerType == LayerType.tile
+        ? _controller!.totalTileSize!
+        : size;
+    final Offset translationOffset = _getTranslation(_controller!);
+    _controller!.applyTransform(context, offset, true);
 
     for (final MapLine line in lines) {
       startPoint = pixelFromLatLng(
@@ -764,35 +989,35 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
         line.from.longitude,
         boxSize,
         translationOffset,
-        controller.shapeLayerSizeFactor,
+        _controller!.shapeLayerSizeFactor,
       );
       endPoint = pixelFromLatLng(
         line.to.latitude,
         line.to.longitude,
         boxSize,
         translationOffset,
-        controller.shapeLayerSizeFactor,
+        _controller!.shapeLayerSizeFactor,
       );
 
       if (_previousHoverItem != null &&
           _previousHoverItem == line &&
           _themeData.shapeHoverColor != Colors.transparent) {
-        paint.color = _reverseHoverColor.evaluate(_hoverColorAnimation);
+        paint.color = _reverseHoverColor.evaluate(_hoverColorAnimation)!;
       } else if (_currentHoverItem != null &&
           selectedLine == line &&
           _themeData.shapeHoverColor != Colors.transparent) {
-        paint.color = _forwardHoverColor.evaluate(_hoverColorAnimation);
+        paint.color = _forwardHoverColor.evaluate(_hoverColorAnimation)!;
       } else {
         paint.color = line.color ?? _color;
       }
 
-      paint.strokeWidth = _getDesiredValue(line.width ?? _width, controller);
+      paint.strokeWidth = _getCurrentWidth(line.width ?? _width, _controller!);
       path
         ..reset()
         ..moveTo(startPoint.dx, startPoint.dy)
         ..lineTo(endPoint.dx, endPoint.dy);
       if (_animation != null) {
-        path = _getAnimatedPath(path, _animation);
+        path = _getAnimatedPath(path, _animation!);
       }
       _drawDashedLine(context.canvas, line.dashArray, paint, path);
     }
@@ -804,33 +1029,63 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
 /// [MapTileLayer].
 ///
 /// ```dart
-/// @override
-/// Widget build(BuildContext context) {
-///  return Scaffold(
-///    body: SfMaps(
-///      layers: [
-///       MapShapeLayer(
-///          source: MapShapeSource.asset(
-///             "assets/world_map.json",
-///              shapeDataField: "continent",
+///  List<Model> _arcs;
+///  MapZoomPanBehavior _zoomPanBehavior;
+///  MapShapeSource _mapSource;
+///
+///  @override
+///  void initState() {
+///    _zoomPanBehavior = MapZoomPanBehavior(
+///      focalLatLng: MapLatLng(40.7128, -95.3698),
+///      zoomLevel: 3,
+///    );
+///
+///   _mapSource = MapShapeSource.asset(
+///      "assets/world_map.json",
+///      shapeDataField: "continent",
+///    );
+///
+///   _arcs = <Model>[
+///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+///    ];
+///  super.initState();
+///  }
+///
+///  @override
+///  Widget build(BuildContext context) {
+///    return Scaffold(
+///      body: SfMaps(
+///        layers: [
+///          MapShapeLayer(
+///            source: _mapSource,
+///            zoomPanBehavior: _zoomPanBehavior,
+///            sublayers: [
+///              MapArcLayer(
+///                arcs: List<MapArc>.generate(
+///                  _arcs.length,
+///                  (int index) {
+///                    return MapArc(
+///                      from: _arcs[index].from,
+///                      to: _arcs[index].to,
+///                    );
+///                  },
+///                ).toSet(),
+///              ),
+///            ],
 ///          ),
-///          sublayers: [
-///           MapArcLayer(
-///              arcs: List<MapArc>.generate(
-///               arcs.length,
-///                (int index) {
-///                 return MapArc(
-///                    from: arcs[index].from,
-///                    to: arcs[index].to,
-///                  );
-///                },
-///              ).toSet(),
-///            ),
-///          ],
-///        ),
-///      ],
-///    ),
-/// );
+///        ],
+///      ),
+///    );
+///  }
+///
+/// class Model {
+///   Model(this.from, this.to);
+///
+///   MapLatLng from;
+///   MapLatLng to;
 /// }
 /// ```
 ///
@@ -842,14 +1097,13 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
 class MapArcLayer extends MapVectorLayer {
   /// Creates the [MapArcLayer].
   MapArcLayer({
-    Key key,
-    @required this.arcs,
+    Key? key,
+    required this.arcs,
     this.animation,
     this.color,
     this.width = 2,
-    IndexedWidgetBuilder tooltipBuilder,
-  })  : assert(arcs != null),
-        super(key: key, tooltipBuilder: tooltipBuilder);
+    IndexedWidgetBuilder? tooltipBuilder,
+  }) : super(key: key, tooltipBuilder: tooltipBuilder);
 
   /// A collection of [MapArc].
   ///
@@ -858,33 +1112,63 @@ class MapArcLayer extends MapVectorLayer {
   /// modified to change the appearance of the arcs.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///       MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
+  ///  List<Model> _arcs;
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _zoomPanBehavior = MapZoomPanBehavior(
+  ///      focalLatLng: MapLatLng(40.7128, -95.3698),
+  ///      zoomLevel: 3,
+  ///    );
+  ///
+  ///   _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "continent",
+  ///    );
+  ///
+  ///   _arcs = <Model>[
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+  ///    ];
+  ///  super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      body: SfMaps(
+  ///        layers: [
+  ///          MapShapeLayer(
+  ///            source: _mapSource,
+  ///            zoomPanBehavior: _zoomPanBehavior,
+  ///            sublayers: [
+  ///              MapArcLayer(
+  ///                arcs: List<MapArc>.generate(
+  ///                  _arcs.length,
+  ///                  (int index) {
+  ///                    return MapArc(
+  ///                      from: _arcs[index].from,
+  ///                      to: _arcs[index].to,
+  ///                    );
+  ///                  },
+  ///                ).toSet(),
+  ///              ),
+  ///            ],
   ///          ),
-  ///          sublayers: [
-  ///           MapArcLayer(
-  ///              arcs: List<MapArc>.generate(
-  ///               arcs.length,
-  ///                (int index) {
-  ///                 return MapArc(
-  ///                    from: arcs[index].from,
-  ///                    to: arcs[index].to,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  ///          ],
-  ///        ),
-  ///      ],
-  ///    ),
-  /// );
+  ///        ],
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class Model {
+  ///   Model(this.from, this.to);
+  ///
+  ///   MapLatLng from;
+  ///   MapLatLng to;
   /// }
   /// ```
   final Set<MapArc> arcs;
@@ -896,62 +1180,87 @@ class MapArcLayer extends MapVectorLayer {
   /// the animation flow, curve, duration and listen to the animation status.
   ///
   /// ```dart
-  /// AnimationController _animationController;
-  /// Animation _animation;
-  ///
-  /// @override
-  /// void initState() {
-  ///   _animationController = AnimationController(
-  ///      duration: Duration(seconds: 3),
-  ///      vsync: this,
-  ///   );
-  ///
-  ///  _animation = CurvedAnimation(
-  ///    parent: _animationController,
-  ///    curve: Curves.easeInOut),
-  ///  );
-  ///
-  ///  _animationController.forward(from: 0);
-  ///  super.initState();
-  /// }
-  ///
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///       MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
-  ///          sublayers: [
-  ///           MapArcLayer(
-  ///              arcs: List<MapArc>.generate(
-  ///               arcs.length,
-  ///                (int index) {
-  ///                 return MapArc(
-  ///                    from: arcs[index].from,
-  ///                    to: arcs[index].to,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///              animation: _animation,
-  ///            ),
-  ///          ],
-  ///        ),
-  ///      ],
-  ///    ),
-  /// );
-  /// }
+  ///  AnimationController _animationController;
+  ///  Animation _animation;
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  MapShapeSource _mapSource;
+  ///  List<Model> _arcs;
   ///
   ///  @override
-  ///  void dispose() {
-  ///    animationController?.dispose();
-  ///    super.dispose();
-  ///  }
+  ///  void initState() {
+  ///    _zoomPanBehavior = MapZoomPanBehavior(
+  ///      focalLatLng: MapLatLng(40.7128, -95.3698),
+  ///      zoomLevel: 3,
+  ///    );
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "continent",
+  ///    );
+  ///
+  ///    _arcs = <Model>[
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+  ///    ];
+  ///
+  ///    _animationController = AnimationController(
+  ///       duration: Duration(seconds: 3),
+  ///       vsync: this,
+  ///     );
+  ///
+  ///     _animation =
+  ///         CurvedAnimation(parent: _animationController,
+  ///         curve: Curves.easeInOut);
+  ///
+  ///     _animationController.forward(from: 0);
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             zoomPanBehavior: _zoomPanBehavior,
+  ///             sublayers: [
+  ///               MapArcLayer(
+  ///                 arcs: List<MapArc>.generate(
+  ///                   _arcs.length,
+  ///                   (int index) {
+  ///                     return MapArc(
+  ///                       from: _arcs[index].from,
+  ///                       to: _arcs[index].to,
+  ///                     );
+  ///                   },
+  ///                 ).toSet(),
+  ///                 animation: _animation,
+  ///               ),
+  ///             ],
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  ///
+  ///   @override
+  ///   void dispose() {
+  ///     _animationController?.dispose();
+  ///     super.dispose();
+  ///   }
+  /// }
+  ///
+  /// class Model {
+  ///   Model(this.from, this.to);
+  ///
+  ///   MapLatLng from;
+  ///   MapLatLng to;
+  /// }
   /// ```
-  final Animation animation;
+  final Animation? animation;
 
   /// The color of all the [arcs].
   ///
@@ -959,41 +1268,70 @@ class MapArcLayer extends MapVectorLayer {
   /// property.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///       MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
+  ///  List<Model> _arcs;
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _zoomPanBehavior = MapZoomPanBehavior(
+  ///      focalLatLng: MapLatLng(40.7128, -95.3698),
+  ///      zoomLevel: 3,
+  ///    );
+  ///
+  ///   _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "continent",
+  ///    );
+  ///
+  ///   _arcs = <Model>[
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+  ///    ];
+  ///  super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      body: SfMaps(
+  ///        layers: [
+  ///          MapShapeLayer(
+  ///            source: _mapSource,
+  ///            zoomPanBehavior: _zoomPanBehavior,
+  ///            sublayers: [
+  ///              MapArcLayer(
+  ///                arcs: List<MapArc>.generate(
+  ///                  _arcs.length,
+  ///                  (int index) {
+  ///                    return MapArc(
+  ///                      from: _arcs[index].from,
+  ///                      to: _arcs[index].to,
+  ///                    );
+  ///                  },
+  ///                ).toSet(),
+  ///                color: Colors.green,
+  ///              ),
+  ///            ],
   ///          ),
-  ///          sublayers: [
-  ///           MapArcLayer(
-  ///              arcs: List<MapArc>.generate(
-  ///               arcs.length,
-  ///                (int index) {
-  ///                 return MapArc(
-  ///                    from: arcs[index].from,
-  ///                    to: arcs[index].to,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///              color: Colors.green,
-  ///              width: 2,
-  ///            ),
-  ///          ],
-  ///        ),
-  ///      ],
-  ///    ),
-  /// );
+  ///        ],
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class Model {
+  ///   Model(this.from, this.to);
+  ///
+  ///   MapLatLng from;
+  ///   MapLatLng to;
   /// }
   /// ```
   ///
   /// See also:
   /// [width], to set the width for the map arc.
-  final Color color;
+  final Color? color;
 
   /// The width of all the [arcs].
   ///
@@ -1001,34 +1339,64 @@ class MapArcLayer extends MapVectorLayer {
   /// property.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///       MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
+  ///  List<Model> _arcs;
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _zoomPanBehavior = MapZoomPanBehavior(
+  ///      focalLatLng: MapLatLng(40.7128, -95.3698),
+  ///      zoomLevel: 3,
+  ///    );
+  ///
+  ///   _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "continent",
+  ///    );
+  ///
+  ///   _arcs = <Model>[
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+  ///    ];
+  ///  super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      body: SfMaps(
+  ///        layers: [
+  ///          MapShapeLayer(
+  ///            source: _mapSource,
+  ///            zoomPanBehavior: _zoomPanBehavior,
+  ///            sublayers: [
+  ///              MapArcLayer(
+  ///                arcs: List<MapArc>.generate(
+  ///                  _arcs.length,
+  ///                  (int index) {
+  ///                    return MapArc(
+  ///                      from: _arcs[index].from,
+  ///                      to: _arcs[index].to,
+  ///                    );
+  ///                  },
+  ///                ).toSet(),
+  ///                width: 2.0,
+  ///              ),
+  ///            ],
   ///          ),
-  ///          sublayers: [
-  ///           MapArcLayer(
-  ///              arcs: List<MapArc>.generate(
-  ///               arcs.length,
-  ///                (int index) {
-  ///                 return MapArc(
-  ///                    from: arcs[index].from,
-  ///                    to: arcs[index].to,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///              width: 2,
-  ///            ),
-  ///          ],
-  ///        ),
-  ///      ],
-  ///    ),
-  /// );
+  ///        ],
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class Model {
+  ///   Model(this.from, this.to);
+  ///
+  ///   MapLatLng from;
+  ///   MapLatLng to;
   /// }
   /// ```
   /// See also:
@@ -1046,23 +1414,40 @@ class MapArcLayer extends MapVectorLayer {
       arcLayer: this,
     );
   }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    if (arcs.isNotEmpty) {
+      final _DebugVectorShapeTree pointerTreeNode = _DebugVectorShapeTree(arcs);
+      properties.add(pointerTreeNode.toDiagnosticsNode());
+    }
+    properties.add(ObjectFlagProperty<Animation>.has('animation', animation));
+    properties.add(ObjectFlagProperty<IndexedWidgetBuilder>.has(
+        'tooltip', tooltipBuilder));
+    if (color != null) {
+      properties.add(ColorProperty('color', color));
+    }
+
+    properties.add(DoubleProperty('width', width));
+  }
 }
 
 class _MapArcLayer extends StatefulWidget {
   const _MapArcLayer({
-    this.arcs,
-    this.animation,
-    this.color,
-    this.width,
-    this.tooltipBuilder,
-    this.arcLayer,
+    required this.arcs,
+    required this.animation,
+    required this.color,
+    required this.width,
+    required this.tooltipBuilder,
+    required this.arcLayer,
   });
 
   final Set<MapArc> arcs;
-  final Animation animation;
-  final Color color;
+  final Animation? animation;
+  final Color? color;
   final double width;
-  final IndexedWidgetBuilder tooltipBuilder;
+  final IndexedWidgetBuilder? tooltipBuilder;
   final MapArcLayer arcLayer;
 
   @override
@@ -1071,8 +1456,10 @@ class _MapArcLayer extends StatefulWidget {
 
 class _MapArcLayerState extends State<_MapArcLayer>
     with SingleTickerProviderStateMixin {
-  AnimationController _hoverAnimationController;
-  SfMapsThemeData _mapsThemeData;
+  MapController? _controller;
+  late AnimationController _hoverAnimationController;
+  late SfMapsThemeData _mapsThemeData;
+  late MapLayerInheritedWidget ancestor;
 
   @override
   void initState() {
@@ -1082,8 +1469,19 @@ class _MapArcLayerState extends State<_MapArcLayer>
   }
 
   @override
+  void didChangeDependencies() {
+    if (_controller == null) {
+      ancestor = context
+          .dependOnInheritedWidgetOfExactType<MapLayerInheritedWidget>()!;
+      _controller = ancestor.controller;
+    }
+    super.didChangeDependencies();
+  }
+
+  @override
   void dispose() {
-    _hoverAnimationController?.dispose();
+    _controller = null;
+    _hoverAnimationController.dispose();
     super.dispose();
   }
 
@@ -1092,9 +1490,11 @@ class _MapArcLayerState extends State<_MapArcLayer>
     final ThemeData themeData = Theme.of(context);
     final bool isDesktop = kIsWeb ||
         themeData.platform == TargetPlatform.macOS ||
-        themeData.platform == TargetPlatform.windows;
-    _mapsThemeData = SfMapsTheme.of(context);
+        themeData.platform == TargetPlatform.windows ||
+        themeData.platform == TargetPlatform.linux;
+    _mapsThemeData = SfMapsTheme.of(context)!;
     return _MapArcLayerRenderObject(
+      controller: _controller,
       arcs: widget.arcs,
       animation: widget.animation,
       color: widget.color ??
@@ -1107,36 +1507,42 @@ class _MapArcLayerState extends State<_MapArcLayer>
       themeData: _mapsThemeData,
       isDesktop: isDesktop,
       hoverAnimationController: _hoverAnimationController,
+      state: this,
     );
   }
 }
 
 class _MapArcLayerRenderObject extends LeafRenderObjectWidget {
   const _MapArcLayerRenderObject({
-    this.arcs,
-    this.animation,
-    this.color,
-    this.width,
-    this.tooltipBuilder,
-    this.arcLayer,
-    this.themeData,
-    this.isDesktop,
-    this.hoverAnimationController,
+    required this.controller,
+    required this.arcs,
+    required this.animation,
+    required this.color,
+    required this.width,
+    required this.tooltipBuilder,
+    required this.arcLayer,
+    required this.themeData,
+    required this.isDesktop,
+    required this.hoverAnimationController,
+    required this.state,
   });
 
+  final MapController? controller;
   final Set<MapArc> arcs;
-  final Animation animation;
+  final Animation? animation;
   final Color color;
   final double width;
-  final IndexedWidgetBuilder tooltipBuilder;
+  final IndexedWidgetBuilder? tooltipBuilder;
   final MapArcLayer arcLayer;
   final SfMapsThemeData themeData;
   final bool isDesktop;
   final AnimationController hoverAnimationController;
+  final _MapArcLayerState state;
 
   @override
   _RenderMapArc createRenderObject(BuildContext context) {
     return _RenderMapArc(
+      controller: controller,
       arcs: arcs,
       animation: animation,
       color: color,
@@ -1147,6 +1553,7 @@ class _MapArcLayerRenderObject extends LeafRenderObjectWidget {
       themeData: themeData,
       isDesktop: isDesktop,
       hoverAnimationController: hoverAnimationController,
+      state: state,
     );
   }
 
@@ -1159,24 +1566,27 @@ class _MapArcLayerRenderObject extends LeafRenderObjectWidget {
       ..width = width
       ..tooltipBuilder = tooltipBuilder
       ..context = context
-      ..arcLayer = arcLayer
-      ..themeData = themeData;
+      ..themeData = themeData
+      ..state = state;
   }
 }
 
 class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
   _RenderMapArc({
-    Set<MapArc> arcs,
-    Animation animation,
-    Color color,
-    double width,
-    IndexedWidgetBuilder tooltipBuilder,
-    BuildContext context,
-    MapArcLayer arcLayer,
-    SfMapsThemeData themeData,
-    bool isDesktop,
-    AnimationController hoverAnimationController,
-  })  : _arcs = arcs,
+    required MapController? controller,
+    required Set<MapArc> arcs,
+    required Animation? animation,
+    required Color color,
+    required double width,
+    required IndexedWidgetBuilder? tooltipBuilder,
+    required BuildContext context,
+    required MapArcLayer arcLayer,
+    required SfMapsThemeData themeData,
+    required bool isDesktop,
+    required AnimationController hoverAnimationController,
+    required this.state,
+  })   : _controller = controller,
+        _arcs = arcs,
         _color = color,
         _width = width,
         _animation = animation,
@@ -1190,43 +1600,45 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
     _reverseHoverColor = ColorTween();
     _hoverColorAnimation = CurvedAnimation(
         parent: hoverAnimationController, curve: Curves.easeInOut);
-    arcsInList = _arcs?.toList();
+    arcsInList = _arcs.toList();
     _tapGestureRecognizer = TapGestureRecognizer()..onTapUp = _handleTapUp;
   }
 
-  TapGestureRecognizer _tapGestureRecognizer;
-  MapController controller;
-  RenderSublayerContainer vectorLayerContainer;
-  MapArcLayer arcLayer;
-  BuildContext context;
-  MapArc selectedArc;
+  final MapController? _controller;
   int selectedIndex = -1;
   double touchTolerance = 5;
-  List<Offset> selectedLinePoints;
-  List<MapArc> arcsInList;
-  AnimationController hoverAnimationController;
-  Animation<double> _hoverColorAnimation;
-  ColorTween _forwardHoverColor;
-  ColorTween _reverseHoverColor;
-  MapArc _previousHoverItem;
-  MapArc _currentHoverItem;
-  bool isDesktop;
+
+  late _MapArcLayerState state;
+  late MapArcLayer arcLayer;
+  late BuildContext context;
+  late MapArc selectedArc;
+  late AnimationController hoverAnimationController;
+  late TapGestureRecognizer _tapGestureRecognizer;
+  late Animation<double> _hoverColorAnimation;
+  late ColorTween _forwardHoverColor;
+  late ColorTween _reverseHoverColor;
+  late List<Offset> selectedLinePoints;
+  late bool isDesktop;
+
+  List<MapArc>? arcsInList;
+  MapArc? _previousHoverItem;
+  MapArc? _currentHoverItem;
 
   Set<MapArc> get arcs => _arcs;
   Set<MapArc> _arcs;
-  set arcs(Set<MapArc> value) {
+  set arcs(Set<MapArc>? value) {
     assert(value != null);
     if (_arcs == value || value == null) {
       return;
     }
     _arcs = value;
-    arcsInList = _arcs?.toList();
+    arcsInList = _arcs.toList();
     markNeedsPaint();
   }
 
-  IndexedWidgetBuilder get tooltipBuilder => _tooltipBuilder;
-  IndexedWidgetBuilder _tooltipBuilder;
-  set tooltipBuilder(IndexedWidgetBuilder value) {
+  IndexedWidgetBuilder? get tooltipBuilder => _tooltipBuilder;
+  IndexedWidgetBuilder? _tooltipBuilder;
+  set tooltipBuilder(IndexedWidgetBuilder? value) {
     if (_tooltipBuilder == value) {
       return;
     }
@@ -1268,9 +1680,9 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
     markNeedsPaint();
   }
 
-  Animation get animation => _animation;
-  Animation _animation;
-  set animation(Animation value) {
+  Animation? get animation => _animation;
+  Animation? _animation;
+  set animation(Animation? value) {
     if (_animation == value) {
       return;
     }
@@ -1279,7 +1691,8 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
 
   void _updateHoverItemTween() {
     if (isDesktop) {
-      final Color hoverStrokeColor = _getHoverColor(selectedArc);
+      final Color hoverStrokeColor =
+          _getHoverColor(selectedArc.color, _color, _themeData);
       final Color beginColor = selectedArc.color ?? _color;
 
       if (_previousHoverItem != null) {
@@ -1295,17 +1708,6 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
     }
   }
 
-  Color _getHoverColor(MapArc arc) {
-    final Color color = arc.color ?? _color;
-    final bool canAdjustHoverOpacity =
-        double.parse(color.opacity.toStringAsFixed(2)) != hoverColorOpacity;
-    return _themeData.shapeHoverColor != null &&
-            _themeData.shapeHoverColor != Colors.transparent
-        ? _themeData.shapeHoverColor
-        : color.withOpacity(
-            canAdjustHoverOpacity ? hoverColorOpacity : minHoverOpacity);
-  }
-
   void _handleTapUp(TapUpDetails details) {
     selectedArc.onTap?.call();
     _handleInteraction(details.localPosition);
@@ -1318,10 +1720,11 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
       _updateHoverItemTween();
     }
 
-    final RenderSublayerContainer vectorParent = parent;
     final ShapeLayerChildRenderBoxBase tooltipRenderer =
-        vectorParent.tooltipKey?.currentContext?.findRenderObject();
-    tooltipRenderer?.hideTooltip();
+        _controller!.tooltipKey!.currentContext!.findRenderObject()
+            // ignore: avoid_as
+            as ShapeLayerChildRenderBoxBase;
+    tooltipRenderer.hideTooltip();
   }
 
   void _handleZooming(MapZoomDetails details) {
@@ -1332,25 +1735,17 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
     markNeedsPaint();
   }
 
-  void _handleReset() {
-    markNeedsPaint();
-  }
-
-  void _handleRefresh() {
-    markNeedsPaint();
-  }
-
   @override
   MouseCursor get cursor => SystemMouseCursors.basic;
 
   @override
-  PointerEnterEventListener get onEnter => null;
+  PointerEnterEventListener? get onEnter => null;
 
   // As onHover property of MouseHoverAnnotation was removed only in the
   // beta channel, once it is moved to stable, will remove this property.
   @override
   // ignore: override_on_non_overriding_member
-  PointerHoverEventListener get onHover => null;
+  PointerHoverEventListener? get onHover => null;
 
   @override
   PointerExitEventListener get onExit => _handlePointerExit;
@@ -1359,16 +1754,19 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
   // ignore: override_on_non_overriding_member
   bool get validForMouseTracker => true;
 
-  void _handleInteraction(Offset position) {
-    final RenderSublayerContainer vectorParent = parent;
-    if (vectorParent.tooltipKey != null && _tooltipBuilder != null) {
+  void _handleInteraction(Offset position,
+      [PointerKind kind = PointerKind.touch]) {
+    if (_controller?.tooltipKey != null && _tooltipBuilder != null) {
       final ShapeLayerChildRenderBoxBase tooltipRenderer =
-          vectorParent.tooltipKey.currentContext.findRenderObject();
+          _controller!.tooltipKey!.currentContext!.findRenderObject()
+              // ignore: avoid_as
+              as ShapeLayerChildRenderBoxBase;
       tooltipRenderer.paintTooltip(
         selectedIndex,
         null,
         MapLayerElement.vector,
-        vectorParent.getSublayerIndex(arcLayer),
+        kind,
+        state.ancestor.sublayers?.indexOf(arcLayer),
         position,
       );
     }
@@ -1376,16 +1774,16 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
 
   @override
   bool hitTestSelf(Offset position) {
-    if (_animation != null && !_animation.isCompleted) {
+    if (_animation != null && !_animation!.isCompleted) {
       return false;
     }
 
-    final bool isTileLayer = controller.tileCurrentLevelDetails != null;
-    final Size boxSize = isTileLayer ? controller.totalTileSize : size;
-    final Offset translationOffset =
-        _getTranslationOffset(controller, isTileLayer);
-    int index = arcsInList.length - 1;
-    for (final MapArc arc in arcsInList?.reversed) {
+    final Size boxSize = _controller?.layerType == LayerType.tile
+        ? _controller!.totalTileSize!
+        : size;
+    final Offset translationOffset = _getTranslation(_controller!);
+    int index = arcsInList!.length - 1;
+    for (final MapArc arc in arcsInList!.reversed) {
       final double width = arc.width ?? _width;
       if (arc.onTap != null || _tooltipBuilder != null || isDesktop) {
         final double actualTouchTolerance =
@@ -1395,17 +1793,17 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
           arc.from.longitude,
           boxSize,
           translationOffset,
-          controller.shapeLayerSizeFactor,
+          _controller!.shapeLayerSizeFactor,
         );
         Offset endPoint = pixelFromLatLng(
           arc.to.latitude,
           arc.to.longitude,
           boxSize,
           translationOffset,
-          controller.shapeLayerSizeFactor,
+          _controller!.shapeLayerSizeFactor,
         );
-        startPoint = _updatePointsToScaledPosition(startPoint, controller);
-        endPoint = _updatePointsToScaledPosition(endPoint, controller);
+        startPoint = _getScaledOffset(startPoint, _controller!);
+        endPoint = _getScaledOffset(endPoint, _controller!);
         final Offset controlPoint = _calculateControlPoint(
             startPoint, endPoint, arc.heightFactor, arc.controlPointFactor);
 
@@ -1426,45 +1824,45 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
   void handleEvent(PointerEvent event, HitTestEntry entry) {
     if (event is PointerDownEvent) {
       _tapGestureRecognizer.addPointer(event);
-    } else if (event is PointerHoverEvent) {
-      if (isDesktop && _currentHoverItem != selectedArc) {
+    } else if (event is PointerHoverEvent && isDesktop) {
+      if (_currentHoverItem != selectedArc) {
         _previousHoverItem = _currentHoverItem;
         _currentHoverItem = selectedArc;
         _updateHoverItemTween();
       }
 
-      final RenderBox renderBox = context.findRenderObject();
-      _handleInteraction(renderBox.globalToLocal(event.position));
+      // ignore: avoid_as
+      final RenderBox renderBox = context.findRenderObject() as RenderBox;
+      _handleInteraction(
+          renderBox.globalToLocal(event.position), PointerKind.hover);
     }
   }
 
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
-    vectorLayerContainer = parent;
-    controller = vectorLayerContainer.controller;
-    if (controller != null) {
-      controller
+    if (_controller != null) {
+      _controller!
         ..addZoomingListener(_handleZooming)
         ..addPanningListener(_handlePanning)
-        ..addResetListener(_handleReset)
-        ..addRefreshListener(_handleRefresh);
+        ..addResetListener(markNeedsPaint)
+        ..addRefreshListener(markNeedsPaint);
     }
     _animation?.addListener(markNeedsPaint);
-    _hoverColorAnimation?.addListener(markNeedsPaint);
+    _hoverColorAnimation.addListener(markNeedsPaint);
   }
 
   @override
   void detach() {
-    if (controller != null) {
-      controller
+    if (_controller != null) {
+      _controller!
         ..removeZoomingListener(_handleZooming)
         ..removePanningListener(_handlePanning)
-        ..removeResetListener(_handleReset)
-        ..removeRefreshListener(_handleRefresh);
+        ..removeResetListener(markNeedsPaint)
+        ..removeRefreshListener(markNeedsPaint);
     }
     _animation?.removeListener(markNeedsPaint);
-    _hoverColorAnimation?.removeListener(markNeedsPaint);
+    _hoverColorAnimation.removeListener(markNeedsPaint);
     arcsInList?.clear();
     arcsInList = null;
     super.detach();
@@ -1480,21 +1878,21 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    if (_animation != null && _animation.value == 0) {
+    if (_animation != null && _animation!.value == 0) {
       return;
     }
     context.canvas.save();
     Offset startPoint;
     Offset endPoint;
-    final bool isTileLayer = controller.tileCurrentLevelDetails != null;
     final Paint paint = Paint()
       ..isAntiAlias = true
       ..style = PaintingStyle.stroke;
     Path path = Path();
-    final Size boxSize = isTileLayer ? controller.totalTileSize : size;
-    final Offset translationOffset =
-        _getTranslationOffset(controller, isTileLayer);
-    controller.applyTransform(context, offset, true);
+    final Size boxSize = _controller?.layerType == LayerType.tile
+        ? _controller!.totalTileSize!
+        : size;
+    final Offset translationOffset = _getTranslation(_controller!);
+    _controller!.applyTransform(context, offset, true);
 
     for (final MapArc arc in arcs) {
       startPoint = pixelFromLatLng(
@@ -1502,14 +1900,14 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
         arc.from.longitude,
         boxSize,
         translationOffset,
-        controller.shapeLayerSizeFactor,
+        _controller!.shapeLayerSizeFactor,
       );
       endPoint = pixelFromLatLng(
         arc.to.latitude,
         arc.to.longitude,
         boxSize,
         translationOffset,
-        controller.shapeLayerSizeFactor,
+        _controller!.shapeLayerSizeFactor,
       );
       final Offset controlPoint = _calculateControlPoint(
           startPoint, endPoint, arc.heightFactor, arc.controlPointFactor);
@@ -1517,23 +1915,23 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
       if (_previousHoverItem != null &&
           _previousHoverItem == arc &&
           _themeData.shapeHoverColor != Colors.transparent) {
-        paint.color = _reverseHoverColor.evaluate(_hoverColorAnimation);
+        paint.color = _reverseHoverColor.evaluate(_hoverColorAnimation)!;
       } else if (_currentHoverItem != null &&
           selectedArc == arc &&
           _themeData.shapeHoverColor != Colors.transparent) {
-        paint.color = _forwardHoverColor.evaluate(_hoverColorAnimation);
+        paint.color = _forwardHoverColor.evaluate(_hoverColorAnimation)!;
       } else {
         paint.color = arc.color ?? _color;
       }
 
-      paint.strokeWidth = _getDesiredValue(arc.width ?? _width, controller);
+      paint.strokeWidth = _getCurrentWidth(arc.width ?? _width, _controller!);
       path
         ..reset()
         ..moveTo(startPoint.dx, startPoint.dy)
         ..quadraticBezierTo(
             controlPoint.dx, controlPoint.dy, endPoint.dx, endPoint.dy);
       if (_animation != null) {
-        path = _getAnimatedPath(path, _animation);
+        path = _getAnimatedPath(path, _animation!);
       }
       _drawDashedLine(context.canvas, arc.dashArray, paint, path);
     }
@@ -1573,33 +1971,59 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
 /// [MapTileLayer].
 ///
 /// ```dart
-/// @override
-/// Widget build(BuildContext context) {
-///  return Scaffold(
-///    body: SfMaps(
-///     layers: [
-///        MapShapeLayer(
-///          source: MapShapeSource.asset(
-///             "assets/world_map.json",
-///              shapeDataField: "continent",
-///          ),
-///          sublayers: [
-///            MapPolylineLayer(
-///              polylines: List<MapPolyline>.generate(
-///                polylines.length,
-///                (int index) {
-///                  return MapPolyline(
-///                    points: polylines[index].points,
-///                  );
-///                },
-///              ).toSet(),
-///            ),
-///          ],
+///  MapZoomPanBehavior _zoomPanBehavior;
+///  List<MapLatLng> _polyLines;
+///  MapShapeSource _mapSource;
+///
+///   @override
+///   void initState() {
+///     _polyLines = <MapLatLng>[
+///       MapLatLng(13.0827, 80.2707),
+///       MapLatLng(14.4673, 78.8242),
+///       MapLatLng(14.9091, 78.0092),
+///       MapLatLng(16.2160, 77.3566),
+///       MapLatLng(17.1557, 76.8697),
+///       MapLatLng(18.0975, 75.4249),
+///       MapLatLng(18.5204, 73.8567),
+///       MapLatLng(19.0760, 72.8777),
+///     ];
+///
+///     _mapSource = MapShapeSource.asset(
+///       'assets/india.json',
+///       shapeDataField: 'name',
+///     );
+///
+///     _zoomPanBehavior = MapZoomPanBehavior(
+///         zoomLevel: 3, focalLatLng: MapLatLng(15.3173, 76.7139));
+///     super.initState();
+///   }
+///
+///   @override
+///   Widget build(BuildContext context) {
+///     return Scaffold(
+///       appBar: AppBar(title: Text('Polyline')),
+///       body: SfMaps(
+///         layers: [
+///           MapShapeLayer(
+///             source: _mapSource,
+///             sublayers: [
+///               MapPolylineLayer(
+///                 polylines: List<MapPolyline>.generate(
+///                   1,
+///                   (int index) {
+///                     return MapPolyline(
+///                       points: _polyLines,
+///                     );
+///                   },
+///                 ).toSet(),
+///               ),
+///             ],
+///             zoomPanBehavior: _zoomPanBehavior,
+///           ),
+///         ],
 ///       ),
-///      ],
-///    ),
-///  );
-/// }
+///     );
+///   }
 /// ```
 ///
 /// See also:
@@ -1610,14 +2034,13 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
 class MapPolylineLayer extends MapVectorLayer {
   /// Creates the [MapPolylineLayer].
   MapPolylineLayer({
-    Key key,
-    @required this.polylines,
+    Key? key,
+    required this.polylines,
     this.animation,
     this.color,
     this.width = 2,
-    IndexedWidgetBuilder tooltipBuilder,
-  })  : assert(polylines != null),
-        super(key: key, tooltipBuilder: tooltipBuilder);
+    IndexedWidgetBuilder? tooltipBuilder,
+  }) : super(key: key, tooltipBuilder: tooltipBuilder);
 
   /// A collection of [MapPolyline].
   ///
@@ -1625,33 +2048,59 @@ class MapPolylineLayer extends MapVectorLayer {
   /// group of [MapPolyline.points].
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///     layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
-  ///          sublayers: [
-  ///            MapPolylineLayer(
-  ///              polylines: List<MapPolyline>.generate(
-  ///                polylines.length,
-  ///                (int index) {
-  ///                  return MapPolyline(
-  ///                    points: polylines[index].points,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  ///          ],
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  List<MapLatLng> _polyLines;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///   @override
+  ///   void initState() {
+  ///     _polyLines = <MapLatLng>[
+  ///       MapLatLng(13.0827, 80.2707),
+  ///       MapLatLng(14.4673, 78.8242),
+  ///       MapLatLng(14.9091, 78.0092),
+  ///       MapLatLng(16.2160, 77.3566),
+  ///       MapLatLng(17.1557, 76.8697),
+  ///       MapLatLng(18.0975, 75.4249),
+  ///       MapLatLng(18.5204, 73.8567),
+  ///       MapLatLng(19.0760, 72.8777),
+  ///     ];
+  ///
+  ///     _mapSource = MapShapeSource.asset(
+  ///       'assets/india.json',
+  ///       shapeDataField: 'name',
+  ///     );
+  ///
+  ///     _zoomPanBehavior = MapZoomPanBehavior(
+  ///         zoomLevel: 3, focalLatLng: MapLatLng(15.3173, 76.7139));
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       appBar: AppBar(title: Text('Polyline')),
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             sublayers: [
+  ///               MapPolylineLayer(
+  ///                 polylines: List<MapPolyline>.generate(
+  ///                   1,
+  ///                   (int index) {
+  ///                     return MapPolyline(
+  ///                       points: _polyLines,
+  ///                     );
+  ///                   },
+  ///                 ).toSet(),
+  ///               ),
+  ///             ],
+  ///             zoomPanBehavior: _zoomPanBehavior,
+  ///           ),
+  ///         ],
   ///       ),
-  ///      ],
-  ///    ),
-  ///  );
-  /// }
+  ///     );
+  ///   }
   /// ```
   final Set<MapPolyline> polylines;
 
@@ -1664,59 +2113,75 @@ class MapPolylineLayer extends MapVectorLayer {
   /// ```dart
   /// AnimationController _animationController;
   /// Animation _animation;
+  /// MapZoomPanBehavior _zoomPanBehavior;
+  /// List<MapLatLng> _polyLines;
+  /// MapShapeSource _mapSource;
   ///
   /// @override
   /// void initState() {
-  ///   _animationController = AnimationController(
-  ///      duration: Duration(seconds: 3),
-  ///      vsync: this,
+  ///   _polyLines = <MapLatLng>[
+  ///     MapLatLng(13.0827, 80.2707),
+  ///     MapLatLng(14.4673, 78.8242),
+  ///     MapLatLng(14.9091, 78.0092),
+  ///     MapLatLng(16.2160, 77.3566),
+  ///     MapLatLng(17.1557, 76.8697),
+  ///     MapLatLng(18.0975, 75.4249),
+  ///     MapLatLng(18.5204, 73.8567),
+  ///     MapLatLng(19.0760, 72.8777),
+  ///   ];
+  ///
+  ///   _mapSource = MapShapeSource.asset(
+  ///     'assets/india.json',
+  ///     shapeDataField: 'name',
   ///   );
   ///
-  ///  _animation = CurvedAnimation(
-  ///    parent: _animationController,
-  ///    curve: Curves.easeInOut),
-  ///  );
+  ///   _zoomPanBehavior = MapZoomPanBehavior(
+  ///       zoomLevel: 3, focalLatLng: MapLatLng(15.3173, 76.7139));
   ///
-  ///  _animationController.forward(from: 0);
-  ///  super.initState();
+  ///   _animationController = AnimationController(
+  ///     duration: Duration(seconds: 3),
+  ///     vsync: this,
+  ///   );
+  ///
+  ///   _animation =
+  ///       CurvedAnimation(parent: _animationController,
+  ///       curve: Curves.easeInOut);
+  ///
+  ///   _animationController.forward(from: 0);
+  ///   super.initState();
   /// }
   ///
   /// @override
   /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///     layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
-  ///          sublayers: [
-  ///            MapPolylineLayer(
-  ///              polylines: List<MapPolyline>.generate(
-  ///                polylines.length,
-  ///                (int index) {
-  ///                  return MapPolyline(
-  ///                    points: polylines[index].points,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///              animation: _animation,
-  ///            ),
-  ///          ],
-  ///       ),
-  ///      ],
-  ///    ),
-  ///  );
+  ///   return Scaffold(
+  ///     body: SfMaps(
+  ///       layers: [
+  ///         MapShapeLayer(
+  ///           source: _mapSource,
+  ///           zoomPanBehavior: _zoomPanBehavior,
+  ///           sublayers: [
+  ///             MapPolylineLayer(
+  ///               polylines: [
+  ///                 MapPolyline(
+  ///                   points: _polyLines,
+  ///                 )
+  ///               ].toSet(),
+  ///               animation: _animation,
+  ///             ),
+  ///           ],
+  ///         ),
+  ///       ],
+  ///     ),
+  ///   );
   /// }
   ///
-  ///  @override
-  ///  void dispose() {
-  ///    _animationController?.dispose();
-  ///    super.dispose();
-  ///  }
+  /// @override
+  /// void dispose() {
+  ///   _animationController?.dispose();
+  ///   super.dispose();
+  /// }
   /// ```
-  final Animation animation;
+  final Animation? animation;
 
   /// The color of all the [polylines].
   ///
@@ -1724,39 +2189,65 @@ class MapPolylineLayer extends MapVectorLayer {
   /// [MapPolyline.color] property.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///     layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
-  ///          sublayers: [
-  ///            MapPolylineLayer(
-  ///              polylines: List<MapPolyline>.generate(
-  ///                polylines.length,
-  ///                (int index) {
-  ///                  return MapPolyline(
-  ///                    points: polylines[index].points,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///              color: Colors.green,
-  ///            ),
-  ///          ],
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  List<MapLatLng> _polyLines;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///   @override
+  ///   void initState() {
+  ///     _polyLines = <MapLatLng>[
+  ///       MapLatLng(13.0827, 80.2707),
+  ///       MapLatLng(14.4673, 78.8242),
+  ///       MapLatLng(14.9091, 78.0092),
+  ///       MapLatLng(16.2160, 77.3566),
+  ///       MapLatLng(17.1557, 76.8697),
+  ///       MapLatLng(18.0975, 75.4249),
+  ///       MapLatLng(18.5204, 73.8567),
+  ///       MapLatLng(19.0760, 72.8777),
+  ///     ];
+  ///
+  ///     _mapSource = MapShapeSource.asset(
+  ///       'assets/india.json',
+  ///       shapeDataField: 'name',
+  ///     );
+  ///
+  ///     _zoomPanBehavior = MapZoomPanBehavior(
+  ///         zoomLevel: 3, focalLatLng: MapLatLng(15.3173, 76.7139));
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       appBar: AppBar(title: Text('Polyline')),
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             sublayers: [
+  ///               MapPolylineLayer(
+  ///                 polylines: List<MapPolyline>.generate(
+  ///                   1,
+  ///                   (int index) {
+  ///                     return MapPolyline(
+  ///                       points: _polyLines,
+  ///                     );
+  ///                   },
+  ///                 ).toSet(),
+  ///                 color: Colors.green,
+  ///               ),
+  ///             ],
+  ///             zoomPanBehavior: _zoomPanBehavior,
+  ///           ),
+  ///         ],
   ///       ),
-  ///      ],
-  ///    ),
-  ///  );
-  /// }
+  ///     );
+  ///   }
   /// ```
   ///
   /// See also:
   /// [width], for setting the width.
-  final Color color;
+  final Color? color;
 
   /// The width of all the [polylines].
   ///
@@ -1764,35 +2255,60 @@ class MapPolylineLayer extends MapVectorLayer {
   /// [MapPolyline.width] property.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///     layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
-  ///          sublayers: [
-  ///            MapPolylineLayer(
-  ///              polylines: List<MapPolyline>.generate(
-  ///                polylines.length,
-  ///                (int index) {
-  ///                  return MapPolyline(
-  ///                    points: polylines[index].points,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///              color: Colors.green,
-  ///              width: 5,
-  ///            ),
-  ///          ],
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  List<MapLatLng> _polyLines;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///   @override
+  ///   void initState() {
+  ///     _polyLines = <MapLatLng>[
+  ///       MapLatLng(13.0827, 80.2707),
+  ///       MapLatLng(14.4673, 78.8242),
+  ///       MapLatLng(14.9091, 78.0092),
+  ///       MapLatLng(16.2160, 77.3566),
+  ///       MapLatLng(17.1557, 76.8697),
+  ///       MapLatLng(18.0975, 75.4249),
+  ///       MapLatLng(18.5204, 73.8567),
+  ///       MapLatLng(19.0760, 72.8777),
+  ///     ];
+  ///
+  ///     _mapSource = MapShapeSource.asset(
+  ///       'assets/india.json',
+  ///       shapeDataField: 'name',
+  ///     );
+  ///
+  ///     _zoomPanBehavior = MapZoomPanBehavior(
+  ///         zoomLevel: 3, focalLatLng: MapLatLng(15.3173, 76.7139));
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       appBar: AppBar(title: Text('Polyline')),
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             sublayers: [
+  ///               MapPolylineLayer(
+  ///                 polylines: List<MapPolyline>.generate(
+  ///                   1,
+  ///                   (int index) {
+  ///                     return MapPolyline(
+  ///                       points: _polyLines,
+  ///                     );
+  ///                   },
+  ///                 ).toSet(),
+  ///                 width : 2.0,
+  ///               ),
+  ///             ],
+  ///             zoomPanBehavior: _zoomPanBehavior,
+  ///           ),
+  ///         ],
   ///       ),
-  ///      ],
-  ///    ),
-  ///  );
-  /// }
+  ///     );
+  ///   }
   /// ```
   ///
   /// See also:
@@ -1810,23 +2326,41 @@ class MapPolylineLayer extends MapVectorLayer {
       polylineLayer: this,
     );
   }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    if (polylines.isNotEmpty) {
+      final _DebugVectorShapeTree pointerTreeNode =
+          _DebugVectorShapeTree(polylines);
+      properties.add(pointerTreeNode.toDiagnosticsNode());
+    }
+    properties.add(ObjectFlagProperty<Animation>.has('animation', animation));
+    properties.add(ObjectFlagProperty<IndexedWidgetBuilder>.has(
+        'tooltip', tooltipBuilder));
+    if (color != null) {
+      properties.add(ColorProperty('color', color));
+    }
+
+    properties.add(DoubleProperty('width', width));
+  }
 }
 
 class _MapPolylineLayer extends StatefulWidget {
   const _MapPolylineLayer({
-    this.polylines,
-    this.animation,
-    this.color,
-    this.width,
-    this.tooltipBuilder,
-    this.polylineLayer,
+    required this.polylines,
+    required this.animation,
+    required this.color,
+    required this.width,
+    required this.tooltipBuilder,
+    required this.polylineLayer,
   });
 
   final Set<MapPolyline> polylines;
-  final Animation animation;
-  final Color color;
+  final Animation? animation;
+  final Color? color;
   final double width;
-  final IndexedWidgetBuilder tooltipBuilder;
+  final IndexedWidgetBuilder? tooltipBuilder;
   final MapPolylineLayer polylineLayer;
 
   @override
@@ -1835,8 +2369,10 @@ class _MapPolylineLayer extends StatefulWidget {
 
 class _MapPolylineLayerState extends State<_MapPolylineLayer>
     with SingleTickerProviderStateMixin {
-  AnimationController _hoverAnimationController;
-  SfMapsThemeData _mapsThemeData;
+  MapController? _controller;
+  late AnimationController _hoverAnimationController;
+  late SfMapsThemeData _mapsThemeData;
+  late MapLayerInheritedWidget ancestor;
 
   @override
   void initState() {
@@ -1846,8 +2382,19 @@ class _MapPolylineLayerState extends State<_MapPolylineLayer>
   }
 
   @override
+  void didChangeDependencies() {
+    if (_controller == null) {
+      ancestor = context
+          .dependOnInheritedWidgetOfExactType<MapLayerInheritedWidget>()!;
+      _controller = ancestor.controller;
+    }
+    super.didChangeDependencies();
+  }
+
+  @override
   void dispose() {
-    _hoverAnimationController?.dispose();
+    _controller = null;
+    _hoverAnimationController.dispose();
     super.dispose();
   }
 
@@ -1856,9 +2403,11 @@ class _MapPolylineLayerState extends State<_MapPolylineLayer>
     final ThemeData themeData = Theme.of(context);
     final bool isDesktop = kIsWeb ||
         themeData.platform == TargetPlatform.macOS ||
-        themeData.platform == TargetPlatform.windows;
-    _mapsThemeData = SfMapsTheme.of(context);
+        themeData.platform == TargetPlatform.windows ||
+        themeData.platform == TargetPlatform.linux;
+    _mapsThemeData = SfMapsTheme.of(context)!;
     return _MapPolylineLayerRenderObject(
+      controller: _controller,
       polylines: widget.polylines,
       animation: widget.animation,
       color: widget.color ??
@@ -1871,36 +2420,42 @@ class _MapPolylineLayerState extends State<_MapPolylineLayer>
       isDesktop: isDesktop,
       themeData: _mapsThemeData,
       hoverAnimationController: _hoverAnimationController,
+      state: this,
     );
   }
 }
 
 class _MapPolylineLayerRenderObject extends LeafRenderObjectWidget {
   const _MapPolylineLayerRenderObject({
-    this.polylines,
-    this.animation,
-    this.color,
-    this.width,
-    this.tooltipBuilder,
-    this.polylineLayer,
-    this.themeData,
-    this.isDesktop,
-    this.hoverAnimationController,
+    required this.controller,
+    required this.polylines,
+    required this.animation,
+    required this.color,
+    required this.width,
+    required this.tooltipBuilder,
+    required this.polylineLayer,
+    required this.themeData,
+    required this.isDesktop,
+    required this.hoverAnimationController,
+    required this.state,
   });
 
+  final MapController? controller;
   final Set<MapPolyline> polylines;
-  final Animation animation;
+  final Animation? animation;
   final Color color;
   final double width;
-  final IndexedWidgetBuilder tooltipBuilder;
+  final IndexedWidgetBuilder? tooltipBuilder;
   final MapPolylineLayer polylineLayer;
   final SfMapsThemeData themeData;
   final bool isDesktop;
   final AnimationController hoverAnimationController;
+  final _MapPolylineLayerState state;
 
   @override
   _RenderMapPolyline createRenderObject(BuildContext context) {
     return _RenderMapPolyline(
+      controller: controller,
       polylines: polylines,
       animation: animation,
       color: color,
@@ -1911,6 +2466,7 @@ class _MapPolylineLayerRenderObject extends LeafRenderObjectWidget {
       themeData: themeData,
       isDesktop: isDesktop,
       hoverAnimationController: hoverAnimationController,
+      state: state,
     );
   }
 
@@ -1924,24 +2480,27 @@ class _MapPolylineLayerRenderObject extends LeafRenderObjectWidget {
       ..width = width
       ..tooltipBuilder = tooltipBuilder
       ..context = context
-      ..polylineLayer = polylineLayer
-      ..themeData = themeData;
+      ..themeData = themeData
+      ..state = state;
   }
 }
 
 class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
   _RenderMapPolyline({
-    Set<MapPolyline> polylines,
-    Animation animation,
-    Color color,
-    double width,
-    IndexedWidgetBuilder tooltipBuilder,
-    BuildContext context,
-    MapPolylineLayer polylineLayer,
-    SfMapsThemeData themeData,
-    bool isDesktop,
-    AnimationController hoverAnimationController,
-  })  : _polylines = polylines,
+    required MapController? controller,
+    required Set<MapPolyline> polylines,
+    required Animation? animation,
+    required Color color,
+    required double width,
+    required IndexedWidgetBuilder? tooltipBuilder,
+    required BuildContext context,
+    required MapPolylineLayer polylineLayer,
+    required SfMapsThemeData themeData,
+    required bool isDesktop,
+    required AnimationController hoverAnimationController,
+    required this.state,
+  })   : _controller = controller,
+        _polylines = polylines,
         _color = color,
         _width = width,
         _animation = animation,
@@ -1955,51 +2514,52 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
     _reverseHoverColor = ColorTween();
     _hoverColorAnimation = CurvedAnimation(
         parent: hoverAnimationController, curve: Curves.easeInOut);
-    polylinesInList = _polylines?.toList();
+    polylinesInList = _polylines.toList();
     _tapGestureRecognizer = TapGestureRecognizer()..onTapUp = _handleTapUp;
   }
 
-  TapGestureRecognizer _tapGestureRecognizer;
-  MapController controller;
-  RenderSublayerContainer vectorLayerContainer;
-  MapPolylineLayer polylineLayer;
-  BuildContext context;
-  MapPolyline selectedPolyline;
+  final MapController? _controller;
   int selectedIndex = -1;
   double touchTolerance = 5;
-  List<MapPolyline> polylinesInList;
-  AnimationController hoverAnimationController;
-  Animation<double> _hoverColorAnimation;
-  ColorTween _forwardHoverColor;
-  ColorTween _reverseHoverColor;
-  MapPolyline _previousHoverItem;
-  MapPolyline _currentHoverItem;
-  bool isDesktop;
+  late _MapPolylineLayerState state;
+  late TapGestureRecognizer _tapGestureRecognizer;
+  late MapPolylineLayer polylineLayer;
+  late BuildContext context;
+  late MapPolyline selectedPolyline;
+  late AnimationController hoverAnimationController;
+  late Animation<double> _hoverColorAnimation;
+  late ColorTween _forwardHoverColor;
+  late ColorTween _reverseHoverColor;
+  late bool isDesktop;
+
+  List<MapPolyline>? polylinesInList;
+  MapPolyline? _previousHoverItem;
+  MapPolyline? _currentHoverItem;
 
   Set<MapPolyline> get polylines => _polylines;
   Set<MapPolyline> _polylines;
-  set polylines(Set<MapPolyline> value) {
+  set polylines(Set<MapPolyline>? value) {
     assert(value != null);
     if (_polylines == value || value == null) {
       return;
     }
     _polylines = value;
-    polylinesInList = _polylines?.toList();
+    polylinesInList = _polylines.toList();
     markNeedsPaint();
   }
 
-  Animation get animation => _animation;
-  Animation _animation;
-  set animation(Animation value) {
+  Animation? get animation => _animation;
+  Animation? _animation;
+  set animation(Animation? value) {
     if (_animation == value) {
       return;
     }
     _animation = value;
   }
 
-  IndexedWidgetBuilder get tooltipBuilder => _tooltipBuilder;
-  IndexedWidgetBuilder _tooltipBuilder;
-  set tooltipBuilder(IndexedWidgetBuilder value) {
+  IndexedWidgetBuilder? get tooltipBuilder => _tooltipBuilder;
+  IndexedWidgetBuilder? _tooltipBuilder;
+  set tooltipBuilder(IndexedWidgetBuilder? value) {
     if (_tooltipBuilder == value) {
       return;
     }
@@ -2044,7 +2604,8 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
 
   void _updateHoverItemTween() {
     if (isDesktop) {
-      final Color hoverStrokeColor = _getHoverColor(selectedPolyline);
+      final Color hoverStrokeColor =
+          _getHoverColor(selectedPolyline.color, _color, _themeData);
       final Color beginColor = selectedPolyline.color ?? _color;
 
       if (_previousHoverItem != null) {
@@ -2060,17 +2621,6 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
     }
   }
 
-  Color _getHoverColor(MapPolyline polyline) {
-    final Color color = polyline.color ?? _color;
-    final bool canAdjustHoverOpacity =
-        double.parse(color.opacity.toStringAsFixed(2)) != hoverColorOpacity;
-    return _themeData.shapeHoverColor != null &&
-            _themeData.shapeHoverColor != Colors.transparent
-        ? _themeData.shapeHoverColor
-        : color.withOpacity(
-            canAdjustHoverOpacity ? hoverColorOpacity : minHoverOpacity);
-  }
-
   void _handleTapUp(TapUpDetails details) {
     selectedPolyline.onTap?.call();
     _handleInteraction(details.localPosition);
@@ -2083,10 +2633,11 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
       _updateHoverItemTween();
     }
 
-    final RenderSublayerContainer vectorParent = parent;
     final ShapeLayerChildRenderBoxBase tooltipRenderer =
-        vectorParent.tooltipKey?.currentContext?.findRenderObject();
-    tooltipRenderer?.hideTooltip();
+        _controller!.tooltipKey!.currentContext!.findRenderObject()
+            // ignore: avoid_as
+            as ShapeLayerChildRenderBoxBase;
+    tooltipRenderer.hideTooltip();
   }
 
   void _handleZooming(MapZoomDetails details) {
@@ -2097,24 +2648,19 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
     markNeedsPaint();
   }
 
-  void _handleReset() {
-    markNeedsPaint();
-  }
-
-  void _handleRefresh() {
-    markNeedsPaint();
-  }
-
-  void _handleInteraction(Offset position) {
-    final RenderSublayerContainer vectorParent = parent;
-    if (vectorParent.tooltipKey != null && _tooltipBuilder != null) {
+  void _handleInteraction(Offset position,
+      [PointerKind kind = PointerKind.touch]) {
+    if (_controller?.tooltipKey != null && _tooltipBuilder != null) {
       final ShapeLayerChildRenderBoxBase tooltipRenderer =
-          vectorParent.tooltipKey.currentContext.findRenderObject();
+          _controller!.tooltipKey!.currentContext!.findRenderObject()
+              // ignore: avoid_as
+              as ShapeLayerChildRenderBoxBase;
       tooltipRenderer.paintTooltip(
         selectedIndex,
         null,
         MapLayerElement.vector,
-        vectorParent.getSublayerIndex(polylineLayer),
+        kind,
+        state.ancestor.sublayers?.indexOf(polylineLayer),
         position,
       );
     }
@@ -2124,13 +2670,13 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
   MouseCursor get cursor => SystemMouseCursors.basic;
 
   @override
-  PointerEnterEventListener get onEnter => null;
+  PointerEnterEventListener? get onEnter => null;
 
   // As onHover property of MouseHoverAnnotation was removed only in the
   // beta channel, once it is moved to stable, will remove this property.
   @override
   // ignore: override_on_non_overriding_member
-  PointerHoverEventListener get onHover => null;
+  PointerHoverEventListener? get onHover => null;
 
   @override
   PointerExitEventListener get onExit => _handlePointerExit;
@@ -2141,17 +2687,17 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
 
   @override
   bool hitTestSelf(Offset position) {
-    if (_animation != null && !_animation.isCompleted) {
+    if (_animation != null && !_animation!.isCompleted) {
       return false;
     }
 
-    final bool isTileLayer = controller.tileCurrentLevelDetails != null;
-    final Size boxSize = isTileLayer ? controller.totalTileSize : size;
-    final Offset translationOffset =
-        _getTranslationOffset(controller, isTileLayer);
+    final Size boxSize = _controller?.layerType == LayerType.tile
+        ? _controller!.totalTileSize!
+        : size;
+    final Offset translationOffset = _getTranslation(_controller!);
     bool tappedOnLine = false;
-    int index = polylinesInList.length - 1;
-    for (final MapPolyline polyline in polylinesInList?.reversed) {
+    int index = polylinesInList!.length - 1;
+    for (final MapPolyline polyline in polylinesInList!.reversed) {
       if (tappedOnLine) {
         return true;
       }
@@ -2168,17 +2714,17 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
             currentPoint.longitude,
             boxSize,
             translationOffset,
-            controller.shapeLayerSizeFactor,
+            _controller!.shapeLayerSizeFactor,
           );
           Offset endPoint = pixelFromLatLng(
             nextPoint.latitude,
             nextPoint.longitude,
             boxSize,
             translationOffset,
-            controller.shapeLayerSizeFactor,
+            _controller!.shapeLayerSizeFactor,
           );
-          startPoint = _updatePointsToScaledPosition(startPoint, controller);
-          endPoint = _updatePointsToScaledPosition(endPoint, controller);
+          startPoint = _getScaledOffset(startPoint, _controller!);
+          endPoint = _getScaledOffset(endPoint, _controller!);
 
           if (_liesPointOnLine(
               startPoint, endPoint, actualTouchTolerance, position)) {
@@ -2198,30 +2744,28 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
-    vectorLayerContainer = parent;
-    controller = vectorLayerContainer.controller;
-    if (controller != null) {
-      controller
+    if (_controller != null) {
+      _controller!
         ..addZoomingListener(_handleZooming)
         ..addPanningListener(_handlePanning)
-        ..addResetListener(_handleReset)
-        ..addRefreshListener(_handleRefresh);
+        ..addResetListener(markNeedsPaint)
+        ..addRefreshListener(markNeedsPaint);
     }
     _animation?.addListener(markNeedsPaint);
-    _hoverColorAnimation?.addListener(markNeedsPaint);
+    _hoverColorAnimation.addListener(markNeedsPaint);
   }
 
   @override
   void detach() {
-    if (controller != null) {
-      controller
+    if (_controller != null) {
+      _controller!
         ..removeZoomingListener(_handleZooming)
         ..removePanningListener(_handlePanning)
-        ..removeResetListener(_handleReset)
-        ..removeRefreshListener(_handleRefresh);
+        ..removeResetListener(markNeedsPaint)
+        ..removeRefreshListener(markNeedsPaint);
     }
     _animation?.removeListener(markNeedsPaint);
-    _hoverColorAnimation?.removeListener(markNeedsPaint);
+    _hoverColorAnimation.removeListener(markNeedsPaint);
     polylinesInList?.clear();
     polylinesInList = null;
     super.detach();
@@ -2231,15 +2775,17 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
   void handleEvent(PointerEvent event, HitTestEntry entry) {
     if (event is PointerDownEvent) {
       _tapGestureRecognizer.addPointer(event);
-    } else if (event is PointerHoverEvent) {
-      if (isDesktop && _currentHoverItem != selectedPolyline) {
+    } else if (event is PointerHoverEvent && isDesktop) {
+      if (_currentHoverItem != selectedPolyline) {
         _previousHoverItem = _currentHoverItem;
         _currentHoverItem = selectedPolyline;
         _updateHoverItemTween();
       }
 
-      final RenderBox renderBox = context.findRenderObject();
-      _handleInteraction(renderBox.globalToLocal(event.position));
+      // ignore: avoid_as
+      final RenderBox renderBox = context.findRenderObject() as RenderBox;
+      _handleInteraction(
+          renderBox.globalToLocal(event.position), PointerKind.hover);
     }
   }
 
@@ -2253,7 +2799,7 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    if (_animation != null && _animation.value == 0.0) {
+    if (_animation != null && _animation!.value == 0.0) {
       return;
     }
     context.canvas.save();
@@ -2261,54 +2807,52 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
       ..isAntiAlias = true
       ..style = PaintingStyle.stroke;
     Path path = Path();
-    final bool isTileLayer = controller.tileCurrentLevelDetails != null;
-    final Size boxSize = isTileLayer ? controller.totalTileSize : size;
-    final Offset translationOffset =
-        _getTranslationOffset(controller, isTileLayer);
-    controller.applyTransform(context, offset, true);
+    final Size boxSize = _controller?.layerType == LayerType.tile
+        ? _controller!.totalTileSize!
+        : size;
+    final Offset translationOffset = _getTranslation(_controller!);
+    _controller!.applyTransform(context, offset, true);
     for (final MapPolyline polyline in polylines) {
-      if (polyline.points != null) {
-        final MapLatLng startCoordinate = polyline.points[0];
-        final Offset startPoint = pixelFromLatLng(
-            startCoordinate.latitude,
-            startCoordinate.longitude,
+      final MapLatLng startCoordinate = polyline.points[0];
+      final Offset startPoint = pixelFromLatLng(
+          startCoordinate.latitude,
+          startCoordinate.longitude,
+          boxSize,
+          translationOffset,
+          _controller!.shapeLayerSizeFactor);
+      path
+        ..reset()
+        ..moveTo(startPoint.dx, startPoint.dy);
+
+      for (int j = 1; j < polyline.points.length; j++) {
+        final MapLatLng nextCoordinate = polyline.points[j];
+        final Offset nextPoint = pixelFromLatLng(
+            nextCoordinate.latitude,
+            nextCoordinate.longitude,
             boxSize,
             translationOffset,
-            controller.shapeLayerSizeFactor);
-        path
-          ..reset()
-          ..moveTo(startPoint.dx, startPoint.dy);
-
-        for (int j = 1; j < polyline.points.length; j++) {
-          final MapLatLng nextCoordinate = polyline.points[j];
-          final Offset nextPoint = pixelFromLatLng(
-              nextCoordinate.latitude,
-              nextCoordinate.longitude,
-              boxSize,
-              translationOffset,
-              controller.shapeLayerSizeFactor);
-          path.lineTo(nextPoint.dx, nextPoint.dy);
-        }
-
-        if (_previousHoverItem != null &&
-            _previousHoverItem == polyline &&
-            _themeData.shapeHoverColor != Colors.transparent) {
-          paint.color = _reverseHoverColor.evaluate(_hoverColorAnimation);
-        } else if (_currentHoverItem != null &&
-            selectedPolyline == polyline &&
-            _themeData.shapeHoverColor != Colors.transparent) {
-          paint.color = _forwardHoverColor.evaluate(_hoverColorAnimation);
-        } else {
-          paint.color = polyline.color ?? _color;
-        }
-
-        paint.strokeWidth =
-            _getDesiredValue(polyline.width ?? _width, controller);
-        if (_animation != null) {
-          path = _getAnimatedPath(path, _animation);
-        }
-        _drawDashedLine(context.canvas, polyline.dashArray, paint, path);
+            _controller!.shapeLayerSizeFactor);
+        path.lineTo(nextPoint.dx, nextPoint.dy);
       }
+
+      if (_previousHoverItem != null &&
+          _previousHoverItem == polyline &&
+          _themeData.shapeHoverColor != Colors.transparent) {
+        paint.color = _reverseHoverColor.evaluate(_hoverColorAnimation)!;
+      } else if (_currentHoverItem != null &&
+          selectedPolyline == polyline &&
+          _themeData.shapeHoverColor != Colors.transparent) {
+        paint.color = _forwardHoverColor.evaluate(_hoverColorAnimation)!;
+      } else {
+        paint.color = polyline.color ?? _color;
+      }
+
+      paint.strokeWidth =
+          _getCurrentWidth(polyline.width ?? _width, _controller!);
+      if (_animation != null) {
+        path = _getAnimatedPath(path, _animation!);
+      }
+      _drawDashedLine(context.canvas, polyline.dashArray, paint, path);
     }
     context.canvas.restore();
   }
@@ -2318,44 +2862,129 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
 /// [MapTileLayer].
 ///
 /// ```dart
-/// @override
-/// Widget build(BuildContext context) {
-///  return Scaffold(
-///    body: SfMaps(
-///      layers: [
+///  MapZoomPanBehavior _zoomPanBehavior;
+///  List<MapLatLng> _polygon;
+///  MapShapeSource _mapSource;
+///
+///  @override
+///  void initState() {
+///    _polygon = <MapLatLng>[
+///      MapLatLng(38.8026, -116.4194),
+///      MapLatLng(46.8797, -110.3626),
+///      MapLatLng(41.8780, -93.0977),
+///    ];
+///
+///    _mapSource = MapShapeSource.asset(
+///      'assets/usa.json',
+///      shapeDataField: 'name',
+///    );
+///
+///    _zoomPanBehavior = MapZoomPanBehavior();
+///    super.initState();
+///  }
+///
+///  @override
+///  Widget build(BuildContext context) {
+///    return Scaffold(
+///      appBar: AppBar(title: Text('Polygon shape')),
+///      body: SfMaps(layers: [
 ///        MapShapeLayer(
-///          source: MapShapeSource.asset(
-///             "assets/world_map.json",
-///              shapeDataField: "continent",
-///          ),
+///          source: _mapSource,
 ///          sublayers: [
 ///            MapPolygonLayer(
 ///              polygons: List<MapPolygon>.generate(
-///                polygons.length,
+///                1,
 ///                (int index) {
 ///                  return MapPolygon(
-///                    points: polygons[index].points,
+///                    points: _polygon,
 ///                  );
 ///                },
 ///              ).toSet(),
 ///            ),
 ///          ],
+///          zoomPanBehavior: _zoomPanBehavior,
 ///        ),
-///      ],
-///    ),
-///  );
-/// }
+///      ]),
+///    );
+///  }
+///
+/// See also:
+/// * `[MapPolygonLayer.inverted]`, named constructor, for adding inverted
+/// polygon shape.
 /// ```
 class MapPolygonLayer extends MapVectorLayer {
   /// Creates the [MapPolygonLayer].
   MapPolygonLayer({
-    Key key,
-    @required this.polygons,
-    this.color = const Color.fromRGBO(51, 153, 144, 1),
+    Key? key,
+    required this.polygons,
+    this.color,
     this.strokeWidth = 1,
-    this.strokeColor = const Color.fromRGBO(51, 153, 144, 1),
-    IndexedWidgetBuilder tooltipBuilder,
-  })  : assert(polygons != null),
+    this.strokeColor,
+    IndexedWidgetBuilder? tooltipBuilder,
+  })  : _fillType = _VectorFillType.inner,
+        super(key: key, tooltipBuilder: tooltipBuilder);
+
+  /// Creates the inverted color polygon shape.
+  ///
+  /// You can highlight particular on the map to make more readable by applying
+  /// the opacity to the outer area of highlighted polygon area using the
+  /// polygons property of [MapPolygonLayer.inverted].
+  ///
+  /// ```dart
+  ///  List<MapLatLng> _polygon;
+  ///  MapShapeSource _dataSource;
+  ///
+  ///   @override
+  ///   void initState() {
+  ///     _polygon = <MapLatLng>[
+  ///       MapLatLng(27.6648, -81.5158),
+  ///       MapLatLng(32.3078, -64.7505),
+  ///       MapLatLng(18.2208, -66.5901),
+  ///     ];
+  ///
+  ///     _dataSource = MapShapeSource.asset(
+  ///       'assets/usa.json',
+  ///       shapeDataField: 'name',
+  ///     );
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _dataSource,
+  ///            sublayers: [
+  ///              MapPolygonLayer.inverted(
+  ///                 polygons: List<MapPolygon>.generate(
+  ///                   1,
+  ///                  (int index) {
+  ///                     return MapPolygon(
+  ///                       points: _polygon,
+  ///                     );
+  ///                  },
+  ///                 ).toSet(),
+  ///              ),
+  ///             ],
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  ///
+  /// See also:
+  /// * [`MapPolygonLayer`], for adding normal polygon shape.
+  /// ```
+  MapPolygonLayer.inverted({
+    Key? key,
+    required this.polygons,
+    this.strokeWidth = 1,
+    this.color,
+    this.strokeColor,
+    IndexedWidgetBuilder? tooltipBuilder,
+  })  : _fillType = _VectorFillType.outer,
         super(key: key, tooltipBuilder: tooltipBuilder);
 
   /// A collection of [MapPolygon].
@@ -2364,33 +2993,51 @@ class MapPolygonLayer extends MapVectorLayer {
   /// location coordinates through group of [MapPolygon.points].
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  List<MapLatLng> _polygon;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _polygon = <MapLatLng>[
+  ///      MapLatLng(38.8026, -116.4194),
+  ///      MapLatLng(46.8797, -110.3626),
+  ///      MapLatLng(41.8780, -93.0977),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/usa.json',
+  ///      shapeDataField: 'name',
+  ///    );
+  ///
+  ///    _zoomPanBehavior = MapZoomPanBehavior();
+  ///    super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(title: Text('Polygon shape')),
+  ///      body: SfMaps(layers: [
   ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
+  ///          source: _mapSource,
   ///          sublayers: [
   ///            MapPolygonLayer(
   ///              polygons: List<MapPolygon>.generate(
-  ///                polygons.length,
+  ///                1,
   ///                (int index) {
   ///                  return MapPolygon(
-  ///                    points: polygons[index].points,
+  ///                    points: _polygon,
   ///                  );
   ///                },
   ///              ).toSet(),
   ///            ),
   ///          ],
+  ///          zoomPanBehavior: _zoomPanBehavior,
   ///        ),
-  ///      ],
-  ///    ),
-  ///  );
-  /// }
+  ///      ]),
+  ///    );
+  ///  }
   ///```
   final Set<MapPolygon> polygons;
 
@@ -2400,36 +3047,54 @@ class MapPolygonLayer extends MapVectorLayer {
   /// [MapPolygon.color] property.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  List<MapLatLng> _polygon;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _polygon = <MapLatLng>[
+  ///      MapLatLng(38.8026, -116.4194),
+  ///      MapLatLng(46.8797, -110.3626),
+  ///      MapLatLng(41.8780, -93.0977),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/usa.json',
+  ///      shapeDataField: 'name',
+  ///    );
+  ///
+  ///    _zoomPanBehavior = MapZoomPanBehavior();
+  ///    super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(title: Text('Polygon shape')),
+  ///      body: SfMaps(layers: [
   ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
+  ///          source: _mapSource,
   ///          sublayers: [
   ///            MapPolygonLayer(
   ///              polygons: List<MapPolygon>.generate(
-  ///                polygons.length,
+  ///                1,
   ///                (int index) {
   ///                  return MapPolygon(
-  ///                    points: polygons[index].points,
+  ///                    points: _polygon,
   ///                  );
   ///                },
   ///              ).toSet(),
-  ///              color: Colors.red,
+  ///              color: Colors.green,
   ///            ),
   ///          ],
+  ///          zoomPanBehavior: _zoomPanBehavior,
   ///        ),
-  ///      ],
-  ///    ),
-  ///  );
-  /// }
+  ///      ]),
+  ///    );
+  ///  }
   ///```
-  final Color color;
+  final Color? color;
 
   /// The stroke width of all the [MapPolygon].
   ///
@@ -2437,35 +3102,53 @@ class MapPolygonLayer extends MapVectorLayer {
   /// [MapPolygon.strokeWidth] property.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  List<MapLatLng> _polygon;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _polygon = <MapLatLng>[
+  ///      MapLatLng(38.8026, -116.4194),
+  ///      MapLatLng(46.8797, -110.3626),
+  ///      MapLatLng(41.8780, -93.0977),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/usa.json',
+  ///      shapeDataField: 'name',
+  ///    );
+  ///
+  ///    _zoomPanBehavior = MapZoomPanBehavior();
+  ///    super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(title: Text('Polygon shape')),
+  ///      body: SfMaps(layers: [
   ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
+  ///          source: _mapSource,
   ///          sublayers: [
   ///            MapPolygonLayer(
   ///              polygons: List<MapPolygon>.generate(
-  ///                polygons.length,
+  ///                1,
   ///                (int index) {
   ///                  return MapPolygon(
-  ///                    points: polygons[index].points,
+  ///                    points: _polygon,
   ///                  );
   ///                },
   ///              ).toSet(),
   ///              strokeColor: Colors.red,
-  ///              strokeWidth: 5,
+  ///              strokeWidth: 5.0,
   ///            ),
   ///          ],
+  ///          zoomPanBehavior: _zoomPanBehavior,
   ///        ),
-  ///      ],
-  ///    ),
-  ///  );
-  /// }
+  ///      ]),
+  ///    );
+  ///  }
   ///```
   /// See also:
   /// [strokeColor], to set the stroke color for the polygon.
@@ -2477,40 +3160,61 @@ class MapPolygonLayer extends MapVectorLayer {
   /// [MapPolygon.strokeColor] property.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  List<MapLatLng> _polygon;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _polygon = <MapLatLng>[
+  ///      MapLatLng(38.8026, -116.4194),
+  ///      MapLatLng(46.8797, -110.3626),
+  ///      MapLatLng(41.8780, -93.0977),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/usa.json',
+  ///      shapeDataField: 'name',
+  ///    );
+  ///
+  ///    _zoomPanBehavior = MapZoomPanBehavior();
+  ///    super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(title: Text('Polygon shape')),
+  ///      body: SfMaps(layers: [
   ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
+  ///          source: _mapSource,
   ///          sublayers: [
   ///            MapPolygonLayer(
   ///              polygons: List<MapPolygon>.generate(
-  ///                polygons.length,
+  ///                1,
   ///                (int index) {
   ///                  return MapPolygon(
-  ///                    points: polygons[index].points,
+  ///                    points: _polygon,
   ///                  );
   ///                },
   ///              ).toSet(),
   ///              strokeColor: Colors.red,
-  ///              strokeWidth: 5,
+  ///              strokeWidth: 5.0,
   ///            ),
   ///          ],
+  ///          zoomPanBehavior: _zoomPanBehavior,
   ///        ),
-  ///      ],
-  ///    ),
-  ///  );
-  /// }
+  ///      ]),
+  ///    );
+  ///  }
   ///```
   ///
   /// See also:
   /// [strokeWidth], to set the stroke width for the polygon.
-  final Color strokeColor;
+  final Color? strokeColor;
+
+  /// Strategies for painting a polygon in a canvas.
+  final _VectorFillType _fillType;
 
   @override
   Widget build(BuildContext context) {
@@ -2521,26 +3225,50 @@ class MapPolygonLayer extends MapVectorLayer {
       strokeColor: strokeColor,
       tooltipBuilder: tooltipBuilder,
       polygonLayer: this,
+      fillType: _fillType,
     );
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    if (polygons.isNotEmpty) {
+      final _DebugVectorShapeTree pointerTreeNode =
+          _DebugVectorShapeTree(polygons);
+      properties.add(pointerTreeNode.toDiagnosticsNode());
+    }
+    properties.add(ObjectFlagProperty<IndexedWidgetBuilder>.has(
+        'tooltip', tooltipBuilder));
+    if (color != null) {
+      properties.add(ColorProperty('color', color));
+    }
+
+    if (strokeColor != null) {
+      properties.add(ColorProperty('strokeColor', strokeColor));
+    }
+
+    properties.add(DoubleProperty('strokeWidth', strokeWidth));
   }
 }
 
 class _MapPolygonLayer extends StatefulWidget {
   const _MapPolygonLayer({
-    this.polygons,
-    this.color,
-    this.strokeWidth,
-    this.strokeColor,
-    this.tooltipBuilder,
-    this.polygonLayer,
+    required this.polygons,
+    required this.color,
+    required this.strokeWidth,
+    required this.strokeColor,
+    required this.tooltipBuilder,
+    required this.polygonLayer,
+    required this.fillType,
   });
 
   final Set<MapPolygon> polygons;
-  final Color color;
+  final Color? color;
   final double strokeWidth;
-  final Color strokeColor;
-  final IndexedWidgetBuilder tooltipBuilder;
+  final Color? strokeColor;
+  final IndexedWidgetBuilder? tooltipBuilder;
   final MapPolygonLayer polygonLayer;
+  final _VectorFillType fillType;
 
   @override
   _MapPolygonLayerState createState() => _MapPolygonLayerState();
@@ -2548,8 +3276,10 @@ class _MapPolygonLayer extends StatefulWidget {
 
 class _MapPolygonLayerState extends State<_MapPolygonLayer>
     with SingleTickerProviderStateMixin {
-  AnimationController _hoverAnimationController;
-  SfMapsThemeData _mapsThemeData;
+  MapController? _controller;
+  late AnimationController _hoverAnimationController;
+  late SfMapsThemeData _mapsThemeData;
+  late MapLayerInheritedWidget ancestor;
 
   @override
   void initState() {
@@ -2559,58 +3289,125 @@ class _MapPolygonLayerState extends State<_MapPolygonLayer>
   }
 
   @override
+  void didChangeDependencies() {
+    if (_controller == null) {
+      ancestor = context
+          .dependOnInheritedWidgetOfExactType<MapLayerInheritedWidget>()!;
+      _controller = ancestor.controller;
+    }
+    super.didChangeDependencies();
+  }
+
+  @override
   void dispose() {
-    _hoverAnimationController?.dispose();
+    _controller = null;
+    _hoverAnimationController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    assert(() {
+      if (widget.fillType == _VectorFillType.outer) {
+        for (final MapPolygon polygon in widget.polygons) {
+          assert(
+              polygon.color == null,
+              throw FlutterError.fromParts(<DiagnosticsNode>[
+                ErrorSummary('Incorrect MapPolygon arguments.'),
+                ErrorDescription(
+                    'Inverted polygons cannot be customized individually.'),
+                ErrorHint(
+                    '''To customize all the polygon's color, use MapPolygonLayer.color''')
+              ]));
+          assert(
+              polygon.strokeColor == null,
+              throw FlutterError.fromParts(<DiagnosticsNode>[
+                ErrorSummary('Incorrect MapPolygon arguments.'),
+                ErrorDescription(
+                    'Inverted polygons cannot be customized individually.'),
+                ErrorHint(
+                    '''To customize all the polygon's stroke color, use MapPolygonLayer.strokeColor''')
+              ]));
+          assert(
+              polygon.strokeWidth == null,
+              throw FlutterError.fromParts(<DiagnosticsNode>[
+                ErrorSummary('Incorrect MapPolygon arguments.'),
+                ErrorDescription(
+                    'Inverted polygons cannot be customized individually.'),
+                ErrorHint(
+                    '''To customize all the polygon's stroke width, use MapPolygonLayer.strokeWidth''')
+              ]));
+        }
+      }
+      return true;
+    }());
+
     final ThemeData themeData = Theme.of(context);
     final bool isDesktop = kIsWeb ||
         themeData.platform == TargetPlatform.macOS ||
-        themeData.platform == TargetPlatform.windows;
-    _mapsThemeData = SfMapsTheme.of(context);
+        themeData.platform == TargetPlatform.windows ||
+        themeData.platform == TargetPlatform.linux;
+    _mapsThemeData = SfMapsTheme.of(context)!;
     return _MapPolygonLayerRenderObject(
+      controller: _controller,
       polygons: widget.polygons,
-      color: widget.color,
+      color: widget.color ??
+          (widget.fillType == _VectorFillType.inner
+              ? const Color.fromRGBO(51, 153, 144, 1)
+              : (_mapsThemeData.brightness == Brightness.light
+                  ? const Color.fromRGBO(3, 3, 3, 0.15)
+                  : const Color.fromRGBO(0, 0, 0, 0.2))),
       strokeWidth: widget.strokeWidth,
-      strokeColor: widget.strokeColor,
+      strokeColor: widget.strokeColor ??
+          (widget.fillType == _VectorFillType.inner
+              ? const Color.fromRGBO(51, 153, 144, 1)
+              : (_mapsThemeData.brightness == Brightness.light
+                  ? const Color.fromRGBO(98, 0, 238, 1)
+                  : const Color.fromRGBO(187, 134, 252, 0.5))),
       tooltipBuilder: widget.tooltipBuilder,
       polygonLayer: widget.polygonLayer,
       hoverAnimationController: _hoverAnimationController,
       themeData: _mapsThemeData,
       isDesktop: isDesktop,
+      fillType: widget.fillType,
+      state: this,
     );
   }
 }
 
 class _MapPolygonLayerRenderObject extends LeafRenderObjectWidget {
   const _MapPolygonLayerRenderObject({
-    this.polygons,
-    this.color,
-    this.strokeWidth,
-    this.strokeColor,
-    this.tooltipBuilder,
-    this.polygonLayer,
-    this.hoverAnimationController,
-    this.themeData,
-    this.isDesktop,
+    required this.controller,
+    required this.polygons,
+    required this.color,
+    required this.strokeWidth,
+    required this.strokeColor,
+    required this.tooltipBuilder,
+    required this.polygonLayer,
+    required this.hoverAnimationController,
+    required this.themeData,
+    required this.isDesktop,
+    required this.fillType,
+    required this.state,
   });
 
+  final MapController? controller;
   final Set<MapPolygon> polygons;
   final Color color;
   final double strokeWidth;
   final Color strokeColor;
-  final IndexedWidgetBuilder tooltipBuilder;
+  final IndexedWidgetBuilder? tooltipBuilder;
   final MapPolygonLayer polygonLayer;
   final AnimationController hoverAnimationController;
   final SfMapsThemeData themeData;
   final bool isDesktop;
+  final _VectorFillType fillType;
+  final _MapPolygonLayerState state;
 
   @override
   _RenderMapPolygon createRenderObject(BuildContext context) {
     return _RenderMapPolygon(
+      controller: controller,
       polygons: polygons,
       color: color,
       strokeColor: strokeColor,
@@ -2621,6 +3418,8 @@ class _MapPolygonLayerRenderObject extends LeafRenderObjectWidget {
       polygonLayer: polygonLayer,
       hoverAnimationController: hoverAnimationController,
       isDesktop: isDesktop,
+      fillType: fillType,
+      state: state,
     );
   }
 
@@ -2635,23 +3434,28 @@ class _MapPolygonLayerRenderObject extends LeafRenderObjectWidget {
       ..tooltipBuilder = tooltipBuilder
       ..themeData = themeData
       ..context = context
-      ..polygonLayer = polygonLayer;
+      ..fillType = fillType
+      ..state = state;
   }
 }
 
 class _RenderMapPolygon extends RenderBox implements MouseTrackerAnnotation {
   _RenderMapPolygon({
-    Set<MapPolygon> polygons,
-    Color color,
-    double strokeWidth,
-    Color strokeColor,
-    IndexedWidgetBuilder tooltipBuilder,
-    SfMapsThemeData themeData,
-    BuildContext context,
-    MapPolygonLayer polygonLayer,
-    AnimationController hoverAnimationController,
-    bool isDesktop,
-  })  : _polygons = polygons,
+    required MapController? controller,
+    required Set<MapPolygon> polygons,
+    required Color color,
+    required double strokeWidth,
+    required Color strokeColor,
+    required IndexedWidgetBuilder? tooltipBuilder,
+    required SfMapsThemeData themeData,
+    required BuildContext context,
+    required MapPolygonLayer polygonLayer,
+    required AnimationController hoverAnimationController,
+    required bool isDesktop,
+    required this.fillType,
+    required this.state,
+  })   : _controller = controller,
+        _polygons = polygons,
         _color = color,
         _strokeWidth = strokeWidth,
         _strokeColor = strokeColor,
@@ -2667,43 +3471,45 @@ class _RenderMapPolygon extends RenderBox implements MouseTrackerAnnotation {
     _reverseHoverStrokeColor = ColorTween();
     _hoverColorAnimation = CurvedAnimation(
         parent: hoverAnimationController, curve: Curves.easeInOut);
-    _polygonsInList = _polygons?.toList();
+    _polygonsInList = _polygons.toList();
     _tapGestureRecognizer = TapGestureRecognizer()..onTapUp = _handleTapUp;
   }
 
-  MapController controller;
-  AnimationController hoverAnimationController;
-  RenderSublayerContainer vectorLayerContainer;
-  bool isDesktop;
-  MapPolygonLayer polygonLayer;
-  BuildContext context;
-  TapGestureRecognizer _tapGestureRecognizer;
-  Animation<double> _hoverColorAnimation;
-  ColorTween _forwardHoverColor;
-  ColorTween _reverseHoverColor;
-  ColorTween _forwardHoverStrokeColor;
-  ColorTween _reverseHoverStrokeColor;
-  MapPolygon _previousHoverItem;
-  MapPolygon _currentHoverItem;
-  List<MapPolygon> _polygonsInList;
+  final MapController? _controller;
   int _selectedIndex = -1;
-  MapPolygon _selectedPolygon;
+  late _MapPolygonLayerState state;
+  late _VectorFillType fillType;
+  late AnimationController hoverAnimationController;
+  late bool isDesktop;
+  late MapPolygonLayer polygonLayer;
+  late BuildContext context;
+  late TapGestureRecognizer _tapGestureRecognizer;
+  late Animation<double> _hoverColorAnimation;
+  late ColorTween _forwardHoverColor;
+  late ColorTween _reverseHoverColor;
+  late ColorTween _forwardHoverStrokeColor;
+  late ColorTween _reverseHoverStrokeColor;
+  late MapPolygon _selectedPolygon;
+
+  MapPolygon? _previousHoverItem;
+  MapPolygon? _currentHoverItem;
+  List<MapPolygon>? _polygonsInList;
 
   Set<MapPolygon> get polygons => _polygons;
   Set<MapPolygon> _polygons;
-  set polygons(Set<MapPolygon> value) {
+  set polygons(Set<MapPolygon>? value) {
     assert(value != null);
     if (_polygons == value || value == null) {
       return;
     }
     _polygons = value;
-    _polygonsInList = _polygons?.toList();
+    _polygonsInList = _polygons.toList();
     markNeedsPaint();
   }
 
-  IndexedWidgetBuilder get tooltipBuilder => _tooltipBuilder;
-  IndexedWidgetBuilder _tooltipBuilder;
-  set tooltipBuilder(IndexedWidgetBuilder value) {
+  IndexedWidgetBuilder? get tooltipBuilder => _tooltipBuilder;
+  IndexedWidgetBuilder? _tooltipBuilder;
+  set tooltipBuilder(IndexedWidgetBuilder? value) {
     if (_tooltipBuilder == value) {
       return;
     }
@@ -2801,7 +3607,7 @@ class _RenderMapPolygon extends RenderBox implements MouseTrackerAnnotation {
 
   Color _getHoverFillColor(MapPolygon polygon) {
     if (hasHoverColor) {
-      return _themeData.shapeHoverColor;
+      return _themeData.shapeHoverColor!;
     }
     final Color color = polygon.color ?? _color;
     return color.withOpacity(
@@ -2812,7 +3618,7 @@ class _RenderMapPolygon extends RenderBox implements MouseTrackerAnnotation {
 
   Color _getHoverStrokeColor(MapPolygon polygon) {
     if (hasHoverStrokeColor) {
-      return _themeData.shapeHoverStrokeColor;
+      return _themeData.shapeHoverStrokeColor!;
     }
     final Color strokeColor = polygon.strokeColor ?? _strokeColor;
     return strokeColor.withOpacity(
@@ -2828,10 +3634,12 @@ class _RenderMapPolygon extends RenderBox implements MouseTrackerAnnotation {
       _currentHoverItem = null;
       _initializeHoverItemTween();
     }
-    final RenderSublayerContainer vectorParent = parent;
+
     final ShapeLayerChildRenderBoxBase tooltipRenderer =
-        vectorParent.tooltipKey?.currentContext?.findRenderObject();
-    tooltipRenderer?.hideTooltip();
+        _controller!.tooltipKey!.currentContext!.findRenderObject()
+            // ignore: avoid_as
+            as ShapeLayerChildRenderBoxBase;
+    tooltipRenderer.hideTooltip();
   }
 
   void _handleZooming(MapZoomDetails details) {
@@ -2842,21 +3650,15 @@ class _RenderMapPolygon extends RenderBox implements MouseTrackerAnnotation {
     markNeedsPaint();
   }
 
-  void _handleReset() {
-    markNeedsPaint();
-  }
-
-  void _handleRefresh() {
-    markNeedsPaint();
-  }
-
-  void _handleInteraction(Offset position) {
-    final RenderSublayerContainer vectorParent = parent;
-    if (vectorParent.tooltipKey != null && _tooltipBuilder != null) {
+  void _handleInteraction(Offset position,
+      [PointerKind kind = PointerKind.touch]) {
+    if (_controller?.tooltipKey != null && _tooltipBuilder != null) {
       final ShapeLayerChildRenderBoxBase tooltipRenderer =
-          vectorParent.tooltipKey.currentContext.findRenderObject();
+          _controller!.tooltipKey!.currentContext!.findRenderObject()
+              // ignore: avoid_as
+              as ShapeLayerChildRenderBoxBase;
       tooltipRenderer.paintTooltip(_selectedIndex, null, MapLayerElement.vector,
-          vectorParent.getSublayerIndex(polygonLayer), position);
+          kind, state.ancestor.sublayers?.indexOf(polygonLayer), position);
     }
   }
 
@@ -2869,13 +3671,13 @@ class _RenderMapPolygon extends RenderBox implements MouseTrackerAnnotation {
   MouseCursor get cursor => SystemMouseCursors.basic;
 
   @override
-  PointerEnterEventListener get onEnter => null;
+  PointerEnterEventListener? get onEnter => null;
 
   // As onHover property of MouseHoverAnnotation was removed only in the
   // beta channel, once it is moved to stable, will remove this property.
   @override
   // ignore: override_on_non_overriding_member
-  PointerHoverEventListener get onHover => null;
+  PointerHoverEventListener? get onHover => null;
 
   @override
   PointerExitEventListener get onExit => _handlePointerExit;
@@ -2886,40 +3688,41 @@ class _RenderMapPolygon extends RenderBox implements MouseTrackerAnnotation {
 
   @override
   bool hitTestSelf(Offset position) {
-    int index = _polygonsInList.length - 1;
-    final bool isTileLayer = controller.tileCurrentLevelDetails != null;
-    final Size boxSize = isTileLayer ? controller.totalTileSize : size;
-    final Offset translationOffset =
-        _getTranslationOffset(controller, isTileLayer);
-    for (final MapPolygon polygon in _polygonsInList?.reversed) {
+    int index = _polygonsInList!.length - 1;
+    final Size boxSize = _controller?.layerType == LayerType.tile
+        ? _controller!.totalTileSize!
+        : size;
+    final Offset translationOffset = getTranslationOffset(_controller!);
+    for (final MapPolygon polygon in _polygonsInList!.reversed) {
       if (polygon.onTap != null || _tooltipBuilder != null || canHover) {
         final Path path = Path();
-        if (polygon.points != null) {
-          final MapLatLng startCoordinate = polygon.points[0];
-          final Offset startPoint = pixelFromLatLng(
-              startCoordinate.latitude,
-              startCoordinate.longitude,
+
+        final MapLatLng startCoordinate = polygon.points[0];
+        Offset startPoint = pixelFromLatLng(
+            startCoordinate.latitude,
+            startCoordinate.longitude,
+            boxSize,
+            translationOffset,
+            getLayerSizeFactor(_controller!));
+        startPoint = _getScaledOffset(startPoint, _controller!);
+        path.moveTo(startPoint.dx, startPoint.dy);
+
+        for (int j = 1; j < polygon.points.length; j++) {
+          final MapLatLng nextCoordinate = polygon.points[j];
+          Offset nextPoint = pixelFromLatLng(
+              nextCoordinate.latitude,
+              nextCoordinate.longitude,
               boxSize,
               translationOffset,
-              controller.shapeLayerSizeFactor);
-          path.moveTo(startPoint.dx, startPoint.dy);
-
-          for (int j = 1; j < polygon.points.length; j++) {
-            final MapLatLng nextCoordinate = polygon.points[j];
-            final Offset nextPoint = pixelFromLatLng(
-                nextCoordinate.latitude,
-                nextCoordinate.longitude,
-                boxSize,
-                translationOffset,
-                controller.shapeLayerSizeFactor);
-            path.lineTo(nextPoint.dx, nextPoint.dy);
-          }
-          path.close();
-          if (path.contains(position)) {
-            _selectedPolygon = polygon;
-            _selectedIndex = index;
-            return true;
-          }
+              getLayerSizeFactor(_controller!));
+          nextPoint = _getScaledOffset(nextPoint, _controller!);
+          path.lineTo(nextPoint.dx, nextPoint.dy);
+        }
+        path.close();
+        if (path.contains(position)) {
+          _selectedPolygon = polygon;
+          _selectedIndex = index;
+          return true;
         }
       }
       index--;
@@ -2939,36 +3742,36 @@ class _RenderMapPolygon extends RenderBox implements MouseTrackerAnnotation {
         _initializeHoverItemTween();
       }
 
-      final RenderBox renderBox = context.findRenderObject();
-      _handleInteraction(renderBox.globalToLocal(event.position));
+      // ignore: avoid_as
+      final RenderBox renderBox = context.findRenderObject() as RenderBox;
+      _handleInteraction(
+          renderBox.globalToLocal(event.position), PointerKind.hover);
     }
   }
 
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
-    vectorLayerContainer = parent;
-    controller = vectorLayerContainer.controller;
-    if (controller != null) {
-      controller
+    if (_controller != null) {
+      _controller!
         ..addZoomingListener(_handleZooming)
         ..addPanningListener(_handlePanning)
-        ..addResetListener(_handleReset)
-        ..addRefreshListener(_handleRefresh);
+        ..addResetListener(markNeedsPaint)
+        ..addRefreshListener(markNeedsPaint);
     }
-    _hoverColorAnimation?.addListener(markNeedsPaint);
+    _hoverColorAnimation.addListener(markNeedsPaint);
   }
 
   @override
   void detach() {
-    if (controller != null) {
-      controller
+    if (_controller != null) {
+      _controller!
         ..removeZoomingListener(_handleZooming)
         ..removePanningListener(_handlePanning)
-        ..removeResetListener(_handleReset)
-        ..removeRefreshListener(_handleRefresh);
+        ..removeResetListener(markNeedsPaint)
+        ..removeRefreshListener(markNeedsPaint);
     }
-    _hoverColorAnimation?.removeListener(markNeedsPaint);
+    _hoverColorAnimation.removeListener(markNeedsPaint);
     _polygonsInList?.clear();
     _polygonsInList = null;
     super.detach();
@@ -2989,39 +3792,62 @@ class _RenderMapPolygon extends RenderBox implements MouseTrackerAnnotation {
     final Paint strokePaint = Paint()
       ..isAntiAlias = true
       ..style = PaintingStyle.stroke;
-    final bool isTileLayer = controller.tileCurrentLevelDetails != null;
-    final Size boxSize = isTileLayer ? controller.totalTileSize : size;
-    final Offset translationOffset =
-        _getTranslationOffset(controller, isTileLayer);
-    controller.applyTransform(context, offset, true);
+    final Size boxSize = _controller?.layerType == LayerType.tile
+        ? _controller!.totalTileSize!
+        : size;
+    final Offset translationOffset = getTranslationOffset(_controller!);
+    // Check whether the color will apply to the inner side or outer side of
+    // the polygon shape.
+    final bool isInverted = fillType == _VectorFillType.outer;
 
+    Path path = Path();
     for (final MapPolygon polygon in polygons) {
-      final Path path = Path();
-      if (polygon.points != null) {
-        final MapLatLng startLatLng = polygon.points[0];
-        final Offset startPoint = pixelFromLatLng(
-            startLatLng.latitude,
-            startLatLng.longitude,
+      // Creating new path for each polygon for applying individual polygon
+      // customization like color, strokeColor and strokeWidth customization.
+      // For inverted polygon, all polygons are added in a single path to make
+      // the polygons area to be transparent while combining the path.
+      if (!isInverted) {
+        path = Path();
+      }
+
+      final MapLatLng startLatLng = polygon.points[0];
+      Offset startPoint = pixelFromLatLng(
+          startLatLng.latitude,
+          startLatLng.longitude,
+          boxSize,
+          translationOffset,
+          getLayerSizeFactor(_controller!));
+
+      startPoint = _getScaledOffset(startPoint, _controller!);
+      path.moveTo(startPoint.dx, startPoint.dy);
+
+      for (int j = 1; j < polygon.points.length; j++) {
+        final MapLatLng nextCoordinate = polygon.points[j];
+        Offset nextPoint = pixelFromLatLng(
+            nextCoordinate.latitude,
+            nextCoordinate.longitude,
             boxSize,
             translationOffset,
-            controller.shapeLayerSizeFactor);
-        path.moveTo(startPoint.dx, startPoint.dy);
+            getLayerSizeFactor(_controller!));
+        nextPoint = _getScaledOffset(nextPoint, _controller!);
+        path.lineTo(nextPoint.dx, nextPoint.dy);
+      }
+      path.close();
 
-        for (int j = 1; j < polygon.points.length; j++) {
-          final MapLatLng nextCoordinate = polygon.points[j];
-          final Offset nextPoint = pixelFromLatLng(
-              nextCoordinate.latitude,
-              nextCoordinate.longitude,
-              boxSize,
-              translationOffset,
-              controller.shapeLayerSizeFactor);
-          path.lineTo(nextPoint.dx, nextPoint.dy);
-        }
-        path.close();
+      if (!isInverted) {
         _updateFillColor(polygon, fillPaint);
         _updateStroke(polygon, strokePaint);
         context.canvas..drawPath(path, fillPaint)..drawPath(path, strokePaint);
       }
+    }
+
+    if (isInverted) {
+      fillPaint.color = _color;
+      strokePaint
+        ..strokeWidth = _strokeWidth
+        ..color = _strokeColor;
+      _drawInvertedPath(
+          context, path, _controller!, fillPaint, strokePaint, offset);
     }
     context.canvas.restore();
   }
@@ -3034,11 +3860,11 @@ class _RenderMapPolygon extends RenderBox implements MouseTrackerAnnotation {
 
     if (_previousHoverItem != null && _previousHoverItem == polygon) {
       paint.color = _themeData.shapeHoverColor != Colors.transparent
-          ? _reverseHoverColor.evaluate(_hoverColorAnimation)
+          ? _reverseHoverColor.evaluate(_hoverColorAnimation)!
           : (polygon.color ?? _color);
     } else if (_currentHoverItem != null && _currentHoverItem == polygon) {
       paint.color = _themeData.shapeHoverColor != Colors.transparent
-          ? _forwardHoverColor.evaluate(_hoverColorAnimation)
+          ? _forwardHoverColor.evaluate(_hoverColorAnimation)!
           : (polygon.color ?? _color);
     } else {
       paint.color = polygon.color ?? _color;
@@ -3053,17 +3879,14 @@ class _RenderMapPolygon extends RenderBox implements MouseTrackerAnnotation {
 
     if (_previousHoverItem != null && _previousHoverItem == polygon) {
       _updateHoverStrokeColor(paint, polygon, _reverseHoverStrokeColor);
-      paint.strokeWidth =
-          _getDesiredValue(polygon.strokeWidth ?? _strokeWidth, controller);
+      paint.strokeWidth = polygon.strokeWidth ?? _strokeWidth;
     } else if (_currentHoverItem != null && _currentHoverItem == polygon) {
       _updateHoverStrokeColor(paint, polygon, _forwardHoverStrokeColor);
       if (_themeData.shapeHoverStrokeWidth != null &&
-          _themeData.shapeHoverStrokeWidth > 0.0) {
-        paint.strokeWidth =
-            _getDesiredValue(_themeData.shapeHoverStrokeWidth, controller);
+          _themeData.shapeHoverStrokeWidth! > 0.0) {
+        paint.strokeWidth = _themeData.shapeHoverStrokeWidth!;
       } else {
-        paint.strokeWidth =
-            _getDesiredValue(polygon.strokeWidth ?? _strokeWidth, controller);
+        paint.strokeWidth = polygon.strokeWidth ?? _strokeWidth;
       }
     } else {
       _updateDefaultStroke(paint, polygon);
@@ -3073,14 +3896,13 @@ class _RenderMapPolygon extends RenderBox implements MouseTrackerAnnotation {
   void _updateDefaultStroke(Paint paint, MapPolygon polygon) {
     paint
       ..color = polygon.strokeColor ?? _strokeColor
-      ..strokeWidth =
-          _getDesiredValue(polygon.strokeWidth ?? _strokeWidth, controller);
+      ..strokeWidth = polygon.strokeWidth ?? _strokeWidth;
   }
 
   void _updateHoverStrokeColor(
       Paint paint, MapPolygon polygon, ColorTween tween) {
     if (_themeData.shapeHoverStrokeColor != Colors.transparent) {
-      paint.color = tween.evaluate(_hoverColorAnimation);
+      paint.color = tween.evaluate(_hoverColorAnimation)!;
     } else {
       paint.color = polygon.strokeColor ?? _strokeColor;
     }
@@ -3091,45 +3913,139 @@ class _RenderMapPolygon extends RenderBox implements MouseTrackerAnnotation {
 /// [MapTileLayer].
 ///
 /// ```dart
-/// @override
-/// Widget build(BuildContext context) {
-///  return Scaffold(
-///    body: SfMaps(
-///      layers: [
-///        MapShapeLayer(
-///          source: MapShapeSource.asset(
-///             "assets/world_map.json",
-///              shapeDataField: "continent",
+///  List<MapLatLng> _circles;
+///  MapShapeSource _mapSource;
+///
+///  @override
+///  void initState() {
+///    _circles = const <MapLatLng>[
+///      MapLatLng(-14.235004, -51.92528),
+///      MapLatLng(51.16569, 10.451526),
+///      MapLatLng(-25.274398, 133.775136),
+///      MapLatLng(20.593684, 78.96288),
+///      MapLatLng(61.52401, 105.318756)
+///    ];
+///
+///    _mapSource = MapShapeSource.asset(
+///      'assets/world_map.json',
+///      shapeDataField: 'name',
+///    );
+///    super.initState();
+///  }
+///
+///  @override
+///  Widget build(BuildContext context) {
+///    return Scaffold(
+///      body: Center(
+///          child: Container(
+///        height: 350,
+///        child: Padding(
+///          padding: EdgeInsets.only(left: 15, right: 15),
+///          child: SfMaps(
+///            layers: <MapLayer>[
+///              MapShapeLayer(
+///                source: _mapSource,
+///                sublayers: [
+///                  MapCircleLayer(
+///                    circles: List<MapCircle>.generate(
+///                      _circles.length,
+///                      (int index) {
+///                        return MapCircle(
+///                          center: _circles[index],
+///                        );
+///                      },
+///                    ).toSet(),
+///                  ),
+///                ],
+///              ),
+///            ],
 ///          ),
-///          sublayers: [
-///            MapCircleLayer(
-///              circles: List<MapCircle>.generate(
-///                circles.length,
-///                (int index) {
-///                  return MapCircle(
-///                    center: circles[index],
-///                  );
-///                },
-///              ).toSet(),
-///            ),
-///          ],
 ///        ),
-///      ],
-///    ),
-///  );
-/// }
+///      )),
+///    );
+///  }
+///
+/// See also:
+/// * `MapCircleLayer.inverted()` named constructor, for inverted color support.
 /// ```
 class MapCircleLayer extends MapVectorLayer {
   /// Creates the [MapCircleLayer].
   MapCircleLayer({
-    Key key,
-    @required this.circles,
+    Key? key,
+    required this.circles,
     this.animation,
-    this.color = const Color.fromRGBO(51, 153, 144, 1),
+    this.color,
     this.strokeWidth = 1,
-    this.strokeColor = const Color.fromRGBO(51, 153, 144, 1),
-    IndexedWidgetBuilder tooltipBuilder,
-  })  : assert(circles != null),
+    this.strokeColor,
+    IndexedWidgetBuilder? tooltipBuilder,
+  })  : _fillType = _VectorFillType.inner,
+        super(key: key, tooltipBuilder: tooltipBuilder);
+
+  /// You may highlight a specific area on a map to make it more readable by
+  /// using the [circles] property of [MapCircleLayer.inverted] by adding mask
+  /// to the outer region of the highlighted circles.
+  ///
+  /// Only one [MapCircleLayer.inverted] can be added and must be positioned at
+  /// the top of all sublayers added under the [sublayers] property.
+  ///
+  /// ```dart
+  ///  List<MapLatLng> _circles;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _circles = const <MapLatLng>[
+  ///      MapLatLng(-14.235004, -51.92528),
+  ///      MapLatLng(51.16569, 10.451526),
+  ///      MapLatLng(-25.274398, 133.775136),
+  ///      MapLatLng(20.593684, 78.96288),
+  ///      MapLatLng(61.52401, 105.318756)
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/world_map.json',
+  ///      shapeDataField: 'name',
+  ///    );
+  ///    super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             sublayers: [
+  ///               MapCircleLayer.inverted(
+  ///                 circles: List<MapCircle>.generate(
+  ///                   _circles.length,
+  ///                   (int index) {
+  ///                     return MapCircle(
+  ///                       center: _circles[index],
+  ///                     );
+  ///                   },
+  ///                 ).toSet(),
+  ///               ),
+  ///             ],
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  ///
+  /// See also:
+  /// * [MapCircleLayer()], for normal circle shape on the map.
+  /// ```
+  MapCircleLayer.inverted({
+    Key? key,
+    required this.circles,
+    this.animation,
+    this.strokeWidth = 1,
+    this.color,
+    this.strokeColor,
+    IndexedWidgetBuilder? tooltipBuilder,
+  })  : _fillType = _VectorFillType.outer,
         super(key: key, tooltipBuilder: tooltipBuilder);
 
   /// A collection of [MapCircle].
@@ -3138,99 +4054,139 @@ class MapCircleLayer extends MapVectorLayer {
   /// and [MapCircle.radius].
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
+  ///  List<MapLatLng> _circles;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _circles = const <MapLatLng>[
+  ///      MapLatLng(-14.235004, -51.92528),
+  ///      MapLatLng(51.16569, 10.451526),
+  ///      MapLatLng(-25.274398, 133.775136),
+  ///      MapLatLng(20.593684, 78.96288),
+  ///      MapLatLng(61.52401, 105.318756)
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/world_map.json',
+  ///      shapeDataField: 'name',
+  ///    );
+  ///    super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      body: Center(
+  ///          child: Container(
+  ///        height: 350,
+  ///        child: Padding(
+  ///          padding: EdgeInsets.only(left: 15, right: 15),
+  ///          child: SfMaps(
+  ///            layers: <MapLayer>[
+  ///              MapShapeLayer(
+  ///                source: _mapSource,
+  ///                sublayers: [
+  ///                  MapCircleLayer(
+  ///                    circles: List<MapCircle>.generate(
+  ///                      _circles.length,
+  ///                      (int index) {
+  ///                        return MapCircle(
+  ///                          center: _circles[index],
+  ///                        );
+  ///                      },
+  ///                    ).toSet(),
+  ///                  ),
+  ///                ],
+  ///              ),
+  ///            ],
   ///          ),
-  ///          sublayers: [
-  ///            MapCircleLayer(
-  ///              circles: List<MapCircle>.generate(
-  ///                circles.length,
-  ///                (int index) {
-  ///                  return MapCircle(
-  ///                    center: circles[index],
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  ///          ],
   ///        ),
-  ///      ],
-  ///    ),
-  ///  );
-  /// }
+  ///      )),
+  ///    );
+  ///  }
   /// ```
   final Set<MapCircle> circles;
 
-  /// Animation for the [circles] in [MapPolylineLayer].
+  /// Animation for the [circles] in [MapCircleLayer].
   ///
   /// By default, [circles] will be rendered without any animation. The
   /// animation can be set as shown in the below code snippet. You can customise
   /// the animation flow, curve, duration and listen to the animation status.
   ///
   /// ```dart
-  /// AnimationController _animationController;
-  /// Animation _animation;
+  ///  List<MapLatLng> circles;
+  ///  MapShapeSource _mapSource;
+  ///  AnimationController _animationController;
+  ///  Animation _animation;
   ///
-  /// @override
-  /// void initState() {
-  ///   _animationController = AnimationController(
+  ///  @override
+  ///  void initState() {
+  ///    _circles = const <MapLatLng>[
+  ///      MapLatLng(-14.235004, -51.92528),
+  ///      MapLatLng(51.16569, 10.451526),
+  ///      MapLatLng(-25.274398, 133.775136),
+  ///      MapLatLng(20.593684, 78.96288),
+  ///      MapLatLng(61.52401, 105.318756)
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/world_map.json',
+  ///      shapeDataField: 'name',
+  ///    );
+  ///    _animationController = AnimationController(
   ///      duration: Duration(seconds: 3),
   ///      vsync: this,
-  ///   );
+  ///    );
   ///
-  ///  _animation = CurvedAnimation(
-  ///    parent: _animationController,
-  ///    curve: Curves.easeInOut),
-  ///  );
+  ///    _animation =
+  ///        CurvedAnimation(parent: _animationController,
+  ///        curve: Curves.easeInOut);
   ///
-  ///  _animationController.forward(from: 0);
-  ///  super.initState();
-  /// }
+  ///    _animationController.forward(from: 0);
+  ///    super.initState();
+  ///  }
   ///
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      body: Center(
+  ///          child: Container(
+  ///        height: 350,
+  ///        child: Padding(
+  ///          padding: EdgeInsets.only(left: 15, right: 15),
+  ///          child: SfMaps(
+  ///            layers: <MapLayer>[
+  ///              MapShapeLayer(
+  ///                source: _mapSource,
+  ///                sublayers: [
+  ///                  MapCircleLayer(
+  ///                    circles: List<MapCircle>.generate(
+  ///                      _circles.length,
+  ///                      (int index) {
+  ///                        return MapCircle(
+  ///                          center: _circles[index],
+  ///                        );
+  ///                      },
+  ///                    ).toSet(),
+  ///                    animation: _animation,
+  ///                  ),
+  ///                ],
+  ///              ),
+  ///            ],
   ///          ),
-  ///          sublayers: [
-  ///            MapCircleLayer(
-  ///              circles: List<MapCircle>.generate(
-  ///                circles.length,
-  ///                (int index) {
-  ///                  return MapCircle(
-  ///                    center: circles[index],
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///              animation: _animation,
-  ///            ),
-  ///          ],
   ///        ),
-  ///      ],
-  ///    ),
-  ///  );
-  /// }
+  ///      )),
+  ///    );
+  ///  }
   ///
   ///  @override
   ///  void dispose() {
-  ///     _animationController?.dispose();
+  ///    _animationController?.dispose();
   ///    super.dispose();
   ///  }
-  ///
   /// ```
-  final Animation animation;
+  final Animation? animation;
 
   /// The fill color of all the [MapCircle].
   ///
@@ -3238,36 +4194,60 @@ class MapCircleLayer extends MapVectorLayer {
   /// [MapCircle.color] property.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
+  ///  List<MapLatLng> _circles;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _circles = const <MapLatLng>[
+  ///      MapLatLng(-14.235004, -51.92528),
+  ///      MapLatLng(51.16569, 10.451526),
+  ///      MapLatLng(-25.274398, 133.775136),
+  ///      MapLatLng(20.593684, 78.96288),
+  ///      MapLatLng(61.52401, 105.318756)
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/world_map.json',
+  ///      shapeDataField: 'name',
+  ///    );
+  ///    super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      body: Center(
+  ///          child: Container(
+  ///        height: 350,
+  ///        child: Padding(
+  ///          padding: EdgeInsets.only(left: 15, right: 15),
+  ///          child: SfMaps(
+  ///            layers: <MapLayer>[
+  ///              MapShapeLayer(
+  ///                source: _mapSource,
+  ///                sublayers: [
+  ///                  MapCircleLayer(
+  ///                    circles: List<MapCircle>.generate(
+  ///                      _circles.length,
+  ///                      (int index) {
+  ///                        return MapCircle(
+  ///                          center: _circles[index],
+  ///                        );
+  ///                      },
+  ///                    ).toSet(),
+  ///                    color: Colors.red,
+  ///                  ),
+  ///                ],
+  ///              ),
+  ///            ],
   ///          ),
-  ///          sublayers: [
-  ///            MapCircleLayer(
-  ///              circles: List<MapCircle>.generate(
-  ///                circles.length,
-  ///                (int index) {
-  ///                  return MapCircle(
-  ///                    center: circles[index],
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///              color: Colors.red,
-  ///            ),
-  ///          ],
   ///        ),
-  ///      ],
-  ///    ),
-  ///  );
-  /// }
+  ///      )),
+  ///    );
+  ///  }
   /// ```
-  final Color color;
+  final Color? color;
 
   /// The stroke width of all the [MapCircle].
   ///
@@ -3275,34 +4255,59 @@ class MapCircleLayer extends MapVectorLayer {
   /// [MapCircle.strokeWidth] property.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
+  ///  List<MapLatLng> _circles;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _circles = const <MapLatLng>[
+  ///      MapLatLng(-14.235004, -51.92528),
+  ///      MapLatLng(51.16569, 10.451526),
+  ///      MapLatLng(-25.274398, 133.775136),
+  ///      MapLatLng(20.593684, 78.96288),
+  ///      MapLatLng(61.52401, 105.318756)
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/world_map.json',
+  ///      shapeDataField: 'name',
+  ///    );
+  ///    super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      body: Center(
+  ///          child: Container(
+  ///        height: 350,
+  ///        child: Padding(
+  ///          padding: EdgeInsets.only(left: 15, right: 15),
+  ///          child: SfMaps(
+  ///            layers: <MapLayer>[
+  ///              MapShapeLayer(
+  ///                source: _mapSource,
+  ///                sublayers: [
+  ///                  MapCircleLayer(
+  ///                    circles: List<MapCircle>.generate(
+  ///                      _circles.length,
+  ///                      (int index) {
+  ///                        return MapCircle(
+  ///                          center: _circles[index],
+  ///                        );
+  ///                      },
+  ///                    ).toSet(),
+  ///                    strokeWidth: 4.0,
+  ///                    strokeColor: Colors.red,
+  ///                  ),
+  ///                ],
+  ///              ),
+  ///            ],
   ///          ),
-  ///          sublayers: [
-  ///            MapCircleLayer(
-  ///              circles: List<MapCircle>.generate(
-  ///                circles.length,
-  ///                (int index) {
-  ///                  return MapCircle(
-  ///                    center: circles[index],
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///              strokeWidth: 4,
-  ///            ),
-  ///          ],
   ///        ),
-  ///      ],
-  ///    ),
-  ///  );
-  /// }
+  ///      )),
+  ///    );
+  ///  }
   /// ```
   /// See also:
   /// [strokeColor], to set the stroke color for the circles.
@@ -3314,40 +4319,67 @@ class MapCircleLayer extends MapVectorLayer {
   /// [MapCircle.strokeColor] property.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
+  ///  List<MapLatLng> _circles;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _circles = const <MapLatLng>[
+  ///      MapLatLng(-14.235004, -51.92528),
+  ///      MapLatLng(51.16569, 10.451526),
+  ///      MapLatLng(-25.274398, 133.775136),
+  ///      MapLatLng(20.593684, 78.96288),
+  ///      MapLatLng(61.52401, 105.318756)
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/world_map.json',
+  ///      shapeDataField: 'name',
+  ///    );
+  ///    super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      body: Center(
+  ///          child: Container(
+  ///        height: 350,
+  ///        child: Padding(
+  ///          padding: EdgeInsets.only(left: 15, right: 15),
+  ///          child: SfMaps(
+  ///            layers: <MapLayer>[
+  ///              MapShapeLayer(
+  ///                source: _mapSource,
+  ///                sublayers: [
+  ///                  MapCircleLayer(
+  ///                    circles: List<MapCircle>.generate(
+  ///                      _circles.length,
+  ///                      (int index) {
+  ///                        return MapCircle(
+  ///                          center: _circles[index],
+  ///                        );
+  ///                      },
+  ///                    ).toSet(),
+  ///                    strokeWidth: 4.0,
+  ///                    strokeColor: Colors.red,
+  ///                  ),
+  ///                ],
+  ///              ),
+  ///            ],
   ///          ),
-  ///          sublayers: [
-  ///            MapCircleLayer(
-  ///              circles: List<MapCircle>.generate(
-  ///                circles.length,
-  ///                (int index) {
-  ///                  return MapCircle(
-  ///                    center: circles[index],
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///              strokeWidth: 4,
-  ///              strokeColor: Colors.red,
-  ///            ),
-  ///          ],
   ///        ),
-  ///      ],
-  ///    ),
-  ///  );
-  /// }
+  ///      )),
+  ///    );
+  ///  }
   /// ```
   ///
   /// See also:
   /// [strokeWidth], to set the stroke width for the circles.
-  final Color strokeColor;
+  final Color? strokeColor;
+
+  /// Strategies for painting a circle in a canvas.
+  final _VectorFillType _fillType;
 
   @override
   Widget build(BuildContext context) {
@@ -3359,28 +4391,54 @@ class MapCircleLayer extends MapVectorLayer {
       strokeWidth: strokeWidth,
       tooltipBuilder: tooltipBuilder,
       circleLayer: this,
+      fillType: _fillType,
     );
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    if (circles.isNotEmpty) {
+      final _DebugVectorShapeTree pointerTreeNode =
+          _DebugVectorShapeTree(circles);
+      properties.add(pointerTreeNode.toDiagnosticsNode());
+    }
+    properties.add(ObjectFlagProperty<Animation>.has('animation', animation));
+    properties.add(ObjectFlagProperty<IndexedWidgetBuilder>.has(
+        'tooltip', tooltipBuilder));
+
+    if (color != null) {
+      properties.add(ColorProperty('color', color));
+    }
+
+    if (strokeColor != null) {
+      properties.add(ColorProperty('strokeColor', strokeColor));
+    }
+
+    properties.add(DoubleProperty('strokeWidth', strokeWidth));
   }
 }
 
 class _MapCircleLayer extends StatefulWidget {
   const _MapCircleLayer({
-    this.circles,
-    this.animation,
-    this.color,
-    this.strokeWidth,
-    this.strokeColor,
-    this.tooltipBuilder,
-    this.circleLayer,
+    required this.circles,
+    required this.animation,
+    required this.color,
+    required this.strokeWidth,
+    required this.strokeColor,
+    required this.tooltipBuilder,
+    required this.circleLayer,
+    required this.fillType,
   });
 
   final Set<MapCircle> circles;
-  final Animation animation;
-  final Color color;
+  final Animation? animation;
+  final Color? color;
   final double strokeWidth;
-  final Color strokeColor;
-  final IndexedWidgetBuilder tooltipBuilder;
+  final Color? strokeColor;
+  final IndexedWidgetBuilder? tooltipBuilder;
   final MapCircleLayer circleLayer;
+  final _VectorFillType fillType;
 
   @override
   _MapCircleLayerState createState() => _MapCircleLayerState();
@@ -3388,8 +4446,10 @@ class _MapCircleLayer extends StatefulWidget {
 
 class _MapCircleLayerState extends State<_MapCircleLayer>
     with SingleTickerProviderStateMixin {
-  AnimationController _hoverAnimationController;
-  SfMapsThemeData _mapsThemeData;
+  MapController? _controller;
+  late AnimationController _hoverAnimationController;
+  late SfMapsThemeData _mapsThemeData;
+  late MapLayerInheritedWidget ancestor;
 
   @override
   void initState() {
@@ -3399,61 +4459,128 @@ class _MapCircleLayerState extends State<_MapCircleLayer>
   }
 
   @override
+  void didChangeDependencies() {
+    if (_controller == null) {
+      ancestor = context
+          .dependOnInheritedWidgetOfExactType<MapLayerInheritedWidget>()!;
+      _controller = ancestor.controller;
+    }
+    super.didChangeDependencies();
+  }
+
+  @override
   void dispose() {
-    _hoverAnimationController?.dispose();
+    _controller = null;
+    _hoverAnimationController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    assert(() {
+      if (widget.fillType == _VectorFillType.outer) {
+        for (final MapCircle circle in widget.circles) {
+          assert(
+              circle.color == null,
+              throw FlutterError.fromParts(<DiagnosticsNode>[
+                ErrorSummary('Incorrect MapCircle arguments.'),
+                ErrorDescription(
+                    'Inverted circles cannot be customized individually.'),
+                ErrorHint(
+                    '''To customize all the circle's color, use MapCircleLayer.color''')
+              ]));
+          assert(
+              circle.strokeColor == null,
+              throw FlutterError.fromParts(<DiagnosticsNode>[
+                ErrorSummary('Incorrect MapCircle arguments.'),
+                ErrorDescription(
+                    'Inverted circles cannot be customized individually.'),
+                ErrorHint(
+                    '''To customize all the circle's stroke color, use MapCircleLayer.strokeColor''')
+              ]));
+          assert(
+              circle.strokeWidth == null,
+              throw FlutterError.fromParts(<DiagnosticsNode>[
+                ErrorSummary('Incorrect MapCircle arguments.'),
+                ErrorDescription(
+                    'Inverted circles cannot be customized individually.'),
+                ErrorHint(
+                    '''To customize all the circle's stroke width, use MapCircleLayer.strokeWidth''')
+              ]));
+        }
+      }
+      return true;
+    }());
+
     final ThemeData themeData = Theme.of(context);
     final bool isDesktop = kIsWeb ||
         themeData.platform == TargetPlatform.macOS ||
-        themeData.platform == TargetPlatform.windows;
-    _mapsThemeData = SfMapsTheme.of(context);
+        themeData.platform == TargetPlatform.windows ||
+        themeData.platform == TargetPlatform.linux;
+    _mapsThemeData = SfMapsTheme.of(context)!;
     return _MapCircleLayerRenderObject(
+      controller: _controller,
       circles: widget.circles,
       animation: widget.animation,
-      color: widget.color,
+      color: widget.color ??
+          (widget.fillType == _VectorFillType.inner
+              ? const Color.fromRGBO(51, 153, 144, 1)
+              : (_mapsThemeData.brightness == Brightness.light
+                  ? const Color.fromRGBO(3, 3, 3, 0.15)
+                  : const Color.fromRGBO(0, 0, 0, 0.2))),
       strokeWidth: widget.strokeWidth,
-      strokeColor: widget.strokeColor,
+      strokeColor: widget.strokeColor ??
+          (widget.fillType == _VectorFillType.inner
+              ? const Color.fromRGBO(51, 153, 144, 1)
+              : (_mapsThemeData.brightness == Brightness.light
+                  ? const Color.fromRGBO(98, 0, 238, 1)
+                  : const Color.fromRGBO(187, 134, 252, 0.5))),
       tooltipBuilder: widget.tooltipBuilder,
       circleLayer: widget.circleLayer,
       hoverAnimationController: _hoverAnimationController,
       themeData: _mapsThemeData,
       isDesktop: isDesktop,
+      fillType: widget.fillType,
+      state: this,
     );
   }
 }
 
 class _MapCircleLayerRenderObject extends LeafRenderObjectWidget {
   const _MapCircleLayerRenderObject({
-    this.circles,
-    this.animation,
-    this.color,
-    this.strokeWidth,
-    this.strokeColor,
-    this.tooltipBuilder,
-    this.circleLayer,
-    this.hoverAnimationController,
-    this.themeData,
-    this.isDesktop,
+    required this.controller,
+    required this.circles,
+    required this.animation,
+    required this.color,
+    required this.strokeWidth,
+    required this.strokeColor,
+    required this.tooltipBuilder,
+    required this.circleLayer,
+    required this.hoverAnimationController,
+    required this.themeData,
+    required this.isDesktop,
+    required this.fillType,
+    required this.state,
   });
 
+  final MapController? controller;
   final Set<MapCircle> circles;
-  final Animation animation;
+  final Animation? animation;
   final Color color;
   final double strokeWidth;
   final Color strokeColor;
-  final IndexedWidgetBuilder tooltipBuilder;
+  final IndexedWidgetBuilder? tooltipBuilder;
   final MapCircleLayer circleLayer;
   final AnimationController hoverAnimationController;
   final SfMapsThemeData themeData;
   final bool isDesktop;
+  final _VectorFillType fillType;
+  final _MapCircleLayerState state;
 
   @override
   _RenderMapCircle createRenderObject(BuildContext context) {
     return _RenderMapCircle(
+      controller: controller,
       circles: circles,
       animation: animation,
       color: color,
@@ -3465,6 +4592,8 @@ class _MapCircleLayerRenderObject extends LeafRenderObjectWidget {
       circleLayer: circleLayer,
       hoverAnimationController: hoverAnimationController,
       isDesktop: isDesktop,
+      fillType: fillType,
+      state: state,
     );
   }
 
@@ -3479,24 +4608,29 @@ class _MapCircleLayerRenderObject extends LeafRenderObjectWidget {
       ..tooltipBuilder = tooltipBuilder
       ..themeData = themeData
       ..context = context
-      ..circleLayer = circleLayer;
+      ..fillType = fillType
+      ..state = state;
   }
 }
 
 class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
   _RenderMapCircle({
-    Set<MapCircle> circles,
-    Animation animation,
-    Color color,
-    double strokeWidth,
-    Color strokeColor,
-    IndexedWidgetBuilder tooltipBuilder,
-    SfMapsThemeData themeData,
-    BuildContext context,
-    MapCircleLayer circleLayer,
-    AnimationController hoverAnimationController,
-    bool isDesktop,
-  })  : _circles = circles,
+    required MapController? controller,
+    required Set<MapCircle> circles,
+    required Animation? animation,
+    required Color color,
+    required double strokeWidth,
+    required Color strokeColor,
+    required IndexedWidgetBuilder? tooltipBuilder,
+    required SfMapsThemeData themeData,
+    required BuildContext context,
+    required MapCircleLayer circleLayer,
+    required AnimationController hoverAnimationController,
+    required bool isDesktop,
+    required this.fillType,
+    required this.state,
+  })   : _controller = controller,
+        _circles = circles,
         _animation = animation,
         _color = color,
         _strokeColor = strokeColor,
@@ -3513,52 +4647,54 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
     _reverseHoverStrokeColor = ColorTween();
     _hoverColorAnimation = CurvedAnimation(
         parent: hoverAnimationController, curve: Curves.easeInOut);
-    _circlesInList = _circles?.toList();
+    _circlesInList = _circles.toList();
     _tapGestureRecognizer = TapGestureRecognizer()..onTapUp = _handleTapUp;
   }
 
-  MapController controller;
-  AnimationController hoverAnimationController;
-  RenderSublayerContainer vectorLayerContainer;
-  MapCircleLayer circleLayer;
-  bool isDesktop;
-  BuildContext context;
-  TapGestureRecognizer _tapGestureRecognizer;
-  Animation<double> _hoverColorAnimation;
-  ColorTween _forwardHoverColor;
-  ColorTween _reverseHoverColor;
-  ColorTween _forwardHoverStrokeColor;
-  ColorTween _reverseHoverStrokeColor;
-  MapCircle _previousHoverItem;
-  MapCircle _currentHoverItem;
-  int _selectedIndex = -1;
-  MapCircle _selectedCircle;
-  List<MapCircle> _circlesInList;
+  final MapController? _controller;
+  late int _selectedIndex = -1;
+  late _VectorFillType fillType;
+  late _MapCircleLayerState state;
+  late AnimationController hoverAnimationController;
+  late MapCircleLayer circleLayer;
+  late bool isDesktop;
+  late BuildContext context;
+  late TapGestureRecognizer _tapGestureRecognizer;
+  late Animation<double> _hoverColorAnimation;
+  late ColorTween _forwardHoverColor;
+  late ColorTween _reverseHoverColor;
+  late ColorTween _forwardHoverStrokeColor;
+  late ColorTween _reverseHoverStrokeColor;
+  late MapCircle _selectedCircle;
+
+  MapCircle? _previousHoverItem;
+  MapCircle? _currentHoverItem;
+  List<MapCircle>? _circlesInList;
 
   Set<MapCircle> get circles => _circles;
   Set<MapCircle> _circles;
-  set circles(Set<MapCircle> value) {
+  set circles(Set<MapCircle>? value) {
     assert(value != null);
     if (_circles == value || value == null) {
       return;
     }
     _circles = value;
-    _circlesInList = _circles?.toList();
+    _circlesInList = _circles.toList();
     markNeedsPaint();
   }
 
-  Animation get animation => _animation;
-  Animation _animation;
-  set animation(Animation value) {
+  Animation? get animation => _animation;
+  Animation? _animation;
+  set animation(Animation? value) {
     if (_animation == value) {
       return;
     }
     _animation = value;
   }
 
-  IndexedWidgetBuilder get tooltipBuilder => _tooltipBuilder;
-  IndexedWidgetBuilder _tooltipBuilder;
-  set tooltipBuilder(IndexedWidgetBuilder value) {
+  IndexedWidgetBuilder? get tooltipBuilder => _tooltipBuilder;
+  IndexedWidgetBuilder? _tooltipBuilder;
+  set tooltipBuilder(IndexedWidgetBuilder? value) {
     if (_tooltipBuilder == value) {
       return;
     }
@@ -3656,7 +4792,7 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
 
   Color _getHoverFillColor(MapCircle circle) {
     if (hasHoverColor) {
-      return _themeData.shapeHoverColor;
+      return _themeData.shapeHoverColor!;
     }
     final Color color = circle.color ?? _color;
     return color.withOpacity(
@@ -3667,7 +4803,7 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
 
   Color _getHoverStrokeColor(MapCircle circle) {
     if (hasHoverStrokeColor) {
-      return _themeData.shapeHoverStrokeColor;
+      return _themeData.shapeHoverStrokeColor!;
     }
     final Color strokeColor = circle.strokeColor ?? _strokeColor;
     return strokeColor.withOpacity(
@@ -3684,10 +4820,13 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
       _initializeHoverItemTween();
     }
 
-    final RenderSublayerContainer vectorParent = parent;
     final ShapeLayerChildRenderBoxBase tooltipRenderer =
-        vectorParent.tooltipKey?.currentContext?.findRenderObject();
-    tooltipRenderer?.hideTooltip();
+        // ignore: lines_longer_than_80_chars
+        // ignore: avoid_as
+        _controller!.tooltipKey!.currentContext!.findRenderObject()
+            // ignore: avoid_as
+            as ShapeLayerChildRenderBoxBase;
+    tooltipRenderer.hideTooltip();
   }
 
   void _handleZooming(MapZoomDetails details) {
@@ -3698,32 +4837,28 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
     markNeedsPaint();
   }
 
-  void _handleReset() {
-    markNeedsPaint();
-  }
-
-  void _handleRefresh() {
-    markNeedsPaint();
-  }
-
-  void _handleInteraction(Offset position) {
-    final RenderSublayerContainer vectorParent = parent;
-    if (vectorParent.tooltipKey != null && _tooltipBuilder != null) {
+  void _handleInteraction(Offset position,
+      [PointerKind kind = PointerKind.touch]) {
+    if (_controller?.tooltipKey != null && _tooltipBuilder != null) {
       final ShapeLayerChildRenderBoxBase tooltipRenderer =
-          vectorParent.tooltipKey.currentContext.findRenderObject();
-      final bool isTileLayer = controller.tileCurrentLevelDetails != null;
-      final Size boxSize = isTileLayer ? controller.totalTileSize : size;
-      final Offset translationOffset =
-          _getTranslationOffset(controller, isTileLayer);
+          // ignore: avoid_as
+          _controller!.tooltipKey!.currentContext!.findRenderObject()
+              // ignore: avoid_as
+              as ShapeLayerChildRenderBoxBase;
+      final Size boxSize = _controller?.layerType == LayerType.tile
+          ? _controller!.totalTileSize!
+          : size;
+      final Offset translationOffset = _getTranslation(_controller!);
 
       if (_selectedIndex != -1) {
-        final Offset center = pixelFromLatLng(
+        Offset center = pixelFromLatLng(
           _selectedCircle.center.latitude,
           _selectedCircle.center.longitude,
           boxSize,
           translationOffset,
-          controller.shapeLayerSizeFactor,
+          _controller!.shapeLayerSizeFactor,
         );
+        center = _getScaledOffset(center, _controller!);
 
         final Rect circleRect =
             Rect.fromCircle(center: center, radius: _selectedCircle.radius);
@@ -3731,7 +4866,8 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
           _selectedIndex,
           circleRect,
           MapLayerElement.vector,
-          vectorParent.getSublayerIndex(circleLayer),
+          kind,
+          state.ancestor.sublayers?.indexOf(circleLayer),
           position,
         );
       }
@@ -3747,13 +4883,13 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
   MouseCursor get cursor => SystemMouseCursors.basic;
 
   @override
-  PointerEnterEventListener get onEnter => null;
+  PointerEnterEventListener? get onEnter => null;
 
   // As onHover property of MouseHoverAnnotation was removed only in the
   // beta channel, once it is moved to stable, will remove this property.
   @override
   // ignore: override_on_non_overriding_member
-  PointerHoverEventListener get onHover => null;
+  PointerHoverEventListener? get onHover => null;
 
   @override
   PointerExitEventListener get onExit => _handlePointerExit;
@@ -3764,29 +4900,32 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
 
   @override
   bool hitTestSelf(Offset position) {
-    if (_animation != null && !_animation.isCompleted) {
+    if (_animation != null && !_animation!.isCompleted) {
       return false;
     }
 
-    int index = _circlesInList.length - 1;
-    final bool isTileLayer = controller.tileCurrentLevelDetails != null;
-    final Size boxSize = isTileLayer ? controller.totalTileSize : size;
-    final Offset translationOffset =
-        _getTranslationOffset(controller, isTileLayer);
+    int index = _circlesInList!.length - 1;
+    final Size boxSize = _controller?.layerType == LayerType.tile
+        ? _controller!.totalTileSize!
+        : size;
+    final Offset translationOffset = getTranslationOffset(_controller!);
 
-    for (final MapCircle circle in _circlesInList?.reversed) {
+    for (final MapCircle circle in _circlesInList!.reversed) {
       if (circle.onTap != null || _tooltipBuilder != null || canHover) {
-        final Path path = Path()
-          ..addOval(Rect.fromCircle(
-            center: pixelFromLatLng(
-              circle.center.latitude,
-              circle.center.longitude,
-              boxSize,
-              translationOffset,
-              controller.shapeLayerSizeFactor,
-            ),
-            radius: circle.radius,
-          ));
+        final Path path = Path();
+        Offset center = pixelFromLatLng(
+          circle.center.latitude,
+          circle.center.longitude,
+          boxSize,
+          translationOffset,
+          getLayerSizeFactor(_controller!),
+        );
+
+        center = _getScaledOffset(center, _controller!);
+        path.addOval(Rect.fromCircle(
+          center: center,
+          radius: circle.radius,
+        ));
         if (path.contains(position)) {
           _selectedCircle = circle;
           _selectedIndex = index;
@@ -3801,30 +4940,28 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
-    vectorLayerContainer = parent;
-    controller = vectorLayerContainer.controller;
-    if (controller != null) {
-      controller
+    if (_controller != null) {
+      _controller!
         ..addZoomingListener(_handleZooming)
         ..addPanningListener(_handlePanning)
-        ..addResetListener(_handleReset)
-        ..addRefreshListener(_handleRefresh);
+        ..addResetListener(markNeedsPaint)
+        ..addRefreshListener(markNeedsPaint);
     }
     _animation?.addListener(markNeedsPaint);
-    _hoverColorAnimation?.addListener(markNeedsPaint);
+    _hoverColorAnimation.addListener(markNeedsPaint);
   }
 
   @override
   void detach() {
-    if (controller != null) {
-      controller
+    if (_controller != null) {
+      _controller!
         ..removeZoomingListener(_handleZooming)
         ..removePanningListener(_handlePanning)
-        ..removeResetListener(_handleReset)
-        ..removeRefreshListener(_handleRefresh);
+        ..removeResetListener(markNeedsPaint)
+        ..removeRefreshListener(markNeedsPaint);
     }
     _animation?.removeListener(markNeedsPaint);
-    _hoverColorAnimation?.removeListener(markNeedsPaint);
+    _hoverColorAnimation.removeListener(markNeedsPaint);
     _circlesInList?.clear();
     _circlesInList = null;
     super.detach();
@@ -3841,8 +4978,10 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
         _initializeHoverItemTween();
       }
 
-      final RenderBox renderBox = context.findRenderObject();
-      _handleInteraction(renderBox.globalToLocal(event.position));
+      // ignore: avoid_as
+      final RenderBox renderBox = context.findRenderObject() as RenderBox;
+      _handleInteraction(
+          renderBox.globalToLocal(event.position), PointerKind.hover);
     }
   }
 
@@ -3856,37 +4995,61 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    if (_animation != null && _animation.value == 0.0) {
+    if (_animation != null && _animation!.value == 0.0) {
       return;
     }
+
     context.canvas.save();
     final Paint fillPaint = Paint()..isAntiAlias = true;
     final Paint strokePaint = Paint()
       ..isAntiAlias = true
       ..style = PaintingStyle.stroke;
-    final bool isTileLayer = controller.tileCurrentLevelDetails != null;
-    final Size boxSize = isTileLayer ? controller.totalTileSize : size;
-    final Offset translationOffset =
-        _getTranslationOffset(controller, isTileLayer);
-    controller.applyTransform(context, offset, true);
+    final Size boxSize = _controller?.layerType == LayerType.tile
+        ? _controller!.totalTileSize!
+        : size;
+    final Offset translationOffset = getTranslationOffset(_controller!);
+    // Check whether the color will apply to the inner side or outer side of
+    // the circle shape.
+    final bool isInverted = fillType == _VectorFillType.outer;
 
+    Path path = Path();
     for (final MapCircle circle in circles) {
-      final Path path = Path();
-      path
-        ..addOval(Rect.fromCircle(
-          center: pixelFromLatLng(
-            circle.center.latitude,
-            circle.center.longitude,
-            boxSize,
-            translationOffset,
-            controller.shapeLayerSizeFactor,
-          ),
-          radius: _getDesiredValue(
-              circle.radius * (_animation?.value ?? 1.0), controller),
-        ));
-      _updateFillColor(circle, fillPaint);
-      _updateStroke(circle, strokePaint);
-      context.canvas..drawPath(path, fillPaint)..drawPath(path, strokePaint);
+      // Creating new path for each circle for applying individual circle
+      // customization like color, strokeColor and strokeWidth customization.
+      // For inverted circle, all circles are added in a single path to make
+      // the circles area to be transparent while combining the path.
+      if (!isInverted) {
+        path = Path();
+      }
+      Offset circleCenter = pixelFromLatLng(
+        circle.center.latitude,
+        circle.center.longitude,
+        boxSize,
+        translationOffset,
+        getLayerSizeFactor(_controller!),
+      );
+
+      circleCenter = _getScaledOffset(circleCenter, _controller!);
+      final Rect circleRect = Rect.fromCircle(
+        center: circleCenter,
+        radius: circle.radius * (_animation?.value ?? 1.0),
+      );
+
+      path.addOval(circleRect);
+      if (!isInverted) {
+        _updateFillColor(circle, fillPaint);
+        _updateStroke(circle, strokePaint);
+        context.canvas..drawPath(path, fillPaint)..drawPath(path, strokePaint);
+      }
+    }
+
+    if (isInverted) {
+      fillPaint.color = _color;
+      strokePaint
+        ..strokeWidth = _strokeWidth
+        ..color = _strokeColor;
+      _drawInvertedPath(
+          context, path, _controller!, fillPaint, strokePaint, offset);
     }
     context.canvas.restore();
   }
@@ -3899,11 +5062,11 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
 
     if (_previousHoverItem != null && _previousHoverItem == circle) {
       paint.color = _themeData.shapeHoverColor != Colors.transparent
-          ? _reverseHoverColor.evaluate(_hoverColorAnimation)
+          ? _reverseHoverColor.evaluate(_hoverColorAnimation)!
           : (circle.color ?? _color);
     } else if (_currentHoverItem != null && _currentHoverItem == circle) {
       paint.color = _themeData.shapeHoverColor != Colors.transparent
-          ? _forwardHoverColor.evaluate(_hoverColorAnimation)
+          ? _forwardHoverColor.evaluate(_hoverColorAnimation)!
           : (circle.color ?? _color);
     } else {
       paint.color = circle.color ?? _color;
@@ -3918,17 +5081,14 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
 
     if (_previousHoverItem != null && _previousHoverItem == circle) {
       _updateHoverStrokeColor(paint, circle, _reverseHoverStrokeColor);
-      paint.strokeWidth =
-          _getDesiredValue(circle.strokeWidth ?? _strokeWidth, controller);
+      paint.strokeWidth = circle.strokeWidth ?? _strokeWidth;
     } else if (_currentHoverItem != null && _currentHoverItem == circle) {
       _updateHoverStrokeColor(paint, circle, _forwardHoverStrokeColor);
       if (_themeData.shapeHoverStrokeWidth != null &&
-          _themeData.shapeHoverStrokeWidth > 0.0) {
-        paint.strokeWidth =
-            _getDesiredValue(_themeData.shapeHoverStrokeWidth, controller);
+          _themeData.shapeHoverStrokeWidth! > 0.0) {
+        paint.strokeWidth = _themeData.shapeHoverStrokeWidth!;
       } else {
-        paint.strokeWidth =
-            _getDesiredValue(circle.strokeWidth ?? _strokeWidth, controller);
+        paint.strokeWidth = circle.strokeWidth ?? _strokeWidth;
       }
     } else {
       _updateDefaultStroke(paint, circle);
@@ -3938,14 +5098,13 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
   void _updateDefaultStroke(Paint paint, MapCircle circle) {
     paint
       ..color = circle.strokeColor ?? _strokeColor
-      ..strokeWidth =
-          _getDesiredValue(circle.strokeWidth ?? _strokeWidth, controller);
+      ..strokeWidth = circle.strokeWidth ?? _strokeWidth;
   }
 
   void _updateHoverStrokeColor(
       Paint paint, MapCircle circle, ColorTween tween) {
     if (_themeData.shapeHoverStrokeColor != Colors.transparent) {
-      paint.color = tween.evaluate(_hoverColorAnimation);
+      paint.color = tween.evaluate(_hoverColorAnimation)!;
     } else {
       paint.color = circle.strokeColor ?? _strokeColor;
     }
@@ -3955,40 +5114,71 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
 /// Creates a line between the two geographical coordinates on the map.
 ///
 /// ```dart
-/// @override
-/// Widget build(BuildContext context) {
-///  return Scaffold(
-///    body: SfMaps(
-///      layers: [
-///       MapShapeLayer(
-///          source: MapShapeSource.asset(
-///             "assets/world_map.json",
-///              shapeDataField: "continent",
-///          ),
-///          sublayers: [
-///           MapLineLayer(
-///              lines: List<MapLine>.generate(
-///               lines.length,
-///                (int index) {
-///                 return MapLine(
-///                    from: lines[index].from,
-///                    to: lines[index].to,
-///                  );
-///                },
-///              ).toSet(),
-///            ),
-///          ],
-///        ),
-///      ],
-///    ),
-/// );
+///   List<Model> _lines;
+///   MapZoomPanBehavior _zoomPanBehavior;
+///   MapShapeSource _mapSource;
+///
+///   @override
+///   void initState() {
+///     _zoomPanBehavior = MapZoomPanBehavior(
+///       focalLatLng: MapLatLng(40.7128, -95.3698),
+///       zoomLevel: 3,
+///     );
+///
+///     _mapSource = MapShapeSource.asset(
+///       "assets/world_map.json",
+///       shapeDataField: "continent",
+///     );
+///
+///     _lines = <Model>[
+///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+///     ];
+///
+///     super.initState();
+///   }
+///
+///   @override
+///   Widget build(BuildContext context) {
+///     return Scaffold(
+///       body: SfMaps(
+///         layers: [
+///           MapShapeLayer(
+///             source: _mapSource,
+///             zoomPanBehavior: _zoomPanBehavior,
+///             sublayers: [
+///               MapLineLayer(
+///                 lines: List<MapLine>.generate(
+///                   _lines.length,
+///                   (int index) {
+///                     return MapLine(
+///                       from: _lines[index].from,
+///                       to: _lines[index].to,
+///                     );
+///                   },
+///                 ).toSet(),
+///               ),
+///             ],
+///           ),
+///         ],
+///       ),
+///     );
+///   }
+///
+/// class Model {
+///   Model(this.from, this.to);
+///
+///   MapLatLng from;
+///   MapLatLng to;
 /// }
 /// ```
-class MapLine {
+class MapLine extends DiagnosticableTree {
   /// Creates a [MapLine].
   const MapLine({
-    @required this.from,
-    @required this.to,
+    required this.from,
+    required this.to,
     this.dashArray = const [0, 0],
     this.color,
     this.width,
@@ -3998,33 +5188,64 @@ class MapLine {
   /// The starting coordinate of the line.
   ///
   ///```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///         MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
-  ///          sublayers: [
-  ///            MapLineLayer(
-  ///              lines: List<MapLine>.generate(
-  ///                lines.length,
-  ///                    (int index) {
-  ///                  return MapLine(
-  ///                    from: lines[index].from,
-  ///                    to: lines[index].to,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  ///          ],
-  ///        ),
-  ///      ],
-  ///    ),
-  ///  );
+  ///   List<Model> _lines;
+  ///   MapZoomPanBehavior _zoomPanBehavior;
+  ///   MapShapeSource _mapSource;
+  ///
+  ///   @override
+  ///   void initState() {
+  ///     _zoomPanBehavior = MapZoomPanBehavior(
+  ///       focalLatLng: MapLatLng(40.7128, -95.3698),
+  ///       zoomLevel: 3,
+  ///     );
+  ///
+  ///     _mapSource = MapShapeSource.asset(
+  ///       "assets/world_map.json",
+  ///       shapeDataField: "continent",
+  ///     );
+  ///
+  ///     _lines = <Model>[
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+  ///     ];
+  ///
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             zoomPanBehavior: _zoomPanBehavior,
+  ///             sublayers: [
+  ///               MapLineLayer(
+  ///                 lines: List<MapLine>.generate(
+  ///                   _lines.length,
+  ///                   (int index) {
+  ///                     return MapLine(
+  ///                       from: _lines[index].from,
+  ///                       to: _lines[index].to,
+  ///                     );
+  ///                   },
+  ///                 ).toSet(),
+  ///               ),
+  ///             ],
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  ///
+  /// class Model {
+  ///   Model(this.from, this.to);
+  ///
+  ///   MapLatLng from;
+  ///   MapLatLng to;
   /// }
   ///```
   final MapLatLng from;
@@ -4032,33 +5253,64 @@ class MapLine {
   /// The ending coordinate of the line.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
-  ///          sublayers: [
-  ///            MapLineLayer(
-  ///              lines: List<MapLine>.generate(
-  ///                lines.length,
-  ///                    (int index) {
-  ///                  return MapLine(
-  ///                    from: lines[index].from,
-  ///                    to: lines[index].to,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  ///          ],
-  ///        ),
-  ///      ],
-  ///    ),
-  ///  );
+  ///   List<Model> _lines;
+  ///   MapZoomPanBehavior _zoomPanBehavior;
+  ///   MapShapeSource _mapSource;
+  ///
+  ///   @override
+  ///   void initState() {
+  ///     _zoomPanBehavior = MapZoomPanBehavior(
+  ///       focalLatLng: MapLatLng(40.7128, -95.3698),
+  ///       zoomLevel: 3,
+  ///     );
+  ///
+  ///     _mapSource = MapShapeSource.asset(
+  ///       "assets/world_map.json",
+  ///       shapeDataField: "continent",
+  ///     );
+  ///
+  ///     _lines = <Model>[
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+  ///     ];
+  ///
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             zoomPanBehavior: _zoomPanBehavior,
+  ///             sublayers: [
+  ///               MapLineLayer(
+  ///                 lines: List<MapLine>.generate(
+  ///                   _lines.length,
+  ///                   (int index) {
+  ///                     return MapLine(
+  ///                       from: _lines[index].from,
+  ///                       to: _lines[index].to,
+  ///                     );
+  ///                   },
+  ///                 ).toSet(),
+  ///               ),
+  ///             ],
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  ///
+  /// class Model {
+  ///   Model(this.from, this.to);
+  ///
+  ///   MapLatLng from;
+  ///   MapLatLng to;
   /// }
   ///```
   final MapLatLng to;
@@ -4070,34 +5322,65 @@ class MapLine {
   /// again till the end of the line.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
-  ///          sublayers: [
-  ///            MapLineLayer(
-  ///              lines: List<MapLine>.generate(
-  ///                lines.length,
-  ///                    (int index) {
-  ///                  return MapLine(
-  ///                    from: lines[index].from,
-  ///                    to: lines[index].to,
-  ///                    dashArray: [8, 3, 4, 3],
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  ///          ],
-  ///        ),
-  ///      ],
-  ///    ),
-  ///  );
+  ///   List<Model> _lines;
+  ///   MapZoomPanBehavior _zoomPanBehavior;
+  ///   MapShapeSource _mapSource;
+  ///
+  ///   @override
+  ///   void initState() {
+  ///     _zoomPanBehavior = MapZoomPanBehavior(
+  ///       focalLatLng: MapLatLng(40.7128, -95.3698),
+  ///       zoomLevel: 3,
+  ///     );
+  ///
+  ///     _mapSource = MapShapeSource.asset(
+  ///       "assets/world_map.json",
+  ///       shapeDataField: "continent",
+  ///     );
+  ///
+  ///     _lines = <Model>[
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+  ///     ];
+  ///
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             zoomPanBehavior: _zoomPanBehavior,
+  ///             sublayers: [
+  ///               MapLineLayer(
+  ///                 lines: List<MapLine>.generate(
+  ///                   _lines.length,
+  ///                   (int index) {
+  ///                     return MapLine(
+  ///                       from: _lines[index].from,
+  ///                       to: _lines[index].to,
+  ///                       dashArray: [8, 3, 4, 3],
+  ///                     );
+  ///                   },
+  ///                 ).toSet(),
+  ///               ),
+  ///             ],
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  ///
+  /// class Model {
+  ///   Model(this.from, this.to);
+  ///
+  ///   MapLatLng from;
+  ///   MapLatLng to;
   /// }
   ///```
   final List<double> dashArray;
@@ -4105,73 +5388,134 @@ class MapLine {
   /// Color of the line.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
-  ///          sublayers: [
-  ///            MapLineLayer(
-  ///              lines: List<MapLine>.generate(
-  ///                lines.length,
-  ///                    (int index) {
-  ///                  return MapLine(
-  ///                    from: lines[index].from,
-  ///                    to: lines[index].to,
-  ///                    color: Colors.blue,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  ///          ],
-  ///        ),
-  ///      ],
-  ///    ),
-  ///  );
+  ///   List<Model> _lines;
+  ///   MapZoomPanBehavior _zoomPanBehavior;
+  ///   MapShapeSource _mapSource;
+  ///
+  ///   @override
+  ///   void initState() {
+  ///     _zoomPanBehavior = MapZoomPanBehavior(
+  ///       focalLatLng: MapLatLng(40.7128, -95.3698),
+  ///       zoomLevel: 3,
+  ///     );
+  ///
+  ///     _mapSource = MapShapeSource.asset(
+  ///       "assets/world_map.json",
+  ///       shapeDataField: "continent",
+  ///     );
+  ///
+  ///     _lines = <Model>[
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+  ///     ];
+  ///
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             zoomPanBehavior: _zoomPanBehavior,
+  ///             sublayers: [
+  ///               MapLineLayer(
+  ///                 lines: List<MapLine>.generate(
+  ///                   _lines.length,
+  ///                   (int index) {
+  ///                     return MapLine(
+  ///                       from: _lines[index].from,
+  ///                       to: _lines[index].to,
+  ///                       color: Colors.blue,
+  ///                     );
+  ///                   },
+  ///                 ).toSet(),
+  ///               ),
+  ///             ],
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  ///
+  /// class Model {
+  ///   Model(this.from, this.to);
+  ///
+  ///   MapLatLng from;
+  ///   MapLatLng to;
   /// }
   ///```
-  final Color color;
+  final Color? color;
 
   /// Width of the line.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
-  ///          sublayers: [
-  ///            MapLineLayer(
-  ///              lines: List<MapLine>.generate(
-  ///                lines.length,
-  ///                    (int index) {
-  ///                  return MapLine(
-  ///                    from: lines[index].from,
-  ///                    to: lines[index].to,
-  ///                    width: 4,
-  ///                    color: Colors.blue,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  ///          ],
-  ///        ),
-  ///      ],
-  ///    ),
-  ///  );
+  ///   List<Model> _lines;
+  ///   MapZoomPanBehavior _zoomPanBehavior;
+  ///   MapShapeSource _mapSource;
+  ///
+  ///   @override
+  ///   void initState() {
+  ///     _zoomPanBehavior = MapZoomPanBehavior(
+  ///       focalLatLng: MapLatLng(40.7128, -95.3698),
+  ///       zoomLevel: 3,
+  ///     );
+  ///
+  ///     _mapSource = MapShapeSource.asset(
+  ///       "assets/world_map.json",
+  ///       shapeDataField: "continent",
+  ///     );
+  ///
+  ///     _lines = <Model>[
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+  ///     ];
+  ///
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             zoomPanBehavior: _zoomPanBehavior,
+  ///             sublayers: [
+  ///               MapLineLayer(
+  ///                 lines: List<MapLine>.generate(
+  ///                   _lines.length,
+  ///                   (int index) {
+  ///                     return MapLine(
+  ///                       from: _lines[index].from,
+  ///                       to: _lines[index].to,
+  ///                       width: 4.0,
+  ///                     );
+  ///                   },
+  ///                 ).toSet(),
+  ///               ),
+  ///             ],
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  ///
+  /// class Model {
+  ///   Model(this.from, this.to);
+  ///
+  ///   MapLatLng from;
+  ///   MapLatLng to;
   /// }
   ///```
-  final double width;
+  final double? width;
 
   /// Callback to receive tap event for this line.
   ///
@@ -4179,82 +5523,156 @@ class MapLine {
   /// passed on it as shown in the below code snippet.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
+  ///  List<Model> _lines;
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  MapShapeSource _mapSource;
+  ///  int _selectedIndex;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _zoomPanBehavior = MapZoomPanBehavior(
+  ///      focalLatLng: MapLatLng(40.7128, -95.3698),
+  ///      zoomLevel: 3,
+  ///    );
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "continent",
+  ///    );
+  ///
+  ///    _lines = <Model>[
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+  ///    ];
+  ///
+  ///    super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      body: SfMaps(
+  ///        layers: [
+  ///          MapShapeLayer(
+  ///            source: _mapSource,
+  ///            zoomPanBehavior: _zoomPanBehavior,
+  ///            sublayers: [
+  ///              MapLineLayer(
+  ///                lines: List<MapLine>.generate(
+  ///                  _lines.length,
+  ///                  (int index) {
+  ///                    return MapLine(
+  ///                        from: _lines[index].from,
+  ///                        to: _lines[index].to,
+  ///                        color:
+  ///                            _selectedIndex == index ? Colors.blue
+  ///                                : Colors.red,
+  ///                        onTap: () {
+  ///                          setState(() {
+  ///                            _selectedIndex = index;
+  ///                          });
+  ///                        });
+  ///                  },
+  ///                ).toSet(),
+  ///              ),
+  ///            ],
   ///          ),
-  ///          sublayers: [
-  ///            MapLineLayer(
-  ///              lines: List<MapLine>.generate(
-  ///                lines.length,
-  ///                (int index) {
-  ///                  return MapLine(
-  ///                    from: lines[index].from,
-  ///                    to: lines[index].to,
-  ///                   color: _selectedIndex == index
-  ///                   ? Colors.blue
-  ///                   : Colors.red,
-  ///                    onTap: () {
-  ///                      setState(() {
-  ///                        _selectedIndex = index;
-  ///                      });
-  ///                    },
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  //          ],
-  ///        ),
-  ///      ],
-  ///   ),
-  ///  );
+  ///        ],
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class Model {
+  ///  Model(this.from, this.to);
+  ///
+  ///  MapLatLng from;
+  ///  MapLatLng to;
   /// }
   ///```
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<MapLatLng>('from', from));
+    properties.add(DiagnosticsProperty<MapLatLng>('to', to));
+    properties.add((DiagnosticsProperty<List<double>>('dashArray', dashArray)));
+    if (color != null) {
+      properties.add(ColorProperty('color', color));
+    }
+
+    if (width != null) {
+      properties.add(DoubleProperty('width', width));
+    }
+
+    properties.add(ObjectFlagProperty<VoidCallback>.has('onTap', onTap));
+  }
 }
 
 /// Creates a polyline by connecting multiple geographical coordinates through
 /// group of [points].
 ///
 /// ```dart
-/// @override
-/// Widget build(BuildContext context) {
-///  return Scaffold(
-///    body: SfMaps(
-///     layers: [
-///        MapShapeLayer(
-///          source: MapShapeSource.asset(
-///             "assets/world_map.json",
-///              shapeDataField: "continent",
-///          ),
-///          sublayers: [
-///            MapPolylineLayer(
-///              polylines: List<MapPolyline>.generate(
-///                polylines.length,
-///                (int index) {
-///                  return MapPolyline(
-///                    points: polylines[index].points,
-///                  );
-///                },
-///              ).toSet(),
-///            ),
-///          ],
+///  MapZoomPanBehavior _zoomPanBehavior;
+///  List<MapLatLng> _polyLines;
+///  MapShapeSource _mapSource;
+///
+///   @override
+///   void initState() {
+///     _polyLines = <MapLatLng>[
+///       MapLatLng(13.0827, 80.2707),
+///       MapLatLng(14.4673, 78.8242),
+///       MapLatLng(14.9091, 78.0092),
+///       MapLatLng(16.2160, 77.3566),
+///       MapLatLng(17.1557, 76.8697),
+///       MapLatLng(18.0975, 75.4249),
+///       MapLatLng(18.5204, 73.8567),
+///       MapLatLng(19.0760, 72.8777),
+///     ];
+///
+///     _mapSource = MapShapeSource.asset(
+///       'assets/india.json',
+///       shapeDataField: 'name',
+///     );
+///
+///     _zoomPanBehavior = MapZoomPanBehavior(
+///         zoomLevel: 3, focalLatLng: MapLatLng(15.3173, 76.7139));
+///     super.initState();
+///   }
+///
+///   @override
+///   Widget build(BuildContext context) {
+///     return Scaffold(
+///       appBar: AppBar(title: Text('Polyline')),
+///       body: SfMaps(
+///         layers: [
+///           MapShapeLayer(
+///             source: _mapSource,
+///             sublayers: [
+///               MapPolylineLayer(
+///                 polylines: List<MapPolyline>.generate(
+///                   1,
+///                   (int index) {
+///                     return MapPolyline(
+///                       points: _polyLines,
+///                     );
+///                   },
+///                 ).toSet(),
+///               ),
+///             ],
+///             zoomPanBehavior: _zoomPanBehavior,
+///           ),
+///         ],
 ///       ),
-///      ],
-///    ),
-///  );
-/// }
+///     );
+///   }
 /// ```
-class MapPolyline {
+class MapPolyline extends DiagnosticableTree {
   /// Creates a [MapPolyline].
   const MapPolyline({
-    @required this.points,
+    required this.points,
     this.dashArray = const [0, 0],
     this.color,
     this.width,
@@ -4266,33 +5684,59 @@ class MapPolyline {
   /// Lines are drawn between consecutive [points].
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
-  ///          sublayers: [
-  ///            MapPolylineLayer(
-  ///             polylines: List<MapPolyline>.generate(
-  ///                lines.length,
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  List<MapLatLng> _polyLines;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///   @override
+  ///   void initState() {
+  ///     _polyLines = <MapLatLng>[
+  ///       MapLatLng(13.0827, 80.2707),
+  ///       MapLatLng(14.4673, 78.8242),
+  ///       MapLatLng(14.9091, 78.0092),
+  ///       MapLatLng(16.2160, 77.3566),
+  ///       MapLatLng(17.1557, 76.8697),
+  ///       MapLatLng(18.0975, 75.4249),
+  ///       MapLatLng(18.5204, 73.8567),
+  ///       MapLatLng(19.0760, 72.8777),
+  ///     ];
+  ///
+  ///     _mapSource = MapShapeSource.asset(
+  ///       'assets/india.json',
+  ///       shapeDataField: 'name',
+  ///     );
+  ///
+  ///     _zoomPanBehavior = MapZoomPanBehavior(
+  ///         zoomLevel: 3, focalLatLng: MapLatLng(15.3173, 76.7139));
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       appBar: AppBar(title: Text('Polyline')),
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             sublayers: [
+  ///               MapPolylineLayer(
+  ///                 polylines: List<MapPolyline>.generate(
+  ///                   1,
   ///                   (int index) {
-  ///                  return MapPolyline(
-  ///                    points: lines[index].points,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  ///          ],
-  ///        ),
-  ///      ],
-  ///    ),
-  ///  );
-  /// }
+  ///                     return MapPolyline(
+  ///                       points: _polyLines,
+  ///                     );
+  ///                   },
+  ///                 ).toSet(),
+  ///               ),
+  ///             ],
+  ///             zoomPanBehavior: _zoomPanBehavior,
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
   /// ```
   final List<MapLatLng> points;
 
@@ -4303,105 +5747,182 @@ class MapPolyline {
   /// again till the end of the polyline.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
-  ///          sublayers: [
-  ///            MapPolylineLayer(
-  ///             polylines: List<MapPolyline>.generate(
-  ///                lines.length,
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  List<MapLatLng> _polyLines;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///   @override
+  ///   void initState() {
+  ///     _polyLines = <MapLatLng>[
+  ///       MapLatLng(13.0827, 80.2707),
+  ///       MapLatLng(14.4673, 78.8242),
+  ///       MapLatLng(14.9091, 78.0092),
+  ///       MapLatLng(16.2160, 77.3566),
+  ///       MapLatLng(17.1557, 76.8697),
+  ///       MapLatLng(18.0975, 75.4249),
+  ///       MapLatLng(18.5204, 73.8567),
+  ///       MapLatLng(19.0760, 72.8777),
+  ///     ];
+  ///
+  ///     _mapSource = MapShapeSource.asset(
+  ///       'assets/india.json',
+  ///       shapeDataField: 'name',
+  ///     );
+  ///
+  ///     _zoomPanBehavior = MapZoomPanBehavior(
+  ///         zoomLevel: 3, focalLatLng: MapLatLng(15.3173, 76.7139));
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       appBar: AppBar(title: Text('Polyline')),
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             sublayers: [
+  ///               MapPolylineLayer(
+  ///                 polylines: List<MapPolyline>.generate(
+  ///                   1,
   ///                   (int index) {
-  ///                  return MapPolyline(
-  ///                    points: lines[index].points,
-  ///                    dashArray: [8, 3, 4, 3],
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  ///          ],
-  ///        ),
-  ///      ],
-  ///    ),
-  ///  );
-  /// }
+  ///                     return MapPolyline(
+  ///                       points: _polyLines,
+  ///                       dashArray: [8, 3, 4, 3],
+  ///                     );
+  ///                   },
+  ///                 ).toSet(),
+  ///               ),
+  ///             ],
+  ///             zoomPanBehavior: _zoomPanBehavior,
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
   /// ```
   final List<double> dashArray;
 
   /// Color of the polyline.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
-  ///          sublayers: [
-  ///            MapPolylineLayer(
-  ///             polylines: List<MapPolyline>.generate(
-  ///                lines.length,
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  List<MapLatLng> _polyLines;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///   @override
+  ///   void initState() {
+  ///     _polyLines = <MapLatLng>[
+  ///       MapLatLng(13.0827, 80.2707),
+  ///       MapLatLng(14.4673, 78.8242),
+  ///       MapLatLng(14.9091, 78.0092),
+  ///       MapLatLng(16.2160, 77.3566),
+  ///       MapLatLng(17.1557, 76.8697),
+  ///       MapLatLng(18.0975, 75.4249),
+  ///       MapLatLng(18.5204, 73.8567),
+  ///       MapLatLng(19.0760, 72.8777),
+  ///     ];
+  ///
+  ///     _mapSource = MapShapeSource.asset(
+  ///       'assets/india.json',
+  ///       shapeDataField: 'name',
+  ///     );
+  ///
+  ///     _zoomPanBehavior = MapZoomPanBehavior(
+  ///         zoomLevel: 3, focalLatLng: MapLatLng(15.3173, 76.7139));
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       appBar: AppBar(title: Text('Polyline')),
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             sublayers: [
+  ///               MapPolylineLayer(
+  ///                 polylines: List<MapPolyline>.generate(
+  ///                   1,
   ///                   (int index) {
-  ///                  return MapPolyline(
-  ///                    points: lines[index].points,
-  ///                    color: Colors.blue,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  ///          ],
-  ///        ),
-  ///      ],
-  ///    ),
-  ///  );
-  /// }
+  ///                     return MapPolyline(
+  ///                       points: _polyLines,
+  ///                       color: Colors.blue,
+  ///                     );
+  ///                   },
+  ///                 ).toSet(),
+  ///               ),
+  ///             ],
+  ///             zoomPanBehavior: _zoomPanBehavior,
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
   /// ```
-  final Color color;
+  final Color? color;
 
   /// Width of the polyline.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
-  ///          sublayers: [
-  ///            MapPolylineLayer(
-  ///             polylines: List<MapPolyline>.generate(
-  ///                lines.length,
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  List<MapLatLng> _polyLines;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///   @override
+  ///   void initState() {
+  ///     _polyLines = <MapLatLng>[
+  ///       MapLatLng(13.0827, 80.2707),
+  ///       MapLatLng(14.4673, 78.8242),
+  ///       MapLatLng(14.9091, 78.0092),
+  ///       MapLatLng(16.2160, 77.3566),
+  ///       MapLatLng(17.1557, 76.8697),
+  ///       MapLatLng(18.0975, 75.4249),
+  ///       MapLatLng(18.5204, 73.8567),
+  ///       MapLatLng(19.0760, 72.8777),
+  ///     ];
+  ///
+  ///     _mapSource = MapShapeSource.asset(
+  ///       'assets/india.json',
+  ///       shapeDataField: 'name',
+  ///     );
+  ///
+  ///     _zoomPanBehavior = MapZoomPanBehavior(
+  ///         zoomLevel: 3, focalLatLng: MapLatLng(15.3173, 76.7139));
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       appBar: AppBar(title: Text('Polyline')),
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             sublayers: [
+  ///               MapPolylineLayer(
+  ///                 polylines: List<MapPolyline>.generate(
+  ///                   1,
   ///                   (int index) {
-  ///                  return MapPolyline(
-  ///                    points: lines[index].points,
-  ///                    color: Colors.blue,
-  ///                    width: 4,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  ///          ],
-  ///        ),
-  ///      ],
-  ///    ),
-  ///  );
-  /// }
+  ///                     return MapPolyline(
+  ///                       points: _polyLines,
+  ///                       width: 4,
+  ///                     );
+  ///                   },
+  ///                 ).toSet(),
+  ///               ),
+  ///             ],
+  ///             zoomPanBehavior: _zoomPanBehavior,
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
   /// ```
-  final double width;
+  final double? width;
 
   /// Callback to receive tap event for this polyline.
   ///
@@ -4409,81 +5930,142 @@ class MapPolyline {
   /// index passed in it as shown in the below code snippet.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
-  ///          sublayers: [
-  ///           MapPolylineLayer(
-  ///              polylines: List<MapPolyline>.generate(
-  ///                lines.length,
-  ///                (int index) {
-  ///                  return MapPolyline(
-  ///                   points: lines[index].points,
-  ///                    color: _selectedIndex == index
-  ///                    ? Colors.blue
-  ///                    : Colors.red,
-  ///                    onTap: () {
-  ///                     setState(() {
-  ///                        _selectedIndex = index;
-  ///                     });
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  List<MapLatLng> _polyLines;
+  ///  MapShapeSource _mapSource;
+  ///  int _selectedIndex;
+  ///
+  ///   @override
+  ///   void initState() {
+  ///     _polyLines = <MapLatLng>[
+  ///       MapLatLng(13.0827, 80.2707),
+  ///       MapLatLng(14.4673, 78.8242),
+  ///       MapLatLng(14.9091, 78.0092),
+  ///       MapLatLng(16.2160, 77.3566),
+  ///       MapLatLng(17.1557, 76.8697),
+  ///       MapLatLng(18.0975, 75.4249),
+  ///       MapLatLng(18.5204, 73.8567),
+  ///       MapLatLng(19.0760, 72.8777),
+  ///     ];
+  ///
+  ///     _mapSource = MapShapeSource.asset(
+  ///       'assets/india.json',
+  ///       shapeDataField: 'name',
+  ///     );
+  ///
+  ///     _zoomPanBehavior = MapZoomPanBehavior(
+  ///         zoomLevel: 3, focalLatLng: MapLatLng(15.3173, 76.7139));
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       appBar: AppBar(title: Text('Polyline')),
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             sublayers: [
+  ///               MapPolylineLayer(
+  ///                 polylines: List<MapPolyline>.generate(
+  ///                   1,
+  ///                   (int index) {
+  ///                     return MapPolyline(
+  ///                       points: _polyLines,
+  ///                       color: _selectedIndex == index
+  ///                         ? Colors.blue
+  ///                         : Colors.red,
+  ///                       onTap: () {
+  ///                         setState(() {
+  ///                          _selectedIndex = index;
+  ///                         });
+  ///                       },
+  ///                     );
   ///                   },
-  ///                  );
-  ///                },
-  ///             ).toSet(),
-  ///            ),
-  ///          ],
-  ///        ),
-  ///     ],
-  ///    ),
-  ///  );
-  /// }
+  ///                 ).toSet(),
+  ///               ),
+  ///             ],
+  ///             zoomPanBehavior: _zoomPanBehavior,
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
   /// ```
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<List<MapLatLng>>('points', points));
+    properties.add((DiagnosticsProperty<List<double>>('dashArray', dashArray)));
+    if (color != null) {
+      properties.add(ColorProperty('color', color));
+    }
+
+    if (width != null) {
+      properties.add(DoubleProperty('width', width));
+    }
+
+    properties.add(ObjectFlagProperty<VoidCallback>.has('onTap', onTap));
+  }
 }
 
 /// Creates a closed path which connects multiple geographical coordinates
 /// through group of [MapPolygon.points].
 ///
 /// ```dart
-/// @override
-/// Widget build(BuildContext context) {
-///  return Scaffold(
-///    body: SfMaps(
-///      layers: [
+///  MapZoomPanBehavior _zoomPanBehavior;
+///  List<MapLatLng> _polygon;
+///  MapShapeSource _mapSource;
+///
+///  @override
+///  void initState() {
+///    _polygon = <MapLatLng>[
+///      MapLatLng(38.8026, -116.4194),
+///      MapLatLng(46.8797, -110.3626),
+///      MapLatLng(41.8780, -93.0977),
+///    ];
+///
+///    _mapSource = MapShapeSource.asset(
+///      'assets/usa.json',
+///      shapeDataField: 'name',
+///    );
+///
+///    _zoomPanBehavior = MapZoomPanBehavior();
+///    super.initState();
+///  }
+///
+///  @override
+///  Widget build(BuildContext context) {
+///    return Scaffold(
+///      appBar: AppBar(title: Text('Polygon shape')),
+///      body: SfMaps(layers: [
 ///        MapShapeLayer(
-///          source: MapShapeSource.asset(
-///             "assets/world_map.json",
-///              shapeDataField: "continent",
-///          ),
+///          source: _mapSource,
 ///          sublayers: [
 ///            MapPolygonLayer(
 ///              polygons: List<MapPolygon>.generate(
-///                polygons.length,
+///                1,
 ///                (int index) {
 ///                  return MapPolygon(
-///                    points: polygons[index].points,
+///                    points: _polygon,
 ///                  );
 ///                },
 ///              ).toSet(),
 ///            ),
 ///          ],
+///          zoomPanBehavior: _zoomPanBehavior,
 ///        ),
-///      ],
-///    ),
-///  );
-/// }
+///      ]),
+///    );
+///  }
 /// ```
-class MapPolygon {
+class MapPolygon extends DiagnosticableTree {
   /// Creates a [MapPolygon].
   const MapPolygon({
-    @required this.points,
+    required this.points,
     this.color,
     this.strokeColor,
     this.strokeWidth,
@@ -4495,138 +6077,211 @@ class MapPolygon {
   /// Lines are drawn between consecutive [points] to form a closed shape.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///       MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  List<MapLatLng> _polygon;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _polygon = <MapLatLng>[
+  ///      MapLatLng(38.8026, -116.4194),
+  ///      MapLatLng(46.8797, -110.3626),
+  ///      MapLatLng(41.8780, -93.0977),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/usa.json',
+  ///      shapeDataField: 'name',
+  ///    );
+  ///
+  ///    _zoomPanBehavior = MapZoomPanBehavior();
+  ///    super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(title: Text('Polygon shape')),
+  ///      body: SfMaps(layers: [
+  ///        MapShapeLayer(
+  ///          source: _mapSource,
   ///          sublayers: [
   ///            MapPolygonLayer(
   ///              polygons: List<MapPolygon>.generate(
-  ///                polygons.length,
+  ///                1,
   ///                (int index) {
   ///                  return MapPolygon(
-  ///                    points: polygons[index].points,
-  ///                 );
-  ///               },
+  ///                    points: _polygon,
+  ///                  );
+  ///                },
   ///              ).toSet(),
   ///            ),
   ///          ],
+  ///          zoomPanBehavior: _zoomPanBehavior,
   ///        ),
-  ///     ],
-  ///    ),
-  ///  );
-  /// }
+  ///      ]),
+  ///    );
+  ///  }
   /// ```
   final List<MapLatLng> points;
 
   /// Specifies the fill color of the polygon.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///       MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  List<MapLatLng> _polygon;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _polygon = <MapLatLng>[
+  ///      MapLatLng(38.8026, -116.4194),
+  ///      MapLatLng(46.8797, -110.3626),
+  ///      MapLatLng(41.8780, -93.0977),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/usa.json',
+  ///      shapeDataField: 'name',
+  ///    );
+  ///
+  ///    _zoomPanBehavior = MapZoomPanBehavior();
+  ///    super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(title: Text('Polygon shape')),
+  ///      body: SfMaps(layers: [
+  ///        MapShapeLayer(
+  ///          source: _mapSource,
   ///          sublayers: [
   ///            MapPolygonLayer(
   ///              polygons: List<MapPolygon>.generate(
-  ///                polygons.length,
+  ///                1,
   ///                (int index) {
   ///                  return MapPolygon(
-  ///                    points: polygons[index].points,
+  ///                    points: _polygon,
   ///                    color: Colors.blue,
-  ///                 );
-  ///               },
+  ///                  );
+  ///                },
   ///              ).toSet(),
   ///            ),
   ///          ],
+  ///          zoomPanBehavior: _zoomPanBehavior,
   ///        ),
-  ///     ],
-  ///    ),
-  ///  );
-  /// }
+  ///      ]),
+  ///    );
+  ///  }
   /// ```
-  final Color color;
+  final Color? color;
 
   /// Specifies the stroke color of the polygon.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///       MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  List<MapLatLng> _polygon;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _polygon = <MapLatLng>[
+  ///      MapLatLng(38.8026, -116.4194),
+  ///      MapLatLng(46.8797, -110.3626),
+  ///      MapLatLng(41.8780, -93.0977),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/usa.json',
+  ///      shapeDataField: 'name',
+  ///    );
+  ///
+  ///    _zoomPanBehavior = MapZoomPanBehavior();
+  ///    super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(title: Text('Polygon shape')),
+  ///      body: SfMaps(layers: [
+  ///        MapShapeLayer(
+  ///          source: _mapSource,
   ///          sublayers: [
   ///            MapPolygonLayer(
   ///              polygons: List<MapPolygon>.generate(
-  ///                polygons.length,
+  ///                1,
   ///                (int index) {
   ///                  return MapPolygon(
-  ///                    points: polygons[index].points,
+  ///                    points: _polygon,
   ///                    strokeColor: Colors.red,
-  ///                 );
-  ///               },
+  ///                    strokeWidth: 4.0
+  ///                  );
+  ///                },
   ///              ).toSet(),
   ///            ),
   ///          ],
+  ///          zoomPanBehavior: _zoomPanBehavior,
   ///        ),
-  ///     ],
-  ///    ),
-  ///  );
-  /// }
+  ///      ]),
+  ///    );
+  ///  }
   /// ```
-  final Color strokeColor;
+  final Color? strokeColor;
 
   /// Specifies the stroke width of the polygon.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///       MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  List<MapLatLng> _polygon;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _polygon = <MapLatLng>[
+  ///      MapLatLng(38.8026, -116.4194),
+  ///      MapLatLng(46.8797, -110.3626),
+  ///      MapLatLng(41.8780, -93.0977),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/usa.json',
+  ///      shapeDataField: 'name',
+  ///    );
+  ///
+  ///    _zoomPanBehavior = MapZoomPanBehavior();
+  ///    super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(title: Text('Polygon shape')),
+  ///      body: SfMaps(layers: [
+  ///        MapShapeLayer(
+  ///          source: _mapSource,
   ///          sublayers: [
   ///            MapPolygonLayer(
   ///              polygons: List<MapPolygon>.generate(
-  ///                polygons.length,
+  ///                1,
   ///                (int index) {
   ///                  return MapPolygon(
-  ///                    points: polygons[index].points,
+  ///                    points: _polygon,
   ///                    strokeWidth: 4,
   ///                    strokeColor: Colors.red,
-  ///                 );
-  ///               },
+  ///                  );
+  ///                },
   ///              ).toSet(),
   ///            ),
   ///          ],
+  ///          zoomPanBehavior: _zoomPanBehavior,
   ///        ),
-  ///     ],
-  ///    ),
-  ///  );
-  /// }
+  ///      ]),
+  ///    );
+  ///  }
   /// ```
-  final double strokeWidth;
+  final double? strokeWidth;
 
   /// Callback to receive tap event for this polygon.
   ///
@@ -4634,26 +6289,45 @@ class MapPolygon {
   /// passed on it as shown in the below code snippet.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///     layers: [
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  List<MapLatLng> _polygon;
+  ///  MapShapeSource _mapSource;
+  ///  int _selectedIndex;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _polygon = <MapLatLng>[
+  ///      MapLatLng(38.8026, -116.4194),
+  ///      MapLatLng(46.8797, -110.3626),
+  ///      MapLatLng(41.8780, -93.0977),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/usa.json',
+  ///      shapeDataField: 'name',
+  ///    );
+  ///
+  ///    _zoomPanBehavior = MapZoomPanBehavior();
+  ///    super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(title: Text('Polygon shape')),
+  ///      body: SfMaps(layers: [
   ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///          ),
-  ///         sublayers: [
+  ///          source: _mapSource,
+  ///          sublayers: [
   ///            MapPolygonLayer(
   ///              polygons: List<MapPolygon>.generate(
-  ///                polygons.length,
+  ///                1,
   ///                (int index) {
-  ///                 return MapPolygon(
-  ///                    points: polygons[index].points,
-  ///                   color: _selectedIndex == index
-  ///                   ? Colors.blue
-  ///                   : Colors.red,
+  ///                  return MapPolygon(
+  ///                    points: _polygon,
+  ///                    color: _selectedIndex == index
+  ///                      ? Colors.blue
+  ///                      : Colors.red,
   ///                    onTap: () {
   ///                      setState(() {
   ///                        _selectedIndex = index;
@@ -4664,50 +6338,93 @@ class MapPolygon {
   ///              ).toSet(),
   ///            ),
   ///          ],
+  ///          zoomPanBehavior: _zoomPanBehavior,
   ///        ),
-  ///      ],
-  ///   ),
-  ///  );
-  ///}
-  final VoidCallback onTap;
+  ///      ]),
+  ///    );
+  ///  }
+  final VoidCallback? onTap;
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<List<MapLatLng>>('points', points));
+    if (color != null) {
+      properties.add(ColorProperty('color', color));
+    }
+
+    if (strokeColor != null) {
+      properties.add(ColorProperty('strokeColor', strokeColor));
+    }
+
+    if (strokeWidth != null) {
+      properties.add(DoubleProperty('strokeWidth', strokeWidth));
+    }
+
+    properties.add(ObjectFlagProperty<VoidCallback>.has('onTap', onTap));
+  }
 }
 
 /// Creates a circle which is drawn based on the given [center] and
 /// [radius].
 ///
 /// ```dart
-/// @override
-/// Widget build(BuildContext context) {
-///  return Scaffold(
-///    body: SfMaps(
-///      layers: [
-///        MapShapeLayer(
-///          source: MapShapeSource.asset(
-///             "assets/world_map.json",
-///              shapeDataField: "continent",
+///  List<MapLatLng> _circles;
+///  MapShapeSource _mapSource;
+///
+///  @override
+///  void initState() {
+///    _circles = const <MapLatLng>[
+///      MapLatLng(-14.235004, -51.92528),
+///      MapLatLng(51.16569, 10.451526),
+///      MapLatLng(-25.274398, 133.775136),
+///      MapLatLng(20.593684, 78.96288),
+///      MapLatLng(61.52401, 105.318756)
+///    ];
+///
+///    _mapSource = MapShapeSource.asset(
+///      'assets/world_map.json',
+///      shapeDataField: 'name',
+///    );
+///    super.initState();
+///  }
+///
+///  @override
+///  Widget build(BuildContext context) {
+///    return Scaffold(
+///      body: Center(
+///          child: Container(
+///        height: 350,
+///        child: Padding(
+///          padding: EdgeInsets.only(left: 15, right: 15),
+///          child: SfMaps(
+///            layers: <MapLayer>[
+///              MapShapeLayer(
+///                source: _mapSource,
+///                sublayers: [
+///                  MapCircleLayer(
+///                    circles: List<MapCircle>.generate(
+///                      _circles.length,
+///                      (int index) {
+///                        return MapCircle(
+///                          center: _circles[index],
+///                        );
+///                      },
+///                    ).toSet(),
+///                  ),
+///                ],
+///              ),
+///            ],
 ///          ),
-///          sublayers: [
-///            MapCircleLayer(
-///              circles: List<MapCircle>.generate(
-///                circles.length,
-///                (int index) {
-///                  return MapCircle(
-///                    center: circles[index],
-///                  );
-///                },
-///              ).toSet(),
-///            ),
-///          ],
 ///        ),
-///      ],
-///    ),
-///  );
-/// }
+///      )),
+///    );
+///  }
 /// ```
-class MapCircle {
+class MapCircle extends DiagnosticableTree {
   /// Creates a [MapCircle].
   const MapCircle({
-    @required this.center,
+    required this.center,
     this.radius = 5,
     this.color,
     this.strokeColor,
@@ -4718,172 +6435,293 @@ class MapCircle {
   /// The center of the circle.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///     layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
+  ///  List<MapLatLng> _circles;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _circles = const <MapLatLng>[
+  ///      MapLatLng(-14.235004, -51.92528),
+  ///      MapLatLng(51.16569, 10.451526),
+  ///      MapLatLng(-25.274398, 133.775136),
+  ///      MapLatLng(20.593684, 78.96288),
+  ///      MapLatLng(61.52401, 105.318756)
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/world_map.json',
+  ///      shapeDataField: 'name',
+  ///    );
+  ///    super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      body: Center(
+  ///          child: Container(
+  ///        height: 350,
+  ///        child: Padding(
+  ///          padding: EdgeInsets.only(left: 15, right: 15),
+  ///          child: SfMaps(
+  ///            layers: <MapLayer>[
+  ///              MapShapeLayer(
+  ///                source: _mapSource,
+  ///                sublayers: [
+  ///                  MapCircleLayer(
+  ///                    circles: List<MapCircle>.generate(
+  ///                      _circles.length,
+  ///                      (int index) {
+  ///                        return MapCircle(
+  ///                          center: _circles[index],
+  ///                        );
+  ///                      },
+  ///                    ).toSet(),
+  ///                  ),
+  ///                ],
+  ///              ),
+  ///            ],
   ///          ),
-  ///          sublayers: [
-  ///            MapCircleLayer(
-  ///              circles: List<MapCircle>.generate(
-  ///                circles.length,
-  ///                (int index) {
-  ///                  return MapCircle(
-  ///                    center: circles[index],
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  ///          ],
   ///        ),
-  ///      ],
-  ///    ),
-  ///  );
-  /// }
+  ///      )),
+  ///    );
+  ///  }
   /// ```
   final MapLatLng center;
 
   /// The radius of the circle.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///     layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
+  ///  List<MapLatLng> _circles;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _circles = const <MapLatLng>[
+  ///      MapLatLng(-14.235004, -51.92528),
+  ///      MapLatLng(51.16569, 10.451526),
+  ///      MapLatLng(-25.274398, 133.775136),
+  ///      MapLatLng(20.593684, 78.96288),
+  ///      MapLatLng(61.52401, 105.318756)
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/world_map.json',
+  ///      shapeDataField: 'name',
+  ///    );
+  ///    super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      body: Center(
+  ///          child: Container(
+  ///        height: 350,
+  ///        child: Padding(
+  ///          padding: EdgeInsets.only(left: 15, right: 15),
+  ///          child: SfMaps(
+  ///            layers: <MapLayer>[
+  ///              MapShapeLayer(
+  ///                source: _mapSource,
+  ///                sublayers: [
+  ///                  MapCircleLayer(
+  ///                    circles: List<MapCircle>.generate(
+  ///                      _circles.length,
+  ///                      (int index) {
+  ///                        return MapCircle(
+  ///                          center: _circles[index],
+  ///                          radius: 20,
+  ///                        );
+  ///                      },
+  ///                    ).toSet(),
+  ///                  ),
+  ///                ],
+  ///              ),
+  ///            ],
   ///          ),
-  ///          sublayers: [
-  ///            MapCircleLayer(
-  ///              circles: List<MapCircle>.generate(
-  ///                circles.length,
-  ///                (int index) {
-  ///                  return MapCircle(
-  ///                    center: circles[index],
-  ///                    radius: 20,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  ///          ],
   ///        ),
-  ///      ],
-  ///    ),
-  ///  );
-  /// }
+  ///      )),
+  ///    );
+  ///  }
   /// ```
   final double radius;
 
   /// The fill color of the circle.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///     layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
+  ///  List<MapLatLng> _circles;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _circles = const <MapLatLng>[
+  ///      MapLatLng(-14.235004, -51.92528),
+  ///      MapLatLng(51.16569, 10.451526),
+  ///      MapLatLng(-25.274398, 133.775136),
+  ///      MapLatLng(20.593684, 78.96288),
+  ///      MapLatLng(61.52401, 105.318756)
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/world_map.json',
+  ///      shapeDataField: 'name',
+  ///    );
+  ///    super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      body: Center(
+  ///          child: Container(
+  ///        height: 350,
+  ///        child: Padding(
+  ///          padding: EdgeInsets.only(left: 15, right: 15),
+  ///          child: SfMaps(
+  ///            layers: <MapLayer>[
+  ///              MapShapeLayer(
+  ///                source: _mapSource,
+  ///                sublayers: [
+  ///                  MapCircleLayer(
+  ///                    circles: List<MapCircle>.generate(
+  ///                      _circles.length,
+  ///                      (int index) {
+  ///                        return MapCircle(
+  ///                          center: _circles[index],
+  ///                          color: Colors.blue,
+  ///                        );
+  ///                      },
+  ///                    ).toSet(),
+  ///                  ),
+  ///                ],
+  ///              ),
+  ///            ],
   ///          ),
-  ///          sublayers: [
-  ///            MapCircleLayer(
-  ///              circles: List<MapCircle>.generate(
-  ///                circles.length,
-  ///                (int index) {
-  ///                  return MapCircle(
-  ///                    center: circles[index],
-  ///                    color: Colors.blue,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  ///          ],
   ///        ),
-  ///      ],
-  ///    ),
-  ///  );
-  /// }
+  ///      )),
+  ///    );
+  ///  }
   /// ```
-  final Color color;
+  final Color? color;
 
   /// Stroke width of the circle.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///     layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
+  ///  List<MapLatLng> _circles;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _circles = const <MapLatLng>[
+  ///      MapLatLng(-14.235004, -51.92528),
+  ///      MapLatLng(51.16569, 10.451526),
+  ///      MapLatLng(-25.274398, 133.775136),
+  ///      MapLatLng(20.593684, 78.96288),
+  ///      MapLatLng(61.52401, 105.318756)
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/world_map.json',
+  ///      shapeDataField: 'name',
+  ///    );
+  ///    super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      body: Center(
+  ///          child: Container(
+  ///        height: 350,
+  ///        child: Padding(
+  ///          padding: EdgeInsets.only(left: 15, right: 15),
+  ///          child: SfMaps(
+  ///            layers: <MapLayer>[
+  ///              MapShapeLayer(
+  ///                source: _mapSource,
+  ///                sublayers: [
+  ///                  MapCircleLayer(
+  ///                    circles: List<MapCircle>.generate(
+  ///                      _circles.length,
+  ///                      (int index) {
+  ///                        return MapCircle(
+  ///                          center: _circles[index],
+  ///                          strokeWidth: 4,
+  ///                          strokeColor: Colors.blue,
+  ///                        );
+  ///                      },
+  ///                    ).toSet(),
+  ///                  ),
+  ///                ],
+  ///              ),
+  ///            ],
   ///          ),
-  ///          sublayers: [
-  ///            MapCircleLayer(
-  ///              circles: List<MapCircle>.generate(
-  ///                circles.length,
-  ///                (int index) {
-  ///                  return MapCircle(
-  ///                    center: circles[index],
-  ///                    strokeWidth: 4,
-  ///                    strokeColor: Colors.blue,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  ///          ],
   ///        ),
-  ///      ],
-  ///    ),
-  ///  );
-  /// }
+  ///      )),
+  ///    );
+  ///  }
   /// ```
-  final double strokeWidth;
+  final double? strokeWidth;
 
   /// Stroke color of the circle.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///     layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
+  ///  List<MapLatLng> _circles;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _circles = const <MapLatLng>[
+  ///      MapLatLng(-14.235004, -51.92528),
+  ///      MapLatLng(51.16569, 10.451526),
+  ///      MapLatLng(-25.274398, 133.775136),
+  ///      MapLatLng(20.593684, 78.96288),
+  ///      MapLatLng(61.52401, 105.318756)
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/world_map.json',
+  ///      shapeDataField: 'name',
+  ///    );
+  ///    super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      body: Center(
+  ///          child: Container(
+  ///        height: 350,
+  ///        child: Padding(
+  ///          padding: EdgeInsets.only(left: 15, right: 15),
+  ///          child: SfMaps(
+  ///            layers: <MapLayer>[
+  ///              MapShapeLayer(
+  ///                source: _mapSource,
+  ///                sublayers: [
+  ///                  MapCircleLayer(
+  ///                    circles: List<MapCircle>.generate(
+  ///                      _circles.length,
+  ///                      (int index) {
+  ///                        return MapCircle(
+  ///                          center: _circles[index],
+  ///                          strokeWidth: 4,
+  ///                          strokeColor: Colors.blue,
+  ///                        );
+  ///                      },
+  ///                    ).toSet(),
+  ///                  ),
+  ///                ],
+  ///              ),
+  ///            ],
   ///          ),
-  ///          sublayers: [
-  ///            MapCircleLayer(
-  ///              circles: List<MapCircle>.generate(
-  ///                circles.length,
-  ///                (int index) {
-  ///                  return MapCircle(
-  ///                    center: circles[index],
-  ///                    strokeColor: Colors.blue,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  ///          ],
   ///        ),
-  ///      ],
-  ///    ),
-  ///  );
-  /// }
+  ///      )),
+  ///    );
+  ///  }
   /// ```
-  final Color strokeColor;
+  final Color? strokeColor;
 
   /// Callback to receive tap event for this circle.
   ///
@@ -4891,82 +6729,156 @@ class MapCircle {
   /// passed on it as shown in the below code snippet.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///     layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
+  ///  List<MapLatLng> _circles;
+  ///  MapShapeSource _mapSource;
+  ///  int _selectedIndex;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _circles = const <MapLatLng>[
+  ///      MapLatLng(-14.235004, -51.92528),
+  ///      MapLatLng(51.16569, 10.451526),
+  ///      MapLatLng(-25.274398, 133.775136),
+  ///      MapLatLng(20.593684, 78.96288),
+  ///      MapLatLng(61.52401, 105.318756)
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/world_map.json',
+  ///      shapeDataField: 'name',
+  ///    );
+  ///    super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      body: Center(
+  ///          child: Container(
+  ///        height: 350,
+  ///        child: Padding(
+  ///          padding: EdgeInsets.only(left: 15, right: 15),
+  ///          child: SfMaps(
+  ///            layers: <MapLayer>[
+  ///              MapShapeLayer(
+  ///                source: _mapSource,
+  ///                sublayers: [
+  ///                  MapCircleLayer(
+  ///                    circles: List<MapCircle>.generate(
+  ///                      _circles.length,
+  ///                      (int index) {
+  ///                        return MapCircle(
+  ///                          center: _circles[index],
+  ///                          color: _selectedIndex == index
+  ///                            ? Colors.blue
+  ///                            : Colors.red,
+  ///                          onTap: () {
+  ///                            setState(() {
+  ///                             _selectedIndex = index;
+  ///                          });
+  ///                        });
+  ///                      },
+  ///                    ).toSet(),
+  ///                  ),
+  ///                ],
+  ///              ),
+  ///            ],
   ///          ),
-  ///          sublayers: [
-  ///           MapCircleLayer(
-  ///              circles: List<MapCircle>.generate(
-  ///                circles.length,
-  ///                (int index) {
-  ///                  return MapCircle(
-  ///                    center: circles[index],
-  ///                    color: _selectedIndex == index
-  ///                    ? Colors.blue
-  ///                    : Colors.red,
-  ///                    onTap: () {
-  ///                      setState(() {
-  ///                        _selectedIndex = index;
-  ///                      });
-  ///                    },
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  ///          ],
   ///        ),
-  ///      ],
-  ///   ),
-  ///  );
-  /// }
+  ///      )),
+  ///    );
+  ///  }
   /// ```
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<MapLatLng>('center', center));
+    properties.add(DoubleProperty('radius', radius));
+    if (color != null) {
+      properties.add(ColorProperty('color', color));
+    }
+
+    if (strokeColor != null) {
+      properties.add(ColorProperty('strokeColor', strokeColor));
+    }
+
+    if (strokeWidth != null) {
+      properties.add(DoubleProperty('strokeWidth', strokeWidth));
+    }
+
+    properties.add(ObjectFlagProperty<VoidCallback>.has('onTap', onTap));
+  }
 }
 
 /// Creates an arc by connecting the two geographical coordinates.
 ///
 /// ```dart
-/// @override
-/// Widget build(BuildContext context) {
-///  return Scaffold(
-///    body: SfMaps(
-///      layers: [
-///       MapShapeLayer(
-///          source: MapShapeSource.asset(
-///             "assets/world_map.json",
-///              shapeDataField: "continent",
+///  List<Model> _arcs;
+///  MapZoomPanBehavior _zoomPanBehavior;
+///  MapShapeSource _mapSource;
+///
+///  @override
+///  void initState() {
+///    _zoomPanBehavior = MapZoomPanBehavior(
+///      focalLatLng: MapLatLng(40.7128, -95.3698),
+///      zoomLevel: 3,
+///    );
+///
+///   _mapSource = MapShapeSource.asset(
+///      "assets/world_map.json",
+///      shapeDataField: "continent",
+///    );
+///
+///   _arcs = <Model>[
+///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+///    ];
+///  super.initState();
+///  }
+///
+///  @override
+///  Widget build(BuildContext context) {
+///    return Scaffold(
+///      body: SfMaps(
+///        layers: [
+///          MapShapeLayer(
+///            source: _mapSource,
+///            zoomPanBehavior: _zoomPanBehavior,
+///            sublayers: [
+///              MapArcLayer(
+///                arcs: List<MapArc>.generate(
+///                  _arcs.length,
+///                  (int index) {
+///                    return MapArc(
+///                      from: _arcs[index].from,
+///                      to: _arcs[index].to,
+///                    );
+///                  },
+///                ).toSet(),
+///              ),
+///            ],
 ///          ),
-///          sublayers: [
-///           MapArcLayer(
-///              arcs: List<MapArc>.generate(
-///               arcs.length,
-///                (int index) {
-///                 return MapArc(
-///                    from: arcs[index].from,
-///                    to: arcs[index].to,
-///                  );
-///                },
-///              ).toSet(),
-///            ),
-///          ],
-///        ),
-///      ],
-///    ),
-/// );
+///        ],
+///      ),
+///    );
+///  }
+///
+/// class Model {
+///   Model(this.from, this.to);
+///
+///   MapLatLng from;
+///   MapLatLng to;
 /// }
 /// ```
-class MapArc {
+class MapArc extends DiagnosticableTree {
   /// Creates a [MapArc].
   const MapArc({
-    @required this.from,
-    @required this.to,
+    required this.from,
+    required this.to,
     this.heightFactor = 0.2,
     this.controlPointFactor = 0.5,
     this.dashArray = const [0, 0],
@@ -4978,33 +6890,63 @@ class MapArc {
   /// Represents the start coordinate of an arc.
   ///
   ///```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///         MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///            'assets/world_map.json',
-  ///             shapeDataField: 'continent',
+  ///  List<Model> _arcs;
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _zoomPanBehavior = MapZoomPanBehavior(
+  ///      focalLatLng: MapLatLng(40.7128, -95.3698),
+  ///      zoomLevel: 3,
+  ///    );
+  ///
+  ///   _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "continent",
+  ///    );
+  ///
+  ///   _arcs = <Model>[
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+  ///    ];
+  ///  super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      body: SfMaps(
+  ///        layers: [
+  ///          MapShapeLayer(
+  ///            source: _mapSource,
+  ///            zoomPanBehavior: _zoomPanBehavior,
+  ///            sublayers: [
+  ///              MapArcLayer(
+  ///                arcs: List<MapArc>.generate(
+  ///                  _arcs.length,
+  ///                  (int index) {
+  ///                    return MapArc(
+  ///                      from: _arcs[index].from,
+  ///                      to: _arcs[index].to,
+  ///                    );
+  ///                  },
+  ///                ).toSet(),
+  ///              ),
+  ///            ],
   ///          ),
-  ///          subLayers: [
-  ///            MapArcLayer(
-  ///              arcs: List<MapArc>.generate(
-  ///                arcs.length,
-  ///                    (int index) {
-  ///                  return MapArc(
-  ///                    from: arcs[index].from,
-  ///                    to: arcs[index].to,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  ///          ],
-  ///        ),
-  ///      ],
-  ///    ),
-  ///  );
+  ///        ],
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class Model {
+  ///   Model(this.from, this.to);
+  ///
+  ///   MapLatLng from;
+  ///   MapLatLng to;
   /// }
   ///```
   final MapLatLng from;
@@ -5012,33 +6954,63 @@ class MapArc {
   /// Represents the end coordinate of an arc.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///            'assets/world_map.json',
-  ///             shapeDataField: 'continent',
+  ///  List<Model> _arcs;
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _zoomPanBehavior = MapZoomPanBehavior(
+  ///      focalLatLng: MapLatLng(40.7128, -95.3698),
+  ///      zoomLevel: 3,
+  ///    );
+  ///
+  ///   _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "continent",
+  ///    );
+  ///
+  ///   _arcs = <Model>[
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+  ///    ];
+  ///  super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      body: SfMaps(
+  ///        layers: [
+  ///          MapShapeLayer(
+  ///            source: _mapSource,
+  ///            zoomPanBehavior: _zoomPanBehavior,
+  ///            sublayers: [
+  ///              MapArcLayer(
+  ///                arcs: List<MapArc>.generate(
+  ///                  _arcs.length,
+  ///                  (int index) {
+  ///                    return MapArc(
+  ///                      from: _arcs[index].from,
+  ///                      to: _arcs[index].to,
+  ///                    );
+  ///                  },
+  ///                ).toSet(),
+  ///              ),
+  ///            ],
   ///          ),
-  ///          subLayers: [
-  ///            MapArcLayer(
-  ///              arcs: List<MapArc>.generate(
-  ///                arcs.length,
-  ///                    (int index) {
-  ///                  return MapArc(
-  ///                    from: arcs[index].from,
-  ///                    to: arcs[index].to,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  ///          ],
-  ///        ),
-  ///      ],
-  ///    ),
-  ///  );
+  ///        ],
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class Model {
+  ///   Model(this.from, this.to);
+  ///
+  ///   MapLatLng from;
+  ///   MapLatLng to;
   /// }
   ///```
   final MapLatLng to;
@@ -5054,34 +7026,64 @@ class MapArc {
   /// To render the arc below the points, set the value between -1 to 0.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///            'assets/world_map.json',
-  ///             shapeDataField: 'continent',
+  ///  List<Model> _arcs;
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _zoomPanBehavior = MapZoomPanBehavior(
+  ///      focalLatLng: MapLatLng(40.7128, -95.3698),
+  ///      zoomLevel: 3,
+  ///    );
+  ///
+  ///   _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "continent",
+  ///    );
+  ///
+  ///   _arcs = <Model>[
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+  ///    ];
+  ///  super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      body: SfMaps(
+  ///        layers: [
+  ///          MapShapeLayer(
+  ///            source: _mapSource,
+  ///            zoomPanBehavior: _zoomPanBehavior,
+  ///            sublayers: [
+  ///              MapArcLayer(
+  ///                arcs: List<MapArc>.generate(
+  ///                  _arcs.length,
+  ///                  (int index) {
+  ///                    return MapArc(
+  ///                      from: _arcs[index].from,
+  ///                      to: _arcs[index].to,
+  ///                      heightFactor: 0.6,
+  ///                    );
+  ///                  },
+  ///                ).toSet(),
+  ///              ),
+  ///            ],
   ///          ),
-  ///          subLayers: [
-  ///            MapArcLayer(
-  ///              arcs: List<MapArc>.generate(
-  ///                arcs.length,
-  ///                    (int index) {
-  ///                  return MapArc(
-  ///                    from: arcs[index].from,
-  ///                    to: arcs[index].to,
-  ///                    heightFactor: 0.6,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  ///          ],
-  ///        ),
-  ///      ],
-  ///    ),
-  ///  );
+  ///        ],
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class Model {
+  ///   Model(this.from, this.to);
+  ///
+  ///   MapLatLng from;
+  ///   MapLatLng to;
   /// }
   ///```
   final double heightFactor;
@@ -5096,34 +7098,64 @@ class MapArc {
   /// The value ranges from 0 to 1.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///            'assets/world_map.json',
-  ///             shapeDataField: 'continent',
+  ///  List<Model> _arcs;
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _zoomPanBehavior = MapZoomPanBehavior(
+  ///      focalLatLng: MapLatLng(40.7128, -95.3698),
+  ///      zoomLevel: 3,
+  ///    );
+  ///
+  ///   _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "continent",
+  ///    );
+  ///
+  ///   _arcs = <Model>[
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+  ///    ];
+  ///  super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      body: SfMaps(
+  ///        layers: [
+  ///          MapShapeLayer(
+  ///            source: _mapSource,
+  ///            zoomPanBehavior: _zoomPanBehavior,
+  ///            sublayers: [
+  ///              MapArcLayer(
+  ///                arcs: List<MapArc>.generate(
+  ///                  _arcs.length,
+  ///                  (int index) {
+  ///                    return MapArc(
+  ///                      from: _arcs[index].from,
+  ///                      to: _arcs[index].to,
+  ///                      controlPointFactor: 0.4,
+  ///                    );
+  ///                  },
+  ///                ).toSet(),
+  ///              ),
+  ///            ],
   ///          ),
-  ///          subLayers: [
-  ///            MapArcLayer(
-  ///              arcs: List<MapArc>.generate(
-  ///                arcs.length,
-  ///                    (int index) {
-  ///                  return MapArc(
-  ///                    from: arcs[index].from,
-  ///                    to: arcs[index].to,
-  ///                    controlPointFactor: 0.4,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  ///          ],
-  ///        ),
-  ///      ],
-  ///    ),
-  ///  );
+  ///        ],
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class Model {
+  ///   Model(this.from, this.to);
+  ///
+  ///   MapLatLng from;
+  ///   MapLatLng to;
   /// }
   ///```
   final double controlPointFactor;
@@ -5135,34 +7167,64 @@ class MapArc {
   /// again till the end of the arc.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
+  ///  List<Model> _arcs;
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _zoomPanBehavior = MapZoomPanBehavior(
+  ///      focalLatLng: MapLatLng(40.7128, -95.3698),
+  ///      zoomLevel: 3,
+  ///    );
+  ///
+  ///   _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "continent",
+  ///    );
+  ///
+  ///   _arcs = <Model>[
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+  ///    ];
+  ///  super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      body: SfMaps(
+  ///        layers: [
+  ///          MapShapeLayer(
+  ///            source: _mapSource,
+  ///            zoomPanBehavior: _zoomPanBehavior,
+  ///            sublayers: [
+  ///              MapArcLayer(
+  ///                arcs: List<MapArc>.generate(
+  ///                  _arcs.length,
+  ///                  (int index) {
+  ///                    return MapArc(
+  ///                      from: _arcs[index].from,
+  ///                      to: _arcs[index].to,
+  ///                      dashArray: [8, 3, 4, 3],
+  ///                    );
+  ///                  },
+  ///                ).toSet(),
+  ///              ),
+  ///            ],
   ///          ),
-  ///          subLayers: [
-  ///            MapArcLayer(
-  ///              arcs: List<MapArc>.generate(
-  ///                arcs.length,
-  ///                    (int index) {
-  ///                  return MapArc(
-  ///                    from: arcs[index].from,
-  ///                    to: arcs[index].to,
-  ///                    dashArray: [8, 3, 4, 3],
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  ///          ],
-  ///        ),
-  ///      ],
-  ///    ),
-  ///  );
+  ///        ],
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class Model {
+  ///   Model(this.from, this.to);
+  ///
+  ///   MapLatLng from;
+  ///   MapLatLng to;
   /// }
   ///```
   final List<double> dashArray;
@@ -5170,73 +7232,132 @@ class MapArc {
   /// Color of the arc.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
+  ///  List<Model> _arcs;
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _zoomPanBehavior = MapZoomPanBehavior(
+  ///      focalLatLng: MapLatLng(40.7128, -95.3698),
+  ///      zoomLevel: 3,
+  ///    );
+  ///
+  ///   _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "continent",
+  ///    );
+  ///
+  ///   _arcs = <Model>[
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+  ///    ];
+  ///  super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      body: SfMaps(
+  ///        layers: [
+  ///          MapShapeLayer(
+  ///            source: _mapSource,
+  ///            zoomPanBehavior: _zoomPanBehavior,
+  ///            sublayers: [
+  ///              MapArcLayer(
+  ///                arcs: List<MapArc>.generate(
+  ///                  _arcs.length,
+  ///                  (int index) {
+  ///                    return MapArc(
+  ///                      from: _arcs[index].from,
+  ///                      to: _arcs[index].to,
+  ///                      color: Colors.blue,
+  ///                    );
+  ///                  },
+  ///                ).toSet(),
+  ///              ),
+  ///            ],
   ///          ),
-  ///          subLayers: [
-  ///            MapArcLayer(
-  ///              arcs: List<MapArc>.generate(
-  ///                arcs.length,
-  ///                    (int index) {
-  ///                  return MapArc(
-  ///                    from: arcs[index].from,
-  ///                    to: arcs[index].to,
-  ///                    color: Colors.blue,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  ///          ],
-  ///        ),
-  ///      ],
-  ///    ),
-  ///  );
+  ///        ],
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class Model {
+  ///   Model(this.from, this.to);
+  ///
+  ///   MapLatLng from;
+  ///   MapLatLng to;
   /// }
   ///```
-  final Color color;
+  final Color? color;
 
   /// Width of the arc.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
+  ///  List<Model> _arcs;
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _zoomPanBehavior = MapZoomPanBehavior(
+  ///      focalLatLng: MapLatLng(40.7128, -95.3698),
+  ///      zoomLevel: 3,
+  ///    );
+  ///
+  ///   _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "continent",
+  ///    );
+  ///
+  ///   _arcs = <Model>[
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+  ///    ];
+  ///  super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      body: SfMaps(
+  ///        layers: [
+  ///          MapShapeLayer(
+  ///            source: _mapSource,
+  ///            zoomPanBehavior: _zoomPanBehavior,
+  ///            sublayers: [
+  ///              MapArcLayer(
+  ///                arcs: List<MapArc>.generate(
+  ///                  _arcs.length,
+  ///                  (int index) {
+  ///                    return MapArc(
+  ///                      from: _arcs[index].from,
+  ///                      to: _arcs[index].to,
+  ///                       width: 4,
+  ///                    );
+  ///                  },
+  ///                ).toSet(),
+  ///              ),
+  ///            ],
   ///          ),
-  ///          subLayers: [
-  ///            MapArcLayer(
-  ///              arcs: List<MapArc>.generate(
-  ///                arcs.length,
-  ///                    (int index) {
-  ///                  return MapArc(
-  ///                    from: arcs[index].from,
-  ///                    to: arcs[index].to,
-  ///                    width: 4,
-  ///                    color: Colors.blue,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  ///          ],
-  ///        ),
-  ///      ],
-  ///    ),
-  ///  );
+  ///        ],
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class Model {
+  ///   Model(this.from, this.to);
+  ///
+  ///   MapLatLng from;
+  ///   MapLatLng to;
   /// }
   ///```
-  final double width;
+  final double? width;
 
   /// Callback to receive tap event for this arc.
   ///
@@ -5244,50 +7365,100 @@ class MapArc {
   /// passed on it as shown in the below code snippet.
   ///
   /// ```dart
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///             "assets/world_map.json",
-  ///              shapeDataField: "continent",
+  ///  List<Model> _arcs;
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  MapShapeSource _mapSource;
+  ///  int _selectedIndex;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _zoomPanBehavior = MapZoomPanBehavior(
+  ///      focalLatLng: MapLatLng(40.7128, -95.3698),
+  ///      zoomLevel: 3,
+  ///    );
+  ///
+  ///   _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "continent",
+  ///    );
+  ///
+  ///   _arcs = <Model>[
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+  ///    ];
+  ///  super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      body: SfMaps(
+  ///        layers: [
+  ///          MapShapeLayer(
+  ///            source: _mapSource,
+  ///            zoomPanBehavior: _zoomPanBehavior,
+  ///            sublayers: [
+  ///              MapArcLayer(
+  ///                arcs: List<MapArc>.generate(
+  ///                  _arcs.length,
+  ///                  (int index) {
+  ///                    return MapArc(
+  ///                      from: _arcs[index].from,
+  ///                      to: _arcs[index].to,
+  ///                      color: _selectedIndex == index
+  ///                         ? Colors.blue
+  ///                         : Colors.red,
+  ///                      onTap: () {
+  ///                         setState(() {
+  ///                          _selectedIndex = index;
+  ///                         });
+  ///                      },
+  ///                    );
+  ///                  },
+  ///                ).toSet(),
+  ///              ),
+  ///            ],
   ///          ),
-  ///          subLayers: [
-  ///            MapArcLayer(
-  ///              arcs: List<MapArc>.generate(
-  ///                arcs.length,
-  ///                (int index) {
-  ///                  return MapArc(
-  ///                    from: arcs[index].from,
-  ///                    to: arcs[index].to,
-  ///                   color: _selectedIndex == index
-  ///                   ? Colors.blue
-  ///                   : Colors.red,
-  ///                    onTap: () {
-  ///                      setState(() {
-  ///                        _selectedIndex = index;
-  ///                      });
-  ///                    },
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///            ),
-  //          ],
-  ///        ),
-  ///      ],
-  ///   ),
-  ///  );
+  ///        ],
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class Model {
+  ///   Model(this.from, this.to);
+  ///
+  ///   MapLatLng from;
+  ///   MapLatLng to;
   /// }
   ///```
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<MapLatLng>('from', from));
+    properties.add(DiagnosticsProperty<MapLatLng>('to', to));
+    properties.add(DoubleProperty('heightFactor', heightFactor));
+    properties.add(DoubleProperty('controlPointFactor', controlPointFactor));
+    properties.add((DiagnosticsProperty<List<double>>('dashArray', dashArray)));
+    if (color != null) {
+      properties.add(ColorProperty('color', color));
+    }
+
+    if (width != null) {
+      properties.add(DoubleProperty('width', width));
+    }
+
+    properties.add(ObjectFlagProperty<VoidCallback>.has('onTap', onTap));
+  }
 }
 
 // To calculate dash array path for series
-Path _dashPath(
-  Path source, {
-  @required _IntervalList<double> dashArray,
+Path? _dashPath(
+  Path? source, {
+  required _IntervalList<double> dashArray,
 }) {
   if (source == null) {
     return null;
@@ -5324,7 +7495,7 @@ void _drawDashedLine(
         _dashPath(
           path,
           dashArray: _IntervalList<double>(dashArray),
-        ),
+        )!,
         paint);
   } else {
     canvas.drawPath(path, paint);
@@ -5433,4 +7604,57 @@ bool _liesPointOnArc(Offset startPoint, Offset endPoint, Offset controlPoint,
         lineBottomLeft.dx, lineBottomLeft.dy)
     ..close();
   return path.contains(touchPosition);
+}
+
+class _DebugVectorShapeTree extends DiagnosticableTree {
+  _DebugVectorShapeTree(this.vectorShapes);
+
+  final Set<Object> vectorShapes;
+
+  @override
+  List<DiagnosticsNode> debugDescribeChildren() {
+    if (vectorShapes.isNotEmpty) {
+      return vectorShapes.map<DiagnosticsNode>((Object vectorShape) {
+        if (vectorShape is MapLine) {
+          return vectorShape.toDiagnosticsNode();
+        } else if (vectorShape is MapArc) {
+          return vectorShape.toDiagnosticsNode();
+        } else if (vectorShape is MapCircle) {
+          return vectorShape.toDiagnosticsNode();
+        } else if (vectorShape is MapPolyline) {
+          return vectorShape.toDiagnosticsNode();
+        } else {
+          // ignore: avoid_as
+          final MapPolygon polygonShape = vectorShape as MapPolygon;
+          return polygonShape.toDiagnosticsNode();
+        }
+      }).toList();
+    }
+    return super.debugDescribeChildren();
+  }
+
+  @override
+  String toStringShort() {
+    if (vectorShapes is Set<MapLine>) {
+      return vectorShapes.length > 1
+          ? 'contains ${vectorShapes.length} lines'
+          : 'contains ${vectorShapes.length} line';
+    } else if (vectorShapes is Set<MapCircle>) {
+      return vectorShapes.length > 1
+          ? 'contains ${vectorShapes.length} circles'
+          : 'contains ${vectorShapes.length} circle';
+    } else if (vectorShapes is Set<MapArc>) {
+      return vectorShapes.length > 1
+          ? 'contains ${vectorShapes.length} arcs'
+          : 'contains ${vectorShapes.length} arc';
+    } else if (vectorShapes is Set<MapPolyline>) {
+      return vectorShapes.length > 1
+          ? 'contains ${vectorShapes.length} polylines'
+          : 'contains ${vectorShapes.length} polyline';
+    } else {
+      return vectorShapes.length > 1
+          ? 'contains ${vectorShapes.length} polygons'
+          : 'contains ${vectorShapes.length} polygon';
+    }
+  }
 }

@@ -11,25 +11,25 @@ part of charts;
 class TechnicalIndicators<T, D> {
   /// Creating an argument constructor of TechnicalIndicators class.
   TechnicalIndicators(
-      {bool isVisible,
+      {bool? isVisible,
       this.xAxisName,
       this.yAxisName,
       this.seriesName,
-      List<double> dashArray,
-      double animationDuration,
+      List<double>? dashArray,
+      double? animationDuration,
       this.dataSource,
-      ChartValueMapper<T, D> xValueMapper,
-      ChartValueMapper<T, num> lowValueMapper,
-      ChartValueMapper<T, num> highValueMapper,
-      ChartValueMapper<T, num> openValueMapper,
-      ChartValueMapper<T, num> closeValueMapper,
+      ChartValueMapper<T, D>? xValueMapper,
+      ChartValueMapper<T, num>? lowValueMapper,
+      ChartValueMapper<T, num>? highValueMapper,
+      ChartValueMapper<T, num>? openValueMapper,
+      ChartValueMapper<T, num>? closeValueMapper,
       this.name,
-      bool isVisibleInLegend,
-      LegendIconType legendIconType,
+      bool? isVisibleInLegend,
+      LegendIconType? legendIconType,
       this.legendItemText,
-      Color signalLineColor,
-      double signalLineWidth,
-      int period})
+      Color? signalLineColor,
+      double? signalLineWidth,
+      int? period})
       : isVisible = isVisible ?? true,
         dashArray = dashArray ?? <double>[0, 0],
         animationDuration = animationDuration ?? 1500,
@@ -39,19 +39,19 @@ class TechnicalIndicators<T, D> {
         signalLineWidth = signalLineWidth ?? 2,
         period = period ?? 14,
         xValueMapper = (xValueMapper != null)
-            ? ((int index) => xValueMapper(dataSource[index], index))
+            ? ((int index) => xValueMapper(dataSource![index], index))
             : null,
         lowValueMapper = (lowValueMapper != null)
-            ? ((int index) => lowValueMapper(dataSource[index], index))
+            ? ((int index) => lowValueMapper(dataSource![index], index))
             : null,
         highValueMapper = (highValueMapper != null)
-            ? ((int index) => highValueMapper(dataSource[index], index))
+            ? ((int index) => highValueMapper(dataSource![index], index))
             : null,
         openValueMapper = (openValueMapper != null)
-            ? ((int index) => openValueMapper(dataSource[index], index))
+            ? ((int index) => openValueMapper(dataSource![index], index))
             : null,
         closeValueMapper = (closeValueMapper != null)
-            ? ((int index) => closeValueMapper(dataSource[index], index))
+            ? ((int index) => closeValueMapper(dataSource![index], index))
             : null;
 
   /// Boolean property to change  the visibility of the technical indicators.
@@ -85,7 +85,7 @@ class TechnicalIndicators<T, D> {
   ///        ));
   ///}
   ///```
-  final String xAxisName;
+  final String? xAxisName;
 
   /// Property to map the technical indicators with the axes.
   ///
@@ -101,7 +101,7 @@ class TechnicalIndicators<T, D> {
   ///        ));
   ///}
   ///```
-  final String yAxisName;
+  final String? yAxisName;
 
   /// Property to link indicators to a series based on names.
   ///
@@ -117,7 +117,7 @@ class TechnicalIndicators<T, D> {
   ///        ));
   ///}
   ///```
-  final String seriesName;
+  final String? seriesName;
 
   /// Property to provide DashArray for the technical indicators.
   ///
@@ -167,7 +167,7 @@ class TechnicalIndicators<T, D> {
   ///        ));
   ///}
   ///```
-  final List<T> dataSource;
+  final List<T>? dataSource;
 
   /// Value mapper to map the x values with technical indicators.
   ///
@@ -183,7 +183,7 @@ class TechnicalIndicators<T, D> {
   ///        ));
   ///}
   ///```
-  final ChartIndexedValueMapper<D> xValueMapper;
+  final ChartIndexedValueMapper<D>? xValueMapper;
 
   /// Value mapper to map the low values with technical indicators.
   ///
@@ -199,7 +199,7 @@ class TechnicalIndicators<T, D> {
   ///        ));
   ///}
   ///```
-  final ChartIndexedValueMapper<num> lowValueMapper;
+  final ChartIndexedValueMapper<num>? lowValueMapper;
 
   /// Value mapper to map the high values with technical indicators.
   ///
@@ -215,7 +215,7 @@ class TechnicalIndicators<T, D> {
   ///        ));
   ///}
   ///```
-  final ChartIndexedValueMapper<num> highValueMapper;
+  final ChartIndexedValueMapper<num>? highValueMapper;
 
   /// Value mapper to map the open values with technical indicators.
   ///
@@ -231,7 +231,7 @@ class TechnicalIndicators<T, D> {
   ///        ));
   ///}
   ///```
-  final ChartIndexedValueMapper<num> openValueMapper;
+  final ChartIndexedValueMapper<num>? openValueMapper;
 
   /// Value mapper to map the close values with technical indicators.
   ///
@@ -247,7 +247,7 @@ class TechnicalIndicators<T, D> {
   ///        ));
   ///}
   ///```
-  final ChartIndexedValueMapper<num> closeValueMapper;
+  final ChartIndexedValueMapper<num>? closeValueMapper;
 
   /// Property to provide name for the technical indicators.
   ///
@@ -263,7 +263,7 @@ class TechnicalIndicators<T, D> {
   ///        ));
   ///}
   ///```
-  final String name;
+  final String? name;
 
   /// Boolean property to determine the rendering of legends for the technical indicators.
   ///
@@ -313,7 +313,7 @@ class TechnicalIndicators<T, D> {
   ///        ));
   ///}
   ///```
-  final String legendItemText;
+  final String? legendItemText;
 
   /// Property to provide the color of the signal line in the technical indicators.
   ///
@@ -374,19 +374,19 @@ class TechnicalIndicatorsRenderer {
 
   final TechnicalIndicators<dynamic, dynamic> _technicalIndicatorRenderer;
 
-  String _name;
-  bool _visible;
+  late String _name;
+  bool? _visible;
   //ignore: prefer_final_fields
   bool _isIndicator = true;
   final String _seriesType = 'indicator';
-  String _indicatorType;
-  int _index;
+  late String _indicatorType;
+  late int _index;
 
   //ignore: prefer_final_fields
   List<CartesianSeriesRenderer> _targetSeriesRenderers =
       <CartesianSeriesRenderer>[];
   //ignore: prefer_final_fields
-  List<CartesianChartPoint<dynamic>> _dataPoints =
+  List<CartesianChartPoint<dynamic>>? _dataPoints =
       <CartesianChartPoint<dynamic>>[];
 
   ///used for test case
@@ -400,8 +400,8 @@ class TechnicalIndicatorsRenderer {
       dynamic y,
       CartesianChartPoint<dynamic> sourcePoint,
       CartesianSeriesRenderer seriesRenderer,
-      num index,
-      [TechnicalIndicators<dynamic, dynamic> indicator]) {
+      int index,
+      [TechnicalIndicators<dynamic, dynamic>? indicator]) {
     final CartesianChartPoint<dynamic> point =
         CartesianChartPoint<dynamic>(x, y);
     point.xValue = sourcePoint.xValue;
@@ -423,10 +423,10 @@ class TechnicalIndicatorsRenderer {
       num high,
       num low,
       CartesianChartPoint<dynamic> sourcePoint,
-      CartesianSeries<dynamic, dynamic> series,
+      CartesianSeries<dynamic, dynamic>? series,
       int index,
       //ignore: unused_element
-      [TechnicalIndicators<dynamic, dynamic> indicator]) {
+      [TechnicalIndicators<dynamic, dynamic>? indicator]) {
     final CartesianChartPoint<dynamic> point =
         CartesianChartPoint<dynamic>(x, null);
     point.high = high;
@@ -439,25 +439,26 @@ class TechnicalIndicatorsRenderer {
 
   /// To set properties of technical indicators
   void _setSeriesProperties(TechnicalIndicators<dynamic, dynamic> indicator,
-      String name, Color color, double width, SfCartesianChart chart) {
-    List<double> _dashArray;
+      String name, Color color, double width, SfCartesianChart chart,
+      [isLine = false, isRangeArea = false, isHistogram = false]) {
+    List<double>? _dashArray;
     if (chart.onIndicatorRender != null &&
-        name != 'rangearea' &&
-        name != 'Histogram' &&
-        !name.contains('Line')) {
+        !isRangeArea &&
+        !isHistogram &&
+        !isLine) {
       final IndicatorRenderArgs indicatorArgs = IndicatorRenderArgs(
           indicator, _index, chart.indicators[_index].seriesName, _dataPoints);
       indicatorArgs.indicatorName = name;
       indicatorArgs.signalLineColor = color;
       indicatorArgs.signalLineWidth = width;
       indicatorArgs.lineDashArray = indicator.dashArray;
-      chart.onIndicatorRender(indicatorArgs);
+      chart.onIndicatorRender!(indicatorArgs);
       color = indicatorArgs.signalLineColor;
       width = indicatorArgs.signalLineWidth;
       name = indicatorArgs.indicatorName;
       _dashArray = indicatorArgs.lineDashArray;
     }
-    final CartesianSeries<dynamic, dynamic> series = name == 'rangearea'
+    final CartesianSeries<dynamic, dynamic> series = isRangeArea
         ? RangeAreaSeries<dynamic, dynamic>(
             name: name,
             color: color,
@@ -467,11 +468,11 @@ class TechnicalIndicatorsRenderer {
             animationDuration: indicator.animationDuration,
             yAxisName: indicator.yAxisName,
             enableTooltip: false,
-            xValueMapper: null,
-            highValueMapper: null,
-            lowValueMapper: null,
-            dataSource: null)
-        : (name == 'Histogram'
+            xValueMapper: (dynamic, _) => null,
+            highValueMapper: (dynamic, _) => null,
+            lowValueMapper: (dynamic, _) => null,
+            dataSource: [])
+        : (isHistogram
             ? ColumnSeries<dynamic, dynamic>(
                 name: name,
                 color: color,
@@ -479,9 +480,9 @@ class TechnicalIndicatorsRenderer {
                 xAxisName: indicator.xAxisName,
                 animationDuration: indicator.animationDuration,
                 yAxisName: indicator.yAxisName,
-                xValueMapper: null,
-                yValueMapper: null,
-                dataSource: null)
+                xValueMapper: (dynamic, _) => null,
+                yValueMapper: (dynamic, _) => null,
+                dataSource: [])
             : LineSeries<dynamic, dynamic>(
                 name: name,
                 color: color,
@@ -490,18 +491,17 @@ class TechnicalIndicatorsRenderer {
                 xAxisName: indicator.xAxisName,
                 animationDuration: indicator.animationDuration,
                 yAxisName: indicator.yAxisName,
-                xValueMapper: null,
-                yValueMapper: null,
-                dataSource: null));
-    final CartesianSeriesRenderer seriesRenderer = name == 'rangearea'
+                xValueMapper: (dynamic, _) => null,
+                yValueMapper: (dynamic, _) => null,
+                dataSource: []));
+    final CartesianSeriesRenderer seriesRenderer = isRangeArea
         ? RangeAreaSeriesRenderer()
-        : (name == 'Histogram' ? ColumnSeriesRenderer() : LineSeriesRenderer());
+        : (isHistogram ? ColumnSeriesRenderer() : LineSeriesRenderer());
     seriesRenderer._series = series;
     seriesRenderer._visible = _visible;
     seriesRenderer._chart = chart;
-    seriesRenderer._seriesType = name == 'rangearea'
-        ? 'rangearea'
-        : (name == 'Histogram' ? 'column' : 'line');
+    seriesRenderer._seriesType =
+        isRangeArea ? 'rangearea' : (isHistogram ? 'column' : 'line');
     seriesRenderer._isIndicator = true;
     seriesRenderer._seriesName = _name;
     _targetSeriesRenderers.add(seriesRenderer);
@@ -510,7 +510,7 @@ class TechnicalIndicatorsRenderer {
   /// Set series range of technical indicators
   void _setSeriesRange(List<CartesianChartPoint<dynamic>> points,
       TechnicalIndicators<dynamic, dynamic> indicator, List<dynamic> xValues,
-      [CartesianSeriesRenderer seriesRenderer]) {
+      [CartesianSeriesRenderer? seriesRenderer]) {
     if (seriesRenderer == null) {
       _targetSeriesRenderers[0]._dataPoints = points;
       _targetSeriesRenderers[0]._xValues = xValues;
@@ -522,8 +522,8 @@ class TechnicalIndicatorsRenderer {
 
   /// To get the value field value of technical indicators
   num _getFieldValue(
-      List<CartesianChartPoint<dynamic>> point, int itr, String valueField) {
-    num val;
+      List<CartesianChartPoint<dynamic>?> point, int itr, String valueField) {
+    num? val;
     if (valueField == 'low') {
       val = point[itr]?.low;
     } else if (valueField == 'high') {

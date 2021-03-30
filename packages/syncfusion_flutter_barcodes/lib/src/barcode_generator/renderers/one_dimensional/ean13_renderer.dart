@@ -8,10 +8,10 @@ import 'symbology_base_renderer.dart';
 /// Represents the EAN13 renderer class
 class EAN13Renderer extends SymbologyRenderer {
   /// Creates the ean13 renderer
-  EAN13Renderer({Symbology symbology}) : super(symbology: symbology);
+  EAN13Renderer({Symbology? symbology}) : super(symbology: symbology);
 
   /// Represents the encoded input vale
-  String _encodedValue;
+  late String _encodedValue;
 
   @override
   bool getIsValidateInput(String value) {
@@ -49,30 +49,30 @@ class EAN13Renderer extends SymbologyRenderer {
       bool showValue) {
     /// _singleDigitValues[0] specifies left value of start digit
     /// _singleDigitValues[1] specifies width of start digit
-    final List<double> singleDigitValues = List<double>(2);
+    final List<double?> singleDigitValues = List<double?>.filled(2, null);
 
     ///  _positions[0] specifies end position of start  bar
     ///  _positions[1] specifies start position of middle  bar
     ///  _positions[2] specifies end position of middle bar
     ///  _positions[3] specifies start position of end bar
-    final List<double> positions = List<double>(4);
+    final List<double?> positions = List<double?>.filled(4, null);
     final Paint paint = getBarPaint(foregroundColor);
     final List<String> code = _getCodeValues();
     final int barTotalLength = _getTotalLength(code);
     singleDigitValues[1] =
         showValue ? measureText(_encodedValue[0], textStyle).width : 0;
     const int additionalWidth = 2;
-    singleDigitValues[1] += additionalWidth;
-    final double width = size.width - singleDigitValues[1];
-    double left = symbology.module == null
-        ? offset.dx + singleDigitValues[1]
-        : getLeftPosition(barTotalLength, symbology.module, width,
-            offset.dx + singleDigitValues[1]);
+    singleDigitValues[1] = singleDigitValues[1]! + additionalWidth;
+    final double width = size.width - singleDigitValues[1]!;
+    double left = symbology?.module == null
+        ? offset.dx + singleDigitValues[1]!
+        : getLeftPosition(barTotalLength, symbology?.module, width,
+            offset.dx + singleDigitValues[1]!);
     final Rect barCodeRect = Rect.fromLTRB(
         offset.dx, offset.dy, offset.dx + size.width, offset.dy + size.height);
     double ratio = 0;
-    if (symbology.module != null) {
-      ratio = symbology.module.toDouble();
+    if (symbology?.module != null) {
+      ratio = symbology!.module!.toDouble();
     } else {
       // Calculates the bar length based on number of individual bar codes
       final int singleModule = (width ~/ barTotalLength).toInt();
@@ -81,7 +81,7 @@ class EAN13Renderer extends SymbologyRenderer {
       left += leftPadding;
     }
     left = left.roundToDouble();
-    singleDigitValues[0] = left - singleDigitValues[1];
+    singleDigitValues[0] = left - singleDigitValues[1]!;
     for (int i = 0; i < code.length; i++) {
       final String codeValue = code[i];
       final bool hasExtraHeight = getHasExtraHeight(i, code);
@@ -89,7 +89,7 @@ class EAN13Renderer extends SymbologyRenderer {
       final double barHeight = hasExtraHeight
           ? size.height +
               (showValue
-                  ? (textSize.height * additionalHeight) + textSpacing
+                  ? (textSize!.height * additionalHeight) + textSpacing
                   : 0)
           : size.height;
       final int codeLength = codeValue.length;
@@ -223,8 +223,8 @@ class EAN13Renderer extends SymbologyRenderer {
 
   /// Method to calculate the left value
   String _getLeftValue(bool isLeft, String structure, String leftString) {
-    String code;
-    List<String> tempCodes;
+    late String code;
+    late List<String> tempCodes;
     final Map<String, List<String>> codes = _getBinaries();
     for (int i = 0; i < leftString.length; i++) {
       if (structure[i] == 'L') {
@@ -258,19 +258,19 @@ class EAN13Renderer extends SymbologyRenderer {
       TextStyle textStyle,
       double textSpacing,
       TextAlign textAlign,
-      List<double> positions,
-      List<double> singleDigitValues) {
+      List<double?> positions,
+      List<double?> singleDigitValues) {
     final String value1 = value[0];
     final String value2 = value.substring(1, 7);
     final String value3 = value.substring(7, 13);
-    final double secondTextWidth = positions[1] - positions[0];
-    final double thirdTextWidth = positions[3] - positions[2];
+    final double secondTextWidth = positions[1]! - positions[0]!;
+    final double thirdTextWidth = positions[3]! - positions[2]!;
 
     // Renders the first digit of the input
     drawText(
         canvas,
-        Offset(singleDigitValues[0], offset.dy + size.height + textSpacing),
-        Size(singleDigitValues[1], size.height),
+        Offset(singleDigitValues[0]!, offset.dy + size.height + textSpacing),
+        Size(singleDigitValues[1]!, size.height),
         value1,
         textStyle,
         textSpacing,
@@ -281,7 +281,7 @@ class EAN13Renderer extends SymbologyRenderer {
     // Renders the first six digits of encoded text
     drawText(
         canvas,
-        Offset(positions[0], offset.dy),
+        Offset(positions[0]!, offset.dy),
         Size(secondTextWidth, size.height),
         value2,
         textStyle,
@@ -293,7 +293,7 @@ class EAN13Renderer extends SymbologyRenderer {
     // Renders the second six digits of encoded text
     drawText(
         canvas,
-        Offset(positions[2], offset.dy),
+        Offset(positions[2]!, offset.dy),
         Size(thirdTextWidth, size.height),
         value3,
         textStyle,

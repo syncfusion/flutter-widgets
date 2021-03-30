@@ -1,4 +1,8 @@
-part of gauges;
+import 'package:flutter/rendering.dart';
+import '../common/common.dart';
+import '../pointers/gauge_pointer.dart';
+import '../renderers/marker_pointer_renderer.dart';
+import '../utils/enum.dart';
 
 /// Create the pointer to indicate the value with built-in shape.
 ///
@@ -24,29 +28,32 @@ class MarkerPointer extends GaugePointer {
   /// [animationDuration], [markerWidth], [markerHeight], [borderWidth]
   /// must be non-negative.
   ///
-  MarkerPointer(
-      {double value = 0,
-      bool enableDragging,
-      ValueChanged<double> onValueChanged,
-      ValueChanged<double> onValueChangeStart,
-      ValueChanged<double> onValueChangeEnd,
-      ValueChanged<ValueChangingArgs> onValueChanging,
-      this.markerType = MarkerType.invertedTriangle,
-      this.color,
-      this.markerWidth = 10,
-      this.markerHeight = 10,
-      this.borderWidth = 0,
-      this.markerOffset = 0,
-      this.text,
-      this.borderColor,
-      this.offsetUnit = GaugeSizeUnit.logicalPixel,
-      this.imageUrl,
-      this.onCreatePointerRenderer,
-      AnimationType animationType,
-      GaugeTextStyle textStyle,
-      bool enableAnimation,
-      double animationDuration = 1000})
-      : textStyle = textStyle ??
+  MarkerPointer({
+    double value = 0,
+    bool enableDragging = false,
+    ValueChanged<double>? onValueChanged,
+    ValueChanged<double>? onValueChangeStart,
+    ValueChanged<double>? onValueChangeEnd,
+    ValueChanged<ValueChangingArgs>? onValueChanging,
+    AnimationType animationType = AnimationType.ease,
+    bool enableAnimation = false,
+    double animationDuration = 1000,
+    this.markerType = MarkerType.invertedTriangle,
+    this.color,
+    this.markerWidth = 10,
+    this.markerHeight = 10,
+    this.borderWidth = 0,
+    this.markerOffset = 0,
+    this.text,
+    this.borderColor,
+    this.offsetUnit = GaugeSizeUnit.logicalPixel,
+    this.imageUrl,
+    this.onCreatePointerRenderer,
+    GaugeTextStyle? textStyle,
+    this.overlayColor,
+    this.overlayRadius,
+    this.elevation = 0,
+  })  : textStyle = textStyle ??
             GaugeTextStyle(
                 fontSize: 12.0,
                 fontFamily: 'Segoe UI',
@@ -54,20 +61,20 @@ class MarkerPointer extends GaugePointer {
                 fontWeight: FontWeight.normal),
         assert(animationDuration > 0,
             'Animation duration must be a non-negative value.'),
-        assert(value != null, 'Pointer value should not be null.'),
         assert(markerWidth >= 0, 'Marker width must be a non-negative value.'),
         assert(markerHeight >= 0, 'Marker height must be non-negative value.'),
         assert(borderWidth >= 0, 'Border width must be non-negative value.'),
-        assert(markerOffset != null, 'Marker offset should not be null.'),
+        assert(
+            elevation >= 0, 'Shadow elevation must be a non-negative value.'),
         super(
             value: value,
-            enableDragging: enableDragging ?? false,
+            enableDragging: enableDragging,
             onValueChanged: onValueChanged,
             onValueChangeStart: onValueChangeStart,
             onValueChangeEnd: onValueChangeEnd,
             onValueChanging: onValueChanging,
-            animationType: animationType ?? AnimationType.ease,
-            enableAnimation: enableAnimation ?? false,
+            animationType: animationType,
+            enableAnimation: enableAnimation,
             animationDuration: animationDuration);
 
   /// Specifies the built-in shape type for  pointer.
@@ -112,7 +119,7 @@ class MarkerPointer extends GaugePointer {
   ///        ));
   ///}
   /// ```
-  final Color color;
+  final Color? color;
 
   /// Specifies the marker height in logical pixels.
   ///
@@ -169,7 +176,7 @@ class MarkerPointer extends GaugePointer {
   ///        ));
   ///}
   /// ```
-  final String imageUrl;
+  final String? imageUrl;
 
   /// Specifies the text for marker pointer.
   ///
@@ -190,7 +197,7 @@ class MarkerPointer extends GaugePointer {
   ///        ));
   ///}
   /// ```
-  final String text;
+  final String? text;
 
   /// The style to use for the marker pointer text.
   ///
@@ -290,7 +297,7 @@ class MarkerPointer extends GaugePointer {
   ///        ));
   ///}
   /// ```
-  final Color borderColor;
+  final Color? borderColor;
 
   /// Specifies the border width for marker.
   ///
@@ -343,8 +350,82 @@ class MarkerPointer extends GaugePointer {
   /// _CustomPointerRenderer class implementation
   /// }
   ///```
-  final MarkerPointerRendererFactory<MarkerPointerRenderer>
+  final MarkerPointerRendererFactory<MarkerPointerRenderer>?
       onCreatePointerRenderer;
+
+  /// Elevation of the pointer.
+  ///
+  /// The pointer can be elevated by rendering with the shadow behind it.
+  /// By default, `Colors.black` is used as shadow color.
+  /// This property controls the size of the shadow.
+  ///
+  /// Defaults to `0`
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///             pointers: <GaugePointer>[MarkerPointer(value: 50,
+  ///             enableDragging: true,
+  ///             borderColor: Colors.red, elevation : 2)],
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  final double elevation;
+
+  /// Color of the overlay drawn around the marker pointer.
+  ///
+  /// If [enableDragging] is set to true, while touching the marker pointer in mobile and on hovering/clicking
+  /// the marker pointer in web, the overlay will be displayed in the marker’s color by default with reduced
+  /// opacity. If [enableDragging] is set to false, the overlay will not be displayed.
+  ///
+  ///If it has to be hidden, `Colors.transparent` can be set to this property.
+  ///
+  /// Defaults to `null`
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///             pointers: <GaugePointer>[MarkerPointer(value: 50,
+  ///                 enableDragging: true,
+  ///                overlayColor: Colors.red[50])],
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  final Color? overlayColor;
+
+  /// Radius of the overlay drawn around the marker pointer.
+  ///
+  ///If [enableDragging] is set to true, while touching the marker pointer in mobile and on hovering/clicking
+  /// the marker pointer in web, the overlay will be displayed. If [enableDragging] is set to false, the
+  /// overlay will not be displayed.
+  ///
+  ///If the value of this property is `null`, the overlay radius is calculated by adding 15 logical pixels to
+  /// the marker's width. Else it will be rendered with the specified value as radius.
+  ///
+  ///If it has to be hidden, `0` can be set to this property.
+  ///
+  ///Defaults to `null`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///             pointers: <GaugePointer>[MarkerPointer(value: 50,
+  ///                 enableDragging: true,
+  ///                overlayColor: Colors.red[50],
+  ///                 overlayRadius: 35)],
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  final double? overlayRadius;
 
   @override
   bool operator ==(Object other) {
@@ -374,12 +455,15 @@ class MarkerPointer extends GaugePointer {
         other.imageUrl == imageUrl &&
         other.offsetUnit == offsetUnit &&
         other.onCreatePointerRenderer == onCreatePointerRenderer &&
-        other.textStyle == textStyle;
+        other.textStyle == textStyle &&
+        other.overlayColor == overlayColor &&
+        other.overlayRadius == overlayRadius &&
+        other.elevation == elevation;
   }
 
   @override
   int get hashCode {
-    final List<Object> values = <Object>[
+    final List<Object?> values = <Object?>[
       value,
       enableDragging,
       onValueChanged,
@@ -399,313 +483,11 @@ class MarkerPointer extends GaugePointer {
       imageUrl,
       offsetUnit,
       textStyle,
-      onCreatePointerRenderer
+      onCreatePointerRenderer,
+      overlayColor,
+      overlayRadius,
+      elevation
     ];
     return hashList(values);
-  }
-}
-
-///  The [MarkerPointerRenderer] has methods to render marker pointer
-///
-class MarkerPointerRenderer extends _GaugePointerRenderer {
-  /// Creates the instance for marker pointer renderer
-  MarkerPointerRenderer() : super();
-
-  /// Represents the marker pointer which is corresponding to this renderer
-  MarkerPointer pointer;
-
-  /// Specifies the margin for calculating
-  /// marker pointer rect
-  final double _margin = 15;
-
-  /// Specifies the marker image
-  dart_ui.Image _image;
-
-  /// Specifies the marker offset
-  Offset _offset;
-
-  /// Specifies the radian value of the marker
-  double _radian;
-
-  /// Specifies the angle value
-  double _angle;
-
-  /// Specifies the marker text size
-  Size _textSize;
-
-  /// Specifies the total offset considering axis element
-  double _totalOffset;
-
-  /// Specifies actual marker offset value
-  double _actualMarkerOffset;
-
-  /// method to calculate the marker position
-  @override
-  void _calculatePosition() {
-    final MarkerPointer markerPointer = _gaugePointer;
-    _angle = _getPointerAngle();
-    _radian = _getDegreeToRadian(_angle);
-    final Offset offset = _getMarkerOffset(_radian, markerPointer);
-    if (markerPointer.markerType == MarkerType.image &&
-        markerPointer.imageUrl != null) {
-      _loadImage(markerPointer);
-    } else if (markerPointer.markerType == MarkerType.text &&
-        markerPointer.text != null) {
-      _textSize = _getTextSize(markerPointer.text, markerPointer.textStyle);
-    }
-
-    _pointerRect = Rect.fromLTRB(
-        offset.dx - markerPointer.markerWidth / 2 - _margin,
-        offset.dy - markerPointer.markerHeight / 2 - _margin,
-        offset.dx + markerPointer.markerWidth / 2 + _margin,
-        offset.dy + markerPointer.markerHeight / 2 + _margin);
-  }
-
-  /// Method returns the angle of  current pointer value
-  double _getPointerAngle() {
-    _currentValue = _getMinMax(_currentValue, _axis.minimum, _axis.maximum);
-    return (_axisRenderer.valueToFactor(_currentValue) *
-            _axisRenderer._sweepAngle) +
-        _axis.startAngle;
-  }
-
-  /// Method returns the sweep angle of pointer
-  double _getSweepAngle() {
-    return _axisRenderer.valueToFactor(_currentValue);
-  }
-
-  /// Calculates the marker offset position
-  Offset _getMarkerOffset(double markerRadian, MarkerPointer markerPointer) {
-    _actualMarkerOffset = _axisRenderer._getActualValue(
-        markerPointer.markerOffset, markerPointer.offsetUnit, true);
-    _totalOffset = _actualMarkerOffset < 0
-        ? _axisRenderer._getAxisOffset() + _actualMarkerOffset
-        : (_actualMarkerOffset + _axisRenderer._axisOffset);
-    if (!_axis.canScaleToFit) {
-      final double x = (_axisRenderer._axisSize.width / 2) +
-          (_axisRenderer._radius -
-                  _totalOffset -
-                  (_axisRenderer._actualAxisWidth / 2)) *
-              math.cos(markerRadian) -
-          _axisRenderer._centerX;
-      final double y = (_axisRenderer._axisSize.height / 2) +
-          (_axisRenderer._radius -
-                  _totalOffset -
-                  (_axisRenderer._actualAxisWidth / 2)) *
-              math.sin(markerRadian) -
-          _axisRenderer._centerY;
-      _offset = Offset(x, y);
-    } else {
-      final double x = _axisRenderer._axisCenter.dx +
-          (_axisRenderer._radius -
-                  _totalOffset -
-                  (_axisRenderer._actualAxisWidth / 2)) *
-              math.cos(markerRadian);
-      final double y = _axisRenderer._axisCenter.dy +
-          (_axisRenderer._radius -
-                  _totalOffset -
-                  (_axisRenderer._actualAxisWidth / 2)) *
-              math.sin(markerRadian);
-      _offset = Offset(x, y);
-    }
-    return _offset;
-  }
-
-  /// To load the image from the image url
-// ignore: avoid_void_async
-  void _loadImage(MarkerPointer markerPointer) async {
-    await _renderImage(markerPointer);
-    _axisRenderer._renderingDetails.pointerRepaintNotifier.value++;
-  }
-
-  /// Renders the image from the image url
-// ignore: prefer_void_to_null
-  Future<Null> _renderImage(MarkerPointer markerPointer) async {
-    final ByteData imageData = await rootBundle.load(markerPointer.imageUrl);
-    final dart_ui.Codec imageCodec =
-        await dart_ui.instantiateImageCodec(imageData.buffer.asUint8List());
-    final dart_ui.FrameInfo frameInfo = await imageCodec.getNextFrame();
-    _image = frameInfo.image;
-  }
-
-  /// Method to draw pointer the marker pointer.
-  ///
-  /// By overriding this method, you can draw the customized marker
-  /// pointer using required values.
-  ///
-  void drawPointer(Canvas canvas, PointerPaintingDetails pointerPaintingDetails,
-      SfGaugeThemeData gaugeThemeData) {
-    final MarkerPointer markerPointer = _gaugePointer;
-    final Paint paint = Paint()
-      ..color = markerPointer.color ?? gaugeThemeData.markerColor
-      ..style = PaintingStyle.fill;
-
-    Paint borderPaint;
-    if (markerPointer.borderWidth != null && markerPointer.borderWidth > 0) {
-      borderPaint = Paint()
-        ..color = markerPointer.borderColor ?? gaugeThemeData.markerBorderColor
-        ..strokeWidth = markerPointer.borderWidth
-        ..style = PaintingStyle.stroke;
-    }
-    canvas.save();
-    switch (markerPointer.markerType) {
-      case MarkerType.circle:
-        _drawCircle(canvas, paint, pointerPaintingDetails.startOffset,
-            borderPaint, markerPointer);
-        break;
-      case MarkerType.rectangle:
-        _drawRectangle(canvas, paint, pointerPaintingDetails.startOffset,
-            pointerPaintingDetails.pointerAngle, borderPaint, markerPointer);
-        break;
-      case MarkerType.image:
-        _drawMarkerImage(canvas, paint, pointerPaintingDetails.startOffset,
-            pointerPaintingDetails.pointerAngle, markerPointer);
-        break;
-      case MarkerType.triangle:
-      case MarkerType.invertedTriangle:
-        _drawTriangle(canvas, paint, pointerPaintingDetails.startOffset,
-            pointerPaintingDetails.pointerAngle, borderPaint, markerPointer);
-        break;
-      case MarkerType.diamond:
-        _drawDiamond(canvas, paint, pointerPaintingDetails.startOffset,
-            pointerPaintingDetails.pointerAngle, borderPaint, markerPointer);
-        break;
-      case MarkerType.text:
-        if (markerPointer.text != null) {
-          _drawText(
-              canvas,
-              paint,
-              pointerPaintingDetails.startOffset,
-              pointerPaintingDetails.pointerAngle,
-              gaugeThemeData,
-              markerPointer);
-        }
-
-        break;
-    }
-
-    canvas.restore();
-  }
-
-  /// To render the MarkerShape.Text
-  void _drawText(
-      Canvas canvas,
-      Paint paint,
-      Offset startPosition,
-      double pointerAngle,
-      SfGaugeThemeData gaugeThemeData,
-      MarkerPointer markerPointer) {
-    final TextSpan span = TextSpan(
-        text: markerPointer.text,
-        style: TextStyle(
-            color:
-                markerPointer.textStyle.color ?? gaugeThemeData.axisLabelColor,
-            fontSize: markerPointer.textStyle.fontSize,
-            fontFamily: markerPointer.textStyle.fontFamily,
-            fontStyle: markerPointer.textStyle.fontStyle,
-            fontWeight: markerPointer.textStyle.fontWeight));
-    final TextPainter textPainter = TextPainter(
-        text: span,
-        textDirection: TextDirection.ltr,
-        textAlign: TextAlign.center);
-    textPainter.layout();
-    canvas.save();
-    canvas.translate(startPosition.dx, startPosition.dy);
-    canvas.rotate(_getDegreeToRadian(pointerAngle - 90));
-    canvas.scale(-1);
-    textPainter.paint(
-        canvas, Offset(-_textSize.width / 2, -_textSize.height / 2));
-    canvas.restore();
-  }
-
-  /// Renders the MarkerShape.circle
-  void _drawCircle(Canvas canvas, Paint paint, Offset startPosition,
-      Paint borderPaint, MarkerPointer markerPointer) {
-    final Rect rect = Rect.fromLTRB(
-        startPosition.dx - markerPointer.markerWidth / 2,
-        startPosition.dy - markerPointer.markerHeight / 2,
-        startPosition.dx + markerPointer.markerWidth / 2,
-        startPosition.dy + markerPointer.markerHeight / 2);
-    canvas.drawOval(rect, paint);
-    if (borderPaint != null) {
-      canvas.drawOval(rect, borderPaint);
-    }
-  }
-
-  /// Renders the MarkerShape.rectangle
-  void _drawRectangle(Canvas canvas, Paint paint, Offset startPosition,
-      double pointerAngle, Paint borderPaint, MarkerPointer markerPointer) {
-    canvas.translate(startPosition.dx, startPosition.dy);
-    canvas.rotate(_getDegreeToRadian(pointerAngle));
-    canvas.drawRect(
-        Rect.fromLTRB(
-            -markerPointer.markerWidth / 2,
-            -markerPointer.markerHeight / 2,
-            markerPointer.markerWidth / 2,
-            markerPointer.markerHeight / 2),
-        paint);
-    if (borderPaint != null) {
-      canvas.drawRect(
-          Rect.fromLTRB(
-              -markerPointer.markerWidth / 2,
-              -markerPointer.markerHeight / 2,
-              markerPointer.markerWidth / 2,
-              markerPointer.markerHeight / 2),
-          borderPaint);
-    }
-  }
-
-  /// Renders the MarkerShape.image
-  void _drawMarkerImage(Canvas canvas, Paint paint, Offset startPosition,
-      double pointerAngle, MarkerPointer markerPointer) {
-    canvas.translate(startPosition.dx, startPosition.dy);
-    canvas.rotate(_getDegreeToRadian(pointerAngle + 90));
-    final Rect rect = Rect.fromLTRB(
-        -markerPointer.markerWidth / 2,
-        -markerPointer.markerHeight / 2,
-        markerPointer.markerWidth / 2,
-        markerPointer.markerHeight / 2);
-    if (_image != null) {
-      canvas.drawImageNine(_image, rect, rect, paint);
-    }
-  }
-
-  /// Renders the MarkerShape.diamond
-  void _drawDiamond(Canvas canvas, Paint paint, Offset startPosition,
-      double pointerAngle, Paint borderPaint, MarkerPointer markerPointer) {
-    canvas.translate(startPosition.dx, startPosition.dy);
-    canvas.rotate(_getDegreeToRadian(pointerAngle - 90));
-    final Path path = Path();
-    path.moveTo(-markerPointer.markerWidth / 2, 0);
-    path.lineTo(0, markerPointer.markerHeight / 2);
-    path.lineTo(markerPointer.markerWidth / 2, 0);
-    path.lineTo(0, -markerPointer.markerHeight / 2);
-    path.lineTo(-markerPointer.markerWidth / 2, 0);
-    path.close();
-    canvas.drawPath(path, paint);
-    if (borderPaint != null) {
-      canvas.drawPath(path, borderPaint);
-    }
-  }
-
-  /// Renders the triangle and the inverted triangle
-  void _drawTriangle(Canvas canvas, Paint paint, Offset startPosition,
-      double pointerAngle, Paint borderPaint, MarkerPointer markerPointer) {
-    canvas.translate(startPosition.dx, startPosition.dy);
-    final double triangleAngle = markerPointer.markerType == MarkerType.triangle
-        ? pointerAngle + 90
-        : pointerAngle - 90;
-    canvas.rotate(_getDegreeToRadian(triangleAngle));
-
-    final Path path = Path();
-    path.moveTo(-markerPointer.markerWidth / 2, markerPointer.markerHeight / 2);
-    path.lineTo(markerPointer.markerWidth / 2, markerPointer.markerHeight / 2);
-    path.lineTo(0, -markerPointer.markerHeight / 2);
-    path.lineTo(-markerPointer.markerWidth / 2, markerPointer.markerHeight / 2);
-    path.close();
-    canvas.drawPath(path, paint);
-    if (borderPaint != null) {
-      canvas.drawPath(path, borderPaint);
-    }
   }
 }

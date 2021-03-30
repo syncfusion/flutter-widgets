@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "Seçilmiş tarix yoxdur", 
 "noEventsCalendarLabel" : "Tədbir yoxdur", 
-"scheduleViewNewEventLabel" : "Heç bir şey planlaşdırılmamışdır. Yaratmaq üçün vurun.", 
 "ofDataPagerLabel" : "of", 
 "pagesDataPagerLabel" : "səhifələr", 
 "itemsDataPagerLabel" : "maddələr", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "Ram.", 
 "shortShawwalLabel" : "Şou.", 
 "shortDhualqiLabel" : "Zül-Q", 
-"shortDhualhiLabel" : "Zül-H"
+"shortDhualhiLabel" : "Zül-H", 
+"daySpanCountLabel" : "Gün"
 }

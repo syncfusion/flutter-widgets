@@ -11,17 +11,17 @@ class _DecompressedOutput {
   //Fields
   static const int _dOutSize = 32768;
   static const int _dOutMask = 32767;
-  List<int> _dOutput;
-  int _end;
-  int _usedBytes;
+  List<int>? _dOutput;
+  int _end = 0;
+  int _usedBytes = 0;
 
   //Properties
   int get unusedBytes => _dOutSize - _usedBytes;
-  int get usedBytes => _usedBytes;
+  int? get usedBytes => _usedBytes;
 
   //Implementation
   void _write(int b) {
-    _dOutput[_end++] = b;
+    _dOutput![_end++] = b;
     _end &= _dOutMask;
     ++_usedBytes;
   }
@@ -32,16 +32,17 @@ class _DecompressedOutput {
     final int border = _dOutSize - length;
     if (copyStart <= border && _end < border) {
       if (length <= distance) {
-        List.copyRange(_dOutput, _end, _dOutput, copyStart, copyStart + length);
+        List.copyRange(
+            _dOutput!, _end, _dOutput!, copyStart, copyStart + length);
         _end += length;
       } else {
         while (length-- > 0) {
-          _dOutput[_end++] = _dOutput[copyStart++];
+          _dOutput![_end++] = _dOutput![copyStart++];
         }
       }
     } else {
       while (length-- > 0) {
-        _dOutput[_end++] = _dOutput[copyStart++];
+        _dOutput![_end++] = _dOutput![copyStart++];
         _end &= _dOutMask;
         copyStart &= _dOutMask;
       }
@@ -66,7 +67,7 @@ class _DecompressedOutput {
   }
 
   Map<String, dynamic> _copyTo(List<int> output, int offset, int length) {
-    int end;
+    int? end;
     if (length > _usedBytes) {
       end = _end;
       length = _usedBytes;
@@ -79,20 +80,20 @@ class _DecompressedOutput {
     if (tailLen > 0) {
       for (int i = 0;
           i < tailLen &&
-              i + sourceStart < _dOutput.length &&
+              i + sourceStart < _dOutput!.length &&
               i + offset < output.length;
           i++) {
-        output[offset + i] = _dOutput[sourceStart + i];
+        output[offset + i] = _dOutput![sourceStart + i];
       }
       final int sourceStartIndex = _dOutSize - tailLen;
-      List.copyRange(output, offset, _dOutput, sourceStartIndex,
+      List.copyRange(output, offset, _dOutput!, sourceStartIndex,
           sourceStartIndex + tailLen);
       offset += tailLen;
       length = end;
     }
     sourceStart = end - length;
     final int sourceStartIndex = end - length;
-    List.copyRange(output, offset, _dOutput, sourceStartIndex, end);
+    List.copyRange(output, offset, _dOutput!, sourceStartIndex, end);
     _usedBytes -= copied;
     return <String, dynamic>{'count': copied, 'data': output};
   }

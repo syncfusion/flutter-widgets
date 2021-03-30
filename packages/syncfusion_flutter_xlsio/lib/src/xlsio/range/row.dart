@@ -1,50 +1,39 @@
 part of xlsio;
 
-/// <summary>
 /// Represents the worksheet row.
-/// </summary>
 class Row {
-  /// <summary>
   /// Create an instance of Row.
-  /// </summary>
-  /// <param name="sheet">Parent worksheet</param>
   Row(Worksheet sheet) {
     _worksheet = sheet;
   }
 
-  /// <summary>
   /// Represents the row height.
-  /// </summary>
-  double height;
+  double height = 0;
 
-  /// <summary>
   /// Represents the row index.
-  /// </summary>
-  int index;
+  late int index;
 
   /// Parent worksheet.
-  Worksheet _worksheet;
+  late Worksheet _worksheet;
 
   /// Range collection in the row.
-  RangeCollection _ranges;
+  RangeCollection? _ranges;
 
   /// Represents parent worksheet.
   Worksheet get worksheet {
     return _worksheet;
   }
 
-  /// <summary>
-  ///  Gets/Sets a images collections in the worksheet
-  /// </summary>
+  ///  Gets/Sets a images collections in the worksheet.
   RangeCollection get ranges {
     _ranges ??= RangeCollection(this);
-    return _ranges;
+    return _ranges!;
   }
 
   /// clear the row.
   void _clear() {
     if (_ranges != null) {
-      _ranges._clear();
+      _ranges!._clear();
     }
   }
 }

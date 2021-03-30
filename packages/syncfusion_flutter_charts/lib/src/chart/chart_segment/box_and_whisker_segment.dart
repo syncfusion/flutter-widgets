@@ -5,10 +5,10 @@ part of charts;
 /// Generates the box and whisker series points and has the [calculateSegmentPoints] override method
 /// used to customize the box and whisker series segment point calculation.
 ///
-/// Gets the path and fill color from the [series] to render the box and whisker segment.
+/// Gets the path and fill color from the `series` to render the box and whisker segment.
 ///
 class BoxAndWhiskerSegment extends ChartSegment {
-  num _x,
+  late double _x,
       _min,
       _max,
       _maxY,
@@ -26,19 +26,16 @@ class BoxAndWhiskerSegment extends ChartSegment {
       _bottomLineY,
       _medianX,
       _medianY;
-  Path _path;
-  Paint _meanPaint;
+  late Path _path;
+  late Paint _meanPaint;
   // ignore: unused_field
-  Color _pointColorMapper;
+  Color? _pointColorMapper;
 
-  @override
-  CartesianChartPoint<dynamic> _currentPoint;
+  late bool _isTransposed;
 
-  bool _isTransposed;
+  late _ChartLocation _minPoint, _maxPoint, _centerMinPoint, _centerMaxPoint;
 
-  _ChartLocation _minPoint, _maxPoint, _centerMinPoint, _centerMaxPoint;
-
-  BoxAndWhiskerSeries<dynamic, dynamic> _boxAndWhiskerSeries;
+  late BoxAndWhiskerSeries<dynamic, dynamic> _boxAndWhiskerSeries;
 
   /// Gets the color of the series.
   @override
@@ -46,26 +43,26 @@ class BoxAndWhiskerSegment extends ChartSegment {
     /// Get and set the paint options for box and whisker series.
     if (_series.gradient == null) {
       fillPaint = Paint()
-        ..color = _currentPoint.isEmpty == true
+        ..color = _currentPoint!.isEmpty == true
             ? _series.emptyPointSettings.color
-            : (_currentPoint.pointColorMapper ?? _color)
+            : (_currentPoint!.pointColorMapper ?? _color!)
         ..style = PaintingStyle.fill;
     } else {
       fillPaint = _getLinearGradientPaint(
-          _series.gradient,
-          _currentPoint.region,
-          _seriesRenderer._chartState._requireInvertedAxis);
+          _series.gradient!,
+          _currentPoint!.region!,
+          _seriesRenderer._chartState!._requireInvertedAxis);
     }
     assert(_series.opacity >= 0,
         'The opacity value of the box plot series should be greater than or equal to 0.');
     assert(_series.opacity <= 1,
         'The opacity value of the box plot series should be less than or equal to 1.');
-    fillPaint.color =
-        (_series.opacity < 1 && fillPaint.color != Colors.transparent)
-            ? fillPaint.color.withOpacity(_series.opacity)
-            : fillPaint.color;
+    fillPaint!.color =
+        (_series.opacity < 1 && fillPaint!.color != Colors.transparent)
+            ? fillPaint!.color.withOpacity(_series.opacity)
+            : fillPaint!.color;
     _defaultFillColor = fillPaint;
-    return fillPaint;
+    return fillPaint!;
   }
 
   /// Gets the border color of the series.
@@ -73,44 +70,44 @@ class BoxAndWhiskerSegment extends ChartSegment {
   Paint getStrokePaint() {
     strokePaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = _currentPoint.isEmpty == true
+      ..strokeWidth = _currentPoint!.isEmpty == true
           ? _series.emptyPointSettings.borderWidth
-          : _strokeWidth;
+          : _strokeWidth!;
     _meanPaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = _currentPoint.isEmpty == true
+      ..strokeWidth = _currentPoint!.isEmpty == true
           ? _series.emptyPointSettings.borderWidth
-          : _strokeWidth;
+          : _strokeWidth!;
     if (_series.borderGradient != null) {
-      strokePaint.shader =
-          _series.borderGradient.createShader(_currentPoint.region);
+      strokePaint!.shader =
+          _series.borderGradient!.createShader(_currentPoint!.region!);
       _meanPaint.shader =
-          _series.borderGradient.createShader(_currentPoint.region);
+          _series.borderGradient!.createShader(_currentPoint!.region!);
     } else {
-      strokePaint.color = _currentPoint.isEmpty == true
+      strokePaint!.color = _currentPoint!.isEmpty == true
           ? _series.emptyPointSettings.borderColor
-          : _strokeColor;
-      _meanPaint.color = _currentPoint.isEmpty == true
+          : _strokeColor!;
+      _meanPaint.color = _currentPoint!.isEmpty == true
           ? _series.emptyPointSettings.borderColor
-          : _strokeColor;
+          : _strokeColor!;
     }
     _series.borderWidth == 0
-        ? strokePaint.color = Colors.transparent
-        : strokePaint.color;
+        ? strokePaint!.color = Colors.transparent
+        : strokePaint!.color;
     _defaultStrokeColor = strokePaint;
-    return strokePaint;
+    return strokePaint!;
   }
 
   /// Calculates the rendering bounds of a segment.
   @override
   void calculateSegmentPoints() {
-    _boxAndWhiskerSeries = _series;
+    _boxAndWhiskerSeries = _series as BoxAndWhiskerSeries;
     _x = _max = double.nan;
-    _isTransposed = _seriesRenderer._chartState._requireInvertedAxis;
-    _minPoint = _currentPoint.minimumPoint;
-    _maxPoint = _currentPoint.maximumPoint;
-    _centerMinPoint = _currentPoint.centerMinimumPoint;
-    _centerMaxPoint = _currentPoint.centerMaximumPoint;
+    _isTransposed = _seriesRenderer._chartState!._requireInvertedAxis;
+    _minPoint = _currentPoint!.minimumPoint!;
+    _maxPoint = _currentPoint!.maximumPoint!;
+    _centerMinPoint = _currentPoint!.centerMinimumPoint!;
+    _centerMaxPoint = _currentPoint!.centerMaximumPoint!;
     _x = _minPoint.x;
     _min = _minPoint.y;
     _max = _maxPoint.y;
@@ -118,12 +115,12 @@ class BoxAndWhiskerSegment extends ChartSegment {
     _maxY = _centerMaxPoint.y;
     _centerMin = _centerMinPoint.x;
     _minY = _centerMinPoint.y;
-    _lowerX = _currentPoint.lowerQuartilePoint.x;
-    _lowerY = _currentPoint.lowerQuartilePoint.y;
-    _upperX = _currentPoint.upperQuartilePoint.x;
-    _upperY = _currentPoint.upperQuartilePoint.y;
-    _medianX = _currentPoint.medianPoint.x;
-    _medianY = _currentPoint.medianPoint.y;
+    _lowerX = _currentPoint!.lowerQuartilePoint!.x;
+    _lowerY = _currentPoint!.lowerQuartilePoint!.y;
+    _upperX = _currentPoint!.upperQuartilePoint!.x;
+    _upperY = _currentPoint!.upperQuartilePoint!.y;
+    _medianX = _currentPoint!.medianPoint!.x;
+    _medianY = _currentPoint!.medianPoint!.y;
 
     if (_lowerY > _upperY) {
       _centersY = _upperY + ((_upperY - _lowerY).abs() / 2);
@@ -152,15 +149,15 @@ class BoxAndWhiskerSegment extends ChartSegment {
   /// To draw line path of box and whisker segments
   void _drawLine(Canvas canvas) {
     canvas.drawLine(
-        Offset(_lowerX, _topLineY), Offset(_upperX, _topLineY), strokePaint);
+        Offset(_lowerX, _topLineY), Offset(_upperX, _topLineY), strokePaint!);
     canvas.drawLine(Offset(_centerMax, _topRectY),
-        Offset(_centerMax, _topLineY), strokePaint);
+        Offset(_centerMax, _topLineY), strokePaint!);
     canvas.drawLine(
-        Offset(_lowerX, _medianY), Offset(_upperX, _medianY), strokePaint);
+        Offset(_lowerX, _medianY), Offset(_upperX, _medianY), strokePaint!);
     canvas.drawLine(Offset(_centerMax, _bottomRectY),
-        Offset(_centerMax, _bottomLineY), strokePaint);
+        Offset(_centerMax, _bottomLineY), strokePaint!);
     canvas.drawLine(Offset(_lowerX, _bottomLineY),
-        Offset(_upperX, _bottomLineY), strokePaint);
+        Offset(_upperX, _bottomLineY), strokePaint!);
   }
 
   /// To draw mean line path of box and whisker segments
@@ -169,10 +166,10 @@ class BoxAndWhiskerSegment extends ChartSegment {
     final x = !isTransposed ? position.dx : position.dy;
     final y = !isTransposed ? position.dy : position.dx;
     if (_series.animationDuration <= 0 ||
-        animationFactor >= _seriesRenderer._chartState._seriesDurationFactor) {
+        animationFactor >= _seriesRenderer._chartState!._seriesDurationFactor) {
       /// `0.15` is animation duration of mean point value, as like marker.
       final double opacity = (animationFactor -
-              _seriesRenderer._chartState._seriesDurationFactor) *
+              _seriesRenderer._chartState!._seriesDurationFactor) *
           (1 / 0.15);
       _meanPaint.color = Color.fromRGBO(_meanPaint.color.red,
           _meanPaint.color.green, _meanPaint.color.blue, opacity);
@@ -186,7 +183,7 @@ class BoxAndWhiskerSegment extends ChartSegment {
   /// To draw line path of box and whisker segments
   void _drawFillLine(Canvas canvas) {
     final bool isOpen =
-        _currentPoint.lowerQuartile > _currentPoint.upperQuartile;
+        _currentPoint!.lowerQuartile! > _currentPoint!.upperQuartile!;
     canvas.drawLine(
         Offset(_topRectY, _maxY),
         Offset(
@@ -195,7 +192,7 @@ class BoxAndWhiskerSegment extends ChartSegment {
                         .abs() *
                     animationFactor),
             _maxY),
-        strokePaint);
+        strokePaint!);
     canvas.drawLine(
         Offset(_bottomRectY, _maxY),
         Offset(
@@ -204,24 +201,25 @@ class BoxAndWhiskerSegment extends ChartSegment {
                         .abs() *
                     animationFactor),
             _maxY),
-        strokePaint);
+        strokePaint!);
   }
 
   /// Draws segment in series bounds.
   @override
   void onPaint(Canvas canvas) {
     if (fillPaint != null && _seriesRenderer._reAnimate ||
-        (!(_seriesRenderer._chartState._widgetNeedUpdate &&
-            !_seriesRenderer._chartState._isLegendToggled))) {
+        (!(_seriesRenderer._chartState!._widgetNeedUpdate &&
+            _oldSeriesRenderer != null &&
+            !_seriesRenderer._chartState!._isLegendToggled))) {
       _path = Path();
       if (!_isTransposed &&
-          _currentPoint.lowerQuartile > _currentPoint.upperQuartile) {
-        final num temp = _upperY;
+          _currentPoint!.lowerQuartile! > _currentPoint!.upperQuartile!) {
+        final double temp = _upperY;
         _upperY = _lowerY;
         _lowerY = temp;
       }
 
-      if (_seriesRenderer._chartState._isLegendToggled) {
+      if (_seriesRenderer._chartState!._isLegendToggled) {
         animationFactor = 1;
       }
       if (_lowerY > _upperY) {
@@ -292,19 +290,19 @@ class BoxAndWhiskerSegment extends ChartSegment {
         if (_boxAndWhiskerSeries.showMean) {
           _drawMeanLine(
               canvas,
-              Offset(_currentPoint.centerMeanPoint.y,
-                  _currentPoint.centerMeanPoint.x),
+              Offset(_currentPoint!.centerMeanPoint!.y,
+                  _currentPoint!.centerMeanPoint!.x),
               Size(_series.markerSettings.width, _series.markerSettings.height),
               _isTransposed);
         }
 
         _lowerX == _upperX
             ? canvas.drawLine(
-                Offset(_lowerX, _lowerY), Offset(_upperX, _upperY), fillPaint)
+                Offset(_lowerX, _lowerY), Offset(_upperX, _upperY), fillPaint!)
             : _drawRectPath();
       } else {
-        if (_currentPoint.lowerQuartile > _currentPoint.upperQuartile) {
-          final num temp = _upperY;
+        if (_currentPoint!.lowerQuartile! > _currentPoint!.upperQuartile!) {
+          final double temp = _upperY;
           _upperY = _lowerY;
           _lowerY = temp;
         }
@@ -312,36 +310,36 @@ class BoxAndWhiskerSegment extends ChartSegment {
         if (_boxAndWhiskerSeries.showMean) {
           _drawMeanLine(
               canvas,
-              Offset(_currentPoint.centerMeanPoint.x,
-                  _currentPoint.centerMeanPoint.y),
+              Offset(_currentPoint!.centerMeanPoint!.x,
+                  _currentPoint!.centerMeanPoint!.y),
               Size(_series.markerSettings.width, _series.markerSettings.height),
               _isTransposed);
         }
         _lowerY == _upperY
             ? canvas.drawLine(
-                Offset(_lowerX, _lowerY), Offset(_upperX, _upperY), fillPaint)
+                Offset(_lowerX, _lowerY), Offset(_upperX, _upperY), fillPaint!)
             : _drawRectPath();
       }
 
       if (_series.dashArray[0] != 0 &&
           _series.dashArray[1] != 0 &&
           _series.animationDuration <= 0) {
-        canvas.drawPath(_path, fillPaint);
-        _drawDashedLine(canvas, _series.dashArray, strokePaint, _path);
+        canvas.drawPath(_path, fillPaint!);
+        _drawDashedLine(canvas, _series.dashArray, strokePaint!, _path);
       } else {
-        canvas.drawPath(_path, fillPaint);
-        canvas.drawPath(_path, strokePaint);
+        canvas.drawPath(_path, fillPaint!);
+        canvas.drawPath(_path, strokePaint!);
       }
-      if (fillPaint.style == PaintingStyle.fill) {
+      if (fillPaint!.style == PaintingStyle.fill) {
         if (_isTransposed) {
-          if (_currentPoint.lowerQuartile > _currentPoint.upperQuartile) {
+          if (_currentPoint!.lowerQuartile! > _currentPoint!.upperQuartile!) {
             _drawFillLine(canvas);
           }
           if (_boxAndWhiskerSeries.showMean) {
             _drawMeanLine(
                 canvas,
-                Offset(_currentPoint.centerMeanPoint.y,
-                    _currentPoint.centerMeanPoint.x),
+                Offset(_currentPoint!.centerMeanPoint!.y,
+                    _currentPoint!.centerMeanPoint!.x),
                 Size(_series.markerSettings.width,
                     _series.markerSettings.height),
                 _isTransposed);
@@ -351,37 +349,37 @@ class BoxAndWhiskerSegment extends ChartSegment {
           if (_boxAndWhiskerSeries.showMean) {
             _drawMeanLine(
                 canvas,
-                Offset(_currentPoint.centerMeanPoint.x,
-                    _currentPoint.centerMeanPoint.y),
+                Offset(_currentPoint!.centerMeanPoint!.x,
+                    _currentPoint!.centerMeanPoint!.y),
                 Size(_series.markerSettings.width,
                     _series.markerSettings.height),
                 _isTransposed);
           }
         }
       }
-    } else if (!_seriesRenderer._chartState._isLegendToggled) {
-      final BoxAndWhiskerSegment currentSegment =
-          _seriesRenderer._segments[currentSegmentIndex];
-      final BoxAndWhiskerSegment oldSegment =
-          (currentSegment._oldSeriesRenderer != null &&
-                  currentSegment._oldSeriesRenderer._segments.isNotEmpty &&
-                  currentSegment._oldSeriesRenderer._segments[0]
-                      is BoxAndWhiskerSegment &&
-                  currentSegment._oldSeriesRenderer._segments.length - 1 >=
-                      currentSegmentIndex)
-              ? currentSegment._oldSeriesRenderer._segments[currentSegmentIndex]
-              : null;
+    } else if (!_seriesRenderer._chartState!._isLegendToggled) {
+      final BoxAndWhiskerSegment currentSegment = _seriesRenderer
+          ._segments[currentSegmentIndex!] as BoxAndWhiskerSegment;
+      final BoxAndWhiskerSegment? oldSegment = (currentSegment
+                  ._oldSeriesRenderer!._segments.isNotEmpty &&
+              currentSegment._oldSeriesRenderer!._segments[0]
+                  is BoxAndWhiskerSegment &&
+              currentSegment._oldSeriesRenderer!._segments.length - 1 >=
+                  currentSegmentIndex!)
+          ? currentSegment._oldSeriesRenderer!._segments[currentSegmentIndex!]
+              as BoxAndWhiskerSegment?
+          : null;
       _animateBoxSeries(
           _boxAndWhiskerSeries.showMean,
-          Offset(
-              _currentPoint.centerMeanPoint.x, _currentPoint.centerMeanPoint.y),
-          Offset(
-              _currentPoint.centerMeanPoint.y, _currentPoint.centerMeanPoint.x),
+          Offset(_currentPoint!.centerMeanPoint!.x,
+              _currentPoint!.centerMeanPoint!.y),
+          Offset(_currentPoint!.centerMeanPoint!.y,
+              _currentPoint!.centerMeanPoint!.x),
           Size(_series.markerSettings.width, _series.markerSettings.height),
           _max,
           _isTransposed,
-          _currentPoint.lowerQuartile,
-          _currentPoint.upperQuartile,
+          _currentPoint!.lowerQuartile!,
+          _currentPoint!.upperQuartile!,
           _minY,
           _maxY,
           oldSegment?._minY,
@@ -401,8 +399,8 @@ class BoxAndWhiskerSegment extends ChartSegment {
           _medianX,
           _medianY,
           animationFactor,
-          fillPaint,
-          strokePaint,
+          fillPaint!,
+          strokePaint!,
           canvas,
           _seriesRenderer);
     }

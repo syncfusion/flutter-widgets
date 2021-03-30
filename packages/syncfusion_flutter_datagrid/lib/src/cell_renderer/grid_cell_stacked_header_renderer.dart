@@ -10,37 +10,34 @@ class _GridStackedHeaderCellRenderer
   }
 
   @override
-  void onInitializeDisplayWidget(DataCellBase dataCell, Widget widget) {
-    if (dataCell != null) {
-      final dataGridSettings = _dataGridStateDetails();
-      final isLight =
-          dataGridSettings.dataGridThemeData.brightness == Brightness.light;
-      var label = DefaultTextStyle(
-          style: isLight
-              ? TextStyle(
-                  fontFamily: 'Roboto',
-                  fontWeight: FontWeight.w500,
-                  fontSize: 14,
-                  color: Colors.black87)
-              : TextStyle(
-                  fontFamily: 'Roboto',
-                  fontWeight: FontWeight.w500,
-                  fontSize: 14,
-                  color: Color.fromRGBO(255, 255, 255, 1)),
-          child: dataCell._stackedHeaderCell.child);
+  void onInitializeDisplayWidget(DataCellBase dataCell) {
+    final dataGridSettings = _dataGridStateDetails();
+    final isLight =
+        dataGridSettings.dataGridThemeData!.brightness == Brightness.light;
+    Widget? label = DefaultTextStyle(
+        style: isLight
+            ? TextStyle(
+                fontFamily: 'Roboto',
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+                color: Colors.black87)
+            : TextStyle(
+                fontFamily: 'Roboto',
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+                color: Color.fromRGBO(255, 255, 255, 1)),
+        child: dataCell._stackedHeaderCell!.child);
 
-      dataCell._columnElement = GridCell(
-        key: dataCell._key,
-        dataCell: dataCell,
-        padding: EdgeInsets.zero,
-        backgroundColor: isLight
-            ? Color.fromRGBO(255, 255, 255, 1)
-            : Color.fromRGBO(33, 33, 33, 1),
-        isDirty: dataGridSettings.container._isDirty || dataCell._isDirty,
-        child: ExcludeSemantics(child: label),
-      );
+    dataCell._columnElement = GridCell(
+      key: dataCell._key!,
+      dataCell: dataCell,
+      backgroundColor: isLight
+          ? Color.fromRGBO(255, 255, 255, 1)
+          : Color.fromRGBO(33, 33, 33, 1),
+      isDirty: dataGridSettings.container._isDirty || dataCell._isDirty,
+      child: label,
+    );
 
-      label = null;
-    }
+    label = null;
   }
 }

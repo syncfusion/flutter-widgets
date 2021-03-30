@@ -1,4 +1,5 @@
-part of calendar;
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 /// Sets the style for customizing the [SfCalendar] header view.
 ///
@@ -21,7 +22,7 @@ part of calendar;
 ///}
 /// ```
 @immutable
-class CalendarHeaderStyle {
+class CalendarHeaderStyle with Diagnosticable {
   /// Creates a header style for calendar.
   ///
   /// The properties allows to customize the header view of [SfCalendar].
@@ -48,7 +49,7 @@ class CalendarHeaderStyle {
   ///  );
   ///}
   /// ```
-  final TextStyle textStyle;
+  final TextStyle? textStyle;
 
   /// How the text should  be aligned horizontally in [SfCalendar] header view.
   ///
@@ -89,7 +90,7 @@ class CalendarHeaderStyle {
   ///  );
   ///}
   /// ```
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   @override
   bool operator ==(dynamic other) {
@@ -107,11 +108,15 @@ class CalendarHeaderStyle {
   }
 
   @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(EnumProperty<TextAlign>('textAlign', textAlign));
+    properties.add(ColorProperty('backgroundColor', backgroundColor));
+    properties.add(DiagnosticsProperty<TextStyle>('textStyle', textStyle));
+  }
+
+  @override
   int get hashCode {
-    return hashValues(
-      textStyle,
-      textAlign,
-      backgroundColor,
-    );
+    return hashValues(textStyle, textAlign, backgroundColor);
   }
 }

@@ -2,10 +2,8 @@ part of pdf;
 
 class _XObjectElement {
   //constructor
-  _XObjectElement(_PdfDictionary dictionary, String name) {
-    if (dictionary != null) {
-      this.dictionary = dictionary;
-    }
+  _XObjectElement(_PdfDictionary dictionary, String? name) {
+    this.dictionary = dictionary;
     _objectName = name;
     getObjectType();
     _isPrintSelected = false;
@@ -13,30 +11,30 @@ class _XObjectElement {
   }
 
   //Fields
-  _PdfDictionary dictionary;
+  _PdfDictionary? dictionary;
   // ignore: unused_field
-  String _objectName;
-  String _objectType;
-  bool _isPrintSelected;
-  double _pageHeight;
-  bool _isExtractTextLine;
+  String? _objectName;
+  String? _objectType;
+  bool? _isPrintSelected;
+  double? _pageHeight;
+  bool? _isExtractTextLine;
 
   //Implementation
   void getObjectType() {
-    if (dictionary.containsKey(_DictionaryProperties.subtype)) {
-      final _IPdfPrimitive primitive =
-          dictionary[_DictionaryProperties.subtype];
+    if (dictionary!.containsKey(_DictionaryProperties.subtype)) {
+      final _IPdfPrimitive? primitive =
+          dictionary![_DictionaryProperties.subtype];
       if (primitive is _PdfName) {
         _objectType = primitive._name;
       }
     }
   }
 
-  _PdfRecordCollection render(_PdfPageResources resources) {
+  _PdfRecordCollection? render(_PdfPageResources? resources) {
     if (_objectType != null &&
         _objectType == 'Form' &&
         dictionary is _PdfStream) {
-      final _PdfStream stream = dictionary;
+      final _PdfStream stream = dictionary as _PdfStream;
       stream._decompress();
       return _ContentParser(stream._dataStream)._readContent();
     } else {
@@ -45,30 +43,30 @@ class _XObjectElement {
   }
 
   Map<String, dynamic> _render(
-      _GraphicsObject g,
-      _PdfPageResources resources,
-      _GraphicStateCollection graphicsStates,
-      _GraphicObjectDataCollection objects,
-      double currentPageHeight,
-      List<_Glyph> glyphList) {
+      _GraphicsObject? g,
+      _PdfPageResources? resources,
+      _GraphicStateCollection? graphicsStates,
+      _GraphicObjectDataCollection? objects,
+      double? currentPageHeight,
+      List<_Glyph>? glyphList) {
     glyphList = <_Glyph>[];
-    List<_TextElement> extractTextElement;
+    List<_TextElement>? extractTextElement;
     if (_objectType != null &&
         _objectType == 'Form' &&
         dictionary != null &&
         dictionary is _PdfStream) {
-      final _PdfStream stream = dictionary;
+      final _PdfStream stream = dictionary as _PdfStream;
       stream._decompress();
       final _ContentParser parser = _ContentParser(stream._dataStream);
-      final _PdfRecordCollection contentTree = parser._readContent();
+      final _PdfRecordCollection? contentTree = parser._readContent();
       final _PageResourceLoader resourceLoader = _PageResourceLoader();
       _PdfDictionary pageDictionary = _PdfDictionary();
-      final _PdfDictionary xobjects = dictionary;
+      final _PdfDictionary xobjects = dictionary!;
       _PdfPageResources childResource = _PdfPageResources();
       if (xobjects.containsKey(_DictionaryProperties.resources)) {
-        _IPdfPrimitive primitive = xobjects[_DictionaryProperties.resources];
+        _IPdfPrimitive? primitive = xobjects[_DictionaryProperties.resources];
         if (primitive is _PdfReferenceHolder) {
-          primitive = (primitive as _PdfReferenceHolder).object;
+          primitive = primitive.object;
           if (primitive != null && primitive is _PdfDictionary) {
             pageDictionary = primitive;
           }
@@ -82,66 +80,64 @@ class _XObjectElement {
       }
       _MatrixHelper xFormsMatrix = _MatrixHelper(1.0, 0.0, 0.0, 1.0, 0.0, 0.0);
       if (xobjects.containsKey(_DictionaryProperties.matrix)) {
-        final _IPdfPrimitive arrayReference =
+        final _IPdfPrimitive? arrayReference =
             xobjects[_DictionaryProperties.matrix];
         if (arrayReference is _PdfArray) {
           final _PdfArray matrixArray = arrayReference;
-          final double a = (matrixArray[0] as _PdfNumber).value.toDouble();
-          final double b = (matrixArray[1] as _PdfNumber).value.toDouble();
-          final double c = (matrixArray[2] as _PdfNumber).value.toDouble();
-          final double d = (matrixArray[3] as _PdfNumber).value.toDouble();
-          final double e = (matrixArray[4] as _PdfNumber).value.toDouble();
-          final double f = (matrixArray[5] as _PdfNumber).value.toDouble();
+          final double a = (matrixArray[0] as _PdfNumber).value!.toDouble();
+          final double b = (matrixArray[1] as _PdfNumber).value!.toDouble();
+          final double c = (matrixArray[2] as _PdfNumber).value!.toDouble();
+          final double d = (matrixArray[3] as _PdfNumber).value!.toDouble();
+          final double e = (matrixArray[4] as _PdfNumber).value!.toDouble();
+          final double f = (matrixArray[5] as _PdfNumber).value!.toDouble();
           xFormsMatrix = _MatrixHelper(a, b, c, d, e, f);
           if (e != 0 || f != 0) {
-            g._translateTransform(e, -f);
+            g!._translateTransform(e, -f);
           }
           if (a != 0 || d != 0) {
-            g._scaleTransform(a, d);
+            g!._scaleTransform(a, d);
           }
           //check for rotate transform
           final double degree = ((180 / pi) * acos(a)).round().toDouble();
           final double checkDegree = ((180 / pi) * asin(b)).round().toDouble();
           if (degree == checkDegree) {
-            g._rotateTransform(-degree);
+            g!._rotateTransform(-degree);
           } else {
             if (!checkDegree.isNaN) {
-              g._rotateTransform(-checkDegree);
+              g!._rotateTransform(-checkDegree);
             } else if (!degree.isNaN) {
-              g._rotateTransform(-degree);
+              g!._rotateTransform(-degree);
             }
           }
         }
       }
-      if (pageDictionary != null) {
-        final _ImageRenderer renderer =
-            _ImageRenderer(contentTree, childResource, currentPageHeight, g);
-        renderer._isExtractLineCollection = _isExtractTextLine;
-        renderer._objects = objects;
-        final _MatrixHelper parentMatrix =
-            objects.last.currentTransformationMatrix;
-        final _MatrixHelper newMatrix = xFormsMatrix * parentMatrix;
-        objects.last.drawing2dMatrixCTM = _MatrixHelper(
-            newMatrix.m11,
-            newMatrix.m12,
-            newMatrix.m21,
-            newMatrix.m22,
-            newMatrix.offsetX,
-            newMatrix.offsetY);
-        objects.last.currentTransformationMatrix = newMatrix;
-        renderer._selectablePrintDocument = _isPrintSelected;
-        renderer._pageHeight = _pageHeight;
-        renderer._isXGraphics = true;
-        renderer._renderAsImage();
-        renderer._isXGraphics = false;
-        while (renderer._xobjectGraphicsCount > 0) {
-          objects._pop();
-          renderer._xobjectGraphicsCount--;
-        }
-        glyphList = renderer.imageRenderGlyphList;
-        objects.last.currentTransformationMatrix = parentMatrix;
-        extractTextElement = renderer.extractTextElement;
+      final _ImageRenderer renderer =
+          _ImageRenderer(contentTree, childResource, currentPageHeight!, g);
+      renderer._isExtractLineCollection = _isExtractTextLine!;
+      renderer._objects = objects;
+      final _MatrixHelper parentMatrix =
+          objects!.last.currentTransformationMatrix!;
+      final _MatrixHelper newMatrix = xFormsMatrix * parentMatrix;
+      objects.last.drawing2dMatrixCTM = _MatrixHelper(
+          newMatrix.m11,
+          newMatrix.m12,
+          newMatrix.m21,
+          newMatrix.m22,
+          newMatrix.offsetX,
+          newMatrix.offsetY);
+      objects.last.currentTransformationMatrix = newMatrix;
+      renderer._selectablePrintDocument = _isPrintSelected;
+      renderer._pageHeight = _pageHeight;
+      renderer._isXGraphics = true;
+      renderer._renderAsImage();
+      renderer._isXGraphics = false;
+      while (renderer._xobjectGraphicsCount > 0) {
+        objects._pop();
+        renderer._xobjectGraphicsCount--;
       }
+      glyphList = renderer.imageRenderGlyphList;
+      objects.last.currentTransformationMatrix = parentMatrix;
+      extractTextElement = renderer.extractTextElement;
     }
     return {
       'graphicStates': graphicsStates,
@@ -192,20 +188,20 @@ String _unescape(String str) {
           }
           if (str[0] != '{') {
             final String str1 = str.substring(0, 4);
-            final int intValue = int.tryParse(str1, radix: 16);
+            final int? intValue = int.tryParse(str1, radix: 16);
             if (intValue == null || intValue < 0) {
               break;
             }
             str = str.substring(4);
             buffer.writeCharCode(intValue);
           } else {
-            final Match match = RegExp(r'{([a-zA-Z0-9]+)}').matchAsPrefix(str);
+            final Match? match = RegExp(r'{([a-zA-Z0-9]+)}').matchAsPrefix(str);
             if (match == null) {
               break;
             } else {
               str = str.substring(match.end);
-              final String str1 = match[1];
-              final int intValue = int.tryParse(str1, radix: 16);
+              final String str1 = match[1]!;
+              final int? intValue = int.tryParse(str1, radix: 16);
               if (intValue == null || intValue < 0) {
                 break;
               }
@@ -220,7 +216,7 @@ String _unescape(String str) {
           }
           final String subStr = str.substring(0, 2);
           str = str.substring(2);
-          final int intValue = int.tryParse(subStr, radix: 16);
+          final int? intValue = int.tryParse(subStr, radix: 16);
           if (intValue == null || intValue < 0) {
             break;
           }

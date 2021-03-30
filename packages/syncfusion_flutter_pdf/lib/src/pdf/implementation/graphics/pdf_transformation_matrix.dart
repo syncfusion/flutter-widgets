@@ -9,7 +9,7 @@ class _PdfTransformationMatrix {
   }
 
   //Fields
-  _Matrix _matrix;
+  late _Matrix _matrix;
 
   //Implementation
   void _translate(double offsetX, double offsetY) {
@@ -55,20 +55,16 @@ class _PdfTransformationMatrix {
 class _Matrix {
   // Constructor
   ///Initializes a new instance of the [_Matrix] class as the
-  _Matrix([List<double> elements]) {
-    if (elements == null) {
-      _elements = List<double>(6);
-    } else {
-      _elements = elements;
-    }
+  _Matrix(List<double> elements) {
+    _elements = elements;
   }
 
   //Fields
-  List<double> _elements;
+  late List<double> _elements;
 
   // Properties
-  double get _offsetX => _elements[4];
-  double get _offsetY => _elements[5];
+  double? get _offsetX => _elements[4];
+  double? get _offsetY => _elements[5];
 
   // Implementation
   void _translate(double offsetX, double offsetY) {
@@ -80,8 +76,8 @@ class _Matrix {
   _Point _transform(_Point point) {
     final double x = point.x;
     final double y = point.y;
-    final double x2 = x * _elements[0] + y * _elements[2] + _offsetX;
-    final double y2 = x * _elements[1] + y * _elements[3] + _offsetY;
+    final double x2 = x * _elements[0] + y * _elements[2] + _offsetX!;
+    final double y2 = x * _elements[1] + y * _elements[3] + _offsetY!;
     return _Point(x2, y2);
   }
 
@@ -91,7 +87,7 @@ class _Matrix {
   }
 
   void _multiply(_Matrix matrix) {
-    final List<double> tempMatrix = List<double>(6);
+    final List<double> tempMatrix = List<double>.filled(6, 0, growable: true);
     tempMatrix[0] = (_elements[0] * matrix._elements[0]) +
         (_elements[1] * matrix._elements[2]);
     tempMatrix[1] = (_elements[0] * matrix._elements[1]) +
@@ -100,10 +96,10 @@ class _Matrix {
         (_elements[3] * matrix._elements[2]);
     tempMatrix[3] = (_elements[2] * matrix._elements[1]) +
         (_elements[3] * matrix._elements[3]);
-    tempMatrix[4] = (_offsetX * matrix._elements[0]) +
-        (_offsetY * matrix._elements[2] + matrix._offsetX);
-    tempMatrix[5] = (_offsetX * matrix._elements[1]) +
-        (_offsetY * matrix._elements[3] + matrix._offsetY);
+    tempMatrix[4] = (_offsetX! * matrix._elements[0]) +
+        (_offsetY! * matrix._elements[2] + matrix._offsetX!);
+    tempMatrix[5] = (_offsetX! * matrix._elements[1]) +
+        (_offsetY! * matrix._elements[3] + matrix._offsetY!);
     for (int i = 0; i < tempMatrix.length; i++) {
       _elements[i] = tempMatrix[i];
     }

@@ -13,56 +13,50 @@ part of charts;
 class RangeColumnSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of RangeColumnSeries class.
   RangeColumnSeries(
-      {ValueKey<String> key,
-      ChartSeriesRendererFactory<T, D> onCreateRenderer,
-      @required List<T> dataSource,
-      @required ChartValueMapper<T, D> xValueMapper,
-      @required ChartValueMapper<T, num> highValueMapper,
-      @required ChartValueMapper<T, num> lowValueMapper,
-      ChartValueMapper<T, dynamic> sortFieldValueMapper,
-      ChartValueMapper<T, Color> pointColorMapper,
-      ChartValueMapper<T, String> dataLabelMapper,
-      SortingOrder sortingOrder,
+      {ValueKey<String>? key,
+      ChartSeriesRendererFactory<T, D>? onCreateRenderer,
+      required List<T> dataSource,
+      required ChartValueMapper<T, D> xValueMapper,
+      required ChartValueMapper<T, num> highValueMapper,
+      required ChartValueMapper<T, num> lowValueMapper,
+      ChartValueMapper<T, dynamic>? sortFieldValueMapper,
+      ChartValueMapper<T, Color>? pointColorMapper,
+      ChartValueMapper<T, String>? dataLabelMapper,
+      SortingOrder? sortingOrder,
       this.isTrackVisible = false,
-      String xAxisName,
-      String yAxisName,
-      String name,
-      Color color,
-      double width,
-      double spacing,
-      MarkerSettings markerSettings,
-      EmptyPointSettings emptyPointSettings,
-      DataLabelSettings dataLabelSettings,
-      bool isVisible,
-      LinearGradient gradient,
-      LinearGradient borderGradient,
-      BorderRadius borderRadius,
-      bool enableTooltip,
-      double animationDuration,
-      Color trackColor,
-      Color trackBorderColor,
-      double trackBorderWidth,
-      double trackPadding,
-      Color borderColor,
-      List<Trendline> trendlines,
-      double borderWidth,
+      String? xAxisName,
+      String? yAxisName,
+      String? name,
+      Color? color,
+      double? width,
+      this.spacing = 0,
+      MarkerSettings? markerSettings,
+      EmptyPointSettings? emptyPointSettings,
+      DataLabelSettings? dataLabelSettings,
+      bool? isVisible,
+      LinearGradient? gradient,
+      LinearGradient? borderGradient,
+      this.borderRadius = const BorderRadius.all(Radius.zero),
+      bool? enableTooltip,
+      double? animationDuration,
+      this.trackColor = Colors.grey,
+      this.trackBorderColor = Colors.transparent,
+      this.trackBorderWidth = 1,
+      this.trackPadding = 0,
+      Color? borderColor,
+      List<Trendline>? trendlines,
+      double? borderWidth,
       // ignore: deprecated_member_use_from_same_package
-      SelectionSettings selectionSettings,
-      SelectionBehavior selectionBehavior,
-      bool isVisibleInLegend,
-      LegendIconType legendIconType,
-      String legendItemText,
-      double opacity,
-      List<double> dashArray,
-      SeriesRendererCreatedCallback onRendererCreated,
-      List<int> initialSelectedDataIndexes})
-      : trackColor = trackColor ?? Colors.grey,
-        trackBorderColor = trackBorderColor ?? Colors.transparent,
-        trackBorderWidth = trackBorderWidth ?? 1,
-        trackPadding = trackPadding ?? 0,
-        spacing = spacing ?? 0,
-        borderRadius = borderRadius ?? const BorderRadius.all(Radius.zero),
-        super(
+      SelectionSettings? selectionSettings,
+      SelectionBehavior? selectionBehavior,
+      bool? isVisibleInLegend,
+      LegendIconType? legendIconType,
+      String? legendItemText,
+      double? opacity,
+      List<double>? dashArray,
+      SeriesRendererCreatedCallback? onRendererCreated,
+      List<int>? initialSelectedDataIndexes})
+      : super(
             key: key,
             onCreateRenderer: onCreateRenderer,
             name: name,
@@ -245,7 +239,7 @@ class RangeColumnSeries<T, D> extends XyDataSeries<T, D> {
   RangeColumnSeriesRenderer createRenderer(ChartSeries<T, D> series) {
     RangeColumnSeriesRenderer seriesRenderer;
     if (onCreateRenderer != null) {
-      seriesRenderer = onCreateRenderer(series);
+      seriesRenderer = onCreateRenderer!(series) as RangeColumnSeriesRenderer;
       assert(seriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return seriesRenderer;
@@ -260,54 +254,56 @@ class RangeColumnSeriesRenderer extends XyDataSeriesRenderer {
   RangeColumnSeriesRenderer();
 
   // Store the rect position //
-  num _rectPosition;
+  late num _rectPosition;
 
   // Store the rect count //
-  num _rectCount;
+  late num _rectCount;
 
   /// To add range column segments in segments list
   ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
-      int pointIndex, int seriesIndex, num animateFactor) {
+      int pointIndex, int seriesIndex, double animateFactor) {
     _isRectSeries = true;
     final RangeColumnSegment segment = createSegment();
-    final List<CartesianSeriesRenderer> oldSeriesRenderers =
-        _chartState._oldSeriesRenderers;
-    final RangeColumnSeries<dynamic, dynamic> _rangeColumnSeries = _series;
+    final List<CartesianSeriesRenderer>? oldSeriesRenderers =
+        _chartState!._oldSeriesRenderers;
+    final RangeColumnSeries<dynamic, dynamic> _rangeColumnSeries =
+        _series as RangeColumnSeries;
     final BorderRadius borderRadius = _rangeColumnSeries.borderRadius;
     segment._seriesIndex = seriesIndex;
     segment.currentSegmentIndex = pointIndex;
     segment.points
-        .add(Offset(currentPoint.markerPoint.x, currentPoint.markerPoint.y));
-    segment.points
-        .add(Offset(currentPoint.markerPoint2.x, currentPoint.markerPoint2.y));
+        .add(Offset(currentPoint.markerPoint!.x, currentPoint.markerPoint!.y));
+    segment.points.add(
+        Offset(currentPoint.markerPoint2!.x, currentPoint.markerPoint2!.y));
     segment._seriesRenderer = this;
     segment._series = _rangeColumnSeries;
     segment._chart = _chart;
-    segment._chartState = _chartState;
+    segment._chartState = _chartState!;
     segment.animationFactor = animateFactor;
     segment._currentPoint = currentPoint;
-    if (_chartState._widgetNeedUpdate &&
-        _chartState._zoomPanBehaviorRenderer._isPinching != true &&
-        !_chartState._isLegendToggled &&
+    if (_chartState!._widgetNeedUpdate &&
+        _chartState!._zoomPanBehaviorRenderer._isPinching != true &&
+        !_chartState!._isLegendToggled &&
         oldSeriesRenderers != null &&
         oldSeriesRenderers.isNotEmpty &&
         oldSeriesRenderers.length - 1 >= segment._seriesIndex &&
         oldSeriesRenderers[segment._seriesIndex]._seriesName ==
             segment._seriesRenderer._seriesName) {
       segment._oldSeriesRenderer = oldSeriesRenderers[segment._seriesIndex];
-      segment._oldPoint = (segment._oldSeriesRenderer._segments.isNotEmpty &&
-              segment._oldSeriesRenderer._segments[0] is RangeColumnSegment &&
-              segment._oldSeriesRenderer._dataPoints.length - 1 >= pointIndex)
-          ? segment._oldSeriesRenderer._dataPoints[pointIndex]
+      segment._oldPoint = (segment._oldSeriesRenderer!._segments.isNotEmpty &&
+              segment._oldSeriesRenderer!._segments[0] is RangeColumnSegment &&
+              segment._oldSeriesRenderer!._dataPoints.length - 1 >= pointIndex)
+          ? segment._oldSeriesRenderer!._dataPoints[pointIndex]
           : null;
-    } else if (_chartState._isLegendToggled &&
-        _chartState._segments != null &&
-        _chartState._segments.isNotEmpty) {
+      segment._oldSegmentIndex = _getOldSegmentIndex(segment);
+    } else if (_chartState!._isLegendToggled &&
+        _chartState!._segments != null &&
+        _chartState!._segments.isNotEmpty) {
       segment._oldSeriesVisible =
-          _chartState._oldSeriesVisible[segment._seriesIndex];
+          _chartState!._oldSeriesVisible[segment._seriesIndex];
       RangeColumnSegment oldSegment;
-      for (int i = 0; i < _chartState._segments.length; i++) {
-        oldSegment = _chartState._segments[i];
+      for (int i = 0; i < _chartState!._segments.length; i++) {
+        oldSegment = _chartState!._segments[i] as RangeColumnSegment;
         if (oldSegment.currentSegmentIndex == segment.currentSegmentIndex &&
             oldSegment._seriesIndex == segment._seriesIndex) {
           segment._oldRegion = oldSegment.segmentRect.outerRect;
@@ -318,12 +314,12 @@ class RangeColumnSeriesRenderer extends XyDataSeriesRenderer {
         currentPoint, _rangeColumnSeries.borderWidth);
     if (borderRadius != null) {
       segment.segmentRect =
-          _getRRectFromRect(currentPoint.region, borderRadius);
+          _getRRectFromRect(currentPoint.region!, borderRadius);
 
       //Tracker rect
       if (_rangeColumnSeries.isTrackVisible) {
         segment._trackRect =
-            _getRRectFromRect(currentPoint.trackerRectRegion, borderRadius);
+            _getRRectFromRect(currentPoint.trackerRectRegion!, borderRadius);
       }
     }
     segment._segmentRect = segment.segmentRect;
@@ -336,22 +332,22 @@ class RangeColumnSeriesRenderer extends XyDataSeriesRenderer {
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     if (segment._seriesRenderer._isSelectionEnable) {
-      final SelectionBehaviorRenderer selectionBehaviorRenderer =
+      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
           segment._seriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer._selectionRenderer._checkWithSelectionState(
-          _segments[segment.currentSegmentIndex], _chart);
+      selectionBehaviorRenderer?._selectionRenderer?._checkWithSelectionState(
+          _segments[segment.currentSegmentIndex!], _chart);
     }
     segment.onPaint(canvas);
   }
 
   /// Creates a segment for a data point in the series.
   @override
-  ChartSegment createSegment() => RangeColumnSegment();
+  RangeColumnSegment createSegment() => RangeColumnSegment();
 
   /// Changes the series color, border color, and border width.
   @override
   void customizeSegment(ChartSegment segment) {
-    final RangeColumnSegment rangeColumnSegment = segment;
+    final RangeColumnSegment rangeColumnSegment = segment as RangeColumnSegment;
     rangeColumnSegment._color = segment._seriesRenderer._seriesColor;
     rangeColumnSegment._strokeColor = segment._series.borderColor;
     rangeColumnSegment._strokeWidth = segment._series.borderWidth;
@@ -367,11 +363,11 @@ class RangeColumnSeriesRenderer extends XyDataSeriesRenderer {
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer seriesRenderer]) {
-    canvas.drawPath(seriesRenderer._markerShapes[index], fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes2[index], fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes[index], strokePaint);
-    canvas.drawPath(seriesRenderer._markerShapes2[index], strokePaint);
+      [CartesianSeriesRenderer? seriesRenderer]) {
+    canvas.drawPath(seriesRenderer!._markerShapes[index]!, fillPaint);
+    canvas.drawPath(seriesRenderer._markerShapes2[index]!, fillPaint);
+    canvas.drawPath(seriesRenderer._markerShapes[index]!, strokePaint);
+    canvas.drawPath(seriesRenderer._markerShapes2[index]!, strokePaint);
   }
 
   /// Draws data label text of the appropriate data point in a series.

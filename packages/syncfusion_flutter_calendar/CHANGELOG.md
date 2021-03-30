@@ -1,4 +1,38 @@
-## [13.4.30]
+## [Unreleased version]
+** Bug fixes**
+* Now, the localization is working properly for the spanned appointment count text in Flutter event calendar.
+
+**Features**
+* Provided the LoadMore support for the event calendar.
+* Provided the negative values support for BYSETPOS in recurrence to display the appointment in the last and second last week of a month.
+* Provided the support for the month header format in the Flutter event calendar.
+* Provided the support for Getting appointments between the start and end dates in the Flutter event calendar.
+* Provided the current time indicator support for timeslot views.
+* Provided the support for enabling and disabling the swiping interaction in the Flutter event calendar.
+* Provided the support for the selected date changed callback in the Flutter event calendar.
+* Improved the timeline views disabled slots appearance in the Flutter event calendar.
+
+**Breaking changes**
+* The `startTime` and `endTime` properties of the `Appointment` class are now marked as required.
+* The `startTime` property of the `RecurrenceProperties` class is now marked as required.
+* The `startTime` and `endTime` properties of the `TimeRegion` class are now marked as required.
+
+## [18.4.34] - 01/12/2021
+**Bug fixes**
+* Now, the date range picker layouting properly in the calendar header, when the `showDatePickerButton` property enabled.
+
+## [18.4.33] - 01/05/2021
+No changes.
+
+## [18.4.32] - 12/30/2020
+No changes.
+
+## [18.4.31] - 12/22/2020
+**Bug fixes**
+* Now, the month view changes properly by date range picker when placing `SfCalendar` in `WillPopUp` widget.
+* Now, the appointments are sorting properly in the month cells of `SfCalendar`.
+
+## [18.4.30] - 12/17/2020
 **Features**
 * The custom builder support is provided for the time region and the appointment views in the calendar.
 * Provided the interaction support for the resource header. 
@@ -7,6 +41,8 @@
 **Enhancements**
 * The animation for view switching, selection ripple effect, and header picker pop-up animation is improved.
 
+**Breaking changes**
+* Now, the display date that does not contain an appointment will show the text as `No events`.
 
 ## [18.3.50] - 11/17/2020
 **Bug fixes**
@@ -105,7 +141,7 @@ No changes.
 ## [18.1.55-beta] - 06/03/2020
 
 **Bug fixes**
-* Now, the month cell dates are aligned properly with the Flutter latest beta channel. 
+* Now, the month cell dates are aligned properly with the Flutter latest beta channel.
 
 ## [18.1.52-beta] - 05/14/2020
 

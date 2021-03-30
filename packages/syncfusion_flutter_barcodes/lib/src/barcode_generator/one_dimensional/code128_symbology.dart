@@ -18,7 +18,7 @@ class Code128 extends Symbology {
   /// This is a very large method. This method could be
   /// refactor to a smaller methods, but it degrades the performance.Since it
   /// adds the character corresponding to this symbology is added in to the list
-  Code128({int module})
+  Code128({int? module})
       : super(
           module: module,
         );

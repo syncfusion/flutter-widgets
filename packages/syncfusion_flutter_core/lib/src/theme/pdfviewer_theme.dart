@@ -22,7 +22,7 @@ import '../../theme.dart';
 /// ```
 class SfPdfViewerTheme extends InheritedTheme {
   /// Creates an argument constructor of [SfPdfViewerTheme] class.
-  const SfPdfViewerTheme({Key key, this.data, this.child})
+  const SfPdfViewerTheme({Key? key, required this.data, required this.child})
       : super(key: key, child: child);
 
   /// Specifies the color and typography values for descendant [SfPdfViewer] widgets.
@@ -68,8 +68,8 @@ class SfPdfViewerTheme extends InheritedTheme {
   /// Defaults to [SfThemeData.pdfViewerThemeData] if there is no [SfPdfViewerTheme]
   /// in the given build context.
   ///
-  static SfPdfViewerThemeData of(BuildContext context) {
-    final SfPdfViewerTheme pdfViewerTheme =
+  static SfPdfViewerThemeData? of(BuildContext context) {
+    final SfPdfViewerTheme? pdfViewerTheme =
         context.dependOnInheritedWidgetOfExactType<SfPdfViewerTheme>();
     return pdfViewerTheme?.data ?? SfTheme.of(context).pdfViewerThemeData;
   }
@@ -79,7 +79,7 @@ class SfPdfViewerTheme extends InheritedTheme {
 
   @override
   Widget wrap(BuildContext context, Widget child) {
-    final SfPdfViewerTheme ancestorTheme =
+    final SfPdfViewerTheme? ancestorTheme =
         context.findAncestorWidgetOfExactType<SfPdfViewerTheme>();
     return identical(this, ancestorTheme)
         ? child
@@ -109,13 +109,13 @@ class SfPdfViewerTheme extends InheritedTheme {
 class SfPdfViewerThemeData with Diagnosticable {
   /// Creating an argument constructor of SfPdfViewerThemeData class.
   factory SfPdfViewerThemeData(
-      {Brightness brightness,
-      Color backgroundColor,
-      Color progressBarColor,
-      PdfScrollStatusStyle scrollStatusStyle,
-      PdfScrollHeadStyle scrollHeadStyle,
-      PdfBookmarkViewStyle bookmarkViewStyle,
-      PdfPaginationDialogStyle paginationDialogStyle}) {
+      {Brightness? brightness,
+      Color? backgroundColor,
+      Color? progressBarColor,
+      PdfScrollStatusStyle? scrollStatusStyle,
+      PdfScrollHeadStyle? scrollHeadStyle,
+      PdfBookmarkViewStyle? bookmarkViewStyle,
+      PdfPaginationDialogStyle? paginationDialogStyle}) {
     brightness = brightness ?? Brightness.light;
     final bool isLight = brightness == Brightness.light;
     backgroundColor ??= isLight ? Color(0xFFD6D6D6) : Color(0xFF303030);
@@ -246,13 +246,13 @@ class SfPdfViewerThemeData with Diagnosticable {
   /// [SfPdfViewerThemeData] constructor.
   ///
   const SfPdfViewerThemeData.raw({
-    @required this.brightness,
-    @required this.backgroundColor,
-    @required this.progressBarColor,
-    @required this.scrollStatusStyle,
-    @required this.scrollHeadStyle,
-    @required this.bookmarkViewStyle,
-    @required this.paginationDialogStyle,
+    required this.brightness,
+    required this.backgroundColor,
+    required this.progressBarColor,
+    required this.scrollStatusStyle,
+    required this.scrollHeadStyle,
+    required this.bookmarkViewStyle,
+    required this.paginationDialogStyle,
   });
 
   /// The brightness of the overall theme of the
@@ -326,7 +326,7 @@ class SfPdfViewerThemeData with Diagnosticable {
   ///   );
   /// }
   ///```
-  final Color progressBarColor;
+  final Color? progressBarColor;
 
   /// Specifies the scroll status style of [SfPdfViewer] widget.
   ///
@@ -444,13 +444,13 @@ class SfPdfViewerThemeData with Diagnosticable {
   /// Creates a copy of this [SfPdfViewer] theme data object with the matching fields
   /// replaced with the non-null parameter values.
   SfPdfViewerThemeData copyWith(
-      {Brightness brightness,
-      Color backgroundColor,
-      Color progressBarColor,
-      PdfScrollStatusStyle scrollStatusStyle,
-      PdfScrollHeadStyle scrollHeadStyle,
-      PdfBookmarkViewStyle bookmarkViewStyle,
-      PdfPaginationDialogStyle paginationDialogStyle}) {
+      {Brightness? brightness,
+      Color? backgroundColor,
+      Color? progressBarColor,
+      PdfScrollStatusStyle? scrollStatusStyle,
+      PdfScrollHeadStyle? scrollHeadStyle,
+      PdfBookmarkViewStyle? bookmarkViewStyle,
+      PdfPaginationDialogStyle? paginationDialogStyle}) {
     return SfPdfViewerThemeData.raw(
         brightness: brightness ?? this.brightness,
         backgroundColor: backgroundColor ?? this.backgroundColor,
@@ -463,14 +463,13 @@ class SfPdfViewerThemeData with Diagnosticable {
   }
 
   /// Linearly interpolate between two themes.
-  static SfPdfViewerThemeData lerp(
-      SfPdfViewerThemeData a, SfPdfViewerThemeData b, double t) {
-    assert(t != null);
+  static SfPdfViewerThemeData? lerp(
+      SfPdfViewerThemeData? a, SfPdfViewerThemeData? b, double t) {
     if (a == null && b == null) {
       return null;
     }
     return SfPdfViewerThemeData(
-        backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
+        backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
         progressBarColor: Color.lerp(a.progressBarColor, b.progressBarColor, t),
         scrollStatusStyle: PdfScrollStatusStyle.lerp(
             a.scrollStatusStyle, b.scrollStatusStyle, t),
@@ -490,19 +489,20 @@ class SfPdfViewerThemeData with Diagnosticable {
     if (other.runtimeType != runtimeType) {
       return false;
     }
-    final SfPdfViewerThemeData typedOther = other;
-    return typedOther.brightness == brightness &&
-        typedOther.backgroundColor == backgroundColor &&
-        typedOther.progressBarColor == progressBarColor &&
-        typedOther.scrollStatusStyle == scrollStatusStyle &&
-        typedOther.scrollHeadStyle == scrollHeadStyle &&
-        typedOther.bookmarkViewStyle == bookmarkViewStyle &&
-        typedOther.paginationDialogStyle == paginationDialogStyle;
+
+    return other is SfPdfViewerThemeData &&
+        other.brightness == brightness &&
+        other.backgroundColor == backgroundColor &&
+        other.progressBarColor == progressBarColor &&
+        other.scrollStatusStyle == scrollStatusStyle &&
+        other.scrollHeadStyle == scrollHeadStyle &&
+        other.bookmarkViewStyle == bookmarkViewStyle &&
+        other.paginationDialogStyle == paginationDialogStyle;
   }
 
   @override
   int get hashCode {
-    final List<Object> values = <Object>[
+    final List<Object?> values = <Object?>[
       backgroundColor,
       progressBarColor,
       scrollStatusStyle,
@@ -545,14 +545,14 @@ class PdfScrollStatusStyle {
   const PdfScrollStatusStyle({this.backgroundColor, this.pageInfoTextStyle});
 
   /// The background color of scroll status in [SfPdfViewer].
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   /// The style for the page information text of scroll status in [SfPdfViewer].
-  final TextStyle pageInfoTextStyle;
+  final TextStyle? pageInfoTextStyle;
 
   @override
   int get hashCode {
-    final List<Object> values = <Object>[backgroundColor, pageInfoTextStyle];
+    final List<Object?> values = <Object?>[backgroundColor, pageInfoTextStyle];
     return hashList(values);
   }
 
@@ -570,14 +570,13 @@ class PdfScrollStatusStyle {
   }
 
   /// Linearly interpolate between two styles.
-  static PdfScrollStatusStyle lerp(
-      PdfScrollStatusStyle a, PdfScrollStatusStyle b, double t) {
-    assert(t != null);
+  static PdfScrollStatusStyle? lerp(
+      PdfScrollStatusStyle? a, PdfScrollStatusStyle? b, double t) {
     if (a == null && b == null) {
       return null;
     }
     return PdfScrollStatusStyle(
-        backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
+        backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
         pageInfoTextStyle:
             TextStyle.lerp(a.pageInfoTextStyle, b.pageInfoTextStyle, t));
   }
@@ -590,14 +589,17 @@ class PdfScrollHeadStyle {
   const PdfScrollHeadStyle({this.backgroundColor, this.pageNumberTextStyle});
 
   /// The background color of scroll head in [SfPdfViewer].
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   /// The style for the page number text of scroll head in [SfPdfViewer].
-  final TextStyle pageNumberTextStyle;
+  final TextStyle? pageNumberTextStyle;
 
   @override
   int get hashCode {
-    final List<Object> values = <Object>[backgroundColor, pageNumberTextStyle];
+    final List<Object?> values = <Object?>[
+      backgroundColor,
+      pageNumberTextStyle
+    ];
     return hashList(values);
   }
 
@@ -615,14 +617,13 @@ class PdfScrollHeadStyle {
   }
 
   /// Linearly interpolate between two styles.
-  static PdfScrollHeadStyle lerp(
-      PdfScrollHeadStyle a, PdfScrollHeadStyle b, double t) {
-    assert(t != null);
+  static PdfScrollHeadStyle? lerp(
+      PdfScrollHeadStyle? a, PdfScrollHeadStyle? b, double t) {
     if (a == null && b == null) {
       return null;
     }
     return PdfScrollHeadStyle(
-        backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
+        backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
         pageNumberTextStyle:
             TextStyle.lerp(a.pageNumberTextStyle, b.pageNumberTextStyle, t));
   }
@@ -644,35 +645,35 @@ class PdfBookmarkViewStyle {
       this.headerTextStyle});
 
   /// The background color of bookmark view in [SfPdfViewer].
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   /// The header bar color of bookmark view in [SfPdfViewer].
-  final Color headerBarColor;
+  final Color? headerBarColor;
 
   /// The close icon color of bookmark view in [SfPdfViewer].
-  final Color closeIconColor;
+  final Color? closeIconColor;
 
   /// The back icon color of bookmark view in [SfPdfViewer].
-  final Color backIconColor;
+  final Color? backIconColor;
 
   /// The navigation icon color of bookmark view in [SfPdfViewer].
-  final Color navigationIconColor;
+  final Color? navigationIconColor;
 
   /// The selection color of bookmark item in [SfPdfViewer].
-  final Color selectionColor;
+  final Color? selectionColor;
 
   /// The separator color of bookmark item title in [SfPdfViewer].
-  final Color titleSeparatorColor;
+  final Color? titleSeparatorColor;
 
   /// The style for the title text of bookmark items in [SfPdfViewer].
-  final TextStyle titleTextStyle;
+  final TextStyle? titleTextStyle;
 
   /// The style for the header text of bookmark in [SfPdfViewer].
-  final TextStyle headerTextStyle;
+  final TextStyle? headerTextStyle;
 
   @override
   int get hashCode {
-    final List<Object> values = <Object>[
+    final List<Object?> values = <Object?>[
       backgroundColor,
       headerBarColor,
       closeIconColor,
@@ -707,14 +708,13 @@ class PdfBookmarkViewStyle {
   }
 
   /// Linearly interpolate between two styles.
-  static PdfBookmarkViewStyle lerp(
-      PdfBookmarkViewStyle a, PdfBookmarkViewStyle b, double t) {
-    assert(t != null);
+  static PdfBookmarkViewStyle? lerp(
+      PdfBookmarkViewStyle? a, PdfBookmarkViewStyle? b, double t) {
     if (a == null && b == null) {
       return null;
     }
     return PdfBookmarkViewStyle(
-        backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
+        backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
         headerBarColor: Color.lerp(a.headerBarColor, b.headerBarColor, t),
         closeIconColor: Color.lerp(a.closeIconColor, b.closeIconColor, t),
         backIconColor: Color.lerp(a.backIconColor, b.backIconColor, t),
@@ -744,32 +744,32 @@ class PdfPaginationDialogStyle {
       this.cancelTextStyle});
 
   /// The background color of pagination dialog in [SfPdfViewer].
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   /// The style for the header text of pagination dialog in [SfPdfViewer].
-  final TextStyle headerTextStyle;
+  final TextStyle? headerTextStyle;
 
   /// The style for the input text field of pagination dialog in [SfPdfViewer].
-  final TextStyle inputFieldTextStyle;
+  final TextStyle? inputFieldTextStyle;
 
   /// The style for the hint text of pagination dialog text field in [SfPdfViewer].
-  final TextStyle hintTextStyle;
+  final TextStyle? hintTextStyle;
 
   /// The style for the page information text of pagination dialog in [SfPdfViewer].
-  final TextStyle pageInfoTextStyle;
+  final TextStyle? pageInfoTextStyle;
 
   /// The style for the validation text of pagination dialog in [SfPdfViewer].
-  final TextStyle validationTextStyle;
+  final TextStyle? validationTextStyle;
 
   /// The style for the Ok button text of pagination dialog in [SfPdfViewer].
-  final TextStyle okTextStyle;
+  final TextStyle? okTextStyle;
 
   /// The style for the Cancel button of pagination dialog in [SfPdfViewer].
-  final TextStyle cancelTextStyle;
+  final TextStyle? cancelTextStyle;
 
   @override
   int get hashCode {
-    final List<Object> values = <Object>[
+    final List<Object?> values = <Object?>[
       backgroundColor,
       headerTextStyle,
       inputFieldTextStyle,
@@ -802,14 +802,13 @@ class PdfPaginationDialogStyle {
   }
 
   /// Linearly interpolate between two styles.
-  static PdfPaginationDialogStyle lerp(
-      PdfPaginationDialogStyle a, PdfPaginationDialogStyle b, double t) {
-    assert(t != null);
+  static PdfPaginationDialogStyle? lerp(
+      PdfPaginationDialogStyle? a, PdfPaginationDialogStyle? b, double t) {
     if (a == null && b == null) {
       return null;
     }
     return PdfPaginationDialogStyle(
-        backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
+        backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
         headerTextStyle:
             TextStyle.lerp(a.headerTextStyle, b.headerTextStyle, t),
         inputFieldTextStyle:

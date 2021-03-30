@@ -2,7 +2,7 @@ part of charts;
 
 /// This class holds the properties of the Box and Whisker series.
 ///
-/// To render a Box and Whisker chart, create an instance of [BoxAndWhiskerSeries], and add it to the [series] collection property of [SfCartesianChart].
+/// To render a Box and Whisker chart, create an instance of [BoxAndWhiskerSeries], and add it to the `series` collection property of [SfCartesianChart].
 /// The Box and Whisker chart represents the hollow rectangle with the lower quartile, upper quartile, maximum and minimum value in the given data.
 ///
 /// Provides options for color, opacity, border color, and border width
@@ -11,46 +11,43 @@ part of charts;
 class BoxAndWhiskerSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of BoxAndWhiskerSeries class.
   BoxAndWhiskerSeries(
-      {ValueKey<String> key,
-      ChartSeriesRendererFactory<T, D> onCreateRenderer,
-      @required List<T> dataSource,
-      @required ChartValueMapper<T, D> xValueMapper,
-      @required ChartValueMapper<T, dynamic> yValueMapper,
-      ChartValueMapper<T, dynamic> sortFieldValueMapper,
-      ChartValueMapper<T, Color> pointColorMapper,
-      ChartValueMapper<T, String> dataLabelMapper,
-      SortingOrder sortingOrder,
-      String xAxisName,
-      String yAxisName,
-      String name,
-      Color color,
-      double width,
-      double spacing,
-      MarkerSettings markerSettings,
-      DataLabelSettings dataLabelSettings,
-      bool isVisible,
-      bool enableTooltip,
-      double animationDuration,
-      Color borderColor,
-      double borderWidth,
-      LinearGradient gradient,
-      LinearGradient borderGradient,
+      {ValueKey<String>? key,
+      ChartSeriesRendererFactory<T, D>? onCreateRenderer,
+      required List<T> dataSource,
+      required ChartValueMapper<T, D> xValueMapper,
+      required ChartValueMapper<T, dynamic> yValueMapper,
+      ChartValueMapper<T, dynamic>? sortFieldValueMapper,
+      ChartValueMapper<T, Color>? pointColorMapper,
+      ChartValueMapper<T, String>? dataLabelMapper,
+      SortingOrder? sortingOrder,
+      String? xAxisName,
+      String? yAxisName,
+      String? name,
+      Color? color,
+      double? width,
+      this.spacing = 0,
+      MarkerSettings? markerSettings,
+      DataLabelSettings? dataLabelSettings,
+      bool? isVisible,
+      bool? enableTooltip,
+      double? animationDuration,
+      Color? borderColor,
+      double? borderWidth,
+      LinearGradient? gradient,
+      LinearGradient? borderGradient,
       // ignore: deprecated_member_use_from_same_package
-      SelectionSettings selectionSettings,
-      SelectionBehavior selectionBehavior,
-      bool isVisibleInLegend,
-      LegendIconType legendIconType,
-      String legendItemText,
-      List<double> dashArray,
-      double opacity,
-      SeriesRendererCreatedCallback onRendererCreated,
-      List<Trendline> trendlines,
-      BoxPlotMode boxPlotMode,
-      bool showMean})
-      : spacing = spacing ?? 0,
-        boxPlotMode = boxPlotMode ?? BoxPlotMode.normal,
-        showMean = showMean ?? true,
-        super(
+      SelectionSettings? selectionSettings,
+      SelectionBehavior? selectionBehavior,
+      bool? isVisibleInLegend,
+      LegendIconType? legendIconType,
+      String? legendItemText,
+      List<double>? dashArray,
+      double? opacity,
+      SeriesRendererCreatedCallback? onRendererCreated,
+      List<Trendline>? trendlines,
+      this.boxPlotMode = BoxPlotMode.normal,
+      this.showMean = true})
+      : super(
             key: key,
             onCreateRenderer: onCreateRenderer,
             name: name,
@@ -169,7 +166,7 @@ class BoxAndWhiskerSeries<T, D> extends XyDataSeries<T, D> {
   BoxAndWhiskerSeriesRenderer createRenderer(ChartSeries<T, D> series) {
     BoxAndWhiskerSeriesRenderer seriesRenderer;
     if (onCreateRenderer != null) {
-      seriesRenderer = onCreateRenderer(series);
+      seriesRenderer = onCreateRenderer!(series) as BoxAndWhiskerSeriesRenderer;
       assert(seriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return seriesRenderer;
@@ -183,20 +180,20 @@ class _BoxPlotQuartileValues {
       {this.minimum,
       this.maximum,
       //ignore: unused_element
-      List<num> outliers,
+      List<num>? outliers,
       this.upperQuartile,
       this.lowerQuartile,
       this.average,
       this.median,
       this.mean});
-  num minimum;
-  num maximum;
-  List<num> outliers = <num>[];
-  num upperQuartile;
-  num lowerQuartile;
-  num average;
-  num median;
-  num mean;
+  num? minimum;
+  num? maximum;
+  List<num>? outliers = <num>[];
+  double? upperQuartile;
+  double? lowerQuartile;
+  num? average;
+  num? median;
+  num? mean;
 }
 
 /// Creates series renderer for Box and Whisker series
@@ -204,24 +201,24 @@ class BoxAndWhiskerSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of BoxAndWhiskerSeriesRenderer class.
   BoxAndWhiskerSeriesRenderer();
 
-  num _rectPosition;
+  late num _rectPosition;
 
-  num _rectCount;
+  late num _rectCount;
 
-  BoxAndWhiskerSegment _segment;
+  late BoxAndWhiskerSegment _segment;
 
-  List<CartesianSeriesRenderer> _oldSeriesRenderers;
+  List<CartesianSeriesRenderer>? _oldSeriesRenderers;
 
-  _BoxPlotQuartileValues _boxPlotQuartileValues;
+  late _BoxPlotQuartileValues _boxPlotQuartileValues;
 
   /// To find the minimum, maximum, quartile and median value
   /// of a box plot series.
-  void _findBoxPlotValues(
-      List<num> yValues, CartesianChartPoint<dynamic> point, BoxPlotMode mode) {
-    final num yCount = yValues.length;
+  void _findBoxPlotValues(List<num?> yValues,
+      CartesianChartPoint<dynamic> point, BoxPlotMode mode) {
+    final int yCount = yValues.length;
     _boxPlotQuartileValues = _BoxPlotQuartileValues();
     _boxPlotQuartileValues.average =
-        (yValues.fold(0, (x, y) => x + y)) / yCount;
+        (yValues.fold(0, (num x, y) => (x.toDouble()) + y!)) / yCount;
     if (mode == BoxPlotMode.exclusive) {
       _boxPlotQuartileValues.lowerQuartile =
           _getExclusiveQuartileValue(yValues, yCount, 0.25);
@@ -251,49 +248,54 @@ class BoxAndWhiskerSeriesRenderer extends XyDataSeriesRenderer {
   }
 
   /// To find exclusive quartile values.
-  num _getExclusiveQuartileValue(List<num> yValues, num count, num percentile) {
+  double _getExclusiveQuartileValue(
+      List<num?> yValues, int count, num percentile) {
     if (count == 0) {
       return 0;
     } else if (count == 1) {
-      return yValues[0];
+      return yValues[0]!.toDouble();
     }
     num value = 0;
     final num rank = percentile * (count + 1);
-    final num integerRank = (rank.abs()).floor();
+    final int integerRank = (rank.abs()).floor();
     final num fractionRank = rank - integerRank;
     if (integerRank == 0) {
-      value = yValues[0];
+      value = yValues[0]!;
     } else if (integerRank > count - 1) {
-      value = yValues[count - 1];
+      value = yValues[count - 1]!;
     } else {
-      value = fractionRank * (yValues[integerRank] - yValues[integerRank - 1]) +
-          yValues[integerRank - 1];
+      value =
+          fractionRank * (yValues[integerRank]! - yValues[integerRank - 1]!) +
+              yValues[integerRank - 1]!;
     }
-    return value;
+    return value.toDouble();
   }
 
   /// To find inclusive quartile values.
-  num _getInclusiveQuartileValue(List<num> yValues, num count, num percentile) {
+  double _getInclusiveQuartileValue(
+      List<num?> yValues, int count, num percentile) {
     if (count == 0) {
       return 0;
     } else if (count == 1) {
-      return yValues[0];
+      return yValues[0]!.toDouble();
     }
     num value = 0;
     final num rank = percentile * (count - 1);
-    final num integerRank = (rank.abs()).floor();
+    final int integerRank = (rank.abs()).floor();
     final num fractionRank = rank - integerRank;
-    value = fractionRank * (yValues[integerRank + 1] - yValues[integerRank]) +
-        yValues[integerRank];
-    return value;
+    value =
+        (fractionRank * (yValues[integerRank + 1]! - yValues[integerRank]!) +
+            yValues[integerRank]!);
+    return value.toDouble();
   }
 
   /// To find a midian value of each box plot point.
-  num _getMedian(List<num> values) {
-    final num half = (values.length / 2).floor();
-    return values.length % 2 != 0
-        ? values[half]
-        : ((values[half - 1] + values[half]) / 2.0);
+  double _getMedian(List<num?> values) {
+    final int half = (values.length / 2).floor();
+    return (values.length % 2 != 0
+            ? values[half]!
+            : ((values[half - 1]! + values[half]!) / 2.0))
+        .toDouble();
   }
 
   /// To get the quartile values.
@@ -306,30 +308,30 @@ class BoxAndWhiskerSeriesRenderer extends XyDataSeriesRenderer {
     }
     final bool isEvenList = count % 2 == 0;
     final num halfLength = count ~/ 2;
-    final List<num> lowerQuartileArray = yValues.sublist(0, halfLength);
-    final List<num> upperQuartileArray =
+    final List<num?> lowerQuartileArray = yValues.sublist(0, halfLength);
+    final List<num?> upperQuartileArray =
         yValues.sublist(isEvenList ? halfLength : halfLength + 1, count);
     _boxPlotQuartileValues.lowerQuartile = _getMedian(lowerQuartileArray);
     _boxPlotQuartileValues.upperQuartile = _getMedian(upperQuartileArray);
   }
 
   /// To get the outliers values of box plot series.
-  void _getMinMaxOutlier(List<num> yValues, num count,
+  void _getMinMaxOutlier(List<num?> yValues, int count,
       _BoxPlotQuartileValues _boxPlotQuartileValues) {
-    final num interquartile = _boxPlotQuartileValues.upperQuartile -
-        _boxPlotQuartileValues.lowerQuartile;
+    final double interquartile = _boxPlotQuartileValues.upperQuartile! -
+        _boxPlotQuartileValues.lowerQuartile!;
     final num rangeIQR = 1.5 * interquartile;
     for (int i = 0; i < count; i++) {
-      if (yValues[i] < _boxPlotQuartileValues.lowerQuartile - rangeIQR) {
-        _boxPlotQuartileValues.outliers.add(yValues[i]);
+      if (yValues[i]! < _boxPlotQuartileValues.lowerQuartile! - rangeIQR) {
+        _boxPlotQuartileValues.outliers!.add(yValues[i]!);
       } else {
         _boxPlotQuartileValues.minimum = yValues[i];
         break;
       }
     }
     for (int i = count - 1; i >= 0; i--) {
-      if (yValues[i] > _boxPlotQuartileValues.upperQuartile + rangeIQR) {
-        _boxPlotQuartileValues.outliers.add(yValues[i]);
+      if (yValues[i]! > _boxPlotQuartileValues.upperQuartile! + rangeIQR) {
+        _boxPlotQuartileValues.outliers!.add(yValues[i]!);
       } else {
         _boxPlotQuartileValues.maximum = yValues[i];
         break;
@@ -339,53 +341,51 @@ class BoxAndWhiskerSeriesRenderer extends XyDataSeriesRenderer {
 
   /// Range box plot _segment is created here
   ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
-      int pointIndex, int seriesIndex, num animateFactor) {
+      int pointIndex, int seriesIndex, double animateFactor) {
     _segment = createSegment();
-    _oldSeriesRenderers = _chartState._oldSeriesRenderers;
+    _oldSeriesRenderers = _chartState!._oldSeriesRenderers;
     _isRectSeries = false;
-    if (_segment != null) {
-      _segment._seriesIndex = seriesIndex;
-      _segment.currentSegmentIndex = pointIndex;
-      _segment._seriesRenderer = this;
-      _segment._series = _series;
-      _segment.animationFactor = animateFactor;
-      _segment._pointColorMapper = currentPoint.pointColorMapper;
-      _segment._currentPoint = currentPoint;
-      if (_chartState._widgetNeedUpdate &&
-          !_chartState._isLegendToggled &&
-          _oldSeriesRenderers != null &&
-          _oldSeriesRenderers.isNotEmpty &&
-          _oldSeriesRenderers.length - 1 >= _segment._seriesIndex &&
-          _oldSeriesRenderers[_segment._seriesIndex]._seriesName ==
-              _segment._seriesRenderer._seriesName) {
-        _segment._oldSeriesRenderer =
-            _oldSeriesRenderers[_segment._seriesIndex];
-      }
-      _segment.calculateSegmentPoints();
-      //stores the points for rendering box and whisker - high, low and rect points
-      _segment.points
-        ..add(Offset(currentPoint.markerPoint.x, _segment._maxPoint.y))
-        ..add(Offset(currentPoint.markerPoint.x, _segment._minPoint.y))
-        ..add(Offset(_segment._lowerX, _segment._topRectY))
-        ..add(Offset(_segment._upperX, _segment._topRectY))
-        ..add(Offset(_segment._upperX, _segment._bottomRectY))
-        ..add(Offset(_segment._lowerX, _segment._bottomRectY));
-      customizeSegment(_segment);
-      _segment.strokePaint = _segment.getStrokePaint();
-      _segment.fillPaint = _segment.getFillPaint();
-      _segments.add(_segment);
+    _segment._seriesIndex = seriesIndex;
+    _segment.currentSegmentIndex = pointIndex;
+    _segment._seriesRenderer = this;
+    _segment._series = _series as XyDataSeries;
+    _segment.animationFactor = animateFactor;
+    _segment._pointColorMapper = currentPoint.pointColorMapper;
+    _segment._currentPoint = currentPoint;
+    if (_chartState!._widgetNeedUpdate &&
+        !_chartState!._isLegendToggled &&
+        _oldSeriesRenderers != null &&
+        _oldSeriesRenderers!.isNotEmpty &&
+        _oldSeriesRenderers!.length - 1 >= _segment._seriesIndex &&
+        _oldSeriesRenderers![_segment._seriesIndex]._seriesName ==
+            _segment._seriesRenderer._seriesName) {
+      _segment._oldSeriesRenderer = _oldSeriesRenderers![_segment._seriesIndex];
+      _segment._oldSegmentIndex = _getOldSegmentIndex(_segment);
     }
+    _segment.calculateSegmentPoints();
+    //stores the points for rendering box and whisker - high, low and rect points
+    _segment.points
+      ..add(Offset(currentPoint.markerPoint!.x, _segment._maxPoint.y))
+      ..add(Offset(currentPoint.markerPoint!.x, _segment._minPoint.y))
+      ..add(Offset(_segment._lowerX, _segment._topRectY))
+      ..add(Offset(_segment._upperX, _segment._topRectY))
+      ..add(Offset(_segment._upperX, _segment._bottomRectY))
+      ..add(Offset(_segment._lowerX, _segment._bottomRectY));
+    customizeSegment(_segment);
+    _segment.strokePaint = _segment.getStrokePaint();
+    _segment.fillPaint = _segment.getFillPaint();
+    _segments.add(_segment);
     return _segment;
   }
 
   @override
-  ChartSegment createSegment() => BoxAndWhiskerSegment();
+  BoxAndWhiskerSegment createSegment() => BoxAndWhiskerSegment();
 
   /// Changes the series color, border color, and border width.
   @override
   void customizeSegment(ChartSegment _segment) {
-    final BoxAndWhiskerSegment boxSegment = _segment;
-    boxSegment._color = boxSegment._currentPoint.pointColorMapper ??
+    final BoxAndWhiskerSegment boxSegment = _segment as BoxAndWhiskerSegment;
+    boxSegment._color = boxSegment._currentPoint!.pointColorMapper ??
         _segment._seriesRenderer._seriesColor;
     boxSegment._strokeColor = _segment._series.borderColor;
     boxSegment._strokeWidth = _segment._series.borderWidth;
@@ -397,10 +397,10 @@ class BoxAndWhiskerSeriesRenderer extends XyDataSeriesRenderer {
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment _segment) {
     if (_segment._seriesRenderer._isSelectionEnable) {
-      final SelectionBehaviorRenderer selectionBehaviorRenderer =
+      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
           _segment._seriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer._selectionRenderer._checkWithSelectionState(
-          _segments[_segment.currentSegmentIndex], _chart);
+      selectionBehaviorRenderer?._selectionRenderer?._checkWithSelectionState(
+          _segments[_segment.currentSegmentIndex!], _chart);
     }
     _segment.onPaint(canvas);
   }
@@ -410,9 +410,9 @@ class BoxAndWhiskerSeriesRenderer extends XyDataSeriesRenderer {
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer seriesRenderer]) {
-    canvas.drawPath(seriesRenderer._markerShapes[index], fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes[index], strokePaint);
+      [CartesianSeriesRenderer? seriesRenderer]) {
+    canvas.drawPath(seriesRenderer!._markerShapes[index]!, fillPaint);
+    canvas.drawPath(seriesRenderer._markerShapes[index]!, strokePaint);
   }
 
   /// Draws data label text of the appropriate data point in a series.

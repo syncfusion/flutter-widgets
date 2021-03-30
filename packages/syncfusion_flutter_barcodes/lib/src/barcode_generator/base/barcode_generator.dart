@@ -19,11 +19,10 @@ import '../one_dimensional/upca_symbology.dart';
 import '../one_dimensional/upce_symbology.dart';
 
 import '../renderers/one_dimensional/codabar_renderer.dart';
-
-import '../renderers/one_dimensional/code128A_renderer.dart';
-import '../renderers/one_dimensional/code128B_renderer.dart';
-import '../renderers/one_dimensional/code128C_renderer.dart';
 import '../renderers/one_dimensional/code128_renderer.dart';
+import '../renderers/one_dimensional/code128a_renderer.dart';
+import '../renderers/one_dimensional/code128b_renderer.dart';
+import '../renderers/one_dimensional/code128c_renderer.dart';
 import '../renderers/one_dimensional/code39_extended_renderer.dart';
 import '../renderers/one_dimensional/code39_renderer.dart';
 import '../renderers/one_dimensional/code93_renderer.dart';
@@ -87,9 +86,9 @@ class SfBarcodeGenerator extends StatefulWidget {
   ///
   /// Default symbology is [Code128].
   SfBarcodeGenerator(
-      {Key key,
-      @required this.value,
-      Symbology symbology,
+      {Key? key,
+      required this.value,
+      Symbology? symbology,
       this.barColor,
       this.backgroundColor,
       this.showValue = false,
@@ -115,7 +114,7 @@ class SfBarcodeGenerator extends StatefulWidget {
   ///        child: SfBarcodeGenerator(value:'123456'));
   ///}
   /// ```dart
-  final String value;
+  final String? value;
 
   /// Define the barcode symbology that will be used to encode the input value
   /// to the visual barcode representation.
@@ -160,7 +159,7 @@ class SfBarcodeGenerator extends StatefulWidget {
   ///        barColor : Colors.red));
   ///}
   /// ```dart
-  final Color barColor;
+  final Color? barColor;
 
   /// The background color to fill the background of the [SfBarcodeGenerator].
   ///
@@ -176,7 +175,7 @@ class SfBarcodeGenerator extends StatefulWidget {
   ///        backgroundColor : Colors.red));
   ///}
   /// ```dart
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   /// Whether to show a human readable text (input value) along with a barcode.
   ///
@@ -261,12 +260,12 @@ class SfBarcodeGenerator extends StatefulWidget {
 /// Represents the barcode generator state
 class _SfBarcodeGeneratorState extends State<SfBarcodeGenerator> {
   /// Specifies the theme data
-  SfBarcodeThemeData _barcodeTheme;
+  late SfBarcodeThemeData _barcodeTheme;
 
   /// Specifies the text size
-  Size _textSize;
+  Size? _textSize;
 
-  SymbologyRenderer _symbologyRenderer;
+  late SymbologyRenderer _symbologyRenderer;
 
   @override
   void didChangeDependencies() {
@@ -332,12 +331,12 @@ class _SfBarcodeGeneratorState extends State<SfBarcodeGenerator> {
     if (widget.showValue && _textSize == null) {
       _textSize = measureText(widget.value.toString(), widget.textStyle);
     }
-    _symbologyRenderer.getIsValidateInput(widget.value);
+    _symbologyRenderer.getIsValidateInput(widget.value!);
     _symbologyRenderer.textSize = _textSize;
     return Container(
       color: widget.backgroundColor ?? _barcodeTheme.backgroundColor,
       child: SfBarcodeGeneratorRenderObjectWidget(
-          value: widget.value,
+          value: widget.value!,
           symbology: widget.symbology,
           foregroundColor: widget.barColor ?? _barcodeTheme.barColor,
           showText: widget.showValue,

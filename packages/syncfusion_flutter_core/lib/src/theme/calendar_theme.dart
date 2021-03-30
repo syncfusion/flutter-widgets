@@ -21,7 +21,7 @@ import '../../theme.dart';
 class SfCalendarTheme extends InheritedTheme {
   /// Constructor for the calendar theme class, which applies a theme to
   /// descendant Syncfusion calendar widgets.
-  const SfCalendarTheme({Key key, this.data, this.child})
+  const SfCalendarTheme({Key? key, required this.data, required this.child})
       : super(key: key, child: child);
 
   /// Specifies the color and typography values for descendant calendar widgets.
@@ -65,7 +65,7 @@ class SfCalendarTheme extends InheritedTheme {
   /// Defaults to [SfThemeData.calendarThemeData]
   /// if there is no [SfCalendarTheme] in the given build context.
   static SfCalendarThemeData of(BuildContext context) {
-    final SfCalendarTheme sfCalendarTheme =
+    final SfCalendarTheme? sfCalendarTheme =
         context.dependOnInheritedWidgetOfExactType<SfCalendarTheme>();
     return sfCalendarTheme?.data ?? SfTheme.of(context).calendarThemeData;
   }
@@ -75,7 +75,7 @@ class SfCalendarTheme extends InheritedTheme {
 
   @override
   Widget wrap(BuildContext context, Widget child) {
-    final SfCalendarTheme ancestorTheme =
+    final SfCalendarTheme? ancestorTheme =
         context.findAncestorWidgetOfExactType<SfCalendarTheme>();
     return identical(this, ancestorTheme)
         ? child
@@ -105,30 +105,30 @@ class SfCalendarThemeData with Diagnosticable {
   /// Create a [SfCalendarThemeData] that's used to configure a
   /// [SfCalendarTheme].
   factory SfCalendarThemeData({
-    Brightness brightness,
-    Color backgroundColor,
-    Color headerBackgroundColor,
-    Color agendaBackgroundColor,
-    Color cellBorderColor,
-    Color activeDatesBackgroundColor,
-    Color todayBackgroundColor,
-    Color trailingDatesBackgroundColor,
-    Color leadingDatesBackgroundColor,
-    Color selectionBorderColor,
-    Color todayHighlightColor,
-    Color viewHeaderBackgroundColor,
-    TextStyle todayTextStyle,
-    TextStyle agendaDayTextStyle,
-    TextStyle agendaDateTextStyle,
-    TextStyle headerTextStyle,
-    TextStyle viewHeaderDateTextStyle,
-    TextStyle viewHeaderDayTextStyle,
-    TextStyle timeTextStyle,
-    TextStyle activeDatesTextStyle,
-    TextStyle trailingDatesTextStyle,
-    TextStyle leadingDatesTextStyle,
-    TextStyle blackoutDatesTextStyle,
-    TextStyle displayNameTextStyle,
+    Brightness? brightness,
+    Color? backgroundColor,
+    Color? headerBackgroundColor,
+    Color? agendaBackgroundColor,
+    Color? cellBorderColor,
+    Color? activeDatesBackgroundColor,
+    Color? todayBackgroundColor,
+    Color? trailingDatesBackgroundColor,
+    Color? leadingDatesBackgroundColor,
+    Color? selectionBorderColor,
+    Color? todayHighlightColor,
+    Color? viewHeaderBackgroundColor,
+    TextStyle? todayTextStyle,
+    TextStyle? agendaDayTextStyle,
+    TextStyle? agendaDateTextStyle,
+    TextStyle? headerTextStyle,
+    TextStyle? viewHeaderDateTextStyle,
+    TextStyle? viewHeaderDayTextStyle,
+    TextStyle? timeTextStyle,
+    TextStyle? activeDatesTextStyle,
+    TextStyle? trailingDatesTextStyle,
+    TextStyle? leadingDatesTextStyle,
+    TextStyle? blackoutDatesTextStyle,
+    TextStyle? displayNameTextStyle,
   }) {
     brightness = brightness ?? Brightness.light;
     final bool isLight = brightness == Brightness.light;
@@ -255,30 +255,30 @@ class SfCalendarThemeData with Diagnosticable {
   /// create intermediate themes based on two themes created with the
   /// [SfCalendarThemeData] constructor.
   const SfCalendarThemeData.raw({
-    @required this.brightness,
-    @required this.backgroundColor,
-    @required this.headerTextStyle,
-    @required this.headerBackgroundColor,
-    @required this.agendaBackgroundColor,
-    @required this.cellBorderColor,
-    @required this.viewHeaderDateTextStyle,
-    @required this.viewHeaderDayTextStyle,
-    @required this.viewHeaderBackgroundColor,
-    @required this.agendaDayTextStyle,
-    @required this.agendaDateTextStyle,
-    @required this.timeTextStyle,
-    @required this.activeDatesTextStyle,
-    @required this.activeDatesBackgroundColor,
-    @required this.todayBackgroundColor,
-    @required this.trailingDatesBackgroundColor,
-    @required this.leadingDatesBackgroundColor,
-    @required this.trailingDatesTextStyle,
-    @required this.blackoutDatesTextStyle,
-    @required this.displayNameTextStyle,
-    @required this.leadingDatesTextStyle,
-    @required this.todayTextStyle,
-    @required this.todayHighlightColor,
-    @required this.selectionBorderColor,
+    required this.brightness,
+    required this.backgroundColor,
+    required this.headerTextStyle,
+    required this.headerBackgroundColor,
+    required this.agendaBackgroundColor,
+    required this.cellBorderColor,
+    required this.viewHeaderDateTextStyle,
+    required this.viewHeaderDayTextStyle,
+    required this.viewHeaderBackgroundColor,
+    required this.agendaDayTextStyle,
+    required this.agendaDateTextStyle,
+    required this.timeTextStyle,
+    required this.activeDatesTextStyle,
+    required this.activeDatesBackgroundColor,
+    required this.todayBackgroundColor,
+    required this.trailingDatesBackgroundColor,
+    required this.leadingDatesBackgroundColor,
+    required this.trailingDatesTextStyle,
+    required this.blackoutDatesTextStyle,
+    required this.displayNameTextStyle,
+    required this.leadingDatesTextStyle,
+    required this.todayTextStyle,
+    required this.todayHighlightColor,
+    required this.selectionBorderColor,
   });
 
   /// The brightness of the overall theme of the
@@ -412,7 +412,7 @@ class SfCalendarThemeData with Diagnosticable {
   ///  );
   ///}
   /// ```
-  final Color selectionBorderColor;
+  final Color? selectionBorderColor;
 
   ///Specifies the agenda view background color.
   ///
@@ -647,7 +647,7 @@ class SfCalendarThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final TextStyle blackoutDatesTextStyle;
+  final TextStyle? blackoutDatesTextStyle;
 
   /// Specifies the text style for the text in the resource view of calendar.
   ///
@@ -713,7 +713,7 @@ class SfCalendarThemeData with Diagnosticable {
   ///   );
   ///}
   /// ```
-  final Color todayHighlightColor;
+  final Color? todayHighlightColor;
 
   /// Specifies the date text style for the view header.
   ///
@@ -805,30 +805,30 @@ class SfCalendarThemeData with Diagnosticable {
   /// Creates a copy of this theme but with the given
   /// fields replaced with the new values.
   SfCalendarThemeData copyWith({
-    Brightness brightness,
-    Color backgroundColor,
-    TextStyle headerTextStyle,
-    Color headerBackgroundColor,
-    Color agendaBackgroundColor,
-    Color cellBorderColor,
-    TextStyle viewHeaderDateTextStyle,
-    TextStyle viewHeaderDayTextStyle,
-    TextStyle agendaDayTextStyle,
-    TextStyle agendaDateTextStyle,
-    TextStyle timeTextStyle,
-    TextStyle activeDatesTextStyle,
-    Color activeDatesBackgroundColor,
-    Color todayBackgroundColor,
-    Color trailingDatesBackgroundColor,
-    Color leadingDatesBackgroundColor,
-    TextStyle trailingDatesTextStyle,
-    TextStyle blackoutDatesTextStyle,
-    TextStyle displayNameTextStyle,
-    TextStyle leadingDatesTextStyle,
-    TextStyle todayTextStyle,
-    Color todayHighlightColor,
-    TextStyle viewHeaderBackgroundColor,
-    Color selectionBorderColor,
+    Brightness? brightness,
+    Color? backgroundColor,
+    TextStyle? headerTextStyle,
+    Color? headerBackgroundColor,
+    Color? agendaBackgroundColor,
+    Color? cellBorderColor,
+    TextStyle? viewHeaderDateTextStyle,
+    TextStyle? viewHeaderDayTextStyle,
+    TextStyle? agendaDayTextStyle,
+    TextStyle? agendaDateTextStyle,
+    TextStyle? timeTextStyle,
+    TextStyle? activeDatesTextStyle,
+    Color? activeDatesBackgroundColor,
+    Color? todayBackgroundColor,
+    Color? trailingDatesBackgroundColor,
+    Color? leadingDatesBackgroundColor,
+    TextStyle? trailingDatesTextStyle,
+    TextStyle? blackoutDatesTextStyle,
+    TextStyle? displayNameTextStyle,
+    TextStyle? leadingDatesTextStyle,
+    TextStyle? todayTextStyle,
+    Color? todayHighlightColor,
+    Color? viewHeaderBackgroundColor,
+    Color? selectionBorderColor,
   }) {
     return SfCalendarThemeData.raw(
       brightness: brightness ?? this.brightness,
@@ -870,14 +870,13 @@ class SfCalendarThemeData with Diagnosticable {
   }
 
   /// Linearly interpolate between two themes.
-  static SfCalendarThemeData lerp(
-      SfCalendarThemeData a, SfCalendarThemeData b, double t) {
-    assert(t != null);
+  static SfCalendarThemeData? lerp(
+      SfCalendarThemeData? a, SfCalendarThemeData? b, double t) {
     if (a == null && b == null) {
       return null;
     }
     return SfCalendarThemeData(
-        backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
+        backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
         headerBackgroundColor:
             Color.lerp(a.headerBackgroundColor, b.headerBackgroundColor, t),
         agendaBackgroundColor:
@@ -907,35 +906,35 @@ class SfCalendarThemeData with Diagnosticable {
     if (other.runtimeType != runtimeType) {
       return false;
     }
-    final SfCalendarThemeData typedOther = other;
-    return typedOther.backgroundColor == backgroundColor &&
-        typedOther.headerTextStyle == headerTextStyle &&
-        typedOther.headerBackgroundColor == headerBackgroundColor &&
-        typedOther.agendaBackgroundColor == agendaBackgroundColor &&
-        typedOther.cellBorderColor == cellBorderColor &&
-        typedOther.viewHeaderDateTextStyle == viewHeaderDateTextStyle &&
-        typedOther.viewHeaderDayTextStyle == viewHeaderDayTextStyle &&
-        typedOther.agendaDayTextStyle == agendaDayTextStyle &&
-        typedOther.agendaDateTextStyle == agendaDateTextStyle &&
-        typedOther.timeTextStyle == timeTextStyle &&
-        typedOther.activeDatesTextStyle == activeDatesTextStyle &&
-        typedOther.activeDatesBackgroundColor == activeDatesBackgroundColor &&
-        typedOther.todayBackgroundColor == todayBackgroundColor &&
-        typedOther.trailingDatesBackgroundColor ==
-            trailingDatesBackgroundColor &&
-        typedOther.leadingDatesBackgroundColor == leadingDatesBackgroundColor &&
-        typedOther.trailingDatesTextStyle == trailingDatesTextStyle &&
-        typedOther.blackoutDatesTextStyle == blackoutDatesTextStyle &&
-        typedOther.leadingDatesTextStyle == leadingDatesTextStyle &&
-        typedOther.todayTextStyle == todayTextStyle &&
-        typedOther.todayHighlightColor == todayHighlightColor &&
-        typedOther.viewHeaderBackgroundColor == viewHeaderBackgroundColor &&
-        typedOther.selectionBorderColor == selectionBorderColor;
+
+    return other is SfCalendarThemeData &&
+        other.backgroundColor == backgroundColor &&
+        other.headerTextStyle == headerTextStyle &&
+        other.headerBackgroundColor == headerBackgroundColor &&
+        other.agendaBackgroundColor == agendaBackgroundColor &&
+        other.cellBorderColor == cellBorderColor &&
+        other.viewHeaderDateTextStyle == viewHeaderDateTextStyle &&
+        other.viewHeaderDayTextStyle == viewHeaderDayTextStyle &&
+        other.agendaDayTextStyle == agendaDayTextStyle &&
+        other.agendaDateTextStyle == agendaDateTextStyle &&
+        other.timeTextStyle == timeTextStyle &&
+        other.activeDatesTextStyle == activeDatesTextStyle &&
+        other.activeDatesBackgroundColor == activeDatesBackgroundColor &&
+        other.todayBackgroundColor == todayBackgroundColor &&
+        other.trailingDatesBackgroundColor == trailingDatesBackgroundColor &&
+        other.leadingDatesBackgroundColor == leadingDatesBackgroundColor &&
+        other.trailingDatesTextStyle == trailingDatesTextStyle &&
+        other.blackoutDatesTextStyle == blackoutDatesTextStyle &&
+        other.leadingDatesTextStyle == leadingDatesTextStyle &&
+        other.todayTextStyle == todayTextStyle &&
+        other.todayHighlightColor == todayHighlightColor &&
+        other.viewHeaderBackgroundColor == viewHeaderBackgroundColor &&
+        other.selectionBorderColor == selectionBorderColor;
   }
 
   @override
   int get hashCode {
-    final List<Object> values = <Object>[
+    final List<Object?> values = <Object?>[
       backgroundColor,
       headerTextStyle,
       headerBackgroundColor,

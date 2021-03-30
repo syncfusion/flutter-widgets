@@ -1,7 +1,7 @@
 part of charts;
 
 class _ChartContainer extends SingleChildRenderObjectWidget {
-  const _ChartContainer({Widget child}) : super(child: child);
+  const _ChartContainer({required Widget child}) : super(child: child);
 
   @override
   RenderObject createRenderObject(BuildContext context) {
@@ -24,7 +24,7 @@ class _ChartContainerBox extends RenderShiftedBox {
     if (width == double.infinity) {
       width = minWidth;
     }
-    child.layout(
+    child!.layout(
         BoxConstraints(
           minHeight: 0.0,
           maxHeight: height,
@@ -54,7 +54,7 @@ class ChartTitle {
   /// Creating an argument constructor of ChartTitle class.
   ChartTitle(
       {this.text = '',
-      TextStyle textStyle,
+      TextStyle? textStyle,
       this.alignment = ChartAlignment.center,
       this.borderColor = Colors.transparent,
       this.borderWidth = 0,
@@ -143,7 +143,7 @@ class ChartTitle {
   ///        ));
   ///}
   ///```
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   ///Border color of the chart title.
   ///
@@ -215,7 +215,7 @@ class ChartTextStyle extends TextStyle {
   ///}
   ///```
   @override
-  final Color color;
+  final Color? color;
 
   /// To set the font family to chart text
   ///
@@ -288,35 +288,35 @@ class ChartTextStyle extends TextStyle {
 ///legend item and for [SfCircularChart] type chart by default values mapped with
 ///xValueMapper will be displayed.
 ///
-///You can customized with [isVisible], [borderWidth], [alignment], [opacity], [borderColor],
-///[padding] and so on.
+///You can customized with `isVisible`, `borderWidth`, `alignment`, `opacity`, `borderColor`,
+///`padding` and so on.
 ///
 ///_Note:_ This is common for [SfCartesianChart] and [SfCircularChart]
 class Legend {
   /// Creating an argument constructor of Legend class.
   Legend(
-      {bool isVisible,
-      LegendPosition position,
-      ChartAlignment alignment,
+      {bool? isVisible,
+      LegendPosition? position,
+      ChartAlignment? alignment,
       this.backgroundColor,
-      Color borderColor,
-      double borderWidth,
-      double opacity,
+      Color? borderColor,
+      double? borderWidth,
+      double? opacity,
       this.height,
       this.width,
-      double padding,
-      double iconHeight,
-      double iconWidth,
-      bool toggleSeriesVisibility,
-      TextStyle textStyle,
-      bool isResponsive,
-      LegendItemOrientation orientation,
-      LegendTitle title,
-      LegendItemOverflowMode overflowMode,
+      double? padding,
+      double? iconHeight,
+      double? iconWidth,
+      bool? toggleSeriesVisibility,
+      TextStyle? textStyle,
+      bool? isResponsive,
+      LegendItemOrientation? orientation,
+      LegendTitle? title,
+      LegendItemOverflowMode? overflowMode,
       this.legendItemBuilder,
-      Color iconBorderColor,
-      double iconBorderWidth,
-      double itemPadding,
+      Color? iconBorderColor,
+      double? iconBorderWidth,
+      double? itemPadding,
       this.image})
       : isVisible = isVisible ?? false,
         position = position ?? LegendPosition.auto,
@@ -353,7 +353,7 @@ class Legend {
   ///        ));
   ///}
   ///```
-  final bool isVisible;
+  final bool? isVisible;
 
   ///Position of the legend.
   ///
@@ -412,7 +412,7 @@ class Legend {
   ///        ));
   ///}
   ///```
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   ///Border color of the legend.
   ///
@@ -515,7 +515,7 @@ class Legend {
   ///        ));
   ///}
   ///```
-  final String height;
+  final String? height;
 
   ///The width of the legend.
   ///
@@ -532,7 +532,7 @@ class Legend {
   ///        ));
   ///}
   ///```
-  final String width;
+  final String? width;
 
   ///Padding between the legend items.
   ///
@@ -695,7 +695,7 @@ class Legend {
   ///        ));
   ///}
   ///```
-  final LegendItemBuilder legendItemBuilder;
+  final LegendItemBuilder? legendItemBuilder;
 
   ///Overflow legend items.
   ///
@@ -750,32 +750,30 @@ class Legend {
   ///        ));
   ///}
   ///```
-  final ImageProvider image;
+  final ImageProvider? image;
 }
 
 /// Legend renderer class for mutable fields and methods
 class LegendRenderer {
   /// Creates an argument constructor for  Leged renderer class
-  LegendRenderer(this._legend) {
-    _renderer = _LegendRenderer();
-  }
+  LegendRenderer(this._legend);
 
   //ignore: unused_field
-  final Legend _legend;
-  _LegendRenderer _renderer;
-  LegendPosition _legendPosition;
-  LegendItemOrientation _orientation;
+  final Legend? _legend;
+  _LegendRenderer _renderer = _LegendRenderer();
+  late LegendPosition _legendPosition;
+  late LegendItemOrientation _orientation;
 }
 
 class _MeasureWidgetContext {
   _MeasureWidgetContext(
       {this.context, this.key, this.widget, this.seriesIndex, this.pointIndex});
-  BuildContext context;
-  int seriesIndex;
-  int pointIndex;
-  Key key;
-  Size size;
-  Widget widget;
+  BuildContext? context;
+  int? seriesIndex;
+  int? pointIndex;
+  Key? key;
+  Size? size;
+  Widget? widget;
   bool isRender = false;
 }
 
@@ -787,7 +785,7 @@ class _MeasureWidgetContext {
 ///Provides Options to customize the [text], [textStyle] and [alignment] properties.
 class LegendTitle {
   /// Creating an argument constructor of LegendTitle class.
-  LegendTitle({this.text, TextStyle textStyle, ChartAlignment alignment})
+  LegendTitle({this.text, TextStyle? textStyle, ChartAlignment? alignment})
       : textStyle = _getTextStyle(
             textStyle: textStyle,
             fontSize: 12.0,
@@ -812,7 +810,7 @@ class LegendTitle {
   ///        ));
   ///}
   ///```
-  final String text;
+  final String? text;
 
   /// Customize the legend title text.
   ///
@@ -964,18 +962,35 @@ class EmptyPointSettings {
 }
 
 /// Maps the index value.
-typedef ChartIndexedValueMapper<R> = R Function(int index);
+typedef ChartIndexedValueMapper<R> = R? Function(int index);
 
 /// Maps the data from data source.
-typedef ChartValueMapper<T, R> = R Function(T datum, int index);
+typedef ChartValueMapper<T, R> = R? Function(T datum, int index);
+
+///Signature for the callback that returns the shader from the data source based on the index.
+/// Can get the data, index, color and rect values.
+///
+///
+///T - Data of the current data point
+///
+///
+///index - Index of the current data point
+///
+///
+///rect - Rect value of the current data point slice
+///
+///color - Color of the current data point
+typedef ChartShaderMapper<T> = Shader Function(
+    T datum, int index, Color color, Rect rect);
 
 /// Returns the widget.
 typedef ChartWidgetBuilder<T> = Widget Function(dynamic data, dynamic point,
     dynamic series, int pointIndex, int seriesIndex);
 
+/// Returns the widget as a template of trackball
 typedef ChartTrackballBuilder<T> = Widget Function(
     BuildContext context, TrackballDetails trackballDetails);
 
-// Custom renderer for series
+/// Custom renderer for series
 typedef ChartSeriesRendererFactory<T, D> = ChartSeriesRenderer Function(
     ChartSeries<T, D> series);

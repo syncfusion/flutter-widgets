@@ -1,9 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-/// Represents the plot band settings for spark chart
+/// Renders plot band..
+///
+/// Plot band is also known as stripline, which is used to shade the different
+/// ranges in plot area with different colors to improve the readability of the
+///  chart.
+///
+/// Plot bands are drawn based on the axis.
+///
+/// Provides the property of [start], [end], [color], [borderColor], and
+/// [borderWidth] to customize the appearance.
+///
 class SparkChartPlotBand {
-  /// Creates the plot band for spark chart
+  /// Creates an instance of spark chart plot band to add and customizes the
+  /// plot band in spark chart widget. To make, the plot band visible, define
+  /// the value to its [start] and [end] property.
   ///
   /// ```dart
   /// @override
@@ -24,7 +36,11 @@ class SparkChartPlotBand {
       this.borderColor,
       this.borderWidth = 0});
 
-  /// Defines the plotband color
+  /// Customizes the color of the plot band. Since the plot band is rendered
+  /// above the axis line, you can customize the color of the plot band for a
+  /// transparent view of the axis line.
+  ///
+  /// Defaults to ` Color.fromRGBO(191, 212, 252, 0.5)`.
   ///
   /// ```dart
   /// @override
@@ -40,7 +56,11 @@ class SparkChartPlotBand {
   /// ```
   final Color color;
 
-  /// Defines the start value of plot band
+  /// Customizes the start position. Define any value between the provided data
+  /// range as the start value. To make the plot band visible, need to set both
+  /// the start and [end] property.
+  ///
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
@@ -54,9 +74,13 @@ class SparkChartPlotBand {
   ///  );
   /// }
   /// ```
-  final double start;
+  final double? start;
 
-  /// Defines the end value of plot band
+  /// Customizes the end position. Define any value between the provided data
+  /// range as the end value. To make the plot band visible, need to set both
+  /// the start and [end] property.
+  ///
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
@@ -70,9 +94,12 @@ class SparkChartPlotBand {
   ///  );
   /// }
   /// ```
-  final double end;
+  final double? end;
 
-  /// Defines the border color of plot band
+  /// Customizes the border color of the plot band. To make border visible for
+  /// plot band, need to set both the border color and border width.
+  ///
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
@@ -87,9 +114,12 @@ class SparkChartPlotBand {
   ///  );
   /// }
   /// ```
-  final Color borderColor;
+  final Color? borderColor;
 
-  /// Defines the border width of plot band
+  /// Customizes the border width of the plot band. To make border visible for
+  /// plot band, need to set both the border color and border width.
+  ///
+  /// Defaults to `0`.
   ///
   /// ```dart
   /// @override
@@ -125,10 +155,10 @@ class SparkChartPlotBand {
   @override
   int get hashCode {
     final List<Object> values = <Object>[
-      start,
-      end,
+      start!,
+      end!,
       color,
-      borderColor,
+      borderColor!,
       borderWidth,
     ];
     return hashList(values);

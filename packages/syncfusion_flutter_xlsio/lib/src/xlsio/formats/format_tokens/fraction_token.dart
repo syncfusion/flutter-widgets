@@ -15,7 +15,7 @@ class _FractionToken extends _FormatTokenBase {
   @override
   String _applyFormat(double value, bool bShowHiddenSymbols,
       CultureInfo culture, _FormatSection section) {
-    return (section != null && section.formatType == ExcelFormatType.dateTime)
+    return (section.formatType == ExcelFormatType.dateTime)
         ? culture.dateTimeFormat.dateSeparator
         : _strFormat;
   }
@@ -25,8 +25,6 @@ class _FractionToken extends _FormatTokenBase {
   /// </summary>
   @override
   int _tryParse(String strFormat, int iIndex) {
-    if (strFormat == null) throw ('strFormat');
-
     final int iFormatLength = strFormat.length;
 
     if (iFormatLength == 0) throw ('strFormat - string cannot be empty');

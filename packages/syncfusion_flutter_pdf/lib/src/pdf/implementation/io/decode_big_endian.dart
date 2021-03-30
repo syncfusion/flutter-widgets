@@ -1,6 +1,6 @@
 part of pdf;
 
-String _decodeBigEndian(List<int> bytes, [int offset = 0, int length]) {
+String _decodeBigEndian(List<int>? bytes, [int offset = 0, int? length]) {
   final List<int> codeUnits =
       _UtfbeDecoder(bytes, offset, length).decodeRemaining();
   final List<int> result = _convertCodeUnitsToCodePoints(codeUnits);
@@ -8,34 +8,35 @@ String _decodeBigEndian(List<int> bytes, [int offset = 0, int length]) {
 }
 
 List<int> _convertCodeUnitsToCodePoints(List<int> codeUnits,
-    [int offset = 0, int length]) {
+    [int offset = 0, int? length]) {
   final _UtfCodeUnitDecoder decoder =
       _UtfCodeUnitDecoder(_ByteRange(codeUnits, offset, length));
-  final List<int> codePoints = List<int>(decoder.byteRange.remaining);
+  final List<int> codePoints =
+      List<int>.filled(decoder.byteRange.remaining, 0, growable: true);
   int i = 0;
   while (decoder.moveNext) {
-    codePoints[i++] = decoder._current;
+    codePoints[i++] = decoder._current!;
   }
   if (i == codePoints.length) {
     return codePoints;
   } else {
-    final List<int> cpt = List<int>(i);
+    final List<int> cpt = List<int>.filled(i, 0, growable: true);
     cpt.setRange(0, i, codePoints);
     return cpt;
   }
 }
 
 class _UtfbeDecoder {
-  _UtfbeDecoder(List<int> encodedBytes, [int offset = 0, int length]) {
-    length = (length ?? encodedBytes.length - offset);
+  _UtfbeDecoder(List<int>? encodedBytes, [int offset = 0, int? length]) {
+    length = (length ?? encodedBytes!.length - offset);
     byteRange = _ByteRange(encodedBytes, offset, length);
     if (isBeBom(encodedBytes, offset, length)) {
       byteRange.skip(2);
     }
   }
-  _ByteRange byteRange;
+  late _ByteRange byteRange;
   final int rcPoint = 0xfffd;
-  int _current;
+  int? _current;
 
   int get remaining => (byteRange.remaining + 1) ~/ 2;
 
@@ -48,62 +49,58 @@ class _UtfbeDecoder {
     }
     if (remaining == 1) {
       byteRange.moveNext;
-      if (rcPoint != null) {
-        _current = rcPoint;
-        return true;
-      } else {
-        throw ArgumentError('Invalid byte.');
-      }
+      _current = rcPoint;
+      return true;
     }
     _current = decode();
     return true;
   }
 
   List<int> decodeRemaining() {
-    final List<int> codeunits = List<int>(remaining);
+    final List<int> codeunits = List<int>.filled(remaining, 0, growable: true);
     var i = 0;
     while (moveNext) {
-      codeunits[i++] = _current;
+      codeunits[i++] = _current!;
     }
     if (i == codeunits.length) {
       return codeunits;
     } else {
-      final List<int> tcu = List<int>(i);
+      final List<int> tcu = List<int>.filled(i, 0, growable: true);
       tcu.setRange(0, i, codeunits);
       return tcu;
     }
   }
 
-  bool isBeBom(List<int> encodedBytes, [int offset = 0, int length]) {
-    final int end = length != null ? offset + length : encodedBytes.length;
+  bool isBeBom(List<int>? encodedBytes, [int offset = 0, int? length]) {
+    final int end = length != null ? offset + length : encodedBytes!.length;
     return (offset + 2) <= end &&
-        encodedBytes[offset] == 0xfe &&
+        encodedBytes![offset] == 0xfe &&
         encodedBytes[offset + 1] == 0xff;
   }
 
   int decode() {
     byteRange.moveNext;
-    final int first = byteRange.current;
+    final int first = byteRange.current!;
     byteRange.moveNext;
-    final int next = byteRange.current;
+    final int next = byteRange.current!;
     return (first << 8) + next;
   }
 }
 
 class _ByteRange {
-  _ByteRange(List<int> source, int offset, int length) {
-    length = (length ?? source.length - offset);
+  _ByteRange(List<int>? source, int offset, int? length) {
+    length = (length ?? source!.length - offset);
     _source = source;
     _offset = offset - 1;
     _length = length;
     _end = offset + _length;
   }
-  List<int> _source;
-  int _offset;
-  int _length;
-  int _end;
+  List<int>? _source;
+  late int _offset;
+  late int _length;
+  late int _end;
 
-  int get current => _source[_offset];
+  int? get current => _source![_offset];
   bool get moveNext => ++_offset < _end;
   int get remaining => _end - _offset - 1;
   void skip([int count = 1]) {
@@ -119,24 +116,20 @@ class _UtfCodeUnitDecoder {
   _UtfCodeUnitDecoder(this.byteRange);
   final _ByteRange byteRange;
   final int rcPoint = 0xfffd;
-  int _current;
+  int? _current;
 
   bool get moveNext {
     _current = null;
     if (!byteRange.moveNext) {
       return false;
     }
-    int value = byteRange.current;
+    int value = byteRange.current!;
     if (value < 0) {
-      if (rcPoint != null) {
-        _current = rcPoint;
-      } else {
-        throw ArgumentError('Invalid data');
-      }
+      _current = rcPoint;
     } else if (value < 0xd800 || (value > 0xdfff && value <= 0xffff)) {
       _current = value;
     } else if (value < 0xdc00 && byteRange.moveNext) {
-      final int nextValue = byteRange.current;
+      final int nextValue = byteRange.current!;
       if (nextValue >= 0xdc00 && nextValue <= 0xdfff) {
         value = (value - 0xd800) << 10;
         value += 0x10000 + (nextValue - 0xdc00);
@@ -145,16 +138,10 @@ class _UtfCodeUnitDecoder {
         if (nextValue >= 0xd800 && nextValue < 0xdc00) {
           byteRange.backup();
         }
-        if (rcPoint != null) {
-          _current = rcPoint;
-        } else {
-          throw ArgumentError('Invalid data');
-        }
+        _current = rcPoint;
       }
-    } else if (rcPoint != null) {
-      _current = rcPoint;
     } else {
-      throw ArgumentError('Invalid data');
+      _current = rcPoint;
     }
     return true;
   }
@@ -162,7 +149,8 @@ class _UtfCodeUnitDecoder {
 
 List<int> _encodeBigEndian(String content) {
   final List<int> codeUnits = _codePointsToCodeUnits(content.codeUnits);
-  final List<int> encodedBytes = List<int>(2 * codeUnits.length);
+  final List<int> encodedBytes =
+      List<int>.filled(2 * codeUnits.length, 0, growable: true);
   int i = 0;
   for (final int value in codeUnits) {
     encodedBytes[i++] = (value & 0xff00) >> 8;
@@ -183,7 +171,7 @@ List<int> _codePointsToCodeUnits(List<int> codePoints) {
       eLength++;
     }
   }
-  final List<int> buffer = List<int>(eLength);
+  final List<int> buffer = List<int>.filled(eLength, 0, growable: true);
   int j = 0;
   for (int i = 0; i < codePoints.length; i++) {
     final int value = codePoints[i];

@@ -10,30 +10,28 @@ part of charts;
 class MomentumIndicator<T, D> extends TechnicalIndicators<T, D> {
   /// Creating an argument constructor of MomentumIndicator class.
   MomentumIndicator({
-    bool isVisible,
-    String xAxisName,
-    String yAxisName,
-    String seriesName,
-    List<double> dashArray,
-    double animationDuration,
-    List<T> dataSource,
-    ChartValueMapper<T, D> xValueMapper,
-    ChartValueMapper<T, num> highValueMapper,
-    ChartValueMapper<T, num> lowValueMapper,
-    ChartValueMapper<T, num> openValueMapper,
-    ChartValueMapper<T, num> closeValueMapper,
-    String name,
-    bool isVisibleInLegend,
-    LegendIconType legendIconType,
-    String legendItemText,
-    Color signalLineColor,
-    double signalLineWidth,
-    int period,
-    final Color centerLineColor,
-    final double centerLineWidth,
-  })  : centerLineColor = centerLineColor ?? Colors.red,
-        centerLineWidth = centerLineWidth ?? 2,
-        super(
+    bool? isVisible,
+    String? xAxisName,
+    String? yAxisName,
+    String? seriesName,
+    List<double>? dashArray,
+    double? animationDuration,
+    List<T>? dataSource,
+    ChartValueMapper<T, D>? xValueMapper,
+    ChartValueMapper<T, num>? highValueMapper,
+    ChartValueMapper<T, num>? lowValueMapper,
+    ChartValueMapper<T, num>? openValueMapper,
+    ChartValueMapper<T, num>? closeValueMapper,
+    String? name,
+    bool? isVisibleInLegend,
+    LegendIconType? legendIconType,
+    String? legendItemText,
+    Color? signalLineColor,
+    double? signalLineWidth,
+    int? period,
+    this.centerLineColor = Colors.red,
+    this.centerLineWidth = 2,
+  }) : super(
             isVisible: isVisible,
             xAxisName: xAxisName,
             yAxisName: yAxisName,
@@ -94,12 +92,18 @@ class MomentumIndicator<T, D> extends TechnicalIndicators<T, D> {
       MomentumIndicator<dynamic, dynamic> indicator,
       SfCartesianChart chart,
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
+    // Decides the type of renderer class to be used
+    final bool isLine = true;
     technicalIndicatorsRenderer._targetSeriesRenderers =
         <CartesianSeriesRenderer>[];
-    technicalIndicatorsRenderer._setSeriesProperties(indicator, 'Momentum',
-        indicator.signalLineColor, indicator.signalLineWidth, chart);
+    technicalIndicatorsRenderer._setSeriesProperties(
+        indicator,
+        indicator.name ?? 'Momentum',
+        indicator.signalLineColor,
+        indicator.signalLineWidth,
+        chart);
     technicalIndicatorsRenderer._setSeriesProperties(indicator, 'CenterLine',
-        indicator.centerLineColor, indicator.centerLineWidth, chart);
+        indicator.centerLineColor, indicator.centerLineWidth, chart, isLine);
   }
 
   /// To initialise data source of technical indicators
@@ -111,7 +115,7 @@ class MomentumIndicator<T, D> extends TechnicalIndicators<T, D> {
     final List<CartesianChartPoint<dynamic>> centerLineCollection =
         <CartesianChartPoint<dynamic>>[];
     final List<CartesianChartPoint<dynamic>> validData =
-        technicalIndicatorsRenderer._dataPoints;
+        technicalIndicatorsRenderer._dataPoints!;
     final List<dynamic> centerXValues = <dynamic>[];
     final List<dynamic> xValues = <dynamic>[];
     num value;
@@ -121,7 +125,7 @@ class MomentumIndicator<T, D> extends TechnicalIndicators<T, D> {
           technicalIndicatorsRenderer._targetSeriesRenderers[0];
       final CartesianSeriesRenderer upperSeriesRenderer =
           technicalIndicatorsRenderer._targetSeriesRenderers[1];
-      final num length = indicator.period;
+      final int length = indicator.period;
       if (validData.length >= indicator.period && indicator.period > 0) {
         for (int i = 0; i < validData.length; i++) {
           centerLineCollection.add(technicalIndicatorsRenderer._getDataPoint(

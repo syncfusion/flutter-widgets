@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "තෝරාගත් දිනයක් නොමැත", 
 "noEventsCalendarLabel" : "සිදුවීම් නොමැත", 
-"scheduleViewNewEventLabel" : "කිසිවක් සැලසුම් කර නැත. නිර්මාණය කිරීමට තට්ටු කරන්න.", 
 "ofDataPagerLabel" : "වල", 
 "pagesDataPagerLabel" : "පිටු", 
 "itemsDataPagerLabel" : "අයිතම", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "RAM.", 
 "shortShawwalLabel" : "ෂෝ.", 
 "shortDhualqiLabel" : "දුල්-කියු", 
-"shortDhualhiLabel" : "දුල්-එච්"
+"shortDhualhiLabel" : "දුල්-එච්", 
+"daySpanCountLabel" : "දින"
 }

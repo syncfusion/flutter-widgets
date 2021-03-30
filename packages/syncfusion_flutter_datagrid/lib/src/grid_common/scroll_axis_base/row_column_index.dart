@@ -22,7 +22,7 @@ class RowColumnIndex {
   bool get isEmpty => rowIndex == _MathHelper.minvalue;
 
   /// Whether this object and a specified object are equal.
-  bool equals(Object obj) {
+  bool equals(RowColumnIndex obj) {
     final RowColumnIndex other = obj;
     return other.rowIndex == rowIndex && other.columnIndex == columnIndex;
   }

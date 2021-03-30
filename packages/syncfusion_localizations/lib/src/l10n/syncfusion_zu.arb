@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "Alukho usuku olukhethiwe", 
 "noEventsCalendarLabel" : "Ayikho imicimbi", 
-"scheduleViewNewEventLabel" : "Akukho okuhleliwe. Thepha ukuze udale.", 
 "ofDataPagerLabel" : "ye", 
 "pagesDataPagerLabel" : "amakhasi", 
 "itemsDataPagerLabel" : "izinto", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "URam.", 
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "I-Dhu'l-Q", 
-"shortDhualhiLabel" : "UDhu'l-H"
+"shortDhualhiLabel" : "UDhu'l-H", 
+"daySpanCountLabel" : "Usuku"
 }

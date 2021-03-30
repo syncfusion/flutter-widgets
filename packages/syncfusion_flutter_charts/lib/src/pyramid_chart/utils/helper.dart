@@ -3,9 +3,9 @@ part of charts;
 /// Method for checking if point is within polygon
 bool _isPointInPolygon(List<Offset> polygon, dynamic point) {
   bool p = false;
-  num i = -1;
-  final num l = polygon.length;
-  num j;
+  int i = -1;
+  final int l = polygon.length;
+  int j;
   for (j = l - 1; ++i < l; j = i) {
     ((polygon[i].dy <= point.dy && point.dy < polygon[j].dy) ||
             (polygon[j].dy <= point.dy && point.dy < polygon[i].dy)) &&
@@ -121,12 +121,12 @@ Color _getPyramidFunnelColor(PointInfo<dynamic> currentPoint,
 
 ///To get inner data label color
 Color _innerColor(
-        Color dataLabelColor, Color pointColor, SfChartThemeData theme) =>
+        Color? dataLabelColor, Color? pointColor, SfChartThemeData theme) =>
     dataLabelColor ?? pointColor ?? Colors.black;
 
 ///To get outer data label color
-Color _outerColor(
-        Color dataLabelColor, Color backgroundColor, SfChartThemeData theme) =>
+Color _outerColor(Color? dataLabelColor, Color? backgroundColor,
+        SfChartThemeData theme) =>
     // ignore: prefer_if_null_operators
     dataLabelColor != null
         ? dataLabelColor
@@ -140,7 +140,7 @@ Color _outerColor(
 ///To get outer data label text style
 TextStyle _getDataLabelTextStyle(
     dynamic seriesRenderer, PointInfo<dynamic> point, dynamic chartState,
-    [double animateOpacity]) {
+    [double? animateOpacity]) {
   final dynamic series = seriesRenderer._series;
   final DataLabelSettings dataLabel = series.dataLabelSettings;
   final Color fontColor = dataLabel.textStyle.color ??
@@ -188,9 +188,9 @@ bool _isNeedExplode(int pointIndex, dynamic series, dynamic _chartState) {
 }
 
 /// To return data label rect calculation method based on position
-Rect _getDataLabelRect(Position position, ConnectorType connectorType,
+Rect? _getDataLabelRect(Position position, ConnectorType connectorType,
     EdgeInsets margin, Path connectorPath, Offset endPoint, Size textSize) {
-  Rect rect;
+  Rect? rect;
   const int lineLength = 10;
   switch (position) {
     case Position.right:
@@ -218,6 +218,9 @@ Rect _getDataLabelRect(Position position, ConnectorType connectorType,
           endPoint.dy - (textSize.height / 2) - margin.top,
           textSize.width + margin.left + margin.right,
           textSize.height + margin.top + margin.bottom);
+      break;
+    default:
+      rect = null;
       break;
   }
   return rect;

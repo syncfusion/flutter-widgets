@@ -14,7 +14,7 @@ class CreatePdfWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: CreatePdfStatefulWidget(title: 'Create PDF document'),
+      home: CreatePdfStatefulWidget(),
     );
   }
 }
@@ -22,10 +22,8 @@ class CreatePdfWidget extends StatelessWidget {
 /// Represents the PDF stateful widget class.
 class CreatePdfStatefulWidget extends StatefulWidget {
   /// Initalize the instance of the [CreatePdfStatefulWidget] class.
-  const CreatePdfStatefulWidget({Key key, this.title}) : super(key: key);
+  const CreatePdfStatefulWidget({Key? key}) : super(key: key);
 
-  /// title.
-  final String title;
   @override
   _CreatePdfState createState() => _CreatePdfState();
 }
@@ -35,18 +33,19 @@ class _CreatePdfState extends State<CreatePdfStatefulWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text('Create PDF document'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            FlatButton(
-              child: const Text(
-                'Generate PDF',
-                style: TextStyle(color: Colors.white),
+            TextButton(
+              child: const Text('Generate PDF'),
+              style: TextButton.styleFrom(
+                primary: Colors.white,
+                backgroundColor: Colors.lightBlue,
+                onSurface: Colors.grey,
               ),
-              color: Colors.blue,
               onPressed: generateInvoice,
             )
           ],
@@ -138,13 +137,13 @@ class _CreatePdfState extends State<CreatePdfStatefulWidget> {
     return PdfTextElement(text: address, font: contentFont).draw(
         page: page,
         bounds: Rect.fromLTWH(30, 120,
-            pageSize.width - (contentSize.width + 30), pageSize.height - 120));
+            pageSize.width - (contentSize.width + 30), pageSize.height - 120))!;
   }
 
   //Draws the grid
   void drawGrid(PdfPage page, PdfGrid grid, PdfLayoutResult result) {
-    Rect totalPriceCellBounds;
-    Rect quantityCellBounds;
+    Rect? totalPriceCellBounds;
+    Rect? quantityCellBounds;
     //Invoke the beginCellLayout event.
     grid.beginCellLayout = (Object sender, PdfGridBeginCellLayoutArgs args) {
       final PdfGrid grid = sender as PdfGrid;
@@ -156,23 +155,23 @@ class _CreatePdfState extends State<CreatePdfStatefulWidget> {
     };
     //Draw the PDF grid and get the result.
     result = grid.draw(
-        page: page, bounds: Rect.fromLTWH(0, result.bounds.bottom + 40, 0, 0));
+        page: page, bounds: Rect.fromLTWH(0, result.bounds.bottom + 40, 0, 0))!;
 
     //Draw grand total.
     page.graphics.drawString('Grand Total',
         PdfStandardFont(PdfFontFamily.helvetica, 9, style: PdfFontStyle.bold),
         bounds: Rect.fromLTWH(
-            quantityCellBounds.left,
+            quantityCellBounds!.left,
             result.bounds.bottom + 10,
-            quantityCellBounds.width,
-            quantityCellBounds.height));
+            quantityCellBounds!.width,
+            quantityCellBounds!.height));
     page.graphics.drawString(getTotalAmount(grid).toString(),
         PdfStandardFont(PdfFontFamily.helvetica, 9, style: PdfFontStyle.bold),
         bounds: Rect.fromLTWH(
-            totalPriceCellBounds.left,
+            totalPriceCellBounds!.left,
             result.bounds.bottom + 10,
-            totalPriceCellBounds.width,
-            totalPriceCellBounds.height));
+            totalPriceCellBounds!.width,
+            totalPriceCellBounds!.height));
   }
 
   //Draw the invoice footer data.

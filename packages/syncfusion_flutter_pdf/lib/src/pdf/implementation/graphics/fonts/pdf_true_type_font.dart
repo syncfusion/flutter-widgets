@@ -44,9 +44,7 @@ class PdfTrueTypeFont extends PdfFont {
   /// doc.dispose();
   /// ```
   PdfTrueTypeFont(List<int> fontData, double size,
-      {PdfFontStyle style, List<PdfFontStyle> multiStyle}) {
-    ArgumentError.checkNotNull(fontData);
-    ArgumentError.checkNotNull(size);
+      {PdfFontStyle? style, List<PdfFontStyle>? multiStyle}) {
     _initializeFont(fontData, size, style, multiStyle);
   }
 
@@ -76,8 +74,7 @@ class PdfTrueTypeFont extends PdfFont {
   /// doc.dispose();
   /// ```
   PdfTrueTypeFont.fromBase64String(String fontData, double size,
-      {PdfFontStyle style, List<PdfFontStyle> multiStyle}) {
-    ArgumentError.checkNotNull(fontData);
+      {PdfFontStyle? style, List<PdfFontStyle>? multiStyle}) {
     if (fontData.isEmpty) {
       throw ArgumentError.value(fontData, 'fontData', 'Invalid font data');
     }
@@ -85,12 +82,12 @@ class PdfTrueTypeFont extends PdfFont {
   }
 
   //Fields
-  bool _unicode;
-  _UnicodeTrueTypeFont _fontInternal;
+  bool? _unicode;
+  late _UnicodeTrueTypeFont _fontInternal;
 
   //Implementation
-  void _initializeFont(List<int> fontData, double size, PdfFontStyle style,
-      List<PdfFontStyle> multiStyle) {
+  void _initializeFont(List<int> fontData, double size, PdfFontStyle? style,
+      List<PdfFontStyle>? multiStyle) {
     _initialize(size, style: style, multiStyle: multiStyle);
     _unicode = true;
     _createFontInternals(fontData);
@@ -103,19 +100,19 @@ class PdfTrueTypeFont extends PdfFont {
   }
 
   void _calculateStyle(PdfFontStyle style) {
-    int iStyle = _fontInternal._ttfMetrics.macStyle;
+    int? iStyle = _fontInternal._ttfMetrics!.macStyle;
     if (_isUnderline) {
-      iStyle |= PdfFont._getPdfFontStyle(PdfFontStyle.underline);
+      iStyle = iStyle! | PdfFont._getPdfFontStyle(PdfFontStyle.underline);
     }
     if (_isStrikeout) {
-      iStyle |= PdfFont._getPdfFontStyle(PdfFontStyle.strikethrough);
+      iStyle = iStyle! | PdfFont._getPdfFontStyle(PdfFontStyle.strikethrough);
     }
-    _fontStyle = iStyle;
+    _fontStyle = iStyle!;
   }
 
   void _initializeInternals() {
     _fontInternal._createInternals();
-    final _IPdfPrimitive internals = _fontInternal._fontDictionary;
+    final _IPdfPrimitive? internals = _fontInternal._fontDictionary;
     _metrics = _fontInternal._metrics;
     if (internals == null) {
       throw ArgumentError.value(internals, 'font internal cannot be null');
@@ -127,24 +124,24 @@ class PdfTrueTypeFont extends PdfFont {
     _fontInternal._setSymbols(text);
   }
 
-  double _getCharWidth(String charCode, PdfStringFormat format) {
+  double _getCharWidth(String charCode, PdfStringFormat? format) {
     double codeWidth = _fontInternal._getCharWidth(charCode);
-    codeWidth *= 0.001 * _metrics._getSize(format);
+    codeWidth *= 0.001 * _metrics!._getSize(format)!;
     return codeWidth;
   }
 
   //_IPdfWrapper elements
   @override
-  _IPdfPrimitive get _element => _fontInternals;
+  _IPdfPrimitive? get _element => _fontInternals;
 
   @override
   //ignore: unused_element
-  set _element(_IPdfPrimitive value) {
+  set _element(_IPdfPrimitive? value) {
     _fontInternals = value;
   }
 
   @override
-  double _getLineWidth(String line, PdfStringFormat format) {
+  double _getLineWidth(String line, PdfStringFormat? format) {
     double width = 0;
     String text = line;
     if (format != null && format.textDirection != PdfTextDirection.none) {
@@ -152,7 +149,7 @@ class PdfTrueTypeFont extends PdfFont {
       text = renderer.shape(line.split(''), 0);
     }
     width = _fontInternal._getLineWidth(text);
-    final double size = _metrics._getSize(format);
+    final double size = _metrics!._getSize(format)!;
     width *= 0.001 * size;
     width = _applyFormatSettings(text, format, width);
     return width;

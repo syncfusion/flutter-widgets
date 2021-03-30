@@ -3,22 +3,22 @@ part of xlsio;
 /// Represents the worksheet rows.
 class RangeCollection {
   /// Create a instance of rows collection.
-  RangeCollection([Row row]) {
-    if (row != null) _row = row;
+  RangeCollection(Row row) {
+    _row = row;
     _innerList = [];
   }
 
   /// Parent worksheet.
-  Row _row;
+  late Row _row;
 
   /// Represents count of elements.
   int _iCount = 0;
 
   /// Represents count of elements.
-  List<Range> _innerList;
+  late List<Range?> _innerList;
 
   /// Represents inner list.
-  List<Range> get innerList {
+  List<Range?> get innerList {
     return _innerList;
   }
 
@@ -28,9 +28,9 @@ class RangeCollection {
   }
 
   /// Indexer get of the class
-  Range operator [](index) {
-    if (index < _innerList.length) {
-      return _innerList[index];
+  Range? operator [](index) {
+    if (index <= _innerList.length) {
+      return _innerList[index - 1];
     } else {
       return null;
     }
@@ -38,10 +38,10 @@ class RangeCollection {
 
   /// Indexer set of the class
   operator []=(index, value) {
-    if (_iCount <= index) {
-      _updateSize(index + 1);
+    if (_iCount < index) {
+      _updateSize(index);
     }
-    _innerList[index] = value;
+    _innerList[index - 1] = value;
   }
 
   /// Updates count of storage array.
@@ -51,9 +51,10 @@ class RangeCollection {
 
       _iCount = (iCount >= iBufCount) ? iCount : iBufCount;
 
-      final List<Range> list = List<Range>(_iCount);
+      final List<Range?> list =
+          List<Range?>.filled(_iCount, null, growable: true);
 
-      if (_innerList != null) list.setAll(0, _innerList);
+      list.setAll(0, _innerList);
 
       _innerList = list;
     }
@@ -63,12 +64,14 @@ class RangeCollection {
   Range add() {
     final Range range = Range(_row._worksheet);
     innerList.add(range);
+    range.row = range.lastRow = _row.index;
+    range._index = range.column = range.lastColumn = innerList.length;
     return range;
   }
 
   /// Get a cell from cells collection based on column.
-  Range _getCell(int columnIndex) {
-    for (final Range range in innerList) {
+  Range? _getCell(int columnIndex) {
+    for (final Range? range in innerList) {
       if (range != null) {
         if (range._index == columnIndex) {
           return range;
@@ -80,14 +83,12 @@ class RangeCollection {
 
   /// clear the Range.
   void _clear() {
-    if (_innerList != null) {
-      for (int i = 0; i < _innerList.length; i++) {
-        final Range range = _innerList[i];
-        _innerList[i] = null;
+    for (int i = 0; i < _innerList.length; i++) {
+      final Range? range = _innerList[i];
+      _innerList[i] = null;
 
-        if (range != null) range._clear();
-      }
-      _innerList = null;
+      if (range != null) range._clear();
     }
+    _innerList.clear();
   }
 }

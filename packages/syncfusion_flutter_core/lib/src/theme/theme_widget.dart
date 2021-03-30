@@ -40,9 +40,9 @@ import 'range_selector_theme.dart';
 class SfTheme extends StatelessWidget {
   /// Creating an argument constructor of SfTheme class.
   const SfTheme({
-    Key key,
+    Key? key,
     this.data,
-    @required this.child,
+    required this.child,
   }) : super(key: key);
 
   /// Specifies a widget that can hold single child.
@@ -87,7 +87,7 @@ class SfTheme extends StatelessWidget {
   ///   );
   /// }
   /// ```
-  final SfThemeData data;
+  final SfThemeData? data;
 
   //ignore: unused_field
   static final SfThemeData _kFallbackTheme = SfThemeData.fallback();
@@ -99,7 +99,7 @@ class SfTheme extends StatelessWidget {
   /// build context.
   ///
   static SfThemeData of(BuildContext context) {
-    final _SfInheritedTheme inheritedTheme =
+    final _SfInheritedTheme? inheritedTheme =
         context.dependOnInheritedWidgetOfExactType<_SfInheritedTheme>();
     return inheritedTheme?.data ??
         (Theme.of(context).brightness == Brightness.light
@@ -114,10 +114,10 @@ class SfTheme extends StatelessWidget {
 }
 
 class _SfInheritedTheme extends InheritedTheme {
-  const _SfInheritedTheme({Key key, this.data, Widget child})
+  const _SfInheritedTheme({Key? key, this.data, required Widget child})
       : super(key: key, child: child);
 
-  final SfThemeData data;
+  final SfThemeData? data;
 
   @override
   bool updateShouldNotify(_SfInheritedTheme oldWidget) =>
@@ -125,7 +125,7 @@ class _SfInheritedTheme extends InheritedTheme {
 
   @override
   Widget wrap(BuildContext context, Widget child) {
-    final _SfInheritedTheme ancestorTheme =
+    final _SfInheritedTheme? ancestorTheme =
         context.findAncestorWidgetOfExactType<_SfInheritedTheme>();
     return identical(this, ancestorTheme)
         ? child
@@ -159,19 +159,19 @@ class _SfInheritedTheme extends InheritedTheme {
 class SfThemeData with Diagnosticable {
   /// Creating an argument constructor of SfThemeData class.
   factory SfThemeData(
-      {Brightness brightness,
-      SfPdfViewerThemeData pdfViewerThemeData,
-      SfChartThemeData chartThemeData,
-      SfCalendarThemeData calendarThemeData,
-      SfDataGridThemeData dataGridThemeData,
-      SfDataPagerThemeData dataPagerThemeData,
-      SfDateRangePickerThemeData dateRangePickerThemeData,
-      SfBarcodeThemeData barcodeThemeData,
-      SfGaugeThemeData gaugeThemeData,
-      SfSliderThemeData sliderThemeData,
-      SfRangeSliderThemeData rangeSliderThemeData,
-      SfRangeSelectorThemeData rangeSelectorThemeData,
-      SfMapsThemeData mapsThemeData}) {
+      {Brightness? brightness,
+      SfPdfViewerThemeData? pdfViewerThemeData,
+      SfChartThemeData? chartThemeData,
+      SfCalendarThemeData? calendarThemeData,
+      SfDataGridThemeData? dataGridThemeData,
+      SfDataPagerThemeData? dataPagerThemeData,
+      SfDateRangePickerThemeData? dateRangePickerThemeData,
+      SfBarcodeThemeData? barcodeThemeData,
+      SfGaugeThemeData? gaugeThemeData,
+      SfSliderThemeData? sliderThemeData,
+      SfRangeSliderThemeData? rangeSliderThemeData,
+      SfRangeSelectorThemeData? rangeSelectorThemeData,
+      SfMapsThemeData? mapsThemeData}) {
     brightness ??= Brightness.light;
     pdfViewerThemeData =
         pdfViewerThemeData ?? SfPdfViewerThemeData(brightness: brightness);
@@ -218,32 +218,19 @@ class SfThemeData with Diagnosticable {
   /// [SfThemeData] constructor.
   ///
   const SfThemeData.raw(
-      {@required this.brightness,
-      @required this.pdfViewerThemeData,
-      @required this.chartThemeData,
-      @required this.calendarThemeData,
-      @required this.dataGridThemeData,
-      @required this.dateRangePickerThemeData,
-      @required this.barcodeThemeData,
-      @required this.gaugeThemeData,
-      @required this.sliderThemeData,
-      @required this.rangeSelectorThemeData,
-      @required this.rangeSliderThemeData,
-      @required this.mapsThemeData,
-      @required this.dataPagerThemeData})
-      : assert(brightness != null),
-        assert(pdfViewerThemeData != null),
-        assert(chartThemeData != null),
-        assert(calendarThemeData != null),
-        assert(dateRangePickerThemeData != null),
-        assert(barcodeThemeData != null),
-        assert(gaugeThemeData != null),
-        assert(sliderThemeData != null),
-        assert(rangeSelectorThemeData != null),
-        assert(rangeSliderThemeData != null),
-        assert(mapsThemeData != null),
-        assert(dataGridThemeData != null),
-        assert(dataPagerThemeData != null);
+      {required this.brightness,
+      required this.pdfViewerThemeData,
+      required this.chartThemeData,
+      required this.calendarThemeData,
+      required this.dataGridThemeData,
+      required this.dateRangePickerThemeData,
+      required this.barcodeThemeData,
+      required this.gaugeThemeData,
+      required this.sliderThemeData,
+      required this.rangeSelectorThemeData,
+      required this.rangeSliderThemeData,
+      required this.mapsThemeData,
+      required this.dataPagerThemeData});
 
   /// This method returns the light theme when no theme has been specified.
   factory SfThemeData.light() => SfThemeData(brightness: Brightness.light);
@@ -499,18 +486,19 @@ class SfThemeData with Diagnosticable {
   /// Creates a copy of this theme but with the given
   /// fields replaced with the new values.
   SfThemeData copyWith(
-      {Brightness brightness,
-      SfPdfViewerThemeData pdfViewerThemeData,
-      SfChartThemeData chartThemeData,
-      SfCalendarThemeData calendarThemeData,
-      SfDataGridThemeData dataGridThemeData,
-      SfDateRangePickerThemeData dateRangePickerThemeData,
-      SfBarcodeThemeData barcodeThemeData,
-      SfSliderThemeData sliderThemeData,
-      SfRangeSelectorThemeData rangeSelectorThemeData,
-      SfRangeSliderThemeData rangeSliderThemeData,
-      SfMapsThemeData mapsThemeData,
-      SfDataPagerThemeData dataPagerThemeData}) {
+      {Brightness? brightness,
+      SfPdfViewerThemeData? pdfViewerThemeData,
+      SfChartThemeData? chartThemeData,
+      SfCalendarThemeData? calendarThemeData,
+      SfDataGridThemeData? dataGridThemeData,
+      SfDateRangePickerThemeData? dateRangePickerThemeData,
+      SfBarcodeThemeData? barcodeThemeData,
+      SfGaugeThemeData? gaugeThemeData,
+      SfSliderThemeData? sliderThemeData,
+      SfRangeSelectorThemeData? rangeSelectorThemeData,
+      SfRangeSliderThemeData? rangeSliderThemeData,
+      SfMapsThemeData? mapsThemeData,
+      SfDataPagerThemeData? dataPagerThemeData}) {
     return SfThemeData.raw(
         brightness: brightness ?? this.brightness,
         pdfViewerThemeData: pdfViewerThemeData ?? this.pdfViewerThemeData,
@@ -521,7 +509,7 @@ class SfThemeData with Diagnosticable {
         dateRangePickerThemeData:
             dateRangePickerThemeData ?? this.dateRangePickerThemeData,
         barcodeThemeData: barcodeThemeData ?? this.barcodeThemeData,
-        gaugeThemeData: gaugeThemeData ?? this.barcodeThemeData,
+        gaugeThemeData: gaugeThemeData ?? this.gaugeThemeData,
         sliderThemeData: sliderThemeData ?? this.sliderThemeData,
         rangeSelectorThemeData:
             rangeSelectorThemeData ?? this.rangeSelectorThemeData,
@@ -530,36 +518,36 @@ class SfThemeData with Diagnosticable {
   }
 
   /// Linearly interpolate between two themes.
-  static SfThemeData lerp(SfThemeData a, SfThemeData b, double t) {
+  static SfThemeData lerp(SfThemeData? a, SfThemeData? b, double t) {
     assert(a != null);
     assert(b != null);
-    assert(t != null);
+
     return SfThemeData.raw(
-        brightness: t < 0.5 ? a.brightness : b.brightness,
+        brightness: t < 0.5 ? a!.brightness : b!.brightness,
         pdfViewerThemeData: SfPdfViewerThemeData.lerp(
-            a.pdfViewerThemeData, b.pdfViewerThemeData, t),
+            a!.pdfViewerThemeData, b!.pdfViewerThemeData, t)!,
         chartThemeData:
-            SfChartThemeData.lerp(a.chartThemeData, b.chartThemeData, t),
+            SfChartThemeData.lerp(a.chartThemeData, b.chartThemeData, t)!,
         calendarThemeData: SfCalendarThemeData.lerp(
-            a.calendarThemeData, b.calendarThemeData, t),
+            a.calendarThemeData, b.calendarThemeData, t)!,
         dataGridThemeData: SfDataGridThemeData.lerp(
-            a.dataGridThemeData, b.dataGridThemeData, t),
+            a.dataGridThemeData, b.dataGridThemeData, t)!,
         dataPagerThemeData: SfDataPagerThemeData.lerp(
-            a.dataPagerThemeData, b.dataPagerThemeData, t),
+            a.dataPagerThemeData, b.dataPagerThemeData, t)!,
         dateRangePickerThemeData: SfDateRangePickerThemeData.lerp(
-            a.dateRangePickerThemeData, b.dateRangePickerThemeData, t),
+            a.dateRangePickerThemeData, b.dateRangePickerThemeData, t)!,
         barcodeThemeData:
-            SfBarcodeThemeData.lerp(a.barcodeThemeData, b.barcodeThemeData, t),
+            SfBarcodeThemeData.lerp(a.barcodeThemeData, b.barcodeThemeData, t)!,
         gaugeThemeData:
-            SfGaugeThemeData.lerp(a.gaugeThemeData, b.gaugeThemeData, t),
+            SfGaugeThemeData.lerp(a.gaugeThemeData, b.gaugeThemeData, t)!,
         sliderThemeData:
-            SfSliderThemeData.lerp(a.sliderThemeData, b.sliderThemeData, t),
+            SfSliderThemeData.lerp(a.sliderThemeData, b.sliderThemeData, t)!,
         rangeSelectorThemeData: SfRangeSelectorThemeData.lerp(
-            a.rangeSelectorThemeData, b.rangeSelectorThemeData, t),
+            a.rangeSelectorThemeData, b.rangeSelectorThemeData, t)!,
         rangeSliderThemeData: SfRangeSliderThemeData.lerp(
-            a.rangeSliderThemeData, b.rangeSliderThemeData, t),
+            a.rangeSliderThemeData, b.rangeSliderThemeData, t)!,
         mapsThemeData:
-            SfMapsThemeData.lerp(a.mapsThemeData, b.mapsThemeData, t));
+            SfMapsThemeData.lerp(a.mapsThemeData, b.mapsThemeData, t)!);
   }
 
   @override
@@ -567,20 +555,21 @@ class SfThemeData with Diagnosticable {
     if (other.runtimeType != runtimeType) {
       return false;
     }
-    final SfThemeData otherData = other;
-    return otherData.brightness == brightness &&
-        otherData.pdfViewerThemeData == pdfViewerThemeData &&
-        otherData.chartThemeData == chartThemeData &&
-        otherData.calendarThemeData == calendarThemeData &&
-        otherData.dataGridThemeData == dataGridThemeData &&
-        otherData.dataPagerThemeData == dataPagerThemeData &&
-        otherData.dateRangePickerThemeData == dateRangePickerThemeData &&
-        otherData.barcodeThemeData == barcodeThemeData &&
-        otherData.gaugeThemeData == gaugeThemeData &&
-        otherData.sliderThemeData == sliderThemeData &&
-        otherData.rangeSelectorThemeData == rangeSelectorThemeData &&
-        otherData.rangeSliderThemeData == rangeSliderThemeData &&
-        otherData.mapsThemeData == mapsThemeData;
+
+    return other is SfThemeData &&
+        other.brightness == brightness &&
+        other.pdfViewerThemeData == pdfViewerThemeData &&
+        other.chartThemeData == chartThemeData &&
+        other.calendarThemeData == calendarThemeData &&
+        other.dataGridThemeData == dataGridThemeData &&
+        other.dataPagerThemeData == dataPagerThemeData &&
+        other.dateRangePickerThemeData == dateRangePickerThemeData &&
+        other.barcodeThemeData == barcodeThemeData &&
+        other.gaugeThemeData == gaugeThemeData &&
+        other.sliderThemeData == sliderThemeData &&
+        other.rangeSelectorThemeData == rangeSelectorThemeData &&
+        other.rangeSliderThemeData == rangeSliderThemeData &&
+        other.mapsThemeData == mapsThemeData;
   }
 
   @override

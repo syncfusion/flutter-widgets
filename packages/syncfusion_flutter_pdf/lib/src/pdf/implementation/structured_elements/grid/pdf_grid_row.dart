@@ -1,51 +1,251 @@
 part of pdf;
 
 /// Provides customization of the settings for the particular row.
+/// ```dart
+/// //Create a new PDF document
+/// PdfDocument document = PdfDocument();
+/// //Create a PdfGrid
+/// PdfGrid grid = PdfGrid();
+/// //Add columns to grid
+/// grid.columns.add(count: 3);
+/// //Add headers to grid
+/// grid.headers.add(2);
+/// PdfGridRow header = grid.headers[0];
+/// header.cells[0].value = 'Employee ID';
+/// header.cells[1].value = 'Employee Name';
+/// header.cells[2].value = 'Salary';
+/// //Add rows to grid
+/// PdfGridRow row1 = grid.rows.add();
+/// row1.cells[0].value = 'E01';
+/// row1.cells[1].value = 'Clay';
+/// row1.cells[2].value = '\$10,000';
+/// PdfGridRow row2 = grid.rows.add();
+/// row2.cells[0].value = 'E02';
+/// row2.cells[1].value = 'Simon';
+/// row2.cells[2].value = '\$12,000';
+/// //Set the row span
+/// row1.cells[1].rowSpan = 2;
+/// //Set the row height
+/// row2.height = 20;
+/// //Set the row style
+/// row1.style = PdfGridRowStyle(
+///     backgroundBrush: PdfBrushes.dimGray,
+///     textPen: PdfPens.lightGoldenrodYellow,
+///     textBrush: PdfBrushes.darkOrange,
+///     font: PdfStandardFont(PdfFontFamily.timesRoman, 12));
+/// //Draw the grid in PDF document page
+/// grid.draw(
+///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+/// //Save the document.
+/// List<int> bytes = document.save();
+/// //Dispose the document.
+/// document.dispose();
+/// ```
 class PdfGridRow {
   /// Initializes a new instance of the [PdfGridRow] class with the parent grid.
-  PdfGridRow(PdfGrid grid, {PdfGridRowStyle style, double height}) {
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid
+  /// PdfGrid grid = PdfGrid();
+  /// //Add columns to grid
+  /// grid.columns.add(count: 3);
+  /// //Add headers to grid
+  /// grid.headers.add(2);
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row1 = grid.rows.add();
+  /// row1.cells[0].value = 'E01';
+  /// row1.cells[1].value = 'Clay';
+  /// row1.cells[2].value = '\$10,000';
+  /// PdfGridRow row2 = grid.rows.add();
+  /// row2.cells[0].value = 'E02';
+  /// row2.cells[1].value = 'Simon';
+  /// row2.cells[2].value = '\$12,000';
+  /// //Set the row span
+  /// row1.cells[1].rowSpan = 2;
+  /// //Set the row height
+  /// row2.height = 20;
+  /// //Set the row style
+  /// row1.style = PdfGridRowStyle(
+  ///     backgroundBrush: PdfBrushes.dimGray,
+  ///     textPen: PdfPens.lightGoldenrodYellow,
+  ///     textBrush: PdfBrushes.darkOrange,
+  ///     font: PdfStandardFont(PdfFontFamily.timesRoman, 12));
+  /// //Draw the grid in PDF document page
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
+  PdfGridRow(PdfGrid grid, {PdfGridRowStyle? style, double? height}) {
     _initialize(grid, style, height);
   }
 
   //Fields
-  PdfGrid _grid;
-  PdfGridCellCollection _cells;
-  PdfGridRowStyle _style;
-  double _height;
-  double _width;
-  bool _rowSpanExists;
-  double _rowBreakHeight;
-  int _rowOverflowIndex;
-  PdfLayoutResult _gridResult;
-  bool _isRowBreaksNextPage;
-  bool _isrowFinish;
-  bool _rowMergeComplete;
-  int _noOfPageCount;
-  bool _isRowHeightSet;
-  int _maximumRowSpan;
-  bool _isPageBreakRowSpanApplied;
-  bool _isRowSpanRowHeightSet;
-  bool _isHeaderRow;
+  late PdfGrid _grid;
+  PdfGridCellCollection? _cells;
+  PdfGridRowStyle? _style;
+  late double _height;
+  late double _width;
+  late bool _rowSpanExists;
+  late double _rowBreakHeight;
+  late int _rowOverflowIndex;
+  PdfLayoutResult? _gridResult;
+  late bool _isRowBreaksNextPage;
+  late bool _isrowFinish;
+  late bool _rowMergeComplete;
+  late int _noOfPageCount;
+  late bool _isRowHeightSet;
+  late int _maximumRowSpan;
+  late bool _isPageBreakRowSpanApplied;
+  late bool _isRowSpanRowHeightSet;
+  late bool _isHeaderRow;
 
   //Properties
   /// Gets the cells from the selected row.
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid
+  /// PdfGrid grid = PdfGrid();
+  /// //Add columns to grid
+  /// grid.columns.add(count: 3);
+  /// //Add headers to grid
+  /// grid.headers.add(2);
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row1 = grid.rows.add();
+  /// row1.cells[0].value = 'E01';
+  /// row1.cells[1].value = 'Clay';
+  /// row1.cells[2].value = '\$10,000';
+  /// PdfGridRow row2 = grid.rows.add();
+  /// row2.cells[0].value = 'E02';
+  /// row2.cells[1].value = 'Simon';
+  /// row2.cells[2].value = '\$12,000';
+  /// //Set the row span
+  /// row1.cells[1].rowSpan = 2;
+  /// //Set the row height
+  /// row2.height = 20;
+  /// //Draw the grid in PDF document page
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   PdfGridCellCollection get cells {
     _cells ??= PdfGridCellCollection._(this);
-    return _cells;
+    return _cells!;
   }
 
-  /// Gets the row style.
+  /// Gets or sets the row style.
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid
+  /// PdfGrid grid = PdfGrid();
+  /// //Add columns to grid
+  /// grid.columns.add(count: 3);
+  /// //Add headers to grid
+  /// grid.headers.add(2);
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row1 = grid.rows.add();
+  /// row1.cells[0].value = 'E01';
+  /// row1.cells[1].value = 'Clay';
+  /// row1.cells[2].value = '\$10,000';
+  /// PdfGridRow row2 = grid.rows.add();
+  /// row2.cells[0].value = 'E02';
+  /// row2.cells[1].value = 'Simon';
+  /// row2.cells[2].value = '\$12,000';
+  /// //Set the row span
+  /// row1.cells[1].rowSpan = 2;
+  /// //Set the row height
+  /// row2.height = 20;
+  /// //Set the row style
+  /// row1.style = PdfGridRowStyle(
+  ///     backgroundBrush: PdfBrushes.dimGray,
+  ///     textPen: PdfPens.lightGoldenrodYellow,
+  ///     textBrush: PdfBrushes.darkOrange,
+  ///     font: PdfStandardFont(PdfFontFamily.timesRoman, 12));
+  /// //Create the PDF grid row style. Assign to second row
+  /// PdfGridRowStyle rowStyle = PdfGridRowStyle(
+  ///     backgroundBrush: PdfBrushes.lightGoldenrodYellow,
+  ///     textPen: PdfPens.indianRed,
+  ///     textBrush: PdfBrushes.lightYellow,
+  ///     font: PdfStandardFont(PdfFontFamily.timesRoman, 12));
+  /// row2.style = rowStyle;
+  /// //Draw the grid in PDF document page
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   PdfGridRowStyle get style {
     _style ??= PdfGridRowStyle();
-    return _style;
+    return _style!;
   }
 
-  /// Sets the row style.
-  set style(PdfGridRowStyle value) {
+  set style(PdfGridRowStyle? value) {
     _style = value;
   }
 
-  /// Gets the height of the row.
+  /// Gets or sets the height of the row.
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid
+  /// PdfGrid grid = PdfGrid();
+  /// //Add columns to grid
+  /// grid.columns.add(count: 3);
+  /// //Add headers to grid
+  /// grid.headers.add(2);
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row1 = grid.rows.add();
+  /// row1.cells[0].value = 'E01';
+  /// row1.cells[1].value = 'Clay';
+  /// row1.cells[2].value = '\$10,000';
+  /// PdfGridRow row2 = grid.rows.add();
+  /// row2.cells[0].value = 'E02';
+  /// row2.cells[1].value = 'Simon';
+  /// row2.cells[2].value = '\$12,000';
+  /// //Set the row span
+  /// row1.cells[1].rowSpan = 2;
+  /// //Set the row height
+  /// row2.height = 20;
+  /// //Set the row style
+  /// row1.style = PdfGridRowStyle(
+  ///     backgroundBrush: PdfBrushes.dimGray,
+  ///     textPen: PdfPens.lightGoldenrodYellow,
+  ///     textBrush: PdfBrushes.darkOrange,
+  ///     font: PdfStandardFont(PdfFontFamily.timesRoman, 12));
+  /// //Draw the grid in PDF document page
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   double get height {
     if (!_isRowHeightSet) {
       _height = _measureHeight();
@@ -53,7 +253,6 @@ class PdfGridRow {
     return _height;
   }
 
-  /// Sets the height of the row.
   set height(double value) {
     _isRowHeightSet = true;
     _height = value;
@@ -62,8 +261,7 @@ class PdfGridRow {
   int get _index => _grid.rows._indexOf(this);
 
   //Implementation
-  void _initialize(PdfGrid grid, PdfGridRowStyle style, double height) {
-    ArgumentError.checkNotNull(grid);
+  void _initialize(PdfGrid grid, PdfGridRowStyle? style, double? height) {
     if (style != null) {
       _style = style;
     }
@@ -103,8 +301,8 @@ class PdfGridRow {
     if (_grid.headers._indexOf(this) != -1) {
       isHeader = true;
     }
-    for (int i = 0; i < _cells.count; i++) {
-      final PdfGridCell cell = _cells[i];
+    for (int i = 0; i < _cells!.count; i++) {
+      final PdfGridCell cell = _cells![i];
       if (cell._rowSpanRemainingHeight > rowSpanRemainingHeight) {
         rowSpanRemainingHeight = cell._rowSpanRemainingHeight;
       }
@@ -125,7 +323,7 @@ class PdfGridRow {
     if (rowHeight == 0) {
       rowHeight = maxHeight;
     } else if (rowSpanRemainingHeight > 0) {
-      rowHeight += rowSpanRemainingHeight;
+      rowHeight = rowHeight + rowSpanRemainingHeight;
     }
     if (isHeader && maxHeight != 0 && rowHeight != 0 && rowHeight < maxHeight) {
       rowHeight = maxHeight;
@@ -144,28 +342,250 @@ class PdfGridRow {
 
 /// Provides access to an ordered, strongly typed collection of
 /// [PdfGridRow] objects.
+/// ```dart
+/// //Create a new PDF document
+/// PdfDocument document = PdfDocument();
+/// //Create a PdfGrid
+/// PdfGrid grid = PdfGrid();
+/// //Add columns to grid
+/// grid.columns.add(count: 3);
+/// //Add headers to grid
+/// grid.headers.add(2);
+/// PdfGridRow header = grid.headers[0];
+/// header.cells[0].value = 'Employee ID';
+/// header.cells[1].value = 'Employee Name';
+/// header.cells[2].value = 'Salary';
+/// //Add rows to grid
+/// grid.rows.add();
+/// grid.rows.add();
+/// //Gets the row collection
+/// PdfGridRowCollection rowCollection = grid.rows;
+/// PdfGridRow row1 = rowCollection[0];
+/// row1.cells[0].value = 'E01';
+/// row1.cells[1].value = 'Clay';
+/// row1.cells[2].value = '\$10,000';
+/// PdfGridRow row2 = rowCollection[1];
+/// row2.cells[0].value = 'E02';
+/// row2.cells[1].value = 'Simon';
+/// row2.cells[2].value = '\$12,000';
+/// //Set the row span
+/// row1.cells[1].rowSpan = 2;
+/// //Set the row height
+/// row2.height = 20;
+/// //Set the row style
+/// rowCollection[0].style = PdfGridRowStyle(
+///     backgroundBrush: PdfBrushes.dimGray,
+///     textPen: PdfPens.lightGoldenrodYellow,
+///     textBrush: PdfBrushes.darkOrange,
+///     font: PdfStandardFont(PdfFontFamily.timesRoman, 12));
+/// //Draw the grid in PDF document page
+/// grid.draw(
+///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+/// //Save the document.
+/// List<int> bytes = document.save();
+/// //Dispose the document.
+/// document.dispose();
+/// ```
 class PdfGridRowCollection {
   /// Initializes a new instance of the [PdfGridRowCollection] class
   /// with the parent grid.
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid
+  /// PdfGrid grid = PdfGrid();
+  /// //Add columns to grid
+  /// grid.columns.add(count: 3);
+  /// //Add headers to grid
+  /// grid.headers.add(2);
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// grid.rows.add();
+  /// grid.rows.add();
+  /// //Gets the row collection
+  /// PdfGridRowCollection rowCollection = grid.rows;
+  /// PdfGridRow row1 = rowCollection[0];
+  /// row1.cells[0].value = 'E01';
+  /// row1.cells[1].value = 'Clay';
+  /// row1.cells[2].value = '\$10,000';
+  /// PdfGridRow row2 = rowCollection[1];
+  /// row2.cells[0].value = 'E02';
+  /// row2.cells[1].value = 'Simon';
+  /// row2.cells[2].value = '\$12,000';
+  /// //Set the row span
+  /// row1.cells[1].rowSpan = 2;
+  /// //Set the row height
+  /// row2.height = 20;
+  /// //Set the row style
+  /// rowCollection[0].style = PdfGridRowStyle(
+  ///     backgroundBrush: PdfBrushes.dimGray,
+  ///     textPen: PdfPens.lightGoldenrodYellow,
+  ///     textBrush: PdfBrushes.darkOrange,
+  ///     font: PdfStandardFont(PdfFontFamily.timesRoman, 12));
+  /// //Draw the grid in PDF document page
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   PdfGridRowCollection(PdfGrid grid) {
     _grid = grid;
     _rows = <PdfGridRow>[];
   }
 
   //Fields
-  PdfGrid _grid;
-  List<PdfGridRow> _rows;
+  late PdfGrid _grid;
+  late List _rows;
 
   //Properties
   /// Gets the rows count.
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid
+  /// PdfGrid grid = PdfGrid();
+  /// //Add columns to grid
+  /// grid.columns.add(count: 3);
+  /// //Add headers to grid
+  /// grid.headers.add(2);
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// grid.rows.add();
+  /// grid.rows.add();
+  /// //Gets the row count
+  /// int rowCount = grid.rows.count;
+  /// //Gets the row collection
+  /// PdfGridRowCollection rowCollection = grid.rows;
+  /// PdfGridRow row1 = rowCollection[0];
+  /// row1.cells[0].value = 'E01';
+  /// row1.cells[1].value = 'Clay';
+  /// row1.cells[2].value = '\$10,000';
+  /// PdfGridRow row2 = rowCollection[1];
+  /// row2.cells[0].value = 'E02';
+  /// row2.cells[1].value = 'Simon';
+  /// row2.cells[2].value = '\$12,000';
+  /// //Set the row span
+  /// row1.cells[1].rowSpan = 2;
+  /// //Set the row height
+  /// row2.height = 20;
+  /// //Set the row style
+  /// rowCollection[0].style = PdfGridRowStyle(
+  ///     backgroundBrush: PdfBrushes.dimGray,
+  ///     textPen: PdfPens.lightGoldenrodYellow,
+  ///     textBrush: PdfBrushes.darkOrange,
+  ///     font: PdfStandardFont(PdfFontFamily.timesRoman, 12));
+  /// //Draw the grid in PDF document page
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   int get count => _rows.length;
 
   /// Gets the [PdfGridRow] at the specified index.
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid
+  /// PdfGrid grid = PdfGrid();
+  /// //Add columns to grid
+  /// grid.columns.add(count: 3);
+  /// //Add headers to grid
+  /// grid.headers.add(2);
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// grid.rows.add();
+  /// grid.rows.add();
+  /// //Gets the row collection
+  /// PdfGridRowCollection rowCollection = grid.rows;
+  /// PdfGridRow row1 = rowCollection[0];
+  /// row1.cells[0].value = 'E01';
+  /// row1.cells[1].value = 'Clay';
+  /// row1.cells[2].value = '\$10,000';
+  /// PdfGridRow row2 = rowCollection[1];
+  /// row2.cells[0].value = 'E02';
+  /// row2.cells[1].value = 'Simon';
+  /// row2.cells[2].value = '\$12,000';
+  /// //Set the row span
+  /// row1.cells[1].rowSpan = 2;
+  /// //Set the row height
+  /// row2.height = 20;
+  /// //Set the row style
+  /// rowCollection[0].style = PdfGridRowStyle(
+  ///     backgroundBrush: PdfBrushes.dimGray,
+  ///     textPen: PdfPens.lightGoldenrodYellow,
+  ///     textBrush: PdfBrushes.darkOrange,
+  ///     font: PdfStandardFont(PdfFontFamily.timesRoman, 12));
+  /// //Draw the grid in PDF document page
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   PdfGridRow operator [](int index) => _returnValue(index);
 
   //Public methods
   /// Add a row to the grid.
-  PdfGridRow add([PdfGridRow row]) {
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid
+  /// PdfGrid grid = PdfGrid();
+  /// //Add columns to grid
+  /// grid.columns.add(count: 3);
+  /// //Add headers to grid
+  /// grid.headers.add(2);
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// grid.rows.add();
+  /// grid.rows.add();
+  /// //Gets the row collection
+  /// PdfGridRowCollection rowCollection = grid.rows;
+  /// PdfGridRow row1 = rowCollection[0];
+  /// row1.cells[0].value = 'E01';
+  /// row1.cells[1].value = 'Clay';
+  /// row1.cells[2].value = '\$10,000';
+  /// PdfGridRow row2 = rowCollection[1];
+  /// row2.cells[0].value = 'E02';
+  /// row2.cells[1].value = 'Simon';
+  /// row2.cells[2].value = '\$12,000';
+  /// //Set the row span
+  /// row1.cells[1].rowSpan = 2;
+  /// //Set the row height
+  /// row2.height = 20;
+  /// //Set the row style
+  /// rowCollection[0].style = PdfGridRowStyle(
+  ///     backgroundBrush: PdfBrushes.dimGray,
+  ///     textPen: PdfPens.lightGoldenrodYellow,
+  ///     textBrush: PdfBrushes.darkOrange,
+  ///     font: PdfStandardFont(PdfFontFamily.timesRoman, 12));
+  /// //Draw the grid in PDF document page
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
+  PdfGridRow add([PdfGridRow? row]) {
     if (row == null) {
       final PdfGridRow row = PdfGridRow(_grid);
       add(row);
@@ -186,9 +606,47 @@ class PdfGridRowCollection {
   }
 
   /// Sets the row span and column span to a cell.
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid
+  /// PdfGrid grid = PdfGrid();
+  /// //Add columns to grid
+  /// grid.columns.add(count: 3);
+  /// //Add headers to grid
+  /// grid.headers.add(2);
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row1 = grid.rows.add();
+  /// row1.cells[0].value = 'E01';
+  /// row1.cells[1].value = 'Clay';
+  /// row1.cells[2].value = '\$10,000';
+  /// PdfGridRow row2 = grid.rows.add();
+  /// row2.cells[0].value = 'E02';
+  /// row2.cells[1].value = 'Simon';
+  /// row2.cells[2].value = '\$12,000';
+  /// //Set the rows span
+  /// grid.rows.setSpan(0, 1, 2, 1);
+  /// //Set the row height
+  /// row2.height = 20;
+  /// //Set the row style
+  /// row1.style = PdfGridRowStyle(
+  ///     backgroundBrush: PdfBrushes.dimGray,
+  ///     textPen: PdfPens.lightGoldenrodYellow,
+  ///     textBrush: PdfBrushes.darkOrange,
+  ///     font: PdfStandardFont(PdfFontFamily.timesRoman, 12));
+  /// //Draw the grid in PDF document page
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   void setSpan(int rowIndex, int cellIndex, int rowSpan, int columnSpan) {
-    ArgumentError.checkNotNull(rowSpan);
-    ArgumentError.checkNotNull(columnSpan);
     if (rowIndex > _grid.rows.count) {
       ArgumentError.value(rowIndex, 'rowIndex', 'Index out of range');
     }
@@ -201,6 +659,53 @@ class PdfGridRowCollection {
   }
 
   /// Applies the style to all the rows in the grid.
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid
+  /// PdfGrid grid = PdfGrid();
+  /// //Add columns to grid
+  /// grid.columns.add(count: 3);
+  /// //Add headers to grid
+  /// grid.headers.add(2);
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row1 = grid.rows.add();
+  /// row1.cells[0].value = 'E01';
+  /// row1.cells[1].value = 'Clay';
+  /// row1.cells[2].value = '\$10,000';
+  /// PdfGridRow row2 = grid.rows.add();
+  /// row2.cells[0].value = 'E02';
+  /// row2.cells[1].value = 'Simon';
+  /// row2.cells[2].value = '\$12,000';
+  /// //Set the rows span
+  /// grid.rows.setSpan(0, 1, 2, 1);
+  /// //Set the row height
+  /// row2.height = 20;
+  /// //Set the row style
+  /// row1.style = PdfGridRowStyle(
+  ///     backgroundBrush: PdfBrushes.dimGray,
+  ///     textPen: PdfPens.lightGoldenrodYellow,
+  ///     textBrush: PdfBrushes.darkOrange,
+  ///     font: PdfStandardFont(PdfFontFamily.timesRoman, 12));
+  /// //Create the PDF grid row style. Assign to whole rows
+  /// PdfGridRowStyle rowStyle = PdfGridRowStyle(
+  ///     backgroundBrush: PdfBrushes.lightGoldenrodYellow,
+  ///     textPen: PdfPens.indianRed,
+  ///     textBrush: PdfBrushes.lightYellow,
+  ///     font: PdfStandardFont(PdfFontFamily.timesRoman, 12));
+  /// grid.rows.applyStyle(rowStyle);
+  /// //Draw the grid in PDF document page
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   void applyStyle(PdfGridStyleBase style) {
     if (style is PdfGridCellStyle) {
       for (int i = 0; i < _grid.rows.count; i++) {
@@ -223,15 +728,47 @@ class PdfGridRowCollection {
     if (index < 0 || index >= _rows.length) {
       throw IndexError(index, _rows);
     }
-    return _rows[index];
+    return _rows[index]!;
   }
 
-  int _indexOf(PdfGridRow row) {
+  int _indexOf(PdfGridRow? row) {
     return _rows.indexOf(row);
   }
 }
 
 /// Provides customization of the settings for the header.
+/// ```dart
+/// //Create a new PDF document
+/// PdfDocument document = PdfDocument();
+/// //Create a PdfGrid
+/// PdfGrid grid = PdfGrid();
+/// //Add columns to grid
+/// grid.columns.add(count: 3);
+/// //Add headers to grid
+/// grid.headers.add(2);
+/// PdfGridHeaderCollection headers = grid.headers;
+/// headers[0].cells[0].value = 'Employee ID';
+/// headers[0].cells[1].value = 'Employee Name';
+/// headers[0].cells[2].value = 'Salary';
+/// //Add rows to grid
+/// PdfGridRow row1 = grid.rows.add();
+/// row1.cells[0].value = 'E01';
+/// row1.cells[1].value = 'Clay';
+/// row1.cells[2].value = '\$10,000';
+/// PdfGridRow row2 = grid.rows.add();
+/// row2.cells[0].value = 'E02';
+/// row2.cells[1].value = 'Simon';
+/// row2.cells[2].value = '\$12,000';
+/// //Set the rows span
+/// grid.rows.setSpan(0, 1, 2, 1);
+/// //Draw the grid in PDF document page
+/// grid.draw(
+///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+/// //Save the document.
+/// List<int> bytes = document.save();
+/// //Dispose the document.
+/// document.dispose();
+/// ```
 class PdfGridHeaderCollection {
   /// Initializes a new instance of the [PdfGridHeaderCollection] class
   /// with the parent grid.
@@ -241,25 +778,160 @@ class PdfGridHeaderCollection {
   }
 
   //Fields
-  PdfGrid _grid;
-  List<PdfGridRow> _rows;
+  late PdfGrid _grid;
+  late List<PdfGridRow> _rows;
 
   //Properties
   ///  Gets the number of header in the [PdfGrid].
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid
+  /// PdfGrid grid = PdfGrid();
+  /// //Add columns to grid
+  /// grid.columns.add(count: 3);
+  /// //Gets the headers collection from the grid
+  /// PdfGridHeaderCollection headers = grid.headers;
+  /// //Add headers to grid
+  /// headers.add(1);
+  /// Gets a header row from the headers collection
+  /// headers[0].cells[0].value = 'Employee ID';
+  /// headers[0].cells[1].value = 'Employee Name';
+  /// headers[0].cells[2].value = 'Salary';
+  /// Gets the headers count
+  /// int headerCount = headers.count;
+  /// //Add rows to grid
+  /// PdfGridRow row1 = grid.rows.add();
+  /// row1.cells[0].value = 'E01';
+  /// row1.cells[1].value = 'Clay';
+  /// row1.cells[2].value = '\$10,000';
+  /// PdfGridRow row2 = grid.rows.add();
+  /// row2.cells[0].value = 'E02';
+  /// row2.cells[1].value = 'Simon';
+  /// row2.cells[2].value = '\$12,000';
+  /// //Draw the grid in PDF document page
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   int get count => _rows.length;
 
   /// Gets a [PdfGridRow] object that represents the header row in a
   /// [PdfGridHeaderCollection] control.
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid
+  /// PdfGrid grid = PdfGrid();
+  /// //Add columns to grid
+  /// grid.columns.add(count: 3);
+  /// //Gets the headers collection from the grid
+  /// PdfGridHeaderCollection headers = grid.headers;
+  /// //Add headers to grid
+  /// headers.add(1);
+  /// Gets a header row from the headers collection
+  /// headers[0].cells[0].value = 'Employee ID';
+  /// headers[0].cells[1].value = 'Employee Name';
+  /// headers[0].cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row1 = grid.rows.add();
+  /// row1.cells[0].value = 'E01';
+  /// row1.cells[1].value = 'Clay';
+  /// row1.cells[2].value = '\$10,000';
+  /// PdfGridRow row2 = grid.rows.add();
+  /// row2.cells[0].value = 'E02';
+  /// row2.cells[1].value = 'Simon';
+  /// row2.cells[2].value = '\$12,000';
+  /// //Draw the grid in PDF document page
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   PdfGridRow operator [](int index) => _returnValue(index);
 
   //Public methods
   /// [PdfGrid] enables you to quickly and easily add rows
   /// to the header at run time.
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid
+  /// PdfGrid grid = PdfGrid();
+  /// //Add columns to grid
+  /// grid.columns.add(count: 3);
+  /// //Gets the headers collection from the grid
+  /// PdfGridHeaderCollection headers = grid.headers;
+  /// //Add headers to grid
+  /// headers.add(1);
+  /// headers[0].cells[0].value = 'Employee ID';
+  /// headers[0].cells[1].value = 'Employee Name';
+  /// headers[0].cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row1 = grid.rows.add();
+  /// row1.cells[0].value = 'E01';
+  /// row1.cells[1].value = 'Clay';
+  /// row1.cells[2].value = '\$10,000';
+  /// PdfGridRow row2 = grid.rows.add();
+  /// row2.cells[0].value = 'E02';
+  /// row2.cells[1].value = 'Simon';
+  /// row2.cells[2].value = '\$12,000';
+  /// //Draw the grid in PDF document page
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   List<PdfGridRow> add(int count) {
     return _addRows(count);
   }
 
   /// Enables you to set the appearance of the header row in a [PdfGrid].
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid
+  /// PdfGrid grid = PdfGrid();
+  /// //Add columns to grid
+  /// grid.columns.add(count: 3);
+  /// //Gets the headers collection from the grid
+  /// PdfGridHeaderCollection headers = grid.headers;
+  /// //Add headers to grid
+  /// headers.add(1);
+  /// headers[0].cells[0].value = 'Employee ID';
+  /// headers[0].cells[1].value = 'Employee Name';
+  /// headers[0].cells[2].value = 'Salary';
+  /// //Create the header row style. Assign to whole headers
+  /// PdfGridRowStyle headerStyle = PdfGridRowStyle(
+  ///     backgroundBrush: PdfBrushes.lightGoldenrodYellow,
+  ///     textPen: PdfPens.indianRed,
+  ///     textBrush: PdfBrushes.lightYellow,
+  ///     font: PdfStandardFont(PdfFontFamily.timesRoman, 12));
+  /// headers.applyStyle(headerStyle);
+  /// //Add rows to grid
+  /// PdfGridRow row1 = grid.rows.add();
+  /// row1.cells[0].value = 'E01';
+  /// row1.cells[1].value = 'Clay';
+  /// row1.cells[2].value = '\$10,000';
+  /// PdfGridRow row2 = grid.rows.add();
+  /// row2.cells[0].value = 'E02';
+  /// row2.cells[1].value = 'Simon';
+  /// row2.cells[2].value = '\$12,000';
+  /// //Draw the grid in PDF document page
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   void applyStyle(PdfGridStyleBase style) {
     if (style is PdfGridCellStyle) {
       for (int i = 0; i < _rows.length; i++) {
@@ -276,6 +948,46 @@ class PdfGridHeaderCollection {
   }
 
   /// Removes all the header information in the [PdfGrid].
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid
+  /// PdfGrid grid = PdfGrid();
+  /// //Add columns to grid
+  /// grid.columns.add(count: 3);
+  /// //Gets the headers collection from the grid
+  /// PdfGridHeaderCollection headers = grid.headers;
+  /// //Add headers to grid
+  /// headers.add(1);
+  /// headers[0].cells[0].value = 'Employee ID';
+  /// headers[0].cells[1].value = 'Employee Name';
+  /// headers[0].cells[2].value = 'Salary';
+  /// //Create the header row style. Assign to whole headers
+  /// PdfGridRowStyle headerStyle = PdfGridRowStyle(
+  ///     backgroundBrush: PdfBrushes.lightGoldenrodYellow,
+  ///     textPen: PdfPens.indianRed,
+  ///     textBrush: PdfBrushes.lightYellow,
+  ///     font: PdfStandardFont(PdfFontFamily.timesRoman, 12));
+  /// headers.applyStyle(headerStyle);
+  /// //Clear the headers
+  /// headers.clear();
+  /// //Add rows to grid
+  /// PdfGridRow row1 = grid.rows.add();
+  /// row1.cells[0].value = 'E01';
+  /// row1.cells[1].value = 'Clay';
+  /// row1.cells[2].value = '\$10,000';
+  /// PdfGridRow row2 = grid.rows.add();
+  /// row2.cells[0].value = 'E02';
+  /// row2.cells[1].value = 'Simon';
+  /// row2.cells[2].value = '\$12,000';
+  /// //Draw the grid in PDF document page
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   void clear() {
     _rows.clear();
   }

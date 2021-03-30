@@ -18,8 +18,8 @@ part of pdf;
 /// ```
 abstract class PdfImage extends PdfShapeElement implements _IPdfWrapper {
   //Fields
-  double _jpegOrientationAngle;
-  _PdfStream _imageStream;
+  double? _jpegOrientationAngle;
+  _PdfStream? _imageStream;
 
   //Properties
   /// Width of an image
@@ -127,9 +127,10 @@ abstract class PdfImage extends PdfShapeElement implements _IPdfWrapper {
   void _save();
 
   @override
-  _IPdfPrimitive get _element => _imageStream;
+  _IPdfPrimitive? get _element => _imageStream;
   @override
-  set _element(_IPdfPrimitive value) {
-    _imageStream = value;
+  // ignore: unused_element
+  set _element(_IPdfPrimitive? value) {
+    _imageStream = value as _PdfStream?;
   }
 }

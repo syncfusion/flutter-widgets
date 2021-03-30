@@ -1,12 +1,10 @@
 ![syncfusion_flutter_barcode_banner](https://cdn.syncfusion.com/content/images/FTControl/Flutter/Barcode%20Banner.png)
 
-# Syncfusion Flutter Barcodes
+# Flutter Barcodes library
 
-The Syncfusion Flutter Barcode Generator is a data visualization widget used to generate and display data in a machine-readable format. It provides a perfect approach to encoding input values using supported symbology types.
+Flutter Barcode Generator package is a data visualization widget used to generate and display data in a machine-readable format. It provides a perfect approach to encoding input values using supported symbology types.
 
-**Disclaimer:** This is a commercial package. To use this package, you need to have either a Syncfusion commercial license or Syncfusion Community License. For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
-
-**Note:** Our packages are now compatible with Flutter for Web. However, this will be in Beta until Flutter for Web becomes stable.
+**Disclaimer:** This is a commercial package. To use this package, you need to have either a Syncfusion commercial license or [Free Syncfusion Community license](https://www.syncfusion.com/products/communitylicense). For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
 
 ## Table of contents
 - [Barcode Generator feature](#barcode-generator-feature)

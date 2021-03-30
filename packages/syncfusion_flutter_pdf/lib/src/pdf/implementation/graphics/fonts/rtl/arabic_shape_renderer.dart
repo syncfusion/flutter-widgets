@@ -289,7 +289,7 @@ class _ArabicShapeRenderer {
   String getCharacterShape(String input, int index) {
     final int inputCode = input == '' ? 0 : input.codeUnitAt(0);
     if (inputCode >= hamza.codeUnitAt(0) && inputCode <= bwhb.codeUnitAt(0)) {
-      final List<String> value = arabicMapTable[input];
+      final List<String>? value = arabicMapTable[input];
       if (value != null) {
         return value[index + 1];
       }
@@ -307,7 +307,7 @@ class _ArabicShapeRenderer {
         !((value >= fathatan.codeUnitAt(0) &&
                 value <= hamzaBelow.codeUnitAt(0)) ||
             shape == superscriptAlef)) {
-      final List<String> c = arabicMapTable[shape];
+      final List<String>? c = arabicMapTable[shape];
       if (c != null) {
         return c.length - 1;
       }

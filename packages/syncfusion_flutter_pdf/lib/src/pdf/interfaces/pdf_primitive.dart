@@ -4,24 +4,24 @@ part of pdf;
 class _IPdfPrimitive {
   /// Specfies the status of the IPdfPrmitive.
   /// Status is registered if it has a reference or else none.
-  _ObjectStatus status;
+  _ObjectStatus? status;
 
   /// Indicates whether this primitive is saving or not
-  bool isSaving;
+  bool? isSaving;
 
   /// Index value of the specified object
-  int objectCollectionIndex;
+  int? objectCollectionIndex;
 
   /// Stores the cloned object for future use.
-  _IPdfPrimitive clonedObject;
+  _IPdfPrimitive? clonedObject;
 
   /// Position of the object.
-  int position;
+  int? position;
 
   /// Saves the object using the specified writer.
-  void save(_IPdfWriter writer) {}
+  void save(_IPdfWriter? writer) {}
 
   void dispose() {}
 
-  _IPdfPrimitive _clone(_PdfCrossTable crossTable) => null;
+  _IPdfPrimitive? _clone(_PdfCrossTable crossTable) => null;
 }

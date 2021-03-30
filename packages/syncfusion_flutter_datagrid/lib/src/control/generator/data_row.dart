@@ -54,7 +54,7 @@ class DataRow extends DataRowBase {
       }
 
       for (int index = startColumnIndex; index <= endColumnIndex; index++) {
-        var dc = _createColumn(index);
+        DataCellBase? dc = _createColumn(index);
         _visibleColumns.add(dc);
         dc = null;
       }
@@ -112,21 +112,19 @@ class DataRow extends DataRowBase {
       }
 
       for (int index = startColumnIndex; index <= endColumnIndex; index++) {
-        var dc = _indexer(index);
+        DataCellBase? dc = _indexer(index);
         if (dc == null) {
-          var dataCell = _reUseCell(startColumnIndex, endColumnIndex);
+          DataCellBase? dataCell = _reUseCell(startColumnIndex, endColumnIndex);
 
-          dataCell ??= _visibleColumns.firstWhere(
-              (col) =>
-                  col.columnIndex == -1 && col._cellType != CellType.indentCell,
-              orElse: () => null);
+          dataCell ??= _visibleColumns.firstWhereOrNull((col) =>
+              col.columnIndex == -1 && col._cellType != CellType.indentCell);
 
           _updateColumn(dataCell, index);
           dataCell = null;
         }
 
-        dc ??= _visibleColumns.firstWhere((col) => col.columnIndex == index,
-            orElse: () => null);
+        dc ??=
+            _visibleColumns.firstWhereOrNull((col) => col.columnIndex == index);
 
         if (dc != null) {
           if (!dc._isVisible) {
@@ -150,7 +148,7 @@ class DataRow extends DataRowBase {
   }
 
   DataCellBase _createColumn(int index) {
-    final _DataGridSettings dataGridSettings = _dataGridStateDetails();
+    final _DataGridSettings dataGridSettings = _dataGridStateDetails!();
     final canIncrementHeight = rowType == RowType.headerRow &&
         dataGridSettings.stackedHeaderRows.isNotEmpty;
     final dc = DataCell()
@@ -169,15 +167,13 @@ class DataRow extends DataRowBase {
         .._cellType = CellType.headerCell;
     } else {
       dc
-        .._renderer = dc.gridColumn._cellType.isNotEmpty
-            ? dataGridSettings.cellRenderers[dc.gridColumn._cellType]
-            : dataGridSettings.cellRenderers['TextField']
+        .._renderer = dataGridSettings.cellRenderers[dc.gridColumn!._cellType]
         .._cellType = CellType.gridCell;
     }
     if (canIncrementHeight) {
       final rowSpan = _StackedHeaderHelper._getRowSpan(
-          dataGridSettings, dc._dataRow.rowIndex - 1, index, false,
-          mappingName: dc.gridColumn.mappingName);
+          dataGridSettings, dc._dataRow!.rowIndex - 1, index, false,
+          mappingName: dc.gridColumn!.columnName);
       dc._rowSpan = rowSpan;
     }
 
@@ -185,7 +181,7 @@ class DataRow extends DataRowBase {
     return dc;
   }
 
-  DataCellBase _indexer(int index) {
+  DataCellBase? _indexer(int index) {
     for (final column in _visibleColumns) {
       if (column.columnIndex == index) {
         return column;
@@ -195,18 +191,16 @@ class DataRow extends DataRowBase {
     return null;
   }
 
-  DataCellBase _reUseCell(int startColumnIndex, int endColumnIndex) =>
-      _visibleColumns.firstWhere(
-          (cell) =>
-              cell.gridColumn != null &&
-              (cell.columnIndex < 0 ||
-                  cell.columnIndex < startColumnIndex ||
-                  cell.columnIndex > endColumnIndex) &&
-              !cell._isEnsured,
-          orElse: () => null);
+  DataCellBase? _reUseCell(int startColumnIndex, int endColumnIndex) =>
+      _visibleColumns.firstWhereOrNull((cell) =>
+          cell.gridColumn != null &&
+          (cell.columnIndex < 0 ||
+              cell.columnIndex < startColumnIndex ||
+              cell.columnIndex > endColumnIndex) &&
+          !cell._isEnsured);
 
-  void _updateColumn(DataCellBase dc, int index) {
-    final _DataGridSettings dataGridSettings = _dataGridStateDetails();
+  void _updateColumn(DataCellBase? dc, int index) {
+    final _DataGridSettings dataGridSettings = _dataGridStateDetails!();
     final canIncrementHeight = rowType == RowType.headerRow &&
         dataGridSettings.stackedHeaderRows.isNotEmpty;
     if (dc != null) {
@@ -225,8 +219,8 @@ class DataRow extends DataRowBase {
         _updateRenderer(dataGridSettings, dc, dc.gridColumn);
         if (canIncrementHeight) {
           final rowSpan = _StackedHeaderHelper._getRowSpan(
-              dataGridSettings, dc._dataRow.rowIndex - 1, index, false,
-              mappingName: dc.gridColumn.mappingName);
+              dataGridSettings, dc._dataRow!.rowIndex - 1, index, false,
+              mappingName: dc.gridColumn!.columnName);
           dc._rowSpan = rowSpan;
         } else {
           dc._rowSpan = 0;
@@ -246,13 +240,13 @@ class DataRow extends DataRowBase {
   }
 
   void _updateRenderer(_DataGridSettings dataGridSettings,
-      DataCellBase dataColumn, GridColumn column) {
-    GridCellRendererBase newRenderer;
+      DataCellBase dataColumn, GridColumn? column) {
+    GridCellRendererBase? newRenderer;
     if (rowRegion == RowRegion.header && rowType == RowType.headerRow) {
       newRenderer = dataGridSettings.cellRenderers['ColumnHeader'];
       dataColumn._cellType = CellType.headerCell;
     } else {
-      newRenderer = dataGridSettings.cellRenderers[column._cellType];
+      newRenderer = dataGridSettings.cellRenderers[column!._cellType];
       dataColumn._cellType = CellType.gridCell;
     }
 
@@ -260,7 +254,8 @@ class DataRow extends DataRowBase {
     newRenderer = null;
   }
 
-  void _checkForCurrentCell(_DataGridSettings dataGridSettings, DataCell dc) {
+  void _checkForCurrentCell(
+      _DataGridSettings dataGridSettings, DataCellBase dc) {
     if (dataGridSettings.navigationMode == GridNavigationMode.cell) {
       final _CurrentCellManager currentCellManager =
           dataGridSettings.currentCell;

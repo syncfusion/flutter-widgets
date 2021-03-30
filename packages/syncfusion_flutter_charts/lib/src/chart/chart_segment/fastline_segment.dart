@@ -5,7 +5,7 @@ part of charts;
 /// This generates the fast line series points and has the [calculateSegmentPoints] method overrided to customize
 /// the fast line segment point calculation.
 ///
-/// Gets the path and color from the [series].
+/// Gets the path and color from the `series`.
 class FastLineSegment extends ChartSegment {
   /// Gets the color of the series.
   @override
@@ -16,7 +16,7 @@ class FastLineSegment extends ChartSegment {
     assert(_series.opacity <= 1,
         'The opacity value of the fast line series should be less than or equal to 1.');
     if (_color != null) {
-      _fillPaint.color = _color.withOpacity(_series.opacity);
+      _fillPaint.color = _color!.withOpacity(_series.opacity);
     }
     _fillPaint.style = PaintingStyle.fill;
     _defaultFillColor = _fillPaint;
@@ -35,14 +35,14 @@ class FastLineSegment extends ChartSegment {
       if (_strokeColor != null) {
         _strokePaint.color =
             (_series.opacity < 1 && _strokeColor != Colors.transparent)
-                ? _strokeColor.withOpacity(_series.opacity)
-                : _strokeColor;
+                ? _strokeColor!.withOpacity(_series.opacity)
+                : _strokeColor!;
       }
     } else {
-      _strokePaint.shader = _series.gradient
-          .createShader(_seriesRenderer._segmentPath.getBounds());
+      _strokePaint.shader = _series.gradient!
+          .createShader(_seriesRenderer._segmentPath!.getBounds());
     }
-    _strokePaint.strokeWidth = _strokeWidth;
+    _strokePaint.strokeWidth = _strokeWidth!;
     _strokePaint.style = PaintingStyle.stroke;
     _strokePaint.strokeCap = StrokeCap.round;
     _defaultStrokeColor = _strokePaint;
@@ -53,9 +53,9 @@ class FastLineSegment extends ChartSegment {
   @override
   void onPaint(Canvas canvas) {
     _series.dashArray != null
-        ? _drawDashedLine(canvas, _series.dashArray, strokePaint,
-            _seriesRenderer._segmentPath)
-        : canvas.drawPath(_seriesRenderer._segmentPath, strokePaint);
+        ? _drawDashedLine(canvas, _series.dashArray, strokePaint!,
+            _seriesRenderer._segmentPath!)
+        : canvas.drawPath(_seriesRenderer._segmentPath!, strokePaint!);
   }
 
   /// Calculates the rendering bounds of a segment.

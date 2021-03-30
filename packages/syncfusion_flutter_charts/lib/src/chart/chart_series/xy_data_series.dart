@@ -6,46 +6,46 @@ part of charts;
 abstract class XyDataSeries<T, D> extends CartesianSeries<T, D> {
   /// Creating an argument constructor of XyDataSeries class.
   XyDataSeries(
-      {ValueKey<String> key,
-      ChartSeriesRendererFactory<T, D> onCreateRenderer,
-      SeriesRendererCreatedCallback onRendererCreated,
-      ChartValueMapper<T, D> xValueMapper,
-      ChartValueMapper<T, dynamic> yValueMapper,
-      ChartValueMapper<T, String> dataLabelMapper,
-      String name,
-      @required List<T> dataSource,
-      String xAxisName,
-      String yAxisName,
-      ChartValueMapper<T, Color> pointColorMapper,
-      String legendItemText,
-      ChartValueMapper<T, dynamic> sortFieldValueMapper,
-      LinearGradient gradient,
-      LinearGradient borderGradient,
-      ChartValueMapper<T, num> sizeValueMapper,
-      ChartValueMapper<T, num> highValueMapper,
-      ChartValueMapper<T, num> lowValueMapper,
-      ChartValueMapper<T, bool> intermediateSumPredicate,
-      ChartValueMapper<T, bool> totalSumPredicate,
-      List<Trendline> trendlines,
-      double width,
-      MarkerSettings markerSettings,
-      bool isVisible,
-      bool enableTooltip,
-      EmptyPointSettings emptyPointSettings,
-      DataLabelSettings dataLabelSettings,
-      double animationDuration,
-      List<double> dashArray,
-      Color borderColor,
-      double borderWidth,
+      {ValueKey<String>? key,
+      ChartSeriesRendererFactory<T, D>? onCreateRenderer,
+      SeriesRendererCreatedCallback? onRendererCreated,
+      ChartValueMapper<T, D>? xValueMapper,
+      ChartValueMapper<T, dynamic>? yValueMapper,
+      ChartValueMapper<T, String>? dataLabelMapper,
+      String? name,
+      required List<T> dataSource,
+      String? xAxisName,
+      String? yAxisName,
+      ChartValueMapper<T, Color>? pointColorMapper,
+      String? legendItemText,
+      ChartValueMapper<T, dynamic>? sortFieldValueMapper,
+      LinearGradient? gradient,
+      LinearGradient? borderGradient,
+      ChartValueMapper<T, num>? sizeValueMapper,
+      ChartValueMapper<T, num>? highValueMapper,
+      ChartValueMapper<T, num>? lowValueMapper,
+      ChartValueMapper<T, bool>? intermediateSumPredicate,
+      ChartValueMapper<T, bool>? totalSumPredicate,
+      List<Trendline>? trendlines,
+      double? width,
+      MarkerSettings? markerSettings,
+      bool? isVisible,
+      bool? enableTooltip,
+      EmptyPointSettings? emptyPointSettings,
+      DataLabelSettings? dataLabelSettings,
+      double? animationDuration,
+      List<double>? dashArray,
+      Color? borderColor,
+      double? borderWidth,
       // ignore: deprecated_member_use_from_same_package
-      SelectionSettings selectionSettings,
-      SelectionBehavior selectionBehavior,
-      bool isVisibleInLegend,
-      LegendIconType legendIconType,
-      double opacity,
-      Color color,
-      List<int> initialSelectedDataIndexes,
-      SortingOrder sortingOrder})
+      SelectionSettings? selectionSettings,
+      SelectionBehavior? selectionBehavior,
+      bool? isVisibleInLegend,
+      LegendIconType? legendIconType,
+      double? opacity,
+      Color? color,
+      List<int>? initialSelectedDataIndexes,
+      SortingOrder? sortingOrder})
       : super(
             key: key,
             onRendererCreated: onRendererCreated,
@@ -62,8 +62,12 @@ abstract class XyDataSeries<T, D> extends CartesianSeries<T, D> {
             color: color,
             name: name,
             width: width,
-            xValueMapper: (int index) => xValueMapper(dataSource[index], index),
-            yValueMapper: (int index) => yValueMapper(dataSource[index], index),
+            xValueMapper: xValueMapper != null
+                ? (int index) => xValueMapper(dataSource[index], index)
+                : null,
+            yValueMapper: yValueMapper != null
+                ? (int index) => yValueMapper(dataSource[index], index)
+                : null,
             sortFieldValueMapper: sortFieldValueMapper != null
                 ? (int index) => sortFieldValueMapper(dataSource[index], index)
                 : null,
@@ -133,7 +137,7 @@ class CartesianChartPoint<D> {
       this.maximum,
       this.isIntermediateSum,
       this.isTotalSum,
-      this.maxYValue,
+      this.maxYValue = 0,
       this.outliers,
       this.upperQuartile,
       this.lowerQuartile,
@@ -172,46 +176,46 @@ class CartesianChartPoint<D> {
   }
 
   /// X value of the point.
-  D x;
+  D? x;
 
   /// Y value of the point
-  D y;
+  D? y;
 
   /// Stores the xValues of the point
-  D xValue;
+  D? xValue;
 
   /// Stores the yValues of the Point
-  D yValue;
+  D? yValue;
 
   /// Sort value of the point.
-  D sortValue;
+  D? sortValue;
 
   /// High value of the point.
-  D high;
+  D? high;
 
   /// Low value of the point.
-  D low;
+  D? low;
 
   /// Open value of the point.
-  D open;
+  D? open;
 
   /// Close value of the point
-  D close;
+  D? close;
 
   /// Volume value of the point
-  num volume;
+  num? volume;
 
   /// Marker point location.
-  _ChartLocation markerPoint;
+  _ChartLocation? markerPoint;
 
   /// second Marker point location.
-  _ChartLocation markerPoint2;
+  _ChartLocation? markerPoint2;
 
   /// Size of the bubble.
-  num bubbleSize;
+  num? bubbleSize;
 
   /// To set empty value
-  bool isEmpty;
+  bool? isEmpty;
 
   /// To set gap value
   bool isGap = false;
@@ -223,58 +227,58 @@ class CartesianChartPoint<D> {
   bool isVisible = true;
 
   /// Used to map the color value from data point.
-  Color pointColorMapper;
+  Color? pointColorMapper;
 
   /// Map the datalabel value from data point.
-  String dataLabelMapper;
+  String? dataLabelMapper;
 
   /// Store the region.
-  Rect region;
+  Rect? region;
 
   /// Store the region for box series rect.
-  Rect boxRectRegion;
+  Rect? boxRectRegion;
 
   /// Store the outliers region.
-  List<Rect> outlierRegion;
+  List<Rect>? outlierRegion;
 
   /// Store the outliers region.
-  List<dynamic> outlierRegionPosition;
+  List<dynamic>? outlierRegionPosition;
 
   /// Minimum value of box plot series.
-  num minimum;
+  num? minimum;
 
   /// Maximum value of box plot series.
-  num maximum;
+  num? maximum;
 
   /// Outlier values of box plot series.
-  List<num> outliers = <num>[];
+  List<num>? outliers = <num>[];
 
   /// Upper quartile values of box plot series.
-  num upperQuartile;
+  double? upperQuartile;
 
   /// Lower quartile values of box plot series.
-  num lowerQuartile;
+  double? lowerQuartile;
 
   /// Average value of the given data source in box plot series.
-  num mean;
+  num? mean;
 
   /// Median value of the given data source in box plot series.
-  num median;
+  num? median;
 
   /// The intermediate sum value of the waterfall series.
-  bool isIntermediateSum;
+  bool? isIntermediateSum;
 
   /// The total sum value of the waterfall series.
-  bool isTotalSum;
+  bool? isTotalSum;
 
   /// The end value of each data point in the waterfall series.
-  num endValue;
+  num? endValue;
 
   /// The Origin value of each data point in waterfall series.
-  num originValue;
+  num? originValue;
 
   /// To find the maximum Y value in the waterfall series.
-  num maxYValue = 0;
+  num maxYValue;
 
   /// To execute OnDataLabelRender event or not.
   // ignore: prefer_final_fields
@@ -285,13 +289,19 @@ class CartesianChartPoint<D> {
   bool isTooltipRenderEvent = false;
 
   //specifies the style of data label in the onDataLabelEvent
-  TextStyle _dataLabelStyle;
+  TextStyle? _dataLabelStyle;
 
   //specifies the color of the data label in onDataLabelEvent
-  Color _dataLabelColor;
+  Color? _dataLabelColor;
+
+  /// Stores the tooltip label text.
+  String? _tooltipLabelText;
+
+  /// Stores the tooltip header text.
+  String? _tooltipHeaderText;
 
   /// Stores the chart location.
-  _ChartLocation openPoint,
+  _ChartLocation? openPoint,
       closePoint,
       centerOpenPoint,
       centerClosePoint,
@@ -328,73 +338,73 @@ class CartesianChartPoint<D> {
   List<_ChartLocation> outliersPoint = <_ChartLocation>[];
 
   /// control points for spline series.
-  List<_ControlPoints> controlPoint;
+  List<Offset>? controlPoint;
 
   /// control points for spline range area series.
-  List<_ControlPoints> controlPointshigh;
+  List<Offset>? controlPointshigh;
 
   /// control points for spline range area series.
-  List<_ControlPoints> controlPointslow;
+  List<Offset>? controlPointslow;
 
   /// Store the List of region.
-  List<Rect> regions;
+  List<Rect>? regions;
 
   /// store the cumulative value.
-  double cumulativeValue;
+  double? cumulativeValue;
 
   /// Stores the tracker rect region
-  Rect trackerRectRegion;
+  Rect? trackerRectRegion;
 
   /// Stores the forth data label text
-  String label;
+  String? label;
 
   /// Stores the forth data label text
-  String label2;
+  String? label2;
 
   /// Stores the forth data label text
-  String label3;
+  String? label3;
 
   /// Stores the forth data label text
-  String label4;
+  String? label4;
 
   /// Stores the median data label text
-  String label5;
+  String? label5;
 
   /// Stores the outliers data label text
   List<String> outliersLabel = <String>[];
 
   /// Stores the forth data label Rect
-  RRect labelFillRect;
+  RRect? labelFillRect;
 
   /// Stores the forth data label Rect
-  RRect labelFillRect2;
+  RRect? labelFillRect2;
 
   /// Stores the forth data label Rect
-  RRect labelFillRect3;
+  RRect? labelFillRect3;
 
   /// Stores the forth data label Rect
-  RRect labelFillRect4;
+  RRect? labelFillRect4;
 
   /// Stores the median data label Rect
-  RRect labelFillRect5;
+  RRect? labelFillRect5;
 
   /// Stores the outliers data label Rect
   List<RRect> outliersFillRect = <RRect>[];
 
   /// Stores the data label location
-  _ChartLocation labelLocation;
+  _ChartLocation? labelLocation;
 
   /// Stores the second data label location
-  _ChartLocation labelLocation2;
+  _ChartLocation? labelLocation2;
 
   /// Stores the third data label location
-  _ChartLocation labelLocation3;
+  _ChartLocation? labelLocation3;
 
   /// Stores the forth data label location
-  _ChartLocation labelLocation4;
+  _ChartLocation? labelLocation4;
 
   /// Stores the median data label location
-  _ChartLocation labelLocation5;
+  _ChartLocation? labelLocation5;
 
   /// Stores the outliers data label location
   List<_ChartLocation> outliersLocation = <_ChartLocation>[];
@@ -403,46 +413,46 @@ class CartesianChartPoint<D> {
   bool dataLabelSaturationRegionInside = false;
 
   /// Stores the data label region
-  Rect dataLabelRegion;
+  Rect? dataLabelRegion;
 
   /// Stores the second data label region
-  Rect dataLabelRegion2;
+  Rect? dataLabelRegion2;
 
   /// Stores the third data label region
-  Rect dataLabelRegion3;
+  Rect? dataLabelRegion3;
 
   /// Stores the forth data label region
-  Rect dataLabelRegion4;
+  Rect? dataLabelRegion4;
 
   /// Stores the median data label region
-  Rect dataLabelRegion5;
+  Rect? dataLabelRegion5;
 
   /// Stores the outliers data label region
   List<Rect> outliersDataLabelRegion = <Rect>[];
 
   /// Stores the data point index
-  int index;
+  int? index;
 
   /// Stores the data index
-  int overallDataPointIndex;
+  int? overallDataPointIndex;
 
   /// Store the region data of the data point.
-  List<String> regionData;
+  List<String>? regionData;
 
   /// Store the visible point index.
-  int visiblePointIndex;
+  int? visiblePointIndex;
 }
 
 class _ChartLocation {
   _ChartLocation(this.x, this.y);
-  num x;
-  num y;
+  double x;
+  double y;
 }
 
 /// To calculate dash array path for series
-Path _dashPath(
-  Path source, {
-  @required _CircularIntervalList<double> dashArray,
+Path? _dashPath(
+  Path? source, {
+  required _CircularIntervalList<double> dashArray,
 }) {
   if (source == null) {
     return null;
@@ -484,8 +494,8 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
   @override
   void calculateEmptyPointValue(
       int pointIndex, CartesianChartPoint<dynamic> currentPoint,
-      [CartesianSeriesRenderer seriesRenderer]) {
-    final int pointLength = seriesRenderer._dataPoints.length - 1;
+      [CartesianSeriesRenderer? seriesRenderer]) {
+    final int pointLength = seriesRenderer!._dataPoints.length - 1;
     final String _seriesType = seriesRenderer._seriesType;
     final CartesianChartPoint<dynamic> prevPoint = seriesRenderer._dataPoints[
         seriesRenderer._dataPoints.length >= 2 ? pointLength - 1 : pointLength];
@@ -602,8 +612,8 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
   /// To render a series of elements for all series
   void _renderSeriesElements(SfCartesianChart chart, Canvas canvas,
       Animation<double> animationController) {
-    _markerShapes = <Path>[];
-    _markerShapes2 = <Path>[];
+    _markerShapes = <Path?>[];
+    _markerShapes2 = <Path?>[];
     assert(
         _series.markerSettings.height != null
             ? _series.markerSettings.height >= 0
@@ -619,8 +629,8 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
       if ((_series.markerSettings.isVisible &&
               !(this is BoxAndWhiskerSeriesRenderer)) ||
           this is ScatterSeriesRenderer) {
-        final MarkerSettingsRenderer markerSettingsRenderer =
-            _markerSettingsRenderer;
+        final MarkerSettingsRenderer? markerSettingsRenderer =
+            _markerSettingsRenderer!;
         markerSettingsRenderer?.renderMarker(
             this, point, animationController, canvas, pointIndex);
       }
@@ -635,10 +645,10 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
     if (_chartState != null && status == AnimationStatus.completed) {
       _reAnimate = false;
       _animationCompleted = true;
-      _chartState?._animationCompleteCount++;
+      _chartState!._animationCompleteCount++;
       _setAnimationStatus(_chartState);
     } else if (_chartState != null && status == AnimationStatus.forward) {
-      _chartState?._animateCompleted = false;
+      _chartState!._animateCompleted = false;
       _animationCompleted = false;
     }
   }
@@ -657,17 +667,19 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
         _series.color ?? _chart.palette[index % _chart.palette.length];
 
     // calculates the tooltip region for trenlines in this series
-    final List<Trendline> trendlines = _series.trendlines;
+    final List<Trendline>? trendlines = _series.trendlines;
     if (trendlines != null &&
         _chart.tooltipBehavior != null &&
         _chart.tooltipBehavior.enable) {
       for (int j = 0; j < trendlines.length; j++) {
         if (_trendlineRenderer[j]._isNeedRender) {
           if (_trendlineRenderer[j]._pointsData != null) {
-            for (int k = 0; k < _trendlineRenderer[j]._pointsData.length; k++) {
+            for (int k = 0;
+                k < _trendlineRenderer[j]._pointsData!.length;
+                k++) {
               final CartesianChartPoint<dynamic> trendlinePoint =
-                  _trendlineRenderer[j]._pointsData[k];
-              _calculateTooltipRegion(trendlinePoint, index, this, _chartState,
+                  _trendlineRenderer[j]._pointsData![k];
+              _calculateTooltipRegion(trendlinePoint, index, this, _chartState!,
                   trendlines[j], _trendlineRenderer[j], j);
             }
           }
@@ -683,22 +695,22 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
       int seriesIndex,
       CartesianChartPoint<dynamic> point,
       int pointIndex,
-      [_VisibleRange sideBySideInfo,
-      CartesianChartPoint<dynamic> _nextPoint,
-      num midX,
-      num midY]) {
+      [_VisibleRange? sideBySideInfo,
+      CartesianChartPoint<dynamic>? _nextPoint,
+      num? midX,
+      num? midY]) {
     if (_withInRange(seriesRenderer._dataPoints[pointIndex].xValue,
-        seriesRenderer._xAxisRenderer._visibleRange)) {
-      seriesRenderer._visibleDataPoints
+        seriesRenderer._xAxisRenderer!._visibleRange!)) {
+      seriesRenderer._visibleDataPoints!
           .add(seriesRenderer._dataPoints[pointIndex]);
-      if (seriesRenderer._visibleDataPoints.isNotEmpty) {
+      if (seriesRenderer._visibleDataPoints!.isNotEmpty) {
         seriesRenderer._dataPoints[pointIndex].visiblePointIndex =
-            seriesRenderer._visibleDataPoints.length - 1;
+            seriesRenderer._visibleDataPoints!.length - 1;
       }
     }
     _chart = _chartState._chart;
-    final ChartAxis xAxis = _xAxisRenderer._axis;
-    final ChartAxis yAxis = _yAxisRenderer._axis;
+    final ChartAxis xAxis = _xAxisRenderer!._axis;
+    final ChartAxis yAxis = _yAxisRenderer!._axis;
     final Rect rect = _calculatePlotOffset(_chartState._chartAxis._axisClipRect,
         Offset(xAxis.plotOffset, yAxis.plotOffset));
     _isRectSeries = _seriesType == 'column' ||
@@ -710,7 +722,7 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
         _seriesType == 'waterfall';
     CartesianChartPoint<dynamic> point;
 
-    final num markerHeight = _series.markerSettings.height,
+    final double markerHeight = _series.markerSettings.height,
         markerWidth = _series.markerSettings.width;
     final bool isPointSeries =
         _seriesType == 'scatter' || _seriesType == 'bubble';
@@ -720,10 +732,11 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
                 (_series.markerSettings.isVisible ||
                     _series.dataLabelSettings.isVisible ||
                     _series.enableTooltip))) &&
-        _visible) {
+        _visible!) {
       point = _dataPoints[pointIndex];
       if (point.region == null ||
           seriesRenderer._calculateRegion ||
+          _seriesType.contains('waterfall') ||
           _seriesType.contains('stackedcolumn') ||
           _seriesType.contains('stackedbar')) {
         if (seriesRenderer._calculateRegion &&
@@ -777,32 +790,38 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
         !point.isGap &&
         !point.isDrop) {
       final List<String> regionData = <String>[];
-      String date;
+      String? date;
       final List<dynamic> regionRect = <dynamic>[];
       final dynamic primaryAxisRenderer = _xAxisRenderer;
       if (primaryAxisRenderer is DateTimeAxisRenderer) {
-        final DateTimeAxis _axis = primaryAxisRenderer._axis;
-        final DateFormat dateFormat = _axis.dateFormat ??
-            primaryAxisRenderer._getLabelFormat(_xAxisRenderer);
+        final DateTimeAxis _axis = primaryAxisRenderer._axis as DateTimeAxis;
+        final DateFormat dateFormat =
+            _axis.dateFormat ?? _getDateTimeLabelFormat(_xAxisRenderer!);
         date = dateFormat
             .format(DateTime.fromMillisecondsSinceEpoch(point.xValue));
+      } else if (primaryAxisRenderer is DateTimeCategoryAxisRenderer) {
+        date = primaryAxisRenderer._dateFormat
+            .format(DateTime.fromMillisecondsSinceEpoch(point.xValue.floor()));
       }
       _xAxisRenderer is CategoryAxisRenderer
           ? regionData.add(point.x.toString())
-          : _xAxisRenderer is DateTimeAxisRenderer
+          : _xAxisRenderer is DateTimeAxisRenderer ||
+                  _xAxisRenderer is DateTimeCategoryAxisRenderer
               ? regionData.add(date.toString())
-              : regionData.add(_getLabelValue(point.xValue,
-                      _xAxisRenderer._axis, chart.tooltipBehavior.decimalPlaces)
+              : regionData.add(_getLabelValue(
+                      point.xValue,
+                      _xAxisRenderer!._axis,
+                      chart.tooltipBehavior.decimalPlaces)
                   .toString());
       if (_seriesType.contains('range')) {
-        regionData.add(_getLabelValue(point.high, _yAxisRenderer._axis,
+        regionData.add(_getLabelValue(point.high, _yAxisRenderer!._axis,
                 chart.tooltipBehavior.decimalPlaces)
             .toString());
-        regionData.add(_getLabelValue(point.low, _yAxisRenderer._axis,
+        regionData.add(_getLabelValue(point.low, _yAxisRenderer!._axis,
                 chart.tooltipBehavior.decimalPlaces)
             .toString());
       } else {
-        regionData.add(_getLabelValue(point.yValue, _yAxisRenderer._axis,
+        regionData.add(_getLabelValue(point.yValue, _yAxisRenderer!._axis,
                 chart.tooltipBehavior.decimalPlaces)
             .toString());
       }
@@ -811,19 +830,19 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
       regionRect.add(_isRectSeries
           ? _seriesType == 'column' || _seriesType.contains('stackedcolumn')
               ? point.yValue > 0
-                  ? point.region.topCenter
-                  : point.region.bottomCenter
-              : point.region.topCenter
+                  ? point.region!.topCenter
+                  : point.region!.bottomCenter
+              : point.region!.topCenter
           : (_seriesType == 'rangearea'
-              ? Offset(point.markerPoint.x,
-                  (point.markerPoint.y + point.markerPoint2.y) / 2)
-              : point.region.center));
+              ? Offset(point.markerPoint!.x,
+                  (point.markerPoint!.y + point.markerPoint2!.y) / 2)
+              : point.region!.center));
       regionRect.add(point.pointColorMapper);
       regionRect.add(point.bubbleSize);
       if (_seriesType.contains('stacked')) {
         regionData.add((point.cumulativeValue).toString());
       }
-      _regionalData[regionRect] = regionData;
+      _regionalData![regionRect] = regionData;
     }
   }
 

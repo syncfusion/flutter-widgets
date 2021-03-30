@@ -7,9 +7,16 @@ typedef ChartTooltipCallback = void Function(TooltipArgs tooltipArgs);
 typedef ChartActualRangeChangedCallback = void Function(
     ActualRangeChangedArgs rangeChangedArgs);
 
+@Deprecated('Use ChartLabelFormatterCallback instead.')
+
 /// Returns the AxisLabelRenderArgs.
 typedef ChartAxisLabelRenderCallback = void Function(
     AxisLabelRenderArgs axisLabelRenderArgs);
+
+///Signature for the [axisLabelFormatter] callback that returns [ChartAxisLabel] class value to
+/// customize the axis label text and style.
+typedef ChartLabelFormatterCallback = ChartAxisLabel Function(
+    AxisLabelRenderDetails axisLabelRenderArgs);
 
 /// Returns the DataLabelRenderArgs.
 typedef ChartDataLabelRenderCallback = void Function(
@@ -57,10 +64,19 @@ typedef ChartIndicatorRenderCallback = void Function(
 ///Returns the MarkerRenderArgs.
 typedef ChartMarkerRenderCallback = void Function(MarkerRenderArgs markerArgs);
 
+///Returns a widget which can be used to load more data to chart.
+///called on dragging and when the visible range reaches the end.
+typedef LoadMoreViewBuilderCallback = Widget Function(
+    BuildContext context, ChartSwipeDirection direction);
+
+/// A callback which gets called on swiping over plot area
+typedef ChartPlotAreaSwipeCallback = void Function(
+    ChartSwipeDirection direction);
+
 ///Renders the cartesian type charts.
 ///
 ///Cartesian charts are generally charts with horizontal and vertical axes.[SfCartesianChart] provides options to cusomize
-/// chart types using the [series] property.
+/// chart types using the `series` property.
 ///
 ///```dart
 ///Widget build(BuildContext context) {
@@ -124,7 +140,7 @@ typedef ChartMarkerRenderCallback = void Function(MarkerRenderArgs markerArgs);
 class SfCartesianChart extends StatefulWidget {
   /// Creating an argument constructor of SfCartesianChart class.
   SfCartesianChart(
-      {Key key,
+      {Key? key,
       this.backgroundColor,
       this.enableSideBySideSeriesPlacement = true,
       this.borderColor = Colors.transparent,
@@ -135,7 +151,8 @@ class SfCartesianChart extends StatefulWidget {
       this.plotAreaBackgroundImage,
       this.onTooltipRender,
       this.onActualRangeChanged,
-      this.onAxisLabelRender,
+      //ignore: deprecated_member_use_from_same_package
+      @deprecated this.onAxisLabelRender,
       this.onDataLabelRender,
       this.onLegendItemRender,
       this.onTrackballPositionChanging,
@@ -158,6 +175,8 @@ class SfCartesianChart extends StatefulWidget {
       this.isTransposed = false,
       this.enableAxisAnimation = false,
       this.annotations,
+      this.loadMoreIndicatorBuilder,
+      this.onPlotAreaSwipe,
       this.palette = const <Color>[
         Color.fromRGBO(75, 135, 185, 1),
         Color.fromRGBO(192, 108, 132, 1),
@@ -170,21 +189,22 @@ class SfCartesianChart extends StatefulWidget {
         Color.fromRGBO(255, 240, 219, 1),
         Color.fromRGBO(238, 238, 238, 1)
       ],
-      ChartAxis primaryXAxis,
-      ChartAxis primaryYAxis,
-      EdgeInsets margin,
-      TooltipBehavior tooltipBehavior,
-      ZoomPanBehavior zoomPanBehavior,
-      Legend legend,
-      SelectionType selectionType,
-      ActivationMode selectionGesture,
-      bool enableMultiSelection,
-      CrosshairBehavior crosshairBehavior,
-      TrackballBehavior trackballBehavior,
-      dynamic series,
-      ChartTitle title,
-      List<ChartAxis> axes,
-      List<TechnicalIndicators<dynamic, dynamic>> indicators})
+      this.axisLabelFormatter,
+      ChartAxis? primaryXAxis,
+      ChartAxis? primaryYAxis,
+      EdgeInsets? margin,
+      TooltipBehavior? tooltipBehavior,
+      ZoomPanBehavior? zoomPanBehavior,
+      Legend? legend,
+      SelectionType? selectionType,
+      ActivationMode? selectionGesture,
+      bool? enableMultiSelection,
+      CrosshairBehavior? crosshairBehavior,
+      TrackballBehavior? trackballBehavior,
+      dynamic? series,
+      ChartTitle? title,
+      List<ChartAxis>? axes,
+      List<TechnicalIndicators<dynamic, dynamic>>? indicators})
       : primaryXAxis = primaryXAxis ?? NumericAxis(),
         primaryYAxis = primaryYAxis ?? NumericAxis(),
         title = title ?? ChartTitle(),
@@ -243,7 +263,7 @@ class SfCartesianChart extends StatefulWidget {
   ///        ));
   ///}
   ///```
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   ///Color of the chart border.
   ///
@@ -286,7 +306,7 @@ class SfCartesianChart extends StatefulWidget {
   ///        ));
   ///}
   ///```
-  final Color plotAreaBackgroundColor;
+  final Color? plotAreaBackgroundColor;
 
   ///Border color of the plot area.
   ///
@@ -300,7 +320,7 @@ class SfCartesianChart extends StatefulWidget {
   ///        ));
   ///}
   ///```
-  final Color plotAreaBorderColor;
+  final Color? plotAreaBorderColor;
 
   ///Border width of the plot area.
   ///
@@ -398,7 +418,7 @@ class SfCartesianChart extends StatefulWidget {
   ///   args.locationX = 30;
   ///}
   ///```
-  final ChartTooltipCallback onTooltipRender;
+  final ChartTooltipCallback? onTooltipRender;
 
   /// Occurs when the visible range of an axis is changed, i.e. value changes for minimum,
   ///  maximum, and interval. Here, you can get the actual and visible range of an axis.
@@ -413,7 +433,7 @@ class SfCartesianChart extends StatefulWidget {
   ///   print(args.visibleMin);
   ///}
   ///```
-  final ChartActualRangeChangedCallback onActualRangeChanged;
+  final ChartActualRangeChangedCallback? onActualRangeChanged;
 
   /// Occurs while rendering the axis labels. Text and text styles such as color, font size,
   /// and font weight can be customized.
@@ -428,7 +448,8 @@ class SfCartesianChart extends StatefulWidget {
   ///   args.text = 'axis Label';
   ///}
   ///```
-  final ChartAxisLabelRenderCallback onAxisLabelRender;
+  //ignore: deprecated_member_use_from_same_package
+  final ChartAxisLabelRenderCallback? onAxisLabelRender;
 
   /// Occurs when tapping the axis label. Here, you can get the appropriate axis that is
   /// tapped and the axis label text.
@@ -443,7 +464,7 @@ class SfCartesianChart extends StatefulWidget {
   ///   args.text = 'data Label';
   ///}
   ///```
-  final ChartDataLabelRenderCallback onDataLabelRender;
+  final ChartDataLabelRenderCallback? onDataLabelRender;
 
   /// Occurs when the legend item is rendered. Here, you can get the legend’s text,
   /// shape, series index, and point index of circular series.
@@ -459,7 +480,7 @@ class SfCartesianChart extends StatefulWidget {
   ///   args.seriesIndex = 2;
   ///}
   ///```
-  final ChartLegendRenderCallback onLegendItemRender;
+  final ChartLegendRenderCallback? onLegendItemRender;
 
   /// Occurs when the trendline is rendered. Here, you can get the legend’s text,
   /// shape, series index, and point index of circular series.
@@ -474,7 +495,7 @@ class SfCartesianChart extends StatefulWidget {
   ///   args.seriesIndex = 2;
   ///}
   ///```
-  final ChartTrendlineRenderCallback onTrendlineRender;
+  final ChartTrendlineRenderCallback? onTrendlineRender;
 
   /// Occurs while the trackball position is changed. Here, you can customize the text of
   /// the trackball.
@@ -490,7 +511,7 @@ class SfCartesianChart extends StatefulWidget {
   ///    args.chartPointInfo = ChartPointInfo();
   ///}
   ///```
-  final ChartTrackballCallback onTrackballPositionChanging;
+  final ChartTrackballCallback? onTrackballPositionChanging;
 
   /// Occurs when tapping the axis label. Here, you can get the appropriate axis that is
   /// tapped and the axis label text.
@@ -506,7 +527,7 @@ class SfCartesianChart extends StatefulWidget {
   ///    args.text = 'crosshair';
   ///}
   ///```
-  final ChartCrosshairCallback onCrosshairPositionChanging;
+  final ChartCrosshairCallback? onCrosshairPositionChanging;
 
   /// Occurs when zooming action begins. You can customize the zoom factor and zoom
   /// position of an axis. Here, you can get the axis, current zoom factor, current
@@ -523,7 +544,7 @@ class SfCartesianChart extends StatefulWidget {
   ///    args.currentZoomFactor = 0.2;
   ///}
   ///```
-  final ChartZoomingCallback onZoomStart;
+  final ChartZoomingCallback? onZoomStart;
 
   /// Occurs when the zooming action is completed. Here, you can get the axis, current
   /// zoom factor, current zoom position, previous zoom factor, and previous zoom position.
@@ -539,7 +560,7 @@ class SfCartesianChart extends StatefulWidget {
   ///    print(args.currentZoomPosition);
   ///}
   ///```
-  final ChartZoomingCallback onZoomEnd;
+  final ChartZoomingCallback? onZoomEnd;
 
   /// Occurs when zoomed state is reset. Here, you can get the axis, current zoom factor,
   /// current zoom position, previous zoom factor, and previous zoom position.
@@ -555,7 +576,7 @@ class SfCartesianChart extends StatefulWidget {
   ///    print(args.currentZoomPosition);
   ///}
   ///```
-  final ChartZoomingCallback onZoomReset;
+  final ChartZoomingCallback? onZoomReset;
 
   /// Occurs when Zoooming event is performed. Here, you can get the axis, current zoom factor,
   /// current zoom position, previous zoom factor, and previous zoom position.
@@ -571,7 +592,7 @@ class SfCartesianChart extends StatefulWidget {
   ///    print(args.currentZoomPosition);
   ///}
   ///```
-  final ChartZoomingCallback onZooming;
+  final ChartZoomingCallback? onZooming;
 
   /// Occurs when tapping the series point. Here, you can get the series, series index
   /// and point index.
@@ -587,7 +608,7 @@ class SfCartesianChart extends StatefulWidget {
   ///}
   ///```
 
-  final ChartPointTapCallback onPointTapped;
+  final ChartPointTapCallback? onPointTapped;
 
   ///Called when the data label is tapped.
   ///
@@ -609,7 +630,7 @@ class SfCartesianChart extends StatefulWidget {
   ///
   ///```
 
-  final DataLabelTapCallback onDataLabelTapped;
+  final DataLabelTapCallback? onDataLabelTapped;
 
   ///Occurs when tapping the axis label. Here, you can get the appropriate axis that is
   /// tapped and the axis label text.
@@ -624,7 +645,7 @@ class SfCartesianChart extends StatefulWidget {
   ///   print(args.text);
   ///}
   ///```
-  final ChartAxisLabelTapCallback onAxisLabelTapped;
+  final ChartAxisLabelTapCallback? onAxisLabelTapped;
 
   /// Occurs when the legend item is rendered. Here, you can get the legend’s text,
   /// shape, series index, and point index of circular series.
@@ -639,7 +660,7 @@ class SfCartesianChart extends StatefulWidget {
   ///   print(args.pointIndex);
   ///}
   ///```
-  final ChartLegendTapCallback onLegendTapped;
+  final ChartLegendTapCallback? onLegendTapped;
 
   /// Occurs while selection changes. Here, you can get the series, selected color,
   /// unselected color, selected border color, unselected border color, selected border
@@ -651,7 +672,7 @@ class SfCartesianChart extends StatefulWidget {
   ///            onSelectionChanged: (SelectionArgs args) => print(args.selectedColor),
   ///        ));
   ///}
-  final ChartSelectionCallback onSelectionChanged;
+  final ChartSelectionCallback? onSelectionChanged;
 
   /// Occurs when tapped on the chart area.
   ///```dart
@@ -665,7 +686,7 @@ class SfCartesianChart extends StatefulWidget {
   ///        ));
   ///}
   ///```
-  final ChartTouchInteractionCallback onChartTouchInteractionUp;
+  final ChartTouchInteractionCallback? onChartTouchInteractionUp;
 
   /// Occurs when touched on the chart area.
   ///```dart
@@ -679,7 +700,7 @@ class SfCartesianChart extends StatefulWidget {
   ///        ));
   ///}
   ///```
-  final ChartTouchInteractionCallback onChartTouchInteractionDown;
+  final ChartTouchInteractionCallback? onChartTouchInteractionDown;
 
   /// Occurs when touched and moved on the chart area.
   ///```dart
@@ -693,7 +714,7 @@ class SfCartesianChart extends StatefulWidget {
   ///        ));
   ///}
   ///```
-  final ChartTouchInteractionCallback onChartTouchInteractionMove;
+  final ChartTouchInteractionCallback? onChartTouchInteractionMove;
 
   /// Occurs when the indicator is rendered. Here, you can get the indicatorname,,
   /// seriesname, indicator index, and width of indicators.
@@ -713,7 +734,7 @@ class SfCartesianChart extends StatefulWidget {
   ///        ));
   ///}
   ///```
-  final ChartIndicatorRenderCallback onIndicatorRender;
+  final ChartIndicatorRenderCallback? onIndicatorRender;
 
   /// Occurs when the marker is rendered. Here, you can get the marker pointIndex
   /// shape, height and width of data markers.
@@ -734,7 +755,7 @@ class SfCartesianChart extends StatefulWidget {
   ///}
   ///```
   ///
-  final ChartMarkerRenderCallback onMarkerRender;
+  final ChartMarkerRenderCallback? onMarkerRender;
 
   ///Customizes the tooltip in chart.
   ///
@@ -820,7 +841,7 @@ class SfCartesianChart extends StatefulWidget {
   ///        ));
   ///}
   ///```
-  final List<CartesianChartAnnotation> annotations;
+  final List<CartesianChartAnnotation>? annotations;
 
   ///Enables or disables the multiple data points or series selection.
   ///
@@ -881,7 +902,7 @@ class SfCartesianChart extends StatefulWidget {
   ///        ));
   ///}
   ///```
-  final ImageProvider plotAreaBackgroundImage;
+  final ImageProvider? plotAreaBackgroundImage;
 
   ///Data points or series can be selected while performing interaction on the chart.
   ///It can also be selected at the initial rendering using this property.
@@ -970,8 +991,159 @@ class SfCartesianChart extends StatefulWidget {
   ///```
   final List<Color> palette;
 
+  ///Called while rendering each axis label in the chart.
+  ///
+  ///Provides label text, axis name, orientation of the axis, trimmed text and text styles such as color,
+  /// font size, and font weight to the user using the [AxisLabelRenderDetails] class.
+  ///
+  ///You can customize the text and text style using the [ChartAxisLabel] class and can return it.
+  final ChartLabelFormatterCallback? axisLabelFormatter;
+
   ///Technical indicators for charts.
   final List<TechnicalIndicators<dynamic, dynamic>> indicators;
+
+  ///A builder that builds the widget (ex., loading indicator or load more button)
+  ///to display at the top of the chart area when horizontal scrolling reaches
+  ///the start or end of the chart.
+  ///
+  ///This can be used to achieve the features like load more and infinite
+  ///scrolling in the chart. Also provides the swiping direction value to the user.
+  ///
+  ///If the chart is transposed, this will be called when the vertical scrolling
+  ///reaches the top or bottom of the chart.
+  ///
+  ///## Infinite scrolling
+  ///
+  ///The below example demonstrates the infinite scrolling by showing
+  ///the circular progress indicator until the data is loaded when horizontal
+  ///scrolling reaches the end of the chart.
+  ///
+  ///```dart
+  ///Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfCartesianChart(
+  ///           loadMoreIndicatorBuilder:
+  ///             (BuildContext context, ChartSwipeDirection direction) =>
+  ///                 getLoadMoreViewBuilder(context, direction),
+  ///           series: <ChartSeries<SalesData, num>>[
+  ///                AreaSeries<SalesData, num>(
+  ///                    dataSource: chartData,
+  ///                ),
+  ///              ],
+  ///        ));
+  ///}
+  ///Widget getLoadMoreViewBuilder(
+  ///      BuildContext context, ChartSwipeDirection direction) {
+  ///     if (direction == ChartSwipeDirection.end) {
+  ///       return FutureBuilder<String>(
+  ///         future: _updateData(), /// Adding data by updateDataSource method
+  ///         builder:
+  ///          (BuildContext futureContext, AsyncSnapshot<String> snapShot) {
+  ///           return snapShot.connectionState != ConnectionState.done
+  ///               ? const CircularProgressIndicator()
+  ///               : SizedBox.fromSize(size: Size.zero);
+  ///         },
+  ///     );
+  ///     } else {
+  ///       return SizedBox.fromSize(size: Size.zero);
+  ///     }
+  /// }
+  ///```
+  ///
+  ///## Load more
+  ///
+  ///The below example demonstrates how to show a button when horizontal
+  ///scrolling reaches the end of the chart.
+  ///On tapping the button circular indicator will be displayed and data will be
+  ///loaded to the chart.
+  ///
+  ///```dart
+  ///Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfCartesianChart(
+  ///           loadMoreIndicatorBuilder:
+  ///             (BuildContext context, ChartSwipeDirection direction) =>
+  ///                 _buildLoadMoreView(context, direction),
+  ///           series: <ChartSeries<SalesData, num>>[
+  ///                LineSeries<SalesData, num>(
+  ///                    dataSource: chartData,
+  ///                ),
+  ///              ],
+  ///        ));
+  ///}
+  /// Widget _buildLoadMoreView(
+  ///       BuildContext context, ChartSwipeDirection direction) {
+  ///     _visible = true;
+  /// if (direction == ChartSwipeDirection.end) {
+  ///     return StatefulBuilder(
+  ///         builder: (BuildContext context, StateSetter stateSetter) {
+  ///       return Visibility(
+  ///         visible: _visible,
+  ///         child: RaisedButton(
+  ///             child: const Text('Load More'),
+  ///             onPressed: () async{
+  ///               stateSetter(() {
+  ///                   _visible = false;
+  ///               });
+  ///               await loadMore();
+  ///             }),
+  ///       );
+  ///     });
+  ///  } else {
+  ///     return null;
+  ///  }
+  /// }
+  ///FutureBuilder<String> loadMore() {
+  ///       return FutureBuilder<String>(
+  ///         future: _updateData(), /// Adding data by updateDataSource method
+  ///         builder:
+  ///          (BuildContext futureContext, AsyncSnapshot<String> snapShot) {
+  ///           return snapShot.connectionState != ConnectionState.done
+  ///               ? const CircularProgressIndicator()
+  ///               : SizedBox.fromSize(size: Size.zero);
+  ///         },
+  ///     );
+  /// }
+  ///```
+  final LoadMoreViewBuilderCallback? loadMoreIndicatorBuilder;
+
+  ///Called while swiping on the plot area.
+  ///
+  ///Whenever the swiping happens on the plot area (the series rendering area), `onPlotAreaSwipe` callback
+  /// will be called. It provides options to get the direction of swiping.
+  ///
+  ///If the chart is swiped from left to right direction, the direction is `ChartSwipeDirection.start` and
+  /// if the swipe happens from right to left direction, the direction is `ChartSwipeDirection.end`.
+  ///
+  ///Using this callback, the user able to achieve pagination functionality (on swiping over chart area,
+  /// next set of data points can be loaded to the chart).
+  ///
+  ///Also refer [ChartSwipeDirection].
+  ///
+  ///```dart
+  ///Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfCartesianChart(
+  ///           onPlotAreaSwipe:
+  ///             (ChartSwipeDirection direction) =>
+  ///                 performSwipe(direction),
+  ///           series: <ChartSeries<SalesData, num>>[
+  ///                AreaSeries<SalesData, num>(
+  ///                    dataSource: chartData,
+  ///                ),
+  ///              ],
+  ///        ));
+  ///}
+  ///Widget performSwipe(ChartSwipeDirection direction) {
+  ///     if (direction == ChartSwipeDirection.end) {
+  ///         chartData.add(ChartSampleData(
+  ///             x: chartData[chartData.length - 1].x + 1,
+  ///             y: 10));
+  ///         seriesController.updateDataSource(addedDataIndex: chartData.length - 1);
+  ///     }
+  /// }
+  ///```
+  final ChartPlotAreaSwipeCallback? onPlotAreaSwipe;
 
   @override
   State<StatefulWidget> createState() => SfCartesianChartState();
@@ -982,96 +1154,96 @@ class SfCartesianChart extends StatefulWidget {
 class SfCartesianChartState extends State<SfCartesianChart>
     with TickerProviderStateMixin {
   /// Holds the animation controller along with their listener for all series and trenddlines
-  Map<AnimationController, VoidCallback> _controllerList;
+  late Map<AnimationController, VoidCallback> _controllerList;
 
   /// Repaint notifier for zoom container
-  ValueNotifier<int> _zoomRepaintNotifier;
+  late ValueNotifier<int> _zoomRepaintNotifier;
 
   /// Repaint notifier for trendline container
-  ValueNotifier<int> _trendlineRepaintNotifier;
+  late ValueNotifier<int> _trendlineRepaintNotifier;
 
   /// Repaint notifier for trackball container
-  ValueNotifier<int> _trackballRepaintNotifier;
+  late ValueNotifier<int> _trackballRepaintNotifier;
 
   /// Repaint notifier for crosshair container
-  ValueNotifier<int> _crosshairRepaintNotifier;
+  late ValueNotifier<int> _crosshairRepaintNotifier;
 
   /// Repaint notifier for indicator
   //ignore: unused_field
-  ValueNotifier<int> _indicatorRepaintNotifier;
+  late ValueNotifier<int> _indicatorRepaintNotifier;
 
   /// To measure legend size and position
-  List<_MeasureWidgetContext> _legendWidgetContext;
+  late List<_MeasureWidgetContext> _legendWidgetContext;
 
   /// Chart Template info
-  List<_ChartTemplateInfo> _templates;
-  List<ChartAxisRenderer> _zoomedAxisRendererStates;
+  late List<_ChartTemplateInfo> _templates;
+  late List<ChartAxisRenderer> _zoomedAxisRendererStates;
 
-  List<ChartAxisRenderer> _oldAxisRenderers;
+  late List<ChartAxisRenderer> _oldAxisRenderers;
 
   /// Contains chart container size
-  Rect _containerRect;
+  late Rect _containerRect;
 
   /// Holds the information of chart theme arguments
-  SfChartThemeData _chartTheme;
-  bool _zoomProgress;
-  List<_ZoomAxisRange> _zoomAxes;
-  bool _initialRender;
-  List<_LegendRenderContext> _legendToggleStates;
-  List<ChartSegment> _selectedSegments;
-  List<ChartSegment> _unselectedSegments;
-  List<_MeasureWidgetContext> _legendToggleTemplateStates;
-  List<Rect> _renderDatalabelRegions;
-  Orientation _deviceOrientation;
-  List<Rect> _dataLabelTemplateRegions;
-  List<Rect> _annotationRegions;
-  bool _animateCompleted;
+  late SfChartThemeData _chartTheme;
+  late bool _zoomProgress;
+  late List<_ZoomAxisRange> _zoomAxes;
+  bool? _initialRender;
+  late List<_LegendRenderContext> _legendToggleStates;
+  late List<ChartSegment> _selectedSegments;
+  late List<ChartSegment> _unselectedSegments;
+  late List<_MeasureWidgetContext> _legendToggleTemplateStates;
+  late List<Rect> _renderDatalabelRegions;
+  late Orientation _deviceOrientation;
+  late List<Rect> _dataLabelTemplateRegions;
+  late List<Rect> _annotationRegions;
+  late bool _animateCompleted;
   bool _legendRefresh = false;
-  bool _widgetNeedUpdate;
-  _DataLabelRenderer _renderDataLabel;
-  _CartesianAxisRenderer _renderOutsideAxis;
-  _CartesianAxisRenderer _renderInsideAxis;
-  List<CartesianSeriesRenderer> _oldSeriesRenderers;
-  List<ValueKey<String>> _oldSeriesKeys;
-  bool _isLegendToggled;
-  List<ChartSegment> _segments;
-  List<bool> _oldSeriesVisible;
-  bool _zoomedState;
-  List<PointerEvent> _touchStartPositions;
-  List<PointerEvent> _touchMovePositions;
-  bool _enableDoubleTap;
-  Orientation _oldDeviceOrientation;
-  bool _legendToggling;
-  dart_ui.Image _backgroundImage;
-  dart_ui.Image _legendIconImage;
+  late bool _widgetNeedUpdate;
+  _DataLabelRenderer? _renderDataLabel;
+  late _CartesianAxisRenderer _renderOutsideAxis;
+  late _CartesianAxisRenderer _renderInsideAxis;
+  late List<CartesianSeriesRenderer> _oldSeriesRenderers;
+  late List<ValueKey<String>?> _oldSeriesKeys;
+  late bool _isLegendToggled;
+  late List<ChartSegment> _segments;
+  late List<bool?> _oldSeriesVisible;
+  bool? _zoomedState;
+  late List<PointerEvent> _touchStartPositions;
+  late List<PointerEvent> _touchMovePositions;
+  late bool _enableDoubleTap;
+  Orientation? _oldDeviceOrientation;
+  bool _legendToggling = false;
+  dart_ui.Image? _backgroundImage;
+  dart_ui.Image? _legendIconImage;
   bool _isTrendlineToggled = false;
-  List<_PainterKey> _painterKeys;
-  bool _triggerLoaded;
+  late List<_PainterKey> _painterKeys;
+  late bool _triggerLoaded;
   //ignore: prefer_final_fields
   bool _rangeChangeBySlider = false;
   //ignore: prefer_final_fields
   bool _rangeChangedByChart = false;
   //ignore: prefer_final_fields
   bool _isRangeSelectionSlider = false;
-  bool _isSeriesLoaded;
-  bool _isNeedUpdate;
-  List<CartesianSeriesRenderer> _seriesRenderers;
+  bool? _isSeriesLoaded;
+  late bool _isNeedUpdate;
+  late List<CartesianSeriesRenderer> _seriesRenderers;
 
   /// Holds the information of AxisBase class
-  _ChartAxis _chartAxis;
+  late _ChartAxis _chartAxis;
 
   /// Holds the information of SeriesBase class
-  _ChartSeries _chartSeries;
+  late _ChartSeries _chartSeries;
 
   /// Holds the information of LegendBase class
-  _ChartLegend _chartLegend;
+  late _ChartLegend _chartLegend;
 
   /// Holds the information of _ContainerArea class
   /// ignore: unused_field
-  _ContainerArea _containerArea;
+  late _ContainerArea _containerArea;
 
   /// Whether to check chart axis is inverted or not
-  bool _requireInvertedAxis;
+  late bool _requireInvertedAxis;
 
   /// To check if axis trimmed text is tapped
   //ignore: prefer_final_fields
@@ -1080,19 +1252,19 @@ class SfCartesianChartState extends State<SfCartesianChart>
   //ignore: prefer_final_fields
   List<_ChartPointInfo> _chartPointInfo = <_ChartPointInfo>[];
 
-  ZoomPanBehaviorRenderer _zoomPanBehaviorRenderer;
+  late ZoomPanBehaviorRenderer _zoomPanBehaviorRenderer;
 
-  TooltipBehaviorRenderer _tooltipBehaviorRenderer;
+  late TooltipBehaviorRenderer _tooltipBehaviorRenderer;
 
-  TrackballBehaviorRenderer _trackballBehaviorRenderer;
+  late TrackballBehaviorRenderer _trackballBehaviorRenderer;
 
-  CrosshairBehaviorRenderer _crosshairBehaviorRenderer;
+  late CrosshairBehaviorRenderer _crosshairBehaviorRenderer;
 
-  LegendRenderer _legendRenderer;
+  late LegendRenderer _legendRenderer;
 
-  List<TechnicalIndicatorsRenderer> _technicalIndicatorRenderer;
+  late List<TechnicalIndicatorsRenderer> _technicalIndicatorRenderer;
 
-  TrackballMarkerSettingsRenderer _trackballMarkerSettingsRenderer;
+  late TrackballMarkerSettingsRenderer _trackballMarkerSettingsRenderer;
 
   //Here, we are using get keyword inorder to get the proper & updated instance of chart widget
   //When we initialize chart widget as a property to other classes like _ChartSeries, the chart widget is not updated properly and by using get we can rectify this.
@@ -1105,14 +1277,35 @@ class SfCartesianChartState extends State<SfCartesianChart>
   final double _trendlineDurationFactor = 0.85;
 
   //holds the count for total no of series that should be animated
-  int _totalAnimatingSeries;
+  late int _totalAnimatingSeries;
 
   //holds the no of animation completed series
-  int _animationCompleteCount;
+  late int _animationCompleteCount;
 
-  SelectionArgs _selectionArgs;
+  SelectionArgs? _selectionArgs;
 
   bool _isTouchUp = false;
+
+  late StateSetter _loadMoreViewStateSetter;
+
+  late ChartSwipeDirection _swipeDirection;
+
+  Offset? _startOffset, _currentPosition;
+  late bool _isRedrawByZoomPan;
+
+  ///To check the load more widget is in progress or not
+  late bool _isLoadMoreIndicator;
+
+  // ignore: unused_element
+  bool get _animationCompleted {
+    for (final seriesRenderer in _seriesRenderers) {
+      if (seriesRenderer._animationController.status ==
+          AnimationStatus.forward) {
+        return false;
+      }
+    }
+    return true;
+  }
 
   /// To intialize default values
   void _initializeDefaultValues() {
@@ -1144,15 +1337,17 @@ class SfCartesianChartState extends State<SfCartesianChart>
     _animateCompleted = false;
     _widgetNeedUpdate = false;
     _oldSeriesRenderers = <CartesianSeriesRenderer>[];
-    _oldSeriesKeys = <ValueKey<String>>[];
+    _oldSeriesKeys = <ValueKey<String>?>[];
     _isLegendToggled = false;
-    _oldSeriesVisible = <bool>[];
+    _oldSeriesVisible = <bool?>[];
     _touchStartPositions = <PointerEvent>[];
     _touchMovePositions = <PointerEvent>[];
     _enableDoubleTap = false;
     _legendToggling = false;
     _painterKeys = <_PainterKey>[];
     _isNeedUpdate = true;
+    _isRedrawByZoomPan = false;
+    _isLoadMoreIndicator = false;
     _technicalIndicatorRenderer = <TechnicalIndicatorsRenderer>[];
     _zoomPanBehaviorRenderer = ZoomPanBehaviorRenderer(this);
     _trackballBehaviorRenderer = TrackballBehaviorRenderer(this);
@@ -1163,6 +1358,17 @@ class SfCartesianChartState extends State<SfCartesianChart>
         widget.trackballBehavior.markerSettings);
   }
 
+  /// Called when this object is inserted into the tree.
+  ///
+  /// The framework will call this method exactly once for each State object it creates.
+  ///
+  /// Override this method to perform initialization that depends on the location at
+  /// which this object was inserted into the tree or on the widget used to configure this object.
+  ///
+  /// * In [initState], subscribe to the object.
+  ///
+  /// Here it overrides to initialize the object that depends on rendering the [SfCartesianChart].
+
   @override
   void initState() {
     _initializeDefaultValues();
@@ -1171,14 +1377,39 @@ class SfCartesianChartState extends State<SfCartesianChart>
     super.initState();
   }
 
+  /// Called when a dependency of this [State] object changes.
+  ///
+  /// For example, if the previous call to [build] referenced an [InheritedWidget] that later changed,
+  /// the framework would call this method to notify this object about the change.
+  ///
+  /// This method is also called immediately after [initState]. It is safe to call [BuildContext.dependOnInheritedWidgetOfExactType] from this method.
+  ///
+  /// Here it called for initializing the chart theme of [SfCartesianChart].
+
   @override
   void didChangeDependencies() {
     _chartTheme = SfChartTheme.of(context);
     super.didChangeDependencies();
   }
 
+  /// Called whenever the widget configuration changes.
+  ///
+  /// If the parent widget rebuilds and request that this location in the tree update to display a new widget with the same [runtimeType] and [Widget.key],
+  /// the framework will update the widget property of this [State] object to refer to the new widget and then call this method with the previous widget as an argument.
+  ///
+  /// Override this method to respond when the widget changes.
+  ///
+  /// The framework always calls [build] after calling [didUpdateWidget], which means any calls to [setState] in [didUpdateWidget] are redundant.
+  ///
+  /// * In [didUpdateWidget] unsubscribe from the old object and subscribe to the new one if the updated widget configuration requires replacing the object.
+  ///
+  /// Here it called whenever the series collection gets updated in [SfCartesianChart].
+
   @override
   void didUpdateWidget(SfCartesianChart oldWidget) {
+    _isRedrawByZoomPan = false;
+    _isLoadMoreIndicator = false;
+    _zoomProgress = false;
     final List<CartesianSeriesRenderer> oldWidgetSeriesRenderers =
         //ignore: prefer_spread_collections
         <CartesianSeriesRenderer>[]..addAll(_seriesRenderers);
@@ -1196,6 +1427,14 @@ class SfCartesianChartState extends State<SfCartesianChart>
     if (_legendWidgetContext != null && _legendWidgetContext.isNotEmpty) {
       _legendWidgetContext.clear();
     }
+    if (_seriesRenderers.isNotEmpty &&
+        _seriesRenderers[0]._selectionBehaviorRenderer?._selectionRenderer !=
+            null) {
+      _seriesRenderers[0]
+          ._selectionBehaviorRenderer
+          ?._selectionRenderer
+          ?._isInteraction = false;
+    }
     if (_isNeedUpdate) {
       _widgetNeedUpdate = true;
       _oldSeriesRenderers = oldWidgetSeriesRenderers;
@@ -1206,6 +1445,17 @@ class SfCartesianChartState extends State<SfCartesianChart>
     }
     super.didUpdateWidget(oldWidget);
   }
+
+  /// Describes the part of the user interface represented by this widget.
+  ///
+  /// The framework calls this method in a number of different situations. For example:
+  ///
+  /// * After calling [initState].
+  /// * After calling [didUpdateWidget].
+  /// * After receiving a call to [setState].
+  /// * After a dependency of this [State] object changes.
+  ///
+  /// Here it is called whenever the user interaction is performed and it removes the old widget and updates a chart with a new widget in [SfCartesianChart].
 
   @override
   Widget build(BuildContext context) {
@@ -1235,6 +1485,18 @@ class SfCartesianChartState extends State<SfCartesianChart>
     )));
   }
 
+  /// Called when this object is removed from the tree permanently.
+  ///
+  /// The framework calls this method when this [State] object will never build again. After the framework calls [dispose],
+  /// the [State] object is considered unmounted and the [mounted] property is false. It is an error to call [setState] at this
+  /// point. This stage of the lifecycle is terminal: there is no way to remount a [State] object that has been disposed.
+  ///
+  /// Subclasses should override this method to release any resources retained by this object.
+  ///
+  /// * In [dispose], unsubscribe from the object.
+  ///
+  /// Here it end the animation controller of the series in [SfCartesianChart].
+
   @override
   void dispose() {
     _controllerList.forEach(_disposeAnimationController);
@@ -1245,7 +1507,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
   ///
   /// As this method is in the widget’s state class,
   /// you have to use a global key to access the state to call this method.
-  /// Returns the [dart:ui.image]
+  /// Returns the `dart:ui.image`
   ///
   /// ```dart
   /// final GlobalKey<SfCartesianChartState> _key = GlobalKey();
@@ -1298,8 +1560,8 @@ class SfCartesianChartState extends State<SfCartesianChart>
   ///```
 
   Future<dart_ui.Image> toImage({double pixelRatio = 1.0}) async {
-    final RenderRepaintBoundary boundary =
-        context.findRenderObject(); //get the render object from context
+    final RenderRepaintBoundary boundary = context.findRenderObject()
+        as RenderRepaintBoundary; //get the render object from context
 
     final dart_ui.Image image =
         await boundary.toImage(pixelRatio: pixelRatio); // Convert
@@ -1310,7 +1572,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
 
   ///Storing old series key values
   void _getOldSeriesKeys(List<CartesianSeriesRenderer> oldSeriesRenderers) {
-    _oldSeriesKeys = <ValueKey<String>>[];
+    _oldSeriesKeys = <ValueKey<String>?>[];
     for (int i = 0; i < oldSeriesRenderers.length; i++) {
       _oldSeriesKeys.add(oldSeriesRenderers[i]._series.key);
     }
@@ -1318,24 +1580,24 @@ class SfCartesianChartState extends State<SfCartesianChart>
 
   // In this method, create and update the series renderer for each series //
   void _createAndUpdateSeriesRenderer(
-      [SfCartesianChart oldWidget,
-      List<CartesianSeriesRenderer> oldWidgetSeriesRenderers,
-      List<CartesianSeriesRenderer> oldWidgetOldSeriesRenderers]) {
+      [SfCartesianChart? oldWidget,
+      List<CartesianSeriesRenderer>? oldWidgetSeriesRenderers,
+      List<CartesianSeriesRenderer>? oldWidgetOldSeriesRenderers]) {
     if (widget.series != null && widget.series.isNotEmpty) {
       if (oldWidget != null) {
         _oldSeriesRenderers = <CartesianSeriesRenderer>[];
-        _oldSeriesRenderers.addAll(oldWidgetSeriesRenderers);
+        _oldSeriesRenderers.addAll(oldWidgetSeriesRenderers!);
       }
       _seriesRenderers = <CartesianSeriesRenderer>[];
       final int seriesLength = widget.series.length;
       dynamic series;
-      int index, oldSeriesIndex;
+      int? index, oldSeriesIndex;
       for (int i = 0; i < seriesLength; i++) {
         series = widget.series[i];
         index = null;
         oldSeriesIndex = null;
         if (oldWidget != null) {
-          if (oldWidgetOldSeriesRenderers.isNotEmpty) {
+          if (oldWidgetOldSeriesRenderers!.isNotEmpty) {
             // Check the current series is already exist in oldwidget //
             index = i < oldWidgetOldSeriesRenderers.length &&
                     _isSameSeries(
@@ -1343,7 +1605,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
                 ? i
                 : _getExistingSeriesIndex(series, oldWidgetOldSeriesRenderers);
           }
-          if (oldWidgetSeriesRenderers.isNotEmpty) {
+          if (oldWidgetSeriesRenderers!.isNotEmpty) {
             oldSeriesIndex = i < oldWidgetSeriesRenderers.length &&
                     _isSameSeries(oldWidgetSeriesRenderers[i]._series, series)
                 ? i
@@ -1354,7 +1616,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
         CartesianSeriesRenderer seriesRenderer;
 
         if (index != null &&
-            index < oldWidgetOldSeriesRenderers.length &&
+            index < oldWidgetOldSeriesRenderers!.length &&
             oldWidgetOldSeriesRenderers[index] != null) {
           seriesRenderer = oldWidgetOldSeriesRenderers[index];
         } else {
@@ -1369,7 +1631,8 @@ class SfCartesianChartState extends State<SfCartesianChart>
             seriesRenderer._animationController
                 .addStatusListener(seriesRenderer._animationStatusListener);
           }
-          seriesRenderer._controller ??= ChartSeriesController(seriesRenderer);
+          seriesRenderer._controller ??=
+              ChartSeriesController(seriesRenderer as XyDataSeriesRenderer);
         }
         if (series.onRendererCreated != null) {
           series.onRendererCreated(seriesRenderer._controller);
@@ -1390,7 +1653,8 @@ class SfCartesianChartState extends State<SfCartesianChart>
               oldWidgetSeriesRenderers[oldSeriesIndex]
                   is FastLineSeriesRenderer) {
             final FastLineSeriesRenderer fastlineSeriesRenderer =
-                oldWidgetSeriesRenderers[oldSeriesIndex];
+                oldWidgetSeriesRenderers[oldSeriesIndex]
+                    as FastLineSeriesRenderer;
             seriesRenderer._oldDataPoints = <CartesianChartPoint<dynamic>>[]
               //ignore: prefer_spread_collections
               ..addAll(fastlineSeriesRenderer._overallDataPoints);
@@ -1420,7 +1684,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
   }
 
   /// Check current series index is exist in another index
-  int _getExistingSeriesIndex(CartesianSeries<dynamic, dynamic> currentSeries,
+  int? _getExistingSeriesIndex(CartesianSeries<dynamic, dynamic> currentSeries,
       List<CartesianSeriesRenderer> oldSeriesRenderers) {
     if (currentSeries.key != null) {
       for (int index = 0; index < oldSeriesRenderers.length; index++) {
@@ -1439,7 +1703,8 @@ class SfCartesianChartState extends State<SfCartesianChart>
     if (_legendWidgetContext.isNotEmpty) {
       for (int i = 0; i < _legendWidgetContext.length; i++) {
         final _MeasureWidgetContext templateContext = _legendWidgetContext[i];
-        final RenderBox renderBox = templateContext.context.findRenderObject();
+        final RenderBox renderBox =
+            templateContext.context!.findRenderObject() as RenderBox;
         templateContext.size = renderBox.size;
       }
       _legendRefresh = true;
@@ -1452,16 +1717,14 @@ class SfCartesianChartState extends State<SfCartesianChart>
   /// Redraw method for chart axis
   void _redraw() {
     _oldAxisRenderers = _chartAxis._axisRenderersCollection;
-    if (_tooltipBehaviorRenderer?._painter?.timer != null) {
-      _tooltipBehaviorRenderer._painter.timer.cancel();
-    }
-    if (_trackballBehaviorRenderer?._trackballPainter?.timer != null) {
-      _trackballBehaviorRenderer._trackballPainter.timer.cancel();
+    _tooltipBehaviorRenderer._timer?.cancel();
+    if (_trackballBehaviorRenderer._trackballPainter?.timer != null) {
+      _trackballBehaviorRenderer._trackballPainter?.timer!.cancel();
     }
     if (_isLegendToggled) {
       _segments = <ChartSegment>[];
       _oldSeriesVisible =
-          List<bool>(_chartSeries.visibleSeriesRenderers.length);
+          List<bool?>.filled(_chartSeries.visibleSeriesRenderers.length, null);
       for (int i = 0; i < _chartSeries.visibleSeriesRenderers.length; i++) {
         final CartesianSeriesRenderer seriesRenderer =
             _chartSeries.visibleSeriesRenderers[i];
@@ -1478,7 +1741,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
       _zoomedState = false;
       for (final ChartAxisRenderer axisRenderer in _zoomedAxisRendererStates) {
         _zoomedState = axisRenderer._zoomFactor != 1;
-        if (_zoomedState) {
+        if (_zoomedState!) {
           break;
         }
       }
@@ -1487,6 +1750,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
     _widgetNeedUpdate = false;
 
     if (mounted) {
+      _isRedrawByZoomPan = true;
       setState(() {
         /// check the "mounted" property of this object and  to ensure the object is still in the tree.
         /// The chart will be rebuilding again, When we do the legend toggle, zoom/pan the chart.
@@ -1572,7 +1836,8 @@ class SfCartesianChartState extends State<SfCartesianChart>
               border: Border.all(
                   color: _chart.title.borderWidth == 0
                       ? Colors.transparent
-                      : _chart.title.borderColor ?? _chartTheme.titleTextColor,
+                      : _chart
+                          .title.borderColor, // ?? _chartTheme.titleTextColor,
                   width: _chart.title.borderWidth)),
         ),
         alignment: (_chart.title.alignment == ChartAlignment.near)
@@ -1598,32 +1863,32 @@ class SfCartesianChartState extends State<SfCartesianChart>
     return Expanded(
       child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
-        Widget element;
+        Widget? element;
         final List<Widget> legendTemplates =
             _bindCartesianLegendTemplateWidgets();
         if (legendTemplates.isNotEmpty && _legendWidgetContext.isEmpty) {
           element = Container(child: Stack(children: legendTemplates));
-          SchedulerBinding.instance.addPostFrameCallback((_) => _refresh());
+          SchedulerBinding.instance?.addPostFrameCallback((_) => _refresh());
         } else {
           _initialize(constraints);
           _chartLegend._calculateLegendBounds(_chartLegend.chartSize);
           element = _getElements(this, _ContainerArea(this), constraints);
         }
-        return element;
+        return element!;
       }),
     );
   }
 
   /// To return the template widget
   List<Widget> _bindCartesianLegendTemplateWidgets() {
-    Widget legendWidget;
+    Widget? legendWidget;
     final List<Widget> templates = <Widget>[];
-    if (widget.legend.isVisible && widget.legend.legendItemBuilder != null) {
+    if (widget.legend.isVisible! && widget.legend.legendItemBuilder != null) {
       for (int i = 0; i < _seriesRenderers.length; i++) {
         final CartesianSeriesRenderer seriesRenderer = _seriesRenderers[i];
         if (seriesRenderer._series.isVisibleInLegend) {
-          legendWidget = widget.legend.legendItemBuilder(
-              seriesRenderer._seriesName, seriesRenderer._series, null, i);
+          legendWidget = widget.legend.legendItemBuilder!(
+              seriesRenderer._seriesName!, seriesRenderer._series, null, i);
           templates.add(_MeasureWidgetSize(
               chartState: this,
               seriesIndex: i,
@@ -1676,7 +1941,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
       if (cartesianSeries.trendlines != null) {
         _seriesRenderers[i]._trendlineRenderer = <TrendlineRenderer>[];
         final List<int> trendlineTypes = <int>[0, 0, 0, 0, 0, 0];
-        for (final Trendline trendline in cartesianSeries.trendlines) {
+        for (final Trendline trendline in cartesianSeries.trendlines!) {
           trendlineRenderer = TrendlineRenderer(trendline);
           _seriesRenderers[i]._trendlineRenderer.add(trendlineRenderer);
           trendlineRenderer._name ??=
@@ -1688,26 +1953,26 @@ class SfCartesianChartState extends State<SfCartesianChart>
         for (final TrendlineRenderer trendlineRenderer
             in _seriesRenderers[i]._trendlineRenderer) {
           trendline = trendlineRenderer._trendline;
-          trendlineRenderer._name = trendlineRenderer._name[0].toUpperCase() +
-              trendlineRenderer._name.substring(1);
+          trendlineRenderer._name = trendlineRenderer._name![0].toUpperCase() +
+              trendlineRenderer._name!.substring(1);
           if (trendlineTypes[trendline.type.index] == 1 &&
-              trendlineRenderer._name[trendlineRenderer._name.length - 1] ==
+              trendlineRenderer._name![trendlineRenderer._name!.length - 1] ==
                   '0') {
-            trendlineRenderer._name = trendlineRenderer._name
-                .substring(0, trendlineRenderer._name.length - 2);
+            trendlineRenderer._name = trendlineRenderer._name!
+                .substring(0, trendlineRenderer._name!.length - 2);
           }
         }
       }
-      if (_initialRender ||
+      if (_initialRender! ||
           (_widgetNeedUpdate &&
               !_legendToggling &&
               (_oldDeviceOrientation == MediaQuery.of(context).orientation))) {
         if (_seriesRenderers[i]._oldSeries != null &&
-            (_seriesRenderers[i]._oldSeries.isVisible ==
+            (_seriesRenderers[i]._oldSeries!.isVisible ==
                 _seriesRenderers[i]._series.isVisible)) {
           legendCheck = true;
         } else {
-          _seriesRenderers[i]._visible = _initialRender
+          _seriesRenderers[i]._visible = _initialRender!
               ? _seriesRenderers[i]._series.isVisible
               : _seriesRenderers[i]._visible ??
                   _seriesRenderers[i]._series.isVisible;
@@ -1721,7 +1986,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
           (_seriesRenderers[0]._series.toString().contains('Bar') &&
               (_seriesRenderers[i]._series.toString().contains('Bar')))) {
         visibleSeriesRenderers.add(_seriesRenderers[i]);
-        if (!_initialRender &&
+        if (!_initialRender! &&
             _oldSeriesVisible.isNotEmpty &&
             i < visibleSeriesRenderers.length) {
           if (i < visibleSeriesRenderers.length &&
@@ -1731,19 +1996,20 @@ class SfCartesianChartState extends State<SfCartesianChart>
         }
         if (legendCheck) {
           final int index = visibleSeriesRenderers.length - 1;
-          final String legendItemText =
+          final String? legendItemText =
               visibleSeriesRenderers[index]._series.legendItemText;
-          final String legendText = _chart.legend.legendItemBuilder != null
+          final String? legendText = _chart.legend.legendItemBuilder != null
               ? visibleSeriesRenderers[index]._seriesName
-              : _chartSeries._chartState._chartLegend?.legendCollections !=
+              : visibleSeriesRenderers[index]._series.isVisibleInLegend &&
+                      _chartSeries._chartState._chartLegend.legendCollections !=
                           null &&
-                      _chartSeries
-                          ._chartState._chartLegend.legendCollections.isNotEmpty
+                      _chartSeries._chartState._chartLegend.legendCollections!
+                          .isNotEmpty
                   ? _chartSeries
-                      ._chartState._chartLegend?.legendCollections[index]?.text
+                      ._chartState._chartLegend.legendCollections![index].text
                   : null;
 
-          final String seriesName = visibleSeriesRenderers[index]._series.name;
+          final String? seriesName = visibleSeriesRenderers[index]._series.name;
           _chartSeries.visibleSeriesRenderers[visibleSeriesRenderers.length - 1]
                   ._visible =
               _checkWithLegendToggleState(
@@ -1755,26 +2021,28 @@ class SfCartesianChartState extends State<SfCartesianChart>
                       seriesName ??
                       'Series $index');
         }
-        final CartesianSeriesRenderer cSeriesRenderer = _chartSeries
+        final CartesianSeriesRenderer? cSeriesRenderer = _chartSeries
                     .visibleSeriesRenderers[visibleSeriesRenderers.length - 1]
                 is CartesianSeriesRenderer
             ? _chartSeries
                 .visibleSeriesRenderers[visibleSeriesRenderers.length - 1]
             : null;
         if (cSeriesRenderer?._series != null &&
-            cSeriesRenderer._series.trendlines != null) {
-          Trendline trendline;
+            cSeriesRenderer?._series.trendlines != null) {
+          Trendline? trendline;
           TrendlineRenderer trendlineRenderer;
-          for (int j = 0; j < cSeriesRenderer._series.trendlines.length; j++) {
-            trendline = cSeriesRenderer._series.trendlines[j];
+          for (int j = 0;
+              j < cSeriesRenderer!._series.trendlines!.length;
+              j++) {
+            trendline = cSeriesRenderer._series.trendlines![j];
             trendlineRenderer = cSeriesRenderer._trendlineRenderer[j];
             trendlineRenderer._visible = _checkWithTrendlineLegendToggleState(
                     visibleSeriesRenderers.length - 1,
                     cSeriesRenderer._series,
                     j,
                     trendline,
-                    trendlineRenderer._name) &&
-                cSeriesRenderer._visible;
+                    trendlineRenderer._name!) &&
+                cSeriesRenderer._visible!;
           }
           _isTrendlineToggled = false;
         }
@@ -1791,7 +2059,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
         technicalIndicatorRenderer =
             TechnicalIndicatorsRenderer(_chart.indicators[i]);
         _technicalIndicatorRenderer.add(technicalIndicatorRenderer);
-        if (_initialRender) {
+        if (_initialRender!) {
           technicalIndicatorRenderer._visible = _chart.indicators[i].isVisible;
         } else {
           technicalIndicatorRenderer._visible =
@@ -1806,7 +2074,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
 
   /// To check the legend toggle state
   bool _checkIndicatorLegendToggleState(int seriesIndex, bool seriesVisible) {
-    bool seriesRender;
+    bool? seriesRender;
     if (widget.legend.legendItemBuilder != null) {
       final List<_MeasureWidgetContext> legendToggles =
           _legendToggleTemplateStates;
@@ -1841,7 +2109,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
       int trendlineIndex,
       Trendline trendline,
       String text) {
-    bool seriesRender;
+    bool? seriesRender;
     if (_legendToggleStates.isNotEmpty) {
       for (int j = 0; j < _legendToggleStates.length; j++) {
         final _LegendRenderContext legendRenderContext = _legendToggleStates[j];
@@ -1860,7 +2128,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
   /// To toggle series visiblity based on legend toggle states
   bool _checkWithLegendToggleState(
       int seriesIndex, ChartSeries<dynamic, dynamic> series, String text) {
-    bool seriesRender;
+    bool? seriesRender;
     if (_chart.legend.legendItemBuilder != null) {
       final List<_MeasureWidgetContext> legendToggles =
           _legendToggleTemplateStates;
@@ -1899,29 +2167,40 @@ class SfCartesianChartState extends State<SfCartesianChart>
 // ignore: must_be_immutable
 class _ContainerArea extends StatelessWidget {
   // ignore: prefer_const_constructors_in_immutables
-  _ContainerArea([this._chartState]);
+  _ContainerArea(this._chartState);
   final SfCartesianChartState _chartState;
   //Here, we are using get keyword inorder to get the proper & updated instance of chart widget
   //When we initialize chart widget as a property to other classes like _ChartSeries, the chart widget is not updated properly and by using get we can rectify this.
   SfCartesianChart get chart => _chartState._chart;
-  List<Widget> _chartWidgets;
-  RenderBox renderBox;
-  Offset _touchPosition;
-  Offset _tapDownDetails;
-  Offset _mousePointerDetails;
-  CartesianSeries<dynamic, dynamic> _series;
-  XyDataSeriesRenderer _seriesRenderer;
+  List<Widget> _chartWidgets = <Widget>[];
+  late RenderBox renderBox;
+  Offset? _touchPosition;
+  Offset? _tapDownDetails;
+  Offset? _mousePointerDetails;
+  late CartesianSeries<dynamic, dynamic> _series;
+  late XyDataSeriesRenderer _seriesRenderer;
+  Offset? _zoomStartPosition;
+  bool _enableMouseHover =
+      kIsWeb || Platform.isLinux || Platform.isMacOS || Platform.isWindows;
   @override
   Widget build(BuildContext context) {
     final bool isUserInteractionEnabled =
         chart.zoomPanBehavior.enableDoubleTapZooming ||
             chart.zoomPanBehavior.enableMouseWheelZooming ||
-            chart.zoomPanBehavior.enableSelectionZooming ||
+            _chartState._zoomPanBehaviorRenderer._canPerformSelection ||
             chart.zoomPanBehavior.enablePanning ||
             chart.zoomPanBehavior.enablePinching ||
-            chart.trackballBehavior.enable ||
-            chart.crosshairBehavior.enable ||
-            chart.onChartTouchInteractionMove != null;
+            (chart.trackballBehavior.enable &&
+                chart.trackballBehavior.activationMode ==
+                    ActivationMode.singleTap) ||
+            (chart.crosshairBehavior.enable &&
+                chart.crosshairBehavior.activationMode ==
+                    ActivationMode.singleTap) ||
+            _chartState._trackballBehaviorRenderer._isLongPressActivated ||
+            _chartState._crosshairBehaviorRenderer._isLongPressActivated ||
+            chart.onChartTouchInteractionMove != null ||
+            chart.loadMoreIndicatorBuilder != null ||
+            chart.onPlotAreaSwipe != null;
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
       return Container(
@@ -1929,7 +2208,10 @@ class _ContainerArea extends StatelessWidget {
 
           /// To get the mouse region of the chart
           child: MouseRegion(
-              onHover: (PointerEvent event) => _performMouseHover(event),
+              // Using the _enableMouseHover property, prevented mouse hover function in mobile platforms. The mouse hover event should not be triggered for mobile platforms and logged an issue regarding this to the Flutter team.
+              // Issue:  https://github.com/flutter/flutter/issues/68690
+              onHover: (PointerEvent event) =>
+                  _enableMouseHover ? _performMouseHover(event) : null,
               onExit: (PointerEvent event) => _performMouseExit(event),
               child: Listener(
                   onPointerDown: (PointerDownEvent event) {
@@ -1939,7 +2221,7 @@ class _ContainerArea extends StatelessWidget {
                       touchArgs = ChartTouchInteractionArgs();
                       touchArgs.position =
                           renderBox.globalToLocal(event.position);
-                      chart.onChartTouchInteractionDown(touchArgs);
+                      chart.onChartTouchInteractionDown!(touchArgs);
                     }
                   },
                   onPointerMove: (PointerMoveEvent event) {
@@ -1949,7 +2231,7 @@ class _ContainerArea extends StatelessWidget {
                       touchArgs = ChartTouchInteractionArgs();
                       touchArgs.position =
                           renderBox.globalToLocal(event.position);
-                      chart.onChartTouchInteractionMove(touchArgs);
+                      chart.onChartTouchInteractionMove!(touchArgs);
                     }
                   },
                   onPointerUp: (PointerUpEvent event) {
@@ -1961,7 +2243,7 @@ class _ContainerArea extends StatelessWidget {
                       touchArgs = ChartTouchInteractionArgs();
                       touchArgs.position =
                           renderBox.globalToLocal(event.position);
-                      chart.onChartTouchInteractionUp(touchArgs);
+                      chart.onChartTouchInteractionUp!(touchArgs);
                     }
                   },
                   onPointerSignal: (PointerSignalEvent event) {
@@ -2005,15 +2287,9 @@ class _ContainerArea extends StatelessWidget {
                       onLongPressEnd: (LongPressEndDetails details) {
                         _performLongPressEnd();
                       },
-                      // onPanUpdate: (DragUpdateDetails details) {
-                      //   _performPanUpdate(details);
-                      // },
-                      // onPanEnd: (DragEndDetails details) {
-                      //   _performPanEnd(details);
-                      // },
-                      // onPanDown: (DragDownDetails details) {
-                      //   _performPanDown(details);
-                      // },
+                      onPanDown: (DragDownDetails details) {
+                        _performPanDown(details);
+                      },
                       onVerticalDragUpdate: isUserInteractionEnabled
                           ? (DragUpdateDetails details) {
                               _performPanUpdate(details);
@@ -2022,11 +2298,6 @@ class _ContainerArea extends StatelessWidget {
                       onVerticalDragEnd: isUserInteractionEnabled
                           ? (DragEndDetails details) {
                               _performPanEnd(details);
-                            }
-                          : null,
-                      onVerticalDragDown: isUserInteractionEnabled
-                          ? (DragDownDetails details) {
-                              _performPanDown(details);
                             }
                           : null,
                       onHorizontalDragUpdate: isUserInteractionEnabled
@@ -2039,11 +2310,6 @@ class _ContainerArea extends StatelessWidget {
                               _performPanEnd(details);
                             }
                           : null,
-                      onHorizontalDragDown: isUserInteractionEnabled
-                          ? (DragDownDetails details) {
-                              _performPanDown(details);
-                            }
-                          : null,
                       child: Container(
                           child: _initializeChart(constraints, context),
                           height: constraints.maxHeight,
@@ -2052,8 +2318,6 @@ class _ContainerArea extends StatelessWidget {
                               color: Colors.transparent))))));
     });
   }
-
-  Offset _zoomStartPosition;
 
   /// To initialise chart
   Widget _initializeChart(BoxConstraints constraints, BuildContext context) {
@@ -2075,8 +2339,8 @@ class _ContainerArea extends StatelessWidget {
 
   /// Calculate container bounds
   void _calculateBounds() {
-    _chartState._chartSeries?._processData();
-    _chartState._chartAxis?._measureAxesBounds();
+    _chartState._chartSeries._processData();
+    _chartState._chartAxis._measureAxesBounds();
     _chartState._rangeChangeBySlider = false;
     _chartState._rangeChangedByChart = false;
   }
@@ -2086,7 +2350,7 @@ class _ContainerArea extends StatelessWidget {
       SfCartesianChartState _chartState, XyDataSeriesRenderer seriesRenderer) {
     if (seriesRenderer._series.trendlines != null) {
       TrendlineRenderer trendlineRenderer;
-      for (int i = 0; i < seriesRenderer._series.trendlines.length; i++) {
+      for (int i = 0; i < seriesRenderer._series.trendlines!.length; i++) {
         trendlineRenderer = seriesRenderer._trendlineRenderer[i];
         if (trendlineRenderer._isNeedRender) {
           trendlineRenderer.calculateTrendlinePoints(
@@ -2109,10 +2373,27 @@ class _ContainerArea extends StatelessWidget {
     _bindAxisWidgets('inside');
     _renderTemplates();
     _bindInteractionWidgets(constraints, context);
-    renderBox = context.findRenderObject();
+    _bindLoadMoreIndicatorWidget();
+    renderBox = context.findRenderObject()! as RenderBox;
     _chartState._containerArea = this;
     _chartState._legendRefresh = false;
     return Container(child: Stack(children: _chartWidgets));
+  }
+
+  void _bindLoadMoreIndicatorWidget() {
+    _chartWidgets.add(StatefulBuilder(
+        builder: (BuildContext context, StateSetter stateSetter) {
+      Widget renderWidget;
+      _chartState._loadMoreViewStateSetter = stateSetter;
+      if (_chartState._isLoadMoreIndicator) {
+        renderWidget = Center(
+            child: _chartState._chart.loadMoreIndicatorBuilder!(
+                context, _chartState._swipeDirection));
+      } else {
+        renderWidget = Container();
+      }
+      return renderWidget;
+    }));
   }
 
   void _bindPlotBandWidgets(bool shouldRenderAboveSeries) {
@@ -2130,16 +2411,17 @@ class _ContainerArea extends StatelessWidget {
     for (int i = 0;
         i < _chartState._chartSeries.visibleSeriesRenderers.length;
         i++) {
-      _seriesRenderer = _chartState._chartSeries.visibleSeriesRenderers[i];
+      _seriesRenderer = _chartState._chartSeries.visibleSeriesRenderers[i]
+          as XyDataSeriesRenderer;
       _series = _seriesRenderer._series;
       if (_seriesRenderer != null &&
-          _seriesRenderer._visible &&
+          _seriesRenderer._visible! &&
           _series.trendlines != null) {
         isTrendline = true;
         for (int j = 0; j < _seriesRenderer._trendlineRenderer.length; j++) {
           final TrendlineRenderer trendlineRenderer =
               _seriesRenderer._trendlineRenderer[j];
-          final Trendline trendline = _series.trendlines[j];
+          final Trendline trendline = _series.trendlines![j];
           if (trendline.animationDuration > 0 &&
               (_chartState._oldDeviceOrientation == null ||
                   _chartState._oldDeviceOrientation ==
@@ -2173,7 +2455,7 @@ class _ContainerArea extends StatelessWidget {
   void _bindDataLabelWidgets() {
     _chartState._renderDataLabel = _DataLabelRenderer(
         cartesianChartState: _chartState, show: _chartState._animateCompleted);
-    _chartWidgets.add(_chartState._renderDataLabel);
+    _chartWidgets.add(_chartState._renderDataLabel!);
   }
 
   /// To render a template
@@ -2181,15 +2463,15 @@ class _ContainerArea extends StatelessWidget {
     _chartState._annotationRegions = <Rect>[];
     _chartState._templates = <_ChartTemplateInfo>[];
     _renderDataLabelTemplates();
-    if (chart.annotations != null && chart.annotations.isNotEmpty) {
-      for (int i = 0; i < chart.annotations.length; i++) {
-        final CartesianChartAnnotation annotation = chart.annotations[i];
+    if (chart.annotations != null && chart.annotations!.isNotEmpty) {
+      for (int i = 0; i < chart.annotations!.length; i++) {
+        final CartesianChartAnnotation annotation = chart.annotations![i];
         final _ChartLocation location =
             _getAnnotationLocation(annotation, _chartState);
         final _ChartTemplateInfo chartTemplateInfo = _ChartTemplateInfo(
             key: GlobalKey(),
             animationDuration: 200,
-            widget: annotation.widget,
+            widget: annotation.widget!,
             templateType: 'Annotation',
             needMeasure: true,
             pointIndex: i,
@@ -2218,7 +2500,7 @@ class _ContainerArea extends StatelessWidget {
 
   /// To render data label template
   void _renderDataLabelTemplates() {
-    Widget labelWidget;
+    Widget? labelWidget;
     CartesianChartPoint<dynamic> point;
     _chartState._dataLabelTemplateRegions = <Rect>[];
     for (int i = 0;
@@ -2226,18 +2508,19 @@ class _ContainerArea extends StatelessWidget {
         i++) {
       final CartesianSeriesRenderer seriesRenderer =
           _chartState._chartSeries.visibleSeriesRenderers[i];
-      final XyDataSeries<dynamic, dynamic> series = seriesRenderer._series;
+      final XyDataSeries<dynamic, dynamic> series =
+          seriesRenderer._series as XyDataSeries;
       num padding;
-      if (series.dataLabelSettings.isVisible && seriesRenderer._visible) {
+      if (series.dataLabelSettings.isVisible && seriesRenderer._visible!) {
         for (int j = 0; j < seriesRenderer._dataPoints.length; j++) {
           point = seriesRenderer._dataPoints[j];
           if (point.isVisible && !point.isGap) {
             labelWidget = (series.dataLabelSettings.builder != null)
-                ? series.dataLabelSettings.builder(
-                    series.dataSource[point.overallDataPointIndex],
+                ? series.dataLabelSettings.builder!(
+                    series.dataSource[point.overallDataPointIndex!],
                     point,
                     series,
-                    point.overallDataPointIndex,
+                    point.overallDataPointIndex!,
                     i)
                 : null;
             if (labelWidget != null) {
@@ -2251,7 +2534,7 @@ class _ContainerArea extends StatelessWidget {
                               seriesType.contains('hiloopenclose'))
                           ? [point.low, point.high, point.open, point.close]
                           : seriesType.contains('box')
-                              ? [point.minimum]
+                              ? [point.minimum!]
                               : [point.y];
 
               for (int k = 0; k < dataLabelTemplateYValues.length; k++) {
@@ -2263,8 +2546,8 @@ class _ContainerArea extends StatelessWidget {
                 final _ChartLocation location = _calculatePoint(
                     point.xValue,
                     dataLabelTemplateYValues[k],
-                    seriesRenderer._xAxisRenderer,
-                    seriesRenderer._yAxisRenderer,
+                    seriesRenderer._xAxisRenderer!,
+                    seriesRenderer._yAxisRenderer!,
                     _chartState._requireInvertedAxis,
                     series,
                     _chartState._chartAxis._axisClipRect);
@@ -2297,11 +2580,24 @@ class _ContainerArea extends StatelessWidget {
     for (int i = 0;
         i < _chartState._chartSeries.visibleSeriesRenderers.length;
         i++) {
-      _seriesRenderer = _chartState._chartSeries.visibleSeriesRenderers[i];
+      _seriesRenderer = _chartState._chartSeries.visibleSeriesRenderers[i]
+          as XyDataSeriesRenderer;
       _seriesRenderer._animationCompleted = false;
       _series = _seriesRenderer._series;
       final String _seriesType = _seriesRenderer._seriesType;
-      if (_seriesRenderer != null && _seriesRenderer._visible) {
+      if (_seriesRenderer._isIndicator) {
+        _seriesRenderer._repaintNotifier = ValueNotifier<int>(0);
+        if (_seriesRenderer is XyDataSeriesRenderer) {
+          _seriesRenderer._animationController =
+              AnimationController(vsync: _chartState)
+                ..addListener(_seriesRenderer._repaintSeriesElement);
+          _chartState._controllerList[_seriesRenderer._animationController] =
+              _seriesRenderer._repaintSeriesElement;
+          _seriesRenderer._animationController
+              .addStatusListener(_seriesRenderer._animationStatusListener);
+        }
+      }
+      if (_seriesRenderer != null && _seriesRenderer._visible!) {
         _calculateTrendlineRegion(_chartState, _seriesRenderer);
         _series.selectionBehavior._chartState = _chartState;
         _series.selectionSettings._chartState = _chartState;
@@ -2311,74 +2607,97 @@ class _ContainerArea extends StatelessWidget {
         final dynamic selectionBehavior = _seriesRenderer._selectionBehavior;
         _seriesRenderer._selectionBehaviorRenderer =
             SelectionBehaviorRenderer(selectionBehavior, chart, _chartState);
-        final SelectionBehaviorRenderer selectionBehaviorRenderer =
+        final SelectionBehaviorRenderer? selectionBehaviorRenderer =
             _seriesRenderer._selectionBehaviorRenderer;
         if (selectionBehaviorRenderer != null) {
           selectionBehaviorRenderer._selectionRenderer ??= _SelectionRenderer();
-          selectionBehaviorRenderer._selectionRenderer.chart = chart;
-          selectionBehaviorRenderer._selectionRenderer._chartState =
+          selectionBehaviorRenderer._selectionRenderer!.chart = chart;
+          selectionBehaviorRenderer._selectionRenderer!._chartState =
               _chartState;
-          selectionBehaviorRenderer._selectionRenderer.seriesRenderer =
+          selectionBehaviorRenderer._selectionRenderer!.seriesRenderer =
               _seriesRenderer;
           _series = _seriesRenderer._series;
           if (selectionBehavior.selectionController != null) {
             selectionBehaviorRenderer._selectRange();
           }
-          selectionBehaviorRenderer._selectionRenderer.selectedSegments =
+          selectionBehaviorRenderer._selectionRenderer!.selectedSegments =
               _chartState._selectedSegments;
-          selectionBehaviorRenderer._selectionRenderer.unselectedSegments =
+          selectionBehaviorRenderer._selectionRenderer!.unselectedSegments =
               _chartState._unselectedSegments;
           //To determine whether initialSelectedDataIndexes collection is updated dynamically
           bool isSelecetedIndexesUpdated = false;
           if (_series.initialSelectedDataIndexes != null &&
-              _series.initialSelectedDataIndexes.isNotEmpty &&
+              _series.initialSelectedDataIndexes!.isNotEmpty &&
               _seriesRenderer._oldSelectedIndexes != null &&
-              _seriesRenderer._oldSelectedIndexes.isNotEmpty &&
-              _seriesRenderer._oldSelectedIndexes.length ==
-                  _series.initialSelectedDataIndexes.length) {
-            for (final int index in _series.initialSelectedDataIndexes) {
+              _seriesRenderer._oldSelectedIndexes!.isNotEmpty &&
+              _seriesRenderer._oldSelectedIndexes!.length ==
+                  _series.initialSelectedDataIndexes!.length) {
+            for (final int index in _series.initialSelectedDataIndexes!) {
               isSelecetedIndexesUpdated =
-                  !_seriesRenderer._oldSelectedIndexes.contains(index);
+                  !_seriesRenderer._oldSelectedIndexes!.contains(index);
               if (isSelecetedIndexesUpdated) {
                 break;
               }
             }
           } else {
             isSelecetedIndexesUpdated =
-                _series.initialSelectedDataIndexes.isNotEmpty;
+                _series.initialSelectedDataIndexes!.isNotEmpty;
+          }
+          int totalSelectedSegment = 0;
+          int? selectedSeriesIndex;
+          if (selectionBehavior.enable &&
+              _chartState._selectedSegments.isNotEmpty &&
+              _chartState._unselectedSegments.isNotEmpty) {
+            for (int j = 0; j < _chartState._selectedSegments.length; j++) {
+              if (_chartState._selectedSegments[j]._seriesIndex == i) {
+                totalSelectedSegment += 1;
+                selectedSeriesIndex =
+                    _chartState._selectedSegments[j]._seriesIndex;
+              }
+            }
+            for (int k = 0; k < _chartState._unselectedSegments.length; k++) {
+              if (_chartState._unselectedSegments[k]._seriesIndex == i) {
+                totalSelectedSegment += 1;
+              }
+            }
           }
           if (_chartState._isRangeSelectionSlider == false &&
               selectionBehavior.enable &&
-              isSelecetedIndexesUpdated) {
-            for (int j = 0; j < _seriesRenderer._dataPoints.length; j++) {
+              (isSelecetedIndexesUpdated ||
+                  (!_chartState._initialRender! &&
+                      (totalSelectedSegment != 0
+                          ? (totalSelectedSegment <
+                              _chartState
+                                  ._seriesRenderers[i]._dataPoints.length)
+                          : false)))) {
+            int segmentLength = _seriesRenderer._dataPoints.length;
+
+            if (_checkSeriesType(_seriesRenderer._seriesType) ||
+                _seriesRenderer._seriesType.contains('boxandwhisker')) {
+              segmentLength = _seriesRenderer._dataPoints.length - 1;
+            }
+
+            for (int j = 0; j < segmentLength; j++) {
               final ChartSegment segment = ColumnSegment();
               segment.currentSegmentIndex = j;
               segment._seriesIndex = i;
               segment._currentPoint = _seriesRenderer._dataPoints[j];
-              if (_series.initialSelectedDataIndexes
-                  .contains(segment.currentSegmentIndex)) {
-                selectionBehaviorRenderer._selectionRenderer.selectedSegments
+              if ((_series.initialSelectedDataIndexes!
+                          .contains(segment.currentSegmentIndex) &&
+                      isSelecetedIndexesUpdated) ||
+                  chart.selectionType == SelectionType.series &&
+                      selectedSeriesIndex == i) {
+                selectionBehaviorRenderer._selectionRenderer!.selectedSegments
                     .add(segment);
               } else {
-                selectionBehaviorRenderer._selectionRenderer.unselectedSegments
+                selectionBehaviorRenderer
+                    ._selectionRenderer!.unselectedSegments!
                     .add(segment);
               }
             }
             _seriesRenderer._oldSelectedIndexes = <int>[]
               //ignore: prefer_spread_collections
-              ..addAll(_series.initialSelectedDataIndexes);
-          }
-        }
-        if (_seriesRenderer._isIndicator) {
-          _seriesRenderer._repaintNotifier = ValueNotifier<int>(0);
-          if (_seriesRenderer is XyDataSeriesRenderer) {
-            _seriesRenderer._animationController =
-                AnimationController(vsync: _chartState)
-                  ..addListener(_seriesRenderer._repaintSeriesElement);
-            _chartState._controllerList[_seriesRenderer._animationController] =
-                _seriesRenderer._repaintSeriesElement;
-            _seriesRenderer._animationController
-                .addStatusListener(_seriesRenderer._animationStatusListener);
+              ..addAll(_series.initialSelectedDataIndexes!);
           }
         }
 
@@ -2388,7 +2707,7 @@ class _ContainerArea extends StatelessWidget {
                 _chartState._legendRefresh ||
                 _chartState._oldDeviceOrientation ==
                     _chartState._deviceOrientation) &&
-            (_chartState._initialRender ||
+            (_chartState._initialRender! ||
                 _chartState._legendRefresh ||
                 ((_seriesType == 'column' || _seriesType == 'bar') &&
                     _chartState._legendToggling) ||
@@ -2441,7 +2760,7 @@ class _ContainerArea extends StatelessWidget {
     if (_chartState._chartAxis._axisRenderersCollection != null &&
         _chartState._chartAxis._axisRenderersCollection.isNotEmpty &&
         _chartState._chartAxis._axisRenderersCollection.length > 1) {
-      final Widget axisWidget = _CartesianAxisRenderer(
+      final _CartesianAxisRenderer axisWidget = _CartesianAxisRenderer(
           chartState: _chartState, renderType: renderType);
       if (renderType == 'outside') {
         _chartState._renderOutsideAxis = axisWidget;
@@ -2453,9 +2772,9 @@ class _ContainerArea extends StatelessWidget {
   }
 
   /// To find a series on selection event
-  CartesianSeriesRenderer _findSeries(Offset position) {
-    CartesianSeriesRenderer seriesRenderer;
-    SelectionBehaviorRenderer selectionBehaviorRenderer;
+  CartesianSeriesRenderer? _findSeries(Offset position) {
+    CartesianSeriesRenderer? seriesRenderer;
+    SelectionBehaviorRenderer? selectionBehaviorRenderer;
     outerLoop:
     for (int i = _chartState._chartSeries.visibleSeriesRenderers.length - 1;
         i >= 0;
@@ -2475,7 +2794,7 @@ class _ContainerArea extends StatelessWidget {
           _seriesType == 'waterfall') {
         for (int j = 0; j < seriesRenderer._dataPoints.length; j++) {
           if (seriesRenderer._dataPoints[j].region != null &&
-              seriesRenderer._dataPoints[j].region.contains(position)) {
+              seriesRenderer._dataPoints[j].region!.contains(position)) {
             seriesRenderer._isOuterRegion = false;
             break outerLoop;
           } else {
@@ -2490,8 +2809,8 @@ class _ContainerArea extends StatelessWidget {
             k >= 0;
             k--) {
           isSelect =
-              seriesRenderer._isSelectionEnable && seriesRenderer._visible
-                  ? selectionBehaviorRenderer._selectionRenderer
+              seriesRenderer._isSelectionEnable && seriesRenderer._visible!
+                  ? selectionBehaviorRenderer!._selectionRenderer!
                       ._isSeriesContainsPoint(
                           _chartState._chartSeries.visibleSeriesRenderers[i],
                           position)
@@ -2510,7 +2829,7 @@ class _ContainerArea extends StatelessWidget {
     _chartState._tooltipBehaviorRenderer._isHovering = false;
     _tapDownDetails = event.position;
     if (chart.zoomPanBehavior.enablePinching == true) {
-      ZoomPanArgs zoomStartArgs;
+      ZoomPanArgs? zoomStartArgs;
       if (_chartState._touchStartPositions.length < 2) {
         _chartState._touchStartPositions.add(event);
       }
@@ -2522,7 +2841,7 @@ class _ContainerArea extends StatelessWidget {
               _chartState._chartAxis._axisRenderersCollection[axisIndex];
           if (chart.onZoomStart != null) {
             zoomStartArgs = _bindZoomEvent(
-                chart, axisRenderer, zoomStartArgs, chart.onZoomStart);
+                chart, axisRenderer, zoomStartArgs, chart.onZoomStart!);
             axisRenderer._zoomFactor = zoomStartArgs.currentZoomFactor;
             axisRenderer._zoomPosition = zoomStartArgs.currentZoomPosition;
           }
@@ -2543,13 +2862,13 @@ class _ContainerArea extends StatelessWidget {
         chart.selectionGesture == ActivationMode.singleTap &&
         _chartState._zoomPanBehaviorRenderer._isPinching != true) {
       final CartesianSeriesRenderer selectionSeriesRenderer =
-          _findSeries(position);
+          _findSeries(position)!;
       final SelectionBehaviorRenderer selectionBehaviorRenderer =
-          selectionSeriesRenderer._selectionBehaviorRenderer;
+          selectionSeriesRenderer._selectionBehaviorRenderer!;
       if (selectionSeriesRenderer._isSelectionEnable &&
           selectionBehaviorRenderer._selectionRenderer != null &&
           !selectionSeriesRenderer._isOuterRegion) {
-        selectionBehaviorRenderer._selectionRenderer.seriesRenderer =
+        selectionBehaviorRenderer._selectionRenderer!.seriesRenderer =
             selectionSeriesRenderer;
         selectionBehaviorRenderer.onTouchDown(position.dx, position.dy);
       }
@@ -2608,7 +2927,7 @@ class _ContainerArea extends StatelessWidget {
   void _performPointerUp(PointerUpEvent event) {
     if (_chartState._touchStartPositions.length == 2 &&
         _chartState._touchMovePositions.length == 2 &&
-        _chartState._zoomPanBehaviorRenderer._isPinching) {
+        _chartState._zoomPanBehaviorRenderer._isPinching == true) {
       _calculatePinchZoomingArgs();
     }
     _chartState._touchStartPositions = <PointerEvent>[];
@@ -2648,7 +2967,7 @@ class _ContainerArea extends StatelessWidget {
                 !chart.crosshairBehavior.shouldAlwaysShow))) {
       _chartState._crosshairBehaviorRenderer
           .onTouchUp(position.dx, position.dy);
-      _chartState._crosshairBehaviorRenderer._isLongPressActivated = true;
+      _chartState._crosshairBehaviorRenderer._isLongPressActivated = false;
     }
     if (chart.tooltipBehavior.enable &&
             chart.tooltipBehavior.activationMode == ActivationMode.singleTap ||
@@ -2678,7 +2997,7 @@ class _ContainerArea extends StatelessWidget {
 
   /// To calculate the arguments of pinch zooming event
   void _calculatePinchZoomingArgs() {
-    ZoomPanArgs zoomEndArgs, zoomResetArgs;
+    ZoomPanArgs? zoomEndArgs, zoomResetArgs;
     bool resetFlag = false;
     int axisIndex;
     for (axisIndex = 0;
@@ -2688,7 +3007,7 @@ class _ContainerArea extends StatelessWidget {
           _chartState._chartAxis._axisRenderersCollection[axisIndex];
       if (chart.onZoomEnd != null) {
         zoomEndArgs =
-            _bindZoomEvent(chart, axisRenderer, zoomEndArgs, chart.onZoomEnd);
+            _bindZoomEvent(chart, axisRenderer, zoomEndArgs, chart.onZoomEnd!);
         axisRenderer._zoomFactor = zoomEndArgs.currentZoomFactor;
         axisRenderer._zoomPosition = zoomEndArgs.currentZoomPosition;
       }
@@ -2712,14 +3031,14 @@ class _ContainerArea extends StatelessWidget {
           index++) {
         final ChartAxisRenderer axisRenderer =
             _chartState._chartAxis._axisRenderersCollection[index];
-        _bindZoomEvent(chart, axisRenderer, zoomResetArgs, chart.onZoomReset);
+        _bindZoomEvent(chart, axisRenderer, zoomResetArgs, chart.onZoomReset!);
       }
     }
   }
 
   /// To perform long press move update
   void _performLongPressMoveUpdate(LongPressMoveUpdateDetails details) {
-    final Offset position = renderBox.globalToLocal(details.globalPosition);
+    final Offset? position = renderBox.globalToLocal(details.globalPosition);
     if (_chartState._zoomPanBehaviorRenderer._isPinching != true) {
       if (chart.zoomPanBehavior.enableSelectionZooming &&
           position != null &&
@@ -2728,8 +3047,8 @@ class _ContainerArea extends StatelessWidget {
         _chartState._zoomPanBehaviorRenderer.onDrawSelectionZoomRect(
             position.dx,
             position.dy,
-            _zoomStartPosition.dx,
-            _zoomStartPosition.dy);
+            _zoomStartPosition!.dx,
+            _zoomStartPosition!.dy);
       }
     }
     if (chart.trackballBehavior != null &&
@@ -2793,6 +3112,7 @@ class _ContainerArea extends StatelessWidget {
 
   /// To perform pan down
   void _performPanDown(DragDownDetails details) {
+    _chartState._startOffset = renderBox.globalToLocal(details.globalPosition);
     if (_chartState._zoomPanBehaviorRenderer._isPinching != true) {
       _zoomStartPosition = renderBox.globalToLocal(details.globalPosition);
       if (chart.zoomPanBehavior.enablePanning == true) {
@@ -2804,9 +3124,9 @@ class _ContainerArea extends StatelessWidget {
 
   /// To perform long press on chart
   void _performLongPress() {
-    Offset position;
+    Offset? position;
     if (_tapDownDetails != null) {
-      position = renderBox.globalToLocal(_tapDownDetails);
+      position = renderBox.globalToLocal(_tapDownDetails!);
       if (chart.tooltipBehavior.enable &&
               chart.tooltipBehavior.activationMode ==
                   ActivationMode.longPress ||
@@ -2821,12 +3141,13 @@ class _ContainerArea extends StatelessWidget {
       }
     }
     if (_chartState._chartSeries.visibleSeriesRenderers != null &&
+        position != null &&
         chart.selectionGesture == ActivationMode.longPress) {
       final CartesianSeriesRenderer selectionSeriesRenderer =
-          _findSeries(position);
+          _findSeries(position)!;
       final SelectionBehaviorRenderer selectionBehaviorRenderer =
-          selectionSeriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer._selectionRenderer.seriesRenderer =
+          selectionSeriesRenderer._selectionBehaviorRenderer!;
+      selectionBehaviorRenderer._selectionRenderer!.seriesRenderer =
           selectionSeriesRenderer;
       selectionBehaviorRenderer.onLongPress(position.dx, position.dy);
     }
@@ -2835,6 +3156,7 @@ class _ContainerArea extends StatelessWidget {
             chart.trackballBehavior.enable == true &&
             chart.trackballBehavior.activationMode ==
                 ActivationMode.longPress) &&
+        position != null &&
         _chartState._zoomPanBehaviorRenderer._isPinching != true) {
       _chartState._trackballBehaviorRenderer._isLongPressActivated = true;
       if (chart.trackballBehavior.builder != null) {
@@ -2860,7 +3182,7 @@ class _ContainerArea extends StatelessWidget {
   /// Method for double tap
   void _performDoubleTap() {
     if (_tapDownDetails != null) {
-      final Offset position = renderBox.globalToLocal(_tapDownDetails);
+      final Offset position = renderBox.globalToLocal(_tapDownDetails!);
       if (chart.trackballBehavior != null &&
           chart.trackballBehavior.enable &&
           chart.trackballBehavior.activationMode == ActivationMode.doubleTap) {
@@ -2872,10 +3194,10 @@ class _ContainerArea extends StatelessWidget {
               .onDoubleTap(position.dx, position.dy);
         }
         _chartState._enableDoubleTap = true;
-
+        _chartState._isTouchUp = true;
         _chartState._trackballBehaviorRenderer
             .onTouchUp(position.dx, position.dy);
-
+        _chartState._isTouchUp = false;
         _chartState._enableDoubleTap = false;
       }
       if (chart.crosshairBehavior != null &&
@@ -2884,8 +3206,10 @@ class _ContainerArea extends StatelessWidget {
         _chartState._crosshairBehaviorRenderer
             .onDoubleTap(position.dx, position.dy);
         _chartState._enableDoubleTap = true;
+        _chartState._isTouchUp = true;
         _chartState._crosshairBehaviorRenderer
             .onTouchUp(position.dx, position.dy);
+        _chartState._isTouchUp = false;
         _chartState._enableDoubleTap = false;
       }
       if (chart.tooltipBehavior.enable &&
@@ -2903,18 +3227,18 @@ class _ContainerArea extends StatelessWidget {
       if (_chartState._chartSeries.visibleSeriesRenderers != null &&
           chart.selectionGesture == ActivationMode.doubleTap) {
         final CartesianSeriesRenderer selectionSeriesRenderer =
-            _findSeries(position);
+            _findSeries(position)!;
         final SelectionBehaviorRenderer selectionBehaviorRenderer =
-            selectionSeriesRenderer._selectionBehaviorRenderer;
-        selectionBehaviorRenderer._selectionRenderer.seriesRenderer =
+            selectionSeriesRenderer._selectionBehaviorRenderer!;
+        selectionBehaviorRenderer._selectionRenderer!.seriesRenderer =
             selectionSeriesRenderer;
         selectionBehaviorRenderer.onDoubleTap(position.dx, position.dy);
       }
     }
 
     if (chart.zoomPanBehavior.enableDoubleTapZooming == true) {
-      final Offset doubleTapPosition = _touchPosition;
-      final Offset position = doubleTapPosition;
+      final Offset? doubleTapPosition = _touchPosition;
+      final Offset? position = doubleTapPosition;
       if (position != null) {
         _chartState._zoomPanBehaviorRenderer.onDoubleTap(position.dx,
             position.dy, _chartState._zoomPanBehaviorRenderer._zoomFactor);
@@ -2924,12 +3248,15 @@ class _ContainerArea extends StatelessWidget {
 
   /// Update the details for pan
   void _performPanUpdate(DragUpdateDetails details) {
-    Offset position;
+    Offset? position;
+    _chartState._currentPosition =
+        renderBox.globalToLocal(details.globalPosition);
     if (_chartState._zoomPanBehaviorRenderer._isPinching != true) {
       position = renderBox.globalToLocal(details.globalPosition);
       if (_chartState._zoomPanBehaviorRenderer._isPanning == true &&
           chart.zoomPanBehavior.enablePanning &&
-          _chartState._zoomPanBehaviorRenderer._previousMovedPosition != null) {
+          _chartState._zoomPanBehaviorRenderer._previousMovedPosition != null &&
+          !_chartState._isLoadMoreIndicator) {
         _chartState._zoomPanBehaviorRenderer.onPan(position.dx, position.dy);
       }
       _chartState._zoomPanBehaviorRenderer._previousMovedPosition = position;
@@ -2990,16 +3317,121 @@ class _ContainerArea extends StatelessWidget {
         !chart.trackballBehavior.shouldAlwaysShow &&
         chart.trackballBehavior.activationMode != ActivationMode.doubleTap &&
         _touchPosition != null) {
+      _chartState._isTouchUp = true;
       _chartState._trackballBehaviorRenderer
-          .onTouchUp(_touchPosition.dx, _touchPosition.dy);
+          .onTouchUp(_touchPosition!.dx, _touchPosition!.dy);
+      _chartState._isTouchUp = false;
       _chartState._trackballBehaviorRenderer._isLongPressActivated = false;
     }
     if (chart.crosshairBehavior.enable &&
         !chart.crosshairBehavior.shouldAlwaysShow &&
+        _touchPosition != null &&
         chart.crosshairBehavior.activationMode != ActivationMode.doubleTap) {
+      _chartState._isTouchUp = true;
       _chartState._crosshairBehaviorRenderer
-          .onTouchUp(_touchPosition?.dx, _touchPosition?.dy);
+          .onTouchUp(_touchPosition!.dx, _touchPosition!.dy);
+      _chartState._isTouchUp = false;
+      _chartState._crosshairBehaviorRenderer._isLongPressActivated = false;
     }
+
+    /// Pagination/Swiping feature
+    if (chart.onPlotAreaSwipe != null &&
+        _chartState._zoomedState != true &&
+        _chartState._startOffset != null &&
+        _chartState._currentPosition != null &&
+        _chartState._chartAxis._axisClipRect
+            .contains(_chartState._startOffset!) &&
+        _chartState._chartAxis._axisClipRect
+            .contains(_chartState._currentPosition!)) {
+      //swipe configuration options
+      const double swipeMaxDistanceThreshold = 50.0;
+      final double swipeMinDisplacement = (_chartState._requireInvertedAxis
+              ? _chartState._chartAxis._axisClipRect.height
+              : _chartState._chartAxis._axisClipRect.width) *
+          0.1;
+      const double swipeMinVelocity = 240.0;
+      ChartSwipeDirection swipeDirection;
+
+      final double dx =
+          (_chartState._currentPosition!.dx - _chartState._startOffset!.dx)
+              .abs();
+      final double dy =
+          (_chartState._currentPosition!.dy - _chartState._startOffset!.dy)
+              .abs();
+      final double velocity = details.primaryVelocity!;
+
+      if (_chartState._requireInvertedAxis &&
+          dx <= swipeMaxDistanceThreshold &&
+          dy >= swipeMinDisplacement &&
+          velocity.abs() >= swipeMinVelocity) {
+        ///vertical
+        swipeDirection =
+            velocity < 0 ? ChartSwipeDirection.start : ChartSwipeDirection.end;
+        chart.onPlotAreaSwipe!(swipeDirection);
+      } else if (!_chartState._requireInvertedAxis &&
+          dx >= swipeMinDisplacement &&
+          dy <= swipeMaxDistanceThreshold &&
+          velocity.abs() >= swipeMinVelocity) {
+        ///horizontal
+        swipeDirection =
+            velocity > 0 ? ChartSwipeDirection.start : ChartSwipeDirection.end;
+        chart.onPlotAreaSwipe!(swipeDirection);
+      }
+    }
+
+    ///Load More feature
+    if (chart.loadMoreIndicatorBuilder != null &&
+        _chartState._startOffset != null &&
+        _chartState._currentPosition != null) {
+      final bool verticallyDragging =
+          ((_chartState._currentPosition!.dy - _chartState._startOffset!.dy)
+                  .abs() >
+              (_chartState._currentPosition!.dx - _chartState._startOffset!.dx)
+                  .abs());
+      if ((!verticallyDragging && !_chartState._requireInvertedAxis) ||
+          (verticallyDragging && _chartState._requireInvertedAxis)) {
+        bool loadMore = false;
+        final ChartSwipeDirection direction = _chartState._requireInvertedAxis
+            ? (_chartState._currentPosition!.dy > _chartState._startOffset!.dy
+                ? ChartSwipeDirection.end
+                : ChartSwipeDirection.start)
+            : (_chartState._currentPosition!.dx > _chartState._startOffset!.dx
+                ? ChartSwipeDirection.start
+                : ChartSwipeDirection.end);
+        for (int axisIndex = 0;
+            axisIndex < _chartState._chartAxis._axisRenderersCollection.length;
+            axisIndex++) {
+          final ChartAxisRenderer axisRenderer =
+              _chartState._chartAxis._axisRenderersCollection[axisIndex];
+          if (((!verticallyDragging &&
+                      axisRenderer._orientation ==
+                          AxisOrientation.horizontal) ||
+                  (verticallyDragging &&
+                      axisRenderer._orientation == AxisOrientation.vertical)) &&
+              axisRenderer._actualRange != null &&
+              ((axisRenderer._actualRange!.minimum.round() ==
+                          axisRenderer._visibleRange!.minimum.round() &&
+                      direction == ChartSwipeDirection.start) ||
+                  (axisRenderer._actualRange!.maximum.round() ==
+                          axisRenderer._visibleRange!.maximum.round() &&
+                      direction == ChartSwipeDirection.end))) {
+            loadMore = true;
+            break;
+          }
+        }
+
+        if (loadMore && !_chartState._isLoadMoreIndicator) {
+          _chartState._isLoadMoreIndicator = true;
+          _chartState._loadMoreViewStateSetter(() {
+            _chartState._swipeDirection = direction;
+          });
+        } else {
+          _chartState._isLoadMoreIndicator = false;
+        }
+      }
+    }
+    _chartState._startOffset = null;
+    _chartState._currentPosition = null;
   }
 
   /// To perform mouse hover event
@@ -3064,7 +3496,7 @@ class _ContainerArea extends StatelessWidget {
                 trackballBehavior: chart.trackballBehavior,
                 chartState: _chartState);
         userInteractionWidgets
-            .add(_chartState._trackballBehaviorRenderer._trackballTemplate);
+            .add(_chartState._trackballBehaviorRenderer._trackballTemplate!);
       } else {
         trackballPainter = _TrackballPainter(
             chartState: _chartState,
@@ -3090,23 +3522,35 @@ class _ContainerArea extends StatelessWidget {
           decoration: const BoxDecoration(color: Colors.transparent),
           child: CustomPaint(painter: crosshairPainter)));
     }
+    final tooltip = chart.tooltipBehavior;
     if (chart.tooltipBehavior.enable || _shouldShowAxisTooltip(_chartState)) {
-      if (chart.tooltipBehavior.builder != null) {
-        _chartState._tooltipBehaviorRenderer._tooltipTemplate =
-            _TooltipTemplate(
-                show: false,
-                clipRect: _chartState._chartAxis._axisClipRect,
-                duration: chart.tooltipBehavior.duration,
-                tooltipBehavior: chart.tooltipBehavior,
-                chartState: _chartState);
-        userInteractionWidgets
-            .add(_chartState._tooltipBehaviorRenderer._tooltipTemplate);
-      } else {
-        _chartState._tooltipBehaviorRenderer._chartTooltip =
-            _ChartTooltipRenderer(chartState: _chartState);
-        userInteractionWidgets
-            .add(_chartState._tooltipBehaviorRenderer._chartTooltip);
-      }
+      _chartState._tooltipBehaviorRenderer._prevTooltipValue =
+          _chartState._tooltipBehaviorRenderer._currentTooltipValue = null;
+      _chartState._tooltipBehaviorRenderer._chartTooltip = SfTooltip(
+          color: tooltip.color ?? _chartState._chartTheme.tooltipColor,
+          key: GlobalKey(),
+          textStyle: tooltip.textStyle,
+          animationDuration: tooltip.animationDuration,
+          enable: tooltip.enable,
+          opacity: tooltip.opacity,
+          borderColor: tooltip.borderColor,
+          borderWidth: tooltip.borderWidth,
+          duration: tooltip.duration,
+          shouldAlwaysShow: tooltip.shouldAlwaysShow,
+          elevation: tooltip.elevation,
+          canShowMarker: tooltip.canShowMarker,
+          textAlignment: tooltip.textAlignment,
+          decimalPlaces: tooltip.decimalPlaces,
+          labelColor: tooltip.textStyle.color ??
+              _chartState._chartTheme.tooltipLabelColor,
+          header: tooltip.header,
+          format: tooltip.format,
+          builder: tooltip.builder,
+          shadowColor: tooltip.shadowColor,
+          onTooltipRender: chart.onTooltipRender != null
+              ? _chartState._tooltipBehaviorRenderer._tooltipRenderingEvent
+              : null);
+      _chartWidgets.add(_chartState._tooltipBehaviorRenderer._chartTooltip!);
     }
     final Widget uiWidget = IgnorePointer(
         ignoring: (chart.annotations != null),
@@ -3122,7 +3566,7 @@ class _ContainerArea extends StatelessWidget {
       final CartesianSeriesRenderer seriesRenderer =
           _chartState._chartSeries.visibleSeriesRenderers[i];
       final String _seriesType = seriesRenderer._seriesType;
-      num pointIndex;
+      int? pointIndex;
       final double padding = (_seriesType == 'bubble') ||
               (_seriesType == 'scatter') ||
               (_seriesType == 'bar') ||
@@ -3135,7 +3579,7 @@ class _ContainerArea extends StatelessWidget {
           : 15;
 
       /// regional padding to detect smooth touch
-      seriesRenderer._regionalData
+      seriesRenderer._regionalData!
           .forEach((dynamic regionRect, dynamic values) {
         final Rect region = regionRect[0];
         final double left = region.left - padding;
@@ -3152,11 +3596,11 @@ class _ContainerArea extends StatelessWidget {
         PointTapArgs pointTapArgs;
         pointTapArgs = PointTapArgs(
             i,
-            pointIndex,
+            pointIndex!,
             seriesRenderer._dataPoints,
             seriesRenderer
-                ._visibleDataPoints[pointIndex].overallDataPointIndex);
-        chart.onPointTapped(pointTapArgs);
+                ._visibleDataPoints![pointIndex!].overallDataPointIndex);
+        chart.onPointTapped!(pointTapArgs);
       }
     }
   }
@@ -3172,14 +3616,14 @@ class _ContainerArea extends StatelessWidget {
         if (_chartState
                 ._chartAxis._axisRenderersCollection[i]._axis.isVisible &&
             labels[k]._labelRegion != null &&
-            labels[k]._labelRegion.contains(position)) {
+            labels[k]._labelRegion!.contains(position)) {
           AxisLabelTapArgs labelArgs;
           labelArgs = AxisLabelTapArgs(
               _chartState._chartAxis._axisRenderersCollection[i]._axis,
-              _chartState._chartAxis._axisRenderersCollection[i]._name);
+              _chartState._chartAxis._axisRenderersCollection[i]._name!);
           labelArgs.text = labels[k].text;
           labelArgs.value = labels[k].value;
-          chart.onAxisLabelTapped(labelArgs);
+          chart.onAxisLabelTapped!(labelArgs);
         }
       }
     }
@@ -3188,7 +3632,7 @@ class _ContainerArea extends StatelessWidget {
   /// Getter method of the series painter
   CustomPainter _getSeriesPainter(int value, AnimationController controller,
       CartesianSeriesRenderer seriesRenderer) {
-    CustomPainter customPainter;
+    CustomPainter? customPainter;
     final _PainterKey painterKey = _PainterKey(
         index: value, name: 'series $value', isRenderCompleted: false);
     _chartState._painterKeys.add(painterKey);
@@ -3196,7 +3640,7 @@ class _ContainerArea extends StatelessWidget {
       case 'line':
         customPainter = _LineChartPainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as LineSeriesRenderer,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
                 : (_chartState._legendToggling
@@ -3209,7 +3653,7 @@ class _ContainerArea extends StatelessWidget {
       case 'spline':
         customPainter = _SplineChartPainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as SplineSeriesRenderer,
             painterKey: painterKey,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
@@ -3222,7 +3666,7 @@ class _ContainerArea extends StatelessWidget {
       case 'column':
         customPainter = _ColumnChartPainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as ColumnSeriesRenderer,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
                 : true,
@@ -3234,7 +3678,7 @@ class _ContainerArea extends StatelessWidget {
       case 'scatter':
         customPainter = _ScatterChartPainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as ScatterSeriesRenderer,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
                 : (_chartState._legendToggling
@@ -3247,7 +3691,7 @@ class _ContainerArea extends StatelessWidget {
       case 'stepline':
         customPainter = _StepLineChartPainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as StepLineSeriesRenderer,
             painterKey: painterKey,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
@@ -3260,7 +3704,7 @@ class _ContainerArea extends StatelessWidget {
       case 'area':
         customPainter = _AreaChartPainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as AreaSeriesRenderer,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
                 : (_chartState._legendToggling
@@ -3273,7 +3717,7 @@ class _ContainerArea extends StatelessWidget {
       case 'bubble':
         customPainter = _BubbleChartPainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as BubbleSeriesRenderer,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
                 : (_chartState._legendToggling
@@ -3286,7 +3730,7 @@ class _ContainerArea extends StatelessWidget {
       case 'bar':
         customPainter = _BarChartPainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as BarSeriesRenderer,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
                 : true,
@@ -3297,7 +3741,7 @@ class _ContainerArea extends StatelessWidget {
       case 'fastline':
         customPainter = _FastLineChartPainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as FastLineSeriesRenderer,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
                 : (_chartState._legendToggling
@@ -3310,7 +3754,7 @@ class _ContainerArea extends StatelessWidget {
       case 'rangecolumn':
         customPainter = _RangeColumnChartPainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as RangeColumnSeriesRenderer,
             painterKey: painterKey,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
@@ -3323,7 +3767,7 @@ class _ContainerArea extends StatelessWidget {
       case 'rangearea':
         customPainter = _RangeAreaChartPainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as RangeAreaSeriesRenderer,
             painterKey: painterKey,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
@@ -3336,7 +3780,7 @@ class _ContainerArea extends StatelessWidget {
       case 'steparea':
         customPainter = _StepAreaChartPainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as StepAreaSeriesRenderer,
             painterKey: painterKey,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
@@ -3349,7 +3793,7 @@ class _ContainerArea extends StatelessWidget {
       case 'splinearea':
         customPainter = _SplineAreaChartPainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as SplineAreaSeriesRenderer,
             painterKey: painterKey,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
@@ -3362,7 +3806,7 @@ class _ContainerArea extends StatelessWidget {
       case 'splinerangearea':
         customPainter = _SplineRangeAreaChartPainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as SplineRangeAreaSeriesRenderer,
             painterKey: painterKey,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
@@ -3375,7 +3819,7 @@ class _ContainerArea extends StatelessWidget {
       case 'stackedarea':
         customPainter = _StackedAreaChartPainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as StackedAreaSeriesRenderer,
             painterKey: painterKey,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
@@ -3388,7 +3832,7 @@ class _ContainerArea extends StatelessWidget {
       case 'stackedbar':
         customPainter = _StackedBarChartPainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as StackedBarSeriesRenderer,
             painterKey: painterKey,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
@@ -3401,7 +3845,7 @@ class _ContainerArea extends StatelessWidget {
       case 'stackedcolumn':
         customPainter = _StackedColummnChartPainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as StackedColumnSeriesRenderer,
             painterKey: painterKey,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
@@ -3414,7 +3858,7 @@ class _ContainerArea extends StatelessWidget {
       case 'stackedline':
         customPainter = _StackedLineChartPainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as StackedLineSeriesRenderer,
             painterKey: painterKey,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
@@ -3427,7 +3871,7 @@ class _ContainerArea extends StatelessWidget {
       case 'stackedarea100':
         customPainter = _StackedArea100ChartPainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as StackedArea100SeriesRenderer,
             painterKey: painterKey,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
@@ -3440,7 +3884,7 @@ class _ContainerArea extends StatelessWidget {
       case 'stackedbar100':
         customPainter = _StackedBar100ChartPainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as StackedBar100SeriesRenderer,
             painterKey: painterKey,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
@@ -3453,7 +3897,7 @@ class _ContainerArea extends StatelessWidget {
       case 'stackedcolumn100':
         customPainter = _StackedColumn100ChartPainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as StackedColumn100SeriesRenderer,
             painterKey: painterKey,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
@@ -3466,7 +3910,7 @@ class _ContainerArea extends StatelessWidget {
       case 'stackedline100':
         customPainter = _StackedLine100ChartPainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as StackedLine100SeriesRenderer,
             painterKey: painterKey,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
@@ -3479,7 +3923,7 @@ class _ContainerArea extends StatelessWidget {
       case 'hilo':
         customPainter = _HiloPainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as HiloSeriesRenderer,
             painterKey: painterKey,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
@@ -3493,7 +3937,7 @@ class _ContainerArea extends StatelessWidget {
       case 'hiloopenclose':
         customPainter = _HiloOpenClosePainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as HiloOpenCloseSeriesRenderer,
             painterKey: painterKey,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
@@ -3506,7 +3950,7 @@ class _ContainerArea extends StatelessWidget {
       case 'candle':
         customPainter = _CandlePainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as CandleSeriesRenderer,
             painterKey: painterKey,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
@@ -3519,7 +3963,8 @@ class _ContainerArea extends StatelessWidget {
       case 'histogram':
         customPainter = _HistogramChartPainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as HistogramSeriesRenderer,
+            chartSeries: _chartState._chartSeries,
             painterKey: painterKey,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
@@ -3532,7 +3977,7 @@ class _ContainerArea extends StatelessWidget {
       case 'boxandwhisker':
         customPainter = _BoxAndWhiskerPainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as BoxAndWhiskerSeriesRenderer,
             painterKey: painterKey,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
@@ -3545,7 +3990,7 @@ class _ContainerArea extends StatelessWidget {
       case 'waterfall':
         customPainter = _WaterfallChartPainter(
             chartState: _chartState,
-            seriesRenderer: seriesRenderer,
+            seriesRenderer: seriesRenderer as WaterfallSeriesRenderer,
             painterKey: painterKey,
             isRepaint: _chartState._zoomedState != null
                 ? _chartState._zoomedAxisRendererStates.isNotEmpty
@@ -3554,7 +3999,8 @@ class _ContainerArea extends StatelessWidget {
                     : seriesRenderer._needsRepaint),
             animationController: controller,
             notifier: seriesRenderer._repaintNotifier);
+        break;
     }
-    return customPainter;
+    return customPainter!;
   }
 }

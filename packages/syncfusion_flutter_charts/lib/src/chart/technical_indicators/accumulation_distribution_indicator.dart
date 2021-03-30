@@ -13,26 +13,26 @@ class AccumulationDistributionIndicator<T, D>
     extends TechnicalIndicators<T, D> {
   /// Creating an argument constructor of AccumulationDistributionIndicator class.
   AccumulationDistributionIndicator(
-      {bool isVisible,
-      String xAxisName,
-      String yAxisName,
-      String seriesName,
-      List<double> dashArray,
-      double animationDuration,
-      List<T> dataSource,
-      ChartValueMapper<T, D> xValueMapper,
-      ChartValueMapper<T, num> highValueMapper,
-      ChartValueMapper<T, num> lowValueMapper,
-      ChartValueMapper<T, num> closeValueMapper,
-      ChartValueMapper<T, num> volumeValueMapper,
-      String name,
-      bool isVisibleInLegend,
-      LegendIconType legendIconType,
-      String legendItemText,
-      Color signalLineColor,
-      double signalLineWidth})
+      {bool? isVisible,
+      String? xAxisName,
+      String? yAxisName,
+      String? seriesName,
+      List<double>? dashArray,
+      double? animationDuration,
+      List<T>? dataSource,
+      ChartValueMapper<T, D>? xValueMapper,
+      ChartValueMapper<T, num>? highValueMapper,
+      ChartValueMapper<T, num>? lowValueMapper,
+      ChartValueMapper<T, num>? closeValueMapper,
+      ChartValueMapper<T, num>? volumeValueMapper,
+      String? name,
+      bool? isVisibleInLegend,
+      LegendIconType? legendIconType,
+      String? legendItemText,
+      Color? signalLineColor,
+      double? signalLineWidth})
       : volumeValueMapper = (volumeValueMapper != null)
-            ? ((int index) => volumeValueMapper(dataSource[index], index))
+            ? ((int index) => volumeValueMapper(dataSource![index], index))
             : null,
         super(
             isVisible: isVisible,
@@ -77,7 +77,7 @@ class AccumulationDistributionIndicator<T, D>
   /// }
   ///```
   ///
-  final ChartIndexedValueMapper<num> volumeValueMapper;
+  final ChartIndexedValueMapper<num>? volumeValueMapper;
 
   /// To initialise indicators collections
   // ignore:unused_element
@@ -87,8 +87,12 @@ class AccumulationDistributionIndicator<T, D>
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
     technicalIndicatorsRenderer._targetSeriesRenderers =
         <CartesianSeriesRenderer>[];
-    technicalIndicatorsRenderer._setSeriesProperties(indicator, 'AD',
-        indicator.signalLineColor, indicator.signalLineWidth, chart);
+    technicalIndicatorsRenderer._setSeriesProperties(
+        indicator,
+        indicator.name ?? 'AD',
+        indicator.signalLineColor,
+        indicator.signalLineWidth,
+        chart);
   }
 
   /// To initialise data source of technical indicators
@@ -96,8 +100,9 @@ class AccumulationDistributionIndicator<T, D>
   void _initDataSource(TechnicalIndicators<dynamic, dynamic> indicator,
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
     final List<CartesianChartPoint<dynamic>> validData =
-        technicalIndicatorsRenderer._dataPoints;
-    if (validData.isNotEmpty) {
+        technicalIndicatorsRenderer._dataPoints!;
+    if (validData.isNotEmpty &&
+        indicator is AccumulationDistributionIndicator) {
       _calculateADPoints(indicator, validData, technicalIndicatorsRenderer);
     }
   }
@@ -114,17 +119,16 @@ class AccumulationDistributionIndicator<T, D>
     final CartesianSeriesRenderer signalSeriesRenderer =
         technicalIndicatorsRenderer._targetSeriesRenderers[0];
     num sum = 0;
-    num i = 0;
     num value = 0;
     num high = 0;
     num low = 0;
     num close = 0;
-    for (i = 0; i < validData.length; i++) {
+    for (int i = 0; i < validData.length; i++) {
       high = validData[i].high ?? 0;
       low = validData[i].low ?? 0;
       close = validData[i].close ?? 0;
       value = ((close - low) - (high - close)) / (high - low);
-      sum = sum + value * validData[i].volume;
+      sum = sum + value * validData[i].volume!;
       point = technicalIndicatorsRenderer._getDataPoint(validData[i].x, sum,
           validData[i], signalSeriesRenderer, points.length);
       points.add(point);

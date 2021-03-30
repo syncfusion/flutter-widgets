@@ -1,27 +1,10 @@
 part of charts;
 
-/// Measure the text and return the text size
-Size _measureText(String textValue, TextStyle textStyle, [int angle]) {
-  Size size;
-  final TextPainter textPainter = TextPainter(
-      textAlign: TextAlign.center,
-      textDirection: TextDirection.ltr,
-      text: TextSpan(text: textValue, style: textStyle));
-  textPainter.layout();
-  if (angle != null) {
-    final Rect rect = _rotatedTextSize(textPainter.size, angle);
-    size = Size(rect.width, rect.height);
-  } else {
-    size = Size(textPainter.width, textPainter.height);
-  }
-  return size;
-}
-
 /// Return percentage to value
-num _percentageToValue(String value, num size) {
+num? _percentageToValue(String? value, num size) {
   if (value != null) {
     return value.contains('%')
-        ? (size / 100) * num.tryParse(value.replaceAll(RegExp('%'), ''))
+        ? (size / 100) * num.tryParse(value.replaceAll(RegExp('%'), ''))!
         : num.tryParse(value);
   }
   return null;
@@ -29,8 +12,8 @@ num _percentageToValue(String value, num size) {
 
 /// Draw the text
 void _drawText(Canvas canvas, String text, Offset point, TextStyle style,
-    [int angle]) {
-  final num maxLines = _getMaxLinesContent(text);
+    [int? angle]) {
+  final int maxLines = getMaxLinesContent(text);
   final TextSpan span = TextSpan(text: text, style: style);
   final TextPainter tp = TextPainter(
       text: span,
@@ -42,77 +25,17 @@ void _drawText(Canvas canvas, String text, Offset point, TextStyle style,
   canvas.translate(point.dx, point.dy);
   Offset labelOffset = const Offset(0.0, 0.0);
   if (angle != null && angle > 0) {
-    canvas.rotate(_degreeToRadian(angle));
+    canvas.rotate(degreeToRadian(angle));
     labelOffset = Offset(-tp.width / 2, -tp.height / 2);
   }
   tp.paint(canvas, labelOffset);
   canvas.restore();
 }
 
-/// Returns lines count in a string
-num _getMaxLinesContent(String text) {
-  return text != null && text.isNotEmpty && text.contains('\n')
-      ? text.split('\n').length
-      : 1;
-}
-
-vector.Vector2 _offsetToVector2(Offset offset) =>
-    vector.Vector2(offset.dx, offset.dy);
-
-Offset _vector2ToOffset(vector.Vector2 vector) => Offset(vector.x, vector.y);
-
-Offset _transform(
-  vector.Matrix2 matrix,
-  Offset offset,
-) {
-  return _vector2ToOffset(matrix * _offsetToVector2(offset));
-}
-
-/// To calculate rect according to rotated text size
-Rect _rotatedTextSize(Size size, int angle) {
-  final Rect rect = Rect.fromLTWH(0, 0, size.width, size.height);
-  final vector.Matrix2 _rotatorMatrix =
-      vector.Matrix2.rotation(_degreeToRadian(angle));
-
-  final Rect movedToCenterAsOrigin = rect.shift(-rect.center);
-
-  Offset _topLeft = movedToCenterAsOrigin.topLeft;
-  Offset _topRight = movedToCenterAsOrigin.topRight;
-  Offset _bottomLeft = movedToCenterAsOrigin.bottomLeft;
-  Offset _bottomRight = movedToCenterAsOrigin.bottomRight;
-
-  _topLeft = _transform(_rotatorMatrix, _topLeft);
-  _topRight = _transform(_rotatorMatrix, _topRight);
-  _bottomLeft = _transform(_rotatorMatrix, _bottomLeft);
-  _bottomRight = _transform(_rotatorMatrix, _bottomRight);
-
-  final List<Offset> rotOffsets = <Offset>[
-    _topLeft,
-    _topRight,
-    _bottomLeft,
-    _bottomRight
-  ];
-
-  final double minX =
-      rotOffsets.map((Offset offset) => offset.dx).reduce(math.min);
-  final double maxX =
-      rotOffsets.map((Offset offset) => offset.dx).reduce(math.max);
-  final double minY =
-      rotOffsets.map((Offset offset) => offset.dy).reduce(math.min);
-  final double maxY =
-      rotOffsets.map((Offset offset) => offset.dy).reduce(math.max);
-
-  final Rect rotateRect = Rect.fromPoints(
-    Offset(minX, minY),
-    Offset(maxX, maxY),
-  );
-  return rotateRect;
-}
-
 /// Draw the path
 void _drawDashedPath(Canvas canvas, _CustomPaintStyle style, Offset moveToPoint,
     Offset lineToPoint,
-    [List<double> dashArray]) {
+    [List<double>? dashArray]) {
   bool even = false;
   final Path path = Path();
   path.moveTo(moveToPoint.dx, moveToPoint.dy);
@@ -133,7 +56,7 @@ void _drawDashedPath(Canvas canvas, _CustomPaintStyle style, Offset moveToPoint,
           _dashPath(
             path,
             dashArray: _CircularIntervalList<double>(dashArray),
-          ),
+          )!,
           paint);
     }
   } else {
@@ -141,14 +64,11 @@ void _drawDashedPath(Canvas canvas, _CustomPaintStyle style, Offset moveToPoint,
   }
 }
 
-/// Convert degree to radian
-num _degreeToRadian(int deg) => deg * (math.pi / 180);
-
 /// find the position of point
-num _valueToCoefficient(num value, ChartAxisRenderer axisRenderer) {
+num _valueToCoefficient(num? value, ChartAxisRenderer axisRenderer) {
   num result = 0;
   if (axisRenderer._visibleRange != null && value != null) {
-    final _VisibleRange range = axisRenderer._visibleRange;
+    final _VisibleRange range = axisRenderer._visibleRange!;
     if (range != null) {
       result = (value - range.minimum) / (range.delta);
       result = axisRenderer._axis.isInversed ? (1 - result) : result;
@@ -167,11 +87,11 @@ bool _withInRange(num value, _VisibleRange range) =>
 
 /// To find the proper series color of each point in waterfall chart,
 /// which includes intermediate sum, total sum and negative point.
-Color _getWaterfallSeriesColor(WaterfallSeries series,
-        CartesianChartPoint<dynamic> point, Color seriesColor) =>
-    point.isIntermediateSum
+Color? _getWaterfallSeriesColor(WaterfallSeries series,
+        CartesianChartPoint<dynamic> point, Color? seriesColor) =>
+    point.isIntermediateSum!
         ? series.intermediateSumColor ?? seriesColor
-        : point.isTotalSum
+        : point.isTotalSum!
             ? series.totalSumColor ?? seriesColor
             : point.yValue < 0
                 ? series.negativePointsColor ?? seriesColor
@@ -180,11 +100,11 @@ Color _getWaterfallSeriesColor(WaterfallSeries series,
 /// Get the location of point
 _ChartLocation _calculatePoint(
     num x,
-    num y,
+    num? y,
     ChartAxisRenderer xAxisRenderer,
     ChartAxisRenderer yAxisRenderer,
     bool isInverted,
-    CartesianSeries<dynamic, dynamic> series,
+    CartesianSeries<dynamic, dynamic>? series,
     Rect rect) {
   final ChartAxis xAxis = xAxisRenderer._axis, yAxis = yAxisRenderer._axis;
   x = xAxis is LogarithmicAxis
@@ -199,9 +119,9 @@ _ChartLocation _calculatePoint(
   y = _valueToCoefficient(y, yAxisRenderer);
   final num xLength = isInverted ? rect.height : rect.width;
   final num yLength = isInverted ? rect.width : rect.height;
-  final num locationX =
+  final double locationX =
       rect.left + (isInverted ? (y * yLength) : (x * xLength));
-  final num locationY =
+  final double locationY =
       rect.top + (isInverted ? (1 - x) * xLength : (1 - y) * yLength);
   return _ChartLocation(locationX, locationY);
 }
@@ -211,15 +131,17 @@ num _calculateMinPointsDelta(
     ChartAxisRenderer axisRenderer,
     List<CartesianSeriesRenderer> seriesRenderers,
     SfCartesianChartState chartState) {
-  num minDelta = 1.7976931348623157e+308, minVal, seriesMin;
+  num minDelta = 1.7976931348623157e+308, minVal;
+  num? seriesMin;
   dynamic xValues;
   for (final CartesianSeriesRenderer seriesRenderer in seriesRenderers) {
     final CartesianSeries<dynamic, dynamic> series = seriesRenderer._series;
     num value;
     xValues = <dynamic>[];
-    if (seriesRenderer._visible &&
+    if (seriesRenderer._visible! &&
         ((axisRenderer._name == series.xAxisName) ||
-            (axisRenderer._name == 'primaryXAxis' &&
+            (axisRenderer._name ==
+                    (chartState._chart.primaryXAxis.name ?? 'primaryXAxis') &&
                 series.xAxisName == null) ||
             (axisRenderer._name ==
                     chartState._chartAxis._primaryXAxisRenderer._name &&
@@ -231,11 +153,20 @@ num _calculateMinPointsDelta(
 
       xValues.sort();
       if (xValues.length == 1) {
+        DateTime? minDate;
+        num? minimumInSeconds;
+        if (axisRenderer is DateTimeAxisRenderer) {
+          minDate = DateTime.fromMillisecondsSinceEpoch(
+              seriesRenderer._minimumX! as int);
+          minDate = minDate.subtract(Duration(days: 1));
+          minimumInSeconds = minDate.millisecondsSinceEpoch;
+        }
         seriesMin = (axisRenderer is DateTimeAxisRenderer &&
                 seriesRenderer._minimumX == seriesRenderer._maximumX)
-            ? (seriesRenderer._minimumX - 2592000000)
+            ? minimumInSeconds
             : seriesRenderer._minimumX;
-        minVal = xValues[0] - (seriesMin ?? axisRenderer._visibleRange.minimum);
+        minVal =
+            xValues[0] - (seriesMin ?? axisRenderer._visibleRange!.minimum);
         if (minVal != 0) {
           minDelta = math.min(minDelta, minVal);
         }
@@ -257,88 +188,6 @@ num _calculateMinPointsDelta(
   }
 
   return minDelta;
-}
-
-/// Draw different marker shapes by using height and width
-class _ChartShapeUtils {
-  /// Draw the circle shape marker
-  static void _drawCircle(
-      Path path, double x, double y, double width, double height) {
-    path.addArc(
-        Rect.fromLTRB(
-            x - width / 2, y - height / 2, x + width / 2, y + height / 2),
-        0.0,
-        2 * math.pi);
-  }
-
-  /// Draw the Rectangle shape marker
-  static void _drawRectangle(
-      Path path, double x, double y, double width, double height) {
-    path.addRect(Rect.fromLTRB(
-        x - width / 2, y - height / 2, x + width / 2, y + height / 2));
-  }
-
-  ///Draw the Pentagon shape marker
-  static void _drawPentagon(
-      Path path, double x, double y, double width, double height) {
-    const int eq = 72;
-    double xValue;
-    double yValue;
-    for (int i = 0; i <= 5; i++) {
-      xValue = width / 2 * math.cos((math.pi / 180) * (i * eq));
-      yValue = height / 2 * math.sin((math.pi / 180) * (i * eq));
-      i == 0
-          ? path.moveTo(x + xValue, y + yValue)
-          : path.lineTo(x + xValue, y + yValue);
-    }
-    path.close();
-  }
-
-  ///Draw the Vertical line shape marker
-  static void _drawVerticalLine(
-      Path path, double x, double y, double width, double height) {
-    path.moveTo(x, y + height / 2);
-    path.lineTo(x, y - height / 2);
-  }
-
-  ///Draw the Inverted Triangle shape marker
-  static void _drawInvertedTriangle(
-      Path path, double x, double y, double width, double height) {
-    path.moveTo(x + width / 2, y - height / 2);
-
-    path.lineTo(x, y + height / 2);
-    path.lineTo(x - width / 2, y - height / 2);
-    path.lineTo(x + width / 2, y - height / 2);
-    path.close();
-  }
-
-  ///Draw the Horizontal line shape marker
-  static void _drawHorizontalLine(
-      Path path, double x, double y, double width, double height) {
-    path.moveTo(x - width / 2, y);
-    path.lineTo(x + width / 2, y);
-  }
-
-  ///Draw the Diamond shape marker
-  static void _drawDiamond(
-      Path path, double x, double y, double width, double height) {
-    path.moveTo(x - width / 2, y);
-    path.lineTo(x, y + height / 2);
-    path.lineTo(x + width / 2, y);
-    path.lineTo(x, y - height / 2);
-    path.lineTo(x - width / 2, y);
-    path.close();
-  }
-
-  ///Draw the Triangle shape marker
-  static void _drawTriangle(
-      Path path, double x, double y, double width, double height) {
-    path.moveTo(x - width / 2, y + height / 2);
-    path.lineTo(x + width / 2, y + height / 2);
-    path.lineTo(x, y - height / 2);
-    path.lineTo(x - width / 2, y + height / 2);
-    path.close();
-  }
 }
 
 ///Draw Legend series type icon
@@ -534,16 +383,22 @@ void _calculateStepAreaIconPath(
 ///Calculate pie legend icon path
 void _calculatePieIconPath(
     Path path, double x, double y, double width, double height) {
-  final num r = math.min(height, width) / 2;
+  final double r = math.min(height, width) / 2;
   path.moveTo(x, y);
   path.lineTo(x + r, y);
-  path.arcTo(Rect.fromCircle(center: Offset(x, y), radius: r),
-      _degreesToRadians(0), _degreesToRadians(270), false);
+  path.arcTo(
+      Rect.fromCircle(center: Offset(x, y), radius: r),
+      _degreesToRadians(0).toDouble(),
+      _degreesToRadians(270).toDouble(),
+      false);
   path.close();
   path.moveTo(x + width / 10, y - height / 10);
   path.lineTo(x + r, y - height / 10);
-  path.arcTo(Rect.fromCircle(center: Offset(x + 2, y - 2), radius: r),
-      _degreesToRadians(-5), _degreesToRadians(-80), false);
+  path.arcTo(
+      Rect.fromCircle(center: Offset(x + 2, y - 2), radius: r),
+      _degreesToRadians(-5).toDouble(),
+      _degreesToRadians(-80).toDouble(),
+      false);
   path.close();
 }
 
@@ -568,26 +423,26 @@ void _calculateFunnelIconPath(
 }
 
 /// Calculate the rect bounds for column series and Bar series.
-Rect _calculateRectangle(num x1, num y1, num x2, num y2,
+Rect _calculateRectangle(num x1, num? y1, num x2, num? y2,
     CartesianSeriesRenderer seriesRenderer, SfCartesianChartState _chartState) {
   final Rect rect = _calculatePlotOffset(
       _chartState._chartAxis._axisClipRect,
-      Offset(seriesRenderer._xAxisRenderer?._axis?.plotOffset,
-          seriesRenderer._yAxisRenderer?._axis?.plotOffset));
+      Offset(seriesRenderer._xAxisRenderer!._axis.plotOffset,
+          seriesRenderer._yAxisRenderer!._axis.plotOffset));
   final bool isInverted = _chartState._requireInvertedAxis;
   final _ChartLocation point1 = _calculatePoint(
       x1,
       y1,
-      seriesRenderer._xAxisRenderer,
-      seriesRenderer._yAxisRenderer,
+      seriesRenderer._xAxisRenderer!,
+      seriesRenderer._yAxisRenderer!,
       isInverted,
       seriesRenderer._series,
       rect);
   final _ChartLocation point2 = _calculatePoint(
       x2,
       y2,
-      seriesRenderer._xAxisRenderer,
-      seriesRenderer._yAxisRenderer,
+      seriesRenderer._xAxisRenderer!,
+      seriesRenderer._yAxisRenderer!,
       isInverted,
       seriesRenderer._series,
       rect);
@@ -609,22 +464,22 @@ Rect _calculateShadowRectangle(
     Offset plotOffset) {
   final Rect rect = _calculatePlotOffset(
       _chartState._chartAxis._axisClipRect,
-      Offset(seriesRenderer._xAxisRenderer?._axis?.plotOffset,
-          seriesRenderer._yAxisRenderer?._axis?.plotOffset));
+      Offset(seriesRenderer._xAxisRenderer!._axis.plotOffset,
+          seriesRenderer._yAxisRenderer!._axis.plotOffset));
   final bool isInverted = _chartState._requireInvertedAxis;
   final _ChartLocation point1 = _calculatePoint(
       x1,
       y1,
-      seriesRenderer._xAxisRenderer,
-      seriesRenderer._yAxisRenderer,
+      seriesRenderer._xAxisRenderer!,
+      seriesRenderer._yAxisRenderer!,
       isInverted,
       seriesRenderer._series,
       rect);
   final _ChartLocation point2 = _calculatePoint(
       x2,
       y2,
-      seriesRenderer._xAxisRenderer,
-      seriesRenderer._yAxisRenderer,
+      seriesRenderer._xAxisRenderer!,
+      seriesRenderer._yAxisRenderer!,
       isInverted,
       seriesRenderer._series,
       rect);
@@ -633,24 +488,24 @@ Rect _calculateShadowRectangle(
   final bool isStackedColumn = seriesRenderer._seriesType == 'stackedcolumn';
   final bool isStackedBar = seriesRenderer._seriesType == 'stackedbar';
   final bool isRangeColumn = seriesRenderer._seriesType == 'rangecolumn';
-  ColumnSeries<dynamic, dynamic> columnSeries;
-  BarSeries<dynamic, dynamic> barSeries;
-  StackedColumnSeries<dynamic, dynamic> stackedColumnSeries;
-  StackedBarSeries<dynamic, dynamic> stackedBarSeries;
-  RangeColumnSeries<dynamic, dynamic> rangeColumnSeries;
-  HistogramSeries<dynamic, dynamic> histogramSeries;
+  ColumnSeries<dynamic, dynamic>? columnSeries;
+  BarSeries<dynamic, dynamic>? barSeries;
+  StackedColumnSeries<dynamic, dynamic>? stackedColumnSeries;
+  StackedBarSeries<dynamic, dynamic>? stackedBarSeries;
+  RangeColumnSeries<dynamic, dynamic>? rangeColumnSeries;
+  HistogramSeries<dynamic, dynamic>? histogramSeries;
   if (seriesRenderer._seriesType == 'column') {
-    columnSeries = seriesRenderer._series;
+    columnSeries = seriesRenderer._series as ColumnSeries;
   } else if (seriesRenderer._seriesType == 'bar') {
-    barSeries = seriesRenderer._series;
+    barSeries = seriesRenderer._series as BarSeries;
   } else if (seriesRenderer._seriesType == 'stackedcolumn') {
-    stackedColumnSeries = seriesRenderer._series;
+    stackedColumnSeries = seriesRenderer._series as StackedColumnSeries;
   } else if (seriesRenderer._seriesType == 'stackedbar') {
-    stackedBarSeries = seriesRenderer._series;
+    stackedBarSeries = seriesRenderer._series as StackedBarSeries;
   } else if (seriesRenderer._seriesType == 'rangecolumn') {
-    rangeColumnSeries = seriesRenderer._series;
+    rangeColumnSeries = seriesRenderer._series as RangeColumnSeries;
   } else if (seriesRenderer._seriesType == 'histogram') {
-    histogramSeries = seriesRenderer._series;
+    histogramSeries = seriesRenderer._series as HistogramSeries;
   }
   return !_chartState._chart.isTransposed
       ? _getNormalShadowRect(
@@ -701,27 +556,27 @@ Rect _getNormalShadowRect(
     Offset plotOffset,
     _ChartLocation point1,
     _ChartLocation point2,
-    ColumnSeries<dynamic, dynamic> columnSeries,
-    BarSeries<dynamic, dynamic> barSeries,
-    StackedColumnSeries<dynamic, dynamic> stackedColumnSeries,
-    StackedBarSeries<dynamic, dynamic> stackedBarSeries,
-    RangeColumnSeries<dynamic, dynamic> rangeColumnSeries,
-    HistogramSeries<dynamic, dynamic> histogramSeries) {
+    ColumnSeries<dynamic, dynamic>? columnSeries,
+    BarSeries<dynamic, dynamic>? barSeries,
+    StackedColumnSeries<dynamic, dynamic>? stackedColumnSeries,
+    StackedBarSeries<dynamic, dynamic>? stackedBarSeries,
+    RangeColumnSeries<dynamic, dynamic>? rangeColumnSeries,
+    HistogramSeries<dynamic, dynamic>? histogramSeries) {
   return Rect.fromLTWH(
       isColumn
           ? math.min(point1.x, point2.x) +
-              (-columnSeries.trackBorderWidth - columnSeries.trackPadding)
+              (-columnSeries!.trackBorderWidth - columnSeries.trackPadding)
           : isHistogram
               ? math.min(point1.x, point2.x) +
-                  (-histogramSeries.trackBorderWidth -
+                  (-histogramSeries!.trackBorderWidth -
                       histogramSeries.trackPadding)
               : isRangeColumn
                   ? math.min(point1.x, point2.x) +
-                      (-rangeColumnSeries.trackBorderWidth -
+                      (-rangeColumnSeries!.trackBorderWidth -
                           rangeColumnSeries.trackPadding)
                   : isStackedColumn
                       ? math.min(point1.x, point2.x) +
-                          (-stackedColumnSeries.trackBorderWidth -
+                          (-stackedColumnSeries!.trackBorderWidth -
                               stackedColumnSeries.trackPadding)
                       : isStackedBar
                           ? _chartState._chartAxis._axisClipRect.left
@@ -732,26 +587,26 @@ Rect _getNormalShadowRect(
               ? rect.top
               : isStackedBar
                   ? (math.min(point1.y, point2.y) -
-                      stackedBarSeries.trackBorderWidth -
+                      stackedBarSeries!.trackBorderWidth -
                       stackedBarSeries.trackPadding)
                   : (math.min(point1.y, point2.y) -
-                      barSeries.trackBorderWidth -
+                      barSeries!.trackBorderWidth -
                       barSeries.trackPadding),
       isColumn
           ? (point2.x - point1.x).abs() +
-              (columnSeries.trackBorderWidth * 2) +
+              (columnSeries!.trackBorderWidth * 2) +
               columnSeries.trackPadding * 2
           : isHistogram
               ? (point2.x - point1.x).abs() +
-                  (histogramSeries.trackBorderWidth * 2) +
+                  (histogramSeries!.trackBorderWidth * 2) +
                   histogramSeries.trackPadding * 2
               : isRangeColumn
                   ? (point2.x - point1.x).abs() +
-                      (rangeColumnSeries.trackBorderWidth * 2) +
+                      (rangeColumnSeries!.trackBorderWidth * 2) +
                       rangeColumnSeries.trackPadding * 2
                   : isStackedColumn
                       ? (point2.x - point1.x).abs() +
-                          (stackedColumnSeries.trackBorderWidth * 2) +
+                          (stackedColumnSeries!.trackBorderWidth * 2) +
                           stackedColumnSeries.trackPadding * 2
                       : isStackedBar
                           ? _chartState._chartAxis._axisClipRect.width
@@ -763,10 +618,10 @@ Rect _getNormalShadowRect(
                   2 * plotOffset.dy)
               : isStackedBar
                   ? (point2.y - point1.y).abs() +
-                      stackedBarSeries.trackBorderWidth * 2 +
+                      stackedBarSeries!.trackBorderWidth * 2 +
                       stackedBarSeries.trackPadding * 2
                   : (point2.y - point1.y).abs() +
-                      barSeries.trackBorderWidth * 2 +
+                      barSeries!.trackBorderWidth * 2 +
                       barSeries.trackPadding * 2);
 }
 
@@ -782,12 +637,12 @@ Rect _getTransposedShadowRect(
     Offset plotOffset,
     _ChartLocation point1,
     _ChartLocation point2,
-    ColumnSeries<dynamic, dynamic> columnSeries,
-    BarSeries<dynamic, dynamic> barSeries,
-    StackedColumnSeries<dynamic, dynamic> stackedColumnSeries,
-    StackedBarSeries<dynamic, dynamic> stackedBarSeries,
-    RangeColumnSeries<dynamic, dynamic> rangeColumnSeries,
-    HistogramSeries<dynamic, dynamic> histogramSeries) {
+    ColumnSeries<dynamic, dynamic>? columnSeries,
+    BarSeries<dynamic, dynamic>? barSeries,
+    StackedColumnSeries<dynamic, dynamic>? stackedColumnSeries,
+    StackedBarSeries<dynamic, dynamic>? stackedBarSeries,
+    RangeColumnSeries<dynamic, dynamic>? rangeColumnSeries,
+    HistogramSeries<dynamic, dynamic>? histogramSeries) {
   return Rect.fromLTWH(
       isColumn || isRangeColumn || isHistogram
           ? _chartState._chartAxis._axisClipRect.left
@@ -795,25 +650,25 @@ Rect _getTransposedShadowRect(
               ? _chartState._chartAxis._axisClipRect.left
               : isStackedBar
                   ? math.min(point1.x, point2.x) +
-                      (-stackedBarSeries.trackBorderWidth -
+                      (-stackedBarSeries!.trackBorderWidth -
                           stackedBarSeries.trackPadding)
                   : math.min(point1.x, point2.x) +
-                      (-barSeries.trackBorderWidth - barSeries.trackPadding),
+                      (-barSeries!.trackBorderWidth - barSeries.trackPadding),
       isColumn
           ? (math.min(point1.y, point2.y) -
-              columnSeries.trackBorderWidth -
+              columnSeries!.trackBorderWidth -
               columnSeries.trackPadding)
           : isHistogram
               ? (math.min(point1.y, point2.y) -
-                  histogramSeries.trackBorderWidth -
+                  histogramSeries!.trackBorderWidth -
                   histogramSeries.trackPadding)
               : isRangeColumn
                   ? (math.min(point1.y, point2.y) -
-                      rangeColumnSeries.trackBorderWidth -
+                      rangeColumnSeries!.trackBorderWidth -
                       rangeColumnSeries.trackPadding)
                   : isStackedColumn
                       ? (math.min(point1.y, point2.y) -
-                          stackedColumnSeries.trackBorderWidth -
+                          stackedColumnSeries!.trackBorderWidth -
                           stackedColumnSeries.trackPadding)
                       : isStackedBar
                           ? rect.top
@@ -824,26 +679,26 @@ Rect _getTransposedShadowRect(
               ? _chartState._chartAxis._axisClipRect.width
               : isStackedBar
                   ? (point2.x - point1.x).abs() +
-                      (stackedBarSeries.trackBorderWidth * 2) +
+                      (stackedBarSeries!.trackBorderWidth * 2) +
                       stackedBarSeries.trackPadding * 2
                   : (point2.x - point1.x).abs() +
-                      (barSeries.trackBorderWidth * 2) +
+                      (barSeries!.trackBorderWidth * 2) +
                       barSeries.trackPadding * 2,
       isColumn
           ? ((point2.y - point1.y).abs() +
-              columnSeries.trackBorderWidth * 2 +
+              columnSeries!.trackBorderWidth * 2 +
               columnSeries.trackPadding * 2)
           : isHistogram
               ? ((point2.y - point1.y).abs() +
-                  histogramSeries.trackBorderWidth * 2 +
+                  histogramSeries!.trackBorderWidth * 2 +
                   histogramSeries.trackPadding * 2)
               : isRangeColumn
                   ? (point2.y - point1.y).abs() +
-                      rangeColumnSeries.trackBorderWidth * 2 +
+                      rangeColumnSeries!.trackBorderWidth * 2 +
                       rangeColumnSeries.trackPadding * 2
                   : isStackedColumn
                       ? (point2.y - point1.y).abs() +
-                          stackedColumnSeries.trackBorderWidth * 2 +
+                          stackedColumnSeries!.trackBorderWidth * 2 +
                           stackedColumnSeries.trackPadding * 2
                       : isStackedBar
                           ? (_chartState._chartAxis._axisClipRect.height -
@@ -855,152 +710,166 @@ Rect _getTransposedShadowRect(
 /// Calculated the side by side range for Column and bar series
 _VisibleRange _calculateSideBySideInfo(
     CartesianSeriesRenderer seriesRenderer, SfCartesianChartState _chartState) {
-  num rectPosition;
-  num count;
+  num? rectPosition;
+  num? count;
   num seriesSpacing;
-  num pointSpacing;
+  num? pointSpacing;
   final SfCartesianChart chart = _chartState._chart;
   final CartesianSeries<dynamic, dynamic> series = seriesRenderer._series;
   if (seriesRenderer._seriesType == 'column' &&
       chart.enableSideBySideSeriesPlacement) {
-    final ColumnSeriesRenderer columnSeriesRenderer = seriesRenderer;
+    final ColumnSeriesRenderer columnSeriesRenderer =
+        seriesRenderer as ColumnSeriesRenderer;
     _calculateSideBySidePositions(columnSeriesRenderer, _chartState);
     rectPosition = columnSeriesRenderer._rectPosition;
     count = columnSeriesRenderer._rectCount;
   } else if (seriesRenderer._seriesType == 'histogram' &&
       chart.enableSideBySideSeriesPlacement) {
-    final HistogramSeriesRenderer histogramSeriesRenderer = seriesRenderer;
+    final HistogramSeriesRenderer histogramSeriesRenderer =
+        seriesRenderer as HistogramSeriesRenderer;
     _calculateSideBySidePositions(histogramSeriesRenderer, _chartState);
     rectPosition = histogramSeriesRenderer._rectPosition;
     count = histogramSeriesRenderer._rectCount;
   } else if (seriesRenderer._seriesType == 'bar' &&
       chart.enableSideBySideSeriesPlacement) {
-    final BarSeriesRenderer barSeriesRenderer = seriesRenderer;
+    final BarSeriesRenderer barSeriesRenderer =
+        seriesRenderer as BarSeriesRenderer;
     _calculateSideBySidePositions(barSeriesRenderer, _chartState);
     rectPosition = barSeriesRenderer._rectPosition;
     count = barSeriesRenderer._rectCount;
   } else if ((seriesRenderer._seriesType.contains('stackedcolumn') ||
           seriesRenderer._seriesType.contains('stackedbar')) &&
       chart.enableSideBySideSeriesPlacement) {
-    final _StackedSeriesRenderer stackedRectSeriesRenderer = seriesRenderer;
+    final _StackedSeriesRenderer stackedRectSeriesRenderer =
+        seriesRenderer as _StackedSeriesRenderer;
     _calculateSideBySidePositions(stackedRectSeriesRenderer, _chartState);
     rectPosition = stackedRectSeriesRenderer._rectPosition;
     count = stackedRectSeriesRenderer._rectCount;
   } else if (seriesRenderer._seriesType == 'rangecolumn' &&
       chart.enableSideBySideSeriesPlacement) {
-    final RangeColumnSeriesRenderer rangeColumnSeriesRenderer = seriesRenderer;
+    final RangeColumnSeriesRenderer rangeColumnSeriesRenderer =
+        seriesRenderer as RangeColumnSeriesRenderer;
     _calculateSideBySidePositions(rangeColumnSeriesRenderer, _chartState);
     rectPosition = rangeColumnSeriesRenderer._rectPosition;
     count = rangeColumnSeriesRenderer._rectCount;
   } else if (seriesRenderer._seriesType == 'hilo' &&
       chart.enableSideBySideSeriesPlacement) {
-    final HiloSeriesRenderer hiloSeriesRenderer = seriesRenderer;
+    final HiloSeriesRenderer hiloSeriesRenderer =
+        seriesRenderer as HiloSeriesRenderer;
     _calculateSideBySidePositions(hiloSeriesRenderer, _chartState);
     rectPosition = hiloSeriesRenderer._rectPosition;
     count = hiloSeriesRenderer._rectCount;
   } else if (seriesRenderer._seriesType == 'hiloopenclose' &&
       chart.enableSideBySideSeriesPlacement) {
     final HiloOpenCloseSeriesRenderer hiloOpenCloseSeriesRenderer =
-        seriesRenderer;
+        seriesRenderer as HiloOpenCloseSeriesRenderer;
     _calculateSideBySidePositions(hiloOpenCloseSeriesRenderer, _chartState);
     rectPosition = hiloOpenCloseSeriesRenderer._rectPosition;
     count = hiloOpenCloseSeriesRenderer._rectCount;
   } else if (seriesRenderer._seriesType == 'candle' &&
       chart.enableSideBySideSeriesPlacement) {
-    final CandleSeriesRenderer candleSeriesRenderer = seriesRenderer;
+    final CandleSeriesRenderer candleSeriesRenderer =
+        seriesRenderer as CandleSeriesRenderer;
     _calculateSideBySidePositions(candleSeriesRenderer, _chartState);
     rectPosition = candleSeriesRenderer._rectPosition;
     count = candleSeriesRenderer._rectCount;
   } else if (seriesRenderer._seriesType == 'boxandwhisker' &&
       chart.enableSideBySideSeriesPlacement) {
     final BoxAndWhiskerSeriesRenderer boxAndWhiskerSeriesRenderer =
-        seriesRenderer;
+        seriesRenderer as BoxAndWhiskerSeriesRenderer;
     _calculateSideBySidePositions(boxAndWhiskerSeriesRenderer, _chartState);
     rectPosition = boxAndWhiskerSeriesRenderer._rectPosition;
     count = boxAndWhiskerSeriesRenderer._rectCount;
   } else if (seriesRenderer._seriesType == 'waterfall' &&
       chart.enableSideBySideSeriesPlacement) {
-    final WaterfallSeriesRenderer waterfallSeriesRenderer = seriesRenderer;
+    final WaterfallSeriesRenderer waterfallSeriesRenderer =
+        seriesRenderer as WaterfallSeriesRenderer;
     _calculateSideBySidePositions(waterfallSeriesRenderer, _chartState);
     rectPosition = waterfallSeriesRenderer._rectPosition;
     count = waterfallSeriesRenderer._rectCount;
   }
 
   if (seriesRenderer._seriesType == 'column') {
-    final ColumnSeries<dynamic, dynamic> columnSeries = series;
+    final ColumnSeries<dynamic, dynamic> columnSeries = series as ColumnSeries;
     seriesSpacing =
         chart.enableSideBySideSeriesPlacement ? columnSeries.spacing : 0;
-    assert(columnSeries.width <= 1,
+    assert(columnSeries.width == null || columnSeries.width! <= 1,
         'The width of the column series must be less than or equal 1.');
-    pointSpacing = columnSeries.width;
+    pointSpacing = columnSeries.width!;
   } else if (seriesRenderer._seriesType == 'histogram') {
-    final HistogramSeries<dynamic, dynamic> histogramSeries = series;
+    final HistogramSeries<dynamic, dynamic> histogramSeries =
+        series as HistogramSeries;
     seriesSpacing =
         chart.enableSideBySideSeriesPlacement ? histogramSeries.spacing : 0;
-    assert(histogramSeries.width <= 1,
+    assert(histogramSeries.width! <= 1,
         'The width of the histogram series must be less than or equal 1.');
-    pointSpacing = histogramSeries.width;
+    pointSpacing = histogramSeries.width!;
   } else if (seriesRenderer._seriesType == 'stackedcolumn' ||
       seriesRenderer._seriesType == 'stackedcolumn100' ||
       seriesRenderer._seriesType == 'stackedbar' ||
       seriesRenderer._seriesType == 'stackedbar100') {
-    final _StackedSeriesBase<dynamic, dynamic> stackedRectSeries = series;
+    final _StackedSeriesBase<dynamic, dynamic> stackedRectSeries =
+        series as _StackedSeriesBase;
     seriesSpacing =
         chart.enableSideBySideSeriesPlacement ? stackedRectSeries.spacing : 0;
-    pointSpacing = stackedRectSeries.width;
+    pointSpacing = stackedRectSeries.width!;
   } else if (seriesRenderer._seriesType == 'rangecolumn') {
-    final RangeColumnSeries<dynamic, dynamic> rangeColumnSeries = series;
+    final RangeColumnSeries<dynamic, dynamic> rangeColumnSeries =
+        series as RangeColumnSeries;
     seriesSpacing =
         chart.enableSideBySideSeriesPlacement ? rangeColumnSeries.spacing : 0;
-    assert(rangeColumnSeries.width <= 1,
+    assert(rangeColumnSeries.width == null || rangeColumnSeries.width! <= 1,
         'The width of the range column series must be less than or equal 1.');
     pointSpacing = rangeColumnSeries.width;
   } else if (seriesRenderer._seriesType == 'hilo') {
-    final HiloSeries<dynamic, dynamic> hiloSeries = series;
+    final HiloSeries<dynamic, dynamic> hiloSeries = series as HiloSeries;
     seriesSpacing =
         chart.enableSideBySideSeriesPlacement ? hiloSeries.spacing : 0;
-    pointSpacing = hiloSeries.width;
+    pointSpacing = hiloSeries.width!;
   } else if (seriesRenderer._seriesType == 'hiloopenclose') {
-    final HiloOpenCloseSeries<dynamic, dynamic> hiloOpenCloseSeries = series;
+    final HiloOpenCloseSeries<dynamic, dynamic> hiloOpenCloseSeries =
+        series as HiloOpenCloseSeries;
     seriesSpacing =
         chart.enableSideBySideSeriesPlacement ? hiloOpenCloseSeries.spacing : 0;
-    pointSpacing = hiloOpenCloseSeries.width;
+    pointSpacing = hiloOpenCloseSeries.width!;
   } else if (seriesRenderer._seriesType == 'candle') {
-    final CandleSeries<dynamic, dynamic> candleSeries = series;
+    final CandleSeries<dynamic, dynamic> candleSeries = series as CandleSeries;
     seriesSpacing =
         chart.enableSideBySideSeriesPlacement ? candleSeries.spacing : 0;
-    pointSpacing = candleSeries.width;
+    pointSpacing = candleSeries.width!;
   } else if (seriesRenderer._seriesType == 'boxandwhisker') {
-    final BoxAndWhiskerSeries<dynamic, dynamic> boxAndWhiskerSeries = series;
+    final BoxAndWhiskerSeries<dynamic, dynamic> boxAndWhiskerSeries =
+        series as BoxAndWhiskerSeries;
     seriesSpacing =
         chart.enableSideBySideSeriesPlacement ? boxAndWhiskerSeries.spacing : 0;
-    assert(boxAndWhiskerSeries.width <= 1,
+    assert(boxAndWhiskerSeries.width! <= 1,
         'The width of the box plot series must be less than or equal to 1.');
-    pointSpacing = boxAndWhiskerSeries.width;
+    pointSpacing = boxAndWhiskerSeries.width!;
   } else if (seriesRenderer._seriesType == 'waterfall') {
-    final WaterfallSeries<dynamic, dynamic> waterfallSeries = series;
+    final WaterfallSeries<dynamic, dynamic> waterfallSeries =
+        series as WaterfallSeries;
     seriesSpacing =
         chart.enableSideBySideSeriesPlacement ? waterfallSeries.spacing : 0;
-    assert(waterfallSeries.width <= 1,
+    assert(waterfallSeries.width! <= 1,
         'The width of the waterfall series must be less than or equal to 1.');
-    pointSpacing = waterfallSeries.width;
+    pointSpacing = waterfallSeries.width!;
   } else {
-    final BarSeries<dynamic, dynamic> barSeries = series;
+    final BarSeries<dynamic, dynamic> barSeries = series as BarSeries;
     seriesSpacing =
         chart.enableSideBySideSeriesPlacement ? barSeries.spacing : 0;
-    assert(barSeries.width <= 1,
-        'The width of the bar series must be less than or equal to 1.');
+    // assert(barSeries.width == null || barSeries.width! <= 1,
+    //     'The width of the bar series must be less than or equal to 1.');
     pointSpacing = barSeries.width;
   }
   final num position =
-      !chart.enableSideBySideSeriesPlacement ? 0 : rectPosition;
-  final num rectCount = !chart.enableSideBySideSeriesPlacement ? 1 : count;
+      !chart.enableSideBySideSeriesPlacement ? 0 : rectPosition!;
+  final num rectCount = !chart.enableSideBySideSeriesPlacement ? 1 : count!;
 
   /// Gets the minimum point delta in series
   final num minPointsDelta = seriesRenderer._minDelta ??
-      _calculateMinPointsDelta(seriesRenderer._xAxisRenderer,
+      _calculateMinPointsDelta(seriesRenderer._xAxisRenderer!,
           _chartState._seriesRenderers, _chartState);
-  final num width = minPointsDelta * pointSpacing;
+  final num width = minPointsDelta * pointSpacing!;
   final num location = position / rectCount - 0.5;
   _VisibleRange doubleRange =
       _VisibleRange(location, location + (1 / rectCount));
@@ -1022,8 +891,8 @@ _VisibleRange _calculateSideBySideInfo(
 _ChartLocation _getRotatedTextLocation(double pointX, double pointY,
     String labelText, TextStyle textStyle, int angle, ChartAxis axis) {
   if (angle > 0) {
-    final Size textSize = _measureText(labelText, textStyle);
-    final Size rotateTextSize = _measureText(labelText, textStyle, angle);
+    final Size textSize = measureText(labelText, textStyle);
+    final Size rotateTextSize = measureText(labelText, textStyle, angle);
 
     /// label rotation for 0 to 90
     pointX += ((rotateTextSize.width - textSize.width).abs() / 2) +
@@ -1083,10 +952,10 @@ void _calculateSideBySidePositions(
     CartesianSeriesRenderer seriesRenderer, SfCartesianChartState _chartState) {
   final List<CartesianSeriesRenderer> seriesCollection =
       _findRectSeriesCollection(_chartState);
-  num rectCount = 0;
-  num position;
+  int rectCount = 0;
+  num? position;
   final num seriesLength = seriesCollection.length;
-  List<_StackingGroup> stackingGroupPos;
+  List<_StackingGroup>? stackingGroupPos;
   for (final CartesianSeriesRenderer seriesRenderer in seriesCollection) {
     if (seriesRenderer is ColumnSeriesRenderer) {
       seriesRenderer._rectPosition = rectCount++;
@@ -1119,13 +988,13 @@ void _calculateSideBySidePositions(
   }
   if (seriesRenderer is _StackedSeriesRenderer) {
     for (int i = 0; i < seriesCollection.length; i++) {
-      _StackedSeriesBase<dynamic, dynamic> series;
+      _StackedSeriesBase<dynamic, dynamic>? series;
       if (seriesCollection[i] is _StackedSeriesRenderer) {
         seriesRenderer = seriesCollection[i];
-        series = seriesRenderer._series;
+        series = seriesRenderer._series as _StackedSeriesBase;
       }
       if (seriesRenderer != null && seriesRenderer is _StackedSeriesRenderer) {
-        final String groupName = series.groupName;
+        final String groupName = series!.groupName;
         if (groupName != null) {
           stackingGroupPos ??= <_StackingGroup>[];
           if (stackingGroupPos.isEmpty) {
@@ -1158,9 +1027,9 @@ void _calculateSideBySidePositions(
   if (seriesRenderer._seriesType.contains('stackedcolumn') ||
       seriesRenderer._seriesType.contains('stackedbar')) {
     for (int i = 0; i < seriesCollection.length; i++) {
-      _StackedSeriesRenderer seriesRenderer;
+      _StackedSeriesRenderer? seriesRenderer;
       if (seriesCollection[i] is _StackedSeriesRenderer) {
-        seriesRenderer = seriesCollection[i];
+        seriesRenderer = seriesCollection[i] as _StackedSeriesRenderer;
       }
       if (seriesRenderer != null) {
         seriesRenderer._rectCount = rectCount;
@@ -1173,7 +1042,7 @@ void _calculateSideBySidePositions(
 List<CartesianSeriesRenderer> _findSeriesCollection(
     SfCartesianChartState _chartState,
     //ignore: unused_element
-    [bool isRect]) {
+    [bool? isRect]) {
   final List<CartesianSeriesRenderer> seriesRendererCollection =
       <CartesianSeriesRenderer>[];
   for (int xAxisIndex = 0;
@@ -1205,8 +1074,10 @@ List<CartesianSeriesRenderer> _findSeriesCollection(
                   xAxisSeriesRenderer._seriesType.contains('stackedline') ||
                   xAxisSeriesRenderer._seriesType == 'histogram' ||
                   xAxisSeriesRenderer._seriesType == 'boxandwhisker') &&
-              xAxisSeriesRenderer._visible) {
-            seriesRendererCollection.add(yAxisSeriesRenderer);
+              xAxisSeriesRenderer._visible!) {
+            if (!seriesRendererCollection.contains(yAxisSeriesRenderer)) {
+              seriesRendererCollection.add(yAxisSeriesRenderer);
+            }
           }
         }
       }
@@ -1259,7 +1130,7 @@ List<CartesianSeriesRenderer> _findRectSeriesCollection(
                   xAxisSeriesRenderer._seriesType == 'candle' ||
                   xAxisSeriesRenderer._seriesType == 'histogram' ||
                   xAxisSeriesRenderer._seriesType == 'boxandwhisker') &&
-              xAxisSeriesRenderer._visible) {
+              xAxisSeriesRenderer._visible!) {
             if (!seriesRenderCollection.contains(yAxisSeriesRenderer)) {
               seriesRenderCollection.add(yAxisSeriesRenderer);
             }
@@ -1289,8 +1160,16 @@ Paint _getLinearGradientPaint(
   return gradientPaint;
 }
 
+Paint _getShaderPaint(Shader shader) {
+  Paint shaderPaint;
+  shaderPaint = Paint()
+    ..shader = shader
+    ..style = PaintingStyle.fill;
+  return shaderPaint;
+}
+
 /// It returns the actual label value for tooltip and data label etc
-dynamic _getLabelValue(dynamic value, dynamic axis, [int showDigits]) {
+dynamic _getLabelValue(dynamic value, dynamic axis, [int? showDigits]) {
   if (value.toString().split('.').length > 1) {
     final String str = value.toString();
     final List<dynamic> list = str.split('.');
@@ -1307,7 +1186,7 @@ dynamic _getLabelValue(dynamic value, dynamic axis, [int showDigits]) {
         : value;
   }
   final dynamic text = axis is NumericAxis && axis.numberFormat != null
-      ? axis.numberFormat.format(value)
+      ? axis.numberFormat!.format(value)
       : value;
   return (axis.labelFormat != null && axis.labelFormat != '')
       ? axis.labelFormat.replaceAll(RegExp('{value}'), text.toString())
@@ -1340,11 +1219,11 @@ double _pointToYValue(bool _requireInvertedAxis, ChartAxisRenderer axisRenderer,
 }
 
 /// To return coefficient-based value
-num _coefficientToValue(double coefficient, ChartAxisRenderer axisRenderer) {
+double _coefficientToValue(double coefficient, ChartAxisRenderer axisRenderer) {
   double result;
   coefficient = axisRenderer._axis.isInversed ? 1 - coefficient : coefficient;
-  result = axisRenderer._visibleRange.minimum +
-      (axisRenderer._visibleRange.delta * coefficient);
+  result = axisRenderer._visibleRange!.minimum +
+      (axisRenderer._visibleRange!.delta * coefficient);
   return result;
 }
 
@@ -1391,7 +1270,7 @@ void _canRepaintChartSeries(SfCartesianChartState _chartState,
   final CartesianSeries<dynamic, dynamic> oldWidgetSeries =
       oldWidgetSeriesRenderer._series;
   if (series.animationDuration != oldWidgetSeries.animationDuration ||
-      oldWidgetSeriesRenderer._chartState._chartSeries !=
+      oldWidgetSeriesRenderer._chartState!._chartSeries !=
           _chartState._chartSeries ||
       series.color?.value != oldWidgetSeries.color?.value ||
       series.width != oldWidgetSeries.width ||
@@ -1399,62 +1278,62 @@ void _canRepaintChartSeries(SfCartesianChartState _chartState,
       series.enableTooltip != oldWidgetSeries.enableTooltip ||
       series.name != oldWidgetSeries.name ||
       series.gradient != oldWidgetSeries.gradient ||
-      seriesRenderer._xAxisRenderer?._visibleRange?.delta !=
-          oldWidgetSeriesRenderer._xAxisRenderer?._visibleRange?.delta ||
-      seriesRenderer._xAxisRenderer?._visibleRange?.maximum !=
-          oldWidgetSeriesRenderer._xAxisRenderer?._visibleRange?.maximum ||
-      seriesRenderer._xAxisRenderer?._visibleRange?.minimum !=
-          oldWidgetSeriesRenderer._xAxisRenderer?._visibleRange?.minimum ||
-      seriesRenderer._xAxisRenderer?._visibleRange?.interval !=
-          oldWidgetSeriesRenderer._xAxisRenderer?._visibleRange?.interval ||
-      seriesRenderer._xAxisRenderer?._axis?.isVisible !=
-          oldWidgetSeriesRenderer._xAxisRenderer?._axis?.isVisible ||
-      seriesRenderer._xAxisRenderer?._bounds !=
-          oldWidgetSeriesRenderer._xAxisRenderer?._bounds ||
-      seriesRenderer._xAxisRenderer?._axis?.isInversed !=
-          oldWidgetSeriesRenderer._xAxisRenderer?._axis?.isInversed ||
-      seriesRenderer._xAxisRenderer?._axis?.desiredIntervals !=
-          oldWidgetSeriesRenderer._xAxisRenderer?._axis?.desiredIntervals ||
-      seriesRenderer._xAxisRenderer?._axis?.enableAutoIntervalOnZooming !=
+      seriesRenderer._xAxisRenderer!._visibleRange?.delta !=
+          oldWidgetSeriesRenderer._xAxisRenderer!._visibleRange?.delta ||
+      seriesRenderer._xAxisRenderer!._visibleRange?.maximum !=
+          oldWidgetSeriesRenderer._xAxisRenderer!._visibleRange?.maximum ||
+      seriesRenderer._xAxisRenderer!._visibleRange?.minimum !=
+          oldWidgetSeriesRenderer._xAxisRenderer!._visibleRange?.minimum ||
+      seriesRenderer._xAxisRenderer!._visibleRange?.interval !=
+          oldWidgetSeriesRenderer._xAxisRenderer!._visibleRange?.interval ||
+      seriesRenderer._xAxisRenderer!._axis.isVisible !=
+          oldWidgetSeriesRenderer._xAxisRenderer!._axis.isVisible ||
+      seriesRenderer._xAxisRenderer!._bounds !=
+          oldWidgetSeriesRenderer._xAxisRenderer!._bounds ||
+      seriesRenderer._xAxisRenderer!._axis.isInversed !=
+          oldWidgetSeriesRenderer._xAxisRenderer!._axis.isInversed ||
+      seriesRenderer._xAxisRenderer!._axis.desiredIntervals !=
+          oldWidgetSeriesRenderer._xAxisRenderer!._axis.desiredIntervals ||
+      seriesRenderer._xAxisRenderer!._axis.enableAutoIntervalOnZooming !=
           oldWidgetSeriesRenderer
-              ._xAxisRenderer?._axis?.enableAutoIntervalOnZooming ||
-      seriesRenderer._xAxisRenderer?._axis?.opposedPosition !=
-          oldWidgetSeriesRenderer._xAxisRenderer?._axis?.opposedPosition ||
-      seriesRenderer._xAxisRenderer?._orientation !=
-          oldWidgetSeriesRenderer._xAxisRenderer?._orientation ||
-      seriesRenderer._xAxisRenderer?._axis?.plotOffset !=
-          oldWidgetSeriesRenderer._xAxisRenderer?._axis?.plotOffset ||
-      seriesRenderer._xAxisRenderer?._axis?.rangePadding !=
-          oldWidgetSeriesRenderer._xAxisRenderer?._axis?.rangePadding ||
-      seriesRenderer._dataPoints?.length !=
-          oldWidgetSeriesRenderer._dataPoints?.length ||
-      seriesRenderer._yAxisRenderer?._visibleRange?.delta !=
-          oldWidgetSeriesRenderer._yAxisRenderer?._visibleRange?.delta ||
-      seriesRenderer._yAxisRenderer?._visibleRange?.maximum !=
-          oldWidgetSeriesRenderer._yAxisRenderer?._visibleRange?.maximum ||
-      seriesRenderer._yAxisRenderer?._visibleRange?.minimum !=
-          oldWidgetSeriesRenderer._yAxisRenderer?._visibleRange?.minimum ||
-      seriesRenderer._yAxisRenderer?._visibleRange?.interval !=
-          oldWidgetSeriesRenderer._yAxisRenderer?._visibleRange?.interval ||
-      seriesRenderer._yAxisRenderer?._axis?.isVisible !=
-          oldWidgetSeriesRenderer._yAxisRenderer?._axis?.isVisible ||
-      seriesRenderer._yAxisRenderer?._bounds !=
-          oldWidgetSeriesRenderer._yAxisRenderer?._bounds ||
-      seriesRenderer._yAxisRenderer?._axis?.isInversed !=
-          oldWidgetSeriesRenderer._yAxisRenderer?._axis?.isInversed ||
-      seriesRenderer._yAxisRenderer?._axis?.desiredIntervals !=
-          oldWidgetSeriesRenderer._yAxisRenderer?._axis?.desiredIntervals ||
-      seriesRenderer._yAxisRenderer?._axis?.enableAutoIntervalOnZooming !=
+              ._xAxisRenderer!._axis.enableAutoIntervalOnZooming ||
+      seriesRenderer._xAxisRenderer!._axis.opposedPosition !=
+          oldWidgetSeriesRenderer._xAxisRenderer!._axis.opposedPosition ||
+      seriesRenderer._xAxisRenderer!._orientation !=
+          oldWidgetSeriesRenderer._xAxisRenderer!._orientation ||
+      seriesRenderer._xAxisRenderer!._axis.plotOffset !=
+          oldWidgetSeriesRenderer._xAxisRenderer!._axis.plotOffset ||
+      seriesRenderer._xAxisRenderer!._axis.rangePadding !=
+          oldWidgetSeriesRenderer._xAxisRenderer!._axis.rangePadding ||
+      seriesRenderer._dataPoints.length !=
+          oldWidgetSeriesRenderer._dataPoints.length ||
+      seriesRenderer._yAxisRenderer!._visibleRange?.delta !=
+          oldWidgetSeriesRenderer._yAxisRenderer!._visibleRange?.delta ||
+      seriesRenderer._yAxisRenderer!._visibleRange?.maximum !=
+          oldWidgetSeriesRenderer._yAxisRenderer!._visibleRange?.maximum ||
+      seriesRenderer._yAxisRenderer!._visibleRange?.minimum !=
+          oldWidgetSeriesRenderer._yAxisRenderer!._visibleRange?.minimum ||
+      seriesRenderer._yAxisRenderer!._visibleRange?.interval !=
+          oldWidgetSeriesRenderer._yAxisRenderer!._visibleRange?.interval ||
+      seriesRenderer._yAxisRenderer!._axis.isVisible !=
+          oldWidgetSeriesRenderer._yAxisRenderer!._axis.isVisible ||
+      seriesRenderer._yAxisRenderer!._bounds !=
+          oldWidgetSeriesRenderer._yAxisRenderer!._bounds ||
+      seriesRenderer._yAxisRenderer!._axis.isInversed !=
+          oldWidgetSeriesRenderer._yAxisRenderer!._axis.isInversed ||
+      seriesRenderer._yAxisRenderer!._axis.desiredIntervals !=
+          oldWidgetSeriesRenderer._yAxisRenderer!._axis.desiredIntervals ||
+      seriesRenderer._yAxisRenderer!._axis.enableAutoIntervalOnZooming !=
           oldWidgetSeriesRenderer
-              ._yAxisRenderer?._axis?.enableAutoIntervalOnZooming ||
-      seriesRenderer._yAxisRenderer?._axis?.opposedPosition !=
-          oldWidgetSeriesRenderer._yAxisRenderer?._axis?.opposedPosition ||
-      seriesRenderer._yAxisRenderer?._orientation !=
-          oldWidgetSeriesRenderer._yAxisRenderer?._orientation ||
-      seriesRenderer._yAxisRenderer?._axis?.plotOffset !=
-          oldWidgetSeriesRenderer._yAxisRenderer?._axis?.plotOffset ||
-      seriesRenderer._yAxisRenderer?._axis?.rangePadding !=
-          oldWidgetSeriesRenderer._yAxisRenderer?._axis?.rangePadding ||
+              ._yAxisRenderer!._axis.enableAutoIntervalOnZooming ||
+      seriesRenderer._yAxisRenderer!._axis.opposedPosition !=
+          oldWidgetSeriesRenderer._yAxisRenderer!._axis.opposedPosition ||
+      seriesRenderer._yAxisRenderer!._orientation !=
+          oldWidgetSeriesRenderer._yAxisRenderer!._orientation ||
+      seriesRenderer._yAxisRenderer!._axis.plotOffset !=
+          oldWidgetSeriesRenderer._yAxisRenderer!._axis.plotOffset ||
+      seriesRenderer._yAxisRenderer!._axis.rangePadding !=
+          oldWidgetSeriesRenderer._yAxisRenderer!._axis.rangePadding ||
       series.animationDuration != oldWidgetSeries.animationDuration ||
       series.borderColor != oldWidgetSeries.borderColor ||
       series.borderWidth != oldWidgetSeries.borderWidth ||
@@ -1471,8 +1350,8 @@ void _canRepaintChartSeries(SfCartesianChartState _chartState,
       seriesRenderer._maximumY != oldWidgetSeriesRenderer._maximumY ||
       seriesRenderer._minimumX != oldWidgetSeriesRenderer._minimumX ||
       seriesRenderer._minimumY != oldWidgetSeriesRenderer._minimumY ||
-      series.dashArray?.length != oldWidgetSeries.dashArray?.length ||
-      series.dataSource?.length != oldWidgetSeries.dataSource?.length ||
+      series.dashArray.length != oldWidgetSeries.dashArray.length ||
+      series.dataSource.length != oldWidgetSeries.dataSource.length ||
       series.markerSettings.width != oldWidgetSeries.markerSettings.width ||
       series.markerSettings.color?.value !=
           oldWidgetSeries.markerSettings.color?.value ||
@@ -1496,28 +1375,28 @@ void _canRepaintChartSeries(SfCartesianChartState _chartState,
           oldWidgetSeries.dataLabelSettings.alignment ||
       series.dataLabelSettings.angle !=
           oldWidgetSeries.dataLabelSettings.angle ||
-      series.dataLabelSettings.textStyle?.color?.value !=
-          oldWidgetSeries.dataLabelSettings.textStyle?.color?.value ||
-      series.dataLabelSettings.textStyle?.fontStyle !=
-          oldWidgetSeries.dataLabelSettings.textStyle?.fontStyle ||
-      series.dataLabelSettings.textStyle?.fontFamily !=
-          oldWidgetSeries.dataLabelSettings.textStyle?.fontFamily ||
-      series.dataLabelSettings.textStyle?.fontSize !=
-          oldWidgetSeries.dataLabelSettings.textStyle?.fontSize ||
-      series.dataLabelSettings.textStyle?.fontWeight !=
-          oldWidgetSeries.dataLabelSettings.textStyle?.fontWeight ||
-      series.dataLabelSettings.borderColor?.value !=
-          oldWidgetSeries.dataLabelSettings.borderColor?.value ||
+      series.dataLabelSettings.textStyle.color?.value !=
+          oldWidgetSeries.dataLabelSettings.textStyle.color?.value ||
+      series.dataLabelSettings.textStyle.fontStyle !=
+          oldWidgetSeries.dataLabelSettings.textStyle.fontStyle ||
+      series.dataLabelSettings.textStyle.fontFamily !=
+          oldWidgetSeries.dataLabelSettings.textStyle.fontFamily ||
+      series.dataLabelSettings.textStyle.fontSize !=
+          oldWidgetSeries.dataLabelSettings.textStyle.fontSize ||
+      series.dataLabelSettings.textStyle.fontWeight !=
+          oldWidgetSeries.dataLabelSettings.textStyle.fontWeight ||
+      series.dataLabelSettings.borderColor.value !=
+          oldWidgetSeries.dataLabelSettings.borderColor.value ||
       series.dataLabelSettings.borderWidth !=
           oldWidgetSeries.dataLabelSettings.borderWidth ||
-      series.dataLabelSettings.margin?.right !=
-          oldWidgetSeries.dataLabelSettings.margin?.right ||
-      series.dataLabelSettings.margin?.bottom !=
-          oldWidgetSeries.dataLabelSettings.margin?.bottom ||
-      series.dataLabelSettings.margin?.top !=
-          oldWidgetSeries.dataLabelSettings.margin?.top ||
-      series.dataLabelSettings.margin?.left !=
-          oldWidgetSeries.dataLabelSettings.margin?.left ||
+      series.dataLabelSettings.margin.right !=
+          oldWidgetSeries.dataLabelSettings.margin.right ||
+      series.dataLabelSettings.margin.bottom !=
+          oldWidgetSeries.dataLabelSettings.margin.bottom ||
+      series.dataLabelSettings.margin.top !=
+          oldWidgetSeries.dataLabelSettings.margin.top ||
+      series.dataLabelSettings.margin.left !=
+          oldWidgetSeries.dataLabelSettings.margin.left ||
       series.dataLabelSettings.borderRadius !=
           oldWidgetSeries.dataLabelSettings.borderRadius) {
     seriesRenderer._needsRepaint = true;
@@ -1585,10 +1464,18 @@ dynamic _getInteractiveTooltipLabel(
                 : value - 1)
             : value)
         .round()];
+  } else if (axisRenderer is DateTimeCategoryAxisRenderer) {
+    value = value < 0 ? 0 : value;
+    value = axisRenderer._labels[(value.round() >= axisRenderer._labels.length
+            ? (value.round() > axisRenderer._labels.length
+                ? axisRenderer._labels.length - 1
+                : value - 1)
+            : value)
+        .round()];
   } else if (axisRenderer is DateTimeAxisRenderer) {
-    final DateTimeAxis _dateTimeAxis = axisRenderer._axis;
+    final DateTimeAxis _dateTimeAxis = axisRenderer._axis as DateTimeAxis;
     final DateFormat dateFormat =
-        _dateTimeAxis.dateFormat ?? axisRenderer._getLabelFormat(axisRenderer);
+        _dateTimeAxis.dateFormat ?? _getDateTimeLabelFormat(axisRenderer);
     value =
         dateFormat.format(DateTime.fromMillisecondsSinceEpoch(value.toInt()));
   } else {
@@ -1599,75 +1486,75 @@ dynamic _getInteractiveTooltipLabel(
 
 /// It returns the path of marker shapes
 Path _getMarkerShapesPath(DataMarkerType markerType, Offset position, Size size,
-    [CartesianSeriesRenderer seriesRenderer,
-    int index,
-    TrackballBehavior trackballBehavior,
-    Animation<double> animationController]) {
-  if (seriesRenderer._chart?.onMarkerRender != null &&
-      !seriesRenderer._isMarkerRenderEvent) {
+    [CartesianSeriesRenderer? seriesRenderer,
+    int? index,
+    TrackballBehavior? trackballBehavior,
+    Animation<double>? animationController]) {
+  if (seriesRenderer?._chart.onMarkerRender != null &&
+      !seriesRenderer!._isMarkerRenderEvent) {
     final MarkerRenderArgs event = _triggerMarkerRenderEvent(
         seriesRenderer,
         size,
         markerType,
-        seriesRenderer._dataPoints[index].visiblePointIndex,
-        animationController);
-    markerType = event?.shape;
+        seriesRenderer._dataPoints[index!].visiblePointIndex!,
+        animationController)!;
+    markerType = event.shape;
     size = Size(event.markerHeight, event.markerWidth);
   }
   final Path path = Path();
   switch (markerType) {
     case DataMarkerType.circle:
       {
-        _ChartShapeUtils._drawCircle(
+        ShapeMaker.drawCircle(
             path, position.dx, position.dy, size.width, size.height);
       }
       break;
     case DataMarkerType.rectangle:
       {
-        _ChartShapeUtils._drawRectangle(
+        ShapeMaker.drawRectangle(
             path, position.dx, position.dy, size.width, size.height);
       }
       break;
     case DataMarkerType.image:
       {
         if (seriesRenderer?._series != null) {
-          _loadMarkerImage(seriesRenderer, trackballBehavior);
+          _loadMarkerImage(seriesRenderer!, trackballBehavior);
         }
       }
       break;
     case DataMarkerType.pentagon:
       {
-        _ChartShapeUtils._drawPentagon(
+        ShapeMaker.drawPentagon(
             path, position.dx, position.dy, size.width, size.height);
       }
       break;
     case DataMarkerType.verticalLine:
       {
-        _ChartShapeUtils._drawVerticalLine(
+        ShapeMaker.drawVerticalLine(
             path, position.dx, position.dy, size.width, size.height);
       }
       break;
     case DataMarkerType.invertedTriangle:
       {
-        _ChartShapeUtils._drawInvertedTriangle(
+        ShapeMaker.drawInvertedTriangle(
             path, position.dx, position.dy, size.width, size.height);
       }
       break;
     case DataMarkerType.horizontalLine:
       {
-        _ChartShapeUtils._drawHorizontalLine(
+        ShapeMaker.drawHorizontalLine(
             path, position.dx, position.dy, size.width, size.height);
       }
       break;
     case DataMarkerType.diamond:
       {
-        _ChartShapeUtils._drawDiamond(
+        ShapeMaker.drawDiamond(
             path, position.dx, position.dy, size.width, size.height);
       }
       break;
     case DataMarkerType.triangle:
       {
-        _ChartShapeUtils._drawTriangle(
+        ShapeMaker.drawTriangle(
             path, position.dx, position.dy, size.width, size.height);
       }
       break;
@@ -1681,7 +1568,7 @@ class _StackingInfo {
   _StackingInfo(this.groupName, this._stackingValues);
   String groupName;
   // ignore: prefer_final_fields
-  List<double> _stackingValues;
+  List<double>? _stackingValues;
 }
 
 class _StackingGroup {
@@ -1694,12 +1581,13 @@ class _StackingGroup {
 /// To load marker image
 // ignore: avoid_void_async
 void _loadMarkerImage(CartesianSeriesRenderer seriesRenderer,
-    TrackballBehavior trackballBehavior) async {
-  final XyDataSeries<dynamic, dynamic> series = seriesRenderer._series;
+    TrackballBehavior? trackballBehavior) async {
+  final XyDataSeries<dynamic, dynamic> series =
+      seriesRenderer._series as XyDataSeries;
   if ((trackballBehavior != null &&
           trackballBehavior.markerSettings != null &&
-          trackballBehavior.markerSettings.shape == DataMarkerType.image &&
-          trackballBehavior.markerSettings.image != null) ||
+          trackballBehavior.markerSettings!.shape == DataMarkerType.image &&
+          trackballBehavior.markerSettings!.image != null) ||
       (series.markerSettings != null &&
           (series.markerSettings.isVisible ||
               seriesRenderer._seriesType == 'scatter') &&
@@ -1713,15 +1601,15 @@ void _loadMarkerImage(CartesianSeriesRenderer seriesRenderer,
 /// It returns the chart location of the annotation
 _ChartLocation _getAnnotationLocation(
     CartesianChartAnnotation annotation, SfCartesianChartState _chartState) {
-  final String xAxisName = annotation.xAxisName;
-  final String yAxisName = annotation.yAxisName;
-  ChartAxisRenderer xAxisRenderer, yAxisRenderer;
-  num xValue;
+  final String? xAxisName = annotation.xAxisName;
+  final String? yAxisName = annotation.yAxisName;
+  ChartAxisRenderer? xAxisRenderer, yAxisRenderer;
+  num? xValue;
   Rect axisClipRect;
-  _ChartLocation location;
+  _ChartLocation? location;
   if (annotation.coordinateUnit == CoordinateUnit.logicalPixel) {
     location = annotation.region == AnnotationRegion.chart
-        ? _ChartLocation(annotation.x, annotation.y)
+        ? _ChartLocation(annotation.x.toDouble(), annotation.y.toDouble())
         : _ChartLocation(
             _chartState._chartAxis._axisClipRect.left + annotation.x,
             _chartState._chartAxis._axisClipRect.top + annotation.y);
@@ -1737,7 +1625,7 @@ _ChartLocation _getAnnotationLocation(
         if (xAxisRenderer is CategoryAxisRenderer) {
           if (annotation.x != null &&
               num.tryParse(annotation.x.toString()) != null) {
-            xValue = num.tryParse(annotation.x.toString());
+            xValue = num.tryParse(annotation.x.toString())!;
           } else if (xAxisRenderer._labels.length > 0) {
             xValue = xAxisRenderer._labels.indexOf(annotation.x);
           }
@@ -1745,6 +1633,18 @@ _ChartLocation _getAnnotationLocation(
           xValue = annotation.x is DateTime
               ? (annotation.x).millisecondsSinceEpoch
               : annotation.x;
+        } else if (xAxisRenderer is DateTimeCategoryAxisRenderer) {
+          if (annotation.x != null &&
+              num.tryParse(annotation.x.toString()) != null) {
+            xValue = num.tryParse(annotation.x.toString())!;
+          } else {
+            xValue = annotation.x is num
+                ? annotation.x
+                : (annotation.x is DateTime
+                    ? xAxisRenderer._labels
+                        .indexOf(xAxisRenderer._dateFormat.format(annotation.x))
+                    : xAxisRenderer._labels.indexOf(annotation.x));
+          }
         } else {
           xValue = annotation.x;
         }
@@ -1759,11 +1659,11 @@ _ChartLocation _getAnnotationLocation(
           _chartState._chartAxis._axisClipRect,
           Offset(
               xAxisRenderer._axis.plotOffset, yAxisRenderer._axis.plotOffset));
-      location = _calculatePoint(xValue, annotation.y, xAxisRenderer,
+      location = _calculatePoint(xValue!, annotation.y, xAxisRenderer,
           yAxisRenderer, _chartState._requireInvertedAxis, null, axisClipRect);
     }
   }
-  return location;
+  return location!;
 }
 
 /// Draw tooltip arrow head
@@ -1907,8 +1807,8 @@ Rect _validateRectBounds(Rect tooltipRect, Rect boundary) {
 
 /// To render a rect for stacked series
 void _renderStackingRectSeries(
-    Paint fillPaint,
-    Paint strokePaint,
+    Paint? fillPaint,
+    Paint? strokePaint,
     Path path,
     double animationFactor,
     CartesianSeriesRenderer seriesRenderer,
@@ -1916,11 +1816,12 @@ void _renderStackingRectSeries(
     RRect segmentRect,
     CartesianChartPoint<dynamic> _currentPoint,
     int currentSegmentIndex) {
-  final _StackedSeriesBase<dynamic, dynamic> series = seriesRenderer._series;
+  final _StackedSeriesBase<dynamic, dynamic> series =
+      seriesRenderer._series as _StackedSeriesBase;
   if (seriesRenderer._isSelectionEnable) {
-    final SelectionBehaviorRenderer selectionBehaviorRenderer =
+    final SelectionBehaviorRenderer? selectionBehaviorRenderer =
         seriesRenderer._selectionBehaviorRenderer;
-    selectionBehaviorRenderer._selectionRenderer._checkWithSelectionState(
+    selectionBehaviorRenderer?._selectionRenderer?._checkWithSelectionState(
         seriesRenderer._segments[currentSegmentIndex], seriesRenderer._chart);
   }
   if (fillPaint != null) {
@@ -1932,12 +1833,13 @@ void _renderStackingRectSeries(
             seriesRenderer,
             animationFactor,
             _currentPoint,
-            seriesRenderer._chartState)
+            seriesRenderer._chartState!)
         : canvas.drawRRect(segmentRect, fillPaint);
   }
   if (strokePaint != null) {
     if (series.dashArray[0] != 0 && series.dashArray[1] != 0) {
-      final XyDataSeries<dynamic, dynamic> _series = seriesRenderer._series;
+      final XyDataSeries<dynamic, dynamic> _series =
+          seriesRenderer._series as XyDataSeries;
       _drawDashedLine(canvas, _series.dashArray, strokePaint, path);
     } else {
       series.animationDuration > 0
@@ -1948,7 +1850,7 @@ void _renderStackingRectSeries(
               seriesRenderer,
               animationFactor,
               _currentPoint,
-              seriesRenderer._chartState)
+              seriesRenderer._chartState!)
           : canvas.drawRRect(segmentRect, strokePaint);
     }
   }
@@ -1979,13 +1881,14 @@ void _drawStackedAreaPath(
   Rect _pathRect;
   dynamic stackedAreaSegment;
   _pathRect = _path.getBounds();
-  final XyDataSeries<dynamic, dynamic> _series = seriesRenderer._series;
+  final XyDataSeries<dynamic, dynamic> _series =
+      seriesRenderer._series as XyDataSeries;
   stackedAreaSegment = seriesRenderer._segments[0];
   stackedAreaSegment._pathRect = _pathRect;
   if (seriesRenderer._isSelectionEnable) {
-    final SelectionBehaviorRenderer selectionBehaviorRenderer =
+    final SelectionBehaviorRenderer? selectionBehaviorRenderer =
         seriesRenderer._selectionBehaviorRenderer;
-    selectionBehaviorRenderer._selectionRenderer._checkWithSelectionState(
+    selectionBehaviorRenderer?._selectionRenderer?._checkWithSelectionState(
         seriesRenderer._segments[0], seriesRenderer._chart);
   }
   canvas.drawPath(
@@ -2001,8 +1904,14 @@ void _drawStackedAreaPath(
 }
 
 /// Render stacked line series
-void _renderStackedLineSeries(_StackedSeriesBase<dynamic, dynamic> series,
-    Canvas canvas, Paint strokePaint, num x1, num y1, num x2, num y2) {
+void _renderStackedLineSeries(
+    _StackedSeriesBase<dynamic, dynamic> series,
+    Canvas canvas,
+    Paint strokePaint,
+    double x1,
+    double y1,
+    double x2,
+    double y2) {
   final Path path = Path();
   path.moveTo(x1, y1);
   path.lineTo(x2, y2);
@@ -2014,7 +1923,7 @@ void _stackedAreaPainter(
     Canvas canvas,
     dynamic seriesRenderer,
     SfCartesianChartState _chartState,
-    Animation<double> seriesAnimation,
+    Animation<double>? seriesAnimation,
     Animation<double> chartElementAnimation,
     _PainterKey painterKey) {
   Rect clipRect, axisClipRect;
@@ -2022,14 +1931,14 @@ void _stackedAreaPainter(
   final SfCartesianChart chart = _chartState._chart;
   seriesRenderer._storeSeriesProperties(_chartState, seriesIndex);
   double animationFactor;
-  final num crossesAt = _getCrossesAtValue(seriesRenderer, _chartState);
+  final num? crossesAt = _getCrossesAtValue(seriesRenderer, _chartState);
 
   /// Clip rect will be added for series.
-  if (seriesRenderer._visible) {
+  if (seriesRenderer._visible!) {
     final dynamic series = seriesRenderer._series;
     canvas.save();
     axisClipRect = _calculatePlotOffset(
-        seriesRenderer._chartState._chartAxis._axisClipRect,
+        seriesRenderer._chartState!._chartAxis._axisClipRect,
         Offset(seriesRenderer._xAxisRenderer?._axis?.plotOffset,
             seriesRenderer._yAxisRenderer?._axis?.plotOffset));
     canvas.clipRect(axisClipRect);
@@ -2038,16 +1947,16 @@ void _stackedAreaPainter(
         ((!(_chartState._widgetNeedUpdate || _chartState._isLegendToggled) ||
                 !_chartState._oldSeriesKeys.contains(series.key)) &&
             series.animationDuration > 0)) {
-      _performLinearAnimation(_chartState, seriesRenderer._xAxisRenderer._axis,
+      _performLinearAnimation(_chartState, seriesRenderer._xAxisRenderer!._axis,
           canvas, animationFactor);
     }
 
     final Path _path = Path(), _strokePath = Path();
-    final Rect rect = seriesRenderer._chartState._chartAxis._axisClipRect;
+    final Rect rect = seriesRenderer._chartState!._chartAxis._axisClipRect;
     _ChartLocation point1, point2;
-    final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer,
-        yAxisRenderer = seriesRenderer._yAxisRenderer;
-    CartesianChartPoint<dynamic> point;
+    final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!,
+        yAxisRenderer = seriesRenderer._yAxisRenderer!;
+    CartesianChartPoint<dynamic>? point;
     final dynamic _series = seriesRenderer._series;
     final List<Offset> _points = <Offset>[];
     if (seriesRenderer._dataPoints.isNotEmpty) {
@@ -2058,32 +1967,32 @@ void _stackedAreaPainter(
       seriesRendererCollection = _findSeriesCollection(_chartState);
       point1 = _calculatePoint(
           seriesRenderer._dataPoints[0].xValue,
-          math_lib.max(yAxisRenderer._visibleRange.minimum,
+          math_lib.max(yAxisRenderer._visibleRange!.minimum,
               crossesAt ?? stackedValues.startValues[0]),
           xAxisRenderer,
           yAxisRenderer,
-          seriesRenderer._chartState._requireInvertedAxis,
+          seriesRenderer._chartState!._requireInvertedAxis,
           _series,
           rect);
       _path.moveTo(point1.x, point1.y);
       _strokePath.moveTo(point1.x, point1.y);
       if (seriesRenderer._visibleDataPoints == null ||
-          seriesRenderer._visibleDataPoints.isNotEmpty) {
+          seriesRenderer._visibleDataPoints!.isNotEmpty) {
         seriesRenderer._visibleDataPoints = <CartesianChartPoint<dynamic>>[];
       }
       for (int pointIndex = 0;
           pointIndex < seriesRenderer._dataPoints.length;
           pointIndex++) {
-        seriesRenderer._calculateRegionData(
-            _chartState, seriesRenderer, seriesIndex, point, pointIndex);
         point = seriesRenderer._dataPoints[pointIndex];
+        seriesRenderer._calculateRegionData(
+            _chartState, seriesRenderer, seriesIndex, point!, pointIndex);
         if (point.isVisible) {
           point1 = _calculatePoint(
               seriesRenderer._dataPoints[pointIndex].xValue,
               stackedValues.endValues[pointIndex],
               xAxisRenderer,
               yAxisRenderer,
-              seriesRenderer._chartState._requireInvertedAxis,
+              seriesRenderer._chartState!._requireInvertedAxis,
               _series,
               rect);
           _points.add(Offset(point1.x, point1.y));
@@ -2097,7 +2006,7 @@ void _stackedAreaPainter(
                   crossesAt ?? stackedValues.startValues[j],
                   xAxisRenderer,
                   yAxisRenderer,
-                  seriesRenderer._chartState._requireInvertedAxis,
+                  seriesRenderer._chartState!._requireInvertedAxis,
                   _series,
                   rect);
               _path.lineTo(point2.x, point2.y);
@@ -2115,7 +2024,7 @@ void _stackedAreaPainter(
                   crossesAt ?? stackedValues.startValues[pointIndex + 1],
                   xAxisRenderer,
                   yAxisRenderer,
-                  seriesRenderer._chartState._requireInvertedAxis,
+                  seriesRenderer._chartState!._requireInvertedAxis,
                   _series,
                   rect);
               _path.moveTo(point1.x, point1.y);
@@ -2142,7 +2051,7 @@ void _stackedAreaPainter(
               crossesAt ?? stackedValues.startValues[j],
               xAxisRenderer,
               yAxisRenderer,
-              seriesRenderer._chartState._requireInvertedAxis,
+              seriesRenderer._chartState!._requireInvertedAxis,
               _series,
               rect);
           _path.lineTo(point2.x, point2.y);
@@ -2167,19 +2076,19 @@ void _stackedAreaPainter(
 
     clipRect = _calculatePlotOffset(
         Rect.fromLTRB(
-            seriesRenderer._chartState._chartAxis._axisClipRect.left -
+            seriesRenderer._chartState!._chartAxis._axisClipRect.left -
                 _series.markerSettings.width,
-            seriesRenderer._chartState._chartAxis._axisClipRect.top -
+            seriesRenderer._chartState!._chartAxis._axisClipRect.top -
                 _series.markerSettings.height,
-            seriesRenderer._chartState._chartAxis._axisClipRect.right +
+            seriesRenderer._chartState!._chartAxis._axisClipRect.right +
                 _series.markerSettings.width,
-            seriesRenderer._chartState._chartAxis._axisClipRect.bottom +
+            seriesRenderer._chartState!._chartAxis._axisClipRect.bottom +
                 _series.markerSettings.height),
         Offset(seriesRenderer._xAxisRenderer?._axis?.plotOffset,
             seriesRenderer._yAxisRenderer?._axis?.plotOffset));
     canvas.restore();
     if ((_series.animationDuration <= 0 ||
-            !_chartState._initialRender ||
+            !_chartState._initialRender! ||
             animationFactor >= _chartState._seriesDurationFactor) &&
         (_series.markerSettings.isVisible ||
             _series.dataLabelSettings.isVisible)) {
@@ -2209,7 +2118,7 @@ CartesianSeriesRenderer _getPreviousSeriesRenderer(
 /// Rect painter for stacked series
 void _stackedRectPainter(Canvas canvas, dynamic seriesRenderer,
     SfCartesianChartState _chartState, _PainterKey painterKey) {
-  if (seriesRenderer._visible) {
+  if (seriesRenderer._visible!) {
     canvas.save();
     Rect clipRect, axisClipRect;
     CartesianChartPoint<dynamic> point;
@@ -2235,7 +2144,7 @@ void _stackedRectPainter(Canvas canvas, dynamic seriesRenderer,
     canvas.clipRect(axisClipRect);
     int segmentIndex = -1;
     if (seriesRenderer._visibleDataPoints == null ||
-        seriesRenderer._visibleDataPoints.isNotEmpty) {
+        seriesRenderer._visibleDataPoints!.isNotEmpty) {
       seriesRenderer._visibleDataPoints = <CartesianChartPoint<dynamic>>[];
     }
     for (int pointIndex = 0;
@@ -2265,7 +2174,7 @@ void _stackedRectPainter(Canvas canvas, dynamic seriesRenderer,
             seriesRenderer._yAxisRenderer?._axis?.plotOffset));
     canvas.restore();
     if ((series.animationDuration <= 0 ||
-            !_chartState._initialRender ||
+            !_chartState._initialRender! ||
             animationFactor >= _chartState._seriesDurationFactor) &&
         (series.markerSettings.isVisible ||
             series.dataLabelSettings.isVisible)) {
@@ -2283,18 +2192,18 @@ void _stackedRectPainter(Canvas canvas, dynamic seriesRenderer,
 void _stackedLinePainter(
     Canvas canvas,
     dynamic seriesRenderer,
-    Animation<double> seriesAnimation,
+    Animation<double>? seriesAnimation,
     SfCartesianChartState _chartState,
     Animation<double> chartElementAnimation,
     _PainterKey painterKey) {
   Rect clipRect;
   double animationFactor;
-  if (seriesRenderer._visible) {
+  if (seriesRenderer._visible!) {
     final XyDataSeries<dynamic, dynamic> series = seriesRenderer._series;
     canvas.save();
     animationFactor = seriesAnimation != null ? seriesAnimation.value : 1;
     final int seriesIndex = painterKey.index;
-    _StackedValues stackedValues;
+    _StackedValues? stackedValues;
     seriesRenderer._storeSeriesProperties(_chartState, seriesIndex);
     if (seriesRenderer is _StackedSeriesRenderer &&
         seriesRenderer._stackingValues.isNotEmpty) {
@@ -2303,7 +2212,7 @@ void _stackedLinePainter(
 
     /// Clip rect will be added for series.
     final Rect axisClipRect = _calculatePlotOffset(
-        seriesRenderer._chartState._chartAxis._axisClipRect,
+        seriesRenderer._chartState!._chartAxis._axisClipRect,
         Offset(seriesRenderer._xAxisRenderer?._axis?.plotOffset,
             seriesRenderer._yAxisRenderer?._axis?.plotOffset));
     canvas.clipRect(axisClipRect);
@@ -2311,15 +2220,18 @@ void _stackedLinePainter(
         ((!(_chartState._widgetNeedUpdate || _chartState._isLegendToggled) ||
                 !_chartState._oldSeriesKeys.contains(series.key)) &&
             series.animationDuration > 0)) {
-      _performLinearAnimation(_chartState, seriesRenderer._xAxisRenderer._axis,
+      _performLinearAnimation(_chartState, seriesRenderer._xAxisRenderer!._axis,
           canvas, animationFactor);
     }
 
     int segmentIndex = -1;
-    double currentCummulativePos, nextCummulativePos;
-    CartesianChartPoint<dynamic> startPoint, endPoint, currentPoint, _nextPoint;
+    double? currentCummulativePos, nextCummulativePos;
+    CartesianChartPoint<dynamic>? startPoint,
+        endPoint,
+        currentPoint,
+        _nextPoint;
     if (seriesRenderer._visibleDataPoints == null ||
-        seriesRenderer._visibleDataPoints.isNotEmpty) {
+        seriesRenderer._visibleDataPoints!.isNotEmpty) {
       seriesRenderer._visibleDataPoints = <CartesianChartPoint<dynamic>>[];
     }
     for (int pointIndex = 0;
@@ -2328,7 +2240,7 @@ void _stackedLinePainter(
       currentPoint = seriesRenderer._dataPoints[pointIndex];
       seriesRenderer._calculateRegionData(
           _chartState, seriesRenderer, seriesIndex, currentPoint, pointIndex);
-      if ((currentPoint.isVisible && !currentPoint.isGap) &&
+      if ((currentPoint!.isVisible && !currentPoint.isGap) &&
           startPoint == null &&
           stackedValues != null) {
         startPoint = currentPoint;
@@ -2336,9 +2248,9 @@ void _stackedLinePainter(
       }
       if (pointIndex + 1 < seriesRenderer._dataPoints.length) {
         _nextPoint = seriesRenderer._dataPoints[pointIndex + 1];
-        if (startPoint != null && _nextPoint.isGap) {
+        if (startPoint != null && _nextPoint!.isGap) {
           startPoint = null;
-        } else if (_nextPoint.isVisible &&
+        } else if (_nextPoint!.isVisible &&
             !_nextPoint.isGap &&
             stackedValues != null) {
           endPoint = _nextPoint;
@@ -2355,26 +2267,26 @@ void _stackedLinePainter(
                 segmentIndex += 1,
                 seriesIndex,
                 animationFactor,
-                currentCummulativePos,
-                nextCummulativePos));
+                currentCummulativePos!,
+                nextCummulativePos!));
         endPoint = startPoint = null;
       }
     }
     clipRect = _calculatePlotOffset(
         Rect.fromLTRB(
-            seriesRenderer._chartState._chartAxis._axisClipRect.left -
+            seriesRenderer._chartState!._chartAxis._axisClipRect.left -
                 series.markerSettings.width,
-            seriesRenderer._chartState._chartAxis._axisClipRect.top -
+            seriesRenderer._chartState!._chartAxis._axisClipRect.top -
                 series.markerSettings.height,
-            seriesRenderer._chartState._chartAxis._axisClipRect.right +
+            seriesRenderer._chartState!._chartAxis._axisClipRect.right +
                 series.markerSettings.width,
-            seriesRenderer._chartState._chartAxis._axisClipRect.bottom +
+            seriesRenderer._chartState!._chartAxis._axisClipRect.bottom +
                 series.markerSettings.height),
         Offset(seriesRenderer._xAxisRenderer?._axis?.plotOffset,
             seriesRenderer._yAxisRenderer?._axis?.plotOffset));
     canvas.restore();
     if ((series.animationDuration <= 0 ||
-            !_chartState._initialRender ||
+            !_chartState._initialRender! ||
             animationFactor >= _chartState._seriesDurationFactor) &&
         (series.markerSettings.isVisible ||
             series.dataLabelSettings.isVisible)) {
@@ -2389,18 +2301,18 @@ void _stackedLinePainter(
 }
 
 /// To find MonotonicSpline
-List<num> _getMonotonicSpline(List<num> xValues, List<num> yValues,
-    List<num> yCoef, int dataCount, List<num> dx) {
+List<num?>? _getMonotonicSpline(List<num> xValues, List<num> yValues,
+    List<num?> yCoef, int dataCount, List<num?> dx) {
   final int count = dataCount;
   int index = -1;
 
-  final List<num> slope = List<num>(count - 1);
-  final List<num> coefficient = List<num>(count);
+  final List<num?> slope = List<num?>.filled(count - 1, null);
+  final List<num?> coefficient = List<num?>.filled(count, null);
 
   for (int i = 0; i < count - 1; i++) {
     dx[i] = xValues[i + 1] - xValues[i];
-    slope[i] = (yValues[i + 1] - yValues[i]) / dx[i];
-    if (slope[i].toDouble() == double.infinity) {
+    slope[i] = (yValues[i + 1] - yValues[i]) / dx[i]!;
+    if (slope[i]!.toDouble() == double.infinity) {
       slope[i] = 0;
     }
   }
@@ -2415,15 +2327,15 @@ List<num> _getMonotonicSpline(List<num> xValues, List<num> yValues,
 
   for (int i = 0; i < dx.length - 1; i++) {
     if (slope.length > i + 1) {
-      final num m = slope[i], next = slope[i + 1];
+      final num m = slope[i]!, next = slope[i + 1]!;
       if (m * next <= 0) {
         coefficient[++index] = 0;
       } else {
         if (dx[i] == 0) {
           coefficient[++index] = 0;
         } else {
-          final double firstPoint = dx[i].toDouble(),
-              _nextPoint = dx[i + 1].toDouble();
+          final double firstPoint = dx[i]!.toDouble(),
+              _nextPoint = dx[i + 1]!.toDouble();
           final double interPoint = firstPoint + _nextPoint;
           coefficient[++index] = 3 *
               interPoint /
@@ -2443,8 +2355,8 @@ List<num> _getMonotonicSpline(List<num> xValues, List<num> yValues,
 }
 
 /// To find CardinalSpline
-List<num> _getCardinalSpline(List<num> xValues, List<num> yValues,
-    List<num> yCoef, int dataCount, double tension) {
+List<num?> _getCardinalSpline(List<num> xValues, List<num> yValues,
+    List<num?> yCoef, int dataCount, double tension) {
   if (tension < 0.1) {
     tension = 0;
   } else if (tension > 1) {
@@ -2453,7 +2365,7 @@ List<num> _getCardinalSpline(List<num> xValues, List<num> yValues,
 
   final int count = dataCount;
 
-  final List<num> tangentsX = List<num>(count);
+  final List<num?> tangentsX = List<num?>.filled(count, null);
 
   for (int i = 0; i < count; i++) {
     if (i == 0 && xValues.length > 2) {
@@ -2474,13 +2386,16 @@ List<num> _getCardinalSpline(List<num> xValues, List<num> yValues,
 }
 
 /// To find NaturalSpline
-List<num> _naturalSpline(List<num> xValues, List<num> yValues, List<num> yCoeff,
-    int dataCount, SplineType splineType) {
+List<num?> _naturalSpline(List<num> xValues, List<num> yValues,
+    List<num?> yCoeff, int dataCount, SplineType? splineType) {
   const double a = 6;
   final int count = dataCount;
-  final List<num> yCoef = List<num>(count);
+  int i, k;
+  final List<num?> yCoef = List<num?>.filled(count, null);
+  double d1, d2, d3, dy1, dy2;
+  num p;
 
-  final List<num> u = List<num>(count);
+  final List<num?> u = List<num?>.filled(count, null);
   if (splineType == SplineType.clamped && xValues.length > 1) {
     u[0] = 0.5;
     final num d0 = (xValues[1] - xValues[0]) / (yValues[1] - yValues[0]);
@@ -2504,7 +2419,7 @@ List<num> _naturalSpline(List<num> xValues, List<num> yValues, List<num> yCoeff,
     yCoef[count - 1] = 0;
   }
 
-  for (int i = 1; i < count - 1; i++) {
+  for (i = 1; i < count - 1; i++) {
     yCoef[i] = 0;
     if ((yValues[i + 1] != double.nan) &&
         (yValues[i - 1] != double.nan) &&
@@ -2515,27 +2430,27 @@ List<num> _naturalSpline(List<num> xValues, List<num> yValues, List<num> yCoeff,
         xValues[i - 1] != null &&
         xValues[i] != null &&
         yValues[i] != null) {
-      final double d1 = xValues[i].toDouble() - xValues[i - 1].toDouble();
-      final double d2 = xValues[i + 1].toDouble() - xValues[i - 1].toDouble();
-      final double d3 = xValues[i + 1].toDouble() - xValues[i].toDouble();
-      final double dy1 = yValues[i + 1].toDouble() - yValues[i].toDouble();
-      final double dy2 = yValues[i].toDouble() - yValues[i - 1].toDouble();
+      d1 = xValues[i].toDouble() - xValues[i - 1].toDouble();
+      d2 = xValues[i + 1].toDouble() - xValues[i - 1].toDouble();
+      d3 = xValues[i + 1].toDouble() - xValues[i].toDouble();
+      dy1 = yValues[i + 1].toDouble() - yValues[i].toDouble();
+      dy2 = yValues[i].toDouble() - yValues[i - 1].toDouble();
       if (xValues[i] == xValues[i - 1] || xValues[i] == xValues[i + 1]) {
         yCoef[i] = 0;
         u[i] = 0;
       } else {
-        final num p = 1 / ((d1 * yCoef[i - 1]) + (2 * d2));
+        p = 1 / ((d1 * yCoef[i - 1]!) + (2 * d2));
         yCoef[i] = -p * d3;
         if (d1 != null && u[i - 1] != null) {
-          u[i] = p * ((a * ((dy1 / d3) - (dy2 / d1))) - (d1 * u[i - 1]));
+          u[i] = p * ((a * ((dy1 / d3) - (dy2 / d1))) - (d1 * u[i - 1]!));
         }
       }
     }
   }
 
-  for (int k = count - 2; k >= 0; k--) {
+  for (k = count - 2; k >= 0; k--) {
     if (u[k] != null && yCoef[k] != null && yCoef[k + 1] != null) {
-      yCoef[k] = (yCoef[k] * yCoef[k + 1]) + u[k];
+      yCoef[k] = (yCoef[k]! * yCoef[k + 1]!) + u[k]!;
     }
   }
 
@@ -2544,62 +2459,107 @@ List<num> _naturalSpline(List<num> xValues, List<num> yValues, List<num> yCoeff,
 }
 
 /// To find Monotonic ControlPoints
-List<double> _calculateMonotonicControlPoints(
+List<Offset> _calculateMonotonicControlPoints(
     double pointX,
     double pointY,
     double pointX1,
     double pointY1,
     double coefficientY,
     double coefficientY1,
-    double dx) {
+    double dx,
+    List<Offset> controlPoints) {
   final num value = dx / 3;
-  final List<double> values = List<double>(4);
+  final List<double?> values = List<double?>.filled(4, null);
   values[0] = pointX + value;
   values[1] = pointY + (coefficientY * value);
   values[2] = pointX1 - value;
   values[3] = pointY1 - (coefficientY1 * value);
-  return values;
+  controlPoints.add(Offset(values[0]!, values[1]!));
+  controlPoints.add(Offset(values[2]!, values[3]!));
+  return controlPoints;
 }
 
 /// To find Cardinal ControlPoints
-List<double> _calculateCardinalControlPoints(double pointX, double pointY,
-    double pointX1, double pointY1, double coefficientY, double coefficientY1) {
-  final List<double> values = List<double>(4);
+List<Offset> _calculateCardinalControlPoints(
+    double pointX,
+    double pointY,
+    double pointX1,
+    double pointY1,
+    double coefficientY,
+    double coefficientY1,
+    CartesianSeriesRenderer seriesRenderer,
+    List<Offset> controlPoints) {
+  double yCoefficient = coefficientY;
+  double y1Coefficient = coefficientY1;
+  if (seriesRenderer._xAxisRenderer is DateTimeAxisRenderer) {
+    yCoefficient = coefficientY / dateTimeInterval(seriesRenderer);
+    y1Coefficient = coefficientY1 / dateTimeInterval(seriesRenderer);
+  }
+  final List<double?> values = List<double?>.filled(4, null);
   values[0] = pointX + (coefficientY / 3);
-  values[1] = pointY + (coefficientY / 3);
+  values[1] = pointY + (yCoefficient / 3);
   values[2] = pointX1 - (coefficientY1 / 3);
-  values[3] = pointY1 - (coefficientY1 / 3);
-  return values;
+  values[3] = pointY1 - (y1Coefficient / 3);
+  controlPoints.add(Offset(values[0]!, values[1]!));
+  controlPoints.add(Offset(values[2]!, values[3]!));
+  return controlPoints;
+}
+
+/// calculate the dateTime intervals for cardinal spline type
+num dateTimeInterval(CartesianSeriesRenderer seriesRenderer) {
+  final DateTimeAxis xAxis =
+      seriesRenderer._xAxisRenderer!._axis as DateTimeAxis;
+  final DateTimeIntervalType _actualIntervalType = xAxis.intervalType;
+  num intervalInMilliseconds;
+  if (_actualIntervalType == DateTimeIntervalType.years) {
+    intervalInMilliseconds = 365 * 24 * 60 * 60 * 1000;
+  } else if (_actualIntervalType == DateTimeIntervalType.months) {
+    intervalInMilliseconds = 30 * 24 * 60 * 60 * 1000;
+  } else if (_actualIntervalType == DateTimeIntervalType.days) {
+    intervalInMilliseconds = 24 * 60 * 60 * 1000;
+  } else if (_actualIntervalType == DateTimeIntervalType.hours) {
+    intervalInMilliseconds = 60 * 60 * 1000;
+  } else if (_actualIntervalType == DateTimeIntervalType.minutes) {
+    intervalInMilliseconds = 60 * 1000;
+  } else if (_actualIntervalType == DateTimeIntervalType.seconds) {
+    intervalInMilliseconds = 1000;
+  } else {
+    intervalInMilliseconds = 30 * 24 * 60 * 60 * 1000;
+  }
+  return intervalInMilliseconds;
 }
 
 /// to trigger Marker event
-MarkerRenderArgs _triggerMarkerRenderEvent(
+MarkerRenderArgs? _triggerMarkerRenderEvent(
     CartesianSeriesRenderer seriesRenderer,
     Size size,
     DataMarkerType markerType,
     int pointIndex,
-    Animation<double> animationController) {
-  MarkerRenderArgs markerargs;
-  final num seriesIndex = seriesRenderer
-      ._chartState._chartSeries.visibleSeriesRenderers
+    Animation<double>? animationController) {
+  MarkerRenderArgs? markerargs;
+  final int seriesIndex = seriesRenderer
+      ._chartState!._chartSeries.visibleSeriesRenderers
       .indexOf(seriesRenderer);
-  final XyDataSeries<dynamic, dynamic> series = seriesRenderer._series;
+  final XyDataSeries<dynamic, dynamic> series =
+      seriesRenderer._series as XyDataSeries;
   final MarkerSettingsRenderer markerSettingsRenderer =
-      seriesRenderer._markerSettingsRenderer;
+      seriesRenderer._markerSettingsRenderer!;
   markerSettingsRenderer._color = series.markerSettings.color;
   if (seriesRenderer._chart.onMarkerRender != null) {
     markerargs = MarkerRenderArgs(pointIndex, seriesIndex,
-        seriesRenderer._visibleDataPoints[pointIndex].overallDataPointIndex);
+        seriesRenderer._visibleDataPoints![pointIndex].overallDataPointIndex!);
     markerargs.markerHeight = size.height;
     markerargs.markerWidth = size.width;
     markerargs.shape = markerType;
     markerargs.color = markerSettingsRenderer._color;
     markerargs.borderColor = markerSettingsRenderer._borderColor;
     markerargs.borderWidth = markerSettingsRenderer._borderWidth;
-    if ((animationController?.value == 1.0 &&
-            animationController?.status == AnimationStatus.completed) ||
-        seriesRenderer._animationController.duration.inMilliseconds == 0) {
-      seriesRenderer._chart.onMarkerRender(markerargs);
+    if (animationController == null ||
+        ((animationController.value == 1.0 &&
+                animationController.status == AnimationStatus.completed) ||
+            seriesRenderer._animationController.duration!.inMilliseconds ==
+                0)) {
+      seriesRenderer._chart.onMarkerRender!(markerargs);
       size = Size(markerargs.markerWidth, markerargs.markerHeight);
       markerType = markerargs.shape;
       markerSettingsRenderer._color = markerargs.color;
@@ -2611,15 +2571,13 @@ MarkerRenderArgs _triggerMarkerRenderEvent(
 }
 
 /// To find Natural ControlPoints
-List<double> _calculateControlPoints(List<num> xValues, List<num> yValues,
-    double yCoef, double nextyCoef, int i) {
-  final List<double> controlPoints = List<double>(4);
-  final double yCoeff1 = yCoef;
-  final double yCoeff2 = nextyCoef;
+List<Offset> _calculateControlPoints(List<num> xValues, List<num?> yValues,
+    double yCoef, double nextyCoef, int i, List<Offset> controlPoints) {
+  final List<double?> values = List<double?>.filled(4, null);
   final double x = xValues[i].toDouble();
-  final double y = yValues[i].toDouble();
+  final double y = yValues[i]!.toDouble();
   final double nextX = xValues[i + 1].toDouble();
-  final double nextY = yValues[i + 1].toDouble();
+  final double nextY = yValues[i + 1]!.toDouble();
   const double oneThird = 1 / 3.0;
   double deltaX2 = nextX - x;
   deltaX2 = deltaX2 * deltaX2;
@@ -2628,34 +2586,31 @@ List<double> _calculateControlPoints(List<num> xValues, List<num> yValues,
   final double dy1 = (2 * y) + nextY;
   final double dy2 = y + (2 * nextY);
   final double y1 =
-      oneThird * (dy1 - (oneThird * deltaX2 * (yCoeff1 + (0.5 * yCoeff2))));
+      oneThird * (dy1 - (oneThird * deltaX2 * (yCoef + (0.5 * nextyCoef))));
   final double y2 =
-      oneThird * (dy2 - (oneThird * deltaX2 * ((0.5 * yCoeff1) + yCoeff2)));
-  final num startControlPointsX = dx1 * oneThird;
-  final num startControlPointsY = y1;
-  final num endControlPointsX = dx2 * oneThird;
-  final num endControlPointsY = y2;
-  controlPoints[0] = startControlPointsX;
-  controlPoints[1] = startControlPointsY;
-  controlPoints[2] = endControlPointsX;
-  controlPoints[3] = endControlPointsY;
+      oneThird * (dy2 - (oneThird * deltaX2 * ((0.5 * yCoef) + nextyCoef)));
+  values[0] = dx1 * oneThird;
+  values[1] = y1;
+  values[2] = dx2 * oneThird;
+  values[3] = y2;
+  controlPoints.add(Offset(values[0]!, values[1]!));
+  controlPoints.add(Offset(values[2]!, values[3]!));
   return controlPoints;
 }
 
 /// To calculate spline area control points
 void _calculateSplineAreaControlPoints(CartesianSeriesRenderer seriesRenderer) {
   final dynamic series = seriesRenderer._series;
-  List<num> yCoef = <num>[];
-  List<num> lowCoef = <num>[];
-  List<num> highCoef = <num>[];
+  List<num?>? yCoef = <num?>[];
+  List<num?>? lowCoef = <num?>[];
+  List<num?>? highCoef = <num?>[];
   final List<num> xValues = <num>[];
   final List<num> yValues = <num>[];
   final List<num> highValues = <num>[];
   final List<num> lowValues = <num>[];
-  SplineType splineType;
-  splineType = series.splineType;
-
-  for (int i = 0; i < seriesRenderer._dataPoints.length; i++) {
+  final SplineType? splineType = series.splineType;
+  int i;
+  for (i = 0; i < seriesRenderer._dataPoints.length; i++) {
     xValues.add(seriesRenderer._dataPoints[i].xValue);
     if (seriesRenderer is SplineAreaSeriesRenderer ||
         seriesRenderer is SplineSeriesRenderer) {
@@ -2667,7 +2622,7 @@ void _calculateSplineAreaControlPoints(CartesianSeriesRenderer seriesRenderer) {
   }
 
   if (xValues.isNotEmpty) {
-    final List<num> dx = List<num>(xValues.length - 1);
+    final List<num?> dx = List<num?>.filled(xValues.length - 1, null);
 
     /// Check the type of spline
     if (splineType == SplineType.monotonic) {
@@ -2708,8 +2663,15 @@ void _calculateSplineAreaControlPoints(CartesianSeriesRenderer seriesRenderer) {
       _updateSplineAreaControlPoints(
           seriesRenderer, splineType, xValues, yValues, yCoef, dx);
     } else {
-      _findSplineRangeAreaControlPoint(seriesRenderer, splineType, xValues,
-          lowValues, highValues, dx, lowCoef, highCoef);
+      _findSplineRangeAreaControlPoint(
+          seriesRenderer as SplineRangeAreaSeriesRenderer,
+          splineType,
+          xValues,
+          lowValues,
+          highValues,
+          dx,
+          lowCoef,
+          highCoef);
     }
   }
 }
@@ -2717,59 +2679,55 @@ void _calculateSplineAreaControlPoints(CartesianSeriesRenderer seriesRenderer) {
 /// To update the dynamic points of the spline area
 void _updateSplineAreaControlPoints(
     dynamic seriesRenderer,
-    SplineType splineType,
+    SplineType? splineType,
     List<num> xValues,
     List<num> yValues,
-    List<num> yCoef,
-    List<num> dx) {
-  for (int pointIndex = 0; pointIndex < xValues.length - 1; pointIndex++) {
-    List<double> controlPoints = <double>[];
-    seriesRenderer._drawPoints = <_ControlPoints>[];
+    List<num?>? yCoef,
+    List<num?>? dx) {
+  double x, y, nextX, nextY;
+  int pointIndex;
+  List<Offset> controlPoints;
+  for (pointIndex = 0; pointIndex < xValues.length - 1; pointIndex++) {
+    controlPoints = <Offset>[];
     if (xValues[pointIndex] != null &&
         yValues[pointIndex] != null &&
         xValues[pointIndex + 1] != null &&
         yValues[pointIndex + 1] != null) {
-      final double x = xValues[pointIndex].toDouble();
-      final double y = yValues[pointIndex].toDouble();
-      final double nextX = xValues[pointIndex + 1].toDouble();
-      final double nextY = yValues[pointIndex + 1].toDouble();
+      x = xValues[pointIndex].toDouble();
+      y = yValues[pointIndex].toDouble();
+      nextX = xValues[pointIndex + 1].toDouble();
+      nextY = yValues[pointIndex + 1].toDouble();
       if (splineType == SplineType.monotonic) {
         controlPoints = _calculateMonotonicControlPoints(
             x,
             y,
             nextX,
             nextY,
-            yCoef[pointIndex].toDouble(),
-            yCoef[pointIndex + 1].toDouble(),
-            dx[pointIndex].toDouble());
-        seriesRenderer._drawPoints
-            .add(_ControlPoints(controlPoints[0], controlPoints[1]));
-        seriesRenderer._drawPoints
-            .add(_ControlPoints(controlPoints[2], controlPoints[3]));
-        seriesRenderer._drawControlPoints
-            .add(_ListControlPoints(seriesRenderer._drawPoints));
+            yCoef![pointIndex]!.toDouble(),
+            yCoef[pointIndex + 1]!.toDouble(),
+            dx![pointIndex]!.toDouble(),
+            controlPoints);
+        seriesRenderer._drawControlPoints.add(controlPoints);
       } else if (splineType == SplineType.cardinal) {
-        controlPoints = _calculateCardinalControlPoints(x, y, nextX, nextY,
-            yCoef[pointIndex].toDouble(), yCoef[pointIndex + 1].toDouble());
-        seriesRenderer._drawPoints
-            .add(_ControlPoints(controlPoints[0], controlPoints[1]));
-        seriesRenderer._drawPoints
-            .add(_ControlPoints(controlPoints[2], controlPoints[3]));
-        seriesRenderer._drawControlPoints
-            .add(_ListControlPoints(seriesRenderer._drawPoints));
+        controlPoints = _calculateCardinalControlPoints(
+            x,
+            y,
+            nextX,
+            nextY,
+            yCoef![pointIndex]!.toDouble(),
+            yCoef[pointIndex + 1]!.toDouble(),
+            seriesRenderer,
+            controlPoints);
+        seriesRenderer._drawControlPoints.add(controlPoints);
       } else {
         controlPoints = _calculateControlPoints(
             xValues,
             yValues,
-            yCoef[pointIndex].toDouble(),
-            yCoef[pointIndex + 1].toDouble(),
-            pointIndex);
-        seriesRenderer._drawPoints
-            .add(_ControlPoints(controlPoints[0], controlPoints[1]));
-        seriesRenderer._drawPoints
-            .add(_ControlPoints(controlPoints[2], controlPoints[3]));
-        seriesRenderer._drawControlPoints
-            .add(_ListControlPoints(seriesRenderer._drawPoints));
+            yCoef![pointIndex]!.toDouble(),
+            yCoef[pointIndex + 1]!.toDouble(),
+            pointIndex,
+            controlPoints);
+        seriesRenderer._drawControlPoints.add(controlPoints);
       }
     }
   }
@@ -2778,143 +2736,97 @@ void _updateSplineAreaControlPoints(
 /// calculate splinerangearea control point
 void _findSplineRangeAreaControlPoint(
     SplineRangeAreaSeriesRenderer seriesRenderer,
-    SplineType splineType,
+    SplineType? splineType,
     List<num> xValues,
     List<num> lowValues,
     List<num> highValues,
-    List<num> dx,
-    List<num> lowCoef,
-    List<num> highCoef) {
-  for (int pointIndex = 0; pointIndex < xValues.length - 1; pointIndex++) {
-    List<double> controlPointslow = <double>[];
-    List<double> controlPointshigh = <double>[];
-    seriesRenderer._drawLowPoints = <_ControlPoints>[];
-    seriesRenderer._drawHighPoints = <_ControlPoints>[];
+    List<num?>? dx,
+    List<num?>? lowCoef,
+    List<num?>? highCoef) {
+  List<Offset> controlPointslow, controlPointshigh;
+  double x, low, high, nextX, nextlow, nexthigh;
+  int pointIndex;
+  for (pointIndex = 0; pointIndex < xValues.length - 1; pointIndex++) {
+    controlPointslow = <Offset>[];
+    controlPointshigh = <Offset>[];
     if (xValues[pointIndex] != null &&
         seriesRenderer._dataPoints[pointIndex].low != null &&
         seriesRenderer._dataPoints[pointIndex].high != null &&
         xValues[pointIndex + 1] != null &&
         seriesRenderer._dataPoints[pointIndex + 1].low != null &&
         seriesRenderer._dataPoints[pointIndex + 1].high != null) {
-      final double x = xValues[pointIndex].toDouble();
-      final double low = seriesRenderer._dataPoints[pointIndex].low.toDouble();
-      final double high =
-          seriesRenderer._dataPoints[pointIndex].high.toDouble();
-      final double nextX = xValues[pointIndex + 1].toDouble();
-      final double nextlow =
-          seriesRenderer._dataPoints[pointIndex + 1].low.toDouble();
-      final double nexthigh =
-          seriesRenderer._dataPoints[pointIndex + 1].high.toDouble();
+      x = xValues[pointIndex].toDouble();
+      low = seriesRenderer._dataPoints[pointIndex].low.toDouble();
+      high = seriesRenderer._dataPoints[pointIndex].high.toDouble();
+      nextX = xValues[pointIndex + 1].toDouble();
+      nextlow = seriesRenderer._dataPoints[pointIndex + 1].low.toDouble();
+      nexthigh = seriesRenderer._dataPoints[pointIndex + 1].high.toDouble();
       if (splineType == SplineType.monotonic) {
         controlPointslow = _calculateMonotonicControlPoints(
             x,
             low,
             nextX,
             nextlow,
-            lowCoef[pointIndex].toDouble(),
-            lowCoef[pointIndex + 1].toDouble(),
-            dx[pointIndex].toDouble());
-        seriesRenderer._drawLowPoints.add(_ControlPoints(
-          controlPointslow[0],
-          controlPointslow[1],
-        ));
-        seriesRenderer._drawLowPoints.add(_ControlPoints(
-          controlPointslow[2],
-          controlPointslow[3],
-        ));
-        seriesRenderer._drawLowControlPoints
-            .add(_ListControlPoints(seriesRenderer._drawLowPoints));
+            lowCoef![pointIndex]!.toDouble(),
+            lowCoef[pointIndex + 1]!.toDouble(),
+            dx![pointIndex]!.toDouble(),
+            controlPointslow);
+        seriesRenderer._drawLowControlPoints.add(controlPointslow);
         controlPointshigh = _calculateMonotonicControlPoints(
             x,
             high,
             nextX,
             nexthigh,
-            highCoef[pointIndex].toDouble(),
-            highCoef[pointIndex + 1].toDouble(),
-            dx[pointIndex].toDouble());
-        seriesRenderer._drawHighPoints.add(_ControlPoints(
-          controlPointshigh[0],
-          controlPointshigh[1],
-        ));
-        seriesRenderer._drawHighPoints.add(_ControlPoints(
-          controlPointshigh[2],
-          controlPointshigh[3],
-        ));
-        seriesRenderer._drawHighControlPoints
-            .add(_ListControlPoints(seriesRenderer._drawHighPoints));
+            highCoef![pointIndex]!.toDouble(),
+            highCoef[pointIndex + 1]!.toDouble(),
+            dx[pointIndex]!.toDouble(),
+            controlPointshigh);
+        seriesRenderer._drawHighControlPoints.add(controlPointshigh);
       } else if (splineType == SplineType.cardinal) {
         controlPointslow = _calculateCardinalControlPoints(
             x,
             low,
             nextX,
             nextlow,
-            lowCoef[pointIndex].toDouble(),
-            lowCoef[pointIndex + 1].toDouble());
-        seriesRenderer._drawLowPoints.add(_ControlPoints(
-          controlPointslow[0],
-          controlPointslow[1],
-        ));
-        seriesRenderer._drawLowPoints.add(_ControlPoints(
-          controlPointslow[2],
-          controlPointslow[3],
-        ));
-        seriesRenderer._drawLowControlPoints
-            .add(_ListControlPoints(seriesRenderer._drawLowPoints));
+            lowCoef![pointIndex]!.toDouble(),
+            lowCoef[pointIndex + 1]!.toDouble(),
+            seriesRenderer,
+            controlPointslow);
+        seriesRenderer._drawLowControlPoints.add(controlPointslow);
         controlPointshigh = _calculateCardinalControlPoints(
             x,
             high,
             nextX,
             nexthigh,
-            highCoef[pointIndex].toDouble(),
-            highCoef[pointIndex + 1].toDouble());
-        seriesRenderer._drawHighPoints.add(_ControlPoints(
-          controlPointshigh[0],
-          controlPointshigh[1],
-        ));
-        seriesRenderer._drawHighPoints.add(_ControlPoints(
-          controlPointshigh[2],
-          controlPointshigh[3],
-        ));
-        seriesRenderer._drawHighControlPoints
-            .add(_ListControlPoints(seriesRenderer._drawHighPoints));
+            highCoef![pointIndex]!.toDouble(),
+            highCoef[pointIndex + 1]!.toDouble(),
+            seriesRenderer,
+            controlPointshigh);
+        seriesRenderer._drawHighControlPoints.add(controlPointshigh);
       } else {
         controlPointslow = _calculateControlPoints(
             xValues,
             lowValues,
-            lowCoef[pointIndex].toDouble(),
-            lowCoef[pointIndex + 1].toDouble(),
-            pointIndex);
-        seriesRenderer._drawLowPoints.add(_ControlPoints(
-          controlPointslow[0],
-          controlPointslow[1],
-        ));
-        seriesRenderer._drawLowPoints.add(_ControlPoints(
-          controlPointslow[2],
-          controlPointslow[3],
-        ));
-        seriesRenderer._drawLowControlPoints
-            .add(_ListControlPoints(seriesRenderer._drawLowPoints));
+            lowCoef![pointIndex]!.toDouble(),
+            lowCoef[pointIndex + 1]!.toDouble(),
+            pointIndex,
+            controlPointslow);
+        seriesRenderer._drawLowControlPoints.add(controlPointslow);
         controlPointshigh = _calculateControlPoints(
             xValues,
             highValues,
-            highCoef[pointIndex].toDouble(),
-            highCoef[pointIndex + 1].toDouble(),
-            pointIndex);
-        seriesRenderer._drawHighPoints
-            .add(_ControlPoints(controlPointshigh[0], controlPointshigh[1]));
-        seriesRenderer._drawHighPoints.add(_ControlPoints(
-          controlPointshigh[2],
-          controlPointshigh[3],
-        ));
-        seriesRenderer._drawHighControlPoints
-            .add(_ListControlPoints(seriesRenderer._drawHighPoints));
+            highCoef![pointIndex]!.toDouble(),
+            highCoef[pointIndex + 1]!.toDouble(),
+            pointIndex,
+            controlPointshigh);
+        seriesRenderer._drawHighControlPoints.add(controlPointshigh);
       }
     }
   }
 }
 
 ///get the old axis (for stock chart animation)
-ChartAxisRenderer _getOldAxisRenderer(ChartAxisRenderer axisRenderer,
+ChartAxisRenderer? _getOldAxisRenderer(ChartAxisRenderer axisRenderer,
     List<ChartAxisRenderer> oldAxisRendererList) {
   for (int i = 0; i < oldAxisRendererList.length; i++) {
     if (oldAxisRendererList[i]._name == axisRenderer._name) {
@@ -2924,17 +2836,9 @@ ChartAxisRenderer _getOldAxisRenderer(ChartAxisRenderer axisRenderer,
   return null;
 }
 
-/// To check if position is inside rect
-bool _isRectContains(Rect rect, Offset pos) {
-  return pos.dx >= rect.left &&
-      pos.dx <= rect.right &&
-      pos.dy >= rect.top &&
-      pos.dy <= rect.bottom;
-}
-
 /// To get chart point
-CartesianChartPoint<dynamic> _getChartPoint(
-    XyDataSeriesRenderer seriesRenderer, dynamic data, int pointIndex) {
+CartesianChartPoint<dynamic>? _getChartPoint(
+    CartesianSeriesRenderer seriesRenderer, dynamic data, int pointIndex) {
   dynamic xVal,
       yVal,
       highVal,
@@ -2949,30 +2853,32 @@ CartesianChartPoint<dynamic> _getChartPoint(
       minVal,
       minimumVal,
       maximumVal;
-  bool isIntermediateSum, isTotalSum;
-  CartesianChartPoint<dynamic> currentPoint;
+  bool? isIntermediateSum, isTotalSum;
+  CartesianChartPoint<dynamic>? currentPoint;
   final dynamic series = seriesRenderer._series;
-  final ChartIndexedValueMapper<dynamic> _xMap = series.xValueMapper;
-  final ChartIndexedValueMapper<dynamic> _yMap = series.yValueMapper;
-  final ChartIndexedValueMapper<num> _highMap = series.highValueMapper;
-  final ChartIndexedValueMapper<num> _lowMap = series.lowValueMapper;
-  final ChartIndexedValueMapper<bool> _isIntermediateSumMap =
+  final ChartIndexedValueMapper<dynamic>? _xMap = series.xValueMapper;
+  final ChartIndexedValueMapper<dynamic>? _yMap = series.yValueMapper;
+  final ChartIndexedValueMapper<num>? _highMap = series.highValueMapper;
+  final ChartIndexedValueMapper<num>? _lowMap = series.lowValueMapper;
+  final ChartIndexedValueMapper<bool>? _isIntermediateSumMap =
       series.intermediateSumPredicate;
-  final ChartIndexedValueMapper<bool> _isTotalSumMap = series.totalSumPredicate;
-  final ChartIndexedValueMapper<dynamic> _sortFieldMap =
+  final ChartIndexedValueMapper<bool>? _isTotalSumMap =
+      series.totalSumPredicate;
+  final ChartIndexedValueMapper<dynamic>? _sortFieldMap =
       series.sortFieldValueMapper;
-  final ChartIndexedValueMapper<Color> _pointColorMap = series.pointColorMapper;
+  final ChartIndexedValueMapper<Color>? _pointColorMap =
+      series.pointColorMapper;
   final dynamic _sizeMap = series.sizeValueMapper;
-  final ChartIndexedValueMapper<String> _pointTextMap = series.dataLabelMapper;
+  final ChartIndexedValueMapper<String>? _pointTextMap = series.dataLabelMapper;
 
   if (seriesRenderer is HistogramSeriesRenderer) {
     minVal = seriesRenderer._histogramValues.minValue;
-    yVal = seriesRenderer._histogramValues.yValues
+    yVal = seriesRenderer._histogramValues.yValues!
         .where((dynamic x) =>
             x >= minVal &&
             x < (minVal + seriesRenderer._histogramValues.binWidth))
         .length;
-    xVal = minVal + seriesRenderer._histogramValues.binWidth / 2;
+    xVal = minVal + seriesRenderer._histogramValues.binWidth! / 2;
     minVal += seriesRenderer._histogramValues.binWidth;
     seriesRenderer._histogramValues.minValue = minVal;
   } else {
@@ -2998,8 +2904,11 @@ CartesianChartPoint<dynamic> _getChartPoint(
           yVal.runtimeType == num ||
               yVal.runtimeType == double ||
               yVal.runtimeType == int ||
+              yVal.runtimeType.toString() == 'List<num?>' ||
               yVal.runtimeType.toString() == 'List<num>' ||
+              yVal.runtimeType.toString() == 'List<double?>' ||
               yVal.runtimeType.toString() == 'List<double>' ||
+              yVal.runtimeType.toString() == 'List<int?>' ||
               yVal.runtimeType.toString() == 'List<int>',
           'The Y value will accept only number or list of numbers.');
     }
@@ -3019,12 +2928,12 @@ CartesianChartPoint<dynamic> _getChartPoint(
 
     if (series is _FinancialSeriesBase) {
       final _FinancialSeriesBase<dynamic, dynamic> financialSeries =
-          seriesRenderer._series;
-      final ChartIndexedValueMapper<num> _openMap =
+          seriesRenderer._series as _FinancialSeriesBase;
+      final ChartIndexedValueMapper<num>? _openMap =
           financialSeries.openValueMapper;
-      final ChartIndexedValueMapper<num> _closeMap =
+      final ChartIndexedValueMapper<num>? _closeMap =
           financialSeries.closeValueMapper;
-      final ChartIndexedValueMapper<num> _volumeMap =
+      final ChartIndexedValueMapper<num>? _volumeMap =
           financialSeries.volumeValueMapper;
 
       if (_openMap != null) {
@@ -3103,7 +3012,7 @@ bool _findChangesInPoint(
     CartesianChartPoint<dynamic> oldPoint,
     CartesianSeriesRenderer seriesRenderer) {
   if (seriesRenderer._series.sortingOrder ==
-      seriesRenderer._oldSeries.sortingOrder) {
+      seriesRenderer._oldSeries?.sortingOrder) {
     if (seriesRenderer is CandleSeriesRenderer ||
         seriesRenderer._seriesType.contains('range') ||
         seriesRenderer._seriesType.contains('hilo')) {
@@ -3148,20 +3057,21 @@ bool _findChangesInPoint(
 /// To calculate range Y on zoom mode X
 _VisibleRange _calculateYRangeOnZoomX(
     _VisibleRange _actualRange, dynamic axisRenderer) {
-  num _mini, _maxi;
+  num? _mini, _maxi;
   final dynamic axis = axisRenderer._axis;
   final List<CartesianSeriesRenderer> _seriesRenderers =
       axisRenderer._seriesRenderers;
-  final num minimum = axis.minimum, maximum = axis.maximum;
+  final num? minimum = axis.minimum, maximum = axis.maximum;
   for (int i = 0;
       i < _seriesRenderers.length && _seriesRenderers.isNotEmpty;
       i++) {
     final dynamic xAxisRenderer = _seriesRenderers[i]._xAxisRenderer;
-    xAxisRenderer._calculateRangeAndInterval(axisRenderer._chartState);
+    xAxisRenderer._calculateRangeAndInterval(
+        axisRenderer._chartState, 'AnchoringRange');
     final _VisibleRange xRange = xAxisRenderer._visibleRange;
     if (_seriesRenderers[i]._yAxisRenderer == axisRenderer &&
         xRange != null &&
-        _seriesRenderers[i]._visible) {
+        _seriesRenderers[i]._visible!) {
       for (int j = 0; j < _seriesRenderers[i]._dataPoints.length; j++) {
         final CartesianChartPoint<dynamic> point =
             _seriesRenderers[i]._dataPoints[j];
@@ -3182,7 +3092,7 @@ _VisibleRange _calculateYRangeOnZoomX(
 }
 
 /// Bool to calculate need for Y range
-bool _needCalculateYrange(num minimum, num maximum,
+bool _needCalculateYrange(num? minimum, num? maximum,
     SfCartesianChartState _chartState, AxisOrientation _orientation) {
   final SfCartesianChart chart = _chartState._chart;
   return (_chartState._zoomedState == true ||
@@ -3197,7 +3107,7 @@ bool _needCalculateYrange(num minimum, num maximum,
 }
 
 //this method returns the axisRenderer for the given axis from given collection, if not found returns null.
-ChartAxisRenderer _findExistingAxisRenderer(
+ChartAxisRenderer? _findExistingAxisRenderer(
     ChartAxis axis, List<ChartAxisRenderer> axisRenderers) {
   for (final ChartAxisRenderer axisRenderer in axisRenderers) {
     if (identical(axis, axisRenderer._axis)) {
@@ -3205,6 +3115,22 @@ ChartAxisRenderer _findExistingAxisRenderer(
     }
   }
   return null;
+}
+
+int _getOldSegmentIndex(ChartSegment segment) {
+  if (segment._oldSeriesRenderer != null) {
+    for (final ChartSegment oldSegment
+        in segment._oldSeriesRenderer!._segments) {
+      if (segment.runtimeType == oldSegment.runtimeType &&
+          (segment._seriesRenderer._xAxisRenderer is CategoryAxisRenderer
+              ? oldSegment._currentPoint!.x == segment._currentPoint!.x
+              : oldSegment._currentPoint!.xValue ==
+                  segment._currentPoint!.xValue)) {
+        return segment._oldSeriesRenderer!._segments.indexOf(oldSegment);
+      }
+    }
+  }
+  return -1;
 }
 
 //this method determines the whether all the series animations has been completed and renders the datalabel
@@ -3216,32 +3142,340 @@ void _setAnimationStatus(dynamic chartState) {
     chartState._animateCompleted = false;
   }
   if (chartState._renderDataLabel != null) {
-    chartState._renderDataLabel.state?.render();
+    if (chartState._renderDataLabel.state.mounted) {
+      chartState._renderDataLabel.state?.render();
+    }
   }
 }
 
-class _ControlPoints {
-  _ControlPoints(this.controlPoint1, this.controlPoint2);
-  final double controlPoint1;
-  final double controlPoint2;
+/// Calculate date time nice interval
+int _calculateDateTimeNiceInterval(
+    ChartAxisRenderer axisRenderer, Size size, _VisibleRange range,
+    [DateTime? startDate, DateTime? endDate]) {
+  final ChartAxis axis = axisRenderer._axis;
+  DateTime? visibleMinimum, visibleMaximum;
+  DateTimeIntervalType? actualIntervalType;
+  if (axis is DateTimeAxis) {
+    visibleMinimum = axis.visibleMinimum;
+    visibleMaximum = axis.visibleMaximum;
+  } else if (axis is DateTimeCategoryAxis) {
+    visibleMinimum = axis.visibleMinimum;
+    visibleMaximum = axis.visibleMaximum;
+  }
+  final bool notDoubleInterval =
+      (visibleMinimum == null || visibleMaximum == null) ||
+          (axis.interval != null && axis.interval! % 1 == 0) ||
+          (axis.interval == null);
+  const int perDay = 24 * 60 * 60 * 1000;
+  startDate ??= DateTime.fromMillisecondsSinceEpoch(range.minimum.toInt());
+  endDate ??= DateTime.fromMillisecondsSinceEpoch(range.maximum.toInt());
+  num? interval;
+  final num totalDays =
+      ((startDate.millisecondsSinceEpoch - endDate.millisecondsSinceEpoch) /
+              perDay)
+          .abs();
+  if (axis is DateTimeAxis) {
+    actualIntervalType = axis.intervalType;
+  } else if (axis is DateTimeCategoryAxis) {
+    actualIntervalType = axis.intervalType;
+  }
+  switch (actualIntervalType) {
+    case DateTimeIntervalType.years:
+      interval = axisRenderer._calculateNumericNiceInterval(
+          axisRenderer, totalDays / 365, size);
+      break;
+    case DateTimeIntervalType.months:
+      interval = axisRenderer._calculateNumericNiceInterval(
+          axisRenderer, totalDays / 30, size);
+      break;
+    case DateTimeIntervalType.days:
+      interval = axisRenderer._calculateNumericNiceInterval(
+          axisRenderer, totalDays, size);
+      break;
+    case DateTimeIntervalType.hours:
+      interval = axisRenderer._calculateNumericNiceInterval(
+          axisRenderer, totalDays * 24, size);
+      break;
+    case DateTimeIntervalType.minutes:
+      interval = axisRenderer._calculateNumericNiceInterval(
+          axisRenderer, totalDays * 24 * 60, size);
+      break;
+    case DateTimeIntervalType.seconds:
+      interval = axisRenderer._calculateNumericNiceInterval(
+          axisRenderer, totalDays * 24 * 60 * 60, size);
+      break;
+    case DateTimeIntervalType.auto:
+
+      /// for years
+      interval = axisRenderer._calculateNumericNiceInterval(
+          axisRenderer, totalDays / 365, size);
+      if (interval >= 1) {
+        _setActualIntervalType(axisRenderer, DateTimeIntervalType.years);
+        return interval.floor();
+      }
+
+      /// for months
+      interval = axisRenderer._calculateNumericNiceInterval(
+          axisRenderer, totalDays / 30, size);
+      if (interval >= 1) {
+        _setActualIntervalType(
+            axisRenderer,
+            notDoubleInterval
+                ? DateTimeIntervalType.months
+                : DateTimeIntervalType.years);
+        return interval.floor();
+      }
+
+      /// for days
+      interval = axisRenderer._calculateNumericNiceInterval(
+          axisRenderer, totalDays, size);
+      if (interval >= 1) {
+        _setActualIntervalType(
+            axisRenderer,
+            notDoubleInterval
+                ? DateTimeIntervalType.days
+                : DateTimeIntervalType.months);
+        return interval.floor();
+      }
+
+      /// for hours
+      interval = axisRenderer._calculateNumericNiceInterval(
+          axisRenderer, totalDays * 24, size);
+      if (interval >= 1) {
+        _setActualIntervalType(
+            axisRenderer,
+            notDoubleInterval
+                ? DateTimeIntervalType.hours
+                : DateTimeIntervalType.days);
+        return interval.floor();
+      }
+
+      /// for minutes
+      interval = axisRenderer._calculateNumericNiceInterval(
+          axisRenderer, totalDays * 24 * 60, size);
+      if (interval >= 1) {
+        _setActualIntervalType(
+            axisRenderer,
+            notDoubleInterval
+                ? DateTimeIntervalType.minutes
+                : DateTimeIntervalType.hours);
+        return interval.floor();
+      }
+
+      /// for seconds
+      interval = axisRenderer._calculateNumericNiceInterval(
+          axisRenderer, totalDays * 24 * 60 * 60, size);
+      _setActualIntervalType(
+          axisRenderer,
+          notDoubleInterval
+              ? DateTimeIntervalType.seconds
+              : DateTimeIntervalType.minutes);
+      return interval.floor();
+    default:
+      break;
+  }
+  _setActualIntervalType(axisRenderer, actualIntervalType!);
+  return interval! < 1 ? interval.ceil() : interval.floor();
 }
 
-class _ListControlPoints {
-  _ListControlPoints(this._listControlPoints);
-  final List<_ControlPoints> _listControlPoints;
+void _setActualIntervalType(
+    ChartAxisRenderer axisRenderer, DateTimeIntervalType intervalType) {
+  if (axisRenderer is DateTimeAxisRenderer) {
+    axisRenderer._actualIntervalType = intervalType;
+  } else if (axisRenderer is DateTimeCategoryAxisRenderer) {
+    axisRenderer._actualIntervalType = intervalType;
+  }
+}
+
+/// To get the label format of the date-time axis
+DateFormat _getDateTimeLabelFormat(ChartAxisRenderer axisRenderer) {
+  DateFormat? format;
+  final bool notDoubleInterval = (axisRenderer._axis.interval != null &&
+          axisRenderer._axis.interval! % 1 == 0) ||
+      axisRenderer._axis.interval == null;
+  DateTimeIntervalType? actualIntervalType;
+  if (axisRenderer is DateTimeAxisRenderer) {
+    actualIntervalType = axisRenderer._actualIntervalType;
+  } else if (axisRenderer is DateTimeCategoryAxisRenderer) {
+    actualIntervalType = axisRenderer._actualIntervalType;
+  }
+  switch (actualIntervalType) {
+    case DateTimeIntervalType.years:
+      format = notDoubleInterval ? DateFormat.yMMM() : DateFormat.MMMd();
+      break;
+    case DateTimeIntervalType.months:
+      format = notDoubleInterval ? DateFormat.MMMd() : DateFormat.MMMd();
+      break;
+    case DateTimeIntervalType.days:
+      format = notDoubleInterval ? DateFormat.MMMd() : DateFormat.Hm();
+      break;
+    case DateTimeIntervalType.hours:
+      format = notDoubleInterval ? DateFormat.Hm() : DateFormat.ms();
+      break;
+    case DateTimeIntervalType.minutes:
+      format = notDoubleInterval ? DateFormat.ms() : DateFormat.ms();
+      break;
+    case DateTimeIntervalType.seconds:
+      format = notDoubleInterval ? DateFormat.ms() : DateFormat.ms();
+      break;
+    case DateTimeIntervalType.auto:
+      break;
+    default:
+      break;
+  }
+  return format!;
+}
+
+void _setCategoryMinMaxValues(
+    ChartAxisRenderer axisRenderer,
+    bool isXVisibleRange,
+    bool isYVisibleRange,
+    CartesianChartPoint point,
+    int pointIndex,
+    int dataLength,
+    CartesianSeriesRenderer seriesRenderer) {
+  final String seriesType = seriesRenderer._seriesType;
+  final bool anchorRangeToVisiblePoints =
+      seriesRenderer._yAxisRenderer!._axis.anchorRangeToVisiblePoints;
+  if (isYVisibleRange) {
+    seriesRenderer._minimumX ??= point.xValue;
+    seriesRenderer._maximumX ??= point.xValue;
+  }
+  if ((isXVisibleRange || !anchorRangeToVisiblePoints) &&
+      !seriesType.contains('range') &&
+      !seriesType.contains('hilo') &&
+      !seriesType.contains('candle') &&
+      seriesType != 'boxandwhisker' &&
+      seriesType != 'waterfall') {
+    seriesRenderer._minimumY ??= point.yValue;
+    seriesRenderer._maximumY ??= point.yValue;
+  }
+  if (isYVisibleRange && point.xValue != null) {
+    seriesRenderer._minimumX =
+        math.min(seriesRenderer._minimumX!, point.xValue);
+    seriesRenderer._maximumX =
+        math.max(seriesRenderer._maximumX!, point.xValue);
+  }
+  if (isXVisibleRange || !anchorRangeToVisiblePoints) {
+    if (point.yValue != null &&
+        (!seriesType.contains('range') &&
+            !seriesType.contains('hilo') &&
+            !seriesType.contains('candle') &&
+            seriesType != 'boxandwhisker' &&
+            seriesType != 'waterfall')) {
+      seriesRenderer._minimumY =
+          math.min(seriesRenderer._minimumY!, point.yValue);
+      seriesRenderer._maximumY =
+          math.max(seriesRenderer._maximumY!, point.yValue);
+    }
+    if (point.high != null) {
+      axisRenderer._highMin =
+          _findMinValue(axisRenderer._highMin ?? point.high, point.high);
+      axisRenderer._highMax =
+          _findMaxValue(axisRenderer._highMax ?? point.high, point.high);
+    }
+    if (point.low != null) {
+      axisRenderer._lowMin =
+          _findMinValue(axisRenderer._lowMin ?? point.low, point.low);
+      axisRenderer._lowMax =
+          _findMaxValue(axisRenderer._lowMax ?? point.low, point.low);
+    }
+    if (point.maximum != null) {
+      axisRenderer._highMin = _findMinValue(
+          axisRenderer._highMin ?? point.maximum!, point.maximum!);
+      axisRenderer._highMax = _findMaxValue(
+          axisRenderer._highMax ?? point.minimum!, point.maximum!);
+    }
+    if (point.minimum != null) {
+      axisRenderer._lowMin =
+          _findMinValue(axisRenderer._lowMin ?? point.minimum!, point.minimum!);
+      axisRenderer._lowMax =
+          _findMaxValue(axisRenderer._lowMax ?? point.minimum!, point.minimum!);
+    }
+    if (seriesType == 'waterfall') {
+      /// Empty point is not applicable for Waterfall series.
+      point.yValue ??= 0;
+      seriesRenderer._minimumY =
+          _findMinValue(seriesRenderer._minimumY ?? point.yValue, point.yValue);
+      seriesRenderer._maximumY = _findMaxValue(
+          seriesRenderer._maximumY ?? point.maxYValue, point.maxYValue);
+    }
+  }
+
+  if (pointIndex >= dataLength - 1) {
+    if (seriesType.contains('range') ||
+        seriesType.contains('hilo') ||
+        seriesType.contains('candle') ||
+        seriesType == 'boxandwhisker') {
+      axisRenderer._lowMin ??= 0;
+      axisRenderer._lowMax ??= 5;
+      axisRenderer._highMin ??= 0;
+      axisRenderer._highMax ??= 5;
+      seriesRenderer._minimumY =
+          math.min(axisRenderer._lowMin!, axisRenderer._highMin!);
+      seriesRenderer._maximumY =
+          math.max(axisRenderer._lowMax!, axisRenderer._highMax!);
+    }
+    seriesRenderer._minimumY ??= 0;
+    seriesRenderer._maximumY ??= 5;
+  }
+}
+
+void _calculateDateTimeVisibleRange(
+    Size availableSize, ChartAxisRenderer axisRenderer) {
+  final _VisibleRange actualRange = axisRenderer._actualRange!;
+  final SfCartesianChartState chartState = axisRenderer._chartState;
+  axisRenderer._visibleRange =
+      _VisibleRange(actualRange.minimum, actualRange.maximum);
+  final _VisibleRange visibleRange = axisRenderer._visibleRange!;
+  visibleRange.delta = actualRange.delta;
+  visibleRange.interval = actualRange.interval;
+  bool canAutoScroll = false;
+  if (axisRenderer._axis.autoScrollingDelta != null &&
+      axisRenderer._axis.autoScrollingDelta! > 0 &&
+      !chartState._isRedrawByZoomPan) {
+    canAutoScroll = true;
+    if (axisRenderer is DateTimeAxisRenderer) {
+      axisRenderer._updateScrollingDelta();
+    } else {
+      axisRenderer._updateAutoScrollingDelta(
+          axisRenderer._axis.autoScrollingDelta!, axisRenderer);
+    }
+  }
+  if (!canAutoScroll) {
+    axisRenderer._setZoomFactorAndPosition(
+        axisRenderer, chartState._zoomedAxisRendererStates);
+  }
+  if (axisRenderer._zoomFactor < 1 || axisRenderer._zoomPosition > 0) {
+    chartState._zoomProgress = true;
+    axisRenderer._calculateZoomRange(axisRenderer, availableSize);
+    visibleRange.interval = axisRenderer._axis.enableAutoIntervalOnZooming &&
+            chartState._zoomProgress &&
+            axisRenderer is DateTimeAxisRenderer
+        ? axisRenderer.calculateInterval(visibleRange, availableSize)
+        : visibleRange.interval;
+    if (axisRenderer is DateTimeAxisRenderer) {
+      visibleRange.minimum = (visibleRange.minimum).floor();
+      visibleRange.maximum = (visibleRange.maximum).floor();
+    }
+    if (axisRenderer._axis.rangeController != null) {
+      chartState._rangeChangedByChart = true;
+      axisRenderer._setRangeControllerValues(axisRenderer);
+    }
+  }
 }
 
 // This method used to return the cross value of the axis.
-num _getCrossesAtValue(
+num? _getCrossesAtValue(
     CartesianSeriesRenderer seriesRenderer, SfCartesianChartState chart) {
-  num crossesAt;
-  final num seriesIndex =
+  num? crossesAt;
+  final int seriesIndex =
       chart._chartSeries.visibleSeriesRenderers.indexOf(seriesRenderer);
   final List<ChartAxisRenderer> axisCollection = chart._requireInvertedAxis
       ? chart._chartAxis._verticalAxisRenderers
       : chart._chartAxis._horizontalAxisRenderers;
   for (int i = 0; i < axisCollection.length; i++) {
-    if (chart._chartSeries.visibleSeriesRenderers[seriesIndex]._xAxisRenderer
+    if (chart._chartSeries.visibleSeriesRenderers[seriesIndex]._xAxisRenderer!
             ._name ==
         axisCollection[i]._name) {
       crossesAt = axisCollection[i]._crossValue;
@@ -3251,21 +3485,21 @@ num _getCrossesAtValue(
   return crossesAt;
 }
 
-List<Offset> _getTooltipPaddingData(CartesianSeriesRenderer seriesRenderer,
-    bool isTrendLine, Rect region, Rect paddedRegion, Offset tooltipPosition) {
-  Offset padding, position;
+List<Offset?> _getTooltipPaddingData(CartesianSeriesRenderer seriesRenderer,
+    bool isTrendLine, Rect region, Rect paddedRegion, Offset? tooltipPosition) {
+  Offset? padding, position;
   if (seriesRenderer._seriesType == 'bubble' && !isTrendLine) {
     padding = Offset(region.center.dx - region.centerLeft.dx,
         2 * (region.center.dy - region.topCenter.dy));
-    position = Offset(tooltipPosition.dx, paddedRegion.top);
+    position = Offset(tooltipPosition!.dx, paddedRegion.top);
   } else if (seriesRenderer._seriesType == 'scatter') {
     padding = Offset(seriesRenderer._series.markerSettings.width,
         seriesRenderer._series.markerSettings.height / 2);
-    position = Offset(tooltipPosition.dx, tooltipPosition.dy);
+    position = Offset(tooltipPosition!.dx, tooltipPosition.dy);
   } else if (seriesRenderer._seriesType.contains('rangearea')) {
     padding = Offset(seriesRenderer._series.markerSettings.width,
         seriesRenderer._series.markerSettings.height / 2);
-    position = Offset(tooltipPosition.dx, tooltipPosition.dy);
+    position = Offset(tooltipPosition!.dx, tooltipPosition.dy);
   } else {
     padding = (seriesRenderer._series.markerSettings.isVisible)
         ? Offset(
@@ -3274,18 +3508,18 @@ List<Offset> _getTooltipPaddingData(CartesianSeriesRenderer seriesRenderer,
                 seriesRenderer._series.markerSettings.borderWidth / 2)
         : const Offset(2, 2);
   }
-  return <Offset>[padding, position ?? tooltipPosition];
+  return <Offset?>[padding, position ?? tooltipPosition];
 }
 
 //Returns the old series renderer instance for the given series renderer
-CartesianSeriesRenderer _getOldSeriesRenderer(
+CartesianSeriesRenderer? _getOldSeriesRenderer(
     SfCartesianChartState chartState,
     CartesianSeriesRenderer seriesRenderer,
     int seriesIndex,
     List<CartesianSeriesRenderer> oldSeriesRenderers) {
   if (chartState._widgetNeedUpdate &&
-      seriesRenderer._xAxisRenderer._zoomFactor == 1 &&
-      seriesRenderer._yAxisRenderer._zoomFactor == 1 &&
+      seriesRenderer._xAxisRenderer!._zoomFactor == 1 &&
+      seriesRenderer._yAxisRenderer!._zoomFactor == 1 &&
       oldSeriesRenderers != null &&
       oldSeriesRenderers.isNotEmpty &&
       oldSeriesRenderers.length - 1 >= seriesIndex &&
@@ -3298,13 +3532,13 @@ CartesianSeriesRenderer _getOldSeriesRenderer(
 }
 
 //Returns the old chart point for the given point and series index if present.
-CartesianChartPoint _getOldChartPoint(
+CartesianChartPoint? _getOldChartPoint(
     SfCartesianChartState chartState,
     CartesianSeriesRenderer seriesRenderer,
     Type segmentType,
     int seriesIndex,
     int pointIndex,
-    CartesianSeriesRenderer oldSeriesRenderer,
+    CartesianSeriesRenderer? oldSeriesRenderer,
     List<CartesianSeriesRenderer> oldSeriesRenderers) {
   return !seriesRenderer._reAnimate &&
           (seriesRenderer._series.animationDuration > 0 &&
@@ -3325,14 +3559,14 @@ CartesianChartPoint _getOldChartPoint(
 String _trimAxisLabelsText(String text, num labelsExtent, TextStyle labelStyle,
     ChartAxisRenderer axisRenderer) {
   String label = text;
-  num size = _measureText(
+  num size = measureText(
           text, axisRenderer._axis.labelStyle, axisRenderer._labelRotation)
       .width;
   if (size > labelsExtent) {
     final int textLength = text.length;
     for (int i = textLength - 1; i >= 0; --i) {
       label = text.substring(0, i) + '...';
-      size = _measureText(label, labelStyle, axisRenderer._labelRotation).width;
+      size = measureText(label, labelStyle, axisRenderer._labelRotation).width;
       if (size <= labelsExtent) {
         return label == '...' ? '' : label;
       }
@@ -3357,4 +3591,38 @@ bool _shouldShowAxisTooltip(SfCartesianChartState chartState) {
     }
   }
   return requireAxisTooltip;
+}
+
+int? _getVisibleDataPointIndex(
+    int? pointIndex, CartesianSeriesRenderer seriesRender) {
+  int? index;
+  if (pointIndex != null) {
+    if (pointIndex < seriesRender._dataPoints[0].overallDataPointIndex! ||
+        pointIndex >
+            seriesRender._dataPoints[seriesRender._dataPoints.length - 1]
+                .overallDataPointIndex!) {
+      index = null;
+    } else if (pointIndex > seriesRender._dataPoints.length - 1) {
+      for (int i = 0; i < seriesRender._dataPoints.length; i++) {
+        if (pointIndex == seriesRender._dataPoints[i].overallDataPointIndex) {
+          index = seriesRender._dataPoints[i].visiblePointIndex;
+        }
+      }
+    } else {
+      index = seriesRender._dataPoints[pointIndex].visiblePointIndex;
+    }
+  }
+  return index;
+}
+
+bool _checkSeriesType(String seriesType) {
+  bool isLineSeriesType = false;
+  if (seriesType == 'line' ||
+      seriesType == 'spline' ||
+      seriesType == 'stepline' ||
+      seriesType == 'stackedline' ||
+      seriesType == 'stackedline100') {
+    isLineSeriesType = true;
+  }
+  return isLineSeriesType;
 }

@@ -3,146 +3,20 @@ library maps;
 import 'package:flutter/foundation.dart' show DiagnosticableTree;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
 import 'src/layer/layer_base.dart';
 import 'src/layer/shape_layer.dart';
 
 export 'src/behavior/zoom_pan_behavior.dart'
-    hide Gesture, BehaviorViewRenderObjectWidget;
+    hide BehaviorViewRenderObjectWidget;
 export 'src/controller/shape_layer_controller.dart';
-export 'src/elements/legend.dart' hide MapLayerLegend;
-export 'src/elements/marker.dart'
-    hide ShapeLayerMarkerContainer, RenderMapMarker;
-export 'src/enum.dart' hide MapLayerElement;
-export 'src/layer/layer_base.dart'
-    hide SublayerContainer, RenderSublayerContainer;
-export 'src/layer/shape_layer.dart'
-    hide
-        MapProvider,
-        RenderShapeLayer,
-        AssetMapProvider,
-        MemoryMapProvider,
-        NetworkMapProvider;
-export 'src/layer/tile_layer.dart' hide MapZoomLevel;
+export 'src/elements/legend.dart' hide MapLegendWidget;
+export 'src/elements/marker.dart' hide MarkerContainer;
+export 'src/enum.dart';
+export 'src/layer/layer_base.dart';
+export 'src/layer/shape_layer.dart';
+export 'src/layer/tile_layer.dart';
 export 'src/layer/vector_layers.dart' hide MapVectorLayer;
 export 'src/settings.dart';
-
-/// Title for the [SfMaps].
-///
-/// [MapTitle] can define and customize the title for the [SfMaps]. The text
-/// property of the [MapTitle] is used to set the text of the title.
-//
-/// It also provides option for customizing text style, alignment, decoration,
-/// background color, margin and padding.
-///
-/// ```dart
-///  @override
-///  Widget build(BuildContext context) {
-///    return SfMaps(
-///      title: MapTitle(
-///        text : 'World map'
-///      ),
-///    );
-///  }
-/// ```
-class MapTitle extends DiagnosticableTree {
-  /// Creates a [MapTitle].
-  const MapTitle(
-    this.text, {
-    this.textStyle,
-    this.alignment,
-    this.decoration,
-    this.color,
-    this.margin,
-    this.padding,
-  });
-
-  /// Specifies the text to be displayed as map title.
-  ///
-  /// See also:
-  /// * [textStyle], to customize the text.
-  /// * [alignment], to align the title.
-  final String text;
-
-  /// Customizes the style of the [text].
-  ///
-  /// See also:
-  /// * [text], to set the text for the title.
-  final TextStyle textStyle;
-
-  /// Specifies the position of the title.
-  ///
-  /// Defaults to `center`.
-  ///
-  /// See also:
-  /// * [text], to set the text for the title.
-  final AlignmentGeometry alignment;
-
-  /// Customizes the appearance of the title.
-  ///
-  /// See also:
-  /// * [Decoration], to set the decoration for the title.
-  /// * [text], to set the text for the title.
-  final Decoration decoration;
-
-  /// Specifies the background color of the title.
-  ///
-  /// See also:
-  /// * [text], to set the text for the title.
-  final Color color;
-
-  /// Customizes the margin of the title.
-  ///
-  /// See also:
-  /// * [EdgeInsetsGeometry], to use the EdgeInsets values.
-  /// * [text], to set the text for the title.
-  final EdgeInsetsGeometry margin;
-
-  /// Customize the space around the title [text].
-  ///
-  /// See also:
-  /// * [EdgeInsetsGeometry], to use the EdgeInsets values.
-  /// * [text], to set the text for the title.
-  final EdgeInsetsGeometry padding;
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) {
-      return true;
-    }
-    if (other.runtimeType != runtimeType) {
-      return false;
-    }
-
-    return other is MapTitle &&
-        other.text == text &&
-        other.textStyle == textStyle &&
-        other.alignment == alignment &&
-        other.decoration == decoration &&
-        other.color == color &&
-        other.margin == margin &&
-        other.padding == padding;
-  }
-
-  @override
-  int get hashCode => hashValues(
-      text, textStyle, alignment, decoration, color, margin, padding);
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties.add(StringProperty('text', text));
-    if (textStyle != null) {
-      properties.add(textStyle.toDiagnosticsNode(name: 'textStyle'));
-    }
-    properties
-        .add(DiagnosticsProperty<AlignmentGeometry>('alignment', alignment));
-    properties.add(DiagnosticsProperty<Decoration>('decoration', decoration));
-    properties.add(DiagnosticsProperty<Color>('color', color));
-    properties.add(DiagnosticsProperty<EdgeInsetsGeometry>('margin', margin));
-    properties.add(DiagnosticsProperty<EdgeInsetsGeometry>('padding', padding));
-  }
-}
 
 /// A data visualization component that displays statistical information for a
 /// geographical area.
@@ -282,30 +156,9 @@ class MapTitle extends DiagnosticableTree {
 class SfMaps extends StatefulWidget {
   /// Creates a [SfMaps].
   const SfMaps({
-    Key key,
-    this.title,
-    this.layers,
+    Key? key,
+    required this.layers,
   }) : super(key: key);
-
-  /// Title for the [SfMaps].
-  ///
-  /// It can define and customize the title for the [SfMaps]. The text
-  /// property of the [MapTitle] is used to set the text of the title.
-  ///
-  /// It also provides option for customizing text style, alignment, decoration,
-  /// background color, margin and padding of the title.
-  ///
-  /// ```dart
-  ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      title: MapTitle(
-  ///        text : 'World map'
-  ///      ),
-  ///    );
-  ///  }
-  /// ```
-  final MapTitle title;
 
   /// The collection of map shape layer in which geographical rendering is done.
   ///
@@ -338,15 +191,9 @@ class SfMaps extends StatefulWidget {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    if (title != null) {
-      properties.add(
-        title.toDiagnosticsNode(name: 'title'),
-      );
-    }
-
-    if (layers != null && layers.isNotEmpty) {
-      final _DebugPointerTree pointerTreeNode = _DebugPointerTree(layers);
-      properties.add(pointerTreeNode.toDiagnosticsNode(name: 'layers'));
+    if (layers.isNotEmpty) {
+      final _DebugLayerTree pointerTreeNode = _DebugLayerTree(layers);
+      properties.add(pointerTreeNode.toDiagnosticsNode());
     }
   }
 }
@@ -354,55 +201,18 @@ class SfMaps extends StatefulWidget {
 class _SfMapsState extends State<SfMaps> {
   @override
   Widget build(BuildContext context) {
-    assert(widget.layers != null && widget.layers.isNotEmpty);
+    assert(widget.layers.isNotEmpty);
     return _MapsRenderObjectWidget(
-      child: widget.title != null && widget.title.text != null
-          ? Column(
-              children: <Widget>[
-                _title(context),
-                Expanded(
-                  child: LayoutBuilder(builder:
-                      (BuildContext context, BoxConstraints constraints) {
-                    return Stack(
-                      alignment: Alignment.center,
-                      children: <Widget>[widget.layers.last],
-                    );
-                  }),
-                ),
-              ],
-            )
-          : Stack(
-              alignment: Alignment.center,
-              children: <Widget>[widget.layers.last],
-            ),
-    );
-  }
-
-  /// Returns the title of the [SfMaps].
-  Widget _title(BuildContext context) {
-    final SfMapsThemeData themeData = SfMapsTheme.of(context);
-    return Align(
-      alignment: widget.title.alignment ?? Alignment.center,
-      child: Container(
-        child: Text(
-          widget.title.text,
-          style: Theme.of(context)
-              .textTheme
-              .subtitle1
-              .merge(widget.title.textStyle ?? themeData.titleTextStyle),
-        ),
-        color: widget.title.color,
-        decoration: widget.title.decoration,
-        margin: widget.title.margin,
-        padding:
-            widget.title.padding ?? const EdgeInsets.symmetric(vertical: 8),
+      child: Stack(
+        alignment: Alignment.center,
+        children: <Widget>[widget.layers.last],
       ),
     );
   }
 }
 
 class _MapsRenderObjectWidget extends SingleChildRenderObjectWidget {
-  const _MapsRenderObjectWidget({Key key, Widget child})
+  const _MapsRenderObjectWidget({Key? key, required Widget child})
       : super(key: key, child: child);
 
   @override
@@ -418,21 +228,23 @@ class _RenderMaps extends RenderProxyBox {
         constraints.hasBoundedWidth ? constraints.maxWidth : 300;
     final double height =
         constraints.hasBoundedHeight ? constraints.maxHeight : 300;
-    child.layout(BoxConstraints.loose(Size(width, height)),
-        parentUsesSize: true);
-    size = child.size;
+    if (child != null) {
+      child!.layout(BoxConstraints.loose(Size(width, height)),
+          parentUsesSize: true);
+      size = child!.size;
+    }
   }
 }
 
-class _DebugPointerTree extends DiagnosticableTree {
-  _DebugPointerTree(this._layer);
+class _DebugLayerTree extends DiagnosticableTree {
+  _DebugLayerTree(this.layers);
 
-  final List<MapLayer> _layer;
+  final List<MapLayer> layers;
 
   @override
   List<DiagnosticsNode> debugDescribeChildren() {
-    if (_layer != null && _layer.isNotEmpty) {
-      return _layer.map<DiagnosticsNode>((MapLayer layer) {
+    if (layers.isNotEmpty) {
+      return layers.map<DiagnosticsNode>((MapLayer layer) {
         return layer.toDiagnosticsNode();
       }).toList();
     }
@@ -441,6 +253,8 @@ class _DebugPointerTree extends DiagnosticableTree {
 
   @override
   String toStringShort() {
-    return 'contains ${_layer.length} layers';
+    return layers.length > 1
+        ? 'contains ${layers.length} layers'
+        : 'contains ${layers.length} layer';
   }
 }

@@ -4,20 +4,28 @@ part of xlsio;
 class Picture {
   /// Create an instances of Picture class.
   Picture(List<int> imageData) {
-    img.Image image;
+    img.Image? image;
     if (isPng(imageData)) {
       image = img.decodePng(imageData);
-    } else if (isJpeg(imageData)) image = img.decodeJpg(imageData);
+    } else if (isJpeg(imageData)) {
+      image = img.decodeJpg(imageData);
+    }
     _imageData = imageData;
-    height = image.height;
-    width = image.width;
+    if (image != null) {
+      height = image.height;
+      width = image.width;
+    }
   }
 
-  static const List<int> _jpegSignature = <int>[255, 216];
-  static const List<int> _pngSignature = <int>[137, 80, 78, 71, 13, 10, 26, 10];
+  static const List<int> _jpegSignature = [255, 216];
+  static const List<int> _pngSignature = [137, 80, 78, 71, 13, 10, 26, 10];
 
   /// Gets/Sets the image data.
-  List<int> _imageData;
+  List<int>? _imageData;
+
+  // ignore: prefer_final_fields
+  bool _isHyperlink = false;
+  Hyperlink? _link;
 
   /// Gets/Sets the image row.
   ///
@@ -31,7 +39,7 @@ class Picture {
   /// File('Picutes.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
-  int row;
+  int row = 0;
 
   /// Gets/Sets the image column.
   ///
@@ -45,7 +53,7 @@ class Picture {
   /// File('Picutes.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
-  int column;
+  int column = 0;
 
   /// Gets/Sets the image last row.
   ///
@@ -59,7 +67,7 @@ class Picture {
   /// File('Picutes.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
-  int lastRow;
+  int lastRow = 0;
 
   /// Gets/Sets the image last column.
   ///
@@ -73,7 +81,7 @@ class Picture {
   /// File('Picutes.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
-  int lastColumn;
+  int lastColumn = 0;
 
   /// Gets/Sets the image width.
   ///
@@ -87,7 +95,7 @@ class Picture {
   /// File('Picutes.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
-  int width;
+  int width = 0;
 
   /// Gets/Sets the image height.
   ///
@@ -101,7 +109,7 @@ class Picture {
   /// File('Picutes.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
-  int height;
+  int height = 0;
 
   /// Gets/Sets the image horizontal flip.
   ///
@@ -146,23 +154,19 @@ class Picture {
   int rotation = 0;
 
   /// Gets/Sets the image last row offset.
-  double lastRowOffset;
+  late double lastRowOffset;
 
   /// Gets/Sets the image last column offset.
-  double lastColOffset;
+  late double lastColOffset;
 
   /// Gets/Sets the image String.
-  List<int> get imageData {
+  List<int>? get imageData {
     return _imageData;
   }
 
-  // ignore: prefer_final_fields
-  bool _isHyperlink = false;
-  Hyperlink _link;
-
   /// Check whether the picture is png.
-  static bool isPng(List<int> imageData) {
-    if (imageData.length >= _pngSignature.length) {
+  static bool isPng(List<int>? imageData) {
+    if (imageData != null && imageData.length >= _pngSignature.length) {
       for (int i = 0; i < _pngSignature.length; i++) {
         if (_pngSignature[i] != imageData[i]) {
           return false;
@@ -175,8 +179,8 @@ class Picture {
   }
 
   /// Check whether the picture is jpeg.
-  static bool isJpeg(List<int> imageData) {
-    if (imageData.length >= _jpegSignature.length) {
+  static bool isJpeg(List<int>? imageData) {
+    if (imageData != null && imageData.length >= _jpegSignature.length) {
       for (int i = 0; i < _jpegSignature.length; i++) {
         if (_jpegSignature[i] != imageData[i]) {
           return false;

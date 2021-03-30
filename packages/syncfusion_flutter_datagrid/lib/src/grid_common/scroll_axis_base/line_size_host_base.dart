@@ -35,28 +35,28 @@ typedef _LineSizeChangedCallback = void Function(
 /// size of line.
 abstract class _LineSizeHostBase {
   /// Occurs when the default line size changed.
-  _DefaultLineSizeChangedCallback onDefaultLineSizeChanged;
+  _DefaultLineSizeChangedCallback? onDefaultLineSizeChanged;
 
   /// Occurs when the footer line count was changed.
-  _LineCountChangedCallback onFooterLineCountChanged;
+  _LineCountChangedCallback? onFooterLineCountChanged;
 
   /// Occurs when the header line count was changed.
-  _LineCountChangedCallback onHeaderLineCountChanged;
+  _LineCountChangedCallback? onHeaderLineCountChanged;
 
   /// Occurs when a lines size was changed.
-  _LineSizeChangedCallback onLineSizeChanged;
+  _LineSizeChangedCallback? onLineSizeChanged;
 
   /// Occurs when a lines hidden state changed.
-  _LineHiddenChangedCallback onLineHiddenChanged;
+  _LineHiddenChangedCallback? onLineHiddenChanged;
 
   /// Occurs when the line count was changed.
-  _LineCountChangedCallback onLineCountChanged;
+  _LineCountChangedCallback? onLineCountChanged;
 
   /// Occurs when lines were inserted.
-  _LinesInsertedCallback onLinesInserted;
+  _LinesInsertedCallback? onLinesInserted;
 
   /// Occurs when lines were removed.
-  _LinesRemovedCallback onLinesRemoved;
+  _LinesRemovedCallback? onLinesRemoved;
 
   /// Returns the default line size..
   double getDefaultLineSize();
@@ -106,7 +106,7 @@ mixin _DistancesHostBase {
   /// Gets the distances of the lines.
   ///
   /// Returns the distances of the lines.
-  _DistanceCounterCollectionBase get distances;
+  _DistanceCounterCollectionBase? get distances;
 }
 
 /// An object that implements the `GetDistances` method.
@@ -118,5 +118,5 @@ abstract class _NestedDistancesHostBase {
   ///
   /// Returns the nested distances, if a line contains a nested lines
   /// collection, otherwise null.
-  _DistanceCounterCollectionBase getDistances(int line);
+  _DistanceCounterCollectionBase? getDistances(int line);
 }

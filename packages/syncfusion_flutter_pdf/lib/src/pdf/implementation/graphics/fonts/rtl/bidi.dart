@@ -8,14 +8,14 @@ class _Bidi {
   }
 
   // Fields.
-  List<int> indexes;
-  List<int> indexLevels;
+  late List<int> indexes;
+  late List<int> indexLevels;
   Map<int, int> mirroringShapeCharacters = <int, int>{};
 
   // Implementations.
   String getLogicalToVisualString(String inputText, bool isRTL) {
-    indexLevels = List<int>(inputText.length);
-    indexes = List<int>(inputText.length);
+    indexLevels = List<int>.filled(inputText.length, 0, growable: true);
+    indexes = List<int>.filled(inputText.length, 0, growable: true);
     final _RTLCharacters rtlCharacters = _RTLCharacters();
     indexLevels = rtlCharacters.getVisualOrder(inputText, isRTL);
     setDefaultIndexLevel();
@@ -35,7 +35,7 @@ class _Bidi {
       if (((indexLevels[i] & 1) == 1) &&
           mirroringShapeCharacters.containsKey(text[i].codeUnitAt(0))) {
         result.write(String.fromCharCode(
-            mirroringShapeCharacters[text[i].codeUnitAt(0)]));
+            mirroringShapeCharacters[text[i].codeUnitAt(0)]!));
       } else {
         result.write(text[i]);
       }
@@ -445,17 +445,18 @@ class _RTLCharacters {
 
   // Constants and Fields
   // Specifies the character types.
-  List<int> types; //sbyte
+  late List<int> types; //sbyte
   // Specifies the text order (RTL or LTR).
   int textOrder = -1; //sbyte
   // Specifies the text length.
-  int length;
+  int? length;
   // Specifies the resultant types.
-  List<int> result; //sbyte
+  late List<int> result; //sbyte
   // Specifies the resultant levels.
-  List<int> levels; //sbyte
+  late List<int> levels; //sbyte
   // Specifies the RTL character types.
-  List<int> rtlCharacterTypes = List<int>(65536); //sbyte
+  List<int> rtlCharacterTypes =
+      List<int>.filled(65536, 0, growable: true); //sbyte
 
   // Left-to-Right (Non-European or non-Arabic digits).
   static const int l = 0;
@@ -2234,7 +2235,8 @@ class _RTLCharacters {
     types = getCharacterCode(inputText);
     textOrder = isRTL ? lre : l;
     doVisualOrder();
-    final List<int> result = List<int>(this.result.length);
+    final List<int> result =
+        List<int>.filled(this.result.length, 0, growable: true);
     for (int i = 0; i < levels.length; i++) {
       result[i] = levels[i].toUnsigned(8);
     }
@@ -2242,7 +2244,8 @@ class _RTLCharacters {
   }
 
   List<int> getCharacterCode(String text) {
-    final List<int> characterCodes = List<int>(text.length);
+    final List<int> characterCodes =
+        List<int>.filled(text.length, 0, growable: true);
     for (int i = 0; i < text.length; i++) {
       characterCodes[i] = rtlCharacterTypes[text[i].codeUnitAt(0)];
     }
@@ -2253,32 +2256,32 @@ class _RTLCharacters {
     length = types.length;
     //ignore:prefer_spread_collections
     result = <int>[]..addAll(types);
-    levels = List<int>(length);
+    levels = List<int>.filled(length!, 0, growable: true);
     setLevels();
     length = getEmbeddedCharactersLength();
     int preview = textOrder;
     int i = 0;
-    while (i < length) {
+    while (i < length!) {
       final int level = levels[i];
       final int preType =
           ((<int>[preview, level].reduce(max) & 0x1) == 0) ? l : r;
       int lengths = i + 1;
-      while (lengths < length && levels[lengths] == level) {
+      while (lengths < length! && levels[lengths] == level) {
         ++lengths;
       }
-      final int success = lengths < length ? levels[lengths] : textOrder;
+      final int success = lengths < length! ? levels[lengths] : textOrder;
       final int type = ((<int>[success, level].reduce(max) & 0x1) == 0) ? l : r;
-      checkNSM(i, length, level, preType, type);
+      checkNSM(i, length!, level, preType, type);
       updateLevels(i, level, length);
       preview = level;
-      i = length;
+      i = length!;
     }
     checkEmbeddedCharacters(length);
   }
 
-  void updateLevels(int index, int level, int length) {
+  void updateLevels(int index, int level, int? length) {
     if ((level & 1) == 0) {
-      for (int i = index; i < length; ++i) {
+      for (int i = index; i < length!; ++i) {
         if (result[i] == r) {
           levels[i] += 1;
         } else if (result[i] != l) {
@@ -2286,7 +2289,7 @@ class _RTLCharacters {
         }
       }
     } else {
-      for (int i = index; i < length; ++i) {
+      for (int i = index; i < length!; ++i) {
         if (result[i] != r) {
           levels[i] += 1;
         }
@@ -2296,7 +2299,7 @@ class _RTLCharacters {
 
   void setLevels() {
     setDefaultLevels();
-    for (int n = 0; n < length; ++n) {
+    for (int n = 0; n < length!; ++n) {
       int level = levels[n].toUnsigned(8);
       if ((level & 0x80) != 0) {
         level &= 0x7f;
@@ -2307,14 +2310,14 @@ class _RTLCharacters {
   }
 
   void setDefaultLevels() {
-    for (int i = 0; i < length; i++) {
+    for (int i = 0; i < length!; i++) {
       levels[i] = textOrder;
     }
   }
 
   int getEmbeddedCharactersLength() {
     int index = 0;
-    for (int i = 0; i < length; ++i) {
+    for (int i = 0; i < length!; ++i) {
       if (!(types[i] == lre ||
           types[i] == rle ||
           types[i] == lro ||
@@ -2329,7 +2332,7 @@ class _RTLCharacters {
     return index;
   }
 
-  void checkEmbeddedCharacters(int length) {
+  void checkEmbeddedCharacters(int? length) {
     for (int i = types.length - 1; i >= 0; --i) {
       if (types[i] == lre ||
           types[i] == rle ||
@@ -2340,7 +2343,7 @@ class _RTLCharacters {
         result[i] = types[i];
         levels[i] = -1;
       } else {
-        length -= 1;
+        length = length! - 1;
         result[i] = result[length];
         levels[i] = levels[length];
       }

@@ -3,15 +3,15 @@ part of xlsio;
 /// Represents Worksheet Hyperlink collection.
 class HyperlinkCollection {
   /// Create a instances of Hyperlink collection.
-  HyperlinkCollection([Worksheet worksheet]) {
+  HyperlinkCollection(Worksheet worksheet) {
     _worksheet = worksheet;
     _hyperlink = [];
   }
 
   /// Represent the parent worksheet.
-  Worksheet _worksheet;
+  late Worksheet _worksheet;
 
-  List<Hyperlink> _hyperlink;
+  late List<Hyperlink> _hyperlink;
 
   /// Gets the inner list.
   List<Hyperlink> get innerList {
@@ -27,8 +27,24 @@ class HyperlinkCollection {
   }
 
   /// Add hyperlink to the hyperlink collection.
+  /// ```dart
+  /// final Workbook workbook = Workbook();
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// final Range range = sheet.getRangeByName('A1');
+  ///
+  /// // Add hyperlink to sheet.
+  /// final Hyperlink link = sheet.hyperlinks
+  ///     .add(range, HyperlinkType.url, 'http://www.syncfusion.com');
+  /// link.screenTip = 'Click Here to know about Syncfusion';
+  /// link.textToDisplay = 'Syncfusion';
+  ///
+  /// //Save and dispose.
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Hyperlinks.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
   Hyperlink add(Range range, HyperlinkType linkType, String address,
-      [String screenTip, String textToDisplay]) {
+      [String? screenTip, String? textToDisplay]) {
     final Hyperlink hyperlink = Hyperlink(_worksheet);
     hyperlink._bHyperlinkStyle = range.builtInStyle = BuiltInStyles.hyperlink;
     hyperlink._row = range.row;
@@ -43,9 +59,24 @@ class HyperlinkCollection {
   }
 
   /// Add Image hyperlink to the hyperlink collection.
+  /// ```dart
+  /// final Workbook workbook = Workbook(1);
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// // Add picture to sheet.
+  /// final Picture picture1 = sheet.pictures.addBase64(1, 1, image14png);
+  ///
+  /// // Add image hyperlink to sheet.
+  /// Hyperlink link = sheet.hyperlinks.addImage(picture1, HyperlinkType.url,
+  ///     'mailto:Username@syncfusion.com');
+  /// link.screenTip = 'Mail to User';
+  ///
+  /// //Save and dispose.
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('HyperlinksImage.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
   Hyperlink addImage(Picture picture, HyperlinkType linkType, String address,
-      [String screenTip]) {
-    if (picture == null) throw Exception('Picture');
+      [String? screenTip]) {
     final Hyperlink hyperlink = Hyperlink(_worksheet);
     hyperlink.type = linkType;
     hyperlink.address = address;
@@ -59,9 +90,7 @@ class HyperlinkCollection {
 
   /// Add hyperlink to the hyperlinks collection.
   void addHyperlink(Hyperlink hyperlink) {
-    if (hyperlink != null) {
-      innerList.add(hyperlink);
-      hyperlink._rId = count;
-    }
+    innerList.add(hyperlink);
+    hyperlink._rId = count;
   }
 }

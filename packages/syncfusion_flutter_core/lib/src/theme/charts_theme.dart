@@ -29,7 +29,7 @@ import '../../theme.dart';
 ///
 class SfChartTheme extends InheritedTheme {
   /// Creating an argument constructor of SfChartTheme class.
-  const SfChartTheme({Key key, this.data, this.child})
+  const SfChartTheme({Key? key, required this.data, required this.child})
       : super(key: key, child: child);
 
   /// Specifies the color and typography values for descendant chart widgets.
@@ -74,7 +74,7 @@ class SfChartTheme extends InheritedTheme {
   /// in the given build context.
   ///
   static SfChartThemeData of(BuildContext context) {
-    final SfChartTheme sfChartTheme =
+    final SfChartTheme? sfChartTheme =
         context.dependOnInheritedWidgetOfExactType<SfChartTheme>();
     return sfChartTheme?.data ?? SfTheme.of(context).chartThemeData;
   }
@@ -84,7 +84,7 @@ class SfChartTheme extends InheritedTheme {
 
   @override
   Widget wrap(BuildContext context, Widget child) {
-    final SfChartTheme ancestorTheme =
+    final SfChartTheme? ancestorTheme =
         context.findAncestorWidgetOfExactType<SfChartTheme>();
     return identical(this, ancestorTheme)
         ? child
@@ -120,32 +120,32 @@ class SfChartTheme extends InheritedTheme {
 class SfChartThemeData with Diagnosticable {
   /// Creating an argument constructor of SfChartThemeData class.
   factory SfChartThemeData(
-      {Brightness brightness,
-      Color backgroundColor,
-      Color axisLabelColor,
-      Color axisTitleColor,
-      Color axisLineColor,
-      Color majorGridLineColor,
-      Color minorGridLineColor,
-      Color majorTickLineColor,
-      Color minorTickLineColor,
-      Color titleTextColor,
-      Color titleBackgroundColor,
-      Color legendTextColor,
-      Color legendTitleColor,
-      Color legendBackgroundColor,
-      Color plotAreaBackgroundColor,
-      Color plotAreaBorderColor,
-      Color crosshairLineColor,
-      Color crosshairBackgroundColor,
-      Color crosshairLabelColor,
-      Color tooltipColor,
-      Color tooltipLabelColor,
-      Color tooltipSeparatorColor,
-      Color selectionRectColor,
-      Color selectionRectBorderColor,
-      Color selectionTooltipConnectorLineColor,
-      Color waterfallConnectorLineColor}) {
+      {Brightness? brightness,
+      Color? backgroundColor,
+      Color? axisLabelColor,
+      Color? axisTitleColor,
+      Color? axisLineColor,
+      Color? majorGridLineColor,
+      Color? minorGridLineColor,
+      Color? majorTickLineColor,
+      Color? minorTickLineColor,
+      Color? titleTextColor,
+      Color? titleBackgroundColor,
+      Color? legendTextColor,
+      Color? legendTitleColor,
+      Color? legendBackgroundColor,
+      Color? plotAreaBackgroundColor,
+      Color? plotAreaBorderColor,
+      Color? crosshairLineColor,
+      Color? crosshairBackgroundColor,
+      Color? crosshairLabelColor,
+      Color? tooltipColor,
+      Color? tooltipLabelColor,
+      Color? tooltipSeparatorColor,
+      Color? selectionRectColor,
+      Color? selectionRectBorderColor,
+      Color? selectionTooltipConnectorLineColor,
+      Color? waterfallConnectorLineColor}) {
     brightness = brightness ?? Brightness.light;
     final bool isLight = brightness == Brightness.light;
     backgroundColor ??= Colors.transparent;
@@ -255,32 +255,32 @@ class SfChartThemeData with Diagnosticable {
   /// [SfChartThemeData] constructor.
   ///
   const SfChartThemeData.raw(
-      {@required this.brightness,
-      @required this.axisLabelColor,
-      @required this.axisLineColor,
-      @required this.axisTitleColor,
-      @required this.backgroundColor,
-      @required this.titleTextColor,
-      @required this.crosshairBackgroundColor,
-      @required this.crosshairLabelColor,
-      @required this.crosshairLineColor,
-      @required this.legendBackgroundColor,
-      @required this.legendTextColor,
-      @required this.legendTitleColor,
-      @required this.majorGridLineColor,
-      @required this.majorTickLineColor,
-      @required this.minorGridLineColor,
-      @required this.minorTickLineColor,
-      @required this.plotAreaBackgroundColor,
-      @required this.plotAreaBorderColor,
-      @required this.selectionRectColor,
-      @required this.selectionRectBorderColor,
-      @required this.selectionTooltipConnectorLineColor,
-      @required this.titleBackgroundColor,
-      @required this.tooltipColor,
-      @required this.tooltipSeparatorColor,
-      @required this.tooltipLabelColor,
-      @required this.waterfallConnectorLineColor});
+      {required this.brightness,
+      required this.axisLabelColor,
+      required this.axisLineColor,
+      required this.axisTitleColor,
+      required this.backgroundColor,
+      required this.titleTextColor,
+      required this.crosshairBackgroundColor,
+      required this.crosshairLabelColor,
+      required this.crosshairLineColor,
+      required this.legendBackgroundColor,
+      required this.legendTextColor,
+      required this.legendTitleColor,
+      required this.majorGridLineColor,
+      required this.majorTickLineColor,
+      required this.minorGridLineColor,
+      required this.minorTickLineColor,
+      required this.plotAreaBackgroundColor,
+      required this.plotAreaBorderColor,
+      required this.selectionRectColor,
+      required this.selectionRectBorderColor,
+      required this.selectionTooltipConnectorLineColor,
+      required this.titleBackgroundColor,
+      required this.tooltipColor,
+      required this.tooltipSeparatorColor,
+      required this.tooltipLabelColor,
+      required this.waterfallConnectorLineColor});
 
   /// The brightness of the overall theme of the
   /// application for the chart widgets.
@@ -975,32 +975,32 @@ class SfChartThemeData with Diagnosticable {
   /// Creates a copy of this chart theme data object with the matching fields
   /// replaced with the non-null parameter values.
   SfChartThemeData copyWith(
-      {Brightness brightness,
-      Color axisLabelColor,
-      Color axisLineColor,
-      Color axisTitleColor,
-      Color backgroundColor,
-      Color titleTextColor,
-      Color crosshairBackgroundColor,
-      Color crosshairLabelColor,
-      Color crosshairLineColor,
-      Color legendBackgroundColor,
-      Color legendTextColor,
-      Color legendTitleColor,
-      Color majorGridLineColor,
-      Color majorTickLineColor,
-      Color minorGridLineColor,
-      Color minorTickLineColor,
-      Color plotAreaBackgroundColor,
-      Color plotAreaBorderColor,
-      Color selectionRectColor,
-      Color selectionRectBorderColor,
-      Color selectionTooltipConnectorLineColor,
-      Color titleBackgroundColor,
-      Color tooltipColor,
-      Color tooltipSeparatorColor,
-      Color tooltipLabelColor,
-      Color waterfallConnectorLineColor}) {
+      {Brightness? brightness,
+      Color? axisLabelColor,
+      Color? axisLineColor,
+      Color? axisTitleColor,
+      Color? backgroundColor,
+      Color? titleTextColor,
+      Color? crosshairBackgroundColor,
+      Color? crosshairLabelColor,
+      Color? crosshairLineColor,
+      Color? legendBackgroundColor,
+      Color? legendTextColor,
+      Color? legendTitleColor,
+      Color? majorGridLineColor,
+      Color? majorTickLineColor,
+      Color? minorGridLineColor,
+      Color? minorTickLineColor,
+      Color? plotAreaBackgroundColor,
+      Color? plotAreaBorderColor,
+      Color? selectionRectColor,
+      Color? selectionRectBorderColor,
+      Color? selectionTooltipConnectorLineColor,
+      Color? titleBackgroundColor,
+      Color? tooltipColor,
+      Color? tooltipSeparatorColor,
+      Color? tooltipLabelColor,
+      Color? waterfallConnectorLineColor}) {
     return SfChartThemeData.raw(
         brightness: brightness ?? this.brightness,
         axisLabelColor: axisLabelColor ?? this.axisLabelColor,
@@ -1040,14 +1040,13 @@ class SfChartThemeData with Diagnosticable {
   }
 
   /// Linearly interpolate between two themes.
-  static SfChartThemeData lerp(
-      SfChartThemeData a, SfChartThemeData b, double t) {
-    assert(t != null);
+  static SfChartThemeData? lerp(
+      SfChartThemeData? a, SfChartThemeData? b, double t) {
     if (a == null && b == null) {
       return null;
     }
     return SfChartThemeData(
-      axisLabelColor: Color.lerp(a.axisLabelColor, b.axisLabelColor, t),
+      axisLabelColor: Color.lerp(a!.axisLabelColor, b!.axisLabelColor, t),
       axisLineColor: Color.lerp(a.axisLineColor, b.axisLineColor, t),
       axisTitleColor: Color.lerp(a.axisTitleColor, b.axisTitleColor, t),
       backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
@@ -1102,33 +1101,34 @@ class SfChartThemeData with Diagnosticable {
     if (other.runtimeType != runtimeType) {
       return false;
     }
-    final SfChartThemeData typedOther = other;
-    return typedOther.axisLabelColor == axisLabelColor &&
-        typedOther.axisLineColor == axisLineColor &&
-        typedOther.axisTitleColor == axisTitleColor &&
-        typedOther.backgroundColor == backgroundColor &&
-        typedOther.titleTextColor == titleTextColor &&
-        typedOther.crosshairBackgroundColor == crosshairBackgroundColor &&
-        typedOther.crosshairLabelColor == crosshairLabelColor &&
-        typedOther.crosshairLineColor == crosshairLineColor &&
-        typedOther.legendBackgroundColor == legendBackgroundColor &&
-        typedOther.legendTextColor == legendTextColor &&
-        typedOther.legendTitleColor == legendTitleColor &&
-        typedOther.majorGridLineColor == majorGridLineColor &&
-        typedOther.majorTickLineColor == majorTickLineColor &&
-        typedOther.minorGridLineColor == minorGridLineColor &&
-        typedOther.minorTickLineColor == minorTickLineColor &&
-        typedOther.plotAreaBackgroundColor == plotAreaBackgroundColor &&
-        typedOther.plotAreaBorderColor == plotAreaBorderColor &&
-        typedOther.selectionRectColor == selectionRectColor &&
-        typedOther.selectionRectBorderColor == selectionRectBorderColor &&
-        typedOther.selectionTooltipConnectorLineColor ==
+
+    return other is SfChartThemeData &&
+        other.axisLabelColor == axisLabelColor &&
+        other.axisLineColor == axisLineColor &&
+        other.axisTitleColor == axisTitleColor &&
+        other.backgroundColor == backgroundColor &&
+        other.titleTextColor == titleTextColor &&
+        other.crosshairBackgroundColor == crosshairBackgroundColor &&
+        other.crosshairLabelColor == crosshairLabelColor &&
+        other.crosshairLineColor == crosshairLineColor &&
+        other.legendBackgroundColor == legendBackgroundColor &&
+        other.legendTextColor == legendTextColor &&
+        other.legendTitleColor == legendTitleColor &&
+        other.majorGridLineColor == majorGridLineColor &&
+        other.majorTickLineColor == majorTickLineColor &&
+        other.minorGridLineColor == minorGridLineColor &&
+        other.minorTickLineColor == minorTickLineColor &&
+        other.plotAreaBackgroundColor == plotAreaBackgroundColor &&
+        other.plotAreaBorderColor == plotAreaBorderColor &&
+        other.selectionRectColor == selectionRectColor &&
+        other.selectionRectBorderColor == selectionRectBorderColor &&
+        other.selectionTooltipConnectorLineColor ==
             selectionTooltipConnectorLineColor &&
-        typedOther.titleBackgroundColor == titleBackgroundColor &&
-        typedOther.tooltipColor == tooltipColor &&
-        typedOther.tooltipSeparatorColor == tooltipSeparatorColor &&
-        typedOther.tooltipLabelColor == tooltipLabelColor &&
-        typedOther.waterfallConnectorLineColor == waterfallConnectorLineColor;
+        other.titleBackgroundColor == titleBackgroundColor &&
+        other.tooltipColor == tooltipColor &&
+        other.tooltipSeparatorColor == tooltipSeparatorColor &&
+        other.tooltipLabelColor == tooltipLabelColor &&
+        other.waterfallConnectorLineColor == waterfallConnectorLineColor;
   }
 
   @override

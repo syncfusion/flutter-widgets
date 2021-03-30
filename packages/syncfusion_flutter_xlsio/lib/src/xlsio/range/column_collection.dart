@@ -9,10 +9,10 @@ class ColumnCollection {
   }
 
   /// Parent worksheet.
-  Worksheet _worksheet;
+  late Worksheet _worksheet;
 
   /// Inner list.
-  List<Column> _innerList;
+  late List<Column> _innerList;
 
   /// Represents parent worksheet.
   Worksheet get worksheet {
@@ -36,31 +36,30 @@ class ColumnCollection {
   Column add() {
     final Column column = Column(_worksheet);
     innerList.add(column);
+    column.index = innerList.length;
     return column;
   }
 
   /// Add row to the rows collection.
   void addColumn(Column column) {
-    if (column != null) {
-      bool inserted = false;
-      int count = 0;
-      final List<Column> columns = [];
-      columns.addAll(innerList);
-      for (final Column c in columns) {
-        if (c.index == column.index) {
-          innerList[count] = column;
-          inserted = true;
-        }
-        count++;
+    bool inserted = false;
+    int count = 0;
+    final List<Column> columns = [];
+    columns.addAll(innerList);
+    for (final Column c in columns) {
+      if (c.index == column.index) {
+        innerList[count] = column;
+        inserted = true;
       }
-      if (!inserted) {
-        innerList.add(column);
-      }
+      count++;
+    }
+    if (!inserted) {
+      innerList.add(column);
     }
   }
 
   /// Get a column from columns collection based on row index.
-  Column getColumn(int colIndex) {
+  Column? getColumn(int colIndex) {
     for (final Column col in innerList) {
       if (col.index == colIndex) {
         return col;
@@ -81,8 +80,6 @@ class ColumnCollection {
 
   /// clear the column.
   void _clear() {
-    if (_innerList != null) {
-      _innerList.clear();
-    }
+    _innerList.clear();
   }
 }

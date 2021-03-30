@@ -10,48 +10,37 @@ part of charts;
 class StochasticIndicator<T, D> extends TechnicalIndicators<T, D> {
   /// Creating an argument constructor of StochasticIndicator class.
   StochasticIndicator(
-      {bool isVisible,
-      String xAxisName,
-      String yAxisName,
-      String seriesName,
-      List<double> dashArray,
-      double animationDuration,
-      List<T> dataSource,
-      ChartValueMapper<T, D> xValueMapper,
-      ChartValueMapper<T, num> highValueMapper,
-      ChartValueMapper<T, num> lowValueMapper,
-      ChartValueMapper<T, num> openValueMapper,
-      ChartValueMapper<T, num> closeValueMapper,
-      String name,
-      bool isVisibleInLegend,
-      LegendIconType legendIconType,
-      String legendItemText,
-      Color signalLineColor,
-      double signalLineWidth,
-      int period,
-      bool showZones,
-      double overbought,
-      double oversold,
-      final Color upperLineColor,
-      final double upperLineWidth,
-      final Color lowerLineColor,
-      final double lowerLineWidth,
-      final Color periodLineColor,
-      final double periodLineWidth,
-      num kPeriod,
-      num dPeriod})
-      : showZones = showZones ?? true,
-        overbought = overbought ?? 80,
-        oversold = oversold ?? 20,
-        kPeriod = kPeriod ?? 3,
-        dPeriod = dPeriod ?? 5,
-        upperLineColor = upperLineColor ?? Colors.red,
-        upperLineWidth = upperLineWidth ?? 2,
-        lowerLineColor = lowerLineColor ?? Colors.green,
-        lowerLineWidth = lowerLineWidth ?? 2,
-        periodLineColor = periodLineColor ?? Colors.yellow,
-        periodLineWidth = periodLineWidth ?? 2,
-        super(
+      {bool? isVisible,
+      String? xAxisName,
+      String? yAxisName,
+      String? seriesName,
+      List<double>? dashArray,
+      double? animationDuration,
+      List<T>? dataSource,
+      ChartValueMapper<T, D>? xValueMapper,
+      ChartValueMapper<T, num>? highValueMapper,
+      ChartValueMapper<T, num>? lowValueMapper,
+      ChartValueMapper<T, num>? openValueMapper,
+      ChartValueMapper<T, num>? closeValueMapper,
+      String? name,
+      bool? isVisibleInLegend,
+      LegendIconType? legendIconType,
+      String? legendItemText,
+      Color? signalLineColor,
+      double? signalLineWidth,
+      int? period,
+      this.showZones = true,
+      this.overbought = 80,
+      this.oversold = 20,
+      this.upperLineColor = Colors.red,
+      this.upperLineWidth = 2,
+      this.lowerLineColor = Colors.green,
+      this.lowerLineWidth = 2,
+      this.periodLineColor = Colors.yellow,
+      this.periodLineWidth = 2,
+      this.kPeriod = 3,
+      this.dPeriod = 5})
+      : super(
             isVisible: isVisible,
             xAxisName: xAxisName,
             yAxisName: yAxisName,
@@ -265,17 +254,23 @@ class StochasticIndicator<T, D> extends TechnicalIndicators<T, D> {
       StochasticIndicator<dynamic, dynamic> indicator,
       SfCartesianChart chart,
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
+    // Decides the type of renderer class to be used
+    final bool isLine = true;
     technicalIndicatorsRenderer._targetSeriesRenderers =
         <CartesianSeriesRenderer>[];
-    technicalIndicatorsRenderer._setSeriesProperties(indicator, 'Stocastic',
-        indicator.signalLineColor, indicator.signalLineWidth, chart);
+    technicalIndicatorsRenderer._setSeriesProperties(
+        indicator,
+        indicator.name ?? 'Stocastic',
+        indicator.signalLineColor,
+        indicator.signalLineWidth,
+        chart);
     technicalIndicatorsRenderer._setSeriesProperties(indicator, 'PeriodLine',
-        indicator.periodLineColor, indicator.periodLineWidth, chart);
+        indicator.periodLineColor, indicator.periodLineWidth, chart, isLine);
     if (showZones) {
       technicalIndicatorsRenderer._setSeriesProperties(indicator, 'UpperLine',
-          indicator.upperLineColor, indicator.upperLineWidth, chart);
+          indicator.upperLineColor, indicator.upperLineWidth, chart, isLine);
       technicalIndicatorsRenderer._setSeriesProperties(indicator, 'LowerLine',
-          indicator.lowerLineColor, indicator.lowerLineWidth, chart);
+          indicator.lowerLineColor, indicator.lowerLineWidth, chart, isLine);
     }
   }
 
@@ -294,9 +289,9 @@ class StochasticIndicator<T, D> extends TechnicalIndicators<T, D> {
     List<CartesianChartPoint<dynamic>> periodCollection =
         <CartesianChartPoint<dynamic>>[];
     final List<CartesianChartPoint<dynamic>> validData =
-        technicalIndicatorsRenderer._dataPoints;
+        technicalIndicatorsRenderer._dataPoints!;
     final List<dynamic> xValues = <dynamic>[];
-    List<dynamic> collection, signalX, periodX;
+    late List<dynamic> collection, signalX, periodX;
     if (validData.isNotEmpty &&
         validData.length >= indicator.period &&
         indicator.period > 0) {
@@ -319,21 +314,21 @@ class StochasticIndicator<T, D> extends TechnicalIndicators<T, D> {
       }
       source = _calculatePeriod(
           indicator.period,
-          indicator.kPeriod,
+          indicator.kPeriod.toInt(),
           validData,
           technicalIndicatorsRenderer._targetSeriesRenderers[1],
           technicalIndicatorsRenderer);
       collection = _stochasticCalculation(
           indicator.period,
-          indicator.kPeriod,
+          indicator.kPeriod.toInt(),
           source,
           technicalIndicatorsRenderer._targetSeriesRenderers[1],
           technicalIndicatorsRenderer);
       periodCollection = collection[0];
       periodX = collection[1];
       collection = _stochasticCalculation(
-          indicator.period + indicator.kPeriod - 1,
-          indicator.dPeriod,
+          (indicator.period + indicator.kPeriod - 1).toInt(),
+          indicator.dPeriod.toInt(),
           source,
           technicalIndicatorsRenderer._targetSeriesRenderers[0],
           technicalIndicatorsRenderer);
@@ -355,8 +350,8 @@ class StochasticIndicator<T, D> extends TechnicalIndicators<T, D> {
 
   /// To calculate the values of the stochastic indicator
   List<dynamic> _stochasticCalculation(
-      num period,
-      num kPeriod,
+      int period,
+      int kPeriod,
       List<CartesianChartPoint<dynamic>> data,
       CartesianSeriesRenderer sourceSeriesRenderer,
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
@@ -364,7 +359,7 @@ class StochasticIndicator<T, D> extends TechnicalIndicators<T, D> {
         <CartesianChartPoint<dynamic>>[];
     final List<dynamic> xValues = <dynamic>[];
     if (data.length >= period + kPeriod && kPeriod > 0) {
-      final num count = period + (kPeriod - 1);
+      final int count = period + (kPeriod - 1);
       final List<num> temp = <num>[];
       final List<num> values = <num>[];
       for (int i = 0; i < data.length; i++) {
@@ -383,7 +378,7 @@ class StochasticIndicator<T, D> extends TechnicalIndicators<T, D> {
         temp.removeRange(0, 1);
         length = temp.length;
       }
-      final num len = count - 1;
+      final int len = count - 1;
       for (int i = 0; i < data.length; i++) {
         if (!(i < len)) {
           pointCollection.add(technicalIndicatorsRenderer._getDataPoint(
@@ -403,14 +398,15 @@ class StochasticIndicator<T, D> extends TechnicalIndicators<T, D> {
 
   /// To return list of stochastic indicator points
   List<CartesianChartPoint<dynamic>> _calculatePeriod(
-      num period,
-      num kPeriod,
+      int period,
+      int kPeriod,
       List<CartesianChartPoint<dynamic>> data,
       CartesianSeriesRenderer seriesRenderer,
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
-    final List<num> lowValue = List<num>(data.length);
-    final List<num> highValue = List<num>(data.length);
-    final List<num> closeValue = List<num>(data.length);
+    // This has been null before
+    final List<num> lowValue = List<num>.filled(data.length, -1);
+    final List<num> highValue = List<num>.filled(data.length, -1);
+    final List<num> closeValue = List<num>.filled(data.length, -1);
     final List<CartesianChartPoint<dynamic>> modifiedSource =
         <CartesianChartPoint<dynamic>>[];
 
@@ -428,7 +424,7 @@ class StochasticIndicator<T, D> extends TechnicalIndicators<T, D> {
         modifiedSource.add(technicalIndicatorsRenderer._getDataPoint(data[i].x,
             data[i].close, data[i], seriesRenderer, modifiedSource.length));
       }
-      num min, max;
+      num? min, max;
       for (int i = period - 1; i < data.length; ++i) {
         for (int j = 0; j < period; ++j) {
           min ??= lowValue[i - j];
@@ -436,8 +432,8 @@ class StochasticIndicator<T, D> extends TechnicalIndicators<T, D> {
           min = math.min(min, lowValue[i - j]);
           max = math.max(max, highValue[i - j]);
         }
-        maxs.add(max);
-        mins.add(min);
+        maxs.add(max!);
+        mins.add(min!);
         min = null;
         max = null;
       }

@@ -6,3 +6,4 @@ analyzer:
     lines_longer_than_80_chars: ignore
     avoid_as: ignore
     uri_does_not_exist: ignore
+    invalid_dependency: ignore

@@ -32,20 +32,21 @@ const double _kPdfCloseIconRightPosition = 16.0;
 /// A material design bookmark toolbar.
 class BookmarkToolbar extends StatefulWidget {
   /// Creates a material design bookmark toolbar.
-  BookmarkToolbar({this.onCloseButtonPressed});
+  BookmarkToolbar(this.onCloseButtonPressed);
 
   /// A tap with a close button is occurred.
   ///
   /// This triggers when close button in bookmark toolbar is tapped.
   final GestureTapCallback onCloseButtonPressed;
+
   @override
   State<StatefulWidget> createState() => _BookmarkToolbarState();
 }
 
 /// State for [BookmarkToolbar]
 class _BookmarkToolbarState extends State<BookmarkToolbar> {
-  SfPdfViewerThemeData _pdfViewerThemeData;
-  SfLocalizations _localizations;
+  SfPdfViewerThemeData? _pdfViewerThemeData;
+  SfLocalizations? _localizations;
 
   @override
   void didChangeDependencies() {
@@ -67,7 +68,7 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
       height: _kPdfHeaderBarHeight,
       margin: EdgeInsets.only(bottom: 3),
       decoration: BoxDecoration(
-        color: _pdfViewerThemeData.bookmarkViewStyle.headerBarColor,
+        color: _pdfViewerThemeData!.bookmarkViewStyle.headerBarColor,
         boxShadow: [
           BoxShadow(
             color: Color.fromRGBO(0, 0, 0, 0.14),
@@ -93,8 +94,8 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
             left: _kPdfHeaderTextLeftPosition,
             height: _kPdfHeaderTextHeight,
             child: Text(
-              _localizations.pdfBookmarksLabel,
-              style: _pdfViewerThemeData.bookmarkViewStyle.headerTextStyle,
+              _localizations!.pdfBookmarksLabel,
+              style: _pdfViewerThemeData!.bookmarkViewStyle.headerTextStyle,
             ),
           ),
           Positioned(
@@ -103,14 +104,14 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
             height: _kPdfCloseIconHeight,
             width: _kPdfCloseIconWidth,
             child: RawMaterialButton(
-              child: Icon(
-                Icons.close,
-                size: _kPdfCloseIconSize,
-                color: _pdfViewerThemeData.bookmarkViewStyle.closeIconColor,
-              ),
               onPressed: () {
                 widget.onCloseButtonPressed();
               },
+              child: Icon(
+                Icons.close,
+                size: _kPdfCloseIconSize,
+                color: _pdfViewerThemeData!.bookmarkViewStyle.closeIconColor,
+              ),
             ),
           ),
         ],

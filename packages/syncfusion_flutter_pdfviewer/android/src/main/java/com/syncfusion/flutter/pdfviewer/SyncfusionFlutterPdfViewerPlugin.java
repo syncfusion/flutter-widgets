@@ -14,9 +14,10 @@ import androidx.annotation.RequiresApi;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.OutputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -40,14 +41,14 @@ public class SyncfusionFlutterPdfViewerPlugin implements FlutterPlugin, MethodCa
   /// Number of pages in the PDF
   private int pageCount;
   private Result resultPdf;
+  private File file;
   /// PdfRenderer instance
   private PdfRenderer renderer;
   /// Initial File descriptor
   ParcelFileDescriptor fileDescriptor;
-  /// PDF document path.
-  String pdfPath;
   /// PDF Runnable
   PdfRunnable bitmapRunnable;
+  boolean reinitializePdf=false;
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
     channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "syncfusion_flutter_pdfviewer");
@@ -66,23 +67,23 @@ public class SyncfusionFlutterPdfViewerPlugin implements FlutterPlugin, MethodCa
   @SuppressWarnings("deprecation")
   public static void registerWith(io.flutter.plugin.common.PluginRegistry.Registrar registrar) {
     final MethodChannel channel = new MethodChannel(registrar.messenger(), "syncfusion_flutter_pdfviewer");
-    channel.setMethodCallHandler(new SyncfusionFlutterPdfViewerPlugin()); 
+    channel.setMethodCallHandler(new SyncfusionFlutterPdfViewerPlugin());
   }
 
   @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
   @Override
   public void onMethodCall(@NonNull final MethodCall call, @NonNull final Result result) {
     resultPdf = result;
-    if (call.method.equals("getimage")) {
-      getImage((int) call.argument("index"), (String) call.argument("path"));
-    } else if (call.method.equals("initializepdfrenderer")) {
-      result.success(initializePdfRenderer((String) call.arguments));
-    } else if (call.method.equals("getpageswidth")) {
-      result.success(getPagesWidth((String) call.arguments));
-    } else if (call.method.equals("getpagesheight")) {
-      result.success(getPagesHeight((String) call.arguments));
-    } else if (call.method.equals("dispose")) {
-      result.success(dispose());
+    if (call.method.equals("getImage")) {
+      getImage((int) call.argument("index"));
+    } else if (call.method.equals("initializePdfRenderer")) {
+      result.success(initializePdfRenderer((byte[]) call.arguments));
+    } else if (call.method.equals("getPagesWidth")) {
+      result.success(getPagesWidth());
+    } else if (call.method.equals("getPagesHeight")) {
+      result.success(getPagesHeight());
+    } else if (call.method.equals("closeDocument")) {
+      result.success(closeDocument());
     } else {
       result.notImplemented();
     }
@@ -96,43 +97,47 @@ public class SyncfusionFlutterPdfViewerPlugin implements FlutterPlugin, MethodCa
 
   // Initializes the PDF Renderer and returns the page count.
   @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-  String initializePdfRenderer(String path) {
-    File file = new File(path);
+  String initializePdfRenderer(byte[] path) {
     try {
+      file = File.createTempFile(
+              ".syncfusion", ".pdf"
+      );
+      OutputStream stream = new FileOutputStream(file);
+      stream.write(path);
+      stream.close();
       fileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
       renderer = new PdfRenderer(fileDescriptor);
       pageCount = renderer.getPageCount();
-      pdfPath = path;
       return String.valueOf(pageCount);
     } catch (Exception e) {
       return e.toString();
     }
   }
 
+  // Reinitialize the PDF Renderer
   @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-  void reinitializePdfRenderer(String path) throws IOException {
-    if (pdfPath == null || pdfPath.compareTo(path) != 0)
+  void reinitializePdfRenderer() {
+    if(renderer == null)
+    {
       try {
-        File file = new File(path);
-        ParcelFileDescriptor fileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
+        reinitializePdf=true;
+        fileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
         renderer = new PdfRenderer(fileDescriptor);
-        pageCount = renderer.getPageCount();
-        pdfPath = path;
-        pageHeight = null;
-        pageWidth = null;
       } catch (Exception e) {
-        throw e;
+        e.printStackTrace();
       }
+    }
   }
 
   // Returns the height collection of rendered pages.
   @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-  double[] getPagesHeight(String path) {
+  double[] getPagesHeight() {
+    reinitializePdfRenderer();
     try {
-      reinitializePdfRenderer(path);
-      pageHeight = new double[pageCount];
-      pageWidth = new double[pageCount];
-      for (int i = 0; i < pageCount; i++) {
+      int count = renderer.getPageCount();
+      pageHeight = new double[count];
+      pageWidth = new double[count];
+      for (int i = 0; i < count; i++) {
         PdfRenderer.Page page = renderer.openPage(i);
         pageHeight[i] = page.getHeight();
         pageWidth[i] = page.getWidth();
@@ -146,9 +151,9 @@ public class SyncfusionFlutterPdfViewerPlugin implements FlutterPlugin, MethodCa
 
   // Returns the width collection of rendered pages.
   @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-  double[] getPagesWidth(String path) {
+  double[] getPagesWidth() {
+    reinitializePdfRenderer();
     try {
-      reinitializePdfRenderer(path);
       if (pageWidth == null) {
         int count = renderer.getPageCount();
         pageWidth = new double[count];
@@ -166,9 +171,9 @@ public class SyncfusionFlutterPdfViewerPlugin implements FlutterPlugin, MethodCa
 
   // Gets the specific page from PdfRenderer
   @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-  void getImage(int pageIndex, String path) {
+  void getImage(int pageIndex) {
+    reinitializePdfRenderer();
     try {
-      reinitializePdfRenderer(path);
       ExecutorService executor = Executors.newCachedThreadPool();
       bitmapRunnable = new PdfRunnable(renderer, resultPdf, pageIndex);
       executor.submit(bitmapRunnable);
@@ -178,22 +183,27 @@ public class SyncfusionFlutterPdfViewerPlugin implements FlutterPlugin, MethodCa
   }
 
   @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-  boolean dispose() {
-    if (pageWidth != null)
-      pageWidth = null;
-    if (pageHeight != null)
-      pageHeight = null;
-    if (renderer != null) {
-      bitmapRunnable.dispose();
-      renderer.close();
-      renderer = null;
-    }
-    pdfPath = null;
-    if (fileDescriptor != null) {
-      try {
-        fileDescriptor.close();
-      } catch (IOException e) {
-        return false;
+  boolean closeDocument() {
+    if(!reinitializePdf) {
+      if (pageWidth != null)
+        pageWidth = null;
+      if (pageHeight != null)
+        pageHeight = null;
+      if (bitmapRunnable != null) {
+        bitmapRunnable.dispose();
+        reinitializePdf=false;
+        bitmapRunnable = null;
+      }
+      if (renderer != null) {
+        renderer.close();
+        renderer = null;
+      }
+      if (fileDescriptor != null) {
+        try {
+          fileDescriptor.close();
+        } catch (IOException e) {
+          return false;
+        }
       }
     }
     return true;
@@ -203,52 +213,51 @@ public class SyncfusionFlutterPdfViewerPlugin implements FlutterPlugin, MethodCa
 /// This runnable executes all the image fetch in separate thread.
 class PdfRunnable implements Runnable
 {
-    private List<byte[]> bitmaps = null;
-    private PdfRenderer renderer;
-    private Result resultPdf;
-    private int pageIndex;
-    private PdfRenderer.Page page;
+  private byte[] imageBytes = null;
+  private PdfRenderer renderer;
+  private Result resultPdf;
+  private int pageIndex;
+  private PdfRenderer.Page page;
 
-    PdfRunnable(PdfRenderer renderer, Result resultPdf,  int pageIndex) {
-      this.resultPdf = resultPdf;
-      this.renderer = renderer;
-      this.pageIndex = pageIndex;
-    }
+  PdfRunnable(PdfRenderer renderer, Result resultPdf,  int pageIndex) {
+    this.resultPdf = resultPdf;
+    this.renderer = renderer;
+    this.pageIndex = pageIndex;
+  }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void dispose()
+  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+  public void dispose()
+  {
+    imageBytes = null;
+    if(page != null)
     {
-      bitmaps = null;
-      if(page != null)
-      {
-        page.close();
-        page = null;
-      }
+      page.close();
+      page = null;
     }
+  }
 
   @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
   public void run() {
-      page = renderer.openPage(pageIndex - 1);
-      int width = (int) (page.getWidth() * 1.75);
-      int height = (int) (page.getHeight() * 1.75);
-      final Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-      bitmap.eraseColor(Color.WHITE);
-      final Rect rect = new Rect(0, 0, width, height);
-      page.render(bitmap, rect, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
-      page.close();
-      page = null;
-      ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-      bitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream);
-      bitmaps = new ArrayList<>();
-      bitmaps.add(outStream.toByteArray());
-      synchronized (this) {
-        notifyAll();
-      }
-      new Handler(Looper.getMainLooper()).post(new Runnable() {
-        @Override
-        public void run() {
-          resultPdf.success(bitmaps);
-        }
-      });
+    page = renderer.openPage(pageIndex - 1);
+    int width = (int) (page.getWidth() * 1.75);
+    int height = (int) (page.getHeight() * 1.75);
+    final Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+    bitmap.eraseColor(Color.WHITE);
+    final Rect rect = new Rect(0, 0, width, height);
+    page.render(bitmap, rect, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+    page.close();
+    page = null;
+    ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+    bitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream);
+    imageBytes = outStream.toByteArray();
+    synchronized (this) {
+      notifyAll();
     }
+    new Handler(Looper.getMainLooper()).post(new Runnable() {
+      @Override
+      public void run() {
+        resultPdf.success(imageBytes);
+      }
+    });
+  }
 }

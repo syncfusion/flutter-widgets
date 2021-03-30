@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "कोई चयनित तिथि नहीं", 
 "noEventsCalendarLabel" : "कोई आयोजन नहीं", 
-"scheduleViewNewEventLabel" : "कुछ भी प्लान नहीं किया। बनाने के लिए टैप करें।", 
 "ofDataPagerLabel" : "का", 
 "pagesDataPagerLabel" : "पृष्ठों", 
 "itemsDataPagerLabel" : "आइटम", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "राम।", 
 "shortShawwalLabel" : "शॉ।", 
 "shortDhualqiLabel" : "Dhu'l-क्यू", 
-"shortDhualhiLabel" : "Dhu'l-एच"
+"shortDhualhiLabel" : "Dhu'l-एच",
+"daySpanCountLabel" : "दिन"
 }

@@ -5,8 +5,6 @@ class _EmbeddedFile implements _IPdfWrapper {
   //Constructor.
   ///  Initializes a new instance of the [EmbeddedFile] class.
   _EmbeddedFile(String fileName, List<int> data) : super() {
-    ArgumentError.checkNotNull(data, 'data');
-    ArgumentError.checkNotNull(fileName, 'fileName');
     this.data = data.toList();
     _initialize();
     this.fileName = fileName;
@@ -14,7 +12,7 @@ class _EmbeddedFile implements _IPdfWrapper {
 
   //Fields.
   /// Gets or sets the data.
-  List<int> data;
+  late List<int> data;
   final _PdfStream _stream = _PdfStream();
   String _fileName = '';
   final _EmbeddedFileParams _params = _EmbeddedFileParams();
@@ -26,9 +24,7 @@ class _EmbeddedFile implements _IPdfWrapper {
 
   /// Sets the name of the file.
   set fileName(String value) {
-    if (_fileName != null) {
-      _fileName = _getFileName(value);
-    }
+    _fileName = _getFileName(value);
   }
 
   /// Gets the type of the MIME.
@@ -59,20 +55,19 @@ class _EmbeddedFile implements _IPdfWrapper {
     return fileName[fileName.length - 1];
   }
 
-  void _streamBeginSave(Object sender, _SavePdfPrimitiveArgs ars) {
+  void _streamBeginSave(Object sender, _SavePdfPrimitiveArgs? ars) {
     _stream._clearStream();
     _stream.compress = false;
-    if (data != null) {
-      _stream._dataStream = data;
-      _params._size = data.length;
-    }
+    _stream._dataStream = data;
+    _params._size = data.length;
   }
 
   @override
   _IPdfPrimitive get _element => _stream;
 
   @override
-  set _element(_IPdfPrimitive value) {
+  // ignore: unused_element
+  set _element(_IPdfPrimitive? value) {
     throw ArgumentError('primitive element can\'t be set');
   }
 }

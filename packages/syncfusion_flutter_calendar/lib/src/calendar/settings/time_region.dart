@@ -1,4 +1,7 @@
-part of calendar;
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart'
+    show IterableDiagnostics;
 
 /// It is used to highlight time slots on day, week, work week
 /// and timeline views based on start and end time and
@@ -30,26 +33,23 @@ part of calendar;
 ///  }
 ///
 ///  ```
-class TimeRegion {
+class TimeRegion with Diagnosticable {
   /// Creates a Time region for timeslot views in calendar.
   ///
   /// The time region used to highlight and block the specific timeslots in
   /// timeslots view of [SfCalendar].
   TimeRegion(
-      {DateTime startTime,
-      DateTime endTime,
+      {required this.startTime,
+      required this.endTime,
       this.text,
       this.recurrenceRule,
       this.color,
-      bool enablePointerInteraction,
+      this.enablePointerInteraction = true,
       this.recurrenceExceptionDates,
       this.resourceIds,
       this.timeZone,
       this.iconData,
-      this.textStyle})
-      : enablePointerInteraction = enablePointerInteraction ?? true,
-        startTime = startTime ?? DateTime.now(),
-        endTime = endTime ?? DateTime.now();
+      this.textStyle});
 
   /// Used to specify the start time of the [TimeRegion].
   ///
@@ -139,7 +139,7 @@ class TimeRegion {
   ///  }
   ///
   ///  ```
-  final String text;
+  final String? text;
 
   /// Used to specify the recurrence of [TimeRegion].
   /// It used to recur the [TimeRegion] and it value like
@@ -173,7 +173,7 @@ class TimeRegion {
   ///  }
   ///
   ///  ```
-  final String recurrenceRule;
+  final String? recurrenceRule;
 
   /// Used to specify the background color of [TimeRegion].
   ///
@@ -200,7 +200,7 @@ class TimeRegion {
   ///  }
   ///
   ///  ```
-  final Color color;
+  final Color? color;
 
   /// Used to allow or restrict the interaction of [TimeRegion].
   ///
@@ -266,7 +266,7 @@ class TimeRegion {
   ///  }
   ///
   ///  ```
-  final String timeZone;
+  final String? timeZone;
 
   /// Used to specify the text style for [TimeRegion] text and icon.
   ///
@@ -295,7 +295,7 @@ class TimeRegion {
   ///  }
   ///
   ///  ```
-  final TextStyle textStyle;
+  final TextStyle? textStyle;
 
   /// Used to specify the icon of [TimeRegion].
   ///
@@ -325,7 +325,7 @@ class TimeRegion {
   ///  }
   ///
   ///  ```
-  final IconData iconData;
+  final IconData? iconData;
 
   /// Used to restrict the occurrence for an recurrence region.
   ///
@@ -362,7 +362,7 @@ class TimeRegion {
   ///  }
   ///
   ///  ```
-  final List<DateTime> recurrenceExceptionDates;
+  final List<DateTime>? recurrenceExceptionDates;
 
   /// The ids of the [CalendarResource] that shares this [TimeRegion].
   ///
@@ -433,28 +433,22 @@ class TimeRegion {
   ///}
   ///
   /// ```
-  final List<Object> resourceIds;
-
-  /// Used to store the start date value with specified time zone.
-  DateTime _actualStartTime;
-
-  /// Used to store the end date value with specified time zone.
-  DateTime _actualEndTime;
+  final List<Object>? resourceIds;
 
   /// Creates a copy of this [TimeRegion] but with the given fields replaced
   /// with the new values.
   TimeRegion copyWith(
-      {DateTime startTime,
-      DateTime endTime,
-      String text,
-      String recurrenceRule,
-      Color color,
-      bool enablePointerInteraction,
-      List<DateTime> recurrenceExceptionDates,
-      String timeZone,
-      IconData iconData,
-      TextStyle textStyle,
-      List<Object> resourceIds}) {
+      {DateTime? startTime,
+      DateTime? endTime,
+      String? text,
+      String? recurrenceRule,
+      Color? color,
+      bool? enablePointerInteraction,
+      List<DateTime>? recurrenceExceptionDates,
+      String? timeZone,
+      IconData? iconData,
+      TextStyle? textStyle,
+      List<Object>? resourceIds}) {
     return TimeRegion(
         startTime: startTime ?? this.startTime,
         endTime: endTime ?? this.endTime,
@@ -490,6 +484,7 @@ class TimeRegion {
         region.recurrenceExceptionDates == recurrenceExceptionDates &&
         region.iconData == iconData &&
         region.timeZone == timeZone &&
+        region.resourceIds == resourceIds &&
         region.text == text;
   }
 
@@ -502,9 +497,29 @@ class TimeRegion {
         recurrenceRule,
         textStyle,
         enablePointerInteraction,
-        recurrenceExceptionDates,
+        hashList(recurrenceExceptionDates),
+        hashList(resourceIds),
         text,
         iconData,
         timeZone);
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(IterableDiagnostics<DateTime>(recurrenceExceptionDates)
+        .toDiagnosticsNode(name: 'recurrenceExceptionDates'));
+    properties.add(IterableDiagnostics<Object>(resourceIds)
+        .toDiagnosticsNode(name: 'resourceIds'));
+    properties.add(StringProperty('timeZone', timeZone));
+    properties.add(StringProperty('recurrenceRule', recurrenceRule));
+    properties.add(StringProperty('text', text));
+    properties.add(ColorProperty('color', color));
+    properties.add(DiagnosticsProperty<DateTime>('startTime', startTime));
+    properties.add(DiagnosticsProperty<DateTime>('endTime', endTime));
+    properties.add(DiagnosticsProperty<TextStyle>('textStyle', textStyle));
+    properties.add(DiagnosticsProperty<IconData>('iconData', iconData));
+    properties.add(DiagnosticsProperty<bool>(
+        'enablePointerInteraction', enablePointerInteraction));
   }
 }

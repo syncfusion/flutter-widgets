@@ -6,23 +6,23 @@ import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../behavior/zoom_pan_behavior.dart';
-import '../controller/default_controller.dart';
+import '../common.dart';
+import '../controller/map_controller.dart';
 import '../enum.dart';
 import '../layer/shape_layer.dart';
 import '../settings.dart';
 import '../utils.dart';
-import 'shapes.dart';
 
 // ignore_for_file: public_member_api_docs
 class MapDataLabel extends LeafRenderObjectWidget {
   const MapDataLabel({
-    this.source,
-    this.mapDataSource,
-    this.settings,
-    this.effectiveTextStyle,
-    this.themeData,
-    this.controller,
-    this.dataLabelAnimationController,
+    required this.source,
+    required this.mapDataSource,
+    required this.settings,
+    required this.effectiveTextStyle,
+    required this.themeData,
+    required this.controller,
+    required this.dataLabelAnimationController,
   });
 
   final MapShapeSource source;
@@ -30,7 +30,7 @@ class MapDataLabel extends LeafRenderObjectWidget {
   final MapDataLabelSettings settings;
   final TextStyle effectiveTextStyle;
   final SfMapsThemeData themeData;
-  final MapController controller;
+  final MapController? controller;
   final AnimationController dataLabelAnimationController;
 
   @override
@@ -63,15 +63,15 @@ class MapDataLabel extends LeafRenderObjectWidget {
 
 class _RenderMapDataLabel extends ShapeLayerChildRenderBoxBase {
   _RenderMapDataLabel({
-    MapShapeSource source,
-    Map<String, MapModel> mapDataSource,
-    MapDataLabelSettings settings,
-    TextStyle effectiveTextStyle,
-    SfMapsThemeData themeData,
-    MapController controller,
-    AnimationController dataLabelAnimationController,
-    MediaQueryData mediaQueryData,
-  })  : source = source,
+    required MapShapeSource source,
+    required Map<String, MapModel> mapDataSource,
+    required MapDataLabelSettings settings,
+    required TextStyle effectiveTextStyle,
+    required SfMapsThemeData themeData,
+    required MapController? controller,
+    required AnimationController dataLabelAnimationController,
+    required MediaQueryData mediaQueryData,
+  })   : source = source,
         mapDataSource = mapDataSource,
         _settings = settings,
         _effectiveTextStyle = effectiveTextStyle,
@@ -92,16 +92,16 @@ class _RenderMapDataLabel extends ShapeLayerChildRenderBoxBase {
     _checkDataLabelColor();
   }
 
-  double _effectiveTextScaleFactor;
-  Animation<double> _dataLabelAnimation;
-  Tween<double> _opacityTween;
-  bool _isCustomTextColor;
-  TextPainter _textPainter;
+  late double _effectiveTextScaleFactor;
+  late Animation<double> _dataLabelAnimation;
+  late Tween<double> _opacityTween;
+  late bool _isCustomTextColor;
+  late TextPainter _textPainter;
 
   MapShapeSource source;
   Map<String, MapModel> mapDataSource;
-  MapController controller;
   AnimationController dataLabelAnimationController;
+  MapController? controller;
 
   MapDataLabelSettings get settings => _settings;
   MapDataLabelSettings _settings;
@@ -164,13 +164,8 @@ class _RenderMapDataLabel extends ShapeLayerChildRenderBoxBase {
   void attach(PipelineOwner owner) {
     super.attach(owner);
     dataLabelAnimationController.addListener(markNeedsPaint);
-    if (controller == null) {
-      final RenderShapeLayer shapeLayerRenderBox = parent;
-      controller = shapeLayerRenderBox.controller;
-    }
-
     if (controller != null) {
-      controller
+      controller!
         ..addZoomingListener(_handleZooming)
         ..addPanningListener(_handlePanning)
         ..addRefreshListener(_handleRefresh)
@@ -182,7 +177,7 @@ class _RenderMapDataLabel extends ShapeLayerChildRenderBoxBase {
   void detach() {
     dataLabelAnimationController.removeListener(markNeedsPaint);
     if (controller != null) {
-      controller
+      controller!
         ..removeZoomingListener(_handleZooming)
         ..removePanningListener(_handlePanning)
         ..removeRefreshListener(_handleRefresh)
@@ -210,62 +205,61 @@ class _RenderMapDataLabel extends ShapeLayerChildRenderBoxBase {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    if (mapDataSource != null) {
+    context.canvas
+      ..save()
+      ..clipRect(offset & size);
+    controller?.applyTransform(context, offset);
+
+    String? dataLabelText;
+    final TextStyle textStyle = _effectiveTextStyle.copyWith(
+        color: _getAnimatedColor(_effectiveTextStyle.color!));
+    final bool hasMapper = source.dataLabelMapper != null;
+    mapDataSource.forEach((String key, MapModel model) {
+      dataLabelText = controller!.isInInteractive
+          ? model.visibleDataLabelText
+          : hasMapper
+              ? model.dataLabelText
+              : model.primaryKey;
+      if (dataLabelText == null) {
+        return;
+      }
+
+      final TextStyle desiredTextStyle =
+          _updateLuminanceColor(textStyle, _isCustomTextColor, model);
+      _textPainter.text =
+          TextSpan(style: desiredTextStyle, text: dataLabelText);
+      _textPainter.layout();
+      if (!controller!.isInInteractive) {
+        if (_settings.overflowMode == MapLabelOverflow.hide) {
+          if (_textPainter.width > model.shapeWidth!) {
+            model.visibleDataLabelText = null;
+            return;
+          }
+        } else if (_settings.overflowMode == MapLabelOverflow.ellipsis) {
+          final String trimmedText = getTrimText(
+              dataLabelText!,
+              desiredTextStyle,
+              model.shapeWidth!,
+              _textPainter,
+              _textPainter.width);
+          _textPainter.text =
+              TextSpan(style: desiredTextStyle, text: trimmedText);
+          _textPainter.layout();
+        }
+
+        // ignore: avoid_as
+        final TextSpan textSpan = _textPainter.text as TextSpan;
+        model.visibleDataLabelText = textSpan.text;
+      }
       context.canvas
         ..save()
-        ..clipRect(offset & size);
-      controller.applyTransform(context, offset);
-
-      String dataLabelText;
-      final TextStyle textStyle = _effectiveTextStyle.copyWith(
-          color: _getAnimatedColor(_effectiveTextStyle.color));
-      final bool hasMapper = source.dataLabelMapper != null;
-      mapDataSource.forEach((String key, MapModel model) {
-        dataLabelText = controller.isInInteractive
-            ? model.visibleDataLabelText
-            : hasMapper
-                ? model.dataLabelText
-                : model.primaryKey;
-        if (dataLabelText == null) {
-          return;
-        }
-
-        final TextStyle desiredTextStyle =
-            _updateLuminanceColor(textStyle, _isCustomTextColor, model);
-        _textPainter.text =
-            TextSpan(style: desiredTextStyle, text: dataLabelText);
-        _textPainter.layout();
-        if (!controller.isInInteractive) {
-          if (_settings.overflowMode == MapLabelOverflow.hide) {
-            if (_textPainter.width > model.shapeWidth) {
-              model.visibleDataLabelText = null;
-              return;
-            }
-          } else if (_settings.overflowMode == MapLabelOverflow.ellipsis) {
-            final String trimmedText = getTrimText(
-                dataLabelText,
-                desiredTextStyle,
-                model.shapeWidth,
-                _textPainter,
-                _textPainter.width);
-            _textPainter.text =
-                TextSpan(style: desiredTextStyle, text: trimmedText);
-            _textPainter.layout();
-          }
-
-          final TextSpan textSpan = _textPainter.text;
-          model.visibleDataLabelText = textSpan.text;
-        }
-        context.canvas
-          ..save()
-          ..translate(model.shapePathCenter.dx, model.shapePathCenter.dy)
-          ..scale(1 / controller.localScale);
-        _textPainter.paint(context.canvas,
-            Offset(-_textPainter.width / 2, -_textPainter.height / 2));
-        context.canvas.restore();
-      });
+        ..translate(model.shapePathCenter!.dx, model.shapePathCenter!.dy)
+        ..scale(1 / controller!.localScale);
+      _textPainter.paint(context.canvas,
+          Offset(-_textPainter.width / 2, -_textPainter.height / 2));
       context.canvas.restore();
-    }
+    });
+    context.canvas.restore();
   }
 
   TextStyle _updateLuminanceColor(

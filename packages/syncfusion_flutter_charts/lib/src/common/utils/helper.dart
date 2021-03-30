@@ -2,10 +2,10 @@ part of charts;
 
 ///Signature for callback reporting that a data label is tapped.
 ///
-///Also refer [onDataLabelTapped] event and [DataLabelTapDetails] class.
+///Also refer `onDataLabelTapped` event and [DataLabelTapDetails] class.
 typedef DataLabelTapCallback = void Function(DataLabelTapDetails onTapArgs);
 
-/// [onDataLabelTapped] event for all series.
+/// `onDataLabelTapped` event for all series.
 void _dataLabelTapEvent(dynamic chart, DataLabelSettings dataLabelSettings,
     int pointIndex, dynamic point, Offset position, int seriesIndex) {
   DataLabelTapDetails datalabelArgs;
@@ -32,33 +32,34 @@ Color _getSaturationColor(Color color) {
 /// To get point from data and return point data
 CartesianChartPoint<dynamic> _getPointFromData(
     CartesianSeriesRenderer seriesRenderer, int pointIndex) {
-  final XyDataSeries<dynamic, dynamic> series = seriesRenderer._series;
-  final ChartIndexedValueMapper<dynamic> xValue = series.xValueMapper;
-  final ChartIndexedValueMapper<dynamic> yValue = series.yValueMapper;
-  final dynamic xVal = xValue(pointIndex);
+  final XyDataSeries<dynamic, dynamic> series =
+      seriesRenderer._series as XyDataSeries;
+  final ChartIndexedValueMapper<dynamic>? xValue = series.xValueMapper;
+  final ChartIndexedValueMapper<dynamic>? yValue = series.yValueMapper;
+  final dynamic xVal = xValue!(pointIndex);
   final dynamic yVal = (seriesRenderer._seriesType.contains('range') ||
           seriesRenderer._seriesType.contains('hilo') ||
           seriesRenderer._seriesType == 'candle')
       ? null
-      : yValue(pointIndex);
+      : yValue!(pointIndex);
 
   final CartesianChartPoint<dynamic> point =
       CartesianChartPoint<dynamic>(xVal, yVal);
   if (seriesRenderer._seriesType.contains('range') ||
       seriesRenderer._seriesType.contains('hilo') ||
       seriesRenderer._seriesType == 'candle') {
-    final ChartIndexedValueMapper<num> highValue = series.highValueMapper;
-    final ChartIndexedValueMapper<num> lowValue = series.lowValueMapper;
-    point.high = highValue(pointIndex);
-    point.low = lowValue(pointIndex);
+    final ChartIndexedValueMapper<num>? highValue = series.highValueMapper;
+    final ChartIndexedValueMapper<num>? lowValue = series.lowValueMapper;
+    point.high = highValue!(pointIndex);
+    point.low = lowValue!(pointIndex);
   }
   if (series is _FinancialSeriesBase) {
     if (seriesRenderer._seriesType == 'hiloopenclose' ||
         seriesRenderer._seriesType == 'candle') {
-      final ChartIndexedValueMapper<num> openValue = series.openValueMapper;
-      final ChartIndexedValueMapper<num> closeValue = series.closeValueMapper;
-      point.open = openValue(pointIndex);
-      point.close = closeValue(pointIndex);
+      final ChartIndexedValueMapper<num>? openValue = series.openValueMapper;
+      final ChartIndexedValueMapper<num>? closeValue = series.closeValueMapper;
+      point.open = openValue!(pointIndex);
+      point.close = closeValue!(pointIndex);
     }
   }
   return point;
@@ -66,14 +67,14 @@ CartesianChartPoint<dynamic> _getPointFromData(
 
 /// To return textstyle
 TextStyle _getTextStyle(
-    {TextStyle textStyle,
-    Color fontColor,
-    double fontSize,
-    FontStyle fontStyle,
-    String fontFamily,
-    FontWeight fontWeight,
-    Paint background,
-    bool takeFontColorValue}) {
+    {TextStyle? textStyle,
+    Color? fontColor,
+    double? fontSize,
+    FontStyle? fontStyle,
+    String? fontFamily,
+    FontWeight? fontWeight,
+    Paint? background,
+    bool? takeFontColorValue}) {
   if (textStyle != null) {
     return TextStyle(
       color: textStyle.color != null &&
@@ -113,13 +114,13 @@ TextStyle _getTextStyle(
   }
 }
 
-Widget _getElements(
+Widget? _getElements(
     dynamic _chartState, Widget chartWidget, BoxConstraints constraints) {
   final dynamic chart = _chartState._chart;
   final LegendPosition legendPosition =
       _chartState._legendRenderer._legendPosition;
   double legendHeight, legendWidth, chartHeight, chartWidth;
-  Widget element;
+  Widget? element;
   if (_chartState._chartLegend.shouldRenderLegend &&
       chart.legend.isResponsive) {
     chartHeight =
@@ -178,7 +179,7 @@ Widget _getElements(
         break;
     }
   }
-  return element;
+  return element!;
 }
 
 Widget _getBottomAndTopLegend(
@@ -359,12 +360,12 @@ class _MeasureWidgetSize extends StatelessWidget {
       this.pointIndex,
       this.type});
   final dynamic chartState;
-  final Widget currentWidget;
-  final double opacityValue;
-  final Key currentKey;
-  final int seriesIndex;
-  final int pointIndex;
-  final String type;
+  final Widget? currentWidget;
+  final double? opacityValue;
+  final Key? currentKey;
+  final int? seriesIndex;
+  final int? pointIndex;
+  final String? type;
   @override
   Widget build(BuildContext context) {
     final List<_MeasureWidgetContext> templates =
@@ -377,7 +378,7 @@ class _MeasureWidgetSize extends StatelessWidget {
         pointIndex: pointIndex));
     return Container(
         key: currentKey,
-        child: Opacity(opacity: opacityValue, child: currentWidget));
+        child: Opacity(opacity: opacityValue!, child: currentWidget));
   }
 }
 
@@ -460,7 +461,7 @@ void _cartesianLegendToggleState(
     }
     if (!needSelect) {
       if (!(currentItem.seriesRenderer is TechnicalIndicators
-          ? !currentItem.indicatorRenderer._visible
+          ? !currentItem.indicatorRenderer!._visible!
           : !currentItem.seriesRenderer._visible &&
               !_chartState._isTrendlineToggled)) {
         needSelect = false;
@@ -483,7 +484,7 @@ void _cartesianLegendToggleState(
 }
 
 /// For checking whether elements collide
-bool _findingCollision(Rect rect, List<Rect> regions, [Rect pathRect]) {
+bool _findingCollision(Rect rect, List<Rect> regions, [Rect? pathRect]) {
   bool isCollide = false;
   if (pathRect != null &&
       (pathRect.left < rect.left &&
@@ -509,13 +510,12 @@ bool _findingCollision(Rect rect, List<Rect> regions, [Rect pathRect]) {
 
 /// To get equivalent value for the percentage
 num _getValueByPercentage(num value1, num value2) {
-  num value;
-  value = value1.isNegative
+  return (value1.isNegative
       ? (num.tryParse('-' +
-          (num.tryParse(value1.toString().replaceAll(RegExp('-'), '')) % value2)
-              .toString()))
-      : (value1 % value2);
-  return value;
+          (num.tryParse(value1.toString().replaceAll(RegExp('-'), ''))! %
+                  value2)
+              .toString()))!
+      : (value1 % value2));
 }
 
 Widget _renderChartTitle(dynamic _chartState) {
@@ -597,7 +597,7 @@ List<Widget> _bindLegendTemplateWidgets(dynamic widgetState) {
 }
 
 /// To check whether indexes are valid
-bool _validIndex(int _pointIndex, int _seriesIndex, dynamic chart) {
+bool _validIndex(int? _pointIndex, int? _seriesIndex, dynamic chart) {
   return _seriesIndex != null &&
       _pointIndex != null &&
       _seriesIndex >= 0 &&
@@ -608,7 +608,7 @@ bool _validIndex(int _pointIndex, int _seriesIndex, dynamic chart) {
 
 //this method removes the given listener from the animation controller and then dsiposes it.
 void _disposeAnimationController(
-    AnimationController animationController, VoidCallback listener) {
+    AnimationController? animationController, VoidCallback listener) {
   if (animationController != null) {
     animationController.removeListener(listener);
     animationController.dispose();

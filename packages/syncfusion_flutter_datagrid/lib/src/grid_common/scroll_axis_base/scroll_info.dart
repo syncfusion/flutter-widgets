@@ -24,19 +24,19 @@ class _ScrollInfo extends _ScrollBarBase {
     _enabled = true;
   }
 
-  double _proposedLargeChange;
-  List list;
+  late double _proposedLargeChange;
+  late List list;
 
   /// Occurs when a property value changes.
-  _PropertyChangedCallback onPropertyChangedEvent;
+  _PropertyChangedCallback? onPropertyChangedEvent;
 
   /// Occurs when the current position of the scroll box on the scroll bar
   /// has changed.
-  _ValueChangedCallback onValueChanged;
+  _ValueChangedCallback? onValueChanged;
 
   /// Occurs when the current position of the scroll box on the scroll bar
   /// is being changed.
-  _ValueChangingCallback onValueChanging;
+  _ValueChangingCallback? onValueChanging;
 
   /// Gets a value to be added to or subtracted from the value of the property
   /// when the scroll box is moved a large distance.
@@ -80,7 +80,7 @@ class _ScrollInfo extends _ScrollBarBase {
     if (this.value != value) {
       final e = _ValueChangingArgs(value, this.value);
       if (onValueChanging != null) {
-        onValueChanging(e);
+        onValueChanging!(e);
       }
 
       if (!e.cancel) {
@@ -131,11 +131,9 @@ class _ScrollInfo extends _ScrollBarBase {
   /// Returns `True` if the specified `ScrollInfo` is equal
   /// to the current `ScrollInfo`, otherwise `false`.
   bool equals(Object obj) {
-    final _ScrollInfo sb = obj;
-    if (sb == null && this == null) {
+    final _ScrollInfo? sb = obj as _ScrollInfo;
+    if (sb == null) {
       return true;
-    } else if (this == null || sb == null) {
-      return false;
     }
 
     return sb.value == _value &&
@@ -157,7 +155,7 @@ class _ScrollInfo extends _ScrollBarBase {
   void onPropertyChanged(String propertyName) {
     if (onPropertyChangedEvent != null) {
       final propertyChangedArgs = _PropertyChangedArgs(propertyName);
-      onPropertyChangedEvent(propertyChangedArgs);
+      onPropertyChangedEvent!(propertyChangedArgs);
     }
   }
 
@@ -220,5 +218,5 @@ class _PropertyChangedArgs {
   ///
   /// Returns the property name.
   String get propertyName => _propertyName;
-  String _propertyName;
+  String _propertyName = '';
 }

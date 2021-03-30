@@ -1,4 +1,5 @@
-part of calendar;
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 /// Sets the style to customize [SfCalendar] view header.
 ///
@@ -23,7 +24,7 @@ part of calendar;
 ///
 /// ```
 @immutable
-class ViewHeaderStyle {
+class ViewHeaderStyle with Diagnosticable {
   /// Creates a view header style for calendar.
   ///
   /// The properties allows to customize the view header view of [SfCalendar].
@@ -50,7 +51,7 @@ class ViewHeaderStyle {
   ///    );
   ///  }
   /// ```
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   /// The text style for the date text in the [SfCalendar] view header view.
   ///
@@ -78,7 +79,7 @@ class ViewHeaderStyle {
   ///    );
   ///  }
   /// ```
-  final TextStyle dateTextStyle;
+  final TextStyle? dateTextStyle;
 
   /// The text style for the day text in the [SfCalendar] view header view.
   ///
@@ -100,7 +101,7 @@ class ViewHeaderStyle {
   ///    );
   ///  }
   /// ```
-  final TextStyle dayTextStyle;
+  final TextStyle? dayTextStyle;
 
   @override
   bool operator ==(dynamic other) {
@@ -115,6 +116,16 @@ class ViewHeaderStyle {
     return otherStyle.backgroundColor == backgroundColor &&
         otherStyle.dayTextStyle == dayTextStyle &&
         otherStyle.dateTextStyle == dateTextStyle;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+        .add(DiagnosticsProperty<TextStyle>('dayTextStyle', dayTextStyle));
+    properties
+        .add(DiagnosticsProperty<TextStyle>('dateTextStyle', dateTextStyle));
+    properties.add(ColorProperty('backgroundColor', backgroundColor));
   }
 
   @override

@@ -1,4 +1,8 @@
-part of calendar;
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart'
+    show IterableDiagnostics;
+import '../common/enums.dart';
 
 /// Recurrence properties allows to create recurrence rule for an [Appointment].
 ///
@@ -46,36 +50,25 @@ part of calendar;
 ///   return DataSource(appointments);
 /// }
 ///  ```
-class RecurrenceProperties {
+class RecurrenceProperties with Diagnosticable {
   /// Creates an recurrence properties .
   ///
   /// An object contains properties that hold data for the creation of
   /// [Appointment.recurrenceRule] for [Appointment] using the
   /// [SfCalendar.generateRRule] method.
   RecurrenceProperties(
-      {RecurrenceType recurrenceType,
-      int recurrenceCount,
-      DateTime startDate,
-      DateTime endDate,
-      int interval,
-      RecurrenceRange recurrenceRange,
-      List<WeekDays> weekDays,
-      int week,
-      int dayOfMonth,
-      int dayOfWeek,
-      int month})
-      : recurrenceType = recurrenceType ?? RecurrenceType.daily,
-        recurrenceCount = recurrenceCount ?? 1,
-        startDate = startDate ?? DateTime.now(),
-        endDate =
-            endDate ?? addDuration(DateTime.now(), const Duration(days: 1)),
-        interval = interval ?? 1,
-        recurrenceRange = recurrenceRange ?? RecurrenceRange.noEndDate,
-        weekDays = weekDays ?? <WeekDays>[],
-        week = week ?? -1,
-        dayOfMonth = dayOfMonth ?? 1,
-        dayOfWeek = dayOfWeek ?? 1,
-        month = month ?? 1;
+      {this.recurrenceType = RecurrenceType.daily,
+      this.recurrenceCount = 1,
+      required this.startDate,
+      this.endDate,
+      this.interval = 1,
+      this.recurrenceRange = RecurrenceRange.noEndDate,
+      List<WeekDays>? weekDays,
+      this.week = 0,
+      this.dayOfMonth = 1,
+      this.dayOfWeek = 1,
+      this.month = 1})
+      : this.weekDays = weekDays ?? <WeekDays>[];
 
   /// Defines the recurrence type of an [Appointment].
   ///
@@ -182,8 +175,6 @@ class RecurrenceProperties {
   ///
   /// The [Appointment] starts to recur from the date set to this property.
   ///
-  /// Defaults to current date.
-  ///
   /// ```dart
   ///Widget build(BuildContext context) {
   ///   return Container(
@@ -277,7 +268,7 @@ class RecurrenceProperties {
   ///   return DataSource(appointments);
   /// }
   ///  ```
-  DateTime endDate;
+  DateTime? endDate;
 
   /// Defines the recurrence interval between the [Appointment].
   ///
@@ -620,4 +611,62 @@ class RecurrenceProperties {
   /// }
   ///  ```
   int month;
+
+  @override
+  bool operator ==(dynamic other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    final RecurrenceProperties recurrenceProperties = other;
+    return recurrenceProperties.recurrenceType == recurrenceType &&
+        recurrenceProperties.recurrenceCount == recurrenceCount &&
+        recurrenceProperties.startDate == startDate &&
+        recurrenceProperties.endDate == endDate &&
+        recurrenceProperties.interval == interval &&
+        recurrenceProperties.recurrenceRange == recurrenceRange &&
+        recurrenceProperties.weekDays == weekDays &&
+        recurrenceProperties.week == week &&
+        recurrenceProperties.dayOfMonth == dayOfMonth &&
+        recurrenceProperties.dayOfWeek == dayOfWeek &&
+        recurrenceProperties.month == month;
+  }
+
+  @override
+  int get hashCode {
+    return hashValues(
+        recurrenceType,
+        recurrenceCount,
+        startDate,
+        endDate,
+        interval,
+        recurrenceRange,
+        weekDays,
+        week,
+        dayOfMonth,
+        dayOfWeek,
+        month);
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(IntProperty('recurrenceCount', recurrenceCount));
+    properties.add(IntProperty('interval', interval));
+    properties.add(IntProperty('week', week));
+    properties.add(IntProperty('dayOfMonth', dayOfMonth));
+    properties.add(IntProperty('dayOfWeek', dayOfWeek));
+    properties.add(IntProperty('month', month));
+    properties.add(DiagnosticsProperty<DateTime>('startTime', startDate));
+    properties.add(DiagnosticsProperty<DateTime>('endTime', endDate));
+    properties
+        .add(EnumProperty<RecurrenceType>('recurrenceType', recurrenceType));
+    properties
+        .add(EnumProperty<RecurrenceRange>('recurrenceRange', recurrenceRange));
+    properties.add(IterableDiagnostics<WeekDays>(weekDays)
+        .toDiagnosticsNode(name: 'weekDays'));
+  }
 }

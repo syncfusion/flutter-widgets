@@ -52,7 +52,6 @@ class PdfBitmap extends PdfImage {
   /// doc.dispose();
   /// ```
   PdfBitmap.fromBase64String(String imageData) {
-    ArgumentError.checkNotNull(imageData);
     if (imageData.isEmpty) {
       ArgumentError.value(imageData, 'image data', 'image data cannot be null');
     }
@@ -60,13 +59,13 @@ class PdfBitmap extends PdfImage {
   }
 
   //Fields
-  _ImageDecoder _decoder;
-  int _height;
-  int _width;
-  double _horizontalResolution;
-  double _verticalResolution;
+  _ImageDecoder? _decoder;
+  late int _height;
+  late int _width;
+  double _horizontalResolution = 0;
+  double _verticalResolution = 0;
   bool _imageStatus = true;
-  PdfColorSpace _colorSpace;
+  PdfColorSpace? _colorSpace;
 
   //Properties
   @override
@@ -159,32 +158,29 @@ class PdfBitmap extends PdfImage {
 
   //Implementation
   void _initialize(List<int> imageData) {
-    ArgumentError.checkNotNull(imageData);
     if (imageData.isEmpty) {
       ArgumentError.value(imageData, 'image data', 'image data cannot be null');
     }
     _colorSpace = PdfColorSpace.rgb;
-    final _ImageDecoder decoder = _ImageDecoder.getDecoder(imageData);
+    final _ImageDecoder? decoder = _ImageDecoder.getDecoder(imageData);
     if (decoder != null) {
       _decoder = decoder;
-      _height = _decoder.height;
-      _width = _decoder.width;
-      _jpegOrientationAngle = _decoder.jpegDecoderOrientationAngle;
+      _height = _decoder!.height;
+      _width = _decoder!.width;
+      _jpegOrientationAngle = _decoder!.jpegDecoderOrientationAngle;
       _imageStatus = false;
     } else {
       throw UnsupportedError('Invalid/Unsupported image stream');
     }
-    _horizontalResolution ??= 0;
-    _verticalResolution ??= 0;
   }
 
   void _setColorSpace() {
-    final _PdfStream stream = _imageStream;
-    final _PdfName color = stream[_DictionaryProperties.colorSpace] as _PdfName;
-    if (color._name == _DictionaryProperties.deviceCMYK) {
+    final _PdfStream stream = _imageStream!;
+    final _PdfName? color =
+        stream[_DictionaryProperties.colorSpace] as _PdfName?;
+    if (color!._name == _DictionaryProperties.deviceCMYK) {
       _colorSpace = PdfColorSpace.cmyk;
-    } else if (color != null &&
-        color._name == _DictionaryProperties.deviceGray) {
+    } else if (color._name == _DictionaryProperties.deviceGray) {
       _colorSpace = PdfColorSpace.grayScale;
     }
     if (_decoder is _PngDecoder &&
@@ -213,6 +209,8 @@ class PdfBitmap extends PdfImage {
         stream[_DictionaryProperties.colorSpace] =
             (_decoder as _PngDecoder)._colorSpace;
         break;
+      default:
+        break;
     }
   }
 
@@ -220,9 +218,9 @@ class PdfBitmap extends PdfImage {
   void _save() {
     if (!_imageStatus) {
       _imageStatus = true;
-      _imageStream = _decoder.getImageDictionary();
-      if (_decoder.format == _ImageType.png) {
-        final _PngDecoder decoder = _decoder as _PngDecoder;
+      _imageStream = _decoder!.getImageDictionary();
+      if (_decoder!.format == _ImageType.png) {
+        final _PngDecoder? decoder = _decoder as _PngDecoder?;
         if (decoder != null && decoder._isDecode) {
           if (decoder._colorSpace != null) {
             _setColorSpace();
@@ -238,7 +236,6 @@ class PdfBitmap extends PdfImage {
 
   @override
   void _drawInternal(PdfGraphics graphics, _Rectangle bounds) {
-    ArgumentError.checkNotNull(graphics);
     graphics.drawImage(
         this, Rect.fromLTWH(0, 0, _width * 0.75, _height * 0.75));
   }

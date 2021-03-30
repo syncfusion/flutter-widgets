@@ -2,28 +2,20 @@ part of datagrid;
 
 /// A base class which provides functionalities for [DataRow].
 abstract class DataRowBase {
-  /// Creates the [DataRowBase] for [SfDataGrid] widget.
-  DataRowBase() {
-    _isDirty = false;
-    _isEnsured = false;
-    _isVisible = true;
-    _visibleColumns = [];
-    _stylePreference = StylePreference.selection;
-  }
+  _DataGridStateDetails? _dataGridStateDetails;
 
-  _DataGridStateDetails _dataGridStateDetails;
+  Key? _key;
 
-  Key _key;
+  bool _isDirty = false;
 
-  bool _isDirty;
+  bool _isEnsured = false;
 
-  bool _isEnsured;
+  bool _isVisible = true;
 
-  bool _isVisible;
+  List<DataCellBase> _visibleColumns = [];
 
-  List<DataCellBase> _visibleColumns;
-
-  StylePreference _stylePreference;
+  // This flag is used to indicating whether the row is swiped or not.
+  bool _isSwipingRow = false;
 
   /// The row index of the [DataRow].
   int rowIndex = -1;
@@ -37,11 +29,12 @@ abstract class DataRowBase {
   /// Decides whether the [DataRow] is visible.
   bool get isVisible => _isVisible;
 
-  /// The style of the row which is set through [SfDataGrid.onQueryRowStyle].
-  DataGridCellStyle rowStyle;
-
   /// Decides whether the [DataRow] is currently active
   bool isCurrentRow = false;
+
+  DataGridRow? _dataGridRow;
+
+  DataGridRowAdapter? _dataGridRowAdapter;
 
   void _rowIndexChanged() {
     if (rowIndex < 0) {
@@ -64,20 +57,21 @@ abstract class DataRowBase {
 
   void _ensureColumns(_VisibleLinesCollection visibleColumnLines) {}
 
-  _VisibleLineInfo _getColumnVisibleLineInfo(int index) =>
-      _dataGridStateDetails()
+  _VisibleLineInfo? _getColumnVisibleLineInfo(int index) =>
+      _dataGridStateDetails!()
           .container
           .scrollColumns
           .getVisibleLineAtLineIndex(index);
 
-  _VisibleLineInfo _getRowVisibleLineInfo(int index) => _dataGridStateDetails()
-      .container
-      .scrollRows
-      .getVisibleLineAtLineIndex(index);
+  _VisibleLineInfo? _getRowVisibleLineInfo(int index) =>
+      _dataGridStateDetails!()
+          .container
+          .scrollRows
+          .getVisibleLineAtLineIndex(index);
 
   double _getColumnWidth(int startIndex, int endIndex) {
     if (startIndex != endIndex) {
-      final currentPos = _dataGridStateDetails()
+      final currentPos = _dataGridStateDetails!()
           .container
           .scrollColumns
           .rangeToRegionPoints(startIndex, endIndex, true);
@@ -94,7 +88,7 @@ abstract class DataRowBase {
 
   double _getRowHeight(int startIndex, int endIndex) {
     if (startIndex != endIndex) {
-      final currentPos = _dataGridStateDetails()
+      final currentPos = _dataGridStateDetails!()
           .container
           .scrollRows
           .rangeToRegionPoints(startIndex, endIndex, true);

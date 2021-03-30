@@ -2,20 +2,20 @@ part of charts;
 
 abstract class _CustomizeAxisElements {
   /// To get axis line color
-  Color getAxisLineColor(ChartAxis axis);
+  Color? getAxisLineColor(ChartAxis axis);
 
   ///To get axis line width
-  Color getAxisMajorTickColor(ChartAxis axis, int majorTickIndex);
+  Color? getAxisMajorTickColor(ChartAxis axis, int majorTickIndex);
 
   /// To get major tick color
-  Color getAxisMinorTickColor(
+  Color? getAxisMinorTickColor(
       ChartAxis axis, int majorTickIndex, int minorTickIndex);
 
   /// To get major grid color
-  Color getAxisMajorGridColor(ChartAxis axis, int majorGridIndex);
+  Color? getAxisMajorGridColor(ChartAxis axis, int majorGridIndex);
 
   /// To get minor grid color
-  Color getAxisMinorGridColor(
+  Color? getAxisMinorGridColor(
       ChartAxis axis, int majorGridIndex, int minorGridIndex);
 
   double getAxisLineWidth(ChartAxis axis);
@@ -82,7 +82,7 @@ abstract class _CustomizeAxisElements {
   void drawHorizontalAxesMinorLines(
       Canvas canvas,
       ChartAxisRenderer axisRenderer,
-      num tempInterval,
+      double tempInterval,
       Rect rect,
       num nextValue,
       int index,
@@ -117,13 +117,13 @@ abstract class _CustomizeAxisElements {
 // ignore: must_be_immutable
 class _CartesianAxisRenderer extends StatefulWidget {
   // ignore: prefer_const_constructors_in_immutables
-  _CartesianAxisRenderer({this.chartState, this.renderType});
+  _CartesianAxisRenderer({required this.chartState, required this.renderType});
 
   final SfCartesianChartState chartState;
 
   String renderType;
 
-  _CartesianAxisRendererState state;
+  late _CartesianAxisRendererState state;
 
   @override
   State<StatefulWidget> createState() => _CartesianAxisRendererState();
@@ -131,13 +131,13 @@ class _CartesianAxisRenderer extends StatefulWidget {
 
 class _CartesianAxisRendererState extends State<_CartesianAxisRenderer>
     with SingleTickerProviderStateMixin {
-  List<AnimationController> animationControllersList;
+  late List<AnimationController> animationControllersList;
 
   /// Animation controller for axis
-  AnimationController animationController;
+  late AnimationController animationController;
 
   /// Repaint notifier for axis
-  ValueNotifier<int> axisRepaintNotifier;
+  late ValueNotifier<int> axisRepaintNotifier;
 
   @override
   void initState() {
@@ -168,6 +168,107 @@ class _CartesianAxisRendererState extends State<_CartesianAxisRenderer>
                     notifier: axisRepaintNotifier))));
   }
 
+  void _animateAxis() {
+    final double animationFactor = animationController.value;
+    for (int axisIndex = 0;
+        axisIndex <
+            widget.chartState._chartAxis._axisRenderersCollection.length;
+        axisIndex++) {
+      ///visibleMinimum and visibleMaximum not defined in the chart axis class,
+      /// so dynamic datatype used here
+      final dynamic axisRenderer =
+          widget.chartState._chartAxis._axisRenderersCollection[axisIndex];
+
+      ///visibleMinimum and visibleMaximum not defined in the chart axis class,
+      /// so dynamic datatype used here
+      dynamic oldAxisRenderer;
+      bool needAnimate = false;
+      if ((widget.chartState._requireInvertedAxis
+              ? axisRenderer._orientation == AxisOrientation.vertical
+              : axisRenderer._orientation == AxisOrientation.horizontal) &&
+          widget.chartState._oldAxisRenderers != null &&
+          widget.chartState._oldAxisRenderers.isNotEmpty &&
+          (axisRenderer._axis.visibleMinimum != null ||
+              axisRenderer._axis.visibleMaximum != null)) {
+        oldAxisRenderer = _getOldAxisRenderer(
+            axisRenderer, widget.chartState._oldAxisRenderers);
+        if (oldAxisRenderer != null &&
+            (oldAxisRenderer._axis.visibleMinimum != null ||
+                oldAxisRenderer._axis.visibleMaximum != null)) {
+          needAnimate =
+              axisRenderer.runtimeType == oldAxisRenderer.runtimeType &&
+                  ((oldAxisRenderer._axis.visibleMinimum != null &&
+                          oldAxisRenderer._axis.visibleMinimum !=
+                              axisRenderer._axis.visibleMinimum) ||
+                      (oldAxisRenderer._axis.visibleMaximum != null &&
+                          oldAxisRenderer._axis.visibleMaximum !=
+                              axisRenderer._axis.visibleMaximum)) &&
+                  _checkSeriesAnimation(axisRenderer._seriesRenderers);
+          if (needAnimate) {
+            if (axisRenderer is DateTimeAxisRenderer ||
+                axisRenderer is DateTimeCategoryAxisRenderer) {
+              axisRenderer._visibleMinimum =
+                  (oldAxisRenderer._axis.visibleMinimum.millisecondsSinceEpoch -
+                          (oldAxisRenderer._axis.visibleMinimum
+                                      .millisecondsSinceEpoch -
+                                  axisRenderer._axis.visibleMinimum
+                                      .millisecondsSinceEpoch) *
+                              animationFactor)
+                      .toInt();
+              axisRenderer._visibleMaximum =
+                  (oldAxisRenderer._axis.visibleMaximum.millisecondsSinceEpoch -
+                          (oldAxisRenderer._axis.visibleMaximum
+                                      .millisecondsSinceEpoch -
+                                  axisRenderer._axis.visibleMaximum
+                                      .millisecondsSinceEpoch) *
+                              animationFactor)
+                      .toInt();
+            } else {
+              axisRenderer._visibleMinimum =
+                  oldAxisRenderer._axis.visibleMinimum -
+                      (oldAxisRenderer._axis.visibleMinimum -
+                              axisRenderer._axis.visibleMinimum) *
+                          animationFactor;
+              axisRenderer._visibleMaximum =
+                  oldAxisRenderer._axis.visibleMaximum -
+                      (oldAxisRenderer._axis.visibleMaximum -
+                              axisRenderer._axis.visibleMaximum) *
+                          animationFactor;
+            }
+            if (axisRenderer is DateTimeCategoryAxisRenderer) {
+              axisRenderer._labels.clear();
+              for (final CartesianSeriesRenderer seriesRenderer
+                  in axisRenderer._seriesRenderers) {
+                widget.chartState._chartSeries
+                    ._findSeriesMinMax(seriesRenderer);
+              }
+            }
+            axisRenderer._calculateRangeAndInterval(widget.chartState);
+            for (final CartesianSeriesRenderer seriesRenderer
+                in axisRenderer._seriesRenderers) {
+              seriesRenderer._calculateRegion = true;
+              seriesRenderer._repaintNotifier.value++;
+              if (seriesRenderer._series.dataLabelSettings.isVisible &&
+                  widget.chartState._renderDataLabel?.state != null) {
+                widget.chartState._renderDataLabel?.state!
+                    .dataLabelRepaintNotifier.value++;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  bool _checkSeriesAnimation(List<CartesianSeriesRenderer> seriesRenderers) {
+    for (int i = 0; i < seriesRenderers.length; i++) {
+      if (seriesRenderers[i]._series.animationDuration <= 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   @override
   void dispose() {
     _disposeAnimationController(animationController, _repaintAxisElements);
@@ -175,17 +276,18 @@ class _CartesianAxisRendererState extends State<_CartesianAxisRenderer>
   }
 
   void _repaintAxisElements() {
+    _animateAxis();
     axisRepaintNotifier.value++;
   }
 }
 
 class _CartesianAxesPainter extends CustomPainter {
   _CartesianAxesPainter(
-      {this.chartState,
-      this.isRepaint,
-      ValueNotifier<num> notifier,
-      this.renderType,
-      this.axisAnimation})
+      {required this.chartState,
+      required this.isRepaint,
+      required ValueNotifier<num> notifier,
+      required this.renderType,
+      required this.axisAnimation})
       : chart = chartState._chart,
         super(repaint: notifier);
   final SfCartesianChartState chartState;
@@ -208,7 +310,7 @@ class _CartesianAxesPainter extends CustomPainter {
         paintImage(
             canvas: canvas,
             rect: chartState._chartAxis._axisClipRect,
-            image: chartState._backgroundImage,
+            image: chartState._backgroundImage!,
             fit: BoxFit.fill);
       }
     }
@@ -241,8 +343,8 @@ class _CartesianAxesPainter extends CustomPainter {
       Canvas canvas,
       ChartAxisRenderer axisRenderer,
       double animationFactor,
-      ChartAxisRenderer oldAxisRenderer,
-      bool needAnimate) {
+      ChartAxisRenderer? oldAxisRenderer,
+      bool? needAnimate) {
     final ChartAxis axis = axisRenderer._axis;
     if (axis.isVisible) {
       if (axis.axisLine.width > 0 && renderType == 'outside') {
@@ -265,8 +367,8 @@ class _CartesianAxesPainter extends CustomPainter {
       Canvas canvas,
       ChartAxisRenderer axisRenderer,
       double animationFactor,
-      ChartAxisRenderer oldAxisRenderer,
-      bool needAnimate) {
+      ChartAxisRenderer? oldAxisRenderer,
+      bool? needAnimate) {
     final ChartAxis axis = axisRenderer._axis;
     if (axis.isVisible) {
       if (axis.axisLine.width > 0 && renderType == 'outside') {
@@ -297,7 +399,7 @@ class _CartesianAxesPainter extends CustomPainter {
       final ChartAxis axis = axisRenderer._axis;
       axisRenderer._isInsideTickPosition =
           (axis.tickPosition == TickPosition.inside) ? true : false;
-      ChartAxisRenderer oldAxisRenderer;
+      ChartAxisRenderer? oldAxisRenderer;
       bool needAnimate = false;
       if (chartState._oldAxisRenderers != null &&
           chartState._oldAxisRenderers.isNotEmpty &&
@@ -306,10 +408,10 @@ class _CartesianAxesPainter extends CustomPainter {
             _getOldAxisRenderer(axisRenderer, chartState._oldAxisRenderers);
         if (oldAxisRenderer != null && oldAxisRenderer._visibleRange != null) {
           needAnimate = chart.enableAxisAnimation &&
-              (oldAxisRenderer._visibleRange.minimum !=
-                      axisRenderer._visibleRange.minimum ||
-                  oldAxisRenderer._visibleRange.maximum !=
-                      axisRenderer._visibleRange.maximum);
+              (oldAxisRenderer._visibleRange!.minimum !=
+                      axisRenderer._visibleRange!.minimum ||
+                  oldAxisRenderer._visibleRange!.maximum !=
+                      axisRenderer._visibleRange!.maximum);
         }
       }
       axisRenderer._orientation == AxisOrientation.horizontal

@@ -14,7 +14,6 @@ enum HAlignType {
   /// Right  horizontal alignment.
   right,
 
-  /// <summary>
   /// General  horizontal alignment.
   general
 }
@@ -84,7 +83,6 @@ enum ExcelFormatType {
   /// Represents datetime number format.
   dateTime,
 
-  /// <summary>
   /// Represents percentage number format.
 
   percentage,
@@ -348,4 +346,281 @@ enum ExcelHyperlinkAttachedType {
 
   /// Represent IShape object.
   shape,
+}
+
+/// Specifies whether the conditional format is based on a cell value or an expression.
+enum ExcelCFType {
+  ///Represents the Cell Value option for conditional formatting.
+  cellValue,
+
+  ///Represents the Formula option for conditional formatting.
+  formula,
+
+  ///Represents the ColorScale option for conditional formatting.
+  colorScale,
+
+  ///Represents the DataBar option for conditional formatting.
+  dataBar,
+
+  ///Represents the IconSet option for conditional formatting.
+  iconSet,
+
+  ///Represents conditional formatting rule highlights cells that are completely blank.
+  blank,
+
+  ///Represents conditional formatting rule highlights cells that are not blank.
+  noBlank,
+
+  /// Represents the Specific Text conditional formatting rule based on the text.
+  specificText,
+
+  /// Represents conditional formatting rule highlights cells that contains errors.
+  containsErrors,
+
+  /// Represents conditional formatting rule highlights cells that does not contains errors.
+  notContainsErrors,
+
+  /// Represents Time Period conditional formatting rule highlights cells that has date time.
+  timePeriod,
+
+  /// Represents conditional formatting rule to highlight the cells with duplicate values.
+  duplicate,
+
+  /// Represents conditional formatting rule to highlight the cells with unique values.
+  unique,
+
+  /// Represents conditional formatting rule to highlight the top 10 or bottom 10 cells with the values.
+  topBottom,
+
+  /// Represents conditional formatting rule to highlight the cells that contain values above or below the range average.
+  aboveBelowAverage,
+}
+
+/// Specifies the time periods for date time conditional formatting in Excel.
+enum CFTimePeriods {
+  /// Today.
+  today,
+
+  /// Yesterday.
+  yesterday,
+
+  /// Tomorrow.
+  tomorrow,
+
+  /// Last seven days.
+  last7Days,
+
+  /// This month.
+  thisMonth,
+
+  /// Last month.
+  lastMonth,
+
+  /// Next month.
+  nextMonth,
+
+  /// This week.
+  thisWeek,
+
+  /// Last week.
+  lastWeek,
+
+  /// Next week.
+  nextWeek,
+}
+
+/// Specifies the comparison operator for conditional formatting in Excel.
+
+enum ExcelComparisonOperator {
+  /// No comparison.
+  none,
+
+  /// Between.
+  between,
+
+  /// Not between.
+  notBetween,
+
+  /// Equal.
+  equal,
+
+  /// Not equal.
+  notEqual,
+
+  /// Greater than.
+  greater,
+
+  /// Less than.
+  less,
+
+  /// Greater than.
+  greaterOrEqual,
+
+  /// Less than or equal.
+  lessOrEqual,
+
+  ///  Begins-with comparison option for Specific Text.
+  beginsWith,
+
+  /// Contains text comparison option for Specific Text.
+  containsText,
+
+  /// Ends-with comparison option for Specific Text.
+  endsWith,
+
+  /// Not contains text option for Specific Text.
+  notContainsText,
+}
+
+/// Specifies whether the TopBottom conditional formatting rule looks for ranking from the top or bottom.
+enum ExcelCFTopBottomType {
+  /// Top.
+  top,
+
+  /// Bottom.
+  bottom
+}
+
+/// Specifies whether the AboveBelowAverage conditional formatting rule looks for cell values above or below the average.
+enum ExcelCFAverageType {
+  /// Above average.
+  above,
+
+  /// Below average.
+  below,
+
+  /// Equal or above average
+  equalOrAbove,
+
+  /// Equal or below average
+  equalOrBelow,
+
+  /// Above standard deviation
+  aboveStdDev,
+
+  /// Below standard deviation
+  belowStdDev
+}
+
+/// Specifies the types of condition values.
+enum ConditionValueType {
+  /// No conditional value.
+  none,
+
+  /// Number is used.
+  number,
+
+  /// Lowest value from the list of values.
+  lowestValue,
+
+  /// Highest value from the list of values.
+  highestValue,
+
+  /// Percentage is used.
+  percent,
+
+  /// Percentile is used.
+  percentile,
+
+  /// Formula is used.
+  formula,
+
+  /// Automatic is used
+  automatic
+}
+
+/// Specifies the type of conditions that can be used for Icon sets
+enum ConditionalFormatOperator {
+  /// Greater than condition is used [>].
+  greaterThan,
+
+  /// Greater Than or Equal to condition is used [>=].
+  greaterThanorEqualTo
+}
+
+/// Specifies the type of icon set.
+enum ExcelIconSetType {
+  /// 3 Arrows.
+  threeArrows,
+
+  /// 3 Arrows Gray.
+  threeArrowsGray,
+
+  /// 3 Flags.
+  threeFlags,
+
+  /// 3 Traffic Lights 1.
+  threeTrafficLights1,
+
+  /// 3 Traffic Lights 2.
+  threeTrafficLights2,
+
+  /// 3 Signs.
+  threeSigns,
+
+  /// 3 Symbols.
+  threeSymbols,
+
+  /// 3 Symbols 2.
+  threeSymbols2,
+
+  /// 4 Arrows.
+  fourArrows,
+
+  /// 4 Arrows Gray.
+  fourArrowsGray,
+
+  /// 4 Red To Black.
+  fourRedToBlack,
+
+  /// 4 Ratings.
+  fourRating,
+
+  /// 4 Traffic Lights.
+  fourTrafficLights,
+
+  /// 5 Arrows.
+  fiveArrows,
+
+  /// 5 Arrows Gray.
+  fiveArrowsGray,
+
+  /// 5 Rating.
+  fiveRating,
+
+  /// 5 Quarters.
+  fiveQuarters,
+
+  /// 3 Stars.
+  threeStars,
+
+  /// 3 Triangles.
+  threeTriangles,
+
+  /// 5 Boxes.
+  fiveBoxes
+}
+
+/// Defines the directions of data bar in conditional formatting.
+enum DataBarDirection {
+  /// Represents Context direction. The default direction is Context.
+  context,
+
+  /// Represents Left to Right (LTR) direction.
+  leftToRight,
+
+  /// Represents Right to Left (RTL) direction.
+  rightToLeft
+}
+
+/// Specifies the axis position for a range of cells with conditional formatting as data bars.
+enum DataBarAxisPosition {
+  /// Default value if the conditional formatting rule is created programmatically.
+  none,
+
+  /// Default value if the conditional formatting rule is created using the user interface.
+  automatic,
+
+  /// Defines the axis position at the mid point.
+  middle
 }

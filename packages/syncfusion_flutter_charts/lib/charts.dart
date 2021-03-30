@@ -12,9 +12,11 @@
 library charts;
 
 import 'dart:async';
+import 'dart:io' show Platform;
 import 'dart:math' as math_lib;
 import 'dart:math' as math;
 import 'dart:math';
+import 'dart:typed_data';
 import 'dart:ui';
 import 'dart:ui' as dart_ui;
 import 'package:flutter/material.dart';
@@ -22,13 +24,17 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:intl/intl.dart' show NumberFormat;
-import 'package:vector_math/vector_math.dart' as vector;
 import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
+import 'package:syncfusion_flutter_core/tooltip_internal.dart';
 import './src/common/handcursor/mobile.dart'
     if (dart.library.html) './src/common/handcursor/web.dart';
+
+export 'package:syncfusion_flutter_core/core.dart'
+    show DataMarkerType, TooltipAlignment;
 
 // export circular library
 part './src/circular_chart/base/circular_base.dart';
@@ -62,6 +68,7 @@ part './src/chart/axis/axis.dart';
 part './src/chart/axis/axis_panel.dart';
 part './src/chart/axis/axis_renderer.dart';
 part './src/chart/axis/category_axis.dart';
+part './src/chart/axis/datetime_category_axis.dart';
 part './src/chart/axis/datetime_axis.dart';
 part './src/chart/axis/logarithmic_axis.dart';
 part './src/chart/axis/numeric_axis.dart';
@@ -181,8 +188,6 @@ part './src/chart/trendlines/trendlines_painter.dart';
 part './src/chart/user_interaction/crosshair.dart';
 part './src/chart/user_interaction/crosshair_painter.dart';
 part './src/chart/user_interaction/selection_renderer.dart';
-part './src/chart/user_interaction/tooltip_painter.dart';
-part './src/chart/user_interaction/tooltip_template.dart';
 part './src/chart/user_interaction/trackball.dart';
 part './src/chart/user_interaction/trackball_painter.dart';
 part './src/chart/user_interaction/trackball_template.dart';

@@ -1,13 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_maps/src/layer/vector_layers.dart';
 
 import '../behavior/zoom_pan_behavior.dart';
-import '../controller/default_controller.dart';
 import '../layer/shape_layer.dart';
+import '../layer/tile_layer.dart';
 import '../settings.dart';
-import '../utils.dart';
 
 /// Base class for the [MapShapeLayer] and [MapTileLayer].
 ///
@@ -16,12 +14,12 @@ import '../utils.dart';
 abstract class MapLayer extends StatelessWidget {
   /// Creates a [MapLayer].
   const MapLayer({
-    Key key,
+    Key? key,
     this.sublayers,
-    this.initialMarkersCount,
+    this.initialMarkersCount = 0,
     this.markerBuilder,
     this.markerTooltipBuilder,
-    this.tooltipSettings,
+    this.tooltipSettings = const MapTooltipSettings(),
     this.zoomPanBehavior,
     this.onWillZoom,
     this.onWillPan,
@@ -33,51 +31,76 @@ abstract class MapLayer extends StatelessWidget {
   /// It is applicable for both the [MapShapeLayer] and [MapTileLayer].
   ///
   /// ```dart
+  /// MapShapeSource _mapSource;
+  /// int _selectedIndex;
+  /// List<DataModel> _data;
+  ///
+  /// @override
+  /// void initState() {
+  ///   _mapSource = MapShapeSource.asset(
+  ///     'assets/india.json',
+  ///     shapeDataField: 'name',
+  ///   );
+  ///
+  ///   _data = <DataModel>[
+  ///     DataModel(MapLatLng(28.7041, 77.1025), MapLatLng(11.1271, 78.6569)),
+  ///     DataModel(MapLatLng(28.7041, 77.1025), MapLatLng(9.9312, 76.2673)),
+  ///     DataModel(MapLatLng(28.7041, 77.1025), MapLatLng(15.3173, 75.7139)),
+  ///     DataModel(MapLatLng(28.7041, 77.1025), MapLatLng(18.1124, 79.0193)),
+  ///   ];
+  ///   super.initState();
+  /// }
+  ///
   /// @override
   /// Widget build(BuildContext context) {
-  ///    return Scaffold(
-  ///      body: Column(
-  ///        children: [
-  ///          Container(
+  ///  return Scaffold(
+  ///     appBar: AppBar(title: Text('Line layer')),
+  ///     body: Column(
+  ///       children: [
+  ///         Container(
   ///           child: SfMaps(
-  ///              layers: [
-  ///                MapShapeLayer(
-  ///                  source: MapShapeSource.asset(
-  ///                    'assets/world_map.json',
-  ///                    shapeDataField: 'continent',
-  ///                  ),
-  ///                  sublayers: [
+  ///             layers: [
+  ///               MapShapeLayer(
+  ///                 source: _mapSource,
+  ///                 sublayers: [
   ///                   MapLineLayer(
-  ///                      lines: List<MapLine>.generate(
-  ///                        data.length,
-  ///                        (int index) {
-  ///                          return MapLine(
-  ///                              from: data[index].from,
-  ///                              to: data[index].to,
-  ///                              dashArray: [8, 3, 4, 2],
+  ///                     lines: List<MapLine>.generate(
+  ///                       _data.length,
+  ///                       (int index) {
+  ///                         return MapLine(
+  ///                             from: _data[index].from,
+  ///                             to: _data[index].to,
+  ///                             dashArray: [8, 3, 4, 2],
   ///                             color: _selectedIndex == index
-  ///                                  ? Colors.red
-  ///                                  : Colors.blue,
-  ///                              width: 2,
-  ///                              onTap: () {
-  ///                                setState(() {
-  ///                                  _selectedIndex = index;
-  ///                                });
+  ///                                 ? Colors.red
+  ///                                 : Colors.blue,
+  ///                             width: 2,
+  ///                             onTap: () {
+  ///                               setState(() {
+  ///                                 _selectedIndex = index;
+  ///                               });
   ///                             });
-  ///                        },
-  ///                      ).toSet(),
-  ///                    ),
+  ///                       },
+  ///                     ).toSet(),
+  ///                   ),
   ///                 ],
-  ///                ),
-  ///              ],
+  ///               ),
+  ///             ],
   ///           ),
-  ///          ),
-  ///        ],
-  ///      ),
-  ///    );
-  ///  }
-  ///```
-  final List<MapSublayer> sublayers;
+  ///         ),
+  ///       ],
+  ///     ),
+  ///   );
+  /// }
+  ///
+  /// class DataModel {
+  ///   DataModel(this.from, this.to);
+  ///
+  ///   MapLatLng from;
+  ///   MapLatLng to;
+  /// }
+  /// ```
+  final List<MapSublayer>? sublayers;
 
   /// Option to set markers count initially. It cannot be be updated
   /// dynamically.
@@ -107,17 +130,25 @@ abstract class MapLayer extends StatelessWidget {
   /// for child in [MapMarker] constructor.
   ///
   /// ```dart
-  /// List<Model> data;
+  /// List<Model> _data;
+  /// MapShapeSource _mapSource;
   ///
   /// @override
   /// void initState() {
-  ///    data = const <Model>[
+  ///    _data = const <Model>[
   ///      Model('Brazil', -14.235004, -51.92528),
   ///      Model('Germany', 51.16569, 10.451526),
   ///      Model('Australia', -25.274398, 133.775136),
   ///      Model('India', 20.593684, 78.96288),
   ///      Model('Russia', 61.52401, 105.318756)
   ///    ];
+  ///
+  ///   _mapSource = MapShapeSource.asset(
+  ///     'assets/world_map.json',
+  ///     shapeDataField: 'name',
+  ///     dataCount: _data.length,
+  ///     primaryValueMapper: (int index) => _data[index].country,
+  ///   );
   ///
   ///    super.initState();
   /// }
@@ -133,17 +164,12 @@ abstract class MapLayer extends StatelessWidget {
   ///              child: SfMaps(
   ///                layers: <MapLayer>[
   ///                  MapShapeLayer(
-  ///                    source: MapShapeSource.asset(
-  ///                      'assets/world_map.json',
-  ///                      shapeDataField: 'name',
-  ///                      dataCount: data.length,
-  ///                      primaryValueMapper: (index) => data[index].country,
-  ///                    ),
+  ///                    source: _mapSource,
   ///                    initialMarkersCount: 5,
   ///                    markerBuilder: (BuildContext context, int index){
   ///                      return MapMarker(
-  ///                        latitude: data[index].latitude,
-  ///                        longitude: data[index].longitude,
+  ///                        latitude: _data[index].latitude,
+  ///                        longitude: _data[index].longitude,
   ///                      );
   ///                    },
   ///                  ),
@@ -166,7 +192,7 @@ abstract class MapLayer extends StatelessWidget {
   /// See also:
   /// * [MapShapeLayerController], for dynamically updating the markers.
   /// * [MapMarker], to create a map marker.
-  final MapMarkerBuilder markerBuilder;
+  final MapMarkerBuilder? markerBuilder;
 
   /// Returns the widget for the tooltip of the [MapMarker].
   ///
@@ -179,6 +205,29 @@ abstract class MapLayer extends StatelessWidget {
   /// mouse enabled devices.
   ///
   /// ```dart
+  /// List<Model> _worldMapData;
+  /// MapShapeSource _mapSource;
+  ///
+  /// @override
+  /// void initState() {
+  ///   _worldMapData = const <Model>[
+  ///      Model('Brazil', -14.235004, -51.92528),
+  ///      Model('Germany', 51.16569, 10.451526),
+  ///      Model('Australia', -25.274398, 133.775136),
+  ///      Model('India', 20.593684, 78.96288),
+  ///      Model('Russia', 61.52401, 105.318756)
+  ///    ];
+  ///
+  ///   _mapSource = MapShapeSource.asset(
+  ///     'assets/world_map.json',
+  ///     shapeDataField: 'name',
+  ///     dataCount: _worldMapData.length,
+  ///     primaryValueMapper: (int index) => _worldMapData[index].country,
+  ///   );
+  ///
+  ///    super.initState();
+  /// }
+  ///
   /// @override
   /// Widget build(BuildContext context) {
   ///   return Scaffold(
@@ -187,13 +236,14 @@ abstract class MapLayer extends StatelessWidget {
   ///        child: SfMaps(
   ///          layers: <MapLayer>[
   ///            MapShapeLayer(
-  ///              source: MapShapeSource.asset(
-  ///                'assets/world_map.json',
-  ///                shapeDataField: 'continent',
-  ///                dataCount: worldMapData.length,
-  ///                primaryValueMapper: (int index) =>
-  ///                             worldMapData[index].primaryKey,
-  ///              ),
+  ///              source: _mapSource,
+  ///              initialMarkersCount: _worldMapData.length,
+  ///              markerBuilder: (BuildContext context, int index){
+  ///                 return MapMarker(
+  ///                  latitude: _worldMapData[index].latitude,
+  ///                  longitude: _worldMapData[index].longitude,
+  ///                 );
+  ///              },
   ///              markerTooltipBuilder: (BuildContext context, int index) {
   ///                if(index == 0) {
   ///                  return Container(
@@ -207,12 +257,19 @@ abstract class MapLayer extends StatelessWidget {
   ///                  );
   ///                }
   ///              },
-  ///
   ///            ),
   ///          ],
   ///        ),
   ///      ),
   ///   );
+  /// }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.latitude, this.longitude);
+  ///
+  ///  final String country;
+  ///  final double latitude;
+  ///  final double longitude;
   /// }
   /// ```
   /// See also:
@@ -220,7 +277,7 @@ abstract class MapLayer extends StatelessWidget {
   /// tooltip.
   /// * [SfMapsThemeData.tooltipBorderRadius], to customize the corners of the
   /// tooltip.
-  final IndexedWidgetBuilder markerTooltipBuilder;
+  final IndexedWidgetBuilder? markerTooltipBuilder;
 
   /// Customizes the bubble, marker, and shape tooltip's appearance.
   ///
@@ -276,10 +333,16 @@ abstract class MapLayer extends StatelessWidget {
   /// and [MapTileLayer].
   ///
   /// ```dart
+  ///   MapShapeSource _mapSource;
   ///   MapZoomPanBehavior _zoomPanBehavior;
   ///
   ///   @override
   ///   void initState() {
+  ///     _mapSource = MapShapeSource.asset(
+  ///       'assets/world_map.json',
+  ///       shapeDataField: 'continent',
+  ///     );
+  ///
   ///     _zoomPanBehavior = MapZoomPanBehavior()
   ///       ..zoomLevel = 4
   ///       ..focalLatLng = MapLatLng(19.0759837, 72.8776559);
@@ -295,10 +358,7 @@ abstract class MapLayer extends StatelessWidget {
   ///       body: SfMaps(
   ///         layers: [
   ///           MapShapeLayer(
-  ///             source: MapShapeSource.asset(
-  ///               'assets/world_map.json',
-  ///               shapeDataField: 'continent',
-  ///             ),
+  ///             source: _mapSource,
   ///             zoomPanBehavior: _zoomPanBehavior,
   ///           ),
   ///         ],
@@ -306,7 +366,7 @@ abstract class MapLayer extends StatelessWidget {
   ///     );
   ///   }
   /// ```
-  final MapZoomPanBehavior zoomPanBehavior;
+  final MapZoomPanBehavior? zoomPanBehavior;
 
   /// Called whenever zooming is happening.
   ///
@@ -329,7 +389,7 @@ abstract class MapLayer extends StatelessWidget {
   ///  pointers in contact with the screen.
   ///  * [MapZoomDetails.localFocalPoint] - The local focal point of the
   ///   pointers in contact with the screen.
-  final WillZoomCallback onWillZoom;
+  final WillZoomCallback? onWillZoom;
 
   /// Called whenever panning is happening.
   ///
@@ -349,14 +409,14 @@ abstract class MapLayer extends StatelessWidget {
   ///  pointers in contact with the screen.
   ///  * [MapPanDetails.localFocalPoint] - The local focal point of the
   ///   pointers in contact with the screen.
-  final WillPanCallback onWillPan;
+  final WillPanCallback? onWillPan;
 }
 
 /// Base class for all vector shapes like [MapLineLayer], [MapCircleLayer],
 /// [MapArcLayer], [MapPolylineLayer], and [MapPolygonLayer].
 abstract class MapSublayer extends StatelessWidget {
   /// Creates a [MapSublayer].
-  const MapSublayer({Key key, this.tooltipBuilder}) : super(key: key);
+  const MapSublayer({Key? key, this.tooltipBuilder}) : super(key: key);
 
   /// Returns a widget for the map line tooltip based on the index.
   ///
@@ -368,100 +428,87 @@ abstract class MapSublayer extends StatelessWidget {
   /// user interacts with the shape.
   ///
   /// ```dart
+  ///  MapShapeSource _mapSource;
+  ///  int _selectedIndex;
+  ///  List<DataModel> _data;
   ///
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///  return Scaffold(
-  ///    body: SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///            'assets/world_map.json',
-  ///            shapeDataField: 'continent',
-  ///          ),
-  ///          sublayers: [
-  ///            MapLineLayer(
-  ///              lines: List<MapLine>.generate(
-  ///                lines.length,
-  ///                    (int index) {
-  ///                  return MapLine(
-  ///                    from: lines[index].from,
-  ///                    to: lines[index].to,
-  ///                  );
-  ///                },
-  ///              ).toSet(),
-  ///              tooltipBuilder: (BuildContext context, int index) {
-  ///               if (index == 0) {
-  ///                  return Container(
-  ///                    child: Icon(Icons.airplanemode_inactive),
-  ///                 );
-  ///                }
-  ///                else {
-  ///                  return Container(
-  ///                    child: Icon(Icons.airplanemode_active),
-  ///                  );
-  ///                }
-  ///              },
-  ///            ),
-  ///          ],
+  ///  @override
+  ///  void initState() {
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/usa.json',
+  ///    );
+  ///
+  ///    _data = <DataModel>[
+  ///      DataModel(MapLatLng(40.7128, -74.0060),
+  ///        MapLatLng(44.9778, -93.2650)),
+  ///      DataModel(MapLatLng(40.7128, -74.0060),
+  ///        MapLatLng(33.4484, -112.0740)),
+  ///      DataModel(MapLatLng(40.7128, -74.0060),
+  ///        MapLatLng(29.7604, -95.3698)),
+  ///      DataModel(MapLatLng(40.7128, -74.0060),
+  ///        MapLatLng(39.7392, -104.9903)),
+  ///    ];
+  ///    super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       appBar: AppBar(title: Text('Line layer')),
+  ///       body: Column(
+  ///         children: [
+  ///           Container(
+  ///             child: SfMaps(
+  ///               layers: [
+  ///                 MapShapeLayer(
+  ///                   source: _mapSource,
+  ///                   sublayers: [
+  ///                     MapLineLayer(
+  ///                       lines: List<MapLine>.generate(
+  ///                         _data.length,
+  ///                         (int index) {
+  ///                           return MapLine(
+  ///                               from: _data[index].from,
+  ///                               to: _data[index].to,
+  ///                               dashArray: [8, 3, 4, 2],
+  ///                               color: _selectedIndex == index
+  ///                                   ? Colors.red
+  ///                                   : Colors.blue,
+  ///                               width: 2,
+  ///                               onTap: () {
+  ///                                 setState(() {
+  ///                                   _selectedIndex = index;
+  ///                                 });
+  ///                               });
+  ///                         },
+  ///                       ).toSet(),
+  ///                       tooltipBuilder: (BuildContext context, int index) {
+  ///                         if (index == 0) {
+  ///                           return Container(
+  ///                             child: Icon(Icons.airplanemode_inactive),
+  ///                           );
+  ///                         } else {
+  ///                           return Container(
+  ///                             child: Icon(Icons.airplanemode_active),
+  ///                           );
+  ///                         }
+  ///                       },
+  ///                     ),
+  ///                   ],
+  ///                 ),
+  ///               ],
+  ///             ),
+  ///           ),
+  ///         ],
   ///       ),
-  ///      ],
-  ///    ),
-  ///  );
+  ///     );
+  ///   }
+  ///
+  /// class DataModel {
+  ///   DataModel(this.from, this.to);
+  ///   MapLatLng from;
+  ///   MapLatLng to;
   /// }
   /// ```
-  final IndexedWidgetBuilder tooltipBuilder;
-}
-
-/// Adds [MapSublayer] into a stack widget.
-class SublayerContainer extends Stack {
-  /// Creates a [SublayerContainer].
-  SublayerContainer({
-    List<MapSublayer> children,
-    this.controller,
-    this.tooltipKey,
-  }) : super(children: children ?? <MapSublayer>[]);
-
-  /// Holds the parent's map controller values.
-  final MapController controller;
-
-  /// Key is used to get tooltip render box.
-  final GlobalKey tooltipKey;
-
-  @override
-  RenderStack createRenderObject(BuildContext context) {
-    return RenderSublayerContainer(
-        controller: controller, tooltipKey: tooltipKey, context: context);
-  }
-}
-
-/// Adds [MapSublayer] into a stack widget.
-class RenderSublayerContainer extends RenderStack {
-  /// Creates a [RenderSublayerContainer].
-  RenderSublayerContainer({
-    this.controller,
-    this.tooltipKey,
-    this.context,
-  }) : super(textDirection: Directionality.of(context));
-
-  /// Used to connect all sub elements into the parent layer.
-  final MapController controller;
-
-  /// Key is used to get tooltip render box.
-  final GlobalKey tooltipKey;
-
-  /// The build context.
-  final BuildContext context;
-
-  /// Returns the sublayer index.
-  int getSublayerIndex(MapSublayer sublayer) {
-    final SublayerContainer sublayerContainer = context.widget;
-    return sublayerContainer.children.indexOf(sublayer);
-  }
-
-  @override
-  void performLayout() {
-    size = getBoxSize(constraints);
-    super.performLayout();
-  }
+  final IndexedWidgetBuilder? tooltipBuilder;
 }

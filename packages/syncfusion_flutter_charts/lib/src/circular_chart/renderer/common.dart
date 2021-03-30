@@ -10,55 +10,55 @@ class ChartPoint<D> {
   ChartPoint([this.x, this.y, this.radius, this.pointColor, this.sortValue]);
 
   /// X value of chart point
-  dynamic x;
+  dynamic? x;
 
   /// Y value of chart point
-  num y;
+  num? y;
 
   /// Degree of chart point
-  num degree;
+  num? degree;
 
   /// Start angle of chart point
-  num startAngle;
+  num? startAngle;
 
   /// End angle of chart point
-  num endAngle;
+  num? endAngle;
 
   /// Middle angle of chart point
-  num midAngle;
+  num? midAngle;
 
   /// Center position of chart point
-  Offset center;
+  Offset? center;
 
   /// Text value of chart point
-  String text;
+  String? text;
 
   /// Fill  color of the chart point
-  Color fill;
+  late Color fill;
 
   /// Color of chart point
-  Color color;
+  late Color color;
 
   /// Stroke color of chart point
-  Color strokeColor;
+  late Color strokeColor;
 
   /// Sort value of chart point
-  D sortValue;
+  D? sortValue;
 
   /// Stroke width of chart point
-  num strokeWidth;
+  late num strokeWidth;
 
   /// Inner radius of chart point
-  num innerRadius;
+  num? innerRadius;
 
   /// Outer radius of chart point
-  num outerRadius;
+  num? outerRadius;
 
   /// To set the explode value of chart point
-  bool isExplode;
+  bool? isExplode;
 
   /// To set the shadow value of chart point
-  bool isShadow;
+  bool? isShadow;
 
   /// to set the empty value of chart point
   bool isEmpty = false;
@@ -70,13 +70,13 @@ class ChartPoint<D> {
   bool isSelected = false;
 
   /// Data label positin of chart point
-  Position dataLabelPosition;
+  late Position dataLabelPosition;
 
   /// Render position of chart point
-  ChartDataLabelPosition renderPosition;
+  ChartDataLabelPosition? renderPosition;
 
   /// Label rect of chart point.
-  Rect labelRect;
+  late Rect labelRect;
 
   /// Size of the Data label of chart point
   Size dataLabelSize = const Size(0, 0);
@@ -85,16 +85,16 @@ class ChartPoint<D> {
   bool saturationRegionOutside = false;
 
   /// Y ratio of chart point
-  num yRatio;
+  late num yRatio;
 
   /// Height Ratio of chart point
-  num heightRatio;
+  late num heightRatio;
 
   /// Radius of the chart point
-  String radius;
+  String? radius;
 
   /// Color property of the chart point
-  Color pointColor;
+  Color? pointColor;
 
   /// To execute onTooltipRender event or not.
   // ignore: prefer_final_fields
@@ -103,6 +103,38 @@ class ChartPoint<D> {
   /// To execute OnDataLabelRender event or not.
   // ignore: prefer_final_fields
   bool labelRenderEvent = false;
+
+  /// Current point index.
+  late int index;
+
+  // Data type
+  dynamic? _data;
+
+  /// PointShader Mapper
+  ChartShaderMapper<dynamic>? _pointShaderMapper;
+
+  /// Shader of chart point
+  Shader? get shader =>
+      _pointShaderMapper != null && center != null && outerRadius != null
+          ? _pointShaderMapper!(
+              _data,
+              index,
+              fill,
+              Rect.fromCircle(
+                center: center!,
+                radius: outerRadius!.toDouble(),
+              ),
+            )
+          : null;
+
+  /// Path of circular Series
+  Rect? _pathRect;
+
+  /// Stores the tooltip label text.
+  late String _tooltipLabelText;
+
+  /// Stores the tooltip header text.
+  late String _tooltipHeaderText;
 }
 
 class _Region {
@@ -122,17 +154,17 @@ class _Region {
   num start;
   num end;
   num endAngle;
-  Offset center;
-  num innerRadius;
+  Offset? center;
+  num? innerRadius;
   num outerRadius;
 }
 
 class _StyleOptions {
-  _StyleOptions(this.fill, this.strokeWidth, this.strokeColor, [this.opacity]);
-  Color fill;
-  Color strokeColor;
-  double opacity;
-  num strokeWidth;
+  _StyleOptions({this.fill, this.strokeWidth, this.strokeColor, this.opacity});
+  Color? fill;
+  Color? strokeColor;
+  double? opacity;
+  num? strokeWidth;
 }
 
 /// This class holds the properties of the connector line.
@@ -144,8 +176,8 @@ class _StyleOptions {
 ///
 class ConnectorLineSettings {
   /// Creating an argument constructor of ConnectorLineSettings class.
-  ConnectorLineSettings(
-      {this.length, double width, ConnectorType type, this.color})
+  const ConnectorLineSettings(
+      {this.length, double? width, ConnectorType? type, this.color})
       : width = width ?? 1.0,
         type = type ?? ConnectorType.line;
 
@@ -165,7 +197,7 @@ class ConnectorLineSettings {
   ///        ));
   ///}
   ///```
-  final String length;
+  final String? length;
 
   ///Width of the connector line.
   ///
@@ -201,7 +233,7 @@ class ConnectorLineSettings {
   ///        ));
   ///}
   ///```
-  final Color color;
+  final Color? color;
 
   ///Type of the connector line.
   ///
@@ -225,11 +257,11 @@ class ConnectorLineSettings {
 class _ChartInteraction {
   _ChartInteraction(this.seriesIndex, this.pointIndex, this.series, this.point,
       [this.region]);
-  int seriesIndex;
-  int pointIndex;
+  int? seriesIndex;
+  int? pointIndex;
   dynamic series;
   dynamic point;
-  _Region region;
+  _Region? region;
 }
 
 /// Customizes the annotation of the circular chart.
@@ -244,13 +276,13 @@ class _ChartInteraction {
 class CircularChartAnnotation {
   /// Creating an argument constructor of CircularChartAnnotation class.
   CircularChartAnnotation(
-      {int angle,
-      String radius,
+      {int? angle,
+      String? radius,
       this.widget,
-      String height,
-      String width,
-      ChartAlignment horizontalAlignment,
-      ChartAlignment verticalAlignment})
+      String? height,
+      String? width,
+      ChartAlignment? horizontalAlignment,
+      ChartAlignment? verticalAlignment})
       : angle = angle ?? 0,
         radius = radius ?? '0%',
         height = height ?? '0%',
@@ -318,7 +350,7 @@ class CircularChartAnnotation {
   ///        ));
   ///}
   ///```
-  final Widget widget;
+  final Widget? widget;
 
   ///Height of the annotation.
   ///
@@ -446,7 +478,7 @@ Color _getCircularDataLabelColor(ChartPoint<dynamic> currentPoint,
       break;
     case 'RadialBar':
       final RadialBarSeries<dynamic, dynamic> radialBar =
-          seriesRenderer._series;
+          seriesRenderer._series as RadialBarSeries;
       color = radialBar.trackColor;
       break;
     default:
@@ -457,7 +489,7 @@ Color _getCircularDataLabelColor(ChartPoint<dynamic> currentPoint,
 
 ///To get inner data label color
 Color _getInnerColor(
-        Color dataLabelColor, Color pointColor, SfChartThemeData theme) =>
+        Color? dataLabelColor, Color? pointColor, SfChartThemeData theme) =>
     // ignore: prefer_if_null_operators
     dataLabelColor != null
         ? dataLabelColor
@@ -470,7 +502,7 @@ Color _getInnerColor(
 
 ///To get outer data label color
 Color _getOuterColor(
-        Color dataLabelColor, Color backgroundColor, SfChartThemeData theme) =>
+        Color? dataLabelColor, Color backgroundColor, SfChartThemeData theme) =>
     // ignore: prefer_if_null_operators
     dataLabelColor != null
         ? dataLabelColor
@@ -482,13 +514,13 @@ Color _getOuterColor(
 
 /// To check whether any point is selected
 bool _checkIsAnyPointSelect(CircularSeriesRenderer seriesRenderer,
-    ChartPoint<dynamic> point, SfCircularChart chart) {
+    ChartPoint<dynamic>? point, SfCircularChart chart) {
   bool isAnyPointSelected = false;
   final CircularSeries<dynamic, dynamic> series = seriesRenderer._series;
   if (series.initialSelectedDataIndexes.isNotEmpty) {
     for (int i = 0; i < series.initialSelectedDataIndexes.length; i++) {
       final int data = series.initialSelectedDataIndexes[i];
-      for (int j = 0; j < seriesRenderer._renderPoints.length; j++) {
+      for (int j = 0; j < seriesRenderer._renderPoints!.length; j++) {
         if (j == data) {
           isAnyPointSelected = true;
           break;

@@ -2,6 +2,29 @@
 
 **Features**
 
+* The Web platform support has been provided.	
+* Support to view the rotated PDF documents in the iOS platform has been provided.
+
+## [18.4.48-beta] - 03/16/2021 
+
+* Now, the `computeDryLayout` has been implemented and SfPdfViewer widget will be compatible in all channels of Flutter SDK.
+
+## [18.4.42-beta] - 02/09/2021 
+
+**Breaking changes**
+
+* Now, the text selection color and handle color can be customized using `selectionColor` and `selectionHandleColor` properties of `TextSelectionTheme` respectively.
+
+## [18.4.31-beta] - 12/22/2020 
+
+**Features**
+
+* Now, the highlighted search instance in the zoomed document will be navigate properly.
+
+## [18.4.30-beta] - 12/17/2020 
+
+**Features**
+
 * Text Search - Select text presented in a PDF document.
 * Text Selection - Search for text and navigate to all its occurrences in a PDF document instantly.
 * Document Link Annotation - Navigate to the desired topic or position by tapping the document link annotation of the topics in the table of contents in a PDF document.

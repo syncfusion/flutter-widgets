@@ -13,29 +13,29 @@ class _ChartAxis {
   //Here, we are using get keyword inorder to get the proper & updated instance of chart widget
   //When we initialize chart widget as a property to other classes like _ChartSeries, the chart widget is not updated properly and by using get we can rectify this.
   SfCartesianChart get _chartWidget => _chartState._chart;
-  ChartAxisRenderer _primaryXAxisRenderer, _primaryYAxisRenderer;
+  late ChartAxisRenderer _primaryXAxisRenderer, _primaryYAxisRenderer;
   List<ChartAxisRenderer> _leftAxisRenderers = <ChartAxisRenderer>[];
   List<ChartAxisRenderer> _rightAxisRenderers = <ChartAxisRenderer>[];
   List<ChartAxisRenderer> _topAxisRenderers = <ChartAxisRenderer>[];
   List<ChartAxisRenderer> _bottomAxisRenderers = <ChartAxisRenderer>[];
-  List<_AxisSize> _leftAxesCount;
-  List<_AxisSize> _bottomAxesCount;
-  List<_AxisSize> _topAxesCount;
-  List<_AxisSize> _rightAxesCount;
+  late List<_AxisSize> _leftAxesCount;
+  late List<_AxisSize> _bottomAxesCount;
+  late List<_AxisSize> _topAxesCount;
+  late List<_AxisSize> _rightAxesCount;
   double _bottomSize = 0;
   double _topSize = 0;
   double _leftSize = 0;
   double _rightSize = 0;
-  num _innerPadding = 0;
-  num _axisPadding = 0;
-  Rect _axisClipRect;
+  double _innerPadding = 0;
+  double _axisPadding = 0;
+  late Rect _axisClipRect;
   List<ChartAxisRenderer> _verticalAxisRenderers = <ChartAxisRenderer>[];
   List<ChartAxisRenderer> _horizontalAxisRenderers = <ChartAxisRenderer>[];
   //ignore: prefer_final_fields
   List<ChartAxisRenderer> _axisRenderersCollection = <ChartAxisRenderer>[];
 
   /// Whether to repaint axis or not
-  bool _needsRepaint;
+  late bool _needsRepaint;
 
   /// To get the crossAt values of a specific axis
   void _getAxisCrossingValue(ChartAxisRenderer axisRenderer) {
@@ -83,8 +83,16 @@ class _ChartAxis {
           ? value.floor()
           : targetAxisRenderer._labels.indexOf(value);
       targetAxisRenderer._calculateRangeAndInterval(_chartState, 'AxisCross');
+    } else if (targetAxisRenderer is DateTimeCategoryAxisRenderer) {
+      value = value is num
+          ? value.floor()
+          : (value is DateTime
+              ? targetAxisRenderer._labels
+                  .indexOf('${value.microsecondsSinceEpoch}')
+              : null);
+      targetAxisRenderer._calculateRangeAndInterval(_chartState, 'AxisCross');
     } else if (targetAxisRenderer is LogarithmicAxisRenderer) {
-      final LogarithmicAxis _axis = targetAxisRenderer._axis;
+      final LogarithmicAxis _axis = targetAxisRenderer._axis as LogarithmicAxis;
       value = _calculateLogBaseValue(value, _axis.logBase);
       targetAxisRenderer._calculateRangeAndInterval(_chartState, 'AxisCross');
     } else if (targetAxisRenderer is NumericAxisRenderer) {
@@ -92,7 +100,7 @@ class _ChartAxis {
     }
     if (!value.isNaN) {
       currentAxisRenderer._crossValue =
-          _updateCrossValue(value, targetAxisRenderer._visibleRange);
+          _updateCrossValue(value, targetAxisRenderer._visibleRange!);
       currentAxisRenderer._crossRange = targetAxisRenderer._visibleRange;
     }
   }
@@ -153,8 +161,8 @@ class _ChartAxis {
     num titleSize = 0;
     axisRenderer._totalSize = 0;
     if (axis.isVisible) {
-      if (axis.title.text != null && axis.title.text.isNotEmpty) {
-        titleSize = _measureText(axis.title.text, axis.title.textStyle).height +
+      if (axis.title.text != null && axis.title.text!.isNotEmpty) {
+        titleSize = measureText(axis.title.text!, axis.title.textStyle).height +
             _axisPadding;
       }
       final Rect rect = _chartState._containerRect;
@@ -175,21 +183,22 @@ class _ChartAxis {
                   ? 0
                   : (axisRenderer._orientation == AxisOrientation.horizontal)
                       ? axisRenderer._maximumLabelSize.height
-                      : (axis.labelsExtent != null && axis.labelsExtent > 0)
+                      : (axis.labelsExtent != null && axis.labelsExtent! > 0)
                           ? axis.labelsExtent
-                          : axisRenderer._maximumLabelSize.width) +
+                          : axisRenderer._maximumLabelSize.width)! +
               _innerPadding;
       axisRenderer._totalSize = titleSize + tickSize + labelSize;
       if (axisRenderer._orientation == AxisOrientation.horizontal) {
         if (!axis.opposedPosition) {
           axisRenderer._totalSize +=
-              _bottomAxisRenderers.isNotEmpty && axis.labelStyle.fontSize > 0
+              _bottomAxisRenderers.isNotEmpty && axis.labelStyle.fontSize! > 0
                   ? _axisPadding.toDouble()
                   : 0;
           if (axisRenderer._crossValue != null &&
               axisRenderer._crossRange != null) {
             final num crosPosition = _valueToCoefficient(
-                    axisRenderer._crossValue, axisRenderer._crossAxisRenderer) *
+                    axisRenderer._crossValue!,
+                    axisRenderer._crossAxisRenderer) *
                 rect.height;
             axisRenderer._totalSize = crosPosition - axisRenderer._totalSize < 0
                 ? (crosPosition - axisRenderer._totalSize).abs()
@@ -202,13 +211,14 @@ class _ChartAxis {
               .add(_AxisSize(axisRenderer, axisRenderer._totalSize));
         } else {
           axisRenderer._totalSize +=
-              _topAxisRenderers.isNotEmpty && axis.labelStyle.fontSize > 0
+              _topAxisRenderers.isNotEmpty && axis.labelStyle.fontSize! > 0
                   ? _axisPadding.toDouble()
                   : 0;
           if (axisRenderer._crossValue != null &&
               axisRenderer._crossRange != null) {
             final num crosPosition = _valueToCoefficient(
-                    axisRenderer._crossValue, axisRenderer._crossAxisRenderer) *
+                    axisRenderer._crossValue!,
+                    axisRenderer._crossAxisRenderer) *
                 rect.height;
             axisRenderer._totalSize = crosPosition + axisRenderer._totalSize >
                     rect.height
@@ -223,13 +233,14 @@ class _ChartAxis {
       } else if (axisRenderer._orientation == AxisOrientation.vertical) {
         if (!axis.opposedPosition) {
           axisRenderer._totalSize +=
-              _leftAxisRenderers.isNotEmpty && axis.labelStyle.fontSize > 0
+              _leftAxisRenderers.isNotEmpty && axis.labelStyle.fontSize! > 0
                   ? _axisPadding.toDouble()
                   : 0;
           if (axisRenderer._crossValue != null &&
               axisRenderer._crossRange != null) {
             final num crosPosition = _valueToCoefficient(
-                    axisRenderer._crossValue, axisRenderer._crossAxisRenderer) *
+                    axisRenderer._crossValue!,
+                    axisRenderer._crossAxisRenderer) *
                 rect.width;
             axisRenderer._totalSize = crosPosition - axisRenderer._totalSize < 0
                 ? (crosPosition - axisRenderer._totalSize).abs()
@@ -241,13 +252,14 @@ class _ChartAxis {
           _leftAxesCount.add(_AxisSize(axisRenderer, axisRenderer._totalSize));
         } else {
           axisRenderer._totalSize +=
-              _rightAxisRenderers.isNotEmpty && axis.labelStyle.fontSize > 0
+              _rightAxisRenderers.isNotEmpty && axis.labelStyle.fontSize! > 0
                   ? _axisPadding.toDouble()
                   : 0;
           if (axisRenderer._crossValue != null &&
               axisRenderer._crossRange != null) {
             final num crosPosition = _valueToCoefficient(
-                    axisRenderer._crossValue, axisRenderer._crossAxisRenderer) *
+                    axisRenderer._crossValue!,
+                    axisRenderer._crossAxisRenderer) *
                 rect.width;
             axisRenderer._totalSize = crosPosition + axisRenderer._totalSize >
                     rect.width
@@ -283,6 +295,8 @@ class _ChartAxis {
         _rightAxisRenderers.add(axisRenderer);
         index = _rightAxisRenderers.length;
       }
+    } else {
+      index = 0;
     }
     return index - 1;
   }
@@ -302,10 +316,7 @@ class _ChartAxis {
   /// Calculate series clip rect size
   void _calculateSeriesClipRect() {
     final Rect containerRect = _chartState._containerRect;
-    final num padding =
-        _chartWidget.title.text != null && _chartWidget.title.text.isNotEmpty
-            ? 10
-            : 0;
+    final num padding = _chartWidget.title.text.isNotEmpty ? 10 : 0;
     _chartState._chartAxis._axisClipRect = Rect.fromLTWH(
         containerRect.left + _leftSize,
         containerRect.top + _topSize + padding,
@@ -325,52 +336,54 @@ class _ChartAxis {
   }
 
   /// Return the axis offset value for x and y axis
-  num _getPrevAxisOffset(
+  num? _getPrevAxisOffset(
       List<_AxisSize> axesSize, Rect rect, int currentAxisIndex, String type) {
-    num prevAxisOffsetValue;
+    num? prevAxisOffsetValue;
     if (currentAxisIndex > 0) {
       for (int i = currentAxisIndex - 1; i >= 0; i--) {
         final ChartAxisRenderer axisRenderer = axesSize[i].axisRenderer;
         final Rect bounds = axisRenderer._bounds;
         if (type == 'Left' &&
             ((axisRenderer._labelOffset != null
-                    ? axisRenderer._labelOffset -
+                    ? axisRenderer._labelOffset! -
                         axisRenderer._maximumLabelSize.width
                     : bounds.left - bounds.width) <
                 rect.left)) {
           prevAxisOffsetValue = axisRenderer._labelOffset != null
-              ? axisRenderer._labelOffset - axisRenderer._maximumLabelSize.width
+              ? axisRenderer._labelOffset! -
+                  axisRenderer._maximumLabelSize.width
               : bounds.left - bounds.width;
           break;
         } else if (type == 'Bottom' &&
             ((axisRenderer._labelOffset != null
-                    ? axisRenderer._labelOffset +
+                    ? axisRenderer._labelOffset! +
                         axisRenderer._maximumLabelSize.height
                     : bounds.top + bounds.height) >
                 rect.top + rect.height)) {
           prevAxisOffsetValue = axisRenderer._labelOffset != null
-              ? axisRenderer._labelOffset +
+              ? axisRenderer._labelOffset! +
                   axisRenderer._maximumLabelSize.height
               : bounds.top + bounds.height;
           break;
         } else if (type == 'Right' &&
             ((axisRenderer._labelOffset != null
-                    ? axisRenderer._labelOffset +
+                    ? axisRenderer._labelOffset! +
                         axisRenderer._maximumLabelSize.width
                     : bounds.left + bounds.width) >
                 rect.left + rect.width)) {
           prevAxisOffsetValue = axisRenderer._labelOffset != null
-              ? axisRenderer._labelOffset + axisRenderer._maximumLabelSize.width
+              ? axisRenderer._labelOffset! +
+                  axisRenderer._maximumLabelSize.width
               : bounds.left + bounds.width;
           break;
         } else if (type == 'Top' &&
             ((axisRenderer._labelOffset != null
-                    ? axisRenderer._labelOffset -
+                    ? axisRenderer._labelOffset! -
                         axisRenderer._maximumLabelSize.height
                     : bounds.top - bounds.height) <
                 rect.top)) {
           prevAxisOffsetValue = axisRenderer._labelOffset != null
-              ? axisRenderer._labelOffset -
+              ? axisRenderer._labelOffset! -
                   axisRenderer._maximumLabelSize.height
               : bounds.top - bounds.height;
           break;
@@ -407,7 +420,7 @@ class _ChartAxis {
 
   /// Calculate the left axes bounds
   void _calculateLeftAxesBounds() {
-    num axisSize, width;
+    double axisSize, width;
     final int axesLength = _leftAxesCount.length;
     final Rect rect = _chartState._chartAxis._axisClipRect;
     for (int axisIndex = 0; axisIndex < axesLength; axisIndex++) {
@@ -415,18 +428,18 @@ class _ChartAxis {
       final ChartAxisRenderer axisRenderer =
           _leftAxesCount[axisIndex].axisRenderer;
       final ChartAxis axis = axisRenderer._axis;
-      assert(axis.plotOffset != null ? axis.plotOffset >= 0 : true,
+      assert(axis.plotOffset >= 0,
           'The plot offset value of the axis must be greater than or equal to 0.');
       if (axisRenderer._crossValue != null) {
-        axisSize = (_valueToCoefficient(
-                    axisRenderer._crossValue, axisRenderer._crossAxisRenderer) *
+        axisSize = (_valueToCoefficient(axisRenderer._crossValue!,
+                    axisRenderer._crossAxisRenderer) *
                 rect.width) +
             rect.left;
         if (axisIndex == 0 && !axis.placeLabelsNearAxisLine) {
           axisRenderer._labelOffset = rect.left - 5;
         }
       } else {
-        final num prevAxisOffsetValue =
+        final num? prevAxisOffsetValue =
             _getPrevAxisOffset(_leftAxesCount, rect, axisIndex, 'Left');
         axisSize = prevAxisOffsetValue == null
             ? rect.left
@@ -450,7 +463,7 @@ class _ChartAxis {
 
   /// Calculate the bottom axes bounds
   void _calculateBottomAxesBounds() {
-    num axisSize, height;
+    double axisSize, height;
     final int axesLength = _bottomAxesCount.length;
     final Rect rect = _chartState._chartAxis._axisClipRect;
     for (int axisIndex = 0; axisIndex < axesLength; axisIndex++) {
@@ -458,19 +471,19 @@ class _ChartAxis {
       final ChartAxisRenderer axisRenderer =
           _bottomAxesCount[axisIndex].axisRenderer;
       final ChartAxis axis = axisRenderer._axis;
-      assert(axis.plotOffset != null ? axis.plotOffset >= 0 : true,
+      assert(axis.plotOffset >= 0,
           'The plot offset value of the axis must be greater than or equal to 0.');
       if (axisRenderer._crossValue != null) {
         axisSize = rect.top +
             rect.height -
-            (_valueToCoefficient(
-                    axisRenderer._crossValue, axisRenderer._crossAxisRenderer) *
+            (_valueToCoefficient(axisRenderer._crossValue!,
+                    axisRenderer._crossAxisRenderer) *
                 rect.height);
         if (axisIndex == 0 && !axis.placeLabelsNearAxisLine) {
           axisRenderer._labelOffset = rect.top + rect.height + 5;
         }
       } else {
-        final num prevAxisOffsetValue =
+        final num? prevAxisOffsetValue =
             _getPrevAxisOffset(_bottomAxesCount, rect, axisIndex, 'Bottom');
         axisSize = (prevAxisOffsetValue == null)
             ? rect.top + rect.height
@@ -494,26 +507,26 @@ class _ChartAxis {
 
   /// Calculate the right axes bounds
   void _calculateRightAxesBounds() {
-    num axisSize, width;
+    double axisSize, width;
     final int axesLength = _rightAxesCount.length;
     final Rect rect = _chartState._chartAxis._axisClipRect;
     for (int axisIndex = 0; axisIndex < axesLength; axisIndex++) {
       final ChartAxisRenderer axisRenderer =
           _rightAxesCount[axisIndex].axisRenderer;
       final ChartAxis axis = axisRenderer._axis;
-      assert(axis.plotOffset != null ? axis.plotOffset >= 0 : true,
+      assert(axis.plotOffset >= 0,
           'The plot offset value of the axis must be greater than or equal to 0.');
       width = _rightAxesCount[axisIndex].size;
       if (axisRenderer._crossValue != null) {
         axisSize = rect.left +
-            (_valueToCoefficient(
-                    axisRenderer._crossValue, axisRenderer._crossAxisRenderer) *
+            (_valueToCoefficient(axisRenderer._crossValue!,
+                    axisRenderer._crossAxisRenderer) *
                 rect.width);
         if (axisIndex == 0 && !axis.placeLabelsNearAxisLine) {
           axisRenderer._labelOffset = rect.left + rect.width + 5;
         }
       } else {
-        final num prevAxisOffsetValue =
+        final num? prevAxisOffsetValue =
             _getPrevAxisOffset(_rightAxesCount, rect, axisIndex, 'Right');
         axisSize = (prevAxisOffsetValue == null)
             ? rect.left + rect.width
@@ -537,27 +550,27 @@ class _ChartAxis {
 
   /// Calculate the top axes bounds
   void _calculateTopAxesBounds() {
-    num axisSize, height;
+    double axisSize, height;
     final int axesLength = _topAxesCount.length;
     final Rect rect = _chartState._chartAxis._axisClipRect;
     for (int axisIndex = 0; axisIndex < axesLength; axisIndex++) {
       final ChartAxisRenderer axisRenderer =
           _topAxesCount[axisIndex].axisRenderer;
       final ChartAxis axis = axisRenderer._axis;
-      assert(axis.plotOffset != null ? axis.plotOffset >= 0 : true,
+      assert(axis.plotOffset >= 0,
           'The plot offset value of the axis must be greater than or equal to 0.');
       height = _topAxesCount[axisIndex].size;
       if (axisRenderer._crossValue != null) {
         axisSize = rect.top +
             rect.height -
-            (_valueToCoefficient(
-                    axisRenderer._crossValue, axisRenderer._crossAxisRenderer) *
+            (_valueToCoefficient(axisRenderer._crossValue!,
+                    axisRenderer._crossAxisRenderer) *
                 rect.height);
         if (axisIndex == 0 && !axis.placeLabelsNearAxisLine) {
           axisRenderer._labelOffset = rect.top - 5;
         }
       } else {
-        final num prevAxisOffsetValue =
+        final num? prevAxisOffsetValue =
             _getPrevAxisOffset(_topAxesCount, rect, axisIndex, 'Top');
         axisSize = (prevAxisOffsetValue == null)
             ? rect.top
@@ -612,6 +625,8 @@ class _ChartAxis {
                 : _getAxisRenderer(_axesCollection[axisIndex]));
         if (axisRenderer is CategoryAxisRenderer) {
           axisRenderer._labels = <String>[];
+        } else if (axisRenderer is DateTimeCategoryAxisRenderer) {
+          axisRenderer._labels = <String>[];
         }
         axisRenderer._seriesRenderers = <CartesianSeriesRenderer>[];
         axisRenderer._chartState = _chartState;
@@ -620,7 +635,8 @@ class _ChartAxis {
             seriesIndex++) {
           final CartesianSeriesRenderer seriesRenderer =
               visibleSeriesRenderer[seriesIndex];
-          final XyDataSeries<dynamic, dynamic> series = seriesRenderer._series;
+          final XyDataSeries<dynamic, dynamic> series =
+              seriesRenderer._series as XyDataSeries;
           if ((axisRenderer._name != null &&
                   axisRenderer._name == series.xAxisName) ||
               (series.xAxisName == null &&
@@ -673,6 +689,10 @@ class _ChartAxis {
               ? _verticalAxisRenderers.add(axisRenderer)
               : _horizontalAxisRenderers.add(axisRenderer);
         }
+        axisRenderer._oldAxis = _chartState._widgetNeedUpdate
+            ? _getOldAxisRenderer(axisRenderer, _chartState._oldAxisRenderers)
+                ?._axis
+            : null;
         _axisRenderersCollection.add(axisRenderer);
       }
     } else {
@@ -694,15 +714,17 @@ class _ChartAxis {
   ChartAxisRenderer _getAxisRenderer(ChartAxis axis) {
     switch (axis.runtimeType) {
       case NumericAxis:
-        return NumericAxisRenderer(axis);
+        return NumericAxisRenderer(axis as NumericAxis);
       case LogarithmicAxis:
-        return LogarithmicAxisRenderer(axis);
+        return LogarithmicAxisRenderer(axis as LogarithmicAxis);
       case CategoryAxis:
-        return CategoryAxisRenderer(axis);
+        return CategoryAxisRenderer(axis as CategoryAxis);
       case DateTimeAxis:
-        return DateTimeAxisRenderer(axis);
+        return DateTimeAxisRenderer(axis as DateTimeAxis);
+      case DateTimeCategoryAxis:
+        return DateTimeCategoryAxisRenderer(axis as DateTimeCategoryAxis);
       default:
-        return null;
+        return NumericAxisRenderer(axis as NumericAxis);
     }
   }
 }

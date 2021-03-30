@@ -117,3 +117,21 @@ enum PdfNumberStyle {
   /// Uppercase roman numerals.
   upperRoman
 }
+
+/// Specifies tab order types for form fields
+enum PdfFormFieldsTabOrder {
+  /// Form fields are visited default order
+  none,
+
+  /// Form fields are visited rows running horizontally across the page
+  row,
+
+  /// Form fields are visited column running vertically up and down the page
+  column,
+
+  /// Form fields are visited based on the structure tree
+  structure,
+
+  /// Form fields are visited manual order
+  manual,
+}

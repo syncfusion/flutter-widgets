@@ -1755,9 +1755,9 @@ const List<int> _kDateCollection = <int>[
 /// ```
 class HijriDateTime {
   /// Creates a instance for HijriDateTime instance with given data.
-  HijriDateTime(this.year, this.month, this.day) {
-    _date = convertToGregorianDate(null, year: year, month: month, day: day);
-  }
+  HijriDateTime(this.year, this.month, this.day)
+      : _date =
+            convertToGregorianDate(null, year: year, month: month, day: day);
 
   /// returns the hijri date value based on the current date
   ///
@@ -1772,7 +1772,7 @@ class HijriDateTime {
   }
 
   /// The gregorian date value for [this]
-  DateTime _date;
+  final DateTime _date;
 
   /// returns the hijri date from the given date
   ///
@@ -1874,7 +1874,13 @@ class HijriDateTime {
   HijriDateTime _getPreviousDate(HijriDateTime date, int day) {
     if (day <= 0) {
       date = getPreviousMonthDate(date);
-      final int monthLength = date.getNumberOfDatesInMonth();
+      final int? monthLength = date.getNumberOfDatesInMonth();
+
+      /// Return same date when dates count in month not specified.
+      if (monthLength == null) {
+        return date;
+      }
+
       day = monthLength + day;
       return _getPreviousDate(date, day);
     }
@@ -1883,11 +1889,17 @@ class HijriDateTime {
   }
 
   /// Returns the next possible date from the given value.
-  HijriDateTime _getNextDate(int monthLength, HijriDateTime date, int day) {
-    if (day > monthLength) {
+  HijriDateTime _getNextDate(int? monthLength, HijriDateTime date, int day) {
+    if (monthLength != null && day > monthLength) {
       day -= monthLength;
       date = getNextMonthDate(date);
       monthLength = date.getNumberOfDatesInMonth();
+
+      /// Return same date when dates count in month not specified.
+      if (monthLength == null) {
+        return date;
+      }
+
       return _getNextDate(monthLength, date, day);
     }
 
@@ -1896,23 +1908,27 @@ class HijriDateTime {
 
   /// Returns new [HijriDateTime] instance by subtracting given [Duration].
   HijriDateTime _add(Duration duration) {
-    final int lengthOfMonth = getNumberOfDatesInMonth();
-    int newDay, newMonth, newYear;
-    if (duration.inDays != null) {
-      HijriDateTime addedDate;
-      newDay = duration.inDays + day;
-      if (newDay > lengthOfMonth) {
-        addedDate = _getNextDate(lengthOfMonth, this, newDay);
-      } else if (newDay <= 0) {
-        addedDate = _getPreviousDate(this, newDay);
-      }
+    final int? lengthOfMonth = getNumberOfDatesInMonth();
 
-      if (addedDate != null) {
-        return addedDate;
-      }
+    /// Return same date when dates count in month not specified.
+    if (lengthOfMonth == null) {
+      return this;
     }
 
-    return HijriDateTime(newYear ?? year, newMonth ?? month, newDay ?? day);
+    int? newDay;
+    HijriDateTime? addedDate;
+    newDay = duration.inDays + day;
+    if (newDay > lengthOfMonth) {
+      addedDate = _getNextDate(lengthOfMonth, this, newDay);
+    } else if (newDay <= 0) {
+      addedDate = _getPreviousDate(this, newDay);
+    }
+
+    if (addedDate != null) {
+      return addedDate;
+    }
+
+    return HijriDateTime(year, month, newDay);
   }
 
   /// Returns a new [HijriDateTime] instance with [duration] subtracted to
@@ -1922,11 +1938,18 @@ class HijriDateTime {
   }
 
   /// returns the number of dates in the month
-  int getNumberOfDatesInMonth() {
+  int? getNumberOfDatesInMonth() {
     final int totalYear = year - 1;
     final int totalMonths = (totalYear * 12) + 1 + (month - 1);
     final int i = totalMonths - 16260;
-    return _kDateCollection[i] - _kDateCollection[i - 1];
+    if (_kDateCollection.length > i - 1 && i > 0) {
+      return _kDateCollection[i] - _kDateCollection[i - 1];
+    }
+
+    /// Return null when the date value is not valid.
+    /// Valid date should be between 1356 AH (14 March 1937 CE) to
+    /// 1500 AH (16 November 2077 CE).
+    return null;
   }
 
   @override
@@ -2019,15 +2042,23 @@ HijriDateTime convertToHijriDate(DateTime date) {
 }
 
 /// Converts and returns the gregorian date from the given hijri date values.
-DateTime convertToGregorianDate(HijriDateTime date,
-    {int year, int month, int day}) {
-  if (date != null && date._date != null) {
+DateTime convertToGregorianDate(HijriDateTime? date,
+    {int year = 0, int month = 0, int day = 0}) {
+  if (date != null) {
     return date._date;
   }
+
+  assert(year != 0);
+  assert(month != 0);
+  assert(day != 0);
 
   /// When the year exceeds the maximum year limit return the maximum value.
   if (year > 1500) {
     return DateTime(2077, 11, 16);
+  } else if (year < 1356) {
+    /// Return minimum hijri date equivalent gregorian date value when
+    /// hijri year value before the minimum year value.
+    return DateTime(1937, 03, 14);
   }
 
   final int iy = year;

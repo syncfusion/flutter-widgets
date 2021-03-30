@@ -32,6 +32,7 @@ analyzer:
     missing_required_param: warning
     omit_local_variable_types: ignore
     include_file_not_found: ignore
+    invalid_dependency: ignore
 
 linter:
   rules:

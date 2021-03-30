@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "Není vybráno žádné datum", 
 "noEventsCalendarLabel" : "Žádné události", 
-"scheduleViewNewEventLabel" : "Nic nebylo plánováno. Klepnutím vytvoříte.", 
 "ofDataPagerLabel" : "z", 
 "pagesDataPagerLabel" : "stránky", 
 "itemsDataPagerLabel" : "položky", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "RAM.", 
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
-"shortDhualhiLabel" : "Dhu'l-H"
+"shortDhualhiLabel" : "Dhu'l-H", 
+"daySpanCountLabel" : "Den"
 }

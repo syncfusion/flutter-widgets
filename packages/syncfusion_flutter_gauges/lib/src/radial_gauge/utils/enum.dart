@@ -1,5 +1,3 @@
-part of gauges;
-
 ///  A alignment along either the horizontal or vertical.
 enum GaugeAlignment {
   /// GaugeAlignment.near aligns the gauge element to near either

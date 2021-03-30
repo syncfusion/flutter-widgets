@@ -9,9 +9,23 @@ import '../trackball/trackball_renderer.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
 
-/// Represents the spark area chart widget
+/// This class renders an area spark chart. The [SfSparkAreaChart] is a
+/// very small chart, typically drawn without axis ticks and labels.
+/// It presents the general shape of data in a simple and highly condensed way.
+///
+/// To render an area spark chart, create the instance of [SfSparkAreaChart].
+/// Set the value for `data` property which of type List<num>.
+/// Now, it shows the filled area to represent the provided data.
+///
+/// It provides option to customize its appearance with the properties
+/// such as [color], [borderWidth], [borderColor]. To highlight the provided
+/// data, use either its [marker] property or its data label property.
+/// To highlight the data point, which is tapped, use its [trackball] property.
+///  To highlight the particular region along with the vertical value,
+///  use its [plotBand] property.
+
 class SfSparkAreaChart extends StatefulWidget {
-  /// Creates the spark area chart
+  /// Creates a spark area chart for the provided set of data with its default view.
   ///
   /// ```dart
   /// @override
@@ -25,8 +39,8 @@ class SfSparkAreaChart extends StatefulWidget {
   /// }
   /// ```
   SfSparkAreaChart(
-      {Key key,
-      List<num> data,
+      {Key? key,
+      List<num>? data,
       this.plotBand,
       this.borderWidth = 0,
       this.borderColor,
@@ -49,10 +63,25 @@ class SfSparkAreaChart extends StatefulWidget {
           fontWeight: FontWeight.normal,
           fontSize: 12),
       this.trackball})
-      : _sparkChartDataDetails = SparkChartDataDetails(data: data),
+      : _sparkChartDataDetails = SparkChartDataDetails(data: data!),
         super(key: key);
 
-  /// Create the spark area chart with custom data source
+  /// Creates the spark area chart for the provided set of data with its default view.
+  ///
+  /// The difference between the default constructor and this constructor is,
+  /// in the default constructor uses its data property to get the input data value.
+  /// The `data` property of the default constructor is of type List<num>.
+  ///
+  /// The custom constructor uses its [dataCount], [xValueMapper] and
+  /// [yValueMapper] to get the input data.
+  ///
+  /// The [dataCount] property allows declaring the total data count going to be
+  /// displayed in the chart.
+  ///
+  /// The [xValueMapper[ returns the x- value of the corresponding data point.
+  /// The [xValueMapper] allows providing num, DateTime, or string as x-value.
+  ///
+  /// The [yValueMapper] returns the y-value of the corresponding data point.
   ///
   /// ```dart
   /// class SalesData {
@@ -89,16 +118,16 @@ class SfSparkAreaChart extends StatefulWidget {
   /// ```
 
   SfSparkAreaChart.custom(
-      {Key key,
+      {Key? key,
 
       /// Data count for the spark charts.
-      int dataCount,
+      int? dataCount,
 
       /// Specifies the x-value mapping field
-      SparkChartIndexedValueMapper<dynamic> xValueMapper,
+      SparkChartIndexedValueMapper<dynamic>? xValueMapper,
 
       /// Specifies the y-value maping field
-      SparkChartIndexedValueMapper<num> yValueMapper,
+      SparkChartIndexedValueMapper<num>? yValueMapper,
       this.plotBand,
       this.borderWidth = 2,
       this.borderColor,
@@ -122,12 +151,18 @@ class SfSparkAreaChart extends StatefulWidget {
           fontSize: 12),
       this.trackball})
       : _sparkChartDataDetails = SparkChartDataDetails(
-            dataCount: dataCount,
-            xValueMapper: xValueMapper,
-            yValueMapper: yValueMapper),
+            dataCount: dataCount!,
+            xValueMapper: xValueMapper!,
+            yValueMapper: yValueMapper!),
         super(key: key);
 
-  /// Specifies whether to inverse the spark area chart rendering.
+  /// Inverts the axis from right to left.
+  ///
+  /// In the spark chart, the provided set of data are rendered from left to
+  /// right by default and can be inverted to render the data points
+  /// from right to left.
+  ///
+  /// Defaults to `false`.
   ///
   /// ```dart
   /// @override
@@ -143,7 +178,10 @@ class SfSparkAreaChart extends StatefulWidget {
   /// ```
   final bool isInversed;
 
-  /// Specifies the axis line's position.
+  /// Customize the axis position based on the provided y-value.The axis line is
+  /// rendered on the minimum y-value and can be repositioned to required y-value.
+  ///
+  /// Defaults to `zero`.
   ///
   /// ```dart
   /// @override
@@ -159,7 +197,9 @@ class SfSparkAreaChart extends StatefulWidget {
   /// ```
   final double axisCrossesAt;
 
-  /// Specifies the width of the axis line.
+  /// Customizes the width of the axis line.
+  ///
+  /// Defaults to `2`.
   ///
   /// ```dart
   /// @override
@@ -175,7 +215,10 @@ class SfSparkAreaChart extends StatefulWidget {
   /// ```
   final double axisLineWidth;
 
-  /// Specified the color of the axis line.
+  /// Customizes the color of the axis line.
+  /// Colors.transparent can be set to [axisLineColor] to hide the axis line.
+  ///
+  /// Defaults to `Colors.black`.
   ///
   /// ```dart
   /// @override
@@ -191,7 +234,10 @@ class SfSparkAreaChart extends StatefulWidget {
   /// ```
   final Color axisLineColor;
 
-  /// Specifies the dash array value of the axis line.
+  /// Dashes of the axis line. Any number of values can be provided on the list.
+  /// Odd value is considered as rendering size and even value is considered a gap.
+  ///
+  /// Defaults to `null`
   ///
   /// ```dart
   /// @override
@@ -205,9 +251,14 @@ class SfSparkAreaChart extends StatefulWidget {
   ///  );
   /// }
   /// ```
-  final List<double> axisLineDashArray;
+  final List<double>? axisLineDashArray;
 
-  /// Specifies the highest data point color.
+  /// Customizes the [marker] color of the highest data point.
+  ///
+  /// When the high data point is the first or last data point of the provided
+  /// data set, then either the first or last point color gets applied.
+  ///
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
@@ -215,79 +266,107 @@ class SfSparkAreaChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
+  ///      marker: SparkChartMarker(displayMode: SparkChartMarkerDisplayMode.all),
   ///      highPointColor: Colors.red,
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
   ///  );
   /// }
   /// ```
-  final Color highPointColor;
+  final Color? highPointColor;
 
-  /// Specifies the lowest data point color.
+  /// Customizes the [marker] color of the lowest data point.
+  ///
+  /// When the lowest data point is the first or last data point of the
+  /// provided data set, then either the first or last point color gets applied.
+  ///
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
-  /// Widget build(BuildContext context) {
+  ///  Widget build(BuildContext context) {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
+  ///      marker: SparkChartMarker(displayMode: SparkChartMarkerDisplayMode.all),
   ///      lowPointColor: Colors.red,
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
   ///  );
   /// }
   /// ```
-  final Color lowPointColor;
+  final Color? lowPointColor;
 
-  /// Specifies the negative point color.
+  /// Customizes the marker color of negative data point and data point value
+  /// less than the [axisCrossesAt] value.
+  ///
+  /// If the negative data point is either the high or low, first or last data
+  /// point, then priority will be given to those colors.
+  ///
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
-  /// Widget build(BuildContext context) {
+  ///  Widget build(BuildContext context) {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
+  ///      marker: SparkChartMarker(displayMode: SparkChartMarkerDisplayMode.all),
   ///      negativePointColor: Colors.red,
-  ///      data: <double>[18, 24, 30, 14, 28],
+  ///      data: <double>[18, 24, 30, -14, 28],
   ///    )),
   ///  );
   /// }
   /// ```
-  final Color negativePointColor;
+  final Color? negativePointColor;
 
-  /// Specifies the first point color.
+  /// Customizes the [marker] color of the first data point.
+  ///
+  /// If the first data point is either the high data point or low data point,
+  /// then the priority will be given to firstPointColor property.
+  ///
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
-  /// Widget build(BuildContext context) {
+  ///  Widget build(BuildContext context) {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
+  ///      marker: SparkChartMarker(displayMode: SparkChartMarkerDisplayMode.all),
   ///      firstPointColor: Colors.red,
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
   ///  );
   /// }
   /// ```
-  final Color firstPointColor;
+  final Color? firstPointColor;
 
-  /// Specifies the last point color.
+  /// Customizes the [marker] color of the last data point.
+  ///
+  /// If the last data point is either the high data point or low data point,
+  /// then the priority will be given to lastPointColor property.
+  ///
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
-  /// Widget build(BuildContext context) {
+  ///  Widget build(BuildContext context) {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
+  ///      marker: SparkChartMarker(displayMode: SparkChartMarkerDisplayMode.all),
   ///      lastPointColor: Colors.red,
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
   ///  );
   /// }
   /// ```
-  final Color lastPointColor;
+  final Color? lastPointColor;
 
-  /// Specifies the color of the spark area chart.
+  /// Customizes the spark area chart color.
+  ///
+  /// Defaults to `blue`.
   ///
   /// ```dart
   /// @override
@@ -303,7 +382,18 @@ class SfSparkAreaChart extends StatefulWidget {
   /// ```
   final Color color;
 
-  /// Represents the plot band settings for spark area chart.
+  /// Render plot band.
+  ///
+  /// Plot band is also known as stripline, which is used to shade the different
+  /// ranges in plot area with different colors to improve the readability
+  /// of the chart.
+  ///
+  /// Plot bands are drawn based on the axis.
+  ///
+  /// Provides the property of `start`, `end`, [color], [borderColor], and
+  /// [borderWidth] to customize the appearance.
+  ///
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
@@ -317,9 +407,14 @@ class SfSparkAreaChart extends StatefulWidget {
   ///  );
   /// }
   /// ```
-  final SparkChartPlotBand plotBand;
+  final SparkChartPlotBand? plotBand;
 
-  /// Specifies the Border width of the series.
+  /// Customizes the border width of the spark area chart.
+  /// The border will be rendered on the top of the spark area chart.
+  /// To render the border, both the border width and border color property
+  /// needs to be set.
+  ///
+  /// Defaults to `0`.
   ///
   /// ```dart
   /// @override
@@ -327,7 +422,8 @@ class SfSparkAreaChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      boderWidth: 2,
+  ///      borderWidth: 2,
+  ///      borderColor: Colors.red,
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
   ///  );
@@ -335,7 +431,12 @@ class SfSparkAreaChart extends StatefulWidget {
   /// ```
   final double borderWidth;
 
-  /// Specifies the Border color of the series.
+  /// Customizes the border color of the spark area chart.
+  /// The border will be rendered on the top of the spark area chart.
+  /// To render the border, both the [borderWidth] and borderColor property
+  /// needs to be set.
+  ///
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
@@ -343,16 +444,25 @@ class SfSparkAreaChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      boderWidth: 2,
-  ///      borderColor: Colors.black,
+  ///      borderWidth: 2,
+  ///      borderColor: Colors.red,
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
   ///  );
   /// }
   /// ```
-  final Color borderColor;
+  final Color? borderColor;
 
-  /// Represents the marker settings of spark chart.
+  /// Enables and customizes the markers.
+  ///
+  /// Markers are used to provide information about the exact point location.
+  /// You can add a shape to adorn each data point. Markers can be enabled by
+  /// using the `displayMode` property of [SparkChartMarker].
+  ///
+  /// Provides the options of [color], [borderWidth], [borderColor] and `shape`
+  /// of the marker to customize the appearance.
+  ///
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
@@ -360,18 +470,35 @@ class SfSparkAreaChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      boderWidth: 2,
-  ///      marker: SparkChartMarker(borderWidth: 3, size: 20,
-  ///    shape: MarkerShape.circle, displayMode: MarkerDisplayMode.all),
+  ///      marker: SparkChartMarker(displayMode: SparkChartMarkerDisplayMode.all),
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
   ///  );
   /// }
   /// ```
 
-  final SparkChartMarker marker;
+  final SparkChartMarker? marker;
 
-  /// Specifies the spark area data label
+  /// Enables the data labels.
+  ///
+  /// Data labels are used to provide information about the exact point location
+  /// and its value.
+  ///
+  /// * [SparkChartLabelDisplayMode.all] enables the data label for all the data
+  /// points.
+  /// * [SparkChartLabelDisplayMode.none] disables the data labels.
+  /// * [SparkChartLabelDisplayMode.high] displays the data label on highest
+  /// data point.
+  /// * [SparkChartLabelDisplayMode.low] displays the data label on lowest
+  /// data point.
+  /// * [SparkChartLabelDisplayMode.first] displays the data label on first
+  /// data point.
+  /// * [SparkChartLabelDisplayMode.last] displays the data label on first
+  /// data point.
+  ///
+  /// Also refer [SparkChartLabelDisplayMode].
+  ///
+  /// Defaults to `SparkChartDislayMode.none`.
   ///
   /// ```dart
   /// @override
@@ -379,16 +506,22 @@ class SfSparkAreaChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      boderWidth: 2,
-  ///      labelDisplayMode: SparkChartLabelDisplayode.high,
+  ///      labelDisplayMode: SparkChartLabelDisplayMode.high,
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
   ///  );
   /// }
   /// ```
-  final SparkChartLabelDisplayMode labelDisplayMode;
+  final SparkChartLabelDisplayMode? labelDisplayMode;
 
-  /// Specifies the spark area data label
+  /// Customizes the data label text style.
+  ///
+  /// Using the [TextStyle], add style data labels.
+  ///
+  /// Defaults to the [TextStyle] property with font size `12.0` and font
+  ///  family `Roboto`.
+  ///
+  /// Also refer [TextStyle].
   ///
   /// ```dart
   /// @override
@@ -396,7 +529,7 @@ class SfSparkAreaChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      boderWidth: 2,
+  ///      labelDisplayMode: SparkChartLabelDisplayMode.high,
   ///      labelStyle: TextStyle(fontStyle: FontStyle.italic),
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
@@ -405,7 +538,16 @@ class SfSparkAreaChart extends StatefulWidget {
   /// ```
   final TextStyle labelStyle;
 
-  /// Represents the track ball options of spark area chart.
+  /// Enables and customizes the trackball.
+  ///
+  /// Trackball feature displays the tooltip for the data points that are closer
+  /// to the point where you touch on the chart area. This feature can be
+  /// enabled by creating an instance of [SparkChartTrackball].
+  ///
+  /// Provides option to customizes the `activationMode`, `width`, [color],
+  /// [labelStyle], `backgroundColor`, [borderColor], [borderWidth].
+  ///
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
@@ -413,14 +555,14 @@ class SfSparkAreaChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      trackball:(borderWidth: 2,
-  ///      borderColor: Colors.black, SparkChartActivationMode: ActivationMode.doubleTap),
+  ///      trackball:
+  ///          SparkChartTrackball(borderWidth: 2, borderColor: Colors.black),
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
   ///  );
   /// }
   /// ```
-  final SparkChartTrackball trackball;
+  final SparkChartTrackball? trackball;
 
   /// Specifies the spark chart data details
   final SparkChartDataDetails _sparkChartDataDetails;
@@ -434,13 +576,22 @@ class SfSparkAreaChart extends StatefulWidget {
 /// Represents the state class for spark area widget
 class _SfSparkAreaChartState extends State<SfSparkAreaChart> {
   /// specifies the theme of the chart
-  ThemeData _themeData;
+  late ThemeData _themeData;
 
   /// Specifies the series screen coordinate points
-  List<Offset> _coordinatePoints;
+  late List<Offset> _coordinatePoints;
 
   /// Specifies the series data points
-  List<SparkChartPoint> _dataPoints;
+  late List<SparkChartPoint> _dataPoints;
+
+  /// Called when this object is inserted into the tree.
+  ///
+  /// The framework will call this method exactly once for each State object it creates.
+  ///
+  /// Override this method to perform initialization that depends on the location at
+  /// which this object was inserted into the tree or on the widget used to configure this object.
+  ///
+  /// * In [initState], subscribe to the object.
 
   @override
   void initState() {
@@ -449,10 +600,28 @@ class _SfSparkAreaChartState extends State<SfSparkAreaChart> {
     super.initState();
   }
 
+  /// Called whenever the widget configuration changes.
+  ///
+  /// If the parent widget rebuilds and request that this location in the tree update to display a new widget with the same [runtimeType] and [Widget.key],
+  /// the framework will update the widget property of this [State] object to refer to the new widget and then call this method with the previous widget as an argument.
+  ///
+  /// Override this method to respond when the widget changes.
+  ///
+  /// The framework always calls [build] after calling [didUpdateWidget], which means any calls to [setState] in [didUpdateWidget] are redundant.
+  ///
+  /// * In [didUpdateWidget] unsubscribe from the old object and subscribe to the new one if the updated widget configuration requires replacing the object.
+
   @override
   void didUpdateWidget(SfSparkAreaChart oldWidget) {
     super.didUpdateWidget(oldWidget);
   }
+
+  /// Called when a dependency of this [State] object changes.
+  ///
+  /// For example, if the previous call to [build] referenced an [InheritedWidget] that later changed,
+  /// the framework would call this method to notify this object about the change.
+  ///
+  /// This method is also called immediately after [initState]. It is safe to call [BuildContext.dependOnInheritedWidgetOfExactType] from this method.
 
   @override
   void didChangeDependencies() {
@@ -460,11 +629,20 @@ class _SfSparkAreaChartState extends State<SfSparkAreaChart> {
     super.didChangeDependencies();
   }
 
+  /// Describes the part of the user interface represented by this widget.
+  ///
+  /// The framework calls this method in a number of different situations. For example:
+  ///
+  /// * After calling [initState].
+  /// * After calling [didUpdateWidget].
+  /// * After receiving a call to [setState].
+  /// * After a dependency of this [State] object changes.
+
   @override
   Widget build(BuildContext context) {
     if (widget.marker != null &&
-        widget.marker.displayMode != SparkChartMarkerDisplayMode.none) {
-      final double padding = widget.marker.size / 2;
+        widget.marker!.displayMode != SparkChartMarkerDisplayMode.none) {
+      final double padding = widget.marker!.size / 2;
       return RepaintBoundary(
           child: Padding(
               padding: EdgeInsets.all(padding), child: _getSparkAreaChart()));

@@ -2,8 +2,13 @@ part of xlsio;
 
 // ignore: public_member_api_docs
 class FormatsCollection {
+  /// Initializes new instance and sets its application and parent objects.
+  FormatsCollection(Workbook workbook) {
+    _parent = workbook;
+  }
+
   /// Represent the parent.
-  Workbook _parent;
+  late Workbook _parent;
 
   /// Represents the Decimal Seprator.
   // ignore: unused_field
@@ -106,17 +111,9 @@ class FormatsCollection {
   }
 
   /// Indexer of the class
-  _Format operator [](index) => _rawFormats[index];
+  _Format operator [](index) => _rawFormats[index]!;
 
-  /// Initializes new instance and sets its application and parent objects.
-  // ignore: sort_constructors_first
-  FormatsCollection(Workbook workbook) {
-    _parent = workbook;
-  }
-
-  /// <summary>
   /// Inserts all default formats into list.
-  /// </summary>
   void _insertDefaultFormats() {
     _Format curFormat;
     int iFormatIndex = 0;
@@ -127,7 +124,7 @@ class FormatsCollection {
       curFormat._formatString = _defaultFormatString[iIndex];
       if (!_rawFormats.containsKey(curFormat._index)) {
         _rawFormats[curFormat._index] = curFormat;
-        _hashFormatStrings[curFormat._formatString] = curFormat;
+        _hashFormatStrings[curFormat._formatString!] = curFormat;
       }
       if (iFormatIndex == 22) iFormatIndex = 36;
       iFormatIndex++;
@@ -146,7 +143,7 @@ class FormatsCollection {
 
     if (index >= 0 && index < iCount - 1) {
       for (int i = index + 1; i < iCount; i++) {
-        final _Format format = _rawFormats[keys[i]];
+        final _Format format = _rawFormats[keys[i]]!;
 
         if (format._index >= _default_first_custom_index) result.add(format);
       }
@@ -156,14 +153,14 @@ class FormatsCollection {
   }
 
   /// Searches for format with specified format string and creates one if a match is not found.
-  int _findOrCreateFormat(String formatString) {
+  int _findOrCreateFormat(String? formatString) {
     return _hashFormatStrings.containsKey(formatString)
-        ? _hashFormatStrings[formatString]._index
+        ? _hashFormatStrings[formatString]!._index
         : _createFormat(formatString);
   }
 
   /// Method that creates format object based on the format string and registers it in the workbook.
-  int _createFormat(String formatString) {
+  int _createFormat(String? formatString) {
     if (formatString == null) throw Exception('formatString');
 
     if (formatString.isEmpty) {
@@ -175,7 +172,7 @@ class FormatsCollection {
     }
 //      formatString = GetCustomizedString(formatString);
     if (_hashFormatStrings.containsKey(formatString)) {
-      final _Format format = _hashFormatStrings[formatString];
+      final _Format format = _hashFormatStrings[formatString]!;
       return format._index;
     }
     if (_parent.cultureInfo._culture == 'en-US') {
@@ -185,7 +182,7 @@ class FormatsCollection {
       for (final String formatStr in _hashFormatStrings.keys) {
         if (formatStr.replaceAll('\\', '').replaceAll('\'\$\'', '\$') ==
             localStr) {
-          final _Format format = _hashFormatStrings[formatStr];
+          final _Format format = _hashFormatStrings[formatStr]!;
           return format._index;
         }
       }
@@ -223,10 +220,8 @@ class FormatsCollection {
 
   /// Adding formats to collection
   void _register(_Format format) {
-    if (format == null) throw Exception('format');
-
     _rawFormats[format._index] = format;
-    _hashFormatStrings[format._formatString] = format;
+    _hashFormatStrings[format._formatString!] = format;
   }
 
   /// <summary>
@@ -239,7 +234,5 @@ class FormatsCollection {
     _rawFormats.clear();
     _hashFormatStrings.clear();
     _defaultFormatString.clear();
-    _rawFormats = null;
-    _hashFormatStrings = null;
   }
 }

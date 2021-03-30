@@ -14,49 +14,49 @@ part of charts;
 class StackedBarSeries<T, D> extends _StackedSeriesBase<T, D> {
   /// Creating an argument constructor of StackedBarSeries class.
   StackedBarSeries(
-      {ValueKey<String> key,
-      ChartSeriesRendererFactory<T, D> onCreateRenderer,
-      @required List<T> dataSource,
-      @required ChartValueMapper<T, D> xValueMapper,
-      @required ChartValueMapper<T, num> yValueMapper,
-      ChartValueMapper<T, dynamic> sortFieldValueMapper,
-      ChartValueMapper<T, Color> pointColorMapper,
-      ChartValueMapper<T, String> dataLabelMapper,
-      SortingOrder sortingOrder,
-      bool isTrackVisible,
-      String groupName,
-      String xAxisName,
-      String yAxisName,
-      String name,
-      Color color,
-      double width,
-      double spacing,
-      MarkerSettings markerSettings,
-      EmptyPointSettings emptyPointSettings,
-      DataLabelSettings dataLabelSettings,
-      bool isVisible,
-      LinearGradient gradient,
-      LinearGradient borderGradient,
-      BorderRadius borderRadius,
-      bool enableTooltip,
-      double animationDuration,
-      Color trackColor,
-      Color trackBorderColor,
-      double trackBorderWidth,
-      double trackPadding,
-      List<Trendline> trendlines,
-      Color borderColor,
-      double borderWidth,
+      {ValueKey<String>? key,
+      ChartSeriesRendererFactory<T, D>? onCreateRenderer,
+      required List<T> dataSource,
+      required ChartValueMapper<T, D> xValueMapper,
+      required ChartValueMapper<T, num> yValueMapper,
+      ChartValueMapper<T, dynamic>? sortFieldValueMapper,
+      ChartValueMapper<T, Color>? pointColorMapper,
+      ChartValueMapper<T, String>? dataLabelMapper,
+      SortingOrder? sortingOrder,
+      bool? isTrackVisible,
+      String? groupName,
+      String? xAxisName,
+      String? yAxisName,
+      String? name,
+      Color? color,
+      double? width,
+      double? spacing,
+      MarkerSettings? markerSettings,
+      EmptyPointSettings? emptyPointSettings,
+      DataLabelSettings? dataLabelSettings,
+      bool? isVisible,
+      LinearGradient? gradient,
+      LinearGradient? borderGradient,
+      BorderRadius? borderRadius,
+      bool? enableTooltip,
+      double? animationDuration,
+      Color? trackColor,
+      Color? trackBorderColor,
+      double? trackBorderWidth,
+      double? trackPadding,
+      List<Trendline>? trendlines,
+      Color? borderColor,
+      double? borderWidth,
       // ignore: deprecated_member_use_from_same_package
-      SelectionSettings selectionSettings,
-      SelectionBehavior selectionBehavior,
-      bool isVisibleInLegend,
-      LegendIconType legendIconType,
-      String legendItemText,
-      List<double> dashArray,
-      double opacity,
-      SeriesRendererCreatedCallback onRendererCreated,
-      List<int> initialSelectedDataIndexes})
+      SelectionSettings? selectionSettings,
+      SelectionBehavior? selectionBehavior,
+      bool? isVisibleInLegend,
+      LegendIconType? legendIconType,
+      String? legendItemText,
+      List<double>? dashArray,
+      double? opacity,
+      SeriesRendererCreatedCallback? onRendererCreated,
+      List<int>? initialSelectedDataIndexes})
       : super(
             key: key,
             onCreateRenderer: onCreateRenderer,
@@ -105,7 +105,8 @@ class StackedBarSeries<T, D> extends _StackedSeriesBase<T, D> {
   StackedBarSeriesRenderer createRenderer(ChartSeries<T, D> series) {
     StackedBarSeriesRenderer stackedAreaSeriesRenderer;
     if (onCreateRenderer != null) {
-      stackedAreaSeriesRenderer = onCreateRenderer(series);
+      stackedAreaSeriesRenderer =
+          onCreateRenderer!(series) as StackedBarSeriesRenderer;
       assert(stackedAreaSeriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return stackedAreaSeriesRenderer;
@@ -119,22 +120,23 @@ class StackedBarSeriesRenderer extends _StackedSeriesRenderer {
   /// Calling the default constructor of StackedBarSeriesRenderer class.
   StackedBarSeriesRenderer();
   @override
-  num _rectPosition;
+  late num _rectPosition;
   @override
-  num _rectCount;
+  late num _rectCount;
 
   /// Stacked Bar segment is created here.
   // ignore: unused_element
   ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
-      int pointIndex, int seriesIndex, num animateFactor) {
+      int pointIndex, int seriesIndex, double animateFactor) {
     final StackedBarSegment segment = createSegment();
-    final StackedBarSeries<dynamic, dynamic> _stackedBarSeries = _series;
+    final StackedBarSeries<dynamic, dynamic> _stackedBarSeries =
+        _series as StackedBarSeries;
     _isRectSeries = true;
     if (segment != null) {
       segment._seriesIndex = seriesIndex;
       segment.currentSegmentIndex = pointIndex;
-      segment.points
-          .add(Offset(currentPoint.markerPoint.x, currentPoint.markerPoint.y));
+      segment.points.add(
+          Offset(currentPoint.markerPoint!.x, currentPoint.markerPoint!.y));
       segment._seriesRenderer = this;
       segment._series = _stackedBarSeries;
       segment._currentPoint = currentPoint;
@@ -143,17 +145,18 @@ class StackedBarSeriesRenderer extends _StackedSeriesRenderer {
           currentPoint, _stackedBarSeries.borderWidth);
       if (_stackedBarSeries.borderRadius != null) {
         segment.segmentRect = _getRRectFromRect(
-            currentPoint.region, _stackedBarSeries.borderRadius);
+            currentPoint.region!, _stackedBarSeries.borderRadius);
 
         //Tracker rect
         if (_stackedBarSeries.isTrackVisible) {
           segment._trackRect = _getRRectFromRect(
-              currentPoint.trackerRectRegion, _stackedBarSeries.borderRadius);
+              currentPoint.trackerRectRegion!, _stackedBarSeries.borderRadius);
           segment._trackerFillPaint = segment._getTrackerFillPaint();
           segment._trackerStrokePaint = segment._getTrackerStrokePaint();
         }
       }
       segment._segmentRect = segment.segmentRect;
+      segment._oldSegmentIndex = _getOldSegmentIndex(segment);
       customizeSegment(segment);
       segment.strokePaint = segment.getStrokePaint();
       segment.fillPaint = segment.getFillPaint();
@@ -166,16 +169,16 @@ class StackedBarSeriesRenderer extends _StackedSeriesRenderer {
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     if (segment._seriesRenderer._isSelectionEnable) {
-      final SelectionBehaviorRenderer selectionBehaviorRenderer =
+      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
           segment._seriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer._selectionRenderer._checkWithSelectionState(
-          _segments[segment.currentSegmentIndex], _chart);
+      selectionBehaviorRenderer?._selectionRenderer?._checkWithSelectionState(
+          _segments[segment.currentSegmentIndex!], _chart);
     }
     segment.onPaint(canvas);
   }
 
   @override
-  ChartSegment createSegment() => StackedBarSegment();
+  StackedBarSegment createSegment() => StackedBarSegment();
 
   @override
   void customizeSegment(ChartSegment segment) {
@@ -192,8 +195,8 @@ class StackedBarSeriesRenderer extends _StackedSeriesRenderer {
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer seriesRenderer]) {
-    canvas.drawPath(seriesRenderer._markerShapes[index], fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes[index], strokePaint);
+      [CartesianSeriesRenderer? seriesRenderer]) {
+    canvas.drawPath(seriesRenderer!._markerShapes[index]!, fillPaint);
+    canvas.drawPath(seriesRenderer._markerShapes[index]!, strokePaint);
   }
 }

@@ -1,16 +1,14 @@
 ![syncfusion_flutter_pdf_banner](https://cdn.syncfusion.com/content/images/FTControl/Flutter-PDF-Banner.png)
 
-# Syncfusion Flutter PDF
+# Flutter PDF library
 
-Syncfusion Flutter PDF is a feature-rich and high-performance non-UI PDF library written natively in Dart. It allows you to add robust PDF functionalities to Flutter applications.
+Flutter PDF is a feature-rich and high-performance non-UI PDF library written natively in Dart. It allows you to add robust PDF functionalities to Flutter applications.
 
 ## Overview
 
-The PDF package is a non-UI and reusable Flutter library for creating PDF reports programmatically with formatted text, images, shapes, tables, links, lists, headers, footers, and more. The library can be used in Flutter mobile and web platforms without dependency on Adobe Acrobat. The creation of a PDF follows the most popular PDF 1.7 (ISO 32000-1) and latest PDF 2.0 (ISO 32000-2) specifications.
+The PDF package is a non-UI, reusable Flutter library for creating PDF reports programmatically with formatted text, images, shapes, tables, links, lists, headers, footers, and more. The library can be used to create, read, edit, and secure PDF documents in Flutter mobile and web platforms without dependency on Adobe Acrobat. The creation of a PDF follows the most popular PDF 1.7 (ISO 32000-1) and latest PDF 2.0 (ISO 32000-2) specifications.
 
-**Disclaimer:** This is a commercial package. To use this package, you need to have either a Syncfusion commercial license or Syncfusion Community License. For more details, please check the [LICENSE](LICENSE) file.
-
-**Note:** Our packages are now compatible with Flutter for Web. However, this will be in Beta until Flutter for Web becomes stable.
+**Disclaimer:** This is a commercial package. To use this package, you need to have either a Syncfusion commercial license or [Free Syncfusion Community license](https://www.syncfusion.com/products/communitylicense). For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
 
 ![PDF Overview](https://cdn.syncfusion.com/content/images/FTControl/Flutter/Flutter-PDF-Overview.png)
 
@@ -34,6 +32,8 @@ The PDF package is a non-UI and reusable Flutter library for creating PDF report
   - [Find text](#find-text)
   - [Encryption and decryption](#encryption-and-decryption)
   - [PDF conformance](#pdf-conformance)
+  - [PDF form](#pdf-form)
+  - [Digital signature](#digital-signature)
 - [Support and feedback](#support-and-feedback)
 - [About Syncfusion](#about-syncfusion)
 
@@ -43,19 +43,21 @@ The following are the key features of Syncfusion Flutter PDF:
 
 * Create multipage PDF files from scratch.
 * Add Unicode and RTL text.
-* Insert JPEG and PNG images to the PDF document.
-* Generate table in PDF files with different styles and formats.
+* Insert JPEG and PNG images in the PDF document.
+* Generate tables in PDF files with different styles and formats.
 * Add headers and footers.
-* Add different shapes to PDF file.
-* Add, modify, and remove interactive elements such as bookmarks, hyperlinks and attachments.
-* Add paragraph, bullets, and lists.
+* Add different shapes to PDF files.
+* Add paragraphs, bullets, and lists.
 * Open, modify, and save existing PDF files.
-* Ability to encrypt and decrypt PDF files with advanced standards.
+* Encrypt and decrypt PDF files with advanced standards.
+* Add, modify, and remove interactive elements such as bookmarks, annotations, hyperlinks, and attachments.
+* Create PDF/A-1B, PDF/A-2B, PDF/A-3B conformances.
+* Digitally sign PDF documents.
 * Use on mobile and web platforms.
 
 ## Get the demo application
 
-Explore the full capability of our Flutter widgets on your device by installing our sample browser application from the following app stores and view sample code in GitHub.
+Explore the full capability of our Flutter widgets on your device by installing our sample browser application from the following app stores and viewing the sample code in GitHub.
 
 <p align="center">
   <a href="https://play.google.com/store/apps/details?id=com.syncfusion.flutter.examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/google-play.png"/></a>
@@ -171,7 +173,7 @@ final PdfLayoutResult layoutResult = PdfTextElement(
         page: page,
         bounds: Rect.fromLTWH(
             0, 0, page.getClientSize().width, page.getClientSize().height),
-        format: PdfLayoutFormat(layoutType: PdfLayoutType.paginate));
+        format: PdfLayoutFormat(layoutType: PdfLayoutType.paginate))!;
 // Draw the next paragraph/content.
 page.graphics.drawLine(
     PdfPen(PdfColor(255, 0, 0)),
@@ -243,7 +245,7 @@ final PdfDocument document = PdfDocument();
 final PdfPage page = document.pages.add();
 // Create a PDF grid class to add tables.
 final PdfGrid grid = PdfGrid();
-// Specify the grid columns count.
+// Specify the grid column count.
 grid.columns.add(count: 3);
 // Add a grid header row.
 final PdfGridRow headerRow = grid.headers.add(1)[0];
@@ -370,7 +372,7 @@ document.pages[0].annotations.add(PdfRectangleAnnotation(
       Rect.fromLTWH(0, 0, 150, 100), 'Rectangle',
       color: PdfColor(255, 0, 0), setAppearance: true));
 //Save the document.
-File('output.pdf').writeAsBytes(document.save());
+File('annotations.pdf').writeAsBytes(document.save());
 //Dispose the document.
 document.dispose();
 ```
@@ -380,7 +382,7 @@ Add the following code to load the annotation and modify it.
 ```dart
 //Load and modify the existing annotation.
 final PdfRectangleAnnotation rectangleAnnotation =
-    document.pages[0].annotations[0];
+    document.pages[0].annotations[0] as PdfRectangleAnnotation;
 //Change the annotation text.
 rectangleAnnotation.text = 'Changed';
 ```
@@ -402,7 +404,7 @@ bookmark.destination = PdfDestination(document.pages[1], Offset(20, 20));
 //Set the bookmark color.
 bookmark.color = PdfColor(255, 0, 0);
 //Save the document.
-File('output1.pdf').writeAsBytes(document.save());
+File('bookmark.pdf').writeAsBytes(document.save());
 //Dispose the document.
 document.dispose();
 ```
@@ -466,9 +468,9 @@ document.dispose();
 
 Refer to our [documentation](https://help.syncfusion.com/flutter/pdf/working-with-text-extraction#working-with-find-text) for more details.
 
-## Encryption and decryption
+### Encryption and decryption
 
-Encrypt new or existing PDF documents with encryption standards like 40-bit RC4, 128-bit RC4, 128-bit AES, 256-bit AES, and advanced encryption standard 256-bit AES Revision 6 (PDF 2.0) to protect documents against unauthorized access. Using this package, you can also decrypt existing encrypted documents.
+Encrypt new or existing PDF documents with encryption standards like 40-bit RC4, 128-bit RC4, 128-bit AES, and 256-bit AES, and the advanced encryption standard 256-bit AES Revision 6 (PDF 2.0) to protect documents against unauthorized access. Using this package, you can also decrypt existing encrypted documents.
 
 Add the following code to encrypt an existing PDF document.
 
@@ -488,13 +490,15 @@ security.ownerPassword = 'ownerpassword@123';
 security.algorithm = PdfEncryptionAlgorithm.aesx256Bit;
 
 //Save the document.
-File('output1.pdf').writeAsBytes(document.save());
+File('secured.pdf').writeAsBytes(document.save());
 
 //Dispose the document.
 document.dispose();
 ```
 
-## PDF conformance
+Refer to our [documentation](https://help.syncfusion.com/flutter/pdf/working-with-security) for more details.
+
+### PDF conformance
 
 Using this package, we can create PDF conformance documents, such as:
 
@@ -511,13 +515,139 @@ final PdfDocument document = PdfDocument(conformanceLevel: PdfConformanceLevel.a
       PdfTrueTypeFont(File('Roboto-Regular.ttf').readAsBytesSync(), 12),
       bounds: Rect.fromLTWH(20, 20, 200, 50), brush: PdfBrushes.black);
 //Save and dispose the document.
+File('conformance.pdf').writeAsBytesSync(document.save());
+document.dispose();
+```
+
+Refer to our [documentation](https://help.syncfusion.com/flutter/pdf/working-with-pdf-conformance) for more details.
+
+### PDF form
+
+PDF forms provide the best way to collect information from users. Using this package, we can create, modify, fill, and flatten PDF forms.
+
+Add the following code to create PDF form.
+
+```dart
+//Create a new PDF document.
+PdfDocument document = PdfDocument();
+
+//Create a new page to add form fields.
+PdfPage page = document.pages.add();
+
+//Create text box field and add to the forms collection.
+document.form.fields.add(PdfTextBoxField(
+    page, 'firstname', Rect.fromLTWH(0, 0, 100, 20),
+    text: 'John'));
+
+//Create check box field and add to the form.
+document.form.fields.add(PdfCheckBoxField(
+    page, 'checkbox', Rect.fromLTWH(150, 0, 30, 30),
+    isChecked: true));
+
+//Save and dispose the document.
+File('form.pdf').writeAsBytesSync(document.save());
+document.dispose();
+```
+
+Add the following code to fill the existing PDF form.
+
+```dart
+//Load the existing PDF document.
+final PdfDocument document =
+    PdfDocument(inputBytes: File('input.pdf').readAsBytesSync());
+
+//Get the form.
+PdfForm form = document.form;
+
+//Get text box and fill value.
+PdfTextBoxField name = document.form.fields[0] as PdfTextBoxField;
+name.text = 'John';
+
+//Get the radio button and select.
+PdfRadioButtonListField gender = form.fields[1] as PdfRadioButtonListField;
+gender.selectedIndex = 1;
+
+//Save and dispose the document.
 File('output.pdf').writeAsBytesSync(document.save());
 document.dispose();
 ```
 
+Add the following code to flatten the existing form.
+
+```dart
+//Load the existing PDF document.
+final PdfDocument document =
+    PdfDocument(inputBytes: File('input.pdf').readAsBytesSync());
+
+//Get the form.
+PdfForm form = document.form;
+
+//Flatten all the form fields.
+form.flattenAllFields();
+
+//Save and dispose the document.
+File('output.pdf').writeAsBytesSync(document.save());
+document.dispose();
+```
+
+Refer to our [documentation](https://help.syncfusion.com/flutter/pdf/overview) for more details.
+
+### Digital signature
+
+PDF digital signature is the best way to protect your PDF files from being forged. Using this package, we can digitally sign a PDF document using X509 certificates (.pfx file with private key).
+
+Add the following code to sign the PDF document.
+
+```dart
+//Create a new PDF document.
+PdfDocument document = PdfDocument();
+
+//Add a new PDF page.
+PdfPage page = document.pages.add();
+
+//Create signature field.
+PdfSignatureField signatureField = PdfSignatureField(page, 'Signature',
+    bounds: Rect.fromLTWH(0, 0, 200, 50),
+    signature: PdfSignature(
+       certificate:
+          PdfCertificate(File('certificate.pfx').readAsBytesSync(), 'password@123')
+    ));
+  
+//Add the signature field to the document.
+document.form.fields.add(signatureField);
+
+//Save and dispose the PDF document
+File('signed.pdf').writeAsBytes(document.save());
+document.dispose();
+```
+Add the following code to sign the existing PDF document.
+
+```dart
+//Load the existing PDF document.
+final PdfDocument document =
+    PdfDocument(inputBytes: File('input.pdf').readAsBytesSync());
+
+//Get the signature field.
+PdfSignatureField signatureField =
+    document.form.fields[0] as PdfSignatureField;
+
+//Get signature field and sign.
+signatureField.signature = PdfSignature(
+  certificate:
+      PdfCertificate(File('certificate.pfx').readAsBytesSync(), 'password@123'),
+);
+
+//Save and dispose the document.
+File('output.pdf').writeAsBytesSync(document.save());
+document.dispose();
+```
+
+Refer to our [documentation](https://help.syncfusion.com/flutter/pdf/overview) for more details.
+
+
 ## Support and feedback
 
-* For any questions, please contact our [Syncfusion support team](https://www.syncfusion.com/support/directtrac/incidents/newincident) or post them in our [community forums](https://www.syncfusion.com/forums). You can also submit a feature request or a bug alert through our [feedback portal](https://www.syncfusion.com/feedback/flutter).
+* For any questions, please post them in our [community forums](https://www.syncfusion.com/forums) or contact our [Syncfusion support team](https://www.syncfusion.com/support/directtrac/incidents/newincident). You can also submit a feature request or a bug alert through our [feedback portal](https://www.syncfusion.com/feedback/flutter).
 * To renew your subscription, click [renew](https://www.syncfusion.com/sales/products) or contact our sales team at salessupport@syncfusion.com | Toll free: 1-888-9 DOTNET.
 
 ## About Syncfusion

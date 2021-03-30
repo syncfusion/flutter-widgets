@@ -12,43 +12,42 @@ part of charts;
 class RangeAreaSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of RangeAreaSeries class.
   RangeAreaSeries(
-      {ValueKey<String> key,
-      ChartSeriesRendererFactory<T, D> onCreateRenderer,
-      @required List<T> dataSource,
-      @required ChartValueMapper<T, D> xValueMapper,
-      @required ChartValueMapper<T, num> highValueMapper,
-      @required ChartValueMapper<T, num> lowValueMapper,
-      ChartValueMapper<T, dynamic> sortFieldValueMapper,
-      ChartValueMapper<T, Color> pointColorMapper,
-      ChartValueMapper<T, String> dataLabelMapper,
-      SortingOrder sortingOrder,
-      String xAxisName,
-      List<Trendline> trendlines,
-      String yAxisName,
-      String name,
-      Color color,
-      MarkerSettings markerSettings,
-      EmptyPointSettings emptyPointSettings,
-      DataLabelSettings dataLabelSettings,
-      bool isVisible,
-      bool enableTooltip,
-      List<double> dashArray,
-      double animationDuration,
-      Color borderColor,
-      double borderWidth,
-      LinearGradient gradient,
-      LinearGradient borderGradient,
+      {ValueKey<String>? key,
+      ChartSeriesRendererFactory<T, D>? onCreateRenderer,
+      required List<T> dataSource,
+      required ChartValueMapper<T, D> xValueMapper,
+      required ChartValueMapper<T, num> highValueMapper,
+      required ChartValueMapper<T, num> lowValueMapper,
+      ChartValueMapper<T, dynamic>? sortFieldValueMapper,
+      ChartValueMapper<T, Color>? pointColorMapper,
+      ChartValueMapper<T, String>? dataLabelMapper,
+      SortingOrder? sortingOrder,
+      String? xAxisName,
+      List<Trendline>? trendlines,
+      String? yAxisName,
+      String? name,
+      Color? color,
+      MarkerSettings? markerSettings,
+      EmptyPointSettings? emptyPointSettings,
+      DataLabelSettings? dataLabelSettings,
+      bool? isVisible,
+      bool? enableTooltip,
+      List<double>? dashArray,
+      double? animationDuration,
+      Color? borderColor,
+      double? borderWidth,
+      LinearGradient? gradient,
+      LinearGradient? borderGradient,
       // ignore: deprecated_member_use_from_same_package
-      SelectionSettings selectionSettings,
-      SelectionBehavior selectionBehavior,
-      bool isVisibleInLegend,
-      LegendIconType legendIconType,
-      String legendItemText,
-      double opacity,
-      RangeAreaBorderMode borderDrawMode,
-      SeriesRendererCreatedCallback onRendererCreated})
-      : borderDrawMode = borderDrawMode ?? RangeAreaBorderMode.all,
-        super(
+      SelectionSettings? selectionSettings,
+      SelectionBehavior? selectionBehavior,
+      bool? isVisibleInLegend,
+      LegendIconType? legendIconType,
+      String? legendItemText,
+      double? opacity,
+      this.borderDrawMode = RangeAreaBorderMode.all,
+      SeriesRendererCreatedCallback? onRendererCreated})
+      : super(
             key: key,
             onCreateRenderer: onCreateRenderer,
             xValueMapper: xValueMapper,
@@ -107,7 +106,7 @@ class RangeAreaSeries<T, D> extends XyDataSeries<T, D> {
   RangeAreaSeriesRenderer createRenderer(ChartSeries<T, D> series) {
     RangeAreaSeriesRenderer seriesRenderer;
     if (onCreateRenderer != null) {
-      seriesRenderer = onCreateRenderer(series);
+      seriesRenderer = onCreateRenderer!(series) as RangeAreaSeriesRenderer;
       assert(seriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return seriesRenderer;
@@ -123,20 +122,21 @@ class RangeAreaSeriesRenderer extends XyDataSeriesRenderer {
 
   /// Range Area segment is created here
   ChartSegment _createSegments(
-      int seriesIndex, SfCartesianChart chart, num animateFactor,
-      [List<Offset> _points]) {
+      int seriesIndex, SfCartesianChart chart, double animateFactor,
+      [List<Offset>? _points]) {
     final RangeAreaSegment segment = createSegment();
     _isRectSeries = false;
     if (segment != null) {
       segment._seriesIndex = seriesIndex;
       segment.animationFactor = animateFactor;
       segment._seriesRenderer = this;
-      segment._series = _series;
-      segment.points = _points;
+      segment._series = _series as XyDataSeries;
+      if (_points != null) segment.points = _points;
       customizeSegment(segment);
       segment._chart = chart;
       segment.strokePaint = segment.getStrokePaint();
       segment.fillPaint = segment.getFillPaint();
+      segment._oldSegmentIndex = 0;
       _segments.add(segment);
     }
     return segment;
@@ -146,17 +146,17 @@ class RangeAreaSeriesRenderer extends XyDataSeriesRenderer {
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     if (segment._seriesRenderer._isSelectionEnable) {
-      final SelectionBehaviorRenderer selectionBehaviorRenderer =
+      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
           segment._seriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer._selectionRenderer
-          ._checkWithSelectionState(_segments[0], _chart);
+      selectionBehaviorRenderer?._selectionRenderer
+          ?._checkWithSelectionState(_segments[0], _chart);
     }
     segment.onPaint(canvas);
   }
 
   /// Creates a segment for a data point in the series.
   @override
-  ChartSegment createSegment() => RangeAreaSegment();
+  RangeAreaSegment createSegment() => RangeAreaSegment();
 
   /// Changes the series color, border color, and border width.
   @override
@@ -170,11 +170,11 @@ class RangeAreaSeriesRenderer extends XyDataSeriesRenderer {
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer seriesRenderer]) {
-    canvas.drawPath(seriesRenderer._markerShapes[index], fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes2[index], fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes[index], strokePaint);
-    canvas.drawPath(seriesRenderer._markerShapes2[index], strokePaint);
+      [CartesianSeriesRenderer? seriesRenderer]) {
+    canvas.drawPath(seriesRenderer!._markerShapes[index]!, fillPaint);
+    canvas.drawPath(seriesRenderer._markerShapes2[index]!, fillPaint);
+    canvas.drawPath(seriesRenderer._markerShapes[index]!, strokePaint);
+    canvas.drawPath(seriesRenderer._markerShapes2[index]!, strokePaint);
   }
 
   /// Draws data label text of the appropriate data point in a series.

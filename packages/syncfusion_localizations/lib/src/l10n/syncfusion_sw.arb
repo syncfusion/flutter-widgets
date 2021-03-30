@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "Hakuna tarehe iliyochaguliwa", 
 "noEventsCalendarLabel" : "Hakuna matukio", 
-"scheduleViewNewEventLabel" : "Hakuna kilichopangwa. Gonga ili uunde.", 
 "ofDataPagerLabel" : "ya", 
 "pagesDataPagerLabel" : "kurasa", 
 "itemsDataPagerLabel" : "vitu", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "Ram.", 
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
-"shortDhualhiLabel" : "Dhu'l-H"
+"shortDhualhiLabel" : "Dhu'l-H", 
+"daySpanCountLabel" : "Siku"
 }

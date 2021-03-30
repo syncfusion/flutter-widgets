@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "لا يوجد تاريخ محدد", 
 "noEventsCalendarLabel" : "لا أحداث", 
-"scheduleViewNewEventLabel" : "لا شيء مخطط. انقر للإنشاء.", 
 "ofDataPagerLabel" : "من", 
 "pagesDataPagerLabel" : "الصفحات", 
 "itemsDataPagerLabel" : "العناصر", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "الرامات الذاكرة العشوائية في الهواتف والحواسيب.", 
 "shortShawwalLabel" : "شو.", 
 "shortDhualqiLabel" : "ذو القعدة", 
-"shortDhualhiLabel" : "ذو الحجة"
+"shortDhualhiLabel" : "ذو الحجة", 
+"daySpanCountLabel" : "يوم"
 }

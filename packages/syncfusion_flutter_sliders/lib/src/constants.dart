@@ -41,3 +41,5 @@ enum ChildElements {
   /// Represents the content of [SfRangeSelector].
   child,
 }
+
+enum SliderType { horizontal, vertical }

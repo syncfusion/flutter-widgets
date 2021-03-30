@@ -4,8 +4,8 @@ part of xlsio;
 
 class _ExtendCompareStyle {
   /// Represents the index of cell style.
-  int _index;
+  late int _index;
 
   /// Represents the result of the compare style.
-  bool _result;
+  late bool _result;
 }

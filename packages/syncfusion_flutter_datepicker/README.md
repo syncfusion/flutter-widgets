@@ -1,12 +1,10 @@
 ![syncfusion_flutter_datepicker_banner](https://cdn.syncfusion.com/content/images/FTControl/Flutter/datepicker.jpg)
 
-# Syncfusion Flutter Date Range Picker
+# Flutter Date Range Picker
 
-The Syncfusion Flutter Date Range Picker is a lightweight widget that allows users to easily select a single date, multiple dates, or a range of dates. It provides month, year, decade, and century view options to quickly navigate to the desired date. It supports minimum, maximum, and disabled dates to restrict date selection.
+The Flutter Date Range Picker is a lightweight widget that allows users to easily select a single date, multiple dates, or a range of dates. Date Picker provides month, year, decade, and century view options to quickly navigate to the desired date. It supports minimum, maximum, blackout and disabled dates to restrict date selection.
 
-**Disclaimer**: This is a commercial package. To use this package, you need to have either a Syncfusion commercial license or the Syncfusion Community [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE). For more details, please check the LICENSE file.
-
-**Note:** Our packages are now compatible with Flutter for Web. However, this will be in Beta until Flutter for Web becomes stable.
+**Disclaimer**: This is a commercial package. To use this package, you need to have either a Syncfusion commercial license or [Free Syncfusion Community license](https://www.syncfusion.com/products/communitylicense). For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
 
 ## Table of contents
 
@@ -33,9 +31,9 @@ The Syncfusion Flutter Date Range Picker is a lightweight widget that allows use
 
 ![multi_date_picker_view](https://cdn.syncfusion.com/content/images/FTControl/Flutter/flutter-daterangepicker-multidatepicker.png)
 
-* **Vertical picker** - Displays two Date Range Pickers side by side in a vertical direction, allowing you to select ranges of dates within two separate months easily.
+* **Vertical picker** - Displays two Date Range Pickers side by side in the vertical direction, allowing you to select date ranges between two months easily. Also enable or disable the view navigation using swipe interaction along with snap and free scroll picker view navigation modes.
 
-![vertical_date_picker](https://cdn.syncfusion.com/content/images/FTControl/date+range+picker/side_by_side.png)
+![vertical_date_picker](https://cdn.syncfusion.com/content/images/FTControl/Flutter/calendar/free_scroll_gif.gif)
 
 * **Hijri date picker** - In addition to the Gregorian calendar, the date range picker supports displaying the Islamic calendar (Hijri date picker).
 
@@ -50,6 +48,10 @@ The Syncfusion Flutter Date Range Picker is a lightweight widget that allows use
 * **Date selection** - Select single, multiple, and range of dates. It also supports programmatic selection.
 
 ![selection_modes](https://cdn.syncfusion.com/content/images/FTControl/Flutter/daterangepicker/selection_mode.png)
+
+* **Action buttons** - Display action buttons to confirm or cancel the selected date values in SfDateRangePicker and SfHijriDateRangePicker.
+
+![action_buttons](https://cdn.syncfusion.com/content/images/FTControl/Flutter/calendar/action_buttons.png)
 
 * **Limit the date selection range** - Select only a date range with a specific minimum and maximum numbers of days (span of days) by setting the min and max days options.
 

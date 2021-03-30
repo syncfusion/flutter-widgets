@@ -4,7 +4,7 @@ import 'code128_renderer.dart';
 /// Represents the code128C renderer class
 class Code128CRenderer extends Code128Renderer {
   /// Creates the code128C renderer
-  Code128CRenderer({Symbology symbology}) : super(symbology: symbology);
+  Code128CRenderer({Symbology? symbology}) : super(symbology: symbology);
 
   @override
   bool getIsValidateInput(String value) {

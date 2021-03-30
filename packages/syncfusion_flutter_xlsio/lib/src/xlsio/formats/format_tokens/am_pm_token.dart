@@ -26,8 +26,6 @@ class _AmPmToken extends _FormatTokenBase {
   /// </summary>
   @override
   int _tryParse(String strFormat, int iIndex) {
-    if (strFormat == null) throw ('strFormat');
-
     final int iFormatLength = strFormat.length;
 
     if (iFormatLength == 0) throw ('strFormat - string cannot be empty.');
@@ -69,7 +67,6 @@ class _AmPmToken extends _FormatTokenBase {
   /// </summary>
   // ignore: unused_element
   static String _checkAndApplyAMPM(String format) {
-    if (format == null) throw ("format - Value can't be null");
     return format;
   }
 

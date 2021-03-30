@@ -1,12 +1,14 @@
-// Support for creating PDF documents.
+/// The Syncfusion Flutter PDF is a library written natively in Dart for
+/// creating, reading, editing, and securing PDF files in Android, iOS,
+/// and web platforms.
 library pdf;
 
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:ui';
+import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
-import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:xml/xml.dart';
@@ -135,11 +137,9 @@ part 'src/pdf/implementation/pdf_document/automatic_fields/pdf_destination_page_
 part 'src/pdf/implementation/graphics/fonts/rtl/arabic_shape_renderer.dart';
 part 'src/pdf/implementation/graphics/fonts/rtl/bidi.dart';
 part 'src/pdf/implementation/annotations/pdf_annotation.dart';
-part 'src/pdf/implementation/annotations/pdf_link_annotation.dart';
 part 'src/pdf/implementation/annotations/enum.dart';
 part 'src/pdf/implementation/actions/pdf_action.dart';
 part 'src/pdf/implementation/actions/pdf_uri_action.dart';
-part 'src/pdf/implementation/annotations/pdf_action_link_annotation.dart';
 part 'src/pdf/implementation/annotations/pdf_uri_annotation.dart';
 part 'src/pdf/implementation/annotations/pdf_text_web_link.dart';
 part 'src/pdf/implementation/annotations/pdf_annotation_collection.dart';
@@ -193,6 +193,34 @@ part 'src/pdf/implementation/general/embedded_file.dart';
 part 'src/pdf/implementation/general/embedded_file_specification.dart';
 part 'src/pdf/implementation/general/file_specification_base.dart';
 part 'src/pdf/implementation/general/embedded_file_params.dart';
+part 'src/pdf/implementation/forms/enum.dart';
+part 'src/pdf/implementation/forms/pdf_form.dart';
+part 'src/pdf/implementation/forms/pdf_field.dart';
+part 'src/pdf/implementation/forms/pdf_form_field_collection.dart';
+part 'src/pdf/implementation/forms/pdf_text_box_field.dart';
+part 'src/pdf/implementation/forms/pdf_field_painter.dart';
+part 'src/pdf/implementation/annotations/widget_annotation.dart';
+part 'src/pdf/implementation/annotations/widget_appearance.dart';
+part 'src/pdf/implementation/general/pdf_default_appearance.dart';
+part 'src/pdf/implementation/forms/pdf_check_field_base.dart';
+part 'src/pdf/implementation/annotations/appearance/pdf_appearance_state.dart';
+part 'src/pdf/implementation/annotations/appearance/pdf_extended_appearance.dart';
+part 'src/pdf/implementation/forms/pdf_check_box_field.dart';
+part 'src/pdf/implementation/forms/pdf_radio_button_item_collection.dart';
+part 'src/pdf/implementation/forms/pdf_radio_button_list_field.dart';
+part 'src/pdf/implementation/forms/pdf_radio_button_list_item.dart';
+part 'src/pdf/implementation/forms/pdf_list_field.dart';
+part 'src/pdf/implementation/forms/pdf_list_field_item.dart';
+part 'src/pdf/implementation/forms/pdf_list_field_item_collection.dart';
+part 'src/pdf/implementation/forms/pdf_combo_box_field.dart';
+part 'src/pdf/implementation/forms/pdf_list_box_field.dart';
+part 'src/pdf/implementation/forms/pdf_button_field.dart';
+part 'src/pdf/implementation/actions/pdf_annotation_action.dart';
+part 'src/pdf/implementation/actions/pdf_field_actions.dart';
+part 'src/pdf/implementation/actions/pdf_submit_action.dart';
+part 'src/pdf/implementation/forms/pdf_signature_field.dart';
+part 'src/pdf/implementation/forms/pdf_field_item.dart';
+part 'src/pdf/implementation/forms/pdf_field_item_collection.dart';
 
 /// Compression
 part 'src/pdf/implementation/compression/compressed_stream_writer.dart';
@@ -215,4 +243,31 @@ part 'src/pdf/implementation/security/enum.dart';
 part 'src/pdf/implementation/security/digital_signature/cryptography/aes_engine.dart';
 part 'src/pdf/implementation/security/digital_signature/cryptography/aes_cipher.dart';
 part 'src/pdf/implementation/security/digital_signature/cryptography/cipher_block_chaining_mode.dart';
-
+part 'src/pdf/implementation/security/digital_signature/cryptography/cipher_utils.dart';
+part 'src/pdf/implementation/security/digital_signature/cryptography/data_encryption.dart';
+part 'src/pdf/implementation/security/digital_signature/cryptography/data_ede_algorithm.dart';
+part 'src/pdf/implementation/security/digital_signature/cryptography/rc2_algorithm.dart';
+part 'src/pdf/implementation/security/digital_signature/cryptography/rsa_algorithm.dart';
+part 'src/pdf/implementation/security/digital_signature/cryptography/pkcs1_encoding.dart';
+part 'src/pdf/implementation/security/digital_signature/cryptography/ipadding.dart';
+part 'src/pdf/implementation/security/digital_signature/cryptography/buffered_block_padding_base.dart';
+part 'src/pdf/implementation/security/digital_signature/cryptography/rmd_signer.dart';
+part 'src/pdf/implementation/security/digital_signature/cryptography/pdf_cms_signer.dart';
+part 'src/pdf/implementation/security/digital_signature/cryptography/random_array.dart';
+part 'src/pdf/implementation/security/digital_signature/cryptography/signature_utilities.dart';
+part 'src/pdf/implementation/security/digital_signature/pkcs/pfx_data.dart';
+part 'src/pdf/implementation/security/digital_signature/pkcs/password_utility.dart';
+part 'src/pdf/implementation/security/digital_signature/asn1/asn1.dart';
+part 'src/pdf/implementation/security/digital_signature/asn1/asn1_stream.dart';
+part 'src/pdf/implementation/security/digital_signature/asn1/asn1_parser.dart';
+part 'src/pdf/implementation/security/digital_signature/asn1/ber.dart';
+part 'src/pdf/implementation/security/digital_signature/asn1/der.dart';
+part 'src/pdf/implementation/security/digital_signature/asn1/enum.dart';
+part 'src/pdf/implementation/security/digital_signature/x509/x509_certificates.dart';
+part 'src/pdf/implementation/security/digital_signature/x509/x509_name.dart';
+part 'src/pdf/implementation/security/digital_signature/x509/x509_time.dart';
+part 'src/pdf/implementation/security/digital_signature/pdf_certificate.dart';
+part 'src/pdf/implementation/security/digital_signature/pdf_pkcs_certificate.dart';
+part 'src/pdf/implementation/security/digital_signature/pdf_signature.dart';
+part 'src/pdf/implementation/security/digital_signature/pdf_signature_dictionary.dart';
+part 'src/pdf/implementation/security/digital_signature/pdf_external_signer.dart';

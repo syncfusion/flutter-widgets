@@ -18,27 +18,27 @@ class _PngDecoder extends _ImageDecoder {
   }
 
   //Fields
-  int _currentChunkLength;
-  _PngHeader _header;
-  bool _issRGB;
-  bool _isDecode;
-  bool _shades;
-  bool _ideateDecode;
-  int _colors;
-  int _bitsPerPixel;
-  int _idatLength;
-  int _inputBands;
-  List<int> _maskData;
-  List<int> _alpha;
-  List<int> _iDatStream;
-  List<int> _dataStream;
-  int _dataStreamOffset;
-  _PdfArray _colorSpace;
-  List<int> _decodedImageData;
+  late int _currentChunkLength;
+  late _PngHeader _header;
+  late bool _issRGB;
+  late bool _isDecode;
+  late bool _shades;
+  late bool _ideateDecode;
+  late int _colors;
+  late int _bitsPerPixel;
+  late int _idatLength;
+  late int _inputBands;
+  List<int>? _maskData;
+  late List<int> _alpha;
+  List<int>? _iDatStream;
+  late List<int> _dataStream;
+  int? _dataStreamOffset;
+  _PdfArray? _colorSpace;
+  List<int>? _decodedImageData;
 
   //Implementation
   void _initialize() {
-    _PngChunkTypes header;
+    _PngChunkTypes? header;
     dynamic result = _hasValidChunkType(header);
     while (result['hasValidChunk'] as bool) {
       header = result['type'];
@@ -76,18 +76,20 @@ class _PngDecoder extends _ImageDecoder {
         case _PngChunkTypes.unknown:
           _ignoreChunk();
           break;
+        default:
+          break;
       }
       result = _hasValidChunkType(header);
     }
   }
 
-  Map<String, dynamic> _hasValidChunkType(_PngChunkTypes type) {
+  Map<String, dynamic> _hasValidChunkType(_PngChunkTypes? type) {
     type = _PngChunkTypes.unknown;
     if (offset + 8 <= imageData.length) {
       _currentChunkLength = _readUInt32(imageData, offset);
       _seek(4);
       final String chunk = _readString(imageData, 4);
-      final _PngChunkTypes header = _getChunkType(chunk);
+      final _PngChunkTypes? header = _getChunkType(chunk);
       if (header != null) {
         type = header;
         return <String, dynamic>{'type': type, 'hasValidChunk': true};
@@ -102,7 +104,7 @@ class _PngDecoder extends _ImageDecoder {
     }
   }
 
-  _PngChunkTypes _getChunkType(String chunk) {
+  _PngChunkTypes? _getChunkType(String chunk) {
     switch (chunk) {
       case 'IHDR':
         return _PngChunkTypes.iHDR;
@@ -145,7 +147,7 @@ class _PngDecoder extends _ImageDecoder {
     }
   }
 
-  _PngFilterTypes _getFilterType(int type) {
+  _PngFilterTypes _getFilterType(int? type) {
     switch (type) {
       case 1:
         return _PngFilterTypes.sub;
@@ -169,7 +171,7 @@ class _PngDecoder extends _ImageDecoder {
   void _setBitsPerPixel() {
     _bitsPerPixel = _header.bitDepth == 16 ? 2 : 1;
     if (_header.colorType == 0) {
-      _idatLength = ((bitsPerComponent * width + 7) / 8 * height).toInt();
+      _idatLength = ((bitsPerComponent! * width + 7) / 8 * height).toInt();
       _inputBands = 1;
     } else if (_header.colorType == 2) {
       _idatLength = width * height * 3;
@@ -203,8 +205,8 @@ class _PngDecoder extends _ImageDecoder {
     if (_currentChunkLength <= imageData.length &&
         imageData.length - offset >= _currentChunkLength) {
       for (int i = 0; i < _currentChunkLength; i++) {
-        _iDatStream.add(imageData[offset]);
-        offset++;
+        _iDatStream!.add(imageData[offset]);
+        offset = offset + 1;
       }
     }
     _seek(4);
@@ -220,23 +222,23 @@ class _PngDecoder extends _ImageDecoder {
         final int length = width * height;
         _maskData = <int>[];
         for (int i = 0; i < length; i++) {
-          _maskData.add(0);
+          _maskData!.add(0);
         }
       }
       if (_iDatStream != null) {
-        _dataStream = _getDeflatedData(_iDatStream);
+        _dataStream = _getDeflatedData(_iDatStream!);
         _dataStreamOffset = 0;
       }
       _decodedImageData = List<int>.filled(_idatLength, 0, growable: true);
       _readDecodeData();
 
-      if (_decodedImageData != null && _decodedImageData.isEmpty && _shades) {
+      if (_decodedImageData != null && _decodedImageData!.isEmpty && _shades) {
         _ideateDecode = false;
-        _decodedImageData = _iDatStream.toList(growable: true);
+        _decodedImageData = _iDatStream!.toList(growable: true);
       }
     } else {
       _ideateDecode = false;
-      _decodedImageData = _iDatStream.toList(growable: true);
+      _decodedImageData = _iDatStream!.toList(growable: true);
     }
   }
 
@@ -244,14 +246,14 @@ class _PngDecoder extends _ImageDecoder {
     final List<int> idatData = data.sublist(2, data.length - 4);
     final _DeflateStream deflateStream = _DeflateStream(idatData, 0, true);
     List<int> buffer = List<int>.filled(4096, 0);
-    int numRead = 0;
+    int? numRead = 0;
     final List<int> outputData = <int>[];
     do {
       final Map<String, dynamic> result =
           deflateStream._read(buffer, 0, buffer.length);
       numRead = result['count'];
       buffer = result['data'];
-      for (int i = 0; i < numRead; i++) {
+      for (int i = 0; i < numRead!; i++) {
         outputData.add(buffer[i]);
       }
     } while (numRead > 0);
@@ -273,18 +275,19 @@ class _PngDecoder extends _ImageDecoder {
   }
 
   void _decodeData(
-      int xOffset, int yOffset, int xStep, int yStep, int width, int height) {
+      int xOffset, int yOffset, int xStep, int yStep, int? width, int? height) {
     if ((width == 0) || (height == 0)) {
       return;
     } else {
-      final int bytesPerRow = (_inputBands * width * _header.bitDepth + 7) ~/ 8;
+      final int bytesPerRow =
+          (_inputBands * width! * _header.bitDepth + 7) ~/ 8;
       List<int> current = List<int>.filled(bytesPerRow, 0);
       List<int> prior = List<int>.filled(bytesPerRow, 0);
       for (int sourceY = 0, destinationY = yOffset;
-          sourceY < height;
+          sourceY < height!;
           sourceY++, destinationY += yStep) {
-        final int filter = _dataStream[_dataStreamOffset];
-        _dataStreamOffset++;
+        final int? filter = _dataStream[_dataStreamOffset!];
+        _dataStreamOffset = _dataStreamOffset! + 1;
         _dataStreamOffset =
             _readStream(_dataStream, _dataStreamOffset, current, bytesPerRow);
         switch (_getFilterType(filter)) {
@@ -313,8 +316,8 @@ class _PngDecoder extends _ImageDecoder {
     }
   }
 
-  int _readStream(
-      List<int> stream, int streamOffset, List<int> data, int count) {
+  int? _readStream(
+      List<int> stream, int? streamOffset, List<int>? data, int count) {
     final dynamic result = _read(stream, streamOffset, data, count);
     data = result['outputBuffer'];
     streamOffset = result['offset'];
@@ -325,7 +328,7 @@ class _PngDecoder extends _ImageDecoder {
     return streamOffset;
   }
 
-  void _processPixels(List<int> data, int x, int step, int y, int width) {
+  void _processPixels(List<int> data, int x, int step, int y, int? width) {
     int sourceX, destX, size = 0;
     final List<int> pixel = _getPixel(data);
     if (_header.colorType == 0 ||
@@ -335,10 +338,10 @@ class _PngDecoder extends _ImageDecoder {
     } else if (_header.colorType == 2 || _header.colorType == 6) {
       size = 3;
     }
-    if (_decodedImageData != null && _decodedImageData.isNotEmpty) {
+    if (_decodedImageData != null && _decodedImageData!.isNotEmpty) {
       destX = x;
       final int depth = (_header.bitDepth == 16) ? 8 : _header.bitDepth;
-      final int yStep = (size * width * depth + 7) ~/ 8;
+      final int yStep = (size * width! * depth + 7) ~/ 8;
       for (sourceX = 0; sourceX < width; sourceX++) {
         _decodedImageData = _setPixel(_decodedImageData, pixel,
             _inputBands * sourceX, size, destX, y, _header.bitDepth, yStep);
@@ -350,23 +353,23 @@ class _PngDecoder extends _ImageDecoder {
     if (shades) {
       if ((_header.colorType & 4) != 0) {
         if (_header.bitDepth == 16) {
-          for (int i = 0; i < width; ++i) {
+          for (int i = 0; i < width!; ++i) {
             final int temp = i * _inputBands + size;
             pixel[temp] = ((pixel[temp]).toUnsigned(32) >> 8).toSigned(32);
           }
         }
-        final int yStep = width;
+        final int? yStep = width;
         destX = x;
-        for (sourceX = 0; sourceX < width; sourceX++) {
+        for (sourceX = 0; sourceX < width!; sourceX++) {
           _maskData = _setPixel(_maskData, pixel, _inputBands * sourceX + size,
               1, destX, y, 8, yStep);
           destX += step;
         }
       } else {
-        final int yStep = width;
-        final List<int> dt = List<int>(1);
+        final int? yStep = width;
+        final List<int> dt = List<int>.filled(1, 0, growable: true);
         destX = x;
-        for (sourceX = 0; sourceX < width; sourceX++) {
+        for (sourceX = 0; sourceX < width!; sourceX++) {
           final int index = pixel[sourceX];
           if (index < _alpha.length) {
             dt[0] = _alpha[index];
@@ -382,51 +385,54 @@ class _PngDecoder extends _ImageDecoder {
 
   List<int> _getPixel(List<int> data) {
     if (_header.bitDepth == 8) {
-      final List<int> pixel = List<int>(data.length);
+      final List<int> pixel = List<int>.filled(data.length, 0, growable: true);
       for (int i = 0; i < pixel.length; ++i) {
         pixel[i] = data[i] & 0xff;
       }
       return pixel;
     } else if (_header.bitDepth == 16) {
-      final List<int> pixel = List<int>(data.length ~/ 2);
+      final List<int> pixel =
+          List<int>.filled(data.length ~/ 2, 0, growable: true);
       for (int i = 0; i < pixel.length; ++i) {
         pixel[i] = ((data[i * 2] & 0xff) << 8) + (data[i * 2 + 1] & 0xff);
       }
       return pixel;
     } else {
-      final List<int> pixel = List<int>(data.length * 8 ~/ _header.bitDepth);
+      final List<int> pixel = List<int>.filled(
+          data.length * 8 ~/ _header.bitDepth, 0,
+          growable: true);
       int index = 0;
       final int p = 8 ~/ _header.bitDepth;
       final int mask = (1 << _header.bitDepth) - 1;
       for (int n = 0; n < data.length; ++n) {
         for (int i = p - 1; i >= 0; --i) {
           final int hb = _header.bitDepth * i;
-          final int d = data[n];
+          final int? d = data[n];
           pixel[index++] =
-              ((hb < 1) ? d : (d.toUnsigned(32) >> hb).toSigned(32)) & mask;
+              ((hb < 1) ? d : (d!.toUnsigned(32) >> hb).toSigned(32))! & mask;
         }
       }
       return pixel;
     }
   }
 
-  List<int> _setPixel(List<int> imageData, List<int> data, int offset, int size,
-      int x, int y, int bitDepth, int bpr) {
+  List<int>? _setPixel(List<int>? imageData, List<int> data, int offset,
+      int size, int x, int y, int? bitDepth, int? bpr) {
     if (bitDepth == 8) {
-      final int position = bpr * y + size * x;
+      final int position = bpr! * y + size * x;
       for (int i = 0; i < size; ++i) {
-        imageData[position + i] = (data[i + offset]).toUnsigned(8);
+        imageData![position + i] = data[i + offset].toUnsigned(8);
       }
     } else if (bitDepth == 16) {
-      final int position = bpr * y + size * x;
+      final int position = bpr! * y + size * x;
       for (int i = 0; i < size; ++i) {
-        imageData[position + i] = (data[i + offset] >> 8).toUnsigned(8);
+        imageData![position + i] = (data[i + offset] >> 8).toUnsigned(8);
       }
     } else {
-      final int position = bpr * y + x ~/ (8 / bitDepth);
+      final int position = bpr! * y + x ~/ (8 / bitDepth!);
       final int t = data[offset] <<
           (8 - bitDepth * (x % (8 / bitDepth)) - bitDepth).toInt();
-      imageData[position] |= t.toUnsigned(8);
+      imageData![position] = imageData[position] | t.toUnsigned(8);
     }
     return imageData;
   }
@@ -492,10 +498,10 @@ class _PngDecoder extends _ImageDecoder {
   void _readPLTE() {
     if (_header.colorType == 3) {
       _colorSpace = _PdfArray();
-      _colorSpace._add(_PdfName(_DictionaryProperties.indexed));
-      _colorSpace._add(_getPngColorSpace());
-      _colorSpace._add(_PdfNumber(_currentChunkLength / 3 - 1));
-      _colorSpace._add(_PdfString.fromBytes(_readBytes(_currentChunkLength)));
+      _colorSpace!._add(_PdfName(_DictionaryProperties.indexed));
+      _colorSpace!._add(_getPngColorSpace());
+      _colorSpace!._add(_PdfNumber(_currentChunkLength / 3 - 1));
+      _colorSpace!._add(_PdfString.fromBytes(_readBytes(_currentChunkLength)));
       _seek(4);
     } else {
       _ignoreChunk();
@@ -506,7 +512,7 @@ class _PngDecoder extends _ImageDecoder {
     if (_header.colorType == 3) {
       final List<int> alpha = _readBytes(_currentChunkLength);
       _seek(4);
-      _alpha = List<int>(alpha.length);
+      _alpha = List<int>.filled(alpha.length, 0, growable: true);
       for (int i = 0; i < alpha.length; i++) {
         _alpha[i] = alpha[i];
         final int sh = alpha[i] & 0xff;
@@ -597,7 +603,7 @@ class _PngDecoder extends _ImageDecoder {
   }
 
   void _setMask(_PdfStream imageStream) {
-    if (_maskData != null && _maskData.isNotEmpty) {
+    if (_maskData != null && _maskData!.isNotEmpty) {
       final _PdfStream stream = _PdfStream();
       stream._dataStream = _maskData;
       stream[_DictionaryProperties.type] =
@@ -610,7 +616,7 @@ class _PngDecoder extends _ImageDecoder {
         stream[_DictionaryProperties.bitsPerComponent] = _PdfNumber(8);
       } else {
         stream[_DictionaryProperties.bitsPerComponent] =
-            _PdfNumber(bitsPerComponent);
+            _PdfNumber(bitsPerComponent!);
       }
       stream[_DictionaryProperties.colorSpace] =
           _PdfName(_DictionaryProperties.deviceGray);
@@ -625,7 +631,7 @@ class _PngDecoder extends _ImageDecoder {
     decodeParams[_DictionaryProperties.colors] = _PdfNumber(_colors);
     decodeParams[_DictionaryProperties.predictor] = _PdfNumber(15);
     decodeParams[_DictionaryProperties.bitsPerComponent] =
-        _PdfNumber(bitsPerComponent);
+        _PdfNumber(bitsPerComponent!);
     return decodeParams;
   }
 
@@ -666,7 +672,7 @@ class _PngDecoder extends _ImageDecoder {
       imageStream[_DictionaryProperties.bitsPerComponent] = _PdfNumber(8);
     } else {
       imageStream[_DictionaryProperties.bitsPerComponent] =
-          _PdfNumber(bitsPerComponent);
+          _PdfNumber(bitsPerComponent!);
     }
     if (!_isDecode || !_ideateDecode) {
       imageStream[_DictionaryProperties.filter] =
@@ -697,11 +703,11 @@ class _PngHeader {
     interlace = 0;
     filter = _PngFilterTypes.none;
   }
-  int width;
-  int height;
-  int colorType;
-  int compression;
-  int bitDepth;
-  _PngFilterTypes filter;
-  int interlace;
+  late int width;
+  late int height;
+  late int colorType;
+  late int compression;
+  late int bitDepth;
+  late _PngFilterTypes filter;
+  late int interlace;
 }

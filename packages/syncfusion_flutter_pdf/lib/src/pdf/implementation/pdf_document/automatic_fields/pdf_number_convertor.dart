@@ -10,53 +10,46 @@ class _PdfNumberConvertor {
     switch (numberStyle) {
       case PdfNumberStyle.none:
         return '';
-
       case PdfNumberStyle.numeric:
         return intArabic.toString();
-
       case PdfNumberStyle.lowerLatin:
         return _arabicToLetter(intArabic).toLowerCase();
-
       case PdfNumberStyle.lowerRoman:
         return _arabicToRoman(intArabic).toLowerCase();
-
       case PdfNumberStyle.upperLatin:
         return _arabicToLetter(intArabic);
-
       case PdfNumberStyle.upperRoman:
         return _arabicToRoman(intArabic);
     }
-
-    return '';
   }
 
   static String _arabicToRoman(int intArabic) {
     final StringBuffer retval = StringBuffer();
     List<Object> result = _generateNumber(intArabic, 1000, 'M');
     retval.write(result.elementAt(0));
-    result = _generateNumber(result.elementAt(1), 900, 'CM');
+    result = _generateNumber(result.elementAt(1) as int, 900, 'CM');
     retval.write(result.elementAt(0));
-    result = _generateNumber(result.elementAt(1), 500, 'D');
+    result = _generateNumber(result.elementAt(1) as int, 500, 'D');
     retval.write(result.elementAt(0));
-    result = _generateNumber(result.elementAt(1), 400, 'CD');
+    result = _generateNumber(result.elementAt(1) as int, 400, 'CD');
     retval.write(result.elementAt(0));
-    result = _generateNumber(result.elementAt(1), 100, 'C');
+    result = _generateNumber(result.elementAt(1) as int, 100, 'C');
     retval.write(result.elementAt(0));
-    result = _generateNumber(result.elementAt(1), 90, 'XC');
+    result = _generateNumber(result.elementAt(1) as int, 90, 'XC');
     retval.write(result.elementAt(0));
-    result = _generateNumber(result.elementAt(1), 50, 'L');
+    result = _generateNumber(result.elementAt(1) as int, 50, 'L');
     retval.write(result.elementAt(0));
-    result = _generateNumber(result.elementAt(1), 40, 'XL');
+    result = _generateNumber(result.elementAt(1) as int, 40, 'XL');
     retval.write(result.elementAt(0));
-    result = _generateNumber(result.elementAt(1), 10, 'X');
+    result = _generateNumber(result.elementAt(1) as int, 10, 'X');
     retval.write(result.elementAt(0));
-    result = _generateNumber(result.elementAt(1), 9, 'IX');
+    result = _generateNumber(result.elementAt(1) as int, 9, 'IX');
     retval.write(result.elementAt(0));
-    result = _generateNumber(result.elementAt(1), 5, 'V');
+    result = _generateNumber(result.elementAt(1) as int, 5, 'V');
     retval.write(result.elementAt(0));
-    result = _generateNumber(result.elementAt(1), 4, 'IV');
+    result = _generateNumber(result.elementAt(1) as int, 4, 'IV');
     retval.write(result.elementAt(0));
-    result = _generateNumber(result.elementAt(1), 1, 'I');
+    result = _generateNumber(result.elementAt(1) as int, 1, 'I');
     retval.write(result.elementAt(0));
     return retval.toString();
   }
@@ -108,9 +101,6 @@ class _PdfNumberConvertor {
   }
 
   static void _appendChar(StringBuffer result, int number) {
-    if (result == null) {
-      throw ArgumentError.notNull('result');
-    }
     if (number <= 0 || number > 26) {
       throw ArgumentError.value('Value can not be less 0 and greater 26');
     }

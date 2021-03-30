@@ -2,12 +2,12 @@ part of charts;
 
 class _StepLineChartPainter extends CustomPainter {
   _StepLineChartPainter(
-      {this.chartState,
-      this.seriesRenderer,
-      this.isRepaint,
-      this.animationController,
-      ValueNotifier<num> notifier,
-      this.painterKey})
+      {required this.chartState,
+      required this.seriesRenderer,
+      required this.isRepaint,
+      required this.animationController,
+      required ValueNotifier<num> notifier,
+      required this.painterKey})
       : chart = chartState._chart,
         super(repaint: notifier);
   final SfCartesianChartState chartState;
@@ -22,12 +22,13 @@ class _StepLineChartPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     double animationFactor;
     Rect clipRect;
-    final StepLineSeries<dynamic, dynamic> series = seriesRenderer._series;
-    final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer;
-    final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer;
+    final StepLineSeries<dynamic, dynamic> series =
+        seriesRenderer._series as StepLineSeries;
+    final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
+    final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer!;
     final List<CartesianChartPoint<dynamic>> dataPoints =
         seriesRenderer._dataPoints;
-    if (seriesRenderer._visible) {
+    if (seriesRenderer._visible!) {
       canvas.save();
       assert(
           series.animationDuration != null
@@ -37,7 +38,7 @@ class _StepLineChartPainter extends CustomPainter {
       final int seriesIndex = painterKey.index;
       seriesRenderer._storeSeriesProperties(chartState, seriesIndex);
       animationFactor = seriesRenderer._seriesAnimation != null
-          ? seriesRenderer._seriesAnimation.value
+          ? seriesRenderer._seriesAnimation!.value
           : 1;
       final Rect axisClipRect = _calculatePlotOffset(
           chartState._chartAxis._axisClipRect,
@@ -52,14 +53,14 @@ class _StepLineChartPainter extends CustomPainter {
             chartState, xAxisRenderer._axis, canvas, animationFactor);
       }
       int segmentIndex = -1;
-      CartesianChartPoint<dynamic> startPoint,
+      CartesianChartPoint<dynamic>? startPoint,
           endPoint,
           currentPoint,
           _nextPoint;
-      num midX, midY;
+      num? midX, midY;
 
       if (seriesRenderer._visibleDataPoints == null ||
-          seriesRenderer._visibleDataPoints.isNotEmpty) {
+          seriesRenderer._visibleDataPoints!.isNotEmpty) {
         seriesRenderer._visibleDataPoints = <CartesianChartPoint<dynamic>>[];
       }
 
@@ -120,7 +121,7 @@ class _StepLineChartPainter extends CustomPainter {
 
       canvas.restore();
       if ((series.animationDuration <= 0 ||
-              (!chartState._initialRender &&
+              (!chartState._initialRender! &&
                   !seriesRenderer._needAnimateSeriesElements) ||
               animationFactor >= chartState._seriesDurationFactor) &&
           (series.markerSettings.isVisible ||
@@ -131,16 +132,16 @@ class _StepLineChartPainter extends CustomPainter {
         seriesRenderer._renderSeriesElements(
             chart, canvas, seriesRenderer._seriesElementAnimation);
       }
-      if (seriesRenderer._visible && animationFactor >= 1) {
+      if (seriesRenderer._visible! && animationFactor >= 1) {
         chartState._setPainterKey(seriesIndex, painterKey.name, true);
       }
     }
   }
 
   /// To get point value in the drop mode
-  CartesianChartPoint<dynamic> getDropValue(
+  CartesianChartPoint<dynamic>? getDropValue(
       List<CartesianChartPoint<dynamic>> points, int pointIndex) {
-    CartesianChartPoint<dynamic> value;
+    CartesianChartPoint<dynamic>? value;
     for (int i = pointIndex; i < points.length - 1; i++) {
       if (!points[i + 1].isDrop) {
         value = points[i + 1];

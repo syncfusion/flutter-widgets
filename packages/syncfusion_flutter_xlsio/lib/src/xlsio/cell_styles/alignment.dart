@@ -3,17 +3,17 @@ part of xlsio;
 /// Represent cell alignment class.
 class Alignment {
   /// Gets/sets horizontal alignment.
-  String horizontal;
+  late String horizontal;
 
   /// Gets/sets vertical alignment.
-  String vertical;
+  late String vertical;
 
   /// Gets/sets cell wraptext.
-  int wrapText;
+  late int wrapText;
 
   /// Gets/sets cell indent.
-  int indent;
+  late int indent;
 
   /// Gets/sets cell rotation.
-  int rotation;
+  late int rotation;
 }

@@ -8,7 +8,7 @@ import 'symbology_base_renderer.dart';
 /// Represents the code39 renderer class
 class Code39Renderer extends SymbologyRenderer {
   /// Creates codabar renderer class
-  Code39Renderer({Symbology symbology}) : super(symbology: symbology) {
+  Code39Renderer({Symbology? symbology}) : super(symbology: symbology) {
     _code39Symbology = <String>[
       '111221211',
       '211211112',
@@ -60,10 +60,10 @@ class Code39Renderer extends SymbologyRenderer {
   }
 
   /// Represents the code39 symbology
-  List<String> _code39Symbology;
+  late List<String> _code39Symbology;
 
   /// Represnts the encoded input character
-  String _character;
+  late String _character;
 
   @override
   bool getIsValidateInput(String value) {
@@ -116,15 +116,15 @@ class Code39Renderer extends SymbologyRenderer {
     final Paint paint = getBarPaint(foregroundColor);
     final List<String> code = getCodeValues(value);
     final int barTotalLength = _getTotalLength(code);
-    double left = symbology.module == null
+    double left = symbology?.module == null
         ? offset.dx
         : getLeftPosition(
-            barTotalLength, symbology.module, size.width, offset.dx);
+            barTotalLength, symbology?.module, size.width, offset.dx);
     final Rect barCodeRect = Rect.fromLTRB(
         offset.dx, offset.dy, offset.dx + size.width, offset.dy + size.height);
     double ratio = 0;
-    if (symbology.module != null) {
-      ratio = symbology.module.toDouble();
+    if (symbology?.module != null) {
+      ratio = symbology!.module!.toDouble();
     } else {
       // Calculates the bar length based on number of individual bar codes
       final int singleModule = (size.width ~/ barTotalLength).toInt();
@@ -135,10 +135,7 @@ class Code39Renderer extends SymbologyRenderer {
     left = left.roundToDouble();
     for (int i = 0; i < code.length; i++) {
       final String codeValue = code[i];
-      const bool hasExtraHeight = false;
-      final double barHeight = hasExtraHeight
-          ? size.height + textSize.height + textSpacing
-          : size.height;
+      final double barHeight = size.height;
       final int codeLength = codeValue.length;
       for (int j = 0; j < codeLength; j++) {
         // The current bar is drawn, if its value is divisible by 2
@@ -182,7 +179,8 @@ class Code39Renderer extends SymbologyRenderer {
 
   /// Represents the encoded value for provided input
   List<String> getEncodedValue(String providedValue) {
-    final Code39 code39Symbology = symbology;
+    // ignore: avoid_as
+    final Code39 code39Symbology = symbology as Code39;
     if (code39Symbology.enableCheckSum) {
       final String checkSum = _getCheckSum(providedValue, _character);
       providedValue += checkSum;

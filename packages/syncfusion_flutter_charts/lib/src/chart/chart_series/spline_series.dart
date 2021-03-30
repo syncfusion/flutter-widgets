@@ -9,41 +9,40 @@ part of charts;
 class SplineSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of SplineSeries class.
   SplineSeries(
-      {ValueKey<String> key,
-      ChartSeriesRendererFactory<T, D> onCreateRenderer,
-      @required List<T> dataSource,
-      @required ChartValueMapper<T, D> xValueMapper,
-      @required ChartValueMapper<T, num> yValueMapper,
-      ChartValueMapper<T, dynamic> sortFieldValueMapper,
-      ChartValueMapper<T, Color> pointColorMapper,
-      ChartValueMapper<T, String> dataLabelMapper,
-      String xAxisName,
-      String yAxisName,
-      String name,
-      Color color,
-      double width,
-      MarkerSettings markerSettings,
+      {ValueKey<String>? key,
+      ChartSeriesRendererFactory<T, D>? onCreateRenderer,
+      required List<T> dataSource,
+      required ChartValueMapper<T, D> xValueMapper,
+      required ChartValueMapper<T, num> yValueMapper,
+      ChartValueMapper<T, dynamic>? sortFieldValueMapper,
+      ChartValueMapper<T, Color>? pointColorMapper,
+      ChartValueMapper<T, String>? dataLabelMapper,
+      String? xAxisName,
+      String? yAxisName,
+      String? name,
+      Color? color,
+      double? width,
+      MarkerSettings? markerSettings,
       this.splineType,
-      double cardinalSplineTension,
-      EmptyPointSettings emptyPointSettings,
-      DataLabelSettings dataLabelSettings,
-      bool isVisible,
-      List<Trendline> trendlines,
-      bool enableTooltip,
-      List<double> dashArray,
-      double animationDuration,
+      this.cardinalSplineTension = 0.5,
+      EmptyPointSettings? emptyPointSettings,
+      DataLabelSettings? dataLabelSettings,
+      bool? isVisible,
+      List<Trendline>? trendlines,
+      bool? enableTooltip,
+      List<double>? dashArray,
+      double? animationDuration,
       // ignore: deprecated_member_use_from_same_package
-      SelectionSettings selectionSettings,
-      SelectionBehavior selectionBehavior,
-      bool isVisibleInLegend,
-      LegendIconType legendIconType,
-      SortingOrder sortingOrder,
-      String legendItemText,
-      double opacity,
-      SeriesRendererCreatedCallback onRendererCreated,
-      List<int> initialSelectedDataIndexes})
-      : cardinalSplineTension = cardinalSplineTension ?? 0.5,
-        super(
+      SelectionSettings? selectionSettings,
+      SelectionBehavior? selectionBehavior,
+      bool? isVisibleInLegend,
+      LegendIconType? legendIconType,
+      SortingOrder? sortingOrder,
+      String? legendItemText,
+      double? opacity,
+      SeriesRendererCreatedCallback? onRendererCreated,
+      List<int>? initialSelectedDataIndexes})
+      : super(
             key: key,
             onCreateRenderer: onCreateRenderer,
             xValueMapper: xValueMapper,
@@ -95,7 +94,7 @@ class SplineSeries<T, D> extends XyDataSeries<T, D> {
   ///        ));
   ///}
   ///```
-  final SplineType splineType;
+  final SplineType? splineType;
 
   ///Line tension of the cardinal spline. The value ranges from 0 to 1.
   ///
@@ -121,7 +120,7 @@ class SplineSeries<T, D> extends XyDataSeries<T, D> {
   SplineSeriesRenderer createRenderer(ChartSeries<T, D> series) {
     SplineSeriesRenderer seriesRenderer;
     if (onCreateRenderer != null) {
-      seriesRenderer = onCreateRenderer(series);
+      seriesRenderer = onCreateRenderer!(series) as SplineSeriesRenderer;
       assert(seriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return seriesRenderer;
@@ -135,11 +134,8 @@ class SplineSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of SplineSeriesRenderer class.
   SplineSeriesRenderer();
 
-  final List<num> _xValueList = <num>[];
-  final List<num> _yValueList = <num>[];
-
-  //ignore: prefer_final_fields
-  List<_ControlPoints> _drawPoints;
+  final List<num?> _xValueList = <num?>[];
+  final List<num?> _yValueList = <num?>[];
 
   /// Spline segment is created here
   ChartSegment _createSegments(
@@ -147,34 +143,35 @@ class SplineSeriesRenderer extends XyDataSeriesRenderer {
       CartesianChartPoint<dynamic> nextPoint,
       int pointIndex,
       int seriesIndex,
-      num animateFactor) {
-    final SplineSegment segment = createSegment();
+      double animateFactor) {
+    final SplineSegment segment = createSegment() as SplineSegment;
     final List<CartesianSeriesRenderer> _oldSeriesRenderers =
-        _chartState._oldSeriesRenderers;
+        _chartState!._oldSeriesRenderers;
     _isRectSeries = false;
     if (segment != null) {
       segment._chart = _chart;
-      segment._chartState = _chartState;
+      segment._chartState = _chartState!;
       segment.animationFactor = animateFactor;
       segment._currentPoint = currentPoint;
       segment._nextPoint = nextPoint;
       segment._pointColorMapper = currentPoint.pointColorMapper;
       segment.currentSegmentIndex = pointIndex;
       segment._seriesIndex = seriesIndex;
-      segment._series = _series;
+      segment._series = _series as XyDataSeries;
       segment._seriesRenderer = this;
-      if (_chartState._widgetNeedUpdate &&
+      if (_chartState!._widgetNeedUpdate &&
           _oldSeriesRenderers != null &&
           _oldSeriesRenderers.isNotEmpty &&
           _oldSeriesRenderers.length - 1 >= segment._seriesIndex &&
           _oldSeriesRenderers[segment._seriesIndex]._seriesName ==
               segment._seriesRenderer._seriesName) {
         segment._oldSeriesRenderer = _oldSeriesRenderers[segment._seriesIndex];
-        segment._oldSeries = segment._oldSeriesRenderer._series;
+        segment._oldSeries =
+            segment._oldSeriesRenderer!._series as XyDataSeries;
       }
       segment.calculateSegmentPoints();
-      segment.points
-          .add(Offset(currentPoint.markerPoint.x, currentPoint.markerPoint.y));
+      segment.points.add(
+          Offset(currentPoint.markerPoint!.x, currentPoint.markerPoint!.y));
       segment.points.add(Offset(segment._x2, segment._y2));
       customizeSegment(segment);
       segment.strokePaint = segment.getStrokePaint();
@@ -188,10 +185,10 @@ class SplineSeriesRenderer extends XyDataSeriesRenderer {
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     if (segment._seriesRenderer._isSelectionEnable) {
-      final SelectionBehaviorRenderer selectionBehaviorRenderer =
+      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
           segment._seriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer._selectionRenderer._checkWithSelectionState(
-          _segments[segment.currentSegmentIndex], _chart);
+      selectionBehaviorRenderer?._selectionRenderer?._checkWithSelectionState(
+          _segments[segment.currentSegmentIndex!], _chart);
     }
     segment.onPaint(canvas);
   }
@@ -212,9 +209,9 @@ class SplineSeriesRenderer extends XyDataSeriesRenderer {
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer seriesRenderer]) {
-    canvas.drawPath(seriesRenderer._markerShapes[index], fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes[index], strokePaint);
+      [CartesianSeriesRenderer? seriesRenderer]) {
+    canvas.drawPath(seriesRenderer!._markerShapes[index]!, fillPaint);
+    canvas.drawPath(seriesRenderer._markerShapes[index]!, strokePaint);
   }
 
   /// Draws data label text of the appropriate data point in a series.

@@ -2,12 +2,12 @@ part of charts;
 
 class _SplineChartPainter extends CustomPainter {
   _SplineChartPainter(
-      {this.chartState,
-      this.seriesRenderer,
-      this.isRepaint,
-      this.animationController,
-      ValueNotifier<num> notifier,
-      this.painterKey})
+      {required this.chartState,
+      required this.seriesRenderer,
+      required this.isRepaint,
+      required this.animationController,
+      required ValueNotifier<num> notifier,
+      required this.painterKey})
       : chart = chartState._chart,
         super(repaint: notifier);
   final SfCartesianChartState chartState;
@@ -22,15 +22,16 @@ class _SplineChartPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     Rect clipRect;
     double animationFactor;
-    final SplineSeries<dynamic, dynamic> series = seriesRenderer._series;
-    final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer;
-    final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer;
+    final SplineSeries<dynamic, dynamic> series =
+        seriesRenderer._series as SplineSeries;
+    final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
+    final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer!;
     final List<CartesianChartPoint<dynamic>> dataPoints =
         seriesRenderer._dataPoints;
-    seriesRenderer?._drawControlPoints?.clear();
+    seriesRenderer._drawControlPoints.clear();
 
     /// Clip rect will be added for series.
-    if (seriesRenderer._visible) {
+    if (seriesRenderer._visible!) {
       assert(
           series.animationDuration != null
               ? series.animationDuration >= 0
@@ -40,7 +41,7 @@ class _SplineChartPainter extends CustomPainter {
       final int seriesIndex = painterKey.index;
       seriesRenderer._storeSeriesProperties(chartState, seriesIndex);
       animationFactor = seriesRenderer._seriesAnimation != null
-          ? seriesRenderer._seriesAnimation.value
+          ? seriesRenderer._seriesAnimation!.value
           : 1;
       final Rect axisClipRect = _calculatePlotOffset(
           chartState._chartAxis._axisClipRect,
@@ -60,35 +61,47 @@ class _SplineChartPainter extends CustomPainter {
 
       int segmentIndex = -1;
 
-      CartesianChartPoint<dynamic> point, _nextPoint, startPoint, endPoint;
+      CartesianChartPoint<dynamic>? point, _nextPoint, startPoint, endPoint;
 
       if (seriesRenderer._visibleDataPoints == null ||
-          seriesRenderer._visibleDataPoints.isNotEmpty) {
+          seriesRenderer._visibleDataPoints!.isNotEmpty) {
         seriesRenderer._visibleDataPoints = <CartesianChartPoint<dynamic>>[];
       }
 
       ///Draw spline for spline series
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
-        seriesRenderer._calculateRegionData(
-            chartState, seriesRenderer, painterKey.index, point, pointIndex);
-        if ((point.isVisible && !point.isGap) && startPoint == null) {
-          startPoint = point;
-        }
-        if (pointIndex + 1 < dataPoints.length) {
-          _nextPoint = dataPoints[pointIndex + 1];
-          if (startPoint != null && _nextPoint.isVisible && _nextPoint.isGap) {
-            startPoint = null;
-          } else if (_nextPoint.isVisible && !_nextPoint.isGap) {
-            endPoint = _nextPoint;
+        if (_withInRange(seriesRenderer._dataPoints[pointIndex].xValue,
+                seriesRenderer._xAxisRenderer!._visibleRange!) ||
+            (pointIndex < dataPoints.length - 1
+                ? _withInRange(
+                    seriesRenderer._dataPoints[pointIndex + 1].xValue,
+                    seriesRenderer._xAxisRenderer!._visibleRange!)
+                : false)) {
+          seriesRenderer._calculateRegionData(
+              chartState, seriesRenderer, painterKey.index, point, pointIndex);
+          if ((point.isVisible && !point.isGap) && startPoint == null) {
+            startPoint = point;
           }
-        }
-        if (startPoint != null && endPoint != null && startPoint != endPoint) {
-          seriesRenderer._drawSegment(
-              canvas,
-              seriesRenderer._createSegments(startPoint, endPoint,
-                  segmentIndex += 1, seriesIndex, animationFactor));
-          endPoint = startPoint = null;
+          if (pointIndex + 1 < dataPoints.length) {
+            _nextPoint = dataPoints[pointIndex + 1];
+            if (startPoint != null &&
+                _nextPoint.isVisible &&
+                _nextPoint.isGap) {
+              startPoint = null;
+            } else if (_nextPoint.isVisible && !_nextPoint.isGap) {
+              endPoint = _nextPoint;
+            }
+          }
+          if (startPoint != null &&
+              endPoint != null &&
+              startPoint != endPoint) {
+            seriesRenderer._drawSegment(
+                canvas,
+                seriesRenderer._createSegments(startPoint, endPoint,
+                    segmentIndex += 1, seriesIndex, animationFactor));
+            endPoint = startPoint = null;
+          }
         }
       }
       clipRect = _calculatePlotOffset(
@@ -106,7 +119,7 @@ class _SplineChartPainter extends CustomPainter {
       canvas.restore();
 
       if ((series.animationDuration <= 0 ||
-              (!chartState._initialRender &&
+              (!chartState._initialRender! &&
                   !seriesRenderer._needAnimateSeriesElements) ||
               animationFactor >= chartState._seriesDurationFactor) &&
           (series.markerSettings.isVisible ||

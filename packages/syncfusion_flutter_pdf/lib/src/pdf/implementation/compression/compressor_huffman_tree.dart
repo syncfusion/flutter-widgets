@@ -29,14 +29,14 @@ class _CompressorHuffmanTree {
     7,
     15
   ];
-  List<int> _codeFrequences;
-  List<int> _codes;
-  List<int> _codeLengths;
-  List<int> _lengthCounts;
-  int _codeMinimumCount;
-  int _codeCount;
-  int _maximumLength;
-  _CompressedStreamWriter _writer;
+  late List<int> _codeFrequences;
+  List<int>? _codes;
+  List<int>? _codeLengths;
+  late List<int> _lengthCounts;
+  late int _codeMinimumCount;
+  late int _codeCount;
+  int? _maximumLength;
+  late _CompressedStreamWriter _writer;
   void _buildTree() {
     final int iCodesCount = _codeFrequences.length;
     final List<int> arrTree = List<int>.filled(iCodesCount, 0);
@@ -151,7 +151,7 @@ class _CompressorHuffmanTree {
     final int numLeafs = (numNodes + 1) ~/ 2;
     int overflow = 0;
 
-    for (int i = 0; i < _maximumLength; i++) {
+    for (int i = 0; i < _maximumLength!; i++) {
       _lengthCounts[i] = 0;
     }
 
@@ -165,8 +165,8 @@ class _CompressorHuffmanTree {
       if (childs[iChildIndex] != -1) {
         int bitLength = lengths[i] + 1;
 
-        if (bitLength > _maximumLength) {
-          bitLength = _maximumLength;
+        if (bitLength > _maximumLength!) {
+          bitLength = _maximumLength!;
           overflow++;
         }
 
@@ -175,7 +175,7 @@ class _CompressorHuffmanTree {
       } else {
         final int bitLength = lengths[i];
         _lengthCounts[bitLength - 1]++;
-        _codeLengths[childs[iChildIndex - 1]] = lengths[i].toUnsigned(8);
+        _codeLengths![childs[iChildIndex - 1]] = lengths[i].toUnsigned(8);
       }
     }
 
@@ -183,7 +183,7 @@ class _CompressorHuffmanTree {
       return;
     }
 
-    int iIncreasableLength = _maximumLength - 1;
+    int iIncreasableLength = _maximumLength! - 1;
 
     do {
       // Find the first bit _codeLengths which could increase.
@@ -192,31 +192,31 @@ class _CompressorHuffmanTree {
       do {
         _lengthCounts[iIncreasableLength]--;
         _lengthCounts[++iIncreasableLength]++;
-        overflow -= 1 << (_maximumLength - 1 - iIncreasableLength);
-      } while (overflow > 0 && iIncreasableLength < _maximumLength - 1);
+        overflow -= 1 << (_maximumLength! - 1 - iIncreasableLength);
+      } while (overflow > 0 && iIncreasableLength < _maximumLength! - 1);
     } while (overflow > 0);
 
-    _lengthCounts[_maximumLength - 1] += overflow;
-    _lengthCounts[_maximumLength - 2] -= overflow;
+    _lengthCounts[_maximumLength! - 1] += overflow;
+    _lengthCounts[_maximumLength! - 2] -= overflow;
 
     // Recreate tree.
     int nodePtr = 2 * numLeafs;
 
-    for (int bits = _maximumLength; bits != 0; bits--) {
-      int n = _lengthCounts[bits - 1];
+    for (int? bits = _maximumLength; bits != 0; bits--) {
+      int n = _lengthCounts[bits! - 1];
 
       while (n > 0) {
         final int childPtr = 2 * childs[nodePtr++];
 
         if (childs[childPtr + 1] == -1) {
-          _codeLengths[childs[childPtr]] = bits.toUnsigned(8);
+          _codeLengths![childs[childPtr]] = bits.toUnsigned(8);
           n--;
         }
       }
     }
   }
 
-  void _calcBLFreq(_CompressorHuffmanTree blTree) {
+  void _calcBLFreq(_CompressorHuffmanTree? blTree) {
     int maxCount;
     int minCount;
     int count;
@@ -224,7 +224,7 @@ class _CompressorHuffmanTree {
     int i = 0;
     while (i < _codeCount) {
       count = 1;
-      final int nextlen = _codeLengths[i];
+      final int nextlen = _codeLengths![i];
       if (nextlen == 0) {
         maxCount = 138;
         minCount = 3;
@@ -232,26 +232,26 @@ class _CompressorHuffmanTree {
         maxCount = 6;
         minCount = 3;
         if (curlen != nextlen) {
-          blTree._codeFrequences[nextlen]++;
+          blTree!._codeFrequences[nextlen]++;
           count = 0;
         }
       }
       curlen = nextlen;
       i++;
-      while (i < _codeCount && curlen == _codeLengths[i]) {
+      while (i < _codeCount && curlen == _codeLengths![i]) {
         i++;
         if (++count >= maxCount) {
           break;
         }
       }
       if (count < minCount) {
-        blTree._codeFrequences[curlen] += count.toSigned(16);
+        blTree!._codeFrequences[curlen] += count.toSigned(16);
       } else if (curlen != 0) {
-        blTree._codeFrequences[16]++;
+        blTree!._codeFrequences[16]++;
       } else if (count <= 10) {
-        blTree._codeFrequences[17]++;
+        blTree!._codeFrequences[17]++;
       } else {
-        blTree._codeFrequences[18]++;
+        blTree!._codeFrequences[18]++;
       }
     }
   }
@@ -259,13 +259,14 @@ class _CompressorHuffmanTree {
   int _getEncodedLength() {
     int len = 0;
     for (int i = 0; i < _codeFrequences.length; i++) {
-      len += _codeFrequences[i] * _codeLengths[i];
+      len += _codeFrequences[i] * _codeLengths![i];
     }
     return len;
   }
 
   void _writeCodeToStream(int code) {
-    _writer._pendingBufferWriteBits(_codes[code] & 0xffff, _codeLengths[code]);
+    _writer._pendingBufferWriteBits(
+        _codes![code] & 0xffff, _codeLengths![code]);
   }
 
   void _setStaticCodes(List<int> codes, List<int> lengths) {
@@ -273,7 +274,7 @@ class _CompressorHuffmanTree {
     _codeLengths = List<int>.from(lengths);
   }
 
-  void _writeTree(_CompressorHuffmanTree blTree) {
+  void _writeTree(_CompressorHuffmanTree? blTree) {
     int iMaxRepeatCount;
     int iMinRepeatCount;
     int iCurrentRepeatCount;
@@ -282,7 +283,7 @@ class _CompressorHuffmanTree {
     int i = 0;
     while (i < _codeCount) {
       iCurrentRepeatCount = 1;
-      final int nextlen = _codeLengths[i];
+      final int nextlen = _codeLengths![i];
 
       if (nextlen == 0) {
         iMaxRepeatCount = 138;
@@ -292,7 +293,7 @@ class _CompressorHuffmanTree {
         iMinRepeatCount = 3;
 
         if (iCurrentCodeLength != nextlen) {
-          blTree._writeCodeToStream(nextlen);
+          blTree!._writeCodeToStream(nextlen);
           iCurrentRepeatCount = 0;
         }
       }
@@ -300,7 +301,7 @@ class _CompressorHuffmanTree {
       iCurrentCodeLength = nextlen;
       i++;
 
-      while (i < _codeCount && iCurrentCodeLength == _codeLengths[i]) {
+      while (i < _codeCount && iCurrentCodeLength == _codeLengths![i]) {
         i++;
 
         if (++iCurrentRepeatCount >= iMaxRepeatCount) {
@@ -310,36 +311,36 @@ class _CompressorHuffmanTree {
 
       if (iCurrentRepeatCount < iMinRepeatCount) {
         while (iCurrentRepeatCount-- > 0) {
-          blTree._writeCodeToStream(iCurrentCodeLength);
+          blTree!._writeCodeToStream(iCurrentCodeLength);
         }
       } else if (iCurrentCodeLength != 0) {
-        blTree._writeCodeToStream(16);
+        blTree!._writeCodeToStream(16);
         _writer._pendingBufferWriteBits(iCurrentRepeatCount - 3, 2);
       } else if (iCurrentRepeatCount <= 10) {
-        blTree._writeCodeToStream(17);
+        blTree!._writeCodeToStream(17);
         _writer._pendingBufferWriteBits(iCurrentRepeatCount - 3, 3);
       } else {
-        blTree._writeCodeToStream(18);
+        blTree!._writeCodeToStream(18);
         _writer._pendingBufferWriteBits(iCurrentRepeatCount - 11, 7);
       }
     }
   }
 
   void _buildCodes() {
-    final List<int> nextCode = List<int>.filled(_maximumLength, 0);
+    final List<int> nextCode = List<int>.filled(_maximumLength!, 0);
     _codes = List<int>.filled(_codeCount, 0);
     int code = 0;
 
-    for (int bitsCount = 0; bitsCount < _maximumLength; bitsCount++) {
+    for (int bitsCount = 0; bitsCount < _maximumLength!; bitsCount++) {
       nextCode[bitsCount] = code;
       code += _lengthCounts[bitsCount] << (15 - bitsCount);
     }
 
     for (int i = 0; i < _codeCount; i++) {
-      final int bits = _codeLengths[i];
+      final int bits = _codeLengths![i];
 
       if (bits > 0) {
-        _codes[i] = _bitReverse(nextCode[bits - 1]);
+        _codes![i] = _bitReverse(nextCode[bits - 1]);
         nextCode[bits - 1] += 1 << (16 - bits);
       }
     }

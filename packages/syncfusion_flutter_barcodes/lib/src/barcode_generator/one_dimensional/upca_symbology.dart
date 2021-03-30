@@ -21,5 +21,5 @@ class UPCA extends Symbology {
   /// be valid check digit otherwise remove it, since it has been calculated
   /// automatically.
   ///
-  UPCA({int module}) : super(module: module);
+  UPCA({int? module}) : super(module: module);
 }

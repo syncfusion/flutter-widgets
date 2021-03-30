@@ -13,37 +13,38 @@ class TooltipArgs {
       this.pointIndex]);
 
   /// Get and set the tooltip text.
-  String text;
+  String? text;
 
   /// Get and set the header text of the tooltip.
-  String header;
+  String? header;
 
   /// Get and set the x location of the tooltip.
-  double locationX;
+  double? locationX;
 
   /// Get and set the y location of the tooltip.
-  double locationY;
+  double? locationY;
 
   /// Get the index of the current series.
-  final dynamic seriesIndex;
+  final dynamic? seriesIndex;
 
   /// Get the list of data points in the series.
-  final List<dynamic> dataPoints;
+  final List<dynamic>? dataPoints;
 
   /// Get the overall index value of the tooltip.
-  final num pointIndex;
+  final num? pointIndex;
 
   /// Get the viewport index value of the tooltip.
-  final num viewportPointIndex;
+  final num? viewportPointIndex;
 }
 
-/// Holds the onActualRangeChanged event arguments.
+/// Holds the [onActualRangeChanged] event arguments.
 ///
-/// ActualRangeChangedArgs is the type argument for onActualRangeChanged event. Whenever the actual range is changed, the onActualRangeChanged event is
+/// ActualRangeChangedArgs is the type argument for [onActualRangeChanged] event. Whenever the actual range is changed, the [onActualRangeChanged] event is
 /// triggered and provides options to set the visible minimum and maximum values.
 ///
 /// It has the public properties of axis name, axis type, actual minimum, and maximum, visible minimum and maximum and axis orientation.
 class ActualRangeChangedArgs {
+  //doubt
   /// Creating an argument constructor of ActualRangeChangedArgs class.
   ActualRangeChangedArgs(
       [this.axisName,
@@ -54,10 +55,10 @@ class ActualRangeChangedArgs {
       this.orientation]);
 
   /// Get the name of the axis.
-  final String axisName;
+  final String? axisName;
 
   /// Get the axis type.
-  final ChartAxis axis;
+  final ChartAxis? axis;
 
   /// Get the actual minimum range for an axis.
   final dynamic actualMin;
@@ -78,7 +79,7 @@ class ActualRangeChangedArgs {
   dynamic visibleInterval;
 
   /// Get the orientation for an axis.
-  final AxisOrientation orientation;
+  final AxisOrientation? orientation;
 }
 
 /// Holds the onAxisLabelRender event arguments.
@@ -93,22 +94,19 @@ class AxisLabelRenderArgs {
   AxisLabelRenderArgs([this.value, this.axisName, this.orientation, this.axis]);
 
   /// Get and set the text value of the axis label.
-  String text;
-
-  /// Trimmed text value of the axis label.
-  // String _trimmedText;
+  late String text;
 
   /// Get the value of the axis label.
-  final num value;
+  final num? value;
 
   /// Get the axis name.
-  final String axisName;
+  final String? axisName;
 
   /// Get the orientation for an axis.
-  final AxisOrientation orientation;
+  final AxisOrientation? orientation;
 
   /// Get the chart axis type and its properties.
-  final ChartAxis axis;
+  final ChartAxis? axis;
 
   /// Get and set the text style of an axis label.
   TextStyle textStyle = const TextStyle(
@@ -116,6 +114,53 @@ class AxisLabelRenderArgs {
       fontStyle: FontStyle.normal,
       fontWeight: FontWeight.normal,
       fontSize: 12);
+}
+
+/// Holds label text, axis name, orientation of the axis, trimmed text and text styles such as color,
+/// font size, and font weight for label formatter evet
+class AxisLabelRenderDetails {
+  /// Creating an argument constructor of AxisLabelRenderDetails class.
+  AxisLabelRenderDetails(this.value, this.text, this.actualText, this.textStyle,
+      this.axis, this.axisName, this.orientation);
+
+  /// The rendered text value of the axis label.
+  final String text;
+
+  /// Actual text value of the axis label.
+  final String actualText;
+
+  /// Get the value of the axis label.
+  final num value;
+
+  /// Get the axis name.
+  final String? axisName;
+
+  /// Get the orientation for an axis.
+  final AxisOrientation orientation;
+
+  /// Get the chart axis type and its properties.
+  final ChartAxis axis;
+
+  /// Get the text style of an axis label.
+  final TextStyle textStyle;
+}
+
+/// Holds the axis label text and style details.
+class ChartAxisLabel {
+  /// Creating an argument constructor of ChartAxisLabel class.
+  ChartAxisLabel(this.text, TextStyle? textStyle)
+      : textStyle = textStyle ??
+            const TextStyle(
+                fontFamily: 'Roboto',
+                fontStyle: FontStyle.normal,
+                fontWeight: FontWeight.normal,
+                fontSize: 12);
+
+  ///Text which is to be rendered as an axis label.
+  final String text;
+
+  ///Text style of the axis label.
+  final TextStyle textStyle;
 }
 
 /// Holds the onDataLabelRender event arguments.
@@ -134,7 +179,7 @@ class DataLabelRenderArgs {
       this.pointIndex]);
 
   /// Get and set the text value of a data label.
-  String text;
+  late String text;
 
   /// Get and set the style property of the data label text.
   TextStyle textStyle = const TextStyle(
@@ -172,19 +217,19 @@ class DataLabelRenderArgs {
   final dynamic dataPoints;
 
   /// Get the overall index value of a data label.
-  final num pointIndex;
+  final int? pointIndex;
 
   /// Get and set the background color of a data label.
-  Color color;
+  Color? color;
 
   /// Get and set the horizontal/vertical position of the data label.
   ///
   /// The first argument sets the horizontal component to dx,  while the second
   /// argument sets the vertical component to dy.
-  Offset offset;
+  Offset? offset;
 
   /// Get the viewport index value of a data label.
-  final num viewportPointIndex;
+  final int? viewportPointIndex;
 }
 
 /// Holds the onLegendItemRender event arguments.
@@ -197,19 +242,19 @@ class LegendRenderArgs {
   LegendRenderArgs([this.seriesIndex, this.pointIndex]);
 
   /// Get and set the legend text.
-  String text;
+  String? text;
 
   /// Get and set the shape of a legend.
-  LegendIconType legendIconType;
+  LegendIconType? legendIconType;
 
   /// Get the current series index.
-  final int seriesIndex;
+  final int? seriesIndex;
 
   /// Get the current point index.
-  final int pointIndex;
+  final int? pointIndex;
 
   /// Get and set the color of the legend icon.
-  Color color;
+  Color? color;
 }
 
 ///Holds the arguments for the event onTrendlineRender.
@@ -226,31 +271,31 @@ class TrendlineRenderArgs {
       this.data]);
 
   /// Get the intercept value.
-  final double intercept;
+  final double? intercept;
 
   /// Get the index of the trendline.
-  final int trendlineIndex;
+  final int? trendlineIndex;
 
   /// Get the index of the series.
-  final int seriesIndex;
+  final int? seriesIndex;
 
   /// Get the name of the trendline.
-  final String trendlineName;
+  final String? trendlineName;
 
   /// Get the name of the series.
-  final String seriesName;
+  final String? seriesName;
 
   /// Get and set the color of the trendline.
-  Color color;
+  late Color color;
 
   /// Get and set the opacity value.
-  double opacity;
+  late double opacity;
 
   /// Get and set the dash array value of a trendline.
-  List<double> dashArray;
+  List<double>? dashArray;
 
   /// Get the data points of the trendline.
-  final List<CartesianChartPoint<dynamic>> data;
+  final List<CartesianChartPoint<dynamic>>? data;
 }
 
 /// Holds arguments for onTrackballPositionChanging event.
@@ -273,22 +318,22 @@ class CrosshairRenderArgs {
   CrosshairRenderArgs([this.axis, this.value, this.axisName, this.orientation]);
 
   /// Get the type of chart axis and its properties.
-  final ChartAxis axis;
+  final ChartAxis? axis;
 
   /// Get and set the crosshair tooltip text.
-  String text;
+  late String text;
 
   /// Get and set the color of the crosshair line.
-  Color lineColor;
+  late Color lineColor;
 
   /// Get the visible range value.
-  final dynamic value;
+  final dynamic? value;
 
   /// Get the name of the axis.
-  final String axisName;
+  final String? axisName;
 
   /// Get the axis orientation.
-  final AxisOrientation orientation;
+  final AxisOrientation? orientation;
 }
 
 /// Holds the chart TouchUp event arguments.
@@ -298,7 +343,7 @@ class CrosshairRenderArgs {
 ///
 class ChartTouchInteractionArgs {
   /// Get the position of the touch interaction.
-  Offset position;
+  late Offset position;
 }
 
 /// Holds the zooming event arguments.
@@ -313,24 +358,24 @@ class ZoomPanArgs {
   ZoomPanArgs([this.axis, this.previousZoomPosition, this.previousZoomFactor]);
 
   /// Get the chart axis types and properties.
-  final ChartAxis axis;
+  final ChartAxis? axis;
 
   /// Get and set the current zoom position.
-  double currentZoomPosition;
+  late double currentZoomPosition;
 
   /// Get and set the current zoom factor.
-  double currentZoomFactor;
+  late double currentZoomFactor;
 
   /// Get the previous zooom position.
-  final double previousZoomPosition;
+  final double? previousZoomPosition;
 
   /// Get the previous zoom factor.
-  final double previousZoomFactor;
+  final double? previousZoomFactor;
 }
 
 /// Holds the onPointTapped event arguments.
 ///
-/// The PointTapArgs is the argument type of onPointTapped event, whenever the [onPointTapped] is triggered, gets the series index, current point index, and the data points.
+/// The PointTapArgs is the argument type of onPointTapped event, whenever the `onPointTapped` is triggered, gets the series index, current point index, and the data points.
 ///
 class PointTapArgs {
   /// Creating an argument constructor of PointTapArgs class.
@@ -341,16 +386,16 @@ class PointTapArgs {
       this.pointIndex]);
 
   /// Get the series index.
-  final int seriesIndex;
+  final int? seriesIndex;
 
   /// Get the overall index value.
-  final int pointIndex;
+  final int? pointIndex;
 
   /// Get the list of data points.
-  final List<dynamic> dataPoints;
+  final List<dynamic>? dataPoints;
 
   /// Get the viewport index value.
-  final num viewportPointIndex;
+  final num? viewportPointIndex;
 }
 
 /// Holds the onAxisLabelTapped event arguments.
@@ -362,21 +407,21 @@ class AxisLabelTapArgs {
   AxisLabelTapArgs([this.axis, this.axisName]);
 
   /// Get the type of chart axis and its properties.
-  final ChartAxis axis;
+  final ChartAxis? axis;
 
   /// Get the text of the axis label at the tapped position.
-  String text;
+  late String text;
 
   /// Get the value holds the properties of the visible label.
-  num value;
+  late num value;
 
   /// Get the axis name.
-  final String axisName;
+  final String? axisName;
 }
 
 /// Holds the onLegendTapped event arguments.
 ///
-/// When the legend is tapped, the onLegendTapped event is triggered and we can get the [series], [seriesIndex], and [pointIndex].
+/// When the legend is tapped, the onLegendTapped event is triggered and we can get the `series`, [seriesIndex], and [pointIndex].
 ///
 class LegendTapArgs {
   /// Creating an argument constructor of LegendTapArgs class.
@@ -408,10 +453,10 @@ class LegendTapArgs {
   final dynamic series;
 
   /// Get the current series index.
-  final int seriesIndex;
+  final int? seriesIndex;
 
   /// Get the current point index.
-  final int pointIndex;
+  final int? pointIndex;
 }
 
 /// Holds the onSelectionChanged event arguments.
@@ -421,31 +466,31 @@ class LegendTapArgs {
 class SelectionArgs {
   /// Creating an argument constructor of SelectionArgs class.
   SelectionArgs(
-      [this.seriesRenderer,
-      this.seriesIndex,
-      this.viewportPointIndex,
-      this.pointIndex]);
+      {required this.seriesRenderer,
+      required this.seriesIndex,
+      required this.viewportPointIndex,
+      required this.pointIndex});
 
   /// Get the selected series.
   final dynamic seriesRenderer;
 
   /// Get and set the color of the selected series or data points.
-  Color selectedColor;
+  Color? selectedColor;
 
   /// Get and set the color of unselected series or data points.
-  Color unselectedColor;
+  Color? unselectedColor;
 
   /// Get and set the border color of the selected series or data points.
-  Color selectedBorderColor;
+  Color? selectedBorderColor;
 
   /// Get and set the border width of the selected series or data points.
-  double selectedBorderWidth;
+  double? selectedBorderWidth;
 
   /// Get and set the border color of the unselected series or data points.
-  Color unselectedBorderColor;
+  Color? unselectedBorderColor;
 
   /// Get and set the border width of the unselected series or data points.
-  double unselectedBorderWidth;
+  double? unselectedBorderWidth;
 
   /// Get the series index.
   final int seriesIndex;
@@ -468,28 +513,28 @@ class IndicatorRenderArgs {
       [this.indicator, this.index, this.seriesName, this.dataPoints]);
 
   /// Get the technical indicator information.
-  final TechnicalIndicators<dynamic, dynamic> indicator;
+  final TechnicalIndicators<dynamic, dynamic>? indicator;
 
   /// Get and set the indicator name.
-  String indicatorName;
+  late String indicatorName;
 
   /// Get the current index of the technical indicator.
-  final int index;
+  final int? index;
 
   /// Get and set the color of the signal line.
-  Color signalLineColor;
+  late Color signalLineColor;
 
   /// Get and set the width of the signal line.
-  double signalLineWidth;
+  late double signalLineWidth;
 
   /// Get and set the dash array size.
-  List<double> lineDashArray;
+  late List<double> lineDashArray;
 
   /// Get the series name.
-  final String seriesName;
+  final String? seriesName;
 
   /// Get the current data points.
-  final List<dynamic> dataPoints;
+  final List<dynamic>? dataPoints;
 }
 
 /// Holds the onMarkerRender event arguments.
@@ -504,36 +549,36 @@ class MarkerRenderArgs {
       [this.viewportPointIndex, this.seriesIndex, this.pointIndex]);
 
   /// Get the overall index value of the marker.
-  final int pointIndex;
+  final int? pointIndex;
 
   /// Get the series index of the marker.
-  final int seriesIndex;
+  final int? seriesIndex;
 
   /// Get and set the shape of the marker.
-  DataMarkerType shape;
+  late DataMarkerType shape;
 
   /// Get and set the width of the marker.
-  double markerWidth;
+  late double markerWidth;
 
   /// Get and set the height of the marker.
-  double markerHeight;
+  late double markerHeight;
 
   /// Get and set the color of the marker.
-  Color color;
+  Color? color;
 
   /// Get and set the border color of the marker.
-  Color borderColor;
+  Color? borderColor;
 
   /// Get and set the border width of marker.
-  double borderWidth;
+  late double borderWidth;
 
   /// Get the viewport index value of the marker.
-  final num viewportPointIndex;
+  final num? viewportPointIndex;
 }
 
 ///Holds the onDataLabelTapped callback arguments.
 ///
-///Whenever the data label is tapped, [onDataLabelTapped] callback will be called. Provides options to get the position of the data label,
+///Whenever the data label is tapped, `onDataLabelTapped` callback will be called. Provides options to get the position of the data label,
 /// series index, point index and its text.
 
 class DataLabelTapDetails {
@@ -542,7 +587,7 @@ class DataLabelTapDetails {
       this.dataLabelSettings, this.pointIndex);
 
   /// Get the position of the tapped data label in logical pixels.
-  Offset position;
+  late Offset position;
 
   /// Get the series index of the tapped data label.
   final int seriesIndex;
@@ -558,4 +603,22 @@ class DataLabelTapDetails {
 
   /// Get the viewport index value of the tapped data label.
   final int viewportPointIndex;
+}
+
+///Holds the onCreateShader callback arguments.
+///
+///This is the argument type of the onCreateShader callback. The onCreateShader callback is called once while rendering
+///the data points and legend. This provides options to get the outer rect, inner rect, and render type (either series or legend).
+class ChartShaderDetails {
+  /// Creating an argument constructor of ChartShaderDetails class.
+  ChartShaderDetails(this.outerRect, this.innerRect, this.renderType);
+
+  ///Holds the pie, doughnut and radial bar chart's outer rect value.
+  final Rect outerRect;
+
+  ///Conveys whether the current rendering element is 'series' or 'legend'.
+  final String renderType;
+
+  ///Holds the doughnut and radial bar chart's inner rect value.
+  final Rect? innerRect;
 }

@@ -6,14 +6,12 @@ class PdfDestination implements _IPdfWrapper {
   // constructor
   /// Initializes a new instance of the [PdfDestination] class with
   /// specified page and location.
-  PdfDestination(PdfPage page, [Offset location]) {
-    ArgumentError.checkNotNull(page, 'page');
+  PdfDestination(PdfPage page, [Offset? location]) {
     this.page = page;
     this.location = (location == null) ? Offset(0, _location.y) : location;
   }
 
   PdfDestination._(PdfPage page, _Rectangle rect) {
-    ArgumentError.checkNotNull(page, 'page');
     this.page = page;
     location = rect.location.offset;
     _bounds = rect;
@@ -23,9 +21,9 @@ class PdfDestination implements _IPdfWrapper {
   double _zoom = 0;
   _Point _location = _Point.empty;
   _Rectangle _rect = _Rectangle.empty;
-  PdfPage _page;
+  PdfPage? _page;
   final _PdfArray _array = _PdfArray();
-  PdfDestinationMode _destinationMode;
+  PdfDestinationMode _destinationMode = PdfDestinationMode.location;
 
   // Properties
   /// Gets zoom factor.
@@ -40,11 +38,10 @@ class PdfDestination implements _IPdfWrapper {
   }
 
   /// Gets a page where the destination is situated.
-  PdfPage get page => _page;
+  PdfPage get page => _page!;
 
   /// Sets a page where the destination is situated.
   set page(PdfPage value) {
-    ArgumentError.checkNotNull(value, 'page');
     if (value != _page) {
       _page = value;
       _initializePrimitive();
@@ -53,7 +50,6 @@ class PdfDestination implements _IPdfWrapper {
 
   /// Gets mode of the destination.
   PdfDestinationMode get mode {
-    _destinationMode ??= PdfDestinationMode.location;
     return _destinationMode;
   }
 
@@ -70,9 +66,8 @@ class PdfDestination implements _IPdfWrapper {
 
   /// Sets a location of the destination.
   set location(Offset value) {
-    ArgumentError.checkNotNull(value);
     final _Point position = _Point.fromOffset(value);
-    if (position != null && position != _location) {
+    if (position != _location) {
       _location = position;
       _initializePrimitive();
     }
@@ -121,7 +116,7 @@ class PdfDestination implements _IPdfWrapper {
         break;
 
       case PdfDestinationMode.fitH:
-        final PdfPage page = _page;
+        final PdfPage page = _page!;
         double value = 0;
         if (page._isLoadedPage) {
           value = page.size.height - _location.y;
@@ -131,15 +126,17 @@ class PdfDestination implements _IPdfWrapper {
         _array._add(_PdfName(_DictionaryProperties.fitH));
         _array._add(_PdfNumber(value));
         break;
+      default:
+        break;
     }
     _element = _array;
   }
 
   _Point _pointToNativePdf(PdfPage page, _Point point) {
-    final PdfSection section = page._section;
+    final PdfSection section = page._section!;
     return section._pointToNativePdf(page, point);
   }
 
   @override
-  _IPdfPrimitive _element;
+  _IPdfPrimitive? _element;
 }

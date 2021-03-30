@@ -1,3 +1,54 @@
+## Unreleased
+
+**Features**
+
+* Inverted circle.
+* Inverted polygon.
+* Legend title.
+* Double tap zooming.
+
+**Breaking changes**
+
+* The `title` property has been removed from `SfMaps`.
+
+## [18.4.30-beta] - 12/17/2020
+
+**Features**
+
+* Shape sublayer support.
+* Load JSON from different sources.
+* Tooltip for markers.
+* Bar legend with gradient support.
+* Vector shapes.
+* Animation improvements while zooming and panning.
+* Diagnostics support.
+
+**Breaking changes**
+
+* The `palette` property has been removed from `MapShapeLayer`.
+
+* The `enableShapeTooltip` property has been removed and the tooltip can be enabled by setting the `shapeTooltipBuilder` property.
+* The `shapeTooltipTextMapper` property has been removed and the same behavior can be achieved by returning a custom widget from the `shapeTooltipBuilder` property.
+
+* The `showBubbles` property has been removed and the same behavior can be achieved by setting the `bubbleSizeMapper` property.
+* The `enableBubbleTooltip` property has been removed and the tooltip can be enabled by setting the `bubbleTooltipBuilder` property.
+* The `bubbleTooltipTextMapper` property has been removed and the same behavior can be achieved by returning a custom widget from the `bubbleTooltipBuilder` property.
+
+* The `enableSelection` property has been removed and the same behavior can be achieved by setting the `onSelectionChanged` property.
+* The `initialSelectedIndex` property has been changed to `selectedIndex`. To observe the changes in the UI, the user must call `setState()`.
+
+* The `delegate` property has been changed to `source` property and the type of the delegate property `MapShapeLayerDelegate` has been changed into `MapShapeSource` with named constructors such as `MapShapeSource.asset`, `MapShapeSource.network`, and `MapShapeSource.memory` to load json data from various sources.
+
+* The `legendSettings` property has been renamed as `legend` and the `MapLegendSettings` has been renamed as the `MapLegend`.
+* The `legendSource` property has been renamed as `source` and is now moved to the `MapLegend`.
+* The `MapLegend.none` enum has been removed and the same behavior can be achieved by setting the `legend` property as `null`.
+* The `showIcon` property has been removed and the same behavior can be achieved by setting `iconSize` property of the `MapLegend` class as `Size.empty`.
+* The `opacity` property has been removed from `MapBubbleSettings` and `MapSelectionSettings` classes and the same behavior can be achieved by setting opacity value in `color` property of the `MapBubbleSettings` and `MapSelectionSettings`.
+* The `MapIconType.square` enum has been changed to `MapIconType.rectangle`.
+* The `MapLabelOverflowMode` has been renamed as the `MapLabelOverflow`. The `MapLabelOverflowMode.trim` and `MapLabelOverflowMode.none` enum values have been renamed to `MapLabelOverflow.ellipsis` and `MapLabelOverflow.visible` respectively. The `MapLabelOverflow` enum values are `visible`, `ellipsis`, and `hide`.
+
+* The `textStyle` and `tooltipTextStyle` property has been removed from `MapTooltipSettings` and `SfMapsThemeData` classes respectively since the built-in tooltip shape is removed.
+
 ## [18.3.35-beta] - 10/01/2020
 
 **Features** 

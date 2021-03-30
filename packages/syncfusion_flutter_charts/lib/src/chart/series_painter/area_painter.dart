@@ -2,12 +2,12 @@ part of charts;
 
 class _AreaChartPainter extends CustomPainter {
   _AreaChartPainter(
-      {this.chartState,
-      this.seriesRenderer,
-      this.isRepaint,
-      this.animationController,
-      ValueNotifier<num> notifier,
-      this.painterKey})
+      {required this.chartState,
+      required this.seriesRenderer,
+      required this.isRepaint,
+      required this.animationController,
+      required ValueNotifier<num> notifier,
+      required this.painterKey})
       : chart = chartState._chart,
         super(repaint: notifier);
   final SfCartesianChartState chartState;
@@ -22,20 +22,21 @@ class _AreaChartPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final int seriesIndex = painterKey.index;
     Rect clipRect;
-    final AreaSeries<dynamic, dynamic> series = seriesRenderer._series;
+    final AreaSeries<dynamic, dynamic> series =
+        seriesRenderer._series as AreaSeries;
     seriesRenderer._storeSeriesProperties(chartState, seriesIndex);
     double animationFactor;
-    CartesianChartPoint<dynamic> prevPoint, point, _point;
-    _ChartLocation currentPoint, originPoint, _oldPoint;
-    final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer;
-    final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer;
-    CartesianSeriesRenderer oldSeriesRenderer;
+    CartesianChartPoint<dynamic>? prevPoint, point, _point;
+    _ChartLocation? currentPoint, originPoint, _oldPoint;
+    final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
+    final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer!;
+    CartesianSeriesRenderer? oldSeriesRenderer;
     final Path _path = Path();
     final Path _strokePath = Path();
-    final num crossesAt = _getCrossesAtValue(seriesRenderer, chartState);
+    final num? crossesAt = _getCrossesAtValue(seriesRenderer, chartState);
     final num origin = crossesAt ?? 0;
     final List<Offset> _points = <Offset>[];
-    if (seriesRenderer._visible) {
+    if (seriesRenderer._visible!) {
       assert(
           series.animationDuration != null
               ? series.animationDuration >= 0
@@ -47,10 +48,11 @@ class _AreaChartPainter extends CustomPainter {
           seriesRenderer._dataPoints;
       final bool widgetNeedUpdate = chartState._widgetNeedUpdate;
       final bool isLegendToggled = chartState._isLegendToggled;
-      final bool isTransposed = seriesRenderer._chartState._requireInvertedAxis;
+      final bool isTransposed =
+          seriesRenderer._chartState!._requireInvertedAxis;
       canvas.save();
       animationFactor = seriesRenderer._seriesAnimation != null
-          ? seriesRenderer._seriesAnimation.value
+          ? seriesRenderer._seriesAnimation!.value
           : 1;
       final Rect axisClipRect = _calculatePlotOffset(
           chartState._chartAxis._axisClipRect,
@@ -69,7 +71,7 @@ class _AreaChartPainter extends CustomPainter {
             chartState, xAxisRenderer._axis, canvas, animationFactor);
       }
       if (seriesRenderer._visibleDataPoints == null ||
-          seriesRenderer._visibleDataPoints.isNotEmpty) {
+          seriesRenderer._visibleDataPoints!.isNotEmpty) {
         seriesRenderer._visibleDataPoints = <CartesianChartPoint<dynamic>>[];
       }
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
@@ -83,8 +85,8 @@ class _AreaChartPainter extends CustomPainter {
               ? _calculatePoint(
                   _point.xValue,
                   _point.yValue,
-                  oldSeriesRenderer._xAxisRenderer,
-                  oldSeriesRenderer._yAxisRenderer,
+                  oldSeriesRenderer!._xAxisRenderer!,
+                  oldSeriesRenderer._yAxisRenderer!,
                   isTransposed,
                   oldSeriesRenderer._series,
                   axisClipRect)
@@ -93,14 +95,14 @@ class _AreaChartPainter extends CustomPainter {
               xAxisRenderer, yAxisRenderer, isTransposed, series, axisClipRect);
           originPoint = _calculatePoint(
               point.xValue,
-              math_lib.max(yAxisRenderer._visibleRange.minimum, origin),
+              math_lib.max(yAxisRenderer._visibleRange!.minimum, origin),
               xAxisRenderer,
               yAxisRenderer,
               isTransposed,
               series,
               axisClipRect);
-          num x = currentPoint.x;
-          num y = currentPoint.y;
+          double x = currentPoint.x;
+          double y = currentPoint.y;
           _points.add(Offset(x, y));
           final bool closed =
               series.emptyPointSettings.mode == EmptyPointMode.drop
@@ -180,7 +182,7 @@ class _AreaChartPainter extends CustomPainter {
               xAxisRenderer._axis.plotOffset, yAxisRenderer._axis.plotOffset));
       canvas.restore();
       if ((series.animationDuration <= 0 ||
-              (!chartState._initialRender &&
+              (!chartState._initialRender! &&
                   !seriesRenderer._needAnimateSeriesElements) ||
               animationFactor >= chartState._seriesDurationFactor) &&
           (series.markerSettings.isVisible ||

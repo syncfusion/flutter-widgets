@@ -102,8 +102,6 @@ int getVersionNumber(QRCodeVersion qrCodeVersion) {
     case QRCodeVersion.auto:
       return 0;
   }
-
-  return 0;
 }
 
 /// Returns the version based on number
@@ -262,6 +260,4 @@ int getDataMatrixSize(DataMatrixSize dataMatrixSize) {
     case DataMatrixSize.auto:
       return 0;
   }
-
-  return 0;
 }

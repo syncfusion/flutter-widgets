@@ -188,10 +188,10 @@ class _VisibleLineInfo extends Comparable<_VisibleLineInfo> {
 ///
 /// A strong-typed collection of `VisibleLineInfo` items.
 class _VisibleLinesCollection extends ListBase<_VisibleLineInfo> {
-  List<_VisibleLineInfo> visibleLines = [];
+  List<_VisibleLineInfo?> visibleLines = List.empty(growable: true);
   _VisibleLineInfoLineIndexComparer lineIndexComparer =
       _VisibleLineInfoLineIndexComparer();
-  Map<int, _VisibleLineInfo> lineIndexes = <int, _VisibleLineInfo>{};
+  Map<int, _VisibleLineInfo>? lineIndexes = <int, _VisibleLineInfo>{};
 
   /// Gets the first visible index of the body.
   int firstBodyVisibleIndex = 0;
@@ -207,7 +207,7 @@ class _VisibleLinesCollection extends ListBase<_VisibleLineInfo> {
   /// Gets the visible line indexes.
   ///
   /// Returns the visible line indexes.
-  Map<int, _VisibleLineInfo> get visibleLineIndexes => lineIndexes;
+  Map<int, _VisibleLineInfo>? get visibleLineIndexes => lineIndexes;
 
   @override
   int get length => visibleLines.length;
@@ -244,16 +244,16 @@ class _VisibleLinesCollection extends ListBase<_VisibleLineInfo> {
   /// * lineIndex - _required_ - Index of the line.
   ///
   /// Returns the visible line at line index.
-  _VisibleLineInfo getVisibleLineAtLineIndex(int lineIndex) {
-    if (lineIndexes.isEmpty) {
+  _VisibleLineInfo? getVisibleLineAtLineIndex(int lineIndex) {
+    if (lineIndexes != null && lineIndexes!.isEmpty) {
       for (int i = 0; i < length; i++) {
-        lineIndexes.putIfAbsent(this[i].lineIndex, () => this[i]);
+        lineIndexes!.putIfAbsent(this[i].lineIndex, () => this[i]);
       }
       //this.shadowedLineIndexes = this.lineIndexes;
     }
-    _VisibleLineInfo lineInfo;
-    if (lineIndexes.containsKey(lineIndex)) {
-      return lineInfo = lineIndexes[lineIndex];
+    _VisibleLineInfo? lineInfo;
+    if (lineIndexes != null && lineIndexes!.containsKey(lineIndex)) {
+      return lineInfo = lineIndexes![lineIndex];
     }
     return lineInfo;
   }
@@ -265,9 +265,11 @@ class _VisibleLinesCollection extends ListBase<_VisibleLineInfo> {
   /// * lineIndex - _required_ - Index of the line.
   ///
   /// Returns the first visible line for a line index that is not hidden.
-  _VisibleLineInfo getVisibleLineNearLineIndex(int lineIndex) {
+  _VisibleLineInfo? getVisibleLineNearLineIndex(int lineIndex) {
+    final List<_VisibleLineInfo> _visibleLine =
+        visibleLines as List<_VisibleLineInfo>;
     int index = _MathHelper.binarySearch<_VisibleLineInfo>(
-        visibleLines, _VisibleLineInfo.fromLineIndex(lineIndex));
+        _visibleLine, _VisibleLineInfo.fromLineIndex(lineIndex));
     index = (index < 0) ? (~index) - 1 : index;
     if (index >= 0) {
       return this[index];
@@ -281,9 +283,11 @@ class _VisibleLinesCollection extends ListBase<_VisibleLineInfo> {
   /// to be obtained.
   ///
   /// Returns the visible line at point.
-  _VisibleLineInfo getVisibleLineAtPoint(double point) {
+  _VisibleLineInfo? getVisibleLineAtPoint(double point) {
+    final List<_VisibleLineInfo> _visibleLines =
+        visibleLines as List<_VisibleLineInfo>;
     int index = _MathHelper.binarySearch<_VisibleLineInfo>(
-        visibleLines, _VisibleLineInfo.fromClippedOrigin(point));
+        _visibleLines, _VisibleLineInfo.fromClippedOrigin(point));
     index = (index < 0) ? (~index) - 1 : index;
     if (index >= 0) {
       return this[index];
@@ -337,11 +341,20 @@ class _VisibleLinesCollection extends ListBase<_VisibleLineInfo> {
   /// Removes all elements from the collection.
   @override
   void clear() {
-    lineIndexes.clear();
+    lineIndexes?.clear();
     lineIndexes = null;
     visibleLines.clear();
     //this.shadowedLineIndexes = null;
     lineIndexes = <int, _VisibleLineInfo>{};
+  }
+
+  @override
+  _VisibleLinesCollection get reversed {
+    final _VisibleLinesCollection reverseCollection = _VisibleLinesCollection();
+    for (var i = this.length - 1; i >= 0; i--) {
+      reverseCollection.add(this[i]);
+    }
+    return reverseCollection;
   }
 
   @override
@@ -350,7 +363,7 @@ class _VisibleLinesCollection extends ListBase<_VisibleLineInfo> {
   }
 
   @override
-  _VisibleLineInfo operator [](int index) => visibleLines[index];
+  _VisibleLineInfo operator [](int index) => visibleLines[index]!;
 }
 
 /// Initializes a new instance of the `VisibleLineInfoLineIndexComparer` class.

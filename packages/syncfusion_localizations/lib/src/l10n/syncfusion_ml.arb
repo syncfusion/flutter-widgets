@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "തിരഞ്ഞെടുത്ത തീയതിയില്ല", 
 "noEventsCalendarLabel" : "ഇവന്റുകളൊന്നുമില്ല", 
-"scheduleViewNewEventLabel" : "ഒന്നും ആസൂത്രണം ചെയ്തിട്ടില്ല. സൃഷ്ടിക്കാൻ ടാപ്പുചെയ്യുക.", 
 "ofDataPagerLabel" : "ന്റെ", 
 "pagesDataPagerLabel" : "പേജുകൾ", 
 "itemsDataPagerLabel" : "ഇനങ്ങൾ", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "RAM.", 
 "shortShawwalLabel" : "ഷാ.", 
 "shortDhualqiLabel" : "ദുൽ-ക്യു", 
-"shortDhualhiLabel" : "ദുൽ-എച്ച്"
+"shortDhualhiLabel" : "ദുൽ-എച്ച്", 
+"daySpanCountLabel" : "ദിവസം"
 }

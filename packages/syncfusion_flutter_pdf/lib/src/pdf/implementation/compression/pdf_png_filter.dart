@@ -8,12 +8,11 @@ class _PdfPngFilter {
   }
 
   //Fields
-  _RowFilter _decompressFilter;
-  int bytesPerPixel;
+  _RowFilter? _decompressFilter;
+  late int bytesPerPixel;
 
   //Implementation
   List<int> _decompress(List<int> data, int bytesPerRow) {
-    ArgumentError.checkNotNull(data);
     if (bytesPerRow <= 0) {
       throw ArgumentError.value(bytesPerRow,
           'There cannot be less or equal to zero bytes in a line.');
@@ -21,7 +20,7 @@ class _PdfPngFilter {
     return _modify(data, bytesPerRow + 1, _decompressFilter, false);
   }
 
-  List<int> _modify(List<int> data, int bpr, _RowFilter filter, bool pack) {
+  List<int> _modify(List<int> data, int bpr, _RowFilter? filter, bool pack) {
     int index = 0;
     final int length = data.length;
     final int items = length ~/ bpr;
@@ -32,7 +31,7 @@ class _PdfPngFilter {
     int currentRow = 0;
 
     while (index + bpr <= length) {
-      result = filter(data, index, bpr, result, currentRow, outBPR);
+      result = filter!(data, index, bpr, result, currentRow, outBPR);
       currentRow += outBPR;
       index += bpr;
     }
@@ -83,8 +82,7 @@ class _PdfPngFilter {
       List<int> result, int resIndex, int resBPR) {
     for (int i = 0; i < resBPR; ++i) {
       result[resIndex] =
-          (data[inIndex] + ((i > 0) ? (result[resIndex - 1]) : 0))
-              .toUnsigned(8);
+          (data[inIndex] + ((i > 0) ? result[resIndex - 1] : 0)).toUnsigned(8);
       ++resIndex;
       ++inIndex;
     }
@@ -96,7 +94,7 @@ class _PdfPngFilter {
     int prevIndex = resIndex - resBPR;
     for (int i = 0; i < resBPR; ++i) {
       result[resIndex] =
-          (data[inIndex] + ((prevIndex < 0) ? 0 : (result[prevIndex])))
+          (data[inIndex] + ((prevIndex < 0) ? 0 : result[prevIndex]))
               .toUnsigned(8);
       ++resIndex;
       ++inIndex;
@@ -124,15 +122,17 @@ class _PdfPngFilter {
     }
     for (int i = bytesPerPixel; i < resBPR; i++) {
       if (prevIndex < 0) {
-        result[resIndex] += (((result[resIndex - bytesPerPixel] & 0xff) +
-                    (previous[resIndex] & 0xff)) ~/
-                2)
-            .toUnsigned(8);
+        result[resIndex] = result[resIndex] +
+            (((result[resIndex - bytesPerPixel] & 0xff) +
+                        (previous[resIndex] & 0xff)) ~/
+                    2)
+                .toUnsigned(8);
       } else {
-        result[resIndex] += (((result[resIndex - bytesPerPixel] & 0xff) +
-                    (result[prevIndex] & 0xff)) ~/
-                2)
-            .toUnsigned(8);
+        result[resIndex] = result[resIndex] +
+            (((result[resIndex - bytesPerPixel] & 0xff) +
+                        (result[prevIndex] & 0xff)) ~/
+                    2)
+                .toUnsigned(8);
       }
       ++resIndex;
       ++inIndex;
@@ -148,7 +148,7 @@ class _PdfPngFilter {
       result[resIndex + i] = data[inIndex + i];
     }
     for (int i = 0; i < bytesPerPixel; i++) {
-      result[resIndex] += result[prevIndex];
+      result[resIndex] = result[resIndex] + result[prevIndex];
       resIndex++;
       prevIndex++;
     }
@@ -156,7 +156,7 @@ class _PdfPngFilter {
       final int a = result[resIndex - bytesPerPixel] & 0xff;
       final int b = result[prevIndex] & 0xff;
       final int c = result[prevIndex - bytesPerPixel] & 0xff;
-      result[resIndex] += _paethPredictor(a, b, c);
+      result[resIndex] = result[resIndex] + _paethPredictor(a, b, c);
       ++resIndex;
       ++inIndex;
       ++prevIndex;
@@ -178,7 +178,7 @@ class _PdfPngFilter {
     }
   }
 
-  _Type _getType(int type) {
+  _Type _getType(int? type) {
     _Type result;
     if (type == 0) {
       result = _Type.none;

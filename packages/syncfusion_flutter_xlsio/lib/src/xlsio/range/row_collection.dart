@@ -9,13 +9,13 @@ class RowCollection {
   }
 
   /// Parent worksheet.
-  Worksheet _worksheet;
+  late Worksheet _worksheet;
 
   /// Represents count of elements.
   int _iCount = 0;
 
   /// Represents the inner list.
-  List<Row> _innerList;
+  late List<Row?> _innerList;
 
   /// Represents parent worksheet.
   Worksheet get worksheet {
@@ -23,7 +23,7 @@ class RowCollection {
   }
 
   /// Represents the inner list.
-  List<Row> get innerList {
+  List<Row?> get innerList {
     return _innerList;
   }
 
@@ -33,9 +33,9 @@ class RowCollection {
   }
 
   /// Indexer get of the class
-  Row operator [](index) {
-    if (index < _innerList.length) {
-      return _innerList[index];
+  Row? operator [](index) {
+    if (index <= _innerList.length) {
+      return _innerList[index - 1];
     } else {
       return null;
     }
@@ -43,10 +43,10 @@ class RowCollection {
 
   /// Indexer set of the class
   operator []=(index, value) {
-    if (_iCount <= index) {
-      _updateSize(index + 1);
+    if (_iCount < index) {
+      _updateSize(index);
     }
-    _innerList[index] = value;
+    _innerList[index - 1] = value;
   }
 
   /// Updates count of storage array.
@@ -56,9 +56,9 @@ class RowCollection {
 
       _iCount = (iCount >= iBufCount) ? iCount : iBufCount;
 
-      final List<Row> list = List<Row>(_iCount);
+      final List<Row?> list = List<Row?>.filled(_iCount, null, growable: true);
 
-      if (_innerList != null) list.setAll(0, _innerList);
+      list.setAll(0, _innerList);
 
       _innerList = list;
     }
@@ -68,12 +68,13 @@ class RowCollection {
   Row add() {
     final Row row = Row(_worksheet);
     innerList.add(row);
+    row.index = innerList.length;
     return row;
   }
 
   /// Get a row from rows collection based on row index.
-  Row _getRow(int rowIndex) {
-    for (final Row row in innerList) {
+  Row? _getRow(int rowIndex) {
+    for (final Row? row in innerList) {
       if (row != null) {
         if (row.index == rowIndex) {
           return row;
@@ -85,14 +86,10 @@ class RowCollection {
 
   /// Clear the row.
   void _clear() {
-    if (_innerList != null) {
-      for (int i = 0; i < _innerList.length; i++) {
-        final Row row = _innerList[i];
-        _innerList[i] = null;
-
-        if (row != null) row._clear();
-      }
-      _innerList = null;
+    for (int i = 0; i < _innerList.length; i++) {
+      final Row? row = _innerList[i];
+      _innerList[i] = null;
+      if (row != null) row._clear();
     }
   }
 }

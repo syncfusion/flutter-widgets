@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "Nincs kiválasztott dátum", 
 "noEventsCalendarLabel" : "Nincs esemény", 
-"scheduleViewNewEventLabel" : "Semmi sem tervezett. Koppintson a létrehozáshoz.", 
 "ofDataPagerLabel" : "nak,-nek", 
 "pagesDataPagerLabel" : "oldalakat", 
 "itemsDataPagerLabel" : "elemeket", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "Ram.", 
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
-"shortDhualhiLabel" : "Dhu'l-H"
+"shortDhualhiLabel" : "Dhu'l-H", 
+"daySpanCountLabel" : "Nap"
 }

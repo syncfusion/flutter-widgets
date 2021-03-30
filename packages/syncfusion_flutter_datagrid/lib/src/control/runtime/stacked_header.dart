@@ -1,7 +1,7 @@
 part of datagrid;
 
 /// Row configuration for stacked header in [SfDataGrid]. The columns for this
-/// stacked header row are provided in the [stackedHeaderCells] property of the
+/// stacked header row are provided in the [StackedHeaderCell] property of the
 /// [StackedHeaderRow] object.
 ///
 /// See also:
@@ -10,16 +10,7 @@ part of datagrid;
 /// header row.
 class StackedHeaderRow {
   /// Creates the [StackedHeaderRow] for [SfDataGrid] widget.
-  StackedHeaderRow({List<StackedHeaderCell> cells}) {
-    this.cells = cells ?? [];
-  }
-
-  /// The name of the stacked header row.
-  ///
-  /// This is used to identify the header rows uniquely in
-  /// [stackedHeaderCellBuilder]. Each stacked header row must be named
-  /// uniquely.
-  String name;
+  StackedHeaderRow({required this.cells});
 
   /// The collection of [StackedHeaderCell] in stacked header row.
   List<StackedHeaderCell> cells;
@@ -32,9 +23,9 @@ class StackedHeaderRow {
 /// [StackedHeaderRow] – which provides configuration for stacked header row.
 class StackedHeaderCell {
   /// Creates the [StackedHeaderCell] for [StackedHeaderRow].
-  StackedHeaderCell({@required this.columnNames, @required this.child});
+  StackedHeaderCell({required this.columnNames, required this.child});
 
-  /// The collection of string which is the [GridColumn.mappingName] of the
+  /// The collection of string which is the [GridColumn.columnName] of the
   /// columns defined in the [SfDataGrid].
   ///
   /// The columns are spanned as a stacked header based on this collection. If
@@ -49,5 +40,5 @@ class StackedHeaderCell {
   /// Typically, a [Text] widget.
   final Widget child;
 
-  List<int> _childColumnIndexes;
+  List<int> _childColumnIndexes = [];
 }

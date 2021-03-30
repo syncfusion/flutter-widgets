@@ -4,3 +4,5 @@ analyzer:
   errors:
     include_file_not_found: ignore
     lines_longer_than_80_chars: ignore
+    avoid_as: ignore
+    unnecessary_null_comparison: ignore

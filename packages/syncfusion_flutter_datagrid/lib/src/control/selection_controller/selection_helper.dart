@@ -2,27 +2,22 @@ part of datagrid;
 
 class _SelectionHelper {
   static int resolveToRowIndex(
-      _DataGridSettings dataGridSettings, Object record) {
-    if (dataGridSettings == null) {
-      return -1;
-    }
-
-    var recordIndex =
-        dataGridSettings.source._effectiveDataSource.indexOf(record);
+      _DataGridSettings dataGridSettings, DataGridRow record) {
+    var recordIndex = dataGridSettings.source._effectiveRows.indexOf(record);
     recordIndex +=
         _GridIndexResolver.resolveStartIndexBasedOnPosition(dataGridSettings);
 
     return recordIndex.isNegative ? -1 : recordIndex;
   }
 
-  static Object getRecord(_DataGridSettings dataGridSettings, int index) {
+  static DataGridRow? getRecord(_DataGridSettings dataGridSettings, int index) {
     final DataGridSource source = dataGridSettings.source;
 
-    if (source._effectiveDataSource.isEmpty || index < 0) {
+    if (source._effectiveRows.isEmpty || index < 0) {
       return null;
     }
 
-    final Object record = source._effectiveDataSource[index];
+    final DataGridRow record = source._effectiveRows[index];
     return record;
   }
 
@@ -63,8 +58,8 @@ class _SelectionHelper {
   }
 
   static int getRecordsCount(_DataGridSettings dataGridSettings) {
-    if (dataGridSettings.source._effectiveDataSource.isNotEmpty) {
-      return dataGridSettings.source._effectiveDataSource.length;
+    if (dataGridSettings.source._effectiveRows.isNotEmpty) {
+      return dataGridSettings.source._effectiveRows.length;
     } else {
       return 0;
     }
@@ -80,16 +75,22 @@ class _SelectionHelper {
   }
 
   static int getLastCellIndex(_DataGridSettings dataGridSettings) {
-    final lastColumn = dataGridSettings.columns
-        .lastWhere((col) => col.visible, orElse: () => null);
-    final lastIndex = dataGridSettings.columns.indexOf(lastColumn);
+    final lastColumn =
+        dataGridSettings.columns.lastWhereOrNull((col) => col.visible);
+    if (lastColumn == null) {
+      return -1;
+    }
 
-    return lastIndex;
+    return dataGridSettings.columns.indexOf(lastColumn);
   }
 
   static int getFirstCellIndex(_DataGridSettings dataGridSettings) {
-    final gridColumn = dataGridSettings.columns
-        .firstWhere((col) => col.visible, orElse: () => null);
+    final gridColumn =
+        dataGridSettings.columns.firstWhereOrNull((col) => col.visible);
+    if (gridColumn == null) {
+      return -1;
+    }
+
     final firstIndex = dataGridSettings.columns.indexOf(gridColumn);
     if (firstIndex < 0) {
       return firstIndex;
@@ -172,8 +173,16 @@ class _SelectionHelper {
     double verticalOffset = 0.0;
     final headerRowIndex = _GridIndexResolver.getHeaderIndex(dataGridSettings);
     rowIndex = rowIndex > headerRowIndex ? rowIndex : headerRowIndex + 1;
-    final _PixelScrollAxis _scrollRows = dataGridSettings.container.scrollRows;
-    verticalOffset = _scrollRows.distances.getCumulatedDistanceAt(rowIndex);
+    final _PixelScrollAxis _scrollRows =
+        dataGridSettings.container.scrollRows as _PixelScrollAxis;
+    verticalOffset = _scrollRows.distances!.getCumulatedDistanceAt(rowIndex);
+    final frozenRowsCount = headerRowIndex + dataGridSettings.frozenRowsCount;
+    if (frozenRowsCount > 0) {
+      for (int i = 0; i <= frozenRowsCount; i++) {
+        verticalOffset -= dataGridSettings.container.rowHeights[i];
+      }
+      return verticalOffset;
+    }
     return verticalOffset -= dataGridSettings.container.rowHeights[0];
   }
 
@@ -186,9 +195,16 @@ class _SelectionHelper {
         ? firstVisibleColumnIndex
         : columnIndex;
     final _PixelScrollAxis _scrollColumns =
-        dataGridSettings.container.scrollColumns;
+        dataGridSettings.container.scrollColumns as _PixelScrollAxis;
     horizontalOffset =
-        _scrollColumns.distances.getCumulatedDistanceAt(columnIndex);
+        _scrollColumns.distances!.getCumulatedDistanceAt(columnIndex);
+    final frozenColumnsCount = dataGridSettings.frozenColumnsCount;
+    if (frozenColumnsCount > 0) {
+      for (int i = 0; i <= frozenColumnsCount; i++) {
+        horizontalOffset -= dataGridSettings.container.columnWidths[i];
+      }
+      return horizontalOffset;
+    }
     return horizontalOffset;
   }
 
@@ -246,190 +262,206 @@ class _SelectionHelper {
   }
 
   static void scrollInViewFromLeft(_DataGridSettings dataGridSettings,
-      {int nextCellIndex, bool needToScrollMaxExtent = false}) {
-    final horizontalController = dataGridSettings.horizontalController;
-    var measuredHorizontalOffset = 0.0;
+      {int nextCellIndex = -1, bool needToScrollMaxExtent = false}) {
+    if (dataGridSettings.horizontalController != null) {
+      final horizontalController = dataGridSettings.horizontalController!;
+      var measuredHorizontalOffset = 0.0;
 
-    if (dataGridSettings.frozenColumnsCount > 0 &&
-        _GridIndexResolver.getLastFrozenColumnIndex(dataGridSettings) + 1 ==
-            nextCellIndex) {
-      measuredHorizontalOffset =
-          dataGridSettings.horizontalController.position.minScrollExtent;
-    } else if (needToScrollMaxExtent) {
-      measuredHorizontalOffset = horizontalController.position.maxScrollExtent;
-    } else {
-      if (dataGridSettings.currentCell.columnIndex != -1 &&
-          nextCellIndex == dataGridSettings.currentCell.columnIndex + 1) {
-        final nextCellIndexHeight = dataGridSettings
-            .container.columnWidthsProvider
-            .getSize(nextCellIndex, 0);
-        final visibleInfoCollection =
-            _SfDataGridHelper.getVisibleLines(dataGridSettings);
-        final nextCellInfo =
-            visibleInfoCollection.getVisibleLineAtLineIndex(nextCellIndex);
-        measuredHorizontalOffset = nextCellInfo != null
-            ? dataGridSettings.textDirection == TextDirection.rtl
-                ? nextCellInfo.clippedSize -
-                    (~nextCellInfo.clippedOrigin.toInt())
-                : nextCellInfo.size -
-                    (nextCellInfo.size - nextCellInfo.clippedCornerExtent)
-            : nextCellIndexHeight.first;
+      if (dataGridSettings.frozenColumnsCount > 0 &&
+          _GridIndexResolver.getLastFrozenColumnIndex(dataGridSettings) + 1 ==
+              nextCellIndex) {
         measuredHorizontalOffset =
-            dataGridSettings.horizontalController.offset +
-                measuredHorizontalOffset;
+            horizontalController.position.minScrollExtent;
+      } else if (needToScrollMaxExtent) {
+        measuredHorizontalOffset =
+            horizontalController.position.maxScrollExtent;
       } else {
-        final visibleInfoCollection =
-            _SfDataGridHelper.getVisibleLines(dataGridSettings);
-        final firstBodyVisibleLineIndex = visibleInfoCollection
-                    .firstBodyVisibleIndex <
-                visibleInfoCollection.length
-            ? visibleInfoCollection[visibleInfoCollection.firstBodyVisibleIndex]
-                .lineIndex
-            : 0;
-        if (nextCellIndex < firstBodyVisibleLineIndex) {
-          scrollInViewFromRight(dataGridSettings,
-              previousCellIndex: nextCellIndex, needToScrollToMinExtent: false);
-        } else {
+        if (dataGridSettings.currentCell.columnIndex != -1 &&
+            nextCellIndex == dataGridSettings.currentCell.columnIndex + 1) {
+          final nextCellIndexHeight = dataGridSettings
+              .container.columnWidthsProvider
+              .getSize(nextCellIndex, 0);
+          final visibleInfoCollection =
+              _SfDataGridHelper.getVisibleLines(dataGridSettings);
+          final nextCellInfo =
+              visibleInfoCollection.getVisibleLineAtLineIndex(nextCellIndex);
+          measuredHorizontalOffset = nextCellInfo != null
+              ? dataGridSettings.textDirection == TextDirection.rtl
+                  ? nextCellInfo.clippedSize -
+                      (~nextCellInfo.clippedOrigin.toInt())
+                  : nextCellInfo.size -
+                      (nextCellInfo.size - nextCellInfo.clippedCornerExtent)
+              : nextCellIndexHeight.first;
           measuredHorizontalOffset =
-              dataGridSettings.horizontalController.offset +
-                  _SelectionHelper.getHorizontalCumulativeDistance(
-                      dataGridSettings, nextCellIndex);
+              horizontalController.offset + measuredHorizontalOffset;
+        } else {
+          final visibleInfoCollection =
+              _SfDataGridHelper.getVisibleLines(dataGridSettings);
+          final firstBodyVisibleLineIndex =
+              visibleInfoCollection.firstBodyVisibleIndex <
+                      visibleInfoCollection.length
+                  ? visibleInfoCollection[
+                          visibleInfoCollection.firstBodyVisibleIndex]
+                      .lineIndex
+                  : 0;
+          if (nextCellIndex < firstBodyVisibleLineIndex) {
+            return scrollInViewFromRight(dataGridSettings,
+                previousCellIndex: nextCellIndex,
+                needToScrollToMinExtent: false);
+          } else {
+            measuredHorizontalOffset = horizontalController.offset +
+                _SelectionHelper.getHorizontalCumulativeDistance(
+                    dataGridSettings, nextCellIndex);
+          }
         }
       }
-    }
 
-    _SfDataGridHelper.scrollHorizontal(
-        dataGridSettings, measuredHorizontalOffset);
+      _SfDataGridHelper.scrollHorizontal(
+          dataGridSettings, measuredHorizontalOffset);
+    }
   }
 
   static void scrollInViewFromRight(_DataGridSettings dataGridSettings,
-      {int previousCellIndex, bool needToScrollToMinExtent = false}) {
+      {int previousCellIndex = -1, bool needToScrollToMinExtent = false}) {
     var measuredHorizontalOffset = 0.0;
 
-    if (dataGridSettings.footerFrozenColumnsCount > 0 &&
-        _GridIndexResolver.getStartFooterFrozenColumnIndex(dataGridSettings) -
-                1 ==
-            previousCellIndex) {
-      measuredHorizontalOffset =
-          dataGridSettings.horizontalController.position.maxScrollExtent;
-    } else if (needToScrollToMinExtent) {
-      measuredHorizontalOffset =
-          dataGridSettings.horizontalController.position.minScrollExtent;
-    } else {
-      if (dataGridSettings.currentCell.columnIndex != -1 &&
-          previousCellIndex == dataGridSettings.currentCell.columnIndex - 1) {
-        final previousCellIndexWidth = dataGridSettings
-            .container.columnWidthsProvider
-            .getSize(previousCellIndex, 0);
-        final visibleInfoCollection =
-            _SfDataGridHelper.getVisibleLines(dataGridSettings);
-        final previousCellInfo =
-            visibleInfoCollection.getVisibleLineAtLineIndex(previousCellIndex);
-        measuredHorizontalOffset = previousCellInfo != null
-            ? previousCellInfo.size -
-                (previousCellInfo.clippedSize -
-                    previousCellInfo.clippedCornerExtent)
-            : previousCellIndexWidth.first;
-        measuredHorizontalOffset =
-            dataGridSettings.horizontalController.offset -
-                measuredHorizontalOffset;
-      } else {
-        measuredHorizontalOffset =
-            dataGridSettings.horizontalController.offset -
-                (dataGridSettings.horizontalController.offset -
-                    _SelectionHelper.getHorizontalCumulativeDistance(
-                        dataGridSettings, previousCellIndex));
-      }
-    }
+    if (dataGridSettings.horizontalController != null) {
+      final ScrollController horizontalController =
+          dataGridSettings.horizontalController!;
 
-    _SfDataGridHelper.scrollHorizontal(
-        dataGridSettings, measuredHorizontalOffset);
+      if (dataGridSettings.footerFrozenColumnsCount > 0 &&
+          _GridIndexResolver.getStartFooterFrozenColumnIndex(dataGridSettings) -
+                  1 ==
+              previousCellIndex) {
+        measuredHorizontalOffset =
+            horizontalController.position.maxScrollExtent;
+      } else if (needToScrollToMinExtent) {
+        measuredHorizontalOffset =
+            horizontalController.position.minScrollExtent;
+      } else {
+        if (dataGridSettings.currentCell.columnIndex != -1 &&
+            previousCellIndex == dataGridSettings.currentCell.columnIndex - 1) {
+          final previousCellIndexWidth = dataGridSettings
+              .container.columnWidthsProvider
+              .getSize(previousCellIndex, 0);
+          final visibleInfoCollection =
+              _SfDataGridHelper.getVisibleLines(dataGridSettings);
+          final previousCellInfo = visibleInfoCollection
+              .getVisibleLineAtLineIndex(previousCellIndex);
+          measuredHorizontalOffset = previousCellInfo != null
+              ? previousCellInfo.size -
+                  (previousCellInfo.clippedSize -
+                      previousCellInfo.clippedCornerExtent)
+              : previousCellIndexWidth.first;
+          measuredHorizontalOffset =
+              horizontalController.offset - measuredHorizontalOffset;
+        } else {
+          measuredHorizontalOffset = horizontalController.offset -
+              (horizontalController.offset -
+                  _SelectionHelper.getHorizontalCumulativeDistance(
+                      dataGridSettings, previousCellIndex));
+        }
+      }
+
+      _SfDataGridHelper.scrollHorizontal(
+          dataGridSettings, measuredHorizontalOffset);
+    }
   }
 
   static void scrollInViewFromTop(_DataGridSettings dataGridSettings,
-      {int nextRowIndex, bool needToScrollToMaxExtent = false}) {
+      {int nextRowIndex = -1, bool needToScrollToMaxExtent = false}) {
     var measuredVerticalOffset = 0.0;
 
-    if (dataGridSettings.frozenRowsCount > 0 &&
-        _GridIndexResolver.getLastFrozenRowIndex(dataGridSettings) + 1 ==
-            nextRowIndex) {
-      measuredVerticalOffset =
-          dataGridSettings.verticalController.position.minScrollExtent;
-    } else if (needToScrollToMaxExtent) {
-      measuredVerticalOffset =
-          dataGridSettings.verticalController.position.maxScrollExtent;
-    } else {
-      if (dataGridSettings.currentCell.rowIndex != -1 &&
-          nextRowIndex == dataGridSettings.currentCell.rowIndex + 1) {
-        final verticalController = dataGridSettings.verticalController;
-        final nextRowIndexHeight = dataGridSettings.container.rowHeightsProvider
-            .getSize(nextRowIndex, 0);
-        final nextRowInfo = dataGridSettings.container.scrollRows
-            .getVisibleLineAtLineIndex(nextRowIndex);
-        measuredVerticalOffset = nextRowInfo != null
-            ? nextRowInfo.size -
-                (nextRowInfo.size - nextRowInfo.clippedCornerExtent)
-            : nextRowIndexHeight.first;
-        measuredVerticalOffset =
-            verticalController.offset + measuredVerticalOffset;
+    if (dataGridSettings.verticalController != null) {
+      final ScrollController verticalController =
+          dataGridSettings.verticalController!;
+
+      if (dataGridSettings.frozenRowsCount > 0 &&
+          _GridIndexResolver.getLastFrozenRowIndex(dataGridSettings) + 1 ==
+              nextRowIndex) {
+        measuredVerticalOffset = verticalController.position.minScrollExtent;
+      } else if (needToScrollToMaxExtent) {
+        measuredVerticalOffset = verticalController.position.maxScrollExtent;
       } else {
-        final visibleInfoCollection =
-            dataGridSettings.container.scrollRows.getVisibleLines();
-        final firstBodyVisibleLineIndex = visibleInfoCollection
-                    .firstBodyVisibleIndex <
-                visibleInfoCollection.length
-            ? visibleInfoCollection[visibleInfoCollection.firstBodyVisibleIndex]
-                .lineIndex
-            : 0;
-        if (nextRowIndex < firstBodyVisibleLineIndex) {
-          scrollInViewFromDown(dataGridSettings,
-              previousRowIndex: nextRowIndex, needToScrollToMinExtent: false);
-        } else {
+        if (dataGridSettings.currentCell.rowIndex != -1 &&
+            nextRowIndex == dataGridSettings.currentCell.rowIndex + 1) {
+          final nextRowIndexHeight = dataGridSettings
+              .container.rowHeightsProvider
+              .getSize(nextRowIndex, 0);
+          final nextRowInfo = dataGridSettings.container.scrollRows
+              .getVisibleLineAtLineIndex(nextRowIndex);
+          measuredVerticalOffset = nextRowInfo != null
+              ? nextRowInfo.size -
+                  (nextRowInfo.size - nextRowInfo.clippedCornerExtent)
+              : nextRowIndexHeight.first;
           measuredVerticalOffset =
-              _SelectionHelper.getVerticalCumulativeDistance(
-                  dataGridSettings, nextRowIndex);
+              verticalController.offset + measuredVerticalOffset;
+        } else {
+          final visibleInfoCollection =
+              dataGridSettings.container.scrollRows.getVisibleLines();
+          final firstBodyVisibleLineIndex =
+              visibleInfoCollection.firstBodyVisibleIndex <
+                      visibleInfoCollection.length
+                  ? visibleInfoCollection[
+                          visibleInfoCollection.firstBodyVisibleIndex]
+                      .lineIndex
+                  : 0;
+          if (nextRowIndex < firstBodyVisibleLineIndex) {
+            return scrollInViewFromDown(dataGridSettings,
+                previousRowIndex: nextRowIndex, needToScrollToMinExtent: false);
+          } else {
+            measuredVerticalOffset =
+                _SelectionHelper.getVerticalCumulativeDistance(
+                    dataGridSettings, nextRowIndex);
+          }
         }
       }
-    }
 
-    _SfDataGridHelper.scrollVertical(dataGridSettings, measuredVerticalOffset);
+      _SfDataGridHelper.scrollVertical(
+          dataGridSettings, measuredVerticalOffset);
+    }
   }
 
   static void scrollInViewFromDown(_DataGridSettings dataGridSettings,
-      {int previousRowIndex, bool needToScrollToMinExtent = false}) {
+      {int previousRowIndex = -1, bool needToScrollToMinExtent = false}) {
     var measuredVerticalOffset = 0.0;
 
-    if (dataGridSettings.footerFrozenRowsCount > 0 &&
-        _GridIndexResolver.getStartFooterFrozenRowIndex(dataGridSettings) - 1 ==
-            previousRowIndex) {
-      measuredVerticalOffset =
-          dataGridSettings.verticalController.position.maxScrollExtent;
-    } else if (needToScrollToMinExtent) {
-      measuredVerticalOffset =
-          dataGridSettings.verticalController.position.minScrollExtent;
-    } else {
-      if (dataGridSettings.currentCell.rowIndex != -1 &&
-          previousRowIndex == dataGridSettings.currentCell.rowIndex - 1) {
-        final previousRowIndexHeight = dataGridSettings
-            .container.rowHeightsProvider
-            .getSize(previousRowIndex, 0);
-        final previousRowInfo = dataGridSettings.container.scrollRows
-            .getVisibleLineAtLineIndex(previousRowIndex);
-        measuredVerticalOffset = previousRowInfo != null
-            ? previousRowInfo.size -
-                (previousRowInfo.clippedSize -
-                    previousRowInfo.clippedCornerExtent)
-            : previousRowIndexHeight.first;
-        measuredVerticalOffset =
-            dataGridSettings.verticalController.offset - measuredVerticalOffset;
-      } else {
-        measuredVerticalOffset = dataGridSettings.verticalController.offset -
-            (dataGridSettings.verticalController.offset -
-                _SelectionHelper.getVerticalCumulativeDistance(
-                    dataGridSettings, previousRowIndex));
-      }
-    }
+    if (dataGridSettings.verticalController != null) {
+      final ScrollController verticalController =
+          dataGridSettings.verticalController!;
 
-    _SfDataGridHelper.scrollVertical(dataGridSettings, measuredVerticalOffset);
+      if (dataGridSettings.footerFrozenRowsCount > 0 &&
+          _GridIndexResolver.getStartFooterFrozenRowIndex(dataGridSettings) -
+                  1 ==
+              previousRowIndex) {
+        measuredVerticalOffset = verticalController.position.maxScrollExtent;
+      } else if (needToScrollToMinExtent) {
+        measuredVerticalOffset = verticalController.position.minScrollExtent;
+      } else {
+        if (dataGridSettings.currentCell.rowIndex != -1 &&
+            previousRowIndex == dataGridSettings.currentCell.rowIndex - 1) {
+          final previousRowIndexHeight = dataGridSettings
+              .container.rowHeightsProvider
+              .getSize(previousRowIndex, 0);
+          final previousRowInfo = dataGridSettings.container.scrollRows
+              .getVisibleLineAtLineIndex(previousRowIndex);
+          measuredVerticalOffset = previousRowInfo != null
+              ? previousRowInfo.size -
+                  (previousRowInfo.clippedSize -
+                      previousRowInfo.clippedCornerExtent)
+              : previousRowIndexHeight.first;
+          measuredVerticalOffset =
+              verticalController.offset - measuredVerticalOffset;
+        } else {
+          measuredVerticalOffset = verticalController.offset -
+              (verticalController.offset -
+                  _SelectionHelper.getVerticalCumulativeDistance(
+                      dataGridSettings, previousRowIndex));
+        }
+      }
+
+      _SfDataGridHelper.scrollVertical(
+          dataGridSettings, measuredVerticalOffset);
+    }
   }
 }

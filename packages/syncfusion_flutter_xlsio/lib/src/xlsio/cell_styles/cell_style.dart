@@ -3,9 +3,9 @@ part of xlsio;
 /// Represent the Cell style class.
 class CellStyle implements Style {
   /// Creates an new instances of the Workbook.
-  CellStyle(Workbook workbook, [String name]) {
+  CellStyle(Workbook workbook, [String? name]) {
     _book = workbook;
-    backColor = 'none';
+    backColor = '#FFFFFF';
     fontName = 'Calibri';
     fontSize = 11;
     fontColor = '#000000';
@@ -22,101 +22,118 @@ class CellStyle implements Style {
     borders = BordersCollection(_book);
     isGlobalStyle = false;
     locked = true;
+    _borders = BordersCollection(_book);
     if (name != null) this.name = name;
   }
 
   /// Represents cell style name.
   @override
-  String name;
+  String name = '';
 
   /// Represents cell style index.
   @override
-  int index;
+  int index = -1;
+
+  String _backColor = '';
 
   @override
 
   /// Gets/sets back color.
-  String backColor;
+  String get backColor => _backColor;
+
+  @override
+  set backColor(String value) {
+    _backColor = value;
+    _backColorRgb =
+        Color(int.parse(_backColor.substring(1, 7), radix: 16) + 0xFF000000);
+  }
 
   /// Gets/sets borders.
-  Borders _borders;
+  late BordersCollection _borders;
 
   @override
 
   /// Gets/sets font name.
-  String fontName;
+  late String fontName;
 
   @override
 
   /// Gets/sets font size.
-  double fontSize;
+  late double fontSize;
 
+  String _fontColor = '';
   @override
 
   /// Gets/sets font color.
-  String fontColor;
+  String get fontColor => _fontColor;
+
+  @override
+  set fontColor(String value) {
+    _fontColor = value;
+    _fontColorRgb =
+        Color(int.parse(_fontColor.substring(1, 7), radix: 16) + 0xFF000000);
+  }
 
   @override
 
   /// Gets/sets font italic.
-  bool italic;
+  late bool italic;
 
   @override
 
   /// Gets/sets font bold.
-  bool bold;
+  late bool bold;
 
   @override
 
   /// Gets/sets horizontal alignment.
-  HAlignType hAlign;
+  late HAlignType hAlign;
 
   @override
 
   /// Gets/sets cell indent.
-  int indent;
+  late int indent;
 
   @override
 
   /// Gets/sets cell rotation.
-  int rotation;
+  late int rotation;
 
   @override
 
   /// Gets/sets vertical alignment.
-  VAlignType vAlign;
+  late VAlignType vAlign;
 
   @override
 
   /// Gets/sets font underline.
-  bool underline;
+  late bool underline;
 
   @override
 
   /// Gets/sets cell wraptext.
-  bool wrapText;
+  late bool wrapText;
 
   /// Represents the global style.
-  bool isGlobalStyle;
+  bool isGlobalStyle = false;
 
   @override
-  int numberFormatIndex;
+  late int numberFormatIndex;
 
   /// Represents the workbook.
-  Workbook _book;
+  late Workbook _book;
 
-  int _builtinId;
+  int _builtinId = 0;
 
   @override
 
   /// Gets/Sets cell Lock
-  bool locked;
+  late bool locked;
 
   @override
 
   /// Sets borders.
-  BordersCollection get borders {
-    _borders ??= BordersCollection(_book);
+  Borders get borders {
     return _borders;
   }
 
@@ -124,7 +141,7 @@ class CellStyle implements Style {
 
   /// Sets borders.
   set borders(Borders value) {
-    _borders = value;
+    _borders = value as BordersCollection;
   }
 
   /// Gets number format object.
@@ -141,20 +158,48 @@ class CellStyle implements Style {
   @override
 
   /// Returns or sets the format code for the object. Read/write String.
-  String get numberFormat {
+  String? get numberFormat {
     return numberFormatObject._formatString;
   }
 
   @override
 
   /// Sets the number format.
-  set numberFormat(String value) {
+  set numberFormat(String? value) {
     numberFormatIndex = _book.innerFormats._findOrCreateFormat(value);
   }
 
   /// Represents the wookbook
   Workbook get _workbook {
     return _book;
+  }
+
+  Color _backColorRgb = Color.fromARGB(255, 0, 0, 0);
+
+  Color _fontColorRgb = Color.fromARGB(255, 0, 0, 0);
+
+  @override
+
+  /// Gets/sets back color Rgb.
+  Color get backColorRgb => _backColorRgb;
+
+  @override
+  set backColorRgb(Color value) {
+    _backColorRgb = value;
+    if (_backColorRgb.value.toRadixString(16).toUpperCase() != 'FFFFFFFF') {
+      _backColor = _backColorRgb.value.toRadixString(16).toUpperCase();
+    }
+  }
+
+  @override
+
+  /// Gets/sets font color Rgb.
+  Color get fontColorRgb => _fontColorRgb;
+
+  @override
+  set fontColorRgb(Color value) {
+    _fontColorRgb = value;
+    _fontColor = _fontColorRgb.value.toRadixString(16).toUpperCase();
   }
 
   /// clone method of cell style
@@ -179,7 +224,9 @@ class CellStyle implements Style {
     _cellStyle.numberFormatIndex = numberFormatIndex;
     _cellStyle.isGlobalStyle = isGlobalStyle;
     _cellStyle.locked = locked;
-    _cellStyle.borders = borders._clone();
+    _cellStyle.borders = (borders as BordersCollection)._clone();
+    _cellStyle.backColorRgb = backColorRgb;
+    _cellStyle.fontColorRgb = fontColorRgb;
     return _cellStyle;
   }
 
@@ -187,7 +234,8 @@ class CellStyle implements Style {
   @override
   bool operator ==(Object toCompare) {
     final CellStyle baseStyle = this;
-    final CellStyle toCompareStyle = toCompare;
+    // ignore: test_types_in_equals
+    final CellStyle toCompareStyle = toCompare as CellStyle;
 
     return (baseStyle.backColor == toCompareStyle.backColor &&
         baseStyle.bold == toCompareStyle.bold &&
@@ -204,37 +252,37 @@ class CellStyle implements Style {
         baseStyle.rotation == toCompareStyle.rotation &&
         baseStyle.wrapText == toCompareStyle.wrapText &&
         baseStyle.borders == toCompareStyle.borders &&
-        baseStyle.locked == toCompareStyle.locked);
+        baseStyle.locked == toCompareStyle.locked &&
+        baseStyle.backColorRgb == toCompareStyle.backColorRgb &&
+        baseStyle.fontColorRgb == toCompareStyle.fontColorRgb);
   }
 
   @override
   int get hashCode => hashValues(
-      name,
-      backColor,
-      fontName,
-      fontSize,
-      fontColor,
-      italic,
-      bold,
-      underline,
-      wrapText,
-      hAlign,
-      vAlign,
-      indent,
-      rotation,
-      index,
-      _builtinId,
-      numberFormat,
-      numberFormatIndex,
-      isGlobalStyle,
-      locked,
-      borders);
+        name,
+        backColor,
+        fontName,
+        fontSize,
+        fontColor,
+        italic,
+        bold,
+        underline,
+        wrapText,
+        hAlign,
+        vAlign,
+        indent,
+        rotation,
+        index,
+        _builtinId,
+        numberFormat,
+        numberFormatIndex,
+        isGlobalStyle,
+        locked,
+        borders,
+      );
 
   /// clear the borders
   void _clear() {
-    if (_borders != null) {
-      (_borders as BordersCollection)._clear();
-      _borders = null;
-    }
+    _borders._clear();
   }
 }

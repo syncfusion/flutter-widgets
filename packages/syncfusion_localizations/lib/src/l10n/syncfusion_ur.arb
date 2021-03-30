@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "کوئی منتخب تاریخ", 
 "noEventsCalendarLabel" : "کوئی واقعات نہیں", 
-"scheduleViewNewEventLabel" : "کچھ بھی منصوبہ بند نہیں ہے۔ بنانے کے لئے تھپتھپائیں۔", 
 "ofDataPagerLabel" : "کے", 
 "pagesDataPagerLabel" : "صفحات", 
 "itemsDataPagerLabel" : "اشیاء", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "رام۔", 
 "shortShawwalLabel" : "شا۔", 
 "shortDhualqiLabel" : "ذوالق", 
-"shortDhualhiLabel" : "ذوالحل"
+"shortDhualhiLabel" : "ذوالحل", 
+"daySpanCountLabel" : "دن"
 }

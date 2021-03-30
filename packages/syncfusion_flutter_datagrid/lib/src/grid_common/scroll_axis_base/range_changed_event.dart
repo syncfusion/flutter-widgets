@@ -152,7 +152,7 @@ class _HiddenRangeChangedArgs {
 
   int _from = 0;
   int _to = 0;
-  bool _hide;
+  bool _hide = false;
 
   /// Gets the start index of the hidden range.
   ///
@@ -214,10 +214,10 @@ class _ScrollChangedArgs {
     _scrollChangedAction = action;
   }
 
-  _ScrollChangedAction _scrollChangedAction;
+  _ScrollChangedAction? _scrollChangedAction;
 
   /// Gets the scroll changed action.
   ///
   /// Returns the `ScrollChangedAction`.
-  _ScrollChangedAction get action => _scrollChangedAction;
+  _ScrollChangedAction? get action => _scrollChangedAction;
 }

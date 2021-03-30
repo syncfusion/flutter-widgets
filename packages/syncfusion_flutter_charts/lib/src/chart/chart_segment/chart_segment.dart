@@ -23,49 +23,52 @@ abstract class ChartSegment {
   void onPaint(Canvas canvas);
 
   ///Color of the segment
-  Color _color, _strokeColor;
+  Color? _color, _strokeColor;
 
   ///Border width of the segment
-  double _strokeWidth;
+  double? _strokeWidth;
 
   ///Fill paint of the segment
-  Paint fillPaint;
+  Paint? fillPaint;
 
   ///Stroke paint of the segment
-  Paint strokePaint;
+  Paint? strokePaint;
 
   ///Chart series
-  XyDataSeries<dynamic, dynamic> _series, _oldSeries;
+  late XyDataSeries<dynamic, dynamic> _series;
+  XyDataSeries<dynamic, dynamic>? _oldSeries;
 
   ///Chart series renderer
-  CartesianSeriesRenderer _seriesRenderer, _oldSeriesRenderer;
+  late CartesianSeriesRenderer _seriesRenderer;
+  CartesianSeriesRenderer? _oldSeriesRenderer;
 
   ///Animation factor value
-  double animationFactor;
+  late double animationFactor;
 
   /// Rectangle of the segment
-  RRect _segmentRect;
+  RRect? _segmentRect;
 
   ///Current point offset value
   List<Offset> points = <Offset>[];
 
   /// Default fill color & stroke color
-  Paint _defaultFillColor, _defaultStrokeColor;
+  Paint? _defaultFillColor, _defaultStrokeColor;
 
   /// Current index value.
-  int currentSegmentIndex, _seriesIndex;
+  int? currentSegmentIndex, _oldSegmentIndex;
+  late int _seriesIndex;
 
-  CartesianChartPoint<dynamic> _currentPoint, _point, _oldPoint, _nextPoint;
+  CartesianChartPoint<dynamic>? _currentPoint, _point, _oldPoint, _nextPoint;
 
   /// Old series visibility property.
-  bool _oldSeriesVisible;
+  bool? _oldSeriesVisible;
 
   /// Old  rect region.
-  Rect _oldRegion;
+  Rect? _oldRegion;
 
   /// Cartesian chart properties
-  SfCartesianChart _chart;
+  late SfCartesianChart _chart;
 
   /// Cartesian chart state properties
-  SfCartesianChartState _chartState;
+  late SfCartesianChartState _chartState;
 }

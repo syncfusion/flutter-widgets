@@ -39,11 +39,12 @@ class PdfSecurity {
   }
 
   //Fields
-  _PdfEncryptor _encryptor;
-  PdfPermissions _permissions;
+  late _PdfEncryptor _encryptor;
+  PdfPermissions? _permissions;
   // ignore: prefer_final_fields
   bool _conformance = false;
   bool _modifiedSecurity = false;
+  late bool _encryptOnlyAttachment;
 
   /// Gets the type of encryption algorithm used.
   ///
@@ -58,7 +59,7 @@ class PdfSecurity {
   /// document.dispose();
   /// ```
   PdfEncryptionAlgorithm get algorithm {
-    return _encryptor.encryptionAlgorithm;
+    return _encryptor.encryptionAlgorithm!;
   }
 
   /// Sets the type of encryption algorithm.
@@ -78,7 +79,6 @@ class PdfSecurity {
   /// document.dispose();
   /// ```
   set algorithm(PdfEncryptionAlgorithm value) {
-    ArgumentError.checkNotNull(value);
     _encryptor.encryptionAlgorithm = value;
     _encryptor.encrypt = true;
     _encryptor._isChanged = true;
@@ -102,7 +102,7 @@ class PdfSecurity {
   /// document.dispose();
   /// ```
   String get ownerPassword {
-    return _encryptor.ownerPassword;
+    return _encryptAttachments ? '' : _encryptor.ownerPassword;
   }
 
   /// Sets the owner password.
@@ -201,11 +201,71 @@ class PdfSecurity {
   /// ```
   PdfPermissions get permissions {
     _permissions ??= PdfPermissions._(_encryptor, _encryptor.permissions);
-    return _permissions;
+    return _permissions!;
+  }
+
+  /// Gets or sets the type of encryption options used.
+  ///
+  /// User password is required when the PDF document is opened in a viewer.
+  ///
+  /// ```dart
+  /// //Create a new PDF document.
+  /// PdfDocument document = PdfDocument();
+  /// //Document security
+  /// PdfSecurity security = document.security;
+  /// //Set security options
+  /// security.algorithm = PdfEncryptionAlgorithm.rc4x128Bit;
+  /// security.userPassword = 'password';
+  /// security.ownerPassword = 'syncfusion';
+  /// security.encryptionOptions = PdfEncryptionOptions.encryptAllContents;
+  /// //Create and add attachment to the PDF document
+  /// document.attachments.add(PdfAttachment(
+  ///   'input.txt', File('input.txt').readAsBytesSync(),
+  ///   description: 'Text File', mimeType: 'application/txt'));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
+  PdfEncryptionOptions get encryptionOptions => _encryptor._encryptionOptions;
+  set encryptionOptions(PdfEncryptionOptions value) {
+    if (_conformance) {
+      throw ArgumentError(
+          'Document encryption is not allowed with Conformance documents.');
+    }
+    if (_encryptor._encryptionOptions != value) {
+      _encryptor._encryptionOptions = value;
+      _encryptor.encrypt = true;
+      _encryptor._isChanged = true;
+      _modifiedSecurity = true;
+      _encryptor._hasComputedPasswordValues = false;
+      if (PdfEncryptionOptions.encryptOnlyAttachments == value) {
+        _encryptAttachments = true;
+        _encryptor.encryptMetadata = false;
+      } else if (PdfEncryptionOptions.encryptAllContentsExceptMetadata ==
+          value) {
+        _encryptAttachments = false;
+        _encryptor.encryptMetadata = false;
+      } else {
+        _encryptAttachments = false;
+        _encryptor.encryptMetadata = true;
+      }
+    }
+  }
+
+  bool get _encryptAttachments {
+    return _encryptOnlyAttachment;
+  }
+
+  set _encryptAttachments(bool value) {
+    _encryptOnlyAttachment = value;
+    _encryptor.encryptOnlyAttachment = value;
+    _encryptor._isChanged = true;
   }
 
   //Implementation
   void _initialize() {
+    _encryptOnlyAttachment = false;
     _encryptor = _PdfEncryptor();
   }
 }
@@ -234,15 +294,13 @@ class PdfPermissions {
   //constructor
   PdfPermissions._(
       _PdfEncryptor encryptor, List<PdfPermissionsFlags> permissions) {
-    ArgumentError.checkNotNull(encryptor);
-    ArgumentError.checkNotNull(permissions);
     _encryptor = encryptor;
     _permissions = permissions;
   }
 
   //Fields
-  _PdfEncryptor _encryptor;
-  List<PdfPermissionsFlags> _permissions;
+  late _PdfEncryptor _encryptor;
+  late List<PdfPermissionsFlags> _permissions;
   bool _modifiedPermissions = false;
 
   //Implementation
@@ -337,7 +395,6 @@ class PdfPermissions {
   /// document.dispose();
   /// ```
   void add(PdfPermissionsFlags permission) {
-    ArgumentError.checkNotNull(permission, 'value cannot be null');
     if (!_permissions.contains(permission)) {
       _permissions.add(permission);
       _encryptor.permissions = _permissions;
@@ -363,7 +420,6 @@ class PdfPermissions {
   /// document.dispose();
   /// ```
   void addAll(List<PdfPermissionsFlags> permission) {
-    ArgumentError.checkNotNull(permission, 'value cannot be null');
     bool isChanged = false;
     if (permission.isNotEmpty) {
       permission.forEach((PdfPermissionsFlags flag) {
@@ -398,7 +454,6 @@ class PdfPermissions {
   /// document.dispose();
   /// ```
   void remove(PdfPermissionsFlags permission) {
-    ArgumentError.checkNotNull(permission, 'value cannot be null');
     if (_permissions.contains(permission)) {
       _permissions.remove(permission);
       _encryptor.permissions = _permissions;
@@ -434,7 +489,6 @@ class PdfPermissions {
   }
 
   PdfPermissionsFlags _returnValue(int index) {
-    ArgumentError.checkNotNull(index, 'Index cannot be null');
     if (index < 0 || index >= count) {
       throw ArgumentError.value(index, 'Index out of range');
     }

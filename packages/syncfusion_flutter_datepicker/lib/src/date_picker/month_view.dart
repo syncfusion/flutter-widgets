@@ -63,7 +63,7 @@ class MonthView extends StatefulWidget {
   final bool isRtl;
 
   /// Defines the today cell highlight color.
-  final Color todayHighlightColor;
+  final Color? todayHighlightColor;
 
   /// Holds the theme data for date range picker.
   final SfDateRangePickerThemeData datePickerTheme;
@@ -81,10 +81,10 @@ class MonthView extends StatefulWidget {
   final bool showLeadingAndTailingDates;
 
   /// Holds the blackout dates of the [SfDateRangePicker].
-  final List<dynamic> blackoutDates;
+  final List<dynamic>? blackoutDates;
 
   /// Holds the special dates of the [SfDateRangePicker].
-  final List<dynamic> specialDates;
+  final List<dynamic>? specialDates;
 
   /// Holds the list of week day index of the [SfDateRangePicker].
   final List<int> weekendDays;
@@ -99,7 +99,7 @@ class MonthView extends StatefulWidget {
   final ValueNotifier<bool> selectionNotifier;
 
   /// Used to specify the mouse hover position of the month view.
-  final ValueNotifier<Offset> mouseHoverPosition;
+  final ValueNotifier<Offset?> mouseHoverPosition;
 
   /// Decides to show the multi view of month view or not.
   final bool enableMultiView;
@@ -108,22 +108,22 @@ class MonthView extends StatefulWidget {
   final double multiViewSpacing;
 
   /// Defines the text style for selected month cell.
-  final TextStyle selectionTextStyle;
+  final TextStyle? selectionTextStyle;
 
   /// Defines the range text style for selected range month cell.
-  final TextStyle rangeTextStyle;
+  final TextStyle? rangeTextStyle;
 
   /// Defines the background color for selected month cell.
-  final Color selectionColor;
+  final Color? selectionColor;
 
   /// Defines the background color for selected range start date month cell.
-  final Color startRangeSelectionColor;
+  final Color? startRangeSelectionColor;
 
   /// Defines the background color for selected range end date month cell.
-  final Color endRangeSelectionColor;
+  final Color? endRangeSelectionColor;
 
   /// Defines the background color for selected range in between dates cell.
-  final Color rangeSelectionColor;
+  final Color? rangeSelectionColor;
 
   /// Defines the text scale factor of [SfDateRangePicker].
   final double textScaleFactor;
@@ -141,7 +141,7 @@ class MonthView extends StatefulWidget {
   final UpdatePickerState getPickerStateDetails;
 
   /// Used to build the widget that replaces the month cells in month view.
-  final DateRangePickerCellBuilder cellBuilder;
+  final dynamic cellBuilder;
 
   /// Specifies the pickerType for [SfDateRangePicker].
   final bool isHijri;
@@ -157,16 +157,15 @@ class MonthView extends StatefulWidget {
 }
 
 class _MonthViewState extends State<MonthView> {
-  PickerStateArgs _pickerStateDetails;
-  dynamic _selectedDate;
-  List<dynamic> _selectedDates;
-  dynamic _selectedRange;
-  List<dynamic> _selectedRanges;
-  List<Widget> _children;
+  PickerStateArgs _pickerStateDetails = PickerStateArgs();
+  dynamic? _selectedDate;
+  List<dynamic>? _selectedDates;
+  dynamic? _selectedRange;
+  List<dynamic>? _selectedRanges;
+  List<Widget> _children = <Widget>[];
 
   @override
   void initState() {
-    _pickerStateDetails = PickerStateArgs();
     widget.getPickerStateDetails(_pickerStateDetails);
     _selectedDate = _pickerStateDetails.selectedDate;
     _selectedDates =
@@ -220,7 +219,6 @@ class _MonthViewState extends State<MonthView> {
 
   @override
   Widget build(BuildContext context) {
-    _children ??= <Widget>[];
     if (widget.cellBuilder != null && _children.isEmpty) {
       double webUIPadding = 0;
       double width = widget.width;
@@ -293,14 +291,19 @@ class _MonthViewState extends State<MonthView> {
             continue;
           }
 
-          final DateRangePickerCellDetails cellDetails =
-              DateRangePickerCellDetails(
-                  date: date,
-                  visibleDates: widget.visibleDates,
-                  bounds: Rect.fromLTWH(
-                      xPosition, yPosition, cellWidth, cellHeight));
-          final Widget child = widget.cellBuilder(context, cellDetails);
-          assert(child != null, 'Widget must not be null');
+          final Widget child = widget.cellBuilder(
+              context,
+              widget.isHijri
+                  ? HijriDateRangePickerCellDetails(
+                      date: date,
+                      visibleDates: widget.visibleDates.cast<HijriDateTime>(),
+                      bounds: Rect.fromLTWH(
+                          xPosition, yPosition, cellWidth, cellHeight))
+                  : DateRangePickerCellDetails(
+                      date: date,
+                      visibleDates: widget.visibleDates.cast<DateTime>(),
+                      bounds: Rect.fromLTWH(
+                          xPosition, yPosition, cellWidth, cellHeight)));
           _children.add(child);
           xPosition += cellWidth;
         }
@@ -356,7 +359,6 @@ class _MonthViewState extends State<MonthView> {
               _selectedRanges, _pickerStateDetails.selectedRanges);
         }
     }
-    return false;
   }
 
   MultiChildRenderObjectWidget _getMonthRenderWidget() {
@@ -510,8 +512,6 @@ class _MonthViewState extends State<MonthView> {
               widgets: _children);
         }
     }
-
-    return null;
   }
 }
 
@@ -550,7 +550,7 @@ class _MonthViewSingleSelectionRenderWidget
       this.isHijri,
       this.localizations,
       this.navigationDirection,
-      {List<Widget> widgets})
+      {List<Widget> widgets = const <Widget>[]})
       : super(children: widgets);
 
   final int rowCount;
@@ -561,7 +561,7 @@ class _MonthViewSingleSelectionRenderWidget
 
   final bool isRtl;
 
-  final Color todayHighlightColor;
+  final Color? todayHighlightColor;
 
   final SfDateRangePickerThemeData datePickerTheme;
 
@@ -575,9 +575,9 @@ class _MonthViewSingleSelectionRenderWidget
 
   final bool showLeadingAndTailingDates;
 
-  final List<dynamic> blackoutDates;
+  final List<dynamic>? blackoutDates;
 
-  final List<dynamic> specialDates;
+  final List<dynamic>? specialDates;
 
   final List<int> weekendDays;
 
@@ -587,23 +587,23 @@ class _MonthViewSingleSelectionRenderWidget
 
   final ValueNotifier<bool> selectionNotifier;
 
-  final ValueNotifier<Offset> mouseHoverPosition;
+  final ValueNotifier<Offset?> mouseHoverPosition;
 
   final bool enableMultiView;
 
   final double multiViewSpacing;
 
-  final TextStyle selectionTextStyle;
+  final TextStyle? selectionTextStyle;
 
-  final TextStyle rangeTextStyle;
+  final TextStyle? rangeTextStyle;
 
-  final Color selectionColor;
+  final Color? selectionColor;
 
-  final Color startRangeSelectionColor;
+  final Color? startRangeSelectionColor;
 
-  final Color endRangeSelectionColor;
+  final Color? endRangeSelectionColor;
 
-  final Color rangeSelectionColor;
+  final Color? rangeSelectionColor;
 
   final double textScaleFactor;
 
@@ -729,7 +729,7 @@ class _MonthViewMultiSelectionRenderWidget
       this.isHijri,
       this.localizations,
       this.navigationDirection,
-      {List<Widget> widgets})
+      {List<Widget> widgets = const <Widget>[]})
       : super(children: widgets);
 
   final int rowCount;
@@ -740,7 +740,7 @@ class _MonthViewMultiSelectionRenderWidget
 
   final bool isRtl;
 
-  final Color todayHighlightColor;
+  final Color? todayHighlightColor;
 
   final SfDateRangePickerThemeData datePickerTheme;
 
@@ -754,9 +754,9 @@ class _MonthViewMultiSelectionRenderWidget
 
   final bool showLeadingAndTailingDates;
 
-  final List<dynamic> blackoutDates;
+  final List<dynamic>? blackoutDates;
 
-  final List<dynamic> specialDates;
+  final List<dynamic>? specialDates;
 
   final List<int> weekendDays;
 
@@ -766,23 +766,23 @@ class _MonthViewMultiSelectionRenderWidget
 
   final ValueNotifier<bool> selectionNotifier;
 
-  final ValueNotifier<Offset> mouseHoverPosition;
+  final ValueNotifier<Offset?> mouseHoverPosition;
 
   final bool enableMultiView;
 
   final double multiViewSpacing;
 
-  final TextStyle selectionTextStyle;
+  final TextStyle? selectionTextStyle;
 
-  final TextStyle rangeTextStyle;
+  final TextStyle? rangeTextStyle;
 
-  final Color selectionColor;
+  final Color? selectionColor;
 
-  final Color startRangeSelectionColor;
+  final Color? startRangeSelectionColor;
 
-  final Color endRangeSelectionColor;
+  final Color? endRangeSelectionColor;
 
-  final Color rangeSelectionColor;
+  final Color? rangeSelectionColor;
 
   final double textScaleFactor;
 
@@ -790,7 +790,7 @@ class _MonthViewMultiSelectionRenderWidget
 
   final double width;
 
-  final List<dynamic> selectedDates;
+  final List<dynamic>? selectedDates;
 
   final bool isHijri;
 
@@ -908,7 +908,7 @@ class _MonthViewRangeSelectionRenderWidget
       this.isHijri,
       this.localizations,
       this.navigationDirection,
-      {List<Widget> widgets})
+      {required List<Widget> widgets})
       : super(children: widgets);
 
   final int rowCount;
@@ -919,7 +919,7 @@ class _MonthViewRangeSelectionRenderWidget
 
   final bool isRtl;
 
-  final Color todayHighlightColor;
+  final Color? todayHighlightColor;
 
   final SfDateRangePickerThemeData datePickerTheme;
 
@@ -933,9 +933,9 @@ class _MonthViewRangeSelectionRenderWidget
 
   final bool showLeadingAndTailingDates;
 
-  final List<dynamic> blackoutDates;
+  final List<dynamic>? blackoutDates;
 
-  final List<dynamic> specialDates;
+  final List<dynamic>? specialDates;
 
   final List<int> weekendDays;
 
@@ -945,23 +945,23 @@ class _MonthViewRangeSelectionRenderWidget
 
   final ValueNotifier<bool> selectionNotifier;
 
-  final ValueNotifier<Offset> mouseHoverPosition;
+  final ValueNotifier<Offset?> mouseHoverPosition;
 
   final bool enableMultiView;
 
   final double multiViewSpacing;
 
-  final TextStyle selectionTextStyle;
+  final TextStyle? selectionTextStyle;
 
-  final TextStyle rangeTextStyle;
+  final TextStyle? rangeTextStyle;
 
-  final Color selectionColor;
+  final Color? selectionColor;
 
-  final Color startRangeSelectionColor;
+  final Color? startRangeSelectionColor;
 
-  final Color endRangeSelectionColor;
+  final Color? endRangeSelectionColor;
 
-  final Color rangeSelectionColor;
+  final Color? rangeSelectionColor;
 
   final double textScaleFactor;
 
@@ -969,7 +969,7 @@ class _MonthViewRangeSelectionRenderWidget
 
   final double width;
 
-  final dynamic selectedRange;
+  final dynamic? selectedRange;
 
   final bool isHijri;
 
@@ -1087,7 +1087,7 @@ class _MonthViewMultiRangeSelectionRenderWidget
       this.isHijri,
       this.localizations,
       this.navigationDirection,
-      {List<Widget> widgets})
+      {required List<Widget> widgets})
       : super(children: widgets);
 
   final int rowCount;
@@ -1098,7 +1098,7 @@ class _MonthViewMultiRangeSelectionRenderWidget
 
   final bool isRtl;
 
-  final Color todayHighlightColor;
+  final Color? todayHighlightColor;
 
   final SfDateRangePickerThemeData datePickerTheme;
 
@@ -1110,9 +1110,9 @@ class _MonthViewMultiRangeSelectionRenderWidget
 
   final bool showLeadingAndTailingDates;
 
-  final List<dynamic> blackoutDates;
+  final List<dynamic>? blackoutDates;
 
-  final List<dynamic> specialDates;
+  final List<dynamic>? specialDates;
 
   final List<int> weekendDays;
 
@@ -1122,23 +1122,23 @@ class _MonthViewMultiRangeSelectionRenderWidget
 
   final ValueNotifier<bool> selectionNotifier;
 
-  final ValueNotifier<Offset> mouseHoverPosition;
+  final ValueNotifier<Offset?> mouseHoverPosition;
 
   final bool enableMultiView;
 
   final double multiViewSpacing;
 
-  final TextStyle selectionTextStyle;
+  final TextStyle? selectionTextStyle;
 
-  final TextStyle rangeTextStyle;
+  final TextStyle? rangeTextStyle;
 
-  final Color selectionColor;
+  final Color? selectionColor;
 
-  final Color startRangeSelectionColor;
+  final Color? startRangeSelectionColor;
 
-  final Color endRangeSelectionColor;
+  final Color? endRangeSelectionColor;
 
-  final Color rangeSelectionColor;
+  final Color? rangeSelectionColor;
 
   final double textScaleFactor;
 
@@ -1146,7 +1146,7 @@ class _MonthViewMultiRangeSelectionRenderWidget
 
   final double width;
 
-  final List<dynamic> selectedRanges;
+  final List<dynamic>? selectedRanges;
 
   final bool isHijri;
 
@@ -1323,11 +1323,11 @@ abstract class _IMonthView extends RenderBox
   }
 
   /// Defines the month cell style.
-  dynamic _cellStyle;
+  dynamic? _cellStyle;
 
-  dynamic get cellStyle => _cellStyle;
+  dynamic? get cellStyle => _cellStyle;
 
-  set cellStyle(dynamic value) {
+  set cellStyle(dynamic? value) {
     if (_cellStyle == value) {
       return;
     }
@@ -1355,11 +1355,11 @@ abstract class _IMonthView extends RenderBox
   }
 
   /// Defines the today cell highlight color.
-  Color _todayHighlightColor;
+  Color? _todayHighlightColor;
 
-  Color get todayHighlightColor => _todayHighlightColor;
+  Color? get todayHighlightColor => _todayHighlightColor;
 
-  set todayHighlightColor(Color value) {
+  set todayHighlightColor(Color? value) {
     if (_todayHighlightColor == value) {
       return;
     }
@@ -1463,11 +1463,11 @@ abstract class _IMonthView extends RenderBox
   }
 
   /// Holds the blackout dates of the [SfDateRangePicker].
-  List<dynamic> _blackoutDates;
+  List<dynamic>? _blackoutDates;
 
-  List<dynamic> get blackoutDates => _blackoutDates;
+  List<dynamic>? get blackoutDates => _blackoutDates;
 
-  set blackoutDates(List<dynamic> value) {
+  set blackoutDates(List<dynamic>? value) {
     if (DateRangePickerHelper.isDateCollectionEquals(_blackoutDates, value)) {
       return;
     }
@@ -1481,11 +1481,11 @@ abstract class _IMonthView extends RenderBox
   }
 
   /// Holds the special dates of the [SfDateRangePicker].
-  List<dynamic> _specialDates;
+  List<dynamic>? _specialDates;
 
-  List<dynamic> get specialDates => _specialDates;
+  List<dynamic>? get specialDates => _specialDates;
 
-  set specialDates(List<dynamic> value) {
+  set specialDates(List<dynamic>? value) {
     if (DateRangePickerHelper.isDateCollectionEquals(_specialDates, value)) {
       return;
     }
@@ -1548,18 +1548,18 @@ abstract class _IMonthView extends RenderBox
   ValueNotifier<bool> selectionNotifier;
 
   /// Used to specify the mouse hover position of the month view.
-  ValueNotifier<Offset> _mouseHoverPosition;
+  ValueNotifier<Offset?> _mouseHoverPosition;
 
-  ValueNotifier<Offset> get mouseHoverPosition => _mouseHoverPosition;
+  ValueNotifier<Offset?> get mouseHoverPosition => _mouseHoverPosition;
 
-  set mouseHoverPosition(ValueNotifier<Offset> value) {
+  set mouseHoverPosition(ValueNotifier<Offset?> value) {
     if (_mouseHoverPosition == value) {
       return;
     }
 
-    _mouseHoverPosition?.removeListener(markNeedsPaint);
+    _mouseHoverPosition.removeListener(markNeedsPaint);
     _mouseHoverPosition = value;
-    _mouseHoverPosition?.addListener(markNeedsPaint);
+    _mouseHoverPosition.addListener(markNeedsPaint);
     markNeedsPaint();
   }
 
@@ -1600,11 +1600,11 @@ abstract class _IMonthView extends RenderBox
   }
 
   /// Defines the text style for selected month cell.
-  TextStyle _selectionTextStyle;
+  TextStyle? _selectionTextStyle;
 
-  TextStyle get selectionTextStyle => _selectionTextStyle;
+  TextStyle? get selectionTextStyle => _selectionTextStyle;
 
-  set selectionTextStyle(TextStyle value) {
+  set selectionTextStyle(TextStyle? value) {
     if (_selectionTextStyle == value) {
       return;
     }
@@ -1618,11 +1618,11 @@ abstract class _IMonthView extends RenderBox
   }
 
   /// Defines the range text style for selected range month cell.
-  TextStyle _rangeTextStyle;
+  TextStyle? _rangeTextStyle;
 
-  TextStyle get rangeTextStyle => _rangeTextStyle;
+  TextStyle? get rangeTextStyle => _rangeTextStyle;
 
-  set rangeTextStyle(TextStyle value) {
+  set rangeTextStyle(TextStyle? value) {
     if (_rangeTextStyle == value) {
       return;
     }
@@ -1636,11 +1636,11 @@ abstract class _IMonthView extends RenderBox
   }
 
   /// Defines the background color for selected month cell.
-  Color _selectionColor;
+  Color? _selectionColor;
 
-  Color get selectionColor => _selectionColor;
+  Color? get selectionColor => _selectionColor;
 
-  set selectionColor(Color value) {
+  set selectionColor(Color? value) {
     if (_selectionColor == value) {
       return;
     }
@@ -1654,11 +1654,11 @@ abstract class _IMonthView extends RenderBox
   }
 
   /// Defines the background color for selected range start date month cell.
-  Color _startRangeSelectionColor;
+  Color? _startRangeSelectionColor;
 
-  Color get startRangeSelectionColor => _startRangeSelectionColor;
+  Color? get startRangeSelectionColor => _startRangeSelectionColor;
 
-  set startRangeSelectionColor(Color value) {
+  set startRangeSelectionColor(Color? value) {
     if (_startRangeSelectionColor == value) {
       return;
     }
@@ -1672,11 +1672,11 @@ abstract class _IMonthView extends RenderBox
   }
 
   /// Defines the background color for selected range end date month cell.
-  Color _endRangeSelectionColor;
+  Color? _endRangeSelectionColor;
 
-  Color get endRangeSelectionColor => _endRangeSelectionColor;
+  Color? get endRangeSelectionColor => _endRangeSelectionColor;
 
-  set endRangeSelectionColor(Color value) {
+  set endRangeSelectionColor(Color? value) {
     if (_endRangeSelectionColor == value) {
       return;
     }
@@ -1690,11 +1690,11 @@ abstract class _IMonthView extends RenderBox
   }
 
   /// Defines the background color for selected range in between dates cell.
-  Color _rangeSelectionColor;
+  Color? _rangeSelectionColor;
 
-  Color get rangeSelectionColor => _rangeSelectionColor;
+  Color? get rangeSelectionColor => _rangeSelectionColor;
 
-  set rangeSelectionColor(Color value) {
+  set rangeSelectionColor(Color? value) {
     if (_rangeSelectionColor == value) {
       return;
     }
@@ -1779,27 +1779,37 @@ abstract class _IMonthView extends RenderBox
   SfLocalizations localizations;
 
   /// Used to paint the selection of month cell on all the selection mode.
-  Paint _selectionPainter;
+  Paint _selectionPainter = Paint();
 
   /// Used to draw month cell text in month view.
-  TextPainter _textPainter;
+  TextPainter _textPainter = TextPainter(
+      textDirection: TextDirection.ltr,
+      textWidthBasis: TextWidthBasis.longestLine);
 
   static const int _selectionPadding = 2;
 
-  double _cellWidth, _cellHeight;
-  double _centerXPosition, _centerYPosition;
+  /// Caches [SemanticsNode]s created during [assembleSemanticsNode] so they
+  /// can be re-used when [assembleSemanticsNode] is called again. This ensures
+  /// stable ids for the [SemanticsNode]s of children across
+  /// [assembleSemanticsNode] invocations.
+  /// Ref: assembleSemanticsNode method in RenderParagraph class
+  /// (https://github.com/flutter/flutter/blob/master/packages/flutter/lib/src/rendering/paragraph.dart)
+  List<SemanticsNode>? _cacheNodes;
+
+  late double _cellWidth, _cellHeight;
+  late double _centerXPosition, _centerYPosition;
 
   /// attach will called when the render object rendered in view.
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
-    _mouseHoverPosition?.addListener(markNeedsPaint);
+    _mouseHoverPosition.addListener(markNeedsPaint);
   }
 
   /// detach will called when the render object removed from view.
   @override
   void detach() {
-    _mouseHoverPosition?.removeListener(markNeedsPaint);
+    _mouseHoverPosition.removeListener(markNeedsPaint);
     super.detach();
   }
 
@@ -1815,7 +1825,7 @@ abstract class _IMonthView extends RenderBox
     final Size widgetSize = constraints.biggest;
     size = Size(widgetSize.width.isInfinite ? width : widgetSize.width,
         widgetSize.height.isInfinite ? height : widgetSize.height);
-    RenderBox child = firstChild;
+    RenderBox? child = firstChild;
     if (child == null) {
       return;
     }
@@ -1875,18 +1885,19 @@ abstract class _IMonthView extends RenderBox
     SemanticsConfiguration config,
     Iterable<SemanticsNode> children,
   ) {
+    _cacheNodes ??= <SemanticsNode>[];
     final List<CustomPainterSemantics> semantics = _getSemanticsBuilder(size);
     final List<SemanticsNode> semanticsNodes = <SemanticsNode>[];
     for (int i = 0; i < semantics.length; i++) {
       final CustomPainterSemantics currentSemantics = semantics[i];
-      final SemanticsNode newChild = SemanticsNode(
-        key: currentSemantics.key,
-      );
+      final SemanticsNode newChild = _cacheNodes!.isNotEmpty
+          ? _cacheNodes!.removeAt(0)
+          : SemanticsNode(key: currentSemantics.key);
 
       final SemanticsProperties properties = currentSemantics.properties;
       final SemanticsConfiguration config = SemanticsConfiguration();
       if (properties.label != null) {
-        config.label = properties.label;
+        config.label = properties.label!;
       }
       if (properties.textDirection != null) {
         config.textDirection = properties.textDirection;
@@ -1909,8 +1920,14 @@ abstract class _IMonthView extends RenderBox
     final List<SemanticsNode> finalChildren = <SemanticsNode>[];
     finalChildren.addAll(semanticsNodes);
     finalChildren.addAll(children);
-
+    _cacheNodes = semanticsNodes;
     super.assembleSemanticsNode(node, config, finalChildren);
+  }
+
+  @override
+  void clearSemantics() {
+    super.clearSemantics();
+    _cacheNodes = null;
   }
 
   @override
@@ -1965,8 +1982,8 @@ abstract class _IMonthView extends RenderBox
             _rowCount, _showLeadingAndTailingDates, currentDate, _isHijri)) {
           leftAndTopValue = DateRangePickerHelper.getTopAndLeftValues(
               _isRtl, left, top, cellWidth, cellHeight, width);
-          left = leftAndTopValue['left'];
-          top = leftAndTopValue['top'];
+          left = leftAndTopValue['left']!;
+          top = leftAndTopValue['top']!;
           continue;
         } else if (DateRangePickerHelper.isDateWithInVisibleDates(
             _visibleDates, _blackoutDates, currentDate)) {
@@ -1980,8 +1997,8 @@ abstract class _IMonthView extends RenderBox
           ));
           leftAndTopValue = DateRangePickerHelper.getTopAndLeftValues(
               _isRtl, left, top, cellWidth, cellHeight, width);
-          left = leftAndTopValue['left'];
-          top = leftAndTopValue['top'];
+          left = leftAndTopValue['left']!;
+          top = leftAndTopValue['top']!;
           continue;
         } else if (!DateRangePickerHelper.isEnabledDate(
             _minDate, _maxDate, _enablePastDates, currentDate, _isHijri)) {
@@ -1995,8 +2012,8 @@ abstract class _IMonthView extends RenderBox
           ));
           leftAndTopValue = DateRangePickerHelper.getTopAndLeftValues(
               _isRtl, left, top, cellWidth, cellHeight, width);
-          left = leftAndTopValue['left'];
-          top = leftAndTopValue['top'];
+          left = leftAndTopValue['left']!;
+          top = leftAndTopValue['top']!;
           continue;
         }
         semanticsBuilder.add(CustomPainterSemantics(
@@ -2009,8 +2026,8 @@ abstract class _IMonthView extends RenderBox
         ));
         leftAndTopValue = DateRangePickerHelper.getTopAndLeftValues(
             _isRtl, left, top, cellWidth, cellHeight, width);
-        left = leftAndTopValue['left'];
-        top = leftAndTopValue['top'];
+        left = leftAndTopValue['left']!;
+        top = leftAndTopValue['top']!;
       }
     }
 
@@ -2020,7 +2037,7 @@ abstract class _IMonthView extends RenderBox
   ///  Returns the accessibility text for the month cell.
   String _getSemanticMonthLabel(dynamic date) {
     if (_isHijri) {
-      return DateFormat('EEE').format(date).toString() +
+      return DateFormat('EEE').format(date.toDateTime()).toString() +
           ',' +
           date.day.toString() +
           '/' +
@@ -2038,25 +2055,25 @@ class _MonthViewSingleSelectionRenderObject extends _IMonthView {
       List<dynamic> visibleDates,
       int rowCount,
       dynamic cellStyle,
-      TextStyle selectionTextStyle,
-      TextStyle rangeTextStyle,
-      Color selectionColor,
-      Color startRangeSelectionColor,
-      Color endRangeSelectionColor,
-      Color rangeSelectionColor,
+      TextStyle? selectionTextStyle,
+      TextStyle? rangeTextStyle,
+      Color? selectionColor,
+      Color? startRangeSelectionColor,
+      Color? endRangeSelectionColor,
+      Color? rangeSelectionColor,
       SfDateRangePickerThemeData datePickerTheme,
       bool isRtl,
-      Color todayHighlightColor,
+      Color? todayHighlightColor,
       dynamic minDate,
       dynamic maxDate,
       bool enablePastDates,
       bool showLeadingAndTailingDates,
-      List<dynamic> blackoutDates,
-      List<dynamic> specialDates,
+      List<dynamic>? blackoutDates,
+      List<dynamic>? specialDates,
       List<int> weekendDays,
       DateRangePickerSelectionShape selectionShape,
       double selectionRadius,
-      ValueNotifier<Offset> mouseHoverPosition,
+      ValueNotifier<Offset?> mouseHoverPosition,
       bool enableMultiView,
       double multiViewSpacing,
       ValueNotifier<bool> selectionNotifier,
@@ -2100,7 +2117,7 @@ class _MonthViewSingleSelectionRenderObject extends _IMonthView {
             navigationDirection,
             localizations);
 
-  dynamic _selectedDate;
+  dynamic? _selectedDate;
 
   dynamic get selectedDate => _selectedDate;
 
@@ -2166,8 +2183,7 @@ class _MonthViewSingleSelectionRenderObject extends _IMonthView {
 
   @override
   void drawCustomCellSelection(Canvas canvas, double x, double y, int index) {
-    _selectionPainter ??= Paint();
-    _selectionPainter.color = selectionColor ?? datePickerTheme.selectionColor;
+    _selectionPainter.color = selectionColor ?? datePickerTheme.selectionColor!;
     _selectionPainter.strokeWidth = 0.0;
     _selectionPainter.style = PaintingStyle.fill;
     _selectionPainter.isAntiAlias = true;
@@ -2206,25 +2222,25 @@ class _MonthViewMultiSelectionRenderObject extends _IMonthView {
       List<dynamic> visibleDates,
       int rowCount,
       dynamic cellStyle,
-      TextStyle selectionTextStyle,
-      TextStyle rangeTextStyle,
-      Color selectionColor,
-      Color startRangeSelectionColor,
-      Color endRangeSelectionColor,
-      Color rangeSelectionColor,
+      TextStyle? selectionTextStyle,
+      TextStyle? rangeTextStyle,
+      Color? selectionColor,
+      Color? startRangeSelectionColor,
+      Color? endRangeSelectionColor,
+      Color? rangeSelectionColor,
       SfDateRangePickerThemeData datePickerTheme,
       bool isRtl,
-      Color todayHighlightColor,
+      Color? todayHighlightColor,
       dynamic minDate,
       dynamic maxDate,
       bool enablePastDates,
       bool showLeadingAndTailingDates,
-      List<dynamic> blackoutDates,
-      List<dynamic> specialDates,
+      List<dynamic>? blackoutDates,
+      List<dynamic>? specialDates,
       List<int> weekendDays,
       DateRangePickerSelectionShape selectionShape,
       double selectionRadius,
-      ValueNotifier<Offset> mouseHoverPosition,
+      ValueNotifier<Offset?> mouseHoverPosition,
       bool enableMultiView,
       double multiViewSpacing,
       ValueNotifier<bool> selectionNotifier,
@@ -2268,11 +2284,11 @@ class _MonthViewMultiSelectionRenderObject extends _IMonthView {
             navigationDirection,
             localizations);
 
-  List<dynamic> _selectedDates;
+  List<dynamic>? _selectedDates;
 
-  List<dynamic> get selectedDates => _selectedDates;
+  List<dynamic>? get selectedDates => _selectedDates;
 
-  set selectedDates(List<dynamic> value) {
+  set selectedDates(List<dynamic>? value) {
     if (DateRangePickerHelper.isDateCollectionEquals(_selectedDates, value)) {
       return;
     }
@@ -2310,8 +2326,7 @@ class _MonthViewMultiSelectionRenderObject extends _IMonthView {
 
   @override
   void drawCustomCellSelection(Canvas canvas, double x, double y, int index) {
-    _selectionPainter ??= Paint();
-    _selectionPainter.color = selectionColor ?? datePickerTheme.selectionColor;
+    _selectionPainter.color = selectionColor ?? datePickerTheme.selectionColor!;
     _selectionPainter.strokeWidth = 0.0;
     _selectionPainter.style = PaintingStyle.fill;
     _selectionPainter.isAntiAlias = true;
@@ -2323,8 +2338,8 @@ class _MonthViewMultiSelectionRenderObject extends _IMonthView {
   List<int> getSelectedIndexValues(int viewStartIndex, int viewEndIndex) {
     final List<int> selectedIndex = <int>[];
     if (selectedDates != null) {
-      for (int j = 0; j < selectedDates.length; j++) {
-        final dynamic date = selectedDates[j];
+      for (int j = 0; j < selectedDates!.length; j++) {
+        final dynamic date = selectedDates![j];
         if (!isDateWithInDateRange(
             visibleDates[viewStartIndex], visibleDates[viewEndIndex], date)) {
           continue;
@@ -2379,25 +2394,25 @@ class _MonthViewRangeSelectionRenderObject extends _IMonthView {
       List<dynamic> visibleDates,
       int rowCount,
       dynamic cellStyle,
-      TextStyle selectionTextStyle,
-      TextStyle rangeTextStyle,
-      Color selectionColor,
-      Color startRangeSelectionColor,
-      Color endRangeSelectionColor,
-      Color rangeSelectionColor,
+      TextStyle? selectionTextStyle,
+      TextStyle? rangeTextStyle,
+      Color? selectionColor,
+      Color? startRangeSelectionColor,
+      Color? endRangeSelectionColor,
+      Color? rangeSelectionColor,
       SfDateRangePickerThemeData datePickerTheme,
       bool isRtl,
-      Color todayHighlightColor,
+      Color? todayHighlightColor,
       dynamic minDate,
       dynamic maxDate,
       bool enablePastDates,
       bool showLeadingAndTailingDates,
-      List<dynamic> blackoutDates,
-      List<dynamic> specialDates,
+      List<dynamic>? blackoutDates,
+      List<dynamic>? specialDates,
       List<int> weekendDays,
       DateRangePickerSelectionShape selectionShape,
       double selectionRadius,
-      ValueNotifier<Offset> mouseHoverPosition,
+      ValueNotifier<Offset?> mouseHoverPosition,
       bool enableMultiView,
       double multiViewSpacing,
       ValueNotifier<bool> selectionNotifier,
@@ -2441,11 +2456,11 @@ class _MonthViewRangeSelectionRenderObject extends _IMonthView {
             navigationDirection,
             localizations);
 
-  dynamic _selectedRange;
+  dynamic? _selectedRange;
 
-  dynamic get selectedRange => _selectedRange;
+  dynamic? get selectedRange => _selectedRange;
 
-  set selectedRange(dynamic value) {
+  set selectedRange(dynamic? value) {
     if (DateRangePickerHelper.isRangeEquals(_selectedRange, value)) {
       return;
     }
@@ -2458,7 +2473,7 @@ class _MonthViewRangeSelectionRenderObject extends _IMonthView {
     }
   }
 
-  List<int> _selectedIndex;
+  List<int> _selectedIndex = <int>[];
 
   @override
   TextStyle drawSelection(Canvas canvas, double x, double y, int index,
@@ -2477,7 +2492,7 @@ class _MonthViewRangeSelectionRenderObject extends _IMonthView {
           _cellHeight, x, y, this, _centerYPosition);
     } else if (isStartRange) {
       _selectionPainter.color =
-          rangeSelectionColor ?? datePickerTheme.rangeSelectionColor;
+          rangeSelectionColor ?? datePickerTheme.rangeSelectionColor!;
       _drawStartAndEndRange(
           canvas,
           this,
@@ -2488,12 +2503,12 @@ class _MonthViewRangeSelectionRenderObject extends _IMonthView {
           _centerYPosition,
           x,
           y,
-          startRangeSelectionColor ?? datePickerTheme.startRangeSelectionColor,
+          startRangeSelectionColor ?? datePickerTheme.startRangeSelectionColor!,
           heightDifference,
           isStartRange);
     } else if (isEndRange) {
       _selectionPainter.color =
-          rangeSelectionColor ?? datePickerTheme.rangeSelectionColor;
+          rangeSelectionColor ?? datePickerTheme.rangeSelectionColor!;
       _drawStartAndEndRange(
           canvas,
           this,
@@ -2504,7 +2519,7 @@ class _MonthViewRangeSelectionRenderObject extends _IMonthView {
           _centerYPosition,
           x,
           y,
-          endRangeSelectionColor ?? datePickerTheme.endRangeSelectionColor,
+          endRangeSelectionColor ?? datePickerTheme.endRangeSelectionColor!,
           heightDifference,
           isStartRange);
     } else if (isBetweenRange) {
@@ -2517,7 +2532,6 @@ class _MonthViewRangeSelectionRenderObject extends _IMonthView {
 
   @override
   void drawCustomCellSelection(Canvas canvas, double x, double y, int index) {
-    _selectionPainter ??= Paint();
     _selectionPainter.strokeWidth = 0.0;
     _selectionPainter.style = PaintingStyle.fill;
     _selectionPainter.isAntiAlias = true;
@@ -2528,16 +2542,16 @@ class _MonthViewRangeSelectionRenderObject extends _IMonthView {
     final bool isBetweenRange = selectionDetails[3];
     if (isSelectedDate) {
       _selectionPainter.color =
-          startRangeSelectionColor ?? datePickerTheme.startRangeSelectionColor;
+          startRangeSelectionColor ?? datePickerTheme.startRangeSelectionColor!;
     } else if (isStartRange) {
       _selectionPainter.color =
-          startRangeSelectionColor ?? datePickerTheme.startRangeSelectionColor;
+          startRangeSelectionColor ?? datePickerTheme.startRangeSelectionColor!;
     } else if (isEndRange) {
       _selectionPainter.color =
-          endRangeSelectionColor ?? datePickerTheme.endRangeSelectionColor;
+          endRangeSelectionColor ?? datePickerTheme.endRangeSelectionColor!;
     } else if (isBetweenRange) {
       _selectionPainter.color =
-          rangeSelectionColor ?? datePickerTheme.rangeSelectionColor;
+          rangeSelectionColor ?? datePickerTheme.rangeSelectionColor!;
     }
 
     canvas.drawRect(Rect.fromLTRB(x, y, x + _cellWidth, y + _cellHeight),
@@ -2638,25 +2652,25 @@ class _MonthViewMultiRangeSelectionRenderObject extends _IMonthView {
       List<dynamic> visibleDates,
       int rowCount,
       dynamic cellStyle,
-      TextStyle selectionTextStyle,
-      TextStyle rangeTextStyle,
-      Color selectionColor,
-      Color startRangeSelectionColor,
-      Color endRangeSelectionColor,
-      Color rangeSelectionColor,
+      TextStyle? selectionTextStyle,
+      TextStyle? rangeTextStyle,
+      Color? selectionColor,
+      Color? startRangeSelectionColor,
+      Color? endRangeSelectionColor,
+      Color? rangeSelectionColor,
       SfDateRangePickerThemeData datePickerTheme,
       bool isRtl,
-      Color todayHighlightColor,
+      Color? todayHighlightColor,
       dynamic minDate,
       dynamic maxDate,
       bool enablePastDates,
       bool showLeadingAndTailingDates,
-      List<dynamic> blackoutDates,
-      List<dynamic> specialDates,
+      List<dynamic>? blackoutDates,
+      List<dynamic>? specialDates,
       List<int> weekendDays,
       DateRangePickerSelectionShape selectionShape,
       double selectionRadius,
-      ValueNotifier<Offset> mouseHoverPosition,
+      ValueNotifier<Offset?> mouseHoverPosition,
       bool enableMultiView,
       double multiViewSpacing,
       ValueNotifier<bool> selectionNotifier,
@@ -2700,11 +2714,11 @@ class _MonthViewMultiRangeSelectionRenderObject extends _IMonthView {
             navigationDirection,
             localizations);
 
-  List<dynamic> _selectedRanges;
+  List<dynamic>? _selectedRanges;
 
-  List<dynamic> get selectedRanges => _selectedRanges;
+  List<dynamic>? get selectedRanges => _selectedRanges;
 
-  set selectedRanges(List<dynamic> value) {
+  set selectedRanges(List<dynamic>? value) {
     if (DateRangePickerHelper.isDateRangesEquals(_selectedRanges, value)) {
       return;
     }
@@ -2717,7 +2731,7 @@ class _MonthViewMultiRangeSelectionRenderObject extends _IMonthView {
     }
   }
 
-  List<List<int>> _selectedRangesIndex;
+  List<List<int>> _selectedRangesIndex = <List<int>>[];
 
   @override
   TextStyle drawSelection(Canvas canvas, double x, double y, int index,
@@ -2736,7 +2750,7 @@ class _MonthViewMultiRangeSelectionRenderObject extends _IMonthView {
           _cellHeight, x, y, this, _centerYPosition);
     } else if (isStartRange) {
       _selectionPainter.color =
-          rangeSelectionColor ?? datePickerTheme.rangeSelectionColor;
+          rangeSelectionColor ?? datePickerTheme.rangeSelectionColor!;
       _drawStartAndEndRange(
           canvas,
           this,
@@ -2747,12 +2761,12 @@ class _MonthViewMultiRangeSelectionRenderObject extends _IMonthView {
           _centerYPosition,
           x,
           y,
-          startRangeSelectionColor ?? datePickerTheme.startRangeSelectionColor,
+          startRangeSelectionColor ?? datePickerTheme.startRangeSelectionColor!,
           heightDifference,
           isStartRange);
     } else if (isEndRange) {
       _selectionPainter.color =
-          rangeSelectionColor ?? datePickerTheme.rangeSelectionColor;
+          rangeSelectionColor ?? datePickerTheme.rangeSelectionColor!;
       _drawStartAndEndRange(
           canvas,
           this,
@@ -2763,7 +2777,7 @@ class _MonthViewMultiRangeSelectionRenderObject extends _IMonthView {
           _centerYPosition,
           x,
           y,
-          endRangeSelectionColor ?? datePickerTheme.endRangeSelectionColor,
+          endRangeSelectionColor ?? datePickerTheme.endRangeSelectionColor!,
           heightDifference,
           isStartRange);
     } else if (isBetweenRange) {
@@ -2776,7 +2790,6 @@ class _MonthViewMultiRangeSelectionRenderObject extends _IMonthView {
 
   @override
   void drawCustomCellSelection(Canvas canvas, double x, double y, int index) {
-    _selectionPainter ??= Paint();
     _selectionPainter.strokeWidth = 0.0;
     _selectionPainter.style = PaintingStyle.fill;
     _selectionPainter.isAntiAlias = true;
@@ -2787,16 +2800,16 @@ class _MonthViewMultiRangeSelectionRenderObject extends _IMonthView {
     final bool isBetweenRange = selectionDetails[3];
     if (isSelectedDate) {
       _selectionPainter.color =
-          startRangeSelectionColor ?? datePickerTheme.startRangeSelectionColor;
+          startRangeSelectionColor ?? datePickerTheme.startRangeSelectionColor!;
     } else if (isStartRange) {
       _selectionPainter.color =
-          startRangeSelectionColor ?? datePickerTheme.startRangeSelectionColor;
+          startRangeSelectionColor ?? datePickerTheme.startRangeSelectionColor!;
     } else if (isEndRange) {
       _selectionPainter.color =
-          endRangeSelectionColor ?? datePickerTheme.endRangeSelectionColor;
+          endRangeSelectionColor ?? datePickerTheme.endRangeSelectionColor!;
     } else if (isBetweenRange) {
       _selectionPainter.color =
-          rangeSelectionColor ?? datePickerTheme.rangeSelectionColor;
+          rangeSelectionColor ?? datePickerTheme.rangeSelectionColor!;
     }
 
     canvas.drawRect(Rect.fromLTRB(x, y, x + _cellWidth, y + _cellHeight),
@@ -2857,8 +2870,8 @@ class _MonthViewMultiRangeSelectionRenderObject extends _IMonthView {
     final List<int> selectedIndex = <int>[];
     _selectedRangesIndex = <List<int>>[];
     if (selectedRanges != null) {
-      for (int j = 0; j < selectedRanges.length; j++) {
-        final dynamic range = selectedRanges[j];
+      for (int j = 0; j < selectedRanges!.length; j++) {
+        final dynamic range = selectedRanges![j];
         final dynamic startDate = range.startDate;
         final dynamic endDate = range.endDate ?? range.startDate;
         final List<int> rangeIndex = _getSelectedRangeIndex(
@@ -2923,7 +2936,7 @@ void _drawSelectedDate(
     double centerYPosition) {
   view._selectionPainter.isAntiAlias = true;
   view._selectionPainter.color = view.startRangeSelectionColor ??
-      view.datePickerTheme.startRangeSelectionColor;
+      view.datePickerTheme.startRangeSelectionColor!;
   switch (view.selectionShape) {
     case DateRangePickerSelectionShape.circle:
       {
@@ -3002,7 +3015,7 @@ TextStyle _drawBetweenSelection(
   }
 
   view._selectionPainter.color =
-      view.rangeSelectionColor ?? view.datePickerTheme.rangeSelectionColor;
+      view.rangeSelectionColor ?? view.datePickerTheme.rangeSelectionColor!;
   _drawRectRangeSelection(canvas, x, y + heightDifference, x + cellWidth,
       y + cellHeight - heightDifference, view._selectionPainter);
   return selectionRangeTextStyle;
@@ -3014,7 +3027,7 @@ double _getCellRadius(
       ? maxYRadius - _IMonthView._selectionPadding
       : maxXRadius - _IMonthView._selectionPadding;
 
-  if (selectionRadius == null) {
+  if (selectionRadius == -1) {
     return radius;
   }
 
@@ -3169,18 +3182,16 @@ void _drawMonthCellsAndSelection(PaintingContext context, Size size,
     height = (height - webUIPadding) / viewCount;
   }
 
-  monthView._textPainter ??= TextPainter(
-      textDirection: TextDirection.ltr,
-      textScaleFactor: monthView.textScaleFactor,
-      textWidthBasis: TextWidthBasis.longestLine);
-  TextStyle textStyle = monthView.cellStyle.textStyle;
+  monthView._textPainter.textScaleFactor = monthView.textScaleFactor;
+  TextStyle textStyle = monthView.cellStyle.textStyle ??
+      monthView.datePickerTheme.activeDatesTextStyle;
   final int datesCount = monthView.visibleDates.length ~/ viewCount;
   final bool isNeedWidgetPaint = monthView.childCount != 0;
   final bool hideLeadingAndTrailingDates =
       (monthView.rowCount == 6 && !monthView.showLeadingAndTailingDates) ||
           monthView.isHijri;
   if (isNeedWidgetPaint) {
-    RenderBox child = monthView.firstChild;
+    RenderBox? child = monthView.firstChild;
     for (int j = 0; j < viewCount; j++) {
       final int currentViewIndex =
           monthView.isRtl ? DateRangePickerHelper.getRtlIndex(viewCount, j) : j;
@@ -3249,25 +3260,24 @@ void _drawMonthCellsAndSelection(PaintingContext context, Size size,
               canvas, xPosition, yPosition, currentIndex);
         }
 
-        child.paint(context, Offset(xPosition, yPosition));
+        child!.paint(context, Offset(xPosition, yPosition));
         child = monthView.childAfter(child);
-        if (monthView.mouseHoverPosition != null &&
-            monthView.mouseHoverPosition.value != null) {
+        if (monthView.mouseHoverPosition.value != null) {
           if (isSelectedDate || isBlackedDate || !isEnableDate) {
             xPosition += cellWidth;
             continue;
           }
 
-          if (xPosition <= monthView.mouseHoverPosition.value.dx &&
-              xPosition + cellWidth >= monthView.mouseHoverPosition.value.dx &&
-              yPosition <= monthView.mouseHoverPosition.value.dy &&
-              yPosition + cellHeight >= monthView.mouseHoverPosition.value.dy) {
-            monthView._selectionPainter ??= Paint();
+          if (xPosition <= monthView.mouseHoverPosition.value!.dx &&
+              xPosition + cellWidth >= monthView.mouseHoverPosition.value!.dx &&
+              yPosition <= monthView.mouseHoverPosition.value!.dy &&
+              yPosition + cellHeight >=
+                  monthView.mouseHoverPosition.value!.dy) {
             monthView._selectionPainter.style = PaintingStyle.fill;
             monthView._selectionPainter.strokeWidth = 2;
             monthView._selectionPainter.color = monthView.selectionColor != null
-                ? monthView.selectionColor.withOpacity(0.4)
-                : monthView.datePickerTheme.selectionColor.withOpacity(0.4);
+                ? monthView.selectionColor!.withOpacity(0.4)
+                : monthView.datePickerTheme.selectionColor!.withOpacity(0.4);
             canvas.drawRRect(
                 RRect.fromRectAndRadius(
                     Rect.fromLTWH(xPosition, yPosition, cellWidth, cellHeight),
@@ -3297,7 +3307,7 @@ void _drawMonthCellsAndSelection(PaintingContext context, Size size,
     final TextStyle selectedRangeTextStyle = monthView.rangeTextStyle ??
         monthView.datePickerTheme.rangeSelectionTextStyle;
 
-    Decoration dateDecoration;
+    Decoration? dateDecoration;
     const double padding = 1;
 
     final int viewStartIndex = j * datesCount;
@@ -3416,8 +3426,7 @@ void _drawMonthCellsAndSelection(PaintingContext context, Size size,
           canvas,
           Offset(xPosition + (cellWidth / 2 - monthView._textPainter.width / 2),
               yPosition + ((cellHeight - monthView._textPainter.height) / 2)));
-      if (monthView.mouseHoverPosition != null &&
-          monthView.mouseHoverPosition.value != null) {
+      if (monthView.mouseHoverPosition.value != null) {
         if (isSelectedDate || isBlackedDate || !isEnableDate) {
           xPosition += cellWidth;
           continue;
@@ -3434,16 +3443,15 @@ void _drawMonthCellsAndSelection(PaintingContext context, Size size,
 
 void _addHoveringEffect(Canvas canvas, _IMonthView monthView, double xPosition,
     double yPosition, double cellWidth, double cellHeight) {
-  if (xPosition <= monthView.mouseHoverPosition.value.dx &&
-      xPosition + cellWidth >= monthView.mouseHoverPosition.value.dx &&
-      yPosition <= monthView.mouseHoverPosition.value.dy &&
-      yPosition + cellHeight >= monthView.mouseHoverPosition.value.dy) {
-    monthView._selectionPainter = monthView._selectionPainter ?? Paint();
+  if (xPosition <= monthView.mouseHoverPosition.value!.dx &&
+      xPosition + cellWidth >= monthView.mouseHoverPosition.value!.dx &&
+      yPosition <= monthView.mouseHoverPosition.value!.dy &&
+      yPosition + cellHeight >= monthView.mouseHoverPosition.value!.dy) {
     monthView._selectionPainter.style = PaintingStyle.fill;
     monthView._selectionPainter.strokeWidth = 2;
     monthView._selectionPainter.color = monthView.selectionColor != null
-        ? monthView.selectionColor.withOpacity(0.4)
-        : monthView.datePickerTheme.selectionColor.withOpacity(0.4);
+        ? monthView.selectionColor!.withOpacity(0.4)
+        : monthView.datePickerTheme.selectionColor!.withOpacity(0.4);
     switch (monthView.selectionShape) {
       case DateRangePickerSelectionShape.circle:
         {
@@ -3478,9 +3486,8 @@ TextStyle _drawCellAndSelection(
     TextStyle selectedRangeTextStyle,
     _IMonthView monthView,
     int currentIndex) {
-  monthView._selectionPainter = monthView._selectionPainter ?? Paint();
   monthView._selectionPainter.color =
-      monthView.selectionColor ?? monthView.datePickerTheme.selectionColor;
+      monthView.selectionColor ?? monthView.datePickerTheme.selectionColor!;
   //// Unwanted space shown at end of the rectangle while enable anti aliasing property.
   monthView._selectionPainter.isAntiAlias = false;
   monthView._selectionPainter.strokeWidth = 0.0;
@@ -3509,9 +3516,8 @@ void _drawDecoration(
 
 void _drawCurrentDate(Canvas canvas, _IMonthView monthView, double xPosition,
     double yPosition, double padding, double cellWidth, double cellHeight) {
-  monthView._selectionPainter = monthView._selectionPainter ?? Paint();
   monthView._selectionPainter.color = monthView.todayHighlightColor ??
-      monthView.datePickerTheme.todayHighlightColor;
+      monthView.datePickerTheme.todayHighlightColor!;
   monthView._selectionPainter.isAntiAlias = true;
   monthView._selectionPainter.strokeWidth = 1.0;
   monthView._selectionPainter.style = PaintingStyle.stroke;
@@ -3580,9 +3586,8 @@ TextStyle _updateTextStyle(
   if (isWeekEnd && monthView.cellStyle.weekendTextStyle != null) {
     return monthView.cellStyle.weekendTextStyle;
   } else if (isWeekEnd &&
-      monthView.datePickerTheme != null &&
       monthView.datePickerTheme.weekendDatesTextStyle != null) {
-    return monthView.datePickerTheme.weekendDatesTextStyle;
+    return monthView.datePickerTheme.weekendDatesTextStyle!;
   }
 
   if (isNextMonth && !monthView.isHijri) {
@@ -3596,7 +3601,7 @@ TextStyle _updateTextStyle(
   return currentDatesTextStyle;
 }
 
-Decoration _updateDecoration(
+Decoration? _updateDecoration(
     bool isNextMonth,
     bool isPreviousMonth,
     _IMonthView monthView,
@@ -3606,7 +3611,7 @@ Decoration _updateDecoration(
     dynamic date,
     bool isWeekEnd,
     bool isSpecialDate) {
-  final Decoration dateDecoration = monthView.cellStyle.cellDecoration;
+  final Decoration? dateDecoration = monthView.cellStyle.cellDecoration;
 
   if (isBlackedDate) {
     return monthView.cellStyle.blackoutDatesDecoration;

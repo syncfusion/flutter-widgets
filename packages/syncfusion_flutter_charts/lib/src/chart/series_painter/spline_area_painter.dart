@@ -2,12 +2,12 @@ part of charts;
 
 class _SplineAreaChartPainter extends CustomPainter {
   _SplineAreaChartPainter(
-      {this.chartState,
-      this.seriesRenderer,
-      this.isRepaint,
-      this.animationController,
-      ValueNotifier<num> notifier,
-      this.painterKey})
+      {required this.chartState,
+      required this.seriesRenderer,
+      required this.isRepaint,
+      required this.animationController,
+      required ValueNotifier<num> notifier,
+      required this.painterKey})
       : chart = chartState._chart,
         super(repaint: notifier);
   final SfCartesianChartState chartState;
@@ -21,21 +21,22 @@ class _SplineAreaChartPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     double animationFactor;
-    CartesianChartPoint<dynamic> prevPoint, point, oldChartPoint;
-    CartesianSeriesRenderer oldSeriesRenderer;
-    _ChartLocation currentPoint, originPoint, oldPointLocation;
-    final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer;
-    final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer;
+    CartesianChartPoint<dynamic>? prevPoint, point, oldChartPoint;
+    CartesianSeriesRenderer? oldSeriesRenderer;
+    _ChartLocation? currentPoint, originPoint, oldPointLocation;
+    final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
+    final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer!;
     Rect clipRect;
-    final SplineAreaSeries<dynamic, dynamic> series = seriesRenderer._series;
-    seriesRenderer?._drawControlPoints?.clear();
+    final SplineAreaSeries<dynamic, dynamic> series =
+        seriesRenderer._series as SplineAreaSeries;
+    seriesRenderer._drawControlPoints.clear();
     final Path _path = Path();
     final Path _strokePath = Path();
     final List<Offset> _points = <Offset>[];
-    final num crossesAt = _getCrossesAtValue(seriesRenderer, chartState);
+    final num? crossesAt = _getCrossesAtValue(seriesRenderer, chartState);
     final num origin = crossesAt ?? 0;
-    num startControlX, startControlY, endControlX, endControlY;
-    if (seriesRenderer._visible) {
+    double? startControlX, startControlY, endControlX, endControlY;
+    if (seriesRenderer._visible!) {
       assert(
           series.animationDuration != null
               ? series.animationDuration >= 0
@@ -48,14 +49,15 @@ class _SplineAreaChartPainter extends CustomPainter {
       canvas.save();
       final int seriesIndex = painterKey.index;
       seriesRenderer._storeSeriesProperties(chartState, seriesIndex);
-      final bool isTransposed = seriesRenderer._chartState._requireInvertedAxis;
+      final bool isTransposed =
+          seriesRenderer._chartState!._requireInvertedAxis;
       final Rect axisClipRect = _calculatePlotOffset(
           chartState._chartAxis._axisClipRect,
           Offset(
               xAxisRenderer._axis.plotOffset, yAxisRenderer._axis.plotOffset));
       canvas.clipRect(axisClipRect);
       animationFactor = seriesRenderer._seriesAnimation != null
-          ? seriesRenderer._seriesAnimation.value
+          ? seriesRenderer._seriesAnimation!.value
           : 1;
 
       oldSeriesRenderer = _getOldSeriesRenderer(
@@ -73,7 +75,7 @@ class _SplineAreaChartPainter extends CustomPainter {
       }
 
       if (seriesRenderer._visibleDataPoints == null ||
-          seriesRenderer._visibleDataPoints.isNotEmpty) {
+          seriesRenderer._visibleDataPoints!.isNotEmpty) {
         seriesRenderer._visibleDataPoints = <CartesianChartPoint<dynamic>>[];
       }
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
@@ -94,8 +96,8 @@ class _SplineAreaChartPainter extends CustomPainter {
               ? _calculatePoint(
                   oldChartPoint.xValue,
                   oldChartPoint.yValue,
-                  oldSeriesRenderer._xAxisRenderer,
-                  oldSeriesRenderer._yAxisRenderer,
+                  oldSeriesRenderer!._xAxisRenderer!,
+                  oldSeriesRenderer._yAxisRenderer!,
                   isTransposed,
                   oldSeriesRenderer._series,
                   axisClipRect)
@@ -104,14 +106,14 @@ class _SplineAreaChartPainter extends CustomPainter {
               xAxisRenderer, yAxisRenderer, isTransposed, series, axisClipRect);
           originPoint = _calculatePoint(
               point.xValue,
-              math_lib.max(yAxisRenderer._visibleRange.minimum, origin),
+              math_lib.max(yAxisRenderer._visibleRange!.minimum, origin),
               xAxisRenderer,
               yAxisRenderer,
               isTransposed,
               series,
               axisClipRect);
-          num x = currentPoint.x;
-          num y = currentPoint.y;
+          double x = currentPoint.x;
+          double y = currentPoint.y;
           startControlX = startControlY = endControlX = endControlY = null;
           _points.add(Offset(currentPoint.x, currentPoint.y));
           final bool closed =
@@ -132,38 +134,38 @@ class _SplineAreaChartPainter extends CustomPainter {
               startControlY = _getAnimateValue(
                   animationFactor,
                   startControlY,
-                  oldChartPoint.startControl.y,
-                  point.startControl.y,
+                  oldChartPoint!.startControl!.y,
+                  point.startControl!.y,
                   seriesRenderer);
               startControlX = _getAnimateValue(
                   animationFactor,
                   startControlX,
-                  oldChartPoint.startControl.x,
-                  point.startControl.x,
+                  oldChartPoint.startControl!.x,
+                  point.startControl!.x,
                   seriesRenderer);
             }
             if (point.endControl != null) {
               endControlX = _getAnimateValue(
                   animationFactor,
                   endControlX,
-                  oldChartPoint.endControl.x,
-                  point.endControl.x,
+                  oldChartPoint!.endControl!.x,
+                  point.endControl!.x,
                   seriesRenderer);
               endControlY = _getAnimateValue(
                   animationFactor,
                   endControlY,
-                  oldChartPoint.endControl.y,
-                  point.endControl.y,
+                  oldChartPoint.endControl!.y,
+                  point.endControl!.y,
                   seriesRenderer);
             }
           } else {
             if (point.startControl != null) {
-              startControlX = point.startControl.x;
-              startControlY = point.startControl.y;
+              startControlX = point.startControl!.x;
+              startControlY = point.startControl!.y;
             }
             if (point.endControl != null) {
-              endControlX = point.endControl.x;
-              endControlY = point.endControl.y;
+              endControlX = point.endControl!.x;
+              endControlY = point.endControl!.y;
             }
           }
 
@@ -185,8 +187,8 @@ class _SplineAreaChartPainter extends CustomPainter {
             _path.lineTo(x, y);
           } else if (pointIndex == dataPoints.length - 1 ||
               dataPoints[pointIndex + 1].isGap == true) {
-            _strokePath.cubicTo(
-                startControlX, startControlY, endControlX, endControlY, x, y);
+            _strokePath.cubicTo(startControlX!, startControlY!, endControlX!,
+                endControlY!, x, y);
             if (series.borderDrawMode == BorderDrawMode.excludeBottom) {
               _strokePath.lineTo(originPoint.x, originPoint.y);
             } else if (series.borderDrawMode == BorderDrawMode.all) {
@@ -197,8 +199,8 @@ class _SplineAreaChartPainter extends CustomPainter {
                 startControlX, startControlY, endControlX, endControlY, x, y);
             _path.lineTo(originPoint.x, originPoint.y);
           } else {
-            _strokePath.cubicTo(
-                startControlX, startControlY, endControlX, endControlY, x, y);
+            _strokePath.cubicTo(startControlX!, startControlY!, endControlX!,
+                endControlY!, x, y);
             _path.cubicTo(
                 startControlX, startControlY, endControlX, endControlY, x, y);
 
@@ -239,7 +241,7 @@ class _SplineAreaChartPainter extends CustomPainter {
               xAxisRenderer._axis.plotOffset, yAxisRenderer._axis.plotOffset));
       canvas.restore();
       if ((series.animationDuration <= 0 ||
-              !chartState._initialRender ||
+              !chartState._initialRender! ||
               animationFactor >= chartState._seriesDurationFactor) &&
           (series.markerSettings.isVisible ||
               series.dataLabelSettings.isVisible)) {

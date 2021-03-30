@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "કોઈ પસંદ કરેલી તારીખ", 
 "noEventsCalendarLabel" : "કોઈ ઘટનાઓ નથી", 
-"scheduleViewNewEventLabel" : "કશું આયોજન કરેલ નથી. બનાવવા માટે ટેપ કરો.", 
 "ofDataPagerLabel" : "ની", 
 "pagesDataPagerLabel" : "પૃષ્ઠો", 
 "itemsDataPagerLabel" : "વસ્તુઓ", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "રામ.", 
 "shortShawwalLabel" : "શો.", 
 "shortDhualqiLabel" : "ધૂલ-ક્યૂ", 
-"shortDhualhiLabel" : "ધૂલ-એચ"
+"shortDhualhiLabel" : "ધૂલ-એચ", 
+"daySpanCountLabel" : "દિવસ"
 }

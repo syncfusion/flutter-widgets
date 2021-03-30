@@ -8,7 +8,7 @@ import '../renderers/one_dimensional/symbology_base_renderer.dart';
 class SfBarcodeGeneratorRenderObjectWidget extends LeafRenderObjectWidget {
   /// Creates the render object widget
   const SfBarcodeGeneratorRenderObjectWidget(
-      {Key key,
+      {Key? key,
       this.value,
       this.symbology,
       this.foregroundColor,
@@ -21,59 +21,59 @@ class SfBarcodeGeneratorRenderObjectWidget extends LeafRenderObjectWidget {
       : super(key: key);
 
   ///Defines the value of the barcode to be rendered.
-  final String value;
+  final String? value;
 
   ///Define anyone of barcode symbology that will be used to
   ///convert input value into visual barcode representation
-  final Symbology symbology;
+  final Symbology? symbology;
 
   /// Define the color for barcode elements.
-  final Color foregroundColor;
+  final Color? foregroundColor;
 
   /// Specifies whether to show the value along with the barcode.
-  final bool showText;
+  final bool? showText;
 
   /// Specifies the spacing between the text and the barcode.
-  final double textSpacing;
+  final double? textSpacing;
 
   ///Defines the text alignment for the text to be rendered in the barcode.
-  final TextStyle textStyle;
+  final TextStyle? textStyle;
 
   /// Add style to customize the text.
-  final Size textSize;
+  final Size? textSize;
 
   /// Specifies the spacing between the text and the barcode.
-  final TextAlign textAlign;
+  final TextAlign? textAlign;
 
   /// Specifies the corresponding renderer class
-  final SymbologyRenderer symbologyRenderer;
+  final SymbologyRenderer? symbologyRenderer;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderBarcode(
-        value: value,
-        symbology: symbology,
-        foregroundColor: foregroundColor,
-        showText: showText,
-        textSpacing: textSpacing,
-        symbologyRenderer: symbologyRenderer,
-        textStyle: textStyle,
+        value: value!,
+        symbology: symbology!,
+        foregroundColor: foregroundColor!,
+        showText: showText!,
+        textSpacing: textSpacing!,
+        symbologyRenderer: symbologyRenderer!,
+        textStyle: textStyle!,
         textSize: textSize,
-        textAlign: textAlign);
+        textAlign: textAlign!);
   }
 
   @override
   void updateRenderObject(BuildContext context, _RenderBarcode renderObject) {
     renderObject
-      ..value = value
-      ..symbology = symbology
-      ..symbologyRenderer = symbologyRenderer
-      ..foregroundColor = foregroundColor
-      ..showText = showText
-      ..textSpacing = textSpacing
-      ..textStyle = textStyle
+      ..value = value!
+      ..symbology = symbology!
+      ..symbologyRenderer = symbologyRenderer!
+      ..foregroundColor = foregroundColor!
+      ..showText = showText!
+      ..textSpacing = textSpacing!
+      ..textStyle = textStyle!
       ..textSize = textSize
-      ..textAlign = textAlign;
+      ..textAlign = textAlign!;
   }
 }
 
@@ -81,15 +81,15 @@ class SfBarcodeGeneratorRenderObjectWidget extends LeafRenderObjectWidget {
 class _RenderBarcode extends RenderBox {
   /// Creates the RenderBarcode
   _RenderBarcode(
-      {@required String value,
-      Symbology symbology,
-      SymbologyRenderer symbologyRenderer,
-      Color foregroundColor,
-      bool showText,
-      double textSpacing,
-      TextStyle textStyle,
-      Size textSize,
-      TextAlign textAlign})
+      {required String value,
+      required Symbology symbology,
+      required SymbologyRenderer symbologyRenderer,
+      required Color foregroundColor,
+      required bool showText,
+      required double textSpacing,
+      required TextStyle textStyle,
+      Size? textSize,
+      required TextAlign textAlign})
       : _value = value,
         _symbology = symbology,
         _symbologyRenderer = symbologyRenderer,
@@ -120,7 +120,7 @@ class _RenderBarcode extends RenderBox {
   TextStyle _textStyle;
 
   /// Add style to customize the text.
-  Size _textSize;
+  Size? _textSize;
 
   /// Specifies the spacing between the text and the barcode.
   TextAlign _textAlign;
@@ -147,7 +147,7 @@ class _RenderBarcode extends RenderBox {
   TextStyle get textStyle => _textStyle;
 
   /// Returns the text size value
-  Size get textSize => _textSize;
+  Size get textSize => _textSize!;
 
   /// Returns the text align value
   TextAlign get textAlign => _textAlign;
@@ -204,7 +204,7 @@ class _RenderBarcode extends RenderBox {
   }
 
   /// Sets the text size value
-  set textSize(Size value) {
+  set textSize(Size? value) {
     if (_textSize != value) {
       _textSize = value;
       markNeedsPaint();
@@ -252,7 +252,7 @@ class _RenderBarcode extends RenderBox {
             size.height -
                 (showText
                     ? (_textSpacing +
-                        (_textSize != null ? _textSize.height : 0))
+                        (_textSize != null ? _textSize!.height : 0))
                     : 0)),
         offset,
         value,

@@ -10,13 +10,13 @@ class StylesCollection {
   }
 
   /// Parent workbook
-  Workbook _book;
+  late Workbook _book;
 
   /// Collection of worksheet
-  List<Style> _styles;
+  late List<Style> _styles;
 
   /// Collection of all the styles in the workbook.
-  Map<String, Style> _dictStyles;
+  late Map<String, Style> _dictStyles;
 
   /// Represents parent workbook
   Workbook get workbook {
@@ -92,7 +92,7 @@ class StylesCollection {
   ];
 
   /// Indexer of the class
-  Style operator [](index) {
+  Style? operator [](index) {
     if (index is String) {
       if (!_dictStyles.containsKey(index)) {
         throw Exception('Style with specified name does not exist. Name: ' +
@@ -106,9 +106,35 @@ class StylesCollection {
   }
 
   /// Add styles to the collection
-  CellStyle add(String styleName) {
-    if (styleName == null || styleName == '') {
-      throw Exception('name should not be null');
+  /// ```dart
+  /// final Workbook workbook = Workbook();
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// // Creating Global cell style.
+  /// final Style style = workbook.styles.add('style');
+  /// style.backColor = '#37D8E9';
+  /// style.fontName = 'Times  Roman';
+  /// style.fontSize = 20;
+  /// style.fontColor = '#C67878';
+  /// style.italic = true;
+  /// style.bold = true;
+  /// style.underline = true;
+  /// style.wrapText = true;
+  /// style.hAlign = HAlignType.left;
+  /// style.vAlign = VAlignType.bottom;
+  /// style.rotation = 90;
+  /// style.borders.all.lineStyle = LineStyle.thick;
+  /// style.borders.all.color = '#9954CC';
+  /// style.numberFormat = '_(\$* #,##0_)';
+  /// final Range range1 = sheet.getRangeByIndex(3, 4);
+  /// range1.number = 10;
+  /// range1.cellStyle = style;
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// File('CellStyle.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
+  Style add(String styleName) {
+    if (styleName == '') {
+      throw Exception('name should not be empty');
     }
 
     if (_dictStyles.containsKey(styleName) &&
@@ -121,8 +147,7 @@ class StylesCollection {
     int index = 0;
     if (workbook.styles._defaultStyleNames.contains(style.name)) {
       _initializeStyleCollections(style.name, style);
-      (style as CellStyle)._builtinId =
-          workbook.styles._defaultStyleNames.indexOf(style.name);
+      style._builtinId = workbook.styles._defaultStyleNames.indexOf(style.name);
     }
     index = workbook.styles._styles.length;
     style.index = index;
@@ -132,8 +157,37 @@ class StylesCollection {
   }
 
   /// Add styles to the collection
+  /// ```dart
+  /// final Workbook workbook = Workbook();
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// // Creating new style.
+  /// final CellStyle cellStyle1 = CellStyle(workbook);
+  /// cellStyle1.name = 'Style1';
+  /// cellStyle1.backColor = '#FF5050';
+  /// cellStyle1.fontName = 'Aldhabi';
+  /// cellStyle1.fontColor = '#138939';
+  /// cellStyle1.fontSize = 16;
+  /// cellStyle1.bold = true;
+  /// cellStyle1.italic = true;
+  /// cellStyle1.underline = true;
+  /// cellStyle1.rotation = 120;
+  /// cellStyle1.hAlign = HAlignType.center;
+  /// cellStyle1.vAlign = VAlignType.bottom;
+  /// cellStyle1.indent = 1;
+  /// cellStyle1.borders.all.lineStyle = LineStyle.double;
+  /// cellStyle1.borders.all.color = '#FFFF66';
+  /// cellStyle1.numberFormat = '#,##0.00';
+  /// cellStyle1.wrapText = true;
+  ///  // Add style to collections.
+  /// workbook.styles.addStyle(cellStyle1);
+  /// final Range range1 = sheet.getRangeByIndex(1, 1);
+  /// range1.text = 'Hello';
+  /// range1.cellStyle = cellStyle1;
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// File('CellStyle.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
   void addStyle(CellStyle style) {
-    if (style == null) throw Exception('style should not be null');
     int index = 0;
     index = workbook.styles._styles.length;
     style.index = index;
@@ -142,7 +196,7 @@ class StylesCollection {
   }
 
   /// Method returns True if collection contains style with specified by user name.
-  bool contains(String styleName) {
+  bool contains(String? styleName) {
     if (styleName == null) {
       throw Exception('name');
     }
@@ -416,14 +470,10 @@ class StylesCollection {
 
   /// clear the cell style.
   void _clear() {
-    if (_styles != null) {
-      for (final CellStyle style in _styles) {
-        style._clear();
-      }
-      _styles.clear();
+    for (final Style style in _styles) {
+      (style as CellStyle)._clear();
     }
-    if (_dictStyles != null) {
-      _dictStyles.clear();
-    }
+    _styles.clear();
+    _dictStyles.clear();
   }
 }

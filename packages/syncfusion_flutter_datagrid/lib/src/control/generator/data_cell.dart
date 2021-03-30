@@ -6,10 +6,14 @@ class DataCell extends DataCellBase {
   DataCell();
 
   @override
-  Widget _onInitializeColumnElement(bool isInEdit) {
+  Widget? _onInitializeColumnElement(bool isInEdit) {
     if (_cellType != CellType.indentCell) {
-      _renderer.setCellStyle(this);
-      return _renderer.onPrepareWidgets(this);
+      if (_renderer != null) {
+        _renderer!.setCellStyle(this);
+        return _renderer!.onPrepareWidgets(this);
+      } else {
+        return null;
+      }
     } else {
       return null;
     }
@@ -20,7 +24,7 @@ class DataCell extends DataCellBase {
     if (_renderer == null) {
       return;
     }
-    _renderer
+    _renderer!
       ..setCellStyle(this)
       ..onPrepareWidgets(this);
   }

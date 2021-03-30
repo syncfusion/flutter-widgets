@@ -1,5 +1,3 @@
-part of calendar;
-
 /// A direction in which the [SfCalendar] month view navigates.
 enum MonthNavigationDirection {
   /// - MonthNavigationDirection.vertical, Navigates in top and bottom direction
@@ -207,4 +205,19 @@ enum CalendarDataSourceAction {
   ///
   /// _Note:_ This is applicable only when the resource collection reset.
   resetResource
+}
+
+/// Available view navigation modes for [SfCalendar].
+enum ViewNavigationMode {
+  /// - ViewNavigationMode.snap, Allows to switching to previous/next views
+  /// through swipe interaction in SfCalendar.
+  snap,
+
+  /// - ViewNavigationMode.none, Restrict the next or previous view dates
+  /// to be shown by swipe interaction in SfCalendar.
+  ///
+  /// It will not impact scrolling timeslot views,
+  /// [controller.forward], [controller.backward]
+  /// and [showNavigationArrow].
+  none
 }

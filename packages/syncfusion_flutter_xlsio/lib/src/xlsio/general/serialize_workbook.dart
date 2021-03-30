@@ -8,10 +8,49 @@ class SerializeWorkbook {
   }
 
   /// Workbook to serialize.
-  Workbook _workbook;
+  late Workbook _workbook;
 
   /// Relation id
   final List<String> _relationId = [];
+
+  int _iDxfIndex = 0;
+
+  /// Possible value types for ConditionValue.
+  final List<String> _valueTypes = [
+    'none',
+    'num',
+    'min',
+    'max',
+    'percent',
+    'percentile',
+    'formula',
+    'autoMin',
+    'autoMax'
+  ];
+
+  /// Names used in xml as IconSet type (order is important).
+  final List<String> _iconSetTypeNames = [
+    '3Arrows',
+    '3ArrowsGray',
+    '3Flags',
+    '3TrafficLights1',
+    '3TrafficLights2',
+    '3Signs',
+    '3Symbols',
+    '3Symbols2',
+    '4Arrows',
+    '4ArrowsGray',
+    '4RedToBlack',
+    '4Rating',
+    '4TrafficLights',
+    '5Arrows',
+    '5ArrowsGray',
+    '5Rating',
+    '5Quarters',
+    '3Stars',
+    '3Triangles',
+    '5Boxes'
+  ];
 
   /// Serialize workbook
   void _saveInternal() {
@@ -84,11 +123,20 @@ class SerializeWorkbook {
   /// serialize Attributes
   void _serializeAttributes(
       final builder, String attributeName, bool value, bool defaultValue) {
-    String strValue;
+    String? strValue;
     if (value != defaultValue) {
       strValue = value ? '1' : '0';
     }
     if (strValue != null) builder.attribute(attributeName, strValue);
+  }
+
+  /// Serializes attribute if it differs from default value.
+  void _serializeAttributeInt(
+      final builder, String attributeName, int value, int defaultValue) {
+    if (value != defaultValue) {
+      final String strValue = value.toString();
+      builder.attribute(attributeName, strValue);
+    }
   }
 
   /// Serialize worksheets.
@@ -104,14 +152,14 @@ class SerializeWorkbook {
   /// Update the Hyperlink cells
   void _updateHyperlinkCells(Worksheet worksheet) {
     for (final Hyperlink hyperlink in worksheet.hyperlinks.innerList) {
-      final Row row = worksheet.rows._getRow(hyperlink._row);
+      final Row? row = worksheet.rows._getRow(hyperlink._row);
       if (row != null) {
-        final Range cell = row.ranges._getCell(hyperlink._column);
+        final Range? cell = row.ranges._getCell(hyperlink._column);
         if (cell != null) {
           if (hyperlink.textToDisplay != null &&
               cell.number == null &&
               cell.text == null) {
-            cell.value = hyperlink.textToDisplay;
+            cell.value = hyperlink.textToDisplay!;
           } else if (cell.text != null) {
             cell.value = cell.text;
           } else if (cell.number != null) {
@@ -149,13 +197,17 @@ class SerializeWorkbook {
         builder.element('sheetPr', nest: () {});
       }
       _saveSheetView(sheet, builder);
-      if (sheet.columns != null && sheet.columns.count != 0) {
+      builder.element('sheetFormatPr', nest: () {
+        builder.attribute('defaultRowHeight', sheet._standardHeight.toString());
+      });
+
+      if (sheet.columns.count != 0) {
         builder.element('cols', nest: () {
           for (final Column column in sheet.columns.innerList) {
             builder.element('col', nest: () {
               builder.attribute('min', column.index.toString());
               builder.attribute('max', column.index.toString());
-              if (column.width != null && column.width != 0) {
+              if (column.width != 0) {
                 builder.attribute('width', column.width.toString());
               } else {
                 builder.attribute('width', '8.43');
@@ -166,56 +218,57 @@ class SerializeWorkbook {
         });
       }
       builder.element('sheetData', nest: () {
-        if (sheet.rows != null) {
+        if (sheet.rows.count != 0) {
           for (final row in sheet.rows.innerList) {
             if (row != null) {
               builder.element('row', nest: () {
                 builder.attribute('r', row.index.toString());
-                if (row.height != null && row.height != 0) {
+                if (row.height != 0) {
                   builder.attribute('ht', row.height.toString());
                   builder.attribute('customHeight', '1');
                 }
-                if (row.ranges != null) {
+                if (row.ranges.count != 0) {
                   for (final cell in row.ranges.innerList) {
                     if (cell != null) {
                       if (cell.rowSpan > 0) cell.rowSpan -= 1;
                       if (cell.columnSpan > 0) cell.columnSpan -= 1;
                       sheet.mergeCells =
                           _processMergeCells(cell, row.index, sheet.mergeCells);
-                      if (cell.cellStyle != null || !cell.isDefaultFormat) {
+                      if (cell._cellStyle != null || !cell.isDefaultFormat) {
                         cell._styleIndex = cell.cellStyle.index =
-                            _processCellStyle(cell.cellStyle, _workbook);
+                            _processCellStyle(
+                                cell.cellStyle as CellStyle, _workbook);
                       } else {
                         cell._styleIndex = -1;
                       }
                       builder.element('c', nest: () {
-                        String strFormula = cell.formula;
+                        String? strFormula = cell.formula;
                         builder.attribute('r', cell.addressLocal);
-                        if (cell._saveType != null &&
+                        if (cell._saveType != '' &&
                             (strFormula == null ||
                                 strFormula == '' ||
                                 strFormula[0] != '=' ||
                                 cell._saveType == 's')) {
                           builder.attribute('t', cell._saveType);
                         }
-                        if (cell._styleIndex != -1) {
+                        if (cell._styleIndex > 0) {
                           builder.attribute('s', cell._styleIndex.toString());
                         }
-                        String cellValue;
+                        String? cellValue;
                         if (sheet.calcEngine != null &&
                             cell.number == null &&
                             cell.text == null &&
-                            cell._boolean == null &&
-                            cell._errorValue == null) {
+                            cell._boolean == '' &&
+                            cell._errorValue == '') {
                           cellValue = cell.calculatedValue;
-                        } else if (cell._errorValue != null) {
+                        } else if (cell._errorValue != '') {
                           cellValue = cell._errorValue;
-                        } else if (cell._boolean != null) {
+                        } else if (cell._boolean != '') {
                           cellValue = cell._boolean;
                         } else if (cell.number != null) {
                           cellValue = cell.number.toString();
                         } else if (cell.text != null) {
-                          if (cell._saveType == 's') {
+                          if (cell._saveType == 's' && cell._textIndex != -1) {
                             cellValue = cell._textIndex.toString();
                           } else {
                             cellValue = cell.text;
@@ -225,12 +278,26 @@ class SerializeWorkbook {
                             strFormula != '' &&
                             strFormula[0] == '=' &&
                             cell._saveType != 's') {
-                          builder.attribute('t', cell._saveType);
+                          if (cell._saveType != '') {
+                            builder.attribute('t', cell._saveType);
+                          }
                           strFormula =
                               strFormula.substring(1).replaceAll('\'', '\"');
+                          if (strFormula.contains('MINIFS')) {
+                            strFormula = strFormula.replaceAllMapped(
+                                RegExp('MINIFS'),
+                                (match) => '_xlfn.${match.group(0)}');
+                          } else if (strFormula.contains('MAXIFS')) {
+                            strFormula = strFormula.replaceAllMapped(
+                                RegExp('MAXIFS'),
+                                (match) => '_xlfn.${match.group(0)}');
+                          }
                           builder.element('f', nest: strFormula);
                         }
-                        builder.element('v', nest: cellValue);
+                        if (cellValue != null &&
+                            (cell._saveType == 'str' || cellValue.isNotEmpty)) {
+                          builder.element('v', nest: cellValue);
+                        }
                       });
                     }
                   }
@@ -241,10 +308,9 @@ class SerializeWorkbook {
         }
       });
       if (sheet._isPasswordProtected) {
-        final ExcelSheetProtectionOption protection = sheet._innerProtection;
         builder.element('sheetProtection', nest: () {
           if (sheet._algorithmName != null) {
-            builder.attribute('algorithmName', sheet._algorithmName);
+            builder.attribute('algorithmName', sheet._algorithmName!);
             builder.attribute('hashValue', base64.encode(sheet._hashValue));
             builder.attribute('saltValue', base64.encode(sheet._saltValue));
             builder.attribute('spinCount', sheet._spinCount);
@@ -261,11 +327,11 @@ class SerializeWorkbook {
           // ignore: prefer_final_locals
           for (int i = 0, iCount = attributes.length; i < iCount; i++) {
             _serializeProtectionAttribute(
-                builder, attributes[i], flags[i], defaultValues[i], protection);
+                builder, attributes[i], flags[i], defaultValues[i]);
           }
         });
       }
-      if (sheet.mergeCells != null && sheet.mergeCells.innerList.isNotEmpty) {
+      if (sheet.mergeCells.innerList.isNotEmpty) {
         builder.element('mergeCells', nest: () {
           builder.attribute(
               'count', sheet.mergeCells.innerList.length.toString());
@@ -276,6 +342,7 @@ class SerializeWorkbook {
           }
         });
       }
+      _serializeConditionalFormatting(builder, sheet);
       _serializeHyperlinks(builder, sheet);
       builder.element('pageMargins', nest: () {
         builder.attribute('left', '0.75');
@@ -291,17 +358,17 @@ class SerializeWorkbook {
         builder.attribute('differentFirst', '0');
         builder.attribute('differentOddEven', '0');
       });
-      if ((sheet.pictures != null && sheet.pictures.count > 0) ||
+      if ((sheet.pictures.count > 0) ||
           (sheet.charts != null && sheet.chartCount > 0)) {
         _workbook._drawingCount++;
         _saveDrawings(sheet);
         if (sheet.charts != null && sheet.chartCount > 0) {
-          sheet.charts.serializeCharts(sheet);
+          sheet.charts!.serializeCharts(sheet);
         }
         builder.element('drawing', nest: () {
           int id = 1;
           final String rId = 'rId1';
-          if (_relationId != null) {
+          if (_relationId.isNotEmpty) {
             if (sheet.hyperlinks.count > 0) {
               for (int i = 0; i < sheet.hyperlinks.count; i++) {
                 if (sheet.hyperlinks[i]._attachedType ==
@@ -317,6 +384,9 @@ class SerializeWorkbook {
           }
         });
       }
+      builder.element('extLst', nest: () {
+        _serializeConditionalFormattingExt(builder, sheet);
+      });
       final rel = _saveSheetRelations(sheet);
       _addToArchive(rel,
           'xl/worksheets/_rels/sheet' + sheet.index.toString() + '.xml.rels');
@@ -328,17 +398,18 @@ class SerializeWorkbook {
   }
 
   /// Serializes single protection option.
-  void _serializeProtectionAttribute(final builder, String attributeName,
-      bool flag, bool defaultValue, ExcelSheetProtectionOption protection) {
+  void _serializeProtectionAttribute(
+      final builder, String attributeName, bool flag, bool defaultValue) {
     final bool value = flag;
     _serializeAttributes(builder, attributeName, value, defaultValue);
   }
 
   /// Serialize hyperlinks
   void _serializeHyperlinks(final builder, Worksheet sheet) {
-    if (sheet.hyperlinks != null && sheet.hyperlinks.count > 0) {
+    if (sheet.hyperlinks.count > 0) {
       final int iCount = sheet.hyperlinks.count;
-      final List<String> hyperLinkType = List(iCount);
+      final List<String> hyperLinkType =
+          List.filled(iCount, '', growable: false);
       for (int i = 0; i < sheet.hyperlinks.count; i++) {
         final Hyperlink hyperLink = sheet.hyperlinks[i];
         hyperLinkType[i] = hyperLink._attachedType
@@ -391,7 +462,7 @@ class SerializeWorkbook {
           'xmlns:a', 'http://schemas.openxmlformats.org/drawingml/2006/main');
       final chartCount = sheet.chartCount;
       if (chartCount != 0 && sheet.charts != null) {
-        sheet.charts.serializeChartDrawing(builder, sheet);
+        sheet.charts!.serializeChartDrawing(builder, sheet);
       }
       final idIndex = 0 + chartCount;
       final List<String> idRelation = [];
@@ -401,18 +472,15 @@ class SerializeWorkbook {
         int hyperlinkCount = 0;
         for (final Picture picture in sheet.pictures.innerList) {
           if (picture.height != 0 && picture.width != 0) {
-            if (picture.lastRow == null ||
-                picture.lastRow == 0 ||
-                picture.lastRow < picture.row) {
+            if (picture.lastRow == 0 || picture.lastRow < picture.row) {
               _updateLastRowOffset(sheet, picture);
-            } else if (picture.lastRow != null && picture.lastRow != 0) {
+            } else if (picture.lastRow != 0) {
               picture.lastRowOffset = 0;
             }
-            if (picture.lastColumn == null ||
-                picture.lastColumn == 0 ||
+            if (picture.lastColumn == 0 ||
                 picture.lastColumn < picture.column) {
               _updateLastColumnOffSet(sheet, picture);
-            } else if (picture.lastColumn != null && picture.lastColumn != 0) {
+            } else if (picture.lastColumn != 0) {
               picture.lastColOffset = 0;
             }
           }
@@ -455,8 +523,9 @@ class SerializeWorkbook {
                       idRelation.add(rId);
                       sheet._hyperlinkRelationId.add(rId);
                       idHyperlink++;
-                      if (picture._link.screenTip != null) {
-                        builder.attribute('tooltip', picture._link.screenTip);
+                      if (picture._link != null &&
+                          picture._link!.screenTip != null) {
+                        builder.attribute('tooltip', picture._link!.screenTip!);
                       }
                     });
                   }
@@ -474,7 +543,7 @@ class SerializeWorkbook {
                       'http://schemas.openxmlformats.org/officeDocument/2006/relationships');
                   int id;
                   String rId;
-                  if (idRelation == null) {
+                  if (idRelation.isEmpty) {
                     id = idIndex + imgId + hyperlinkCount;
                     rId = 'rId' + id.toString();
                     builder.attribute('r:embed', rId);
@@ -517,6 +586,14 @@ class SerializeWorkbook {
                   if (picture.horizontalFlip) {
                     builder.attribute('flipH', '1');
                   }
+                  builder.element('a:off', nest: () {
+                    builder.attribute('x', '0');
+                    builder.attribute('y', '0');
+                  });
+                  builder.element('a:ext', nest: () {
+                    builder.attribute('cx', '0');
+                    builder.attribute('cy', '0');
+                  });
                 });
 
                 builder.element('a:prstGeom', nest: () {
@@ -543,7 +620,9 @@ class SerializeWorkbook {
               _workbook._defaultContentTypes['png'] = 'image/png';
             }
           }
-          _addToArchive(imageData, imgPath);
+          if (imageData != null) {
+            _addToArchive(imageData, imgPath);
+          }
         }
       }
     });
@@ -578,7 +657,7 @@ class SerializeWorkbook {
         }
         idIndex = length;
       }
-      if (sheet.hyperlinks != null && sheet.hyperlinks.count > 0) {
+      if (sheet.hyperlinks.count > 0) {
         final length = sheet.hyperlinks.count;
         int j = 0;
         for (int i = 0; i < length; i++) {
@@ -655,10 +734,9 @@ class SerializeWorkbook {
       if (sheet.rows.count != 0 &&
           iCurRow - 1 < sheet.rows.count &&
           sheet.rows[iCurRow] != null) {
-        iRowHeight = _convertToPixels((sheet.rows[iCurRow].height == null ||
-                sheet.rows[iCurRow].height == 0)
+        iRowHeight = _convertToPixels((sheet.rows[iCurRow]!.height == 0)
             ? 15
-            : sheet.rows[iCurRow].height);
+            : sheet.rows[iCurRow]!.height);
       } else {
         iRowHeight = _convertToPixels(15);
       }
@@ -671,11 +749,9 @@ class SerializeWorkbook {
         if (sheet.rows.count != 0 &&
             iCurRow < sheet.rows.count &&
             sheet.rows[iCurRow] != null) {
-          rowHiddenHeight = _convertToPixels(
-              (sheet.rows[iCurRow].height == null ||
-                      sheet.rows[iCurRow].height == 0)
-                  ? 15
-                  : sheet.rows[iCurRow].height);
+          rowHiddenHeight = _convertToPixels((sheet.rows[iCurRow]!.height == 0)
+              ? 15
+              : sheet.rows[iCurRow]!.height);
         } else {
           rowHiddenHeight = _convertToPixels(15);
         }
@@ -702,13 +778,11 @@ class SerializeWorkbook {
 
     while (iCurWidth >= 0) {
       double iColWidth;
-      if (sheet.columns != null &&
-          sheet.columns.count != 0 &&
+      Column? col = sheet.columns.getColumn(iCurCol);
+      if (sheet.columns.count != 0 &&
           iCurCol - 1 < sheet.columns.count &&
-          sheet.columns[iCurCol - 1] != null) {
-        iColWidth = _columnWidthToPixels(sheet.columns[iCurCol - 1].width == 0
-            ? 8.43
-            : sheet.columns[iCurCol - 1].width);
+          col != null) {
+        iColWidth = _columnWidthToPixels(col.width == 0 ? 8.43 : col.width);
       } else {
         iColWidth = _columnWidthToPixels(8.43);
       }
@@ -718,14 +792,12 @@ class SerializeWorkbook {
         picture.lastColumn = iCurCol;
         picture.lastColOffset = iCurOffset + (iCurWidth * 1024 / iColWidth);
         double colHiddenWidth;
-        if (sheet.columns != null &&
-            sheet.columns.count != 0 &&
+        col = sheet.columns.getColumn(iCurCol);
+        if (sheet.columns.count != 0 &&
             iCurCol - 1 < sheet.columns.count &&
-            sheet.columns[iCurCol - 1] != null) {
-          colHiddenWidth = _columnWidthToPixels(
-              sheet.columns[iCurCol - 1].width == 0
-                  ? 8.43
-                  : sheet.columns[iCurCol - 1].width);
+            col != null) {
+          colHiddenWidth =
+              _columnWidthToPixels(col.width == 0 ? 8.43 : col.width);
         } else {
           colHiddenWidth = _columnWidthToPixels(8.43);
         }
@@ -774,7 +846,7 @@ class SerializeWorkbook {
       builder.namespace(
           'http://schemas.openxmlformats.org/package/2006/relationships');
 
-      if (sheet.hyperlinks != null && sheet.hyperlinks.count > 0) {
+      if (sheet.hyperlinks.count > 0) {
         for (final Hyperlink link in sheet.hyperlinks.innerList) {
           if (link._attachedType == ExcelHyperlinkAttachedType.range &&
               link.type != HyperlinkType.workbook) {
@@ -788,11 +860,11 @@ class SerializeWorkbook {
           }
         }
       }
-      if (sheet.pictures != null && sheet.pictures.count > 0) {
+      if (sheet.pictures.count > 0) {
         builder.element('Relationship', nest: () {
           int id = 1;
           final String rId = 'rId1';
-          if (_relationId != null) {
+          if (_relationId.isNotEmpty) {
             if (sheet.hyperlinks.count > 0) {
               for (int i = 0; i < sheet.hyperlinks.count; i++) {
                 if (sheet.hyperlinks[i]._attachedType ==
@@ -818,7 +890,7 @@ class SerializeWorkbook {
         builder.element('Relationship', nest: () {
           int id = 1;
           final String rId = 'rId1';
-          if (_relationId != null) {
+          if (_relationId.isNotEmpty) {
             if (sheet.hyperlinks.count > 0) {
               for (int i = 0; i < sheet.hyperlinks.count; i++) {
                 if (sheet.hyperlinks[i]._attachedType ==
@@ -862,7 +934,7 @@ class SerializeWorkbook {
   void _saveSharedString() {
     final builder = XmlBuilder();
     final length = _workbook._sharedStrings.length;
-    if (_workbook._sharedStrings != null && length > 0) {
+    if (length > 0) {
       builder.processing('xml', 'version="1.0"');
       builder.element('sst', nest: () {
         builder.attribute('xmlns',
@@ -899,14 +971,12 @@ class SerializeWorkbook {
           'http://schemas.openxmlformats.org/officeDocument/2006/extended-properties');
       builder.element('Application', nest: 'Essential XlsIO');
 
-      if (builtInProperties != null) {
-        if (builtInProperties.manager != null) {
-          builder.element('Manager', nest: builtInProperties.manager);
-        }
+      if (builtInProperties.manager != null) {
+        builder.element('Manager', nest: builtInProperties.manager);
+      }
 
-        if (builtInProperties.company != null) {
-          builder.element('Company', nest: builtInProperties.company);
-        }
+      if (builtInProperties.company != null) {
+        builder.element('Company', nest: builtInProperties.company);
       }
     });
     final stringXml = builder.buildDocument().copy().toString();
@@ -928,55 +998,45 @@ class SerializeWorkbook {
       builder.attribute(
           'xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
       final createdDate = DateTime.now();
-      if (builtInProperties != null) {
-        if (builtInProperties.author != null) {
-          builder.element('dc:creator', nest: builtInProperties.author);
-        }
-        if (builtInProperties.subject != null) {
-          builder.element('dc:subject', nest: builtInProperties.subject);
-        }
-        if (builtInProperties.category != null) {
-          builder.element('dc:category', nest: builtInProperties.category);
-        }
-        if (builtInProperties.comments != null) {
-          builder.element('dc:description', nest: builtInProperties.comments);
-        }
-        if (builtInProperties.title != null) {
-          builder.element('dc:title', nest: builtInProperties.title);
-        }
-        if (builtInProperties.tags != null) {
-          builder.element('dc:keywords', nest: builtInProperties.tags);
-        }
-        if (builtInProperties.status != null) {
-          builder.element('dc:contentStatus', nest: builtInProperties.status);
-        }
-        if (builtInProperties.createdDate != null) {
-          builder.element('dcterms:created', nest: () {
-            builder.attribute('xsi:type', 'dcterms:W3CDTF');
-            builder.text(builtInProperties.createdDate.toIso8601String());
-          });
-        } else {
-          builder.element('dcterms:created', nest: () {
-            builder.attribute('xsi:type', 'dcterms:W3CDTF');
-            builder.text(createdDate.toIso8601String());
-          });
-        }
-        if (builtInProperties.modifiedDate != null) {
-          builder.element('dcterms:modified', nest: () {
-            builder.attribute('xsi:type', 'dcterms:W3CDTF');
-            builder.text(builtInProperties.modifiedDate.toIso8601String());
-          });
-        } else {
-          builder.element('dcterms:modified', nest: () {
-            builder.attribute('xsi:type', 'dcterms:W3CDTF');
-            builder.text(createdDate.toIso8601String());
-          });
-        }
+
+      if (builtInProperties.author != null) {
+        builder.element('dc:creator', nest: builtInProperties.author);
+      }
+      if (builtInProperties.subject != null) {
+        builder.element('dc:subject', nest: builtInProperties.subject);
+      }
+      if (builtInProperties.category != null) {
+        builder.element('dc:category', nest: builtInProperties.category);
+      }
+      if (builtInProperties.comments != null) {
+        builder.element('dc:description', nest: builtInProperties.comments);
+      }
+      if (builtInProperties.title != null) {
+        builder.element('dc:title', nest: builtInProperties.title);
+      }
+      if (builtInProperties.tags != null) {
+        builder.element('dc:keywords', nest: builtInProperties.tags);
+      }
+      if (builtInProperties.status != null) {
+        builder.element('dc:contentStatus', nest: builtInProperties.status);
+      }
+      if (builtInProperties.createdDate != null) {
+        builder.element('dcterms:created', nest: () {
+          builder.attribute('xsi:type', 'dcterms:W3CDTF');
+          builder.text(builtInProperties.createdDate!.toIso8601String());
+        });
       } else {
         builder.element('dcterms:created', nest: () {
           builder.attribute('xsi:type', 'dcterms:W3CDTF');
           builder.text(createdDate.toIso8601String());
         });
+      }
+      if (builtInProperties.modifiedDate != null) {
+        builder.element('dcterms:modified', nest: () {
+          builder.attribute('xsi:type', 'dcterms:W3CDTF');
+          builder.text(builtInProperties.modifiedDate!.toIso8601String());
+        });
+      } else {
         builder.element('dcterms:modified', nest: () {
           builder.attribute('xsi:type', 'dcterms:W3CDTF');
           builder.text(createdDate.toIso8601String());
@@ -1037,7 +1097,6 @@ class SerializeWorkbook {
               'application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml');
         });
         if ((_workbook._imageCount > 0 &&
-                _workbook.worksheets[i].pictures != null &&
                 _workbook.worksheets[i].pictures.count > 0) ||
             _workbook.worksheets[i].charts != null &&
                 _workbook.worksheets[i].chartCount > 0) {
@@ -1069,7 +1128,7 @@ class SerializeWorkbook {
           builder.element('Default', nest: () {
             builder.attribute('Extension', key);
             builder.attribute(
-                'ContentType', _workbook._defaultContentTypes[key]);
+                'ContentType', _workbook._defaultContentTypes[key]!);
           });
         }
       }
@@ -1182,12 +1241,12 @@ class SerializeWorkbook {
 
       _saveNumberFormats(builder);
       _saveFonts(builder);
-
       _saveFills(builder);
       _saveBorders(builder);
       _saveCellStyleXfs(builder);
       _saveCellXfs(builder);
       _saveGlobalCellstyles(builder);
+      _serialiseDxfs(builder);
     });
     final stringXml = builder.buildDocument().copy().toString();
     final bytes = utf8.encode(stringXml);
@@ -1196,9 +1255,10 @@ class SerializeWorkbook {
 
   /// Update the global style.
   void _updateGlobalStyles() {
-    for (final CellStyle cellStyle in _workbook.styles.innerList) {
+    for (final Style style in _workbook.styles.innerList) {
+      final CellStyle cellStyle = style as CellStyle;
       if (cellStyle.isGlobalStyle) {
-        if (cellStyle.name == null) {
+        if (cellStyle.name == '') {
           _workbook.styles.addStyle(cellStyle);
         }
         final globalStyle = _GlobalStyle();
@@ -1218,7 +1278,7 @@ class SerializeWorkbook {
         index >= 0 &&
         index > workbook.styles.innerList.length - 1) {
       _processNumFormatId(style, workbook);
-      if (style.name == null) workbook.styles.addStyle(style);
+      if (style.name == '') workbook.styles.addStyle(style);
       return style.index;
     } else if (index == -1) {
       _processNumFormatId(style, workbook);
@@ -1239,17 +1299,18 @@ class SerializeWorkbook {
 
   /// Update cell Xfx Style
   void _updateCellStyleXfs() {
-    for (final CellStyle style in _workbook.styles.innerList) {
-      CellStyleXfs cellXfs;
+    for (final Style cellStyle in _workbook.styles.innerList) {
+      final CellStyle style = cellStyle as CellStyle;
+      _CellStyleXfs cellXfs;
       if (style.isGlobalStyle) {
-        cellXfs = CellXfs();
+        cellXfs = _CellXfs();
         if (_workbook._globalStyles.containsKey(style.name)) {
-          (cellXfs as CellXfs)._xfId =
-              _workbook._globalStyles[style.name]._xfId;
+          (cellXfs as _CellXfs)._xfId =
+              _workbook._globalStyles[style.name]!._xfId;
         }
       } else {
-        cellXfs = CellXfs();
-        (cellXfs as CellXfs)._xfId = 0;
+        cellXfs = _CellXfs();
+        (cellXfs as _CellXfs)._xfId = 0;
       }
       final compareFontResult = _workbook._isNewFont(style);
       if (!compareFontResult._result) {
@@ -1259,20 +1320,34 @@ class SerializeWorkbook {
         font.name = style.fontName;
         font.size = style.fontSize;
         font.underline = style.underline;
-        font.color = ('FF' + style.fontColor.replaceAll('#', ''));
+        if (style.fontColor.length == 7) {
+          font.color = ('FF' + style.fontColor.replaceAll('#', ''));
+        } else {
+          font.color = style.fontColor;
+        }
         _workbook.fonts.add(font);
         cellXfs._fontId = _workbook.fonts.length - 1;
       } else {
         cellXfs._fontId = compareFontResult._index;
       }
-      if (style.backColor != 'none') {
+      if (style.backColor != '#FFFFFF' && style.backColor.length == 7) {
         final backColor = 'FF' + style.backColor.replaceAll('#', '');
         if (_workbook.fills.containsKey(backColor)) {
           final fillId = _workbook.fills[backColor];
-          cellXfs._fillId = fillId;
+          cellXfs._fillId = fillId!;
         } else {
           final fillId = _workbook.fills.length + 2;
           _workbook.fills[backColor] = fillId;
+          cellXfs._fillId = fillId;
+        }
+      } else if (style.backColor.length > 7) {
+        final backColorRgb = style.backColor;
+        if (_workbook.fills.containsKey(backColorRgb)) {
+          final fillId = _workbook.fills[backColorRgb];
+          cellXfs._fillId = fillId!;
+        } else {
+          final fillId = _workbook.fills.length + 2;
+          _workbook.fills[backColorRgb] = fillId;
           cellXfs._fillId = fillId;
         }
       } else {
@@ -1305,24 +1380,24 @@ class SerializeWorkbook {
       }
       //Add alignment
       cellXfs._alignment = Alignment();
-      cellXfs._alignment.indent = style.indent;
-      cellXfs._alignment.horizontal =
+      cellXfs._alignment!.indent = style.indent;
+      cellXfs._alignment!.horizontal =
           style.hAlign.toString().split('.').toList().removeAt(1).toString();
-      cellXfs._alignment.vertical =
+      cellXfs._alignment!.vertical =
           style.vAlign.toString().split('.').toList().removeAt(1).toString();
-      cellXfs._alignment.wrapText = style.wrapText ? 1 : 0;
-      cellXfs._alignment.rotation = style.rotation;
+      cellXfs._alignment!.wrapText = style.wrapText ? 1 : 0;
+      cellXfs._alignment!.rotation = style.rotation;
 
       // Add protection
       if (!style.locked) {
-        cellXfs._locked = style.locked ? 1 : 0;
+        cellXfs._locked = 0;
       }
       if (style.isGlobalStyle) {
         _workbook._cellStyleXfs.add(cellXfs);
-        _workbook._cellXfs.add(cellXfs as CellXfs);
+        _workbook._cellXfs.add(cellXfs as _CellXfs);
       } else {
         //Add cellxfs
-        _workbook._cellXfs.add(cellXfs as CellXfs);
+        _workbook._cellXfs.add(cellXfs as _CellXfs);
       }
     }
   }
@@ -1337,7 +1412,7 @@ class SerializeWorkbook {
           builder.element('numFmt', nest: () {
             builder.attribute('numFmtId', arrFormats[i]._index.toString());
             final String formatString =
-                arrFormats[i]._formatString.replaceAll('\'', '\"');
+                arrFormats[i]._formatString!.replaceAll('\'', '\"');
             builder.attribute('formatCode', formatString.toString());
           });
         }
@@ -1461,7 +1536,11 @@ class SerializeWorkbook {
               .toString()
               .toLowerCase());
       builder.element('color', nest: () {
-        builder.attribute('rgb', 'FF' + border.color.replaceAll('#', ''));
+        if (border.color.length == 7) {
+          builder.attribute('rgb', 'FF' + border.color.replaceAll('#', ''));
+        } else {
+          builder.attribute('rgb', border.color);
+        }
       });
     });
   }
@@ -1478,7 +1557,7 @@ class SerializeWorkbook {
         builder.attribute('borderId', '0');
       });
       if (_workbook._cellStyleXfs.isNotEmpty) {
-        for (final CellStyleXfs cellStyleXfs in _workbook._cellStyleXfs) {
+        for (final _CellStyleXfs cellStyleXfs in _workbook._cellStyleXfs) {
           builder.element('xf', nest: () {
             builder.attribute(
                 'numFmtId', cellStyleXfs._numberFormatId.toString());
@@ -1496,7 +1575,7 @@ class SerializeWorkbook {
     builder.element('cellXfs', nest: () {
       builder.attribute('count', _workbook._cellXfs.length.toString());
       if (_workbook._cellXfs.isNotEmpty) {
-        for (final CellXfs cellXf in _workbook._cellXfs) {
+        for (final _CellXfs cellXf in _workbook._cellXfs) {
           builder.element('xf', nest: () {
             builder.attribute('numFmtId', cellXf._numberFormatId.toString());
             builder.attribute('fontId', cellXf._fontId.toString());
@@ -1512,29 +1591,34 @@ class SerializeWorkbook {
   }
 
   ///Serialize Protection.
-  void _saveProtection(CellStyleXfs cellXf, final builder) {
-    builder.element('protection', nest: () {
-      builder.attribute('locked', cellXf._locked.toString());
-    });
+  void _saveProtection(_CellStyleXfs cellXf, final builder) {
+    if (cellXf._locked != 1) {
+      builder.element('protection', nest: () {
+        builder.attribute('locked', cellXf._locked.toString());
+      });
+    }
   }
 
   /// Serialize alignment.
-  void _saveAlignment(CellStyleXfs cellXf, final builder) {
+  void _saveAlignment(_CellStyleXfs cellXf, final builder) {
     builder.element('alignment', nest: () {
-      if (cellXf._alignment.horizontal != null) {
-        builder.attribute(
-            'horizontal', cellXf._alignment.horizontal.toLowerCase());
+      if (cellXf._alignment != null) {
+        if (cellXf._alignment!.horizontal != '') {
+          builder.attribute(
+              'horizontal', cellXf._alignment!.horizontal.toLowerCase());
+        }
+        if (cellXf._alignment!.indent != 0) {
+          builder.attribute('indent', cellXf._alignment!.indent.toString());
+        } else if (cellXf._alignment!.rotation != 0) {
+          builder.attribute(
+              'textRotation', cellXf._alignment!.rotation.toString());
+        }
+        if (cellXf._alignment!.vertical != '') {
+          builder.attribute(
+              'vertical', cellXf._alignment!.vertical.toLowerCase());
+        }
+        builder.attribute('wrapText', cellXf._alignment!.wrapText.toString());
       }
-      if (cellXf._alignment.indent != 0) {
-        builder.attribute('indent', cellXf._alignment.indent.toString());
-      } else if (cellXf._alignment.rotation != 0) {
-        builder.attribute(
-            'textRotation', cellXf._alignment.rotation.toString());
-      }
-      if (cellXf._alignment.vertical != null) {
-        builder.attribute('vertical', cellXf._alignment.vertical.toLowerCase());
-      }
-      builder.attribute('wrapText', cellXf._alignment.wrapText.toString());
     });
   }
 
@@ -1550,13 +1634,13 @@ class SerializeWorkbook {
       });
       _workbook._globalStyles.forEach((key, value) {
         builder.element('cellStyle', nest: () {
-          if (key != null) {
+          if (key != '') {
             builder.attribute('name', key);
             builder.attribute(
-                'xfId', _workbook._globalStyles[key]._xfId.toString());
-            if (_workbook._globalStyles[key]._builtinId != 0) {
+                'xfId', _workbook._globalStyles[key]!._xfId.toString());
+            if (_workbook._globalStyles[key]!._builtinId != 0) {
               builder.attribute('builtinId',
-                  _workbook._globalStyles[key]._builtinId.toString());
+                  _workbook._globalStyles[key]!._builtinId.toString());
             }
           }
         });
@@ -1605,6 +1689,849 @@ class SerializeWorkbook {
         workbook._mergedCellsStyle[Range._getCellName(y, x)] = extendStyle;
       }
     }
+  }
+
+  void _serializeConditionalFormatting(XmlBuilder builder, Worksheet sheet) {
+    if (sheet.conditionalFormats.isNotEmpty) {
+      final int iCount = sheet.conditionalFormats.length;
+      int iPriority = 1;
+      int iPriorityCount = 0;
+      for (int i = 0; i < iCount; i++) {
+        final _ConditionalFormatsImpl conditionalFormats =
+            sheet.conditionalFormats[i];
+        final List result = _serializeConditionalFormats(
+            builder, _iDxfIndex, iPriority, iPriorityCount, conditionalFormats);
+        _iDxfIndex = result[0];
+        iPriority = result[1];
+        iPriorityCount = result[2];
+      }
+    }
+  }
+
+  List _serializeConditionalFormats(XmlBuilder builder, int _iDxfIndex,
+      int iPriority, int iPriorityCount, _ConditionalFormatsImpl formats) {
+    final int iRulesCount = formats.count;
+    bool serializeCF = false;
+    if (iRulesCount == 0) return [_iDxfIndex, iPriority, iPriorityCount];
+    for (final _ConditionalFormatImpl format in formats.innerList) {
+      if (format.formatType == ExcelCFType.iconSet) {
+        _IconSetImpl? iconSet = null;
+        if (format.iconSet != null) {
+          iconSet = (format.iconSet as _IconSetImpl);
+        }
+        if (iconSet != null && iconSet._isCustom) {
+          format._bCFHasExtensionList = true;
+        } else if (format.iconSet!.iconSet == ExcelIconSetType.threeTriangles ||
+            format.iconSet!.iconSet == ExcelIconSetType.threeStars ||
+            format.iconSet!.iconSet == ExcelIconSetType.fiveBoxes) {
+          format._bCFHasExtensionList = true;
+        }
+      }
+      if (!format._bCFHasExtensionList) serializeCF = true;
+    }
+    if (serializeCF) {
+      builder.element('conditionalFormatting', nest: () {
+        builder.attribute('sqref', formats._cellList);
+        int iCount = iRulesCount + iPriorityCount;
+        iPriorityCount += iRulesCount;
+        for (int i = 0; i < iRulesCount; i++) {
+          final ConditionalFormat condition = formats.innerList[i];
+          if (!(condition as _ConditionalFormatImpl)._bCFHasExtensionList) {
+            final List result = _serializeCondition(
+                builder, condition, '', _iDxfIndex, iPriority, iCount);
+            _iDxfIndex = result[0];
+            iPriority = result[1];
+            iCount = result[2];
+          }
+        }
+      });
+    }
+    return [_iDxfIndex, iPriority, iPriorityCount];
+  }
+
+  List _serializeCondition(XmlBuilder builder, ConditionalFormat condition,
+      String prefix, int _iDxfIndex, int iPriority, int iCount) {
+    final _ConditionalFormatImpl condFormat =
+        condition as _ConditionalFormatImpl;
+    _IconSetImpl? iconSet = null;
+    if (condFormat.iconSet != null) {
+      iconSet = (condFormat.iconSet as _IconSetImpl);
+    }
+    final ExcelCFType cfType = condition.formatType;
+    final ExcelComparisonOperator comparisonOperator = condition.operator;
+    final CFTimePeriods cfTimePeriod = condition.timePeriodType;
+    builder.element(prefix + 'cfRule', nest: () {
+      builder.attribute('type', _getCFType(cfType, comparisonOperator));
+      if (_checkFormat(condition)) {
+        builder.attribute('dxfId', _iDxfIndex.toString());
+        _iDxfIndex++;
+      }
+      if (condition.stopIfTrue) {
+        builder.attribute('stopIfTrue', '1');
+      }
+      if (cfType == ExcelCFType.cellValue) {
+        builder.attribute(
+            'operator', _getCFComparisonOperatorName(condition.operator));
+      }
+      if (cfType == ExcelCFType.specificText) {
+        builder.attribute(
+            'operator', _getCFComparisonOperatorName(condition.operator));
+
+        builder.attribute('text', condition.text!);
+      }
+      if (cfType == ExcelCFType.timePeriod) {
+        builder.attribute('timePeriod', _getCFTimePeriodType(cfTimePeriod));
+      }
+
+      builder.attribute('priority', iCount);
+      iCount--;
+
+      if (cfType == ExcelCFType.topBottom) {
+        _serializeAttributes(builder, 'bottom',
+            condition.topBottom!.type == ExcelCFTopBottomType.bottom, false);
+        _serializeAttributes(
+            builder, 'percent', condition.topBottom!.percent, false);
+        builder.attribute('rank', condition.topBottom!.rank.toString());
+      }
+      if (cfType == ExcelCFType.aboveBelowAverage) {
+        final String avgStrType = condition.aboveBelowAverage!.averageType
+            .toString()
+            .split('.')
+            .toList()
+            .removeAt(1)
+            .toString()
+            .toLowerCase();
+        _serializeAttributes(
+            builder, 'aboveAverage', !avgStrType.contains('below'), true);
+        _serializeAttributes(
+            builder, 'equalAverage', avgStrType.contains('equal'), false);
+        if (avgStrType.contains('stddev')) {
+          builder.attribute(
+              'stdDev', condition.aboveBelowAverage!.stdDevValue.toString());
+        }
+      }
+      if (condition.firstFormula != '') {
+        String v1 = condition.firstFormula;
+        if (v1[0] == '=') {
+          v1 = v1.substring(1);
+        }
+        v1 = v1.replaceAll('\'', '\"');
+        builder.element(prefix + 'formula', nest: v1);
+      }
+      if (condition.secondFormula != '') {
+        String v1 = condition.secondFormula;
+        if (v1[0] == '=') {
+          v1 = v1.substring(1);
+        }
+        v1 = v1.replaceAll('\'', '\"');
+        builder.element(prefix + 'formula', nest: v1);
+      }
+      if (cfType == ExcelCFType.dataBar) {
+        _serializeDataBar(builder, condition.dataBar!);
+      }
+      if (cfType == ExcelCFType.colorScale) {
+        _serializeColorScale(builder, condition.colorScale!);
+      } else if (cfType == ExcelCFType.iconSet) {
+        if (condFormat._bCFHasExtensionList ||
+            (iconSet != null && iconSet._isCustom)) {
+          _serializeIconSet(builder, iconSet!, condFormat._bCFHasExtensionList,
+              iconSet._isCustom);
+        } else {
+          _serializeIconSet(builder, iconSet!, false, false);
+        }
+      }
+      if (condition.dataBar != null &&
+          (condition.dataBar as _DataBarImpl)._hasExtensionList) {
+        builder.element('extLst', nest: () {
+          builder.namespace(
+              'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
+          builder.element('ext', nest: () {
+            builder.namespace(
+                'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
+
+            builder.attribute('uri', '{B025F937-C7B1-47D3-B67F-A62EFF666E3E}');
+            builder.attribute('xmlns:x14',
+                'http://schemas.microsoft.com/office/spreadsheetml/2009/9/main');
+
+            builder.element('x14:id',
+                nest: (condition.dataBar as _DataBarImpl)._stGUID!);
+          });
+        });
+      }
+    });
+    return [_iDxfIndex, iPriority, iCount];
+  }
+
+  /// Serializes color scale of conditional format.
+  void _serializeColorScale(XmlBuilder builder, ColorScale colorScale) {
+    builder.element('colorScale', nest: () {
+      final List<ColorConditionValue> arrConditions = colorScale.criteria;
+      for (int i = 0; i < arrConditions.length; i++) {
+        _serializeConditionValueObject(
+            builder, arrConditions[i], false, false, false);
+      }
+
+      for (int i = 0; i < arrConditions.length; i++) {
+        _serializeRgbColor(builder, 'color', arrConditions[i].formatColor);
+      }
+    });
+  }
+
+  /// Serializes icon set.
+  void _serializeIconSet(XmlBuilder builder, IconSet iconSet,
+      bool cfHasExtensionList, bool isCustom) {
+    String element;
+    if (cfHasExtensionList || isCustom) {
+      element = 'x14:iconSet';
+    } else {
+      element = 'iconSet';
+    }
+
+    builder.element(element, nest: () {
+      final int index = iconSet.iconSet.index;
+      final String strType = _iconSetTypeNames[index];
+
+      builder.attribute('iconSet', strType);
+      _serializeAttributes(builder, 'percent', iconSet.percentileValues, false);
+      _serializeAttributes(builder, 'reverse', iconSet.reverseOrder, false);
+      _serializeAttributes(builder, 'showValue', !iconSet.showIconOnly, true);
+
+      if (isCustom) _serializeAttributes(builder, 'custom', true, false);
+
+      final List<ConditionValue> arrConditions = iconSet.iconCriteria;
+      for (int i = 0; i < arrConditions.length; i++) {
+        _serializeConditionValueObject(
+            builder, arrConditions[i], true, cfHasExtensionList, isCustom);
+      }
+      if (isCustom) {
+        for (int i = 0; i < arrConditions.length; i++) {
+          _serializeCustomCFIcon(
+              builder, arrConditions[i] as IconConditionValue, true);
+        }
+      }
+    });
+  }
+
+  /// Serializes data bar.
+  void _serializeDataBar(XmlBuilder builder, DataBar dataBar) {
+    builder.element('dataBar', nest: () {
+      _serializeAttributeInt(builder, 'minLength', dataBar.percentMin, 0);
+      _serializeAttributeInt(builder, 'maxLength', dataBar.percentMax, 100);
+      _serializeAttributes(builder, 'showValue', dataBar.showValue, true);
+
+      _serializeConditionValueObjectForDataBar(
+          builder, dataBar.minPoint, false, true);
+      _serializeConditionValueObjectForDataBar(
+          builder, dataBar.maxPoint, false, false);
+      _serializeRgbColor(builder, 'color', dataBar.barColor);
+    });
+  }
+
+  /// Serializes conditional value object.
+  void _serializeConditionValueObject(
+      XmlBuilder builder,
+      ConditionValue conditionValue,
+      bool isIconSet,
+      bool cfHasExtensionList,
+      bool isCustom) {
+    String prefix = '';
+    if (cfHasExtensionList || isCustom) prefix = 'x14:';
+
+    builder.element(prefix + 'cfvo', nest: () {
+      final int index = conditionValue.type.index;
+      final String strType = _valueTypes[index];
+      String value = conditionValue.value;
+
+      builder.attribute('type', strType);
+
+      if (strType == 'formula' && value.startsWith(Range._defaultEquivalent)) {
+        value = value.replaceAll(Range._defaultEquivalent, '');
+      }
+
+      if (!cfHasExtensionList) {
+        builder.attribute('val', value);
+      } else if (!cfHasExtensionList) builder.attribute('val', value);
+
+      builder.attribute('gte', (conditionValue.operator).index.toString());
+
+      if (cfHasExtensionList || isCustom) {
+        builder.element('xm:f', nest: value);
+      }
+    });
+  }
+
+  /// Serializes conditional value object.
+  void _serializeConditionValueObjectForDataBar(XmlBuilder builder,
+      ConditionValue conditionValue, bool isIconSet, bool isMinPoint) {
+    builder.element('cfvo', nest: () {
+      int index = conditionValue.type.index;
+      if (index == 7) {
+        if (isMinPoint) {
+          index = 2;
+        } else {
+          index = 3;
+        }
+      }
+      final String strType = _valueTypes[index];
+      builder.attribute('type', strType);
+      builder.attribute('val', conditionValue.value);
+      if (isIconSet) {
+        builder.attribute('gte', (conditionValue.operator).index.toString());
+      }
+    });
+  }
+
+  /// Serializes Custom iconset object.
+  void _serializeCustomCFIcon(
+      XmlBuilder builder, IconConditionValue conditionValue, bool isIconSet) {
+    builder.element('x14:cfIcon', nest: () {
+      String iconType = '';
+      if (conditionValue.iconSet.toString() == '-1') {
+        iconType = 'NoIcons';
+      } else {
+        iconType = _iconSetTypeNames[conditionValue.iconSet.index];
+      }
+      final String iconIndex = conditionValue.index.toString();
+      builder.attribute('iconSet', iconType);
+      builder.attribute('iconId', iconIndex);
+    });
+  }
+
+  /// Serializes Rgb color value.
+  void _serializeRgbColor(XmlBuilder builder, String tagName, String color) {
+    builder.element(tagName, nest: () {
+      var colorValue = color;
+      if (colorValue.length <= 7) {
+        colorValue = 'FF' + color.replaceAll('#', '');
+      }
+      builder.attribute('rgb', colorValue);
+    });
+  }
+
+  /// Returns CF type string name.
+  String _getCFType(ExcelCFType typeCF, ExcelComparisonOperator compOperator) {
+    switch (typeCF) {
+      case ExcelCFType.cellValue:
+        return 'cellIs';
+      case ExcelCFType.specificText:
+        switch (compOperator) {
+          case ExcelComparisonOperator.beginsWith:
+            return 'beginsWith';
+          case ExcelComparisonOperator.containsText:
+            return 'containsText';
+          case ExcelComparisonOperator.endsWith:
+            return 'endsWith';
+          case ExcelComparisonOperator.notContainsText:
+            return 'notContainsText';
+          default:
+            throw Exception('ComOperator');
+        }
+      case ExcelCFType.formula:
+        return 'expression';
+      case ExcelCFType.dataBar:
+        return 'dataBar';
+      case ExcelCFType.unique:
+        return 'uniqueValues';
+      case ExcelCFType.duplicate:
+        return 'duplicateValues';
+      case ExcelCFType.iconSet:
+        return 'iconSet';
+      case ExcelCFType.colorScale:
+        return 'colorScale';
+      case ExcelCFType.blank:
+        return 'containsBlanks';
+      case ExcelCFType.noBlank:
+        return 'notContainsBlanks';
+      case ExcelCFType.containsErrors:
+        return 'containsErrors';
+      case ExcelCFType.notContainsErrors:
+        return 'notContainsErrors';
+      case ExcelCFType.timePeriod:
+        return 'timePeriod';
+      case ExcelCFType.topBottom:
+        return 'top10';
+      case ExcelCFType.aboveBelowAverage:
+        return 'aboveAverage';
+      default:
+        throw Exception('typeCF');
+    }
+  }
+
+  /// Returns CF comparison operator string name.
+  String _getCFComparisonOperatorName(
+      ExcelComparisonOperator comparisonOperator) {
+    switch (comparisonOperator) {
+      case ExcelComparisonOperator.between:
+        return 'between';
+      case ExcelComparisonOperator.beginsWith:
+        return 'beginsWith';
+      case ExcelComparisonOperator.containsText:
+        return 'containsText';
+      case ExcelComparisonOperator.endsWith:
+        return 'endsWith';
+      case ExcelComparisonOperator.notContainsText:
+        return 'notContains';
+      case ExcelComparisonOperator.equal:
+        return 'equal';
+      case ExcelComparisonOperator.greater:
+        return 'greaterThan';
+      case ExcelComparisonOperator.greaterOrEqual:
+        return 'greaterThanOrEqual';
+      case ExcelComparisonOperator.less:
+        return 'lessThan';
+      case ExcelComparisonOperator.lessOrEqual:
+        return 'lessThanOrEqual';
+      case ExcelComparisonOperator.none:
+        return 'notContains';
+      case ExcelComparisonOperator.notBetween:
+        return 'notBetween';
+      case ExcelComparisonOperator.notEqual:
+        return 'notEqual';
+      default:
+        throw Exception('filterCondition');
+    }
+  }
+
+  /// Return the CF time period string name
+  String _getCFTimePeriodType(CFTimePeriods cfTimePeriod) {
+    switch (cfTimePeriod) {
+      case CFTimePeriods.today:
+        return 'today';
+      case CFTimePeriods.yesterday:
+        return 'yesterday';
+      case CFTimePeriods.tomorrow:
+        return 'tomorrow';
+      case CFTimePeriods.last7Days:
+        return 'last7Days';
+      case CFTimePeriods.lastWeek:
+        return 'lastWeek';
+      case CFTimePeriods.thisWeek:
+        return 'thisWeek';
+      case CFTimePeriods.nextWeek:
+        return 'nextWeek';
+      case CFTimePeriods.lastMonth:
+        return 'lastMonth';
+      case CFTimePeriods.thisMonth:
+        return 'thisMonth';
+      case CFTimePeriods.nextMonth:
+        return 'nextMonth';
+      default:
+        throw Exception('timePeriod');
+    }
+  }
+
+  /// Serialize Dxfs.
+  void _serialiseDxfs(XmlBuilder builder) {
+    builder.element('dxfs', nest: () {
+      for (final Worksheet sheet in _workbook.worksheets.innerList) {
+        if (sheet.conditionalFormats.isNotEmpty) {
+          final int iCount = sheet.conditionalFormats.length;
+          for (int i = 0; i < iCount; i++) {
+            final _ConditionalFormatsImpl condFormats =
+                sheet.conditionalFormats[i];
+            for (final _ConditionalFormatImpl condition
+                in condFormats.innerList) {
+              if (_checkFormat(condition)) {
+                _serializeDxf(builder, condition);
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  /// Serializes Dxf style.
+  void _serializeDxf(XmlBuilder builder, _ConditionalFormatImpl condition) {
+    builder.element('dxf', nest: () {
+      _serializeDxfFont(builder, condition);
+      _serializeDxfNumberFormat(builder, condition);
+      _serializeDxfFill(builder, condition);
+      _serializeDxfBorders(builder, condition);
+    });
+  }
+
+  /// Serializes Dxf style font.
+  void _serializeDxfFont(XmlBuilder builder, _ConditionalFormatImpl condition) {
+    if (condition.isBold ||
+        condition.isItalic ||
+        condition.underline ||
+        condition.fontColor != '#000000') {
+      builder.element('font', nest: () {
+        if (condition.isBold) {
+          builder.element('b', nest: () {});
+        }
+        if (condition.isItalic) {
+          builder.element('i', nest: () {});
+        }
+        if (condition.underline) {
+          builder.element('u', nest: () {});
+        }
+        var fontColor;
+        if (condition.fontColor.length <= 7) {
+          fontColor = 'FF' + condition.fontColor.replaceAll('#', '');
+        } else {
+          fontColor = condition.fontColor;
+        }
+        builder.element('color', nest: () {
+          builder.attribute('rgb', fontColor);
+        });
+      });
+    }
+  }
+
+  /// Serializes Dxf number format.
+  void _serializeDxfNumberFormat(
+      XmlBuilder builder, _ConditionalFormatImpl condition) {
+    if (condition.numberFormat != 'General') {
+      int index;
+      var format;
+      if (_workbook.innerFormats._contains(condition._numberFormatIndex)) {
+        format = _workbook.innerFormats[condition._numberFormatIndex];
+        index = format._index;
+      } else {
+        index = _workbook.innerFormats._createFormat(condition.numberFormat);
+      }
+      builder.element('numFmt', nest: () {
+        builder.attribute('numFmtId', index.toString());
+        final String formatString = format._formatString.replaceAll('\'', '\"');
+        builder.attribute('formatCode', formatString.toString());
+      });
+    }
+  }
+
+  /// Serializes Dxf style fill.
+  void _serializeDxfFill(XmlBuilder builder, _ConditionalFormatImpl condition) {
+    var backColor;
+    if (condition.backColor != '#FFFFFF') {
+      if (condition.backColor.length == 7) {
+        backColor = 'FF' + condition.backColor.replaceAll('#', '');
+      } else {
+        backColor = condition.backColor;
+      }
+      builder.element('fill', nest: () {
+        builder.element('patternFill', nest: () {
+          builder.element('bgColor', nest: () {
+            builder.attribute('rgb', backColor);
+          });
+        });
+      });
+    }
+  }
+
+  /// Serializes Dxf borders.
+  void _serializeDxfBorders(
+      XmlBuilder builder, _ConditionalFormatImpl condition) {
+    if (condition.leftBorderStyle != LineStyle.none ||
+        condition.rightBorderStyle != LineStyle.none ||
+        condition.topBorderStyle != LineStyle.none ||
+        condition.bottomBorderStyle != LineStyle.none) {
+      builder.element('border', nest: () {
+        if (condition.leftBorderStyle != LineStyle.none) {
+          _serializeDxfBorder(builder, 'left', condition.leftBorderStyle,
+              condition.leftBorderColor);
+        }
+        if (condition.rightBorderStyle != LineStyle.none) {
+          _serializeDxfBorder(builder, 'right', condition.rightBorderStyle,
+              condition.rightBorderColor);
+        }
+        if (condition.topBorderStyle != LineStyle.none) {
+          _serializeDxfBorder(builder, 'top', condition.topBorderStyle,
+              condition.topBorderColor);
+        }
+        if (condition.bottomBorderStyle != LineStyle.none) {
+          _serializeDxfBorder(builder, 'bottom', condition.bottomBorderStyle,
+              condition.bottomBorderColor);
+        }
+      });
+    }
+  }
+
+  /// Serializes Dxf border.
+  void _serializeDxfBorder(XmlBuilder builder, String value,
+      LineStyle borderStyle, String borderColor) {
+    builder.element(value, nest: () {
+      final String _strStyle = borderStyle
+          .toString()
+          .split('.')
+          .toList()
+          .removeAt(1)
+          .toString()
+          .toLowerCase();
+      builder.attribute('style', _strStyle);
+      builder.element('color', nest: () {
+        if (borderColor.length <= 7) {
+          builder.attribute('rgb', 'FF' + borderColor.replaceAll('#', ''));
+        } else {
+          builder.attribute('rgb', borderColor);
+        }
+      });
+    });
+  }
+
+  /// Serializes conditional formattings.
+  void _serializeConditionalFormattingExt(XmlBuilder builder, Worksheet sheet) {
+    final bool hasExtensionList = _hasExtensionListOnCF(sheet);
+    if (!hasExtensionList) return;
+    int iPriority = 1;
+    int iPriorityCount = 0;
+
+    if (hasExtensionList) {
+      builder.element('ext', nest: () {
+        builder.namespace(
+            'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
+        builder.attribute('uri', '{78C0D931-6437-407d-A8EE-F0AAD7539E65}');
+        builder.attribute('xmlns:x14',
+            'http://schemas.microsoft.com/office/spreadsheetml/2009/9/main');
+
+        builder.element('x14:conditionalFormattings', nest: () {
+          for (final ConditionalFormats conditions
+              in sheet.conditionalFormats) {
+            for (int i = 0; i < conditions.count; i++) {
+              final ConditionalFormat condition =
+                  (conditions as _ConditionalFormatsImpl).innerList[i];
+              final _ConditionalFormatImpl format =
+                  (condition as _ConditionalFormatImpl);
+              _IconSetImpl? iconSet = null;
+              if (format.iconSet != null) {
+                iconSet = (format.iconSet as _IconSetImpl);
+              }
+              if (format._bCFHasExtensionList) {
+                final _ConditionalFormatsImpl formats = conditions;
+                format._rangeRefernce = (formats._cellList.isNotEmpty)
+                    ? (' ' + formats._cellList)
+                    : '';
+
+                if ((condition.formatType == ExcelCFType.formula &&
+                        condition.firstFormula != '') ||
+                    condition.formatType == ExcelCFType.specificText &&
+                        condition.firstFormula != '' &&
+                        (condition.operator ==
+                                ExcelComparisonOperator.beginsWith ||
+                            condition.operator ==
+                                ExcelComparisonOperator.endsWith ||
+                            condition.operator ==
+                                ExcelComparisonOperator.containsText ||
+                            condition.operator ==
+                                ExcelComparisonOperator.notContainsText) ||
+                    condition.formatType == ExcelCFType.cellValue &&
+                        condition.firstFormula != '' &&
+                        (condition.operator == ExcelComparisonOperator.equal ||
+                            condition.operator ==
+                                ExcelComparisonOperator.notEqual ||
+                            condition.operator ==
+                                ExcelComparisonOperator.greater ||
+                            condition.operator ==
+                                ExcelComparisonOperator.greaterOrEqual ||
+                            condition.operator ==
+                                ExcelComparisonOperator.less ||
+                            condition.operator ==
+                                ExcelComparisonOperator.lessOrEqual ||
+                            (condition.secondFormula != '' &&
+                                (condition.operator ==
+                                        ExcelComparisonOperator.between ||
+                                    condition.operator ==
+                                        ExcelComparisonOperator.notBetween)))) {
+                  builder.element('x14:conditionalFormatting', nest: () {
+                    builder.attribute('xmlns:xm',
+                        'http://schemas.microsoft.com/office/excel/2006/main');
+                    builder.element('x14:cfRule', nest: () {
+                      builder.attribute('type',
+                          _getCFType(condition.formatType, condition.operator));
+                      if (format._priority > 1) {
+                        builder.attribute(
+                            'priority', format._priority.toString());
+                      } else {
+                        builder.attribute('priority', iPriority.toString());
+                        iPriority++;
+                      }
+                      if (condition.formatType == ExcelCFType.cellValue ||
+                          condition.formatType == ExcelCFType.specificText) {
+                        builder.attribute('operator',
+                            _getCFComparisonOperatorName(condition.operator));
+                      }
+                      // writer.WriteAttributeString(IdAttributeName, format.ST_GUID.ToString());
+                      final _ConditionalFormatImpl conFormatImpl = condition;
+                      final String strFormula1 = conFormatImpl.firstFormula;
+                      final String strFormula2 = conFormatImpl.secondFormula;
+                      if (strFormula1 != '' && strFormula1 != '') {
+                        builder.element('xm:f', nest: strFormula1);
+                      }
+                      if (strFormula2 != '' && strFormula2 != '') {
+                        builder.element('xm:f', nest: strFormula2);
+                      } else if (format._range != null) {
+                        builder.element('xm:f',
+                            nest: (format._range)!.addressGlobal);
+                      }
+
+                      builder.element('dxf', nest: () {
+                        _serializeDxfFont(builder, condition);
+                        _serializeDxfFill(builder, condition);
+                        _serializeDxfBorders(builder, condition);
+                      });
+                    });
+                    builder.element('xm:sqref', nest: format._rangeRefernce);
+                  });
+                }
+              }
+              if (condition.iconSet != null &&
+                  (format._bCFHasExtensionList ||
+                      format.iconSet!.iconSet == ExcelIconSetType.threeStars ||
+                      (iconSet != null && iconSet._isCustom) ||
+                      format.iconSet!.iconSet == ExcelIconSetType.fiveBoxes ||
+                      format.iconSet!.iconSet ==
+                          ExcelIconSetType.threeTriangles)) {
+                final int iDxfIndex = _iDxfIndex;
+
+                builder.element('x14:conditionalFormatting', nest: () {
+                  builder.attribute('xmlns:xm',
+                      'http://schemas.microsoft.com/office/excel/2006/main');
+                  final List result = _serializeCondition(builder, condition,
+                      'x14:', iDxfIndex, iPriority, iPriorityCount);
+                  _iDxfIndex = result[0];
+                  iPriority = result[1];
+                  iPriorityCount = result[2];
+
+                  final _ConditionalFormatsImpl formats = conditions;
+                  final String strAddress = (formats._cellList.isNotEmpty)
+                      ? (' ' + formats._cellList)
+                      : '';
+                  builder.element('xm:sqref', nest: strAddress);
+                });
+              }
+              if (condition.dataBar != null &&
+                  (condition.dataBar as _DataBarImpl)._hasExtensionList) {
+                final DataBar dataBar = condition.dataBar!;
+                final _DataBarImpl dataBarImpl = (dataBar as _DataBarImpl);
+
+                builder.element('x14:conditionalFormatting', nest: () {
+                  builder.element('x14:cfRule', nest: () {
+                    builder.attribute('type', 'dataBar');
+                    builder.attribute('id', dataBarImpl._stGUID!);
+
+                    builder.element('x14:dataBar', nest: () {
+                      builder.attribute(
+                          'border', (dataBar.hasBorder) ? '1' : '0');
+                      builder.attribute(
+                          'gradient', (dataBar.hasGradientFill) ? '1' : '0');
+                      builder.attribute(
+                          'minLength', dataBar.percentMin.toString());
+                      builder.attribute(
+                          'maxLength', dataBar.percentMax.toString());
+                      builder.attribute('direction',
+                          dataBar.dataBarDirection.toString().substring(17));
+                      builder.attribute('negativeBarColorSameAsPositive',
+                          (dataBarImpl._hasDiffNegativeBarColor) ? '0' : '1');
+                      builder.attribute(
+                          'negativeBarBorderColorSameAsPositive',
+                          (dataBarImpl._hasDiffNegativeBarBorderColor)
+                              ? '0'
+                              : '1');
+                      builder.attribute('axisPosition',
+                          dataBar.dataBarAxisPosition.toString().substring(20));
+
+                      _serializeConditionValueObjectExt(
+                          builder, dataBar.minPoint, false, true);
+                      _serializeConditionValueObjectExt(
+                          builder, dataBar.maxPoint, false, false);
+
+                      if (dataBar.borderColor != '') {
+                        _serializeRgbColor(
+                            builder, 'x14:borderColor', dataBar.borderColor);
+                      }
+                      if (dataBar.negativeFillColor != '') {
+                        _serializeRgbColor(builder, 'x14:negativeFillColor',
+                            dataBar.negativeFillColor);
+                      }
+                      if (dataBar.negativeBorderColor != '') {
+                        _serializeRgbColor(builder, 'x14:negativeBorderColor',
+                            dataBar.negativeBorderColor);
+                      }
+                      if (dataBar.barAxisColor != '') {
+                        _serializeRgbColor(
+                            builder, 'x14:axisColor', dataBar.barAxisColor);
+                      }
+                    });
+                  });
+                });
+              }
+            }
+          }
+        });
+      });
+    }
+  }
+
+  /// Check whether the sheet has conditional formats or not.
+  bool _hasExtensionListOnCF(Worksheet sheet) {
+    if (sheet.conditionalFormats.isEmpty) return false;
+    bool hasExtensionList = false;
+    for (final ConditionalFormats conditions in sheet.conditionalFormats) {
+      for (int i = 0; i < conditions.count; i++) {
+        final ConditionalFormat condition =
+            (conditions as _ConditionalFormatsImpl).innerList[i];
+        if (condition.dataBar != null &&
+            (condition.dataBar as _DataBarImpl)._hasExtensionList) {
+          hasExtensionList = true;
+          break;
+        } else if ((condition as _ConditionalFormatImpl)._bCFHasExtensionList &&
+            condition.formatType == ExcelCFType.specificText) {
+          hasExtensionList = true;
+          break;
+        } else if ((condition.iconSet != null) &&
+            (condition)._bCFHasExtensionList) {
+          hasExtensionList = true;
+          break;
+        } else if ((condition)._bCFHasExtensionList &&
+            condition.formatType == ExcelCFType.formula &&
+            condition.firstFormula != '' &&
+            condition.firstFormula.contains('!')) {
+          hasExtensionList = true;
+          break;
+        } else if ((condition)._bCFHasExtensionList &&
+            condition.formatType == ExcelCFType.cellValue) {
+          hasExtensionList = true;
+          break;
+        }
+      }
+    }
+    if (hasExtensionList) return true;
+    return false;
+  }
+
+  /// Serializes conditional value object.
+  void _serializeConditionValueObjectExt(XmlBuilder builder,
+      ConditionValue conditionValue, bool isIconSet, bool isMinPoint) {
+    builder.element('x14:cfvo', nest: () {
+      int index = conditionValue.type.index;
+      if (!isIconSet) {
+        index = index == 7
+            ? isMinPoint
+                ? 7
+                : 8
+            : index;
+      }
+      final String strType = _valueTypes[index];
+      builder.attribute('type', strType);
+      builder.attribute('val', conditionValue.value);
+      if (isIconSet) {
+        builder.attribute('gte', (conditionValue.operator).index.toString());
+      }
+    });
+  }
+
+  // Check whether to apply format or not.
+  bool _checkFormat(_ConditionalFormatImpl condition) {
+    return condition.backColor != '#FFFFFF' ||
+        condition.isBold ||
+        condition.isItalic ||
+        condition.underline ||
+        condition.fontColor != '#000000' ||
+        condition.numberFormat != 'General' ||
+        condition.leftBorderStyle != LineStyle.none ||
+        condition.rightBorderStyle != LineStyle.none ||
+        condition.topBorderStyle != LineStyle.none ||
+        condition.bottomBorderStyle != LineStyle.none;
   }
 
   /// Add the workbook data with filename to ZipArchive.

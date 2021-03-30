@@ -1,7 +1,21 @@
-part of calendar;
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:intl/intl.dart' show DateFormat;
+import 'package:syncfusion_flutter_core/core.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 
-class _MonthViewWidget extends StatefulWidget {
-  _MonthViewWidget(
+import '../appointment_engine/appointment_helper.dart';
+import '../common/calendar_view_helper.dart';
+import '../common/date_time_engine.dart';
+import '../common/event_args.dart';
+import '../settings/month_view_settings.dart';
+import '../sfcalendar.dart';
+
+/// Used to hold the month cell views on calendar month view.
+class MonthViewWidget extends StatefulWidget {
+  /// Constructor to create the month view widget to holds month cells for
+  /// calendar month view.
+  MonthViewWidget(
       this.visibleDates,
       this.rowCount,
       this.monthCellStyle,
@@ -23,32 +37,72 @@ class _MonthViewWidget extends StatefulWidget {
       this.height,
       this.visibleAppointmentNotifier);
 
+  /// Defines the row count for the month view.
   final int rowCount;
+
+  /// Defines the style for the month cells.
   final MonthCellStyle monthCellStyle;
+
+  /// Holds the current month view widget dates.
   final List<DateTime> visibleDates;
+
+  /// Defines the direction of calendar widget is RTL or not.
   final bool isRTL;
-  final Color todayHighlightColor;
-  final TextStyle todayTextStyle;
-  final Color cellBorderColor;
+
+  /// Defines the today month cell highlight color.
+  final Color? todayHighlightColor;
+
+  /// Defines the today month cell text style.
+  final TextStyle? todayTextStyle;
+
+  /// Defines the month cell border color.
+  final Color? cellBorderColor;
+
+  /// Holds the theme data details for calendar.
   final SfCalendarThemeData calendarTheme;
-  final ValueNotifier<Offset> calendarCellNotifier;
+
+  /// Holds the current hovering point used to paint the hovering.
+  final ValueNotifier<Offset?> calendarCellNotifier;
+
+  /// Defines the min date of the calendar.
   final DateTime minDate;
+
+  /// Defines the max date of the calendar.
   final DateTime maxDate;
+
+  /// Holds the calendar instance used to get the calendar properties.
   final SfCalendar calendar;
+
+  /// Decides the trailing and leading of month view will visible or not.
   final bool showTrailingAndLeadingDates;
-  final List<DateTime> blackoutDates;
-  final TextStyle blackoutDatesTextStyle;
+
+  /// Holds the blackout dates collection of calendar.
+  final List<DateTime>? blackoutDates;
+
+  /// Defines the text style of the blackout dates month cell.
+  final TextStyle? blackoutDatesTextStyle;
+
+  /// Defines the scale factor for the month cell text.
   final double textScaleFactor;
+
+  /// Defines the width of the month view widget.
   final double width;
+
+  /// Defines the height of the month view widget.
   final double height;
-  final MonthCellBuilder builder;
-  final ValueNotifier<List<Appointment>> visibleAppointmentNotifier;
+
+  /// Used to build the widget that replaces the month cell.
+  final MonthCellBuilder? builder;
+
+  /// Holds the visible appointment collection used to trigger the builder
+  /// when its value changed.
+  final ValueNotifier<List<CalendarAppointment>?> visibleAppointmentNotifier;
 
   @override
   _MonthViewWidgetState createState() => _MonthViewWidgetState();
 }
 
-class _MonthViewWidgetState extends State<_MonthViewWidget> {
+class _MonthViewWidgetState extends State<MonthViewWidget> {
   @override
   void initState() {
     widget.visibleAppointmentNotifier.addListener(_updateAppointment);
@@ -56,11 +110,11 @@ class _MonthViewWidgetState extends State<_MonthViewWidget> {
   }
 
   @override
-  void didUpdateWidget(_MonthViewWidget oldWidget) {
+  void didUpdateWidget(MonthViewWidget oldWidget) {
     if (widget.visibleAppointmentNotifier !=
         oldWidget.visibleAppointmentNotifier) {
-      oldWidget.visibleAppointmentNotifier?.removeListener(_updateAppointment);
-      widget.visibleAppointmentNotifier?.addListener(_updateAppointment);
+      oldWidget.visibleAppointmentNotifier.removeListener(_updateAppointment);
+      widget.visibleAppointmentNotifier.addListener(_updateAppointment);
     }
 
     super.didUpdateWidget(oldWidget);
@@ -68,7 +122,7 @@ class _MonthViewWidgetState extends State<_MonthViewWidget> {
 
   @override
   void dispose() {
-    widget.visibleAppointmentNotifier?.removeListener(_updateAppointment);
+    widget.visibleAppointmentNotifier.removeListener(_updateAppointment);
     super.dispose();
   }
 
@@ -77,13 +131,14 @@ class _MonthViewWidgetState extends State<_MonthViewWidget> {
     final List<Widget> children = <Widget>[];
     if (widget.builder != null) {
       final int visibleDatesCount = widget.visibleDates.length;
-      final double cellWidth = widget.width / _kNumberOfDaysInWeek;
+      final double cellWidth = widget.width / DateTime.daysPerWeek;
       final double cellHeight = widget.height / widget.rowCount;
       double xPosition = 0, yPosition = 0;
       final int currentMonth =
           widget.visibleDates[visibleDatesCount ~/ 2].month;
-      final bool showTrailingLeadingDates = _isLeadingAndTrailingDatesVisible(
-          widget.rowCount, widget.showTrailingAndLeadingDates);
+      final bool showTrailingLeadingDates =
+          CalendarViewHelper.isLeadingAndTrailingDatesVisible(
+              widget.rowCount, widget.showTrailingAndLeadingDates);
       for (int i = 0; i < visibleDatesCount; i++) {
         final DateTime currentVisibleDate = widget.visibleDates[i];
         if (!showTrailingLeadingDates &&
@@ -97,29 +152,33 @@ class _MonthViewWidgetState extends State<_MonthViewWidget> {
           continue;
         }
 
-        final List<Appointment> appointments = _getSelectedDateAppointments(
-            widget.visibleAppointmentNotifier.value,
-            widget.calendar.timeZone,
-            currentVisibleDate);
+        final List<CalendarAppointment> appointments =
+            AppointmentHelper.getSelectedDateAppointments(
+                widget.visibleAppointmentNotifier.value,
+                widget.calendar.timeZone,
+                currentVisibleDate);
         List<dynamic> monthCellAppointment = appointments;
         if (widget.calendar.dataSource != null &&
-            !_isCalendarAppointment(widget.calendar.dataSource)) {
-          monthCellAppointment = _getCustomAppointments(appointments);
+            !AppointmentHelper.isCalendarAppointment(
+                widget.calendar.dataSource!)) {
+          monthCellAppointment =
+              CalendarViewHelper.getCustomAppointments(appointments);
         }
 
-        final MonthCellDetails details = MonthCellDetails(
-            date: currentVisibleDate,
-            visibleDates: List.unmodifiable(widget.visibleDates),
-            appointments: List.unmodifiable(monthCellAppointment),
-            bounds: Rect.fromLTWH(
-                widget.isRTL ? widget.width - xPosition - cellWidth : xPosition,
-                yPosition,
-                cellWidth,
-                cellHeight));
-        final Widget child = widget.builder(context, details);
-        if (child != null) {
-          children.add(RepaintBoundary(child: child));
-        }
+        final Widget child = widget.builder!(
+            context,
+            MonthCellDetails(
+                currentVisibleDate,
+                List.unmodifiable(monthCellAppointment),
+                List.unmodifiable(widget.visibleDates),
+                Rect.fromLTWH(
+                    widget.isRTL
+                        ? widget.width - xPosition - cellWidth
+                        : xPosition,
+                    yPosition,
+                    cellWidth,
+                    cellHeight)));
+        children.add(RepaintBoundary(child: child));
 
         xPosition += cellWidth;
         if (xPosition + 1 >= widget.width) {
@@ -179,23 +238,23 @@ class _MonthViewRenderObjectWidget extends MultiChildRenderObjectWidget {
       this.textScaleFactor,
       this.width,
       this.height,
-      {List<Widget> children})
+      {List<Widget> children = const <Widget>[]})
       : super(children: children);
 
   final int rowCount;
   final MonthCellStyle monthCellStyle;
   final List<DateTime> visibleDates;
-  final List<Appointment> visibleAppointments;
+  final List<CalendarAppointment>? visibleAppointments;
   final bool isRTL;
-  final Color todayHighlightColor;
-  final TextStyle todayTextStyle;
-  final Color cellBorderColor;
+  final Color? todayHighlightColor;
+  final TextStyle? todayTextStyle;
+  final Color? cellBorderColor;
   final SfCalendarThemeData calendarTheme;
-  final ValueNotifier<Offset> calendarCellNotifier;
+  final ValueNotifier<Offset?> calendarCellNotifier;
   final DateTime minDate;
   final DateTime maxDate;
-  final List<DateTime> blackoutDates;
-  final TextStyle blackoutDatesTextStyle;
+  final List<DateTime>? blackoutDates;
+  final TextStyle? blackoutDatesTextStyle;
   final bool showTrailingAndLeadingDates;
   final double textScaleFactor;
   final double width;
@@ -249,7 +308,7 @@ class _MonthViewRenderObjectWidget extends MultiChildRenderObjectWidget {
   }
 }
 
-class _MonthViewRenderObject extends _CustomCalendarRenderObject {
+class _MonthViewRenderObject extends CustomCalendarRenderObject {
   _MonthViewRenderObject(
       this._visibleDates,
       this._visibleAppointments,
@@ -322,11 +381,11 @@ class _MonthViewRenderObject extends _CustomCalendarRenderObject {
     markNeedsPaint();
   }
 
-  Color _todayHighlightColor;
+  Color? _todayHighlightColor;
 
-  Color get todayHighlightColor => _todayHighlightColor;
+  Color? get todayHighlightColor => _todayHighlightColor;
 
-  set todayHighlightColor(Color value) {
+  set todayHighlightColor(Color? value) {
     if (_todayHighlightColor == value) {
       return;
     }
@@ -339,11 +398,11 @@ class _MonthViewRenderObject extends _CustomCalendarRenderObject {
     markNeedsPaint();
   }
 
-  TextStyle _todayTextStyle;
+  TextStyle? _todayTextStyle;
 
-  TextStyle get todayTextStyle => _todayTextStyle;
+  TextStyle? get todayTextStyle => _todayTextStyle;
 
-  set todayTextStyle(TextStyle value) {
+  set todayTextStyle(TextStyle? value) {
     if (_todayTextStyle == value) {
       return;
     }
@@ -356,11 +415,11 @@ class _MonthViewRenderObject extends _CustomCalendarRenderObject {
     markNeedsPaint();
   }
 
-  Color _cellBorderColor;
+  Color? _cellBorderColor;
 
-  Color get cellBorderColor => _cellBorderColor;
+  Color? get cellBorderColor => _cellBorderColor;
 
-  set cellBorderColor(Color value) {
+  set cellBorderColor(Color? value) {
     if (_cellBorderColor == value) {
       return;
     }
@@ -480,11 +539,11 @@ class _MonthViewRenderObject extends _CustomCalendarRenderObject {
     markNeedsPaint();
   }
 
-  List<Appointment> _visibleAppointments;
+  List<CalendarAppointment>? _visibleAppointments;
 
-  List<Appointment> get visibleAppointments => _visibleAppointments;
+  List<CalendarAppointment>? get visibleAppointments => _visibleAppointments;
 
-  set visibleAppointments(List<Appointment> value) {
+  set visibleAppointments(List<CalendarAppointment>? value) {
     if (_visibleAppointments == value) {
       return;
     }
@@ -497,18 +556,19 @@ class _MonthViewRenderObject extends _CustomCalendarRenderObject {
     markNeedsPaint();
   }
 
-  List<DateTime> _blackoutDates;
+  List<DateTime>? _blackoutDates;
 
-  List<DateTime> get blackoutDates => _blackoutDates;
+  List<DateTime>? get blackoutDates => _blackoutDates;
 
-  set blackoutDates(List<DateTime> value) {
+  set blackoutDates(List<DateTime>? value) {
     if (_blackoutDates == value) {
       return;
     }
 
-    final List<DateTime> oldDates = _blackoutDates;
+    final List<DateTime>? oldDates = _blackoutDates;
     _blackoutDates = value;
-    if (_isEmptyList(_blackoutDates) && _isEmptyList(oldDates)) {
+    if (CalendarViewHelper.isEmptyList(_blackoutDates) &&
+        CalendarViewHelper.isEmptyList(oldDates)) {
       return;
     }
 
@@ -516,11 +576,11 @@ class _MonthViewRenderObject extends _CustomCalendarRenderObject {
     markNeedsPaint();
   }
 
-  TextStyle _blackoutDatesTextStyle;
+  TextStyle? _blackoutDatesTextStyle;
 
-  TextStyle get blackoutDatesTextStyle => _blackoutDatesTextStyle;
+  TextStyle? get blackoutDatesTextStyle => _blackoutDatesTextStyle;
 
-  set blackoutDatesTextStyle(TextStyle value) {
+  set blackoutDatesTextStyle(TextStyle? value) {
     if (_blackoutDatesTextStyle == value) {
       return;
     }
@@ -533,31 +593,31 @@ class _MonthViewRenderObject extends _CustomCalendarRenderObject {
     markNeedsPaint();
   }
 
-  ValueNotifier<Offset> _calendarCellNotifier;
+  ValueNotifier<Offset?> _calendarCellNotifier;
 
-  ValueNotifier<Offset> get calendarCellNotifier => _calendarCellNotifier;
+  ValueNotifier<Offset?> get calendarCellNotifier => _calendarCellNotifier;
 
-  set calendarCellNotifier(ValueNotifier<Offset> value) {
+  set calendarCellNotifier(ValueNotifier<Offset?> value) {
     if (_calendarCellNotifier == value) {
       return;
     }
 
-    _calendarCellNotifier?.removeListener(markNeedsPaint);
+    _calendarCellNotifier.removeListener(markNeedsPaint);
     _calendarCellNotifier = value;
-    _calendarCellNotifier?.addListener(markNeedsPaint);
+    _calendarCellNotifier.addListener(markNeedsPaint);
   }
 
   /// attach will called when the render object rendered in view.
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
-    _calendarCellNotifier?.addListener(markNeedsPaint);
+    _calendarCellNotifier.addListener(markNeedsPaint);
   }
 
   /// detach will called when the render object removed from view.
   @override
   void detach() {
-    _calendarCellNotifier?.removeListener(markNeedsPaint);
+    _calendarCellNotifier.removeListener(markNeedsPaint);
     super.detach();
   }
 
@@ -566,7 +626,7 @@ class _MonthViewRenderObject extends _CustomCalendarRenderObject {
     final Size widgetSize = constraints.biggest;
     size = Size(widgetSize.width.isInfinite ? width : widgetSize.width,
         widgetSize.height.isInfinite ? height : widgetSize.height);
-    final double cellWidth = size.width / _kNumberOfDaysInWeek;
+    final double cellWidth = size.width / DateTime.daysPerWeek;
     final double cellHeight = size.height / rowCount;
     for (var child = firstChild; child != null; child = childAfter(child)) {
       child.layout(constraints.copyWith(
@@ -580,17 +640,18 @@ class _MonthViewRenderObject extends _CustomCalendarRenderObject {
   @override
   void paint(PaintingContext context, Offset offset) {
     final bool _isNeedCustomPaint = childCount != 0;
-    final double cellWidth = size.width / _kNumberOfDaysInWeek;
+    final double cellWidth = size.width / DateTime.daysPerWeek;
     final double cellHeight = size.height / rowCount;
     if (!_isNeedCustomPaint) {
       _drawMonthCells(context.canvas, size);
     } else {
       double xPosition = 0, yPosition = 0;
-      RenderBox child = firstChild;
+      RenderBox? child = firstChild;
       final int visibleDatesCount = visibleDates.length;
       final int currentMonth = visibleDates[visibleDatesCount ~/ 2].month;
-      final bool showTrailingLeadingDates = _isLeadingAndTrailingDatesVisible(
-          rowCount, showTrailingAndLeadingDates);
+      final bool showTrailingLeadingDates =
+          CalendarViewHelper.isLeadingAndTrailingDatesVisible(
+              rowCount, showTrailingAndLeadingDates);
       for (int i = 0; i < visibleDatesCount; i++) {
         final DateTime currentVisibleDate = visibleDates[i];
         if (!showTrailingLeadingDates &&
@@ -603,14 +664,15 @@ class _MonthViewRenderObject extends _CustomCalendarRenderObject {
           continue;
         }
 
-        child.paint(
+        child!.paint(
             context,
             Offset(isRTL ? size.width - xPosition - cellWidth : xPosition,
                 yPosition));
         child = childAfter(child);
 
         if (calendarCellNotifier.value != null &&
-            !_isDateInDateCollection(blackoutDates, currentVisibleDate)) {
+            !CalendarViewHelper.isDateInDateCollection(
+                blackoutDates, currentVisibleDate)) {
           _addMouseHovering(context.canvas, size, cellWidth, cellHeight,
               xPosition, yPosition);
         }
@@ -624,18 +686,18 @@ class _MonthViewRenderObject extends _CustomCalendarRenderObject {
     }
   }
 
-  Paint _linePainter;
-  TextPainter _textPainter;
+  Paint _linePainter = Paint();
+  TextPainter _textPainter = TextPainter();
   static const double linePadding = 0.5;
-  List<int> _blackoutDatesIndex;
+  List<int> _blackoutDatesIndex = <int>[];
 
   void _updateBlackoutDatesIndex() {
     _blackoutDatesIndex = <int>[];
-    final int count = blackoutDates == null ? 0 : blackoutDates.length;
+    final int count = blackoutDates == null ? 0 : blackoutDates!.length;
     for (int i = 0; i < count; i++) {
-      final DateTime blackoutDate = blackoutDates[i];
+      final DateTime blackoutDate = blackoutDates![i];
       final int blackoutDateIndex =
-          _getVisibleDateIndex(visibleDates, blackoutDate);
+          DateTimeHelper.getVisibleDateIndex(visibleDates, blackoutDate);
       if (blackoutDateIndex == -1) {
         continue;
       }
@@ -645,18 +707,17 @@ class _MonthViewRenderObject extends _CustomCalendarRenderObject {
   }
 
   void _drawMonthCells(Canvas canvas, Size size) {
-    if (_blackoutDatesIndex == null || _blackoutDatesIndex.isEmpty) {
+    if (_blackoutDatesIndex.isEmpty) {
       _updateBlackoutDatesIndex();
     }
 
     double xPosition, yPosition;
-    final double cellWidth = size.width / _kNumberOfDaysInWeek;
+    final double cellWidth = size.width / DateTime.daysPerWeek;
     final double cellHeight = size.height / rowCount;
     xPosition = isRTL ? size.width - cellWidth : 0;
     const double viewPadding = 5;
     const double circlePadding = 4;
     yPosition = viewPadding;
-    _textPainter = _textPainter ?? TextPainter();
     _textPainter.textDirection = TextDirection.ltr;
     _textPainter.textWidthBasis = TextWidthBasis.longestLine;
     _textPainter.textScaleFactor = textScaleFactor;
@@ -669,7 +730,6 @@ class _MonthViewRenderObject extends _CustomCalendarRenderObject {
     final DateTime today = DateTime.now();
     bool isCurrentDate;
 
-    _linePainter = _linePainter ?? Paint();
     _linePainter.isAntiAlias = true;
     final TextStyle todayStyle = todayTextStyle ?? calendarTheme.todayTextStyle;
     final TextStyle currentMonthTextStyle =
@@ -679,11 +739,12 @@ class _MonthViewRenderObject extends _CustomCalendarRenderObject {
             calendarTheme.trailingDatesTextStyle;
     final TextStyle nextMonthTextStyle = monthCellStyle.leadingDatesTextStyle ??
         calendarTheme.leadingDatesTextStyle;
-    final TextStyle blackoutDatesStyle =
+    final TextStyle? blackoutDatesStyle =
         blackoutDatesTextStyle ?? calendarTheme.blackoutDatesTextStyle;
 
-    final bool showTrailingLeadingDates = _isLeadingAndTrailingDatesVisible(
-        rowCount, showTrailingAndLeadingDates);
+    final bool showTrailingLeadingDates =
+        CalendarViewHelper.isLeadingAndTrailingDatesVisible(
+            rowCount, showTrailingAndLeadingDates);
 
     for (int i = 0; i < visibleDatesCount; i++) {
       isCurrentDate = false;
@@ -799,9 +860,8 @@ class _MonthViewRenderObject extends _CustomCalendarRenderObject {
       }
 
       if (isCurrentDate) {
-        _linePainter ??= Paint();
         _linePainter.style = PaintingStyle.fill;
-        _linePainter.color = todayHighlightColor;
+        _linePainter.color = todayHighlightColor!;
         _linePainter.isAntiAlias = true;
 
         final double textHeight = _textPainter.height / 2;
@@ -841,14 +901,13 @@ class _MonthViewRenderObject extends _CustomCalendarRenderObject {
 
   void _addMouseHovering(Canvas canvas, Size size, double cellWidth,
       double cellHeight, double xPosition, double yPosition) {
-    if (xPosition <= calendarCellNotifier.value.dx &&
-        xPosition + cellWidth >= calendarCellNotifier.value.dx &&
-        yPosition <= calendarCellNotifier.value.dy &&
-        yPosition + cellHeight >= calendarCellNotifier.value.dy) {
-      _linePainter = _linePainter ?? Paint();
+    if (xPosition <= calendarCellNotifier.value!.dx &&
+        xPosition + cellWidth >= calendarCellNotifier.value!.dx &&
+        yPosition <= calendarCellNotifier.value!.dy &&
+        yPosition + cellHeight >= calendarCellNotifier.value!.dy) {
       _linePainter.style = PaintingStyle.stroke;
       _linePainter.strokeWidth = 2;
-      _linePainter.color = calendarTheme.selectionBorderColor.withOpacity(0.4);
+      _linePainter.color = calendarTheme.selectionBorderColor!.withOpacity(0.4);
       canvas.drawRect(
           Rect.fromLTWH(
               xPosition == 0 ? xPosition + linePadding : xPosition,
@@ -891,7 +950,7 @@ class _MonthViewRenderObject extends _CustomCalendarRenderObject {
   String _getAccessibilityText(DateTime date, int index) {
     final String accessibilityText =
         DateFormat('EEE, dd/MMMM/yyyy').format(date).toString();
-    if (_blackoutDatesIndex != null && _blackoutDatesIndex.contains(index)) {
+    if (_blackoutDatesIndex.contains(index)) {
       return accessibilityText + ', Blackout date';
     }
 
@@ -906,10 +965,11 @@ class _MonthViewRenderObject extends _CustomCalendarRenderObject {
     final List<CustomPainterSemantics> semanticsBuilder =
         <CustomPainterSemantics>[];
     double left = 0, top = 0;
-    final double cellWidth = size.width / _kNumberOfDaysInWeek;
+    final double cellWidth = size.width / DateTime.daysPerWeek;
     final double cellHeight = size.height / rowCount;
-    final bool showTrailingLeadingDates = _isLeadingAndTrailingDatesVisible(
-        rowCount, showTrailingAndLeadingDates);
+    final bool showTrailingLeadingDates =
+        CalendarViewHelper.isLeadingAndTrailingDatesVisible(
+            rowCount, showTrailingAndLeadingDates);
     final int currentMonth = visibleDates[visibleDates.length ~/ 2].month;
     for (int i = 0; i < visibleDates.length; i++) {
       final DateTime currentVisibleDate = visibleDates[i];

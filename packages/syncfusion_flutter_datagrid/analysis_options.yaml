@@ -4,5 +4,7 @@ analyzer:
   errors:
     lines_longer_than_80_chars: ignore
     include_file_not_found: ignore
+    invalid_dependency: ignore
+    avoid_as: ignore
 
 

@@ -8,40 +8,40 @@ part of charts;
 class HiloSeries<T, D> extends _FinancialSeriesBase<T, D> {
   /// Creating an argument constructor of HiloSeries class.
   HiloSeries(
-      {ValueKey<String> key,
-      ChartSeriesRendererFactory<T, D> onCreateRenderer,
-      @required List<T> dataSource,
-      @required ChartValueMapper<T, D> xValueMapper,
-      @required ChartValueMapper<T, num> lowValueMapper,
-      @required ChartValueMapper<T, num> highValueMapper,
-      ChartValueMapper<T, dynamic> sortFieldValueMapper,
-      ChartValueMapper<T, Color> pointColorMapper,
-      ChartValueMapper<T, String> dataLabelMapper,
-      SortingOrder sortingOrder,
-      String xAxisName,
-      String yAxisName,
-      String name,
-      Color color,
-      MarkerSettings markerSettings,
-      EmptyPointSettings emptyPointSettings,
-      DataLabelSettings dataLabelSettings,
-      bool isVisible,
-      bool enableTooltip,
-      double animationDuration,
-      double borderWidth,
+      {ValueKey<String>? key,
+      ChartSeriesRendererFactory<T, D>? onCreateRenderer,
+      required List<T> dataSource,
+      required ChartValueMapper<T, D> xValueMapper,
+      required ChartValueMapper<T, num> lowValueMapper,
+      required ChartValueMapper<T, num> highValueMapper,
+      ChartValueMapper<T, dynamic>? sortFieldValueMapper,
+      ChartValueMapper<T, Color>? pointColorMapper,
+      ChartValueMapper<T, String>? dataLabelMapper,
+      SortingOrder? sortingOrder,
+      String? xAxisName,
+      String? yAxisName,
+      String? name,
+      Color? color,
+      MarkerSettings? markerSettings,
+      EmptyPointSettings? emptyPointSettings,
+      DataLabelSettings? dataLabelSettings,
+      bool? isVisible,
+      bool? enableTooltip,
+      double? animationDuration,
+      double? borderWidth,
       // ignore: deprecated_member_use_from_same_package
-      SelectionSettings selectionSettings,
-      SelectionBehavior selectionBehavior,
-      bool isVisibleInLegend,
-      LegendIconType legendIconType,
-      String legendItemText,
-      List<double> dashArray,
-      double opacity,
-      double spacing,
-      List<int> initialSelectedDataIndexes,
-      bool showIndicationForSameValues,
-      List<Trendline> trendlines,
-      SeriesRendererCreatedCallback onRendererCreated})
+      SelectionSettings? selectionSettings,
+      SelectionBehavior? selectionBehavior,
+      bool? isVisibleInLegend,
+      LegendIconType? legendIconType,
+      String? legendItemText,
+      List<double>? dashArray,
+      double? opacity,
+      double? spacing,
+      List<int>? initialSelectedDataIndexes,
+      bool? showIndicationForSameValues,
+      List<Trendline>? trendlines,
+      SeriesRendererCreatedCallback? onRendererCreated})
       : super(
             key: key,
             onCreateRenderer: onCreateRenderer,
@@ -81,7 +81,7 @@ class HiloSeries<T, D> extends _FinancialSeriesBase<T, D> {
   HiloSeriesRenderer createRenderer(ChartSeries<T, D> series) {
     HiloSeriesRenderer seriesRenderer;
     if (onCreateRenderer != null) {
-      seriesRenderer = onCreateRenderer(series);
+      seriesRenderer = onCreateRenderer!(series) as HiloSeriesRenderer;
       assert(seriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return seriesRenderer;
@@ -91,43 +91,44 @@ class HiloSeries<T, D> extends _FinancialSeriesBase<T, D> {
 }
 
 /// Creates series renderer for Hilo series
-class HiloSeriesRenderer extends XyDataSeriesRenderer {
+class HiloSeriesRenderer extends _FinancialSerieBaseRenderer {
   /// Calling the default constructor of HiloSeriesRenderer class.
   HiloSeriesRenderer();
 
   // Store the rect position //
-  num _rectPosition;
+  late num _rectPosition;
 
   // Store the rect count //
-  num _rectCount;
+  late num _rectCount;
 
   /// Hilo segment is created here
   ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
-      int pointIndex, int seriesIndex, num animateFactor) {
+      int pointIndex, int seriesIndex, double animateFactor) {
     _isRectSeries = false;
     final HiloSegment segment = createSegment();
     final List<CartesianSeriesRenderer> oldSeriesRenderers =
-        _chartState._oldSeriesRenderers;
+        _chartState!._oldSeriesRenderers;
     if (segment != null) {
       segment._seriesIndex = seriesIndex;
       segment.currentSegmentIndex = pointIndex;
-      segment.points
-          .add(Offset(currentPoint.markerPoint.x, currentPoint.markerPoint.y));
       segment.points.add(
-          Offset(currentPoint.markerPoint2.x, currentPoint.markerPoint2.y));
-      segment._series = _series;
+          Offset(currentPoint.markerPoint!.x, currentPoint.markerPoint!.y));
+      segment.points.add(
+          Offset(currentPoint.markerPoint2!.x, currentPoint.markerPoint2!.y));
+      segment._series = _series as XyDataSeries;
       segment._seriesRenderer = this;
       segment.animationFactor = animateFactor;
       segment._pointColorMapper = currentPoint.pointColorMapper;
       segment._currentPoint = currentPoint;
-      if (_chartState._widgetNeedUpdate &&
-          !_chartState._isLegendToggled &&
+      if (_chartState!._widgetNeedUpdate &&
+          !_chartState!._isLegendToggled &&
           oldSeriesRenderers != null &&
           oldSeriesRenderers.isNotEmpty &&
           oldSeriesRenderers.length - 1 >= segment._seriesIndex &&
           oldSeriesRenderers[segment._seriesIndex]._seriesName ==
               segment._seriesRenderer._seriesName) {
         segment._oldSeriesRenderer = oldSeriesRenderers[segment._seriesIndex];
+        segment._oldSegmentIndex = _getOldSegmentIndex(segment);
       }
       segment.calculateSegmentPoints();
       customizeSegment(segment);
@@ -142,16 +143,16 @@ class HiloSeriesRenderer extends XyDataSeriesRenderer {
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     if (segment._seriesRenderer._isSelectionEnable) {
-      final SelectionBehaviorRenderer selectionBehaviorRenderer =
+      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
           segment._seriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer._selectionRenderer._checkWithSelectionState(
-          _segments[segment.currentSegmentIndex], _chart);
+      selectionBehaviorRenderer?._selectionRenderer?._checkWithSelectionState(
+          _segments[segment.currentSegmentIndex!], _chart);
     }
     segment.onPaint(canvas);
   }
 
   @override
-  ChartSegment createSegment() => HiloSegment();
+  HiloSegment createSegment() => HiloSegment();
 
   /// Changes the series color, border color, and border width.
   @override
@@ -165,11 +166,11 @@ class HiloSeriesRenderer extends XyDataSeriesRenderer {
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer seriesRenderer]) {
-    canvas.drawPath(seriesRenderer._markerShapes[index], fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes2[index], fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes[index], strokePaint);
-    canvas.drawPath(seriesRenderer._markerShapes2[index], strokePaint);
+      [CartesianSeriesRenderer? seriesRenderer]) {
+    canvas.drawPath(seriesRenderer!._markerShapes[index]!, fillPaint);
+    canvas.drawPath(seriesRenderer._markerShapes2[index]!, fillPaint);
+    canvas.drawPath(seriesRenderer._markerShapes[index]!, strokePaint);
+    canvas.drawPath(seriesRenderer._markerShapes2[index]!, strokePaint);
   }
 
   /// Draws data label text of the appropriate data point in a series.

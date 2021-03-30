@@ -5,8 +5,8 @@ class PdfUriAnnotation extends PdfActionLinkAnnotation {
   // constructor
   /// Initializes a new instance of the
   /// [PdfUriAnnotation] class with specified bounds and Uri.
-  PdfUriAnnotation({Rect bounds, String uri}) : super(bounds) {
-    ArgumentError.checkNotNull(uri, 'uri');
+  PdfUriAnnotation({required Rect bounds, required String uri})
+      : super(bounds) {
     _uriAction ??= PdfUriAction();
     this.uri = uri;
   }
@@ -19,13 +19,13 @@ class PdfUriAnnotation extends PdfActionLinkAnnotation {
 
   // fields
   String _uri = '';
-  PdfUriAction _uriAction;
+  PdfUriAction? _uriAction;
 
   // properties
   /// Gets the Uri address.
   String get uri {
     if (_isLoadedAnnotation) {
-      return _getUriText();
+      return _getUriText()!;
     } else {
       return _uri;
     }
@@ -33,28 +33,28 @@ class PdfUriAnnotation extends PdfActionLinkAnnotation {
 
   /// Sets the Uri address.
   set uri(String value) {
-    ArgumentError.checkNotNull(value, 'uri');
     if (_isLoadedAnnotation) {
       if (_uri != value) {
         _uri = value;
         if (_dictionary.containsKey(_DictionaryProperties.a)) {
-          final _PdfDictionary dictionary =
-              _PdfCrossTable._dereference(_dictionary[_DictionaryProperties.a]);
+          final _PdfDictionary? dictionary =
+              _PdfCrossTable._dereference(_dictionary[_DictionaryProperties.a])
+                  as _PdfDictionary?;
           if (dictionary != null) {
             dictionary._setString(_DictionaryProperties.uri, _uri);
+            dictionary.modify();
           }
-          dictionary.modify();
         }
       }
     } else {
       _uri = value;
-      if (_uriAction.uri != value) {
-        _uriAction.uri = value;
+      if (_uriAction!.uri != value) {
+        _uriAction!.uri = value;
         if (_isLoadedAnnotation) {
-          _PdfDictionary dictionary = _dictionary;
+          _PdfDictionary? dictionary = _dictionary;
           if (_dictionary.containsKey(_DictionaryProperties.a)) {
             dictionary = _PdfCrossTable._dereference(
-                _dictionary[_DictionaryProperties.a]) as _PdfDictionary;
+                _dictionary[_DictionaryProperties.a]) as _PdfDictionary?;
             if (dictionary != null) {
               dictionary._setString(_DictionaryProperties.uri, _uri);
             }
@@ -68,13 +68,15 @@ class PdfUriAnnotation extends PdfActionLinkAnnotation {
   @override
 
   /// Gets the action.
-  PdfAction get action => super.action;
+  PdfAction? get action => super.action;
 
   /// Sets the action.
   @override
-  set action(PdfAction value) {
-    super.action = value;
-    _uriAction.next = value;
+  set action(PdfAction? value) {
+    if (value != null) {
+      super.action = value;
+      _uriAction!.next = value;
+    }
   }
 
   // implementation
@@ -85,22 +87,22 @@ class PdfUriAnnotation extends PdfActionLinkAnnotation {
     _dictionary.setProperty(_PdfName(_DictionaryProperties.subtype),
         _PdfName(_DictionaryProperties.link));
     _dictionary.setProperty(_PdfName(_DictionaryProperties.a),
-        _uriAction._element ??= _uriAction._dictionary);
+        _uriAction!._element ??= _uriAction!._dictionary);
   }
 
-  String _getUriText() {
-    String uriText = '';
+  String? _getUriText() {
+    String? uriText = '';
     if (_dictionary.containsKey(_DictionaryProperties.a)) {
-      final _PdfDictionary dictionary =
+      final _PdfDictionary? dictionary =
           _PdfCrossTable._dereference(_dictionary[_DictionaryProperties.a])
-              as _PdfDictionary;
+              as _PdfDictionary?;
       if (dictionary != null &&
           dictionary.containsKey(_DictionaryProperties.uri)) {
-        final _PdfString text =
+        final _PdfString? tempText =
             _PdfCrossTable._dereference(dictionary[_DictionaryProperties.uri])
-                as _PdfString;
-        if (text != null) {
-          uriText = text.value;
+                as _PdfString?;
+        if (tempText != null) {
+          uriText = tempText.value;
         }
       }
     }
@@ -108,5 +110,5 @@ class PdfUriAnnotation extends PdfActionLinkAnnotation {
   }
 
   @override
-  _IPdfPrimitive _element;
+  _IPdfPrimitive? _element;
 }

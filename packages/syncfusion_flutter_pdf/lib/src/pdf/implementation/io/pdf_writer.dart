@@ -10,18 +10,18 @@ class _PdfWriter implements _IPdfWriter {
   }
 
   //Fields
-  List<int> _buffer;
+  List<int>? _buffer;
 
   //_IPdfWriter members
   @override
-  PdfDocument _document;
+  PdfDocument? _document;
   @override
   //ignore:unused_field
-  int _length;
+  int? _length;
   @override
-  int _position;
+  int? _position;
   @override
-  void _write(dynamic data, [int end]) {
+  void _write(dynamic data, [int? end]) {
     if (data == null) {
       throw ArgumentError.value(data, 'data', 'value cannot be null');
     }
@@ -48,12 +48,12 @@ class _PdfWriter implements _IPdfWriter {
       } else {
         length = end;
       }
-      _length += length;
-      _position += length;
+      _length = _length! + length;
+      _position = _position! + length;
       if (end == null) {
-        _buffer.addAll(data);
+        _buffer!.addAll(data);
       } else {
-        _buffer.addAll(data.take(end));
+        _buffer!.addAll(data.take(end));
       }
     }
   }

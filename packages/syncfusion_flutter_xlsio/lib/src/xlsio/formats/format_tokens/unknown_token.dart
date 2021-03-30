@@ -9,8 +9,6 @@ class _UnknownToken extends _FormatTokenBase {
   /// </summary>
   @override
   int _tryParse(String strFormat, int iIndex) {
-    if (strFormat == null) throw ('strFormat');
-
     final int iFormatLength = strFormat.length;
 
     if (iFormatLength == 0) throw ('strFormat - string cannot be empty');

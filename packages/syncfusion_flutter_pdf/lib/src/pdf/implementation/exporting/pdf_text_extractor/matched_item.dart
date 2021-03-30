@@ -11,13 +11,13 @@ class MatchedItem {
 
   //Fields
   /// The searched text.
-  String text;
+  late String text;
 
   /// Rectangle bounds of the searched text.
-  Rect bounds;
+  late Rect bounds;
 
   /// Page number of the searched text.
-  int pageIndex;
+  late int pageIndex;
 }
 
 /// Defines the constants that specify the option for text search.

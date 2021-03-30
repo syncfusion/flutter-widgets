@@ -6,7 +6,7 @@ class PdfUriAction extends PdfAction {
   /// Initializes a new instance of the [PdfUriAction] class.
   ///
   /// [uri] - the unique resource identifier.
-  PdfUriAction([String uri]) : super._() {
+  PdfUriAction([String? uri]) : super._() {
     if (uri != null) {
       this.uri = uri;
     }
@@ -22,7 +22,6 @@ class PdfUriAction extends PdfAction {
 
   /// Sets the unique resource identifier.
   set uri(String value) {
-    ArgumentError.checkNotNull(value, 'uri');
     _uri = value;
     _dictionary._setString(_DictionaryProperties.uri, _uri);
   }

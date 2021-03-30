@@ -3,22 +3,92 @@ part of xlsio;
 /// Represents cell borders
 class Borders {
   /// Represent the left border.
-  Border left;
+  /// ```dart
+  /// final Workbook workbook = Workbook();
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// final Style style = workbook.styles.add('style');
+  /// // set borders line style and color.
+  /// style.borders.left.lineStyle = LineStyle.thick;
+  /// style.borders.left.color = '#9954CC';
+  /// final Range range1 = sheet.getRangeByIndex(3, 4);
+  /// range1.number = 10;
+  /// range1.cellStyle = style;
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// File('CellStyle.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
+  late Border left;
 
   /// Represent the right border.
-  Border right;
+  /// ```dart
+  /// final Workbook workbook = Workbook();
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// final Style style = workbook.styles.add('style');
+  /// // set borders line style and color.
+  /// style.borders.right.lineStyle = LineStyle.thick;
+  /// style.borders.right.color = '#9954CC';
+  /// final Range range1 = sheet.getRangeByIndex(3, 4);
+  /// range1.number = 10;
+  /// range1.cellStyle = style;
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// File('CellStyle.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
+  late Border right;
 
   /// Represent the bottom border.
-  Border bottom;
+  /// ```dart
+  /// final Workbook workbook = Workbook();
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// final Style style = workbook.styles.add('style');
+  /// // set borders line style and color.
+  /// style.borders.bottom.lineStyle = LineStyle.thick;
+  /// style.borders.bottom.color = '#9954CC';
+  /// final Range range1 = sheet.getRangeByIndex(3, 4);
+  /// range1.number = 10;
+  /// range1.cellStyle = style;
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// File('CellStyle.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
+  late Border bottom;
 
   /// Represent the top border.
-  Border top;
+  /// ```dart
+  /// final Workbook workbook = Workbook();
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// final Style style = workbook.styles.add('style');
+  /// // set borders line style and color.
+  /// style.borders.all.lineStyle = LineStyle.thick;
+  /// style.borders.all.color = '#9954CC';
+  /// final Range range1 = sheet.getRangeByIndex(3, 4);
+  /// range1.number = 10;
+  /// range1.cellStyle = style;
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// File('CellStyle.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
+  late Border top;
 
   /// Represent the all borders.
-  Border all;
+  /// ```dart
+  /// final Workbook workbook = Workbook();
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// final Style style = workbook.styles.add('style');
+  /// // set borders line style and color.
+  /// style.borders.all.lineStyle = LineStyle.thick;
+  /// style.borders.all.color = '#9954CC';
+  /// final Range range1 = sheet.getRangeByIndex(3, 4);
+  /// range1.number = 10;
+  /// range1.cellStyle = style;
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// File('CellStyle.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
+  late Border all;
 
   /// Represent the workbook.
-  Workbook _workbook;
+  late Workbook _workbook;
 }
 
 /// Represents cell borders
@@ -34,28 +104,28 @@ class BordersCollection implements Borders {
   }
 
   /// Represent the left border.
-  Border _left;
+  late Border _left;
 
   /// Represent the right border.
-  Border _right;
+  late Border _right;
 
   /// Represent the bottom border.
-  Border _bottom;
+  late Border _bottom;
 
   /// Represent the top border.
-  Border _top;
+  late Border _top;
 
   /// Represent the all borders.
-  Border _all;
+  late Border _all;
 
   /// Represent the workbook.
   @override
-  Workbook _workbook;
+  late Workbook _workbook;
 
   /// Represent the left border.
   @override
   // ignore: unnecessary_getters_setters
-  CellBorder get left {
+  Border get left {
     return _left;
   }
 
@@ -68,7 +138,7 @@ class BordersCollection implements Borders {
   /// Represent the right border.
   @override
   // ignore: unnecessary_getters_setters
-  CellBorder get right {
+  Border get right {
     return _right;
   }
 
@@ -81,7 +151,7 @@ class BordersCollection implements Borders {
   /// Represent the bottom border.
   @override
   // ignore: unnecessary_getters_setters
-  CellBorder get bottom {
+  Border get bottom {
     return _bottom;
   }
 
@@ -94,7 +164,7 @@ class BordersCollection implements Borders {
   /// Represents the top border.
   @override
   // ignore: unnecessary_getters_setters
-  CellBorder get top {
+  Border get top {
     return _top;
   }
 
@@ -107,7 +177,7 @@ class BordersCollection implements Borders {
   /// Represent the all borders.
   @override
   // ignore: unnecessary_getters_setters
-  CellBorder get all {
+  Border get all {
     return _all;
   }
 
@@ -120,28 +190,34 @@ class BordersCollection implements Borders {
   /// Clone method of BordersCollecton.
   BordersCollection _clone() {
     final BordersCollection bordersCollection = BordersCollection(_workbook);
-    bordersCollection.all = all._clone();
-    bordersCollection.left = left._clone();
-    bordersCollection.right = right._clone();
-    bordersCollection.top = top._clone();
-    bordersCollection.bottom = bottom._clone();
+    bordersCollection.all = (all as CellBorder)._clone();
+    bordersCollection.left = (left as CellBorder)._clone();
+    bordersCollection.right = (right as CellBorder)._clone();
+    bordersCollection.top = (top as CellBorder)._clone();
+    bordersCollection.bottom = (bottom as CellBorder)._clone();
     return bordersCollection;
   }
 
   /// Compares two instances of the Cell borders.
   @override
   bool operator ==(Object toCompare) {
-    final BordersCollection toCompareBorders = toCompare;
+    // ignore: test_types_in_equals
+    final BordersCollection toCompareBorders = toCompare as BordersCollection;
 
     return (all.color == toCompareBorders.all.color &&
+        all.colorRgb == toCompareBorders.all.colorRgb &&
         all.lineStyle == toCompareBorders.all.lineStyle &&
         left.color == toCompareBorders.left.color &&
+        left.colorRgb == toCompareBorders.left.colorRgb &&
         left.lineStyle == toCompareBorders.left.lineStyle &&
         right.color == toCompareBorders.right.color &&
+        right.colorRgb == toCompareBorders.right.colorRgb &&
         right.lineStyle == toCompareBorders.right.lineStyle &&
         top.color == toCompareBorders.top.color &&
+        top.colorRgb == toCompareBorders.top.colorRgb &&
         top.lineStyle == toCompareBorders.top.lineStyle &&
         bottom.color == toCompareBorders.bottom.color &&
+        bottom.colorRgb == toCompareBorders.bottom.colorRgb &&
         bottom.lineStyle == toCompareBorders.bottom.lineStyle);
   }
 
@@ -150,25 +226,25 @@ class BordersCollection implements Borders {
 
   /// Crear all the borders.
   void _clear() {
-    if (_all != null) {
-      _all = null;
-    }
+    // if (_all != null) {
+    //   _all = null;
+    // }
 
-    if (_left != null) {
-      _left = null;
-    }
+    // if (_left != null) {
+    //   _left = null;
+    // }
 
-    if (_right != null) {
-      _right = null;
-    }
+    // if (_right != null) {
+    //   _right = null;
+    // }
 
-    if (_top != null) {
-      _top = null;
-    }
+    // if (_top != null) {
+    //   _top = null;
+    // }
 
-    if (_bottom != null) {
-      _bottom = null;
-    }
+    // if (_bottom != null) {
+    //   _bottom = null;
+    // }
   }
 }
 
@@ -185,26 +261,26 @@ class BordersCollectionWrapper implements Borders {
   }
 
   /// Represent the left border.
-  Border _left;
+  Border? _left;
 
   /// Represent the right border.
-  Border _right;
+  Border? _right;
 
   /// Represent the bottom border.
-  Border _bottom;
+  Border? _bottom;
 
   /// Represent the top border.
-  Border _top;
+  Border? _top;
 
   /// Represent the all borders.
-  Border _all;
+  Border? _all;
 
   /// Represent the workbook.
   @override
-  Workbook _workbook;
+  late Workbook _workbook;
 
-  List<Range> _arrRanges;
-  List<Borders> _bordersCollection;
+  late List<Range> _arrRanges;
+  late List<Borders> _bordersCollection;
 
   /// Represent the left border.
   @override
@@ -216,7 +292,7 @@ class BordersCollectionWrapper implements Borders {
       }
       _left = CellBorderWrapper(borders);
     }
-    return _left;
+    return _left!;
   }
 
   @override
@@ -232,13 +308,13 @@ class BordersCollectionWrapper implements Borders {
   @override
   Border get right {
     if (_right == null) {
-      final List<Border> borders = [];
+      final List<Border?> borders = [];
       for (final Borders border in _bordersCollection) {
         borders.add(border.right);
       }
       _right = CellBorderWrapper(borders);
     }
-    return _right;
+    return _right!;
   }
 
   @override
@@ -254,13 +330,13 @@ class BordersCollectionWrapper implements Borders {
   @override
   Border get bottom {
     if (_bottom == null) {
-      final List<Border> borders = [];
+      final List<Border?> borders = [];
       for (final Borders border in _bordersCollection) {
         borders.add(border.bottom);
       }
       _bottom = CellBorderWrapper(borders);
     }
-    return _bottom;
+    return _bottom!;
   }
 
   @override
@@ -276,13 +352,13 @@ class BordersCollectionWrapper implements Borders {
   @override
   Border get top {
     if (_top == null) {
-      final List<Border> borders = [];
+      final List<Border?> borders = [];
       for (final Borders border in _bordersCollection) {
         borders.add(border.top);
       }
       _top = CellBorderWrapper(borders);
     }
-    return _top;
+    return _top!;
   }
 
   @override
@@ -298,13 +374,13 @@ class BordersCollectionWrapper implements Borders {
   @override
   Border get all {
     if (_all == null) {
-      final List<Border> borders = [];
+      final List<Border?> borders = [];
       for (final Borders border in _bordersCollection) {
         borders.add(border.all);
       }
       _all = CellBorderWrapper(borders);
     }
-    return _all;
+    return _all!;
   }
 
   @override

@@ -1,6 +1,32 @@
-part of gauges;
+import 'dart:ui';
+import 'dart:ui' as dart_ui;
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
+import '../axis/radial_axis.dart';
+import '../common/common.dart';
+import '../common/radial_gauge_renderer.dart';
 
-/// Create radial gauge widget to displays numerical values on a circular scale.
+import '../pointers/gauge_pointer.dart';
+import '../pointers/marker_pointer.dart';
+import '../pointers/needle_pointer.dart';
+import '../pointers/range_pointer.dart';
+import '../pointers/widget_pointer.dart';
+import '../range/gauge_range.dart';
+
+import '../renderers/gauge_pointer_renderer.dart';
+import '../renderers/gauge_range_renderer.dart';
+import '../renderers/marker_pointer_renderer.dart';
+import '../renderers/marker_pointer_renderer_base.dart';
+import '../renderers/needle_pointer_renderer.dart';
+import '../renderers/needle_pointer_renderer_base.dart';
+import '../renderers/radial_axis_renderer.dart';
+import '../renderers/radial_axis_renderer_base.dart';
+import '../renderers/range_pointer_renderer.dart';
+import '../renderers/widget_pointer_renderer_base.dart';
+import '../utils/enum.dart';
+
+/// Create a radial gauge widget to displays numerical values on a circular scale.
 /// It has a rich set of features
 /// such as axes, ranges, pointers, and annotations that are fully
 /// customizable and extendable.
@@ -8,8 +34,8 @@ part of gauges;
 /// meter gauges, multiaxis clocks, watches, activity gauges, compasses,
 /// and more.
 ///
-/// The radial gauge widget allows to customize its appearance
-/// using [SfGaugeThemeData] available from [SfGaugeTheme] widget or
+/// The radial gauge widget allows customizing its appearance
+/// using [SfGaugeThemeData] available from the [SfGaugeTheme] widget or
 /// the [SfTheme] with the help of [SfThemeData].
 ///
 /// ```dart
@@ -30,8 +56,8 @@ class SfRadialGauge extends StatefulWidget {
   /// To enable the loading animation set [enableLoadingAnimation] is true.
   // ignore: prefer_const_constructors_in_immutables
   SfRadialGauge(
-      {Key key,
-      List<RadialAxis> axes,
+      {Key? key,
+      List<RadialAxis>? axes,
       this.enableLoadingAnimation = false,
       this.animationDuration = 2000,
       this.backgroundColor = Colors.transparent,
@@ -82,7 +108,7 @@ class SfRadialGauge extends StatefulWidget {
   ///        ));
   ///}
   /// ```
-  final GaugeTitle title;
+  final GaugeTitle? title;
 
   /// Specifies the load time animation for axis elements, range and
   /// pointers with [animationDuration].
@@ -142,18 +168,18 @@ class SfRadialGauge extends StatefulWidget {
 class SfRadialGaugeState extends State<SfRadialGauge>
     with SingleTickerProviderStateMixin {
   /// Represents the gauge theme
-  SfGaugeThemeData _gaugeTheme;
+  late SfGaugeThemeData _gaugeTheme;
 
   /// Hold the radial gauge rendering details
-  _RenderingDetails _renderingDetails;
+  late RenderingDetails _renderingDetails;
 
   @override
   void initState() {
-    _renderingDetails = _RenderingDetails();
-    _renderingDetails.axisRenderers = <RadialAxisRenderer>[];
+    _renderingDetails = RenderingDetails();
+    _renderingDetails.axisRenderers = <RadialAxisRendererBase>[];
     _renderingDetails.gaugePointerRenderers =
-        <int, List<_GaugePointerRenderer>>{};
-    _renderingDetails.gaugeRangeRenderers = <int, List<_GaugeRangeRenderer>>{};
+        <int, List<GaugePointerRenderer>>{};
+    _renderingDetails.gaugeRangeRenderers = <int, List<GaugeRangeRenderer>>{};
     _renderingDetails.pointerRepaintNotifier = ValueNotifier<int>(0);
     _renderingDetails.rangeRepaintNotifier = ValueNotifier<int>(0);
     _renderingDetails.axisRepaintNotifier = ValueNotifier<int>(0);
@@ -173,7 +199,7 @@ class SfRadialGaugeState extends State<SfRadialGauge>
 
   @override
   void didUpdateWidget(SfRadialGauge oldWidget) {
-    if (widget.axes != null && widget.axes.isNotEmpty) {
+    if (widget.axes.isNotEmpty) {
       _renderingDetails.needsToAnimateAnnotation = false;
       _renderingDetails.needsToAnimatePointers = false;
       _renderingDetails.needsToAnimateRanges = false;
@@ -186,22 +212,22 @@ class SfRadialGaugeState extends State<SfRadialGauge>
 
   @override
   void didChangeDependencies() {
-    _gaugeTheme = SfGaugeTheme.of(context);
+    _gaugeTheme = SfGaugeTheme.of(context) as SfGaugeThemeData;
     super.didChangeDependencies();
   }
 
   /// Method is used to create renderers for gauge features
   void _createRenderer() {
-    if (widget.axes != null && widget.axes.isNotEmpty) {
+    if (widget.axes.isNotEmpty) {
       for (int i = 0; i < widget.axes.length; i++) {
         final RadialAxis axis = widget.axes[i];
-        final RadialAxisRenderer axisRenderer = _createAxisRenderer(axis);
+        final RadialAxisRendererBase axisRenderer = _createAxisRenderer(axis);
         _renderingDetails.axisRenderers.add(axisRenderer);
-        if (axis.ranges != null && axis.ranges.isNotEmpty) {
+        if (axis.ranges != null && axis.ranges!.isNotEmpty) {
           _createRangesRenderer(i, axisRenderer);
         }
 
-        if (axis.pointers != null && axis.pointers.isNotEmpty) {
+        if (axis.pointers != null && axis.pointers!.isNotEmpty) {
           _createPointersRenderers(i, axisRenderer);
         }
       }
@@ -209,13 +235,14 @@ class SfRadialGaugeState extends State<SfRadialGauge>
   }
 
   /// Method is used to create gauge range renderer
-  void _createRangesRenderer(int axisIndex, RadialAxisRenderer axisRenderer) {
-    final List<_GaugeRangeRenderer> rangeRenderers = <_GaugeRangeRenderer>[];
+  void _createRangesRenderer(
+      int axisIndex, RadialAxisRendererBase axisRenderer) {
+    final List<GaugeRangeRenderer> rangeRenderers = <GaugeRangeRenderer>[];
     final RadialAxis axis = widget.axes[axisIndex];
-    for (int j = 0; j < axis.ranges.length; j++) {
-      final GaugeRange range = axis.ranges[j];
-      final _GaugeRangeRenderer renderer = _createRangeRenderer(range);
-      renderer._axisRenderer = axisRenderer;
+    for (int j = 0; j < axis.ranges!.length; j++) {
+      final GaugeRange range = axis.ranges![j];
+      final GaugeRangeRenderer renderer = _createRangeRenderer(range);
+      renderer.axisRenderer = axisRenderer;
       rangeRenderers.add(renderer);
     }
 
@@ -224,16 +251,16 @@ class SfRadialGaugeState extends State<SfRadialGauge>
 
   /// Method is used to create gauge pointer renderer
   void _createPointersRenderers(
-      int axisIndex, RadialAxisRenderer axisRenderer) {
-    final List<_GaugePointerRenderer> pointerRenderers =
-        <_GaugePointerRenderer>[];
+      int axisIndex, RadialAxisRendererBase axisRenderer) {
+    final List<GaugePointerRenderer> pointerRenderers =
+        <GaugePointerRenderer>[];
     final RadialAxis axis = widget.axes[axisIndex];
-    for (int j = 0; j < axis.pointers.length; j++) {
-      final GaugePointer pointer = axis.pointers[j];
-      final _GaugePointerRenderer renderer = _createPointerRenderer(pointer);
-      renderer._axisRenderer = axisRenderer;
-      renderer._needsAnimate = true;
-      renderer._animationStartValue =
+    for (int j = 0; j < axis.pointers!.length; j++) {
+      final GaugePointer pointer = axis.pointers![j];
+      final GaugePointerRenderer renderer = _createPointerRenderer(pointer);
+      renderer.axisRenderer = axisRenderer;
+      renderer.needsAnimate = true;
+      renderer.animationStartValue =
           axis.isInversed && !(pointer is RangePointer) ? 1 : 0;
       pointerRenderers.add(renderer);
     }
@@ -254,56 +281,59 @@ class SfRadialGaugeState extends State<SfRadialGauge>
 
   /// Method to check whether the gauge needs to be repainted
   void _needsRepaintGauge(SfRadialGauge oldGauge, SfRadialGauge newGauge,
-      _RenderingDetails _renderingDetails) {
-    final List<RadialAxisRenderer> oldAxisRenderers =
+      RenderingDetails _renderingDetails) {
+    final List<RadialAxisRendererBase> oldAxisRenderers =
         _renderingDetails.axisRenderers;
-    final Map<int, List<_GaugeRangeRenderer>> oldRangeRenderers =
+    final Map<int, List<GaugeRangeRenderer>> oldRangeRenderers =
         _renderingDetails.gaugeRangeRenderers;
-    final Map<int, List<_GaugePointerRenderer>> oldPointerRenderers =
+    final Map<int, List<GaugePointerRenderer>> oldPointerRenderers =
         _renderingDetails.gaugePointerRenderers;
-    _renderingDetails.axisRenderers = <RadialAxisRenderer>[];
-    _renderingDetails.gaugeRangeRenderers = <int, List<_GaugeRangeRenderer>>{};
+    _renderingDetails.axisRenderers = <RadialAxisRendererBase>[];
+    _renderingDetails.gaugeRangeRenderers = <int, List<GaugeRangeRenderer>>{};
     _renderingDetails.gaugePointerRenderers =
-        <int, List<_GaugePointerRenderer>>{};
-    if (newGauge.axes != null) {
-      for (int i = 0; i < newGauge.axes.length; i++) {
-        final RadialAxis newAxis = newGauge.axes[i];
-        int index;
-        RadialAxisRenderer axisRenderer;
-        if (oldGauge.axes != null) {
-          index = i < oldGauge.axes.length && newAxis == oldGauge.axes[i]
-              ? i
-              : _getExistingAxisIndex(newAxis, oldGauge);
+        <int, List<GaugePointerRenderer>>{};
+    for (int i = 0; i < newGauge.axes.length; i++) {
+      final RadialAxis newAxis = newGauge.axes[i];
+      int? index;
+      RadialAxisRendererBase axisRenderer;
+      index = i < oldGauge.axes.length && newAxis == oldGauge.axes[i]
+          ? i
+          : _getExistingAxisIndex(newAxis, oldGauge);
+
+      if (index != null &&
+          index < oldGauge.axes.length &&
+          index < oldAxisRenderers.length) {
+        axisRenderer = oldAxisRenderers[index];
+        axisRenderer.axis = newAxis;
+        if (axisRenderer.renderer != null) {
+          axisRenderer.renderer!.axis = newAxis;
+        }
+        _needsRepaintAxis(oldGauge.axes[i], newGauge.axes[i], axisRenderer,
+            index, oldRangeRenderers, oldPointerRenderers);
+      } else if (oldGauge.axes.length == newGauge.axes.length &&
+          oldAxisRenderers.length == newGauge.axes.length) {
+        axisRenderer = oldAxisRenderers[i];
+        axisRenderer.axis = newAxis;
+        if (axisRenderer.renderer != null) {
+          axisRenderer.renderer!.axis = newAxis;
+        }
+        final RadialAxis oldAxis = oldGauge.axes[i];
+        _needsRepaintExistingAxis(oldAxis, newAxis, axisRenderer, i,
+            _renderingDetails, oldPointerRenderers, oldRangeRenderers);
+      } else {
+        axisRenderer = _createAxisRenderer(newAxis);
+        axisRenderer.needsRepaintAxis = true;
+
+        if (newAxis.ranges != null && newAxis.ranges!.isNotEmpty) {
+          _createRangesRenderer(i, axisRenderer);
         }
 
-        if (index != null &&
-            index < oldGauge.axes.length &&
-            oldAxisRenderers[index] != null) {
-          axisRenderer = oldAxisRenderers[index];
-          axisRenderer.axis = newAxis;
-          _needsRepaintAxis(oldGauge.axes[i], newGauge.axes[i], axisRenderer,
-              index, oldRangeRenderers, oldPointerRenderers);
-        } else if (oldGauge.axes.length == newGauge.axes.length) {
-          axisRenderer = oldAxisRenderers[i];
-          axisRenderer.axis = newAxis;
-          final RadialAxis oldAxis = oldGauge.axes[i];
-          _needsRepaintExistingAxis(oldAxis, newAxis, axisRenderer, i,
-              _renderingDetails, oldPointerRenderers, oldRangeRenderers);
-        } else {
-          axisRenderer = _createAxisRenderer(newAxis);
-          axisRenderer._needsRepaintAxis = true;
-
-          if (newAxis.ranges != null && newAxis.ranges.isNotEmpty) {
-            _createRangesRenderer(i, axisRenderer);
-          }
-
-          if (newAxis.pointers != null && newAxis.pointers.isNotEmpty) {
-            _createPointersRenderers(i, axisRenderer);
-          }
+        if (newAxis.pointers != null && newAxis.pointers!.isNotEmpty) {
+          _createPointersRenderers(i, axisRenderer);
         }
-        axisRenderer._axis = newAxis;
-        _renderingDetails.axisRenderers.add(axisRenderer);
       }
+      axisRenderer.axis = newAxis;
+      _renderingDetails.axisRenderers.add(axisRenderer);
     }
   }
 
@@ -311,88 +341,95 @@ class SfRadialGaugeState extends State<SfRadialGauge>
   void _needsRepaintExistingAxis(
       RadialAxis oldAxis,
       RadialAxis newAxis,
-      RadialAxisRenderer axisRenderer,
+      RadialAxisRendererBase axisRenderer,
       int axisIndex,
-      _RenderingDetails _renderingDetails,
-      Map<int, List<_GaugePointerRenderer>> oldPointerRenderers,
-      Map<int, List<_GaugeRangeRenderer>> oldRangeRenderers) {
+      RenderingDetails _renderingDetails,
+      Map<int, List<GaugePointerRenderer>> oldPointerRenderers,
+      Map<int, List<GaugeRangeRenderer>> oldRangeRenderers) {
     if (newAxis != oldAxis) {
-      axisRenderer._needsRepaintAxis = true;
+      axisRenderer.needsRepaintAxis = true;
     } else {
-      axisRenderer._needsRepaintAxis = false;
+      axisRenderer.needsRepaintAxis = false;
     }
     if (oldAxis.pointers != null &&
         newAxis.pointers != null &&
-        oldAxis.pointers.isNotEmpty &&
-        newAxis.pointers.isNotEmpty &&
-        oldAxis.pointers.length == newAxis.pointers.length) {
-      final List<_GaugePointerRenderer> pointerRenderers =
-          oldPointerRenderers[axisIndex];
-      final List<_GaugePointerRenderer> newPointerRenderers =
-          <_GaugePointerRenderer>[];
-      for (int j = 0; j < newAxis.pointers.length; j++) {
+        oldAxis.pointers!.isNotEmpty &&
+        newAxis.pointers!.isNotEmpty &&
+        oldAxis.pointers!.length == newAxis.pointers!.length) {
+      final List<GaugePointerRenderer> pointerRenderers =
+          oldPointerRenderers[axisIndex]!;
+      final List<GaugePointerRenderer> newPointerRenderers =
+          <GaugePointerRenderer>[];
+      for (int j = 0; j < newAxis.pointers!.length; j++) {
         _needsAnimatePointers(
-            oldAxis.pointers[j], newAxis.pointers[j], pointerRenderers[j]);
+            oldAxis.pointers![j], newAxis.pointers![j], pointerRenderers[j]);
         _needsResetPointerValue(
-            oldAxis.pointers[j], newAxis.pointers[j], pointerRenderers[j]);
-        if (newAxis.pointers[j] != oldAxis.pointers[j]) {
-          pointerRenderers[j]._needsRepaintPointer = true;
+            oldAxis.pointers![j], newAxis.pointers![j], pointerRenderers[j]);
+        if (newAxis.pointers![j] != oldAxis.pointers![j]) {
+          pointerRenderers[j].needsRepaintPointer = true;
         } else {
-          if (axisRenderer._needsRepaintAxis) {
-            pointerRenderers[j]._needsRepaintPointer = true;
+          if (axisRenderer.needsRepaintAxis) {
+            pointerRenderers[j].needsRepaintPointer = true;
           } else {
-            pointerRenderers[j]._needsRepaintPointer = false;
+            pointerRenderers[j].needsRepaintPointer = false;
           }
         }
 
-        if (pointerRenderers[j] is MarkerPointerRenderer) {
-          final MarkerPointerRenderer markerRenderer = pointerRenderers[j];
-          final MarkerPointer marker = newAxis.pointers[j];
+        if (pointerRenderers[j] is MarkerPointerRendererBase) {
+          final MarkerPointerRendererBase markerRenderer =
+              pointerRenderers[j] as MarkerPointerRendererBase;
+          final MarkerPointer marker = newAxis.pointers![j] as MarkerPointer;
           markerRenderer.pointer = marker;
-        } else if (pointerRenderers[j] is NeedlePointerRenderer) {
-          final NeedlePointerRenderer needleRenderer = pointerRenderers[j];
-          final NeedlePointer needle = newAxis.pointers[j];
+          if (markerRenderer.renderer != null) {
+            markerRenderer.renderer!.pointer = marker;
+          }
+        } else if (pointerRenderers[j] is NeedlePointerRendererBase) {
+          final NeedlePointerRendererBase needleRenderer =
+              pointerRenderers[j] as NeedlePointerRendererBase;
+          final NeedlePointer needle = newAxis.pointers![j] as NeedlePointer;
           needleRenderer.pointer = needle;
+          if (needleRenderer.renderer != null) {
+            needleRenderer.renderer!.pointer = needle;
+          }
         }
 
-        pointerRenderers[j]._gaugePointer = newAxis.pointers[j];
+        pointerRenderers[j].gaugePointer = newAxis.pointers![j];
         newPointerRenderers.add(pointerRenderers[j]);
       }
 
       _renderingDetails.gaugePointerRenderers[axisIndex] = newPointerRenderers;
     } else {
-      if (newAxis.pointers != null && newAxis.pointers.isNotEmpty) {
+      if (newAxis.pointers != null && newAxis.pointers!.isNotEmpty) {
         _needsRepaintPointers(
             oldAxis, newAxis, axisRenderer, axisIndex, oldPointerRenderers);
       }
     }
-
     if (oldAxis.ranges != null &&
         newAxis.ranges != null &&
-        oldAxis.ranges.isNotEmpty &&
-        newAxis.ranges.isNotEmpty &&
-        oldAxis.ranges.length == newAxis.ranges.length) {
-      final List<_GaugeRangeRenderer> rangeRenderers =
-          oldRangeRenderers[axisIndex];
-      final List<_GaugeRangeRenderer> newRangeRenderers =
-          <_GaugeRangeRenderer>[];
-      for (int j = 0; j < newAxis.ranges.length; j++) {
-        if (newAxis.ranges[j] != oldAxis.ranges[j]) {
-          rangeRenderers[j]._needsRepaintRange = true;
+        oldAxis.ranges!.isNotEmpty &&
+        newAxis.ranges!.isNotEmpty &&
+        oldAxis.ranges!.length == newAxis.ranges!.length &&
+        oldRangeRenderers[axisIndex] != null) {
+      final List<GaugeRangeRenderer> rangeRenderers =
+          oldRangeRenderers[axisIndex]!;
+      final List<GaugeRangeRenderer> newRangeRenderers = <GaugeRangeRenderer>[];
+      for (int j = 0; j < newAxis.ranges!.length; j++) {
+        if (newAxis.ranges![j] != oldAxis.ranges![j]) {
+          rangeRenderers[j].needsRepaintRange = true;
         } else {
-          if (axisRenderer._needsRepaintAxis) {
-            rangeRenderers[j]._needsRepaintRange = true;
+          if (axisRenderer.needsRepaintAxis) {
+            rangeRenderers[j].needsRepaintRange = true;
           } else {
-            rangeRenderers[j]._needsRepaintRange = false;
+            rangeRenderers[j].needsRepaintRange = false;
           }
         }
 
-        rangeRenderers[j]._range = newAxis.ranges[j];
+        rangeRenderers[j].range = newAxis.ranges![j];
         newRangeRenderers.add(rangeRenderers[j]);
       }
       _renderingDetails.gaugeRangeRenderers[axisIndex] = newRangeRenderers;
     } else {
-      if (newAxis.ranges != null && newAxis.ranges.isNotEmpty) {
+      if (newAxis.ranges != null && newAxis.ranges!.isNotEmpty) {
         _needsRepaintRanges(
             oldAxis, newAxis, axisRenderer, axisIndex, oldRangeRenderers);
       }
@@ -400,7 +437,7 @@ class SfRadialGaugeState extends State<SfRadialGauge>
   }
 
   /// Check current axis index is exist in old gauge
-  int _getExistingAxisIndex(RadialAxis currentAxis, SfRadialGauge oldGauge) {
+  int? _getExistingAxisIndex(RadialAxis currentAxis, SfRadialGauge oldGauge) {
     for (int index = 0; index < oldGauge.axes.length; index++) {
       final RadialAxis axis = oldGauge.axes[index];
       if (axis == currentAxis) {
@@ -411,9 +448,9 @@ class SfRadialGaugeState extends State<SfRadialGauge>
   }
 
   /// Check current range index is exist in old axis
-  int _getExistingRangeIndex(GaugeRange currentRange, RadialAxis oldAxis) {
-    for (int index = 0; index < oldAxis.ranges.length; index++) {
-      final GaugeRange range = oldAxis.ranges[index];
+  int? _getExistingRangeIndex(GaugeRange currentRange, RadialAxis oldAxis) {
+    for (int index = 0; index < oldAxis.ranges!.length; index++) {
+      final GaugeRange range = oldAxis.ranges![index];
       if (range == currentRange) {
         return index;
       }
@@ -422,10 +459,10 @@ class SfRadialGaugeState extends State<SfRadialGauge>
   }
 
   /// Check current range index is exist in old axis
-  int _getExistingPointerIndex(
+  int? _getExistingPointerIndex(
       GaugePointer currentPointer, RadialAxis oldAxis) {
-    for (int index = 0; index < oldAxis.pointers.length; index++) {
-      final GaugePointer pointer = oldAxis.pointers[index];
+    for (int index = 0; index < oldAxis.pointers!.length; index++) {
+      final GaugePointer pointer = oldAxis.pointers![index];
       if (pointer == currentPointer) {
         return index;
       }
@@ -437,16 +474,16 @@ class SfRadialGaugeState extends State<SfRadialGauge>
   void _needsRepaintAxis(
     RadialAxis oldAxis,
     RadialAxis newAxis,
-    RadialAxisRenderer axisRenderer,
+    RadialAxisRendererBase axisRenderer,
     int oldAxisIndex,
-    Map<int, List<_GaugeRangeRenderer>> oldRangeRenderers,
-    Map<int, List<_GaugePointerRenderer>> oldPointerRenderers,
+    Map<int, List<GaugeRangeRenderer>> oldRangeRenderers,
+    Map<int, List<GaugePointerRenderer>> oldPointerRenderers,
   ) {
     if (oldAxis.backgroundImage == newAxis.backgroundImage &&
-        axisRenderer._backgroundImageInfo?.image != null) {
-      axisRenderer._backgroundImageInfo = axisRenderer._backgroundImageInfo;
+        axisRenderer.backgroundImageInfo?.image != null) {
+      axisRenderer.backgroundImageInfo = axisRenderer.backgroundImageInfo;
     }
-    axisRenderer._needsRepaintAxis = false;
+    axisRenderer.needsRepaintAxis = false;
     if (newAxis.pointers != null) {
       _needsRepaintPointers(
           oldAxis, newAxis, axisRenderer, oldAxisIndex, oldPointerRenderers);
@@ -461,37 +498,38 @@ class SfRadialGaugeState extends State<SfRadialGauge>
   void _needsRepaintRanges(
       RadialAxis oldAxis,
       RadialAxis newAxis,
-      RadialAxisRenderer axisRenderer,
+      RadialAxisRendererBase axisRenderer,
       int oldAxisIndex,
-      Map<int, List<_GaugeRangeRenderer>> oldRangeRenderers) {
-    final List<_GaugeRangeRenderer> newRangeRenderers = <_GaugeRangeRenderer>[];
-    final List<_GaugeRangeRenderer> renderers = oldRangeRenderers[oldAxisIndex];
-    for (int i = 0; i < newAxis.ranges.length; i++) {
-      final GaugeRange newRange = newAxis.ranges[i];
-      int index;
-      _GaugeRangeRenderer rangeRenderer;
+      Map<int, List<GaugeRangeRenderer>> oldRangeRenderers) {
+    final List<GaugeRangeRenderer> newRangeRenderers = <GaugeRangeRenderer>[];
+    final List<GaugeRangeRenderer>? renderers = oldRangeRenderers[oldAxisIndex];
+    for (int i = 0; i < newAxis.ranges!.length; i++) {
+      final GaugeRange newRange = newAxis.ranges![i];
+      int? index;
+      GaugeRangeRenderer rangeRenderer;
       if (oldAxis.ranges != null) {
-        index = i < oldAxis.ranges.length && newRange == oldAxis.ranges[i]
+        index = i < oldAxis.ranges!.length && newRange == oldAxis.ranges![i]
             ? i
             : _getExistingRangeIndex(newRange, oldAxis);
       }
 
       if (index != null &&
-          index < oldAxis.ranges.length &&
-          renderers[index] != null) {
+          index < oldAxis.ranges!.length &&
+          renderers != null &&
+          index < renderers.length) {
         rangeRenderer = renderers[index];
-        if (axisRenderer._needsRepaintAxis) {
-          rangeRenderer._needsRepaintRange = true;
+        if (axisRenderer.needsRepaintAxis) {
+          rangeRenderer.needsRepaintRange = true;
         } else {
-          rangeRenderer._needsRepaintRange = false;
+          rangeRenderer.needsRepaintRange = false;
         }
       } else {
         rangeRenderer = _createRangeRenderer(newRange);
-        rangeRenderer._needsRepaintRange = true;
+        rangeRenderer.needsRepaintRange = true;
       }
 
-      rangeRenderer._range = newRange;
-      rangeRenderer._axisRenderer = axisRenderer;
+      rangeRenderer.range = newRange;
+      rangeRenderer.axisRenderer = axisRenderer;
       newRangeRenderers.add(rangeRenderer);
     }
 
@@ -500,31 +538,30 @@ class SfRadialGaugeState extends State<SfRadialGauge>
 
   /// Checks whether to animate the pointers
   void _needsAnimatePointers(GaugePointer oldPointer, GaugePointer newPointer,
-      _GaugePointerRenderer pointerRenderer) {
+      GaugePointerRenderer pointerRenderer) {
     if (oldPointer.value != newPointer.value) {
       setState(() {
         // Sets the previous animation end value as current animation start
         // value of pointer
-        pointerRenderer._needsAnimate = true;
-        pointerRenderer._animationStartValue =
-            pointerRenderer._animationEndValue;
+        pointerRenderer.needsAnimate = true;
+        pointerRenderer.animationStartValue = pointerRenderer.animationEndValue;
       });
     } else if (oldPointer.animationType != newPointer.animationType) {
-      pointerRenderer._needsAnimate = true;
+      pointerRenderer.needsAnimate = true;
     } else {
       setState(() {
-        pointerRenderer._needsAnimate = false;
+        pointerRenderer.needsAnimate = false;
       });
     }
   }
 
   /// Check to reset the pointer current value
   void _needsResetPointerValue(GaugePointer oldPointer, GaugePointer newPointer,
-      _GaugePointerRenderer pointerRenderer) {
+      GaugePointerRenderer pointerRenderer) {
     if (oldPointer.enableDragging == newPointer.enableDragging) {
       if (!(oldPointer.value == newPointer.value)) {
-        pointerRenderer._currentValue = newPointer.value;
-        pointerRenderer._isDragStarted = false;
+        pointerRenderer.currentValue = newPointer.value;
+        pointerRenderer.isDragStarted = false;
       }
     }
   }
@@ -537,85 +574,95 @@ class SfRadialGaugeState extends State<SfRadialGauge>
   void _needsRepaintPointers(
       RadialAxis oldAxis,
       RadialAxis newAxis,
-      RadialAxisRenderer axisRenderer,
+      RadialAxisRendererBase axisRenderer,
       int oldAxisIndex,
-      Map<int, List<_GaugePointerRenderer>> oldPointerRenderers) {
-    final List<_GaugePointerRenderer> newPointerRenderers =
-        <_GaugePointerRenderer>[];
-    final List<_GaugePointerRenderer> renderers =
+      Map<int, List<GaugePointerRenderer>> oldPointerRenderers) {
+    final List<GaugePointerRenderer> newPointerRenderers =
+        <GaugePointerRenderer>[];
+    final List<GaugePointerRenderer>? renderers =
         oldPointerRenderers[oldAxisIndex];
-    for (int i = 0; i < newAxis.pointers.length; i++) {
-      final GaugePointer newPointer = newAxis.pointers[i];
-      int index;
-      _GaugePointerRenderer pointerRenderer;
+    for (int i = 0; i < newAxis.pointers!.length; i++) {
+      final GaugePointer newPointer = newAxis.pointers![i];
+      int? index;
+      GaugePointerRenderer pointerRenderer;
       if (oldAxis.pointers != null) {
-        index = i < oldAxis.pointers.length &&
-                (newPointer == oldAxis.pointers[i] ||
-                    newPointer.value != oldAxis.pointers[i].value ||
+        index = i < oldAxis.pointers!.length &&
+                (newPointer == oldAxis.pointers![i] ||
+                    newPointer.value != oldAxis.pointers![i].value ||
                     newPointer.animationType !=
-                        oldAxis.pointers[i].animationType)
+                        oldAxis.pointers![i].animationType)
             ? i
             : _getExistingPointerIndex(newPointer, oldAxis);
       }
 
       if (index != null &&
-          index < oldAxis.pointers.length &&
-          renderers[index] != null) {
+          index < oldAxis.pointers!.length &&
+          renderers != null &&
+          index < renderers.length) {
         pointerRenderer = renderers[index];
-        if (axisRenderer._needsRepaintAxis) {
-          pointerRenderer._needsRepaintPointer = true;
+        if (axisRenderer.needsRepaintAxis) {
+          pointerRenderer.needsRepaintPointer = true;
         } else {
-          pointerRenderer._needsRepaintPointer = false;
+          pointerRenderer.needsRepaintPointer = false;
         }
-        if (oldAxis.pointers[index].value != newAxis.pointers[i].value) {
+        if (oldAxis.pointers![index].value != newAxis.pointers![i].value) {
           // Sets the previous animation end value as current animation start
           // value of pointer
-          pointerRenderer._needsAnimate = true;
-          pointerRenderer._needsRepaintPointer = true;
-          pointerRenderer._currentValue = newPointer.value;
-          pointerRenderer._animationStartValue =
-              pointerRenderer._animationEndValue;
-        } else if (oldAxis.pointers[index].animationType !=
-            newAxis.pointers[i].animationType) {
-          pointerRenderer._needsAnimate = true;
-          pointerRenderer._needsRepaintPointer = true;
+          pointerRenderer.needsAnimate = true;
+          pointerRenderer.needsRepaintPointer = true;
+          pointerRenderer.currentValue = newPointer.value;
+          pointerRenderer.animationStartValue =
+              pointerRenderer.animationEndValue;
+        } else if (oldAxis.pointers![index].animationType !=
+            newAxis.pointers![i].animationType) {
+          pointerRenderer.needsAnimate = true;
+          pointerRenderer.needsRepaintPointer = true;
         } else {
-          pointerRenderer._needsAnimate = false;
+          pointerRenderer.needsAnimate = false;
         }
 
-        if (oldAxis.pointers[index].enableDragging ==
-            newAxis.pointers[i].enableDragging) {
-          if (oldAxis.pointers[i].value == newAxis.pointers[i].value &&
-              pointerRenderer._currentValue != renderers[index]._currentValue) {
-            pointerRenderer._currentValue = renderers[index]._currentValue;
+        if (oldAxis.pointers![index].enableDragging ==
+            newAxis.pointers![i].enableDragging) {
+          if (oldAxis.pointers![i].value == newAxis.pointers![i].value &&
+              pointerRenderer.currentValue != renderers[index].currentValue) {
+            pointerRenderer.currentValue = renderers[index].currentValue;
           }
-          pointerRenderer._isDragStarted = renderers[index]._isDragStarted;
+          pointerRenderer.isDragStarted = renderers[index].isDragStarted;
         }
       } else {
         pointerRenderer = _createPointerRenderer(newPointer);
-        pointerRenderer._needsRepaintPointer = true;
-        pointerRenderer._needsAnimate = false;
-        if (oldAxis.pointers[i] != null &&
-            oldAxis.pointers[i].enableDragging == newPointer.enableDragging &&
+        pointerRenderer.needsRepaintPointer = true;
+        pointerRenderer.needsAnimate = false;
+        if (oldAxis.pointers != null &&
+            i < oldAxis.pointers!.length &&
+            oldAxis.pointers![i].enableDragging == newPointer.enableDragging &&
             oldPointerRenderers[i] != null &&
-            oldAxis.pointers[i].value == newAxis.pointers[i].value) {
-          pointerRenderer._currentValue = renderers[i]._currentValue;
-          pointerRenderer._isDragStarted = renderers[i]._isDragStarted;
+            oldAxis.pointers![i].value == newAxis.pointers![i].value) {
+          if (renderers != null && i < renderers.length) {
+            pointerRenderer.currentValue = renderers[i].currentValue;
+            pointerRenderer.isDragStarted = renderers[i].isDragStarted;
+          }
         }
       }
 
-      if (pointerRenderer is MarkerPointerRenderer) {
-        final MarkerPointerRenderer markerRenderer = pointerRenderer;
-        final MarkerPointer marker = newPointer;
+      if (pointerRenderer is MarkerPointerRendererBase) {
+        final MarkerPointerRendererBase markerRenderer = pointerRenderer;
+        final MarkerPointer marker = newPointer as MarkerPointer;
         markerRenderer.pointer = marker;
-      } else if (pointerRenderer is NeedlePointerRenderer) {
-        final NeedlePointerRenderer needleRenderer = pointerRenderer;
-        final NeedlePointer needle = newPointer;
+        if (markerRenderer.renderer != null) {
+          markerRenderer.renderer!.pointer = marker;
+        }
+      } else if (pointerRenderer is NeedlePointerRendererBase) {
+        final NeedlePointerRendererBase needleRenderer = pointerRenderer;
+        final NeedlePointer needle = newPointer as NeedlePointer;
         needleRenderer.pointer = needle;
+        if (needleRenderer.renderer != null) {
+          needleRenderer.renderer!.pointer = needle;
+        }
       }
 
-      pointerRenderer._gaugePointer = newPointer;
-      pointerRenderer._axisRenderer = axisRenderer;
+      pointerRenderer.gaugePointer = newPointer;
+      pointerRenderer.axisRenderer = axisRenderer;
       newPointerRenderers.add(pointerRenderer);
     }
 
@@ -623,106 +670,117 @@ class SfRadialGaugeState extends State<SfRadialGauge>
   }
 
   /// Returns the gauge pointer renderer
-  _GaugePointerRenderer _createPointerRenderer(GaugePointer pointer) {
+  GaugePointerRenderer _createPointerRenderer(GaugePointer pointer) {
     if (pointer is MarkerPointer) {
       return _createMarkerPointerRenderer(pointer);
     } else if (pointer is NeedlePointer) {
       return _createNeedlePointerRenderer(pointer);
-    } else {
+    } else if (pointer is RangePointer) {
       return _createRangePointerRenderer(pointer);
+    } else {
+      final WidgetPointerRenderer renderer = WidgetPointerRenderer();
+      final WidgetPointer widgetPointer = pointer as WidgetPointer;
+      renderer.gaugePointer = widgetPointer;
+      renderer.currentValue = widgetPointer.value;
+      return renderer;
     }
   }
 
   /// Create the needle pointer renderer.
-  NeedlePointerRenderer _createNeedlePointerRenderer(GaugePointer pointer) {
-    NeedlePointerRenderer pointerRenderer;
-    final NeedlePointer needle = pointer;
+  NeedlePointerRendererBase _createNeedlePointerRenderer(GaugePointer pointer) {
+    final NeedlePointerRendererBase pointerRendererBase =
+        NeedlePointerRendererBase();
+    NeedlePointerRenderer? pointerRenderer;
+    final NeedlePointer needle = pointer as NeedlePointer;
     if (needle.onCreatePointerRenderer != null) {
-      pointerRenderer = needle.onCreatePointerRenderer();
+      pointerRenderer = needle.onCreatePointerRenderer!();
       pointerRenderer.pointer = needle;
       assert(
-          pointerRenderer != null,
+          pointerRenderer is NeedlePointerRenderer,
           'This onCreateRenderer callback function should return value as'
           'extends from GaugePointerRenderer class and should not be return'
           'value as null');
-    } else {
-      pointerRenderer = NeedlePointerRenderer();
     }
-    pointerRenderer._gaugePointer = needle;
-    pointerRenderer._currentValue = needle.value;
-    return pointerRenderer;
+
+    pointerRendererBase.renderer = pointerRenderer;
+    pointerRendererBase.gaugePointer = needle;
+    pointerRendererBase.currentValue = needle.value;
+    return pointerRendererBase;
   }
 
   /// Create the marker pointer renderer.
-  MarkerPointerRenderer _createMarkerPointerRenderer(GaugePointer pointer) {
-    final MarkerPointer marker = pointer;
-    MarkerPointerRenderer pointerRenderer;
+  MarkerPointerRendererBase _createMarkerPointerRenderer(GaugePointer pointer) {
+    final MarkerPointer marker = pointer as MarkerPointer;
+    final MarkerPointerRendererBase pointerRendererBase =
+        MarkerPointerRendererBase();
+    MarkerPointerRenderer? pointerRenderer;
     if (marker.onCreatePointerRenderer != null) {
-      pointerRenderer = marker.onCreatePointerRenderer();
+      pointerRenderer = marker.onCreatePointerRenderer!();
       pointerRenderer.pointer = marker;
       assert(
-          pointerRenderer != null,
+          pointerRenderer is MarkerPointerRenderer,
           'This onCreatePointerRenderer callback function should return'
           'value as extends from GaugePointerRenderer class and should not'
           'be return value as null');
-    } else {
-      pointerRenderer = MarkerPointerRenderer();
     }
-    pointerRenderer._gaugePointer = marker;
-    pointerRenderer._currentValue = marker.value;
-    return pointerRenderer;
+
+    pointerRendererBase.renderer = pointerRenderer;
+    pointerRendererBase.gaugePointer = marker;
+    pointerRendererBase.currentValue = marker.value;
+    return pointerRendererBase;
   }
 
   /// Create the range pointer renderer.
-  _RangePointerRenderer _createRangePointerRenderer(GaugePointer pointer) {
-    final _RangePointerRenderer pointerRenderer = _RangePointerRenderer();
-    pointerRenderer._gaugePointer = pointer;
-    pointerRenderer._currentValue = pointer.value;
+  RangePointerRenderer _createRangePointerRenderer(GaugePointer pointer) {
+    final RangePointerRenderer pointerRenderer = RangePointerRenderer();
+    pointerRenderer.gaugePointer = pointer;
+    pointerRenderer.currentValue = pointer.value;
     return pointerRenderer;
   }
 
   /// Create the radial axis renderer.
-  GaugeAxisRenderer _createAxisRenderer(RadialAxis axis) {
-    RadialAxisRenderer axisRenderer;
+  RadialAxisRendererBase _createAxisRenderer(RadialAxis axis) {
+    final RadialAxisRendererBase axisRendererBase = RadialAxisRendererBase();
+    RadialAxisRenderer? axisRenderer;
     if (axis.onCreateAxisRenderer != null) {
-      axisRenderer = axis.onCreateAxisRenderer();
-      axisRenderer.axis = axis;
+      axisRenderer = axis.onCreateAxisRenderer!();
+      axisRenderer!.axis = axis;
       assert(
-          axisRenderer != null,
+          axisRenderer is RadialAxisRenderer,
           'This onCreateAxisRenderer callback function should return value as'
           'extends from RadialAxisRenderer class and should not be return value'
           'as null');
-    } else {
-      axisRenderer = RadialAxisRenderer();
     }
-    axisRenderer._axis = axis;
-    return axisRenderer;
+
+    axisRendererBase.axis = axis;
+    axisRendererBase.renderer = axisRenderer;
+    return axisRendererBase;
   }
 
   /// Methods to add the title of circular gauge
   Widget _addGaugeTitle() {
-    if (widget.title != null && widget.title.text.isNotEmpty) {
+    if (widget.title != null && widget.title!.text.isNotEmpty) {
       final Widget titleWidget = Container(
           child: Container(
               padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
               decoration: BoxDecoration(
-                  color: widget.title.backgroundColor ??
+                  color: widget.title!.backgroundColor ??
                       _gaugeTheme.titleBackgroundColor,
                   border: Border.all(
-                      color: widget.title.borderColor ??
+                      color: widget.title!.borderColor ??
                           _gaugeTheme.titleBorderColor,
-                      width: widget.title.borderWidth)),
+                      width: widget.title!.borderWidth)),
               child: Text(
-                widget.title.text,
-                style: widget.title.textStyle,
+                widget.title!.text,
+                style: widget.title!.textStyle,
                 textAlign: TextAlign.center,
                 overflow: TextOverflow.clip,
               ),
-              alignment: (widget.title.alignment == GaugeAlignment.near)
+              alignment: (widget.title!.alignment == GaugeAlignment.near)
                   ? Alignment.topLeft
-                  : (widget.title.alignment == GaugeAlignment.far)
+                  : (widget.title!.alignment == GaugeAlignment.far)
                       ? Alignment.topRight
-                      : (widget.title.alignment == GaugeAlignment.center)
+                      : (widget.title!.alignment == GaugeAlignment.center)
                           ? Alignment.topCenter
                           : Alignment.topCenter));
 
@@ -733,15 +791,15 @@ class SfRadialGaugeState extends State<SfRadialGauge>
   }
 
   /// Returns the renderer for gauge range
-  _GaugeRangeRenderer _createRangeRenderer(GaugeRange range) {
-    return _GaugeRangeRenderer(range);
+  GaugeRangeRenderer _createRangeRenderer(GaugeRange range) {
+    return GaugeRangeRenderer(range);
   }
 
   /// Method to add the elements of gauge
   Widget _addGaugeElements() {
     return Expanded(child: LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        return _AxisContainer(widget, _gaugeTheme, _renderingDetails);
+        return AxisContainer(widget, _gaugeTheme, _renderingDetails);
       },
     ));
   }
@@ -763,19 +821,17 @@ class SfRadialGaugeState extends State<SfRadialGauge>
   @override
   void dispose() {
     if (_renderingDetails.animationController != null) {
-      _renderingDetails.animationController
+      _renderingDetails.animationController!
           .removeListener(_repaintGaugeElements);
-      _renderingDetails.animationController.dispose();
+      _renderingDetails.animationController!.dispose();
     }
 
-    if (widget.axes != null &&
-        widget.axes.isNotEmpty &&
-        _renderingDetails.axisRenderers != null) {
+    if (widget.axes.isNotEmpty && _renderingDetails.axisRenderers.isNotEmpty) {
       for (int i = 0; i < widget.axes.length; i++) {
-        final RadialAxisRenderer axisRenderer =
+        final RadialAxisRendererBase axisRenderer =
             _renderingDetails.axisRenderers[i];
-        if (axisRenderer._imageStream != null) {
-          axisRenderer._imageStream.removeListener(axisRenderer._listener);
+        if (axisRenderer.imageStream != null && axisRenderer.listener != null) {
+          axisRenderer.imageStream!.removeListener(axisRenderer.listener!);
         }
       }
     }
@@ -834,42 +890,9 @@ class SfRadialGaugeState extends State<SfRadialGauge>
   /// ```
 
   Future<dart_ui.Image> toImage({double pixelRatio = 1.0}) async {
-    final RenderRepaintBoundary boundary = context.findRenderObject();
+    final RenderRepaintBoundary boundary =
+        context.findRenderObject() as RenderRepaintBoundary;
     final dart_ui.Image image = await boundary.toImage(pixelRatio: pixelRatio);
     return image;
   }
-}
-
-/// Holds the animation and repainter details.
-class _RenderingDetails {
-  /// Holds the pointer repaint notifier
-  ValueNotifier<int> pointerRepaintNotifier;
-
-  /// Holds the range repaint notifier
-  ValueNotifier<int> rangeRepaintNotifier;
-
-  /// Holds the axis repaint notifier
-  ValueNotifier<int> axisRepaintNotifier;
-
-  /// Holds the animation controller
-  AnimationController animationController;
-
-  /// Specifies whether to animate axes
-  bool needsToAnimateAxes;
-
-  /// Specifies whether to animate ranges
-  bool needsToAnimateRanges;
-
-  /// Specifies whether to animate pointers
-  bool needsToAnimatePointers;
-
-  /// Specifies whether to animate annotation
-  bool needsToAnimateAnnotation;
-
-  /// Specifies axis renderer corresponding to the axis
-  List<RadialAxisRenderer> axisRenderers;
-
-  Map<int, List<_GaugePointerRenderer>> gaugePointerRenderers;
-
-  Map<int, List<_GaugeRangeRenderer>> gaugeRangeRenderers;
 }

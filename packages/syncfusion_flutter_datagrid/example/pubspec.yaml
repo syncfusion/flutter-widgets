@@ -3,14 +3,14 @@ description: This project demonstrates how to use Syncfusion Flutter DataGrid wi
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
   syncfusion_flutter_datagrid:
-    path: ../
-  cupertino_icons: ^0.1.3
+    path: ../../syncfusion_flutter_datagrid
+  cupertino_icons: ^1.0.2
 
 dev_dependencies:
   flutter_test:

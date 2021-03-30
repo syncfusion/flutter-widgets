@@ -3,22 +3,22 @@ part of xlsio;
 /// Represents the format Impl class.
 class _Format {
   /// Initializes new instance of the format.
-  _Format(FormatsCollection parent, [int index, String strFormat]) {
+  _Format(FormatsCollection parent, [int index = 0, String strFormat = '']) {
     _parent = parent;
     _index = index;
     _formatString = strFormat;
   }
 
-  FormatsCollection _parent;
+  late FormatsCollection _parent;
 
   /// Format index used in other records.
   int _index = 0;
 
   /// Format string.
-  String _formatString;
+  String? _formatString;
 
   /// Parsed format.
-  _FormatSectionCollection _parsedFormat;
+  _FormatSectionCollection? _parsedFormat;
 
   /// Reference to the format parser.
   final _parser = _FormatParser();
@@ -26,7 +26,7 @@ class _Format {
   /// Returns format type for a specified value.
   ExcelFormatType _getFormatTypeFromDouble(double value) {
     _prepareFormat();
-    return _parsedFormat._getFormatTypeFromDouble(value);
+    return _parsedFormat!._getFormatTypeFromDouble(value);
   }
 
   /// Checks whether format is already parsed, if it isn't than parses it.
@@ -38,17 +38,17 @@ class _Format {
   }
 
   /// Applies format to the value.
-  String _applyFormat(double value, bool bShowHiddenSymbols, [Range cell]) {
+  String _applyFormat(double value, bool bShowHiddenSymbols) {
     _prepareFormat();
-    return _parsedFormat._applyFormat(value, bShowHiddenSymbols, cell);
+    return _parsedFormat!._applyFormat(value, bShowHiddenSymbols);
   }
 
   /// clear the format.
   void _clear() {
     _parser._clear();
     if (_parsedFormat != null) {
-      _parsedFormat._dispose();
-      _parsedFormat._innerList.clear();
+      _parsedFormat!._dispose();
+      _parsedFormat!._innerList.clear();
     }
     _parsedFormat = null;
   }

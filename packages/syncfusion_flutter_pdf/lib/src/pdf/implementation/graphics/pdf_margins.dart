@@ -1,29 +1,164 @@
 part of pdf;
 
 /// A class representing PDF page margins.
+///
+/// ```dart
+/// //Creates a new PDF document.
+/// PdfDocument document = PdfDocument()
+///   //Create and set new PDF margin.
+///   ..pageSettings.margins = (PdfMargins()..all = 20)
+///   ..pages.add().graphics.drawString(
+///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12));
+/// //Saves the document.
+/// List<int> bytes = document.save();
+/// //Dispose the document.
+/// document.dispose();
+/// ```
 class PdfMargins {
   //Constructor
   /// Initializes a new instance of the [PdfMargins] class.
-  PdfMargins() {
-    _setMargins(0);
-  }
+  ///
+  /// ```dart
+  /// //Creates a new PDF document.
+  /// PdfDocument document = PdfDocument()
+  ///   //Create and set new PDF margin.
+  ///   ..pageSettings.margins = (PdfMargins()..all = 20)
+  ///   ..pages.add().graphics.drawString(
+  ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12));
+  /// //Saves the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
+  PdfMargins();
 
   //Fields
-  /// Gets or sets the left margin size.
-  double left;
-
-  /// Gets or sets the top margin size.
-  double top;
-
-  /// Gets or sets the right margin size.
-  double right;
-
-  /// Gets or sets the bottom margin size.
-  double bottom;
+  double _left = 0;
+  double _top = 0;
+  double _right = 0;
+  double _bottom = 0;
+  bool _isPageAdded = false;
 
   //Properties
+  /// Gets or sets the left margin size.
+  ///
+  /// ```dart
+  /// //Creates a new PDF document.
+  /// PdfDocument document = PdfDocument()
+  ///   //Create and set new PDF margin.
+  ///   ..pageSettings.margins = (PdfMargins()
+  ///     ..left = 20
+  ///     ..right = 40
+  ///     ..top = 100
+  ///     ..bottom = 100)
+  ///   ..pages.add().graphics.drawString(
+  ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12));
+  /// //Saves the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
+  double get left => _left;
+  set left(double value) {
+    if (_left != value && !_isPageAdded) {
+      _left = value;
+    }
+  }
+
+  /// Gets or sets the top margin size.
+  ///
+  /// ```dart
+  /// //Creates a new PDF document.
+  /// PdfDocument document = PdfDocument()
+  ///   //Create and set new PDF margin.
+  ///   ..pageSettings.margins = (PdfMargins()
+  ///     ..left = 20
+  ///     ..right = 40
+  ///     ..top = 100
+  ///     ..bottom = 100)
+  ///   ..pages.add().graphics.drawString(
+  ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12));
+  /// //Saves the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
+  double get top => _top;
+  set top(double value) {
+    if (_top != value && !_isPageAdded) {
+      _top = value;
+    }
+  }
+
+  /// Gets or sets the right margin size.
+  ///
+  /// ```dart
+  /// //Creates a new PDF document.
+  /// PdfDocument document = PdfDocument()
+  ///   //Create and set new PDF margin.
+  ///   ..pageSettings.margins = (PdfMargins()
+  ///     ..left = 20
+  ///     ..right = 40
+  ///     ..top = 100
+  ///     ..bottom = 100)
+  ///   ..pages.add().graphics.drawString(
+  ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12));
+  /// //Saves the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
+  double get right => _right;
+  set right(double value) {
+    if (_right != value && !_isPageAdded) {
+      _right = value;
+    }
+  }
+
+  /// Gets or sets the bottom margin size.
+  ///
+  /// ```dart
+  /// //Creates a new PDF document.
+  /// PdfDocument document = PdfDocument()
+  ///   //Create and set new PDF margin.
+  ///   ..pageSettings.margins = (PdfMargins()
+  ///     ..left = 20
+  ///     ..right = 40
+  ///     ..top = 100
+  ///     ..bottom = 100)
+  ///   ..pages.add().graphics.drawString(
+  ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12));
+  /// //Saves the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
+  double get bottom => _bottom;
+  set bottom(double value) {
+    if (_bottom != value && !_isPageAdded) {
+      _bottom = value;
+    }
+  }
+
   /// Sets the margins of all side.
-  set all(double value) => _setMargins(value);
+  ///
+  /// ```dart
+  /// //Creates a new PDF document.
+  /// PdfDocument document = PdfDocument()
+  ///   //Create and set new PDF margin.
+  ///   ..pageSettings.margins = (PdfMargins()..all = 20)
+  ///   ..pages.add().graphics.drawString(
+  ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12));
+  /// //Saves the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
+  set all(double value) {
+    if (!_isPageAdded) {
+      _setMargins(value);
+    }
+  }
 
   //Implementation
   void _setMargins(double margin) {
@@ -40,6 +175,13 @@ class PdfMargins {
     right = r;
     top = t;
     bottom = b;
+  }
+
+  bool _equals(PdfMargins margins) {
+    return _left == margins.left &&
+        _top == margins._top &&
+        _right == margins._right &&
+        _bottom == margins._bottom;
   }
 
   PdfMargins _clone() {

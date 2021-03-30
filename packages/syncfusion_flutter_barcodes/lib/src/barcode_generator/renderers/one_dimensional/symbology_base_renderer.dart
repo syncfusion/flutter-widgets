@@ -15,13 +15,13 @@ abstract class SymbologyRenderer {
   SymbologyRenderer({this.symbology});
 
   /// Specifies symbology corresponding to this renderer
-  final Symbology symbology;
+  final Symbology? symbology;
 
   /// Specifies the value with start and the stop symbol
-  String valueWithStartAndStopSymbol;
+  late String valueWithStartAndStopSymbol;
 
   /// Specifies the text size
-  Size textSize;
+  Size? textSize;
 
   /// Method to valid whether the provided input character is supported
   /// by corresponding symbology
@@ -49,8 +49,8 @@ abstract class SymbologyRenderer {
 
   /// Calculates the left value of the initial bar code
   double getLeftPosition(
-      int barWidth, int module, double width, double offsetX) {
-    final int calculatedWidth = barWidth * module;
+      int barWidth, int? module, double width, double offsetX) {
+    final int calculatedWidth = barWidth * module!;
     // Calculates the left position of the barcode based on the provided
     // module value
     double diffInWidth = (width - calculatedWidth) / 2;
@@ -61,7 +61,7 @@ abstract class SymbologyRenderer {
   /// Method to render the input value of the barcode
   void drawText(Canvas canvas, Offset offset, Size size, String value,
       TextStyle textStyle, double textSpacing, TextAlign textAlign,
-      [Offset actualOffset, Size actualSize]) {
+      [Offset? actualOffset, Size? actualSize]) {
     final TextSpan span = TextSpan(text: value, style: textStyle);
     final TextPainter textPainter = TextPainter(
         text: span, textDirection: TextDirection.ltr, textAlign: textAlign);
@@ -106,8 +106,8 @@ abstract class SymbologyRenderer {
         this is EAN13Renderer) {
       // Checks whether the calculated x value is present inside the control
       // size
-      if (x >= actualOffset.dx &&
-          x + textPainter.width <= actualOffset.dx + actualSize.width) {
+      if (x >= actualOffset!.dx &&
+          x + textPainter.width <= actualOffset.dx + actualSize!.width) {
         textPainter.paint(canvas, Offset(x, y));
       }
     } else {

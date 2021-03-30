@@ -6,7 +6,7 @@ class PdfAttachment extends _PdfEmbeddedFileSpecification {
   /// Initializes a new instance of the [PdfAttachment] class with specified
   /// file name and byte data to be attached.
   PdfAttachment(String fileName, List<int> data,
-      {String description, String mimeType})
+      {String? description, String? mimeType})
       : super(fileName, data) {
     _updateValues(description, mimeType);
   }
@@ -14,7 +14,7 @@ class PdfAttachment extends _PdfEmbeddedFileSpecification {
   /// Initializes a new instance of the [PdfAttachment] class with specified
   /// file name and byte data as base64 String to be attached.
   PdfAttachment.fromBase64String(String fileName, String base64String,
-      {String description, String mimeType})
+      {String? description, String? mimeType})
       : super(fileName, base64.decode(base64String)) {
     _updateValues(description, mimeType);
   }
@@ -29,11 +29,9 @@ class PdfAttachment extends _PdfEmbeddedFileSpecification {
   set description(String value) => super.description = value;
 
   /// Gets the file name.
-  @override
   String get fileName => _embeddedFile.fileName;
 
   /// Sets the file name.
-  @override
   set fileName(String value) => _embeddedFile.fileName = value;
 
   /// Gets the data.
@@ -72,7 +70,7 @@ class PdfAttachment extends _PdfEmbeddedFileSpecification {
         _PdfName(_getEnumName(_relationship)));
   }
 
-  void _updateValues(String desc, String mime) {
+  void _updateValues(String? desc, String? mime) {
     if (mime != null) {
       mimeType = mime;
     }

@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "Няма избрана дата", 
 "noEventsCalendarLabel" : "Няма събития", 
-"scheduleViewNewEventLabel" : "Нищо не е планирано. Докоснете, за да създадете.", 
 "ofDataPagerLabel" : "на", 
 "pagesDataPagerLabel" : "страници", 
 "itemsDataPagerLabel" : "елементи", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "Рам.", 
 "shortShawwalLabel" : "Шоу.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
-"shortDhualhiLabel" : "Dhu'l-H"
+"shortDhualhiLabel" : "Dhu'l-H", 
+"daySpanCountLabel" : "Ден"
 }

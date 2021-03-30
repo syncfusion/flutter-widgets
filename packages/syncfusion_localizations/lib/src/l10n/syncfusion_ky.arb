@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "Тандалган күн жок", 
 "noEventsCalendarLabel" : "Иш-чара жок", 
-"scheduleViewNewEventLabel" : "Эч нерсе пландаштырылган эмес. Түзүү үчүн таптап коюңуз.", 
 "ofDataPagerLabel" : "боюнча", 
 "pagesDataPagerLabel" : "барактар", 
 "itemsDataPagerLabel" : "буюмдар", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "RAM.", 
 "shortShawwalLabel" : "Шоу.", 
 "shortDhualqiLabel" : "Zhu'l-Q", 
-"shortDhualhiLabel" : "Зуль-Х"
+"shortDhualhiLabel" : "Зуль-Х", 
+"daySpanCountLabel" : "Күн"
 }

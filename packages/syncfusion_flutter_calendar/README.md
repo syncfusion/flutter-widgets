@@ -1,12 +1,10 @@
-![syncfusion_flutter_calendar_banner](https://cdn.syncfusion.com/content/images/FTControl/Flutter/calender+banner+image.png)
+﻿![syncfusion_flutter_calendar_banner](https://cdn.syncfusion.com/content/images/FTControl/Flutter/calender+banner+image.png)
 
-# Syncfusion Flutter Calendar
+# Flutter Calendar
 
-The Syncfusion Flutter Calendar widget has built-in configurable views that provide basic functionalities for scheduling and representing appointments/events efficiently.
+The Flutter Calendar widget has built-in configurable views such as day, week, workweek, month, schedule, timeline day, timeline week, timeline workweek and timeline month that provide basic functionalities for scheduling and representing appointments/events efficiently.
 
-**Disclaimer**: This is a commercial package. To use this package, you need to have either a Syncfusion commercial license or the Syncfusion Community [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE). For more details, please check the LICENSE file.
-
-**Note:** Our packages are now compatible with Flutter for Web. However, this will be in Beta until Flutter for Web becomes stable.
+**Disclaimer**: This is a commercial package. To use this package, you need to have either a Syncfusion commercial license or [Free Syncfusion Community license](https://www.syncfusion.com/products/communitylicense). For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
 
 ## Table of contents
 
@@ -51,6 +49,10 @@ The Syncfusion Flutter Calendar widget has built-in configurable views that prov
 
 ![schedule_view](https://cdn.syncfusion.com/content/images/FTControl/Calendar/flutter-calendar-schedule-view.png)
 
+* **Load more** - Load appointments on-demand whenever users switch from one view to another or when scrolling to the start or end position of the schedule view.
+
+![load_more](https://cdn.syncfusion.com/content/images/FTControl/Flutter/calendar/load_more_gif.gif)
+
 * **Special time regions** - Disable interactions and selections for specific time ranges. This is useful when you want to block user interaction during holidays or another special events and to highlight those time slots.
 
 ![special_time_regions](https://cdn.syncfusion.com/content/images/FTControl/Flutter/flutter-calendar-special-time-regions.png)
@@ -71,6 +73,10 @@ The Syncfusion Flutter Calendar widget has built-in configurable views that prov
 
 ![leading_trailing_dates](https://cdn.syncfusion.com/content/images/FTControl/Calendar/flutter-calendar-leading-trailing-dates.png)
 
+* **Current time indicator** - The current time indicator displays in the current time slot of the Calendar.
+
+![current_time_indicator](https://cdn.syncfusion.com/content/images/FTControl/Flutter/calendar/current_time_indicator.png)
+
 * **Custom start and end hours** - Display the event calendar timeslot views with specific time durations by hiding the unwanted hours.  
 
 * **Month agenda view** - Display appointments in a list as shown in the following month view by clicking on a day.
@@ -89,7 +95,7 @@ The Syncfusion Flutter Calendar widget has built-in configurable views that prov
 
 ![appearance_customization](https://cdn.syncfusion.com/content/images/FTControl/Flutter/Appearance+customization.png)
 
-* **Localization and Gloablization** - Display the current date and time by following the globalized date and time formats, and localize all available static texts in calendar..
+* **Localization and Gloablization** - Display the current date and time by following the globalized date and time formats, and localize all available static texts in calendar.
 
 ![localization](https://cdn.syncfusion.com/content/images/FTControl/Flutter/calendar/localization.png)
 
@@ -99,7 +105,7 @@ The Syncfusion Flutter Calendar widget has built-in configurable views that prov
 
 ![right_to_left](https://cdn.syncfusion.com/content/images/FTControl/Flutter/calendar/right_to_left.png)
 
-* **Programmatic navigation** - Programmatic navigation to the previous/next views by using the calendar controller.
+* **Navigation** - Programmatic navigation to the previous/next views by using the calendar controller. Also, support provided to enable or disable view navigation using swipe interaction.
 
 * **Minimum and maximum dates** - Restrict the date navigation for end users by using the minimum and maximum dates.
 

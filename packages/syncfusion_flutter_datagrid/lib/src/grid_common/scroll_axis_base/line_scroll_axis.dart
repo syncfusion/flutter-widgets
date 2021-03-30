@@ -29,15 +29,13 @@ class _LineScrollAxis extends _ScrollAxisBase {
       _distances = _DistanceRangeCounterCollection();
     }
 
-    if (scrollLinesHost != null) {
-      scrollLinesHost.initializeScrollAxis(this);
-    }
-    _distances.defaultDistance = 1.0;
+    scrollLinesHost.initializeScrollAxis(this);
+    _distances!.defaultDistance = 1.0;
   }
 
   /// distances holds the visible lines. Each visible line
   /// has a distance of 1.0. Hidden lines have a distance of 0.0.
-  _DistanceCounterCollectionBase _distances;
+  _DistanceCounterCollectionBase? _distances;
 
   /// Gets the distances collection which is used internally for mapping
   /// from a point position to
@@ -46,12 +44,12 @@ class _LineScrollAxis extends _ScrollAxisBase {
   /// Returns the distances collection which is used internally for mapping
   /// from a point position
   /// to a line index and vice versa.
-  _DistanceCounterCollectionBase get distances => _distances;
+  _DistanceCounterCollectionBase? get distances => _distances;
 
   /// Gets the total extent of all line sizes.
   ///
   /// Returns the total extent of all line sizes.
-  double get totalExtent => distances.totalDistance;
+  double get totalExtent => distances?.totalDistance ?? 0.0;
 
   /// Sets the default size of lines.
   @override
@@ -74,13 +72,13 @@ class _LineScrollAxis extends _ScrollAxisBase {
   ///
   /// Returns the line count.
   @override
-  int get lineCount => _distances.count;
+  int get lineCount => _distances?.count ?? 0;
 
   /// Sets the line count.
   @override
   set lineCount(int value) {
     if (lineCount != value) {
-      _distances.count = value;
+      _distances!.count = value;
       updateScrollbar();
     }
   }
@@ -89,7 +87,7 @@ class _LineScrollAxis extends _ScrollAxisBase {
   ///
   /// Returns the index of the first visible Line in the Body region.
   @override
-  int get scrollLineIndex => scrollBarValueToLineIndex(scrollBar.value);
+  int get scrollLineIndex => scrollBarValueToLineIndex(scrollBar!.value);
 
   /// Sets the index of the first visible Line in the Body region.
   set scrollLinesIndex(int value) {
@@ -106,7 +104,8 @@ class _LineScrollAxis extends _ScrollAxisBase {
   /// Returns the size of the view.
   @override
   double get viewSize {
-    if (scrollBar.value + scrollBar.largeChange > scrollBar.maximum) {
+    if (scrollBar != null &&
+        scrollBar!.value + scrollBar!.largeChange > scrollBar!.maximum) {
       return _viewSize;
     } else {
       return renderSize;
@@ -114,12 +113,12 @@ class _LineScrollAxis extends _ScrollAxisBase {
   }
 
   int determineLargeChange() {
-    double sbValue = scrollBar.maximum;
+    double sbValue = scrollBar!.maximum;
     final double abortSize = scrollPageSize;
     int count = 0;
     _viewSize = 0;
 
-    while (sbValue >= scrollBar.minimum) {
+    while (sbValue >= scrollBar!.minimum) {
       final int lineIndex = scrollBarValueToLineIndex(sbValue);
       final double size = getLineSize(lineIndex);
       if (_viewSize + size > abortSize) {
@@ -152,22 +151,22 @@ class _LineScrollAxis extends _ScrollAxisBase {
   }
 
   double lineIndexToScrollBarValue(int lineIndex) =>
-      _distances.getCumulatedDistanceAt(lineIndex);
+      _distances?.getCumulatedDistanceAt(lineIndex) ?? 0.0;
 
   int scrollBarValueToLineIndex(double sbValue) =>
-      _distances.indexOfCumulatedDistance(sbValue);
+      _distances?.indexOfCumulatedDistance(sbValue) ?? 0;
 
   /// Updates the line size for visible lines to be "1" for LineScrollAxis
   void updateDistances() {
-    int repeatSizeCount;
+    int repeatSizeCount = -1;
 
     for (int index = 0; index < lineCount; index++) {
-      final bool hide = scrollLinesHost.getHidden(index, repeatSizeCount)[0];
-      repeatSizeCount = scrollLinesHost.getHidden(index, repeatSizeCount)[1];
-      final value = hide == true ? 0 : 1.0;
+      final bool hide = scrollLinesHost!.getHidden(index, repeatSizeCount)[0];
+      repeatSizeCount = scrollLinesHost!.getHidden(index, repeatSizeCount)[1];
+      final value = hide == true ? 0.0 : 1.0;
       final int rangeTo =
           getRangeToHelper(index, lineCount - 1, repeatSizeCount);
-      _distances.setRange(index, rangeTo, value);
+      _distances!.setRange(index, rangeTo, value);
       index = rangeTo;
     }
   }
@@ -182,8 +181,8 @@ class _LineScrollAxis extends _ScrollAxisBase {
   /// Returns the index of the next scroll line.
   @override
   int getNextScrollLineIndex(int index) {
-    if (_distances.count > index) {
-      return _distances.getNextVisibleIndex(index);
+    if (_distances != null && _distances!.count > index) {
+      return _distances!.getNextVisibleIndex(index);
     } else {
       return 0;
     }
@@ -195,8 +194,8 @@ class _LineScrollAxis extends _ScrollAxisBase {
   /// Returns the index of the previous scroll line.
   @override
   int getPreviousScrollLineIndex(int index) {
-    if (_distances.count > index) {
-      return _distances.getPreviousVisibleIndex(index);
+    if (_distances != null && _distances!.count > index) {
+      return _distances!.getPreviousVisibleIndex(index);
     } else {
       return 0;
     }
@@ -211,7 +210,7 @@ class _LineScrollAxis extends _ScrollAxisBase {
   @override
   List getScrollLineIndex(int scrollLineIndex, double scrollLineDelta,
       [bool isRightToLeft = false]) {
-    scrollLineIndex = scrollBarValueToLineIndex(scrollBar.value);
+    scrollLineIndex = scrollBarValueToLineIndex(scrollBar!.value);
     scrollLineDelta = 0.0;
     return [scrollLineIndex, scrollLineDelta];
   }
@@ -235,13 +234,13 @@ class _LineScrollAxis extends _ScrollAxisBase {
   @override
   void onLinesInserted(int insertAt, int count) {
     final int to = insertAt + count - 1;
-    int repeatSizeCount;
+    int repeatSizeCount = -1;
     for (int index = insertAt; index <= to; index++) {
-      final bool hide = scrollLinesHost.getHidden(index, repeatSizeCount)[0];
-      repeatSizeCount = scrollLinesHost.getHidden(index, repeatSizeCount)[1];
-      final value = hide == true ? 0 : 1.0;
+      final bool hide = scrollLinesHost!.getHidden(index, repeatSizeCount)[0];
+      repeatSizeCount = scrollLinesHost!.getHidden(index, repeatSizeCount)[1];
+      final value = hide == true ? 0.0 : 1.0;
       final int rangeTo = getRangeToHelper(index, to, repeatSizeCount);
-      distances.setRange(index, rangeTo, value);
+      distances!.setRange(index, rangeTo, value);
       index = rangeTo;
     }
   }
@@ -258,8 +257,9 @@ class _LineScrollAxis extends _ScrollAxisBase {
   @override
   _DoubleSpan rangeToPoints(_ScrollAxisRegion region, int first, int last,
       bool allowEstimatesForOutOfViewLines) {
-    bool firstVisible, lastVisible;
-    _VisibleLineInfo firstLine, lastLine;
+    bool firstVisible = false;
+    bool lastVisible = false;
+    _VisibleLineInfo? firstLine, lastLine;
 
     final List lineValues = getLinesAndVisibility(
         first, last, true, firstVisible, lastVisible, firstLine, lastLine);
@@ -348,8 +348,8 @@ class _LineScrollAxis extends _ScrollAxisBase {
 
             double corner = lastLine.corner;
             if (!lastVisible || lastLine.region != _ScrollAxisRegion.body) {
-              corner = lastBodyVisibleLine.corner;
-              for (int n = lastBodyVisibleLine.lineIndex + 1; n <= last; n++) {
+              corner = lastBodyVisibleLine!.corner;
+              for (int n = lastBodyVisibleLine!.lineIndex + 1; n <= last; n++) {
                 corner += getLineSize(n);
               }
             }
@@ -357,8 +357,6 @@ class _LineScrollAxis extends _ScrollAxisBase {
             return _DoubleSpan(origin, corner);
           }
       }
-
-      return _DoubleSpan(firstLine.origin, lastLine.corner);
     }
   }
 
@@ -377,7 +375,7 @@ class _LineScrollAxis extends _ScrollAxisBase {
       int first, int last, bool allowEstimatesForOutOfViewLines) {
     final List<_DoubleSpan> result = [];
     for (int n = 0; n < 3; n++) {
-      _ScrollAxisRegion region;
+      late _ScrollAxisRegion region;
       if (n == 0) {
         region = _ScrollAxisRegion.header;
       } else if (n == 1) {
@@ -402,7 +400,7 @@ class _LineScrollAxis extends _ScrollAxisBase {
   @override
   void scrollInView(int lineIndex, double lineSize, bool isRightToLeft) {
     final _VisibleLinesCollection lines = getVisibleLines();
-    final _VisibleLineInfo line = lines.getVisibleLineAtLineIndex(lineIndex);
+    final _VisibleLineInfo? line = lines.getVisibleLineAtLineIndex(lineIndex);
     double delta = 0;
 
     if (line != null) {
@@ -414,8 +412,8 @@ class _LineScrollAxis extends _ScrollAxisBase {
         delta = -1;
       } else if (!line.isClippedOrigin && line.isClippedCorner) {
         double y = line.size - line.clippedSize;
-        double visibleScrollIndex = scrollBar.value;
-        while (y > 0 && visibleScrollIndex < scrollBar.maximum) {
+        double visibleScrollIndex = scrollBar!.value;
+        while (y > 0 && visibleScrollIndex < scrollBar!.maximum) {
           delta++;
           visibleScrollIndex++;
           y -= getLineSize(scrollBarValueToLineIndex(visibleScrollIndex));
@@ -424,17 +422,17 @@ class _LineScrollAxis extends _ScrollAxisBase {
     } else {
       double visibleScrollIndex = lineIndexToScrollBarValue(lineIndex);
 
-      if (visibleScrollIndex > scrollBar.value) {
+      if (visibleScrollIndex > scrollBar!.value) {
         final int scrollIndexLinex = intPreviousPageLineIndex(
             scrollPageSize - getLineSize(lineIndex), lineIndex);
         visibleScrollIndex = lineIndexToScrollBarValue(scrollIndexLinex);
       }
 
-      delta = visibleScrollIndex - scrollBar.value;
+      delta = visibleScrollIndex - scrollBar!.value;
     }
 
     if (delta != 0) {
-      scrollBar.value += delta;
+      scrollBar!.value += delta;
     }
 
     super.scrollInView(lineIndex, lineSize, isRightToLeft);
@@ -481,8 +479,8 @@ class _LineScrollAxis extends _ScrollAxisBase {
   @override
   void setScrollLineIndex(int scrollLineIndex, double scrollLineDelta) {
     scrollLineIndex =
-        min(max(_distances.count - 1, 0), max(0, scrollLineIndex));
-    scrollBar.value = lineIndexToScrollBarValue(scrollLineIndex);
+        min(max(_distances!.count - 1, 0), max(0, scrollLineIndex));
+    scrollBar!.value = lineIndexToScrollBarValue(scrollLineIndex);
     resetVisibleLines();
   }
 
@@ -523,7 +521,7 @@ class _LineScrollAxis extends _ScrollAxisBase {
   /// lines. if set to true - [hide].
   @override
   void setLineHiddenState(int from, int to, bool hide) {
-    _distances.setRange(from, to, hide ? 0.0 : 1.0);
+    _distances!.setRange(from, to, hide ? 0.0 : 1.0);
   }
 
   /// Sets the size of the lines for the given range of lines. Will do nothing
@@ -542,10 +540,10 @@ class _LineScrollAxis extends _ScrollAxisBase {
     setHeaderLineCount(headerLineCount);
     setFooterLineCount(footerLineCount);
 
-    final _ScrollBarBase sb = scrollBar;
+    final _ScrollBarBase sb = scrollBar!;
     final bool isMinimum = sb.minimum == sb.value;
     sb.minimum = headerLineCount.toDouble();
-    final maximum = _distances.totalDistance - footerLineCount;
+    final maximum = _distances!.totalDistance - footerLineCount;
     sb
       ..maximum = max(maximum, 0)
       ..smallChange = 1

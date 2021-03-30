@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "Nepasirinkta data", 
 "noEventsCalendarLabel" : "Jokių įvykių", 
-"scheduleViewNewEventLabel" : "Nieko neplanuota. Palieskite, kad sukurtumėte.", 
 "ofDataPagerLabel" : "apie", 
 "pagesDataPagerLabel" : "puslapių", 
 "itemsDataPagerLabel" : "daiktų", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "Avinas.", 
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
-"shortDhualhiLabel" : "Dhu'l-H"
+"shortDhualhiLabel" : "Dhu'l-H", 
+"daySpanCountLabel" : "Diena"
 }

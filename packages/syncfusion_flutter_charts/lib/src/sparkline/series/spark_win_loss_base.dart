@@ -8,9 +8,24 @@ import '../trackball/trackball_renderer.dart';
 import '../utils/enum.dart';
 import '../utils/helper.dart';
 
-/// Represents the spark win loss chart widget
+/// This class renders a win loss spark chart. The [SfSparkWinLossChart] is a
+/// very small chart, typically drawn without axis ticks and labels. It presents
+///  the general shape of data in a simple and highly condensed way. It is used
+/// to show whether each value is positive or negative visualizing a Win/Loss
+/// scenario.
+///
+/// To render a bar spark chart, create the instance of [SfSparkWinLossChart].
+/// Set the value for `data` property which of type List<num>. Now, it shows the
+///  rectangular column to represent the provided data.
+///
+/// It provides option to customize its appearance with the properties such as
+/// [color], [borderWidth], [borderColor]. To highlight the data point, which is
+///  tapped, use its [trackball] property. To highlight the particular region
+/// along with the vertical value, use its [plotBand] property.
+///
 class SfSparkWinLossChart extends StatefulWidget {
-  /// Creates the spark win loss chart
+  /// Creates a spark win loss chart for the provided set of data with its
+  /// default view.
   ///
   /// ```dart
   /// @override
@@ -24,8 +39,8 @@ class SfSparkWinLossChart extends StatefulWidget {
   /// }
   /// ```
   SfSparkWinLossChart(
-      {Key key,
-      List<num> data,
+      {Key? key,
+      List<num>? data,
       this.plotBand,
       this.borderWidth = 0,
       this.borderColor,
@@ -45,7 +60,23 @@ class SfSparkWinLossChart extends StatefulWidget {
       : _sparkChartDataDetails = SparkChartDataDetails(data: data),
         super(key: key);
 
-  /// Create the spark win loss chart with custom data source
+  /// Creates the spark win loss chart for the provided set of data with its
+  /// default view.
+  ///
+  /// The difference between the default constructor and this constructor is, in
+  ///  the default constructor uses its data property to get the input data value.
+  ///  The `data` property of the default constructor is of type List<num>.
+  ///
+  /// The custom constructor uses its [dataCount], [xValueMapper] and
+  /// [yValueMapper] to get the input data.
+  ///
+  /// The [dataCount] property allows declaring the total data count going to be
+  /// displayed in the chart.
+  ///
+  /// The [xValueMapper[ returns the x- value of the corresponding data point.
+  ///  The [xValueMapper] allows providing num, DateTime, or string as x-value.
+  ///
+  /// The [yValueMapper] returns the y-value of the corresponding data point.
   ///
   /// ```dart
   /// class SalesData {
@@ -81,16 +112,16 @@ class SfSparkWinLossChart extends StatefulWidget {
   /// }
   /// ```
   SfSparkWinLossChart.custom(
-      {Key key,
+      {Key? key,
 
       /// Data count for the spark charts.
-      int dataCount,
+      int? dataCount,
 
       /// Specifies the x-value mapping field
-      SparkChartIndexedValueMapper<dynamic> xValueMapper,
+      SparkChartIndexedValueMapper<dynamic>? xValueMapper,
 
       /// Specifies the y-value maping field
-      SparkChartIndexedValueMapper<num> yValueMapper,
+      SparkChartIndexedValueMapper<num>? yValueMapper,
       this.plotBand,
       this.borderWidth = 2,
       this.borderColor,
@@ -113,7 +144,13 @@ class SfSparkWinLossChart extends StatefulWidget {
             yValueMapper: yValueMapper),
         super(key: key);
 
-  /// Specifies whether to inverse the spark chart rendering.
+  /// Inverts the axis from right to left.
+  ///
+  /// In the spark chart, the provided set of data are rendered from left to
+  /// right by default and can be inverted to render the data points from
+  /// right to left.
+  ///
+  /// Defaults to `false`.
   ///
   /// ```dart
   /// @override
@@ -129,7 +166,11 @@ class SfSparkWinLossChart extends StatefulWidget {
   /// ```
   final bool isInversed;
 
-  /// Specifies the axis line's position.
+  /// Customize the axis position based on the provided y-value.
+  /// The axis line is rendered on the minimum y-value and can be repositioned
+  /// to required y-value .
+  ///
+  /// Defaults to `zero`.
   ///
   /// ```dart
   /// @override
@@ -137,7 +178,7 @@ class SfSparkWinLossChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkWinLossChart(
-  ///      axisCrossesAt: 14,
+  ///      axisCrossesAt: 24,
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
   ///  );
@@ -145,7 +186,9 @@ class SfSparkWinLossChart extends StatefulWidget {
   /// ```
   final double axisCrossesAt;
 
-  /// Specifies the width of the axis line.
+  /// Customizes the width of the axis line.
+  ///
+  /// Defaults to `2`.
   ///
   /// ```dart
   /// @override
@@ -161,7 +204,10 @@ class SfSparkWinLossChart extends StatefulWidget {
   /// ```
   final double axisLineWidth;
 
-  /// Specified the color of the axis line.
+  /// Customizes the color of the axis line.
+  /// Colors.transparent can be set to [axisLineColor] to hide the axis line.
+  ///
+  /// Defaults to `Colors.black.
   ///
   /// ```dart
   /// @override
@@ -177,7 +223,10 @@ class SfSparkWinLossChart extends StatefulWidget {
   /// ```
   final Color axisLineColor;
 
-  /// Specifies the dash array value of the axis line.
+  /// Dashes of the axis line. Any number of values can be provided on the list.
+  /// Odd value is considered as rendering size and even value is considered a gap.
+  ///
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
@@ -191,9 +240,14 @@ class SfSparkWinLossChart extends StatefulWidget {
   ///  );
   /// }
   /// ```
-  final List<double> axisLineDashArray;
+  final List<double>? axisLineDashArray;
 
-  /// Specifies the highest data point color.
+  /// Customizes the color of the highest rectangular column segment.
+  ///
+  /// When the high data point is the first or last data point of the provided
+  /// data set, then either the first or last point color gets applied.
+  ///
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
@@ -207,9 +261,14 @@ class SfSparkWinLossChart extends StatefulWidget {
   ///  );
   /// }
   /// ```
-  final Color highPointColor;
+  final Color? highPointColor;
 
-  /// Specifies the lowest data point color.
+  /// Customizes the color of the lowest rectangular column segment.
+  ///
+  /// When the lowest data point is the first or last data point of the provided
+  /// data set, then either the first or last point color gets applied.
+  ///
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
@@ -218,14 +277,20 @@ class SfSparkWinLossChart extends StatefulWidget {
   ///    body: Center(
   ///        child: SfSparkWinLossChart(
   ///      lowPointColor: Colors.red,
-  ///      data: <double>[18, 24, 30, 14, 28],
+  ///      data: <double>[18, -24, 30, 14, 28],
   ///    )),
   ///  );
   /// }
   /// ```
-  final Color lowPointColor;
+  final Color? lowPointColor;
 
-  /// Specifies the negative point color.
+  /// Customizes the color of negative data point and data point value less than
+  /// the [axisCrossesAt] value.
+  ///
+  /// If the negative data point is either the high or low, first or last data
+  ///  point, then priority will be given to those colors.
+  ///
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
@@ -239,9 +304,14 @@ class SfSparkWinLossChart extends StatefulWidget {
   ///  );
   /// }
   /// ```
-  final Color negativePointColor;
+  final Color? negativePointColor;
 
-  /// Specifies the first point color.
+  /// Customizes the color of the first rectangular column segment.
+  ///
+  /// If the first data point is either the high data point or low data point,
+  /// then the priority will be given to firstPointColor property.
+  ///
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
@@ -255,9 +325,14 @@ class SfSparkWinLossChart extends StatefulWidget {
   ///  );
   /// }
   /// ```
-  final Color firstPointColor;
+  final Color? firstPointColor;
 
-  /// Specifies the last point color.
+  /// Customizes the color of the last rectangular column segment.
+  ///
+  /// If the last data point is either the high data point or low data point,
+  ///  then the priority will be given to lastPointColor propety.
+  ///
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
@@ -271,9 +346,11 @@ class SfSparkWinLossChart extends StatefulWidget {
   ///  );
   /// }
   /// ```
-  final Color lastPointColor;
+  final Color? lastPointColor;
 
-  /// Specifies the color of the spark win loss chart.
+  /// Customizes the spark win loss chart color.
+  ///
+  /// Defaults to `blue`.
   ///
   /// ```dart
   /// @override
@@ -289,7 +366,18 @@ class SfSparkWinLossChart extends StatefulWidget {
   /// ```
   final Color color;
 
-  /// Represents the plot band settings for spark win loss chart.
+  /// Render plot band.
+  ///
+  /// Plot band is also known as stripline, which is used to shade the different
+  /// ranges in plot area with different colors to improve the readability of
+  /// the chart.
+  ///
+  /// Plot bands are drawn based on the axis.
+  ///
+  /// Provides the property of `start`, `end`, [color], [borderColor], and
+  /// [borderWidth] to customize the appearance.
+  ///
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
@@ -303,9 +391,13 @@ class SfSparkWinLossChart extends StatefulWidget {
   ///  );
   /// }
   /// ```
-  final SparkChartPlotBand plotBand;
+  final SparkChartPlotBand? plotBand;
 
-  /// Specifies the Border width of the series.
+  /// Customizes the border width of each rectangular column segment.
+  /// To render the border, both the border width and border color property
+  /// needs to be set.
+  ///
+  /// Defaults to `0`
   ///
   /// ```dart
   /// @override
@@ -313,7 +405,7 @@ class SfSparkWinLossChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkWinLossChart(
-  ///      width: 4,
+  ///      borderWidth: 4, borderColor: Colors.red,
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
   ///  );
@@ -321,7 +413,12 @@ class SfSparkWinLossChart extends StatefulWidget {
   /// ```
   final double borderWidth;
 
-  ///  Specifies the Border color of the series.
+  ///  Customizes the border color of each rectangular column segment.
+  ///  The border will be rendered on the top of the spark area chart.
+  /// To render the border, both the [borderWidth] and borderColor property
+  ///  needs to be set.
+  ///
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
@@ -329,15 +426,22 @@ class SfSparkWinLossChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkWinLossChart(
-  ///      dashArray: <double>[2,2],
+  ///       borderWidth: 4, borderColor: Colors.red,
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
   ///  );
   /// }
   /// ```
-  final Color borderColor;
+  final Color? borderColor;
 
-  /// Tie point color of Win loss series.
+  /// Customizes the color of tie data point rectangular segment and the data
+  /// point value is equal to the [axisCrossesAt] value, is considered as a
+  /// tie point.
+  ///
+  /// If the tie data point is either the high or low, first or last data point,
+  /// then priority will be given to tie point color.
+  ///
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
@@ -345,15 +449,24 @@ class SfSparkWinLossChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkWinLossChart(
-  ///      dashArray: <double>[2,2],
+  ///      tiePointColor: Colors.blue,
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
   ///  );
   /// }
   /// ```
-  final Color tiePointColor;
+  final Color? tiePointColor;
 
-  /// Represents the track ball options of spark win loss chart
+  /// Enables and customizes the trackball.
+  ///
+  /// Trackball feature displays the tooltip for the data points that are closer
+  /// to the point where you touch on the chart area. This feature can be
+  /// enabled by creating an instance of [SparkChartTrackball].
+  ///
+  /// Provides option to customizes the `activationMode`, `width`, [color],
+  /// `labelStyle`, `backgroundColor`, [borderColor], [borderWidth].
+  ///
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
@@ -361,13 +474,13 @@ class SfSparkWinLossChart extends StatefulWidget {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkWinLossChart(
-  ///      trackball:(borderWidth: 2,
+  ///      trackball: SparkChartTrackball(borderWidth: 2,
   ///      borderColor: Colors.black, activationMode: SparkChartActivationMode.doubleTap),
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
   ///  );
   /// }
-  final SparkChartTrackball trackball;
+  final SparkChartTrackball? trackball;
 
   /// Specifies the spark chart data details
   final SparkChartDataDetails _sparkChartDataDetails;
@@ -381,10 +494,19 @@ class SfSparkWinLossChart extends StatefulWidget {
 /// Represents the state class for spark win loss chart widget
 class _SfSparkWinLossChartState extends State<SfSparkWinLossChart> {
   /// Specifies the series screen coordinate points
-  List<Offset> _coordinatePoints;
+  late List<Offset> _coordinatePoints;
 
   /// Specifies the series data points
-  List<SparkChartPoint> _dataPoints;
+  late List<SparkChartPoint> _dataPoints;
+
+  /// Called when this object is inserted into the tree.
+  ///
+  /// The framework will call this method exactly once for each State object it creates.
+  ///
+  /// Override this method to perform initialization that depends on the location at
+  /// which this object was inserted into the tree or on the widget used to configure this object.
+  ///
+  /// * In [initState], subscribe to the object.
 
   @override
   void initState() {
@@ -393,10 +515,30 @@ class _SfSparkWinLossChartState extends State<SfSparkWinLossChart> {
     super.initState();
   }
 
+  /// Called whenever the widget configuration changes.
+  ///
+  /// If the parent widget rebuilds and request that this location in the tree update to display a new widget with the same [runtimeType] and [Widget.key],
+  /// the framework will update the widget property of this [State] object to refer to the new widget and then call this method with the previous widget as an argument.
+  ///
+  /// Override this method to respond when the widget changes.
+  ///
+  /// The framework always calls [build] after calling [didUpdateWidget], which means any calls to [setState] in [didUpdateWidget] are redundant.
+  ///
+  /// * In [didUpdateWidget] unsubscribe from the old object and subscribe to the new one if the updated widget configuration requires replacing the object.
+
   @override
   void didUpdateWidget(SfSparkWinLossChart oldWidget) {
     super.didUpdateWidget(oldWidget);
   }
+
+  /// Describes the part of the user interface represented by this widget.
+  ///
+  /// The framework calls this method in a number of different situations. For example:
+  ///
+  /// * After calling [initState].
+  /// * After calling [didUpdateWidget].
+  /// * After receiving a call to [setState].
+  /// * After a dependency of this [State] object changes.
 
   @override
   Widget build(BuildContext context) {

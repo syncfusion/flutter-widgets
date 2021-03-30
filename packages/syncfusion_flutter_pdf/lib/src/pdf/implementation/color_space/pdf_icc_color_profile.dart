@@ -21,7 +21,7 @@ class _PdfICCColorProfile implements _IPdfWrapper {
 
   //Implementation.
   //Handles the BeginSave event of the Stream control.
-  void _beginSaveStream(Object sender, _SavePdfPrimitiveArgs args) {
+  void _beginSaveStream(Object sender, _SavePdfPrimitiveArgs? args) {
     _stream._clearStream();
     _stream._dataStream = base64.decode(profileData).toList();
   }
@@ -32,7 +32,8 @@ class _PdfICCColorProfile implements _IPdfWrapper {
   _IPdfPrimitive get _element => _stream;
 
   @override
-  set _element(_IPdfPrimitive value) {
+  // ignore: unused_element
+  set _element(_IPdfPrimitive? value) {
     throw ArgumentError('value of element cannot be set');
   }
 }

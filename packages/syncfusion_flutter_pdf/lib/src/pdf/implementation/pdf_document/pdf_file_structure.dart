@@ -23,13 +23,15 @@ class PdfFileStructure {
     _version = PdfVersion.version1_7;
     crossReferenceType = PdfCrossReferenceType.crossReferenceTable;
     incrementalUpdate = true;
+    _fileID = false;
   }
 
   //Fields
-  PdfVersion _version;
+  late PdfVersion _version;
+  late bool _fileID;
 
   /// Gets or sets a value indicating whether incremental update.
-  bool incrementalUpdate;
+  late bool incrementalUpdate;
 
   /// The type of PDF cross-reference.
   ///
@@ -47,7 +49,7 @@ class PdfFileStructure {
   /// List<int> bytes = document.save();
   /// document.dispose();
   /// ```
-  PdfCrossReferenceType crossReferenceType;
+  late PdfCrossReferenceType crossReferenceType;
 
   //Properties
   /// Gets the version of the PDF document.

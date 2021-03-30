@@ -1,36 +1,30 @@
 part of datagrid;
 
 class _VisualContainerHelper {
-  _VisualContainerHelper({this.rowGenerator}) {
-    _isPreGenerator = false;
-    _needToRefreshColumn = false;
-    _isGridLoaded = false;
-    _headerLineCount = 1;
-    _isDirty = false;
-    _needToSetHorizontalOffset = false;
+  _VisualContainerHelper({required this.rowGenerator}) {
     rowHeightsProvider = onCreateRowHeights();
     columnWidthsProvider = onCreateColumnWidths();
   }
 
-  bool _isPreGenerator;
-  bool _needToRefreshColumn;
-  bool _isGridLoaded;
-  int _headerLineCount;
-  bool _isDirty;
+  bool _isPreGenerator = false;
+  bool _needToRefreshColumn = false;
+  bool _isGridLoaded = false;
+  int _headerLineCount = 1;
+  bool _isDirty = false;
 
   // Used to set the horizontal offset for LTR to RTL and vise versa,
-  bool _needToSetHorizontalOffset;
+  bool _needToSetHorizontalOffset = false;
 
-  _DataGridStateDetails get dataGridStateDetails =>
+  _DataGridStateDetails? get dataGridStateDetails =>
       rowGenerator.dataGridStateDetails;
 
-  _RowGenerator rowGenerator;
+  late _RowGenerator rowGenerator;
+
+  late _PaddedEditableLineSizeHostBase rowHeightsProvider;
+
+  late _PaddedEditableLineSizeHostBase columnWidthsProvider;
 
   _RowHeightManager rowHeightManager = _RowHeightManager();
-
-  _PaddedEditableLineSizeHostBase rowHeightsProvider;
-
-  _PaddedEditableLineSizeHostBase columnWidthsProvider;
 
   _PaddedEditableLineSizeHostBase get rowHeights => rowHeightsProvider;
 
@@ -39,33 +33,33 @@ class _VisualContainerHelper {
   _ScrollAxisBase get scrollRows {
     _scrollRows ??=
         createScrollAxis(true, verticalScrollBar, rowHeightsProvider);
-    _scrollRows.name = 'ScrollRows';
+    _scrollRows!.name = 'ScrollRows';
 
-    return _scrollRows;
+    return _scrollRows!;
   }
 
-  _ScrollAxisBase _scrollRows;
+  _ScrollAxisBase? _scrollRows;
 
   set scrollRows(_ScrollAxisBase newValue) => _scrollRows = newValue;
 
   _ScrollAxisBase get scrollColumns {
     _scrollColumns ??=
         createScrollAxis(true, horizontalScrollBar, columnWidthsProvider);
-    _scrollColumns.name = 'ScrollColumns';
-    return _scrollColumns;
+    _scrollColumns!.name = 'ScrollColumns';
+    return _scrollColumns!;
   }
 
-  _ScrollAxisBase _scrollColumns;
+  _ScrollAxisBase? _scrollColumns;
 
   set scrollColumns(_ScrollAxisBase newValue) => _scrollColumns = newValue;
 
   _ScrollBarBase get horizontalScrollBar =>
       _horizontalScrollBar ?? (_horizontalScrollBar = _ScrollInfo());
-  _ScrollBarBase _horizontalScrollBar;
+  _ScrollBarBase? _horizontalScrollBar;
 
   _ScrollBarBase get verticalScrollBar =>
       _verticalScrollBar ?? (_verticalScrollBar = _ScrollInfo());
-  _ScrollBarBase _verticalScrollBar;
+  _ScrollBarBase? _verticalScrollBar;
 
   int get rowCount => rowHeightsProvider.lineCount;
 
@@ -131,13 +125,15 @@ class _VisualContainerHelper {
       horizontalScrollBar.value - horizontalScrollBar.minimum;
 
   set horizontalOffset(double newValue) {
-    if (dataGridStateDetails().textDirection == TextDirection.ltr) {
+    final _DataGridSettings dataGridSettings = dataGridStateDetails!();
+    if (dataGridSettings.textDirection == TextDirection.ltr) {
       horizontalScrollBar.value = newValue + horizontalScrollBar.minimum;
     } else {
       horizontalScrollBar.value = max(horizontalScrollBar.minimum,
               horizontalScrollBar.maximum - horizontalScrollBar.largeChange) -
           newValue;
     }
+    dataGridSettings.controller._horizontalOffset = horizontalScrollBar.value;
 
     _needToRefreshColumn = true;
   }
@@ -148,24 +144,23 @@ class _VisualContainerHelper {
   set verticalOffset(double newValue) {
     if (verticalScrollBar.value != (newValue + verticalScrollBar.minimum)) {
       verticalScrollBar.value = newValue + verticalScrollBar.minimum;
+      dataGridStateDetails!().controller._verticalOffset =
+          verticalScrollBar.value;
     }
   }
 
   double get extentWidth {
-    final _PixelScrollAxis _scrollColumns = scrollColumns;
+    final _PixelScrollAxis _scrollColumns = scrollColumns as _PixelScrollAxis;
     return _scrollColumns.totalExtent;
   }
 
   double get extentHeight {
-    final _PixelScrollAxis _scrollRows = scrollRows;
+    final _PixelScrollAxis _scrollRows = scrollRows as _PixelScrollAxis;
     return _scrollRows.totalExtent;
   }
 
   void setRowHeights() {
-    if (rowGenerator == null) {
-      return;
-    }
-    if (dataGridStateDetails().onQueryRowHeight == null) {
+    if (dataGridStateDetails!().onQueryRowHeight == null) {
       return;
     }
 
@@ -173,7 +168,7 @@ class _VisualContainerHelper {
 
     int endIndex = 0;
 
-    if (visibleRows.length < visibleRows.firstBodyVisibleIndex) {
+    if (visibleRows.length <= visibleRows.firstBodyVisibleIndex) {
       return;
     }
 
@@ -208,7 +203,8 @@ class _VisualContainerHelper {
     var current = bodyStart;
     var currentEnd = endIndex;
 
-    final _LineSizeCollection lineSizeCollection = rowHeights;
+    final _LineSizeCollection lineSizeCollection =
+        rowHeights as _LineSizeCollection;
     lineSizeCollection.suspendUpdates();
     for (int index = bodyStartLineIndex;
         current <= bodyEnd && index < scrollRows.firstFooterLineIndex;
@@ -217,7 +213,7 @@ class _VisualContainerHelper {
 
       if (!rowHeightManager.contains(index, RowRegion.body)) {
         final rowHeight = rowGenerator._queryRowHeight(index, height);
-        if (rowHeight != null) {
+        if (rowHeight != height) {
           height = rowHeight;
           rowHeights.setRange(index, index, height);
         }
@@ -238,7 +234,7 @@ class _VisualContainerHelper {
 
         final height = rowHeights[index];
         final rowHeight = rowGenerator._queryRowHeight(index, height);
-        if (rowHeight != null) {
+        if (rowHeight != height) {
           rowHeights.setRange(index, index, rowHeight);
         }
       }
@@ -255,11 +251,12 @@ class _VisualContainerHelper {
       return;
     }
 
-    final _DataGridSettings dataGridSettings = dataGridStateDetails();
+    final _DataGridSettings dataGridSettings = dataGridStateDetails!();
     for (int index = startIndex; index <= endIndex; index++) {
       if (!rowHeightManager.contains(index, region)) {
-        final rowHeight = rowGenerator._queryRowHeight(index, 0);
-        if (rowHeight != null) {
+        final height = dataGridSettings.container.rowHeights[index];
+        final rowHeight = rowGenerator._queryRowHeight(index, height);
+        if (rowHeight != height) {
           rowHeights.setRange(index, index, rowHeight);
 
           if (region == RowRegion.header &&
@@ -305,7 +302,8 @@ class _VisualContainerHelper {
   }
 
   void removeColumns(int removeAtColumnIndex, int count) {
-    final _LineSizeCollection lineSizeCollection = columnWidths;
+    final _LineSizeCollection lineSizeCollection =
+        columnWidths as _LineSizeCollection;
     lineSizeCollection.suspendUpdates();
     columnWidthsProvider.removeLines(removeAtColumnIndex, count, null);
     lineSizeCollection.resumeUpdates();
@@ -327,7 +325,7 @@ class _VisualContainerHelper {
       final Object _lineSizes = lineSizes;
       if (lineSizes is _DistancesHostBase) {
         return _PixelScrollAxis.fromPixelScrollAxis(
-            scrollBar, lineSizes, _lineSizes);
+            scrollBar, lineSizes, _lineSizes as _DistancesHostBase);
       } else {
         return _PixelScrollAxis.fromPixelScrollAxis(scrollBar, lineSizes, null);
       }
@@ -336,7 +334,7 @@ class _VisualContainerHelper {
     }
   }
 
-  _VisibleLineInfo getRowVisibleLineInfo(int index) =>
+  _VisibleLineInfo? getRowVisibleLineInfo(int index) =>
       scrollRows.getVisibleLineAtLineIndex(index);
 
   List<int> _getStartEndIndex(
@@ -350,9 +348,6 @@ class _VisualContainerHelper {
           endIndex =
               visibleLines[visibleLines.firstBodyVisibleIndex - 1].lineIndex;
         }
-
-        return [startIndex, endIndex];
-
         break;
       case 1:
         if ((visibleLines.firstBodyVisibleIndex <= 0 &&
@@ -363,7 +358,6 @@ class _VisualContainerHelper {
           startIndex =
               visibleLines[visibleLines.firstBodyVisibleIndex].lineIndex;
           endIndex = visibleLines[visibleLines.lastBodyVisibleIndex].lineIndex;
-          return [startIndex, endIndex];
         }
         break;
       case 2:
@@ -372,24 +366,22 @@ class _VisualContainerHelper {
               visibleLines[visibleLines.firstFooterVisibleIndex].lineIndex;
           endIndex = visibleLines[visibleLines.length - 1].lineIndex;
         }
-        return [startIndex, endIndex];
-        break;
-      default:
-        return [startIndex, endIndex];
         break;
     }
+
+    return [startIndex, endIndex];
   }
 
   void _refreshDefaultLineSize() {
-    rowHeights.defaultLineSize = dataGridStateDetails().rowHeight;
-    columnWidths.defaultLineSize = dataGridStateDetails().defaultColumnWidth;
+    final _DataGridSettings dataGridSettings = dataGridStateDetails!();
+    rowHeights.defaultLineSize = dataGridSettings.rowHeight;
+    columnWidths.defaultLineSize = dataGridSettings.defaultColumnWidth;
   }
 
   void _refreshHeaderLineCount() {
-    final dataGridSettings = dataGridStateDetails();
+    final dataGridSettings = dataGridStateDetails!();
     _headerLineCount = 1;
-    if (dataGridSettings.stackedHeaderRows != null &&
-        dataGridSettings.stackedHeaderRows.isNotEmpty) {
+    if (dataGridSettings.stackedHeaderRows.isNotEmpty) {
       _headerLineCount += dataGridSettings.stackedHeaderRows.length;
       dataGridSettings.headerLineCount = _headerLineCount;
     } else {
@@ -398,13 +390,10 @@ class _VisualContainerHelper {
   }
 
   void _updateRowAndColumnCount() {
-    if (this == null) {
-      return;
-    }
-
-    final _LineSizeCollection lineSizeCollection = columnWidths;
+    final _LineSizeCollection lineSizeCollection =
+        columnWidths as _LineSizeCollection;
     lineSizeCollection.suspendUpdates();
-    final _DataGridSettings dataGridSettings = dataGridStateDetails();
+    final _DataGridSettings dataGridSettings = dataGridStateDetails!();
     _updateColumnCount(dataGridSettings);
     _updateRowCount(dataGridSettings);
     if (rowCount > 0) {
@@ -430,18 +419,19 @@ class _VisualContainerHelper {
   }
 
   void _updateRowCount(_DataGridSettings dataGridSettings) {
-    final _LineSizeCollection lineSizeCollection = rowHeights;
+    final _LineSizeCollection lineSizeCollection =
+        rowHeights as _LineSizeCollection;
     lineSizeCollection.suspendUpdates();
-    int rowCount = 0;
-    rowCount = dataGridSettings.source._effectiveDataSource != null
-        ? dataGridSettings.source._effectiveDataSource.length
+    int _rowCount = 0;
+    _rowCount = dataGridSettings.source._effectiveRows.isNotEmpty
+        ? dataGridSettings.source._effectiveRows.length
         : 0;
-    rowCount += dataGridSettings.headerLineCount;
-    this.rowCount = rowCount;
+    _rowCount += dataGridSettings.headerLineCount;
+    this.rowCount = _rowCount;
     _updateFreezePaneRows(dataGridSettings);
     // FLUT-2047 Need to mark all visible rows height as dirty when
     // updating the row count if onQueryRowHeight is not null.
-    if (dataGridStateDetails().onQueryRowHeight != null) {
+    if (dataGridStateDetails!().onQueryRowHeight != null) {
       rowHeightManager.reset();
     }
     //need to reset the hidden state
@@ -506,6 +496,21 @@ class _VisualContainerHelper {
       dataRow
         .._isDirty = true
         .._visibleColumns.forEach(updateColumn);
+    }
+  }
+
+  void resetSwipeOffset() {
+    final dataGridSettings = dataGridStateDetails!();
+    if (!dataGridSettings.allowSwiping) {
+      return;
+    }
+
+    final swipedRow = dataGridSettings.rowGenerator.items.firstWhereOrNull(
+      (row) => row._isSwipingRow && dataGridSettings.swipingOffset.abs() > 0,
+    );
+    if (swipedRow != null) {
+      swipedRow._isSwipingRow = false;
+      dataGridSettings.swipingOffset = 0.0;
     }
   }
 }

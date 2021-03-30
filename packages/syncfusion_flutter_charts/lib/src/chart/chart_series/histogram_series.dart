@@ -11,60 +11,52 @@ part of charts;
 class HistogramSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of HistogramSeries class.
   HistogramSeries(
-      {ValueKey<String> key,
-      ChartSeriesRendererFactory<T, D> onCreateRenderer,
-      @required List<T> dataSource,
-      @required ChartValueMapper<T, num> yValueMapper,
-      ChartValueMapper<T, dynamic> sortFieldValueMapper,
-      ChartValueMapper<T, Color> pointColorMapper,
-      ChartValueMapper<T, String> dataLabelMapper,
-      SortingOrder sortingOrder,
+      {ValueKey<String>? key,
+      ChartSeriesRendererFactory<T, D>? onCreateRenderer,
+      required List<T> dataSource,
+      required ChartValueMapper<T, num> yValueMapper,
+      ChartValueMapper<T, dynamic>? sortFieldValueMapper,
+      ChartValueMapper<T, Color>? pointColorMapper,
+      ChartValueMapper<T, String>? dataLabelMapper,
+      SortingOrder? sortingOrder,
       this.isTrackVisible = false,
-      String xAxisName,
-      String yAxisName,
-      String name,
-      Color color,
-      double width,
-      double spacing,
-      MarkerSettings markerSettings,
-      List<Trendline> trendlines,
-      EmptyPointSettings emptyPointSettings,
-      DataLabelSettings dataLabelSettings,
-      bool isVisible,
-      LinearGradient gradient,
-      LinearGradient borderGradient,
-      BorderRadius borderRadius,
-      bool enableTooltip,
-      double animationDuration,
-      Color trackColor,
-      Color trackBorderColor,
-      double trackBorderWidth,
-      double trackPadding,
-      Color borderColor,
-      double borderWidth,
+      String? xAxisName,
+      String? yAxisName,
+      String? name,
+      Color? color,
+      double? width,
+      this.spacing = 0,
+      MarkerSettings? markerSettings,
+      List<Trendline>? trendlines,
+      EmptyPointSettings? emptyPointSettings,
+      DataLabelSettings? dataLabelSettings,
+      bool? isVisible,
+      LinearGradient? gradient,
+      LinearGradient? borderGradient,
+      this.borderRadius = const BorderRadius.all(Radius.zero),
+      bool? enableTooltip,
+      double? animationDuration,
+      this.trackColor = Colors.grey,
+      this.trackBorderColor = Colors.transparent,
+      this.trackBorderWidth = 1,
+      this.trackPadding = 0,
+      Color? borderColor,
+      double? borderWidth,
       // ignore: deprecated_member_use_from_same_package
-      SelectionSettings selectionSettings,
-      SelectionBehavior selectionBehavior,
-      bool isVisibleInLegend,
-      LegendIconType legendIconType,
-      String legendItemText,
-      double opacity,
-      List<double> dashArray,
+      SelectionSettings? selectionSettings,
+      SelectionBehavior? selectionBehavior,
+      bool? isVisibleInLegend,
+      LegendIconType? legendIconType,
+      String? legendItemText,
+      double? opacity,
+      List<double>? dashArray,
       this.binInterval,
-      bool showNormalDistributionCurve,
+      this.showNormalDistributionCurve = false,
       this.curveColor = Colors.blue,
-      double curveWidth,
+      this.curveWidth = 2,
       this.curveDashArray,
-      SeriesRendererCreatedCallback onRendererCreated})
-      : trackColor = trackColor ?? Colors.grey,
-        trackBorderColor = trackBorderColor ?? Colors.transparent,
-        trackBorderWidth = trackBorderWidth ?? 1,
-        trackPadding = trackPadding ?? 0,
-        spacing = spacing ?? 0,
-        borderRadius = borderRadius ?? const BorderRadius.all(Radius.zero),
-        showNormalDistributionCurve = showNormalDistributionCurve ?? false,
-        curveWidth = curveWidth ?? 2,
-        super(
+      SeriesRendererCreatedCallback? onRendererCreated})
+      : super(
             key: key,
             onCreateRenderer: onCreateRenderer,
             name: name,
@@ -121,11 +113,11 @@ class HistogramSeries<T, D> extends XyDataSeries<T, D> {
   ///        ));
   ///}
   ///```
-  final int binInterval;
+  final int? binInterval;
 
   ///Renders a spline curve for the normal distribution, calculated based on the series data points.
   ///
-  ///This spline curve type can be changed using the [splineType] property.
+  ///This spline curve type can be changed using the `splineType` property.
   ///
   ///Defaults to `false`
   ///```dart
@@ -195,7 +187,7 @@ class HistogramSeries<T, D> extends XyDataSeries<T, D> {
   ///        ));
   ///}
   ///```
-  final List<double> curveDashArray;
+  final List<double>? curveDashArray;
 
   ///Color of the track.
   ///
@@ -345,7 +337,7 @@ class HistogramSeries<T, D> extends XyDataSeries<T, D> {
   HistogramSeriesRenderer createRenderer(ChartSeries<T, D> series) {
     HistogramSeriesRenderer seriesRenderer;
     if (onCreateRenderer != null) {
-      seriesRenderer = onCreateRenderer(series);
+      seriesRenderer = onCreateRenderer!(series) as HistogramSeriesRenderer;
       assert(seriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return seriesRenderer;
@@ -357,47 +349,47 @@ class HistogramSeries<T, D> extends XyDataSeries<T, D> {
 class _HistogramValues {
   _HistogramValues(
       {this.sDValue, this.mean, this.binWidth, this.yValues, this.minValue});
-  num sDValue;
-  num mean;
-  num binWidth;
-  num minValue;
-  List<num> yValues = <num>[];
+  num? sDValue;
+  num? mean;
+  num? binWidth;
+  num? minValue;
+  List<num>? yValues = <num>[];
 }
 
 /// Creates series renderer for Histogram series
 class HistogramSeriesRenderer extends XyDataSeriesRenderer {
-  num _rectPosition;
-  num _rectCount;
-  _HistogramValues _histogramValues;
-  HistogramSegment _segment;
-  List<CartesianSeriesRenderer> _oldSeriesRenderers;
-  HistogramSeries<dynamic, dynamic> _histogramSeries;
-  BorderRadius _borderRadius;
+  late num _rectPosition;
+  late num _rectCount;
+  late _HistogramValues _histogramValues;
+  late HistogramSegment _segment;
+  List<CartesianSeriesRenderer>? _oldSeriesRenderers;
+  late HistogramSeries<dynamic, dynamic> _histogramSeries;
+  BorderRadius? _borderRadius;
 
   /// To get the proper data for histogram series
   void _processData(HistogramSeries<dynamic, dynamic> series, List<num> yValues,
       num yValuesCount) {
     _histogramValues = _HistogramValues();
     _histogramValues.yValues = yValues;
-    final num mean = yValuesCount / _histogramValues.yValues.length;
+    final num mean = yValuesCount / _histogramValues.yValues!.length;
     _histogramValues.mean = mean;
     num sumValue = 0;
     num sDValue;
-    for (int value = 0; value < _histogramValues.yValues.length; value++) {
-      sumValue += (_histogramValues.yValues[value] - _histogramValues.mean) *
-          (_histogramValues.yValues[value] - _histogramValues.mean);
+    for (int value = 0; value < _histogramValues.yValues!.length; value++) {
+      sumValue += (_histogramValues.yValues![value] - _histogramValues.mean!) *
+          (_histogramValues.yValues![value] - _histogramValues.mean!);
     }
-    sDValue = math.sqrt(sumValue / _histogramValues.yValues.length - 1).isNaN
+    sDValue = math.sqrt(sumValue / _histogramValues.yValues!.length - 1).isNaN
         ? 0
-        : (math.sqrt(sumValue / _histogramValues.yValues.length - 1)).round();
+        : (math.sqrt(sumValue / _histogramValues.yValues!.length - 1)).round();
     _histogramValues.sDValue = sDValue;
   }
 
   /// Find the path for distribution line in the histogram
   Path _findNormalDistributionPath(
       HistogramSeries<dynamic, dynamic> series, SfCartesianChart chart) {
-    final num min = _xAxisRenderer._visibleRange.minimum;
-    final num max = _xAxisRenderer._visibleRange.maximum;
+    final num min = _xAxisRenderer!._visibleRange!.minimum;
+    final num max = _xAxisRenderer!._visibleRange!.maximum;
     num xValue, yValue;
     final Path path = Path();
     _ChartLocation pointLocation;
@@ -405,18 +397,20 @@ class HistogramSeriesRenderer extends XyDataSeriesRenderer {
     final num del = (max - min) / (pointsCount - 1);
     for (int i = 0; i < pointsCount; i++) {
       xValue = min + i * del;
-      yValue = math.exp(-(xValue - _histogramValues.mean) *
-              (xValue - _histogramValues.mean) /
-              (2 * _histogramValues.sDValue * _histogramValues.sDValue)) /
-          (_histogramValues.sDValue * math.sqrt(2 * math.pi));
+      yValue = math.exp(-(xValue - _histogramValues.mean!) *
+              (xValue - _histogramValues.mean!) /
+              (2 * _histogramValues.sDValue! * _histogramValues.sDValue!)) /
+          (_histogramValues.sDValue! * math.sqrt(2 * math.pi));
       pointLocation = _calculatePoint(
           xValue,
-          yValue * _histogramValues.binWidth * _histogramValues.yValues.length,
-          _xAxisRenderer,
-          _yAxisRenderer,
-          _chartState._requireInvertedAxis,
+          yValue *
+              _histogramValues.binWidth! *
+              _histogramValues.yValues!.length,
+          _xAxisRenderer!,
+          _yAxisRenderer!,
+          _chartState!._requireInvertedAxis,
           series,
-          _chartState._chartAxis._axisClipRect);
+          _chartState!._chartAxis._axisClipRect);
       i == 0
           ? path.moveTo(pointLocation.x, pointLocation.y)
           : path.lineTo(pointLocation.x, pointLocation.y);
@@ -430,49 +424,51 @@ class HistogramSeriesRenderer extends XyDataSeriesRenderer {
       int pointIndex,
       _VisibleRange sideBySideInfo,
       int seriesIndex,
-      num animateFactor) {
+      double animateFactor) {
     _segment = createSegment();
-    _oldSeriesRenderers = _chartState._oldSeriesRenderers;
-    _histogramSeries = _series;
+    _oldSeriesRenderers = _chartState!._oldSeriesRenderers;
+    _histogramSeries = _series as HistogramSeries;
     _borderRadius = _histogramSeries.borderRadius;
     _segment._seriesRenderer = this;
     _segment._series = _histogramSeries;
     _segment._chart = _chart;
-    _segment._chartState = _chartState;
+    _segment._chartState = _chartState!;
     _segment._seriesIndex = seriesIndex;
     _segment.currentSegmentIndex = pointIndex;
     _segment.points
-        .add(Offset(currentPoint.markerPoint.x, currentPoint.markerPoint.y));
+        .add(Offset(currentPoint.markerPoint!.x, currentPoint.markerPoint!.y));
     _segment.animationFactor = animateFactor;
-    final num origin = math.max(_yAxisRenderer._visibleRange.minimum, 0);
+    final num origin = math.max(_yAxisRenderer!._visibleRange!.minimum, 0);
     currentPoint.region = _calculateRectangle(
         currentPoint.xValue + sideBySideInfo.minimum,
         currentPoint.yValue,
         currentPoint.xValue + sideBySideInfo.maximum,
-        math.max(_yAxisRenderer._visibleRange.minimum, 0),
+        math.max(_yAxisRenderer!._visibleRange!.minimum, 0),
         this,
-        _chartState);
+        _chartState!);
     _segment._currentPoint = currentPoint;
-    if (_chartState._widgetNeedUpdate &&
-        !_chartState._isLegendToggled &&
+    if (_chartState!._widgetNeedUpdate &&
+        !_chartState!._isLegendToggled &&
         _oldSeriesRenderers != null &&
-        _oldSeriesRenderers.isNotEmpty &&
-        _oldSeriesRenderers.length - 1 >= _segment._seriesIndex &&
-        _oldSeriesRenderers[_segment._seriesIndex]._seriesName ==
+        _oldSeriesRenderers!.isNotEmpty &&
+        _oldSeriesRenderers!.length - 1 >= _segment._seriesIndex &&
+        _oldSeriesRenderers![_segment._seriesIndex]._seriesName ==
             _segment._seriesRenderer._seriesName) {
-      _segment._oldSeriesRenderer = _oldSeriesRenderers[_segment._seriesIndex];
-      _segment._oldPoint = (_segment._oldSeriesRenderer._segments.isNotEmpty &&
-              _segment._oldSeriesRenderer._segments[0] is HistogramSegment &&
-              _segment._oldSeriesRenderer._dataPoints.length - 1 >= pointIndex)
-          ? _segment._oldSeriesRenderer._dataPoints[pointIndex]
+      _segment._oldSeriesRenderer = _oldSeriesRenderers![_segment._seriesIndex];
+      _segment._oldPoint = (_segment._oldSeriesRenderer!._segments.isNotEmpty &&
+              _segment._oldSeriesRenderer!._segments[0] is HistogramSegment &&
+              _segment._oldSeriesRenderer!._dataPoints.length - 1 >= pointIndex)
+          ? _segment._oldSeriesRenderer!._dataPoints[pointIndex]
           : null;
-    } else if (_chartState._isLegendToggled &&
-        _chartState._segments != null &&
-        _chartState._segments.isNotEmpty) {
+      _segment._oldSegmentIndex = _getOldSegmentIndex(_segment);
+    } else if (_chartState!._isLegendToggled &&
+        _chartState!._segments != null &&
+        _chartState!._segments.isNotEmpty) {
       _segment._oldSeriesVisible =
-          _chartState._oldSeriesVisible[_segment._seriesIndex];
-      for (int i = 0; i < _chartState._segments.length; i++) {
-        final HistogramSegment oldSegment = _chartState._segments[i];
+          _chartState!._oldSeriesVisible[_segment._seriesIndex];
+      for (int i = 0; i < _chartState!._segments.length; i++) {
+        final HistogramSegment oldSegment =
+            _chartState!._segments[i] as HistogramSegment;
         if (oldSegment.currentSegmentIndex == _segment.currentSegmentIndex &&
             oldSegment._seriesIndex == _segment._seriesIndex) {
           _segment._oldRegion = oldSegment.segmentRect.outerRect;
@@ -483,7 +479,7 @@ class HistogramSeriesRenderer extends XyDataSeriesRenderer {
         currentPoint, _histogramSeries.borderWidth);
     if (_borderRadius != null) {
       _segment.segmentRect =
-          _getRRectFromRect(currentPoint.region, _borderRadius);
+          _getRRectFromRect(currentPoint.region!, _borderRadius!);
     }
     //Tracker rect
     if (_histogramSeries.isTrackVisible) {
@@ -493,12 +489,12 @@ class HistogramSeriesRenderer extends XyDataSeriesRenderer {
           currentPoint.xValue + sideBySideInfo.maximum,
           origin,
           this,
-          _chartState,
-          Offset(_segment._seriesRenderer._xAxisRenderer._axis?.plotOffset,
-              _segment._seriesRenderer._yAxisRenderer._axis?.plotOffset));
+          _chartState!,
+          Offset(_segment._seriesRenderer._xAxisRenderer!._axis.plotOffset,
+              _segment._seriesRenderer._yAxisRenderer!._axis.plotOffset));
       if (_borderRadius != null) {
         _segment._trackRect =
-            _getRRectFromRect(currentPoint.trackerRectRegion, _borderRadius);
+            _getRRectFromRect(currentPoint.trackerRectRegion!, _borderRadius!);
       }
     }
     _segment._segmentRect = _segment.segmentRect;
@@ -511,24 +507,25 @@ class HistogramSeriesRenderer extends XyDataSeriesRenderer {
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     if (_segment._seriesRenderer._isSelectionEnable) {
-      final SelectionBehaviorRenderer selectionBehaviorRenderer =
+      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
           _segment._seriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer._selectionRenderer._checkWithSelectionState(
-          _segments[segment.currentSegmentIndex], _chart);
+      selectionBehaviorRenderer?._selectionRenderer?._checkWithSelectionState(
+          _segments[segment.currentSegmentIndex!], _chart);
     }
     segment.onPaint(canvas);
   }
 
   /// Creates a segment for a data point in the series.
   @override
-  ChartSegment createSegment() => HistogramSegment();
+  HistogramSegment createSegment() => HistogramSegment();
 
   /// Changes the series color, border color, and border width.
   @override
   void customizeSegment(ChartSegment segment) {
-    final HistogramSegment histogramSegment = segment;
-    histogramSegment._color = histogramSegment._currentPoint.pointColorMapper ??
-        segment._seriesRenderer._seriesColor;
+    final HistogramSegment histogramSegment = segment as HistogramSegment;
+    histogramSegment._color =
+        histogramSegment._currentPoint!.pointColorMapper ??
+            segment._seriesRenderer._seriesColor;
     histogramSegment._strokeColor = segment._series.borderColor;
     histogramSegment._strokeWidth = segment._series.borderWidth;
     histogramSegment.strokePaint = histogramSegment.getStrokePaint();
@@ -543,9 +540,9 @@ class HistogramSeriesRenderer extends XyDataSeriesRenderer {
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer seriesRenderer]) {
-    canvas.drawPath(seriesRenderer._markerShapes[index], fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes[index], strokePaint);
+      [CartesianSeriesRenderer? seriesRenderer]) {
+    canvas.drawPath(seriesRenderer!._markerShapes[index]!, fillPaint);
+    canvas.drawPath(seriesRenderer._markerShapes[index]!, strokePaint);
   }
 
   /// Draws data label text of the appropriate data point in a series.

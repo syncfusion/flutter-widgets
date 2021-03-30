@@ -4,91 +4,79 @@ part of pdf;
 abstract class PdfAnnotation implements _IPdfWrapper {
   // constructor
   PdfAnnotation._(
-      {PdfPage page,
-      String text,
-      Rect bounds,
-      PdfAnnotationBorder border,
-      PdfColor color,
-      PdfColor innerColor,
-      String author,
-      double opacity,
-      String subject,
-      DateTime modifiedDate,
-      bool setAppearance,
-      bool flatten}) {
+      {PdfPage? page,
+      String? text,
+      Rect? bounds,
+      PdfAnnotationBorder? border,
+      PdfColor? color,
+      PdfColor? innerColor,
+      String? author,
+      double? opacity,
+      String? subject,
+      DateTime? modifiedDate,
+      bool? setAppearance}) {
     _initialize();
-    _initializeAnnotationProperties(
-        page,
-        text,
-        bounds,
-        border,
-        color,
-        innerColor,
-        author,
-        opacity,
-        subject,
-        modifiedDate,
-        setAppearance,
-        flatten);
+    _initializeAnnotationProperties(page, text, bounds, border, color,
+        innerColor, author, opacity, subject, modifiedDate, setAppearance);
   }
 
   PdfAnnotation._internal(
       _PdfDictionary dictionary, _PdfCrossTable crossTable) {
-    ArgumentError.checkNotNull(dictionary, 'dictionary');
-    ArgumentError.checkNotNull(crossTable, 'crossTable');
     _dictionary = dictionary;
     _crossTable = crossTable;
     _isLoadedAnnotation = true;
-    _PdfName name;
+    _PdfName? name;
     if (dictionary.containsKey(_DictionaryProperties.subtype)) {
-      name = dictionary._items[_PdfName(_DictionaryProperties.subtype)]
-          as _PdfName;
+      name = dictionary._items![_PdfName(_DictionaryProperties.subtype)]
+          as _PdfName?;
     }
     if (name != null) {
       if (name._name == _DictionaryProperties.circle ||
           name._name == _DictionaryProperties.square ||
           name._name == _DictionaryProperties.line ||
           name._name == _DictionaryProperties.polygon) {
-        crossTable._document._catalog._beginSave = _dictionaryBeginSave;
-        crossTable._document._catalog.modify();
+        crossTable._document!._catalog._beginSave = _dictionaryBeginSave;
+        crossTable._document!._catalog.modify();
       }
     }
   }
 
   // fields
-  PdfPage _page;
-  String _text = '';
+  PdfPage? _page;
+  String? _text = '';
   _PdfDictionary _dictionary = _PdfDictionary();
   _Rectangle _rectangle = _Rectangle.empty;
-  PdfColor _innerColor;
-  PdfAnnotationBorder _border;
-  _PdfCrossTable _cTable;
+  PdfColor? _innerColor;
+  PdfAnnotationBorder? _border;
+  _PdfCrossTable? _cTable;
   bool _isLoadedAnnotation = false;
   PdfColor _color = PdfColor.empty;
-  PdfMargins _margins = PdfMargins();
-  String _author = '';
-  String _subject = '';
-  DateTime _modifiedDate;
+  PdfMargins? _margins = PdfMargins();
+  String? _author = '';
+  String? _subject = '';
+  DateTime? _modifiedDate;
   double _opacity = 1.0;
-  bool _setAppearance = false;
-  PdfAppearance _pdfAppearance;
+  PdfAppearance? _pdfAppearance;
   bool _saved = false;
   bool _isBounds = false;
 
+  /// Gets or sets whether the annotation needs appearance.
+  bool setAppearance = false;
+
   // properties
   /// Gets a page of the annotation. Read-Only.
-  PdfPage get page => _page;
+  PdfPage? get page => _page;
 
   /// Gets annotation's bounds in the PDF page.
   Rect get bounds {
     if (!_isLoadedAnnotation) {
-      return _rectangle == null ? Rect.zero : _rectangle.rect;
+      return _rectangle.rect;
     } else {
       final _Rectangle rect = _getBounds(_dictionary, _crossTable);
       rect.y = page != null
           ? rect.y == 0 && rect.height == 0
               ? rect.y + rect.height
-              : page.size.height - (rect.y + rect.height)
+              : page!.size.height - (rect.y + rect.height)
           : rect.y - rect.height;
       return rect.rect;
     }
@@ -96,7 +84,6 @@ abstract class PdfAnnotation implements _IPdfWrapper {
 
   /// Sets annotation's bounds in the PDF page.
   set bounds(Rect value) {
-    ArgumentError.checkNotNull(value);
     if (!_isLoadedAnnotation) {
       final _Rectangle rectangle = _Rectangle.fromRect(value);
       if (_rectangle != rectangle) {
@@ -109,7 +96,7 @@ abstract class PdfAnnotation implements _IPdfWrapper {
       if (value.isEmpty) {
         throw ArgumentError('rectangle');
       }
-      final double height = page.size.height;
+      final double height = page!.size.height;
       final List<_PdfNumber> values = <_PdfNumber>[
         _PdfNumber(value.left),
         _PdfNumber(height - (value.top + value.height)),
@@ -131,8 +118,8 @@ abstract class PdfAnnotation implements _IPdfWrapper {
         _dictionary.setProperty(_DictionaryProperties.border, _border);
       }
     }
-    _border._isLineBorder = _isLineBorder();
-    return _border;
+    _border!._isLineBorder = _isLineBorder();
+    return _border!;
   }
 
   /// Sets annotation's border properties like width, horizontal radius etc.
@@ -153,26 +140,24 @@ abstract class PdfAnnotation implements _IPdfWrapper {
         _text =
             (_dictionary[_DictionaryProperties.contents] as _PdfString).value;
       }
-      return _text;
+      return _text!;
     } else {
-      return _text == null || _text.isEmpty ? _obtainText() : _text;
+      return _text == null || _text!.isEmpty ? _obtainText()! : _text!;
     }
   }
 
   /// Sets content of the annotation.
   /// The string value specifies the text of the annotation.
   set text(String value) {
-    ArgumentError.checkNotNull(value, 'text');
     if (_text != value) {
       _text = value;
       _dictionary._setString(_DictionaryProperties.contents, _text);
     }
   }
 
-  _PdfCrossTable get _crossTable => _cTable;
+  _PdfCrossTable get _crossTable => _cTable!;
 
   set _crossTable(_PdfCrossTable value) {
-    ArgumentError.checkNotNull(value, 'CrossTable');
     if (value != _cTable) {
       _cTable = value;
     }
@@ -185,9 +170,9 @@ abstract class PdfAnnotation implements _IPdfWrapper {
   set color(PdfColor value) {
     if (_color != value) {
       _color = value;
-      PdfColorSpace cs = PdfColorSpace.rgb;
-      if (page != null && !page._isLoadedPage) {
-        cs = page._section._parent._document.colorSpace;
+      PdfColorSpace? cs = PdfColorSpace.rgb;
+      if (page != null && !page!._isLoadedPage) {
+        cs = page!._section!._parent!._document!.colorSpace;
       }
       final _PdfArray colours = _color._toArray(cs);
       _dictionary.setProperty(_DictionaryProperties.c, colours);
@@ -201,16 +186,16 @@ abstract class PdfAnnotation implements _IPdfWrapper {
     } else {
       _innerColor = _obtainInnerColor();
     }
-    return _innerColor;
+    return _innerColor!;
   }
 
   /// Sets the inner color of the annotation.
   set innerColor(PdfColor value) {
     _innerColor = value;
     if (_isLoadedAnnotation) {
-      if (_innerColor._alpha != 0) {
+      if (_innerColor!._alpha != 0) {
         _dictionary.setProperty(
-            _DictionaryProperties.iC, _innerColor._toArray(PdfColorSpace.rgb));
+            _DictionaryProperties.iC, _innerColor!._toArray(PdfColorSpace.rgb));
       } else if (_dictionary.containsKey(_DictionaryProperties.iC)) {
         _dictionary.remove(_DictionaryProperties.iC);
       }
@@ -229,12 +214,11 @@ abstract class PdfAnnotation implements _IPdfWrapper {
     } else {
       _author = _obtainAuthor();
     }
-    return _author;
+    return _author!;
   }
 
   /// Sets the author of the annotation.
   set author(String value) {
-    ArgumentError.checkNotNull(value);
     if (_author != value) {
       _author = value;
       _dictionary._setString(_DictionaryProperties.t, _author);
@@ -254,12 +238,11 @@ abstract class PdfAnnotation implements _IPdfWrapper {
             (_dictionary[_DictionaryProperties.subj] as _PdfString).value;
       }
     }
-    return _subject;
+    return _subject!;
   }
 
   /// Sets the subject of the annotation.
   set subject(String value) {
-    ArgumentError.checkNotNull(value);
     if (subject != value) {
       _subject = value;
       _dictionary._setString(_DictionaryProperties.subj, _subject);
@@ -267,20 +250,20 @@ abstract class PdfAnnotation implements _IPdfWrapper {
   }
 
   /// Gets the ModifiedDate of the annotation.
-  DateTime get modifiedDate =>
+  DateTime? get modifiedDate =>
       _isLoadedAnnotation ? _obtainModifiedDate() : _modifiedDate;
 
   /// Sets the ModifiedDate of the annotation.
-  set modifiedDate(DateTime value) {
+  set modifiedDate(DateTime? value) {
     if (_modifiedDate != value) {
       _modifiedDate = value;
-      _dictionary._setDateTime(_DictionaryProperties.m, _modifiedDate);
+      _dictionary._setDateTime(_DictionaryProperties.m, _modifiedDate!);
     }
   }
 
   ///Gets or sets the boolean flag to flatten the annotation,
   ///by default, its become false.
-  bool flatten = false;
+  bool _flatten = false;
 
   /// Gets or sets flatten annotations popup.
   // ignore: prefer_final_fields
@@ -289,10 +272,12 @@ abstract class PdfAnnotation implements _IPdfWrapper {
   /// Gets the opacity of the annotation.
   double get opacity {
     if (_isLoadedAnnotation) {
-      return _obtainOpacity();
+      return _obtainOpacity()!;
     }
-    if (_dictionary._items.containsKey(_PdfName('CA'))) {
-      _opacity = (_dictionary._items[_PdfName('CA')] as _PdfNumber).value;
+    if (_dictionary._items!.containsKey(_PdfName('CA'))) {
+      final _PdfNumber ca = _dictionary._items![_PdfName('CA')] as _PdfNumber;
+      _opacity = ca.value!.toDouble();
+      (_dictionary._items![_PdfName('CA')] as _PdfNumber).value as double?;
     }
     return _opacity;
   }
@@ -311,26 +296,22 @@ abstract class PdfAnnotation implements _IPdfWrapper {
   }
 
   /// Gets appearance of the annotation.
-  bool get setAppearance => _setAppearance;
-
-  /// Sets appearance of the annotation.
-  set setAppearance(bool value) {
-    if (value != null) {
-      _setAppearance = value;
-    }
-  }
-
-  /// Gets appearance of the annotation.
   PdfAppearance get appearance {
     _pdfAppearance ??= PdfAppearance(this);
-    return _pdfAppearance;
+    return _pdfAppearance!;
   }
 
   /// Sets appearance of the annotation.
   set appearance(PdfAppearance value) {
-    if (value != null) {
-      _pdfAppearance = value;
-    }
+    _pdfAppearance = value;
+  }
+
+  //Public methods
+  /// Flatten the annotation.
+  ///
+  /// The flatten will add at the time of saving the current document.
+  void flatten() {
+    _flatten = true;
   }
 
   // implementation
@@ -352,26 +333,25 @@ abstract class PdfAnnotation implements _IPdfWrapper {
   }
 
   void _initializeAnnotationProperties(
-      PdfPage page,
-      String text,
-      Rect bounds,
-      PdfAnnotationBorder border,
-      PdfColor color,
-      PdfColor innerColor,
-      String author,
-      double opacity,
-      String subject,
-      DateTime modifiedDate,
-      bool setAppearance,
-      bool flatten) {
+      PdfPage? page,
+      String? annotText,
+      Rect? bounds,
+      PdfAnnotationBorder? border,
+      PdfColor? color,
+      PdfColor? innerColor,
+      String? author,
+      double? opacity,
+      String? subject,
+      DateTime? modifiedDate,
+      bool? setAppearance) {
     if (page != null) {
       _page = page;
     }
     if (bounds != null) {
       this.bounds = bounds;
     }
-    if (text != null) {
-      this.text = text ??= _text;
+    if (annotText != null) {
+      text = annotText;
       _dictionary.setProperty(
           _PdfName(_DictionaryProperties.contents), _PdfString(text));
     }
@@ -399,12 +379,9 @@ abstract class PdfAnnotation implements _IPdfWrapper {
     if (setAppearance != null) {
       this.setAppearance = setAppearance;
     }
-    if (flatten != null) {
-      this.flatten = flatten;
-    }
   }
 
-  void _dictionaryBeginSave(Object sender, _SavePdfPrimitiveArgs ars) {
+  void _dictionaryBeginSave(Object sender, _SavePdfPrimitiveArgs? ars) {
     if (_isContainsAnnotation()) {
       if (!_saved) {
         _save();
@@ -415,14 +392,14 @@ abstract class PdfAnnotation implements _IPdfWrapper {
 
   bool _isContainsAnnotation() {
     bool contains = false;
-    _PdfArray annotation;
+    _PdfArray? annotation;
     if (page != null &&
-        page._dictionary.containsKey(_DictionaryProperties.annots)) {
+        page!._dictionary.containsKey(_DictionaryProperties.annots)) {
       annotation = _PdfCrossTable._dereference(
-          page._dictionary[_DictionaryProperties.annots]) as _PdfArray;
+          page!._dictionary[_DictionaryProperties.annots]) as _PdfArray?;
       if (annotation != null &&
           annotation._elements.isNotEmpty &&
-          annotation._contains(annotation._elements[0])) {
+          annotation._contains(annotation._elements[0]!)) {
         contains = true;
       }
     }
@@ -430,18 +407,18 @@ abstract class PdfAnnotation implements _IPdfWrapper {
   }
 
   void _save() {
-    if (_page._document != null &&
-        _page._document._conformanceLevel != PdfConformanceLevel.none) {
+    if (_page!._document != null &&
+        _page!._document!._conformanceLevel != PdfConformanceLevel.none) {
       if (this is PdfActionAnnotation &&
-          _page._document._conformanceLevel == PdfConformanceLevel.a1b) {
+          _page!._document!._conformanceLevel == PdfConformanceLevel.a1b) {
         throw ArgumentError(
             'The specified annotation type is not supported by PDF/A1-B or PDF/A1-A standard documents.');
       }
       //This is needed to attain specific PDF/A conformance.
       if (!(this is PdfLinkAnnotation) &&
           !setAppearance &&
-          (_page._document._conformanceLevel == PdfConformanceLevel.a2b ||
-              _page._document._conformanceLevel == PdfConformanceLevel.a3b)) {
+          (_page!._document!._conformanceLevel == PdfConformanceLevel.a2b ||
+              _page!._document!._conformanceLevel == PdfConformanceLevel.a3b)) {
         throw ArgumentError(
             'The appearance dictionary doesn\'t contain an entry. Enable setAppearance in PdfAnnotation class to overcome this error.');
       }
@@ -456,10 +433,10 @@ abstract class PdfAnnotation implements _IPdfWrapper {
     }
     final _Rectangle nativeRectangle = _obtainNativeRectangle();
     if (_innerColor != null &&
-        !_innerColor.isEmpty &&
-        _innerColor._alpha != 0.0) {
+        !_innerColor!.isEmpty &&
+        _innerColor!._alpha != 0.0) {
       _dictionary.setProperty(_PdfName(_DictionaryProperties.ic),
-          _innerColor._toArray(PdfColorSpace.rgb));
+          _innerColor!._toArray(PdfColorSpace.rgb));
     }
     _dictionary.setProperty(_PdfName(_DictionaryProperties.rect),
         _PdfArray.fromRectangle(nativeRectangle));
@@ -468,42 +445,40 @@ abstract class PdfAnnotation implements _IPdfWrapper {
   _Rectangle _obtainNativeRectangle() {
     final _Rectangle nativeRectangle =
         _Rectangle(bounds.left, bounds.bottom, bounds.width, bounds.height);
-    Size size;
-    _PdfArray cropOrMediaBox;
+    Size? size;
+    _PdfArray? cropOrMediaBox;
     if (_page != null) {
-      if (!_page._isLoadedPage) {
-        final PdfSection section = _page._section;
+      if (!_page!._isLoadedPage) {
+        final PdfSection section = _page!._section!;
         nativeRectangle.location =
-            section._pointToNativePdf(page, nativeRectangle.location);
+            section._pointToNativePdf(page!, nativeRectangle.location);
       } else {
-        size = _page.size;
+        size = _page!.size;
         nativeRectangle.y = size.height - _rectangle.bottom;
       }
-      cropOrMediaBox = _getCropOrMediaBox(_page, cropOrMediaBox);
+      cropOrMediaBox = _getCropOrMediaBox(_page!, cropOrMediaBox);
     }
     if (cropOrMediaBox != null) {
-      if (cropOrMediaBox.count > 2 &&
-          cropOrMediaBox[0] != null &&
-          cropOrMediaBox[1] != null) {
+      if (cropOrMediaBox.count > 2) {
         if ((cropOrMediaBox[0] as _PdfNumber).value != 0 ||
             (cropOrMediaBox[1] as _PdfNumber).value != 0) {
-          nativeRectangle.x =
-              nativeRectangle.x + (cropOrMediaBox[0] as _PdfNumber).value;
-          nativeRectangle.y =
-              nativeRectangle.y + (cropOrMediaBox[1] as _PdfNumber).value;
+          nativeRectangle.x = nativeRectangle.x +
+              (cropOrMediaBox[0] as _PdfNumber).value!.toDouble();
+          nativeRectangle.y = nativeRectangle.y +
+              (cropOrMediaBox[1] as _PdfNumber).value!.toDouble();
         }
       }
     }
     return nativeRectangle;
   }
 
-  _PdfArray _getCropOrMediaBox(PdfPage page, _PdfArray cropOrMediaBox) {
+  _PdfArray? _getCropOrMediaBox(PdfPage page, _PdfArray? cropOrMediaBox) {
     if (page._dictionary.containsKey(_DictionaryProperties.cropBox)) {
       cropOrMediaBox = _PdfCrossTable._dereference(
-          page._dictionary[_DictionaryProperties.cropBox]) as _PdfArray;
+          page._dictionary[_DictionaryProperties.cropBox]) as _PdfArray?;
     } else if (page._dictionary.containsKey(_DictionaryProperties.mediaBox)) {
       cropOrMediaBox = _PdfCrossTable._dereference(
-          page._dictionary[_DictionaryProperties.mediaBox]) as _PdfArray;
+          page._dictionary[_DictionaryProperties.mediaBox]) as _PdfArray?;
     }
     return cropOrMediaBox;
   }
@@ -511,46 +486,49 @@ abstract class PdfAnnotation implements _IPdfWrapper {
   void _setPage(PdfPage page) {
     _page = page;
     if (!page._isLoadedPage) {
-      if (_page._document != null) {
-        _page._document._catalog._beginSaveList ??= [];
-        final PdfGraphics graphics = page.graphics;
-        ArgumentError.checkNotNull(graphics, 'graphics');
+      if (_page!._document != null) {
+        _page!._document!._catalog._beginSaveList ??= [];
+        final PdfGraphics graphics =
+            page.graphics; //Accessed for creating page content.
+        ArgumentError.checkNotNull(graphics);
         if (_dictionary.containsKey(_DictionaryProperties.subtype)) {
-          final _PdfName name = _dictionary
-              ._items[_PdfName(_DictionaryProperties.subtype)] as _PdfName;
+          final _PdfName? name = _dictionary
+              ._items![_PdfName(_DictionaryProperties.subtype)] as _PdfName?;
           if (name != null) {
             if (name._name == _DictionaryProperties.text ||
                 name._name == _DictionaryProperties.square ||
-                flatten) {
-              _page._document._catalog._beginSaveList.add(_dictionaryBeginSave);
-              _page._document._catalog.modify();
+                _flatten) {
+              _page!._document!._catalog._beginSaveList!
+                  .add(_dictionaryBeginSave);
+              _page!._document!._catalog.modify();
             }
           }
-        } else if (flatten) {
-          _page._document._catalog._beginSaveList.add(_dictionaryBeginSave);
-          _page._document._catalog.modify();
+        } else if (_flatten) {
+          _page!._document!._catalog._beginSaveList!.add(_dictionaryBeginSave);
+          _page!._document!._catalog.modify();
         }
       }
     } else {
       if (_dictionary.containsKey(_DictionaryProperties.subtype)) {
-        final _PdfName name = _dictionary
-            ._items[_PdfName(_DictionaryProperties.subtype)] as _PdfName;
-        _page._document._catalog._beginSaveList ??= [];
+        final _PdfName? name = _dictionary
+            ._items![_PdfName(_DictionaryProperties.subtype)] as _PdfName?;
+        _page!._document!._catalog._beginSaveList ??= [];
         if (name != null) {
           if (name._name == _DictionaryProperties.circle ||
               name._name == _DictionaryProperties.square ||
               name._name == _DictionaryProperties.line ||
               name._name == _DictionaryProperties.polygon) {
-            _page._document._catalog._beginSaveList.add(_dictionaryBeginSave);
-            _page._document._catalog.modify();
+            _page!._document!._catalog._beginSaveList!
+                .add(_dictionaryBeginSave);
+            _page!._document!._catalog.modify();
           }
         }
-      } else if (flatten) {
-        _page._document._catalog._beginSaveList.add(_dictionaryBeginSave);
-        _page._document._catalog.modify();
+      } else if (_flatten) {
+        _page!._document!._catalog._beginSaveList!.add(_dictionaryBeginSave);
+        _page!._document!._catalog.modify();
       }
     }
-    if (_page != null && !_page._isLoadedPage) {
+    if (_page != null && !_page!._isLoadedPage) {
       _dictionary.setProperty(
           _PdfName(_DictionaryProperties.p), _PdfReferenceHolder(_page));
     }
@@ -558,40 +536,43 @@ abstract class PdfAnnotation implements _IPdfWrapper {
 
   /// Gets the bounds.
   _Rectangle _getBounds(_PdfDictionary dictionary, _PdfCrossTable crossTable) {
-    _PdfArray array;
+    _PdfArray? array;
     if (dictionary.containsKey(_DictionaryProperties.rect)) {
       array = crossTable._getObject(dictionary[_DictionaryProperties.rect])
-          as _PdfArray;
+          as _PdfArray?;
     }
-    return array.toRectangle();
+    return array!.toRectangle();
   }
 
   // Gets the border.
   PdfAnnotationBorder _obtainBorder() {
     final PdfAnnotationBorder border = PdfAnnotationBorder();
     if (_dictionary.containsKey(_DictionaryProperties.border)) {
-      final _PdfArray borderArray =
+      final _PdfArray? borderArray =
           _PdfCrossTable._dereference(_dictionary[_DictionaryProperties.border])
-              as _PdfArray;
+              as _PdfArray?;
       if (borderArray != null && borderArray.count >= 2) {
         if (borderArray[0] is _PdfNumber &&
             borderArray[1] is _PdfNumber &&
             borderArray[2] is _PdfNumber) {
-          final double width = (borderArray[0] as _PdfNumber).value.toDouble();
+          final double width = (borderArray[0] as _PdfNumber).value!.toDouble();
           final double hRadius =
-              (borderArray[1] as _PdfNumber).value.toDouble();
+              (borderArray[1] as _PdfNumber).value!.toDouble();
           final double vRadius =
-              (borderArray[2] as _PdfNumber).value.toDouble();
+              (borderArray[2] as _PdfNumber).value!.toDouble();
           border.width = vRadius;
           border.horizontalRadius = width;
           border.verticalRadius = hRadius;
         }
       }
     } else if (_dictionary.containsKey(_DictionaryProperties.bs)) {
-      final _PdfDictionary lbDic =
-          _crossTable._getObject(_dictionary[_DictionaryProperties.bs]);
+      final _PdfDictionary lbDic = _crossTable
+          ._getObject(_dictionary[_DictionaryProperties.bs]) as _PdfDictionary;
       if (lbDic.containsKey(_DictionaryProperties.w)) {
-        border.width = (lbDic[_DictionaryProperties.w] as _PdfNumber).value;
+        final _PdfNumber? value = lbDic[_DictionaryProperties.w] as _PdfNumber?;
+        if (value != null) {
+          border.width = value.value!.toDouble();
+        }
       }
       if (lbDic.containsKey(_DictionaryProperties.s)) {
         final _PdfName bstr =
@@ -600,18 +581,16 @@ abstract class PdfAnnotation implements _IPdfWrapper {
         border.borderStyle = _getBorderStyle(bstr._name.toString());
       }
       if (lbDic.containsKey(_DictionaryProperties.d)) {
-        final _PdfArray _dasharray =
+        final _PdfArray? _dasharray =
             _PdfCrossTable._dereference(lbDic[_DictionaryProperties.d])
-                as _PdfArray;
+                as _PdfArray?;
         if (_dasharray != null) {
           final _PdfNumber dashArray = _dasharray[0] as _PdfNumber;
-          if (dashArray != null) {
-            final int _dashArray = dashArray.value.toInt();
-            _dasharray._clear();
-            _dasharray._insert(0, _PdfNumber(_dashArray));
-            _dasharray._insert(1, _PdfNumber(_dashArray));
-            border.dashArray = _dashArray;
-          }
+          final int _dashArray = dashArray.value!.toInt();
+          _dasharray._clear();
+          _dasharray._insert(0, _PdfNumber(_dashArray));
+          _dasharray._insert(1, _PdfNumber(_dashArray));
+          border.dashArray = _dashArray;
         }
       }
     }
@@ -619,64 +598,62 @@ abstract class PdfAnnotation implements _IPdfWrapper {
   }
 
   // Gets the text.
-  String _obtainText() {
-    String text;
+  String? _obtainText() {
+    String tempText;
     if (_dictionary.containsKey(_DictionaryProperties.contents)) {
-      final _PdfString mText = _PdfCrossTable._dereference(
-          _dictionary[_DictionaryProperties.contents]) as _PdfString;
+      final _PdfString? mText = _PdfCrossTable._dereference(
+          _dictionary[_DictionaryProperties.contents]) as _PdfString?;
       if (mText != null) {
         _text = mText.value.toString();
       }
       return _text;
     } else {
-      text = '';
-      return text;
+      tempText = '';
+      return tempText;
     }
   }
 
   // Gets the color.
   PdfColor _obtainColor() {
     PdfColor color = PdfColor.empty;
-    _PdfArray colours;
+    _PdfArray? colours;
     if (_dictionary.containsKey(_DictionaryProperties.c)) {
-      colours = _dictionary[_DictionaryProperties.c] as _PdfArray;
+      colours = _dictionary[_DictionaryProperties.c] as _PdfArray?;
     }
     if (colours != null && colours._elements.length == 1) {
       //Convert the float color values into bytes
-      final _PdfNumber color0 =
-          _crossTable._getObject(colours[0]) as _PdfNumber;
+      final _PdfNumber? color0 =
+          _crossTable._getObject(colours[0]) as _PdfNumber?;
       if (color0 != null) {
-        color = PdfColor._fromGray(color0.value);
+        color = PdfColor._fromGray(color0.value as double);
       }
     } else if (colours != null && colours._elements.length == 3) {
       final _PdfNumber color0 = colours[0] as _PdfNumber;
       final _PdfNumber color1 = colours[1] as _PdfNumber;
       final _PdfNumber color2 = colours[2] as _PdfNumber;
-      if (color0 != null && color1 != null && color2 != null) {
-        //Convert the float color values into bytes
-        final int red = (color0.value * 255).round().toUnsigned(8).toInt();
-        final int green = (color1.value * 255).round().toUnsigned(8).toInt();
-        final int blue = (color2.value * 255).round().toUnsigned(8).toInt();
-        color = PdfColor(red, green, blue);
-      }
+      //Convert the float color values into bytes
+      final int red = (color0.value! * 255).round().toUnsigned(8).toInt();
+      final int green = (color1.value! * 255).round().toUnsigned(8).toInt();
+      final int blue = (color2.value! * 255).round().toUnsigned(8).toInt();
+      color = PdfColor(red, green, blue);
     } else if (colours != null && colours._elements.length == 4) {
-      final _PdfNumber color0 =
-          _crossTable._getObject(colours[0]) as _PdfNumber;
-      final _PdfNumber color1 =
-          _crossTable._getObject(colours[1]) as _PdfNumber;
-      final _PdfNumber color2 =
-          _crossTable._getObject(colours[2]) as _PdfNumber;
-      final _PdfNumber color3 =
-          _crossTable._getObject(colours[3]) as _PdfNumber;
+      final _PdfNumber? color0 =
+          _crossTable._getObject(colours[0]) as _PdfNumber?;
+      final _PdfNumber? color1 =
+          _crossTable._getObject(colours[1]) as _PdfNumber?;
+      final _PdfNumber? color2 =
+          _crossTable._getObject(colours[2]) as _PdfNumber?;
+      final _PdfNumber? color3 =
+          _crossTable._getObject(colours[3]) as _PdfNumber?;
       if (color0 != null &&
           color1 != null &&
           color2 != null &&
           color3 != null) {
         //Convert the float color values into bytes
-        final double cyan = color0.value;
-        final double magenta = color1.value;
-        final double yellow = color2.value;
-        final double black = color3.value;
+        final double cyan = color0.value as double;
+        final double magenta = color1.value as double;
+        final double yellow = color2.value as double;
+        final double black = color3.value as double;
         color = PdfColor.fromCMYK(cyan, magenta, yellow, black);
       }
     }
@@ -684,37 +661,37 @@ abstract class PdfAnnotation implements _IPdfWrapper {
   }
 
   // Gets the Opacity.
-  double _obtainOpacity() {
+  double? _obtainOpacity() {
     if (_dictionary.containsKey(_DictionaryProperties.ca)) {
-      _opacity = _getNumber(_DictionaryProperties.ca);
+      _opacity = _getNumber(_DictionaryProperties.ca)!;
     }
     return _opacity;
   }
 
   // Gets the number value.
-  double _getNumber(String keyName) {
-    double result = 0;
-    final _PdfNumber numb = _dictionary[keyName] as _PdfNumber;
+  double? _getNumber(String keyName) {
+    double? result = 0;
+    final _PdfNumber? numb = _dictionary[keyName] as _PdfNumber?;
     if (numb != null) {
-      result = numb.value;
+      result = numb.value as double?;
     }
     return result;
   }
 
   // Gets the Author.
-  String _obtainAuthor() {
-    String author;
+  String? _obtainAuthor() {
+    String? author;
     if (_dictionary.containsKey(_DictionaryProperties.author)) {
-      final _PdfString _author =
+      final _PdfString? _author =
           _PdfCrossTable._dereference(_dictionary[_DictionaryProperties.author])
-              as _PdfString;
+              as _PdfString?;
       if (_author != null) {
         author = _author.value;
       }
     } else if (_dictionary.containsKey(_DictionaryProperties.t)) {
-      final _PdfString _author =
+      final _PdfString? _author =
           _PdfCrossTable._dereference(_dictionary[_DictionaryProperties.t])
-              as _PdfString;
+              as _PdfString?;
       if (_author != null) {
         author = _author.value;
       }
@@ -723,18 +700,18 @@ abstract class PdfAnnotation implements _IPdfWrapper {
   }
 
   // Gets the Subject.
-  String _obtainSubject() {
-    String subject;
+  String? _obtainSubject() {
+    String? subject;
     if (_dictionary.containsKey(_DictionaryProperties.subject)) {
-      final _PdfString _subject = _PdfCrossTable._dereference(
-          _dictionary[_DictionaryProperties.subject]) as _PdfString;
+      final _PdfString? _subject = _PdfCrossTable._dereference(
+          _dictionary[_DictionaryProperties.subject]) as _PdfString?;
       if (_subject != null) {
         subject = _subject.value;
       }
     } else if (_dictionary.containsKey(_DictionaryProperties.subj)) {
-      final _PdfString _subject =
+      final _PdfString? _subject =
           _PdfCrossTable._dereference(_dictionary[_DictionaryProperties.subj])
-              as _PdfString;
+              as _PdfString?;
       if (_subject != null) {
         subject = _subject.value;
       }
@@ -743,52 +720,48 @@ abstract class PdfAnnotation implements _IPdfWrapper {
   }
 
   // Gets the ModifiedDate.
-  DateTime _obtainModifiedDate() {
+  DateTime? _obtainModifiedDate() {
     if (_dictionary.containsKey(_DictionaryProperties.modificationDate) ||
         _dictionary.containsKey(_DictionaryProperties.m)) {
-      _PdfString modifiedDate =
-          _dictionary[_DictionaryProperties.modificationDate] as _PdfString;
-      modifiedDate ??= _dictionary[_DictionaryProperties.m] as _PdfString;
-      _modifiedDate = _dictionary._getDateTime(modifiedDate);
+      _PdfString? modifiedDate =
+          _dictionary[_DictionaryProperties.modificationDate] as _PdfString?;
+      modifiedDate ??= _dictionary[_DictionaryProperties.m] as _PdfString?;
+      _modifiedDate = _dictionary._getDateTime(modifiedDate!);
     }
     return _modifiedDate;
   }
 
-  String _getEnumName(dynamic text) {
-    text = text.toString();
-    final int index = text.indexOf('.');
-    final String name = text.substring(index + 1);
+  String _getEnumName(dynamic annotText) {
+    annotText = annotText.toString();
+    final int index = annotText.indexOf('.');
+    final String name = annotText.substring(index + 1);
     return name[0].toUpperCase() + name.substring(1);
   }
 
   //Get the inner line color
   PdfColor _obtainInnerColor() {
     PdfColor color = PdfColor.empty;
-    _PdfArray colours;
+    _PdfArray? colours;
     if (_dictionary.containsKey(_DictionaryProperties.iC)) {
       colours =
           _PdfCrossTable._dereference(_dictionary[_DictionaryProperties.iC])
-              as _PdfArray;
+              as _PdfArray?;
       if (colours != null && colours.count > 0) {
         final int red =
-            ((colours[0] as _PdfNumber).value * 255).round().toUnsigned(8);
+            ((colours[0] as _PdfNumber).value! * 255).round().toUnsigned(8);
         final int green =
-            ((colours[1] as _PdfNumber).value * 255).round().toUnsigned(8);
+            ((colours[1] as _PdfNumber).value! * 255).round().toUnsigned(8);
         final int blue =
-            ((colours[2] as _PdfNumber).value * 255).round().toUnsigned(8);
+            ((colours[2] as _PdfNumber).value! * 255).round().toUnsigned(8);
         color = PdfColor(red, green, blue);
       }
     }
     return color;
   }
 
-  PdfMargins _obtainMargin() {
-    if (page != null) {
-      if (page._section != null &&
-          page._section.pageSettings != null &&
-          page._section.pageSettings.margins != null) {
-        _margins = page._section.pageSettings.margins;
-      }
+  PdfMargins? _obtainMargin() {
+    if (page != null && page!._section != null) {
+      _margins = page!._section!.pageSettings.margins;
     }
     return _margins;
   }
@@ -796,7 +769,7 @@ abstract class PdfAnnotation implements _IPdfWrapper {
   void _flattenPopup() {
     if (page != null && !_isLoadedAnnotation) {
       _flattenAnnotationPopups(
-          page, color, bounds, border, author, subject, text);
+          page!, color, bounds, border, author, subject, text);
     }
   }
 
@@ -811,37 +784,40 @@ abstract class PdfAnnotation implements _IPdfWrapper {
     Rect bounds = Rect.fromLTWH(x, y, 180, 142);
     // Draw annotation based on bounds
     if (_dictionary[_DictionaryProperties.popup] != null) {
-      final _IPdfPrimitive obj = _dictionary[_DictionaryProperties.popup];
-      final _PdfDictionary dictionary =
-          _PdfCrossTable._dereference(obj) as _PdfDictionary;
+      final _IPdfPrimitive? obj = _dictionary[_DictionaryProperties.popup];
+      final _PdfDictionary? dictionary =
+          _PdfCrossTable._dereference(obj) as _PdfDictionary?;
       if (dictionary != null) {
-        final _PdfArray rectValue =
+        final _PdfArray? rectValue =
             _PdfCrossTable._dereference(dictionary[_DictionaryProperties.rect])
-                as _PdfArray;
-        final _PdfCrossTable crosstable = page._crossTable;
+                as _PdfArray?;
+        final _PdfCrossTable? crosstable = page._crossTable;
         if (rectValue != null) {
           final _PdfNumber left =
-              crosstable._getReference(rectValue[0]) as _PdfNumber;
+              crosstable!._getReference(rectValue[0]) as _PdfNumber;
           final _PdfNumber top =
               crosstable._getReference(rectValue[1]) as _PdfNumber;
           final _PdfNumber width =
               crosstable._getReference(rectValue[2]) as _PdfNumber;
           final _PdfNumber height =
               crosstable._getReference(rectValue[3]) as _PdfNumber;
-          bounds = Rect.fromLTWH(left.value, top.value,
-              width.value - left.value, height.value - top.value);
+          bounds = Rect.fromLTWH(
+              left.value as double,
+              top.value as double,
+              width.value! - (left.value as double),
+              height.value! - (top.value as double));
         }
       }
     }
     final PdfBrush backBrush = PdfSolidBrush(color);
     final double borderWidth = border.width / 2;
-    double trackingHeight = 0;
+    double? trackingHeight = 0;
     final PdfBrush aBrush = PdfSolidBrush(_getForeColor(color));
-    if (author != null && author != '') {
-      final Map<String, double> returnedValue = _drawAuthor(author, subject,
+    if (author != '') {
+      final Map<String, double?> returnedValue = _drawAuthor(author, subject,
           bounds, backBrush, aBrush, page, trackingHeight, border);
       trackingHeight = returnedValue['height'];
-    } else if (subject != null && subject != '') {
+    } else if (subject != '') {
       final Rect titleRect = Rect.fromLTWH(bounds.left + borderWidth,
           bounds.top + borderWidth, bounds.width - border.width, 40);
       _saveGraphics(page, PdfBlendMode.hardLight);
@@ -870,7 +846,7 @@ abstract class PdfAnnotation implements _IPdfWrapper {
     }
     Rect cRect = Rect.fromLTWH(
         bounds.left + borderWidth,
-        bounds.top + borderWidth + trackingHeight,
+        bounds.top + borderWidth + trackingHeight!,
         bounds.width - border.width,
         bounds.height - (trackingHeight + border.width));
     _saveGraphics(page, PdfBlendMode.hardLight);
@@ -909,14 +885,14 @@ abstract class PdfAnnotation implements _IPdfWrapper {
         : PdfColor(255, 255, 255, 255);
   }
 
-  Map<String, double> _drawAuthor(
+  Map<String, double?> _drawAuthor(
       String author,
       String subject,
       Rect bounds,
       PdfBrush backBrush,
       PdfBrush aBrush,
       PdfPage page,
-      double trackingHeight,
+      double? trackingHeight,
       PdfAnnotationBorder border) {
     final double borderWidth = border.width / 2;
     final _Rectangle titleRect = _Rectangle.fromRect(Rect.fromLTWH(
@@ -924,7 +900,7 @@ abstract class PdfAnnotation implements _IPdfWrapper {
         bounds.top + borderWidth,
         bounds.width - border.width,
         20));
-    if (subject != '' && subject != null) {
+    if (subject != '') {
       titleRect.height += 20;
       trackingHeight = titleRect.height;
       _saveGraphics(page, PdfBlendMode.hardLight);
@@ -968,11 +944,11 @@ abstract class PdfAnnotation implements _IPdfWrapper {
       trackingHeight = titleRect.height;
       page.graphics.restore();
     }
-    return <String, double>{'height': trackingHeight};
+    return <String, double?>{'height': trackingHeight};
   }
 
   Rect _calculateTemplateBounds(
-      Rect bounds, PdfPage page, PdfTemplate template, bool isNormalMatrix) {
+      Rect bounds, PdfPage? page, PdfTemplate? template, bool isNormalMatrix) {
     double x = bounds.left,
         y = bounds.top,
         width = bounds.width,
@@ -1012,7 +988,7 @@ abstract class PdfAnnotation implements _IPdfWrapper {
   }
 
   void _setMatrix(_PdfDictionary template) {
-    final _PdfArray bbox = template[_DictionaryProperties.bBox] as _PdfArray;
+    final _PdfArray? bbox = template[_DictionaryProperties.bBox] as _PdfArray?;
     if (bbox != null) {
       final List<double> elements = <double>[
         1,
@@ -1021,10 +997,10 @@ abstract class PdfAnnotation implements _IPdfWrapper {
         1,
         ((bbox[0] as _PdfNumber).value == 0)
             ? 0
-            : -(bbox[0] as _PdfNumber).value,
+            : -(bbox[0] as _PdfNumber).value! as double,
         ((bbox[0] as _PdfNumber).value == 0)
             ? 0
-            : -(bbox[1] as _PdfNumber).value
+            : -(bbox[1] as _PdfNumber).value! as double
       ];
       template[_DictionaryProperties.matrix] = _PdfArray(elements);
     }
@@ -1061,7 +1037,7 @@ abstract class PdfAnnotation implements _IPdfWrapper {
       double borderLength) {
     _Rectangle bounds = _Rectangle.fromRect(this.bounds);
     final PdfPath path = PdfPath();
-    if (linePoints != null && linePoints.length == 4) {
+    if (linePoints.length == 4) {
       final double x1 = linePoints[0].toDouble();
       final double y1 = linePoints[1].toDouble();
       final double x2 = linePoints[2].toDouble();
@@ -1114,54 +1090,52 @@ abstract class PdfAnnotation implements _IPdfWrapper {
       for (int i = 0; i < lineStyle.count; i++) {
         final _PdfName lineEndingStyle = lineStyle[i] as _PdfName;
         final _Point point = _Point.empty;
-        if (lineEndingStyle != null) {
-          switch (_getEnumName(lineEndingStyle._name)) {
-            case 'Square':
-            case 'Circle':
-            case 'Diamond':
-              {
-                point.x = 3;
-                point.y = 3;
-              }
-              break;
-            case 'OpenArrow':
-            case 'ClosedArrow':
-              {
-                point.x = 1;
-                point.y = 5;
-              }
-              break;
-            case 'ROpenArrow':
-            case 'RClosedArrow':
-              {
-                point.x = 9 + (borderLength / 2);
-                point.y = 5 + (borderLength / 2);
-              }
-              break;
-            case 'Slash':
-              {
-                point.x = 5;
-                point.y = 9;
-              }
-              break;
-            case 'Butt':
-              {
-                point.x = 1;
-                point.y = 3;
-              }
-              break;
-            default:
-              {
-                point.x = 0;
-                point.y = 0;
-              }
-              break;
-          }
+        switch (_getEnumName(lineEndingStyle._name)) {
+          case 'Square':
+          case 'Circle':
+          case 'Diamond':
+            {
+              point.x = 3;
+              point.y = 3;
+            }
+            break;
+          case 'OpenArrow':
+          case 'ClosedArrow':
+            {
+              point.x = 1;
+              point.y = 5;
+            }
+            break;
+          case 'ROpenArrow':
+          case 'RClosedArrow':
+            {
+              point.x = 9 + (borderLength / 2);
+              point.y = 5 + (borderLength / 2);
+            }
+            break;
+          case 'Slash':
+            {
+              point.x = 5;
+              point.y = 9;
+            }
+            break;
+          case 'Butt':
+            {
+              point.x = 1;
+              point.y = 3;
+            }
+            break;
+          default:
+            {
+              point.x = 0;
+              point.y = 0;
+            }
+            break;
         }
         stylePoint.add(point);
       }
-      final List<double> widthX = List<double>(2);
-      final List<double> heightY = List<double>(2);
+      final List<double> widthX = List<double>.filled(2, 0);
+      final List<double> heightY = List<double>.filled(2, 0);
 
       if ((lineAngle >= 45 && lineAngle <= 135) ||
           (lineAngle >= 225 && lineAngle <= 315)) {
@@ -1176,7 +1150,7 @@ abstract class PdfAnnotation implements _IPdfWrapper {
         heightY[1] = stylePoint[1].y;
       }
 
-      final double height = <double>[heightY[0], heightY[1]].reduce(max);
+      final double height = max(heightY[0], heightY[1]);
       if (startingPoint[0] ==
           <double>[startingPoint[0], endingPoint[0]].reduce(min)) {
         startingPoint[0] -= widthX[0] * borderLength;
@@ -1218,7 +1192,7 @@ abstract class PdfAnnotation implements _IPdfWrapper {
 
   List<double> _getAxisValue(List<double> value, double angle, double length) {
     final double degToRad = pi / 180.0;
-    final List<double> xy = List<double>(2);
+    final List<double> xy = List<double>.filled(2, 0);
     xy[0] = value[0] + cos(angle * degToRad) * length;
     xy[1] = value[1] + sin(angle * degToRad) * length;
 
@@ -1247,10 +1221,10 @@ abstract class PdfAnnotation implements _IPdfWrapper {
   void _setLineEndingStyles(
       List<double> startingPoint,
       List<double> endingPoint,
-      PdfGraphics graphics,
+      PdfGraphics? graphics,
       double angle,
-      PdfPen borderPen,
-      PdfBrush backBrush,
+      PdfPen? borderPen,
+      PdfBrush? backBrush,
       _PdfArray lineStyle,
       double borderLength) {
     List<double> axisPoint;
@@ -1259,7 +1233,7 @@ abstract class PdfAnnotation implements _IPdfWrapper {
       borderPen = null;
     }
     if (backBrush is PdfSolidBrush) {
-      if ((backBrush as PdfSolidBrush).color.isEmpty) {
+      if (backBrush.color.isEmpty) {
         backBrush = null;
       }
     }
@@ -1270,182 +1244,180 @@ abstract class PdfAnnotation implements _IPdfWrapper {
       } else {
         axisPoint = endingPoint;
       }
-      if (lineEndingStyle != null) {
-        switch (lineEndingStyle._name) {
-          case 'Square':
-            {
-              final Rect rect = Rect.fromLTWH(
-                  axisPoint[0] - (3 * borderLength),
-                  -(axisPoint[1] + (3 * borderLength)),
-                  6 * borderLength,
-                  6 * borderLength);
-              graphics.drawRectangle(
-                  bounds: rect, pen: borderPen, brush: backBrush);
+      switch (lineEndingStyle._name) {
+        case 'Square':
+          {
+            final Rect rect = Rect.fromLTWH(
+                axisPoint[0] - (3 * borderLength),
+                -(axisPoint[1] + (3 * borderLength)),
+                6 * borderLength,
+                6 * borderLength);
+            graphics!
+                .drawRectangle(bounds: rect, pen: borderPen, brush: backBrush);
+          }
+          break;
+        case 'Circle':
+          {
+            final Rect rect = Rect.fromLTWH(
+                axisPoint[0] - (3 * borderLength),
+                -(axisPoint[1] + (3 * borderLength)),
+                6 * borderLength,
+                6 * borderLength);
+            graphics!.drawEllipse(rect, pen: borderPen, brush: backBrush);
+          }
+          break;
+        case 'OpenArrow':
+          {
+            int arraowAngle = 0;
+            if (i == 0) {
+              arraowAngle = 30;
+            } else {
+              arraowAngle = 150;
             }
-            break;
-          case 'Circle':
-            {
-              final Rect rect = Rect.fromLTWH(
-                  axisPoint[0] - (3 * borderLength),
-                  -(axisPoint[1] + (3 * borderLength)),
-                  6 * borderLength,
-                  6 * borderLength);
-              graphics.drawEllipse(rect, pen: borderPen, brush: backBrush);
+            final double length = 9 * borderLength;
+            List<double> startPoint;
+            if (i == 0) {
+              startPoint = _getAxisValue(axisPoint, angle, borderLength);
+            } else {
+              startPoint = _getAxisValue(axisPoint, angle, -borderLength);
             }
-            break;
-          case 'OpenArrow':
-            {
-              int arraowAngle = 0;
-              if (i == 0) {
-                arraowAngle = 30;
-              } else {
-                arraowAngle = 150;
-              }
-              final double length = 9 * borderLength;
-              List<double> startPoint;
-              if (i == 0) {
-                startPoint = _getAxisValue(axisPoint, angle, borderLength);
-              } else {
-                startPoint = _getAxisValue(axisPoint, angle, -borderLength);
-              }
-              final List<double> point1 =
-                  _getAxisValue(startPoint, angle + arraowAngle, length);
-              final List<double> point2 =
-                  _getAxisValue(startPoint, angle - arraowAngle, length);
+            final List<double> point1 =
+                _getAxisValue(startPoint, angle + arraowAngle, length);
+            final List<double> point2 =
+                _getAxisValue(startPoint, angle - arraowAngle, length);
 
-              final PdfPath path = PdfPath(pen: borderPen);
-              path.addLine(Offset(startPoint[0], -startPoint[1]),
-                  Offset(point1[0], -point1[1]));
-              path.addLine(Offset(startPoint[0], -startPoint[1]),
-                  Offset(point2[0], -point2[1]));
-              graphics.drawPath(path, pen: borderPen);
+            final PdfPath path = PdfPath(pen: borderPen);
+            path.addLine(Offset(startPoint[0], -startPoint[1]),
+                Offset(point1[0], -point1[1]));
+            path.addLine(Offset(startPoint[0], -startPoint[1]),
+                Offset(point2[0], -point2[1]));
+            graphics!.drawPath(path, pen: borderPen);
+          }
+          break;
+        case 'ClosedArrow':
+          {
+            int arraowAngle = 0;
+            if (i == 0) {
+              arraowAngle = 30;
+            } else {
+              arraowAngle = 150;
             }
-            break;
-          case 'ClosedArrow':
-            {
-              int arraowAngle = 0;
-              if (i == 0) {
-                arraowAngle = 30;
-              } else {
-                arraowAngle = 150;
-              }
-              final double length = 9 * borderLength;
-              List<double> startPoint;
-              if (i == 0) {
-                startPoint = _getAxisValue(axisPoint, angle, borderLength);
-              } else {
-                startPoint = _getAxisValue(axisPoint, angle, -borderLength);
-              }
-              final List<double> point1 =
-                  _getAxisValue(startPoint, angle + arraowAngle, length);
-              final List<double> point2 =
-                  _getAxisValue(startPoint, angle - arraowAngle, length);
-              final List<Offset> points = <Offset>[
-                Offset(startPoint[0], -startPoint[1]),
-                Offset(point1[0], -point1[1]),
-                Offset(point2[0], -point2[1])
-              ];
-              graphics.drawPolygon(points, pen: borderPen, brush: backBrush);
+            final double length = 9 * borderLength;
+            List<double> startPoint;
+            if (i == 0) {
+              startPoint = _getAxisValue(axisPoint, angle, borderLength);
+            } else {
+              startPoint = _getAxisValue(axisPoint, angle, -borderLength);
             }
-            break;
-          case 'ROpenArrow':
-            {
-              int arraowAngle = 0;
-              if (i == 0) {
-                arraowAngle = 150;
-              } else {
-                arraowAngle = 30;
-              }
-              final double length = 9 * borderLength;
-              List<double> startPoint;
-              if (i == 0) {
-                startPoint = _getAxisValue(axisPoint, angle, -borderLength);
-              } else {
-                startPoint = _getAxisValue(axisPoint, angle, borderLength);
-              }
-              final List<double> point1 =
-                  _getAxisValue(startPoint, angle + arraowAngle, length);
-              final List<double> point2 =
-                  _getAxisValue(startPoint, angle - arraowAngle, length);
+            final List<double> point1 =
+                _getAxisValue(startPoint, angle + arraowAngle, length);
+            final List<double> point2 =
+                _getAxisValue(startPoint, angle - arraowAngle, length);
+            final List<Offset> points = <Offset>[
+              Offset(startPoint[0], -startPoint[1]),
+              Offset(point1[0], -point1[1]),
+              Offset(point2[0], -point2[1])
+            ];
+            graphics!.drawPolygon(points, pen: borderPen, brush: backBrush);
+          }
+          break;
+        case 'ROpenArrow':
+          {
+            int arraowAngle = 0;
+            if (i == 0) {
+              arraowAngle = 150;
+            } else {
+              arraowAngle = 30;
+            }
+            final double length = 9 * borderLength;
+            List<double> startPoint;
+            if (i == 0) {
+              startPoint = _getAxisValue(axisPoint, angle, -borderLength);
+            } else {
+              startPoint = _getAxisValue(axisPoint, angle, borderLength);
+            }
+            final List<double> point1 =
+                _getAxisValue(startPoint, angle + arraowAngle, length);
+            final List<double> point2 =
+                _getAxisValue(startPoint, angle - arraowAngle, length);
 
-              final PdfPath path = PdfPath(pen: borderPen);
-              path.addLine(Offset(startPoint[0], -startPoint[1]),
-                  Offset(point1[0], -point1[1]));
-              path.addLine(Offset(startPoint[0], -startPoint[1]),
-                  Offset(point2[0], -point2[1]));
-              graphics.drawPath(path, pen: borderPen);
+            final PdfPath path = PdfPath(pen: borderPen);
+            path.addLine(Offset(startPoint[0], -startPoint[1]),
+                Offset(point1[0], -point1[1]));
+            path.addLine(Offset(startPoint[0], -startPoint[1]),
+                Offset(point2[0], -point2[1]));
+            graphics!.drawPath(path, pen: borderPen);
+          }
+          break;
+        case 'RClosedArrow':
+          {
+            int arraowAngle = 0;
+            if (i == 0) {
+              arraowAngle = 150;
+            } else {
+              arraowAngle = 30;
             }
-            break;
-          case 'RClosedArrow':
-            {
-              int arraowAngle = 0;
-              if (i == 0) {
-                arraowAngle = 150;
-              } else {
-                arraowAngle = 30;
-              }
-              final double length = 9 * borderLength;
-              List<double> startPoint;
-              if (i == 0) {
-                startPoint = _getAxisValue(axisPoint, angle, -borderLength);
-              } else {
-                startPoint = _getAxisValue(axisPoint, angle, borderLength);
-              }
+            final double length = 9 * borderLength;
+            List<double> startPoint;
+            if (i == 0) {
+              startPoint = _getAxisValue(axisPoint, angle, -borderLength);
+            } else {
+              startPoint = _getAxisValue(axisPoint, angle, borderLength);
+            }
 
-              final List<double> point1 =
-                  _getAxisValue(startPoint, angle + arraowAngle, length);
-              final List<double> point2 =
-                  _getAxisValue(startPoint, angle - arraowAngle, length);
-              final List<Offset> points = <Offset>[
-                Offset(startPoint[0], -startPoint[1]),
-                Offset(point1[0], -point1[1]),
-                Offset(point2[0], -point2[1])
-              ];
-              graphics.drawPolygon(points, pen: borderPen, brush: backBrush);
-            }
-            break;
-          case 'Slash':
-            {
-              final double length = 9 * borderLength;
-              final List<double> point1 =
-                  _getAxisValue(axisPoint, angle + 60, length);
-              final List<double> point2 =
-                  _getAxisValue(axisPoint, angle - 120, length);
-              graphics.drawLine(borderPen, Offset(axisPoint[0], -axisPoint[1]),
-                  Offset(point1[0], -point1[1]));
-              graphics.drawLine(borderPen, Offset(axisPoint[0], -axisPoint[1]),
-                  Offset(point2[0], -point2[1]));
-            }
-            break;
-          case 'Diamond':
-            {
-              final double length = 3 * borderLength;
-              final List<double> point1 = _getAxisValue(axisPoint, 180, length);
-              final List<double> point2 = _getAxisValue(axisPoint, 90, length);
-              final List<double> point3 = _getAxisValue(axisPoint, 0, length);
-              final List<double> point4 = _getAxisValue(axisPoint, -90, length);
-              final List<Offset> points = <Offset>[
-                Offset(point1[0], -point1[1]),
-                Offset(point2[0], -point2[1]),
-                Offset(point3[0], -point3[1]),
-                Offset(point4[0], -point4[1])
-              ];
-              graphics.drawPolygon(points, pen: borderPen, brush: backBrush);
-            }
-            break;
-          case 'Butt':
-            {
-              final double length = 3 * borderLength;
-              final List<double> point1 =
-                  _getAxisValue(axisPoint, angle + 90, length);
-              final List<double> point2 =
-                  _getAxisValue(axisPoint, angle - 90, length);
+            final List<double> point1 =
+                _getAxisValue(startPoint, angle + arraowAngle, length);
+            final List<double> point2 =
+                _getAxisValue(startPoint, angle - arraowAngle, length);
+            final List<Offset> points = <Offset>[
+              Offset(startPoint[0], -startPoint[1]),
+              Offset(point1[0], -point1[1]),
+              Offset(point2[0], -point2[1])
+            ];
+            graphics!.drawPolygon(points, pen: borderPen, brush: backBrush);
+          }
+          break;
+        case 'Slash':
+          {
+            final double length = 9 * borderLength;
+            final List<double> point1 =
+                _getAxisValue(axisPoint, angle + 60, length);
+            final List<double> point2 =
+                _getAxisValue(axisPoint, angle - 120, length);
+            graphics!.drawLine(borderPen!, Offset(axisPoint[0], -axisPoint[1]),
+                Offset(point1[0], -point1[1]));
+            graphics.drawLine(borderPen, Offset(axisPoint[0], -axisPoint[1]),
+                Offset(point2[0], -point2[1]));
+          }
+          break;
+        case 'Diamond':
+          {
+            final double length = 3 * borderLength;
+            final List<double> point1 = _getAxisValue(axisPoint, 180, length);
+            final List<double> point2 = _getAxisValue(axisPoint, 90, length);
+            final List<double> point3 = _getAxisValue(axisPoint, 0, length);
+            final List<double> point4 = _getAxisValue(axisPoint, -90, length);
+            final List<Offset> points = <Offset>[
+              Offset(point1[0], -point1[1]),
+              Offset(point2[0], -point2[1]),
+              Offset(point3[0], -point3[1]),
+              Offset(point4[0], -point4[1])
+            ];
+            graphics!.drawPolygon(points, pen: borderPen, brush: backBrush);
+          }
+          break;
+        case 'Butt':
+          {
+            final double length = 3 * borderLength;
+            final List<double> point1 =
+                _getAxisValue(axisPoint, angle + 90, length);
+            final List<double> point2 =
+                _getAxisValue(axisPoint, angle - 90, length);
 
-              graphics.drawLine(borderPen, Offset(point1[0], -point1[1]),
-                  Offset(point2[0], -point2[1]));
-            }
-            break;
-        }
+            graphics!.drawLine(borderPen!, Offset(point1[0], -point1[1]),
+                Offset(point2[0], -point2[1]));
+          }
+          break;
       }
     }
   }
@@ -1454,20 +1426,15 @@ abstract class PdfAnnotation implements _IPdfWrapper {
   bool _validateTemplateMatrix(_PdfDictionary dictionary) {
     bool isRotatedMatrix = false;
     if (dictionary.containsKey(_DictionaryProperties.matrix)) {
-      final _PdfArray matrix =
+      final _PdfArray? matrix =
           _PdfCrossTable._dereference(dictionary[_DictionaryProperties.matrix])
-              as _PdfArray;
+              as _PdfArray?;
       if (matrix != null && matrix.count > 3) {
-        if (matrix[0] != null &&
-            matrix[1] != null &&
-            matrix[2] != null &&
-            matrix[3] != null) {
-          if ((matrix[0] as _PdfNumber).value == 1 &&
-              (matrix[1] as _PdfNumber).value == 0 &&
-              (matrix[2] as _PdfNumber).value == 0 &&
-              (matrix[3] as _PdfNumber).value == 1) {
-            isRotatedMatrix = true;
-          }
+        if ((matrix[0] as _PdfNumber).value == 1 &&
+            (matrix[1] as _PdfNumber).value == 0 &&
+            (matrix[2] as _PdfNumber).value == 0 &&
+            (matrix[3] as _PdfNumber).value == 1) {
+          isRotatedMatrix = true;
         }
       }
     } else {
@@ -1478,26 +1445,23 @@ abstract class PdfAnnotation implements _IPdfWrapper {
 
   // Flatten annotation template
   void _flattenAnnotationTemplate(PdfTemplate appearance, bool isNormalMatrix) {
-    final PdfGraphicsState state = page.graphics.save();
+    final PdfGraphicsState state = page!.graphics.save();
     if (opacity < 1) {
-      page.graphics.setTransparency(opacity);
+      page!.graphics.setTransparency(opacity);
     }
     final Rect bound =
         _calculateTemplateBounds(bounds, page, appearance, isNormalMatrix);
-    page.graphics.drawPdfTemplate(appearance, bound.topLeft, bounds.size);
-    page.graphics.restore(state);
-    page.annotations.remove(this);
+    page!.graphics.drawPdfTemplate(appearance, bound.topLeft, bounds.size);
+    page!.graphics.restore(state);
+    page!.annotations.remove(this);
   }
 
   // Draw CloudStye to the Shapes
-  void _drawCloudStyle(PdfGraphics graphics, PdfBrush brush, PdfPen pen,
+  void _drawCloudStyle(PdfGraphics graphics, PdfBrush? brush, PdfPen? pen,
       double radius, double overlap, List<Offset> points, bool isAppearance) {
     if (_isClockWise(points)) {
-      final List<Offset> sortedPoints = List<Offset>(points.length);
-      for (int i = points.length - 1, j = 0; i >= 0; i--, j++) {
-        sortedPoints[j] = points[i];
-      }
-      points = sortedPoints;
+      points = List<Offset>.generate(
+          points.length, (i) => (points[points.length - (i + 1)]));
     }
 
     // Create a list of circles
@@ -1577,15 +1541,11 @@ abstract class PdfAnnotation implements _IPdfWrapper {
           sweepAngel);
     }
     path.closeFigure();
-    List<Offset> tempPoints = List<Offset>(path._points.length);
-    if (isAppearance) {
-      for (int i = 0; i < path._points.length; i++) {
-        tempPoints[i] = Offset(path._points[i].dx, -path._points[i].dy);
-      }
-    }
     PdfPath pdfPath = PdfPath();
     if (isAppearance) {
-      pdfPath._points.addAll(tempPoints);
+      for (int i = 0; i < path._points.length; i++) {
+        pdfPath._points.add(Offset(path._points[i].dx, -path._points[i].dy));
+      }
     } else {
       pdfPath._points.addAll(path._points);
     }
@@ -1604,15 +1564,11 @@ abstract class PdfAnnotation implements _IPdfWrapper {
           curr.endAngle + incise);
     }
     path.closeFigure();
-    tempPoints = List<Offset>(path._points.length);
-    if (isAppearance) {
-      for (int i = 0; i < path._points.length; i++) {
-        tempPoints[i] = Offset(path._points[i].dx, -path._points[i].dy);
-      }
-    }
     pdfPath = PdfPath();
     if (isAppearance) {
-      pdfPath._points.addAll(tempPoints);
+      for (int i = 0; i < path._points.length; i++) {
+        pdfPath._points.add(Offset(path._points[i].dx, -path._points[i].dy));
+      }
     } else {
       pdfPath._points.addAll(path._points);
     }
@@ -1648,11 +1604,11 @@ abstract class PdfAnnotation implements _IPdfWrapper {
   }
 
   // Gets the value.
-  static _IPdfPrimitive _getValue(_PdfDictionary dictionary,
-      _PdfCrossTable crossTable, String value, bool inheritable) {
-    _IPdfPrimitive primitive;
+  static _IPdfPrimitive? _getValue(_PdfDictionary dictionary,
+      _PdfCrossTable? crossTable, String value, bool inheritable) {
+    _IPdfPrimitive? primitive;
     if (dictionary.containsKey(value)) {
-      primitive = crossTable._getObject(dictionary[value]);
+      primitive = crossTable!._getObject(dictionary[value]);
     } else {
       if (inheritable) {
         primitive = _searchInParents(dictionary, crossTable, value);
@@ -1662,17 +1618,17 @@ abstract class PdfAnnotation implements _IPdfWrapper {
   }
 
   // Searches the in parents.
-  static _IPdfPrimitive _searchInParents(
-      _PdfDictionary dictionary, _PdfCrossTable crossTable, String value) {
-    _IPdfPrimitive primitive;
-    _PdfDictionary dic = dictionary;
+  static _IPdfPrimitive? _searchInParents(
+      _PdfDictionary dictionary, _PdfCrossTable? crossTable, String value) {
+    _IPdfPrimitive? primitive;
+    _PdfDictionary? dic = dictionary;
     while ((primitive == null) && (dic != null)) {
       if (dic.containsKey(value)) {
-        primitive = crossTable._getObject(dic[value]);
+        primitive = crossTable!._getObject(dic[value]);
       } else {
         if (dic.containsKey(_DictionaryProperties.parent)) {
-          dic = crossTable._getObject(dic[_DictionaryProperties.parent])
-              as _PdfDictionary;
+          dic = crossTable!._getObject(dic[_DictionaryProperties.parent])
+              as _PdfDictionary?;
         } else {
           dic = null;
         }
@@ -1680,10 +1636,19 @@ abstract class PdfAnnotation implements _IPdfWrapper {
     }
     return primitive;
   }
+
+  //Overrides
+  @override
+  _IPdfPrimitive? get _element => _dictionary;
+
+  @override
+  set _element(_IPdfPrimitive? value) {
+    throw ArgumentError('Primitive element can\'t be set');
+  }
 }
 
 class _CloudStyleArc {
-  Offset point;
+  late Offset point;
   double endAngle = 0;
   double startAngle = 0;
 }

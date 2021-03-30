@@ -9,26 +9,26 @@ part of charts;
 class EmaIndicator<T, D> extends TechnicalIndicators<T, D> {
   /// Creating an argument constructor of EmaIndicator class.
   EmaIndicator({
-    bool isVisible,
-    String xAxisName,
-    String yAxisName,
-    String seriesName,
-    List<double> dashArray,
-    double animationDuration,
-    List<T> dataSource,
-    ChartValueMapper<T, D> xValueMapper,
-    ChartValueMapper<T, num> highValueMapper,
-    ChartValueMapper<T, num> lowValueMapper,
-    ChartValueMapper<T, num> openValueMapper,
-    ChartValueMapper<T, num> closeValueMapper,
-    String name,
-    bool isVisibleInLegend,
-    LegendIconType legendIconType,
-    String legendItemText,
-    Color signalLineColor,
-    double signalLineWidth,
-    int period,
-    String valueField,
+    bool? isVisible,
+    String? xAxisName,
+    String? yAxisName,
+    String? seriesName,
+    List<double>? dashArray,
+    double? animationDuration,
+    List<T>? dataSource,
+    ChartValueMapper<T, D>? xValueMapper,
+    ChartValueMapper<T, num>? highValueMapper,
+    ChartValueMapper<T, num>? lowValueMapper,
+    ChartValueMapper<T, num>? openValueMapper,
+    ChartValueMapper<T, num>? closeValueMapper,
+    String? name,
+    bool? isVisibleInLegend,
+    LegendIconType? legendIconType,
+    String? legendItemText,
+    Color? signalLineColor,
+    double? signalLineWidth,
+    int? period,
+    String? valueField,
   })  : valueField = (valueField ?? 'close').toLowerCase(),
         super(
             isVisible: isVisible,
@@ -78,8 +78,12 @@ class EmaIndicator<T, D> extends TechnicalIndicators<T, D> {
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
     technicalIndicatorsRenderer._targetSeriesRenderers =
         <CartesianSeriesRenderer>[];
-    technicalIndicatorsRenderer._setSeriesProperties(indicator, 'EMA',
-        indicator.signalLineColor, indicator.signalLineWidth, chart);
+    technicalIndicatorsRenderer._setSeriesProperties(
+        indicator,
+        indicator.name ?? 'EMA',
+        indicator.signalLineColor,
+        indicator.signalLineWidth,
+        chart);
   }
 
   /// To initialise data source of technical indicators
@@ -87,9 +91,10 @@ class EmaIndicator<T, D> extends TechnicalIndicators<T, D> {
   void _initDataSource(TechnicalIndicators<dynamic, dynamic> indicator,
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
     final List<CartesianChartPoint<dynamic>> validData =
-        technicalIndicatorsRenderer._dataPoints;
+        technicalIndicatorsRenderer._dataPoints!;
     if (validData.isNotEmpty &&
         validData.length > indicator.period &&
+        indicator is EmaIndicator &&
         indicator.period > 0) {
       _calculateEMAPoints(indicator, validData, technicalIndicatorsRenderer);
     }
@@ -102,7 +107,7 @@ class EmaIndicator<T, D> extends TechnicalIndicators<T, D> {
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
     final CartesianSeriesRenderer signalSeriesRenderer =
         technicalIndicatorsRenderer._targetSeriesRenderers[0];
-    final num period = indicator.period;
+    final int period = indicator.period;
     final List<CartesianChartPoint<dynamic>> points =
         <CartesianChartPoint<dynamic>>[];
     final List<dynamic> xValues = <dynamic>[];
@@ -120,7 +125,7 @@ class EmaIndicator<T, D> extends TechnicalIndicators<T, D> {
           average, validData[period - 1], signalSeriesRenderer, points.length);
       points.add(point);
       xValues.add(point.x);
-      num index = period;
+      int index = period;
       while (index < validData.length) {
         if (validData[index].isVisible ||
             validData[index].isGap == true ||

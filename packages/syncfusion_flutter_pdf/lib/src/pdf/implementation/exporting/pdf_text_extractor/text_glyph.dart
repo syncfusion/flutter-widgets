@@ -2,29 +2,28 @@ part of pdf;
 
 /// Gets the details of character in the word.
 class TextGlyph {
-  TextGlyph._() {
-    _initialize();
+  TextGlyph._(String text, String fontName, List<PdfFontStyle> fontStyle,
+      [Rect bounds = const Rect.fromLTWH(0, 0, 0, 0), double fontSize = 0]) {
+    this.text = text;
+    this.fontName = fontName;
+    this.fontStyle = fontStyle;
+    this.bounds = bounds;
+    this.fontSize = fontSize;
   }
 
   //Fields
   /// Gets the bounds of glyph.
-  Rect bounds;
+  late Rect bounds;
 
   /// Gets the text of glyph.
-  String text;
+  late String text;
 
   /// Gets the font size of glyph.
-  double fontSize;
+  late double fontSize;
 
   /// Gets the font name of glyph.
-  String fontName;
+  late String fontName;
 
   /// Gets the font style of glyph.
-  List<PdfFontStyle> fontStyle;
-
-  //Implementation
-  void _initialize() {
-    bounds = Rect.fromLTWH(0, 0, 0, 0);
-    fontSize = 0;
-  }
+  late List<PdfFontStyle> fontStyle;
 }

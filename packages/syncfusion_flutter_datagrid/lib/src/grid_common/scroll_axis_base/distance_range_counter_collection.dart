@@ -35,7 +35,7 @@ class _DistanceRangeCounterCollection extends _DistanceCounterCollectionBase {
     _rbTree = _DistanceLineCounterTree(startPos, false);
   }
 
-  _DistanceLineCounterTree _rbTree;
+  late _DistanceLineCounterTree _rbTree;
 
   /// Gets the padding distance of the counter collection.
   double paddingDistance = 0;
@@ -45,7 +45,7 @@ class _DistanceRangeCounterCollection extends _DistanceCounterCollectionBase {
       return 0;
     }
 
-    final _DistanceLineCounter counter = _rbTree.getCounterTotal();
+    final _DistanceLineCounter counter = _rbTree.getCounterTotal()!;
     return counter.lineCount;
   }
 
@@ -61,7 +61,7 @@ class _DistanceRangeCounterCollection extends _DistanceCounterCollectionBase {
       return paddingDistance;
     }
 
-    final _DistanceLineCounter counter = _rbTree.getCounterTotal();
+    final _DistanceLineCounter counter = _rbTree.getCounterTotal()!;
     return counter.distance + paddingDistance;
   }
 
@@ -128,14 +128,14 @@ class _DistanceRangeCounterCollection extends _DistanceCounterCollectionBase {
     }
     if (index >= count) {
       final int delta = index - count;
-      final _DistanceLineCounter counter = _rbTree.getCounterTotal();
+      final _DistanceLineCounter counter = _rbTree.getCounterTotal()!;
       return counter.distance + (delta * defaultDistance);
     } else {
       final _LineIndexEntryAt e = initDistanceLine(index, false);
-      e.rbEntryPosition = e.rbEntry.getCounterPosition;
-      return e.rbEntryPosition.distance +
-          ((index - e.rbEntryPosition.lineCount) *
-              e.rbValue.singleLineDistance);
+      e.rbEntryPosition = e.rbEntry!.getCounterPosition as _DistanceLineCounter;
+      return e.rbEntryPosition!.distance +
+          ((index - e.rbEntryPosition!.lineCount) *
+              e.rbValue!.singleLineDistance);
     }
   }
 
@@ -157,18 +157,22 @@ class _DistanceRangeCounterCollection extends _DistanceCounterCollectionBase {
     }
 
     final searchPosition = _DistanceLineCounter(cumulatedDistance, 0);
-    final _DistanceLineCounterEntry rbEntry =
+    final _DistanceLineCounterEntry? rbEntry =
         _rbTree.getEntryAtCounterPositionWithThreeArgs(
             searchPosition, _DistanceLineCounterKind.distance, false);
-    final _DistanceLineCounterSource rbValue = rbEntry.value;
-    final _DistanceLineCounter rbEntryPosition = rbEntry.getCounterPosition;
-    if (rbValue.singleLineDistance > 0) {
+    final _DistanceLineCounterSource? rbValue =
+        rbEntry?.value as _DistanceLineCounterSource;
+    final _DistanceLineCounter? rbEntryPosition =
+        rbEntry?.getCounterPosition as _DistanceLineCounter;
+    if (rbValue != null &&
+        rbEntryPosition != null &&
+        rbValue.singleLineDistance > 0) {
       final totalDistance = (cumulatedDistance - rbEntryPosition.distance) /
           rbValue.singleLineDistance;
       delta = totalDistance.isFinite ? totalDistance.floor() : 0;
     }
 
-    return rbEntryPosition.lineCount + delta;
+    return (rbEntryPosition?.lineCount ?? 0) + delta;
   }
 
   _LineIndexEntryAt initDistanceLine(
@@ -176,12 +180,12 @@ class _DistanceRangeCounterCollection extends _DistanceCounterCollectionBase {
     final e = _LineIndexEntryAt()
       ..searchPosition = _DistanceLineCounter(0, lineIndex);
     e.rbEntry = _rbTree.getEntryAtCounterPositionWithThreeArgs(
-        e.searchPosition, _DistanceLineCounterKind.lines, false);
-    e.rbValue = e.rbEntry.value;
+        e.searchPosition!, _DistanceLineCounterKind.lines, false);
+    e.rbValue = e.rbEntry!.value as _DistanceLineCounterSource;
     e.rbEntryPosition = null;
     if (determineEntryPosition) {
-      e.rbEntryPosition = e.rbValue.lineCount > 1
-          ? e.rbEntry.getCounterPosition
+      e.rbEntryPosition = e.rbValue!.lineCount > 1
+          ? e.rbEntry!.getCounterPosition
           : e.searchPosition;
     }
 
@@ -203,11 +207,11 @@ class _DistanceRangeCounterCollection extends _DistanceCounterCollectionBase {
     ensureTreeCount(insertAt);
 
     final _LineIndexEntryAt e = initDistanceLine(insertAt, false);
-    if (e.rbValue.singleLineDistance == distance) {
-      e.rbValue.lineCount += count;
-      e.rbEntry.invalidateCounterBottomUp(true);
+    if (e.rbValue!.singleLineDistance == distance) {
+      e.rbValue!.lineCount += count;
+      e.rbEntry!.invalidateCounterBottomUp(true);
     } else {
-      final _DistanceLineCounterEntry rbEntry0 = split(insertAt);
+      final _DistanceLineCounterEntry? rbEntry0 = split(insertAt);
       final _DistanceLineCounterEntry entry =
           createTreeTableEntry(distance, count);
       if (rbEntry0 == null) {
@@ -231,30 +235,30 @@ class _DistanceRangeCounterCollection extends _DistanceCounterCollectionBase {
     final nested = getNestedDistances(index);
     if (nested != null && distance != nested.totalDistance) {
       final _LineIndexEntryAt e = initDistanceLine(index, false);
-      e.rbEntry.invalidateCounterBottomUp(true);
+      e.rbEntry!.invalidateCounterBottomUp(true);
     }
   }
 
   void merge(_DistanceLineCounterEntry entry, bool checkPrevious) {
-    final _DistanceLineCounterSource value = entry.value;
-    _DistanceLineCounterEntry previousEntry;
+    final _DistanceLineCounterSource value = entry.value!;
+    _DistanceLineCounterEntry? previousEntry;
     if (checkPrevious) {
       previousEntry = _rbTree.getPreviousEntry(entry);
     }
 
-    final _DistanceLineCounterEntry nextEntry = _rbTree.getNextEntry(entry);
+    final _DistanceLineCounterEntry? nextEntry = _rbTree.getNextEntry(entry);
 
     bool dirty = false;
     if (previousEntry != null &&
-        previousEntry.value.singleLineDistance == value.singleLineDistance) {
-      value.lineCount += previousEntry.value.lineCount;
+        previousEntry.value!.singleLineDistance == value.singleLineDistance) {
+      value.lineCount += previousEntry.value!.lineCount;
       _rbTree.remove(previousEntry);
       dirty = true;
     }
 
     if (nextEntry != null &&
-        nextEntry.value.singleLineDistance == value.singleLineDistance) {
-      value.lineCount += nextEntry.value.lineCount;
+        nextEntry.value!.singleLineDistance == value.singleLineDistance) {
+      value.lineCount += nextEntry.value!.lineCount;
       _rbTree.remove(nextEntry);
       dirty = true;
     }
@@ -269,15 +273,18 @@ class _DistanceRangeCounterCollection extends _DistanceCounterCollectionBase {
       return _rbTree.getCount();
     }
 
-    _DistanceLineCounterEntry entry = split(removeAt);
+    _DistanceLineCounterEntry? entry = split(removeAt);
     split(removeAt + count);
-    final int n = _rbTree.indexOf(entry);
+    late int n;
+    if (entry != null) {
+      n = _rbTree.indexOf(entry);
+    }
 
     final toDelete = [];
 
     int total = 0;
     while (total < count && entry != null) {
-      total += entry.value.lineCount;
+      total += entry.value!.lineCount;
       toDelete.add(entry);
       entry = _rbTree.getNextEntry(entry);
     }
@@ -289,22 +296,22 @@ class _DistanceRangeCounterCollection extends _DistanceCounterCollectionBase {
     return n;
   }
 
-  _DistanceLineCounterEntry split(int index) {
+  _DistanceLineCounterEntry? split(int index) {
     if (index >= internalCount) {
       return null;
     }
 
     final _LineIndexEntryAt e = initDistanceLine(index, true);
-    if (e.rbEntryPosition.lineCount != index) {
-      final int count1 = index - e.rbEntryPosition.lineCount;
-      final int count2 = e.rbValue.lineCount - count1;
+    if (e.rbEntryPosition!.lineCount != index) {
+      final int count1 = index - e.rbEntryPosition!.lineCount;
+      final int count2 = e.rbValue!.lineCount - count1;
 
-      e.rbValue.lineCount = count1;
+      e.rbValue!.lineCount = count1;
 
       final _DistanceLineCounterEntry rbEntry2 =
-          createTreeTableEntry(e.rbValue.singleLineDistance, count2);
-      _rbTree.insert(_rbTree.indexOf(e.rbEntry) + 1, rbEntry2);
-      e.rbEntry.invalidateCounterBottomUp(true);
+          createTreeTableEntry(e.rbValue!.singleLineDistance, count2);
+      _rbTree.insert(_rbTree.indexOf(e.rbEntry!) + 1, rbEntry2);
+      e.rbEntry!.invalidateCounterBottomUp(true);
       return rbEntry2;
     }
 
@@ -340,7 +347,7 @@ class _DistanceRangeCounterCollection extends _DistanceCounterCollectionBase {
     final double delta = point - nestedStart;
 
     if (delta > 0) {
-      final _DistanceCounterCollectionBase nestedDcc =
+      final _DistanceCounterCollectionBase? nestedDcc =
           getNestedDistances(index);
       if (nestedDcc != null) {
         final double r = nestedDcc.getAlignedScrollValue(delta);
@@ -370,15 +377,16 @@ class _DistanceRangeCounterCollection extends _DistanceCounterCollectionBase {
   /// * index - _required_ - The index.
   /// Returns the nested entities at a given index or null.
   @override
-  _DistanceCounterCollectionBase getNestedDistances(int index) {
+  _DistanceCounterCollectionBase? getNestedDistances(int index) {
     if (index >= internalCount) {
       return null;
     }
 
     checkRange('index', 0, count - 1, index);
     final _LineIndexEntryAt e = initDistanceLine(index, false);
-    final _NestedDistanceCounterCollectionSource vcs = e.rbValue;
-    return vcs?.nestedDistances;
+    final _NestedDistanceCounterCollectionSource vcs =
+        e.rbValue as _NestedDistanceCounterCollectionSource;
+    return vcs.nestedDistances;
   }
 
   /// Gets the distance position of the next entity after a given point.
@@ -396,7 +404,7 @@ class _DistanceRangeCounterCollection extends _DistanceCounterCollectionBase {
 
     final double nestedStart = getCumulatedDistanceAt(index);
     final double delta = point - nestedStart;
-    final _DistanceCounterCollectionBase nestedDcc = getNestedDistances(index);
+    final _DistanceCounterCollectionBase? nestedDcc = getNestedDistances(index);
     if (nestedDcc != null) {
       final double r = nestedDcc.getNextScrollValue(delta);
       if (!(r == double.nan) && r >= 0 && r < nestedDcc.totalDistance) {
@@ -429,13 +437,13 @@ class _DistanceRangeCounterCollection extends _DistanceCounterCollectionBase {
     }
 
     final _LineIndexEntryAt e = initDistanceLine(index + 1, true);
-    if (e.rbValue.singleLineDistance > 0) {
-      if (index - e.rbEntryPosition.lineCount < e.rbValue.lineCount) {
+    if (e.rbValue!.singleLineDistance > 0) {
+      if (index - e.rbEntryPosition!.lineCount < e.rbValue!.lineCount) {
         return index + 1;
       }
     }
 
-    e.rbEntry = _rbTree.getNextVisibleEntry(e.rbEntry);
+    e.rbEntry = _rbTree.getNextVisibleEntry(e.rbEntry!);
     if (e.rbEntry == null) {
       if (internalCount < count) {
         return internalCount;
@@ -444,8 +452,8 @@ class _DistanceRangeCounterCollection extends _DistanceCounterCollectionBase {
       return -1;
     }
 
-    e.rbEntryPosition = e.rbEntry.getCounterPosition;
-    return e.rbEntryPosition.lineCount;
+    e.rbEntryPosition = e.rbEntry!.getCounterPosition;
+    return e.rbEntryPosition!.lineCount;
   }
 
   /// Gets the distance position of the entity preceding a given point.
@@ -463,7 +471,7 @@ class _DistanceRangeCounterCollection extends _DistanceCounterCollectionBase {
     double delta = point - nestedStart;
 
     if (delta > 0) {
-      final _DistanceCounterCollectionBase nestedDcc =
+      final _DistanceCounterCollectionBase? nestedDcc =
           getNestedDistances(index);
       if (nestedDcc != null) {
         final double r = nestedDcc.getPreviousScrollValue(delta);
@@ -480,7 +488,7 @@ class _DistanceRangeCounterCollection extends _DistanceCounterCollectionBase {
     if (index >= 0 && index < count) {
       nestedStart = getCumulatedDistanceAt(index);
 
-      final _DistanceCounterCollectionBase nestedDcc =
+      final _DistanceCounterCollectionBase? nestedDcc =
           getNestedDistances(index);
       if (nestedDcc != null) {
         delta = nestedDcc.totalDistance;
@@ -512,19 +520,19 @@ class _DistanceRangeCounterCollection extends _DistanceCounterCollectionBase {
     }
 
     final _LineIndexEntryAt e = initDistanceLine(index - 1, false);
-    if (e.rbValue.singleLineDistance > 0) {
+    if (e.rbValue!.singleLineDistance > 0) {
       return index - 1;
     }
 
-    e.rbEntry = _rbTree.getPreviousVisibleEntry(e.rbEntry);
+    e.rbEntry = _rbTree.getPreviousVisibleEntry(e.rbEntry!);
     if (e.rbEntry == null) {
       return -1;
     }
 
     e
-      ..rbEntryPosition = e.rbEntry.getCounterPosition
-      ..rbValue = e.rbEntry.value;
-    return e.rbEntryPosition.lineCount + e.rbValue.lineCount - 1;
+      ..rbEntryPosition = e.rbEntry!.getCounterPosition
+      ..rbValue = e.rbEntry!.value;
+    return e.rbEntryPosition!.lineCount + e.rbValue!.lineCount - 1;
   }
 
   /// Gets the index of an entity in this collection for which
@@ -541,7 +549,7 @@ class _DistanceRangeCounterCollection extends _DistanceCounterCollectionBase {
   @override
   int indexOfCumulatedDistance(double cumulatedDistance) {
     final _DistanceLineCounter _distanceLineCounter =
-        _rbTree.getStartCounterPosition();
+        _rbTree.getStartCounterPosition() as _DistanceLineCounter;
     if (cumulatedDistance < _distanceLineCounter.distance) {
       return -1;
     }
@@ -572,7 +580,7 @@ class _DistanceRangeCounterCollection extends _DistanceCounterCollectionBase {
 
     final int n = removeHelper(removeAt, count);
     if (n > 0) {
-      merge(_rbTree[n - 1], false);
+      merge(_rbTree[n - 1]!, false);
     }
   }
 
@@ -627,7 +635,7 @@ class _DistanceRangeCounterCollection extends _DistanceCounterCollectionBase {
   /// * nestedCollection - _required_ - The nested collection.
   @override
   void setNestedDistances(
-      int index, _DistanceCounterCollectionBase nestedCollection) {
+      int index, _DistanceCounterCollectionBase? nestedCollection) {
     checkRange('index', 0, count - 1, index);
 
     if (getNestedDistances(index) != nestedCollection) {
@@ -635,7 +643,7 @@ class _DistanceRangeCounterCollection extends _DistanceCounterCollectionBase {
         ensureTreeCount(index + 1);
       }
 
-      final _DistanceLineCounterEntry entry = split(index);
+      final _DistanceLineCounterEntry entry = split(index)!;
       split(index + 1);
 
       if (nestedCollection != null) {
@@ -664,7 +672,7 @@ class _DistanceRangeCounterCollection extends _DistanceCounterCollectionBase {
     }
 
     final _LineIndexEntryAt e = initDistanceLine(index, false);
-    return e.rbValue.singleLineDistance;
+    return e.rbValue!.singleLineDistance;
   }
 
   @override
@@ -679,9 +687,9 @@ class _DistanceRangeCounterCollection extends _DistanceCounterCollectionBase {
         ensureTreeCount(count);
       }
 
-      final _DistanceLineCounterEntry entry = split(index);
+      final _DistanceLineCounterEntry entry = split(index)!;
       split(index + 1);
-      entry.value.singleLineDistance = value;
+      entry.value!.singleLineDistance = value;
       entry.invalidateCounterBottomUp(true);
     }
   }
@@ -689,10 +697,10 @@ class _DistanceRangeCounterCollection extends _DistanceCounterCollectionBase {
 
 /// Initializes the LineIndexEntryAt class
 class _LineIndexEntryAt {
-  _DistanceLineCounter searchPosition;
-  _DistanceLineCounterEntry rbEntry;
-  _DistanceLineCounterSource rbValue;
-  _DistanceLineCounter rbEntryPosition;
+  _DistanceLineCounter? searchPosition;
+  _DistanceLineCounterEntry? rbEntry;
+  _DistanceLineCounterSource? rbValue;
+  _DistanceLineCounter? rbEntryPosition;
 }
 
 /// An object that maintains a collection of nested distances and wires
@@ -717,31 +725,29 @@ class _NestedDistanceCounterCollectionSource
     _parentDistances = parentDistances;
     _nestedDistances = nestedDistances;
 
-    if (nestedDistances != null) {
-      nestedDistances.connectWithParent(this);
-    }
+    nestedDistances.connectWithParent(this);
   }
 
-  _DistanceCounterCollectionBase _nestedDistances;
-  _DistanceCounterCollectionBase _parentDistances;
-  _DistanceLineCounterEntry entry;
+  _DistanceCounterCollectionBase? _nestedDistances;
+  _DistanceCounterCollectionBase? _parentDistances;
+  _DistanceLineCounterEntry? entry;
 
   /// Gets the nested distances.
   ///
   /// Returns the nested distances.
-  _DistanceCounterCollectionBase get nestedDistances => _nestedDistances;
+  _DistanceCounterCollectionBase? get nestedDistances => _nestedDistances;
 
   /// Gets the parent distances.
   ///
   /// Returns the parent distances.
-  _DistanceCounterCollectionBase get parentDistances => _parentDistances;
+  _DistanceCounterCollectionBase? get parentDistances => _parentDistances;
 
   /// Gets the distance of a single line.
   ///
   /// Returns the single line distance.
   @override
   double get singleLineDistance =>
-      _nestedDistances != null ? _nestedDistances.totalDistance : 0;
+      _nestedDistances != null ? _nestedDistances!.totalDistance : 0;
 
   /// Sets the distance of a single line.
   @override
@@ -752,13 +758,13 @@ class _NestedDistanceCounterCollectionSource
   /// Returns the `_TreeTableVisibleCounter` object with counters.
   @override
   _TreeTableCounterBase getCounter() => _DistanceLineCounter(
-      _nestedDistances == null ? 0 : _nestedDistances.totalDistance, 1);
+      _nestedDistances == null ? 0 : _nestedDistances!.totalDistance, 1);
 
   /// Marks all counters dirty in this object and parent nodes.
   @override
   void invalidateCounterBottomUp() {
     if (entry != null) {
-      entry.invalidateCounterBottomUp(true);
+      entry!.invalidateCounterBottomUp(true);
     }
   }
 
@@ -870,7 +876,7 @@ class _DistanceLineCounter extends _TreeTableCounterBase {
   ///
   /// Returns the new object
   @override
-  _TreeTableCounterBase combine(_TreeTableCounterBase other, int cookie) {
+  _TreeTableCounterBase combine(_TreeTableCounterBase? other, int cookie) {
     if (other is _DistanceLineCounter) {
       return combineBase(other, cookie);
     } else {
@@ -886,7 +892,7 @@ class _DistanceLineCounter extends _TreeTableCounterBase {
   ///
   /// Returns a new object which is the combination of the counter values
   /// of this counter object with the values of another counter object.
-  _DistanceLineCounter combineBase(_DistanceLineCounter other, int cookie) {
+  _DistanceLineCounter combineBase(_DistanceLineCounter? other, int cookie) {
     if (other == null || other.isEmpty(_MathHelper.maxvalue)) {
       return this;
     }
@@ -907,7 +913,7 @@ class _DistanceLineCounter extends _TreeTableCounterBase {
   ///
   /// Returns the compared value
   @override
-  double compare(_TreeTableCounterBase other, int cookie) {
+  double compare(_TreeTableCounterBase? other, int cookie) {
     if (other is _DistanceLineCounter) {
       return compareBase(other, cookie);
     } else {
@@ -923,7 +929,7 @@ class _DistanceLineCounter extends _TreeTableCounterBase {
   ///
   /// Returns a value indicating the comparison of the current object
   /// and the given object.
-  double compareBase(_DistanceLineCounter other, int cookie) {
+  double compareBase(_DistanceLineCounter? other, int cookie) {
     if (other == null) {
       return 0;
     }
@@ -996,15 +1002,15 @@ class _DistanceLineCounterTree extends _TreeTableWithCounter {
   ///
   /// Returns `True` if tree contains the specified object, otherwise `false`.
   @override
-  bool contains(Object value) => super.contains(value);
+  bool contains(Object? value) => super.contains(value);
 
   /// Gets the total number of counters.
   ///
   /// Returns the total number of counters.
   @override
-  _DistanceLineCounter getCounterTotal() {
+  _DistanceLineCounter? getCounterTotal() {
     if (super.getCounterTotal() is _DistanceLineCounter) {
-      return super.getCounterTotal();
+      return super.getCounterTotal() as _DistanceLineCounter;
     } else {
       return null;
     }
@@ -1018,11 +1024,13 @@ class _DistanceLineCounterTree extends _TreeTableWithCounter {
   ///
   /// Returns an entry at the specified counter position.
   @override
-  _DistanceLineCounterEntry getEntryAtCounterPosition(
+  _DistanceLineCounterEntry? getEntryAtCounterPosition(
       Object searchPosition, int cookie) {
-    if (super.getEntryAtCounterPosition(searchPosition, cookie)
-        is _DistanceLineCounterEntry) {
-      return super.getEntryAtCounterPosition(searchPosition, cookie);
+    if (searchPosition is _TreeTableCounterBase &&
+        super.getEntryAtCounterPosition(searchPosition, cookie)
+            is _DistanceLineCounterEntry) {
+      return super.getEntryAtCounterPosition(searchPosition, cookie)
+          as _DistanceLineCounterEntry;
     } else {
       return null;
     }
@@ -1038,12 +1046,14 @@ class _DistanceLineCounterTree extends _TreeTableWithCounter {
   /// same SearchPosition.
   ///
   /// Returns an entry at the specified counter position.
-  _DistanceLineCounterEntry getEntryAtCounterPositionWithThreeArgs(
+  _DistanceLineCounterEntry? getEntryAtCounterPositionWithThreeArgs(
       Object searchPosition, int cookie, bool preferLeftMost) {
-    if (super.getEntryAtCounterPositionwithThreeParameter(
-        searchPosition, cookie, preferLeftMost) is _DistanceLineCounterEntry) {
+    if (searchPosition is _TreeTableCounterBase &&
+        super.getEntryAtCounterPositionwithThreeParameter(
+                searchPosition, cookie, preferLeftMost)
+            is _DistanceLineCounterEntry) {
       return super.getEntryAtCounterPositionwithThreeParameter(
-          searchPosition, cookie, preferLeftMost);
+          searchPosition, cookie, preferLeftMost) as _DistanceLineCounterEntry;
     } else {
       return null;
     }
@@ -1055,9 +1065,10 @@ class _DistanceLineCounterTree extends _TreeTableWithCounter {
   ///
   /// Returns the next entry.
   @override
-  _DistanceLineCounterEntry getNextEntry(Object current) {
-    if (super.getNextEntry(current) is _DistanceLineCounterEntry) {
-      return super.getNextEntry(current);
+  _DistanceLineCounterEntry? getNextEntry(Object? current) {
+    if (current is _TreeTableEntryBase &&
+        super.getNextEntry(current) is _DistanceLineCounterEntry) {
+      return super.getNextEntry(current) as _DistanceLineCounterEntry;
     } else {
       return null;
     }
@@ -1072,11 +1083,13 @@ class _DistanceLineCounterTree extends _TreeTableWithCounter {
   /// Returns the subsequent entry in the collection for which
   /// the specific counter is not empty.
   @override
-  _DistanceLineCounterEntry getNextNotEmptyCounterEntry(
+  _DistanceLineCounterEntry? getNextNotEmptyCounterEntry(
       Object current, int cookie) {
-    if (super.getNextNotEmptyCounterEntry(current, cookie)
-        is _DistanceLineCounterEntry) {
-      return super.getNextNotEmptyCounterEntry(current, cookie);
+    if (current is _TreeTableEntryBase &&
+        super.getNextNotEmptyCounterEntry(current, cookie)
+            is _DistanceLineCounterEntry) {
+      return super.getNextNotEmptyCounterEntry(current, cookie)
+          as _DistanceLineCounterEntry;
     } else {
       return null;
     }
@@ -1090,9 +1103,10 @@ class _DistanceLineCounterTree extends _TreeTableWithCounter {
   /// Returns the next entry in the collection for which
   /// CountVisible counter is not empty.
   @override
-  _DistanceLineCounterEntry getNextVisibleEntry(Object current) {
-    if (super.getNextVisibleEntry(current) is _DistanceLineCounterEntry) {
-      return super.getNextVisibleEntry(current);
+  _DistanceLineCounterEntry? getNextVisibleEntry(Object current) {
+    if (current is _TreeTableWithCounterEntry &&
+        super.getNextVisibleEntry(current) is _DistanceLineCounterEntry) {
+      return super.getNextVisibleEntry(current) as _DistanceLineCounterEntry;
     } else {
       return null;
     }
@@ -1104,9 +1118,10 @@ class _DistanceLineCounterTree extends _TreeTableWithCounter {
   ///
   /// Returns the previous entry.
   @override
-  _DistanceLineCounterEntry getPreviousEntry(Object current) {
-    if (super.getPreviousEntry(current) is _DistanceLineCounterEntry) {
-      return super.getPreviousEntry(current);
+  _DistanceLineCounterEntry? getPreviousEntry(Object current) {
+    if (current is _TreeTableEntryBase &&
+        super.getPreviousEntry(current) is _DistanceLineCounterEntry) {
+      return super.getPreviousEntry(current) as _DistanceLineCounterEntry;
     } else {
       return null;
     }
@@ -1121,11 +1136,13 @@ class _DistanceLineCounterTree extends _TreeTableWithCounter {
   /// Returns the previous entry in the collection for which the
   /// specific counter is not empty.
   @override
-  _DistanceLineCounterEntry getPreviousNotEmptyCounterEntry(
+  _DistanceLineCounterEntry? getPreviousNotEmptyCounterEntry(
       Object current, int cookie) {
-    if (super.getPreviousNotEmptyCounterEntry(current, cookie)
-        is _DistanceLineCounterEntry) {
-      return super.getPreviousNotEmptyCounterEntry(current, cookie);
+    if (current is _TreeTableEntryBase &&
+        super.getPreviousNotEmptyCounterEntry(current, cookie)
+            is _DistanceLineCounterEntry) {
+      return super.getPreviousNotEmptyCounterEntry(current, cookie)
+          as _DistanceLineCounterEntry;
     } else {
       return null;
     }
@@ -1139,9 +1156,11 @@ class _DistanceLineCounterTree extends _TreeTableWithCounter {
   /// Returns the previous entry in the collection for which CountVisible
   /// counter is not empty.
   @override
-  _DistanceLineCounterEntry getPreviousVisibleEntry(Object current) {
-    if (super.getPreviousVisibleEntry(current) is _DistanceLineCounterEntry) {
-      return super.getPreviousVisibleEntry(current);
+  _DistanceLineCounterEntry? getPreviousVisibleEntry(Object current) {
+    if (current is _TreeTableWithCounterEntry &&
+        super.getPreviousVisibleEntry(current) is _DistanceLineCounterEntry) {
+      return super.getPreviousVisibleEntry(current)
+          as _DistanceLineCounterEntry;
     } else {
       return null;
     }
@@ -1168,7 +1187,7 @@ class _DistanceLineCounterTree extends _TreeTableWithCounter {
   ///
   /// * value - _required_ - The object to be removed.
   @override
-  bool remove(Object value) => super.remove(value);
+  bool remove(Object? value) => super.remove(value);
 
   /// Gets the distance line counter entry for the given index.
   ///
@@ -1176,9 +1195,9 @@ class _DistanceLineCounterTree extends _TreeTableWithCounter {
   ///
   /// Returns the distance line counter entry for the given index.
   @override
-  _DistanceLineCounterEntry operator [](int index) {
+  _DistanceLineCounterEntry? operator [](int index) {
     if (super[index] is _DistanceLineCounterEntry) {
-      return super[index];
+      return super[index] as _DistanceLineCounterEntry;
     } else {
       return null;
     }
@@ -1197,9 +1216,9 @@ class _DistanceLineCounterEntry extends _TreeTableWithCounterEntry {
   ///
   /// Returns the cumulative position of this node.
   @override
-  _DistanceLineCounter get getCounterPosition {
+  _DistanceLineCounter? get getCounterPosition {
     if (super.getCounterPosition is _DistanceLineCounter) {
-      return super.getCounterPosition;
+      return super.getCounterPosition as _DistanceLineCounter;
     } else {
       return null;
     }
@@ -1209,9 +1228,9 @@ class _DistanceLineCounterEntry extends _TreeTableWithCounterEntry {
   ///
   /// Returns the distance line counter source.
   @override
-  _DistanceLineCounterSource get value {
+  _DistanceLineCounterSource? get value {
     if (super.value is _DistanceLineCounterSource) {
-      return super.value;
+      return super.value as _DistanceLineCounterSource;
     } else {
       return null;
     }
@@ -1219,7 +1238,7 @@ class _DistanceLineCounterEntry extends _TreeTableWithCounterEntry {
 
   /// Sets the distance line counter source.
   @override
-  set value(Object value) {
+  set value(Object? value) {
     super.value = value;
   }
 }

@@ -7,7 +7,7 @@ class _GraphicObjectDataCollection {
   }
 
   //fields
-  Queue<_GraphicObjectData> _elements;
+  late Queue<_GraphicObjectData> _elements;
 
   //properties
   _GraphicObjectData get last => _elements.last;
@@ -22,8 +22,8 @@ class _GraphicObjectDataCollection {
     return _elements.removeLast();
   }
 
-  double get textLeading {
-    double result;
+  double? get textLeading {
+    double? result;
     if (last.currentFont != null) {
       result = last.textLeading;
     } else {
@@ -38,8 +38,8 @@ class _GraphicObjectDataCollection {
     return result;
   }
 
-  String get currentFont {
-    String result;
+  String? get currentFont {
+    String? result;
     if (last.currentFont != null) {
       result = last.currentFont;
     } else {
@@ -55,8 +55,8 @@ class _GraphicObjectDataCollection {
     return result;
   }
 
-  double get fontSize {
-    double result;
+  double? get fontSize {
+    double? result;
     if (last.currentFont != null) {
       result = last.fontSize;
     } else {
@@ -76,21 +76,21 @@ class _GraphicObjectDataCollection {
 class _GraphicStateCollection {
   //constructor
   _GraphicStateCollection() {
-    _elements = Queue<_GraphicsState>();
+    _elements = Queue<_GraphicsState?>();
   }
 
   //fields
-  Queue<_GraphicsState> _elements;
+  late Queue<_GraphicsState?> _elements;
 
   //Properties
   int get count => _elements.length;
 
   //Implementation
-  void _push(_GraphicsState element) {
+  void _push(_GraphicsState? element) {
     _elements.addLast(element);
   }
 
-  _GraphicsState _pop() {
+  _GraphicsState? _pop() {
     return _elements.removeLast();
   }
 }

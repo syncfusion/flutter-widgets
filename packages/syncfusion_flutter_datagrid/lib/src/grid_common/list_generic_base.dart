@@ -11,6 +11,6 @@ abstract class _EnumerableGenericBase<T> with IterableMixin<T> {
 /// Generic Enumerator
 class _EnumeratorGenericBase<T> {
   /// Gets the current item from an list
-  T get currentGeneric => _current;
-  T _current;
+  T? get currentGeneric => _current;
+  T? _current;
 }

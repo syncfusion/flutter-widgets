@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "ఎంచుకున్న తేదీ లేదు", 
 "noEventsCalendarLabel" : "సంఘటనలు లేవు", 
-"scheduleViewNewEventLabel" : "ఏమీ ప్లాన్ చేయలేదు. సృష్టించడానికి నొక్కండి.", 
 "ofDataPagerLabel" : "యొక్క", 
 "pagesDataPagerLabel" : "పేజీలు", 
 "itemsDataPagerLabel" : "అంశాలు", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "రామ్.", 
 "shortShawwalLabel" : "షా.", 
 "shortDhualqiLabel" : "ధుల్-క్యూ", 
-"shortDhualhiLabel" : "ధుల్-హెచ్"
+"shortDhualhiLabel" : "ధుల్-హెచ్", 
+"daySpanCountLabel" : "రోజు"
 }

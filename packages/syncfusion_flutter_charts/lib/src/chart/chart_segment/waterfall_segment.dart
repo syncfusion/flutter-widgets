@@ -5,26 +5,26 @@ part of charts;
 /// Generates the waterfall series points and has the [calculateSegmentPoints] method overrided to customize
 /// the waterfall segment point calculation.
 ///
-/// Gets the path and color from the [series].
+/// Gets the path and color from the `series`.
 class WaterfallSegment extends ChartSegment {
   /// To find the x and y values of connector lines between each data point.
-  num _x1, _y1, _x2, _y2;
+  late double _x1, _y1, _x2, _y2;
 
   ///Path of the series
-  Path _path;
+  late Path _path;
 
   /// Get the connetor line paint
-  Paint connectorLineStrokePaint;
+  Paint? connectorLineStrokePaint;
 
   /// Colors of the negative point, intermediate point and total point.
-  Color _negativePointsColor, _intermediateSumColor, _totalSumColor;
+  Color? _negativePointsColor, _intermediateSumColor, _totalSumColor;
 
-  @override
-  CartesianChartPoint<dynamic> _currentPoint;
+  // @override
+  // CartesianChartPoint<dynamic> _currentPoint;
 
   /// We are using `segmentRect` to draw the bar segment in the series.
   /// we can override this class and customize the waterfall segment by getting `segmentRect`.
-  RRect segmentRect;
+  late RRect segmentRect;
 
   /// Gets the color of the series.
   @override
@@ -34,45 +34,43 @@ class WaterfallSegment extends ChartSegment {
     /// Get and set the paint options for waterfall series.
     if (_series.gradient == null) {
       fillPaint = Paint()
-        ..color = ((hasPointColor && _currentPoint.pointColorMapper != null)
-            ? _currentPoint.pointColorMapper
-            : _currentPoint.isIntermediateSum
-                ? _intermediateSumColor ?? _color
-                : _currentPoint.isTotalSum
-                    ? _totalSumColor ?? _color
-                    : _currentPoint.yValue < 0
-                        ? _negativePointsColor ?? _color
-                        : _color)
+        ..color = ((hasPointColor && _currentPoint!.pointColorMapper != null)
+            ? _currentPoint!.pointColorMapper
+            : _currentPoint!.isIntermediateSum!
+                ? _intermediateSumColor ?? _color!
+                : _currentPoint!.isTotalSum!
+                    ? _totalSumColor ?? _color!
+                    : _currentPoint!.yValue < 0
+                        ? _negativePointsColor ?? _color!
+                        : _color!)!
         ..style = PaintingStyle.fill;
     } else {
       fillPaint = _getLinearGradientPaint(
-          _series.gradient,
-          _currentPoint.region,
-          _seriesRenderer._chartState._requireInvertedAxis);
+          _series.gradient!,
+          _currentPoint!.region!,
+          _seriesRenderer._chartState!._requireInvertedAxis);
     }
     assert(_series.opacity >= 0,
         'The opacity value of the waterfall series should be greater than or equal to 0.');
     assert(_series.opacity <= 1,
         'The opacity value of the waterfall series should be less than or equal to 1.');
-    if (fillPaint.color != null) {
-      fillPaint.color =
-          (_series.opacity < 1 && fillPaint.color != Colors.transparent)
-              ? fillPaint.color.withOpacity(_series.opacity)
-              : fillPaint.color;
-    }
+    fillPaint!.color =
+        (_series.opacity < 1 && fillPaint!.color != Colors.transparent)
+            ? fillPaint!.color.withOpacity(_series.opacity)
+            : fillPaint!.color;
     _defaultFillColor = fillPaint;
-    return fillPaint;
+    return fillPaint!;
   }
 
   /// Get the color of connector lines.
   Paint _getConnectorLineStrokePaint() {
-    final WaterfallSeries<dynamic, dynamic> series = _series;
+    final WaterfallSeries<dynamic, dynamic> series = _series as WaterfallSeries;
     connectorLineStrokePaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = series.connectorLineSettings.width
       ..color = series.connectorLineSettings.color ??
           _chartState._chartTheme.waterfallConnectorLineColor;
-    return connectorLineStrokePaint;
+    return connectorLineStrokePaint!;
   }
 
   /// Gets the border color of the series.
@@ -80,18 +78,18 @@ class WaterfallSegment extends ChartSegment {
   Paint getStrokePaint() {
     strokePaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = _strokeWidth;
+      ..strokeWidth = _strokeWidth!;
     _defaultStrokeColor = strokePaint;
     if (_series.borderGradient != null) {
-      strokePaint.shader =
-          _series.borderGradient.createShader(_currentPoint.region);
+      strokePaint!.shader =
+          _series.borderGradient!.createShader(_currentPoint!.region!);
     } else {
-      strokePaint.color = _strokeColor;
+      strokePaint!.color = _strokeColor!;
     }
     _series.borderWidth == 0
-        ? strokePaint.color = Colors.transparent
-        : strokePaint.color;
-    return strokePaint;
+        ? strokePaint!.color = Colors.transparent
+        : strokePaint!.color;
+    return strokePaint!;
   }
 
   /// Calculates the rendering bounds of a segment.
@@ -101,63 +99,64 @@ class WaterfallSegment extends ChartSegment {
   /// Draws segment in series bounds.
   @override
   void onPaint(Canvas canvas) {
-    final WaterfallSeries<dynamic, dynamic> _series = this._series;
+    final WaterfallSeries<dynamic, dynamic> _series =
+        this._series as WaterfallSeries;
     CartesianChartPoint<dynamic> oldPaint;
     final Path linePath = Path();
 
     if (fillPaint != null) {
       (_series.animationDuration > 0 &&
-              !_seriesRenderer._chartState._isLegendToggled)
+              !_seriesRenderer._chartState!._isLegendToggled)
           ? _animateRangeColumn(
               canvas,
               _seriesRenderer,
-              fillPaint,
+              fillPaint!,
               segmentRect,
-              _oldPoint != null ? _oldPoint.region : _oldRegion,
+              _oldPoint != null ? _oldPoint!.region : _oldRegion,
               animationFactor)
-          : canvas.drawRRect(segmentRect, fillPaint);
+          : canvas.drawRRect(segmentRect, fillPaint!);
     }
     if (strokePaint != null) {
       if (_series.dashArray[0] != 0 && _series.dashArray[1] != 0) {
-        _drawDashedLine(canvas, _series.dashArray, strokePaint, _path);
+        _drawDashedLine(canvas, _series.dashArray, strokePaint!, _path);
       } else {
         (_series.animationDuration > 0 &&
-                !_seriesRenderer._chartState._isLegendToggled)
+                !_seriesRenderer._chartState!._isLegendToggled)
             ? _animateRangeColumn(
                 canvas,
                 _seriesRenderer,
-                strokePaint,
+                strokePaint!,
                 segmentRect,
-                _oldPoint != null ? _oldPoint.region : _oldRegion,
+                _oldPoint != null ? _oldPoint!.region : _oldRegion,
                 animationFactor)
-            : canvas.drawRRect(segmentRect, strokePaint);
+            : canvas.drawRRect(segmentRect, strokePaint!);
       }
     }
     if (connectorLineStrokePaint != null &&
-        _currentPoint.overallDataPointIndex > 0) {
-      oldPaint =
-          _seriesRenderer._dataPoints[_currentPoint.overallDataPointIndex - 1];
-      _x1 = oldPaint.endValueRightPoint.x;
-      _y1 = oldPaint.endValueRightPoint.y;
-      if (_currentPoint.isTotalSum || _currentPoint.isIntermediateSum) {
-        _x2 = _currentPoint.endValueLeftPoint.x;
-        _y2 = _currentPoint.endValueLeftPoint.y;
+        _currentPoint!.overallDataPointIndex! > 0) {
+      oldPaint = _seriesRenderer
+          ._dataPoints[_currentPoint!.overallDataPointIndex! - 1];
+      _x1 = oldPaint.endValueRightPoint!.x;
+      _y1 = oldPaint.endValueRightPoint!.y;
+      if (_currentPoint!.isTotalSum! || _currentPoint!.isIntermediateSum!) {
+        _x2 = _currentPoint!.endValueLeftPoint!.x;
+        _y2 = _currentPoint!.endValueLeftPoint!.y;
       } else {
-        _x2 = _currentPoint.originValueLeftPoint.x;
-        _y2 = _currentPoint.originValueLeftPoint.y;
+        _x2 = _currentPoint!.originValueLeftPoint!.x;
+        _y2 = _currentPoint!.originValueLeftPoint!.y;
       }
       if (_series.animationDuration <= 0 ||
           animationFactor >=
-              _seriesRenderer._chartState._seriesDurationFactor) {
-        if (_series.connectorLineSettings.dashArray[0] != 0 &&
-            _series.connectorLineSettings.dashArray[1] != 0) {
+              _seriesRenderer._chartState!._seriesDurationFactor) {
+        if (_series.connectorLineSettings.dashArray![0] != 0 &&
+            _series.connectorLineSettings.dashArray![1] != 0) {
           linePath.moveTo(_x1, _y1);
           linePath.lineTo(_x2, _y2);
-          _drawDashedLine(canvas, _series.connectorLineSettings.dashArray,
-              connectorLineStrokePaint, linePath);
+          _drawDashedLine(canvas, _series.connectorLineSettings.dashArray!,
+              connectorLineStrokePaint!, linePath);
         } else {
           canvas.drawLine(
-              Offset(_x1, _y1), Offset(_x2, _y2), connectorLineStrokePaint);
+              Offset(_x1, _y1), Offset(_x2, _y2), connectorLineStrokePaint!);
         }
       }
     }

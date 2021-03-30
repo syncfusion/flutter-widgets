@@ -1,4 +1,52 @@
- ## Unreleased
+## [18.4.44] - 02/23/2021 
+
+**Bugs**
+* An exception will not be thrown while selecting the data points, after updating the data source
+
+## [18.4.43] - 02/16/2021
+
+**Bugs**
+* The zoomed charts can be panned properly after changing the visible minimum and maximum values.
+* Now, on selecting a data point, no exception is thrown when selection is enabled.
+
+## [18.4.42] - 02/09/2021
+
+**Bugs** 
+* Now, the trackball tooltip is rendering properly when its height is greater than the chart widget.
+* The spline series is rendering properly with cardinal type and date time axis.
+
+## [18.4.41] - 02/02/2021
+
+**Bugs**
+* Line series will not throw any exceptions on showing the tooltip with a single point.
+* Now, the axis ranges will be calculated properly even the axis visibility is set to false.
+* The text changed using onTooltipRender event is working properly.
+
+## [18.4.35] - 01/19/2021
+
+**Bugs**
+* Now, the spline rage area series will fill properly with negative values.
+
+## [18.4.34] - 01/12/2021
+
+**Bugs**
+* Now, the stacked charts are rendering properly with multiple axes and animation.
+* The circular chart will not throw any exception while using selectDataPoints method.
+* Tooltip format with `point.cumulativeValue` will not throw any exception now.
+
+## [18.4.33] - 01/05/2021
+
+**Bugs**
+ 
+* The `onSelectionChanged` event triggers properly on selecting point using `selectDataPoints` method.
+
+## [18.4.31] - 12/22/2020
+
+**Bugs**
+
+* Now, you can disable the `enableAutoIntervalOnZooming` property for the numeric axis of the cartesian chart.
+
+## [18.4.30] - 12/17/2020
 
 ### Chart
 

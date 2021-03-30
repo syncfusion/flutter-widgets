@@ -3,13 +3,15 @@ part of charts;
 // ignore: must_be_immutable
 class _FunnelDataLabelRenderer extends StatefulWidget {
   // ignore: prefer_const_constructors_in_immutables
-  _FunnelDataLabelRenderer({this.chartState, this.show});
+  _FunnelDataLabelRenderer(
+      {required Key key, required this.chartState, required this.show})
+      : super(key: key);
 
   final SfFunnelChartState chartState;
 
   bool show;
 
-  _FunnelDataLabelRendererState state;
+  _FunnelDataLabelRendererState? state;
 
   @override
   State<StatefulWidget> createState() => _FunnelDataLabelRendererState();
@@ -17,13 +19,13 @@ class _FunnelDataLabelRenderer extends StatefulWidget {
 
 class _FunnelDataLabelRendererState extends State<_FunnelDataLabelRenderer>
     with SingleTickerProviderStateMixin {
-  List<AnimationController> animationControllersList;
+  late List<AnimationController> animationControllersList;
 
   /// Animation controller for series
-  AnimationController animationController;
+  late AnimationController animationController;
 
   /// Repaint notifier for crosshair container
-  ValueNotifier<int> dataLabelRepaintNotifier;
+  late ValueNotifier<int> dataLabelRepaintNotifier;
 
   @override
   void initState() {
@@ -37,7 +39,7 @@ class _FunnelDataLabelRendererState extends State<_FunnelDataLabelRenderer>
   Widget build(BuildContext context) {
     widget.state = this;
     animationController.duration =
-        Duration(milliseconds: widget.chartState._initialRender ? 500 : 0);
+        Duration(milliseconds: widget.chartState._initialRender! ? 500 : 0);
     final Animation<double> dataLabelAnimation =
         Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
       parent: animationController,
@@ -76,11 +78,11 @@ class _FunnelDataLabelRendererState extends State<_FunnelDataLabelRenderer>
 
 class _FunnelDataLabelPainter extends CustomPainter {
   _FunnelDataLabelPainter(
-      {this.chartState,
-      this.state,
-      this.animationController,
-      this.animation,
-      ValueNotifier<num> notifier})
+      {required this.chartState,
+      required this.state,
+      required this.animationController,
+      required this.animation,
+      required ValueNotifier<num> notifier})
       : super(repaint: notifier);
 
   final SfFunnelChartState chartState;
@@ -89,7 +91,7 @@ class _FunnelDataLabelPainter extends CustomPainter {
 
   final AnimationController animationController;
 
-  final Animation<double> animation;
+  final Animation<double>? animation;
 
   /// To paint funnel data label
   @override
@@ -115,12 +117,12 @@ void _renderFunnelDataLabel(
     FunnelSeriesRenderer seriesRenderer,
     Canvas canvas,
     SfFunnelChartState chartState,
-    Animation<double> animation,
+    Animation<double>? animation,
     FunnelSeries<dynamic, dynamic> series) {
   PointInfo<dynamic> point;
   final SfFunnelChart chart = chartState._chart;
   final DataLabelSettings dataLabel = series.dataLabelSettings;
-  String label;
+  String? label;
   final double animateOpacity = animation != null ? animation.value : 1;
   DataLabelRenderArgs dataLabelArgs;
   TextStyle dataLabelStyle;
@@ -140,15 +142,15 @@ void _renderFunnelDataLabel(
           !seriesRenderer._renderPoints[pointIndex].labelRenderEvent) {
         dataLabelArgs = DataLabelRenderArgs(seriesRenderer,
             seriesRenderer._renderPoints, pointIndex, pointIndex);
-        dataLabelArgs.text = label;
+        dataLabelArgs.text = label!;
         dataLabelArgs.textStyle = dataLabelStyle;
         dataLabelArgs.color = dataLabelSettingsRenderer._color;
-        chart.onDataLabelRender(dataLabelArgs);
+        chart.onDataLabelRender!(dataLabelArgs);
         label = point.text = dataLabelArgs.text;
         dataLabelStyle = dataLabelArgs.textStyle;
-        pointIndex = dataLabelArgs.pointIndex;
+        pointIndex = dataLabelArgs.pointIndex!;
         dataLabelSettingsRenderer._color = dataLabelArgs.color;
-        if (animation.status == AnimationStatus.completed) {
+        if (animation!.status == AnimationStatus.completed) {
           seriesRenderer._dataPoints[pointIndex].labelRenderEvent = true;
         }
       }
@@ -156,7 +158,7 @@ void _renderFunnelDataLabel(
           ? _getDataLabelTextStyle(
               seriesRenderer, point, chartState, animateOpacity)
           : dataLabelStyle;
-      final Size textSize = _measureText(label, dataLabelStyle);
+      final Size textSize = measureText(label!, dataLabelStyle);
 
       ///Label check after event
       if (label != '') {
@@ -175,6 +177,8 @@ void _renderFunnelDataLabel(
               dataLabelStyle);
         } else {
           point.renderPosition = ChartDataLabelPosition.outside;
+          dataLabelStyle = _getDataLabelTextStyle(
+              seriesRenderer, point, chartState, animateOpacity);
           _renderOutsideFunnelDataLabel(
               canvas,
               label,
@@ -201,7 +205,7 @@ void _setFunnelInsideLabelPosition(
     Canvas canvas,
     List<Rect> renderDataLabelRegions,
     int pointIndex,
-    String label,
+    String? label,
     FunnelSeriesRenderer seriesRenderer,
     double animateOpacity,
     TextStyle dataLabelStyle) {
@@ -224,13 +228,15 @@ void _setFunnelInsideLabelPosition(
       textSize.width + (2 * labelPadding),
       textSize.height + (2 * labelPadding));
   final bool isDataLabelCollide =
-      _findingCollision(point.labelRect, renderDataLabelRegions, point.region);
+      _findingCollision(point.labelRect!, renderDataLabelRegions, point.region);
   if (isDataLabelCollide && smartLabelMode == SmartLabelMode.shift) {
     point.saturationRegionOutside = true;
     point.renderPosition = ChartDataLabelPosition.outside;
+    dataLabelStyle = _getDataLabelTextStyle(
+        seriesRenderer, point, chartState, animateOpacity);
     _renderOutsideFunnelDataLabel(
         canvas,
-        label,
+        label!,
         point,
         textSize,
         pointIndex,
@@ -244,9 +250,9 @@ void _setFunnelInsideLabelPosition(
       (!isDataLabelCollide && smartLabelMode == SmartLabelMode.hide)) {
     point.renderPosition = ChartDataLabelPosition.inside;
     _drawFunnelLabel(
-        point.labelRect,
+        point.labelRect!,
         labelLocation,
-        label,
+        label!,
         null,
         canvas,
         seriesRenderer,
@@ -262,7 +268,7 @@ void _setFunnelInsideLabelPosition(
 /// To render outside position funnel data labels
 void _renderOutsideFunnelDataLabel(
     Canvas canvas,
-    String label,
+    String? label,
     PointInfo<dynamic> point,
     Size textSize,
     int pointIndex,
@@ -272,92 +278,61 @@ void _renderOutsideFunnelDataLabel(
     List<Rect> renderDataLabelRegions,
     double animateOpacity) {
   Path connectorPath;
-  Rect rect;
+  Rect? rect;
   Offset labelLocation;
+  // Maximum available space for rendering datalabel.
+  final int maximumAvailableWidth = 22;
   final EdgeInsets margin = seriesRenderer._series.dataLabelSettings.margin;
   final ConnectorLineSettings connector =
       seriesRenderer._series.dataLabelSettings.connectorLineSettings;
   const num regionPadding = 10;
   connectorPath = Path();
   final num connectorLength = _percentToValue(
-          connector.length ?? '0%', _chartState._chartAreaRect.width / 2) +
+          connector.length ?? '0%', _chartState._chartAreaRect.width / 2)! +
       seriesRenderer._maximumDataLabelRegion.width / 2 -
       regionPadding;
   final List<Offset> regions =
       seriesRenderer._renderPoints[pointIndex].pathRegion;
   final Offset startPoint = Offset(
       (regions[1].dx + regions[2].dx) / 2, (regions[1].dy + regions[2].dy) / 2);
+  if (textSize.width > maximumAvailableWidth) {
+    label = label!.substring(0, 2) + '..';
+    textSize = measureText(label, textStyle);
+  }
+  final double dx = seriesRenderer._renderPoints[pointIndex].symbolLocation.dx +
+      connectorLength;
   final Offset endPoint = Offset(
-      seriesRenderer._renderPoints[pointIndex].symbolLocation.dx +
-          connectorLength,
+      (dx + textSize.width + margin.left + margin.right) >
+              _chartState._chartAreaRect.right
+          ? dx -
+              (_percentToValue(seriesRenderer._series.explodeOffset,
+                  _chartState._chartAreaRect.width)!)
+          : dx,
       (regions[1].dy + regions[2].dy) / 2);
   connectorPath.moveTo(startPoint.dx, startPoint.dy);
   if (connector.type == ConnectorType.line) {
     connectorPath.lineTo(endPoint.dx, endPoint.dy);
   }
   point.dataLabelPosition = Position.right;
-  if (textSize.width > 22) {
-    label = label.substring(0, 2) + '..';
-    textSize = _measureText(label, textStyle);
-  }
-  rect = _getDataLabelRect(point.dataLabelPosition, connector.type, margin,
+  rect = _getDataLabelRect(point.dataLabelPosition!, connector.type, margin,
       connectorPath, endPoint, textSize);
-  final Rect containerRect = _chartState._chartAreaRect;
-  point.labelRect = rect;
-  labelLocation = Offset(rect.left + margin.left,
-      rect.top + rect.height / 2 - textSize.height / 2);
+  if (rect != null) {
+    final Rect containerRect = _chartState._chartAreaRect;
+    point.labelRect = rect;
+    labelLocation = Offset(rect.left + margin.left,
+        rect.top + rect.height / 2 - textSize.height / 2);
 
-  if (seriesRenderer._series.dataLabelSettings.builder == null) {
-    Rect lastRenderedLabelRegion;
-    if (renderDataLabelRegions.isNotEmpty) {
-      lastRenderedLabelRegion =
-          renderDataLabelRegions[renderDataLabelRegions.length - 1];
-    }
-    if (rect.left > containerRect.left &&
-        rect.right <= containerRect.right &&
-        rect.top > containerRect.top &&
-        rect.bottom < containerRect.bottom) {
-      if (!_isFunnelLabelIntersect(rect, lastRenderedLabelRegion)) {
-        _drawFunnelLabel(
-            rect,
-            labelLocation,
-            label,
-            connectorPath,
-            canvas,
-            seriesRenderer,
-            point,
-            pointIndex,
-            _chartState,
-            textStyle,
-            renderDataLabelRegions,
-            animateOpacity);
-      } else {
-        if (pointIndex != 0) {
-          const num connectorLinePadding = 15;
-          const num padding = 2;
-          final Rect previousRenderedRect =
-              renderDataLabelRegions[renderDataLabelRegions.length - 1];
-          rect = Rect.fromLTWH(
-              rect.left,
-              previousRenderedRect.top - padding - rect.height,
-              rect.width,
-              rect.height);
-          labelLocation = Offset(
-              rect.left + margin.left,
-              previousRenderedRect.top -
-                  padding -
-                  rect.height +
-                  rect.height / 2 -
-                  textSize.height / 2);
-          connectorPath = Path();
-          connectorPath.moveTo(startPoint.dx, startPoint.dy);
-          if (rect.left - connectorLinePadding >= startPoint.dx) {
-            connectorPath.lineTo(
-                rect.left - connectorLinePadding, startPoint.dy);
-          }
-          connectorPath.lineTo(rect.left, rect.top + rect.height / 2);
-        }
-        if (rect.top >= containerRect.top + regionPadding) {
+    if (seriesRenderer._series.dataLabelSettings.builder == null) {
+      Rect? lastRenderedLabelRegion;
+      if (renderDataLabelRegions.isNotEmpty) {
+        lastRenderedLabelRegion =
+            renderDataLabelRegions[renderDataLabelRegions.length - 1];
+      }
+      if (rect.left > containerRect.left &&
+          rect.right <= containerRect.right &&
+          rect.top > containerRect.top &&
+          rect.bottom < containerRect.bottom) {
+        if (!_isFunnelLabelIntersect(rect, lastRenderedLabelRegion)) {
           _drawFunnelLabel(
               rect,
               labelLocation,
@@ -371,6 +346,47 @@ void _renderOutsideFunnelDataLabel(
               textStyle,
               renderDataLabelRegions,
               animateOpacity);
+        } else {
+          if (pointIndex != 0) {
+            const num connectorLinePadding = 15;
+            const num padding = 2;
+            final Rect previousRenderedRect =
+                renderDataLabelRegions[renderDataLabelRegions.length - 1];
+            rect = Rect.fromLTWH(
+                rect.left,
+                previousRenderedRect.top - padding - rect.height,
+                rect.width,
+                rect.height);
+            labelLocation = Offset(
+                rect.left + margin.left,
+                previousRenderedRect.top -
+                    padding -
+                    rect.height +
+                    rect.height / 2 -
+                    textSize.height / 2);
+            connectorPath = Path();
+            connectorPath.moveTo(startPoint.dx, startPoint.dy);
+            if (rect.left - connectorLinePadding >= startPoint.dx) {
+              connectorPath.lineTo(
+                  rect.left - connectorLinePadding, startPoint.dy);
+            }
+            connectorPath.lineTo(rect.left, rect.top + rect.height / 2);
+          }
+          if (rect.top >= containerRect.top + regionPadding) {
+            _drawFunnelLabel(
+                rect,
+                labelLocation,
+                label,
+                connectorPath,
+                canvas,
+                seriesRenderer,
+                point,
+                pointIndex,
+                _chartState,
+                textStyle,
+                renderDataLabelRegions,
+                animateOpacity);
+          }
         }
       }
     }
@@ -378,7 +394,7 @@ void _renderOutsideFunnelDataLabel(
 }
 
 /// To check whether labels intersect
-bool _isFunnelLabelIntersect(Rect rect, Rect previousRect) {
+bool _isFunnelLabelIntersect(Rect rect, Rect? previousRect) {
   bool isIntersect = false;
   const num padding = 2;
   if (previousRect != null && (rect.bottom + padding) > previousRect.top) {
@@ -391,8 +407,8 @@ bool _isFunnelLabelIntersect(Rect rect, Rect previousRect) {
 void _drawFunnelLabel(
     Rect labelRect,
     Offset location,
-    String label,
-    Path connectorPath,
+    String? label,
+    Path? connectorPath,
     Canvas canvas,
     FunnelSeriesRenderer seriesRenderer,
     PointInfo<dynamic> point,
@@ -422,15 +438,15 @@ void _drawFunnelLabel(
 
   if (dataLabel.builder == null) {
     final double strokeWidth = dataLabel.borderWidth;
-    final Color labelFill = dataLabelSettingsRenderer._color ??
+    final Color? labelFill = dataLabelSettingsRenderer._color ??
         (dataLabel.useSeriesColor
             ? point.fill
             : dataLabelSettingsRenderer._color);
-    final Color strokeColor =
-        dataLabel.borderColor.withOpacity(dataLabel.opacity) ?? point.fill;
+    final Color? strokeColor =
+        dataLabel.borderColor.withOpacity(dataLabel.opacity);
     if (strokeWidth != null && strokeWidth > 0) {
       rectPaint = Paint()
-        ..color = strokeColor.withOpacity(
+        ..color = strokeColor!.withOpacity(
             !_chartState._isLegendToggled ? animateOpacity : dataLabel.opacity)
         ..style = PaintingStyle.stroke
         ..strokeWidth = strokeWidth;
@@ -455,7 +471,7 @@ void _drawFunnelLabel(
           dataLabel.borderRadius,
           canvas);
     }
-    _drawText(canvas, label, location, textStyle, dataLabel.angle);
+    _drawText(canvas, label!, location, textStyle, dataLabel.angle);
     renderDataLabelRegions.add(labelRect);
   }
 }
@@ -473,7 +489,7 @@ void _triggerFunnelDataLabelEvent(
     final Offset labelLocation = point.symbolLocation;
     if (dataLabel.isVisible &&
         seriesRenderer._renderPoints[index].labelRect != null &&
-        seriesRenderer._renderPoints[index].labelRect.contains(position)) {
+        seriesRenderer._renderPoints[index].labelRect!.contains(position)) {
       position = Offset(labelLocation.dx, labelLocation.dy);
       _dataLabelTapEvent(chart, seriesRenderer._series.dataLabelSettings, index,
           point, position, seriesIndex);

@@ -11,42 +11,43 @@ import '../one_dimensional/symbology_base_renderer.dart';
 /// Represents the data matrix renderer class
 class DataMatrixRenderer extends SymbologyRenderer {
   /// Creates the data matrix renderer
-  DataMatrixRenderer({Symbology symbology}) : super(symbology: symbology) {
-    _dataMatrixSymbology = symbology;
+  DataMatrixRenderer({Symbology? symbology}) : super(symbology: symbology) {
+    // ignore: avoid_as
+    _dataMatrixSymbology = symbology as DataMatrix;
     _initialize();
   }
 
-  DataMatrix _dataMatrixSymbology;
+  late DataMatrix _dataMatrixSymbology;
 
   /// Defines the list of symbol attributes
-  List<_DataMatrixSymbolAttribute> _symbolAttributes;
+  late List<_DataMatrixSymbolAttribute> _symbolAttributes;
 
   /// Defines the log list
-  List<int> _log;
+  late List<int?> _log;
 
   /// Defines the aLog list
-  List<int> _aLog;
+  late List<int?> _aLog;
 
   /// Defines the block length
-  int _blockLength;
+  late int _blockLength;
 
   /// Defines the polynomial collection
-  List<int> _polynomial;
+  late List<int?> _polynomial;
 
   /// Defines the symbol attributes
-  _DataMatrixSymbolAttribute _symbolAttribute;
+  late _DataMatrixSymbolAttribute _symbolAttribute;
 
   /// Defines the actual encoding value
-  DataMatrixEncoding _encoding;
+  late DataMatrixEncoding _encoding;
 
   /// Defines the data matrix input value
-  String _inputValue;
+  late String _inputValue;
 
   /// Defines the list of data matrix
-  List<List<int>> _dataMatrixList;
+  late List<List<int?>> _dataMatrixList;
 
   /// Defines the list of encoded code words
-  List<int> _encodedCodeword;
+  late List<int?>? _encodedCodeword;
 
   /// Initializes the symbol attributes
   ///
@@ -334,19 +335,19 @@ class DataMatrixRenderer extends SymbologyRenderer {
 
   ///  Method to create the log list
   void _createLogList() {
-    _log = List<int>(256);
-    _aLog = List<int>(256);
+    _log = List<int?>.filled(256, null);
+    _aLog = List<int?>.filled(256, null);
     _log[0] = -255;
     _aLog[0] = 1;
 
     for (int i = 1; i <= 255; i++) {
-      _aLog[i] = _aLog[i - 1] * 2;
+      _aLog[i] = _aLog[i - 1]! * 2;
 
-      if (_aLog[i] >= 256) {
-        _aLog[i] = _aLog[i] ^ 301;
+      if (_aLog[i]! >= 256) {
+        _aLog[i] = _aLog[i]! ^ 301;
       }
 
-      _log[_aLog[i]] = i;
+      _log[_aLog[i]!] = i;
     }
   }
 
@@ -356,19 +357,19 @@ class DataMatrixRenderer extends SymbologyRenderer {
   }
 
   /// Method used to create the data matrix
-  void _createMatrix(List<int> codeword) {
+  void _createMatrix(List<int?> codeword) {
     int x, y, numOfRows, numOfColumns;
-    List<int> places;
-    final int width = _symbolAttribute.symbolColumn;
-    final int height = _symbolAttribute.symbolRow;
-    final int fieldWidth = width ~/ _symbolAttribute.horizontalDataRegion;
-    final int fieldHeight = height ~/ _symbolAttribute.verticalDataRegion;
+    List<int?> places;
+    final int width = _symbolAttribute.symbolColumn!;
+    final int height = _symbolAttribute.symbolRow!;
+    final int fieldWidth = width ~/ _symbolAttribute.horizontalDataRegion!;
+    final int fieldHeight = height ~/ _symbolAttribute.verticalDataRegion!;
     numOfColumns = width - 2 * (width ~/ fieldWidth);
     numOfRows = height - 2 * (height ~/ fieldHeight);
-    places = List<int>(numOfColumns * numOfRows);
+    places = List<int?>.filled(numOfColumns * numOfRows, null);
 
     _errorCorrectingCode200Placement(places, numOfRows, numOfColumns);
-    final List<int> matrix = List<int>(width * height);
+    final List<int?> matrix = List<int?>.filled(width * height, null);
     for (y = 0; y < height; y += fieldHeight) {
       for (x = 0; x < width; x++) {
         matrix[y * width + x] = 1;
@@ -391,8 +392,9 @@ class DataMatrixRenderer extends SymbologyRenderer {
 
     for (y = 0; y < numOfRows; y++) {
       for (x = 0; x < numOfColumns; x++) {
-        final int v = places[(numOfRows - y - 1) * numOfColumns + x];
-        if (v == 1 || v > 7 && (codeword[(v >> 3) - 1] & (1 << (v & 7))) != 0) {
+        final int v = places[(numOfRows - y - 1) * numOfColumns + x]!;
+        if (v == 1 ||
+            v > 7 && (codeword[(v >> 3) - 1]! & (1 << (v & 7))) != 0) {
           matrix[(1 + y + 2 * (y ~/ (fieldHeight - 2))) * width +
               1 +
               x +
@@ -405,12 +407,12 @@ class DataMatrixRenderer extends SymbologyRenderer {
   }
 
   /// Methods to create array based on row and column
-  void _createArray(List<int> matrix) {
-    final int symbolColumn = _symbolAttribute.symbolColumn,
-        symbolRow = _symbolAttribute.symbolRow;
+  void _createArray(List<int?> matrix) {
+    final int symbolColumn = _symbolAttribute.symbolColumn!,
+        symbolRow = _symbolAttribute.symbolRow!;
 
-    final List<List<int>> tempArray =
-        List<List<int>>.generate(symbolColumn, (int j) => List<int>(symbolRow));
+    final List<List<int?>> tempArray = List<List<int?>>.generate(
+        symbolColumn, (int j) => List<int?>.filled(symbolRow, null));
 
     for (int m = 0; m < symbolColumn; m++) {
       for (int n = 0; n < symbolRow; n++) {
@@ -418,8 +420,8 @@ class DataMatrixRenderer extends SymbologyRenderer {
       }
     }
 
-    final List<List<int>> tempArray2 =
-        List<List<int>>.generate(symbolRow, (int j) => List<int>(symbolColumn));
+    final List<List<int?>> tempArray2 = List<List<int?>>.generate(
+        symbolRow, (int j) => List<int?>.filled(symbolColumn, null));
 
     for (int i = 0; i < symbolRow; i++) {
       for (int j = 0; j < symbolColumn; j++) {
@@ -431,11 +433,12 @@ class DataMatrixRenderer extends SymbologyRenderer {
   }
 
   /// Method used to add the quiet zone
-  void _addQuietZone(List<List<int>> tempArray) {
+  void _addQuietZone(List<List<int?>> tempArray) {
     const int quietZone = 1;
-    final int w = _symbolAttribute.symbolRow + (2 * quietZone);
-    final int h = _symbolAttribute.symbolColumn + (2 * quietZone);
-    _dataMatrixList = List<List<int>>.generate(w, (int j) => List<int>(h));
+    final int w = _symbolAttribute.symbolRow! + (2 * quietZone);
+    final int h = _symbolAttribute.symbolColumn! + (2 * quietZone);
+    _dataMatrixList =
+        List<List<int?>>.generate(w, (int j) => List<int?>.filled(h, null));
     // Top quietzone.
     for (int i = 0; i < h; i++) {
       _dataMatrixList[0][i] = 0;
@@ -458,7 +461,7 @@ class DataMatrixRenderer extends SymbologyRenderer {
   }
 
   /// Method to encode the error correcting code word
-  void _errorCorrectingCode200PlacementBit(List<int> array, int numOfRows,
+  void _errorCorrectingCode200PlacementBit(List<int?> array, int numOfRows,
       int numOfColumns, int row, int column, int place, String character) {
     if (row < 0) {
       row += numOfRows;
@@ -475,7 +478,7 @@ class DataMatrixRenderer extends SymbologyRenderer {
 
   /// Method to encode the error correcting code word
   void _errorCorrectingCode200PlacementCornerA(
-      List<int> array, int numOfRows, int numOfColumns, int place) {
+      List<int?> array, int numOfRows, int numOfColumns, int place) {
     _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns,
         numOfRows - 1, 0, place, String.fromCharCode(7));
     _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns,
@@ -496,7 +499,7 @@ class DataMatrixRenderer extends SymbologyRenderer {
 
   /// Method to encode the error correcting code word
   void _errorCorrectingCode200PlacementCornerB(
-      List<int> array, int numOfRows, int numOfColumns, int place) {
+      List<int?> array, int numOfRows, int numOfColumns, int place) {
     _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns,
         numOfRows - 3, 0, place, String.fromCharCode(7));
     _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns,
@@ -517,7 +520,7 @@ class DataMatrixRenderer extends SymbologyRenderer {
 
   /// Method to encode the error correcting code word
   void _errorCorrectingCode200PlacementCornerC(
-      List<int> array, int numOfRows, int numOfColumns, int place) {
+      List<int?> array, int numOfRows, int numOfColumns, int place) {
     _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns,
         numOfRows - 3, 0, place, String.fromCharCode(7));
     _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns,
@@ -538,7 +541,7 @@ class DataMatrixRenderer extends SymbologyRenderer {
 
   /// Method to encode the error correcting code word
   void _errorCorrectingCode200PlacementCornerD(
-      List<int> array, int numOfRows, int numOfColumns, int place) {
+      List<int?> array, int numOfRows, int numOfColumns, int place) {
     _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns,
         numOfRows - 1, 0, place, String.fromCharCode(7));
     _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns,
@@ -558,7 +561,7 @@ class DataMatrixRenderer extends SymbologyRenderer {
   }
 
   /// Method to encode the error correcting code word
-  void _errorCorrectingCode200PlacementBlock(List<int> array, int numOfRows,
+  void _errorCorrectingCode200PlacementBlock(List<int?> array, int numOfRows,
       int numOfColumns, int row, int column, int place) {
     _errorCorrectingCode200PlacementBit(array, numOfRows, numOfColumns, row - 2,
         column - 2, place, String.fromCharCode(7));
@@ -580,7 +583,7 @@ class DataMatrixRenderer extends SymbologyRenderer {
 
   /// Method to encode the error correcting code word
   void _errorCorrectingCode200Placement(
-      List<int> array, int numOfRows, int numOfColumns) {
+      List<int?> array, int numOfRows, int numOfColumns) {
     int row, column, place;
     for (row = 0; row < numOfRows; row++) {
       for (column = 0; column < numOfColumns; column++) {
@@ -658,7 +661,7 @@ class DataMatrixRenderer extends SymbologyRenderer {
       return i;
     }
 
-    return _aLog[(_log[i] + j) % 255];
+    return _aLog[(_log[i]! + j) % 255]!;
   }
 
   /// Method used for error correction
@@ -668,7 +671,7 @@ class DataMatrixRenderer extends SymbologyRenderer {
     } else if (i > 255 || j > 255) {
       return 0;
     }
-    return _aLog[(_log[i] + _log[j]) % 255];
+    return _aLog[(_log[i]! + _log[j]!) % 255]!;
   }
 
   /// Method to perform the XOR operation for error correction
@@ -677,11 +680,11 @@ class DataMatrixRenderer extends SymbologyRenderer {
   }
 
   /// Method to pad the code word
-  List<int> _getPaddedCodewords(int dataCWLength, List<int> temp) {
+  List<int> _getPaddedCodewords(int dataCWLength, List<int?> temp) {
     final List<int> codewords = <int>[];
     int length = temp.length;
     for (int i = 0; i < length; i++) {
-      codewords.add(temp[i]);
+      codewords.add(temp[i]!);
     }
 
     if (length < dataCWLength) {
@@ -703,13 +706,14 @@ class DataMatrixRenderer extends SymbologyRenderer {
   }
 
   /// Method used for base256 encoding
-  List<int> _getDataMatrixBaseEncoder(List<int> dataCodeword) {
+  List<int?> _getDataMatrixBaseEncoder(List<int> dataCodeword) {
     int num = 1;
     if (dataCodeword.length > 249) {
       num++;
     }
 
-    final List<int> result = List<int>((1 + num) + dataCodeword.length);
+    final List<int?> result =
+        List<int?>.filled((1 + num) + dataCodeword.length, null);
     result[0] = 231;
     if (dataCodeword.length <= 249) {
       result[1] = dataCodeword.length;
@@ -723,7 +727,7 @@ class DataMatrixRenderer extends SymbologyRenderer {
     }
 
     for (int i = 1; i < result.length; i++) {
-      result[i] = _getBase256Codeword(result[i], i);
+      result[i] = _getBase256Codeword(result[i]!, i);
     }
 
     return result;
@@ -741,25 +745,26 @@ class DataMatrixRenderer extends SymbologyRenderer {
   }
 
   /// Method used for ASCII numeric encoding
-  List<int> _getDataMatrixASCIINumericEncoder(List<int> dataCodeword) {
-    List<int> destinationArray = dataCodeword;
+  List<int?> _getDataMatrixASCIINumericEncoder(List<int> dataCodeword) {
+    List<int?> destinationArray = dataCodeword;
     bool isEven = true;
     // if the input data length is odd, add 0 in front of the data.
     if ((destinationArray.length % 2) == 1) {
       isEven = false;
-      destinationArray = List<int>(dataCodeword.length + 1);
+      destinationArray = List<int?>.filled(dataCodeword.length + 1, null);
       for (int i = 0; i < dataCodeword.length; i++) {
         destinationArray[i] = dataCodeword[i];
       }
     }
 
-    final List<int> result = List<int>(destinationArray.length ~/ 2);
+    final List<int?> result =
+        List<int?>.filled(destinationArray.length ~/ 2, null);
     for (int i = 0; i < result.length; i++) {
       if (!isEven && i == result.length - 1) {
-        result[i] = destinationArray[2 * i] + 1;
+        result[i] = destinationArray[2 * i]! + 1;
       } else {
-        result[i] = (((destinationArray[2 * i] - 48) * 10) +
-                (destinationArray[(2 * i) + 1] - 48)) +
+        result[i] = (((destinationArray[2 * i]! - 48) * 10) +
+                (destinationArray[(2 * i) + 1]! - 48)) +
             130;
       }
     }
@@ -807,25 +812,25 @@ class DataMatrixRenderer extends SymbologyRenderer {
   }
 
   /// Method used for computing error correction
-  List<int> _getComputedErrorCorrection(List<int> codeword) {
+  List<int?> _getComputedErrorCorrection(List<int?> codeword) {
     _setSymbolAttribute(codeword);
-    final int numCorrectionCodeword = _symbolAttribute.correctionCodeWords;
+    final int numCorrectionCodeword = _symbolAttribute.correctionCodeWords!;
     // Create error correction array.
-    final List<int> correctionCodeWordArray =
-        List<int>(numCorrectionCodeword + _symbolAttribute.dataCodeWords);
+    final List<int?> correctionCodeWordArray = List<int?>.filled(
+        numCorrectionCodeword + _symbolAttribute.dataCodeWords!, null);
     for (int i = 0; i < correctionCodeWordArray.length; i++) {
       correctionCodeWordArray[i] = 0;
     }
 
-    final int step = _symbolAttribute.interLeavedBlock;
-    final int symbolDataWords = _symbolAttribute.dataCodeWords;
-    final int blockErrorWords = _symbolAttribute.correctionCodeWords ~/ step;
+    final int step = _symbolAttribute.interLeavedBlock!;
+    final int symbolDataWords = _symbolAttribute.dataCodeWords!;
+    final int blockErrorWords = _symbolAttribute.correctionCodeWords! ~/ step;
     final int total = symbolDataWords + blockErrorWords * step;
     // Updates m_polynomial based on the required number of correction bytes.
     _createPolynomial(step);
     //set block length (each block consists of length 68 )
     _blockLength = 68;
-    final List<int> blockByte = List<int>(_blockLength);
+    final List<int?> blockByte = List<int?>.filled(_blockLength, null);
     for (int block = 0; block < step; block++) {
       for (int k = 0; k < blockByte.length; k++) {
         blockByte[k] = 0;
@@ -833,26 +838,26 @@ class DataMatrixRenderer extends SymbologyRenderer {
 
       for (int i = block; i < symbolDataWords; i += step) {
         final int val = _getErrorCorrectingCodeSum(
-            blockByte[blockErrorWords - 1], _encodedCodeword[i]);
+            blockByte[blockErrorWords - 1]!, _encodedCodeword![i]!);
         for (int j = blockErrorWords - 1; j > 0; j--) {
-          blockByte[j] = _getErrorCorrectingCodeSum(blockByte[j - 1],
-              _getErrorCorrectingCodeProduct(_polynomial[j], val));
+          blockByte[j] = _getErrorCorrectingCodeSum(blockByte[j - 1]!,
+              _getErrorCorrectingCodeProduct(_polynomial[j]!, val));
         }
 
-        blockByte[0] = _getErrorCorrectingCodeProduct(_polynomial[0], val);
+        blockByte[0] = _getErrorCorrectingCodeProduct(_polynomial[0]!, val);
       }
 
       int blockDataWords = 0;
       if (block >= 8 &&
           _dataMatrixSymbology.dataMatrixSize == DataMatrixSize.size144x144) {
-        blockDataWords = _symbolAttribute.dataCodeWords ~/ step;
+        blockDataWords = _symbolAttribute.dataCodeWords! ~/ step;
       } else {
-        blockDataWords = _symbolAttribute.interLeavedDataBlock;
+        blockDataWords = _symbolAttribute.interLeavedDataBlock!;
 
         int bIndex = blockErrorWords;
 
         for (int i = block + (step * blockDataWords); i < total; i += step) {
-          correctionCodeWordArray[i] = blockByte[--bIndex];
+          correctionCodeWordArray[i] = blockByte[--bIndex]!;
         }
 
         if (bIndex != 0) {
@@ -866,33 +871,33 @@ class DataMatrixRenderer extends SymbologyRenderer {
   }
 
   /// Method to get the correction code word
-  List<int> _getCorrectionCodeWordArray(
-      List<int> correctionCodeWordArray, int numCorrectionCodeword) {
+  List<int?> _getCorrectionCodeWordArray(
+      List<int?> correctionCodeWordArray, int numCorrectionCodeword) {
     if (correctionCodeWordArray.length > numCorrectionCodeword) {
-      final List<int> tmp = correctionCodeWordArray;
-      correctionCodeWordArray = List<int>(numCorrectionCodeword);
+      final List<int?> tmp = correctionCodeWordArray;
+      correctionCodeWordArray = List<int?>.filled(numCorrectionCodeword, null);
       for (int i = 0; i < correctionCodeWordArray.length; i++) {
         correctionCodeWordArray[i] = 0;
       }
       int z = 0;
 
-      for (int i = tmp.length - 1; i > _symbolAttribute.dataCodeWords; i--) {
+      for (int i = tmp.length - 1; i > _symbolAttribute.dataCodeWords!; i--) {
         correctionCodeWordArray[z++] = tmp[i];
       }
     }
 
-    final List<int> reversedList = correctionCodeWordArray.reversed.toList();
+    final List<int?> reversedList = correctionCodeWordArray.reversed.toList();
     return reversedList;
   }
 
   /// Method to set the symbol attribute
-  void _setSymbolAttribute(List<int> codeword) {
+  void _setSymbolAttribute(List<int?> codeword) {
     int dataLength = codeword.length;
     _symbolAttribute = _DataMatrixSymbolAttribute();
     if (_dataMatrixSymbology.dataMatrixSize == DataMatrixSize.auto) {
       for (int i = 0; i < _symbolAttributes.length; i++) {
         final _DataMatrixSymbolAttribute attribute = _symbolAttributes[i];
-        if (attribute.dataCodeWords >= dataLength) {
+        if (attribute.dataCodeWords! >= dataLength) {
           _symbolAttribute = attribute;
           break;
         }
@@ -905,13 +910,13 @@ class DataMatrixRenderer extends SymbologyRenderer {
     List<int> temp;
     // Pad data codeword if the length is less than the selected symbol
     // attribute.
-    if (_symbolAttribute.dataCodeWords > dataLength) {
-      temp = _getPaddedCodewords(_symbolAttribute.dataCodeWords, codeword);
+    if (_symbolAttribute.dataCodeWords! > dataLength) {
+      temp = _getPaddedCodewords(_symbolAttribute.dataCodeWords!, codeword);
       _encodedCodeword = List<int>.from(temp);
       dataLength = codeword.length;
     } else if (_symbolAttribute.dataCodeWords == 0) {
       throw 'Data cannot be encoded as barcode';
-    } else if (_symbolAttribute.dataCodeWords < dataLength) {
+    } else if (_symbolAttribute.dataCodeWords! < dataLength) {
       final String symbolRow = _symbolAttribute.symbolRow.toString();
       final String symbolColumn = _symbolAttribute.symbolColumn.toString();
       throw 'Data too long for $symbolRow x $symbolColumn barcode.';
@@ -922,43 +927,43 @@ class DataMatrixRenderer extends SymbologyRenderer {
   void _createPolynomial(int step) {
     //Set block length for polynomial values
     _blockLength = 69;
-    _polynomial = List<int>(_blockLength);
-    final int blockErrorWords = _symbolAttribute.correctionCodeWords ~/ step;
+    _polynomial = List<int?>.filled(_blockLength, null);
+    final int blockErrorWords = _symbolAttribute.correctionCodeWords! ~/ step;
     for (int i = 0; i < _polynomial.length; i++) {
       _polynomial[i] = 0x01;
     }
 
     for (int i = 1; i <= blockErrorWords; i++) {
       for (int j = i - 1; j >= 0; j--) {
-        _polynomial[j] = _getErrorCorrectingCodeDoublify(_polynomial[j], i);
+        _polynomial[j] = _getErrorCorrectingCodeDoublify(_polynomial[j]!, i);
         if (j > 0) {
           _polynomial[j] =
-              _getErrorCorrectingCodeSum(_polynomial[j], _polynomial[j - 1]);
+              _getErrorCorrectingCodeSum(_polynomial[j]!, _polynomial[j - 1]!);
         }
       }
     }
   }
 
   /// Method to get the code word
-  List<int> _getCodeword(List<int> dataCodeword) {
+  List<int?> _getCodeword(List<int> dataCodeword) {
     _encodedCodeword = _getDataCodeword(dataCodeword);
-    final List<int> correctCodeword =
-        _getComputedErrorCorrection(_encodedCodeword);
-    final List<int> finalCodeword =
-        List<int>(_encodedCodeword.length + correctCodeword.length);
-    for (int i = 0; i < _encodedCodeword.length; i++) {
-      finalCodeword[i] = _encodedCodeword[i];
+    final List<int?> correctCodeword =
+        _getComputedErrorCorrection(_encodedCodeword!);
+    final List<int?> finalCodeword = List<int?>.filled(
+        _encodedCodeword!.length + correctCodeword.length, null);
+    for (int i = 0; i < _encodedCodeword!.length; i++) {
+      finalCodeword[i] = _encodedCodeword![i];
     }
 
     for (int i = 0; i < correctCodeword.length; i++) {
-      finalCodeword[i + _encodedCodeword.length] = correctCodeword[i];
+      finalCodeword[i + _encodedCodeword!.length] = correctCodeword[i];
     }
 
     return finalCodeword;
   }
 
   /// Method used to prepare the code word
-  List<int> _getDataCodeword(List<int> dataCodeword) {
+  List<int?>? _getDataCodeword(List<int> dataCodeword) {
     _encoding = _dataMatrixSymbology.encoding;
     if (_dataMatrixSymbology.encoding == DataMatrixEncoding.auto ||
         _dataMatrixSymbology.encoding == DataMatrixEncoding.asciiNumeric) {
@@ -1000,8 +1005,8 @@ class DataMatrixRenderer extends SymbologyRenderer {
   }
 
   /// Method to get the encoding type
-  List<int> _getEncoding(List<int> dataCodeword) {
-    List<int> result;
+  List<int?>? _getEncoding(List<int> dataCodeword) {
+    List<int?>? result;
     switch (_encoding) {
       case DataMatrixEncoding.ascii:
         result = _getDataMatrixASCIIEncoder(dataCodeword);
@@ -1042,8 +1047,8 @@ class DataMatrixRenderer extends SymbologyRenderer {
     double x = 0;
     double y = 0;
     final Paint paint = getBarPaint(foregroundColor);
-    final int w = _symbolAttribute.symbolRow + (2 * quietZone);
-    final int h = _symbolAttribute.symbolColumn + (2 * quietZone);
+    final int w = _symbolAttribute.symbolRow! + (2 * quietZone);
+    final int h = _symbolAttribute.symbolColumn! + (2 * quietZone);
     final double minSize = size.width >= size.height ? size.height : size.width;
     final bool isSquareMatrix =
         getDataMatrixSize(_dataMatrixSymbology.dataMatrixSize) < 25;
@@ -1090,7 +1095,7 @@ class DataMatrixRenderer extends SymbologyRenderer {
   @override
   void drawText(Canvas canvas, Offset offset, Size size, String value,
       TextStyle textStyle, double textSpacing, TextAlign textAlign,
-      [Offset actualOffset, Size actualSize]) {
+      [Offset? actualOffset, Size? actualSize]) {
     final TextSpan span = TextSpan(text: value, style: textStyle);
 
     final TextPainter textPainter = TextPainter(
@@ -1129,7 +1134,7 @@ class DataMatrixRenderer extends SymbologyRenderer {
   }
 
   void _buildDataMatrix() {
-    final List<int> codeword = _getCodeword(_getData());
+    final List<int?> codeword = _getCodeword(_getData());
     _createMatrix(codeword);
   }
 }
@@ -1148,26 +1153,26 @@ class _DataMatrixSymbolAttribute {
       this.interLeavedDataBlock});
 
   /// Defines the symbol row
-  final int symbolRow;
+  final int? symbolRow;
 
   /// Defines the symbol column
-  final int symbolColumn;
+  final int? symbolColumn;
 
   /// Defines the horizontal data region
-  final int horizontalDataRegion;
+  final int? horizontalDataRegion;
 
   /// Defines the vertical data region
-  final int verticalDataRegion;
+  final int? verticalDataRegion;
 
   /// Defines the data code words
-  final int dataCodeWords;
+  final int? dataCodeWords;
 
   /// Defines the error correction code words
-  final int correctionCodeWords;
+  final int? correctionCodeWords;
 
   /// Defines the inter leaved blocks
-  final int interLeavedBlock;
+  final int? interLeavedBlock;
 
   /// Defines the inter leaved data blocks
-  final int interLeavedDataBlock;
+  final int? interLeavedDataBlock;
 }

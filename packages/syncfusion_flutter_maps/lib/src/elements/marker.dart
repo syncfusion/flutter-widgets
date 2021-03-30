@@ -7,36 +7,35 @@ import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../behavior/zoom_pan_behavior.dart';
-import '../controller/default_controller.dart';
+import '../common.dart';
+import '../controller/map_controller.dart';
 import '../enum.dart';
 import '../layer/layer_base.dart';
 import '../layer/shape_layer.dart';
 import '../utils.dart';
-import 'shapes.dart';
 
 // ignore_for_file: public_member_api_docs
-class ShapeLayerMarkerContainer extends Stack {
-  ShapeLayerMarkerContainer({
-    this.tooltipKey,
-    this.markerTooltipBuilder,
-    List<Widget> children,
-    this.controller,
+class MarkerContainer extends Stack {
+  MarkerContainer({
+    required this.markerTooltipBuilder,
+    required this.controller,
     this.sublayer,
+    this.ancestor,
+    List<Widget>? children,
   }) : super(children: children ?? <Widget>[]);
 
-  final GlobalKey tooltipKey;
-  final IndexedWidgetBuilder markerTooltipBuilder;
+  final IndexedWidgetBuilder? markerTooltipBuilder;
   final MapController controller;
-  final MapShapeSublayer sublayer;
+  final MapShapeSublayer? sublayer;
+  final MapLayerInheritedWidget? ancestor;
 
   @override
   RenderStack createRenderObject(BuildContext context) {
     return _RenderMarkerContainer()
-      ..tooltipKey = tooltipKey
       ..markerTooltipBuilder = markerTooltipBuilder
       ..controller = controller
       ..sublayer = sublayer
-      ..markerContainer = this;
+      ..container = this;
   }
 
   @override
@@ -45,105 +44,58 @@ class ShapeLayerMarkerContainer extends Stack {
     renderObject
       ..markerTooltipBuilder = markerTooltipBuilder
       ..sublayer = sublayer
-      ..markerContainer = this;
+      ..container = this;
   }
 }
 
 class _RenderMarkerContainer extends RenderStack {
-  GlobalKey tooltipKey;
-
-  IndexedWidgetBuilder markerTooltipBuilder;
-
-  MapController controller;
-
-  MapShapeSublayer sublayer;
-
-  ShapeLayerMarkerContainer markerContainer;
+  late MarkerContainer container;
+  late MapController controller;
+  GlobalKey? tooltipKey;
+  IndexedWidgetBuilder? markerTooltipBuilder;
+  MapShapeSublayer? sublayer;
 
   int getMarkerIndex(MapMarker marker) {
-    return markerContainer.children.indexOf(marker);
+    return container.children.indexOf(marker);
   }
 
-  Size get markerContainerSize =>
-      controller.isTileLayerChild ? controller.getTileSize() : size;
-
-  double get shapeLayerSizeFactor => controller.isTileLayerChild
-      ? controller.shapeLayerSizeFactor
-      : (controller.shapeLayerSizeFactor *
-          ((controller.gesture == Gesture.scale) ? controller.localScale : 1));
-
-  Offset get shapeLayerOffset {
-    if (!controller.isInInteractive) {
-      return controller.shapeLayerOffset;
-    } else {
-      if (controller.gesture == Gesture.scale) {
-        return controller.getZoomingTranslation() + controller.normalize;
-      } else {
-        return controller.shapeLayerOffset + controller.panDistance;
-      }
-    }
-  }
+  Size get containerSize => controller.layerType == LayerType.tile
+      ? controller.getTileSize(controller.tileCurrentLevelDetails.zoomLevel)
+      : controller.shapeLayerBoxSize;
 
   void _handleZooming(MapZoomDetails details) {
-    _updateChildren();
-    markNeedsPaint();
+    markNeedsLayout();
   }
 
   void _handlePanning(MapPanDetails details) {
-    _updateChildren();
-    markNeedsPaint();
+    markNeedsLayout();
   }
 
   void _handleReset() {
-    _updateChildren();
-    markNeedsPaint();
+    markNeedsLayout();
   }
 
   void _handleRefresh() {
-    _updateChildren();
-    markNeedsPaint();
-  }
-
-  void _updateChildren() {
-    final double factor = shapeLayerSizeFactor;
-    final Offset translation = shapeLayerOffset;
-    RenderBox child = firstChild;
-    while (child != null) {
-      final RenderMapMarker marker = child;
-      final StackParentData childParentData = child.parentData;
-      childParentData.offset = pixelFromLatLng(marker.latitude,
-              marker.longitude, markerContainerSize, translation, factor) -
-          Offset(marker.size.width / 2, marker.size.height / 2);
-      child = childParentData.nextSibling;
-    }
+    markNeedsLayout();
   }
 
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
-    if (controller == null) {
-      final RenderShapeLayer subLayerParent = parent.parent;
-      controller = subLayerParent.controller;
-    }
-
-    if (controller != null) {
-      controller
-        ..addZoomingListener(_handleZooming)
-        ..addPanningListener(_handlePanning)
-        ..addResetListener(_handleReset)
-        ..addRefreshListener(_handleRefresh);
-    }
+    controller
+      ..addZoomingListener(_handleZooming)
+      ..addPanningListener(_handlePanning)
+      ..addResetListener(_handleReset)
+      ..addRefreshListener(_handleRefresh);
   }
 
   @override
   void detach() {
-    if (controller != null) {
-      controller
-        ..removeZoomingListener(_handleZooming)
-        ..removePanningListener(_handlePanning)
-        ..removeResetListener(_handleReset)
-        ..removeRefreshListener(_handleRefresh);
-    }
+    controller
+      ..removeZoomingListener(_handleZooming)
+      ..removePanningListener(_handlePanning)
+      ..removeResetListener(_handleReset)
+      ..removeRefreshListener(_handleRefresh);
     super.detach();
   }
 
@@ -152,16 +104,28 @@ class _RenderMarkerContainer extends RenderStack {
 
   @override
   void performLayout() {
-    size = getBoxSize(constraints);
-    final double factor = shapeLayerSizeFactor;
-    final Offset translation = shapeLayerOffset;
-    RenderBox child = firstChild;
+    size = controller.layerType == LayerType.shape
+        ? controller.shapeLayerBoxSize
+        : controller.tileLayerBoxSize!;
+    final double factor = getLayerSizeFactor(controller);
+    final Offset translation = getTranslationOffset(controller);
+    RenderBox? child = firstChild;
     while (child != null) {
-      final RenderMapMarker marker = child;
-      final StackParentData childParentData = child.parentData;
+      // ignore: avoid_as
+      final _RenderMapMarker marker = child as _RenderMapMarker;
+      final StackParentData childParentData =
+          // ignore: avoid_as
+          child.parentData as StackParentData;
       child.layout(constraints, parentUsesSize: true);
       childParentData.offset = pixelFromLatLng(marker.latitude,
-              marker.longitude, markerContainerSize, translation, factor) -
+          marker.longitude, containerSize, translation, factor);
+      if (controller.layerType == LayerType.tile) {
+        final TileZoomLevelDetails level = controller.tileCurrentLevelDetails;
+        childParentData.offset =
+            childParentData.offset.scale(level.scale, level.scale) +
+                level.translatePoint;
+      }
+      childParentData.offset -=
           Offset(marker.size.width / 2, marker.size.height / 2);
       child = childParentData.nextSibling;
     }
@@ -169,12 +133,14 @@ class _RenderMarkerContainer extends RenderStack {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    RenderBox child = firstChild;
+    RenderBox? child = firstChild;
     while (child != null) {
-      final StackParentData childParentData = child.parentData;
+      final StackParentData childParentData =
+          // ignore: avoid_as
+          child.parentData as StackParentData;
       final Rect childRect = Rect.fromLTWH(childParentData.offset.dx,
           childParentData.offset.dy, child.size.width, child.size.height);
-      if (sublayer != null || controller.visibleBounds.overlaps(childRect)) {
+      if (sublayer != null || controller.visibleBounds!.overlaps(childRect)) {
         context.paintChild(child, childParentData.offset);
       }
       child = childParentData.nextSibling;
@@ -196,6 +162,7 @@ class _RenderMarkerContainer extends RenderStack {
 ///
 /// ```dart
 /// List<Model> data;
+/// MapShapeSource _mapSource;
 ///
 /// @override
 /// void initState() {
@@ -207,10 +174,16 @@ class _RenderMarkerContainer extends RenderStack {
 ///      Model('Russia', 61.52401, 105.318756)
 ///    ];
 ///
+///    _mapSource = MapShapeSource.asset(
+///      'assets/world_map.json',
+///      shapeDataField: 'name',
+///      dataCount: data.length,
+///      primaryValueMapper: (int index) => data[index].country,
+///    );
 ///    super.initState();
 /// }
 ///
-///  @override
+/// @override
 /// Widget build(BuildContext context) {
 ///    return Scaffold(
 ///      body: Center(
@@ -221,14 +194,9 @@ class _RenderMarkerContainer extends RenderStack {
 ///              child: SfMaps(
 ///                layers: <MapLayer>[
 ///                  MapShapeLayer(
-///                    source: MapShapeSource.asset(
-///                      'assets/world_map.json',
-///                      shapeDataField: 'name',
-///                      dataCount: data.length,
-///                      primaryValueMapper: (index) => data[index].country,
-///                    ),
+///                    source: _mapSource,
 ///                    initialMarkersCount: 5,
-///                    markerBuilder: (BuildContext context, int index){
+///                    markerBuilder: (BuildContext context, int index) {
 ///                      return MapMarker(
 ///                        latitude: data[index].latitude,
 ///                        longitude: data[index].longitude,
@@ -257,23 +225,22 @@ class _RenderMarkerContainer extends RenderStack {
 class MapMarker extends SingleChildRenderObjectWidget {
   /// Creates a [MapMarker].
   const MapMarker({
-    Key key,
-    @required this.latitude,
-    @required this.longitude,
+    Key? key,
+    required this.latitude,
+    required this.longitude,
     this.size,
     this.iconColor,
     this.iconStrokeColor,
-    this.iconStrokeWidth = 1.0,
+    this.iconStrokeWidth,
     this.iconType = MapIconType.circle,
-    Widget child,
-  })  : assert(longitude != null),
-        assert(latitude != null),
-        super(key: key, child: child);
+    Widget? child,
+  }) : super(key: key, child: child);
 
   /// Sets the latitude for the marker on the map.
   ///
   /// ```dart
   /// List<Model> data;
+  /// MapShapeSource _mapSource;
   ///
   /// @override
   /// void initState() {
@@ -285,10 +252,16 @@ class MapMarker extends SingleChildRenderObjectWidget {
   ///      Model('Russia', 61.52401, 105.318756)
   ///    ];
   ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/world_map.json',
+  ///      shapeDataField: 'name',
+  ///      dataCount: data.length,
+  ///      primaryValueMapper: (int index) => data[index].country,
+  ///    );
   ///    super.initState();
   /// }
   ///
-  ///  @override
+  /// @override
   /// Widget build(BuildContext context) {
   ///    return Scaffold(
   ///      body: Center(
@@ -299,14 +272,9 @@ class MapMarker extends SingleChildRenderObjectWidget {
   ///              child: SfMaps(
   ///                layers: <MapLayer>[
   ///                  MapShapeLayer(
-  ///                    source: MapShapeSource.asset(
-  ///                      'assets/world_map.json',
-  ///                      shapeDataField: 'name',
-  ///                      dataCount: data.length,
-  ///                      primaryValueMapper: (index) => data[index].country,
-  ///                    ),
+  ///                    source: _mapSource,
   ///                    initialMarkersCount: 5,
-  ///                    markerBuilder: (BuildContext context, int index){
+  ///                    markerBuilder: (BuildContext context, int index) {
   ///                      return MapMarker(
   ///                        latitude: data[index].latitude,
   ///                        longitude: data[index].longitude,
@@ -338,6 +306,7 @@ class MapMarker extends SingleChildRenderObjectWidget {
   ///
   /// ```dart
   /// List<Model> data;
+  /// MapShapeSource _mapSource;
   ///
   /// @override
   /// void initState() {
@@ -349,10 +318,16 @@ class MapMarker extends SingleChildRenderObjectWidget {
   ///      Model('Russia', 61.52401, 105.318756)
   ///    ];
   ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/world_map.json',
+  ///      shapeDataField: 'name',
+  ///      dataCount: data.length,
+  ///      primaryValueMapper: (int index) => data[index].country,
+  ///    );
   ///    super.initState();
   /// }
   ///
-  ///  @override
+  /// @override
   /// Widget build(BuildContext context) {
   ///    return Scaffold(
   ///      body: Center(
@@ -363,14 +338,9 @@ class MapMarker extends SingleChildRenderObjectWidget {
   ///              child: SfMaps(
   ///                layers: <MapLayer>[
   ///                  MapShapeLayer(
-  ///                    source: MapShapeSource.asset(
-  ///                      'assets/world_map.json',
-  ///                      shapeDataField: 'name',
-  ///                      dataCount: data.length,
-  ///                      primaryValueMapper: (index) => data[index].country,
-  ///                    ),
+  ///                    source: _mapSource,
   ///                    initialMarkersCount: 5,
-  ///                    markerBuilder: (BuildContext context, int index){
+  ///                    markerBuilder: (BuildContext context, int index) {
   ///                      return MapMarker(
   ///                        latitude: data[index].latitude,
   ///                        longitude: data[index].longitude,
@@ -407,6 +377,7 @@ class MapMarker extends SingleChildRenderObjectWidget {
   ///
   /// ```dart
   /// List<Model> data;
+  /// MapShapeSource _mapSource;
   ///
   /// @override
   /// void initState() {
@@ -418,10 +389,16 @@ class MapMarker extends SingleChildRenderObjectWidget {
   ///      Model('Russia', 61.52401, 105.318756)
   ///    ];
   ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/world_map.json',
+  ///      shapeDataField: 'name',
+  ///      dataCount: data.length,
+  ///      primaryValueMapper: (int index) => data[index].country,
+  ///    );
   ///    super.initState();
   /// }
   ///
-  ///  @override
+  /// @override
   /// Widget build(BuildContext context) {
   ///    return Scaffold(
   ///      body: Center(
@@ -432,14 +409,9 @@ class MapMarker extends SingleChildRenderObjectWidget {
   ///              child: SfMaps(
   ///                layers: <MapLayer>[
   ///                  MapShapeLayer(
-  ///                    source: MapShapeSource.asset(
-  ///                      'assets/world_map.json',
-  ///                      shapeDataField: 'name',
-  ///                      dataCount: data.length,
-  ///                      primaryValueMapper: (index) => data[index].country,
-  ///                    ),
+  ///                    source: _mapSource,
   ///                    initialMarkersCount: 5,
-  ///                    markerBuilder: (BuildContext context, int index){
+  ///                    markerBuilder: (BuildContext context, int index) {
   ///                      return MapMarker(
   ///                        latitude: data[index].latitude,
   ///                        longitude: data[index].longitude,
@@ -466,12 +438,13 @@ class MapMarker extends SingleChildRenderObjectWidget {
   /// See also:
   /// * [MapShapeLayerController], [MapTileLayerController] for dynamically
   /// updating the markers.
-  final Size size;
+  final Size? size;
 
   /// Sets the icon color for the marker.
   ///
   /// ```dart
   /// List<Model> data;
+  /// MapShapeSource _mapSource;
   ///
   /// @override
   /// void initState() {
@@ -483,10 +456,16 @@ class MapMarker extends SingleChildRenderObjectWidget {
   ///      Model('Russia', 61.52401, 105.318756)
   ///    ];
   ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/world_map.json',
+  ///      shapeDataField: 'name',
+  ///      dataCount: data.length,
+  ///      primaryValueMapper: (int index) => data[index].country,
+  ///    );
   ///    super.initState();
   /// }
   ///
-  ///  @override
+  /// @override
   /// Widget build(BuildContext context) {
   ///    return Scaffold(
   ///      body: Center(
@@ -497,14 +476,9 @@ class MapMarker extends SingleChildRenderObjectWidget {
   ///              child: SfMaps(
   ///                layers: <MapLayer>[
   ///                  MapShapeLayer(
-  ///                    source: MapShapeSource.asset(
-  ///                      'assets/world_map.json',
-  ///                      shapeDataField: 'name',
-  ///                      dataCount: data.length,
-  ///                      primaryValueMapper: (index) => data[index].country,
-  ///                    ),
+  ///                    source: _mapSource,
   ///                    initialMarkersCount: 5,
-  ///                    markerBuilder: (BuildContext context, int index){
+  ///                    markerBuilder: (BuildContext context, int index) {
   ///                      return MapMarker(
   ///                        latitude: data[index].latitude,
   ///                        longitude: data[index].longitude,
@@ -531,12 +505,13 @@ class MapMarker extends SingleChildRenderObjectWidget {
   /// See also:
   /// * [MapShapeLayerController], [MapTileLayerController] for dynamically
   /// updating the markers.
-  final Color iconColor;
+  final Color? iconColor;
 
   /// Sets the icon's stroke color for the marker.
   ///
   /// ```dart
   /// List<Model> data;
+  /// MapShapeSource _mapSource;
   ///
   /// @override
   /// void initState() {
@@ -548,10 +523,16 @@ class MapMarker extends SingleChildRenderObjectWidget {
   ///      Model('Russia', 61.52401, 105.318756)
   ///    ];
   ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/world_map.json',
+  ///      shapeDataField: 'name',
+  ///      dataCount: data.length,
+  ///      primaryValueMapper: (int index) => data[index].country,
+  ///    );
   ///    super.initState();
   /// }
   ///
-  ///  @override
+  /// @override
   /// Widget build(BuildContext context) {
   ///    return Scaffold(
   ///      body: Center(
@@ -562,14 +543,9 @@ class MapMarker extends SingleChildRenderObjectWidget {
   ///              child: SfMaps(
   ///                layers: <MapLayer>[
   ///                  MapShapeLayer(
-  ///                    source: MapShapeSource.asset(
-  ///                      'assets/world_map.json',
-  ///                      shapeDataField: 'name',
-  ///                      dataCount: data.length,
-  ///                      primaryValueMapper: (index) => data[index].country,
-  ///                    ),
+  ///                    source: _mapSource,
   ///                    initialMarkersCount: 5,
-  ///                    markerBuilder: (BuildContext context, int index){
+  ///                    markerBuilder: (BuildContext context, int index) {
   ///                      return MapMarker(
   ///                        latitude: data[index].latitude,
   ///                        longitude: data[index].longitude,
@@ -597,12 +573,13 @@ class MapMarker extends SingleChildRenderObjectWidget {
   /// See also:
   /// * [MapShapeLayerController], [MapTileLayerController] for dynamically
   /// updating the markers.
-  final Color iconStrokeColor;
+  final Color? iconStrokeColor;
 
   /// Sets the icon's stroke width for the marker.
   ///
   /// ```dart
   /// List<Model> data;
+  /// MapShapeSource _mapSource;
   ///
   /// @override
   /// void initState() {
@@ -614,10 +591,16 @@ class MapMarker extends SingleChildRenderObjectWidget {
   ///      Model('Russia', 61.52401, 105.318756)
   ///    ];
   ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/world_map.json',
+  ///      shapeDataField: 'name',
+  ///      dataCount: data.length,
+  ///      primaryValueMapper: (int index) => data[index].country,
+  ///    );
   ///    super.initState();
   /// }
   ///
-  ///  @override
+  /// @override
   /// Widget build(BuildContext context) {
   ///    return Scaffold(
   ///      body: Center(
@@ -628,14 +611,9 @@ class MapMarker extends SingleChildRenderObjectWidget {
   ///              child: SfMaps(
   ///                layers: <MapLayer>[
   ///                  MapShapeLayer(
-  ///                    source: MapShapeSource.asset(
-  ///                      'assets/world_map.json',
-  ///                      shapeDataField: 'name',
-  ///                      dataCount: data.length,
-  ///                      primaryValueMapper: (index) => data[index].country,
-  ///                    ),
+  ///                    source: _mapSource,
   ///                    initialMarkersCount: 5,
-  ///                    markerBuilder: (BuildContext context, int index){
+  ///                    markerBuilder: (BuildContext context, int index) {
   ///                      return MapMarker(
   ///                        latitude: data[index].latitude,
   ///                        longitude: data[index].longitude,
@@ -663,7 +641,7 @@ class MapMarker extends SingleChildRenderObjectWidget {
   /// See also:
   /// * [MapShapeLayerController], [MapTileLayerController] for dynamically
   /// updating the markers.
-  final double iconStrokeWidth;
+  final double? iconStrokeWidth;
 
   /// Sets the icon's shape of the marker.
   ///
@@ -671,6 +649,7 @@ class MapMarker extends SingleChildRenderObjectWidget {
   ///
   /// ```dart
   /// List<Model> data;
+  /// MapShapeSource _mapSource;
   ///
   /// @override
   /// void initState() {
@@ -682,10 +661,16 @@ class MapMarker extends SingleChildRenderObjectWidget {
   ///      Model('Russia', 61.52401, 105.318756)
   ///    ];
   ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      'assets/world_map.json',
+  ///      shapeDataField: 'name',
+  ///      dataCount: data.length,
+  ///      primaryValueMapper: (int index) => data[index].country,
+  ///    );
   ///    super.initState();
   /// }
   ///
-  ///  @override
+  /// @override
   /// Widget build(BuildContext context) {
   ///    return Scaffold(
   ///      body: Center(
@@ -696,23 +681,17 @@ class MapMarker extends SingleChildRenderObjectWidget {
   ///              child: SfMaps(
   ///                layers: <MapLayer>[
   ///                  MapShapeLayer(
-  ///                    source: MapShapeSource.asset(
-  ///                      'assets/world_map.json',
-  ///                      shapeDataField: 'name',
-  ///                      dataCount: data.length,
-  ///                      primaryValueMapper: (index) => data[index].country,
-  ///                    ),
+  ///                    source: _mapSource,
   ///                    initialMarkersCount: 5,
-  ///                    markerBuilder: (BuildContext context, int index){
+  ///                    markerBuilder: (BuildContext context, int index) {
   ///                      return MapMarker(
   ///                        latitude: data[index].latitude,
   ///                        longitude: data[index].longitude,
-  ///                        iconStrokeColor: Colors.green[900],
   ///                        iconType: MapIconType.triangle,
   ///                      );
   ///                    },
   ///                  ),
-  ///                ],s
+  ///                ],
   ///              ),
   ///            ),
   ///          )
@@ -735,7 +714,7 @@ class MapMarker extends SingleChildRenderObjectWidget {
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return RenderMapMarker(
+    return _RenderMapMarker(
       longitude: longitude,
       latitude: latitude,
       markerSize: size,
@@ -743,13 +722,13 @@ class MapMarker extends SingleChildRenderObjectWidget {
       iconStrokeColor: iconStrokeColor,
       iconStrokeWidth: iconStrokeWidth,
       iconType: iconType,
-      themeData: SfMapsTheme.of(context),
+      themeData: SfMapsTheme.of(context)!,
       marker: this,
     );
   }
 
   @override
-  void updateRenderObject(BuildContext context, RenderMapMarker renderObject) {
+  void updateRenderObject(BuildContext context, _RenderMapMarker renderObject) {
     renderObject
       ..longitude = longitude
       ..latitude = latitude
@@ -758,23 +737,24 @@ class MapMarker extends SingleChildRenderObjectWidget {
       ..iconStrokeColor = iconStrokeColor
       ..iconStrokeWidth = iconStrokeWidth
       ..iconType = iconType
-      ..themeData = SfMapsTheme.of(context)
+      ..themeData = SfMapsTheme.of(context)!
       ..marker = this;
   }
 }
 
-class RenderMapMarker extends RenderProxyBox implements MouseTrackerAnnotation {
-  RenderMapMarker({
-    double longitude,
-    double latitude,
-    Size markerSize,
-    Color iconColor,
-    Color iconStrokeColor,
-    double iconStrokeWidth,
-    MapIconType iconType,
-    SfMapsThemeData themeData,
-    MapMarker marker,
-  })  : _longitude = longitude,
+class _RenderMapMarker extends RenderProxyBox
+    implements MouseTrackerAnnotation {
+  _RenderMapMarker({
+    required double longitude,
+    required double latitude,
+    required Size? markerSize,
+    required Color? iconColor,
+    required Color? iconStrokeColor,
+    required double? iconStrokeWidth,
+    required MapIconType iconType,
+    required SfMapsThemeData themeData,
+    required MapMarker marker,
+  })   : _longitude = longitude,
         _latitude = latitude,
         _markerSize = markerSize,
         _iconColor = iconColor,
@@ -787,10 +767,8 @@ class RenderMapMarker extends RenderProxyBox implements MouseTrackerAnnotation {
   }
 
   final MapIconShape _iconShape = const MapIconShape();
-
   final Size _defaultMarkerSize = const Size(14.0, 14.0);
-
-  TapGestureRecognizer _tapGestureRecognizer;
+  late TapGestureRecognizer _tapGestureRecognizer;
 
   MapMarker marker;
 
@@ -800,13 +778,8 @@ class RenderMapMarker extends RenderProxyBox implements MouseTrackerAnnotation {
     if (_latitude == value) {
       return;
     }
-    assert(value != null);
     _latitude = value;
-
-    if (parent is _RenderMarkerContainer) {
-      _updatePosition();
-    }
-    markNeedsPaint();
+    markNeedsLayout();
   }
 
   double get longitude => _longitude;
@@ -815,31 +788,23 @@ class RenderMapMarker extends RenderProxyBox implements MouseTrackerAnnotation {
     if (_longitude == value) {
       return;
     }
-    assert(value != null);
     _longitude = value;
-
-    if (parent is _RenderMarkerContainer) {
-      _updatePosition();
-    }
-    markNeedsPaint();
+    markNeedsLayout();
   }
 
-  Size get markerSize => _markerSize;
-  Size _markerSize;
-  set markerSize(Size value) {
+  Size? get markerSize => _markerSize;
+  Size? _markerSize;
+  set markerSize(Size? value) {
     if (_markerSize == value) {
       return;
     }
     _markerSize = value;
-    if (parent is _RenderMarkerContainer) {
-      _updatePosition();
-    }
     markNeedsLayout();
   }
 
-  Color get iconColor => _iconColor;
-  Color _iconColor;
-  set iconColor(Color value) {
+  Color? get iconColor => _iconColor;
+  Color? _iconColor;
+  set iconColor(Color? value) {
     if (_iconColor == value) {
       return;
     }
@@ -849,9 +814,9 @@ class RenderMapMarker extends RenderProxyBox implements MouseTrackerAnnotation {
     }
   }
 
-  Color get iconStrokeColor => _iconStrokeColor;
-  Color _iconStrokeColor;
-  set iconStrokeColor(Color value) {
+  Color? get iconStrokeColor => _iconStrokeColor;
+  Color? _iconStrokeColor;
+  set iconStrokeColor(Color? value) {
     if (_iconStrokeColor == value) {
       return;
     }
@@ -861,13 +826,12 @@ class RenderMapMarker extends RenderProxyBox implements MouseTrackerAnnotation {
     }
   }
 
-  double get iconStrokeWidth => _iconStrokeWidth;
-  double _iconStrokeWidth;
-  set iconStrokeWidth(double value) {
+  double? get iconStrokeWidth => _iconStrokeWidth;
+  double? _iconStrokeWidth;
+  set iconStrokeWidth(double? value) {
     if (_iconStrokeWidth == value) {
       return;
     }
-    assert(value != null);
     _iconStrokeWidth = value;
     if (child == null) {
       markNeedsPaint();
@@ -880,7 +844,6 @@ class RenderMapMarker extends RenderProxyBox implements MouseTrackerAnnotation {
     if (_iconType == value) {
       return;
     }
-    assert(value != null);
     _iconType = value;
     if (child == null) {
       markNeedsPaint();
@@ -904,52 +867,47 @@ class RenderMapMarker extends RenderProxyBox implements MouseTrackerAnnotation {
   }
 
   void _handlePointerEnter(PointerEnterEvent event) {
-    _handleInteraction();
+    _handleInteraction(PointerKind.hover);
   }
 
   void _handlePointerExit(PointerExitEvent event) {
-    _handleInteraction(isExit: true);
-  }
-
-  void _handleInteraction({bool isExit = false}) {
-    // For [MapMarker] shape and tile layer, we had different parent classes.
-    // So, we used the dynamic keyword to access both parent commonly.
-    final dynamic markerParent = parent;
-    int sublayerIndex;
-    if (markerParent.markerTooltipBuilder != null) {
-      if (markerParent is _RenderMarkerContainer &&
-          markerParent.sublayer != null) {
-        final RenderShapeLayer shapeLayerRenderBox = markerParent.parent.parent;
-        final RenderSublayerContainer sublayerContainer =
-            shapeLayerRenderBox.parent;
-        sublayerIndex =
-            sublayerContainer.getSublayerIndex(markerParent.sublayer);
-      }
-
-      final ShapeLayerChildRenderBoxBase tooltipRenderObject =
-          markerParent.controller.tooltipKey.currentContext.findRenderObject();
-      final StackParentData childParentData = parentData;
-      // The [sublayerIndex] is not applicable, if the actual layer is
-      // shape or tile layer.
-      tooltipRenderObject.paintTooltip(
-          isExit ? null : markerParent.getMarkerIndex(marker),
-          childParentData.offset & size,
-          MapLayerElement.marker,
-          sublayerIndex);
+    final _RenderMarkerContainer markerContainer =
+        // ignore: avoid_as
+        parent as _RenderMarkerContainer;
+    if (markerContainer.markerTooltipBuilder != null) {
+      final ShapeLayerChildRenderBoxBase tooltipRenderBox =
+          markerContainer.controller.tooltipKey?.currentContext!
+              // ignore: avoid_as
+              .findRenderObject() as ShapeLayerChildRenderBoxBase;
+      tooltipRenderBox.hideTooltip();
     }
   }
 
-  void _updatePosition() {
-    final _RenderMarkerContainer markerParent = parent;
-    final StackParentData childParentData = parentData;
-    if (parent != null) {
-      childParentData.offset = pixelFromLatLng(
-              _latitude,
-              _longitude,
-              markerParent.size,
-              markerParent.shapeLayerOffset,
-              markerParent.shapeLayerSizeFactor) -
-          Offset(size.width / 2, size.height / 2);
+  void _handleInteraction([PointerKind kind = PointerKind.touch]) {
+    int? sublayerIndex;
+    final _RenderMarkerContainer markerContainerRenderBox =
+        // ignore: avoid_as
+        parent as _RenderMarkerContainer;
+    if (markerContainerRenderBox.markerTooltipBuilder != null) {
+      if (markerContainerRenderBox.sublayer != null) {
+        sublayerIndex = markerContainerRenderBox.container.ancestor!.sublayers!
+            .indexOf(markerContainerRenderBox.sublayer!);
+      }
+
+      final ShapeLayerChildRenderBoxBase tooltipRenderBox =
+          markerContainerRenderBox.controller.tooltipKey?.currentContext!
+              // ignore: avoid_as
+              .findRenderObject() as ShapeLayerChildRenderBoxBase;
+      // ignore: avoid_as
+      final StackParentData childParentData = parentData as StackParentData;
+      tooltipRenderBox.paintTooltip(
+          markerContainerRenderBox.getMarkerIndex(marker),
+          childParentData.offset & size,
+          MapLayerElement.marker,
+          kind,
+          // [sublayerIndex] is applicable only when the markers
+          // added to the [MapShapeSublayer].
+          sublayerIndex);
     }
   }
 
@@ -958,12 +916,6 @@ class RenderMapMarker extends RenderProxyBox implements MouseTrackerAnnotation {
 
   @override
   PointerEnterEventListener get onEnter => _handlePointerEnter;
-
-  // As onHover property of MouseHoverAnnotation was removed only in the
-  // beta channel, once it is moved to stable, will remove this property.
-  @override
-  // ignore: override_on_non_overriding_member
-  PointerHoverEventListener get onHover => null;
 
   @override
   PointerExitEventListener get onExit => _handlePointerExit;
@@ -988,19 +940,19 @@ class RenderMapMarker extends RenderProxyBox implements MouseTrackerAnnotation {
     if (event.down && event is PointerDownEvent) {
       _tapGestureRecognizer.addPointer(event);
     } else if (event is PointerHoverEvent) {
-      _handleInteraction();
+      _handleInteraction(PointerKind.hover);
     }
   }
 
   @override
   void performLayout() {
     if (_markerSize != null) {
-      child?.layout(BoxConstraints.tight(_markerSize));
-      size = _markerSize;
+      child?.layout(BoxConstraints.tight(_markerSize!));
+      size = _markerSize!;
     } else {
       if (child != null) {
-        child.layout(constraints.loosen(), parentUsesSize: true);
-        size = child.size;
+        child!.layout(constraints.loosen(), parentUsesSize: true);
+        size = child!.size;
       } else {
         size = _defaultMarkerSize;
       }
@@ -1019,7 +971,7 @@ class RenderMapMarker extends RenderProxyBox implements MouseTrackerAnnotation {
           strokeWidth: _iconStrokeWidth ?? _themeData.markerIconStrokeWidth,
           iconType: _iconType);
     } else {
-      context.paintChild(child, offset);
+      context.paintChild(child!, offset);
     }
   }
 }

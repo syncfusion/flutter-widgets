@@ -7,19 +7,18 @@ class PdfAction implements _IPdfWrapper {
     _initialize();
   }
   // fields
-  PdfAction _action;
+  PdfAction? _action;
   final _PdfDictionary _dictionary = _PdfDictionary();
 
   // properties
   /// Gets the next action
   /// to be performed after the action represented by this instance.
-  PdfAction get next => _action;
+  PdfAction? get next => _action;
 
   /// Sets the next action
   /// to be performed after the action represented by this instance.
-  set next(PdfAction value) {
-    ArgumentError.checkNotNull(value, 'next');
-    if (_action != value) {
+  set next(PdfAction? value) {
+    if (value != null && _action != value) {
       _action = value;
       _dictionary._setArray(_DictionaryProperties.next,
           <_IPdfPrimitive>[_PdfReferenceHolder(_action)]);
@@ -34,5 +33,5 @@ class PdfAction implements _IPdfWrapper {
   }
 
   @override
-  _IPdfPrimitive _element;
+  _IPdfPrimitive? _element;
 }

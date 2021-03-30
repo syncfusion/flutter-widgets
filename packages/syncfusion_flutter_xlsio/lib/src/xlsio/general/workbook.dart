@@ -3,12 +3,12 @@ part of xlsio;
 /// Represents an Excel Workbook.
 class Workbook {
   /// Creates an new instances of the Workbook.
-  Workbook([int count]) {
+  Workbook([int? count]) {
     _initializeWorkbook(null, null, count);
   }
 
   /// Creates an new instances of the Workbook with currency.
-  Workbook.withCulture(String culture, [String currency, int count]) {
+  Workbook.withCulture(String culture, [String? currency, int? count]) {
     if (count != null) {
       _initializeWorkbook(culture, currency, count);
     } else {
@@ -17,10 +17,10 @@ class Workbook {
   }
 
   /// Represents zip archive to save the workbook.
-  Archive _archives;
+  Archive? _archives;
 
   /// Represents the shared string dictionary.
-  Map<String, int> _sharedString;
+  late Map<String, int> _sharedString;
 
   /// Represents the shared string count in the workbook.
   int _sharedStringCount = 0;
@@ -35,47 +35,47 @@ class Workbook {
   final double _dMaxDigitWidth = 7.0;
 
   /// Represents the cell style collection in the workbok.
-  Map<String, _GlobalStyle> _cellStyles;
+  Map<String, _GlobalStyle>? _cellStyles;
 
   /// Represents the merged cell collection in the workbok.
-  Map<String, _ExtendStyle> _mergedCellsStyles;
+  Map<String, _ExtendStyle>? _mergedCellsStyles;
 
   /// Represents the worksheet collection.
-  WorksheetCollection _worksheets;
+  WorksheetCollection? _worksheets;
 
   /// Represents the build in properties.
-  BuiltInProperties _builtInProperties;
+  BuiltInProperties? _builtInProperties;
 
   /// Represents the font collection in the workbook.
-  List<Font> fonts;
+  late List<Font> fonts;
 
   /// Represents the border collection in the workbook.
-  List<Borders> borders;
+  late List<Borders> borders;
 
   /// Represents the Fill collection in the workbook.
-  Map<String, int> fills;
+  late Map<String, int> fills;
 
   /// Represents the cell style collection in the workbook.
-  StylesCollection _styles;
+  late StylesCollection _styles;
 
   /// Represents the CellXf collection in the workbook.
-  List<CellXfs> _cellXfs;
+  late List<_CellXfs> _cellXfs;
 
   /// Represents the CellStyleXf collection in the workbook.
-  List<CellStyleXfs> _cellStyleXfs;
+  late List<_CellStyleXfs> _cellStyleXfs;
 
-  /// Represents the print title collection.
-  Map<int, String> _printTitles;
+  // /// Represents the print title collection.
+  // Map<int, String> _printTitles;
 
   /// Represents the current culture.
-  String _culture;
+  late String _culture;
 
   /// Represents the current culture currency.
   // ignore: unused_field
-  String _currency;
+  late String _currency;
 
   /// Represents the RGB colors.
-  Map<String, String> _rgbColors;
+  Map<String, String>? _rgbColors;
 
   /// Represents the drawing count in the workbook.
   int _drawingCount = 0;
@@ -90,19 +90,19 @@ class Workbook {
   bool _saving = false;
 
   // Collection of workbook's formats.
-  FormatsCollection _rawFormats;
+  late FormatsCollection _rawFormats;
 
   /// Indicates whether all the formula in the workbook is evaluated.
   // ignore: unused_field
-  bool _enabledCalcEngine;
+  bool _enabledCalcEngine = false;
 
   /// Represents the culture info.
-  CultureInfo _cultureInfo;
+  late CultureInfo _cultureInfo;
 
   final Map<String, String> _defaultContentTypes = <String, String>{};
 
-  /// Represents the Hyperlink collection.
-  HyperlinkCollection _hyperlink;
+  // /// Represents the Hyperlink collection.
+  // late HyperlinkCollection _hyperlink;
 
   /// Represents the unit conversion list.
   List<double> _unitsProportions = [
@@ -117,7 +117,7 @@ class Workbook {
   ];
 
   /// Collections store the font metrics details.
-  Map<String, _FontMetrics> _fontMetricsCollection;
+  Map<String, _FontMetrics>? _fontMetricsCollection;
 
   /// Use this NumberFormatChar to check the Unicodes.
   final String _numberFormatChar = '€';
@@ -125,7 +125,7 @@ class Workbook {
   /// Represents zip archive to save the workbook.
   Archive get archive {
     _archives ??= Archive();
-    return _archives;
+    return _archives!;
   }
 
   set archive(Archive value) {
@@ -145,15 +145,16 @@ class Workbook {
   /// Represents the cell style collection in the workbok.
   Map<String, _GlobalStyle> get _globalStyles {
     _cellStyles ??= <String, _GlobalStyle>{};
-    return _cellStyles;
+    return _cellStyles!;
   }
 
   /// Represents the merged cell collection in the workbok.
   Map<String, _ExtendStyle> get _mergedCellsStyle {
     _mergedCellsStyles ??= <String, _ExtendStyle>{};
-    return _mergedCellsStyles;
+    return _mergedCellsStyles!;
   }
 
+  // ignore: unused_element
   set _mergedCellsStyle(Map<String, _ExtendStyle> value) {
     _mergedCellsStyles = value;
   }
@@ -161,18 +162,18 @@ class Workbook {
   /// Returns the font metrics collections.
   Map<String, _FontMetrics> get _fontMetrics {
     if (_fontMetricsCollection == null) _initFontMetricsCollection();
-    return _fontMetricsCollection;
+    return _fontMetricsCollection!;
   }
 
   /// Returns font height for Calibri and Tahoma.
-  static Map<String, Map<double, double>> _fontHeight;
+  static Map<String, Map<double, double>>? _fontHeight;
 
   /// Returns font height for Calibri and Tahoma.
   static Map<String, Map<double, double>> get _fontsHeight {
     if (_fontHeight == null) {
       _initializeFontHeight();
     }
-    return _fontHeight;
+    return _fontHeight!;
   }
 
   /// Initialize the font height for Calibri and Tahoma fonts.
@@ -590,7 +591,7 @@ class Workbook {
     keyValuePair[407] = 409.5;
     keyValuePair[408] = 409.5;
     keyValuePair[409] = 409.5;
-    _fontHeight['Calibri'] = keyValuePair;
+    _fontHeight!['Calibri'] = keyValuePair;
 
     //Tahoma font height
     keyValuePair = <double, double>{};
@@ -1003,7 +1004,7 @@ class Workbook {
     keyValuePair[407] = 409.5;
     keyValuePair[408] = 409.5;
     keyValuePair[409] = 409.5;
-    _fontHeight['Tahoma'] = keyValuePair;
+    _fontHeight!['Tahoma'] = keyValuePair;
 
     //Arial font height
     keyValuePair = <double, double>{};
@@ -1416,7 +1417,7 @@ class Workbook {
     keyValuePair[407] = 409.5;
     keyValuePair[408] = 409.5;
     keyValuePair[409] = 409.5;
-    _fontHeight['Arial'] = keyValuePair;
+    _fontHeight!['Arial'] = keyValuePair;
   }
 
   /// Arial widths table.
@@ -6039,13 +6040,13 @@ class Workbook {
   /// ```
   WorksheetCollection get worksheets {
     _worksheets ??= WorksheetCollection(this);
-    return _worksheets;
+    return _worksheets!;
   }
 
   /// Represents the build in properties.
   BuiltInProperties get builtInProperties {
     _builtInProperties ??= BuiltInProperties();
-    return _builtInProperties;
+    return _builtInProperties!;
   }
 
   set builtInProperties(BuiltInProperties value) {
@@ -6054,7 +6055,6 @@ class Workbook {
 
   /// Represents the cell style collection in the workbook.
   StylesCollection get styles {
-    _styles ??= StylesCollection(this);
     return _styles;
   }
 
@@ -6073,15 +6073,15 @@ class Workbook {
     return _rawFormats;
   }
 
-  /// Represents the hyperlink collection.
-  HyperlinkCollection get hyperlink {
-    _hyperlink ??= HyperlinkCollection();
-    return _hyperlink;
-  }
+  // /// Represents the hyperlink collection.
+  // HyperlinkCollection get hyperlink {
+  //   _hyperlink ??= HyperlinkCollection();
+  //   return _hyperlink;
+  // }
 
-  set hyperlink(HyperlinkCollection value) {
-    _hyperlink = value;
-  }
+  // set hyperlink(HyperlinkCollection value) {
+  //   _hyperlink = value;
+  // }
 
   /// True if cells are protected.
   bool _bCellProtect = false;
@@ -6090,14 +6090,14 @@ class Workbook {
   bool _bWindowProtect = false;
 
   /// 16-bit hash value of the password.
-  int _isPassword;
+  int _isPassword = 0;
 
   /// Workbook Password.
-  String _password;
+  String? _password;
 
   /// Initialize the workbook.
   void _initializeWorkbook(
-      String givenCulture, String givenCurrency, int count) {
+      String? givenCulture, String? givenCurrency, int? count) {
     if (givenCulture != null) {
       _culture = givenCulture;
     } else {
@@ -6143,12 +6143,11 @@ class Workbook {
   /// File('ExcelSave.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
-  List<int> saveAsStream() {
+  List<int>? saveAsStream() {
     _saving = true;
     final SerializeWorkbook serializer = SerializeWorkbook(this);
     serializer._saveInternal();
-    final bytes = ZipEncoder().encode(archive);
-
+    final List<int>? bytes = ZipEncoder().encode(archive);
     _saving = false;
     return bytes;
   }
@@ -6160,8 +6159,10 @@ class Workbook {
     for (final Font font in fonts) {
       index++;
       String fontColor = '';
-      if (toCompareStyle.fontColor != null) {
+      if (toCompareStyle.fontColor.length == 7) {
         fontColor = ('FF' + toCompareStyle.fontColor.replaceAll('#', ''));
+      } else {
+        fontColor = toCompareStyle.fontColor;
       }
       result = font.color == fontColor &&
           font.bold == toCompareStyle.bold &&
@@ -6206,6 +6207,7 @@ class Workbook {
   static bool _isAllBorder(Borders toCompareBorder) {
     final CellStyle allBorderStyle = CellStyle(toCompareBorder._workbook);
     return allBorderStyle.borders.all.color != toCompareBorder.all.color ||
+        allBorderStyle.borders.all.colorRgb != toCompareBorder.all.colorRgb ||
         allBorderStyle.borders.all.lineStyle != toCompareBorder.all.lineStyle;
   }
 
@@ -6265,54 +6267,54 @@ class Workbook {
   void _initFontMetricsCollection() {
     _fontMetricsCollection = <String, _FontMetrics>{};
     //Arial
-    _fontMetricsCollection['arial_italic_bold'] =
+    _fontMetricsCollection!['arial_italic_bold'] =
         _FontMetrics(962, -228, 0, 962 + 228.toDouble(), 1.52, 1.52);
 
-    _fontMetricsCollection['arial_bold'] =
+    _fontMetricsCollection!['arial_bold'] =
         _FontMetrics(962, -228, 0, 962 + 228.toDouble(), 1.52, 1.52);
 
-    _fontMetricsCollection['arial_italic'] =
+    _fontMetricsCollection!['arial_italic'] =
         _FontMetrics(931, -225, 0, 931 + 225.toDouble(), 1.52, 1.52);
 
-    _fontMetricsCollection['arial'] =
+    _fontMetricsCollection!['arial'] =
         _FontMetrics(931, -225, 0, 931 + 225.toDouble(), 1.52, 1.52);
 
     //Times Roman
-    _fontMetricsCollection['times_italic_bold'] =
+    _fontMetricsCollection!['times_italic_bold'] =
         _FontMetrics(921, -218, 0, 921 + 218.toDouble(), 1.52, 1.52);
 
-    _fontMetricsCollection['times_bold'] =
+    _fontMetricsCollection!['times_bold'] =
         _FontMetrics(935, -218, 0, 935 + 218.toDouble(), 1.52, 1.52);
 
-    _fontMetricsCollection['times_italic'] =
+    _fontMetricsCollection!['times_italic'] =
         _FontMetrics(883, -217, 0, 883 + 217.toDouble(), 1.52, 1.52);
 
-    _fontMetricsCollection['times'] =
+    _fontMetricsCollection!['times'] =
         _FontMetrics(898, -218, 0, 898 + 218.toDouble(), 1.52, 1.52);
 
     //Courier
-    _fontMetricsCollection['courier_italic_bold'] =
+    _fontMetricsCollection!['courier_italic_bold'] =
         _FontMetrics(801, -250, 0, 801 + 250.toDouble(), 1.52, 1.52);
 
-    _fontMetricsCollection['courier_bold'] =
+    _fontMetricsCollection!['courier_bold'] =
         _FontMetrics(801, -250, 0, 801 + 250.toDouble(), 1.52, 1.52);
 
-    _fontMetricsCollection['courier_italic'] =
+    _fontMetricsCollection!['courier_italic'] =
         _FontMetrics(805, -250, 0, 805 + 250.toDouble(), 1.52, 1.52);
 
-    _fontMetricsCollection['courier'] =
+    _fontMetricsCollection!['courier'] =
         _FontMetrics(805, -250, 0, 805 + 250.toDouble(), 1.52, 1.52);
 
     //Tahoma
-    _fontMetricsCollection['tahoma'] = _FontMetrics(
+    _fontMetricsCollection!['tahoma'] = _FontMetrics(
         1000.48828, -206.542969, 0, 1207.03125, 1.53869271, 1.53869271);
 
     //Calibri
-    _fontMetricsCollection['calibri'] =
+    _fontMetricsCollection!['calibri'] =
         _FontMetrics(750.0, -250.0, 221, 1221.0, 1.53869271, 1.53869271);
 
     //Verdana
-    _fontMetricsCollection['verdana'] = _FontMetrics(
+    _fontMetricsCollection!['verdana'] = _FontMetrics(
         1005.37109, -209.960938, 0, 1215.332, 1.53869271, 1.53869271);
   }
 
@@ -6321,7 +6323,7 @@ class Workbook {
     _FontMetrics fontMetrics;
     double height = 0;
     double width = 0;
-    fontMetrics = _fontMetrics['verdana'];
+    fontMetrics = _fontMetrics['verdana']!;
     height = _convertToPixels(fontMetrics._getHeight(font), 6);
     if (font.bold && font.italic) {
       width = _getTotalWidthOfText(text, _verdanaBoldItalicWidthTable, false);
@@ -6342,7 +6344,7 @@ class Workbook {
     _FontMetrics fontMetrics;
     double height = 0;
     double width = 0;
-    fontMetrics = _fontMetrics['calibri'];
+    fontMetrics = _fontMetrics['calibri']!;
     height = _convertToPixels(fontMetrics._getHeight(font), 6);
     if (font.bold && font.italic) {
       width = _getTotalWidthOfText(text, _calibriBoldItalicWidthTable, false);
@@ -6364,7 +6366,7 @@ class Workbook {
     _FontMetrics fontMetrics;
     double height = 0;
     double width = 0;
-    fontMetrics = _fontMetrics['tahoma'];
+    fontMetrics = _fontMetrics['tahoma']!;
     height = _convertToPixels(fontMetrics._getHeight(font), 6);
     if (font.bold && font.italic) {
       width = _getTotalWidthOfText(text, _tahomaBoldWidthTable, false) * 1.02;
@@ -6386,13 +6388,13 @@ class Workbook {
     double height = 0;
     double width = 0;
     if (font.bold && font.italic) {
-      fontMetrics = _fontMetrics['courier_italic_bold'];
+      fontMetrics = _fontMetrics['courier_italic_bold']!;
     } else if (font.italic) {
-      fontMetrics = _fontMetrics['courier_italic'];
+      fontMetrics = _fontMetrics['courier_italic']!;
     } else if (font.bold) {
-      fontMetrics = _fontMetrics['courier_bold'];
+      fontMetrics = _fontMetrics['courier_bold']!;
     } else {
-      fontMetrics = _fontMetrics['courier'];
+      fontMetrics = _fontMetrics['courier']!;
     }
     height = _convertToPixels(fontMetrics._getHeight(font), 6);
     width = _convertToPixels(text.length * _courierWidth * 1.03, 6);
@@ -6406,16 +6408,16 @@ class Workbook {
     double height = 0;
     double width = 0;
     if (font.bold && font.italic) {
-      fontMetrics = _fontMetrics['times_italic_bold'];
+      fontMetrics = _fontMetrics['times_italic_bold']!;
       width = _getTotalWidthOfText(text, _timesRomanBoldItalicWidthTable, true);
     } else if (font.italic) {
-      fontMetrics = _fontMetrics['times_italic'];
+      fontMetrics = _fontMetrics['times_italic']!;
       width = _getTotalWidthOfText(text, _timesRomanItalicWidthTable, true);
     } else if (font.bold) {
-      fontMetrics = _fontMetrics['times_bold'];
+      fontMetrics = _fontMetrics['times_bold']!;
       width = _getTotalWidthOfText(text, _timesRomanBoldWidthTable, true);
     } else {
-      fontMetrics = _fontMetrics['times'];
+      fontMetrics = _fontMetrics['times']!;
       width = _getTotalWidthOfText(text, _timesRomanWidthTable, true);
     }
     height = _convertToPixels(fontMetrics._getHeight(font), 6);
@@ -6430,16 +6432,16 @@ class Workbook {
     double height = 0;
     double width = 0;
     if (font.bold && font.italic) {
-      fontMetrics = _fontMetrics['arial_italic_bold'];
+      fontMetrics = _fontMetrics['arial_italic_bold']!;
       width = _getTotalWidthOfText(text, _arialBoldWidthTable, true) * 1.02;
     } else if (font.italic) {
-      fontMetrics = _fontMetrics['arial_italic'];
+      fontMetrics = _fontMetrics['arial_italic']!;
       width = _getTotalWidthOfText(text, _arialWidthTable, true) * 1.02;
     } else if (font.bold) {
-      fontMetrics = _fontMetrics['arial_bold'];
+      fontMetrics = _fontMetrics['arial_bold']!;
       width = _getTotalWidthOfText(text, _arialBoldWidthTable, true);
     } else {
-      fontMetrics = _fontMetrics['arial'];
+      fontMetrics = _fontMetrics['arial']!;
       width = _getTotalWidthOfText(text, _arialWidthTable, true);
     }
     while (text.endsWith('\n')) {
@@ -6508,10 +6510,10 @@ class Workbook {
     final _SizeF result = _measureString(strValue, font);
 
     double originalHeight = result._height;
-    final Map<double, double> keyValuePairs = _fontsHeight[font.name];
+    final Map<double, double>? keyValuePairs = _fontsHeight[font.name];
     double fontHeight;
     if (keyValuePairs != null && keyValuePairs[font.size] != null) {
-      fontHeight = keyValuePairs[font.size];
+      fontHeight = keyValuePairs[font.size]!;
       originalHeight = _convertUnits(fontHeight, 6, 5) *
           ((strValue.length - strValue.replaceAll('\n', '').length) + 1);
     }
@@ -6531,7 +6533,7 @@ class Workbook {
     final double height = (size._height * 1.03).ceilToDouble();
     final int length = bounds.width == 1800.0
         ? 1
-        : _getLengthOfLines(size._width, bounds.width, text, font);
+        : _getLengthOfLines(size._width, bounds.width.toDouble(), text, font);
     final Rectangle result =
         Rectangle(0, 0, (size._width).ceil(), height * length);
     return result;
@@ -6623,7 +6625,23 @@ class Workbook {
   }
 
   /// Protect workbook using the password from moving, hiding, adding and renaming the worksheet.
-  void protect(bool isProtectWindow, bool isProtectContent, [String password]) {
+  ///  ```dart
+  /// // Create a new Excel Document.
+  /// final Workbook workbook = Workbook(1);
+  /// // Accessing sheet via index.
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// sheet.getRangeByIndex(1, 1).text = 'Workbook is protected';
+  ///
+  /// // Protect Workbook.
+  /// workbook.protect(true, true, 'Syncfusion');
+  ///
+  /// // Save and dispose workbook.
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// saveAsExcel(bytes, 'ExcelWorkbookProtection2.xlsx');
+  /// workbook.dispose();
+  /// ```
+  void protect(bool isProtectWindow, bool isProtectContent,
+      [String? password]) {
     if (!isProtectWindow && !isProtectContent) {
       throw Exception('One of params must be TRUE.');
     }
@@ -6637,7 +6655,7 @@ class Workbook {
     if (password != null) {
       _password = password;
       final int value =
-          (_password.isNotEmpty) ? Worksheet._getPasswordHash(_password) : 0;
+          (_password!.isNotEmpty) ? Worksheet._getPasswordHash(_password!) : 0;
       _isPassword = value;
     }
   }
@@ -6645,78 +6663,46 @@ class Workbook {
   /// Dispose  objects.
   void dispose() {
     if (_archives != null) {
-      _archives.files.clear();
+      _archives!.files.clear();
       _archives = null;
     }
 
     if (_worksheets != null) {
-      _worksheets._clear();
-      _worksheets = null;
+      _worksheets!._clear();
     }
 
-    if (_sharedString != null) {
-      _sharedString.clear();
-      _sharedString = null;
-    }
+    _sharedString.clear();
 
     if (_cellStyles != null) {
-      _cellStyles.clear();
-      _cellStyles = null;
+      _cellStyles!.clear();
     }
 
-    if (_mergedCellsStyle != null) {
-      _mergedCellsStyle.clear();
-      _mergedCellsStyle = null;
-    }
+    _mergedCellsStyle.clear();
 
-    if (fonts != null) {
-      fonts.clear();
-      fonts = null;
-    }
+    fonts.clear();
 
-    if (borders != null) {
-      borders.clear();
-      borders = null;
-    }
+    borders.clear();
 
-    if (fills != null) {
-      fills.clear();
-      fills = null;
-    }
+    fills.clear();
 
-    if (_styles != null) {
-      _styles._clear();
-      _styles = null;
-    }
+    _styles._clear();
 
-    if (_cellXfs != null) {
-      _cellXfs.clear();
-      _cellXfs = null;
-    }
+    _cellXfs.clear();
 
-    if (_rawFormats != null) {
-      _rawFormats._clear();
-      _rawFormats = null;
-    }
+    _rawFormats._clear();
 
-    if (_cellStyleXfs != null) {
-      _cellStyleXfs.clear();
-      _cellStyleXfs = null;
-    }
+    _cellStyleXfs.clear();
 
-    if (_printTitles != null) {
-      _printTitles.clear();
-      _printTitles = null;
-    }
+    // if (_printTitles != null) {
+    //   _printTitles.clear();
+    //   _printTitles = null;
+    // }
 
     if (_rgbColors != null) {
-      _rgbColors.clear();
+      _rgbColors!.clear();
       _rgbColors = null;
     }
 
-    if (_unitsProportions != null) {
-      _unitsProportions.clear();
-      _unitsProportions = null;
-    }
+    _unitsProportions.clear();
   }
 }

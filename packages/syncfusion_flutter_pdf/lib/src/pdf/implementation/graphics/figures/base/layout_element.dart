@@ -15,11 +15,19 @@ abstract class PdfLayoutElement {
   ///
   /// If both graphics and page provide in the arguments
   /// then page takes more precedence than graphics
-  PdfLayoutResult draw(
-      {PdfGraphics graphics,
-      PdfPage page,
-      Rect bounds,
-      PdfLayoutFormat format}) {
+  PdfLayoutResult? draw(
+      {PdfGraphics? graphics,
+      PdfPage? page,
+      Rect? bounds,
+      PdfLayoutFormat? format}) {
+    return _draw(graphics, page, bounds, format);
+  }
+
+  //Implementation
+  PdfLayoutResult? _layout(_PdfLayoutParams param);
+
+  PdfLayoutResult? _draw(PdfGraphics? graphics, PdfPage? page, Rect? bounds,
+      PdfLayoutFormat? format) {
     if (page != null) {
       final _PdfLayoutParams param = _PdfLayoutParams();
       param.page = page;
@@ -30,15 +38,15 @@ abstract class PdfLayoutElement {
     } else if (graphics != null) {
       final _Rectangle rectangle =
           bounds != null ? _Rectangle.fromRect(bounds) : _Rectangle.empty;
-      final bool _bNeedSave = rectangle.x != 0 || rectangle.y != 0;
-      PdfGraphicsState gState;
-      if (_bNeedSave) {
-        gState = graphics.save();
+      if (rectangle.x != 0 || rectangle.y != 0) {
+        final PdfGraphicsState gState = graphics.save();
         graphics.translateTransform(rectangle.x, rectangle.y);
-      }
-      _drawInternal(graphics, rectangle);
-      if (_bNeedSave) {
+        rectangle.x = 0;
+        rectangle.y = 0;
+        _drawInternal(graphics, rectangle);
         graphics.restore(gState);
+      } else {
+        _drawInternal(graphics, rectangle);
       }
       return null;
     } else {
@@ -46,17 +54,15 @@ abstract class PdfLayoutElement {
     }
   }
 
-  //Implementation
-  PdfLayoutResult _layout(_PdfLayoutParams param);
   void _onBeginPageLayout(BeginPageLayoutArgs e) {
     if (beginPageLayout != null) {
-      beginPageLayout(this, e);
+      beginPageLayout!(this, e);
     }
   }
 
   void _onEndPageLayout(EndPageLayoutArgs e) {
     if (endPageLayout != null) {
-      endPageLayout(this, e);
+      endPageLayout!(this, e);
     }
   }
 
@@ -64,16 +70,16 @@ abstract class PdfLayoutElement {
 
   //Events
   /// Raises before the element should be printed on the page.
-  BeginPageLayoutCallback beginPageLayout;
+  BeginPageLayoutCallback? beginPageLayout;
 
   /// Raises after the element was printed on the page.
-  EndPageLayoutCallback endPageLayout;
+  EndPageLayoutCallback? endPageLayout;
 }
 
 /// Represents the base class for classes that contain event data, and provides
 /// a value to use for events, once completed the text lay outing on the page.
 class EndTextPageLayoutArgs extends EndPageLayoutArgs {
-  /// Initializes a new instance of the [EndTextPageLayoutEventArgs] class
+  /// Initializes a new instance of the [EndTextPageLayoutArgs] class
   /// with the specified [PdfTextLayoutResult].
   EndTextPageLayoutArgs(PdfTextLayoutResult result) : super(result);
 }
@@ -83,14 +89,13 @@ class EndPageLayoutArgs extends PdfCancelArgs {
   //Constructor
   /// Initialize an instance of [EndPageLayoutArgs].
   EndPageLayoutArgs(PdfLayoutResult result) {
-    ArgumentError.checkNotNull(result);
     _result = result;
   }
 
   //Fields
   /// The next page for lay outing.
-  PdfPage nextPage;
-  PdfLayoutResult _result;
+  PdfPage? nextPage;
+  late PdfLayoutResult _result;
 
   //Properties
   /// Gets the lay outing result of the page.
@@ -102,17 +107,14 @@ class BeginPageLayoutArgs extends PdfCancelArgs {
   //Constructor
   /// Initialize an instance of [BeginPageLayoutArgs].
   BeginPageLayoutArgs(Rect bounds, PdfPage page) {
-    ArgumentError.checkNotNull(page);
-    if (bounds != null) {
-      _bounds = _Rectangle.fromRect(bounds);
-    }
+    _bounds = _Rectangle.fromRect(bounds);
     _page = page;
   }
 
   //Fields
   /// The bounds of the lay outing on the page.
-  _Rectangle _bounds;
-  PdfPage _page;
+  late _Rectangle _bounds;
+  late PdfPage _page;
 
   //Properties
   /// Gets the page where the lay outing should start.
@@ -123,9 +125,7 @@ class BeginPageLayoutArgs extends PdfCancelArgs {
 
   /// Sets value that indicates the lay outing bounds on the page.
   set bounds(Rect value) {
-    if (value != null) {
-      _bounds = _Rectangle.fromRect(value);
-    }
+    _bounds = _Rectangle.fromRect(value);
   }
 }
 

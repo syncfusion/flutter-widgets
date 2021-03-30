@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "ရွေးချယ်ထားသည့်နေ့စွဲမရှိပါ", 
 "noEventsCalendarLabel" : "ဖြစ်ရပ်များမရှိပါ", 
-"scheduleViewNewEventLabel" : "အစီအစဉ်မရှိ ဖန်တီးရန်ကိုအသာပုတ်ပါ။", 
 "ofDataPagerLabel" : "၏", 
 "pagesDataPagerLabel" : "စာမျက်နှာများ", 
 "itemsDataPagerLabel" : "ပစ္စည်းတွေ", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "ရမ်။", 
 "shortShawwalLabel" : "Shaw ။", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
-"shortDhualhiLabel" : "Dhu'l-H ကို"
+"shortDhualhiLabel" : "Dhu'l-H ကို", 
+"daySpanCountLabel" : "နေ့"
 }

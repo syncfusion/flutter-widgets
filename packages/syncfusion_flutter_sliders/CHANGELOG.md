@@ -1,3 +1,47 @@
+## Unreleased
+
+## Slider
+
+### Features
+
+* Support has been provided for vertical orientation.
+
+## Range Slider
+
+### Features
+
+* Support has been provided for vertical orientation.
+
+### Breaking changes
+
+* Now, the `SfRangeSliderSemanticFormatterCallback` typedef has been changed into `RangeSliderSemanticFormatterCallback` and the parameter has been changed from `SfRangeValues` to `value` which denotes the value of the current thumb. A new parameter named `SfThumb` has also been added to indicate which thumb is changed currently.
+
+## Range Selector
+
+### Breaking changes
+
+* Now, the `SfRangeSelectorSemanticFormatterCallback` typedef has been changed into `RangeSelectorSemanticFormatterCallback` and the parameter has been changed from `SfRangeValues` to `value` which denotes the value of the current thumb. A new parameter named `SfThumb` has also been added to indicate which thumb is changed currently.
+
+## [18.4.30-beta] - 12/17/2020
+
+## Slider
+
+### Breaking changes
+
+* The `showTooltip` property has been changed into `enableTooltip` property.
+
+## Range Slider
+
+### Breaking changes
+
+* The `showTooltip` property has been changed into `enableTooltip` property.
+
+## Range Selector
+
+### Breaking changes
+
+* The `showTooltip` property has been changed into `enableTooltip` property.
+
 ## [18.3.35-beta] - 10/01/2020
 
 ## Slider

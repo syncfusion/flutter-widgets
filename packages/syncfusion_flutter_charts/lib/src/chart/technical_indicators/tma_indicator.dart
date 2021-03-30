@@ -9,26 +9,26 @@ part of charts;
 class TmaIndicator<T, D> extends TechnicalIndicators<T, D> {
   /// Creating an argument constructor of TmaIndicator class.
   TmaIndicator(
-      {bool isVisible,
-      String xAxisName,
-      String yAxisName,
-      String seriesName,
-      List<double> dashArray,
-      double animationDuration,
-      List<T> dataSource,
-      ChartValueMapper<T, D> xValueMapper,
-      ChartValueMapper<T, num> highValueMapper,
-      ChartValueMapper<T, num> lowValueMapper,
-      ChartValueMapper<T, num> openValueMapper,
-      ChartValueMapper<T, num> closeValueMapper,
-      String name,
-      bool isVisibleInLegend,
-      LegendIconType legendIconType,
-      String legendItemText,
-      Color signalLineColor,
-      double signalLineWidth,
-      int period,
-      String valueField})
+      {bool? isVisible,
+      String? xAxisName,
+      String? yAxisName,
+      String? seriesName,
+      List<double>? dashArray,
+      double? animationDuration,
+      List<T>? dataSource,
+      ChartValueMapper<T, D>? xValueMapper,
+      ChartValueMapper<T, num>? highValueMapper,
+      ChartValueMapper<T, num>? lowValueMapper,
+      ChartValueMapper<T, num>? openValueMapper,
+      ChartValueMapper<T, num>? closeValueMapper,
+      String? name,
+      bool? isVisibleInLegend,
+      LegendIconType? legendIconType,
+      String? legendItemText,
+      Color? signalLineColor,
+      double? signalLineWidth,
+      int? period,
+      String? valueField})
       : valueField = (valueField ?? 'close').toLowerCase(),
         super(
             isVisible: isVisible,
@@ -78,8 +78,12 @@ class TmaIndicator<T, D> extends TechnicalIndicators<T, D> {
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
     technicalIndicatorsRenderer._targetSeriesRenderers =
         <CartesianSeriesRenderer>[];
-    technicalIndicatorsRenderer._setSeriesProperties(indicator, 'TMA',
-        indicator.signalLineColor, indicator.signalLineWidth, chart);
+    technicalIndicatorsRenderer._setSeriesProperties(
+        indicator,
+        indicator.name ?? 'TMA',
+        indicator.signalLineColor,
+        indicator.signalLineWidth,
+        chart);
   }
 
   /// To initialise data source of technical indicators
@@ -87,8 +91,10 @@ class TmaIndicator<T, D> extends TechnicalIndicators<T, D> {
   void _initDataSource(TechnicalIndicators<dynamic, dynamic> indicator,
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
     final List<CartesianChartPoint<dynamic>> validData =
-        technicalIndicatorsRenderer._dataPoints;
-    if (validData.isNotEmpty && validData.length > indicator.period) {
+        technicalIndicatorsRenderer._dataPoints!;
+    if (validData.isNotEmpty &&
+        validData.length > indicator.period &&
+        indicator is TmaIndicator) {
       _calculateTMAPoints(indicator, validData, technicalIndicatorsRenderer);
     }
   }
@@ -111,14 +117,14 @@ class TmaIndicator<T, D> extends TechnicalIndicators<T, D> {
       //prepare data
       if (validData.isNotEmpty && validData.length >= period) {
         num sum = 0;
-        num index = 0;
+        int index = 0;
         List<num> smaValues = <num>[];
-        num length = validData.length;
+        int length = validData.length;
 
         while (length >= period) {
           sum = 0;
           index = validData.length - length;
-          for (num j = index; j < index + period; j++) {
+          for (int j = index; j < index + period; j++) {
             sum += technicalIndicatorsRenderer._getFieldValue(
                 validData, j, valueField);
           }
@@ -127,9 +133,9 @@ class TmaIndicator<T, D> extends TechnicalIndicators<T, D> {
           length--;
         }
         //initial values
-        for (num k = 0; k < period - 1; k++) {
+        for (int k = 0; k < period - 1; k++) {
           sum = 0;
-          for (num j = 0; j < k + 1; j++) {
+          for (int j = 0; j < k + 1; j++) {
             sum += technicalIndicatorsRenderer._getFieldValue(
                 validData, j, valueField);
           }
@@ -140,7 +146,7 @@ class TmaIndicator<T, D> extends TechnicalIndicators<T, D> {
         index = indicator.period;
         while (index <= smaValues.length) {
           sum = 0;
-          for (num j = index - indicator.period; j < index; j++) {
+          for (int j = index - indicator.period; j < index; j++) {
             sum = sum + smaValues[j];
           }
           sum = sum / indicator.period;
@@ -163,8 +169,8 @@ class TmaIndicator<T, D> extends TechnicalIndicators<T, D> {
   /// To return list of spliced values
   List<num> _splice<num>(List<num> list, int index,
       //ignore: unused_element
-      [num howMany,
-      num elements]) {
+      [num? howMany,
+      num? elements]) {
     if (elements != null) {
       list.insertAll(index, <num>[elements]);
     }

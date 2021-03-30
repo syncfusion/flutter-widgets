@@ -43,16 +43,16 @@ class _JpegDecoder extends _ImageDecoder {
   ];
 
   //Fields
-  _PdfStream _imageStream;
-  bool _isContainsLittleEndian;
-  int _noOfComponents = -1;
+  _PdfStream? _imageStream;
+  late bool _isContainsLittleEndian;
+  int? _noOfComponents = -1;
 
   //Implementation
   @override
   void readHeader() {
     _reset();
     bitsPerComponent = 8;
-    int imageOrientation = 0;
+    int? imageOrientation = 0;
     final Map<String, dynamic> returnValue = _checkForExifData();
     final bool hasOrientation = returnValue['hasOrientation'];
     imageOrientation = returnValue['imageOrientation'];
@@ -105,23 +105,24 @@ class _JpegDecoder extends _ImageDecoder {
   }
 
   @override
-  _PdfStream getImageDictionary() {
+  _PdfStream? getImageDictionary() {
     _imageStream = _PdfStream();
-    _imageStream._dataStream = imageData;
-    _imageStream.compress = false;
+    _imageStream!._dataStream = imageData;
+    _imageStream!.compress = false;
 
-    _imageStream[_DictionaryProperties.type] =
+    _imageStream![_DictionaryProperties.type] =
         _PdfName(_DictionaryProperties.xObject);
-    _imageStream[_DictionaryProperties.subtype] =
+    _imageStream![_DictionaryProperties.subtype] =
         _PdfName(_DictionaryProperties.image);
-    _imageStream[_DictionaryProperties.width] = _PdfNumber(width);
-    _imageStream[_DictionaryProperties.height] = _PdfNumber(height);
-    _imageStream[_DictionaryProperties.bitsPerComponent] =
-        _PdfNumber(bitsPerComponent);
-    _imageStream[_DictionaryProperties.filter] =
+    _imageStream![_DictionaryProperties.width] = _PdfNumber(width);
+    _imageStream![_DictionaryProperties.height] = _PdfNumber(height);
+    _imageStream![_DictionaryProperties.bitsPerComponent] =
+        _PdfNumber(bitsPerComponent!);
+    _imageStream![_DictionaryProperties.filter] =
         _PdfName(_DictionaryProperties.dctDecode);
-    _imageStream[_DictionaryProperties.colorSpace] = _PdfName(_getColorSpace());
-    _imageStream[_DictionaryProperties.decodeParms] = _getDecodeParams();
+    _imageStream![_DictionaryProperties.colorSpace] =
+        _PdfName(_getColorSpace());
+    _imageStream![_DictionaryProperties.decodeParms] = _getDecodeParams();
 
     return _imageStream;
   }
@@ -133,12 +134,12 @@ class _JpegDecoder extends _ImageDecoder {
     decodeParams[_DictionaryProperties.k] = _PdfNumber(-1);
     decodeParams[_DictionaryProperties.predictor] = _PdfNumber(15);
     decodeParams[_DictionaryProperties.bitsPerComponent] =
-        _PdfNumber(bitsPerComponent);
+        _PdfNumber(bitsPerComponent!);
     return decodeParams;
   }
 
   Map<String, dynamic> _checkForExifData() {
-    int imageOrientation = 0;
+    int? imageOrientation = 0;
     _reset();
     if (_convertToUShort(_readJpegBytes(2)) != 0xFFD8) {
       return <String, dynamic>{
@@ -146,8 +147,8 @@ class _JpegDecoder extends _ImageDecoder {
         'imageOrientation': imageOrientation
       };
     }
-    int jpegMarkerStart;
-    int jpegMarkerNum = 0;
+    int? jpegMarkerStart;
+    int? jpegMarkerNum = 0;
     while ((jpegMarkerStart = _readByte()) == 0xFF &&
         (jpegMarkerNum = _readByte()) != 0xE1) {
       final int jpegDataLength = _convertToUShort(_readJpegBytes(2));
@@ -205,7 +206,7 @@ class _JpegDecoder extends _ImageDecoder {
         }
         _seek(6);
         final List<int> orientationData = _readJpegBytes(4);
-        int orientationAngle = 0;
+        int? orientationAngle = 0;
         for (int i = 0; i < orientationData.length; i++) {
           if (orientationData[i] != 0) {
             orientationAngle = orientationData[i];
@@ -285,7 +286,7 @@ class _JpegDecoder extends _ImageDecoder {
 
   int _getMarker() {
     int skippedByte = 0;
-    int marker = _readByte();
+    int? marker = _readByte();
     while (marker != 255) {
       skippedByte++;
       marker = _readByte();

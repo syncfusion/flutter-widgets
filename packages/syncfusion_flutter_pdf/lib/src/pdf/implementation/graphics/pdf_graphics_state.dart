@@ -6,26 +6,22 @@ class PdfGraphicsState {
   // Constructors
   /// Initializes a new instance of the [PdfGraphicsState] class.
   PdfGraphicsState._(PdfGraphics graphics, _PdfTransformationMatrix matrix) {
-    if (graphics != null && matrix != null) {
-      _graphics = graphics;
-      _matrix = matrix;
-    }
+    _graphics = graphics;
+    _matrix = matrix;
     _initialize();
   }
 
   //Fields
-  PdfGraphics _graphics;
-  _PdfTransformationMatrix _matrix;
-  double _characterSpacing;
-  double _wordSpacing;
-  double _textScaling;
-  PdfPen _pen;
-  PdfBrush _brush;
-  PdfFont _font;
-  PdfColorSpace _colorSpace;
-
-  /// Gets or sets the text rendering mode.
-  int _textRenderingMode;
+  late PdfGraphics _graphics;
+  late _PdfTransformationMatrix _matrix;
+  late double _characterSpacing;
+  late double _wordSpacing;
+  late double _textScaling;
+  PdfPen? _pen;
+  PdfBrush? _brush;
+  PdfFont? _font;
+  late PdfColorSpace _colorSpace;
+  late int _textRenderingMode;
 
   //Implementation
   void _initialize() {

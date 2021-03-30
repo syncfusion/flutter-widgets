@@ -7,7 +7,7 @@ class _ScrollBarBase extends ChangeNotifier {
   /// Returns a number that represents the current position of the
   /// scroll box on the scroll bar control.
   bool get enabled => _enabled;
-  bool _enabled;
+  bool _enabled = false;
   set enabled(bool value) {
     if (value == _enabled) {
       return;

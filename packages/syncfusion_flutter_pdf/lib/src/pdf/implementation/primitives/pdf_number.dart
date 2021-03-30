@@ -10,64 +10,64 @@ class _PdfNumber implements _IPdfPrimitive {
   }
 
   //Fields
-  num value;
-  bool _isSaving;
-  int _objectCollectionIndex;
-  int _position;
-  _ObjectStatus _status;
+  num? value;
+  bool? _isSaving;
+  int? _objectCollectionIndex;
+  int? _position;
+  _ObjectStatus? _status;
 
   //_IPdfPrimitive members
   @override
-  bool get isSaving {
+  bool? get isSaving {
     _isSaving ??= false;
     return _isSaving;
   }
 
   @override
-  set isSaving(bool value) {
+  set isSaving(bool? value) {
     _isSaving = value;
   }
 
   @override
-  int get objectCollectionIndex {
+  int? get objectCollectionIndex {
     _objectCollectionIndex ??= 0;
     return _objectCollectionIndex;
   }
 
   @override
-  set objectCollectionIndex(int value) {
+  set objectCollectionIndex(int? value) {
     _objectCollectionIndex = value;
   }
 
   @override
-  int get position {
+  int? get position {
     _position ??= -1;
     return _position;
   }
 
   @override
-  set position(int value) {
+  set position(int? value) {
     _position = value;
   }
 
   @override
-  _ObjectStatus get status {
+  _ObjectStatus? get status {
     _status ??= _ObjectStatus.none;
     return _status;
   }
 
   @override
-  set status(_ObjectStatus value) {
+  set status(_ObjectStatus? value) {
     _status = value;
   }
 
   @override
-  _IPdfPrimitive clonedObject;
+  _IPdfPrimitive? clonedObject;
 
   @override
-  void save(_IPdfWriter writer) {
+  void save(_IPdfWriter? writer) {
     if (value is double) {
-      String numberValue = value.toStringAsFixed(2);
+      String numberValue = value!.toStringAsFixed(2);
       if (numberValue.endsWith('.00')) {
         if (numberValue.length == 3) {
           numberValue = '0';
@@ -75,9 +75,9 @@ class _PdfNumber implements _IPdfPrimitive {
           numberValue = numberValue.substring(0, numberValue.length - 3);
         }
       }
-      writer._write(numberValue);
+      writer!._write(numberValue);
     } else {
-      writer._write(value.toString());
+      writer!._write(value.toString());
     }
   }
 
@@ -89,5 +89,5 @@ class _PdfNumber implements _IPdfPrimitive {
   }
 
   @override
-  _IPdfPrimitive _clone(_PdfCrossTable crossTable) => _PdfNumber(value);
+  _IPdfPrimitive _clone(_PdfCrossTable crossTable) => _PdfNumber(value!);
 }

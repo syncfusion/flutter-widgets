@@ -2,14 +2,14 @@ part of pdf;
 
 class _ContentLexer {
   // Constructor
-  _ContentLexer(List<int> contentStream) {
+  _ContentLexer(List<int>? contentStream) {
     _contentStream = contentStream;
     _operatorParams = StringBuffer();
   }
 
   // fields
-  List<int> _contentStream;
-  StringBuffer _operatorParams;
+  List<int>? _contentStream;
+  StringBuffer? _operatorParams;
   String _currentChar = '0';
   String _nextChar = '0';
   int _charPointer = 0;
@@ -73,7 +73,7 @@ class _ContentLexer {
   }
 
   void _resetToken() {
-    _operatorParams.clear();
+    _operatorParams!.clear();
   }
 
   String _moveToNextChar() {
@@ -101,7 +101,7 @@ class _ContentLexer {
     if (value) {
       return _nextChar;
     }
-    if (_contentStream.length <= _charPointer) {
+    if (_contentStream!.length <= _charPointer) {
       if (_nextChar == '81' || (_currentChar == '68' && _nextChar == '111')) {
         _currentChar = _nextChar;
         _nextChar = '65535';
@@ -111,14 +111,14 @@ class _ContentLexer {
       _nextChar = '65535';
     } else {
       _currentChar = _nextChar;
-      _nextChar = _contentStream[_charPointer++].toString();
+      _nextChar = _contentStream![_charPointer++].toString();
       if (_currentChar == '13') {
         if (_nextChar == '10') {
           _currentChar = _nextChar;
-          if (_contentStream.length <= _charPointer) {
+          if (_contentStream!.length <= _charPointer) {
             _nextChar = '65535';
           } else {
-            _nextChar = _contentStream[_charPointer++].toString();
+            _nextChar = _contentStream![_charPointer++].toString();
           }
         } else {
           _currentChar = '10';
@@ -149,14 +149,14 @@ class _ContentLexer {
   _PdfTokenType _getNumber() {
     String ch = _currentChar;
     if (ch == '43' || ch == '45') {
-      _operatorParams.write(String.fromCharCode(int.parse(_currentChar)));
+      _operatorParams!.write(String.fromCharCode(int.parse(_currentChar)));
       ch = _getNextChar();
     }
     while (true) {
       if (isDigit(String.fromCharCode(int.parse(ch)))) {
-        _operatorParams.write(String.fromCharCode(int.parse(_currentChar)));
+        _operatorParams!.write(String.fromCharCode(int.parse(_currentChar)));
       } else if (ch == '46') {
-        _operatorParams.write(String.fromCharCode(int.parse(_currentChar)));
+        _operatorParams!.write(String.fromCharCode(int.parse(_currentChar)));
       } else {
         break;
       }
@@ -167,7 +167,7 @@ class _ContentLexer {
 
   String _consumeValue() {
     final String data = String.fromCharCode(int.parse(_currentChar));
-    _operatorParams.write(data);
+    _operatorParams!.write(data);
     if (_isContainsArtifacts &&
         _operatorParams.toString().contains('/Contents') &&
         !_isContentEnded) {
@@ -195,14 +195,14 @@ class _ContentLexer {
     while (true) {
       if (String.fromCharCode(int.parse(beginChar)) == '(') {
         literal = _getLiterals(ch);
-        _operatorParams.write(literal);
+        _operatorParams!.write(literal);
         ch = String.fromCharCode(int.parse(_getNextChar()));
         break;
       } else {
         if (String.fromCharCode(int.parse(ch)) == '(') {
           ch = _consumeValue();
           literal = _getLiterals(ch);
-          _operatorParams.write(literal);
+          _operatorParams!.write(literal);
           ch = _getNextChar();
           continue;
         } else if (String.fromCharCode(int.parse(ch)) == ']') {
@@ -297,12 +297,12 @@ class _ContentLexer {
   }
 
   String _getNextInlineChar() {
-    if (_contentStream.length <= _charPointer) {
+    if (_contentStream!.length <= _charPointer) {
       _currentChar = '65535';
       _nextChar = '65535';
     } else {
       _currentChar = _nextChar;
-      _nextChar = _contentStream[_charPointer++].toString();
+      _nextChar = _contentStream![_charPointer++].toString();
       if (_currentChar == '13') {
         if (_nextChar == '10') {
           _currentChar = '13';
@@ -315,19 +315,19 @@ class _ContentLexer {
   }
 
   String _getNextCharforInlineStream() {
-    if (_contentStream.length <= _charPointer) {
+    if (_contentStream!.length <= _charPointer) {
       _currentChar = '65535';
       _nextChar = '65535';
     } else {
       _currentChar = _nextChar;
-      _nextChar = _contentStream[_charPointer++].toString();
+      _nextChar = _contentStream![_charPointer++].toString();
       if (_currentChar == '13') {
         if (_nextChar == '10') {
           _currentChar = _nextChar;
-          if (_contentStream.length <= _charPointer) {
+          if (_contentStream!.length <= _charPointer) {
             _nextChar = '65535';
           } else {
-            _nextChar = _contentStream[_charPointer++].toString();
+            _nextChar = _contentStream![_charPointer++].toString();
           }
         }
       }

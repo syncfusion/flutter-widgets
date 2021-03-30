@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "日付が選択されていません", 
 "noEventsCalendarLabel" : "イベントなし", 
-"scheduleViewNewEventLabel" : "何も計画されていません。タップして作成します。", 
 "ofDataPagerLabel" : "の", 
 "pagesDataPagerLabel" : "ページ", 
 "itemsDataPagerLabel" : "アイテム", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "羊。", 
 "shortShawwalLabel" : "ショー。", 
 "shortDhualqiLabel" : "ズル・カイダ", 
-"shortDhualhiLabel" : "ズル・カイダ"
+"shortDhualhiLabel" : "Dhu'l-H", 
+"daySpanCountLabel" : "日"
 }

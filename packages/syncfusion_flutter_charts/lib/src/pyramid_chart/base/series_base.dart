@@ -5,11 +5,11 @@ class _PyramidSeries {
 
   final SfPyramidChartState _chartState;
 
-  PyramidSeries<dynamic, dynamic> currentSeries;
+  late PyramidSeries<dynamic, dynamic> currentSeries;
 
   List<PyramidSeriesRenderer> visibleSeriesRenderers =
       <PyramidSeriesRenderer>[];
-  SelectionArgs _selectionArgs;
+  SelectionArgs? _selectionArgs;
 
   /// To find the visible series
   void _findVisibleSeries() {
@@ -22,14 +22,14 @@ class _PyramidSeries {
     currentSeries = seriesRenderer._series;
     //Setting seriestype
     seriesRenderer._seriesType = 'pyramid';
-    final ChartIndexedValueMapper<dynamic> xValue = currentSeries.xValueMapper;
-    final ChartIndexedValueMapper<dynamic> yValue = currentSeries.yValueMapper;
+    final ChartIndexedValueMapper<dynamic>? xValue = currentSeries.xValueMapper;
+    final ChartIndexedValueMapper<dynamic>? yValue = currentSeries.yValueMapper;
     for (int pointIndex = 0;
-        pointIndex < currentSeries.dataSource.length;
+        pointIndex < currentSeries.dataSource!.length;
         pointIndex++) {
-      if (xValue(pointIndex) != null) {
+      if (xValue!(pointIndex) != null) {
         seriesRenderer._dataPoints
-            .add(PointInfo<dynamic>(xValue(pointIndex), yValue(pointIndex)));
+            .add(PointInfo<dynamic>(xValue(pointIndex), yValue!(pointIndex)));
       }
     }
     visibleSeriesRenderers
@@ -64,7 +64,7 @@ class _PyramidSeries {
     seriesRenderer._renderPoints = <PointInfo<dynamic>>[];
     for (int i = 0; i < points.length; i++) {
       if (points[i].isVisible) {
-        seriesRenderer._renderPoints.add(points[i]);
+        seriesRenderer._renderPoints!.add(points[i]);
       }
     }
   }
@@ -73,18 +73,18 @@ class _PyramidSeries {
   void _setPointStyle(PyramidSeriesRenderer seriesRenderer) {
     currentSeries = seriesRenderer._series;
     final List<Color> palette = _chartState._chart.palette;
-    final ChartIndexedValueMapper<Color> pointColor =
+    final ChartIndexedValueMapper<Color>? pointColor =
         currentSeries.pointColorMapper;
     final EmptyPointSettings empty = currentSeries.emptyPointSettings;
-    final ChartIndexedValueMapper<String> textMapping =
+    final ChartIndexedValueMapper<String>? textMapping =
         currentSeries.textFieldMapper;
-    final List<PointInfo<dynamic>> points = seriesRenderer._renderPoints;
+    final List<PointInfo<dynamic>> points = seriesRenderer._renderPoints!;
     for (int i = 0; i < points.length; i++) {
       PointInfo<dynamic> currentPoint;
       currentPoint = points[i];
       currentPoint.fill = currentPoint.isEmpty && empty.color != null
           ? empty.color
-          : pointColor(i) ?? palette[i % palette.length];
+          : pointColor!(i) ?? palette[i % palette.length];
       currentPoint.color = currentPoint.fill;
       currentPoint.borderColor =
           currentPoint.isEmpty && empty.borderColor != null
@@ -133,9 +133,9 @@ class _PyramidSeries {
   /// To find the sum of points
   void _findSumOfPoints(PyramidSeriesRenderer seriesRenderer) {
     seriesRenderer._sumOfPoints = 0;
-    for (final PointInfo<dynamic> point in seriesRenderer._renderPoints) {
+    for (final PointInfo<dynamic> point in seriesRenderer._renderPoints!) {
       if (point.isVisible) {
-        seriesRenderer._sumOfPoints += point.y.abs();
+        seriesRenderer._sumOfPoints += point.y!.abs();
       }
     }
   }
@@ -146,10 +146,10 @@ class _PyramidSeries {
     final Rect chartAreaRect = _chartState._chartAreaRect;
     final bool reverse = seriesRenderer._seriesType == 'pyramid' ? true : false;
     seriesRenderer._triangleSize = Size(
-        _percentToValue(series.width, chartAreaRect.width).toDouble(),
-        _percentToValue(series.height, chartAreaRect.height).toDouble());
+        _percentToValue(series.width, chartAreaRect.width)!.toDouble(),
+        _percentToValue(series.height, chartAreaRect.height)!.toDouble());
     seriesRenderer._explodeDistance =
-        _percentToValue(series.explodeOffset, chartAreaRect.width);
+        _percentToValue(series.explodeOffset, chartAreaRect.width)!;
     if (series.pyramidMode == PyramidMode.linear) {
       _initializeSizeRatio(seriesRenderer, reverse);
     } else {
@@ -159,7 +159,7 @@ class _PyramidSeries {
 
   /// To intialize the surface size ratio in chart
   void _initializeSurfaceSizeRatio(PyramidSeriesRenderer seriesRenderer) {
-    final num count = seriesRenderer._renderPoints.length;
+    final num count = seriesRenderer._renderPoints!.length;
     final num sumOfValues = seriesRenderer._sumOfPoints;
     List<num> y;
     List<num> height;
@@ -170,17 +170,17 @@ class _PyramidSeries {
     final num preSum = _getSurfaceHeight(0, sumOfValues);
     num currY = 0;
     PointInfo<dynamic> point;
-    for (num i = 0; i < count; i++) {
-      point = seriesRenderer._renderPoints[i];
+    for (int i = 0; i < count; i++) {
+      point = seriesRenderer._renderPoints![i];
       if (point.isVisible) {
         y.add(currY);
-        height.add(_getSurfaceHeight(currY, point.y.abs()));
+        height.add(_getSurfaceHeight(currY, point.y!.abs()));
         currY += height[i] + gapHeight * preSum;
       }
     }
     final num coef = 1 / (currY - gapHeight * preSum);
-    for (num i = 0; i < count; i++) {
-      point = seriesRenderer._renderPoints[i];
+    for (int i = 0; i < count; i++) {
+      point = seriesRenderer._renderPoints![i];
       if (point.isVisible) {
         point.yRatio = coef * y[i];
         point.heightRatio = coef * height[i];
@@ -208,8 +208,8 @@ class _PyramidSeries {
 
   /// To initialise size ratio for the pyramid
   void _initializeSizeRatio(PyramidSeriesRenderer seriesRenderer,
-      [bool reverse]) {
-    final List<PointInfo<dynamic>> points = seriesRenderer._renderPoints;
+      [bool? reverse]) {
+    final List<PointInfo<dynamic>> points = seriesRenderer._renderPoints!;
     double y;
     assert(
         seriesRenderer._series.gapRatio != null
@@ -222,12 +222,12 @@ class _PyramidSeries {
         1 / (seriesRenderer._sumOfPoints * (1 + gapRatio / (1 - gapRatio)));
     final double spacing = gapRatio / (points.length - 1);
     y = 0;
-    num index;
+    int index;
     num height;
-    for (num i = points.length - 1; i >= 0; i--) {
-      index = reverse ? points.length - 1 - i : i;
+    for (int i = points.length - 1; i >= 0; i--) {
+      index = reverse! ? points.length - 1 - i : i;
       if (points[index].isVisible) {
-        height = coEff * points[index].y;
+        height = coEff * points[index].y!;
         points[index].yRatio = y;
         points[index].heightRatio = height;
         y += height + spacing;
@@ -236,17 +236,17 @@ class _PyramidSeries {
   }
 
   /// To explode current point index
-  void _pointExplode(num pointIndex) {
+  void _pointExplode(int pointIndex) {
     bool existExplodedRegion = false;
     final PyramidSeriesRenderer seriesRenderer =
         _chartState._chartSeries.visibleSeriesRenderers[0];
     final SfPyramidChartState chartState = _chartState;
-    final PointInfo<dynamic> point = seriesRenderer._renderPoints[pointIndex];
+    final PointInfo<dynamic> point = seriesRenderer._renderPoints![pointIndex];
     if (seriesRenderer._series.explode) {
       if (chartState._explodedPoints.isNotEmpty) {
         existExplodedRegion = true;
         final int previousIndex = chartState._explodedPoints[0];
-        seriesRenderer._renderPoints[previousIndex].explodeDistance = 0;
+        seriesRenderer._renderPoints![previousIndex].explodeDistance = 0;
         point.explodeDistance =
             previousIndex == pointIndex ? 0 : seriesRenderer._explodeDistance;
         chartState._explodedPoints[0] = pointIndex;
@@ -266,9 +266,9 @@ class _PyramidSeries {
 
   /// To calculate region path for rendering chart
   void _calculatePathRegion(
-      num pointIndex, PyramidSeriesRenderer seriesRenderer) {
+      int pointIndex, PyramidSeriesRenderer seriesRenderer) {
     final PointInfo<dynamic> currentPoint =
-        seriesRenderer._renderPoints[pointIndex];
+        seriesRenderer._renderPoints![pointIndex];
     currentPoint.pathRegion = <Offset>[];
     final SfPyramidChartState chartState = _chartState;
     final Size area = seriesRenderer._triangleSize;
@@ -277,7 +277,7 @@ class _PyramidSeries {
     const num offset = 0;
     // ignore: prefer_if_null_operators
     final num extraSpace = (currentPoint.explodeDistance != null
-            ? currentPoint.explodeDistance
+            ? currentPoint.explodeDistance!
             : _isNeedExplode(pointIndex, currentSeries, _chartState)
                 ? seriesRenderer._explodeDistance
                 : 0) +
@@ -298,19 +298,19 @@ class _PyramidSeries {
     line3Y = bottom * area.height;
     line4X = emptySpaceAtLeft + offset + bottomRadius * area.width;
     line4Y = bottom * area.height;
-    currentPoint.pathRegion.add(Offset(line1X, line1Y));
-    currentPoint.pathRegion.add(Offset(line2X, line2Y));
-    currentPoint.pathRegion.add(Offset(line3X, line3Y));
-    currentPoint.pathRegion.add(Offset(line4X, line4Y));
+    currentPoint.pathRegion.add(Offset(line1X.toDouble(), line1Y.toDouble()));
+    currentPoint.pathRegion.add(Offset(line2X.toDouble(), line2Y.toDouble()));
+    currentPoint.pathRegion.add(Offset(line3X.toDouble(), line3Y.toDouble()));
+    currentPoint.pathRegion.add(Offset(line4X.toDouble(), line4Y.toDouble()));
     _calculatePathSegment(seriesRenderer._seriesType, currentPoint);
   }
 
   /// To calculate pyramid segments
   void _calculatePyramidSegments(
-      Canvas canvas, num pointIndex, PyramidSeriesRenderer seriesRenderer) {
+      Canvas canvas, int pointIndex, PyramidSeriesRenderer seriesRenderer) {
     _calculatePathRegion(pointIndex, seriesRenderer);
     final PointInfo<dynamic> currentPoint =
-        seriesRenderer._renderPoints[pointIndex];
+        seriesRenderer._renderPoints![pointIndex];
     final Path path = Path();
     path.moveTo(currentPoint.pathRegion[0].dx, currentPoint.pathRegion[0].dy);
     path.lineTo(currentPoint.pathRegion[1].dx, currentPoint.pathRegion[0].dy);
@@ -318,66 +318,65 @@ class _PyramidSeries {
     path.lineTo(currentPoint.pathRegion[2].dx, currentPoint.pathRegion[2].dy);
     path.lineTo(currentPoint.pathRegion[3].dx, currentPoint.pathRegion[3].dy);
     path.close();
-    if (pointIndex == seriesRenderer._renderPoints.length - 1) {
+    if (pointIndex == seriesRenderer._renderPoints!.length - 1) {
       seriesRenderer._maximumDataLabelRegion = path.getBounds();
     }
     _segmentPaint(canvas, path, pointIndex, seriesRenderer);
   }
 
   /// To paint the funnel segments
-  void _segmentPaint(Canvas canvas, Path path, num pointIndex,
+  void _segmentPaint(Canvas canvas, Path path, int pointIndex,
       PyramidSeriesRenderer seriesRenderer) {
-    final PointInfo<dynamic> point = seriesRenderer._renderPoints[pointIndex];
-    final _StyleOptions style =
+    final PointInfo<dynamic> point = seriesRenderer._renderPoints![pointIndex];
+    final _StyleOptions? style =
         _getPointStyle(pointIndex, seriesRenderer, _chartState._chart, point);
 
     final Color fillColor =
-        style != null && style.fill != null ? style.fill : point.fill;
+        style != null && style.fill != null ? style.fill! : point.fill;
 
     final Color strokeColor = style != null && style.strokeColor != null
-        ? style.strokeColor
+        ? style.strokeColor!
         : point.borderColor;
 
     final double strokeWidth = style != null && style.strokeWidth != null
-        ? style.strokeWidth
-        : point.borderWidth;
+        ? style.strokeWidth!.toDouble()
+        : point.borderWidth.toDouble();
 
     final double opacity = style != null && style.opacity != null
-        ? style.opacity
+        ? style.opacity!
         : currentSeries.opacity;
 
     _drawPath(
         canvas,
         _StyleOptions(
-            fillColor,
-            _chartState._animateCompleted ? strokeWidth : 0,
-            strokeColor,
-            opacity),
+            fill: fillColor,
+            strokeWidth: _chartState._animateCompleted! ? strokeWidth : 0,
+            strokeColor: strokeColor,
+            opacity: opacity),
         path);
   }
 
   /// To calculate the segment path
   void _calculatePathSegment(String seriesType, PointInfo<dynamic> point) {
     final List<Offset> pathRegion = point.pathRegion;
-    final num bottom =
+    final int bottom =
         seriesType == 'funnel' ? pathRegion.length - 2 : pathRegion.length - 1;
     final num x = (pathRegion[0].dx + pathRegion[bottom].dx) / 2;
     final num right = (pathRegion[1].dx + pathRegion[bottom - 1].dx) / 2;
-    point.region = Rect.fromLTWH(x, pathRegion[0].dy, right - x,
-        pathRegion[bottom].dy - pathRegion[0].dy);
-    point.symbolLocation = Offset(point.region.left + point.region.width / 2,
-        point.region.top + point.region.height / 2);
+    point.region = Rect.fromLTWH(x.toDouble(), pathRegion[0].dy,
+        (right - x).toDouble(), pathRegion[bottom].dy - pathRegion[0].dy);
+    point.symbolLocation = Offset(point.region!.left + point.region!.width / 2,
+        point.region!.top + point.region!.height / 2);
   }
 
   /// To add selection points to selection list
-  void _seriesPointSelection(num pointIndex, ActivationMode mode) {
+  void _seriesPointSelection(int pointIndex, ActivationMode mode) {
     bool isPointAlreadySelected = false;
     final SfPyramidChart chart = _chartState._chart;
     final PyramidSeriesRenderer seriesRenderer =
         _chartState._chartSeries.visibleSeriesRenderers[0];
-    // final PyramidSeries<dynamic, dynamic> series = seriesRenderer._series;
     final SfPyramidChartState chartState = _chartState;
-    int currentSelectedIndex;
+    int? currentSelectedIndex;
     if (seriesRenderer._isSelectionEnable && mode == chart.selectionGesture) {
       if (chartState._selectionData.isNotEmpty) {
         if (!chart.enableMultiSelection &&
@@ -414,49 +413,49 @@ class _PyramidSeries {
   }
 
   /// To return style options for the point on selection
-  _StyleOptions _getPointStyle(
+  _StyleOptions? _getPointStyle(
       int currentPointIndex,
       PyramidSeriesRenderer seriesRenderer,
       SfPyramidChart chart,
       PointInfo<dynamic> point) {
-    _StyleOptions pointStyle;
+    _StyleOptions? pointStyle;
     final dynamic selection = seriesRenderer._series.selectionBehavior.enable
         ? seriesRenderer._series.selectionBehavior
         : seriesRenderer._series.selectionSettings;
-    const num seriesIndex = 0;
+    const int seriesIndex = 0;
     if (selection.enable) {
       if (_chartState._selectionData.isNotEmpty) {
         for (int i = 0; i < _chartState._selectionData.length; i++) {
           final int selectionIndex = _chartState._selectionData[i];
           if (chart.onSelectionChanged != null) {
-            chart.onSelectionChanged(_getSelectionEventArgs(
+            chart.onSelectionChanged!(_getSelectionEventArgs(
                 seriesRenderer, seriesIndex, selectionIndex));
           }
           if (currentPointIndex == selectionIndex) {
             pointStyle = _StyleOptions(
-                _selectionArgs != null
-                    ? _selectionArgs.selectedColor
-                    : selection.selectedColor,
-                _selectionArgs != null
-                    ? _selectionArgs.selectedBorderWidth
-                    : selection.selectedBorderWidth,
-                _selectionArgs != null
-                    ? _selectionArgs.selectedBorderColor
-                    : selection.selectedBorderColor,
-                selection.selectedOpacity);
+                fill: _selectionArgs != null
+                    ? _selectionArgs!.selectedColor
+                    : selection!.selectedColor,
+                strokeWidth: _selectionArgs != null
+                    ? _selectionArgs!.selectedBorderWidth
+                    : selection!.selectedBorderWidth,
+                strokeColor: _selectionArgs != null
+                    ? _selectionArgs!.selectedBorderColor
+                    : selection!.selectedBorderColor,
+                opacity: selection.selectedOpacity);
             break;
           } else if (i == _chartState._selectionData.length - 1) {
             pointStyle = _StyleOptions(
-                _selectionArgs != null
-                    ? _selectionArgs.unselectedColor
+                fill: _selectionArgs != null
+                    ? _selectionArgs!.unselectedColor
                     : selection.unselectedColor,
-                _selectionArgs != null
-                    ? _selectionArgs.unselectedBorderWidth
+                strokeWidth: _selectionArgs != null
+                    ? _selectionArgs!.unselectedBorderWidth
                     : selection.unselectedBorderWidth,
-                _selectionArgs != null
-                    ? _selectionArgs.unselectedBorderColor
+                strokeColor: _selectionArgs != null
+                    ? _selectionArgs!.unselectedBorderColor
                     : selection.unselectedBorderColor,
-                selection.unselectedOpacity);
+                opacity: selection.unselectedOpacity);
           }
         }
       }
@@ -466,23 +465,28 @@ class _PyramidSeries {
 
   /// To perform selection event and return selectionArgs
   SelectionArgs _getSelectionEventArgs(
-      dynamic seriesRenderer, num seriesIndex, num pointIndex) {
-    final SfPyramidChart chart = seriesRenderer._chartState._chart;
-    if (seriesRenderer != null && pointIndex < chart.series.dataSource.length) {
+      dynamic seriesRenderer, int seriesIndex, int pointIndex) {
+    final SfPyramidChart chart = seriesRenderer._chartState!._chart;
+    if (seriesRenderer != null &&
+        chart.series != null &&
+        pointIndex < chart.series.dataSource!.length) {
       final dynamic selectionBehavior = seriesRenderer._selectionBehavior;
-      _selectionArgs =
-          SelectionArgs(seriesRenderer, seriesIndex, pointIndex, pointIndex);
-      _selectionArgs.selectedBorderColor =
+      _selectionArgs = SelectionArgs(
+          seriesRenderer: seriesRenderer,
+          seriesIndex: seriesIndex,
+          viewportPointIndex: pointIndex,
+          pointIndex: pointIndex);
+      _selectionArgs!.selectedBorderColor =
           selectionBehavior.selectedBorderColor;
-      _selectionArgs.selectedBorderWidth =
+      _selectionArgs!.selectedBorderWidth =
           selectionBehavior.selectedBorderWidth;
-      _selectionArgs.selectedColor = selectionBehavior.selectedColor;
-      _selectionArgs.unselectedBorderColor =
+      _selectionArgs!.selectedColor = selectionBehavior.selectedColor;
+      _selectionArgs!.unselectedBorderColor =
           selectionBehavior.unselectedBorderColor;
-      _selectionArgs.unselectedBorderWidth =
+      _selectionArgs!.unselectedBorderWidth =
           selectionBehavior.unselectedBorderWidth;
-      _selectionArgs.unselectedColor = selectionBehavior.unselectedColor;
+      _selectionArgs!.unselectedColor = selectionBehavior.unselectedColor;
     }
-    return _selectionArgs;
+    return _selectionArgs!;
   }
 }

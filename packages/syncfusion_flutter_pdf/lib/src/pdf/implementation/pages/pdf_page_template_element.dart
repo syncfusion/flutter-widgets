@@ -1,15 +1,70 @@
 part of pdf;
 
 /// Describes a page template object that can be used as header/footer, watermark or stamp.
+/// ```dart
+/// //Create a new pdf document
+/// PdfDocument document = PdfDocument();
+/// //Create a header and add the top of the document.
+/// document.template.top = PdfPageTemplateElement(Rect.fromLTWH(0, 0, 515, 50))
+///   ..graphics.drawString(
+///       'Header', PdfStandardFont(PdfFontFamily.helvetica, 14),
+///       brush: PdfBrushes.black);
+/// //Create footer and add the bottom of the document.
+/// document.template.bottom =
+///     PdfPageTemplateElement(Rect.fromLTWH(0, 0, 515, 50))
+///       ..graphics.drawString(
+///           'Footer', PdfStandardFont(PdfFontFamily.helvetica, 11),
+///           brush: PdfBrushes.black);
+/// //Add the pages to the document
+/// for (int i = 1; i <= 5; i++) {
+///   document.pages.add().graphics.drawString(
+///       'Page $i', PdfStandardFont(PdfFontFamily.timesRoman, 11),
+///       bounds: Rect.fromLTWH(250, 0, 515, 100));
+/// }
+/// //Save the document.
+/// List<int> bytes = document.save();
+/// //Dispose the document.
+/// document.dispose();
+/// ```
 class PdfPageTemplateElement {
   //Constructor
-  /// Initializes a new instance of the [PdfPageTemplateElement] class
-  PdfPageTemplateElement(Rect bounds, [PdfPage page]) {
+  /// Initializes a new instance of the [PdfPageTemplateElement] class.
+  /// ```dart
+  /// Create a new pdf document
+  /// PdfDocument document = PdfDocument();
+  /// //Add the pages to the document
+  /// for (int i = 1; i <= 5; i++) {
+  ///   document.pages.add().graphics.drawString(
+  ///       'page$i', PdfStandardFont(PdfFontFamily.timesRoman, 11),
+  ///       bounds: Rect.fromLTWH(250, 0, 615, 100));
+  /// }
+  /// //Create the header with specific bounds
+  /// PdfPageTemplateElement header = PdfPageTemplateElement(
+  ///     Rect.fromLTWH(0, 0, document.pages[0].getClientSize().width, 300));
+  /// header.graphics.drawString(
+  ///     'Header', PdfStandardFont(PdfFontFamily.helvetica, 14),
+  ///     brush: PdfBrushes.black);
+  /// //Add the header at top of the document
+  /// document.template.top = header;
+  /// //Create the footer with specific bounds
+  /// PdfPageTemplateElement footer = PdfPageTemplateElement(
+  ///     Rect.fromLTWH(0, 0, document.pages[0].getClientSize().width, 50));
+  /// header.graphics.drawString(
+  ///     'Footer', PdfStandardFont(PdfFontFamily.helvetica, 11),
+  ///     brush: PdfBrushes.black);
+  /// //Add the footer at the bottom of the document
+  /// document.template.bottom = footer;
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
+  PdfPageTemplateElement(Rect bounds, [PdfPage? page]) {
     x = bounds.left;
     y = bounds.top;
     _pdfTemplate = PdfTemplate(bounds.width, bounds.height);
     if (page != null) {
-      graphics.colorSpace = page._document.colorSpace;
+      graphics.colorSpace = page._document!.colorSpace;
     }
   }
 
@@ -18,29 +73,70 @@ class PdfPageTemplateElement {
   /// page layers or behind of it. If false, the page template will be located
   /// behind of page layer.
   bool foreground = false;
-  PdfDockStyle _dockStyle;
-  PdfAlignmentStyle _alignmentStyle;
-  PdfTemplate _pdfTemplate;
+  PdfDockStyle? _dockStyle;
+  PdfAlignmentStyle _alignmentStyle = PdfAlignmentStyle.none;
+  PdfTemplate? _pdfTemplate;
   _TemplateType _templateType = _TemplateType.none;
   _Point _currentLocation = _Point.empty;
 
   //Properties
-  /// Gets the dock style of the page template element.
+  /// Gets or sets the dock style of the page template element.
+  /// ```dart
+  /// //Create a new pdf document
+  /// PdfDocument document = PdfDocument();
+  /// //Set margins.
+  /// document.pageSettings.setMargins(25);
+  /// //Create the page template with specific bounds
+  /// final PdfPageTemplateElement custom = PdfPageTemplateElement(
+  ///     Rect.fromLTWH(0, 0, 100, 100), document.pages.add());
+  /// document.template.stamps.add(custom);
+  /// //Gets or sets the dock style
+  /// custom.dock = PdfDockStyle.right;
+  /// //Draw template into pdf page.
+  /// custom.graphics.drawRectangle(
+  ///     pen: PdfPen(PdfColor(255, 165, 0), width: 3),
+  ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
+  ///    bounds: Rect.fromLTWH(0, 0, 100, 100));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   PdfDockStyle get dock {
     _dockStyle ??= PdfDockStyle.none;
-    return _dockStyle;
+    return _dockStyle!;
   }
 
-  /// Sets the dock style of the page template element.
   set dock(PdfDockStyle value) {
     _dockStyle = value;
     _resetAlignment();
   }
 
-  /// Gets alignment of the page template element.
+  /// Gets or sets the alignment of the page template element.
+  /// ```dart
+  /// //Create a new pdf document
+  /// PdfDocument document = PdfDocument();
+  /// //Set margins.
+  /// document.pageSettings.setMargins(25);
+  /// //Create the page template with specific bounds
+  /// final PdfPageTemplateElement custom = PdfPageTemplateElement(
+  ///     Rect.fromLTWH(0, 0, 100, 100), document.pages.add());
+  /// document.template.stamps.add(custom);
+  /// //Gets or sets  dock style.
+  /// custom.dock = PdfDockStyle.right;
+  /// Gets or sets  alignment style.
+  /// custom.alignment = PdfAlignmentStyle.middleCenter;
+  /// //Draw template into pdf page.
+  /// custom.graphics.drawRectangle(
+  ///     pen: PdfPen(PdfColor(255, 165, 0), width: 3),
+  ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
+  ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   PdfAlignmentStyle get alignment => _alignmentStyle;
-
-  /// Sets alignment of the page template element.
   set alignment(PdfAlignmentStyle value) {
     if (_alignmentStyle != value) {
       _setAlignment(value);
@@ -49,80 +145,230 @@ class PdfPageTemplateElement {
 
   /// Indicates whether the page template is located behind of the page layers
   /// or in front of it.
+  /// ```dart
+  /// //Create a new pdf document
+  /// PdfDocument document = PdfDocument();
+  /// //Set margins.
+  /// document.pageSettings.setMargins(25);
+  /// //Create the page template with specific bounds
+  /// final PdfPageTemplateElement custom = PdfPageTemplateElement(
+  ///     const Offset(5, 5) & const Size(110, 110), document.pages.add());
+  /// document.template.stamps.add(custom);
+  /// Gets or sets  background.
+  /// custom.background = true;
+  /// //Draw template into pdf page.
+  /// custom.graphics.drawRectangle(
+  ///     pen: PdfPen(PdfColor(255, 165, 0), width: 3),
+  ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
+  ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   bool get background => !foreground;
-
-  /// Indicates whether the page template is located behind of the page layers
-  /// or in front of it.
   set background(bool value) {
     foreground = !value;
   }
 
-  /// Gets location of the page template element.
+  /// Gets or sets location of the page template element.
+  /// ```dart
+  /// //Create a new pdf document
+  /// PdfDocument document = PdfDocument();
+  /// //Set margins.
+  /// document.pageSettings.setMargins(25);
+  /// //Create the page template with specific bounds
+  /// final PdfPageTemplateElement custom = PdfPageTemplateElement(
+  ///     Rect.fromLTWH(0, 0, 100, 100), document.pages.add());
+  /// document.template.stamps.add(custom);
+  /// //Gets or sets  location.
+  /// custom.location = Offset(5, 5);
+  /// //Draw template into pdf page.
+  /// custom.graphics.drawRectangle(
+  ///     pen: PdfPen(PdfColor(255, 165, 0), width: 3),
+  ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
+  ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   Offset get location => _currentLocation.offset;
-
-  /// Sets location of the page template element.
   set location(Offset value) {
-    ArgumentError.checkNotNull(value);
     if (_templateType == _TemplateType.none) {
       _currentLocation = _Point.fromOffset(value);
     }
   }
 
-  /// Gets X co-ordinate of the template element on the page.
-  double get x => _currentLocation != null ? _currentLocation.x : 0;
-
-  /// Sets X co-ordinate of the template element on the page.
+  /// Gets or sets X co-ordinate of the template element on the page.
+  /// ```dart
+  /// //Create a new pdf document
+  /// PdfDocument document = PdfDocument();
+  /// //Set margins.
+  /// document.pageSettings.setMargins(25);
+  /// //Create the page template with specific bounds
+  /// final PdfPageTemplateElement custom = PdfPageTemplateElement(
+  ///     Rect.fromLTWH(0, 0, 100, 100), document.pages.add());
+  /// document.template.stamps.add(custom);
+  /// //Gets or sets  X co-ordinate.
+  /// custom.x = 10.10;
+  /// //Draw template into pdf page.
+  /// custom.graphics.drawRectangle(
+  ///     pen: PdfPen(PdfColor(255, 165, 0), width: 3),
+  ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
+  ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
+  double get x => _currentLocation.x;
   set x(double value) {
     if (_type == _TemplateType.none) {
       _currentLocation.x = value;
     }
   }
 
-  /// Gets Y co-ordinate of the template element on the page.
-  double get y => _currentLocation != null ? _currentLocation.y : 0;
-
-  /// Sets Y co-ordinate of the template element on the page.
+  /// Gets or sets Y co-ordinate of the template element on the page.
+  /// ```dart
+  /// //Create a new pdf document
+  /// PdfDocument document = PdfDocument();
+  /// //Set margins.
+  /// document.pageSettings.setMargins(25);
+  /// //Create the page template with specific bounds
+  /// final PdfPageTemplateElement custom = PdfPageTemplateElement(
+  ///     Rect.fromLTWH(0, 0, 100, 100), document.pages.add());
+  /// document.template.stamps.add(custom);
+  /// //Gets or sets  Y co-ordinate.
+  /// custom.y = 10.10;
+  /// //Draw template into pdf page.
+  /// custom.graphics.drawRectangle(
+  ///     pen: PdfPen(PdfColor(255, 165, 0), width: 3),
+  ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
+  ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
+  double get y => _currentLocation.y;
   set y(double value) {
     if (_type == _TemplateType.none) {
       _currentLocation.y = value;
     }
   }
 
-  /// Gets size of the page template element.
-  Size get size => _template.size;
-
-  /// Sets size of the page template element.
+  /// Gets or sets the size of the page template element.
+  /// ```dart
+  /// //Create a new pdf document
+  /// PdfDocument document = PdfDocument();
+  /// //Set margins.
+  /// document.pageSettings.setMargins(25);
+  /// //Create the page template with specific bounds
+  /// final PdfPageTemplateElement custom = PdfPageTemplateElement(
+  ///     Rect.fromLTWH(0, 0, 100, 100), document.pages.add());
+  /// document.template.stamps.add(custom);
+  /// //Gets or sets  size.
+  /// custom.size = Size(110, 110);
+  /// //Draw template into pdf page.
+  /// custom.graphics.drawRectangle(
+  ///     pen: PdfPen(PdfColor(255, 165, 0), width: 3),
+  ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
+  ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
+  Size get size => _template!.size;
   set size(Size value) {
     if (_type == _TemplateType.none) {
-      _template.reset(value.width, value.height);
+      _template!.reset(value.width, value.height);
     }
   }
 
-  /// Gets width of the page template element.
-  double get width => _template.size.width;
-
-  /// Sets width of the page template element.
+  /// Gets or sets width of the page template element.
+  /// ```dart
+  /// //Create a new pdf document
+  /// PdfDocument document = PdfDocument();
+  /// //Set margins.
+  /// document.pageSettings.setMargins(25);
+  /// //Create the page template with specific bounds
+  /// final PdfPageTemplateElement custom = PdfPageTemplateElement(
+  ///     Rect.fromLTWH(0, 0, 100, 100), document.pages.add());
+  /// document.template.stamps.add(custom);
+  /// //Gets or sets  width.
+  /// custom.width = 110;
+  /// //Draw template into pdf page.
+  /// custom.graphics.drawRectangle(
+  ///     pen: PdfPen(PdfColor(255, 165, 0), width: 3),
+  ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
+  ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
+  double get width => _template!.size.width;
   set width(double value) {
-    if (_template.size.width != value && _type == _TemplateType.none) {
-      _template.reset(value, _template.size.height);
+    if (_template!.size.width != value && _type == _TemplateType.none) {
+      _template!.reset(value, _template!.size.height);
     }
   }
 
-  /// Gets height of the page template element.
-  double get height => _template.size.height;
-
-  /// Sets height of the page template element.
+  /// Gets or sets height of the page template element.
+  /// ```dart
+  /// //Create a new pdf document
+  /// PdfDocument document = PdfDocument();
+  /// //Set margins.
+  /// document.pageSettings.setMargins(25);
+  /// //Create the page template with specific bounds
+  /// final PdfPageTemplateElement custom = PdfPageTemplateElement(
+  ///     Rect.fromLTWH(0, 0, 100, 100), document.pages.add());
+  /// document.template.stamps.add(custom);
+  /// //Gets or sets  height.
+  /// custom.height = 110;
+  /// //Draw template into pdf page.
+  /// custom.graphics.drawRectangle(
+  ///     pen: PdfPen(PdfColor(255, 165, 0), width: 3),
+  ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
+  ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
+  double get height => _template!.size.height;
   set height(double value) {
-    if (_template.size.height != value && _type == _TemplateType.none) {
-      _template.reset(_template.size.width, value);
+    if (_template!.size.height != value && _type == _TemplateType.none) {
+      _template!.reset(_template!.size.width, value);
     }
   }
 
-  /// Gets graphics context of the page template element.
-  PdfGraphics get graphics => _template.graphics;
+  /// Gets or sets graphics context of the page template element.
+  /// ```dart
+  /// //Create a new pdf document
+  /// PdfDocument document = PdfDocument();
+  /// //Set margins.
+  /// document.pageSettings.setMargins(25);
+  /// //Create the page template with specific bounds
+  /// final PdfPageTemplateElement custom = PdfPageTemplateElement(
+  ///     Rect.fromLTWH(0, 0, 100, 100), document.pages.add());
+  /// document.template.stamps.add(custom);
+  /// //Draw template into pdf page.
+  /// custom.graphics.drawRectangle(
+  ///     pen: PdfPen(PdfColor(255, 165, 0), width: 3),
+  ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
+  ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
+  PdfGraphics get graphics => _template!.graphics!;
 
   /// Gets PDF template object.
-  PdfTemplate get _template => _pdfTemplate;
+  PdfTemplate? get _template => _pdfTemplate;
 
   /// Gets type of the usage of this page template.
   _TemplateType get _type => _templateType;
@@ -133,10 +379,29 @@ class PdfPageTemplateElement {
     _templateType = value;
   }
 
-  /// Gets bounds of the page template element.
+  /// Gets or sets bounds of the page template element.
+  /// ```dart
+  /// //Create a new pdf document
+  /// PdfDocument document = PdfDocument();
+  /// //Set margins.
+  /// document.pageSettings.setMargins(25);
+  /// //Create the page template with specific bounds
+  /// final PdfPageTemplateElement custom = PdfPageTemplateElement(
+  ///     Rect.fromLTWH(0, 0, 100, 100), document.pages.add());
+  /// document.template.stamps.add(custom);
+  /// //Gets or sets  bounds.
+  /// Rect bounds = custom.bounds;
+  /// //Draw template into pdf page.
+  /// custom.graphics.drawRectangle(
+  ///     pen: PdfPen(PdfColor(255, 165, 0), width: 3),
+  ///     brush: PdfSolidBrush(PdfColor(173, 255, 47)),
+  ///     bounds: Rect.fromLTWH(0, 0, 100, 100));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   Rect get bounds => Rect.fromLTWH(x, y, width, height);
-
-  /// Sets bounds of the page template element.
   set bounds(Rect value) {
     if (_type == _TemplateType.none) {
       location = Offset(value.left, value.top);
@@ -146,17 +411,13 @@ class PdfPageTemplateElement {
 
   //Implementation
   void _draw(PdfPageLayer layer, PdfDocument document) {
-    ArgumentError.checkNotNull(layer, 'layer');
-    ArgumentError.checkNotNull(document, 'document');
     final PdfPage page = layer.page;
     final Rect bounds = _calculateBounds(page, document);
     layer._page._isDefaultGraphics = true;
-    layer.graphics.drawPdfTemplate(_template, bounds.topLeft, bounds.size);
+    layer.graphics.drawPdfTemplate(_template!, bounds.topLeft, bounds.size);
   }
 
   Rect _calculateBounds(PdfPage page, PdfDocument document) {
-    ArgumentError.checkNotNull(page, 'page');
-    ArgumentError.checkNotNull(document, 'document');
     Rect result = bounds;
     if (_alignmentStyle != PdfAlignmentStyle.none) {
       result = _getAlignmentBounds(page, document);
@@ -167,8 +428,6 @@ class PdfPageTemplateElement {
   }
 
   Rect _getAlignmentBounds(PdfPage page, PdfDocument document) {
-    ArgumentError.checkNotNull(page, 'page');
-    ArgumentError.checkNotNull(document, 'document');
     Rect result = bounds;
     if (_type == _TemplateType.none) {
       result = _getSimpleAlignmentBounds(page, document);
@@ -177,10 +436,8 @@ class PdfPageTemplateElement {
   }
 
   Rect _getSimpleAlignmentBounds(PdfPage page, PdfDocument document) {
-    ArgumentError.checkNotNull(page, 'page');
-    ArgumentError.checkNotNull(document, 'document');
     final Rect result = bounds;
-    final PdfSection section = page._section;
+    final PdfSection section = page._section!;
     final _Rectangle actualBounds =
         section._getActualBounds(page, false, document);
     double x = location.dx;
@@ -251,14 +508,14 @@ class PdfPageTemplateElement {
         break;
       case PdfAlignmentStyle.none:
         break;
+      default:
+        break;
     }
 
     return Offset(x, y) & result.size;
   }
 
   Rect _getDockBounds(PdfPage page, PdfDocument document) {
-    ArgumentError.checkNotNull(page, 'page');
-    ArgumentError.checkNotNull(document, 'document');
     Rect result = bounds;
 
     if (_type == _TemplateType.none) {
@@ -270,16 +527,14 @@ class PdfPageTemplateElement {
   }
 
   Rect _getSimpleDockBounds(PdfPage page, PdfDocument document) {
-    ArgumentError.checkNotNull(page, 'page');
-    ArgumentError.checkNotNull(document, 'document');
     Rect result = bounds;
-    final PdfSection section = page._section;
+    final PdfSection section = page._section!;
     final _Rectangle actualBounds =
         section._getActualBounds(page, false, document);
     double x = location.dx;
     double y = location.dy;
-    double _width = width;
-    double _height = height;
+    double? _width = width;
+    double? _height = height;
 
     switch (_dockStyle) {
       case PdfDockStyle.left:
@@ -318,6 +573,8 @@ class PdfPageTemplateElement {
         break;
       case PdfDockStyle.none:
         break;
+      default:
+        break;
     }
 
     result = Rect.fromLTWH(x, y, _width, _height);
@@ -326,17 +583,15 @@ class PdfPageTemplateElement {
   }
 
   Rect _getTemplateDockBounds(PdfPage page, PdfDocument document) {
-    ArgumentError.checkNotNull(page, 'page');
-    ArgumentError.checkNotNull(document, 'document');
-    final PdfSection section = page._section;
+    final PdfSection section = page._section!;
     final _Rectangle actualBounds =
         section._getActualBounds(page, false, document);
     final _Size actualSize =
         _Size.fromSize(section.pageSettings._getActualSize());
     double x = location.dx;
     double y = location.dy;
-    double _width = width;
-    double _height = height;
+    double? _width = width;
+    double? _height = height;
 
     switch (_dockStyle) {
       case PdfDockStyle.left:
@@ -385,6 +640,8 @@ class PdfPageTemplateElement {
         _height = actualBounds.height;
         break;
       case PdfDockStyle.none:
+        break;
+      default:
         break;
     }
     return Rect.fromLTWH(x, y, _width, _height);

@@ -13,11 +13,11 @@ class _MathHelper {
   ///
   /// * sortedList - _required_ - The sortedList
   /// * value - _required_ - Represented to a value
-  static int binarySearch<T extends Comparable<Object>>(
+  static int binarySearch<T extends Comparable<dynamic>>(
       List<T> sortedList, T value) {
     int min = 0;
     int max = sortedList.length;
-    int index;
+    late int index;
     while (min < max) {
       final int mid = min + ((max - min) >> 1);
       final T element = sortedList[mid];
@@ -32,12 +32,12 @@ class _MathHelper {
         max = mid;
       }
     }
-    return index ?? -1;
+    return index;
   }
 
   /// Determines whether the specified Object instances are the same instance.
   ///
   /// * objA - _required_ - Instance of a class
   /// * objB - _required_ - Instance of a class
-  static bool referenceEquals(Object objA, Object objB) => objA == objB;
+  static bool referenceEquals(Object? objA, Object? objB) => objA == objB;
 }

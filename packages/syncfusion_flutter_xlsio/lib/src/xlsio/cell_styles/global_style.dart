@@ -10,15 +10,15 @@ class _GlobalStyle {
   }
 
   /// Represents cell style name.
-  String _name;
+  late String _name;
 
   /// Represents xf id.
-  int _xfId;
+  late int _xfId;
 
   /// Number format.
   // ignore: unused_field
-  String _numberFormat;
+  String? _numberFormat;
 
   /// build in id.
-  int _builtinId;
+  late int _builtinId;
 }

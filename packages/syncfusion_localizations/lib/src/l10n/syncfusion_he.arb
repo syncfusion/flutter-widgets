@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "לא נבחר תאריך", 
 "noEventsCalendarLabel" : "אין אירועים", 
-"scheduleViewNewEventLabel" : "שום דבר לא מתוכנן. הקש כדי ליצור.", 
 "ofDataPagerLabel" : "שֶׁל", 
 "pagesDataPagerLabel" : "עמודים", 
 "itemsDataPagerLabel" : "פריטים", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "RAM.", 
 "shortShawwalLabel" : "שו.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
-"shortDhualhiLabel" : "Dhu'l-H"
+"shortDhualhiLabel" : "Dhu'l-H", 
+"daySpanCountLabel" : "יְוֹם"
 }

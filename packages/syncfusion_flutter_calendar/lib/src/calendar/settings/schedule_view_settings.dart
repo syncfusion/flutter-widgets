@@ -1,4 +1,5 @@
-part of calendar;
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 /// The settings have properties which allow to customize the schedule view of
 /// the [SfCalendar].
@@ -26,7 +27,7 @@ part of calendar;
 ///
 ///  ```
 @immutable
-class ScheduleViewSettings {
+class ScheduleViewSettings with Diagnosticable {
   /// Creates a schedule view settings for calendar.
   ///
   /// The properties allows to customize the schedule view of [SfCalendar].
@@ -34,13 +35,9 @@ class ScheduleViewSettings {
       {this.appointmentTextStyle,
       this.appointmentItemHeight = -1,
       this.hideEmptyScheduleWeek = false,
-      MonthHeaderSettings monthHeaderSettings,
-      WeekHeaderSettings weekHeaderSettings,
-      DayHeaderSettings dayHeaderSettings})
-      : monthHeaderSettings =
-            monthHeaderSettings ?? const MonthHeaderSettings(),
-        weekHeaderSettings = weekHeaderSettings ?? const WeekHeaderSettings(),
-        dayHeaderSettings = dayHeaderSettings ?? const DayHeaderSettings();
+      this.monthHeaderSettings = const MonthHeaderSettings(),
+      this.weekHeaderSettings = const WeekHeaderSettings(),
+      this.dayHeaderSettings = const DayHeaderSettings()});
 
   /// Sets the style to customize month label in [SfCalendar] schedule view.
   ///
@@ -168,7 +165,7 @@ class ScheduleViewSettings {
   ///  }
   ///
   /// ```
-  final TextStyle appointmentTextStyle;
+  final TextStyle? appointmentTextStyle;
 
   /// The height for each appointment view to layout within this in schedule
   /// view of [SfCalendar],.
@@ -231,6 +228,23 @@ class ScheduleViewSettings {
   }
 
   @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(
+        monthHeaderSettings.toDiagnosticsNode(name: 'monthHeaderSettings'));
+    properties
+        .add(weekHeaderSettings.toDiagnosticsNode(name: 'weekHeaderSettings'));
+    properties
+        .add(dayHeaderSettings.toDiagnosticsNode(name: 'dayHeaderSettings'));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'appointmentTextStyle', appointmentTextStyle));
+    properties
+        .add(DoubleProperty('appointmentItemHeight', appointmentItemHeight));
+    properties.add(DiagnosticsProperty<bool>(
+        'hideEmptyScheduleWeek', hideEmptyScheduleWeek));
+  }
+
+  @override
   int get hashCode {
     return hashValues(
         appointmentTextStyle,
@@ -271,7 +285,7 @@ class ScheduleViewSettings {
 ///
 /// ```
 @immutable
-class MonthHeaderSettings {
+class MonthHeaderSettings with Diagnosticable {
   /// Creates a month header settings for schedule view in calendar.
   ///
   /// The properties allows to customize the month header in schedule view  of
@@ -399,7 +413,7 @@ class MonthHeaderSettings {
   ///  }
   ///
   /// ```
-  final TextStyle monthTextStyle;
+  final TextStyle? monthTextStyle;
 
   @override
   bool operator ==(dynamic other) {
@@ -416,6 +430,17 @@ class MonthHeaderSettings {
         otherStyle.textAlign == textAlign &&
         otherStyle.backgroundColor == backgroundColor &&
         otherStyle.monthTextStyle == monthTextStyle;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+        .add(DiagnosticsProperty<TextStyle>('monthTextStyle', monthTextStyle));
+    properties.add(DoubleProperty('height', height));
+    properties.add(EnumProperty<TextAlign>('textAlign', textAlign));
+    properties.add(ColorProperty('backgroundColor', backgroundColor));
+    properties.add(StringProperty('monthFormat', monthFormat));
   }
 
   @override
@@ -456,7 +481,7 @@ class MonthHeaderSettings {
 ///
 /// ```
 @immutable
-class WeekHeaderSettings {
+class WeekHeaderSettings with Diagnosticable {
   /// Creates a week header settings for schedule view in calendar.
   ///
   /// The properties allows to customize the week header in schedule view  of
@@ -490,7 +515,7 @@ class WeekHeaderSettings {
   ///  }
   ///
   /// ```
-  final String startDateFormat;
+  final String? startDateFormat;
 
   /// Formats the week end date text in the week label of [SfCalendar]
   /// schedule view.
@@ -513,7 +538,7 @@ class WeekHeaderSettings {
   ///  }
   ///
   /// ```
-  final String endDateFormat;
+  final String? endDateFormat;
 
   /// The height for week label to layout within this in [SfCalendar] schedule
   /// view.
@@ -609,7 +634,7 @@ class WeekHeaderSettings {
   ///  }
   ///
   /// ```
-  final TextStyle weekTextStyle;
+  final TextStyle? weekTextStyle;
 
   @override
   bool operator ==(dynamic other) {
@@ -622,11 +647,23 @@ class WeekHeaderSettings {
 
     final WeekHeaderSettings otherStyle = other;
     return otherStyle.startDateFormat == startDateFormat &&
-            otherStyle.height == height &&
-            otherStyle.textAlign == textAlign &&
-            otherStyle.backgroundColor == backgroundColor &&
-            otherStyle.endDateFormat == endDateFormat ||
+        otherStyle.height == height &&
+        otherStyle.textAlign == textAlign &&
+        otherStyle.backgroundColor == backgroundColor &&
+        otherStyle.endDateFormat == endDateFormat &&
         otherStyle.weekTextStyle == weekTextStyle;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+        .add(DiagnosticsProperty<TextStyle>('weekTextStyle', weekTextStyle));
+    properties.add(DoubleProperty('height', height));
+    properties.add(EnumProperty<TextAlign>('textAlign', textAlign));
+    properties.add(ColorProperty('backgroundColor', backgroundColor));
+    properties.add(StringProperty('startDateFormat', startDateFormat));
+    properties.add(StringProperty('endDateFormat', endDateFormat));
   }
 
   @override
@@ -669,7 +706,7 @@ class WeekHeaderSettings {
 ///
 /// ```
 @immutable
-class DayHeaderSettings {
+class DayHeaderSettings with Diagnosticable {
   /// Creates a day header settings for schedule view in calendar.
   ///
   /// The properties allows to customize the day header in schedule view  of
@@ -750,7 +787,7 @@ class DayHeaderSettings {
   ///  }
   ///
   /// ```
-  final TextStyle dayTextStyle;
+  final TextStyle? dayTextStyle;
 
   /// The text style for the date text in the day label of [SfCalendar] schedule
   /// view.
@@ -780,7 +817,7 @@ class DayHeaderSettings {
   ///  }
   ///
   /// ```
-  final TextStyle dateTextStyle;
+  final TextStyle? dateTextStyle;
 
   @override
   bool operator ==(dynamic other) {
@@ -796,6 +833,17 @@ class DayHeaderSettings {
         otherStyle.width == width &&
         otherStyle.dayTextStyle == dayTextStyle &&
         otherStyle.dateTextStyle == dateTextStyle;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+        .add(DiagnosticsProperty<TextStyle>('dayTextStyle', dayTextStyle));
+    properties
+        .add(DiagnosticsProperty<TextStyle>('dateTextStyle', dateTextStyle));
+    properties.add(DoubleProperty('width', width));
+    properties.add(StringProperty('dayFormat', dayFormat));
   }
 
   @override

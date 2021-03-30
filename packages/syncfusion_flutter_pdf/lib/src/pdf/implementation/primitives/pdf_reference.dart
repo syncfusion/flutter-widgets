@@ -2,8 +2,6 @@ part of pdf;
 
 class _PdfReference implements _IPdfPrimitive {
   _PdfReference(int objNum, int genNum) {
-    ArgumentError.checkNotNull(objNum, 'objNum');
-    ArgumentError.checkNotNull(genNum, 'genNum');
     if (objNum.isNaN) {
       throw ArgumentError.value(objNum, 'not a number');
     }
@@ -15,12 +13,12 @@ class _PdfReference implements _IPdfPrimitive {
   }
 
   //Fields
-  int _objNum;
-  int _genNum;
-  bool _isSaving;
-  int _objectCollectionIndex;
-  int _position;
-  _ObjectStatus _status;
+  int? _objNum;
+  int? _genNum;
+  bool? _isSaving;
+  int? _objectCollectionIndex;
+  int? _position;
+  _ObjectStatus? _status;
 
   //Implementation
   @override
@@ -30,55 +28,55 @@ class _PdfReference implements _IPdfPrimitive {
 
   //_IPdfPrimitive members
   @override
-  bool get isSaving {
+  bool? get isSaving {
     _isSaving ??= false;
     return _isSaving;
   }
 
   @override
-  set isSaving(bool value) {
+  set isSaving(bool? value) {
     _isSaving = value;
   }
 
   @override
-  int get objectCollectionIndex {
+  int? get objectCollectionIndex {
     _objectCollectionIndex ??= 0;
     return _objectCollectionIndex;
   }
 
   @override
-  set objectCollectionIndex(int value) {
+  set objectCollectionIndex(int? value) {
     _objectCollectionIndex = value;
   }
 
   @override
-  int get position {
+  int? get position {
     _position ??= -1;
     return _position;
   }
 
   @override
-  set position(int value) {
+  set position(int? value) {
     _position = value;
   }
 
   @override
-  _ObjectStatus get status {
+  _ObjectStatus? get status {
     _status ??= _ObjectStatus.none;
     return _status;
   }
 
   @override
-  set status(_ObjectStatus value) {
+  set status(_ObjectStatus? value) {
     _status = value;
   }
 
   @override
-  _IPdfPrimitive clonedObject;
+  _IPdfPrimitive? clonedObject;
 
   @override
-  void save(_IPdfWriter writer) {
-    writer._write(toString());
+  void save(_IPdfWriter? writer) {
+    writer!._write(toString());
   }
 
   @override
@@ -89,5 +87,5 @@ class _PdfReference implements _IPdfPrimitive {
   }
 
   @override
-  _IPdfPrimitive _clone(_PdfCrossTable crossTable) => null;
+  _IPdfPrimitive? _clone(_PdfCrossTable crossTable) => null;
 }

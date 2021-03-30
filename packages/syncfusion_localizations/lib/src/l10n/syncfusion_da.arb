@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "Ingen valgt dato", 
 "noEventsCalendarLabel" : "Ingen begivenheder", 
-"scheduleViewNewEventLabel" : "Intet planlagt. Tryk for at oprette.", 
 "ofDataPagerLabel" : "af", 
 "pagesDataPagerLabel" : "sider", 
 "itemsDataPagerLabel" : "genstande", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "Vædder.", 
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
-"shortDhualhiLabel" : "Dhu'l-H"
+"shortDhualhiLabel" : "Dhu'l-H", 
+"daySpanCountLabel" : "Dag"
 }

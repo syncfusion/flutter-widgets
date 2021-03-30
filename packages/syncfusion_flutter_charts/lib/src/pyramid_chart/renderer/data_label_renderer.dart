@@ -3,13 +3,15 @@ part of charts;
 // ignore: must_be_immutable
 class _PyramidDataLabelRenderer extends StatefulWidget {
   // ignore: prefer_const_constructors_in_immutables
-  _PyramidDataLabelRenderer({this.chartState, this.show});
+  _PyramidDataLabelRenderer(
+      {required Key key, required this.chartState, required this.show})
+      : super(key: key);
 
   final SfPyramidChartState chartState;
 
   bool show;
 
-  _PyramidDataLabelRendererState state;
+  _PyramidDataLabelRendererState? state;
 
   @override
   State<StatefulWidget> createState() {
@@ -19,13 +21,13 @@ class _PyramidDataLabelRenderer extends StatefulWidget {
 
 class _PyramidDataLabelRendererState extends State<_PyramidDataLabelRenderer>
     with SingleTickerProviderStateMixin {
-  List<AnimationController> animationControllersList;
+  late List<AnimationController> animationControllersList;
 
   /// Animation controller for series
-  AnimationController animationController;
+  late AnimationController animationController;
 
   /// Repaint notifier for crosshair container
-  ValueNotifier<int> dataLabelRepaintNotifier;
+  late ValueNotifier<int> dataLabelRepaintNotifier;
 
   @override
   void initState() {
@@ -39,7 +41,7 @@ class _PyramidDataLabelRendererState extends State<_PyramidDataLabelRenderer>
   Widget build(BuildContext context) {
     widget.state = this;
     animationController.duration =
-        Duration(milliseconds: widget.chartState._initialRender ? 500 : 0);
+        Duration(milliseconds: widget.chartState._initialRender! ? 500 : 0);
     final Animation<double> dataLabelAnimation =
         Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
       parent: animationController,
@@ -78,11 +80,11 @@ class _PyramidDataLabelRendererState extends State<_PyramidDataLabelRenderer>
 
 class _PyramidDataLabelPainter extends CustomPainter {
   _PyramidDataLabelPainter(
-      {this.chartState,
-      this.state,
-      this.animationController,
-      this.animation,
-      ValueNotifier<num> notifier})
+      {required this.chartState,
+      required this.state,
+      required this.animationController,
+      required this.animation,
+      required ValueNotifier<num> notifier})
       : super(repaint: notifier);
 
   final SfPyramidChartState chartState;
@@ -120,31 +122,31 @@ void _renderPyramidDataLabel(
   final DataLabelSettings dataLabel = seriesRenderer._series.dataLabelSettings;
   final DataLabelSettingsRenderer dataLabelSettingsRenderer =
       seriesRenderer._dataLabelSettingsRenderer;
-  String label;
+  String? label;
   final double animateOpacity = animation != null ? animation.value : 1;
   DataLabelRenderArgs dataLabelArgs;
   TextStyle dataLabelStyle;
   final List<Rect> renderDataLabelRegions = <Rect>[];
   for (int pointIndex = 0;
-      pointIndex < seriesRenderer._renderPoints.length;
+      pointIndex < seriesRenderer._renderPoints!.length;
       pointIndex++) {
-    point = seriesRenderer._renderPoints[pointIndex];
+    point = seriesRenderer._renderPoints![pointIndex];
     if (point.isVisible && (point.y != 0 || dataLabel.showZeroValue)) {
       label = point.text;
       dataLabelStyle = dataLabel.textStyle;
       dataLabelSettingsRenderer._color =
           seriesRenderer._series.dataLabelSettings.color;
       if (chart.onDataLabelRender != null &&
-          !seriesRenderer._renderPoints[pointIndex].labelRenderEvent) {
+          !seriesRenderer._renderPoints![pointIndex].labelRenderEvent) {
         dataLabelArgs = DataLabelRenderArgs(seriesRenderer,
             seriesRenderer._renderPoints, pointIndex, pointIndex);
-        dataLabelArgs.text = label;
+        dataLabelArgs.text = label!;
         dataLabelArgs.textStyle = dataLabelStyle;
         dataLabelArgs.color = dataLabelSettingsRenderer._color;
-        chart.onDataLabelRender(dataLabelArgs);
+        chart.onDataLabelRender!(dataLabelArgs);
         label = point.text = dataLabelArgs.text;
         dataLabelStyle = dataLabelArgs.textStyle;
-        pointIndex = dataLabelArgs.pointIndex;
+        pointIndex = dataLabelArgs.pointIndex!;
         dataLabelSettingsRenderer._color = dataLabelArgs.color;
         if (animation.status == AnimationStatus.completed) {
           seriesRenderer._dataPoints[pointIndex].labelRenderEvent = true;
@@ -154,7 +156,7 @@ void _renderPyramidDataLabel(
           ? _getDataLabelTextStyle(
               seriesRenderer, point, chartState, animateOpacity)
           : dataLabelStyle;
-      final Size textSize = _measureText(label, dataLabelStyle);
+      final Size textSize = measureText(label!, dataLabelStyle);
 
       ///Label check after event
       if (label != '') {
@@ -173,6 +175,8 @@ void _renderPyramidDataLabel(
               dataLabelStyle);
         } else {
           point.renderPosition = ChartDataLabelPosition.outside;
+          dataLabelStyle = _getDataLabelTextStyle(
+              seriesRenderer, point, chartState, animateOpacity);
           _renderOutsidePyramidDataLabel(
               canvas,
               label,
@@ -221,10 +225,12 @@ void _setPyramidInsideLabelPosition(
       textSize.width + (2 * labelPadding),
       textSize.height + (2 * labelPadding));
   final bool isDataLabelCollide =
-      _findingCollision(point.labelRect, renderDataLabelRegions, point.region);
+      _findingCollision(point.labelRect!, renderDataLabelRegions, point.region);
   if (isDataLabelCollide && smartLabelMode == SmartLabelMode.shift) {
     point.saturationRegionOutside = true;
     point.renderPosition = ChartDataLabelPosition.outside;
+    dataLabelStyle = _getDataLabelTextStyle(
+        seriesRenderer, point, chartState, animateOpacity);
     _renderOutsidePyramidDataLabel(
         canvas,
         label,
@@ -241,7 +247,7 @@ void _setPyramidInsideLabelPosition(
       (!isDataLabelCollide && smartLabelMode == SmartLabelMode.hide)) {
     point.renderPosition = ChartDataLabelPosition.inside;
     _drawPyramidLabel(
-        point.labelRect,
+        point.labelRect!,
         labelLocation,
         label,
         null,
@@ -269,7 +275,7 @@ void _renderOutsidePyramidDataLabel(
     List<Rect> renderDataLabelRegions,
     double animateOpacity) {
   Path connectorPath;
-  Rect rect;
+  Rect? rect;
   Offset labelLocation;
   final EdgeInsets margin = seriesRenderer._series.dataLabelSettings.margin;
   final ConnectorLineSettings connector =
@@ -277,74 +283,48 @@ void _renderOutsidePyramidDataLabel(
   const num regionPadding = 12;
   connectorPath = Path();
   final num connectorLength = _percentToValue(
-          connector.length ?? '0%', _chartState._chartAreaRect.width / 2) +
+          connector.length ?? '0%', _chartState._chartAreaRect.width / 2)! +
       seriesRenderer._maximumDataLabelRegion.width / 2 -
       regionPadding;
   final Offset startPoint = Offset(
-      seriesRenderer._renderPoints[pointIndex].region.right,
-      seriesRenderer._renderPoints[pointIndex].region.top +
-          seriesRenderer._renderPoints[pointIndex].region.height / 2);
+      seriesRenderer._renderPoints![pointIndex].region!.right,
+      seriesRenderer._renderPoints![pointIndex].region!.top +
+          seriesRenderer._renderPoints![pointIndex].region!.height / 2);
+  final double dx =
+      seriesRenderer._renderPoints![pointIndex].symbolLocation.dx +
+          connectorLength;
   final Offset endPoint = Offset(
-      seriesRenderer._renderPoints[pointIndex].symbolLocation.dx +
-          connectorLength,
-      seriesRenderer._renderPoints[pointIndex].symbolLocation.dy);
+      (dx + textSize.width + margin.left + margin.right >
+              _chartState._chartAreaRect.right)
+          ? dx -
+              (_percentToValue(seriesRenderer._series.explodeOffset,
+                  _chartState._chartAreaRect.width)!)
+          : dx,
+      seriesRenderer._renderPoints![pointIndex].symbolLocation.dy);
   connectorPath.moveTo(startPoint.dx, startPoint.dy);
   if (connector.type == ConnectorType.line) {
     connectorPath.lineTo(endPoint.dx, endPoint.dy);
   }
   point.dataLabelPosition = Position.right;
-  rect = _getDataLabelRect(point.dataLabelPosition, connector.type, margin,
+  rect = _getDataLabelRect(point.dataLabelPosition!, connector.type, margin,
       connectorPath, endPoint, textSize);
-  point.labelRect = rect;
-  labelLocation = Offset(rect.left + margin.left,
-      rect.top + rect.height / 2 - textSize.height / 2);
-  final Rect containerRect = _chartState._chartAreaRect;
-  if (seriesRenderer._series.dataLabelSettings.builder == null) {
-    Rect lastRenderedLabelRegion;
-    if (renderDataLabelRegions.isNotEmpty) {
-      lastRenderedLabelRegion =
-          renderDataLabelRegions[renderDataLabelRegions.length - 1];
-    }
-    if (!_isPyramidLabelIntersect(rect, lastRenderedLabelRegion) &&
-        (rect.left > containerRect.left &&
-            rect.left + rect.width <
-                containerRect.left + containerRect.width) &&
-        rect.top > containerRect.top &&
-        rect.top + rect.height < containerRect.top + containerRect.height) {
-      _drawPyramidLabel(
-          rect,
-          labelLocation,
-          label,
-          connectorPath,
-          canvas,
-          seriesRenderer,
-          point,
-          pointIndex,
-          _chartState,
-          textStyle,
-          renderDataLabelRegions,
-          animateOpacity);
-    } else {
-      if (pointIndex != 0) {
-        const num connectorLinePadding = 15;
-        const num padding = 2;
-        final Rect previousRenderedRect =
+  if (rect != null) {
+    point.labelRect = rect;
+    labelLocation = Offset(rect.left + margin.left,
+        rect.top + rect.height / 2 - textSize.height / 2);
+    final Rect containerRect = _chartState._chartAreaRect;
+    if (seriesRenderer._series.dataLabelSettings.builder == null) {
+      Rect? lastRenderedLabelRegion;
+      if (renderDataLabelRegions.isNotEmpty) {
+        lastRenderedLabelRegion =
             renderDataLabelRegions[renderDataLabelRegions.length - 1];
-        rect = Rect.fromLTWH(rect.left, previousRenderedRect.bottom + padding,
-            rect.width, rect.height);
-        labelLocation = Offset(
-            rect.left + margin.left,
-            previousRenderedRect.bottom +
-                padding +
-                rect.height / 2 -
-                textSize.height / 2);
-        connectorPath = Path();
-        connectorPath.moveTo(startPoint.dx, startPoint.dy);
-        connectorPath.lineTo(
-            rect.left - connectorLinePadding, rect.top + rect.height / 2);
-        connectorPath.lineTo(rect.left, rect.top + rect.height / 2);
       }
-      if (rect.bottom < _chartState._chartAreaRect.bottom) {
+      if (!_isPyramidLabelIntersect(rect, lastRenderedLabelRegion) &&
+          (rect.left > containerRect.left &&
+              rect.left + rect.width <
+                  containerRect.left + containerRect.width) &&
+          rect.top > containerRect.top &&
+          rect.top + rect.height < containerRect.top + containerRect.height) {
         _drawPyramidLabel(
             rect,
             labelLocation,
@@ -358,13 +338,48 @@ void _renderOutsidePyramidDataLabel(
             textStyle,
             renderDataLabelRegions,
             animateOpacity);
+      } else {
+        if (pointIndex != 0) {
+          const num connectorLinePadding = 15;
+          const num padding = 2;
+          final Rect previousRenderedRect =
+              renderDataLabelRegions[renderDataLabelRegions.length - 1];
+          rect = Rect.fromLTWH(rect.left, previousRenderedRect.bottom + padding,
+              rect.width, rect.height);
+          labelLocation = Offset(
+              rect.left + margin.left,
+              previousRenderedRect.bottom +
+                  padding +
+                  rect.height / 2 -
+                  textSize.height / 2);
+          connectorPath = Path();
+          connectorPath.moveTo(startPoint.dx, startPoint.dy);
+          connectorPath.lineTo(
+              rect.left - connectorLinePadding, rect.top + rect.height / 2);
+          connectorPath.lineTo(rect.left, rect.top + rect.height / 2);
+        }
+        if (rect.bottom < _chartState._chartAreaRect.bottom) {
+          _drawPyramidLabel(
+              rect,
+              labelLocation,
+              label,
+              connectorPath,
+              canvas,
+              seriesRenderer,
+              point,
+              pointIndex,
+              _chartState,
+              textStyle,
+              renderDataLabelRegions,
+              animateOpacity);
+        }
       }
     }
   }
 }
 
 /// To check whether labels intesect
-bool _isPyramidLabelIntersect(Rect rect, Rect previousRect) {
+bool _isPyramidLabelIntersect(Rect rect, Rect? previousRect) {
   bool isIntersect = false;
   const num padding = 2;
   if (previousRect != null && (rect.top - padding) < previousRect.bottom) {
@@ -377,8 +392,8 @@ bool _isPyramidLabelIntersect(Rect rect, Rect previousRect) {
 void _drawPyramidLabel(
     Rect labelRect,
     Offset location,
-    String label,
-    Path connectorPath,
+    String? label,
+    Path? connectorPath,
     Canvas canvas,
     PyramidSeriesRenderer seriesRenderer,
     PointInfo<dynamic> point,
@@ -408,15 +423,15 @@ void _drawPyramidLabel(
 
   if (dataLabel.builder == null) {
     final double strokeWidth = dataLabel.borderWidth;
-    final Color labelFill = dataLabelSettingsRenderer._color ??
+    final Color? labelFill = dataLabelSettingsRenderer._color ??
         (dataLabel.useSeriesColor
             ? point.fill
             : dataLabelSettingsRenderer._color);
-    final Color strokeColor =
-        dataLabel.borderColor.withOpacity(dataLabel.opacity) ?? point.fill;
+    final Color? strokeColor =
+        dataLabel.borderColor.withOpacity(dataLabel.opacity);
     if (strokeWidth != null && strokeWidth > 0) {
       rectPaint = Paint()
-        ..color = strokeColor.withOpacity(
+        ..color = strokeColor!.withOpacity(
             !chartState._isLegendToggled ? animateOpacity : dataLabel.opacity)
         ..style = PaintingStyle.stroke
         ..strokeWidth = strokeWidth;
@@ -441,7 +456,7 @@ void _drawPyramidLabel(
           dataLabel.borderRadius,
           canvas);
     }
-    _drawText(canvas, label, location, textStyle, dataLabel.angle);
+    _drawText(canvas, label!, location, textStyle, dataLabel.angle);
     renderDataLabelRegions.add(labelRect);
   }
 }
@@ -453,15 +468,16 @@ void _triggerPyramidDataLabelEvent(
     Offset position) {
   final int seriesIndex = 0;
   for (int pointIndex = 0;
-      pointIndex < seriesRenderer._renderPoints.length;
+      pointIndex < seriesRenderer._renderPoints!.length;
       pointIndex++) {
     final DataLabelSettings dataLabel =
         seriesRenderer._series.dataLabelSettings;
-    final PointInfo<dynamic> point = seriesRenderer._renderPoints[pointIndex];
+    final PointInfo<dynamic> point = seriesRenderer._renderPoints![pointIndex];
     final Offset labelLocation = point.symbolLocation;
     if (dataLabel.isVisible &&
-        seriesRenderer._renderPoints[pointIndex].labelRect != null &&
-        seriesRenderer._renderPoints[pointIndex].labelRect.contains(position)) {
+        seriesRenderer._renderPoints![pointIndex].labelRect != null &&
+        seriesRenderer._renderPoints![pointIndex].labelRect!
+            .contains(position)) {
       position = Offset(labelLocation.dx, labelLocation.dy);
       _dataLabelTapEvent(chart, seriesRenderer._series.dataLabelSettings,
           pointIndex, point, position, seriesIndex);

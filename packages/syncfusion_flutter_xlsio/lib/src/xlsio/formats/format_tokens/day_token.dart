@@ -12,7 +12,7 @@ class _DayToken extends _FormatTokenBase {
   /// <summary>
   /// Format string in lower case.
   /// </summary>
-  String _strFormatLower;
+  String _strFormatLower = '';
 
   /// <summary>
   /// Tries to parse format string.
