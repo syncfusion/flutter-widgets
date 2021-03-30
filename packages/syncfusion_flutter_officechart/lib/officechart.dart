@@ -21,4 +21,3 @@ part 'src/chart/chart_text_area.dart';
 part 'src/chart/chart_datalabel.dart';
 part 'src/chart/chart_serialization.dart';
 part 'src/chart/chart_enum.dart';
-
