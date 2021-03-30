@@ -2,7 +2,7 @@ part of pdf;
 
 class _PdfReader {
   //Constructor
-  _PdfReader(List<int> data) {
+  _PdfReader(List<int>? data) {
     _streamReader = _StreamReader(data);
     _peekedByte = 0;
     _bytePeeked = false;
@@ -10,8 +10,8 @@ class _PdfReader {
   }
 
   //Fields
-  _StreamReader _streamReader;
-  String _delimiters;
+  late _StreamReader _streamReader;
+  late String _delimiters;
   final List<String> _spaceCharacters = <String>[
     '\u0020',
     '\u00a0',
@@ -39,8 +39,8 @@ class _PdfReader {
     '\u000d',
     '\u0085'
   ];
-  int _peekedByte;
-  bool _bytePeeked;
+  late int _peekedByte;
+  late bool _bytePeeked;
 
   //Properties
   int get position => _streamReader.position;
@@ -48,7 +48,7 @@ class _PdfReader {
     _streamReader.position = value;
   }
 
-  int get length => _streamReader.length;
+  int? get length => _streamReader.length;
 
   //Implementation
   void _skipWhiteSpace() {
@@ -58,7 +58,7 @@ class _PdfReader {
         value = _read();
       } while (
           value != -1 && _spaceCharacters.contains(String.fromCharCode(value)));
-      position = value == -1 ? _streamReader.length : (position - 1);
+      position = value == -1 ? _streamReader.length! : (position - 1);
     }
   }
 
@@ -74,17 +74,17 @@ class _PdfReader {
   }
 
   int _read() {
-    int value = 0;
+    int? value = 0;
     if (_bytePeeked) {
       value = _getPeeked(value);
     } else {
       value = _streamReader.readByte();
     }
-    return value;
+    return value!;
   }
 
   List<int> _readBytes(int length) {
-    final List<int> bytes = List<int>(length);
+    final List<int> bytes = List<int>.filled(length, 0, growable: true);
     for (int i = 0; i < length; i++) {
       bytes[i] = _read();
     }
@@ -105,7 +105,7 @@ class _PdfReader {
     if (count > 0) {
       final List<int> buf = List<int>.filled(count, 0);
       int tempCount = 0;
-      for (int j = 0; j < count && position < length; j++) {
+      for (int j = 0; j < count && position < length!; j++) {
         buf[j] = _read();
         tempCount++;
       }
@@ -139,13 +139,13 @@ class _PdfReader {
     return character == '\n' || character == '\r';
   }
 
-  int readData(List<int> buffer, int index, int count) {
+  int readData(List<int>? buffer, int index, int count) {
     if (count < 0) {
       throw ArgumentError.value(count, 'The value can\'t be less then zero');
     }
     int i = index;
     if (_bytePeeked && count > 0) {
-      buffer[i] = _peekedByte;
+      buffer![i] = _peekedByte;
       _bytePeeked = false;
       --count;
       ++i;
@@ -154,11 +154,11 @@ class _PdfReader {
       if (position == length) {
         count = 0;
       } else {
-        final int lp = length - position;
+        final int lp = length! - position;
         count = count > lp ? lp : count;
         final List<int> bytes = _readBytes(count);
         for (int j = 0; j < count; j++) {
-          buffer[i + j] = bytes[j];
+          buffer![i + j] = bytes[j];
         }
       }
       i += count;
@@ -166,13 +166,13 @@ class _PdfReader {
     return i - index;
   }
 
-  Map<String, dynamic> _copyBytes(List<int> buffer, int index, int count) {
-    if (index < 0 || index > buffer.length) {
+  Map<String, dynamic> _copyBytes(List<int>? buffer, int index, int count) {
+    if (index < 0 || index > buffer!.length) {
       throw ArgumentError.value(index, 'Invalid index to read');
     }
     final int pos = position;
     for (int i = pos;
-        i < length && i < (pos + count) && index < buffer.length;
+        i < length! && i < (pos + count) && index < buffer.length;
         i++) {
       buffer[index] = _read();
       index++;
@@ -188,7 +188,7 @@ class _PdfReader {
     return String.fromCharCodes(_readBytes(length));
   }
 
-  int _seekEnd() {
+  int? _seekEnd() {
     return _streamReader.length;
   }
 
@@ -237,12 +237,12 @@ class _PdfReader {
   }
 
   int _searchForward(String token) {
-    List<int> buf = List<int>.filled(token.length, 0);
+    List<int>? buf = List<int>.filled(token.length, 0);
     bool isStartXref = false;
     while (true) {
       int pos = position;
       final int character = _read();
-      buf[0] = character.toUnsigned(8);
+      buf![0] = character.toUnsigned(8);
       if (buf[0] == token.codeUnitAt(0)) {
         if (!isStartXref) {
           pos = position - 1;
@@ -253,7 +253,7 @@ class _PdfReader {
           position = pos;
           if (length < token.length - 1) {
             return -1;
-          } else if (token == String.fromCharCodes(buf)) {
+          } else if (token == String.fromCharCodes(buf!)) {
             return pos;
           } else {
             position += 1;
@@ -264,12 +264,12 @@ class _PdfReader {
         pos = position - 1;
         position = pos;
         int newPosition = pos;
-        List<int> buff =
+        List<int>? buff =
             List<int>.filled(_Operators.startCrossReference.length, 0);
         final Map<String, dynamic> result =
             _copyBytes(buff, 1, _Operators.startCrossReference.length);
         buff = result['buffer'];
-        if (_Operators.startCrossReference == String.fromCharCodes(buff)) {
+        if (_Operators.startCrossReference == String.fromCharCodes(buff!)) {
           isStartXref = true;
           position = ++newPosition;
         }
@@ -279,7 +279,7 @@ class _PdfReader {
     }
   }
 
-  int _getPeeked(int byteValue) {
+  int _getPeeked(int? byteValue) {
     if (_bytePeeked) {
       _bytePeeked = false;
       byteValue = _peekedByte;
@@ -289,13 +289,13 @@ class _PdfReader {
     return byteValue;
   }
 
-  String _getEqualChar(int charCode) {
-    return charCode == -1 ? '\uffff' : String.fromCharCode(charCode);
+  String _getEqualChar(int? charCode) {
+    return charCode == -1 ? '\uffff' : String.fromCharCode(charCode!);
   }
 
-  String _getNextToken() {
-    String token = '';
-    int character = 0;
+  String? _getNextToken() {
+    String? token = '';
+    int? character = 0;
     _skipWhiteSpace();
     character = _peek();
     if (_isDelimiter(_getEqualChar(character))) {
@@ -315,10 +315,10 @@ class _PdfReader {
     return token;
   }
 
-  Map<String, dynamic> _appendChar(String token) {
+  Map<String, dynamic> _appendChar(String? token) {
     final int character = _read();
     if (character != -1) {
-      token += String.fromCharCode(character);
+      token = token! + String.fromCharCode(character);
     }
     final Map<String, dynamic> result = <String, dynamic>{};
     result['token'] = token;
@@ -327,7 +327,7 @@ class _PdfReader {
   }
 
   int _peek() {
-    int value = 0;
+    int? value = 0;
     if (_bytePeeked) {
       value = _getPeeked(value);
     } else {

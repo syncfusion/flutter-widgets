@@ -8,7 +8,7 @@ import '../../theme.dart';
 /// Applies a theme to descendant [SfDataPager] widgets.
 class SfDataPagerTheme extends InheritedTheme {
   /// Applies the given theme [data] to [child].
-  const SfDataPagerTheme({Key key, this.data, this.child})
+  const SfDataPagerTheme({Key? key, required this.data, required this.child})
       : super(key: key, child: child);
 
   /// Specifies the color and typography values for descendant [SfDataPager]
@@ -24,8 +24,8 @@ class SfDataPagerTheme extends InheritedTheme {
   ///
   /// Defaults to [SfThemeData.dataPagerThemeData] if there
   /// is no [SfDataPagerTheme] in the given build context.
-  static SfDataPagerThemeData of(BuildContext context) {
-    final SfDataPagerTheme sfDataPagerTheme =
+  static SfDataPagerThemeData? of(BuildContext context) {
+    final SfDataPagerTheme? sfDataPagerTheme =
         context.dependOnInheritedWidgetOfExactType<SfDataPagerTheme>();
     return sfDataPagerTheme?.data ?? SfTheme.of(context).dataPagerThemeData;
   }
@@ -35,7 +35,7 @@ class SfDataPagerTheme extends InheritedTheme {
 
   @override
   Widget wrap(BuildContext context, Widget child) {
-    final SfDataPagerTheme ancestorTheme =
+    final SfDataPagerTheme? ancestorTheme =
         context.findAncestorWidgetOfExactType<SfDataPagerTheme>();
     return identical(this, ancestorTheme)
         ? child
@@ -51,17 +51,17 @@ class SfDataPagerThemeData with Diagnosticable {
   /// Create a [SfDataPagerThemeData] that's used to configure a
   /// [SfDataPagerTheme].
   factory SfDataPagerThemeData(
-      {Brightness brightness,
-      Color backgroundColor,
-      Color itemColor,
-      TextStyle itemTextStyle,
-      Color selectedItemColor,
-      TextStyle selectedItemTextStyle,
-      Color disabledItemColor,
-      TextStyle disabledItemTextStyle,
-      Color itemBorderColor,
-      double itemBorderWidth,
-      BorderRadiusGeometry itemBorderRadius}) {
+      {Brightness? brightness,
+      Color? backgroundColor,
+      Color? itemColor,
+      TextStyle? itemTextStyle,
+      Color? selectedItemColor,
+      TextStyle? selectedItemTextStyle,
+      Color? disabledItemColor,
+      TextStyle? disabledItemTextStyle,
+      Color? itemBorderColor,
+      double? itemBorderWidth,
+      BorderRadiusGeometry? itemBorderRadius}) {
     brightness = brightness ?? Brightness.light;
     final bool isLight = brightness == Brightness.light;
 
@@ -121,17 +121,17 @@ class SfDataPagerThemeData with Diagnosticable {
   /// create intermediate themes based on two themes created with the
   /// [SfDataPagerThemeData] constructor.
   const SfDataPagerThemeData.raw(
-      {@required this.brightness,
-      @required this.backgroundColor,
-      @required this.itemColor,
-      @required this.itemTextStyle,
-      @required this.selectedItemColor,
-      @required this.selectedItemTextStyle,
-      @required this.disabledItemColor,
-      @required this.disabledItemTextStyle,
-      @required this.itemBorderColor,
-      @required this.itemBorderWidth,
-      @required this.itemBorderRadius});
+      {required this.brightness,
+      required this.backgroundColor,
+      required this.itemColor,
+      required this.itemTextStyle,
+      required this.selectedItemColor,
+      required this.selectedItemTextStyle,
+      required this.disabledItemColor,
+      required this.disabledItemTextStyle,
+      required this.itemBorderColor,
+      required this.itemBorderWidth,
+      required this.itemBorderRadius});
 
   /// The brightness of the overall theme of the
   /// application for the [SfDataPager] widgets.
@@ -166,7 +166,7 @@ class SfDataPagerThemeData with Diagnosticable {
   final Color itemBorderColor;
 
   /// The width of the border in page item.
-  final double itemBorderWidth;
+  final double? itemBorderWidth;
 
   ///If non null, the corners of the page item are rounded by this [ItemBorderRadius].
   ///
@@ -179,17 +179,17 @@ class SfDataPagerThemeData with Diagnosticable {
   /// Creates a copy of this theme but with the given
   /// fields replaced with the new values.
   SfDataPagerThemeData copyWith(
-      {Brightness brightness,
-      Color backgroundColor,
-      Color itemColor,
-      TextStyle itemTextStyle,
-      Color selectedItemColor,
-      TextStyle selectedItemTextStyle,
-      Color disabledItemColor,
-      TextStyle disabledItemTextStyle,
-      Color itemBorderColor,
-      double itemBorderWidth,
-      BorderRadiusGeometry itemBorderRadius}) {
+      {Brightness? brightness,
+      Color? backgroundColor,
+      Color? itemColor,
+      TextStyle? itemTextStyle,
+      Color? selectedItemColor,
+      TextStyle? selectedItemTextStyle,
+      Color? disabledItemColor,
+      TextStyle? disabledItemTextStyle,
+      Color? itemBorderColor,
+      double? itemBorderWidth,
+      BorderRadiusGeometry? itemBorderRadius}) {
     return SfDataPagerThemeData.raw(
         brightness: brightness ?? this.brightness,
         backgroundColor: backgroundColor ?? this.backgroundColor,
@@ -207,14 +207,13 @@ class SfDataPagerThemeData with Diagnosticable {
   }
 
   /// Linearly interpolate between two themes.
-  static SfDataPagerThemeData lerp(
-      SfDataPagerThemeData a, SfDataPagerThemeData b, double t) {
-    assert(t != null);
+  static SfDataPagerThemeData? lerp(
+      SfDataPagerThemeData? a, SfDataPagerThemeData? b, double t) {
     if (a == null && b == null) {
       return null;
     }
     return SfDataPagerThemeData(
-        backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
+        backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
         itemColor: Color.lerp(a.itemColor, b.itemColor, t),
         itemTextStyle: TextStyle.lerp(a.itemTextStyle, b.itemTextStyle, t),
         selectedItemColor:
@@ -239,23 +238,24 @@ class SfDataPagerThemeData with Diagnosticable {
     if (other.runtimeType != runtimeType) {
       return false;
     }
-    final SfDataPagerThemeData typedOther = other;
-    return typedOther.brightness == brightness &&
-        typedOther.itemColor == itemColor &&
-        typedOther.backgroundColor == backgroundColor &&
-        typedOther.itemTextStyle == itemTextStyle &&
-        typedOther.selectedItemColor == selectedItemColor &&
-        typedOther.selectedItemTextStyle == selectedItemTextStyle &&
-        typedOther.disabledItemColor == disabledItemColor &&
-        typedOther.disabledItemTextStyle == disabledItemTextStyle &&
-        typedOther.itemBorderColor == itemBorderColor &&
-        typedOther.itemBorderWidth == itemBorderWidth &&
-        typedOther.itemBorderRadius == itemBorderRadius;
+
+    return other is SfDataPagerThemeData &&
+        other.brightness == brightness &&
+        other.itemColor == itemColor &&
+        other.backgroundColor == backgroundColor &&
+        other.itemTextStyle == itemTextStyle &&
+        other.selectedItemColor == selectedItemColor &&
+        other.selectedItemTextStyle == selectedItemTextStyle &&
+        other.disabledItemColor == disabledItemColor &&
+        other.disabledItemTextStyle == disabledItemTextStyle &&
+        other.itemBorderColor == itemBorderColor &&
+        other.itemBorderWidth == itemBorderWidth &&
+        other.itemBorderRadius == itemBorderRadius;
   }
 
   @override
   int get hashCode {
-    final List<Object> values = <Object>[
+    final List<Object?> values = <Object?>[
       itemColor,
       backgroundColor,
       itemTextStyle,

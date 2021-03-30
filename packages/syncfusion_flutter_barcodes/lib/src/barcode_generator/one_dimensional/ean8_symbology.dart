@@ -20,5 +20,5 @@ class EAN8 extends Symbology {
   /// valid check digit otherwise remove it, since it has been calculated
   /// automatically.
   ///
-  EAN8({int module}) : super(module: module);
+  EAN8({int? module}) : super(module: module);
 }

@@ -1,16 +1,14 @@
-![syncfusion_flutter_map_banner](https://cdn.syncfusion.com/content/images/Flutter/pub_images/maps_images/banner.jpg)
+﻿![syncfusion_flutter_map_banner](https://cdn.syncfusion.com/content/images/Flutter/pub_images/maps_images/banner.jpg)
 
-# Syncfusion Flutter Maps
+# Flutter Maps library
 
-Syncfusion Flutter Maps is a data visualization library written natively in Dart for creating beautiful and customizable maps. They are used to build high-performance mobile applications with rich UIs using Flutter.
+The Flutter Maps package is a data visualization library for creating beautiful, interactive, and customizable maps from shape files or WMTS services to visualize the geographical area.
 
 ## Overview
 
-Create a highly interactive and customizable maps widget that has features set includes tile rendering from OpenStreetMap, Bing Maps, and other tile providers with marker support and shape layer with features like selection, legends, labels, markers, tooltips, bubbles, color mapping, and much more.
+Create a highly interactive and customizable Flutter Maps that has features set like tile rendering from OpenStreetMaps, Azure Maps API, Bing Maps API, Google Maps Tile API, TomTom, Mapbox, Esri’s ArcGIS, and other tile providers with marker support and shape layer with features like selection, legends, labels, markers, tooltips, bubbles, color mapping, and much more.
 
-**Disclaimer:** This is a commercial package. To use this package, you need to have either a Syncfusion commercial license or Syncfusion Community License. For more details, please check the LICENSE file.
-
-**Note:** Our packages are now compatible with Flutter for Web. However, this will be in beta until Flutter for web becomes stable.
+**Disclaimer:** This is a commercial package. To use this package, you need to have either a Syncfusion commercial license or [Free Syncfusion Community license](https://www.syncfusion.com/products/communitylicense). For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
 
 ## Table of contents
 - [Maps features](#maps-features)
@@ -63,6 +61,10 @@ Add shapes such as polylines, lines, polygons, circles, and arcs as a sublayer i
 
 ![maps zoompan](https://cdn.syncfusion.com/content/images/zoompan.gif)
 
+**Inverted circle** - Support has been provided for applying color to the inverted circle with the inner circle being transparent and the outer portion covered by an overlay color.
+
+**Inverted polygon** - Support has been provided for applying color to the inverted polygon with the inner polygon being transparent and the outer portion covered by an overlay color.
+
 ### Tile layer
 
 **Markers** - Show markers for the tile layer in the specific latitudes and longitudes. Display additional information about the markers using a customizable tooltip on a map.
@@ -82,6 +84,14 @@ Add shapes such as polylines, lines, polygons, circles, and arcs as a sublayer i
 ![tile layer polyline](https://cdn.syncfusion.com/content/images/FTControl/polyline.jpg)
 
 **Zooming and panning** - Zoom in tile layer for a closer look at a specific region by pinching, scrolling the mouse wheel or track pad, or using the toolbar on the web. Pan the map to navigate across the regions.
+
+**Inverted circle** - Support has been provided for applying color to the inverted circle with the inner circle being transparent and the outer portion covered by an overlay color.
+
+![inverted circle](https://cdn.syncfusion.com/content/images/Flutter/pub_images/maps_images/inverted-circle.png)
+
+**Inverted polygon** - Support has been provided for applying color to the inverted polygon with the inner polygon being transparent and the outer portion covered by an overlay color.
+
+![inverted polygon](https://cdn.syncfusion.com/content/images/Flutter/pub_images/maps_images/inverted-polygon.png)
 
 ## Get the demo application
 
@@ -108,7 +118,7 @@ Take a look at the following to learn more about Syncfusion Flutter Maps:
 
 Install the latest version from [pub](https://pub.dev/packages/syncfusion_flutter_maps#-installing-tab-).
 
-## Getting started
+## Flutter map example
 
 Import the following package.
 
@@ -116,7 +126,7 @@ Import the following package.
 import 'package:syncfusion_flutter_maps/maps.dart';
 ```
 
-### Add maps to the widget tree
+### Create map
 
 After importing the package, initialize the maps widget as a child of any widget.
 
@@ -138,16 +148,25 @@ The `layers` in `SfMaps` contains collection of `MapShapeLayer`. The actual geog
 The `shapeDataField` property of the `MapShapeSource` is used to refer the unique field name in the .json file to identify each shapes. In 'Mapping the data source' section of this document, this `shapeDataField` will be used to map with respective value returned in `primaryValueMapper` from the data source.
 
 ```dart
+MapShapeSource _mapSource;
+
+@override
+void initState() {
+  _mapSource = MapShapeSource.asset(
+    'assets/australia.json',
+    shapeDataField: 'STATE_NAME',
+  );
+
+  super.initState();
+}
+
 @override
 Widget build(BuildContext context) {
   return Scaffold(
     body: SfMaps(
       layers: [
         MapShapeLayer(
-          source: MapShapeSource.asset(
-            'assets/australia.json',
-            shapeDataField: 'STATE_NAME',
-          ),
+          source: _mapSource,
         ),
       ],
     ),
@@ -163,6 +182,7 @@ By default, the value specified for the `shapeDataField` in the GeoJSON file wil
 
 ```dart
 List<Model> data;
+MapShapeSource _mapSource;
 
 @override
 void initState() {
@@ -178,6 +198,13 @@ void initState() {
     Model('Australian Capital Territory', 'ACT')
   ];
 
+  _mapSource = MapShapeSource.asset(
+    'assets/australia.json',
+    shapeDataField: 'STATE_NAME',
+    dataCount: data.length,
+    primaryValueMapper: (int index) => data[index].state,
+  );
+
   super.initState();
 }
 
@@ -187,12 +214,7 @@ Widget build(BuildContext context) {
     body: SfMaps(
        layers: <MapShapeLayer>[
          MapShapeLayer(
-           source: MapShapeSource.asset(
-             'assets/australia.json',
-             shapeDataField: 'STATE_NAME',
-             dataCount: data.length,
-             primaryValueMapper: (int index) => data[index].state,
-           ),
+           source: _mapSource,
          ),
        ],
      ),
@@ -221,6 +243,7 @@ Add the basic maps elements such as title, data labels, legend, and tooltip as s
 
 ```dart
 List<Model> data;
+MapShapeSource _mapSource;
 
 @override
 void initState() {
@@ -238,6 +261,15 @@ void initState() {
     Model('Tasmania', Color.fromRGBO(99, 164, 230, 1), 'Tasmania'),
     Model('Australian Capital Territory', Colors.teal, 'ACT')
   ];
+
+  _mapSource = MapShapeSource.asset(
+    'assets/australia.json',
+    shapeDataField: 'STATE_NAME',
+    dataCount: data.length,
+    primaryValueMapper: (int index) => data[index].state,
+    dataLabelMapper: (int index) => data[index].stateCode,
+    shapeColorValueMapper: (int index) => data[index].color,
+  );
   super.initState();
 }
 
@@ -252,14 +284,7 @@ Widget build(BuildContext context) {
           title: const MapTitle('Australia map'),
           layers: <MapShapeLayer>[
             MapShapeLayer(
-              source: MapShapeSource.asset(
-                'assets/australia.json',
-                shapeDataField: 'STATE_NAME',
-                dataCount: data.length,
-                primaryValueMapper: (int index) => data[index].state,
-                dataLabelMapper: (int index) => data[index].stateCode,
-                shapeColorValueMapper: (int index) => data[index].color,
-              ),
+              source: _mapSource,
               legend: MapLegend(MapElement.shape),
               showDataLabels: true,
               shapeTooltipBuilder: (BuildContext context, int index) {

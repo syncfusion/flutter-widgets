@@ -140,17 +140,14 @@ class SfSignaturePad extends StatefulWidget {
   ///    });
   /// ```
   const SfSignaturePad(
-      {key,
+      {Key? key,
       this.minimumStrokeWidth = _kMinimumStrokeWidth,
       this.maximumStrokeWidth = _kMaximumStrokeWidth,
       this.backgroundColor,
       this.strokeColor,
       this.onSignEnd,
       this.onSignStart})
-      : assert(minimumStrokeWidth != null),
-        assert(maximumStrokeWidth != null),
-        assert(minimumStrokeWidth <= maximumStrokeWidth),
-        super(key: key);
+      : super(key: key);
 
   /// The minimum width of the signature stroke.
   ///
@@ -215,7 +212,7 @@ class SfSignaturePad extends StatefulWidget {
   ///  );
   ///  ```
   ///
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   /// Color applied to the signature stroke.
   ///
@@ -233,7 +230,7 @@ class SfSignaturePad extends StatefulWidget {
   ///  );
   /// ```
   ///
-  final Color strokeColor;
+  final Color? strokeColor;
 
   /// Called when the user starts signing on [SfSignaturePad].
   ///
@@ -246,7 +243,7 @@ class SfSignaturePad extends StatefulWidget {
   ///   },
   ///  );
   ///  ```
-  final VoidCallback onSignStart;
+  final VoidCallback? onSignStart;
 
   /// Called when the user completes signing on [SfSignaturePad].
   ///
@@ -260,7 +257,7 @@ class SfSignaturePad extends StatefulWidget {
   ///   },
   ///  );
   /// ```
-  final VoidCallback onSignEnd;
+  final VoidCallback? onSignEnd;
 
   @override
   SfSignaturePadState createState() => SfSignaturePadState();
@@ -299,11 +296,10 @@ class SfSignaturePadState extends State<SfSignaturePad> {
   /// * [renderToContext2D], renders the signature to a HTML canvas.
 
   Future<ui.Image> toImage({double pixelRatio = 1.0}) {
-    if (!kIsWeb) {
-      final RenderSignaturePad signatureRenderBox = context.findRenderObject();
-      return signatureRenderBox.toImage(pixelRatio: pixelRatio);
-    }
-    return null;
+    final RenderObject? signatureRenderBox = context.findRenderObject();
+    // ignore: avoid_as
+    return (signatureRenderBox as RenderSignaturePad)
+        .toImage(pixelRatio: pixelRatio);
   }
 
   /// Clears all the signature strokes in the [SfSignaturePad].
@@ -329,8 +325,11 @@ class SfSignaturePadState extends State<SfSignaturePad> {
   /// _signaturePadKey.currentState.clear();
   ///  ```
   void clear() {
-    final RenderSignaturePad signatureRenderBox = context.findRenderObject();
-    signatureRenderBox.clear();
+    final RenderObject? signatureRenderBox = context.findRenderObject();
+
+    if (signatureRenderBox is RenderSignaturePad) {
+      signatureRenderBox.clear();
+    }
   }
 
   /// Renders the signature to a HTML canvas.
@@ -370,16 +369,15 @@ class SfSignaturePadState extends State<SfSignaturePad> {
   /// Uint8List imageData = await completer.future;
   ///  ```
   void renderToContext2D(dynamic context2D) {
-    final RenderSignaturePad signatureRenderBox = context.findRenderObject();
-    return signatureRenderBox.renderToContext2D(context2D);
+    final RenderObject? signatureRenderBox = context.findRenderObject();
+
+    if (signatureRenderBox is RenderSignaturePad) {
+      signatureRenderBox.renderToContext2D(context2D);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final double _minimumStrokeWidth =
-        widget.minimumStrokeWidth ?? _kMinimumStrokeWidth;
-    final double _maximumStrokeWidth =
-        widget.maximumStrokeWidth ?? _kMaximumStrokeWidth;
     final ThemeData theme = Theme.of(context);
     final bool isDarkTheme = theme.brightness == Brightness.dark;
     final Color _backgroundColor = widget.backgroundColor ?? Colors.transparent;
@@ -387,23 +385,22 @@ class SfSignaturePadState extends State<SfSignaturePad> {
         widget.strokeColor ?? (isDarkTheme ? Colors.white : Colors.black);
 
     return _SfSignaturePadRenderObjectWidget(
-      minimumStrokeWidth: _minimumStrokeWidth,
-      maximumStrokeWidth: _maximumStrokeWidth,
-      backgroundColor: _backgroundColor,
-      strokeColor: _strokeColor,
-      onSignStart: widget.onSignStart,
-      onSignEnd: widget.onSignEnd,
-    );
+        minimumStrokeWidth: widget.minimumStrokeWidth,
+        maximumStrokeWidth: widget.maximumStrokeWidth,
+        backgroundColor: _backgroundColor,
+        strokeColor: _strokeColor,
+        onSignStart: widget.onSignStart,
+        onSignEnd: widget.onSignEnd);
   }
 }
 
 /// A super class to create or update the RenderSignaturePad class.
 class _SfSignaturePadRenderObjectWidget extends LeafRenderObjectWidget {
   const _SfSignaturePadRenderObjectWidget({
-    this.minimumStrokeWidth,
-    this.maximumStrokeWidth,
-    this.backgroundColor,
-    this.strokeColor,
+    required this.minimumStrokeWidth,
+    required this.maximumStrokeWidth,
+    required this.backgroundColor,
+    required this.strokeColor,
     this.onSignStart,
     this.onSignEnd,
   });
@@ -412,8 +409,8 @@ class _SfSignaturePadRenderObjectWidget extends LeafRenderObjectWidget {
   final double maximumStrokeWidth;
   final Color backgroundColor;
   final Color strokeColor;
-  final VoidCallback onSignStart;
-  final VoidCallback onSignEnd;
+  final VoidCallback? onSignStart;
+  final VoidCallback? onSignEnd;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
@@ -444,12 +441,12 @@ class _SfSignaturePadRenderObjectWidget extends LeafRenderObjectWidget {
 class RenderSignaturePad extends RenderBox {
   /// Creates a new instance of [RenderSignaturePad].
   RenderSignaturePad(
-      {double minimumStrokeWidth,
-      double maximumStrokeWidth,
-      Color backgroundColor,
-      Color strokeColor,
-      VoidCallback onSignStart,
-      VoidCallback onSignEnd})
+      {required double minimumStrokeWidth,
+      required double maximumStrokeWidth,
+      required Color backgroundColor,
+      required Color strokeColor,
+      VoidCallback? onSignStart,
+      VoidCallback? onSignEnd})
       : _minimumStrokeWidth = minimumStrokeWidth,
         _maximumStrokeWidth = maximumStrokeWidth,
         _backgroundColor = backgroundColor,
@@ -499,23 +496,29 @@ class RenderSignaturePad extends RenderBox {
   }
 
   final GestureArenaTeam _gestureArenaTeam;
-  TapGestureRecognizer _tapGestureRecognizer;
-  VerticalDragGestureRecognizer _verticalDragGestureRecognizer;
-  HorizontalDragGestureRecognizer _horizontalDragGestureRecognizer;
-  PanGestureRecognizer _panGestureRecognizer;
+
   int _touchGestureFinder = 0;
-  Paint _paintStrokeStyle;
-  Paint _paintBackgroundStyle;
-  List<_TouchPoint> _lastPoints;
-  List<List<_TouchPoint>> _data;
-  List<Offset> _dotPoints;
-  List<_CachePoint> _bezierPoints;
-  double _lastVelocity;
-  double _lastWidth;
-  final double _velocityFilterWeight = 0.2;
-  List<Path> _pathCollection;
-  Path _currentPath;
   bool _restrictBezierPathCalculation = false;
+  double _velocityFilterWeight = 0.2;
+
+  late TapGestureRecognizer _tapGestureRecognizer;
+  late VerticalDragGestureRecognizer _verticalDragGestureRecognizer;
+  late HorizontalDragGestureRecognizer _horizontalDragGestureRecognizer;
+  late PanGestureRecognizer _panGestureRecognizer;
+
+  late Paint _paintStrokeStyle;
+  late Paint _paintBackgroundStyle;
+
+  late List<_TouchPoint> _lastPoints;
+  late List<List<_TouchPoint>> _data;
+  late List<Offset> _dotPoints;
+  late List<_CachePoint> _bezierPoints;
+  late List<Path> _pathCollection;
+
+  late double _lastVelocity;
+  late double _lastWidth;
+
+  late Path _currentPath;
 
   double _minimumStrokeWidth;
 
@@ -620,32 +623,32 @@ class RenderSignaturePad extends RenderBox {
     markNeedsPaint();
   }
 
-  VoidCallback _onSignEnd;
+  VoidCallback? _onSignEnd;
 
   /// Gets the [onSignEnd] callback.
   ///
   /// Called when the user completes the signature in [RenderSignaturePad].
-  VoidCallback get onSignEnd => _onSignEnd;
+  VoidCallback? get onSignEnd => _onSignEnd;
 
   /// Sets the [onSignEnd] callback.
   ///
   /// Called when the user completes the signature in [RenderSignaturePad].
-  set onSignEnd(VoidCallback value) {
+  set onSignEnd(VoidCallback? value) {
     if (_onSignEnd == value) return;
     _onSignEnd = value;
   }
 
-  VoidCallback _onSignStart;
+  VoidCallback? _onSignStart;
 
   ///Gets the [onSignStart] callback.
   ///
   ///Called when the user starts signing on the [RenderSignaturePad].
-  VoidCallback get onSignStart => _onSignStart;
+  VoidCallback? get onSignStart => _onSignStart;
 
   /// Sets the onSignStart callback.
   ///
   /// Called when the user starts signing on the [RenderSignaturePad]
-  set onSignStart(VoidCallback value) {
+  set onSignStart(VoidCallback? value) {
     if (_onSignStart == value) return;
     _onSignStart = value;
   }
@@ -685,17 +688,17 @@ class RenderSignaturePad extends RenderBox {
   }
 
   void _handleDragEnd(DragEndDetails details) {
-    if (onSignEnd != null) onSignEnd();
+    if (onSignEnd != null) onSignEnd!();
   }
 
   void _handleTapUp(TapUpDetails details) {
     final _TouchPoint touchPoint =
         _TouchPoint(x: details.localPosition.dx, y: details.localPosition.dy);
     final newPointGroup = <_TouchPoint>[touchPoint];
-    if (onSignStart != null) onSignStart();
+    if (onSignStart != null) onSignStart!();
     _data.add(newPointGroup);
     _drawTappedPoint(touchPoint);
-    if (onSignEnd != null) onSignEnd();
+    if (onSignEnd != null) onSignEnd!();
   }
 
   @override
@@ -722,7 +725,7 @@ class RenderSignaturePad extends RenderBox {
 
   void _begin(Offset touchOffset) {
     final newPointGroup = <_TouchPoint>[];
-    if (onSignStart != null) onSignStart();
+    if (onSignStart != null) onSignStart!();
     _data.add(newPointGroup);
     _currentPath = Path();
     _pathCollection.add(_currentPath);
@@ -746,7 +749,7 @@ class RenderSignaturePad extends RenderBox {
         : 1;
     if (distance > 0) {
       if (!_restrictBezierPathCalculation) {
-        final _Bezier curve = _calculateBezierPath(point);
+        final _Bezier? curve = _calculateBezierPath(point);
         if (curve != null) {
           _drawSignatureCurve(curve);
         }
@@ -763,7 +766,7 @@ class RenderSignaturePad extends RenderBox {
     markNeedsPaint();
   }
 
-  _Bezier _calculateBezierPath(_TouchPoint point) {
+  _Bezier? _calculateBezierPath(_TouchPoint point) {
     _lastPoints.add(point);
 
     if (_lastPoints.length > 2) {
@@ -824,7 +827,7 @@ class RenderSignaturePad extends RenderBox {
   }
 
   double _velocity(_TouchPoint start, _TouchPoint end) {
-    double velocity = _distance(start, end) / (end.time - start.time);
+    double velocity = _distance(start, end) / (end.time! - start.time!);
     velocity = end.time == start.time ? 0 : velocity;
     return velocity;
   }
@@ -837,12 +840,9 @@ class RenderSignaturePad extends RenderBox {
   ///
   ///  * [renderToContext2D], renders the signature to a HTML canvas.
   Future<ui.Image> toImage({double pixelRatio = 1.0}) async {
-    if (!kIsWeb) {
-      final OffsetLayer offsetLayer = layer;
-      return offsetLayer.toImage(Offset.zero & size, pixelRatio: pixelRatio);
-    } else {
-      return null;
-    }
+    // ignore: avoid_as
+    return (layer as OffsetLayer)
+        .toImage(Offset.zero & size, pixelRatio: pixelRatio);
   }
 
   /// Clears the signature strokes in [RenderSignaturePad].
@@ -879,7 +879,7 @@ class RenderSignaturePad extends RenderBox {
             _pathCollection.add(_currentPath);
           }
 
-          final _Bezier curve = _calculateBezierPath(point);
+          final _Bezier? curve = _calculateBezierPath(point);
           if (curve != null) {
             _drawSignatureCurve(curve);
           }
@@ -1005,7 +1005,7 @@ class RenderSignaturePad extends RenderBox {
           canvas.drawPoints(ui.PointMode.points, _dotPoints, _paintStrokeStyle);
         }
 
-        if (_pathCollection != null && _pathCollection.isNotEmpty) {
+        if (_pathCollection.isNotEmpty) {
           _paintStrokeStyle.strokeWidth = _maximumStrokeWidth;
           for (int i = 0; i < _pathCollection.length; i++) {
             canvas.drawPath(_pathCollection[i], _paintStrokeStyle);
@@ -1034,7 +1034,9 @@ class _Bezier {
   final double endWidth;
 
   static _Bezier fromPoints(
-      {List<_TouchPoint> points, double start, double end}) {
+      {required List<_TouchPoint> points,
+      required double start,
+      required double end}) {
     final _TouchPoint c2 =
         calculateControlPoints(points[0], points[1], points[2])[1];
     final _TouchPoint c3 =
@@ -1055,8 +1057,8 @@ class _Bezier {
     final double l1 = sqrt(dx1 * dx1 + dy1 * dy1);
     final double l2 = sqrt(dx2 * dx2 + dy2 * dy2);
 
-    final double dxm = m1.x - m2.x;
-    final double dym = m1.y - m2.y;
+    final double dxm = (m1.x - m2.x).toDouble();
+    final double dym = (m1.y - m2.y).toDouble();
 
     double k = l2 / (l1 + l2);
     if (k.isNaN) k = 0;
@@ -1085,9 +1087,9 @@ class _Bezier {
           point(t, startPoint.y, control1.y, control2.y, endPoint.y);
 
       if (i > 0) {
-        final double xdiff = cx - px;
-        final double ydiff = cy - py;
-        length += sqrt(xdiff * xdiff + ydiff * ydiff);
+        final double xDiff = cx - px;
+        final double yDiff = cy - py;
+        length += sqrt(xDiff * xDiff + yDiff * yDiff);
       }
 
       px = cx;
@@ -1110,7 +1112,7 @@ class _Bezier {
 }
 
 class _CachePoint {
-  const _CachePoint({this.x, this.y, this.width});
+  const _CachePoint({required this.x, required this.y, required this.width});
 
   final double x;
   final double y;
@@ -1120,7 +1122,7 @@ class _CachePoint {
 ///This class holds the touch point related data.
 class _TouchPoint {
   /// Creates a new instance of [TouchPoint].
-  const _TouchPoint({this.x, this.y, this.time});
+  const _TouchPoint({required this.x, required this.y, this.time});
 
   ///Touch x point.
   final double x;
@@ -1129,5 +1131,5 @@ class _TouchPoint {
   final double y;
 
   ///Time in millisecondsSinceEpoch format.
-  final int time;
+  final int? time;
 }

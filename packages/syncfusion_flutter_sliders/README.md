@@ -1,16 +1,14 @@
-![syncfusion_flutter_slider_banner](https://cdn.syncfusion.com/content/images/FTControl/Flutter/sliders/slider-banner.png)
+![syncfusion_flutter_slider_banner](https://cdn.syncfusion.com/content/images/Flutter/pub_images/slider_images/slider-banner.png)
 
-# Syncfusion Flutter Sliders
+# Flutter Sliders library
 
-Syncfusion Flutter Sliders library is written natively in Dart for creating highly interactive and UI-rich slider controls for filtering purposes in Flutter applications.
+The Flutter Sliders package is written natively in Dart for creating highly interactive and UI-rich slider widgets for filtering purposes in Flutter applications.
 
 ## Overview
 
 This library is used to create three different types of sliders, namely slider, range slider, and range selector. All these sliders have a rich set of features such as support for both numeric and date values, tooltip, labels, and ticks. The range selector latter accepts any kind of child including [Charts](https://pub.dev/packages/syncfusion_flutter_charts).
 
-**Disclaimer:** This is a commercial package. To use this package, you need to have either a Syncfusion Commercial License or Syncfusion Community license. For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
-
-**Note:** Our packages are now compatible with Flutter for Web. However, this will be in Beta until Flutter for Web becomes stable.
+**Disclaimer:** This is a commercial package. To use this package, you need to have either a Syncfusion Commercial License or [Free Syncfusion Community license](https://www.syncfusion.com/products/communitylicense). For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
 
 ## Table of contents
 - [Slider features](#slider-features)
@@ -52,15 +50,21 @@ This library is used to create three different types of sliders, namely slider, 
 * **Highly customizable** - In addition to the built-in rich set of features, fully customize the control easily using the wide range of provided options.
 ![slider customization](https://cdn.syncfusion.com/content/images/Flutter/pub_images/slider_images/slider_customization.png)
 
+* **Orientation** - Supports both horizontal and vertical orientations.
+![slider orientation](https://cdn.syncfusion.com/content/images/Flutter/pub_images/slider_images/slider_orientation.png)
+
 ## Range slider features
 
 Range slider supports all the above-mentioned features of the slider in addition to:
+
+* **Orientation** - Supports both horizontal and vertical orientations.
+![range slider orientation](https://cdn.syncfusion.com/content/images/Flutter/pub_images/range_slider_images/range_slider_orientation.png)
 
 * **Interval selection** - Allows users to select a particular interval by tapping or clicking in it. Both thumbs will be moved to the current interval with animation.
 
 ## Range selector features
 
-Range selector supports all the above-mentioned features of the range slider in addition to:
+Range selector supports all the above-mentioned features(except orientation) of the range slider in addition to:
 
 * **Child support** - Add a child of any type inside the range selector. It is also possible to add Charts. With the built-in integration, range selector is smart enough to handle features like segment selection or zooming of a chart based on the selected range in the range selector. Similar to the range slider, it also supports both numeric and date values.
 
@@ -122,6 +126,8 @@ Widget build(BuildContext context) {
 
 Add the slider elements such as ticks, labels, and tooltip to show the current position of the slider thumb.
 
+#### Horizontal slider
+
 ```dart
 double _value = 40.0;
 
@@ -152,7 +158,39 @@ Widget build(BuildContext context) {
 
 The following screenshot illustrates the result of the above code sample.
 
-![simple slider](https://cdn.syncfusion.com/content/images/Flutter/pub_images/slider_images/Slider_Tooltip.png)
+![horizontal slider](https://cdn.syncfusion.com/content/images/Flutter/pub_images/slider_images/Slider_Tooltip.png)
+
+#### Vertical slider
+
+```dart
+double _value = 40.0;
+
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text('Syncfusion Flutter Vertical Slider'),
+    ),
+    body: SfSlider.vertical(
+      min: 0.0,
+      max: 100.0,
+      value: _value,
+      interval: 20,
+      showTicks: true,
+      showLabels: true,
+      enableTooltip: true,
+      minorTicksPerInterval: 1,
+      onChanged: (dynamic value) {
+        setState(() {
+          _value = value;
+        });
+      },
+    ),
+  );
+}
+```
+
+![vertical slider](https://cdn.syncfusion.com/content/images/Flutter/pub_images/slider_images/vertical-slider.png)
 
 ## Range slider getting started
 
@@ -182,6 +220,8 @@ Widget build(BuildContext context) {
 ### Add range slider elements
 
 Add the range slider elements such as ticks, labels, and tooltips to show the current position of the range slider thumb.
+
+#### Horizontal range slider
 
 ```dart
 SfRangeValues _values = SfRangeValues(40.0, 80.0);
@@ -214,6 +254,38 @@ Widget build(BuildContext context) {
 The following screenshot illustrates the result of the above code sample.
 
 ![simple range slider](https://cdn.syncfusion.com/content/images/FTControl/Flutter/sliders/range-slider.png)
+
+#### Vertical range slider
+
+```dart
+SfRangeValues _values = SfRangeValues(40.0, 80.0);
+
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text('Syncfusion Flutter Vertical Range Slider'),
+    ),
+    body: SfRangeSlider.vertical(
+      min: 0.0,
+      max: 100.0,
+      values: _values,
+      interval: 20,
+      showTicks: true,
+      showLabels: true,
+      enableTooltip: true,
+      minorTicksPerInterval: 1,
+      onChanged: (SfRangeValues values) {
+        setState(() {
+          _values = values;
+        });
+      },
+    ),
+  );
+}
+```
+
+![vertical range slider](https://cdn.syncfusion.com/content/images/Flutter/pub_images/slider_images/vertical-range-slider.png)
 
 ## Range selector getting started
 

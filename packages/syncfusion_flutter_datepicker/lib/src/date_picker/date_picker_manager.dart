@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 import 'picker_helper.dart';
@@ -27,7 +28,7 @@ import 'picker_helper.dart';
 ///
 /// ```
 @immutable
-class DateRangePickerHeaderStyle {
+class DateRangePickerHeaderStyle with Diagnosticable {
   /// Creates a header style for date range picker.
   const DateRangePickerHeaderStyle(
       {this.textAlign = TextAlign.left, this.backgroundColor, this.textStyle});
@@ -59,7 +60,7 @@ class DateRangePickerHeaderStyle {
   ///  }
   ///
   /// ```
-  final TextStyle textStyle;
+  final TextStyle? textStyle;
 
   /// How the text should  be aligned horizontally in [SfDateRangePicker] header
   /// view.
@@ -109,7 +110,7 @@ class DateRangePickerHeaderStyle {
   ///  }
   ///
   /// ```
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   @override
   bool operator ==(dynamic other) {
@@ -124,6 +125,14 @@ class DateRangePickerHeaderStyle {
     return otherStyle.textStyle == textStyle &&
         otherStyle.textAlign == textAlign &&
         otherStyle.backgroundColor == backgroundColor;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(EnumProperty<TextAlign>('textAlign', textAlign));
+    properties.add(ColorProperty('backgroundColor', backgroundColor));
+    properties.add(DiagnosticsProperty<TextStyle>('textStyle', textStyle));
   }
 
   @override
@@ -165,7 +174,7 @@ class DateRangePickerHeaderStyle {
 ///
 /// ```
 @immutable
-class DateRangePickerViewHeaderStyle {
+class DateRangePickerViewHeaderStyle with Diagnosticable {
   /// creates a view header style for month view in [SfDateRangePicker].
   const DateRangePickerViewHeaderStyle({this.backgroundColor, this.textStyle});
 
@@ -196,7 +205,7 @@ class DateRangePickerViewHeaderStyle {
   ///  }
   ///
   /// ```
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   /// The text style for the text in the [SfDateRangePicker] view header view of
   /// month view.
@@ -228,7 +237,7 @@ class DateRangePickerViewHeaderStyle {
   /// }
   ///
   /// ```
-  final TextStyle textStyle;
+  final TextStyle? textStyle;
 
   @override
   bool operator ==(dynamic other) {
@@ -242,6 +251,13 @@ class DateRangePickerViewHeaderStyle {
     final DateRangePickerViewHeaderStyle otherStyle = other;
     return otherStyle.backgroundColor == backgroundColor &&
         otherStyle.textStyle == textStyle;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(ColorProperty('backgroundColor', backgroundColor));
+    properties.add(DiagnosticsProperty<TextStyle>('textStyle', textStyle));
   }
 
   @override
@@ -299,7 +315,7 @@ class DateRangePickerViewHeaderStyle {
 ///
 /// ```
 @immutable
-class DateRangePickerMonthViewSettings {
+class DateRangePickerMonthViewSettings with Diagnosticable {
   /// Creates a date range picker month view settings for date range picker.
   ///
   /// The properties allows to customize the month view of [SfDateRangePicker].
@@ -310,16 +326,13 @@ class DateRangePickerMonthViewSettings {
       this.viewHeaderHeight = 30,
       @Deprecated('Use selectionRadius property in SfDateRangePicker')
           // ignore: deprecated_member_use, deprecated_member_use_from_same_package
-          this.selectionRadius,
+          this.selectionRadius = -1,
       this.showTrailingAndLeadingDates = false,
-      DateRangePickerViewHeaderStyle viewHeaderStyle,
+      this.viewHeaderStyle = const DateRangePickerViewHeaderStyle(),
       this.enableSwipeSelection = true,
       this.blackoutDates,
       this.specialDates,
-      List<int> weekendDays})
-      : viewHeaderStyle =
-            viewHeaderStyle ?? const DateRangePickerViewHeaderStyle(),
-        weekendDays = weekendDays ?? const <int>[6, 7];
+      this.weekendDays = const <int>[6, 7]});
 
   /// Formats a text in the [SfDateRangePicker] month view view header.
   ///
@@ -585,7 +598,7 @@ class DateRangePickerMonthViewSettings {
   ///  }
   ///
   /// ```
-  final List<DateTime> blackoutDates;
+  final List<DateTime>? blackoutDates;
 
   /// In the month view of [SfDateRangePicker] highlights the unique dates with
   /// different style rather than the other dates style.
@@ -622,7 +635,7 @@ class DateRangePickerMonthViewSettings {
   ///  }
   ///
   /// ```
-  final List<DateTime> specialDates;
+  final List<DateTime>? specialDates;
 
   /// The weekends for month view in [SfDateRangePicker].
   ///
@@ -675,6 +688,25 @@ class DateRangePickerMonthViewSettings {
   }
 
   @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(IterableDiagnostics(blackoutDates)
+        .toDiagnosticsNode(name: 'blackoutDates'));
+    properties.add(IterableDiagnostics(specialDates)
+        .toDiagnosticsNode(name: 'specialDates'));
+    properties.add(IntProperty('numberOfWeeksInView', numberOfWeeksInView));
+    properties.add(IntProperty('firstDayOfWeek', firstDayOfWeek));
+    properties.add(DoubleProperty('viewHeaderHeight', viewHeaderHeight));
+    properties.add(StringProperty('dayFormat', dayFormat));
+    properties.add(DiagnosticsProperty<bool>(
+        'showTrailingAndLeadingDates', showTrailingAndLeadingDates));
+    properties.add(DiagnosticsProperty<bool>(
+        'enableSwipeSelection', enableSwipeSelection));
+    properties.add(viewHeaderStyle.toDiagnosticsNode(name: 'viewHeaderStyle'));
+    properties.add(IterableProperty<int>('weekendDays', weekendDays));
+  }
+
+  @override
   int get hashCode {
     return hashValues(
         dayFormat,
@@ -684,9 +716,9 @@ class DateRangePickerMonthViewSettings {
         viewHeaderHeight,
         showTrailingAndLeadingDates,
         numberOfWeeksInView,
-        specialDates,
-        blackoutDates,
-        weekendDays);
+        hashList(specialDates),
+        hashList(blackoutDates),
+        hashList(weekendDays));
   }
 }
 
@@ -732,7 +764,7 @@ class DateRangePickerMonthViewSettings {
 ///
 /// ```
 @immutable
-class DateRangePickerYearCellStyle {
+class DateRangePickerYearCellStyle with Diagnosticable {
   /// Creates a date range picker year cell style for date range picker.
   ///
   /// The properties allows to customize the year cells in year view of
@@ -776,7 +808,7 @@ class DateRangePickerYearCellStyle {
   ///  }
   ///
   /// ```
-  final TextStyle textStyle;
+  final TextStyle? textStyle;
 
   /// The text style for the text in the today cell of [SfDateRangePicker]
   /// year, decade and century view.
@@ -807,7 +839,7 @@ class DateRangePickerYearCellStyle {
   ///  }
   ///
   /// ```
-  final TextStyle todayTextStyle;
+  final TextStyle? todayTextStyle;
 
   /// The text style for the text in the leading dates cells of
   /// [SfDateRangePicker] year, decade and century view.
@@ -840,7 +872,7 @@ class DateRangePickerYearCellStyle {
   ///  }
   ///
   /// ```
-  final TextStyle leadingDatesTextStyle;
+  final TextStyle? leadingDatesTextStyle;
 
   /// The text style for the text in the disabled dates cell of
   /// [SfDateRangePicker] year, decade and century view.
@@ -873,7 +905,7 @@ class DateRangePickerYearCellStyle {
   ///  }
   ///
   /// ```
-  final TextStyle disabledDatesTextStyle;
+  final TextStyle? disabledDatesTextStyle;
 
   /// The decoration for the disabled cells of [SfDateRangePicker]
   /// year, decade and century view.
@@ -908,7 +940,7 @@ class DateRangePickerYearCellStyle {
   ///  }
   ///
   /// ```
-  final Decoration disabledDatesDecoration;
+  final Decoration? disabledDatesDecoration;
 
   /// The decoration for the cells of [SfDateRangePicker] year, decade
   /// and century view.
@@ -940,7 +972,7 @@ class DateRangePickerYearCellStyle {
   ///  }
   ///
   /// ```
-  final Decoration cellDecoration;
+  final Decoration? cellDecoration;
 
   /// The decoration for the today cell of [SfDateRangePicker] year, decade
   /// and century view.
@@ -972,7 +1004,7 @@ class DateRangePickerYearCellStyle {
   ///  }
   ///
   /// ```
-  final Decoration todayCellDecoration;
+  final Decoration? todayCellDecoration;
 
   /// The decoration for the leading date cells of [SfDateRangePicker]
   /// year, decade and century view.
@@ -1007,7 +1039,7 @@ class DateRangePickerYearCellStyle {
   ///  }
   ///
   /// ```
-  final Decoration leadingDatesDecoration;
+  final Decoration? leadingDatesDecoration;
 
   @override
   bool operator ==(dynamic other) {
@@ -1027,6 +1059,26 @@ class DateRangePickerYearCellStyle {
         otherStyle.todayCellDecoration == todayCellDecoration &&
         otherStyle.leadingDatesDecoration == leadingDatesDecoration &&
         otherStyle.disabledDatesTextStyle == disabledDatesTextStyle;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<TextStyle>('textStyle', textStyle));
+    properties
+        .add(DiagnosticsProperty<TextStyle>('todayTextStyle', todayTextStyle));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'leadingDatesTextStyle', leadingDatesTextStyle));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'disabledDatesTextStyle', disabledDatesTextStyle));
+    properties.add(DiagnosticsProperty<Decoration>(
+        'disabledDatesDecoration', disabledDatesDecoration));
+    properties
+        .add(DiagnosticsProperty<Decoration>('cellDecoration', cellDecoration));
+    properties.add(DiagnosticsProperty<Decoration>(
+        'todayCellDecoration', todayCellDecoration));
+    properties.add(DiagnosticsProperty<Decoration>(
+        'leadingDatesDecoration', leadingDatesDecoration));
   }
 
   @override
@@ -1088,7 +1140,7 @@ class DateRangePickerYearCellStyle {
 ///
 /// ```
 @immutable
-class DateRangePickerMonthCellStyle {
+class DateRangePickerMonthCellStyle with Diagnosticable {
   /// Creates a date range picker month cell style for date range picker.
   ///
   /// The properties allows to customize the month cells in month view of
@@ -1159,7 +1211,7 @@ class DateRangePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final TextStyle textStyle;
+  final TextStyle? textStyle;
 
   /// The text style for the text in the today cell of [SfDateRangePicker]
   /// month view.
@@ -1192,7 +1244,7 @@ class DateRangePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final TextStyle todayTextStyle;
+  final TextStyle? todayTextStyle;
 
   /// The text style for the text in the trailing dates cell of
   /// [SfDateRangePicker] month view.
@@ -1234,7 +1286,7 @@ class DateRangePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final TextStyle trailingDatesTextStyle;
+  final TextStyle? trailingDatesTextStyle;
 
   /// The text style for the text in the leading dates cell of
   /// [SfDateRangePicker] month view.
@@ -1276,7 +1328,7 @@ class DateRangePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final TextStyle leadingDatesTextStyle;
+  final TextStyle? leadingDatesTextStyle;
 
   /// The text style for the text in the disabled dates cell of
   /// [SfDateRangePicker] month view.
@@ -1313,7 +1365,7 @@ class DateRangePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final TextStyle disabledDatesTextStyle;
+  final TextStyle? disabledDatesTextStyle;
 
   /// The text style for the text in the selected date or dates cell of
   /// [SfDateRangePicker] month view.
@@ -1346,7 +1398,7 @@ class DateRangePickerMonthCellStyle {
   ///
   /// ```
   @Deprecated('Use selectionTextStyle property in SfDateRangePicker')
-  final TextStyle selectionTextStyle;
+  final TextStyle? selectionTextStyle;
 
   /// The text style for the text in the selected range or ranges cell of
   /// [SfDateRangePicker] month view.
@@ -1390,7 +1442,7 @@ class DateRangePickerMonthCellStyle {
   ///
   /// ```
   @Deprecated('Use rangeTextStyle property in SfDateRangePicker')
-  final TextStyle rangeTextStyle;
+  final TextStyle? rangeTextStyle;
 
   /// The text style for the text in the blackout dates cell of
   /// [SfDateRangePicker] month view.
@@ -1424,7 +1476,7 @@ class DateRangePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final TextStyle blackoutDateTextStyle;
+  final TextStyle? blackoutDateTextStyle;
 
   /// The text style for the text in the weekend dates cell of
   /// [SfDateRangePicker] month view.
@@ -1458,7 +1510,7 @@ class DateRangePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final TextStyle weekendTextStyle;
+  final TextStyle? weekendTextStyle;
 
   /// The text style for the text in the special dates cell of
   /// [SfDateRangePicker] month view.
@@ -1491,7 +1543,7 @@ class DateRangePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final TextStyle specialDatesTextStyle;
+  final TextStyle? specialDatesTextStyle;
 
   /// The decoration for the special date cells of [SfDateRangePicker]
   /// month view.
@@ -1524,7 +1576,7 @@ class DateRangePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final Decoration specialDatesDecoration;
+  final Decoration? specialDatesDecoration;
 
   /// The decoration for the weekend date cells of [SfDateRangePicker]
   /// month view.
@@ -1557,7 +1609,7 @@ class DateRangePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final Decoration weekendDatesDecoration;
+  final Decoration? weekendDatesDecoration;
 
   /// The decoration for the blackout date cells of [SfDateRangePicker]
   /// month view.
@@ -1590,7 +1642,7 @@ class DateRangePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final Decoration blackoutDatesDecoration;
+  final Decoration? blackoutDatesDecoration;
 
   /// The decoration for the disabled date cells of [SfDateRangePicker]
   /// month view.
@@ -1630,7 +1682,7 @@ class DateRangePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final Decoration disabledDatesDecoration;
+  final Decoration? disabledDatesDecoration;
 
   /// The decoration for the month cells of [SfDateRangePicker] month view.
   ///
@@ -1662,7 +1714,7 @@ class DateRangePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final Decoration cellDecoration;
+  final Decoration? cellDecoration;
 
   /// The decoration for the today text cell of [SfDateRangePicker] month view.
   ///
@@ -1694,7 +1746,7 @@ class DateRangePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final Decoration todayCellDecoration;
+  final Decoration? todayCellDecoration;
 
   /// The decoration for the trailing date cells of [SfDateRangePicker]
   /// month view.
@@ -1736,7 +1788,7 @@ class DateRangePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final Decoration trailingDatesDecoration;
+  final Decoration? trailingDatesDecoration;
 
   /// The decoration for the leading date cells of [SfDateRangePicker]
   /// month view.
@@ -1778,7 +1830,7 @@ class DateRangePickerMonthCellStyle {
   ///  }
   ///
   /// ```
-  final Decoration leadingDatesDecoration;
+  final Decoration? leadingDatesDecoration;
 
   /// The color which fills the [SfDateRangePicker] selection view.
   ///
@@ -1811,7 +1863,7 @@ class DateRangePickerMonthCellStyle {
   ///
   /// ```
   @Deprecated('Use selectionColor property in SfDateRangePicker')
-  final Color selectionColor;
+  final Color? selectionColor;
 
   /// The color which fills the [SfDateRangePicker] selection view of the range
   /// start date.
@@ -1847,7 +1899,7 @@ class DateRangePickerMonthCellStyle {
   ///
   /// ```
   @Deprecated('Use startRangeSelectionColor property in SfDateRangePicker')
-  final Color startRangeSelectionColor;
+  final Color? startRangeSelectionColor;
 
   /// The color which fills the [SfDateRangePicker] selection view for the range
   /// of dates which falls between the [PickerDateRange.startDate] and
@@ -1884,7 +1936,7 @@ class DateRangePickerMonthCellStyle {
   ///
   /// ```
   @Deprecated('Use rangeSelectionColor property in SfDateRangePicker')
-  final Color rangeSelectionColor;
+  final Color? rangeSelectionColor;
 
   /// The color which fills the [SfDateRangePicker] selection view of the range
   /// end date.
@@ -1920,7 +1972,7 @@ class DateRangePickerMonthCellStyle {
   ///
   /// ```
   @Deprecated('Use endRangeSelectionColor property in SfDateRangePicker')
-  final Color endRangeSelectionColor;
+  final Color? endRangeSelectionColor;
 
   @override
   bool operator ==(dynamic other) {
@@ -1951,8 +2003,44 @@ class DateRangePickerMonthCellStyle {
   }
 
   @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<TextStyle>('textStyle', textStyle));
+    properties
+        .add(DiagnosticsProperty<TextStyle>('todayTextStyle', todayTextStyle));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'trailingDatesTextStyle', trailingDatesTextStyle));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'leadingDatesTextStyle', leadingDatesTextStyle));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'blackoutDateTextStyle', blackoutDateTextStyle));
+    properties.add(
+        DiagnosticsProperty<TextStyle>('weekendTextStyle', weekendTextStyle));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'specialDatesTextStyle', specialDatesTextStyle));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'disabledDatesTextStyle', disabledDatesTextStyle));
+    properties.add(DiagnosticsProperty<Decoration>(
+        'disabledDatesDecoration', disabledDatesDecoration));
+    properties
+        .add(DiagnosticsProperty<Decoration>('cellDecoration', cellDecoration));
+    properties.add(DiagnosticsProperty<Decoration>(
+        'todayCellDecoration', todayCellDecoration));
+    properties.add(DiagnosticsProperty<Decoration>(
+        'trailingDatesDecoration', trailingDatesDecoration));
+    properties.add(DiagnosticsProperty<Decoration>(
+        'leadingDatesDecoration', leadingDatesDecoration));
+    properties.add(DiagnosticsProperty<Decoration>(
+        'blackoutDatesDecoration', blackoutDatesDecoration));
+    properties.add(DiagnosticsProperty<Decoration>(
+        'weekendDatesDecoration', weekendDatesDecoration));
+    properties.add(DiagnosticsProperty<Decoration>(
+        'specialDatesDecoration', specialDatesDecoration));
+  }
+
+  @override
   int get hashCode {
-    return hashList(<Object>[
+    return hashList(<dynamic>[
       textStyle,
       todayTextStyle,
       trailingDatesTextStyle,
@@ -1976,8 +2064,8 @@ class DateRangePickerMonthCellStyle {
 typedef DateRangePickerValueChangedCallback = void Function(String);
 
 /// Notifier used to notify the when the objects properties changed.
-class DateRangePickerValueChangeNotifier {
-  List<DateRangePickerValueChangedCallback> _listeners;
+class DateRangePickerValueChangeNotifier with Diagnosticable {
+  List<DateRangePickerValueChangedCallback>? _listeners;
 
   /// Calls the listener every time the controller's property changed.
   ///
@@ -1985,7 +2073,7 @@ class DateRangePickerValueChangeNotifier {
   void addPropertyChangedListener(
       DateRangePickerValueChangedCallback listener) {
     _listeners ??= <DateRangePickerValueChangedCallback>[];
-    _listeners.add(listener);
+    _listeners?.add(listener);
   }
 
   /// remove the listener used for notify the data source changes.
@@ -2002,7 +2090,7 @@ class DateRangePickerValueChangeNotifier {
       return;
     }
 
-    _listeners.remove(listener);
+    _listeners?.remove(listener);
   }
 
   /// Call all the registered listeners.
@@ -2022,10 +2110,8 @@ class DateRangePickerValueChangeNotifier {
       return;
     }
 
-    for (final DateRangePickerValueChangedCallback listener in _listeners) {
-      if (listener != null) {
-        listener(value);
-      }
+    for (final DateRangePickerValueChangedCallback listener in _listeners!) {
+      listener.call(value);
     }
   }
 
@@ -2125,19 +2211,19 @@ class DateRangePickerValueChangeNotifier {
 ///
 /// ```
 class DateRangePickerController extends DateRangePickerValueChangeNotifier {
-  DateTime _selectedDate;
-  List<DateTime> _selectedDates;
-  PickerDateRange _selectedRange;
-  List<PickerDateRange> _selectedRanges;
-  DateTime _displayDate;
-  DateRangePickerView _view;
+  DateTime? _selectedDate;
+  List<DateTime>? _selectedDates;
+  PickerDateRange? _selectedRange;
+  List<PickerDateRange>? _selectedRanges;
+  DateTime? _displayDate;
+  DateRangePickerView? _view;
 
   /// The selected date in the [SfDateRangePicker].
   ///
   /// It is only applicable when the [selectionMode] set as
   /// [DateRangePickerSelectionMode.single] for other selection modes this
   /// property will return as null.
-  DateTime get selectedDate => _selectedDate;
+  DateTime? get selectedDate => _selectedDate;
 
   /// Selects the given date programmatically in the [SfDateRangePicker] by
   /// checking that the date falls in between the minimum and maximum date
@@ -2182,7 +2268,7 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   ///}
   ///
   /// ```
-  set selectedDate(DateTime date) {
+  set selectedDate(DateTime? date) {
     if (isSameDate(_selectedDate, date)) {
       return;
     }
@@ -2196,7 +2282,7 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   /// It is only applicable when the [selectionMode] set as
   /// [DateRangePickerSelectionMode.multiple] for other selection modes this
   /// property will return as null.
-  List<DateTime> get selectedDates => _selectedDates;
+  List<DateTime>? get selectedDates => _selectedDates;
 
   /// Selects the given dates programmatically in the [SfDateRangePicker] by
   /// checking that the dates falls in between the minimum and maximum date
@@ -2244,12 +2330,12 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   ///}
   ///
   /// ```
-  set selectedDates(List<DateTime> dates) {
+  set selectedDates(List<DateTime>? dates) {
     if (DateRangePickerHelper.isDateCollectionEquals(_selectedDates, dates)) {
       return;
     }
 
-    _selectedDates = DateRangePickerHelper.cloneList(dates);
+    _selectedDates = DateRangePickerHelper.cloneList(dates)?.cast<DateTime>();
     notifyPropertyChangedListeners('selectedDates');
   }
 
@@ -2258,7 +2344,7 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   /// It is only applicable when the [selectionMode] set as
   /// [DateRangePickerSelectionMode.range] for other selection modes this
   /// property will return as null.
-  PickerDateRange get selectedRange => _selectedRange;
+  PickerDateRange? get selectedRange => _selectedRange;
 
   /// Selects the given date range programmatically in the [SfDateRangePicker]
   /// by checking that the range of dates falls in between the minimum and
@@ -2303,7 +2389,7 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   ///}
   ///
   /// ```
-  set selectedRange(PickerDateRange range) {
+  set selectedRange(PickerDateRange? range) {
     if (DateRangePickerHelper.isRangeEquals(_selectedRange, range)) {
       return;
     }
@@ -2317,7 +2403,7 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   /// It is only applicable when the [selectionMode] set as
   /// [DateRangePickerSelectionMode.multiRange] for other selection modes this
   /// property will return as null.
-  List<PickerDateRange> get selectedRanges => _selectedRanges;
+  List<PickerDateRange>? get selectedRanges => _selectedRanges;
 
   /// Selects the given date ranges programmatically in the [SfDateRangePicker]
   /// by checking that the ranges of dates falls in between the minimum and
@@ -2365,12 +2451,13 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   ///}
   ///
   /// ```
-  set selectedRanges(List<PickerDateRange> ranges) {
+  set selectedRanges(List<PickerDateRange>? ranges) {
     if (DateRangePickerHelper.isDateRangesEquals(_selectedRanges, ranges)) {
       return;
     }
 
-    _selectedRanges = DateRangePickerHelper.cloneList(ranges);
+    _selectedRanges =
+        DateRangePickerHelper.cloneList(ranges)?.cast<PickerDateRange>();
     notifyPropertyChangedListeners('selectedRanges');
   }
 
@@ -2380,7 +2467,7 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   /// If the [MonthViewSettings.numberOfWeeksInView] property set with value
   /// other then 6, this will return the first visible date of the current
   /// month.
-  DateTime get displayDate => _displayDate;
+  DateTime? get displayDate => _displayDate;
 
   /// Navigates to the given date programmatically without any animation in the
   /// [SfDateRangePicker] by checking that the date falls in between the
@@ -2418,7 +2505,7 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   ///}
   ///
   /// ```
-  set displayDate(DateTime date) {
+  set displayDate(DateTime? date) {
     if (isSameDate(_displayDate, date)) {
       return;
     }
@@ -2428,7 +2515,7 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   }
 
   /// The current visible [DateRangePickerView] of [SfDateRangePicker].
-  DateRangePickerView get view => _view;
+  DateRangePickerView? get view => _view;
 
   /// Set the [SfDateRangePickerView] for the [SfDateRangePicker].
   ///
@@ -2462,7 +2549,7 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   ///}
   ///
   /// ```
-  set view(DateRangePickerView value) {
+  set view(DateRangePickerView? value) {
     if (_view == value) {
       return;
     }
@@ -2525,7 +2612,7 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   ///}
   ///
   /// ```
-  VoidCallback forward;
+  VoidCallback? forward;
 
   /// Moves to the previous view programmatically with animation by checking
   /// that the previous view dates falls between the minimum and maximum date
@@ -2582,7 +2669,21 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   ///}
   ///
   /// ```
-  VoidCallback backward;
+  VoidCallback? backward;
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<DateTime>('displayDate', displayDate));
+    properties.add(DiagnosticsProperty<DateTime>('selectedDate', selectedDate));
+    properties.add(IterableDiagnostics(selectedDates)
+        .toDiagnosticsNode(name: 'selectedDates'));
+    properties.add(
+        DiagnosticsProperty<PickerDateRange>('selectedRange', selectedRange));
+    properties.add(IterableDiagnostics(selectedRanges)
+        .toDiagnosticsNode(name: 'selectedRanges'));
+    properties.add(EnumProperty<DateRangePickerView>('view', view));
+  }
 }
 
 /// Selection modes for [SfDateRangePicker].
@@ -2649,28 +2750,37 @@ enum DateRangePickerNavigationDirection {
   horizontal
 }
 
-/// args to update the required properties from picker state to it's children's
-class PickerStateArgs {
-  /// Holds the current view display date.
-  dynamic currentDate;
+/// A type specifies how the date picker navigation interaction works.
+enum DateRangePickerNavigationMode {
+  /// Disables the next or previous view dates to be shown by scrolling or
+  /// swipe interaction in [SfDateRangePicker] and [SfHijriDateRangePicker].
+  ///
+  /// It will not impact [DateRangePickerController.forward()],
+  /// [DateRangePickerController.backward()] and [showNavigationArrow].
+  none,
 
-  /// Holds the current view visible dates.
-  List<dynamic> currentViewVisibleDates;
+  /// Allows navigating to previous/next views through swipe interaction in
+  /// [SfDateRangePicker] and [SfHijriDateRangePicker].
+  snap,
 
-  /// Holds the current selected date.
-  dynamic selectedDate;
-
-  /// Holds the current selected dates.
-  List<dynamic> selectedDates;
-
-  /// Holds the current selected range.
-  dynamic selectedRange;
-
-  /// Holds the current selected ranges.
-  List<dynamic> selectedRanges;
-
-  /// Holds the current picker view.
-  DateRangePickerView view;
+  /// Enable free-scrolling based on [SfDateRangePicker]'s navigation direction.
+  ///
+  /// Note:
+  /// 1.Swipe selection is not supported when range and multi-range are the
+  /// selection modes.
+  /// 2.[onViewChanged] will be called when the view reaches the starting
+  /// position of the date range picker view.
+  /// 3.[DateRangePickerController.forward()],
+  /// [DateRangePickerController.backward()] and [showNavigationArrow] is
+  /// not supported.
+  /// 4. [viewSpacing] value not applicable when [enableMultiView] enabled for
+  /// scroll mode.
+  /// 5. [textAlign] in picker header style is not supported on horizontal
+  /// navigation direction.
+  /// 6. header view background color changed to white on light theme or
+  /// grey[850] on dark theme when [backgroundColor] in
+  /// [DateRangePickerHeaderStyle] is transparent.
+  scroll
 }
 
 /// The dates that visible on the view changes in [SfDateRangePicker].
@@ -2722,15 +2832,22 @@ class DateRangePickerSelectionChangedArgs {
 /// Defines a range of dates, covers the dates in between the given [startDate]
 /// and [endDate] as a range.
 @immutable
-class PickerDateRange {
+class PickerDateRange with Diagnosticable {
   /// Creates a picker date range with the given start and end date.
   const PickerDateRange(this.startDate, this.endDate);
 
   /// The start date of the range.
-  final DateTime startDate;
+  final DateTime? startDate;
 
   /// The end date of the range.
-  final DateTime endDate;
+  final DateTime? endDate;
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<DateTime>('startDate', startDate));
+    properties.add(DiagnosticsProperty<DateTime>('endDate', endDate));
+  }
 }
 
 /// Signature for a function that creates a widget based on date range picker
@@ -2741,11 +2858,12 @@ typedef DateRangePickerCellBuilder = Widget Function(
 /// Contains the details that needed on calendar cell builder.
 class DateRangePickerCellDetails {
   /// Constructor to store the details that needed on calendar cell builder.
-  DateRangePickerCellDetails({this.date, this.bounds, this.visibleDates});
+  DateRangePickerCellDetails(
+      {required this.date, required this.bounds, required this.visibleDates});
 
   /// Date value associated with the picker cell in month, year, decade and
   /// century views.
-  final dynamic date;
+  final DateTime date;
 
   /// Position and size of the widget.
   final Rect bounds;
@@ -2753,5 +2871,37 @@ class DateRangePickerCellDetails {
   /// Visible dates value associated with the current picker month, year,
   /// decade and century views. It is used to get the cell, leading and
   /// trailing dates details.
-  final List<dynamic> visibleDates;
+  final List<DateTime> visibleDates;
+}
+
+/// Defines the diagnostics for the collection.
+class IterableDiagnostics<T> extends DiagnosticableTree {
+  /// Constructor for collection diagnostics.
+  IterableDiagnostics(this.collection);
+
+  /// Iterable that used to generate diagnostics.
+  final List<T>? collection;
+
+  @override
+  List<DiagnosticsNode> debugDescribeChildren() {
+    if (collection != null && collection!.isNotEmpty) {
+      return collection!.map<DiagnosticsNode>((T value) {
+        if (value is Diagnosticable) {
+          return value.toDiagnosticsNode();
+        } else {
+          return DiagnosticsProperty<T>('', value);
+        }
+      }).toList();
+    }
+    return super.debugDescribeChildren();
+  }
+
+  @override
+  String toStringShort() {
+    return collection == null
+        ? 'null'
+        : collection!.isNotEmpty
+            ? '<' + T.toString() + '>'
+            : '<none>';
+  }
 }

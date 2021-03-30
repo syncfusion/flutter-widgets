@@ -11,40 +11,42 @@ abstract class ChartAxis {
   /// Creating an argument constructor of ChartAxis class.
   ChartAxis({
     this.name,
-    double plotOffset,
-    bool isVisible,
-    bool anchorRangeToVisiblePoints,
-    AxisTitle title,
-    AxisLine axisLine,
-    ChartRangePadding rangePadding,
-    int labelRotation,
-    ChartDataLabelPosition labelPosition,
-    LabelAlignment labelAlignment,
-    TickPosition tickPosition,
-    MajorTickLines majorTickLines,
-    MinorTickLines minorTickLines,
-    TextStyle labelStyle,
-    AxisLabelIntersectAction labelIntersectAction,
+    double? plotOffset,
+    bool? isVisible,
+    bool? anchorRangeToVisiblePoints,
+    AxisTitle? title,
+    AxisLine? axisLine,
+    ChartRangePadding? rangePadding,
+    int? labelRotation,
+    ChartDataLabelPosition? labelPosition,
+    LabelAlignment? labelAlignment,
+    TickPosition? tickPosition,
+    MajorTickLines? majorTickLines,
+    MinorTickLines? minorTickLines,
+    TextStyle? labelStyle,
+    AxisLabelIntersectAction? labelIntersectAction,
     this.desiredIntervals,
-    MajorGridLines majorGridLines,
-    MinorGridLines minorGridLines,
-    int maximumLabels,
-    int minorTicksPerInterval,
-    bool isInversed,
-    bool opposedPosition,
-    EdgeLabelPlacement edgeLabelPlacement,
-    bool enableAutoIntervalOnZooming,
-    double zoomFactor,
-    double zoomPosition,
-    InteractiveTooltip interactiveTooltip,
+    MajorGridLines? majorGridLines,
+    MinorGridLines? minorGridLines,
+    int? maximumLabels,
+    int? minorTicksPerInterval,
+    bool? isInversed,
+    bool? opposedPosition,
+    EdgeLabelPlacement? edgeLabelPlacement,
+    bool? enableAutoIntervalOnZooming,
+    double? zoomFactor,
+    double? zoomPosition,
+    InteractiveTooltip? interactiveTooltip,
     this.interval,
     this.crossesAt,
     this.associatedAxisName,
-    bool placeLabelsNearAxisLine,
-    List<PlotBand> plotBands,
+    bool? placeLabelsNearAxisLine,
+    List<PlotBand>? plotBands,
     this.rangeController,
-    double maximumLabelWidth,
-    double labelsExtent,
+    double? maximumLabelWidth,
+    double? labelsExtent,
+    int? autoScrollingDelta,
+    AutoScrollingMode? autoScrollingMode,
   })  : isVisible = isVisible ?? true,
         anchorRangeToVisiblePoints = anchorRangeToVisiblePoints ?? true,
         interactiveTooltip = interactiveTooltip ?? InteractiveTooltip(),
@@ -79,7 +81,9 @@ abstract class ChartAxis {
         enableAutoIntervalOnZooming = enableAutoIntervalOnZooming ?? true,
         plotBands = plotBands ?? <PlotBand>[],
         maximumLabelWidth = maximumLabelWidth,
-        labelsExtent = labelsExtent;
+        labelsExtent = labelsExtent,
+        autoScrollingDelta = autoScrollingDelta,
+        autoScrollingMode = autoScrollingMode ?? AutoScrollingMode.end;
 
   ///Toggles the visibility of the axis.
   ///
@@ -103,7 +107,7 @@ abstract class ChartAxis {
   ///
   ///By default, value axis range will be calculated automatically based on the visible data points on
   /// dynamic changes. The visible data points are changed on performing interactions like pinch
-  /// zooming, selection zooming, panning and also on specifying [visibleMinimum] and [visibleMaximum] values.
+  /// zooming, selection zooming, panning and also on specifying `visibleMinimum` and `visibleMaximum` values.
   ///
   ///To toggle this functionality, this property can be used. i.e. on setting false to this property,
   /// value axis range will be calculated based on all the data points in chart irrespective of
@@ -256,7 +260,7 @@ abstract class ChartAxis {
   ///        ));
   ///}
   ///```
-  final int desiredIntervals;
+  final int? desiredIntervals;
 
   ///The maximum number of labels to be displayed in an axis in 100 logical pixels.
   ///
@@ -447,7 +451,7 @@ abstract class ChartAxis {
   ///        ));
   ///}
   ///```
-  final double interval;
+  final double? interval;
 
   ///Padding for plot area. The axis is rendered in chart with padding.
   ///
@@ -478,7 +482,7 @@ abstract class ChartAxis {
   ///        ));
   ///}
   ///```
-  final String name;
+  final String? name;
 
   ///Zoom factor of an axis.
   ///
@@ -560,7 +564,7 @@ abstract class ChartAxis {
   ///        ));
   ///}
   ///```
-  final String associatedAxisName;
+  final String? associatedAxisName;
 
   ///Consider to place the axis label respect to near axis line.
   ///
@@ -601,7 +605,7 @@ abstract class ChartAxis {
   ///        ));
   ///}
   ///```
-  final RangeController rangeController;
+  final RangeController? rangeController;
 
   /// Specifies maximum text width for axis labels.
   ///
@@ -634,7 +638,7 @@ abstract class ChartAxis {
   ///    );
   ///}
   ///```
-  final double maximumLabelWidth;
+  final double? maximumLabelWidth;
 
   ///Specifies the fixed width for the axis labels. This width represents the space between axis line and
   /// axis title.
@@ -672,7 +676,55 @@ abstract class ChartAxis {
   ///    );
   ///}
   ///```
-  final double labelsExtent;
+  final double? labelsExtent;
+
+  ///The number of data points to be visible always in the chart.
+  ///
+  ///For example, if there are 10 data points and `autoScrollingDelta` value is 5 and [autoScrollingMode]
+  /// is `AutoScrollingMode.end`, the last 5 data points will be displayed in the chart and remaining
+  /// data points can be viewed by panning the chart from left to right direction. If the [autoScrollingMode]
+  /// is `AutoScrollingMode.start`, first 5 points will be displayed and remaining data points can be
+  /// viewed by panning the chart from right to left direction.
+  ///
+  ///If the data points are less than the specified `autoScrollingDelta` value, all those data points will
+  /// be displayed.
+  ///
+  ///It always shows the recently added data points and scrolling will be reset to the start or end of
+  /// the range, based on [autoScrollingMode] property's value, whenever a new point is added dynamically.
+  ///
+  ///Defaults to `null`.
+  ///
+  ///```dart
+  ///Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfCartesianChart(
+  ///           primaryXAxis: NumericAxis(
+  ///             autoScrollingDelta: 3,
+  ///               ),
+  ///        ));
+  ///}
+  ///```
+  final int? autoScrollingDelta;
+
+  ///Determines whether the axis should be scrolled from the start position or end position.
+  ///
+  ///For example, if there are 10 data points and [autoScrollingDelta] value is 5 and `AutoScrollingMode.end`
+  /// is specified to this property, last 5 points will be displayed in the chart. If `AutoScrollingMode.start`
+  /// is set to this property, first 5 points will be displayed.
+  ///
+  ///Defaults to `AutoScrollingMode.end`.
+  ///
+  ///```dart
+  ///Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfCartesianChart(
+  ///           primaryXAxis: NumericAxis(
+  ///             autoScrollingMode: AutoScrollingMode.start,
+  ///               ),
+  ///        ));
+  ///}
+  ///```
+  final AutoScrollingMode autoScrollingMode;
 }
 
 /// Holds the axis label information.
@@ -708,20 +760,20 @@ class AxisLabel {
   String text;
 
   /// Contains the trimmed text of the label.
-  String trimmedText;
+  String? trimmedText;
 
   /// Contains the label text to be rendered.
-  String renderText;
+  String? renderText;
 
   /// Holds the value of the visible range of the axis.
   num value;
 
-  List<String> _labelCollection;
+  List<String>? _labelCollection;
 
   int _index = 1;
 
   ///Stores the location of an label.
-  Rect _labelRegion;
+  Rect? _labelRegion;
 
   //ignore: prefer_final_fields
   bool _needRender = true;
@@ -736,7 +788,7 @@ class AxisLabel {
 ///
 class MajorTickLines {
   /// Creating an argument constructor of MajorTickLines class.
-  MajorTickLines({this.size = 5, this.width = 1, this.color});
+  const MajorTickLines({this.size = 5, this.width = 1, this.color});
 
   ///Size of the major tick lines.
   ///
@@ -792,7 +844,7 @@ class MajorTickLines {
   ///        ));
   ///}
   ///```
-  final Color color;
+  final Color? color;
 }
 
 /// This class has the properties of minor tick lines.
@@ -804,7 +856,7 @@ class MajorTickLines {
 ///
 class MinorTickLines {
   /// Creating an argument constructor of MinorTickLines class.
-  MinorTickLines({this.size = 3, this.width = 0.7, this.color});
+  const MinorTickLines({this.size = 3, this.width = 0.7, this.color});
 
   ///Height of the minor tick lines.
   ///
@@ -861,7 +913,7 @@ class MinorTickLines {
   ///        ));
   ///}
   ///```
-  final Color color;
+  final Color? color;
 }
 
 /// Customizes the major grid lines.
@@ -875,7 +927,7 @@ class MinorTickLines {
 ///
 class MajorGridLines {
   /// Creating an argument constructor of MajorGridLines class.
-  MajorGridLines({this.width = 0.7, this.color, this.dashArray});
+  const MajorGridLines({this.width = 0.7, this.color, this.dashArray});
 
   ///Dashes of the major grid lines.
   ///
@@ -892,7 +944,7 @@ class MajorGridLines {
   ///        ));
   ///}
   ///```
-  final List<double> dashArray;
+  final List<double>? dashArray;
 
   /// Width of the major grid lines.
   ///
@@ -926,7 +978,7 @@ class MajorGridLines {
   ///        ));
   ///}
   ///```
-  final Color color;
+  final Color? color;
 }
 
 /// Customizes the minor grid lines.
@@ -938,7 +990,7 @@ class MajorGridLines {
 ///
 class MinorGridLines {
   /// Creating an argument constructor of MinorGridLines class.
-  MinorGridLines({this.width = 0.5, this.color, this.dashArray});
+  const MinorGridLines({this.width = 0.5, this.color, this.dashArray});
 
   ///Dashes of minor grid lines.
   ///
@@ -957,7 +1009,7 @@ class MinorGridLines {
   ///        ));
   ///}
   ///```
-  final List<double> dashArray;
+  final List<double>? dashArray;
 
   ///Width of the minor grid lines.
   ///
@@ -995,7 +1047,7 @@ class MinorGridLines {
   ///        ));
   ///}
   ///```
-  final Color color;
+  final Color? color;
 }
 
 /// This class holds the property of the axis title.
@@ -1008,7 +1060,7 @@ class MinorGridLines {
 class AxisTitle {
   /// Creating an argument constructor of AxisTitle class.
   AxisTitle(
-      {this.text, TextStyle textStyle, this.alignment = ChartAlignment.center})
+      {this.text, TextStyle? textStyle, this.alignment = ChartAlignment.center})
       : textStyle = _getTextStyle(
             textStyle: textStyle,
             fontFamily: 'Segoe UI',
@@ -1031,7 +1083,7 @@ class AxisTitle {
   ///        ));
   ///}
   ///```
-  final String text;
+  final String? text;
 
   ///Customizes the appearance of text in axis title.
   ///
@@ -1091,7 +1143,7 @@ class AxisTitle {
 ///
 class AxisLine {
   /// Creating an argument constructor of AxisLine class.
-  AxisLine({this.color, this.dashArray, this.width = 1});
+  const AxisLine({this.color, this.dashArray, this.width = 1});
 
   ///Width of the axis line.
   ///
@@ -1125,7 +1177,7 @@ class AxisLine {
   ///        ));
   ///}
   ///```
-  final Color color;
+  final Color? color;
 
   ///Dashes of the axis line. Any number of values can be provided in the list. Odd value is
   ///considered as rendering size and even value is considered as gap.
@@ -1144,7 +1196,7 @@ class AxisLine {
   ///        ));
   ///}
   ///```
-  final List<double> dashArray;
+  final List<double>? dashArray;
 }
 
 ///calculate visible range based on min, max values
@@ -1169,7 +1221,7 @@ class _VisibleRange {
   dynamic interval;
 
   /// Specifies delta value for min-max
-  num delta;
+  late num delta;
 }
 
 /// Creates an axis renderer for chart axis.
@@ -1185,71 +1237,74 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
     _zoomPosition = _axis.zoomPosition;
   }
   //ignore: prefer_final_fields
-  ChartAxis _axis;
-  SfCartesianChartState _chartState;
-  SfCartesianChart _chart;
+  late ChartAxis _axis;
+  ChartAxis? _oldAxis;
+  late SfCartesianChartState _chartState;
+  late SfCartesianChart _chart;
   //ignore: prefer_final_fields
   bool _isStack100 = false;
   dynamic _rangeMinimum, _rangeMaximum;
 
-  List<AxisLabel> _visibleLabels;
+  late List<AxisLabel> _visibleLabels;
 
   /// Holds the size of larger label.
   Size _maximumLabelSize = const Size(0, 0);
 
   /// Specifies axis orientations such as vertical, horizontal.
-  AxisOrientation _orientation;
+  AxisOrientation? _orientation;
 
   /// Specifies the visible range based on min, max values.
-  _VisibleRange _visibleRange;
+  _VisibleRange? _visibleRange;
 
   /// Specifies the actual range based on min, max values.
-  _VisibleRange _actualRange;
+  _VisibleRange? _actualRange;
 
   /// Holds the chart series
-  List<CartesianSeriesRenderer> _seriesRenderers;
+  late List<CartesianSeriesRenderer> _seriesRenderers;
 
   // ignore: prefer_final_fields
   Rect _bounds = const Rect.fromLTWH(0, 0, 0, 0);
 
-  bool _isInsideTickPosition;
+  bool? _isInsideTickPosition;
 
-  double _totalSize;
+  late double _totalSize;
 
   ///Internal variable
-  double _previousZoomFactor, _previousZoomPosition;
+  double? _previousZoomFactor, _previousZoomPosition;
 
   ///Internal variables
-  String _name;
+  String? _name;
 
-  int _labelRotation;
+  late int _labelRotation;
 
-  double _zoomFactor, _zoomPosition;
+  late double _zoomFactor, _zoomPosition;
 
   ///Checking the axis label collision
   bool _isCollide = false;
 
-  num _min, _max, _lowMin, _lowMax, _highMin, _highMax;
+  num? _min, _max, _lowMin, _lowMax, _highMin, _highMax;
 
-  Size _axisSize;
+  late Size _axisSize;
 
-  ChartAxisRenderer _crossAxisRenderer;
+  late ChartAxisRenderer _crossAxisRenderer;
 
-  num _crossValue;
+  num? _crossValue;
 
-  _VisibleRange _crossRange;
+  _VisibleRange? _crossRange;
 
-  num _labelOffset;
+  num? _labelOffset;
 
-  Offset _xAxisStart, _xAxisEnd;
+  Offset? _xAxisStart, _xAxisEnd;
+
+  num? _visibleMinimum, _visibleMaximum;
 
   @override
-  Color getAxisLineColor(ChartAxis axis) => axis.axisLine.color;
+  Color? getAxisLineColor(ChartAxis axis) => axis.axisLine.color;
   @override
   double getAxisLineWidth(ChartAxis axis) => axis.axisLine.width;
 
   @override
-  Color getAxisMajorTickColor(ChartAxis axis, int majorTickIndex) =>
+  Color? getAxisMajorTickColor(ChartAxis axis, int majorTickIndex) =>
       axis.majorTickLines.color;
 
   @override
@@ -1257,7 +1312,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
       axis.majorTickLines.width;
 
   @override
-  Color getAxisMinorTickColor(
+  Color? getAxisMinorTickColor(
           ChartAxis axis, int majorTickIndex, int minorTickIndex) =>
       axis.minorTickLines.color;
 
@@ -1267,7 +1322,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
       axis.minorTickLines.width;
 
   @override
-  Color getAxisMajorGridColor(ChartAxis axis, int majorGridIndex) =>
+  Color? getAxisMajorGridColor(ChartAxis axis, int majorGridIndex) =>
       axis.majorGridLines.color;
 
   @override
@@ -1275,7 +1330,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
       axis.majorGridLines.width;
 
   @override
-  Color getAxisMinorGridColor(
+  Color? getAxisMinorGridColor(
           ChartAxis axis, int majorGridIndex, int minorGridIndex) =>
       axis.minorGridLines.color;
   @override
@@ -1349,40 +1404,43 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
   @override
   void drawHorizontalAxesTickLines(
       Canvas canvas, ChartAxisRenderer axisRenderer, SfCartesianChart chart,
-      [String renderType,
-      double animationFactor,
-      ChartAxisRenderer oldAxisRenderer,
-      bool needAnimate]) {
+      [String? renderType,
+      double? animationFactor,
+      ChartAxisRenderer? oldAxisRenderer,
+      bool? needAnimate]) {
     final Rect axisBounds = axisRenderer._bounds;
-    final ChartAxis axis = axisRenderer._axis;
+    final dynamic axis = axisRenderer._axis;
     final List<AxisLabel> visibleLabels = axisRenderer._visibleLabels;
-    num tempInterval, pointX, pointY, length = visibleLabels.length;
+    late double tempInterval, pointX, pointY;
+    int length = visibleLabels.length;
     if (length > 0) {
       final MajorTickLines ticks = axis.majorTickLines;
       const num padding = 1;
-      final bool isBetweenTicks = axis is CategoryAxis &&
-          axis.labelPlacement == LabelPlacement.betweenTicks;
+      final bool isBetweenTicks =
+          (axis is CategoryAxis || axis is DateTimeCategoryAxis) &&
+              axis.labelPlacement == LabelPlacement.betweenTicks;
       final num tickBetweenLabel = isBetweenTicks ? 0.5 : 0;
       length += isBetweenTicks ? 1 : 0;
       for (int i = 0; i < length; i++) {
-        tempInterval = isBetweenTicks
-            ? i < length - 1
-                ? visibleLabels[i].value - tickBetweenLabel
-                : (visibleLabels[i - 1].value +
-                        axisRenderer._visibleRange.interval) -
-                    tickBetweenLabel
-            : visibleLabels[i].value;
+        tempInterval = (isBetweenTicks
+                ? i < length - 1
+                    ? visibleLabels[i].value - tickBetweenLabel
+                    : (visibleLabels[i - 1].value +
+                            axisRenderer._visibleRange!.interval) -
+                        tickBetweenLabel
+                : visibleLabels[i].value)
+            .toDouble();
         pointX = ((_valueToCoefficient(tempInterval, axisRenderer) *
                     axisBounds.width) +
                 axisBounds.left)
             .roundToDouble();
         pointY = axisBounds.top - padding + axis.axisLine.width / 2;
 
-        if (needAnimate) {
-          final double oldLocation =
-              _getPrevLocation(axisRenderer, oldAxisRenderer, tempInterval);
+        if (needAnimate!) {
+          final double? oldLocation =
+              _getPrevLocation(axisRenderer, oldAxisRenderer!, tempInterval);
           pointX = oldLocation != null
-              ? (oldLocation - (oldLocation - pointX) * animationFactor)
+              ? (oldLocation - (oldLocation - pointX) * animationFactor!)
               : pointX;
         }
         if (axisBounds.left.roundToDouble() <= pointX &&
@@ -1404,11 +1462,11 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
                 chart);
           }
           if (axis.minorGridLines.width > 0 || axis.minorTickLines.width > 0) {
-            num nextValue = isBetweenTicks
-                ? (tempInterval + axisRenderer._visibleRange.interval)
+            num? nextValue = isBetweenTicks
+                ? (tempInterval + axisRenderer._visibleRange!.interval)
                 : i == length - 1
-                    ? axisRenderer._visibleRange.maximum
-                    : visibleLabels[i + 1]?.value;
+                    ? axisRenderer._visibleRange!.maximum
+                    : visibleLabels[i + 1].value;
             if (nextValue != null) {
               nextValue = ((_valueToCoefficient(nextValue, axisRenderer) *
                           axisBounds.width) +
@@ -1434,10 +1492,10 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
               Offset(
                   pointX,
                   !axis.opposedPosition
-                      ? (axisRenderer._isInsideTickPosition
+                      ? (axisRenderer._isInsideTickPosition!
                           ? pointY - ticks.size
                           : pointY + ticks.size)
-                      : (axisRenderer._isInsideTickPosition
+                      : (axisRenderer._isInsideTickPosition!
                           ? pointY + ticks.size
                           : pointY - ticks.size)));
         }
@@ -1475,13 +1533,13 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
   void drawHorizontalAxesMinorLines(
       Canvas canvas,
       ChartAxisRenderer axisRenderer,
-      num tempInterval,
+      double tempInterval,
       Rect rect,
       num nextValue,
       int index,
       SfCartesianChart chart,
-      [String renderType]) {
-    num position = tempInterval;
+      [String? renderType]) {
+    double position = tempInterval;
     final ChartAxis axis = axisRenderer._axis;
     final MinorTickLines ticks = axis.minorTickLines;
     final num interval =
@@ -1489,7 +1547,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
     for (int i = 0; i < axis.minorTicksPerInterval; i++) {
       position =
           axis.isInversed ? (position - interval) : (position + interval);
-      final num pointY = rect.top;
+      final double pointY = rect.top;
       if (axis.minorGridLines.width > 0 &&
           renderType == 'outside' &&
           (axisRenderer._bounds.left <= position &&
@@ -1526,10 +1584,10 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
             Offset(
                 position,
                 !axis.opposedPosition
-                    ? (axisRenderer._isInsideTickPosition
+                    ? (axisRenderer._isInsideTickPosition!
                         ? pointY - ticks.size
                         : pointY + ticks.size)
-                    : (axisRenderer._isInsideTickPosition
+                    : (axisRenderer._isInsideTickPosition!
                         ? pointY + ticks.size
                         : pointY - ticks.size)),
             axis.minorGridLines.dashArray);
@@ -1541,27 +1599,30 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
   @override
   void drawVerticalAxesTickLines(
       Canvas canvas, ChartAxisRenderer axisRenderer, SfCartesianChart chart,
-      [String renderType,
-      double animationFactor,
-      ChartAxisRenderer oldAxisRenderer,
-      bool needAnimate]) {
-    final ChartAxis axis = axisRenderer._axis;
+      [String? renderType,
+      double? animationFactor,
+      ChartAxisRenderer? oldAxisRenderer,
+      bool? needAnimate]) {
+    final dynamic axis = axisRenderer._axis;
     final Rect axisBounds = axisRenderer._bounds;
     final List<AxisLabel> visibleLabels = axisRenderer._visibleLabels;
-    num tempInterval, pointX, pointY, length = visibleLabels.length;
+    double tempInterval, pointX, pointY;
+    int length = visibleLabels.length;
     const num padding = 1;
-    final bool isBetweenTicks = axis is CategoryAxis &&
-        axis.labelPlacement == LabelPlacement.betweenTicks;
+    final bool isBetweenTicks =
+        (axis is CategoryAxis || axis is DateTimeCategoryAxis) &&
+            axis.labelPlacement == LabelPlacement.betweenTicks;
     final num tickBetweenLabel = isBetweenTicks ? 0.5 : 0;
     length += isBetweenTicks ? 1 : 0;
     for (int i = 0; i < length; i++) {
-      tempInterval = isBetweenTicks
-          ? i < length - 1
-              ? visibleLabels[i].value - tickBetweenLabel
-              : (visibleLabels[i - 1].value +
-                      axisRenderer._visibleRange.interval) -
-                  tickBetweenLabel
-          : visibleLabels[i].value;
+      tempInterval = (isBetweenTicks
+              ? i < length - 1
+                  ? visibleLabels[i].value - tickBetweenLabel
+                  : (visibleLabels[i - 1].value +
+                          axisRenderer._visibleRange!.interval) -
+                      tickBetweenLabel
+              : visibleLabels[i].value)
+          .toDouble();
       pointY = (_valueToCoefficient(tempInterval, axisRenderer) *
               axisBounds.height) +
           axisBounds.top;
@@ -1569,11 +1630,11 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
           (pointY - axisBounds.top).abs();
       pointX = axisBounds.left + padding - axis.axisLine.width / 2;
 
-      if (needAnimate) {
-        final double oldLocation =
-            _getPrevLocation(axisRenderer, oldAxisRenderer, tempInterval);
+      if (needAnimate!) {
+        final double? oldLocation =
+            _getPrevLocation(axisRenderer, oldAxisRenderer!, tempInterval);
         pointY = oldLocation != null
-            ? (oldLocation - (oldLocation - pointY) * animationFactor)
+            ? (oldLocation - (oldLocation - pointY) * animationFactor!)
             : pointY;
       }
       if (pointY >= axisBounds.top && pointY <= axisBounds.bottom) {
@@ -1597,7 +1658,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
         }
         if (axis.minorGridLines.width > 0 || axis.minorTickLines.width > 0) {
           axisRenderer.drawVerticalAxesMinorTickLines(canvas, axisRenderer,
-              tempInterval, axisBounds, i, chart, renderType);
+              tempInterval, axisBounds, i, chart, renderType!);
         }
         if (axis.majorTickLines.width > 0 &&
             renderType == axis.tickPosition.toString().split('.')[1]) {
@@ -1611,10 +1672,10 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
               Offset(pointX, pointY),
               Offset(
                   !axis.opposedPosition
-                      ? (axisRenderer._isInsideTickPosition
+                      ? (axisRenderer._isInsideTickPosition!
                           ? pointX + axis.majorTickLines.size
                           : pointX - axis.majorTickLines.size)
-                      : (axisRenderer._isInsideTickPosition
+                      : (axisRenderer._isInsideTickPosition!
                           ? pointX - axis.majorTickLines.size
                           : pointX + axis.majorTickLines.size),
                   pointY));
@@ -1665,10 +1726,11 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
       Rect rect,
       int index,
       SfCartesianChart chart,
-      [String renderType]) {
+      [String? renderType]) {
     final ChartAxis axis = axisRenderer._axis;
-    num value = tempInterval, position = 0;
-    final _VisibleRange range = axisRenderer._visibleRange;
+    num value = tempInterval;
+    double position = 0;
+    final _VisibleRange range = axisRenderer._visibleRange!;
     final bool rendering = axis.minorTicksPerInterval > 0 &&
         (axis.minorGridLines.width > 0 || axis.minorTickLines.width > 0);
     if (rendering) {
@@ -1707,10 +1769,10 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
                 Offset(rect.left, position),
                 Offset(
                     !axis.opposedPosition
-                        ? (axisRenderer._isInsideTickPosition
+                        ? (axisRenderer._isInsideTickPosition!
                             ? rect.left + axis.minorTickLines.size
                             : rect.left - axis.minorTickLines.size)
-                        : (axisRenderer._isInsideTickPosition
+                        : (axisRenderer._isInsideTickPosition!
                             ? rect.left - axis.minorTickLines.size
                             : rect.left + axis.minorTickLines.size),
                     position));
@@ -1724,28 +1786,28 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
   @override
   void drawHorizontalAxesLabels(
       Canvas canvas, ChartAxisRenderer axisRenderer, SfCartesianChart chart,
-      [String renderType,
-      double animationFactor,
-      ChartAxisRenderer oldAxisRenderer,
-      bool needAnimate]) {
+      [String? renderType,
+      double? animationFactor,
+      ChartAxisRenderer? oldAxisRenderer,
+      bool? needAnimate]) {
     final ChartAxis axis = axisRenderer._axis;
     if (renderType == axis.labelPosition.toString().split('.')[1]) {
       final Rect axisBounds = axisRenderer._bounds;
       int angle;
       TextStyle textStyle;
       final List<AxisLabel> visibleLabels = axisRenderer._visibleLabels;
-      num tempInterval, pointX, pointY, previousLabelEnd;
+      late double tempInterval, pointX, pointY, previousLabelEnd;
       for (int i = 0; i < visibleLabels.length; i++) {
         final AxisLabel label = visibleLabels[i];
         final String labelText =
-            axisRenderer.getAxisLabel(axis, label.renderText, i);
+            axisRenderer.getAxisLabel(axis, label.renderText!, i);
 
         textStyle = label.labelStyle;
         textStyle = _getTextStyle(
             textStyle: textStyle,
             fontColor:
                 textStyle.color ?? _chartState._chartTheme.axisLabelColor);
-        tempInterval = label.value;
+        tempInterval = label.value.toDouble();
         angle = axisRenderer.getAxisLabelAngle(axisRenderer, labelText, i);
 
         /// For negative angle calculations
@@ -1753,8 +1815,8 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
           angle = angle + 360;
         }
         axisRenderer._labelRotation = angle;
-        final Size textSize = _measureText(labelText, textStyle);
-        final Size rotatedTextSize = _measureText(labelText, textStyle, angle);
+        final Size textSize = measureText(labelText, textStyle);
+        final Size rotatedTextSize = measureText(labelText, textStyle, angle);
         pointX = ((_valueToCoefficient(tempInterval, axisRenderer) *
                     axisBounds.width) +
                 axisBounds.left)
@@ -1804,11 +1866,11 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
 
         previousLabelEnd = axis.isInversed ? pointX : pointX + textSize.width;
 
-        if (needAnimate) {
-          final double oldLocation = _getPrevLocation(
-              axisRenderer, oldAxisRenderer, tempInterval, textSize, angle);
+        if (needAnimate!) {
+          final double? oldLocation = _getPrevLocation(
+              axisRenderer, oldAxisRenderer!, tempInterval, textSize, angle);
           pointX = oldLocation != null
-              ? (oldLocation - (oldLocation - pointX) * animationFactor)
+              ? (oldLocation - (oldLocation - pointX) * animationFactor!)
               : pointX;
         }
         final Offset point = Offset(pointX, pointY);
@@ -1817,10 +1879,10 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
           _drawText(canvas, labelText, point, textStyle, angle);
         }
         if (label._labelCollection != null &&
-            label._labelCollection.isNotEmpty &&
+            label._labelCollection!.isNotEmpty &&
             axis.labelIntersectAction == AxisLabelIntersectAction.wrap) {
-          for (int j = 1; j < label._labelCollection.length; j++) {
-            final String wrapTxt = label._labelCollection[j];
+          for (int j = 1; j < label._labelCollection!.length; j++) {
+            final String wrapTxt = label._labelCollection![j];
             _drawText(
                 canvas,
                 wrapTxt,
@@ -1828,7 +1890,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
                     pointX,
                     pointY +
                         (j *
-                            _measureText(wrapTxt, axis.labelStyle, angle)
+                            measureText(wrapTxt, axis.labelStyle, angle)
                                 .height)),
                 textStyle,
                 angle);
@@ -1842,19 +1904,19 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
   @override
   void drawVerticalAxesLabels(
       Canvas canvas, ChartAxisRenderer axisRenderer, SfCartesianChart chart,
-      [String renderType,
-      double animationFactor,
-      ChartAxisRenderer oldAxisRenderer,
-      bool needAnimate]) {
+      [String? renderType,
+      double? animationFactor,
+      ChartAxisRenderer? oldAxisRenderer,
+      bool? needAnimate]) {
     final ChartAxis axis = axisRenderer._axis;
     if (axis.labelPosition.toString().split('.')[1] == renderType) {
       final Rect axisBounds = axisRenderer._bounds;
       final List<AxisLabel> visibleLabels = axisRenderer._visibleLabels;
       TextStyle textStyle;
-      num tempInterval, pointX, pointY, previousEnd;
+      late double tempInterval, pointX, pointY, previousEnd;
       for (int i = 0; i < visibleLabels.length; i++) {
         final String labelText =
-            axisRenderer.getAxisLabel(axis, visibleLabels[i].renderText, i);
+            axisRenderer.getAxisLabel(axis, visibleLabels[i].renderText!, i);
         final int angle =
             axisRenderer.getAxisLabelAngle(axisRenderer, labelText, i);
         assert(angle - angle.floor() == 0,
@@ -1864,8 +1926,8 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
             textStyle: textStyle,
             fontColor:
                 textStyle.color ?? _chartState._chartTheme.axisLabelColor);
-        tempInterval = visibleLabels[i].value;
-        final Size textSize = _measureText(labelText, textStyle, 0);
+        tempInterval = visibleLabels[i].value.toDouble();
+        final Size textSize = measureText(labelText, textStyle, 0);
         pointY = (_valueToCoefficient(tempInterval, axisRenderer) *
                 axisBounds.height) +
             axisBounds.top;
@@ -1934,11 +1996,11 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
         axisRenderer._visibleLabels[i]._labelRegion =
             Rect.fromLTWH(pointX, pointY, textSize.width, textSize.height);
 
-        if (needAnimate) {
-          final double oldLocation = _getPrevLocation(
-              axisRenderer, oldAxisRenderer, tempInterval, textSize);
+        if (needAnimate!) {
+          final double? oldLocation = _getPrevLocation(
+              axisRenderer, oldAxisRenderer!, tempInterval, textSize);
           pointY = oldLocation != null
-              ? (oldLocation - (oldLocation - pointY) * animationFactor)
+              ? (oldLocation - (oldLocation - pointY) * animationFactor!)
               : pointY;
         }
 
@@ -1953,14 +2015,14 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
   }
 
   /// To get the previous location of an axis
-  double _getPrevLocation(ChartAxisRenderer axisRenderer,
+  double? _getPrevLocation(ChartAxisRenderer axisRenderer,
       ChartAxisRenderer oldAxisRenderer, num value,
-      [Size textSize, num angle]) {
-    double location;
+      [Size? textSize, num? angle]) {
+    double? location;
     final Rect bounds = axisRenderer._bounds;
     final ChartAxis axis = axisRenderer._axis;
     textSize ??= const Size(0, 0);
-    if (oldAxisRenderer._visibleRange.minimum > value) {
+    if (oldAxisRenderer._visibleRange!.minimum > value) {
       location = axisRenderer._orientation == AxisOrientation.vertical
           ? (axis.isInversed
               ? ((bounds.top + bounds.height) -
@@ -1981,7 +2043,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
               : ((_valueToCoefficient(value, oldAxisRenderer) * bounds.width) -
                       bounds.left)
                   .roundToDouble());
-    } else if (oldAxisRenderer._visibleRange.maximum < value) {
+    } else if (oldAxisRenderer._visibleRange!.maximum < value) {
       location = axisRenderer._orientation == AxisOrientation.vertical
           ? (axis.isInversed
               ? (bounds.bottom -
@@ -2027,38 +2089,39 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
   /// Return the x point
   double _getPointX(
       ChartAxisRenderer axisRenderer, Size textSize, Rect axisBounds) {
-    num pointX;
+    late double pointX;
     const num innerPadding = 5;
     final ChartAxis axis = axisRenderer._axis;
     if (axis.labelPosition == ChartDataLabelPosition.inside) {
       pointX = (!axis.opposedPosition)
           ? (axisBounds.left +
               innerPadding +
-              (axisRenderer._isInsideTickPosition
+              (axisRenderer._isInsideTickPosition!
                   ? axis.majorTickLines.size
                   : 0))
           : (axisBounds.left -
               axisRenderer._maximumLabelSize.width -
               innerPadding -
-              (axisRenderer._isInsideTickPosition
+              (axisRenderer._isInsideTickPosition!
                   ? axis.majorTickLines.size
                   : 0));
     } else {
-      pointX = (!axis.opposedPosition)
-          ? axisRenderer._labelOffset != null
-              ? axisRenderer._labelOffset - textSize.width
-              : (axisBounds.left -
-                  (axisRenderer._isInsideTickPosition
-                      ? 0
-                      : axis.majorTickLines.size) -
-                  textSize.width -
-                  innerPadding)
-          : (axisRenderer._labelOffset ??
-              (axisBounds.left +
-                  (axisRenderer._isInsideTickPosition
-                      ? 0
-                      : axis.majorTickLines.size) +
-                  innerPadding));
+      pointX = ((!axis.opposedPosition)
+              ? axisRenderer._labelOffset != null
+                  ? axisRenderer._labelOffset! - textSize.width
+                  : (axisBounds.left -
+                      (axisRenderer._isInsideTickPosition!
+                          ? 0
+                          : axis.majorTickLines.size) -
+                      textSize.width -
+                      innerPadding)
+              : (axisRenderer._labelOffset ??
+                  (axisBounds.left +
+                      (axisRenderer._isInsideTickPosition!
+                          ? 0
+                          : axis.majorTickLines.size) +
+                      innerPadding)))
+          .toDouble();
     }
     return pointX;
   }
@@ -2076,39 +2139,40 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
               (label._index > 1
                   ? axisRenderer._maximumLabelSize.height / 2
                   : axisRenderer._maximumLabelSize.height) -
-              (axisRenderer._isInsideTickPosition
+              (axisRenderer._isInsideTickPosition!
                   ? axis.majorTickLines.size
                   : 0)
           : axisBounds.top +
-              (axisRenderer._isInsideTickPosition
+              (axisRenderer._isInsideTickPosition!
                   ? axis.majorTickLines.size
                   : 0) +
               (label._index > 1
                   ? axisRenderer._maximumLabelSize.height / 2
                   : 0);
     } else {
-      pointY = !axis.opposedPosition
-          ? axisRenderer._labelOffset ??
-              (axisBounds.top +
-                  ((axisRenderer._isInsideTickPosition
-                          ? 0
-                          : axis.majorTickLines.size) +
-                      innerPadding) +
-                  (label._index > 1
-                      ? axisRenderer._maximumLabelSize.height / 2
-                      : 0))
-          : axisRenderer._labelOffset != null
-              ? axisRenderer._labelOffset -
-                  axisRenderer._maximumLabelSize.height
-              : (axisBounds.top -
-                  (((axisRenderer._isInsideTickPosition
+      pointY = (!axis.opposedPosition
+              ? axisRenderer._labelOffset ??
+                  (axisBounds.top +
+                      ((axisRenderer._isInsideTickPosition!
                               ? 0
                               : axis.majorTickLines.size) +
-                          innerPadding) -
+                          innerPadding) +
                       (label._index > 1
                           ? axisRenderer._maximumLabelSize.height / 2
-                          : 0)) -
-                  axisRenderer._maximumLabelSize.height);
+                          : 0))
+              : axisRenderer._labelOffset != null
+                  ? axisRenderer._labelOffset! -
+                      axisRenderer._maximumLabelSize.height
+                  : (axisBounds.top -
+                      (((axisRenderer._isInsideTickPosition!
+                                  ? 0
+                                  : axis.majorTickLines.size) +
+                              innerPadding) -
+                          (label._index > 1
+                              ? axisRenderer._maximumLabelSize.height / 2
+                              : 0)) -
+                      axisRenderer._maximumLabelSize.height))
+          .toDouble();
     }
     return pointY;
   }
@@ -2166,9 +2230,9 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
         axisRenderer._visibleLabels[i - 1]._labelRegion != null &&
         (axisRenderer._axis.isInversed == false
             ? currentRegion.left <
-                axisRenderer._visibleLabels[i - 1]._labelRegion.right
+                axisRenderer._visibleLabels[i - 1]._labelRegion!.right
             : currentRegion.right >
-                axisRenderer._visibleLabels[i - 1]._labelRegion.left);
+                axisRenderer._visibleLabels[i - 1]._labelRegion!.left);
     axisRenderer._visibleLabels[i]._labelRegion =
         !isIntersect ? currentRegion : null;
     return pointX;
@@ -2187,17 +2251,17 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
     style = _getTextStyle(
         textStyle: style,
         fontColor: style.color ?? _chartState._chartTheme.axisTitleColor);
-    final Size textSize = _measureText(title, style);
-    num top;
+    final Size textSize = measureText(title, style);
+    double top;
     if (axis.labelPosition == ChartDataLabelPosition.inside) {
       top = !axis.opposedPosition
           ? axisBounds.top +
-              (axisRenderer._isInsideTickPosition
+              (axisRenderer._isInsideTickPosition!
                   ? 0
                   : axis.majorTickLines.size) +
               (!kIsWeb ? innerPadding : innerPadding + textSize.height / 2)
           : axisBounds.top -
-              (axisRenderer._isInsideTickPosition
+              (axisRenderer._isInsideTickPosition!
                   ? 0
                   : axis.majorTickLines.size) -
               innerPadding -
@@ -2205,7 +2269,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
     } else {
       top = !axis.opposedPosition
           ? axisBounds.top +
-              (axisRenderer._isInsideTickPosition
+              (axisRenderer._isInsideTickPosition!
                   ? 0
                   : axis.majorTickLines.size) +
               innerPadding +
@@ -2213,7 +2277,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
                   ? axisRenderer._maximumLabelSize.height
                   : axisRenderer._maximumLabelSize.height + textSize.height / 2)
           : axisBounds.top -
-              (axisRenderer._isInsideTickPosition
+              (axisRenderer._isInsideTickPosition!
                   ? 0
                   : axis.majorTickLines.size) -
               innerPadding -
@@ -2250,32 +2314,32 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
     style = _getTextStyle(
         textStyle: style,
         fontColor: style.color ?? _chartState._chartTheme.axisTitleColor);
-    final Size textSize = _measureText(title, style);
-    num left;
+    final Size textSize = measureText(title, style);
+    double left;
     if (axis.labelPosition == ChartDataLabelPosition.inside) {
       left = (!axis.opposedPosition)
           ? axisBounds.left -
-              (axisRenderer._isInsideTickPosition
+              (axisRenderer._isInsideTickPosition!
                   ? 0
                   : axis.majorTickLines.size) -
               innerPadding -
               textSize.height
           : axisBounds.left +
-              (axisRenderer._isInsideTickPosition
+              (axisRenderer._isInsideTickPosition!
                   ? 0
                   : axis.majorTickLines.size) +
               innerPadding * 2;
     } else {
       left = (!axis.opposedPosition)
           ? (axisBounds.left -
-              (axisRenderer._isInsideTickPosition
+              (axisRenderer._isInsideTickPosition!
                   ? 0
                   : axis.majorTickLines.size) -
               innerPadding -
               axisRenderer._maximumLabelSize.width -
               textSize.height / 2)
           : axisBounds.left +
-              (axisRenderer._isInsideTickPosition
+              (axisRenderer._isInsideTickPosition!
                   ? 0
                   : axis.majorTickLines.size) +
               innerPadding +
@@ -2296,7 +2360,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
   }
 
   /// returns the calculated interval for axis
-  num calculateInterval(_VisibleRange range, Size availableSize);
+  num? calculateInterval(_VisibleRange range, Size availableSize);
 
   /// to apply the range padding for the axis
   void applyRangePadding(_VisibleRange range, num interval);
@@ -2315,7 +2379,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
     CartesianSeriesRenderer seriesRenderer;
     double paddingInterval = 0;
     ChartAxisRenderer _xAxisRenderer, _yAxisRenderer;
-    num minimumX, maximumX, minimumY, maximumY;
+    num? minimumX, maximumX, minimumY, maximumY;
     String seriesType;
     seriesRenderers = _seriesRenderers;
     for (int i = 0; i < seriesRenderers.length; i++) {
@@ -2325,17 +2389,16 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
       minimumY = seriesRenderer._minimumY;
       maximumY = seriesRenderer._maximumY;
       seriesType = seriesRenderer._seriesType;
-      if (seriesRenderer._visible &&
+      if (seriesRenderer._visible! &&
           minimumX != null &&
           maximumX != null &&
           minimumY != null &&
           maximumY != null) {
         paddingInterval = 0;
-        _xAxisRenderer = seriesRenderer._xAxisRenderer;
-        _yAxisRenderer = seriesRenderer._yAxisRenderer;
+        _xAxisRenderer = seriesRenderer._xAxisRenderer!;
+        _yAxisRenderer = seriesRenderer._yAxisRenderer!;
         if (((_xAxisRenderer is DateTimeAxisRenderer ||
                     _xAxisRenderer is NumericAxisRenderer) &&
-                _xAxisRenderer._axis.rangePadding != null &&
                 _xAxisRenderer._axis.rangePadding == ChartRangePadding.auto) &&
             (seriesType.contains('column') ||
                 seriesType.contains('bar') ||
@@ -2343,7 +2406,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
           seriesRenderer._minDelta = seriesRenderer._minDelta ??
               _calculateMinPointsDelta(
                   _xAxisRenderer, seriesRenderers, _chartState);
-          paddingInterval = seriesRenderer._minDelta / 2;
+          paddingInterval = seriesRenderer._minDelta! / 2;
         }
         if (((_chartState._requireInvertedAxis
                     ? _yAxisRenderer
@@ -2372,10 +2435,10 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
 
   /// Find min and max values
   void _findMinMax(num minVal, num maxVal) {
-    if (_min == null || _min > minVal) {
+    if (_min == null || _min! > minVal) {
       _min = minVal;
     }
-    if (_max == null || _max < maxVal) {
+    if (_max == null || _max! < maxVal) {
       _max = maxVal;
     }
   }
@@ -2424,7 +2487,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
       desiredIntervalCount = math.max(size * (desiredIntervalCount / 100), 1);
       return desiredIntervalCount;
     } else {
-      return axisRenderer._axis.desiredIntervals;
+      return axisRenderer._axis.desiredIntervals!;
     }
   }
 
@@ -2432,12 +2495,12 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
   ChartRangePadding _calculateRangePadding(
       ChartAxisRenderer axisRenderer, SfCartesianChart chart) {
     final ChartAxis axis = axisRenderer._axis;
-    ChartRangePadding padding;
+    ChartRangePadding padding = ChartRangePadding.auto;
     if (axis.rangePadding != ChartRangePadding.auto) {
       padding = axis.rangePadding;
     } else if (axis.rangePadding == ChartRangePadding.auto &&
         axisRenderer._orientation != null) {
-      switch (axisRenderer._orientation) {
+      switch (axisRenderer._orientation!) {
         case AxisOrientation.horizontal:
           padding = _chartState._requireInvertedAxis
               ? (_isStack100
@@ -2496,20 +2559,31 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
   void _updateActualRange(
       ChartAxisRenderer axisRenderer, num minimum, num maximum, num interval) {
     final dynamic axis = axisRenderer._axis;
-    axisRenderer._actualRange.minimum = axis.minimum ?? minimum;
-    axisRenderer._actualRange.maximum = axis.maximum ?? maximum;
-    axisRenderer._actualRange.delta =
-        axisRenderer._actualRange.maximum - axisRenderer._actualRange.minimum;
-    axisRenderer._actualRange.interval = axis.interval ?? interval;
+    axisRenderer._actualRange!.minimum = axis.minimum == null
+        ? minimum
+        : (axisRenderer is DateTimeCategoryAxisRenderer
+            ? (axisRenderer._getEffectiveRange(axis.minimum, true)! -
+                (axis.labelPlacement != LabelPlacement.onTicks ? 0 : 0.5))
+            : axis.minimum);
+    axisRenderer._actualRange!.maximum = axis.maximum == null
+        ? maximum
+        : (axisRenderer is DateTimeCategoryAxisRenderer
+            ? (axisRenderer._getEffectiveRange(axis.maximum, true)! +
+                (axis.labelPlacement != LabelPlacement.onTicks ? 0 : 0.5))
+            : axis.maximum);
+    axisRenderer._actualRange!.delta =
+        axisRenderer._actualRange!.maximum - axisRenderer._actualRange!.minimum;
+    axisRenderer._actualRange!.interval = axis.interval ?? interval;
   }
 
   /// Find the normal range
   void _findNormalRange(
       ChartAxisRenderer axisRenderer, num start, num end, num interval) {
-    final ChartAxis axis = axisRenderer._axis;
+    final dynamic axis = axisRenderer._axis;
     num remaining, minimum, maximum;
     num startValue = start;
-    if (axis is CategoryAxis && axis.labelPlacement == LabelPlacement.onTicks) {
+    if ((axis is CategoryAxis || axis is DateTimeCategoryAxis) &&
+        axis.labelPlacement == LabelPlacement.onTicks) {
       minimum = start - 0.5;
       maximum = end + 0.5;
     } else {
@@ -2545,7 +2619,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
       interval = (axisRenderer is NumericAxisRenderer)
           ? _calculateNumericNiceInterval(
               axisRenderer, maximum - minimum, _axisSize)
-          : calculateInterval(_VisibleRange(minimum, maximum), _axisSize);
+          : calculateInterval(_VisibleRange(minimum, maximum), _axisSize)!;
       maximum = (maximum / interval).ceil() * interval;
     }
 
@@ -2559,46 +2633,54 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
     TextStyle fontStyle = _axis.labelStyle;
 
     final String actualText = labelText;
-    Size textSize = _measureText(labelText, _axis.labelStyle, 0);
+    Size textSize = measureText(labelText, _axis.labelStyle, 0);
     if (_axis.maximumLabelWidth != null || _axis.labelsExtent != null) {
       if (_axis.maximumLabelWidth != null) {
-        assert(_axis.maximumLabelWidth >= 0,
+        assert(_axis.maximumLabelWidth! >= 0,
             'maximumLabelWidth must not be negative');
       }
       if (_axis.labelsExtent != null) {
-        assert(_axis.labelsExtent >= 0, 'labelsExtent must not be negative');
+        assert(_axis.labelsExtent! >= 0, 'labelsExtent must not be negative');
       }
       if ((_axis.maximumLabelWidth != null &&
-              textSize.width > _axis.maximumLabelWidth) ||
-          (_axis.labelsExtent != null && textSize.width > _axis.labelsExtent)) {
+              textSize.width > _axis.maximumLabelWidth!) ||
+          (_axis.labelsExtent != null &&
+              textSize.width > _axis.labelsExtent!)) {
         labelText = _trimAxisLabelsText(
             labelText,
-            _axis.labelsExtent ?? _axis.maximumLabelWidth,
+            (_axis.labelsExtent ?? _axis.maximumLabelWidth)!,
             _axis.labelStyle,
             this);
       }
-      textSize = _measureText(labelText, _axis.labelStyle, 0);
+      textSize = measureText(labelText, _axis.labelStyle, 0);
     }
-    final String trimmedText =
+    final String? trimmedText =
         labelText.contains('...') || labelText.isEmpty ? labelText : null;
     String renderText = trimmedText ?? actualText;
-    if (_chart.onAxisLabelRender != null) {
+    final AxisLabelRenderDetails axisLabelDetails = AxisLabelRenderDetails(
+        labelValue,
+        trimmedText ?? actualText,
+        actualText,
+        fontStyle,
+        _axis,
+        _name,
+        _orientation!);
+    if (_chart.axisLabelFormatter != null) {
+      final ChartAxisLabel axisLabel =
+          _chart.axisLabelFormatter!(axisLabelDetails);
+      fontStyle = axisLabel.textStyle;
+      renderText = axisLabel.text;
+    } else if (_chart.onAxisLabelRender != null) {
       axisLabelArgs =
           AxisLabelRenderArgs(labelValue, _name, _orientation, _axis);
       axisLabelArgs.text = actualText;
       axisLabelArgs.textStyle = fontStyle;
-      // axisLabelArgs.trimmedText = trimmedText;
-      _chart.onAxisLabelRender(axisLabelArgs);
+      _chart.onAxisLabelRender!(axisLabelArgs);
       fontStyle = axisLabelArgs.textStyle;
-      // if (actualText != axisLabelArgs.text && trimmedText == null) {
       renderText = axisLabelArgs.text;
-      // } else if (trimmedText != axisLabelArgs.trimmedText &&
-      //     trimmedText != null) {
-      // renderText = axisLabelArgs.trimmedText;
-      // }
     }
     final Size labelSize =
-        _measureText(renderText, fontStyle, _axis.labelRotation);
+        measureText(renderText, fontStyle, _axis.labelRotation);
     _visibleLabels.add(AxisLabel(
         fontStyle, labelSize, actualText, labelValue, trimmedText, renderText));
   }
@@ -2609,7 +2691,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
     AxisLabelIntersectAction action;
     AxisLabel label;
     final ChartAxis axis = axisRenderer._axis;
-    num maximumLabelHeight = 0.0,
+    double maximumLabelHeight = 0.0,
         maximumLabelWidth = 0.0,
         labelMaximumWidth,
         pointX;
@@ -2680,7 +2762,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
 
         /// Based on below options, perform label intersection
         if (_isCollide) {
-          final List<num> _list = _performLabelIntersectAction(
+          final List<double> _list = _performLabelIntersectAction(
               label,
               action,
               maximumLabelWidth,
@@ -2700,17 +2782,17 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
   }
 
   /// Return the height and width values of labelIntersectAction
-  List<num> _performLabelIntersectAction(
+  List<double> _performLabelIntersectAction(
       AxisLabel label,
       AxisLabelIntersectAction action,
-      num maximumLabelWidth,
-      num maximumLabelHeight,
-      num labelMaximumWidth,
+      double maximumLabelWidth,
+      double maximumLabelHeight,
+      double labelMaximumWidth,
       num pointX,
       int i,
       ChartAxisRenderer axisRenderer,
       SfCartesianChart chart) {
-    num height;
+    double height;
     int angle = axisRenderer._labelRotation;
     Size currentLabelSize;
     final ChartAxis axis = axisRenderer._axis;
@@ -2727,7 +2809,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
       case AxisLabelIntersectAction.rotate90:
         angle = action == AxisLabelIntersectAction.rotate45 ? -45 : -90;
         axisRenderer._labelRotation = angle;
-        currentLabelSize = _measureText(label.text, axis.labelStyle, angle);
+        currentLabelSize = measureText(label.text, axis.labelStyle, angle);
         if (currentLabelSize.height > maximumLabelHeight) {
           maximumLabelHeight = currentLabelSize.height;
         }
@@ -2737,11 +2819,11 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
         break;
       case AxisLabelIntersectAction.wrap:
         label._labelCollection = _gettingLabelCollection(
-            label.renderText, labelMaximumWidth, axisRenderer);
-        if (label._labelCollection.isNotEmpty) {
-          label.renderText = label._labelCollection[0];
+            label.renderText!, labelMaximumWidth, axisRenderer);
+        if (label._labelCollection!.isNotEmpty) {
+          label.renderText = label._labelCollection![0];
         }
-        height = label.labelSize.height * label._labelCollection.length;
+        height = label.labelSize.height * label._labelCollection!.length;
         if (height > maximumLabelHeight) {
           maximumLabelHeight = height;
         }
@@ -2749,11 +2831,11 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
       default:
         break;
     }
-    return <num>[maximumLabelWidth, maximumLabelHeight];
+    return <double>[maximumLabelWidth, maximumLabelHeight];
   }
 
   /// To find the height of the current label
-  num _findMultiRows(num length, num currentX, AxisLabel currentLabel,
+  double _findMultiRows(int length, num currentX, AxisLabel currentLabel,
       ChartAxisRenderer axisRenderer, SfCartesianChart chart) {
     AxisLabel label;
     num pointX;
@@ -2792,7 +2874,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
     String text;
     for (int i = 0; i < textCollection.length; i++) {
       text = textCollection[i];
-      (_measureText(text, axis.labelStyle, axisRenderer._labelRotation).width <
+      (measureText(text, axis.labelStyle, axisRenderer._labelRotation).width <
               labelsExtent)
           ? labelCollection.add(text)
           : labelCollection.add(_trimAxisLabelsText(
@@ -2803,17 +2885,11 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
 
   ///Below method is for changing range while zooming
   void _calculateZoomRange(ChartAxisRenderer axisRenderer, Size axisSize) {
-    ChartAxisRenderer oldAxisRenderer;
+    ChartAxisRenderer? oldAxisRenderer;
     final ChartAxis axis = axisRenderer._axis;
-    assert(
-        axis.zoomFactor != null
-            ? axis.zoomFactor >= 0 && axis.zoomFactor <= 1
-            : true,
+    assert(axis.zoomFactor >= 0 && axis.zoomFactor <= 1,
         'The zoom factor of the axis should be between 0 and 1.');
-    assert(
-        axis.zoomPosition != null
-            ? axis.zoomPosition >= 0 && axis.zoomPosition <= 1
-            : true,
+    assert(axis.zoomPosition >= 0 && axis.zoomPosition <= 1,
         'The zoom position of the axis should be between 0 and 1.');
 
     /// Restrict zoom factor and zoom position values between 0 to 1
@@ -2827,8 +2903,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
         : axisRenderer._zoomPosition < 0
             ? 0
             : axisRenderer._zoomPosition;
-    if (_chartState._oldAxisRenderers != null &&
-        _chartState._oldAxisRenderers.isNotEmpty) {
+    if (_chartState._oldAxisRenderers.isNotEmpty) {
       oldAxisRenderer =
           _getOldAxisRenderer(axisRenderer, _chartState._oldAxisRenderers);
     }
@@ -2843,11 +2918,11 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
               : axisRenderer._zoomPosition;
     }
 
-    final _VisibleRange baseRange = axisRenderer._visibleRange;
+    final _VisibleRange baseRange = axisRenderer._visibleRange!;
     num start, end;
-    start = axisRenderer._visibleRange.minimum +
-        axisRenderer._zoomPosition * axisRenderer._visibleRange.delta;
-    end = start + axisRenderer._zoomFactor * axisRenderer._visibleRange.delta;
+    start = axisRenderer._visibleRange!.minimum +
+        axisRenderer._zoomPosition * axisRenderer._visibleRange!.delta;
+    end = start + axisRenderer._zoomFactor * axisRenderer._visibleRange!.delta;
 
     if (start < baseRange.minimum) {
       end = end + (baseRange.minimum - start);
@@ -2857,19 +2932,33 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
       start = start - (end - baseRange.maximum);
       end = baseRange.maximum;
     }
-    axisRenderer._visibleRange.minimum = start;
-    axisRenderer._visibleRange.maximum = end;
-    axisRenderer._visibleRange.delta = end - start;
+    axisRenderer._visibleRange!.minimum = start;
+    axisRenderer._visibleRange!.maximum = end;
+    axisRenderer._visibleRange!.delta = end - start;
   }
 
-  /// To check zommed axis state
-  void _checkWithZoomState(ChartAxisRenderer axisRenderer,
+  /// To set the zoom factor and position of axis through dynamic update or from
+  void _setZoomFactorAndPosition(ChartAxisRenderer axisRenderer,
       List<ChartAxisRenderer> axisRendererStates) {
-    for (int i = 0; i < axisRendererStates.length; i++) {
-      final ChartAxisRenderer zoomedAxisRenderer = axisRendererStates[i];
-      if (zoomedAxisRenderer._name == axisRenderer._name) {
-        axisRenderer._zoomFactor = zoomedAxisRenderer._zoomFactor;
-        axisRenderer._zoomPosition = zoomedAxisRenderer._zoomPosition;
+    bool didUpdateAxis;
+    if (_oldAxis != null &&
+        (_oldAxis!.zoomPosition != _axis.zoomPosition ||
+            _oldAxis!.zoomFactor != _axis.zoomFactor)) {
+      _zoomFactor = _axis.zoomFactor;
+      _zoomPosition = _axis.zoomPosition;
+      didUpdateAxis = true;
+    } else {
+      didUpdateAxis = false;
+    }
+    for (final zoomedAxisRenderer in _chartState._zoomedAxisRendererStates) {
+      if (zoomedAxisRenderer._name == _name) {
+        if (didUpdateAxis) {
+          zoomedAxisRenderer._zoomFactor = _zoomFactor;
+          zoomedAxisRenderer._zoomPosition = _zoomPosition;
+        } else {
+          axisRenderer._zoomFactor = zoomedAxisRenderer._zoomFactor;
+          axisRenderer._zoomPosition = zoomedAxisRenderer._zoomPosition;
+        }
         break;
       }
     }
@@ -2878,13 +2967,13 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
   /// To provide chart changes to range controller
   void _setRangeControllerValues(ChartAxisRenderer _axisRenderer) {
     if (_axisRenderer is DateTimeAxisRenderer) {
-      _axis.rangeController.start = DateTime.fromMillisecondsSinceEpoch(
-          _axisRenderer._visibleRange.minimum);
-      _axis.rangeController.end = DateTime.fromMillisecondsSinceEpoch(
-          _axisRenderer._visibleRange.maximum);
+      _axis.rangeController!.start = DateTime.fromMillisecondsSinceEpoch(
+          _axisRenderer._visibleRange!.minimum);
+      _axis.rangeController!.end = DateTime.fromMillisecondsSinceEpoch(
+          _axisRenderer._visibleRange!.maximum);
     } else {
-      _axis.rangeController.start = _axisRenderer._visibleRange.minimum;
-      _axis.rangeController.end = _axisRenderer._visibleRange.maximum;
+      _axis.rangeController!.start = _axisRenderer._visibleRange!.minimum;
+      _axis.rangeController!.end = _axisRenderer._visibleRange!.maximum;
     }
   }
 
@@ -2892,12 +2981,37 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
   void _updateRangeControllerValues(ChartAxisRenderer _axisRenderer) {
     if (_axisRenderer is DateTimeAxisRenderer) {
       _axisRenderer._rangeMinimum =
-          _axis.rangeController.start.millisecondsSinceEpoch;
+          _axis.rangeController!.start.millisecondsSinceEpoch;
       _axisRenderer._rangeMaximum =
-          _axis.rangeController.end.millisecondsSinceEpoch;
+          _axis.rangeController!.end.millisecondsSinceEpoch;
     } else {
-      _axisRenderer._rangeMinimum = _axis.rangeController.start;
-      _axisRenderer._rangeMaximum = _axis.rangeController.end;
+      _axisRenderer._rangeMinimum = _axis.rangeController!.start;
+      _axisRenderer._rangeMaximum = _axis.rangeController!.end;
+    }
+  }
+
+  /// Auto scrolling feature
+  void _updateAutoScrollingDelta(
+      int scrollingDelta, ChartAxisRenderer _axisRenderer) {
+    switch (_axis.autoScrollingMode) {
+      case AutoScrollingMode.start:
+        final _VisibleRange autoScrollRange = _VisibleRange(
+            _axisRenderer._visibleRange!.minimum,
+            _axisRenderer._visibleRange!.minimum + scrollingDelta);
+        autoScrollRange.delta =
+            autoScrollRange.maximum - autoScrollRange.minimum;
+        _zoomFactor = autoScrollRange.delta / _actualRange!.delta;
+        _zoomPosition = 0;
+        break;
+      case AutoScrollingMode.end:
+        final _VisibleRange autoScrollRange = _VisibleRange(
+            _axisRenderer._visibleRange!.maximum - scrollingDelta,
+            _axisRenderer._visibleRange!.maximum);
+        autoScrollRange.delta =
+            autoScrollRange.maximum - autoScrollRange.minimum;
+        _zoomFactor = autoScrollRange.delta / _actualRange!.delta;
+        _zoomPosition = 1 - _zoomFactor;
+        break;
     }
   }
 }

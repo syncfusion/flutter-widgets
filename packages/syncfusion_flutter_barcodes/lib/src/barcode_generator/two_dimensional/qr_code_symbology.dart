@@ -34,7 +34,7 @@ class QRCode extends Symbology {
       {this.codeVersion,
       this.errorCorrectionLevel = ErrorCorrectionLevel.high,
       this.inputMode = QRInputMode.binary,
-      int module})
+      int? module})
       : super(module: module);
 
   /// Define the version that is used to encode the amount of data.
@@ -57,7 +57,7 @@ class QRCode extends Symbology {
   ///        symbology: QRCode(codeVersion: 4)));
   ///}
   /// ```dart
-  final QRCodeVersion codeVersion;
+  final QRCodeVersion? codeVersion;
 
   /// Define the encode recovery capacity of the barcode.
   ///

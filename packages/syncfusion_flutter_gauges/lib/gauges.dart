@@ -12,36 +12,31 @@
 /// * [Knowledge base](https://www.syncfusion.com/kb/flutter/sfradialgauge)
 library gauges;
 
-import 'dart:async';
-import 'dart:math' as math;
-import 'dart:typed_data';
-import 'dart:ui';
-import 'dart:ui' as dart_ui;
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart' show rootBundle;
-
-import 'package:intl/intl.dart' show NumberFormat;
-import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:flutter/foundation.dart';
+export './src/linear_gauge/axis/linear_axis_label.dart';
+export './src/linear_gauge/axis/linear_axis_track_style.dart';
+export './src/linear_gauge/axis/linear_tick_style.dart';
+export './src/linear_gauge/gauge/linear_gauge.dart';
+export './src/linear_gauge/pointers/linear_bar_pointer.dart';
+export './src/linear_gauge/pointers/linear_shape_pointer.dart';
+export './src/linear_gauge/pointers/linear_widget_pointer.dart';
+export './src/linear_gauge/range/linear_gauge_range.dart';
+export './src/linear_gauge/utils/enum.dart';
+export './src/linear_gauge/utils/linear_gauge_typedef.dart';
 
 // export circular gauge library
-part './src/radial_gauge/gauge/radial_gauge.dart';
-part './src/radial_gauge/axis/gauge_axis.dart';
-part './src/radial_gauge/utils/enum.dart';
-part './src/radial_gauge/pointers/gauge_pointer.dart';
-part './src/radial_gauge/axis/radial_axis.dart';
-part './src/radial_gauge/range/gauge_range.dart';
-part './src/radial_gauge/common/common.dart';
-part './src/radial_gauge/utils/helper.dart';
-part './src/radial_gauge/annotation/gauge_annotation.dart';
-part './src/radial_gauge/common/gauge_annotation_renderer.dart';
-part './src/radial_gauge/pointers/range_pointer.dart';
-part './src/radial_gauge/pointers/marker_pointer.dart';
-part './src/radial_gauge/pointers/needle_pointer.dart';
-part './src/radial_gauge/gauge_painter/marker_pointer_painter.dart';
-part './src/radial_gauge/gauge_painter/needle_pointer_painter.dart';
-part './src/radial_gauge/common/radial_gauge_renderer.dart';
-part './src/radial_gauge/gauge_painter/range_pointer_painter.dart';
-part './src/radial_gauge/gauge_painter/range_painter.dart';
-part './src/radial_gauge/gauge_painter/radial_axis_painter.dart';
+export './src/radial_gauge/annotation/gauge_annotation.dart';
+export './src/radial_gauge/axis/gauge_axis.dart';
+export './src/radial_gauge/axis/radial_axis.dart';
+export './src/radial_gauge/common/axis_label.dart';
+export './src/radial_gauge/common/common.dart';
+export './src/radial_gauge/gauge/radial_gauge.dart';
+export './src/radial_gauge/pointers/gauge_pointer.dart';
+export './src/radial_gauge/pointers/marker_pointer.dart';
+export './src/radial_gauge/pointers/needle_pointer.dart';
+export './src/radial_gauge/pointers/range_pointer.dart';
+export './src/radial_gauge/pointers/widget_pointer.dart';
+export './src/radial_gauge/range/gauge_range.dart';
+export './src/radial_gauge/renderers/marker_pointer_renderer.dart';
+export './src/radial_gauge/renderers/needle_pointer_renderer.dart';
+export './src/radial_gauge/renderers/radial_axis_renderer.dart';
+export './src/radial_gauge/utils/enum.dart';

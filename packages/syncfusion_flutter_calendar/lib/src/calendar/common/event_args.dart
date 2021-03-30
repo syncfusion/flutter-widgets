@@ -1,4 +1,9 @@
-part of calendar;
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import '../resource_view/calendar_resource.dart';
+import '../settings/time_region.dart';
+import 'enums.dart';
 
 /// The dates that visible on the view changes in [SfCalendar].
 ///
@@ -22,8 +27,8 @@ class ViewChangedDetails {
 @immutable
 class CalendarTapDetails extends CalendarTouchDetails {
   /// Creates details for [CalendarTapCallback].
-  const CalendarTapDetails(List<dynamic> appointments, DateTime date,
-      CalendarElement element, CalendarResource resource)
+  const CalendarTapDetails(List<dynamic>? appointments, DateTime? date,
+      CalendarElement element, CalendarResource? resource)
       : super(appointments, date, element, resource);
 }
 
@@ -37,9 +42,29 @@ class CalendarTapDetails extends CalendarTouchDetails {
 @immutable
 class CalendarLongPressDetails extends CalendarTouchDetails {
   /// Creates details for [CalendarLongPressCallback]
-  const CalendarLongPressDetails(List<dynamic> appointments, DateTime date,
-      CalendarElement element, CalendarResource resource)
+  const CalendarLongPressDetails(List<dynamic>? appointments, DateTime? date,
+      CalendarElement element, CalendarResource? resource)
       : super(appointments, date, element, resource);
+}
+
+/// The element that tapped on view in [SfCalendar]
+///
+/// Details for [CalendarSelectionChangedCallback],
+/// such as [date], and [resource].
+///
+/// See also:
+/// [CalendarSelectionChangedCallback]
+@immutable
+class CalendarSelectionDetails {
+  /// Creates details for [CalendarSelectionChangedCallback].
+  const CalendarSelectionDetails(this.date, this.resource);
+
+  /// The date time value that represents selected calendar cell on
+  /// timeslot and month views.
+  final DateTime? date;
+
+  /// The resource associated with the selected calendar cell in timeline views.
+  final CalendarResource? resource;
 }
 
 /// The element that tapped or long pressed on view in [SfCalendar].
@@ -59,16 +84,16 @@ class CalendarTouchDetails {
 
   /// The collection of appointments that tapped or falls inside the selected
   /// date.
-  final List<dynamic> appointments;
+  final List<dynamic>? appointments;
 
   /// The date cell that tapped on view.
-  final DateTime date;
+  final DateTime? date;
 
   /// The element that tapped on view.
   final CalendarElement targetElement;
 
   /// The resource associated with the tapped calendar cell in timeline views.
-  final CalendarResource resource;
+  final CalendarResource? resource;
 }
 
 /// Signature for a function that creates a widget based on month
@@ -88,13 +113,20 @@ typedef CalendarAppointmentBuilder = Widget Function(BuildContext context,
 typedef TimeRegionBuilder = Widget Function(
     BuildContext context, TimeRegionDetails timeRegionDetails);
 
-class _CalendarParentData extends ContainerBoxParentData<RenderBox> {}
+/// Signature for the function that create the widget based on load
+/// more details.
+typedef LoadMoreWidgetBuilder = Widget Function(
+    BuildContext context, LoadMoreCallback loadMoreAppointments);
+
+/// Signature for the function that have no arguments and return no data, but
+/// that return a [Future] to indicate when their work is complete.
+typedef LoadMoreCallback = Future<void> Function();
 
 /// Contains the details that needed on month cell builder.
 class MonthCellDetails {
   /// Default constructor to store the details needed in month cell builder
   const MonthCellDetails(
-      {this.date, this.appointments, this.visibleDates, this.bounds});
+      this.date, this.appointments, this.visibleDates, this.bounds);
 
   /// The date value associated with the month cell widget.
   final DateTime date;
@@ -112,7 +144,7 @@ class MonthCellDetails {
 /// Contains the details that needed on schedule view month header builder.
 class ScheduleViewMonthHeaderDetails {
   /// Default constructor to store the details needed in builder
-  const ScheduleViewMonthHeaderDetails({this.date, this.bounds});
+  const ScheduleViewMonthHeaderDetails(this.date, this.bounds);
 
   /// The date value associated with the schedule view month header widget.
   final DateTime date;
@@ -124,11 +156,8 @@ class ScheduleViewMonthHeaderDetails {
 /// Contains the details that needed on appointment view builder.
 class CalendarAppointmentDetails {
   /// Default constructor to store the details needed in appointment builder.
-  const CalendarAppointmentDetails(
-      {this.date,
-      this.appointments,
-      this.bounds,
-      this.isMoreAppointmentRegion = false});
+  const CalendarAppointmentDetails(this.date, this.appointments, this.bounds,
+      {this.isMoreAppointmentRegion = false});
 
   /// The date value associated with the appointment view widget.
   final DateTime date;
@@ -150,7 +179,7 @@ class CalendarAppointmentDetails {
 /// Contains the details that needed on special region view builder.
 class TimeRegionDetails {
   /// Default constructor to store the details needed in time region builder.
-  TimeRegionDetails({this.region, this.date, this.bounds});
+  TimeRegionDetails(this.region, this.date, this.bounds);
 
   /// Region detail associated with the time region view in day, week,
   /// workweek and timeline day, week, workweek views.
@@ -163,14 +192,42 @@ class TimeRegionDetails {
   final Rect bounds;
 }
 
-/// args to update the required properties from calendar state to it's
-/// children's
-class _UpdateCalendarStateDetails {
-  DateTime _currentDate;
-  List<DateTime> _currentViewVisibleDates;
-  List<Appointment> _visibleAppointments;
-  DateTime _selectedDate;
-  double _allDayPanelHeight;
-  List<_AppointmentView> _allDayAppointmentViewCollection;
-  List<Appointment> _appointments;
-}
+/// Signature for callback that reports that a current view or current visible
+/// dates changes.
+///
+/// The visible dates collection visible on view when the view changes available
+/// in the [ViewChangedDetails].
+///
+/// Used by [SfCalendar.onViewChanged].
+typedef ViewChangedCallback = void Function(
+    ViewChangedDetails viewChangedDetails);
+
+/// Signature for callback that reports that a calendar element tapped on view.
+///
+/// The tapped date, appointments, and element details when the tap action
+///  performed on element available in the [CalendarTapDetails].
+///
+/// Used by[SfCalendar.onTap].
+typedef CalendarTapCallback = void Function(
+    CalendarTapDetails calendarTapDetails);
+
+/// Signature for callback that reports that a calendar element long pressed
+/// on view.
+///
+/// The tapped date, appointments, and element details when the  long press
+///  action performed on element available in the [CalendarLongPressDetails].
+///
+/// Used by[SfCalendar.onLongPress].
+typedef CalendarLongPressCallback = void Function(
+    CalendarLongPressDetails calendarLongPressDetails);
+
+/// Signature for callback that reports that
+/// a calendar view selection changed on view.
+///
+/// The selection changed date and resource details
+/// when the selection changed action
+/// performed on element available in the [CalendarSelectionDetails].
+///
+/// Used by[SfCalendar.onSelectionChanged].
+typedef CalendarSelectionChangedCallback = void Function(
+    CalendarSelectionDetails calendarSelectionDetails);

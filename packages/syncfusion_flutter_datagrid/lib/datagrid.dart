@@ -1,3 +1,14 @@
+/// The Syncfusion Flutter DataGrid is used to display and manipulate data in a
+/// tabular view. Its rich feature set includes different types of columns,
+/// selections, column sizing, etc.
+///
+/// To use, import `package:syncfusion_flutter_datagrid/datagrid.dart`.
+///
+/// See also:
+///
+/// * [Syncfusion Flutter DataGrid product page](https://www.syncfusion.com/flutter-widgets/flutter-datagrid)
+/// * [User guide documentation](https://help.syncfusion.com/flutter/datagrid/overview)
+/// * [Knowledge base](https://www.syncfusion.com/kb/flutter/sfdatagrid)
 library datagrid;
 
 import 'dart:collection';
@@ -8,8 +19,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart' as intl show DateFormat, NumberFormat;
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:collection/collection.dart';
 
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
@@ -57,9 +68,6 @@ part './src/cell_renderer/grid_cell_renderer_base.dart';
 part './src/cell_renderer/grid_virtualizing_cell_renderer_base.dart';
 part './src/cell_renderer/grid_cell_text_field_renderer.dart';
 part './src/cell_renderer/grid_header_cell_renderer.dart';
-part './src/cell_renderer/grid_cell_numeric_field_renderer.dart';
-part './src/cell_renderer/grid_cell_widget_renderer.dart';
-part './src/cell_renderer/grid_cell_datetime_renderer.dart';
 part './src/cell_renderer/grid_cell_stacked_header_renderer.dart';
 
 //Selection Controller

@@ -20,7 +20,7 @@ import '../../theme.dart';
 /// ```
 class SfDataGridTheme extends InheritedTheme {
   /// Applies the given theme [data] to [child].
-  const SfDataGridTheme({Key key, this.data, this.child})
+  const SfDataGridTheme({Key? key, required this.data, required this.child})
       : super(key: key, child: child);
 
   /// Specifies the color and typography values for descendant [SfDataGrid]
@@ -66,7 +66,7 @@ class SfDataGridTheme extends InheritedTheme {
   /// is no [SfDataGridTheme] in the given build context.
   ///
   static SfDataGridThemeData of(BuildContext context) {
-    final SfDataGridTheme sfDataGridTheme =
+    final SfDataGridTheme? sfDataGridTheme =
         context.dependOnInheritedWidgetOfExactType<SfDataGridTheme>();
     return sfDataGridTheme?.data ?? SfTheme.of(context).dataGridThemeData;
   }
@@ -76,7 +76,7 @@ class SfDataGridTheme extends InheritedTheme {
 
   @override
   Widget wrap(BuildContext context, Widget child) {
-    final SfDataGridTheme ancestorTheme =
+    final SfDataGridTheme? ancestorTheme =
         context.findAncestorWidgetOfExactType<SfDataGridTheme>();
     return identical(this, ancestorTheme)
         ? child
@@ -107,62 +107,20 @@ class SfDataGridThemeData with Diagnosticable {
   /// Create a [SfDataGridThemeData] that's used to configure a
   /// [SfDataGridTheme].
   factory SfDataGridThemeData({
-    Brightness brightness,
-    DataGridHeaderCellStyle headerStyle,
-    DataGridCellStyle cellStyle,
-    Color gridLineColor,
-    double gridLineStrokeWidth,
-    DataGridCellStyle selectionStyle,
-    DataGridCurrentCellStyle currentCellStyle,
-    Color frozenPaneLineColor,
-    double frozenPaneLineWidth,
+    Brightness? brightness,
+    Color? gridLineColor,
+    double? gridLineStrokeWidth,
+    Color? selectionColor,
+    DataGridCurrentCellStyle? currentCellStyle,
+    Color? frozenPaneLineColor,
+    double? frozenPaneLineWidth,
+    Color? sortIconColor,
+    Color? headerHoverColor,
+    Color? headerColor,
+    double? frozenPaneElevation,
   }) {
     brightness = brightness ?? Brightness.light;
     final bool isLight = brightness == Brightness.light;
-    headerStyle ??= isLight
-        ? const DataGridHeaderCellStyle(
-            textStyle: TextStyle(
-                fontFamily: 'Roboto',
-                fontWeight: FontWeight.w500,
-                fontSize: 14,
-                color: Colors.black87),
-            backgroundColor: Color.fromRGBO(255, 255, 255, 1),
-            sortIconColor: Colors.black54,
-            hoverColor: Color.fromRGBO(245, 245, 245, 1),
-            hoverTextStyle: TextStyle(
-                fontFamily: 'Roboto',
-                fontWeight: FontWeight.w500,
-                fontSize: 14,
-                color: Colors.black87))
-        : const DataGridHeaderCellStyle(
-            textStyle: TextStyle(
-                fontFamily: 'Roboto',
-                fontWeight: FontWeight.w500,
-                fontSize: 14,
-                color: Color.fromRGBO(255, 255, 255, 1)),
-            backgroundColor: Color.fromRGBO(33, 33, 33, 1),
-            sortIconColor: Colors.white54,
-            hoverColor: Color.fromRGBO(66, 66, 66, 1),
-            hoverTextStyle: TextStyle(
-                fontFamily: 'Roboto',
-                fontWeight: FontWeight.w500,
-                fontSize: 14,
-                color: Color.fromRGBO(255, 255, 255, 1)));
-    cellStyle ??= isLight
-        ? const DataGridCellStyle(
-            textStyle: TextStyle(
-                fontFamily: 'Roboto',
-                fontWeight: FontWeight.w400,
-                fontSize: 14,
-                color: Colors.black87),
-            backgroundColor: Color.fromRGBO(255, 255, 255, 1))
-        : const DataGridCellStyle(
-            textStyle: TextStyle(
-                fontFamily: 'Roboto',
-                fontWeight: FontWeight.w400,
-                fontSize: 14,
-                color: Color.fromRGBO(255, 255, 255, 1)),
-            backgroundColor: Color.fromRGBO(33, 33, 33, 1));
 
     gridLineColor ??= isLight
         ? const Color.fromRGBO(0, 0, 0, 0.26)
@@ -170,21 +128,9 @@ class SfDataGridThemeData with Diagnosticable {
 
     gridLineStrokeWidth ??= 1;
 
-    selectionStyle ??= isLight
-        ? DataGridCellStyle(
-            textStyle: TextStyle(
-                fontFamily: 'Roboto',
-                fontWeight: FontWeight.w400,
-                fontSize: 14,
-                color: const Color.fromRGBO(0, 0, 0, 0.87)),
-            backgroundColor: const Color.fromRGBO(238, 238, 238, 1))
-        : DataGridCellStyle(
-            textStyle: TextStyle(
-                fontFamily: 'Roboto',
-                fontWeight: FontWeight.w400,
-                fontSize: 14,
-                color: const Color.fromRGBO(255, 255, 255, 1)),
-            backgroundColor: const Color.fromRGBO(48, 48, 48, 1));
+    selectionColor ??= isLight
+        ? const Color.fromRGBO(238, 238, 238, 1)
+        : const Color.fromRGBO(48, 48, 48, 1);
 
     currentCellStyle ??= isLight
         ? const DataGridCurrentCellStyle(
@@ -198,16 +144,31 @@ class SfDataGridThemeData with Diagnosticable {
 
     frozenPaneLineWidth ??= 2;
 
+    headerHoverColor ??= isLight
+        ? Color.fromRGBO(245, 245, 245, 1)
+        : Color.fromRGBO(66, 66, 66, 1);
+
+    sortIconColor ??= isLight ? Colors.black54 : Colors.white54;
+
+    headerColor ??= isLight
+        ? Color.fromRGBO(255, 255, 255, 1)
+        : Color.fromRGBO(33, 33, 33, 1);
+
+    frozenPaneElevation ??= 5.0;
+
     return SfDataGridThemeData.raw(
-        brightness: brightness,
-        headerStyle: headerStyle,
-        cellStyle: cellStyle,
-        gridLineColor: gridLineColor,
-        gridLineStrokeWidth: gridLineStrokeWidth,
-        selectionStyle: selectionStyle,
-        currentCellStyle: currentCellStyle,
-        frozenPaneLineColor: frozenPaneLineColor,
-        frozenPaneLineWidth: frozenPaneLineWidth);
+      brightness: brightness,
+      gridLineColor: gridLineColor,
+      gridLineStrokeWidth: gridLineStrokeWidth,
+      selectionColor: selectionColor,
+      currentCellStyle: currentCellStyle,
+      frozenPaneLineColor: frozenPaneLineColor,
+      frozenPaneLineWidth: frozenPaneLineWidth,
+      headerHoverColor: headerHoverColor,
+      sortIconColor: sortIconColor,
+      headerColor: headerColor,
+      frozenPaneElevation: frozenPaneElevation,
+    );
   }
 
   /// Create a [SfDataGridThemeData] given a set of exact values.
@@ -217,16 +178,19 @@ class SfDataGridThemeData with Diagnosticable {
   /// create intermediate themes based on two themes created with the
   /// [SfDataGridThemeData] constructor.
   ///
-  const SfDataGridThemeData.raw(
-      {@required this.brightness,
-      @required this.headerStyle,
-      @required this.cellStyle,
-      @required this.gridLineColor,
-      @required this.gridLineStrokeWidth,
-      @required this.selectionStyle,
-      @required this.currentCellStyle,
-      @required this.frozenPaneLineColor,
-      @required this.frozenPaneLineWidth});
+  const SfDataGridThemeData.raw({
+    required this.brightness,
+    required this.gridLineColor,
+    required this.gridLineStrokeWidth,
+    required this.selectionColor,
+    required this.currentCellStyle,
+    required this.frozenPaneLineColor,
+    required this.frozenPaneLineWidth,
+    required this.sortIconColor,
+    required this.headerColor,
+    required this.headerHoverColor,
+    required this.frozenPaneElevation,
+  });
 
   /// The brightness of the overall theme of the
   /// application for the [SfDataGrid] widgets.
@@ -254,53 +218,6 @@ class SfDataGridThemeData with Diagnosticable {
   /// }
   /// ```
   final Brightness brightness;
-
-  /// Defines the default configuration of header cells in [SfDataGrid].
-  ///
-  /// ```dart
-  /// Widget build(BuildContext context) {
-  ///   return Scaffold(
-  ///     body: Center(
-  ///       child: SfTheme(
-  ///         data: SfThemeData(
-  ///           dataGridThemeData: SfDataGridThemeData(
-  ///             headerStyle: DataGridHeaderCellStyle(
-  ///               backgroundColor: Colors.teal,
-  ///               textStyle: TextStyle(color: Colors.white)
-  ///             )
-  ///           )
-  ///         ),
-  ///         child: SfDataGrid(),
-  ///       ),
-  ///     )
-  ///   );
-  /// }
-  /// ```
-  final DataGridHeaderCellStyle headerStyle;
-
-  /// Defines the default configuration of cells except header cells in
-  /// [SfDataGrid].
-  ///
-  /// ```dart
-  /// Widget build(BuildContext context) {
-  ///   return Scaffold(
-  ///     body: Center(
-  ///       child: SfTheme(
-  ///         data: SfThemeData(
-  ///           dataGridThemeData: SfDataGridThemeData(
-  ///             cellStyle: DataGridCellStyle(
-  ///               backgroundColor: const Color(0xFF2E2946),
-  ///               textStyle: TextStyle(decoration: TextDecoration.underline)
-  ///             )
-  ///           )
-  ///         ),
-  ///         child: SfDataGrid(),
-  ///       ),
-  ///     )
-  ///   );
-  /// }
-  /// ```
-  final DataGridCellStyle cellStyle;
 
   /// The color for grid line.
   ///
@@ -363,7 +280,7 @@ class SfDataGridThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final DataGridCellStyle selectionStyle;
+  final Color selectionColor;
 
   /// Defines the default configuration of current cell in [SfDataGrid].
   ///
@@ -397,53 +314,81 @@ class SfDataGridThemeData with Diagnosticable {
   /// This is applicable for both the frozen column and row.
   final Color frozenPaneLineColor;
 
+  /// The color of the sort icon which indicates the ascending or descending
+  /// order.
+  final Color sortIconColor;
+
+  /// The background color of header cells when a pointer is hovering over it
+  /// in [SfDataGrid].
+  final Color headerHoverColor;
+
+  /// The color for the header cells in the [SfDataGrid].
+  final Color headerColor;
+
+  /// The elevation of the frozen pane line.
+  ///
+  /// This controls the size of the shadow below the frozen pane line.
+  ///
+  /// This is applicable for both the frozen column and row.
+  ///
+  /// If you want to hide the shadow and show only line, you can set this
+  /// property as 0.0.
+  ///
+  /// Defaults to 5.0. The value is always non-negative.
+  final double frozenPaneElevation;
+
   /// Creates a copy of this theme but with the given
   /// fields replaced with the new values.
-  SfDataGridThemeData copyWith(
-      {Brightness brightness,
-      DataGridHeaderCellStyle headerStyle,
-      DataGridCellStyle cellStyle,
-      Color gridLineColor,
-      double gridLineStrokeWidth,
-      DataGridCellStyle selectionStyle,
-      DataGridCurrentCellStyle currentCellStyle,
-      double frozenPaneLineWidth,
-      Color frozenPaneLineColor}) {
+  SfDataGridThemeData copyWith({
+    Brightness? brightness,
+    Color? gridLineColor,
+    double? gridLineStrokeWidth,
+    Color? selectionColor,
+    DataGridCurrentCellStyle? currentCellStyle,
+    double? frozenPaneLineWidth,
+    Color? frozenPaneLineColor,
+    Color? sortIconColor,
+    Color? headerHoverColor,
+    Color? headerColor,
+    double? frozenPaneElevation,
+  }) {
     return SfDataGridThemeData.raw(
       brightness: brightness ?? this.brightness,
-      headerStyle: headerStyle ?? this.headerStyle,
-      cellStyle: cellStyle ?? this.cellStyle,
       gridLineColor: gridLineColor ?? this.gridLineColor,
       gridLineStrokeWidth: gridLineStrokeWidth ?? this.gridLineStrokeWidth,
-      selectionStyle: selectionStyle ?? this.selectionStyle,
+      selectionColor: selectionColor ?? this.selectionColor,
       currentCellStyle: currentCellStyle ?? this.currentCellStyle,
       frozenPaneLineColor: frozenPaneLineColor ?? this.frozenPaneLineColor,
       frozenPaneLineWidth: frozenPaneLineWidth ?? this.frozenPaneLineWidth,
+      sortIconColor: sortIconColor ?? this.sortIconColor,
+      headerColor: headerColor ?? this.headerColor,
+      headerHoverColor: headerHoverColor ?? this.headerHoverColor,
+      frozenPaneElevation: frozenPaneElevation ?? this.frozenPaneElevation,
     );
   }
 
   /// Linearly interpolate between two themes.
-  static SfDataGridThemeData lerp(
-      SfDataGridThemeData a, SfDataGridThemeData b, double t) {
-    assert(t != null);
+  static SfDataGridThemeData? lerp(
+      SfDataGridThemeData? a, SfDataGridThemeData? b, double t) {
     if (a == null && b == null) {
       return null;
     }
     return SfDataGridThemeData(
-        headerStyle:
-            DataGridHeaderCellStyle.lerp(a.headerStyle, b.headerStyle, t),
-        cellStyle: DataGridCellStyle.lerp(a.cellStyle, b.cellStyle, t),
-        gridLineColor: Color.lerp(a.gridLineColor, b.gridLineColor, t),
+        gridLineColor: Color.lerp(a!.gridLineColor, b!.gridLineColor, t),
         gridLineStrokeWidth:
             lerpDouble(a.gridLineStrokeWidth, b.gridLineStrokeWidth, t),
-        selectionStyle:
-            DataGridCellStyle.lerp(a.selectionStyle, b.selectionStyle, t),
+        selectionColor: Color.lerp(a.selectionColor, b.selectionColor, t),
         currentCellStyle: DataGridCurrentCellStyle.lerp(
             a.currentCellStyle, b.currentCellStyle, t),
         frozenPaneLineColor:
             Color.lerp(a.frozenPaneLineColor, b.frozenPaneLineColor, t),
         frozenPaneLineWidth:
-            lerpDouble(a.frozenPaneLineWidth, b.frozenPaneLineWidth, t));
+            lerpDouble(a.frozenPaneLineWidth, b.frozenPaneLineWidth, t),
+        sortIconColor: Color.lerp(a.sortIconColor, b.sortIconColor, t),
+        headerHoverColor: Color.lerp(a.headerHoverColor, b.headerHoverColor, t),
+        headerColor: Color.lerp(a.headerColor, b.headerColor, t),
+        frozenPaneElevation:
+            lerpDouble(a.frozenPaneElevation, b.frozenPaneElevation, t));
   }
 
   @override
@@ -454,29 +399,35 @@ class SfDataGridThemeData with Diagnosticable {
     if (other.runtimeType != runtimeType) {
       return false;
     }
-    final SfDataGridThemeData typedOther = other;
-    return typedOther.brightness == brightness &&
-        typedOther.headerStyle == headerStyle &&
-        typedOther.cellStyle == cellStyle &&
-        typedOther.gridLineColor == gridLineColor &&
-        typedOther.gridLineStrokeWidth == gridLineStrokeWidth &&
-        typedOther.selectionStyle == selectionStyle &&
-        typedOther.currentCellStyle == currentCellStyle &&
-        typedOther.frozenPaneLineWidth == frozenPaneLineWidth &&
-        typedOther.frozenPaneLineColor == frozenPaneLineColor;
+
+    return other is SfDataGridThemeData &&
+        other.brightness == brightness &&
+        other.gridLineColor == gridLineColor &&
+        other.gridLineStrokeWidth == gridLineStrokeWidth &&
+        other.selectionColor == selectionColor &&
+        other.currentCellStyle == currentCellStyle &&
+        other.frozenPaneLineWidth == frozenPaneLineWidth &&
+        other.frozenPaneLineColor == frozenPaneLineColor &&
+        other.sortIconColor == sortIconColor &&
+        other.headerHoverColor == headerHoverColor &&
+        other.headerColor == headerColor &&
+        other.frozenPaneElevation == frozenPaneElevation &&
+        other.frozenPaneElevation == frozenPaneElevation;
   }
 
   @override
   int get hashCode {
     final List<Object> values = <Object>[
-      headerStyle,
-      cellStyle,
       gridLineColor,
       gridLineStrokeWidth,
-      selectionStyle,
+      selectionColor,
       currentCellStyle,
       frozenPaneLineColor,
-      frozenPaneLineWidth
+      frozenPaneLineWidth,
+      sortIconColor,
+      headerHoverColor,
+      headerColor,
+      frozenPaneElevation,
     ];
     return hashList(values);
   }
@@ -487,19 +438,12 @@ class SfDataGridThemeData with Diagnosticable {
     final SfDataGridThemeData defaultData = SfDataGridThemeData();
     properties.add(EnumProperty<Brightness>('brightness', brightness,
         defaultValue: defaultData.brightness));
-    properties.add(DiagnosticsProperty<DataGridHeaderCellStyle>(
-        'headerStyle', headerStyle,
-        defaultValue: defaultData.headerStyle));
-    properties.add(DiagnosticsProperty<DataGridCellStyle>(
-        'cellStyle', cellStyle,
-        defaultValue: defaultData.cellStyle));
     properties.add(ColorProperty('gridLineColor', gridLineColor,
         defaultValue: defaultData.gridLineColor));
     properties.add(DoubleProperty('gridLineStrokeWidth', gridLineStrokeWidth,
         defaultValue: defaultData.gridLineStrokeWidth));
-    properties.add(DiagnosticsProperty<DataGridCellStyle>(
-        'selectionStyle', selectionStyle,
-        defaultValue: defaultData.selectionStyle));
+    properties.add(ColorProperty('selectionColor', selectionColor,
+        defaultValue: defaultData.selectionColor));
     properties.add(DiagnosticsProperty<DataGridCurrentCellStyle>(
         'currentCellStyle', currentCellStyle,
         defaultValue: defaultData.currentCellStyle));
@@ -507,122 +451,14 @@ class SfDataGridThemeData with Diagnosticable {
         defaultValue: defaultData.frozenPaneLineColor));
     properties.add(DoubleProperty('frozenPaneLineWidth', frozenPaneLineWidth,
         defaultValue: defaultData.frozenPaneLineWidth));
-  }
-}
-
-/// Holds the color and typography values for the cells in the [SfDataGrid].
-class DataGridCellStyle {
-  /// Create a [DataGridCellStyle] that's used to configure a style for the
-  /// cells in [SfDataGrid].
-  const DataGridCellStyle({this.backgroundColor, this.textStyle});
-
-  /// The background color of cells in [SfDataGrid].
-  final Color backgroundColor;
-
-  /// The style for text of cells in [SfDataGrid].
-  final TextStyle textStyle;
-
-  @override
-  int get hashCode {
-    final List<Object> values = <Object>[
-      textStyle,
-      backgroundColor,
-    ];
-    return hashList(values);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) {
-      return true;
-    }
-    if (other.runtimeType != runtimeType) {
-      return false;
-    }
-    return other is DataGridCellStyle &&
-        other.backgroundColor == backgroundColor &&
-        other.textStyle == textStyle;
-  }
-
-  /// Linearly interpolate between two styles.
-  static DataGridCellStyle lerp(
-      DataGridCellStyle a, DataGridCellStyle b, double t) {
-    assert(t != null);
-    if (a == null && b == null) {
-      return null;
-    }
-    return DataGridCellStyle(
-        backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
-        textStyle: TextStyle.lerp(a.textStyle, b.textStyle, t));
-  }
-}
-
-/// Holds the color and typography values for the header cells
-/// in the [SfDataGrid].
-class DataGridHeaderCellStyle extends DataGridCellStyle {
-  /// Create a [DataGridHeaderCellStyle] that's used to configure
-  /// a style for the header cells in [SfDataGrid].
-  const DataGridHeaderCellStyle(
-      {Color backgroundColor,
-      TextStyle textStyle,
-      this.sortIconColor,
-      this.hoverColor,
-      this.hoverTextStyle})
-      : super(backgroundColor: backgroundColor, textStyle: textStyle);
-
-  /// The color of the sort icon which indicates the ascending or descending
-  /// order.
-  final Color sortIconColor;
-
-  /// The background color of header cells when a pointer is hovering over it
-  /// in [SfDataGrid].
-  final Color hoverColor;
-
-  /// The style for text of header cells when a pointer is hovering over it
-  /// in [SfDataGrid].
-  final TextStyle hoverTextStyle;
-
-  @override
-  int get hashCode {
-    final List<Object> values = <Object>[
-      textStyle,
-      backgroundColor,
-      sortIconColor,
-      hoverColor,
-      hoverTextStyle
-    ];
-    return hashList(values);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) {
-      return true;
-    }
-    if (other.runtimeType != runtimeType) {
-      return false;
-    }
-    return other is DataGridHeaderCellStyle &&
-        other.backgroundColor == backgroundColor &&
-        other.textStyle == textStyle &&
-        other.sortIconColor == sortIconColor &&
-        other.hoverColor == hoverColor &&
-        other.hoverTextStyle == hoverTextStyle;
-  }
-
-  /// Linearly interpolate between two styles.
-  static DataGridHeaderCellStyle lerp(
-      DataGridHeaderCellStyle a, DataGridHeaderCellStyle b, double t) {
-    assert(t != null);
-    if (a == null && b == null) {
-      return null;
-    }
-    return DataGridHeaderCellStyle(
-        backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
-        textStyle: TextStyle.lerp(a.textStyle, b.textStyle, t),
-        sortIconColor: Color.lerp(a.sortIconColor, b.sortIconColor, t),
-        hoverColor: Color.lerp(a.hoverColor, b.hoverColor, t),
-        hoverTextStyle: TextStyle.lerp(a.hoverTextStyle, b.hoverTextStyle, t));
+    properties.add(ColorProperty('sortIconColor', sortIconColor,
+        defaultValue: defaultData.sortIconColor));
+    properties.add(ColorProperty('headerHoverColor', headerHoverColor,
+        defaultValue: defaultData.headerHoverColor));
+    properties.add(ColorProperty('headerColor', headerColor,
+        defaultValue: defaultData.headerColor));
+    properties.add(DoubleProperty('frozenPaneElevation', frozenPaneElevation,
+        defaultValue: defaultData.frozenPaneElevation));
   }
 }
 
@@ -630,7 +466,8 @@ class DataGridHeaderCellStyle extends DataGridCellStyle {
 class DataGridCurrentCellStyle {
   /// Create a [DataGridCurrentCellStyle] that's used to configure
   /// a style for the current cell in [SfDataGrid].
-  const DataGridCurrentCellStyle({this.borderColor, this.borderWidth});
+  const DataGridCurrentCellStyle(
+      {required this.borderColor, required this.borderWidth});
 
   /// The color of the border in current cell.
   final Color borderColor;
@@ -661,14 +498,13 @@ class DataGridCurrentCellStyle {
   }
 
   /// Linearly interpolate between two styles.
-  static DataGridCurrentCellStyle lerp(
-      DataGridCurrentCellStyle a, DataGridCurrentCellStyle b, double t) {
-    assert(t != null);
+  static DataGridCurrentCellStyle? lerp(
+      DataGridCurrentCellStyle? a, DataGridCurrentCellStyle? b, double t) {
     if (a == null && b == null) {
       return null;
     }
     return DataGridCurrentCellStyle(
-        borderColor: Color.lerp(a.borderColor, b.borderColor, t),
-        borderWidth: lerpDouble(a.borderWidth, b.borderWidth, t));
+        borderColor: Color.lerp(a!.borderColor, b!.borderColor, t)!,
+        borderWidth: lerpDouble(a.borderWidth, b.borderWidth, t)!);
   }
 }

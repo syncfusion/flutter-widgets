@@ -3,29 +3,19 @@ part of datagrid;
 @protected
 class _GridIndexResolver {
   static int getHeaderIndex(_DataGridSettings dataGridSettings) {
-    if (dataGridSettings == null) {
-      return 0;
-    }
-
     final headerIndex = dataGridSettings.headerLineCount - 1;
     return headerIndex < 0 ? 0 : headerIndex;
   }
 
   static int resolveToGridVisibleColumnIndex(
       _DataGridSettings dataGridSettings, int columnIndex) {
-    if (dataGridSettings == null) {
-      return -1;
-    }
-
     final indentColumnCount = 0;
     return columnIndex - indentColumnCount;
   }
 
   static int resolveToRowIndex(
       _DataGridSettings dataGridSettings, int rowIndex) {
-    if (dataGridSettings == null ||
-        dataGridSettings.container == null ||
-        rowIndex < 0) {
+    if (rowIndex < 0) {
       return -1;
     }
 
@@ -40,14 +30,12 @@ class _GridIndexResolver {
 
   static int resolveStartIndexBasedOnPosition(
       _DataGridSettings dataGridSettings) {
-    return dataGridSettings != null ? dataGridSettings.headerLineCount : 0;
+    return dataGridSettings.headerLineCount;
   }
 
   static int resolveToRecordIndex(
       _DataGridSettings dataGridSettings, int rowIndex) {
-    if (dataGridSettings == null ||
-        dataGridSettings.container == null ||
-        rowIndex < 0) {
+    if (rowIndex < 0) {
       return -1;
     }
 
@@ -58,7 +46,7 @@ class _GridIndexResolver {
     rowIndex = rowIndex -
         _GridIndexResolver.resolveStartIndexBasedOnPosition(dataGridSettings);
     if (rowIndex >= 0 &&
-        rowIndex <= dataGridSettings.source._effectiveDataSource.length - 1) {
+        rowIndex <= dataGridSettings.source._effectiveRows.length - 1) {
       return rowIndex;
     } else {
       return -1;
@@ -127,16 +115,15 @@ class _GridIndexResolver {
 @protected
 class _StackedHeaderHelper {
   static List<int> _getChildSequence(_DataGridSettings dataGridSettings,
-      StackedHeaderCell column, int rowIndex) {
+      StackedHeaderCell? column, int rowIndex) {
     final List<int> childSequenceNo = [];
 
-    if (column != null &&
-        (column.columnNames != null || column.columnNames.isNotEmpty)) {
+    if (column != null && column.columnNames.isNotEmpty) {
       final childColumns = column.columnNames;
       for (final child in childColumns) {
         final columns = dataGridSettings.columns;
         for (int i = 0; i < columns.length; ++i) {
-          if (columns[i].mappingName == child) {
+          if (columns[i].columnName == child) {
             childSequenceNo.add(i);
             break;
           }
@@ -148,16 +135,15 @@ class _StackedHeaderHelper {
 
   static int _getRowSpan(_DataGridSettings dataGridSettings, int rowindex,
       int columnIndex, bool isStackedHeader,
-      {String mappingName, StackedHeaderCell stackedHeaderCell}) {
+      {String? mappingName, StackedHeaderCell? stackedHeaderCell}) {
     int rowSpan = 0;
     int startIndex = 0;
     int endIndex = 0;
-    if (isStackedHeader) {
+    if (isStackedHeader && stackedHeaderCell != null) {
       final List<List<int>> spannedColumns =
           _getConsecutiveRanges(stackedHeaderCell._childColumnIndexes);
-      final List<int> spannedColumn = spannedColumns.singleWhere(
-          (element) => element.first == columnIndex,
-          orElse: () => null);
+      final List<int>? spannedColumn = spannedColumns
+          .singleWhereOrNull((element) => element.first == columnIndex);
       if (spannedColumn != null) {
         startIndex = spannedColumn.reduce(min);
         endIndex = startIndex + spannedColumn.length - 1;
@@ -171,8 +157,8 @@ class _StackedHeaderHelper {
 
     while (rowindex >= 0) {
       final stackedHeaderRow = dataGridSettings.stackedHeaderRows[rowindex];
-      for (final stackedColumn in stackedHeaderRow.cells) {
-        if (stackedColumn != null && isStackedHeader) {
+      for (final StackedHeaderCell stackedColumn in stackedHeaderRow.cells) {
+        if (isStackedHeader) {
           final List<List<int>> columnsRange =
               _getConsecutiveRanges(stackedColumn._childColumnIndexes);
           for (final column in columnsRange) {
@@ -181,9 +167,7 @@ class _StackedHeaderHelper {
               return rowSpan;
             }
           }
-        } else if (stackedColumn != null &&
-            (stackedColumn.columnNames != null ||
-                stackedColumn.columnNames.isNotEmpty)) {
+        } else if (stackedColumn.columnNames.isNotEmpty) {
           final children = stackedColumn.columnNames;
           for (int child = 0; child < children.length; child++) {
             if (children[child] == mappingName) {

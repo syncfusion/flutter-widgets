@@ -10,39 +10,24 @@ part of charts;
 class Trendline {
   /// Creating an argument constructor of Trendline class.
   Trendline(
-      {bool enableTooltip,
+      {this.enableTooltip = true,
       this.intercept,
       this.name,
       this.dashArray,
-      Color color,
-      TrendlineType type,
-      double backwardForecast,
-      double forwardForecast,
-      double opacity,
-      bool isVisible,
-      double width,
-      double animationDuration,
-      String valueField,
-      bool isVisibleInLegend,
-      LegendIconType legendIconType,
-      MarkerSettings markerSettings,
-      int polynomialOrder,
-      int period})
-      : enableTooltip = enableTooltip ?? true,
-        type = type ?? TrendlineType.linear,
-        backwardForecast = backwardForecast ?? 0,
-        forwardForecast = forwardForecast ?? 0,
-        opacity = opacity ?? 1,
-        valueField = valueField ?? 'high',
-        width = width ?? 2,
-        isVisible = isVisible ?? true,
-        isVisibleInLegend = isVisibleInLegend ?? true,
-        animationDuration = animationDuration ?? 1500,
-        markerSettings = markerSettings ?? MarkerSettings(),
-        legendIconType = legendIconType ?? LegendIconType.horizontalLine,
-        polynomialOrder = polynomialOrder ?? 2,
-        period = period ?? 2,
-        color = color ?? Colors.blue;
+      this.color = Colors.blue,
+      this.type = TrendlineType.linear,
+      this.backwardForecast = 0,
+      this.forwardForecast = 0,
+      this.opacity = 1,
+      this.isVisible = true,
+      this.width = 2,
+      this.animationDuration = 1500,
+      this.valueField = 'high',
+      this.isVisibleInLegend = true,
+      this.legendIconType = LegendIconType.horizontalLine,
+      this.markerSettings = const MarkerSettings(),
+      this.polynomialOrder = 2,
+      this.period = 2});
 
   ///Determines the animation time of trendline.
   ///
@@ -156,7 +141,7 @@ class Trendline {
   ///        ));
   ///}
   ///```
-  final List<double> dashArray;
+  final List<double>? dashArray;
 
   ///Enables the tooltip for trendlines.
   ///
@@ -213,7 +198,7 @@ class Trendline {
   ///        ));
   ///}
   ///```
-  final String name;
+  final String? name;
 
   ///Specifies the intercept value of the trendlines.
   ///
@@ -232,7 +217,7 @@ class Trendline {
   ///        ));
   ///}
   ///```
-  final double intercept;
+  final double? intercept;
 
   ///Determines the visiblity of the trendline.
   ///
@@ -395,9 +380,9 @@ class Trendline {
 class TrendlineRenderer {
   /// Creates an argument constructor for Trendline renderer class
   TrendlineRenderer(this._trendline) {
-    _opacity = _trendline.opacity ?? 1;
+    _opacity = _trendline.opacity;
     _dashArray = _trendline.dashArray;
-    _fillColor = _trendline.color ?? Colors.blue;
+    _fillColor = _trendline.color;
     _visible = _trendline.isVisible;
     _name = _trendline.name;
   }
@@ -405,24 +390,24 @@ class TrendlineRenderer {
   final Trendline _trendline;
 
   /// Holds the collection of cartesian data points
-  List<CartesianChartPoint<dynamic>> _pointsData;
-  CartesianSeriesRenderer _seriesRenderer;
-  _SlopeIntercept _slopeIntercept;
-  List<dynamic> _polynomialSlopes;
-  List<Path> _markerShapes;
-  List<Offset> _points;
+  List<CartesianChartPoint<dynamic>>? _pointsData;
+  late CartesianSeriesRenderer _seriesRenderer;
+  late _SlopeIntercept _slopeIntercept;
+  List<dynamic>? _polynomialSlopes;
+  late List<Path> _markerShapes;
+  late List<Offset> _points;
   //ignore: prefer_final_fields
-  double _opacity;
+  late double _opacity;
   //ignore: prefer_final_fields
-  List<double> _dashArray;
+  List<double>? _dashArray;
   //ignore: prefer_final_fields
-  Color _fillColor;
+  late Color _fillColor;
   //ignore: prefer_final_fields
-  bool _visible;
+  late bool _visible;
   //ignore: prefer_final_fields
-  String _name;
-  bool _isNeedRender;
-  AnimationController _animationController;
+  String? _name;
+  late bool _isNeedRender;
+  late AnimationController _animationController;
   //ignore: prefer_final_fields
   bool _isTrendlineRenderEvent = false;
 
@@ -445,13 +430,13 @@ class TrendlineRenderer {
     trendPoint.yValue = y;
     trendPoint.isVisible = true;
     seriesRenderer._minimumX =
-        math.min(seriesRenderer._minimumX, trendPoint.xValue);
+        math.min(seriesRenderer._minimumX!, trendPoint.xValue);
     seriesRenderer._minimumY =
-        math.min(seriesRenderer._minimumY, trendPoint.yValue);
+        math.min(seriesRenderer._minimumY!, trendPoint.yValue);
     seriesRenderer._maximumX =
-        math.max(seriesRenderer._maximumX, trendPoint.xValue);
+        math.max(seriesRenderer._maximumX!, trendPoint.xValue);
     seriesRenderer._maximumY =
-        math.max(seriesRenderer._maximumY, trendPoint.yValue);
+        math.max(seriesRenderer._maximumY!, trendPoint.yValue);
     return trendPoint;
   }
 
@@ -466,10 +451,14 @@ class TrendlineRenderer {
     final List<CartesianChartPoint<dynamic>> pts =
         <CartesianChartPoint<dynamic>>[];
     if (seriesRenderer._xAxisRenderer is DateTimeAxisRenderer) {
-      x1Linear = _increaseDateTimeForecast(seriesRenderer._xAxisRenderer,
-          xValues[0], -(_trendline.backwardForecast));
-      x2Linear = _increaseDateTimeForecast(seriesRenderer._xAxisRenderer,
-          xValues[xValues.length - 1], _trendline.forwardForecast);
+      x1Linear = _increaseDateTimeForecast(
+          seriesRenderer._xAxisRenderer as DateTimeAxisRenderer,
+          xValues[0],
+          -(_trendline.backwardForecast));
+      x2Linear = _increaseDateTimeForecast(
+          seriesRenderer._xAxisRenderer as DateTimeAxisRenderer,
+          xValues[xValues.length - 1],
+          _trendline.forwardForecast);
     } else {
       x1Linear = xValues[0] - _trendline.backwardForecast;
       x2Linear = xValues[xValues.length - 1] + _trendline.forwardForecast;
@@ -520,15 +509,19 @@ class TrendlineRenderer {
       CartesianSeriesRenderer seriesRenderer,
       _SlopeIntercept slopeInterceptExpo) {
     num x1, x2, x3;
-    final num midPoint = (points.length / 2).round();
+    final int midPoint = (points.length / 2).round();
     final List<CartesianChartPoint<dynamic>> ptsExpo =
         <CartesianChartPoint<dynamic>>[];
     if (seriesRenderer._xAxisRenderer is DateTimeAxisRenderer) {
-      x1 = _increaseDateTimeForecast(seriesRenderer._xAxisRenderer, xValues[0],
+      x1 = _increaseDateTimeForecast(
+          seriesRenderer._xAxisRenderer as DateTimeAxisRenderer,
+          xValues[0],
           -(_trendline.backwardForecast));
       x2 = xValues[midPoint - 1];
-      x3 = _increaseDateTimeForecast(seriesRenderer._xAxisRenderer,
-          xValues[xValues.length - 1], _trendline.forwardForecast);
+      x3 = _increaseDateTimeForecast(
+          seriesRenderer._xAxisRenderer as DateTimeAxisRenderer,
+          xValues[xValues.length - 1],
+          _trendline.forwardForecast);
     } else {
       x1 = xValues[0] - _trendline.backwardForecast;
       x2 = xValues[midPoint - 1];
@@ -586,15 +579,19 @@ class TrendlineRenderer {
       CartesianSeriesRenderer seriesRenderer,
       _SlopeIntercept slopeInterceptPow) {
     num x1, x2, x3;
-    final num midPoint = (points.length / 2).round();
+    final int midPoint = (points.length / 2).round();
     final List<CartesianChartPoint<dynamic>> ptsPow =
         <CartesianChartPoint<dynamic>>[];
     if (seriesRenderer._xAxisRenderer is DateTimeAxisRenderer) {
-      x1 = _increaseDateTimeForecast(seriesRenderer._xAxisRenderer, xValues[0],
+      x1 = _increaseDateTimeForecast(
+          seriesRenderer._xAxisRenderer as DateTimeAxisRenderer,
+          xValues[0],
           -(_trendline.backwardForecast));
       x2 = xValues[midPoint - 1];
-      x3 = _increaseDateTimeForecast(seriesRenderer._xAxisRenderer,
-          xValues[xValues.length - 1], _trendline.forwardForecast);
+      x3 = _increaseDateTimeForecast(
+          seriesRenderer._xAxisRenderer as DateTimeAxisRenderer,
+          xValues[xValues.length - 1],
+          _trendline.forwardForecast);
     } else {
       x1 = xValues[0] - _trendline.backwardForecast;
       x1 = x1 > -1 ? x1 : 0;
@@ -626,12 +623,13 @@ class TrendlineRenderer {
     while (index < points.length) {
       final CartesianChartPoint<dynamic> point = points[index];
       powerPoints.add(point.xValue ?? point.x);
-      final dynamic xVal =
-          point.xValue != null && (math.log(point.xValue)).isFinite
-              ? math.log(point.xValue)
-              : (point.x is String)
-                  ? point.xValue
-                  : point.x;
+      final dynamic xVal = point.xValue != null &&
+              (math.log(point.xValue)).isFinite
+          ? math.log(point.xValue)
+          : (seriesRenderer._xAxisRenderer is CategoryAxisRenderer ||
+                  seriesRenderer._xAxisRenderer is DateTimeCategoryAxisRenderer)
+              ? point.xValue
+              : point.x;
       xValues.add(xVal);
       if (!(seriesRenderer._series is RangeAreaSeries<dynamic, dynamic> ||
           seriesRenderer._series is RangeColumnSeries<dynamic, dynamic> ||
@@ -659,15 +657,19 @@ class TrendlineRenderer {
       CartesianSeriesRenderer seriesRenderer,
       _SlopeIntercept slopeInterceptLog) {
     num x1, x2, x3;
-    final num midPoint = (points.length / 2).round();
+    final int midPoint = (points.length / 2).round();
     final List<CartesianChartPoint<dynamic>> ptsLog =
         <CartesianChartPoint<dynamic>>[];
     if (seriesRenderer._xAxisRenderer is DateTimeAxisRenderer) {
-      x1 = _increaseDateTimeForecast(seriesRenderer._xAxisRenderer, xValues[0],
+      x1 = _increaseDateTimeForecast(
+          seriesRenderer._xAxisRenderer as DateTimeAxisRenderer,
+          xValues[0],
           -(_trendline.backwardForecast));
       x2 = xValues[midPoint - 1];
-      x3 = _increaseDateTimeForecast(seriesRenderer._xAxisRenderer,
-          xValues[xValues.length - 1], _trendline.forwardForecast);
+      x3 = _increaseDateTimeForecast(
+          seriesRenderer._xAxisRenderer as DateTimeAxisRenderer,
+          xValues[xValues.length - 1],
+          _trendline.forwardForecast);
     } else {
       x1 = xValues[0] - _trendline.backwardForecast;
       x2 = xValues[midPoint - 1];
@@ -700,12 +702,13 @@ class TrendlineRenderer {
     while (index < points.length) {
       final CartesianChartPoint<dynamic> point = points[index];
       xPointsLgr.add(point.xValue ?? point.x);
-      final dynamic xVal =
-          (point.xValue != null && (math.log(point.xValue)).isFinite)
-              ? math.log(point.xValue)
-              : (point.x is String)
-                  ? point.xValue
-                  : point.x;
+      final dynamic xVal = (point.xValue != null &&
+              (math.log(point.xValue)).isFinite)
+          ? math.log(point.xValue)
+          : (seriesRenderer._xAxisRenderer is CategoryAxisRenderer ||
+                  seriesRenderer._xAxisRenderer is DateTimeCategoryAxisRenderer)
+              ? point.xValue
+              : point.x;
       xLogValue.add(xVal);
       if (!(seriesRenderer._series is RangeAreaSeries<dynamic, dynamic> ||
           seriesRenderer._series is RangeColumnSeries<dynamic, dynamic> ||
@@ -733,24 +736,26 @@ class TrendlineRenderer {
       CartesianSeriesRenderer seriesRenderer) {
     //ignore: unused_local_variable
     final int midPoint = (points.length / 2).round();
-    List<dynamic> pts = <dynamic>[];
-    _polynomialSlopes = List<dynamic>(_trendline.polynomialOrder + 1);
+    List<CartesianChartPoint<dynamic>> pts = <CartesianChartPoint<dynamic>>[];
+    _polynomialSlopes =
+        List<dynamic>.filled(_trendline.polynomialOrder + 1, null);
 
     for (int i = 0; i < xValues.length; i++) {
       final dynamic xVal = xValues[i];
       final num yVal = yValues[i];
       for (int j = 0; j <= _trendline.polynomialOrder; j++) {
-        _polynomialSlopes[j] ??= 0;
-        _polynomialSlopes[j] += pow(xVal.toDouble(), j) * yVal;
+        _polynomialSlopes![j] ??= 0;
+        _polynomialSlopes![j] += pow(xVal.toDouble(), j) * yVal;
       }
     }
 
     final List<dynamic> numArray =
-        List<dynamic>(2 * _trendline.polynomialOrder + 1);
-    final List<dynamic> matrix = List<dynamic>(_trendline.polynomialOrder + 1);
+        List<dynamic>.filled(2 * _trendline.polynomialOrder + 1, null);
+    final List<dynamic> matrix =
+        List<dynamic>.filled(_trendline.polynomialOrder + 1, null);
 
     for (int i = 0; i <= _trendline.polynomialOrder; i++) {
-      matrix[i] = List<dynamic>(_trendline.polynomialOrder + 1);
+      matrix[i] = List<dynamic>.filled(_trendline.polynomialOrder + 1, null);
     }
 
     num num1 = 0;
@@ -769,7 +774,7 @@ class TrendlineRenderer {
         matrix[i][j] = numArray[i + j];
       }
     }
-    if (!_gaussJordanElimination(matrix, _polynomialSlopes)) {
+    if (!_gaussJordanElimination(matrix, _polynomialSlopes!)) {
       _polynomialSlopes = null;
     }
     pts = _getPoints(points, xValues, yValues, seriesRenderer);
@@ -810,7 +815,7 @@ class TrendlineRenderer {
       CartesianSeriesRenderer seriesRenderer) {
     //ignore: unused_local_variable
     final int midPoint = (points.length / 2).round();
-    final List<dynamic> _polynomialSlopesList = _polynomialSlopes;
+    final List<dynamic> _polynomialSlopesList = _polynomialSlopes!;
     final List<CartesianChartPoint<dynamic>> pts =
         <CartesianChartPoint<dynamic>>[];
 
@@ -819,11 +824,11 @@ class TrendlineRenderer {
     num yVal;
     final dynamic _backwardForecast =
         seriesRenderer._xAxisRenderer is DateTimeAxisRenderer
-            ? _getForecastDate(seriesRenderer._xAxisRenderer, false)
+            ? _getForecastDate(seriesRenderer._xAxisRenderer!, false)
             : _trendline.backwardForecast;
     final dynamic _forwardForecast =
         seriesRenderer._xAxisRenderer is DateTimeAxisRenderer
-            ? _getForecastDate(seriesRenderer._xAxisRenderer, true)
+            ? _getForecastDate(seriesRenderer._xAxisRenderer!, true)
             : _trendline.forwardForecast;
 
     for (int index = 1; index <= _polynomialSlopesList.length; index++) {
@@ -862,7 +867,7 @@ class TrendlineRenderer {
   List<CartesianChartPoint<dynamic>> getMovingAveragePoints(
       List<CartesianChartPoint<dynamic>> points,
       List<dynamic> xValues,
-      List<num> yValues,
+      List<num?> yValues,
       CartesianSeriesRenderer seriesRenderer) {
     final List<CartesianChartPoint<dynamic>> pts =
         <CartesianChartPoint<dynamic>>[];
@@ -870,7 +875,7 @@ class TrendlineRenderer {
         ? points.length - 1
         : _trendline.period;
     periods = max(2, periods);
-    num y;
+    int? y;
     dynamic x;
     int count;
     int nullCount;
@@ -881,9 +886,9 @@ class TrendlineRenderer {
         if (j >= yValues.length || yValues[j] == null) {
           nullCount++;
         }
-        y += j >= yValues.length ? 0 : yValues[j];
+        y = y! + (j >= yValues.length ? 0 : yValues[j]!).toInt();
       }
-      y = periods - nullCount <= 0 ? null : y / (periods - nullCount);
+      y = ((periods - nullCount) <= 0) ? null : (y! ~/ (periods - nullCount));
       if (y != null && !y.isNaN && index + periods < xValues.length + 1) {
         x = xValues[periods - 1 + index];
         pts.add(getDataPoint(
@@ -939,14 +944,13 @@ class TrendlineRenderer {
       yAvg += yValues[index];
       xyAvg += xValues[index].toDouble() * yValues[index].toDouble();
       xxAvg += xValues[index].toDouble() * xValues[index].toDouble();
-      // yyAvg += yValues[index].toDouble() * yValues[index].toDouble();
       index++;
     }
     if (_trendline.intercept != null &&
         _trendline.intercept != 0 &&
         (_trendline.type == TrendlineType.linear ||
             _trendline.type == TrendlineType.exponential)) {
-      intercept = _trendline.intercept.toDouble();
+      intercept = _trendline.intercept!.toDouble();
       switch (_trendline.type) {
         case TrendlineType.linear:
           slope = (xyAvg - (intercept * xAvg)) / xxAvg;
@@ -977,25 +981,25 @@ class TrendlineRenderer {
   /// To set initial data source for trendlines
   void _initDataSource(
       SfCartesianChart chart, CartesianSeriesRenderer seriesRenderer) {
-    if (_pointsData.isNotEmpty) {
+    if (_pointsData!.isNotEmpty) {
       switch (_trendline.type) {
         case TrendlineType.linear:
-          _setLinearRange(_pointsData, seriesRenderer);
+          _setLinearRange(_pointsData!, seriesRenderer);
           break;
         case TrendlineType.exponential:
-          _setExponentialRange(_pointsData, seriesRenderer);
+          _setExponentialRange(_pointsData!, seriesRenderer);
           break;
         case TrendlineType.power:
-          _setPowerRange(_pointsData, seriesRenderer);
+          _setPowerRange(_pointsData!, seriesRenderer);
           break;
         case TrendlineType.logarithmic:
-          _setLogarithmicRange(_pointsData, seriesRenderer);
+          _setLogarithmicRange(_pointsData!, seriesRenderer);
           break;
         case TrendlineType.polynomial:
-          _setPolynomialRange(_pointsData, seriesRenderer);
+          _setPolynomialRange(_pointsData!, seriesRenderer);
           break;
         case TrendlineType.movingAverage:
-          _setMovingAverageRange(_pointsData, seriesRenderer);
+          _setMovingAverageRange(_pointsData!, seriesRenderer);
           break;
         default:
           break;
@@ -1008,25 +1012,25 @@ class TrendlineRenderer {
       SfCartesianChartState _chartState) {
     final Rect rect = _calculatePlotOffset(
         _chartState._chartAxis._axisClipRect,
-        Offset(seriesRenderer._xAxisRenderer._axis.plotOffset,
-            seriesRenderer._yAxisRenderer._axis.plotOffset));
+        Offset(seriesRenderer._xAxisRenderer!._axis.plotOffset,
+            seriesRenderer._yAxisRenderer!._axis.plotOffset));
     _points = <Offset>[];
     if (seriesRenderer._series.trendlines != null && _pointsData != null) {
-      for (int i = 0; i < _pointsData.length; i++) {
-        if (_pointsData[i].x != null && _pointsData[i].y != null) {
-          final _ChartLocation currentChartPoint = _pointsData[i].markerPoint =
+      for (int i = 0; i < _pointsData!.length; i++) {
+        if (_pointsData![i].x != null && _pointsData![i].y != null) {
+          final _ChartLocation currentChartPoint = _pointsData![i].markerPoint =
               _calculatePoint(
                   (seriesRenderer._xAxisRenderer is DateTimeAxisRenderer)
-                      ? _pointsData[i].xValue
-                      : _pointsData[i].x,
-                  _pointsData[i].y,
-                  seriesRenderer._xAxisRenderer,
-                  seriesRenderer._yAxisRenderer,
+                      ? _pointsData![i].xValue
+                      : _pointsData![i].x,
+                  _pointsData![i].y,
+                  seriesRenderer._xAxisRenderer!,
+                  seriesRenderer._yAxisRenderer!,
                   _chartState._requireInvertedAxis,
                   seriesRenderer._series,
                   rect);
           _points.add(Offset(currentChartPoint.x, currentChartPoint.y));
-          _pointsData[i].region = Rect.fromLTRB(
+          _pointsData![i].region = Rect.fromLTRB(
               _points[i].dx, _points[i].dy, _points[i].dx, _points[i].dy);
         }
       }
@@ -1037,14 +1041,14 @@ class TrendlineRenderer {
   /// Calculate marker shapes for trendlines
   void _calculateMarkerShapesPoint(CartesianSeriesRenderer seriesRenderer) {
     _markerShapes = <Path>[];
-    for (int i = 0; i < _pointsData.length; i++) {
-      final CartesianChartPoint<dynamic> point = _pointsData[i];
+    for (int i = 0; i < _pointsData!.length; i++) {
+      final CartesianChartPoint<dynamic> point = _pointsData![i];
       final DataMarkerType markerType = _trendline.markerSettings.shape;
       final Size size = Size(
           _trendline.markerSettings.width, _trendline.markerSettings.height);
       _markerShapes.add(_getMarkerShapesPath(
           markerType,
-          Offset(point.markerPoint.x, point.markerPoint.y),
+          Offset(point.markerPoint!.x, point.markerPoint!.y),
           size,
           seriesRenderer));
     }
@@ -1052,14 +1056,14 @@ class TrendlineRenderer {
 
   /// To set data source for trendlines
   void _setDataSource(
-      CartesianSeriesRenderer seriesRenderer, SfCartesianChart chart) {
+      CartesianSeriesRenderer? seriesRenderer, SfCartesianChart chart) {
     if (seriesRenderer?._series != null) {
-      _seriesRenderer = seriesRenderer;
+      _seriesRenderer = seriesRenderer!;
       _pointsData = seriesRenderer._dataPoints;
       if (seriesRenderer is _StackedSeriesRenderer) {
-        for (int i = 0; i < _pointsData.length; i++) {
-          _pointsData[i].y = seriesRenderer._stackingValues[0].endValues[i];
-          _pointsData[i].yValue =
+        for (int i = 0; i < _pointsData!.length; i++) {
+          _pointsData![i].y = seriesRenderer._stackingValues[0].endValues[i];
+          _pointsData![i].yValue =
               seriesRenderer._stackingValues[0].endValues[i];
         }
       }
@@ -1068,8 +1072,9 @@ class TrendlineRenderer {
   }
 
   /// To obtain control points for type curve trendlines
-  List<double> _getControlPoints(List<Offset> _dataPoints, int index) {
-    List<num> yCoef = <num>[];
+  List<Offset> _getControlPoints(List<Offset> _dataPoints, int index) {
+    List<num?> yCoef = <num?>[];
+    final List<Offset> controlPoints = <Offset>[];
     final List<num> xValues = <num>[];
     final List<num> yValues = <num>[];
     for (int i = 0; i < _dataPoints.length; i++) {
@@ -1078,14 +1083,14 @@ class TrendlineRenderer {
     }
     yCoef = _naturalSpline(
         xValues, yValues, yCoef, xValues.length, SplineType.natural);
-    return _calculateControlPoints(xValues, yValues, yCoef[index].toDouble(),
-        yCoef[index + 1].toDouble(), index);
+    return _calculateControlPoints(xValues, yValues, yCoef[index]!.toDouble(),
+        yCoef[index + 1]!.toDouble(), index, controlPoints);
   }
 
   /// It returns the date-time values of trendline series
   int _increaseDateTimeForecast(
       DateTimeAxisRenderer axisRenderer, int value, num interval) {
-    final DateTimeAxis axis = axisRenderer._axis;
+    final DateTimeAxis axis = axisRenderer._axis as DateTimeAxis;
     DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(value);
     switch (axis.intervalType) {
       case DateTimeIntervalType.years:
@@ -1122,9 +1127,9 @@ class TrendlineRenderer {
   bool _gaussJordanElimination(
       List<dynamic> matrix, List<dynamic> _polynomialSlopesList) {
     final int length = matrix.length;
-    final List<dynamic> numArray1 = List<dynamic>(length);
-    final List<dynamic> numArray2 = List<dynamic>(length);
-    final List<dynamic> numArray3 = List<dynamic>(length);
+    final List<dynamic> numArray1 = List<dynamic>.filled(length, null);
+    final List<dynamic> numArray2 = List<dynamic>.filled(length, null);
+    final List<dynamic> numArray3 = List<dynamic>.filled(length, null);
 
     for (int index = 0; index < length; index++) {
       numArray3[index] = 0;
@@ -1159,9 +1164,9 @@ class TrendlineRenderer {
           matrix[index3][index4_1] = num2;
           ++index4_1;
         }
-        final num num3 = _polynomialSlopes[index2];
-        _polynomialSlopes[index2] = _polynomialSlopes[index3];
-        _polynomialSlopes[index3] = num3;
+        final num num3 = _polynomialSlopes![index2];
+        _polynomialSlopes![index2] = _polynomialSlopes![index3];
+        _polynomialSlopes![index3] = num3;
       }
       numArray2[index1] = index2;
       numArray1[index1] = index3;
@@ -1175,7 +1180,7 @@ class TrendlineRenderer {
         matrix[index3][iindex4] *= num4;
         ++iindex4;
       }
-      _polynomialSlopes[index3] *= num4;
+      _polynomialSlopes![index3] *= num4;
       int iandex4 = 0;
       while (iandex4 < length) {
         if (iandex4 != index3) {
@@ -1186,7 +1191,7 @@ class TrendlineRenderer {
             matrix[iandex4][index5] -= matrix[index3][index5] * num2;
             ++index5;
           }
-          _polynomialSlopes[iandex4] -= _polynomialSlopes[index3] * num2;
+          _polynomialSlopes![iandex4] -= _polynomialSlopes![index3] * num2;
         }
         ++iandex4;
       }
@@ -1220,12 +1225,12 @@ class TrendlineRenderer {
     for (dynamic x = start;
         polyPoints.length <= 100;
         x += (end - start) / 100) {
-      final dynamic y = _getPolynomialYValue(_polynomialSlopes, x);
+      final dynamic y = _getPolynomialYValue(_polynomialSlopes!, x);
       final _ChartLocation position = _calculatePoint(
           x,
           y,
-          seriesRenderer._xAxisRenderer,
-          seriesRenderer._yAxisRenderer,
+          seriesRenderer._xAxisRenderer!,
+          seriesRenderer._yAxisRenderer!,
           _chartState._requireInvertedAxis,
           seriesRenderer._series,
           _chartState._chartAxis._axisClipRect);
@@ -1291,6 +1296,6 @@ class TrendlineRenderer {
 }
 
 class _SlopeIntercept {
-  num slope;
-  num intercept;
+  late num slope;
+  late num intercept;
 }

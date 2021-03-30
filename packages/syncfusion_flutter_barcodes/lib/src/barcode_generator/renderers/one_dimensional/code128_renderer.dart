@@ -10,7 +10,7 @@ import 'symbology_base_renderer.dart';
 /// Represents the code128 renderer class
 class Code128Renderer extends SymbologyRenderer {
   /// Creates the code128 renderer
-  Code128Renderer({Symbology symbology}) : super(symbology: symbology) {
+  Code128Renderer({Symbology? symbology}) : super(symbology: symbology) {
     code128ACharacterSets = <String>[];
 
     code128ACharacterSets.add(' ');
@@ -299,13 +299,13 @@ class Code128Renderer extends SymbologyRenderer {
   static const String _fnc4 = '\u00f4';
 
   /// Represents the supported symbol character of code128A
-  List<String> code128ACharacterSets;
+  late List<String> code128ACharacterSets;
 
   /// Represents the supported symbol character of code128B
-  List<String> code128BCharacterSets;
+  late List<String> code128BCharacterSets;
 
   /// Represents the supported symbol character of code128C
-  List<String> code128CCharacterSets;
+  late List<String> code128CCharacterSets;
 
   /// Returns the byte value of supported symbol
   ///
@@ -523,7 +523,7 @@ class Code128Renderer extends SymbologyRenderer {
   /// Method to validate the corresponding code set based on the input
   int _getValidatedCode(int start, int previousCodeSet, String value) {
     CodeType codeType = _getCodeType(start, value);
-    final int currentCodeType =
+    final int? currentCodeType =
         _getValidatedCodeTypes(start, previousCodeSet, value, codeType);
     if (currentCodeType != null) {
       return currentCodeType;
@@ -565,7 +565,7 @@ class Code128Renderer extends SymbologyRenderer {
   }
 
   /// Method to get the validated types
-  int _getValidatedCodeTypes(
+  int? _getValidatedCodeTypes(
       int start, int previousCodeSet, String value, CodeType codeType) {
     if (codeType == CodeType.singleDigit) {
       if (previousCodeSet == _codeA) {
@@ -638,13 +638,13 @@ class Code128Renderer extends SymbologyRenderer {
     final Paint paint = getBarPaint(foregroundColor);
     final List<List<int>> encodedValue = _getEncodedValue(value);
     final int totalBarLength = _getTotalBarLength(encodedValue);
-    double left = symbology.module == null
+    double left = symbology?.module == null
         ? offset.dx
         : getLeftPosition(
-            totalBarLength, symbology.module, size.width, offset.dx);
+            totalBarLength, symbology?.module, size.width, offset.dx);
     double ratio = 0;
-    if (symbology.module != null) {
-      ratio = symbology.module.toDouble();
+    if (symbology?.module != null) {
+      ratio = symbology!.module!.toDouble();
     } else {
       // Calculates the bar length based on number of individual bar codes
       final int singleModule = (size.width ~/ totalBarLength).toInt();

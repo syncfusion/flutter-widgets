@@ -7,19 +7,19 @@ class _DecompressorHuffmanTree {
 
   //Fields
   static const int _maxBitLength = 15;
-  List<int> _tree;
-  static _DecompressorHuffmanTree _lengthTree;
-  static _DecompressorHuffmanTree _distanceTree;
+  late List<int> _tree;
+  static _DecompressorHuffmanTree? _lengthTree;
+  static _DecompressorHuffmanTree? _distanceTree;
 
   //Properties
-  static _DecompressorHuffmanTree get lengthTree {
+  static _DecompressorHuffmanTree? get lengthTree {
     if (_lengthTree == null) {
       _initialize();
     }
     return _lengthTree;
   }
 
-  static _DecompressorHuffmanTree get distanceTree {
+  static _DecompressorHuffmanTree? get distanceTree {
     if (_distanceTree == null) {
       _initialize();
     }
@@ -64,17 +64,17 @@ class _DecompressorHuffmanTree {
         List<int>.filled(_maxBitLength + 1, 0, growable: true);
     final List<int> nextCode =
         List<int>.filled(_maxBitLength + 1, 0, growable: true);
-    int treeSize;
-    int code = 0;
+    int? treeSize;
+    int? code = 0;
     final Map<String, dynamic> result =
         _prepareData(blCount, nextCode, lengths, treeSize);
     treeSize = result['treeSize'];
     code = result['code'];
-    _tree = _treeFromData(blCount, nextCode, lengths, code, treeSize);
+    _tree = _treeFromData(blCount, nextCode, lengths, code, treeSize!);
   }
 
   Map<String, dynamic> _prepareData(
-      List<int> blCount, List<int> nextCode, List<int> lengths, int treeSize) {
+      List<int> blCount, List<int> nextCode, List<int> lengths, int? treeSize) {
     int code = 0;
     treeSize = 512;
     for (int i = 0; i < lengths.length; i++) {
@@ -90,19 +90,19 @@ class _DecompressorHuffmanTree {
       if (bits >= 10) {
         final int start = nextCode[bits] & 0x1ff80;
         final int end = code & 0x1ff80;
-        treeSize += (end - start) >> (16 - bits);
+        treeSize = treeSize! + ((end - start) >> (16 - bits));
       }
     }
     return <String, dynamic>{'treeSize': treeSize, 'code': code};
   }
 
   List<int> _treeFromData(List<int> blCount, List<int> nextCode,
-      List<int> lengths, int code, int treeSize) {
+      List<int> lengths, int? code, int treeSize) {
     final List<int> tree = List<int>.filled(treeSize, 0, growable: true);
     int pointer = 512;
     const int increment = 1 << 7;
     for (int bits = _maxBitLength; bits >= 10; bits--) {
-      final int end = code & 0x1ff80;
+      final int end = code! & 0x1ff80;
       code -= blCount[bits] << (16 - bits);
       final int start = code & 0x1ff80;
       for (int i = start; i < end; i += increment) {

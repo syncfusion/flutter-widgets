@@ -10,11 +10,11 @@ class _InBuffer {
   }
 
   //Fields
-  List<int> _buffer;
-  int _begin;
-  int _end;
-  int _bBuffer;
-  int _bInBuffer;
+  List<int>? _buffer;
+  late int _begin;
+  late int _end;
+  late int _bBuffer;
+  late int _bInBuffer;
 
   //Properties
   int get bytes => (_end - _begin) + (_bInBuffer ~/ 8);
@@ -26,32 +26,32 @@ class _InBuffer {
       if (_needsInput()) {
         return false;
       }
-      _bBuffer |= _buffer[_begin++].toUnsigned(32) << _bInBuffer;
+      _bBuffer |= _buffer![_begin++].toUnsigned(32) << _bInBuffer;
       _bInBuffer += 8;
       if (_bInBuffer < count) {
         if (_needsInput()) {
           return false;
         }
-        _bBuffer |= _buffer[_begin++].toUnsigned(32) << _bInBuffer;
+        _bBuffer |= _buffer![_begin++].toUnsigned(32) << _bInBuffer;
         _bInBuffer += 8;
       }
     }
     return true;
   }
 
-  int _load16Bits() {
+  int? _load16Bits() {
     if (_bInBuffer < 8) {
       if (_begin < _end) {
-        _bBuffer |= _buffer[_begin++].toUnsigned(32) << _bInBuffer;
+        _bBuffer |= _buffer![_begin++].toUnsigned(32) << _bInBuffer;
         _bInBuffer += 8;
       }
       if (_begin < _end) {
-        _bBuffer |= _buffer[_begin++].toUnsigned(32) << _bInBuffer;
+        _bBuffer |= _buffer![_begin++].toUnsigned(32) << _bInBuffer;
         _bInBuffer += 8;
       }
     } else if (_bInBuffer < 16) {
       if (_begin < _end) {
-        _bBuffer |= _buffer[_begin++].toUnsigned(32) << _bInBuffer;
+        _bBuffer |= _buffer![_begin++].toUnsigned(32) << _bInBuffer;
         _bInBuffer += 8;
       }
     }
@@ -72,10 +72,10 @@ class _InBuffer {
     return result;
   }
 
-  int _copyTo(List<int> output, int offset, int length) {
+  int _copyTo(List<int>? output, int offset, int length) {
     int bitBuffer = 0;
     while (_bInBuffer > 0 && length > 0) {
-      output[offset++] = _bBuffer.toUnsigned(8);
+      output![offset++] = _bBuffer.toUnsigned(8);
       _bBuffer >>= 8;
       _bInBuffer -= 8;
       length--;
@@ -89,9 +89,11 @@ class _InBuffer {
       length = avail;
     }
     for (int i = 0;
-        i < length && i + _begin < _buffer.length && i + offset < output.length;
+        i < length &&
+            i + _begin < _buffer!.length &&
+            i + offset < output!.length;
         i++) {
-      output[offset + i] = _buffer[_begin + i];
+      output[offset + i] = _buffer![_begin + i];
     }
     _begin += length;
     return bitBuffer + length;
@@ -101,7 +103,7 @@ class _InBuffer {
     return _begin == _end;
   }
 
-  void _setInput(List<int> buffer, int offset, int length) {
+  void _setInput(List<int>? buffer, int offset, int length) {
     _buffer = buffer;
     _begin = offset;
     _end = offset + length;

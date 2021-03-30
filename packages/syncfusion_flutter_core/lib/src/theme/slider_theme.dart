@@ -8,7 +8,7 @@ class SfSliderTheme extends InheritedTheme {
   /// Applies the given theme [data] to [child].
   ///
   /// The [data] and [child] arguments must not be null.
-  const SfSliderTheme({Key key, this.data, this.child})
+  const SfSliderTheme({Key? key, required this.data, required this.child})
       : super(key: key, child: child);
 
   /// Specifies the color and typography values for descendant slider widgets.
@@ -24,7 +24,7 @@ class SfSliderTheme extends InheritedTheme {
   /// Defaults to [SfThemeData.sliderThemeData] if there is no
   /// [SfSliderTheme] in the given build context.
   static SfSliderThemeData of(BuildContext context) {
-    final SfSliderTheme sliderTheme =
+    final SfSliderTheme? sliderTheme =
         context.dependOnInheritedWidgetOfExactType<SfSliderTheme>();
     return sliderTheme?.data ?? SfTheme.of(context).sliderThemeData;
   }
@@ -34,7 +34,7 @@ class SfSliderTheme extends InheritedTheme {
 
   @override
   Widget wrap(BuildContext context, Widget child) {
-    final SfSliderTheme ancestorTheme =
+    final SfSliderTheme? ancestorTheme =
         context.findAncestorWidgetOfExactType<SfSliderTheme>();
     return identical(this, ancestorTheme)
         ? child
@@ -82,52 +82,50 @@ class SfSliderThemeData with Diagnosticable {
   ///
   /// If any of the values are null, the default values will be set.
   factory SfSliderThemeData(
-      {Brightness brightness,
-      double activeTrackHeight,
-      double inactiveTrackHeight,
-      Size tickSize,
-      Size minorTickSize,
-      Offset tickOffset,
-      Offset labelOffset,
-      TextStyle inactiveLabelStyle,
-      TextStyle activeLabelStyle,
-      TextStyle tooltipTextStyle,
-      Color inactiveTrackColor,
-      Color activeTrackColor,
-      Color thumbColor,
-      Color activeTickColor,
-      Color inactiveTickColor,
-      Color disabledActiveTickColor,
-      Color disabledInactiveTickColor,
-      Color activeMinorTickColor,
-      Color inactiveMinorTickColor,
-      Color disabledActiveMinorTickColor,
-      Color disabledInactiveMinorTickColor,
-      Color overlayColor,
-      Color inactiveDivisorColor,
-      Color activeDivisorColor,
-      Color disabledActiveTrackColor,
-      Color disabledInactiveTrackColor,
-      Color disabledActiveDivisorColor,
-      Color disabledInactiveDivisorColor,
-      Color disabledThumbColor,
-      Color tooltipBackgroundColor,
-      Color thumbStrokeColor,
-      Color activeDivisorStrokeColor,
-      Color inactiveDivisorStrokeColor,
-      double trackCornerRadius,
-      double overlayRadius,
-      double thumbRadius,
-      double activeDivisorRadius,
-      double inactiveDivisorRadius,
-      double thumbStrokeWidth,
-      double activeDivisorStrokeWidth,
-      double inactiveDivisorStrokeWidth}) {
+      {Brightness? brightness,
+      double? activeTrackHeight,
+      double? inactiveTrackHeight,
+      Size? tickSize,
+      Size? minorTickSize,
+      Offset? tickOffset,
+      Offset? labelOffset,
+      TextStyle? inactiveLabelStyle,
+      TextStyle? activeLabelStyle,
+      TextStyle? tooltipTextStyle,
+      Color? inactiveTrackColor,
+      Color? activeTrackColor,
+      Color? thumbColor,
+      Color? activeTickColor,
+      Color? inactiveTickColor,
+      Color? disabledActiveTickColor,
+      Color? disabledInactiveTickColor,
+      Color? activeMinorTickColor,
+      Color? inactiveMinorTickColor,
+      Color? disabledActiveMinorTickColor,
+      Color? disabledInactiveMinorTickColor,
+      Color? overlayColor,
+      Color? inactiveDivisorColor,
+      Color? activeDivisorColor,
+      Color? disabledActiveTrackColor,
+      Color? disabledInactiveTrackColor,
+      Color? disabledActiveDivisorColor,
+      Color? disabledInactiveDivisorColor,
+      Color? disabledThumbColor,
+      Color? tooltipBackgroundColor,
+      Color? thumbStrokeColor,
+      Color? activeDivisorStrokeColor,
+      Color? inactiveDivisorStrokeColor,
+      double? trackCornerRadius,
+      double? overlayRadius,
+      double? thumbRadius,
+      double? activeDivisorRadius,
+      double? inactiveDivisorRadius,
+      double? thumbStrokeWidth,
+      double? activeDivisorStrokeWidth,
+      double? inactiveDivisorStrokeWidth}) {
     brightness = brightness ?? Brightness.light;
     activeTrackHeight ??= 6.0;
     inactiveTrackHeight ??= 4.0;
-    tickSize ??= const Size(1.0, 8.0);
-    minorTickSize ??= const Size(1.0, 5.0);
     overlayRadius ??= 24.0;
     thumbRadius ??= 10.0;
     activeTickColor ??= const Color.fromRGBO(158, 158, 158, 1);
@@ -191,95 +189,95 @@ class SfSliderThemeData with Diagnosticable {
   /// create intermediate themes based on two themes created with the
   /// [SfSliderThemeData] constructor.
   const SfSliderThemeData.raw({
-    @required this.brightness,
-    @required this.activeTrackHeight,
-    @required this.inactiveTrackHeight,
-    @required this.tickSize,
-    @required this.minorTickSize,
-    @required this.tickOffset,
-    @required this.labelOffset,
-    @required this.inactiveLabelStyle,
-    @required this.activeLabelStyle,
-    @required this.tooltipTextStyle,
-    @required this.inactiveTrackColor,
-    @required this.activeTrackColor,
-    @required this.thumbColor,
-    @required this.thumbStrokeColor,
-    @required this.activeDivisorStrokeColor,
-    @required this.inactiveDivisorStrokeColor,
-    @required this.activeTickColor,
-    @required this.inactiveTickColor,
-    @required this.disabledActiveTickColor,
-    @required this.disabledInactiveTickColor,
-    @required this.activeMinorTickColor,
-    @required this.inactiveMinorTickColor,
-    @required this.disabledActiveMinorTickColor,
-    @required this.disabledInactiveMinorTickColor,
-    @required this.overlayColor,
-    @required this.inactiveDivisorColor,
-    @required this.activeDivisorColor,
-    @required this.disabledActiveTrackColor,
-    @required this.disabledInactiveTrackColor,
-    @required this.disabledActiveDivisorColor,
-    @required this.disabledInactiveDivisorColor,
-    @required this.disabledThumbColor,
-    @required this.tooltipBackgroundColor,
-    @required this.trackCornerRadius,
-    @required this.overlayRadius,
-    @required this.thumbRadius,
-    @required this.activeDivisorRadius,
-    @required this.inactiveDivisorRadius,
-    @required this.thumbStrokeWidth,
-    @required this.activeDivisorStrokeWidth,
-    @required this.inactiveDivisorStrokeWidth,
+    required this.brightness,
+    required this.activeTrackHeight,
+    required this.inactiveTrackHeight,
+    required this.tickSize,
+    required this.minorTickSize,
+    required this.tickOffset,
+    required this.labelOffset,
+    required this.inactiveLabelStyle,
+    required this.activeLabelStyle,
+    required this.tooltipTextStyle,
+    required this.inactiveTrackColor,
+    required this.activeTrackColor,
+    required this.thumbColor,
+    required this.thumbStrokeColor,
+    required this.activeDivisorStrokeColor,
+    required this.inactiveDivisorStrokeColor,
+    required this.activeTickColor,
+    required this.inactiveTickColor,
+    required this.disabledActiveTickColor,
+    required this.disabledInactiveTickColor,
+    required this.activeMinorTickColor,
+    required this.inactiveMinorTickColor,
+    required this.disabledActiveMinorTickColor,
+    required this.disabledInactiveMinorTickColor,
+    required this.overlayColor,
+    required this.inactiveDivisorColor,
+    required this.activeDivisorColor,
+    required this.disabledActiveTrackColor,
+    required this.disabledInactiveTrackColor,
+    required this.disabledActiveDivisorColor,
+    required this.disabledInactiveDivisorColor,
+    required this.disabledThumbColor,
+    required this.tooltipBackgroundColor,
+    required this.trackCornerRadius,
+    required this.overlayRadius,
+    required this.thumbRadius,
+    required this.activeDivisorRadius,
+    required this.inactiveDivisorRadius,
+    required this.thumbStrokeWidth,
+    required this.activeDivisorStrokeWidth,
+    required this.inactiveDivisorStrokeWidth,
   });
 
   /// Creates a copy of this theme but with the given fields
   /// replaced with the new values.
   SfSliderThemeData copyWith({
-    Brightness brightness,
-    double activeTrackHeight,
-    double inactiveTrackHeight,
-    Size tickSize,
-    Size minorTickSize,
-    Offset tickOffset,
-    Offset labelOffset,
-    TextStyle inactiveLabelStyle,
-    TextStyle activeLabelStyle,
-    TextStyle tooltipTextStyle,
-    Color inactiveTrackColor,
-    Color activeTrackColor,
-    Color thumbColor,
-    Color thumbStrokeColor,
-    Color activeDivisorStrokeColor,
-    Color inactiveDivisorStrokeColor,
-    Color activeTickColor,
-    Color inactiveTickColor,
-    Color disabledActiveTickColor,
-    Color disabledInactiveTickColor,
-    Color activeMinorTickColor,
-    Color inactiveMinorTickColor,
-    Color disabledActiveMinorTickColor,
-    Color disabledInactiveMinorTickColor,
-    Color overlayColor,
-    Color inactiveDivisorColor,
-    Color activeDivisorColor,
-    Color disabledActiveTrackColor,
-    Color disabledInactiveTrackColor,
-    Color disabledActiveDivisorColor,
-    Color disabledInactiveDivisorColor,
-    Color disabledThumbColor,
-    Color activeRegionColor,
-    Color inactiveRegionColor,
-    Color tooltipBackgroundColor,
-    double trackCornerRadius,
-    double overlayRadius,
-    double thumbRadius,
-    double activeDivisorRadius,
-    double inactiveDivisorRadius,
-    double thumbStrokeWidth,
-    double activeDivisorStrokeWidth,
-    double inactiveDivisorStrokeWidth,
+    Brightness? brightness,
+    double? activeTrackHeight,
+    double? inactiveTrackHeight,
+    Size? tickSize,
+    Size? minorTickSize,
+    Offset? tickOffset,
+    Offset? labelOffset,
+    TextStyle? inactiveLabelStyle,
+    TextStyle? activeLabelStyle,
+    TextStyle? tooltipTextStyle,
+    Color? inactiveTrackColor,
+    Color? activeTrackColor,
+    Color? thumbColor,
+    Color? thumbStrokeColor,
+    Color? activeDivisorStrokeColor,
+    Color? inactiveDivisorStrokeColor,
+    Color? activeTickColor,
+    Color? inactiveTickColor,
+    Color? disabledActiveTickColor,
+    Color? disabledInactiveTickColor,
+    Color? activeMinorTickColor,
+    Color? inactiveMinorTickColor,
+    Color? disabledActiveMinorTickColor,
+    Color? disabledInactiveMinorTickColor,
+    Color? overlayColor,
+    Color? inactiveDivisorColor,
+    Color? activeDivisorColor,
+    Color? disabledActiveTrackColor,
+    Color? disabledInactiveTrackColor,
+    Color? disabledActiveDivisorColor,
+    Color? disabledInactiveDivisorColor,
+    Color? disabledThumbColor,
+    Color? activeRegionColor,
+    Color? inactiveRegionColor,
+    Color? tooltipBackgroundColor,
+    double? trackCornerRadius,
+    double? overlayRadius,
+    double? thumbRadius,
+    double? activeDivisorRadius,
+    double? inactiveDivisorRadius,
+    double? thumbStrokeWidth,
+    double? activeDivisorStrokeWidth,
+    double? inactiveDivisorStrokeWidth,
   }) {
     return SfSliderThemeData.raw(
       brightness: brightness ?? this.brightness,
@@ -344,15 +342,14 @@ class SfSliderThemeData with Diagnosticable {
   /// Linearly interpolate between two themes.
   ///
   /// The arguments must not be null.
-  static SfSliderThemeData lerp(
-      SfSliderThemeData a, SfSliderThemeData b, double t) {
-    assert(t != null);
+  static SfSliderThemeData? lerp(
+      SfSliderThemeData? a, SfSliderThemeData? b, double t) {
     if (a == null && b == null) {
       return null;
     }
     return SfSliderThemeData(
         activeTrackHeight:
-            lerpDouble(a.activeTrackHeight, b.activeTrackHeight, t),
+            lerpDouble(a!.activeTrackHeight, b!.activeTrackHeight, t),
         inactiveTrackHeight:
             lerpDouble(a.inactiveTrackHeight, b.inactiveTrackHeight, t),
         tickSize: Size.lerp(a.tickSize, b.tickSize, t),
@@ -430,56 +427,55 @@ class SfSliderThemeData with Diagnosticable {
     if (other.runtimeType != runtimeType) {
       return false;
     }
-    final SfSliderThemeData otherData = other;
-    return otherData.brightness == brightness &&
-        otherData.activeTrackHeight == activeTrackHeight &&
-        otherData.inactiveTrackHeight == inactiveTrackHeight &&
-        otherData.tickSize == tickSize &&
-        otherData.minorTickSize == minorTickSize &&
-        otherData.tickOffset == tickOffset &&
-        otherData.labelOffset == labelOffset &&
-        otherData.inactiveLabelStyle == inactiveLabelStyle &&
-        otherData.activeLabelStyle == activeLabelStyle &&
-        otherData.tooltipTextStyle == tooltipTextStyle &&
-        otherData.inactiveTrackColor == inactiveTrackColor &&
-        otherData.activeTrackColor == activeTrackColor &&
-        otherData.thumbColor == thumbColor &&
-        otherData.thumbStrokeColor == thumbStrokeColor &&
-        otherData.activeDivisorStrokeColor == activeDivisorStrokeColor &&
-        otherData.inactiveDivisorStrokeColor == inactiveDivisorStrokeColor &&
-        otherData.activeTickColor == activeTickColor &&
-        otherData.inactiveTickColor == inactiveTickColor &&
-        otherData.disabledActiveTickColor == disabledActiveTickColor &&
-        otherData.disabledInactiveTickColor == disabledInactiveTickColor &&
-        otherData.activeMinorTickColor == activeMinorTickColor &&
-        otherData.inactiveMinorTickColor == inactiveMinorTickColor &&
-        otherData.disabledActiveMinorTickColor ==
-            disabledActiveMinorTickColor &&
-        otherData.disabledInactiveMinorTickColor ==
+
+    return other is SfSliderThemeData &&
+        other.brightness == brightness &&
+        other.activeTrackHeight == activeTrackHeight &&
+        other.inactiveTrackHeight == inactiveTrackHeight &&
+        other.tickSize == tickSize &&
+        other.minorTickSize == minorTickSize &&
+        other.tickOffset == tickOffset &&
+        other.labelOffset == labelOffset &&
+        other.inactiveLabelStyle == inactiveLabelStyle &&
+        other.activeLabelStyle == activeLabelStyle &&
+        other.tooltipTextStyle == tooltipTextStyle &&
+        other.inactiveTrackColor == inactiveTrackColor &&
+        other.activeTrackColor == activeTrackColor &&
+        other.thumbColor == thumbColor &&
+        other.thumbStrokeColor == thumbStrokeColor &&
+        other.activeDivisorStrokeColor == activeDivisorStrokeColor &&
+        other.inactiveDivisorStrokeColor == inactiveDivisorStrokeColor &&
+        other.activeTickColor == activeTickColor &&
+        other.inactiveTickColor == inactiveTickColor &&
+        other.disabledActiveTickColor == disabledActiveTickColor &&
+        other.disabledInactiveTickColor == disabledInactiveTickColor &&
+        other.activeMinorTickColor == activeMinorTickColor &&
+        other.inactiveMinorTickColor == inactiveMinorTickColor &&
+        other.disabledActiveMinorTickColor == disabledActiveMinorTickColor &&
+        other.disabledInactiveMinorTickColor ==
             disabledInactiveMinorTickColor &&
-        otherData.overlayColor == overlayColor &&
-        otherData.inactiveDivisorColor == inactiveDivisorColor &&
-        otherData.activeDivisorColor == activeDivisorColor &&
-        otherData.disabledActiveTrackColor == disabledActiveTrackColor &&
-        otherData.disabledInactiveTrackColor == disabledInactiveTrackColor &&
-        otherData.disabledActiveDivisorColor == disabledActiveDivisorColor &&
-        otherData.disabledInactiveDivisorColor ==
-            disabledInactiveDivisorColor &&
-        otherData.disabledThumbColor == disabledThumbColor &&
-        otherData.tooltipBackgroundColor == tooltipBackgroundColor &&
-        otherData.trackCornerRadius == trackCornerRadius &&
-        otherData.overlayRadius == overlayRadius &&
-        otherData.thumbRadius == thumbRadius &&
-        otherData.activeDivisorRadius == activeDivisorRadius &&
-        otherData.inactiveDivisorRadius == inactiveDivisorRadius &&
-        otherData.thumbStrokeWidth == thumbStrokeWidth &&
-        otherData.activeDivisorStrokeWidth == activeDivisorStrokeWidth &&
-        otherData.inactiveDivisorStrokeWidth == inactiveDivisorStrokeWidth;
+        other.overlayColor == overlayColor &&
+        other.inactiveDivisorColor == inactiveDivisorColor &&
+        other.activeDivisorColor == activeDivisorColor &&
+        other.disabledActiveTrackColor == disabledActiveTrackColor &&
+        other.disabledInactiveTrackColor == disabledInactiveTrackColor &&
+        other.disabledActiveDivisorColor == disabledActiveDivisorColor &&
+        other.disabledInactiveDivisorColor == disabledInactiveDivisorColor &&
+        other.disabledThumbColor == disabledThumbColor &&
+        other.tooltipBackgroundColor == tooltipBackgroundColor &&
+        other.trackCornerRadius == trackCornerRadius &&
+        other.overlayRadius == overlayRadius &&
+        other.thumbRadius == thumbRadius &&
+        other.activeDivisorRadius == activeDivisorRadius &&
+        other.inactiveDivisorRadius == inactiveDivisorRadius &&
+        other.thumbStrokeWidth == thumbStrokeWidth &&
+        other.activeDivisorStrokeWidth == activeDivisorStrokeWidth &&
+        other.inactiveDivisorStrokeWidth == inactiveDivisorStrokeWidth;
   }
 
   @override
   int get hashCode {
-    return hashList(<Object>[
+    return hashList(<Object?>[
       brightness,
       activeTrackHeight,
       inactiveTrackHeight,
@@ -768,7 +764,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final double activeDivisorRadius;
+  final double? activeDivisorRadius;
 
   /// Specifies the radius for the inactive divisor in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -801,7 +797,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final double inactiveDivisorRadius;
+  final double? inactiveDivisorRadius;
 
   /// Specifies the stroke width for the thumb in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -835,7 +831,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final double thumbStrokeWidth;
+  final double? thumbStrokeWidth;
 
   /// Specifies the stroke width for the active divisor in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -869,7 +865,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final double activeDivisorStrokeWidth;
+  final double? activeDivisorStrokeWidth;
 
   /// Specifies the stroke width for the inactive divisor in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -903,7 +899,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final double inactiveDivisorStrokeWidth;
+  final double? inactiveDivisorStrokeWidth;
 
   /// Specifies the size for tick.
   /// Specifies the size for the major ticks in the [SfSlider],
@@ -941,7 +937,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final Size tickSize;
+  final Size? tickSize;
 
   /// Specifies the size for the minor ticks in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -978,7 +974,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final Size minorTickSize;
+  final Size? minorTickSize;
 
   /// Adjust the space around ticks in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -1013,7 +1009,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final Offset tickOffset;
+  final Offset? tickOffset;
 
   /// Adjust the space around labels in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -1052,7 +1048,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final Offset labelOffset;
+  final Offset? labelOffset;
 
   /// Specifies the appearance for inactive label in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -1096,7 +1092,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final TextStyle inactiveLabelStyle;
+  final TextStyle? inactiveLabelStyle;
 
   /// Specifies the appearance for active label in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -1136,7 +1132,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final TextStyle activeLabelStyle;
+  final TextStyle? activeLabelStyle;
 
   /// Specifies the appearance for the tooltip in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -1172,7 +1168,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final TextStyle tooltipTextStyle;
+  final TextStyle? tooltipTextStyle;
 
   /// Specifies the color for the inactive track in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -1212,7 +1208,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final Color inactiveTrackColor;
+  final Color? inactiveTrackColor;
 
   /// Specifies the color for active track in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -1248,7 +1244,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final Color activeTrackColor;
+  final Color? activeTrackColor;
 
   /// Specifies the color for the thumb in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -1281,7 +1277,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final Color thumbColor;
+  final Color? thumbColor;
 
   /// Specifies the stroke color for the thumb in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -1315,7 +1311,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final Color thumbStrokeColor;
+  final Color? thumbStrokeColor;
 
   /// Specifies the stroke color for the active divisor in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -1354,7 +1350,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final Color activeDivisorStrokeColor;
+  final Color? activeDivisorStrokeColor;
 
   /// Specifies the stroke color for the inactive divisor in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -1397,7 +1393,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final Color inactiveDivisorStrokeColor;
+  final Color? inactiveDivisorStrokeColor;
 
   /// Specifies the color for active tick.
   /// Specifies the color for the active major ticks in the [SfSlider],
@@ -1739,7 +1735,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final Color overlayColor;
+  final Color? overlayColor;
 
   /// Specifies the color for the inactive divisors in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -1783,7 +1779,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final Color inactiveDivisorColor;
+  final Color? inactiveDivisorColor;
 
   /// Specifies the color for the active divisors in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -1822,7 +1818,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final Color activeDivisorColor;
+  final Color? activeDivisorColor;
 
   /// Specifies the color for the disabled active track in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -1854,7 +1850,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final Color disabledActiveTrackColor;
+  final Color? disabledActiveTrackColor;
 
   /// Specifies the color for the disabled inactive track in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -1891,7 +1887,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final Color disabledInactiveTrackColor;
+  final Color? disabledInactiveTrackColor;
 
   /// Specifies the color for the disabled active divisors in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -1926,7 +1922,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final Color disabledActiveDivisorColor;
+  final Color? disabledActiveDivisorColor;
 
   /// Specifies the color for the disabled inactive divisors in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -1966,7 +1962,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final Color disabledInactiveDivisorColor;
+  final Color? disabledInactiveDivisorColor;
 
   /// Specifies the color for the disabled thumb in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -2026,7 +2022,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final Color tooltipBackgroundColor;
+  final Color? tooltipBackgroundColor;
 
   /// Specifies the radius for the track corners in the [SfSlider],
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -2058,7 +2054,7 @@ class SfSliderThemeData with Diagnosticable {
   ///    )
   /// )
   /// ```
-  final double trackCornerRadius;
+  final double? trackCornerRadius;
 
   /// Specifies the radius for the overlay in the [SfSlider], [SfRangeSlider],
   /// and [SfRangeSelector].

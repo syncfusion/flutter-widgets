@@ -13,21 +13,20 @@ class SignaturePadApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'SfSignaturePad Demo',
-      home: _MyHomePage(title: 'SfSignaturePad Demo'),
+      home: _MyHomePage(),
     );
   }
 }
 
 class _MyHomePage extends StatefulWidget {
-  _MyHomePage({Key key, this.title}) : super(key: key);
+  _MyHomePage({Key? key}) : super(key: key);
 
-  final String title;
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<_MyHomePage> {
-  GlobalKey<SfSignaturePadState> signatureGlobalKey = GlobalKey();
+  final GlobalKey<SfSignaturePadState> signatureGlobalKey = GlobalKey();
 
   @override
   void initState() {
@@ -35,29 +34,28 @@ class _MyHomePageState extends State<_MyHomePage> {
   }
 
   void _handleClearButtonPressed() {
-    signatureGlobalKey.currentState.clear();
+    signatureGlobalKey.currentState!.clear();
   }
 
   void _handleSaveButtonPressed() async {
-    final data = await signatureGlobalKey.currentState.toImage(pixelRatio: 3.0);
+    final data =
+        await signatureGlobalKey.currentState!.toImage(pixelRatio: 3.0);
     final bytes = await data.toByteData(format: ui.ImageByteFormat.png);
-    if (data != null) {
-      await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (BuildContext context) {
-            return Scaffold(
-              appBar: AppBar(),
-              body: Center(
-                child: Container(
-                  color: Colors.grey[300],
-                  child: Image.memory(bytes.buffer.asUint8List()),
-                ),
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (BuildContext context) {
+          return Scaffold(
+            appBar: AppBar(),
+            body: Center(
+              child: Container(
+                color: Colors.grey[300],
+                child: Image.memory(bytes!.buffer.asUint8List()),
               ),
-            );
-          },
-        ),
-      );
-    }
+            ),
+          );
+        },
+      ),
+    );
   }
 
   @override
@@ -78,11 +76,11 @@ class _MyHomePageState extends State<_MyHomePage> {
                       BoxDecoration(border: Border.all(color: Colors.grey)))),
           SizedBox(height: 10),
           Row(children: <Widget>[
-            FlatButton(
+            TextButton(
               child: Text('ToImage'),
               onPressed: _handleSaveButtonPressed,
             ),
-            FlatButton(
+            TextButton(
               child: Text('Clear'),
               onPressed: _handleClearButtonPressed,
             )

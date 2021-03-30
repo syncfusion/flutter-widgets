@@ -1,7 +1,15 @@
-part of calendar;
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_calendar/src/calendar/common/calendar_view_helper.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 
-class _ResourceContainer extends CustomPainter {
-  _ResourceContainer(
+import '../settings/resource_view_settings.dart';
+import 'calendar_resource.dart';
+
+/// Holds the resource views of the calendar.
+class ResourceContainer extends CustomPainter {
+  /// Constructor to create the resource views of the calendar.
+  ResourceContainer(
       this.resources,
       this.resourceViewSettings,
       this.resourceItemHeight,
@@ -10,22 +18,42 @@ class _ResourceContainer extends CustomPainter {
       this.notifier,
       this.isRTL,
       this.textScaleFactor,
-      this.mouseHoverPosition)
+      this.mouseHoverPosition,
+      this.imagePainterCollection)
       : super(repaint: notifier);
 
-  final List<CalendarResource> resources;
+  /// Holds the resources of the calendar.
+  final List<CalendarResource>? resources;
+
+  /// Defines the customization of resource views in calendar widget.
   final ResourceViewSettings resourceViewSettings;
+
+  /// Defines the item height of the resource view.
   final double resourceItemHeight;
-  final Color cellBorderColor;
+
+  /// Defines the border color of the resource cell.
+  final Color? cellBorderColor;
+
+  /// Hols the theme data of the calendar.
   final SfCalendarThemeData calendarTheme;
+
+  /// Used to trigger repaint while resource decoration image loaded.
   final ValueNotifier<bool> notifier;
+
+  /// Defines the direction of the calendar widget is RTL or not.
   final bool isRTL;
+
+  /// Defines the scale factor for the calendar widget.
   final double textScaleFactor;
-  final Offset mouseHoverPosition;
-  Paint _circlePainter;
-  TextPainter _namePainter;
+
+  /// Collection of images painter to paint the image.
+  final Map<Object, DecorationImagePainter> imagePainterCollection;
+
+  /// Holds the mouse hovering position used to paint highlight.
+  final Offset? mouseHoverPosition;
+  Paint _circlePainter = Paint();
+  TextPainter _namePainter = TextPainter();
   final double _borderThickness = 5;
-  bool _isImageLoaded = false;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -37,8 +65,6 @@ class _ResourceContainer extends CustomPainter {
     /// The circle height.
     final double actualItemHeight = resourceItemHeight * 0.80;
     double yPosition = 0;
-    _circlePainter ??= Paint();
-    _namePainter ??= TextPainter();
     _circlePainter.isAntiAlias = true;
     final double radius = actualItemHeight < actualItemWidth
         ? actualItemHeight / 2
@@ -49,11 +75,11 @@ class _ResourceContainer extends CustomPainter {
     final double lineXPosition = isRTL ? 0.5 : size.width - 0.5;
     canvas.drawLine(Offset(lineXPosition, 0),
         Offset(lineXPosition, size.height), _circlePainter);
-    final int count = resources.length;
+    final int count = resources!.length;
     if (resourceViewSettings.showAvatar) {
       for (int i = 0; i < count; i++) {
         canvas.save();
-        final CalendarResource resource = resources[i];
+        final CalendarResource resource = resources![i];
         _drawResourceBorder(
             resource, canvas, size, actualItemHeight, yPosition, radius);
         _drawDisplayName(
@@ -76,25 +102,22 @@ class _ResourceContainer extends CustomPainter {
       }
     } else {
       for (int i = 0; i < count; i++) {
-        final CalendarResource resource = resources[i];
+        final CalendarResource resource = resources![i];
         _drawResourceBackground(canvas, size, resource, yPosition);
         _drawDisplayName(
             resource, canvas, size, yPosition, actualItemHeight, radius);
-        if (mouseHoverPosition != null) {
-          _addHovering(canvas, size, yPosition);
-        }
+        _addHovering(canvas, size, yPosition);
         yPosition += resourceItemHeight;
       }
     }
   }
 
   void _addHovering(Canvas canvas, Size size, double yPosition) {
-    _circlePainter ??= Paint();
-    if (mouseHoverPosition.dy > yPosition &&
-        mouseHoverPosition.dy < (yPosition + resourceItemHeight)) {
+    if (mouseHoverPosition != null &&
+        mouseHoverPosition!.dy > yPosition &&
+        mouseHoverPosition!.dy < (yPosition + resourceItemHeight)) {
       _circlePainter.style = PaintingStyle.fill;
-      _circlePainter.color = (calendarTheme.brightness != null &&
-                  calendarTheme.brightness == Brightness.dark
+      _circlePainter.color = (calendarTheme.brightness == Brightness.dark
               ? Colors.white
               : Colors.black87)
           .withOpacity(0.04);
@@ -118,7 +141,7 @@ class _ResourceContainer extends CustomPainter {
   /// Updates the text painter with the passed span.
   void _updateNamePainter(TextSpan span) {
     _namePainter.text = span;
-    _namePainter.textDirection = TextDirection.rtl;
+    _namePainter.textDirection = TextDirection.ltr;
     _namePainter.maxLines = 1;
     _namePainter.textWidthBasis = TextWidthBasis.longestLine;
     _namePainter.textScaleFactor = textScaleFactor;
@@ -170,37 +193,49 @@ class _ResourceContainer extends CustomPainter {
       double innerCircleXPosition,
       double innerCircleWidth,
       double innerCircleHeight) {
-    final DecorationImage decorationImage =
-        DecorationImage(image: resource.image);
     final Offset offset = Offset(innerCircleXPosition, innerCircleYPosition);
-    final ImageConfiguration configuration =
-        ImageConfiguration(size: Size(innerCircleWidth, innerCircleHeight));
-    final Rect rect = offset & configuration.size;
+    final Size size = Size(innerCircleWidth, innerCircleHeight);
+    final ImageConfiguration configuration = ImageConfiguration(size: size);
+    final Rect rect = offset & size;
 
     /// To render the image as circle.
-    final Path clipPath = Path()..addOval(rect);
-    final DecorationImagePainter imagePainter =
-        decorationImage.createPainter(() {
-      /// To draw an image we must use the onChanged callback, to repaint
-      /// the image, when drawing an image the image must be loaded before
-      /// the paint starts, if the image doesn't loaded we must repaint the
-      /// image, hence to handle this we have used this callback, and
-      /// repainted the image if the image doesn't load initially.
-      ///
-      /// Refer: [BoxPainter.onChanged].
-      if (_isImageLoaded) {
-        return;
-      }
-
-      _isImageLoaded = true;
-      notifier.value = !notifier.value;
-    });
+    final Rect square =
+        Rect.fromCircle(center: rect.center, radius: rect.shortestSide / 2.0);
+    final Path clipPath = Path()..addOval(square);
+    final DecorationImagePainter? imagePainter = _getImagePainter(resource);
+    if (imagePainter == null) {
+      return;
+    }
     imagePainter.paint(canvas, rect, clipPath, configuration);
+    imagePainterCollection[resource.id] = imagePainter;
+  }
 
-    /// To ensured that the image is painter or not, if the image painted the
-    /// image property of [DecorationImage] must not be null, and since the
-    /// property is private, we have handled like this.
-    _isImageLoaded = !imagePainter.toString().contains('image: null');
+  DecorationImagePainter? _getImagePainter(CalendarResource resource) {
+    if (imagePainterCollection.isEmpty ||
+        !imagePainterCollection.containsKey(resource.id)) {
+      return DecorationImage(image: resource.image!)
+          .createPainter(_onPainterChanged);
+    } else if (imagePainterCollection.containsKey(resource.id) &&
+        !imagePainterCollection[resource.id]
+            .toString()
+            .contains(resource.image.toString())) {
+      imagePainterCollection[resource.id]!.dispose();
+      return DecorationImage(image: resource.image!)
+          .createPainter(_onPainterChanged);
+    }
+
+    return imagePainterCollection[resource.id];
+  }
+
+  /// To draw an image we must use the onChanged callback, to repaint
+  /// the image, when drawing an image the image must be loaded before
+  /// the paint starts, if the image doesn't loaded we must repaint the
+  /// image, hence to handle this we have used this callback, and
+  /// repainted the image if the image doesn't load initially.
+  ///
+  /// Refer: [BoxPainter.onChanged].
+  void _onPainterChanged() {
+    notifier.value = !notifier.value;
   }
 
   /// Draws the inner circle for the resource with the short term of the
@@ -250,21 +285,24 @@ class _ResourceContainer extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    final _ResourceContainer oldWidget = oldDelegate;
+  bool shouldRepaint(ResourceContainer oldDelegate) {
+    final ResourceContainer oldWidget = oldDelegate;
     return oldWidget.resourceItemHeight != resourceItemHeight ||
-        oldWidget.resources != resources ||
+        !CalendarViewHelper.isResourceCollectionEqual(
+            oldWidget.resources, resources) ||
         oldWidget.resourceViewSettings != resourceViewSettings ||
-        oldWidget._isImageLoaded != _isImageLoaded ||
         oldWidget.mouseHoverPosition != mouseHoverPosition;
   }
 
   List<CustomPainterSemantics> _getSemanticsBuilder(Size size) {
     final List<CustomPainterSemantics> semanticsBuilder =
         <CustomPainterSemantics>[];
+    if (resources == null) {
+      return semanticsBuilder;
+    }
     double top = 0;
-    for (int j = 0; j < resources.length; j++) {
-      final CalendarResource resource = resources[j];
+    for (int j = 0; j < resources!.length; j++) {
+      final CalendarResource resource = resources![j];
       semanticsBuilder.add(CustomPainterSemantics(
         rect: Rect.fromLTWH(0, top, size.width, resourceItemHeight),
         properties: SemanticsProperties(
@@ -290,11 +328,10 @@ class _ResourceContainer extends CustomPainter {
   }
 
   @override
-  bool shouldRebuildSemantics(CustomPainter oldDelegate) {
-    final _ResourceContainer oldWidget = oldDelegate;
+  bool shouldRebuildSemantics(ResourceContainer oldDelegate) {
+    final ResourceContainer oldWidget = oldDelegate;
     return oldWidget.resourceItemHeight != resourceItemHeight ||
         oldWidget.resources != resources ||
-        oldWidget.resourceViewSettings != resourceViewSettings ||
-        oldWidget._isImageLoaded != _isImageLoaded;
+        oldWidget.resourceViewSettings != resourceViewSettings;
   }
 }

@@ -8,7 +8,7 @@ Syncfusion Flutter SignaturePad library is written in Dart for capturing smooth 
 
 This library is used to capture a signature through drawing gestures. You can use your finger, pen, or mouse on a tablet, touchscreen, etc., to draw your own signature in this SignaturePad widget. The widget also allows you to save a signature as an image, which can be further synchronized with your documents that need the signature.
 
-**Disclaimer** : This is a commercial package. To use this package, you need to have either a Syncfusion commercial license or Syncfusion Community License. For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
+**Disclaimer** : This is a commercial package. To use this package, you need to have either a Syncfusion commercial license or [Free Syncfusion Community license](https://www.syncfusion.com/products/communitylicense). For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
 
 **Note** : Our packages are now compatible with Flutter for web. However, this will be in beta until Flutter for web becomes stable.
 

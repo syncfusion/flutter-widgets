@@ -1,6 +1,24 @@
 part of pdf;
 
 /// Represents marker alignment.
+///
+/// ```dart
+/// //Create a new PDF document.
+/// PdfDocument document = PdfDocument();
+/// //Create a new ordered list.
+/// PdfOrderedList(
+///     items: PdfListItemCollection(['Essential tools', 'Essential grid']),
+///     font: PdfStandardFont(PdfFontFamily.helvetica, 16,
+///         style: PdfFontStyle.italic),
+///     marker: PdfOrderedMarker(style: PdfNumberStyle.numeric)
+///       ..alignment = PdfListMarkerAlignment.right)
+///   ..draw(
+///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
+/// //Save the document.
+/// final List<int> bytes = document.save();
+/// //Dispose the document.
+/// document.dispose();
+/// ```
 enum PdfListMarkerAlignment {
   /// Left alignment for marker.
   left,
@@ -10,6 +28,23 @@ enum PdfListMarkerAlignment {
 }
 
 /// Specifies the marker style.
+///
+/// ```dart
+/// //Create a new PDF document.
+/// PdfDocument document = PdfDocument();
+/// //Create a new unordered list.
+/// PdfUnorderedList(
+///     items: PdfListItemCollection(['Essential tools', 'Essential grid']),
+///     font: PdfStandardFont(PdfFontFamily.helvetica, 16,
+///         style: PdfFontStyle.italic),
+///     marker: PdfUnorderedMarker(style: PdfUnorderedMarkerStyle.disk))
+///   ..draw(
+///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
+/// //Save the document.
+/// final List<int> bytes = document.save();
+/// //Dispose the document.
+/// document.dispose();
+/// ```
 enum PdfUnorderedMarkerStyle {
   /// Marker have  no style.
   none,

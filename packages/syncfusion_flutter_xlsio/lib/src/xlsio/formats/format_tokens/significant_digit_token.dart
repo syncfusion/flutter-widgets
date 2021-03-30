@@ -32,8 +32,6 @@ class _SignificantDigitToken extends _FormatTokenBase {
   /// </summary>
   @override
   int _tryParse(String strFormat, int iIndex) {
-    if (strFormat == null) throw ('strFormat');
-
     final int iFormatLength = strFormat.length;
 
     if (iFormatLength == 0) throw ('strFormat - string cannot be empty');
@@ -57,17 +55,14 @@ class _SignificantDigitToken extends _FormatTokenBase {
 
   ///Checking the string is numeric or not.
   bool _isNumeric(String s) {
-    if (s == null) {
-      return false;
-    }
-    return double.parse(s, (e) => null) != null;
+    return double.tryParse(s) != null;
   }
 
   /// <summary>
   /// Format character. Read-only.
   /// </summary>
   String get _formatChar {
-    if (_strFormat == null) return _defaultFormatChar;
+    if (_strFormat == '') return _defaultFormatChar;
     return _strFormat;
   }
 

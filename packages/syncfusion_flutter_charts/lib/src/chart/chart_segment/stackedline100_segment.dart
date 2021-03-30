@@ -5,9 +5,9 @@ part of charts;
 /// Generates the stacked line100 series points and has the [calculateSegmentPoints] method overrided to customize
 /// the stacked line100 segment point calculation.
 ///
-/// Gets the path and color from the [series].
+/// Gets the path and color from the `series`.
 class StackedLine100Segment extends ChartSegment {
-  num _x1,
+  late double _x1,
       _y1,
       _x2,
       _y2,
@@ -15,7 +15,7 @@ class StackedLine100Segment extends ChartSegment {
       _nextCummulativePos,
       _currentCummulativeValue,
       _nextCummulativeValue;
-  Color _pointColorMapper;
+  Color? _pointColorMapper;
 
   /// Gets the color of the series.
   @override
@@ -27,9 +27,9 @@ class StackedLine100Segment extends ChartSegment {
         'The opacity value of the stacked line100 series should be less than or equal to 1.');
     if (_color != null) {
       _fillPaint.color =
-          _pointColorMapper ?? _color.withOpacity(_series.opacity);
+          _pointColorMapper ?? _color!.withOpacity(_series.opacity);
     }
-    _fillPaint.strokeWidth = _strokeWidth;
+    _fillPaint.strokeWidth = _strokeWidth!;
     _fillPaint.style = PaintingStyle.fill;
     _defaultFillColor = _fillPaint;
     return _fillPaint;
@@ -44,13 +44,13 @@ class StackedLine100Segment extends ChartSegment {
     assert(_series.opacity <= 1,
         'The opacity value of the stacked line100 series should be less than or equal to 1.');
     if (_strokeColor != null) {
-      _strokePaint.color = _pointColorMapper ?? _strokeColor;
+      _strokePaint.color = _pointColorMapper ?? _strokeColor!;
       _strokePaint.color =
           (_series.opacity < 1 && _strokePaint.color != Colors.transparent)
               ? _strokePaint.color.withOpacity(_series.opacity)
               : _strokePaint.color;
     }
-    _strokePaint.strokeWidth = _strokeWidth;
+    _strokePaint.strokeWidth = _strokeWidth!;
     _strokePaint.style = PaintingStyle.stroke;
     _strokePaint.strokeCap = StrokeCap.round;
     _defaultStrokeColor = _strokePaint;
@@ -61,41 +61,41 @@ class StackedLine100Segment extends ChartSegment {
   @override
   void calculateSegmentPoints() {
     final Rect rect = _calculatePlotOffset(
-        _seriesRenderer._chartState._chartAxis._axisClipRect,
-        Offset(_seriesRenderer._xAxisRenderer._axis.plotOffset,
-            _seriesRenderer._yAxisRenderer._axis.plotOffset));
+        _seriesRenderer._chartState!._chartAxis._axisClipRect,
+        Offset(_seriesRenderer._xAxisRenderer!._axis.plotOffset,
+            _seriesRenderer._yAxisRenderer!._axis.plotOffset));
     final _ChartLocation currentChartPoint = _calculatePoint(
-        _currentPoint.xValue,
+        _currentPoint!.xValue,
         _currentCummulativePos,
-        _seriesRenderer._xAxisRenderer,
-        _seriesRenderer._yAxisRenderer,
-        _seriesRenderer._chartState._requireInvertedAxis,
+        _seriesRenderer._xAxisRenderer!,
+        _seriesRenderer._yAxisRenderer!,
+        _seriesRenderer._chartState!._requireInvertedAxis,
         _series,
         rect);
     final _ChartLocation _nextLocation = _calculatePoint(
-        _nextPoint.xValue,
+        _nextPoint!.xValue,
         _nextCummulativePos,
-        _seriesRenderer._xAxisRenderer,
-        _seriesRenderer._yAxisRenderer,
-        _seriesRenderer._chartState._requireInvertedAxis,
+        _seriesRenderer._xAxisRenderer!,
+        _seriesRenderer._yAxisRenderer!,
+        _seriesRenderer._chartState!._requireInvertedAxis,
         _series,
         rect);
 
     final _ChartLocation currentCummulativePoint = _calculatePoint(
-        _currentPoint.xValue,
+        _currentPoint!.xValue,
         _currentCummulativePos,
-        _seriesRenderer._xAxisRenderer,
-        _seriesRenderer._yAxisRenderer,
-        _seriesRenderer._chartState._requireInvertedAxis,
+        _seriesRenderer._xAxisRenderer!,
+        _seriesRenderer._yAxisRenderer!,
+        _seriesRenderer._chartState!._requireInvertedAxis,
         _series,
         rect);
 
     final _ChartLocation nextCummulativePoint = _calculatePoint(
-        _nextPoint.xValue,
+        _nextPoint!.xValue,
         _nextCummulativePos,
-        _seriesRenderer._xAxisRenderer,
-        _seriesRenderer._yAxisRenderer,
-        _seriesRenderer._chartState._requireInvertedAxis,
+        _seriesRenderer._xAxisRenderer!,
+        _seriesRenderer._yAxisRenderer!,
+        _seriesRenderer._chartState!._requireInvertedAxis,
         _series,
         rect);
 
@@ -110,6 +110,7 @@ class StackedLine100Segment extends ChartSegment {
   /// Draws segment in series bounds.
   @override
   void onPaint(Canvas canvas) {
-    _renderStackedLineSeries(_series, canvas, strokePaint, _x1, _y1, _x2, _y2);
+    _renderStackedLineSeries(_series as _StackedSeriesBase, canvas,
+        strokePaint!, _x1, _y1, _x2, _y2);
   }
 }

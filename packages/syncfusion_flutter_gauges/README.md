@@ -1,27 +1,54 @@
-![syncfusion_flutter_gauge_banner](https://cdn.syncfusion.com/content/images/FTControl/Charts/Flutter-Gauges.png)
+![syncfusion_flutter_gauge_banner](https://cdn.syncfusion.com/content/images/FTControl/Charts/Flutter-radial-linear-gauge.png)
 
-# Syncfusion Flutter Gauges
+# Flutter Gauges library
 
-Syncfusion Flutter gauges library includes data visualization widgets such as radial gauge, which is written in dart, to create modern, interactive, and animated gauges that are used to craft high-quality mobile app user interfaces using Flutter.
+The Flutter Gauges library includes the data visualization widgets Linear Gauge and Radial Gauge (a.k.a. circular gauge) to create modern, interactive, animated gauges.
 
 ## Overview
+The Linear Gauge is used to display data on a linear scale, while the Radial Gauge is used to display data on a circular scale. Both gauges have a rich set of features, such as axes, ranges, pointers, smooth interactions, and animations that are fully customizable and extendable.
 
-The radial gauge is used to display numerical values on a circular scale. It has a rich set of features such as axes, ranges, pointers, and annotations that are fully customizable and extendable. Use it to create speedometers, temperature monitors, dashboards, meter gauges, multi-axis clocks, watches, modern activity gauges, compasses and more. 
-
-**Disclaimer:** This is a commercial package. To use this package, you need to have either Syncfusion Commercial License or Syncfusion Community license. For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
-
-**Note:** Our packages are now compatible with Flutter for Web. However, this will be in Beta until Flutter for Web becomes stable.
+**Disclaimer:** This is a commercial package. To use this package, you need to have either Syncfusion Commercial License or [Free Syncfusion Community license](https://www.syncfusion.com/products/communitylicense). For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
 
 ## Table of contents
+
+- [Linear gauge features](#linear-gauge-features)
 - [Radial gauge features](#radial-gauge-features)
 - [Get the demo application](#get-the-demo-application)
 - [Other useful links](#other-useful-links)
 - [Installation](#installation)
 - [Getting started](#getting-started)
+  - [Add linear gauge to the widget tree](#add-linear-gauge-to-the-widget-tree)
+  - [Add linear gauge elements](#add-linear-gauge-elements)
   - [Add radial gauge to the widget tree](#add-radial-gauge-to-the-widget-tree)
   - [Add radial gauge elements](#add-radial-gauge-elements)
 - [Support and Feedback](#support-and-feedback)
 - [About Syncfusion](#about-syncfusion)
+
+## Linear gauge features
+
+* **Orientation** - The Linear Gauge can be set to vertical or horizontal orientation.
+
+* **Axis** - The Linear Gauge axis is a scale where a set of values can be plotted. An axis can be customized by changing the thickness and edge styles. You can also inverse the axis.
+![linear gauge axis](https://cdn.syncfusion.com/content/images/Flutter/pub_images/linear_gauge_images/axis.png)
+
+* **Labels and ticks** - The Linear Gauge axis elements, such as labels, major ticks, and minor ticks, can be customized to different styles.
+![linear gauge axis](https://cdn.syncfusion.com/content/images/Flutter/pub_images/linear_gauge_images/labelsandticks.png)
+
+* **Ranges** - A range is a visual element that helps you quickly visualize where a range falls on the axis track. Multiple ranges with different styles can be added to a linear gauge.
+
+![linear gauge range](https://cdn.syncfusion.com/content/images/Flutter/pub_images/linear_gauge_images/ranges.png)
+
+* **Pointers** - A pointer is used to indicate a specific value on an axis. The widget has three types of pointers: shape marker pointer, widget marker pointer, and bar pointer. All the pointers can be customized as needed. You can add multiple pointers in a linear gauge.
+
+![linear gauge pointer](https://cdn.syncfusion.com/content/images/Flutter/pub_images/linear_gauge_images/pointers.png)
+
+* **Pointer interaction** - The shape and widget marker pointers in a Linear Gauge can be moved from one value to another with swipe or drag gestures.
+
+![linear gauge pointer interaction](https://cdn.syncfusion.com/content/images/Flutter/pub_images/linear_gauge_images/interaction.gif)
+
+* **Animation** - All the gauge elements can be animated in a visually appealing way. Animate the gauge elements when they are loading, or when their values change.
+
+![linear gauge animation](https://cdn.syncfusion.com/content/images/Flutter/pub_images/linear_gauge_images/animation.gif)
 
 ## Radial gauge features
 
@@ -31,13 +58,13 @@ The radial gauge is used to display numerical values on a circular scale. It has
 * **Ranges** - Gauge range is a visual element that helps to quickly visualize where a value falls on the axis. The text can be easily annotated in range to improve the readability.
 ![radial gauge range](https://cdn.syncfusion.com/content/images/FTControl/Flutter/Range.png)
 
-* **Pointers** - Pointer is used to indicate values on an axis. It has three types of pointers: needle pointer, marker pointer, and range pointer. All the pointers can be customized as needed.
+* **Pointers** - Pointer is used to indicate values on an axis. It has four types of pointers: needle pointer, marker pointer, range pointer, and widget pointer. All the pointers can be customized as needed.
 ![radial gauge pointer](https://cdn.syncfusion.com/content/images/FTControl/Flutter/Pointer.png)
 
 * **Animation** - Animates the pointer in a visually appealing way when the pointer moves from one value to another. Gauge supports various pointer animations. It is also possible to apply initial load animation for gauge.
 ![radial gauge animation](https://cdn.syncfusion.com/content/images/FTControl/Flutter/Animation.gif)
 
-* **Pointer interaction** - Radial gauge provides an option to drag a pointer from one value to another. It is used to change the value at run time.
+* **Pointer interaction** - Radial gauge provides an option to drag a pointer from one value to another and also displays overlay while dragging. It is used to change the value at run time.
 ![radial gauge pointer interaction](https://cdn.syncfusion.com/content/images/FTControl/Flutter/Interaction.gif)
 
 * **Annotations** - Add multiple widgets such as text and image as an annotation at a specific point of interest in the radial gauge.
@@ -75,6 +102,60 @@ Import the following package.
 ```dart
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 ```
+
+### Add linear gauge to the widget tree
+
+Add the linear gauge widget as a child of any widget. Here, the gauge widget is added as a child of container widget.
+
+```dart
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+      body: Center(
+        child: Container(
+          child: SfLinearGauge()
+      ))),
+    );
+  }
+```
+### Add linear gauge elements
+
+Add the gauge elements such as axis, range, and pointers to indicate the current value.
+
+```dart
+class _DemoAppState extends State<DemoApp> {
+  double _pointerValue = 45;
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+          body: Center(
+              child: Container(
+        child: SfLinearGauge(
+        ranges: [
+          LinearGaugeRange(
+            startValue: 0,
+            endValue: 50,
+          ),
+        ],
+        markerPointers: [
+          LinearShapePointer(
+            value: 50,
+          ),
+        ],
+        barPointers: [LinearBarPointer(value: 80)],
+      ),
+      ))),
+    );
+  }
+}
+```
+
+The following screenshot illustrates the result of the above code sample.
+
+![linear gauge widget](https://cdn.syncfusion.com/content/images/Flutter/pub_images/linear_gauge_images/basic_elements.png)
+
 ### Add radial gauge to the widget tree
 
 Add the radial gauge widget as a child of any widget. Here, the gauge widget is added as a child of container widget.

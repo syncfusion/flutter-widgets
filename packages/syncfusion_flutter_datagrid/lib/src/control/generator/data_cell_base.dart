@@ -2,37 +2,23 @@ part of datagrid;
 
 /// A base class which provides functionalities for [DataCell].
 abstract class DataCellBase {
-  /// Creates the [DataCellBase] for [SfDataGrid] widget.
-  DataCellBase() {
-    _isVisible = true;
-    _isEnsured = false;
-    _isDirty = false;
-    _columnSpan = 0;
-    _rowSpan = 0;
-    _ishover = false;
-  }
+  Widget? _columnElement;
 
-  Widget _columnElement;
+  Key? _key;
 
-  Key _key;
+  TextStyle? _textStyle;
 
-  DataGridCellStyle _cellStyle;
+  GridCellRendererBase? _renderer;
 
-  GridCellRendererBase _renderer;
+  CellType? _cellType;
 
-  CellType _cellType;
+  bool _isVisible = true;
 
-  bool _isVisible;
+  bool _isEnsured = false;
 
-  bool _isEnsured;
+  DataRowBase? _dataRow;
 
-  DataRowBase _dataRow;
-
-  bool _isDirty;
-
-  bool _ishover;
-
-  String _displayText;
+  bool _isDirty = false;
 
   /// The column index of the [DataCell].
   int columnIndex = -1;
@@ -41,31 +27,31 @@ abstract class DataCellBase {
   int rowIndex = -1;
 
   /// [GridColumn] which is associated with [DataCell].
-  GridColumn gridColumn;
+  GridColumn? gridColumn;
 
   /// The cell value of the column element associated with the [DataCell].
-  Object cellValue;
+  Object? cellValue;
 
   /// Decides whether the [DataCell] has the currentcell.
   bool isCurrentCell = false;
 
-  int _columnSpan;
+  int _columnSpan = 0;
 
-  int _rowSpan;
+  int _rowSpan = 0;
 
-  StackedHeaderCell _stackedHeaderCell;
+  StackedHeaderCell? _stackedHeaderCell;
 
   /// Decides whether the [DataCell] is visible.
   bool get isVisible => _isVisible;
 
-  Widget _onInitializeColumnElement(bool isInEdit) => null;
+  Widget? _onInitializeColumnElement(bool isInEdit) => null;
 
   void _updateColumn() {}
 
   void _onTouchUp() {
     if (_dataRow != null) {
       final _DataGridSettings dataGridSettings =
-          _dataRow._dataGridStateDetails();
+          _dataRow!._dataGridStateDetails!();
       if (rowIndex <= _GridIndexResolver.getHeaderIndex(dataGridSettings) ||
           dataGridSettings.selectionMode == SelectionMode.none) {
         return;

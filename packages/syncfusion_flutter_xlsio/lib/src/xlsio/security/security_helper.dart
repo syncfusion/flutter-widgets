@@ -1,7 +1,14 @@
 part of xlsio;
 
-/// This class contains utility methods used by Excel 2007 security implementation.
 class _SecurityHelper {
+  /// Represents the SHA1 Hash Algorithm.
+  // ignore: unused_field
+  static const String _sha1Algorithm = 'SHA-1';
+
+  /// Represents the SHA256 Hash Algorithm.
+  // ignore: unused_field
+  static const String _sha256Alogrithm = 'SHA-256';
+
   /// Represents the SH512 Hash Algorithm.
   static const String _sha512Alogrithm = 'SHA-512';
 
@@ -11,28 +18,26 @@ class _SecurityHelper {
     switch (algorithmName) {
       case 'SHA-512':
         return sha512;
-      case 'SHA-1':
-        return sha1;
-      case 'SHA-256':
-        return sha256;
       default:
         return sha1;
     }
   }
 
   /// Combines two arrays into one.
-  // ignore: unused_element
   static List<int> _combineArray(List<int> buffer1, List<int> buffer2) {
-    final int iLength1 = buffer1.length;
-    final int iLength2 = buffer2.length;
-    final int iCombinedLength = iLength1 + iLength2;
-    final List<int> arrResult = List(iCombinedLength);
-    for (int i = 0; i < iLength1; i++) {
-      arrResult[i] = buffer1[i];
-    }
-    for (int j = iLength1, z = 0; j < arrResult.length; j++, z++) {
-      arrResult[j] = buffer2[z];
-    }
+    final List<int> arrResult = [];
+    arrResult.addAll(buffer1);
+    arrResult.addAll(buffer2);
+
     return arrResult;
+  }
+}
+
+class _BitConverter {
+  static List<int> _getBytes(int value) {
+    final Uint8List int32Bytes =
+        Uint8List.fromList(List.filled(4, 0, growable: false))
+          ..buffer.asByteData().setInt32(0, value, Endian.big);
+    return int32Bytes.toList().reversed.toList();
   }
 }

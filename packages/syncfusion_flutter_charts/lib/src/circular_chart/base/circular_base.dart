@@ -21,6 +21,10 @@ typedef CircularSelectionCallback = void Function(SelectionArgs selectionArgs);
 typedef CircularTouchInteractionCallback = void Function(
     ChartTouchInteractionArgs tapArgs);
 
+///Signature for the callback that returns the shader value to override the fill color of the data points.
+typedef CircularShaderCallback = Shader Function(
+    ChartShaderDetails chartShaderDetails);
+
 ///Renders the circular chart
 ///
 ///The SfCircularChart supports pie, doughnut and radial bar series that can be customized within the Circular Charts class.
@@ -56,7 +60,7 @@ typedef CircularTouchInteractionCallback = void Function(
 class SfCircularChart extends StatefulWidget {
   /// Creating an argument constructor of SfCircularChart class.
   SfCircularChart(
-      {Key key,
+      {Key? key,
       this.backgroundColor,
       this.backgroundImage,
       this.annotations,
@@ -72,6 +76,7 @@ class SfCircularChart extends StatefulWidget {
       this.onChartTouchInteractionUp,
       this.onChartTouchInteractionDown,
       this.onChartTouchInteractionMove,
+      this.onCreateShader,
       this.palette = const <Color>[
         Color.fromRGBO(75, 135, 185, 1),
         Color.fromRGBO(192, 108, 132, 1),
@@ -84,15 +89,15 @@ class SfCircularChart extends StatefulWidget {
         Color.fromRGBO(255, 240, 219, 1),
         Color.fromRGBO(238, 238, 238, 1)
       ],
-      ChartTitle title,
-      EdgeInsets margin,
-      List<CircularSeries<dynamic, dynamic>> series,
-      Legend legend,
-      String centerX,
-      String centerY,
-      TooltipBehavior tooltipBehavior,
-      ActivationMode selectionGesture,
-      bool enableMultiSelection})
+      ChartTitle? title,
+      EdgeInsets? margin,
+      List<CircularSeries<dynamic, dynamic>>? series,
+      Legend? legend,
+      String? centerX,
+      String? centerY,
+      TooltipBehavior? tooltipBehavior,
+      ActivationMode? selectionGesture,
+      bool? enableMultiSelection})
       : series = series = series ?? <CircularSeries<dynamic, dynamic>>[],
         title = title ?? ChartTitle(),
         legend = legend ?? Legend(),
@@ -179,7 +184,7 @@ class SfCircularChart extends StatefulWidget {
   ///        ));
   ///}
   ///```
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   ///Customizes the annotations. Annotations are used to mark the specific area
   ///of interest in the plot area with texts, shapes, or images
@@ -200,7 +205,7 @@ class SfCircularChart extends StatefulWidget {
   ///        ));
   ///}
   ///```
-  final List<CircularChartAnnotation> annotations;
+  final List<CircularChartAnnotation>? annotations;
 
   ///Border color of the chart
   ///
@@ -261,7 +266,7 @@ class SfCircularChart extends StatefulWidget {
   ///        ));
   ///}
   ///```
-  final ImageProvider backgroundImage;
+  final ImageProvider? backgroundImage;
 
   ///X value for placing the chart.
   ///
@@ -305,7 +310,7 @@ class SfCircularChart extends StatefulWidget {
   ///   args.legendIconType = LegendIconType.diamond;
   ///}
   ///```
-  final CircularLegendRenderCallback onLegendItemRender;
+  final CircularLegendRenderCallback? onLegendItemRender;
 
   /// Occurs while tooltip is rendered. You can customize the position and header. Here,
   /// you can get the text, header, point index, series, x and y-positions.
@@ -321,7 +326,7 @@ class SfCircularChart extends StatefulWidget {
   ///   args.locationX = 30;
   ///}
   ///```
-  final CircularTooltipCallback onTooltipRender;
+  final CircularTooltipCallback? onTooltipRender;
 
   /// Occurs while rendering the data label. The data label and text styles such as color,
   /// font size, and font weight can be customized. You can get the series index, point
@@ -342,7 +347,7 @@ class SfCircularChart extends StatefulWidget {
   ///    args.text = 'dataLabel';
   ///}
   ///```
-  final CircularDatalabelRenderCallback onDataLabelRender;
+  final CircularDatalabelRenderCallback? onDataLabelRender;
 
   /// Occurs when tapping a series point. Here, you can get the series, series index
   /// and point index.
@@ -357,7 +362,26 @@ class SfCircularChart extends StatefulWidget {
   ///   print(args.seriesIndex);
   ///}
   ///```
-  final CircularPointTapCallback onPointTapped;
+  final CircularPointTapCallback? onPointTapped;
+
+  ///Fills the data points with the gradient and image shaders.
+  ///
+  ///The data points of pie, doughnut and radial bar charts can be filled with [gradient](https://api.flutter.dev/flutter/dart-ui/Gradient-class.html)
+  /// (linear, radial and sweep gradient) and [image shaders](https://api.flutter.dev/flutter/dart-ui/ImageShader-class.html).
+  ///
+  ///All the data points are together considered as a single segment and the shader is applied commonly.
+  ///
+  ///Defaults to `null`.
+  ///
+  ///```dart
+  ///Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfCircularChart(
+  ///            onCreateShader: (ChartShaderDetails chartShaderDetails) => shader,
+  ///        ));
+  ///}
+  ///```
+  final CircularShaderCallback? onCreateShader;
 
   //Called when the data label is tapped.
   ///
@@ -379,7 +403,7 @@ class SfCircularChart extends StatefulWidget {
   ///
   ///```
 
-  final DataLabelTapCallback onDataLabelTapped;
+  final DataLabelTapCallback? onDataLabelTapped;
 
   /// Occurs when the legend is tapped. Here, you can get the series,
   /// series index, and point index.
@@ -394,7 +418,7 @@ class SfCircularChart extends StatefulWidget {
   ///   print(args.pointIndex);
   ///}
   ///```
-  final ChartLegendTapCallback onLegendTapped;
+  final ChartLegendTapCallback? onLegendTapped;
 
   /// Occurs while selection changes. Here, you can get the series, selected color,
   /// unselected color, selected border color, unselected border color, selected
@@ -410,7 +434,7 @@ class SfCircularChart extends StatefulWidget {
   ///   print(args.selectedBorderColor);
   ///}
   ///```
-  final CircularSelectionCallback onSelectionChanged;
+  final CircularSelectionCallback? onSelectionChanged;
 
   /// Occurs when tapped on the chart area.
   ///```dart
@@ -424,7 +448,7 @@ class SfCircularChart extends StatefulWidget {
   ///        ));
   ///}
   ///```
-  final CircularTouchInteractionCallback onChartTouchInteractionUp;
+  final CircularTouchInteractionCallback? onChartTouchInteractionUp;
 
   /// Occurs when touched on the chart area.
   ///```dart
@@ -439,7 +463,7 @@ class SfCircularChart extends StatefulWidget {
   ///}
   ///```
   ///
-  final CircularTouchInteractionCallback onChartTouchInteractionDown;
+  final CircularTouchInteractionCallback? onChartTouchInteractionDown;
 
   /// Occurs when touched and moved on the chart area.
   ///```dart
@@ -453,7 +477,7 @@ class SfCircularChart extends StatefulWidget {
   ///        ));
   ///}
   ///```
-  final CircularTouchInteractionCallback onChartTouchInteractionMove;
+  final CircularTouchInteractionCallback? onChartTouchInteractionMove;
 
   ///Color palette for the data points in the chart series. If the series color is
   ///not specified, then the series will be rendered with appropriate palette color.
@@ -526,85 +550,101 @@ class SfCircularChartState extends State<SfCircularChart>
     with TickerProviderStateMixin {
   /// Holds the animation controller list for all series
   //ignore: unused_field
-  List<AnimationController> _controllerList;
+  late List<AnimationController> _controllerList;
 
   /// Animation controller for series
-  AnimationController _animationController;
+  late AnimationController _animationController;
 
   /// Animation controller for Annotations
   //ignore: unused_field
-  AnimationController _annotationController;
+  late AnimationController _annotationController;
 
   /// Repaint notifier for series container
-  ValueNotifier<int> _seriesRepaintNotifier;
+  late ValueNotifier<int> _seriesRepaintNotifier;
 
   /// To measure legend size and position
-  List<_MeasureWidgetContext> _legendWidgetContext;
+  late List<_MeasureWidgetContext> _legendWidgetContext;
 
   /// Chart Template info
-  List<_ChartTemplateInfo> _templates;
+  late List<_ChartTemplateInfo> _templates;
 
   /// List of container widgets for chart series
-  List<Widget> _chartWidgets;
+  List<Widget>? _chartWidgets;
 
   /// Holds the information of chart theme arguments
-  SfChartThemeData _chartTheme;
-  Offset _centerLocation;
-  Rect _chartContainerRect;
-  Rect _chartAreaRect;
-  bool _animateCompleted;
-  List<int> _explodedPoints;
-  List<_LegendRenderContext> _legendToggleStates;
-  List<_MeasureWidgetContext> _legendToggleTemplateStates;
-  bool _initialRender;
+  late SfChartThemeData _chartTheme;
+  late Offset _centerLocation;
+  late Rect _chartContainerRect;
+  late Rect _chartAreaRect;
+  late bool _animateCompleted;
+  late List<int> _explodedPoints;
+  late List<_LegendRenderContext> _legendToggleStates;
+  late List<_MeasureWidgetContext> _legendToggleTemplateStates;
+  bool? _initialRender;
   //ignore: unused_field
-  List<ChartPoint<dynamic>> _selectedDataPoints;
+  late List<ChartPoint<dynamic>> _selectedDataPoints;
   //ignore: unused_field
-  List<ChartPoint<dynamic>> _unselectedDataPoints;
+  late List<ChartPoint<dynamic>> _unselectedDataPoints;
   //ignore: unused_field
-  List<_Region> _selectedRegions;
+  late List<_Region> _selectedRegions;
   //ignore: unused_field
-  List<_Region> _unselectedRegions;
-  List<Rect> _dataLabelTemplateRegions;
-  List<Rect> _annotationRegions;
-  _ChartTemplate _chartTemplate;
-  _ChartInteraction _currentActive;
-  Offset _tapPosition;
-  _CircularDataLabelRenderer _renderDataLabel;
-  bool _widgetNeedUpdate;
-  bool _isLegendToggled;
-  CircularSeriesRenderer _prevSeriesRenderer;
-  List<ChartPoint<dynamic>> _oldPoints;
-  List<int> _selectionData;
+  late List<_Region> _unselectedRegions;
+  late List<Rect> _dataLabelTemplateRegions;
+  late List<Rect> _annotationRegions;
+  _ChartTemplate? _chartTemplate;
+  _ChartInteraction? _currentActive;
+  Offset? _tapPosition;
+  _CircularDataLabelRenderer? _renderDataLabel;
+  late bool _widgetNeedUpdate;
+  late bool _isLegendToggled;
+  CircularSeriesRenderer? _prevSeriesRenderer;
+  List<ChartPoint<dynamic>?>? _oldPoints;
+  late List<int> _selectionData;
   //ignore: unused_field
-  Animation<double> _chartElementAnimation;
-  Orientation _oldDeviceOrientation;
-  Orientation _deviceOrientation;
+  late Animation<double> _chartElementAnimation;
+  Orientation? _oldDeviceOrientation;
+  late Orientation _deviceOrientation;
   //ignore: unused_field
-  CircularSeriesRenderer _seriesRenderer;
-  Size _prevSize;
+  CircularSeriesRenderer? _seriesRenderer;
+  Size? _prevSize;
   bool _didSizeChange = false;
   //Here, we are using get keyword inorder to get the proper & updated instance of chart widget
   //When we initialize chart widget as a property to other classes like _ChartSeries, the chart widget is not updated properly and by using get we can rectify this.
   SfCircularChart get _chart => widget;
 
-  _ChartLegend _chartLegend;
+  late _ChartLegend _chartLegend;
 
   /// Holds the information of SeriesBase class
-  _CircularSeries _chartSeries;
+  late _CircularSeries _chartSeries;
 
   //ignore: unused_field
-  _CircularArea _circularArea;
+  late _CircularArea _circularArea;
 
-  bool _needToMoveFromCenter;
+  late bool _needToMoveFromCenter;
 
-  bool _needExplodeAll;
+  late bool _needExplodeAll;
 
-  TooltipBehaviorRenderer _tooltipBehaviorRenderer;
-  LegendRenderer _legendRenderer;
+  late TooltipBehaviorRenderer _tooltipBehaviorRenderer;
+  late LegendRenderer _legendRenderer;
 
   //ignore: prefer_final_fields
   bool _isToggled = false;
+
+  // ignore: unused_element
+  bool get _animationCompleted {
+    return _animationController.status != AnimationStatus.forward;
+  }
+
+  /// Called when this object is inserted into the tree.
+  ///
+  /// The framework will call this method exactly once for each State object it creates.
+  ///
+  /// Override this method to perform initialization that depends on the location at
+  /// which this object was inserted into the tree or on the widget used to configure this object.
+  ///
+  /// * In [initState], subscribe to the object.
+  ///
+  /// Here it overrides to initialize the object that depends on rendering the [SfCircularChart].
 
   @override
   void initState() {
@@ -614,20 +654,41 @@ class SfCircularChartState extends State<SfCircularChart>
     super.initState();
   }
 
+  /// Called when a dependency of this [State] object changes.
+  ///
+  /// For example, if the previous call to [build] referenced an [InheritedWidget] that later changed,
+  /// the framework would call this method to notify this object about the change.
+  ///
+  /// This method is also called immediately after [initState]. It is safe to call [BuildContext.dependOnInheritedWidgetOfExactType] from this method.
+  ///
+  /// Here it called for initializing the chart theme of [SfCircularChart].
+
   @override
   void didChangeDependencies() {
     _chartTheme = SfChartTheme.of(context);
     super.didChangeDependencies();
   }
 
-  /// To update chart widgets
+  /// Called whenever the widget configuration changes.
+  ///
+  /// If the parent widget rebuilds and request that this location in the tree update to display a new widget with the same [runtimeType] and [Widget.key],
+  /// the framework will update the widget property of this [State] object to refer to the new widget and then call this method with the previous widget as an argument.
+  ///
+  /// Override this method to respond when the widget changes.
+  ///
+  /// The framework always calls [build] after calling [didUpdateWidget], which means any calls to [setState] in [didUpdateWidget] are redundant.
+  ///
+  /// * In [didUpdateWidget] unsubscribe from the old object and subscribe to the new one if the updated widget configuration requires replacing the object.
+  ///
+  /// Here it called whenever the series collection gets updated in [SfCircularChart].
+
   @override
   void didUpdateWidget(SfCircularChart oldWidget) {
     //Update and maintain the series state, when we update the series in the series collection //
     _createAndUpdateSeriesRenderer(oldWidget);
 
     _needsRepaintCircularChart(_chartSeries.visibleSeriesRenderers,
-        <CircularSeriesRenderer>[]..add(_prevSeriesRenderer));
+        <CircularSeriesRenderer?>[]..add(_prevSeriesRenderer));
 
     _needExplodeAll = widget.series.isNotEmpty &&
         widget.series[0].explodeAll &&
@@ -638,8 +699,22 @@ class SfCircularChartState extends State<SfCircularChart>
     if (_legendWidgetContext.isNotEmpty) {
       _legendWidgetContext.clear();
     }
+    if (_tooltipBehaviorRenderer._chartTooltipState != null) {
+      _tooltipBehaviorRenderer._show = false;
+    }
     super.didUpdateWidget(oldWidget);
   }
+
+  /// Describes the part of the user interface represented by this widget.
+  ///
+  /// The framework calls this method in a number of different situations. For example:
+  ///
+  /// * After calling [initState].
+  /// * After calling [didUpdateWidget].
+  /// * After receiving a call to [setState].
+  /// * After a dependency of this [State] object changes.
+  ///
+  /// Here it is called whenever the user interaction is performed and it removes the old widget and updates a chart with a new widget in [SfCircularChart].
 
   @override
   Widget build(BuildContext context) {
@@ -662,7 +737,7 @@ class SfCircularChartState extends State<SfCircularChart>
                 widget.backgroundColor ?? _chartTheme.plotAreaBackgroundColor,
             image: widget.backgroundImage != null
                 ? DecorationImage(
-                    image: widget.backgroundImage, fit: BoxFit.fill)
+                    image: widget.backgroundImage!, fit: BoxFit.fill)
                 : null,
             border: Border.all(
                 color: widget.borderColor, width: widget.borderWidth)),
@@ -673,18 +748,29 @@ class SfCircularChartState extends State<SfCircularChart>
     ));
   }
 
-  /// To end animation controller
+  /// Called when this object is removed from the tree permanently.
+  ///
+  /// The framework calls this method when this [State] object will never build again. After the framework calls [dispose],
+  /// the [State] object is considered unmounted and the [mounted] property is false. It is an error to call [setState] at this
+  /// point. This stage of the lifecycle is terminal: there is no way to remount a [State] object that has been disposed.
+  ///
+  /// Subclasses should override this method to release any resources retained by this object.
+  ///
+  /// * In [dispose], unsubscribe from the object.
+  ///
+  /// Here it end the animation controller of the series in [SfCircularChart].
+
   @override
   void dispose() {
     _disposeAnimationController(_animationController, _repaintChartElements);
     super.dispose();
   }
 
-  /// Method to convert the [SfCirculaChart] as an image.
+  /// Method to convert the [SfCircularChart] as an image.
   ///
   /// As this method is in the widget’s state class,
   /// you have to use a global key to access the state to call this method.
-  /// Returns the [dart:ui.image]
+  /// Returns the `dart:ui.image`
   ///
   /// ```dart
   /// final GlobalKey<SfCircularChartState> _key = GlobalKey();
@@ -737,8 +823,8 @@ class SfCircularChartState extends State<SfCircularChart>
   ///```
 
   Future<dart_ui.Image> toImage({double pixelRatio = 1.0}) async {
-    final RenderRepaintBoundary boundary =
-        context.findRenderObject(); //get the render object from context
+    final RenderRepaintBoundary boundary = context.findRenderObject()
+        as RenderRepaintBoundary; //get the render object from context
 
     final dart_ui.Image image =
         await boundary.toImage(pixelRatio: pixelRatio); // Convert
@@ -777,9 +863,9 @@ class SfCircularChartState extends State<SfCircularChart>
   }
 
   // In this method, create and update the series renderer for each series //
-  void _createAndUpdateSeriesRenderer([SfCircularChart oldWidget]) {
-    if (widget.series != null && widget.series.isNotEmpty) {
-      final CircularSeriesRenderer oldSeriesRenderer =
+  void _createAndUpdateSeriesRenderer([SfCircularChart? oldWidget]) {
+    if (widget.series.isNotEmpty) {
+      final CircularSeriesRenderer? oldSeriesRenderer =
           oldWidget != null && oldWidget.series.isNotEmpty
               ? _chartSeries.visibleSeriesRenderers[0]
               : null;
@@ -789,24 +875,24 @@ class SfCircularChartState extends State<SfCircularChart>
       CircularSeriesRenderer seriesRenderer;
 
       if (_prevSeriesRenderer != null &&
-          !_prevSeriesRenderer._chartState._isToggled &&
-          _isSameSeries(_prevSeriesRenderer._series, series)) {
-        seriesRenderer = _prevSeriesRenderer;
+          !_prevSeriesRenderer!._chartState._isToggled &&
+          _isSameSeries(_prevSeriesRenderer!._series, series)) {
+        seriesRenderer = _prevSeriesRenderer!;
       } else {
         seriesRenderer = series.createRenderer(series);
         if (seriesRenderer._controller == null &&
             series.onRendererCreated != null) {
           seriesRenderer._controller = CircularSeriesController(seriesRenderer);
-          series.onRendererCreated(seriesRenderer._controller);
+          series.onRendererCreated!(seriesRenderer._controller);
         }
       }
       if (oldWidget != null && oldWidget.series.isNotEmpty) {
         _prevSeriesRenderer = oldSeriesRenderer;
-        _prevSeriesRenderer._series = oldWidget.series[0];
-        _prevSeriesRenderer._oldRenderPoints = <ChartPoint<dynamic>>[]
+        _prevSeriesRenderer!._series = oldWidget.series[0];
+        _prevSeriesRenderer!._oldRenderPoints = <ChartPoint<dynamic>>[]
           //ignore: prefer_spread_collections
-          ..addAll(_prevSeriesRenderer._renderPoints ?? []);
-        _prevSeriesRenderer._renderPoints = <ChartPoint<dynamic>>[];
+          ..addAll(_prevSeriesRenderer!._renderPoints ?? []);
+        _prevSeriesRenderer!._renderPoints = <ChartPoint<dynamic>>[];
       }
       seriesRenderer._series = series;
       seriesRenderer._isSelectionEnable =
@@ -829,11 +915,14 @@ class SfCircularChartState extends State<SfCircularChart>
     if (_isLegendToggled) {
       _isToggled = true;
       _prevSeriesRenderer = _chartSeries.visibleSeriesRenderers[0];
-      _oldPoints =
-          List<ChartPoint<dynamic>>(_prevSeriesRenderer._renderPoints.length);
-      for (int i = 0; i < _prevSeriesRenderer._renderPoints.length; i++) {
-        _oldPoints[i] = _prevSeriesRenderer._renderPoints[i];
+      _oldPoints = List<ChartPoint<dynamic>?>.filled(
+          _prevSeriesRenderer!._renderPoints!.length, null);
+      for (int i = 0; i < _prevSeriesRenderer!._renderPoints!.length; i++) {
+        _oldPoints![i] = _prevSeriesRenderer!._renderPoints![i];
       }
+    }
+    if (_tooltipBehaviorRenderer._chartTooltipState != null) {
+      _tooltipBehaviorRenderer._show = false;
     }
     setState(() {
       /// The chart will be rebuilding again, When we do the legend toggle, zoom/pan the chart.
@@ -845,7 +934,8 @@ class SfCircularChartState extends State<SfCircularChart>
     if (legendContexts.isNotEmpty) {
       for (int i = 0; i < legendContexts.length; i++) {
         final _MeasureWidgetContext templateContext = legendContexts[i];
-        final RenderBox renderBox = templateContext.context.findRenderObject();
+        final RenderBox renderBox =
+            templateContext.context!.findRenderObject() as RenderBox;
         templateContext.size = renderBox.size;
       }
       setState(() {
@@ -869,11 +959,11 @@ class SfCircularChartState extends State<SfCircularChart>
         final List<Widget> legendTemplates = _bindLegendTemplateWidgets(this);
         if (legendTemplates.isNotEmpty && _legendWidgetContext.isEmpty) {
           element = Container(child: Stack(children: legendTemplates));
-          SchedulerBinding.instance.addPostFrameCallback((_) => _refresh());
+          SchedulerBinding.instance!.addPostFrameCallback((_) => _refresh());
         } else {
           _chartLegend._calculateLegendBounds(_chartLegend.chartSize);
           element =
-              _getElements(this, _CircularArea(chartState: this), constraints);
+              _getElements(this, _CircularArea(chartState: this), constraints)!;
         }
         return element;
       }),
@@ -897,12 +987,18 @@ class SfCircularChartState extends State<SfCircularChart>
 // ignore: must_be_immutable
 class _CircularArea extends StatelessWidget {
   // ignore: prefer_const_constructors_in_immutables
-  _CircularArea({this.chartState});
+  _CircularArea({required this.chartState});
   //Here, we are using get keyword inorder to get the proper & updated instance of chart widget
   //When we initialize chart widget as a property to other classes like _ChartSeries, the chart widget is not updated properly and by using get we can rectify this.
   SfCircularChart get chart => chartState._chart;
   final SfCircularChartState chartState;
-  CircularSeries<dynamic, dynamic> series;
+  CircularSeries<dynamic, dynamic>? series;
+  late RenderBox renderBox;
+  _Region? pointRegion;
+  late TapDownDetails tapDownDetails;
+  late Offset? doubleTapPosition;
+  bool _enableMouseHover =
+      kIsWeb || Platform.isLinux || Platform.isMacOS || Platform.isWindows;
 
   @override
   Widget build(BuildContext context) {
@@ -910,7 +1006,10 @@ class _CircularArea extends StatelessWidget {
         builder: (BuildContext context, BoxConstraints constraints) {
       return Container(
         child: MouseRegion(
-            onHover: (PointerEvent event) => _onHover(event),
+            // Using the _enableMouseHover property, prevented mouse hover function in mobile platforms. The mouse hover event should not be triggered for mobile platforms and logged an issue regarding this to the Flutter team.
+            // Issue:  https://github.com/flutter/flutter/issues/68690
+            onHover: (PointerEvent event) =>
+                _enableMouseHover ? _onHover(event) : null,
             onExit: (PointerEvent event) {
               chartState._tooltipBehaviorRenderer._isHovering = false;
             },
@@ -921,6 +1020,11 @@ class _CircularArea extends StatelessWidget {
                   _performPointerMove(event),
               child: GestureDetector(
                   onLongPress: _onLongPress,
+                  onTapUp: (TapUpDetails details) {
+                    if (chart.onPointTapped != null && pointRegion != null) {
+                      _calculatePointSeriesIndex(chart, pointRegion);
+                    }
+                  },
                   onDoubleTap: _onDoubleTap,
                   child: Container(
                     height: constraints.maxHeight,
@@ -934,26 +1038,20 @@ class _CircularArea extends StatelessWidget {
   }
 
   /// Find point index for selection
-  void _calculatePointSeriesIndex(SfCircularChart chart, _Region pointRegion) {
+  void _calculatePointSeriesIndex(SfCircularChart chart, _Region? pointRegion) {
     PointTapArgs pointTapArgs;
     pointTapArgs = PointTapArgs(
-        pointRegion.seriesIndex,
-        pointRegion.pointIndex,
+        pointRegion?.seriesIndex,
+        pointRegion?.pointIndex,
         chartState._chartSeries.visibleSeriesRenderers[0]._dataPoints,
-        pointRegion.pointIndex);
-    chart.onPointTapped(pointTapArgs);
+        pointRegion?.pointIndex);
+    chart.onPointTapped!(pointTapArgs);
   }
-
-  RenderBox renderBox;
-  _Region pointRegion;
-  TapDownDetails tapDownDetails;
-  Offset doubleTapPosition;
 
   /// To perform the pointer down event
   void _onTapDown(PointerDownEvent event) {
     ChartTouchInteractionArgs touchArgs;
     chartState._tooltipBehaviorRenderer._isHovering = false;
-    // renderBox = context.findRenderObject();
     chartState._currentActive = null;
     chartState._tapPosition = renderBox.globalToLocal(event.position);
     pointRegion = _getCircularPointRegion(chart, chartState._tapPosition,
@@ -961,25 +1059,24 @@ class _CircularArea extends StatelessWidget {
     doubleTapPosition = chartState._tapPosition;
     if (chartState._tapPosition != null && pointRegion != null) {
       chartState._currentActive = _ChartInteraction(
-          pointRegion.seriesIndex,
-          pointRegion.pointIndex,
+          pointRegion?.seriesIndex,
+          pointRegion?.pointIndex,
           chartState._chartSeries
-              .visibleSeriesRenderers[pointRegion.seriesIndex]._series,
+              .visibleSeriesRenderers[pointRegion!.seriesIndex]._series,
           chartState
               ._chartSeries
-              .visibleSeriesRenderers[pointRegion.seriesIndex]
-              ._renderPoints[pointRegion.pointIndex],
+              .visibleSeriesRenderers[pointRegion!.seriesIndex]
+              ._renderPoints![pointRegion!.pointIndex],
           pointRegion);
     } else {
       //hides the tooltip if the point of interaction is outside circular region of the chart
-      chartState._tooltipBehaviorRenderer?._tooltipTemplate?.show = false;
-      chartState._tooltipBehaviorRenderer?._tooltipTemplate?.state
-          ?.hideOnTimer();
+      chartState._tooltipBehaviorRenderer._show = false;
+      chartState._tooltipBehaviorRenderer._hideOnTimer();
     }
     if (chart.onChartTouchInteractionDown != null) {
       touchArgs = ChartTouchInteractionArgs();
       touchArgs.position = renderBox.globalToLocal(event.position);
-      chart.onChartTouchInteractionDown(touchArgs);
+      chart.onChartTouchInteractionDown!(touchArgs);
     }
   }
 
@@ -990,7 +1087,7 @@ class _CircularArea extends StatelessWidget {
     if (chart.onChartTouchInteractionMove != null) {
       touchArgs = ChartTouchInteractionArgs();
       touchArgs.position = position;
-      chart.onChartTouchInteractionMove(touchArgs);
+      chart.onChartTouchInteractionMove!(touchArgs);
     }
   }
 
@@ -998,32 +1095,34 @@ class _CircularArea extends StatelessWidget {
   void _onDoubleTap() {
     if (doubleTapPosition != null && pointRegion != null) {
       chartState._currentActive = _ChartInteraction(
-          pointRegion.seriesIndex,
-          pointRegion.pointIndex,
+          pointRegion?.seriesIndex,
+          pointRegion?.pointIndex,
           chartState._chartSeries
-              .visibleSeriesRenderers[pointRegion.seriesIndex]._series,
+              .visibleSeriesRenderers[pointRegion!.seriesIndex]._series,
           chartState
               ._chartSeries
-              .visibleSeriesRenderers[pointRegion.seriesIndex]
-              ._renderPoints[pointRegion.pointIndex],
+              .visibleSeriesRenderers[pointRegion!.seriesIndex]
+              ._renderPoints![pointRegion!.pointIndex],
           pointRegion);
       if (chartState._currentActive != null) {
-        if (chartState._currentActive.series.explodeGesture ==
+        if (chartState._currentActive?.series.explodeGesture ==
             ActivationMode.doubleTap) {
           chartState._chartSeries
-              ._seriesPointExplosion(chartState._currentActive.region);
+              ._seriesPointExplosion(chartState._currentActive?.region);
         }
       }
       chartState._chartSeries
           ._seriesPointSelection(pointRegion, ActivationMode.doubleTap);
       if (chart.tooltipBehavior.enable &&
           chartState._animateCompleted &&
-          chart.tooltipBehavior.activationMode == ActivationMode.doubleTap) {
+          chart.tooltipBehavior.activationMode == ActivationMode.doubleTap &&
+          doubleTapPosition != null) {
         if (chart.tooltipBehavior.builder != null) {
           _showCircularTooltipTemplate();
         } else {
           chartState._tooltipBehaviorRenderer.onDoubleTap(
-              doubleTapPosition.dx.toDouble(), doubleTapPosition.dy.toDouble());
+              doubleTapPosition!.dx.toDouble(),
+              doubleTapPosition!.dy.toDouble());
         }
       }
     }
@@ -1033,33 +1132,34 @@ class _CircularArea extends StatelessWidget {
   void _onLongPress() {
     if (chartState._tapPosition != null && pointRegion != null) {
       chartState._currentActive = _ChartInteraction(
-          pointRegion.seriesIndex,
-          pointRegion.pointIndex,
+          pointRegion?.seriesIndex,
+          pointRegion?.pointIndex,
           chartState._chartSeries
-              .visibleSeriesRenderers[pointRegion.seriesIndex]._series,
+              .visibleSeriesRenderers[pointRegion!.seriesIndex]._series,
           chartState
               ._chartSeries
-              .visibleSeriesRenderers[pointRegion.seriesIndex]
-              ._renderPoints[pointRegion.pointIndex],
+              .visibleSeriesRenderers[pointRegion!.seriesIndex]
+              ._renderPoints![pointRegion!.pointIndex],
           pointRegion);
       chartState._chartSeries
           ._seriesPointSelection(pointRegion, ActivationMode.longPress);
       if (chartState._currentActive != null) {
-        if (chartState._currentActive.series.explodeGesture ==
+        if (chartState._currentActive?.series.explodeGesture ==
             ActivationMode.longPress) {
           chartState._chartSeries
-              ._seriesPointExplosion(chartState._currentActive.region);
+              ._seriesPointExplosion(chartState._currentActive?.region);
         }
       }
       if (chart.tooltipBehavior.enable &&
           chartState._animateCompleted &&
-          chart.tooltipBehavior.activationMode == ActivationMode.longPress) {
+          chart.tooltipBehavior.activationMode == ActivationMode.longPress &&
+          chartState._tapPosition != null) {
         if (chart.tooltipBehavior.builder != null) {
           _showCircularTooltipTemplate();
         } else {
           chartState._tooltipBehaviorRenderer.onLongPress(
-              chartState._tapPosition.dx.toDouble(),
-              chartState._tapPosition.dy.toDouble());
+              chartState._tapPosition!.dx.toDouble(),
+              chartState._tapPosition!.dy.toDouble());
         }
       }
     }
@@ -1071,36 +1171,32 @@ class _CircularArea extends StatelessWidget {
     ChartTouchInteractionArgs touchArgs;
     final CircularSeriesRenderer seriesRenderer =
         chartState._chartSeries.visibleSeriesRenderers[0];
-    if (chart.onPointTapped != null && pointRegion != null) {
-      _calculatePointSeriesIndex(chart, pointRegion);
-    }
     if (chart.onDataLabelTapped != null) {
       _triggerCircularDataLabelEvent(
           chart, seriesRenderer, chartState, chartState._tapPosition);
     }
     if (chartState._tapPosition != null) {
       if (chartState._currentActive != null &&
-          chartState._currentActive.series != null &&
-          chartState._currentActive.series.explodeGesture ==
+          chartState._currentActive!.series != null &&
+          chartState._currentActive!.series.explodeGesture ==
               ActivationMode.singleTap) {
         chartState._chartSeries
-            ._seriesPointExplosion(chartState._currentActive.region);
+            ._seriesPointExplosion(chartState._currentActive!.region);
       }
 
       if (chartState._tapPosition != null &&
           chartState._currentActive != null) {
         chartState._chartSeries._seriesPointSelection(
-            chartState._currentActive.region, ActivationMode.singleTap);
+            chartState._currentActive!.region, ActivationMode.singleTap);
       }
       if (chart.tooltipBehavior.enable &&
           chartState._animateCompleted &&
           chart.tooltipBehavior.activationMode == ActivationMode.singleTap &&
           chartState._currentActive != null &&
-          chartState._currentActive.series != null) {
+          chartState._currentActive!.series != null) {
         if (chart.tooltipBehavior.builder != null) {
           _showCircularTooltipTemplate();
         } else {
-          // final RenderBox renderBox = context.findRenderObject();
           final Offset position = renderBox.globalToLocal(event.position);
           chartState._tooltipBehaviorRenderer
               .onTouchUp(position.dx.toDouble(), position.dy.toDouble());
@@ -1109,7 +1205,7 @@ class _CircularArea extends StatelessWidget {
       if (chart.onChartTouchInteractionUp != null) {
         touchArgs = ChartTouchInteractionArgs();
         touchArgs.position = renderBox.globalToLocal(event.position);
-        chart.onChartTouchInteractionUp(touchArgs);
+        chart.onChartTouchInteractionUp!(touchArgs);
       }
     }
     chartState._tapPosition = null;
@@ -1129,28 +1225,26 @@ class _CircularArea extends StatelessWidget {
     }
     if (chartState._tapPosition != null && pointRegion != null) {
       chartState._currentActive = _ChartInteraction(
-          pointRegion.seriesIndex,
-          pointRegion.pointIndex,
+          pointRegion!.seriesIndex,
+          pointRegion!.pointIndex,
           chartState._chartSeries
-              .visibleSeriesRenderers[pointRegion.seriesIndex]._series,
+              .visibleSeriesRenderers[pointRegion!.seriesIndex]._series,
           chartState
               ._chartSeries
-              .visibleSeriesRenderers[pointRegion.seriesIndex]
-              ._renderPoints[pointRegion.pointIndex],
+              .visibleSeriesRenderers[pointRegion!.seriesIndex]
+              ._renderPoints![pointRegion!.pointIndex],
           pointRegion);
-    } else if (chart.tooltipBehavior?.builder != null) {
+    } else {
       //hides the tooltip when the mouse is hovering out of the circular region
-      chartState._tooltipBehaviorRenderer?._tooltipTemplate?.show = false;
-      chartState._tooltipBehaviorRenderer?._tooltipTemplate?.state
-          ?.hideOnTimer();
+      chartState._tooltipBehaviorRenderer._hide();
     }
     if (chartState._tapPosition != null) {
       if (chart.tooltipBehavior.enable &&
           chartState._currentActive != null &&
-          chartState._currentActive.series != null) {
+          chartState._currentActive!.series != null) {
         chartState._tooltipBehaviorRenderer._isHovering = true;
-        if (chart.tooltipBehavior.builder != null &&
-            chartState._animateCompleted) {
+        chartState._tooltipBehaviorRenderer._timer?.cancel();
+        if (chart.tooltipBehavior.builder != null) {
           _showCircularTooltipTemplate();
         } else {
           final Offset position = renderBox.globalToLocal(event.position);
@@ -1158,10 +1252,8 @@ class _CircularArea extends StatelessWidget {
               .onEnter(position.dx.toDouble(), position.dy.toDouble());
         }
       } else {
-        chartState?._tooltipBehaviorRenderer?._painter?.prevTooltipValue = null;
-        chartState?._tooltipBehaviorRenderer?._painter?.currentTooltipValue =
-            null;
-        chartState?._tooltipBehaviorRenderer?._painter?.hide();
+        chartState._tooltipBehaviorRenderer._prevTooltipValue = null;
+        chartState._tooltipBehaviorRenderer._currentTooltipValue = null;
       }
     }
     chartState._tapPosition = null;
@@ -1169,44 +1261,49 @@ class _CircularArea extends StatelessWidget {
 
   /// This method gets executed for showing tooltip when builder is provided in behavior
   ///the optional parameters will take values once thee public method gets called
-  void _showCircularTooltipTemplate([int seriesIndex, int pointIndex]) {
-    final _TooltipTemplate tooltipTemplate =
-        chartState._tooltipBehaviorRenderer._tooltipTemplate;
-    chartState._tooltipBehaviorRenderer._tooltipTemplate?._alwaysShow =
-        chart.tooltipBehavior.shouldAlwaysShow;
-    if (!chartState._tooltipBehaviorRenderer._isHovering) {
+  void _showCircularTooltipTemplate([int? seriesIndex, int? pointIndex]) {
+    final tooltipBehaviorRenderer = chartState._tooltipBehaviorRenderer;
+    if (!tooltipBehaviorRenderer._isHovering) {
       //assingning null for the previous and current tooltip values in case of touch interaction
-      tooltipTemplate?.state?.prevTooltipValue = null;
-      tooltipTemplate?.state?.currentTooltipValue = null;
+      tooltipBehaviorRenderer._prevTooltipValue = null;
+      tooltipBehaviorRenderer._currentTooltipValue = null;
     }
     final CircularSeries<dynamic, dynamic> chartSeries =
-        chartState?._currentActive?.series ?? chart.series[seriesIndex];
+        chartState._currentActive?.series ?? chart.series[seriesIndex!];
     final ChartPoint<dynamic> point = pointIndex == null
-        ? chartState._currentActive.point
+        ? chartState._currentActive?.point
         : chartState
             ._chartSeries.visibleSeriesRenderers[0]._dataPoints[pointIndex];
     if (point.isVisible) {
-      final Offset location = _degreeToPoint(point.midAngle,
-          (point.innerRadius + point.outerRadius) / 2, point.center);
-      if (location != null && (chartSeries.enableTooltip ?? true)) {
-        tooltipTemplate.rect = Rect.fromLTWH(location.dx, location.dy, 0, 0);
-        tooltipTemplate.template = chart.tooltipBehavior.builder(
-            chartSeries
-                .dataSource[pointIndex ?? chartState._currentActive.pointIndex],
-            point,
-            chartSeries,
-            seriesIndex ?? chartState._currentActive.seriesIndex,
-            pointIndex ?? chartState._currentActive.pointIndex);
-        if (chartState._tooltipBehaviorRenderer._isHovering) {
-          //assigning values for previous and current tooltip values when the mouse is hovering
-          tooltipTemplate.state.prevTooltipValue =
-              tooltipTemplate.state.currentTooltipValue;
-          tooltipTemplate.state.currentTooltipValue = TooltipValue(
-              seriesIndex ?? chartState._currentActive.seriesIndex,
-              pointIndex ?? chartState._currentActive.pointIndex);
+      final Offset? location = _degreeToPoint(point.midAngle!,
+          (point.innerRadius! + point.outerRadius!) / 2, point.center!);
+      if (location != null && (chartSeries.enableTooltip)) {
+        tooltipBehaviorRenderer._showLocation = location;
+        tooltipBehaviorRenderer._renderBox!.boundaryRect =
+            chartState._chartContainerRect;
+        tooltipBehaviorRenderer._tooltipTemplate =
+            chart.tooltipBehavior.builder!(
+                chartSeries.dataSource![
+                    pointIndex ?? chartState._currentActive!.pointIndex!],
+                point,
+                chartSeries,
+                seriesIndex ?? chartState._currentActive!.seriesIndex!,
+                pointIndex ?? chartState._currentActive!.pointIndex!);
+        if (tooltipBehaviorRenderer._isHovering) {
+          // assigning values for previous and current tooltip values when the mouse is hovering
+          tooltipBehaviorRenderer._prevTooltipValue =
+              tooltipBehaviorRenderer._currentTooltipValue;
+          tooltipBehaviorRenderer._currentTooltipValue = TooltipValue(
+              seriesIndex ?? chartState._currentActive!.seriesIndex!,
+              pointIndex ?? chartState._currentActive!.pointIndex!);
         }
-        tooltipTemplate.show = true;
-        tooltipTemplate?.state?._performTooltip();
+        if (!tooltipBehaviorRenderer._isHovering) {
+          tooltipBehaviorRenderer._timer = Timer(
+              Duration(milliseconds: chart.tooltipBehavior.duration.toInt()),
+              tooltipBehaviorRenderer._hideTooltipTemplate);
+        }
+        tooltipBehaviorRenderer._show = true;
+        tooltipBehaviorRenderer._performTooltip();
       }
     }
   }
@@ -1215,7 +1312,7 @@ class _CircularArea extends StatelessWidget {
   Widget _initializeChart(BoxConstraints constraints, BuildContext context) {
     _calculateContainerSize(constraints);
     if (chart.series.isNotEmpty) {
-      chartState._chartSeries?._calculateAngleAndCenterPositions(
+      chartState._chartSeries._calculateAngleAndCenterPositions(
           chartState._chartSeries.visibleSeriesRenderers[0]);
     }
     return Container(
@@ -1227,7 +1324,8 @@ class _CircularArea extends StatelessWidget {
   void _calculateContainerSize(BoxConstraints constraints) {
     final num width = constraints.maxWidth;
     final num height = constraints.maxHeight;
-    chartState._chartContainerRect = Rect.fromLTWH(0, 0, width, height);
+    chartState._chartContainerRect =
+        Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble());
     final EdgeInsets margin = chart.margin;
     chartState._chartAreaRect = Rect.fromLTWH(
         margin.left,
@@ -1243,8 +1341,8 @@ class _CircularArea extends StatelessWidget {
     _renderTemplates();
     _bindTooltipWidgets(constraints);
     chartState._circularArea = this;
-    renderBox = context.findRenderObject();
-    return Container(child: Stack(children: chartState._chartWidgets));
+    renderBox = context.findRenderObject() as RenderBox;
+    return Container(child: Stack(children: chartState._chartWidgets!));
   }
 
   /// To add chart templates
@@ -1266,23 +1364,23 @@ class _CircularArea extends StatelessWidget {
           series.dataLabelSettings.connectorLineSettings;
       if (series.dataLabelSettings.isVisible &&
           series.dataLabelSettings.builder != null) {
-        for (int i = 0; i < seriesRenderer._renderPoints.length; i++) {
-          point = seriesRenderer._renderPoints[i];
+        for (int i = 0; i < seriesRenderer._renderPoints!.length; i++) {
+          point = seriesRenderer._renderPoints![i];
           ChartAlignment labelAlign;
           if (point.isVisible) {
-            labelWidget = series.dataLabelSettings
-                .builder(series.dataSource[i], point, series, i, k);
+            labelWidget = series.dataLabelSettings.builder!(
+                series.dataSource![i], point, series, i, k);
             if (series.dataLabelSettings.labelPosition ==
                 ChartDataLabelPosition.inside) {
-              labelLocation = _degreeToPoint(point.midAngle,
-                  (point.innerRadius + point.outerRadius) / 2, point.center);
+              labelLocation = _degreeToPoint(point.midAngle!,
+                  (point.innerRadius! + point.outerRadius!) / 2, point.center!);
               labelLocation = Offset(labelLocation.dx, labelLocation.dy);
               labelAlign = ChartAlignment.center;
             } else {
-              final num connectorLength =
-                  _percentToValue(connector.length ?? '10%', point.outerRadius);
-              labelLocation = _degreeToPoint(point.midAngle,
-                  point.outerRadius + connectorLength, point.center);
+              final num connectorLength = _percentToValue(
+                  connector.length ?? '10%', point.outerRadius!)!;
+              labelLocation = _degreeToPoint(point.midAngle!,
+                  point.outerRadius! + connectorLength, point.center!);
               labelLocation = Offset(
                   point.dataLabelPosition == Position.right
                       ? labelLocation.dx + lineLength + 5
@@ -1308,19 +1406,21 @@ class _CircularArea extends StatelessWidget {
         }
       }
     }
-    if (chart.annotations != null && chart.annotations.isNotEmpty) {
-      for (int i = 0; i < chart.annotations.length; i++) {
-        final CircularChartAnnotation annotation = chart.annotations[i];
+    if (chart.annotations != null && chart.annotations!.isNotEmpty) {
+      for (int i = 0; i < chart.annotations!.length; i++) {
+        final CircularChartAnnotation annotation = chart.annotations![i];
         if (annotation.widget != null) {
           final double radius = _percentToValue(
-                  annotation.radius, chartState._chartSeries.size / 2)
+                  annotation.radius, chartState._chartSeries.size / 2)!
               .toDouble();
           final Offset point = _degreeToPoint(
               annotation.angle, radius, chartState._centerLocation);
           final double annotationHeight = _percentToValue(
-              annotation.height, chartState._chartSeries.size / 2);
+                  annotation.height, chartState._chartSeries.size / 2)!
+              .toDouble();
           final double annotationWidth = _percentToValue(
-              annotation.width, chartState._chartSeries.size / 2);
+                  annotation.width, chartState._chartSeries.size / 2)!
+              .toDouble();
           final _ChartTemplateInfo templateInfo = _ChartTemplateInfo(
               key: GlobalKey(),
               templateType: 'Annotation',
@@ -1333,7 +1433,7 @@ class _CircularArea extends StatelessWidget {
                       height: annotationHeight,
                       width: annotationWidth,
                       child: annotation.widget)
-                  : annotation.widget,
+                  : annotation.widget!,
               pointIndex: i,
               animationDuration: 500,
               location: point);
@@ -1347,7 +1447,7 @@ class _CircularArea extends StatelessWidget {
   void _renderTemplates() {
     if (chartState._templates.isNotEmpty) {
       for (int i = 0; i < chartState._templates.length; i++) {
-        chartState._templates[i].animationDuration = !chartState._initialRender
+        chartState._templates[i].animationDuration = !chartState._initialRender!
             ? 0
             : chartState._templates[i].animationDuration;
       }
@@ -1355,39 +1455,54 @@ class _CircularArea extends StatelessWidget {
           templates: chartState._templates,
           render: chartState._animateCompleted,
           chartState: chartState);
-      chartState._chartWidgets.add(chartState._chartTemplate);
+      chartState._chartWidgets!.add(chartState._chartTemplate!);
     }
   }
 
   /// To add tooltip widgets to chart
   void _bindTooltipWidgets(BoxConstraints constraints) {
     chart.tooltipBehavior._chartState = chartState;
+    final SfChartThemeData _chartTheme = chartState._chartTheme;
     if (chart.tooltipBehavior.enable) {
-      final List<Widget> tooltipWidgets = <Widget>[];
-      if (chart.tooltipBehavior.builder != null) {
-        chartState._tooltipBehaviorRenderer._tooltipTemplate = _TooltipTemplate(
-            show: false,
-            clipRect: chartState._chartContainerRect,
-            tooltipBehavior: chart.tooltipBehavior,
-            duration: chart.tooltipBehavior.duration,
-            chartState: chartState);
-        tooltipWidgets
-            .add(chartState._tooltipBehaviorRenderer._tooltipTemplate);
-      } else {
-        chartState._tooltipBehaviorRenderer._chartTooltip =
-            _ChartTooltipRenderer(chartState: chartState);
-        tooltipWidgets.add(chartState._tooltipBehaviorRenderer._chartTooltip);
-      }
-      final Widget uiWidget =
-          IgnorePointer(ignoring: true, child: Stack(children: tooltipWidgets));
-      chartState._chartWidgets.add(uiWidget);
+      final tooltip = chart.tooltipBehavior;
+      chartState._tooltipBehaviorRenderer._prevTooltipValue =
+          chartState._tooltipBehaviorRenderer._currentTooltipValue = null;
+      chartState._tooltipBehaviorRenderer._chartTooltip = SfTooltip(
+          color: tooltip.color ?? _chartTheme.tooltipColor,
+          key: GlobalKey(),
+          textStyle: tooltip.textStyle,
+          animationDuration: tooltip.animationDuration,
+          enable: tooltip.enable,
+          opacity: tooltip.opacity,
+          borderColor: tooltip.borderColor,
+          borderWidth: tooltip.borderWidth,
+          duration: tooltip.duration,
+          shouldAlwaysShow: tooltip.shouldAlwaysShow,
+          elevation: tooltip.elevation,
+          canShowMarker: tooltip.canShowMarker,
+          textAlignment: tooltip.textAlignment,
+          decimalPlaces: tooltip.decimalPlaces,
+          labelColor: tooltip.textStyle.color ?? _chartTheme.tooltipLabelColor,
+          header: tooltip.header,
+          format: tooltip.format,
+          builder: tooltip.builder,
+          shadowColor: tooltip.shadowColor,
+          onTooltipRender: chart.onTooltipRender != null
+              ? chartState._tooltipBehaviorRenderer._tooltipRenderingEvent
+              : null);
+      final Widget uiWidget = IgnorePointer(
+          ignoring: true,
+          child: Stack(children: <Widget>[
+            chartState._tooltipBehaviorRenderer._chartTooltip!
+          ]));
+      chartState._chartWidgets!.add(uiWidget);
     }
   }
 
   /// To add series widgets in chart
   void _bindSeriesWidgets(BuildContext context) {
-    CustomPainter seriesPainter;
-    Animation<double> seriesAnimation;
+    late CustomPainter seriesPainter;
+    Animation<double>? seriesAnimation;
     chartState._animateCompleted = false;
     chartState._chartWidgets ??= <Widget>[];
     CircularSeries<dynamic, dynamic> series;
@@ -1407,9 +1522,9 @@ class _CircularArea extends StatelessWidget {
       selectionBehaviorRenderer = seriesRenderer._selectionBehaviorRenderer =
           SelectionBehaviorRenderer(selectionBehavior, chart, chartState);
       selectionBehaviorRenderer._selectionRenderer ??= _SelectionRenderer();
-      selectionBehaviorRenderer._selectionRenderer.chart = chart;
-      selectionBehaviorRenderer._selectionRenderer._chartState = chartState;
-      selectionBehaviorRenderer._selectionRenderer.seriesRenderer =
+      selectionBehaviorRenderer._selectionRenderer!.chart = chart;
+      selectionBehaviorRenderer._selectionRenderer!._chartState = chartState;
+      selectionBehaviorRenderer._selectionRenderer!.seriesRenderer =
           seriesRenderer;
       if (series.initialSelectedDataIndexes.isNotEmpty) {
         for (int index = 0;
@@ -1423,7 +1538,7 @@ class _CircularArea extends StatelessWidget {
       if (series.animationDuration > 0 &&
           !chartState._didSizeChange &&
           (chartState._oldDeviceOrientation == chartState._deviceOrientation) &&
-          (chartState._initialRender ||
+          (chartState._initialRender! ||
               (chartState._widgetNeedUpdate &&
                   seriesRenderer._needsAnimation) ||
               chartState._isLegendToggled)) {
@@ -1437,11 +1552,10 @@ class _CircularArea extends StatelessWidget {
                 if (status == AnimationStatus.completed) {
                   chartState._animateCompleted = true;
                   if (chartState._renderDataLabel != null) {
-                    chartState._renderDataLabel.state.render();
+                    chartState._renderDataLabel!.state.render();
                   }
-                  if (chartState._chartTemplate != null &&
-                      chartState._chartTemplate.state != null) {
-                    chartState._chartTemplate.state.templateRender();
+                  if (chartState._chartTemplate != null) {
+                    chartState._chartTemplate!.state.templateRender();
                   }
                 }
               }));
@@ -1480,11 +1594,11 @@ class _CircularArea extends StatelessWidget {
             seriesAnimation: seriesAnimation,
             notifier: chartState._seriesRepaintNotifier);
       }
-      chartState._chartWidgets
+      chartState._chartWidgets!
           .add(RepaintBoundary(child: CustomPaint(painter: seriesPainter)));
       chartState._renderDataLabel = _CircularDataLabelRenderer(
           circularChartState: chartState, show: chartState._animateCompleted);
-      chartState._chartWidgets.add(chartState._renderDataLabel);
+      chartState._chartWidgets!.add(chartState._renderDataLabel!);
     }
   }
 }

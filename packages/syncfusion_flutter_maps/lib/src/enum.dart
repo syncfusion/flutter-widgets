@@ -94,21 +94,6 @@ enum MapLegendEdgeLabelsPlacement {
   center
 }
 
-/// Specifies the layer for tooltip.
-enum MapLayerElement {
-  /// Shows tooltip for shape layer.
-  shape,
-
-  /// Shows tooltip for bubble.
-  bubble,
-
-  /// Shows tooltip for marker.
-  marker,
-
-  /// Shows tooltip for vector layers.
-  vector,
-}
-
 /// Applies gradient or solid color for the bar segments.
 enum MapLegendPaintingStyle {
   /// Applies solid color for bar segments.

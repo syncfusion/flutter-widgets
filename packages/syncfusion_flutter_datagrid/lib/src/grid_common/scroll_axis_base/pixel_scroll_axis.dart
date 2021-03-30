@@ -39,7 +39,7 @@ class _PixelScrollAxis extends _ScrollAxisBase {
   /// * scrollLinesHost - _required_ - The scroll lines host.
   /// * distancesHost - _required_ - The distances host.
   _PixelScrollAxis.fromPixelScrollAxis(_ScrollBarBase scrollBar,
-      _LineSizeHostBase scrollLinesHost, _DistancesHostBase distancesHost)
+      _LineSizeHostBase? scrollLinesHost, _DistancesHostBase? distancesHost)
       : super(scrollBar, scrollLinesHost) {
     if (distancesHost != null) {
       _distancesHost = distancesHost;
@@ -56,9 +56,9 @@ class _PixelScrollAxis extends _ScrollAxisBase {
 
   /// Distances holds the line sizes. Hidden lines
   /// have a distance of 0.0.
-  _DistanceCounterCollectionBase _distances;
-  _DistancesHostBase _distancesHost;
-  _ScrollAxisBase _parentScrollAxis;
+  _DistanceCounterCollectionBase? _distances;
+  _DistancesHostBase? _distancesHost;
+  _ScrollAxisBase? _parentScrollAxis;
   bool inLineResize = false;
 
   /// Gets the distances collection which is used internally for mapping
@@ -66,9 +66,9 @@ class _PixelScrollAxis extends _ScrollAxisBase {
   ///
   /// Returns the distances collection which is used internally for mapping
   /// from a point position to a line index and vice versa.
-  _DistanceCounterCollectionBase get distances {
+  _DistanceCounterCollectionBase? get distances {
     if (_distancesHost != null) {
-      return _distancesHost.distances;
+      return _distancesHost!.distances;
     }
 
     return _distances;
@@ -77,33 +77,33 @@ class _PixelScrollAxis extends _ScrollAxisBase {
   /// Gets the total extent of all line sizes.
   ///
   /// Returns the total extent of all line sizes.
-  double get totalExtent => distances.totalDistance;
+  double get totalExtent => distances?.totalDistance ?? 0.0;
 
   /// Gets the default size of lines.
   ///
   /// Returns the default size of lines.
   @override
-  double get defaultLineSize => _distances.defaultDistance;
+  double get defaultLineSize => _distances?.defaultDistance ?? 0.0;
 
   /// Sets the default size of lines.
   @override
   set defaultLineSize(double value) {
     if (_defaultLineSize != value) {
       if (_distances != null) {
-        _distances
+        _distances!
           ..defaultDistance = value
           ..clear();
 
         if (scrollLinesHost != null) {
-          scrollLinesHost.initializeScrollAxis(this);
+          scrollLinesHost!.initializeScrollAxis(this);
         }
       }
 
       updateScrollbar();
 
       if (_parentScrollAxis != null) {
-        _parentScrollAxis.setLineSize(
-            startLineIndex, startLineIndex, distances.totalDistance);
+        _parentScrollAxis!.setLineSize(
+            startLineIndex, startLineIndex, distances?.totalDistance ?? 0);
       }
     }
   }
@@ -138,14 +138,14 @@ class _PixelScrollAxis extends _ScrollAxisBase {
   ///
   /// Returns the line count.
   @override
-  int get lineCount => distances.count;
+  int get lineCount => distances?.count ?? 0;
 
   /// Sets the line count.
   @override
   set lineCount(int value) {
     if (lineCount != value) {
       if (_distances != null) {
-        _distances.count = value;
+        _distances!.count = value;
       }
       updateScrollbar();
     }
@@ -156,7 +156,7 @@ class _PixelScrollAxis extends _ScrollAxisBase {
   /// Returns the index of the scroll line.
   @override
   int get scrollLineIndex =>
-      distances.indexOfCumulatedDistance(scrollBar.value);
+      distances?.indexOfCumulatedDistance(scrollBar?.value ?? 0.0) ?? -1;
 
   /// Sets the index of the first visible Line in the Body region.
   @override
@@ -173,14 +173,15 @@ class _PixelScrollAxis extends _ScrollAxisBase {
   ///
   /// Returns the size of the view.
   @override
-  double get viewSize => min(renderSize, distances.totalDistance);
+  double get viewSize => min(renderSize, distances?.totalDistance ?? 0.0);
 
   /// Aligns the scroll line.
   @override
   void alignScrollLine() {
-    final double d = distances.getAlignedScrollValue(scrollBar.value);
+    final double d =
+        distances?.getAlignedScrollValue(scrollBar?.value ?? 0.0) ?? 0.0;
     if (!(d == double.nan)) {
-      scrollBar.value = d;
+      scrollBar!.value = d;
     }
   }
 
@@ -190,7 +191,8 @@ class _PixelScrollAxis extends _ScrollAxisBase {
   ///
   /// Returns the index of the next scroll line.
   @override
-  int getNextScrollLineIndex(int index) => distances.getNextVisibleIndex(index);
+  int getNextScrollLineIndex(int index) =>
+      distances?.getNextVisibleIndex(index) ?? -1;
 
   /// Gets the index of the previous scroll line.
   ///
@@ -199,10 +201,10 @@ class _PixelScrollAxis extends _ScrollAxisBase {
   /// Returns the index of the previous scroll line.
   @override
   int getPreviousScrollLineIndex(int index) {
-    double point = distances.getCumulatedDistanceAt(index);
+    double point = distances?.getCumulatedDistanceAt(index) ?? 0.0;
     point--;
     if (point > -1) {
-      return distances.indexOfCumulatedDistance(point);
+      return distances?.indexOfCumulatedDistance(point) ?? 0;
     }
     return -1;
   }
@@ -216,50 +218,53 @@ class _PixelScrollAxis extends _ScrollAxisBase {
   @override
   List getScrollLineIndex(int scrollLineIndex, double scrollLineDelta,
       [bool isRightToLeft = false]) {
-    if (!isRightToLeft) {
+    if (!isRightToLeft && scrollBar != null && distances != null) {
       scrollLineIndex =
-          max(0, distances.indexOfCumulatedDistance(scrollBar.value));
+          max(0, distances!.indexOfCumulatedDistance(scrollBar!.value));
       if (scrollLineIndex >= lineCount) {
         scrollLineDelta = 0.0;
       } else {
-        scrollLineDelta = (scrollBar.value -
-                distances.getCumulatedDistanceAt(scrollLineIndex))
+        scrollLineDelta = (scrollBar!.value -
+                distances!.getCumulatedDistanceAt(scrollLineIndex))
             .toDouble();
       }
     } else {
       scrollLineIndex = max(
           0,
-          distances.indexOfCumulatedDistance(scrollBar.maximum -
-              scrollBar.largeChange -
-              scrollBar.value +
+          distances!.indexOfCumulatedDistance(scrollBar!.maximum -
+              scrollBar!.largeChange -
+              scrollBar!.value +
               (headerLineCount == 0 ? clip.start : clip.start + headerExtent) +
-              (renderSize > scrollBar.maximum + footerExtent
-                  ? renderSize - scrollBar.maximum - footerExtent - headerExtent
+              (renderSize > scrollBar!.maximum + footerExtent
+                  ? renderSize -
+                      scrollBar!.maximum -
+                      footerExtent -
+                      headerExtent
                   : 0)));
 
       if (scrollLineIndex >= lineCount) {
         scrollLineDelta = 0.0;
       } else {
-        scrollLineDelta = (scrollBar.maximum -
-                scrollBar.largeChange -
-                scrollBar.value +
+        scrollLineDelta = (scrollBar!.maximum -
+                scrollBar!.largeChange -
+                scrollBar!.value +
                 (headerLineCount == 0
                     ? clip.start
-                    : (scrollBar.maximum -
-                                scrollBar.largeChange -
-                                scrollBar.value !=
+                    : (scrollBar!.maximum -
+                                scrollBar!.largeChange -
+                                scrollBar!.value !=
                             -1
                         ? clip.start + headerExtent
                         : (clip.start > 0
                             ? clip.start + headerExtent + 1
                             : 1))) +
-                (renderSize > scrollBar.maximum + footerExtent
+                (renderSize > scrollBar!.maximum + footerExtent
                     ? renderSize -
-                        scrollBar.maximum -
+                        scrollBar!.maximum -
                         footerExtent -
                         headerExtent
                     : 0) -
-                distances.getCumulatedDistanceAt(scrollLineIndex))
+                distances!.getCumulatedDistanceAt(scrollLineIndex))
             .toDouble();
       }
     }
@@ -280,12 +285,12 @@ class _PixelScrollAxis extends _ScrollAxisBase {
     if (line.isHeader) {
       return line.origin;
     } else if (line.isFooter) {
-      return scrollBar.maximum -
+      return scrollBar!.maximum -
           lines[lines.firstFooterVisibleIndex].origin +
           line.origin;
     }
 
-    return line.origin - scrollBar.minimum + scrollBar.value;
+    return line.origin - scrollBar!.minimum + scrollBar!.value;
   }
 
   /// Gets the cumulated corner taking scroll position into account.
@@ -301,12 +306,12 @@ class _PixelScrollAxis extends _ScrollAxisBase {
     if (line.isHeader) {
       return line.corner;
     } else if (line.isFooter) {
-      return scrollBar.maximum -
+      return scrollBar!.maximum -
           lines[lines.firstFooterVisibleIndex].origin +
           line.corner;
     }
 
-    return line.corner - scrollBar.minimum + scrollBar.value;
+    return line.corner - scrollBar!.minimum + scrollBar!.value;
   }
 
   /// This method is called in response to a MouseWheel event.
@@ -314,7 +319,7 @@ class _PixelScrollAxis extends _ScrollAxisBase {
   /// * delta - _required_ - The delta.
   @override
   void mouseWheel(int delta) {
-    scrollBar.value -= delta;
+    scrollBar!.value -= delta;
   }
 
   /// Called when lines were removed in ScrollLinesHost.
@@ -324,7 +329,7 @@ class _PixelScrollAxis extends _ScrollAxisBase {
   @override
   void onLinesRemoved(int removeAt, int count) {
     if (distances != null) {
-      distances.remove(removeAt, count);
+      distances!.remove(removeAt, count);
     }
   }
 
@@ -335,7 +340,7 @@ class _PixelScrollAxis extends _ScrollAxisBase {
   @override
   void onLinesInserted(int insertAt, int count) {
     if (distances != null) {
-      _DistancesUtil.onInserted(distances, scrollLinesHost, insertAt, count);
+      _DistancesUtil.onInserted(distances!, scrollLinesHost!, insertAt, count);
     }
   }
 
@@ -353,14 +358,14 @@ class _PixelScrollAxis extends _ScrollAxisBase {
   List<_DoubleSpan> rangeToRegionPoints(
       int first, int last, bool allowEstimatesForOutOfViewLines) {
     double p1, p2;
-    p1 = distances.getCumulatedDistanceAt(first);
-    p2 = last >= distances.count - 1
-        ? distances.totalDistance
-        : distances.getCumulatedDistanceAt(last + 1);
+    p1 = distances!.getCumulatedDistanceAt(first);
+    p2 = last >= distances!.count - 1
+        ? distances!.totalDistance
+        : distances!.getCumulatedDistanceAt(last + 1);
 
     final List<_DoubleSpan> result = [];
     for (int n = 0; n < 3; n++) {
-      _ScrollAxisRegion region;
+      late _ScrollAxisRegion region;
       if (n == 0) {
         region = _ScrollAxisRegion.header;
       } else if (n == 1) {
@@ -379,7 +384,7 @@ class _PixelScrollAxis extends _ScrollAxisBase {
     inLineResize = true;
     super.resetLineResize();
     if (_parentScrollAxis != null) {
-      _parentScrollAxis.resetLineResize();
+      _parentScrollAxis!.resetLineResize();
     }
 
     inLineResize = false;
@@ -401,16 +406,16 @@ class _PixelScrollAxis extends _ScrollAxisBase {
 
     // If line is visible use already calculated values,
     // otherwise get value from Distances
-    final _VisibleLineInfo line1 = lines.getVisibleLineAtLineIndex(first);
-    final _VisibleLineInfo line2 = lines.getVisibleLineAtLineIndex(last);
+    final _VisibleLineInfo? line1 = lines.getVisibleLineAtLineIndex(first);
+    final _VisibleLineInfo? line2 = lines.getVisibleLineAtLineIndex(last);
 
     double p1, p2;
     p1 = line1 == null
-        ? distances.getCumulatedDistanceAt(first)
+        ? distances!.getCumulatedDistanceAt(first)
         : getCumulatedOrigin(line1);
 
     p2 = line2 == null
-        ? distances.getCumulatedDistanceAt(last + 1)
+        ? distances!.getCumulatedDistanceAt(last + 1)
         : getCumulatedCorner(line2);
 
     return rangeToPointsHelper(region, p1, p2);
@@ -419,33 +424,33 @@ class _PixelScrollAxis extends _ScrollAxisBase {
   _DoubleSpan rangeToPointsHelper(
       _ScrollAxisRegion region, double p1, double p2) {
     final _VisibleLinesCollection lines = getVisibleLines();
+    _DoubleSpan doubleSpan = _DoubleSpan.empty();
     switch (region) {
       case _ScrollAxisRegion.header:
         if (headerLineCount > 0) {
-          return _DoubleSpan(p1, p2);
-        } else {
-          return _DoubleSpan.empty();
+          doubleSpan = _DoubleSpan(p1, p2);
         }
         break;
       case _ScrollAxisRegion.footer:
         if (isFooterVisible) {
           final _VisibleLineInfo l = lines[lines.firstFooterVisibleIndex];
-          final double p3 = distances.totalDistance - footerExtent;
+          final double p3 = distances!.totalDistance - footerExtent;
           p1 += l.origin - p3;
           p2 += l.origin - p3;
-          return _DoubleSpan(p1, p2);
-        } else {
-          return _DoubleSpan.empty();
+          doubleSpan = _DoubleSpan(p1, p2);
         }
         break;
       case _ScrollAxisRegion.body:
-        p1 += headerExtent - scrollBar.value;
-        p2 += headerExtent - scrollBar.value;
-        return _DoubleSpan(p1, p2);
+        p1 += headerExtent - scrollBar!.value;
+        p2 += headerExtent - scrollBar!.value;
+        doubleSpan = _DoubleSpan(p1, p2);
+        break;
+      default:
+        doubleSpan = _DoubleSpan.empty();
         break;
     }
 
-    return _DoubleSpan.empty();
+    return doubleSpan;
   }
 
   /// Sets the index of the scroll line.
@@ -455,46 +460,46 @@ class _PixelScrollAxis extends _ScrollAxisBase {
   @override
   void setScrollLineIndex(int scrollLineIndex, double scrollLineDelta) {
     scrollLineIndex = min(lineCount, max(0, scrollLineIndex));
-    scrollBar.value =
-        distances.getCumulatedDistanceAt(scrollLineIndex) + scrollLineDelta;
+    scrollBar!.value =
+        distances!.getCumulatedDistanceAt(scrollLineIndex) + scrollLineDelta;
     resetVisibleLines();
   }
 
   /// Scrolls to next page.
   @override
   void scrollToNextPage() {
-    scrollBar.value += max(
-        scrollBar.smallChange, scrollBar.largeChange - scrollBar.smallChange);
+    scrollBar!.value += max(scrollBar!.smallChange,
+        scrollBar!.largeChange - scrollBar!.smallChange);
     scrollToNextLine();
   }
 
   /// Scrolls to next line.
   @override
   void scrollToNextLine() {
-    final double d = distances.getNextScrollValue(scrollBar.value);
+    final double d = distances!.getNextScrollValue(scrollBar!.value);
     if (!(d == double.nan)) {
-      scrollBar.value = d <= scrollBar.value
-          ? distances.getNextScrollValue(scrollBar.value + 1)
+      scrollBar!.value = d <= scrollBar!.value
+          ? distances!.getNextScrollValue(scrollBar!.value + 1)
           : d;
     } else {
-      scrollBar.value += scrollBar.smallChange;
+      scrollBar!.value += scrollBar!.smallChange;
     }
   }
 
   /// Scrolls to previous line.
   @override
   void scrollToPreviousLine() {
-    final double d = distances.getPreviousScrollValue(scrollBar.value);
+    final double d = distances!.getPreviousScrollValue(scrollBar!.value);
     if (!(d == double.nan)) {
-      scrollBar.value = d;
+      scrollBar!.value = d;
     }
   }
 
   /// Scrolls to previous page.
   @override
   void scrollToPreviousPage() {
-    scrollBar.value -= max(
-        scrollBar.smallChange, scrollBar.largeChange - scrollBar.smallChange);
+    scrollBar!.value -= max(scrollBar!.smallChange,
+        scrollBar!.largeChange - scrollBar!.smallChange);
     alignScrollLine();
   }
 
@@ -507,7 +512,7 @@ class _PixelScrollAxis extends _ScrollAxisBase {
   @override
   void scrollInView(int lineIndex, double lineSize, bool isRightToLeft) {
     final _VisibleLinesCollection lines = getVisibleLines();
-    final _VisibleLineInfo line = lines.getVisibleLineAtLineIndex(lineIndex);
+    final _VisibleLineInfo? line = lines.getVisibleLineAtLineIndex(lineIndex);
     double delta = 0;
 
     if (line != null) {
@@ -529,17 +534,17 @@ class _PixelScrollAxis extends _ScrollAxisBase {
         delta = lineSize - line.clippedSize;
       }
     } else {
-      double d = distances.getCumulatedDistanceAt(lineIndex);
+      double d = distances!.getCumulatedDistanceAt(lineIndex);
 
-      if (d > scrollBar.value) {
-        d = d + lineSize - scrollBar.largeChange;
+      if (d > scrollBar!.value) {
+        d = d + lineSize - scrollBar!.largeChange;
       }
 
-      delta = d - scrollBar.value;
+      delta = d - scrollBar!.value;
     }
 
     if (delta != 0) {
-      scrollBar.value += delta;
+      scrollBar!.value += delta;
     }
   }
 
@@ -551,12 +556,12 @@ class _PixelScrollAxis extends _ScrollAxisBase {
     if (value == 0) {
       _footerExtent = 0;
     } else {
-      if (distances.count <= value) {
+      if (distances!.count <= value) {
         _footerExtent = 0;
         return;
       }
 
-      final int n = distances.count - value;
+      final int n = distances!.count - value;
 
       // The Total distance must be reduced by the padding size of the Distance
       // total size. Then it should be calculated. This issue is occured in
@@ -566,13 +571,14 @@ class _PixelScrollAxis extends _ScrollAxisBase {
       if (!isDistanceCounterSubset) {
         // Nested Grid cells in GridControl is not
         // DistanceRangeCounterCollection type.
-        final _DistanceRangeCounterCollection _distances = distances;
-        _footerExtent = distances.totalDistance -
-            _distances.paddingDistance -
-            distances.getCumulatedDistanceAt(n);
+        final _DistanceRangeCounterCollection? _distances =
+            distances as _DistanceRangeCounterCollection;
+        _footerExtent = distances!.totalDistance -
+            _distances!.paddingDistance -
+            distances!.getCumulatedDistanceAt(n);
       } else {
         _footerExtent =
-            distances.totalDistance - distances.getCumulatedDistanceAt(n);
+            distances!.totalDistance - distances!.getCumulatedDistanceAt(n);
       }
     }
   }
@@ -583,7 +589,7 @@ class _PixelScrollAxis extends _ScrollAxisBase {
   @override
   void setHeaderLineCount(int value) {
     _headerExtent =
-        distances.getCumulatedDistanceAt(min(value, distances.count));
+        distances!.getCumulatedDistanceAt(min(value, distances!.count));
   }
 
   /// Sets the hidden state of the lines.
@@ -598,7 +604,7 @@ class _PixelScrollAxis extends _ScrollAxisBase {
       setLineSize(from, to, 0.0);
     } else {
       for (int n = from; n <= to; n++) {
-        int repeatSizeCount;
+        int repeatSizeCount = -1;
         final double size = getLineSizeWithTwoArgs(n, repeatSizeCount)[0];
         repeatSizeCount = getLineSizeWithTwoArgs(n, repeatSizeCount)[1];
         final int rangeTo = getRangeToHelper(n, to, repeatSizeCount);
@@ -617,14 +623,14 @@ class _PixelScrollAxis extends _ScrollAxisBase {
   @override
   void setLineSize(int from, int to, double size) {
     if (_distances != null) {
-      _distances.setRange(from, to, size);
+      _distances!.setRange(from, to, size);
     }
 
     // special case for SetLineResize when axis is nested. Parent Scroll
     // Axis relies on Distances.TotalDistance and this only gets updated if
     // we temporarily set the value in the collection.
     else if (_distancesHost != null && inLineResize) {
-      _distancesHost.distances.setRange(from, to, size);
+      _distancesHost!.distances?.setRange(from, to, size);
     }
   }
 
@@ -636,7 +642,7 @@ class _PixelScrollAxis extends _ScrollAxisBase {
   @override
   void setLineResize(int index, double size) {
     inLineResize = true;
-    if (distances.getNestedDistances(index) == null) {
+    if (distances!.getNestedDistances(index) == null) {
       super.setLineResize(index, size);
     } else {
       markDirty();
@@ -644,7 +650,8 @@ class _PixelScrollAxis extends _ScrollAxisBase {
     }
 
     if (_parentScrollAxis != null) {
-      _parentScrollAxis.setLineResize(startLineIndex, distances.totalDistance);
+      _parentScrollAxis!
+          .setLineResize(startLineIndex, distances!.totalDistance);
     }
 
     inLineResize = false;
@@ -654,9 +661,9 @@ class _PixelScrollAxis extends _ScrollAxisBase {
   ///
   /// * index - _required_ - The index.
   /// * nestedLines - _required_ - The nested lines.
-  void setNestedLines(int index, _DistanceCounterCollectionBase nestedLines) {
+  void setNestedLines(int index, _DistanceCounterCollectionBase? nestedLines) {
     if (distances != null) {
-      distances.setNestedDistances(index, nestedLines);
+      distances!.setNestedDistances(index, nestedLines);
     }
   }
 
@@ -664,17 +671,17 @@ class _PixelScrollAxis extends _ScrollAxisBase {
   /// total size of lines in body.
   @override
   void updateScrollbar() {
-    final _ScrollBarBase sb = scrollBar;
+    final _ScrollBarBase? sb = scrollBar;
     setHeaderLineCount(headerLineCount);
     setFooterLineCount(footerLineCount);
 
-    final double delta = headerExtent - sb.minimum;
+    final double delta = headerExtent - sb!.minimum;
     final double oldValue = sb.value;
 
     sb
       ..minimum = headerExtent
-      ..maximum = distances.totalDistance - footerExtent
-      ..smallChange = distances.defaultDistance;
+      ..maximum = distances!.totalDistance - footerExtent
+      ..smallChange = distances!.defaultDistance;
     final double proposeLargeChange = scrollPageSize;
     sb.largeChange = proposeLargeChange;
 

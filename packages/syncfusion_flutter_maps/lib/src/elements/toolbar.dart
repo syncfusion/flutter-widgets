@@ -5,24 +5,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import '../behavior/zoom_pan_behavior.dart';
-import '../controller/default_controller.dart';
+import '../controller/map_controller.dart';
 import '../enum.dart';
 import '../settings.dart';
-import '../utils.dart';
 
 // ignore_for_file: public_member_api_docs
 enum _ToolbarIcon { zoomIn, zoomOut, reset }
 
 class MapToolbar extends StatelessWidget {
   const MapToolbar({
-    this.onWillZoom,
-    this.zoomPanBehavior,
-    this.controller,
+    required this.onWillZoom,
+    required this.zoomPanBehavior,
+    required this.controller,
   });
 
-  final WillZoomCallback onWillZoom;
+  final WillZoomCallback? onWillZoom;
   final MapZoomPanBehavior zoomPanBehavior;
-  final MapController controller;
+  final MapController? controller;
 
   @override
   Widget build(BuildContext context) {
@@ -81,19 +80,19 @@ class MapToolbar extends StatelessWidget {
 
 class _ToolbarItem extends StatefulWidget {
   const _ToolbarItem({
-    this.controller,
-    this.zoomPanBehavior,
-    this.onWillZoom,
-    this.iconData,
-    this.icon,
-    this.tooltipText,
+    required this.controller,
+    required this.zoomPanBehavior,
+    required this.onWillZoom,
+    required this.iconData,
+    required this.icon,
+    required this.tooltipText,
   });
 
-  final MapController controller;
+  final MapController? controller;
 
   final MapZoomPanBehavior zoomPanBehavior;
 
-  final WillZoomCallback onWillZoom;
+  final WillZoomCallback? onWillZoom;
 
   final IconData iconData;
 
@@ -155,7 +154,7 @@ class _ToolbarItemState extends State<_ToolbarItem> {
   @override
   void initState() {
     if (widget.controller != null) {
-      widget.controller
+      widget.controller!
         ..addZoomingListener(_handleZooming)
         ..addResetListener(_handleReset)
         ..addRefreshListener(_handleRefresh);
@@ -167,7 +166,7 @@ class _ToolbarItemState extends State<_ToolbarItem> {
   @override
   void dispose() {
     if (widget.controller != null) {
-      widget.controller
+      widget.controller!
         ..removeZoomingListener(_handleZooming)
         ..removeResetListener(_handleReset)
         ..removeRefreshListener(_handleRefresh);
@@ -228,9 +227,9 @@ class _ToolbarItemState extends State<_ToolbarItem> {
                 : const Color.fromRGBO(255, 255, 255, 0.24),
             icon: Icon(widget.iconData),
             color: widget.zoomPanBehavior.toolbarSettings.iconColor ??
-                    _isLightTheme
-                ? const Color.fromRGBO(0, 0, 0, 0.54)
-                : const Color.fromRGBO(255, 255, 255, 0.54),
+                (_isLightTheme
+                    ? const Color.fromRGBO(0, 0, 0, 0.54)
+                    : const Color.fromRGBO(255, 255, 255, 0.54)),
             onPressed: _enabled
                 ? () {
                     _handlePointerUp();
@@ -247,13 +246,14 @@ class _ToolbarItemState extends State<_ToolbarItem> {
 
   Color _getIconBackgroundColor() {
     return _isHovered
-        ? widget.zoomPanBehavior.toolbarSettings.itemHoverColor ?? _isLightTheme
-            ? const Color.fromRGBO(0, 0, 0, 0.08)
-            : const Color.fromRGBO(255, 255, 255, 0.12)
+        ? widget.zoomPanBehavior.toolbarSettings.itemHoverColor ??
+            (_isLightTheme
+                ? const Color.fromRGBO(0, 0, 0, 0.08)
+                : const Color.fromRGBO(255, 255, 255, 0.12))
         : widget.zoomPanBehavior.toolbarSettings.itemBackgroundColor ??
-                _isLightTheme
-            ? const Color.fromRGBO(250, 250, 250, 1)
-            : const Color.fromRGBO(66, 66, 66, 1);
+            (_isLightTheme
+                ? const Color.fromRGBO(250, 250, 250, 1)
+                : const Color.fromRGBO(66, 66, 66, 1));
   }
 
   void _handlePointerUp() {
@@ -270,16 +270,14 @@ class _ToolbarItemState extends State<_ToolbarItem> {
         break;
     }
 
-    newZoomLevel = interpolateValue(
-        newZoomLevel,
-        widget.zoomPanBehavior.minZoomLevel,
+    newZoomLevel = newZoomLevel.clamp(widget.zoomPanBehavior.minZoomLevel,
         widget.zoomPanBehavior.maxZoomLevel);
     final MapZoomDetails details = MapZoomDetails(
       previousZoomLevel: widget.zoomPanBehavior.zoomLevel,
       newZoomLevel: newZoomLevel,
     );
-    if (widget.onWillZoom == null || widget.onWillZoom(details)) {
-      widget.zoomPanBehavior?.onZooming(details);
+    if (widget.onWillZoom == null || widget.onWillZoom!(details)) {
+      widget.zoomPanBehavior.onZooming(details);
     }
   }
 }

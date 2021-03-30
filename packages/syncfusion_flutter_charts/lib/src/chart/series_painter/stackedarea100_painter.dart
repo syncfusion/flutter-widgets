@@ -2,12 +2,12 @@ part of charts;
 
 class _StackedArea100ChartPainter extends CustomPainter {
   _StackedArea100ChartPainter(
-      {this.chartState,
-      this.seriesRenderer,
-      this.isRepaint,
-      this.animationController,
-      this.painterKey,
-      ValueNotifier<num> notifier})
+      {required this.chartState,
+      required this.seriesRenderer,
+      required this.isRepaint,
+      required this.animationController,
+      required this.painterKey,
+      required ValueNotifier<num> notifier})
       : chart = chartState._chart,
         super(repaint: notifier);
   final SfCartesianChartState chartState;
@@ -24,7 +24,7 @@ class _StackedArea100ChartPainter extends CustomPainter {
         canvas,
         seriesRenderer,
         chartState,
-        seriesRenderer._seriesAnimation,
+        seriesRenderer._seriesAnimation!,
         seriesRenderer._seriesElementAnimation,
         painterKey);
   }

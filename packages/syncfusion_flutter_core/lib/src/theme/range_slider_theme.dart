@@ -8,7 +8,7 @@ class SfRangeSliderTheme extends InheritedTheme {
   /// Applies the given theme [data] to [child].
   ///
   /// The [data] and [child] arguments must not be null.
-  const SfRangeSliderTheme({Key key, this.data, this.child})
+  const SfRangeSliderTheme({Key? key, required this.data, required this.child})
       : super(key: key, child: child);
 
   /// Specifies the color and typography values for
@@ -24,8 +24,8 @@ class SfRangeSliderTheme extends InheritedTheme {
   ///
   /// Defaults to [SfThemeData.rangeSliderThemeData] if there is no
   /// [SfRangeSliderTheme] in the given build context.
-  static SfRangeSliderThemeData of(BuildContext context) {
-    final SfRangeSliderTheme rangeSliderTheme =
+  static SfRangeSliderThemeData? of(BuildContext context) {
+    final SfRangeSliderTheme? rangeSliderTheme =
         context.dependOnInheritedWidgetOfExactType<SfRangeSliderTheme>();
     return rangeSliderTheme?.data ?? SfTheme.of(context).rangeSliderThemeData;
   }
@@ -36,7 +36,7 @@ class SfRangeSliderTheme extends InheritedTheme {
 
   @override
   Widget wrap(BuildContext context, Widget child) {
-    final SfRangeSliderTheme ancestorTheme =
+    final SfRangeSliderTheme? ancestorTheme =
         context.findAncestorWidgetOfExactType<SfRangeSliderTheme>();
     return identical(this, ancestorTheme)
         ? child
@@ -88,57 +88,55 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
   ///
   /// If any of the values are null, the default values will be set.
   factory SfRangeSliderThemeData(
-      {Brightness brightness,
-      double activeTrackHeight,
-      double inactiveTrackHeight,
-      Size tickSize,
-      Size minorTickSize,
-      Offset tickOffset,
-      Offset labelOffset,
-      TextStyle inactiveLabelStyle,
-      TextStyle activeLabelStyle,
-      TextStyle tooltipTextStyle,
-      Color inactiveTrackColor,
-      Color activeTrackColor,
-      Color thumbColor,
-      Color activeTickColor,
-      Color inactiveTickColor,
-      Color disabledActiveTickColor,
-      Color disabledInactiveTickColor,
-      Color activeMinorTickColor,
-      Color inactiveMinorTickColor,
-      Color disabledActiveMinorTickColor,
-      Color disabledInactiveMinorTickColor,
-      Color overlayColor,
-      Color inactiveDivisorColor,
-      Color activeDivisorColor,
-      Color disabledActiveTrackColor,
-      Color disabledInactiveTrackColor,
-      Color disabledActiveDivisorColor,
-      Color disabledInactiveDivisorColor,
-      Color disabledThumbColor,
-      Color activeRegionColor,
-      Color inactiveRegionColor,
-      Color tooltipBackgroundColor,
-      Color overlappingTooltipStrokeColor,
-      Color thumbStrokeColor,
-      Color overlappingThumbStrokeColor,
-      Color activeDivisorStrokeColor,
-      Color inactiveDivisorStrokeColor,
-      double trackCornerRadius,
-      double overlayRadius,
-      double thumbRadius,
-      double activeDivisorRadius,
-      double inactiveDivisorRadius,
-      double thumbStrokeWidth,
-      double activeDivisorStrokeWidth,
-      double inactiveDivisorStrokeWidth}) {
+      {Brightness? brightness,
+      double? activeTrackHeight,
+      double? inactiveTrackHeight,
+      Size? tickSize,
+      Size? minorTickSize,
+      Offset? tickOffset,
+      Offset? labelOffset,
+      TextStyle? inactiveLabelStyle,
+      TextStyle? activeLabelStyle,
+      TextStyle? tooltipTextStyle,
+      Color? inactiveTrackColor,
+      Color? activeTrackColor,
+      Color? thumbColor,
+      Color? activeTickColor,
+      Color? inactiveTickColor,
+      Color? disabledActiveTickColor,
+      Color? disabledInactiveTickColor,
+      Color? activeMinorTickColor,
+      Color? inactiveMinorTickColor,
+      Color? disabledActiveMinorTickColor,
+      Color? disabledInactiveMinorTickColor,
+      Color? overlayColor,
+      Color? inactiveDivisorColor,
+      Color? activeDivisorColor,
+      Color? disabledActiveTrackColor,
+      Color? disabledInactiveTrackColor,
+      Color? disabledActiveDivisorColor,
+      Color? disabledInactiveDivisorColor,
+      Color? disabledThumbColor,
+      Color? activeRegionColor,
+      Color? inactiveRegionColor,
+      Color? tooltipBackgroundColor,
+      Color? overlappingTooltipStrokeColor,
+      Color? thumbStrokeColor,
+      Color? overlappingThumbStrokeColor,
+      Color? activeDivisorStrokeColor,
+      Color? inactiveDivisorStrokeColor,
+      double? trackCornerRadius,
+      double? overlayRadius,
+      double? thumbRadius,
+      double? activeDivisorRadius,
+      double? inactiveDivisorRadius,
+      double? thumbStrokeWidth,
+      double? activeDivisorStrokeWidth,
+      double? inactiveDivisorStrokeWidth}) {
     brightness = brightness ?? Brightness.light;
     final bool isLight = brightness == Brightness.light;
     activeTrackHeight ??= 6.0;
     inactiveTrackHeight ??= 4.0;
-    tickSize ??= const Size(1.0, 8.0);
-    minorTickSize ??= const Size(1.0, 5.0);
     overlayRadius ??= 24.0;
     thumbRadius ??= 10.0;
     activeTickColor ??= const Color.fromRGBO(158, 158, 158, 1);
@@ -210,49 +208,49 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
   /// create intermediate themes based on two themes created with the
   /// [SfRangeSliderThemeData] constructor.
   const SfRangeSliderThemeData.raw({
-    @required Brightness brightness,
-    @required double activeTrackHeight,
-    @required double inactiveTrackHeight,
-    @required Size tickSize,
-    @required Size minorTickSize,
-    @required Offset tickOffset,
-    @required Offset labelOffset,
-    @required TextStyle inactiveLabelStyle,
-    @required TextStyle activeLabelStyle,
-    @required TextStyle tooltipTextStyle,
-    @required Color inactiveTrackColor,
-    @required Color activeTrackColor,
-    @required Color thumbColor,
-    @required Color thumbStrokeColor,
-    @required this.overlappingThumbStrokeColor,
-    @required Color activeDivisorStrokeColor,
-    @required Color inactiveDivisorStrokeColor,
-    @required Color activeTickColor,
-    @required Color inactiveTickColor,
-    @required Color disabledActiveTickColor,
-    @required Color disabledInactiveTickColor,
-    @required Color activeMinorTickColor,
-    @required Color inactiveMinorTickColor,
-    @required Color disabledActiveMinorTickColor,
-    @required Color disabledInactiveMinorTickColor,
-    @required Color overlayColor,
-    @required Color inactiveDivisorColor,
-    @required Color activeDivisorColor,
-    @required Color disabledActiveTrackColor,
-    @required Color disabledInactiveTrackColor,
-    @required Color disabledActiveDivisorColor,
-    @required Color disabledInactiveDivisorColor,
-    @required Color disabledThumbColor,
-    @required Color tooltipBackgroundColor,
-    @required this.overlappingTooltipStrokeColor,
-    @required double trackCornerRadius,
-    @required double overlayRadius,
-    @required double thumbRadius,
-    @required double activeDivisorRadius,
-    @required double inactiveDivisorRadius,
-    @required double thumbStrokeWidth,
-    @required double activeDivisorStrokeWidth,
-    @required double inactiveDivisorStrokeWidth,
+    required Brightness brightness,
+    required double activeTrackHeight,
+    required double inactiveTrackHeight,
+    required Size? tickSize,
+    required Size? minorTickSize,
+    required Offset? tickOffset,
+    required Offset? labelOffset,
+    required TextStyle? inactiveLabelStyle,
+    required TextStyle? activeLabelStyle,
+    required TextStyle? tooltipTextStyle,
+    required Color? inactiveTrackColor,
+    required Color? activeTrackColor,
+    required Color? thumbColor,
+    required Color? thumbStrokeColor,
+    required this.overlappingThumbStrokeColor,
+    required Color? activeDivisorStrokeColor,
+    required Color? inactiveDivisorStrokeColor,
+    required Color activeTickColor,
+    required Color inactiveTickColor,
+    required Color disabledActiveTickColor,
+    required Color disabledInactiveTickColor,
+    required Color activeMinorTickColor,
+    required Color inactiveMinorTickColor,
+    required Color disabledActiveMinorTickColor,
+    required Color disabledInactiveMinorTickColor,
+    required Color? overlayColor,
+    required Color? inactiveDivisorColor,
+    required Color? activeDivisorColor,
+    required Color? disabledActiveTrackColor,
+    required Color? disabledInactiveTrackColor,
+    required Color? disabledActiveDivisorColor,
+    required Color? disabledInactiveDivisorColor,
+    required Color disabledThumbColor,
+    required Color? tooltipBackgroundColor,
+    required this.overlappingTooltipStrokeColor,
+    required double? trackCornerRadius,
+    required double overlayRadius,
+    required double thumbRadius,
+    required double? activeDivisorRadius,
+    required double? inactiveDivisorRadius,
+    required double? thumbStrokeWidth,
+    required double? activeDivisorStrokeWidth,
+    required double? inactiveDivisorStrokeWidth,
   }) : super.raw(
             brightness: brightness,
             activeTrackHeight: activeTrackHeight,
@@ -328,7 +326,7 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
   /// See also:
   /// * [thumbStrokeColor] and [thumbStrokeWidth], for setting the default
   /// stroke for the range slider and range selector thumbs.
-  final Color overlappingThumbStrokeColor;
+  final Color? overlappingThumbStrokeColor;
 
   /// Specifies the stroke color for the tooltips when they overlap in the
   /// [SfRangeSlider], and [SfRangeSelector].
@@ -356,57 +354,57 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
   ///    )
   /// )
   /// ```
-  final Color overlappingTooltipStrokeColor;
+  final Color? overlappingTooltipStrokeColor;
 
   /// Creates a copy of this theme but with the given
   /// fields replaced with the new values.
   @override
   SfRangeSliderThemeData copyWith({
-    Brightness brightness,
-    double activeTrackHeight,
-    double inactiveTrackHeight,
-    Size tickSize,
-    Size minorTickSize,
-    Offset tickOffset,
-    Offset labelOffset,
-    TextStyle inactiveLabelStyle,
-    TextStyle activeLabelStyle,
-    TextStyle tooltipTextStyle,
-    Color inactiveTrackColor,
-    Color activeTrackColor,
-    Color thumbColor,
-    Color thumbStrokeColor,
-    Color overlappingThumbStrokeColor,
-    Color activeDivisorStrokeColor,
-    Color inactiveDivisorStrokeColor,
-    Color activeTickColor,
-    Color inactiveTickColor,
-    Color disabledActiveTickColor,
-    Color disabledInactiveTickColor,
-    Color activeMinorTickColor,
-    Color inactiveMinorTickColor,
-    Color disabledActiveMinorTickColor,
-    Color disabledInactiveMinorTickColor,
-    Color overlayColor,
-    Color inactiveDivisorColor,
-    Color activeDivisorColor,
-    Color disabledActiveTrackColor,
-    Color disabledInactiveTrackColor,
-    Color disabledActiveDivisorColor,
-    Color disabledInactiveDivisorColor,
-    Color disabledThumbColor,
-    Color activeRegionColor,
-    Color inactiveRegionColor,
-    Color tooltipBackgroundColor,
-    Color overlappingTooltipStrokeColor,
-    double trackCornerRadius,
-    double overlayRadius,
-    double thumbRadius,
-    double activeDivisorRadius,
-    double inactiveDivisorRadius,
-    double thumbStrokeWidth,
-    double activeDivisorStrokeWidth,
-    double inactiveDivisorStrokeWidth,
+    Brightness? brightness,
+    double? activeTrackHeight,
+    double? inactiveTrackHeight,
+    Size? tickSize,
+    Size? minorTickSize,
+    Offset? tickOffset,
+    Offset? labelOffset,
+    TextStyle? inactiveLabelStyle,
+    TextStyle? activeLabelStyle,
+    TextStyle? tooltipTextStyle,
+    Color? inactiveTrackColor,
+    Color? activeTrackColor,
+    Color? thumbColor,
+    Color? thumbStrokeColor,
+    Color? overlappingThumbStrokeColor,
+    Color? activeDivisorStrokeColor,
+    Color? inactiveDivisorStrokeColor,
+    Color? activeTickColor,
+    Color? inactiveTickColor,
+    Color? disabledActiveTickColor,
+    Color? disabledInactiveTickColor,
+    Color? activeMinorTickColor,
+    Color? inactiveMinorTickColor,
+    Color? disabledActiveMinorTickColor,
+    Color? disabledInactiveMinorTickColor,
+    Color? overlayColor,
+    Color? inactiveDivisorColor,
+    Color? activeDivisorColor,
+    Color? disabledActiveTrackColor,
+    Color? disabledInactiveTrackColor,
+    Color? disabledActiveDivisorColor,
+    Color? disabledInactiveDivisorColor,
+    Color? disabledThumbColor,
+    Color? activeRegionColor,
+    Color? inactiveRegionColor,
+    Color? tooltipBackgroundColor,
+    Color? overlappingTooltipStrokeColor,
+    double? trackCornerRadius,
+    double? overlayRadius,
+    double? thumbRadius,
+    double? activeDivisorRadius,
+    double? inactiveDivisorRadius,
+    double? thumbStrokeWidth,
+    double? activeDivisorStrokeWidth,
+    double? inactiveDivisorStrokeWidth,
   }) {
     return SfRangeSliderThemeData.raw(
       brightness: brightness ?? this.brightness,
@@ -475,15 +473,14 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
   /// Linearly interpolate between two themes.
   ///
   /// The arguments must not be null.
-  static SfRangeSliderThemeData lerp(
-      SfRangeSliderThemeData a, SfRangeSliderThemeData b, double t) {
-    assert(t != null);
+  static SfRangeSliderThemeData? lerp(
+      SfRangeSliderThemeData? a, SfRangeSliderThemeData? b, double t) {
     if (a == null && b == null) {
       return null;
     }
     return SfRangeSliderThemeData(
         activeTrackHeight:
-            lerpDouble(a.activeTrackHeight, b.activeTrackHeight, t),
+            lerpDouble(a!.activeTrackHeight, b!.activeTrackHeight, t),
         inactiveTrackHeight:
             lerpDouble(a.inactiveTrackHeight, b.inactiveTrackHeight, t),
         tickSize: Size.lerp(a.tickSize, b.tickSize, t),
@@ -561,59 +558,57 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
     if (other.runtimeType != runtimeType) {
       return false;
     }
-    final SfRangeSliderThemeData otherData = other;
-    return otherData.brightness == brightness &&
-        otherData.activeTrackHeight == activeTrackHeight &&
-        otherData.inactiveTrackHeight == inactiveTrackHeight &&
-        otherData.tickSize == tickSize &&
-        otherData.minorTickSize == minorTickSize &&
-        otherData.tickOffset == tickOffset &&
-        otherData.labelOffset == labelOffset &&
-        otherData.inactiveLabelStyle == inactiveLabelStyle &&
-        otherData.activeLabelStyle == activeLabelStyle &&
-        otherData.tooltipTextStyle == tooltipTextStyle &&
-        otherData.inactiveTrackColor == inactiveTrackColor &&
-        otherData.activeTrackColor == activeTrackColor &&
-        otherData.thumbColor == thumbColor &&
-        otherData.thumbStrokeColor == thumbStrokeColor &&
-        otherData.overlappingThumbStrokeColor == overlappingThumbStrokeColor &&
-        otherData.activeDivisorStrokeColor == activeDivisorStrokeColor &&
-        otherData.inactiveDivisorStrokeColor == inactiveDivisorStrokeColor &&
-        otherData.activeTickColor == activeTickColor &&
-        otherData.inactiveTickColor == inactiveTickColor &&
-        otherData.disabledActiveTickColor == disabledActiveTickColor &&
-        otherData.disabledInactiveTickColor == disabledInactiveTickColor &&
-        otherData.activeMinorTickColor == activeMinorTickColor &&
-        otherData.inactiveMinorTickColor == inactiveMinorTickColor &&
-        otherData.disabledActiveMinorTickColor ==
-            disabledActiveMinorTickColor &&
-        otherData.disabledInactiveMinorTickColor ==
+
+    return other is SfRangeSliderThemeData &&
+        other.brightness == brightness &&
+        other.activeTrackHeight == activeTrackHeight &&
+        other.inactiveTrackHeight == inactiveTrackHeight &&
+        other.tickSize == tickSize &&
+        other.minorTickSize == minorTickSize &&
+        other.tickOffset == tickOffset &&
+        other.labelOffset == labelOffset &&
+        other.inactiveLabelStyle == inactiveLabelStyle &&
+        other.activeLabelStyle == activeLabelStyle &&
+        other.tooltipTextStyle == tooltipTextStyle &&
+        other.inactiveTrackColor == inactiveTrackColor &&
+        other.activeTrackColor == activeTrackColor &&
+        other.thumbColor == thumbColor &&
+        other.thumbStrokeColor == thumbStrokeColor &&
+        other.overlappingThumbStrokeColor == overlappingThumbStrokeColor &&
+        other.activeDivisorStrokeColor == activeDivisorStrokeColor &&
+        other.inactiveDivisorStrokeColor == inactiveDivisorStrokeColor &&
+        other.activeTickColor == activeTickColor &&
+        other.inactiveTickColor == inactiveTickColor &&
+        other.disabledActiveTickColor == disabledActiveTickColor &&
+        other.disabledInactiveTickColor == disabledInactiveTickColor &&
+        other.activeMinorTickColor == activeMinorTickColor &&
+        other.inactiveMinorTickColor == inactiveMinorTickColor &&
+        other.disabledActiveMinorTickColor == disabledActiveMinorTickColor &&
+        other.disabledInactiveMinorTickColor ==
             disabledInactiveMinorTickColor &&
-        otherData.overlayColor == overlayColor &&
-        otherData.inactiveDivisorColor == inactiveDivisorColor &&
-        otherData.activeDivisorColor == activeDivisorColor &&
-        otherData.disabledActiveTrackColor == disabledActiveTrackColor &&
-        otherData.disabledInactiveTrackColor == disabledInactiveTrackColor &&
-        otherData.disabledActiveDivisorColor == disabledActiveDivisorColor &&
-        otherData.disabledInactiveDivisorColor ==
-            disabledInactiveDivisorColor &&
-        otherData.disabledThumbColor == disabledThumbColor &&
-        otherData.tooltipBackgroundColor == tooltipBackgroundColor &&
-        otherData.overlappingTooltipStrokeColor ==
-            overlappingTooltipStrokeColor &&
-        otherData.trackCornerRadius == trackCornerRadius &&
-        otherData.overlayRadius == overlayRadius &&
-        otherData.thumbRadius == thumbRadius &&
-        otherData.activeDivisorRadius == activeDivisorRadius &&
-        otherData.inactiveDivisorRadius == inactiveDivisorRadius &&
-        otherData.thumbStrokeWidth == thumbStrokeWidth &&
-        otherData.activeDivisorStrokeWidth == activeDivisorStrokeWidth &&
-        otherData.inactiveDivisorStrokeWidth == inactiveDivisorStrokeWidth;
+        other.overlayColor == overlayColor &&
+        other.inactiveDivisorColor == inactiveDivisorColor &&
+        other.activeDivisorColor == activeDivisorColor &&
+        other.disabledActiveTrackColor == disabledActiveTrackColor &&
+        other.disabledInactiveTrackColor == disabledInactiveTrackColor &&
+        other.disabledActiveDivisorColor == disabledActiveDivisorColor &&
+        other.disabledInactiveDivisorColor == disabledInactiveDivisorColor &&
+        other.disabledThumbColor == disabledThumbColor &&
+        other.tooltipBackgroundColor == tooltipBackgroundColor &&
+        other.overlappingTooltipStrokeColor == overlappingTooltipStrokeColor &&
+        other.trackCornerRadius == trackCornerRadius &&
+        other.overlayRadius == overlayRadius &&
+        other.thumbRadius == thumbRadius &&
+        other.activeDivisorRadius == activeDivisorRadius &&
+        other.inactiveDivisorRadius == inactiveDivisorRadius &&
+        other.thumbStrokeWidth == thumbStrokeWidth &&
+        other.activeDivisorStrokeWidth == activeDivisorStrokeWidth &&
+        other.inactiveDivisorStrokeWidth == inactiveDivisorStrokeWidth;
   }
 
   @override
   int get hashCode {
-    return hashList(<Object>[
+    return hashList(<Object?>[
       brightness,
       activeTrackHeight,
       inactiveTrackHeight,

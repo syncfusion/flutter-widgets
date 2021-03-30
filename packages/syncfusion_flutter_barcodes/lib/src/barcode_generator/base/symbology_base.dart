@@ -44,5 +44,5 @@ abstract class Symbology {
   ///        symbology: UPCE(module: 2)));
   ///}
   /// ```dart
-  final int module;
+  final int? module;
 }

@@ -9,36 +9,35 @@ import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_maps/maps.dart';
 
 import '../behavior/zoom_pan_behavior.dart';
-import '../controller/default_controller.dart';
-import '../enum.dart';
+import '../common.dart';
+import '../controller/map_controller.dart';
 import '../layer/layer_base.dart';
 import '../layer/shape_layer.dart';
 import '../settings.dart';
 import '../utils.dart';
-import 'shapes.dart';
 
 // ignore_for_file: public_member_api_docs
 class MapTooltip extends StatefulWidget {
   const MapTooltip({
-    Key key,
+    Key? key,
     this.mapSource,
-    this.sublayers,
+    required this.sublayers,
     this.shapeTooltipBuilder,
     this.bubbleTooltipBuilder,
-    this.markerTooltipBuilder,
-    this.tooltipSettings,
-    this.themeData,
-    this.controller,
+    required this.markerTooltipBuilder,
+    required this.tooltipSettings,
+    required this.themeData,
+    required this.controller,
   }) : super(key: key);
 
-  final MapShapeSource mapSource;
-  final List<MapSublayer> sublayers;
-  final IndexedWidgetBuilder shapeTooltipBuilder;
-  final IndexedWidgetBuilder bubbleTooltipBuilder;
-  final IndexedWidgetBuilder markerTooltipBuilder;
+  final MapShapeSource? mapSource;
+  final List<MapSublayer>? sublayers;
+  final IndexedWidgetBuilder? shapeTooltipBuilder;
+  final IndexedWidgetBuilder? bubbleTooltipBuilder;
+  final IndexedWidgetBuilder? markerTooltipBuilder;
   final MapTooltipSettings tooltipSettings;
   final SfMapsThemeData themeData;
-  final MapController controller;
+  final MapController? controller;
 
   @override
   _MapTooltipState createState() => _MapTooltipState();
@@ -46,48 +45,66 @@ class MapTooltip extends StatefulWidget {
 
 class _MapTooltipState extends State<MapTooltip>
     with SingleTickerProviderStateMixin {
-  AnimationController controller;
-  Widget _child;
-  bool isDesktop;
+  late AnimationController controller;
+  late bool isDesktop;
 
-  void adoptChild(int index, MapLayerElement element, {int sublayerIndex}) {
+  Widget? _child;
+
+  void adoptChild(int index, MapLayerElement element, {int? sublayerIndex}) {
+    late Widget? current;
     switch (element) {
       case MapLayerElement.shape:
         setState(() {
           if (sublayerIndex != null) {
-            final MapShapeSublayer sublayer = widget.sublayers[sublayerIndex];
-            _child = sublayer.shapeTooltipBuilder?.call(context, index);
+            final MapShapeSublayer sublayer =
+                // ignore: avoid_as
+                widget.sublayers![sublayerIndex] as MapShapeSublayer;
+            current = sublayer.shapeTooltipBuilder?.call(context, index);
           } else {
-            _child = widget.shapeTooltipBuilder?.call(context, index);
+            current = widget.shapeTooltipBuilder?.call(context, index);
           }
+
+          _child = IgnorePointer(child: current);
         });
         break;
       case MapLayerElement.bubble:
         setState(() {
           if (sublayerIndex != null) {
-            final MapShapeSublayer sublayer = widget.sublayers[sublayerIndex];
-            _child = sublayer.bubbleTooltipBuilder?.call(context, index);
+            final MapShapeSublayer sublayer =
+                // ignore: avoid_as
+                widget.sublayers![sublayerIndex] as MapShapeSublayer;
+            current = sublayer.bubbleTooltipBuilder?.call(context, index);
           } else {
-            _child = widget.bubbleTooltipBuilder?.call(context, index);
+            current = widget.bubbleTooltipBuilder?.call(context, index);
           }
+
+          _child = IgnorePointer(child: current);
         });
         break;
       case MapLayerElement.marker:
         setState(() {
           if (sublayerIndex != null) {
-            final MapShapeSublayer sublayer = widget.sublayers[sublayerIndex];
-            _child = sublayer.markerTooltipBuilder?.call(context, index);
+            final MapShapeSublayer sublayer =
+                // ignore: avoid_as
+                widget.sublayers![sublayerIndex] as MapShapeSublayer;
+            current = sublayer.markerTooltipBuilder?.call(context, index);
           } else {
-            _child = widget.markerTooltipBuilder?.call(context, index);
+            current = widget.markerTooltipBuilder?.call(context, index);
           }
+
+          _child = IgnorePointer(child: current);
         });
         break;
       case MapLayerElement.vector:
         setState(() {
           if (sublayerIndex != null) {
-            final MapSublayer sublayer = widget.sublayers[sublayerIndex];
-            _child = sublayer.tooltipBuilder?.call(context, index);
+            final MapSublayer sublayer =
+                // ignore: avoid_as
+                widget.sublayers![sublayerIndex];
+            current = sublayer.tooltipBuilder?.call(context, index);
           }
+
+          _child = IgnorePointer(child: current);
         });
         break;
     }
@@ -102,7 +119,7 @@ class _MapTooltipState extends State<MapTooltip>
 
   @override
   void dispose() {
-    controller?.dispose();
+    controller.dispose();
     super.dispose();
   }
 
@@ -111,13 +128,14 @@ class _MapTooltipState extends State<MapTooltip>
     final ThemeData themeData = Theme.of(context);
     isDesktop = kIsWeb ||
         themeData.platform == TargetPlatform.macOS ||
-        themeData.platform == TargetPlatform.windows;
+        themeData.platform == TargetPlatform.windows ||
+        themeData.platform == TargetPlatform.linux;
     return _MapTooltipRenderObjectWidget(
-      child: _child,
       source: widget.mapSource,
       tooltipSettings: widget.tooltipSettings,
       themeData: widget.themeData,
       state: this,
+      child: _child,
     );
   }
 }
@@ -125,14 +143,14 @@ class _MapTooltipState extends State<MapTooltip>
 /// A Render object widget which draws tooltip shape.
 class _MapTooltipRenderObjectWidget extends SingleChildRenderObjectWidget {
   const _MapTooltipRenderObjectWidget({
-    Widget child,
-    this.source,
-    this.tooltipSettings,
-    this.themeData,
-    this.state,
+    required this.source,
+    required this.tooltipSettings,
+    required this.themeData,
+    required this.state,
+    Widget? child,
   }) : super(child: child);
 
-  final MapShapeSource source;
+  final MapShapeSource? source;
   final MapTooltipSettings tooltipSettings;
   final SfMapsThemeData themeData;
   final _MapTooltipState state;
@@ -163,13 +181,13 @@ class _MapTooltipRenderObjectWidget extends SingleChildRenderObjectWidget {
 
 class _RenderMapTooltip extends ShapeLayerChildRenderBoxBase {
   _RenderMapTooltip({
-    MapShapeSource source,
-    MapTooltipSettings tooltipSettings,
-    SfMapsThemeData themeData,
-    MediaQueryData mediaQueryData,
-    BuildContext context,
-    _MapTooltipState state,
-  })  : _source = source,
+    required MapShapeSource? source,
+    required MapTooltipSettings tooltipSettings,
+    required SfMapsThemeData themeData,
+    required MediaQueryData mediaQueryData,
+    required BuildContext context,
+    required _MapTooltipState state,
+  })   : _source = source,
         _tooltipSettings = tooltipSettings,
         _themeData = themeData,
         _mediaQueryData = mediaQueryData,
@@ -184,14 +202,15 @@ class _RenderMapTooltip extends ShapeLayerChildRenderBoxBase {
   final _TooltipShape _tooltipShape = const _TooltipShape();
   final Duration _waitDuration = const Duration(seconds: 3);
   final Duration _hideDeferDuration = const Duration(milliseconds: 500);
-  Animation<double> _scaleAnimation;
-  Timer _showTimer;
-  Timer _hideDeferTimer;
-  Offset _currentPosition;
-  MapLayerElement _previousElement;
-  int _previousSublayerIndex;
-  int _previousElementIndex;
-  Rect _elementRect;
+  late Animation<double> _scaleAnimation;
+  Timer? _showTimer;
+  Timer? _hideDeferTimer;
+  Offset? _currentPosition;
+  MapLayerElement? _previousElement;
+  int? _previousSublayerIndex;
+  int? _previousElementIndex;
+  Rect? _elementRect;
+  PointerKind? _pointerKind;
   bool _preferTooltipOnTop = true;
   bool _shouldCalculateTooltipPosition = false;
 
@@ -206,9 +225,9 @@ class _RenderMapTooltip extends ShapeLayerChildRenderBoxBase {
     _tooltipSettings = value;
   }
 
-  MapShapeSource get source => _source;
-  MapShapeSource _source;
-  set source(MapShapeSource value) {
+  MapShapeSource? get source => _source;
+  MapShapeSource? _source;
+  set source(MapShapeSource? value) {
     if (_source == value) {
       return;
     }
@@ -236,15 +255,15 @@ class _RenderMapTooltip extends ShapeLayerChildRenderBoxBase {
     hideTooltip(immediately: true);
   }
 
-  void _update(
-      Offset position, int index, MapLayerElement element, int sublayerIndex) {
+  void _update(Offset? position, int? index, MapLayerElement? element,
+      int? sublayerIndex) {
     if (index != null) {
-      _state.adoptChild(index, element, sublayerIndex: sublayerIndex);
+      _state.adoptChild(index, element!, sublayerIndex: sublayerIndex);
       _currentPosition = position;
-      if (child != null && child.attached) {
+      if (child != null && child!.attached) {
         _showTooltip();
       }
-    } else if (child != null && child.attached) {
+    } else if (child != null && child!.attached) {
       _hideDeferTimer?.cancel();
       _hideDeferTimer = Timer(_hideDeferDuration, hideTooltip);
     }
@@ -257,12 +276,21 @@ class _RenderMapTooltip extends ShapeLayerChildRenderBoxBase {
       if (_state.controller.value == 0 ||
           _state.controller.status == AnimationStatus.reverse) {
         _state.controller.forward(from: 0.0);
+        _startShowTimer();
         return;
       }
+
+      _startShowTimer();
       markNeedsPaint();
     } else {
       _state.controller.forward(from: 0.0);
-      _showTimer?.cancel();
+      _startShowTimer();
+    }
+  }
+
+  void _startShowTimer() {
+    _showTimer?.cancel();
+    if (_pointerKind == PointerKind.touch) {
       _showTimer = Timer(_waitDuration, hideTooltip);
     }
   }
@@ -272,22 +300,23 @@ class _RenderMapTooltip extends ShapeLayerChildRenderBoxBase {
     _previousElement = null;
     _previousElementIndex = null;
     _previousSublayerIndex = null;
+    _pointerKind = null;
     _showTimer?.cancel();
     immediately ? _state.controller.reset() : _state.controller.reverse();
   }
 
-  void _updateTooltipIfNeeded(Offset position, int index, Rect elementRect,
-      MapLayerElement element, int sublayerIndex) {
+  void _updateTooltipIfNeeded(Offset? position, int? index, Rect? elementRect,
+      MapLayerElement? element, int? sublayerIndex) {
     if (sublayerIndex == _previousSublayerIndex &&
         element != MapLayerElement.shape &&
         element != MapLayerElement.vector &&
         _previousElement == element) {
       if (_previousElementIndex == index) {
-        if (_state.isDesktop) {
+        if (_state.isDesktop && _pointerKind == PointerKind.hover) {
           return;
         }
-        _showTimer?.cancel();
-        _showTimer = Timer(_waitDuration, hideTooltip);
+
+        _startShowTimer();
         return;
       }
     }
@@ -313,8 +342,10 @@ class _RenderMapTooltip extends ShapeLayerChildRenderBoxBase {
   }
 
   @override
-  void paintTooltip(int elementIndex, Rect elementRect, MapLayerElement element,
-      [int sublayerIndex, Offset position]) {
+  void paintTooltip(int? elementIndex, Rect? elementRect,
+      MapLayerElement? element, PointerKind kind,
+      [int? sublayerIndex, Offset? position]) {
+    _pointerKind = kind;
     _updateTooltipIfNeeded(
         position, elementIndex, elementRect, element, sublayerIndex);
   }
@@ -345,7 +376,7 @@ class _RenderMapTooltip extends ShapeLayerChildRenderBoxBase {
     super.attach(owner);
     _scaleAnimation.addListener(markNeedsPaint);
     if (_state.widget.controller != null) {
-      _state.widget.controller
+      _state.widget.controller!
         ..addZoomingListener(_handleZooming)
         ..addPanningListener(_handlePanning)
         ..addResetListener(_handleReset);
@@ -358,7 +389,7 @@ class _RenderMapTooltip extends ShapeLayerChildRenderBoxBase {
     _hideDeferTimer?.cancel();
     _scaleAnimation.removeListener(markNeedsPaint);
     if (_state.widget.controller != null) {
-      _state.widget.controller
+      _state.widget.controller!
         ..removeZoomingListener(_handleZooming)
         ..removePanningListener(_handlePanning)
         ..removeResetListener(_handleReset);
@@ -369,7 +400,8 @@ class _RenderMapTooltip extends ShapeLayerChildRenderBoxBase {
   @override
   void paint(PaintingContext context, Offset offset) {
     if (child != null &&
-        child.attached &&
+        child!.attached &&
+        (child!.size.width > 0 || child!.size.height > 0) &&
         (_currentPosition != null || _elementRect != null)) {
       // We are calculating the tooltip position in paint method because of the
       // child didn't get layouts while forwarding the animation controller.
@@ -381,7 +413,7 @@ class _RenderMapTooltip extends ShapeLayerChildRenderBoxBase {
       _tooltipShape.paint(
           context,
           offset,
-          _currentPosition,
+          _currentPosition!,
           _preferTooltipOnTop,
           this,
           _scaleAnimation,
@@ -391,51 +423,51 @@ class _RenderMapTooltip extends ShapeLayerChildRenderBoxBase {
   }
 
   void _updateTooltipPositionAndDirection() {
-    final double tooltipHeight = child.size.height;
+    final double tooltipHeight = child!.size.height;
     final Rect bounds = Offset.zero & size;
     // For bubble and marker.
     if (_elementRect != null) {
       // Checking tooltip element rect lies inside tooltip render box bounds.
       // If not, we are creating a new rect based on the visible area.
-      if (bounds.overlaps(_elementRect)) {
+      if (bounds.overlaps(_elementRect!)) {
         _updateElementRect(bounds);
       }
-      final double halfRectWidth = _elementRect.width / 2;
-      Offset tooltipPosition = _elementRect.topLeft +
-          Offset(halfRectWidth, _elementRect.height * tooltipHeightFactor);
+      final double halfRectWidth = _elementRect!.width / 2;
+      Offset tooltipPosition = _elementRect!.topLeft +
+          Offset(halfRectWidth, _elementRect!.height * tooltipHeightFactor);
       _preferTooltipOnTop = bounds.contains(
           tooltipPosition - Offset(0.0, tooltipHeight + tooltipTriangleHeight));
       if (!_preferTooltipOnTop) {
         // To get the tooltip position at bottom based on the current rect,
         // we had subtracted 1 with the tooltipHeightFactor.
-        tooltipPosition = _elementRect.topLeft +
-            Offset(
-                halfRectWidth, _elementRect.height * (1 - tooltipHeightFactor));
+        tooltipPosition = _elementRect!.topLeft +
+            Offset(halfRectWidth,
+                _elementRect!.height * (1 - tooltipHeightFactor));
       }
       _currentPosition = tooltipPosition;
     }
     // For shape.
     else {
-      _preferTooltipOnTop = bounds.contains(_currentPosition -
+      _preferTooltipOnTop = bounds.contains(_currentPosition! -
           Offset(0.0, tooltipHeight + tooltipTriangleHeight));
     }
   }
 
   void _updateElementRect(Rect bounds) {
-    double left = _elementRect.left;
-    double right = _elementRect.right;
-    double top = _elementRect.top;
-    double bottom = _elementRect.bottom;
-    if (_elementRect.left < bounds.left) {
+    double left = _elementRect!.left;
+    double right = _elementRect!.right;
+    double top = _elementRect!.top;
+    double bottom = _elementRect!.bottom;
+    if (_elementRect!.left < bounds.left) {
       left = bounds.left;
     }
-    if (_elementRect.right > bounds.right) {
+    if (_elementRect!.right > bounds.right) {
       right = bounds.right;
     }
-    if (_elementRect.top < bounds.top) {
+    if (_elementRect!.top < bounds.top) {
       top = bounds.top;
     }
-    if (_elementRect.bottom > bounds.bottom) {
+    if (_elementRect!.bottom > bounds.bottom) {
       bottom = bounds.bottom;
     }
 
@@ -464,12 +496,10 @@ class _TooltipShape {
     const double elevation = 0.0;
 
     Path path = Path();
-    final Paint paint = Paint()
-      ..style = PaintingStyle.fill
-      ..color = tooltipSettings.color ?? themeData.tooltipColor;
-    BorderRadius borderRadius = themeData.tooltipBorderRadius;
-    final double tooltipWidth = parentBox.child.size.width;
-    double tooltipHeight = parentBox.child.size.height;
+    BorderRadius borderRadius =
+        themeData.tooltipBorderRadius.resolve(TextDirection.ltr);
+    final double tooltipWidth = parentBox.child!.size.width;
+    double tooltipHeight = parentBox.child!.size.height;
     final double halfTooltipWidth = tooltipWidth / 2;
     double halfTooltipHeight = tooltipHeight / 2;
 
@@ -541,21 +571,29 @@ class _TooltipShape {
     context.canvas
         .translate(center.dx, center.dy - triangleHeight - halfTooltipHeight);
     context.canvas.scale(tooltipAnimation.value);
-    context.canvas.drawPath(path, paint);
-    final Color strokeColor =
+    // In web HTML rendering, fill color clipped half of its tooltip's size.
+    // To avoid this issue we are drawing stroke before fill.
+    final Color? strokeColor =
         tooltipSettings.strokeColor ?? themeData.tooltipStrokeColor;
-    if (strokeColor != null && strokeColor != Colors.transparent) {
-      paint
-        ..color = strokeColor
-        ..strokeWidth =
-            tooltipSettings.strokeWidth ?? themeData.tooltipStrokeWidth
-        ..style = PaintingStyle.stroke;
-      context.canvas.drawPath(path, paint);
-    }
+    final Paint paint = Paint()
+      ..color = strokeColor ?? Colors.transparent
+      // We are drawing stroke before fill to avoid tooltip rendering issue
+      // in a web HTML rendering. Due to this, half of the stroke width only
+      // visible to us so that we are twice the stroke width.
+      ..strokeWidth =
+          (tooltipSettings.strokeWidth ?? themeData.tooltipStrokeWidth) * 2
+      ..style = PaintingStyle.stroke;
+    // Drawing stroke.
+    context.canvas.drawPath(path, paint);
+    // Drawing fill color.
+    paint
+      ..style = PaintingStyle.fill
+      ..color = tooltipSettings.color ?? themeData.tooltipColor;
+    context.canvas.drawPath(path, paint);
 
     context.canvas.clipPath(path);
-    context.paintChild(
-        parentBox.child, offset - _getShiftPosition(offset, center, parentBox));
+    context.paintChild(parentBox.child!,
+        offset - _getShiftPosition(offset, center, parentBox));
     context.canvas.restore();
   }
 
@@ -656,7 +694,7 @@ class _TooltipShape {
 
   Offset _getShiftPosition(
       Offset offset, Offset center, RenderProxyBox parent) {
-    final Size childSize = parent.child.size;
+    final Size childSize = parent.child!.size;
     final double halfChildWidth = childSize.width / 2;
     final double halfChildHeight = childSize.height / 2;
 

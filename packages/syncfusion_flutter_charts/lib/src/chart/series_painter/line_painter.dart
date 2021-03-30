@@ -2,12 +2,12 @@ part of charts;
 
 class _LineChartPainter extends CustomPainter {
   _LineChartPainter(
-      {this.chartState,
-      this.seriesRenderer,
-      this.isRepaint,
-      this.animationController,
-      ValueNotifier<num> notifier,
-      this.painterKey})
+      {required this.chartState,
+      required this.seriesRenderer,
+      required this.isRepaint,
+      required this.animationController,
+      required ValueNotifier<num> notifier,
+      required this.painterKey})
       : chart = chartState._chart,
         super(repaint: notifier);
   final SfCartesianChartState chartState;
@@ -22,12 +22,13 @@ class _LineChartPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     double animationFactor;
     Rect clipRect;
-    final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer;
-    final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer;
+    final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
+    final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer!;
     final List<CartesianChartPoint<dynamic>> dataPoints =
         seriesRenderer._dataPoints;
-    final LineSeries<dynamic, dynamic> series = seriesRenderer._series;
-    if (seriesRenderer._visible) {
+    final LineSeries<dynamic, dynamic> series =
+        seriesRenderer._series as LineSeries;
+    if (seriesRenderer._visible!) {
       assert(
           series.animationDuration != null
               ? series.animationDuration >= 0
@@ -37,7 +38,7 @@ class _LineChartPainter extends CustomPainter {
       final int seriesIndex = painterKey.index;
       seriesRenderer._storeSeriesProperties(chartState, seriesIndex);
       animationFactor = seriesRenderer._seriesAnimation != null
-          ? seriesRenderer._seriesAnimation.value
+          ? seriesRenderer._seriesAnimation!.value
           : 1;
       final Rect axisClipRect = _calculatePlotOffset(
           chartState._chartAxis._axisClipRect,
@@ -52,13 +53,13 @@ class _LineChartPainter extends CustomPainter {
             chartState, xAxisRenderer._axis, canvas, animationFactor);
       }
       int segmentIndex = -1;
-      CartesianChartPoint<dynamic> currentPoint,
+      CartesianChartPoint<dynamic>? currentPoint,
           _nextPoint,
           startPoint,
           endPoint;
 
       if (seriesRenderer._visibleDataPoints == null ||
-          seriesRenderer._visibleDataPoints.isNotEmpty) {
+          seriesRenderer._visibleDataPoints!.isNotEmpty) {
         seriesRenderer._visibleDataPoints = <CartesianChartPoint<dynamic>>[];
       }
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
@@ -101,7 +102,7 @@ class _LineChartPainter extends CustomPainter {
 
       canvas.restore();
       if ((series.animationDuration <= 0 ||
-              (!chartState._initialRender &&
+              (!chartState._initialRender! &&
                   !seriesRenderer._needAnimateSeriesElements) ||
               animationFactor >= chartState._seriesDurationFactor) &&
           (series.markerSettings.isVisible ||

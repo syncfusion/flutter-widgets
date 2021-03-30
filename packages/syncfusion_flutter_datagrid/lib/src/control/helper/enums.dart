@@ -65,21 +65,10 @@ enum ColumnWidthMode {
   /// No sizing. Default column width or defined width set to column.
   none,
 
-  /// Calculates the width of column based on header content.
-  /// So that header content is not truncated.
-  header,
-
-  /// Calculates the width of column based on header and cell contents.
-  /// So that header and cell content’s are not truncated.
-  auto,
-
-  /// Calculates the width of column based on cell contents.
-  /// So that cell content’s are not truncated.
-  cells,
-
-  /// Applies [ColumnWidthMode.cells] width to all the columns except last
-  ///  column which is visible and the remaining width from total width of
-  ///  [SfDataGrid] is set to last column.
+  /// Applies [SfDataGrid.defaultColumnWidth] or [GridColumn.width] to all the
+  /// columns except last column which is visible and the remaining width
+  /// from total width of [SfDataGrid] is set to last column if `width` of this
+  /// column is not set.
   lastColumnFill,
 
   /// Divides the total width equally for columns.
@@ -165,4 +154,32 @@ enum SortingGestureType {
 
   /// Sorting is applied on double tap the header.
   doubleTap,
+}
+
+/// The direction in which a row in [SfDataGrid] is swiped.
+enum DataGridRowSwipeDirection {
+  /// The row is swiped by dragging in the reading direction (e.g., from left to
+  /// right in left-to-right languages).
+  startToEnd,
+
+  /// The row is swiped by dragging in the reverse of the reading (e.g., from
+  /// right to left in left-to-right languages).
+  endToStart,
+}
+
+/// Decides how to scroll request to the corresponding position.
+enum DataGridScrollPosition {
+  /// Scroll to the start of a [SfDataGrid].
+  start,
+
+  /// Scroll to the end of a [SfDataGrid].
+  end,
+
+  /// Scroll to make a specified item visible.
+  ///
+  /// If the given item is not visible and it is presented at top of the datagrid, that item will be visible at top of the [SfDataGrid]. Also, behaves same for bottom case.
+  makeVisible,
+
+  /// Scroll to the center of a [SfDataGrid].
+  center,
 }

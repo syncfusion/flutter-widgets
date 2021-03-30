@@ -3,17 +3,17 @@ part of xlsio;
 /// Represents worksheet collection.
 class WorksheetCollection {
   /// Create an instance of Worksheets
-  WorksheetCollection(Workbook workbook, [int worksheetCount]) {
+  WorksheetCollection(Workbook workbook, [int worksheetCount = 0]) {
     _book = workbook;
     _worksheets = [];
     create(worksheetCount);
   }
 
   /// Parent workbook
-  Workbook _book;
+  late Workbook _book;
 
   /// Collection of worksheet
-  List<Worksheet> _worksheets;
+  late List<Worksheet> _worksheets;
 
   /// Collection of worksheet
   List<Worksheet> get innerList {
@@ -28,8 +28,7 @@ class WorksheetCollection {
   /// Indexer of the class
   Worksheet operator [](index) {
     if (index is String) {
-      // ignore: prefer_final_locals
-      for (int i = 0, len = innerList.length; i < len; i++) {
+      for (int i = 0; i < innerList.length; i++) {
         final Worksheet sheet = innerList[i];
         if (_equalsIgnoreCase(sheet.name, index)) {
           return sheet;
@@ -38,7 +37,7 @@ class WorksheetCollection {
     } else if (index is int) {
       return innerList[index];
     }
-    return null;
+    throw Exception('Invalid index or name');
   }
 
   /// Check Whether the strings are equal.
@@ -87,7 +86,7 @@ class WorksheetCollection {
   /// workbook.dispose();
   /// ```
   void addWithSheet(Worksheet worksheet) {
-    if (worksheet != null && !innerList.contains(worksheet)) {
+    if (!innerList.contains(worksheet)) {
       worksheet.index = count + 1;
       innerList.add(worksheet);
     }
@@ -109,11 +108,9 @@ class WorksheetCollection {
 
   /// Clear the worksheet.
   void _clear() {
-    if (_worksheets != null) {
-      for (final Worksheet sheet in _worksheets) {
-        sheet._clear();
-      }
-      _worksheets.clear();
+    for (final Worksheet sheet in _worksheets) {
+      sheet._clear();
     }
+    _worksheets.clear();
   }
 }

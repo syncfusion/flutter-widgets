@@ -5,23 +5,23 @@ class _AesCipher {
   _AesCipher(bool isEncryption, List<int> key, List<int> iv) {
     _bp = _BufferedCipher(_CipherBlockChainingMode(_AesEngine()));
     final _InvalidParameter ip = _InvalidParameter(_KeyParameter(key), iv);
-    _bp._initialize(isEncryption, ip);
+    _bp.initialize(isEncryption, ip);
   }
 
   //Fields
-  _BufferedCipher _bp;
+  late _BufferedCipher _bp;
 
   //Implementation
-  List<int> _update(List<int> input, int inputOffset, int inputLength) {
-    int length = _bp._getUpdateOutputSize(inputLength);
-    List<int> output;
+  List<int>? _update(List<int> input, int inputOffset, int inputLength) {
+    int length = _bp.getUpdateOutputSize(inputLength);
+    List<int>? output;
     if (length > 0) {
       output = List<int>.filled(length, 0, growable: true);
     } else {
       length = 0;
     }
     final Map<String, dynamic> result =
-        _bp._processBytes(input, inputOffset, inputLength, output, 0);
+        _bp.processBytes(input, inputOffset, inputLength, output, 0);
     output = result['output'];
     return output;
   }
@@ -31,109 +31,38 @@ class _AesCipherNoPadding {
   //Constructor
   _AesCipherNoPadding(bool isEncryption, List<int> key) {
     _cbc = _CipherBlockChainingMode(_AesEngine());
-    _cbc._initialize(isEncryption, _KeyParameter(key));
+    _cbc.initialize(isEncryption, _KeyParameter(key));
   }
 
   //Fields
-  _CipherBlockChainingMode _cbc;
+  late _CipherBlockChainingMode _cbc;
 
   //Implementation
-  List<int> _processBlock(List<int> input, int offset, int length) {
-    if ((length % _cbc.blockSize) != 0) {
+  List<int>? processBlock(List<int>? input, int offset, int length) {
+    if ((length % _cbc.blockSize!) != 0) {
       throw ArgumentError.value('Not multiple of block: $length');
     }
-    List<int> output = List<int>.filled(length, 0, growable: true);
+    List<int>? output = List<int>.filled(length, 0, growable: true);
     int tempOffset = 0;
     while (length > 0) {
       final Map<String, dynamic> result =
-          _cbc._processBlock(input, offset, output, tempOffset);
+          _cbc.processBlock(input, offset, output, tempOffset);
       output = result['output'];
-      length -= _cbc.blockSize;
-      tempOffset += _cbc.blockSize;
-      offset += _cbc.blockSize;
+      length -= _cbc.blockSize!;
+      tempOffset += _cbc.blockSize!;
+      offset += _cbc.blockSize!;
     }
     return output;
   }
 }
 
-class _BufferedCipher {
-  _BufferedCipher(_CipherBlockChainingMode cipher) {
-    ArgumentError.checkNotNull(cipher);
-    _cipher = cipher;
-    _bytes = List<int>.filled(cipher.blockSize, 0, growable: true);
-    _offset = 0;
-  }
-
-  //Fields
-  _CipherBlockChainingMode _cipher;
-  List<int> _bytes;
-  int _offset;
-
-  //Properties
-  int get blockSize => _cipher.blockSize;
-
-  //Implementation
-  void _initialize(bool isEncryption, _ICipherParameter parameter) {
-    _reset();
-    _cipher._initialize(isEncryption, parameter);
-  }
-
-  void _reset() {
-    _bytes = List<int>.filled(blockSize, 0, growable: true);
-    _offset = 0;
-    _cipher._reset();
-  }
-
-  int _getUpdateOutputSize(int length) {
-    final int total = length + _offset;
-    return total - (total % _bytes.length);
-  }
-
-  Map<String, dynamic> _processBytes(List<int> input, int inOffset, int length,
-      List<int> output, int outOffset) {
-    if (length < 1) {
-      return {'output': output, 'length': 0};
-    }
-    int resultLength = 0;
-    final int gapLength = _bytes.length - _offset;
-    Map<String, dynamic> result;
-    if (length > gapLength) {
-      List.copyRange(_bytes, _offset, input, inOffset, inOffset + gapLength);
-      result = _cipher._processBlock(_bytes, 0, output, outOffset);
-      resultLength += result['length'];
-      output = result['output'];
-      _offset = 0;
-      length -= gapLength;
-      inOffset += gapLength;
-      while (length > _bytes.length) {
-        result = _cipher._processBlock(
-            input, inOffset, output, outOffset + resultLength);
-        resultLength += result['length'];
-        output = result['output'];
-        length -= blockSize;
-        inOffset += blockSize;
-      }
-    }
-    List.copyRange(_bytes, _offset, input, inOffset, inOffset + length);
-    _offset += length;
-    if (_offset == _bytes.length) {
-      result =
-          _cipher._processBlock(_bytes, 0, output, outOffset + resultLength);
-      resultLength += result['length'];
-      output = result['output'];
-      _offset = 0;
-    }
-    return {'output': output, 'length': resultLength};
-  }
-}
-
 class _AesEncryptor {
   _AesEncryptor(List<int> key, List<int> iv, bool isEncryption) {
-    _initialize();
+    initialize();
     _aes = _Aes(
         key.length == _blockSize ? _KeySize.bits128 : _KeySize.bits256, key);
     List.copyRange(_buf, 0, iv, 0, iv.length);
-    List.copyRange(_cbcV, 0, iv, 0, iv.length);
+    List.copyRange(_cbcV!, 0, iv, 0, iv.length);
     if (isEncryption) {
       _ivOff = _buf.length;
     }
@@ -141,25 +70,25 @@ class _AesEncryptor {
   }
 
   //Fields
-  int _blockSize;
-  _Aes _aes;
-  bool _isEncryption;
-  List<int> _buf;
-  List<int> _cbcV;
-  int _ivOff;
-  List<int> _nextBlockVector;
+  int? _blockSize;
+  late _Aes _aes;
+  late bool _isEncryption;
+  late List<int> _buf;
+  List<int>? _cbcV;
+  int? _ivOff;
+  List<int>? _nextBlockVector;
 
   //Implementation
-  void _initialize() {
+  void initialize() {
     _blockSize = 16;
     _ivOff = 0;
-    _buf = List<int>.filled(_blockSize, 0, growable: true);
-    _cbcV = List<int>.filled(_blockSize, 0, growable: true);
-    _nextBlockVector = List<int>.filled(_blockSize, 0, growable: true);
+    _buf = List<int>.filled(_blockSize!, 0, growable: true);
+    _cbcV = List<int>.filled(_blockSize!, 0, growable: true);
+    _nextBlockVector = List<int>.filled(_blockSize!, 0, growable: true);
   }
 
   int _getBlockSize(int length) {
-    final int total = length + _ivOff;
+    final int total = length + _ivOff!;
     final int leftOver = total % _buf.length;
     return total - (leftOver == 0 ? _buf.length : leftOver);
   }
@@ -170,42 +99,41 @@ class _AesEncryptor {
       throw ArgumentError.value(length, 'length cannot be negative');
     }
     int resultLen = 0;
-    final int bytesLeft = _buf.length - _ivOff;
+    final int bytesLeft = _buf.length - _ivOff!;
     if (length > bytesLeft) {
-      List.copyRange(_buf, _ivOff, input, inOff, inOff + bytesLeft);
-      resultLen += _processBlock(_buf, 0, output, outOff);
+      List.copyRange(_buf, _ivOff!, input, inOff, inOff + bytesLeft);
+      resultLen += processBlock(_buf, 0, output, outOff);
       _ivOff = 0;
       length -= bytesLeft;
       inOff += bytesLeft;
       while (length > _buf.length) {
-        resultLen += _processBlock(input, inOff, output, outOff + resultLen);
-        length -= _blockSize;
-        inOff += _blockSize;
+        resultLen += processBlock(input, inOff, output, outOff + resultLen);
+        length -= _blockSize!;
+        inOff += _blockSize!;
       }
     }
-    List.copyRange(_buf, _ivOff, input, inOff, inOff + length);
-    _ivOff += length;
+    List.copyRange(_buf, _ivOff!, input, inOff, inOff + length);
+    _ivOff = _ivOff! + length;
   }
 
-  int _processBlock(
-      List<int> input, int inOff, List<int> outBytes, int outOff) {
+  int processBlock(List<int> input, int inOff, List<int> outBytes, int outOff) {
     int length = 0;
-    if ((inOff + _blockSize) > input.length) {
+    if ((inOff + _blockSize!) > input.length) {
       throw ArgumentError.value('input buffer length is too short');
     }
     if (_isEncryption) {
-      for (int i = 0; i < _blockSize; i++) {
-        _cbcV[i] ^= input[inOff + i];
+      for (int i = 0; i < _blockSize!; i++) {
+        _cbcV![i] ^= input[inOff + i];
       }
       length = _aes._cipher(_cbcV, outBytes, outOff);
-      List.copyRange(_cbcV, 0, outBytes, outOff, outOff + _cbcV.length);
+      List.copyRange(_cbcV!, 0, outBytes, outOff, outOff + _cbcV!.length);
     } else {
-      List.copyRange(_nextBlockVector, 0, input, inOff, inOff + _blockSize);
+      List.copyRange(_nextBlockVector!, 0, input, inOff, inOff + _blockSize!);
       length = _aes._invCipher(_nextBlockVector, outBytes, outOff);
-      for (int i = 0; i < _blockSize; i++) {
-        outBytes[outOff + i] ^= _cbcV[i];
+      for (int i = 0; i < _blockSize!; i++) {
+        outBytes[outOff + i] ^= _cbcV![i];
       }
-      final List<int> tmp = _cbcV;
+      final List<int>? tmp = _cbcV;
       _cbcV = _nextBlockVector;
       _nextBlockVector = tmp;
     }
@@ -213,7 +141,7 @@ class _AesEncryptor {
   }
 
   int _calculateOutputSize() {
-    final int total = _ivOff;
+    final int total = _ivOff!;
     final int leftOver = total % _buf.length;
     return leftOver == 0
         ? (_isEncryption ? (total + _buf.length) : total)
@@ -225,14 +153,14 @@ class _AesEncryptor {
     final int outOff = 0;
     if (_isEncryption) {
       if (_ivOff == _blockSize) {
-        resultLen = _processBlock(_buf, 0, output, outOff);
+        resultLen = processBlock(_buf, 0, output, outOff);
         _ivOff = 0;
       }
-      _ivOff = _addPadding(_buf, _ivOff);
-      resultLen += _processBlock(_buf, 0, output, outOff + resultLen);
+      _ivOff = _addPadding(_buf, _ivOff!);
+      resultLen += processBlock(_buf, 0, output, outOff + resultLen);
     } else {
       if (_ivOff == _blockSize) {
-        resultLen = _processBlock(_buf, 0, output, 0);
+        resultLen = processBlock(_buf, 0, output, 0);
         _ivOff = 0;
       }
       resultLen -= _checkPadding(output);
@@ -276,23 +204,23 @@ class _Aes {
     }
     key = List<int>.filled(nk * 4, 0, growable: true);
     List.copyRange(key, 0, keyBytes, 0, key.length);
-    _initialize();
+    initialize();
   }
 
   //Fields
-  _KeySize _keySize;
-  int nb;
-  int nk;
-  int nr;
-  List<int> key;
-  List<List<int>> sBox;
-  List<List<int>> iBox;
-  List<List<int>> rCon;
-  List<List<int>> keySheduleArray;
-  List<List<int>> state;
+  _KeySize? _keySize;
+  late int nb;
+  late int nk;
+  int? nr;
+  late List<int> key;
+  late List<List<int>> sBox;
+  late List<List<int>> iBox;
+  late List<List<int>> rCon;
+  late List<List<int>> keySheduleArray;
+  late List<List<int>> state;
 
   //Implemenation
-  void _initialize() {
+  void initialize() {
     _buildSubstitutionBox();
     _buildInverseSubBox();
     _buildRoundConstants();
@@ -301,7 +229,7 @@ class _Aes {
 
   void _keyExpansion() {
     keySheduleArray =
-        List.generate((nb * (nr + 1)), (i) => List.generate(4, (j) => 0));
+        List.generate((nb * (nr! + 1)), (i) => List.generate(4, (j) => 0));
     for (int row = 0; row < nk; ++row) {
       keySheduleArray[row][0] = key[4 * row];
       keySheduleArray[row][1] = key[(4 * row) + 1];
@@ -309,7 +237,7 @@ class _Aes {
       keySheduleArray[row][3] = key[(4 * row) + 3];
     }
     List<int> temp = List<int>.filled(4, 0, growable: true);
-    for (int row = nk; row < nb * (nr + 1); ++row) {
+    for (int row = nk; row < nb * (nr! + 1); ++row) {
       temp[0] = keySheduleArray[row - 1][0];
       temp[1] = keySheduleArray[row - 1][1];
       temp[2] = keySheduleArray[row - 1][2];
@@ -360,14 +288,14 @@ class _Aes {
     return result;
   }
 
-  int _cipher(List<int> input, List<int> output, int outOff) {
-    _initialize();
+  int _cipher(List<int>? input, List<int> output, int outOff) {
+    initialize();
     state = List.generate(4, (i) => List.generate(nb, (j) => 0));
     for (int i = 0; i < (4 * nb); ++i) {
-      state[i % 4][i ~/ 4] = input[i];
+      state[i % 4][i ~/ 4] = input![i];
     }
     _addRoundKey(0);
-    for (int round = 1; round <= (nr - 1); ++round) {
+    for (int round = 1; round <= (nr! - 1); ++round) {
       _subBytes();
       _shiftRows();
       _mixColumns();
@@ -382,13 +310,13 @@ class _Aes {
     return 16;
   }
 
-  int _invCipher(List<int> input, List<int> output, int outOff) {
+  int _invCipher(List<int>? input, List<int> output, int outOff) {
     state = List.generate(4, (i) => List.generate(nb, (j) => 0));
     for (int i = 0; i < (4 * nb); ++i) {
-      state[i % 4][i ~/ 4] = input[i];
+      state[i % 4][i ~/ 4] = input![i];
     }
     _addRoundKey(nr);
-    for (int round = nr - 1; round >= 1; --round) {
+    for (int round = nr! - 1; round >= 1; --round) {
       _invShiftRows();
       _invSubBytes();
       _addRoundKey(round);
@@ -551,11 +479,11 @@ class _Aes {
     }
   }
 
-  void _addRoundKey(int round) {
+  void _addRoundKey(int? round) {
     for (int r = 0; r < 4; ++r) {
       for (int c = 0; c < 4; ++c) {
         state[r][c] = ((state[r][c]).toSigned(32) ^
-                (keySheduleArray[(round * 4) + c][r]).toSigned(32))
+                (keySheduleArray[(round! * 4) + c][r]).toSigned(32))
             .toUnsigned(8);
       }
     }

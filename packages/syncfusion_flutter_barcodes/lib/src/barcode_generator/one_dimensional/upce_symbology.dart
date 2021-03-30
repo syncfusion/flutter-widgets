@@ -16,5 +16,5 @@ class UPCE extends Symbology {
   /// By default, the number system(0) will add at the front and check digit
   /// at the end along with 6 digits of the input product code.
   ///
-  UPCE({int module}) : super(module: module);
+  UPCE({int? module}) : super(module: module);
 }

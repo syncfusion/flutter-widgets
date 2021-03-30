@@ -5,12 +5,12 @@ mixin _TreeTableCounterNodeBase on _TreeTableSummaryNodeBase {
   /// Gets the cumulative position of this node.
   ///
   /// Returns  Returns the cumulative position of this node.
-  _TreeTableCounterBase get getCounterPosition;
+  _TreeTableCounterBase? get getCounterPosition;
 
   /// The total of this node's counter and child nodes.
   ///
   /// Returns the total of this node's counter and child nodes (cached).
-  _TreeTableCounterBase getCounterTotal();
+  _TreeTableCounterBase? getCounterTotal();
 
   /// Marks all counters dirty in this node and child nodes.
   ///
@@ -41,7 +41,7 @@ abstract class _TreeTableCounterBase {
   ///
   /// Returns the kind.
   int get kind => _kind;
-  int _kind;
+  int _kind = -1;
 
   /// Combines this counter object with another counter and returns a
   /// new object. A cookie can specify a specific counter type.
@@ -50,7 +50,7 @@ abstract class _TreeTableCounterBase {
   /// * cookie - _required_ - Cookie value.
   ///
   /// Returns the new object
-  _TreeTableCounterBase combine(_TreeTableCounterBase other, int cookie);
+  _TreeTableCounterBase combine(_TreeTableCounterBase? other, int cookie);
 
   /// Compares this counter with another counter. A cookie can specify
   /// a specific counter type.
@@ -59,7 +59,7 @@ abstract class _TreeTableCounterBase {
   /// * cookie - _required_ - The cookie.
   ///
   /// Returns the compared value.
-  double compare(_TreeTableCounterBase other, int cookie);
+  double compare(_TreeTableCounterBase? other, int cookie);
 
   /// Indicates whether the counter object is empty. A cookie can specify
   /// a specific counter type.
@@ -94,22 +94,22 @@ class _TreeTableWithCounterBranch extends _TreeTableWithSummaryBranch
   /// * tree - _required_ - Tree instance
   _TreeTableWithCounterBranch(_TreeTable tree) : super(tree);
 
-  _TreeTableCounterBase counter;
+  _TreeTableCounterBase? counter;
 
   /// Gets the parent branch.
   @override
-  _TreeTableWithCounterBranch get parent {
+  _TreeTableWithCounterBranch? get parent {
     if (super.parent is _TreeTableWithCounterBranch) {
-      return super.parent;
+      return super.parent as _TreeTableWithCounterBranch;
     } else {
       return null;
     }
   }
 
   /// Gets the tree this branch belongs to.
-  _TreeTableWithCounter get treeTableWithCounter {
+  _TreeTableWithCounter? get treeTableWithCounter {
     if (tree is _TreeTableWithCounter) {
-      return tree;
+      return tree as _TreeTableWithCounter;
     } else {
       return null;
     }
@@ -127,7 +127,7 @@ class _TreeTableWithCounterBranch extends _TreeTableWithSummaryBranch
 
     if (_MathHelper.referenceEquals(node, right)) {
       return pos.combine(
-          getLeftNode().getCounterTotal(), _TreeTableCounterCookies.countAll);
+          getLeftNode()?.getCounterTotal(), _TreeTableCounterCookies.countAll);
     } else if (_MathHelper.referenceEquals(node, left)) {
       return pos;
     }
@@ -141,10 +141,10 @@ class _TreeTableWithCounterBranch extends _TreeTableWithSummaryBranch
   @override
   _TreeTableCounterBase get getCounterPosition {
     if (parent == null) {
-      return treeTableWithCounter.getStartCounterPosition();
+      return treeTableWithCounter!.getStartCounterPosition();
     }
 
-    return parent.getCounterPositionOfChild(this);
+    return parent!.getCounterPositionOfChild(this);
   }
 
   /// Gets the total of this node's counter and child nodes (cached).
@@ -152,12 +152,12 @@ class _TreeTableWithCounterBranch extends _TreeTableWithSummaryBranch
   /// Returns  Returns the total of this node's counter and child
   /// nodes (cached).
   @override
-  _TreeTableCounterBase getCounterTotal() {
-    if (tree.isInitializing) {
+  _TreeTableCounterBase? getCounterTotal() {
+    if (tree!.isInitializing) {
       return null;
     } else if (counter == null) {
-      final _TreeTableCounterBase _left = getLeftNode().getCounterTotal();
-      final _TreeTableCounterBase _right = getRightNode().getCounterTotal();
+      final _TreeTableCounterBase? _left = getLeftNode()?.getCounterTotal();
+      final _TreeTableCounterBase? _right = getRightNode()?.getCounterTotal();
       if (_left != null && _right != null) {
         counter = _left.combine(_right, _TreeTableCounterCookies.countAll);
       }
@@ -170,9 +170,9 @@ class _TreeTableWithCounterBranch extends _TreeTableWithSummaryBranch
   ///
   /// Returns the left branch node cast to ITreeTableCounterNode.
   @override
-  _TreeTableCounterNodeBase getLeftNode() {
+  _TreeTableCounterNodeBase? getLeftNode() {
     if (left is _TreeTableCounterNodeBase) {
-      return left;
+      return left as _TreeTableCounterNodeBase;
     } else {
       return null;
     }
@@ -182,15 +182,15 @@ class _TreeTableWithCounterBranch extends _TreeTableWithSummaryBranch
   ///
   /// Returns the left branch node cast to ITreeTableCounterNode.
   @override
-  _TreeTableCounterNodeBase getLeftC() => getLeftNode();
+  _TreeTableCounterNodeBase? getLeftC() => getLeftNode();
 
   /// The right branch node cast to ITreeTableCounterNode.
   ///
   /// Returns the right branch node cast to ITreeTableCounterNode.
   @override
-  _TreeTableCounterNodeBase getRightNode() {
+  _TreeTableCounterNodeBase? getRightNode() {
     if (right is _TreeTableCounterNodeBase) {
-      return right;
+      return right as _TreeTableCounterNodeBase;
     } else {
       return null;
     }
@@ -200,26 +200,26 @@ class _TreeTableWithCounterBranch extends _TreeTableWithSummaryBranch
   ///
   /// Returns the right branch node cast to ITreeTableCounterNode.
   @override
-  _TreeTableCounterNodeBase getRightC() => getRightNode();
+  _TreeTableCounterNodeBase? getRightC() => getRightNode();
 
   /// Invalidates the counter bottom up.
   ///
   /// * notifyCounterSource - _required_ - If set to true notify counter source.
   @override
   void invalidateCounterBottomUp(bool notifyCounterSource) {
-    if (tree.isInitializing) {
+    if (tree!.isInitializing) {
       return;
     }
 
     counter = null;
     if (parent != null) {
-      parent.invalidateCounterBottomUp(notifyCounterSource);
+      parent!.invalidateCounterBottomUp(notifyCounterSource);
     } else if (notifyCounterSource) {
-      final Object _tree = tree;
+      final Object _tree = tree!;
       if (_tree is _TreeTableWithCounter) {
-        _TreeTableCounterSourceBase tcs;
+        _TreeTableCounterSourceBase? tcs;
         if (_tree.tag is _TreeTableCounterSourceBase) {
-          tcs = _tree.tag;
+          tcs = _tree.tag as _TreeTableCounterSourceBase;
         }
 
         if (tcs != null) {
@@ -239,25 +239,25 @@ class _TreeTableWithCounterBranch extends _TreeTableWithSummaryBranch
   /// * notifyCounterSource - _required_ - If set to true notify counter source.
   @override
   void invalidateCounterTopDown(bool notifyCounterSource) {
-    if (tree.isInitializing) {
+    if (tree!.isInitializing) {
       return;
     }
 
     counter = null;
-    getLeftNode().invalidateCounterTopDown(notifyCounterSource);
-    getRightNode().invalidateCounterTopDown(notifyCounterSource);
+    getLeftNode()?.invalidateCounterTopDown(notifyCounterSource);
+    getRightNode()?.invalidateCounterTopDown(notifyCounterSource);
   }
 }
 
 /// A tree leaf with value, sort key and counter information.
 class _TreeTableWithCounterEntry extends _TreeTableWithSummaryEntryBase
     with _TreeTableCounterNodeBase {
-  _TreeTableCounterBase _counter;
+  _TreeTableCounterBase? _counter;
 
   /// Gets the tree this leaf belongs to.
-  _TreeTableWithCounter get treeTableWithCounter {
+  _TreeTableWithCounter? get treeTableWithCounter {
     if (super.tree is _TreeTableWithCounter) {
-      return super.tree;
+      return super.tree as _TreeTableWithCounter;
     } else {
       return null;
     }
@@ -265,9 +265,9 @@ class _TreeTableWithCounterEntry extends _TreeTableWithSummaryEntryBase
 
   /// Gets the parent branch.
   @override
-  _TreeTableWithCounterBranch get parent {
+  _TreeTableWithCounterBranch? get parent {
     if (super.parent is _TreeTableWithCounterBranch) {
-      return super.parent;
+      return super.parent as _TreeTableWithCounterBranch;
     } else {
       return null;
     }
@@ -275,7 +275,7 @@ class _TreeTableWithCounterEntry extends _TreeTableWithSummaryEntryBase
 
   /// Sets the parent branch.
   @override
-  set parent(Object value) {
+  set parent(Object? value) {
     super.parent = value;
   }
 
@@ -283,16 +283,16 @@ class _TreeTableWithCounterEntry extends _TreeTableWithSummaryEntryBase
   ///
   /// Returns  Returns the cumulative position of this node.
   @override
-  _TreeTableCounterBase get getCounterPosition {
+  _TreeTableCounterBase? get getCounterPosition {
     if (parent == null) {
       if (treeTableWithCounter == null) {
         return null;
       }
 
-      return treeTableWithCounter.getStartCounterPosition();
+      return treeTableWithCounter?.getStartCounterPosition();
     }
 
-    return parent.getCounterPositionOfChild(this);
+    return parent?.getCounterPositionOfChild(this);
   }
 
   /// Indicates whether the counter was set dirty.
@@ -313,9 +313,9 @@ class _TreeTableWithCounterEntry extends _TreeTableWithSummaryEntryBase
   /// Gets the value as `_TreeTableCounterSourceBase`.
   ///
   /// Returns the value as `_TreeTableCounterSourceBase`.
-  _TreeTableCounterSourceBase getCounterSource() {
+  _TreeTableCounterSourceBase? getCounterSource() {
     if (value is _TreeTableCounterSourceBase) {
-      return value;
+      return value as _TreeTableCounterSourceBase;
     } else {
       return null;
     }
@@ -327,13 +327,13 @@ class _TreeTableWithCounterEntry extends _TreeTableWithSummaryEntryBase
   @override
   _TreeTableCounterBase getCounterTotal() {
     if (_counter == null) {
-      final _TreeTableCounterSourceBase source = getCounterSource();
+      final _TreeTableCounterSourceBase? source = getCounterSource();
       if (source != null) {
         _counter = source.getCounter();
       }
     }
 
-    return _counter;
+    return _counter!;
   }
 
   /// Reset cached counter.
@@ -348,14 +348,14 @@ class _TreeTableWithCounterEntry extends _TreeTableWithSummaryEntryBase
   void invalidateCounterBottomUp(bool notifyCounterSource) {
     _counter = null;
     if (parent != null) {
-      parent.invalidateCounterBottomUp(notifyCounterSource);
+      parent!.invalidateCounterBottomUp(notifyCounterSource);
     } else if (notifyCounterSource) {
-      final Object _tree = tree;
+      final Object _tree = tree!;
       if (_tree is _TreeTableWithCounter) {
-        _TreeTableCounterSourceBase tcs;
+        _TreeTableCounterSourceBase? tcs;
 
         if (_tree.tag is _TreeTableCounterSourceBase) {
-          tcs = _tree.tag;
+          tcs = _tree.tag as _TreeTableCounterSourceBase;
         }
 
         if (tcs != null) {
@@ -377,7 +377,7 @@ class _TreeTableWithCounterEntry extends _TreeTableWithSummaryEntryBase
   void invalidateCounterTopDown(bool notifyCounterSource) {
     _counter = null;
     if (notifyCounterSource) {
-      final _TreeTableCounterSourceBase source = getCounterSource();
+      final _TreeTableCounterSourceBase? source = getCounterSource();
       if (notifyCounterSource && source != null) {
         source.invalidateCounterTopDown(notifyCounterSource);
       }
@@ -396,16 +396,16 @@ class _TreeTableWithCounter extends _TreeTableWithSummary {
     _startPos = startPosition;
   }
 
-  _TreeTableCounterBase _startPos;
+  late _TreeTableCounterBase _startPos;
 
   /// Gets an object that implements the
   /// [Syncfusion.GridCommon.ScrollAxis.PixelScrollAxis.Distances] property.
-  _TreeTableCounterSourceBase get parentCounterSource => _parentCounterSource;
-  _TreeTableCounterSourceBase _parentCounterSource;
+  _TreeTableCounterSourceBase? get parentCounterSource => _parentCounterSource;
+  _TreeTableCounterSourceBase? _parentCounterSource;
 
   /// Sets an object that implements the
   /// [Syncfusion.GridCommon.ScrollAxis.PixelScrollAxis.Distances] property.
-  set parentCounterSource(_TreeTableCounterSourceBase value) {
+  set parentCounterSource(_TreeTableCounterSourceBase? value) {
     if (value == _parentCounterSource) {
       return;
     }
@@ -416,13 +416,13 @@ class _TreeTableWithCounter extends _TreeTableWithSummary {
   /// Gets the total of all counters in this tree.
   ///
   /// Returns the total of all counters in this tree.
-  _TreeTableCounterBase getCounterTotal() {
+  _TreeTableCounterBase? getCounterTotal() {
     if (root == null) {
       return _startPos;
     }
 
-    final Object _root = root;
-    if (_root is _TreeTableCounterNodeBase) {
+    final Object? _root = root;
+    if (_root != null && _root is _TreeTableCounterNodeBase) {
       return _root.getCounterTotal();
     } else {
       return null;
@@ -436,7 +436,7 @@ class _TreeTableWithCounter extends _TreeTableWithSummary {
   /// * cookie - _required_ - The cookie.
   ///
   /// Returns an entry at the specified counter position.
-  _TreeTableWithCounterEntry getEntryAtCounterPosition(
+  _TreeTableWithCounterEntry? getEntryAtCounterPosition(
           _TreeTableCounterBase searchPosition, int cookie) =>
       getEntryAtCounterPositionWithForParameter(
           getStartCounterPosition(), searchPosition, cookie, false);
@@ -450,7 +450,7 @@ class _TreeTableWithCounter extends _TreeTableWithSummary {
   /// be returned if multiple tree elements have the same SearchPosition.
   ///
   /// Returns an entry at the specified counter position.
-  _TreeTableWithCounterEntry getEntryAtCounterPositionwithThreeParameter(
+  _TreeTableWithCounterEntry? getEntryAtCounterPositionwithThreeParameter(
           _TreeTableCounterBase searchPosition,
           int cookie,
           bool preferLeftMost) =>
@@ -465,7 +465,7 @@ class _TreeTableWithCounter extends _TreeTableWithSummary {
   /// * preferLeftMost - _required_ - If set to true prefer left most.
   ///
   /// Returns an entry at the specified counter position.
-  _TreeTableWithCounterEntry getEntryAtCounterPositionWithForParameter(
+  _TreeTableWithCounterEntry? getEntryAtCounterPositionWithForParameter(
       _TreeTableCounterBase start,
       _TreeTableCounterBase searchPosition,
       int cookie,
@@ -482,9 +482,9 @@ class _TreeTableWithCounter extends _TreeTableWithSummary {
       return null;
     } else {
       // find node
-      final _TreeTableNodeBase currentNode = root;
+      final _TreeTableNodeBase? currentNode = root;
       final _TreeTableCounterBase currentNodePosition = start;
-      return getEntryAtCounterPositionWithSixParameter(currentNode, start,
+      return getEntryAtCounterPositionWithSixParameter(currentNode!, start,
           searchPosition, cookie, preferLeftMost, currentNodePosition);
     }
   }
@@ -507,30 +507,33 @@ class _TreeTableWithCounter extends _TreeTableWithSummary {
       _TreeTableCounterBase searchPosition,
       int cookie,
       bool preferLeftMost,
-      _TreeTableCounterBase currentNodePosition) {
-    _TreeTableWithCounterBranch savedBranch;
+      _TreeTableCounterBase? currentNodePosition) {
+    _TreeTableWithCounterBranch? savedBranch;
     currentNodePosition = start;
     while (!currentNode.isEntry()) {
-      final _TreeTableWithCounterBranch branch = currentNode;
-      final _TreeTableCounterNodeBase leftB = branch.left;
+      final _TreeTableWithCounterBranch branch =
+          currentNode as _TreeTableWithCounterBranch;
+      final _TreeTableCounterNodeBase leftB =
+          branch.left as _TreeTableCounterNodeBase;
       final _TreeTableCounterBase rightNodePosition =
-          currentNodePosition.combine(leftB.getCounterTotal(), cookie);
+          currentNodePosition!.combine(leftB.getCounterTotal(), cookie);
 
       if (searchPosition.compare(rightNodePosition, cookie) < 0) {
-        currentNode = branch.left;
+        currentNode = branch.left!;
       } else if (preferLeftMost &&
           searchPosition.compare(currentNodePosition, cookie) == 0) {
         while (!currentNode.isEntry()) {
-          final _TreeTableWithCounterBranch branch = currentNode;
-          currentNode = branch.left;
+          final _TreeTableWithCounterBranch branch =
+              currentNode as _TreeTableWithCounterBranch;
+          currentNode = branch.left!;
         }
       } else {
         if (preferLeftMost &&
             searchPosition.compare(rightNodePosition, cookie) == 0) {
-          _TreeTableCounterBase currentNode2Position;
+          _TreeTableCounterBase? currentNode2Position;
           final _TreeTableNodeBase currentNode2 =
               getEntryAtCounterPositionWithSixParameter(
-                  branch.left,
+                  branch.left!,
                   currentNodePosition,
                   searchPosition,
                   cookie,
@@ -541,17 +544,17 @@ class _TreeTableWithCounter extends _TreeTableWithSummary {
             currentNodePosition = currentNode2Position;
           } else {
             currentNodePosition = rightNodePosition;
-            currentNode = branch.right;
+            currentNode = branch.right!;
           }
         } else {
           savedBranch ??= branch;
           currentNodePosition = rightNodePosition;
-          currentNode = branch.right;
+          currentNode = branch.right!;
         }
       }
     }
 
-    return currentNode;
+    return currentNode as _TreeTableWithCounterEntry;
   }
 
   /// Gets the subsequent entry in the collection for which the specific
@@ -562,10 +565,10 @@ class _TreeTableWithCounter extends _TreeTableWithSummary {
   ///
   /// Returns the subsequent entry in the collection for which the
   /// specific counter is not empty.
-  _TreeTableEntryBase getNextNotEmptyCounterEntry(
+  _TreeTableEntryBase? getNextNotEmptyCounterEntry(
       _TreeTableEntryBase current, int cookie) {
-    _TreeTableBranchBase parent = current.parent;
-    _TreeTableNodeBase next;
+    _TreeTableBranchBase? parent = current.parent;
+    _TreeTableNodeBase? next;
 
     if (parent == null) {
       next = null;
@@ -574,14 +577,14 @@ class _TreeTableWithCounter extends _TreeTableWithSummary {
       next = current;
       // walk up until we find a branch that has visible entries
       do {
-        if (_MathHelper.referenceEquals(next, parent.left)) {
+        if (_MathHelper.referenceEquals(next, parent!.left)) {
           next = parent.right;
         } else {
-          _TreeTableBranchBase parentParent = parent.parent;
+          _TreeTableBranchBase? parentParent = parent.parent;
           if (parentParent == null) {
             return null;
           } else {
-            while (_MathHelper.referenceEquals(parentParent.right, parent)
+            while (_MathHelper.referenceEquals(parentParent!.right, parent)
                 // for something that most likely went wrong when
                 // adding the node or when doing a rotation ...
                 ||
@@ -602,19 +605,20 @@ class _TreeTableWithCounter extends _TreeTableWithSummary {
         }
       } while (next != null &&
           (next is _TreeTableCounterNodeBase &&
-              next.getCounterTotal().isEmpty(cookie)));
+              next.getCounterTotal()!.isEmpty(cookie)));
 
       // walk down to most left leaf that has visible entries
-      while (!next.isEntry()) {
-        final _TreeTableBranchBase branch = next;
-        final _TreeTableCounterNodeBase _left = branch.left;
-        next = !_left.getCounterTotal().isEmpty(cookie)
+      while (!next!.isEntry()) {
+        final _TreeTableBranchBase branch = next as _TreeTableBranchBase;
+        final _TreeTableCounterNodeBase _left =
+            branch.left as _TreeTableCounterNodeBase;
+        next = !_left.getCounterTotal()!.isEmpty(cookie)
             ? branch.left
             : branch.right;
       }
     }
 
-    return next;
+    return next as _TreeTableEntryBase;
   }
 
   /// Returns the previous entry in the collection for which the specific
@@ -625,10 +629,10 @@ class _TreeTableWithCounter extends _TreeTableWithSummary {
   ///
   /// Returns the previous entry in the collection for which the specific
   /// counter is not empty.
-  _TreeTableEntryBase getPreviousNotEmptyCounterEntry(
+  _TreeTableEntryBase? getPreviousNotEmptyCounterEntry(
       _TreeTableEntryBase current, int cookie) {
-    _TreeTableBranchBase parent = current.parent;
-    _TreeTableNodeBase next;
+    _TreeTableBranchBase? parent = current.parent;
+    _TreeTableNodeBase? next;
 
     if (parent == null) {
       next = null;
@@ -637,14 +641,14 @@ class _TreeTableWithCounter extends _TreeTableWithSummary {
       next = current;
       // walk up until we find a branch that has visible entries
       do {
-        if (_MathHelper.referenceEquals(next, parent.right)) {
+        if (_MathHelper.referenceEquals(next, parent!.right)) {
           next = parent.left;
         } else {
-          _TreeTableBranchBase parentParent = parent.parent;
+          _TreeTableBranchBase? parentParent = parent.parent;
           if (parentParent == null) {
             return null;
           } else {
-            while (_MathHelper.referenceEquals(parentParent.left, parent)
+            while (_MathHelper.referenceEquals(parentParent!.left, parent)
                 // for something that most likely went wrong when
                 // adding the node or when doing a rotation ...
                 ||
@@ -664,19 +668,20 @@ class _TreeTableWithCounter extends _TreeTableWithSummary {
         }
       } while (next != null &&
           (next is _TreeTableCounterNodeBase &&
-              next.getCounterTotal().isEmpty(cookie)));
+              next.getCounterTotal()!.isEmpty(cookie)));
 
       // walk down to most left leaf that has visible entries
-      while (!next.isEntry()) {
-        final _TreeTableBranchBase branch = next;
-        final _TreeTableCounterNodeBase _right = branch.right;
-        next = !_right.getCounterTotal().isEmpty(cookie)
+      while (!next!.isEntry()) {
+        final _TreeTableBranchBase branch = next as _TreeTableBranchBase;
+        final _TreeTableCounterNodeBase _right =
+            branch.right as _TreeTableCounterNodeBase;
+        next = !_right.getCounterTotal()!.isEmpty(cookie)
             ? branch.right
             : branch.left;
       }
     }
 
-    return next;
+    return next as _TreeTableEntryBase;
   }
 
   /// Gets the next entry in the collection for which CountVisible counter
@@ -686,10 +691,16 @@ class _TreeTableWithCounter extends _TreeTableWithSummary {
   ///
   /// Returns the next entry in the collection for which CountVisible counter
   /// is not empty.
-  _TreeTableWithCounterEntry getNextVisibleEntry(
-          _TreeTableWithCounterEntry current) =>
-      getNextNotEmptyCounterEntry(
-          current, _TreeTableCounterCookies.countVisible);
+  _TreeTableWithCounterEntry? getNextVisibleEntry(
+      _TreeTableWithCounterEntry current) {
+    final nextCounterEntry = getNextNotEmptyCounterEntry(
+        current, _TreeTableCounterCookies.countVisible);
+    if (nextCounterEntry != null) {
+      return nextCounterEntry as _TreeTableWithCounterEntry;
+    }
+
+    return null;
+  }
 
   /// Gets the previous entry in the collection for which CountVisible counter
   /// is not empty.
@@ -698,10 +709,16 @@ class _TreeTableWithCounter extends _TreeTableWithSummary {
   ///
   /// Returns the previous entry in the collection for which CountVisible
   /// counter is not empty.
-  _TreeTableWithCounterEntry getPreviousVisibleEntry(
-          _TreeTableWithCounterEntry current) =>
-      getPreviousNotEmptyCounterEntry(
-          current, _TreeTableCounterCookies.countVisible);
+  _TreeTableWithCounterEntry? getPreviousVisibleEntry(
+      _TreeTableWithCounterEntry current) {
+    final previousCounterEntry = getPreviousNotEmptyCounterEntry(
+        current, _TreeTableCounterCookies.countVisible);
+    if (previousCounterEntry != null) {
+      return previousCounterEntry as _TreeTableWithCounterEntry;
+    }
+
+    return null;
+  }
 
   /// Gets the starting counter for this tree.
   ///
@@ -713,7 +730,7 @@ class _TreeTableWithCounter extends _TreeTableWithSummary {
   /// * notifyCounterSource - _required_ - Boolean value
   void invalidateCounterTopDown(bool notifyCounterSource) {
     if (root != null) {
-      final Object _root = root;
+      final Object _root = root!;
       if (_root is _TreeTableCounterNodeBase) {
         _root.invalidateCounterTopDown(notifyCounterSource);
       }
@@ -734,7 +751,7 @@ class _TreeTableWithCounter extends _TreeTableWithSummary {
   ///
   /// Returns `true` if tree contains the specified entry; otherwise, `false`.
   @override
-  bool contains(Object value) {
+  bool contains(Object? value) {
     if (value == null) {
       return false;
     }
@@ -782,7 +799,7 @@ class _TreeTableWithCounter extends _TreeTableWithSummary {
   /// Returns the collection after removing the specified item from the
   /// tree collection
   @override
-  bool remove(Object value) => super.remove(value);
+  bool remove(Object? value) => super.remove(value);
 
   /// Gets a _TreeTableWithCounterEntry.
   ///
@@ -790,9 +807,9 @@ class _TreeTableWithCounter extends _TreeTableWithSummary {
   ///
   /// Returns a new instance for _TreeTableWithCounterEntry
   @override
-  _TreeTableWithCounterEntry operator [](int index) {
+  _TreeTableWithCounterEntry? operator [](int index) {
     if (super[index] is _TreeTableWithCounterEntry) {
-      return super[index];
+      return super[index] as _TreeTableWithCounterEntry;
     } else {
       return null;
     }

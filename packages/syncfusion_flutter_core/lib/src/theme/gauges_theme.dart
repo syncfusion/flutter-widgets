@@ -29,7 +29,7 @@ import '../../theme.dart';
 ///
 class SfGaugeTheme extends InheritedTheme {
   /// Initialize the gauge theme
-  const SfGaugeTheme({Key key, this.data, this.child})
+  const SfGaugeTheme({Key? key, required this.data, required this.child})
       : super(key: key, child: child);
 
   /// Specifies the color and typography values for descendant gauges widgets.
@@ -73,8 +73,8 @@ class SfGaugeTheme extends InheritedTheme {
   /// Defaults to [SfGaugeTheme.gaugeThemeData]
   /// if there is no [SfGaugeTheme] in the given
   /// build context.
-  static SfGaugeThemeData of(BuildContext context) {
-    final SfGaugeTheme sfGaugeTheme =
+  static SfGaugeThemeData? of(BuildContext context) {
+    final SfGaugeTheme? sfGaugeTheme =
         context.dependOnInheritedWidgetOfExactType<SfGaugeTheme>();
     return sfGaugeTheme?.data ?? SfTheme.of(context).gaugeThemeData;
   }
@@ -84,7 +84,7 @@ class SfGaugeTheme extends InheritedTheme {
 
   @override
   Widget wrap(BuildContext context, Widget child) {
-    final SfGaugeTheme ancestorTheme =
+    final SfGaugeTheme? ancestorTheme =
         context.findAncestorWidgetOfExactType<SfGaugeTheme>();
     return identical(this, ancestorTheme)
         ? child
@@ -120,24 +120,24 @@ class SfGaugeTheme extends InheritedTheme {
 class SfGaugeThemeData with Diagnosticable {
   /// Initialize the gauge theme data
   factory SfGaugeThemeData({
-    Brightness brightness,
-    Color backgroundColor,
-    Color titleColor,
-    Color axisLabelColor,
-    Color axisLineColor,
-    Color majorTickColor,
-    Color minorTickColor,
-    Color markerColor,
-    Color markerBorderColor,
-    Color needleColor,
-    Color knobColor,
-    Color knobBorderColor,
-    Color tailColor,
-    Color tailBorderColor,
-    Color rangePointerColor,
-    Color rangeColor,
-    Color titleBorderColor,
-    Color titleBackgroundColor,
+    Brightness? brightness,
+    Color? backgroundColor,
+    Color? titleColor,
+    Color? axisLabelColor,
+    Color? axisLineColor,
+    Color? majorTickColor,
+    Color? minorTickColor,
+    Color? markerColor,
+    Color? markerBorderColor,
+    Color? needleColor,
+    Color? knobColor,
+    Color? knobBorderColor,
+    Color? tailColor,
+    Color? tailBorderColor,
+    Color? rangePointerColor,
+    Color? rangeColor,
+    Color? titleBorderColor,
+    Color? titleBackgroundColor,
   }) {
     brightness = brightness ?? Brightness.light;
     final bool isLight = brightness == Brightness.light;
@@ -193,24 +193,24 @@ class SfGaugeThemeData with Diagnosticable {
   /// [SfGaugeThemeData] constructor.
   ///
   const SfGaugeThemeData.raw(
-      {@required this.brightness,
-      @required this.backgroundColor,
-      @required this.titleColor,
-      @required this.axisLabelColor,
-      @required this.axisLineColor,
-      @required this.majorTickColor,
-      @required this.minorTickColor,
-      @required this.markerColor,
-      @required this.markerBorderColor,
-      @required this.needleColor,
-      @required this.knobColor,
-      @required this.knobBorderColor,
-      @required this.tailColor,
-      @required this.tailBorderColor,
-      @required this.rangePointerColor,
-      @required this.rangeColor,
-      @required this.titleBorderColor,
-      @required this.titleBackgroundColor});
+      {required this.brightness,
+      required this.backgroundColor,
+      required this.titleColor,
+      required this.axisLabelColor,
+      required this.axisLineColor,
+      required this.majorTickColor,
+      required this.minorTickColor,
+      required this.markerColor,
+      required this.markerBorderColor,
+      required this.needleColor,
+      required this.knobColor,
+      required this.knobBorderColor,
+      required this.tailColor,
+      required this.tailBorderColor,
+      required this.rangePointerColor,
+      required this.rangeColor,
+      required this.titleBorderColor,
+      required this.titleBackgroundColor});
 
   /// The brightness of the overall theme of the
   /// application for the gauge widgets.
@@ -732,24 +732,24 @@ class SfGaugeThemeData with Diagnosticable {
   /// Creates a copy of this gauge theme data object with the matching fields
   /// replaced with the non-null parameter values.
   SfGaugeThemeData copyWith({
-    Brightness brightness,
-    Color backgroundColor,
-    Color titleColor,
-    Color axisLabelColor,
-    Color axisLineColor,
-    Color majorTickColor,
-    Color minorTickColor,
-    Color markerColor,
-    Color markerBorderColor,
-    Color needleColor,
-    Color knobColor,
-    Color knobBorderColor,
-    Color tailColor,
-    Color tailBorderColor,
-    Color rangePointerColor,
-    Color rangeColor,
-    Color titleBorderColor,
-    Color titleBackgroundColor,
+    Brightness? brightness,
+    Color? backgroundColor,
+    Color? titleColor,
+    Color? axisLabelColor,
+    Color? axisLineColor,
+    Color? majorTickColor,
+    Color? minorTickColor,
+    Color? markerColor,
+    Color? markerBorderColor,
+    Color? needleColor,
+    Color? knobColor,
+    Color? knobBorderColor,
+    Color? tailColor,
+    Color? tailBorderColor,
+    Color? rangePointerColor,
+    Color? rangeColor,
+    Color? titleBorderColor,
+    Color? titleBackgroundColor,
   }) {
     return SfGaugeThemeData.raw(
       brightness: brightness ?? this.brightness,
@@ -774,14 +774,13 @@ class SfGaugeThemeData with Diagnosticable {
   }
 
   /// Returns the gauge theme data
-  static SfGaugeThemeData lerp(
-      SfGaugeThemeData a, SfGaugeThemeData b, double t) {
-    assert(t != null);
+  static SfGaugeThemeData? lerp(
+      SfGaugeThemeData? a, SfGaugeThemeData? b, double t) {
     if (a == null && b == null) {
       return null;
     }
     return SfGaugeThemeData(
-      backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
+      backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
       titleColor: Color.lerp(a.titleColor, b.titleColor, t),
       axisLabelColor: Color.lerp(a.axisLabelColor, b.axisLabelColor, t),
       axisLineColor: Color.lerp(a.axisLineColor, b.axisLineColor, t),
@@ -812,24 +811,25 @@ class SfGaugeThemeData with Diagnosticable {
     if (other.runtimeType != runtimeType) {
       return false;
     }
-    final SfGaugeThemeData typedOther = other;
-    return typedOther.backgroundColor == backgroundColor &&
-        typedOther.titleColor == titleColor &&
-        typedOther.axisLabelColor == axisLabelColor &&
-        typedOther.axisLineColor == axisLineColor &&
-        typedOther.majorTickColor == majorTickColor &&
-        typedOther.minorTickColor == minorTickColor &&
-        typedOther.markerColor == markerColor &&
-        typedOther.markerBorderColor == markerBorderColor &&
-        typedOther.needleColor == needleColor &&
-        typedOther.knobColor == knobColor &&
-        typedOther.knobBorderColor == knobBorderColor &&
-        typedOther.tailColor == tailColor &&
-        typedOther.tailBorderColor == tailBorderColor &&
-        typedOther.rangePointerColor == rangePointerColor &&
-        typedOther.rangeColor == rangeColor &&
-        typedOther.titleBorderColor == titleBorderColor &&
-        typedOther.titleBackgroundColor == titleBackgroundColor;
+
+    return other is SfGaugeThemeData &&
+        other.backgroundColor == backgroundColor &&
+        other.titleColor == titleColor &&
+        other.axisLabelColor == axisLabelColor &&
+        other.axisLineColor == axisLineColor &&
+        other.majorTickColor == majorTickColor &&
+        other.minorTickColor == minorTickColor &&
+        other.markerColor == markerColor &&
+        other.markerBorderColor == markerBorderColor &&
+        other.needleColor == needleColor &&
+        other.knobColor == knobColor &&
+        other.knobBorderColor == knobBorderColor &&
+        other.tailColor == tailColor &&
+        other.tailBorderColor == tailBorderColor &&
+        other.rangePointerColor == rangePointerColor &&
+        other.rangeColor == rangeColor &&
+        other.titleBorderColor == titleBorderColor &&
+        other.titleBackgroundColor == titleBackgroundColor;
   }
 
   @override

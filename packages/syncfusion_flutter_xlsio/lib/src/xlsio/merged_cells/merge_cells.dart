@@ -3,27 +3,27 @@ part of xlsio;
 /// Represents merged cell.
 class MergeCell {
   /// Represent merged cell reference.
-  String _reference;
+  late String _reference;
 
   /// Represents left cell index value.
-  int x;
+  late int x;
 
   /// Represents width of the merged cell.
-  int width;
+  late int width;
 
   /// Represents top cell index value.
-  int y;
+  late int y;
 
   /// Represents height of the merged cell.
-  int height;
+  late int height;
 }
 
 /// Represents the extended format cell
 
 class _ExtendCell {
   /// Gets/Sets X value.
-  int _x;
+  late int _x;
 
   /// Gets/Sets Y value.
-  int _y;
+  late int _y;
 }

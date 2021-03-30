@@ -7,10 +7,10 @@ import 'symbology_base_renderer.dart';
 /// Represents the EAN8 renderer class
 class EAN8Renderer extends SymbologyRenderer {
   /// Creates the ean8 renderer
-  EAN8Renderer({Symbology symbology}) : super(symbology: symbology);
+  EAN8Renderer({Symbology? symbology}) : super(symbology: symbology);
 
   /// Represents the encoded input value
-  String _encodedValue;
+  late String _encodedValue;
 
   @override
   bool getIsValidateInput(String value) {
@@ -47,20 +47,20 @@ class EAN8Renderer extends SymbologyRenderer {
     ///  _positions[1] specifies start position of middle  bar
     ///  _positions[2] specifies end position of middle bar
     ///  _positions[3] specifies start position of end bar
-    final List<double> positions = List<double>(4);
+    final List<double?> positions = List<double?>.filled(4, null);
     final Paint paint = getBarPaint(foregroundColor);
     final List<String> code = _getCodeValues();
     final int barTotalLength = _getTotalLength(code);
-    double left = symbology.module == null
+    double left = symbology?.module == null
         ? offset.dx
         : getLeftPosition(
-            barTotalLength, symbology.module, size.width, offset.dx);
+            barTotalLength, symbology?.module, size.width, offset.dx);
     final Rect barCodeRect = Rect.fromLTRB(
         offset.dx, offset.dy, offset.dx + size.width, offset.dy + size.height);
 
     double ratio = 0;
-    if (symbology.module != null) {
-      ratio = symbology.module.toDouble();
+    if (symbology?.module != null) {
+      ratio = symbology!.module!.toDouble();
     } else {
       // Calculates the bar length based on number of individual bar codes
       final int singleModule = (size.width ~/ barTotalLength).toInt();
@@ -76,7 +76,7 @@ class EAN8Renderer extends SymbologyRenderer {
       final double barHeight = hasExtraHeight
           ? size.height +
               (showValue
-                  ? (textSize.height * additionalHeight) + textSpacing
+                  ? (textSize!.height * additionalHeight) + textSpacing
                   : 0)
           : size.height;
       final int codeLength = codeValue.length;
@@ -211,16 +211,16 @@ class EAN8Renderer extends SymbologyRenderer {
       TextStyle textStyle,
       double textSpacing,
       TextAlign textAlign,
-      List<double> positions) {
+      List<double?> positions) {
     final String value1 = value.substring(0, 4);
     final String value2 = value.substring(4, 8);
-    final double firstTextWidth = positions[1] - positions[0];
-    final double secondTextWidth = positions[3] - positions[2];
+    final double firstTextWidth = positions[1]! - positions[0]!;
+    final double secondTextWidth = positions[3]! - positions[2]!;
 
     // Renders the first four digits of input
     drawText(
         canvas,
-        Offset(positions[0], offset.dy),
+        Offset(positions[0]!, offset.dy),
         Size(firstTextWidth, size.height),
         value1,
         textStyle,
@@ -232,7 +232,7 @@ class EAN8Renderer extends SymbologyRenderer {
     // Renders the last four digits of input
     drawText(
         canvas,
-        Offset(positions[2], offset.dy),
+        Offset(positions[2]!, offset.dy),
         Size(secondTextWidth, size.height),
         value2,
         textStyle,

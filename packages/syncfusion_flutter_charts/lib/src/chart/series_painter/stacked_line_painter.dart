@@ -2,12 +2,12 @@ part of charts;
 
 class _StackedLineChartPainter extends CustomPainter {
   _StackedLineChartPainter(
-      {this.chartState,
-      this.seriesRenderer,
-      this.isRepaint,
-      this.animationController,
-      ValueNotifier<num> notifier,
-      this.painterKey})
+      {required this.chartState,
+      required this.seriesRenderer,
+      required this.isRepaint,
+      required this.animationController,
+      required ValueNotifier<num> notifier,
+      required this.painterKey})
       : chart = chartState._chart,
         super(repaint: notifier);
   final SfCartesianChartState chartState;
@@ -20,8 +20,13 @@ class _StackedLineChartPainter extends CustomPainter {
   /// Painter method for stacked line series
   @override
   void paint(Canvas canvas, Size size) {
-    _stackedLinePainter(canvas, seriesRenderer, seriesRenderer._seriesAnimation,
-        chartState, seriesRenderer._seriesElementAnimation, painterKey);
+    _stackedLinePainter(
+        canvas,
+        seriesRenderer,
+        seriesRenderer._seriesAnimation!,
+        chartState,
+        seriesRenderer._seriesElementAnimation,
+        painterKey);
   }
 
   @override

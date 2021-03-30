@@ -2,12 +2,12 @@ part of charts;
 
 class _HiloOpenClosePainter extends CustomPainter {
   _HiloOpenClosePainter(
-      {this.chartState,
-      this.seriesRenderer,
-      this.isRepaint,
-      this.animationController,
-      ValueNotifier<num> notifier,
-      this.painterKey})
+      {required this.chartState,
+      required this.seriesRenderer,
+      required this.isRepaint,
+      required this.animationController,
+      required ValueNotifier<num> notifier,
+      required this.painterKey})
       : chart = chartState._chart,
         super(repaint: notifier);
   final SfCartesianChartState chartState;
@@ -24,12 +24,13 @@ class _HiloOpenClosePainter extends CustomPainter {
     Rect clipRect;
     double animationFactor;
     CartesianChartPoint<dynamic> point;
-    final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer;
-    final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer;
+    final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
+    final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer!;
     final List<CartesianChartPoint<dynamic>> dataPoints =
         seriesRenderer._dataPoints;
-    final HiloOpenCloseSeries<dynamic, dynamic> series = seriesRenderer._series;
-    if (seriesRenderer._visible) {
+    final HiloOpenCloseSeries<dynamic, dynamic> series =
+        seriesRenderer._series as HiloOpenCloseSeries;
+    if (seriesRenderer._visible!) {
       canvas.save();
       assert(
           series.animationDuration != null
@@ -44,12 +45,12 @@ class _HiloOpenClosePainter extends CustomPainter {
               xAxisRenderer._axis.plotOffset, yAxisRenderer._axis.plotOffset));
       canvas.clipRect(axisClipRect);
       animationFactor = seriesRenderer._seriesAnimation != null
-          ? seriesRenderer._seriesAnimation.value
+          ? seriesRenderer._seriesAnimation!.value
           : 1;
 
       int segmentIndex = -1;
       if (seriesRenderer._visibleDataPoints == null ||
-          seriesRenderer._visibleDataPoints.isNotEmpty) {
+          seriesRenderer._visibleDataPoints!.isNotEmpty) {
         seriesRenderer._visibleDataPoints = <CartesianChartPoint<dynamic>>[];
       }
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
@@ -90,7 +91,7 @@ class _HiloOpenClosePainter extends CustomPainter {
         seriesRenderer._renderSeriesElements(
             chart, canvas, seriesRenderer._seriesElementAnimation);
       }
-      if (seriesRenderer._visible && animationFactor >= 1) {
+      if (seriesRenderer._visible! && animationFactor >= 1) {
         chartState._setPainterKey(painterKey.index, painterKey.name, true);
       }
     }

@@ -1,4 +1,12 @@
-part of gauges;
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:intl/intl.dart' show NumberFormat;
+import '../annotation/gauge_annotation.dart';
+import '../common/common.dart';
+import '../pointers/gauge_pointer.dart';
+import '../range/gauge_range.dart';
+import '../utils/enum.dart';
 
 /// [GaugeAxis] has properties for customizing axis elements such as labels,
 /// ticks and axis lines.
@@ -37,10 +45,10 @@ abstract class GaugeAxis {
       this.ticksPosition = ElementsPosition.inside,
       this.labelsPosition = ElementsPosition.inside,
       this.offsetUnit = GaugeSizeUnit.logicalPixel,
-      GaugeTextStyle axisLabelStyle,
-      AxisLineStyle axisLineStyle,
-      MajorTickStyle majorTickStyle,
-      MajorTickStyle minorTickStyle})
+      GaugeTextStyle? axisLabelStyle,
+      AxisLineStyle? axisLineStyle,
+      MajorTickStyle? majorTickStyle,
+      MinorTickStyle? minorTickStyle})
       : axisLabelStyle = axisLabelStyle ??
             GaugeTextStyle(
                 fontSize: 12.0,
@@ -70,7 +78,7 @@ abstract class GaugeAxis {
   ///        ));
   ///}
   /// ```
-  final List<GaugeRange> ranges;
+  final List<GaugeRange>? ranges;
 
   /// Add a list of gauge pointer to the radial gauge and customize
   /// each pointer by adding it to the [pointers] collection.
@@ -87,7 +95,7 @@ abstract class GaugeAxis {
   ///        ));
   ///}
   /// ```
-  final List<GaugePointer> pointers;
+  final List<GaugePointer>? pointers;
 
   /// Add a list of gauge annotation to the radial gauge and customize
   /// each annotation by adding it to the [annotations] collection.
@@ -106,7 +114,7 @@ abstract class GaugeAxis {
   ///        ));
   ///}
   /// ```
-  final List<GaugeAnnotation> annotations;
+  final List<GaugeAnnotation>? annotations;
 
   /// The minimum value for the axis.
   ///
@@ -160,7 +168,7 @@ abstract class GaugeAxis {
   ///        ));
   ///}
   /// ```
-  final double interval;
+  final double? interval;
 
   /// Add minor ticks count per interval.
   ///
@@ -343,7 +351,7 @@ abstract class GaugeAxis {
   ///        ));
   ///}
   /// ```
-  final String labelFormat;
+  final String? labelFormat;
 
   /// Formats the axis labels with globalized label formats.
   ///
@@ -361,7 +369,7 @@ abstract class GaugeAxis {
   ///        ));
   ///}
   /// ```
-  final NumberFormat numberFormat;
+  final NumberFormat? numberFormat;
 
   /// Positions the tick lines inside or outside the axis line.
   ///
@@ -546,36 +554,5 @@ abstract class GaugeAxis {
   /// }
   ///
   /// ```
-  final GaugeAxisRendererFactory onCreateAxisRenderer;
-}
-
-/// Represents the renderer for gauge axis
-abstract class GaugeAxisRenderer {
-  /// Represents the gauge axis
-  GaugeAxis axis;
-
-  /// Returns the visible labels on [GaugeAxis]
-  ///
-  /// Modify the actual labels generated, which are calculated on the basis
-  /// of scale range and interval.
-  /// Generate your own labels based on needs, in order to be shown in
-  /// the gauge.
-  List<CircularAxisLabel> generateVisibleLabels();
-
-  /// Returns converted factor value from the axis value.
-  ///
-  /// The arguments to this method is axis value.
-  /// The calculated value of the factor should be between 0 and 1.
-  /// If the axis range from 0 to 100 and pass the axis value is 50,
-  /// this method return factor value is 0.5.
-  /// Overriding method, you can modify the factor value based on needs.
-  double valueToFactor(double value);
-
-  /// Returns converted axis value from the factor.
-  ///
-  /// The arguments to this method is factor which value between 0 to 1.
-  /// If the axis range from 0 to 100 and pass the factor value is 0.5,
-  /// this method return axis value is 50.
-  /// Overriding method, you can modify the axis value based on needs.
-  double factorToValue(double factor);
+  final GaugeAxisRendererFactory? onCreateAxisRenderer;
 }

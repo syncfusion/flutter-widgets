@@ -13,24 +13,24 @@ part of charts;
 class AtrIndicator<T, D> extends TechnicalIndicators<T, D> {
   /// Creating an argument constructor of AtrIndicator class.
   AtrIndicator(
-      {bool isVisible,
-      String xAxisName,
-      String yAxisName,
-      String seriesName,
-      List<double> dashArray,
-      double animationDuration,
-      List<T> dataSource,
-      ChartValueMapper<T, D> xValueMapper,
-      ChartValueMapper<T, num> highValueMapper,
-      ChartValueMapper<T, num> lowValueMapper,
-      ChartValueMapper<T, num> closeValueMapper,
-      String name,
-      bool isVisibleInLegend,
-      LegendIconType legendIconType,
-      String legendItemText,
-      Color signalLineColor,
-      double signalLineWidth,
-      int period})
+      {bool? isVisible,
+      String? xAxisName,
+      String? yAxisName,
+      String? seriesName,
+      List<double>? dashArray,
+      double? animationDuration,
+      List<T>? dataSource,
+      ChartValueMapper<T, D>? xValueMapper,
+      ChartValueMapper<T, num>? highValueMapper,
+      ChartValueMapper<T, num>? lowValueMapper,
+      ChartValueMapper<T, num>? closeValueMapper,
+      String? name,
+      bool? isVisibleInLegend,
+      LegendIconType? legendIconType,
+      String? legendItemText,
+      Color? signalLineColor,
+      double? signalLineWidth,
+      int? period})
       : super(
             isVisible: isVisible,
             xAxisName: xAxisName,
@@ -59,8 +59,12 @@ class AtrIndicator<T, D> extends TechnicalIndicators<T, D> {
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
     technicalIndicatorsRenderer._targetSeriesRenderers =
         <CartesianSeriesRenderer>[];
-    technicalIndicatorsRenderer._setSeriesProperties(indicator, 'ATR',
-        indicator.signalLineColor, indicator.signalLineWidth, chart);
+    technicalIndicatorsRenderer._setSeriesProperties(
+        indicator,
+        indicator.name ?? 'ATR',
+        indicator.signalLineColor,
+        indicator.signalLineWidth,
+        chart);
   }
 
   /// To initialise data source of technical indicators
@@ -68,8 +72,10 @@ class AtrIndicator<T, D> extends TechnicalIndicators<T, D> {
   void _initDataSource(TechnicalIndicators<dynamic, dynamic> indicator,
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
     final List<CartesianChartPoint<dynamic>> validData =
-        technicalIndicatorsRenderer._dataPoints;
-    if (validData.isNotEmpty && validData.length > indicator.period) {
+        technicalIndicatorsRenderer._dataPoints!;
+    if (validData.isNotEmpty &&
+        validData.length > indicator.period &&
+        indicator is AtrIndicator) {
       _calculateATRPoints(indicator, validData, technicalIndicatorsRenderer);
     }
   }

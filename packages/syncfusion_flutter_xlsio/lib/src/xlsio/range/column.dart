@@ -8,11 +8,11 @@ class Column {
   }
 
   /// Represents the column width.
-  double width;
+  double width = 0;
 
   /// Represents the column index.
-  int index;
+  late int index;
 
   /// Parent worksheet.
-  Worksheet worksheet;
+  late Worksheet worksheet;
 }

@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "선택한 날짜가 없습니다.", 
 "noEventsCalendarLabel" : "이벤트 없음", 
-"scheduleViewNewEventLabel" : "계획된 것이 없습니다. 만들려면 탭하세요.", 
 "ofDataPagerLabel" : "의", 
 "pagesDataPagerLabel" : "페이지", 
 "itemsDataPagerLabel" : "항목", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "램.", 
 "shortShawwalLabel" : "쇼.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
-"shortDhualhiLabel" : "Dhu'l-H"
+"shortDhualhiLabel" : "Dhu'l-H", 
+"daySpanCountLabel" : "일"
 }

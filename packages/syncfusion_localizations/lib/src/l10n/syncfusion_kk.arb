@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "Таңдалған күн жоқ", 
 "noEventsCalendarLabel" : "Іс-шаралар жоқ", 
-"scheduleViewNewEventLabel" : "Ештеңе жоспарланбаған. Жасау үшін түртіңіз.", 
 "ofDataPagerLabel" : "туралы", 
 "pagesDataPagerLabel" : "беттер", 
 "itemsDataPagerLabel" : "заттар", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "Жедел Жадтау Құрылғысы.", 
 "shortShawwalLabel" : "Шоу.", 
 "shortDhualqiLabel" : "Зуль-Q", 
-"shortDhualhiLabel" : "Зуль-Х"
+"shortDhualhiLabel" : "Зуль-Х", 
+"daySpanCountLabel" : "Күн"
 }

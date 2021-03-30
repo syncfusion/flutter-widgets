@@ -17,7 +17,7 @@ typedef IndexedStringValueMapper = String Function(int index);
 
 /// Signature to return the double values from the data source
 /// based on the index.
-typedef IndexedDoubleValueMapper = double Function(int index);
+typedef IndexedDoubleValueMapper = double? Function(int index);
 
 /// Signature to return the colors or other types from the data source based on
 /// the index based on which colors will be applied.
@@ -65,17 +65,34 @@ typedef WillPanCallback = bool Function(MapPanDetails);
 /// based on the [MapColorMapper.value] property of [MapColorMapper].
 ///
 /// ```dart
-/// List<Model> data;
+/// List<Model> _data;
+/// MapShapeSource _mapSource;
 ///
 ///  @override
 ///  void initState() {
 ///    super.initState();
 ///
-///    data = <Model>[
+///    _data = <Model>[
 ///     Model('India', 280, "Low"),
 ///     Model('United States of America', 190, "High"),
 ///     Model('Pakistan', 37, "Low"),
 ///    ];
+///
+///    _mapSource = MapShapeSource.asset(
+///      "assets/world_map.json",
+///      shapeDataField: "name",
+///      dataCount: _data.length,
+///      primaryValueMapper: (int index) {
+///        return _data[index].country;
+///      },
+///      shapeColorValueMapper: (int index) {
+///         return _data[index].storage;
+///      },
+///      shapeColorMappers: [
+///         MapColorMapper(value: "Low", color: Colors.red),
+///         MapColorMapper(value: "High", color: Colors.green)
+///      ],
+///    );
 ///  }
 ///
 ///  @override
@@ -83,41 +100,53 @@ typedef WillPanCallback = bool Function(MapPanDetails);
 ///    return SfMaps(
 ///      layers: [
 ///        MapShapeLayer(
-///          source: MapShapeSource.asset(
-///              "assets/world_map.json",
-///              shapeDataField: "name",
-///              dataCount: data.length,
-///              primaryValueMapper: (index) {
-///                return data[index].country;
-///              },
-///              shapeColorValueMapper: (index) {
-///                return data[index].storage;
-///              },
-///              shapeColorMappers: [
-///                MapColorMapper(value: "Low", color: Colors.red),
-///                MapColorMapper(value: "High", color: Colors.green)
-///              ]),
+///          source: _mapSource,
 ///        )
 ///      ],
 ///    );
 ///  }
+///
+/// class Model {
+///  const Model(this.country, this.count, this.storage);
+///
+///  final String country;
+///  final double count;
+///  final String storage;
+/// }
 /// ```
 /// The below code snippet represents how color can be applied to the shape
 /// based on the range between [MapColorMapper.from] and [MapColorMapper.to]
 /// properties of [MapColorMapper].
 ///
 /// ```dart
-/// List<Model> data;
+/// List<Model> _data;
+/// MapShapeSource _mapSource;
 ///
 ///  @override
 ///  void initState() {
 ///    super.initState();
 ///
-///    data = <Model>[
+///    _data = <Model>[
 ///     Model('India', 100, "Low"),
 ///     Model('United States of America', 200, "High"),
 ///     Model('Pakistan', 75, "Low"),
 ///    ];
+///
+///    _mapSource = MapShapeSource.asset(
+///      "assets/world_map.json",
+///      shapeDataField: "name",
+///      dataCount: _data.length,
+///      primaryValueMapper: (int index) {
+///        return _data[index].country;
+///      },
+///      shapeColorValueMapper: (int index) {
+///         return _data[index].count;
+///      },
+///      shapeColorMappers: [
+///         MapColorMapper(from: 0, to:  100, color: Colors.red),
+///         MapColorMapper(from: 101, to: 200, color: Colors.yellow)
+///      ]
+///    );
 ///  }
 ///
 ///  @override
@@ -125,24 +154,19 @@ typedef WillPanCallback = bool Function(MapPanDetails);
 ///    return SfMaps(
 ///      layers: [
 ///        MapShapeLayer(
-///          source: MapShapeSource.asset(
-///              "assets/world_map.json",
-///              shapeDataField: "name",
-///              dataCount: data.length,
-///              primaryValueMapper: (index) {
-///                return data[index].country;
-///              },
-///              shapeColorValueMapper: (index) {
-///                return data[index].count;
-///              },
-///              shapeColorMappers: [
-///                MapColorMapper(from: 0, to:  100, color: Colors.red),
-///                MapColorMapper(from: 101, to: 200, color: Colors.yellow)
-///             ]),
+///          source: _mapSource,
 ///        )
 ///      ],
 ///    );
 ///  }
+///
+/// class Model {
+///  const Model(this.country, this.count, this.storage);
+///
+///  final String country;
+///  final double count;
+///  final String storage;
+/// }
 /// ```
 ///
 /// See also:
@@ -158,7 +182,7 @@ class MapColorMapper {
     this.from,
     this.to,
     this.value,
-    this.color,
+    required this.color,
     this.minOpacity,
     this.maxOpacity,
     this.text,
@@ -175,17 +199,34 @@ class MapColorMapper {
   /// and [to] range.
   ///
   /// ```dart
-  /// List<Model> data;
+  /// List<Model> _data;
+  /// MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
   ///    super.initState();
   ///
-  ///    data = <Model>[
+  ///    _data = <Model>[
   ///     Model('India', 100, "Low"),
   ///     Model('United States of America', 200, "High"),
   ///     Model('Pakistan', 75, "Low"),
   ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      shapeColorValueMapper: (int index) {
+  ///         return _data[index].count;
+  ///      },
+  ///      shapeColorMappers: [
+  ///         MapColorMapper(from: 0, to:  100, color: Colors.red),
+  ///         MapColorMapper(from: 101, to: 200, color: Colors.yellow)
+  ///      ]
+  ///    );
   ///  }
   ///
   ///  @override
@@ -193,24 +234,19 @@ class MapColorMapper {
   ///    return SfMaps(
   ///      layers: [
   ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "name",
-  ///              dataCount: data.length,
-  ///              primaryValueMapper: (index) {
-  ///                return data[index].country;
-  ///              },
-  ///              shapeColorValueMapper: (index) {
-  ///                return data[index].count;
-  ///              },
-  ///              shapeColorMappers: [
-  ///                MapColorMapper(from: 0, to:  100, color: Colors.red),
-  ///                MapColorMapper(from: 101, to: 200, color: Colors.yellow)
-  ///             ]),
+  ///          source: _mapSource,
   ///        )
   ///      ],
   ///    );
   ///  }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.count, this.storage);
+  ///
+  ///  final String country;
+  ///  final double count;
+  ///  final String storage;
+  /// }
   /// ```
   ///
   /// See also:
@@ -220,7 +256,7 @@ class MapColorMapper {
   /// based on the specific value.
   /// * [MapShapeSource.bubbleColorMappers], to set the bubble colors
   /// based on the specific value.
-  final double from;
+  final double? from;
 
   /// Sets the range end for the color mapping.
   ///
@@ -230,17 +266,34 @@ class MapColorMapper {
   /// and [to] range.
   ///
   /// ```dart
-  /// List<Model> data;
+  /// List<Model> _data;
+  /// MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
   ///    super.initState();
   ///
-  ///    data = <Model>[
+  ///    _data = <Model>[
   ///     Model('India', 100, "Low"),
   ///     Model('United States of America', 200, "High"),
   ///     Model('Pakistan', 75, "Low"),
   ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      shapeColorValueMapper: (int index) {
+  ///         return _data[index].count;
+  ///      },
+  ///      shapeColorMappers: [
+  ///         MapColorMapper(from: 0, to:  100, color: Colors.red),
+  ///         MapColorMapper(from: 101, to: 200, color: Colors.yellow)
+  ///      ]
+  ///    );
   ///  }
   ///
   ///  @override
@@ -248,24 +301,19 @@ class MapColorMapper {
   ///    return SfMaps(
   ///      layers: [
   ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "name",
-  ///              dataCount: data.length,
-  ///              primaryValueMapper: (index) {
-  ///                return data[index].country;
-  ///              },
-  ///              shapeColorValueMapper: (index) {
-  ///                return data[index].count;
-  ///              },
-  ///              shapeColorMappers: [
-  ///                MapColorMapper(from: 0, to:  100, color: Colors.red),
-  ///                MapColorMapper(from: 101, to: 200, color: Colors.yellow)
-  ///             ]),
+  ///          source: _mapSource,
   ///        )
   ///      ],
   ///    );
   ///  }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.count, this.storage);
+  ///
+  ///  final String country;
+  ///  final double count;
+  ///  final String storage;
+  /// }
   /// ```
   ///
   /// See also:
@@ -275,7 +323,7 @@ class MapColorMapper {
   /// on the specific value.
   /// * [MapShapeSource.bubbleColorMappers], to set the bubble colors
   /// based on the specific value.
-  final double to;
+  final double? to;
 
   /// Sets the value for the equal color mapping.
   ///
@@ -284,17 +332,34 @@ class MapColorMapper {
   /// [MapShapeSource.bubbleColorValueMapper] is equal to this [value].
   ///
   /// ```dart
-  /// List<Model> data;
+  /// List<Model> _data;
+  /// MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
   ///    super.initState();
   ///
-  ///    data = <Model>[
+  ///    _data = <Model>[
   ///     Model('India', 280, "Low"),
   ///     Model('United States of America', 190, "High"),
   ///     Model('Pakistan', 37, "Low"),
   ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      shapeColorValueMapper: (int index) {
+  ///         return _data[index].storage;
+  ///      },
+  ///      shapeColorMappers: [
+  ///         MapColorMapper(value: "Low", color: Colors.red),
+  ///         MapColorMapper(value: "High", color: Colors.green)
+  ///      ],
+  ///    );
   ///  }
   ///
   ///  @override
@@ -302,24 +367,19 @@ class MapColorMapper {
   ///    return SfMaps(
   ///      layers: [
   ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "name",
-  ///              dataCount: data.length,
-  ///              primaryValueMapper: (index) {
-  ///                return data[index].country;
-  ///              },
-  ///              shapeColorValueMapper: (index) {
-  ///                return data[index].storage;
-  ///              },
-  ///              shapeColorMappers: [
-  ///                MapColorMapper(value: "Low", color: Colors.red),
-  ///                MapColorMapper(value: "High", color: Colors.green)
-  ///              ]),
+  ///          source: _mapSource,
   ///        )
   ///      ],
   ///    );
   ///  }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.count, this.storage);
+  ///
+  ///  final String country;
+  ///  final double count;
+  ///  final String storage;
+  /// }
   /// ```
   ///
   /// See also:
@@ -328,22 +388,39 @@ class MapColorMapper {
   /// based on the specific value.
   /// * [MapShapeSource.bubbleColorMappers], to set the bubble colors
   /// based on the specific value.
-  final String value;
+  final String? value;
 
   /// Specifies the color applies to the shape or bubble based on the value.
   ///
   /// ```dart
-  /// List<Model> data;
+  /// List<Model> _data;
+  /// MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
   ///    super.initState();
   ///
-  ///    data = <Model>[
+  ///    _data = <Model>[
   ///     Model('India', 280, "Low"),
   ///     Model('United States of America', 190, "High"),
   ///     Model('Pakistan', 37, "Low"),
   ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      shapeColorValueMapper: (int index) {
+  ///         return _data[index].storage;
+  ///      },
+  ///      shapeColorMappers: [
+  ///         MapColorMapper(value: "Low", color: Colors.red),
+  ///         MapColorMapper(value: "High", color: Colors.green)
+  ///      ],
+  ///    );
   ///  }
   ///
   ///  @override
@@ -351,24 +428,19 @@ class MapColorMapper {
   ///    return SfMaps(
   ///      layers: [
   ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "name",
-  ///              dataCount: data.length,
-  ///              primaryValueMapper: (index) {
-  ///                return data[index].country;
-  ///              },
-  ///              shapeColorValueMapper: (index) {
-  ///                return data[index].storage;
-  ///              },
-  ///              shapeColorMappers: [
-  ///                MapColorMapper(value: "Low", color: Colors.red),
-  ///                MapColorMapper(value: "High", color: Colors.green)
-  ///              ]),
+  ///          source: _mapSource,
   ///        )
   ///      ],
   ///    );
   ///  }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.count, this.storage);
+  ///
+  ///  final String country;
+  ///  final double count;
+  ///  final String storage;
+  /// }
   /// ```
   ///
   /// See also:
@@ -390,17 +462,42 @@ class MapColorMapper {
   /// between the range will get a opacity based on their respective value.
   ///
   /// ```dart
-  /// List<Model> data;
+  /// List<Model> _data;
+  /// MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
   ///    super.initState();
   ///
-  ///    data = <Model>[
-  ///     Model('India', 100, "Low"),
-  ///     Model('United States of America', 200, "High"),
-  ///     Model('Pakistan', 75, "Low"),
+  ///    _data = <Model>[
+  ///     Model('India', 280, "Low"),
+  ///     Model('United States of America', 190, "High"),
+  ///     Model('Pakistan', 37, "Low"),
   ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      shapeColorValueMapper: (int index) {
+  ///         return _data[index].storage;
+  ///      },
+  ///      shapeColorMappers: [
+  ///         MapColorMapper(
+  ///           value: "Low",
+  ///           color: Colors.red,
+  ///           minOpacity: 0.3,
+  ///           maxOpacity: 0.7),
+  ///         MapColorMapper(
+  ///           value: "High",
+  ///           color: Colors.green,
+  ///           minOpacity: 0.5,
+  ///           maxOpacity: 0.9)
+  ///      ],
+  ///    );
   ///  }
   ///
   ///  @override
@@ -408,26 +505,19 @@ class MapColorMapper {
   ///    return SfMaps(
   ///      layers: [
   ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "name",
-  ///              dataCount: data.length,
-  ///              primaryValueMapper: (index) {
-  ///                return data[index].country;
-  ///              },
-  ///              shapeColorValueMapper: (index) {
-  ///                return data[index].count;
-  ///              },
-  ///              shapeColorMappers: [
-  ///                MapColorMapper(from: 0, to:  100, color: Colors.yellow,
-  ///                maxOpacity: 0.2, minOpacity: 0.5),
-  ///                MapColorMapper(from: 101, to: 200, color: Colors.red,
-  ///                maxOpacity: 0.6, minOpacity: 1)
-  ///             ]),
+  ///          source: _mapSource,
   ///        )
   ///      ],
   ///    );
   ///  }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.count, this.storage);
+  ///
+  ///  final String country;
+  ///  final double count;
+  ///  final String storage;
+  /// }
   /// ```
   ///
   /// See also:
@@ -435,7 +525,7 @@ class MapColorMapper {
   /// based on the specific value.
   /// * [MapShapeSource.bubbleColorMappers], to set the bubble colors
   /// based on the specific value.
-  final double minOpacity;
+  final double? minOpacity;
 
   /// Specifies the maximum opacity applies to the shape or bubble while using
   /// [from] and [to].
@@ -446,17 +536,42 @@ class MapColorMapper {
   /// between the range will get a opacity based on their respective value.
   ///
   /// ```dart
-  /// List<Model> data;
+  /// List<Model> _data;
+  /// MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
   ///    super.initState();
   ///
-  ///    data = <Model>[
-  ///     Model('India', 100, "Low"),
-  ///     Model('United States of America', 200, "High"),
-  ///     Model('Pakistan', 75, "Low"),
+  ///    _data = <Model>[
+  ///     Model('India', 280, "Low"),
+  ///     Model('United States of America', 190, "High"),
+  ///     Model('Pakistan', 37, "Low"),
   ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      shapeColorValueMapper: (int index) {
+  ///         return _data[index].storage;
+  ///      },
+  ///      shapeColorMappers: [
+  ///         MapColorMapper(
+  ///           value: "Low",
+  ///           color: Colors.red,
+  ///           minOpacity: 0.3,
+  ///           maxOpacity: 0.7),
+  ///         MapColorMapper(
+  ///           value: "High",
+  ///           color: Colors.green,
+  ///           minOpacity: 0.5,
+  ///           maxOpacity: 0.9)
+  ///      ],
+  ///    );
   ///  }
   ///
   ///  @override
@@ -464,26 +579,19 @@ class MapColorMapper {
   ///    return SfMaps(
   ///      layers: [
   ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "name",
-  ///              dataCount: data.length,
-  ///              primaryValueMapper: (index) {
-  ///                return data[index].country;
-  ///              },
-  ///              shapeColorValueMapper: (index) {
-  ///                return data[index].count;
-  ///              },
-  ///              shapeColorMappers: [
-  ///                MapColorMapper(from: 0, to:  100, color: Colors.yellow,
-  ///                maxOpacity: 0.2, minOpacity: 0.5),
-  ///                MapColorMapper(from: 101, to: 200, color: Colors.red,
-  ///                maxOpacity: 0.6, minOpacity: 1)
-  ///             ]),
+  ///          source: _mapSource,
   ///        )
   ///      ],
   ///    );
   ///  }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.count, this.storage);
+  ///
+  ///  final String country;
+  ///  final double count;
+  ///  final String storage;
+  /// }
   /// ```
   ///
   /// See also:
@@ -491,7 +599,7 @@ class MapColorMapper {
   /// on the specific value.
   /// * [MapShapeSource.bubbleColorMappers], to set the bubble colors
   /// based on the specific value.
-  final double maxOpacity;
+  final double? maxOpacity;
 
   /// Specifies the text to be used for the legend item.
   ///
@@ -499,17 +607,34 @@ class MapColorMapper {
   /// [MapColorMapper.value] will be used as the text of the legend item.
   ///
   /// ```dart
-  /// List<Model> data;
+  /// List<Model> _data;
+  /// MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
   ///    super.initState();
   ///
-  ///    data = <Model>[
-  ///     Model('India', 100, "Low"),
-  ///     Model('United States of America', 200, "High"),
-  ///     Model('Pakistan', 75, "Low"),
+  ///    _data = <Model>[
+  ///     Model('India', 280, "Low"),
+  ///     Model('United States of America', 190, "High"),
+  ///     Model('Pakistan', 37, "Low"),
   ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      shapeColorValueMapper: (int index) {
+  ///         return _data[index].storage;
+  ///      },
+  ///      shapeColorMappers: [
+  ///         MapColorMapper(value: "Low", color: Colors.red, text: 'Low+'),
+  ///         MapColorMapper(value: "High", color: Colors.green, text: 'High+')
+  ///      ],
+  ///    );
   ///  }
   ///
   ///  @override
@@ -517,26 +642,19 @@ class MapColorMapper {
   ///    return SfMaps(
   ///      layers: [
   ///        MapShapeLayer(
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "name",
-  ///              dataCount: data.length,
-  ///              primaryValueMapper: (index) {
-  ///                return data[index].country;
-  ///              },
-  ///              shapeColorValueMapper: (index) {
-  ///                return data[index].count;
-  ///              },
-  ///              shapeColorMappers: [
-  ///                MapColorMapper(from: 0, to:  100, color: Colors.yellow,
-  ///                maxOpacity: 0.2, minOpacity: 0.5, text: "low"),
-  ///                MapColorMapper(from: 101, to: 200, color: Colors.red,
-  ///                maxOpacity: 0.6, minOpacity: 1, text: "high")
-  ///             ]),
+  ///          source: _mapSource,
   ///        )
   ///      ],
   ///    );
   ///  }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.count, this.storage);
+  ///
+  ///  final String country;
+  ///  final double count;
+  ///  final String storage;
+  /// }
   /// ```
   ///
   /// See also:
@@ -545,7 +663,7 @@ class MapColorMapper {
   /// * [MapShapeSource.bubbleColorMappers], to set the bubble colors
   /// based on the specific value.
 
-  final String text;
+  final String? text;
 
   @override
   bool operator ==(Object other) {
@@ -577,28 +695,55 @@ class MapColorMapper {
 /// data labels when it exceeds their respective shapes.
 ///
 /// ```dart
+/// List<Model> _data;
+/// MapShapeSource _mapSource;
+///
+///  @override
+///  void initState() {
+///    super.initState();
+///
+///    _data = <Model>[
+///     Model('India', 280, "Low"),
+///     Model('United States of America', 190, "High"),
+///     Model('Pakistan', 37, "Low"),
+///    ];
+///
+///    _mapSource = MapShapeSource.asset(
+///      "assets/world_map.json",
+///      shapeDataField: "name",
+///      dataCount: _data.length,
+///      primaryValueMapper: (int index) {
+///        return _data[index].country;
+///      },
+///      dataLabelMapper: (int index) {
+///        return _data[index].country;
+///      },
+///   );
+///  }
+///
 ///  @override
 ///  Widget build(BuildContext context) {
-///    return
-///      SfMaps(
-///        layers: [
-///          MapShapeLayer(
-///            dataLabelSettings:
+///    return SfMaps(
+///      layers: [
+///        MapShapeLayer(
+///          showDataLabels: true,
+///          source: _mapSource,
+///           dataLabelSettings:
 ///                MapDataLabelSettings(
 ///                    textStyle: TextStyle(color: Colors.red)
 ///                ),
-///            source: MapShapeSource.asset(
-///                showDataLabels: true,
-///                "assets/world_map.json",
-///                shapeDataField: "continent",
-///                dataCount: bubbleData.length,
-///                primaryValueMapper: (index) {
-///                  return bubbleData[index].country;
-///                }),
-///          )
-///        ],
+///        )
+///      ],
 ///    );
 ///  }
+///
+/// class Model {
+///  const Model(this.country, this.count, this.storage);
+///
+///  final String country;
+///  final double count;
+///  final String storage;
+/// }
 /// ```
 @immutable
 class MapDataLabelSettings extends DiagnosticableTree {
@@ -613,30 +758,57 @@ class MapDataLabelSettings extends DiagnosticableTree {
   /// This snippet shows how to set [textStyle] for the data labels in [SfMaps].
   ///
   /// ```dart
+  /// List<Model> _data;
+  /// MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    super.initState();
+  ///
+  ///    _data = <Model>[
+  ///     Model('India', 280, "Low"),
+  ///     Model('United States of America', 190, "High"),
+  ///     Model('Pakistan', 37, "Low"),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      dataLabelMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///   );
+  ///  }
+  ///
   ///  @override
   ///  Widget build(BuildContext context) {
-  ///    return
-  ///      SfMaps(
-  ///        layers: [
-  ///          MapShapeLayer(
-  ///            dataLabelSettings:
+  ///    return SfMaps(
+  ///      layers: [
+  ///        MapShapeLayer(
+  ///          showDataLabels: true,
+  ///          source: _mapSource,
+  ///           dataLabelSettings:
   ///                MapDataLabelSettings(
   ///                    textStyle: TextStyle(color: Colors.red)
   ///                ),
-  ///            source: MapShapeSource.asset(
-  ///                showDataLabels: true,
-  ///                "assets/world_map.json",
-  ///                shapeDataField: "continent",
-  ///                dataCount: bubbleData.length,
-  ///                primaryValueMapper: (index) {
-  ///                  return bubbleData[index].country;
-  ///                }),
-  ///          )
-  ///        ],
+  ///        )
+  ///      ],
   ///    );
   ///  }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.count, this.storage);
+  ///
+  ///  final String country;
+  ///  final double count;
+  ///  final String storage;
+  /// }
   /// ```
-  final TextStyle textStyle;
+  final TextStyle? textStyle;
 
   /// Trims or removes the data label when it is overflowed from the shape.
   ///
@@ -650,28 +822,55 @@ class MapDataLabelSettings extends DiagnosticableTree {
   /// [SfMaps].
   ///
   /// ```dart
+  /// List<Model> _data;
+  /// MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    super.initState();
+  ///
+  ///    _data = <Model>[
+  ///     Model('India', 280, "Low"),
+  ///     Model('United States of America', 190, "High"),
+  ///     Model('Pakistan', 37, "Low"),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      dataLabelMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///   );
+  ///  }
+  ///
   ///  @override
   ///  Widget build(BuildContext context) {
-  ///    return
-  ///      SfMaps(
-  ///        layers: [
-  ///          MapShapeLayer(
-  ///            dataLabelSettings:
+  ///    return SfMaps(
+  ///      layers: [
+  ///        MapShapeLayer(
+  ///          showDataLabels: true,
+  ///          source: _mapSource,
+  ///           dataLabelSettings:
   ///                MapDataLabelSettings(
   ///                    overflowMode: MapLabelOverflow.hide
   ///                ),
-  ///            source: MapShapeSource.asset(
-  ///                showDataLabels: true,
-  ///                "assets/world_map.json",
-  ///                shapeDataField: "continent",
-  ///                dataCount: bubbleData.length,
-  ///                primaryValueMapper: (index) {
-  ///                  return bubbleData[index].country;
-  ///                }),
-  ///          )
-  ///        ],
+  ///        )
+  ///      ],
   ///    );
   ///  }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.count, this.storage);
+  ///
+  ///  final String country;
+  ///  final double count;
+  ///  final String storage;
+  /// }
   /// ```
   final MapLabelOverflow overflowMode;
 
@@ -697,7 +896,7 @@ class MapDataLabelSettings extends DiagnosticableTree {
     super.debugFillProperties(properties);
 
     if (textStyle != null) {
-      properties.add(textStyle.toDiagnosticsNode(name: 'textStyle'));
+      properties.add(textStyle!.toDiagnosticsNode(name: 'textStyle'));
     }
     properties
         .add(EnumProperty<MapLabelOverflow>('overflowMode', overflowMode));
@@ -710,27 +909,51 @@ class MapDataLabelSettings extends DiagnosticableTree {
 /// bubbles.
 ///
 /// ```dart
+/// List<Model> _data;
+/// MapShapeSource _mapSource;
+///
+///  @override
+///  void initState() {
+///    super.initState();
+///
+///    _data = <Model>[
+///     Model('India', 280, "Low"),
+///     Model('United States of America', 190, "High"),
+///     Model('Pakistan', 37, "Low"),
+///    ];
+///
+///    _mapSource = MapShapeSource.asset(
+///      "assets/world_map.json",
+///      shapeDataField: "name",
+///      dataCount: _data.length,
+///      primaryValueMapper: (int index) {
+///        return _data[index].country;
+///      },
+///      bubbleSizeMapper: (int index) {
+///        return _data[index].count;
+///      },
+///    );
+///  }
+///
 ///  @override
 ///  Widget build(BuildContext context) {
-///    return
-///      SfMaps(
-///        layers: [
-///          MapShapeLayer(
-///            bubbleSettings: MapBubbleSettings(maxRadius: 10, minRadius: 2),
-///            source: MapShapeSource.asset(
-///                "assets/world_map.json",
-///                shapeDataField: "name",
-///                dataCount: bubbleData.length,
-///                primaryValueMapper: (index) {
-///                  return bubbleData[index].country;
-///                },
-///                bubbleSizeMapper: (index) {
-///                  return bubbleData[index].usersCount;
-///                }),
+///    return SfMaps(
+///      layers: [
+///        MapShapeLayer(
+///          source: _mapSource,
+///          bubbleSettings: MapBubbleSettings(maxRadius: 10, minRadius: 2),
 ///        )
 ///      ],
 ///    );
 ///  }
+///
+/// class Model {
+///  const Model(this.country, this.count, this.storage);
+///
+///  final String country;
+///  final double count;
+///  final String storage;
+/// }
 /// ```
 @immutable
 class MapBubbleSettings extends DiagnosticableTree {
@@ -751,27 +974,51 @@ class MapBubbleSettings extends DiagnosticableTree {
   /// [maxRadius].
   ///
   /// ```dart
+  /// List<Model> _data;
+  /// MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    super.initState();
+  ///
+  ///    _data = <Model>[
+  ///     Model('India', 280, "Low"),
+  ///     Model('United States of America', 190, "High"),
+  ///     Model('Pakistan', 37, "Low"),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      bubbleSizeMapper: (int index) {
+  ///        return _data[index].count;
+  ///      },
+  ///    );
+  ///  }
+  ///
   ///  @override
   ///  Widget build(BuildContext context) {
-  ///    return
-  ///      SfMaps(
-  ///        layers: [
-  ///          MapShapeLayer(
-  ///            bubbleSettings: MapBubbleSettings(maxRadius: 10, minRadius: 2),
-  ///            source: MapShapeSource.asset(
-  ///                "assets/world_map.json",
-  ///                shapeDataField: "name",
-  ///                dataCount: bubbleData.length,
-  ///                primaryValueMapper: (index) {
-  ///                  return bubbleData[index].country;
-  ///                },
-  ///                bubbleSizeMapper: (index) {
-  ///                  return bubbleData[index].usersCount;
-  ///                }),
+  ///    return SfMaps(
+  ///      layers: [
+  ///        MapShapeLayer(
+  ///          source: _mapSource,
+  ///          bubbleSettings: MapBubbleSettings(maxRadius: 10, minRadius: 2),
   ///        )
   ///      ],
   ///    );
   ///  }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.count, this.storage);
+  ///
+  ///  final String country;
+  ///  final double count;
+  ///  final String storage;
+  /// }
   /// ```
   final double minRadius;
 
@@ -783,126 +1030,223 @@ class MapBubbleSettings extends DiagnosticableTree {
   /// [maxRadius].
   ///
   /// ```dart
+  /// List<Model> _data;
+  /// MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    super.initState();
+  ///
+  ///    _data = <Model>[
+  ///     Model('India', 280, "Low"),
+  ///     Model('United States of America', 190, "High"),
+  ///     Model('Pakistan', 37, "Low"),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      bubbleSizeMapper: (int index) {
+  ///        return _data[index].count;
+  ///      },
+  ///    );
+  ///  }
+  ///
   ///  @override
   ///  Widget build(BuildContext context) {
-  ///    return
-  ///      SfMaps(
-  ///        layers: [
-  ///          MapShapeLayer(
-  ///            bubbleSettings: MapBubbleSettings(maxRadius: 10, minRadius: 2),
-  ///            source: MapShapeSource.asset(
-  ///                "assets/world_map.json",
-  ///                shapeDataField: "name",
-  ///                dataCount: bubbleData.length,
-  ///                primaryValueMapper: (index) {
-  ///                  return bubbleData[index].country;
-  ///                },
-  ///                bubbleSizeMapper: (index) {
-  ///                  return bubbleData[index].usersCount;
-  ///                }),
+  ///    return SfMaps(
+  ///      layers: [
+  ///        MapShapeLayer(
+  ///          source: _mapSource,
+  ///          bubbleSettings: MapBubbleSettings(maxRadius: 10, minRadius: 2),
   ///        )
   ///      ],
   ///    );
   ///  }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.count, this.storage);
+  ///
+  ///  final String country;
+  ///  final double count;
+  ///  final String storage;
+  /// }
   /// ```
   final double maxRadius;
 
   /// Default color of the bubbles.
   ///
   /// ```dart
+  /// List<Model> _data;
+  /// MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    super.initState();
+  ///
+  ///    _data = <Model>[
+  ///     Model('India', 280, "Low"),
+  ///     Model('United States of America', 190, "High"),
+  ///     Model('Pakistan', 37, "Low"),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      bubbleSizeMapper: (int index) {
+  ///        return _data[index].count;
+  ///      },
+  ///    );
+  ///  }
+  ///
   ///  @override
   ///  Widget build(BuildContext context) {
-  ///    return
-  ///      SfMaps(
-  ///        layers: [
-  ///          MapShapeLayer(
-  ///          bubbleSettings: MapBubbleSettings(
-  ///              color: Colors.black),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "name",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (index) {
-  ///                return bubbleData[index].country;
-  ///              },
-  ///              bubbleSizeMapper: (index) {
-  ///                 return bubbleData[index].usersCount;
-  ///              }),
+  ///    return SfMaps(
+  ///      layers: [
+  ///        MapShapeLayer(
+  ///          source: _mapSource,
+  ///          bubbleSettings: MapBubbleSettings(color: Colors.red),
   ///        )
   ///      ],
   ///    );
   ///  }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.count, this.storage);
+  ///
+  ///  final String country;
+  ///  final double count;
+  ///  final String storage;
+  /// }
   /// ```
   ///
   /// See also:
   /// * [MapShapeSource.bubbleColorMappers] and
   /// [MapShapeSource.bubbleColorValueMapper], to customize the bubble
   /// colors based on the data.
-  final Color color;
+  final Color? color;
 
   /// Stroke width of the bubbles.
   ///
   /// ```dart
+  /// List<Model> _data;
+  /// MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    super.initState();
+  ///
+  ///    _data = <Model>[
+  ///     Model('India', 280, "Low"),
+  ///     Model('United States of America', 190, "High"),
+  ///     Model('Pakistan', 37, "Low"),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      bubbleSizeMapper: (int index) {
+  ///        return _data[index].count;
+  ///      },
+  ///    );
+  ///  }
+  ///
   ///  @override
   ///  Widget build(BuildContext context) {
-  ///    return
-  ///      SfMaps(
-  ///        layers: [
-  ///          MapShapeLayer(
+  ///    return SfMaps(
+  ///      layers: [
+  ///        MapShapeLayer(
+  ///          source: _mapSource,
   ///          bubbleSettings: MapBubbleSettings(
-  ///              strokeColor: Colors.red,
-  ///              strokeWidth: 2),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "name",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (index) {
-  ///                return bubbleData[index].country;
-  ///              },
-  ///              bubbleSizeMapper: (index) {
-  ///                 return bubbleData[index].usersCount;
-  ///              }),
+  ///             strokeWidth: 2.0,
+  ///             strokeColor: Colors.red,
+  ///          ),
   ///        )
   ///      ],
   ///    );
   ///  }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.count, this.storage);
+  ///
+  ///  final String country;
+  ///  final double count;
+  ///  final String storage;
+  /// }
   /// ```
   ///
   /// See also:
   /// * [strokeColor], to set the stroke color.
-  final double strokeWidth;
+  final double? strokeWidth;
 
   /// Stroke color of the bubbles.
   ///
   /// ```dart
+  /// List<Model> _data;
+  /// MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    super.initState();
+  ///
+  ///    _data = <Model>[
+  ///     Model('India', 280, "Low"),
+  ///     Model('United States of America', 190, "High"),
+  ///     Model('Pakistan', 37, "Low"),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      bubbleSizeMapper: (int index) {
+  ///        return _data[index].count;
+  ///      },
+  ///    );
+  ///  }
+  ///
   ///  @override
   ///  Widget build(BuildContext context) {
-  ///    return
-  ///      SfMaps(
-  ///        layers: [
-  ///          MapShapeLayer(
+  ///    return SfMaps(
+  ///      layers: [
+  ///        MapShapeLayer(
+  ///          source: _mapSource,
   ///          bubbleSettings: MapBubbleSettings(
-  ///              strokeColor: Colors.red,
-  ///              strokeWidth: 2),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "name",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (index) {
-  ///                return bubbleData[index].country;
-  ///              },
-  ///              bubbleSizeMapper: (index) {
-  ///                 return bubbleData[index].usersCount;
-  ///              }),
+  ///             strokeWidth: 2.0,
+  ///             strokeColor: Colors.red,
+  ///          ),
   ///        )
   ///      ],
   ///    );
   ///  }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.count, this.storage);
+  ///
+  ///  final String country;
+  ///  final double count;
+  ///  final String storage;
+  /// }
   /// ```
   ///
   /// See also:
   /// * [strokeWidth], to set the stroke width.
-  final Color strokeColor;
+  final Color? strokeColor;
 
   @override
   bool operator ==(Object other) {
@@ -928,11 +1272,11 @@ class MapBubbleSettings extends DiagnosticableTree {
   /// Creates a copy of this class but with the given fields
   /// replaced with the new values.
   MapBubbleSettings copyWith({
-    double minRadius,
-    double maxRadius,
-    Color color,
-    double strokeWidth,
-    Color strokeColor,
+    double? minRadius,
+    double? maxRadius,
+    Color? color,
+    double? strokeWidth,
+    Color? strokeColor,
   }) {
     return MapBubbleSettings(
       minRadius: minRadius ?? this.minRadius,
@@ -950,9 +1294,7 @@ class MapBubbleSettings extends DiagnosticableTree {
       properties.add(ColorProperty('color', color));
     }
 
-    if (strokeWidth != null) {
-      properties.add(DoubleProperty('strokeWidth', strokeWidth));
-    }
+    properties.add(DoubleProperty('strokeWidth', strokeWidth));
 
     if (strokeColor != null) {
       properties.add(ColorProperty('strokeColor', strokeColor));
@@ -966,34 +1308,75 @@ class MapBubbleSettings extends DiagnosticableTree {
 /// Customizes the appearance of the selected shape.
 ///
 /// ```dart
-///  int _selectedIndex = -1;
+/// List<DataModel> _data;
+/// MapShapeSource _mapSource;
+/// int _selectedIndex = -1;
 ///
-///  @override
-///  Widget build(BuildContext context) {
-///    return SfMaps(
-///      layers: [
-///        MapShapeLayer(
-///          selectedIndex: _selectedIndex,
-///          onSelectionChanged: (int index) {
-///             setState(() {
-///                // Passing -1 to the unselect the previously selected shape.
-///                _selectedIndex = (_selectedIndex == index) ? -1 : index;
-///             });
-///          },
-///          selectionSettings: MapSelectionSettings(
-///              color: Colors.black
-///          ),
-///          source: MapShapeSource.asset(
-///              "assets/world_map.json",
-///              shapeDataField: "name",
-///              dataCount: bubbleData.length,
-///              primaryValueMapper: (index) {
-///                return bubbleData[index].country;
-///              }),
-///        )
-///      ],
-///    );
-///  }
+///   @override
+///   void initState() {
+///     super.initState();
+///
+///     _data = <DataModel>[
+///       DataModel('India', 280, "Low", Colors.red),
+///       DataModel('United States of America', 190, "High", Colors.green),
+///       DataModel('Pakistan', 37, "Low", Colors.yellow),
+///     ];
+///
+///     _mapSource = MapShapeSource.asset(
+///       "assets/world_map.json",
+///       shapeDataField: "name",
+///       dataCount: _data.length,
+///       primaryValueMapper: (int index) => _data[index].country,
+///       shapeColorValueMapper: (int index) => _data[index].color,
+///     );
+///   }
+///
+///   @override
+///   Widget build(BuildContext context) {
+///     return Scaffold(
+///       body: Center(
+///           child: Container(
+///         height: 350,
+///         child: Padding(
+///           padding: EdgeInsets.only(left: 15, right: 15),
+///           child: Column(
+///             children: [
+///               SfMaps(
+///                 layers: <MapLayer>[
+///                   MapShapeLayer(
+///                     source: _mapSource,
+///                     selectedIndex: _selectedIndex,
+///                     selectionSettings: MapSelectionSettings(
+///                         color: Colors.black),
+///                     onSelectionChanged: (int index) {
+///                       setState(() {
+///                         _selectedIndex = (_selectedIndex == index) ?
+///                                -1 : index;
+///                       });
+///                     },
+///                   ),
+///                 ],
+///               ),
+///             ],
+///           ),
+///         ),
+///       )),
+///     );
+///   }
+/// }
+///
+/// class DataModel {
+///   const DataModel(
+///      this.country,
+///      this.usersCount,
+///      this.storage,
+///      this.color,
+///   );
+///   final String country;
+///   final double usersCount;
+///   final String storage;
+///   final Color color;
+/// }
 /// ```
 @immutable
 class MapSelectionSettings extends DiagnosticableTree {
@@ -1005,112 +1388,239 @@ class MapSelectionSettings extends DiagnosticableTree {
   /// This snippet shows how to set selection color in [SfMaps].
   ///
   /// ```dart
-  ///  int _selectedIndex = -1;
+  /// List<DataModel> _data;
+  /// MapShapeSource _mapSource;
+  /// int _selectedIndex = -1;
   ///
-  ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          selectedIndex: _selectedIndex,
-  ///          onSelectionChanged: (int index) {
-  ///             setState(() {
-  ///                // Passing -1 to the unselect the previously selected shape.
-  ///                _selectedIndex = (_selectedIndex == index) ? -1 : index;
-  ///             });
-  ///          },
-  ///          selectionSettings: MapSelectionSettings(
-  ///              color: Colors.black
-  ///          ),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "name",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (index) {
-  ///                return bubbleData[index].country;
-  ///              }),
-  ///        )
-  ///      ],
-  ///    );
-  ///  }
+  ///   @override
+  ///   void initState() {
+  ///     super.initState();
+  ///
+  ///     _data = <DataModel>[
+  ///       DataModel('India', 280, "Low", Colors.red),
+  ///       DataModel('United States of America', 190, "High", Colors.green),
+  ///       DataModel('Pakistan', 37, "Low", Colors.yellow),
+  ///     ];
+  ///
+  ///     _mapSource = MapShapeSource.asset(
+  ///       "assets/world_map.json",
+  ///       shapeDataField: "name",
+  ///       dataCount: _data.length,
+  ///       primaryValueMapper: (int index) => _data[index].country,
+  ///       shapeColorValueMapper: (int index) => _data[index].color,
+  ///     );
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       body: Center(
+  ///           child: Container(
+  ///         height: 350,
+  ///         child: Padding(
+  ///           padding: EdgeInsets.only(left: 15, right: 15),
+  ///           child: Column(
+  ///             children: [
+  ///               SfMaps(
+  ///                 layers: <MapLayer>[
+  ///                   MapShapeLayer(
+  ///                     source: _mapSource,
+  ///                     selectedIndex: _selectedIndex,
+  ///                     selectionSettings: MapSelectionSettings(
+  ///                         color: Colors.black),
+  ///                     onSelectionChanged: (int index) {
+  ///                       setState(() {
+  ///                         _selectedIndex = (_selectedIndex == index) ?
+  ///                                -1 : index;
+  ///                       });
+  ///                     },
+  ///                   ),
+  ///                 ],
+  ///               ),
+  ///             ],
+  ///           ),
+  ///         ),
+  ///       )),
+  ///     );
+  ///   }
+  /// }
+  ///
+  /// class DataModel {
+  ///   const DataModel(
+  ///      this.country,
+  ///      this.usersCount,
+  ///      this.storage,
+  ///      this.color,
+  ///   );
+  ///   final String country;
+  ///   final double usersCount;
+  ///   final String storage;
+  ///   final Color color;
+  /// }
   /// ```
   /// See also:
   /// * [strokeColor], to set stroke color for selected shape.
-  final Color color;
+  final Color? color;
 
   /// Applies stroke color for the selected shape.
   ///
   /// This snippet shows how to set stroke color for the selected shape.
   ///
   /// ```dart
-  ///  int _selectedIndex = -1;
+  /// List<DataModel> _data;
+  /// MapShapeSource _mapSource;
+  /// int _selectedIndex = -1;
   ///
-  ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          selectedIndex: _selectedIndex,
-  ///          onSelectionChanged: (int index) {
-  ///             setState(() {
-  ///                // Passing -1 to the unselect the previously selected shape.
-  ///                _selectedIndex = (_selectedIndex == index) ? -1 : index;
-  ///             });
-  ///          },
-  ///          selectionSettings: MapSelectionSettings(
-  ///              strokeColor: Colors.white
-  ///          ),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "name",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (index) {
-  ///                return bubbleData[index].country;
-  ///              }),
-  ///        )
-  ///      ],
-  ///    );
-  ///  }
+  ///   @override
+  ///   void initState() {
+  ///     super.initState();
+  ///
+  ///     _data = <DataModel>[
+  ///       DataModel('India', 280, "Low", Colors.red),
+  ///       DataModel('United States of America', 190, "High", Colors.green),
+  ///       DataModel('Pakistan', 37, "Low", Colors.yellow),
+  ///     ];
+  ///
+  ///     _mapSource = MapShapeSource.asset(
+  ///       "assets/world_map.json",
+  ///       shapeDataField: "name",
+  ///       dataCount: _data.length,
+  ///       primaryValueMapper: (int index) => _data[index].country,
+  ///       shapeColorValueMapper: (int index) => _data[index].color,
+  ///     );
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       body: Center(
+  ///           child: Container(
+  ///         height: 350,
+  ///         child: Padding(
+  ///           padding: EdgeInsets.only(left: 15, right: 15),
+  ///           child: Column(
+  ///             children: [
+  ///               SfMaps(
+  ///                 layers: <MapLayer>[
+  ///                   MapShapeLayer(
+  ///                     source: _mapSource,
+  ///                     selectedIndex: _selectedIndex,
+  ///                     selectionSettings: MapSelectionSettings(
+  ///                         strokeColor: Colors.white,
+  ///                         strokeWidth: 2.0,
+  ///                     ),
+  ///                     onSelectionChanged: (int index) {
+  ///                       setState(() {
+  ///                         _selectedIndex = (_selectedIndex == index) ?
+  ///                                -1 : index;
+  ///                       });
+  ///                     },
+  ///                   ),
+  ///                 ],
+  ///               ),
+  ///             ],
+  ///           ),
+  ///         ),
+  ///       )),
+  ///     );
+  ///   }
+  /// }
+  ///
+  /// class DataModel {
+  ///   const DataModel(
+  ///      this.country,
+  ///      this.usersCount,
+  ///      this.storage,
+  ///      this.color,
+  ///   );
+  ///   final String country;
+  ///   final double usersCount;
+  ///   final String storage;
+  ///   final Color color;
+  /// }
   /// ```
   /// See also:
   /// * [Color], to set selected shape color.
-  final Color strokeColor;
+  final Color? strokeColor;
 
   /// Stroke width which applies to the selected shape.
   ///
   /// This snippet shows how to set stroke width for the selected shape.
   ///
   /// ```dart
-  ///  int _selectedIndex = -1;
+  /// List<DataModel> _data;
+  /// MapShapeSource _mapSource;
+  /// int _selectedIndex = -1;
   ///
-  ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          selectedIndex: _selectedIndex,
-  ///          onSelectionChanged: (int index) {
-  ///             setState(() {
-  ///                // Passing -1 to the unselect the previously selected shape.
-  ///                _selectedIndex = (_selectedIndex == index) ? -1 : index;
-  ///             });
-  ///          },
-  ///          selectionSettings: MapSelectionSettings(
-  ///              strokeWidth: 2
-  ///          ),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "name",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (index) {
-  ///                return bubbleData[index].country;
-  ///              }),
-  ///        )
-  ///      ],
-  ///    );
-  ///  }
+  ///   @override
+  ///   void initState() {
+  ///     super.initState();
+  ///
+  ///     _data = <DataModel>[
+  ///       DataModel('India', 280, "Low", Colors.red),
+  ///       DataModel('United States of America', 190, "High", Colors.green),
+  ///       DataModel('Pakistan', 37, "Low", Colors.yellow),
+  ///     ];
+  ///
+  ///     _mapSource = MapShapeSource.asset(
+  ///       "assets/world_map.json",
+  ///       shapeDataField: "name",
+  ///       dataCount: _data.length,
+  ///       primaryValueMapper: (int index) => _data[index].country,
+  ///       shapeColorValueMapper: (int index) => _data[index].color,
+  ///     );
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       body: Center(
+  ///           child: Container(
+  ///         height: 350,
+  ///         child: Padding(
+  ///           padding: EdgeInsets.only(left: 15, right: 15),
+  ///           child: Column(
+  ///             children: [
+  ///               SfMaps(
+  ///                 layers: <MapLayer>[
+  ///                   MapShapeLayer(
+  ///                     source: _mapSource,
+  ///                     selectedIndex: _selectedIndex,
+  ///                     selectionSettings: MapSelectionSettings(
+  ///                         strokeColor: Colors.white,
+  ///                         strokeWidth: 2.0,
+  ///                     ),
+  ///                     onSelectionChanged: (int index) {
+  ///                       setState(() {
+  ///                         _selectedIndex = (_selectedIndex == index) ?
+  ///                                -1 : index;
+  ///                       });
+  ///                     },
+  ///                   ),
+  ///                 ],
+  ///               ),
+  ///             ],
+  ///           ),
+  ///         ),
+  ///       )),
+  ///     );
+  ///   }
+  /// }
+  ///
+  /// class DataModel {
+  ///   const DataModel(
+  ///      this.country,
+  ///      this.usersCount,
+  ///      this.storage,
+  ///      this.color,
+  ///   );
+  ///   final String country;
+  ///   final double usersCount;
+  ///   final String storage;
+  ///   final Color color;
+  /// }
   /// ```
-  final double strokeWidth;
+  final double? strokeWidth;
 
   @override
   bool operator ==(Object other) {
@@ -1150,25 +1660,67 @@ class MapSelectionSettings extends DiagnosticableTree {
 /// Customizes the appearance of the bubble's or shape's tooltip.
 ///
 /// ```dart
-///  @override
-///  Widget build(BuildContext context) {
-///    return SfMaps(
-///      layers: [
-///        MapShapeLayer(
-///          tooltipSettings: MapTooltipSettings(
-///              color: Colors.black
-///          ),
-///          source: MapShapeSource.asset(
-///              "assets/world_map.json",
-///              shapeDataField: "continent",
-///              dataCount: bubbleData.length,
-///              primaryValueMapper: (index) {
-///                return bubbleData[index].country;
-///              }),
-///        )
-///      ],
+/// MapShapeSource _mapSource;
+/// List<Model> _data;
+///
+/// @override
+/// void initState() {
+///
+///    _data = <Model>[
+///     Model('India', 280, "Low", Colors.red),
+///     Model('United States of America', 190, "High", Colors.green),
+///     Model('Pakistan', 37, "Low", Colors.yellow),
+///    ];
+///
+///    _mapSource = MapShapeSource.asset(
+///      "assets/world_map.json",
+///      shapeDataField: "name",
+///      dataCount: _data.length,
+///      primaryValueMapper: (int index) => _data[index].country,
+///      shapeColorValueMapper: (int index) => _data[index].color
 ///    );
-///  }
+///
+///    super.initState();
+/// }
+///
+/// @override
+/// Widget build(BuildContext context) {
+///   return Scaffold(
+///      body: Padding(
+///        padding: EdgeInsets.all(15),
+///        child: SfMaps(
+///          layers: <MapLayer>[
+///            MapShapeLayer(
+///              source: _mapSource,
+///              tooltipSettings: MapTooltipSettings(color: Colors.red),
+///              shapeTooltipBuilder: (BuildContext context, int index) {
+///                if(index == 0) {
+///                  return Container(
+///                    child: Icon(Icons.airplanemode_inactive),
+///                  );
+///                }
+///                else
+///                {
+///                  return Container(
+///                       child: Icon(Icons.airplanemode_active),
+///                  );
+///                }
+///              },
+///            ),
+///          ],
+///        ),
+///      ),
+///   );
+/// }
+///
+/// class Model {
+///  const Model(this.country, this.usersCount, this.storage, this.color);
+///
+///  final String country;
+///  final double usersCount;
+///  final String storage;
+///  final Color  color;
+/// }
 /// ```
 ///
 /// See also:
@@ -1188,88 +1740,220 @@ class MapTooltipSettings extends DiagnosticableTree {
   /// This snippet shows how to set the tooltip color in [SfMaps].
   ///
   /// ```dart
-  ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          tooltipSettings: MapTooltipSettings(
-  ///              color: Colors.black
-  ///          ),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (index) {
-  ///                return bubbleData[index].country;
-  ///              }),
-  ///        )
-  ///      ],
+  /// MapShapeSource _mapSource;
+  /// List<Model> _data;
+  ///
+  /// @override
+  /// void initState() {
+  ///
+  ///    _data = <Model>[
+  ///     Model('India', 280, "Low", Colors.red),
+  ///     Model('United States of America', 190, "High", Colors.green),
+  ///     Model('Pakistan', 37, "Low", Colors.yellow),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) => _data[index].country,
+  ///      shapeColorValueMapper: (int index) => _data[index].color
   ///    );
-  ///  }
+  ///
+  ///    super.initState();
+  /// }
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///      body: Padding(
+  ///        padding: EdgeInsets.all(15),
+  ///        child: SfMaps(
+  ///          layers: <MapLayer>[
+  ///            MapShapeLayer(
+  ///              source: _mapSource,
+  ///              tooltipSettings: MapTooltipSettings(color: Colors.red),
+  ///              shapeTooltipBuilder: (BuildContext context, int index) {
+  ///                if(index == 0) {
+  ///                  return Container(
+  ///                    child: Icon(Icons.airplanemode_inactive),
+  ///                  );
+  ///                }
+  ///                else
+  ///                {
+  ///                  return Container(
+  ///                       child: Icon(Icons.airplanemode_active),
+  ///                  );
+  ///                }
+  ///              },
+  ///            ),
+  ///          ],
+  ///        ),
+  ///      ),
+  ///   );
+  /// }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.usersCount, this.storage, this.color);
+  ///
+  ///  final String country;
+  ///  final double usersCount;
+  ///  final String storage;
+  ///  final Color  color;
+  /// }
   /// ```
   /// See also:
   /// * [textStyle], for customizing the style of the tooltip text.
-  final Color color;
+  final Color? color;
 
   /// Specifies the stroke width applies to the tooltip.
   ///
   /// This snippet shows how to customize the stroke width in [SfMaps].
   ///
   /// ```dart
-  ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          tooltipSettings: MapTooltipSettings(
-  ///              strokeWidth: 2
-  ///          ),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (index) {
-  ///                return bubbleData[index].country;
-  ///              }),
-  ///        )
-  ///      ],
+  /// MapShapeSource _mapSource;
+  /// List<Model> _data;
+  ///
+  /// @override
+  /// void initState() {
+  ///
+  ///    _data = <Model>[
+  ///     Model('India', 280, "Low", Colors.red),
+  ///     Model('United States of America', 190, "High", Colors.green),
+  ///     Model('Pakistan', 37, "Low", Colors.yellow),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) => _data[index].country,
+  ///      shapeColorValueMapper: (int index) => _data[index].color
   ///    );
-  ///  }
+  ///
+  ///    super.initState();
+  /// }
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///      body: Padding(
+  ///        padding: EdgeInsets.all(15),
+  ///        child: SfMaps(
+  ///          layers: <MapLayer>[
+  ///            MapShapeLayer(
+  ///              source: _mapSource,
+  ///              tooltipSettings: MapTooltipSettings(
+  ///                strokeWidth: 2.0,
+  ///                strokeColor: Colors.black,
+  ///              ),
+  ///              shapeTooltipBuilder: (BuildContext context, int index) {
+  ///                if(index == 0) {
+  ///                  return Container(
+  ///                    child: Icon(Icons.airplanemode_inactive),
+  ///                  );
+  ///                }
+  ///                else
+  ///                {
+  ///                  return Container(
+  ///                       child: Icon(Icons.airplanemode_active),
+  ///                  );
+  ///                }
+  ///              },
+  ///            ),
+  ///          ],
+  ///        ),
+  ///      ),
+  ///   );
+  /// }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.usersCount, this.storage, this.color);
+  ///
+  ///  final String country;
+  ///  final double usersCount;
+  ///  final String storage;
+  ///  final Color  color;
+  /// }
   /// ```
   /// See also:
   /// * [strokeColor], for customizing the stroke color of the tooltip.
-  final double strokeWidth;
+  final double? strokeWidth;
 
   /// Specifies the stroke color applies to the tooltip.
   ///
   /// This snippet shows how to customize stroke color in [SfMaps].
   ///
   /// ```dart
-  ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          tooltipSettings: MapTooltipSettings(
-  ///              strokeColor: Colors.white
-  ///          ),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (index) {
-  ///                return bubbleData[index].country;
-  ///              }),
-  ///        )
-  ///      ],
+  /// MapShapeSource _mapSource;
+  /// List<Model> _data;
+  ///
+  /// @override
+  /// void initState() {
+  ///
+  ///    _data = <Model>[
+  ///     Model('India', 280, "Low", Colors.red),
+  ///     Model('United States of America', 190, "High", Colors.green),
+  ///     Model('Pakistan', 37, "Low", Colors.yellow),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) => _data[index].country,
+  ///      shapeColorValueMapper: (int index) => _data[index].color
   ///    );
-  ///  }
+  ///
+  ///    super.initState();
+  /// }
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///      body: Padding(
+  ///        padding: EdgeInsets.all(15),
+  ///        child: SfMaps(
+  ///          layers: <MapLayer>[
+  ///            MapShapeLayer(
+  ///              source: _mapSource,
+  ///              tooltipSettings: MapTooltipSettings(
+  ///                strokeWidth: 2.0,
+  ///                strokeColor: Colors.black,
+  ///              ),
+  ///              shapeTooltipBuilder: (BuildContext context, int index) {
+  ///                if(index == 0) {
+  ///                  return Container(
+  ///                    child: Icon(Icons.airplanemode_inactive),
+  ///                  );
+  ///                }
+  ///                else
+  ///                {
+  ///                  return Container(
+  ///                       child: Icon(Icons.airplanemode_active),
+  ///                  );
+  ///                }
+  ///              },
+  ///            ),
+  ///          ],
+  ///        ),
+  ///      ),
+  ///   );
+  /// }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.usersCount, this.storage, this.color);
+  ///
+  ///  final String country;
+  ///  final double usersCount;
+  ///  final String storage;
+  ///  final Color  color;
+  /// }
   /// ```
   ///
   /// See also:
   /// * [strokeWidth] for customizing the stroke width of the tooltip.
-  final Color strokeColor;
+  final Color? strokeColor;
 
   @override
   bool operator ==(Object other) {
@@ -1296,9 +1980,7 @@ class MapTooltipSettings extends DiagnosticableTree {
       properties.add(ColorProperty('color', color));
     }
 
-    if (strokeWidth != null) {
-      properties.add(DoubleProperty('strokeWidth', strokeWidth));
-    }
+    properties.add(DoubleProperty('strokeWidth', strokeWidth));
 
     if (strokeColor != null) {
       properties.add(ColorProperty('strokeColor', strokeColor));
@@ -1308,6 +1990,41 @@ class MapTooltipSettings extends DiagnosticableTree {
 
 /// Provides options for customizing the appearance of the toolbar in the web
 /// platform.
+///
+/// ```dart
+///  MapZoomPanBehavior _zoomPanBehavior;
+///  MapShapeSource _mapSource;
+///
+///   @override
+///   void initState() {
+///     _mapSource = MapShapeSource.asset(
+///       'assets/world_map.json',
+///       shapeDataField: 'continent',
+///     );
+///     _zoomPanBehavior = MapZoomPanBehavior()
+///       ..zoomLevel = 4
+///       ..focalLatLng = MapLatLng(19.0759837, 72.8776559)
+///       ..toolbarSettings = MapToolbarSettings();
+///     super.initState();
+///   }
+///
+///   @override
+///   Widget build(BuildContext context) {
+///     return Scaffold(
+///       appBar: AppBar(
+///         title: Text('Zoom pan'),
+///       ),
+///       body: SfMaps(
+///         layers: [
+///           MapShapeLayer(
+///             source: _mapSource,
+///             zoomPanBehavior: _zoomPanBehavior,
+///           ),
+///         ],
+///       ),
+///     );
+///   }
+/// ```
 class MapToolbarSettings extends DiagnosticableTree {
   /// Creates a [MapToolbarSettings].
   const MapToolbarSettings({
@@ -1319,22 +2036,201 @@ class MapToolbarSettings extends DiagnosticableTree {
   });
 
   /// Specifies the color applies to the tooltip icons.
-  final Color iconColor;
+  ///
+  ///```dart
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///   @override
+  ///   void initState() {
+  ///     _mapSource = MapShapeSource.asset(
+  ///       'assets/world_map.json',
+  ///       shapeDataField: 'continent',
+  ///     );
+  ///     _zoomPanBehavior = MapZoomPanBehavior()
+  ///       ..zoomLevel = 4
+  ///       ..focalLatLng = MapLatLng(19.0759837, 72.8776559)
+  ///       ..toolbarSettings = MapToolbarSettings(iconColor: Colors.blue);
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       appBar: AppBar(
+  ///         title: Text('Zoom pan'),
+  ///       ),
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             zoomPanBehavior: _zoomPanBehavior,
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  /// ```
+  final Color? iconColor;
 
   /// Specifies the color applies to the tooltip icon's background.
-  final Color itemBackgroundColor;
+  ///
+  ///```dart
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///   @override
+  ///   void initState() {
+  ///     _mapSource = MapShapeSource.asset(
+  ///       'assets/world_map.json',
+  ///       shapeDataField: 'continent',
+  ///     );
+  ///     _zoomPanBehavior = MapZoomPanBehavior()
+  ///       ..zoomLevel = 4
+  ///       ..focalLatLng = MapLatLng(19.0759837, 72.8776559)
+  ///       ..toolbarSettings = MapToolbarSettings(
+  ///           itemBackgroundColor: Colors.blue);
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       appBar: AppBar(
+  ///         title: Text('Zoom pan'),
+  ///       ),
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             zoomPanBehavior: _zoomPanBehavior,
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  /// ```
+  final Color? itemBackgroundColor;
 
   /// Specifies the color applies to the tooltip icon's background on hovering.
-  final Color itemHoverColor;
+  ///
+  ///```dart
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///   @override
+  ///   void initState() {
+  ///     _mapSource = MapShapeSource.asset(
+  ///       'assets/world_map.json',
+  ///       shapeDataField: 'continent',
+  ///     );
+  ///     _zoomPanBehavior = MapZoomPanBehavior()
+  ///       ..zoomLevel = 4
+  ///       ..focalLatLng = MapLatLng(19.0759837, 72.8776559)
+  ///       ..toolbarSettings = MapToolbarSettings(
+  ///           itemHoverColor: Colors.red);
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       appBar: AppBar(
+  ///         title: Text('Zoom pan'),
+  ///       ),
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             zoomPanBehavior: _zoomPanBehavior,
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  /// ```
+  final Color? itemHoverColor;
 
   /// Arranges the toolbar items in either horizontal or vertical direction.
   ///
   /// Defaults to [Axis.horizontal].
+  ///
+  ///```dart
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///   @override
+  ///   void initState() {
+  ///     _mapSource = MapShapeSource.asset(
+  ///       'assets/world_map.json',
+  ///       shapeDataField: 'continent',
+  ///     );
+  ///     _zoomPanBehavior = MapZoomPanBehavior()
+  ///       ..zoomLevel = 4
+  ///       ..focalLatLng = MapLatLng(19.0759837, 72.8776559)
+  ///       ..toolbarSettings = MapToolbarSettings(
+  ///           direction: Axis.vertical);
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       appBar: AppBar(
+  ///         title: Text('Zoom pan'),
+  ///       ),
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             zoomPanBehavior: _zoomPanBehavior,
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  /// ```
   final Axis direction;
 
   /// Option to position the toolbar in all the corners of the maps.
   ///
   /// Defaults to [MapToolbarPosition.topRight].
+  ///
+  ///```dart
+  ///  MapZoomPanBehavior _zoomPanBehavior;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///   @override
+  ///   void initState() {
+  ///     _mapSource = MapShapeSource.asset(
+  ///       'assets/world_map.json',
+  ///       shapeDataField: 'continent',
+  ///     );
+  ///     _zoomPanBehavior = MapZoomPanBehavior()
+  ///       ..zoomLevel = 4
+  ///       ..focalLatLng = MapLatLng(19.0759837, 72.8776559)
+  ///       ..toolbarSettings = MapToolbarSettings(
+  ///           position: MapToolbarPosition.topRight);
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       appBar: AppBar(
+  ///         title: Text('Zoom pan'),
+  ///       ),
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             zoomPanBehavior: _zoomPanBehavior,
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  /// ```
   final MapToolbarPosition position;
 
   @override

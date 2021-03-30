@@ -1,14 +1,14 @@
 name: syncfusion_flutter_datepicker
-description: The Syncfusion Flutter Date Range Picker widget allows users to easily select dates or a range of dates. It has built-in views that allow quick navigation to the desired date.
-version: 18.3.35-beta
-homepage: https://github.com/syncfusion/flutter-widgets/tree/master/packages/syncfusion_flutter_datepicker
+description: The Flutter Date Range Picker widget allows users to easily select dates or a range of dates. It has four built-in views that allow quick navigation to the desired date.
+version: 19.1.54-beta
+homepage: https://github.com/syncfusion/flutter-examples
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  intl: ">=0.15.0 <0.17.0"
+  intl: ">=0.15.0 <0.20.0"
   syncfusion_flutter_core:
     path: ../syncfusion_flutter_core

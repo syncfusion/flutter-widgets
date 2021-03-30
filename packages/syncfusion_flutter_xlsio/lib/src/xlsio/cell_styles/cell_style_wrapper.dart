@@ -7,21 +7,22 @@ class CellStyleWrapper implements Style {
     _arrRanges.addAll(range.cells);
     sheet = range.worksheet;
     workbook = sheet.workbook;
+    _borders = BordersCollectionWrapper(_arrRanges, workbook);
   }
 
   /// Gets/sets borders.
-  Borders _borders;
+  late Borders _borders;
 
   /// Represent the workbook.
-  Workbook workbook;
+  late Workbook workbook;
 
   /// Represent the sheet.
-  Worksheet sheet;
+  late Worksheet sheet;
 
   final List<Range> _arrRanges = [];
   @override
   String get name {
-    String nameStyle;
+    String nameStyle = '';
     bool first = true;
 
     final int last = _arrRanges.length;
@@ -32,7 +33,7 @@ class CellStyleWrapper implements Style {
         nameStyle = range.cellStyle.name;
         first = false;
       } else if (range.cellStyle.name != nameStyle) {
-        return null;
+        return '';
       }
     }
     return nameStyle;
@@ -76,7 +77,7 @@ class CellStyleWrapper implements Style {
 
   @override
   String get backColor {
-    String backColorStyle;
+    String backColorStyle = '';
     bool first = true;
 
     final int last = _arrRanges.length;
@@ -104,7 +105,6 @@ class CellStyleWrapper implements Style {
 
   @override
   Borders get borders {
-    _borders ??= BordersCollectionWrapper(_arrRanges, workbook);
     return _borders;
   }
 
@@ -203,7 +203,7 @@ class CellStyleWrapper implements Style {
 
   @override
   String get fontColor {
-    String fontColorStyle;
+    String fontColorStyle = '';
     bool first = true;
 
     final int last = _arrRanges.length;
@@ -455,8 +455,8 @@ class CellStyleWrapper implements Style {
 
   @override
   //Represent numberFormat
-  String get numberFormat {
-    String numberFormatStyle;
+  String? get numberFormat {
+    String? numberFormatStyle;
     bool first = true;
 
     final int last = _arrRanges.length;
@@ -474,7 +474,7 @@ class CellStyleWrapper implements Style {
   }
 
   @override
-  set numberFormat(String value) {
+  set numberFormat(String? value) {
     final int last = _arrRanges.length;
     for (int index = 0; index < last; index++) {
       final Range range = _arrRanges[index];
@@ -537,6 +537,62 @@ class CellStyleWrapper implements Style {
     for (int index = 0; index < last; index++) {
       final Range range = _arrRanges[index];
       (range.cellStyle as CellStyle).locked = value;
+    }
+  }
+
+  @override
+  Color get backColorRgb {
+    Color backColorStyle = Color.fromARGB(255, 0, 0, 0);
+    bool first = true;
+
+    final int last = _arrRanges.length;
+    for (int index = 0; index < last; index++) {
+      final Range range = _arrRanges[index];
+
+      if (first) {
+        backColorStyle = range.cellStyle.backColorRgb;
+        first = false;
+      } else if (range.cellStyle.backColorRgb != backColorStyle) {
+        return Color.fromARGB(255, 0, 0, 0);
+      }
+    }
+    return backColorStyle;
+  }
+
+  @override
+  set backColorRgb(Color value) {
+    final int last = _arrRanges.length;
+    for (int index = 0; index < last; index++) {
+      final Range range = _arrRanges[index];
+      range.cellStyle.backColorRgb = value;
+    }
+  }
+
+  @override
+  Color get fontColorRgb {
+    Color fontColorStyle = Color.fromARGB(255, 0, 0, 0);
+    bool first = true;
+
+    final int last = _arrRanges.length;
+    for (int index = 0; index < last; index++) {
+      final Range range = _arrRanges[index];
+
+      if (first) {
+        fontColorStyle = range.cellStyle.fontColorRgb;
+        first = false;
+      } else if (range.cellStyle.fontColorRgb != fontColorStyle) {
+        return Color.fromARGB(255, 0, 0, 0);
+      }
+    }
+    return fontColorStyle;
+  }
+
+  @override
+  set fontColorRgb(Color value) {
+    final int last = _arrRanges.length;
+    for (int index = 0; index < last; index++) {
+      final Range range = _arrRanges[index];
+      range.cellStyle.fontColorRgb = value;
     }
   }
 }

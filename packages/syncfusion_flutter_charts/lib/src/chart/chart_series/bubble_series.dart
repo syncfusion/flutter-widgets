@@ -10,46 +10,44 @@ part of charts;
 class BubbleSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of BubbleSeries class.
   BubbleSeries(
-      {ValueKey<String> key,
-      ChartSeriesRendererFactory<T, D> onCreateRenderer,
-      @required List<T> dataSource,
-      @required ChartValueMapper<T, D> xValueMapper,
-      @required ChartValueMapper<T, num> yValueMapper,
-      ChartValueMapper<T, dynamic> sortFieldValueMapper,
-      ChartValueMapper<T, num> sizeValueMapper,
-      ChartValueMapper<T, Color> pointColorMapper,
-      ChartValueMapper<T, String> dataLabelMapper,
-      String xAxisName,
-      String yAxisName,
-      Color color,
-      MarkerSettings markerSettings,
-      List<Trendline> trendlines,
-      num minimumRadius,
-      num maximumRadius,
-      EmptyPointSettings emptyPointSettings,
-      DataLabelSettings dataLabelSettings,
-      bool isVisible,
-      String name,
-      bool enableTooltip,
-      List<double> dashArray,
-      double animationDuration,
-      Color borderColor,
-      double borderWidth,
-      LinearGradient gradient,
-      LinearGradient borderGradient,
+      {ValueKey<String>? key,
+      ChartSeriesRendererFactory<T, D>? onCreateRenderer,
+      required List<T> dataSource,
+      required ChartValueMapper<T, D> xValueMapper,
+      required ChartValueMapper<T, num> yValueMapper,
+      ChartValueMapper<T, dynamic>? sortFieldValueMapper,
+      ChartValueMapper<T, num>? sizeValueMapper,
+      ChartValueMapper<T, Color>? pointColorMapper,
+      ChartValueMapper<T, String>? dataLabelMapper,
+      String? xAxisName,
+      String? yAxisName,
+      Color? color,
+      MarkerSettings? markerSettings,
+      List<Trendline>? trendlines,
+      this.minimumRadius = 3,
+      this.maximumRadius = 10,
+      EmptyPointSettings? emptyPointSettings,
+      DataLabelSettings? dataLabelSettings,
+      bool? isVisible,
+      String? name,
+      bool? enableTooltip,
+      List<double>? dashArray,
+      double? animationDuration,
+      Color? borderColor,
+      double? borderWidth,
+      LinearGradient? gradient,
+      LinearGradient? borderGradient,
       // ignore: deprecated_member_use_from_same_package
-      SelectionSettings selectionSettings,
-      SelectionBehavior selectionBehavior,
-      bool isVisibleInLegend,
-      LegendIconType legendIconType,
-      SortingOrder sortingOrder,
-      String legendItemText,
-      double opacity,
-      SeriesRendererCreatedCallback onRendererCreated,
-      List<int> initialSelectedDataIndexes})
-      : minimumRadius = minimumRadius ?? 3,
-        maximumRadius = maximumRadius ?? 10,
-        super(
+      SelectionSettings? selectionSettings,
+      SelectionBehavior? selectionBehavior,
+      bool? isVisibleInLegend,
+      LegendIconType? legendIconType,
+      SortingOrder? sortingOrder,
+      String? legendItemText,
+      double? opacity,
+      SeriesRendererCreatedCallback? onRendererCreated,
+      List<int>? initialSelectedDataIndexes})
+      : super(
             key: key,
             onCreateRenderer: onCreateRenderer,
             name: name,
@@ -127,7 +125,7 @@ class BubbleSeries<T, D> extends XyDataSeries<T, D> {
   BubbleSeriesRenderer createRenderer(ChartSeries<T, D> series) {
     BubbleSeriesRenderer seriesRenderer;
     if (onCreateRenderer != null) {
-      seriesRenderer = onCreateRenderer(series);
+      seriesRenderer = onCreateRenderer!(series) as BubbleSeriesRenderer;
       assert(seriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return seriesRenderer;
@@ -142,46 +140,44 @@ class BubbleSeriesRenderer extends XyDataSeriesRenderer {
   BubbleSeriesRenderer();
 
   // Store the maximum size //
-  num _maxSize;
+  double? _maxSize;
 
   // Store the minimum size //
-  num _minSize;
+  double? _minSize;
 
   /// To add bubble segments to segment list
   ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
-      int pointIndex, int seriesIndex, num animateFactor) {
-    final BubbleSegment segment = createSegment();
+      int pointIndex, int seriesIndex, double animateFactor) {
+    final BubbleSegment segment = this.createSegment();
     final List<CartesianSeriesRenderer> oldSeriesRenderers =
-        _chartState._oldSeriesRenderers;
+        _chartState!._oldSeriesRenderers;
     _isRectSeries = false;
-    if (segment != null) {
-      segment._seriesIndex = seriesIndex;
-      segment.currentSegmentIndex = pointIndex;
-      segment.points
-          .add(Offset(currentPoint.markerPoint.x, currentPoint.markerPoint.y));
-      segment._seriesIndex = seriesIndex;
-      segment._series = _series;
-      segment.animationFactor = animateFactor;
-      segment._currentPoint = currentPoint;
-      segment._seriesRenderer = this;
-      if (_chartState._widgetNeedUpdate &&
-          oldSeriesRenderers != null &&
-          oldSeriesRenderers.isNotEmpty &&
-          oldSeriesRenderers.length - 1 >= segment._seriesIndex &&
-          oldSeriesRenderers[segment._seriesIndex]._seriesName ==
-              segment._seriesRenderer._seriesName) {
-        segment._oldSeriesRenderer = oldSeriesRenderers[segment._seriesIndex];
-        segment._oldPoint =
-            (segment._oldSeriesRenderer._dataPoints.length - 1 >= pointIndex)
-                ? segment._oldSeriesRenderer._dataPoints[pointIndex]
-                : null;
-      }
-      segment.calculateSegmentPoints();
-      customizeSegment(segment);
-      segment.strokePaint = segment.getStrokePaint();
-      segment.fillPaint = segment.getFillPaint();
-      _segments.add(segment);
+    segment._seriesIndex = seriesIndex;
+    segment.currentSegmentIndex = pointIndex;
+    segment.points
+        .add(Offset(currentPoint.markerPoint!.x, currentPoint.markerPoint!.y));
+    segment._seriesIndex = seriesIndex;
+    segment._series = _series as XyDataSeries;
+    segment.animationFactor = animateFactor;
+    segment._currentPoint = currentPoint;
+    segment._seriesRenderer = this;
+    if (_chartState!._widgetNeedUpdate &&
+        oldSeriesRenderers.isNotEmpty &&
+        oldSeriesRenderers.length - 1 >= segment._seriesIndex &&
+        oldSeriesRenderers[segment._seriesIndex]._seriesName ==
+            segment._seriesRenderer._seriesName) {
+      segment._oldSeriesRenderer = oldSeriesRenderers[segment._seriesIndex];
+      segment._oldPoint =
+          (segment._oldSeriesRenderer!._dataPoints.length - 1 >= pointIndex)
+              ? segment._oldSeriesRenderer!._dataPoints[pointIndex]
+              : null;
+      segment._oldSegmentIndex = _getOldSegmentIndex(segment);
     }
+    segment.calculateSegmentPoints();
+    customizeSegment(segment);
+    segment.strokePaint = segment.getStrokePaint();
+    segment.fillPaint = segment.getFillPaint();
+    _segments.add(segment);
     return segment;
   }
 
@@ -189,25 +185,25 @@ class BubbleSeriesRenderer extends XyDataSeriesRenderer {
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     if (segment._seriesRenderer._isSelectionEnable) {
-      final SelectionBehaviorRenderer selectionBehaviorRenderer =
+      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
           segment._seriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer._selectionRenderer._checkWithSelectionState(
-          _segments[segment.currentSegmentIndex], _chart);
+      selectionBehaviorRenderer?._selectionRenderer?._checkWithSelectionState(
+          _segments[segment.currentSegmentIndex!], _chart);
     }
     segment.onPaint(canvas);
   }
 
   /// Creates a segment for a data point in the series.
   @override
-  ChartSegment createSegment() => BubbleSegment();
+  BubbleSegment createSegment() => BubbleSegment();
 
   /// Changes the series color, border color, and border width.
   @override
   void customizeSegment(ChartSegment segment) {
-    final BubbleSegment bubbleSegment = segment;
+    final BubbleSegment bubbleSegment = segment as BubbleSegment;
     bubbleSegment._color = bubbleSegment._seriesRenderer._seriesColor;
-    bubbleSegment._strokeColor = bubbleSegment._series.borderColor ??
-        bubbleSegment._seriesRenderer._seriesColor;
+    bubbleSegment._strokeColor = bubbleSegment._series.borderColor; // ??
+    // bubbleSegment._seriesRenderer._seriesColor;
     bubbleSegment._strokeWidth = bubbleSegment._series.borderWidth;
     bubbleSegment.strokePaint = bubbleSegment.getStrokePaint();
     bubbleSegment.fillPaint = bubbleSegment.getFillPaint();
@@ -217,9 +213,11 @@ class BubbleSeriesRenderer extends XyDataSeriesRenderer {
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer seriesRenderer]) {
-    canvas.drawPath(seriesRenderer._markerShapes[index], fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes[index], strokePaint);
+      [CartesianSeriesRenderer? seriesRenderer]) {
+    if (seriesRenderer != null) {
+      canvas.drawPath(seriesRenderer._markerShapes[index]!, fillPaint);
+      canvas.drawPath(seriesRenderer._markerShapes[index]!, strokePaint);
+    }
   }
 
   /// Draws data label text of the appropriate data point in a series.

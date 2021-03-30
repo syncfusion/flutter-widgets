@@ -31,7 +31,7 @@ import '../../theme.dart';
 ///
 class SfBarcodeTheme extends InheritedTheme {
   /// Initialize the class of SfBarcodeTheme
-  const SfBarcodeTheme({Key key, this.data, this.child})
+  const SfBarcodeTheme({Key? key, required this.data, required this.child})
       : super(key: key, child: child);
 
   /// Specifies the color and typography values for descendant barcode widgets.
@@ -80,7 +80,7 @@ class SfBarcodeTheme extends InheritedTheme {
   /// Defaults to [SfBarcodeTheme.barcodeThemeData]
   /// if there is no [SfBarcodeTheme] in the given build context.
   static SfBarcodeThemeData of(BuildContext context) {
-    final SfBarcodeTheme sfBarcodeTheme =
+    final SfBarcodeTheme? sfBarcodeTheme =
         context.dependOnInheritedWidgetOfExactType<SfBarcodeTheme>();
     return sfBarcodeTheme?.data ?? SfTheme.of(context).barcodeThemeData;
   }
@@ -90,7 +90,7 @@ class SfBarcodeTheme extends InheritedTheme {
 
   @override
   Widget wrap(BuildContext context, Widget child) {
-    final SfBarcodeTheme ancestorTheme =
+    final SfBarcodeTheme? ancestorTheme =
         context.findAncestorWidgetOfExactType<SfBarcodeTheme>();
     return identical(this, ancestorTheme)
         ? child
@@ -128,10 +128,10 @@ class SfBarcodeTheme extends InheritedTheme {
 class SfBarcodeThemeData with Diagnosticable {
   /// Initialize the SfBarcode theme data
   factory SfBarcodeThemeData({
-    Brightness brightness,
-    Color backgroundColor,
-    Color barColor,
-    Color textColor,
+    Brightness? brightness,
+    Color? backgroundColor,
+    Color? barColor,
+    Color? textColor,
   }) {
     brightness = brightness ?? Brightness.light;
     final bool isLight = brightness == Brightness.light;
@@ -153,10 +153,10 @@ class SfBarcodeThemeData with Diagnosticable {
   /// create intermediate themes based on two themes created with the
   /// [SfBarcodeThemeData] constructor.
   const SfBarcodeThemeData.raw({
-    @required this.brightness,
-    @required this.backgroundColor,
-    @required this.barColor,
-    @required this.textColor,
+    required this.brightness,
+    required this.backgroundColor,
+    required this.barColor,
+    required this.textColor,
   });
 
   /// The brightness of the overall theme of the
@@ -270,10 +270,10 @@ class SfBarcodeThemeData with Diagnosticable {
   /// Creates a copy of this barcode theme data object with the matching fields
   /// replaced with the non-null parameter values.
   SfBarcodeThemeData copyWith({
-    Brightness brightness,
-    Color backgroundColor,
-    Color barColor,
-    Color textColor,
+    Brightness? brightness,
+    Color? backgroundColor,
+    Color? barColor,
+    Color? textColor,
   }) {
     return SfBarcodeThemeData.raw(
       brightness: brightness ?? this.brightness,
@@ -284,14 +284,13 @@ class SfBarcodeThemeData with Diagnosticable {
   }
 
   /// Returns the barcode theme data
-  static SfBarcodeThemeData lerp(
-      SfBarcodeThemeData a, SfBarcodeThemeData b, double t) {
-    assert(t != null);
+  static SfBarcodeThemeData? lerp(
+      SfBarcodeThemeData? a, SfBarcodeThemeData? b, double t) {
     if (a == null && b == null) {
       return null;
     }
     return SfBarcodeThemeData(
-      backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
+      backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
       barColor: Color.lerp(a.barColor, b.barColor, t),
       textColor: Color.lerp(a.textColor, b.textColor, t),
     );
@@ -305,10 +304,11 @@ class SfBarcodeThemeData with Diagnosticable {
     if (other.runtimeType != runtimeType) {
       return false;
     }
-    final SfBarcodeThemeData typedOther = other;
-    return typedOther.backgroundColor == backgroundColor &&
-        typedOther.barColor == barColor &&
-        typedOther.textColor == textColor;
+
+    return other is SfBarcodeThemeData &&
+        other.backgroundColor == backgroundColor &&
+        other.barColor == barColor &&
+        other.textColor == textColor;
   }
 
   @override

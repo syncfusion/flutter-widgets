@@ -2,17 +2,17 @@ part of pdf;
 
 abstract class _ImageDecoder {
   //Fields
-  List<int> imageData;
-  int width;
-  int height;
-  _ImageType format;
-  int offset;
-  int bitsPerComponent;
-  double jpegDecoderOrientationAngle;
+  late List<int> imageData;
+  int width = 0;
+  int height = 0;
+  _ImageType? format;
+  late int offset;
+  int? bitsPerComponent;
+  double? jpegDecoderOrientationAngle;
 
   //Static methods
-  static _ImageDecoder getDecoder(List<int> data) {
-    _ImageDecoder decoder;
+  static _ImageDecoder? getDecoder(List<int> data) {
+    _ImageDecoder? decoder;
     if (_PdfUtils.isPng(data)) {
       decoder = _PngDecoder(data, _PdfUtils._pngSignature.length);
     } else if (_PdfUtils.isJpeg(data)) {
@@ -25,7 +25,7 @@ abstract class _ImageDecoder {
   int _readByte() {
     if (offset < imageData.length) {
       final int value = imageData[offset];
-      offset++;
+      offset = offset + 1;
       return value;
     } else {
       throw RangeError('invalid offset');
@@ -37,7 +37,7 @@ abstract class _ImageDecoder {
   }
 
   void _seek(int increment) {
-    offset += increment;
+    offset = offset + increment;
   }
 
   List<int> _readBytes(int count) {
@@ -62,7 +62,7 @@ abstract class _ImageDecoder {
     return i1 | (i2 << 8) | (i3 << 16) | (i4 << 24);
   }
 
-  String _readString(List<int> imageData, int len) {
+  String _readString(List<int>? imageData, int len) {
     String result = '';
     for (int i = 0; i < len; i++) {
       result += String.fromCharCode(_readByte());
@@ -71,11 +71,11 @@ abstract class _ImageDecoder {
   }
 
   Map<String, dynamic> _read(
-      List<int> stream, int streamOffset, List<int> buffer, int length) {
+      List<int> stream, int? streamOffset, List<int>? buffer, int length) {
     int result = 0;
-    if (length <= stream.length && stream.length - streamOffset >= length) {
+    if (length <= stream.length && stream.length - streamOffset! >= length) {
       for (int i = 0; i < length; i++) {
-        buffer[i] = stream[streamOffset];
+        buffer![i] = stream[streamOffset!];
         streamOffset++;
         result++;
       }
@@ -89,5 +89,5 @@ abstract class _ImageDecoder {
 
   //Abstract methods
   void readHeader();
-  _PdfStream getImageDictionary();
+  _PdfStream? getImageDictionary();
 }

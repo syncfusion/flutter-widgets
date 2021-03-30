@@ -1,26 +1,25 @@
 part of pdf;
 
 class _PdfCatalogNames implements _IPdfWrapper {
-  _PdfCatalogNames([_PdfDictionary root]) {
+  _PdfCatalogNames([_PdfDictionary? root]) {
     if (root != null) {
       _dictionary = root;
     }
   }
   //Fields
   _PdfDictionary _dictionary = _PdfDictionary();
-  PdfAttachmentCollection _attachments;
+  PdfAttachmentCollection? _attachments;
 
   //Properties
   //Gets the destinations.
-  _PdfDictionary get _destinations {
-    final _IPdfPrimitive obj =
+  _PdfDictionary? get _destinations {
+    final _IPdfPrimitive? obj =
         _PdfCrossTable._dereference(_dictionary[_DictionaryProperties.dests]);
-    final _PdfDictionary dests = obj as _PdfDictionary;
+    final _PdfDictionary? dests = obj as _PdfDictionary?;
     return dests;
   }
 
   set _embeddedFiles(PdfAttachmentCollection value) {
-    ArgumentError.checkNotNull(value, 'value');
     if (_attachments != value) {
       _attachments = value;
       _dictionary.setProperty(_DictionaryProperties.embeddedFiles,
@@ -30,11 +29,12 @@ class _PdfCatalogNames implements _IPdfWrapper {
 
   //Methods
   //Gets the named object from a tree.
-  _IPdfPrimitive _getNamedObjectFromTree(_PdfDictionary root, _PdfString name) {
+  _IPdfPrimitive? _getNamedObjectFromTree(
+      _PdfDictionary? root, _PdfString name) {
     bool found = false;
-    _PdfDictionary current = root;
-    _IPdfPrimitive obj;
-    while (!found && current != null && current._items.isNotEmpty) {
+    _PdfDictionary? current = root;
+    _IPdfPrimitive? obj;
+    while (!found && current != null && current._items!.isNotEmpty) {
       if (current.containsKey(_DictionaryProperties.kids)) {
         current = _getProperKid(current, name);
       } else if (current.containsKey(_DictionaryProperties.names)) {
@@ -46,7 +46,7 @@ class _PdfCatalogNames implements _IPdfWrapper {
   }
 
   //Finds the name in the tree.
-  _IPdfPrimitive _findName(_PdfDictionary current, _PdfString name) {
+  _IPdfPrimitive? _findName(_PdfDictionary current, _PdfString name) {
     final _PdfArray names =
         _PdfCrossTable._dereference(current[_DictionaryProperties.names])
             as _PdfArray;
@@ -70,7 +70,7 @@ class _PdfCatalogNames implements _IPdfWrapper {
         break;
       }
     }
-    _IPdfPrimitive obj;
+    _IPdfPrimitive? obj;
     if (found) {
       obj = _PdfCrossTable._dereference(names[half * 2 + 1]);
     }
@@ -78,14 +78,14 @@ class _PdfCatalogNames implements _IPdfWrapper {
   }
 
   //Gets the proper kid from an array.
-  _PdfDictionary _getProperKid(_PdfDictionary current, _PdfString name) {
+  _PdfDictionary? _getProperKid(_PdfDictionary current, _PdfString name) {
     final _PdfArray kids =
         _PdfCrossTable._dereference(current[_DictionaryProperties.kids])
             as _PdfArray;
-    _PdfDictionary kid;
+    _PdfDictionary? kid;
     for (final obj in kids._elements) {
-      kid = _PdfCrossTable._dereference(obj) as _PdfDictionary;
-      if (_checkLimits(kid, name)) {
+      kid = _PdfCrossTable._dereference(obj) as _PdfDictionary?;
+      if (_checkLimits(kid!, name)) {
         break;
       } else {
         kid = null;
@@ -96,7 +96,7 @@ class _PdfCatalogNames implements _IPdfWrapper {
 
   // Checks the limits of the named tree node.
   bool _checkLimits(_PdfDictionary kid, _PdfString name) {
-    _IPdfPrimitive obj = kid[_DictionaryProperties.limits];
+    _IPdfPrimitive? obj = kid[_DictionaryProperties.limits];
     bool result = false;
     if (obj is _PdfArray && obj.count >= 2) {
       final _PdfArray limits = obj;
@@ -116,8 +116,8 @@ class _PdfCatalogNames implements _IPdfWrapper {
   }
 
   int _byteCompare(_PdfString str1, _PdfString str2) {
-    final List<int> data1 = str1.data;
-    final List<int> data2 = str2.data;
+    final List<int> data1 = str1.data!;
+    final List<int> data2 = str2.data!;
     final int commonSize = [data1.length, data2.length].reduce(min);
     int result = 0;
     for (int i = 0; i < commonSize; ++i) {
@@ -136,9 +136,7 @@ class _PdfCatalogNames implements _IPdfWrapper {
 
   // Clear catalog names.
   void clear() {
-    if (_dictionary != null) {
-      _dictionary.clear();
-    }
+    _dictionary.clear();
   }
 
   //Overrides
@@ -146,7 +144,8 @@ class _PdfCatalogNames implements _IPdfWrapper {
   _IPdfPrimitive get _element => _dictionary;
 
   @override
-  set _element(_IPdfPrimitive value) {
+  // ignore: unused_element
+  set _element(_IPdfPrimitive? value) {
     throw ArgumentError('primitive elements can\'t be set');
   }
 }

@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "Дата не выбрана", 
 "noEventsCalendarLabel" : "Нет событий", 
-"scheduleViewNewEventLabel" : "Ничего не запланировано. Нажмите, чтобы создать.", 
 "ofDataPagerLabel" : "из", 
 "pagesDataPagerLabel" : "страницы", 
 "itemsDataPagerLabel" : "Предметы", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "ОЗУ.", 
 "shortShawwalLabel" : "Шоу.", 
 "shortDhualqiLabel" : "Зуль-К", 
-"shortDhualhiLabel" : "Зуль-Х"
+"shortDhualhiLabel" : "Зуль-Х", 
+"daySpanCountLabel" : "День"
 }

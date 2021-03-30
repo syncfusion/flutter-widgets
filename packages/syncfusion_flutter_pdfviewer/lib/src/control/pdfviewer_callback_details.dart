@@ -6,21 +6,21 @@ import 'package:syncfusion_flutter_pdf/pdf.dart';
 /// such as [newPageNumber], [oldPageNumber], [isFirstPage] and [isLastPage].
 class PdfPageChangedDetails {
   /// Creates details for [SfPdfViewer.onPageChanged] callback.
-  PdfPageChangedDetails({int newPage, int oldPage, bool isFirst, bool isLast}) {
+  PdfPageChangedDetails(int newPage, int oldPage, bool isFirst, bool isLast) {
     _newPageNumber = newPage;
     _oldPageNumber = oldPage;
     _isFirstPage = isFirst;
     _isLastPage = isLast;
   }
 
-  bool _isFirstPage;
+  late bool _isFirstPage;
 
   /// Indicates whether the new page in the [SfPdfViewer] is the first page or not.
   bool get isFirstPage {
     return _isFirstPage;
   }
 
-  bool _isLastPage;
+  late bool _isLastPage;
 
   /// Indicates whether the new page in the [SfPdfViewer] is the last page or not.
   bool get isLastPage {
@@ -50,14 +50,15 @@ class PdfZoomDetails {
     _newZoomLevel = newZoomLevel;
     _oldZoomLevel = oldZoomLevel;
   }
-  double _newZoomLevel;
+
+  late double _newZoomLevel;
 
   /// Current zoom level to which the document is zoomed to.
   double get newZoomLevel {
     return _newZoomLevel;
   }
 
-  double _oldZoomLevel;
+  late double _oldZoomLevel;
 
   /// Zoom level from which the zooming was initiated.
   double get oldZoomLevel {
@@ -72,7 +73,8 @@ class PdfDocumentLoadedDetails {
   PdfDocumentLoadedDetails(PdfDocument document) {
     _document = document;
   }
-  PdfDocument _document;
+
+  late PdfDocument _document;
 
   /// Loaded [PdfDocument] instance.
   PdfDocument get document {
@@ -88,14 +90,15 @@ class PdfDocumentLoadFailedDetails {
     _error = error;
     _description = description;
   }
-  String _error;
+
+  late String _error;
 
   /// Error title of the document load failed condition.
   String get error {
     return _error;
   }
 
-  String _description;
+  late String _description;
 
   /// Error description of the document load failed condition.
   String get description {
@@ -108,22 +111,22 @@ class PdfDocumentLoadFailedDetails {
 class PdfTextSelectionChangedDetails {
   ///
   PdfTextSelectionChangedDetails(
-      String selectedText, Rect globalSelectedRegion) {
+      String? selectedText, Rect? globalSelectedRegion) {
     _selectedText = selectedText;
     _globalSelectedRegion = globalSelectedRegion;
   }
 
-  String _selectedText;
+  String? _selectedText;
 
   /// Selected text value.
-  String get selectedText {
+  String? get selectedText {
     return _selectedText;
   }
 
-  Rect _globalSelectedRegion;
+  Rect? _globalSelectedRegion;
 
   /// The global bounds information of the selected text region.
-  Rect get globalSelectedRegion {
+  Rect? get globalSelectedRegion {
     return _globalSelectedRegion;
   }
 }

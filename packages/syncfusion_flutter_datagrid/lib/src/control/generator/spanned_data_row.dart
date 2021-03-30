@@ -10,7 +10,7 @@ class _SpannedDataRow extends DataRow {
     _visibleColumns.clear();
 
     _SpannedDataColumn dc;
-    final _DataGridSettings dataGridSettings = _dataGridStateDetails();
+    final _DataGridSettings dataGridSettings = _dataGridStateDetails!();
     if (rowType == RowType.stackedHeaderRow) {
       if (dataGridSettings.stackedHeaderRows.isNotEmpty) {
         final stackedColumns =
@@ -33,7 +33,7 @@ class _SpannedDataRow extends DataRow {
 
   _SpannedDataColumn _createStackedHeaderColumn(
       int index, int columnSpan, StackedHeaderCell stackedHeaderCell) {
-    final _DataGridSettings dataGridSettings = _dataGridStateDetails();
+    final _DataGridSettings dataGridSettings = _dataGridStateDetails!();
     final gridColumn = dataGridSettings.columns[index];
     final rowSpan = _StackedHeaderHelper._getRowSpan(
         dataGridSettings, rowIndex, index, true,
@@ -64,7 +64,7 @@ class _SpannedDataRow extends DataRow {
       return;
     }
 
-    final _DataGridSettings dataGridSettings = _dataGridStateDetails();
+    final _DataGridSettings dataGridSettings = _dataGridStateDetails!();
     if (dataGridSettings.stackedHeaderRows.isNotEmpty) {
       final stackedHeaderRow = dataGridSettings.stackedHeaderRows[rowIndex];
       final stackedColumns = stackedHeaderRow.cells;
@@ -76,26 +76,22 @@ class _SpannedDataRow extends DataRow {
                 column._childColumnIndexes);
 
         for (final columns in columnsSequence) {
-          final acutalColumnIndex = columns.reduce(min);
-          var dc = _indexer(acutalColumnIndex);
+          final actualColumnIndex = columns.reduce(min);
+          var dc = _indexer(actualColumnIndex);
 
           if (dc == null) {
-            var dataCell = _reUseCell(
-                acutalColumnIndex, acutalColumnIndex + columns.length - 1);
-            dataCell ??= _visibleColumns.firstWhere(
-                (col) =>
-                    col.columnIndex == -1 &&
-                    col._cellType != CellType.indentCell,
-                orElse: () => null);
+            DataCellBase? dataCell = _reUseCell(
+                actualColumnIndex, actualColumnIndex + columns.length - 1);
+            dataCell ??= _visibleColumns.firstWhereOrNull((col) =>
+                col.columnIndex == -1 && col._cellType != CellType.indentCell);
 
             _updateStackedHeaderColumn(
-                dataCell, acutalColumnIndex, columns.length - 1, column);
+                dataCell, actualColumnIndex, columns.length - 1, column);
             dataCell = null;
           }
 
-          dc ??= _visibleColumns.firstWhere(
-              (col) => col.columnIndex == acutalColumnIndex,
-              orElse: () => null);
+          dc ??= _visibleColumns
+              .firstWhereOrNull((col) => col.columnIndex == actualColumnIndex);
 
           if (dc != null) {
             if (!dc._isVisible) {
@@ -103,7 +99,7 @@ class _SpannedDataRow extends DataRow {
             }
           } else {
             dc = _createStackedHeaderColumn(
-                acutalColumnIndex, columns.toList().length - 1, column);
+                actualColumnIndex, columns.toList().length - 1, column);
             _visibleColumns.add(dc);
           }
 
@@ -120,9 +116,9 @@ class _SpannedDataRow extends DataRow {
     }
   }
 
-  void _updateStackedHeaderColumn(DataCellBase dc, int index, int columnSpan,
+  void _updateStackedHeaderColumn(DataCellBase? dc, int index, int columnSpan,
       StackedHeaderCell stackedHeaderCell) {
-    final _DataGridSettings dataGridSettings = _dataGridStateDetails();
+    final _DataGridSettings dataGridSettings = _dataGridStateDetails!();
     if (dc != null) {
       if (index < 0 || index >= dataGridSettings.container.columnCount) {
         dc._isVisible = false;

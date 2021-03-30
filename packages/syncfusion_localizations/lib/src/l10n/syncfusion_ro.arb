@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "Nicio dată selectată", 
 "noEventsCalendarLabel" : "Fără evenimente", 
-"scheduleViewNewEventLabel" : "Nimic planificat. Atingeți pentru a crea.", 
 "ofDataPagerLabel" : "de", 
 "pagesDataPagerLabel" : "pagini", 
 "itemsDataPagerLabel" : "obiecte", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "Berbec.", 
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
-"shortDhualhiLabel" : "Dhu'l-H"
+"shortDhualhiLabel" : "Dhu'l-H", 
+"daySpanCountLabel" : "Zi"
 }

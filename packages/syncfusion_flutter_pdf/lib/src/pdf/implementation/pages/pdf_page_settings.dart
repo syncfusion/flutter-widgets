@@ -21,7 +21,7 @@ class PdfPageSettings {
   /// List<int> bytes = document.save();
   /// document.dispose();
   /// ```
-  PdfPageSettings([Size size, PdfPageOrientation orientation]) {
+  PdfPageSettings([Size? size, PdfPageOrientation? orientation]) {
     if (size != null) {
       _size = _Size.fromSize(size);
     }
@@ -30,15 +30,17 @@ class PdfPageSettings {
       _updateSize(orientation);
     }
     _origin = _Point(0, 0);
-    margins = PdfMargins();
+    _margins = PdfMargins();
   }
 
   //Fields
+  late PdfMargins _margins;
   PdfPageOrientation _orientation = PdfPageOrientation.portrait;
   _Size _size = _Size.fromSize(PdfPageSize.a4);
-  _Point _origin;
+  late _Point _origin;
   PdfPageRotateAngle _rotateAngle = PdfPageRotateAngle.rotateAngle0;
   bool _isRotation = false;
+  bool _isPageAdded = false;
 
   //Properties
   /// Gets or sets the margins of the PDF page.
@@ -56,7 +58,12 @@ class PdfPageSettings {
   /// List<int> bytes = document.save();
   /// document.dispose();
   /// ```
-  PdfMargins margins;
+  PdfMargins get margins => _margins;
+  set margins(PdfMargins value) {
+    if (!_margins._equals(value) && !_isPageAdded) {
+      _margins = value;
+    }
+  }
 
   /// Gets the width of the page.
   ///
@@ -129,7 +136,7 @@ class PdfPageSettings {
   /// document.dispose();
   /// ```
   set orientation(PdfPageOrientation value) {
-    if (value != _orientation) {
+    if (value != _orientation && !_isPageAdded) {
       _orientation = value;
       _updateSize(_orientation);
     }
@@ -167,7 +174,11 @@ class PdfPageSettings {
   /// List<int> bytes = document.save();
   /// document.dispose();
   /// ```
-  set size(Size value) => _updateSize(_orientation, value);
+  set size(Size value) {
+    if (!_isPageAdded) {
+      _updateSize(_orientation, value);
+    }
+  }
 
   /// Gets the number of degrees by which the page should be rotated clockwise
   /// when displayed or printed.
@@ -208,8 +219,10 @@ class PdfPageSettings {
   /// document.dispose();
   /// ```
   set rotate(PdfPageRotateAngle value) {
-    _rotateAngle = value;
-    _isRotation = true;
+    if (!_isPageAdded) {
+      _rotateAngle = value;
+      _isRotation = true;
+    }
   }
 
   //Public methods
@@ -228,20 +241,22 @@ class PdfPageSettings {
   /// List<int> bytes = document.save();
   /// document.dispose();
   /// ```
-  void setMargins(double all, [double top, double right, double bottom]) {
-    if (top != null && right != null && bottom != null) {
-      margins._setMarginsAll(all, top, right, bottom);
-    } else if (top != null && right == null) {
-      margins._setMarginsLT(all, top);
-    } else if (top == null && bottom != null) {
-      margins._setMarginsLT(all, bottom);
-    } else {
-      margins._setMargins(all);
+  void setMargins(double all, [double? top, double? right, double? bottom]) {
+    if (!_isPageAdded) {
+      if (top != null && right != null && bottom != null) {
+        margins._setMarginsAll(all, top, right, bottom);
+      } else if (top != null && right == null) {
+        margins._setMarginsLT(all, top);
+      } else if (top == null && bottom != null) {
+        margins._setMarginsLT(all, bottom);
+      } else {
+        margins._setMargins(all);
+      }
     }
   }
 
   //Implementation
-  void _updateSize(PdfPageOrientation orientation, [Size size]) {
+  void _updateSize(PdfPageOrientation orientation, [Size? size]) {
     double min;
     double max;
     if (size != null) {

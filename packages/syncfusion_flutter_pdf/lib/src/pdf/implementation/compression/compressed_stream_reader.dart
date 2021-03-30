@@ -2,36 +2,36 @@ part of pdf;
 
 class _CompressedStreamReader {
   //constructor
-  _CompressedStreamReader(List<int> data, [bool noWrap]) {
+  _CompressedStreamReader(List<int> data, [bool? noWrap]) {
     _data = data;
     _noWrap = noWrap ?? false;
     _initialize();
   }
 
   //Fields
-  List<int> _data;
-  bool _noWrap;
-  int _offset;
-  int _bufferedBits;
-  int _buffer;
-  List<int> _tempBuffer;
-  int _maxUnsingedLimit;
-  int _defHeaderMethodMask;
-  int _windowSize;
-  int _defHeaderInfoMask;
-  int _maxValue;
-  int _defHeaderFlagsFdict;
-  bool _canReadNextBlock;
-  bool _readingUncompressed;
-  int _uncompressedDataLength;
-  int _currentPosition;
+  late List<int> _data;
+  late bool _noWrap;
+  late int _offset;
+  late int _bufferedBits;
+  late int _buffer;
+  late List<int> _tempBuffer;
+  late int _maxUnsingedLimit;
+  late int _defHeaderMethodMask;
+  late int _windowSize;
+  late int _defHeaderInfoMask;
+  late int _maxValue;
+  late int _defHeaderFlagsFdict;
+  late bool _canReadNextBlock;
+  late bool _readingUncompressed;
+  late int _uncompressedDataLength;
+  late int _currentPosition;
   int _dataLength = 0;
   bool _canReadMoreData = true;
   bool _checkSumRead = false;
   int _checkSum = 1;
-  List<int> _blockBuffer;
-  _DecompressorHuffmanTree _currentLengthTree;
-  _DecompressorHuffmanTree _currentDistanceTree;
+  List<int>? _blockBuffer;
+  _DecompressorHuffmanTree? _currentLengthTree;
+  _DecompressorHuffmanTree? _currentDistanceTree;
   static const List<int> def_huffman_dyntree_repeat_bits = <int>[2, 3, 7];
   static const List<int> def_huffman_dyntree_repeat_minimums = <int>[3, 3, 11];
   static const List<int> def_huffman_repeat_length_base = <int>[
@@ -200,7 +200,7 @@ class _CompressedStreamReader {
     if ((header & _defHeaderMethodMask) != (8 << 8)) {
       throw ArgumentError.value(header, 'Unsupported compression method.');
     }
-    _windowSize = pow(2, ((header & _defHeaderInfoMask) >> 12) + 8);
+    _windowSize = pow(2, ((header & _defHeaderInfoMask) >> 12) + 8) as int;
     if (_windowSize > _maxValue) {
       throw ArgumentError.value(
           header, 'Unsupported window size for deflate compression method.');
@@ -264,8 +264,9 @@ class _CompressedStreamReader {
     return true;
   }
 
-  Map<String, dynamic> _decodeDynamicHeader(_DecompressorHuffmanTree lengthTree,
-      _DecompressorHuffmanTree distanceTree) {
+  Map<String, dynamic> _decodeDynamicHeader(
+      _DecompressorHuffmanTree? lengthTree,
+      _DecompressorHuffmanTree? distanceTree) {
     List<int> arrDecoderCodeLengths;
     List<int> arrResultingCodeLengths;
 
@@ -453,8 +454,8 @@ class _CompressedStreamReader {
 
   Map<String, dynamic> _readByte() {
     if (_offset < _data.length) {
-      final int result = _data[_offset];
-      _offset++;
+      final int? result = _data[_offset];
+      _offset = _offset + 1;
       return <String, dynamic>{'hasRead': true, 'result': result};
     } else {
       return <String, dynamic>{'hasRead': false, 'result': -1};
@@ -480,7 +481,7 @@ class _CompressedStreamReader {
       // if something left, skip it.
       if (count > 0) {
         // Skip entire bytes.
-        _offset += count >> 3;
+        _offset = _offset + count >> 3;
         count &= 7;
         // Skip bits.
         if (count > 0) {
@@ -496,7 +497,6 @@ class _CompressedStreamReader {
   }
 
   Map<String, dynamic> _read(List<int> buffer, int offset, int length) {
-    ArgumentError.checkNotNull(buffer);
     if (offset < 0 || offset > buffer.length - 1) {
       throw ArgumentError.value(
           offset, 'Offset does not belong to specified buffer.');
@@ -513,7 +513,7 @@ class _CompressedStreamReader {
         dataToCopy = min(dataToCopy, length);
 
         // Copy data.
-        List.copyRange(buffer, offset, _blockBuffer, inBlockPosition,
+        List.copyRange(buffer, offset, _blockBuffer!, inBlockPosition,
             inBlockPosition + dataToCopy);
         _currentPosition += dataToCopy;
         offset += dataToCopy;
@@ -541,13 +541,11 @@ class _CompressedStreamReader {
             final int dataToRead =
                 min(_uncompressedDataLength, _maxValue - inBlockPosition);
             final int dataRead =
-                _readPackedBytes(_blockBuffer, inBlockPosition, dataToRead);
-
+                _readPackedBytes(_blockBuffer!, inBlockPosition, dataToRead);
             if (dataToRead != dataRead) {
               throw ArgumentError.value(
                   dataToRead, 'Not enough data in stream.');
             }
-
             _uncompressedDataLength -= dataRead;
             _dataLength += dataRead;
           }
@@ -582,14 +580,12 @@ class _CompressedStreamReader {
     };
   }
 
-  void _checksumUpdate(List<int> buffer, int offset, int length) {
+  void _checksumUpdate(List<int>? buffer, int offset, int length) {
     _checkSum =
         _ChecksumCalculator._checksumUpdate(_checkSum, buffer, offset, length);
   }
 
   int _readPackedBytes(List<int> buffer, int offset, int length) {
-    ArgumentError.checkNotNull(buffer);
-
     if (offset < 0 || offset > buffer.length - 1) {
       throw ArgumentError.value(offset, '''Offset can not be less than zero or 
 		  greater than buffer length - 1.''');
@@ -623,9 +619,10 @@ class _CompressedStreamReader {
     }
 
     if (length > 0) {
-      final Map<String, dynamic> returnValue = _read(buffer, offset, length);
-      result += returnValue['length'];
-      buffer = returnValue['buffer'];
+      final Map<String, dynamic> value = _read(buffer, offset, length);
+      final int val = value['length'];
+      result += val.toInt();
+      buffer = value['buffer'];
     }
     return result;
   }
@@ -635,8 +632,9 @@ class _CompressedStreamReader {
     bool dataRead = false;
     int symbol = 0;
     while (free >= def_huffman_repeat_max) {
-      while (((symbol = _currentLengthTree._unpackSymbol(this)) & ~0xff) == 0) {
-        _blockBuffer[_dataLength++ % _maxValue] = symbol.toUnsigned(8);
+      while (
+          ((symbol = _currentLengthTree!._unpackSymbol(this)) & ~0xff) == 0) {
+        _blockBuffer![_dataLength++ % _maxValue] = symbol.toUnsigned(8);
         dataRead = true;
         if (--free < def_huffman_repeat_max) {
           return true;
@@ -670,7 +668,7 @@ class _CompressedStreamReader {
       }
 
       // Unpack repeat distance.
-      symbol = _currentDistanceTree._unpackSymbol(this);
+      symbol = _currentDistanceTree!._unpackSymbol(this);
 
       if (symbol < 0 || symbol > def_huffman_repeat_distanse_base.length) {
         throw ArgumentError.value(symbol, 'Wrong distance code.');
@@ -686,8 +684,8 @@ class _CompressedStreamReader {
       }
       // Copy data in slow repeat mode
       for (int i = 0; i < iRepeatLength; i++) {
-        _blockBuffer[_dataLength % _maxValue] =
-            _blockBuffer[(_dataLength - iRepeatDistance) % _maxValue];
+        _blockBuffer![_dataLength % _maxValue] =
+            _blockBuffer![(_dataLength - iRepeatDistance) % _maxValue];
         _dataLength++;
         free--;
       }

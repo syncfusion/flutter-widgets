@@ -8,10 +8,10 @@ import 'symbology_base_renderer.dart';
 /// Represents the UPCA renderer class
 class UPCARenderer extends SymbologyRenderer {
   /// Creates the upca renderer
-  UPCARenderer({Symbology symbology}) : super(symbology: symbology);
+  UPCARenderer({Symbology? symbology}) : super(symbology: symbology);
 
   /// Represents the encoded input value
-  String _encodedValue;
+  late String _encodedValue;
 
   @override
   bool getIsValidateInput(String value) {
@@ -56,33 +56,33 @@ class UPCARenderer extends SymbologyRenderer {
     /// _singleDigitValues[1] specifies width of start digit
     /// _singleDigitValues[2] specifies left value of end digit
     /// _singleDigitValues[3] specifies width of end digit
-    final List<double> singleDigitValues = List<double>(4);
+    final List<double?> singleDigitValues = List<double?>.filled(4, null);
 
     ///  _positions[0] specifies end position of start  bar
     ///  _positions[1] specifies start position of middle  bar
     ///  _positions[2] specifies end position of middle bar
     ///  _positions[3] specifies start position of end bar
-    final List<double> positions = List<double>(4);
+    final List<double?> positions = List<double?>.filled(4, null);
     if (showValue) {
       singleDigitValues[1] = measureText(_encodedValue[0], textStyle).width;
-      singleDigitValues[1] += additionalWidth;
+      singleDigitValues[1] = singleDigitValues[1]! + additionalWidth;
       singleDigitValues[3] =
           measureText(_encodedValue[_encodedValue.length - 1], textStyle).width;
-      singleDigitValues[3] += additionalWidth;
+      singleDigitValues[3] = singleDigitValues[3]! + additionalWidth;
     } else {
       singleDigitValues[1] = singleDigitValues[3] = 0;
     }
     final double width =
-        size.width - (singleDigitValues[1] + singleDigitValues[3]);
-    double left = symbology.module == null
-        ? offset.dx + singleDigitValues[1]
-        : getLeftPosition(barTotalLength, symbology.module, width,
-            offset.dx + singleDigitValues[1]);
+        size.width - (singleDigitValues[1]! + singleDigitValues[3]!);
+    double left = symbology?.module == null
+        ? offset.dx + singleDigitValues[1]!
+        : getLeftPosition(barTotalLength, symbology?.module, width,
+            offset.dx + singleDigitValues[1]!);
     final Rect barCodeRect = Rect.fromLTRB(
         offset.dx, offset.dy, offset.dx + size.width, offset.dy + size.height);
     double ratio = 0;
-    if (symbology.module != null) {
-      ratio = symbology.module.toDouble();
+    if (symbology?.module != null) {
+      ratio = symbology!.module!.toDouble();
     } else {
       //Calculates the bar length based on number of individual bar codes
       final int singleModule = (width ~/ barTotalLength).toInt();
@@ -100,7 +100,7 @@ class UPCARenderer extends SymbologyRenderer {
       final double barHeight = hasExtraHeight
           ? size.height +
               (showValue
-                  ? (textSize.height * additionalHeight) + textSpacing
+                  ? (textSize!.height * additionalHeight) + textSpacing
                   : 0)
           : size.height;
       final int codeLength = codeValue.length;
@@ -116,7 +116,7 @@ class UPCARenderer extends SymbologyRenderer {
 
         if (i == 0 && j == codeLength - 1) {
           // Calculates the left value for the first input digit
-          singleDigitValues[0] = left - singleDigitValues[1];
+          singleDigitValues[0] = left - singleDigitValues[1]!;
         } else if (i == 1 && j == codeLength - 1) {
           // Finds the end position of first extra height bar
           positions[0] = left;
@@ -201,7 +201,7 @@ class UPCARenderer extends SymbologyRenderer {
 
   /// Returns the encoded value of digits present at left side
   String _getLeftValue(bool isLeft, String structure, String leftString) {
-    String code;
+    late String code;
     List<String> tempValue;
     final Map<String, List<String>> codes = _getBinaries();
     for (int i = 0; i < leftString.length; i++) {
@@ -248,20 +248,20 @@ class UPCARenderer extends SymbologyRenderer {
       TextStyle textStyle,
       double textSpacing,
       TextAlign textAlign,
-      List<double> positions,
-      List<double> singleDigitValues) {
+      List<double?> positions,
+      List<double?> singleDigitValues) {
     final String value1 = value[0];
     final String value2 = value.substring(1, 6);
     final String value3 = value.substring(6, 11);
 
-    final double secondTextWidth = positions[1] - positions[0];
-    final double thirdTextWidth = positions[3] - positions[2];
+    final double secondTextWidth = positions[1]! - positions[0]!;
+    final double thirdTextWidth = positions[3]! - positions[2]!;
 
     // Renders the first digit of encoded value
     drawText(
         canvas,
-        Offset(singleDigitValues[0], offset.dy + size.height + textSpacing),
-        Size(singleDigitValues[1], size.height),
+        Offset(singleDigitValues[0]!, offset.dy + size.height + textSpacing),
+        Size(singleDigitValues[1]!, size.height),
         value1,
         textStyle,
         textSpacing,
@@ -272,7 +272,7 @@ class UPCARenderer extends SymbologyRenderer {
     // Renders the first five digits of encoded input value
     drawText(
         canvas,
-        Offset(positions[0], offset.dy),
+        Offset(positions[0]!, offset.dy),
         Size(secondTextWidth, size.height),
         value2,
         textStyle,
@@ -284,7 +284,7 @@ class UPCARenderer extends SymbologyRenderer {
     // Renders the second five digits of encoded input value
     drawText(
         canvas,
-        Offset(positions[2], offset.dy),
+        Offset(positions[2]!, offset.dy),
         Size(thirdTextWidth, size.height),
         value3,
         textStyle,
@@ -296,8 +296,8 @@ class UPCARenderer extends SymbologyRenderer {
     // Renders the last digit of the encoded input value
     drawText(
         canvas,
-        Offset(singleDigitValues[2], offset.dy + size.height + textSpacing),
-        Size(singleDigitValues[3], size.height),
+        Offset(singleDigitValues[2]!, offset.dy + size.height + textSpacing),
+        Size(singleDigitValues[3]!, size.height),
         value[value.length - 1],
         textStyle,
         textSpacing,

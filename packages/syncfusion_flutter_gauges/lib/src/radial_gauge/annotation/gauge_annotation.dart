@@ -1,4 +1,7 @@
-part of gauges;
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import '../utils/enum.dart';
 
 /// [RadialAxis] allows to add widgets such as text and image as
 /// an annotation to a specific point of interest in the radial gauge.
@@ -26,14 +29,13 @@ class GaugeAnnotation {
   /// The arguments [positionFactor] must not be null and [positionFactor] must
   /// be non-negative.
   GaugeAnnotation(
-      {this.widget,
+      {required this.widget,
       this.axisValue,
       this.horizontalAlignment = GaugeAlignment.center,
       this.angle,
       this.verticalAlignment = GaugeAlignment.center,
       this.positionFactor = 0})
-      : assert(positionFactor != null, 'Position factor must not be null.'),
-        assert(
+      : assert(
             positionFactor >= 0, 'Position factor must be greater than zero.');
 
   /// Specifies the annotation widget.
@@ -74,7 +76,7 @@ class GaugeAnnotation {
   ///        ));
   ///}
   /// ```
-  final double axisValue;
+  final double? axisValue;
 
   /// How the annotation should be aligned horizontally in the respective
   /// position.
@@ -165,7 +167,7 @@ class GaugeAnnotation {
   ///        ));
   ///}
   /// ```
-  final double angle;
+  final double? angle;
 
   @override
   bool operator ==(Object other) {
@@ -185,7 +187,7 @@ class GaugeAnnotation {
 
   @override
   int get hashCode {
-    final List<Object> values = <Object>[
+    final List<Object?> values = <Object?>[
       widget,
       axisValue,
       horizontalAlignment,

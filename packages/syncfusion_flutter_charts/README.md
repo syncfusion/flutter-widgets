@@ -1,12 +1,12 @@
 ![syncfusion_flutter_chart_banner](https://cdn.syncfusion.com/content/images/FTControl/Flutter-Charts-Graphs.png)
 
-# Syncfusion Flutter Charts
+# Flutter Charts library
 
-Syncfusion Flutter Charts is a data visualization library written natively in Dart for creating beautiful and high-performance charts, which are used to craft high-quality mobile app user interfaces using Flutter.
+Flutter Charts package is a data visualization library written natively in Dart for creating beautiful, animated and high-performance charts, which are used to craft high-quality mobile app user interfaces using Flutter.
 
 ## Overview
 
-Create various types of cartesian or circular charts with seamless interaction, responsiveness, and smooth animation. It has a rich set of features, and it is completely customizable and extendable.
+Create various types of cartesian, circular and spark charts with seamless interaction, responsiveness, and smooth animation. It has a rich set of features, and it is completely customizable and extendable.
 
 This [syncfusion_flutter_charts](https://pub.dev/packages/syncfusion_flutter_charts) package includes the following widgets
 
@@ -19,9 +19,7 @@ This [syncfusion_flutter_charts](https://pub.dev/packages/syncfusion_flutter_cha
 * [SfSparkBarChart](https://pub.dev/documentation/syncfusion_flutter_charts/latest/sparkcharts/SfSparkBarChart-class.html)
 * [SfSparkWinLossChart](https://pub.dev/documentation/syncfusion_flutter_charts/latest/sparkcharts/SfSparkWinLossChart-class.html)
 
-**Disclaimer:** This is a commercial package. To use this package, you need to have either Syncfusion Commercial License or Syncfusion Community license. For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
-
-**Note:** Our packages are now compatible with Flutter for Web. However, this will be in Beta until Flutter for Web becomes stable.
+**Disclaimer:** This is a commercial package. To use this package, you need to have either Syncfusion Commercial License or [Free Syncfusion Community license](https://www.syncfusion.com/products/communitylicense). For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
 
 ## Table of contents
 - [Chart features](#chart-features)
@@ -42,42 +40,42 @@ This [syncfusion_flutter_charts](https://pub.dev/packages/syncfusion_flutter_cha
 
 ## Chart features
 
-* **Chart types** - Provides functionality for rendering 25+ chart types, namely line, spline, column, bar, area, bubble, scatter, step line, fast line, range column, range area, step area, spline area, stacked charts, 100% stacked charts, pie, doughnut, radial bar, pyramid, funnel, etc. Each chart type is easily configured and customized with built-in features for creating stunning visual effects.
+* **Chart types** - Provides functionality for rendering 30+ chart types, namely [line](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/line-chart), [spline](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/spline-chart), [column](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/column-chart), [bar](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/bar-chart), [area](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/area-chart), [bubble](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/bubble-chart), [box and whisker](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/box-and-whisker-chart), [scatter](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/scatter-chart), [step line](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/step-line-chart), [fast line](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/line-chart), [range column](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/range-column-chart), [range area](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/range-area-chart), [candle](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/candle-chart), [hilo](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/hilo-chart), [ohlc](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/ohlc-chart), [histogram](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/histogram-chart), [step area](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/step-area-chart), [spline area](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/spline-area-chart), [spline range area](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/spline-range-area-chart), [stacked area](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/stacked-area-chart), [stacked bar](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/stacked-bar-chart), [stacked column](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/stacked-column-chart), [stacked line](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/stacked-line-chart), [100% stacked area](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/stacked-area-100-chart), [100% stacked bar](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/stacked-bar-100-chart), [100% stacked column](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/stacked-column-100-chart), [100% stacked line](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/stacked-line-100-chart), [waterfall](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/waterfall-chart), [pie](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/pie-chart), [doughnut](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/doughnut-chart), [radial bar](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/radial-bar-chart), [pyramid](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/pyramid-chart), [funnel](https://www.syncfusion.com/flutter-widgets/flutter-charts/chart-types/funnel-chart). Each chart type is easily configured and customized with built-in features for creating stunning visual effects.
 ![flutter_chart_types](https://cdn.syncfusion.com/content/images/FTControl/Charts/chart_types.png)
 
-* **Axis types** - Plot various types of data in a graph with the help of numeric, category, date-time and log axis types. The built-in axis features allow to customize an axis elements further to make the axis more readable.
+* **Axis types** - Plot various types of data in a graph with the help of numeric, category, date-time, date-time category and log axis types. The built-in axis features allow to customize an axis elements further to make the axis more readable.
 ![flutter_chart_axis_types](https://cdn.syncfusion.com/content/images/FTControl/chart-axis-types.png)
 
-* **User interaction** - The end-user experience is greatly enhanced by including the user interaction features such as zooming and panning, crosshair, trackball, events, selection, and tooltip in chart.
+* **User interaction** - The end-user experience is greatly enhanced by including the user interaction features such as zooming and panning, crosshair, trackball, callbacks, selection, tooltip, and auto-scrolling in chart.
 ![flutter_chart_user_interactions](https://cdn.syncfusion.com/content/images/FTControl/chart-user-interaction.gif)
 
 * **Legends** - Display additional information about the chart series. The chart legend can also be used to collapse the series. The legends can be wrapped or scrolled if an item exceeds the available bounds.
 ![flutter_chart_legend](https://cdn.syncfusion.com/content/images/FTControl/Charts/legends.png)
 
-* **Dynamic update** - Updates the chart dynamically with live data that changes over seconds or minutes like stock prices, temperature, speed, etc.
+* **Dynamic update** - Updates the chart dynamically or lazily with live data that changes over seconds or minutes like stock prices, temperature, speed, etc.
 ![flutter_chart_user_interactions](https://cdn.syncfusion.com/content/images/FTControl/Charts/live_updates.gif)
 
 ## Spark Charts features
 
-Spark charts (micro charts) are lightweight charts that fit in a very small area. They display the trend of the data and convey quick information to the user.
+Spark charts (Sparkline charts) which is also known as micro charts are lightweight charts that fit in a very small area. They display the trend of the data and convey quick information to the user.
 
-* **Chart types** - Support to render line, area, column and win-loss chart types.
-![spark_chart_types](https://cdn.syncfusion.com/content/images/FTControl/spark_chart_types.jpg)
+* **Chart types** - Support to render line, area, bar and win-loss chart types.
+![sparkline_chart_types](https://cdn.syncfusion.com/content/images/FTControl/spark_chart_types.jpg)
 
 * **Axis types** - Spark charts provides support for numeric, category and date-time axes.
-![spark_chart_axis_types](https://cdn.syncfusion.com/content/images/FTControl/spark_chart_axis_types.jpg)
+![sparkline_chart_axis_types](https://cdn.syncfusion.com/content/images/FTControl/spark_chart_axis_types.jpg)
 
 * **Markers and data labels** - Support to render markers and data labels on high, low, first, last and all data points.
-![spark_chart_markers_data_label](https://cdn.syncfusion.com/content/images/FTControl/spark_chart_marker_data_label.jpg)
+![sparkline_chart_markers_data_label](https://cdn.syncfusion.com/content/images/FTControl/spark_chart_marker_data_label.jpg)
 
 * **Trackball** - Display additional information about data points on interaction with the chart.
-![spark_chart_trackball](https://cdn.syncfusion.com/content/images/FTControl/spark_chart_trackball.gif)
+![sparkline_chart_trackball](https://cdn.syncfusion.com/content/images/FTControl/spark_chart_trackball.gif)
 
 * **Plot band** - Highlight a particular vertical range using a specific color.
-![spark_chart_plotband](https://cdn.syncfusion.com/content/images/FTControl/spark_chart_plotband.jpg)
+![sparkline_chart_plotband](https://cdn.syncfusion.com/content/images/FTControl/spark_chart_plotband.jpg)
 
-* **Live update** - Spark charts can be used in the live update.
-![spark_chart_live](https://cdn.syncfusion.com/content/images/FTControl/spark_chart_live_update.gif)
+* **Live update** - Sparkline charts can be used in the live update.
+![sparkline_chart_live](https://cdn.syncfusion.com/content/images/FTControl/spark_chart_live_update.gif)
 
 
 ## Get the demo application
@@ -181,6 +179,14 @@ class SalesData {
 Add the chart elements such as title, legend, data label, and tooltip to display additional information about the data plotted in the chart.
 
 ```dart
+TooltipBehavior _tooltipBehavior;
+
+@override
+void initState(){
+  _tooltipBehavior = TooltipBehavior(enable: true);
+  super.initState();
+}
+
 @override
 Widget build(BuildContext context) {
   return Scaffold(
@@ -194,7 +200,7 @@ Widget build(BuildContext context) {
             // Enable legend
             legend: Legend(isVisible: true),
             // Enable tooltip
-            tooltipBehavior: TooltipBehavior(enable: true),
+            tooltipBehavior: _tooltipBehavior,
 
             series: <LineSeries<SalesData, String>>[
               LineSeries<SalesData, String>(
@@ -249,10 +255,10 @@ Widget build(BuildContext context) {
 
 **Note**
 
-Use `SfSparkAreaChart`, `SfSparkColumnChart` and `SfSparkWinLossChart` widgets to render area, column and win-loss charts respectively.
+Use `SfSparkAreaChart`, `SfSparkBarChart` and `SfSparkWinLossChart` widgets to render area, bar and win-loss charts respectively.
 
 ### Bind spark charts data source
-Based on data and your requirement, initialize the series and bind the data to spark charts.
+Based on data and your requirement, initialize the series and bind the data to sparkline charts.
 
 ```dart
 @override
@@ -301,7 +307,7 @@ Widget build(BuildContext context) {
   );
 }
 ```
-![spark_chart_default_line](https://cdn.syncfusion.com/content/images/FTControl/spark_chart_marker_data_label.jpg)
+![sparkline_chart_default_line](https://cdn.syncfusion.com/content/images/FTControl/spark_chart_marker_data_label.jpg)
 
 ## Support and Feedback
 

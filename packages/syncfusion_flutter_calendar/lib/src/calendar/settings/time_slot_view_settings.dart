@@ -1,10 +1,5 @@
-part of calendar;
-
-/// All day appointment views default height
-const double _kAllDayLayoutHeight = 60;
-
-/// All day appointment height
-const double _kAllDayAppointmentHeight = 20;
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 /// The settings have properties which allow to customize the time slot views
 /// of the [SfCalendar].
@@ -37,7 +32,7 @@ const double _kAllDayAppointmentHeight = 20;
 ///  }
 /// ```
 @immutable
-class TimeSlotViewSettings {
+class TimeSlotViewSettings with Diagnosticable {
   /// Creates a timeslot view settings for calendar.
   ///
   /// The properties allows to customize the timeslot views of [SfCalendar].
@@ -347,7 +342,7 @@ class TimeSlotViewSettings {
   ///    );
   ///  }
   /// ```
-  final Duration minimumAppointmentDuration;
+  final Duration? minimumAppointmentDuration;
 
   /// Formats the date text in the view header view of [SfCalendar] time slot
   /// views.
@@ -473,7 +468,7 @@ class TimeSlotViewSettings {
   ///    );
   ///  }
   /// ```
-  final TextStyle timeTextStyle;
+  final TextStyle? timeTextStyle;
 
   @override
   bool operator ==(dynamic other) {
@@ -501,11 +496,32 @@ class TimeSlotViewSettings {
   }
 
   @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+        .add(DiagnosticsProperty<TextStyle>('timeTextStyle', timeTextStyle));
+    properties.add(DoubleProperty('startHour', startHour));
+    properties.add(DoubleProperty('endHour', endHour));
+    properties.add(IterableProperty<int>('nonWorkingDays', nonWorkingDays));
+    properties.add(DiagnosticsProperty<Duration>('timeInterval', timeInterval));
+    properties.add(DoubleProperty('timeIntervalHeight', timeIntervalHeight));
+    properties.add(DoubleProperty('timeIntervalWidth', timeIntervalWidth));
+    properties.add(
+        DoubleProperty('timelineAppointmentHeight', timelineAppointmentHeight));
+    properties.add(DiagnosticsProperty<Duration>(
+        'minimumAppointmentDuration', minimumAppointmentDuration));
+    properties.add(DoubleProperty('timeRulerSize', timeRulerSize));
+    properties.add(StringProperty('timeFormat', timeFormat));
+    properties.add(StringProperty('dateFormat', dateFormat));
+    properties.add(StringProperty('dayFormat', dayFormat));
+  }
+
+  @override
   int get hashCode {
     return hashValues(
         startHour,
         endHour,
-        nonWorkingDays,
+        hashList(nonWorkingDays),
         timeInterval,
         timeIntervalHeight,
         timeIntervalWidth,

@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "Tanlangan sana yo'q", 
 "noEventsCalendarLabel" : "Hech qanday tadbir yo'q", 
-"scheduleViewNewEventLabel" : "Hech narsa rejalashtirilmagan. Yaratish uchun bosing.", 
 "ofDataPagerLabel" : "ning", 
 "pagesDataPagerLabel" : "sahifalar", 
 "itemsDataPagerLabel" : "buyumlar", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "Ram.", 
 "shortShawwalLabel" : "Shou.", 
 "shortDhualqiLabel" : "Zul-Q", 
-"shortDhualhiLabel" : "Zulh"
+"shortDhualhiLabel" : "Zulh", 
+"daySpanCountLabel" : "Kun"
 }

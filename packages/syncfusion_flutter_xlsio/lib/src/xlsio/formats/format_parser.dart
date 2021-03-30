@@ -38,7 +38,7 @@ class _FormatParser {
   /// Parses format string.
   /// </summary>
   // ignore: unused_element
-  _FormatSectionCollection _parse(Workbook workbook, String strFormat) {
+  _FormatSectionCollection _parse(Workbook workbook, String? strFormat) {
     if (strFormat == null) throw ('strFormat - string cannot be null');
     strFormat = _numberFormatRegex.hasMatch(strFormat)
         ? strFormat.replaceAll(RegExp(r'strFormat'), '')
@@ -68,8 +68,6 @@ class _FormatParser {
   }
 
   void _clear() {
-    if (_arrFormatTokens != null) _arrFormatTokens.clear();
-
-    _arrFormatTokens = null;
+    _arrFormatTokens.clear();
   }
 }

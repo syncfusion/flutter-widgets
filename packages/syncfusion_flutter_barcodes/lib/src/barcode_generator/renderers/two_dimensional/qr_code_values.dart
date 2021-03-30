@@ -11,13 +11,13 @@ class ModuleValue {
   }
 
   /// Specifies whether the the dot is black
-  bool isBlack;
+  late bool isBlack;
 
   /// Specifies whether the the dot is already filled
-  bool isFilled;
+  late bool isFilled;
 
   /// Specifies whether the the dot is PDP
-  bool isPDP;
+  late bool isPDP;
 }
 
 /// Represents the QR Code value
@@ -32,10 +32,10 @@ class QRCodeValue {
   }
 
   /// Specifies the code version
-  final QRCodeVersion qrCodeVersion;
+  final QRCodeVersion? qrCodeVersion;
 
   /// Specifies the error correction level
-  final ErrorCorrectionLevel errorCorrectionLevel;
+  final ErrorCorrectionLevel? errorCorrectionLevel;
 
   /// Specifies the nuber of error correction code words
   static const List<int> _noOfErrorCorrectionCodeWords = <int>[
@@ -808,27 +808,27 @@ class QRCodeValue {
   }
 
   /// Specifies the number of data code word
-  int noOfDataCodeWord;
+  late int noOfDataCodeWord;
 
   /// Specifies the number of error correction code word
-  int noOfErrorCorrectionCodeWord;
+  late int noOfErrorCorrectionCodeWord;
 
   /// Specifies the number of error correction blocks
-  List<int> noOfErrorCorrectionBlocks;
+  late List<int>? noOfErrorCorrectionBlocks;
 
   /// Specifies the format information
-  List<int> formatInformation;
+  late List<int>? formatInformation;
 
   /// Specifies the version information
-  List<int> versionInformation;
+  late List<int>? versionInformation;
 
   /// Returns the alpha numeric value based on provided QR Version
   ///
   /// This is deliberately a very large method. This method could not be
   /// refactor to a smaller methods, since it has single switch condition and
   /// returns the alpha numeric value based on provided QR Version
-  int getAlphaNumericValues(String value) {
-    int valueInInt = 0;
+  int? getAlphaNumericValues(String value) {
+    int? valueInInt = 0;
     switch (value) {
       case '0':
         valueInInt = 0;
@@ -1103,6 +1103,8 @@ class QRCodeValue {
         break;
       case QRCodeVersion.auto:
         break;
+      default:
+        break;
     }
 
     return countOfDataCodeWord;
@@ -1123,6 +1125,8 @@ class QRCodeValue {
         break;
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 9;
+        break;
+      default:
         break;
     }
 
@@ -1145,6 +1149,8 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 16;
         break;
+      default:
+        break;
     }
 
     return countOfDataCodeWord;
@@ -1165,6 +1171,8 @@ class QRCodeValue {
         break;
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 26;
+        break;
+      default:
         break;
     }
 
@@ -1187,6 +1195,8 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 36;
         break;
+      default:
+        break;
     }
 
     return countOfDataCodeWord;
@@ -1207,6 +1217,8 @@ class QRCodeValue {
         break;
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 46;
+        break;
+      default:
         break;
     }
 
@@ -1229,6 +1241,8 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 60;
         break;
+      default:
+        break;
     }
 
     return countOfDataCodeWord;
@@ -1249,6 +1263,8 @@ class QRCodeValue {
         break;
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 66;
+        break;
+      default:
         break;
     }
 
@@ -1271,6 +1287,8 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 86;
         break;
+      default:
+        break;
     }
 
     return countOfDataCodeWord;
@@ -1291,6 +1309,8 @@ class QRCodeValue {
         break;
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 100;
+        break;
+      default:
         break;
     }
 
@@ -1313,6 +1333,8 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 122;
         break;
+      default:
+        break;
     }
 
     return countOfDataCodeWord;
@@ -1333,6 +1355,8 @@ class QRCodeValue {
         break;
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 140;
+        break;
+      default:
         break;
     }
 
@@ -1355,6 +1379,8 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 158;
         break;
+      default:
+        break;
     }
 
     return countOfDataCodeWord;
@@ -1375,6 +1401,8 @@ class QRCodeValue {
         break;
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 180;
+        break;
+      default:
         break;
     }
 
@@ -1397,6 +1425,8 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 197;
         break;
+      default:
+        break;
     }
 
     return countOfDataCodeWord;
@@ -1417,6 +1447,8 @@ class QRCodeValue {
         break;
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 223;
+        break;
+      default:
         break;
     }
 
@@ -1439,6 +1471,8 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 253;
         break;
+      default:
+        break;
     }
 
     return countOfDataCodeWord;
@@ -1459,6 +1493,8 @@ class QRCodeValue {
         break;
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 283;
+        break;
+      default:
         break;
     }
 
@@ -1481,6 +1517,8 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 313;
         break;
+      default:
+        break;
     }
 
     return countOfDataCodeWord;
@@ -1501,6 +1539,8 @@ class QRCodeValue {
         break;
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 341;
+        break;
+      default:
         break;
     }
 
@@ -1523,6 +1563,8 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 385;
         break;
+      default:
+        break;
     }
 
     return countOfDataCodeWord;
@@ -1543,6 +1585,8 @@ class QRCodeValue {
         break;
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 406;
+        break;
+      default:
         break;
     }
 
@@ -1565,6 +1609,8 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 442;
         break;
+      default:
+        break;
     }
 
     return countOfDataCodeWord;
@@ -1585,6 +1631,8 @@ class QRCodeValue {
         break;
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 464;
+        break;
+      default:
         break;
     }
 
@@ -1607,6 +1655,8 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 514;
         break;
+      default:
+        break;
     }
 
     return countOfDataCodeWord;
@@ -1627,6 +1677,8 @@ class QRCodeValue {
         break;
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 538;
+        break;
+      default:
         break;
     }
 
@@ -1649,6 +1701,8 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 596;
         break;
+      default:
+        break;
     }
 
     return countOfDataCodeWord;
@@ -1669,6 +1723,8 @@ class QRCodeValue {
         break;
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 628;
+        break;
+      default:
         break;
     }
 
@@ -1691,6 +1747,8 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 661;
         break;
+      default:
+        break;
     }
 
     return countOfDataCodeWord;
@@ -1711,6 +1769,8 @@ class QRCodeValue {
         break;
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 701;
+        break;
+      default:
         break;
     }
 
@@ -1733,6 +1793,8 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 745;
         break;
+      default:
+        break;
     }
 
     return countOfDataCodeWord;
@@ -1753,6 +1815,8 @@ class QRCodeValue {
         break;
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 793;
+        break;
+      default:
         break;
     }
 
@@ -1775,6 +1839,8 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 845;
         break;
+      default:
+        break;
     }
 
     return countOfDataCodeWord;
@@ -1795,6 +1861,8 @@ class QRCodeValue {
         break;
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 901;
+        break;
+      default:
         break;
     }
 
@@ -1817,6 +1885,8 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 961;
         break;
+      default:
+        break;
     }
 
     return countOfDataCodeWord;
@@ -1837,6 +1907,8 @@ class QRCodeValue {
         break;
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 986;
+        break;
+      default:
         break;
     }
 
@@ -1859,6 +1931,8 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 1054;
         break;
+      default:
+        break;
     }
 
     return countOfDataCodeWord;
@@ -1879,6 +1953,8 @@ class QRCodeValue {
         break;
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 1096;
+        break;
+      default:
         break;
     }
 
@@ -1901,6 +1977,8 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 1142;
         break;
+      default:
+        break;
     }
 
     return countOfDataCodeWord;
@@ -1921,6 +1999,8 @@ class QRCodeValue {
         break;
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 1222;
+        break;
+      default:
         break;
     }
 
@@ -1943,6 +2023,8 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         countOfDataCodeWord = 1276;
         break;
+      default:
+        break;
     }
 
     return countOfDataCodeWord;
@@ -1950,7 +2032,7 @@ class QRCodeValue {
 
   /// Calculates the number of error corrcetion code words
   int _getNumberOfErrorCorrectionCodeWords() {
-    int index = (getVersionNumber(qrCodeVersion) - 1) * 4;
+    int index = (getVersionNumber(qrCodeVersion!) - 1) * 4;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         index += 0;
@@ -1964,6 +2046,8 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         index += 3;
         break;
+      default:
+        break;
     }
 
     return _noOfErrorCorrectionCodeWords[index];
@@ -1974,9 +2058,9 @@ class QRCodeValue {
   /// This is deliberately a very large method. This method could not be
   /// refactored to a smaller methods, since it has single switch condition and
   /// returns the error correction blocks based om the QR code version
-  List<int> _getNumberOfErrorCorrectionBlocks() {
-    List<int> numberOfErrorCorrectionBlocks;
-    final int version = getVersionNumber(qrCodeVersion);
+  List<int>? _getNumberOfErrorCorrectionBlocks() {
+    List<int>? numberOfErrorCorrectionBlocks;
+    final int version = getVersionNumber(qrCodeVersion!);
     switch (version) {
       case 1:
       case 2:
@@ -2102,8 +2186,8 @@ class QRCodeValue {
   }
 
   /// Specifies the error correction blocks for version 3
-  List<int> _getErrorCorrectionBlocksForVersion3() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion3() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
       case ErrorCorrectionLevel.medium:
@@ -2113,14 +2197,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[2];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   /// Specifies the error correction blocks for version 4
-  List<int> _getErrorCorrectionBlocksForVersion4() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion4() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[1];
@@ -2132,14 +2218,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[4];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   /// Specifies the error correction blocks for version 5
-  List<int> _getErrorCorrectionBlocksForVersion5() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion5() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[1];
@@ -2153,14 +2241,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[2, 33, 11, 2, 34, 12];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   /// Specifies the error correction blocks for version 6
-  List<int> _getErrorCorrectionBlocksForVersion6() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion6() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[2];
@@ -2170,14 +2260,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[4];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   /// Specifies the error correction blocks for version 7
-  List<int> _getErrorCorrectionBlocksForVersion7() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion7() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[2];
@@ -2191,14 +2283,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[4, 39, 13, 1, 40, 14];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   /// Specifies the error correction blocks for version 8
-  List<int> _getErrorCorrectionBlocksForVersion8() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion8() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[2];
@@ -2212,14 +2306,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[4, 40, 14, 2, 41, 15];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   /// Specifies the error correction blocks for version 9
-  List<int> _getErrorCorrectionBlocksForVersion9() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion9() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[2];
@@ -2233,14 +2329,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[4, 36, 12, 4, 37, 13];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   /// Specifies the error correction blocks for version 10
-  List<int> _getErrorCorrectionBlocksForVersion10() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion10() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[2, 86, 68, 2, 87, 69];
@@ -2254,14 +2352,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[6, 43, 15, 2, 44, 16];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   /// Specifies the error correction blocks for version11
-  List<int> _getErrorCorrectionBlocksForVersion11() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion11() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[4];
@@ -2275,14 +2375,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[3, 36, 12, 8, 37, 13];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   /// Specifies the error correction blocks for version 12
-  List<int> _getErrorCorrectionBlocksForVersion12() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion12() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[2, 116, 92, 2, 117, 93];
@@ -2296,14 +2398,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[7, 42, 14, 4, 43, 15];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   /// Specifies the error correction blocks for version 13
-  List<int> _getErrorCorrectionBlocksForVersion13() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion13() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[4];
@@ -2317,14 +2421,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[12, 33, 11, 4, 34, 12];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   /// Specifies the error correction blocks for version 14
-  List<int> _getErrorCorrectionBlocksForVersion14() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion14() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[3, 145, 115, 1, 146, 116];
@@ -2338,14 +2444,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[11, 36, 12, 5, 37, 13];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   /// Specifies the error correction blocks for version 15
-  List<int> _getErrorCorrectionBlocksForVersion15() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion15() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[5, 109, 87, 1, 110, 88];
@@ -2359,14 +2467,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[11, 36, 12, 7, 37, 13];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   /// Specifies the error correction blocks for version 16
-  List<int> _getErrorCorrectionBlocksForVersion16() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion16() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[5, 112, 98, 1, 123, 99];
@@ -2380,14 +2490,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[3, 45, 15, 13, 46, 16];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   /// Specifies the error correction blocks for version 17
-  List<int> _getErrorCorrectionBlocksForVersion17() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion17() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[1, 135, 107, 5, 136, 108];
@@ -2401,14 +2513,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[2, 42, 14, 17, 43, 15];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   /// Specifies the error correction blocks for version 18
-  List<int> _getErrorCorrectionBlocksForVersion18() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion18() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[5, 150, 120, 1, 151, 121];
@@ -2422,14 +2536,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[2, 42, 14, 19, 43, 15];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   /// Specifies the error correction blocks for version 19
-  List<int> _getErrorCorrectionBlocksForVersion19() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion19() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[3, 141, 113, 4, 142, 114];
@@ -2443,14 +2559,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[9, 39, 13, 16, 40, 14];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   /// Specifies the error correction blocks for version 20
-  List<int> _getErrorCorrectionBlocksForVersion20() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion20() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[3, 135, 107, 5, 136, 108];
@@ -2464,14 +2582,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[15, 43, 15, 10, 44, 16];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   ///Specifies the error correction blocks for version 21
-  List<int> _getErrorCorrectionBlocksForVersion21() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion21() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[4, 144, 116, 4, 145, 117];
@@ -2485,14 +2605,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[19, 46, 16, 6, 47, 17];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   ///Specifies the error correction blocks for version 22
-  List<int> _getErrorCorrectionBlocksForVersion22() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion22() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[2, 139, 111, 7, 140, 112];
@@ -2506,14 +2628,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[34];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   ///Specifies the error correction blocks for version 23
-  List<int> _getErrorCorrectionBlocksForVersion23() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion23() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[4, 151, 121, 5, 152, 122];
@@ -2527,14 +2651,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[16, 45, 15, 14, 46, 16];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   ///Specifies the error correction blocks for version 24
-  List<int> _getErrorCorrectionBlocksForVersion24() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion24() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[6, 147, 117, 4, 148, 118];
@@ -2548,14 +2674,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[30, 46, 16, 2, 47, 17];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   ///Specifies the error correction blocks for version 25
-  List<int> _getErrorCorrectionBlocksForVersion25() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion25() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[8, 132, 106, 4, 133, 107];
@@ -2569,14 +2697,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[22, 45, 15, 13, 46, 16];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   ///Specifies the error correction blocks for version 26
-  List<int> _getErrorCorrectionBlocksForVersion26() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion26() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[10, 142, 114, 2, 143, 115];
@@ -2590,14 +2720,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[33, 46, 16, 4, 47, 17];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   ///Specifies the error correction blocks for version 27
-  List<int> _getErrorCorrectionBlocksForVersion27() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion27() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[8, 152, 122, 4, 153, 123];
@@ -2611,14 +2743,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[12, 45, 15, 28, 46, 16];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   ///Specifies the error correction blocks for version 28
-  List<int> _getErrorCorrectionBlocksForVersion28() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion28() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[3, 147, 117, 10, 148, 118];
@@ -2632,14 +2766,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[11, 45, 15, 31, 46, 16];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   ///Specifies the error correction blocks for version 29
-  List<int> _getErrorCorrectionBlocksForVersion29() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion29() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[7, 146, 116, 7, 147, 117];
@@ -2653,14 +2789,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[19, 45, 15, 26, 46, 16];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   ///Specifies the error correction blocks for version 30
-  List<int> _getErrorCorrectionBlocksForVersion30() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion30() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[5, 145, 115, 10, 146, 116];
@@ -2674,14 +2812,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[23, 45, 15, 25, 46, 16];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   ///Specifies the error correction blocks for version 31
-  List<int> _getErrorCorrectionBlocksForVersion31() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion31() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[13, 145, 115, 3, 146, 116];
@@ -2695,14 +2835,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[23, 45, 15, 28, 46, 16];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   ///Specifies the error correction blocks for version 32
-  List<int> _getErrorCorrectionBlocksForVersion32() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion32() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[17];
@@ -2716,14 +2858,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[19, 45, 15, 35, 46, 16];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   ///Specifies the error correction blocks for version 33
-  List<int> _getErrorCorrectionBlocksForVersion33() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion33() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[17, 145, 115, 1, 146, 116];
@@ -2737,14 +2881,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[11, 45, 15, 46, 46, 16];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   ///Specifies the error correction blocks for version 34
-  List<int> _getErrorCorrectionBlocksForVersion34() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion34() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[13, 145, 115, 6, 146, 116];
@@ -2758,14 +2904,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[59, 46, 16, 1, 47, 17];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   ///Specifies the error correction blocks for version 35
-  List<int> _getErrorCorrectionBlocksForVersion35() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion35() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[12, 151, 121, 7, 152, 122];
@@ -2779,14 +2927,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[22, 45, 15, 41, 46, 16];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   ///Specifies the error correction blocks for version 36
-  List<int> _getErrorCorrectionBlocksForVersion36() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion36() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[6, 151, 121, 14, 152, 122];
@@ -2800,14 +2950,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[2, 45, 15, 64, 46, 16];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   ///Specifies the error correction blocks for version 37
-  List<int> _getErrorCorrectionBlocksForVersion37() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion37() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[17, 152, 122, 4, 153, 123];
@@ -2821,14 +2973,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[24, 45, 15, 46, 46, 16];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   ///Specifies the error correction blocks for version 38
-  List<int> _getErrorCorrectionBlocksForVersion38() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion38() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[4, 152, 122, 18, 153, 123];
@@ -2842,14 +2996,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[42, 45, 15, 32, 46, 16];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   ///Specifies the error correction blocks for version 39
-  List<int> _getErrorCorrectionBlocksForVersion39() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion39() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[20, 147, 117, 4, 148, 118];
@@ -2863,14 +3019,16 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[10, 45, 15, 67, 46, 16];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
   }
 
   ///Specifies the error correction blocks for version 40
-  List<int> _getErrorCorrectionBlocksForVersion40() {
-    List<int> numberOfErrorCorrectionBlocks;
+  List<int>? _getErrorCorrectionBlocksForVersion40() {
+    List<int>? numberOfErrorCorrectionBlocks;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         numberOfErrorCorrectionBlocks = <int>[19, 148, 118, 6, 149, 119];
@@ -2884,6 +3042,8 @@ class QRCodeValue {
       case ErrorCorrectionLevel.high:
         numberOfErrorCorrectionBlocks = <int>[20, 45, 15, 61, 46, 16];
         break;
+      default:
+        break;
     }
 
     return numberOfErrorCorrectionBlocks;
@@ -2894,9 +3054,9 @@ class QRCodeValue {
   /// This is deliberately a very large method. This method could not be
   /// refactored to a smaller methods, since it has single switch condition and
   /// returns the version information
-  List<int> _obtainVersionInformation() {
-    List<int> versionInformation;
-    final int version = getVersionNumber(qrCodeVersion);
+  List<int>? _obtainVersionInformation() {
+    List<int>? versionInformation;
+    final int version = getVersionNumber(qrCodeVersion!);
     switch (version) {
       case 7:
         versionInformation = <int>[
@@ -3652,8 +3812,8 @@ class QRCodeValue {
   }
 
   /// Specifies the format information
-  List<int> _obtainFormatInformation() {
-    List<int> formatInformation;
+  List<int>? _obtainFormatInformation() {
+    List<int>? formatInformation;
     switch (errorCorrectionLevel) {
       case ErrorCorrectionLevel.low:
         formatInformation = <int>[1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1];
@@ -3666,6 +3826,8 @@ class QRCodeValue {
         break;
       case ErrorCorrectionLevel.high:
         formatInformation = <int>[0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0];
+        break;
+      default:
         break;
     }
 

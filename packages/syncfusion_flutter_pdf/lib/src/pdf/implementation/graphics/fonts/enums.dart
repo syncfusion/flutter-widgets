@@ -1,6 +1,17 @@
 part of pdf;
 
 /// Specifies style information applied to text.
+///
+/// ```dart
+/// //Create a new PDF document.
+/// PdfDocument document = PdfDocument()
+///   ..pages.add().graphics.drawString('Hello World!',
+///       PdfStandardFont(PdfFontFamily.helvetica, 12, style: PdfFontStyle.bold));
+/// //Save the document.
+/// List<int> bytes = document.save();
+/// //Close the document.
+/// document.dispose();
+/// ```
 enum PdfFontStyle {
   ///Represents Regular text
   regular,
@@ -19,6 +30,18 @@ enum PdfFontStyle {
 }
 
 /// Indicates type of standard PDF fonts.
+///
+/// ```dart
+/// //Create a new PDF document.
+/// PdfDocument document = PdfDocument()
+///   ..pages.add().graphics.drawString(
+///       'Hello world!', PdfStandardFont(PdfFontFamily.helvetica, 12),
+///       brush: PdfBrushes.black);
+/// //Save the document.
+/// List<int> bytes = document.save();
+/// //Close the document.
+/// document.dispose();
+/// ```
 enum PdfFontFamily {
   /// Represents the Helvetica font.
   helvetica,
@@ -37,6 +60,20 @@ enum PdfFontFamily {
 }
 
 /// Specifies the type of SubSuperscript.
+///
+/// ```dart
+/// //Create a new PDF document.
+/// PdfDocument document = PdfDocument()
+///   ..pages.add().graphics.drawString(
+///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
+///       format: PdfStringFormat(
+///           alignment: PdfTextAlignment.left,
+///           subSuperscript: PdfSubSuperscript.subscript));
+/// //Save the document.
+/// List<int> bytes = document.save();
+/// //Close the document.
+/// document.dispose();
+/// ```
 enum PdfSubSuperscript {
   /// Specifies no subscript or superscript.
   none,
@@ -49,6 +86,18 @@ enum PdfSubSuperscript {
 }
 
 /// Specifies the type of CJK font.
+///
+/// ```dart
+/// //Create a new PDF document.
+/// PdfDocument document = PdfDocument()
+///   ..pages.add().graphics.drawString(
+///       'こんにちは世界', PdfCjkStandardFont(PdfCjkFontFamily.heiseiMinchoW3, 20),
+///       brush: PdfBrushes.black);
+/// //Save the document.
+/// List<int> bytes = document.save();
+/// //Close the document.
+/// document.dispose();
+/// ```
 enum PdfCjkFontFamily {
   /// Represents the Hanyang Systems Gothic Medium font.
   hanyangSystemsGothicMedium,
@@ -73,6 +122,19 @@ enum PdfCjkFontFamily {
 }
 
 /// Specifies the types of text wrapping.
+///
+/// ```dart
+/// //Create a new PDF document.
+/// PdfDocument document = PdfDocument()
+///   ..pages.add().graphics.drawString(
+///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
+///       format: PdfStringFormat(
+///           alignment: PdfTextAlignment.left, wordWrap: PdfWordWrapType.word));
+/// //Save the document.
+/// List<int> bytes = document.save();
+/// //Close the document.
+/// document.dispose();
+/// ```
 enum PdfWordWrapType {
   /// Text wrapping between lines when formatting
   /// within a rectangle is disabled.

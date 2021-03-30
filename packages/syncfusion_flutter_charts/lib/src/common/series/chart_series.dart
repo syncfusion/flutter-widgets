@@ -18,7 +18,7 @@ class ChartSeries<T, D> {
       this.dataSource,
       this.pointColorMapper,
       this.sortFieldValueMapper,
-      this.enableTooltip,
+      bool? enableTooltip,
       this.emptyPointSettings,
       this.dataLabelSettings,
       this.animationDuration,
@@ -30,7 +30,8 @@ class ChartSeries<T, D> {
       this.legendIconType,
       this.opacity,
       this.sortingOrder,
-      this.isVisible});
+      this.isVisible})
+      : enableTooltip = enableTooltip ?? true;
 
   ///Data required for rendering the series. If no data source is specified, empty
   ///chart will be rendered without series.
@@ -62,7 +63,7 @@ class ChartSeries<T, D> {
   ///   final double y;
   ///}
   ///```
-  final List<T> dataSource;
+  final List<T>? dataSource;
 
   ///Field in the data source, which is considered as x-value.
   ///
@@ -93,7 +94,7 @@ class ChartSeries<T, D> {
   ///   final double y;
   ///}
   ///```
-  final ChartIndexedValueMapper<D> xValueMapper;
+  final ChartIndexedValueMapper<D>? xValueMapper;
 
   ///Field in the data source, which is considered as y-value.
   ///
@@ -124,7 +125,7 @@ class ChartSeries<T, D> {
   ///   final double y;
   ///}
   ///```
-  final ChartIndexedValueMapper<dynamic> yValueMapper;
+  final ChartIndexedValueMapper<dynamic>? yValueMapper;
 
   ///Field in the data source, which is considered as fill color for the data points.
   ///
@@ -156,7 +157,7 @@ class ChartSeries<T, D> {
   ///  final Color pointColorMapper;
   ///}
   ///```
-  final ChartIndexedValueMapper<Color> pointColorMapper;
+  final ChartIndexedValueMapper<Color>? pointColorMapper;
 
   ///Field in the data source, which is considered as text for the data points.
   ///
@@ -186,7 +187,7 @@ class ChartSeries<T, D> {
   ///   final int sales1;
   ///}
   ///```
-  final ChartIndexedValueMapper<String> dataLabelMapper;
+  final ChartIndexedValueMapper<String>? dataLabelMapper;
 
   ///Customizes the empty points, i.e. null data points in a series.
   ///
@@ -202,7 +203,7 @@ class ChartSeries<T, D> {
   ///        ));
   ///}
   ///```
-  final EmptyPointSettings emptyPointSettings;
+  final EmptyPointSettings? emptyPointSettings;
 
   ///Customizes the data labels in a series. Data label is a text, which displays
   ///the details about the data point.
@@ -219,7 +220,7 @@ class ChartSeries<T, D> {
   ///        ));
   ///}
   ///```
-  final DataLabelSettings dataLabelSettings;
+  final DataLabelSettings? dataLabelSettings;
 
   ///Name of the series. The name will be displayed in legend item by default.
   ///If name is not specified for the series, then the current series index with ‘series’
@@ -237,7 +238,7 @@ class ChartSeries<T, D> {
   ///        ));
   ///}
   ///```
-  final String name;
+  final String? name;
 
   ///Enables or disables the tooltip for this series. Tooltip will display more details
   ///about data points when tapping the data point region.
@@ -272,7 +273,7 @@ class ChartSeries<T, D> {
   ///        ));
   ///}
   ///```
-  final double animationDuration;
+  final double? animationDuration;
 
   ///Border color of the series.
   ///
@@ -292,7 +293,7 @@ class ChartSeries<T, D> {
   ///        ));
   ///}
   ///```
-  final Color borderColor;
+  final Color? borderColor;
 
   ///Border width of the series.
   ///
@@ -312,7 +313,7 @@ class ChartSeries<T, D> {
   ///        ));
   ///}
   ///```
-  final double borderWidth;
+  final double? borderWidth;
 
   ///Text to be displayed in legend. By default, the series name will be displayed
   ///in the legend. You can change this by setting values to this property.
@@ -331,7 +332,7 @@ class ChartSeries<T, D> {
   ///        ));
   ///}
   ///```
-  final String legendItemText;
+  final String? legendItemText;
 
   ///Shape of the legend icon. Any shape in the LegendIconType can be applied
   ///to this property. By default, icon will be rendered based on the type of the series.
@@ -352,7 +353,7 @@ class ChartSeries<T, D> {
   ///        ));
   ///}
   ///```
-  final LegendIconType legendIconType;
+  final LegendIconType? legendIconType;
 
   ///Customizes the data points or series on selection.
   ///
@@ -374,7 +375,7 @@ class ChartSeries<T, D> {
   ///}
   ///```
   // ignore: deprecated_member_use_from_same_package
-  final SelectionSettings selectionSettings;
+  final SelectionSettings? selectionSettings;
 
   ///Customizes the data points or series on selection.
   ///
@@ -395,7 +396,7 @@ class ChartSeries<T, D> {
   ///        ));
   ///}
   ///```
-  final SelectionBehavior selectionBehavior;
+  final SelectionBehavior? selectionBehavior;
 
   ///Opacity of the series. The value ranges from 0 to 1.
   ///
@@ -413,7 +414,7 @@ class ChartSeries<T, D> {
   ///        ));
   ///}
   ///```
-  final double opacity;
+  final double? opacity;
 
   ///Field in the data source, which is considered for sorting the data points.
   ///
@@ -445,7 +446,7 @@ class ChartSeries<T, D> {
   ///   final double y;
   ///}
   ///```
-  final ChartIndexedValueMapper<dynamic> sortFieldValueMapper;
+  final ChartIndexedValueMapper<dynamic>? sortFieldValueMapper;
 
   ///The data points in the series can be sorted in ascending or descending order.
   ///The data points will be rendered in the specified order if it is set to none.
@@ -466,7 +467,7 @@ class ChartSeries<T, D> {
   ///        ));
   ///}
   ///```
-  final SortingOrder sortingOrder;
+  final SortingOrder? sortingOrder;
 
   ///Visibility of the series
   ///
@@ -486,7 +487,7 @@ class ChartSeries<T, D> {
   ///        ));
   ///}
   ///```
-  final bool isVisible;
+  final bool? isVisible;
 }
 
 /// This class Provides method to calculate the Empty Point value.

@@ -4,7 +4,7 @@ import 'code39_renderer.dart';
 /// Represents code39 extended renderer class
 class Code39ExtendedRenderer extends Code39Renderer {
   /// Creates the code39 extended class
-  Code39ExtendedRenderer({Symbology symbology}) : super(symbology: symbology) {
+  Code39ExtendedRenderer({Symbology? symbology}) : super(symbology: symbology) {
     _code39ExtendedMap = <String, String>{
       '0': '%U',
       '1': '\$A',
@@ -138,7 +138,7 @@ class Code39ExtendedRenderer extends Code39Renderer {
   }
 
   /// Map to stores the input character and its index
-  Map<String, String> _code39ExtendedMap;
+  late Map<String, String> _code39ExtendedMap;
 
   /// To validate the provided input value
   @override

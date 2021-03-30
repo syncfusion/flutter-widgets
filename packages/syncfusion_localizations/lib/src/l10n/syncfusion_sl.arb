@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "Ni izbranega datuma", 
 "noEventsCalendarLabel" : "Ni dogodkov", 
-"scheduleViewNewEventLabel" : "Nič načrtovanega. Dotaknite se, če želite ustvariti.", 
 "ofDataPagerLabel" : "od", 
 "pagesDataPagerLabel" : "strani", 
 "itemsDataPagerLabel" : "predmetov", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "Oven.", 
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
-"shortDhualhiLabel" : "Dhu'l-H"
+"shortDhualhiLabel" : "Dhu'l-H", 
+"daySpanCountLabel" : "Dan"
 }

@@ -1,4 +1,4 @@
-# Syncfusion Localizations
+﻿# Syncfusion Localizations
 
 Syncfusion Localizations package contains localized text for 77 cultures for all the applicable Syncfusion Flutter Widgets. The supported languages are listed below: 
      
@@ -77,9 +77,7 @@ Syncfusion Localizations package contains localized text for 77 cultures for all
 *	zh - Chinese (+ 2 country variations)
 *	zu - Zulu
 
-**Disclaimer:** This is a commercial package. To use this package, you need to have either Syncfusion Commercial License or Syncfusion Community license. For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
-
-**Note:** Our packages are now compatible with Flutter for Web. However, this will be in Beta until Flutter for Web becomes stable.
+**Disclaimer:** This is a commercial package. To use this package, you need to have either Syncfusion Commercial License or [Free Syncfusion Community license](https://www.syncfusion.com/products/communitylicense). For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
 
 ## Table of contents
 - [Get the demo application](#get-the-demo-application)

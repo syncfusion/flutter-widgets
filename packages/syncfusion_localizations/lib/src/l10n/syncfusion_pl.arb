@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "Brak wybranej daty", 
 "noEventsCalendarLabel" : "Brak wydarzeń", 
-"scheduleViewNewEventLabel" : "Nic nie zostało zaplanowane. Dotknij, aby utworzyć.", 
 "ofDataPagerLabel" : "z", 
 "pagesDataPagerLabel" : "stron", 
 "itemsDataPagerLabel" : "przedmiotów", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "Baran.", 
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
-"shortDhualhiLabel" : "Dhu'l-H"
+"shortDhualhiLabel" : "Dhu'l-H", 
+"daySpanCountLabel" : "Dzień"
 }

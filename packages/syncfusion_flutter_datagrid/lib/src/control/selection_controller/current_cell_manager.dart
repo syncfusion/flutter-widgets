@@ -1,11 +1,11 @@
 part of datagrid;
 
 class _CurrentCellManager {
-  _CurrentCellManager(_DataGridStateDetails dataGridStateDetails) {
+  _CurrentCellManager({required _DataGridStateDetails dataGridStateDetails}) {
     _dataGridStateDetails = dataGridStateDetails;
   }
 
-  _DataGridStateDetails _dataGridStateDetails;
+  late _DataGridStateDetails _dataGridStateDetails;
 
   int rowIndex = -1;
 
@@ -13,6 +13,9 @@ class _CurrentCellManager {
 
   bool _handlePointerOperation(
       _DataGridSettings dataGridSettings, RowColumnIndex rowColumnIndex) {
+    if (dataGridSettings.allowSwiping) {
+      dataGridSettings.container.resetSwipeOffset();
+    }
     final previousRowColumnIndex = RowColumnIndex(rowIndex, columnIndex);
     if (rowColumnIndex != previousRowColumnIndex &&
         dataGridSettings.navigationMode != GridNavigationMode.row) {
@@ -52,7 +55,7 @@ class _CurrentCellManager {
       }
     }
 
-    dataGridSettings.controller?._currentCell =
+    dataGridSettings.controller._currentCell =
         _GridIndexResolver.resolveToRowColumnIndex(
             dataGridSettings, RowColumnIndex(rowIndex, columnIndex));
   }
@@ -73,27 +76,25 @@ class _CurrentCellManager {
     }
 
     _updateCurrentRowColumnIndex(-1, -1);
-    dataGridSettings.controller?._currentCell = RowColumnIndex(-1, -1);
+    dataGridSettings.controller._currentCell = RowColumnIndex(-1, -1);
   }
 
-  DataRowBase _getDataRow(_DataGridSettings dataGridSettings, int rowIndex) {
+  DataRowBase? _getDataRow(_DataGridSettings dataGridSettings, int rowIndex) {
     final dataRows = dataGridSettings.rowGenerator.items;
     if (dataRows.isEmpty) {
       return null;
     }
 
-    return dataRows.firstWhere((row) => row.rowIndex == rowIndex,
-        orElse: () => null);
+    return dataRows.firstWhereOrNull((row) => row.rowIndex == rowIndex);
   }
 
-  DataCellBase _getDataCell(DataRowBase dataRow, int columnIndex) {
+  DataCellBase? _getDataCell(DataRowBase dataRow, int columnIndex) {
     if (dataRow._visibleColumns.isEmpty) {
       return null;
     }
 
-    return dataRow._visibleColumns.firstWhere(
-        (dataCell) => dataCell.columnIndex == columnIndex,
-        orElse: () => null);
+    return dataRow._visibleColumns
+        .firstWhereOrNull((dataCell) => dataCell.columnIndex == columnIndex);
   }
 
   void _updateCurrentRowColumnIndex(int rowIndex, int columnIndex) {
@@ -102,7 +103,7 @@ class _CurrentCellManager {
   }
 
   void _setCurrentCellDirty(
-      DataRowBase dataRow, DataCellBase dataCell, bool enableCurrentCell) {
+      DataRowBase? dataRow, DataCellBase? dataCell, bool enableCurrentCell) {
     dataCell?.isCurrentCell = enableCurrentCell;
     dataCell?._isDirty = true;
     dataRow?.isCurrentRow = enableCurrentCell;
@@ -119,9 +120,8 @@ class _CurrentCellManager {
         dataGridSettings, rowColumnIndex);
     final oldRowColumnIndex = _GridIndexResolver.resolveToRowColumnIndex(
         dataGridSettings, RowColumnIndex(rowIndex, columnIndex));
-    return dataGridSettings.onCurrentCellActivating(
-            newRowColumnIndex, oldRowColumnIndex) ??
-        true;
+    return dataGridSettings.onCurrentCellActivating!(
+        newRowColumnIndex, oldRowColumnIndex);
   }
 
   void _raiseCurrentCellActivated(RowColumnIndex previousRowColumnIndex) {
@@ -134,7 +134,7 @@ class _CurrentCellManager {
         dataGridSettings, RowColumnIndex(rowIndex, columnIndex));
     final oldRowColumnIndex = _GridIndexResolver.resolveToRowColumnIndex(
         dataGridSettings, previousRowColumnIndex);
-    dataGridSettings.onCurrentCellActivated(
+    dataGridSettings.onCurrentCellActivated!(
         newRowColumnIndex, oldRowColumnIndex);
   }
 
@@ -223,8 +223,8 @@ class _CurrentCellManager {
   }
 
   void _updateBorderForMultipleSelection(_DataGridSettings dataGridSettings,
-      {RowColumnIndex previousRowColumnIndex,
-      RowColumnIndex nextRowColumnIndex}) {
+      {RowColumnIndex? previousRowColumnIndex,
+      RowColumnIndex? nextRowColumnIndex}) {
     if (dataGridSettings._isDesktop &&
         dataGridSettings.navigationMode == GridNavigationMode.row &&
         dataGridSettings.selectionMode == SelectionMode.multiple) {
@@ -234,25 +234,24 @@ class _CurrentCellManager {
             ?._isDirty = true;
       }
 
-      final firstVisibleColumnIndex =
-          _GridIndexResolver.resolveToStartColumnIndex(dataGridSettings);
-      _updateCurrentRowColumnIndex(nextRowColumnIndex?.rowIndex ?? rowIndex,
-          nextRowColumnIndex?.columnIndex ?? firstVisibleColumnIndex);
-      dataGridSettings.currentCell
-          ._getDataRow(
-              dataGridSettings, nextRowColumnIndex?.rowIndex ?? rowIndex)
-          ?._isDirty = true;
+      if (nextRowColumnIndex != null) {
+        final firstVisibleColumnIndex =
+            _GridIndexResolver.resolveToStartColumnIndex(dataGridSettings);
+        _updateCurrentRowColumnIndex(
+            nextRowColumnIndex.rowIndex >= 0
+                ? nextRowColumnIndex.rowIndex
+                : rowIndex,
+            nextRowColumnIndex.columnIndex >= 0
+                ? nextRowColumnIndex.columnIndex
+                : firstVisibleColumnIndex);
+        dataGridSettings.currentCell
+            ._getDataRow(
+                dataGridSettings,
+                nextRowColumnIndex.rowIndex >= 0
+                    ? nextRowColumnIndex.rowIndex
+                    : rowIndex)
+            ?._isDirty = true;
+      }
     }
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is _CurrentCellManager && runtimeType == other.runtimeType;
-
-  @override
-  int get hashCode {
-    final List<Object> _hashList = [this];
-    return hashList(_hashList);
   }
 }

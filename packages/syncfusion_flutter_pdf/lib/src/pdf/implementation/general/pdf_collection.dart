@@ -9,7 +9,7 @@ class PdfObjectCollection {
   }
 
   //Fields
-  List<Object> _list;
+  late List<Object> _list;
 
   //Properties
   /// Gets number of the elements in the collection.

@@ -11,12 +11,6 @@
       "type": "text"
   },
 
-  "scheduleViewNewEventLabel": "Nothing planned. Tap to create.",
-  "@scheduleViewNewEventLabel": {
-      "description": "Describes the display date in a calendar widget",
-      "type": "text"
-  },
-
   "ofDataPagerLabel": "of",
   "@ofDataPagerLabel": {
       "description": "Label that is displayed in the information panel of DataPager to represent the currently selected page in number of pages.",
@@ -284,6 +278,12 @@
   "shortDhualhiLabel": "Dhu'l-H",
   "@shortDhualhiLabel": {
       "description": "The header string for the twelfth month of hirji calendar.",
+      "type": "text"
+  },
+
+  "daySpanCountLabel": "Day",
+  "@daySpanCountLabel": {
+      "description": "A label that is shown on a spanned appointment. This label will be displayed on appointment views for all-day, month agenda view and schedule view.",
       "type": "text"
   }
 }

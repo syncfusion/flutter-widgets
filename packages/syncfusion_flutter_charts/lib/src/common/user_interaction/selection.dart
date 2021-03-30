@@ -9,15 +9,15 @@ part of charts;
 class SelectionSettings {
   /// Creating an argument constructor of SelectionSettings class.
   SelectionSettings(
-      {bool enable,
+      {bool? enable,
       this.selectedColor,
       this.selectedBorderColor,
       this.selectedBorderWidth,
       this.unselectedColor,
       this.unselectedBorderColor,
       this.unselectedBorderWidth,
-      double selectedOpacity,
-      double unselectedOpacity,
+      double? selectedOpacity,
+      double? unselectedOpacity,
       this.selectionController})
       : enable = enable ?? false,
         selectedOpacity = selectedOpacity ?? 1.0,
@@ -61,7 +61,7 @@ class SelectionSettings {
   ///        ));
   ///}
   ///```
-  final Color selectedColor;
+  final Color? selectedColor;
 
   ///Border color of the selected data points or series.
   ///```dart
@@ -78,7 +78,7 @@ class SelectionSettings {
   ///        ));
   ///}
   ///```
-  final Color selectedBorderColor;
+  final Color? selectedBorderColor;
 
   ///Border width of the selected data points or series.
   ///
@@ -97,7 +97,7 @@ class SelectionSettings {
   ///        ));
   ///}
   ///```
-  final double selectedBorderWidth;
+  final double? selectedBorderWidth;
 
   ///Color of the unselected data points or series.
   ///
@@ -115,7 +115,7 @@ class SelectionSettings {
   ///        ));
   ///}
   ///```
-  final Color unselectedColor;
+  final Color? unselectedColor;
 
   ///Border color of the unselected data points or series.
   ///
@@ -133,7 +133,7 @@ class SelectionSettings {
   ///        ));
   ///}
   ///```
-  final Color unselectedBorderColor;
+  final Color? unselectedBorderColor;
 
   ///Border width of the unselected data points or series.
   ///
@@ -151,7 +151,7 @@ class SelectionSettings {
   ///        ));
   ///}
   ///```
-  final double unselectedBorderWidth;
+  final double? unselectedBorderWidth;
 
   ///Opacity of the selected series or data point.
   ///
@@ -206,7 +206,7 @@ class SelectionSettings {
   ///        ));
   ///}
   ///```
-  final RangeController selectionController;
+  final RangeController? selectionController;
 
   dynamic _chartState;
 
@@ -263,9 +263,9 @@ class SelectionSettings {
         seriesRenderer._selectionBehaviorRenderer;
     final List<int> selectedPoints = <int>[];
     selectedItems =
-        selectionBehaviorRenderer._selectionRenderer.selectedSegments;
+        selectionBehaviorRenderer._selectionRenderer!.selectedSegments;
     for (int i = 0; i < selectedItems.length; i++) {
-      selectedPoints.add(selectedItems[i].currentSegmentIndex);
+      selectedPoints.add(selectedItems[i].currentSegmentIndex!);
     }
     return selectedPoints;
   }

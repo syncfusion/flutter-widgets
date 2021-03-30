@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "Walang napiling petsa", 
 "noEventsCalendarLabel" : "Walang mga kaganapan", 
-"scheduleViewNewEventLabel" : "Walang plano. I-tap upang lumikha.", 
 "ofDataPagerLabel" : "ng", 
 "pagesDataPagerLabel" : "mga pahina", 
 "itemsDataPagerLabel" : "mga item", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "Ram.", 
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
-"shortDhualhiLabel" : "Dhu'l-H"
+"shortDhualhiLabel" : "Dhu'l-H", 
+"daySpanCountLabel" : "Araw"
 }

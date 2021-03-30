@@ -13,7 +13,7 @@ abstract class _EditableLineSizeHostBase extends _LineSizeHostBase {
   ///
   /// Returns the default size of lines.
   double get defaultLineSize => _defaultLineSize;
-  double _defaultLineSize = 0;
+  double _defaultLineSize = 0.0;
 
   /// Sets the default size of lines.
   set defaultLineSize(double value) {
@@ -125,7 +125,7 @@ abstract class _EditableLineSizeHostBase extends _LineSizeHostBase {
   /// be obtained.
   ///
   /// Returns the `IEditableLineSizeHost` representing the nested lines.
-  _EditableLineSizeHostBase getNestedLines(int index);
+  _EditableLineSizeHostBase? getNestedLines(int index);
 
   /// Insert the given number of lines at the given index.
   ///
@@ -135,7 +135,7 @@ abstract class _EditableLineSizeHostBase extends _LineSizeHostBase {
   /// `RemoveLines` call when lines should be moved. When it is null,
   /// empty lines with default size are inserted.
   void insertLines(
-      int insertAtLine, int count, _EditableLineSizeHostBase moveLines);
+      int insertAtLine, int count, _EditableLineSizeHostBase? moveLines);
 
   /// Removes a number of lines at the given index.
   ///
@@ -144,7 +144,7 @@ abstract class _EditableLineSizeHostBase extends _LineSizeHostBase {
   /// * moveLines - _required_ - A container to save state for a subsequent
   /// `InsertLines` call when lines should be moved.
   void removeLines(
-      int removeAtLine, int count, _EditableLineSizeHostBase moveLines);
+      int removeAtLine, int count, _EditableLineSizeHostBase? moveLines);
 
   /// Sets the hidden state for the given range of lines.
   ///
@@ -181,7 +181,7 @@ abstract class _EditableLineSizeHostBase extends _LineSizeHostBase {
   double operator [](int index) => this[index];
 
   /// Sets the line size at the specified index.
-  void operator []=(int index, Object value) => this[index] = value;
+  void operator []=(int index, double value) => this[index] = value;
 }
 
 /// An object that implements the `PaddingDistance` property

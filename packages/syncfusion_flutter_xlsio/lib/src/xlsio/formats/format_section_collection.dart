@@ -2,6 +2,14 @@ part of xlsio;
 
 /// Class used for Section Collection.
 class _FormatSectionCollection {
+  /// Initializes a new instance of the FormatSectionCollection class.
+  _FormatSectionCollection(Workbook workbook,
+      [List<_FormatTokenBase>? arrTokens]) {
+    _workbook = workbook;
+    _innerList = [];
+    if (arrTokens != null) _parse(arrTokens);
+  }
+
   /// Index of section with positive number format.
   static const int _defaultPostiveSection = 0;
 
@@ -15,11 +23,10 @@ class _FormatSectionCollection {
   static const int _defaultTextSection = 3;
 
   /// Represent the inner collection of format section.
-  List<_FormatSection> _innerList;
+  late List<_FormatSection?> _innerList;
 
   // Indexer of the class
-  // ignore: public_member_api_docs
-  _FormatSection operator [](index) => _innerList[index];
+  _FormatSection? operator [](index) => _innerList[index];
 
   // Returns the count of pivot reference collection.
   int get _count {
@@ -30,20 +37,11 @@ class _FormatSectionCollection {
   final _bConditionalFormat = false;
 
   /// Represents the workbook.
-  Workbook _workbook;
-
-  /// Initializes a new instance of the FormatSectionCollection class.
-  // ignore: sort_constructors_first
-  _FormatSectionCollection(Workbook workbook,
-      [List<_FormatTokenBase> arrTokens]) {
-    _workbook = workbook;
-    _innerList = [];
-    if (arrTokens != null) _parse(arrTokens);
-  }
+  late Workbook _workbook;
 
   /// Returns format type for a specified value.
   ExcelFormatType _getFormatTypeFromDouble(double value) {
-    final _FormatSection section = _getSection(value);
+    final _FormatSection? section = _getSection(value);
 
     if (section == null) {
       throw FormatException("Can't find required format section.");
@@ -53,7 +51,7 @@ class _FormatSectionCollection {
   }
 
   /// Splits array of tokens by SectionSeparator.
-  void _parse(List<_FormatTokenBase> arrTokens) {
+  void _parse(List<_FormatTokenBase>? arrTokens) {
     if (arrTokens == null) throw Exception('arrTokens should not be null');
 
     List<_FormatTokenBase> arrCurrentSection = [];
@@ -74,8 +72,8 @@ class _FormatSectionCollection {
   }
 
   /// Applies format to the value.
-  String _applyFormat(double value, bool bShowReservedSymbols, [Range cell]) {
-    final _FormatSection section = _getSection(value);
+  String _applyFormat(double value, bool bShowReservedSymbols) {
+    final _FormatSection? section = _getSection(value);
 
     if (section != null) {
       if (!_bConditionalFormat && value < 0 && _count > 1) value = -value;
@@ -85,20 +83,20 @@ class _FormatSectionCollection {
           return '';
         }
       }
-      return section._applyFormat(value, bShowReservedSymbols, cell);
+      return section._applyFormat(value, bShowReservedSymbols);
     }
 
     throw FormatException("Can't locate correct section.");
   }
 
   /// Returns section for formatting with specified index.
-  _FormatSection _getSectionFromIndex(int iSectionIndex) {
+  _FormatSection? _getSectionFromIndex(int iSectionIndex) {
     return this[iSectionIndex % _count];
   }
 
   /// Returns section that corresponds to the specified value.
-  _FormatSection _getSection(double value) {
-    _FormatSection result;
+  _FormatSection? _getSection(double value) {
+    _FormatSection? result;
 
     if (value > 0) {
       result = _getSectionFromIndex(_defaultPostiveSection);
@@ -112,7 +110,7 @@ class _FormatSectionCollection {
   }
 
   /// Searches for section that should be used for zero number formatting.
-  _FormatSection _getZeroSection() {
+  _FormatSection? _getZeroSection() {
     if (_bConditionalFormat) {
       throw Exception(
           'This method is not supported for number formats with conditions.');
@@ -120,7 +118,7 @@ class _FormatSectionCollection {
 
     final int iSectionsCount = _innerList.length;
     final int iLastSection = iSectionsCount - 1;
-    _FormatSection result;
+    _FormatSection? result;
 
     if (iLastSection < _defaultZeroSection) {
       result = this[_defaultPostiveSection];
@@ -134,7 +132,7 @@ class _FormatSectionCollection {
     final int count = _innerList.length;
 
     for (int i = 0; i < count; i++) {
-      _innerList[i]._clear();
+      _innerList[i]!._clear();
       _innerList[i] = null;
     }
   }

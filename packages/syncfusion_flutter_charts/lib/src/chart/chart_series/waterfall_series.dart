@@ -10,56 +10,49 @@ part of charts;
 class WaterfallSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of WaterfallSeries class.
   WaterfallSeries(
-      {ValueKey<String> key,
-      ChartSeriesRendererFactory<T, D> onCreateRenderer,
-      @required List<T> dataSource,
-      @required ChartValueMapper<T, D> xValueMapper,
-      @required ChartValueMapper<T, num> yValueMapper,
-      ChartValueMapper<T, bool> intermediateSumPredicate,
-      ChartValueMapper<T, bool> totalSumPredicate,
-      Color negativePointsColor,
-      Color intermediateSumColor,
-      Color totalSumColor,
-      ChartValueMapper<T, dynamic> sortFieldValueMapper,
-      ChartValueMapper<T, Color> pointColorMapper,
-      ChartValueMapper<T, String> dataLabelMapper,
-      SortingOrder sortingOrder,
-      WaterfallConnectorLineSettings connectorLineSettings,
-      String xAxisName,
-      String yAxisName,
-      String name,
-      Color color,
-      double width,
-      double spacing,
-      MarkerSettings markerSettings,
-      DataLabelSettings dataLabelSettings,
-      bool isVisible,
-      LinearGradient gradient,
-      LinearGradient borderGradient,
-      BorderRadius borderRadius,
-      bool enableTooltip,
-      double animationDuration,
-      Color borderColor,
-      List<Trendline> trendlines,
-      double borderWidth,
+      {ValueKey<String>? key,
+      ChartSeriesRendererFactory<T, D>? onCreateRenderer,
+      required List<T> dataSource,
+      required ChartValueMapper<T, D> xValueMapper,
+      required ChartValueMapper<T, num> yValueMapper,
+      ChartValueMapper<T, bool>? intermediateSumPredicate,
+      ChartValueMapper<T, bool>? totalSumPredicate,
+      this.negativePointsColor,
+      this.intermediateSumColor,
+      this.totalSumColor,
+      ChartValueMapper<T, dynamic>? sortFieldValueMapper,
+      ChartValueMapper<T, Color>? pointColorMapper,
+      ChartValueMapper<T, String>? dataLabelMapper,
+      SortingOrder? sortingOrder,
+      this.connectorLineSettings = const WaterfallConnectorLineSettings(),
+      String? xAxisName,
+      String? yAxisName,
+      String? name,
+      Color? color,
+      double? width,
+      this.spacing = 0,
+      MarkerSettings? markerSettings,
+      DataLabelSettings? dataLabelSettings,
+      bool? isVisible,
+      LinearGradient? gradient,
+      LinearGradient? borderGradient,
+      this.borderRadius = const BorderRadius.all(Radius.zero),
+      bool? enableTooltip,
+      double? animationDuration,
+      Color? borderColor,
+      List<Trendline>? trendlines,
+      double? borderWidth,
       // ignore: deprecated_member_use_from_same_package
-      SelectionSettings selectionSettings,
-      SelectionBehavior selectionBehavior,
-      bool isVisibleInLegend,
-      LegendIconType legendIconType,
-      String legendItemText,
-      double opacity,
-      List<double> dashArray,
-      SeriesRendererCreatedCallback onRendererCreated,
-      List<int> initialSelectedDataIndexes})
-      : spacing = spacing ?? 0,
-        negativePointsColor = negativePointsColor,
-        intermediateSumColor = intermediateSumColor,
-        totalSumColor = totalSumColor,
-        connectorLineSettings =
-            connectorLineSettings ?? WaterfallConnectorLineSettings(),
-        borderRadius = borderRadius ?? const BorderRadius.all(Radius.zero),
-        super(
+      SelectionSettings? selectionSettings,
+      SelectionBehavior? selectionBehavior,
+      bool? isVisibleInLegend,
+      LegendIconType? legendIconType,
+      String? legendItemText,
+      double? opacity,
+      List<double>? dashArray,
+      SeriesRendererCreatedCallback? onRendererCreated,
+      List<int>? initialSelectedDataIndexes})
+      : super(
             key: key,
             onCreateRenderer: onCreateRenderer,
             name: name,
@@ -116,7 +109,7 @@ class WaterfallSeries<T, D> extends XyDataSeries<T, D> {
   ///     );
   ///}
   ///```
-  final Color negativePointsColor;
+  final Color? negativePointsColor;
 
   ///Color of the intermediate sum points in the series.
   ///
@@ -138,7 +131,7 @@ class WaterfallSeries<T, D> extends XyDataSeries<T, D> {
   ///     );
   ///}
   ///```
-  final Color intermediateSumColor;
+  final Color? intermediateSumColor;
 
   ///Color of the total sum points in the series.
   ///
@@ -160,7 +153,7 @@ class WaterfallSeries<T, D> extends XyDataSeries<T, D> {
   ///     );
   ///}
   ///```
-  final Color totalSumColor;
+  final Color? totalSumColor;
 
   ///Options to customize the waterfall chart connector line.
   ///
@@ -236,7 +229,7 @@ class WaterfallSeries<T, D> extends XyDataSeries<T, D> {
   WaterfallSeriesRenderer createRenderer(ChartSeries<T, D> series) {
     WaterfallSeriesRenderer seriesRenderer;
     if (onCreateRenderer != null) {
-      seriesRenderer = onCreateRenderer(series);
+      seriesRenderer = onCreateRenderer!(series) as WaterfallSeriesRenderer;
       assert(seriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return seriesRenderer;
@@ -249,51 +242,52 @@ class WaterfallSeries<T, D> extends XyDataSeries<T, D> {
 class WaterfallSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of WaterfallSeriesRenderer class.
   WaterfallSeriesRenderer();
-  num _rectPosition;
-  num _rectCount;
+  late num _rectPosition;
+  late num _rectCount;
 
-  WaterfallSeries<dynamic, dynamic> _waterfallSeries;
+  late WaterfallSeries<dynamic, dynamic> _waterfallSeries;
 
   /// To add waterfall segments in segments list
   ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
-      int pointIndex, int seriesIndex, num animateFactor) {
+      int pointIndex, int seriesIndex, double animateFactor) {
     final WaterfallSegment segment = createSegment();
-    final List<CartesianSeriesRenderer> oldSeriesRenderers =
-        _chartState._oldSeriesRenderers;
-    _waterfallSeries = _series;
+    final List<CartesianSeriesRenderer>? oldSeriesRenderers =
+        _chartState!._oldSeriesRenderers;
+    _waterfallSeries = _series as WaterfallSeries;
     final BorderRadius borderRadius = _waterfallSeries.borderRadius;
     segment._seriesIndex = seriesIndex;
     segment.currentSegmentIndex = pointIndex;
     segment.points
-        .add(Offset(currentPoint.markerPoint.x, currentPoint.markerPoint.y));
+        .add(Offset(currentPoint.markerPoint!.x, currentPoint.markerPoint!.y));
     segment._seriesRenderer = this;
     segment._series = _waterfallSeries;
     segment._chart = _chart;
-    segment._chartState = _chartState;
+    segment._chartState = _chartState!;
     segment.animationFactor = animateFactor;
     segment._currentPoint = currentPoint;
-    if (_chartState._widgetNeedUpdate &&
-        _chartState._zoomPanBehaviorRenderer._isPinching != true &&
-        !_chartState._isLegendToggled &&
+    if (_chartState!._widgetNeedUpdate &&
+        _chartState!._zoomPanBehaviorRenderer._isPinching != true &&
+        !_chartState!._isLegendToggled &&
         oldSeriesRenderers != null &&
         oldSeriesRenderers.isNotEmpty &&
         oldSeriesRenderers.length - 1 >= segment._seriesIndex &&
         oldSeriesRenderers[segment._seriesIndex]._seriesName ==
             segment._seriesRenderer._seriesName) {
       segment._oldSeriesRenderer = oldSeriesRenderers[segment._seriesIndex];
-      segment._oldPoint = (segment._oldSeriesRenderer._segments.isNotEmpty &&
-              segment._oldSeriesRenderer._segments[0] is WaterfallSegment &&
-              segment._oldSeriesRenderer._dataPoints.length - 1 >= pointIndex)
-          ? segment._oldSeriesRenderer._dataPoints[pointIndex]
+      segment._oldPoint = (segment._oldSeriesRenderer!._segments.isNotEmpty &&
+              segment._oldSeriesRenderer!._segments[0] is WaterfallSegment &&
+              segment._oldSeriesRenderer!._dataPoints.length - 1 >= pointIndex)
+          ? segment._oldSeriesRenderer!._dataPoints[pointIndex]
           : null;
-    } else if (_chartState._isLegendToggled &&
-        _chartState._segments != null &&
-        _chartState._segments.isNotEmpty) {
+      segment._oldSegmentIndex = _getOldSegmentIndex(segment);
+    } else if (_chartState!._isLegendToggled &&
+        _chartState!._segments != null &&
+        _chartState!._segments.isNotEmpty) {
       segment._oldSeriesVisible =
-          _chartState._oldSeriesVisible[segment._seriesIndex];
+          _chartState!._oldSeriesVisible[segment._seriesIndex];
       WaterfallSegment oldSegment;
-      for (int i = 0; i < _chartState._segments.length; i++) {
-        oldSegment = _chartState._segments[i];
+      for (int i = 0; i < _chartState!._segments.length; i++) {
+        oldSegment = _chartState!._segments[i] as WaterfallSegment;
         if (oldSegment.currentSegmentIndex == segment.currentSegmentIndex &&
             oldSegment._seriesIndex == segment._seriesIndex) {
           segment._oldRegion = oldSegment.segmentRect.outerRect;
@@ -304,7 +298,7 @@ class WaterfallSeriesRenderer extends XyDataSeriesRenderer {
         currentPoint, _waterfallSeries.borderWidth);
     if (borderRadius != null) {
       segment.segmentRect =
-          _getRRectFromRect(currentPoint.region, borderRadius);
+          _getRRectFromRect(currentPoint.region!, borderRadius);
     }
     segment._segmentRect = segment.segmentRect;
     customizeSegment(segment);
@@ -316,22 +310,22 @@ class WaterfallSeriesRenderer extends XyDataSeriesRenderer {
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     if (segment._seriesRenderer._isSelectionEnable) {
-      final SelectionBehaviorRenderer selectionBehaviorRenderer =
+      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
           segment._seriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer._selectionRenderer._checkWithSelectionState(
-          _segments[segment.currentSegmentIndex], _chart);
+      selectionBehaviorRenderer?._selectionRenderer?._checkWithSelectionState(
+          _segments[segment.currentSegmentIndex!], _chart);
     }
     segment.onPaint(canvas);
   }
 
   /// Creates a segment for a data point in the series.
   @override
-  ChartSegment createSegment() => WaterfallSegment();
+  WaterfallSegment createSegment() => WaterfallSegment();
 
   /// Changes the series color, border color, and border width.
   @override
   void customizeSegment(ChartSegment segment) {
-    final WaterfallSegment waterfallSegment = segment;
+    final WaterfallSegment waterfallSegment = segment as WaterfallSegment;
     waterfallSegment._color = segment._seriesRenderer._seriesColor;
     waterfallSegment._negativePointsColor =
         _waterfallSeries.negativePointsColor;
@@ -350,9 +344,9 @@ class WaterfallSeriesRenderer extends XyDataSeriesRenderer {
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer seriesRenderer]) {
-    canvas.drawPath(seriesRenderer._markerShapes[index], fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes[index], strokePaint);
+      [CartesianSeriesRenderer? seriesRenderer]) {
+    canvas.drawPath(seriesRenderer!._markerShapes[index]!, fillPaint);
+    canvas.drawPath(seriesRenderer._markerShapes[index]!, strokePaint);
   }
 
   /// Draws data label text of the appropriate data point in a series.
@@ -372,10 +366,9 @@ class WaterfallSeriesRenderer extends XyDataSeriesRenderer {
 ///
 class WaterfallConnectorLineSettings extends ConnectorLineSettings {
   /// Creating an argument constructor of WaterfallConnectorLineSettings class.
-  WaterfallConnectorLineSettings(
-      {double width, Color color, List<double> dashArray})
-      : dashArray = dashArray ?? <double>[0, 0],
-        super(color: color, width: width ?? 1);
+  const WaterfallConnectorLineSettings(
+      {double? width, Color? color, this.dashArray = const <double>[0, 0]})
+      : super(color: color, width: width ?? 1);
 
   ///Dashes of the waterfall chart connector line.
   ///
@@ -396,5 +389,5 @@ class WaterfallConnectorLineSettings extends ConnectorLineSettings {
   ///        ));
   ///}
   ///```
-  final List<double> dashArray;
+  final List<double>? dashArray;
 }

@@ -1,19 +1,23 @@
-part of calendar;
+import 'package:flutter/foundation.dart';
+import 'package:syncfusion_flutter_core/core.dart';
+
+import 'calendar_view_helper.dart';
+import 'enums.dart';
 
 /// Signature for callback that reports that the [CalendarController] properties
 /// changed.
 typedef CalendarValueChangedCallback = void Function(String);
 
 /// Notifier used to notify the when the objects properties changed.
-class CalendarValueChangedNotifier {
-  List<CalendarValueChangedCallback> _listeners;
+class CalendarValueChangedNotifier with Diagnosticable {
+  List<CalendarValueChangedCallback>? _listeners;
 
   /// Calls the listener every time the controller's property changed.
   ///
   /// Listeners can be removed with [removePropertyChangedListener].
   void addPropertyChangedListener(CalendarValueChangedCallback listener) {
     _listeners ??= <CalendarValueChangedCallback>[];
-    _listeners.add(listener);
+    _listeners!.add(listener);
   }
 
   /// remove the listener used for notify the data source changes.
@@ -29,7 +33,7 @@ class CalendarValueChangedNotifier {
       return;
     }
 
-    _listeners.remove(listener);
+    _listeners!.remove(listener);
   }
 
   /// Call all the registered listeners.
@@ -49,10 +53,8 @@ class CalendarValueChangedNotifier {
       return;
     }
 
-    for (final CalendarValueChangedCallback listener in _listeners) {
-      if (listener != null) {
-        listener(property);
-      }
+    for (final CalendarValueChangedCallback listener in _listeners!) {
+      listener(property);
     }
   }
 
@@ -125,12 +127,12 @@ class CalendarValueChangedNotifier {
 ///}
 /// ```
 class CalendarController extends CalendarValueChangedNotifier {
-  DateTime _selectedDate;
-  DateTime _displayDate;
-  CalendarView _view;
+  DateTime? _selectedDate;
+  DateTime? _displayDate;
+  CalendarView? _view;
 
   /// The selected date in the [SfCalendar].
-  DateTime get selectedDate => _selectedDate;
+  DateTime? get selectedDate => _selectedDate;
 
   /// Selects the given date programmatically in the [SfCalendar] by
   /// checking that the date falls in between the minimum and maximum date range
@@ -163,8 +165,8 @@ class CalendarController extends CalendarValueChangedNotifier {
   ///  }
   ///}
   /// ```
-  set selectedDate(DateTime date) {
-    if (_isSameTimeSlot(_selectedDate, date)) {
+  set selectedDate(DateTime? date) {
+    if (CalendarViewHelper.isSameTimeSlot(_selectedDate, date)) {
       return;
     }
 
@@ -182,7 +184,7 @@ class CalendarController extends CalendarValueChangedNotifier {
   /// If the [view] set as [CalendarView.month] and the
   /// [MonthViewSettings.numberOfWeeksInView] property set with value greater
   /// than 4, this will return the first date of the current visible month.
-  DateTime get displayDate => _displayDate;
+  DateTime? get displayDate => _displayDate;
 
   /// Navigates to the given date programmatically without any animation in the
   /// [SfCalendar] by checking that the date falls in between the
@@ -216,8 +218,8 @@ class CalendarController extends CalendarValueChangedNotifier {
   ///  }
   ///}
   /// ```
-  set displayDate(DateTime date) {
-    if (isSameDate(_displayDate, date)) {
+  set displayDate(DateTime? date) {
+    if (date == null || isSameDate(_displayDate, date)) {
       return;
     }
 
@@ -226,7 +228,7 @@ class CalendarController extends CalendarValueChangedNotifier {
   }
 
   /// The displayed view of the [SfCalendar].
-  CalendarView get view => _view;
+  CalendarView? get view => _view;
 
   /// Change the calendar view programmatically in the [SfCalendar].
   ///
@@ -254,16 +256,14 @@ class CalendarController extends CalendarValueChangedNotifier {
   ///  }
   ///}
   /// ```
-  set view(CalendarView value) {
-    if (_view == value) {
+  set view(CalendarView? value) {
+    if (value == null || _view == value) {
       return;
     }
 
     _view = value;
     notifyPropertyChangedListeners('calendarView');
   }
-
-  VoidCallback _forward;
 
   /// Moves to the next view programmatically with animation by checking that
   /// the next view dates falls between the minimum and maximum date range.
@@ -313,15 +313,7 @@ class CalendarController extends CalendarValueChangedNotifier {
   ///  }
   ///}
   /// ```
-  void forward() {
-    if (_forward == null) {
-      return;
-    }
-
-    _forward();
-  }
-
-  VoidCallback _backward;
+  VoidCallback? forward;
 
   /// Moves to the previous view programmatically with animation by checking
   /// that the previous view dates falls between the minimum and maximum date
@@ -372,11 +364,13 @@ class CalendarController extends CalendarValueChangedNotifier {
   ///  }
   ///}
   /// ```
-  void backward() {
-    if (_backward == null) {
-      return;
-    }
+  VoidCallback? backward;
 
-    _backward();
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<DateTime>('selectedDate', selectedDate));
+    properties.add(DiagnosticsProperty<DateTime>('displayDate', displayDate));
+    properties.add(EnumProperty<CalendarView>('view', view));
   }
 }

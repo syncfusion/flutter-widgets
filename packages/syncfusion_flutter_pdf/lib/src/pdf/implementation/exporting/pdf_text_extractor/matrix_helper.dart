@@ -19,13 +19,13 @@ class _MatrixHelper {
       _MatrixHelper(1.0, 0.0, 0.0, 1.0, 0.0, 0.0);
 
   //Fields
-  double m11;
-  double m12;
-  double m21;
-  double m22;
-  double offsetX;
-  double offsetY;
-  _MatrixTypes type;
+  late double m11;
+  late double m12;
+  late double m21;
+  late double m22;
+  late double offsetX;
+  late double offsetY;
+  late _MatrixTypes type;
 
   //Implementation
   _MatrixHelper operator *(_MatrixHelper matrix) {
@@ -97,7 +97,7 @@ class _MatrixHelper {
     } else if (typeIndex == 4) {
       return _MatrixTypes.unknown;
     } else {
-      throw ArgumentError.value(typeIndex);
+      throw ArgumentError.value(typeIndex, 'typeIndex', 'Invalid Type');
     }
   }
 
@@ -105,22 +105,14 @@ class _MatrixHelper {
     switch (type) {
       case _MatrixTypes.identity:
         return 0;
-        break;
       case _MatrixTypes.translation:
         return 1;
-        break;
       case _MatrixTypes.scaling:
         return 2;
-        break;
       case _MatrixTypes.scalingAndTranslation:
         return 3;
-        break;
-      case _MatrixTypes.unknown:
-        return 4;
-        break;
       default:
-        throw ArgumentError.value(type);
-        break;
+        return 4;
     }
   }
 

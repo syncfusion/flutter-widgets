@@ -1,7 +1,7 @@
 part of xlsio;
 
 /// Represents cell xfs.
-class CellXfs extends CellStyleXfs {
+class _CellXfs extends _CellStyleXfs {
   /// Represents xf id.
-  int _xfId;
+  late int _xfId;
 }

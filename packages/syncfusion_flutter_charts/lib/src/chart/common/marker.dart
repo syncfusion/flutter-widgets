@@ -9,16 +9,17 @@ part of charts;
 ///
 class MarkerSettings {
   /// Creating an argument constructor of MarkerSettings class.
-  MarkerSettings(
-      {this.isVisible = false,
-      double height,
-      double width,
+  const MarkerSettings(
+      {bool? isVisible,
+      double? height = 8,
+      double? width = 8,
       this.color,
-      DataMarkerType shape,
-      double borderWidth,
+      DataMarkerType? shape,
+      double? borderWidth,
       this.borderColor,
       this.image})
-      : height = height ?? 8,
+      : isVisible = isVisible ?? false,
+        height = height ?? 8,
         width = width ?? 8,
         shape = shape ?? DataMarkerType.circle,
         borderWidth = borderWidth ?? 2;
@@ -96,7 +97,7 @@ class MarkerSettings {
   ///        ));
   ///}
   ///```
-  final Color color;
+  final Color? color;
 
   ///Shape of the marker.
   ///
@@ -138,7 +139,7 @@ class MarkerSettings {
   ///        ));
   ///}
   ///```
-  final Color borderColor;
+  final Color? borderColor;
 
   ///Border width of the marker.
   ///
@@ -178,7 +179,7 @@ class MarkerSettings {
   ///        ));
   ///}
   ///```
-  final ImageProvider image;
+  final ImageProvider? image;
 }
 
 /// Marker settings renderer class for mutable fields and methods
@@ -195,26 +196,27 @@ class MarkerSettingsRenderer {
   final MarkerSettings _markerSettings;
 
   // ignore: prefer_final_fields
-  Color _color;
+  Color? _color;
 
-  Color _borderColor;
+  Color? _borderColor;
 
-  double _borderWidth;
+  late double _borderWidth;
 
-  dart_ui.Image _image;
+  dart_ui.Image? _image;
 
   /// To paint the marker here
   void renderMarker(
       CartesianSeriesRenderer seriesRenderer,
       CartesianChartPoint<dynamic> point,
-      Animation<double> animationController,
+      Animation<double>? animationController,
       Canvas canvas,
       int markerIndex,
-      [int outlierIndex]) {
+      [int? outlierIndex]) {
     final bool isDataPointVisible = _isLabelWithinRange(
         seriesRenderer, seriesRenderer._dataPoints[markerIndex]);
     Paint strokePaint, fillPaint;
-    final XyDataSeries<dynamic, dynamic> series = seriesRenderer._series;
+    final XyDataSeries<dynamic, dynamic> series =
+        seriesRenderer._series as XyDataSeries;
     final Size size =
         Size(series.markerSettings.width, series.markerSettings.height);
     final DataMarkerType markerType = series.markerSettings.shape;
@@ -223,15 +225,15 @@ class MarkerSettingsRenderer {
     final bool isBoxSeries =
         seriesRenderer._seriesType.contains('boxandwhisker');
     final double opacity = (animationController != null &&
-            (seriesRenderer._chartState._initialRender ||
+            (seriesRenderer._chartState!._initialRender! ||
                 seriesRenderer._needAnimateSeriesElements))
         ? animationController.value
         : 1;
     point = seriesRenderer._dataPoints[markerIndex];
-    Color seriesColor = seriesRenderer._seriesColor;
+    Color? seriesColor = seriesRenderer._seriesColor;
     if (seriesRenderer._seriesType == 'waterfall') {
-      seriesColor =
-          _getWaterfallSeriesColor(seriesRenderer._series, point, seriesColor);
+      seriesColor = _getWaterfallSeriesColor(
+          seriesRenderer._series as WaterfallSeries, point, seriesColor);
     }
     _borderColor = series.markerSettings.borderColor ?? seriesColor;
     _color = series.markerSettings.color;
@@ -240,7 +242,7 @@ class MarkerSettingsRenderer {
       seriesRenderer._markerShapes.add(isDataPointVisible
           ? _getMarkerShapesPath(
               markerType,
-              Offset(point.markerPoint.x, point.markerPoint.y),
+              Offset(point.markerPoint!.x, point.markerPoint!.y),
               size,
               seriesRenderer,
               markerIndex,
@@ -251,7 +253,7 @@ class MarkerSettingsRenderer {
       seriesRenderer._markerShapes.add(isDataPointVisible
           ? _getMarkerShapesPath(
               markerType,
-              Offset(point.outliersPoint[outlierIndex].x,
+              Offset(point.outliersPoint[outlierIndex!].x,
                   point.outliersPoint[outlierIndex].y),
               size,
               seriesRenderer,
@@ -265,7 +267,7 @@ class MarkerSettingsRenderer {
       seriesRenderer._markerShapes2.add(isDataPointVisible
           ? _getMarkerShapesPath(
               markerType,
-              Offset(point.markerPoint2.x, point.markerPoint2.y),
+              Offset(point.markerPoint2!.x, point.markerPoint2!.y),
               size,
               seriesRenderer,
               markerIndex,
@@ -281,8 +283,8 @@ class MarkerSettingsRenderer {
           : (series.markerSettings.borderWidth == 0
               ? Colors.transparent
               : ((hasPointColor && point.pointColorMapper != null)
-                  ? point.pointColorMapper.withOpacity(opacity)
-                  : _borderColor.withOpacity(opacity)))
+                  ? point.pointColorMapper!.withOpacity(opacity)
+                  : _borderColor!.withOpacity(opacity)))
       ..style = PaintingStyle.stroke
       ..strokeWidth = point.isEmpty == true
           ? series.emptyPointSettings.borderWidth
@@ -290,23 +292,23 @@ class MarkerSettingsRenderer {
 
     if (series.gradient != null && series.markerSettings.borderColor == null) {
       strokePaint = _getLinearGradientPaint(
-          series.gradient,
+          series.gradient!,
           _getMarkerShapesPath(
                   markerType,
                   Offset(
                       isBoxSeries
-                          ? point.outliersPoint[outlierIndex].x
-                          : point.markerPoint.x,
+                          ? point.outliersPoint[outlierIndex!].x
+                          : point.markerPoint!.x,
                       isBoxSeries
-                          ? point.outliersPoint[outlierIndex].y
-                          : point.markerPoint.y),
+                          ? point.outliersPoint[outlierIndex!].y
+                          : point.markerPoint!.y),
                   size,
                   seriesRenderer,
                   null,
                   null,
                   animationController)
               .getBounds(),
-          seriesRenderer._chartState._requireInvertedAxis);
+          seriesRenderer._chartState!._requireInvertedAxis);
       strokePaint.style = PaintingStyle.stroke;
       strokePaint.strokeWidth = point.isEmpty == true
           ? series.emptyPointSettings.borderWidth
@@ -318,54 +320,54 @@ class MarkerSettingsRenderer {
           ? series.emptyPointSettings.color
           : _color != Colors.transparent
               ? (_color ??
-                      (seriesRenderer._chartState._chartTheme.brightness ==
+                      (seriesRenderer._chartState!._chartTheme.brightness ==
                               Brightness.light
                           ? Colors.white
                           : Colors.black))
                   .withOpacity(opacity)
-              : _color
+              : _color!
       ..style = PaintingStyle.fill;
     final bool isScatter = seriesRenderer._seriesType == 'scatter';
     final Rect axisClipRect =
-        seriesRenderer._chartState._chartAxis._axisClipRect;
+        seriesRenderer._chartState!._chartAxis._axisClipRect;
 
     /// Render marker points
     if ((series.markerSettings.isVisible || isScatter || isBoxSeries) &&
         point.isVisible &&
         _withInRect(seriesRenderer, point.markerPoint, axisClipRect) &&
         (point.markerPoint != null ||
-            point.outliersPoint[outlierIndex] != null) &&
+            point.outliersPoint[outlierIndex!] != null) &&
         point.isGap != true &&
         (!isScatter || series.markerSettings.shape == DataMarkerType.image) &&
         seriesRenderer
-                ._markerShapes[isBoxSeries ? outlierIndex : markerIndex] !=
+                ._markerShapes[isBoxSeries ? outlierIndex! : markerIndex] !=
             null) {
       seriesRenderer.drawDataMarker(
-          isBoxSeries ? outlierIndex : markerIndex,
+          isBoxSeries ? outlierIndex! : markerIndex,
           canvas,
           fillPaint,
           strokePaint,
           isBoxSeries
-              ? point.outliersPoint[outlierIndex].x
-              : point.markerPoint.x,
+              ? point.outliersPoint[outlierIndex!].x
+              : point.markerPoint!.x,
           isBoxSeries
-              ? point.outliersPoint[outlierIndex].y
-              : point.markerPoint.y,
+              ? point.outliersPoint[outlierIndex!].y
+              : point.markerPoint!.y,
           seriesRenderer);
       if (series.markerSettings.shape == DataMarkerType.image) {
         _drawImageMarker(
             seriesRenderer,
             canvas,
             isBoxSeries
-                ? point.outliersPoint[outlierIndex].x
-                : point.markerPoint.x,
+                ? point.outliersPoint[outlierIndex!].x
+                : point.markerPoint!.x,
             isBoxSeries
-                ? point.outliersPoint[outlierIndex].y
-                : point.markerPoint.y);
+                ? point.outliersPoint[outlierIndex!].y
+                : point.markerPoint!.y);
         if (seriesRenderer._seriesType.contains('range') ||
             seriesRenderer._seriesType == 'hilo') {
-          _drawImageMarker(seriesRenderer, canvas, point.markerPoint2.x,
-              point.markerPoint2.y);
+          _drawImageMarker(seriesRenderer, canvas, point.markerPoint2!.x,
+              point.markerPoint2!.y);
         }
       }
     }
@@ -373,10 +375,11 @@ class MarkerSettingsRenderer {
 
   /// To determine if the marker is within axis clip rect
   bool _withInRect(CartesianSeriesRenderer seriesRenderer,
-      _ChartLocation markerPoint, Rect axisClipRect) {
+      _ChartLocation? markerPoint, Rect axisClipRect) {
     bool withInRect = false;
 
-    withInRect = markerPoint.x >= axisClipRect.left &&
+    withInRect = markerPoint != null &&
+        markerPoint.x >= axisClipRect.left &&
         markerPoint.x <= axisClipRect.right &&
         markerPoint.y <= axisClipRect.bottom &&
         markerPoint.y >= axisClipRect.top;
@@ -388,14 +391,14 @@ class MarkerSettingsRenderer {
   void _drawImageMarker(CartesianSeriesRenderer seriesRenderer, Canvas canvas,
       double pointX, double pointY) {
     //  final MarkerSettingsRenderer markerSettingsRenderer = seriesRenderer._markerSettingsRenderer;
-    if (seriesRenderer._markerSettingsRenderer._image != null) {
+    if (seriesRenderer._markerSettingsRenderer!._image != null) {
       final double imageWidth = 2 * seriesRenderer._series.markerSettings.width;
       final double imageHeight =
           2 * seriesRenderer._series.markerSettings.height;
       final Rect positionRect = Rect.fromLTWH(pointX - imageWidth / 2,
           pointY - imageHeight / 2, imageWidth, imageHeight);
       paintImage(
-          canvas: canvas, rect: positionRect, image: _image, fit: BoxFit.fill);
+          canvas: canvas, rect: positionRect, image: _image!, fit: BoxFit.fill);
     }
   }
 }

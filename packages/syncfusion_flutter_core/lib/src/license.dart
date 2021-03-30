@@ -9,7 +9,7 @@ class SyncfusionLicense {
   /// </summary>
   /// <param name="context">context</param>
   // ignore: missing_return
-  static String validateLicense([BuildContext context]) {}
+  static String? validateLicense(BuildContext context) {}
 
   /// <summary>
   /// Method to register the license key.

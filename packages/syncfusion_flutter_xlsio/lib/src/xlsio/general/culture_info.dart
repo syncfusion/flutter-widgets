@@ -11,11 +11,10 @@ class CultureInfo {
     _textInfo = TextInfo();
   }
 
-  String _culture;
-
-  NumberFormatInfo _numberFormat;
-  DateTimeFormatInfo _dateTimeFormat;
-  TextInfo _textInfo;
+  late String _culture;
+  late NumberFormatInfo _numberFormat;
+  late DateTimeFormatInfo _dateTimeFormat;
+  late TextInfo _textInfo;
 
   /// Set the current culture.
   static CultureInfo currentCulture = CultureInfo('en-US');
@@ -42,38 +41,42 @@ class NumberFormatInfo {
   NumberFormatInfo(String locale) {
     _locale = locale;
   }
-  String _locale;
-  NumberSymbols _numberSymbolsField;
-
-  String _currencySymbolField;
-  String _decimalSeparator;
-  String _groupSeparator;
+  late String _locale;
+  NumberSymbols? _numberSymbolsField;
+  String? _currencySymbolField;
+  String? _decimalSeparator;
+  String? _groupSeparator;
 
   /// Gets the number symbol.
   NumberSymbols get _numberSymbols {
     if (_numberSymbolsField == null) {
-      _numberSymbolsField = numberFormatSymbols[_locale] as NumberSymbols;
-      if (_numberSymbolsField == null && _locale.length > 2) {
+      if (numberFormatSymbols[_locale] != null) {
+        _numberSymbolsField = numberFormatSymbols[_locale] as NumberSymbols;
+      }
+      if (_numberSymbolsField == null &&
+          _locale.length > 2 &&
+          numberFormatSymbols[_locale.replaceAll('-', '_')] != null) {
         _numberSymbolsField =
             numberFormatSymbols[_locale.replaceAll('-', '_')] as NumberSymbols;
       }
-      _numberSymbolsField ??=
-          numberFormatSymbols[_locale.substring(0, 2)] as NumberSymbols;
+      if (_numberSymbolsField != null &&
+          numberFormatSymbols[_locale.substring(0, 2)] != null) {
+        _numberSymbolsField =
+            numberFormatSymbols[_locale.substring(0, 2)] as NumberSymbols;
+      }
     }
-    return _numberSymbolsField;
+    return _numberSymbolsField!;
   }
 
   /// Represents decimal separator.
   String get numberDecimalSeparator {
     if (_decimalSeparator == null) {
-      if (_numberSymbols != null) {
-        _decimalSeparator = _numberSymbols.DECIMAL_SEP;
-      } else {
-        _decimalSeparator = '.';
-      }
+      _decimalSeparator = _numberSymbols.DECIMAL_SEP;
+    } else {
+      _decimalSeparator = '.';
     }
 
-    return _decimalSeparator;
+    return _decimalSeparator!;
   }
 
   set numberDecimalSeparator(String value) {
@@ -83,13 +86,11 @@ class NumberFormatInfo {
   /// Represents group separator.
   String get numberGroupSeparator {
     if (_groupSeparator == null) {
-      if (_numberSymbols != null) {
-        _groupSeparator = _numberSymbols.GROUP_SEP;
-      }
+      _groupSeparator = _numberSymbols.GROUP_SEP;
     } else {
       _groupSeparator = ',';
     }
-    return _groupSeparator;
+    return _groupSeparator!;
   }
 
   set numberGroupSeparator(String value) {
@@ -99,14 +100,12 @@ class NumberFormatInfo {
   /// Represents Currency Symbol.
   String get _currencySymbol {
     if (_currencySymbolField == null) {
-      if (_numberSymbols != null) {
-        final format = NumberFormat.currency(locale: _locale);
-        _currencySymbolField = format.currencySymbol;
-      } else {
-        _currencySymbolField = '\$';
-      }
+      final format = NumberFormat.currency(locale: _locale);
+      _currencySymbolField = format.currencySymbol;
+    } else {
+      _currencySymbolField = '\$';
     }
-    return _currencySymbolField;
+    return _currencySymbolField!;
   }
 
   // ignore: unused_element
@@ -122,25 +121,25 @@ class DateTimeFormatInfo {
     _locale = locale;
     _dateTimeSymbols = dateTimeSymbolMap();
   }
-  String _locale;
-  DateSymbols _dateSymbolsField;
+  late String _locale;
+  DateSymbols? _dateSymbolsField;
 
   /// Represents date separator.
-  String _dateSeparator;
+  String? _dateSeparator;
 
   /// Represents time separator.
   String timeSeparator = ':';
 
   /// The custom format string for a short date value.
-  String _shortDatePattern;
+  String? _shortDatePattern;
 
   /// The custom format string for a short time value.
-  String _shortTimePattern = ':';
+  String? _shortTimePattern = ':';
 
   final _fractionSeperators = ['/', '-', '.'];
 
   /// Represents the DateTime symbols map.
-  Map<dynamic, dynamic> _dateTimeSymbols;
+  late Map<dynamic, dynamic> _dateTimeSymbols;
 
   /// Maximum supported date time.
   final DateTime _maxSupportedDateTime = DateTime(9999, 12, 31);
@@ -150,15 +149,22 @@ class DateTimeFormatInfo {
   final DateTime _minSupportedDateTime = DateTime(0001, 01, 01);
 
   /// Gets the date symbols.
-  DateSymbols get _dateSymbols {
+  DateSymbols? get _dateSymbols {
     if (_dateSymbolsField == null) {
-      _dateSymbolsField = _dateTimeSymbols[_locale] as DateSymbols;
-      if (_dateSymbolsField == null && _locale.length > 2) {
+      if (_dateTimeSymbols[_locale] != null) {
+        _dateSymbolsField = _dateTimeSymbols[_locale] as DateSymbols;
+      }
+      if (_dateSymbolsField == null &&
+          _locale.length > 2 &&
+          _dateTimeSymbols[_locale.replaceAll('-', '_')] != null) {
         _dateSymbolsField =
             _dateTimeSymbols[_locale.replaceAll('-', '_')] as DateSymbols;
       }
-      _dateSymbolsField ??=
-          _dateTimeSymbols[_locale.substring(0, 2)] as DateSymbols;
+      if (_dateSymbolsField == null &&
+          _dateTimeSymbols[_locale.substring(0, 2)] != null) {
+        _dateSymbolsField =
+            _dateTimeSymbols[_locale.substring(0, 2)] as DateSymbols;
+      }
     }
     return _dateSymbolsField;
   }
@@ -167,7 +173,7 @@ class DateTimeFormatInfo {
   String get dateSeparator {
     if (_dateSeparator == null) {
       if (_dateSymbols != null) {
-        final dateFormat = _dateSymbols.DATEFORMATS[3];
+        final dateFormat = _dateSymbols!.DATEFORMATS[3];
         for (final String fraction in _fractionSeperators) {
           final index = dateFormat.indexOf(fraction);
           if (index != -1) {
@@ -179,7 +185,7 @@ class DateTimeFormatInfo {
         _dateSeparator = '/';
       }
     }
-    return _dateSeparator;
+    return _dateSeparator!;
   }
 
   set dateSeparator(String value) {
@@ -190,12 +196,12 @@ class DateTimeFormatInfo {
   String get shortDatePattern {
     if (_shortDatePattern == null) {
       if (_dateSymbols != null) {
-        return _dateSymbols.DATEFORMATS[3];
+        return _dateSymbols!.DATEFORMATS[3];
       } else {
         _shortDatePattern = 'M/d/yyyy';
       }
     }
-    return _shortDatePattern;
+    return _shortDatePattern!;
   }
 
   set shortDatePattern(String value) {
@@ -206,12 +212,12 @@ class DateTimeFormatInfo {
   String get shortTimePattern {
     if (_shortTimePattern == null) {
       if (_dateSymbols != null) {
-        return _dateSymbols.TIMEFORMATS[3];
+        return _dateSymbols!.TIMEFORMATS[3];
       } else {
         _shortTimePattern = 'h:mm tt';
       }
     }
-    return _shortTimePattern;
+    return _shortTimePattern!;
   }
 
   set shortTimePattern(String value) {

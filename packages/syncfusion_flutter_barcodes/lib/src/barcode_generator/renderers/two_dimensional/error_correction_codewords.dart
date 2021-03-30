@@ -6,15 +6,15 @@ class ErrorCorrectionCodeWords {
   /// Creates the error correction code word
   ErrorCorrectionCodeWords({this.codeVersion, this.correctionLevel}) {
     _codeValue = QRCodeValue(
-        qrCodeVersion: codeVersion, errorCorrectionLevel: correctionLevel);
+        qrCodeVersion: codeVersion!, errorCorrectionLevel: correctionLevel!);
     eccw = _codeValue.noOfErrorCorrectionCodeWord;
   }
 
   /// Specifies the code version
-  final QRCodeVersion codeVersion;
+  final QRCodeVersion? codeVersion;
 
   /// Specifies the correction level
-  final ErrorCorrectionLevel correctionLevel;
+  final ErrorCorrectionLevel? correctionLevel;
 
   /// Specifies the alpha  value
   static const List<int> _alpha = <int>[
@@ -276,22 +276,22 @@ class ErrorCorrectionCodeWords {
   ];
 
   /// Specifies the error corrcetion code word
-  int eccw;
+  late int eccw;
 
   /// Specifies the data bits
-  int dataBits;
+  late int dataBits;
 
   /// Specifies the data code word
-  List<String> dataCodeWords;
+  late List<String?> dataCodeWords;
 
   /// Specifies the list of integer value based on alpha value
-  List<int> _gx;
+  late List<int> _gx;
 
   /// Specifies the list of decimal value
-  List<int> _decimalValue;
+  late List<int> _decimalValue;
 
   /// Specifies the code value
-  QRCodeValue _codeValue;
+  late QRCodeValue _codeValue;
 
   /// Returns the error correction word
   ///
@@ -1606,10 +1606,10 @@ class ErrorCorrectionCodeWords {
   }
 
   /// Converts binary to decimal value
-  void _binaryToDecimal(List<String> inString) {
+  void _binaryToDecimal(List<String?> inString) {
     _decimalValue = <int>[];
     for (int i = 0; i < inString.length; i++) {
-      _decimalValue.add(int.parse(inString[i], radix: 2));
+      _decimalValue.add(int.parse(inString[i]!, radix: 2));
     }
   }
 
@@ -1672,7 +1672,7 @@ class ErrorCorrectionCodeWords {
       } else {
         final Map<int, int> alphaNotation = _getAlphaNotation(leadTermSource);
         Map<int, int> resPoly = _getGeneratorPolynomByLeadTerm(generatorPolynom,
-            alphaNotation[_getLargestExponent(alphaNotation)], i);
+            alphaNotation[_getLargestExponent(alphaNotation)]!, i);
         resPoly = _getDecimalNotation(resPoly);
         resPoly = _getXORPolynoms(leadTermSource, resPoly);
         leadTermSource = resPoly;
@@ -1711,7 +1711,7 @@ class ErrorCorrectionCodeWords {
           messagePolyExponent - i,
           () =>
               longPoly.entries.elementAt(i).value ^
-              (shortPoly.length > i ? shortPoly[shortPolyExponent - i] : 0));
+              (shortPoly.length > i ? shortPoly[shortPolyExponent - i]! : 0));
     }
 
     final int resultPolyExponent = _getLargestExponent(resultPolynom);

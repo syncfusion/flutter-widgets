@@ -12,38 +12,27 @@ class DataLabelSettings {
   DataLabelSettings(
       {this.alignment = ChartAlignment.center,
       this.color,
-      TextStyle textStyle,
-      EdgeInsets margin,
+      this.textStyle = const TextStyle(
+          fontFamily: 'Roboto',
+          fontStyle: FontStyle.normal,
+          fontWeight: FontWeight.normal,
+          fontSize: 12),
+      this.margin = const EdgeInsets.fromLTRB(5, 5, 5, 5),
       this.opacity = 1,
       this.labelAlignment = ChartDataLabelAlignment.auto,
       this.borderRadius = 5,
       this.isVisible = false,
       this.angle = 0,
       this.builder,
-      bool useSeriesColor,
+      this.useSeriesColor = false,
       this.offset,
       this.showCumulativeValues = false,
       this.showZeroValue = true,
-      Color borderColor,
-      double borderWidth,
-      LabelIntersectAction labelIntersectAction,
-      ConnectorLineSettings connectorLineSettings,
-      ChartDataLabelPosition labelPosition})
-      : borderColor = borderColor ?? Colors.transparent,
-        useSeriesColor = useSeriesColor ?? false,
-        labelPosition = labelPosition ?? ChartDataLabelPosition.inside,
-        borderWidth = borderWidth ?? 0,
-        margin = margin ?? const EdgeInsets.fromLTRB(5, 5, 5, 5),
-        connectorLineSettings =
-            connectorLineSettings ?? ConnectorLineSettings(),
-        labelIntersectAction =
-            labelIntersectAction ?? LabelIntersectAction.hide,
-        textStyle = textStyle ??
-            const TextStyle(
-                fontFamily: 'Roboto',
-                fontStyle: FontStyle.normal,
-                fontWeight: FontWeight.normal,
-                fontSize: 12);
+      this.borderColor = Colors.transparent,
+      this.borderWidth = 0,
+      this.labelIntersectAction = LabelIntersectAction.hide,
+      this.connectorLineSettings = const ConnectorLineSettings(),
+      this.labelPosition = ChartDataLabelPosition.inside});
 
   ///Alignment of the data label.
   ///
@@ -79,7 +68,7 @@ class DataLabelSettings {
   ///        ));
   ///}
   ///```
-  final Color color;
+  final Color? color;
 
   ///Customizes the data label font.
   ///```dart
@@ -364,7 +353,7 @@ class DataLabelSettings {
   ///        ));
   ///}
   ///```
-  final ChartWidgetBuilder<dynamic> builder;
+  final ChartWidgetBuilder<dynamic>? builder;
 
   /// To show the cummulative values in stacked type series charts.
   ///
@@ -433,7 +422,7 @@ class DataLabelSettings {
   ///
   ///Defaults to `null`.
 
-  final Offset offset;
+  final Offset? offset;
 }
 
 ///Datalabel renderer class for mutable fields and methods
@@ -442,19 +431,20 @@ class DataLabelSettingsRenderer {
   DataLabelSettingsRenderer(this._dataLabelSettings) {
     _angle = _dataLabelSettings.angle;
     _offset = _dataLabelSettings.offset;
+    _color = _dataLabelSettings.color;
   }
 
   final DataLabelSettings _dataLabelSettings;
 
-  Color _color;
+  Color? _color;
 
-  TextStyle _textStyle;
+  TextStyle? _textStyle;
 
-  TextStyle _originalStyle;
+  TextStyle? _originalStyle;
 
-  int _angle;
+  late int _angle;
 
-  Offset _offset;
+  Offset? _offset;
 
   /// To render charts with data labels
   void _renderDataLabel(

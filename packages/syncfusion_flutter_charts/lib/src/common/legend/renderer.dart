@@ -55,11 +55,11 @@ class _LegendRenderer with _CustomizeLegend {
     final dynamic chart = chartState._chart;
     final String legendText = legendItem.text;
     final List<Color> palette = chartState._chart.palette;
-    TrendlineRenderer trendlineRenderer;
+    TrendlineRenderer? trendlineRenderer;
     Color color = legendItem.iconColor ?? palette[index % palette.length];
     color =
         legendRenderer._renderer.getLegendIconColor(index, legendItem, color);
-    final Size textSize = legendItem.textSize;
+    final Size textSize = legendItem.textSize!;
     final Offset iconOffset =
         Offset(legend.itemPadding + legend.iconWidth / 2, size.height / 2);
     if (legendItem.trendline != null) {
@@ -68,9 +68,9 @@ class _LegendRenderer with _CustomizeLegend {
     }
     legendItem.isSelect = chart is SfCartesianChart
         ? ((legendItem.trendline != null)
-            ? !trendlineRenderer._visible
+            ? !trendlineRenderer!._visible
             : legendItem.seriesRenderer is TechnicalIndicators<dynamic, dynamic>
-                ? !legendItem.indicatorRenderer._visible
+                ? !legendItem.indicatorRenderer!._visible!
                 : !legendItem.seriesRenderer._visible)
         : !legendItem.point.isVisible;
     final TextStyle textStyle = legendItem.isSelect
@@ -103,7 +103,7 @@ class _LegendRenderer with _CustomizeLegend {
 
   /// To get legend icon shape
   LegendIconType _getIconType(DataMarkerType shape) {
-    LegendIconType iconType;
+    LegendIconType? iconType;
     switch (shape) {
       case DataMarkerType.circle:
         iconType = LegendIconType.circle;
@@ -135,7 +135,7 @@ class _LegendRenderer with _CustomizeLegend {
       case DataMarkerType.none:
         break;
     }
-    return iconType;
+    return iconType!;
   }
 
   /// To draw  legend icon shapes
@@ -155,7 +155,7 @@ class _LegendRenderer with _CustomizeLegend {
     PaintingStyle style = PaintingStyle.fill;
     final String seriesType = legendRenderContext.seriesRenderer
             is TechnicalIndicators<dynamic, dynamic>
-        ? legendRenderContext.indicatorRenderer._seriesType
+        ? legendRenderContext.indicatorRenderer!._seriesType
         : legendRenderContext.seriesRenderer._seriesType;
     iconType = _getLegendIconType(iconType, legendRenderContext);
     final double width = (legendRenderContext.series.legendIconType ==
@@ -172,6 +172,15 @@ class _LegendRenderer with _CustomizeLegend {
                 seriesType.contains('stackedline')))
         ? size.height / 1.5
         : size.height;
+    Shader? _legendShader;
+    final Rect _pathRect = Rect.fromLTWH(
+        location.dx - width / 2, location.dy - height / 2, width, height);
+    if (legendRenderContext.series is CircularSeries &&
+        chartState._chart.onCreateShader != null) {
+      ChartShaderDetails chartShaderDetails;
+      chartShaderDetails = ChartShaderDetails(_pathRect, null, 'legend');
+      _legendShader = chartState._chart.onCreateShader(chartShaderDetails);
+    }
     style = _getPathAndStyle(iconType, style, path, location, width, height,
         legendRenderContext.seriesRenderer, chartState, canvas);
     assert(legend.iconBorderWidth != null ? legend.iconBorderWidth >= 0 : true,
@@ -189,7 +198,7 @@ class _LegendRenderer with _CustomizeLegend {
                     seriesType == 'candle' ||
                     seriesType == 'boxandwhisker' ||
                     (legendRenderContext.series is TechnicalIndicators &&
-                        legendRenderContext.indicatorRenderer._isIndicator))
+                        legendRenderContext.indicatorRenderer!._isIndicator))
                 ? 2
                 : 1
         ..style = (iconType == LegendIconType.seriesType)
@@ -199,14 +208,34 @@ class _LegendRenderer with _CustomizeLegend {
                 ? PaintingStyle.stroke
                 : PaintingStyle.fill);
       final String _seriesType = seriesType;
+      if (legendRenderContext.series is CartesianSeries &&
+          legendRenderContext.series.gradient != null &&
+          !legendRenderContext.isTrendline! &&
+          (iconType == LegendIconType.horizontalLine ||
+              iconType == LegendIconType.verticalLine) &&
+          !legendRenderContext.isSelect) {
+        fillPaint.color = legendRenderContext.series.gradient.colors.first;
+      }
       if ((actualIconType == LegendIconType.seriesType &&
               (_seriesType == 'line' ||
                   _seriesType == 'fastline' ||
                   _seriesType.contains('stackedline'))) ||
           (iconType == LegendIconType.seriesType &&
               (_seriesType == 'radialbar' || _seriesType == 'doughnut'))) {
-        _drawIcon(iconType, index, _seriesType, legendRenderContext, chartState,
-            width, height, location, size, canvas, fillPaint, path);
+        _drawIcon(
+            iconType,
+            index,
+            _seriesType,
+            legendRenderContext,
+            chartState,
+            width,
+            height,
+            location,
+            size,
+            canvas,
+            fillPaint,
+            path,
+            legendRenderContext.point?.shader ?? _legendShader);
       } else {
         (legendRenderContext.series.legendIconType ==
                     LegendIconType.seriesType &&
@@ -216,19 +245,29 @@ class _LegendRenderer with _CustomizeLegend {
                 !kIsWeb
                     ? _dashPath(path,
                         dashArray:
-                            _CircularIntervalList<double>(<double>[3, 2]))
+                            _CircularIntervalList<double>(<double>[3, 2]))!
                     : path,
                 fillPaint)
             : canvas.drawPath(
                 path,
                 (legendRenderContext.series is CartesianSeries &&
                         !legendRenderContext.isSelect &&
-                        legendRenderContext.series.gradient != null)
+                        legendRenderContext.series.gradient != null &&
+                        !legendRenderContext.isTrendline! &&
+                        !(iconType == LegendIconType.horizontalLine ||
+                            iconType == LegendIconType.verticalLine))
                     ? _getLinearGradientPaint(
                         legendRenderContext.series.gradient,
                         path.getBounds(),
                         chartState._requireInvertedAxis)
-                    : fillPaint);
+                    : (legendRenderContext.series is CircularSeries &&
+                            !legendRenderContext.isSelect &&
+                            legendRenderContext.point?.center != null &&
+                            (legendRenderContext.point?.shader != null ||
+                                _legendShader != null)
+                        ? _getShaderPaint(
+                            legendRenderContext.point?.shader ?? _legendShader)
+                        : fillPaint));
       }
     }
     final double iconBorderWidth = legendRenderer._renderer
@@ -252,7 +291,7 @@ class _LegendRenderer with _CustomizeLegend {
   LegendIconType _getLegendIconType(
       LegendIconType iconType, _LegendRenderContext legendRenderContext) {
     if (legendRenderContext.series is TechnicalIndicators &&
-        legendRenderContext.indicatorRenderer._isIndicator) {
+        legendRenderContext.indicatorRenderer!._isIndicator) {
       return legendRenderContext.series.legendIconType ==
               LegendIconType.seriesType
           ? LegendIconType.horizontalLine
@@ -294,11 +333,11 @@ class _LegendRenderer with _CustomizeLegend {
             path, x, y, width, height, seriesRenderer._seriesType);
         break;
       case LegendIconType.circle:
-        _ChartShapeUtils._drawCircle(path, x, y, width, height);
+        ShapeMaker.drawCircle(path, x, y, width, height);
         break;
 
       case LegendIconType.rectangle:
-        _ChartShapeUtils._drawRectangle(path, x, y, width, height);
+        ShapeMaker.drawRectangle(path, x, y, width, height);
         break;
       case LegendIconType.image:
         {
@@ -323,27 +362,27 @@ class _LegendRenderer with _CustomizeLegend {
           break;
         }
       case LegendIconType.pentagon:
-        _ChartShapeUtils._drawPentagon(path, x, y, width, height);
+        ShapeMaker.drawPentagon(path, x, y, width, height);
         break;
 
       case LegendIconType.verticalLine:
-        _ChartShapeUtils._drawVerticalLine(path, x, y, width, height);
+        ShapeMaker.drawVerticalLine(path, x, y, width, height);
         break;
 
       case LegendIconType.invertedTriangle:
-        _ChartShapeUtils._drawInvertedTriangle(path, x, y, width, height);
+        ShapeMaker.drawInvertedTriangle(path, x, y, width, height);
         break;
 
       case LegendIconType.horizontalLine:
-        _ChartShapeUtils._drawHorizontalLine(path, x, y, width, height);
+        ShapeMaker.drawHorizontalLine(path, x, y, width, height);
         break;
 
       case LegendIconType.diamond:
-        _ChartShapeUtils._drawDiamond(path, x, y, width, height);
+        ShapeMaker.drawDiamond(path, x, y, width, height);
         break;
 
       case LegendIconType.triangle:
-        _ChartShapeUtils._drawTriangle(path, x, y, width, height);
+        ShapeMaker.drawTriangle(path, x, y, width, height);
         break;
     }
     return style;
@@ -362,7 +401,8 @@ class _LegendRenderer with _CustomizeLegend {
       Size size,
       Canvas canvas,
       Paint fillPaint,
-      Path path) {
+      Path path,
+      Shader? shader) {
     final dynamic chart = chartState._chart;
     if (seriesType.contains('line')) {
       if (iconType != LegendIconType.seriesType) {
@@ -380,7 +420,7 @@ class _LegendRenderer with _CustomizeLegend {
           ? canvas.drawPath(
               !kIsWeb
                   ? _dashPath(linePath,
-                      dashArray: _CircularIntervalList<double>(<double>[3, 2]))
+                      dashArray: _CircularIntervalList<double>(<double>[3, 2]))!
                   : linePath,
               paint)
           : canvas.drawPath(linePath, paint);
@@ -388,8 +428,10 @@ class _LegendRenderer with _CustomizeLegend {
       final num radius = (width + height) / 2;
       _drawPath(
           canvas,
-          _StyleOptions(Colors.grey[100], fillPaint.strokeWidth,
-              Colors.grey[300].withOpacity(0.5)),
+          _StyleOptions(
+              fill: Colors.grey[100]!,
+              strokeWidth: fillPaint.strokeWidth,
+              strokeColor: Colors.grey[300]!.withOpacity(0.5)),
           _getArcPath(
               (radius / 2) - 2,
               radius / 2,
@@ -409,7 +451,9 @@ class _LegendRenderer with _CustomizeLegend {
       _drawPath(
           canvas,
           _StyleOptions(
-              fillPaint.color, fillPaint.strokeWidth, Colors.transparent),
+              fill: fillPaint.color,
+              strokeWidth: fillPaint.strokeWidth,
+              strokeColor: Colors.transparent),
           _getArcPath(
               (radius / 2) - 2,
               radius / 2,
@@ -418,19 +462,27 @@ class _LegendRenderer with _CustomizeLegend {
               pointEndAngle,
               degree,
               chart,
-              true));
+              true),
+          null,
+          !legendRenderContext.isSelect ? shader ?? null : null);
     } else {
       final num radius = (width + height) / 2;
       _drawPath(
           canvas,
-          _StyleOptions(fillPaint.color, fillPaint.strokeWidth,
-              Colors.grey[300].withOpacity(0.5)),
+          _StyleOptions(
+              fill: fillPaint.color,
+              strokeWidth: fillPaint.strokeWidth,
+              strokeColor: Colors.grey[300]!.withOpacity(0.5)),
           _getArcPath(radius / 4, radius / 2, Offset(location.dx, location.dy),
-              0, 270, 270, chart, true));
+              0, 270, 270, chart, true),
+          null,
+          !legendRenderContext.isSelect ? shader ?? null : null);
       _drawPath(
           canvas,
-          _StyleOptions(fillPaint.color, fillPaint.strokeWidth,
-              Colors.grey[300].withOpacity(0.5)),
+          _StyleOptions(
+              fill: fillPaint.color,
+              strokeWidth: fillPaint.strokeWidth,
+              strokeColor: Colors.grey[300]!.withOpacity(0.5)),
           _getArcPath(
               radius / 4,
               radius / 2,
@@ -439,13 +491,16 @@ class _LegendRenderer with _CustomizeLegend {
               -85,
               -85,
               chart,
-              true));
+              true),
+          null,
+          !legendRenderContext.isSelect ? shader ?? null : null);
     }
   }
 }
 
 class _RenderLegend extends StatelessWidget {
-  _RenderLegend({this.index, this.size, this.chartState, this.template})
+  _RenderLegend(
+      {required this.index, required this.size, this.chartState, this.template})
       : chart = chartState._chart;
 
   final int index;
@@ -456,11 +511,11 @@ class _RenderLegend extends StatelessWidget {
 
   final dynamic chart;
 
-  final Widget template;
+  final Widget? template;
 
   @override
   Widget build(BuildContext context) {
-    bool isSelect;
+    bool? isSelect;
     if (chart.legend.legendItemBuilder != null) {
       final _MeasureWidgetContext _measureWidgetContext =
           chartState._legendWidgetContext[index];
@@ -493,7 +548,7 @@ class _RenderLegend extends StatelessWidget {
                   }
                 },
                 child: template != null
-                    ? !isSelect
+                    ? !isSelect!
                         ? Opacity(child: template, opacity: 0.5)
                         : template
                     : CustomPaint(
@@ -543,7 +598,7 @@ class _RenderLegend extends StatelessWidget {
         legendTapArgs = LegendTapArgs(
             chartState._chartSeries
                 .visibleSeriesRenderers[_measureWidgetContext.seriesIndex],
-            _measureWidgetContext.seriesIndex,
+            _measureWidgetContext.seriesIndex!,
             0);
       } else {
         _legendRenderContext = chartState._chartLegend.legendCollections[index];
@@ -602,10 +657,10 @@ class _ChartLegendStylePainter extends CustomPainter {
 
 class _ChartLegendPainter extends CustomPainter {
   _ChartLegendPainter(
-      {this.chartState,
-      this.legendIndex,
-      this.isSelect,
-      ValueNotifier<int> notifier})
+      {required this.chartState,
+      required this.legendIndex,
+      required this.isSelect,
+      required ValueNotifier<int> notifier})
       : chart = chartState._chart,
         super(repaint: notifier);
 
@@ -634,16 +689,17 @@ class _ChartLegendPainter extends CustomPainter {
 class _LegendRenderContext {
   _LegendRenderContext(
       {this.size,
-      this.text,
+      required this.text,
       this.textSize,
-      this.iconColor,
-      this.iconType,
+      required this.iconColor,
+      required this.iconType,
       this.point,
-      this.isSelect,
+      required this.isSelect,
       this.trendline,
-      this.seriesIndex,
+      required this.seriesIndex,
       this.trendlineIndex,
       this.seriesRenderer,
+      this.isTrendline,
       this.indicatorRenderer})
       : series = seriesRenderer is TechnicalIndicators<dynamic, dynamic>
             ? seriesRenderer
@@ -651,31 +707,33 @@ class _LegendRenderContext {
 
   String text;
 
-  Color iconColor;
+  Color? iconColor;
 
-  Size textSize;
+  Size? textSize;
 
   LegendIconType iconType;
 
-  Size size;
+  Size? size;
 
-  Size templateSize;
+  Size? templateSize;
 
   dynamic series;
 
   dynamic seriesRenderer;
 
-  TechnicalIndicatorsRenderer indicatorRenderer;
+  TechnicalIndicatorsRenderer? indicatorRenderer;
 
-  Trendline trendline;
+  Trendline? trendline;
 
   dynamic point;
 
   int seriesIndex;
 
-  int trendlineIndex;
+  int? trendlineIndex;
 
   bool isSelect;
 
   bool isRender = false;
+
+  bool? isTrendline = false;
 }

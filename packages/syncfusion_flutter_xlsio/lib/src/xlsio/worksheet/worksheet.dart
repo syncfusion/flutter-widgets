@@ -11,16 +11,16 @@ class Worksheet {
   final bool _isSummaryRowBelow = true;
 
   /// Represent the worksheet index.
-  int index;
+  late int index;
 
   /// Represents Worksheet's name.
-  String _name;
+  String _name = '';
 
   /// Standard column width.
   final double _standardWidth = 8.43;
 
   /// Standard column width.
-  final double _standardHeight = 12.5;
+  final double _standardHeight = 15;
 
   /// Default character (for width measuring).
   final String _defaultStandardChar = '0';
@@ -57,13 +57,13 @@ class Worksheet {
   bool showGridlines = true;
 
   /// Collection of all pictures in the current worksheet.
-  PicturesCollection _pictures;
+  PicturesCollection? _pictures;
 
   /// Collection of all pictures in the current worksheet.
-  RowCollection _rows;
+  RowCollection? _rows;
 
   /// Represents all the columns in the specified worksheet.
-  ColumnCollection _columns;
+  ColumnCollection? _columns;
 
   /// Sets a Chart helper in the worksheet.
   ///
@@ -77,22 +77,22 @@ class Worksheet {
   /// File('ExcelEmptyChart.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
-  ChartHelper charts;
+  ChartHelper? charts;
 
   /// Represents the chart count in the workbook.
   int chartCount = 0;
 
   // Parent workbook
-  Workbook _book;
+  late Workbook _book;
 
   /// Gets or sets the a CalcEngine object.
-  CalcEngine calcEngine;
+  CalcEngine? calcEngine;
 
   ///Collection of all merged cells in the current worksheet.
-  MergedCellCollection _mergeCells;
+  MergedCellCollection? _mergeCells;
 
   /// Collection of all hyperlinks in the current worksheet.
-  HyperlinkCollection _hyperlinks;
+  HyperlinkCollection? _hyperlinks;
 
   /// Represents parent workbook.
   Workbook get workbook {
@@ -112,7 +112,7 @@ class Worksheet {
   /// ```
   ColumnCollection get columns {
     _columns ??= ColumnCollection(this);
-    return _columns;
+    return _columns!;
   }
 
   /// Returns or sets the name of the worksheet.
@@ -126,7 +126,7 @@ class Worksheet {
   /// workbook.dispose();
   /// ```
   String get name {
-    if (_name == null || _name == '') {
+    if (_name == '') {
       _name = 'Sheet' + (index).toString();
     }
     return _name;
@@ -139,7 +139,7 @@ class Worksheet {
   /// Gets/Sets a merged cell collections in the worksheet.
   MergedCellCollection get mergeCells {
     _mergeCells ??= MergedCellCollection();
-    return _mergeCells;
+    return _mergeCells!;
   }
 
   set mergeCells(MergedCellCollection value) {
@@ -147,16 +147,42 @@ class Worksheet {
   }
 
   /// Gets/Sets a pictures collections in the worksheet.
+  /// ```dart
+  /// Workbook workbook = new Workbook();
+  /// Worksheet sheet = workbook.worksheets[0];
+  /// String base64Image = base64Encode(File('image.png').readAsBytesSync());
+  /// sheet.picutes.addBase64(1, 1, base64Image);
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Picutes.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
   PicturesCollection get pictures {
     _pictures ??= PicturesCollection(this);
-    return _pictures;
+    return _pictures!;
   }
 
   /// Gets/Sets a hyperlink collections in the worksheet.
+  /// ```dart
+  /// final Workbook workbook = Workbook();
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// final Range range = sheet.getRangeByName('A1');
+  ///
+  /// // Add hyperlink to sheet.
+  /// sheet.hyperlinks
+  ///        .add(range, HyperlinkType.url, 'http://www.syncfusion.com');
+  ///
+  /// //Save and dispose.
+  /// List<int> bytes = workbook.saveAsStream();
+  /// File('Hyperlinks.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
   HyperlinkCollection get hyperlinks {
     _hyperlinks ??= HyperlinkCollection(this);
-    return _hyperlinks;
+    return _hyperlinks!;
   }
+
+  /// Gets/Sets a Conditional Format collections in the worksheet.
+  List<_ConditionalFormatsImpl> conditionalFormats = [];
 
   /// Gets/Sets a rows collections in the worksheet.
   ///
@@ -171,7 +197,7 @@ class Worksheet {
   /// ```
   RowCollection get rows {
     _rows ??= RowCollection(this);
-    return _rows;
+    return _rows!;
   }
 
   /// Checks if specified cell has correct row and column index.
@@ -202,7 +228,7 @@ class Worksheet {
       checkRange(lastRowIndex, lastColumnIndex);
     }
 
-    Range range;
+    Range? range;
     if ((rowIndex == lastRowIndex && columnIndex == lastColumnIndex) ||
         (lastRowIndex == -1 && lastColumnIndex == -1)) {
       range = _getRangeFromSheet(rowIndex, columnIndex);
@@ -238,14 +264,14 @@ class Worksheet {
       throw Exception('cellReference should not be null');
     } else if (cellReference.length < 2) {
       throw Exception('cellReference cannot be less then 2 symbols');
-    } else if (cellReference == null) {
-      throw 'cellReference - Value cannot be null.';
     } else if (cellReference.isEmpty) {
       throw ('cellReference - Value cannot be empty.');
     }
     final cells = cellReference.split(':');
-    int firstRow, lastRow = 0;
-    int firstColumn, lastColumn = 0;
+    int firstRow = 0;
+    int lastRow = 0;
+    int firstColumn = 0;
+    int lastColumn = 0;
     // ignore: prefer_final_locals
     for (int i = 0, len = cells.length; i < len; i++) {
       final String cellReference = cells[i];
@@ -373,16 +399,23 @@ class Worksheet {
 
   /// Check the string is Numeric or Not.
   bool _isNumeric(String s) {
-    if (s == null) {
-      return false;
-    }
     return double.tryParse(s) != null;
   }
 
   /// Converts column name into index.
+  /// ```dart
+  /// // Create a new Excel Document.
+  /// final Workbook workbook = Workbook(1);
+  /// // Accessing sheet via index.
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// // get column Index.
+  /// print(sheet.getColumnIndex('AA'));
+  /// // Save and dispose workbook.
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// File('Output.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
   int getColumnIndex(String columnName) {
-    if (columnName == null) throw 'columnName - Value cannot be null.';
-
     if (columnName.isEmpty) {
       throw ('columnName - name cannot be less then 1 symbols.');
     }
@@ -424,8 +457,8 @@ class Worksheet {
           _book._getCultureInfo().numberFormat.numberDecimalSeparator;
 
       calcEngine = CalcEngine(this);
-      calcEngine.useDatesInCalculations = true;
-      calcEngine.useNoAmpersandQuotes = true;
+      calcEngine!.useDatesInCalculations = true;
+      calcEngine!.useNoAmpersandQuotes = true;
 
       final int sheetFamilyID = CalcEngine.createSheetFamilyID();
 
@@ -433,25 +466,26 @@ class Worksheet {
       for (final Worksheet sheet in workbook.worksheets.innerList) {
         if (sheet.calcEngine == null) {
           sheet.calcEngine = CalcEngine(sheet);
-          sheet.calcEngine.useDatesInCalculations = true;
-          sheet.calcEngine.useNoAmpersandQuotes = true;
-          sheet.calcEngine.excelLikeComputations = true;
+          sheet.calcEngine!.useDatesInCalculations = true;
+          sheet.calcEngine!.useNoAmpersandQuotes = true;
+          sheet.calcEngine!.excelLikeComputations = true;
         }
         if (CalcEngine._modelToSheetID != null &&
-            (CalcEngine._modelToSheetID.containsKey(sheet))) {
-          CalcEngine._modelToSheetID.remove(sheet);
+            (CalcEngine._modelToSheetID!.containsKey(sheet))) {
+          CalcEngine._modelToSheetID!.remove(sheet);
         }
-        sheet.calcEngine._registerGridAsSheet(sheet.name, sheet, sheetFamilyID);
+        sheet.calcEngine!
+            ._registerGridAsSheet(sheet.name, sheet, sheetFamilyID);
       }
     }
   }
 
   /// get range from row and column from worksheet.
-  Range _getRangeFromSheet(int row, int column) {
-    if (row < rows.count &&
+  Range? _getRangeFromSheet(int row, int column) {
+    if (row <= rows.count &&
         rows[row] != null &&
-        column < rows[row].ranges.count) {
-      return rows[row].ranges[column];
+        column <= rows[row]!.ranges.count) {
+      return rows[row]!.ranges[column];
     }
     return null;
   }
@@ -460,26 +494,25 @@ class Worksheet {
   Object _getValueRowCol(int iRow, int iColumn) {
     final Range range = getRangeByIndex(iRow, iColumn);
     if (range.formula != null) {
-      return range.formula;
+      return range.formula!;
     } else if (range.text != null) {
-      return range.text;
+      return range.text!;
     } else if (range.dateTime != null) {
-      return range.dateTime;
-    } else if (range.number != null) return range.number;
+      return range.dateTime!;
+    } else if (range.number != null) return range.number!;
     return '';
   }
 
   /// Sets value for the specified cell.
   void _setValueRowCol(String value, int iRow, int iColumn) {
-    if (value == null) throw Exception('null value');
     final Range range = getRangeByIndex(iRow, iColumn);
     final CellType valType = range.type;
     if (value.isNotEmpty && value[0] == '=') {
       range.setFormula(value.substring(1));
     } else {
       final CultureInfo cultureInfo = _book._getCultureInfo();
-      final double doubleValue = double.tryParse(value);
-      final DateTime dateValue = DateTime.tryParse(value);
+      final double? doubleValue = double.tryParse(value);
+      final DateTime? dateValue = DateTime.tryParse(value);
       final bool bDateTime =
           !value.contains(cultureInfo.dateTimeFormat.dateSeparator) &&
               dateValue != null;
@@ -503,14 +536,13 @@ class Worksheet {
         isNumber = _checkIsNumber(value, cultureInfo);
       }
 
-      if (value != null &&
-          value.isNotEmpty &&
-          calcEngine._formulaErrorStrings.contains(value)) {
+      if (value.isNotEmpty &&
+          calcEngine!._formulaErrorStrings.contains(value)) {
         istext = true;
       }
 
       if (valType == CellType.formula) {
-        if (isNumber && !bDateTime) {
+        if (isNumber && !bDateTime && doubleValue != null) {
           range._setFormulaNumberValue(doubleValue);
         } else if (bDateTime) {
           range._setFormulaDateValue(dateValue);
@@ -524,7 +556,7 @@ class Worksheet {
           range._setFormulaStringValue(value);
         }
       } else {
-        if (isNumber && !bDateTime) {
+        if (isNumber && !bDateTime && doubleValue != null) {
           range.setNumber(doubleValue);
         } else if (bDateTime) {
           range.setDateTime(dateValue);
@@ -539,13 +571,12 @@ class Worksheet {
   bool _checkIsNumber(String value, CultureInfo cultureInfo) {
     bool isNumber = true;
     if (value.contains(cultureInfo.numberFormat.numberDecimalSeparator)) {
-      RegExp decimalSepRegex =
+      final RegExp decimalSepRegex =
           RegExp('[' + cultureInfo.numberFormat.numberDecimalSeparator + ']');
       final List<RegExpMatch> decimalSepMatches =
           decimalSepRegex.allMatches(value).toList();
       //Checks whether the value has more than one decimal point.
       if (decimalSepMatches.length > 1) {
-        decimalSepRegex = null;
         return false;
       } // Checks group separator before and after the decimal point.
       else if (value.contains(cultureInfo.numberFormat.numberGroupSeparator)) {
@@ -578,7 +609,7 @@ class Worksheet {
       revStr = revStr + value[i];
     }
 
-    RegExp groupSepRegex =
+    final RegExp groupSepRegex =
         RegExp('[' + cultureInfo.numberFormat.numberGroupSeparator + ']');
     final List<RegExpMatch> groupSepMatches =
         groupSepRegex.allMatches(value).toList();
@@ -587,18 +618,38 @@ class Worksheet {
     while (index < groupSepMatches.length) {
       //Checks whether the group separator at third digit.
       if ((groupSepMatches[index].start - index) % 3 != 0) {
-        groupSepRegex = null;
         return false;
       }
       index++;
     }
-    groupSepRegex = null;
     return true;
   }
 
   /// Get the index of the first row in UsedRange.
+  /// ```dart
+  /// // Create a new Excel Document.
+  /// final Workbook workbook = Workbook(1);
+  /// // Accessing sheet via index.
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// final Range range = sheet.getRangeByName('A1:D4');
+  /// range.setText('Hi');
+  ///
+  /// // get first row.
+  /// print(sheet.getFirstRow());
+  /// // get last row.
+  /// print(sheet.getLastRow());
+  /// // get first column.
+  /// print(sheet.getFirstColumn());
+  /// // get last Column.
+  /// print(sheet.getLastColumn());
+  ///
+  /// // Save and dispose workbook.
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// File('Output.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
   int getFirstRow() {
-    for (final Row row in rows.innerList) {
+    for (final Row? row in rows.innerList) {
       if (row != null) {
         return row.index;
       }
@@ -607,9 +658,31 @@ class Worksheet {
   }
 
   /// get the index of the last row in UsedRange.
+  /// ```dart
+  /// // Create a new Excel Document.
+  /// final Workbook workbook = Workbook(1);
+  /// // Accessing sheet via index.
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// final Range range = sheet.getRangeByName('A1:D4');
+  /// range.setText('Hi');
+  ///
+  /// // get first row.
+  /// print(sheet.getFirstRow());
+  /// // get last row.
+  /// print(sheet.getLastRow());
+  /// // get first column.
+  /// print(sheet.getFirstColumn());
+  /// // get last Column.
+  /// print(sheet.getLastColumn());
+  ///
+  /// // Save and dispose workbook.
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// File('Output.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
   int getLastRow() {
     int lastRow = -1;
-    for (final Row row in rows.innerList) {
+    for (final Row? row in rows.innerList) {
       if (row != null && lastRow < row.index) {
         lastRow = row.index;
       }
@@ -624,14 +697,36 @@ class Worksheet {
   }
 
   /// Gets the first column index.
+  /// ```dart
+  /// // Create a new Excel Document.
+  /// final Workbook workbook = Workbook(1);
+  /// // Accessing sheet via index.
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// final Range range = sheet.getRangeByName('A1:D4');
+  /// range.setText('Hi');
+  ///
+  /// // get first row.
+  /// print(sheet.getFirstRow());
+  /// // get last row.
+  /// print(sheet.getLastRow());
+  /// // get first column.
+  /// print(sheet.getFirstColumn());
+  /// // get last Column.
+  /// print(sheet.getLastColumn());
+  ///
+  /// // Save and dispose workbook.
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// File('Output.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
   int getFirstColumn() {
     final int firstRow = getFirstRow();
     if (firstRow != -1) {
-      int firstCol = rows[firstRow].index;
-      for (int i = firstRow + 1; i < rows.count; i++) {
-        final Row row = rows[i];
+      int firstCol = 1;
+      for (int i = firstRow; i <= rows.count; i++) {
+        final Row? row = rows[i];
         if (row != null) {
-          for (final Range cell in row.ranges.innerList) {
+          for (final Range? cell in row.ranges.innerList) {
             if (cell != null && firstCol > cell._index) {
               firstCol = cell._index;
             }
@@ -644,14 +739,36 @@ class Worksheet {
   }
 
   /// Gets the last column index / column count.
+  /// ```dart
+  /// // Create a new Excel Document.
+  /// final Workbook workbook = Workbook(1);
+  /// // Accessing sheet via index.
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// final Range range = sheet.getRangeByName('A1:D4');
+  /// range.setText('Hi');
+  ///
+  /// // get first row.
+  /// print(sheet.getFirstRow());
+  /// // get last row.
+  /// print(sheet.getLastRow());
+  /// // get first column.
+  /// print(sheet.getFirstColumn());
+  /// // get last Column.
+  /// print(sheet.getLastColumn());
+  ///
+  /// // Save and dispose workbook.
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// File('Output.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
   int getLastColumn() {
     final int firstRow = getFirstRow();
     if (firstRow != -1) {
-      int firstCol = rows[firstRow].index;
-      for (int i = firstRow; i < rows.count; i++) {
-        final Row row = rows[i];
+      int firstCol = 1;
+      for (int i = firstRow; i <= rows.count; i++) {
+        final Row? row = rows[i];
         if (row != null) {
-          for (final Range cell in row.ranges.innerList) {
+          for (final Range? cell in row.ranges.innerList) {
             if (cell != null && firstCol < cell._index) {
               firstCol = cell._index;
             }
@@ -664,6 +781,22 @@ class Worksheet {
   }
 
   /// Changes the width of the specified column to achieve the best fit.
+  /// ```dart
+  /// // Create a new Excel Document.
+  /// final Workbook workbook = Workbook();
+  /// // Accessing sheet via index.
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// final Range range = sheet.getRangeByName('A1');
+  /// range.setText('Test for AutoFit Column');
+  ///
+  /// // Auto Fit column.
+  /// sheet.autoFitColumn(1);
+  ///
+  /// // save and dispose.
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// saveAsExcel(bytes, 'AutoFitColumn.xlsx');
+  /// workbook.dispose();
+  /// ```
   void autoFitColumn(int colIndex) {
     final Range range = getRangeByIndex(
         getFirstRow(), getFirstColumn(), getLastRow(), getLastColumn());
@@ -671,6 +804,25 @@ class Worksheet {
   }
 
   /// Changes the height of the specified row to achieve the best fit.
+  /// ```dart
+  /// // Create a new Excel Document.
+  /// final Workbook workbook = Workbook();
+  /// // Accessing sheet via index.
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// final Range range1 = sheet.getRangeByName('A1');
+  /// range1.setText('WrapTextWrapTextWrapTextWrapText');
+  /// final CellStyle style = workbook.styles.add('Style1');
+  /// style.wrapText = true;
+  /// range1.cellStyle = style;
+  ///
+  /// //Auto Fit Row
+  /// sheet.autoFitRow(1);
+  ///
+  /// // save and dispose.
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// saveAsExcel(bytes, 'AutoFitRow.xlsx');
+  /// workbook.dispose();
+  /// ```
   void autoFitRow(int rowIndex) {
     final int iFirstColumn = getFirstColumn();
     final int iLastColumn = getLastColumn();
@@ -678,6 +830,19 @@ class Worksheet {
   }
 
   /// Returns the width of the specified column.
+  /// ```dart
+  /// // Create a new Excel Document.
+  /// final Workbook workbook = Workbook(1);
+  /// // Accessing sheet via index.
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// sheet.getRangeByName('A1');
+  /// // get column Width.
+  /// print(sheet.getColumnWidth(1));
+  /// // Save and dispose workbook.
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// File('Output.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
   double getColumnWidth(int iColumnIndex) {
     if (iColumnIndex < 1 || iColumnIndex > _book._maxColumnCount) {
       throw Exception(
@@ -687,6 +852,19 @@ class Worksheet {
   }
 
   /// Returns the height of the specified row.
+  /// ```dart
+  /// // Create a new Excel Document.
+  /// final Workbook workbook = Workbook(1);
+  /// // Accessing sheet via index.
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// sheet.getRangeByName('A1');
+  /// // get row height.
+  /// print(sheet.getRowHeight(1));
+  /// // Save and dispose workbook.
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// File('Output.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
   double getRowHeight(int iRow) {
     return _innerGetRowHeight(iRow, true);
   }
@@ -696,7 +874,7 @@ class Worksheet {
     if (iRow < 1 || iRow > _book._maxRowCount) {
       throw Exception('Value cannot be less 1 and greater than max row index.');
     }
-    Row row = rows[iRow];
+    Row? row = rows[iRow];
     if (rows[iRow] == null) {
       row = Row(this);
       row.index = iRow;
@@ -725,7 +903,7 @@ class Worksheet {
       } else if (firstColumn <= _book._maxColumnCount &&
           lastColumn <= _book._maxColumnCount) {
         final double standardFontSize = _book._standardFontSize;
-        for (final Range migrantCell in row.ranges.innerList) {
+        for (final Range? migrantCell in row.ranges.innerList) {
           if (migrantCell != null) {
             final Style style = migrantCell.cellStyle;
             final double fontSize = style.fontSize;
@@ -761,7 +939,7 @@ class Worksheet {
     }
 
     if (hasMaxHeight) {
-      return row.height;
+      return row!.height;
     } else {
       return _standardHeight;
     }
@@ -778,7 +956,7 @@ class Worksheet {
     bool hasRotation = false;
     bool isMergedAndWrapped = false;
     for (int j = firstColumn; j <= lastColumn; j++) {
-      if (rows[rowIndex] == null || rows[rowIndex]._ranges[j] == null) {
+      if (rows[rowIndex] == null || rows[rowIndex]!._ranges![j] == null) {
         continue;
       }
       final Range range = getRangeByIndex(rowIndex, j);
@@ -831,13 +1009,13 @@ class Worksheet {
       int iRowIndex, double value, bool bIsBadFontHeight, int units) {
     value = _book._convertUnits(value, units, 6);
 
-    Row rowObj = rows[iRowIndex];
+    Row? rowObj = rows[iRowIndex];
     if (rows[iRowIndex] == null) {
       rowObj = Row(this);
       rowObj.index = iRowIndex;
       rows[iRowIndex] = rowObj;
     }
-    if (rowObj.height != value) {
+    if (rowObj!.height != value) {
       rowObj.height = value;
     }
   }
@@ -847,7 +1025,7 @@ class Worksheet {
       bool bIsMergedAndWrapped) {
     final int iColumn = range.column;
     bool isMerged = false;
-    final String strText = range.text;
+    final String? strText = range.text;
 
     if (strText == null || strText.isEmpty) {
       bIsMergedAndWrapped = false;
@@ -858,7 +1036,7 @@ class Worksheet {
       isMerged = true;
     }
 
-    final CellStyle format = range.cellStyle;
+    final Style format = range.cellStyle;
     final Font font = Font();
     font.name = format.fontName;
     font.size = format.fontSize;
@@ -905,16 +1083,14 @@ class Worksheet {
       }
 
       if (!ignoreRotation && !isMerged && rotation > 0) {
-        if ((rotation == 90 || rotation == 180)) {
-          if (range != null) {}
-        } else if (rotation == 255) {
+        if (rotation == 255) {
           curSize._width = (_book._convertToPixels(
                   _autoFitManager
                       ._calculateWrappedCell(format, strText, defWidth.toInt())
                       .toDouble(),
                   6) -
               defWidth);
-        } else {
+        } else if ((rotation != 90 && rotation != 180)) {
           curSize._width =
               _updateTextWidthOrHeightByRotation(curSize, rotation, false);
         }
@@ -934,17 +1110,12 @@ class Worksheet {
 
   /// Updates indent size.
   _SizeF _updateAutofitByIndent(_SizeF curSize, Style format) {
-    if (format == null) throw Exception('format');
-
     final bool bFlag =
         format.hAlign != HAlignType.left && format.hAlign != HAlignType.right;
-
     if (bFlag && format.rotation != 0 && format.indent == 0) {
       return curSize;
     }
-
     curSize._width += format.indent * _defaultIndentWidth;
-
     return curSize;
   }
 
@@ -976,8 +1147,29 @@ class Worksheet {
   }
 
   /// Inserts an empty row in the specified row index.
+  ///  ```dart
+  /// // Create a new Excel Document.
+  /// final Workbook workbook = Workbook();
+  /// // Accessing sheet via index.
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// Range range = sheet.getRangeByName('A1');
+  /// range.setText('Hello');
+  /// range = sheet.getRangeByName('B1');
+  /// range.setText('World');
+  ///
+  /// // Insert a row
+  /// sheet.insertRow(1, 1, ExcelInsertOptions.formatAsAfter);
+  ///
+  /// // Insert a column.
+  /// sheet.insertColumn(2, 1, ExcelInsertOptions.formatAsBefore);
+  ///
+  /// // Save and dispose workbook.
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// File('InsertRow.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
   void insertRow(int rowIndex,
-      [int rowCount, ExcelInsertOptions insertOptions]) {
+      [int? rowCount, ExcelInsertOptions? insertOptions]) {
     if (rowIndex < 1 || rowIndex > workbook._maxRowCount) {
       throw Exception('rowIndex');
     }
@@ -990,81 +1182,81 @@ class Worksheet {
     if (!isLastRow) {
       for (int count = 1; count <= rowCount; count++) {
         for (int i = lastRow + rowCount; i >= rowIndex; i--) {
-          final Row row = rows[i];
+          final Row? row = rows[i];
           if (row == null && i != rowIndex && rows[i - 1] != null) {
             rows[i] = Row(this);
             rows[i] = rows[i - 1];
-            rows[i].index = rows[i].index + 1;
-            for (int j = rows[i].ranges.innerList.length - 1; j >= 1; j--) {
-              final Range range = rows[i].ranges[j];
+            rows[i]!.index = rows[i]!.index + 1;
+            for (int j = rows[i]!.ranges.innerList.length; j >= 1; j--) {
+              final Range? range = rows[i]!.ranges[j];
               if (range != null) {
-                rows[i].ranges[j].row = rows[i].ranges[j].row + 1;
-                rows[i].ranges[j].lastRow = rows[i].ranges[j].lastRow + 1;
-                rows[i].ranges[j].column = rows[i].ranges[j].column;
-                rows[i].ranges[j].lastColumn = rows[i].ranges[j].lastColumn;
+                rows[i]!.ranges[j]!.row = rows[i]!.ranges[j]!.row + 1;
+                rows[i]!.ranges[j]!.lastRow = rows[i]!.ranges[j]!.lastRow + 1;
+                rows[i]!.ranges[j]!.column = rows[i]!.ranges[j]!.column;
+                rows[i]!.ranges[j]!.lastColumn = rows[i]!.ranges[j]!.lastColumn;
               }
             }
           } else if (row != null && i != rowIndex && rows[i - 1] != null) {
             rows[i] = rows[i - 1];
-            rows[i].index = rows[i].index + 1;
-            for (int j = rows[i].ranges.innerList.length - 1; j >= 1; j--) {
-              final Range range = rows[i].ranges[j];
+            rows[i]!.index = rows[i]!.index + 1;
+            for (int j = rows[i]!.ranges.innerList.length; j >= 1; j--) {
+              final Range? range = rows[i]!.ranges[j];
               if (range != null) {
-                rows[i].ranges[j].row = rows[i].ranges[j].row + 1;
-                rows[i].ranges[j].lastRow = rows[i].ranges[j].lastRow + 1;
-                rows[i].ranges[j].column = rows[i].ranges[j].column;
-                rows[i].ranges[j].lastColumn = rows[i].ranges[j].lastColumn;
+                rows[i]!.ranges[j]!.row = rows[i]!.ranges[j]!.row + 1;
+                rows[i]!.ranges[j]!.lastRow = rows[i]!.ranges[j]!.lastRow + 1;
+                rows[i]!.ranges[j]!.column = rows[i]!.ranges[j]!.column;
+                rows[i]!.ranges[j]!.lastColumn = rows[i]!.ranges[j]!.lastColumn;
               }
             }
           } else if (i == rowIndex) {
             rows[i] = Row(this);
-            rows[i].index = rowIndex;
+            rows[i]!.index = rowIndex;
             if (insertOptions == ExcelInsertOptions.formatAsBefore) {
               if (rows[i - 1] != null) {
-                if (rows[i - 1].height != null) {
-                  rows[i].height = rows[i - 1].height;
+                if (rows[i - 1]!.height != 0) {
+                  rows[i]!.height = rows[i - 1]!.height;
                 }
                 for (int z = 1;
-                    z <= rows[i - 1].ranges.innerList.length - 1;
+                    z <= rows[i - 1]!.ranges.innerList.length;
                     z++) {
-                  if (rows[i - 1].ranges[z] != null) {
-                    rows[i].ranges[z] = Range(this);
-                    rows[i].ranges[z]._index = rows[i - 1].ranges[z]._index;
-                    rows[i].ranges[z].row = rows[i - 1].ranges[z].row + 1;
-                    rows[i].ranges[z].lastRow =
-                        rows[i - 1].ranges[z].lastRow + 1;
-                    rows[i].ranges[z].column = rows[i - 1].ranges[z].column;
-                    rows[i].ranges[z].lastColumn =
-                        rows[i - 1].ranges[z].lastColumn;
-                    rows[i].ranges[z].cellStyle =
-                        rows[i - 1].ranges[z].cellStyle;
+                  if (rows[i - 1]!.ranges[z] != null) {
+                    rows[i]!.ranges[z] = Range(this);
+                    rows[i]!.ranges[z]!._index = rows[i - 1]!.ranges[z]!._index;
+                    rows[i]!.ranges[z]!.row = rows[i - 1]!.ranges[z]!.row + 1;
+                    rows[i]!.ranges[z]!.lastRow =
+                        rows[i - 1]!.ranges[z]!.lastRow + 1;
+                    rows[i]!.ranges[z]!.column = rows[i - 1]!.ranges[z]!.column;
+                    rows[i]!.ranges[z]!.lastColumn =
+                        rows[i - 1]!.ranges[z]!.lastColumn;
+                    rows[i]!.ranges[z]!.cellStyle =
+                        rows[i - 1]!.ranges[z]!.cellStyle;
                   }
                 }
               }
             } else if (insertOptions == ExcelInsertOptions.formatAsAfter) {
               if (rows[i + 1] != null) {
-                if (rows[i + 1].height != null) {
-                  rows[i].height = rows[i + 1].height;
+                if (rows[i + 1]!.height != 0) {
+                  rows[i]!.height = rows[i + 1]!.height;
                 }
                 for (int z = 1;
-                    z <= rows[i + 1].ranges.innerList.length - 1;
+                    z <= rows[i + 1]!.ranges.innerList.length;
                     z++) {
-                  if (rows[i + 1].ranges[z] != null) {
-                    rows[i].ranges[z] = Range(this);
-                    rows[i].ranges[z]._index = rows[i + 1].ranges[z]._index;
-                    rows[i].ranges[z].row = rows[i + 1].ranges[z].row - 1;
-                    rows[i].ranges[z].lastRow =
-                        rows[i + 1].ranges[z].lastRow - 1;
-                    rows[i].ranges[z].column = rows[i + 1].ranges[z].column;
-                    rows[i].ranges[z].lastColumn =
-                        rows[i + 1].ranges[z].lastColumn;
-                    rows[i].ranges[z].cellStyle =
-                        rows[i + 1].ranges[z].cellStyle;
+                  if (rows[i + 1]!.ranges[z] != null) {
+                    rows[i]!.ranges[z] = Range(this);
+                    rows[i]!.ranges[z]!._index = rows[i + 1]!.ranges[z]!._index;
+                    rows[i]!.ranges[z]!.row = rows[i + 1]!.ranges[z]!.row - 1;
+                    rows[i]!.ranges[z]!.lastRow =
+                        rows[i + 1]!.ranges[z]!.lastRow - 1;
+                    rows[i]!.ranges[z]!.column = rows[i + 1]!.ranges[z]!.column;
+                    rows[i]!.ranges[z]!.lastColumn =
+                        rows[i + 1]!.ranges[z]!.lastColumn;
+                    rows[i]!.ranges[z]!.cellStyle =
+                        rows[i + 1]!.ranges[z]!.cellStyle;
                   }
                 }
               }
             } else {
-              rows[i].ranges[columnIndex] = null;
+              rows[i]!.ranges[columnIndex] = null;
             }
             if (hyperlinks.count > 0) {
               for (final Hyperlink link in hyperlinks.innerList) {
@@ -1076,7 +1268,7 @@ class Worksheet {
             }
           } else {
             rows[i] = Row(this);
-            rows[i].index = i;
+            rows[i]!.index = i;
           }
         }
       }
@@ -1084,7 +1276,25 @@ class Worksheet {
   }
 
   /// Delete the Row in the Worksheet.
-  void deleteRow(int rowIndex, [int rowCount]) {
+  /// ```dart
+  /// // Create a new Excel Document.
+  /// final Workbook workbook = Workbook();
+  /// // Accessing sheet via index.
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// Range range = sheet.getRangeByName('A2');
+  /// range.setText('Hello');
+  /// range = sheet.getRangeByName('C2');
+  /// range.setText('World');
+  ///
+  /// // Delete a row
+  /// sheet.deleteRow(1, 1);
+  ///
+  /// // Save and dispose workbook.
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// File('DeleteRowandColumn.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
+  void deleteRow(int rowIndex, [int? rowCount]) {
     if (rowIndex < 1 || rowIndex > workbook._maxRowCount) {
       throw Exception('rowIndex');
     }
@@ -1093,30 +1303,30 @@ class Worksheet {
     for (int count = 1; count <= rowCount; count++) {
       final int lastRow = getLastRow();
       for (int i = rowIndex; i <= lastRow; i++) {
-        final Row row = rows[i];
+        final Row? row = rows[i];
         if (row != null && i != lastRow && rows[i + 1] != null) {
           rows[i] = rows[i + 1];
-          rows[i].index = rows[i].index - 1;
-          for (int j = rows[i].ranges.innerList.length - 1; j >= 1; j--) {
-            final Range range = rows[i].ranges[j];
+          rows[i]!.index = rows[i]!.index - 1;
+          for (int j = rows[i]!.ranges.innerList.length; j >= 1; j--) {
+            final Range? range = rows[i]!.ranges[j];
             if (range != null) {
-              rows[i].ranges[j].row = rows[i].ranges[j].row - 1;
-              rows[i].ranges[j].lastRow = rows[i].ranges[j].lastRow - 1;
-              rows[i].ranges[j].column = rows[i].ranges[j].column;
-              rows[i].ranges[j].lastColumn = rows[i].ranges[j].lastColumn;
+              rows[i]!.ranges[j]!.row = rows[i]!.ranges[j]!.row - 1;
+              rows[i]!.ranges[j]!.lastRow = rows[i]!.ranges[j]!.lastRow - 1;
+              rows[i]!.ranges[j]!.column = rows[i]!.ranges[j]!.column;
+              rows[i]!.ranges[j]!.lastColumn = rows[i]!.ranges[j]!.lastColumn;
             }
           }
         } else if (row == null && i != lastRow && rows[i + 1] != null) {
           rows[i] = Row(this);
           rows[i] = rows[i + 1];
-          rows[i].index = rows[i].index - 1;
-          for (int j = rows[i].ranges.innerList.length - 1; j >= 1; j--) {
-            final Range range = rows[i].ranges[j];
+          rows[i]!.index = rows[i]!.index - 1;
+          for (int j = rows[i]!.ranges.innerList.length; j >= 1; j--) {
+            final Range? range = rows[i]!.ranges[j];
             if (range != null) {
-              rows[i].ranges[j].row = rows[i].ranges[j].row - 1;
-              rows[i].ranges[j].lastRow = rows[i].ranges[j].lastRow - 1;
-              rows[i].ranges[j].column = rows[i].ranges[j].column;
-              rows[i].ranges[j].lastColumn = rows[i].ranges[j].lastColumn;
+              rows[i]!.ranges[j]!.row = rows[i]!.ranges[j]!.row - 1;
+              rows[i]!.ranges[j]!.lastRow = rows[i]!.ranges[j]!.lastRow - 1;
+              rows[i]!.ranges[j]!.column = rows[i]!.ranges[j]!.column;
+              rows[i]!.ranges[j]!.lastColumn = rows[i]!.ranges[j]!.lastColumn;
             }
           }
         } else if (i == lastRow) {
@@ -1138,8 +1348,26 @@ class Worksheet {
   }
 
   /// Inserts an empty column for the specified column index.
+  /// ```dart
+  /// // Create a new Excel Document.
+  /// final Workbook workbook = Workbook();
+  /// // Accessing sheet via index.
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// Range range = sheet.getRangeByName('A1');
+  /// range.setText('Hello');
+  /// range = sheet.getRangeByName('B1');
+  /// range.setText('World');
+  ///
+  /// // Insert a column.
+  /// sheet.insertColumn(2, 1, ExcelInsertOptions.formatAsBefore);
+  ///
+  /// // Save and dispose workbook.
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// File('InsertColumn.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
   void insertColumn(int columnIndex,
-      [int columnCount, ExcelInsertOptions insertOptions]) {
+      [int? columnCount, ExcelInsertOptions? insertOptions]) {
     if (columnIndex < 1 || columnIndex > workbook._maxColumnCount) {
       throw Exception(
           'Value cannot be less 1 and greater than max column index.');
@@ -1154,75 +1382,81 @@ class Worksheet {
       if (rows[i] != null) {
         for (int count = 1; count <= columnCount; count++) {
           for (int j = lastColumn + columnCount; j >= columnIndex; j--) {
-            final Range range = rows[i].ranges[j];
+            final Range? range = rows[i]!.ranges[j];
             if (range == null &&
                 j != columnIndex &&
-                rows[i].ranges[j - 1] != null) {
-              final double columnWidth = rows[i].ranges[j - 1].columnWidth;
-              rows[i].ranges[j] = Range(this);
-              rows[i].ranges[j] = rows[i].ranges[j - 1];
-              rows[i].ranges[j]._index = j;
-              rows[i].ranges[j].row = rows[i].ranges[j].row;
-              rows[i].ranges[j].lastRow = rows[i].ranges[j].lastRow;
-              rows[i].ranges[j].column = rows[i].ranges[j].column + 1;
-              rows[i].ranges[j].lastColumn = rows[i].ranges[j].lastColumn + 1;
-              if (rows[i].ranges[j].columnWidth != 0.0) {
-                rows[i].ranges[j]._columnObj = null;
-                rows[i].ranges[j].columnWidth = columnWidth;
+                rows[i]!.ranges[j - 1] != null) {
+              final double columnWidth = rows[i]!.ranges[j - 1]!.columnWidth;
+              rows[i]!.ranges[j] = Range(this);
+              rows[i]!.ranges[j] = rows[i]!.ranges[j - 1];
+              rows[i]!.ranges[j]!._index = j;
+              rows[i]!.ranges[j]!.row = rows[i]!.ranges[j]!.row;
+              rows[i]!.ranges[j]!.lastRow = rows[i]!.ranges[j]!.lastRow;
+              rows[i]!.ranges[j]!.column = rows[i]!.ranges[j]!.column + 1;
+              rows[i]!.ranges[j]!.lastColumn =
+                  rows[i]!.ranges[j]!.lastColumn + 1;
+              if (rows[i]!.ranges[j]!.columnWidth != 0.0) {
+                rows[i]!.ranges[j]!._columnObj = null;
+                rows[i]!.ranges[j]!.columnWidth = columnWidth;
               }
             } else if (range != null &&
                 j != columnIndex &&
-                rows[i].ranges[j - 1] != null) {
-              final double columnWidth = rows[i].ranges[j - 1].columnWidth;
-              rows[i].ranges[j] = rows[i].ranges[j - 1];
-              rows[i].ranges[j]._index = j;
-              rows[i].ranges[j].row = rows[i].ranges[j].row;
-              rows[i].ranges[j].lastRow = rows[i].ranges[j].lastRow;
-              rows[i].ranges[j].column = rows[i].ranges[j].column + 1;
-              rows[i].ranges[j].lastColumn = rows[i].ranges[j].lastColumn + 1;
-              if (rows[i].ranges[j].columnWidth != 0.0) {
-                rows[i].ranges[j]._columnObj = null;
-                rows[i].ranges[j].columnWidth = columnWidth;
+                rows[i]!.ranges[j - 1] != null) {
+              final double columnWidth = rows[i]!.ranges[j - 1]!.columnWidth;
+              rows[i]!.ranges[j] = rows[i]!.ranges[j - 1];
+              rows[i]!.ranges[j]!._index = j;
+              rows[i]!.ranges[j]!.row = rows[i]!.ranges[j]!.row;
+              rows[i]!.ranges[j]!.lastRow = rows[i]!.ranges[j]!.lastRow;
+              rows[i]!.ranges[j]!.column = rows[i]!.ranges[j]!.column + 1;
+              rows[i]!.ranges[j]!.lastColumn =
+                  rows[i]!.ranges[j]!.lastColumn + 1;
+              if (rows[i]!.ranges[j]!.columnWidth != 0.0) {
+                rows[i]!.ranges[j]!._columnObj = null;
+                rows[i]!.ranges[j]!.columnWidth = columnWidth;
               }
             } else if (j == columnIndex &&
-                rows[i].ranges[j] == rows[i].ranges[columnIndex]) {
+                rows[i]!.ranges[j] == rows[i]!.ranges[columnIndex]) {
               if (insertOptions == ExcelInsertOptions.formatAsBefore) {
-                if (rows[i].ranges[j - 1] != null) {
-                  rows[i].ranges[j] = Range(this);
-                  rows[i].ranges[j]._index = j;
-                  rows[i].ranges[j].row = rows[i].ranges[j - 1].row;
-                  rows[i].ranges[j].lastRow = rows[i].ranges[j - 1].lastRow;
-                  rows[i].ranges[j].column = rows[i].ranges[j - 1].column + 1;
-                  rows[i].ranges[j].lastColumn =
-                      rows[i].ranges[j - 1].lastColumn + 1;
-                  rows[i].ranges[j].cellStyle = rows[i].ranges[j - 1].cellStyle;
-                  if (rows[i].ranges[j - 1].columnWidth != 0.0) {
-                    rows[i].ranges[j].columnWidth =
-                        rows[i].ranges[j - 1].columnWidth;
+                if (rows[i]!.ranges[j - 1] != null) {
+                  rows[i]!.ranges[j] = Range(this);
+                  rows[i]!.ranges[j]!._index = j;
+                  rows[i]!.ranges[j]!.row = rows[i]!.ranges[j - 1]!.row;
+                  rows[i]!.ranges[j]!.lastRow = rows[i]!.ranges[j - 1]!.lastRow;
+                  rows[i]!.ranges[j]!.column =
+                      rows[i]!.ranges[j - 1]!.column + 1;
+                  rows[i]!.ranges[j]!.lastColumn =
+                      rows[i]!.ranges[j - 1]!.lastColumn + 1;
+                  rows[i]!.ranges[j]!.cellStyle =
+                      rows[i]!.ranges[j - 1]!.cellStyle;
+                  if (rows[i]!.ranges[j - 1]!.columnWidth != 0.0) {
+                    rows[i]!.ranges[j]!.columnWidth =
+                        rows[i]!.ranges[j - 1]!.columnWidth;
                   }
                 } else {
-                  rows[i].ranges[j] = null;
+                  rows[i]!.ranges[j] = null;
                 }
               } else if (insertOptions == ExcelInsertOptions.formatAsAfter) {
-                if (rows[i].ranges[j + 1] != null) {
-                  rows[i].ranges[j] = Range(this);
-                  rows[i].ranges[j]._index = j;
-                  rows[i].ranges[j].row = rows[i].ranges[j + 1].row;
-                  rows[i].ranges[j].lastRow = rows[i].ranges[j + 1].lastRow;
-                  rows[i].ranges[j].column = rows[i].ranges[j + 1].column - 1;
-                  rows[i].ranges[j].lastColumn =
-                      rows[i].ranges[j + 1].lastColumn - 1;
-                  rows[i].ranges[j].cellStyle = rows[i].ranges[j + 1].cellStyle;
-                  if (rows[i].ranges[j + 1].columnWidth != 0.0) {
-                    rows[i].ranges[j].columnWidth =
-                        rows[i].ranges[j + 1].columnWidth;
+                if (rows[i]!.ranges[j + 1] != null) {
+                  rows[i]!.ranges[j] = Range(this);
+                  rows[i]!.ranges[j]!._index = j;
+                  rows[i]!.ranges[j]!.row = rows[i]!.ranges[j + 1]!.row;
+                  rows[i]!.ranges[j]!.lastRow = rows[i]!.ranges[j + 1]!.lastRow;
+                  rows[i]!.ranges[j]!.column =
+                      rows[i]!.ranges[j + 1]!.column - 1;
+                  rows[i]!.ranges[j]!.lastColumn =
+                      rows[i]!.ranges[j + 1]!.lastColumn - 1;
+                  rows[i]!.ranges[j]!.cellStyle =
+                      rows[i]!.ranges[j + 1]!.cellStyle;
+                  if (rows[i]!.ranges[j + 1]!.columnWidth != 0.0) {
+                    rows[i]!.ranges[j]!.columnWidth =
+                        rows[i]!.ranges[j + 1]!.columnWidth;
                   }
                 }
               } else {
-                rows[i].ranges[j] = null;
+                rows[i]!.ranges[j] = null;
               }
             } else {
-              rows[i].ranges[j] = null;
+              rows[i]!.ranges[j] = null;
             }
           }
         }
@@ -1245,7 +1479,25 @@ class Worksheet {
   }
 
   /// Delete the Column in the Worksheet.
-  void deleteColumn(int columnIndex, [int columnCount]) {
+  /// ```dart
+  /// // Create a new Excel Document.
+  /// final Workbook workbook = Workbook();
+  /// // Accessing sheet via index.
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// Range range = sheet.getRangeByName('A2');
+  /// range.setText('Hello');
+  /// range = sheet.getRangeByName('C2');
+  /// range.setText('World');
+  ///
+  /// // Delete a column.
+  /// sheet.deleteColumn(2, 1);
+  ///
+  /// // Save and dispose workbook.
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// File('DeleteRowandColumn.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
+  void deleteColumn(int columnIndex, [int? columnCount]) {
     if (columnIndex < 1 || columnIndex > workbook._maxColumnCount) {
       throw Exception(
           'Value cannot be less 1 and greater than max column index.');
@@ -1259,31 +1511,33 @@ class Worksheet {
       if (rows[i] != null) {
         for (int count = 1; count <= columnCount; count++) {
           for (int j = columnIndex; j <= lastColumn; j++) {
-            final Range range = rows[i].ranges[j];
+            final Range? range = rows[i]!.ranges[j];
             if (range != null &&
                 j != lastColumn &&
-                rows[i].ranges[j + 1] != null) {
-              rows[i].ranges[j] = rows[i].ranges[j + 1];
-              rows[i].ranges[j]._index = rows[i].ranges[j]._index - 1;
-              rows[i].ranges[j].row = rows[i].ranges[j].row;
-              rows[i].ranges[j].lastRow = rows[i].ranges[j].lastRow;
-              rows[i].ranges[j].column = rows[i].ranges[j].column - 1;
-              rows[i].ranges[j].lastColumn = rows[i].ranges[j].lastColumn - 1;
+                rows[i]!.ranges[j + 1] != null) {
+              rows[i]!.ranges[j] = rows[i]!.ranges[j + 1];
+              rows[i]!.ranges[j]!._index = rows[i]!.ranges[j]!._index - 1;
+              rows[i]!.ranges[j]!.row = rows[i]!.ranges[j]!.row;
+              rows[i]!.ranges[j]!.lastRow = rows[i]!.ranges[j]!.lastRow;
+              rows[i]!.ranges[j]!.column = rows[i]!.ranges[j]!.column - 1;
+              rows[i]!.ranges[j]!.lastColumn =
+                  rows[i]!.ranges[j]!.lastColumn - 1;
             } else if (range == null &&
                 j != lastColumn &&
-                rows[i].ranges[j + 1] != null) {
-              rows[i].ranges[j] = Range(this);
-              rows[i].ranges[j] = rows[i].ranges[j + 1];
-              rows[i].ranges[j]._index = rows[i].ranges[j]._index - 1;
-              rows[i].ranges[j].row = rows[i].ranges[j].row;
-              rows[i].ranges[j].lastRow = rows[i].ranges[j].lastRow;
-              rows[i].ranges[j].column = rows[i].ranges[j].column - 1;
-              rows[i].ranges[j].lastColumn = rows[i].ranges[j].lastColumn - 1;
+                rows[i]!.ranges[j + 1] != null) {
+              rows[i]!.ranges[j] = Range(this);
+              rows[i]!.ranges[j] = rows[i]!.ranges[j + 1];
+              rows[i]!.ranges[j]!._index = rows[i]!.ranges[j]!._index - 1;
+              rows[i]!.ranges[j]!.row = rows[i]!.ranges[j]!.row;
+              rows[i]!.ranges[j]!.lastRow = rows[i]!.ranges[j]!.lastRow;
+              rows[i]!.ranges[j]!.column = rows[i]!.ranges[j]!.column - 1;
+              rows[i]!.ranges[j]!.lastColumn =
+                  rows[i]!.ranges[j]!.lastColumn - 1;
             } else if (j == lastColumn &&
-                rows[i].ranges[j] == rows[i].ranges[lastColumn]) {
-              rows[i].ranges[j] = null;
+                rows[i]!.ranges[j] == rows[i]!.ranges[lastColumn]) {
+              rows[i]!.ranges[j] = null;
             } else {
-              rows[i].ranges[j] = rows[i].ranges[j + 1];
+              rows[i]!.ranges[j] = rows[i]!.ranges[j + 1];
             }
           }
         }
@@ -1300,9 +1554,7 @@ class Worksheet {
     for (int k = 1; k <= columnCount; k++) {
       if (columns.count > 0) {
         for (int z = 0; z < columns.count - 1; z++) {
-          if (columns[z].index >= columnIndex &&
-              columns[z + 1] != null &&
-              columns[z + 1].width != 0.0) {
+          if (columns[z].index >= columnIndex && columns[z + 1].width != 0.0) {
             columns[z].width = columns[z + 1].width;
           }
         }
@@ -1323,22 +1575,19 @@ class Worksheet {
   final int _maxPassWordLength = 255;
 
   /// Alogrithm name to protect/unprotect worksheet.
-  String _algorithmName;
+  String? _algorithmName;
 
   /// Random generated Salt for the sheet password.
-  List<int> _saltValue;
+  late List<int> _saltValue;
 
   /// Spin count to loop the hash algorithm.
-  int _spinCount;
+  int _spinCount = 500;
 
   /// Hash value to ensure the sheet protected password.
-  List<int> _hashValue;
+  late List<int> _hashValue;
 
   /// Gets a value indicating whether worksheet is protected with password.
   bool _isPasswordProtected = false;
-
-  /// Gets protected options. Read-only. For sets protection options use "Protect" method.
-  ExcelSheetProtectionOption _innerProtection;
 
   ExcelSheetProtectionOption _prepareProtectionOptions(
       ExcelSheetProtectionOption options) {
@@ -1347,7 +1596,7 @@ class Worksheet {
   }
 
   /// 16-bit hash value of the password.
-  int _isPassword;
+  int _isPassword = 0;
 
   /// Represent the flag for sheet protection.
   final List<bool> _flag = [];
@@ -1356,13 +1605,30 @@ class Worksheet {
   static const int _defPasswordConst = 52811;
 
   /// Protect the worksheet with specific protection options and password.
-  void protect(String password, [ExcelSheetProtectionOption options]) {
+  ///  ```dart
+  /// //Create a new Excel Document.
+  /// final Workbook workbook = Workbook();
+  /// // Accessing sheet via index.
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// final Range range = sheet.getRangeByName('A1');
+  /// range.setText('Worksheet Protected');
+  ///
+  /// // ExcelSheetProtectionOption.
+  /// final ExcelSheetProtectionOption options = ExcelSheetProtectionOption();
+  /// options.all = true;
+  /// // Protecting the Worksheet by using a Password.
+  /// sheet.protect('Password', options);
+  ///
+  /// //Save and Dispose.
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// saveAsExcel(bytes, 'ExcelworksheetProtectionAllOption1.xlsx');
+  /// workbook.dispose();
+  /// ```
+  void protect(String password, [ExcelSheetProtectionOption? options]) {
     if (_isPasswordProtected) {
       throw Exception(
           'Sheet is already protected, before use unprotect method');
     }
-    if (password == null) throw Exception('password');
-
     if (password.length > _maxPassWordLength) {
       throw Exception('Length of the password can\'t be more than ' +
           _maxPassWordLength.toString());
@@ -1391,10 +1657,7 @@ class Worksheet {
       options.usePivotTableAndPivotChart = true;
       options.unlockedCells = true;
     }
-
     _prepareProtectionOptions(options);
-    _innerProtection = options;
-
     _flag.add(!options.content);
     _flag.add(!options.objects);
     _flag.add(!options.scenarios);
@@ -1422,22 +1685,19 @@ class Worksheet {
   void _advancedSheetProtection(String password) {
     _algorithmName = _SecurityHelper._sha512Alogrithm;
     _saltValue = _createSalt(16);
-    _spinCount = 500;
-    final Hash algorithm = _SecurityHelper._getAlgorithm(_algorithmName);
+    final Hash algorithm = _SecurityHelper._getAlgorithm(_algorithmName!);
     List<int> arrPassword = utf8.encode(password).toList();
     arrPassword = _convertCodeUnitsToUnicodeByteArray(arrPassword);
     List<int> temp = _SecurityHelper._combineArray(_saltValue, arrPassword);
     final List<int> h0 = algorithm.convert(temp).bytes.toList();
-    List<int> hi = h0;
+    List<int> h1 = h0;
     for (int iterator = 0; iterator < _spinCount; iterator++) {
-      final Uint8List int32Bytes = Uint8List(4)
-        ..buffer.asByteData().setInt32(0, iterator, Endian.big);
-      final List<int> arrIterator = int32Bytes.reversed.toList();
-      temp = _SecurityHelper._combineArray(hi, arrIterator);
+      final List<int> arrIterator = _BitConverter._getBytes(iterator);
+      temp = _SecurityHelper._combineArray(h1, arrIterator);
       temp = Uint8List.fromList(temp);
-      hi = algorithm.convert(temp).bytes.toList();
+      h1 = algorithm.convert(temp).bytes.toList();
     }
-    _hashValue = hi;
+    _hashValue = h1;
   }
 
   /// Creates random salt.
@@ -1445,7 +1705,7 @@ class Worksheet {
     if (length <= 0) {
       Exception('length');
     }
-    final List<int> result = List(length);
+    final List<int> result = List.filled(length, 0, growable: false);
     final rnd = Random(Range._toOADate(DateTime.now()).toInt());
     // final rnd = Random();
     final int iMaxValue = _maxPassWordLength + 1;
@@ -1458,7 +1718,7 @@ class Worksheet {
 
   /// Returns hash value for the password string.
   static int _getPasswordHash(String password) {
-    if (password == null) {
+    if (password == '') {
       return 0;
     }
     int usHash = 0;
@@ -1474,7 +1734,8 @@ class Worksheet {
     return (usHash ^ password.length ^ _defPasswordConst);
   }
 
-  List<int> _convertCodeUnitsToUnicodeByteArray(List<int> codeUnits) {
+  /// Convert code units to Unicode byte array.
+  static List<int> _convertCodeUnitsToUnicodeByteArray(List<int> codeUnits) {
     final ByteBuffer buffer = Uint8List(codeUnits.length * 2).buffer;
     final ByteData bdata = ByteData.view(buffer);
     int pos = 0;
@@ -1487,7 +1748,7 @@ class Worksheet {
 
   /// Converts character to 15 bits sequence
   static List<bool> _getCharBits15(String char) {
-    final List<bool> arrResult = List(15);
+    final List<bool> arrResult = List.filled(15, false, growable: false);
     final int usSource = char.codeUnitAt(0);
     int curBit = 1;
     for (int i = 0; i < 15; i++) {
@@ -1498,14 +1759,14 @@ class Worksheet {
     return arrResult;
   }
 
+  /// Rotate bits
   static List<bool> _rotateBits(List<bool> bits, int count) {
-    if (bits == null) throw Exception('bits');
-
     if (bits.isEmpty) return bits;
 
     if (count < 0) throw Exception('Count can\'t be less than zero');
 
-    final List<bool> arrResult = List(bits.length);
+    final List<bool> arrResult =
+        List.filled(bits.length, false, growable: false);
     // ignore: prefer_final_locals
     for (int i = 0, len = bits.length; i < len; i++) {
       final int newPos = (i + count) % len;
@@ -1516,9 +1777,7 @@ class Worksheet {
 
   /// Converts bits array to UInt16 value.
   static int _getUInt16FromBits(List<bool> bits) {
-    if (bits == null) throw Exception('bits');
-
-    if (bits.length > 16) throw Exception("There can't be more than 16 bits");
+    if (bits.length > 16) throw Exception('There cannot be more than 16 bits');
 
     int usResult = 0;
     int curBit = 1;
@@ -1571,7 +1830,6 @@ class Worksheet {
     false,
   ];
 
-  /// Clear the worksheet.
   /// Returns width of the specified column in pixels.
   int _getColumnWidthInPixels(int iColumnIndex) {
     if (iColumnIndex > _book._maxColumnCount) {
@@ -1590,10 +1848,10 @@ class Worksheet {
   /// Returns width from ColumnInfoRecord if there is corresponding ColumnInfoRecord or StandardWidth if not.
   double _innerGetColumnWidth(int iColumn) {
     if (iColumn < 1) {
-      throw Exception("iColumn can't be less then 1");
+      throw Exception('iColumn cannot be less then 1');
     }
-    Column column;
-    if (columns != null && columns.contains(iColumn)) {
+    Column? column;
+    if (columns.innerList.isNotEmpty && columns.contains(iColumn)) {
       column = columns.getColumn(iColumn);
     }
 
@@ -1633,9 +1891,9 @@ class Worksheet {
     }
     final double iOldValue = _innerGetColumnWidth(iColumn);
     if (iOldValue != value) {
-      Column colInfo;
+      Column? colInfo;
       if (iColumn < columns.count) {
-        colInfo = columns[iColumn];
+        colInfo = columns.getColumn(iColumn);
       }
 
       if (colInfo == null) {
@@ -1651,6 +1909,83 @@ class Worksheet {
     }
   }
 
+  /// Creates collection with specified argument.
+  ConditionalFormats _createCondFormatCollectionWrapper(
+      Range range, String value) {
+    return _CondFormatCollectionWrapper(range);
+  }
+
+  /// Imports an array of objects into a worksheet with specified alignment.
+  ///  ```dart
+  /// // Create a new Excel Document.
+  /// final Workbook workbook = Workbook();
+  ///
+  /// // Accessing sheet via index.
+  /// final Worksheet sheet = workbook.worksheets[0];
+  ///
+  /// //Initialize the list
+  /// final List<Object> list = [
+  ///   'Toatal Income',
+  ///   20000,
+  ///   'On Date',
+  ///   DateTime(2021, 11, 11)
+  /// ];
+  ///
+  /// //Import the Object list to Sheet
+  /// sheet.importList(list, 1, 1, true);
+  ///
+  /// // Save and dispose workbook.
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// File('Importlist.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
+  int importList(
+      List<Object?> arrObject, int firstRow, int firstColumn, bool isVertical) {
+    if (firstRow < 1 || firstRow > _book._maxRowCount) {
+      throw Exception('firstRow is not proper');
+    }
+
+    if (firstColumn < 1 || firstColumn > _book._maxColumnCount) {
+      throw Exception('firstColumn is not proper');
+    }
+
+    int i = 0;
+    int elementsToImport;
+
+    if (isVertical) {
+      elementsToImport =
+          min(firstRow + arrObject.length - 1, _book._maxRowCount) -
+              firstRow +
+              1;
+    } else {
+      elementsToImport =
+          min(firstColumn + arrObject.length - 1, _book._maxColumnCount) -
+              firstColumn +
+              1;
+    }
+
+    Range range;
+    if (elementsToImport > 0) {
+      range = getRangeByIndex(firstRow, firstColumn);
+      if (arrObject[i] == null) {
+        range.value = null;
+      } else {
+        range.value = arrObject[i];
+      }
+    }
+
+    for (i = 1; i < elementsToImport; i++) {
+      if (!isVertical) {
+        range = getRangeByIndex(firstRow, firstColumn + i);
+      } else {
+        range = getRangeByIndex(firstRow + i, firstColumn);
+      }
+      range.value = arrObject[i];
+    }
+
+    return i;
+  }
+
   // /// Converts width displayed by Excel to width that should be written into file.
   // double _evaluateFileColumnWidth(int realWidth) {
   //   return _book._widthToFileWidth(realWidth / 256.0) * 256;
@@ -1659,15 +1994,15 @@ class Worksheet {
   /// Clear the worksheet.
   void _clear() {
     if (_rows != null) {
-      _rows._clear();
+      _rows!._clear();
     }
 
     if (_columns != null) {
-      _columns._clear();
+      _columns!._clear();
     }
 
     if (_pictures != null) {
-      _pictures._clear();
+      _pictures!._clear();
     }
   }
 }

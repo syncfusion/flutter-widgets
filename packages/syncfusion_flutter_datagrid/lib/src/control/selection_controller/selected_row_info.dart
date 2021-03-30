@@ -1,13 +1,13 @@
 part of datagrid;
 
 class _SelectedRowCollection {
-  List<Object> selectedRow = [];
+  List<DataGridRow> selectedRow = [];
 
-  bool contains(Object rowData) => findRowData(rowData) != null;
+  bool contains(DataGridRow rowData) => findRowData(rowData) != null;
 
-  Object findRowData(Object rowData) {
-    final selectedItem = selectedRow.firstWhere((dataRow) => dataRow == rowData,
-        orElse: () => null);
+  DataGridRow? findRowData(Object rowData) {
+    final selectedItem =
+        selectedRow.firstWhereOrNull((dataRow) => dataRow == rowData);
     return selectedItem;
   }
 }

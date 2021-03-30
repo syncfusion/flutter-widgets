@@ -23,8 +23,6 @@ class _DecimalPointToken extends _FormatTokenBase {
   /// </summary>
   @override
   int _tryParse(String strFormat, int iIndex) {
-    if (strFormat == null) throw ('strFormat - string cannot be null');
-
     final int iFormatLength = strFormat.length;
 
     if (iFormatLength == 0) throw ('strFormat - string cannot be empty');

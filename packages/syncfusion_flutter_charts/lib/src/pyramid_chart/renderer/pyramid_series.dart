@@ -13,24 +13,24 @@ class _PyramidSeriesBase<T, D> extends ChartSeries<T, D>
     this.textFieldMapper,
     this.name,
     this.explodeIndex,
-    String height,
-    String width,
-    PyramidMode pyramidMode,
-    double gapRatio,
-    EmptyPointSettings emptyPointSettings,
-    String explodeOffset,
-    bool explode,
-    ActivationMode explodeGesture,
-    Color borderColor,
-    double borderWidth,
-    LegendIconType legendIconType,
-    DataLabelSettings dataLabelSettings,
-    double animationDuration,
-    double opacity,
+    String? height,
+    String? width,
+    PyramidMode? pyramidMode,
+    double? gapRatio,
+    EmptyPointSettings? emptyPointSettings,
+    String? explodeOffset,
+    bool? explode,
+    ActivationMode? explodeGesture,
+    Color? borderColor,
+    double? borderWidth,
+    LegendIconType? legendIconType,
+    DataLabelSettings? dataLabelSettings,
+    double? animationDuration,
+    double? opacity,
     // ignore: deprecated_member_use_from_same_package
-    SelectionSettings selectionSettings,
-    SelectionBehavior selectionBehavior,
-    List<int> initialSelectedDataIndexes,
+    SelectionSettings? selectionSettings,
+    SelectionBehavior? selectionBehavior,
+    List<int>? initialSelectedDataIndexes,
   })  : height = height ?? '80%',
         width = width ?? '80%',
         pyramidMode = pyramidMode ?? PyramidMode.linear,
@@ -77,7 +77,7 @@ class _PyramidSeriesBase<T, D> extends ChartSeries<T, D>
   ///        ));
   ///}
   @override
-  final List<T> dataSource;
+  final List<T>? dataSource;
 
   ///Maps the field name, which will be considered as x-values.
   ///
@@ -105,7 +105,7 @@ class _PyramidSeriesBase<T, D> extends ChartSeries<T, D>
   ///}
   ///```
   @override
-  final ChartIndexedValueMapper<D> xValueMapper;
+  final ChartIndexedValueMapper<D>? xValueMapper;
 
   ///Maps the field name, which will be considered as y-values.
   ///
@@ -133,7 +133,7 @@ class _PyramidSeriesBase<T, D> extends ChartSeries<T, D>
   ///}
   ///```
   @override
-  final ChartIndexedValueMapper<num> yValueMapper;
+  final ChartIndexedValueMapper<num>? yValueMapper;
 
   ///Name of the series.
   ///
@@ -149,7 +149,7 @@ class _PyramidSeriesBase<T, D> extends ChartSeries<T, D>
   ///}
   ///```
   @override
-  final String name;
+  final String? name;
 
   ///Height of the series.
   ///
@@ -380,7 +380,7 @@ class _PyramidSeriesBase<T, D> extends ChartSeries<T, D>
   ///}
   ///```
   @override
-  final ChartIndexedValueMapper<Color> pointColorMapper;
+  final ChartIndexedValueMapper<Color>? pointColorMapper;
 
   ///Maps the field name, which will be considered as text for data label.
   ///
@@ -402,7 +402,7 @@ class _PyramidSeriesBase<T, D> extends ChartSeries<T, D>
   ///   final Color pointColor;
   ///}
   ///```
-  final ChartIndexedValueMapper<String> textFieldMapper;
+  final ChartIndexedValueMapper<String>? textFieldMapper;
 
   ///Opacity of the series. The value ranges from 0 to 1.
   ///
@@ -473,7 +473,7 @@ class _PyramidSeriesBase<T, D> extends ChartSeries<T, D>
   ///        ));
   ///}
   ///```
-  final num explodeIndex;
+  final num? explodeIndex;
 
   /// List of data indexes initially selected
   ///
@@ -521,7 +521,7 @@ class _PyramidSeriesBase<T, D> extends ChartSeries<T, D>
   ///        ));
   ///}
   ///```
-  final ValueKey<String> key;
+  final ValueKey<String>? key;
 
   ///Used to create the renderer for custom series.
   ///
@@ -552,7 +552,7 @@ class _PyramidSeriesBase<T, D> extends ChartSeries<T, D>
   ///       // custom implementation here...
   ///  }
   ///```
-  final ChartSeriesRendererFactory<T, D> onCreateRenderer;
+  final ChartSeriesRendererFactory<T, D>? onCreateRenderer;
 
   ///Triggers when the series renderer is created.
 
@@ -577,7 +577,7 @@ class _PyramidSeriesBase<T, D> extends ChartSeries<T, D>
   ///        ));
   ///}
   ///```
-  final PyramidSeriesRendererCreatedCallback onRendererCreated;
+  final PyramidSeriesRendererCreatedCallback? onRendererCreated;
 
   @override
   void calculateEmptyPointValue(
@@ -622,46 +622,46 @@ class _PyramidSeriesBase<T, D> extends ChartSeries<T, D>
 class PyramidSeries<T, D> extends _PyramidSeriesBase<T, D> {
   /// Creating an argument constructor of PyramidSeries class.
   PyramidSeries({
-    ValueKey<String> key,
-    ChartSeriesRendererFactory<T, D> onCreateRenderer,
-    PyramidSeriesRendererCreatedCallback onRendererCreated,
-    List<T> dataSource,
-    ChartValueMapper<T, D> xValueMapper,
-    ChartValueMapper<T, num> yValueMapper,
-    ChartValueMapper<T, Color> pointColorMapper,
-    ChartValueMapper<T, String> textFieldMapper,
-    String name,
-    String height,
-    String width,
-    PyramidMode pyramidMode,
-    double gapRatio,
-    LegendIconType legendIconType,
-    EmptyPointSettings emptyPointSettings,
-    DataLabelSettings dataLabelSettings,
-    double animationDuration,
-    double opacity,
-    Color borderColor,
-    double borderWidth,
-    bool explode,
-    num explodeIndex,
-    ActivationMode explodeGesture,
-    String explodeOffset,
+    ValueKey<String>? key,
+    ChartSeriesRendererFactory<T, D>? onCreateRenderer,
+    PyramidSeriesRendererCreatedCallback? onRendererCreated,
+    List<T>? dataSource,
+    ChartValueMapper<T, D>? xValueMapper,
+    ChartValueMapper<T, num>? yValueMapper,
+    ChartValueMapper<T, Color>? pointColorMapper,
+    ChartValueMapper<T, String>? textFieldMapper,
+    String? name,
+    String? height,
+    String? width,
+    PyramidMode? pyramidMode,
+    double? gapRatio,
+    LegendIconType? legendIconType,
+    EmptyPointSettings? emptyPointSettings,
+    DataLabelSettings? dataLabelSettings,
+    double? animationDuration,
+    double? opacity,
+    Color? borderColor,
+    double? borderWidth,
+    bool? explode,
+    num? explodeIndex,
+    ActivationMode? explodeGesture,
+    String? explodeOffset,
     // ignore: deprecated_member_use_from_same_package
-    SelectionSettings selectionSettings,
-    SelectionBehavior selectionBehavior,
-    List<int> initialSelectedDataIndexes,
+    SelectionSettings? selectionSettings,
+    SelectionBehavior? selectionBehavior,
+    List<int>? initialSelectedDataIndexes,
   }) : super(
           key: key,
           onCreateRenderer: onCreateRenderer,
           onRendererCreated: onRendererCreated,
           dataSource: dataSource,
-          xValueMapper: (int index) => xValueMapper(dataSource[index], index),
-          yValueMapper: (int index) => yValueMapper(dataSource[index], index),
+          xValueMapper: (int index) => xValueMapper!(dataSource![index], index),
+          yValueMapper: (int index) => yValueMapper!(dataSource![index], index),
           pointColorMapper: (int index) => pointColorMapper != null
-              ? pointColorMapper(dataSource[index], index)
+              ? pointColorMapper(dataSource![index], index)
               : null,
           textFieldMapper: (int index) => textFieldMapper != null
-              ? textFieldMapper(dataSource[index], index)
+              ? textFieldMapper(dataSource![index], index)
               : null,
           name: name,
           height: height,
@@ -688,7 +688,7 @@ class PyramidSeries<T, D> extends _PyramidSeriesBase<T, D> {
   PyramidSeriesRenderer createRenderer(PyramidSeries<T, D> series) {
     PyramidSeriesRenderer seriesRenderer;
     if (onCreateRenderer != null) {
-      seriesRenderer = onCreateRenderer(series);
+      seriesRenderer = onCreateRenderer!(series) as PyramidSeriesRenderer;
       assert(seriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return seriesRenderer;
@@ -699,21 +699,21 @@ class PyramidSeries<T, D> extends _PyramidSeriesBase<T, D> {
 
 class _PyramidChartPainter extends CustomPainter {
   _PyramidChartPainter({
-    this.chartState,
-    this.seriesIndex,
-    this.isRepaint,
+    required this.chartState,
+    required this.seriesIndex,
+    required this.isRepaint,
     this.animationController,
     this.seriesAnimation,
-    ValueNotifier<num> notifier,
+    required ValueNotifier<num> notifier,
   }) : super(repaint: notifier);
   final SfPyramidChartState chartState;
   final int seriesIndex;
   final bool isRepaint;
-  final AnimationController animationController;
-  final Animation<double> seriesAnimation;
-  PyramidSeriesRenderer seriesRenderer;
+  final AnimationController? animationController;
+  final Animation<double>? seriesAnimation;
+  late PyramidSeriesRenderer seriesRenderer;
   //ignore: unused_field
-  static PointInfo<dynamic> point;
+  static late PointInfo<dynamic> point;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -721,11 +721,11 @@ class _PyramidChartPainter extends CustomPainter {
         chartState._chartSeries.visibleSeriesRenderers[seriesIndex];
 
     for (int pointIndex = 0;
-        pointIndex < seriesRenderer._renderPoints.length;
+        pointIndex < seriesRenderer._renderPoints!.length;
         pointIndex++) {
-      if (seriesRenderer._renderPoints[pointIndex].isVisible) {
+      if (seriesRenderer._renderPoints![pointIndex].isVisible) {
         final double animationFactor =
-            seriesAnimation != null ? seriesAnimation.value : 1;
+            seriesAnimation != null ? seriesAnimation!.value : 1;
         if (seriesRenderer._series.animationDuration > 0 &&
             !chartState._isLegendToggled) {
           final double factor = (chartState._chartAreaRect.top +
@@ -760,27 +760,28 @@ class PyramidSeriesRenderer extends ChartSeriesRenderer {
   /// Calling the default constructor of PyramidSeriesRenderer class.
   PyramidSeriesRenderer();
 
-  PyramidSeries<dynamic, dynamic> _series;
+  late PyramidSeries<dynamic, dynamic> _series;
   //Internal variables
-  String _seriesType;
-  List<PointInfo<dynamic>> _dataPoints;
-  List<PointInfo<dynamic>> _renderPoints;
-  num _sumOfPoints;
-  Size _triangleSize;
-  num _explodeDistance;
-  Rect _maximumDataLabelRegion;
-  PyramidSeriesController _controller;
-  SfPyramidChartState _chartState;
+  late String _seriesType;
+  late List<PointInfo<dynamic>> _dataPoints;
+  List<PointInfo<dynamic>>? _renderPoints;
+  late num _sumOfPoints;
+  late Size _triangleSize;
+  late num _explodeDistance;
+  late Rect _maximumDataLabelRegion;
+  PyramidSeriesController? _controller;
+  late SfPyramidChartState _chartState;
 
   /// Repaint notifier for series
-  ValueNotifier<int> _repaintNotifier;
-  DataLabelSettingsRenderer _dataLabelSettingsRenderer;
-  SelectionBehaviorRenderer _selectionBehaviorRenderer;
-  dynamic _selectionBehavior;
+  late ValueNotifier<int> _repaintNotifier;
+  late DataLabelSettingsRenderer _dataLabelSettingsRenderer;
+  late SelectionBehaviorRenderer _selectionBehaviorRenderer;
+  late dynamic _selectionBehavior;
   // ignore: prefer_final_fields
   bool _isSelectionEnable = false;
 }
 
+/// Called when the pyramid series is created
 typedef PyramidSeriesRendererCreatedCallback = void Function(
     PyramidSeriesController controller);
 
@@ -860,12 +861,12 @@ class PyramidSeriesController {
   /// }
   ///```
   void updateDataSource(
-      {List<int> addedDataIndexes,
-      List<int> removedDataIndexes,
-      List<int> updatedDataIndexes,
-      int addedDataIndex,
-      int removedDataIndex,
-      int updatedDataIndex}) {
+      {List<int>? addedDataIndexes,
+      List<int>? removedDataIndexes,
+      List<int>? updatedDataIndexes,
+      int? addedDataIndex,
+      int? removedDataIndex,
+      int? updatedDataIndex}) {
     if (removedDataIndexes != null && removedDataIndexes.isNotEmpty) {
       _removeDataPointsList(removedDataIndexes);
     } else if (removedDataIndex != null) {
@@ -896,12 +897,12 @@ class PyramidSeriesController {
   void _addOrUpdateDataPoint(int index, bool needUpdate) {
     final PyramidSeries<dynamic, dynamic> series = seriesRenderer._series;
     if (index >= 0 &&
-        series.dataSource.length > index &&
-        series.dataSource[index] != null) {
-      final ChartIndexedValueMapper<dynamic> xValue = series.xValueMapper;
-      final ChartIndexedValueMapper<dynamic> yValue = series.yValueMapper;
+        series.dataSource!.length > index &&
+        series.dataSource![index] != null) {
+      final ChartIndexedValueMapper<dynamic>? xValue = series.xValueMapper;
+      final ChartIndexedValueMapper<dynamic>? yValue = series.yValueMapper;
       final PointInfo<dynamic> _currentPoint =
-          PointInfo<dynamic>(xValue(index), yValue(index));
+          PointInfo<dynamic>(xValue!(index), yValue!(index));
       if (_currentPoint.x != null) {
         if (needUpdate) {
           if (seriesRenderer._dataPoints.length > index) {
@@ -942,16 +943,16 @@ class PyramidSeriesController {
   void _updatePyramidSeries() {
     final SfPyramidChartState _chartState = seriesRenderer._chartState;
     _chartState._chartSeries._processDataPoints();
-    _chartState._chartSeries?._initializeSeriesProperties(seriesRenderer);
+    _chartState._chartSeries._initializeSeriesProperties(seriesRenderer);
     seriesRenderer._repaintNotifier.value++;
     if (seriesRenderer._series.dataLabelSettings.isVisible &&
         _chartState._renderDataLabel != null) {
-      _chartState._renderDataLabel.state.render();
+      _chartState._renderDataLabel!.state?.render();
     }
     if (seriesRenderer._series.dataLabelSettings.isVisible &&
         _chartState._chartTemplate != null &&
-        _chartState._chartTemplate.state != null) {
-      _chartState._chartTemplate.state.templateRender();
+        _chartState._chartTemplate!.state != null) {
+      _chartState._chartTemplate!.state.templateRender();
     }
   }
 }

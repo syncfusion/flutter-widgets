@@ -6,15 +6,15 @@ part of charts;
 class SelectionBehavior {
   /// Creating an argument constructor of SelectionBehaviorclass.
   SelectionBehavior(
-      {bool enable,
+      {bool? enable,
       this.selectedColor,
       this.selectedBorderColor,
       this.selectedBorderWidth,
       this.unselectedColor,
       this.unselectedBorderColor,
       this.unselectedBorderWidth,
-      double selectedOpacity,
-      double unselectedOpacity,
+      double? selectedOpacity,
+      double? unselectedOpacity,
       this.selectionController})
       : enable = enable ?? false,
         selectedOpacity = selectedOpacity ?? 1.0,
@@ -58,7 +58,7 @@ class SelectionBehavior {
   ///        ));
   ///}
   ///```
-  final Color selectedColor;
+  final Color? selectedColor;
 
   ///Border color of the selected data points or series.
   ///```dart
@@ -75,7 +75,7 @@ class SelectionBehavior {
   ///        ));
   ///}
   ///```
-  final Color selectedBorderColor;
+  final Color? selectedBorderColor;
 
   ///Border width of the selected data points or series.
   ///
@@ -94,7 +94,7 @@ class SelectionBehavior {
   ///        ));
   ///}
   ///```
-  final double selectedBorderWidth;
+  final double? selectedBorderWidth;
 
   ///Color of the unselected data points or series.
   ///
@@ -112,7 +112,7 @@ class SelectionBehavior {
   ///        ));
   ///}
   ///```
-  final Color unselectedColor;
+  final Color? unselectedColor;
 
   ///Border color of the unselected data points or series.
   ///
@@ -130,7 +130,7 @@ class SelectionBehavior {
   ///        ));
   ///}
   ///```
-  final Color unselectedBorderColor;
+  final Color? unselectedBorderColor;
 
   ///Border width of the unselected data points or series.
   ///
@@ -148,7 +148,7 @@ class SelectionBehavior {
   ///        ));
   ///}
   ///```
-  final double unselectedBorderWidth;
+  final double? unselectedBorderWidth;
 
   ///Opacity of the selected series or data point.
   ///
@@ -203,7 +203,7 @@ class SelectionBehavior {
   ///        ));
   ///}
   ///```
-  final RangeController selectionController;
+  final RangeController? selectionController;
 
   dynamic _chartState;
 
@@ -245,6 +245,11 @@ class SelectionBehavior {
   void selectDataPoints(int pointIndex, [int seriesIndex = 0]) {
     final dynamic seriesRenderer =
         _chartState._chartSeries.visibleSeriesRenderers[seriesIndex];
+    assert(
+        seriesRenderer._chartState! is SfCartesianChartState
+            ? _getVisibleDataPointIndex(pointIndex, seriesRenderer) != null
+            : true,
+        'Provided point index is not in the visible range. Provide point index which is in the visible range.');
     final SelectionBehaviorRenderer selectionBehaviorRenderer =
         seriesRenderer._selectionBehaviorRenderer;
     selectionBehaviorRenderer._selectionRenderer
@@ -260,9 +265,9 @@ class SelectionBehavior {
         seriesRenderer._selectionBehaviorRenderer;
     final List<int> selectedPoints = <int>[];
     selectedItems =
-        selectionBehaviorRenderer._selectionRenderer.selectedSegments;
+        selectionBehaviorRenderer._selectionRenderer!.selectedSegments;
     for (int i = 0; i < selectedItems.length; i++) {
-      selectedPoints.add(selectedItems[i].currentSegmentIndex);
+      selectedPoints.add(selectedItems[i].currentSegmentIndex!);
     }
     return selectedPoints;
   }
@@ -281,20 +286,20 @@ class SelectionBehaviorRenderer with ChartSelectionBehavior {
   // ignore: deprecated_member_use_from_same_package
   final dynamic _selectionBehavior;
 
-  _SelectionRenderer _selectionRenderer;
+  _SelectionRenderer? _selectionRenderer;
 
   // ignore: unused_element
   void _selectRange() {
     bool isSelect = false;
     final CartesianSeriesRenderer seriesRenderer =
-        _selectionRenderer.seriesRenderer;
-    final SfCartesianChartState chartState = _selectionRenderer._chartState;
+        _selectionRenderer!.seriesRenderer;
+    final SfCartesianChartState chartState = _selectionRenderer!._chartState;
     if (_selectionBehavior.enable &&
         _selectionBehavior.selectionController != null) {
       _selectionBehavior.selectionController.addListener(() {
         chartState._isRangeSelectionSlider = true;
-        _selectionRenderer.selectedSegments.clear();
-        _selectionRenderer.unselectedSegments.clear();
+        _selectionRenderer!.selectedSegments.clear();
+        _selectionRenderer!.unselectedSegments?.clear();
         final dynamic start = _selectionBehavior.selectionController.start;
         final dynamic end = _selectionBehavior.selectionController.end;
         for (int i = 0; i < seriesRenderer._dataPoints.length; i++) {
@@ -305,15 +310,15 @@ class SelectionBehaviorRenderer with ChartSelectionBehavior {
               : (xValue >= start && xValue <= end);
 
           isSelect
-              ? _selectionRenderer.selectedSegments
+              ? _selectionRenderer!.selectedSegments
                   .add(seriesRenderer._segments[i])
-              : _selectionRenderer.unselectedSegments
-                  .add(seriesRenderer._segments[i]);
+              : _selectionRenderer!.unselectedSegments
+                  ?.add(seriesRenderer._segments[i]);
         }
-        _selectionRenderer
-            ._selectedSegmentsColors(_selectionRenderer.selectedSegments);
-        _selectionRenderer
-            ._unselectedSegmentsColors(_selectionRenderer.unselectedSegments);
+        _selectionRenderer!
+            ._selectedSegmentsColors(_selectionRenderer!.selectedSegments);
+        _selectionRenderer!
+            ._unselectedSegmentsColors(_selectionRenderer!.unselectedSegments!);
 
         for (final CartesianSeriesRenderer _seriesRenderer
             in _sfChartState._chartSeries.visibleSeriesRenderers) {
@@ -321,10 +326,10 @@ class SelectionBehaviorRenderer with ChartSelectionBehavior {
         }
       });
     }
-    if (chartState._initialRender) {
+    if (chartState._initialRender!) {
       chartState._isRangeSelectionSlider = false;
     }
-    _selectionRenderer._chartState = chartState;
+    _selectionRenderer!._chartState = chartState;
   }
 
   /// Specifies the index of the data point that needs to be selected initially while
@@ -385,15 +390,15 @@ class SelectionBehaviorRenderer with ChartSelectionBehavior {
   /// Performs the double-tap action on the chart.
   @override
   void onDoubleTap(double xPos, double yPos) =>
-      _selectionRenderer.performSelection(Offset(xPos, yPos));
+      _selectionRenderer?.performSelection(Offset(xPos, yPos));
 
   /// Performs the long press action on the chart.
   @override
   void onLongPress(double xPos, double yPos) =>
-      _selectionRenderer.performSelection(Offset(xPos, yPos));
+      _selectionRenderer?.performSelection(Offset(xPos, yPos));
 
   /// Performs the touch-down action on the chart.
   @override
   void onTouchDown(double xPos, double yPos) =>
-      _selectionRenderer.performSelection(Offset(xPos, yPos));
+      _selectionRenderer?.performSelection(Offset(xPos, yPos));
 }

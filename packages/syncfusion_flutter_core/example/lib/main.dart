@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+// import 'package:syncfusion_flutter_charts/charts.dart';
 
 void main() {
   return runApp(ChartApp());
@@ -18,7 +18,7 @@ class ChartApp extends StatelessWidget {
 
 class _MyHomePage extends StatefulWidget {
   //ignore: prefer_const_constructors_in_immutables
-  _MyHomePage({Key key}) : super(key: key);
+  _MyHomePage({Key? key}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -29,6 +29,7 @@ class _MyHomePageState extends State<_MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: const Text('Syncfusion Flutter Chart')),
-        body: SfCartesianChart());
+        body: Container());
+    // body: SfCartesianChart()) // Commented until the chart moves to null safety;
   }
 }

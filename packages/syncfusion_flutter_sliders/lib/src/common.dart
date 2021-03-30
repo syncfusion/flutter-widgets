@@ -26,11 +26,11 @@ typedef TooltipTextFormatterCallback = String Function(
 /// The value will be either [double] or [DateTime] based on the `values`.
 typedef SfSliderSemanticFormatterCallback = String Function(dynamic value);
 
-typedef SfRangeSliderSemanticFormatterCallback = String Function(
-    SfRangeValues values);
+typedef RangeSliderSemanticFormatterCallback = String Function(
+    dynamic value, SfThumb thumb);
 
-typedef SfRangeSelectorSemanticFormatterCallback = String Function(
-    SfRangeValues values);
+typedef RangeSelectorSemanticFormatterCallback = String Function(
+    dynamic value, SfThumb thumb);
 
 /// Option to place the labels either between the major ticks
 /// or on the major ticks.
@@ -125,6 +125,7 @@ enum SliderDragMode {
   /// at the same time by dragging in the area between start and end thumbs.
   both
 }
+enum SliderTooltipPosition { left, right }
 
 /// Represents the current selected values of [SfRangeSlider]
 /// and [SfRangeSelector].

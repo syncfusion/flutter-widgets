@@ -16,7 +16,7 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
       this.yValueMapper,
       this.dataLabelMapper,
       this.name,
-      this.dataSource,
+      required this.dataSource,
       this.xAxisName,
       this.yAxisName,
       this.sizeValueMapper,
@@ -34,23 +34,23 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
       this.trendlines,
       this.onRendererCreated,
       this.onCreateRenderer,
-      MarkerSettings markerSettings,
-      bool isVisible,
-      bool enableTooltip,
-      EmptyPointSettings emptyPointSettings,
-      DataLabelSettings dataLabelSettings,
-      double animationDuration,
-      List<double> dashArray,
-      List<int> initialSelectedDataIndexes,
-      Color borderColor,
-      double borderWidth,
+      MarkerSettings? markerSettings,
+      bool? isVisible,
+      bool? enableTooltip,
+      EmptyPointSettings? emptyPointSettings,
+      DataLabelSettings? dataLabelSettings,
+      double? animationDuration,
+      List<double>? dashArray,
+      List<int>? initialSelectedDataIndexes,
+      Color? borderColor,
+      double? borderWidth,
       // ignore: deprecated_member_use_from_same_package
-      SelectionSettings selectionSettings,
-      SelectionBehavior selectionBehavior,
-      bool isVisibleInLegend,
-      LegendIconType legendIconType,
-      double opacity,
-      SortingOrder sortingOrder})
+      SelectionSettings? selectionSettings,
+      SelectionBehavior? selectionBehavior,
+      bool? isVisibleInLegend,
+      LegendIconType? legendIconType,
+      double? opacity,
+      SortingOrder? sortingOrder})
       : isVisible = isVisible ?? true,
         markerSettings = markerSettings ?? MarkerSettings(),
         dataLabelSettings = dataLabelSettings ?? DataLabelSettings(),
@@ -115,7 +115,7 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   ///        ));
   ///}
   ///```
-  final ValueKey<String> key;
+  final ValueKey<String>? key;
 
   ///Used to create the renderer for custom series.
   ///
@@ -148,7 +148,7 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   ///       // custom implementation here...
   ///  }
   ///```
-  final ChartSeriesRendererFactory<T, D> onCreateRenderer;
+  final ChartSeriesRendererFactory<T, D>? onCreateRenderer;
 
   ///Triggers when the series renderer is created.
 
@@ -175,7 +175,7 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   ///        ));
   ///}
   ///```
-  final SeriesRendererCreatedCallback onRendererCreated;
+  final SeriesRendererCreatedCallback? onRendererCreated;
 
   ///Data required for rendering the series.
   ///
@@ -241,7 +241,7 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   ///}
   ///```
   @override
-  final ChartIndexedValueMapper<D> xValueMapper;
+  final ChartIndexedValueMapper<D>? xValueMapper;
 
   ///Field in the data source, which is considered as y-value.
   ///
@@ -273,7 +273,7 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   ///}
   ///```
   @override
-  final ChartIndexedValueMapper<dynamic> yValueMapper;
+  final ChartIndexedValueMapper<dynamic>? yValueMapper;
 
   ///Field in the data source, which is considered as fill color for the data points.
   ///
@@ -306,7 +306,7 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   ///}
   ///```
   @override
-  final ChartIndexedValueMapper<Color> pointColorMapper;
+  final ChartIndexedValueMapper<Color>? pointColorMapper;
 
   ///Field in the data source, which is considered as text for the data points.
   ///
@@ -337,7 +337,7 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   ///}
   ///```
   @override
-  final ChartIndexedValueMapper<String> dataLabelMapper;
+  final ChartIndexedValueMapper<String>? dataLabelMapper;
 
   ///Field in the data source, which is considered as size of the bubble for
   ///all the data points.
@@ -372,7 +372,7 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   ///  final Color pointColorMapper;
   ///}
   ///```
-  final ChartIndexedValueMapper<num> sizeValueMapper;
+  final ChartIndexedValueMapper<num>? sizeValueMapper;
 
   ///Field in the data source, which is considered as high value for the data points.
   ///
@@ -401,7 +401,7 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   ///   final num low;
   ///}
   ///```
-  final ChartIndexedValueMapper<num> highValueMapper;
+  final ChartIndexedValueMapper<num>? highValueMapper;
 
   ///Field in the data source, which is considered as low value for the data points.
   ///
@@ -430,7 +430,7 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   ///   final num low;
   ///}
   ///```
-  final ChartIndexedValueMapper<num> lowValueMapper;
+  final ChartIndexedValueMapper<num>? lowValueMapper;
 
   ///A boolean value, based on which the data point will be considered as intermediate sum or not.
   ///
@@ -468,7 +468,7 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   ///   final bool isIntermediate;
   ///}
   ///```
-  final ChartIndexedValueMapper<bool> intermediateSumPredicate;
+  final ChartIndexedValueMapper<bool>? intermediateSumPredicate;
 
   ///A boolean value, based on which the data point will be considered as total sum or not.
   ///
@@ -506,7 +506,7 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   ///   final bool isTotalSum;
   ///}
   ///```
-  final ChartIndexedValueMapper<bool> totalSumPredicate;
+  final ChartIndexedValueMapper<bool>? totalSumPredicate;
 
   ///Name of the x-axis to bind the series.
   ///
@@ -540,7 +540,7 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   ///    BubbleColors(99.4, 2.2, 0.197, const Color.fromRGBO(122, 100, 255, 1)),
   /// ];
   ///```
-  final String xAxisName;
+  final String? xAxisName;
 
   ///Name of the y-axis to bind the series.
   ///
@@ -574,7 +574,7 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   ///    BubbleColors(99.4, 2.2, 0.197, const Color.fromRGBO(122, 100, 255, 1)),
   /// ];
   ///```
-  final String yAxisName;
+  final String? yAxisName;
 
   ///Color of the series.
   ///
@@ -595,7 +595,7 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   ///        ));
   ///}
   ///```
-  final Color color;
+  final Color? color;
 
   ///Width of the series.
   ///
@@ -619,7 +619,7 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   ///        ));
   ///}
   ///```
-  final double width;
+  final double? width;
 
   ///Indication of data points.
   ///
@@ -694,7 +694,7 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   ///        ));
   ///}
   ///```
-  final List<Trendline> trendlines;
+  final List<Trendline>? trendlines;
 
   ///Fills the chart series with gradient color.
   ///
@@ -724,7 +724,7 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   ///        ));
   ///}
   ///```
-  final LinearGradient gradient;
+  final LinearGradient? gradient;
 
   ///Fills the border of the chart series with gradient color.
   ///
@@ -755,7 +755,7 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   ///        ));
   ///}
   ///```
-  final LinearGradient borderGradient;
+  final LinearGradient? borderGradient;
 
   ///Name of the series.
   ///
@@ -776,7 +776,7 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   ///}
   ///```
   @override
-  final String name;
+  final String? name;
 
   ///Enables or disables the tooltip for this series.
   ///
@@ -947,7 +947,7 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   ///}
   ///```
   @override
-  final String legendItemText;
+  final String? legendItemText;
 
   ///Customizes the data points or series on selection.
   ///
@@ -1046,7 +1046,7 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   ///}
   ///```
   @override
-  final ChartIndexedValueMapper<dynamic> sortFieldValueMapper;
+  final ChartIndexedValueMapper<dynamic>? sortFieldValueMapper;
 
   ///The data points in the series can be sorted in ascending or descending order.
   ///
@@ -1105,22 +1105,23 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   ///          )
   ///      );
   ///  }
-  final List<int> initialSelectedDataIndexes;
+  final List<int>? initialSelectedDataIndexes;
 }
 
 /// Creates a series renderer for Chart series
 abstract class ChartSeriesRenderer {
-  String _seriesName;
+  String? _seriesName;
 
 //ignore: prefer_final_fields
-  bool _visible;
+  bool? _visible;
 
   //ignore: prefer_final_fields
   bool _needsRepaint = true;
 
-  SfCartesianChart _chart;
+  late SfCartesianChart _chart;
 }
 
+/// Called when the series renderer is created
 typedef SeriesRendererCreatedCallback = void Function(
     ChartSeriesController controller);
 
@@ -1206,12 +1207,12 @@ class ChartSeriesController {
   /// }
   ///```
   void updateDataSource(
-      {List<int> addedDataIndexes,
-      List<int> removedDataIndexes,
-      List<int> updatedDataIndexes,
-      int addedDataIndex,
-      int removedDataIndex,
-      int updatedDataIndex}) {
+      {List<int>? addedDataIndexes,
+      List<int>? removedDataIndexes,
+      List<int>? updatedDataIndexes,
+      int? addedDataIndex,
+      int? removedDataIndex,
+      int? updatedDataIndex}) {
     bool _needUpdate = false;
     if (removedDataIndexes != null && removedDataIndexes.isNotEmpty) {
       _removeDataPointsList(removedDataIndexes);
@@ -1248,18 +1249,27 @@ class ChartSeriesController {
     if (index >= 0 &&
         series.dataSource.length > index &&
         series.dataSource[index] != null) {
-      final _VisibleRange xRange = seriesRenderer._xAxisRenderer._visibleRange;
-      final _VisibleRange yRange = seriesRenderer._yAxisRenderer._visibleRange;
+      final _VisibleRange xRange =
+          seriesRenderer._xAxisRenderer!._visibleRange!;
+      final _VisibleRange yRange =
+          seriesRenderer._yAxisRenderer!._visibleRange!;
       final CartesianChartPoint<dynamic> currentPoint =
-          _getChartPoint(seriesRenderer, series.dataSource[index], index);
+          _getChartPoint(seriesRenderer, series.dataSource[index], index)!;
       final String seriesType = seriesRenderer._seriesType;
       dynamic x = currentPoint.x;
-      if (seriesRenderer._xAxisRenderer is DateTimeAxisRenderer) {
+      if (seriesRenderer._xAxisRenderer is DateTimeAxisRenderer ||
+          seriesRenderer._xAxisRenderer is DateTimeCategoryAxisRenderer) {
         x = x.millisecondsSinceEpoch;
       } else if (seriesRenderer._xAxisRenderer is LogarithmicAxisRenderer) {
-        final LogarithmicAxis axis = seriesRenderer._xAxisRenderer._axis;
+        final LogarithmicAxis axis =
+            seriesRenderer._xAxisRenderer!._axis as LogarithmicAxis;
+        currentPoint.xValue = currentPoint.x;
         x = _calculateLogBaseValue(x > 1 ? x : 1, axis.logBase);
+      } else if (seriesRenderer._xAxisRenderer is CategoryAxisRenderer) {
+        x = index;
       }
+      currentPoint.xValue ??= x;
+      currentPoint.yValue = currentPoint.y;
       if (!_needXRecalculation &&
           (xRange.minimum >= x || xRange.maximum <= x)) {
         _needXRecalculation = true;
@@ -1267,7 +1277,8 @@ class ChartSeriesController {
       num minYVal = currentPoint.y ?? currentPoint.low;
       num maxYVal = currentPoint.y ?? currentPoint.high;
       if (seriesRenderer._yAxisRenderer is LogarithmicAxisRenderer) {
-        final LogarithmicAxis axis = seriesRenderer._yAxisRenderer._axis;
+        final LogarithmicAxis axis =
+            seriesRenderer._yAxisRenderer!._axis as LogarithmicAxis;
         minYVal =
             _calculateLogBaseValue(minYVal > 1 ? minYVal : 1, axis.logBase);
         maxYVal =
@@ -1354,19 +1365,19 @@ class ChartSeriesController {
   ///```
 
   CartesianChartPoint<dynamic> pixelToPoint(Offset position) {
-    ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer;
-    ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer;
+    ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
+    ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer!;
 
     final ChartAxis xAxis = xAxisRenderer._axis;
     final ChartAxis yAxis = yAxisRenderer._axis;
 
     final CartesianSeries<dynamic, dynamic> series = seriesRenderer._series;
 
-    final Rect rect = seriesRenderer._chartState._chartAxis._axisClipRect;
+    final Rect rect = seriesRenderer._chartState!._chartAxis._axisClipRect;
 
     if (series.xAxisName != null || series.yAxisName != null) {
       for (final ChartAxisRenderer axisRenderer
-          in seriesRenderer._chartState._chartAxis._axisRenderersCollection) {
+          in seriesRenderer._chartState!._chartAxis._axisRenderersCollection) {
         if (xAxis.name == series.xAxisName) {
           xAxisRenderer = axisRenderer;
         } else if (yAxis.name == series.yAxisName) {
@@ -1379,26 +1390,26 @@ class ChartSeriesController {
     }
 
     num xValue = _pointToXValue(
-        seriesRenderer._chartState._requireInvertedAxis,
+        seriesRenderer._chartState!._requireInvertedAxis,
         xAxisRenderer,
         xAxisRenderer._bounds,
         position.dx - (rect.left + xAxis.plotOffset),
         position.dy - (rect.top + yAxis.plotOffset));
     num yValue = _pointToYValue(
-        seriesRenderer._chartState._requireInvertedAxis,
+        seriesRenderer._chartState!._requireInvertedAxis,
         yAxisRenderer,
         yAxisRenderer._bounds,
         position.dx - (rect.left + xAxis.plotOffset),
         position.dy - (rect.top + yAxis.plotOffset));
 
     if (xAxisRenderer is LogarithmicAxisRenderer) {
-      final LogarithmicAxis axis = xAxis;
+      final LogarithmicAxis axis = xAxis as LogarithmicAxis;
       xValue = math.pow(xValue, _calculateLogBaseValue(xValue, axis.logBase));
     } else {
       xValue = xValue;
     }
     if (yAxisRenderer is LogarithmicAxisRenderer) {
-      final LogarithmicAxis axis = yAxis;
+      final LogarithmicAxis axis = yAxis as LogarithmicAxis;
       yValue = math.pow(yValue, _calculateLogBaseValue(yValue, axis.logBase));
     } else {
       yValue = yValue;
@@ -1444,10 +1455,10 @@ class ChartSeriesController {
     final num x = point.x;
     final num y = point.y;
 
-    final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer;
-    final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer;
+    final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
+    final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer!;
 
-    final bool isInverted = seriesRenderer._chartState._requireInvertedAxis;
+    final bool isInverted = seriesRenderer._chartState!._requireInvertedAxis;
 
     final CartesianSeries<dynamic, dynamic> series = seriesRenderer._series;
     final _ChartLocation location = _calculatePoint(
@@ -1457,13 +1468,13 @@ class ChartSeriesController {
         yAxisRenderer,
         isInverted,
         series,
-        seriesRenderer._chartState._containerRect);
+        seriesRenderer._chartState!._containerRect);
 
     return Offset(location.x, location.y);
   }
 
   ///If you wish to perform initial animation again in the existing series, this method can be called.
-  /// On calling this method, this particular series will be animated again based on the [animationDuration]
+  /// On calling this method, this particular series will be animated again based on the `animationDuration`
   /// property's value in the series. If the value is 0, then the animation will not be performed.
   ///
   ///```dart
@@ -1491,34 +1502,28 @@ class ChartSeriesController {
   /// }
   ///```
   void animate() {
-    if (seriesRenderer._visible &&
+    if (seriesRenderer._visible! &&
         seriesRenderer._series.animationDuration > 0) {
-      final SfCartesianChartState chartState = seriesRenderer._chartState;
+      final SfCartesianChartState chartState = seriesRenderer._chartState!;
       final SfCartesianChart chart = chartState._chart;
       final TooltipBehavior tooltip = chart.tooltipBehavior;
       final TrackballBehavior trackball = chart.trackballBehavior;
-      final _TooltipPainter tooltipPainter =
-          chartState._tooltipBehaviorRenderer._painter;
-      final _TooltipTemplate tooltipTemplate =
-          chartState._tooltipBehaviorRenderer._tooltipTemplate;
-      final _TrackballPainter trackballPainter =
+      final _TrackballPainter? trackballPainter =
           chartState._trackballBehaviorRenderer._trackballPainter;
       final TrackballBehaviorRenderer trackballBehaviorRenderer =
           chartState._trackballBehaviorRenderer;
 
       //This hides the tooltip if rendered for this current series renderer
-      if (tooltip != null &&
-          tooltip.enable &&
+      if (tooltip.enable &&
           (tooltip.builder != null
-              ? tooltipTemplate.state.seriesIndex ==
+              ? chartState._tooltipBehaviorRenderer._seriesIndex ==
                   seriesRenderer._segments[0]._seriesIndex
-              : tooltipPainter.currentSeries == seriesRenderer)) {
+              : chartState._tooltipBehaviorRenderer._currentSeries ==
+                  seriesRenderer)) {
         tooltip.hide();
       }
       //This hides the trackball if rendered for this current series renderer
-      if (trackball != null &&
-          trackball.enable &&
-          trackballBehaviorRenderer != null) {
+      if (trackball.enable) {
         for (final point in trackballBehaviorRenderer._chartPointInfo) {
           if (point.seriesRenderer == seriesRenderer) {
             if (trackballPainter != null) {
@@ -1526,10 +1531,10 @@ class ChartSeriesController {
               trackballPainter.canResetPath = true;
               break;
             } else {
-              final GlobalKey key =
-                  trackballBehaviorRenderer._trackballTemplate.key;
+              final GlobalKey key = trackballBehaviorRenderer
+                  ._trackballTemplate!.key as GlobalKey;
               final _TrackballTemplateState trackballTemplateState =
-                  key.currentState;
+                  key.currentState! as _TrackballTemplateState;
               trackballTemplateState.hideTrackballTemplate();
               break;
             }
@@ -1557,7 +1562,7 @@ class ChartSeriesController {
       chartState._animationCompleteCount = 0;
       chartState._forwardAnimation(seriesRenderer);
       //This animates the trendlines of the animating series.
-      if (seriesRenderer._trendlineRenderer != null) {
+      if (seriesRenderer._trendlineRenderer.isNotEmpty) {
         for (final TrendlineRenderer trendlineRenderer
             in seriesRenderer._trendlineRenderer) {
           if (trendlineRenderer._visible) {
@@ -1589,6 +1594,10 @@ class ChartSeriesController {
         index < seriesRenderer._dataPoints.length) {
       final CartesianChartPoint<dynamic> currentPoint =
           seriesRenderer._dataPoints[index];
+      final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
+      if (xAxisRenderer is DateTimeCategoryAxisRenderer) {
+        _needXRecalculation = true;
+      }
       seriesRenderer._dataPoints.removeAt(index);
       if (currentPoint != null) {
         if (!_needXRecalculation &&
@@ -1623,10 +1632,15 @@ class ChartSeriesController {
   void _updateCartesianSeries(
       bool needXRecalculation, bool needYRecalculation, bool needUpdate) {
     final SfCartesianChartState chartState =
-        seriesRenderer._xAxisRenderer._chartState;
+        seriesRenderer._xAxisRenderer!._chartState;
+    chartState._isRedrawByZoomPan = false;
     if (needXRecalculation || needYRecalculation || needUpdate) {
       if (needXRecalculation) {
         seriesRenderer._minimumX = seriesRenderer._maximumX = null;
+        final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
+        if (xAxisRenderer is DateTimeCategoryAxisRenderer) {
+          xAxisRenderer._labels.clear();
+        }
       }
       if (needYRecalculation) {
         seriesRenderer._minimumY = seriesRenderer._maximumY = null;
@@ -1634,15 +1648,15 @@ class ChartSeriesController {
       chartState._chartSeries._findSeriesMinMax(seriesRenderer);
       if (seriesRenderer._seriesType.contains('stacked')) {
         chartState._chartSeries
-            ?._calculateStackedValues(_findSeriesCollection(chartState));
+            ._calculateStackedValues(_findSeriesCollection(chartState));
       }
     }
     if (needXRecalculation) {
-      final dynamic axisRenderer = seriesRenderer._xAxisRenderer;
+      final dynamic axisRenderer = seriesRenderer._xAxisRenderer!;
       axisRenderer._calculateRangeAndInterval(chartState);
     }
     if (needYRecalculation) {
-      final dynamic axisRenderer = seriesRenderer._yAxisRenderer;
+      final dynamic axisRenderer = seriesRenderer._yAxisRenderer!;
       axisRenderer._calculateRangeAndInterval(chartState);
     }
     if (needXRecalculation || needYRecalculation) {
@@ -1655,13 +1669,14 @@ class ChartSeriesController {
     } else {
       _repaintSeries(chartState, seriesRenderer);
     }
+    chartState._isLoadMoreIndicator = false;
     //This makes the update data source method work with dynamic animation(scheduled for release)
     // seriesRenderer._needsAnimation = seriesRenderer._needAnimateSeriesElements =
     //     chartState.widgetNeedUpdate = true;
     // chartState.initialRender = false;
-    // seriesRenderer._chartState._totalAnimatingSeries = 1;
-    // seriesRenderer._chartState._animationCompleteCount = 0;
-    // seriesRenderer._chartState._forwardAnimation(
+    // seriesRenderer._chartState!._totalAnimatingSeries = 1;
+    // seriesRenderer._chartState!._animationCompleteCount = 0;
+    // seriesRenderer._chartState!._forwardAnimation(
     //     seriesRenderer, seriesRenderer._series.animationDuration);
   }
 
@@ -1671,7 +1686,7 @@ class ChartSeriesController {
     seriesRenderer._calculateRegion = true;
     seriesRenderer._repaintNotifier.value++;
     if (seriesRenderer._series.dataLabelSettings.isVisible) {
-      chartState._renderDataLabel.state.dataLabelRepaintNotifier.value++;
+      chartState._renderDataLabel?.state!.dataLabelRepaintNotifier.value++;
     }
   }
 }
@@ -1679,20 +1694,19 @@ class ChartSeriesController {
 /// Creates a series renderer for cartesian series
 abstract class CartesianSeriesRenderer extends ChartSeriesRenderer {
   /// Stores the series type
-  String _seriesType;
+  late String _seriesType;
 
   /// Whether to check the series is rect series or not
   // ignore: prefer_final_fields
   bool _isRectSeries = false;
 
-  final List<_ListControlPoints> _drawControlPoints = <_ListControlPoints>[];
+  final List<List<Offset>> _drawControlPoints = <List<Offset>>[];
 
-  final List<_ListControlPoints> _drawLowControlPoints = <_ListControlPoints>[];
+  final List<List<Offset>> _drawLowControlPoints = <List<Offset>>[];
 
-  final List<_ListControlPoints> _drawHighControlPoints =
-      <_ListControlPoints>[];
+  final List<List<Offset>> _drawHighControlPoints = <List<Offset>>[];
 
-  Path _segmentPath;
+  Path? _segmentPath;
 
   /// Gets the Segments collection variable declarations.
   // ignore: prefer_final_fields
@@ -1700,10 +1714,10 @@ abstract class CartesianSeriesRenderer extends ChartSeriesRenderer {
 
   //Maintain the old series state.
   //ignore: unused_field
-  CartesianSeries<dynamic, dynamic> _oldSeries;
+  CartesianSeries<dynamic, dynamic>? _oldSeries;
 
   //Store the current series state
-  CartesianSeries<dynamic, dynamic> _series;
+  late CartesianSeries<dynamic, dynamic> _series;
 
   /// Holds the collection of cartesian data points
   // ignore: prefer_final_fields
@@ -1711,53 +1725,50 @@ abstract class CartesianSeriesRenderer extends ChartSeriesRenderer {
       <CartesianChartPoint<dynamic>>[];
 
   /// Holds the collection of cartesian visible data points
-  List<CartesianChartPoint<dynamic>> _visibleDataPoints;
+  List<CartesianChartPoint<dynamic>>? _visibleDataPoints;
 
   /// Holds the collection of old data points
-  List<CartesianChartPoint<dynamic>> _oldDataPoints;
+  List<CartesianChartPoint<dynamic>>? _oldDataPoints;
 
   /// Holds the old series initial selected data indexes
-  List<int> _oldSelectedIndexes;
+  List<int>? _oldSelectedIndexes;
 
   /// Holds the information for x Axis
-  ChartAxisRenderer _xAxisRenderer;
+  ChartAxisRenderer? _xAxisRenderer;
 
   /// Holds the information for y Axis
-  ChartAxisRenderer _yAxisRenderer;
+  ChartAxisRenderer? _yAxisRenderer;
 
   /// Minimum x value for Series
-  num _minimumX;
+  num? _minimumX;
 
   /// Maximum x value for Series
-  num _maximumX;
+  num? _maximumX;
 
   /// Minimum y value for Series
-  num _minimumY;
+  num? _minimumY;
 
   /// Maximum y value for Series
-  num _maximumY;
+  num? _maximumY;
 
   /// Hold the data about point regions
-  Map<dynamic, dynamic> _regionalData;
+  Map<dynamic, dynamic>? _regionalData;
 
   /// Color for the series based on color palette
-  Color _seriesColor;
-  List<dynamic> _xValues;
+  Color? _seriesColor;
+  List<dynamic>? _xValues;
 
   /// Hold the information about chart class
   @override
-  SfCartesianChart _chart;
+  late SfCartesianChart _chart;
 
   /// Holds the information about chart state class
-  SfCartesianChartState _chartState;
-
-  /// Side by side index for series
-  int _sideBySideIndex;
+  SfCartesianChartState? _chartState;
 
   /// Contains the collection of path for markers
-  List<Path> _markerShapes;
+  late List<Path?> _markerShapes;
 
-  List<Path> _markerShapes2;
+  late List<Path?> _markerShapes2;
 
   // ignore: prefer_final_fields
   bool _isOuterRegion = false;
@@ -1767,10 +1778,10 @@ abstract class CartesianSeriesRenderer extends ChartSeriesRenderer {
   bool _isIndicator = false;
 
   ///storing mindelta for rect series
-  num _minDelta;
+  num? _minDelta;
 
   /// Repaint notifier for series
-  ValueNotifier<int> _repaintNotifier;
+  late ValueNotifier<int> _repaintNotifier;
 
   // ignore: prefer_final_fields
   bool _needAnimateSeriesElements = false;
@@ -1784,29 +1795,29 @@ abstract class CartesianSeriesRenderer extends ChartSeriesRenderer {
   bool _calculateRegion = false;
 
   //ignore: prefer_final_fields
-  Animation<double> _seriesAnimation;
+  Animation<double>? _seriesAnimation;
 
   //ignore: prefer_final_fields
-  Animation<double> _seriesElementAnimation;
+  late Animation<double> _seriesElementAnimation;
 
   //controls the animation of the corresponding series
-  AnimationController _animationController;
+  late AnimationController _animationController;
 
   ///We can redraw the series with updating or creating new points by using this controller.If we need to access the redrawing methods
   ///in this before we must get the ChartSeriesController onRendererCreated event.
-  ChartSeriesController _controller;
+  ChartSeriesController? _controller;
 
   //ignore: prefer_final_fields
   List<TrendlineRenderer> _trendlineRenderer = <TrendlineRenderer>[];
 
-  DataLabelSettingsRenderer _dataLabelSettingsRenderer;
+  late DataLabelSettingsRenderer _dataLabelSettingsRenderer;
 
-  MarkerSettingsRenderer _markerSettingsRenderer;
+  MarkerSettingsRenderer? _markerSettingsRenderer;
 
   // ignore: prefer_final_fields
   bool _isSelectionEnable = false;
 
-  SelectionBehaviorRenderer _selectionBehaviorRenderer;
+  SelectionBehaviorRenderer? _selectionBehaviorRenderer;
 
   dynamic _selectionBehavior;
 
@@ -1814,13 +1825,14 @@ abstract class CartesianSeriesRenderer extends ChartSeriesRenderer {
   bool _isMarkerRenderEvent = false;
 
   // bool for animation status
-  bool _animationCompleted;
+  late bool _animationCompleted;
 
   // ignore: prefer_final_fields
   bool _hasDataLabelTemplate = false;
 
   // ignore: prefer_final_fields
-  _VisibleRange sideBySideInfo;
+  /// It specifies the side by side information of the visible range.
+  _VisibleRange? sideBySideInfo;
 
   /// To create segment for series
   ChartSegment createSegment();

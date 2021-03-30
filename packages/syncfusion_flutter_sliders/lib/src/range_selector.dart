@@ -3,11 +3,7 @@ import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart'
-    show
-        GestureArenaTeam,
-        TapGestureRecognizer,
-        HorizontalDragGestureRecognizer;
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart' show DateFormat, NumberFormat;
@@ -119,7 +115,7 @@ import 'slider_shapes.dart';
 class SfRangeSelector extends StatefulWidget {
   /// Creates a [SfRangeSelector].
   const SfRangeSelector(
-      {Key key,
+      {Key? key,
       this.min = 0.0,
       this.max = 1.0,
       this.initialValues,
@@ -129,8 +125,8 @@ class SfRangeSelector extends StatefulWidget {
       this.interval,
       this.stepSize,
       this.stepDuration,
-      this.deferredUpdateDelay,
-      this.minorTicksPerInterval,
+      this.deferredUpdateDelay = 500,
+      this.minorTicksPerInterval = 0,
       this.showTicks = false,
       this.showLabels = false,
       this.showDivisors = false,
@@ -140,29 +136,28 @@ class SfRangeSelector extends StatefulWidget {
       this.dragMode = SliderDragMode.onThumb,
       this.inactiveColor,
       this.activeColor,
-      this.labelPlacement,
+      this.labelPlacement = LabelPlacement.onTicks,
       this.numberFormat,
       this.dateFormat,
       this.dateIntervalType,
       this.labelFormatterCallback,
       this.tooltipTextFormatterCallback,
       this.semanticFormatterCallback,
-      this.trackShape,
-      this.divisorShape,
-      this.overlayShape,
-      this.thumbShape,
-      this.tickShape,
-      this.minorTickShape,
-      this.tooltipShape,
+      this.trackShape = const SfTrackShape(),
+      this.divisorShape = const SfDivisorShape(),
+      this.overlayShape = const SfOverlayShape(),
+      this.thumbShape = const SfThumbShape(),
+      this.tickShape = const SfTickShape(),
+      this.minorTickShape = const SfMinorTickShape(),
+      this.tooltipShape = const SfRectangularTooltipShape(),
       this.startThumbIcon,
       this.endThumbIcon,
-      @required this.child})
+      required this.child})
       : assert(min != null),
         assert(max != null),
         assert(min != max),
         assert(interval == null || interval > 0),
         assert(stepSize == null || stepSize > 0),
-        assert(child != null),
         assert(controller != null || initialValues != null),
         super(key: key);
 
@@ -213,7 +208,7 @@ class SfRangeSelector extends StatefulWidget {
   /// * [RangeController](https://pub.dev/documentation/syncfusion_flutter_core/latest/core/RangeController-class.html), for coordinating between [SfRangeSelector] and the widget which listens to it.
   /// * [showTicks], to render major ticks at given interval.
   /// * [showLabels], to render labels at given interval.
-  final SfRangeValues initialValues;
+  final SfRangeValues? initialValues;
 
   /// Called when the user is selecting a new values
   /// for the selector by dragging.
@@ -236,7 +231,7 @@ class SfRangeSelector extends StatefulWidget {
   ///     ),
   /// )
   /// ```
-  final ValueChanged<SfRangeValues> onChanged;
+  final ValueChanged<SfRangeValues>? onChanged;
 
   /// Coordinates between [SfRangeSelector] and the widget which listens to it.
   ///
@@ -417,7 +412,7 @@ class SfRangeSelector extends StatefulWidget {
   ///   }
   /// }
   /// ```
-  final RangeController controller;
+  final RangeController? controller;
 
   /// Controls the range selector’s state whether it is disabled or enabled.
   ///
@@ -507,7 +502,7 @@ class SfRangeSelector extends StatefulWidget {
   /// * [showDivisors], to render divisors at given interval.
   /// * [showTicks], to render major ticks at given interval.
   /// * [showLabels], to render labels at given interval.
-  final double interval;
+  final double? interval;
 
   /// Option to select discrete values.
   ///
@@ -535,7 +530,7 @@ class SfRangeSelector extends StatefulWidget {
   ///   )
   /// )
   /// ```
-  final double stepSize;
+  final double? stepSize;
 
   /// Option to select discrete date values.
   ///
@@ -575,7 +570,7 @@ class SfRangeSelector extends StatefulWidget {
   /// * [interval], for setting the interval.
   /// * [dateIntervalType], for changing the interval type.
   /// * [dateFormat] for formatting the date labels.
-  final SliderStepDuration stepDuration;
+  final SliderStepDuration? stepDuration;
 
   /// Customize the delay duration when [enableDeferredUpdate] is `true`.
   ///
@@ -906,7 +901,7 @@ class SfRangeSelector extends StatefulWidget {
   ///
   /// * [SfRangeSelectorThemeData](https://pub.dev/documentation/syncfusion_flutter_core/latest/theme/SfRangeSelectorThemeData-class.html), for customizing the individual
   /// inactive range selector element’s visual.
-  final Color inactiveColor;
+  final Color? inactiveColor;
 
   /// Color applied to the active track, thumb, overlay, and inactive divisors.
   ///
@@ -935,7 +930,7 @@ class SfRangeSelector extends StatefulWidget {
   /// See also:
   ///
   /// * [SfRangeSelectorThemeData](https://pub.dev/documentation/syncfusion_flutter_core/latest/theme/SfRangeSelectorThemeData-class.html), for customizing the individual active range selector element’s visual.
-  final Color activeColor;
+  final Color? activeColor;
 
   /// Option to place the labels either between the major ticks or
   /// on the major ticks.
@@ -990,7 +985,7 @@ class SfRangeSelector extends StatefulWidget {
   /// See also:
   ///
   /// * [labelFormatterCallback], for formatting the numeric and date labels.
-  final NumberFormat numberFormat;
+  final NumberFormat? numberFormat;
 
   /// Formats the date labels. It is mandatory for date [SfRangeSelector].
   ///
@@ -1029,7 +1024,7 @@ class SfRangeSelector extends StatefulWidget {
   /// * [numberFormat], for formatting the numeric labels.
   /// * [labelFormatterCallback], for formatting the numeric and date label.
   /// * [dateIntervalType], for changing the interval type.
-  final DateFormat dateFormat;
+  final DateFormat? dateFormat;
 
   /// The type of date interval. It is mandatory for date [SfRangeSelector].
   ///
@@ -1061,7 +1056,7 @@ class SfRangeSelector extends StatefulWidget {
   ///    ),
   /// )
   /// ```
-  final DateIntervalType dateIntervalType;
+  final DateIntervalType? dateIntervalType;
 
   /// Signature for formatting or changing the whole numeric or date label text.
   ///
@@ -1092,7 +1087,7 @@ class SfRangeSelector extends StatefulWidget {
   ///   ),
   /// )
   /// ```
-  final LabelFormatterCallback labelFormatterCallback;
+  final LabelFormatterCallback? labelFormatterCallback;
 
   /// Signature for formatting or changing the whole tooltip label text.
   ///
@@ -1128,7 +1123,7 @@ class SfRangeSelector extends StatefulWidget {
   ///   ),
   /// )
   /// ```
-  final TooltipTextFormatterCallback tooltipTextFormatterCallback;
+  final TooltipTextFormatterCallback? tooltipTextFormatterCallback;
 
   /// The callback used to create a semantic value from the selector's values.
   ///
@@ -1147,8 +1142,8 @@ class SfRangeSelector extends StatefulWidget {
   ///   initialValues: _values,
   ///   interval: 20,
   ///   stepSize: 10,
-  ///   semanticFormatterCallback: (SfRangeValues values) {
-  ///     return '${values.start} and ${values.end}';
+  ///   semanticFormatterCallback: (dynamic value, SfThumb thumb) {
+  ///     return 'The $thumb value is ${value}';
   ///   },
   ///  child: Container(
   ///    height: 150,
@@ -1156,7 +1151,7 @@ class SfRangeSelector extends StatefulWidget {
   ///  ),
   /// )
   /// ```
-  final SfRangeSelectorSemanticFormatterCallback semanticFormatterCallback;
+  final RangeSelectorSemanticFormatterCallback? semanticFormatterCallback;
 
   /// Base class for [SfRangeSelector] track shapes.
   final SfTrackShape trackShape;
@@ -1252,7 +1247,7 @@ class SfRangeSelector extends StatefulWidget {
   ///
   /// * [thumbShape], for customizing the thumb shape.
   /// * [SfRangeSelectorThemeData](https://pub.dev/documentation/syncfusion_flutter_core/latest/theme/SfRangeSelectorThemeData-class.html), for customizing the individual active range selector element’s visual.
-  final Widget startThumbIcon;
+  final Widget? startThumbIcon;
 
   /// Sets the widget inside the right thumb.
   ///
@@ -1290,7 +1285,7 @@ class SfRangeSelector extends StatefulWidget {
   ///
   /// * [thumbShape], for customizing the thumb shape.
   /// * [SfRangeSelectorThemeData](https://pub.dev/documentation/syncfusion_flutter_core/latest/theme/SfRangeSelectorThemeData-class.html), for customizing the individual active range selector element’s visual.
-  final Widget endThumbIcon;
+  final Widget? endThumbIcon;
 
   @override
   _SfRangeSelectorState createState() => _SfRangeSelectorState();
@@ -1298,14 +1293,16 @@ class SfRangeSelector extends StatefulWidget {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(
-      initialValues.toDiagnosticsNode(name: 'initialValues'),
-    );
+    if (initialValues != null) {
+      properties.add(
+        initialValues!.toDiagnosticsNode(name: 'initialValues'),
+      );
+    }
     properties.add(DiagnosticsProperty<dynamic>('min', min));
     properties.add(DiagnosticsProperty<dynamic>('max', max));
     if (controller != null) {
       properties.add(
-        controller.toDiagnosticsNode(name: 'controller'),
+        controller!.toDiagnosticsNode(name: 'controller'),
       );
     }
     properties.add(FlagProperty('enabled',
@@ -1316,7 +1313,7 @@ class SfRangeSelector extends StatefulWidget {
     properties.add(DoubleProperty('interval', interval));
     properties.add(DoubleProperty('stepSize', stepSize));
     if (stepDuration != null) {
-      properties.add(stepDuration.toDiagnosticsNode(name: 'stepDuration'));
+      properties.add(stepDuration!.toDiagnosticsNode(name: 'stepDuration'));
     }
 
     properties.add(IntProperty('minorTicksPerInterval', minorTicksPerInterval));
@@ -1357,11 +1354,13 @@ class SfRangeSelector extends StatefulWidget {
         .add(EnumProperty<LabelPlacement>('labelPlacement', labelPlacement));
     properties
         .add(DiagnosticsProperty<NumberFormat>('numberFormat', numberFormat));
-    if (initialValues.start.runtimeType == DateTime) {
+    if (initialValues != null &&
+        initialValues!.start.runtimeType == DateTime &&
+        dateFormat != null) {
       properties.add(StringProperty(
           'dateFormat',
           'Formatted value is ' +
-              (dateFormat.format(initialValues.start)).toString()));
+              (dateFormat!.format(initialValues!.start)).toString()));
     }
 
     properties.add(ObjectFlagProperty<ValueChanged<SfRangeValues>>.has(
@@ -1372,20 +1371,22 @@ class SfRangeSelector extends StatefulWidget {
         'tooltipTextFormatterCallback', tooltipTextFormatterCallback));
     properties.add(ObjectFlagProperty<LabelFormatterCallback>.has(
         'labelFormatterCallback', labelFormatterCallback));
-    properties.add(ObjectFlagProperty<ValueChanged<SfRangeValues>>.has(
-        'semanticFormatterCallback', semanticFormatterCallback));
+    properties.add(
+        ObjectFlagProperty<RangeSelectorSemanticFormatterCallback>.has(
+            'semanticFormatterCallback', semanticFormatterCallback));
   }
 }
 
 class _SfRangeSelectorState extends State<SfRangeSelector>
     with TickerProviderStateMixin {
-  AnimationController overlayStartController;
-  AnimationController overlayEndController;
-  AnimationController startPositionController;
-  AnimationController endPositionController;
-  AnimationController stateController;
-  AnimationController tooltipAnimationController;
-  Timer tooltipDelayTimer;
+  late AnimationController overlayStartController;
+  late AnimationController overlayEndController;
+  late AnimationController startPositionController;
+  late AnimationController endPositionController;
+  late AnimationController stateController;
+  late AnimationController tooltipAnimationStartController;
+  late AnimationController tooltipAnimationEndController;
+  Timer? tooltipDelayTimer;
   final Duration duration = const Duration(milliseconds: 100);
 
   String _getFormattedLabelText(dynamic actualText, String formattedText) {
@@ -1398,7 +1399,7 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
 
   SfRangeSelectorThemeData _getRangeSelectorThemeData(ThemeData themeData) {
     SfRangeSelectorThemeData rangeSelectorThemeData =
-        SfRangeSelectorTheme.of(context);
+        SfRangeSelectorTheme.of(context)!;
     final double minTrackHeight = math.min(
         rangeSelectorThemeData.activeTrackHeight,
         rangeSelectorThemeData.inactiveTrackHeight);
@@ -1414,17 +1415,17 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
       labelOffset: rangeSelectorThemeData.labelOffset ??
           (widget.showTicks ? const Offset(0.0, 5.0) : const Offset(0.0, 13.0)),
       inactiveLabelStyle: rangeSelectorThemeData.inactiveLabelStyle ??
-          themeData.textTheme.bodyText1.copyWith(
+          themeData.textTheme.bodyText1!.copyWith(
               color: widget.enabled
-                  ? themeData.textTheme.bodyText1.color.withOpacity(0.87)
+                  ? themeData.textTheme.bodyText1!.color!.withOpacity(0.87)
                   : themeData.colorScheme.onSurface.withOpacity(0.32)),
       activeLabelStyle: rangeSelectorThemeData.activeLabelStyle ??
-          themeData.textTheme.bodyText1.copyWith(
+          themeData.textTheme.bodyText1!.copyWith(
               color: widget.enabled
-                  ? themeData.textTheme.bodyText1.color.withOpacity(0.87)
+                  ? themeData.textTheme.bodyText1!.color!.withOpacity(0.87)
                   : themeData.colorScheme.onSurface.withOpacity(0.32)),
       tooltipTextStyle: rangeSelectorThemeData.tooltipTextStyle ??
-          themeData.textTheme.bodyText1.copyWith(
+          themeData.textTheme.bodyText1!.copyWith(
               color: rangeSelectorThemeData.brightness == Brightness.light
                   ? const Color.fromRGBO(255, 255, 255, 1)
                   : const Color.fromRGBO(0, 0, 0, 1)),
@@ -1512,8 +1513,8 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
     super.initState();
 
     if (widget.controller != null) {
-      assert(widget.controller.start != null);
-      assert(widget.controller.end != null);
+      assert(widget.controller!.start != null);
+      assert(widget.controller!.end != null);
     }
 
     overlayStartController =
@@ -1524,7 +1525,9 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
         AnimationController(duration: Duration.zero, vsync: this);
     endPositionController =
         AnimationController(duration: Duration.zero, vsync: this);
-    tooltipAnimationController =
+    tooltipAnimationStartController =
+        AnimationController(vsync: this, duration: duration);
+    tooltipAnimationEndController =
         AnimationController(vsync: this, duration: duration);
     stateController.value =
         widget.enabled && (widget.min != widget.max) ? 1.0 : 0.0;
@@ -1532,12 +1535,13 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
 
   @override
   void dispose() {
-    overlayStartController?.dispose();
-    overlayEndController?.dispose();
-    startPositionController?.dispose();
-    endPositionController?.dispose();
-    tooltipAnimationController?.dispose();
-    stateController?.dispose();
+    overlayStartController.dispose();
+    overlayEndController.dispose();
+    startPositionController.dispose();
+    endPositionController.dispose();
+    tooltipAnimationStartController.dispose();
+    tooltipAnimationEndController.dispose();
+    stateController.dispose();
 
     super.dispose();
   }
@@ -1555,8 +1559,8 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
       interval: widget.interval,
       stepSize: widget.stepSize,
       stepDuration: widget.stepDuration,
-      deferUpdateDelay: widget.deferredUpdateDelay ?? 500,
-      minorTicksPerInterval: widget.minorTicksPerInterval ?? 0,
+      deferUpdateDelay: widget.deferredUpdateDelay,
+      minorTicksPerInterval: widget.minorTicksPerInterval,
       showTicks: widget.showTicks,
       showLabels: widget.showLabels,
       showDivisors: widget.showDivisors,
@@ -1567,7 +1571,7 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
       inactiveColor:
           widget.inactiveColor ?? themeData.primaryColor.withOpacity(0.24),
       activeColor: widget.activeColor ?? themeData.primaryColor,
-      labelPlacement: widget.labelPlacement ?? LabelPlacement.onTicks,
+      labelPlacement: widget.labelPlacement,
       numberFormat: widget.numberFormat ?? NumberFormat('#.##'),
       dateFormat: widget.dateFormat,
       dateIntervalType: widget.dateIntervalType,
@@ -1576,13 +1580,13 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
       tooltipTextFormatterCallback:
           widget.tooltipTextFormatterCallback ?? _getFormattedTooltipText,
       semanticFormatterCallback: widget.semanticFormatterCallback,
-      trackShape: widget.trackShape ?? SfTrackShape(),
-      divisorShape: widget.divisorShape ?? SfDivisorShape(),
-      overlayShape: widget.overlayShape ?? SfOverlayShape(),
-      thumbShape: widget.thumbShape ?? SfThumbShape(),
-      tickShape: widget.tickShape ?? SfTickShape(),
-      minorTickShape: widget.minorTickShape ?? SfMinorTickShape(),
-      tooltipShape: widget.tooltipShape ?? SfRectangularTooltipShape(),
+      trackShape: widget.trackShape,
+      divisorShape: widget.divisorShape,
+      overlayShape: widget.overlayShape,
+      thumbShape: widget.thumbShape,
+      tickShape: widget.tickShape,
+      minorTickShape: widget.minorTickShape,
+      tooltipShape: widget.tooltipShape,
       child: widget.child,
       rangeSelectorThemeData: _getRangeSelectorThemeData(themeData),
       startThumbIcon: widget.startThumbIcon,
@@ -1594,53 +1598,53 @@ class _SfRangeSelectorState extends State<SfRangeSelector>
 
 class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
   const _RangeSelectorRenderObjectWidget(
-      {Key key,
-      this.min,
-      this.max,
-      this.values,
-      this.enabled,
-      this.interval,
-      this.stepSize,
-      this.stepDuration,
-      this.deferUpdateDelay,
-      this.minorTicksPerInterval,
-      this.showTicks,
-      this.showLabels,
-      this.showDivisors,
-      this.enableTooltip,
-      this.enableIntervalSelection,
-      this.deferUpdate,
-      this.dragMode,
-      this.inactiveColor,
-      this.activeColor,
-      this.labelPlacement,
-      this.numberFormat,
-      this.dateFormat,
-      this.dateIntervalType,
-      this.labelFormatterCallback,
-      this.tooltipTextFormatterCallback,
-      this.semanticFormatterCallback,
-      this.trackShape,
-      this.divisorShape,
-      this.overlayShape,
-      this.thumbShape,
-      this.tickShape,
-      this.minorTickShape,
-      this.tooltipShape,
-      this.child,
-      this.rangeSelectorThemeData,
-      this.startThumbIcon,
-      this.endThumbIcon,
-      this.state})
+      {Key? key,
+      required this.min,
+      required this.max,
+      required this.values,
+      required this.enabled,
+      required this.interval,
+      required this.stepSize,
+      required this.stepDuration,
+      required this.deferUpdateDelay,
+      required this.minorTicksPerInterval,
+      required this.showTicks,
+      required this.showLabels,
+      required this.showDivisors,
+      required this.enableTooltip,
+      required this.enableIntervalSelection,
+      required this.deferUpdate,
+      required this.dragMode,
+      required this.inactiveColor,
+      required this.activeColor,
+      required this.labelPlacement,
+      required this.numberFormat,
+      required this.dateFormat,
+      required this.dateIntervalType,
+      required this.labelFormatterCallback,
+      required this.tooltipTextFormatterCallback,
+      required this.semanticFormatterCallback,
+      required this.trackShape,
+      required this.divisorShape,
+      required this.overlayShape,
+      required this.thumbShape,
+      required this.tickShape,
+      required this.minorTickShape,
+      required this.tooltipShape,
+      required this.child,
+      required this.rangeSelectorThemeData,
+      required this.startThumbIcon,
+      required this.endThumbIcon,
+      required this.state})
       : super(key: key);
 
   final dynamic min;
   final dynamic max;
-  final SfRangeValues values;
+  final SfRangeValues? values;
   final bool enabled;
-  final double interval;
-  final double stepSize;
-  final SliderStepDuration stepDuration;
+  final double? interval;
+  final double? stepSize;
+  final SliderStepDuration? stepDuration;
   final int deferUpdateDelay;
   final int minorTicksPerInterval;
 
@@ -1657,12 +1661,12 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
 
   final LabelPlacement labelPlacement;
   final NumberFormat numberFormat;
-  final DateFormat dateFormat;
-  final DateIntervalType dateIntervalType;
+  final DateFormat? dateFormat;
+  final DateIntervalType? dateIntervalType;
   final SfRangeSelectorThemeData rangeSelectorThemeData;
   final LabelFormatterCallback labelFormatterCallback;
   final TooltipTextFormatterCallback tooltipTextFormatterCallback;
-  final SfRangeSelectorSemanticFormatterCallback semanticFormatterCallback;
+  final RangeSelectorSemanticFormatterCallback? semanticFormatterCallback;
   final SfTrackShape trackShape;
   final SfDivisorShape divisorShape;
   final SfOverlayShape overlayShape;
@@ -1671,8 +1675,8 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
   final SfTickShape minorTickShape;
   final SfTooltipShape tooltipShape;
   final Widget child;
-  final Widget startThumbIcon;
-  final Widget endThumbIcon;
+  final Widget? startThumbIcon;
+  final Widget? endThumbIcon;
   final _SfRangeSelectorState state;
 
   @override
@@ -1739,8 +1743,6 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
       ..enableIntervalSelection = enableIntervalSelection
       ..deferUpdate = deferUpdate
       ..dragMode = dragMode
-      ..inactiveColor = inactiveColor
-      ..activeColor = activeColor
       ..labelPlacement = labelPlacement
       ..numberFormat = numberFormat
       ..dateFormat = dateFormat
@@ -1769,27 +1771,18 @@ class _RenderRangeSelectorElement extends RenderObjectElement {
   final Map<Element, ChildElements> _childToSlot = <Element, ChildElements>{};
 
   @override
-  _RangeSelectorRenderObjectWidget get widget => super.widget;
+  _RangeSelectorRenderObjectWidget get widget =>
+      // ignore: avoid_as
+      super.widget as _RangeSelectorRenderObjectWidget;
 
   @override
-  _RenderRangeSelector get renderObject => super.renderObject;
+  _RenderRangeSelector get renderObject =>
+      // ignore: avoid_as
+      super.renderObject as _RenderRangeSelector;
 
-  void _mountChild(Widget newWidget, ChildElements slot) {
-    final Element oldChild = _slotToChild[slot];
-    final Element newChild = updateChild(oldChild, newWidget, slot);
-    if (oldChild != null) {
-      _slotToChild.remove(slot);
-      _childToSlot.remove(oldChild);
-    }
-    if (newChild != null) {
-      _slotToChild[slot] = newChild;
-      _childToSlot[newChild] = slot;
-    }
-  }
-
-  void _updateChild(Widget widget, ChildElements slot) {
-    final Element oldChild = _slotToChild[slot];
-    final Element newChild = updateChild(oldChild, widget, slot);
+  void _updateChild(Widget? widget, ChildElements slot) {
+    final Element? oldChild = _slotToChild[slot];
+    final Element? newChild = updateChild(oldChild, widget, slot);
     if (oldChild != null) {
       _childToSlot.remove(oldChild);
       _slotToChild.remove(slot);
@@ -1800,16 +1793,19 @@ class _RenderRangeSelectorElement extends RenderObjectElement {
     }
   }
 
-  void _updateRenderObject(RenderObject child, ChildElements slot) {
+  void _updateRenderObject(RenderObject? child, ChildElements slot) {
     switch (slot) {
       case ChildElements.startThumbIcon:
-        renderObject.startThumbIcon = child;
+        // ignore: avoid_as
+        renderObject.startThumbIcon = child as RenderBox?;
         break;
       case ChildElements.endThumbIcon:
-        renderObject.endThumbIcon = child;
+        // ignore: avoid_as
+        renderObject.endThumbIcon = child as RenderBox?;
         break;
       case ChildElements.child:
-        renderObject.child = child;
+        // ignore: avoid_as
+        renderObject.child = child as RenderBox?;
         break;
     }
   }
@@ -1820,11 +1816,11 @@ class _RenderRangeSelectorElement extends RenderObjectElement {
   }
 
   @override
-  void mount(Element parent, dynamic newSlot) {
+  void mount(Element? parent, dynamic newSlot) {
     super.mount(parent, newSlot);
-    _mountChild(widget.startThumbIcon, ChildElements.startThumbIcon);
-    _mountChild(widget.endThumbIcon, ChildElements.endThumbIcon);
-    _mountChild(widget.child, ChildElements.child);
+    _updateChild(widget.startThumbIcon, ChildElements.startThumbIcon);
+    _updateChild(widget.endThumbIcon, ChildElements.endThumbIcon);
+    _updateChild(widget.child, ChildElements.child);
   }
 
   @override
@@ -1847,10 +1843,10 @@ class _RenderRangeSelectorElement extends RenderObjectElement {
   }
 
   @override
-  void removeRenderObjectChild(RenderObject child, dynamic slot) {
+  void removeRenderObjectChild(RenderObject child, ChildElements slot) {
     assert(child is RenderBox);
     assert(renderObject.childToSlot.keys.contains(child));
-    _updateRenderObject(null, renderObject.childToSlot[child]);
+    _updateRenderObject(null, renderObject.childToSlot[child]!);
     assert(!renderObject.childToSlot.keys.contains(child));
     assert(!renderObject.slotToChild.keys.contains(slot));
   }
@@ -1862,45 +1858,52 @@ class _RenderRangeSelectorElement extends RenderObjectElement {
   }
 }
 
-class _RenderRangeSelector extends RenderBaseSlider {
+class _RenderRangeSelector extends RenderBaseSlider
+    implements MouseTrackerAnnotation {
   _RenderRangeSelector({
-    dynamic min,
-    dynamic max,
-    SfRangeValues values,
-    bool enabled,
-    double interval,
-    double stepSize,
-    SliderStepDuration stepDuration,
-    int deferUpdateDelay,
-    int minorTicksPerInterval,
-    bool showTicks,
-    bool showLabels,
-    bool showDivisors,
-    bool enableTooltip,
-    bool enableIntervalSelection,
-    bool deferUpdate,
-    SliderDragMode dragMode,
-    Color inactiveColor,
-    Color activeColor,
-    LabelPlacement labelPlacement,
-    NumberFormat numberFormat,
-    DateFormat dateFormat,
-    DateIntervalType dateIntervalType,
-    LabelFormatterCallback labelFormatterCallback,
-    TooltipTextFormatterCallback tooltipTextFormatterCallback,
-    SfRangeSelectorSemanticFormatterCallback semanticFormatterCallback,
-    SfTrackShape trackShape,
-    SfDivisorShape divisorShape,
-    SfOverlayShape overlayShape,
-    SfThumbShape thumbShape,
-    SfTickShape tickShape,
-    SfTickShape minorTickShape,
-    SfTooltipShape tooltipShape,
-    SfRangeSelectorThemeData rangeSelectorThemeData,
-    TextDirection textDirection,
-    MediaQueryData mediaQueryData,
-    @required _SfRangeSelectorState state,
-  })  : _state = state,
+    required dynamic min,
+    required dynamic max,
+    required SfRangeValues? values,
+    required bool enabled,
+    required double? interval,
+    required double? stepSize,
+    required SliderStepDuration? stepDuration,
+    required int deferUpdateDelay,
+    required int minorTicksPerInterval,
+    required bool showTicks,
+    required bool showLabels,
+    required bool showDivisors,
+    required bool enableTooltip,
+    required bool enableIntervalSelection,
+    required bool deferUpdate,
+    required SliderDragMode dragMode,
+    required Color inactiveColor,
+    required Color activeColor,
+    required LabelPlacement labelPlacement,
+    required NumberFormat numberFormat,
+    required DateFormat? dateFormat,
+    required DateIntervalType? dateIntervalType,
+    required LabelFormatterCallback labelFormatterCallback,
+    required TooltipTextFormatterCallback tooltipTextFormatterCallback,
+    required RangeSelectorSemanticFormatterCallback? semanticFormatterCallback,
+    required SfTrackShape trackShape,
+    required SfDivisorShape divisorShape,
+    required SfOverlayShape overlayShape,
+    required SfThumbShape thumbShape,
+    required SfTickShape tickShape,
+    required SfTickShape minorTickShape,
+    required SfTooltipShape tooltipShape,
+    required SfRangeSelectorThemeData rangeSelectorThemeData,
+    required TextDirection textDirection,
+    required MediaQueryData mediaQueryData,
+    required _SfRangeSelectorState state,
+  })   : _state = state,
+        _isEnabled = enabled,
+        _enableIntervalSelection = enableIntervalSelection,
+        _deferUpdateDelay = deferUpdateDelay,
+        _dragMode = dragMode,
+        _deferUpdate = deferUpdate,
+        _semanticFormatterCallback = semanticFormatterCallback,
         super(
             min: min,
             max: max,
@@ -1928,26 +1931,18 @@ class _RenderRangeSelector extends RenderBaseSlider {
             sliderThemeData: rangeSelectorThemeData,
             textDirection: textDirection,
             mediaQueryData: mediaQueryData) {
-    _values = values;
-    _isEnabled = enabled;
-    _enableIntervalSelection = enableIntervalSelection;
-    _deferUpdateDelay = deferUpdateDelay;
-    _dragMode = dragMode;
-    _deferUpdate = deferUpdate;
-    _inactiveColor = inactiveColor;
-    _activeColor = activeColor;
-    _semanticFormatterCallback = semanticFormatterCallback;
-
     if (_state.widget.controller != null) {
-      assert(_state.widget.controller.start != null);
-      assert(_state.widget.controller.end != null);
+      assert(_state.widget.controller!.start != null);
+      assert(_state.widget.controller!.end != null);
       _values = SfRangeValues(
-          _state.widget.controller.start, _state.widget.controller.end);
+          _state.widget.controller!.start, _state.widget.controller!.end);
+    } else {
+      _values = values!;
     }
 
     final GestureArenaTeam team = GestureArenaTeam();
 
-    dragGestureRecognizer = HorizontalDragGestureRecognizer()
+    horizontalDragGestureRecognizer = HorizontalDragGestureRecognizer()
       ..team = team
       ..onStart = _onDragStart
       ..onUpdate = _onDragUpdate
@@ -1968,8 +1963,13 @@ class _RenderRangeSelector extends RenderBaseSlider {
     _stateAnimation = CurvedAnimation(
         parent: _state.stateController, curve: Curves.easeInOut);
 
-    _tooltipAnimation = CurvedAnimation(
-        parent: _state.tooltipAnimationController, curve: Curves.fastOutSlowIn);
+    _tooltipStartAnimation = CurvedAnimation(
+        parent: _state.tooltipAnimationStartController,
+        curve: Curves.fastOutSlowIn);
+
+    _tooltipEndAnimation = CurvedAnimation(
+        parent: _state.tooltipAnimationEndController,
+        curve: Curves.fastOutSlowIn);
 
     if (isDateTime) {
       _valuesInMilliseconds = SfRangeValues(
@@ -1997,19 +1997,21 @@ class _RenderRangeSelector extends RenderBaseSlider {
   final Map<RenderBox, ChildElements> childToSlot =
       <RenderBox, ChildElements>{};
 
-  Animation<double> _overlayStartAnimation;
+  late Animation<double> _overlayStartAnimation;
 
-  Animation<double> _overlayEndAnimation;
+  late Animation<double> _overlayEndAnimation;
 
-  Animation<double> _stateAnimation;
+  late Animation<double> _stateAnimation;
 
-  Animation<double> _tooltipAnimation;
+  late Animation<double> _tooltipStartAnimation;
 
-  SfRangeValues _valuesInMilliseconds;
+  late Animation<double> _tooltipEndAnimation;
 
-  Color _inactiveRegionColor;
+  SfRangeValues? _valuesInMilliseconds;
 
-  Color _activeRegionColor;
+  late Color _inactiveRegionColor;
+
+  late Color _activeRegionColor;
 
   // It stores the interaction start x-position at [tapDown] and [dragStart]
   // method, which is used to check whether dragging is started or not.
@@ -2019,7 +2021,7 @@ class _RenderRangeSelector extends RenderBaseSlider {
 
   bool _isIntervalTapped = false;
 
-  Timer _deferUpdateTimer;
+  Timer? _deferUpdateTimer;
 
   bool _isLocked = false;
 
@@ -2029,7 +2031,7 @@ class _RenderRangeSelector extends RenderBaseSlider {
       Duration(milliseconds: 500);
 
   SfRangeValues get values => _values;
-  SfRangeValues _values;
+  late SfRangeValues _values;
 
   set values(SfRangeValues values) {
     if (_values == values) {
@@ -2088,7 +2090,7 @@ class _RenderRangeSelector extends RenderBaseSlider {
   }
 
   bool get deferUpdate => _deferUpdate;
-  bool _deferUpdate;
+  late bool _deferUpdate;
 
   set deferUpdate(bool value) {
     if (_deferUpdate == value) {
@@ -2099,6 +2101,7 @@ class _RenderRangeSelector extends RenderBaseSlider {
 
   SliderDragMode get dragMode => _dragMode;
   SliderDragMode _dragMode;
+
   set dragMode(SliderDragMode value) {
     if (_dragMode == value) {
       return;
@@ -2106,33 +2109,11 @@ class _RenderRangeSelector extends RenderBaseSlider {
     _dragMode = value;
   }
 
-  Color get inactiveColor => _inactiveColor;
-  Color _inactiveColor;
-
-  set inactiveColor(Color value) {
-    if (_inactiveColor == value) {
-      return;
-    }
-    _inactiveColor = value;
-    markNeedsPaint();
-  }
-
-  Color get activeColor => _activeColor;
-  Color _activeColor;
-
-  set activeColor(Color value) {
-    if (_activeColor == value) {
-      return;
-    }
-    _activeColor = value;
-    markNeedsPaint();
-  }
-
-  SfRangeSelectorSemanticFormatterCallback get semanticFormatterCallback =>
+  RangeSelectorSemanticFormatterCallback? get semanticFormatterCallback =>
       _semanticFormatterCallback;
-  SfRangeSelectorSemanticFormatterCallback _semanticFormatterCallback;
-  set semanticFormatterCallback(
-      SfRangeSelectorSemanticFormatterCallback value) {
+  RangeSelectorSemanticFormatterCallback? _semanticFormatterCallback;
+
+  set semanticFormatterCallback(RangeSelectorSemanticFormatterCallback? value) {
     if (_semanticFormatterCallback == value) {
       return;
     }
@@ -2155,42 +2136,42 @@ class _RenderRangeSelector extends RenderBaseSlider {
     markNeedsPaint();
   }
 
-  RenderBox get startThumbIcon => _startThumbIcon;
-  RenderBox _startThumbIcon;
+  RenderBox? get startThumbIcon => _startThumbIcon;
+  RenderBox? _startThumbIcon;
 
-  set startThumbIcon(RenderBox value) {
+  set startThumbIcon(RenderBox? value) {
     _startThumbIcon =
         _updateChild(_startThumbIcon, value, ChildElements.startThumbIcon);
   }
 
-  RenderBox get endThumbIcon => _endThumbIcon;
-  RenderBox _endThumbIcon;
+  RenderBox? get endThumbIcon => _endThumbIcon;
+  RenderBox? _endThumbIcon;
 
-  set endThumbIcon(RenderBox value) {
+  set endThumbIcon(RenderBox? value) {
     _endThumbIcon =
         _updateChild(_endThumbIcon, value, ChildElements.endThumbIcon);
   }
 
   @override
-  RenderBox get child => _child;
-  RenderBox _child;
+  RenderBox? get child => _child;
+  RenderBox? _child;
 
   @override
-  set child(RenderBox value) {
+  set child(RenderBox? value) {
     _child = _updateChild(_child, value, ChildElements.child);
   }
 
   // The returned list is ordered for hit testing.
   Iterable<RenderBox> get children sync* {
     if (_startThumbIcon != null) {
-      yield startThumbIcon;
+      yield startThumbIcon!;
     }
     if (_endThumbIcon != null) {
-      yield endThumbIcon;
+      yield endThumbIcon!;
     }
 
     if (child != null) {
-      yield child;
+      yield child!;
     }
   }
 
@@ -2205,7 +2186,7 @@ class _RenderRangeSelector extends RenderBaseSlider {
       (actualMax - actualMin) * (8 / actualTrackRect.width).clamp(0.0, 1.0);
 
   SfRangeValues get actualValues =>
-      isDateTime ? _valuesInMilliseconds : _values;
+      isDateTime ? _valuesInMilliseconds! : _values;
 
   // When the active track height and inactive track height are different,
   // a small gap is happens between min track height and child
@@ -2215,10 +2196,60 @@ class _RenderRangeSelector extends RenderBaseSlider {
       ? sliderThemeData.activeTrackHeight - sliderThemeData.inactiveTrackHeight
       : sliderThemeData.inactiveTrackHeight - sliderThemeData.activeTrackHeight;
 
+  dynamic get _increasedStartValue {
+    return getNextSemanticValue(values.start, semanticActionUnit,
+        actualValue: actualValues.start);
+  }
+
+  dynamic get _decreasedStartValue {
+    return getPrevSemanticValue(values.start, semanticActionUnit,
+        actualValue: actualValues.start);
+  }
+
+  dynamic get _increasedEndValue {
+    return getNextSemanticValue(values.end, semanticActionUnit,
+        actualValue: actualValues.end);
+  }
+
+  dynamic get _decreasedEndValue {
+    return getPrevSemanticValue(values.end, semanticActionUnit,
+        actualValue: actualValues.end);
+  }
+
+  SfThumb? get activeThumb => _activeThumb;
+  SfThumb? _activeThumb;
+
+  set activeThumb(SfThumb? value) {
+    if (_activeThumb == value &&
+        (_state.overlayEndController.status == AnimationStatus.completed ||
+            _state.overlayStartController.status ==
+                AnimationStatus.completed)) {
+      return;
+    }
+    _activeThumb = value;
+    if (value == SfThumb.start) {
+      _state.overlayStartController.forward();
+      _state.overlayEndController.reverse();
+      if (enableTooltip) {
+        willDrawTooltip = true;
+        _state.tooltipAnimationStartController.forward();
+        _state.tooltipAnimationEndController.reverse();
+      }
+    } else {
+      _state.overlayEndController.forward();
+      _state.overlayStartController.reverse();
+      if (enableTooltip) {
+        willDrawTooltip = true;
+        _state.tooltipAnimationEndController.forward();
+        _state.tooltipAnimationStartController.reverse();
+      }
+    }
+  }
+
   void _onTapDown(TapDownDetails details) {
     currentPointerType = PointerType.down;
     _interactionStartX = globalToLocal(details.globalPosition).dx;
-    currentX = _interactionStartX;
+    mainAxisOffset = _interactionStartX;
     _beginInteraction();
   }
 
@@ -2229,14 +2260,14 @@ class _RenderRangeSelector extends RenderBaseSlider {
   void _onDragStart(DragStartDetails details) {
     _isDragStart = true;
     _interactionStartX = globalToLocal(details.globalPosition).dx;
-    currentX = _interactionStartX;
+    mainAxisOffset = _interactionStartX;
     _beginInteraction();
   }
 
   void _onDragUpdate(DragUpdateDetails details) {
     isInteractionEnd = false;
     currentPointerType = PointerType.move;
-    currentX = globalToLocal(details.globalPosition).dx;
+    mainAxisOffset = globalToLocal(details.globalPosition).dx;
     _updateRangeValues(deltaX: details.delta.dx);
     markNeedsPaint();
   }
@@ -2258,13 +2289,13 @@ class _RenderRangeSelector extends RenderBaseSlider {
 
     final double startPosition = getPositionFromValue(actualValues.start);
     final double endPosition = getPositionFromValue(actualValues.end);
-    final double leftThumbWidth = (startPosition - currentX).abs();
-    final double rightThumbWidth = (endPosition - currentX).abs();
+    final double leftThumbWidth = (startPosition - mainAxisOffset).abs();
+    final double rightThumbWidth = (endPosition - mainAxisOffset).abs();
 
     if ((_dragMode == SliderDragMode.both ||
             _dragMode == SliderDragMode.betweenThumbs) &&
-        startPosition < (currentX - minPreferredTouchWidth) &&
-        (currentX + minPreferredTouchWidth) < endPosition) {
+        startPosition < (mainAxisOffset - minPreferredTouchWidth) &&
+        (mainAxisOffset + minPreferredTouchWidth) < endPosition) {
       if (_isDragStart) {
         _isLocked = true;
       } else {
@@ -2273,7 +2304,7 @@ class _RenderRangeSelector extends RenderBaseSlider {
     } else if (_dragMode == SliderDragMode.betweenThumbs) {
       return;
     } else if (rightThumbWidth == leftThumbWidth) {
-      switch (activeThumb) {
+      switch (activeThumb!) {
         case SfThumb.start:
           _state.overlayStartController.forward();
           break;
@@ -2296,7 +2327,8 @@ class _RenderRangeSelector extends RenderBaseSlider {
   void _forwardTooltipAnimation() {
     if (enableTooltip) {
       willDrawTooltip = true;
-      _state.tooltipAnimationController.forward();
+      _state.tooltipAnimationStartController.forward();
+      _state.tooltipAnimationEndController.forward();
       _state.tooltipDelayTimer?.cancel();
       _state.tooltipDelayTimer = Timer(const Duration(milliseconds: 500), () {
         _reverseTooltipAnimation();
@@ -2308,21 +2340,30 @@ class _RenderRangeSelector extends RenderBaseSlider {
     _state.tooltipDelayTimer = null;
     if (isInteractionEnd &&
         willDrawTooltip &&
-        _state.tooltipAnimationController.status == AnimationStatus.completed) {
-      _state.tooltipAnimationController.reverse();
-      if (_state.tooltipAnimationController.status ==
-          AnimationStatus.dismissed) {
-        willDrawTooltip = false;
-      }
+        _state.tooltipAnimationStartController.status ==
+            AnimationStatus.completed) {
+      _state.tooltipAnimationStartController.reverse();
+    }
+    if (isInteractionEnd &&
+        willDrawTooltip &&
+        _state.tooltipAnimationEndController.status ==
+            AnimationStatus.completed) {
+      _state.tooltipAnimationEndController.reverse();
+    }
+    if (_state.tooltipAnimationStartController.status ==
+            AnimationStatus.dismissed &&
+        _state.tooltipAnimationEndController.status ==
+            AnimationStatus.dismissed) {
+      willDrawTooltip = false;
     }
   }
 
-  void _updateRangeValues({double deltaX}) {
+  void _updateRangeValues({double? deltaX}) {
     SfRangeValues newValues;
-    _isDragging = (_interactionStartX - currentX).abs() > 1;
+    _isDragging = (_interactionStartX - mainAxisOffset).abs() > 1;
     _isIntervalTapped = _enableIntervalSelection && !_isDragging;
 
-    if (_isLocked) {
+    if (_isLocked && deltaX != null) {
       newValues = _getLockRangeValues(deltaX);
     } else if (_dragMode == SliderDragMode.betweenThumbs) {
       return;
@@ -2330,7 +2371,7 @@ class _RenderRangeSelector extends RenderBaseSlider {
       double start;
       double end;
       final double factor = getFactorFromCurrentPosition();
-      final double value = lerpDouble(actualMin, actualMax, factor);
+      final double value = lerpDouble(actualMin, actualMax, factor)!;
       if (isDateTime) {
         start = values.start.millisecondsSinceEpoch.toDouble();
         end = values.end.millisecondsSinceEpoch.toDouble();
@@ -2339,7 +2380,7 @@ class _RenderRangeSelector extends RenderBaseSlider {
         end = values.end;
       }
 
-      switch (activeThumb) {
+      switch (activeThumb!) {
         case SfThumb.start:
           final double startValue = math.min(value, end - minThumbGap);
           final dynamic actualStartValue =
@@ -2386,7 +2427,7 @@ class _RenderRangeSelector extends RenderBaseSlider {
 
         if (_isIntervalTapped) {
           final double value =
-              lerpDouble(actualMin, actualMax, getFactorFromCurrentPosition());
+              lerpDouble(actualMin, actualMax, getFactorFromCurrentPosition())!;
           _updatePositionControllerValue(_getSelectedRange(value));
         }
       }
@@ -2406,7 +2447,8 @@ class _RenderRangeSelector extends RenderBaseSlider {
       _state.overlayStartController.reverse();
       _state.overlayEndController.reverse();
       if (enableTooltip && _state.tooltipDelayTimer == null) {
-        _state.tooltipAnimationController.reverse();
+        _state.tooltipAnimationStartController.reverse();
+        _state.tooltipAnimationEndController.reverse();
       }
 
       isInteractionEnd = true;
@@ -2418,18 +2460,19 @@ class _RenderRangeSelector extends RenderBaseSlider {
   }
 
   void _updatePositionControllerValue(SfRangeValues newValues) {
-    DateTime startDate;
-    DateTime endDate;
+    DateTime? startDate;
+    DateTime? endDate;
 
     if (isDateTime) {
       startDate = newValues.start;
       endDate = newValues.end;
     }
     final double startValueFactor = getFactorFromValue(isDateTime
-        ? startDate.millisecondsSinceEpoch.toDouble()
+        ? startDate!.millisecondsSinceEpoch.toDouble()
         : newValues.start);
-    final double endValueFactor = getFactorFromValue(
-        isDateTime ? endDate.millisecondsSinceEpoch.toDouble() : newValues.end);
+    final double endValueFactor = getFactorFromValue(isDateTime
+        ? endDate!.millisecondsSinceEpoch.toDouble()
+        : newValues.end);
 
     final double startDistanceFactor =
         (startValueFactor - _state.startPositionController.value).abs();
@@ -2447,12 +2490,12 @@ class _RenderRangeSelector extends RenderBaseSlider {
         .animateTo(endValueFactor, curve: Curves.easeInOut);
   }
 
-  SfRangeValues _getLockRangeValues(double deltaX) {
+  SfRangeValues _getLockRangeValues(double? deltaX) {
     double startPosition = getPositionFromValue(actualValues.start);
     double endPosition = getPositionFromValue(actualValues.end);
     final double lockedRangeWidth = endPosition - startPosition;
-    startPosition += deltaX ?? 0;
-    endPosition += deltaX ?? 0;
+    startPosition += deltaX ?? 0.0;
+    endPosition += deltaX ?? 0.0;
     final double actualMinInPx = getPositionFromValue(actualMin);
     final double actualMaxInPx = getPositionFromValue(actualMax);
     if (startPosition < actualMinInPx) {
@@ -2469,11 +2512,11 @@ class _RenderRangeSelector extends RenderBaseSlider {
 
   void _updateNewValues(SfRangeValues newValues) {
     if (_state.widget.onChanged != null) {
-      _state.widget.onChanged(newValues);
+      _state.widget.onChanged!(newValues);
     }
     if (_state.widget.controller != null) {
-      _state.widget.controller.start = newValues.start;
-      _state.widget.controller.end = newValues.end;
+      _state.widget.controller!.start = newValues.start;
+      _state.widget.controller!.end = newValues.end;
     } else if (!_deferUpdate) {
       values = newValues;
       markNeedsPaint();
@@ -2482,14 +2525,14 @@ class _RenderRangeSelector extends RenderBaseSlider {
   }
 
   SfRangeValues _getSelectedRange(double value) {
-    SfRangeValues rangeValues;
+    late SfRangeValues rangeValues;
     dynamic start;
     dynamic end;
 
-    for (int i = 0; i < divisions; i++) {
-      final double currentLabel = unformattedLabels[i];
-      if (i < divisions - 1) {
-        final double nextLabel = unformattedLabels[i + 1];
+    for (int i = 0; i < divisions!; i++) {
+      final double currentLabel = unformattedLabels![i];
+      if (i < divisions! - 1) {
+        final double nextLabel = unformattedLabels![i + 1];
         if (value >= currentLabel && value <= nextLabel) {
           if (isDateTime) {
             start = DateTime.fromMillisecondsSinceEpoch(currentLabel.toInt());
@@ -2505,15 +2548,15 @@ class _RenderRangeSelector extends RenderBaseSlider {
         start = isDateTime
             ? DateTime.fromMillisecondsSinceEpoch(currentLabel.toInt())
             : currentLabel;
-        end = max;
+        end = this.max;
         rangeValues = SfRangeValues(start, end);
       }
     }
     return rangeValues;
   }
 
-  RenderBox _updateChild(
-      RenderBox oldChild, RenderBox newChild, ChildElements slot) {
+  RenderBox? _updateChild(
+      RenderBox? oldChild, RenderBox? newChild, ChildElements slot) {
     if (oldChild != null) {
       dropChild(oldChild);
       childToSlot.remove(oldChild);
@@ -2530,11 +2573,11 @@ class _RenderRangeSelector extends RenderBaseSlider {
   void _handleRangeControllerChange() {
     if (_state.mounted &&
         _state.widget.controller != null &&
-        (_values.start != _state.widget.controller.start ||
-            _values.end != _state.widget.controller.end)) {
+        (_values.start != _state.widget.controller!.start ||
+            _values.end != _state.widget.controller!.end)) {
       values = SfRangeValues(
-          getActualValue(value: _state.widget.controller.start),
-          getActualValue(value: _state.widget.controller.end));
+          getActualValue(value: _state.widget.controller!.start),
+          getActualValue(value: _state.widget.controller!.end));
 
       markNeedsPaint();
     }
@@ -2554,21 +2597,24 @@ class _RenderRangeSelector extends RenderBaseSlider {
           : getValueFromFactor(_state.endPositionController.value);
 
       if (_state.widget.controller != null) {
-        _state.widget.controller.start = startValue;
-        _state.widget.controller.end = endValue;
+        _state.widget.controller!.start = startValue;
+        _state.widget.controller!.end = endValue;
       } else {
         values = SfRangeValues(startValue, endValue);
       }
 
       if (_state.widget.onChanged != null) {
-        _state.widget.onChanged(SfRangeValues(startValue, endValue));
+        _state.widget.onChanged!(SfRangeValues(startValue, endValue));
       }
       markNeedsPaint();
     }
   }
 
   void _handleTooltipAnimationStatusChange(AnimationStatus status) {
-    if (status == AnimationStatus.dismissed) {
+    if (_state.tooltipAnimationStartController.status ==
+            AnimationStatus.dismissed &&
+        _state.tooltipAnimationEndController.status ==
+            AnimationStatus.dismissed) {
       willDrawTooltip = false;
     }
   }
@@ -2578,7 +2624,7 @@ class _RenderRangeSelector extends RenderBaseSlider {
     final Paint paint = Paint()
       ..isAntiAlias = true
       ..color = _inactiveRegionColor;
-    if (child != null && child.size.height > 1 && child.size.width > 1) {
+    if (child != null && child!.size.height > 1 && child!.size.width > 1) {
       final double halfActiveTrackHeight =
           sliderThemeData.activeTrackHeight / 2;
       final double halfInactiveTrackHeight =
@@ -2624,7 +2670,7 @@ class _RenderRangeSelector extends RenderBaseSlider {
   ) {
     final bool isLeftThumbActive = activeThumb == SfThumb.start;
     Offset thumbCenter = isLeftThumbActive ? endThumbCenter : startThumbCenter;
-    RenderBox thumbIcon = isLeftThumbActive ? _endThumbIcon : _startThumbIcon;
+    RenderBox? thumbIcon = isLeftThumbActive ? _endThumbIcon : _startThumbIcon;
     showOverlappingThumbStroke = false;
 
     // Drawing thumb.
@@ -2635,7 +2681,8 @@ class _RenderRangeSelector extends RenderBaseSlider {
         currentValues: _values,
         enableAnimation: _stateAnimation,
         textDirection: textDirection,
-        thumb: isLeftThumbActive ? SfThumb.end : SfThumb.start);
+        thumb: isLeftThumbActive ? SfThumb.end : SfThumb.start,
+        paint: null);
 
     thumbCenter = isLeftThumbActive ? startThumbCenter : endThumbCenter;
     thumbIcon = isLeftThumbActive ? _startThumbIcon : _endThumbIcon;
@@ -2646,7 +2693,8 @@ class _RenderRangeSelector extends RenderBaseSlider {
         currentValues: _values,
         animation:
             isLeftThumbActive ? _overlayStartAnimation : _overlayEndAnimation,
-        thumb: activeThumb);
+        thumb: activeThumb,
+        paint: null);
 
     showOverlappingThumbStroke = (getFactorFromValue(actualValues.start) -
                     getFactorFromValue(actualValues.end))
@@ -2662,7 +2710,8 @@ class _RenderRangeSelector extends RenderBaseSlider {
         currentValues: _values,
         enableAnimation: _stateAnimation,
         textDirection: textDirection,
-        thumb: activeThumb);
+        thumb: activeThumb,
+        paint: null);
   }
 
   void _drawTooltip(
@@ -2674,12 +2723,13 @@ class _RenderRangeSelector extends RenderBaseSlider {
       Rect trackRect) {
     if (willDrawTooltip) {
       final Paint paint = Paint()
-        ..color = sliderThemeData.tooltipBackgroundColor
+        ..color = sliderThemeData.tooltipBackgroundColor!
         ..style = PaintingStyle.fill
         ..strokeWidth = 0;
 
+      final bool isLeftThumbActive = activeThumb == SfThumb.start;
       Offset thumbCenter =
-          activeThumb == SfThumb.start ? endThumbCenter : startThumbCenter;
+          isLeftThumbActive ? endThumbCenter : startThumbCenter;
       dynamic actualText = getValueFromPosition(thumbCenter.dx - offset.dx);
       String tooltipText = tooltipTextFormatterCallback(
           actualText, getFormattedText(actualText));
@@ -2688,7 +2738,7 @@ class _RenderRangeSelector extends RenderBaseSlider {
       textPainter.text = textSpan;
       textPainter.layout();
 
-      Rect bottomTooltipRect;
+      Rect? bottomTooltipRect;
       if (tooltipShape is SfPaddleTooltipShape) {
         bottomTooltipRect = getPaddleTooltipRect(
             textPainter,
@@ -2704,14 +2754,15 @@ class _RenderRangeSelector extends RenderBaseSlider {
             trackRect,
             sliderThemeData);
       }
-      showOverlappingTooltipStroke = false;
 
+      showOverlappingTooltipStroke = false;
       tooltipShape.paint(context, thumbCenter,
           Offset(actualTrackOffset.dx, tooltipStartY), textPainter,
           parentBox: this,
           sliderThemeData: sliderThemeData,
           paint: paint,
-          animation: _tooltipAnimation,
+          animation:
+              isLeftThumbActive ? _tooltipEndAnimation : _tooltipStartAnimation,
           trackRect: trackRect);
 
       thumbCenter =
@@ -2724,7 +2775,7 @@ class _RenderRangeSelector extends RenderBaseSlider {
       textPainter.text = textSpan;
       textPainter.layout();
 
-      Rect topTooltipRect;
+      Rect? topTooltipRect;
       if (tooltipShape is SfPaddleTooltipShape) {
         topTooltipRect = getPaddleTooltipRect(
             textPainter,
@@ -2740,7 +2791,6 @@ class _RenderRangeSelector extends RenderBaseSlider {
             trackRect,
             sliderThemeData);
       }
-
       if (bottomTooltipRect != null && topTooltipRect != null) {
         final Rect overlapRect = topTooltipRect.intersect(bottomTooltipRect);
         showOverlappingTooltipStroke = overlapRect.right > overlapRect.left;
@@ -2751,15 +2801,16 @@ class _RenderRangeSelector extends RenderBaseSlider {
           parentBox: this,
           sliderThemeData: sliderThemeData,
           paint: paint,
-          animation: _tooltipAnimation,
+          animation:
+              isLeftThumbActive ? _tooltipStartAnimation : _tooltipEndAnimation,
           trackRect: trackRect);
     }
   }
 
   void _increaseStartAction() {
     if (isEnabled) {
-      final SfRangeValues actualNewValues = SfRangeValues(
-          _increaseValue(values.start, actualValues.start), values.end);
+      final SfRangeValues actualNewValues =
+          SfRangeValues(_increasedStartValue, values.end);
       final SfRangeValues newValues = isDateTime
           ? SfRangeValues(
               actualNewValues.start.millisecondsSinceEpoch.toDouble(),
@@ -2774,22 +2825,20 @@ class _RenderRangeSelector extends RenderBaseSlider {
 
   void _decreaseStartAction() {
     if (isEnabled) {
-      _updateNewValues(SfRangeValues(
-          _decreaseValue(values.start, actualValues.start), values.end));
+      _updateNewValues(SfRangeValues(_decreasedStartValue, values.end));
     }
   }
 
   void _increaseEndAction() {
     if (isEnabled) {
-      _updateNewValues(SfRangeValues(
-          values.start, _increaseValue(values.end, actualValues.end)));
+      _updateNewValues(SfRangeValues(values.start, _increasedEndValue));
     }
   }
 
   void _decreaseEndAction() {
     if (isEnabled) {
-      final SfRangeValues actualNewValues = SfRangeValues(
-          values.start, _decreaseValue(values.end, actualValues.end));
+      final SfRangeValues actualNewValues =
+          SfRangeValues(values.start, _decreasedEndValue);
       final SfRangeValues newValues = isDateTime
           ? SfRangeValues(
               actualNewValues.start.millisecondsSinceEpoch.toDouble(),
@@ -2802,29 +2851,57 @@ class _RenderRangeSelector extends RenderBaseSlider {
     }
   }
 
-  dynamic _increaseValue(dynamic value, double actualValue) {
-    return getNextSemanticValue(value, semanticActionUnit,
-        actualValue: actualValue);
+  void _handleExit(PointerExitEvent event) {
+    // Ensuring whether the thumb is drag or move
+    // not needed to call controller's reverse.
+    if (currentPointerType != PointerType.move) {
+      _state.overlayStartController.reverse();
+      _state.overlayEndController.reverse();
+      if (enableTooltip) {
+        _state.tooltipAnimationStartController.reverse();
+        _state.tooltipAnimationEndController.reverse();
+      }
+    }
   }
 
-  dynamic _decreaseValue(dynamic value, double actualValue) {
-    return getPrevSemanticValue(value, semanticActionUnit,
-        actualValue: actualValue);
+  void _handleHover(PointerHoverEvent details) {
+    double cursorPosition = 0.0;
+    cursorPosition = details.localPosition.dx;
+    final double startThumbPosition = sliderType == SliderType.vertical
+        ? actualTrackRect.bottom -
+            getFactorFromValue(actualValues.start) * actualTrackRect.height
+        : getFactorFromValue(actualValues.start) * actualTrackRect.width +
+            actualTrackRect.left;
+    final double endThumbPosition = sliderType == SliderType.vertical
+        ? actualTrackRect.bottom -
+            getFactorFromValue(actualValues.end) * actualTrackRect.height
+        : getFactorFromValue(actualValues.end) * actualTrackRect.width +
+            actualTrackRect.left;
+    final double startThumbDistance =
+        (cursorPosition - startThumbPosition).abs();
+    final double endThumbDistance = (cursorPosition - endThumbPosition).abs();
+    if (endThumbDistance > startThumbDistance) {
+      activeThumb = SfThumb.start;
+    } else {
+      activeThumb = SfThumb.end;
+    }
   }
 
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
-    _overlayStartAnimation?.addListener(markNeedsPaint);
-    _overlayEndAnimation?.addListener(markNeedsPaint);
-    _stateAnimation?.addListener(markNeedsPaint);
-    _tooltipAnimation?.addListener(markNeedsPaint);
-    _tooltipAnimation?.addStatusListener(_handleTooltipAnimationStatusChange);
-    _state.startPositionController
-        ?.addListener(_handlePositionControllerChange);
-    _state.endPositionController?.addListener(_handlePositionControllerChange);
+    _overlayStartAnimation.addListener(markNeedsPaint);
+    _overlayEndAnimation.addListener(markNeedsPaint);
+    _stateAnimation.addListener(markNeedsPaint);
+    _tooltipStartAnimation.addListener(markNeedsPaint);
+    _tooltipStartAnimation
+        .addStatusListener(_handleTooltipAnimationStatusChange);
+    _tooltipEndAnimation.addListener(markNeedsPaint);
+    _tooltipEndAnimation.addStatusListener(_handleTooltipAnimationStatusChange);
+    _state.startPositionController.addListener(_handlePositionControllerChange);
+    _state.endPositionController.addListener(_handlePositionControllerChange);
     if (_state.widget.controller != null) {
-      _state.widget.controller.addListener(_handleRangeControllerChange);
+      _state.widget.controller!.addListener(_handleRangeControllerChange);
     }
     for (final RenderBox child in children) {
       child.attach(owner);
@@ -2834,18 +2911,21 @@ class _RenderRangeSelector extends RenderBaseSlider {
   @override
   void detach() {
     _deferUpdateTimer?.cancel();
-    _overlayStartAnimation?.removeListener(markNeedsPaint);
-    _overlayEndAnimation?.removeListener(markNeedsPaint);
-    _stateAnimation?.removeListener(markNeedsPaint);
-    _tooltipAnimation?.removeListener(markNeedsPaint);
-    _tooltipAnimation
-        ?.removeStatusListener(_handleTooltipAnimationStatusChange);
+    _overlayStartAnimation.removeListener(markNeedsPaint);
+    _overlayEndAnimation.removeListener(markNeedsPaint);
+    _stateAnimation.removeListener(markNeedsPaint);
+    _tooltipStartAnimation.removeListener(markNeedsPaint);
+    _tooltipStartAnimation
+        .removeStatusListener(_handleTooltipAnimationStatusChange);
+    _tooltipEndAnimation.removeListener(markNeedsPaint);
+    _tooltipEndAnimation
+        .removeStatusListener(_handleTooltipAnimationStatusChange);
     _state.startPositionController
-        ?.removeListener(_handlePositionControllerChange);
+        .removeListener(_handlePositionControllerChange);
     _state.endPositionController
-        ?.removeListener(_handlePositionControllerChange);
+        .removeListener(_handlePositionControllerChange);
     if (_state.widget.controller != null) {
-      _state.widget.controller.removeListener(_handleRangeControllerChange);
+      _state.widget.controller!.removeListener(_handleRangeControllerChange);
     }
     super.detach();
     for (final RenderBox child in children) {
@@ -2859,10 +2939,35 @@ class _RenderRangeSelector extends RenderBaseSlider {
   }
 
   @override
+  MouseCursor get cursor => MouseCursor.defer;
+
+  @override
+  PointerEnterEventListener? get onEnter => null;
+
+  @override
+  // ignore: override_on_non_overriding_member
+  PointerHoverEventListener get onHover => _handleHover;
+
+  @override
+  PointerExitEventListener get onExit => _handleExit;
+
+  @override
+  // ignore: override_on_non_overriding_member
+  bool get validForMouseTracker => true;
+
+  @override
+  void handleEvent(PointerEvent event, HitTestEntry entry) {
+    if (event is PointerHoverEvent) {
+      _handleHover(event);
+    }
+    super.handleEvent(event, entry);
+  }
+
+  @override
   bool hitTestSelf(Offset position) => isEnabled;
 
   @override
-  bool hitTestChildren(BoxHitTestResult result, {Offset position}) => false;
+  bool hitTestChildren(BoxHitTestResult result, {Offset? position}) => false;
 
   @override
   void setupParentData(RenderObject child) {
@@ -2875,21 +2980,44 @@ class _RenderRangeSelector extends RenderBaseSlider {
   void performLayout() {
     double childHeight = 0.0;
     double childWidth = 0.0;
-    final double bottomEdgeInset = math.max(
-        trackOffset.dy + maxTrackHeight / 2,
-        maxTrackHeight +
+    final double minTrackHeight = math.min(
+        sliderThemeData.activeTrackHeight, sliderThemeData.inactiveTrackHeight);
+    final Offset trackCenterLeft = trackOffset;
+    final double elementsHeightWithoutChild = elementsActualHeight;
+
+    double elementsHeightAfterRenderedChild = math.max(
+        trackCenterLeft.dy + minTrackHeight / 2,
+        maxTrackHeight / 2 +
+            minTrackHeight / 2 +
             math.max(actualTickHeight, actualMinorTickHeight) +
             actualLabelHeight);
+
+    if (constraints.maxHeight < elementsHeightWithoutChild) {
+      final double actualChildHeight =
+          elementsHeightWithoutChild - elementsHeightAfterRenderedChild;
+      final double spaceLeftInActualLayoutHeight =
+          (elementsHeightAfterRenderedChild - constraints.maxHeight);
+      // Reduce the [elementsHeightAfterRenderedChild] from the
+      // actual child height and remaining space in actual layout height to
+      // match the given constraints height.
+      elementsHeightAfterRenderedChild = elementsHeightAfterRenderedChild -
+          spaceLeftInActualLayoutHeight -
+          actualChildHeight;
+    }
+
     if (child != null) {
       final double maxRadius = trackOffset.dx;
       final BoxConstraints childConstraints = constraints.deflate(
           EdgeInsets.only(
-              left: maxRadius, right: maxRadius, bottom: bottomEdgeInset));
-      child.layout(childConstraints, parentUsesSize: true);
-      final BoxParentData childParentData = child.parentData;
+              left: maxRadius,
+              right: maxRadius,
+              bottom: elementsHeightAfterRenderedChild));
+      child!.layout(childConstraints, parentUsesSize: true);
+      // ignore: avoid_as
+      final BoxParentData childParentData = child!.parentData as BoxParentData;
       childParentData.offset = Offset(maxRadius, 0);
-      childHeight = child.size.height;
-      childWidth = child.size.width;
+      childHeight = child!.size.height;
+      childWidth = child!.size.width;
     }
 
     final BoxConstraints contentConstraints = BoxConstraints.tightFor(
@@ -2902,12 +3030,7 @@ class _RenderRangeSelector extends RenderBaseSlider {
         ? (childWidth + 2 * trackOffset.dx)
         : minTrackWidth + 2 * trackOffset.dx;
 
-    final double actualHeight = childHeight -
-        adjustTrackY / 2 +
-        elementsActualHeight +
-        maxTrackHeight / 2 -
-        (childHeight > trackOffset.dy ? trackOffset.dy : 0.0);
-
+    final double actualHeight = childHeight + elementsHeightAfterRenderedChild;
     size = Size(
         constraints.hasBoundedWidth && (constraints.maxWidth < actualWidth)
             ? constraints.maxWidth
@@ -2924,9 +3047,10 @@ class _RenderRangeSelector extends RenderBaseSlider {
   void paint(PaintingContext context, Offset offset) {
     double childHeight = 0.0;
     if (child != null) {
-      final BoxParentData childParentData = child.parentData;
-      context.paintChild(child, childParentData.offset + offset);
-      childHeight = child.size.height;
+      // ignore: avoid_as
+      final BoxParentData childParentData = child!.parentData as BoxParentData;
+      context.paintChild(child!, childParentData.offset + offset);
+      childHeight = child!.size.height;
       if (childHeight >= constraints.maxHeight) {
         childHeight -= elementsActualHeight -
             math.max(actualOverlaySize.height, actualThumbSize.height) / 2;
@@ -2950,14 +3074,15 @@ class _RenderRangeSelector extends RenderBaseSlider {
         Offset(trackRect.left + thumbStartPosition, trackRect.center.dy);
     final Offset endThumbCenter =
         Offset(trackRect.left + thumbEndPosition, trackRect.center.dy);
-
     trackShape.paint(
         context, actualTrackOffset, null, startThumbCenter, endThumbCenter,
         parentBox: this,
         themeData: sliderThemeData,
         currentValues: _values,
         enableAnimation: _stateAnimation,
-        textDirection: textDirection);
+        textDirection: textDirection,
+        activePaint: null,
+        inactivePaint: null);
 
     if (showLabels || showTicks || showDivisors) {
       drawLabelsTicksAndDivisors(context, trackRect, offset, null,
@@ -2970,33 +3095,105 @@ class _RenderRangeSelector extends RenderBaseSlider {
         actualTrackOffset, trackRect);
   }
 
+  /// Describe the semantics of the start thumb.
+  SemanticsNode? _startSemanticsNode = SemanticsNode();
+
+  /// Describe the semantics of the end thumb.
+  SemanticsNode? _endSemanticsNode = SemanticsNode();
+
+  // Create the semantics configuration for a single value.
+  SemanticsConfiguration _createSemanticsConfiguration(
+    dynamic value,
+    dynamic increasedValue,
+    dynamic decreasedValue,
+    SfThumb thumb,
+    VoidCallback increaseAction,
+    VoidCallback decreaseAction,
+  ) {
+    final SemanticsConfiguration config = SemanticsConfiguration();
+    config.isEnabled = isEnabled;
+    config.textDirection = textDirection;
+    if (isEnabled) {
+      config.onIncrease = increaseAction;
+      config.onDecrease = decreaseAction;
+    }
+
+    if (semanticFormatterCallback != null) {
+      config.value = semanticFormatterCallback!(value, thumb);
+      config.increasedValue = semanticFormatterCallback!(increasedValue, thumb);
+      config.decreasedValue = semanticFormatterCallback!(decreasedValue, thumb);
+    } else {
+      final String thumbValue = thumb.toString().split('.').last;
+      config.value = 'the $thumbValue value is $value';
+      config.increasedValue = 'the $thumbValue  value is $increasedValue';
+      config.decreasedValue = 'the $thumbValue  value is $decreasedValue';
+    }
+    return config;
+  }
+
+  @override
+  void assembleSemanticsNode(
+    SemanticsNode node,
+    SemanticsConfiguration config,
+    Iterable<SemanticsNode> children,
+  ) {
+    assert(children.isEmpty);
+    final SemanticsConfiguration startSemanticsConfiguration =
+        _createSemanticsConfiguration(
+      values.start,
+      _increasedStartValue,
+      _decreasedStartValue,
+      SfThumb.start,
+      _increaseStartAction,
+      _decreaseStartAction,
+    );
+    final SemanticsConfiguration endSemanticsConfiguration =
+        _createSemanticsConfiguration(
+      values.end,
+      _increasedEndValue,
+      _decreasedEndValue,
+      SfThumb.end,
+      _increaseEndAction,
+      _decreaseEndAction,
+    );
+    // Split the semantics node area between the start and end nodes.
+    final Rect leftRect =
+        Rect.fromPoints(node.rect.topLeft, node.rect.bottomCenter);
+    final Rect rightRect =
+        Rect.fromPoints(node.rect.topCenter, node.rect.bottomRight);
+    switch (textDirection) {
+      case TextDirection.ltr:
+        _startSemanticsNode!.rect = leftRect;
+        _endSemanticsNode!.rect = rightRect;
+        break;
+      case TextDirection.rtl:
+        _startSemanticsNode!.rect = rightRect;
+        _endSemanticsNode!.rect = leftRect;
+        break;
+    }
+
+    _startSemanticsNode!.updateWith(config: startSemanticsConfiguration);
+    _endSemanticsNode!.updateWith(config: endSemanticsConfiguration);
+
+    final List<SemanticsNode> finalChildren = <SemanticsNode>[
+      _startSemanticsNode!,
+      _endSemanticsNode!,
+    ];
+
+    node.updateWith(config: config, childrenInInversePaintOrder: finalChildren);
+  }
+
+  @override
+  void clearSemantics() {
+    super.clearSemantics();
+    _startSemanticsNode = null;
+    _endSemanticsNode = null;
+  }
+
   @override
   void describeSemanticsConfiguration(SemanticsConfiguration config) {
     super.describeSemanticsConfiguration(config);
-
     config.isSemanticBoundary = isEnabled;
-    if (isEnabled) {
-      config.textDirection = textDirection;
-      config.customSemanticsActions = <CustomSemanticsAction, VoidCallback>{
-        const CustomSemanticsAction(label: 'Decrease start value'):
-            _decreaseStartAction,
-        const CustomSemanticsAction(label: 'Increase start value'):
-            _increaseStartAction,
-        const CustomSemanticsAction(label: 'Decrease end value'):
-            _decreaseEndAction,
-        const CustomSemanticsAction(label: 'Increase end value'):
-            _increaseEndAction,
-      };
-
-      assert(actualValues.start <= actualValues.end);
-      if (_semanticFormatterCallback != null) {
-        config.value = _semanticFormatterCallback(values);
-      } else {
-        config.value =
-            // ignore: lines_longer_than_80_chars
-            'The start value is ${values.start} and the end value is ${values.end}';
-      }
-    }
   }
 
   @override

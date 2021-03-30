@@ -7,7 +7,7 @@ class MergedCellCollection {
     _mergecell = [];
   }
 
-  List<MergeCell> _mergecell;
+  late List<MergeCell> _mergecell;
 
   /// Gets/Sets the inner list.
   List<MergeCell> get innerList {

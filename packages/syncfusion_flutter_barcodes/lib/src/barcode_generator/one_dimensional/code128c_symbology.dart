@@ -9,5 +9,5 @@ class Code128C extends Code128 {
   ///
   /// The arguments [module] must be non-negative and greater than 0.
   ///
-  Code128C({int module}) : super(module: module);
+  Code128C({int? module}) : super(module: module);
 }

@@ -4,7 +4,7 @@ part of pdf;
 class PdfBorders {
   //Constructor
   /// Initialize a new instance of the [PdfBorders] class.
-  PdfBorders({PdfPen left, PdfPen right, PdfPen top, PdfPen bottom}) {
+  PdfBorders({PdfPen? left, PdfPen? right, PdfPen? top, PdfPen? bottom}) {
     if (left == null) {
       final PdfPen defaultBorderPenLeft = PdfPen(PdfColor(0, 0, 0));
       defaultBorderPenLeft.dashStyle = PdfDashStyle.solid;
@@ -38,23 +38,23 @@ class PdfBorders {
   /// Gets the default border.
   static PdfBorders get defaultBorder {
     _defaultBorder ??= PdfBorders();
-    return _defaultBorder;
+    return _defaultBorder!;
   }
 
   //Fields
-  static PdfBorders _defaultBorder;
+  static PdfBorders? _defaultBorder;
 
   /// Gets or sets the pen for the left line of border.
-  PdfPen left;
+  late PdfPen left;
 
   /// Gets or sets the pen for the right line of border.
-  PdfPen right;
+  late PdfPen right;
 
   /// Gets or sets the pen for the bottom line of border.
-  PdfPen bottom;
+  late PdfPen bottom;
 
   /// Gets or sets the pen for the top line of border.
-  PdfPen top;
+  late PdfPen top;
 
   //Properties
   /// Sets all.
@@ -69,15 +69,15 @@ class PdfBorders {
 class PdfPaddings {
   //Constructors
   /// Initializes a new instance of the [PdfPaddings] class.
-  PdfPaddings({double left, double right, double top, double bottom}) {
+  PdfPaddings({double? left, double? right, double? top, double? bottom}) {
     _initialize(left, right, top, bottom);
   }
 
   //Fields
-  double _left;
-  double _right;
-  double _bottom;
-  double _top;
+  late double _left;
+  late double _right;
+  late double _bottom;
+  late double _top;
 
   //Properties
   @override
@@ -95,7 +95,6 @@ class PdfPaddings {
 
   /// Sets space value to all sides of a cell Left,Right,Top,Bottom.
   set all(double value) {
-    ArgumentError.checkNotNull(value);
     if (value < 0) {
       ArgumentError.value(
           value, 'all', 'value should greater than or equal to zero');
@@ -108,7 +107,6 @@ class PdfPaddings {
 
   /// Sets the left space of padding.
   set left(double value) {
-    ArgumentError.checkNotNull(value);
     if (value < 0) {
       ArgumentError.value(
           value, 'left', 'value should greater than or equal to zero');
@@ -121,7 +119,6 @@ class PdfPaddings {
 
   /// Sets the right space of padding.
   set right(double value) {
-    ArgumentError.checkNotNull(value);
     if (value < 0) {
       ArgumentError.value(
           value, 'right', 'value should greater than or equal to zero');
@@ -134,7 +131,6 @@ class PdfPaddings {
 
   /// Sets the top space of padding.
   set top(double value) {
-    ArgumentError.checkNotNull(value);
     if (value < 0) {
       ArgumentError.value(
           value, 'top', 'value should greater than or equal to zero');
@@ -147,7 +143,6 @@ class PdfPaddings {
 
   /// Sets the bottom space of padding.
   set bottom(double value) {
-    ArgumentError.checkNotNull(value);
     if (value < 0) {
       ArgumentError.value(
           value, 'bottom', 'value should greater than or equal to zero');
@@ -156,7 +151,7 @@ class PdfPaddings {
   }
 
   //Implementation
-  void _initialize(double left, double right, double top, double bottom) {
+  void _initialize(double? left, double? right, double? top, double? bottom) {
     this.left = left ?? 0.5;
     this.right = right ?? 0.5;
     this.top = top ?? 0.5;

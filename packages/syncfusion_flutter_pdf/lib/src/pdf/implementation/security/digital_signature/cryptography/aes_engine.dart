@@ -1,48 +1,58 @@
 part of pdf;
 
-class _AesEngine {
+class _AesEngine implements _ICipher {
   //Constructor
   _AesEngine() {
     _initializeConstants();
   }
 
   //Fields
-  int blockSize;
-  List<List<int>> _key;
-  int rounds;
-  bool _isEncryption;
-  List<int> rcon;
-  List<int> sBox;
-  int mix1;
-  int mix2;
-  int mix3;
-  int c0;
-  int c1;
-  int c2;
-  int c3;
-  int c4;
-  List<int> r0;
-  List<int> r1;
-  List<int> r2;
-  List<int> r3;
-  List<int> sinv;
-  List<int> rinv0;
-  List<int> rinv1;
-  List<int> rinv2;
-  List<int> rinv3;
+  int? blockSize;
+  List<List<int>>? _key;
+  late int rounds;
+  bool? _isEncryption;
+  late List<int> rcon;
+  late List<int> sBox;
+  late int mix1;
+  late int mix2;
+  late int mix3;
+  late int c0;
+  late int c1;
+  late int c2;
+  late int c3;
+  int? c4;
+  late List<int> r0;
+  late List<int> r1;
+  late List<int> r2;
+  late List<int> r3;
+  late List<int> sinv;
+  late List<int> rinv0;
+  late List<int> rinv1;
+  late List<int> rinv2;
+  late List<int> rinv3;
+
+  //Properties
+  @override
+  String get algorithmName => 'AES';
+
+  @override
+  bool get isBlock => false;
 
   //Initialize
-  void _initialize(bool isEncryption, _ICipherParameter parameter) {
-    ArgumentError.checkNotNull(parameter);
-    _key = _generateKey(parameter.keys, isEncryption);
-    _isEncryption = isEncryption;
+  @override
+  void initialize(bool? isEncryption, _ICipherParameter? parameter) {
+    if (parameter != null) {
+      _key = _generateKey(parameter.keys!, isEncryption!);
+      _isEncryption = isEncryption;
+    }
   }
 
   List<List<int>> _generateKey(List<int> keys, bool isEncryption) {
     final int keyLength = keys.length ~/ 4;
     if ((keyLength != 4 && keyLength != 6 && keyLength != 8) ||
         keyLength * 4 != keys.length) {
-      throw ArgumentError.value(keyLength, 'Key length not 128/192/256 bits.');
+      throw ArgumentError.value(
+          keyLength, 'keyLength', 'Key length not 128/192/256 bits.');
     }
     rounds = keyLength + 6;
     final List<List<int>> newKey =
@@ -74,21 +84,28 @@ class _AesEngine {
     return newKey;
   }
 
-  Map<String, dynamic> _processBlock(
-      List<int> input, int inputOffset, List<int> output, int outputOffset) {
+  @override
+  Map<String, dynamic> processBlock(
+      [List<int>? input,
+      int? inputOffset,
+      List<int>? output,
+      int? outputOffset]) {
     ArgumentError.checkNotNull(_key);
-    _unPackBlock(input, inputOffset);
-    if (_isEncryption) {
-      _encryptBlock();
+    _unPackBlock(input!, inputOffset!);
+    if (_isEncryption!) {
+      encryptBlock();
     } else {
-      _decryptBlock();
+      decryptBlock();
     }
-    output = _packBlock(output, outputOffset);
+    output = _packBlock(output!, outputOffset!);
     return <String, dynamic>{'length': blockSize, 'output': output};
   }
 
-  void _encryptBlock() {
-    final List<List<int>> keys = _key;
+  @override
+  void reset() {}
+
+  void encryptBlock() {
+    final List<List<int>> keys = _key!;
     int r = 0;
     List<int> kw = keys[r];
     c0 ^= kw[0];
@@ -187,8 +204,8 @@ class _AesEngine {
         kw[3];
   }
 
-  void _decryptBlock() {
-    final List<List<int>> keys = _key;
+  void decryptBlock() {
+    final List<List<int>> keys = _key!;
     int r = rounds;
     List<int> kw = keys[r];
     c0 ^= kw[0];

@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "沒有選定的日期", 
 "noEventsCalendarLabel" : "沒有活動", 
-"scheduleViewNewEventLabel" : "沒有計劃。點擊創建。", 
 "ofDataPagerLabel" : "的", 
 "pagesDataPagerLabel" : "頁數", 
 "itemsDataPagerLabel" : "項目", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "內存。", 
 "shortShawwalLabel" : "肖", 
 "shortDhualqiLabel" : "杜克", 
-"shortDhualhiLabel" : "杜赫"
+"shortDhualhiLabel" : "杜赫", 
+"daySpanCountLabel" : "天"
 }

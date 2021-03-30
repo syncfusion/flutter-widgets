@@ -1,9 +1,20 @@
-part of gauges;
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
+import 'package:flutter/foundation.dart';
+import '../axis/radial_axis.dart';
+import '../common/radial_gauge_renderer.dart';
+import '../gauge/radial_gauge.dart';
+import '../range/gauge_range.dart';
+import '../renderers/gauge_range_renderer.dart';
+import '../renderers/radial_axis_renderer_base.dart';
+import '../utils/helper.dart';
 
 /// Represents the painter to render axis range
-class _RangePainter extends CustomPainter {
+class RangePainter extends CustomPainter {
   /// Creates the range painter
-  _RangePainter(
+  RangePainter(
       this._gauge,
       this._axis,
       this._range,
@@ -29,58 +40,58 @@ class _RangePainter extends CustomPainter {
   final bool _isRepaint;
 
   /// Specifies the range animation
-  final Animation<double> _rangeAnimation;
+  final Animation<double>? _rangeAnimation;
 
   /// Hold the radial gauge rendering details
-  final _RenderingDetails _renderingDetails;
+  final RenderingDetails _renderingDetails;
 
   /// Specifies the gauge theme data
   final SfGaugeThemeData _gaugeThemeData;
 
   /// Holds the radial axis renderer
-  final RadialAxisRenderer _axisRenderer;
+  final RadialAxisRendererBase _axisRenderer;
 
   /// Holds the range renderer
-  final _GaugeRangeRenderer _rangeRenderer;
+  final GaugeRangeRenderer _rangeRenderer;
 
   @override
-  bool shouldRepaint(_RangePainter oldDelegate) => _isRepaint;
+  bool shouldRepaint(RangePainter oldDelegate) => _isRepaint;
 
   @override
   void paint(Canvas canvas, Size size) {
     Paint paint;
     final Path path = Path();
-    if (_rangeRenderer._actualStartValue != _rangeRenderer._actualEndValue) {
+    if (_rangeRenderer.actualStartValue != _rangeRenderer.actualEndValue) {
       canvas.save();
       if (!_axis.canScaleToFit) {
-        canvas.translate(_rangeRenderer._center.dx - _axisRenderer._centerX,
-            _rangeRenderer._center.dy - _axisRenderer._centerY);
+        canvas.translate(_rangeRenderer.center.dx - _axisRenderer.centerX,
+            _rangeRenderer.center.dy - _axisRenderer.centerY);
       } else {
         canvas.translate(
-            _axisRenderer._axisCenter.dx, _axisRenderer._axisCenter.dy);
+            _axisRenderer.axisCenter.dx, _axisRenderer.axisCenter.dy);
       }
 
-      canvas.rotate(_rangeRenderer._rangeStartRadian);
+      canvas.rotate(_rangeRenderer.rangeStartRadian);
 
-      if (_rangeRenderer._rangeRect == null) {
+      if (_rangeRenderer.rangeRect == null) {
         path.arcTo(
-            _rangeRenderer._outerArc.arcRect,
-            _getDegreeToRadian(_rangeRenderer._outerArc.startAngle),
-            _getDegreeToRadian(_rangeRenderer._outerArcSweepAngle),
+            _rangeRenderer.outerArc.arcRect,
+            getDegreeToRadian(_rangeRenderer.outerArc.startAngle),
+            getDegreeToRadian(_rangeRenderer.outerArcSweepAngle),
             false);
         path.arcTo(
-            _rangeRenderer._innerArc.arcRect,
-            _getDegreeToRadian(_rangeRenderer._innerArc.endAngle),
-            _getDegreeToRadian(_rangeRenderer._innerArcSweepAngle),
+            _rangeRenderer.innerArc.arcRect,
+            getDegreeToRadian(_rangeRenderer.innerArc.endAngle),
+            getDegreeToRadian(_rangeRenderer.innerArcSweepAngle),
             false);
 
-        paint = _getRangePaint(true, _rangeRenderer._pathRect, 0);
+        paint = _getRangePaint(true, _rangeRenderer.pathRect, 0);
         canvas.drawPath(path, paint);
       } else {
         paint = _getRangePaint(
-            false, _rangeRenderer._rangeRect, _rangeRenderer._thickness);
-        canvas.drawArc(_rangeRenderer._rangeRect, 0,
-            _rangeRenderer._rangeEndRadian, false, paint);
+            false, _rangeRenderer.rangeRect!, _rangeRenderer.thickness);
+        canvas.drawArc(_rangeRenderer.rangeRect!, 0,
+            _rangeRenderer.rangeEndRadian, false, paint);
       }
       canvas.restore();
     }
@@ -92,9 +103,9 @@ class _RangePainter extends CustomPainter {
     // Disables the load time animation once the end value of the range
     // is reached
     if (_gauge.axes[_gauge.axes.length - 1] == _axis &&
-        _axis.ranges[_axis.ranges.length - 1] == _range &&
+        _axis.ranges![_axis.ranges!.length - 1] == _range &&
         _rangeAnimation != null &&
-        _rangeAnimation.value == 1) {
+        _rangeAnimation!.value == 1) {
       _renderingDetails.needsToAnimateRanges = false;
     }
   }
@@ -103,7 +114,7 @@ class _RangePainter extends CustomPainter {
   Paint _getRangePaint(bool isFill, Rect rect, double strokeWidth) {
     double opacity = 1;
     if (_rangeAnimation != null) {
-      opacity = _rangeAnimation.value;
+      opacity = _rangeAnimation!.value;
     }
 
     final Paint paint = Paint()
@@ -112,29 +123,28 @@ class _RangePainter extends CustomPainter {
       ..color = _range.color ?? _gaugeThemeData.rangeColor;
     final double actualOpacity = paint.color.opacity;
     paint.color = paint.color.withOpacity(opacity * actualOpacity);
-    if (_range.gradient != null &&
-        _range.gradient.colors != null &&
-        _range.gradient.colors.isNotEmpty) {
-      List<Color> colors = _range.gradient.colors;
+    if (_range.gradient != null && _range.gradient!.colors.isNotEmpty) {
+      List<Color> colors = _range.gradient!.colors;
       if (_axis.isInversed) {
-        colors = _range.gradient.colors.reversed.toList();
+        colors = _range.gradient!.colors.reversed.toList();
       }
 
-      paint.shader = SweepGradient(colors: colors, stops: _getGradientStops())
+      paint.shader = SweepGradient(
+              colors: colors, stops: _getGradientStops() as List<double>)
           .createShader(rect);
     }
     return paint;
   }
 
   /// To calculate the gradient stop based on the sweep angle
-  List<double> _getGradientStops() {
+  List<double?> _getGradientStops() {
     final double sweepRadian =
-        _rangeRenderer._actualStartWidth != _rangeRenderer._actualEndWidth
-            ? _rangeRenderer._rangeEndRadian - _rangeRenderer._rangeStartRadian
-            : _rangeRenderer._rangeEndRadian;
+        _rangeRenderer.actualStartWidth != _rangeRenderer.actualEndWidth
+            ? _rangeRenderer.rangeEndRadian - _rangeRenderer.rangeStartRadian
+            : _rangeRenderer.rangeEndRadian;
     double rangeStartAngle =
-        _axisRenderer.valueToFactor(_rangeRenderer._actualStartValue) *
-                _axisRenderer._sweepAngle +
+        _axisRenderer.valueToFactor(_rangeRenderer.actualStartValue) *
+                _axisRenderer.sweepAngle +
             _axis.startAngle;
     if (rangeStartAngle < 0) {
       rangeStartAngle += 360;
@@ -144,21 +154,22 @@ class _RangePainter extends CustomPainter {
       rangeStartAngle -= 360;
     }
 
-    final double sweepAngle = _getRadianToDegree(sweepRadian).abs();
-    return _calculateGradientStops(
+    final double sweepAngle = getRadianToDegree(sweepRadian).abs();
+    return calculateGradientStops(
         _getGradientOffset(), _axis.isInversed, sweepAngle);
   }
 
   /// Returns the gradient stop of axis line gradient
-  List<double> _getGradientOffset() {
-    if (_range.gradient.stops != null && _range.gradient.stops.isNotEmpty) {
-      return _range.gradient.stops;
+  List<double?> _getGradientOffset() {
+    if (_range.gradient!.stops != null && _range.gradient!.stops!.isNotEmpty) {
+      return _range.gradient!.stops!;
     } else {
       // Calculates the gradient stop values based on the number of provided
       // color
-      final double difference = 1 / _range.gradient.colors.length;
-      final List<double> offsets = List<double>(_range.gradient.colors.length);
-      for (int i = 0; i < _range.gradient.colors.length; i++) {
+      final double difference = 1 / _range.gradient!.colors.length;
+      final List<double?> offsets =
+          List<double?>.filled(_range.gradient!.colors.length, null);
+      for (int i = 0; i < _range.gradient!.colors.length; i++) {
         offsets[i] = i * difference;
       }
 
@@ -170,12 +181,12 @@ class _RangePainter extends CustomPainter {
   void _renderRangeText(Canvas canvas) {
     double opacity = 1;
     if (_rangeAnimation != null) {
-      opacity = _rangeAnimation.value;
+      opacity = _rangeAnimation!.value;
     }
 
     final Color color = _range.color ?? _gaugeThemeData.rangeColor;
     final Color labelColor =
-        _range.labelStyle.color ?? _getSaturationColor(color);
+        _range.labelStyle.color ?? getSaturationColor(color);
     final double actualOpacity = labelColor.opacity;
     final TextSpan span = TextSpan(
         text: _range.label,
@@ -192,13 +203,13 @@ class _RangePainter extends CustomPainter {
     textPainter.layout();
     canvas.save();
     canvas.translate(
-        _rangeRenderer._labelPosition.dx, _rangeRenderer._labelPosition.dy);
-    canvas.rotate(_getDegreeToRadian(_rangeRenderer._labelAngle));
+        _rangeRenderer.labelPosition.dx, _rangeRenderer.labelPosition.dy);
+    canvas.rotate(getDegreeToRadian(_rangeRenderer.labelAngle));
     canvas.scale(-1);
     textPainter.paint(
         canvas,
-        Offset(-_rangeRenderer._labelSize.width / 2,
-            -_rangeRenderer._labelSize.height / 2));
+        Offset(-_rangeRenderer.labelSize.width / 2,
+            -_rangeRenderer.labelSize.height / 2));
     canvas.restore();
   }
 }

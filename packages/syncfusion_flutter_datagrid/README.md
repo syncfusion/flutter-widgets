@@ -1,10 +1,10 @@
 ![syncfusion flutter datagrid](https://cdn.syncfusion.com/content/images/Flutter/pub_images/Flutter-DataGrid.png)
 
-# Syncfusion Flutter DataGrid
+# Flutter DataGrid (DataTable) library
 
-The Syncfusion Flutter DataGrid is used to display and manipulate data in a tabular view. It is built from the ground up to achieve the best possible performance, even when loading large amounts data.
+The Flutter DataTable or DataGrid is used to display and manipulate data in a tabular view. It is built from the ground up to achieve the best possible performance, even when loading large amounts data.
 
-**Disclaimer:** This is a commercial package. To use this package, you need to have either a Syncfusion commercial license or Syncfusion Community License. For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
+**Disclaimer:** This is a commercial package. To use this package, you need to have either a Syncfusion commercial license or [Free Syncfusion Community license](https://www.syncfusion.com/products/communitylicense). For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
 
 **Note:** Our packages are now compatible with Flutter for web. However, this will be in beta until Flutter for web becomes stable.
 
@@ -23,29 +23,54 @@ The Syncfusion Flutter DataGrid is used to display and manipulate data in a tabu
 
 ## DataGrid features
 
-* **Column types** - Show different data types (int, double, string, and date-time) in different types of columns. Also, load any widget in a column.
+**Column types** - Support to load any widget in a each column.
 
-* **Column sizing** - Set the width of columns with various sizing options. Columns can also be sized based on their content.
+![Flutter DataGrid shows different column types](https://cdn.syncfusion.com/content/images/Flutter/pub_images/flutter-datagrid-column-types.png)
 
-* **Auto row height** - Set the height for rows based on the content of their cells.
+**Column sizing** - Set the width of columns with various sizing options.
 
-* **Sorting** - Sort one or more columns in the ascending or descending order. 
+**Row height** - Set the height for header and data rows. Also, set the different height for specific rows.
 
-* **Selection** - Select one or more rows. Keyboard navigation is supported for web platforms.
+![Flutter DataGrid shows rows in auto-fit](https://cdn.syncfusion.com/content/images/Flutter/pub_images/flutter-datagrid-auto-row-height.png)
 
-* **Styling** - Customize the appearance of cells and headers. Conditional styling is also supported.
+**Sorting** - Sort one or more columns in the ascending or descending order. 
 
-* **Stacked headers** - Show unbound header rows. Unbound header rows span stacked header columns across multiple rows and columns.
+![Columns are sorted in flutter datagrid](https://cdn.syncfusion.com/content/images/Flutter/pub_images/flutter-datagrid-sorting.gif)
 
-* **Load more** - Display an interactive view when the grid reaches its maximum offset while scrolling down. Tapping the interactive view triggers a callback to add more data from the data source of the grid at run time.
+**Selection** - Select one or more rows. Keyboard navigation is supported for web platforms.
 
-* **Paging** - Load data in segments. It is useful when loading huge amounts of data.
+![Flutter DataGrid shows rows with selection](https://cdn.syncfusion.com/content/images/Flutter/pub_images/flutter-datagrid-selection.png)
 
-* **Theme** - Use a dark or light theme.
+**Styling** - Customize the appearance of cells and headers. Conditional styling is also supported.
 
-* **Accessibility** - The DataGrid can easily be accessed by screen readers.
+![Styling in Flutter DataGrid](https://cdn.syncfusion.com/content/images/Flutter/pub_images/flutter-datagrid-styling.png)
+![Styling in Flutter DataGrid](https://cdn.syncfusion.com/content/images/Flutter/pub_images/flutter-datagrid-conditional-styles.png)
 
-* **Right to Left (RTL)** - Right-to-left direction support for users working in RTL languages like Hebrew and Arabic.
+**Stacked headers** - Show unbound header rows. Unbound header rows span stacked header columns across multiple rows and columns.
+
+![Flutter datagrid shows multiple column headers](https://cdn.syncfusion.com/content/images/Flutter/pub_images/flutter-datagrid-stacked-headers.png)
+
+**Load more** - Display an interactive view when the grid reaches its maximum offset while scrolling down. Tapping the interactive view triggers a callback to add more data from the data source of the grid at run time.
+
+![infinite scrolling in Flutter datagrid](https://cdn.syncfusion.com/content/images/Flutter/pub_images/flutter-datagrid-load-more.gif)
+
+**Paging** - Load data in segments. It is useful when loading huge amounts of data.
+
+![Flutter DataGrid shows rows in page segments](https://cdn.syncfusion.com/content/images/Flutter/pub_images/flutter-datagrid-paging.png)
+
+**Freeze Panes** - Freeze the rows and columns when scrolling the grid. 
+
+![First row and column are frozen in flutter datagrid](https://cdn.syncfusion.com/content/images/Flutter/pub_images/flutter-datagrid-freeze-panes.gif)
+
+**Swiping** - Swipe a row right to left or left to right for custom actions such as deleting, editing, and so on. When the user swipes a row, the row will be moved and the swipe view will show the custom actions.
+
+**Pull to refresh** - Allows users to refresh data when the DataGrid is pulled down.
+
+**Theme** - Use a dark or light theme.
+
+**Accessibility** - The DataGrid can easily be accessed by screen readers.
+
+**Right to Left (RTL)** - Right-to-left direction support for users working in RTL languages like Hebrew and Arabic.
 
 ## Coming soon
 
@@ -101,24 +126,33 @@ class Employee {
 
 Create the collection of employee data with the required number of data objects. Here, the method used to populate the data objects is initialized in initState()
 
+`DataGridSource` objects are expected to be long-lived, not re-created with each build.
+
 ```dart
+List<Employee> employees = <Employee>[];
+
+EmployeeDataSource employeeDataSource;
+
 @override
 void initState() {
   super.initState();
-  populateData();
+  employees= getEmployees();
+  employeeDataSource = EmployeeDataSource(employees: employees);
 }
 
-void populateData() {
-  _employees.add(Employee(10001, 'James', 'Project Lead', 20000));
-  _employees.add(Employee(10002, 'Kathryn', 'Manager', 30000));
-  _employees.add(Employee(10003, 'Lara', 'Developer', 15000));
-  _employees.add(Employee(10004, 'Michael', 'Designer', 15000));
-  _employees.add(Employee(10005, 'Martin', 'Developer', 15000));
-  _employees.add(Employee(10006, 'Newberry', 'Developer', 15000));
-  _employees.add(Employee(10007, 'Balnc', 'Developer', 15000));
-  _employees.add(Employee(10008, 'Perry', 'Developer', 15000));
-  _employees.add(Employee(10009, 'Gable', 'Developer', 15000));
-  _employees.add(Employee(10010, 'Grimes', 'Developer', 15000));
+ List<Employee> getEmployees() {
+  return[
+  Employee(10001, 'James', 'Project Lead', 20000),
+  Employee(10002, 'Kathryn', 'Manager', 30000),
+  Employee(10003, 'Lara', 'Developer', 15000),
+  Employee(10004, 'Michael', 'Designer', 15000),
+  Employee(10005, 'Martin', 'Developer', 15000),
+  Employee(10006, 'Newberry', 'Developer', 15000),
+  Employee(10007, 'Balnc', 'Developer', 15000),
+  Employee(10008, 'Perry', 'Developer', 15000),
+  Employee(10009, 'Gable', 'Developer', 15000),
+  Employee(10010, 'Grimes', 'Developer', 15000)
+  ];
 }
 ```
 
@@ -126,41 +160,43 @@ void populateData() {
 
 `DataGridSource` is used to obtain the row data for the `SfDataGrid`. So, create the data source from the DataGridSource and override the following APIs in it:
 
-* `dataSource`: Fetches the number of rows available for data population. Also, it is used to fetch the corresponding data object to process the selection.
+* `rows`: Fetches the rows available for data population. Also, it is used to fetch the corresponding data object to process the selection. This contains the collection of `DataGridRow` where each row contains the collection of `DataGridCell`. Each cell should have the cell value in `value` property. `value` is used to perform the sorting for columns.
 
-* `getValue`: Fetches the value for each cell.
-
-`DataGridSource` objects are expected to be long-lived, not re-created with each build.
+* `buildRow`: Fetches the widget for each cell with `DataGridRowAdapter`.
 
 ```dart
-final List<Employee> _employees = <Employee>[];
-
-final EmployeeDataSource _employeeDataSource = EmployeeDataSource();
-
-class EmployeeDataSource extends DataGridSource<Employee> {
-  @override
-  List<Employee> get dataSource => _employees;
-
-  @override
-  getValue(Employee employee, String columnName) {
-    switch (columnName) {
-      case 'id':
-        return employee.id;
-        break;
-      case 'name':
-        return employee.name;
-        break;
-      case 'salary':
-        return employee.salary;
-        break;
-      case 'designation':
-        return employee.designation;
-        break;
-      default:
-        return ' ';
-        break;
-    }
+class EmployeeDataSource extends DataGridSource {
+  EmployeeDataSource({List<Employee> employees}) {
+     _employees = employees
+        .map<DataGridRow>((e) => DataGridRow(cells: [
+              DataGridCell<int>(columnName: 'id', value: e.id),
+              DataGridCell<String>(columnName: 'name', value: e.name),
+              DataGridCell<String>(
+                  columnName: 'designation', value: e.designation),
+              DataGridCell<int>(columnName: 'salary', value: e.salary),
+            ]))
+        .toList();
   }
+
+  List<DataGridRow>  _employees;
+
+  @override
+  List<DataGridRow> get rows =>  _employees;
+
+  @override
+  DataGridRowAdapter buildRow(DataGridRow row) {
+    return DataGridRowAdapter(
+        cells: row.getCells().map<Widget>((dataGridCell) {
+      return Container(
+        alignment: (dataGridCell.columnName == 'id' || dataGridCell.columnName == 'salary')
+            ? Alignment.centerRight
+            : Alignment.centerLeft,
+        padding: EdgeInsets.all(16.0),
+        child: Text(dataGridCell.value.toString()),
+      );
+    }).toList());
+  }
+}
 ```
 
 Create an instance of `DataGridSource` and set this object to the `source` property of `SfDataGrid`.
@@ -184,32 +220,46 @@ Widget build(BuildContext context) {
 
 ### Defining columns
 
-`SfDataGrid` supports showing different data types (int, double, String, and DateTime) in different types of columns. You can add the column collection to the `columns` property.
+`SfDataGrid` supports load any widget in columns. You can add the column collection to the `columns` property.
 
-You can also load any widget in a column using the `GridWidgetColumn` and `cellBuilder` properties in `SfDataGrid`.
-
-```dart
-final EmployeeDataSource _employeeDataSource = EmployeeDataSource();
-  
+```dart  
 @override
 Widget build(BuildContext context) {
   return Scaffold(
     appBar: AppBar(
-      title: Text('Syncfusion DataGrid'),
+      title: const Text('Syncfusion Flutter DataGrid'),
     ),
-    body: Center(
-      child: Expanded(
-        child: SfDataGrid(
-          source: _employeeDataSource,
-          columns: [
-            GridNumericColumn(mappingName: 'id', headerText: 'ID'),
-            GridTextColumn(mappingName: 'name', headerText: 'Name'),
-            GridTextColumn(
-                mappingName: 'designation', headerText: 'Designation'),
-            GridNumericColumn(mappingName: 'salary', headerText: 'Salary'),
-          ],
-        ),
-      ),
+    body: SfDataGrid(
+      source: employeeDataSource,
+      columns: <GridColumn>[
+        GridTextColumn(
+            columnName: 'id',
+            label: Container(
+                padding: EdgeInsets.all(16.0),
+                alignment: Alignment.centerRight,
+                child: Text(
+                  'ID',
+                ))),
+        GridTextColumn(
+            columnName: 'name',
+            label: Container(
+                padding: EdgeInsets.all(16.0),
+                alignment: Alignment.centerLeft,
+                child: Text('Name'))),
+        GridTextColumn(
+            columnName: 'designation',
+            width: 120,
+            label: Container(
+                padding: EdgeInsets.all(16.0),
+                alignment: Alignment.centerLeft,
+                child: Text('Designation'))),
+        GridTextColumn(
+            columnName: 'salary',
+            label: Container(
+                padding: EdgeInsets.all(16.0),
+                alignment: Alignment.centerRight,
+                child: Text('Salary'))),
+      ],
     ),
   );
 }

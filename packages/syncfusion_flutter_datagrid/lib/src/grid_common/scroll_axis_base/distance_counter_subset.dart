@@ -22,7 +22,7 @@ class _DistanceCounterSubset extends _DistanceCounterCollectionBase
     _count = 0;
   }
 
-  _DistanceCounterCollectionBase _trackDCC;
+  late _DistanceCounterCollectionBase _trackDCC;
   int start = 0;
 
   /// Gets an object that implements the `Distances` property.
@@ -137,7 +137,7 @@ class _DistanceCounterSubset extends _DistanceCounterCollectionBase
   ///
   /// Returns the nested entities at a given index or null.
   @override
-  _DistanceCounterCollectionBase getNestedDistances(int index) =>
+  _DistanceCounterCollectionBase? getNestedDistances(int index) =>
       _trackDCC.getNestedDistances(index + start);
 
   /// Gets the next visible index.
@@ -282,7 +282,7 @@ class _DistanceCounterSubset extends _DistanceCounterCollectionBase
   /// * nestedCollection - _required_ - The nested collection.
   @override
   void setNestedDistances(
-      int index, _DistanceCounterCollectionBase nestedCollection) {
+      int index, _DistanceCounterCollectionBase? nestedCollection) {
     _trackDCC.setNestedDistances(index + start, nestedCollection);
   }
 
@@ -296,7 +296,7 @@ class _DistanceCounterSubset extends _DistanceCounterCollectionBase
 
   /// Sets the distance for an entity from the given index.
   @override
-  void operator []=(int index, Object value) {
+  void operator []=(int index, double value) {
     _trackDCC[index + start] = value;
   }
 }

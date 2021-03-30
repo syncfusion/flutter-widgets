@@ -22,20 +22,20 @@ class Font {
   }
 
   /// Gets/sets font bold.
-  bool bold;
+  late bool bold;
 
   /// Gets/sets font italic.
-  bool italic;
+  late bool italic;
 
   /// Gets/sets font underline.
-  bool underline;
+  late bool underline;
 
   /// Gets/sets font size.
-  double size;
+  late double size;
 
   /// Gets/sets font name.
-  String name;
+  late String name;
 
   /// Gets/sets font color.
-  String color;
+  late String color;
 }

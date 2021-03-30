@@ -1,10 +1,36 @@
 part of pdf;
 
 /// Implements structures and routines working with color.
+///
+/// ```dart
+/// //Creates a new PDF document.
+/// PdfDocument document = PdfDocument()
+///   ..pages.add().graphics.drawString(
+///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
+///       //Using PDF color set pen.
+///       pen: PdfPen(PdfColor(200, 120, 80)));
+/// //Saves the document.
+/// List<int> bytes = document.save();
+/// //Dispose the document.
+/// document.dispose();
+/// ```
 class PdfColor {
   /// Initializes a new instance of the [PdfColor] class
   /// with Red, Green, Blue and Alpha channels.
-  PdfColor(int red, int green, int blue, [int alpha]) {
+  ///
+  /// ```dart
+  /// //Creates a new PDF document.
+  /// PdfDocument document = PdfDocument()
+  ///   ..pages.add().graphics.drawString(
+  ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
+  ///       //Using PDF color set pen.
+  ///       pen: PdfPen(PdfColor(200, 120, 80)));
+  /// //Saves the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
+  PdfColor(int red, int green, int blue, [int alpha = 255]) {
     _black = 0;
     _cyan = 0;
     _magenta = 0;
@@ -13,13 +39,26 @@ class PdfColor {
     _red = red;
     _green = green;
     _blue = blue;
-    _alpha = alpha ?? _maxColourChannelValue.toInt();
+    _alpha = alpha;
     _isFilled = _alpha != 0;
     _assignCMYK(_red, _green, _blue);
   }
 
   /// Initializes a new instance of the [PdfColor] class
   /// with Cyan, Magenta, Yellow and Black channels.
+  ///
+  /// ```dart
+  /// //Creates a new PDF document.
+  /// PdfDocument document = PdfDocument()
+  ///   ..pages.add().graphics.drawString(
+  ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
+  ///       //Using PDF color set pen.
+  ///       pen: PdfPen(PdfColor.fromCMYK(200, 120, 80, 40)));
+  /// //Saves the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   PdfColor.fromCMYK(double cyan, double magenta, double yellow, double black) {
     _red = 0;
     _cyan = cyan;
@@ -86,6 +125,19 @@ class PdfColor {
   int get hashCode => _alpha.hashCode;
 
   /// Gets the empty(null) color.
+  ///
+  /// ```dart
+  /// //Creates a new PDF document.
+  /// PdfDocument document = PdfDocument()
+  ///   ..pages.add().graphics.drawString(
+  ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
+  ///       //Create PDF color.
+  ///       pen: PdfPen(PdfColor.empty));
+  /// //Saves the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   static PdfColor get empty {
     return PdfColor._empty();
   }
@@ -95,63 +147,96 @@ class PdfColor {
   final Map<int, Object> _rgbStrings = <int, Object>{};
 
   /// Value of Red channel.
-  int _red;
+  late int _red;
 
   /// Value of Cyan channel.
-  double _cyan;
+  late double _cyan;
 
   /// Value of Green channel.
-  int _green;
+  late int _green;
 
   /// Value of Magenta channel.
-  double _magenta;
+  late double _magenta;
 
   /// Value of Blue channel.
-  int _blue;
+  late int _blue;
 
   /// Value of Yellow channel.
-  double _yellow;
+  late double _yellow;
 
   /// Value of Black channel.
-  double _black;
+  late double _black;
 
   /// Value of Gray channel.
-  double _gray;
+  late double _gray;
 
   /// Value of alpha channel.
-  int _alpha;
+  late int _alpha;
 
   /// Shows if the color is empty.
-  bool _isFilled;
+  bool _isFilled = false;
 
   /// Max value of color channel.
   final double _maxColourChannelValue = 255.0;
 
   //Properties
-  /// Gets Red channel value.
+  /// Gets or sets Red channel value.
+  ///
+  /// ```dart
+  /// //Create a new PDF document.
+  /// PdfDocument document = PdfDocument()
+  ///   ..pages.add().graphics.drawRectangle(
+  ///       //sets the red channel value.
+  ///       pen: PdfPen(PdfColor(0, 0, 0)..r = 255),
+  ///       bounds: Rect.fromLTWH(10, 10, 200, 100));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Close the document.
+  /// document.dispose();
+  /// ```
   int get r => _red;
-
-  /// Sets Red channel value.
   set r(int value) {
     _red = value;
     _assignCMYK(_red, _green, _blue);
     _isFilled = true;
   }
 
-  /// Gets Green channel value.
+  /// Gets or sets Green channel value.
+  ///
+  /// ```dart
+  /// //Create a new PDF document.
+  /// PdfDocument document = PdfDocument()
+  ///   ..pages.add().graphics.drawRectangle(
+  ///       //sets the green channel value.
+  ///       pen: PdfPen(PdfColor(0, 0, 0)..g = 255),
+  ///       bounds: Rect.fromLTWH(10, 10, 200, 100));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Close the document.
+  /// document.dispose();
+  /// ```
   int get g => _green;
-
-  /// Sets Red channel value.
   set g(int value) {
     _green = value;
     _assignCMYK(_red, _green, _blue);
     _isFilled = true;
   }
 
-  /// Gets Blue channel value.
+  /// Gets or sets Blue channel value.
+  ///
+  /// ```dart
+  /// //Create a new PDF document.
+  /// PdfDocument document = PdfDocument()
+  ///   ..pages.add().graphics.drawRectangle(
+  ///       //sets the blue channel value.
+  ///       pen: PdfPen(PdfColor(0, 0, 0)..b = 255),
+  ///       bounds: Rect.fromLTWH(10, 10, 200, 100));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Close the document.
+  /// document.dispose();
+  /// ```
   int get b => _blue;
-
-  /// Sets Blue channel value.
   set b(int value) {
     _blue = value;
     _assignCMYK(_red, _green, _blue);
@@ -159,6 +244,21 @@ class PdfColor {
   }
 
   /// Gets whether the PDFColor is Empty or not.
+  ///
+  /// ```dart
+  /// //Create a new PDF document.
+  /// PdfDocument document = PdfDocument();
+  /// //Create a new PDF pen instance.
+  /// PdfColor color = PdfColor.empty;
+  /// //Draw rectangle with the pen.
+  /// document.pages.add().graphics.drawString('Color present: ${color.isEmpty}',
+  ///     PdfStandardFont(PdfFontFamily.helvetica, 12),
+  ///     pen: PdfPen(color));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Close the document.
+  /// document.dispose();
+  /// ```
   bool get isEmpty => !_isFilled;
 
   //Implementation
@@ -204,7 +304,7 @@ class PdfColor {
   }
 
   /// Converts [PdfColor] to PDF string representation.
-  String _toString(PdfColorSpace colorSpace, bool stroke) {
+  String _toString(PdfColorSpace? colorSpace, bool stroke) {
     if (isEmpty) {
       return '';
     }
@@ -218,14 +318,17 @@ class PdfColor {
       key += 1 << 24;
     }
     String colour;
-    Object obj;
+    Object? obj;
     if (_rgbStrings.containsKey(key)) {
       obj = _rgbStrings[key];
     }
     if (obj == null) {
-      final double red = r / _maxColourChannelValue;
-      final double green = g / _maxColourChannelValue;
-      final double blue = b / _maxColourChannelValue;
+      dynamic red = r / _maxColourChannelValue;
+      dynamic green = g / _maxColourChannelValue;
+      dynamic blue = b / _maxColourChannelValue;
+      red = red % 1 == 0 ? red.toInt() : red;
+      green = green % 1 == 0 ? green.toInt() : green;
+      blue = blue % 1 == 0 ? blue.toInt() : blue;
       colour = _trimEnd(red.toString()) +
           ' ' +
           _trimEnd(green.toString()) +
@@ -246,9 +349,8 @@ class PdfColor {
     return color.isEmpty ? '0' : color;
   }
 
-  _PdfArray _toArray([PdfColorSpace colorSpace]) {
+  _PdfArray _toArray([PdfColorSpace colorSpace = PdfColorSpace.rgb]) {
     final _PdfArray array = _PdfArray();
-
     switch (colorSpace) {
       case PdfColorSpace.cmyk:
         array._add(_PdfNumber(_cyan));

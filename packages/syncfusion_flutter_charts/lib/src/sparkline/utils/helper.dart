@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_core/core.dart';
 import 'package:flutter/foundation.dart';
 import '../marker.dart';
 import 'enum.dart';
@@ -37,13 +38,13 @@ Size getTextSize(String textValue, TextStyle textStyle) {
 
 /// Draw the data label
 void drawText(Canvas canvas, String dataLabel, Offset point, TextStyle style) {
-  final num maxLines = _getMaxLinesContent(dataLabel);
+  final num maxLines = getMaxLinesContent(dataLabel);
   final TextSpan span = TextSpan(text: dataLabel, style: style);
   final TextPainter tp = TextPainter(
       text: span,
       textDirection: TextDirection.ltr,
       textAlign: TextAlign.center,
-      maxLines: maxLines);
+      maxLines: maxLines.toInt());
   tp.layout();
   canvas.save();
   canvas.translate(point.dx, point.dy);
@@ -52,17 +53,10 @@ void drawText(Canvas canvas, String dataLabel, Offset point, TextStyle style) {
   canvas.restore();
 }
 
-/// Returns lines count in a string
-num _getMaxLinesContent(String text) {
-  return text != null && text.isNotEmpty && text.contains('\n')
-      ? text.split('\n').length
-      : 1;
-}
-
 /// Draw the dashed line
 void drawDashedPath(
     Canvas canvas, Paint paint, Offset moveToPoint, Offset lineToPoint,
-    [List<double> dashArray]) {
+    [List<double>? dashArray]) {
   bool even = false;
   final Path path = Path();
   path.moveTo(moveToPoint.dx, moveToPoint.dy);
@@ -79,7 +73,7 @@ void drawDashedPath(
           _dashPath(
             path,
             dashArray: DashArrayIntervalList<double>(dashArray),
-          ),
+          )!,
           paint);
     }
   } else {
@@ -88,9 +82,9 @@ void drawDashedPath(
 }
 
 /// To calculate dash array path for series
-Path _dashPath(
-  Path source, {
-  @required DashArrayIntervalList<double> dashArray,
+Path? _dashPath(
+  Path? source, {
+  @required DashArrayIntervalList<double>? dashArray,
 }) {
   if (source == null) {
     return null;
@@ -101,7 +95,7 @@ Path _dashPath(
     double distance = intialValue;
     bool draw = true;
     while (distance < measurePath.length) {
-      final double length = dashArray.next;
+      final double length = dashArray!.next;
       if (draw) {
         path.addPath(
             measurePath.extractPath(distance, distance + length), Offset.zero);
@@ -216,11 +210,13 @@ Offset transformToCoordinatePoint(
 }
 
 /// Calculates and return the spark chart layout size
-Size getLayoutSize(BoxConstraints constraints) {
+Size getLayoutSize(BoxConstraints constraints, BuildContext context) {
   final double minHeight = 270;
   final double minWidth = 480;
   double height = constraints.maxHeight;
   double width = constraints.maxWidth;
+  final double deviceWidth = MediaQuery.of(context).size.width;
+  final double deviceHeight = MediaQuery.of(context).size.height;
   if (height == double.infinity) {
     if (width != double.infinity) {
       height = (width / 16) * 9;
@@ -237,6 +233,13 @@ Size getLayoutSize(BoxConstraints constraints) {
     }
   }
 
+  if (width > deviceWidth) {
+    width = deviceWidth;
+  }
+
+  if (height > deviceHeight) {
+    height = deviceHeight;
+  }
   return Size(width, height);
 }
 
@@ -266,26 +269,26 @@ class SparkChartPoint {
   SparkChartPoint({this.x, this.y});
 
   /// Specifies the x point
-  dynamic x;
+  dynamic? x;
 
   /// Specifies the y point
-  dynamic y;
+  dynamic? y;
 
   /// Specifes the pixel location of  data label
 
-  Offset dataLabelOffset;
+  Offset? dataLabelOffset;
 
   /// Specifies the x label
-  String labelX;
+  String? labelX;
 
   /// Specifies the y label
-  String labelY;
+  String? labelY;
 
   /// Specifies the actual x value
-  dynamic actualX;
+  dynamic? actualX;
 
   /// Specifies the color of that particular segment in bar series
-  Color color;
+  Color? color;
 }
 
 /// Represents the spark chart data details
@@ -295,38 +298,40 @@ class SparkChartDataDetails {
       {this.data, this.dataCount, this.xValueMapper, this.yValueMapper});
 
   /// Speficies the list of spark chart data
-  final List<num> data;
+  final List<num>? data;
 
   /// Specifies the spark chart data count
-  final int dataCount;
+  final int? dataCount;
 
   /// Specifies the x-value mapper
-  final SparkChartIndexedValueMapper<dynamic> xValueMapper;
+  final SparkChartIndexedValueMapper<dynamic>? xValueMapper;
 
   /// Specifies the y-value mapper
-  final SparkChartIndexedValueMapper<dynamic> yValueMapper;
+  final SparkChartIndexedValueMapper<num>? yValueMapper;
 }
 
 /// Represents the spark chart container
 class SparkChartContainer extends SingleChildRenderObjectWidget {
   /// Creates the spark chart container
-  const SparkChartContainer({Widget child}) : super(child: child);
+  const SparkChartContainer({Widget? child}) : super(child: child);
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _SparKChartContainerBox();
+    return _SparKChartContainerBox(context);
   }
 }
 
 /// Represents the spark chart container box
 class _SparKChartContainerBox extends RenderShiftedBox {
-  _SparKChartContainerBox() : super(null);
+  _SparKChartContainerBox(this.context) : super(null);
+
+  final BuildContext context;
 
   @override
   void performLayout() {
-    size = getLayoutSize(constraints);
+    size = getLayoutSize(constraints, context);
 
-    child.layout(
+    child!.layout(
         BoxConstraints(
           minHeight: 0.0,
           maxHeight: size.height,
@@ -396,12 +401,13 @@ void renderMarker(
     String type,
     num highPoint,
     num lowPoint,
+    double axisCrossesAt,
     ThemeData themeData,
-    Color lowPointColor,
-    Color highPointColor,
-    Color negativePointColor,
-    Color firstPointColor,
-    Color lastPointColor) {
+    Color? lowPointColor,
+    Color? highPointColor,
+    Color? negativePointColor,
+    Color? firstPointColor,
+    Color? lastPointColor) {
   final Paint fillPaint = Paint()..style = PaintingStyle.fill;
   final Paint strokePaint = Paint()
     ..color = marker.borderColor ?? color
@@ -442,30 +448,23 @@ void renderMarker(
             firstPointColor != null
                 ? fillPaint.color = firstPointColor
                 : fillPaint.color = fillPaint.color;
-          }
-
-          if (i ==
+          } else if (i ==
               (type == 'Line'
                   ? coordinatePoints.length - 1
                   : coordinatePoints.length - 2)) {
             lastPointColor != null
                 ? fillPaint.color = lastPointColor
                 : fillPaint.color = fillPaint.color;
-          }
-
-          if (highPoint == coordinatePoints[i].dy) {
+          } else if (highPoint == coordinatePoints[i].dy) {
             lowPointColor != null
                 ? fillPaint.color = lowPointColor
                 : fillPaint.color = fillPaint.color;
-          }
-
-          if (lowPoint == coordinatePoints[i].dy) {
+          } else if (lowPoint == coordinatePoints[i].dy) {
             highPointColor != null
                 ? fillPaint.color = highPointColor
                 : fillPaint.color = fillPaint.color;
-          }
-
-          if (negativePointColor != null && dataPoints[i].y < 0) {
+          } else if (negativePointColor != null &&
+              dataPoints[i].y < axisCrossesAt) {
             fillPaint.color = negativePointColor;
           }
 
@@ -589,8 +588,8 @@ Color _getDataLabelSaturationColor(
     Offset offset,
     Color seriesColor,
     String type,
-    [Rect segment,
-    num yValue]) {
+    [Rect? segment,
+    num? yValue]) {
   Color color;
 
   if (type == 'Area') {
@@ -604,13 +603,13 @@ Color _getDataLabelSaturationColor(
         ? const Color.fromRGBO(255, 255, 255, 1)
         : Colors.black;
   } else {
-    yValue > 0
-        ? dataLabelOffset.dy > (segment.top + offset.dy)
+    yValue! > 0
+        ? dataLabelOffset.dy > (segment!.top + offset.dy)
             ? color = seriesColor
             : color = theme.brightness == Brightness.light
                 ? const Color.fromRGBO(255, 255, 255, 1)
                 : Colors.black
-        : dataLabelOffset.dy < (segment.top + offset.dy)
+        : dataLabelOffset.dy < (segment!.top + offset.dy)
             ? color = seriesColor
             : color = theme.brightness == Brightness.light
                 ? const Color.fromRGBO(255, 255, 255, 1)
@@ -630,8 +629,8 @@ TextStyle _getTextStyle(
     ThemeData theme,
     Color seriesColor,
     String type,
-    [Rect segment,
-    num yValue]) {
+    [Rect? segment,
+    num? yValue]) {
   final TextStyle font = labelStyle;
   final Color fontColor = font.color ??
       _getDataLabelSaturationColor(dataLabelOffset, coordinateOffset, theme,
@@ -678,7 +677,7 @@ void renderDataLabel(
     Color seriesColor,
     num highPoint,
     num lowPoint,
-    [List<Rect> segments]) {
+    [List<Rect>? segments]) {
   TextStyle _textStyle;
 
   switch (labelDisplayMode) {
@@ -689,16 +688,16 @@ void renderDataLabel(
             i++) {
           _textStyle = _getTextStyle(
               labelStyle,
-              dataPoints[i].dataLabelOffset,
+              dataPoints[i].dataLabelOffset!,
               coordinatePoints[i],
               offset,
               theme,
-              type == 'Bar' ? dataPoints[i].color : seriesColor,
+              type == 'Bar' ? dataPoints[i].color! : seriesColor,
               type,
-              type == 'Bar' ? segments[i] : null,
+              type == 'Bar' ? segments![i] : null,
               dataPoints[i].y);
-          drawText(
-              canvas, dataLabels[i], dataPoints[i].dataLabelOffset, _textStyle);
+          drawText(canvas, dataLabels[i], dataPoints[i].dataLabelOffset!,
+              _textStyle);
         }
       }
 
@@ -708,16 +707,16 @@ void renderDataLabel(
       {
         _textStyle = _getTextStyle(
             labelStyle,
-            dataPoints[type == 'Area' ? 1 : 0].dataLabelOffset,
+            dataPoints[type == 'Area' ? 1 : 0].dataLabelOffset!,
             coordinatePoints[type == 'Area' ? 1 : 0],
             offset,
             theme,
-            type == 'Bar' ? dataPoints[0].color : seriesColor,
+            type == 'Bar' ? dataPoints[0].color! : seriesColor,
             type,
-            type == 'Bar' ? segments[0] : null,
+            type == 'Bar' ? segments![0] : null,
             dataPoints[0].y);
         drawText(canvas, dataLabels[type == 'Area' ? 1 : 0],
-            dataPoints[type == 'Area' ? 1 : 0].dataLabelOffset, _textStyle);
+            dataPoints[type == 'Area' ? 1 : 0].dataLabelOffset!, _textStyle);
       }
       break;
 
@@ -728,16 +727,16 @@ void renderDataLabel(
             dataPoints[type == 'Area'
                     ? dataPoints.length - 2
                     : dataPoints.length - 1]
-                .dataLabelOffset,
+                .dataLabelOffset!,
             coordinatePoints[
                 type == 'Area' ? dataPoints.length - 2 : dataPoints.length - 1],
             offset,
             theme,
             type == 'Bar'
-                ? dataPoints[dataPoints.length - 1].color
+                ? dataPoints[dataPoints.length - 1].color!
                 : seriesColor,
             type,
-            type == 'Bar' ? segments[dataPoints.length - 1] : null,
+            type == 'Bar' ? segments![dataPoints.length - 1] : null,
             dataPoints[dataPoints.length - 1].y);
 
         drawText(
@@ -747,7 +746,7 @@ void renderDataLabel(
             dataPoints[type == 'Area'
                     ? dataPoints.length - 2
                     : dataPoints.length - 1]
-                .dataLabelOffset,
+                .dataLabelOffset!,
             _textStyle);
       }
 
@@ -763,15 +762,15 @@ void renderDataLabel(
           if (highPoint == coordinatePoints[j].dy) {
             _textStyle = _getTextStyle(
                 labelStyle,
-                dataPoints[j].dataLabelOffset,
+                dataPoints[j].dataLabelOffset!,
                 coordinatePoints[j],
                 offset,
                 theme,
-                type == 'Bar' ? dataPoints[j].color : seriesColor,
+                type == 'Bar' ? dataPoints[j].color! : seriesColor,
                 type,
-                type == 'Bar' ? segments[j] : null,
+                type == 'Bar' ? segments![j] : null,
                 dataPoints[j].y);
-            drawText(canvas, dataLabels[j], dataPoints[j].dataLabelOffset,
+            drawText(canvas, dataLabels[j], dataPoints[j].dataLabelOffset!,
                 _textStyle);
           }
         }
@@ -790,15 +789,15 @@ void renderDataLabel(
           if (lowPoint == coordinatePoints[j].dy) {
             _textStyle = _getTextStyle(
                 labelStyle,
-                dataPoints[j].dataLabelOffset,
+                dataPoints[j].dataLabelOffset!,
                 coordinatePoints[j],
                 offset,
                 theme,
-                type == 'Bar' ? dataPoints[j].color : seriesColor,
+                type == 'Bar' ? dataPoints[j].color! : seriesColor,
                 type,
-                type == 'Bar' ? segments[j] : null,
+                type == 'Bar' ? segments![j] : null,
                 dataPoints[j].y);
-            drawText(canvas, dataLabels[j], dataPoints[j].dataLabelOffset,
+            drawText(canvas, dataLabels[j], dataPoints[j].dataLabelOffset!,
                 _textStyle);
           }
         }

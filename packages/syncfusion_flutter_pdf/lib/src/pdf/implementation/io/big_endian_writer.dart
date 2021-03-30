@@ -4,29 +4,29 @@ class _BigEndianWriter {
   //Constructor
   _BigEndianWriter(int capacity) {
     _bufferLength = capacity;
-    _buffer = List<int>(capacity);
+    _buffer = List<int>.filled(capacity, 0, growable: true);
     for (int i = 0; i < capacity; i++) {
-      _buffer[i] = 0;
+      _buffer![i] = 0;
     }
   }
 
   //Fields
-  int _bufferLength;
-  List<int> _buffer;
-  int _internalPosition;
+  late int _bufferLength;
+  List<int>? _buffer;
+  int? _internalPosition;
 
   //Properties
-  List<int> get _data {
-    if (_buffer.length < _bufferLength) {
-      final int length = _bufferLength - _buffer.length;
+  List<int>? get _data {
+    if (_buffer!.length < _bufferLength) {
+      final int length = _bufferLength - _buffer!.length;
       for (int i = 0; i < length; i++) {
-        _buffer.add(0);
+        _buffer!.add(0);
       }
     }
     return _buffer;
   }
 
-  int get _position {
+  int? get _position {
     _internalPosition ??= 0;
     return _internalPosition;
   }
@@ -69,7 +69,6 @@ class _BigEndianWriter {
   }
 
   void _writeString(String value) {
-    ArgumentError.checkNotNull(value);
     final List<int> bytes = <int>[];
     for (int i = 0; i < value.length; i++) {
       bytes.add(value.codeUnitAt(i));
@@ -82,12 +81,11 @@ class _BigEndianWriter {
   }
 
   void _flush(List<int> buff) {
-    ArgumentError.checkNotNull(buff);
-    int position = _position;
+    int? position = _position;
     for (int i = 0; i < buff.length; i++) {
-      _buffer[position] = buff[i];
+      _buffer![position!] = buff[i];
       position++;
     }
-    _internalPosition += buff.length;
+    _internalPosition = _internalPosition! + buff.length;
   }
 }

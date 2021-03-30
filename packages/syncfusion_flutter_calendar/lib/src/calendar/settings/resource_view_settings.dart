@@ -1,4 +1,5 @@
-part of calendar;
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 /// The settings have properties which allow to customize the resource view of
 /// the [SfCalendar].
@@ -59,7 +60,7 @@ part of calendar;
 ///
 /// ```
 @immutable
-class ResourceViewSettings {
+class ResourceViewSettings with Diagnosticable {
   /// Creates a resource view settings for calendar.
   ///
   /// The properties allows to customize the resource view of [SfCalendar].
@@ -130,7 +131,7 @@ class ResourceViewSettings {
   ///}
   ///
   /// ```
-  final TextStyle displayNameTextStyle;
+  final TextStyle? displayNameTextStyle;
 
   /// The size of the resource view panel in timeline views of [SfCalendar].
   ///
@@ -199,4 +200,36 @@ class ResourceViewSettings {
   ///
   /// ```
   final bool showAvatar;
+
+  @override
+  bool operator ==(dynamic other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    final ResourceViewSettings otherStyle = other;
+    return otherStyle.size == size &&
+        otherStyle.visibleResourceCount == visibleResourceCount &&
+        otherStyle.showAvatar == showAvatar &&
+        otherStyle.displayNameTextStyle == displayNameTextStyle;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'displayNameTextStyle', displayNameTextStyle));
+    properties.add(DoubleProperty('size', size));
+    properties.add(DiagnosticsProperty<bool>('showAvatar', showAvatar));
+    properties.add(IntProperty('visibleResourceCount', visibleResourceCount));
+  }
+
+  @override
+  int get hashCode {
+    return hashValues(
+        size, visibleResourceCount, showAvatar, displayNameTextStyle);
+  }
 }

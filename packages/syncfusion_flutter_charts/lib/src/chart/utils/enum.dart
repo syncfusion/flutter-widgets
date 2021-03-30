@@ -94,42 +94,6 @@ enum ChartDataLabelPosition {
   outside
 }
 
-/// Data marker shapes.
-///
-/// Data marker supports the below shapes.
-/// If the shape is DataMarkerType.image, specify the image path in the imageUrl property of markerSettings.
-enum DataMarkerType {
-  ///- DataMarkerType.cicle, will render marker shape  circle.
-  circle,
-
-  ///- DataMarkerType.rectangle, will render marker shape  rectangle.
-  rectangle,
-
-  ///- DataMarkerType.image, will render marker image.
-  image,
-
-  ///- DataMarkerType.pentagon, will render marker shape  pentagon.
-  pentagon,
-
-  ///- DataMarkerType.verticalLine, will render marker verticalLine.
-  verticalLine,
-
-  ///- DataMarkerType.horizontalLine, will render marker horizontalLine.
-  horizontalLine,
-
-  ///- DataMarkerType.diamond, will render marker shape  diamond.
-  diamond,
-
-  ///- DataMarkerType.triangle, will render marker shape  triangle.
-  triangle,
-
-  ///- DataMarkerType.invertedTriangle, will render marker shape  invertedTriangle.
-  invertedTriangle,
-
-  ///- DataMarkerType.none, will skip rendering marker.
-  none,
-}
-
 /// Renders a variety of splines
 ///
 /// Spline supports the following types.
@@ -418,15 +382,43 @@ enum LabelAlignment {
 
 ///Whether marker should be visible or not when trackball is enabled.
 enum TrackballVisibilityMode {
-  ///* auto - If the [isVisible] property in the series [markerSettings] is set
+  ///* auto - If the `isVisible` property in the series `markerSettings` is set
   ///to true, then the trackball marker will also be displayed for that particular
   ///series, else it will not be displayed.
   auto,
 
   ///* visible - Makes the trackball marker visible for all the series,
-  ///irrespective of considering the [isVisible] property's value in the [markerSettings].
+  ///irrespective of considering the `isVisible` property's value in the `markerSettings`.
   visible,
 
   ///* hidden - Hides the trackball marker for all the series.
   hidden
+}
+
+///The direction of swiping on the chart.
+///
+///Provides the swiping direction information to the user.
+enum ChartSwipeDirection {
+  ///If the chart is swiped from left to right direction,
+  /// the direction is `ChartSwipeDirection.start`
+  start,
+
+  ///if the swipe happens from right to left direction, the
+  /// direction is `ChartSwipeDirection.end`.
+  end
+}
+
+///Determines whether the axis should be scrolled from the start position or end position.
+///
+///For example, if there are 10 data points and [autoScrollingDelta] value is 5 and `AutoScrollingMode.end`
+/// is specified to this property, last 5 points will be displayed in the chart. If `AutoScrollingMode.start`
+/// is set to this property, first 5 points will be displayed.
+///
+///Defaults to `AutoScrollingMode.end`.
+enum AutoScrollingMode {
+  ///`AutoScrollingMode.start`, If the chart is scrolled from left to right direction
+  start,
+
+  ///`AutoScrollingMode.end`, If the chart is scrolled from right to left direction
+  end
 }

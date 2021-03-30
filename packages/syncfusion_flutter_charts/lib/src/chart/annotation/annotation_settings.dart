@@ -15,20 +15,14 @@ class CartesianChartAnnotation {
   /// Creating an argument constructor of CartesianChartAnnotation class.
   const CartesianChartAnnotation(
       {this.widget,
-      CoordinateUnit coordinateUnit,
-      AnnotationRegion region,
-      ChartAlignment horizontalAlignment,
-      ChartAlignment verticalAlignment,
-      dynamic x,
-      num y,
+      this.coordinateUnit = CoordinateUnit.logicalPixel,
+      this.region = AnnotationRegion.chart,
+      this.horizontalAlignment = ChartAlignment.center,
+      this.verticalAlignment = ChartAlignment.center,
+      this.x = 0,
+      this.y = 0,
       this.xAxisName,
-      this.yAxisName})
-      : coordinateUnit = coordinateUnit ?? CoordinateUnit.logicalPixel,
-        region = region ?? AnnotationRegion.chart,
-        x = x ?? 0,
-        y = y ?? 0,
-        horizontalAlignment = horizontalAlignment ?? ChartAlignment.center,
-        verticalAlignment = verticalAlignment ?? ChartAlignment.center;
+      this.yAxisName});
 
   ///Considers any widget as annotation.
   ///
@@ -51,7 +45,7 @@ class CartesianChartAnnotation {
   ///        ));
   ///}
   ///```
-  final Widget widget;
+  final Widget? widget;
 
   ///Specifies the coordinate units for placing the annotation in either logicalPixel or point.
   ///
@@ -174,7 +168,7 @@ class CartesianChartAnnotation {
   ///        ));
   ///}
   ///```
-  final String xAxisName;
+  final String? xAxisName;
 
   ///Specifies the y-axis name to the annotation that should  be bound.
   ///
@@ -203,7 +197,7 @@ class CartesianChartAnnotation {
   ///        ));
   ///}
   ///```
-  final String yAxisName;
+  final String? yAxisName;
 
   ///Aligns the annotations horizontally.
   ///

@@ -1,5 +1,43 @@
 ## Unreleased
 
+**Bugs**	
+* Now, in Flutter 2.0,  text can be typed in TextField widget when you load it in cells in web platform.
+
+**Features**
+* Provided the support to refresh the data when the datagrid is pulled down.
+* Provided the support to swipe a row “right to left” or “left to right” for custom actions such as deleting, editing, and so on. When the user swipes a row, the row will be moved, and swipe view will be shown for custom actions.
+* Provided the support to scroll to a specific row, column, or cell. Also, users can scroll a row or column based on offset values.
+
+**Breakings Changes**
+
+We have documented all the API breaking details in  [this](https://www.syncfusion.com/downloads/support/directtrac/general/doc/API_Breaking_Changes_in_Flutter_DataGrid_in_2021_Volume_1-1910747829.docx) document.
+
+## [18.4.49-beta] - 03/23/2021
+
+**Bugs**
+
+* Stack overflow exception is no longer thrown when comparing two DataGridSource class with hashCode.
+
+## [18.4.47-beta] - 03/09/2021
+
+**Bugs**
+
+* Now, if the widget is loaded using the 'headerCellBuilder' function, the padding will not be considered for the column header.
+
+## [18.4.33-beta] - 01/05/2021 
+
+**Bugs**
+	
+* Now, when moving from a page with fewer rows than the size of the view port, rows are not clipped to another page with more rows than the size of the view port.
+
+## [18.4.31-beta] - 12/22/2020
+
+**Breaking Changes**
+
+* Now, the row index is started from 0 instead of 1 for first row in `onQueryRowStyle` and `onQueryCellStyle` callbacks.
+
+## [18.4.30-beta] - 12/17/2020
+
 **Features**
 
 * Provided the support to show stacked headers i.e. unbound header rows. Unbound header rows span stacked header columns across multiple rows and columns.

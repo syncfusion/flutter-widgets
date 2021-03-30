@@ -3,7 +3,6 @@ part of pdf;
 class _PdfLexer {
   //Constructor
   _PdfLexer(_PdfReader reader) {
-    ArgumentError.checkNotNull(reader);
     _initialize(reader);
   }
 
@@ -20,19 +19,19 @@ class _PdfLexer {
   final String prefix = '<<';
 
   //Fields
-  _PdfReader _reader;
-  int bufferIndex;
-  int bufferRead;
-  int bufferStart;
-  int bufferEnd;
-  List<int> buffer;
+  late _PdfReader _reader;
+  late int bufferIndex;
+  late int bufferRead;
+  late int bufferStart;
+  late int bufferEnd;
+  late List<int> buffer;
   bool _lastWasCr = false;
-  int line;
-  bool atBool;
-  _State lexicalState;
+  late int line;
+  late bool atBool;
+  late _State lexicalState;
   List<int> stateTrans = <int>[0, 81, 83];
-  List<int> accept;
-  String objectName;
+  late List<int> accept;
+  String? objectName;
   bool isArray = false;
   int paren = 0;
   String stringText = '';
@@ -45,11 +44,11 @@ class _PdfLexer {
 
   String get text => _text();
 
-  List<int> cMap;
+  late List<int> cMap;
 
-  List<int> rMap;
+  late List<int> rMap;
 
-  List<List<int>> next;
+  late List<List<int>> next;
 
   //Implementation
   void _initialize(_PdfReader reader) {
@@ -167,10 +166,8 @@ class _PdfLexer {
     int sequenceInteger = 0;
     int commaIndex;
     String workString;
-    final List<List<int>> res = List<List<int>>(size1);
-    for (int i = 0; i < size1; ++i) {
-      res[i] = List<int>.filled(size2, 0);
-    }
+    final List<List<int>> res =
+        List.generate(size1, (i) => List.generate(size2, (j) => 0));
     for (int i = 0; i < size1; ++i) {
       for (int j = 0; j < size2; ++j) {
         if (sequenceLength != 0) {
@@ -184,13 +181,19 @@ class _PdfLexer {
         colonIndex = workString.indexOf(':');
 
         if (colonIndex == -1) {
-          res[i][j] = int.tryParse(workString);
+          res[i][j] = int.tryParse(workString)!;
           continue;
         }
         lengthString = workString.substring(colonIndex + 1);
-        sequenceLength = int.tryParse(lengthString);
+        final int? sl = int.tryParse(lengthString);
+        if (sl != null) {
+          sequenceLength = sl;
+        }
         workString = workString.substring(0, colonIndex);
-        sequenceInteger = int.tryParse(workString);
+        final int? si = int.tryParse(workString);
+        if (si != null) {
+          sequenceInteger = si;
+        }
         res[i][j] = sequenceInteger;
         --sequenceLength;
       }
@@ -228,7 +231,7 @@ class _PdfLexer {
     bufferEnd = bufferIndex;
   }
 
-  int _advance() {
+  int? _advance() {
     if (bufferIndex < bufferRead) {
       return buffer[bufferIndex++];
     }
@@ -292,7 +295,7 @@ class _PdfLexer {
 
   List<int> _double(List<int> buffer) {
     final int length = buffer.length;
-    final List<int> newBuffer = List<int>(2 * length);
+    final List<int> newBuffer = List<int>.filled(2 * length, 0, growable: true);
     List.copyRange(newBuffer, 0, buffer, 0, length);
     return newBuffer;
   }
@@ -348,11 +351,11 @@ class _PdfLexer {
   }
 
   _TokenType _getNextToken() {
-    int lookAhead;
+    int? lookAhead;
     int anchor = noAnchor;
     int state = stateTrans[lexicalState.index];
-    int nextState = noState;
-    int lastAcceptState = noState;
+    int? nextState = noState;
+    int? lastAcceptState = noState;
     bool initial = true;
     int thisAccept;
 
@@ -372,7 +375,7 @@ class _PdfLexer {
       }
 
       nextState = f;
-      nextState = next[rMap[state]][cMap[lookAhead]];
+      nextState = next[rMap[state]][cMap[lookAhead!]];
       if (eof == lookAhead && initial) {
         return _TokenType.eof;
       }
@@ -388,7 +391,7 @@ class _PdfLexer {
         if (noState == lastAcceptState) {
           throw ArgumentError.value(noState, 'Lexical Error: Unmatched Input.');
         } else {
-          anchor = accept[lastAcceptState];
+          anchor = accept[lastAcceptState!];
           if (0 != (end & anchor)) {
             _moveEnd();
           }
@@ -661,7 +664,6 @@ class _PdfLexer {
                   _error(_Error.match, true);
                   break;
                 }
-                break;
               }
             case -43:
               break;
@@ -681,7 +683,7 @@ class _PdfLexer {
                     text += String.fromCharCode(buffer[index]);
                     index++;
                   }
-                  final double value = double.tryParse(text);
+                  final double? value = double.tryParse(text);
                   if (value != null &&
                       buffer[bufferIndex - 1] == '.'.codeUnitAt(0) &&
                       (buffer[bufferIndex] == ' '.codeUnitAt(0) ||
@@ -737,11 +739,11 @@ class _PdfLexer {
       final String start = String.fromCharCode(buffer[bufferEnd - 2]);
       final int value = bufferEnd - bufferStart;
       if (end == ')' && (start == '\\' || start == '\u0000') && value > 3) {
-        int index = bufferEnd;
+        int? index = bufferEnd;
         final String text = String.fromCharCodes(buffer);
         index = text.indexOf(end, bufferStart) + 1;
         int prvIndex = 0;
-        while (text[index - 2] == '\\') {
+        while (text[index! - 2] == '\\') {
           index = text.indexOf(end, index) + 1;
           if (index > 0) {
             prvIndex = index;
@@ -779,10 +781,10 @@ class _PdfLexer {
           bufferEnd = index;
         }
       } else if (end == ')' && value > 3) {
-        int index = bufferEnd;
+        int? index = bufferEnd;
         final String text = String.fromCharCodes(buffer);
         index = text.indexOf(end, bufferStart) + 1;
-        while (text[index - 2] == '\\') {
+        while (text[index! - 2] == '\\') {
           index = text.indexOf(end, index) + 1;
         }
         if (bufferEnd > index + 1) {
@@ -811,7 +813,7 @@ class _PdfLexer {
             'Fatal Error occurred at ' +
                 position.toString() +
                 '.\n When reading object type of ' +
-                objectName);
+                objectName!);
       } else {
         throw ArgumentError.value(
             code, 'Fatal Error occurred at ' + position.toString());

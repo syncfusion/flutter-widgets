@@ -1,10 +1,10 @@
-![syncfusion_flutter_pdfviewer](https://cdn.syncfusion.com/content/images/pdfviewer-banner.png)
+﻿![syncfusion_flutter_pdfviewer](https://cdn.syncfusion.com/content/images/pdfviewer-banner.png)
 
-# Syncfusion Flutter PDF Viewer
+# Flutter PDF Viewer library
 
-The Syncfusion Flutter PDF Viewer widget lets you view the PDF documents seamlessly and efficiently in the Android and iOS platforms. It has highly interactive and customizable features such as magnification, virtual scrolling, page navigation, and bookmark navigation.
+The Flutter PDF Viewer plugin lets you view the PDF documents seamlessly and efficiently in the Android, iOS and Web platforms. It has highly interactive and customizable features such as magnification, virtual scrolling, page navigation, text selection, text search, document link navigation, and bookmark navigation.
 
-**Disclaimer:** This is a commercial package. To use this package, you need to have either a Syncfusion commercial license or Syncfusion Community License. For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
+**Disclaimer:** This is a commercial package. To use this package, you need to have either a Syncfusion commercial license or [Free Syncfusion Community license](https://www.syncfusion.com/products/communitylicense). For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
 
 ## Table of contents
 - [PDF Viewer features](#pdf-viewer-features)
@@ -19,6 +19,9 @@ The Syncfusion Flutter PDF Viewer widget lets you view the PDF documents seamles
 	- [Change the zoom level factor](#change-the-zoom-level-factor)
 	- [Navigate to the desired pages](#navigate-to-the-desired-pages)
 	- [Navigate to the desired bookmark topics](#navigate-to-the-desired-bookmark-topics)
+	- [Select and copy text](#select-and-copy-text)
+	- [Search text and navigate to its occurrences](#search-text-and-navigate-to-its-occurrences)
+	- [Enable or disable the document link annotation](#enable-or-disable-the-document-link-annotation)
 - [Support and feedback](#support-and-feedback)
 - [About Syncfusion](#about-syncfusion)
 
@@ -31,8 +34,16 @@ The Syncfusion Flutter PDF Viewer widget lets you view the PDF documents seamles
 * **Page navigation** - Navigate to the desired pages instantly.
 ![syncfusion_flutter_pdfviewer_page_navigation](https://cdn.syncfusion.com/content/images/PDFViewer/pagination-dialog.png)
 
+* **Text selection** - Select text presented in a PDF document.
+![syncfusion_flutter_pdfviewer_text_selection](https://cdn.syncfusion.com/content/images/PDFViewer/text-selection.png)
+
+* **Text search** - Search for text and navigate to all its occurrences in a PDF document instantly.
+![syncfusion_flutter_pdfviewer_text_search](https://cdn.syncfusion.com/content/images/PDFViewer/text-search.png)
+
 * **Bookmark navigation** - Bookmarks saved in the document are loaded and made ready for easy navigation. This feature helps in navigation within the PDF document of the topics bookmarked already.
 ![syncfusion_flutter_pdfviewer_bookmark_navigation](https://cdn.syncfusion.com/content/images/PDFViewer/bookmark-navigation.png)
+
+* **Document link annotation** - Navigate to the desired topic or position by tapping the document link annotation of the topics in the table of contents in a PDF document.
 
 * **Themes** - Easily switch between the light and dark theme.
 ![syncfusion_flutter_pdfviewer_theme](https://cdn.syncfusion.com/content/images/PDFViewer/bookmark-navigation-dark.png)
@@ -251,6 +262,150 @@ Widget build(BuildContext context) {
       key: _pdfViewerKey,
     ),
   );
+}
+```
+
+## Select and copy text
+
+By default, the PDF Viewer provides selection support for text in a PDF document. You can enable or disable selection using the **enableTextSelection** property. Whenever selection is changed, an **onTextSelectionChanged** callback is triggered with global selection region and selected text details. Based on these details, a context menu can be shown and a copy of the text can be performed.
+
+```dart
+PdfViewerController _pdfViewerController;
+
+@override
+void initState() {
+  _pdfViewerController = PdfViewerController();
+  super.initState();
+}
+
+OverlayEntry _overlayEntry;
+void _showContextMenu(BuildContext context,PdfTextSelectionChangedDetails details) {
+  final OverlayState _overlayState = Overlay.of(context);
+  _overlayEntry = OverlayEntry(
+    builder: (context) => Positioned(
+      top: details.globalSelectedRegion.center.dy - 55,
+      left: details.globalSelectedRegion.bottomLeft.dx,
+      child:
+      RaisedButton(child: Text('Copy',style: TextStyle(fontSize: 17)),onPressed: (){
+        Clipboard.setData(ClipboardData(text: details.selectedText));
+        _pdfViewerController.clearSelection();
+      },color: Colors.white,elevation: 10,),
+    ),
+  );
+  _overlayState.insert(_overlayEntry);
+}
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: Text('Syncfusion Flutter PdfViewer'),
+    ),
+    body: SfPdfViewer.network(
+      'https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf',
+      onTextSelectionChanged:
+          (PdfTextSelectionChangedDetails details) {
+        if (details.selectedText == null && _overlayEntry != null) {
+          _overlayEntry.remove();
+          _overlayEntry = null;
+        } else if (details.selectedText != null && _overlayEntry == null) {
+          _showContextMenu(context, details);
+        }
+      },
+      controller: _pdfViewerController,
+    ),
+  );
+}
+```
+
+## Search text and navigate to its occurrences
+
+Text can be searched for in a PDF document and you can then navigate to all its occurrences. The navigation of searched text can be controlled using the **nextInstance**, **previousInstance**, and **clear** methods.
+
+```dart
+PdfViewerController _pdfViewerController;
+
+@override
+void initState() {
+  _pdfViewerController = PdfViewerController();
+  super.initState();
+}
+PdfTextSearchResult _searchResult;
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+      appBar: AppBar(
+        title: Text('Syncfusion Flutter PdfViewer'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(
+              Icons.search,
+              color: Colors.white,
+            ),
+            onPressed: () async {
+              _searchResult = await _pdfViewerController?.searchText('the',
+                  searchOption: TextSearchOption.caseSensitive);
+              setState(() {});
+            },
+          ),
+          Visibility(
+            visible: _searchResult?.hasResult ?? false,
+            child: IconButton(
+              icon: Icon(
+                Icons.clear,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                setState(() {
+                  _searchResult.clear();
+                });
+              },
+            ),
+          ),
+          Visibility(
+            visible: _searchResult?.hasResult ?? false,
+            child: IconButton(
+              icon: Icon(
+                Icons.keyboard_arrow_up,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                  _searchResult?.previousInstance();
+              },
+            ),
+          ),
+          Visibility(
+            visible: _searchResult?.hasResult ?? false,
+            child: IconButton(
+              icon: Icon(
+                Icons.keyboard_arrow_down,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                _searchResult?.nextInstance();
+              },
+            ),
+          ),
+        ],
+      ),
+      body: SfPdfViewer.network(
+          'https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf',
+          controller:_pdfViewerController,
+          searchTextHighlightColor: Colors.yellow));
+}
+```
+
+## Enable or disable the document link annotation
+
+By default, the PDF Viewer will navigate to the document link annotation’s destination position when you tap on the document link annotation. You can enable or disable the navigation of document link annotation using the **enableDocumentLinkAnnotation** property.
+
+```dart
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+      body: Container(
+          child: SfPdfViewer.network(
+              'https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf',
+              enableDocumentLinkAnnotation: false)));
 }
 ```
 

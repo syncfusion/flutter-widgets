@@ -11,55 +11,49 @@ part of charts;
 class BarSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of BarSeries class.
   BarSeries(
-      {ValueKey<String> key,
-      ChartSeriesRendererFactory<T, D> onCreateRenderer,
-      @required List<T> dataSource,
-      @required ChartValueMapper<T, D> xValueMapper,
-      @required ChartValueMapper<T, num> yValueMapper,
-      ChartValueMapper<T, dynamic> sortFieldValueMapper,
-      ChartValueMapper<T, Color> pointColorMapper,
-      ChartValueMapper<T, String> dataLabelMapper,
-      SortingOrder sortingOrder,
+      {ValueKey<String>? key,
+      ChartSeriesRendererFactory<T, D>? onCreateRenderer,
+      required List<T> dataSource,
+      required ChartValueMapper<T, D> xValueMapper,
+      required ChartValueMapper<T, num> yValueMapper,
+      ChartValueMapper<T, dynamic>? sortFieldValueMapper,
+      ChartValueMapper<T, Color>? pointColorMapper,
+      ChartValueMapper<T, String>? dataLabelMapper,
+      SortingOrder? sortingOrder,
       this.isTrackVisible = false,
-      String xAxisName,
-      String yAxisName,
-      String name,
-      Color color,
-      double width,
-      double spacing,
-      MarkerSettings markerSettings,
-      EmptyPointSettings emptyPointSettings,
-      DataLabelSettings dataLabelSettings,
-      bool isVisible,
-      LinearGradient gradient,
-      LinearGradient borderGradient,
-      BorderRadius borderRadius,
-      bool enableTooltip,
-      double animationDuration,
-      Color trackColor,
-      Color trackBorderColor,
-      double trackBorderWidth,
-      double trackPadding,
-      List<Trendline> trendlines,
-      Color borderColor,
-      double borderWidth,
+      String? xAxisName,
+      String? yAxisName,
+      String? name,
+      Color? color,
+      double? width,
+      this.spacing = 0,
+      MarkerSettings? markerSettings,
+      EmptyPointSettings? emptyPointSettings,
+      DataLabelSettings? dataLabelSettings,
+      bool? isVisible,
+      LinearGradient? gradient,
+      LinearGradient? borderGradient,
+      this.borderRadius = const BorderRadius.all(Radius.zero),
+      bool? enableTooltip,
+      double? animationDuration,
+      this.trackColor = Colors.grey,
+      this.trackBorderColor = Colors.transparent,
+      this.trackBorderWidth = 1,
+      this.trackPadding = 0,
+      List<Trendline>? trendlines,
+      Color? borderColor,
+      double? borderWidth,
       // ignore: deprecated_member_use_from_same_package
-      SelectionSettings selectionSettings,
-      SelectionBehavior selectionBehavior,
-      bool isVisibleInLegend,
-      LegendIconType legendIconType,
-      String legendItemText,
-      double opacity,
-      List<double> dashArray,
-      SeriesRendererCreatedCallback onRendererCreated,
-      List<int> initialSelectedDataIndexes})
-      : trackColor = trackColor ?? Colors.grey,
-        trackBorderColor = trackBorderColor ?? Colors.transparent,
-        trackBorderWidth = trackBorderWidth ?? 1,
-        trackPadding = trackPadding ?? 0,
-        spacing = spacing ?? 0,
-        borderRadius = borderRadius ?? const BorderRadius.all(Radius.zero),
-        super(
+      SelectionSettings? selectionSettings,
+      SelectionBehavior? selectionBehavior,
+      bool? isVisibleInLegend,
+      LegendIconType? legendIconType,
+      String? legendItemText,
+      double? opacity,
+      List<double>? dashArray,
+      SeriesRendererCreatedCallback? onRendererCreated,
+      List<int>? initialSelectedDataIndexes})
+      : super(
             key: key,
             onCreateRenderer: onCreateRenderer,
             name: name,
@@ -250,7 +244,7 @@ class BarSeries<T, D> extends XyDataSeries<T, D> {
   BarSeriesRenderer createRenderer(ChartSeries<T, D> series) {
     BarSeriesRenderer seriesRenderer;
     if (onCreateRenderer != null) {
-      seriesRenderer = onCreateRenderer(series);
+      seriesRenderer = onCreateRenderer!(series) as BarSeriesRenderer;
       assert(seriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return seriesRenderer;
@@ -265,48 +259,49 @@ class BarSeriesRenderer extends XyDataSeriesRenderer {
   BarSeriesRenderer();
 
   // Store the rect position //
-  num _rectPosition;
+  late num _rectPosition;
 
   // Store the rect count //
-  num _rectCount;
+  late num _rectCount;
 
   /// To add bar segments to chart segments
   ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
-      int pointIndex, int seriesIndex, num animateFactor) {
-    final BarSeries<dynamic, dynamic> _barSeries = _series;
+      int pointIndex, int seriesIndex, double animateFactor) {
+    final BarSeries<dynamic, dynamic> _barSeries = _series as BarSeries;
     final BarSegment segment = createSegment();
     final List<CartesianSeriesRenderer> oldSeriesRenderers =
-        _chartState._oldSeriesRenderers;
+        _chartState!._oldSeriesRenderers;
     segment._series = _barSeries;
     segment._chart = _chart;
-    segment._chartState = _chartState;
+    segment._chartState = _chartState!;
     segment._seriesRenderer = this;
     segment._seriesIndex = seriesIndex;
     segment.currentSegmentIndex = pointIndex;
     segment.points
-        .add(Offset(currentPoint.markerPoint.x, currentPoint.markerPoint.y));
+        .add(Offset(currentPoint.markerPoint!.x, currentPoint.markerPoint!.y));
     segment.animationFactor = animateFactor;
     segment._currentPoint = currentPoint;
-    if (_chartState._widgetNeedUpdate &&
-        !_chartState._isLegendToggled &&
+    if (_chartState!._widgetNeedUpdate &&
+        !_chartState!._isLegendToggled &&
         oldSeriesRenderers != null &&
         oldSeriesRenderers.isNotEmpty &&
         oldSeriesRenderers.length - 1 >= segment._seriesIndex &&
         oldSeriesRenderers[segment._seriesIndex]._seriesName ==
             segment._seriesRenderer._seriesName) {
       segment._oldSeriesRenderer = oldSeriesRenderers[segment._seriesIndex];
-      segment._oldPoint = (segment._oldSeriesRenderer._segments.isNotEmpty &&
-              segment._oldSeriesRenderer._segments[0] is BarSegment &&
-              segment._oldSeriesRenderer._dataPoints.length - 1 >= pointIndex)
-          ? segment._oldSeriesRenderer._dataPoints[pointIndex]
+      segment._oldPoint = (segment._oldSeriesRenderer!._segments.isNotEmpty &&
+              segment._oldSeriesRenderer!._segments[0] is BarSegment &&
+              segment._oldSeriesRenderer!._dataPoints.length - 1 >= pointIndex)
+          ? segment._oldSeriesRenderer!._dataPoints[pointIndex]
           : null;
-    } else if (_chartState._isLegendToggled &&
-        _chartState._segments != null &&
-        _chartState._segments.isNotEmpty) {
+      segment._oldSegmentIndex = _getOldSegmentIndex(segment);
+    } else if (_chartState!._isLegendToggled &&
+        _chartState!._segments != null &&
+        _chartState!._segments.isNotEmpty) {
       segment._oldSeriesVisible =
-          _chartState._oldSeriesVisible[segment._seriesIndex];
-      for (int i = 0; i < _chartState._segments.length; i++) {
-        final BarSegment oldSegment = _chartState._segments[i];
+          _chartState!._oldSeriesVisible[segment._seriesIndex];
+      for (int i = 0; i < _chartState!._segments.length; i++) {
+        final BarSegment oldSegment = _chartState!._segments[i] as BarSegment;
         if (oldSegment.currentSegmentIndex == segment.currentSegmentIndex &&
             oldSegment._seriesIndex == segment._seriesIndex) {
           segment._oldRegion = oldSegment.segmentRect.outerRect;
@@ -315,16 +310,12 @@ class BarSeriesRenderer extends XyDataSeriesRenderer {
     }
     segment._path =
         _findingRectSeriesDashedBorder(currentPoint, _barSeries.borderWidth);
-    if (_barSeries.borderRadius != null) {
-      segment.segmentRect =
-          _getRRectFromRect(currentPoint.region, _barSeries.borderRadius);
-    }
+    segment.segmentRect =
+        _getRRectFromRect(currentPoint.region!, _barSeries.borderRadius);
     //Tracker rect
     if (_barSeries.isTrackVisible) {
-      if (_barSeries.borderRadius != null) {
-        segment._trackBarRect = _getRRectFromRect(
-            currentPoint.trackerRectRegion, _barSeries.borderRadius);
-      }
+      segment._trackBarRect = _getRRectFromRect(
+          currentPoint.trackerRectRegion!, _barSeries.borderRadius);
     }
     segment._segmentRect = segment.segmentRect;
     customizeSegment(segment);
@@ -336,22 +327,22 @@ class BarSeriesRenderer extends XyDataSeriesRenderer {
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     if (segment._seriesRenderer._isSelectionEnable) {
-      final SelectionBehaviorRenderer selectionBehaviorRenderer =
+      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
           segment._seriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer._selectionRenderer._checkWithSelectionState(
-          _segments[segment.currentSegmentIndex], _chart);
+      selectionBehaviorRenderer?._selectionRenderer?._checkWithSelectionState(
+          _segments[segment.currentSegmentIndex!], _chart);
     }
     segment.onPaint(canvas);
   }
 
   /// Creates a segment for a data point in the series.
   @override
-  ChartSegment createSegment() => BarSegment();
+  BarSegment createSegment() => BarSegment();
 
   /// Changes the series color, border color, and border width.
   @override
   void customizeSegment(ChartSegment segment) {
-    final BarSegment barSegment = segment;
+    final BarSegment barSegment = segment as BarSegment;
     barSegment._color = segment._seriesRenderer._seriesColor;
     barSegment._strokeColor = segment._series.borderColor;
     barSegment._strokeWidth = segment._series.borderWidth;
@@ -365,9 +356,9 @@ class BarSeriesRenderer extends XyDataSeriesRenderer {
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer seriesRenderer]) {
-    canvas.drawPath(seriesRenderer._markerShapes[index], fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes[index], strokePaint);
+      [CartesianSeriesRenderer? seriesRenderer]) {
+    canvas.drawPath(seriesRenderer!._markerShapes[index]!, fillPaint);
+    canvas.drawPath(seriesRenderer._markerShapes[index]!, strokePaint);
   }
 
   /// Draws data label text of the appropriate data point in a series.

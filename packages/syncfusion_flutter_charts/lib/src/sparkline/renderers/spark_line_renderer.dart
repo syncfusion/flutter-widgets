@@ -13,38 +13,33 @@ class SfSparkLineChartRenderObjectWidget
     extends SfSparkChartRenderObjectWidget {
   /// Creates the render object for spark chart
   SfSparkLineChartRenderObjectWidget(
-      {Key key,
-      double width,
-      List<double> dashArray,
-      List<dynamic> data,
-      int dataCount,
-      SparkChartIndexedValueMapper<dynamic> xValueMapper,
-      SparkChartIndexedValueMapper<num> yValueMapper,
-      bool isInversed,
-      double axisCrossesAt,
-      Color axisLineColor,
-      double axisLineWidth,
-      List<double> axisLineDashArray,
-      Color firstPointColor,
-      Color lowPointColor,
-      Color highPointColor,
-      Color lastPointColor,
-      Color negativePointColor,
-      Color color,
-      SparkChartPlotBand plotBand,
-      SparkChartMarker marker,
-      SparkChartLabelDisplayMode labelDisplayMode,
-      TextStyle labelStyle,
-      ThemeData themeData,
-      SparkChartDataDetails sparkChartDataDetails,
-      List<Offset> coordinatePoints,
-      List<SparkChartPoint> dataPoints})
-      : width = width,
-        dashArray = dashArray,
-        marker = marker,
-        labelDisplayMode = labelDisplayMode,
-        labelStyle = labelStyle,
-        super(
+      {Key? key,
+      this.width,
+      this.dashArray,
+      List<dynamic>? data,
+      int? dataCount,
+      SparkChartIndexedValueMapper<dynamic>? xValueMapper,
+      SparkChartIndexedValueMapper<num>? yValueMapper,
+      bool? isInversed,
+      double? axisCrossesAt,
+      Color? axisLineColor,
+      double? axisLineWidth,
+      List<double>? axisLineDashArray,
+      Color? firstPointColor,
+      Color? lowPointColor,
+      Color? highPointColor,
+      Color? lastPointColor,
+      Color? negativePointColor,
+      Color? color,
+      SparkChartPlotBand? plotBand,
+      this.marker,
+      this.labelDisplayMode,
+      this.labelStyle,
+      ThemeData? themeData,
+      SparkChartDataDetails? sparkChartDataDetails,
+      List<Offset>? coordinatePoints,
+      List<SparkChartPoint>? dataPoints})
+      : super(
             key: key,
             data: data,
             dataCount: dataCount,
@@ -68,19 +63,19 @@ class SfSparkLineChartRenderObjectWidget
             dataPoints: dataPoints);
 
   /// Specifies the line width
-  final double width;
+  final double? width;
 
   /// Specifies the dash array
-  final List<double> dashArray;
+  final List<double>? dashArray;
 
   /// Specifies the area chart marker
-  final SparkChartMarker marker;
+  final SparkChartMarker? marker;
 
   /// Specifies the spark chart data label
-  final SparkChartLabelDisplayMode labelDisplayMode;
+  final SparkChartLabelDisplayMode? labelDisplayMode;
 
   /// Specifies the spark chart data label style
-  final TextStyle labelStyle;
+  final TextStyle? labelStyle;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
@@ -106,7 +101,7 @@ class SfSparkLineChartRenderObjectWidget
         marker: marker,
         labelDisplayMode: labelDisplayMode,
         labelStyle: labelStyle,
-        themeData: themeData,
+        themeData: themeData!,
         sparkChartDataDetails: sparkChartDataDetails,
         coordinatePoints: coordinatePoints,
         dataPoints: dataPoints);
@@ -147,31 +142,31 @@ class SfSparkLineChartRenderObjectWidget
 class _RenderSparkLineChart extends RenderSparkChart {
   /// Creates the render object widget
   _RenderSparkLineChart(
-      {List<num> data,
-      int dataCount,
-      SparkChartIndexedValueMapper<dynamic> xValueMapper,
-      SparkChartIndexedValueMapper<num> yValueMapper,
-      bool isInversed,
-      double axisCrossesAt,
-      double axisLineWidth,
-      Color axisLineColor,
-      List<double> axisLineDashArray,
-      Color color,
-      Color firstPointColor,
-      Color lastPointColor,
-      Color highPointColor,
-      Color lowPointColor,
-      Color negativePointColor,
-      SparkChartPlotBand plotBand,
-      double width,
-      List<double> dashArray,
-      SparkChartMarker marker,
-      SparkChartLabelDisplayMode labelDisplayMode,
-      TextStyle labelStyle,
-      SparkChartDataDetails sparkChartDataDetails,
-      ThemeData themeData,
-      List<Offset> coordinatePoints,
-      List<SparkChartPoint> dataPoints})
+      {List<dynamic>? data,
+      int? dataCount,
+      SparkChartIndexedValueMapper<dynamic>? xValueMapper,
+      SparkChartIndexedValueMapper<num>? yValueMapper,
+      bool? isInversed,
+      double? axisCrossesAt,
+      double? axisLineWidth,
+      Color? axisLineColor,
+      List<double>? axisLineDashArray,
+      Color? color,
+      Color? firstPointColor,
+      Color? lastPointColor,
+      Color? highPointColor,
+      Color? lowPointColor,
+      Color? negativePointColor,
+      SparkChartPlotBand? plotBand,
+      double? width,
+      List<double>? dashArray,
+      SparkChartMarker? marker,
+      SparkChartLabelDisplayMode? labelDisplayMode,
+      TextStyle? labelStyle,
+      SparkChartDataDetails? sparkChartDataDetails,
+      ThemeData? themeData,
+      List<Offset>? coordinatePoints,
+      List<SparkChartPoint>? dataPoints})
       : _width = width,
         _dashArray = dashArray,
         _marker = marker,
@@ -200,13 +195,13 @@ class _RenderSparkLineChart extends RenderSparkChart {
             dataPoints: dataPoints);
 
   /// Defines the line width.
-  double _width;
+  double? _width;
 
   /// Returns the line width value
-  double get width => _width;
+  double? get width => _width;
 
   /// Set the line width value
-  set width(double value) {
+  set width(double? value) {
     if (_width != value) {
       _width = value;
       markNeedsPaint();
@@ -214,13 +209,13 @@ class _RenderSparkLineChart extends RenderSparkChart {
   }
 
   /// Defines the dash array.
-  List<double> _dashArray;
+  List<double>? _dashArray;
 
   /// Returns the dash arry value
-  List<double> get dashArray => _dashArray;
+  List<double>? get dashArray => _dashArray;
 
   /// Set the line width value
-  set dashArray(List<double> value) {
+  set dashArray(List<double>? value) {
     if (_dashArray != value) {
       _dashArray = value;
       markNeedsPaint();
@@ -228,13 +223,13 @@ class _RenderSparkLineChart extends RenderSparkChart {
   }
 
   /// Defines the marker for spark chart
-  SparkChartMarker _marker;
+  SparkChartMarker? _marker;
 
   /// Gets the marker for spark chart
-  SparkChartMarker get marker => _marker;
+  SparkChartMarker? get marker => _marker;
 
   /// Sets the marker for spark chart
-  set marker(SparkChartMarker value) {
+  set marker(SparkChartMarker? value) {
     if (_marker != value) {
       _marker = value;
       markNeedsPaint();
@@ -242,13 +237,13 @@ class _RenderSparkLineChart extends RenderSparkChart {
   }
 
   /// Defines the spark chart data label mode
-  SparkChartLabelDisplayMode _labelDisplayMode;
+  SparkChartLabelDisplayMode? _labelDisplayMode;
 
   /// Returns the spark chart data label mode
-  SparkChartLabelDisplayMode get labelDisplayMode => _labelDisplayMode;
+  SparkChartLabelDisplayMode? get labelDisplayMode => _labelDisplayMode;
 
   /// Sets the spark chart data label mode
-  set labelDisplayMode(SparkChartLabelDisplayMode value) {
+  set labelDisplayMode(SparkChartLabelDisplayMode? value) {
     if (_labelDisplayMode != value) {
       _labelDisplayMode = value;
       markNeedsPaint();
@@ -256,13 +251,13 @@ class _RenderSparkLineChart extends RenderSparkChart {
   }
 
   /// Defines the spark chart data label text style
-  TextStyle _labelStyle;
+  TextStyle? _labelStyle;
 
   /// Returns the spark chart data label text style
-  TextStyle get labelStyle => _labelStyle;
+  TextStyle? get labelStyle => _labelStyle;
 
   /// Sets the spark chart data label mode
-  set labelStyle(TextStyle value) {
+  set labelStyle(TextStyle? value) {
     if (_labelStyle != value) {
       _labelStyle = value;
       markNeedsPaint();
@@ -270,94 +265,94 @@ class _RenderSparkLineChart extends RenderSparkChart {
   }
 
   /// Specifies the low point in series
-  num _lowPoint;
+  late num _lowPoint;
 
   /// Specifies the high point in series
-  num _highPoint;
+  late num _highPoint;
 
   /// Render line series
   void _renderLineSeries(Canvas canvas, Offset offset) {
-    if (width != null && width > 0) {
+    if (width != null && width! > 0) {
       final Paint paint = Paint()
-        ..strokeWidth = width
+        ..strokeWidth = width!
         ..style = PaintingStyle.stroke
-        ..color = color;
+        ..color = color!;
 
       Size size;
       double yPosition;
-      _highPoint = coordinatePoints[0].dy;
-      _lowPoint = coordinatePoints[0].dy;
-      if (dashArray != null && dashArray.isNotEmpty) {
+      _highPoint = coordinatePoints![0].dy;
+      _lowPoint = coordinatePoints![0].dy;
+      if (dashArray != null && dashArray!.isNotEmpty) {
         Offset point1, point2;
-        for (int i = 0; i < coordinatePoints.length; i++) {
-          if (_highPoint < coordinatePoints[i].dy) {
-            _highPoint = coordinatePoints[i].dy;
+        for (int i = 0; i < coordinatePoints!.length; i++) {
+          if (_highPoint < coordinatePoints![i].dy) {
+            _highPoint = coordinatePoints![i].dy;
           }
 
-          if (_lowPoint > coordinatePoints[i].dy) {
-            _lowPoint = coordinatePoints[i].dy;
+          if (_lowPoint > coordinatePoints![i].dy) {
+            _lowPoint = coordinatePoints![i].dy;
           }
 
-          if (i < coordinatePoints.length - 1) {
-            point1 = Offset(offset.dx + coordinatePoints[i].dx,
-                offset.dy + coordinatePoints[i].dy);
-            point2 = Offset(offset.dx + coordinatePoints[i + 1].dx,
-                offset.dy + coordinatePoints[i + 1].dy);
+          if (i < coordinatePoints!.length - 1) {
+            point1 = Offset(offset.dx + coordinatePoints![i].dx,
+                offset.dy + coordinatePoints![i].dy);
+            point2 = Offset(offset.dx + coordinatePoints![i + 1].dx,
+                offset.dy + coordinatePoints![i + 1].dy);
             drawDashedPath(canvas, paint, point1, point2, dashArray);
           }
           if (labelDisplayMode != SparkChartLabelDisplayMode.none &&
               labelStyle != null) {
-            size = getTextSize(dataLabels[i], labelStyle);
+            size = getTextSize(dataLabels![i], labelStyle!);
             yPosition = (marker != null &&
-                    marker.displayMode != SparkChartMarkerDisplayMode.none
-                ? (dataPoints[i].y > 0
-                    ? (coordinatePoints[i].dy - size.height - marker.size / 2)
-                    : (coordinatePoints[i].dy + marker.size / 2))
-                : dataPoints[i].y > 0
-                    ? (coordinatePoints[i].dy - size.height)
-                    : (coordinatePoints[i].dy));
-            dataPoints[i].dataLabelOffset = Offset(
-                offset.dx + coordinatePoints[i].dx, offset.dy + yPosition);
-
-            _positionDataLabels(dataPoints[i], size, offset);
+                    marker!.displayMode != SparkChartMarkerDisplayMode.none
+                ? (dataPoints![i].y > 0
+                    ? (coordinatePoints![i].dy - size.height - marker!.size / 2)
+                    : (coordinatePoints![i].dy + marker!.size / 2))
+                : dataPoints![i].y > 0
+                    ? (coordinatePoints![i].dy - size.height)
+                    : (coordinatePoints![i].dy));
+            dataPoints![i].dataLabelOffset = Offset(
+                (offset.dx + coordinatePoints![i].dx) - size.width / 2,
+                offset.dy + yPosition);
+            _positionDataLabels(dataPoints![i], size, offset);
           }
         }
       } else {
         final Path path = Path();
-        for (int i = 0; i < coordinatePoints.length; i++) {
-          if (_highPoint < coordinatePoints[i].dy) {
-            _highPoint = coordinatePoints[i].dy;
+        for (int i = 0; i < coordinatePoints!.length; i++) {
+          if (_highPoint < coordinatePoints![i].dy) {
+            _highPoint = coordinatePoints![i].dy;
           }
 
-          if (_lowPoint > coordinatePoints[i].dy) {
-            _lowPoint = coordinatePoints[i].dy;
+          if (_lowPoint > coordinatePoints![i].dy) {
+            _lowPoint = coordinatePoints![i].dy;
           }
 
           if (i == 0) {
-            path.moveTo(offset.dx + coordinatePoints[i].dx,
-                offset.dy + coordinatePoints[i].dy);
+            path.moveTo(offset.dx + coordinatePoints![i].dx,
+                offset.dy + coordinatePoints![i].dy);
           }
 
-          if (i < coordinatePoints.length - 1) {
-            path.lineTo(offset.dx + coordinatePoints[i + 1].dx,
-                offset.dy + coordinatePoints[i + 1].dy);
+          if (i < coordinatePoints!.length - 1) {
+            path.lineTo(offset.dx + coordinatePoints![i + 1].dx,
+                offset.dy + coordinatePoints![i + 1].dy);
           }
           if (labelDisplayMode != SparkChartLabelDisplayMode.none &&
               labelStyle != null) {
-            size = getTextSize(dataLabels[i], labelStyle);
+            size = getTextSize(dataLabels![i], labelStyle!);
 
             yPosition = (marker != null &&
-                    marker.displayMode != SparkChartMarkerDisplayMode.none
-                ? (dataPoints[i].y > 0
-                    ? (coordinatePoints[i].dy - size.height - marker.size / 2)
-                    : (coordinatePoints[i].dy + marker.size / 2))
-                : dataPoints[i].y > 0
-                    ? (coordinatePoints[i].dy - size.height)
-                    : (coordinatePoints[i].dy));
-            dataPoints[i].dataLabelOffset = Offset(
-                offset.dx + coordinatePoints[i].dx, offset.dy + yPosition);
-
-            _positionDataLabels(dataPoints[i], size, offset);
+                    marker!.displayMode != SparkChartMarkerDisplayMode.none
+                ? (dataPoints![i].y > 0
+                    ? (coordinatePoints![i].dy - size.height - marker!.size / 2)
+                    : (coordinatePoints![i].dy + marker!.size / 2))
+                : dataPoints![i].y > 0
+                    ? (coordinatePoints![i].dy - size.height)
+                    : (coordinatePoints![i].dy));
+            dataPoints![i].dataLabelOffset = Offset(
+                (offset.dx + coordinatePoints![i].dx) - size.width / 2,
+                offset.dy + yPosition);
+            _positionDataLabels(dataPoints![i], size, offset);
           }
         }
 
@@ -368,33 +363,33 @@ class _RenderSparkLineChart extends RenderSparkChart {
 
   void _positionDataLabels(
       SparkChartPoint dataPoint, Size size, Offset offset) {
-    if (dataPoint.dataLabelOffset.dx <= offset.dx) {
+    if (dataPoint.dataLabelOffset!.dx <= offset.dx) {
       dataPoint.dataLabelOffset =
-          Offset((offset.dx), dataPoint.dataLabelOffset.dy);
+          Offset((offset.dx), dataPoint.dataLabelOffset!.dy);
     }
-    if (dataPoint.dataLabelOffset.dx >= offset.dx + areaSize.width) {
+    if (dataPoint.dataLabelOffset!.dx >= offset.dx + areaSize!.width) {
       dataPoint.dataLabelOffset = Offset(
-          ((offset.dx + areaSize.width) - size.width),
-          dataPoint.dataLabelOffset.dy);
+          ((offset.dx + areaSize!.width) - size.width),
+          dataPoint.dataLabelOffset!.dy);
     }
 
-    if (dataPoint.dataLabelOffset.dy <= offset.dy) {
+    if (dataPoint.dataLabelOffset!.dy <= offset.dy) {
       dataPoint.dataLabelOffset = Offset(
-          dataPoint.dataLabelOffset.dx,
+          dataPoint.dataLabelOffset!.dx,
           (offset.dy +
               (marker != null &&
-                      marker.displayMode != SparkChartMarkerDisplayMode.none
-                  ? marker.size / 2 + size.height
+                      marker!.displayMode != SparkChartMarkerDisplayMode.none
+                  ? marker!.size / 2 + size.height
                   : size.height)));
     }
 
-    if (dataPoint.dataLabelOffset.dy >= offset.dy + areaSize.height) {
+    if (dataPoint.dataLabelOffset!.dy >= offset.dy + areaSize!.height) {
       dataPoint.dataLabelOffset = Offset(
-          dataPoint.dataLabelOffset.dx,
-          (offset.dy + areaSize.height) -
+          dataPoint.dataLabelOffset!.dx,
+          (offset.dy + areaSize!.height) -
               (marker != null &&
-                      marker.displayMode != SparkChartMarkerDisplayMode.none
-                  ? marker.size / 2 + size.height
+                      marker!.displayMode != SparkChartMarkerDisplayMode.none
+                  ? marker!.size / 2 + size.height
                   : size.height));
     }
   }
@@ -403,42 +398,45 @@ class _RenderSparkLineChart extends RenderSparkChart {
   void paint(PaintingContext context, Offset offset) {
     super.paint(context, offset);
     if (coordinatePoints != null &&
-        coordinatePoints.isNotEmpty &&
+        coordinatePoints!.isNotEmpty &&
         dataPoints != null &&
-        dataPoints.isNotEmpty) {
+        dataPoints!.isNotEmpty) {
       _renderLineSeries(context.canvas, offset);
 
       if (marker != null &&
-          marker.displayMode != SparkChartMarkerDisplayMode.none) {
+          marker!.displayMode != SparkChartMarkerDisplayMode.none &&
+          marker!.borderWidth > 0) {
         renderMarker(
             context.canvas,
             offset,
-            marker,
-            coordinatePoints,
-            dataPoints,
-            color,
+            marker!,
+            coordinatePoints!,
+            dataPoints!,
+            color!,
             'Line',
             _highPoint,
             _lowPoint,
-            themeData,
+            axisCrossesAt!,
+            themeData!,
             lowPointColor,
             highPointColor,
             negativePointColor,
             firstPointColor,
             lastPointColor);
       }
-      if (labelDisplayMode != SparkChartLabelDisplayMode.none) {
+      if (labelDisplayMode != null &&
+          labelDisplayMode != SparkChartLabelDisplayMode.none) {
         renderDataLabel(
             context.canvas,
-            dataLabels,
-            dataPoints,
-            coordinatePoints,
-            labelStyle,
-            labelDisplayMode,
+            dataLabels!,
+            dataPoints!,
+            coordinatePoints!,
+            labelStyle!,
+            labelDisplayMode!,
             'Line',
-            themeData,
+            themeData!,
             offset,
-            color,
+            color!,
             _highPoint,
             _lowPoint);
       }

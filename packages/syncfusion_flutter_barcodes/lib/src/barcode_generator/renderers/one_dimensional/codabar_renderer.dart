@@ -7,7 +7,7 @@ import 'symbology_base_renderer.dart';
 /// Represents codabar renderer
 class CodabarRenderer extends SymbologyRenderer {
   /// Creates codabar renderer class
-  CodabarRenderer({Symbology symbology}) : super(symbology: symbology) {
+  CodabarRenderer({Symbology? symbology}) : super(symbology: symbology) {
     _codeBarMap = <String, String>{
       '0': '101010011',
       '1': '101011001',
@@ -33,7 +33,7 @@ class CodabarRenderer extends SymbologyRenderer {
   }
 
   /// Represents the supported symbol and its byte value
-  Map<String, String> _codeBarMap;
+  late Map<String, String> _codeBarMap;
 
   @override
   bool getIsValidateInput(String value) {
@@ -61,17 +61,17 @@ class CodabarRenderer extends SymbologyRenderer {
       TextAlign textAlign,
       bool showValue) {
     final Paint paint = getBarPaint(foregroundColor);
-    final List<String> code = _getCodeValues(value);
+    final List<String?> code = _getCodeValues(value);
     final int barTotalLength = _getTotalLength(code);
-    double left = symbology.module == null
+    double left = symbology!.module == null
         ? offset.dx
         : getLeftPosition(
-            barTotalLength, symbology.module, size.width, offset.dx);
+            barTotalLength, symbology!.module!, size.width, offset.dx);
     final Rect barCodeRect = Rect.fromLTRB(
         offset.dx, offset.dy, offset.dx + size.width, offset.dy + size.height);
     double ratio = 0;
-    if (symbology.module != null) {
-      ratio = symbology.module.toDouble();
+    if (symbology!.module != null) {
+      ratio = symbology!.module!.toDouble();
     } else {
       // Calculates the bar length based on number of individual bar codes
       final int singleModule = (size.width ~/ barTotalLength).toInt();
@@ -81,12 +81,9 @@ class CodabarRenderer extends SymbologyRenderer {
     }
     left = left.roundToDouble();
     for (int i = 0; i < code.length; i++) {
-      final String codeValue = code[i];
-      const bool hasExtraHeight = false;
-      final double barHeight = hasExtraHeight
-          ? size.height + textSize.height + textSpacing
-          : size.height;
-      final int codeLength = codeValue.length;
+      final String? codeValue = code[i];
+      final double barHeight = size.height;
+      final int codeLength = codeValue!.length;
       for (int j = 0; j < codeLength; j++) {
         final bool canDraw = codeValue[j] == '1' ? true : false;
 
@@ -109,10 +106,10 @@ class CodabarRenderer extends SymbologyRenderer {
   }
 
   /// Calculate total bar length from give input value
-  int _getTotalLength(List<String> code) {
+  int _getTotalLength(List<String?> code) {
     int count = 0;
     for (int i = 0; i < code.length; i++) {
-      final int numberOfDigits = code[i].length;
+      final int numberOfDigits = code[i]!.length;
       count += numberOfDigits;
     }
     count += code.length - 1;
@@ -125,10 +122,10 @@ class CodabarRenderer extends SymbologyRenderer {
   }
 
   /// Returns the encoded value of the provided input value
-  List<String> _getCodeValues(String value) {
+  List<String?> _getCodeValues(String value) {
     valueWithStartAndStopSymbol = _getValueWithStartAndStopSymbol(value);
-    final List<String> codeBarValues =
-        List<String>(valueWithStartAndStopSymbol.length);
+    final List<String?> codeBarValues =
+        List<String?>.filled(valueWithStartAndStopSymbol.length, null);
     for (int i = 0; i < valueWithStartAndStopSymbol.length; i++) {
       for (int j = 0; j < _codeBarMap.length; j++) {
         if (valueWithStartAndStopSymbol[i] ==

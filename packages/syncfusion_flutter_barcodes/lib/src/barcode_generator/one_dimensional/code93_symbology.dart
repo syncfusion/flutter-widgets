@@ -14,5 +14,5 @@ class Code93 extends Symbology {
   /// high level of accuracy.
   /// The checksum character is the modulo 47 remainder of the sum of the
   /// weighted value of the data characters.
-  Code93({int module}) : super(module: module);
+  Code93({int? module}) : super(module: module);
 }

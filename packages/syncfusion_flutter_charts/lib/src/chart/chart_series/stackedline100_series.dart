@@ -10,38 +10,38 @@ part of charts;
 class StackedLine100Series<T, D> extends _StackedSeriesBase<T, D> {
   /// Creating an argument constructor of StackedLine100Series class.
   StackedLine100Series(
-      {ValueKey<String> key,
-      ChartSeriesRendererFactory<T, D> onCreateRenderer,
-      @required List<T> dataSource,
-      @required ChartValueMapper<T, D> xValueMapper,
-      @required ChartValueMapper<T, num> yValueMapper,
-      ChartValueMapper<T, dynamic> sortFieldValueMapper,
-      ChartValueMapper<T, Color> pointColorMapper,
-      ChartValueMapper<T, String> dataLabelMapper,
-      String xAxisName,
-      String yAxisName,
-      Color color,
-      double width,
-      MarkerSettings markerSettings,
-      EmptyPointSettings emptyPointSettings,
-      DataLabelSettings dataLabelSettings,
-      bool isVisible,
-      String name,
-      bool enableTooltip,
-      List<double> dashArray,
-      double animationDuration,
-      List<Trendline> trendlines,
-      String groupName,
+      {ValueKey<String>? key,
+      ChartSeriesRendererFactory<T, D>? onCreateRenderer,
+      required List<T> dataSource,
+      required ChartValueMapper<T, D> xValueMapper,
+      required ChartValueMapper<T, num> yValueMapper,
+      ChartValueMapper<T, dynamic>? sortFieldValueMapper,
+      ChartValueMapper<T, Color>? pointColorMapper,
+      ChartValueMapper<T, String>? dataLabelMapper,
+      String? xAxisName,
+      String? yAxisName,
+      Color? color,
+      double? width,
+      MarkerSettings? markerSettings,
+      EmptyPointSettings? emptyPointSettings,
+      DataLabelSettings? dataLabelSettings,
+      bool? isVisible,
+      String? name,
+      bool? enableTooltip,
+      List<double>? dashArray,
+      double? animationDuration,
+      List<Trendline>? trendlines,
+      String? groupName,
       // ignore: deprecated_member_use_from_same_package
-      SelectionSettings selectionSettings,
-      SelectionBehavior selectionBehavior,
-      bool isVisibleInLegend,
-      LegendIconType legendIconType,
-      SortingOrder sortingOrder,
-      String legendItemText,
-      double opacity,
-      SeriesRendererCreatedCallback onRendererCreated,
-      List<int> initialSelectedDataIndexes})
+      SelectionSettings? selectionSettings,
+      SelectionBehavior? selectionBehavior,
+      bool? isVisibleInLegend,
+      LegendIconType? legendIconType,
+      SortingOrder? sortingOrder,
+      String? legendItemText,
+      double? opacity,
+      SeriesRendererCreatedCallback? onRendererCreated,
+      List<int>? initialSelectedDataIndexes})
       : super(
             key: key,
             onCreateRenderer: onCreateRenderer,
@@ -79,7 +79,8 @@ class StackedLine100Series<T, D> extends _StackedSeriesBase<T, D> {
   StackedLine100SeriesRenderer createRenderer(ChartSeries<T, D> series) {
     StackedLine100SeriesRenderer stackedLine100SeriesRenderer;
     if (onCreateRenderer != null) {
-      stackedLine100SeriesRenderer = onCreateRenderer(series);
+      stackedLine100SeriesRenderer =
+          onCreateRenderer!(series) as StackedLine100SeriesRenderer;
       assert(stackedLine100SeriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return stackedLine100SeriesRenderer;
@@ -105,30 +106,31 @@ class StackedLine100SeriesRenderer extends _StackedSeriesRenderer {
       double nextCummulativePos) {
     final StackedLine100Segment segment = createSegment();
     final List<CartesianSeriesRenderer> _oldSeriesRenderers =
-        _chartState._oldSeriesRenderers;
+        _chartState!._oldSeriesRenderers;
     _isRectSeries = false;
     if (segment != null) {
       segment._seriesRenderer = this;
-      segment._series = _series;
+      segment._series = _series as XyDataSeries;
       segment._seriesIndex = seriesIndex;
       segment._currentPoint = currentPoint;
       segment.currentSegmentIndex = pointIndex;
       segment._nextPoint = _nextPoint;
       segment._chart = _chart;
-      segment._chartState = _chartState;
+      segment._chartState = _chartState!;
       segment.animationFactor = animationFactor;
       segment._pointColorMapper = currentPoint.pointColorMapper;
       segment._currentCummulativePos = currentCummulativePos;
       segment._nextCummulativePos = nextCummulativePos;
-      if (_chartState._widgetNeedUpdate &&
-          _xAxisRenderer._zoomFactor == 1 &&
-          _yAxisRenderer._zoomFactor == 1 &&
+      if (_chartState!._widgetNeedUpdate &&
+          _xAxisRenderer!._zoomFactor == 1 &&
+          _yAxisRenderer!._zoomFactor == 1 &&
           _oldSeriesRenderers != null &&
           _oldSeriesRenderers.isNotEmpty &&
           _oldSeriesRenderers.length - 1 >= segment._seriesIndex &&
           _oldSeriesRenderers[segment._seriesIndex]._seriesName ==
               segment._seriesRenderer._seriesName) {
         segment._oldSeriesRenderer = _oldSeriesRenderers[segment._seriesIndex];
+        segment._oldSegmentIndex = _getOldSegmentIndex(segment);
       }
       segment.calculateSegmentPoints();
       segment.points.add(Offset(segment._x1, segment._y1));
@@ -145,17 +147,17 @@ class StackedLine100SeriesRenderer extends _StackedSeriesRenderer {
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     if (segment._seriesRenderer._isSelectionEnable) {
-      final SelectionBehaviorRenderer selectionBehaviorRenderer =
+      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
           segment._seriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer._selectionRenderer._checkWithSelectionState(
-          _segments[segment.currentSegmentIndex], _chart);
+      selectionBehaviorRenderer?._selectionRenderer?._checkWithSelectionState(
+          _segments[segment.currentSegmentIndex!], _chart);
     }
     segment.onPaint(canvas);
   }
 
   /// Creates a segment for a data point in the series.
   @override
-  ChartSegment createSegment() => StackedLine100Segment();
+  StackedLine100Segment createSegment() => StackedLine100Segment();
 
   /// Changes the series color, border color, and border width.
   @override
@@ -169,9 +171,9 @@ class StackedLine100SeriesRenderer extends _StackedSeriesRenderer {
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer seriesRenderer]) {
-    canvas.drawPath(seriesRenderer._markerShapes[index], fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes[index], strokePaint);
+      [CartesianSeriesRenderer? seriesRenderer]) {
+    canvas.drawPath(seriesRenderer!._markerShapes[index]!, fillPaint);
+    canvas.drawPath(seriesRenderer._markerShapes[index]!, strokePaint);
   }
 
   /// Draws data label text of the appropriate data point in a series.

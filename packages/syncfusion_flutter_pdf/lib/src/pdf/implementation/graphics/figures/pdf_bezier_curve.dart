@@ -7,8 +7,10 @@ class PdfBezierCurve extends PdfShapeElement {
   /// with the specified [PdfPen] and [Offset] structure.
   PdfBezierCurve(Offset startPoint, Offset firstControlPoint,
       Offset secondControlPoint, Offset endPoint,
-      {PdfPen pen}) {
-    super.pen = pen;
+      {PdfPen? pen}) {
+    if (pen != null) {
+      super.pen = pen;
+    }
     this.startPoint = startPoint;
     this.firstControlPoint = firstControlPoint;
     this.secondControlPoint = secondControlPoint;
@@ -27,9 +29,7 @@ class PdfBezierCurve extends PdfShapeElement {
 
   /// Sets the starting point of the curve
   set startPoint(Offset value) {
-    if (value != null) {
-      _startPoint = _Point.fromOffset(value);
-    }
+    _startPoint = _Point.fromOffset(value);
   }
 
   /// Gets the first control point of the curve.
@@ -37,9 +37,7 @@ class PdfBezierCurve extends PdfShapeElement {
 
   /// Sets the first control point of the curve.
   set firstControlPoint(Offset value) {
-    if (value != null) {
-      _firstControlPoint = _Point.fromOffset(value);
-    }
+    _firstControlPoint = _Point.fromOffset(value);
   }
 
   /// Gets the second control point of the curve
@@ -47,9 +45,7 @@ class PdfBezierCurve extends PdfShapeElement {
 
   /// Sets the second control point of the curve
   set secondControlPoint(Offset value) {
-    if (value != null) {
-      _secondControlPoint = _Point.fromOffset(value);
-    }
+    _secondControlPoint = _Point.fromOffset(value);
   }
 
   /// Gets the ending point of the curve.
@@ -57,23 +53,20 @@ class PdfBezierCurve extends PdfShapeElement {
 
   /// Sets the ending point of the curve.
   set endPoint(Offset value) {
-    if (value != null) {
-      _endPoint = _Point.fromOffset(value);
-    }
+    _endPoint = _Point.fromOffset(value);
   }
 
   // implementation
 
   @override
   void _drawInternal(PdfGraphics graphics, _Rectangle bounds) {
-    ArgumentError.checkNotNull(graphics, 'graphics');
     graphics.drawBezier(
         startPoint, firstControlPoint, secondControlPoint, endPoint,
         pen: _obtainPen());
   }
 
   @override
-  _Rectangle _getBoundsInternal() {
+  _Rectangle? _getBoundsInternal() {
     return null;
   }
 }

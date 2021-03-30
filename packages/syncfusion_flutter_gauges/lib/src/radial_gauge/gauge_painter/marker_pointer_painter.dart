@@ -1,8 +1,22 @@
-part of gauges;
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
+import 'package:flutter/foundation.dart';
+import '../axis/radial_axis.dart';
+import '../common/common.dart';
+import '../common/radial_gauge_renderer.dart';
+import '../gauge/radial_gauge.dart';
+import '../pointers/marker_pointer.dart';
+import '../renderers/marker_pointer_renderer_base.dart';
+import '../renderers/radial_axis_renderer_base.dart';
+import '../utils/helper.dart';
 
 /// Represents the painter to draw marker
-class _MarkerPointerPainter extends CustomPainter {
-  _MarkerPointerPainter(
+class MarkerPointerPainter extends CustomPainter {
+  /// Create the painter for marker pointer
+  ///
+  MarkerPointerPainter(
       this._gauge,
       this._axis,
       this._markerPointer,
@@ -28,44 +42,54 @@ class _MarkerPointerPainter extends CustomPainter {
   final MarkerPointer _markerPointer;
 
   /// Specifies the pointer animation
-  final Animation<double> _pointerAnimation;
+  final Animation<double>? _pointerAnimation;
 
   /// Specifies the gauge theme data.
   final SfGaugeThemeData _gaugeThemeData;
 
   /// Hold the radial gauge rendering details
-  final _RenderingDetails _renderingDetails;
+  final RenderingDetails _renderingDetails;
 
   /// Holds the axis renderer
-  final RadialAxisRenderer _axisRenderer;
+  final RadialAxisRendererBase _axisRenderer;
 
   /// Holds the marker pointer renderer
-  final MarkerPointerRenderer _markerPointerRenderer;
+  final MarkerPointerRendererBase _markerPointerRenderer;
 
   @override
   void paint(Canvas canvas, Size size) {
     final bool needsPointerAnimation =
-        _markerPointerRenderer._getIsPointerAnimationEnabled();
+        _markerPointerRenderer.getIsPointerAnimationEnabled();
     double markerAngle = 0;
-    Offset offset;
-    bool needsShowPointer;
+    Offset? offset;
+    bool? needsShowPointer;
     if (_pointerAnimation != null) {
       needsShowPointer = _axis.isInversed
-          ? _pointerAnimation.value < 1
-          : _pointerAnimation.value > 0;
+          ? _pointerAnimation!.value < 1
+          : _pointerAnimation!.value > 0;
     }
 
-    if (_renderingDetails.needsToAnimatePointers || needsPointerAnimation) {
-      if ((_renderingDetails.needsToAnimatePointers && needsShowPointer) ||
+    if ((_renderingDetails.needsToAnimatePointers &&
+            (!_renderingDetails.isOpacityAnimation &&
+                _axis.minimum != _markerPointerRenderer.currentValue)) ||
+        (needsPointerAnimation &&
+            (!_gauge.enableLoadingAnimation ||
+                (_gauge.enableLoadingAnimation &&
+                    _pointerAnimation!.value != 1 &&
+                    !_renderingDetails.isOpacityAnimation &&
+                    !_renderingDetails.needsToAnimatePointers)))) {
+      if ((_renderingDetails.needsToAnimatePointers &&
+              needsShowPointer != null &&
+              needsShowPointer) ||
           !_renderingDetails.needsToAnimatePointers) {
-        markerAngle = (_axisRenderer._sweepAngle * _pointerAnimation.value) +
+        markerAngle = (_axisRenderer.sweepAngle * _pointerAnimation!.value) +
             _axis.startAngle;
-        offset = _markerPointerRenderer._getMarkerOffset(
-            _getDegreeToRadian(markerAngle), _markerPointer);
+        offset = _markerPointerRenderer.getMarkerOffset(
+            getDegreeToRadian(markerAngle), _markerPointer);
       }
     } else {
-      offset = _markerPointerRenderer._offset;
-      markerAngle = _markerPointerRenderer._angle;
+      offset = _markerPointerRenderer.offset;
+      markerAngle = _markerPointerRenderer.angle;
     }
     if (offset != null) {
       final PointerPaintingDetails pointerPaintingDetails =
@@ -73,33 +97,45 @@ class _MarkerPointerPainter extends CustomPainter {
               startOffset: offset,
               endOffset: offset,
               pointerAngle: markerAngle,
-              axisRadius: _axisRenderer._radius,
-              axisCenter: _axisRenderer._axisCenter);
-      _markerPointerRenderer.drawPointer(
-          canvas, pointerPaintingDetails, _gaugeThemeData);
+              axisRadius: _axisRenderer.radius,
+              axisCenter: _axisRenderer.axisCenter);
+      _markerPointerRenderer.renderingDetails = _renderingDetails;
+      _markerPointerRenderer.pointerAnimation =
+          _pointerAnimation != null ? _pointerAnimation! : null;
+
+      if (_markerPointerRenderer.renderer != null) {
+        _markerPointerRenderer.renderer!
+            .drawPointer(canvas, pointerPaintingDetails, _gaugeThemeData);
+      } else {
+        _markerPointerRenderer.drawPointer(
+            canvas, pointerPaintingDetails, _gaugeThemeData);
+      }
     }
 
     // Disables the animation once the animation reached the current
     // pointer angle
     if (needsPointerAnimation &&
         markerAngle ==
-            _axisRenderer._sweepAngle *
-                    _markerPointerRenderer._animationEndValue +
+            _axisRenderer.sweepAngle *
+                    _markerPointerRenderer.animationEndValue! +
                 _axis.startAngle) {
-      _markerPointerRenderer._needsAnimate = false;
+      _markerPointerRenderer.needsAnimate = false;
     }
 
     if (_renderingDetails.needsToAnimatePointers &&
         _gauge.axes[_gauge.axes.length - 1] == _axis &&
-        _axis.pointers[_axis.pointers.length - 1] == _markerPointer &&
-        markerAngle ==
-            _axisRenderer._sweepAngle *
-                    _markerPointerRenderer._animationEndValue +
-                _axis.startAngle) {
+        _axis.pointers![_axis.pointers!.length - 1] == _markerPointer &&
+        ((!_renderingDetails.isOpacityAnimation &&
+                markerAngle ==
+                    _axisRenderer.sweepAngle *
+                            _markerPointerRenderer.animationEndValue! +
+                        _axis.startAngle) ||
+            (_renderingDetails.isOpacityAnimation &&
+                _pointerAnimation!.value == 1))) {
       _renderingDetails.needsToAnimatePointers = false;
     }
   }
 
   @override
-  bool shouldRepaint(_MarkerPointerPainter oldDelegate) => _isRepaint;
+  bool shouldRepaint(MarkerPointerPainter oldDelegate) => _isRepaint;
 }

@@ -12,7 +12,7 @@ class _EmbeddedFileParams implements _IPdfWrapper {
   DateTime _cDate = DateTime.now();
   DateTime _mDate = DateTime.now();
   final _PdfDictionary _dictionary = _PdfDictionary();
-  int _fileSize;
+  int? _fileSize;
 
   //Properties.
   DateTime get _creationDate => _cDate;
@@ -40,7 +40,8 @@ class _EmbeddedFileParams implements _IPdfWrapper {
   _IPdfPrimitive get _element => _dictionary;
 
   @override
-  set _element(_IPdfPrimitive value) {
+  // ignore: unused_element
+  set _element(_IPdfPrimitive? value) {
     throw ArgumentError('primitive element can\'t be set');
   }
 }

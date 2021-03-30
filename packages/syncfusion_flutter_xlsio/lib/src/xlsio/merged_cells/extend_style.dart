@@ -4,13 +4,13 @@ part of xlsio;
 class _ExtendStyle {
   /// Gets/Sets X value.
   // ignore: unused_field
-  int _x;
+  late int _x;
 
   /// Gets/Sets Y value.
   // ignore: unused_field
-  int _y;
+  late int _y;
 
   /// Gets/Sets style index.
   // ignore: unused_field
-  int _styleIndex;
+  late int _styleIndex;
 }

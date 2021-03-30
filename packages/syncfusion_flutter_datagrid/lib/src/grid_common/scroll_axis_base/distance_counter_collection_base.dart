@@ -79,7 +79,7 @@ abstract class _DistanceCounterCollectionBase {
   ///
   /// * index - _required_ - The index.
   /// Returns - _required_ - the nested entities at a given index or null.
-  _DistanceCounterCollectionBase getNestedDistances(int index);
+  _DistanceCounterCollectionBase? getNestedDistances(int index);
 
   /// Gets the distance position of the next entity after a given point.
   ///
@@ -160,7 +160,7 @@ abstract class _DistanceCounterCollectionBase {
   /// * index - _required_ - The index.
   /// * nestedCollection - _required_ - The nested collection.
   void setNestedDistances(
-      int index, _DistanceCounterCollectionBase nestedCollection);
+      int index, _DistanceCounterCollectionBase? nestedCollection);
 
   /// Hides a specified range of entities (lines, rows or columns).
   ///

@@ -9,26 +9,26 @@ part of charts;
 class SmaIndicator<T, D> extends TechnicalIndicators<T, D> {
   /// Creating an argument constructor of SmaIndicator class.
   SmaIndicator({
-    bool isVisible,
-    String xAxisName,
-    String yAxisName,
-    String seriesName,
-    List<double> dashArray,
-    double animationDuration,
-    List<T> dataSource,
-    ChartValueMapper<T, D> xValueMapper,
-    ChartValueMapper<T, num> highValueMapper,
-    ChartValueMapper<T, num> lowValueMapper,
-    ChartValueMapper<T, num> openValueMapper,
-    ChartValueMapper<T, num> closeValueMapper,
-    String name,
-    bool isVisibleInLegend,
-    LegendIconType legendIconType,
-    String legendItemText,
-    Color signalLineColor,
-    double signalLineWidth,
-    int period,
-    String valueField,
+    bool? isVisible,
+    String? xAxisName,
+    String? yAxisName,
+    String? seriesName,
+    List<double>? dashArray,
+    double? animationDuration,
+    List<T>? dataSource,
+    ChartValueMapper<T, D>? xValueMapper,
+    ChartValueMapper<T, num>? highValueMapper,
+    ChartValueMapper<T, num>? lowValueMapper,
+    ChartValueMapper<T, num>? openValueMapper,
+    ChartValueMapper<T, num>? closeValueMapper,
+    String? name,
+    bool? isVisibleInLegend,
+    LegendIconType? legendIconType,
+    String? legendItemText,
+    Color? signalLineColor,
+    double? signalLineWidth,
+    int? period,
+    String? valueField,
   })  : valueField = (valueField ?? 'close').toLowerCase(),
         super(
             isVisible: isVisible,
@@ -78,8 +78,12 @@ class SmaIndicator<T, D> extends TechnicalIndicators<T, D> {
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
     technicalIndicatorsRenderer._targetSeriesRenderers =
         <CartesianSeriesRenderer>[];
-    technicalIndicatorsRenderer._setSeriesProperties(indicator, 'SMA',
-        indicator.signalLineColor, indicator.signalLineWidth, chart);
+    technicalIndicatorsRenderer._setSeriesProperties(
+        indicator,
+        indicator.name ?? 'SMA',
+        indicator.signalLineColor,
+        indicator.signalLineWidth,
+        chart);
   }
 
   /// To initialise data source of technical indicators
@@ -89,7 +93,7 @@ class SmaIndicator<T, D> extends TechnicalIndicators<T, D> {
     final List<CartesianChartPoint<dynamic>> smaPoints =
         <CartesianChartPoint<dynamic>>[];
     final List<CartesianChartPoint<dynamic>> points =
-        technicalIndicatorsRenderer._dataPoints;
+        technicalIndicatorsRenderer._dataPoints!;
     final List<dynamic> xValues = <dynamic>[];
     CartesianChartPoint<dynamic> point;
     if (points.isNotEmpty) {
@@ -116,7 +120,7 @@ class SmaIndicator<T, D> extends TechnicalIndicators<T, D> {
         smaPoints.add(point);
         xValues.add(point.x);
 
-        num index = indicator.period;
+        int index = indicator.period;
         while (index < validData.length) {
           sum -= technicalIndicatorsRenderer._getFieldValue(
               validData, index - indicator.period, valueField);

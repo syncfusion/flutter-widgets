@@ -2,6 +2,14 @@ part of xlsio;
 
 /// Class used for Format Section.
 class _FormatSection {
+  /// Initializes a new instance of the FormatSection class based on array of tokens.
+  _FormatSection(
+      Workbook workbook, var parent, List<_FormatTokenBase> arrTokens) {
+    _workbook = workbook;
+    _arrTokens = arrTokens;
+    _prepareFormat();
+  }
+
   /// Table for token type detection. Value in TokenType arrays must be sorted.
   final _defultPossibleTokens = [
     [
@@ -117,7 +125,7 @@ class _FormatSection {
   final _defultMonthTokenLength = 5;
 
   /// Array of tokens.
-  List<_FormatTokenBase> _arrTokens;
+  late List<_FormatTokenBase> _arrTokens;
 
   /// Indicates whether format is prepared.
   bool _bFormatPrepared = false;
@@ -150,7 +158,7 @@ class _FormatSection {
   bool _isMilliSecondFormatValue = false;
 
   /// Represents the workbook.
-  Workbook _workbook;
+  late Workbook _workbook;
 
   /// Gets the number of tokens in the section.
   int get _count {
@@ -164,16 +172,6 @@ class _FormatSection {
     }
 
     return _formatType;
-  }
-
-  /// Initializes a new instance of the FormatSection class based on array of tokens.
-  // ignore: sort_constructors_first
-  _FormatSection(
-      Workbook workbook, var parent, List<_FormatTokenBase> arrTokens) {
-    if (arrTokens == null) throw Exception('arrTokens');
-    _workbook = workbook;
-    _arrTokens = arrTokens;
-    _prepareFormat();
   }
 
   /// Prepares format if necessary.
@@ -203,7 +201,7 @@ class _FormatSection {
 
       switch (token._tokenType) {
         case _TokenType.amPm:
-          final _HourToken hour = _findCorrespondingHourSection(i);
+          final _HourToken? hour = _findCorrespondingHourSection(i);
           if (hour != null) hour._isAmPm = true;
           break;
 
@@ -246,7 +244,7 @@ class _FormatSection {
   }
 
   /// Searches for corresponding hour token.
-  _HourToken _findCorrespondingHourSection(int index) {
+  _HourToken? _findCorrespondingHourSection(int index) {
     int i = index;
 
     do {
@@ -256,7 +254,7 @@ class _FormatSection {
       final _FormatTokenBase token = _arrTokens[i];
 
       if (token._tokenType == _TokenType.hour) {
-        return token;
+        return token as _HourToken;
       }
     } while (i != index);
 
@@ -264,7 +262,7 @@ class _FormatSection {
   }
 
   /// Applies format to the value.
-  String _applyFormat(double value, bool bShowReservedSymbols, [Range cell]) {
+  String _applyFormat(double value, bool bShowReservedSymbols) {
     _prepareFormat();
     value = _prepareValue(value, bShowReservedSymbols);
 
@@ -336,7 +334,7 @@ class _FormatSection {
         }
       }
 
-      if (strTokenResult != null) builder.add(strTokenResult);
+      builder.add(strTokenResult);
     }
 
     if (bForward) {
@@ -370,7 +368,8 @@ class _FormatSection {
 
     final int len = _defultPossibleTokens.length;
     for (int i = 0; i < len; i += 2) {
-      final List<_TokenType> arrPossibleTokens = _defultPossibleTokens[i];
+      final List<_TokenType> arrPossibleTokens =
+          _defultPossibleTokens[i] as List<_TokenType>;
       final ExcelFormatType formatType =
           (_defultPossibleTokens[i + 1]) as ExcelFormatType;
 
@@ -387,10 +386,6 @@ class _FormatSection {
 
   /// Checks whether section contains only specified token types.
   bool _checkTokenTypes(List<_TokenType> arrPossibleTokens) {
-    if (arrPossibleTokens == null) {
-      throw ("arrPossibleTokens - value can't be null");
-    }
-
     final int iCount = _count;
     if (iCount == 0 && arrPossibleTokens.isEmpty) return true;
 
@@ -496,9 +491,6 @@ class _FormatSection {
 
   /// Indicates whether type of specified token is in the array of tokens.
   bool _containsIn(List<_TokenType> arrPossibleTokens, _TokenType token) {
-    if (arrPossibleTokens == null) {
-      throw ("arrPossibleTokens - Value can't be null");
-    }
     int iFirstIndex = 0;
     int iLastIndex = arrPossibleTokens.length - 1;
 
@@ -541,6 +533,5 @@ class _FormatSection {
 
   void _clear() {
     _arrTokens.clear();
-    _arrTokens = null;
   }
 }

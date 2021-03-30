@@ -12,39 +12,32 @@ part of charts;
 class RsiIndicator<T, D> extends TechnicalIndicators<T, D> {
   /// Creating an argument constructor of RsiIndicator class.
   RsiIndicator(
-      {bool isVisible,
-      String xAxisName,
-      String yAxisName,
-      String seriesName,
-      List<double> dashArray,
-      double animationDuration,
-      List<T> dataSource,
-      ChartValueMapper<T, D> xValueMapper,
-      ChartValueMapper<T, num> highValueMapper,
-      ChartValueMapper<T, num> lowValueMapper,
-      ChartValueMapper<T, num> closeValueMapper,
-      String name,
-      bool isVisibleInLegend,
-      LegendIconType legendIconType,
-      String legendItemText,
-      Color signalLineColor,
-      double signalLineWidth,
-      int period,
-      bool showZones,
-      double overbought,
-      double oversold,
-      final Color upperLineColor,
-      final double upperLineWidth,
-      final Color lowerLineColor,
-      final double lowerLineWidth})
-      : showZones = showZones ?? true,
-        overbought = overbought ?? 80,
-        oversold = oversold ?? 20,
-        upperLineColor = upperLineColor ?? Colors.red,
-        upperLineWidth = upperLineWidth ?? 2,
-        lowerLineColor = lowerLineColor ?? Colors.green,
-        lowerLineWidth = lowerLineWidth ?? 2,
-        super(
+      {bool? isVisible,
+      String? xAxisName,
+      String? yAxisName,
+      String? seriesName,
+      List<double>? dashArray,
+      double? animationDuration,
+      List<T>? dataSource,
+      ChartValueMapper<T, D>? xValueMapper,
+      ChartValueMapper<T, num>? highValueMapper,
+      ChartValueMapper<T, num>? lowValueMapper,
+      ChartValueMapper<T, num>? closeValueMapper,
+      String? name,
+      bool? isVisibleInLegend,
+      LegendIconType? legendIconType,
+      String? legendItemText,
+      Color? signalLineColor,
+      double? signalLineWidth,
+      int? period,
+      this.showZones = true,
+      this.overbought = 80,
+      this.oversold = 20,
+      this.upperLineColor = Colors.red,
+      this.upperLineWidth = 2,
+      this.lowerLineColor = Colors.green,
+      this.lowerLineWidth = 2})
+      : super(
             isVisible: isVisible,
             xAxisName: xAxisName,
             yAxisName: yAxisName,
@@ -189,15 +182,21 @@ class RsiIndicator<T, D> extends TechnicalIndicators<T, D> {
       RsiIndicator<dynamic, dynamic> indicator,
       SfCartesianChart chart,
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
+    // Decides the type of renderer class to be used
+    final bool isLine = true;
     technicalIndicatorsRenderer._targetSeriesRenderers =
         <CartesianSeriesRenderer>[];
-    technicalIndicatorsRenderer._setSeriesProperties(indicator, 'RSI',
-        indicator.signalLineColor, indicator.signalLineWidth, chart);
+    technicalIndicatorsRenderer._setSeriesProperties(
+        indicator,
+        indicator.name ?? 'RSI',
+        indicator.signalLineColor,
+        indicator.signalLineWidth,
+        chart);
     if (indicator.showZones == true) {
       technicalIndicatorsRenderer._setSeriesProperties(indicator, 'UpperLine',
-          indicator.upperLineColor, indicator.upperLineWidth, chart);
+          indicator.upperLineColor, indicator.upperLineWidth, chart, isLine);
       technicalIndicatorsRenderer._setSeriesProperties(indicator, 'LowerLine',
-          indicator.lowerLineColor, indicator.lowerLineWidth, chart);
+          indicator.lowerLineColor, indicator.lowerLineWidth, chart, isLine);
     }
   }
 
@@ -214,7 +213,7 @@ class RsiIndicator<T, D> extends TechnicalIndicators<T, D> {
     final CartesianSeriesRenderer signalSeriesRenderer =
         technicalIndicatorsRenderer._targetSeriesRenderers[0];
     final List<CartesianChartPoint<dynamic>> validData =
-        technicalIndicatorsRenderer._dataPoints;
+        technicalIndicatorsRenderer._dataPoints!;
     final List<dynamic> xValues = <dynamic>[];
     final List<dynamic> signalXValues = <dynamic>[];
 

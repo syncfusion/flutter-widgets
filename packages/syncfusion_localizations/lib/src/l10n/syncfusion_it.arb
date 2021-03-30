@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "Nessuna data selezionata", 
 "noEventsCalendarLabel" : "Nessun evento", 
-"scheduleViewNewEventLabel" : "Niente in programma. Tocca per creare.", 
 "ofDataPagerLabel" : "di", 
 "pagesDataPagerLabel" : "pagine", 
 "itemsDataPagerLabel" : "elementi", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "Ram.", 
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
-"shortDhualhiLabel" : "Dhu'l-H"
+"shortDhualhiLabel" : "Dhu'l-H", 
+"daySpanCountLabel" : "Giorno"
 }

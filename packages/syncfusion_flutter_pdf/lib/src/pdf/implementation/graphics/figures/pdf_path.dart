@@ -7,34 +7,36 @@ class PdfPath extends PdfShapeElement {
   /// Initializes a new instance of the [PdfPath] class
   /// with pen, brush, fillMode, points and pathTypes
   PdfPath(
-      {PdfPen pen,
-      PdfBrush brush,
-      PdfFillMode fillMode,
-      List<Offset> points,
-      List<int> pathTypes}) {
-    super.pen = pen;
-    if (points != null && pathTypes != null) {
+      {PdfPen? pen,
+      PdfBrush? brush,
+      PdfFillMode fillMode = PdfFillMode.winding,
+      List<Offset> points = const <Offset>[],
+      List<int>? pathTypes}) {
+    if (pen != null) {
+      super.pen = pen;
+    }
+    if (points.isNotEmpty && pathTypes != null) {
       addPath(points, pathTypes);
     }
-    _fillMode = (fillMode == null) ? _fillMode : fillMode;
+    _fillMode = fillMode;
     this.brush = brush;
   }
 
   // fields
-  final List<Offset> _points = <Offset>[];
+  List<Offset> _points = [];
   final List<_PathPointType> _pathTypes = <_PathPointType>[];
   final bool _isBeziers3 = false;
   bool _bStartFigure = true;
-  PdfFillMode _fillMode = PdfFillMode.winding;
+  late PdfFillMode _fillMode;
 
   // properties
   /// Gets the brush of the element
-  PdfBrush get brush {
+  PdfBrush? get brush {
     return _brush;
   }
 
   /// Sets the brush of the element
-  set brush(PdfBrush value) {
+  set brush(PdfBrush? value) {
     if (value != null) {
       _brush = value;
     }
@@ -66,8 +68,6 @@ class PdfPath extends PdfShapeElement {
 
   /// Appends the path specified by the points and their types to this one.
   void addPath(List<Offset> pathPoints, List<int> pathTypes) {
-    ArgumentError.checkNotNull(pathPoints, 'pathPoints');
-    ArgumentError.checkNotNull(pathTypes, 'pathTypes');
     final int count = pathPoints.length;
     if (count != pathTypes.length) {
       throw ArgumentError.value(
@@ -79,27 +79,23 @@ class PdfPath extends PdfShapeElement {
 
   /// Adds a line
   void addLine(Offset point1, Offset point2) {
-    final List<double> points = <double>[];
-    points.add(point1.dx);
-    points.add(point1.dy);
-    points.add(point2.dx);
-    points.add(point2.dy);
-    _addPoints(points, _PathPointType.line);
+    _addPoints(<double>[point1.dx, point1.dy, point2.dx, point2.dy],
+        _PathPointType.line);
   }
 
   /// Adds a rectangle
   void addRectangle(Rect bounds) {
-    final List<double> points = <double>[];
     startFigure();
-    points.add(bounds.left);
-    points.add(bounds.top);
-    points.add(bounds.left + bounds.width);
-    points.add(bounds.top);
-    points.add(bounds.left + bounds.width);
-    points.add(bounds.top + bounds.height);
-    points.add(bounds.left);
-    points.add(bounds.top + bounds.height);
-    _addPoints(points, _PathPointType.line);
+    _addPoints(<double>[
+      bounds.left,
+      bounds.top,
+      bounds.left + bounds.width,
+      bounds.top,
+      bounds.left + bounds.width,
+      bounds.top + bounds.height,
+      bounds.left,
+      bounds.top + bounds.height
+    ], _PathPointType.line);
     closeFigure();
   }
 
@@ -173,7 +169,6 @@ class PdfPath extends PdfShapeElement {
   /// Closes the last figure.
   void closeFigure() {
     if (_points.isNotEmpty) {
-      // _pathTypes[_points.length - 1] = _PathPointType.closeSubpath;
       _points.add(const Offset(0, 0));
       _pathTypes.add(_PathPointType.closeSubpath);
     }
@@ -233,7 +228,6 @@ class PdfPath extends PdfShapeElement {
 
   @override
   void _drawInternal(PdfGraphics graphics, _Rectangle bounds) {
-    ArgumentError.checkNotNull(graphics, 'graphics');
     graphics.drawPath(this, pen: pen, brush: brush);
   }
 }

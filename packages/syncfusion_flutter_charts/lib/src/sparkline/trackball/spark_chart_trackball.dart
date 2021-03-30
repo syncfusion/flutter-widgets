@@ -4,9 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import '../utils/enum.dart';
 
-/// Represents the track ball behavior of spark chart widget
+/// Enables and customizes the trackball.
+///
+/// Trackball feature displays the tooltip for the data points that are closer
+/// to the point where you touch on the chart area. This feature can be enabled
+/// by creating an instance of [SparkChartTrackball].
+///
+/// Provides option to customizes the [activationMode], [width], [color],
+/// [labelStyle], [backgroundColor], [borderColor], [borderWidth].
+///
 class SparkChartTrackball {
-  /// Creates the track ball behavior of spark chart widget
+  /// Creates an instance of spark chart trackball to enable the trackball
+  /// on the closest data point from the touch position.
   ///
   /// ```dart
   /// @override
@@ -14,7 +23,7 @@ class SparkChartTrackball {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      trackball:(borderWidth: 2,
+  ///      trackball: SparkChartTrackball(borderWidth: 2,
   ///      borderColor: Colors.black, activationMode: SparkChartActivationMode.doubleTap),
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
@@ -39,7 +48,9 @@ class SparkChartTrackball {
       this.borderWidth = 0,
       this.borderRadius = const BorderRadius.all(Radius.circular(5))});
 
-  /// Represents the width of track ball line.
+  /// Customizes the width of the trackball line.
+  ///
+  /// Defaults to `2`.
   ///
   /// ```dart
   /// @override
@@ -47,7 +58,7 @@ class SparkChartTrackball {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      trackball:(width: 5,
+  ///      trackball: SparkChartTrackball(width: 5,
   ///      ),
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
@@ -56,7 +67,11 @@ class SparkChartTrackball {
   /// ```
   final double width;
 
-  /// Represents the color of track ball line.
+  /// Customizes the color of the trackball line.
+  /// The color is set based on the current application theme,
+  /// if its value is set to null.
+  ///
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
@@ -64,16 +79,20 @@ class SparkChartTrackball {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      trackball:(
+  ///      trackball: SparkChartTrackball(
   ///      color: Colors.black,),
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
   ///  );
   /// }
   /// ```
-  final Color color;
+  final Color? color;
 
-  /// Represents the dash array for track ball line.
+  /// Dashes of the trackball line. Any number of values can be provided on the
+  /// list. Odd value is considered as rendering size and even value is
+  /// considered a gap.
+  ///
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
@@ -81,16 +100,27 @@ class SparkChartTrackball {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      trackball:(dashArray: <double>[2,2],
+  ///      trackball: SparkChartTrackball(dashArray: <double>[2,2],
   ///      ),
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
   ///  );
   /// }
   /// ```
-  final List<double> dashArray;
+  final List<double>? dashArray;
 
-  /// Represents the activation mode of track ball line.
+  /// Defines the gesture for activating the trackball to the closest data point.
+  ///
+  /// * [SparkChartActivationMode.tap] allows to display the trackball on tap
+  /// gesture.
+  /// * [SparkChartActivationMode.doubleTap] allows to display the trackball on
+  /// double tap gesture.
+  /// * [SparkChartActivationMode.longPress] allows to display the trackball on
+  /// long press gesture.
+  ///
+  /// Also refer [SparkChartActivationMode].
+  ///
+  /// Defaults to ` SparkChartActivationMode.tap`.
   ///
   /// ```dart
   /// @override
@@ -98,7 +128,7 @@ class SparkChartTrackball {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      trackball:(SparkChartActivationMode: ActivationMode.doubleTap),
+  ///      trackball: SparkChartTrackball(activationMode: SparkChartActivationMode.doubleTap),
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
   ///  );
@@ -106,7 +136,14 @@ class SparkChartTrackball {
   /// ```
   final SparkChartActivationMode activationMode;
 
-  /// Represents the label style of the track ball.
+  /// Customizes the data label text style.
+  ///
+  /// Using the [TextStyle], add style data labels.
+  ///
+  /// Defaults to the [TextStyle] property with font size `12.0` and
+  /// font family `Roboto`.
+  ///
+  ///  Also refer [TextStyle].
   ///
   /// ```dart
   /// @override
@@ -114,7 +151,7 @@ class SparkChartTrackball {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      trackball:(labelStyle: TextStyle(fontSize: 15)),
+  ///      trackball: SparkChartTrackball(labelStyle: TextStyle(fontSize: 15)),
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
   ///  );
@@ -122,7 +159,11 @@ class SparkChartTrackball {
   /// ```
   final TextStyle labelStyle;
 
-  /// Represents the background color for track ball tooltip.
+  /// Customizes the background color of the trackball tooltip.
+  /// The color is set based on the current application theme, if its value is
+  /// set to null.
+  ///
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
@@ -130,16 +171,20 @@ class SparkChartTrackball {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      trackball:(
+  ///      trackball:SparkChartTrackball(
   ///      backgroundColor: Colors.black),
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
   ///  );
   /// }
   /// ```
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
-  /// Represents the background color for track ball tooltip.
+  /// Customizes the border color of the trackball tooltip.
+  /// To make border visible for plot band, need to set both the border
+  ///  color and border width.
+  ///
+  /// Defaults to `null`.
   ///
   /// ```dart
   /// @override
@@ -147,25 +192,28 @@ class SparkChartTrackball {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      trackball:(borderWidth: 2,
+  ///      trackball: SparkChartTrackball(borderWidth: 2,
   ///      borderColor: Colors.black,),
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
   ///  );
   /// }
   /// ```
-  final Color borderColor;
+  final Color? borderColor;
 
-  /// Repreents the border width of trackball tooltip.
+  /// Customizes the border width of the plot band. To make border visible for
+  /// plot band, need to set both the border color and border width.
+  ///
+  /// Defaults to `0`.
   ///
   /// ```dart
   /// @override
   /// Widget build(BuildContext context) {
   ///  return Scaffold(
   ///    body: Center(
-  ///        child: SfSparkAreaChart(
-  ///      trackball:(boderWidth: 2,
-  ///      borderColor: Colors.black, activationMode: SparkChartActivationMode.doubleTap),
+  ///       child: SfSparkAreaChart(
+  ///      trackball:
+  ///          SparkChartTrackball(borderWidth: 2, borderColor: Colors.black),
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
   ///  );
@@ -173,7 +221,11 @@ class SparkChartTrackball {
   /// ```
   final double borderWidth;
 
-  /// Repreents the border radius of trackball tooltip.
+  /// Customizes the border radius of trackball tooltip.
+  ///
+  /// Also refer [BorderRadius].
+  ///
+  /// Defaults to `BorderRadius.all(Radius.circular(5))})`.
   ///
   /// ```dart
   /// @override
@@ -181,7 +233,8 @@ class SparkChartTrackball {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      trackball:(BorderRadius.all(Radius.circular(3)),
+  ///      trackball: SparkChartTrackball(
+  ///          borderRadius: BorderRadius.all(Radius.circular(3))),
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
   ///  );
@@ -189,9 +242,12 @@ class SparkChartTrackball {
   /// ```
   final BorderRadius borderRadius;
 
-  /// Shows or hides the trackball.
+  /// Shows or hides the trackball..
   ///
-  /// By default, the trackball will be hidden on touch. To avoid this, set this property to true.
+  /// By default, the trackball will be hidden on touch.
+  /// To avoid this, set this property to true.
+  ///
+  /// Defaults to `false`.
   ///
   /// ```dart
   /// @override
@@ -199,7 +255,7 @@ class SparkChartTrackball {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      trackball:(shouldAlwaysShow: true,
+  ///      trackball: SparkChartTrackball(shouldAlwaysShow: true),
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
   ///  );
@@ -207,7 +263,12 @@ class SparkChartTrackball {
   /// ```
   final bool shouldAlwaysShow;
 
-  /// The trackball disappears after this time interval.
+  /// Provides the time delay to disappear the trackball on touch.
+  /// The provided value will be considered as milliseconds.
+  /// When [`shouldAlwaysShow`] is set as false, the value provided to this
+  /// property will be considered as a delay.
+  ///
+  /// Defaults to `0`.
   ///
   /// ```dart
   /// @override
@@ -215,8 +276,10 @@ class SparkChartTrackball {
   ///  return Scaffold(
   ///    body: Center(
   ///        child: SfSparkAreaChart(
-  ///      trackball:(shouldAlwaysShow: true,
-  ///      hideDelay: 200,
+  ///      trackball: SparkChartTrackball(
+  ///        shouldAlwaysShow: true,
+  ///        hideDelay: 200,
+  ///      ),
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
   ///  );
@@ -224,7 +287,14 @@ class SparkChartTrackball {
   /// ```
   final double hideDelay;
 
-  /// Callback for formatting tooltip text.
+  /// Callback that gets triggered when a trackball tooltip text is created.
+  ///
+  /// The [TooltipFormatterDetails] is passed as an argument and it provides
+  /// the closest data point x value, y value, and the tooltip text
+  ///
+  /// The string returned from this call back will be displayed as tooltip text.
+  ///
+  /// Defaults to `null`.
   ///
   /// String handleTooltipFormatter(TooltipFormatterDetails details) {
   ///  return details.y.toStringAsFixed(0) + 'cm';
@@ -235,15 +305,15 @@ class SparkChartTrackball {
   /// Widget build(BuildContext context) {
   ///  return Scaffold(
   ///    body: Center(
-  ///        child: SfSparkAreaChart(
-  ///      trackball:(
-  ///      tooltipFormatter: handleTooltipFormatter,
+  ///     child: SfSparkAreaChart(
+  ///       trackball:
+  ///          SparkChartTrackball(tooltipFormatter: handleTooltipFormatter),
   ///      data: <double>[18, 24, 30, 14, 28],
   ///    )),
   ///  );
   /// }
   /// ```
-  final SparkChartTooltipCallback<String> tooltipFormatter;
+  final SparkChartTooltipCallback<String>? tooltipFormatter;
 
   @override
   bool operator ==(Object other) {
@@ -272,17 +342,17 @@ class SparkChartTrackball {
   int get hashCode {
     final List<Object> values = <Object>[
       width,
-      color,
+      color!,
       activationMode,
       labelStyle,
-      backgroundColor,
-      borderColor,
+      backgroundColor!,
+      borderColor!,
       borderWidth,
-      dashArray,
+      dashArray!,
       shouldAlwaysShow,
       hideDelay,
       borderRadius,
-      tooltipFormatter
+      tooltipFormatter!
     ];
     return hashList(values);
   }

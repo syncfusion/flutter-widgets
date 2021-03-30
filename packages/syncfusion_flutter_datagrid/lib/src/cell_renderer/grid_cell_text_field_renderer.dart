@@ -11,23 +11,41 @@ class GridCellTextFieldRenderer<T1, T2>
   }
 
   @override
-  void setCellStyle(DataCellBase dataCell) {
+  void setCellStyle(DataCellBase? dataCell) {
     if (dataCell != null) {
       final _DataGridSettings dataGridSettings = _dataGridStateDetails();
-      final currentRowIndex = _GridIndexResolver.resolveToRecordIndex(
-          dataGridSettings, dataCell.rowIndex);
-      // Need to skip if the rowIndex is < 0
-      // It's applicable for when un-ensured row-columns comes for ensuring.
-      if (currentRowIndex < 0) {
-        return;
-      }
-
-      dataCell
-        .._displayText = dataGridSettings.source
-            .getCellValue(currentRowIndex, dataCell.gridColumn.mappingName)
-            ?.toString()
-        ..cellValue = dataCell._displayText;
+      dataCell._textStyle = _getCellTextStyle(dataGridSettings, dataCell);
       super.setCellStyle(dataCell);
+    }
+  }
+
+  TextStyle _getCellTextStyle(
+      _DataGridSettings dataGridSettings, DataCellBase dataCell) {
+    final DataRowBase? dataRow = dataCell._dataRow;
+    if (dataRow != null && dataRow.isSelectedRow) {
+      return dataGridSettings.dataGridThemeData!.brightness == Brightness.light
+          ? TextStyle(
+              fontFamily: 'Roboto',
+              fontWeight: FontWeight.w400,
+              fontSize: 14,
+              color: const Color.fromRGBO(0, 0, 0, 0.87))
+          : TextStyle(
+              fontFamily: 'Roboto',
+              fontWeight: FontWeight.w400,
+              fontSize: 14,
+              color: const Color.fromRGBO(255, 255, 255, 1));
+    } else {
+      return dataGridSettings.dataGridThemeData!.brightness == Brightness.light
+          ? TextStyle(
+              fontFamily: 'Roboto',
+              fontWeight: FontWeight.w400,
+              fontSize: 14,
+              color: Colors.black87)
+          : TextStyle(
+              fontFamily: 'Roboto',
+              fontWeight: FontWeight.w400,
+              fontSize: 14,
+              color: Color.fromRGBO(255, 255, 255, 1));
     }
   }
 }

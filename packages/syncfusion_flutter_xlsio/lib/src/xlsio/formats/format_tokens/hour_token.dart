@@ -24,7 +24,7 @@ class _HourToken extends _FormatTokenBase {
   bool _isAmPm = false;
 
   @override
-  String _strFormat;
+  String _strFormat = '';
 
   /// <summary>
   /// Tries to parse format string.

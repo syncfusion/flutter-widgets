@@ -117,12 +117,12 @@ class _CustomScrollViewLayout extends RenderWrap {
 
   @override
   void performLayout() {
-    double currentChildXPos,
+    double currentChildXPos = 0,
         firstChildXPos = 0,
-        lastChildXPos,
-        currentChildYPos,
+        lastChildXPos = 0,
+        currentChildYPos = 0,
         firstChildYPos = 0,
-        lastChildYPos;
+        lastChildYPos = 0;
     //// Below mentioned temporary variables used to restrict the parent data manipulation on [_updateChild] method.
     WrapParentData currentChildParentData,
         firstChildParentData,
@@ -134,18 +134,12 @@ class _CustomScrollViewLayout extends RenderWrap {
     final dynamic children = getChildrenAsList();
     _firstChild = _firstChild ?? firstChild;
     _lastChild = _lastChild ?? lastChild;
-    _currentChild = _currentChild ?? childAfter(firstChild);
+    _currentChild = _currentChild ?? childAfter(firstChild!);
 
     if (_navigationDirection == CustomScrollDirection.horizontal) {
       width = width / 3;
-      firstChildXPos = 0;
-      currentChildYPos = 0;
-      lastChildYPos = 0;
     } else if (_navigationDirection == CustomScrollDirection.vertical) {
       height = height / 3;
-      firstChildYPos = 0;
-      currentChildXPos = 0;
-      lastChildXPos = 0;
     }
 
     // sets the position as zero to restrict the view update when the view refreshed without swiping the view
@@ -165,34 +159,30 @@ class _CustomScrollViewLayout extends RenderWrap {
     if (_navigationDirection == CustomScrollDirection.horizontal) {
       currentChildXPos = width;
       lastChildXPos = width * 2;
-      if (_position != null) {
-        firstChildXPos += _position;
-        currentChildXPos += _position;
-        lastChildXPos += _position;
+      firstChildXPos += _position;
+      currentChildXPos += _position;
+      lastChildXPos += _position;
 
-        if (firstChildXPos.round() == -width.round()) {
-          firstChildXPos = width * 2;
-          _updateChild();
-        } else if (lastChildXPos.round() == (width * 3).round()) {
-          lastChildXPos = 0;
-          _updateChild();
-        }
+      if (firstChildXPos.round() == -width.round()) {
+        firstChildXPos = width * 2;
+        _updateChild();
+      } else if (lastChildXPos.round() == (width * 3).round()) {
+        lastChildXPos = 0;
+        _updateChild();
       }
     } else if (_navigationDirection == CustomScrollDirection.vertical) {
       currentChildYPos = height;
       lastChildYPos = height * 2;
-      if (_position != null) {
-        firstChildYPos += _position;
-        currentChildYPos += _position;
-        lastChildYPos += _position;
+      firstChildYPos += _position;
+      currentChildYPos += _position;
+      lastChildYPos += _position;
 
-        if (firstChildYPos.round() == -height.round()) {
-          firstChildYPos = height * 2;
-          _updateChild();
-        } else if (lastChildYPos.round() == (height * 3).round()) {
-          lastChildYPos = 0;
-          _updateChild();
-        }
+      if (firstChildYPos.round() == -height.round()) {
+        firstChildYPos = height * 2;
+        _updateChild();
+      } else if (lastChildYPos.round() == (height * 3).round()) {
+        lastChildYPos = 0;
+        _updateChild();
       }
     }
 

@@ -50,3 +50,12 @@ enum CornerStyle {
   /// - CornerStyle.endCurve, will render ending corner curly.
   endCurve
 }
+
+/// Point Render Mode for circular charts
+enum PointRenderMode {
+  /// - PointRenderMode.segment, will render points in normal behavior.
+  segment,
+
+  /// - PointRenderMode.gradient, will render points making a sweep gradient based on their values and fill.
+  gradient,
+}

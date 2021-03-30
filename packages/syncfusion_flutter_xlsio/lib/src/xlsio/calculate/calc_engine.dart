@@ -24,9 +24,9 @@ class CalcEngine {
 
     _dateTime1900Double = Range._toOADate(_dateTime1900);
   }
-  static SheetFamilyItem _defaultFamilyItem;
-  static Map _modelToSheetID;
-  static Map _sheetFamiliesList;
+  static SheetFamilyItem? _defaultFamilyItem;
+  static Map? _modelToSheetID;
+  static Map? _sheetFamiliesList;
   static int _sheetFamilyID = 0;
 
   /// A static property that gets/sets character to be recognized by the parsing code as the delimiter for arguments in a named formula's argument list.
@@ -49,8 +49,8 @@ class CalcEngine {
   bool excelLikeComputations = false;
   final _currentRowNotationEnabled = true;
   static int _tokenCount = 0;
-  Worksheet _grid;
-  List<String> _sortedSheetNames;
+  Worksheet? _grid;
+  List<String>? _sortedSheetNames;
   static const String _sheetToken = '!';
   static const int _intMaxValue = 2147483647;
   static const int _intMinValue = -2147483648;
@@ -135,15 +135,16 @@ class CalcEngine {
   bool _isRangeOperand = false;
   bool _multiTick = false;
   bool _isInteriorFunction = false;
-  double _dateTime1900Double;
+
   final _dateTime1900 = DateTime(1900, 1, 1, 0, 0, 0);
+  late double _dateTime1900Double;
 
   /// This field holds equivalent double value of 1904(DateTime).
   static const double _oADate1904 = 1462.0;
 
   /// Set the boolean as true
   static final _treat1900AsLeapYear = true;
-  List<String> _tokens;
+  List<String> _tokens = [];
 
   ///used to force refreshing calculations
   int _calcID = 0;
@@ -174,7 +175,7 @@ class CalcEngine {
   final int _columnMaxCount = -1;
   // ignore: unused_field
   int _hitCount = 0;
-  Map _libraryFunctions;
+  Map? _libraryFunctions;
   final String _validFunctionNameChars = '_';
   final bool _getValueFromArgPreserveLeadingZeros = false;
   bool _ignoreCellValue = false;
@@ -183,6 +184,9 @@ class CalcEngine {
   bool _exteriorFormula = false;
   bool _isIndexInteriorFormula = false;
   bool _isErrorString = false;
+  // default value is false.This proerty set as true when the cell is empty.
+  // ignore: prefer_final_fields
+  bool _matchType = false;
 
   /// This field will be set as true, if the 1904 date system is enabled in Excel.
   final bool _useDate1904 = false;
@@ -240,14 +244,14 @@ class CalcEngine {
     return _formulaChar;
   }
 
-  List<String> get _sortedSheetNamesList {
-    final SheetFamilyItem family = _getSheetFamilyItem(_grid);
+  List<String>? get _sortedSheetNamesList {
+    final SheetFamilyItem? family = _getSheetFamilyItem(_grid);
 
     if (_sortedSheetNames == null) {
       if (family != null && family._sheetNameToToken != null) {
-        final List<dynamic> names = family._sheetNameToToken.keys.toList();
+        final List<dynamic> names = family._sheetNameToToken!.keys.toList();
         _sortedSheetNames = names.map((s) => s as String).toList();
-        _sortedSheetNames.sort();
+        _sortedSheetNames!.sort();
       }
     }
     return _sortedSheetNames;
@@ -257,15 +261,15 @@ class CalcEngine {
   ////several sheets. If so, then dependent cells are tracked through a static member
   ////so that they are known across instances.
   bool get _isSheeted {
-    final SheetFamilyItem family = _getSheetFamilyItem(_grid);
+    final SheetFamilyItem? family = _getSheetFamilyItem(_grid);
     return (family == null) ? false : family._isSheeted;
   }
 
   /// A read-only property that gets a mapping between a formula cell and a list of cells upon which it depends.
-  Map get _dependentFormulaCells {
+  Map? get _dependentFormulaCells {
     if (_isSheeted) {
-      final SheetFamilyItem family = _getSheetFamilyItem(_grid);
-      family._sheetDependentFormulaCells ??= <dynamic, dynamic>{};
+      final SheetFamilyItem? family = _getSheetFamilyItem(_grid);
+      family!._sheetDependentFormulaCells ??= <dynamic, dynamic>{};
 
       return family._sheetDependentFormulaCells;
     }
@@ -273,10 +277,10 @@ class CalcEngine {
   }
 
   /// A read-only property that gets the collection of FormulaInfo Objects being used by the CalcEngine.
-  Map get _formulaInfoTable {
+  Map? get _formulaInfoTable {
     if (_isSheeted) {
-      final SheetFamilyItem family = _getSheetFamilyItem(_grid);
-      family._sheetFormulaInfoTable ??= <dynamic, dynamic>{};
+      final SheetFamilyItem? family = _getSheetFamilyItem(_grid);
+      family!._sheetFormulaInfoTable ??= <dynamic, dynamic>{};
 
       return family._sheetFormulaInfoTable;
     }
@@ -299,12 +303,12 @@ class CalcEngine {
 
     _modelToSheetID ??= <dynamic, dynamic>{};
 
-    if (_modelToSheetID[model] == null) {
-      _modelToSheetID[model] = sheetFamilyID;
+    if (_modelToSheetID![model] == null) {
+      _modelToSheetID![model] = sheetFamilyID;
     }
-    final SheetFamilyItem family = _getSheetFamilyItem(model);
+    final SheetFamilyItem? family = _getSheetFamilyItem(model);
 
-    family._isSheeted = true;
+    family!._isSheeted = true;
 
     final String refName1 = refName.toUpperCase();
 
@@ -316,24 +320,24 @@ class CalcEngine {
 
     family._parentObjectToToken ??= <dynamic, dynamic>{};
 
-    if (family._sheetNameToParentObject.containsKey(refName1)) {
-      final String token = family._sheetNameToToken[refName1] as String;
+    if (family._sheetNameToParentObject!.containsKey(refName1)) {
+      final String token = family._sheetNameToToken![refName1] as String;
 
-      family._tokenToParentObject[token] = model;
-      family._parentObjectToToken[model] = token;
+      family._tokenToParentObject![token] = model;
+      family._parentObjectToToken![model] = token;
     } else {
       final String token = _sheetToken + _tokenCount.toString() + _sheetToken;
       _tokenCount++;
 
-      family._tokenToParentObject[token] = model;
-      family._sheetNameToToken[refName1] = token;
-      family._sheetNameToParentObject[refName1] = model;
-      family._parentObjectToToken[model] = token;
+      family._tokenToParentObject![token] = model;
+      family._sheetNameToToken![refName1] = token;
+      family._sheetNameToParentObject![refName1] = model;
+      family._parentObjectToToken![model] = token;
       _sortedSheetNames = null;
     }
   }
 
-  static SheetFamilyItem _getSheetFamilyItem(Worksheet model) {
+  static SheetFamilyItem? _getSheetFamilyItem(Worksheet? model) {
     if (model == null) return null;
 
     if (_sheetFamilyID == 0) {
@@ -345,20 +349,20 @@ class CalcEngine {
     _sheetFamiliesList ??= <dynamic, dynamic>{};
 
     final int i =
-        _modelToSheetID[model] != null ? _modelToSheetID[model] as int : 0;
+        _modelToSheetID![model] != null ? _modelToSheetID![model] as int : 0;
 
-    if (_sheetFamiliesList[i] == null) {
-      _sheetFamiliesList[i] = SheetFamilyItem();
+    if (_sheetFamiliesList![i] == null) {
+      _sheetFamiliesList![i] = SheetFamilyItem();
     }
 
-    return _sheetFamiliesList[i] as SheetFamilyItem;
+    return _sheetFamiliesList![i] as SheetFamilyItem;
   }
 
   /// A method that adds a function to the function library.
   bool _addFunction(String name, String func) {
     name = name.toUpperCase();
-    if (!_libraryFunctions.containsKey(name)) {
-      _libraryFunctions[name] = func;
+    if (!_libraryFunctions!.containsKey(name)) {
+      _libraryFunctions![name] = func;
       return true;
     }
     return false;
@@ -384,6 +388,15 @@ class CalcEngine {
     _addFunction('Concatenate', '_computeConcatenate');
     _addFunction('Upper', '_computeUpper');
     _addFunction('Lower', '_computeLower');
+    _addFunction('AverageIFS', '_computeAverageIFS');
+    _addFunction('SumIFS', '_computeSumIFS');
+    _addFunction('MinIFS', '_computeMinIFS');
+    _addFunction('MaxIFS', '_computeMaxIFS');
+    _addFunction('CountIFS', '_computeCountIFS');
+    _addFunction('VLookUp', '_computeVLoopUp');
+    _addFunction('SumIf', '_computeSumIf');
+    _addFunction('SumProduct', '_computeSumProduct');
+    _addFunction('Product', '_computeProduct');
   }
 
   /// A method that increases the calculation level of the CalcEngine.
@@ -400,14 +413,14 @@ class CalcEngine {
     bool isUseFormulaValueChanged = false;
     _inAPull = true;
     _multiTick = false;
-    final Worksheet grd = _grid;
+    final Worksheet? grd = _grid;
     final String saveCell = _cell;
     final String s = cellRef.toUpperCase();
 
     _updateCalcID();
-    String txt;
-    if (!_dependentFormulaCells.containsKey(s) &&
-        !_formulaInfoTable.containsKey(s)) {
+    String txt = '';
+    if (!_dependentFormulaCells!.containsKey(s) &&
+        !_formulaInfoTable!.containsKey(s)) {
       txt = _getValueFromParentObject(s, true);
 
       if (_useFormulaValues) {
@@ -420,7 +433,7 @@ class CalcEngine {
       _ignoreValueChanged = true;
       final int row = _getRowIndex(s);
       final int col = _getColIndex(s);
-      _grid._setValueRowCol(txt, row, col);
+      _grid!._setValueRowCol(txt, row, col);
       _ignoreValueChanged = saveIVC;
     }
 
@@ -438,7 +451,7 @@ class CalcEngine {
     } else {
       int i = 0;
 
-      int result;
+      int? result;
       bool bIsLetter = false;
 
       if (i < s.length && s[i] == _sheetToken) {
@@ -634,13 +647,13 @@ class CalcEngine {
             if (name == 'AVG' && excelLikeComputations) {
               return _formulaErrorStrings[_badIndex];
             }
-            if (_libraryFunctions[name] != null) {
+            if (_libraryFunctions![name] != null) {
               final int j =
                   formula.substring(i + ii + 1).indexOf(_rightBracket);
               String args = formula.substring(i + ii + 2, i + ii + 2 + j - 1);
 
               try {
-                final String function = _libraryFunctions[name];
+                final String function = _libraryFunctions![name];
 
                 final List<String> argArray =
                     _splitArgsPreservingQuotedCommas(args);
@@ -844,7 +857,7 @@ class CalcEngine {
                 final String s1 = _popString(_stack);
                 final String s2 = _popString(_stack);
 
-                double d, d1;
+                double? d, d1;
                 String val = '';
                 d = double.tryParse(s1);
                 d1 = double.tryParse(s2);
@@ -883,7 +896,7 @@ class CalcEngine {
                 final String s1 = _popString(_stack);
                 final String s2 = _popString(_stack);
 
-                double d, d1;
+                double? d, d1;
                 String val = '';
                 d = double.tryParse(s1);
                 d1 = double.tryParse(s2);
@@ -924,7 +937,7 @@ class CalcEngine {
                 final String s2 = _popString(_stack);
 
                 String val = '';
-                double d, d1;
+                double? d, d1;
                 // ignore: prefer_contains
                 if ((s1.startsWith(_tic) && s2.indexOf(_tic) == -1) ||
                     // ignore: prefer_contains
@@ -955,7 +968,7 @@ class CalcEngine {
                 final String s1 = _popString(_stack);
                 final String s2 = _popString(_stack);
 
-                double d, d1;
+                double? d, d1;
                 String val = '';
                 d = double.tryParse(s1);
                 d1 = double.tryParse(s2);
@@ -994,7 +1007,7 @@ class CalcEngine {
                 final String s1 = _popString(_stack);
                 final String s2 = _popString(_stack);
 
-                double d, d1;
+                double? d, d1;
                 String val = '';
 
                 d = double.tryParse(s1);
@@ -1034,7 +1047,7 @@ class CalcEngine {
                 final String s1 = _popString(_stack);
                 final String s2 = _popString(_stack);
 
-                double d, d1;
+                double? d, d1;
                 String val;
                 d = double.tryParse(s1);
                 d1 = double.tryParse(s2);
@@ -1105,7 +1118,7 @@ class CalcEngine {
             case _tokenOr: // exponential
               {
                 final double d = _pop(_stack);
-                int x = int.tryParse(d.toString());
+                int? x = int.tryParse(d.toString());
                 if (x != null && _isErrorString) {
                   _isErrorString = false;
                   return _errorStrings[x].toString();
@@ -1134,7 +1147,7 @@ class CalcEngine {
         return '';
       } else {
         String s = '';
-        double d;
+        double? d;
         int cc = _stack._count;
         do {
           {
@@ -1193,69 +1206,69 @@ class CalcEngine {
     switch (function) {
       case '_computeSum':
         return _computeSum(args);
-        break;
       case '_computeAvg':
         return _computeAvg(args);
-        break;
       case '_computeMax':
         return _computeMax(args);
-        break;
       case '_computeMin':
         return _computeMin(args);
-        break;
       case '_computeCount':
         return _computeCount(args);
-        break;
       case '_computeIf':
         return _computeIf(args);
-        break;
       case '_computeIndex':
         return _computeIndex(args);
-        break;
       case '_computeMatch':
         return _computeMatch(args);
-        break;
       case '_computeAnd':
         return _computeAnd(args);
-        break;
       case '_computeOr':
         return _computeOr(args);
-        break;
       case '_computeNot':
         return _computeNot(args);
-        break;
       case '_computeToday':
         return _computeToday(args);
-        break;
       case '_computeNow':
         return _computeNow(args);
-        break;
       case '_computeTrim':
         return _computeTrim(args);
-        break;
       case '_computeConcatenate':
         return _computeConcatenate(args);
-        break;
       case '_computeUpper':
         return _computeUpper(args);
-        break;
       case '_computeLower':
         return _computeLower(args);
-        break;
+      case '_computeAverageIFS':
+        return _computeAverageIFS(args);
+      case '_computeSumIFS':
+        return _computeSumIFS(args);
+      case '_computeMinIFS':
+        return _computeMinIFS(args);
+      case '_computeMaxIFS':
+        return _computeMaxIFS(args);
+      case '_computeCountIFS':
+        return _computeCountIFS(args);
+      case '_computeVLoopUp':
+        return _computeVLoopUp(args);
+      case '_computeSumIf':
+        return _computeSumIf(args);
+      case '_computeSumProduct':
+        return _computeSumProduct(args);
+      case '_computeProduct':
+        return _computeProduct(args);
       default:
         return args;
-        break;
     }
   }
 
   /// Returns the sum of all values listed in the argument.
   String _computeSum(String range) {
-    double sum = 0;
+    double? sum = 0;
     String s1;
-    double d;
+    double? d;
     String adjustRange;
     final List<String> ranges = _splitArgsPreservingQuotedCommas(range);
-    if (range == null || range == '') {
+    if (range == '') {
       return _formulaErrorStrings[_wrongNumberArguments];
     }
     for (final r in ranges) {
@@ -1264,7 +1277,7 @@ class CalcEngine {
         if (r.startsWith(_tic)) {
           return _errorStrings[1].toString();
         }
-        final List<String> cells = _getCellsFromArgs(adjustRange);
+        final List<String?> cells = _getCellsFromArgs(adjustRange);
         for (final s in cells) {
           try {
             s1 = _getValueFromArg(s);
@@ -1279,7 +1292,7 @@ class CalcEngine {
           if (s1.isNotEmpty) {
             d = double.tryParse(s1);
             if (d != null) {
-              sum = sum + d;
+              sum = sum! + d;
             }
           }
         }
@@ -1296,10 +1309,10 @@ class CalcEngine {
 
         if (s1.isNotEmpty) {
           d = double.tryParse(s1);
-          final double d1 = double.tryParse(s1.replaceAll(_tic, ''));
+          final double? d1 = double.tryParse(s1.replaceAll(_tic, ''));
           if ((_isCellReference(adjustRange) && d != null && !d.isNaN) ||
               (!_isCellReference(adjustRange) && d1 != null && !d1.isNaN)) {
-            sum = sum + d;
+            sum = sum! + d!;
           }
         }
       }
@@ -1311,10 +1324,10 @@ class CalcEngine {
   String _computeAvg(String range) {
     double sum = 0;
     int count = 0;
-    double d;
+    double? d;
     String s1;
     final List<String> ranges = _splitArgsPreservingQuotedCommas(range);
-    if (ranges.isEmpty || range == null || range == '') {
+    if (ranges.isEmpty || range == '') {
       return _formulaErrorStrings[_invalidArguments];
     }
     for (final r in ranges) {
@@ -1373,12 +1386,10 @@ class CalcEngine {
   /// Returns the maximum value of all values listed in the argument.
   String _computeMax(String range) {
     double maxValue = -double.maxFinite;
-    double d;
+    double? d;
     String s1;
     final List<String> ranges = _splitArgsPreservingQuotedCommas(range);
-    if (ranges.length == 1 &&
-        !range.startsWith(_tic) &&
-        (range == null || range == '')) {
+    if (ranges.length == 1 && !range.startsWith(_tic) && (range == '')) {
       return _formulaErrorStrings[_wrongNumberArguments];
     }
 
@@ -1439,10 +1450,10 @@ class CalcEngine {
   /// Returns the minimum value of all values listed in the argument.
   String _computeMin(String range) {
     double minValue = double.maxFinite;
-    double d;
+    double? d;
     String s1;
     final List<String> ranges = _splitArgsPreservingQuotedCommas(range);
-    if (range == null || range == '') {
+    if (range == '') {
       return _formulaErrorStrings[_wrongNumberArguments];
     }
 
@@ -1456,9 +1467,9 @@ class CalcEngine {
         for (final s in _getCellsFromArgs(r)) {
           try {
             s1 = _getValueFromArg(s);
-            final DateTime result = DateTime.tryParse(s1.replaceAll(_tic, ''));
+            final DateTime? result = DateTime.tryParse(s1.replaceAll(_tic, ''));
             d = double.tryParse(s1);
-            if (s1 != null && result != null && d == null) {
+            if (result != null && d == null) {
               s1 = _getSerialDateTimeFromDate(result).toString();
             }
             if (_errorStrings.contains(s1)) {
@@ -1507,15 +1518,15 @@ class CalcEngine {
   String _computeCount(String range) {
     int count = 0;
     String s1 = '';
-    double d;
-    DateTime dt;
+    double? d;
+    DateTime? dt;
     List<String> array;
     if (_isIndexInteriorFormula) _isIndexInteriorFormula = false;
     final List<String> ranges = _splitArgsPreservingQuotedCommas(range);
     for (final String r in ranges) {
       ////is a cellrange
       if (r.contains(':') && _isRange(r)) {
-        for (final String s in _getCellsFromArgs(r.replaceAll(_tic, ''))) {
+        for (final String? s in _getCellsFromArgs(r.replaceAll(_tic, ''))) {
           try {
             s1 = _getValueFromArg(s);
           } catch (e) {
@@ -1574,7 +1585,7 @@ class CalcEngine {
 
   /// Conditionally computes one of two alternatives depending upon a logical expression.
   String _computeIf(String args) {
-    if (args == null || args == '') {
+    if (args == '') {
       return _formulaErrorStrings[_wrongNumberArguments];
     }
     String s1 = '';
@@ -1586,9 +1597,8 @@ class CalcEngine {
       final List<String> s = _splitArgsPreservingQuotedCommas(args);
       if (s.length <= 3) {
         try {
-          double d1 = 0;
-          final String argument1 =
-              (s[0] == null || s[0] == '') ? '0' : _getValueFromArg(s[0]);
+          double? d1 = 0;
+          final String argument1 = (s[0] == '') ? '0' : _getValueFromArg(s[0]);
           d1 = double.tryParse(argument1);
           if (d1 != null) {
             if (_errorStrings.contains(argument1)) {
@@ -1605,7 +1615,7 @@ class CalcEngine {
           }
 
           s1 = _getValueFromArg(s[0]);
-          double d = 0;
+          double? d = 0;
           d = double.tryParse(s1);
           if (s1.replaceAll(_tic, '').toUpperCase() == (_trueValueStr) ||
               (d != null && d != 0)) {
@@ -1614,16 +1624,14 @@ class CalcEngine {
                 _isRange(s[1]) &&
                 !s[1].contains(_tic)) {
               s1 = s[1];
-            } else if ((s[1] == null || s[1] == '') && _treatStringsAsZero) {
+            } else if ((s[1] == '') && _treatStringsAsZero) {
               s1 = '0';
             } else {
               s1 = _getValueFromArg(s[1]);
             }
-            if ((s1 == null || s1 == '') &&
-                _treatStringsAsZero &&
-                _computedValueLevel > 1) {
+            if ((s1 == '') && _treatStringsAsZero && _computedValueLevel > 1) {
               s1 = '0';
-            } else if (!(s1 == null || s1 == '') &&
+            } else if (!(s1 == '') &&
                 s1[0] == _tic[0] &&
                 !_isCellReference(s[1]) &&
                 useNoAmpersandQuotes) {
@@ -1642,16 +1650,14 @@ class CalcEngine {
                 _isRange(s[2]) &&
                 !s[2].contains(_tic)) {
               s1 = s[2];
-            } else if ((s[2] == null || s[2] == '') && _treatStringsAsZero) {
+            } else if ((s[2] == '') && _treatStringsAsZero) {
               s1 = '0';
             } else {
               s1 = _getValueFromArg(s[2]);
             }
-            if ((s1 == null || s1 == '') &&
-                _treatStringsAsZero &&
-                _computedValueLevel > 1) {
+            if ((s1 == '') && _treatStringsAsZero && _computedValueLevel > 1) {
               s1 = '0';
-            } else if (!(s1 == null || s1 == '') &&
+            } else if (!(s1 == '') &&
                 s1[0] == _tic[0] &&
                 !_isCellReference(s[2]) &&
                 useNoAmpersandQuotes) {
@@ -1673,7 +1679,7 @@ class CalcEngine {
   /// Returns the value at a specified row and column from within a given range.
   String _computeIndex(String arg) {
     String result;
-    if (arg == null || arg == '') {
+    if (arg == '') {
       return _formulaErrorStrings[_invalidArguments];
     }
     final List<String> args = _splitArgsPreservingQuotedCommas(arg);
@@ -1704,28 +1710,28 @@ class CalcEngine {
     i = r.indexOf(':');
     int row = (argCount == 1)
         ? 1
-        : double.tryParse(_getValueFromArg(args[1])).toInt();
+        : double.tryParse(_getValueFromArg(args[1]))!.toInt();
     int col = (argCount <= 2)
         ? 1
-        : double.tryParse(_getValueFromArg(args[2])).toInt();
+        : double.tryParse(_getValueFromArg(args[2]))!.toInt();
     int top = _getRowIndex(r.substring(0, i));
     int bottom = _getRowIndex(r.substring(i + 1));
     if (!(top != -1 || bottom == -1) == (top == -1 || bottom != -1)) {
       return _errorStrings[5].toString();
     }
     if (top == -1 && _grid is Worksheet) {
-      top = (_grid).getFirstRow();
+      top = (_grid)!.getFirstRow();
     }
     if (bottom == -1 && _grid is Worksheet) {
-      bottom = (_grid).getLastRow();
+      bottom = (_grid)!.getLastRow();
     }
     int left = _getColIndex(r.substring(0, i));
     int right = _getColIndex(r.substring(i + 1));
     if (left == -1 && _grid is Worksheet) {
-      left = (_grid).getFirstColumn();
+      left = (_grid)!.getFirstColumn();
     }
     if (right == -1 && _grid is Worksheet) {
-      right = (_grid).getLastColumn();
+      right = (_grid)!.getLastColumn();
     }
     if (argCount == 2 && row > bottom - top + 1) {
       col = row;
@@ -1737,11 +1743,11 @@ class CalcEngine {
 
     row = _getRowIndex(r.substring(0, i)) + (row <= 0 ? row : row - 1);
     if (_getRowIndex(r.substring(0, i)) == -1 && _grid is Worksheet) {
-      row = (_grid).getFirstRow();
+      row = (_grid)!.getFirstRow();
     }
     col = _getColIndex(r.substring(0, i)) + (col <= 0 ? col : col - 1);
     if (_getColIndex(r.substring(0, i)) == -1 && _grid is Worksheet) {
-      col = (_grid).getFirstColumn();
+      col = (_grid)!.getFirstColumn();
     }
 
     result = _getValueFromArg(
@@ -1754,7 +1760,7 @@ class CalcEngine {
 
   /// Finds the index a specified value in a lookup_range.
   String _computeMatch(String arg) {
-    if (arg == null || arg == '') {
+    if (arg == '') {
       return _formulaErrorStrings[_invalidArguments];
     }
     final List<String> args = _splitArgsPreservingQuotedCommas(arg);
@@ -1768,7 +1774,7 @@ class CalcEngine {
       return checkString;
     }
     int m = 1;
-    List<String> cells = [];
+    List<String?> cells = [];
     final String r = args[1].replaceAll(_tic, ' ');
     final int i = r.indexOf(':');
     if (argCount == 3) {
@@ -1779,7 +1785,7 @@ class CalcEngine {
       }
       String thirdArg = _getValueFromArg(args[2]);
       thirdArg = thirdArg.replaceAll(_tic, ' ');
-      m = double.tryParse(thirdArg).toInt();
+      m = double.tryParse(thirdArg)!.toInt();
       if (thirdArg.contains(_tic) &&
           (thirdArg.contains(_trueValueStr) ||
               thirdArg.contains(_falseValueStr))) {
@@ -1792,7 +1798,7 @@ class CalcEngine {
     }
     final String searchItem =
         _getValueFromArg(args[0]).replaceAll(_tic, ' ').toUpperCase();
-    if (searchItem == null || searchItem == '') {
+    if (searchItem == '') {
       return _errorStrings[5].toString();
     }
     if (i > -1) {
@@ -1805,33 +1811,35 @@ class CalcEngine {
           return _errorStrings[5].toString();
         }
         if (row1 == -1) {
-          row1 = (_grid).getFirstRow();
+          row1 = (_grid)!.getFirstRow();
         }
         if (col1 == -1) {
-          col1 = (_grid).getFirstColumn();
+          col1 = (_grid)!.getFirstColumn();
         }
         if (row2 == -1) {
-          row2 = (_grid).getLastRow();
+          row2 = (_grid)!.getLastRow();
         }
         if (col2 == -1) {
-          col2 = (_grid).getLastColumn();
+          col2 = (_grid)!.getLastColumn();
         }
       }
     }
-    if (cells == null || (cells != null && cells.isEmpty)) {
+    if (cells.isEmpty) {
       cells = _getCellsFromArgs(_stripTics(r));
     }
     int index = 1;
     int emptyValueIndex = 0;
-    String oldValue;
-    String newValue;
-    for (final String s in cells) {
-      if (_isCellReference(s.replaceAll(_tic, ' '))) {
-        newValue = _getValueFromArg(s).replaceAll(_tic, ' ').toUpperCase();
-      } else {
-        newValue = s.replaceAll(_tic, '').toUpperCase();
+    String oldValue = '';
+    String newValue = '';
+    for (final String? s in cells) {
+      if (s != null) {
+        if (_isCellReference(s.replaceAll(_tic, ' '))) {
+          newValue = _getValueFromArg(s).replaceAll(_tic, ' ').toUpperCase();
+        } else {
+          newValue = s.replaceAll(_tic, '').toUpperCase();
+        }
       }
-      if (oldValue != null) {
+      if (oldValue != '') {
         if (m == 1) {
           if (_matchCompare(newValue, oldValue) < 0 && newValue == searchItem) {
             index--;
@@ -1853,12 +1861,12 @@ class CalcEngine {
         index--;
         break;
       }
-      if (m == 1 && newValue == null) {
+      if (m == 1 && newValue == '') {
         emptyValueIndex++;
       } else {
         index++;
       }
-      if (oldValue == null && newValue != null) {
+      if (oldValue == '' && newValue != '') {
         index = index + emptyValueIndex;
         emptyValueIndex = 0;
       }
@@ -1886,10 +1894,10 @@ class CalcEngine {
   int _matchCompare(Object o1, Object o2) {
     final String s1 = o1.toString();
     final String s2 = o2.toString();
-    final double d1 = double.tryParse(s1);
-    final double d2 = double.tryParse(s2);
+    final double? d1 = double.tryParse(s1);
+    final double? d2 = double.tryParse(s2);
     if (s1.contains('.') || s2.contains('.')) {
-      return d1.compareTo(d2);
+      return d1!.compareTo(d2!);
     } else {
       return s1.compareTo(s2);
     }
@@ -1898,16 +1906,16 @@ class CalcEngine {
   /// Returns the And of all values treated as logical values listed in the argument.
   String _computeAnd(String range) {
     bool sum = true;
-    if (range == null || range.isEmpty) {
+    if (range.isEmpty) {
       return _formulaErrorStrings[_wrongNumberArguments].toString();
     }
-    String s1;
-    double d;
+    String? s1;
+    double? d;
     final List<String> ranges = _splitArgsPreservingQuotedCommas(range);
     for (final String r in ranges) {
       if (_splitArguments(r, ':').length > 1 &&
           _isCellReference(r.replaceAll(_tic, ''))) {
-        for (final String s in _getCellsFromArgs(r)) {
+        for (final String? s in _getCellsFromArgs(r)) {
           try {
             s1 = _getValueFromArg(s);
             if (_errorStrings.contains(s1)) {
@@ -1933,7 +1941,7 @@ class CalcEngine {
             return _errorStrings[1].toString();
           }
           if (ranges.length == 1) {
-            if (s1 == null && s1.isEmpty) {
+            if (s1.isEmpty) {
               return _errorStrings[1].toString();
             }
           }
@@ -1969,16 +1977,16 @@ class CalcEngine {
   /// Returns the And of all values treated as logical values listed in the argument.
   String _computeOr(String range) {
     bool sum = false;
-    if (range == null || range.isEmpty) {
+    if (range.isEmpty) {
       return _formulaErrorStrings[_wrongNumberArguments].toString();
     }
     String s1;
-    double d;
+    double? d;
     final List<String> ranges = _splitArgsPreservingQuotedCommas(range);
     for (final String r in ranges) {
       if (_splitArguments(r, ':').length > 1 &&
           _isCellReference(r.replaceAll(_tic, ''))) {
-        for (final String s in _getCellsFromArgs(r)) {
+        for (final String? s in _getCellsFromArgs(r)) {
           try {
             s1 = _getValueFromArg(s);
             if (_errorStrings.contains(s1)) {
@@ -2004,7 +2012,7 @@ class CalcEngine {
             return _errorStrings[1].toString();
           }
           if (ranges.length == 1) {
-            if (s1 == null && s1.isEmpty) {
+            if (s1.isEmpty) {
               return _errorStrings[1].toString();
             }
           }
@@ -2039,7 +2047,7 @@ class CalcEngine {
 
   ///  Flips the logical value represented by the argument.
   String _computeNot(String args) {
-    double d1;
+    double? d1;
     String s = args;
     ////parsed formula
     if (args.isNotEmpty &&
@@ -2097,12 +2105,12 @@ class CalcEngine {
   }
 
   /// A Virtual method to compute the value based on the argument passed in.
-  String _getValueFromArg(String arg) {
+  String _getValueFromArg(String? arg) {
     if (_textIsEmpty(arg)) {
       return '';
     }
-    double d;
-    arg = arg.replaceAll('u', '-');
+    double? d;
+    arg = arg!.replaceAll('u', '-');
     arg = arg.replaceAll('~', _tic + _tic);
 
     if (!_isUpper(arg[0]) &&
@@ -2206,7 +2214,7 @@ class CalcEngine {
     }
   }
 
-  List _isDate(Object o, DateTime date) {
+  List _isDate(Object o, DateTime? date) {
     date = _dateTime1900;
     date = DateTime.tryParse(o.toString());
     return [(date != null && date.difference(_dateTime1900).inDays >= 0), date];
@@ -2320,7 +2328,7 @@ class CalcEngine {
 
     ////Save Strings...
     final List result = _saveStrings(text);
-    final Map formulaStrings = result[0];
+    final Map? formulaStrings = result[0];
     text = result[1];
 
     ////Make braces Strings...
@@ -2336,9 +2344,9 @@ class CalcEngine {
 // ignore: prefer_contains
     if (text.indexOf(_sheetToken) > -1) {
       ////Replace sheet references with tokens.
-      final SheetFamilyItem family = _getSheetFamilyItem(_grid);
-      if (family._sheetNameToParentObject != null &&
-          family._sheetNameToParentObject.isNotEmpty) {
+      final SheetFamilyItem? family = _getSheetFamilyItem(_grid);
+      if (family!._sheetNameToParentObject != null &&
+          family._sheetNameToParentObject!.isNotEmpty) {
         try {
           if (!text.startsWith(_sheetToken.toString())) {
             text = _putTokensForSheets(text);
@@ -2441,7 +2449,7 @@ class CalcEngine {
       final int len = leftParens - i - 1;
 
       if (len > 0 &&
-          _libraryFunctions[formula.substring(i + 1, i + 1 + len)] != null) {
+          _libraryFunctions![formula.substring(i + 1, i + 1 + len)] != null) {
         if (formula.substring(i + 1, i + 1 + len) == 'AREAS') {
           _ignoreBracet = true;
         } else {
@@ -2520,14 +2528,14 @@ class CalcEngine {
 
     ////TraceUtil.TraceCurrentMethodInfoIf(Switches.FormulaCell.TraceVerbose, text, this);
 
-    final String sb = text;
+    String sb = text;
     bool process = true;
     while (process) {
-      sb.replaceAll('--', '+');
-      sb.replaceAll('++', '+');
+      sb = sb.replaceAll('--', '+');
+      sb = sb.replaceAll('++', '+');
       ////Mark unary minus with u-token.
 
-      sb
+      sb = sb
           .replaceAll(
               parseArgumentSeparator + '-', parseArgumentSeparator + 'u')
           .replaceAll(_leftBracket + '-', _leftBracket + 'u')
@@ -2539,7 +2547,7 @@ class CalcEngine {
           .replaceAll('+-', '+u')
           .replaceAll('^-', '^u');
       ////Get rid of leading pluses.
-      sb
+      sb = sb
           .replaceAll(
               parseArgumentSeparator + ',+', parseArgumentSeparator + ',')
           .replaceAll(_leftBracket + '+', _leftBracket.toString())
@@ -2550,7 +2558,7 @@ class CalcEngine {
           .replaceAll('*+', '*')
           .replaceAll('^+', '^');
       if (sb.isNotEmpty && sb[0] == '+') {
-        sb.replaceRange(0, 1, '');
+        sb = sb.replaceRange(0, 1, '');
       }
 
       process = text != sb.toString();
@@ -2899,8 +2907,9 @@ class CalcEngine {
                   j = j + 1;
                   left = text.substring(j, j + i - j);
 
-                  final List<String> leftValue = _getCellsFromArgs(left, false);
-                  if (leftValue.isNotEmpty) left = leftValue[0];
+                  final List<String?> leftValue =
+                      _getCellsFromArgs(left, false);
+                  if (leftValue.isNotEmpty) left = leftValue[0]!;
                 } else {
                   //// handle normal cell reference
                   j = j + 1;
@@ -3050,8 +3059,9 @@ class CalcEngine {
 
                 right = text.substring(i + 1, i + 1 + j - i);
 
-                final List<String> rightValue = _getCellsFromArgs(right, false);
-                if (rightValue.isNotEmpty) right = rightValue[0];
+                final List<String?> rightValue =
+                    _getCellsFromArgs(right, false);
+                if (rightValue.isNotEmpty) right = rightValue[0]!;
               } else {
                 //// handle normal cell reference
                 j = j - 1;
@@ -3221,6 +3231,7 @@ class CalcEngine {
     if (args.indexOf(':') != args.lastIndexOf(':')) {
       return false;
     }
+    bool result = true;
     args.runes.forEach((int c) {
       if (_isLetter(c)) {
         isAlpha = true;
@@ -3233,9 +3244,10 @@ class CalcEngine {
         isAlpha = false;
         isNum = false;
       } else {
-        return false;
+        result = false;
       }
     });
+    if (!result) return false;
     if (args.contains(':') && !args.contains(_tic)) {
       if (containsBoth && isAlpha && isNum) {
         return true;
@@ -3261,29 +3273,29 @@ class CalcEngine {
 
     final int i = cell1.lastIndexOf(_sheetToken);
     int row = 0, col = 0;
-    final Worksheet grd = _grid;
-    final SheetFamilyItem family = _getSheetFamilyItem(_grid);
-    if (i > -1 && family._tokenToParentObject != null) {
-      _grid = family._tokenToParentObject[cell1.substring(0, i + 1)];
+    final Worksheet? grd = _grid;
+    final SheetFamilyItem? family = _getSheetFamilyItem(_grid);
+    if (i > -1 && family!._tokenToParentObject != null) {
+      _grid = family._tokenToParentObject![cell1.substring(0, i + 1)];
       row = _getRowIndex(cell1);
       if (row == -1 && _grid is Worksheet) {
-        row = (_grid).getFirstRow();
+        row = (_grid)!.getFirstRow();
       }
       col = _getColIndex(cell1);
       if (col == -1 && _grid is Worksheet) {
-        col = (_grid).getFirstColumn();
+        col = (_grid)!.getFirstColumn();
       }
     } else if (i == -1) {
       row = _getRowIndex(cell1);
       if (row == -1 && _grid is Worksheet) {
-        row = (_grid).getFirstRow();
+        row = (_grid)!.getFirstRow();
       }
       col = _getColIndex(cell1);
       if (col == -1 && _grid is Worksheet) {
-        col = (_grid).getFirstColumn();
+        col = (_grid)!.getFirstColumn();
       }
-      if (_isSheeted && family._parentObjectToToken != null) {
-        cell1 = family._parentObjectToToken[_grid] + cell1;
+      if (_isSheeted && family!._parentObjectToToken != null) {
+        cell1 = family._parentObjectToToken![_grid] + cell1;
       }
     }
 
@@ -3292,10 +3304,10 @@ class CalcEngine {
 
     String val = '';
     if (calculateFormula) {
-      val = _getValueComputeFormulaIfNecessary(row, col, _grid);
+      val = _getValueComputeFormulaIfNecessary(row, col, _grid!);
     } else {
-      final Object s = _grid._getValueRowCol(row, col);
-      val = s != null ? s.toString() : '';
+      final Object s = _grid!._getValueRowCol(row, col);
+      val = s.toString();
     }
 
     _grid = grd;
@@ -3306,20 +3318,20 @@ class CalcEngine {
   String _getValueComputeFormulaIfNecessary(int row, int col, Worksheet grd) {
     try {
       bool alreadyComputed = false;
-      FormulaInfo formula = _formulaInfoTable[_cell] as FormulaInfo;
-      final Object o = grd._getValueRowCol(row, col);
-      String val = (o != null && o.toString() != '')
+      FormulaInfo? formula = _formulaInfoTable!.containsKey(_cell)
+          ? _formulaInfoTable![_cell] as FormulaInfo
+          : null;
+      final Object? o = grd._getValueRowCol(row, col);
+      String? val = (o != null && o.toString() != '')
           ? o.toString()
           : ''; ////null; //xx _grid[row, col];
-      DateTime result;
+      DateTime? result;
       result = DateTime.tryParse(val);
-      if (val != null &&
-          double.tryParse(val.replaceAll(_tic, '')) == null &&
-          result != null) {
-        final Worksheet sheet = _grid;
+      if (double.tryParse(val.replaceAll(_tic, '')) == null && result != null) {
+        final Worksheet? sheet = _grid;
         if (sheet != null) {
           final Range range = sheet.getRangeByIndex(row, col);
-          if (range != null && range.dateTime != null) {
+          if (range.dateTime != null) {
             val = _getSerialDateTimeFromDate(result).toString();
           }
         } else {
@@ -3356,8 +3368,8 @@ class CalcEngine {
         } else {
           formula = FormulaInfo();
 
-          if (!_dependentFormulaCells.containsKey(_cell)) {
-            _dependentFormulaCells[_cell] = <dynamic, dynamic>{};
+          if (!_dependentFormulaCells!.containsKey(_cell)) {
+            _dependentFormulaCells![_cell] = <dynamic, dynamic>{};
           }
 
           bool compute = true;
@@ -3379,19 +3391,15 @@ class CalcEngine {
             _ignoreSubtotal = false;
           }
           if (compute) {
-            formula._formulaValue = _computeFormula(formula._parsedFormula);
+            formula!._formulaValue = _computeFormula(formula._parsedFormula);
             alreadyComputed = true;
           }
           if (formula != null) {
             if (!_ignoreSubtotal) formula._calcID = _calcID;
-            if (!_formulaInfoTable.containsKey(_cell)) {
-              _formulaInfoTable[_cell] = formula;
+            if (!_formulaInfoTable!.containsKey(_cell)) {
+              _formulaInfoTable![_cell] = formula;
             }
-            if (formula._formulaValue != null) {
-              val = formula._formulaValue;
-            } else {
-              val = '';
-            }
+            val = formula._formulaValue;
           }
           _ignoreSubtotal = tempIgnoreSubtotal;
         }
@@ -3399,11 +3407,7 @@ class CalcEngine {
 
       if (formula != null) {
         if (_useFormulaValues || (!_inAPull || alreadyComputed)) {
-          if (formula._formulaValue != null) {
-            val = formula._formulaValue;
-          } else {
-            val = '';
-          }
+          val = formula._formulaValue;
         } else if (!alreadyComputed) {
           if (_calcID == formula._calcID) {
             val = formula._formulaValue;
@@ -3421,15 +3425,12 @@ class CalcEngine {
           }
         }
         if (_treatStringsAsZero &&
-            val == null &&
             val == '' &&
             _computedValueLevel > 1 &&
             !formula._parsedFormula.startsWith(_ifMarker)) {
           return '0';
         }
       }
-
-      val ??= '';
       if (val == 'NaN') val = 'Exception: #VALUE!';
       return val;
     } finally {
@@ -3453,13 +3454,13 @@ class CalcEngine {
 
   String _getCellFrom(String range) {
     String s = '';
-    final List<String> cells = _getCellsFromArgs(range);
-    if (cells.length == 1) return cells[0];
+    final List<String?> cells = _getCellsFromArgs(range);
+    if (cells.length == 1) return cells[0]!;
     final int last = cells.length - 1;
-    final int r1 = _getRowIndex(cells[0]);
-    if (r1 == _getRowIndex(cells[last])) {
-      final int c1 = _getColIndex(cells[0]);
-      final int c2 = _getColIndex(cells[last]);
+    final int r1 = _getRowIndex(cells[0]!);
+    if (r1 == _getRowIndex(cells[last]!)) {
+      final int c1 = _getColIndex(cells[0]!);
+      final int c2 = _getColIndex(cells[last]!);
       final int c = _getColIndex(_cell);
       if (c >= c1 && c <= c2) {
         s = RangeInfo._getAlphaLabel(c) + r1.toString();
@@ -3469,7 +3470,7 @@ class CalcEngine {
   }
 
   /// A method that retrieves a String array of cells from the range passed in.
-  List<String> _getCellsFromArgs(String args, [bool findCellsFromRange]) {
+  List<String?> _getCellsFromArgs(String args, [bool? findCellsFromRange]) {
     findCellsFromRange ??= true;
 
     args = _markColonsInQuotes(args);
@@ -3502,7 +3503,7 @@ class CalcEngine {
       if (k1 == -1 || !_isLetter(args.codeUnitAt(k1))) {
         int count = (_columnMaxCount > 0) ? _columnMaxCount : 16384;
         if (_grid is Worksheet) {
-          count = (_grid).getLastColumn();
+          count = (_grid)!.getLastColumn();
         }
         args = 'A' +
             args.substring(0, i) +
@@ -3551,16 +3552,16 @@ class CalcEngine {
       throw Exception(_errorStrings[5].toString());
     }
     if (row1 == -1 && _grid is Worksheet) {
-      row1 = (_grid).getFirstRow();
+      row1 = (_grid)!.getFirstRow();
     }
     if (col1 == -1 && _grid is Worksheet) {
-      col1 = (_grid).getFirstColumn();
+      col1 = (_grid)!.getFirstColumn();
     }
     if (row2 == -1 && _grid is Worksheet) {
-      row2 = (_grid).getLastRow();
+      row2 = (_grid)!.getLastRow();
     }
     if (col2 == -1 && _grid is Worksheet) {
-      col2 = (_grid).getLastColumn();
+      col2 = (_grid)!.getLastColumn();
     }
     if (row1 > row2) {
       i = row2;
@@ -3575,7 +3576,8 @@ class CalcEngine {
     }
 
     final int numCells = (row2 - row1 + 1) * (col2 - col1 + 1);
-    final List<String> cells = List<String>(numCells);
+    final List<String?> cells =
+        List<String?>.filled(numCells, null, growable: false);
     int k = 0;
     for (i = row1; i <= row2; ++i) {
       for (j = col1; j <= col2; ++j) {
@@ -3673,7 +3675,7 @@ class CalcEngine {
   }
 
   List _saveStrings(String text) {
-    Map strings;
+    Map? strings;
     final String tICs2 = _tic + _tic;
     int id = 0;
 
@@ -3718,15 +3720,15 @@ class CalcEngine {
   }
 
   String _putTokensForSheets(String text) {
-    final SheetFamilyItem family = _getSheetFamilyItem(_grid);
+    final SheetFamilyItem? family = _getSheetFamilyItem(_grid);
 
     if (_supportsSheetRanges) {
-      text = _handleSheetRanges(text, family);
+      text = _handleSheetRanges(text, family!);
     }
 
     if (_sortedSheetNamesList != null) {
-      for (final String name in _sortedSheetNamesList) {
-        String token = family._sheetNameToToken[name] as String;
+      for (final String name in _sortedSheetNamesList!) {
+        String token = family!._sheetNameToToken![name] as String;
         token = token.replaceAll(_sheetToken, _tempSheetPlaceHolder);
 
         String s = "'" + name.toUpperCase() + "'" + _sheetToken;
@@ -3766,9 +3768,8 @@ class CalcEngine {
   }
 
   String _popString(Stack _stack) {
-    Object o = _stack._pop();
-    o ??= '';
-    final double d = double.tryParse(o.toString());
+    final Object o = _stack._pop();
+    final double? d = double.tryParse(o.toString());
     if (!_getValueFromArgPreserveLeadingZeros && d != null) {
       return d.toString();
     }
@@ -3782,59 +3783,56 @@ class CalcEngine {
 
   double _pop(Stack _stack) {
     final Object o = _stack._pop();
-
     String s = '';
-    if (o != null) {
-      if (o.toString() == _tic + _tic) {
+    if (o.toString() == _tic + _tic) {
+      return double.nan;
+    } else {
+      s = o.toString().replaceAll(_tic, '');
+    }
+    if (s.contains('i') ||
+        s.contains('j') ||
+        s.contains('I') ||
+        s.contains('J')) {
+      final String last = s.substring(s.length - 1, s.length - 1 + 1);
+      if (last == 'i' || last == 'j' || last == 'I' || last == 'J') {
         return double.nan;
-      } else {
-        s = o.toString().replaceAll(_tic, '');
-      }
-      if (s.contains('i') ||
-          s.contains('j') ||
-          s.contains('I') ||
-          s.contains('J')) {
-        final String last = s.substring(s.length - 1, s.length - 1 + 1);
-        if (last == 'i' || last == 'j' || last == 'I' || last == 'J') {
-          return double.nan;
-        }
-      }
-      if (_errorStrings.contains(s)) {
-        _isErrorString = true;
-        return _errorStrings.indexOf(s).toDouble();
-      }
-      ////moved from _computedValue above as result of DT26064
-      if (s.startsWith('#') || s == '') {
-        return 0;
-      }
-
-      if (s == _trueValueStr) {
-        return 1;
-      } else if (s == _falseValueStr) {
-        return 0;
-      }
-
-      final double d = double.tryParse(s);
-      if (d != null) {
-        return d;
-      } else if (useDatesInCalculations) {
-        DateTime dt;
-        final List listResult = _isDate(o, dt);
-        if (listResult[0]) {
-          return _getSerialDateTimeFromDate(listResult[1]);
-        }
       }
     }
-    if (s == null || s == '' && _treatStringsAsZero) {
+    if (_errorStrings.contains(s)) {
+      _isErrorString = true;
+      return _errorStrings.indexOf(s).toDouble();
+    }
+    ////moved from _computedValue above as result of DT26064
+    if (s.startsWith('#') || s == '') {
       return 0;
-    } else if (o != null && o.toString().isNotEmpty) {
+    }
+
+    if (s == _trueValueStr) {
+      return 1;
+    } else if (s == _falseValueStr) {
+      return 0;
+    }
+
+    final double? d = double.tryParse(s);
+    if (d != null) {
+      return d;
+    } else if (useDatesInCalculations) {
+      DateTime? dt;
+      final List listResult = _isDate(o, dt);
+      if (listResult[0]) {
+        return _getSerialDateTimeFromDate(listResult[1]);
+      }
+    }
+    if (s == '' && _treatStringsAsZero) {
+      return 0;
+    } else if (o.toString().isNotEmpty) {
       return double.nan;
     }
     return 0;
   }
 
   /// Tests whether a String is NULL or empty.
-  static bool _textIsEmpty(String s) {
+  static bool _textIsEmpty(String? s) {
     return s == null || s == '';
   }
 
@@ -3935,10 +3933,7 @@ class CalcEngine {
         }
 
         s = _computedValue(s);
-        if (s != null &&
-            s.isNotEmpty &&
-            s[0] == _tic[0] &&
-            s[s.length - 1] == _tic[0]) {
+        if (s.isNotEmpty && s[0] == _tic[0] && s[s.length - 1] == _tic[0]) {
           String newS = s.substring(1, 1 + s.length - 2);
           if (newS.contains(_tic)) {
             _multiTick = true;
@@ -3996,7 +3991,7 @@ class CalcEngine {
 
         s = 'n' + s;
       } else {
-        //WPF-37458- To pass the computed result of interior functions in single cell array formula
+        //To pass the computed result of interior functions in single cell array formula
         if (!_isRange(s) &&
             s.startsWith(_braceLeft) &&
             s.endsWith(_braceRight)) {
@@ -4032,7 +4027,7 @@ class CalcEngine {
 
   /// Returns the current date and time as a date serial number.
   String _computeNow(String argList) {
-    if (argList != null && argList.isNotEmpty) {
+    if (argList.isNotEmpty) {
       return _formulaErrorStrings[_wrongNumberArguments];
     }
     final DateTime dt = DateTime.now();
@@ -4044,20 +4039,20 @@ class CalcEngine {
 
   /// Returns the current date as a date serial number.
   String _computeToday(String argList) {
-    if (argList != null && argList.isNotEmpty) {
+    if (argList.isNotEmpty) {
       return _formulaErrorStrings[_wrongNumberArguments];
     }
     final DateTime dt = DateTime.now();
 
     if (excelLikeComputations) {
-      final DateTime result = DateTime.tryParse(dt.year.toString() +
+      final DateTime? result = DateTime.tryParse(dt.year.toString() +
           '/' +
           dt.month.toString() +
           '/' +
           dt.day.toString());
       if (result != null) {
         final String date = DateFormat(
-                _grid.workbook.cultureInfo.dateTimeFormat.shortDatePattern)
+                _grid!.workbook.cultureInfo.dateTimeFormat.shortDatePattern)
             .format(result);
         return date;
       }
@@ -4083,7 +4078,7 @@ class CalcEngine {
     final List<String> ar = _isSeparatorInTIC(range) ////range.IndexOf(TIC) > 0
         ? _getStringArray(range)
         : _splitArgsPreservingQuotedCommas(range);
-    if (range == null || range.isEmpty) {
+    if (range.isEmpty) {
       return _formulaErrorStrings[_wrongNumberArguments];
     }
     for (final String r in ar) {
@@ -4264,4 +4259,1484 @@ class CalcEngine {
 
   //   return _dateTime1900.add(Duration(days: days));
   // }
+
+  /// Returns the average of all the cells in a range which is statisfy the given multible criteria
+  String _computeAverageIFS(String argsList) {
+    if (argsList == '') {
+      return _formulaErrorStrings[_invalidArguments];
+    }
+    final List<String> args = _splitArgsPreservingQuotedCommas(argsList);
+    final int argCount = args.length;
+    double cellCount = 0;
+    final List<String> criteriaRange = [];
+    final List<String> criterias = [];
+    List<String> tempList = [];
+    List<String> criteriaRangeValue = [];
+    for (int i = 1; i < argCount; i++) {
+      criteriaRange.add(args[i]);
+      i++;
+      criterias.add(args[i]);
+    }
+    if (argCount < 3 && criteriaRange.length == criterias.length) {
+      return _formulaErrorStrings[_wrongNumberArguments];
+    }
+    String sumRange = args[0];
+
+    double sum = 0;
+    // final List<String> sumRangeCells = _getCellsFromArgs(args[0]);
+    List<String?> s2 = _getCellsFromArgs(sumRange);
+    bool isLastcriteria = false;
+    for (int v = 0; v < criterias.length; v++) {
+      String op;
+      op = _tokenEqual;
+      String criteria = criterias[v];
+      if (criteria[0] != _tic[0] && !'=><'.contains(criteria[0])) {
+        ////cell reference
+        criteria = _getValueFromArg(criteria);
+      }
+      if (v == criteriaRange.length - 1) {
+        isLastcriteria = true;
+      }
+      op = _findOp(criteria, op);
+      criteria = _findCriteria(criteria, op);
+      final List<String?> s1 = _getCellsFromArgs(criteriaRange[v]);
+      if (s1[0] == _errorStrings[5] || s2[0] == _errorStrings[5]) {
+        return _errorStrings[5].toString();
+      }
+      final int count = s1.length;
+
+      if (count > s2.length) {
+        final int i = sumRange.indexOf(':');
+        if (i > -1) {
+          int startRow = _getRowIndex(sumRange.substring(0, i));
+          int row = _getRowIndex(sumRange.substring(i + 1));
+          if (!(startRow != -1 || row == -1) == (startRow == -1 || row != -1)) {
+            return _errorStrings[5].toString();
+          }
+          if (startRow == -1 && _grid is Worksheet) {
+            startRow = (_grid)!.getFirstRow();
+          }
+          int startCol = _getColIndex(sumRange.substring(0, i));
+          if (startCol == -1 && _grid is Worksheet) {
+            startCol = (_grid)!.getFirstColumn();
+          }
+          if (row == -1 && _grid is Worksheet) {
+            row = (_grid)!.getLastRow();
+          }
+          int col = _getColIndex(sumRange.substring(i + 1));
+          if (col == -1 && _grid is Worksheet) {
+            col = (_grid)!.getLastColumn();
+          }
+          if (startRow != row) {
+            row += count - s2.length;
+          } else if (startCol != col) {
+            col += count - s2.length;
+          }
+
+          sumRange = sumRange.substring(0, i + 1) +
+              RangeInfo._getAlphaLabel(col) +
+              row.toString();
+          s2 = _getCellsFromArgs(sumRange);
+        }
+      }
+      double? d = 0.0;
+      String s = '';
+      double compare = -1.7976931348623157E+308;
+      bool isNumber = false;
+      if (double.tryParse(criteria) != null) {
+        compare = double.tryParse(criteria)!;
+        isNumber = true;
+      }
+      for (int index = 0; index < count; ++index) {
+        s = _getValueFromArg(s1[index]); //// +criteria;
+        final bool criteriaMatched = _checkForCriteriaMatch(
+            s.toUpperCase(), op, criteria.toUpperCase(), isNumber, compare);
+        if (criteriaMatched) {
+          if (isLastcriteria && criterias.length == 1) {
+            cellCount++;
+            sum += d!;
+          } else {
+            //Below code has been modified to check the index of criteria.
+            if (tempList.isNotEmpty && v != 0) {
+              final int tempCount = tempList.length;
+              //Below code has been used to add the values when length was same.
+              if (tempCount == s1.length &&
+                  _getRowIndex(tempList[index].toString()) ==
+                      _getRowIndex(s1[index]!)) {
+                criteriaRangeValue.add(s1[index]!);
+                if (isLastcriteria && s2[index] != null) {
+                  s = _getValueFromArg(s2[index]);
+                  d = double.tryParse(s);
+                  final bool v = d != null;
+                  if (v && isLastcriteria) {
+                    sum += d;
+                    cellCount++;
+                  }
+                }
+              } else {
+                for (int i = 0; i < tempCount; i++) {
+                  //Below code has been added to compare the old and new criteria ranges and store the values which matches.
+                  if (_getRowIndex(tempList[i].toString()) ==
+                      _getRowIndex(s1[index]!)) {
+                    criteriaRangeValue.add(s1[index]!);
+                    if (isLastcriteria && s2[index] != null) {
+                      s = _getValueFromArg(s2[index]);
+                      d = double.tryParse(s);
+                      final bool v = d != null;
+                      if (v && isLastcriteria) {
+                        sum += d;
+                        cellCount++;
+                      }
+                    }
+                  }
+                }
+              }
+            } else {
+              criteriaRangeValue.add(s1[index]!);
+            }
+          }
+        }
+      }
+      tempList = criteriaRangeValue;
+      criteriaRangeValue = [];
+    }
+    final double average = sum / cellCount;
+    if (_computeIsErr(average.toString()) == _trueValueStr) {
+      if (_rethrowExceptions) {
+        throw Exception(_formulaErrorStrings[_badFormula]);
+      }
+      return _errorStrings[3].toString();
+    }
+    return average.toString();
+  }
+
+  /// Below method used to find the criteria value which is combined with tokens.
+  String _findCriteria(String criteria, String op1) {
+    final int offset = (criteria.isNotEmpty && criteria[0] == _tic[0]) ? 1 : 0;
+    if (criteria.substring(offset).startsWith('>=')) {
+      criteria = criteria.substring(offset + 2, criteria.length - 1);
+      op1 = _tokenGreaterEq;
+    } else if (criteria.substring(offset).startsWith('<=')) {
+      criteria = criteria.substring(offset + 2, criteria.length - 1);
+      op1 = _tokenLesseq;
+    } else if (criteria.substring(offset).startsWith('<>')) {
+      criteria = criteria.substring(offset + 2, criteria.length - 1);
+      op1 = _tokenNoEqual;
+    } else if (criteria.substring(offset).startsWith('<')) {
+      criteria = criteria.substring(offset + 1, criteria.length - 1);
+      op1 = _tokenLess;
+    } else if (criteria.substring(offset).startsWith('>')) {
+      criteria = criteria.substring(offset + 1, criteria.length - 1);
+      op1 = _tokenGreater;
+    } else if (criteria.substring(offset).startsWith('=')) {
+      criteria = criteria.substring(offset + 1, criteria.length - 1);
+      op1 = _tokenEqual;
+    }
+    criteria = criteria.replaceAll(_tic, '');
+    return criteria;
+  }
+
+  /// Below method used to find whether the criteria is matched with the Tokens "=",">",">=" or not.
+  bool _checkForCriteriaMatch(
+      String s, String op, String criteria, bool isNumber, double compare) {
+    final String tempcriteria = criteria;
+    double? d = 0.0;
+    //Below condition has added to match the number when ita text value.eg(s1=\"2\" and comapre="2")
+    s = s.replaceAll(_tic, '');
+    switch (op) {
+      case _tokenEqual:
+        if (isNumber) {
+          d = double.tryParse(s);
+          final bool value = d != null;
+          return value && d == compare;
+        }
+        final int starindex = tempcriteria.indexOf('*');
+        if (starindex != -1 && s.isNotEmpty) {
+          final bool isstartswith = starindex == 0;
+          final bool isendswith = tempcriteria.endsWith('*');
+          final List<String> tempArray = criteria.split('*');
+
+          //Below code has added to calculate when criteria contains multiple "*".
+          if (tempArray.length > 2) {
+            bool isMatch = false;
+            for (int i = 0; i < tempArray.length; i++) {
+              if (i == 0 && !isstartswith) {
+                isMatch = s.startsWith(tempArray[0]);
+              } else {
+                isMatch = s.contains(tempArray[i]);
+              }
+              if (!isMatch) {
+                return isMatch;
+              } else {
+                continue;
+              }
+            }
+            return isMatch;
+          }
+
+          // Below code has been added avoid to throw argument exception when criteria length was higher than s length.
+          else if (!isstartswith && !isendswith) {
+            final List<String> criterias = criteria.split('*');
+            return s.startsWith(criterias[0]) && s.endsWith(criterias[1]);
+          } else if (isstartswith && isendswith) {
+            criteria = criteria.replaceAll('*', '');
+            return s.contains(criteria);
+          } else if (isstartswith) {
+            criteria = criteria.replaceAll('*', '');
+            return s.endsWith(criteria);
+          } else if (isendswith) {
+            criteria = criteria.replaceAll('*', '');
+            return s.startsWith(criteria);
+          }
+        }
+        return s.isNotEmpty && s == criteria;
+      case _tokenNoEqual:
+        if (isNumber) {
+          d = double.tryParse(s);
+          final bool value = d != null;
+          return value && d != compare;
+        } else {
+          return s.isNotEmpty && s.toUpperCase() != criteria.toUpperCase();
+        }
+      case _tokenGreaterEq:
+        //Below code has been added to compare the value when the criteria is string.
+        final int tempString =
+            s.toUpperCase().compareTo(criteria.toUpperCase());
+        if (isNumber) {
+          d = double.tryParse(s);
+          final bool value = d != null;
+          return value && d >= compare;
+        } else {
+          return s.isNotEmpty && tempString >= 0;
+        }
+      case _tokenGreater:
+        //Below code has been added to compare the value when the criteria is string.
+        final int tempString =
+            s.toUpperCase().compareTo(criteria.toUpperCase());
+        if (isNumber) {
+          d = double.tryParse(s);
+          final bool value = d != null;
+          return value && d > compare;
+        } else {
+          return s.isNotEmpty && tempString > 0;
+        }
+      case _tokenLess:
+        //Below code has been added to compare the value when the criteria is string.
+        final int tempString =
+            s.toUpperCase().compareTo(criteria.toUpperCase());
+        if (isNumber) {
+          d = double.tryParse(s);
+          final bool value = d != null;
+          return value && d < compare;
+        } else {
+          return s.isNotEmpty && tempString < 0;
+        }
+      case _tokenLesseq:
+        //Below code has been added to compare the value when the criteria is string.
+        final int tempString =
+            s.toUpperCase().compareTo(criteria.toUpperCase());
+        if (isNumber) {
+          d = double.tryParse(s);
+          final bool value = d != null;
+          return value && d <= compare;
+        } else {
+          return s.isNotEmpty && tempString <= 0;
+        }
+    }
+    return false;
+  }
+
+  /// Returns True is the string denotes an error except #N/A.
+  String _computeIsErr(String range) {
+    if (range.isEmpty) {
+      if (_rethrowExceptions) {
+        throw Exception(_formulaErrorStrings[_wrongNumberArguments]);
+      }
+      return _formulaErrorStrings[_wrongNumberArguments];
+    }
+    final String tempRange = range.toUpperCase();
+    //Below code is modified to get the CalculatedValue when the range is cell reference.
+    if (range.isNotEmpty &&
+        !range.startsWith('#') &&
+        !tempRange.startsWith('NAN') &&
+        !tempRange.startsWith('-NAN') &&
+        range != double.infinity.toString() &&
+        range != double.negativeInfinity.toString()) {
+      range = _getValueFromArg(range).toUpperCase().replaceAll(_tic, '');
+    } else {
+      range = range.toUpperCase();
+    }
+    if ((range.startsWith('NAN') ||
+                range.startsWith('-NAN') ||
+                range.startsWith('INFINITY') ||
+                range.startsWith('-INFINITY') ||
+                range.startsWith('#') ||
+                range.startsWith('n#')) &&
+            !range.startsWith('#N/A') ||
+        range == double.infinity.toString() ||
+        range == double.negativeInfinity.toString()) {
+      return _trueValueStr;
+    } else {
+      return _falseValueStr;
+    }
+  }
+
+  /// Returns the sum of all the cells in a range which is statisfy the given multible criteria
+  String _computeSumIFS(String argList) {
+    return _calculateIFSFormula(argList, 'SUMIFS');
+  }
+
+  String _calculateIFSFormula(String argList, String condition) {
+    if (argList == '') {
+      return _formulaErrorStrings[_invalidArguments];
+    }
+    final List<String> args = _splitArgsPreservingQuotedCommas(argList);
+    final int argCount = args.length;
+    final List<String> criteriaRange = [];
+    final List<String> criterias = [];
+    List<String> tempList = [];
+    for (int i = 1; i < argCount; i++) {
+      criteriaRange.add(args[i]);
+      i++;
+      criterias.add(args[i]);
+    }
+    if (argCount < 3 && criteriaRange.length == criterias.length) {
+      return _formulaErrorStrings[_wrongNumberArguments];
+    }
+    String calculateRange = args[0];
+    double sum = 0;
+    double max = -1.7976931348623157E+308;
+    double min = double.maxFinite;
+    String val = '';
+    // final List<String> _calculateRangeCells = _getCellsFromArgs(args[0]);
+    List<String?> s2 = _getCellsFromArgs(calculateRange);
+    for (int v = 0; v < criterias.length; v++) {
+      String op = _tokenEqual;
+      String criteria = criterias[v];
+      if (criteria[0] != _tic[0] && !'=><'.contains(criteria[0])) {
+        ////cell reference
+        criteria = _getValueFromArg(criteria);
+      }
+      op = _findOp(criteria, op);
+      criteria = _findCriteria(criteria, op);
+      final List<String?> s1 = _getCellsFromArgs(criteriaRange[v]);
+      if ((s1[0] != null && s1[0] == _errorStrings[5]) ||
+          (s2[0] != null && s2[0] == _errorStrings[5])) {
+        return _errorStrings[5].toString();
+      }
+      if (s1.length != s2.length) {
+        return _errorStrings[1].toString();
+      }
+
+      final int count = s1.length;
+      if (count > s2.length) {
+        final int i = calculateRange.indexOf(':');
+        if (i > -1) {
+          int startRow = _getRowIndex(calculateRange.substring(0, i));
+          int row = _getRowIndex(calculateRange.substring(i + 1));
+          if (!(startRow != -1 || row == -1) == (startRow == -1 || row != -1)) {
+            return _errorStrings[5].toString();
+          }
+          int startCol = _getColIndex(calculateRange.substring(0, i));
+          int col = _getColIndex(calculateRange.substring(i + 1));
+          // Supports implenmented only for XlsIO
+          if (_grid is Worksheet) {
+            if (startRow == -1) {
+              startRow = (_grid)!.getFirstRow();
+            }
+            if (startCol == -1) {
+              startCol = (_grid)!.getFirstColumn();
+            }
+            if (row == -1) {
+              row = (_grid)!.getLastRow();
+            }
+            if (col == -1) {
+              col = (_grid)!.getLastColumn();
+            }
+          }
+          if (startRow != row) {
+            row += count - s2.length;
+          } else if (startCol != col) {
+            col += count - s2.length;
+          }
+          calculateRange = calculateRange.substring(0, i + 1) +
+              RangeInfo._getAlphaLabel(col) +
+              row.toString();
+          s2 = _getCellsFromArgs(calculateRange);
+        }
+      }
+      // SUMIFS method is modified to handle multiplle criteria's and criteria range for operation.
+      String s;
+      final List<String> criteriaRangeValue = [];
+      // int index1 = criteria.indexOf('*');
+      double compare = -1.7976931348623157E+308;
+      bool isNumber = false;
+      if (double.tryParse(criteria) != null) {
+        compare = double.tryParse(criteria)!;
+        isNumber = true;
+      }
+      for (int index = 0; index < count; ++index) {
+        s = _getValueFromArg(s1[index]);
+        final bool criteriaMatched = _checkForCriteriaMatch(
+            s.toUpperCase(), op, criteria.toUpperCase(), isNumber, compare);
+        if (criteriaMatched) {
+          //Below code has been modified to check the index of criteria.
+          if (tempList.isNotEmpty && v != 0) {
+            final int tempCount = tempList.length;
+            for (int i = 0; i < tempCount; i++) {
+              //Below code has been added to compare the old and new criteria ranges and store the values which matches.
+              if (_getRowIndex(tempList[i].toString()) ==
+                  (_getRowIndex(s1[index]!))) {
+                criteriaRangeValue.add(s2[index]!);
+              }
+            }
+          } else if (s2[index] != null) {
+            criteriaRangeValue.add(s2[index]!);
+          }
+        }
+      }
+      //Below code has been modified to return "Zero" if any one of the criteria fails.
+      if (criteriaRangeValue.isEmpty) {
+        tempList.clear();
+        break;
+      } else {
+        tempList = criteriaRangeValue;
+      }
+    }
+    switch (condition) {
+      case ('SUMIFS'):
+        for (int i = 0; i < tempList.length; i++) {
+          final String temp = _getValueFromArg(tempList[i]);
+          //To compute sum only for double values.
+          double? temp1;
+          temp1 = double.tryParse(temp);
+          sum = sum + temp1!;
+        }
+        break;
+      case ('MAXIFS'):
+        for (int i = 0; i < tempList.length; i++) {
+          final String temp = _getValueFromArg(tempList[i]);
+          //To compute sum only for double values.
+          double? temp1;
+          temp1 = double.tryParse(temp);
+          if (temp1! > max) {
+            max = temp1;
+          }
+        }
+        break;
+      case ('MINIFS'):
+        for (int i = 0; i < tempList.length; i++) {
+          final String temp = _getValueFromArg(tempList[i]);
+          //To compute sum only for double values.
+          double? temp1;
+          temp1 = double.tryParse(temp);
+          if (temp1! < min) {
+            min = temp1;
+          }
+        }
+        break;
+    }
+    //Returns the value
+    if (condition == 'SUMIFS') {
+      val = sum.toString();
+    }
+    if (condition == 'MAXIFS') {
+      val = max.toString();
+    }
+    if (condition == 'MINIFS') {
+      if (min == 1.7976931348623157e+308) {
+        min = 0.0;
+      }
+      val = min.toString();
+    }
+    return val;
+  }
+
+  /// The MINIFS function returns the minimum value among cells specified by a given set of conditions or criteria.
+  String _computeMinIFS(String argList) {
+    return _calculateIFSFormula(argList, 'MINIFS');
+  }
+
+  /// The MAXIFS function returns the maximum value among cells specified by a given set of conditions or criteria.
+  String _computeMaxIFS(String argList) {
+    return _calculateIFSFormula(argList, 'MAXIFS');
+  }
+
+  /// The COUNTIFS function applies criteria to cells across multiple ranges and counts the number of times all criteria are met.
+  String _computeCountIFS(String argList) {
+    return _computeCountIFFunctions(argList, false);
+  }
+
+  /// Calculates the CountIF and CountIFS formula.
+  String _computeCountIFFunctions(String argList, bool isCountif) {
+    if (argList == '') {
+      return _formulaErrorStrings[_invalidArguments];
+    }
+    final List<String> args = _splitArgsPreservingQuotedCommas(argList);
+    final int argCount = args.length;
+    double cellCount = 0;
+    // final String cellCountValue = '';
+    if (_isIndexInteriorFormula) _isIndexInteriorFormula = false;
+    bool isLastcriteria = false;
+    final List<String> criteriaRange = [];
+    final List<String> criterias = [];
+    List<String> tempList = [];
+    List<String> criteriaRangeValue = [];
+    for (int i = 0; i < argCount; i++) {
+      criteriaRange.add(args[i]);
+      i++;
+      criterias.add(args[i]);
+    }
+    final List<String?> val = _getCellsFromArgs(criteriaRange[0]);
+    if (argCount < 2 &&
+        criteriaRange.length == criterias.length &&
+        !isCountif) {
+      return _formulaErrorStrings[_wrongNumberArguments];
+    }
+    if (criteriaRange.length != criterias.length) {
+      return _errorStrings[1].toString();
+    }
+    if (argCount != 2 && argCount != 3 && isCountif) {
+      if (_rethrowExceptions) {
+        throw Exception(_formulaErrorStrings[_wrongNumberArguments]);
+      }
+      return _formulaErrorStrings[_wrongNumberArguments];
+    }
+    for (int v = 0; v < criterias.length; v++) {
+      String op = _tokenEqual;
+      String criteria = criterias[v];
+      if (criteria[0] != _tic[0] && !'=><'.contains(criteria[0])) {
+        ////cell reference
+        criteria = _getValueFromArg(criteria);
+      }
+      if (v == criteriaRange.length - 1 && !isCountif) {
+        isLastcriteria = true;
+      }
+      if (isCountif) isLastcriteria = true;
+      final int length = criteria.length;
+      if (length < 1 && isCountif) {
+        return '0';
+      }
+      //Below condition has added to find the criteria for the array structure COUNTIF formula.
+      if (_isArrayFormula && isCountif) {
+        op = _findOp(criterias[0].replaceAll(_bMarker.toString(), ''), op);
+        criteria =
+            _findCriteria(criterias[0].replaceAll(_bMarker.toString(), ''), op);
+      } else {
+        op = _findOp(criteria, op);
+        criteria = _findCriteria(criteria, op);
+      }
+      final List<String?> s1 = _getCellsFromArgs(criteriaRange[v]);
+      if (s1.length != val.length) return _errorStrings[1].toString();
+      if (s1[0] == _errorStrings[5]) {
+        if (_rethrowExceptions) {
+          throw Exception(_formulaErrorStrings[_badIndex]);
+        }
+        return _errorStrings[5].toString();
+      }
+      final count = s1.length;
+      String s;
+      double compare = -1.7976931348623157E+308;
+      bool isNumber = false;
+      if (double.tryParse(criteria) != null) {
+        compare = double.tryParse(criteria)!;
+        isNumber = true;
+      }
+
+      for (int index = 0; index < count; ++index) {
+        s = _getValueFromArg(s1[index]); //// +criteria;
+        //Below condition has been added to check whether the criteria is number, expression or text. For example, criteria can be expressed as 32, ">32", B4, "apples", or "32".
+        final bool criteriaMatched = _checkForCriteriaMatch(
+            s.toUpperCase(), op, criteria.toUpperCase(), isNumber, compare);
+        //Below code has been added to count the number of occurences of values which the criteria satisfies.
+        if (criteriaMatched) {
+          if (isCountif && isLastcriteria ||
+              isLastcriteria && criterias.length == 1) {
+            cellCount++;
+          } else {
+            //Below code has been modified to check the index of criteria.
+            if (tempList.isNotEmpty && v != 0) {
+              final int tempCount = tempList.length;
+              for (int i = 0; i < tempCount; i++) {
+                //Below code has been added to compare the old and new criteria ranges and store the values which matches.
+                if (_getRowIndex(tempList[i].toString()) ==
+                    _getRowIndex(s1[index]!)) {
+                  criteriaRangeValue.add(s1[index]!);
+                  if (isLastcriteria) cellCount++;
+                }
+              }
+            } else {
+              criteriaRangeValue.add(s1[index]!);
+            }
+          }
+        }
+      }
+      tempList = criteriaRangeValue;
+      criteriaRangeValue = [];
+    }
+    return cellCount.toString();
+  }
+
+  /// Returns a vertical table look up value.
+  String _computeVLoopUp(String args) {
+    final bool cachingEnabled = false;
+    final List<String> s = _splitArgsPreservingQuotedCommas(args);
+    String lookUp = _getValueFromArg(s[0]);
+    lookUp = lookUp.replaceAll(_tic, '').toUpperCase();
+    DateTime? lookupDatetime;
+    double? lookupDoubleValue;
+    //Below condition has been added to return the double value while the lookup value as DateTime format.
+    lookupDoubleValue = double.tryParse(lookUp.replaceAll(_tic, ''));
+    final bool isDouble = lookupDoubleValue != null;
+    lookupDatetime = DateTime.tryParse(lookUp);
+    final bool isDateTime = lookupDatetime != null;
+    if (!isDouble && isDateTime) {
+      lookUp = _getSerialDateTimeFromDate(lookupDatetime).toString();
+    }
+    String r = s[1].replaceAll('"', '');
+    if (r == '#REF!') {
+      return r;
+    }
+    final String o1 = _getValueFromArg(s[2]).replaceAll('"', '');
+    double? d = 0;
+    d = double.tryParse(o1);
+    final bool v = d != null;
+    if (_computeIsLogical(o1) == _trueValueStr) {
+      d = double.parse(_computeN(o1));
+    } else if (!v || o1 == 'NaN') {
+      return '#N/A';
+    }
+    if (d < 1) {
+      return _errorStrings[1].toString();
+    }
+    final int col = d.toInt();
+    bool match = true, rangeLookup = true;
+    if (s.length == 4) {
+      match = rangeLookup = (_getValueFromArg(s[3]) == _trueValueStr) ||
+          (_getValueFromArg(s[3].replaceAll(_tic, '')) == '1');
+    }
+    d = double.tryParse(lookUp);
+    final bool typeIsNumber = d != null;
+    int i = r.indexOf(':');
+    ////single cell
+    if (i == -1) {
+      r = r + ':' + r;
+      i = r.indexOf(':');
+    }
+    final int k = r.substring(0, i).lastIndexOf(_sheetToken);
+    final SheetFamilyItem? family = _getSheetFamilyItem(_grid);
+    Worksheet? dependentGrid;
+    if (k > -1) {
+      //To avoid grid resetting at run time when the grid has dependent sheets.
+      //To return proper value when grid type is ICalcData.
+      if (family!._tokenToParentObject != null &&
+          (family._tokenToParentObject![r.substring(0, k + 1)] != null)) {
+        dependentGrid =
+            family._tokenToParentObject![r.substring(0, k + 1)] as Worksheet;
+      }
+    }
+    int row1 = _getRowIndex(r.substring(0, i));
+    int row2 = _getRowIndex(r.substring(i + 1));
+    int col1 = _getColIndex(r.substring(0, i));
+    int col2 = _getColIndex(r.substring(i + 1));
+    // Supports implenmented only for XlsIO
+    //To return proper value when grid type is ICalcData.
+    if (_grid is Worksheet ||
+        (dependentGrid != null && dependentGrid is Worksheet)) {
+      if ((row1 != -1 || row2 == -1) != (row1 == -1 || row2 != -1)) {
+        return _errorStrings[5].toString();
+      }
+      if (row1 == -1) {
+        //To avoid grid resetting at run time when the grid has dependent sheets.
+        //To return proper value when grid type is ICalcData.
+        if (dependentGrid != null) {
+          row1 = (dependentGrid).getFirstRow();
+        } else {
+          row1 = (_grid)!.getFirstRow();
+        }
+      }
+      if (col1 == -1) {
+        //To avoid grid resetting at run time when the grid has dependent sheets.
+        //To return proper value when grid type is ICalcData.
+        if (dependentGrid != null) {
+          col1 = (dependentGrid).getFirstColumn();
+        } else {
+          col1 = (_grid)!.getFirstColumn();
+        }
+      }
+      if (row2 == -1) {
+        //To avoid grid resetting at run time when the grid has dependent sheets.
+        //To return proper value when grid type is ICalcData.
+        if (dependentGrid != null) {
+          row2 = (dependentGrid).getLastRow();
+        } else {
+          row2 = (_grid)!.getLastRow();
+        }
+      }
+      if (col2 == -1) {
+        //To avoid grid resetting at run time when the grid has dependent sheets.
+        //To return proper value when grid type is ICalcData.
+        if (dependentGrid != null) {
+          col2 = (dependentGrid).getLastColumn();
+        } else {
+          col2 = (_grid)!.getLastColumn();
+        }
+      }
+    }
+    bool newTable = true;
+    String val = '';
+    int lastRow = row1, matchCount = 0;
+    String s1 = '';
+    double? d1 = 0;
+    bool doLastRowMark = true;
+    bool exactMatch = false;
+    final List<String> tableValues = [];
+    for (int row = row1; row <= row2; ++row) {
+      if (!cachingEnabled) {
+        //To avoid grid resetting at run time when the grid has dependent sheets.
+        if (dependentGrid != null) {
+          s1 = _getValueFromParentObjectGrid(row, col1, true, dependentGrid)
+              .toString()
+              .toUpperCase()
+              .replaceAll('"', '');
+        } else {
+          s1 = _getValueFromParentObjectGrid(row, col1, true, _grid)
+              .toString()
+              .toUpperCase()
+              .replaceAll('"', '');
+        }
+        DateTime? matchDateTime;
+        double? doubleMatchValue;
+        doubleMatchValue = double.tryParse(s1.replaceAll(_tic, ''));
+        final bool isDouble = doubleMatchValue != null;
+        matchDateTime = DateTime.tryParse(s1);
+        final bool isDateTime = matchDateTime != null;
+        if (s1 != '' && !isDouble && isDateTime) {
+          s1 = _getSerialDateTimeFromDate(matchDateTime).toString();
+        }
+        if (!tableValues.contains(s1)) {
+          tableValues.add(s1);
+        }
+      }
+      d1 = double.tryParse(s1);
+      final bool v = d1 != null;
+      if (s1 == lookUp ||
+          (match &&
+              (typeIsNumber
+                  ? (v && (d1.compareTo(d) > 0))
+                  : s1.compareTo(lookUp) > 0))) {
+        if (s1.toUpperCase() == lookUp) {
+          if (lookUp == '' && !_matchType) {
+            continue;
+          } else {
+            lastRow = row;
+            match = true;
+            exactMatch = true;
+            matchCount++;
+            //Below code has been added to break the condition when the match is false.This codition  break once fine the matched value.
+            if (s.length == 4 && s[3] == _falseValueStr) break;
+          }
+        }
+        if (!newTable) {
+          break;
+        } else {
+          doLastRowMark = false;
+        }
+      }
+      if (doLastRowMark) {
+        lastRow = row;
+      }
+      if (matchCount == 0) {
+        newTable = true;
+      } else {
+        newTable = false;
+      }
+
+      match = true;
+    }
+
+    if (match || s1 == lookUp) {
+      //To avoid the calculation when the lookup value is empty.
+      if (tableValues.isNotEmpty && lookUp != '') {
+        if (!cachingEnabled) {
+          tableValues.sort();
+        }
+        tableValues[0] = (tableValues[0] == '') ? '0' : tableValues[0];
+      }
+      //To return proper value when grid type is ICalcData.
+      if ((!exactMatch &&
+              ((!typeIsNumber) ||
+                  (typeIsNumber &&
+                      tableValues.isNotEmpty &&
+                      double.parse(tableValues[0].toString()) >
+                          double.parse(lookUp)))) ||
+          (!rangeLookup && !exactMatch)) {
+        return '#N/A';
+      }
+      //To return proper value when grid type is ICalcData.
+      if (dependentGrid != null) {
+        val = _getValueFromParentObjectGrid(
+                lastRow, col + col1 - 1, true, dependentGrid)
+            .toString();
+      } else {
+        val =
+            _getValueFromParentObjectGrid(lastRow, col + col1 - 1, true, _grid)
+                .toString();
+      }
+      if (val == '' &&
+          !_getValueFromParentObjectGrid(lastRow, col + col1 - 1, false, _grid)
+              .toUpperCase()
+              .startsWith('=IF')) {
+        val = '0';
+      }
+      if (val.isNotEmpty && val[0] == CalcEngine._formulaCharacter) {
+        val = _parseFormula(val);
+      }
+      d = 0;
+      d = double.tryParse(val);
+      final bool v = d != null;
+      if (val.isNotEmpty && val[0] != _tic[0] && !v) {
+        val = _tic + val + _tic;
+      }
+    } else {
+      val = '#N/A';
+    }
+    return val;
+  }
+
+  /// Determines whether the value is a logical value.
+  String _computeIsLogical(String args) {
+    args = _getValueFromArg(args).toUpperCase();
+
+    if (args == _falseValueStr || args == _trueValueStr) {
+      return _trueValueStr;
+    }
+
+    return _falseValueStr;
+  }
+
+  /// Returns a number converted from the provided value.
+  String _computeN(String args) {
+    String cellReference = '';
+    double? val = 0.0;
+    DateTime? date;
+    final List<String> arg = _splitArguments(args, parseArgumentSeparator);
+    final int argCount = arg.length;
+    if (argCount != 1) {
+      return _formulaErrorStrings[_requiresASingleArgument];
+    }
+    //Below condition has been modified to calculate when provided the numeric value as string.
+    cellReference = _getValueFromArg(args);
+    val = double.tryParse(cellReference);
+    final bool v = val != null;
+    date = DateTime.tryParse(cellReference);
+    final bool v1 = date != null;
+    if (v) {
+      return val.toString();
+    } else if (v1) {
+      val = _getSerialDateTimeFromDate(date);
+    } else if (cellReference == _trueValueStr) {
+      val = 1;
+    } else if (cellReference == _falseValueStr) {
+      val = 0;
+    } else if (_errorStrings.contains(cellReference) ||
+        _formulaErrorStrings.contains(cellReference)) {
+      return cellReference;
+    }
+    return val.toString();
+  }
+
+  String _getValueFromParentObjectGrid(int row, int col, bool calculateFormula,
+      [Worksheet? grd]) {
+    final SheetFamilyItem? family = _getSheetFamilyItem(grd);
+    String cell1 = (family!._parentObjectToToken == null ||
+            family._parentObjectToToken!.isEmpty)
+        ? ''
+        : family._parentObjectToToken![grd].toString();
+    cell1 = cell1 + RangeInfo._getAlphaLabel(col) + row.toString();
+    final Worksheet? saveGrid = _grid;
+    final String saveCell = _cell;
+    _cell = cell1;
+    _grid = grd;
+    String val = '';
+    if (calculateFormula) {
+      val = _getValueComputeFormulaIfNecessary(row, col, grd!);
+    } else {
+      final Object s = _grid!._getValueRowCol(row, col);
+      val = s.toString();
+    }
+    DateTime? tempDate;
+    double? doubleValue;
+    doubleValue = double.tryParse(val);
+    final bool isDouble = doubleValue != null;
+    tempDate = DateTime.tryParse(val);
+    final bool isDateTime = tempDate != null;
+
+    if (excelLikeComputations &&
+        useDatesInCalculations &&
+        !isDouble &&
+        isDateTime) {
+      val = Range._toOADate(tempDate).toString();
+    }
+    _grid = saveGrid;
+    _cell = saveCell;
+    return val;
+  }
+
+  /// Sums the cells specified by some criteria.
+  String _computeSumIf(String argList) {
+    final List<String> args = _splitArgsPreservingQuotedCommas(argList);
+    final int argCount = args.length;
+    if (argCount != 2 && argCount != 3) {
+      if (_rethrowExceptions) {
+        throw Exception(_formulaErrorStrings[_wrongNumberArguments]);
+      }
+      return _formulaErrorStrings[_wrongNumberArguments];
+    }
+    final String criteriaRange = args[0];
+    String criteria = args[1]; ////.Replace(TIC, string.Empty);
+    if (criteria.isEmpty) {
+      return '0';
+    }
+    String op = _tokenEqual;
+    if (criteria[0] != _tic[0] && !'=><'.contains(criteria[0])) {
+      ////cell reference
+      criteria = _getValueFromArg(criteria);
+    }
+    op = _findOp(criteria, op);
+    criteria = _findCriteria(criteria, op);
+    String sumRange = (argCount == 2) ? criteriaRange : args[2];
+
+    final List<String?> s1 = _getCellsFromArgs(criteriaRange);
+    List<String?> s2 = _getCellsFromArgs(sumRange);
+    if (s1[0] == _errorStrings[5] || s2[0] == _errorStrings[5]) {
+      return _errorStrings[5].toString();
+    }
+    final int count = s1.length;
+    if (count > s2.length) {
+      final int i = sumRange.indexOf(':');
+      final int j = criteriaRange.indexOf(':');
+      int criteriaStartRow = _getRowIndex(criteriaRange.substring(0, j));
+      int criteriaEndRow = _getRowIndex(criteriaRange.substring(j + 1));
+      int criteriaStartCol = _getColIndex(criteriaRange.substring(0, j));
+      int criteriaEndCol = _getColIndex(criteriaRange.substring(j + 1));
+      if ((criteriaStartRow != -1 || criteriaEndRow == -1) !=
+          (criteriaStartRow == -1 || criteriaEndRow != -1)) {
+        return _errorStrings[5].toString();
+      }
+      //Below codtion has been added to find the row or column range when  start row or start column is -1.
+      if (criteriaStartRow == -1) {
+        criteriaStartRow = (_grid)!.getFirstRow();
+      }
+      if (criteriaStartCol == -1) {
+        criteriaStartCol = (_grid)!.getFirstColumn();
+      }
+      if (criteriaEndRow == -1) {
+        criteriaEndRow = (_grid)!.getLastRow();
+      }
+      if (criteriaEndCol == -1) {
+        criteriaEndCol = (_grid)!.getLastColumn();
+      }
+      final int criteriaHeight = criteriaEndRow - criteriaStartRow;
+      final int crietriaWidth = criteriaEndCol - criteriaStartCol;
+      if (i > -1) {
+        int startRow = _getRowIndex(sumRange.substring(0, i));
+        int row = _getRowIndex(sumRange.substring(i + 1));
+        if ((startRow != -1 || row == -1) != (startRow == -1 || row != -1)) {
+          return _errorStrings[5].toString();
+        }
+        int startCol = _getColIndex(sumRange.substring(0, i));
+        int col = _getColIndex(sumRange.substring(i + 1));
+        if (startRow == -1) {
+          startRow = (_grid)!.getFirstRow();
+        }
+        if (startCol == -1) {
+          startCol = (_grid)!.getFirstColumn();
+        }
+        if (row == -1) {
+          row = (_grid)!.getLastRow();
+        }
+        if (col == -1) {
+          col = (_grid)!.getLastColumn();
+        }
+        final int width = col - startCol;
+        final int height = row - startRow;
+        if (width != crietriaWidth) col = startCol + crietriaWidth;
+        if (height != criteriaHeight) row = startRow + criteriaHeight;
+        sumRange = RangeInfo._getAlphaLabel(startCol) +
+            sumRange.substring(1, i + 1) +
+            RangeInfo._getAlphaLabel(col) +
+            row.toString();
+      } else {
+        int resultRow = 0, resultCol = 0;
+        String resultVal = '';
+        resultRow = _getRowIndex(sumRange);
+        resultCol = _getColIndex(sumRange);
+        resultRow += criteriaHeight;
+        resultCol += crietriaWidth;
+        resultVal = RangeInfo._getAlphaLabel(resultCol);
+        sumRange = sumRange + ':' + resultVal + resultRow.toString();
+      }
+      s2 = _getCellsFromArgs(sumRange);
+    }
+    double sum = 0;
+    double? d = 0.0;
+    String s = '';
+    double compare = -1.7976931348623157E+308;
+    bool isNumber = false;
+    if (double.tryParse(criteria) != null) {
+      compare = double.tryParse(criteria)!;
+      isNumber = true;
+    }
+    for (int index = 0; index < count; ++index) {
+      s = _getValueFromArg(s1[index]); //// +criteria;
+      //Below condition is added to return Error string when s is Error string.
+      if (_errorStrings.contains(s)) {
+        if (_rethrowExceptions) {
+          throw Exception(_formulaErrorStrings[_invalidArguments]);
+        }
+        return s;
+      }
+      //Below code has beeb added to calculate SUMIF formula when criteria contains *.
+      final bool criteriaMatched = _checkForCriteriaMatch(
+          s.toUpperCase(), op, criteria.toUpperCase(), isNumber, compare);
+      if (criteriaMatched) {
+        s = s2[index]!;
+        s = _getValueFromArg(s);
+        d = double.tryParse(s);
+        final bool value = d != null;
+        if (value) {
+          sum += d;
+        }
+      }
+    }
+    return sum.toString();
+  }
+
+  /// Below method used to find the operation value which is combined with tokens.
+  String _findOp(String criteria, String op1) {
+    final int offset = (criteria.isNotEmpty && criteria[0] == _tic[0]) ? 1 : 0;
+    if (criteria.substring(offset).startsWith('>=')) {
+      op1 = _tokenGreaterEq;
+    } else if (criteria.substring(offset).startsWith('<=')) {
+      op1 = _tokenLesseq;
+    } else if (criteria.substring(offset).startsWith('<>')) {
+      op1 = _tokenNoEqual;
+    } else if (criteria.substring(offset).startsWith('<')) {
+      op1 = _tokenLess;
+    } else if (criteria.substring(offset).startsWith('>')) {
+      op1 = _tokenGreater;
+    } else if (criteria.substring(offset).startsWith('=')) {
+      op1 = _tokenEqual;
+    }
+    return op1;
+  }
+
+  /// Returns the sum of the products of corresponding values.
+  String _computeSumProduct(String range) {
+    double sum = 0;
+    int count = 0;
+    double? d;
+    bool? indexValue = false;
+    List<double>? vector;
+    List<String>? ranges = null;
+    //Below code has been added to calculate the array structure values.
+    if (!range.contains(parseArgumentSeparator.toString()) &&
+        !range.contains(_sheetToken.toString())) {
+      range = _adjustRangeArg(range);
+    }
+    if (range.contains(_tic) &&
+        (range.startsWith(_tic) | range.endsWith(_tic))) {
+      ranges = range.split(_tic);
+      for (int i = 0; i < ranges!.length; ++i) {
+        if (ranges[i] == parseArgumentSeparator.toString()) {
+          final List<String> list = ranges;
+          list.remove(ranges[i]);
+          ranges = list.toList();
+        }
+        // Below code has been added to calculate when the ranges contain array and cell range.("1,1,0,0,0,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1",G5:G30).
+        else if (ranges[i].startsWith(parseArgumentSeparator.toString()) &&
+            _isCellReference(
+                ranges[i].replaceAll(parseArgumentSeparator.toString(), ''))) {
+          ranges[i] =
+              ranges[i].replaceAll(parseArgumentSeparator.toString(), '');
+        }
+      }
+    } else {
+      ranges = _splitArgsPreservingQuotedCommas(range);
+    }
+    for (final String r in ranges) {
+      String strArray = '';
+      String errorString = '';
+      //Below condition has been added to calculate when the argument conatains operators(ex:=SUMPRODUCT(--($V:$V="Monday"),($W:$W>=AB10)*($W:$W< AC10))).
+      if (r.contains(':') && !_isCellReference(r)) {
+        final String tempr = r.replaceAll(_bMarker.toString(), '');
+        String finalStringValue = '';
+        for (int j = 0; j <= tempr.length - 1; j++) {
+          String val = '';
+          List<String?>? cells;
+          String logicalVal = '';
+          String logicTest = '';
+          //Below condition has been added to split the cell range.
+          while (j != tempr.length &&
+              (_isDigit(tempr.codeUnitAt(j)) |
+                  (tempr[j] == ':') |
+                  (tempr[j] == '!') |
+                  (j != 0 &&
+                      _isUpper(tempr[j]) &&
+                      !_isDigit(tempr.codeUnitAt(j - 1))) |
+                  (j == 0 && _isUpper(tempr[j])))) {
+            val = val + tempr[j++];
+          }
+          if (_exteriorFormula && tempr[j] == '{') {
+            j++;
+            val = tempr.substring(j, tempr.indexOf('}') - 1);
+            j += tempr.indexOf('}');
+            cells = val.split(';');
+            _exteriorFormula = false;
+          }
+
+          if (j != tempr.length && (tempr[j] == '\'')) {
+            logicalVal = logicalVal + tempr[j++];
+            while (j != tempr.length && (tempr[j] != '\'')) {
+              logicalVal = logicalVal + tempr[j++];
+            }
+            logicalVal = logicalVal + tempr[j++];
+          }
+          //Below condition has been added to split the logical value.
+          //Below code has been modified to sperate the logical value when there is 'n' with TRUE and numeric values.
+          while (j != tempr.length &&
+              (_isUpper(tempr[j]) |
+                      _isDigit(tempr.codeUnitAt(j)) |
+                      (tempr[j] == 'n') ||
+                  tempr[j] == parseDecimalSeparator ||
+                  (_indexOfAny(tempr[j], ['a', 's', 'm', 'd', 'c']) > -1 &&
+                      _isDigit(tempr.codeUnitAt(j - 1))))) {
+            logicalVal = logicalVal + tempr[j++];
+          }
+
+          //Below condition used to add the token in logicalvalue.If the token is find break the condition/
+          for (final String tempChar in _tokens) {
+            if (j != tempr.length && tempr[j] == tempChar) {
+              logicalVal = logicalVal + tempr[j];
+              break;
+            }
+          }
+          cells ??= _getCellsFromArgs(val);
+          int s = 0;
+          if ((val == '') && (strArray != '')) {
+            final List<String> args =
+                _splitArgsPreservingQuotedCommas(strArray);
+            final List<String> tempLogicList =
+                args[0].replaceAll(_tic, '').split(';');
+            final List<String> tempLogicList1 =
+                args[1].replaceAll(_tic, '').split(';');
+            {
+              for (s = 0; s <= tempLogicList.length - 1; s++) {
+                if (s + 1 != args.length) {
+                  logicTest = _getValueFromArg(_bMarker.toString() +
+                      tempLogicList[s] +
+                      tempLogicList1[s] +
+                      logicalVal +
+                      _bMarker.toString());
+                }
+                finalStringValue += logicTest + ';';
+              }
+            }
+            //Below logic has been added to remove the previous value of straArray and to update it with newly calculated value.
+            strArray = '';
+          } else {
+            for (s = 0; s <= cells.length - 1; s++) {
+              logicTest = _getValueFromArg(_bMarker.toString() +
+                  cells[s]! +
+                  logicalVal +
+                  _bMarker.toString());
+              finalStringValue += logicTest + ';';
+            }
+          }
+          if (j == tempr.length - 1) {
+            strArray =
+                finalStringValue.substring(0, finalStringValue.length - 1);
+          } else {
+            finalStringValue =
+                finalStringValue.substring(0, finalStringValue.length - 1);
+            strArray += _tic + finalStringValue + _tic + parseArgumentSeparator;
+          }
+          finalStringValue = '';
+        }
+        // perform multiplication
+        List result;
+        result = _performMultiplication(
+            strArray, indexValue, count, vector, errorString);
+        indexValue = result[0];
+        count = result[1];
+        vector = result[2];
+        errorString = result[3];
+
+        if (errorString != '') return errorString;
+      } else if (!r.startsWith(_tic) && r.contains(':')) {
+        int i = r.indexOf(':');
+        int row1 = _getRowIndex(r.substring(0, i));
+        int row2 = _getRowIndex(r.substring(i + 1));
+        if ((row1 != -1 || row2 == -1) != (row1 == -1 || row2 != -1)) {
+          return _errorStrings[5].ToString();
+        }
+        int col1 = _getColIndex(r.substring(0, i));
+        int col2 = _getColIndex(r.substring(i + 1));
+        if (_grid is Worksheet) {
+          if (row1 == -1 && _grid is Worksheet) {
+            row1 = (_grid)!.getFirstRow();
+          }
+          if (col1 == -1 && _grid is Worksheet) {
+            col1 = (_grid)!.getFirstColumn();
+          }
+          if (row2 == -1 && _grid is Worksheet) {
+            row2 = (_grid)!.getLastRow();
+          }
+          if (col2 == -1 && _grid is Worksheet) {
+            col2 = (_grid)!.getLastColumn();
+          }
+        }
+        if (vector != null && count != (row2 - row1 + 1) * (col2 - col1 + 1)) {
+          if (_rethrowExceptions) {
+            throw Exception(_formulaErrorStrings[_badFormula]);
+          }
+          errorString = _errorStrings[1].toString();
+        } else if (vector == null) {
+          count = (row2 - row1 + 1) * (col2 - col1 + 1);
+          vector = List.filled(count, 0, growable: false);
+          for (i = 0; i < count; ++i) {
+            vector[i] = 1;
+          }
+        }
+        final SheetFamilyItem? family = _getSheetFamilyItem(_grid);
+        final String s = _getSheetToken(r);
+        final Worksheet grd =
+            (s == '') ? _grid : family!._tokenToParentObject![s];
+
+        i = 0;
+        for (int row = row1; row <= row2; ++row) {
+          for (int col = col1; col <= col2; ++col) {
+            d = double.tryParse(
+                _getValueFromParentObjectGrid(row, col, true, grd)
+                    .replaceAll(_tic, ''));
+            final String v = _getValueFromParentObjectGrid(row, col, true, grd)
+                .replaceAll(_tic, '');
+            if (v == 'true' || v == 'false') {
+              indexValue = v.contains('true');
+            } else {
+              indexValue = null;
+            }
+
+            if (d != null) {
+              vector[i] = vector[i] * d;
+            }
+            //Below code is added to calculate the bool values eg(SUMPRODUCT({FALSE,TRUE,FALSE},{FALSE,FALSE,FALSE})).
+            else if (indexValue != null) {
+              final String val = indexValue.toString();
+              double v = 0;
+              if (val == 'true') {
+                v = 1;
+              }
+              vector[i] = vector[i] * v;
+            } else {
+              vector[i] = 0;
+            }
+
+            i++;
+          }
+        }
+      }
+      //Below condition has been added to calculate eg =SUMPRODUCT({0,0,1,0,1},{75,100,125,125,150}).
+      //Below condition has been modified to accept the range of values with Spain Culture.
+      else if (r.contains(parseArgumentSeparator.toString()) ||
+          r.contains(';') ||
+          r.contains('{')) {
+        String tempr = r.replaceAll(_bMarker.toString(), '');
+        if (_exteriorFormula) {
+          tempr = tempr.replaceAll('{', '').replaceAll('}', '');
+          _exteriorFormula = false;
+        }
+        // perform multiplication
+        List result;
+        result = _performMultiplication(
+            tempr, indexValue, count, vector, errorString);
+        indexValue = result[0];
+        count = result[1];
+        vector = result[2];
+        errorString = result[3];
+
+        if (errorString != '') {
+          return errorString;
+        }
+      } else {
+        final String s1 = _getValueFromArg(r);
+        if (_errorStrings.contains(s1)) {
+          return s1;
+        } else {
+          if (_rethrowExceptions) {
+            throw Exception(_formulaErrorStrings[_badFormula]);
+          }
+          errorString = _errorStrings[1].toString();
+        }
+      }
+    }
+
+    for (int i = 0; i < count; ++i) {
+      sum += vector![i];
+    }
+
+    return sum.toString();
+  }
+
+  List _performMultiplication(String strArray, bool? indexValue, int count,
+      List<double>? vector, String errorString) {
+    // perform multiplication
+    List<String> tempRangs;
+    List<String> temArray;
+    int j = 0;
+    double? d = 0;
+    if (strArray.contains(';')) {
+      tempRangs = strArray.split(';');
+      final int listLength = tempRangs.length *
+          _splitArgsPreservingQuotedCommas(tempRangs[0]).length;
+      temArray = List.filled(listLength, '', growable: false);
+    }
+    //Below condition has been added to calculate the Sumproduct Value when parseArgument seperator is not comma(',') with Spain Culture.
+    else if (strArray.contains(',')) {
+      tempRangs = strArray.split(',');
+      temArray = List.filled(
+          tempRangs.length *
+              _splitArgsPreservingQuotedCommas(tempRangs[0]).length,
+          '',
+          growable: false);
+    } else {
+      tempRangs = _splitArgsPreservingQuotedCommas(strArray);
+      temArray = List.filled(tempRangs.length, '', growable: false);
+    }
+
+    for (int i = 0; i < tempRangs.length; ++i) {
+      int e = 0;
+      if (tempRangs[i].contains(',')) {
+        final List<String> arrayIndex = tempRangs[i].split(',');
+        while (e != arrayIndex.length) {
+          temArray[j] = arrayIndex[e];
+          j++;
+          e++;
+        }
+      } else {
+        temArray[i] = tempRangs[i];
+      }
+    }
+    tempRangs = temArray;
+    if (vector != null && count != tempRangs.length) {
+      if (_rethrowExceptions) {
+        throw Exception(_formulaErrorStrings[_badFormula]);
+      }
+      errorString = _errorStrings[1].toString();
+    } else if (vector == null) {
+      count = tempRangs.length;
+      vector = List.filled(count, 0, growable: false);
+      for (int k = 0; k < count; ++k) {
+        vector[k] = 1;
+      }
+    }
+    for (int rr = 0; rr < tempRangs.length; ++rr) {
+      d = double.tryParse(tempRangs[rr]);
+      final String v = _getValueFromArg(tempRangs[rr]).toLowerCase();
+      if (v == 'true' || v == 'false') {
+        indexValue = v.contains('true');
+      } else {
+        indexValue = null;
+      }
+      if (d != null) {
+        vector[rr] = vector[rr] * d;
+      }
+      //Below code is added to calculate the bool values eg(SUMPRODUCT({FALSE,TRUE,FALSE},{FALSE,FALSE,FALSE})).
+      else if (indexValue != null) {
+        final String val = indexValue.toString();
+        double v = 0;
+        if (val == 'true') {
+          v = 1;
+        }
+        vector[rr] = vector[rr] * v;
+      } else {
+        vector[rr] = 0;
+      }
+    }
+    return [indexValue, count, vector, errorString];
+  }
+
+  /// Returns the product of the arguments in the list.
+  String _computeProduct(String range) {
+    double prod = 1;
+    double? d;
+    String s1;
+    bool nohits = true;
+    range = _adjustRangeArg(range);
+    //Below condition has been modified to calculate when provided the numeric value as string.
+    final List<String> ranges =
+        _splitArgsPreservingQuotedCommas(range.replaceAll(_tic, ''));
+    for (final String r in ranges) {
+      ////is a cellrange
+      if (r.contains(':')) {
+        for (final String? s in _getCellsFromArgs(r)) {
+          try {
+            s1 = _getValueFromArg(s);
+            s1 = _getValueForBool(s1);
+          } catch (ex) {
+            _exceptionThrown = true;
+            //Below code has been added to throw the excpetion when we enabel the RethrowLibraryComputationExceptions property.
+            if (_rethrowExceptions) {
+              rethrow;
+            }
+            return ex.toString();
+          }
+
+          if (s1.isNotEmpty) {
+            //Below condition has been modified to calculate when provided the numeric value as string.
+            d = double.tryParse(s1.replaceAll(_tic, ''));
+            if (d != null) {
+              prod = prod * d;
+              nohits = false;
+            } else if (_errorStrings.contains(s1)) {
+              return s1;
+            }
+          }
+        }
+      } else {
+        try {
+          s1 = _getValueFromArg(r);
+          s1 = _getValueForBool(s1);
+        } catch (ex) {
+          _exceptionThrown = true;
+          //Below code has been added to throw the excpetion when we enabel the RethrowLibraryComputationExceptions property.
+          if (_rethrowExceptions) {
+            rethrow;
+          }
+          return ex.toString();
+        }
+        if (s1.isNotEmpty) {
+          //Below condition has been modified to calculate when provided the numeric value as string.
+          d = double.tryParse(s1.replaceAll(_tic, ''));
+          if (d != null) {
+            prod = prod * d;
+            nohits = false;
+          } else if (_errorStrings.contains(s1)) {
+            return s1;
+          }
+        }
+      }
+    }
+    return nohits ? '0' : prod.toString();
+  }
+
+  String _getValueForBool(String arg) {
+    if (arg == _trueValueStr || arg == 'n' + _trueValueStr) {
+      return '1';
+    } else if (arg == _falseValueStr || arg == 'n' + _falseValueStr) {
+      return '0';
+    }
+    return arg;
+  }
 }

@@ -14,10 +14,6 @@ class DateRangePickerHelper {
   /// Calculate the visible dates count based on picker view
   static int getViewDatesCount(
       DateRangePickerView pickerView, int numberOfWeeks, bool isHijri) {
-    if (pickerView == null) {
-      return 0;
-    }
-
     if (pickerView == DateRangePickerView.month) {
       if (isHijri) {
         /// 6 used to render the  default number of weeks, since, Hijri type
@@ -32,7 +28,7 @@ class DateRangePickerHelper {
   }
 
   /// Checks both the ranges are equal or not.
-  static bool isRangeEquals(dynamic range1, dynamic range2) {
+  static bool isRangeEquals(dynamic? range1, dynamic? range2) {
     if ((range1 == null && range2 != null) ||
         (range2 == null && range1 != null)) {
       return false;
@@ -49,7 +45,7 @@ class DateRangePickerHelper {
 
   /// Checks both the range collections are equal or not.
   static bool isDateRangesEquals(
-      List<dynamic> rangeCollection1, List<dynamic> rangeCollection2) {
+      List<dynamic>? rangeCollection1, List<dynamic>? rangeCollection2) {
     if (rangeCollection1 == rangeCollection2) {
       return true;
     }
@@ -65,12 +61,12 @@ class DateRangePickerHelper {
 
     if ((rangeCollection1 == null && rangeCollection2 != null) ||
         (rangeCollection2 == null && rangeCollection1 != null) ||
-        (rangeCollection1.length != rangeCollection2.length)) {
+        (rangeCollection1?.length != rangeCollection2?.length)) {
       return false;
     }
 
-    for (int i = 0; i < rangeCollection1.length; i++) {
-      if (!isRangeEquals(rangeCollection1[i], rangeCollection2[i])) {
+    for (int i = 0; i < rangeCollection1!.length; i++) {
+      if (!isRangeEquals(rangeCollection1[i], rangeCollection2![i])) {
         return false;
       }
     }
@@ -81,11 +77,7 @@ class DateRangePickerHelper {
   /// Calculate the next view visible start date based on picker view.
   static dynamic getNextViewStartDate(DateRangePickerView pickerView,
       int numberOfWeeksInView, dynamic date, bool isRtl, bool isHijri) {
-    if (pickerView == null) {
-      return date;
-    }
-
-    if (isRtl != null && isRtl) {
+    if (isRtl) {
       return getPreviousViewStartDate(
           pickerView, numberOfWeeksInView, date, false, isHijri);
     }
@@ -95,8 +87,7 @@ class DateRangePickerHelper {
         {
           return isHijri || numberOfWeeksInView == 6
               ? getNextMonthDate(date)
-              : addDuration(date,
-                  Duration(days: numberOfWeeksInView * DateTime.daysPerWeek));
+              : addDays(date, numberOfWeeksInView * DateTime.daysPerWeek);
         }
       case DateRangePickerView.year:
         {
@@ -111,18 +102,12 @@ class DateRangePickerHelper {
           return getNextYearDate(date, 100, isHijri);
         }
     }
-
-    return date;
   }
 
   /// Calculate the previous view visible start date based on calendar view.
   static dynamic getPreviousViewStartDate(DateRangePickerView pickerView,
       int numberOfWeeksInView, dynamic date, bool isRtl, bool isHijri) {
-    if (pickerView == null) {
-      return date;
-    }
-
-    if (isRtl != null && isRtl) {
+    if (isRtl) {
       return getNextViewStartDate(
           pickerView, numberOfWeeksInView, date, false, isHijri);
     }
@@ -132,8 +117,7 @@ class DateRangePickerHelper {
         {
           return isHijri || numberOfWeeksInView == 6
               ? getPreviousMonthDate(date)
-              : addDuration(date,
-                  Duration(days: -numberOfWeeksInView * DateTime.daysPerWeek));
+              : addDays(date, -numberOfWeeksInView * DateTime.daysPerWeek);
         }
       case DateRangePickerView.year:
         {
@@ -148,8 +132,6 @@ class DateRangePickerHelper {
           return getPreviousYearDate(date, 100, isHijri);
         }
     }
-
-    return date;
   }
 
   /// Return the next view date of year view based on it offset value.
@@ -173,11 +155,11 @@ class DateRangePickerHelper {
 
   /// Return the month end date.
   static dynamic getMonthEndDate(dynamic date) {
-    return subtractDuration(getNextMonthDate(date), const Duration(days: 1));
+    return addDays(getNextMonthDate(date), -1);
   }
 
   /// Return the index of the date in collection.
-  static int isDateIndexInCollection(List<dynamic> dates, dynamic date) {
+  static int isDateIndexInCollection(List<dynamic>? dates, dynamic? date) {
     if (dates == null || date == null) {
       return -1;
     }
@@ -194,7 +176,7 @@ class DateRangePickerHelper {
 
   /// Checks both the date collection are equal or not.
   static bool isDateCollectionEquals(
-      List<dynamic> datesCollection1, List<dynamic> datesCollection2) {
+      List<dynamic>? datesCollection1, List<dynamic>? datesCollection2) {
     if (datesCollection1 == datesCollection2) {
       return true;
     }
@@ -210,12 +192,12 @@ class DateRangePickerHelper {
 
     if ((datesCollection1 == null && datesCollection2 != null) ||
         (datesCollection2 == null && datesCollection1 != null) ||
-        (datesCollection1.length != datesCollection2.length)) {
+        (datesCollection1?.length != datesCollection2?.length)) {
       return false;
     }
 
-    for (int i = 0; i < datesCollection1.length; i++) {
-      if (!isSameDate(datesCollection1[i], datesCollection2[i])) {
+    for (int i = 0; i < datesCollection1!.length; i++) {
+      if (!isSameDate(datesCollection1[i], datesCollection2![i])) {
         return false;
       }
     }
@@ -225,8 +207,8 @@ class DateRangePickerHelper {
 
   /// Check the date as enable date or disable date based on min date, max date
   /// and enable past dates values.
-  static bool isEnabledDate(dynamic startDate, dynamic endDate,
-      bool enablePastDates, dynamic date, bool isHijri) {
+  static bool isEnabledDate(dynamic? startDate, dynamic? endDate,
+      bool enablePastDates, dynamic? date, bool isHijri) {
     return isDateWithInDateRange(startDate, endDate, date) &&
         (enablePastDates ||
             (!enablePastDates &&
@@ -277,7 +259,7 @@ class DateRangePickerHelper {
 
   /// Check the date placed in dates collection based on visible dates.
   static bool isDateWithInVisibleDates(
-      List<dynamic> visibleDates, List<dynamic> dates, dynamic date) {
+      List<dynamic> visibleDates, List<dynamic>? dates, dynamic date) {
     if (dates == null || dates.isEmpty) {
       return false;
     }
@@ -299,7 +281,7 @@ class DateRangePickerHelper {
   }
 
   /// Check the date week day placed in week end day collection.
-  static bool isWeekend(List<int> weekendIndex, dynamic date) {
+  static bool isWeekend(List<int>? weekendIndex, dynamic date) {
     if (weekendIndex == null || weekendIndex.isEmpty) {
       return false;
     }
@@ -358,14 +340,13 @@ class DateRangePickerHelper {
         {
           if (numberOfWeeksInView != 6 && !isHijri) {
             DateTime prevViewDate = visibleDates[0];
-            prevViewDate =
-                subtractDuration(prevViewDate, const Duration(days: 1));
+            prevViewDate = addDays(prevViewDate, -1);
             if (!isSameOrAfterDate(minDate, prevViewDate)) {
               return false;
             }
           } else {
-            final dynamic currentDate = visibleDates[visibleDates.length ~/
-                (enableMultiView != null && enableMultiView ? 4 : 2)];
+            final dynamic currentDate =
+                visibleDates[visibleDates.length ~/ (enableMultiView ? 4 : 2)];
             final dynamic previousDate = getPreviousMonthDate(currentDate);
             if (((previousDate.month < minDate.month &&
                     previousDate.year == minDate.year) ||
@@ -379,9 +360,9 @@ class DateRangePickerHelper {
       case DateRangePickerView.decade:
       case DateRangePickerView.century:
         {
-          final int currentYear = visibleDates[visibleDates.length ~/
-                  (enableMultiView != null && enableMultiView ? 4 : 2)]
-              .year;
+          final int currentYear =
+              visibleDates[visibleDates.length ~/ (enableMultiView ? 4 : 2)]
+                  .year;
           final int minYear = minDate.year;
 
           final int offset = getOffset(view);
@@ -412,9 +393,15 @@ class DateRangePickerHelper {
   }
 
   /// Get the visible dates based on the date value and visible dates count.
-  static List<dynamic> getVisibleYearDates(
+  static List getVisibleYearDates(
       dynamic date, DateRangePickerView view, bool isHijri) {
-    final List<dynamic> datesCollection = <dynamic>[];
+    List datesCollection;
+    if (isHijri) {
+      datesCollection = <HijriDateTime>[];
+    } else {
+      datesCollection = <DateTime>[];
+    }
+
     dynamic currentDate;
     const int daysCount = 12;
     switch (view) {
@@ -465,13 +452,13 @@ class DateRangePickerHelper {
         {
           if (!isHijri && numberOfWeeksInView != 6) {
             DateTime nextViewDate = visibleDates[visibleDates.length - 1];
-            nextViewDate = addDuration(nextViewDate, const Duration(days: 1));
+            nextViewDate = addDays(nextViewDate, 1);
             if (!isSameOrBeforeDate(maxDate, nextViewDate)) {
               return false;
             }
           } else {
-            final dynamic currentDate = visibleDates[visibleDates.length ~/
-                (enableMultiView != null && enableMultiView ? 4 : 2)];
+            final dynamic currentDate =
+                visibleDates[visibleDates.length ~/ (enableMultiView ? 4 : 2)];
             final dynamic nextDate = getNextMonthDate(currentDate);
             if (((nextDate.month > maxDate.month &&
                     nextDate.year == maxDate.year) ||
@@ -485,9 +472,9 @@ class DateRangePickerHelper {
       case DateRangePickerView.decade:
       case DateRangePickerView.century:
         {
-          final int currentYear = visibleDates[visibleDates.length ~/
-                  (enableMultiView != null && enableMultiView ? 4 : 2)]
-              .year;
+          final int currentYear =
+              visibleDates[visibleDates.length ~/ (enableMultiView ? 4 : 2)]
+                  .year;
           final int maxYear = maxDate.year;
           final int offset = getOffset(view);
           if (((currentYear ~/ offset) * offset) + offset >
@@ -500,9 +487,9 @@ class DateRangePickerHelper {
   }
 
   /// Return the copy of the list.
-  static List<dynamic> cloneList(List<dynamic> value) {
+  static List<dynamic>? cloneList(List<dynamic>? value) {
     if (value == null || value.isEmpty) {
-      return null;
+      return value;
     }
 
     return value.sublist(0);
@@ -631,7 +618,7 @@ class DateRangePickerHelper {
         }
     }
 
-    return null;
+    return DateRangePickerView.month;
   }
 
   /// Returns teh [HijriDatePickerView] value based on the given value.
@@ -659,7 +646,7 @@ class DateRangePickerHelper {
         }
     }
 
-    return null;
+    return HijriDatePickerView.month;
   }
 
   /// Returns the number of weeks in view for the picker.
@@ -703,7 +690,8 @@ class DateRangePickerHelper {
   /// Eg., In year view, 20-01-2020 and 21-01-2020 dates are not equal but
   /// both the dates are placed in same year cell.
   /// Note: This method not applicable for month view.
-  static bool isSameCellDates(dynamic date, dynamic currentDate, dynamic view) {
+  static bool isSameCellDates(
+      dynamic? date, dynamic? currentDate, dynamic view) {
     if (date == null || currentDate == null) {
       return false;
     }
@@ -754,8 +742,8 @@ class DateRangePickerHelper {
   /// then the year view need to highlight selection because year view only
   /// consider the month value(max month as 12).
   /// Note: This method not applicable for month view.
-  static bool isBetweenMinMaxDateCell(dynamic date, dynamic minDate,
-      dynamic maxDate, bool enablePastDates, dynamic view, bool isHijri) {
+  static bool isBetweenMinMaxDateCell(dynamic? date, dynamic? minDate,
+      dynamic? maxDate, bool enablePastDates, dynamic view, bool isHijri) {
     if (date == null || minDate == null || maxDate == null) {
       return true;
     }
@@ -794,7 +782,7 @@ class DateRangePickerHelper {
   /// Eg., If picker view is year and the date value as 20-01-2020 then
   /// it return the last date of the month(31-01-2020).
   /// Note: This method not applicable for month view.
-  static dynamic getLastDate(dynamic date, dynamic view, bool isHijri) {
+  static dynamic getLastDate(dynamic? date, dynamic? view, bool isHijri) {
     final DateRangePickerView pickerView = getPickerView(view);
     if (pickerView == DateRangePickerView.month) {
       return date;
@@ -803,14 +791,14 @@ class DateRangePickerHelper {
     if (pickerView == DateRangePickerView.year) {
       final dynamic currentDate =
           getDate(date.year, date.month + 1, 1, isHijri);
-      return subtractDuration(currentDate, const Duration(days: 1));
+      return addDays(currentDate, -1);
     } else if (pickerView == DateRangePickerView.decade) {
       final dynamic currentDate = getDate(date.year + 1, 1, 1, isHijri);
-      return subtractDuration(currentDate, const Duration(days: 1));
+      return addDays(currentDate, -1);
     } else if (pickerView == DateRangePickerView.century) {
       final dynamic currentDate =
           getDate(((date.year ~/ 10) * 10) + 10, 1, 1, isHijri);
-      return subtractDuration(currentDate, const Duration(days: 1));
+      return addDays(currentDate, -1);
     }
 
     return date;
@@ -818,7 +806,7 @@ class DateRangePickerHelper {
 
   /// Return index of the date value in dates collection.
   /// Return -1 when the date does not exist in dates collection.
-  static int getDateCellIndex(List<dynamic> dates, dynamic date, dynamic view,
+  static int getDateCellIndex(List<dynamic> dates, dynamic? date, dynamic view,
       {int viewStartIndex = -1, int viewEndIndex = -1}) {
     if (date == null) {
       return -1;
@@ -835,5 +823,41 @@ class DateRangePickerHelper {
     }
 
     return -1;
+  }
+}
+
+/// args to update the required properties from picker state to it's children's
+class PickerStateArgs {
+  /// Holds the current view display date.
+  dynamic currentDate;
+
+  /// Holds the current view visible dates.
+  List<dynamic> currentViewVisibleDates = <dynamic>[];
+
+  /// Holds the current selected date.
+  dynamic selectedDate;
+
+  /// Holds the current selected dates.
+  List<dynamic>? selectedDates;
+
+  /// Holds the current selected range.
+  dynamic selectedRange;
+
+  /// Holds the current selected ranges.
+  List<dynamic>? selectedRanges;
+
+  /// Holds the current picker view.
+  DateRangePickerView view = DateRangePickerView.month;
+
+  /// clone this picker state args with new instance
+  PickerStateArgs clone() {
+    return PickerStateArgs()
+      ..currentViewVisibleDates = currentViewVisibleDates
+      ..currentDate = currentDate
+      ..view = view
+      ..selectedDate = selectedDate
+      ..selectedDates = selectedDates
+      ..selectedRange = selectedRange
+      ..selectedRanges = selectedRanges;
   }
 }

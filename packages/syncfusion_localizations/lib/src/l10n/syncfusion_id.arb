@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "Tidak ada tanggal yang dipilih", 
 "noEventsCalendarLabel" : "Tidak ada acara", 
-"scheduleViewNewEventLabel" : "Tidak ada yang direncanakan. Ketuk untuk membuat.", 
 "ofDataPagerLabel" : "dari", 
 "pagesDataPagerLabel" : "halaman", 
 "itemsDataPagerLabel" : "item", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "Ram.", 
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dzul-Q", 
-"shortDhualhiLabel" : "Dzul-H"
+"shortDhualhiLabel" : "Dzul-H", 
+"daySpanCountLabel" : "Hari"
 }

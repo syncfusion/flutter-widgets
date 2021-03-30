@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "ਕੋਈ ਚੁਣੀ ਤਾਰੀਖ ਨਹੀਂ", 
 "noEventsCalendarLabel" : "ਕੋਈ ਇਵੈਂਟ ਨਹੀਂ", 
-"scheduleViewNewEventLabel" : "ਕੁਝ ਯੋਜਨਾਬੱਧ ਨਹੀਂ. ਬਣਾਉਣ ਲਈ ਟੈਪ ਕਰੋ.", 
 "ofDataPagerLabel" : "ਦੇ", 
 "pagesDataPagerLabel" : "ਪੰਨੇ", 
 "itemsDataPagerLabel" : "ਇਕਾਈ", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "ਰਾਮ.", 
 "shortShawwalLabel" : "ਸ਼ਾ.", 
 "shortDhualqiLabel" : "ਧੂਅਲ-ਕਿ Q", 
-"shortDhualhiLabel" : "ਧੂਲ-ਐਚ"
+"shortDhualhiLabel" : "ਧੂਲ-ਐਚ", 
+"daySpanCountLabel" : "ਦਿਨ"
 }

@@ -6,7 +6,7 @@ class _ChartSeries {
   //Here, we are using get keyword inorder to get the proper & updated instance of chart widget
   //When we initialize chart widget as a property to other classes like _ChartSeries, the chart widget is not updated properly and by using get we can rectify this.
   SfCartesianChart get chart => _chartState._chart;
-  bool isStacked100;
+  bool isStacked100 = false;
   int paletteIndex = 0;
   num sumOfYvalues = 0;
   List<num> yValues = <num>[];
@@ -14,7 +14,10 @@ class _ChartSeries {
   /// Contains the visible series for chart
   List<CartesianSeriesRenderer> visibleSeriesRenderers =
       <CartesianSeriesRenderer>[];
-  List<_ClusterStackedItemInfo> clusterStackedItemInfo;
+  List<_ClusterStackedItemInfo> clusterStackedItemInfo =
+      <_ClusterStackedItemInfo>[];
+
+  bool _needAxisRangeAnimation = false;
 
   /// To get data and process data for rendering chart
   void _processData() {
@@ -26,15 +29,33 @@ class _ChartSeries {
     if (chart.indicators.isNotEmpty) {
       _populateDataPoints(seriesRendererList);
       _calculateIndicators();
-      _chartState._chartAxis?._calculateVisibleAxes();
+      _chartState._chartAxis._calculateVisibleAxes();
       _findMinMax(seriesRendererList);
       _renderTrendline();
     } else {
-      _chartState._chartAxis?._calculateVisibleAxes();
+      _chartState._chartAxis._calculateVisibleAxes();
       _populateDataPoints(seriesRendererList);
     }
     _calculateStackedValues(_findSeriesCollection(_chartState));
     _renderTrendline();
+  }
+
+  ///check whether axis animation applicable or not
+  bool _needAxisAnimation(CartesianSeriesRenderer seriesRenderer,
+      CartesianSeriesRenderer oldSeriesRenderer) {
+    final dynamic oldAxis = oldSeriesRenderer._xAxisRenderer!._axis;
+    final dynamic axis = seriesRenderer._xAxisRenderer!._axis;
+    final bool needAnimation = seriesRenderer._series.animationDuration > 0 &&
+        seriesRenderer._yAxisRenderer!.runtimeType ==
+            oldSeriesRenderer._yAxisRenderer!.runtimeType &&
+        seriesRenderer._xAxisRenderer!.runtimeType ==
+            oldSeriesRenderer._xAxisRenderer!.runtimeType &&
+        ((oldAxis.visibleMinimum != null &&
+                oldAxis.visibleMinimum != axis.visibleMinimum) ||
+            (oldAxis.visibleMaximum != null &&
+                oldAxis.visibleMaximum != axis.visibleMaximum));
+    _needAxisRangeAnimation = needAnimation;
+    return needAnimation;
   }
 
   /// Find the data points for each series
@@ -43,7 +64,7 @@ class _ChartSeries {
     bool isSelectionRangeChangeByEvent = false;
     for (final CartesianSeriesRenderer seriesRenderer in seriesRendererList) {
       final CartesianSeries<dynamic, dynamic> series = seriesRenderer._series;
-      final ChartIndexedValueMapper<num> _bubbleSize = series.sizeValueMapper;
+      final ChartIndexedValueMapper<num>? _bubbleSize = series.sizeValueMapper;
       seriesRenderer._minimumX = seriesRenderer._minimumY =
           seriesRenderer._minDelta =
               seriesRenderer._maximumX = seriesRenderer._maximumY = null;
@@ -53,7 +74,7 @@ class _ChartSeries {
       seriesRenderer._needAnimateSeriesElements = false;
       seriesRenderer._needsAnimation = false;
       seriesRenderer._reAnimate = false;
-      CartesianChartPoint<dynamic> currentPoint;
+      CartesianChartPoint<dynamic>? currentPoint;
       yValues = <num>[];
       sumOfYvalues = 0;
       seriesRenderer._dataPoints = <CartesianChartPoint<dynamic>>[];
@@ -64,24 +85,25 @@ class _ChartSeries {
       if (!isStacked100 && seriesRenderer._seriesType.contains('100')) {
         isStacked100 = true;
       }
-      if (seriesRenderer._visible) {
+      if (seriesRenderer._visible!) {
         _chartState._totalAnimatingSeries++;
       }
       if (seriesRenderer is HistogramSeriesRenderer) {
-        final HistogramSeries<dynamic, dynamic> series = seriesRenderer._series;
+        final HistogramSeries<dynamic, dynamic> series =
+            seriesRenderer._series as HistogramSeries;
         for (int pointIndex = 0;
             pointIndex < series.dataSource.length;
             pointIndex++) {
-          yValues.add(series.yValueMapper(pointIndex) ?? 0);
-          sumOfYvalues += yValues[pointIndex] ?? 0;
+          yValues.add(series.yValueMapper!(pointIndex) ?? 0);
+          sumOfYvalues += yValues[pointIndex];
         }
         seriesRenderer._processData(series, yValues, sumOfYvalues);
         seriesRenderer._histogramValues.minValue =
-            seriesRenderer._histogramValues.yValues.reduce(min);
+            seriesRenderer._histogramValues.yValues!.reduce(min);
         seriesRenderer._histogramValues.binWidth = series.binInterval ??
-            ((3.5 * seriesRenderer._histogramValues.sDValue) /
+            ((3.5 * seriesRenderer._histogramValues.sDValue!) /
                     math.pow(
-                        seriesRenderer._histogramValues.yValues.length, 1 / 3))
+                        seriesRenderer._histogramValues.yValues!.length, 1 / 3))
                 .round();
       }
       final String seriesType = seriesRenderer._seriesType;
@@ -90,7 +112,7 @@ class _ChartSeries {
       if (series.dataSource != null) {
         dynamic xVal;
         dynamic yVal;
-        num low, high;
+        num? low, high;
         num maxYValue = 0;
         for (int pointIndex = 0; pointIndex < series.dataSource.length;) {
           currentPoint = _getChartPoint(
@@ -103,7 +125,7 @@ class _ChartSeries {
           if (seriesRenderer is WaterfallSeriesRenderer) {
             yVal ??= 0;
             maxYValue += yVal;
-            currentPoint.maxYValue = maxYValue;
+            currentPoint!.maxYValue = maxYValue;
           }
 
           if (xVal != null) {
@@ -120,11 +142,13 @@ class _ChartSeries {
             if (xAxis is DateTimeAxis) {
               xMin = xMin != null ? xMin.millisecondsSinceEpoch : xMin;
               xMax = xMax != null ? xMax.millisecondsSinceEpoch : xMax;
-              xPointValue = xPointValue != null
-                  ? xPointValue.millisecondsSinceEpoch
-                  : xPointValue;
+              xPointValue = xPointValue?.millisecondsSinceEpoch;
             } else if (xAxis is CategoryAxis) {
               xPointValue = pointIndex;
+            } else if (xAxis is DateTimeCategoryAxis) {
+              xMin = xMin != null ? xMin.millisecondsSinceEpoch : xMin;
+              xMax = xMax != null ? xMax.millisecondsSinceEpoch : xMax;
+              xPointValue = xPointValue?.millisecondsSinceEpoch;
             }
             if (xMin != null || xMax != null) {
               _isXVisibleRange = false;
@@ -133,8 +157,7 @@ class _ChartSeries {
               _isYVisibleRange = false;
             }
 
-            if (_chartState._chart.onSelectionChanged != null &&
-                (xMin != null ||
+            if ((xMin != null ||
                     xMax != null ||
                     yMin != null ||
                     yMax != null) &&
@@ -143,11 +166,13 @@ class _ChartSeries {
               final int seriesIndex = _chartState
                   ._chartSeries.visibleSeriesRenderers
                   .indexOf(seriesRenderer);
-              final CartesianSeriesRenderer _oldSeriesRenderer =
+              final CartesianSeriesRenderer? _oldSeriesRenderer =
                   _chartState._oldSeriesRenderers.length - 1 >= seriesIndex
                       ? _chartState._oldSeriesRenderers[seriesIndex]
                       : null;
-              if (_oldSeriesRenderer != null) {
+              if (_oldSeriesRenderer != null &&
+                  (_chartState._chart.onSelectionChanged != null ||
+                      _needAxisAnimation(seriesRenderer, _oldSeriesRenderer))) {
                 isSelectionRangeChangeByEvent =
                     _oldSeriesRenderer._minimumX != xMin ||
                         _oldSeriesRenderer._maximumX != xMax ||
@@ -181,19 +206,19 @@ class _ChartSeries {
                 : true) {
               _isXVisibleRange = true;
               _isYVisibleRange = true;
-              seriesRenderer._dataPoints.add(currentPoint);
-              seriesRenderer._xValues.add(xVal);
+              seriesRenderer._dataPoints.add(currentPoint!);
+              seriesRenderer._xValues!.add(xVal);
               if (seriesRenderer is BubbleSeriesRenderer) {
                 bubbleSize = series.sizeValueMapper == null
                     ? 4
-                    : _bubbleSize(pointIndex) ?? 4;
+                    : _bubbleSize!(pointIndex) ?? 4;
                 currentPoint.bubbleSize = bubbleSize.toDouble();
-                seriesRenderer._maxSize ??= currentPoint.bubbleSize;
-                seriesRenderer._minSize ??= currentPoint.bubbleSize;
-                seriesRenderer._maxSize =
-                    math.max(seriesRenderer._maxSize, currentPoint.bubbleSize);
-                seriesRenderer._minSize =
-                    math.min(seriesRenderer._minSize, currentPoint.bubbleSize);
+                seriesRenderer._maxSize ??= currentPoint.bubbleSize!.toDouble();
+                seriesRenderer._minSize ??= currentPoint.bubbleSize!.toDouble();
+                seriesRenderer._maxSize = math.max(seriesRenderer._maxSize!,
+                    currentPoint.bubbleSize!.toDouble());
+                seriesRenderer._minSize = math.min(seriesRenderer._minSize!,
+                    currentPoint.bubbleSize!.toDouble());
               }
 
               if (seriesType.contains('range') ||
@@ -228,8 +253,8 @@ class _ChartSeries {
                       seriesType == 'boxandwhisker') &&
                   currentPoint.isVisible) {
                 if (seriesType == 'boxandwhisker') {
-                  final num max = currentPoint.maximum;
-                  final num min = currentPoint.minimum;
+                  final num max = currentPoint.maximum!;
+                  final num min = currentPoint.minimum!;
                   currentPoint.maximum = math.max<num>(max, min);
                   currentPoint.minimum = math.min<num>(max, min);
                 } else {
@@ -240,24 +265,25 @@ class _ChartSeries {
                 }
               }
               //determines whether the data source has been changed in-order to perform dynamic animation
-              if (!seriesRenderer._needsAnimation) {
+              if (!seriesRenderer._needsAnimation &&
+                  _needAxisRangeAnimation != true) {
                 if (seriesRenderer._oldSeries == null ||
-                    seriesRenderer._oldDataPoints.length <
+                    seriesRenderer._oldDataPoints!.length <
                         seriesRenderer._dataPoints.length) {
                   seriesRenderer._needAnimateSeriesElements = true;
-                  seriesRenderer._needsAnimation = seriesRenderer._visible;
+                  seriesRenderer._needsAnimation = seriesRenderer._visible!;
                 } else {
                   if (seriesRenderer._dataPoints.length <=
-                      seriesRenderer._oldDataPoints.length) {
-                    seriesRenderer._needsAnimation = seriesRenderer._visible &&
+                      seriesRenderer._oldDataPoints!.length) {
+                    seriesRenderer._needsAnimation = seriesRenderer._visible! &&
                         _findChangesInPoint(
                           currentPoint,
-                          seriesRenderer._oldDataPoints[
+                          seriesRenderer._oldDataPoints![
                               seriesRenderer._dataPoints.length - 1],
                           seriesRenderer,
                         );
                   } else {
-                    seriesRenderer._needsAnimation = seriesRenderer._visible;
+                    seriesRenderer._needsAnimation = seriesRenderer._visible!;
                   }
                 }
               }
@@ -267,9 +293,9 @@ class _ChartSeries {
                 !needSorting &&
                 chart.indicators.isEmpty) {
               _findMinMaxValue(
-                  seriesRenderer._xAxisRenderer,
+                  seriesRenderer._xAxisRenderer!,
                   seriesRenderer,
-                  currentPoint,
+                  currentPoint!,
                   pointIndex,
                   series.dataSource.length,
                   _isXVisibleRange,
@@ -280,7 +306,7 @@ class _ChartSeries {
                 seriesRenderer._xValueList.clear();
                 seriesRenderer._yValueList.clear();
               }
-              if (!currentPoint.isDrop) {
+              if (!currentPoint!.isDrop) {
                 seriesRenderer._xValueList.add(currentPoint.xValue);
                 seriesRenderer._yValueList.add(currentPoint.yValue);
               }
@@ -288,7 +314,10 @@ class _ChartSeries {
           }
           pointIndex = seriesRenderer._seriesType != 'histogram'
               ? pointIndex + 1
-              : pointIndex + yVal;
+              : pointIndex + yVal as int;
+        }
+        if (seriesRenderer._xAxisRenderer is DateTimeCategoryAxisRenderer) {
+          _sortDateTimeCategoryDetails(seriesRenderer);
         }
         if (needSorting) {
           _sortDataSource(seriesRenderer);
@@ -310,9 +339,9 @@ class _ChartSeries {
       CartesianChartPoint<dynamic> currentPoint,
       int pointIndex,
       int dataLength,
-      [bool isXVisibleRange,
-      bool isYVisibleRange]) {
-    if (seriesRenderer._visible) {
+      [bool? isXVisibleRange,
+      bool? isYVisibleRange]) {
+    if (seriesRenderer._visible!) {
       if (axisRenderer is NumericAxisRenderer) {
         axisRenderer._findAxisMinMaxValues(seriesRenderer, currentPoint,
             pointIndex, dataLength, isXVisibleRange, isYVisibleRange);
@@ -325,14 +354,17 @@ class _ChartSeries {
       } else if (axisRenderer is LogarithmicAxisRenderer) {
         axisRenderer._findAxisMinMaxValues(seriesRenderer, currentPoint,
             pointIndex, dataLength, isXVisibleRange, isYVisibleRange);
+      } else if (axisRenderer is DateTimeCategoryAxisRenderer) {
+        axisRenderer._findAxisMinMaxValues(seriesRenderer, currentPoint,
+            pointIndex, dataLength, isXVisibleRange, isYVisibleRange);
       }
     }
   }
 
   /// To find minimum and maximum series values
   void _findSeriesMinMax(CartesianSeriesRenderer seriesRenderer) {
-    final ChartAxisRenderer axisRenderer = seriesRenderer._xAxisRenderer;
-    if (seriesRenderer._visible) {
+    final ChartAxisRenderer axisRenderer = seriesRenderer._xAxisRenderer!;
+    if (seriesRenderer._visible!) {
       if (seriesRenderer is SplineSeriesRenderer) {
         seriesRenderer._xValueList.clear();
         seriesRenderer._yValueList.clear();
@@ -376,12 +408,12 @@ class _ChartSeries {
       if (seriesRenderer._series.trendlines != null) {
         TrendlineRenderer trendlineRenderer;
         Trendline trendline;
-        for (int i = 0; i < seriesRenderer._series.trendlines.length; i++) {
-          trendline = seriesRenderer._series.trendlines[i];
+        for (int i = 0; i < seriesRenderer._series.trendlines!.length; i++) {
+          trendline = seriesRenderer._series.trendlines![i];
           trendlineRenderer = seriesRenderer._trendlineRenderer[i];
           trendlineRenderer._isNeedRender =
               trendlineRenderer._visible == true &&
-                  seriesRenderer._visible &&
+                  seriesRenderer._visible! &&
                   (trendline.type == TrendlineType.polynomial
                       ? (trendline.polynomialOrder >= 2 &&
                           trendline.polynomialOrder <= 6)
@@ -430,6 +462,8 @@ class _ChartSeries {
                         .toLowerCase()
                         .compareTo(firstPoint.sortValue.toLowerCase())
                     : secondPoint.sortValue.compareTo(firstPoint.sortValue)));
+      } else {
+        return 0;
       }
     });
   }
@@ -439,9 +473,9 @@ class _ChartSeries {
       List<CartesianSeriesRenderer> seriesRendererCollection) {
     _StackedItemInfo stackedItemInfo;
     _ClusterStackedItemInfo clusterStackedItemInfo;
-    String groupName = ' ';
-    List<_StackingInfo> positiveValues;
-    List<_StackingInfo> negativeValues;
+    String groupName = '';
+    List<_StackingInfo>? positiveValues;
+    List<_StackingInfo>? negativeValues;
     CartesianSeriesRenderer seriesRenderer;
     if (isStacked100) {
       _calculateStackingPercentage(seriesRendererCollection);
@@ -454,11 +488,13 @@ class _ChartSeries {
       if (seriesRenderer is _StackedSeriesRenderer &&
           seriesRenderer._series is _StackedSeriesBase) {
         final _StackedSeriesBase<dynamic, dynamic> stackedSeriesBase =
-            seriesRenderer._series;
+            seriesRenderer._series as _StackedSeriesBase;
         if (seriesRenderer._dataPoints.isNotEmpty) {
           groupName = (seriesRenderer._seriesType.contains('stackedarea'))
               ? 'stackedareagroup'
-              : (stackedSeriesBase.groupName ?? 'series ' + i.toString());
+              : (stackedSeriesBase.groupName == null
+                  ? ('series ' + i.toString())
+                  : stackedSeriesBase.groupName);
           stackedItemInfo = _StackedItemInfo(i, seriesRenderer);
           if (_chartState._chartSeries.clusterStackedItemInfo.isNotEmpty) {
             for (int k = 0;
@@ -484,7 +520,7 @@ class _ChartSeries {
           }
 
           seriesRenderer._stackingValues = <_StackedValues>[];
-          _StackingInfo currentPositiveStackInfo;
+          _StackingInfo? currentPositiveStackInfo;
 
           if (positiveValues == null || negativeValues == null) {
             positiveValues = <_StackingInfo>[];
@@ -506,11 +542,11 @@ class _ChartSeries {
       bool isStacked100,
       List<_StackingInfo> positiveValues,
       List<_StackingInfo> negativeValues,
-      _StackingInfo currentPositiveStackInfo,
+      _StackingInfo? currentPositiveStackInfo,
       String groupName) {
     num lastValue, value;
     CartesianChartPoint<dynamic> point;
-    _StackingInfo currentNegativeStackInfo;
+    _StackingInfo? currentNegativeStackInfo;
     final List<double> startValues = <double>[];
     final List<double> endValues = <double>[];
     for (int j = 0; j < seriesRenderer._dataPoints.length; j++) {
@@ -538,31 +574,33 @@ class _ChartSeries {
           }
         }
       }
-      if (currentPositiveStackInfo._stackingValues != null) {
-        final int length = currentPositiveStackInfo._stackingValues.length;
+      if (currentPositiveStackInfo?._stackingValues != null) {
+        final int length = currentPositiveStackInfo!._stackingValues!.length;
         if (length == 0 || j > length - 1) {
-          currentPositiveStackInfo._stackingValues.add(0);
+          currentPositiveStackInfo._stackingValues!.add(0);
         }
       }
-      if (currentNegativeStackInfo._stackingValues != null) {
-        final int length = currentNegativeStackInfo._stackingValues.length;
+      if (currentNegativeStackInfo?._stackingValues != null) {
+        final int length = currentNegativeStackInfo!._stackingValues!.length;
         if (length == 0 || j > length - 1) {
-          currentNegativeStackInfo._stackingValues.add(0);
+          currentNegativeStackInfo._stackingValues!.add(0);
         }
       }
       if (isStacked100 && seriesRenderer is _StackedSeriesRenderer) {
         value = value / seriesRenderer._percentageValues[j] * 100;
         value = value.isNaN ? 0 : value;
       }
-      if (value >= 0) {
-        lastValue = currentPositiveStackInfo._stackingValues[j];
-        currentPositiveStackInfo._stackingValues[j] = lastValue + value;
+      if (seriesRenderer._seriesType.contains('stackedarea') || value >= 0) {
+        lastValue = currentPositiveStackInfo!._stackingValues![j];
+        currentPositiveStackInfo._stackingValues![j] =
+            (lastValue + value).toDouble();
       } else {
-        lastValue = currentNegativeStackInfo._stackingValues[j];
-        currentNegativeStackInfo._stackingValues[j] = lastValue + value;
+        lastValue = currentNegativeStackInfo!._stackingValues![j];
+        currentNegativeStackInfo._stackingValues![j] =
+            (lastValue + value).toDouble();
       }
       startValues.add(lastValue.toDouble());
-      endValues.add(value + lastValue);
+      endValues.add((value + lastValue).toDouble());
       if (isStacked100 && endValues[j] > 100) {
         endValues[j] = 100;
       }
@@ -577,10 +615,10 @@ class _ChartSeries {
     seriesRenderer._minimumY = startValues.reduce(min);
     seriesRenderer._maximumY = endValues.reduce(max);
 
-    if (seriesRenderer._minimumY > endValues.reduce(min)) {
+    if (seriesRenderer._minimumY! > endValues.reduce(min)) {
       seriesRenderer._minimumY = isStacked100 ? -100 : endValues.reduce(min);
     }
-    if (seriesRenderer._maximumY < startValues.reduce(max)) {
+    if (seriesRenderer._maximumY! < startValues.reduce(max)) {
       seriesRenderer._maximumY = 0;
     }
   }
@@ -588,24 +626,24 @@ class _ChartSeries {
   /// To find the percentage of stacked series
   void _calculateStackingPercentage(
       List<CartesianSeriesRenderer> seriesRendererCollection) {
-    List<_StackingInfo> percentageValues;
+    List<_StackingInfo>? percentageValues;
     CartesianSeriesRenderer seriesRenderer;
     String groupName;
-    _StackingInfo stackingInfo;
+    _StackingInfo? stackingInfo;
     int length;
     num lastValue, value;
     CartesianChartPoint<dynamic> point;
     for (int i = 0; i < seriesRendererCollection.length; i++) {
       seriesRenderer = seriesRendererCollection[i];
-      seriesRenderer._yAxisRenderer._isStack100 = true;
+      seriesRenderer._yAxisRenderer!._isStack100 = true;
       if (seriesRenderer is _StackedSeriesRenderer &&
           seriesRenderer._series is _StackedSeriesBase) {
         final _StackedSeriesBase<dynamic, dynamic> stackedSeriesBase =
-            seriesRenderer._series;
+            seriesRenderer._series as _StackedSeriesBase;
         if (seriesRenderer._dataPoints.isNotEmpty) {
           groupName = (seriesRenderer._seriesType == 'stackedarea100')
               ? 'stackedareagroup'
-              : (stackedSeriesBase.groupName ?? 'series ' + i.toString());
+              : stackedSeriesBase.groupName;
 
           if (percentageValues == null) {
             percentageValues = <_StackingInfo>[];
@@ -625,18 +663,19 @@ class _ChartSeries {
                 }
               }
             }
-            if (stackingInfo._stackingValues != null) {
-              length = stackingInfo._stackingValues.length;
+            if (stackingInfo?._stackingValues != null) {
+              length = stackingInfo!._stackingValues!.length;
               if (length == 0 || j > length - 1) {
-                stackingInfo._stackingValues.add(0);
+                stackingInfo._stackingValues!.add(0);
               }
             }
-            if (value >= 0) {
-              lastValue = stackingInfo._stackingValues[j];
-              stackingInfo._stackingValues[j] = lastValue + value;
+            if (seriesRenderer._seriesType.contains('stackedarea') ||
+                value >= 0) {
+              lastValue = stackingInfo!._stackingValues![j];
+              stackingInfo._stackingValues![j] = (lastValue + value).toDouble();
             } else {
-              lastValue = stackingInfo._stackingValues[j];
-              stackingInfo._stackingValues[j] = lastValue - value;
+              lastValue = stackingInfo!._stackingValues![j];
+              stackingInfo._stackingValues![j] = (lastValue - value).toDouble();
             }
             if (j == seriesRenderer._dataPoints.length - 1) {
               percentageValues.add(stackingInfo);
@@ -647,12 +686,12 @@ class _ChartSeries {
           for (int i = 0; i < percentageValues.length; i++) {
             if (seriesRenderer._seriesType == 'stackedarea100') {
               seriesRenderer._percentageValues =
-                  percentageValues[i]._stackingValues;
+                  percentageValues[i]._stackingValues!;
             } else {
               if (stackedSeriesBase.groupName ==
                   percentageValues[i].groupName) {
                 seriesRenderer._percentageValues =
-                    percentageValues[i]._stackingValues;
+                    percentageValues[i]._stackingValues!;
               }
             }
           }
@@ -750,9 +789,9 @@ class _ChartSeries {
     if (chart.indicators != null && chart.indicators.isNotEmpty) {
       dynamic indicator;
       bool existField;
-      Map<String, int> _map;
+      Map<String, int> _map = Map<String, int>();
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer;
-      if (!chart.legend.isVisible) {
+      if (!chart.legend.isVisible!) {
         final List<String> textCollection = <String>[];
         for (int i = 0; i < chart.indicators.length; i++) {
           final TechnicalIndicators<dynamic, dynamic> indicator =
@@ -766,7 +805,7 @@ class _ChartSeries {
         _map = Map<String, int>();
         //ignore: avoid_function_literals_in_foreach_calls
         textCollection.forEach((String str) =>
-            _map[str] = !_map.containsKey(str) ? (1) : (_map[str] + 1));
+            _map[str] = !_map.containsKey(str) ? (1) : (_map[str]! + 1));
       }
 
       final List<String> indicatorTextCollection = <String>[];
@@ -777,7 +816,7 @@ class _ChartSeries {
         technicalIndicatorsRenderer._dataPoints =
             <CartesianChartPoint<dynamic>>[];
         technicalIndicatorsRenderer._index = i;
-        if (!chart.legend.isVisible) {
+        if (!chart.legend.isVisible!) {
           final int count = indicatorTextCollection
                   .contains(technicalIndicatorsRenderer._indicatorType)
               ? _getIndicatorId(indicatorTextCollection,
@@ -806,23 +845,23 @@ class _ChartSeries {
                 pointIndex++) {
               if (indicator.xValueMapper != null) {
                 final dynamic xVal = indicator.xValueMapper(pointIndex);
-                num highValue, lowValue, openValue, closeValue, volumeValue;
-                technicalIndicatorsRenderer._dataPoints
+                num? highValue, lowValue, openValue, closeValue, volumeValue;
+                technicalIndicatorsRenderer._dataPoints!
                     .add(CartesianChartPoint<dynamic>(xVal, null));
-                currentPoint = technicalIndicatorsRenderer._dataPoints[
-                    technicalIndicatorsRenderer._dataPoints.length - 1];
+                currentPoint = technicalIndicatorsRenderer._dataPoints![
+                    technicalIndicatorsRenderer._dataPoints!.length - 1];
                 if (indicator.highValueMapper != null) {
                   highValue = indicator.highValueMapper(pointIndex);
                   technicalIndicatorsRenderer
-                      ._dataPoints[
-                          technicalIndicatorsRenderer._dataPoints.length - 1]
+                      ._dataPoints![
+                          technicalIndicatorsRenderer._dataPoints!.length - 1]
                       .high = highValue;
                 }
                 if (indicator.lowValueMapper != null) {
                   lowValue = indicator.lowValueMapper(pointIndex);
                   technicalIndicatorsRenderer
-                      ._dataPoints[
-                          technicalIndicatorsRenderer._dataPoints.length - 1]
+                      ._dataPoints![
+                          technicalIndicatorsRenderer._dataPoints!.length - 1]
                       .low = lowValue;
                 }
 
@@ -836,23 +875,23 @@ class _ChartSeries {
                 if (indicator.openValueMapper != null) {
                   openValue = indicator.openValueMapper(pointIndex);
                   technicalIndicatorsRenderer
-                      ._dataPoints[
-                          technicalIndicatorsRenderer._dataPoints.length - 1]
+                      ._dataPoints![
+                          technicalIndicatorsRenderer._dataPoints!.length - 1]
                       .open = openValue;
                 }
                 if (indicator.closeValueMapper != null) {
                   closeValue = indicator.closeValueMapper(pointIndex);
                   technicalIndicatorsRenderer
-                      ._dataPoints[
-                          technicalIndicatorsRenderer._dataPoints.length - 1]
+                      ._dataPoints![
+                          technicalIndicatorsRenderer._dataPoints!.length - 1]
                       .close = closeValue;
                 }
                 if (indicator is AccumulationDistributionIndicator &&
                     indicator.volumeValueMapper != null) {
-                  volumeValue = indicator.volumeValueMapper(pointIndex);
+                  volumeValue = indicator.volumeValueMapper!(pointIndex);
                   technicalIndicatorsRenderer
-                      ._dataPoints[
-                          technicalIndicatorsRenderer._dataPoints.length - 1]
+                      ._dataPoints![
+                          technicalIndicatorsRenderer._dataPoints!.length - 1]
                       .volume = volumeValue;
                 }
 
@@ -881,13 +920,13 @@ class _ChartSeries {
                     (openValue == null && valueField == 'open') ||
                     (volumeValue == null &&
                         technicalIndicatorsRenderer._indicatorType == 'AD')) {
-                  technicalIndicatorsRenderer._dataPoints.removeAt(
-                      technicalIndicatorsRenderer._dataPoints.length - 1);
+                  technicalIndicatorsRenderer._dataPoints!.removeAt(
+                      technicalIndicatorsRenderer._dataPoints!.length - 1);
                 }
               }
             }
           } else if (indicator.seriesName != null) {
-            CartesianSeriesRenderer seriesRenderer;
+            CartesianSeriesRenderer? seriesRenderer;
             for (int i = 0;
                 i < _chartState._chartSeries.visibleSeriesRenderers.length;
                 i++) {
@@ -907,7 +946,7 @@ class _ChartSeries {
                 : null;
           }
           if (technicalIndicatorsRenderer._dataPoints != null &&
-              technicalIndicatorsRenderer._dataPoints.isNotEmpty) {
+              technicalIndicatorsRenderer._dataPoints!.isNotEmpty) {
             indicator._initSeriesCollection(
                 indicator, chart, technicalIndicatorsRenderer);
             indicator._initDataSource(indicator, technicalIndicatorsRenderer);
@@ -923,7 +962,7 @@ class _ChartSeries {
 
   /// To get the field type of an indicator
   String _getFieldType(TechnicalIndicators<dynamic, dynamic> indicator) {
-    String valueField;
+    String valueField = '';
     if (indicator is EmaIndicator) {
       valueField = indicator.valueField;
     } else if (indicator is TmaIndicator) {
@@ -968,6 +1007,24 @@ class _ChartSeries {
       technicalIndicatorsRenderer._indicatorType = 'Stochastic';
     } else if (indicator is TmaIndicator) {
       technicalIndicatorsRenderer._indicatorType = 'TMA';
+    }
+  }
+
+  //this function sorts the details available based on the x which is of datetime type
+  void _sortDateTimeCategoryDetails(CartesianSeriesRenderer seriesRenderer) {
+    final DateTimeCategoryAxisRenderer axisRenderer =
+        seriesRenderer._xAxisRenderer as DateTimeCategoryAxisRenderer;
+    seriesRenderer._dataPoints.sort((CartesianChartPoint<dynamic> point1,
+        CartesianChartPoint<dynamic> point2) {
+      return point2.x.isAfter(point1.x) ? -1 : 1;
+    });
+    axisRenderer._labels.sort((String first, String second) {
+      return int.parse(first) < int.parse(second) ? -1 : 1;
+    });
+    seriesRenderer._xValues?.sort();
+    for (final CartesianChartPoint point in seriesRenderer._dataPoints) {
+      point.xValue = axisRenderer._labels
+          .indexOf(point.x.microsecondsSinceEpoch.toString());
     }
   }
 }

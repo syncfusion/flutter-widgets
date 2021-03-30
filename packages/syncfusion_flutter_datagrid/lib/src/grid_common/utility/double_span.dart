@@ -16,8 +16,8 @@ class _DoubleSpan {
     end = -1;
   }
 
-  double start;
-  double end;
+  late double start;
+  late double end;
 
   /// Gets a value indicating whether this instance is empty.
   ///

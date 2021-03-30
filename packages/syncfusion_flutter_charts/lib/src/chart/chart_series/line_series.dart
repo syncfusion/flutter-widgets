@@ -11,37 +11,37 @@ part of charts;
 class LineSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of LineSeries class.
   LineSeries(
-      {ValueKey<String> key,
-      ChartSeriesRendererFactory<T, D> onCreateRenderer,
-      @required List<T> dataSource,
-      @required ChartValueMapper<T, D> xValueMapper,
-      @required ChartValueMapper<T, num> yValueMapper,
-      ChartValueMapper<T, dynamic> sortFieldValueMapper,
-      ChartValueMapper<T, Color> pointColorMapper,
-      ChartValueMapper<T, String> dataLabelMapper,
-      String xAxisName,
-      String yAxisName,
-      Color color,
-      double width,
-      MarkerSettings markerSettings,
-      EmptyPointSettings emptyPointSettings,
-      DataLabelSettings dataLabelSettings,
-      List<Trendline> trendlines,
-      bool isVisible,
-      String name,
-      bool enableTooltip,
-      List<double> dashArray,
-      double animationDuration,
+      {ValueKey<String>? key,
+      ChartSeriesRendererFactory<T, D>? onCreateRenderer,
+      required List<T> dataSource,
+      required ChartValueMapper<T, D> xValueMapper,
+      required ChartValueMapper<T, num> yValueMapper,
+      ChartValueMapper<T, dynamic>? sortFieldValueMapper,
+      ChartValueMapper<T, Color>? pointColorMapper,
+      ChartValueMapper<T, String>? dataLabelMapper,
+      String? xAxisName,
+      String? yAxisName,
+      Color? color,
+      double? width,
+      MarkerSettings? markerSettings,
+      EmptyPointSettings? emptyPointSettings,
+      DataLabelSettings? dataLabelSettings,
+      List<Trendline>? trendlines,
+      bool? isVisible,
+      String? name,
+      bool? enableTooltip,
+      List<double>? dashArray,
+      double? animationDuration,
       // ignore: deprecated_member_use_from_same_package
-      SelectionSettings selectionSettings,
-      SelectionBehavior selectionBehavior,
-      bool isVisibleInLegend,
-      LegendIconType legendIconType,
-      SortingOrder sortingOrder,
-      String legendItemText,
-      double opacity,
-      List<int> initialSelectedDataIndexes,
-      SeriesRendererCreatedCallback onRendererCreated})
+      SelectionSettings? selectionSettings,
+      SelectionBehavior? selectionBehavior,
+      bool? isVisibleInLegend,
+      LegendIconType? legendIconType,
+      SortingOrder? sortingOrder,
+      String? legendItemText,
+      double? opacity,
+      List<int>? initialSelectedDataIndexes,
+      SeriesRendererCreatedCallback? onRendererCreated})
       : super(
             key: key,
             onRendererCreated: onRendererCreated,
@@ -78,7 +78,7 @@ class LineSeries<T, D> extends XyDataSeries<T, D> {
   LineSeriesRenderer createRenderer(ChartSeries<T, D> series) {
     LineSeriesRenderer seriesRenderer;
     if (onCreateRenderer != null) {
-      seriesRenderer = onCreateRenderer(series);
+      seriesRenderer = onCreateRenderer!(series) as LineSeriesRenderer;
       assert(seriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return seriesRenderer;
@@ -92,9 +92,9 @@ class LineSeriesRenderer extends XyDataSeriesRenderer {
   /// Calling the default constructor of LineSeriesRenderer class.
   LineSeriesRenderer();
 
-  LineSegment _lineSegment, _segment;
+  late LineSegment _lineSegment, _segment;
 
-  List<CartesianSeriesRenderer> _oldSeriesRenderers;
+  List<CartesianSeriesRenderer>? _oldSeriesRenderers;
 
   /// To add line segments to segments list
   ChartSegment _createSegments(
@@ -102,26 +102,27 @@ class LineSeriesRenderer extends XyDataSeriesRenderer {
       CartesianChartPoint<dynamic> _nextPoint,
       int pointIndex,
       int seriesIndex,
-      num animateFactor) {
+      double animateFactor) {
     _segment = createSegment();
-    _oldSeriesRenderers = _chartState._oldSeriesRenderers;
-    _segment._series = _series;
+    _oldSeriesRenderers = _chartState!._oldSeriesRenderers;
+    _segment._series = _series as XyDataSeries;
     _segment._seriesRenderer = this;
     _segment._seriesIndex = seriesIndex;
     _segment._currentPoint = currentPoint;
     _segment.currentSegmentIndex = pointIndex;
     _segment._nextPoint = _nextPoint;
     _segment._chart = _chart;
-    _segment._chartState = _chartState;
+    _segment._chartState = _chartState!;
     _segment.animationFactor = animateFactor;
     _segment._pointColorMapper = currentPoint.pointColorMapper;
-    if (_chartState._widgetNeedUpdate &&
+    if (_chartState!._widgetNeedUpdate &&
         _oldSeriesRenderers != null &&
-        _oldSeriesRenderers.isNotEmpty &&
-        _oldSeriesRenderers.length - 1 >= _segment._seriesIndex &&
-        _oldSeriesRenderers[_segment._seriesIndex]._seriesName ==
+        _oldSeriesRenderers!.isNotEmpty &&
+        _oldSeriesRenderers!.length - 1 >= _segment._seriesIndex &&
+        _oldSeriesRenderers![_segment._seriesIndex]._seriesName ==
             _segment._seriesRenderer._seriesName) {
-      _segment._oldSeriesRenderer = _oldSeriesRenderers[_segment._seriesIndex];
+      _segment._oldSeriesRenderer = _oldSeriesRenderers![_segment._seriesIndex];
+      _segment._oldSegmentIndex = _getOldSegmentIndex(_segment);
     }
     _segment.calculateSegmentPoints();
     _segment.points.add(Offset(_segment._x1, _segment._y1));
@@ -135,22 +136,22 @@ class LineSeriesRenderer extends XyDataSeriesRenderer {
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment _segment) {
     if (_segment._seriesRenderer._isSelectionEnable) {
-      final SelectionBehaviorRenderer selectionBehaviorRenderer =
+      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
           _segment._seriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer._selectionRenderer._checkWithSelectionState(
-          _segments[_segment.currentSegmentIndex], _chart);
+      selectionBehaviorRenderer?._selectionRenderer?._checkWithSelectionState(
+          _segments[_segment.currentSegmentIndex!], _chart);
     }
     _segment.onPaint(canvas);
   }
 
   /// Creates a _segment for a data point in the series.
   @override
-  ChartSegment createSegment() => LineSegment();
+  LineSegment createSegment() => LineSegment();
 
   /// Changes the series color, border color, and border width.
   @override
   void customizeSegment(ChartSegment _segment) {
-    _lineSegment = _segment;
+    _lineSegment = _segment as LineSegment;
     _lineSegment._color = _lineSegment._pointColorMapper ??
         _lineSegment._series.color ??
         _lineSegment._seriesRenderer._seriesColor;
@@ -166,9 +167,9 @@ class LineSeriesRenderer extends XyDataSeriesRenderer {
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer seriesRenderer]) {
-    canvas.drawPath(seriesRenderer._markerShapes[index], fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes[index], strokePaint);
+      [CartesianSeriesRenderer? seriesRenderer]) {
+    canvas.drawPath(seriesRenderer!._markerShapes[index]!, fillPaint);
+    canvas.drawPath(seriesRenderer._markerShapes[index]!, strokePaint);
   }
 
   /// Draws data label text of the appropriate data point in a series.

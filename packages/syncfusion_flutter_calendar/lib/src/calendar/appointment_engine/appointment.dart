@@ -1,4 +1,7 @@
-part of calendar;
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart'
+    show IterableDiagnostics;
 
 /// Appointment data for calendar.
 ///
@@ -41,7 +44,7 @@ part of calendar;
 ///   return DataSource(appointments);
 /// }
 ///  ```
-class Appointment {
+class Appointment with Diagnosticable {
   /// Creates an appointment data for [SfCalendar].
   ///
   /// An object that contains properties to hold the detailed information
@@ -54,19 +57,12 @@ class Appointment {
     this.notes,
     this.location,
     this.resourceIds,
-    DateTime startTime,
-    DateTime endTime,
-    String subject,
-    Color color,
-    List<DateTime> recurrenceExceptionDates,
-  })  : startTime = startTime ?? DateTime.now(),
-        endTime = endTime ?? DateTime.now(),
-        subject = subject ?? '',
-        _actualStartTime = startTime,
-        _actualEndTime = endTime,
-        color = color ?? Colors.lightBlue,
-        recurrenceExceptionDates = recurrenceExceptionDates ?? <DateTime>[],
-        _isSpanned = false;
+    required this.startTime,
+    required this.endTime,
+    this.subject = '',
+    this.color = Colors.lightBlue,
+    this.recurrenceExceptionDates,
+  });
 
   /// The start time for an [Appointment] in [SfCalendar].
   ///
@@ -320,7 +316,7 @@ class Appointment {
   ///   return DataSource(appointments);
   /// }
   ///  ```
-  String startTimeZone;
+  String? startTimeZone;
 
   /// The end time zone for an [Appointment] in [SfCalendar].
   ///
@@ -366,7 +362,7 @@ class Appointment {
   ///   return DataSource(appointments);
   /// }
   ///  ```
-  String endTimeZone;
+  String? endTimeZone;
 
   /// Recurs the [Appointment] on [SfCalendar].
   ///
@@ -422,7 +418,7 @@ class Appointment {
   ///  }
   ///
   ///  ```
-  String recurrenceRule;
+  String? recurrenceRule;
 
   /// Delete the occurrence for an recurrence appointment.
   ///
@@ -481,7 +477,7 @@ class Appointment {
   ///    return DataSource(appointments);
   ///  }
   ///  ```
-  List<DateTime> recurrenceExceptionDates;
+  List<DateTime>? recurrenceExceptionDates;
 
   /// Defines the notes for an [Appointment] in [SfCalendar].
   ///
@@ -536,7 +532,7 @@ class Appointment {
   ///    return DataSource(appointments);
   ///  }
   ///  ```
-  String notes;
+  String? notes;
 
   /// Defines the location for an [Appointment] in [SfCalendar].
   ///
@@ -591,7 +587,7 @@ class Appointment {
   ///    return DataSource(appointments);
   ///  }
   ///  ```
-  String location;
+  String? location;
 
   /// The ids of the [CalendarResource] that shares this [Appointment].
   ///
@@ -650,35 +646,7 @@ class Appointment {
   ///}
   ///
   /// ```
-  List<Object> resourceIds;
-
-  //Used for referring items in ItemsSource of Schedule.
-  Object _data;
-
-  // ignore: prefer_final_fields
-  DateTime _actualStartTime;
-
-  // ignore: prefer_final_fields
-  DateTime _actualEndTime;
-
-  // ignore: prefer_final_fields
-  bool _isSpanned = false;
-
-  /// For span appointments, we have split the appointment into multiple while
-  /// calculating the visible appointments, to render on the visible view, hence
-  /// it's not possible to get the exact start and end time for the spanning
-  /// appointment, hence to hold the exact start time of the appointment we have
-  /// used this variable, and stored the start time which calculated based on
-  /// the timezone, in the visible appointments calculation.
-  DateTime _exactStartTime;
-
-  /// For span appointments, we have split the appointment into multiple while
-  /// calculating the visible appointments, to render on the visible view, hence
-  /// it's not possible to get the exact start and end time for the spanning
-  /// appointment, hence to hold the exact start time of the appointment we have
-  /// used this variable, and stored the end time which calculated based on
-  /// the timezone, in the visible appointments calculation.
-  DateTime _exactEndTime;
+  List<Object>? resourceIds;
 
   @override
   bool operator ==(dynamic other) {
@@ -712,12 +680,31 @@ class Appointment {
       isAllDay = false,
       notes,
       location,
-      resourceIds,
+      hashList(resourceIds),
       startTime,
       endTime,
       subject,
       color,
-      recurrenceExceptionDates,
+      hashList(recurrenceExceptionDates),
     );
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(StringProperty('startTimeZone', startTimeZone));
+    properties.add(StringProperty('endTimeZone', endTimeZone));
+    properties.add(StringProperty('recurrenceRule', recurrenceRule));
+    properties.add(StringProperty('notes', notes));
+    properties.add(StringProperty('location', location));
+    properties.add(StringProperty('subject', subject));
+    properties.add(ColorProperty('color', color));
+    properties.add(DiagnosticsProperty<DateTime>('startTime', startTime));
+    properties.add(DiagnosticsProperty<DateTime>('endTime', endTime));
+    properties.add(IterableDiagnostics<DateTime>(recurrenceExceptionDates)
+        .toDiagnosticsNode(name: 'recurrenceExceptionDates'));
+    properties.add(IterableDiagnostics<Object>(resourceIds)
+        .toDiagnosticsNode(name: 'resourceIds'));
+    properties.add(DiagnosticsProperty<bool>('isAllDay', isAllDay));
   }
 }

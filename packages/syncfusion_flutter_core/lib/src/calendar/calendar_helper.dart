@@ -136,8 +136,8 @@ bool isSameOrAfterDate(dynamic firstDate, dynamic date) {
 }
 
 /// Get the visible dates based on the date value and visible dates count.
-List getVisibleDates(dynamic date, List<int> nonWorkingDays, int firstDayOfWeek,
-    int visibleDatesCount) {
+List getVisibleDates(dynamic date, List<int>? nonWorkingDays,
+    int firstDayOfWeek, int visibleDatesCount) {
   List datesCollection;
   if (date is HijriDateTime) {
     datesCollection = <HijriDateTime>[];
@@ -145,14 +145,11 @@ List getVisibleDates(dynamic date, List<int> nonWorkingDays, int firstDayOfWeek,
     datesCollection = <DateTime>[];
   }
 
-  dynamic currentDate = date;
-  if (firstDayOfWeek != null) {
-    currentDate =
-        getFirstDayOfWeekDate(visibleDatesCount, date, firstDayOfWeek);
-  }
+  final dynamic currentDate =
+      getFirstDayOfWeekDate(visibleDatesCount, date, firstDayOfWeek);
 
   for (int i = 0; i < visibleDatesCount; i++) {
-    final dynamic visibleDate = addDuration(currentDate, Duration(days: i));
+    final dynamic visibleDate = addDays(currentDate, i);
     if (nonWorkingDays != null &&
         nonWorkingDays.contains(visibleDate.weekday)) {
       continue;
@@ -162,6 +159,15 @@ List getVisibleDates(dynamic date, List<int> nonWorkingDays, int firstDayOfWeek,
   }
 
   return datesCollection;
+}
+
+/// Return date value without hour and minutes consideration.
+dynamic addDays(dynamic date, int days) {
+  if (date is HijriDateTime) {
+    return date.add(Duration(days: days));
+  }
+
+  return DateTime(date.year, date.month, date.day + days);
 }
 
 /// Calculate first day of week date value based original date with first day of
@@ -187,6 +193,6 @@ dynamic getFirstDayOfWeekDate(
     value += numberOfWeekDays;
   }
 
-  currentDate = addDuration(currentDate, Duration(days: value));
+  currentDate = addDays(currentDate, value);
   return currentDate;
 }

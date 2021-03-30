@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "Ընտրված ամսաթիվ չկա", 
 "noEventsCalendarLabel" : "Ոչ մի իրադարձություն", 
-"scheduleViewNewEventLabel" : "Ոչինչ նախատեսված չէ: Հպեք ՝ ստեղծելու համար:", 
 "ofDataPagerLabel" : "ի", 
 "pagesDataPagerLabel" : "էջեր", 
 "itemsDataPagerLabel" : "իրեր", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "Խոյ", 
 "shortShawwalLabel" : "Շոուն", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
-"shortDhualhiLabel" : "Դհուլ-Հ"
+"shortDhualhiLabel" : "Դհուլ-Հ", 
+"daySpanCountLabel" : "Օր"
 }

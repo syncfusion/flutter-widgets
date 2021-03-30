@@ -1,8 +1,10 @@
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
+import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:syncfusion_flutter_pdfviewer/src/control/pdfviewer_callback_details.dart';
 import 'package:vector_math/vector_math_64.dart' show Quad, Vector3, Matrix4;
@@ -11,29 +13,34 @@ import 'package:vector_math/vector_math_64.dart' show Quad, Vector3, Matrix4;
 @immutable
 class PdfContainer extends StatefulWidget {
   /// Creates a instance of PdfContainer.
-  PdfContainer({
+  PdfContainer(
     Key key,
+    this.isMobileWebView,
     this.initialScrollOffset,
     this.initialZoomLevel,
-    this.enableDoubleTapZooming = true,
+    this.enableDoubleTapZooming,
     this.onZoomLevelChanged,
     this.pdfController,
-    this.panEnabled = true,
-    this.scaleEnabled = true,
-    @required this.scrollController,
-    @required this.itemBuilder,
-  })  : assert(itemBuilder != null),
-        assert(scrollController != null),
-        assert(panEnabled != null),
-        assert(scaleEnabled != null),
-        assert(enableDoubleTapZooming != null),
-        super(key: key);
+    this.onTap,
+    this.interactionMode,
+    this.viewportConstraints,
+    this.maxPdfPageWidth,
+    this.panEnabled,
+    this.scrollController,
+    this.itemBuilder,
+  ) : super(key: key);
 
   /// Represents the initial zoom level to be applied when the [SfPdfViewer] widget is loaded.
   final double initialZoomLevel;
 
   /// Represents the initial scroll offset position to be displayed when the [SfPdfViewer] widget is loaded.
   final Offset initialScrollOffset;
+
+  /// Represents the viewport dimension of SfPdfViewer container.
+  final BoxConstraints viewportConstraints;
+
+  /// Represents the maximum page width.
+  final double maxPdfPageWidth;
 
   /// An object that can be used to control the position to which this scroll
   /// view is scrolled.
@@ -45,11 +52,17 @@ class PdfContainer extends StatefulWidget {
   /// If true, panning is enabled.
   final bool panEnabled;
 
-  /// If true, scaling is enabled.
-  final bool scaleEnabled;
-
   /// If true, double tap zooming is enabled.
   final bool enableDoubleTapZooming;
+
+  /// Triggered while tap on pdf container.
+  final VoidCallback onTap;
+
+  /// Indicates interaction mode of pdfViewer.
+  final PdfInteractionMode interactionMode;
+
+  /// If true,MobileWebView is enabled.Default value is false.
+  final bool isMobileWebView;
 
   /// Called when the zoom level changes in [SfPdfViewer].
   ///
@@ -63,7 +76,7 @@ class PdfContainer extends StatefulWidget {
   /// when the zoom level changes.
   ///
   /// See also: [PdfZoomDetails].
-  final PdfZoomLevelChangedCallback onZoomLevelChanged;
+  final PdfZoomLevelChangedCallback? onZoomLevelChanged;
 
   /// It controls the PdfViewer
   final PdfViewerController pdfController;
@@ -169,7 +182,7 @@ class PdfContainer extends StatefulWidget {
       PdfContainer.getNearestPointOnLine(point, quad.point3, quad.point0),
     ];
     double minDistance = double.infinity;
-    Vector3 closestOverall;
+    late Vector3 closestOverall;
     for (final Vector3 closePoint in closestPoints) {
       final double distance = math.sqrt(
         math.pow(point.x - closePoint.x, 2) +
@@ -191,27 +204,35 @@ class PdfContainer extends StatefulWidget {
 class PdfContainerState extends State<PdfContainer>
     with TickerProviderStateMixin {
   final bool _alignPanAxis = false;
+  bool _isLongPressed = false;
   final double _minScale = 1.0, _maxScale = 3.0;
   double _scale = 1.0;
   double _previousScale = 1.0;
   final EdgeInsets _boundaryMargin = EdgeInsets.zero;
   final GlobalKey _childKey = GlobalKey();
   final GlobalKey _parentKey = GlobalKey();
-  Animation<Offset> _animation;
-  AnimationController _animationController;
-  PdfViewerController _pdfController;
+  Animation<Offset>? _animation;
+  late AnimationController _animationController;
+  late PdfViewerController _pdfController;
   Offset _tapPosition = Offset.zero, _previousOffset = Offset.zero;
-  Offset _origin;
-  Axis _panAxis; // Used with alignPanAxis.
-  Offset _referenceFocalPoint; // Point where the current gesture began.
-  double _scaleStart; // Scale value at start of scaling gesture.
-  _GestureType _gestureType;
+  Offset? _origin;
+  Axis? _panAxis; // Used with alignPanAxis.
+  Offset? _referenceFocalPoint; // Point where the current gesture began.
+  double? _scaleStart; // Scale value at start of scaling gesture.
+  _GestureType? _gestureType;
   bool _isPositionHandlerAttached = false;
+  bool _isContentOverflowed = false;
+  double _overflowOrigin = 0.0;
+  bool _isMousePointer = false;
+  double _mouseDragOffsetInPanMode = 0.0;
+  final _scaleEnabled = true;
+  SystemMouseCursor _cursor = SystemMouseCursors.basic;
+
   // Scale Matrix
-  Matrix4 _viewMatrix;
+  Matrix4? _viewMatrix;
 
   /// Gets the Scale matrix
-  Matrix4 get viewMatrix => _viewMatrix;
+  Matrix4? get viewMatrix => _viewMatrix;
 
   /// Sets the Scale matrix
   set viewMatrix(value) {
@@ -231,7 +252,7 @@ class PdfContainerState extends State<PdfContainer>
     assert(_parentKey.currentContext != null);
     final RenderBox parentRenderBox =
         // ignore: avoid_as
-        _parentKey.currentContext.findRenderObject() as RenderBox;
+        _parentKey.currentContext!.findRenderObject() as RenderBox;
     return Offset.zero & parentRenderBox.size;
   }
 
@@ -243,7 +264,7 @@ class PdfContainerState extends State<PdfContainer>
     }
 
     final Offset alignedTranslation = _alignPanAxis && _panAxis != null
-        ? _alignAxis(translation, _panAxis)
+        ? _alignAxis(translation, _panAxis!)
         : translation;
 
     final Matrix4 nextMatrix = matrix.clone()
@@ -258,7 +279,7 @@ class PdfContainerState extends State<PdfContainer>
 
     final RenderBox childRenderBox =
         // ignore: avoid_as
-        _childKey.currentContext.findRenderObject() as RenderBox;
+        _childKey.currentContext!.findRenderObject() as RenderBox;
     final Size childSize = childRenderBox.size;
     final Rect boundaryRect =
         _boundaryMargin.inflateRect(Offset.zero & childSize);
@@ -334,7 +355,7 @@ class PdfContainerState extends State<PdfContainer>
 
     // Don't allow a scale that results in an overall scale beyond min/max
     // scale.
-    final double currentScale = viewMatrix.getMaxScaleOnAxis();
+    final double currentScale = viewMatrix!.getMaxScaleOnAxis();
     final double totalScale = currentScale * scale;
     final double clampedTotalScale = totalScale
         .clamp(
@@ -352,7 +373,7 @@ class PdfContainerState extends State<PdfContainer>
   bool _gestureIsSupported(_GestureType gestureType) {
     switch (gestureType) {
       case _GestureType.scale:
-        return widget.scaleEnabled;
+        return _scaleEnabled;
 
       case _GestureType.pan:
       default:
@@ -365,6 +386,9 @@ class PdfContainerState extends State<PdfContainer>
 
   // Handle scale start of a gesture.
   void _handleScaleStart(ScaleStartDetails details) {
+    if (widget.interactionMode == PdfInteractionMode.pan) {
+      _cursor = SystemMouseCursors.grabbing;
+    }
     if (_animationController.isAnimating) {
       _animationController.stop();
       _animationController.reset();
@@ -374,14 +398,15 @@ class PdfContainerState extends State<PdfContainer>
 
     _gestureType = null;
     _panAxis = null;
-    _scaleStart = viewMatrix.getMaxScaleOnAxis();
+    _scaleStart = viewMatrix!.getMaxScaleOnAxis();
     _pixels = widget.scrollController.position.pixels;
     _translationY = 0;
+    _mouseDragOffsetInPanMode = 0;
     if (widget.scrollController.position.maxScrollExtent > 0) {
       final factor = _pixels / widget.scrollController.position.maxScrollExtent;
       final totalSize = widget.scrollController.position.viewportDimension +
           widget.scrollController.position.maxScrollExtent;
-      final scaledSize = _scaleStart * totalSize;
+      final scaledSize = _scaleStart! * totalSize;
       final scaledMaxScrollExtent =
           scaledSize - widget.scrollController.position.viewportDimension;
       _pixels = scaledMaxScrollExtent * factor;
@@ -394,7 +419,50 @@ class PdfContainerState extends State<PdfContainer>
       details.localFocalPoint,
     );
     _previousOffset =
-        Offset(-_referenceFocalPoint.dx, -(widget.scrollController.offset));
+        Offset(-_referenceFocalPoint!.dx, -(widget.scrollController.offset));
+  }
+
+  /// Jumps to the offset when document is zoomed.
+  /// This calculation need to be used for all jumping instance.
+  void jumpOnZoomedDocument(
+      double? xOffset, double yOffset, double viewportWidth) {
+    _scale = viewMatrix!.getMaxScaleOnAxis();
+    var correctedY = yOffset;
+    if (widget.scrollController.position.maxScrollExtent > 0) {
+      final factor =
+          correctedY / widget.scrollController.position.maxScrollExtent;
+      final totalSize = widget.scrollController.position.viewportDimension +
+          widget.scrollController.position.maxScrollExtent;
+      final scaledSize = _scale * totalSize;
+      final scaledMaxScrollExtent =
+          scaledSize - widget.scrollController.position.viewportDimension;
+      correctedY = scaledMaxScrollExtent * factor;
+      correctedY = (correctedY / scaledSize) * totalSize;
+      double midOfViewport =
+          ((widget.scrollController.position.viewportDimension / 2) *
+              _scale *
+              factor);
+      if (kIsWeb && xOffset != null) {
+        final _heightFactor = _viewport.height / _viewport.center.dy;
+        if (_scale > _heightFactor) {
+          midOfViewport = midOfViewport / _heightFactor;
+        }
+      }
+      double scaledYOffset =
+          (toScene(Offset(0, correctedY)).dy * _scale) - midOfViewport;
+      if (scaledYOffset > widget.scrollController.position.maxScrollExtent) {
+        scaledYOffset = widget.scrollController.position.maxScrollExtent;
+      }
+      _pdfController.jumpTo(yOffset: scaledYOffset);
+      if (xOffset != null) {
+        final currentX = viewMatrix!.getTranslation().x.round() == 0
+            ? 0
+            : (viewMatrix!.getTranslation().x.roundToDouble().abs()) / _scale;
+        xOffset = currentX - xOffset;
+        viewMatrix = _matrixTranslate(
+            viewMatrix!, Offset(xOffset + ((viewportWidth / 2) / _scale), 0));
+      }
+    }
   }
 
   void _setPosition(Offset translation) {
@@ -404,7 +472,7 @@ class PdfContainerState extends State<PdfContainer>
     _translationY = _translationY + translation.dy;
     final totalSize = position.viewportDimension + maxScrollExtent;
     double factor = (_pixels - _translationY) / totalSize;
-    final scaledSize = totalSize * viewMatrix.getMaxScaleOnAxis();
+    final scaledSize = totalSize * viewMatrix!.getMaxScaleOnAxis();
     final scaledMaxScrollExtent = scaledSize - position.viewportDimension;
     final factorAfterScaling = (scaledSize * factor) / scaledMaxScrollExtent;
     double newPixels = maxScrollExtent * factorAfterScaling;
@@ -421,16 +489,19 @@ class PdfContainerState extends State<PdfContainer>
     if (position.maxScrollExtent <= 0) {
       //maxScrollExtent less than zero this condition triggered
       _origin = Offset(0, 0);
-      viewMatrix = _matrixTranslate(viewMatrix, Offset(0, translation.dy));
+      viewMatrix = _matrixTranslate(viewMatrix!, Offset(0, translation.dy));
     }
   }
 
   /// Handle scale update for ongoing gesture.
-  void _handleScaleUpdate({ScaleUpdateDetails details, bool doubleTap}) {
-    Offset focalPointScene;
+  void _handleScaleUpdate(
+      {ScaleUpdateDetails? details, bool doubleTap = false}) {
+    _isContentOverflowed = false;
+    Offset? focalPointScene;
     //if the double details are not null doubleTap invoked ,otherwise pinch zoom invoked
-    if (doubleTap != null) {
+    if (doubleTap) {
       Offset _offset;
+      _gestureType = _GestureType.scale;
       if (_scale <= 1.0) {
         _origin = Offset.zero;
         final Offset normalizedOffset =
@@ -439,7 +510,7 @@ class PdfContainerState extends State<PdfContainer>
         //this offset represent the current focus offset after double tap zoom
         _offset = ((_tapPosition) - normalizedOffset * _scale) / _scale;
         viewMatrix = _matrixScale(
-          viewMatrix,
+          viewMatrix!,
           _scale,
         );
 
@@ -449,13 +520,13 @@ class PdfContainerState extends State<PdfContainer>
         // Y axis translation will be handled by scroll controller
         // to maintain exact scale offset without cropping the document
         // in the following codes.
-        viewMatrix = _matrixTranslate(viewMatrix, Offset(_offset.dx, 0));
+        viewMatrix = _matrixTranslate(viewMatrix!, Offset(_offset.dx, 0));
         widget.scrollController.jumpTo(-(_offset.dy));
       } else {
         final Offset normalizedOffset =
             ((_tapPosition) - _previousOffset * _scale) / _scale;
         viewMatrix = _matrixScale(
-          viewMatrix,
+          viewMatrix!,
           1.0 / _scale,
         );
         _scale = 1;
@@ -468,32 +539,32 @@ class PdfContainerState extends State<PdfContainer>
         // Y axis translation will be handled by scroll controller
         // to maintain exact scale offset without cropping the document
         // in the following codes.
-        viewMatrix = _matrixTranslate(viewMatrix, Offset(_offset.dx, 0));
+        viewMatrix = _matrixTranslate(viewMatrix!, Offset(_offset.dx, 0));
         widget.scrollController.jumpTo(-_offset.dy);
       }
       _setPosition(_offset - _previousOffset);
-      if (_pdfController != null) {
-        _pdfController.zoomLevel = _scale;
-        _previousScale = _scale;
-      }
+      _pdfController.zoomLevel = _scale;
+      _previousScale = _scale;
     } else {
-      _scale = viewMatrix.getMaxScaleOnAxis();
+      _scale = viewMatrix!.getMaxScaleOnAxis();
       focalPointScene = toScene(
-        details.localFocalPoint,
+        details!.localFocalPoint,
       );
-      _gestureType ??=
-          _getGestureType(!widget.scaleEnabled ? 1.0 : details.scale);
+      _gestureType ??= _getGestureType(!_scaleEnabled ? 1.0 : details.scale);
+      if (_restrictPanForWebSelectionMode()) {
+        return;
+      }
       if (_gestureType == _GestureType.pan) {
-        _panAxis ??= _getPanAxis(_referenceFocalPoint, focalPointScene);
+        _panAxis ??= _getPanAxis(_referenceFocalPoint!, focalPointScene);
       }
 
-      if (!_gestureIsSupported(_gestureType)) {
+      if (!_gestureIsSupported(_gestureType!)) {
         return;
       }
     }
-    switch (_gestureType) {
+    switch (_gestureType!) {
       case _GestureType.scale:
-        if (_scaleStart == null) {
+        if (_scaleStart == null || details == null) {
           return;
         }
 
@@ -502,10 +573,10 @@ class PdfContainerState extends State<PdfContainer>
         // details.scale gives us the amount to change the scale as of the
         // start of this gesture, so calculate the amount to scale as of the
         // previous call to _onScaleUpdate.
-        final double desiredScale = _scaleStart * details.scale;
+        final double desiredScale = _scaleStart! * details.scale;
         final double scaleChange = desiredScale / _scale;
         viewMatrix = _matrixScale(
-          viewMatrix,
+          viewMatrix!,
           scaleChange,
         );
 
@@ -517,7 +588,7 @@ class PdfContainerState extends State<PdfContainer>
           details.localFocalPoint,
         );
 
-        final translation = focalPointSceneScaled - _referenceFocalPoint;
+        final translation = focalPointSceneScaled - _referenceFocalPoint!;
 
         // Translating in X axis and ignored Y axis. If the Y axis is translated
         // then, the viewport origin will be changed to current translation
@@ -525,7 +596,7 @@ class PdfContainerState extends State<PdfContainer>
         // Y axis translation will be handled by scroll controller
         // to maintain exact scale offset without cropping the document
         // in the following codes.
-        viewMatrix = _matrixTranslate(viewMatrix, Offset(translation.dx, 0.0));
+        viewMatrix = _matrixTranslate(viewMatrix!, Offset(translation.dx, 0.0));
         _setPosition(translation);
         // details.localFocalPoint should now be at the same location as the
         // original _referenceFocalPoint point. If it's not, that's because
@@ -535,21 +606,25 @@ class PdfContainerState extends State<PdfContainer>
         final Offset focalPointSceneCheck = toScene(
           details.localFocalPoint,
         );
-        if (_round(_referenceFocalPoint) != _round(focalPointSceneCheck)) {
+        if (_round(_referenceFocalPoint!) != _round(focalPointSceneCheck)) {
           _referenceFocalPoint = focalPointSceneCheck;
         }
         return;
 
       case _GestureType.pan:
-        if (_referenceFocalPoint == null || details.scale != 1.0) {
+        if (_restrictPanForWebSelectionMode()) {
+          return;
+        }
+        if (_referenceFocalPoint == null || details!.scale != 1.0) {
           return;
         }
         // Translate so that the same point in the scene is underneath the
         // focal point before and after the movement. We have ignore dy since
         // the Y axis is translation is done by scroll controller.
-        final Offset translationChange = focalPointScene - _referenceFocalPoint;
+        final Offset translationChange =
+            focalPointScene! - _referenceFocalPoint!;
         viewMatrix = _matrixTranslate(
-          viewMatrix,
+          viewMatrix!,
           Offset(
               translationChange.dx,
               widget.scrollController.position.maxScrollExtent > 0
@@ -559,21 +634,23 @@ class PdfContainerState extends State<PdfContainer>
         _referenceFocalPoint = toScene(
           details.localFocalPoint,
         );
+        _panOnGreyArea(translationChange.dy, details.focalPoint);
         return;
     }
   }
 
   // Handle scale end of a gesture of _GestureType.
   void _handleScaleEnd(ScaleEndDetails details) {
-    if (_pdfController != null) {
-      _pdfController.zoomLevel = _scale;
+    if (widget.interactionMode == PdfInteractionMode.pan) {
+      _cursor = SystemMouseCursors.grab;
     }
+    _pdfController.zoomLevel = _scale;
     _previousScale = _scale;
     _scaleStart = null;
     _referenceFocalPoint = null;
     _animation?.removeListener(_handleAnimate);
     _animationController.reset();
-    if (!_gestureIsSupported(_gestureType)) {
+    if (_gestureType != null && !_gestureIsSupported(_gestureType!)) {
       _panAxis = null;
       return;
     }
@@ -585,7 +662,7 @@ class PdfContainerState extends State<PdfContainer>
       return;
     }
 
-    final Vector3 translationVector = viewMatrix.getTranslation();
+    final Vector3 translationVector = viewMatrix!.getTranslation();
     final Offset translation = Offset(translationVector.x, translationVector.y);
     final FrictionSimulation frictionSimulationX = FrictionSimulation(
       _kDrag,
@@ -610,8 +687,37 @@ class PdfContainerState extends State<PdfContainer>
     ));
     _animationController.duration =
         Duration(milliseconds: (tFinal * 1000).round());
-    _animation.addListener(_handleAnimate);
+    _animation!.addListener(_handleAnimate);
     _animationController.forward();
+    if (kIsWeb && !widget.isMobileWebView && !_isMousePointer) {
+      _animateToOffset(frictionSimulationY.finalX, tFinal);
+    }
+  }
+
+  // Provides panning effect on the grey area in the Web platform
+  void _animateToOffset(double yOffset, double velocity) {
+    final offset = widget.scrollController.offset - (yOffset * 2);
+    widget.scrollController.animateTo(offset,
+        curve: Curves.decelerate,
+        duration: Duration(milliseconds: (velocity * 2000).round()));
+  }
+
+  //Identifies whether panning should be applied on grey area.
+  void _panOnGreyArea(double offset, Offset focalPoint) {
+    if (kIsWeb &&
+        _isMousePointer &&
+        widget.interactionMode == PdfInteractionMode.pan &&
+        !_isContentOverflowed &&
+        _childKey.currentContext != null) {
+      final RenderBox childRenderBox =
+          // ignore: avoid_as
+          _childKey.currentContext!.findRenderObject() as RenderBox;
+      final position = (childRenderBox.globalToLocal(focalPoint));
+      if (position.dx < 0 || position.dx > childRenderBox.paintBounds.width) {
+        _mouseDragOffsetInPanMode += offset;
+        _animateToOffset(_mouseDragOffsetInPanMode, 0.5);
+      }
+    }
   }
 
   // Handle inertia animation.
@@ -624,80 +730,140 @@ class PdfContainerState extends State<PdfContainer>
       return;
     }
     // Translate such that the resulting translation is _animation.value.
-    final Vector3 translationVector = viewMatrix.getTranslation();
+    final Vector3 translationVector = viewMatrix!.getTranslation();
     final Offset translation = Offset(translationVector.x, translationVector.y);
     final Offset translationScene = toScene(
       translation,
     );
     final Offset animationScene = toScene(
-      _animation.value,
+      _animation!.value,
     );
     final Offset translationChangeScene = animationScene - translationScene;
-    viewMatrix =
-        _matrixTranslate(viewMatrix, Offset(translationChangeScene.dx, 0.0));
+    if (!_restrictPanForWebSelectionMode()) {
+      viewMatrix =
+          _matrixTranslate(viewMatrix!, Offset(translationChangeScene.dx, 0.0));
+    }
   }
 
   /// This method use to get the tap positions
   void _handleTapDown(TapDownDetails details) {
     _tapPosition = (details.localPosition);
+    _isMousePointer = details.kind == PointerDeviceKind.mouse ? true : false;
+  }
+
+  /// Find the Horizontal offset.
+  double findHorizontalOffset() {
+    _scale = viewMatrix!.getMaxScaleOnAxis();
+    final double xPosition = viewMatrix!.getTranslation().x.round() == 0
+        ? 0
+        : (viewMatrix!.getTranslation().x.roundToDouble().abs()) / _scale;
+    return xPosition;
   }
 
   void _onZoomLevelChanged() {
-    if (_pdfController != null &&
-        _pdfController.zoomLevel != null &&
-        _scale != _pdfController.zoomLevel) {
+    _overflowOrigin = 0.0;
+    if (_scale != _pdfController.zoomLevel) {
       double scaleChangeFactor = 1.0;
-      //whenever user set scale greater than maximum scale percentage and less than minimum scale percentage
+      _isContentOverflowed = false;
+      // whenever user set scale greater than maximum scale percentage and less than minimum scale percentage
       // it will be reassigned within limit
       if (_pdfController.zoomLevel > _maxScale) {
         _pdfController.zoomLevel = _maxScale;
       } else if (_pdfController.zoomLevel < _minScale) {
         _pdfController.zoomLevel = _minScale;
       }
-      if (_scale != null) {
-        //previous scale value updated here before scale changed
-        _previousScale = _scale;
-      }
+      //previous scale value updated here before scale changed
+      _previousScale = _scale;
       _scale = _pdfController.zoomLevel;
       scaleChangeFactor = _scale;
       //Here zoom in and zoom out logic applied,
       // setScale value changed  based on maximum zoom percentage to minimum scale percentage
       // and minimum percentage to maximum percentage
-      if (_scale != null && _previousScale > _scale) {
+      if (_previousScale > _scale) {
         scaleChangeFactor = _scale / _previousScale;
+      } else if (_previousScale < _scale &&
+          (_scale - _previousScale) < 1 &&
+          _previousScale != 1) {
+        viewMatrix = _matrixScale(
+          viewMatrix!,
+          1.0 / _previousScale,
+        );
+        viewMatrix = _matrixTranslate(
+            viewMatrix!, Offset(_viewport.width, _viewport.height));
       }
-
       viewMatrix = _matrixScale(
-        viewMatrix,
+        viewMatrix!,
         scaleChangeFactor,
       );
-      viewMatrix = _matrixTranslate(
-          viewMatrix, Offset(_viewport.width, _viewport.height));
+      if (!kIsWeb || (kIsWeb && widget.isMobileWebView)) {
+        // Existing mobile behavior
+        viewMatrix = _matrixTranslate(
+            viewMatrix!, Offset(_viewport.width, _viewport.height));
+      } else {
+        final RenderBox childRenderBox =
+            // ignore: avoid_as
+            _childKey.currentContext!.findRenderObject() as RenderBox;
+        final RenderBox parentRenderBox =
+            // ignore: avoid_as
+            _parentKey.currentContext!.findRenderObject() as RenderBox;
+        if (widget.maxPdfPageWidth != 0 &&
+            widget.maxPdfPageWidth * _scale >
+                widget.viewportConstraints.maxWidth) {
+          _isContentOverflowed = true;
+          _overflowOrigin = childRenderBox.localToGlobal(Offset.zero).dx -
+              parentRenderBox.localToGlobal(Offset.zero).dx;
+        } else {
+          _isContentOverflowed = false;
+        }
+        WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+          if (_isContentOverflowed) {
+            setState(() {
+              _overflowOrigin += (childRenderBox.localToGlobal(Offset.zero).dx -
+                      parentRenderBox.localToGlobal(Offset.zero).dx) /
+                  2;
+            });
+          }
+        });
+        viewMatrix = _matrixTranslate(
+            viewMatrix!, Offset(_viewport.width, _viewport.height));
+      }
     }
-
     // This invoked whenever current and previous scale percentage changed
     if (widget.onZoomLevelChanged != null) {
       final double newZoomLevel = _scale;
       final double oldZoomLevel = _previousScale;
       if (newZoomLevel != oldZoomLevel) {
-        widget.onZoomLevelChanged(PdfZoomDetails(newZoomLevel, oldZoomLevel));
+        widget.onZoomLevelChanged!(PdfZoomDetails(newZoomLevel, oldZoomLevel));
       }
     }
   }
 
   /// Call the method according to property name.
-  void _onControllerValueChange({String property}) {
+  void _onControllerValueChange({String? property}) {
     if (property == 'zoomLevel') {
       _onZoomLevelChanged();
     }
   }
 
-  /// Jumps horizontally in view port.
-  void jumpHorizontally(double value) {
-    viewMatrix = _matrixTranslate(viewMatrix, Offset(value, 0));
+  /// Identifies whether pan must be restricted for web.
+  bool _restrictPanForWebSelectionMode() {
+    if (kIsWeb &&
+        widget.interactionMode == PdfInteractionMode.selection &&
+        _gestureType == _GestureType.pan &&
+        _isMousePointer) {
+      return true;
+    }
+    return false;
   }
 
-  /// resets PdfContainer view matrix
+  /// Jumps horizontally in view port.
+  void jumpHorizontally(double value) {
+    viewMatrix = _matrixTranslate(
+        viewMatrix!, Offset(-_viewport.width, _pdfController.scrollOffset.dy));
+    viewMatrix = _matrixTranslate(viewMatrix!, Offset(value, 0));
+  }
+
+  /// resets PdfContainer view matrix.
   void reset() {
     viewMatrix = Matrix4.identity();
   }
@@ -706,45 +872,41 @@ class PdfContainerState extends State<PdfContainer>
   void initState() {
     super.initState();
     _pdfController = widget.pdfController;
-    _pdfController?.addListener(_onControllerValueChange);
+    _pdfController.addListener(_onControllerValueChange);
     viewMatrix = Matrix4.identity();
     if (widget.initialZoomLevel > 1) {
       if (widget.initialZoomLevel >= _minScale &&
           widget.initialZoomLevel <= _maxScale) {
         viewMatrix = _matrixScale(
-          viewMatrix,
+          viewMatrix!,
           widget.initialZoomLevel,
         );
         _scale = widget.initialZoomLevel;
         _previousScale = _scale;
       }
     }
-    if (_pdfController.zoomLevel != null) {
-      if (_pdfController.zoomLevel < _minScale ||
-          _pdfController.zoomLevel > _maxScale) {
-        _pdfController.zoomLevel = _minScale;
-      } else {
-        viewMatrix = _matrixScale(
-          viewMatrix,
-          (widget.initialZoomLevel > _pdfController.zoomLevel)
-              ? _pdfController.zoomLevel / widget.initialZoomLevel
-              : _pdfController.zoomLevel,
-        );
+    if (_pdfController.zoomLevel < _minScale ||
+        _pdfController.zoomLevel > _maxScale) {
+      _pdfController.zoomLevel = _minScale;
+    } else {
+      viewMatrix = _matrixScale(
+        viewMatrix!,
+        (widget.initialZoomLevel > _pdfController.zoomLevel)
+            ? _pdfController.zoomLevel / widget.initialZoomLevel
+            : _pdfController.zoomLevel,
+      );
 
-        _scale = _pdfController.zoomLevel;
-        _previousScale = widget.initialZoomLevel;
-      }
+      _scale = _pdfController.zoomLevel;
+      _previousScale = widget.initialZoomLevel;
     }
-
     _animationController = AnimationController(
       vsync: this,
     );
-    if (widget.initialScrollOffset != null) {
-      Future.delayed(Duration.zero, () async {
-        viewMatrix = _matrixTranslate(
-            viewMatrix, Offset(widget.initialScrollOffset.dx, 0));
-      });
-    }
+    Future.delayed(Duration.zero, () async {
+      viewMatrix = _matrixTranslate(
+          viewMatrix!, Offset(widget.initialScrollOffset.dx, 0));
+    });
+
     // Added a listener for the scrolling.
     widget.scrollController.addListener(_updateOrigin);
   }
@@ -752,75 +914,170 @@ class PdfContainerState extends State<PdfContainer>
   @override
   void dispose() {
     _animationController.dispose();
-    _pdfController?.removeListener(_onControllerValueChange);
+    _pdfController.removeListener(_onControllerValueChange);
     widget.scrollController.removeListener(_updateOrigin);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final Widget child = Transform(
-      origin: _origin,
-      transform: viewMatrix,
-      child: KeyedSubtree(
-        key: _childKey,
-        child: Center(
-          child: SingleChildScrollView(
-              controller: widget.scrollController,
-              child: Column(
-                  children: List.generate(widget.pdfController.pageCount,
-                      (index) => widget.itemBuilder(context, index)).toList())),
-        ),
-      ),
+    final keyedSubTree = KeyedSubtree(
+      key: _childKey,
+      child: Center(
+          child: Column(
+              children: List.generate(widget.pdfController.pageCount,
+                  (index) => widget.itemBuilder(context, index)).toList())),
     );
+    Widget scrollChild;
+    if (kIsWeb &&
+        !widget.isMobileWebView &&
+        (_isMousePointer &&
+            widget.interactionMode == PdfInteractionMode.selection)) {
+      scrollChild = SingleChildScrollView(
+          controller: widget.scrollController,
+          physics: NeverScrollableScrollPhysics(),
+          child: keyedSubTree);
+    } else {
+      scrollChild = SingleChildScrollView(
+          controller: widget.scrollController, child: keyedSubTree);
+    }
+    bool isAligned = false;
+    AlignmentGeometry alignment = (kIsWeb && !widget.isMobileWebView)
+        ? (_isContentOverflowed ? Alignment.topLeft : Alignment.topCenter)
+        : Alignment.topLeft;
+    if (widget.maxPdfPageWidth != 0 &&
+        widget.maxPdfPageWidth * _scale > widget.viewportConstraints.maxWidth &&
+        (kIsWeb && !widget.isMobileWebView)) {
+      alignment = Alignment
+          .topLeft; //In Web, the content is overflowed, the scaling must be done from topleft
+      isAligned = true;
+    }
+    Widget child = Transform(
+        origin: _isContentOverflowed ? Offset(_overflowOrigin, 0.0) : _origin,
+        transform: viewMatrix!,
+        alignment: alignment,
+        child: scrollChild);
 
+    if (kIsWeb && !widget.isMobileWebView) {
+      child = OverflowBox(
+        alignment: isAligned ? alignment : Alignment.topCenter,
+        minWidth: 0,
+        minHeight: 0,
+        maxWidth: double.infinity,
+        child: child,
+      );
+    }
     // A GestureDetector allows the detection of panning and zooming gestures on
     // the child.
-    return Listener(
-      key: _parentKey,
-      child: RawGestureDetector(
-          behavior: HitTestBehavior.opaque,
-          // Necessary when panning off screen.
-          gestures: {
-            PdfScaleRecognizer:
-                GestureRecognizerFactoryWithHandlers<PdfScaleRecognizer>(
-              () => PdfScaleRecognizer(),
-              (PdfScaleRecognizer instance) {
-                instance.onStart = (details) => _handleScaleStart(details);
-                instance.onUpdate =
-                    (details) => _handleScaleUpdate(details: details);
-                instance.onEnd = (details) => _handleScaleEnd(details);
-              },
-            ),
-            DoubleTapGestureRecognizer: GestureRecognizerFactoryWithHandlers<
-                DoubleTapGestureRecognizer>(
-              () => DoubleTapGestureRecognizer(),
-              (DoubleTapGestureRecognizer instances) {
-                //when user disable double tap zoom it does not allowed to perform double tap zoom operations
-                if (widget.enableDoubleTapZooming) {
-                  instances.onDoubleTap =
-                      () => _handleScaleUpdate(doubleTap: true);
-                } else {
-                  instances.onDoubleTap = null;
-                }
-              },
-            ),
-            TapRecognizer: GestureRecognizerFactoryWithHandlers<TapRecognizer>(
-              () => TapRecognizer(),
-              (TapRecognizer instances) {
-                instances.onTapDown = (int num, details) {
-                  if (!FocusScope.of(context).hasPrimaryFocus) {
-                    FocusScope.of(context).unfocus();
+    return MouseRegion(
+      cursor: _cursor,
+      onHover: (details) {
+        if (widget.interactionMode == PdfInteractionMode.pan) {
+          _cursor = SystemMouseCursors.grab;
+        } else {
+          _cursor = SystemMouseCursors.basic;
+        }
+      },
+      child: Listener(
+        key: _parentKey,
+        onPointerSignal: (pointerSignal) {
+          if ((kIsWeb && !widget.isMobileWebView) &&
+              pointerSignal is PointerScrollEvent) {
+            _isMousePointer = true;
+            final offset =
+                widget.scrollController.offset + pointerSignal.scrollDelta.dy;
+            if (pointerSignal.scrollDelta.dy.isNegative) {
+              widget.scrollController.jumpTo(math.max(0, offset));
+            } else {
+              widget.scrollController.jumpTo(math.min(
+                  widget.scrollController.position.maxScrollExtent, offset));
+            }
+          }
+        },
+        child: RawGestureDetector(
+            behavior: HitTestBehavior.opaque,
+            // Necessary when panning off screen.
+            gestures: {
+              PdfScaleRecognizer:
+                  GestureRecognizerFactoryWithHandlers<PdfScaleRecognizer>(
+                () => PdfScaleRecognizer(),
+                (PdfScaleRecognizer instance) {
+                  instance.onStart = (details) => _handleScaleStart(details);
+                  instance.onUpdate =
+                      (details) => _handleScaleUpdate(details: details);
+                  instance.onEnd = (details) => _handleScaleEnd(details);
+                },
+              ),
+              DoubleTapGestureRecognizer: GestureRecognizerFactoryWithHandlers<
+                  DoubleTapGestureRecognizer>(
+                () => DoubleTapGestureRecognizer(),
+                (DoubleTapGestureRecognizer instances) {
+                  //when user disable double tap zoom it does not allowed to perform double tap zoom operations
+                  if ((!kIsWeb && widget.enableDoubleTapZooming) ||
+                      (kIsWeb &&
+                          widget.interactionMode == PdfInteractionMode.pan) ||
+                      (kIsWeb &&
+                          widget.isMobileWebView &&
+                          widget.enableDoubleTapZooming)) {
+                    // In Web, only for Pan mode double tap must be done.
+                    instances.onDoubleTap =
+                        () => _handleScaleUpdate(doubleTap: true);
+                  } else {
+                    instances.onDoubleTap = null;
                   }
-                  _handleTapDown(details);
-                };
-              },
-            ),
-          },
-          child: ClipRect(
-            clipBehavior: Clip.hardEdge,
-            child: child,
-          )),
+                },
+              ),
+              TapRecognizer:
+                  GestureRecognizerFactoryWithHandlers<TapRecognizer>(
+                () => TapRecognizer(),
+                (TapRecognizer instances) {
+                  instances.onTapDown = (int num, details) {
+                    if (!FocusScope.of(context).hasPrimaryFocus) {
+                      FocusScope.of(context).unfocus();
+                    }
+                    _handleTapDown(details);
+                  };
+                },
+              ),
+              PdfTapGestureRecognizer:
+                  GestureRecognizerFactoryWithHandlers<PdfTapGestureRecognizer>(
+                () => PdfTapGestureRecognizer(),
+                (PdfTapGestureRecognizer instances) {
+                  if (kIsWeb && !widget.isMobileWebView) {
+                    instances.onTap = () {
+                      if (!_isLongPressed) {
+                        widget.onTap();
+                      }
+                      _isLongPressed = false;
+                    };
+                    instances.onTapDown = (details) {
+                      _isMousePointer = details.kind == PointerDeviceKind.mouse
+                          ? true
+                          : false;
+                    };
+                  }
+                },
+              ),
+              PdfLongPressRecognizer:
+                  GestureRecognizerFactoryWithHandlers<PdfLongPressRecognizer>(
+                () => PdfLongPressRecognizer(),
+                (PdfLongPressRecognizer instances) {
+                  if (kIsWeb && !widget.isMobileWebView) {
+                    instances.onLongPressStart = (details) {
+                      _isLongPressed = true;
+                    };
+                    instances.onLongPressEnd = (details) {
+                      _isLongPressed = false;
+                    };
+                  }
+                },
+              ),
+            },
+            child: ClipRect(
+              clipBehavior: Clip.hardEdge,
+              child: child,
+            )),
+      ),
     );
   }
 
@@ -828,7 +1085,7 @@ class PdfContainerState extends State<PdfContainer>
   Offset toScene(Offset viewportPoint) {
     // On viewportPoint, perform the inverse transformation of the scene to get
     // where the point would be in the scene before the transformation.
-    final Matrix4 inverseMatrix = Matrix4.inverted(viewMatrix);
+    final Matrix4 inverseMatrix = Matrix4.inverted(viewMatrix!);
     final Vector3 untransformed = inverseMatrix.transform3(Vector3(
       viewportPoint.dx,
       viewportPoint.dy,
@@ -869,6 +1126,26 @@ class PdfContainerState extends State<PdfContainer>
 
 /// Represents the scale gesture recognizer for PdfContainer.
 class PdfScaleRecognizer extends ScaleGestureRecognizer {
+  @override
+  void rejectGesture(int pointer) {
+    /// Since list view scroll interrupts scale gesture, overridden the reject gesture behavior. This piece of code is planned to be changed in future.
+    acceptGesture(pointer);
+  }
+}
+
+/// Represents the tap gesture recognizer for PdfContainer.
+class PdfTapGestureRecognizer extends TapGestureRecognizer {
+  @override
+  void rejectGesture(int pointer) {
+    if (getKindForPointer(pointer) == PointerDeviceKind.mouse) {
+      /// Since list view scroll interrupts scale gesture, overridden the reject gesture behavior. This piece of code is planned to be changed in future.
+      acceptGesture(pointer);
+    }
+  }
+}
+
+/// Represents the long press gesture recognizer for PdfContainer.
+class PdfLongPressRecognizer extends LongPressGestureRecognizer {
   @override
   void rejectGesture(int pointer) {
     /// Since list view scroll interrupts scale gesture, overridden the reject gesture behavior. This piece of code is planned to be changed in future.
@@ -1001,7 +1278,7 @@ Offset _alignAxis(Offset offset, Axis axis) {
 
 // Given two points, return the axis where the distance between the points is
 // greatest. If they are equal, return null.
-Axis _getPanAxis(Offset point1, Offset point2) {
+Axis? _getPanAxis(Offset point1, Offset point2) {
   if (point1 == point2) {
     return null;
   }

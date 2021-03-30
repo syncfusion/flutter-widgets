@@ -1,6 +1,18 @@
 part of pdf;
 
 /// Specifies the type of horizontal text alignment.
+///
+/// ```dart
+/// //Create a new PDF document.
+/// PdfDocument document = PdfDocument()
+///   ..pages.add().graphics.drawString(
+///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
+///       format: PdfStringFormat(alignment: PdfTextAlignment.left));
+/// //Save the document.
+/// List<int> bytes = document.save();
+/// //Close the document.
+/// document.dispose();
+/// ```
 enum PdfTextAlignment {
   /// Specifies the text is aligned to Left.
   left,
@@ -16,6 +28,18 @@ enum PdfTextAlignment {
 }
 
 /// Specifies the type of Vertical alignment.
+///
+/// ```dart
+/// //Create a new PDF document.
+/// PdfDocument document = PdfDocument()
+///   ..pages.add().graphics.drawString(
+///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
+///       format: PdfStringFormat(lineAlignment: PdfVerticalAlignment.top));
+/// //Save the document.
+/// List<int> bytes = document.save();
+/// //Close the document.
+/// document.dispose();
+/// ```
 enum PdfVerticalAlignment {
   /// Specifies the element is aligned to Top.
   top,
@@ -28,6 +52,18 @@ enum PdfVerticalAlignment {
 }
 
 /// Represents the text rendering direction.
+///
+/// ```dart
+/// //Create a new PDF document.
+/// PdfDocument document = PdfDocument()
+///   ..pages.add().graphics.drawString(
+///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
+///       format: PdfStringFormat(textDirection: PdfTextAlignment.none));
+/// //Save the document.
+/// List<int> bytes = document.save();
+/// //Close the document.
+/// document.dispose();
+/// ```
 enum PdfTextDirection {
   /// Specifies the default text order.
   none,
@@ -40,6 +76,20 @@ enum PdfTextDirection {
 }
 
 /// Defines set of color spaces.
+///
+/// ```dart
+/// //Creates a new PDF document.
+/// PdfDocument doc = PdfDocument();
+/// //Create PDF graphics for the page
+/// doc.pages.add().graphics
+///   ..colorSpace = PdfColorSpace.grayScale
+///   ..drawRectangle(
+///       brush: PdfBrushes.red, bounds: Rect.fromLTWH(0, 0, 515, 762));
+/// //Saves the document.
+/// List<int> bytes = doc.save();
+/// //Dispose the document.
+/// doc.dispose();
+/// ```
 enum PdfColorSpace {
   /// RGB color space.
   rgb,
@@ -73,6 +123,20 @@ class _TextRenderingMode {
 }
 
 /// Possible dash styles of the pen.
+///
+/// ```dart
+/// //Create a new PDF document.
+/// PdfDocument document = PdfDocument()
+///   ..pages.add().graphics.drawRectangle(
+///       pen: PdfPen(PdfColor(255, 0, 0),
+///           dashStyle: PdfDashStyle.custom, lineCap: PdfLineCap.round)
+///         ..dashPattern = [4, 2, 1, 3],
+///       bounds: Rect.fromLTWH(0, 0, 200, 100));
+/// /Save the document.
+/// List<int> bytes = document.save();
+/// //Close the document.
+/// document.dispose();
+/// ```
 enum PdfDashStyle {
   /// Solid line.
   solid,
@@ -94,6 +158,20 @@ enum PdfDashStyle {
 }
 
 /// Specifies the corner style of the shapes.
+///
+/// ```dart
+/// //Create a new PDF document.
+/// PdfDocument document = PdfDocument()
+///   ..pages.add().graphics.drawRectangle(
+///       pen: PdfPen(PdfColor(255, 0, 0),
+///           dashStyle: PdfDashStyle.custom, lineJoin: PdfLineJoin.bevel)
+///         ..dashPattern = [4, 2, 1, 3],
+///       bounds: Rect.fromLTWH(0, 0, 200, 100));
+/// /Save the document.
+/// List<int> bytes = document.save();
+/// //Close the document.
+/// document.dispose();
+/// ```
 enum PdfLineJoin {
   /// The outer edges for the two segments are extended
   ///  until they meet at an angle.
@@ -110,6 +188,20 @@ enum PdfLineJoin {
 }
 
 /// Specifies the line cap style to be used at the ends of the lines.
+///
+/// ```dart
+/// //Create a new PDF document.
+/// PdfDocument document = PdfDocument()
+///   ..pages.add().graphics.drawRectangle(
+///       pen: PdfPen(PdfColor(255, 0, 0),
+///           dashStyle: PdfDashStyle.custom, lineCap: PdfLineCap.round)
+///         ..dashPattern = [4, 2, 1, 3],
+///       bounds: Rect.fromLTWH(0, 0, 200, 100));
+/// /Save the document.
+/// List<int> bytes = document.save();
+/// //Close the document.
+/// document.dispose();
+/// ```
 enum PdfLineCap {
   /// The stroke is squared off at the endpoint of the path.
   /// There is no projection beyond the end of the path.
@@ -125,6 +217,21 @@ enum PdfLineCap {
 }
 
 /// Specifies how the shapes are filled.
+///
+/// ```dart
+/// //Creates a new PDF document.
+/// PdfDocument doc = PdfDocument();
+/// //Create PDF graphics for the page
+/// doc.pages.add().graphics
+///   //set clip.
+///   ..setClip(bounds: Rect.fromLTWH(0, 0, 50, 12), mode: PdfFillMode.alternate)
+///   ..drawString('Hello world!', PdfStandardFont(PdfFontFamily.helvetica, 12),
+///       pen: PdfPens.red);
+/// //Saves the document.
+/// List<int> bytes = doc.save();
+/// //Dispose the document.
+/// doc.dispose();
+/// ```
 enum PdfFillMode {
   /// Nonzero winding number rule of determining "insideness" of point.
   winding,
@@ -134,6 +241,21 @@ enum PdfFillMode {
 }
 
 /// Specifies the blend mode for transparency.
+///
+/// ```dart
+/// //Creates a new PDF document.
+/// PdfDocument doc = PdfDocument();
+/// //Create PDF graphics for the page
+/// doc.pages.add().graphics
+///   ..setTransparency(0.5, alphaBrush: 0.5, mode: PdfBlendMode.hardLight)
+///   ..drawString('Hello world!',
+///       PdfStandardFont(PdfFontFamily.helvetica, 12, style: PdfFontStyle.bold),
+///       brush: PdfBrushes.red, pen: PdfPens.black);
+/// //Saves the document.
+/// List<int> bytes = doc.save();
+/// //Dispose the document.
+/// doc.dispose();
+/// ```
 enum PdfBlendMode {
   /// Selects the source color, ignoring the backdrop.
   normal,

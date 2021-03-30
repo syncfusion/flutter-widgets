@@ -2,49 +2,49 @@ part of charts;
 
 abstract class _StackedSeriesBase<T, D> extends XyDataSeries<T, D> {
   _StackedSeriesBase(
-      {ValueKey<String> key,
-      ChartSeriesRendererFactory<T, D> onCreateRenderer,
-      @required List<T> dataSource,
-      @required ChartValueMapper<T, D> xValueMapper,
-      @required ChartValueMapper<T, num> yValueMapper,
-      ChartValueMapper<T, dynamic> sortFieldValueMapper,
-      ChartValueMapper<T, Color> pointColorMapper,
-      ChartValueMapper<T, String> dataLabelMapper,
-      SortingOrder sortingOrder,
-      List<double> dashArray,
-      String xAxisName,
-      String yAxisName,
-      String name,
-      Color color,
-      double width,
-      double spacing,
-      MarkerSettings markerSettings,
-      EmptyPointSettings emptyPointSettings,
-      DataLabelSettings dataLabelSettings,
-      bool isVisible,
-      LinearGradient gradient,
-      LinearGradient borderGradient,
-      BorderRadius borderRadius,
-      String groupName,
-      bool isTrackVisible,
-      List<Trendline> trendlines,
-      bool enableTooltip,
-      double animationDuration,
-      Color trackColor,
-      Color trackBorderColor,
-      double trackBorderWidth,
-      double trackPadding,
-      Color borderColor,
-      double borderWidth,
+      {ValueKey<String>? key,
+      ChartSeriesRendererFactory<T, D>? onCreateRenderer,
+      required List<T> dataSource,
+      required ChartValueMapper<T, D> xValueMapper,
+      required ChartValueMapper<T, num> yValueMapper,
+      ChartValueMapper<T, dynamic>? sortFieldValueMapper,
+      ChartValueMapper<T, Color>? pointColorMapper,
+      ChartValueMapper<T, String>? dataLabelMapper,
+      SortingOrder? sortingOrder,
+      List<double>? dashArray,
+      String? xAxisName,
+      String? yAxisName,
+      String? name,
+      Color? color,
+      double? width,
+      double? spacing,
+      MarkerSettings? markerSettings,
+      EmptyPointSettings? emptyPointSettings,
+      DataLabelSettings? dataLabelSettings,
+      bool? isVisible,
+      LinearGradient? gradient,
+      LinearGradient? borderGradient,
+      BorderRadius? borderRadius,
+      String? groupName,
+      bool? isTrackVisible,
+      List<Trendline>? trendlines,
+      bool? enableTooltip,
+      double? animationDuration,
+      Color? trackColor,
+      Color? trackBorderColor,
+      double? trackBorderWidth,
+      double? trackPadding,
+      Color? borderColor,
+      double? borderWidth,
       // ignore: deprecated_member_use_from_same_package
-      SelectionSettings selectionSettings,
-      SelectionBehavior selectionBehavior,
-      List<int> initialSelectedDataIndexes,
-      bool isVisibleInLegend,
-      LegendIconType legendIconType,
-      String legendItemText,
-      SeriesRendererCreatedCallback onRendererCreated,
-      double opacity})
+      SelectionSettings? selectionSettings,
+      SelectionBehavior? selectionBehavior,
+      List<int>? initialSelectedDataIndexes,
+      bool? isVisibleInLegend,
+      LegendIconType? legendIconType,
+      String? legendItemText,
+      SeriesRendererCreatedCallback? onRendererCreated,
+      double? opacity})
       : borderRadius = borderRadius ?? const BorderRadius.all(Radius.zero),
         trackColor = trackColor ?? Colors.grey,
         trackBorderColor = trackBorderColor ?? Colors.transparent,
@@ -234,7 +234,7 @@ abstract class _StackedSeriesBase<T, D> extends XyDataSeries<T, D> {
   final String groupName;
 }
 
-class _StackedSeriesRenderer extends XyDataSeriesRenderer {
+abstract class _StackedSeriesRenderer extends XyDataSeriesRenderer {
   _StackedSeriesRenderer();
 
   // Store the stacking values //
@@ -243,18 +243,16 @@ class _StackedSeriesRenderer extends XyDataSeriesRenderer {
 
   // Store the percentage values //
   //ignore: prefer_final_fields
-  List<double> _percentageValues = <double>[];
+  List<num> _percentageValues = <num>[];
 
   // Store the rect position //
-  num _rectPosition;
+  late num _rectPosition;
 
   // Store the rect count //
-  num _rectCount;
+  late num _rectCount;
 
   @override
-  ChartSegment createSegment() {
-    return null;
-  }
+  ChartSegment createSegment();
 
   /// Changes the series color, border color, and border width.
   @override
@@ -270,5 +268,5 @@ class _StackedSeriesRenderer extends XyDataSeriesRenderer {
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer seriesRenderer]) {}
+      [CartesianSeriesRenderer? seriesRenderer]) {}
 }

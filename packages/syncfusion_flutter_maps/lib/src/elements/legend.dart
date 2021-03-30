@@ -8,18 +8,14 @@ import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_maps/src/utils.dart';
 
-import '../controller/default_controller.dart';
+import '../common.dart';
+import '../controller/map_controller.dart';
 import '../enum.dart';
 import '../layer/shape_layer.dart';
 import '../settings.dart';
 import '../utils.dart';
-import 'shapes.dart';
 
-enum _MapLegendType {
-  vector,
-
-  bar
-}
+enum _MapLegendType { vector, bar }
 
 /// Shows legend for the bubbles or shapes.
 ///
@@ -68,27 +64,126 @@ enum _MapLegendType {
 /// [MapShapeSource.shapeDataField] property and the legend item's
 /// icon will have the default color.
 ///
+/// The below code snippet represents how to setting default legend
+/// to the shape.
+///
 /// ```dart
+/// List<DataModel> _data;
+/// MapShapeSource _mapSource;
+///
 ///  @override
-///  Widget build(BuildContext context) {
-///    return SfMaps(
-///      layers: [
-///        MapShapeLayer(
-///          legend: MapLegend(
-///              MapElement.bubble,
-///              padding: EdgeInsets.all(10)
-///          ),
-///          source: MapShapeSource.asset(
-///              "assets/world_map.json",
-///              shapeDataField: "continent",
-///              dataCount: bubbleData.length,
-///              primaryValueMapper: (int index) {
-///                return bubbleData[index].country;
-///              }),
-///        )
+///  void initState() {
+///    super.initState();
+///
+///    _data = <DataModel>[
+///      DataModel('India', 280, "Low"),
+///      DataModel('United States of America', 190, "High"),
+///      DataModel('Pakistan', 37, "Low"),
+///    ];
+///
+///    _mapSource = MapShapeSource.asset(
+///      "assets/world_map.json",
+///      shapeDataField: "name",
+///      dataCount: _data.length,
+///      primaryValueMapper: (int index) {
+///        return _data[index].country;
+///      },
+///      shapeColorValueMapper: (int index) {
+///        return _data[index].storage;
+///      },
+///      shapeColorMappers: [
+///        MapColorMapper(value: "Low", color: Colors.red),
+///        MapColorMapper(value: "High", color: Colors.green)
 ///      ],
 ///    );
 ///  }
+///
+///  @override
+///  Widget build(BuildContext context) {
+///    return Scaffold(
+///      appBar: AppBar(
+///        title: Text('Default legend'),
+///      ),
+///      body: Center(
+///        child: SfMaps(
+///          layers: [
+///            MapShapeLayer(
+///              source: _mapSource,
+///              legend: MapLegend(MapElement.shape),
+///            )
+///          ],
+///        ),
+///      ),
+///    );
+///  }
+///
+/// class DataModel {
+///   const DataModel(this.country, this.count, this.storage);
+///
+///   final String country;
+///   final double count;
+///   final String storage;
+/// }
+/// ```
+/// The below code snippet represents how to setting bar legend to the shape.
+///
+/// ```dart
+/// List<DataModel> _data;
+/// MapShapeSource _mapSource;
+///
+///  @override
+///  void initState() {
+///    super.initState();
+///
+///    _data = <DataModel>[
+///      DataModel('India', 280, "Low"),
+///      DataModel('United States of America', 190, "High"),
+///      DataModel('Pakistan', 37, "Low"),
+///    ];
+///
+///    _mapSource = MapShapeSource.asset(
+///      "assets/world_map.json",
+///      shapeDataField: "name",
+///      dataCount: _data.length,
+///      primaryValueMapper: (int index) {
+///        return _data[index].country;
+///      },
+///      shapeColorValueMapper: (int index) {
+///        return _data[index].storage;
+///      },
+///      shapeColorMappers: [
+///        MapColorMapper(value: "Low", color: Colors.red),
+///        MapColorMapper(value: "High", color: Colors.green)
+///      ],
+///    );
+///  }
+///
+///  @override
+///  Widget build(BuildContext context) {
+///    return Scaffold(
+///      appBar: AppBar(
+///        title: Text('Bar legend'),
+///      ),
+///      body: Center(
+///        child: SfMaps(
+///          layers: [
+///            MapShapeLayer(
+///              source: _mapSource,
+///              legend: MapLegend.bar(MapElement.shape),
+///            )
+///          ],
+///        ),
+///      ),
+///    );
+///  }
+///
+/// class DataModel {
+///   const DataModel(this.country, this.count, this.storage);
+///
+///   final String country;
+///   final double count;
+///   final String storage;
+/// }
 /// ```
 @immutable
 class MapLegend extends DiagnosticableTree {
@@ -141,48 +236,86 @@ class MapLegend extends DiagnosticableTree {
   /// icon will have the default color.
   ///
   /// ```dart
+  /// List<DataModel> _data;
+  /// MapShapeSource _mapSource;
+  ///
   ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          legend: MapLegend(
-  ///              MapElement.bubble,
-  ///          ),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (int index) {
-  ///                return bubbleData[index].country;
-  ///              }),
-  ///        )
+  ///  void initState() {
+  ///    super.initState();
+  ///
+  ///    _data = <DataModel>[
+  ///      DataModel('India', 280, "Low"),
+  ///      DataModel('United States of America', 190, "High"),
+  ///      DataModel('Pakistan', 37, "Low"),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      shapeColorValueMapper: (int index) {
+  ///        return _data[index].storage;
+  ///      },
+  ///      shapeColorMappers: [
+  ///        MapColorMapper(value: "Low", color: Colors.red),
+  ///        MapColorMapper(value: "High", color: Colors.green)
   ///      ],
   ///    );
   ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(
+  ///        title: Text('Default legend'),
+  ///      ),
+  ///      body: Center(
+  ///        child: SfMaps(
+  ///          layers: [
+  ///            MapShapeLayer(
+  ///              source: _mapSource,
+  ///              legend: MapLegend(MapElement.shape),
+  ///            )
+  ///          ],
+  ///        ),
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class DataModel {
+  ///   const DataModel(this.country, this.count, this.storage);
+  ///
+  ///   final String country;
+  ///   final double count;
+  ///   final String storage;
+  /// }
   /// ```
   ///
   /// See also:
   /// * `MapLegend.bar()` named constructor, for bar legend type.
   const MapLegend(
     this.source, {
+    this.title,
     this.position = MapLegendPosition.top,
     this.offset,
     this.overflowMode = MapLegendOverflowMode.wrap,
     this.direction,
     this.padding = const EdgeInsets.all(10.0),
     this.spacing = 10.0,
-    MapIconType iconType,
-    Size iconSize,
+    MapIconType iconType = MapIconType.circle,
+    Size iconSize = const Size(8.0, 8.0),
     this.textStyle,
     bool enableToggleInteraction = false,
-    Color toggledItemColor,
-    Color toggledItemStrokeColor,
+    Color? toggledItemColor,
+    Color? toggledItemStrokeColor,
     double toggledItemStrokeWidth = 1.0,
     double toggledItemOpacity = 1.0,
   })  : _legendType = _MapLegendType.vector,
-        _iconType = iconType ?? MapIconType.circle,
-        _iconSize = iconSize ?? const Size(8.0, 8.0),
+        _iconType = iconType,
+        _iconSize = iconSize,
         _enableToggleInteraction = enableToggleInteraction,
         _toggledItemColor = toggledItemColor,
         _toggledItemStrokeColor = toggledItemStrokeColor,
@@ -193,11 +326,10 @@ class MapLegend extends DiagnosticableTree {
         _edgeLabelsPlacement = null,
         _labelOverflow = null,
         _segmentPaintingStyle = null,
-        assert(spacing != null && spacing >= 0),
+        assert(spacing >= 0),
         assert(padding != null),
-        assert(toggledItemStrokeWidth == null || toggledItemStrokeWidth >= 0),
-        assert(toggledItemOpacity == null ||
-            (toggledItemOpacity >= 0 && toggledItemOpacity <= 1));
+        assert(toggledItemStrokeWidth >= 0),
+        assert(toggledItemOpacity >= 0 && toggledItemOpacity <= 1);
 
   /// Creates a bar type legend for the bubbles or shapes.
   ///
@@ -266,26 +398,62 @@ class MapLegend extends DiagnosticableTree {
   /// icon will have the default color.
   ///
   /// ```dart
+  /// List<DataModel> _data;
+  /// MapShapeSource _mapSource;
+  ///
   ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          legend: MapLegend.bar(
-  ///              MapElement.bubble,
-  ///              padding: EdgeInsets.all(10)
-  ///          ),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (int index) {
-  ///                return bubbleData[index].country;
-  ///              }),
-  ///        )
+  ///  void initState() {
+  ///    super.initState();
+  ///
+  ///    _data = <DataModel>[
+  ///      DataModel('India', 280, "Low"),
+  ///      DataModel('United States of America', 190, "High"),
+  ///      DataModel('Pakistan', 37, "Low"),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      shapeColorValueMapper: (int index) {
+  ///        return _data[index].storage;
+  ///      },
+  ///      shapeColorMappers: [
+  ///        MapColorMapper(value: "Low", color: Colors.red),
+  ///        MapColorMapper(value: "High", color: Colors.green)
   ///      ],
   ///    );
   ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(
+  ///        title: Text('Bar legend'),
+  ///      ),
+  ///      body: Center(
+  ///        child: SfMaps(
+  ///          layers: [
+  ///            MapShapeLayer(
+  ///              source: _mapSource,
+  ///              legend: MapLegend.bar(MapElement.shape),
+  ///            )
+  ///          ],
+  ///        ),
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class DataModel {
+  ///   const DataModel(this.country, this.count, this.storage);
+  ///
+  ///   final String country;
+  ///   final double count;
+  ///   final String storage;
+  /// }
   /// ```
   ///
   /// See also:
@@ -293,18 +461,20 @@ class MapLegend extends DiagnosticableTree {
   /// diamond, rectangle and triangle.
   const MapLegend.bar(
     this.source, {
+    this.title,
     this.overflowMode = MapLegendOverflowMode.scroll,
     this.padding = const EdgeInsets.all(10.0),
     this.position = MapLegendPosition.top,
     this.offset,
     this.spacing = 2.0,
-    Size segmentSize,
+    Size? segmentSize,
     this.textStyle,
     this.direction,
-    MapLegendLabelsPlacement labelsPlacement,
-    MapLegendEdgeLabelsPlacement edgeLabelsPlacement,
-    MapLabelOverflow labelOverflow,
-    MapLegendPaintingStyle segmentPaintingStyle,
+    MapLegendLabelsPlacement? labelsPlacement,
+    MapLegendEdgeLabelsPlacement edgeLabelsPlacement =
+        MapLegendEdgeLabelsPlacement.inside,
+    MapLabelOverflow labelOverflow = MapLabelOverflow.visible,
+    MapLegendPaintingStyle segmentPaintingStyle = MapLegendPaintingStyle.solid,
   })  : _legendType = _MapLegendType.bar,
         _enableToggleInteraction = false,
         _toggledItemColor = null,
@@ -312,15 +482,13 @@ class MapLegend extends DiagnosticableTree {
         _toggledItemStrokeWidth = 0.0,
         _toggledItemOpacity = 0.0,
         _labelsPlacement = labelsPlacement,
-        _edgeLabelsPlacement =
-            edgeLabelsPlacement ?? MapLegendEdgeLabelsPlacement.inside,
-        _labelOverflow = labelOverflow ?? MapLabelOverflow.visible,
-        _segmentPaintingStyle =
-            segmentPaintingStyle ?? MapLegendPaintingStyle.solid,
+        _edgeLabelsPlacement = edgeLabelsPlacement,
+        _labelOverflow = labelOverflow,
+        _segmentPaintingStyle = segmentPaintingStyle,
         _segmentSize = segmentSize,
         _iconType = null,
         _iconSize = null,
-        assert(spacing != null && spacing >= 0),
+        assert(spacing >= 0),
         assert(padding != null);
 
   /// Shows legend for the bubbles or shapes.
@@ -373,33 +541,113 @@ class MapLegend extends DiagnosticableTree {
   /// the appearance of the legend items.
   final MapElement source;
 
+  /// Sets a title for the legend.
+  ///
+  /// Defaults to null.
+  ///
+  /// Typically a [Text] widget.
+  ///
+  /// ## Example
+  ///
+  /// This snippet shows how to create a map with legends and legend’s title.
+  ///
+  /// ```dart
+  /// @override
+  /// void initState() {
+  ///   super.initState();
+  ///   _shapeSource = MapShapeSource.asset(
+  ///     "assets/world_map.json",
+  ///     shapeDataField: "continent",
+  ///   );
+  /// }
+  /// @override
+  /// Widget build (BuildContext context) {
+  ///     return Scaffold(
+  ///       body: SfMaps(
+  ///               layers: [
+  ///                 MapShapeLayer(
+  ///                   source: _shapeSource,
+  ///                   legend: MapLegend(MapElement.shape,
+  ///                      title: Text (‘World Map’),
+  ///                   ),
+  ///                 ),
+  ///               ],
+  ///             ),
+  ///           );
+  /// }
+  /// ...
+  ///
+  /// See also:
+  ///
+  /// * `MapLegend()`, to know about the legend in maps.
+  final Widget? title;
+
   /// Sets the padding around the legend.
   ///
   /// Defaults to EdgeInsets.all(10.0).
   ///
   /// ```dart
+  /// List<DataModel> _data;
+  /// MapShapeSource _mapSource;
+  ///
   ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          legend: MapLegend(
-  ///              MapElement.shape,
-  ///              padding: EdgeInsets.all(10)
-  ///          ),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (index) {
-  ///                return bubbleData[index].country;
-  ///              }),
-  ///        )
+  ///  void initState() {
+  ///    super.initState();
+  ///
+  ///    _data = <DataModel>[
+  ///      DataModel('India', 280, "Low"),
+  ///      DataModel('United States of America', 190, "High"),
+  ///      DataModel('Pakistan', 37, "Low"),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      shapeColorValueMapper: (int index) {
+  ///        return _data[index].storage;
+  ///      },
+  ///      shapeColorMappers: [
+  ///        MapColorMapper(value: "Low", color: Colors.red),
+  ///        MapColorMapper(value: "High", color: Colors.green)
   ///      ],
   ///    );
   ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(
+  ///        title: Text('Default legend'),
+  ///      ),
+  ///      body: Center(
+  ///        child: SfMaps(
+  ///          layers: [
+  ///            MapShapeLayer(
+  ///              source: _mapSource,
+  ///              legend: MapLegend(
+  ///                MapElement.shape,
+  ///                padding: EdgeInsets.all(10.0),
+  ///              ),
+  ///            )
+  ///          ],
+  ///        ),
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class DataModel {
+  ///   const DataModel(this.country, this.count, this.storage);
+  ///
+  ///   final String country;
+  ///   final double count;
+  ///   final String storage;
+  /// }
   /// ```
-  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry? padding;
 
   /// Arranges the legend items in either horizontal or vertical direction.
   ///
@@ -407,57 +655,135 @@ class MapLegend extends DiagnosticableTree {
   /// Defaults to vertical, if the [position] is left or right.
   ///
   /// ```dart
+  /// List<DataModel> _data;
+  /// MapShapeSource _mapSource;
+  ///
   ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          legend: MapLegend(
-  ///              MapElement.shape,
-  ///              direction: Axis.horizontal
-  ///          ),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (index) {
-  ///                return bubbleData[index].country;
-  ///              }),
-  ///        )
+  ///  void initState() {
+  ///    super.initState();
+  ///
+  ///    _data = <DataModel>[
+  ///      DataModel('India', 280, "Low"),
+  ///      DataModel('United States of America', 190, "High"),
+  ///      DataModel('Pakistan', 37, "Low"),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      shapeColorValueMapper: (int index) {
+  ///        return _data[index].storage;
+  ///      },
+  ///      shapeColorMappers: [
+  ///        MapColorMapper(value: "Low", color: Colors.red),
+  ///        MapColorMapper(value: "High", color: Colors.green)
   ///      ],
   ///    );
   ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(
+  ///        title: Text('Default legend'),
+  ///      ),
+  ///      body: Center(
+  ///        child: SfMaps(
+  ///          layers: [
+  ///            MapShapeLayer(
+  ///              source: _mapSource,
+  ///              legend: MapLegend(
+  ///                MapElement.shape,
+  ///                direction: Axis.horizontal,
+  ///              ),
+  ///            )
+  ///          ],
+  ///        ),
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class DataModel {
+  ///   const DataModel(this.country, this.count, this.storage);
+  ///
+  ///   final String country;
+  ///   final double count;
+  ///   final String storage;
+  /// }
   /// ```
   ///
   /// See also:
   /// * [position], to set the position of the legend.
-  final Axis direction;
+  final Axis? direction;
 
   /// Positions the legend in the different directions.
   ///
   /// Defaults to [MapLegendPosition.top].
   ///
   /// ```dart
+  /// List<DataModel> _data;
+  /// MapShapeSource _mapSource;
+  ///
   ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          legend: MapLegend(
-  ///              MapElement.shape,
-  ///              position: MapLegendPosition.bottom
-  ///          ),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (index) {
-  ///                return bubbleData[index].country;
-  ///              }),
-  ///        )
+  ///  void initState() {
+  ///    super.initState();
+  ///
+  ///    _data = <DataModel>[
+  ///      DataModel('India', 280, "Low"),
+  ///      DataModel('United States of America', 190, "High"),
+  ///      DataModel('Pakistan', 37, "Low"),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      shapeColorValueMapper: (int index) {
+  ///        return _data[index].storage;
+  ///      },
+  ///      shapeColorMappers: [
+  ///        MapColorMapper(value: "Low", color: Colors.red),
+  ///        MapColorMapper(value: "High", color: Colors.green)
   ///      ],
   ///    );
   ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(
+  ///        title: Text('Bar legend'),
+  ///      ),
+  ///      body: Center(
+  ///        child: SfMaps(
+  ///          layers: [
+  ///            MapShapeLayer(
+  ///              source: _mapSource,
+  ///              legend: MapLegend.bar(
+  ///                MapElement.shape,
+  ///                position: MapLegendPosition.right,
+  ///              ),
+  ///            )
+  ///          ],
+  ///        ),
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class DataModel {
+  ///   const DataModel(this.country, this.count, this.storage);
+  ///
+  ///   final String country;
+  ///   final double count;
+  ///   final String storage;
+  /// }
   /// ```
   /// See also:
   /// * [offset], to place the legend in custom position.
@@ -471,85 +797,202 @@ class MapLegend extends DiagnosticableTree {
   /// it and will be drawn on the top of map.
   ///
   /// ```dart
+  /// List<DataModel> _data;
+  /// MapShapeSource _mapSource;
+  ///
   ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          legend: MapLegend(
-  ///              MapElement.shape,
-  ///             offset: Offset(0, 5)
-  ///          ),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (index) {
-  ///                return bubbleData[index].country;
-  ///              }),
-  ///        )
+  ///  void initState() {
+  ///    super.initState();
+  ///
+  ///    _data = <DataModel>[
+  ///      DataModel('India', 280, "Low"),
+  ///      DataModel('United States of America', 190, "High"),
+  ///      DataModel('Pakistan', 37, "Low"),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      shapeColorValueMapper: (int index) {
+  ///        return _data[index].storage;
+  ///      },
+  ///      shapeColorMappers: [
+  ///        MapColorMapper(value: "Low", color: Colors.red),
+  ///        MapColorMapper(value: "High", color: Colors.green)
   ///      ],
   ///    );
   ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(
+  ///        title: Text('Bar legend'),
+  ///      ),
+  ///      body: Center(
+  ///        child: SfMaps(
+  ///          layers: [
+  ///            MapShapeLayer(
+  ///              source: _mapSource,
+  ///              legend: MapLegend.bar(
+  ///                MapElement.shape,
+  ///                offset: Offset(10.0, 10.0),
+  ///              ),
+  ///            )
+  ///          ],
+  ///        ),
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class DataModel {
+  ///   const DataModel(this.country, this.count, this.storage);
+  ///
+  ///   final String country;
+  ///   final double count;
+  ///   final String storage;
+  /// }
   /// ```
   ///
   /// See also:
   /// * [position], to set the position of the legend.
-  final Offset offset;
+  final Offset? offset;
 
   /// Specifies the space between the each legend items.
   ///
   /// Defaults to 10.0 for default legend and 2.0 for bar legend.
   ///
   /// ```dart
+  /// List<DataModel> _data;
+  /// MapShapeSource _mapSource;
+  ///
   ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          legend: MapLegend(
-  ///              MapElement.shape,
-  ///              spacing: 10
-  ///          ),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (index) {
-  ///                return bubbleData[index].country;
-  ///              }),
-  ///        )
+  ///  void initState() {
+  ///    super.initState();
+  ///
+  ///    _data = <DataModel>[
+  ///      DataModel('India', 280, "Low"),
+  ///      DataModel('United States of America', 190, "High"),
+  ///      DataModel('Pakistan', 37, "Low"),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      shapeColorValueMapper: (int index) {
+  ///        return _data[index].storage;
+  ///      },
+  ///      shapeColorMappers: [
+  ///        MapColorMapper(value: "Low", color: Colors.red),
+  ///        MapColorMapper(value: "High", color: Colors.green)
   ///      ],
   ///    );
   ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(
+  ///        title: Text('Default legend'),
+  ///      ),
+  ///      body: Center(
+  ///        child: SfMaps(
+  ///          layers: [
+  ///            MapShapeLayer(
+  ///              source: _mapSource,
+  ///              legend: MapLegend(
+  ///                MapElement.shape,
+  ///                spacing: 10.0,
+  ///              ),
+  ///            )
+  ///          ],
+  ///        ),
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class DataModel {
+  ///   const DataModel(this.country, this.count, this.storage);
+  ///
+  ///   final String country;
+  ///   final double count;
+  ///   final String storage;
+  /// }
   /// ```
   final double spacing;
 
   /// Customizes the legend item's text style.
   ///
   /// ```dart
+  /// List<DataModel> _data;
+  /// MapShapeSource _mapSource;
+  ///
   ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          legend: MapLegend(
-  ///              MapElement.shape,
-  ///              textStyle: TextStyle(color: Colors.red)
-  ///          ),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (index) {
-  ///                return bubbleData[index].country;
-  ///              }),
-  ///        )
+  ///  void initState() {
+  ///    super.initState();
+  ///
+  ///    _data = <DataModel>[
+  ///      DataModel('India', 280, "Low"),
+  ///      DataModel('United States of America', 190, "High"),
+  ///      DataModel('Pakistan', 37, "Low"),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      shapeColorValueMapper: (int index) {
+  ///        return _data[index].storage;
+  ///      },
+  ///      shapeColorMappers: [
+  ///        MapColorMapper(value: "Low", color: Colors.red),
+  ///        MapColorMapper(value: "High", color: Colors.green)
   ///      ],
   ///    );
   ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(
+  ///        title: Text('Default legend'),
+  ///      ),
+  ///      body: Center(
+  ///        child: SfMaps(
+  ///          layers: [
+  ///            MapShapeLayer(
+  ///              source: _mapSource,
+  ///              legend: MapLegend(
+  ///                MapElement.shape,
+  ///                textStyle: TextStyle(color: Colors.red),
+  ///              ),
+  ///            )
+  ///          ],
+  ///        ),
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class DataModel {
+  ///   const DataModel(this.country, this.count, this.storage);
+  ///
+  ///   final String country;
+  ///   final double count;
+  ///   final String storage;
+  /// }
   /// ```
-  final TextStyle textStyle;
+  final TextStyle? textStyle;
 
   /// Wraps or scrolls the legend items when it overflows.
   ///
@@ -563,26 +1006,65 @@ class MapLegend extends DiagnosticableTree {
   /// [MapLegendOverflowMode.scroll] for bar legend.
   ///
   /// ```dart
+  /// List<DataModel> _data;
+  /// MapShapeSource _mapSource;
+  ///
   ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          legend: MapLegend(
-  ///              MapElement.shape,
-  ///              overflowMode: MapLegendOverflowMode.scroll
-  ///          ),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (index) {
-  ///                return bubbleData[index].country;
-  ///              }),
-  ///        )
+  ///  void initState() {
+  ///    super.initState();
+  ///
+  ///    _data = <DataModel>[
+  ///      DataModel('India', 280, "Low"),
+  ///      DataModel('United States of America', 190, "High"),
+  ///      DataModel('Pakistan', 37, "Low"),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      shapeColorValueMapper: (int index) {
+  ///        return _data[index].storage;
+  ///      },
+  ///      shapeColorMappers: [
+  ///        MapColorMapper(value: "Low", color: Colors.red),
+  ///        MapColorMapper(value: "High", color: Colors.green)
   ///      ],
   ///    );
   ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(
+  ///        title: Text('Default legend'),
+  ///      ),
+  ///      body: Center(
+  ///        child: SfMaps(
+  ///          layers: [
+  ///            MapShapeLayer(
+  ///              source: _mapSource,
+  ///              legend: MapLegend(
+  ///                MapElement.shape,
+  ///                overflowMode: MapLegendOverflowMode.scroll,
+  ///              ),
+  ///            )
+  ///          ],
+  ///        ),
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class DataModel {
+  ///   const DataModel(this.country, this.count, this.storage);
+  ///
+  ///   final String country;
+  ///   final double count;
+  ///   final String storage;
+  /// }
   /// ```
   ///
   /// See also:
@@ -598,26 +1080,65 @@ class MapLegend extends DiagnosticableTree {
   /// be toggled on tap or click.
   ///
   /// ```dart
+  /// List<DataModel> _data;
+  /// MapShapeSource _mapSource;
+  ///
   ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          legend: MapLegend(
-  ///              MapElement.shape,
-  ///              enableToggleInteraction: true
-  ///          ),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (index) {
-  ///                return bubbleData[index].country;
-  ///              }),
-  ///        )
+  ///  void initState() {
+  ///    super.initState();
+  ///
+  ///    _data = <DataModel>[
+  ///      DataModel('India', 280, "Low"),
+  ///      DataModel('United States of America', 190, "High"),
+  ///      DataModel('Pakistan', 37, "Low"),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      shapeColorValueMapper: (int index) {
+  ///        return _data[index].storage;
+  ///      },
+  ///      shapeColorMappers: [
+  ///        MapColorMapper(value: "Low", color: Colors.red),
+  ///        MapColorMapper(value: "High", color: Colors.green)
   ///      ],
   ///    );
   ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(
+  ///        title: Text('Default legend'),
+  ///      ),
+  ///      body: Center(
+  ///        child: SfMaps(
+  ///          layers: [
+  ///            MapShapeLayer(
+  ///              source: _mapSource,
+  ///              legend: MapLegend(
+  ///                MapElement.shape,
+  ///                enableToggleInteraction: true,
+  ///              ),
+  ///            )
+  ///          ],
+  ///        ),
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class DataModel {
+  ///   const DataModel(this.country, this.count, this.storage);
+  ///
+  ///   final String country;
+  ///   final double count;
+  ///   final String storage;
+  /// }
   /// ```
   final bool _enableToggleInteraction;
 
@@ -627,66 +1148,144 @@ class MapLegend extends DiagnosticableTree {
   /// This snippet shows how to set toggledItemColor in [SfMaps].
   ///
   /// ```dart
+  /// List<DataModel> _data;
+  /// MapShapeSource _mapSource;
+  ///
   ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          legend: MapLegend(
-  ///              MapElement.shape,
-  ///              enableToggleInteraction: true,
-  ///              toggledItemColor: Colors.blueGrey
-  ///          ),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (index) {
-  ///                return bubbleData[index].country;
-  ///              }),
-  ///        )
+  ///  void initState() {
+  ///    super.initState();
+  ///
+  ///    _data = <DataModel>[
+  ///      DataModel('India', 280, "Low"),
+  ///      DataModel('United States of America', 190, "High"),
+  ///      DataModel('Pakistan', 37, "Low"),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      shapeColorValueMapper: (int index) {
+  ///        return _data[index].storage;
+  ///      },
+  ///      shapeColorMappers: [
+  ///        MapColorMapper(value: "Low", color: Colors.red),
+  ///        MapColorMapper(value: "High", color: Colors.green)
   ///      ],
   ///    );
   ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(
+  ///        title: Text('Default legend'),
+  ///      ),
+  ///      body: Center(
+  ///        child: SfMaps(
+  ///          layers: [
+  ///            MapShapeLayer(
+  ///              source: _mapSource,
+  ///              legend: MapLegend(
+  ///                MapElement.shape,
+  ///                enableToggleInteraction: true,
+  ///                toggledItemColor: Colors.blueGrey
+  ///              ),
+  ///            )
+  ///          ],
+  ///        ),
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class DataModel {
+  ///   const DataModel(this.country, this.count, this.storage);
+  ///
+  ///   final String country;
+  ///   final double count;
+  ///   final String storage;
+  /// }
   /// ```
   ///
   /// See also:
   /// * [toggledItemStrokeColor], [toggledItemStrokeWidth], to set the stroke
   /// for the toggled legend item's shape or bubble.
-  final Color _toggledItemColor;
+  final Color? _toggledItemColor;
 
   /// Stroke color for the toggled legend item's respective shape or bubble.
   ///
   /// ```dart
+  /// List<DataModel> _data;
+  /// MapShapeSource _mapSource;
+  ///
   ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          legend: MapLegend(
-  ///              MapElement.shape,
-  ///              enableToggleInteraction: true,
-  ///              toggledItemColor: Colors.blueGrey,
-  ///              toggledItemStrokeColor: Colors.white,
-  ///              toggledItemStrokeWidth: 0.5
-  ///          ),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (index) {
-  ///                return bubbleData[index].country;
-  ///              }),
-  ///        )
+  ///  void initState() {
+  ///    super.initState();
+  ///
+  ///    _data = <DataModel>[
+  ///      DataModel('India', 280, "Low"),
+  ///      DataModel('United States of America', 190, "High"),
+  ///      DataModel('Pakistan', 37, "Low"),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      shapeColorValueMapper: (int index) {
+  ///        return _data[index].storage;
+  ///      },
+  ///      shapeColorMappers: [
+  ///        MapColorMapper(value: "Low", color: Colors.red),
+  ///        MapColorMapper(value: "High", color: Colors.green)
   ///      ],
   ///    );
   ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(
+  ///        title: Text('Default legend'),
+  ///      ),
+  ///      body: Center(
+  ///        child: SfMaps(
+  ///          layers: [
+  ///            MapShapeLayer(
+  ///              source: _mapSource,
+  ///              legend: MapLegend(
+  ///                MapElement.shape,
+  ///                enableToggleInteraction: true,
+  ///                toggledItemColor: Colors.blueGrey,
+  ///                toggledItemStrokeColor: Colors.white,
+  ///                toggledItemStrokeWidth: 0.5
+  ///              ),
+  ///            )
+  ///          ],
+  ///        ),
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class DataModel {
+  ///   const DataModel(this.country, this.count, this.storage);
+  ///
+  ///   final String country;
+  ///   final double count;
+  ///   final String storage;
+  /// }
   /// ```
   ///
   /// See also:
   /// * [toggledItemStrokeWidth], to set the stroke width for the
   /// toggled legend item's shape.
-  final Color _toggledItemStrokeColor;
+  final Color? _toggledItemStrokeColor;
 
   /// Stroke width for the toggled legend item's respective shape or
   /// bubble.
@@ -696,29 +1295,68 @@ class MapLegend extends DiagnosticableTree {
   /// This snippet shows how to set toggledItemStrokeWidth in [SfMaps].
   ///
   /// ```dart
+  /// List<DataModel> _data;
+  /// MapShapeSource _mapSource;
+  ///
   ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          legend: MapLegend(
-  ///              MapElement.shape,
-  ///              enableToggleInteraction: true,
-  ///              toggledItemColor: Colors.blueGrey,
-  ///              toggledItemStrokeColor: Colors.white,
-  ///              toggledItemStrokeWidth: 0.5
-  ///          ),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (index) {
-  ///                return bubbleData[index].country;
-  ///              }),
-  ///        )
+  ///  void initState() {
+  ///    super.initState();
+  ///
+  ///    _data = <DataModel>[
+  ///      DataModel('India', 280, "Low"),
+  ///      DataModel('United States of America', 190, "High"),
+  ///      DataModel('Pakistan', 37, "Low"),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      shapeColorValueMapper: (int index) {
+  ///        return _data[index].storage;
+  ///      },
+  ///      shapeColorMappers: [
+  ///        MapColorMapper(value: "Low", color: Colors.red),
+  ///        MapColorMapper(value: "High", color: Colors.green)
   ///      ],
   ///    );
   ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(
+  ///        title: Text('Default legend'),
+  ///      ),
+  ///      body: Center(
+  ///        child: SfMaps(
+  ///          layers: [
+  ///            MapShapeLayer(
+  ///              source: _mapSource,
+  ///              legend: MapLegend(
+  ///                MapElement.shape,
+  ///                enableToggleInteraction: true,
+  ///                toggledItemColor: Colors.blueGrey,
+  ///                toggledItemStrokeColor: Colors.white,
+  ///                toggledItemStrokeWidth: 0.5
+  ///              ),
+  ///            )
+  ///          ],
+  ///        ),
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class DataModel {
+  ///   const DataModel(this.country, this.count, this.storage);
+  ///
+  ///   final String country;
+  ///   final double count;
+  ///   final String storage;
+  /// }
   /// ```
   ///
   /// See also:
@@ -734,30 +1372,69 @@ class MapLegend extends DiagnosticableTree {
   /// This snippet shows how to set toggledItemOpacity in [SfMaps].
   ///
   /// ```dart
+  /// List<DataModel> _data;
+  /// MapShapeSource _mapSource;
+  ///
   ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          legend: MapLegend(
-  ///              MapElement.shape,
-  ///              enableToggleInteraction: true,
-  ///              toggledItemColor: Colors.blueGrey,
-  ///              toggledItemStrokeColor: Colors.white,
-  ///              toggledItemStrokeWidth: 0.5,
-  ///              toggledItemOpacity: 0.5
-  ///          ),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (index) {
-  ///                return bubbleData[index].country;
-  ///              }),
-  ///        )
+  ///  void initState() {
+  ///    super.initState();
+  ///
+  ///    _data = <DataModel>[
+  ///      DataModel('India', 280, "Low"),
+  ///      DataModel('United States of America', 190, "High"),
+  ///      DataModel('Pakistan', 37, "Low"),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      shapeColorValueMapper: (int index) {
+  ///        return _data[index].storage;
+  ///      },
+  ///      shapeColorMappers: [
+  ///        MapColorMapper(value: "Low", color: Colors.red),
+  ///        MapColorMapper(value: "High", color: Colors.green)
   ///      ],
   ///    );
   ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(
+  ///        title: Text('Default legend'),
+  ///      ),
+  ///      body: Center(
+  ///        child: SfMaps(
+  ///          layers: [
+  ///            MapShapeLayer(
+  ///              source: _mapSource,
+  ///              legend: MapLegend(
+  ///                MapElement.shape,
+  ///                enableToggleInteraction: true,
+  ///                toggledItemColor: Colors.blueGrey,
+  ///                toggledItemStrokeColor: Colors.white,
+  ///                toggledItemStrokeWidth: 0.5,
+  ///                toggledItemOpacity: 0.5,
+  ///              ),
+  ///            )
+  ///          ],
+  ///        ),
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class DataModel {
+  ///   const DataModel(this.country, this.count, this.storage);
+  ///
+  ///   final String country;
+  ///   final double count;
+  ///   final String storage;
+  /// }
   /// ```
   ///
   final double _toggledItemOpacity;
@@ -767,90 +1444,207 @@ class MapLegend extends DiagnosticableTree {
   /// Defaults to [MapIconType.circle].
   ///
   /// ```dart
+  /// List<DataModel> _data;
+  /// MapShapeSource _mapSource;
+  ///
   ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          legend: MapLegend(
-  ///              MapElement.shape,
-  ///              iconType: MapIconType.rectangle
-  ///           ),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (index) {
-  ///                return bubbleData[index].country;
-  ///              }),
-  ///        )
+  ///  void initState() {
+  ///    super.initState();
+  ///
+  ///    _data = <DataModel>[
+  ///      DataModel('India', 280, "Low"),
+  ///      DataModel('United States of America', 190, "High"),
+  ///      DataModel('Pakistan', 37, "Low"),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      shapeColorValueMapper: (int index) {
+  ///        return _data[index].storage;
+  ///      },
+  ///      shapeColorMappers: [
+  ///        MapColorMapper(value: "Low", color: Colors.red),
+  ///        MapColorMapper(value: "High", color: Colors.green)
   ///      ],
   ///    );
   ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(
+  ///        title: Text('Default legend'),
+  ///      ),
+  ///      body: Center(
+  ///        child: SfMaps(
+  ///          layers: [
+  ///            MapShapeLayer(
+  ///              source: _mapSource,
+  ///              legend: MapLegend(
+  ///                MapElement.shape,
+  ///                iconType: MapIconType.rectangle,
+  ///              ),
+  ///            )
+  ///          ],
+  ///        ),
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class DataModel {
+  ///   const DataModel(this.country, this.count, this.storage);
+  ///
+  ///   final String country;
+  ///   final double count;
+  ///   final String storage;
+  /// }
   /// ```
   ///
   /// See also:
   /// * [iconSize], to set the size of the icon.
-  final MapIconType _iconType;
+  final MapIconType? _iconType;
 
   /// Customizes the size of the bar segments.
   ///
   /// Defaults to Size(80.0, 12.0).
   ///
   /// ```dart
+  /// List<DataModel> _data;
+  /// MapShapeSource _mapSource;
+  ///
   ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          legend: MapLegend(
-  ///              MapElement.shape,
-  ///              segmentSize: Size(30, 10)
-  ///          ),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (index) {
-  ///                return bubbleData[index].country;
-  ///              }),
-  ///        )
+  ///  void initState() {
+  ///    super.initState();
+  ///
+  ///    _data = <DataModel>[
+  ///      DataModel('India', 280, "Low"),
+  ///      DataModel('United States of America', 190, "High"),
+  ///      DataModel('Pakistan', 37, "Low"),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      shapeColorValueMapper: (int index) {
+  ///        return _data[index].storage;
+  ///      },
+  ///      shapeColorMappers: [
+  ///        MapColorMapper(value: "Low", color: Colors.red),
+  ///        MapColorMapper(value: "High", color: Colors.green)
   ///      ],
   ///    );
   ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(
+  ///        title: Text('Bar legend'),
+  ///      ),
+  ///      body: Center(
+  ///        child: SfMaps(
+  ///          layers: [
+  ///            MapShapeLayer(
+  ///              source: _mapSource,
+  ///              legend: MapLegend.bar(
+  ///                MapElement.shape,
+  ///                segmentSize: Size(70.0, 10.0),
+  ///              ),
+  ///            )
+  ///          ],
+  ///        ),
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class DataModel {
+  ///   const DataModel(this.country, this.count, this.storage);
+  ///
+  ///   final String country;
+  ///   final double count;
+  ///   final String storage;
+  /// }
   /// ```
-  final Size _segmentSize;
+  final Size? _segmentSize;
 
   /// Customizes the size of the icon.
   ///
   /// Defaults to Size(12.0, 12.0).
   ///
   /// ```dart
+  /// List<DataModel> _data;
+  /// MapShapeSource _mapSource;
+  ///
   ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          legend: MapLegend(
-  ///              MapElement.shape,
-  ///              iconSize: Size(30, 10)
-  ///          ),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (index) {
-  ///                return bubbleData[index].country;
-  ///              }),
-  ///        )
+  ///  void initState() {
+  ///    super.initState();
+  ///
+  ///    _data = <DataModel>[
+  ///      DataModel('India', 280, "Low"),
+  ///      DataModel('United States of America', 190, "High"),
+  ///      DataModel('Pakistan', 37, "Low"),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      shapeColorValueMapper: (int index) {
+  ///        return _data[index].storage;
+  ///      },
+  ///      shapeColorMappers: [
+  ///        MapColorMapper(value: "Low", color: Colors.red),
+  ///        MapColorMapper(value: "High", color: Colors.green)
   ///      ],
   ///    );
   ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(
+  ///        title: Text('Default legend'),
+  ///      ),
+  ///      body: Center(
+  ///        child: SfMaps(
+  ///          layers: [
+  ///            MapShapeLayer(
+  ///              source: _mapSource,
+  ///              legend: MapLegend(
+  ///                MapElement.shape,
+  ///                iconSize: Size(8.0, 8.0),
+  ///              ),
+  ///            )
+  ///          ],
+  ///        ),
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class DataModel {
+  ///   const DataModel(this.country, this.count, this.storage);
+  ///
+  ///   final String country;
+  ///   final double count;
+  ///   final String storage;
+  /// }
   /// ```
   ///
   /// See also:
   /// * [iconType], to set shape of the default legend icon.
-  final Size _iconSize;
+  final Size? _iconSize;
 
   /// Place the labels either between the segments or on the segments.
   ///
@@ -861,26 +1655,65 @@ class MapLegend extends DiagnosticableTree {
   /// This snippet shows how to set label placement in [SfMaps].
   ///
   /// ```dart
+  /// List<DataModel> _data;
+  /// MapShapeSource _mapSource;
+  ///
   ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          legend: MapLegend.bar(
-  ///              MapElement.bubble,
-  ///              labelsPlacement: MapLegendLabelsPlacement.onItem,
-  ///          ),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (index) {
-  ///                return bubbleData[index].country;
-  ///              }),
-  ///        )
+  ///  void initState() {
+  ///    super.initState();
+  ///
+  ///    _data = <DataModel>[
+  ///      DataModel('India', 280, "Low"),
+  ///      DataModel('United States of America', 190, "High"),
+  ///      DataModel('Pakistan', 37, "Low"),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      shapeColorValueMapper: (int index) {
+  ///        return _data[index].storage;
+  ///      },
+  ///      shapeColorMappers: [
+  ///        MapColorMapper(value: "Low", color: Colors.red),
+  ///        MapColorMapper(value: "High", color: Colors.green)
   ///      ],
   ///    );
   ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(
+  ///        title: Text('Bar legend'),
+  ///      ),
+  ///      body: Center(
+  ///        child: SfMaps(
+  ///          layers: [
+  ///            MapShapeLayer(
+  ///              source: _mapSource,
+  ///              legend: MapLegend.bar(
+  ///                MapElement.shape,
+  ///                labelsPlacement: MapLegendLabelsPlacement.onItem,
+  ///              ),
+  ///            )
+  ///          ],
+  ///        ),
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class DataModel {
+  ///   const DataModel(this.country, this.count, this.storage);
+  ///
+  ///   final String country;
+  ///   final double count;
+  ///   final String storage;
+  /// }
   /// ```
   ///
   /// See also:
@@ -889,7 +1722,7 @@ class MapLegend extends DiagnosticableTree {
   ///
   /// * [labelOverflow], to trims or removes the legend text
   /// when it is overflowed from the bar legend.
-  final MapLegendLabelsPlacement _labelsPlacement;
+  final MapLegendLabelsPlacement? _labelsPlacement;
 
   /// Place the edge labels either inside or outside of the bar legend.
   ///
@@ -901,26 +1734,57 @@ class MapLegend extends DiagnosticableTree {
   /// This snippet shows how to set edge label placement in [SfMaps].
   ///
   /// ```dart
-  ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          legend: MapLegend.bar(
-  ///              MapElement.bubble,
-  ///              edgeLabelsPlacement: MapLegendEdgeLabelsPlacement.inside,
-  ///          ),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (index) {
-  ///                return bubbleData[index].country;
-  ///              }),
-  ///        )
-  ///      ],
-  ///    );
-  ///  }
+  ///  List<DataModel> _data;
+  ///  MapShapeSource _mapSource;
+  ///
+  ///   @override
+  ///   void initState() {
+  ///     super.initState();
+  ///
+  ///     _data = <DataModel>[
+  ///       DataModel('India', 100, "Low"),
+  ///       DataModel('United States of America', 200, "High"),
+  ///       DataModel('Pakistan', 75, "Low"),
+  ///     ];
+  ///
+  ///     _mapSource = MapShapeSource.asset("assets/world_map.json",
+  ///         shapeDataField: "name",
+  ///         dataCount: _data.length, primaryValueMapper: (int index) {
+  ///       return _data[index].country;
+  ///     }, shapeColorValueMapper: (int index) {
+  ///       return _data[index].count;
+  ///     }, shapeColorMappers: [
+  ///       MapColorMapper(from: 0, to: 100, color: Colors.red),
+  ///       MapColorMapper(from: 101, to: 200, color: Colors.yellow)
+  ///     ]);
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       appBar: AppBar(title: Text('Bar legend')),
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             legend: MapLegend.bar(
+  ///               MapElement.shape,
+  ///               edgeLabelsPlacement: MapLegendEdgeLabelsPlacement.inside,
+  ///             ),
+  ///           )
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  /// }
+  ///
+  /// class DataModel {
+  ///   const DataModel(this.country, this.count, this.storage);
+  ///
+  ///   final String country;
+  ///   final double count;
+  ///   final String storage;
+  /// }
   /// ```
   ///
   /// See also:
@@ -928,7 +1792,7 @@ class MapLegend extends DiagnosticableTree {
   /// on the segments.
   /// * [labelOverflow], to trims or removes the legend text
   /// when it is overflowed from the bar legend.
-  final MapLegendEdgeLabelsPlacement _edgeLabelsPlacement;
+  final MapLegendEdgeLabelsPlacement? _edgeLabelsPlacement;
 
   /// Trims or removes the legend text when it is overflowed from the
   /// bar legend.
@@ -942,26 +1806,65 @@ class MapLegend extends DiagnosticableTree {
   ///  in [SfMaps].
   ///
   /// ```dart
+  /// List<DataModel> _data;
+  /// MapShapeSource _mapSource;
+  ///
   ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          legend: MapLegend(
-  ///              MapElement.shape,
-  ///              labelOverflow: MapLabelOverflow.hide
-  ///          ),
-  ///          source: MapShapeSource.asset(
-  ///              "assets/world_map.json",
-  ///              shapeDataField: "continent",
-  ///              dataCount: bubbleData.length,
-  ///              primaryValueMapper: (index) {
-  ///                return bubbleData[index].country;
-  ///              }),
-  ///        )
+  ///  void initState() {
+  ///    super.initState();
+  ///
+  ///    _data = <DataModel>[
+  ///      DataModel('India', 280, "Low"),
+  ///      DataModel('United States of America', 190, "High"),
+  ///      DataModel('Pakistan', 37, "Low"),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      shapeColorValueMapper: (int index) {
+  ///        return _data[index].storage;
+  ///      },
+  ///      shapeColorMappers: [
+  ///        MapColorMapper(value: "Low", color: Colors.red),
+  ///        MapColorMapper(value: "High", color: Colors.green)
   ///      ],
   ///    );
   ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(
+  ///        title: Text('Bar legend'),
+  ///      ),
+  ///      body: Center(
+  ///        child: SfMaps(
+  ///          layers: [
+  ///            MapShapeLayer(
+  ///              source: _mapSource,
+  ///              legend: MapLegend.bar(
+  ///                MapElement.shape,
+  ///                labelOverflow: MapLabelOverflow.hide,
+  ///              ),
+  ///            )
+  ///          ],
+  ///        ),
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class DataModel {
+  ///   const DataModel(this.country, this.count, this.storage);
+  ///
+  ///   final String country;
+  ///   final double count;
+  ///   final String storage;
+  /// }
   /// ```
   ///
   /// See also:
@@ -969,12 +1872,83 @@ class MapLegend extends DiagnosticableTree {
   /// on the segments.
   /// * [edgeLabelsPlacement], to place the edge labels either inside or
   /// outside of the bar legend.
-  final MapLabelOverflow _labelOverflow;
+  final MapLabelOverflow? _labelOverflow;
 
   /// Specifies the type of the legend.
   final _MapLegendType _legendType;
 
-  final MapLegendPaintingStyle _segmentPaintingStyle;
+  /// Applies gradient or solid color for the bar segments.
+  ///
+  /// ```dart
+  /// List<DataModel> _data;
+  /// MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    super.initState();
+  ///
+  ///    _data = <DataModel>[
+  ///      DataModel('India', 280, "Low"),
+  ///      DataModel('United States of America', 190, "High"),
+  ///      DataModel('Pakistan', 37, "Low"),
+  ///    ];
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "name",
+  ///      dataCount: _data.length,
+  ///      primaryValueMapper: (int index) {
+  ///        return _data[index].country;
+  ///      },
+  ///      shapeColorValueMapper: (int index) {
+  ///        return _data[index].storage;
+  ///      },
+  ///      shapeColorMappers: [
+  ///        MapColorMapper(value: "Low", color: Colors.red),
+  ///        MapColorMapper(value: "High", color: Colors.green)
+  ///      ],
+  ///    );
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      appBar: AppBar(
+  ///        title: Text('Bar legend'),
+  ///      ),
+  ///      body: Center(
+  ///        child: SfMaps(
+  ///          layers: [
+  ///            MapShapeLayer(
+  ///              source: _mapSource,
+  ///              legend: MapLegend.bar(
+  ///                MapElement.shape,
+  ///                labelOverflow: MapLabelOverflow.hide,
+  ///              ),
+  ///            )
+  ///          ],
+  ///        ),
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class DataModel {
+  ///   const DataModel(this.country, this.count, this.storage);
+  ///
+  ///   final String country;
+  ///   final double count;
+  ///   final String storage;
+  /// }
+  /// ```dart
+  ///
+  /// See also:
+  /// * [labelsPlacement], place the labels either between the segments or
+  /// on the segments.
+  /// * [labelOverflow], to trims or removes the legend text
+  /// when it is overflowed from the bar legend.
+  /// * [edgeLabelsPlacement], to place the edge labels either inside or
+  /// outside of the bar legend.
+  final MapLegendPaintingStyle? _segmentPaintingStyle;
 
   @override
   bool operator ==(Object other) {
@@ -1025,38 +1999,40 @@ class MapLegend extends DiagnosticableTree {
   /// Creates a copy of this class but with the given fields
   /// replaced with the new values.
   MapLegend copyWith({
-    Axis direction,
-    EdgeInsetsGeometry padding,
-    MapLegendPosition position,
-    Offset offset,
-    double spacing,
-    MapIconType iconType,
-    TextStyle textStyle,
-    Size iconSize,
-    Size segmentSize,
-    MapLegendOverflowMode overflowMode,
-    bool enableToggleInteraction,
-    Color toggledItemColor,
-    Color toggledItemStrokeColor,
-    double toggledItemStrokeWidth,
-    double toggledItemOpacity,
-    MapElement source,
-    MapLegendLabelsPlacement labelsPlacement,
-    MapLegendEdgeLabelsPlacement edgeLabelsPlacement,
-    MapLabelOverflow labelOverflow,
-    MapLegendPaintingStyle segmentPaintingStyle,
+    Axis? direction,
+    EdgeInsetsGeometry? padding,
+    MapLegendPosition? position,
+    Widget? title,
+    Offset? offset,
+    double? spacing,
+    MapIconType? iconType,
+    TextStyle? textStyle,
+    Size? iconSize,
+    Size? segmentSize,
+    MapLegendOverflowMode? overflowMode,
+    bool? enableToggleInteraction,
+    Color? toggledItemColor,
+    Color? toggledItemStrokeColor,
+    double? toggledItemStrokeWidth,
+    double? toggledItemOpacity,
+    MapElement? source,
+    MapLegendLabelsPlacement? labelsPlacement,
+    MapLegendEdgeLabelsPlacement? edgeLabelsPlacement,
+    MapLabelOverflow? labelOverflow,
+    MapLegendPaintingStyle? segmentPaintingStyle,
   }) {
     if (_legendType == _MapLegendType.vector) {
       return MapLegend(
         source ?? this.source,
+        title: title ?? this.title,
         direction: direction ?? this.direction,
         padding: padding ?? this.padding,
         position: position ?? this.position,
         offset: offset ?? this.offset,
         spacing: spacing ?? this.spacing,
-        iconType: iconType ?? _iconType,
+        iconType: iconType ?? _iconType!,
         textStyle: textStyle ?? this.textStyle,
-        iconSize: iconSize ?? _iconSize,
+        iconSize: iconSize ?? _iconSize!,
         overflowMode: overflowMode ?? this.overflowMode,
         enableToggleInteraction:
             enableToggleInteraction ?? _enableToggleInteraction,
@@ -1070,6 +2046,7 @@ class MapLegend extends DiagnosticableTree {
     } else {
       return MapLegend.bar(
         source ?? this.source,
+        title: title ?? this.title,
         direction: direction ?? this.direction,
         padding: padding ?? this.padding,
         position: position ?? this.position,
@@ -1079,9 +2056,9 @@ class MapLegend extends DiagnosticableTree {
         segmentSize: segmentSize ?? _segmentSize,
         overflowMode: overflowMode ?? this.overflowMode,
         labelsPlacement: labelsPlacement ?? _labelsPlacement,
-        edgeLabelsPlacement: edgeLabelsPlacement ?? _edgeLabelsPlacement,
-        labelOverflow: labelOverflow ?? _labelOverflow,
-        segmentPaintingStyle: segmentPaintingStyle ?? _segmentPaintingStyle,
+        edgeLabelsPlacement: edgeLabelsPlacement ?? _edgeLabelsPlacement!,
+        labelOverflow: labelOverflow ?? _labelOverflow!,
+        segmentPaintingStyle: segmentPaintingStyle ?? _segmentPaintingStyle!,
       );
     }
   }
@@ -1103,7 +2080,7 @@ class MapLegend extends DiagnosticableTree {
         .add(EnumProperty<MapLegendOverflowMode>('overflowMode', overflowMode));
     properties.add(EnumProperty<MapLegendPosition>('position', position));
     if (textStyle != null) {
-      properties.add(textStyle.toDiagnosticsNode(name: 'textStyle'));
+      properties.add(textStyle!.toDiagnosticsNode(name: 'textStyle'));
     }
 
     if (_legendType == _MapLegendType.vector) {
@@ -1141,11 +2118,11 @@ class MapLegend extends DiagnosticableTree {
 }
 
 /// For rendering the map legend based on legend type.
-class MapLayerLegend extends StatefulWidget {
+class MapLegendWidget extends StatefulWidget {
   /// Creates a [MapMarker].
-  MapLayerLegend({
+  MapLegendWidget({
     this.dataSource,
-    this.legend,
+    required this.legend,
     this.themeData,
     this.controller,
     this.toggleAnimationController,
@@ -1167,17 +2144,17 @@ class MapLayerLegend extends StatefulWidget {
   final MapElement source;
 
   /// Customizes the legend item's text style.
-  final TextStyle textStyle;
+  final TextStyle? textStyle;
 
   /// Enables the toggle interaction for the legend.
   final bool enableToggleInteraction;
 
   /// Fills the toggled legend item's icon and the respective shape or bubble
   /// by this color.
-  final Color toggledItemColor;
+  final Color? toggledItemColor;
 
   /// Stroke color for the toggled legend item's respective shape or bubble.
-  final Color toggledItemStrokeColor;
+  final Color? toggledItemStrokeColor;
 
   /// Stroke width for the toggled legend item's respective shape or
   /// bubble.
@@ -1190,24 +2167,24 @@ class MapLayerLegend extends StatefulWidget {
   /// Holds the color and typography values for a [SfMapsTheme].
   /// Use this class to configure a [SfMapsTheme] widget,
   /// or to set the [SfThemeData.mapsThemeData] for a [SfTheme] widget.
-  final SfMapsThemeData themeData;
+  final SfMapsThemeData? themeData;
 
   /// updating legend toggled indices.
-  final MapController controller;
+  final MapController? controller;
 
   /// Applies animation for toggled legend item.
-  final AnimationController toggleAnimationController;
+  final AnimationController? toggleAnimationController;
 
   /// Creates a copy of this class but with the given fields
   /// replaced with the new values.
-  MapLayerLegend copyWith({
+  MapLegendWidget copyWith({
     dynamic dataSource,
-    MapLegend legend,
-    SfMapsThemeData themeData,
-    MapController controller,
-    AnimationController toggleAnimationController,
+    required MapLegend? legend,
+    required SfMapsThemeData? themeData,
+    required MapController? controller,
+    required AnimationController? toggleAnimationController,
   }) {
-    return MapLayerLegend(
+    return MapLegendWidget(
       dataSource: dataSource ?? this.dataSource,
       legend: legend ?? this.legend,
       themeData: themeData ?? this.themeData,
@@ -1221,9 +2198,9 @@ class MapLayerLegend extends StatefulWidget {
   _MapLegendState createState() => _MapLegendState();
 }
 
-class _MapLegendState extends State<MapLayerLegend> {
+class _MapLegendState extends State<MapLegendWidget> {
   @override
-  void didUpdateWidget(MapLayerLegend oldWidget) {
+  void didUpdateWidget(MapLegendWidget oldWidget) {
     if (oldWidget.legend.source != widget.legend.source) {
       _resetToggleState();
     }
@@ -1238,31 +2215,63 @@ class _MapLegendState extends State<MapLayerLegend> {
   }
 
   void _resetToggleState() {
-    widget.controller.currentToggledItemIndex = -1;
-    widget.controller.toggledIndices.clear();
+    widget.controller!.currentToggledItemIndex = -1;
+    widget.controller!.toggledIndices.clear();
   }
 
   @override
   // ignore: missing_return
   Widget build(BuildContext context) {
-    switch (widget.legend.overflowMode) {
-      case MapLegendOverflowMode.scroll:
-        return SingleChildScrollView(
-          scrollDirection: widget.legend.position == MapLegendPosition.top ||
-                  widget.legend.position == MapLegendPosition.bottom
-              ? Axis.horizontal
-              : Axis.vertical,
-          child: actualChild,
+    if (widget.legend.title == null) {
+      switch (widget.legend.overflowMode) {
+        case MapLegendOverflowMode.scroll:
+          return _scrollableLegend;
+        case MapLegendOverflowMode.wrap:
+          return actualChild;
+      }
+    } else {
+      if (widget.legend.position == MapLegendPosition.top ||
+          widget.legend.position == MapLegendPosition.bottom) {
+        return Column(
+          mainAxisAlignment: widget.legend.position == MapLegendPosition.top
+              ? MainAxisAlignment.start
+              : MainAxisAlignment.end,
+          children: [
+            widget.legend.title!,
+            widget.legend.overflowMode == MapLegendOverflowMode.scroll
+                ? _scrollableLegend
+                : actualChild
+          ],
         );
-      case MapLegendOverflowMode.wrap:
-        return actualChild;
+      } else {
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            widget.legend.title!,
+            Flexible(
+                child:
+                    widget.legend.overflowMode == MapLegendOverflowMode.scroll
+                        ? _scrollableLegend
+                        : actualChild),
+          ],
+        );
+      }
     }
+  }
+
+  Widget get _scrollableLegend {
+    return SingleChildScrollView(
+        scrollDirection: widget.legend.position == MapLegendPosition.top ||
+                widget.legend.position == MapLegendPosition.bottom
+            ? Axis.horizontal
+            : Axis.vertical,
+        child: actualChild);
   }
 
   Widget get actualChild {
     if (widget.legend._legendType == _MapLegendType.vector) {
       return Padding(
-        padding: widget.legend.padding,
+        padding: widget.legend.padding!,
         // Mapped the legend properties to the Wrap widget.
         child: Wrap(
           direction: widget.legend.direction ??
@@ -1271,10 +2280,10 @@ class _MapLegendState extends State<MapLayerLegend> {
                   ? Axis.horizontal
                   : Axis.vertical),
           spacing: widget.legend.spacing,
-          children: _getLegendItems(),
           runSpacing: 6,
           runAlignment: WrapAlignment.center,
           alignment: WrapAlignment.start,
+          children: _getLegendItems(),
         ),
       );
     } else {
@@ -1282,13 +2291,13 @@ class _MapLegendState extends State<MapLayerLegend> {
         return _SolidBarLegend(
           dataSource: widget.dataSource,
           legend: widget.legend,
-          themeData: widget.themeData,
+          themeData: widget.themeData!,
         );
       } else {
         return _GradientBarLegend(
           dataSource: widget.dataSource,
           settings: widget.legend,
-          themeData: widget.themeData,
+          themeData: widget.themeData!,
         );
       }
     }
@@ -1304,11 +2313,9 @@ class _MapLegendState extends State<MapLayerLegend> {
         final int length = widget.dataSource.length;
         for (int i = 0; i < length; i++) {
           final MapColorMapper colorMapper = widget.dataSource[i];
-          assert(colorMapper != null);
           final String text = colorMapper.text ??
               colorMapper.value ??
               '${colorMapper.from} - ${colorMapper.to}';
-          assert(text != null);
           legendItems.add(_getLegendItem(
             text,
             colorMapper.color,
@@ -1319,11 +2326,10 @@ class _MapLegendState extends State<MapLayerLegend> {
       } else {
         // Here source is map data source.
         widget.dataSource.forEach((String key, MapModel mapModel) {
-          assert(mapModel.primaryKey != null);
           legendItems.add(_getLegendItem(
             mapModel.primaryKey,
             isLegendForBubbles ? mapModel.bubbleColor : mapModel.shapeColor,
-            mapModel.legendMapperIndex,
+            mapModel.legendMapperIndex!,
             isLegendForBubbles,
           ));
         });
@@ -1335,34 +2341,33 @@ class _MapLegendState extends State<MapLayerLegend> {
 
   /// Returns the legend icon and label.
   Widget _getLegendItem(
-      String text, Color color, int index, bool isLegendForBubbles) {
-    assert(text != null);
+      String text, Color? color, int index, bool isLegendForBubbles) {
     return _MapLegendItem(
       index: index,
       text: text,
       iconShapeColor: color ??
           (isLegendForBubbles
-              ? widget.themeData.bubbleColor
-              : widget.themeData.layerColor),
+              ? widget.themeData!.bubbleColor
+              : widget.themeData!.layerColor),
       source: widget.legend.source,
       legend: widget.legend,
-      themeData: widget.themeData,
-      controller: widget.controller,
-      toggleAnimationController: widget.toggleAnimationController,
+      themeData: widget.themeData!,
+      controller: widget.controller!,
+      toggleAnimationController: widget.toggleAnimationController!,
     );
   }
 }
 
 class _MapLegendItem extends LeafRenderObjectWidget {
   const _MapLegendItem({
-    this.index,
-    this.text,
-    this.iconShapeColor,
-    this.source,
-    this.legend,
-    this.themeData,
-    this.controller,
-    this.toggleAnimationController,
+    required this.index,
+    required this.text,
+    required this.iconShapeColor,
+    required this.source,
+    required this.legend,
+    required this.themeData,
+    required this.controller,
+    required this.toggleAnimationController,
   });
 
   final int index;
@@ -1404,16 +2409,16 @@ class _MapLegendItem extends LeafRenderObjectWidget {
 
 class _RenderLegendItem extends RenderBox implements MouseTrackerAnnotation {
   _RenderLegendItem({
-    int index,
-    String text,
-    Color iconShapeColor,
-    MapElement source,
-    MapLegend legend,
-    SfMapsThemeData themeData,
-    MapController controller,
-    AnimationController toggleAnimationController,
-    MediaQueryData mediaQueryData,
-  })  : _index = index,
+    required int index,
+    required String text,
+    required Color iconShapeColor,
+    required MapElement source,
+    required MapLegend legend,
+    required SfMapsThemeData themeData,
+    required MapController controller,
+    required AnimationController toggleAnimationController,
+    required MediaQueryData mediaQueryData,
+  })   : _index = index,
         _text = text,
         _iconShapeColor = iconShapeColor,
         _source = source,
@@ -1448,20 +2453,21 @@ class _RenderLegendItem extends RenderBox implements MouseTrackerAnnotation {
 
   bool _wasToggled = false;
 
-  TextPainter _textPainter;
+  late TextPainter _textPainter;
 
-  TapGestureRecognizer _tapGestureRecognizer;
+  late TapGestureRecognizer _tapGestureRecognizer;
 
-  Animation<double> _toggleColorAnimation;
+  late Animation<double> _toggleColorAnimation;
 
-  Tween _textOpacityTween;
+  late Tween _textOpacityTween;
 
-  ColorTween _iconColorTween;
+  late ColorTween _iconColorTween;
 
-  Color _toggledIconColor;
+  late Color _toggledIconColor;
 
   String get text => _text;
   String _text;
+
   set text(String value) {
     if (_text == value) {
       return;
@@ -1473,6 +2479,7 @@ class _RenderLegendItem extends RenderBox implements MouseTrackerAnnotation {
 
   Color get iconShapeColor => _iconShapeColor;
   Color _iconShapeColor;
+
   set iconShapeColor(Color value) {
     if (_iconShapeColor == value) {
       return;
@@ -1483,6 +2490,7 @@ class _RenderLegendItem extends RenderBox implements MouseTrackerAnnotation {
 
   MapElement get source => _source;
   MapElement _source;
+
   set source(MapElement value) {
     if (_source == value) {
       return;
@@ -1494,6 +2502,7 @@ class _RenderLegendItem extends RenderBox implements MouseTrackerAnnotation {
 
   MapLegend get legend => _legend;
   MapLegend _legend;
+
   set legend(MapLegend value) {
     if (_legend == value) {
       return;
@@ -1505,6 +2514,7 @@ class _RenderLegendItem extends RenderBox implements MouseTrackerAnnotation {
 
   SfMapsThemeData get themeData => _themeData;
   SfMapsThemeData _themeData;
+
   set themeData(SfMapsThemeData value) {
     if (_themeData == value) {
       return;
@@ -1516,6 +2526,7 @@ class _RenderLegendItem extends RenderBox implements MouseTrackerAnnotation {
 
   MediaQueryData get mediaQueryData => _mediaQueryData;
   MediaQueryData _mediaQueryData;
+
   set mediaQueryData(MediaQueryData value) {
     if (_mediaQueryData == value) {
       return;
@@ -1531,16 +2542,16 @@ class _RenderLegendItem extends RenderBox implements MouseTrackerAnnotation {
       : SystemMouseCursors.basic;
 
   @override
-  PointerEnterEventListener get onEnter => null;
+  PointerEnterEventListener? get onEnter => null;
 
   // As onHover property of MouseHoverAnnotation was removed only in the
   // beta channel, once it is moved to stable, will remove this property.
   @override
   // ignore: override_on_non_overriding_member
-  PointerHoverEventListener get onHover => null;
+  PointerHoverEventListener? get onHover => null;
 
   @override
-  PointerExitEventListener get onExit => null;
+  PointerExitEventListener? get onExit => null;
 
   @override
   // ignore: override_on_non_overriding_member
@@ -1598,32 +2609,32 @@ class _RenderLegendItem extends RenderBox implements MouseTrackerAnnotation {
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
-    _toggleAnimationController?.addListener(markNeedsPaint);
+    _toggleAnimationController.addListener(markNeedsPaint);
   }
 
   @override
   void detach() {
-    _toggleAnimationController?.removeListener(markNeedsPaint);
+    _toggleAnimationController.removeListener(markNeedsPaint);
     super.detach();
   }
 
   @override
   void performLayout() {
     final double width =
-        _legend._iconSize.width + _spacing + _textPainter.width;
+        _legend._iconSize!.width + _spacing + _textPainter.width;
     final double height =
-        max(_legend._iconSize.height, _textPainter.height) + _spacing;
+        max(_legend._iconSize!.height, _textPainter.height) + _spacing;
     size = Size(width, height);
   }
 
   @override
   void paint(PaintingContext context, Offset offset) {
     double toggledLegendItemOpacity;
-    Color iconColor;
+    Color? iconColor;
     Offset actualOffset;
     if (_wasToggled || controller.currentToggledItemIndex == _index) {
       if (controller.currentToggledItemIndex == _index) {
-        iconColor = _iconColorTween.evaluate(_toggleColorAnimation);
+        iconColor = _iconColorTween.evaluate(_toggleColorAnimation)!;
         toggledLegendItemOpacity =
             _textOpacityTween.evaluate(_toggleColorAnimation);
       } else {
@@ -1636,23 +2647,25 @@ class _RenderLegendItem extends RenderBox implements MouseTrackerAnnotation {
     }
 
     final Size halfIconSize =
-        _iconShape.getPreferredSize(_legend._iconSize, _themeData) / 2;
+        _iconShape.getPreferredSize(_legend._iconSize!, _themeData) / 2;
     actualOffset =
         offset + Offset(0, (size.height - (halfIconSize.height * 2)) / 2);
     _iconShape.paint(context, actualOffset,
         parentBox: this,
-        iconSize: _legend._iconSize,
-        color: iconColor ?? Colors.transparent,
-        iconType: _legend._iconType);
+        themeData: themeData,
+        iconSize: _legend._iconSize!,
+        color: iconColor,
+        strokeWidth: 0.0,
+        iconType: _legend._iconType!);
 
     _textPainter.text = TextSpan(
-        style: _legend.textStyle.copyWith(
-            color:
-                _legend.textStyle.color.withOpacity(toggledLegendItemOpacity)),
+        style: _legend.textStyle!.copyWith(
+            color: _legend.textStyle!.color!
+                .withOpacity(toggledLegendItemOpacity)),
         text: _text);
     _textPainter.layout();
     actualOffset = offset +
-        Offset(_legend._iconSize.width + _spacing,
+        Offset(_legend._iconSize!.width + _spacing,
             (size.height - _textPainter.height) / 2);
     _textPainter.paint(context.canvas, actualOffset);
   }
@@ -1660,9 +2673,9 @@ class _RenderLegendItem extends RenderBox implements MouseTrackerAnnotation {
 
 class _SolidBarLegend extends StatefulWidget {
   const _SolidBarLegend({
-    this.dataSource,
-    this.legend,
-    this.themeData,
+    required this.dataSource,
+    required this.legend,
+    required this.themeData,
   });
 
   final dynamic dataSource;
@@ -1674,12 +2687,12 @@ class _SolidBarLegend extends StatefulWidget {
 }
 
 class _SolidBarLegendState extends State<_SolidBarLegend> {
-  Axis _direction;
-  TextDirection _textDirection;
-  MapLegendLabelsPlacement _labelsPlacement;
-  TextPainter _textPainter;
   bool _isOverlapSegmentText = false;
-  Size _segmentSize;
+  late Axis _direction;
+  late TextDirection _textDirection;
+  late Size _segmentSize;
+  late TextPainter _textPainter;
+  MapLegendLabelsPlacement? _labelsPlacement;
 
   @override
   void initState() {
@@ -1702,16 +2715,16 @@ class _SolidBarLegendState extends State<_SolidBarLegend> {
         : (_direction == Axis.vertical ? TextDirection.ltr : textDirection);
     _textPainter.textScaleFactor = MediaQuery.of(context).textScaleFactor;
     return Padding(
-      padding: widget.legend.padding,
+      padding: widget.legend.padding!,
       child: Directionality(
         textDirection: _textDirection,
         child: Wrap(
           direction: _direction,
           spacing: widget.legend.spacing,
-          children: _getBarSegments(),
           runSpacing: 6,
           runAlignment: WrapAlignment.center,
           alignment: WrapAlignment.start,
+          children: _getBarSegments(),
         ),
       ),
     );
@@ -1735,33 +2748,41 @@ class _SolidBarLegendState extends State<_SolidBarLegend> {
   List<Widget> _getSegmentsForColorMapper(bool isLegendForBubbles) {
     final List<Widget> legendItems = <Widget>[];
     final int length = widget.dataSource.length;
+    String? currentText;
     for (int i = 0; i < length; i++) {
       _isOverlapSegmentText = false;
       final MapColorMapper colorMapper = widget.dataSource[i];
-      String currentText;
-      if (i == 0) {
-        final List<String> firstSegmentLabels =
-            _getStartSegmentLabel(colorMapper);
-        currentText = (firstSegmentLabels.length > 1
-            ? firstSegmentLabels[1]
-            : firstSegmentLabels[0]);
-      } else {
-        currentText = _getText(colorMapper);
-      }
-
-      if (i < length - 1 &&
-          _labelsPlacement == MapLegendLabelsPlacement.betweenItems) {
-        currentText = _getTrimmedText(
-            currentText, _getText(widget.dataSource[i + 1]), i, length);
-      } else if (_direction == Axis.horizontal &&
-          _labelsPlacement == MapLegendLabelsPlacement.onItem) {
-        _isOverlapSegmentText = _getTextWidth(currentText) > _segmentSize.width;
-      }
-
       _labelsPlacement = _labelsPlacement ??
           (colorMapper.from != null
               ? MapLegendLabelsPlacement.betweenItems
               : MapLegendLabelsPlacement.onItem);
+      if (_labelsPlacement == MapLegendLabelsPlacement.betweenItems) {
+        if (i == length - 1) {
+          currentText = _getTrimmedText(
+              _getText(widget.dataSource[i]), currentText, i, length);
+        } else {
+          if (i == 0) {
+            final List<String> firstSegmentLabels =
+                _getStartSegmentLabel(colorMapper);
+            currentText = (firstSegmentLabels.length > 1
+                ? firstSegmentLabels[1]
+                : firstSegmentLabels[0]);
+          } else {
+            currentText = _getText(colorMapper);
+          }
+
+          currentText = _getTrimmedText(
+              currentText, _getText(widget.dataSource[i + 1]), i, length);
+        }
+      } else {
+        currentText = _getText(colorMapper);
+        if (_direction == Axis.horizontal &&
+            _labelsPlacement == MapLegendLabelsPlacement.onItem) {
+          _isOverlapSegmentText =
+              _getTextWidth(currentText) > _segmentSize.width;
+        }
+      }
+
       legendItems.add(_getSegment(currentText, colorMapper.color, i,
           isLegendForBubbles, length, colorMapper));
     }
@@ -1780,23 +2801,28 @@ class _SolidBarLegendState extends State<_SolidBarLegend> {
     final Iterator<MapModel> currentIterator =
         widget.dataSource.values.iterator;
     final Iterator<MapModel> nextIterator = widget.dataSource.values.iterator;
+    String? text;
     nextIterator.moveNext();
     while (currentIterator.moveNext()) {
       final MapModel mapModel = currentIterator.current;
-      String text = mapModel.primaryKey;
-      if (nextIterator.moveNext() &&
-          _labelsPlacement == MapLegendLabelsPlacement.betweenItems) {
-        text = _getTrimmedText(text, nextIterator.current.primaryKey,
-            mapModel.actualIndex, length);
+      if (_labelsPlacement == MapLegendLabelsPlacement.betweenItems) {
+        if (nextIterator.moveNext()) {
+          text = _getTrimmedText(mapModel.primaryKey,
+              nextIterator.current.primaryKey, mapModel.actualIndex, length);
+        } else {
+          text = _getTrimmedText(currentIterator.current.primaryKey, text,
+              mapModel.actualIndex, length);
+        }
       } else if (_direction == Axis.horizontal &&
           _labelsPlacement == MapLegendLabelsPlacement.onItem) {
+        text = mapModel.primaryKey;
         _isOverlapSegmentText = _getTextWidth(text) > _segmentSize.width;
       }
 
       barSegments.add(_getSegment(
-          text,
+          text!,
           isLegendForBubbles ? mapModel.bubbleColor : mapModel.shapeColor,
-          mapModel.legendMapperIndex,
+          mapModel.legendMapperIndex!,
           isLegendForBubbles,
           length));
     }
@@ -1805,33 +2831,47 @@ class _SolidBarLegendState extends State<_SolidBarLegend> {
   }
 
   String _getTrimmedText(
-      String currentText, String nextText, int index, int length) {
-    if (widget.legend._labelOverflow == MapLabelOverflow.visible) {
+      String currentText, String? nextText, int index, int length) {
+    if (widget.legend._labelOverflow == MapLabelOverflow.visible ||
+        currentText.isEmpty ||
+        (nextText != null && nextText.isEmpty) ||
+        nextText == null) {
       return currentText;
     }
 
     final Size barSize = _segmentSize;
+    double refCurrentTextWidth;
+    double refNextTextWidth;
     if (_direction == Axis.horizontal &&
         _labelsPlacement == MapLegendLabelsPlacement.betweenItems) {
-      final double refCurrentTextWidth = _getTextWidth(currentText) / 2;
-      final double refNextTextWidth = index + 1 == length - 1 &&
-              widget.legend._edgeLabelsPlacement ==
-                  MapLegendEdgeLabelsPlacement.inside
-          ? _getTextWidth(nextText)
-          : _getTextWidth(nextText) / 2;
+      bool isLastInsideItem = false;
+      if (index == length - 1) {
+        isLastInsideItem = widget.legend._edgeLabelsPlacement ==
+            MapLegendEdgeLabelsPlacement.inside;
+        refNextTextWidth = _getTextWidth(nextText) / 2;
+        refCurrentTextWidth = isLastInsideItem
+            ? _getTextWidth(currentText)
+            : _getTextWidth(currentText) / 2;
+      } else {
+        refCurrentTextWidth = _getTextWidth(currentText) / 2;
+        refNextTextWidth = index + 1 == length - 1 &&
+                widget.legend._edgeLabelsPlacement ==
+                    MapLegendEdgeLabelsPlacement.inside
+            ? _getTextWidth(nextText)
+            : _getTextWidth(nextText) / 2;
+      }
       _isOverlapSegmentText = refCurrentTextWidth + refNextTextWidth >
           barSize.width + widget.legend.spacing;
       if (widget.legend._labelOverflow == MapLabelOverflow.ellipsis) {
-        if (_labelsPlacement == MapLegendLabelsPlacement.betweenItems) {
-          final double textWidth = refCurrentTextWidth + refNextTextWidth;
-          return getTrimText(
-              currentText,
-              widget.legend.textStyle,
-              _segmentSize.width + widget.legend.spacing / 2,
-              _textPainter,
-              textWidth,
-              refNextTextWidth);
-        }
+        final double textWidth = refCurrentTextWidth + refNextTextWidth;
+        return getTrimText(
+            currentText,
+            widget.legend.textStyle!,
+            _segmentSize.width + widget.legend.spacing / 2,
+            _textPainter,
+            textWidth,
+            refNextTextWidth,
+            isLastInsideItem);
       }
     }
 
@@ -1856,8 +2896,8 @@ class _SolidBarLegendState extends State<_SolidBarLegend> {
 
   /// Returns the bar legend icon and label.
   Widget _getSegment(
-      String text, Color color, int index, bool isLegendForBubbles, int length,
-      [MapColorMapper colorMapper]) {
+      String text, Color? color, int index, bool isLegendForBubbles, int length,
+      [MapColorMapper? colorMapper]) {
     final Color iconColor = color ??
         (isLegendForBubbles
             ? widget.themeData.bubbleColor
@@ -1866,14 +2906,13 @@ class _SolidBarLegendState extends State<_SolidBarLegend> {
   }
 
   Widget _getBarWithLabel(Color iconColor, int index, String text,
-      MapColorMapper colorMapper, int dataSourceLength) {
+      MapColorMapper? colorMapper, int dataSourceLength) {
     Offset textOffset = _getTextOffset(index, text, dataSourceLength);
     final CrossAxisAlignment crossAxisAlignment =
         _getCrossAxisAlignment(index, dataSourceLength);
     if (_direction == Axis.horizontal) {
-      textOffset = _textDirection == TextDirection.rtl && textOffset != null
-          ? -textOffset
-          : textOffset;
+      textOffset =
+          _textDirection == TextDirection.rtl ? -textOffset : textOffset;
       return Container(
         width: _segmentSize.width,
         child: Column(
@@ -1898,7 +2937,7 @@ class _SolidBarLegendState extends State<_SolidBarLegend> {
   }
 
   Widget _getVerticalBar(CrossAxisAlignment crossAxisAlignment, Color iconColor,
-      int index, String text, MapColorMapper colorMapper, Offset textOffset) {
+      int index, String text, MapColorMapper? colorMapper, Offset textOffset) {
     return Container(
       height: _segmentSize.width,
       child: Row(
@@ -1927,8 +2966,8 @@ class _SolidBarLegendState extends State<_SolidBarLegend> {
     }
   }
 
-  Widget _getTextWidget(
-      int index, String text, MapColorMapper colorMapper, Offset legendOffset) {
+  Widget _getTextWidget(int index, String text, MapColorMapper? colorMapper,
+      Offset legendOffset) {
     if (index == 0 &&
         colorMapper != null &&
         colorMapper.from != null &&
@@ -1942,7 +2981,7 @@ class _SolidBarLegendState extends State<_SolidBarLegend> {
   Widget _getStartSegmentText(
       MapColorMapper colorMapper, String text, Offset legendOffset) {
     bool isStartTextOverlapping = false;
-    String startText;
+    String? startText;
     final List<String> firstSegmentLabels = _getStartSegmentLabel(colorMapper);
     if (firstSegmentLabels.length > 1) {
       startText = firstSegmentLabels[0];
@@ -1952,7 +2991,9 @@ class _SolidBarLegendState extends State<_SolidBarLegend> {
 
     if (_direction == Axis.horizontal &&
         widget.legend._labelOverflow != MapLabelOverflow.visible &&
-        startText != null) {
+        startText != null &&
+        startText.isNotEmpty &&
+        text.isNotEmpty) {
       final double refStartTextWidth = widget.legend._edgeLabelsPlacement ==
               MapLegendEdgeLabelsPlacement.inside
           ? _getTextWidth(startText)
@@ -1963,7 +3004,7 @@ class _SolidBarLegendState extends State<_SolidBarLegend> {
       if (_labelsPlacement == MapLegendLabelsPlacement.betweenItems) {
         startText = getTrimText(
             startText,
-            widget.legend.textStyle,
+            widget.legend.textStyle!,
             _segmentSize.width + widget.legend.spacing / 2,
             _textPainter,
             refStartTextWidth + refCurrentTextWidth,
@@ -1971,7 +3012,7 @@ class _SolidBarLegendState extends State<_SolidBarLegend> {
       }
     }
 
-    Offset startTextOffset = _getStartTextOffset(startText);
+    Offset startTextOffset = _getStartTextOffset(startText!);
     startTextOffset =
         _textDirection == TextDirection.rtl && _direction == Axis.horizontal
             ? -startTextOffset
@@ -1988,9 +3029,10 @@ class _SolidBarLegendState extends State<_SolidBarLegend> {
   List<String> _getStartSegmentLabel(MapColorMapper colorMapper) {
     if (colorMapper.from != null &&
         colorMapper.text != null &&
-        colorMapper.text[0] == '{' &&
+        colorMapper.text!.isNotEmpty &&
+        colorMapper.text![0] == '{' &&
         _labelsPlacement == MapLegendLabelsPlacement.betweenItems) {
-      final List<String> splitText = colorMapper.text.split('},{');
+      final List<String> splitText = colorMapper.text!.split('},{');
       if (splitText.length > 1) {
         splitText[0] = splitText[0].replaceAll('{', '');
         splitText[1] = splitText[1].replaceAll('}', '');
@@ -2003,10 +3045,12 @@ class _SolidBarLegendState extends State<_SolidBarLegend> {
   }
 
   Widget _getAlignedTextWidget(Offset offset, String text, bool isOverlapping) {
-    if (widget.legend._labelOverflow == MapLabelOverflow.hide &&
-        isOverlapping) {
+    if ((widget.legend._labelOverflow == MapLabelOverflow.hide &&
+            isOverlapping) ||
+        text.isEmpty) {
       return SizedBox(width: 0.0, height: 0.0);
     }
+
     return Directionality(
       textDirection: TextDirection.ltr,
       child: offset != Offset.zero
@@ -2023,7 +3067,11 @@ class _SolidBarLegendState extends State<_SolidBarLegend> {
               text,
               textAlign: TextAlign.center,
               softWrap: false,
-              overflow: TextOverflow.ellipsis,
+              overflow:
+                  widget.legend._labelOverflow == MapLabelOverflow.ellipsis &&
+                          _labelsPlacement == MapLegendLabelsPlacement.onItem
+                      ? TextOverflow.ellipsis
+                      : TextOverflow.visible,
               style: widget.legend.textStyle,
             ),
     );
@@ -2108,37 +3156,39 @@ class _SolidBarLegendState extends State<_SolidBarLegend> {
   }
 }
 
-class _MapLabel {
-  _MapLabel(this.label, this.offset);
+class _GradientBarLabel {
+  _GradientBarLabel(this.label, this.offset, [this.isOverlapping]);
 
-  String label;
+  String? label;
 
   Offset offset;
+
+  bool? isOverlapping;
 }
 
 // ignore: must_be_immutable
 class _GradientBarLegend extends StatelessWidget {
   _GradientBarLegend({
-    this.dataSource,
+    required this.dataSource,
     this.source,
-    this.settings,
-    this.themeData,
+    required this.settings,
+    required this.themeData,
   });
 
   final dynamic dataSource;
-  final MapElement source;
+  final MapElement? source;
   final MapLegend settings;
   final SfMapsThemeData themeData;
   final List<Color> colors = <Color>[];
-  final List<_MapLabel> labels = <_MapLabel>[];
+  final List<_GradientBarLabel> labels = <_GradientBarLabel>[];
 
-  Axis _direction;
-  Size _segmentSize;
   bool _isRTL = false;
-  double _referenceArea;
-  TextPainter _textPainter;
-  bool _isRangeColorMapper = false;
-  MapLegendLabelsPlacement _labelsPlacement;
+  bool _isOverlapSegmentText = false;
+  late Axis _direction;
+  late Size _segmentSize;
+  late TextPainter _textPainter;
+  late double _referenceArea;
+  MapLegendLabelsPlacement? _labelsPlacement;
 
   @override
   Widget build(BuildContext context) {
@@ -2154,7 +3204,7 @@ class _GradientBarLegend extends StatelessWidget {
             ? Axis.horizontal
             : Axis.vertical);
     return Padding(
-      padding: settings.padding,
+      padding: settings.padding!,
       child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
         _updateSegmentSize(getBoxSize(constraints).shortestSide);
@@ -2166,25 +3216,25 @@ class _GradientBarLegend extends StatelessWidget {
 
   void _updateSegmentSize(double shortestSide) {
     if (_direction == Axis.horizontal) {
-      final double availableWidth = shortestSide - settings.padding.horizontal;
+      final double availableWidth = shortestSide - settings.padding!.horizontal;
       _segmentSize = settings._segmentSize == null
           ? Size(availableWidth, 12.0)
           : Size(
-              settings._segmentSize.width > availableWidth
+              settings._segmentSize!.width > availableWidth
                   ? availableWidth
-                  : settings._segmentSize.width,
-              settings._segmentSize.height);
+                  : settings._segmentSize!.width,
+              settings._segmentSize!.height);
       return;
     }
 
-    final double availableHeight = shortestSide - settings.padding.vertical;
+    final double availableHeight = shortestSide - settings.padding!.vertical;
     _segmentSize = settings._segmentSize == null
         ? Size(12.0, availableHeight)
         : Size(
-            settings._segmentSize.width,
-            settings._segmentSize.height > availableHeight
+            settings._segmentSize!.width,
+            settings._segmentSize!.height > availableHeight
                 ? availableHeight
-                : settings._segmentSize.height);
+                : settings._segmentSize!.height);
   }
 
   void _collectLabelsAndColors() {
@@ -2192,31 +3242,73 @@ class _GradientBarLegend extends StatelessWidget {
     _referenceArea = _direction == Axis.horizontal
         ? _segmentSize.width
         : _segmentSize.height;
-    final double slab = _referenceArea / (length - 1);
     final bool isLegendForBubbles = settings.source == MapElement.bubble;
     if (dataSource != null && dataSource.isNotEmpty) {
       if (dataSource is List) {
         _collectColorMapperLabelsAndColors(length);
       } else {
-        int index = 0;
-        dataSource.forEach((String key, MapModel mapModel) {
-          assert(mapModel.primaryKey != null);
-          labels.add(_MapLabel(mapModel.primaryKey,
-              _getTextOffset(mapModel.primaryKey, index, length - 1, slab)));
-          colors.add(
-              isLegendForBubbles ? mapModel.bubbleColor : mapModel.shapeColor);
-          index++;
-        });
+        final int length = dataSource.length;
+        String? text;
+        double slab;
+        // If we use as iterator, it will check first and second model and
+        // then check third and fourth model. But we can't check second and
+        // third item is overlapping or not. Since the iterator in second model.
+        // So we uses two iterator. If we use move next first iterator gives
+        // current model and second iterator gives next model.
+        final Iterator<MapModel> currentIterator = dataSource.values.iterator;
+        final Iterator<MapModel> nextIterator = dataSource.values.iterator;
+        nextIterator.moveNext();
+        while (currentIterator.moveNext()) {
+          final MapModel mapModel = currentIterator.current;
+          int positionIndex;
+          if (_labelsPlacement == MapLegendLabelsPlacement.betweenItems) {
+            slab = _referenceArea / (length - 1);
+            positionIndex = mapModel.actualIndex;
+          } else {
+            slab = _referenceArea / length;
+            positionIndex = mapModel.actualIndex + 1;
+          }
+          if (_labelsPlacement == MapLegendLabelsPlacement.betweenItems) {
+            if (nextIterator.moveNext()) {
+              text = _getTrimmedText(mapModel.primaryKey, positionIndex, length,
+                  slab, nextIterator.current.primaryKey);
+            } else {
+              text = _getTrimmedText(
+                  mapModel.primaryKey, positionIndex, length, slab, text);
+            }
+          } else {
+            if (_direction == Axis.horizontal) {
+              text = _getTrimmedText(
+                  mapModel.primaryKey, positionIndex, length, slab);
+            }
+          }
+
+          labels.add(_GradientBarLabel(
+              text,
+              _getTextOffset(text!, positionIndex, length - 1, slab),
+              _isOverlapSegmentText));
+          final Color iconColor = (isLegendForBubbles
+                  ? mapModel.bubbleColor
+                  : mapModel.shapeColor) ??
+              (isLegendForBubbles
+                  ? themeData.bubbleColor
+                  : themeData.layerColor);
+
+          colors.add(iconColor);
+        }
       }
     }
   }
 
   void _collectColorMapperLabelsAndColors(int length) {
     if (dataSource.isNotEmpty) {
-      _isRangeColorMapper = dataSource[0].from != null;
-      final double slab =
-          _referenceArea / (_isRangeColorMapper ? length : length - 1);
+      final double slab = _referenceArea /
+          (_labelsPlacement == MapLegendLabelsPlacement.betweenItems &&
+                  dataSource[0].value != null
+              ? length - 1
+              : length);
       for (int i = 0; i < length; i++) {
+        _isOverlapSegmentText = false;
         final MapColorMapper colorMapper = dataSource[i];
         String text;
         if (i == 0) {
@@ -2229,42 +3321,147 @@ class _GradientBarLegend extends StatelessWidget {
           text = _getActualText(colorMapper);
         }
 
-        if (_isRangeColorMapper) {
-          if (i == 0 &&
-              _labelsPlacement == MapLegendLabelsPlacement.betweenItems) {
-            String startText;
-            final List<String> firstSegmentLabels =
-                _getStartSegmentLabel(colorMapper);
-            if (firstSegmentLabels.length > 1) {
-              startText = firstSegmentLabels[0];
-            } else {
-              startText = colorMapper.from?.toString();
-            }
-
-            labels.add(_MapLabel(
-                startText, _getTextOffset(startText, 0, length, slab)));
-          }
-          // For range color mapper, slab is equals to the color mapper
-          // length. So adding +1 to point out its position index.
-          labels
-              .add(_MapLabel(text, _getTextOffset(text, i + 1, length, slab)));
+        if (dataSource[0].from != null) {
+          _collectRageColorMapperLabels(i, colorMapper, text, slab, length);
         } else {
+          final int positionIndex =
+              _labelsPlacement == MapLegendLabelsPlacement.onItem ? i + 1 : i;
+          if (_labelsPlacement == MapLegendLabelsPlacement.onItem) {
+            text = _getTrimmedText(text, i, length, slab);
+          } else if (i < length - 1) {
+            text = _getTrimmedText(
+                text, i, length, slab, _getActualText(dataSource[i + 1]));
+          }
           // For equal color mapper, slab is equals to the color mapper
           // length -1.
-          labels
-              .add(_MapLabel(text, _getTextOffset(text, i, length - 1, slab)));
+          labels.add(_GradientBarLabel(
+              text,
+              _getTextOffset(text, positionIndex, length - 1, slab),
+              _isOverlapSegmentText));
         }
+
         colors.add(colorMapper.color);
       }
     }
   }
 
+  void _collectRageColorMapperLabels(
+      int i, MapColorMapper colorMapper, String text, double slab, int length) {
+    if (i == 0 && _labelsPlacement == MapLegendLabelsPlacement.betweenItems) {
+      String? startText;
+      final List<String> firstSegmentLabels =
+          _getStartSegmentLabel(colorMapper);
+      if (firstSegmentLabels.length > 1) {
+        startText = firstSegmentLabels[0];
+      } else {
+        startText = colorMapper.from?.toString();
+      }
+
+      if (_direction == Axis.horizontal &&
+          _labelsPlacement == MapLegendLabelsPlacement.betweenItems &&
+          startText != null &&
+          startText.isNotEmpty &&
+          text.isNotEmpty) {
+        final double refCurrentTextWidth =
+            settings._edgeLabelsPlacement == MapLegendEdgeLabelsPlacement.inside
+                ? _getTextWidth(startText)
+                : _getTextWidth(startText) / 2;
+        final double refNextTextWidth = _getTextWidth(text) / 2;
+        _isOverlapSegmentText = refCurrentTextWidth + refNextTextWidth > slab;
+        if (settings._labelOverflow == MapLabelOverflow.ellipsis) {
+          if (_labelsPlacement == MapLegendLabelsPlacement.betweenItems) {
+            final double textWidth = refCurrentTextWidth + refNextTextWidth;
+            startText = getTrimText(startText, settings.textStyle!, slab,
+                _textPainter, textWidth, refNextTextWidth);
+          }
+        }
+      }
+
+      labels.add(_GradientBarLabel(startText,
+          _getTextOffset(startText!, i, length, slab), _isOverlapSegmentText));
+    }
+
+    if (_labelsPlacement == MapLegendLabelsPlacement.onItem) {
+      text = _getTrimmedText(text, i, length, slab);
+    } else if (i < length - 1) {
+      text = _getTrimmedText(
+          text, i, length, slab, _getActualText(dataSource[i + 1]));
+    }
+
+    // For range color mapper, slab is equals to the color mapper
+    // length. So adding +1 to point out its position index.
+    labels.add(_GradientBarLabel(text,
+        _getTextOffset(text, i + 1, length, slab), _isOverlapSegmentText));
+  }
+
+  String _getTrimmedText(String currentText, int index, int length, double slab,
+      [String? nextText]) {
+    if (settings._labelOverflow == MapLabelOverflow.visible ||
+        currentText.isEmpty ||
+        (nextText != null && nextText.isEmpty) ||
+        nextText == null) {
+      return currentText;
+    }
+
+    if (_direction == Axis.horizontal &&
+        _labelsPlacement == MapLegendLabelsPlacement.betweenItems) {
+      double refCurrentTextWidth;
+      double refNextTextWidth;
+      bool isLastInsideItem = false;
+      if (index == length - 1) {
+        refNextTextWidth = _getTextWidth(nextText) / 2;
+
+        if (settings._edgeLabelsPlacement ==
+            MapLegendEdgeLabelsPlacement.inside) {
+          refCurrentTextWidth = _getTextWidth(currentText);
+          isLastInsideItem = true;
+        } else {
+          refCurrentTextWidth = _getTextWidth(currentText) / 2;
+          isLastInsideItem = false;
+        }
+      } else {
+        refCurrentTextWidth = _getTextWidth(currentText) / 2;
+        refNextTextWidth = index + 1 == length - 1 &&
+                settings._edgeLabelsPlacement ==
+                    MapLegendEdgeLabelsPlacement.inside
+            ? _getTextWidth(nextText)
+            : _getTextWidth(nextText) / 2;
+      }
+      _isOverlapSegmentText = refCurrentTextWidth + refNextTextWidth > slab;
+      if (settings._labelOverflow == MapLabelOverflow.ellipsis &&
+          _isOverlapSegmentText) {
+        if (_labelsPlacement == MapLegendLabelsPlacement.betweenItems) {
+          final double textWidth = refCurrentTextWidth + refNextTextWidth;
+          return getTrimText(currentText, settings.textStyle!, slab,
+              _textPainter, textWidth, refNextTextWidth, isLastInsideItem);
+        }
+      }
+    } else if (_direction == Axis.horizontal &&
+        _labelsPlacement == MapLegendLabelsPlacement.onItem) {
+      final double textWidth = _getTextWidth(currentText);
+      _isOverlapSegmentText = textWidth > slab;
+      if (_isOverlapSegmentText) {
+        return getTrimText(
+            currentText, settings.textStyle!, slab, _textPainter, textWidth);
+      }
+    }
+
+    return currentText;
+  }
+
+  double _getTextWidth(String text) {
+    _textPainter.text = TextSpan(text: text, style: settings.textStyle);
+    _textPainter.layout();
+    return _textPainter.width;
+  }
+
   List<String> _getStartSegmentLabel(MapColorMapper colorMapper) {
     if (colorMapper.from != null &&
         colorMapper.text != null &&
-        colorMapper.text[0] == '{' &&
+        colorMapper.text!.isNotEmpty &&
+        colorMapper.text![0] == '{' &&
         _labelsPlacement == MapLegendLabelsPlacement.betweenItems) {
-      final List<String> splitText = colorMapper.text.split('},{');
+      final List<String> splitText = colorMapper.text!.split('},{');
       if (splitText.length > 1) {
         splitText[0] = splitText[0].replaceAll('{', '');
         splitText[1] = splitText[1].replaceAll('}', '');
@@ -2283,7 +3480,8 @@ class _GradientBarLegend extends StatelessWidget {
     final bool canAdjustLabelToCenter =
         settings._edgeLabelsPlacement == MapLegendEdgeLabelsPlacement.center &&
                 (positionIndex == 0 || positionIndex == length) ||
-            (positionIndex > 0 && positionIndex < length);
+            (positionIndex > 0 && positionIndex < length) ||
+            settings._labelsPlacement == MapLegendLabelsPlacement.onItem;
     if (_direction == Axis.horizontal) {
       return _getHorizontalOffset(
           canAdjustLabelToCenter, positionIndex, slab, length);
@@ -2291,7 +3489,12 @@ class _GradientBarLegend extends StatelessWidget {
       final double referenceTextWidth = canAdjustLabelToCenter
           ? _textPainter.height / 2
           : (positionIndex == length ? _textPainter.height : 0.0);
-      return Offset(0.0, slab * positionIndex - referenceTextWidth);
+      if (_labelsPlacement == MapLegendLabelsPlacement.betweenItems) {
+        return Offset(0.0, slab * positionIndex - referenceTextWidth);
+      }
+
+      return Offset(
+          0.0, (slab * positionIndex) - referenceTextWidth - slab / 2);
     }
   }
 
@@ -2300,13 +3503,9 @@ class _GradientBarLegend extends StatelessWidget {
     if (_isRTL) {
       final double referenceTextWidth = canAdjustLabelToCenter
           ? -_textPainter.width / 2
-          : (positionIndex == 0 ? _textPainter.width : 0.0);
-      double dx = slab * positionIndex - referenceTextWidth;
-      if (positionIndex == 0) {
-        dx = _segmentSize.width + dx;
-      } else {
-        dx = _segmentSize.width - dx;
-      }
+          : (positionIndex == 0 ? -_textPainter.width : 0.0);
+      final double dx =
+          _segmentSize.width - (slab * positionIndex - referenceTextWidth);
 
       if (_labelsPlacement == MapLegendLabelsPlacement.betweenItems) {
         return Offset(dx, 0.0);
@@ -2332,10 +3531,8 @@ class _GradientBarLegend extends StatelessWidget {
   }
 
   List<Widget> _getChildren() {
-    double labelBoxWidth = _segmentSize.width;
-    double labelBoxHeight;
-    double horizontalSpacing = 0.0;
-    double verticalSpacing = settings.spacing;
+    double? labelBoxWidth = _segmentSize.width;
+    double? labelBoxHeight;
     Alignment startAlignment = Alignment.centerLeft;
     Alignment endAlignment = Alignment.centerRight;
 
@@ -2344,8 +3541,6 @@ class _GradientBarLegend extends StatelessWidget {
       labelBoxHeight = _segmentSize.height;
       startAlignment = Alignment.topCenter;
       endAlignment = Alignment.bottomCenter;
-      horizontalSpacing = settings.spacing;
-      verticalSpacing = 0.0;
     }
 
     if (_isRTL && _direction == Axis.horizontal) {
@@ -2363,7 +3558,9 @@ class _GradientBarLegend extends StatelessWidget {
               begin: startAlignment, end: endAlignment, colors: colors),
         ),
       ),
-      SizedBox(width: horizontalSpacing, height: verticalSpacing),
+      SizedBox(
+          width: _direction == Axis.vertical ? 7.0 : 0.0,
+          height: _direction == Axis.horizontal ? 7.0 : 0.0),
       Container(
           width: labelBoxWidth, height: labelBoxHeight, child: _getLabels()),
     ];
@@ -2372,17 +3569,24 @@ class _GradientBarLegend extends StatelessWidget {
   Widget _getLabels() {
     return Stack(
       textDirection: TextDirection.ltr,
-      children: List.generate(
-        labels.length,
-        (int index) => Transform.translate(
-          offset: labels[index].offset,
-          child: Text(
-            labels[index].label,
-            style: settings.textStyle,
-            softWrap: false,
-          ),
-        ),
-      ),
+      children: List.generate(labels.length, (int index) {
+        if ((settings._labelOverflow == MapLabelOverflow.hide &&
+                labels[index].isOverlapping!) ||
+            labels[index].label!.isEmpty) {
+          return SizedBox(width: 0.0, height: 0.0);
+        }
+
+        return Directionality(
+            textDirection: TextDirection.ltr,
+            child: Transform.translate(
+              offset: labels[index].offset,
+              child: Text(
+                labels[index].label!,
+                style: settings.textStyle,
+                softWrap: false,
+              ),
+            ));
+      }),
     );
   }
 

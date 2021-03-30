@@ -1,90 +1,473 @@
 part of pdf;
 
 /// Represents a flexible grid that consists of columns and rows.
+/// ```dart
+/// //Create a new PDF document
+/// PdfDocument document = PdfDocument();
+/// //Create a PdfGrid class
+/// PdfGrid grid = PdfGrid();
+/// //Add the columns to the grid
+/// grid.columns.add(count: 3);
+/// //Add header to the grid
+/// grid.headers.add(1);
+/// //Add the rows to the grid
+/// PdfGridRow header = grid.headers[0];
+/// header.cells[0].value = 'Employee ID';
+/// header.cells[1].value = 'Employee Name';
+/// header.cells[2].value = 'Salary';
+/// //Add rows to grid
+/// PdfGridRow row = grid.rows.add();
+/// row.cells[0].value = 'E01';
+/// row.cells[1].value = 'Clay';
+/// row.cells[2].value = '\$10,000';
+/// row = grid.rows.add();
+/// row.cells[0].value = 'E02';
+/// row.cells[1].value = 'Simon';
+/// row.cells[2].value = '\$12,000';
+/// //Set the grid style
+/// grid.style = PdfGridStyle(
+///     cellPadding: PdfPaddings(left: 2, right: 3, top: 4, bottom: 5),
+///     backgroundBrush: PdfBrushes.blue,
+///     textBrush: PdfBrushes.white,
+///     font: PdfStandardFont(PdfFontFamily.timesRoman, 25));
+/// //Draw the grid
+/// grid.draw(
+///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+/// //Save the document.
+/// List<int> bytes = document.save();
+/// //Dispose the document.
+/// document.dispose();
+/// ```
 class PdfGrid extends PdfLayoutElement {
   /// Initializes a new instance of the [PdfGrid] class.
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid class
+  /// PdfGrid grid = PdfGrid();
+  /// //Add the columns to the grid
+  /// grid.columns.add(count: 3);
+  /// //Add header to the grid
+  /// grid.headers.add(1);
+  /// //Add the rows to the grid
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row = grid.rows.add();
+  /// row.cells[0].value = 'E01';
+  /// row.cells[1].value = 'Clay';
+  /// row.cells[2].value = '\$10,000';
+  /// row = grid.rows.add();
+  /// row.cells[0].value = 'E02';
+  /// row.cells[1].value = 'Simon';
+  /// row.cells[2].value = '\$12,000';
+  /// //Draw the grid
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   PdfGrid() {
     _initialize();
   }
 
   //Fields
-  PdfGridColumnCollection _columns;
-  PdfGridRowCollection _rows;
-  PdfGridStyle _style;
-  PdfGridHeaderCollection _headers;
-  PdfBorders _defaultBorder;
+  PdfGridColumnCollection? _columns;
+  PdfGridRowCollection? _rows;
+  PdfGridStyle? _style;
+  PdfGridHeaderCollection? _headers;
+  late PdfBorders _defaultBorder;
 
   /// Gets or sets a value indicating whether to repeat header.
-  bool repeatHeader;
-  _Size _gridSize;
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid class
+  /// PdfGrid grid = PdfGrid();
+  /// //Sets repeatHeader
+  /// grid.repeatHeader = true;
+  /// //Add the columns to the grid
+  /// grid.columns.add(count: 3);
+  /// //Add header to the grid
+  /// grid.headers.add(1);
+  /// //Add the rows to the grid
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// for (int i = 0; i < 500; i++) {
+  ///   final PdfGridRow row = grid.rows.add();
+  ///   row.cells[0].value = 'Row - $i Cell - 1';
+  ///   row.cells[1].value = 'Row - $i Cell - 2';
+  ///   row.cells[2].value = 'Row - $i Cell - 3';
+  /// }
+  /// //Draw the grid
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
+  late bool repeatHeader;
+  late _Size _gridSize;
 
   /// Gets or sets a value indicating whether to split or cut rows that overflow a page.
-  bool allowRowBreakingAcrossPages;
-  bool _isChildGrid;
-  PdfGridCell _parentCell;
-  double _initialWidth;
-  PdfLayoutFormat _layoutFormat;
-  bool _isComplete;
-  bool _isWidthSet;
-  int _parentCellIndex;
-  bool _isDrawn;
-  double _rowLayoutBoundswidth;
-  List<int> _listOfNavigatePages;
-  bool _isRearranged;
-  _Rectangle _gridLocation;
-  bool _isPageWidth;
-  bool _isSingleGrid;
-  bool _hasColumnSpan;
-  bool _hasRowSpan;
-  PdfFont _defaultFont;
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid class
+  /// PdfGrid grid = PdfGrid();
+  /// //Sets allowRowBreakingAcrossPages
+  /// grid.allowRowBreakingAcrossPages = true;
+  /// //Add the columns to the grid
+  /// grid.columns.add(count: 3);
+  /// //Add header to the grid
+  /// grid.headers.add(100);
+  /// //Add the rows to the grid
+  /// for (int i = 0; i < 100; i++) {
+  ///   final PdfGridRow header = grid.headers[i];
+  ///   header.cells[0].value = 'Header - $i Cell - 1';
+  ///   final PdfTextElement element = PdfTextElement(font: PdfStandardFont(PdfFontFamily.timesRoman, 15));
+  ///   element.text =
+  ///       'Header - $i Cell - 2 Sample text for pagination. Lorem ipsum dolor sit amet,\r\n consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua';
+  ///   header.cells[1].value = element;
+  ///   header.cells[2].value = 'Header - $i Cell - 3';
+  /// }
+  /// //Add rows to grid
+  /// PdfGridRow row = grid.rows.add();
+  /// row.cells[0].value = 'E01';
+  /// row.cells[1].value = 'Clay';
+  /// row.cells[2].value = '\$10,000';
+  /// row = grid.rows.add();
+  /// row.cells[0].value = 'E02';
+  /// row.cells[1].value = 'Simon';
+  /// row.cells[2].value = '\$12,000';
+  /// //Draw the grid
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
+  late bool allowRowBreakingAcrossPages;
+  bool? _isChildGrid;
+  PdfGridCell? _parentCell;
+  late double _initialWidth;
+  PdfLayoutFormat? _layoutFormat;
+  late bool _isComplete;
+  late bool _isWidthSet;
+  late int _parentCellIndex;
+  late bool _isDrawn;
+  late double _rowLayoutBoundswidth;
+  late List<int> _listOfNavigatePages;
+  late bool _isRearranged;
+  late _Rectangle _gridLocation;
+  late bool _isPageWidth;
+  late bool _isSingleGrid;
+  late bool _hasColumnSpan;
+  late bool _hasRowSpan;
+  late PdfFont _defaultFont;
   bool _headerRow = true;
   bool _bandedRow = true;
-  bool _bandedColumn;
-  bool _totalRow;
-  bool _firstColumn;
-  bool _lastColumn;
-  bool _isBuiltinStyle;
-  PdfGridBuiltInStyle _gridBuiltinStyle;
+  late bool _bandedColumn;
+  late bool _totalRow;
+  late bool _firstColumn;
+  late bool _lastColumn;
+  late bool _isBuiltinStyle;
+  PdfGridBuiltInStyle? _gridBuiltinStyle;
+  Map<PdfTrueTypeFont, PdfTrueTypeFont>? _boldFontCache;
+  Map<PdfTrueTypeFont, PdfTrueTypeFont>? _regularFontCache;
+  Map<PdfTrueTypeFont, PdfTrueTypeFont>? _italicFontCache;
 
   //Events
   /// The event raised on starting cell lay outing.
-  PdfGridBeginCellLayoutCallback beginCellLayout;
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid class
+  /// PdfGrid grid = PdfGrid();
+  /// // Sets the event raised on starting cell lay outing.
+  /// grid.beginCellLayout = (Object sender, PdfGridBeginCellLayoutArgs args) {
+  ///   if (args.rowIndex == 1 && args.cellIndex == 1) {
+  ///     args.graphics.drawRectangle(
+  ///         pen: PdfPen(PdfColor(250, 100, 0), width: 2),
+  ///         brush: PdfBrushes.white,
+  ///         bounds: args.bounds);
+  ///   }
+  ///   if (args.isHeaderRow && args.cellIndex == 0) {
+  ///     args.graphics.drawRectangle(
+  ///         pen: PdfPen(PdfColor(250, 100, 0), width: 2),
+  ///         brush: PdfBrushes.white,
+  ///         bounds: args.bounds);
+  ///   }
+  /// };
+  /// grid.style.cellPadding = PdfPaddings();
+  /// grid.style.cellPadding.all = 15;
+  /// //Add the columns to the grid
+  /// grid.columns.add(count: 3);
+  /// //Add header to the grid
+  /// grid.headers.add(1);
+  /// //Add the rows to the grid
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row = grid.rows.add();
+  /// row.cells[0].value = 'E01';
+  /// row.cells[1].value = 'Clay';
+  /// row.cells[2].value = '\$10,000';
+  /// row = grid.rows.add();
+  /// row.cells[0].value = 'E02';
+  /// row.cells[1].value = 'Simon';
+  /// row.cells[2].value = '\$12,000';
+  /// //Draw the grid
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
+  PdfGridBeginCellLayoutCallback? beginCellLayout;
 
   /// The event raised on finished cell layout.
-  PdfGridEndCellLayoutCallback endCellLayout;
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid class
+  /// PdfGrid grid = PdfGrid();
+  /// // Sets the event raised on finished cell layout.
+  /// grid.endCellLayout = (Object sender, PdfGridEndCellLayoutArgs args) {
+  ///   if (args.isHeaderRow && args.cellIndex == 0) {
+  ///     args.graphics.drawRectangle(
+  ///         pen: PdfPen(PdfColor(250, 100, 0), width: 2),
+  ///         brush: PdfBrushes.white,
+  ///         bounds: args.bounds);
+  ///   }
+  ///   if (args.rowIndex == 1 && args.cellIndex == 1) {
+  ///     args.graphics.drawRectangle(
+  ///         pen: PdfPen(PdfColor(250, 100, 0), width: 2),
+  ///         brush: PdfBrushes.white,
+  ///         bounds: args.bounds);
+  ///   }
+  /// };
+  /// grid.style.cellPadding = PdfPaddings();
+  /// grid.style.cellPadding.all = 15;
+  /// //Add the columns to the grid
+  /// grid.columns.add(count: 3);
+  /// //Add header to the grid
+  /// grid.headers.add(1);
+  /// //Add the rows to the grid
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row = grid.rows.add();
+  /// row.cells[0].value = 'E01';
+  /// row.cells[1].value = 'Clay';
+  /// row.cells[2].value = '\$10,000';
+  /// row = grid.rows.add();
+  /// row.cells[0].value = 'E02';
+  /// row.cells[1].value = 'Simon';
+  /// row.cells[2].value = '\$12,000';
+  /// //Draw the grid
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
+  PdfGridEndCellLayoutCallback? endCellLayout;
 
   //Properties
   /// Gets the column collection of the PdfGrid.
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid class
+  /// PdfGrid grid = PdfGrid();
+  /// //Add the columns to the grid
+  /// grid.columns.add(count: 3);
+  /// //Add header to the grid
+  /// grid.headers.add(1);
+  /// //Add the rows to the grid
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row = grid.rows.add();
+  /// row.cells[0].value = 'E01';
+  /// row.cells[1].value = 'Clay';
+  /// row.cells[2].value = '\$10,000';
+  /// row = grid.rows.add();
+  /// row.cells[0].value = 'E02';
+  /// row.cells[1].value = 'Simon';
+  /// row.cells[2].value = '\$12,000';
+  /// //Set the grid style
+  /// grid.style = PdfGridStyle(
+  ///     cellPadding: PdfPaddings(left: 2, right: 3, top: 4, bottom: 5),
+  ///     backgroundBrush: PdfBrushes.blue,
+  ///     textBrush: PdfBrushes.white,
+  ///     font: PdfStandardFont(PdfFontFamily.timesRoman, 25));
+  /// //Draw the grid
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   PdfGridColumnCollection get columns {
     _columns ??= PdfGridColumnCollection(this);
-    return _columns;
+    return _columns!;
   }
 
   /// Gets the row collection from the PdfGrid.
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid class
+  /// PdfGrid grid = PdfGrid();
+  /// //Add the columns to the grid
+  /// grid.columns.add(count: 3);
+  /// //Add header to the grid
+  /// grid.headers.add(1);
+  /// //Add the rows to the grid
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row = grid.rows.add();
+  /// row.cells[0].value = 'E01';
+  /// row.cells[1].value = 'Clay';
+  /// row.cells[2].value = '\$10,000';
+  /// row = grid.rows.add();
+  /// row.cells[0].value = 'E02';
+  /// row.cells[1].value = 'Simon';
+  /// row.cells[2].value = '\$12,000';
+  /// //Set the grid style
+  /// grid.style = PdfGridStyle(
+  ///     cellPadding: PdfPaddings(left: 2, right: 3, top: 4, bottom: 5),
+  ///     backgroundBrush: PdfBrushes.blue,
+  ///     textBrush: PdfBrushes.white,
+  ///     font: PdfStandardFont(PdfFontFamily.timesRoman, 25));
+  /// //Draw the grid
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   PdfGridRowCollection get rows {
     _rows ??= PdfGridRowCollection(this);
-    return _rows;
+    return _rows!;
   }
 
   /// Gets the headers collection from the PdfGrid.
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid class
+  /// PdfGrid grid = PdfGrid();
+  /// //Add the columns to the grid
+  /// grid.columns.add(count: 3);
+  /// //Add header to the grid
+  /// grid.headers.add(1);
+  /// //Add the rows to the grid
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row = grid.rows.add();
+  /// row.cells[0].value = 'E01';
+  /// row.cells[1].value = 'Clay';
+  /// row.cells[2].value = '\$10,000';
+  /// row = grid.rows.add();
+  /// row.cells[0].value = 'E02';
+  /// row.cells[1].value = 'Simon';
+  /// row.cells[2].value = '\$12,000';
+  /// //Set the grid style
+  /// grid.style = PdfGridStyle(
+  ///     cellPadding: PdfPaddings(left: 2, right: 3, top: 4, bottom: 5),
+  ///     backgroundBrush: PdfBrushes.blue,
+  ///     textBrush: PdfBrushes.white,
+  ///     font: PdfStandardFont(PdfFontFamily.timesRoman, 25));
+  /// //Draw the grid
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   PdfGridHeaderCollection get headers {
     _headers ??= PdfGridHeaderCollection(this);
-    return _headers;
+    return _headers!;
   }
 
   /// Gets the grid style.
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid class
+  /// PdfGrid grid = PdfGrid();
+  /// //Add the columns to the grid
+  /// grid.columns.add(count: 3);
+  /// //Add header to the grid
+  /// grid.headers.add(1);
+  /// //Add the rows to the grid
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row = grid.rows.add();
+  /// row.cells[0].value = 'E01';
+  /// row.cells[1].value = 'Clay';
+  /// row.cells[2].value = '\$10,000';
+  /// row = grid.rows.add();
+  /// row.cells[0].value = 'E02';
+  /// row.cells[1].value = 'Simon';
+  /// row.cells[2].value = '\$12,000';
+  /// //Set the grid style
+  /// grid.style = PdfGridStyle(
+  ///     cellPadding: PdfPaddings(left: 2, right: 3, top: 4, bottom: 5),
+  ///     backgroundBrush: PdfBrushes.blue,
+  ///     textBrush: PdfBrushes.white,
+  ///     font: PdfStandardFont(PdfFontFamily.timesRoman, 25));
+  /// //Draw the grid
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   PdfGridStyle get style {
     _style ??= PdfGridStyle();
-    return _style;
+    return _style!;
   }
 
-  /// Sets the grid style.
   set style(PdfGridStyle value) {
     _style = value;
   }
 
   _Size get _size {
-    if (_gridSize == null || _gridSize == _Size.empty) {
+    if (_gridSize == _Size.empty) {
       _gridSize = _measure();
     }
     return _gridSize;
@@ -108,7 +491,7 @@ class PdfGrid extends PdfLayoutElement {
     _gridLocation = _Rectangle.empty;
     _hasColumnSpan = false;
     _hasRowSpan = false;
-    _isChildGrid = false;
+    _isChildGrid ??= false;
     _isPageWidth = false;
     _isRearranged = false;
     _initialWidth = 0;
@@ -251,10 +634,10 @@ class PdfGrid extends PdfLayoutElement {
                 while (colSpan > 1) {
                   currentCellIndex++;
                   rows[currentRowIndex]
-                      ._cells[currentCellIndex]
+                      ._cells![currentCellIndex]
                       ._isCellMergeContinue = true;
                   rows[currentRowIndex]
-                      ._cells[currentCellIndex]
+                      ._cells![currentCellIndex]
                       ._isRowMergeContinue = true;
                   colSpan--;
                 }
@@ -285,9 +668,9 @@ class PdfGrid extends PdfLayoutElement {
     }
   }
 
-  void _measureColumnsWidth([_Rectangle bounds]) {
+  void _measureColumnsWidth([_Rectangle? bounds]) {
     if (bounds == null) {
-      List<double> widths = List<double>.filled(columns.count, 0);
+      List<double?> widths = List<double>.filled(columns.count, 0);
       double cellWidth = 0;
       if (headers.count > 0) {
         for (int i = 0; i < headers[0].cells.count; i++) {
@@ -320,7 +703,7 @@ class PdfGrid extends PdfLayoutElement {
                           _gridLocation.x);
             }
             cellWidth = max(
-                widths[i],
+                widths[i]!,
                 max(
                     cellWidth,
                     _initialWidth > 0.0
@@ -337,62 +720,62 @@ class PdfGrid extends PdfLayoutElement {
       for (int i = 0; i < rows.count; i++) {
         for (int j = 0; j < columns.count; j++) {
           if (rows[i].cells[j].columnSpan > 1) {
-            double totalWidth = widths[j];
+            double totalWidth = widths[j]!;
             for (int k = 1; k < rows[i].cells[j].columnSpan; k++) {
-              totalWidth += widths[j + k];
+              totalWidth = totalWidth + widths[j + k]!;
             }
             if (rows[i].cells[j].width > totalWidth) {
               double extendedWidth = rows[i].cells[j].width - totalWidth;
               extendedWidth = extendedWidth / rows[i].cells[j].columnSpan;
               for (int k = j; k < j + rows[i].cells[j].columnSpan; k++) {
-                widths[k] += extendedWidth;
+                widths[k] = widths[k]! + extendedWidth;
               }
             }
           }
         }
       }
-      if (_isChildGrid && _initialWidth != 0) {
+      if (_isChildGrid! && _initialWidth != 0) {
         widths = columns._getDefaultWidths(_initialWidth);
       }
       for (int i = 0; i < columns.count; i++) {
         if (columns[i].width < 0) {
-          columns[i]._width = widths[i];
+          columns[i]._width = widths[i]!;
         } else if (columns[i].width > 0 && !columns[i]._isCustomWidth) {
-          columns[i]._width = widths[i];
+          columns[i]._width = widths[i]!;
         }
       }
     } else {
-      List<double> widths = columns._getDefaultWidths(bounds.width - bounds.x);
+      List<double?> widths = columns._getDefaultWidths(bounds.width - bounds.x);
       for (int i = 0; i < columns.count; i++) {
         if (columns[i].width < 0) {
-          columns[i]._width = widths[i];
+          columns[i]._width = widths[i]!;
         } else if (columns[i].width > 0 &&
             !columns[i]._isCustomWidth &&
-            widths[i] > 0 &&
+            widths[i]! > 0 &&
             _isComplete) {
-          columns[i]._width = widths[i];
+          columns[i]._width = widths[i]!;
         }
       }
       if (_parentCell != null &&
           (!style.allowHorizontalOverflow) &&
-          (!_parentCell._row._grid.style.allowHorizontalOverflow)) {
+          (!_parentCell!._row!._grid.style.allowHorizontalOverflow)) {
         double padding = 0;
         double columnWidth = 0;
         int columnCount = columns.count;
-        if (_parentCell.style.cellPadding != null) {
-          padding += _parentCell.style.cellPadding.left +
-              _parentCell.style.cellPadding.right;
-        } else if (_parentCell._row._grid.style.cellPadding != null) {
-          padding += _parentCell._row._grid.style.cellPadding.left +
-              _parentCell._row._grid.style.cellPadding.right;
+        if (_parentCell!.style.cellPadding != null) {
+          padding += _parentCell!.style.cellPadding!.left +
+              _parentCell!.style.cellPadding!.right;
+        } else {
+          padding += _parentCell!._row!._grid.style.cellPadding.left +
+              _parentCell!._row!._grid.style.cellPadding.right;
         }
-        for (int i = 0; i < _parentCell.columnSpan; i++) {
+        for (int i = 0; i < _parentCell!.columnSpan; i++) {
           columnWidth +=
-              _parentCell._row._grid.columns[_parentCellIndex + i].width;
+              _parentCell!._row!._grid.columns[_parentCellIndex + i].width;
         }
         for (int i = 0; i < columns.count; i++) {
-          if (_columns[i].width > 0 && _columns[i]._isCustomWidth) {
-            columnWidth -= _columns[i].width;
+          if (_columns![i].width > 0 && _columns![i]._isCustomWidth) {
+            columnWidth -= _columns![i].width;
             columnCount--;
           }
         }
@@ -400,7 +783,7 @@ class PdfGrid extends PdfLayoutElement {
           final double childGridColumnWidth =
               (columnWidth - padding) / columnCount;
           if (_parentCell != null &&
-              _parentCell.stringFormat.alignment != PdfTextAlignment.right) {
+              _parentCell!.stringFormat.alignment != PdfTextAlignment.right) {
             for (int j = 0; j < columns.count; j++) {
               if (!columns[j]._isCustomWidth) {
                 columns[j]._width = childGridColumnWidth;
@@ -409,11 +792,11 @@ class PdfGrid extends PdfLayoutElement {
           }
         }
       }
-      if (_parentCell != null && _parentCell._row._getWidth() > 0) {
-        if (_isChildGrid && _size.width > _parentCell._row._getWidth()) {
+      if (_parentCell != null && _parentCell!._row!._getWidth() > 0) {
+        if (_isChildGrid! && _size.width > _parentCell!._row!._getWidth()) {
           widths = columns._getDefaultWidths(bounds.width);
           for (int i = 0; i < columns.count; i++) {
-            columns[i].width = widths[i];
+            columns[i].width = widths[i]!;
           }
         }
       }
@@ -422,38 +805,69 @@ class PdfGrid extends PdfLayoutElement {
 
   void _onBeginCellLayout(PdfGridBeginCellLayoutArgs args) {
     if (_raiseBeginCellLayout) {
-      beginCellLayout(this, args);
+      beginCellLayout!(this, args);
     }
   }
 
   void _onEndCellLayout(PdfGridEndCellLayoutArgs args) {
     if (_raiseEndCellLayout) {
-      endCellLayout(this, args);
+      endCellLayout!(this, args);
     }
   }
 
-  @override
-
   /// Draws the [PdfGrid]
-  PdfLayoutResult draw(
-      {Rect bounds,
-      PdfLayoutFormat format,
-      PdfGraphics graphics,
-      PdfPage page}) {
-    ArgumentError.checkNotNull(bounds);
-    _initialWidth = bounds.width == 0
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid class
+  /// PdfGrid grid = PdfGrid();
+  /// //Add the columns to the grid
+  /// grid.columns.add(count: 3);
+  /// //Add header to the grid
+  /// grid.headers.add(1);
+  /// //Add the rows to the grid
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row = grid.rows.add();
+  /// row.cells[0].value = 'E01';
+  /// row.cells[1].value = 'Clay';
+  /// row.cells[2].value = '\$10,000';
+  /// row = grid.rows.add();
+  /// row.cells[0].value = 'E02';
+  /// row.cells[1].value = 'Simon';
+  /// row.cells[2].value = '\$12,000';
+  /// //Draw the grid
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
+  @override
+  PdfLayoutResult? draw(
+      {Rect? bounds,
+      PdfLayoutFormat? format,
+      PdfGraphics? graphics,
+      PdfPage? page}) {
+    final _Rectangle rectangle =
+        bounds != null ? _Rectangle.fromRect(bounds) : _Rectangle.empty;
+    _initialWidth = rectangle.width == 0
         ? page != null
             ? page.getClientSize().width
-            : graphics.clientSize.width
-        : bounds.width;
+            : graphics!.clientSize.width
+        : rectangle.width;
     _isWidthSet = true;
-    if (graphics != null) {
-      _drawInternal(graphics, _Rectangle.fromRect(bounds));
-    } else if (page != null) {
-      final PdfLayoutResult result =
+    if (page != null) {
+      final PdfLayoutResult? result =
           super.draw(page: page, bounds: bounds, format: format);
       _isComplete = true;
       return result;
+    } else if (graphics != null) {
+      _drawInternal(graphics, rectangle);
     }
     return null;
   }
@@ -467,46 +881,80 @@ class PdfGrid extends PdfLayoutElement {
   }
 
   @override
-  PdfLayoutResult _layout(_PdfLayoutParams param) {
-    if (param.bounds.width < 0) {
+  PdfLayoutResult? _layout(_PdfLayoutParams param) {
+    if (param.bounds!.width < 0) {
       ArgumentError.value('width', 'width', 'out of range');
     }
     if (rows.count != 0) {
-      final PdfBorders borders = rows[0].cells[0].style.borders;
-      if (borders != null && borders.left != null && borders.left.width != 1) {
+      final PdfBorders? borders = rows[0].cells[0].style.borders;
+      if (borders != null && borders.left.width != 1) {
         final double x = borders.left.width / 2;
         final double y = borders.top.width / 2;
-        if (param.bounds.x == _defaultBorder.right.width / 2 &&
-            param.bounds.y == _defaultBorder.right.width / 2) {
+        if (param.bounds!.x == _defaultBorder.right.width / 2 &&
+            param.bounds!.y == _defaultBorder.right.width / 2) {
           param.bounds = _Rectangle(x, y, _size.width, _size.height);
         }
       }
     }
     _setSpan();
     _layoutFormat = param.format;
-    _gridLocation = param.bounds;
+    _gridLocation = param.bounds!;
     return _PdfGridLayouter(this)._layoutInternal(param);
   }
 
   /// Apply built-in table style to the table
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid class
+  /// PdfGrid grid = PdfGrid();
+  /// //Add the columns to the grid
+  /// grid.columns.add(count: 3);
+  /// //Add header to the grid
+  /// grid.headers.add(1);
+  /// //Add the rows to the grid
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row = grid.rows.add();
+  /// row.cells[0].value = 'E01';
+  /// row.cells[1].value = 'Clay';
+  /// row.cells[2].value = '\$10,000';
+  /// row = grid.rows.add();
+  /// row.cells[0].value = 'E02';
+  /// row.cells[1].value = 'Simon';
+  /// row.cells[2].value = '\$12,000';
+  /// final PdfGridBuiltInStyleSettings tableStyleOption =
+  ///     PdfGridBuiltInStyleSettings();
+  /// tableStyleOption.applyStyleForBandedRows = true;
+  /// tableStyleOption.applyStyleForHeaderRow = true;
+  ///Apply built-in table style
+  /// grid.applyBuiltInStyle(PdfGridBuiltInStyle.listTable6ColorfulAccent1,
+  ///     settings: tableStyleOption);
+  /// //Draw the grid
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(10, 10, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   void applyBuiltInStyle(PdfGridBuiltInStyle gridStyle,
-      {PdfGridBuiltInStyleSettings settings}) {
+      {PdfGridBuiltInStyleSettings? settings}) {
     _intializeBuiltInStyle(gridStyle, settings: settings);
   }
 
   void _intializeBuiltInStyle(PdfGridBuiltInStyle gridStyle,
-      {PdfGridBuiltInStyleSettings settings}) {
+      {PdfGridBuiltInStyleSettings? settings}) {
     if (settings != null) {
-      _headerRow = (settings.applyStyleForHeaderRow == null)
-          ? _headerRow
-          : settings.applyStyleForHeaderRow;
-      _totalRow = settings.applyStyleForLastRow ??= false;
-      _firstColumn = settings.applyStyleForFirstColumn ??= false;
-      _lastColumn = settings.applyStyleForLastColumn ??= false;
-      _bandedColumn = settings.applyStyleForBandedColumns ??= false;
-      _bandedRow = (settings.applyStyleForBandedRows == null)
-          ? _bandedRow
-          : settings.applyStyleForBandedRows;
+      _headerRow = settings.applyStyleForHeaderRow;
+      _totalRow = settings.applyStyleForLastRow;
+      _firstColumn = settings.applyStyleForFirstColumn;
+      _lastColumn = settings.applyStyleForLastColumn;
+      _bandedColumn = settings.applyStyleForBandedColumns;
+      _bandedRow = settings.applyStyleForBandedRows;
     } else {
       _totalRow = false;
       _firstColumn = false;
@@ -517,7 +965,7 @@ class PdfGrid extends PdfLayoutElement {
     _gridBuiltinStyle = gridStyle;
   }
 
-  void _applyBuiltinStyles(PdfGridBuiltInStyle gridStyle) {
+  void _applyBuiltinStyles(PdfGridBuiltInStyle? gridStyle) {
     switch (gridStyle) {
       case PdfGridBuiltInStyle.tableGrid:
         _applyTableGridLight(PdfColor(0, 0, 0));
@@ -990,53 +1438,68 @@ class PdfGrid extends PdfLayoutElement {
     }
   }
 
-  PdfFont _createBoldFont(PdfFont font) {
-    PdfFont boldStyleFont;
+  PdfFont? _createBoldFont(PdfFont font) {
+    _boldFontCache ??= <PdfTrueTypeFont, PdfTrueTypeFont>{};
     if (font is PdfStandardFont) {
       final PdfStandardFont standardFont = font;
-      boldStyleFont = PdfStandardFont(standardFont.fontFamily, font.size,
+      return PdfStandardFont(standardFont.fontFamily, font.size,
           style: PdfFontStyle.bold);
     } else {
-      final PdfTrueTypeFont trueTypeFont = font as PdfTrueTypeFont;
-      boldStyleFont = PdfTrueTypeFont(
-          trueTypeFont._fontInternal._fontData, font.size,
-          style: PdfFontStyle.bold);
+      if (_boldFontCache!.containsKey(font)) {
+        return _boldFontCache![font as PdfTrueTypeFont];
+      } else {
+        final PdfTrueTypeFont trueTypeFont = font as PdfTrueTypeFont;
+        final PdfFont boldStyleFont = PdfTrueTypeFont(
+            trueTypeFont._fontInternal._fontData, font.size,
+            style: PdfFontStyle.bold);
+        _boldFontCache![font] = boldStyleFont as PdfTrueTypeFont;
+        return boldStyleFont;
+      }
     }
-    return boldStyleFont;
   }
 
-  PdfFont _createRegularFont(PdfFont font) {
-    PdfFont regularStyleFont;
+  PdfFont? _createRegularFont(PdfFont font) {
+    _regularFontCache ??= <PdfTrueTypeFont, PdfTrueTypeFont>{};
     if (font is PdfStandardFont) {
       final PdfStandardFont standardFont = font;
-      regularStyleFont = PdfStandardFont(standardFont.fontFamily, font.size,
+      return PdfStandardFont(standardFont.fontFamily, font.size,
           style: PdfFontStyle.regular);
     } else {
-      final PdfTrueTypeFont trueTypeFont = font as PdfTrueTypeFont;
-      regularStyleFont = PdfTrueTypeFont(
-          trueTypeFont._fontInternal._fontData, font.size,
-          style: PdfFontStyle.regular);
+      if (_regularFontCache!.containsKey(font)) {
+        return _regularFontCache![font as PdfTrueTypeFont];
+      } else {
+        final PdfTrueTypeFont trueTypeFont = font as PdfTrueTypeFont;
+        final PdfFont ttfFont = PdfTrueTypeFont(
+            trueTypeFont._fontInternal._fontData, font.size,
+            style: PdfFontStyle.regular);
+        _regularFontCache![font] = ttfFont as PdfTrueTypeFont;
+        return ttfFont;
+      }
     }
-    return regularStyleFont;
   }
 
-  PdfFont _createItalicFont(PdfFont font) {
-    PdfFont italicStyleFont;
+  PdfFont? _createItalicFont(PdfFont? font) {
+    _italicFontCache ??= <PdfTrueTypeFont, PdfTrueTypeFont>{};
     if (font is PdfStandardFont) {
       final PdfStandardFont standardFont = font;
-      italicStyleFont = PdfStandardFont(standardFont.fontFamily, font.size,
+      return PdfStandardFont(standardFont.fontFamily, font.size,
           style: PdfFontStyle.italic);
     } else {
-      final PdfTrueTypeFont trueTypeFont = font as PdfTrueTypeFont;
-      italicStyleFont = PdfTrueTypeFont(
-          trueTypeFont._fontInternal._fontData, font.size,
-          style: PdfFontStyle.italic);
+      if (_italicFontCache!.containsKey(font)) {
+        return _italicFontCache![font as PdfTrueTypeFont];
+      } else {
+        final PdfTrueTypeFont trueTypeFont = font as PdfTrueTypeFont;
+        final PdfFont italicStyleFont = PdfTrueTypeFont(
+            trueTypeFont._fontInternal._fontData, font.size,
+            style: PdfFontStyle.italic);
+        _italicFontCache![font] = italicStyleFont as PdfTrueTypeFont;
+        return italicStyleFont;
+      }
     }
-    return italicStyleFont;
   }
 
-  PdfFont _changeFontStyle(PdfFont font) {
-    PdfFont pdfFont;
+  PdfFont? _changeFontStyle(PdfFont font) {
+    PdfFont? pdfFont;
     if (font.style == PdfFontStyle.regular) {
       pdfFont = _createBoldFont(font);
     } else if (font.style == PdfFontStyle.bold) {
@@ -1045,9 +1508,9 @@ class PdfGrid extends PdfLayoutElement {
     return pdfFont;
   }
 
-  PdfBrush _applyBandedColStyle(
+  PdfBrush? _applyBandedColStyle(
       bool firstColumn, PdfColor backColor, int cellIndex) {
-    PdfBrush backBrush;
+    PdfBrush? backBrush;
     if (firstColumn) {
       if (cellIndex % 2 == 0) {
         backBrush = PdfSolidBrush(backColor);
@@ -1060,9 +1523,9 @@ class PdfGrid extends PdfLayoutElement {
     return backBrush;
   }
 
-  PdfBrush _applyBandedRowStyle(
+  PdfBrush? _applyBandedRowStyle(
       bool headerRow, PdfColor backColor, int rowIndex) {
-    PdfBrush backBrush;
+    PdfBrush? backBrush;
     if (headerRow) {
       if (rowIndex % 2 != 0) {
         backBrush = PdfSolidBrush(backColor);
@@ -1720,7 +2183,7 @@ class PdfGrid extends PdfLayoutElement {
               cell.style.borders.right = borderPen;
             }
             if (_lastColumn && j == row.cells.count) {
-              final PdfFont font = cell.style.font ??
+              final PdfFont? font = cell.style.font ??
                   row.style.font ??
                   row._grid.style.font ??
                   _defaultFont;
@@ -1801,7 +2264,7 @@ class PdfGrid extends PdfLayoutElement {
         }
         if (_lastColumn && j == row.cells.count) {
           if (!(_totalRow && i == rows.count)) {
-            final PdfFont font = cell.style.font ??
+            final PdfFont? font = cell.style.font ??
                 row.style.font ??
                 row._grid.style.font ??
                 _defaultFont;
@@ -1919,7 +2382,7 @@ class PdfGrid extends PdfLayoutElement {
                 _defaultFont;
             cell.style.font = _changeFontStyle(font);
             cell.style.borders.all = PdfPen(PdfColor.empty);
-            if (cell._row._grid.style.cellSpacing > 0) {
+            if (cell._row!._grid.style.cellSpacing > 0) {
               cell.style.borders.bottom = headerBorder;
             }
           } else {
@@ -2065,7 +2528,7 @@ class PdfGrid extends PdfLayoutElement {
           }
         }
 
-        if (_headerRow && _headers.count > 0) {
+        if (_headerRow && _headers!.count > 0) {
           if (i == 1) {
             cell.style.borders.top = headerBorder;
           }
@@ -2104,7 +2567,7 @@ class PdfGrid extends PdfLayoutElement {
             if (_firstColumn && j == 1) {
               cell.style.backgroundBrush = null;
               cell.style.borders.all = whitePen;
-              final PdfFont font = cell.style.font ??
+              final PdfFont? font = cell.style.font ??
                   row.style.font ??
                   row._grid.style.font ??
                   _defaultFont;
@@ -2113,7 +2576,7 @@ class PdfGrid extends PdfLayoutElement {
             if (_lastColumn && j == row.cells.count) {
               cell.style.backgroundBrush = null;
               cell.style.borders.all = whitePen;
-              final PdfFont font = cell.style.font ??
+              final PdfFont? font = cell.style.font ??
                   row.style.font ??
                   row._grid.style.font ??
                   _defaultFont;
@@ -2159,7 +2622,7 @@ class PdfGrid extends PdfLayoutElement {
           if (!(_totalRow && i == rows.count)) {
             cell.style.backgroundBrush = null;
             cell.style.borders.all = whitePen;
-            final PdfFont font = cell.style.font ??
+            final PdfFont? font = cell.style.font ??
                 row.style.font ??
                 row._grid.style.font ??
                 _defaultFont;
@@ -2175,7 +2638,7 @@ class PdfGrid extends PdfLayoutElement {
           if (!(_totalRow && i == rows.count)) {
             cell.style.backgroundBrush = null;
             cell.style.borders.all = whitePen;
-            final PdfFont font = cell.style.font ??
+            final PdfFont? font = cell.style.font ??
                 row.style.font ??
                 row._grid.style.font ??
                 _defaultFont;
@@ -2307,7 +2770,7 @@ class PdfGrid extends PdfLayoutElement {
           }
         }
 
-        if (_headerRow && _headers.count > 0) {
+        if (_headerRow && _headers!.count > 0) {
           if (i == 1) {
             cell.style.borders.top = headerBackColorPen;
           }
@@ -2590,7 +3053,7 @@ class PdfGrid extends PdfLayoutElement {
             if (_firstColumn && j == 1) {
               cell.style.backgroundBrush = null;
               cell.style.borders.all = whitePen;
-              final PdfFont font = cell.style.font ??
+              final PdfFont? font = cell.style.font ??
                   row.style.font ??
                   row._grid.style.font ??
                   _defaultFont;
@@ -2599,7 +3062,7 @@ class PdfGrid extends PdfLayoutElement {
             if (_lastColumn && j == row.cells.count) {
               cell.style.backgroundBrush = null;
               cell.style.borders.all = whitePen;
-              final PdfFont font = cell.style.font ??
+              final PdfFont? font = cell.style.font ??
                   row.style.font ??
                   row._grid.style.font ??
                   _defaultFont;
@@ -2649,7 +3112,7 @@ class PdfGrid extends PdfLayoutElement {
             if (i == 1 && _headerRow) {
               cell.style.borders.top = borderPen;
             }
-            final PdfFont font = cell.style.font ??
+            final PdfFont? font = cell.style.font ??
                 row.style.font ??
                 row._grid.style.font ??
                 _defaultFont;
@@ -2667,7 +3130,7 @@ class PdfGrid extends PdfLayoutElement {
             if (i == 1 && _headerRow) {
               cell.style.borders.top = borderPen;
             }
-            final PdfFont font = cell.style.font ??
+            final PdfFont? font = cell.style.font ??
                 row.style.font ??
                 row._grid.style.font ??
                 _defaultFont;
@@ -3600,7 +4063,7 @@ class PdfGrid extends PdfLayoutElement {
             if (_firstColumn && j == 1) {
               cell.style.backgroundBrush = null;
               cell.style.borders.all = emptyPen;
-              final PdfFont font = cell.style.font ??
+              final PdfFont? font = cell.style.font ??
                   row.style.font ??
                   row._grid.style.font ??
                   _defaultFont;
@@ -3609,7 +4072,7 @@ class PdfGrid extends PdfLayoutElement {
             }
             if (_lastColumn && j == row.cells.count) {
               cell.style.backgroundBrush = null;
-              final PdfFont font = cell.style.font ??
+              final PdfFont? font = cell.style.font ??
                   row.style.font ??
                   row._grid.style.font ??
                   _defaultFont;
@@ -3662,7 +4125,7 @@ class PdfGrid extends PdfLayoutElement {
           if (!(_totalRow && i == rows.count)) {
             cell.style.backgroundBrush = null;
             cell.style.borders.all = emptyPen;
-            final PdfFont font = cell.style.font ??
+            final PdfFont? font = cell.style.font ??
                 row.style.font ??
                 row._grid.style.font ??
                 _defaultFont;
@@ -3691,7 +4154,7 @@ class PdfGrid extends PdfLayoutElement {
         if (_lastColumn && j == row.cells.count) {
           if (!(_totalRow && i == rows.count)) {
             cell.style.backgroundBrush = null;
-            final PdfFont font = cell.style.font ??
+            final PdfFont? font = cell.style.font ??
                 row.style.font ??
                 row._grid.style.font ??
                 _defaultFont;
@@ -3725,7 +4188,7 @@ class PdfGridBeginCellLayoutArgs extends GridCellLayoutArgs {
       int cellInder,
       _Rectangle bounds,
       String value,
-      PdfGridCellStyle style,
+      PdfGridCellStyle? style,
       bool isHeaderRow)
       : super._(graphics, rowIndex, cellInder, bounds, value, isHeaderRow) {
     if (style != null) {
@@ -3735,17 +4198,62 @@ class PdfGridBeginCellLayoutArgs extends GridCellLayoutArgs {
   }
   //Fields
   /// PDF grid cell style
-  PdfGridCellStyle style;
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid class
+  /// PdfGrid grid = PdfGrid();
+  /// //Add the columns to the grid
+  /// grid.columns.add(count: 3);
+  /// //Add header to the grid
+  /// grid.headers.add(1);
+  /// //Add the rows to the grid
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row = grid.rows.add();
+  /// row.cells[0].value = 'E01';
+  /// row.cells[1].value = 'Clay';
+  /// row.cells[2].value = '\$10,000';
+  /// //Apply the cell style to specific row cells
+  /// row.cells[0].style = PdfGridCellStyle(
+  ///   backgroundBrush: PdfBrushes.lightYellow,
+  ///   cellPadding: PdfPaddings(left: 2, right: 3, top: 4, bottom: 5),
+  ///   font: PdfStandardFont(PdfFontFamily.timesRoman, 17),
+  ///   textBrush: PdfBrushes.white,
+  ///   textPen: PdfPens.orange,
+  /// );
+  /// row = grid.rows.add();
+  /// row.cells[0].value = 'E02';
+  /// row.cells[1].value = 'Simon';
+  /// row.cells[2].value = '\$12,000';
+  /// //Draw the grid
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
+  PdfGridCellStyle? style;
 
   /// A value that indicates whether the cell is drawn or not in the PDF document.
-  bool skip;
+  late bool skip;
 }
 
 /// Represents arguments of EndCellLayout Event.
 class PdfGridEndCellLayoutArgs extends GridCellLayoutArgs {
   //Constructor
-  PdfGridEndCellLayoutArgs._(PdfGraphics graphics, int rowIndex, int cellInder,
-      _Rectangle bounds, String value, PdfGridCellStyle style, bool isHeaderRow)
+  PdfGridEndCellLayoutArgs._(
+      PdfGraphics graphics,
+      int rowIndex,
+      int cellInder,
+      _Rectangle bounds,
+      String value,
+      PdfGridCellStyle? style,
+      bool isHeaderRow)
       : super._(graphics, rowIndex, cellInder, bounds, value, isHeaderRow) {
     if (style != null) {
       this.style = style;
@@ -3753,7 +4261,7 @@ class PdfGridEndCellLayoutArgs extends GridCellLayoutArgs {
   }
   //Fields
   /// PDF grid cell style
-  PdfGridCellStyle style;
+  PdfGridCellStyle? style;
 }
 
 /// Represents the abstract class of the [GridCellLayoutArgs].
@@ -3762,7 +4270,6 @@ abstract class GridCellLayoutArgs {
   /// Initializes a new instance of the [StartCellLayoutArgs] class.
   GridCellLayoutArgs._(PdfGraphics graphics, int rowIndex, int cellIndex,
       _Rectangle bounds, String value, bool isHeaderRow) {
-    ArgumentError.checkNotNull(graphics);
     _rowIndex = rowIndex;
     _cellIndex = cellIndex;
     _value = value;
@@ -3772,44 +4279,332 @@ abstract class GridCellLayoutArgs {
   }
 
   //Fields
-  int _rowIndex;
-  int _cellIndex;
-  String _value;
-  Rect _bounds;
-  PdfGraphics _graphics;
-  bool _isHeaderRow;
+  late int _rowIndex;
+  late int _cellIndex;
+  late String _value;
+  late Rect _bounds;
+  late PdfGraphics _graphics;
+  late bool _isHeaderRow;
 
   //Properties
   /// Gets the index of the row.
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid class
+  /// PdfGrid grid = PdfGrid();
+  /// // Sets the event raised on starting cell lay outing.
+  /// grid.beginCellLayout = (Object sender, PdfGridBeginCellLayoutArgs args) {
+  ///   if (args.rowIndex == 1 && args.cellIndex == 1) {
+  ///     args.graphics.drawRectangle(
+  ///         pen: PdfPen(PdfColor(250, 100, 0), width: 2),
+  ///         brush: PdfBrushes.white,
+  ///         bounds: args.bounds);
+  ///   }
+  ///   if (args.isHeaderRow && args.cellIndex == 0) {
+  ///     args.graphics.drawRectangle(
+  ///         pen: PdfPen(PdfColor(250, 100, 0), width: 2),
+  ///         brush: PdfBrushes.white,
+  ///         bounds: args.bounds);
+  ///   }
+  /// };
+  /// grid.style.cellPadding = PdfPaddings();
+  /// grid.style.cellPadding.all = 15;
+  /// //Add the columns to the grid
+  /// grid.columns.add(count: 3);
+  /// //Add header to the grid
+  /// grid.headers.add(1);
+  /// //Add the rows to the grid
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row = grid.rows.add();
+  /// row.cells[0].value = 'E01';
+  /// row.cells[1].value = 'Clay';
+  /// row.cells[2].value = '\$10,000';
+  /// row = grid.rows.add();
+  /// row.cells[0].value = 'E02';
+  /// row.cells[1].value = 'Simon';
+  /// row.cells[2].value = '\$12,000';
+  /// //Draw the grid
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   int get rowIndex => _rowIndex;
 
   /// Gets the index of the cell.
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid class
+  /// PdfGrid grid = PdfGrid();
+  /// // Sets the event raised on starting cell lay outing.
+  /// grid.beginCellLayout = (Object sender, PdfGridBeginCellLayoutArgs args) {
+  ///   if (args.rowIndex == 1 && args.cellIndex == 1) {
+  ///     args.graphics.drawRectangle(
+  ///         pen: PdfPen(PdfColor(250, 100, 0), width: 2),
+  ///         brush: PdfBrushes.white,
+  ///         bounds: args.bounds);
+  ///   }
+  ///   if (args.isHeaderRow && args.cellIndex == 0) {
+  ///     args.graphics.drawRectangle(
+  ///         pen: PdfPen(PdfColor(250, 100, 0), width: 2),
+  ///         brush: PdfBrushes.white,
+  ///         bounds: args.bounds);
+  ///   }
+  /// };
+  /// grid.style.cellPadding = PdfPaddings();
+  /// grid.style.cellPadding.all = 15;
+  /// //Add the columns to the grid
+  /// grid.columns.add(count: 3);
+  /// //Add header to the grid
+  /// grid.headers.add(1);
+  /// //Add the rows to the grid
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row = grid.rows.add();
+  /// row.cells[0].value = 'E01';
+  /// row.cells[1].value = 'Clay';
+  /// row.cells[2].value = '\$10,000';
+  /// row = grid.rows.add();
+  /// row.cells[0].value = 'E02';
+  /// row.cells[1].value = 'Simon';
+  /// row.cells[2].value = '\$12,000';
+  /// //Draw the grid
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   int get cellIndex => _cellIndex;
 
   /// Gets the value.
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid class
+  /// PdfGrid grid = PdfGrid();
+  /// // Sets the event raised on starting cell lay outing.
+  /// grid.beginCellLayout = (Object sender, PdfGridBeginCellLayoutArgs args) {
+  ///   if (args.rowIndex == 1 && args.cellIndex == 1) {
+  ///     args.graphics.drawRectangle(
+  ///         pen: PdfPen(PdfColor(250, 100, 0), width: 2),
+  ///         brush: PdfBrushes.white,
+  ///         bounds: args.bounds);
+  ///   }
+  ///   if (args.isHeaderRow && args.cellIndex == 0) {
+  ///     args.graphics.drawRectangle(
+  ///         pen: PdfPen(PdfColor(250, 100, 0), width: 2),
+  ///         brush: PdfBrushes.white,
+  ///         bounds: args.bounds);
+  ///   }
+  /// };
+  /// grid.style.cellPadding = PdfPaddings();
+  /// grid.style.cellPadding.all = 15;
+  /// //Add the columns to the grid
+  /// grid.columns.add(count: 3);
+  /// //Add header to the grid
+  /// grid.headers.add(1);
+  /// //Add the rows to the grid
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row = grid.rows.add();
+  /// row.cells[0].value = 'E01';
+  /// row.cells[1].value = 'Clay';
+  /// row.cells[2].value = '\$10,000';
+  /// row = grid.rows.add();
+  /// row.cells[0].value = 'E02';
+  /// row.cells[1].value = 'Simon';
+  /// row.cells[2].value = '\$12,000';
+  /// //Draw the grid
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   String get value => _value;
 
   /// Gets the bounds of the cell.
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid class
+  /// PdfGrid grid = PdfGrid();
+  /// // Sets the event raised on starting cell lay outing.
+  /// grid.beginCellLayout = (Object sender, PdfGridBeginCellLayoutArgs args) {
+  ///   if (args.rowIndex == 1 && args.cellIndex == 1) {
+  ///     args.graphics.drawRectangle(
+  ///         pen: PdfPen(PdfColor(250, 100, 0), width: 2),
+  ///         brush: PdfBrushes.white,
+  ///         bounds: args.bounds);
+  ///   }
+  ///   if (args.isHeaderRow && args.cellIndex == 0) {
+  ///     args.graphics.drawRectangle(
+  ///         pen: PdfPen(PdfColor(250, 100, 0), width: 2),
+  ///         brush: PdfBrushes.white,
+  ///         bounds: args.bounds);
+  ///   }
+  /// };
+  /// grid.style.cellPadding = PdfPaddings();
+  /// grid.style.cellPadding.all = 15;
+  /// //Add the columns to the grid
+  /// grid.columns.add(count: 3);
+  /// //Add header to the grid
+  /// grid.headers.add(1);
+  /// //Add the rows to the grid
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row = grid.rows.add();
+  /// row.cells[0].value = 'E01';
+  /// row.cells[1].value = 'Clay';
+  /// row.cells[2].value = '\$10,000';
+  /// row = grid.rows.add();
+  /// row.cells[0].value = 'E02';
+  /// row.cells[1].value = 'Simon';
+  /// row.cells[2].value = '\$12,000';
+  /// //Draw the grid
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   Rect get bounds => _bounds;
 
   /// Gets the graphics, on which the cell should be drawn.
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid class
+  /// PdfGrid grid = PdfGrid();
+  /// // Sets the event raised on starting cell lay outing.
+  /// grid.beginCellLayout = (Object sender, PdfGridBeginCellLayoutArgs args) {
+  ///   if (args.rowIndex == 1 && args.cellIndex == 1) {
+  ///     args.graphics.drawRectangle(
+  ///         pen: PdfPen(PdfColor(250, 100, 0), width: 2),
+  ///         brush: PdfBrushes.white,
+  ///         bounds: args.bounds);
+  ///   }
+  ///   if (args.isHeaderRow && args.cellIndex == 0) {
+  ///     args.graphics.drawRectangle(
+  ///         pen: PdfPen(PdfColor(250, 100, 0), width: 2),
+  ///         brush: PdfBrushes.white,
+  ///         bounds: args.bounds);
+  ///   }
+  /// };
+  /// grid.style.cellPadding = PdfPaddings();
+  /// grid.style.cellPadding.all = 15;
+  /// //Add the columns to the grid
+  /// grid.columns.add(count: 3);
+  /// //Add header to the grid
+  /// grid.headers.add(1);
+  /// //Add the rows to the grid
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row = grid.rows.add();
+  /// row.cells[0].value = 'E01';
+  /// row.cells[1].value = 'Clay';
+  /// row.cells[2].value = '\$10,000';
+  /// row = grid.rows.add();
+  /// row.cells[0].value = 'E02';
+  /// row.cells[1].value = 'Simon';
+  /// row.cells[2].value = '\$12,000';
+  /// //Draw the grid
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   PdfGraphics get graphics => _graphics;
 
   /// Gets the type of Grid row.
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid class
+  /// PdfGrid grid = PdfGrid();
+  /// // Sets the event raised on starting cell lay outing.
+  /// grid.beginCellLayout = (Object sender, PdfGridBeginCellLayoutArgs args) {
+  ///   if (args.rowIndex == 1 && args.cellIndex == 1) {
+  ///     args.graphics.drawRectangle(
+  ///         pen: PdfPen(PdfColor(250, 100, 0), width: 2),
+  ///         brush: PdfBrushes.white,
+  ///         bounds: args.bounds);
+  ///   }
+  ///   if (args.isHeaderRow && args.cellIndex == 0) {
+  ///     args.graphics.drawRectangle(
+  ///         pen: PdfPen(PdfColor(250, 100, 0), width: 2),
+  ///         brush: PdfBrushes.white,
+  ///         bounds: args.bounds);
+  ///   }
+  /// };
+  /// grid.style.cellPadding = PdfPaddings();
+  /// grid.style.cellPadding.all = 15;
+  /// //Add the columns to the grid
+  /// grid.columns.add(count: 3);
+  /// //Add header to the grid
+  /// grid.headers.add(1);
+  /// //Add the rows to the grid
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row = grid.rows.add();
+  /// row.cells[0].value = 'E01';
+  /// row.cells[1].value = 'Clay';
+  /// row.cells[2].value = '\$10,000';
+  /// row = grid.rows.add();
+  /// row.cells[0].value = 'E02';
+  /// row.cells[1].value = 'Simon';
+  /// row.cells[2].value = '\$12,000';
+  /// //Draw the grid
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(0, 0, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   bool get isHeaderRow => _isHeaderRow;
 }
 
 /// Arguments of BeginPageLayoutEvent.
 class PdfGridBeginPageLayoutArgs extends BeginPageLayoutArgs {
   //Constructor
-  PdfGridBeginPageLayoutArgs._(Rect bounds, PdfPage page, int startRow)
+  PdfGridBeginPageLayoutArgs._(Rect bounds, PdfPage page, int? startRow)
       : super(bounds, page) {
     startRowIndex = startRow ?? 0;
   }
 
   //Fields
   /// Gets the start row index.
-  int startRowIndex;
+  late int startRowIndex;
 }
 
 /// Arguments of EndPageLayoutEvent.
@@ -3832,20 +4627,248 @@ class PdfGridBuiltInStyleSettings {
 
   //Fields
   /// Gets or sets a value indicating whether to apply style bands to the columns in a table.
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid class
+  /// PdfGrid grid = PdfGrid();
+  /// //Add the columns to the grid
+  /// grid.columns.add(count: 3);
+  /// //Add header to the grid
+  /// grid.headers.add(1);
+  /// //Add the rows to the grid
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row = grid.rows.add();
+  /// row.cells[0].value = 'E01';
+  /// row.cells[1].value = 'Clay';
+  /// row.cells[2].value = '\$10,000';
+  /// row = grid.rows.add();
+  /// row.cells[0].value = 'E02';
+  /// row.cells[1].value = 'Simon';
+  /// row.cells[2].value = '\$12,000';
+  /// final PdfGridBuiltInStyleSettings tableStyleOption =
+  ///     PdfGridBuiltInStyleSettings();
+  /// //Sets applyStyleForBandedColumns
+  /// tableStyleOption.applyStyleForBandedColumns = true;
+  ///Apply built-in table style
+  /// grid.applyBuiltInStyle(PdfGridBuiltInStyle.listTable6ColorfulAccent1,
+  ///     settings: tableStyleOption);
+  /// //Draw the grid
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(10, 10, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   bool applyStyleForBandedColumns;
 
   /// Gets or sets a value indicating whether to apply style bands to the rows in a table.
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid class
+  /// PdfGrid grid = PdfGrid();
+  /// //Add the columns to the grid
+  /// grid.columns.add(count: 3);
+  /// //Add header to the grid
+  /// grid.headers.add(1);
+  /// //Add the rows to the grid
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row = grid.rows.add();
+  /// row.cells[0].value = 'E01';
+  /// row.cells[1].value = 'Clay';
+  /// row.cells[2].value = '\$10,000';
+  /// row = grid.rows.add();
+  /// row.cells[0].value = 'E02';
+  /// row.cells[1].value = 'Simon';
+  /// row.cells[2].value = '\$12,000';
+  /// final PdfGridBuiltInStyleSettings tableStyleOption =
+  ///     PdfGridBuiltInStyleSettings();
+  /// //Sets applyStyleForBandedRows
+  /// tableStyleOption.applyStyleForBandedRows = true;
+  ///Apply built-in table style
+  /// grid.applyBuiltInStyle(PdfGridBuiltInStyle.listTable6ColorfulAccent1,
+  ///     settings: tableStyleOption);
+  /// //Draw the grid
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(10, 10, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   bool applyStyleForBandedRows;
 
   /// Gets or sets a value indicating whether to apply first-column formatting to the first column of the specified table.
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid class
+  /// PdfGrid grid = PdfGrid();
+  /// //Add the columns to the grid
+  /// grid.columns.add(count: 3);
+  /// //Add header to the grid
+  /// grid.headers.add(1);
+  /// //Add the rows to the grid
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row = grid.rows.add();
+  /// row.cells[0].value = 'E01';
+  /// row.cells[1].value = 'Clay';
+  /// row.cells[2].value = '\$10,000';
+  /// row = grid.rows.add();
+  /// row.cells[0].value = 'E02';
+  /// row.cells[1].value = 'Simon';
+  /// row.cells[2].value = '\$12,000';
+  /// final PdfGridBuiltInStyleSettings tableStyleOption =
+  ///     PdfGridBuiltInStyleSettings();
+  /// //Sets applyStyleForFirstColumn
+  /// tableStyleOption.applyStyleForFirstColumn = true;
+  ///Apply built-in table style
+  /// grid.applyBuiltInStyle(PdfGridBuiltInStyle.listTable6ColorfulAccent1,
+  ///     settings: tableStyleOption);
+  /// //Draw the grid
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(10, 10, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   bool applyStyleForFirstColumn;
 
   ///  Gets or sets a value indicating whether to apply heading-row formatting to the first row of the table.
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid class
+  /// PdfGrid grid = PdfGrid();
+  /// //Add the columns to the grid
+  /// grid.columns.add(count: 3);
+  /// //Add header to the grid
+  /// grid.headers.add(1);
+  /// //Add the rows to the grid
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row = grid.rows.add();
+  /// row.cells[0].value = 'E01';
+  /// row.cells[1].value = 'Clay';
+  /// row.cells[2].value = '\$10,000';
+  /// row = grid.rows.add();
+  /// row.cells[0].value = 'E02';
+  /// row.cells[1].value = 'Simon';
+  /// row.cells[2].value = '\$12,000';
+  /// final PdfGridBuiltInStyleSettings tableStyleOption =
+  ///     PdfGridBuiltInStyleSettings();
+  /// //Sets applyStyleForHeaderRow
+  /// tableStyleOption.applyStyleForHeaderRow = true;
+  ///Apply built-in table style
+  /// grid.applyBuiltInStyle(PdfGridBuiltInStyle.listTable6ColorfulAccent1,
+  ///     settings: tableStyleOption);
+  /// //Draw the grid
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(10, 10, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   bool applyStyleForHeaderRow;
 
   /// Gets or sets a value indicating whether to apply first-column formatting to the first column of the specified table.
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid class
+  /// PdfGrid grid = PdfGrid();
+  /// //Add the columns to the grid
+  /// grid.columns.add(count: 3);
+  /// //Add header to the grid
+  /// grid.headers.add(1);
+  /// //Add the rows to the grid
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row = grid.rows.add();
+  /// row.cells[0].value = 'E01';
+  /// row.cells[1].value = 'Clay';
+  /// row.cells[2].value = '\$10,000';
+  /// row = grid.rows.add();
+  /// row.cells[0].value = 'E02';
+  /// row.cells[1].value = 'Simon';
+  /// row.cells[2].value = '\$12,000';
+  /// final PdfGridBuiltInStyleSettings tableStyleOption =
+  ///     PdfGridBuiltInStyleSettings();
+  /// //Sets applyStyleForLastColumn
+  /// tableStyleOption.applyStyleForLastColumn = true;
+  ///Apply built-in table style
+  /// grid.applyBuiltInStyle(PdfGridBuiltInStyle.listTable6ColorfulAccent1,
+  ///     settings: tableStyleOption);
+  /// //Draw the grid
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(10, 10, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   bool applyStyleForLastColumn;
 
   /// Gets or sets a value indicating whether to apply last-row formatting to the last row of the specified table.
+  /// ```dart
+  /// //Create a new PDF document
+  /// PdfDocument document = PdfDocument();
+  /// //Create a PdfGrid class
+  /// PdfGrid grid = PdfGrid();
+  /// //Add the columns to the grid
+  /// grid.columns.add(count: 3);
+  /// //Add header to the grid
+  /// grid.headers.add(1);
+  /// //Add the rows to the grid
+  /// PdfGridRow header = grid.headers[0];
+  /// header.cells[0].value = 'Employee ID';
+  /// header.cells[1].value = 'Employee Name';
+  /// header.cells[2].value = 'Salary';
+  /// //Add rows to grid
+  /// PdfGridRow row = grid.rows.add();
+  /// row.cells[0].value = 'E01';
+  /// row.cells[1].value = 'Clay';
+  /// row.cells[2].value = '\$10,000';
+  /// row = grid.rows.add();
+  /// row.cells[0].value = 'E02';
+  /// row.cells[1].value = 'Simon';
+  /// row.cells[2].value = '\$12,000';
+  /// final PdfGridBuiltInStyleSettings tableStyleOption =
+  ///     PdfGridBuiltInStyleSettings();
+  /// //Sets applyStyleForLastRow
+  /// tableStyleOption.applyStyleForLastRow = true;
+  ///Apply built-in table style
+  /// grid.applyBuiltInStyle(PdfGridBuiltInStyle.listTable6ColorfulAccent1,
+  ///     settings: tableStyleOption);
+  /// //Draw the grid
+  /// grid.draw(
+  ///     page: document.pages.add(), bounds: const Rect.fromLTWH(10, 10, 0, 0));
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
   bool applyStyleForLastRow;
 }

@@ -19,8 +19,8 @@ class _RangeValuePair<T> extends Comparable<T> {
   /// * value - _required_ - The value for the range.
   _RangeValuePair.fromRangeValuePair(this.start, this.count, this.value);
 
-  int start;
-  int count;
+  late int start;
+  late int count;
   dynamic value;
 
   /// Gets the end of the range.
@@ -40,16 +40,18 @@ class _RangeValuePair<T> extends Comparable<T> {
   ///
   /// * obj - _required_ - An object to compare with this instance.
   @override
-  int compareTo(Object obj) {
-    final _RangeValuePair<T> x = this;
-    final _RangeValuePair<T> y = obj;
+  int compareTo(Object? obj) {
+    final _RangeValuePair<T>? x = this;
+    final _RangeValuePair<T>? y = obj as _RangeValuePair<T>;
 
-    if (((x.start >= y.start) && (x.start < y.start + y.count)) ||
-        ((y.start >= x.start) && (y.start < x.start + x.count))) {
-      return 0;
+    if (x != null && y != null) {
+      if (((x.start >= y.start) && (x.start < y.start + y.count)) ||
+          ((y.start >= x.start) && (y.start < x.start + x.count))) {
+        return 0;
+      }
     }
 
-    return start.compareTo(y.start);
+    return start.compareTo(y!.start);
   }
 
   /// Gets the Debug / text information about the node.
@@ -83,12 +85,12 @@ class _SortedRangeValueList<T>
   }
 
   List<_RangeValuePair<T>> rangeValues = [];
-  T _defaultValue;
+  T? _defaultValue;
 
   /// Gets the count which is the same as the end position of the last range.
   ///
   /// Returns the count which is the same as the end position of the last range.
-  int get count {
+  num get count {
     if (rangeValues.isEmpty) {
       return 0;
     }
@@ -99,13 +101,13 @@ class _SortedRangeValueList<T>
   /// Gets the default value used for filling gaps.
   ///
   /// Returns the default value used for filling gaps.
-  dynamic get defaultValue {
+  dynamic? get defaultValue {
     if (_defaultValue == null) {
       if (_defaultValue.runtimeType is bool) {
         return false;
       }
       if (_defaultValue.runtimeType is double) {
-        return 0.0;
+        return 0.0 as T;
       }
     } else {
       return _defaultValue;
@@ -113,13 +115,14 @@ class _SortedRangeValueList<T>
   }
 
   /// Sets the default value used for filling gaps.
-  set defaultValue(T value) {
+  set defaultValue(dynamic value) {
     _defaultValue = value;
   }
 
   void adjustStart(num n, num delta) {
+    int value = n.toInt();
     while (n < rangeValues.length) {
-      rangeValues[n++].start += delta;
+      rangeValues[value++].start += delta.toInt();
     }
   }
 
@@ -131,7 +134,7 @@ class _SortedRangeValueList<T>
   void ensureCount(num index) {
     if (index - count > 0) {
       rangeValues.add(_RangeValuePair<T>.fromRangeValuePair(
-          count, index - count, defaultValue));
+          count.toInt(), index.toInt() - count.toInt(), defaultValue));
     }
   }
 
@@ -148,8 +151,8 @@ class _SortedRangeValueList<T>
       count = _MathHelper.maxvalue;
       return [defaultValue, count];
     }
-
-    final _RangeValuePair<T> rv = getRangeValue(index);
+    final int value = index.toInt();
+    final _RangeValuePair<T> rv = getRangeValue(value);
     count = rv.end - index + 1;
     return [rv.value, count];
   }
@@ -182,8 +185,8 @@ class _SortedRangeValueList<T>
   /// * moveRanges - _required_ - Allocate this object before a preceding
   /// Remove call when moving ranges.
   /// Otherwise specify null.
-  void insertWithFourArgs(num insertAt, num count, Object value,
-      _SortedRangeValueList<T> moveRanges) {
+  void insertWithFourArgs(num insertAt, num count, Object? value,
+      _SortedRangeValueList<T>? moveRanges) {
     if (insertAt >= this.count) {
       if (value == defaultValue &&
           (moveRanges == null || moveRanges.count == 0)) {
@@ -191,23 +194,23 @@ class _SortedRangeValueList<T>
       }
 
       ensureCount(insertAt);
-      rangeValues
-          .add(_RangeValuePair<T>.fromRangeValuePair(insertAt, count, value));
+      rangeValues.add(_RangeValuePair<T>.fromRangeValuePair(
+          insertAt.toInt(), count.toInt(), value));
       if (rangeValues.length >= 2) {
         merge(rangeValues.length - 2);
       }
     } else {
       var n = _MathHelper.binarySearch<_RangeValuePair<T>>(
-          rangeValues, _RangeValuePair<T>(insertAt));
+          rangeValues, _RangeValuePair<T>(insertAt.toInt()));
       final _RangeValuePair<T> rv = rangeValues[n];
       if (value == (rv.value)) {
-        rv.count += count;
+        rv.count += count.toInt();
         adjustStart(n + 1, count);
       } else {
         n = splitWithTwoArgs(insertAt, n);
         split(insertAt + 1);
-        final rv2 =
-            _RangeValuePair<T>.fromRangeValuePair(insertAt, count, value);
+        final rv2 = _RangeValuePair<T>.fromRangeValuePair(
+            insertAt.toInt(), count.toInt(), value);
         rangeValues.insert(n, rv2);
         adjustStart(n + 1, count);
         merge(n);
@@ -219,7 +222,8 @@ class _SortedRangeValueList<T>
 
     if (moveRanges != null) {
       for (final _RangeValuePair<T> rv in moveRanges) {
-        setRange(rv.start + insertAt, rv.count, rv.value);
+        setRange(
+            rv.start.toInt() + insertAt.toInt(), rv.count.toInt(), rv.value);
       }
     }
   }
@@ -236,7 +240,7 @@ class _SortedRangeValueList<T>
   /// remove call when moving ranges.
   /// Otherwise specify null.
   void insertWithThreeArgs(
-      num insertAt, num count, _SortedRangeValueList<T> moveRanges) {
+      num insertAt, num count, _SortedRangeValueList<T>? moveRanges) {
     insertWithFourArgs(insertAt, count, defaultValue, moveRanges);
   }
 
@@ -249,7 +253,7 @@ class _SortedRangeValueList<T>
   /// * insertAt - _required_ - The insertion point.
   /// * count - _required_ - The count.
   /// * value - _required_ - The value.
-  void insertWithThreeArgsGeneric(num insertAt, num count, Object value) {
+  void insertWithThreeArgsGeneric(num insertAt, num count, Object? value) {
     insertWithFourArgs(insertAt, count, value, null);
   }
 
@@ -277,20 +281,20 @@ class _SortedRangeValueList<T>
   /// when moving ranges
   /// and pass it to a subsequent insert call. Otherwise specify null.
   void removeWithThreeArgs(
-      num removeAt, num count, _SortedRangeValueList<T> moveRanges) {
+      num removeAt, num count, _SortedRangeValueList<T>? moveRanges) {
     if (removeAt >= this.count) {
       return;
     }
 
-    final n = removeHelper(removeAt, count, moveRanges);
+    final n = removeHelper(removeAt.toInt(), count.toInt(), moveRanges);
     adjustStart(n, -count);
     if (n > 0) {
-      merge(n - 1);
+      merge(n.toInt() - 1);
     }
   }
 
   num removeHelper(
-      int removeAt, int count, _SortedRangeValueList<T> moveRanges) {
+      int removeAt, int count, _SortedRangeValueList<T>? moveRanges) {
     if (removeAt >= this.count) {
       return rangeValues.length;
     }
@@ -300,8 +304,8 @@ class _SortedRangeValueList<T>
     var total = 0;
     var deleteCount = 0;
     while (total < count && n + deleteCount < rangeValues.length) {
-      final _RangeValuePair<T> rv = rangeValues[n + deleteCount];
-      total += rv.count;
+      final _RangeValuePair<T> rv = rangeValues[n.toInt() + deleteCount];
+      total += rv.count.toInt();
       deleteCount++;
       if (moveRanges != null && !(rv.value == defaultValue)) {
         moveRanges.rangeValues.add(_RangeValuePair<T>.fromRangeValuePair(
@@ -309,7 +313,7 @@ class _SortedRangeValueList<T>
       }
     }
 
-    rangeValues.removeRange(n, n + deleteCount);
+    rangeValues.removeRange(n.toInt(), n.toInt() + deleteCount);
     return n;
   }
 
@@ -334,10 +338,10 @@ class _SortedRangeValueList<T>
     ensureCount(index);
     final n = removeHelper(index, count, null);
     final rv = _RangeValuePair<T>.fromRangeValuePair(index, count, value);
-    rangeValues.insert(n, rv);
-    merge(n);
+    rangeValues.insert(n.toInt(), rv);
+    merge(n.toInt());
     if (n > 0) {
-      merge(n - 1);
+      merge(n.toInt() - 1);
     }
   }
 
@@ -346,7 +350,7 @@ class _SortedRangeValueList<T>
       return rangeValues.length;
     }
     final n = _MathHelper.binarySearch<_RangeValuePair<T>>(
-        rangeValues, _RangeValuePair<T>(index));
+        rangeValues, _RangeValuePair<T>(index.toInt()));
     return splitWithTwoArgs(index, n);
   }
 
@@ -356,11 +360,12 @@ class _SortedRangeValueList<T>
       return n;
     }
 
-    final int count1 = index - rangeValues[n].start;
-    final int count2 = rangeValues[n].count - count1;
+    final int count1 = index.toInt() - rangeValues[n].start.toInt();
+    final int count2 = rangeValues[n].count.toInt() - count1.toInt();
     rv.count = count1;
 
-    final rv2 = _RangeValuePair<T>.fromRangeValuePair(index, count2, rv.value);
+    final rv2 =
+        _RangeValuePair<T>.fromRangeValuePair(index.toInt(), count2, rv.value);
     rangeValues.insert(n + 1, rv2);
     return n + 1;
   }
@@ -395,7 +400,7 @@ class _SortedRangeValueList<T>
   /// Returns the value of the range that contains the specified index.
   ///
   /// Returns the value range for the specified index.
-  T operator [](num index) => getRangeValue(index).value;
+  T operator [](num index) => getRangeValue(index.toInt()).value;
 
   void operator []=(num index, Object value) {
     bool b = false;
@@ -409,17 +414,17 @@ class _SortedRangeValueList<T>
 
     if (b || (value != this[index])) {
       ensureCount(index);
-      final int n = split(index);
+      final num n = split(index);
       split(index + 1);
       if (n == rangeValues.length) {
-        if (n > 0 && (value == rangeValues[n - 1].value)) {
-          rangeValues[n - 1].count++;
+        if (n > 0 && (value == rangeValues[n.toInt() - 1].value)) {
+          rangeValues[n.toInt() - 1].count++;
         } else {
-          rangeValues
-              .add(_RangeValuePair<T>.fromRangeValuePair(index, 1, value));
+          rangeValues.add(
+              _RangeValuePair<T>.fromRangeValuePair(index.toInt(), 1, value));
         }
       } else {
-        rangeValues[n].value = value;
+        rangeValues[n.toInt()].value = value;
       }
     }
   }

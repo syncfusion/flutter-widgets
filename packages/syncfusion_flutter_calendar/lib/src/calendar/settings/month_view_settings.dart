@@ -1,4 +1,6 @@
-part of calendar;
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import '../common/enums.dart';
 
 /// The settings have properties which allow to customize the month view of
 /// the [SfCalendar].
@@ -27,7 +29,7 @@ part of calendar;
 ///
 /// ```
 @immutable
-class MonthViewSettings {
+class MonthViewSettings with Diagnosticable {
   /// Creates a Month view settings for calendar.
   ///
   /// The properties allows to customize the month view of [SfCalendar].
@@ -39,14 +41,10 @@ class MonthViewSettings {
       this.navigationDirection = MonthNavigationDirection.horizontal,
       this.dayFormat = 'EE',
       this.agendaItemHeight = -1,
-      bool showTrailingAndLeadingDates,
-      double agendaViewHeight,
-      MonthCellStyle monthCellStyle,
-      AgendaStyle agendaStyle})
-      : monthCellStyle = monthCellStyle ?? const MonthCellStyle(),
-        showTrailingAndLeadingDates = showTrailingAndLeadingDates ?? true,
-        agendaStyle = agendaStyle ?? const AgendaStyle(),
-        agendaViewHeight = agendaViewHeight ?? -1;
+      this.showTrailingAndLeadingDates = true,
+      this.agendaViewHeight = -1,
+      this.monthCellStyle = const MonthCellStyle(),
+      this.agendaStyle = const AgendaStyle()});
 
   /// Formats the text in the [SfCalendar] month view view header.
   ///
@@ -483,6 +481,26 @@ class MonthViewSettings {
   }
 
   @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(monthCellStyle.toDiagnosticsNode(name: 'monthCellStyle'));
+    properties.add(agendaStyle.toDiagnosticsNode(name: 'agendaStyle'));
+    properties.add(StringProperty('dayFormat', dayFormat));
+    properties.add(IntProperty('numberOfWeeksInView', numberOfWeeksInView));
+    properties
+        .add(IntProperty('appointmentDisplayCount', appointmentDisplayCount));
+    properties.add(EnumProperty<MonthAppointmentDisplayMode>(
+        'appointmentDisplayMode', appointmentDisplayMode));
+    properties.add(EnumProperty<MonthNavigationDirection>(
+        'navigationDirection', navigationDirection));
+    properties.add(DoubleProperty('agendaItemHeight', agendaItemHeight));
+    properties.add(DoubleProperty('agendaViewHeight', agendaViewHeight));
+    properties.add(DiagnosticsProperty<bool>('showAgenda', showAgenda));
+    properties.add(DiagnosticsProperty<bool>(
+        'showTrailingAndLeadingDates', showTrailingAndLeadingDates));
+  }
+
+  @override
   int get hashCode {
     return hashValues(
       dayFormat,
@@ -537,7 +555,7 @@ class MonthViewSettings {
 /// }
 /// ```
 @immutable
-class AgendaStyle {
+class AgendaStyle with Diagnosticable {
   /// Creates a agenda style for month view in calendar.
   ///
   /// The properties allows to customize the agenda view in month view  of
@@ -587,7 +605,7 @@ class AgendaStyle {
   ///    );
   /// }
   /// ```
-  final TextStyle appointmentTextStyle;
+  final TextStyle? appointmentTextStyle;
 
   /// The text style for the text in the day text of [SfCalendar] month agenda
   /// view.
@@ -628,7 +646,7 @@ class AgendaStyle {
   ///    );
   /// }
   /// ```
-  final TextStyle dayTextStyle;
+  final TextStyle? dayTextStyle;
 
   /// The text style for the text in the date view of [SfCalendar] month agenda
   /// view.
@@ -669,7 +687,7 @@ class AgendaStyle {
   ///    );
   /// }
   /// ```
-  final TextStyle dateTextStyle;
+  final TextStyle? dateTextStyle;
 
   /// The background color to fill the background of the [SfCalendar] month
   /// agenda view.
@@ -710,7 +728,7 @@ class AgendaStyle {
   ///    );
   /// }
   ///```
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   @override
   bool operator ==(dynamic other) {
@@ -726,6 +744,18 @@ class AgendaStyle {
         otherStyle.dayTextStyle == dayTextStyle &&
         otherStyle.dateTextStyle == dateTextStyle &&
         otherStyle.backgroundColor == backgroundColor;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'appointmentTextStyle', appointmentTextStyle));
+    properties
+        .add(DiagnosticsProperty<TextStyle>('dateTextStyle', dateTextStyle));
+    properties
+        .add(DiagnosticsProperty<TextStyle>('dayTextStyle', dayTextStyle));
+    properties.add(ColorProperty('backgroundColor', backgroundColor));
   }
 
   @override
@@ -800,7 +830,7 @@ class AgendaStyle {
 ///  }
 ///
 @immutable
-class MonthCellStyle {
+class MonthCellStyle with Diagnosticable {
   /// Creates a month cell style for month view in calendar.
   ///
   /// The properties allows to customize the month cell in month view  of
@@ -857,7 +887,7 @@ class MonthCellStyle {
   ///    );
   ///  }
   /// ```
-  final TextStyle textStyle;
+  final TextStyle? textStyle;
 
   /// The text style for the text in the today cell of [SfCalendar] month view.
   ///
@@ -899,7 +929,7 @@ class MonthCellStyle {
   /// ```
   @Deprecated('Moved the same [todayTextStyle] to SfCalendar class, use '
       '[todayTextStyle] property from SfCalendar class')
-  final TextStyle todayTextStyle;
+  final TextStyle? todayTextStyle;
 
   /// The text style for the text in the trailing dates cell of [SfCalendar]
   /// month view.
@@ -940,7 +970,7 @@ class MonthCellStyle {
   ///    );
   ///  }
   /// ```
-  final TextStyle trailingDatesTextStyle;
+  final TextStyle? trailingDatesTextStyle;
 
   /// The text style for the text in the leading dates cell of [SfCalendar]
   /// month view.
@@ -981,7 +1011,7 @@ class MonthCellStyle {
   ///    );
   ///  }
   /// ```
-  final TextStyle leadingDatesTextStyle;
+  final TextStyle? leadingDatesTextStyle;
 
   /// The background color to fill the background of the [SfCalendar]
   /// month cell.
@@ -1022,7 +1052,7 @@ class MonthCellStyle {
   ///    );
   ///  }
   /// ```
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   /// The background color to fill the background of the [SfCalendar] today
   /// month cell.
@@ -1063,7 +1093,7 @@ class MonthCellStyle {
   ///    );
   ///  }
   /// ```
-  final Color todayBackgroundColor;
+  final Color? todayBackgroundColor;
 
   /// The background color to fill the background of the [SfCalendar] trailing
   /// dates month cell.
@@ -1104,7 +1134,7 @@ class MonthCellStyle {
   ///    );
   ///  }
   /// ```
-  final Color trailingDatesBackgroundColor;
+  final Color? trailingDatesBackgroundColor;
 
   /// The background color to fill the background of the [SfCalendar] leading
   /// dates month cell.
@@ -1145,7 +1175,7 @@ class MonthCellStyle {
   ///    );
   ///  }
   /// ```
-  final Color leadingDatesBackgroundColor;
+  final Color? leadingDatesBackgroundColor;
 
   @override
   bool operator ==(dynamic other) {
@@ -1165,6 +1195,22 @@ class MonthCellStyle {
         otherStyle.trailingDatesBackgroundColor ==
             trailingDatesBackgroundColor &&
         otherStyle.leadingDatesBackgroundColor == leadingDatesBackgroundColor;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<TextStyle>('textStyle', textStyle));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'trailingDatesTextStyle', trailingDatesTextStyle));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'leadingDatesTextStyle', leadingDatesTextStyle));
+    properties.add(ColorProperty('backgroundColor', backgroundColor));
+    properties.add(ColorProperty('todayBackgroundColor', todayBackgroundColor));
+    properties.add(ColorProperty(
+        'trailingDatesBackgroundColor', trailingDatesBackgroundColor));
+    properties.add(ColorProperty(
+        'leadingDatesBackgroundColor', leadingDatesBackgroundColor));
   }
 
   @override

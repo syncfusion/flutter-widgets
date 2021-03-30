@@ -51,8 +51,7 @@ class _Utils {
 
 class _CompressedStreamWriter {
   _CompressedStreamWriter(List<int> outputStream, bool bNoWrap,
-      PdfCompressionLevel level, bool bCloseStream) {
-    ArgumentError.checkNotNull(outputStream, 'outputStream');
+      PdfCompressionLevel? level, bool bCloseStream) {
     _treeLiteral = _CompressorHuffmanTree(
         this, def_huffman_literal_alphabet_length, 257, 15);
     _treeDistances = _CompressorHuffmanTree(
@@ -70,10 +69,10 @@ class _CompressedStreamWriter {
     _hashPrevious = List<int>.filled(wsize, 0);
     _blockStart = _stringStart = 1;
 
-    _goodLength = good_length[_getCompressionLevel(level)];
-    _niceLength = nice_length[_getCompressionLevel(level)];
-    _maximumChainLength = max_chain[_getCompressionLevel(level)];
-    _maximumLazySearch = max_lazy[_getCompressionLevel(level)];
+    _goodLength = good_length[_getCompressionLevel(level)!];
+    _niceLength = nice_length[_getCompressionLevel(level)!];
+    _maximumChainLength = max_chain[_getCompressionLevel(level)!];
+    _maximumLazySearch = max_lazy[_getCompressionLevel(level)!];
 
     if (!bNoWrap) {
       _writeZLIBHeader();
@@ -194,22 +193,22 @@ class _CompressedStreamWriter {
 
   final List<int> _pendingBuffer = List<int>.filled(def_pending_buffer_size, 0);
   int _pendingBufferLength = 0;
-  List<int> _arrDistancesBuffer;
-  List<int> _arrLiteralsBuffer;
-  List<int> _stream;
-  PdfCompressionLevel _level;
+  late List<int> _arrDistancesBuffer;
+  late List<int> _arrLiteralsBuffer;
+  late List<int> _stream;
+  PdfCompressionLevel? _level;
   bool _bNoWrap = false;
   bool _bCloseStream = false;
-  List<int> _dataWindow;
-  List<int> _hashHead;
-  List<int> _hashPrevious;
+  List<int>? _dataWindow;
+  late List<int> _hashHead;
+  late List<int> _hashPrevious;
   int _blockStart = 0;
   int _stringStart = 0;
   int _lookAhead = 0;
   int _maximumChainLength = 0;
   int _niceLength = 0;
   int _goodLength = 0;
-  List<int> _inputBuffer;
+  List<int>? _inputBuffer;
   int _inputOffset = 0;
   int _inputEnd = 0;
   bool _bStreamClosed = false;
@@ -221,20 +220,20 @@ class _CompressedStreamWriter {
   int _matchLength = 0;
   int _iBufferPosition = 0;
   bool _matchPreviousAvailable = false;
-  _CompressorHuffmanTree _treeLiteral;
-  _CompressorHuffmanTree _treeDistances;
-  _CompressorHuffmanTree _treeCodeLengths;
+  late _CompressorHuffmanTree _treeLiteral;
+  late _CompressorHuffmanTree _treeDistances;
+  _CompressorHuffmanTree? _treeCodeLengths;
   int _iExtraBits = 0;
-  static List<int> _arrLiteralCodes;
-  static List<int> _arrLiteralLengths;
-  static List<int> _arrDistanceCodes;
-  static List<int> _arrDistanceLengths;
+  static List<int>? _arrLiteralCodes;
+  static late List<int> _arrLiteralLengths;
+  static late List<int> _arrDistanceCodes;
+  static late List<int> _arrDistanceLengths;
   bool get _needsInput => _inputEnd == _inputOffset;
   bool get _pendingBufferIsFlushed => _pendingBufferLength == 0;
   bool get _huffmanIsFull => _iBufferPosition >= def_huffman_buffer_size;
   int _maximumLazySearch = 0;
 
-  int _getCompressionLevel(PdfCompressionLevel level) {
+  int? _getCompressionLevel(PdfCompressionLevel? level) {
     switch (level) {
       case PdfCompressionLevel.none:
         return 0;
@@ -261,19 +260,19 @@ class _CompressedStreamWriter {
           List<int>.filled(def_huffman_literal_alphabet_length, 0);
       int i = 0;
       while (i < 144) {
-        _arrLiteralCodes[i] = _Utils.bitReverse((0x030 + i) << 8);
+        _arrLiteralCodes![i] = _Utils.bitReverse((0x030 + i) << 8);
         _arrLiteralLengths[i++] = 8;
       }
       while (i < 256) {
-        _arrLiteralCodes[i] = _Utils.bitReverse(((0x190 - 144) + i) << 7);
+        _arrLiteralCodes![i] = _Utils.bitReverse(((0x190 - 144) + i) << 7);
         _arrLiteralLengths[i++] = 9;
       }
       while (i < 280) {
-        _arrLiteralCodes[i] = _Utils.bitReverse(((0x000 - 256) + i) << 9);
+        _arrLiteralCodes![i] = _Utils.bitReverse(((0x000 - 256) + i) << 9);
         _arrLiteralLengths[i++] = 7;
       }
       while (i < def_huffman_literal_alphabet_length) {
-        _arrLiteralCodes[i] = _Utils.bitReverse(((0x0c0 - 280) + i) << 8);
+        _arrLiteralCodes![i] = _Utils.bitReverse(((0x0c0 - 280) + i) << 8);
         _arrLiteralLengths[i++] = 8;
       }
       _arrDistanceCodes =
@@ -292,7 +291,7 @@ class _CompressedStreamWriter {
     // Initialize header.
     int iHeaderData = def_zlib_header_template;
     // Save compression level.
-    iHeaderData |= ((_getCompressionLevel(_level) >> 2) & 3) << 6;
+    iHeaderData |= ((_getCompressionLevel(_level)! >> 2) & 3) << 6;
     // Align header.
     iHeaderData += 31 - (iHeaderData % 31);
     // Write header to stream.
@@ -305,7 +304,6 @@ class _CompressedStreamWriter {
   }
 
   void write(List<int> data, int offset, int length, bool bCloseAfterWrite) {
-    ArgumentError.checkNotNull(data, 'data');
     final int end = offset + length;
     if (0 > offset || offset > end || end > data.length) {
       throw Exception('Offset or length is incorrect.');
@@ -371,7 +369,7 @@ class _CompressedStreamWriter {
     while (_lookAhead >= min_lookahead || flush) {
       if (_lookAhead == 0) {
         if (_matchPreviousAvailable) {
-          _huffmanTallyLit(_dataWindow[_stringStart - 1] & 0xff);
+          _huffmanTallyLit(_dataWindow![_stringStart - 1] & 0xff);
         }
 
         _matchPreviousAvailable = false;
@@ -426,7 +424,7 @@ class _CompressedStreamWriter {
         _matchLength = min_match - 1;
       } else {
         if (_matchPreviousAvailable) {
-          _huffmanTallyLit(_dataWindow[_stringStart - 1] & 0xff);
+          _huffmanTallyLit(_dataWindow![_stringStart - 1] & 0xff);
         }
 
         _matchPreviousAvailable = true;
@@ -499,7 +497,7 @@ class _CompressedStreamWriter {
 
         continue;
       } else {
-        _huffmanTallyLit(_dataWindow[_stringStart] & 0xff);
+        _huffmanTallyLit(_dataWindow![_stringStart] & 0xff);
         ++_stringStart;
         --_lookAhead;
       }
@@ -525,8 +523,8 @@ class _CompressedStreamWriter {
     final int limit = max(_stringStart - max_dist, 0);
 
     final int strend = _stringStart + max_match - 1;
-    int scanEnd1 = _dataWindow[bestEnd - 1];
-    int scanEnd = _dataWindow[bestEnd];
+    int scanEnd1 = _dataWindow![bestEnd - 1];
+    int scanEnd = _dataWindow![bestEnd];
 
     /// Do not waste too much time if we already have a good match.
     if (bestLen >= _goodLength) {
@@ -541,10 +539,10 @@ class _CompressedStreamWriter {
     }
 
     do {
-      if (_dataWindow[curMatch + bestLen] != scanEnd ||
-          _dataWindow[curMatch + bestLen - 1] != scanEnd1 ||
-          _dataWindow[curMatch] != _dataWindow[scan] ||
-          _dataWindow[curMatch + 1] != _dataWindow[scan + 1]) {
+      if (_dataWindow![curMatch + bestLen] != scanEnd ||
+          _dataWindow![curMatch + bestLen - 1] != scanEnd1 ||
+          _dataWindow![curMatch] != _dataWindow![scan] ||
+          _dataWindow![curMatch + 1] != _dataWindow![scan + 1]) {
         continue;
       }
 
@@ -554,14 +552,14 @@ class _CompressedStreamWriter {
       /// We check for insufficient _lookAhead only every 8th comparison
       /// and the 256th check will be made at _stringStart + 258.
 
-      while (_dataWindow[++scan] == _dataWindow[++match] &&
-          _dataWindow[++scan] == _dataWindow[++match] &&
-          _dataWindow[++scan] == _dataWindow[++match] &&
-          _dataWindow[++scan] == _dataWindow[++match] &&
-          _dataWindow[++scan] == _dataWindow[++match] &&
-          _dataWindow[++scan] == _dataWindow[++match] &&
-          _dataWindow[++scan] == _dataWindow[++match] &&
-          _dataWindow[++scan] == _dataWindow[++match] &&
+      while (_dataWindow![++scan] == _dataWindow![++match] &&
+          _dataWindow![++scan] == _dataWindow![++match] &&
+          _dataWindow![++scan] == _dataWindow![++match] &&
+          _dataWindow![++scan] == _dataWindow![++match] &&
+          _dataWindow![++scan] == _dataWindow![++match] &&
+          _dataWindow![++scan] == _dataWindow![++match] &&
+          _dataWindow![++scan] == _dataWindow![++match] &&
+          _dataWindow![++scan] == _dataWindow![++match] &&
           scan < strend) {}
 
       if (scan > bestEnd) {
@@ -573,8 +571,8 @@ class _CompressedStreamWriter {
           break;
         }
 
-        scanEnd1 = _dataWindow[bestEnd - 1];
-        scanEnd = _dataWindow[bestEnd];
+        scanEnd1 = _dataWindow![bestEnd - 1];
+        scanEnd = _dataWindow![bestEnd];
       }
       scan = _stringStart;
     } while ((curMatch = _hashPrevious[curMatch & wmask] & 0xffff) > limit &&
@@ -604,7 +602,7 @@ class _CompressedStreamWriter {
   }
 
   void _huffmanFlushBlock(
-      List<int> stored, int storedOffset, int storedLength, bool lastBlock) {
+      List<int>? stored, int storedOffset, int storedLength, bool lastBlock) {
     _treeLiteral._codeFrequences[def_huffman_endblock_symbol]++;
 
     // Build trees.
@@ -616,19 +614,19 @@ class _CompressedStreamWriter {
     _treeDistances._calcBLFreq(_treeCodeLengths);
 
     // Build bitlen tree.
-    _treeCodeLengths._buildTree();
+    _treeCodeLengths!._buildTree();
 
     int blTreeCodes = 4;
     for (int i = 18; i > blTreeCodes; i--) {
-      if (_treeCodeLengths
-              ._codeLengths[def_huffman_dyntree_codelengths_order[i]] >
+      if (_treeCodeLengths!
+              ._codeLengths![def_huffman_dyntree_codelengths_order[i]] >
           0) {
         blTreeCodes = i + 1;
       }
     }
     int optLen = 14 +
         blTreeCodes * 3 +
-        _treeCodeLengths._getEncodedLength() +
+        _treeCodeLengths!._getEncodedLength() +
         _treeLiteral._getEncodedLength() +
         _treeDistances._getEncodedLength() +
         _iExtraBits;
@@ -646,11 +644,11 @@ class _CompressedStreamWriter {
     }
 
     if (storedOffset >= 0 && storedLength + 4 < optLen >> 3) {
-      _huffmanFlushStoredBlock(stored, storedOffset, storedLength, lastBlock);
+      _huffmanFlushStoredBlock(stored!, storedOffset, storedLength, lastBlock);
     } else if (optLen == staticLen) {
       // Encode with static tree.
       _pendingBufferWriteBits((1 << 1) + (lastBlock ? 1 : 0), 3);
-      _treeLiteral._setStaticCodes(_arrLiteralCodes, _arrLiteralLengths);
+      _treeLiteral._setStaticCodes(_arrLiteralCodes!, _arrLiteralLengths);
       _treeDistances._setStaticCodes(_arrDistanceCodes, _arrDistanceLengths);
       _huffmanCompressBlock();
       _huffmanReset();
@@ -664,7 +662,7 @@ class _CompressedStreamWriter {
   }
 
   void _huffmanSendAllTrees(int blTreeCodes) {
-    _treeCodeLengths._buildCodes();
+    _treeCodeLengths!._buildCodes();
     _treeLiteral._buildCodes();
     _treeDistances._buildCodes();
     _pendingBufferWriteBits(_treeLiteral._codeCount - 257, 5);
@@ -673,8 +671,8 @@ class _CompressedStreamWriter {
 
     for (int rank = 0; rank < blTreeCodes; rank++) {
       _pendingBufferWriteBits(
-          _treeCodeLengths
-              ._codeLengths[def_huffman_dyntree_codelengths_order[rank]],
+          _treeCodeLengths!
+              ._codeLengths![def_huffman_dyntree_codelengths_order[rank]],
           3);
     }
 
@@ -685,7 +683,7 @@ class _CompressedStreamWriter {
   int _insertString() {
     int match;
     final int hash = ((_currentHash << hash_shift) ^
-            _dataWindow[_stringStart + (min_match - 1)]) &
+            _dataWindow![_stringStart + (min_match - 1)]) &
         hash_mask;
 
     _hashPrevious[_stringStart & wmask] = match = _hashHead[hash];
@@ -763,7 +761,7 @@ class _CompressedStreamWriter {
     _iExtraBits = 0;
     _treeLiteral._reset();
     _treeDistances._reset();
-    _treeCodeLengths._reset();
+    _treeCodeLengths!._reset();
   }
 
   void _pendingBufferWriteShort(int s) {
@@ -816,7 +814,7 @@ class _CompressedStreamWriter {
       if (more > _inputEnd - _inputOffset) {
         more = _inputEnd - _inputOffset;
       }
-      List.copyRange(_dataWindow, _stringStart + _lookAhead, _inputBuffer,
+      List.copyRange(_dataWindow!, _stringStart + _lookAhead, _inputBuffer!,
           _inputOffset, _inputOffset + more);
 
       _inputOffset += more;
@@ -829,7 +827,7 @@ class _CompressedStreamWriter {
   }
 
   void _slideWindow() {
-    List.copyRange(_dataWindow, 0, _dataWindow, wsize, wsize + wsize);
+    List.copyRange(_dataWindow!, 0, _dataWindow!, wsize, wsize + wsize);
     _matchStart -= wsize;
     _stringStart -= wsize;
     _blockStart -= wsize;
@@ -846,8 +844,8 @@ class _CompressedStreamWriter {
   }
 
   void _updateHash() {
-    _currentHash = (_dataWindow[_stringStart] << hash_shift) ^
-        _dataWindow[_stringStart + 1];
+    _currentHash = (_dataWindow![_stringStart] << hash_shift) ^
+        _dataWindow![_stringStart + 1];
   }
 
   void _pendingBufferFlush() {
@@ -908,7 +906,7 @@ class _ChecksumCalculator {
   static const int checksumIterationCount = 3800;
 
   static int _checksumUpdate(
-      int checksum, List<int> buffer, int offset, int length) {
+      int checksum, List<int>? buffer, int offset, int length) {
     int checksumUint = checksum.toUnsigned(32);
     int s1 = checksumUint & 65535;
     int s2 = checksumUint >> checkSumBitOffset;
@@ -916,7 +914,7 @@ class _ChecksumCalculator {
       int steps = min(length, checksumIterationCount);
       length -= steps;
       while (--steps >= 0) {
-        s1 = s1 + (buffer[offset++] & 255).toUnsigned(32);
+        s1 = s1 + (buffer![offset++] & 255).toUnsigned(32);
         s2 += s1;
       }
       s1 %= checksumBase;

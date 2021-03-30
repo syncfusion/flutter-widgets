@@ -18,6 +18,11 @@ abstract class SfLocalizations {
   /// displayed under agenda section in month view.
   String get noEventsCalendarLabel;
 
+  /// A label that is shown on a spanned appointment. This label will be
+  /// displayed on appointment views for all-day, month agenda view and
+  /// schedule view.
+  String get daySpanCountLabel;
+
   /// Label that is displayed in the calendar header view when allowed views
   /// have calendar day view.
   String get allowedViewDayLabel;
@@ -144,13 +149,6 @@ abstract class SfLocalizations {
   /// 1 of 2 pages.
   String get pagesDataPagerLabel;
 
-  /// Label that is displayed in the information panel of DataPager to represent
-  /// the number of items.
-  ///
-  /// For example,
-  /// 1 of 2 pages (77 items)
-  String get itemsDataPagerLabel;
-
   /// Label that is displayed in the bookmark view header of PdfViewer.
   String get pdfBookmarksLabel;
 
@@ -248,6 +246,9 @@ class _DefaultLocalizations implements SfLocalizations {
 
   @override
   String get noEventsCalendarLabel => 'No events';
+
+  @override
+  String get daySpanCountLabel => 'Day';
 
   @override
   String get allowedViewDayLabel => 'DAY';
@@ -356,9 +357,6 @@ class _DefaultLocalizations implements SfLocalizations {
 
   @override
   String get pagesDataPagerLabel => 'pages';
-
-  @override
-  String get itemsDataPagerLabel => 'items';
 
   @override
   String get pdfBookmarksLabel => 'Bookmarks';

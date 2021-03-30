@@ -135,17 +135,17 @@ class _PdfStandardFontMetricsFactory {
 
   /// Returns metrics of the font.
   static _PdfFontMetrics _getMetrics(
-      PdfFontFamily fontFamily, int fontStyle, double size) {
+      PdfFontFamily? fontFamily, int? fontStyle, double size) {
     _PdfFontMetrics metrics;
     switch (fontFamily) {
       case PdfFontFamily.helvetica:
-        metrics = _getHelveticaMetrics(fontFamily, fontStyle, size);
+        metrics = _getHelveticaMetrics(fontFamily, fontStyle!, size);
         break;
       case PdfFontFamily.courier:
-        metrics = _getCourierMetrics(fontFamily, fontStyle, size);
+        metrics = _getCourierMetrics(fontFamily, fontStyle!, size);
         break;
       case PdfFontFamily.timesRoman:
-        metrics = _getTimesMetrics(fontFamily, fontStyle, size);
+        metrics = _getTimesMetrics(fontFamily, fontStyle!, size);
         break;
       case PdfFontFamily.symbol:
         metrics = _getSymbolMetrics(fontFamily, size);
@@ -155,10 +155,10 @@ class _PdfStandardFontMetricsFactory {
         break;
       default:
         metrics =
-            _getHelveticaMetrics(PdfFontFamily.helvetica, fontStyle, size);
+            _getHelveticaMetrics(PdfFontFamily.helvetica, fontStyle!, size);
         break;
     }
-    metrics.name = PdfFont._standardFontNames[fontFamily.index];
+    metrics.name = PdfFont._standardFontNames[fontFamily!.index];
     metrics.subscriptSizeFactor = _subSuperscriptFactor;
     metrics.superscriptSizeFactor = _subSuperscriptFactor;
     return metrics;
@@ -166,7 +166,7 @@ class _PdfStandardFontMetricsFactory {
 
   /// Creates Helvetica font metrics.
   static _PdfFontMetrics _getHelveticaMetrics(
-      PdfFontFamily fontFamily, int fontStyle, double size) {
+      PdfFontFamily? fontFamily, int fontStyle, double size) {
     final _PdfFontMetrics metrics = _PdfFontMetrics();
     if (fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.bold) > 0 &&
         fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.italic) > 0) {
@@ -205,7 +205,7 @@ class _PdfStandardFontMetricsFactory {
 
   /// Creates Courier font metrics.
   static _PdfFontMetrics _getCourierMetrics(
-      PdfFontFamily fontFamily, int fontStyle, double size) {
+      PdfFontFamily? fontFamily, int fontStyle, double size) {
     final _PdfFontMetrics metrics = _PdfFontMetrics();
     if (fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.bold) > 0 &&
         fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.italic) > 0) {
@@ -242,7 +242,7 @@ class _PdfStandardFontMetricsFactory {
 
   /// Creates Times font metrics.
   static _PdfFontMetrics _getTimesMetrics(
-      PdfFontFamily fontFamily, int fontStyle, double size) {
+      PdfFontFamily? fontFamily, int fontStyle, double size) {
     final _PdfFontMetrics metrics = _PdfFontMetrics();
     if (fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.bold) > 0 &&
         fontStyle & PdfFont._getPdfFontStyle(PdfFontStyle.italic) > 0) {
@@ -283,7 +283,7 @@ class _PdfStandardFontMetricsFactory {
 
   /// Creates Symbol font metrics.
   static _PdfFontMetrics _getSymbolMetrics(
-      PdfFontFamily fontFamily, double size) {
+      PdfFontFamily? fontFamily, double size) {
     final _PdfFontMetrics metrics = _PdfFontMetrics();
 
     metrics.ascent = _symbolAscent;
@@ -297,7 +297,7 @@ class _PdfStandardFontMetricsFactory {
 
   /// Creates ZapfDingbats font metrics.
   static _PdfFontMetrics _getZapfDingbatsMetrics(
-      PdfFontFamily fontFamily, double size) {
+      PdfFontFamily? fontFamily, double size) {
     final _PdfFontMetrics metrics = _PdfFontMetrics();
     metrics.ascent = _zapfDingbatsAscent;
     metrics.descent = _zapfDingbatsDescent;

@@ -2,13 +2,13 @@ part of charts;
 
 class _HistogramChartPainter extends CustomPainter {
   _HistogramChartPainter(
-      {this.chartState,
-      this.seriesRenderer,
-      this.chartSeries,
-      this.isRepaint,
-      this.animationController,
-      ValueNotifier<num> notifier,
-      this.painterKey})
+      {required this.chartState,
+      required this.seriesRenderer,
+      required this.chartSeries,
+      required this.isRepaint,
+      required this.animationController,
+      required ValueNotifier<num> notifier,
+      required this.painterKey})
       : chart = chartState._chart,
         super(repaint: notifier);
   final SfCartesianChartState chartState;
@@ -26,14 +26,15 @@ class _HistogramChartPainter extends CustomPainter {
     Rect axisClipRect, clipRect;
     double animationFactor;
     CartesianChartPoint<dynamic> point;
-    final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer;
-    final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer;
+    final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
+    final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer!;
     final List<CartesianChartPoint<dynamic>> dataPoints =
         seriesRenderer._dataPoints;
 
     /// Clip rect added
-    if (seriesRenderer._visible) {
-      final HistogramSeries<dynamic, dynamic> series = seriesRenderer._series;
+    if (seriesRenderer._visible!) {
+      final HistogramSeries<dynamic, dynamic> series =
+          seriesRenderer._series as HistogramSeries;
       canvas.save();
       assert(
           series.animationDuration != null
@@ -48,14 +49,14 @@ class _HistogramChartPainter extends CustomPainter {
               xAxisRenderer._axis.plotOffset, yAxisRenderer._axis.plotOffset));
       canvas.clipRect(axisClipRect);
       animationFactor = seriesRenderer._seriesAnimation != null
-          ? seriesRenderer._seriesAnimation.value
+          ? seriesRenderer._seriesAnimation!.value
           : 1;
 
       /// side by side range calculated
 
       int segmentIndex = -1;
       if (seriesRenderer._visibleDataPoints == null ||
-          seriesRenderer._visibleDataPoints.isNotEmpty) {
+          seriesRenderer._visibleDataPoints!.isNotEmpty) {
         seriesRenderer._visibleDataPoints = <CartesianChartPoint<dynamic>>[];
       }
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
@@ -68,7 +69,7 @@ class _HistogramChartPainter extends CustomPainter {
               seriesRenderer._createSegments(
                   point,
                   segmentIndex += 1,
-                  seriesRenderer.sideBySideInfo,
+                  seriesRenderer.sideBySideInfo!,
                   painterKey.index,
                   animationFactor));
         }
@@ -89,7 +90,7 @@ class _HistogramChartPainter extends CustomPainter {
           ..style = PaintingStyle.stroke;
         series.curveDashArray == null
             ? canvas.drawPath(_path, _paint)
-            : _drawDashedLine(canvas, series.curveDashArray, _paint, _path);
+            : _drawDashedLine(canvas, series.curveDashArray!, _paint, _path);
       }
       clipRect = _calculatePlotOffset(
           Rect.fromLTRB(
@@ -105,7 +106,7 @@ class _HistogramChartPainter extends CustomPainter {
               xAxisRenderer._axis.plotOffset, yAxisRenderer._axis.plotOffset));
       canvas.restore();
       if ((series.animationDuration <= 0 ||
-              !chartState._initialRender ||
+              !chartState._initialRender! ||
               animationFactor >= chartState._seriesDurationFactor) &&
           (series.markerSettings.isVisible ||
               series.dataLabelSettings.isVisible)) {

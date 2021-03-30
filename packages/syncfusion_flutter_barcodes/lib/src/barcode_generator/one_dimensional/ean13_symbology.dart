@@ -23,5 +23,5 @@ class EAN13 extends Symbology {
   /// valid check digit otherwise remove it, since it has been calculated
   /// automatically.
   ///
-  EAN13({int module}) : super(module: module);
+  EAN13({int? module}) : super(module: module);
 }

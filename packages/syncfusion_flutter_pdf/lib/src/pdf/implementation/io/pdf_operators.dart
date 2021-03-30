@@ -50,4 +50,5 @@ class _Operators {
   static const String setText = 'Tj';
   static const String setGraphicsState = 'gs';
   static const String appendBezierCurve = 'c';
+  static const String slash = '/';
 }

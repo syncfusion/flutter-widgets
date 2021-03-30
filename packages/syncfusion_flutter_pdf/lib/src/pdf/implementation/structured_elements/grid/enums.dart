@@ -2,7 +2,7 @@ part of pdf;
 
 ///Specifies the alignment type.
 enum PdfGridImagePosition {
-  /// To fit background image to the cell based on the cell with and height.
+  /// To fit image to the cell based on the cell width and height.
   fit,
 
   /// The image is rendered by center of the cell.
@@ -12,7 +12,7 @@ enum PdfGridImagePosition {
   /// to fit the width and height of the cell.
   stretch,
 
-  /// The imag is rendered by tile mode.
+  /// The image is rendered by tile mode.
   tile
 }
 

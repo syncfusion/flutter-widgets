@@ -21,8 +21,8 @@ class ScrollStatus extends StatefulWidget {
 
 /// State for [ScrollStatus]
 class _ScrollStatusState extends State<ScrollStatus> {
-  SfPdfViewerThemeData _pdfViewerThemeData;
-  SfLocalizations _localizations;
+  SfPdfViewerThemeData? _pdfViewerThemeData;
+  SfLocalizations? _localizations;
 
   @override
   void didChangeDependencies() {
@@ -54,15 +54,15 @@ class _ScrollStatusState extends State<ScrollStatus> {
                 maxWidth: MediaQuery.of(context).size.width * 0.7,
               ),
               decoration: BoxDecoration(
-                color: _pdfViewerThemeData.scrollStatusStyle.backgroundColor,
+                color: _pdfViewerThemeData!.scrollStatusStyle.backgroundColor,
                 borderRadius: BorderRadius.all(
                   Radius.circular(16.0),
                 ),
               ),
               child: Text(
-                '${widget.pdfViewerController.pageNumber} ${_localizations.pdfScrollStatusOfLabel} ${widget.pdfViewerController.pageCount}',
+                '${widget.pdfViewerController.pageNumber} ${_localizations!.pdfScrollStatusOfLabel} ${widget.pdfViewerController.pageCount}',
                 textAlign: TextAlign.center,
-                style: _pdfViewerThemeData.scrollStatusStyle.pageInfoTextStyle,
+                style: _pdfViewerThemeData!.scrollStatusStyle.pageInfoTextStyle,
               ),
             ),
           ],

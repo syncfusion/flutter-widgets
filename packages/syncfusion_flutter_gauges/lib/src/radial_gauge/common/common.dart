@@ -1,4 +1,8 @@
-part of gauges;
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/foundation.dart';
+import '../utils/enum.dart';
 
 /// Signature for the callback that reports the custom renderer has been extended
 /// and set to the gauge axis
@@ -17,7 +21,8 @@ typedef NeedlePointerRendererFactory<NeedlePointerRenderer>
 
 /// This class has the property of the guage text style.
 ///
-/// Provides the options of color, font family, font style, font size, and font-weight to customize the appearance.
+/// Provides the options of color, font family, font style, font size, and
+/// font-weight to customize the appearance.
 class GaugeTextStyle {
   /// Creates a gauge text style with default or required properties.
   GaugeTextStyle(
@@ -28,7 +33,7 @@ class GaugeTextStyle {
       this.fontSize = 12});
 
   /// To set the color of guage text.
-  Color color;
+  Color? color;
 
   /// To set the font family to guage text.
   ///
@@ -66,7 +71,7 @@ class GaugeTextStyle {
 
   @override
   int get hashCode {
-    final List<Object> values = <Object>[
+    final List<Object?> values = <Object?>[
       color,
       fontFamily,
       fontStyle,
@@ -101,18 +106,16 @@ class GaugeTextStyle {
 class GaugeTitle {
   /// Creates the gauge title with default or required properties.
   GaugeTitle(
-      {@required this.text,
-      TextStyle textStyle,
+      {required this.text,
+      this.textStyle = const TextStyle(
+          fontSize: 15.0,
+          fontFamily: 'Segoe UI',
+          fontStyle: FontStyle.normal,
+          fontWeight: FontWeight.normal),
       this.alignment = GaugeAlignment.center,
       this.borderColor,
       this.borderWidth = 0,
-      this.backgroundColor})
-      : textStyle = textStyle ??
-            const TextStyle(
-                fontSize: 15.0,
-                fontFamily: 'Segoe UI',
-                fontStyle: FontStyle.normal,
-                fontWeight: FontWeight.normal);
+      this.backgroundColor});
 
   /// Text to be displayed as gauge title.
   ///
@@ -175,7 +178,7 @@ class GaugeTitle {
   ///        ));
   ///}
   ///```
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   /// The color that fills the border with the title of the gauge.
   ///
@@ -192,7 +195,7 @@ class GaugeTitle {
   ///        ));
   ///}
   ///```
-  final Color borderColor;
+  final Color? borderColor;
 
   /// Specifies the border width of the gauge title.
   ///
@@ -257,7 +260,7 @@ class GaugeTitle {
 
   @override
   int get hashCode {
-    final List<Object> values = <Object>[
+    final List<Object?> values = <Object?>[
       text,
       alignment,
       textStyle,
@@ -372,7 +375,7 @@ class MajorTickStyle {
   ///        ));
   ///}
   /// ```
-  final Color color;
+  final Color? color;
 
   /// Specifies the dash array to draw the dashed line.
   ///
@@ -387,7 +390,7 @@ class MajorTickStyle {
   ///        ));
   ///}
   /// ```
-  final List<double> dashArray;
+  final List<double>? dashArray;
 
   @override
   bool operator ==(Object other) {
@@ -407,7 +410,7 @@ class MajorTickStyle {
 
   @override
   int get hashCode {
-    final List<Object> values = <Object>[
+    final List<Object?> values = <Object?>[
       length,
       thickness,
       lengthUnit,
@@ -438,15 +441,15 @@ class MinorTickStyle extends MajorTickStyle {
   /// The arguments [length], [thickness], must be non-negative.
   MinorTickStyle(
       {double length = 5,
-      GaugeSizeUnit lengthUnit,
-      Color color,
+      GaugeSizeUnit lengthUnit = GaugeSizeUnit.logicalPixel,
+      Color? color,
       double thickness = 1.5,
-      List<double> dashArray})
+      List<double>? dashArray})
       : assert(length >= 0, 'Tick length must be a non-negative value.'),
         assert(thickness >= 0, 'Tick thickness must be a non-negative value.'),
         super(
           length: length,
-          lengthUnit: lengthUnit ?? GaugeSizeUnit.logicalPixel,
+          lengthUnit: lengthUnit,
           thickness: thickness,
           dashArray: dashArray,
           color: color,
@@ -546,7 +549,7 @@ class AxisLineStyle {
   ///        ));
   ///}
   /// ```
-  final Color color;
+  final Color? color;
 
   /// The style to use for the axis line corner edge.
   ///
@@ -584,7 +587,7 @@ class AxisLineStyle {
   ///        ));
   ///}
   /// ```
-  final List<double> dashArray;
+  final List<double>? dashArray;
 
   /// A gradient to use when filling the axis line.
   ///
@@ -609,7 +612,7 @@ class AxisLineStyle {
   ///        ));
   ///}
   /// ```
-  final Gradient gradient;
+  final Gradient? gradient;
 
   @override
   bool operator ==(Object other) {
@@ -630,7 +633,7 @@ class AxisLineStyle {
 
   @override
   int get hashCode {
-    final List<Object> values = <Object>[
+    final List<Object?> values = <Object?>[
       thickness,
       thicknessUnit,
       color,
@@ -642,82 +645,27 @@ class AxisLineStyle {
   }
 }
 
-/// Holds the axis label information.
-class CircularAxisLabel {
-  /// Creates the axis label with default or required properties.
-  CircularAxisLabel(
-      this.labelStyle, this.text, this.index, this._needsRotateLabel);
-
-  /// Style for axis label text.
-  GaugeTextStyle labelStyle;
-
-  /// Holds the size of axis label
-  Size labelSize;
-
-  /// Text to display
-  String text;
-
-  /// Specifies the axis index position
-  num index;
-
-  ///Specifies the value of the labels
-  num value;
-
-  /// Holds the label position
-  Offset position;
-
-  /// Holds the corresponding angle for the label
-  double angle;
-
-  /// Specifies whether to rotate the corresponding labels
-  final bool _needsRotateLabel;
-}
-
-/// Represents the arc data
-class _ArcData {
-  /// Represents the start angle
-  double startAngle;
-
-  /// Represents the end angle
-  double endAngle;
-
-  /// Represents the arc rect
-  Rect arcRect;
-}
-
-/// Specifies the offset value of tick
-class _TickOffset {
-  /// Holds the start point
-  Offset startPoint;
-
-  /// Holds the end point
-  Offset endPoint;
-
-  /// Holds the tick value
-  double value;
-}
-
 /// Returns the AxisLabelCreatedArgs used by the [
 /// RadialAxis.onLabelCreated] event.
 class AxisLabelCreatedArgs {
   /// Holds the label text
-  String text;
+  late String text;
 
   /// Specifies the label style
-  GaugeTextStyle labelStyle;
+  GaugeTextStyle? labelStyle;
 
   /// whether to rotate the label based on angle.
-  bool canRotate;
+  bool? canRotate;
 }
 
 /// Returns the ValueChangingArgs used by the
 /// [GaugePointer.onValueChanging] event
 class ValueChangingArgs {
   /// Specifies the pointer value.
-  double value;
+  late double value;
 
   /// Whether to cancel the new pointer value.
-  bool cancel;
+  bool? cancel;
 }
 
 /// Style for drawing pointer's tail.
@@ -766,7 +714,7 @@ class TailStyle {
   ///        ));
   ///}
   ///```
-  final Color color;
+  final Color? color;
 
   /// Specifies the width of the tail.
   ///
@@ -872,7 +820,7 @@ class TailStyle {
   ///        ));
   ///}
   /// ```
-  final Color borderColor;
+  final Color? borderColor;
 
   /// A gradient to use when filling the needle tail.
   ///
@@ -902,7 +850,7 @@ class TailStyle {
   ///        ));
   ///}
   /// ```
-  final LinearGradient gradient;
+  final LinearGradient? gradient;
 
   @override
   bool operator ==(Object other) {
@@ -924,7 +872,7 @@ class TailStyle {
 
   @override
   int get hashCode {
-    final List<Object> values = <Object>[
+    final List<Object?> values = <Object?>[
       width,
       color,
       borderWidth,
@@ -1050,7 +998,7 @@ class KnobStyle {
   ///        ));
   ///}
   /// ```
-  final Color color;
+  final Color? color;
 
   /// Specifies the knob border color.
   ///
@@ -1068,7 +1016,7 @@ class KnobStyle {
   ///        ));
   ///}
   /// ```
-  final Color borderColor;
+  final Color? borderColor;
 
   @override
   bool operator ==(Object other) {
@@ -1088,7 +1036,7 @@ class KnobStyle {
 
   @override
   int get hashCode {
-    final List<Object> values = <Object>[
+    final List<Object?> values = <Object?>[
       knobRadius,
       borderWidth,
       sizeUnit,
@@ -1100,16 +1048,16 @@ class KnobStyle {
 }
 
 /// Details for the drawPointer method, such as the location of the pointer,
-/// the angle and the radius needed to draw the pointer.
+/// the angle, and the radius needed to draw the pointer.
 @immutable
 class PointerPaintingDetails {
   /// Creates the details which are required to paint the pointer
   const PointerPaintingDetails(
-      {this.startOffset,
-      this.endOffset,
-      this.pointerAngle,
-      this.axisRadius,
-      this.axisCenter});
+      {required this.startOffset,
+      required this.endOffset,
+      required this.pointerAngle,
+      required this.axisRadius,
+      required this.axisCenter});
 
   /// Specifies the starting position of the pointer in the logical pixels.
   final Offset startOffset;

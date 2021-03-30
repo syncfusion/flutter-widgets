@@ -2,7 +2,7 @@ part of pdf;
 
 class _HuffmanTree {
   // Constructors
-  _HuffmanTree({List<int> code, bool isLtree}) {
+  _HuffmanTree({List<int>? code, bool? isLtree}) {
     if (code == null && isLtree != null) {
       _clArray = isLtree ? _getLTree() : _getDTree();
     } else if (code != null) {
@@ -25,12 +25,12 @@ class _HuffmanTree {
   static const int _nCLength = 19;
 
   // Fields
-  int _tBits;
-  List<int> _table;
-  List<int> _left;
-  List<int> _right;
-  List<int> _clArray;
-  int _tMask;
+  late int _tBits;
+  late List<int> _table;
+  List<int>? _left;
+  List<int>? _right;
+  late List<int> _clArray;
+  late int _tMask;
 
   //Implementation
   List<int> _getLTree() {
@@ -123,9 +123,9 @@ class _HuffmanTree {
               throw ArgumentError.value('Invalid Data.');
             }
             if ((start & bitMask) == 0) {
-              array = _left;
+              array = _left!;
             } else {
-              array = _right;
+              array = _right!;
             }
             index = -value;
             bitMask <<= 1;
@@ -138,19 +138,19 @@ class _HuffmanTree {
   }
 
   int _getNextSymbol(_InBuffer input) {
-    final int bitBuffer = input._load16Bits();
+    final int? bitBuffer = input._load16Bits();
     if (input.bits == 0) {
       return -1;
     }
-    int symbol = _table[bitBuffer & _tMask];
+    int symbol = _table[bitBuffer! & _tMask];
     if (symbol < 0) {
       int mask = (1 << _tBits).toUnsigned(32);
       do {
         symbol = -symbol;
         if ((bitBuffer & mask) == 0) {
-          symbol = _left[symbol];
+          symbol = _left![symbol];
         } else {
-          symbol = _right[symbol];
+          symbol = _right![symbol];
         }
         mask <<= 1;
       } while (symbol < 0);

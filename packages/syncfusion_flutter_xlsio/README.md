@@ -1,4 +1,4 @@
-![syncfusion_flutter_xlsio_banner](https://cdn.syncfusion.com/content/images/FTControl/Flutter-XlsIO-Banner.png)
+﻿![syncfusion_flutter_xlsio_banner](https://cdn.syncfusion.com/content/images/FTControl/Flutter-XlsIO-Banner.png)
 
 # Syncfusion Flutter XlsIO
 
@@ -8,7 +8,7 @@ Syncfusion Flutter XlsIO is a feature rich and high-performance non-UI Excel lib
 
 The Excel package is a non-UI and reusable Flutter library to create Excel documents programmatically with cell values, built-in styles, cell formatting, formulas, charts, and images. The creation of Excel file are in XLSX (Excel 2007 and above) format.
 
-**Disclaimer:** This is a commercial package. To use this package, you need to have either a Syncfusion Commercial License or Syncfusion Community license. For more details, please check the [LICENSE](LICENSE) file.
+**Disclaimer:** This is a commercial package. To use this package, you need to have either a Syncfusion Commercial License or [Free Syncfusion Community license](https://www.syncfusion.com/products/communitylicense). For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
 
 **Note:** Our packages are now compatible with Flutter for Web. However, this will be in Beta until Flutter for Web becomes stable.
 
@@ -27,8 +27,10 @@ The Excel package is a non-UI and reusable Flutter library to create Excel docum
     - [Add images](#add-images)
     - [Add charts](#add-charts)
     - [Add hyperlinks](#add-hyperlinks)
-    - [Manipulate rows and Columns](#manipulate-rows-and-columns)
-    - [Protect workbook and worksheets](#Protect-workbook-and-worksheets)
+    - [Manipulate rows and columns](#manipulate-rows-and-columns)
+    - [Protect workbook and worksheets](#protect-workbook-and-worksheets)
+    - [Import Data](#import-data)
+    - [Apply conditional formatting](#apply-conditional-formatting)
 - [Support and feedback](#support-and-feedback)
 - [About Syncfusion](#about-syncfusion)
 
@@ -44,6 +46,8 @@ The following are the key features of Syncfusion Flutter XlsIO.
 * Add hyperlinks to Excel worksheet
 * Manipulate rows and columns of Excel worksheet
 * Add protection to Excel document.
+* Import data list to Excel Worksheet.
+* Apply Excel conditional formatting.
 
 ## Get the demo application
 
@@ -62,8 +66,9 @@ Explore the full capability of our Flutter widgets on your device by installing 
 
 Take a look at the following to learn more about Syncfusion Flutter XlsIO:
 
-* [User guide documentation]()
-* [Knowledge base](https://www.syncfusion.com/kb)
+* [Syncfusion Flutter Excel product page](https://www.syncfusion.com/flutter-widgets/excel-library)
+* [User guide documentation](https://help.syncfusion.com/flutter/xlsio/overview)
+* [Knowledge base](https://www.syncfusion.com/kb/flutter/xlslo)
 
 ## Installation
 
@@ -88,7 +93,7 @@ final Workbook workbook = new Workbook();
 //Accessing worksheet via index.
 workbook.worksheets[0];
 // Save the document.
-List<int> bytes = workbook.saveAsStream();
+final List<int> bytes = workbook.saveAsStream();
 File('CreateExcel.xlsx').writeAsBytes(bytes);
 //Dispose the workbook.
 workbook.dispose();
@@ -111,7 +116,7 @@ sheet.getRangeByName('A3').setNumber(44);
 //Add DateTime
 sheet.getRangeByName('A5').setDateTime(DateTime(2020,12,12,1,10,20));
 // Save the document.
-List<int> bytes = workbook.saveAsStream();
+final List<int> bytes = workbook.saveAsStream();
 File('AddingTextNumberDateTime.xlsx').writeAsBytes(bytes);
 //Dispose the workbook.
 workbook.dispose();
@@ -138,7 +143,7 @@ sheet.enableSheetCalculations();
 sheet.getRangeByName('A3').setFormula('=A1+A2');
 
 // Save the document.
-List<int> bytes = workbook.saveAsStream();
+final List<int> bytes = workbook.saveAsStream();
 File('AddingFormula.xlsx').writeAsBytes(bytes);
 //Dispose the workbook.
 workbook.dispose();
@@ -156,30 +161,62 @@ Use the following code to add and apply global style to the Excel worksheet cell
 ```dart
 // Create a new Excel document.
 final Workbook workbook = new Workbook();
+
 //Accessing worksheet via index.
 final Worksheet sheet = workbook.worksheets[0];
 
 //Defining a global style with all properties.
-final Style globalStyle = workbook.styles.add('style');
+Style globalStyle = workbook.styles.add('style');
+//set back color by hexa decimal.
 globalStyle.backColor = '#37D8E9';
+//set font name.
 globalStyle.fontName = 'Times New Roman';
+//set font size.
 globalStyle.fontSize = 20;
+//set font color by hexa decimal.
 globalStyle.fontColor = '#C67878';
+//set font italic.
 globalStyle.italic = true;
+//set font bold.
 globalStyle.bold = true;
+//set font underline.
 globalStyle.underline = true;
+//set wraper text.
 globalStyle.wrapText = true;
+//set indent value.
+globalStyle.indent = 1;
+//set horizontal alignment type.
 globalStyle.hAlign = HAlignType.left;
+//set vertical alignment type.
 globalStyle.vAlign = VAlignType.bottom;
+//set text rotation.
 globalStyle.rotation = 90;
-globalStyle.borders.all.lineStyle = LineStyle.Thick;
+//set all border line style.
+globalStyle.borders.all.lineStyle = LineStyle.thick;
+//set border color by hexa decimal.
 globalStyle.borders.all.color = '#9954CC';
-globalStyle.setNumberFormat = '_(\$* #,##0_)';;
+//set number format.
+globalStyle.numberFormat = '_(\$* #,##0_)';
 
-//Apply GlobalStyle
+//Apply GlobalStyle to 'A1'.
 sheet.getRangeByName('A1').cellStyle = globalStyle;
+
+//Defining Gloabl style.
+globalStyle = workbook.styles.add('style1');
+//set back color by RGB value.
+globalStyle.backColorRgb = Color.fromARGB(245, 22, 44, 144);
+//set font color by RGB value.
+globalStyle.fontColorRgb = Color.fromARGB(255, 244, 22, 44);
+//set border line style.
+globalStyle.borders.all.lineStyle = LineStyle.double;
+//set border color by RGB value.
+globalStyle.borders.all.colorRgb = Color.fromARGB(255, 44, 200, 44);
+
+//Apply GlobalStyle to 'A4';
+sheet.getRangeByName('A4').cellStyle = globalStyle;
+
 // Save the document.
-List<int> bytes = workbook.saveAsStream();
+final List<int> bytes = workbook.saveAsStream();
 File('ApplyGlobalStyle.xlsx').writeAsBytes(bytes);
 //Dispose the workbook.
 workbook.dispose();
@@ -200,7 +237,7 @@ final Worksheet sheet = workbook.worksheets[0];
 sheet.getRangeByName('A1').builtInStyle = BuiltInStyles.linkedCell;
 
 // Save the document.
-List<int> bytes = workbook.saveAsStream();
+final List<int> bytes = workbook.saveAsStream();
 File('ApplyBuildInStyle.xlsx').writeAsBytes(bytes);
 //Dispose the workbook.
 workbook.dispose();
@@ -223,13 +260,12 @@ range.setNumber(100);
 range.numberFormat = '\S#,##0.00';
 
 // Save the document.
-List<int> bytes = workbook.saveAsStream();
+final List<int> bytes = workbook.saveAsStream();
 File('ApplyNumberFormat.xlsx').writeAsBytes(bytes);
 //Dispose the workbook.
 workbook.dispose();
 
 ```
-
 
 ### Add images
 
@@ -246,7 +282,7 @@ final List<int> bytes = File('image.png').readAsBytesSync();
 final Picture picture = sheet.picutes.addStream(1, 1, bytes);
 
 // Save the document.
-List<int> bytes = workbook.saveAsStream();
+final List<int> bytes = workbook.saveAsStream();
 File('AddingImage.xlsx').writeAsBytes(bytes);
 //Dispose the workbook.
 workbook.dispose();
@@ -266,11 +302,11 @@ Use the following code to add charts to Excel worksheet.
 
 ```dart
 // Create a new Excel document.
-final Workbook workbook = new Workbook();
-//Accessing worksheet via index.
+final Workbook workbook = Workbook();
+// Accessing worksheet via index.
 final Worksheet sheet = workbook.worksheets[0];
 
-//Setting value in the cell.
+// Setting value in the cell.
 sheet.getRangeByName('A1').setText('John');
 sheet.getRangeByName('A2').setText('Amy');
 sheet.getRangeByName('A3').setText('Jack');
@@ -283,20 +319,22 @@ sheet.getRangeByName('B4').setNumber(21);
 // Create an instances of chart collection.
 final ChartCollection charts = ChartCollection(sheet);
 
-// Add a chart to the collection.
+// Add the chart.
 final Chart chart = charts.add();
 
-//Set Chart Type.
+// Set Chart Type.
 chart.chartType = ExcelChartType.column;
 
-//Set data range in the worksheet.
+// Set data range in the worksheet.
 chart.dataRange = sheet.getRangeByName('A1:B4');
 
-// Save the document.
-List<int> bytes = workbook.saveAsStream();
-File('ExcelCharts.xlsx').writeAsBytes(bytes);
-//Dispose the workbook.
+// set charts to worksheet.
+sheet.charts = charts;
+
+// save and dispose the workbook.
+final List<int> bytes = workbook.saveAsStream();
 workbook.dispose();
+File('Chart.xlsx').writeAsBytes(bytes);
 
 ```
 
@@ -450,9 +488,9 @@ workbook.dispose();
 
 This section covers the various protection options in the Excel document.
 
-**Protect Workbook**
+**Protect workbook elements**
 
-Use the following code to protect workbook of Excel document.
+Use the following code to protect workbook element of Excel document.
 
 ```dart
 // Create a new Excel Document.
@@ -478,7 +516,7 @@ workbook.dispose();
 
 ```
 
-**Protect Worksheets**
+**Protect worksheet**
 
 Use the following code to protect worksheets in the Excel document.
 
@@ -503,6 +541,93 @@ sheet.protect('Password', options);
 // Save and dispose workbook.
 final List<int> bytes = workbook.saveAsStream();
 File('WorksheetProtect.xlsx').writeAsBytes(bytes);
+workbook.dispose();
+
+```
+### Import data
+
+Use the following code to import list of data into Excel Worksheet.
+
+```dart
+// Create a new Excel Document.
+final Workbook workbook = Workbook();
+
+// Accessing sheet via index.
+final Worksheet sheet = workbook.worksheets[0];
+
+//Initialize the list
+final List<Object> list = [
+  'Toatal Income',
+  20000,
+  'On Date',
+  DateTime(2021, 1, 1)
+];
+
+//Import the Object list to Sheet
+sheet.importList(list, 1, 1, true);
+
+// Save and dispose workbook.
+final List<int> bytes = workbook.saveAsStream();
+File('ImportDataList.xlsx').writeAsBytes(bytes);
+workbook.dispose();
+
+```
+### Apply conditional formatting
+
+Use the following code to add and apply conditional formatting to cell or range in Excel Worksheet.
+
+```dart
+// Create a new Excel Document.
+final Workbook workbook = Workbook();
+
+// Accessing sheet via index.
+final Worksheet sheet = workbook.worksheets[0];
+
+//Applying conditional formatting to "A2".
+final ConditionalFormats conditions =
+    sheet.getRangeByName('A2').conditionalFormats;
+final ConditionalFormat condition = conditions.addCondition();
+
+//Represents conditional format rule that the value in target range should be between 10 and 20
+condition.formatType = ExcelCFType.cellValue;
+condition.operator = ExcelComparisonOperator.between;
+condition.firstFormula = '10';
+condition.secondFormula = '20';
+sheet.getRangeByIndex(2, 1).setText('Enter a number between 10 and 20');
+
+//Setting format properties to be applied when the above condition is met.
+//set back color by hexa decimal.
+condition.backColor = '#00FFCC';
+//set font color by RGB values.
+condition.fontColorRgb = Color.fromARGB(255, 200, 20, 100);
+//set font bold.
+condition.isBold = true;
+//set font italic.
+condition.isItalic = true;
+//set number format.
+condition.numberFormat = '0.0';
+//set font underline.
+condition.underline = true;
+//set top border line style
+condition.topBorderStyle = LineStyle.thick;
+// set top border color by RGB values.
+condition.topBorderColorRgb = Color.fromARGB(255, 200, 1, 200);
+//set bottom border line style.
+condition.bottomBorderStyle = LineStyle.medium;
+//set bottom border color by hexa decimal.
+condition.bottomBorderColor = '#FF0000';
+//set right border line style.
+condition.rightBorderStyle = LineStyle.double;
+// set right border color by RGB values.
+condition.rightBorderColorRgb = Color.fromARGB(250, 24, 160, 200);
+//set left border line style.
+condition.leftBorderStyle = LineStyle.thin;
+//set left border color by hexa decimal.
+condition.leftBorderColor = '#AAFFAA';
+
+//save and dispose.
+final List<int> bytes = workbook.saveAsStream();
+File('ConditionalFormatting.xlsx').writeAsBytes(bytes);
 workbook.dispose();
 
 ```

@@ -3,13 +3,15 @@ part of charts;
 ///Below class is for drawing zoomRct
 class _ZoomRectPainter extends CustomPainter {
   _ZoomRectPainter(
-      {this.isRepaint, this.chartState, ValueNotifier<int> notifier})
+      {this.isRepaint = true,
+      required this.chartState,
+      ValueNotifier<int>? notifier})
       : chart = chartState._chart,
         super(repaint: notifier);
   final bool isRepaint;
   final SfCartesianChart chart;
   SfCartesianChartState chartState;
-  Paint strokePaint, fillPaint;
+  late Paint strokePaint, fillPaint;
 
   @override
   void paint(Canvas canvas, Size size) =>
@@ -17,7 +19,7 @@ class _ZoomRectPainter extends CustomPainter {
 
   ///  To draw Rect
   void drawRect(Canvas canvas) {
-    final Color fillColor = chart.zoomPanBehavior.selectionRectColor;
+    final Color? fillColor = chart.zoomPanBehavior.selectionRectColor;
     strokePaint = Paint()
       ..color = chart.zoomPanBehavior.selectionRectBorderColor ??
           chartState._chartTheme.selectionRectBorderColor
@@ -36,10 +38,10 @@ class _ZoomRectPainter extends CustomPainter {
       canvas.drawPath(
           !kIsWeb
               ? _dashPath(
-                  chartState._zoomPanBehaviorRenderer._rectPath,
+                  chartState._zoomPanBehaviorRenderer._rectPath!,
                   dashArray: _CircularIntervalList<double>(<double>[5, 5]),
-                )
-              : chartState._zoomPanBehaviorRenderer._rectPath,
+                )!
+              : chartState._zoomPanBehaviorRenderer._rectPath!,
           strokePaint);
       canvas.drawRect(
           chartState._zoomPanBehaviorRenderer._zoomingRect, fillPaint);
@@ -108,8 +110,8 @@ class _ZoomRectPainter extends CustomPainter {
 
     dynamic resultantString = _getInteractiveTooltipLabel(value, axisRenderer);
     if (axis.interactiveTooltip.format != null) {
-      final String stringValue =
-          axis.interactiveTooltip.format.replaceAll('{value}', resultantString);
+      final String stringValue = axis.interactiveTooltip.format!
+          .replaceAll('{value}', resultantString);
       resultantString = stringValue;
     }
     return resultantString;
@@ -172,8 +174,8 @@ class _ZoomRectPainter extends CustomPainter {
       Offset endPosition,
       Canvas canvas,
       String axisPosition) {
-    RRect startTooltipRect;
-    RRect endTooltipRect;
+    RRect? startTooltipRect;
+    RRect? endTooltipRect;
     String startValue;
     String endValue;
     Size startLabelSize;
@@ -209,9 +211,9 @@ class _ZoomRectPainter extends CustomPainter {
     startValue = _getValue(startPosition, axisRenderer, axisPosition);
     endValue = _getValue(endPosition, axisRenderer, axisPosition);
     startLabelSize =
-        _measureText(startValue.toString(), axis.interactiveTooltip.textStyle);
+        measureText(startValue.toString(), axis.interactiveTooltip.textStyle);
     endLabelSize =
-        _measureText(endValue.toString(), axis.interactiveTooltip.textStyle);
+        measureText(endValue.toString(), axis.interactiveTooltip.textStyle);
     startLabelRect = _calculateRect(
         axisRenderer, startPosition, startLabelSize, axisPosition);
     endLabelRect =
@@ -288,7 +290,7 @@ class _ZoomRectPainter extends CustomPainter {
             !kIsWeb
                 ? _dashPath(connectorPath,
                     dashArray: _CircularIntervalList<double>(
-                        tooltip.connectorLineDashArray))
+                        tooltip.connectorLineDashArray!))!
                 : connectorPath,
             connectorLinePaint)
         : canvas.drawPath(connectorPath, connectorLinePaint);
@@ -302,17 +304,15 @@ class _ZoomRectPainter extends CustomPainter {
       Path path,
       Offset position,
       Rect labelRect,
-      RRect rect,
+      RRect? rect,
       dynamic value,
       Size labelSize,
       InteractiveTooltip tooltip,
       String axisPosition) {
-    fillPaint.color = tooltip.color != null
-        ? tooltip?.color
-        : chartState._chartTheme.crosshairBackgroundColor;
-    strokePaint.color = tooltip.borderColor != null
-        ? tooltip?.borderColor
-        : chartState._chartTheme.crosshairBackgroundColor;
+    fillPaint.color =
+        tooltip.color ?? chartState._chartTheme.crosshairBackgroundColor;
+    strokePaint.color =
+        tooltip.borderColor ?? chartState._chartTheme.crosshairBackgroundColor;
     strokePaint.strokeWidth = tooltip.borderWidth;
 
     final bool isHorizontal = axisPosition == 'bottom' || axisPosition == 'top';

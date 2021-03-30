@@ -17,7 +17,7 @@ class DataMatrix extends Symbology {
   /// The arguments [module] must be non-negative and greater than 0.
   ///
   DataMatrix(
-      {int module,
+      {int? module,
       this.dataMatrixSize = DataMatrixSize.auto,
       this.encoding = DataMatrixEncoding.auto})
       : super(module: module);

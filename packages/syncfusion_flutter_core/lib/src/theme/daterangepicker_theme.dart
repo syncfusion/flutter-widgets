@@ -21,7 +21,8 @@ import '../../theme.dart';
 class SfDateRangePickerTheme extends InheritedTheme {
   /// Constructor for teh calendar theme class, which applies a theme to
   /// descendant Syncfusion date range picker widgets.
-  const SfDateRangePickerTheme({Key key, this.data, this.child})
+  const SfDateRangePickerTheme(
+      {Key? key, required this.data, required this.child})
       : super(key: key, child: child);
 
   /// Specifies the color and typography values for descendant chart widgets.
@@ -65,7 +66,7 @@ class SfDateRangePickerTheme extends InheritedTheme {
   /// Defaults to [SfThemeData.dateRangePickerTheme] if there is no
   /// [SfDateRangePickerTheme] in the given build context.
   static SfDateRangePickerThemeData of(BuildContext context) {
-    final SfDateRangePickerTheme sfDateRangePickerTheme =
+    final SfDateRangePickerTheme? sfDateRangePickerTheme =
         context.dependOnInheritedWidgetOfExactType<SfDateRangePickerTheme>();
     return sfDateRangePickerTheme?.data ??
         SfTheme.of(context).dateRangePickerThemeData;
@@ -77,7 +78,7 @@ class SfDateRangePickerTheme extends InheritedTheme {
 
   @override
   Widget wrap(BuildContext context, Widget child) {
-    final SfDateRangePickerTheme ancestorTheme =
+    final SfDateRangePickerTheme? ancestorTheme =
         context.findAncestorWidgetOfExactType<SfDateRangePickerTheme>();
     return identical(this, ancestorTheme)
         ? child
@@ -107,31 +108,31 @@ class SfDateRangePickerThemeData with Diagnosticable {
   /// Create a [SfDateRangePickerThemeData] that's used to configure a
   /// [SfDateRangePickerTheme].
   factory SfDateRangePickerThemeData({
-    Brightness brightness,
-    Color backgroundColor,
-    Color startRangeSelectionColor,
-    Color endRangeSelectionColor,
-    Color headerBackgroundColor,
-    Color viewHeaderBackgroundColor,
-    Color todayHighlightColor,
-    Color selectionColor,
-    Color rangeSelectionColor,
-    TextStyle viewHeaderTextStyle,
-    TextStyle headerTextStyle,
-    TextStyle trailingDatesTextStyle,
-    TextStyle leadingCellTextStyle,
-    TextStyle activeDatesTextStyle,
-    TextStyle cellTextStyle,
-    TextStyle rangeSelectionTextStyle,
-    TextStyle leadingDatesTextStyle,
-    TextStyle disabledDatesTextStyle,
-    TextStyle disabledCellTextStyle,
-    TextStyle selectionTextStyle,
-    TextStyle blackoutDatesTextStyle,
-    TextStyle todayTextStyle,
-    TextStyle todayCellTextStyle,
-    TextStyle weekendDatesTextStyle,
-    TextStyle specialDatesTextStyle,
+    Brightness? brightness,
+    Color? backgroundColor,
+    Color? startRangeSelectionColor,
+    Color? endRangeSelectionColor,
+    Color? headerBackgroundColor,
+    Color? viewHeaderBackgroundColor,
+    Color? todayHighlightColor,
+    Color? selectionColor,
+    Color? rangeSelectionColor,
+    TextStyle? viewHeaderTextStyle,
+    TextStyle? headerTextStyle,
+    TextStyle? trailingDatesTextStyle,
+    TextStyle? leadingCellTextStyle,
+    TextStyle? activeDatesTextStyle,
+    TextStyle? cellTextStyle,
+    TextStyle? rangeSelectionTextStyle,
+    TextStyle? leadingDatesTextStyle,
+    TextStyle? disabledDatesTextStyle,
+    TextStyle? disabledCellTextStyle,
+    TextStyle? selectionTextStyle,
+    TextStyle? blackoutDatesTextStyle,
+    TextStyle? todayTextStyle,
+    TextStyle? todayCellTextStyle,
+    TextStyle? weekendDatesTextStyle,
+    TextStyle? specialDatesTextStyle,
   }) {
     brightness = brightness ?? Brightness.light;
     final bool isLight = brightness == Brightness.light;
@@ -219,31 +220,31 @@ class SfDateRangePickerThemeData with Diagnosticable {
   /// create intermediate themes based on two themes created with the
   /// [SfDateRangePickerThemeData] constructor.
   const SfDateRangePickerThemeData.raw({
-    @required this.brightness,
-    @required this.backgroundColor,
-    @required this.viewHeaderTextStyle,
-    @required this.headerTextStyle,
-    @required this.trailingDatesTextStyle,
-    @required this.leadingCellTextStyle,
-    @required this.activeDatesTextStyle,
-    @required this.cellTextStyle,
-    @required this.rangeSelectionTextStyle,
-    @required this.rangeSelectionColor,
-    @required this.leadingDatesTextStyle,
-    @required this.disabledDatesTextStyle,
-    @required this.disabledCellTextStyle,
-    @required this.selectionColor,
-    @required this.selectionTextStyle,
-    @required this.startRangeSelectionColor,
-    @required this.endRangeSelectionColor,
-    @required this.headerBackgroundColor,
-    @required this.viewHeaderBackgroundColor,
-    @required this.blackoutDatesTextStyle,
-    @required this.todayHighlightColor,
-    @required this.todayTextStyle,
-    @required this.todayCellTextStyle,
-    @required this.weekendDatesTextStyle,
-    @required this.specialDatesTextStyle,
+    required this.brightness,
+    required this.backgroundColor,
+    required this.viewHeaderTextStyle,
+    required this.headerTextStyle,
+    required this.trailingDatesTextStyle,
+    required this.leadingCellTextStyle,
+    required this.activeDatesTextStyle,
+    required this.cellTextStyle,
+    required this.rangeSelectionTextStyle,
+    required this.rangeSelectionColor,
+    required this.leadingDatesTextStyle,
+    required this.disabledDatesTextStyle,
+    required this.disabledCellTextStyle,
+    required this.selectionColor,
+    required this.selectionTextStyle,
+    required this.startRangeSelectionColor,
+    required this.endRangeSelectionColor,
+    required this.headerBackgroundColor,
+    required this.viewHeaderBackgroundColor,
+    required this.blackoutDatesTextStyle,
+    required this.todayHighlightColor,
+    required this.todayTextStyle,
+    required this.todayCellTextStyle,
+    required this.weekendDatesTextStyle,
+    required this.specialDatesTextStyle,
   });
 
   /// The brightness of the overall theme of the
@@ -528,7 +529,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final Color selectionColor;
+  final Color? selectionColor;
 
   /// Specify the date picker in-between selected range background color in month view when selection mode as range/multi-range selection.
   ///
@@ -549,7 +550,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final Color rangeSelectionColor;
+  final Color? rangeSelectionColor;
 
   /// Specify the date picker selected cell text style for the  single and
   /// multiple selection and also for the start and end range of single
@@ -594,7 +595,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final Color startRangeSelectionColor;
+  final Color? startRangeSelectionColor;
 
   /// Specify the date picker end date of selected range background color in month view when selection mode as range/multi-range selection.
   ///
@@ -615,7 +616,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final Color endRangeSelectionColor;
+  final Color? endRangeSelectionColor;
 
   /// Specify the date picker header background color.
   ///
@@ -678,7 +679,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final TextStyle blackoutDatesTextStyle;
+  final TextStyle? blackoutDatesTextStyle;
 
   /// Specify the date picker today highlight color.
   ///
@@ -699,7 +700,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final Color todayHighlightColor;
+  final Color? todayHighlightColor;
 
   /// Specify the date picker today date month cell text style.
   ///
@@ -763,7 +764,7 @@ class SfDateRangePickerThemeData with Diagnosticable {
   ///   );
   /// }
   /// ```
-  final TextStyle weekendDatesTextStyle;
+  final TextStyle? weekendDatesTextStyle;
 
   /// Specify the date picker special dates text style in month view
   ///
@@ -789,31 +790,31 @@ class SfDateRangePickerThemeData with Diagnosticable {
   /// Creates a copy of this theme but with the given
   /// fields replaced with the new values.
   SfDateRangePickerThemeData copyWith({
-    Brightness brightness,
-    TextStyle viewHeaderTextStyle,
-    Color backgroundColor,
-    TextStyle headerTextStyle,
-    TextStyle trailingDatesTextStyle,
-    TextStyle leadingCellTextStyle,
-    TextStyle activeDatesTextStyle,
-    TextStyle cellTextStyle,
-    TextStyle rangeSelectionTextStyle,
-    TextStyle leadingDatesTextStyle,
-    TextStyle disabledDatesTextStyle,
-    TextStyle disabledCellTextStyle,
-    Color selectionColor,
-    Color rangeSelectionColor,
-    TextStyle selectionTextStyle,
-    Color startRangeSelectionColor,
-    Color endRangeSelectionColor,
-    Color headerBackgroundColor,
-    Color viewHeaderBackgroundColor,
-    TextStyle blackoutDatesTextStyle,
-    Color todayHighlightColor,
-    TextStyle todayTextStyle,
-    TextStyle todayCellTextStyle,
-    TextStyle weekendDatesTextStyle,
-    TextStyle specialDatesTextStyle,
+    Brightness? brightness,
+    TextStyle? viewHeaderTextStyle,
+    Color? backgroundColor,
+    TextStyle? headerTextStyle,
+    TextStyle? trailingDatesTextStyle,
+    TextStyle? leadingCellTextStyle,
+    TextStyle? activeDatesTextStyle,
+    TextStyle? cellTextStyle,
+    TextStyle? rangeSelectionTextStyle,
+    TextStyle? leadingDatesTextStyle,
+    TextStyle? disabledDatesTextStyle,
+    TextStyle? disabledCellTextStyle,
+    Color? selectionColor,
+    Color? rangeSelectionColor,
+    TextStyle? selectionTextStyle,
+    Color? startRangeSelectionColor,
+    Color? endRangeSelectionColor,
+    Color? headerBackgroundColor,
+    Color? viewHeaderBackgroundColor,
+    TextStyle? blackoutDatesTextStyle,
+    Color? todayHighlightColor,
+    TextStyle? todayTextStyle,
+    TextStyle? todayCellTextStyle,
+    TextStyle? weekendDatesTextStyle,
+    TextStyle? specialDatesTextStyle,
   }) {
     return SfDateRangePickerThemeData.raw(
       brightness: brightness ?? this.brightness,
@@ -857,14 +858,13 @@ class SfDateRangePickerThemeData with Diagnosticable {
   }
 
   /// Linearly interpolate between two themes.
-  static SfDateRangePickerThemeData lerp(
-      SfDateRangePickerThemeData a, SfDateRangePickerThemeData b, double t) {
-    assert(t != null);
+  static SfDateRangePickerThemeData? lerp(
+      SfDateRangePickerThemeData? a, SfDateRangePickerThemeData? b, double t) {
     if (a == null && b == null) {
       return null;
     }
     return SfDateRangePickerThemeData(
-      backgroundColor: Color.lerp(a.backgroundColor, b.backgroundColor, t),
+      backgroundColor: Color.lerp(a!.backgroundColor, b!.backgroundColor, t),
       rangeSelectionColor:
           Color.lerp(a.rangeSelectionColor, b.rangeSelectionColor, t),
       selectionColor: Color.lerp(a.selectionColor, b.selectionColor, t),
@@ -889,36 +889,37 @@ class SfDateRangePickerThemeData with Diagnosticable {
     if (other.runtimeType != runtimeType) {
       return false;
     }
-    final SfDateRangePickerThemeData typedOther = other;
-    return typedOther.viewHeaderTextStyle == viewHeaderTextStyle &&
-        typedOther.backgroundColor == backgroundColor &&
-        typedOther.headerTextStyle == headerTextStyle &&
-        typedOther.trailingDatesTextStyle == trailingDatesTextStyle &&
-        typedOther.leadingCellTextStyle == leadingCellTextStyle &&
-        typedOther.activeDatesTextStyle == activeDatesTextStyle &&
-        typedOther.cellTextStyle == cellTextStyle &&
-        typedOther.rangeSelectionTextStyle == rangeSelectionTextStyle &&
-        typedOther.rangeSelectionColor == rangeSelectionColor &&
-        typedOther.leadingDatesTextStyle == leadingDatesTextStyle &&
-        typedOther.disabledDatesTextStyle == disabledDatesTextStyle &&
-        typedOther.disabledCellTextStyle == disabledCellTextStyle &&
-        typedOther.selectionColor == selectionColor &&
-        typedOther.selectionTextStyle == selectionTextStyle &&
-        typedOther.startRangeSelectionColor == startRangeSelectionColor &&
-        typedOther.endRangeSelectionColor == endRangeSelectionColor &&
-        typedOther.headerBackgroundColor == headerBackgroundColor &&
-        typedOther.viewHeaderBackgroundColor == viewHeaderBackgroundColor &&
-        typedOther.blackoutDatesTextStyle == blackoutDatesTextStyle &&
-        typedOther.todayHighlightColor == todayHighlightColor &&
-        typedOther.todayTextStyle == todayTextStyle &&
-        typedOther.todayCellTextStyle == todayCellTextStyle &&
-        typedOther.weekendDatesTextStyle == weekendDatesTextStyle &&
-        typedOther.specialDatesTextStyle == specialDatesTextStyle;
+
+    return other is SfDateRangePickerThemeData &&
+        other.viewHeaderTextStyle == viewHeaderTextStyle &&
+        other.backgroundColor == backgroundColor &&
+        other.headerTextStyle == headerTextStyle &&
+        other.trailingDatesTextStyle == trailingDatesTextStyle &&
+        other.leadingCellTextStyle == leadingCellTextStyle &&
+        other.activeDatesTextStyle == activeDatesTextStyle &&
+        other.cellTextStyle == cellTextStyle &&
+        other.rangeSelectionTextStyle == rangeSelectionTextStyle &&
+        other.rangeSelectionColor == rangeSelectionColor &&
+        other.leadingDatesTextStyle == leadingDatesTextStyle &&
+        other.disabledDatesTextStyle == disabledDatesTextStyle &&
+        other.disabledCellTextStyle == disabledCellTextStyle &&
+        other.selectionColor == selectionColor &&
+        other.selectionTextStyle == selectionTextStyle &&
+        other.startRangeSelectionColor == startRangeSelectionColor &&
+        other.endRangeSelectionColor == endRangeSelectionColor &&
+        other.headerBackgroundColor == headerBackgroundColor &&
+        other.viewHeaderBackgroundColor == viewHeaderBackgroundColor &&
+        other.blackoutDatesTextStyle == blackoutDatesTextStyle &&
+        other.todayHighlightColor == todayHighlightColor &&
+        other.todayTextStyle == todayTextStyle &&
+        other.todayCellTextStyle == todayCellTextStyle &&
+        other.weekendDatesTextStyle == weekendDatesTextStyle &&
+        other.specialDatesTextStyle == specialDatesTextStyle;
   }
 
   @override
   int get hashCode {
-    final List<Object> values = <Object>[
+    final List<Object?> values = <Object?>[
       viewHeaderTextStyle,
       backgroundColor,
       headerTextStyle,

@@ -6,24 +6,24 @@ class _Glyph {
   }
 
   //Fields
-  double _descent;
+  late double _descent;
 
   //Properties
-  double ascent;
-  _MatrixHelper transformMatrix;
-  Rect boundingRect;
-  double charSpacing;
-  double wordSpacing;
-  double horizontalScaling;
-  double fontSize;
-  String fontFamily;
-  String name;
-  int charId;
-  double width;
-  List<PdfFontStyle> fontStyle;
-  String toUnicode;
-  bool isRotated;
-  int rotationAngle;
+  late double ascent;
+  late _MatrixHelper transformMatrix;
+  late Rect boundingRect;
+  late double charSpacing;
+  late double wordSpacing;
+  late double horizontalScaling;
+  late double fontSize;
+  String fontFamily = '';
+  String name = '';
+  int charId = -1;
+  late double width;
+  List<PdfFontStyle> fontStyle = <PdfFontStyle>[];
+  String toUnicode = '';
+  late bool isRotated;
+  late int rotationAngle;
   double get descent {
     return _descent;
   }

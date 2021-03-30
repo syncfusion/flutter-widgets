@@ -7,5 +7,5 @@ class Codabar extends Symbology {
   ///
   /// The arguments [module] must be non-negative and greater than 0.
   ///
-  Codabar({int module}) : super(module: module);
+  Codabar({int? module}) : super(module: module);
 }

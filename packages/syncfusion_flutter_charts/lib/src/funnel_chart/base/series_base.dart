@@ -5,10 +5,10 @@ class _FunnelSeries {
 
   final SfFunnelChartState _chartState;
 
-  _FunnelSeriesBase<dynamic, dynamic> currentSeries;
+  late _FunnelSeriesBase<dynamic, dynamic> currentSeries;
 
   List<FunnelSeriesRenderer> visibleSeriesRenderers = <FunnelSeriesRenderer>[];
-  SelectionArgs _selectionArgs;
+  SelectionArgs? _selectionArgs;
 
   /// To find the visible series
   void _findVisibleSeries() {
@@ -21,15 +21,15 @@ class _FunnelSeries {
     currentSeries = seriesRenderer._series;
     //Setting series type
     seriesRenderer._seriesType = 'funnel';
-    final ChartIndexedValueMapper<dynamic> xValue = currentSeries.xValueMapper;
-    final ChartIndexedValueMapper<dynamic> yValue = currentSeries.yValueMapper;
+    final ChartIndexedValueMapper<dynamic>? xValue = currentSeries.xValueMapper;
+    final ChartIndexedValueMapper<dynamic>? yValue = currentSeries.yValueMapper;
 
     for (int pointIndex = 0;
-        pointIndex < currentSeries.dataSource.length;
+        pointIndex < currentSeries.dataSource!.length;
         pointIndex++) {
-      if (xValue(pointIndex) != null) {
+      if (xValue!(pointIndex) != null) {
         seriesRenderer._dataPoints
-            .add(PointInfo<dynamic>(xValue(pointIndex), yValue(pointIndex)));
+            .add(PointInfo<dynamic>(xValue(pointIndex), yValue!(pointIndex)));
       }
     }
     visibleSeriesRenderers
@@ -71,10 +71,10 @@ class _FunnelSeries {
   void _setPointStyle(FunnelSeriesRenderer seriesRenderer) {
     currentSeries = seriesRenderer._series;
     final List<Color> palette = _chartState._chart.palette;
-    final ChartIndexedValueMapper<Color> pointColor =
+    final ChartIndexedValueMapper<Color>? pointColor =
         currentSeries.pointColorMapper;
     final EmptyPointSettings empty = currentSeries.emptyPointSettings;
-    final ChartIndexedValueMapper<String> textMapping =
+    final ChartIndexedValueMapper<String>? textMapping =
         currentSeries.textFieldMapper;
     final List<PointInfo<dynamic>> points = seriesRenderer._renderPoints;
     for (int i = 0; i < points.length; i++) {
@@ -82,7 +82,7 @@ class _FunnelSeries {
       currentPoint = points[i];
       currentPoint.fill = currentPoint.isEmpty && empty.color != null
           ? empty.color
-          : pointColor(i) ?? palette[i % palette.length];
+          : pointColor!(i) ?? palette[i % palette.length];
       currentPoint.color = currentPoint.fill;
       currentPoint.borderColor =
           currentPoint.isEmpty && empty.borderColor != null
@@ -98,8 +98,8 @@ class _FunnelSeries {
 
       currentPoint.text = currentPoint.text ??
           (textMapping != null
-              ? textMapping(i) ?? currentPoint.y.toString()
-              : currentPoint.y.toString());
+              ? textMapping(i) ?? currentPoint.y!.toString()
+              : currentPoint.y!.toString());
 
       if (_chartState._chart.legend.legendItemBuilder != null) {
         final List<_MeasureWidgetContext> legendToggles =
@@ -133,7 +133,7 @@ class _FunnelSeries {
     seriesRenderer._sumOfPoints = 0;
     for (final PointInfo<dynamic> point in seriesRenderer._renderPoints) {
       if (point.isVisible) {
-        seriesRenderer._sumOfPoints += point.y.abs();
+        seriesRenderer._sumOfPoints += point.y!.abs();
       }
     }
   }
@@ -144,19 +144,19 @@ class _FunnelSeries {
     final FunnelSeries<dynamic, dynamic> series = seriesRenderer._series;
     final bool reverse = seriesRenderer._seriesType == 'pyramid' ? true : false;
     seriesRenderer._triangleSize = Size(
-        _percentToValue(series.width, chartAreaRect.width).toDouble(),
-        _percentToValue(series.height, chartAreaRect.height).toDouble());
+        _percentToValue(series.width, chartAreaRect.width)!.toDouble(),
+        _percentToValue(series.height, chartAreaRect.height)!.toDouble());
     seriesRenderer._neckSize = Size(
-        _percentToValue(series.neckWidth, chartAreaRect.width).toDouble(),
-        _percentToValue(series.neckHeight, chartAreaRect.height).toDouble());
+        _percentToValue(series.neckWidth, chartAreaRect.width)!.toDouble(),
+        _percentToValue(series.neckHeight, chartAreaRect.height)!.toDouble());
     seriesRenderer._explodeDistance =
-        _percentToValue(series.explodeOffset, chartAreaRect.width);
+        _percentToValue(series.explodeOffset, chartAreaRect.width)!;
     _initializeSizeRatio(seriesRenderer, reverse);
   }
 
   /// To initialise size ratio for the funnel
   void _initializeSizeRatio(FunnelSeriesRenderer seriesRenderer,
-      [bool reverse]) {
+      [bool? reverse]) {
     final List<PointInfo<dynamic>> points = seriesRenderer._renderPoints;
     double y;
     assert(
@@ -170,12 +170,12 @@ class _FunnelSeries {
         1 / (seriesRenderer._sumOfPoints * (1 + gapRatio / (1 - gapRatio)));
     final double spacing = gapRatio / (points.length - 1);
     y = 0;
-    num index;
+    int index;
     num height;
-    for (num i = points.length - 1; i >= 0; i--) {
-      index = reverse ? points.length - 1 - i : i;
+    for (int i = points.length - 1; i >= 0; i--) {
+      index = reverse! ? points.length - 1 - i : i;
       if (points[index].isVisible) {
-        height = coEff * points[index].y;
+        height = coEff * points[index].y!;
         points[index].yRatio = y;
         points[index].heightRatio = height;
         y += height + spacing;
@@ -186,18 +186,18 @@ class _FunnelSeries {
   /// To calculate the segment path
   void _calculatePathSegment(String seriesType, PointInfo<dynamic> point) {
     final List<Offset> pathRegion = point.pathRegion;
-    final num bottom =
+    final int bottom =
         seriesType == 'funnel' ? pathRegion.length - 2 : pathRegion.length - 1;
     final num x = (pathRegion[0].dx + pathRegion[bottom].dx) / 2;
     final num right = (pathRegion[1].dx + pathRegion[bottom - 1].dx) / 2;
-    point.region = Rect.fromLTWH(x, pathRegion[0].dy, right - x,
-        pathRegion[bottom].dy - pathRegion[0].dy);
-    point.symbolLocation = Offset(point.region.left + point.region.width / 2,
-        point.region.top + point.region.height / 2);
+    point.region = Rect.fromLTWH(x.toDouble(), pathRegion[0].dy,
+        (right - x).toDouble(), pathRegion[bottom].dy - pathRegion[0].dy);
+    point.symbolLocation = Offset(point.region!.left + point.region!.width / 2,
+        point.region!.top + point.region!.height / 2);
   }
 
   /// To perform point explode
-  void _pointExplode(num pointIndex) {
+  void _pointExplode(int pointIndex) {
     bool existExplodedRegion = false;
     final FunnelSeriesRenderer seriesRenderer =
         _chartState._chartSeries.visibleSeriesRenderers[0];
@@ -227,17 +227,10 @@ class _FunnelSeries {
 
   /// To calculate Path for the segemnt regions
   void _calculateFunnelPathRegion(
-      num pointIndex, FunnelSeriesRenderer seriesRenderer) {
-    num lineWidth,
-        topRadius,
-        bottomRadius,
-        endTop,
-        endBottom,
-        minRadius,
-        endMin,
-        bottomY,
-        top,
-        bottom;
+      int pointIndex, FunnelSeriesRenderer seriesRenderer) {
+    num lineWidth, topRadius, bottomRadius, endTop, endBottom, top, bottom;
+    num? minRadius, bottomY;
+    late num endMin;
     final Size area = seriesRenderer._triangleSize;
     const num offset = 0;
     final PointInfo<dynamic> currentPoint =
@@ -246,7 +239,7 @@ class _FunnelSeries {
     final Rect rect = _chartState._chartContainerRect;
     //ignore: prefer_if_null_operators
     final num extraSpace = (currentPoint.explodeDistance != null
-            ? currentPoint.explodeDistance
+            ? currentPoint.explodeDistance!
             : _isNeedExplode(pointIndex, currentSeries, _chartState)
                 ? seriesRenderer._explodeDistance
                 : 0) +
@@ -285,7 +278,7 @@ class _FunnelSeries {
     top += seriesTop;
     bottom += seriesTop;
     bottomY = (bottomY != null) ? (bottomY + seriesTop) : null;
-    num line1X,
+    late num line1X,
         line1Y,
         line2X,
         line2Y,
@@ -316,18 +309,18 @@ class _FunnelSeries {
           emptySpaceAtLeft + offset + ((minRadius != null) ? minRadius : 0);
       line6Y = bottomY;
     }
-    currentPoint.pathRegion.add(Offset(line1X, line1Y));
-    currentPoint.pathRegion.add(Offset(line2X, line2Y));
-    currentPoint.pathRegion.add(Offset(line3X, line3Y));
-    currentPoint.pathRegion.add(Offset(line4X, line4Y));
-    currentPoint.pathRegion.add(Offset(line5X, line5Y));
-    currentPoint.pathRegion.add(Offset(line6X, line6Y));
+    currentPoint.pathRegion.add(Offset(line1X.toDouble(), line1Y.toDouble()));
+    currentPoint.pathRegion.add(Offset(line2X.toDouble(), line2Y.toDouble()));
+    currentPoint.pathRegion.add(Offset(line3X.toDouble(), line3Y.toDouble()));
+    currentPoint.pathRegion.add(Offset(line4X.toDouble(), line4Y.toDouble()));
+    currentPoint.pathRegion.add(Offset(line5X.toDouble(), line5Y.toDouble()));
+    currentPoint.pathRegion.add(Offset(line6X.toDouble(), line6Y.toDouble()));
     _calculatePathSegment(seriesRenderer._seriesType, currentPoint);
   }
 
   /// To calculate the funnel segments and render path
   void _calculateFunnelSegments(
-      Canvas canvas, num pointIndex, FunnelSeriesRenderer seriesRenderer) {
+      Canvas canvas, int pointIndex, FunnelSeriesRenderer seriesRenderer) {
     _calculateFunnelPathRegion(pointIndex, seriesRenderer);
     final PointInfo<dynamic> currentPoint =
         seriesRenderer._renderPoints[pointIndex];
@@ -346,45 +339,45 @@ class _FunnelSeries {
   }
 
   /// To paint the funnel segments
-  void _segmentPaint(Canvas canvas, Path path, num pointIndex,
+  void _segmentPaint(Canvas canvas, Path path, int pointIndex,
       FunnelSeriesRenderer seriesRenderer) {
     final PointInfo<dynamic> point = seriesRenderer._renderPoints[pointIndex];
-    final _StyleOptions style =
+    final _StyleOptions? style =
         _getPointStyle(pointIndex, seriesRenderer, _chartState, point);
 
     final Color fillColor =
-        style != null && style.fill != null ? style.fill : point.fill;
+        style != null && style.fill != null ? style.fill! : point.fill;
 
     final Color strokeColor = style != null && style.strokeColor != null
-        ? style.strokeColor
+        ? style.strokeColor!
         : point.borderColor;
 
     final double strokeWidth = style != null && style.strokeWidth != null
-        ? style.strokeWidth
-        : point.borderWidth;
+        ? style.strokeWidth!.toDouble()
+        : point.borderWidth.toDouble();
 
     final double opacity = style != null && style.opacity != null
-        ? style.opacity
-        : currentSeries.opacity;
+        ? style.opacity!.toDouble()
+        : currentSeries.opacity.toDouble();
 
     _drawPath(
         canvas,
         _StyleOptions(
-            fillColor,
-            _chartState._animateCompleted ? strokeWidth : 0,
-            strokeColor,
-            opacity),
+            fill: fillColor,
+            strokeWidth: _chartState._animateCompleted ? strokeWidth : 0,
+            strokeColor: strokeColor,
+            opacity: opacity),
         path);
   }
 
   /// To add selection points to selection list
-  void _seriesPointSelection(num pointIndex, ActivationMode mode) {
+  void _seriesPointSelection(int pointIndex, ActivationMode mode) {
     bool isPointAlreadySelected = false;
     final SfFunnelChart chart = _chartState._chart;
     final FunnelSeriesRenderer seriesRenderer =
         _chartState._chartSeries.visibleSeriesRenderers[0];
     final List<int> selectionData = _chartState._selectionData;
-    int currentSelectedIndex;
+    int? currentSelectedIndex;
     if (seriesRenderer._isSelectionEnable && mode == chart.selectionGesture) {
       if (selectionData.isNotEmpty) {
         if (!chart.enableMultiSelection &&
@@ -421,51 +414,51 @@ class _FunnelSeries {
   }
 
   /// To return style options for the point on selection
-  _StyleOptions _getPointStyle(
+  _StyleOptions? _getPointStyle(
       int currentPointIndex,
       FunnelSeriesRenderer seriesRenderer,
       SfFunnelChartState _chartState,
       PointInfo<dynamic> point) {
-    _StyleOptions pointStyle;
+    _StyleOptions? pointStyle;
     final SfFunnelChart chart = _chartState._chart;
     final dynamic selection = seriesRenderer._series.selectionBehavior.enable
         ? seriesRenderer._series.selectionBehavior
         : seriesRenderer._series.selectionSettings;
-    const num seriesIndex = 0;
+    const int seriesIndex = 0;
     final List<int> selectionData = _chartState._selectionData;
     if (selection.enable) {
       if (selectionData.isNotEmpty) {
         for (int i = 0; i < selectionData.length; i++) {
           final int selectionIndex = selectionData[i];
           if (chart.onSelectionChanged != null) {
-            chart.onSelectionChanged(_getSelectionEventArgs(
+            chart.onSelectionChanged!(_getSelectionEventArgs(
                 seriesRenderer, seriesIndex, selectionIndex));
           }
           if (currentPointIndex == selectionIndex) {
             pointStyle = _StyleOptions(
-                _selectionArgs != null
-                    ? _selectionArgs.selectedColor
+                fill: _selectionArgs != null
+                    ? _selectionArgs!.selectedColor
                     : selection.selectedColor,
-                _selectionArgs != null
-                    ? _selectionArgs.selectedBorderWidth
+                strokeWidth: _selectionArgs != null
+                    ? _selectionArgs!.selectedBorderWidth
                     : selection.selectedBorderWidth,
-                _selectionArgs != null
-                    ? _selectionArgs.selectedBorderColor
+                strokeColor: _selectionArgs != null
+                    ? _selectionArgs!.selectedBorderColor
                     : selection.selectedBorderColor,
-                selection.selectedOpacity);
+                opacity: selection.selectedOpacity);
             break;
           } else if (i == selectionData.length - 1) {
             pointStyle = _StyleOptions(
-                _selectionArgs != null
-                    ? _selectionArgs.unselectedColor
+                fill: _selectionArgs != null
+                    ? _selectionArgs!.unselectedColor
                     : selection.unselectedColor,
-                _selectionArgs != null
-                    ? _selectionArgs.unselectedBorderWidth
+                strokeWidth: _selectionArgs != null
+                    ? _selectionArgs!.unselectedBorderWidth
                     : selection.unselectedBorderWidth,
-                _selectionArgs != null
-                    ? _selectionArgs.unselectedBorderColor
+                strokeColor: _selectionArgs != null
+                    ? _selectionArgs!.unselectedBorderColor
                     : selection.unselectedBorderColor,
-                selection.unselectedOpacity);
+                opacity: selection.unselectedOpacity);
           }
         }
       }
@@ -475,24 +468,26 @@ class _FunnelSeries {
 
   /// To perform selection event and return selectionArgs
   SelectionArgs _getSelectionEventArgs(
-      dynamic seriesRenderer, num seriesIndex, num pointIndex) {
-    final FunnelSeries<dynamic, dynamic> series = seriesRenderer._series;
-    final SfFunnelChart chart = seriesRenderer._chartState._chart;
-    if (series != null && pointIndex < chart.series.dataSource.length) {
+      dynamic seriesRenderer, int seriesIndex, int pointIndex) {
+    final SfFunnelChart chart = seriesRenderer._chartState!._chart;
+    if (pointIndex < chart.series.dataSource!.length) {
       final dynamic selectionBehavior = seriesRenderer._selectionBehavior;
-      _selectionArgs =
-          SelectionArgs(seriesRenderer, seriesIndex, pointIndex, pointIndex);
-      _selectionArgs.selectedBorderColor =
+      _selectionArgs = SelectionArgs(
+          seriesRenderer: seriesRenderer,
+          seriesIndex: seriesIndex,
+          viewportPointIndex: pointIndex,
+          pointIndex: pointIndex);
+      _selectionArgs!.selectedBorderColor =
           selectionBehavior.selectedBorderColor;
-      _selectionArgs.selectedBorderWidth =
+      _selectionArgs!.selectedBorderWidth =
           selectionBehavior.selectedBorderWidth;
-      _selectionArgs.unselectedBorderColor =
+      _selectionArgs!.unselectedBorderColor =
           selectionBehavior.unselectedBorderColor;
-      _selectionArgs.unselectedBorderWidth =
+      _selectionArgs!.unselectedBorderWidth =
           selectionBehavior.unselectedBorderWidth;
-      _selectionArgs.selectedColor = selectionBehavior.selectedColor;
-      _selectionArgs.unselectedColor = selectionBehavior.unselectedColor;
+      _selectionArgs!.selectedColor = selectionBehavior.selectedColor;
+      _selectionArgs!.unselectedColor = selectionBehavior.unselectedColor;
     }
-    return _selectionArgs;
+    return _selectionArgs!;
   }
 }

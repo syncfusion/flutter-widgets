@@ -9,10 +9,10 @@ class PicturesCollection {
   }
 
   // Parent workbook
-  Worksheet _worksheet;
+  late Worksheet _worksheet;
 
   // Collection of worksheet
-  List<Picture> _pictures;
+  late List<Picture> _pictures;
 
   /// Represents parent workbook
   Worksheet get worksheet {
@@ -46,7 +46,7 @@ class PicturesCollection {
   /// workbook.dispose();
   /// ```
   Picture addStream(int topRow, int leftColumn, List<int> stream) {
-    if (stream == null || stream.isEmpty) {
+    if (stream.isEmpty) {
       throw Exception('stream should not be null or empty');
     }
 
@@ -69,7 +69,7 @@ class PicturesCollection {
   /// workbook.dispose();
   /// ```
   Picture addBase64(int topRow, int leftColumn, String base64Data) {
-    if (base64Data == null || base64Data == '') {
+    if (base64Data == '') {
       throw Exception('base64Data should not be null or empty');
     }
 
@@ -82,11 +82,9 @@ class PicturesCollection {
 
   /// clear the Picture.
   void _clear() {
-    if (_pictures != null) {
-      for (final Picture picture in _pictures) {
-        picture._clear();
-      }
-      _pictures.clear();
+    for (final Picture picture in _pictures) {
+      picture._clear();
     }
+    _pictures.clear();
   }
 }

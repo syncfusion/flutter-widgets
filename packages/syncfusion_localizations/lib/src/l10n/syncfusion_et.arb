@@ -1,7 +1,6 @@
 {
 "noSelectedDateCalendarLabel" : "Valitud kuupäeva pole", 
 "noEventsCalendarLabel" : "Ühtegi üritust pole", 
-"scheduleViewNewEventLabel" : "Midagi pole plaanitud. Puudutage loomiseks.", 
 "ofDataPagerLabel" : "kohta", 
 "pagesDataPagerLabel" : "lehekülgi", 
 "itemsDataPagerLabel" : "esemed", 
@@ -46,5 +45,6 @@
 "shortRamadanLabel" : "Ram.", 
 "shortShawwalLabel" : "Shaw.", 
 "shortDhualqiLabel" : "Dhu'l-Q", 
-"shortDhualhiLabel" : "Dhu'l-H"
+"shortDhualhiLabel" : "Dhu'l-H", 
+"daySpanCountLabel" : "Päev"
 }

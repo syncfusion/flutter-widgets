@@ -10,36 +10,36 @@ part of charts;
 class StepLineSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of StepLineSeries class.
   StepLineSeries(
-      {ValueKey<String> key,
-      ChartSeriesRendererFactory<T, D> onCreateRenderer,
-      @required List<T> dataSource,
-      @required ChartValueMapper<T, D> xValueMapper,
-      @required ChartValueMapper<T, num> yValueMapper,
-      ChartValueMapper<T, dynamic> sortFieldValueMapper,
-      ChartValueMapper<T, Color> pointColorMapper,
-      ChartValueMapper<T, String> dataLabelMapper,
-      String xAxisName,
-      String yAxisName,
-      String name,
-      Color color,
-      double width,
-      MarkerSettings markerSettings,
-      List<Trendline> trendlines,
-      EmptyPointSettings emptyPointSettings,
-      DataLabelSettings dataLabelSettings,
-      bool isVisible,
-      bool enableTooltip,
-      List<double> dashArray,
-      double animationDuration,
+      {ValueKey<String>? key,
+      ChartSeriesRendererFactory<T, D>? onCreateRenderer,
+      required List<T> dataSource,
+      required ChartValueMapper<T, D> xValueMapper,
+      required ChartValueMapper<T, num> yValueMapper,
+      ChartValueMapper<T, dynamic>? sortFieldValueMapper,
+      ChartValueMapper<T, Color>? pointColorMapper,
+      ChartValueMapper<T, String>? dataLabelMapper,
+      String? xAxisName,
+      String? yAxisName,
+      String? name,
+      Color? color,
+      double? width,
+      MarkerSettings? markerSettings,
+      List<Trendline>? trendlines,
+      EmptyPointSettings? emptyPointSettings,
+      DataLabelSettings? dataLabelSettings,
+      bool? isVisible,
+      bool? enableTooltip,
+      List<double>? dashArray,
+      double? animationDuration,
       // ignore: deprecated_member_use_from_same_package
-      SelectionSettings selectionSettings,
-      SelectionBehavior selectionBehavior,
-      SortingOrder sortingOrder,
-      bool isVisibleInLegend,
-      LegendIconType legendIconType,
-      String legendItemText,
-      SeriesRendererCreatedCallback onRendererCreated,
-      double opacity})
+      SelectionSettings? selectionSettings,
+      SelectionBehavior? selectionBehavior,
+      SortingOrder? sortingOrder,
+      bool? isVisibleInLegend,
+      LegendIconType? legendIconType,
+      String? legendItemText,
+      SeriesRendererCreatedCallback? onRendererCreated,
+      double? opacity})
       : super(
             key: key,
             onCreateRenderer: onCreateRenderer,
@@ -75,7 +75,8 @@ class StepLineSeries<T, D> extends XyDataSeries<T, D> {
   StepLineSeriesRenderer createRenderer(ChartSeries<T, D> series) {
     StepLineSeriesRenderer stepLineSeriesRenderer;
     if (onCreateRenderer != null) {
-      stepLineSeriesRenderer = onCreateRenderer(series);
+      stepLineSeriesRenderer =
+          onCreateRenderer!(series) as StepLineSeriesRenderer;
       assert(stepLineSeriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return stepLineSeriesRenderer;
@@ -97,30 +98,31 @@ class StepLineSeriesRenderer extends XyDataSeriesRenderer {
       CartesianChartPoint<dynamic> _nextPoint,
       int pointIndex,
       int seriesIndex,
-      num animateFactor) {
+      double animateFactor) {
     final StepLineSegment segment = createSegment();
     final List<CartesianSeriesRenderer> _oldSeriesRenderers =
-        _chartState._oldSeriesRenderers;
+        _chartState!._oldSeriesRenderers;
     _isRectSeries = false;
     segment.currentSegmentIndex = pointIndex;
     segment._seriesIndex = seriesIndex;
     segment._seriesRenderer = this;
-    segment._series = _series;
+    segment._series = _series as XyDataSeries;
     segment._currentPoint = currentPoint;
     segment._midX = midX;
     segment._midY = midY;
     segment._nextPoint = _nextPoint;
     segment._chart = _chart;
-    segment._chartState = _chartState;
+    segment._chartState = _chartState!;
     segment.animationFactor = animateFactor;
     segment._pointColorMapper = currentPoint.pointColorMapper;
-    if (_chartState._widgetNeedUpdate &&
+    if (_chartState!._widgetNeedUpdate &&
         _oldSeriesRenderers != null &&
         _oldSeriesRenderers.isNotEmpty &&
         _oldSeriesRenderers.length - 1 >= segment._seriesIndex &&
         _oldSeriesRenderers[segment._seriesIndex]._seriesName ==
             segment._seriesRenderer._seriesName) {
       segment._oldSeriesRenderer = _oldSeriesRenderers[segment._seriesIndex];
+      segment._oldSegmentIndex = _getOldSegmentIndex(segment);
     }
     segment.calculateSegmentPoints();
     segment.points.add(Offset(segment._x1, segment._y1));
@@ -136,17 +138,17 @@ class StepLineSeriesRenderer extends XyDataSeriesRenderer {
   //ignore: unused_element
   void _drawSegment(Canvas canvas, ChartSegment segment) {
     if (segment._seriesRenderer._isSelectionEnable) {
-      final SelectionBehaviorRenderer selectionBehaviorRenderer =
+      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
           segment._seriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer._selectionRenderer._checkWithSelectionState(
-          _segments[segment.currentSegmentIndex], _chart);
+      selectionBehaviorRenderer?._selectionRenderer?._checkWithSelectionState(
+          _segments[segment.currentSegmentIndex!], _chart);
     }
     segment.onPaint(canvas);
   }
 
   /// Creates a segment for a data point in the series.
   @override
-  ChartSegment createSegment() => StepLineSegment();
+  StepLineSegment createSegment() => StepLineSegment();
 
   /// Changes the series color, border color, and border width.
   @override
@@ -160,9 +162,9 @@ class StepLineSeriesRenderer extends XyDataSeriesRenderer {
   @override
   void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
       Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer seriesRenderer]) {
-    canvas.drawPath(seriesRenderer._markerShapes[index], fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes[index], strokePaint);
+      [CartesianSeriesRenderer? seriesRenderer]) {
+    canvas.drawPath(seriesRenderer!._markerShapes[index]!, fillPaint);
+    canvas.drawPath(seriesRenderer._markerShapes[index]!, strokePaint);
   }
 
   /// Draws data label text of the appropriate data point in a series.

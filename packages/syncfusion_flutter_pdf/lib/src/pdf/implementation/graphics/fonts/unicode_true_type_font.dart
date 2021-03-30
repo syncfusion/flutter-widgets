@@ -29,19 +29,19 @@ class _UnicodeTrueTypeFont {
           _Operators.newLine;
 
   //Fields
-  List<int> _fontData;
-  double _size;
-  _TtfReader _reader;
-  _TtfMetrics _ttfMetrics;
-  _PdfFontMetrics _metrics;
-  _PdfDictionary _fontDictionary;
-  _PdfStream _fontProgram;
-  _PdfStream _cmap;
-  _PdfDictionary _descendantFont;
-  String _subsetName;
-  Map<String, String> _usedChars;
-  _PdfDictionary _fontDescriptor;
-  _PdfStream _cidStream;
+  late List<int> _fontData;
+  late double _size;
+  late _TtfReader _reader;
+  _TtfMetrics? _ttfMetrics;
+  late _PdfFontMetrics _metrics;
+  _PdfDictionary? _fontDictionary;
+  _PdfStream? _fontProgram;
+  _PdfStream? _cmap;
+  _PdfDictionary? _descendantFont;
+  String? _subsetName;
+  Map<String, String>? _usedChars;
+  _PdfDictionary? _fontDescriptor;
+  _PdfStream? _cidStream;
 
   //Implementation
   void _initialize(List<int> fontData, double size) {
@@ -60,7 +60,7 @@ class _UnicodeTrueTypeFont {
     _reader._createInternals();
     _ttfMetrics = _reader._metrics;
     _initializeMetrics();
-    _subsetName = _getFontName(_reader._metrics.postScriptName);
+    _subsetName = _getFontName(_reader._metrics!.postScriptName!);
     _createDescendantFont();
     _createCmap();
     _createFontDictionary();
@@ -68,16 +68,16 @@ class _UnicodeTrueTypeFont {
   }
 
   void _initializeMetrics() {
-    final _TtfMetrics ttfMetrics = _reader._metrics;
+    final _TtfMetrics ttfMetrics = _reader._metrics!;
     _metrics.ascent = ttfMetrics.macAscent;
     _metrics.descent = ttfMetrics.macDescent;
     _metrics.height =
-        ttfMetrics.macAscent - ttfMetrics.macDescent + ttfMetrics.lineGap;
-    _metrics.name = ttfMetrics.fontFamily;
+        ttfMetrics.macAscent - ttfMetrics.macDescent + ttfMetrics.lineGap!;
+    _metrics.name = ttfMetrics.fontFamily!;
     _metrics.postScriptName = ttfMetrics.postScriptName;
     _metrics.size = _size;
     _metrics._widthTable = _StandardWidthTable(ttfMetrics.widthTable);
-    _metrics.lineGap = ttfMetrics.lineGap;
+    _metrics.lineGap = ttfMetrics.lineGap!;
     _metrics.subscriptSizeFactor = ttfMetrics.subscriptSizeFactor;
     _metrics.superscriptSizeFactor = ttfMetrics.superscriptSizeFactor;
     _metrics.isBold = ttfMetrics.isBold;
@@ -133,36 +133,36 @@ class _UnicodeTrueTypeFont {
   }
 
   void _createDescendantFont() {
-    _descendantFont._beginSave = _descendantFontBeginSave;
-    _descendantFont[_DictionaryProperties.type] =
+    _descendantFont!._beginSave = _descendantFontBeginSave;
+    _descendantFont![_DictionaryProperties.type] =
         _PdfName(_DictionaryProperties.font);
-    _descendantFont[_DictionaryProperties.subtype] =
+    _descendantFont![_DictionaryProperties.subtype] =
         _PdfName(_DictionaryProperties.cidFontType2);
-    _descendantFont[_DictionaryProperties.baseFont] = _PdfName(_subsetName);
-    _descendantFont[_DictionaryProperties.cidToGIDMap] =
+    _descendantFont![_DictionaryProperties.baseFont] = _PdfName(_subsetName);
+    _descendantFont![_DictionaryProperties.cidToGIDMap] =
         _PdfName(_DictionaryProperties.identity);
-    _descendantFont[_DictionaryProperties.dw] = _PdfNumber(1000);
+    _descendantFont![_DictionaryProperties.dw] = _PdfNumber(1000);
     _fontDescriptor = _createFontDescriptor();
-    _descendantFont[_DictionaryProperties.fontDescriptor] =
+    _descendantFont![_DictionaryProperties.fontDescriptor] =
         _PdfReferenceHolder(_fontDescriptor);
-    _descendantFont[_DictionaryProperties.cidSystemInfo] = _createSystemInfo();
+    _descendantFont![_DictionaryProperties.cidSystemInfo] = _createSystemInfo();
   }
 
   _PdfDictionary _createFontDescriptor() {
     final _PdfDictionary descriptor = _PdfDictionary();
-    final _TtfMetrics metrics = _reader._metrics;
+    final _TtfMetrics metrics = _reader._metrics!;
     descriptor[_DictionaryProperties.type] =
         _PdfName(_DictionaryProperties.fontDescriptor);
     descriptor[_DictionaryProperties.fontName] = _PdfName(_subsetName);
     descriptor[_DictionaryProperties.flags] = _PdfNumber(_getDescriptorFlags());
-    final _Rectangle rect = _reader._metrics.fontBox;
+    final _Rectangle rect = _reader._metrics!.fontBox;
     descriptor[_DictionaryProperties.fontBBox] = _PdfArray(
-        <double>[rect.x, rect.y + rect.height, rect.width, -rect.height]);
+        <double?>[rect.x, rect.y + rect.height, rect.width, -rect.height]);
     descriptor[_DictionaryProperties.missingWidth] =
         _PdfNumber(metrics.widthTable[32]);
     descriptor[_DictionaryProperties.stemV] = _PdfNumber(metrics.stemV);
     descriptor[_DictionaryProperties.italicAngle] =
-        _PdfNumber(metrics.italicAngle);
+        _PdfNumber(metrics.italicAngle!);
     descriptor[_DictionaryProperties.capHeight] = _PdfNumber(metrics.capHeight);
     descriptor[_DictionaryProperties.ascent] = _PdfNumber(metrics.winAscent);
     descriptor[_DictionaryProperties.descent] = _PdfNumber(metrics.winDescent);
@@ -180,7 +180,7 @@ class _UnicodeTrueTypeFont {
 
   int _getDescriptorFlags() {
     int flags = 0;
-    final _TtfMetrics metrics = _reader._metrics;
+    final _TtfMetrics metrics = _reader._metrics!;
     if (metrics.isFixedPitch) {
       flags |= 1;
     }
@@ -207,55 +207,55 @@ class _UnicodeTrueTypeFont {
     return systemInfo;
   }
 
-  void _descendantFontBeginSave(Object sender, _SavePdfPrimitiveArgs ars) {
-    if (_usedChars != null && _usedChars.isNotEmpty) {
-      final _PdfArray width = _getDescendantWidth();
+  void _descendantFontBeginSave(Object sender, _SavePdfPrimitiveArgs? ars) {
+    if (_usedChars != null && _usedChars!.isNotEmpty) {
+      final _PdfArray? width = _getDescendantWidth();
       if (width != null) {
-        _descendantFont[_DictionaryProperties.w] = width;
+        _descendantFont![_DictionaryProperties.w] = width;
       }
     }
   }
 
   void _createCmap() {
-    _cmap._beginSave = _cmapBeginSave;
+    _cmap!._beginSave = _cmapBeginSave;
   }
 
-  void _cmapBeginSave(Object sender, _SavePdfPrimitiveArgs ars) {
+  void _cmapBeginSave(Object sender, _SavePdfPrimitiveArgs? ars) {
     _generateCmap();
   }
 
   void _createFontDictionary() {
-    _fontDictionary._beginSave = _fontDictionaryBeginSave;
-    _fontDictionary[_DictionaryProperties.type] =
+    _fontDictionary!._beginSave = _fontDictionaryBeginSave;
+    _fontDictionary![_DictionaryProperties.type] =
         _PdfName(_DictionaryProperties.font);
-    _fontDictionary[_DictionaryProperties.baseFont] = _PdfName(_subsetName);
-    _fontDictionary[_DictionaryProperties.subtype] =
+    _fontDictionary![_DictionaryProperties.baseFont] = _PdfName(_subsetName);
+    _fontDictionary![_DictionaryProperties.subtype] =
         _PdfName(_DictionaryProperties.type0);
-    _fontDictionary[_DictionaryProperties.encoding] =
+    _fontDictionary![_DictionaryProperties.encoding] =
         _PdfName(_DictionaryProperties.identityH);
     final _PdfArray descFonts = _PdfArray();
     final _PdfReferenceHolder reference = _PdfReferenceHolder(_descendantFont);
     descFonts._add(reference);
-    _fontDictionary[_DictionaryProperties.descendantFonts] = descFonts;
+    _fontDictionary![_DictionaryProperties.descendantFonts] = descFonts;
   }
 
-  void _fontDictionaryBeginSave(Object sender, _SavePdfPrimitiveArgs ars) {
+  void _fontDictionaryBeginSave(Object sender, _SavePdfPrimitiveArgs? ars) {
     if (_usedChars != null &&
-        _usedChars.isNotEmpty &&
-        !_fontDictionary.containsKey(_DictionaryProperties.toUnicode)) {
-      _fontDictionary[_DictionaryProperties.toUnicode] =
+        _usedChars!.isNotEmpty &&
+        !_fontDictionary!.containsKey(_DictionaryProperties.toUnicode)) {
+      _fontDictionary![_DictionaryProperties.toUnicode] =
           _PdfReferenceHolder(_cmap);
     }
   }
 
   _PdfArray _getDescendantWidth() {
     final _PdfArray array = _PdfArray();
-    if (_usedChars != null && _usedChars.isNotEmpty) {
+    if (_usedChars != null && _usedChars!.isNotEmpty) {
       final List<_TtfGlyphInfo> glyphInfo = <_TtfGlyphInfo>[];
-      final List<String> keys = _usedChars.keys.toList();
+      final List<String> keys = _usedChars!.keys.toList();
       for (int i = 0; i < keys.length; i++) {
         final String chLen = keys[i];
-        final _TtfGlyphInfo glyph = _reader._getGlyph(char: chLen);
+        final _TtfGlyphInfo glyph = _reader._getGlyph(char: chLen)!;
         if (glyph.empty) {
           continue;
         }
@@ -296,8 +296,8 @@ class _UnicodeTrueTypeFont {
   }
 
   void _generateCmap() {
-    if (_usedChars != null && _usedChars.isNotEmpty) {
-      final Map<int, int> glyphChars = _reader._getGlyphChars(_usedChars);
+    if (_usedChars != null && _usedChars!.isNotEmpty) {
+      final Map<int, int> glyphChars = _reader._getGlyphChars(_usedChars!);
       if (glyphChars.isNotEmpty) {
         final List<int> keys = glyphChars.keys.toList();
         keys.sort();
@@ -325,31 +325,31 @@ class _UnicodeTrueTypeFont {
           final int key = keys[i];
           builder += _getHexString(key, true) +
               _getHexString(key, true) +
-              _getHexString(glyphChars[key], true) +
+              _getHexString(glyphChars[key]!, true) +
               '\n';
         }
         builder += _cmapSuffix;
-        _cmap._clearStream();
-        _cmap._write(builder);
+        _cmap!._clearStream();
+        _cmap!._write(builder);
       }
     }
   }
 
   void _createFontProgram() {
-    _fontProgram._beginSave = _fontProgramBeginSave;
+    _fontProgram!._beginSave = _fontProgramBeginSave;
   }
 
-  void _fontProgramBeginSave(Object sender, _SavePdfPrimitiveArgs ars) {
+  void _fontProgramBeginSave(Object sender, _SavePdfPrimitiveArgs? ars) {
     _generateFontProgram();
   }
 
   void _generateFontProgram() {
-    List<int> fontProgram;
+    List<int>? fontProgram;
     _usedChars ??= <String, String>{};
     _reader._offset = 0;
-    fontProgram = _reader._readFontProgram(_usedChars);
-    _fontProgram._clearStream();
-    _fontProgram._write(fontProgram);
+    fontProgram = _reader._readFontProgram(_usedChars!);
+    _fontProgram!._clearStream();
+    _fontProgram!._write(fontProgram);
   }
 
   String _getHexString(int n, bool isCaseChange) {
@@ -369,10 +369,9 @@ class _UnicodeTrueTypeFont {
   }
 
   void _setSymbols(String text) {
-    ArgumentError.checkNotNull(text);
     _usedChars ??= <String, String>{};
     for (int i = 0; i < text.length; i++) {
-      _usedChars[text[i]] = String.fromCharCode(0);
+      _usedChars![text[i]] = String.fromCharCode(0);
     }
     _getDescendantWidth();
   }
@@ -383,20 +382,20 @@ class _UnicodeTrueTypeFont {
 
   void _initializeCidSet() {
     _cidStream = _PdfStream();
-    _cidStream._beginSave = _cidBeginSave;
-    _fontDescriptor._beginSave = _fontDescriptorBeginSave;
+    _cidStream!._beginSave = _cidBeginSave;
+    _fontDescriptor!._beginSave = _fontDescriptorBeginSave;
   }
 
   //Runs before Cid will be saved.
-  void _cidBeginSave(Object sender, _SavePdfPrimitiveArgs ars) {
+  void _cidBeginSave(Object sender, _SavePdfPrimitiveArgs? ars) {
     _generateCidSet();
   }
 
   //Runs before font Dictionary will be saved.
-  void _fontDescriptorBeginSave(Object sender, _SavePdfPrimitiveArgs ars) {
-    if ((_usedChars != null && _usedChars.isNotEmpty) &&
-        !_fontDescriptor.containsKey(_DictionaryProperties.cidSet)) {
-      _fontDescriptor[_DictionaryProperties.cidSet] =
+  void _fontDescriptorBeginSave(Object sender, _SavePdfPrimitiveArgs? ars) {
+    if ((_usedChars != null && _usedChars!.isNotEmpty) &&
+        !_fontDescriptor!.containsKey(_DictionaryProperties.cidSet)) {
+      _fontDescriptor![_DictionaryProperties.cidSet] =
           _PdfReferenceHolder(_cidStream);
     }
   }
@@ -413,21 +412,21 @@ class _UnicodeTrueTypeFont {
       0x02,
       0x01
     ];
-    if (_usedChars != null && _usedChars.isNotEmpty) {
-      final Map<int, int> glyphChars = _reader._getGlyphChars(_usedChars);
-      List<int> charBytes;
+    if (_usedChars != null && _usedChars!.isNotEmpty) {
+      final Map<int, int> glyphChars = _reader._getGlyphChars(_usedChars!);
+      List<int>? charBytes;
       if (glyphChars.isNotEmpty) {
         final List<int> cidChars = glyphChars.keys.toList();
         cidChars.sort();
         final int last = cidChars[cidChars.length - 1];
-        charBytes = List<int>((last ~/ 8) + 1);
+        charBytes = List<int>.filled((last ~/ 8) + 1, 0, growable: true);
         charBytes.fillRange(0, ((last ~/ 8) + 1), 0);
         for (int i = 0; i < cidChars.length; i++) {
           final int cid = cidChars[i];
           charBytes[cid ~/ 8] |= dummyBits[cid % 8];
         }
       }
-      _cidStream._write(charBytes);
+      _cidStream!._write(charBytes);
     }
   }
 }

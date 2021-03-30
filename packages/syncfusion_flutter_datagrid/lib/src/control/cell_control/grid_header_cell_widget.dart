@@ -4,13 +4,11 @@ part of datagrid;
 class GridHeaderCell extends StatefulWidget {
   /// Creates the [GridHeaderCell] for [SfDataGrid] widget.
   const GridHeaderCell({
-    @required Key key,
-    this.dataCell,
-    this.padding,
-    this.backgroundColor,
-    this.isDirty,
-    this.child,
-    this.alignment,
+    required Key key,
+    required this.dataCell,
+    required this.backgroundColor,
+    required this.isDirty,
+    required this.child,
   }) : super(key: key);
 
   /// Holds the information required to display the cell.
@@ -19,9 +17,6 @@ class GridHeaderCell extends StatefulWidget {
   /// The [child] contained by the [GridCell].
   final Widget child;
 
-  /// Empty space to inscribe inside the [GridCell].
-  final EdgeInsets padding;
-
   /// The color to paint behind the [child].
   final Color backgroundColor;
 
@@ -29,110 +24,122 @@ class GridHeaderCell extends StatefulWidget {
   /// rebuild.
   final bool isDirty;
 
-  /// Align the [child] within the GridCell.
-  final Alignment alignment;
   @override
   State<StatefulWidget> createState() => _GridHeaderCellState();
 }
 
 class _GridHeaderCellState extends State<GridHeaderCell> {
-  DataGridSortDirection _sortDirection;
-  Color _sortIconColor;
-  int _sortNumber;
-  Color _sortNumberBackgroundColor;
-  Color _sortNumberTextColor;
-  PointerDeviceKind _kind;
+  DataGridSortDirection? _sortDirection;
+  Color _sortIconColor = Colors.transparent;
+  int _sortNumber = -1;
+  Color _sortNumberBackgroundColor = Colors.transparent;
+  Color _sortNumberTextColor = Colors.transparent;
+  late PointerDeviceKind _kind;
 
   void _handleOnTapUp(TapUpDetails tapUpDetails) {
-    final dataCell = widget.dataCell;
-    final _DataGridSettings dataGridSettings =
-        dataCell?._dataRow?._dataGridStateDetails();
-    if (dataGridSettings == null || dataCell == null) {
+    final DataCellBase? dataCell = widget.dataCell;
+    if (dataCell == null) {
+      return;
+    }
+    final _DataGridSettings? dataGridSettings =
+        dataCell._dataRow!._dataGridStateDetails!();
+    if (dataGridSettings == null) {
       return;
     }
     if (dataGridSettings.onCellTap != null) {
       final DataGridCellTapDetails details = DataGridCellTapDetails(
           rowColumnIndex:
               RowColumnIndex(dataCell.rowIndex, dataCell.columnIndex),
-          column: dataCell.gridColumn,
-          globalPosition: tapUpDetails?.globalPosition,
-          localPosition: tapUpDetails?.localPosition,
+          column: dataCell.gridColumn!,
+          globalPosition: tapUpDetails.globalPosition,
+          localPosition: tapUpDetails.localPosition,
           kind: _kind);
-      dataGridSettings.onCellTap(details);
+      dataGridSettings.onCellTap!(details);
     }
 
-    dataGridSettings.dataGridFocusNode.requestFocus();
+    dataGridSettings.dataGridFocusNode?.requestFocus();
     if (dataGridSettings.sortingGestureType == SortingGestureType.tap) {
       _sort(dataCell);
     }
   }
 
   void _handleOnDoubleTap() {
-    final dataCell = widget.dataCell;
-    final _DataGridSettings dataGridSettings =
-        dataCell?._dataRow?._dataGridStateDetails();
-    if (dataGridSettings == null || dataCell == null) {
+    final DataCellBase? dataCell = widget.dataCell;
+    if (dataCell == null) {
+      return;
+    }
+    final _DataGridSettings? dataGridSettings =
+        dataCell._dataRow!._dataGridStateDetails!();
+    if (dataGridSettings == null) {
       return;
     }
     if (dataGridSettings.onCellDoubleTap != null) {
       final DataGridCellDoubleTapDetails details = DataGridCellDoubleTapDetails(
           rowColumnIndex:
               RowColumnIndex(dataCell.rowIndex, dataCell.columnIndex),
-          column: dataCell.gridColumn);
-      dataGridSettings.onCellDoubleTap(details);
+          column: dataCell.gridColumn!);
+      dataGridSettings.onCellDoubleTap!(details);
     }
 
-    dataGridSettings.dataGridFocusNode.requestFocus();
+    dataGridSettings.dataGridFocusNode?.requestFocus();
     if (dataGridSettings.sortingGestureType == SortingGestureType.doubleTap) {
       _sort(dataCell);
     }
   }
 
   void _handleOnLongPressEnd(LongPressEndDetails longPressEndDetails) {
-    final dataCell = widget.dataCell;
-    final _DataGridSettings dataGridSettings =
-        dataCell?._dataRow?._dataGridStateDetails();
-    if (dataGridSettings == null || dataCell == null) {
+    final DataCellBase? dataCell = widget.dataCell;
+    if (dataCell == null) {
       return;
     }
+
+    final _DataGridSettings? dataGridSettings =
+        dataCell._dataRow!._dataGridStateDetails!();
+    if (dataGridSettings == null) {
+      return;
+    }
+
     if (dataGridSettings.onCellLongPress != null) {
       final DataGridCellLongPressDetails details = DataGridCellLongPressDetails(
           rowColumnIndex:
               RowColumnIndex(dataCell.rowIndex, dataCell.columnIndex),
-          column: dataCell.gridColumn,
-          globalPosition: longPressEndDetails?.globalPosition,
-          localPosition: longPressEndDetails?.localPosition,
-          velocity: longPressEndDetails?.velocity);
-      dataGridSettings.onCellLongPress(details);
+          column: dataCell.gridColumn!,
+          globalPosition: longPressEndDetails.globalPosition,
+          localPosition: longPressEndDetails.localPosition,
+          velocity: longPressEndDetails.velocity);
+      dataGridSettings.onCellLongPress!(details);
     }
   }
 
   void _handleOnSecondaryTapUp(TapUpDetails tapUpDetails) {
-    final dataCell = widget.dataCell;
-    final _DataGridSettings dataGridSettings =
-        dataCell?._dataRow?._dataGridStateDetails();
-    if (dataGridSettings == null || dataCell == null) {
+    final DataCellBase? dataCell = widget.dataCell;
+    if (dataCell == null) {
+      return;
+    }
+    final _DataGridSettings? dataGridSettings =
+        dataCell._dataRow?._dataGridStateDetails!();
+    if (dataGridSettings == null) {
       return;
     }
     if (dataGridSettings.onCellSecondaryTap != null) {
       final DataGridCellTapDetails details = DataGridCellTapDetails(
           rowColumnIndex:
               RowColumnIndex(dataCell.rowIndex, dataCell.columnIndex),
-          column: dataCell.gridColumn,
-          globalPosition: tapUpDetails?.globalPosition,
-          localPosition: tapUpDetails?.localPosition,
+          column: dataCell.gridColumn!,
+          globalPosition: tapUpDetails.globalPosition,
+          localPosition: tapUpDetails.localPosition,
           kind: _kind);
-      dataGridSettings.onCellSecondaryTap(details);
+      dataGridSettings.onCellSecondaryTap!(details);
     }
   }
 
   void _handleOnTapDown(TapDownDetails details) {
-    _kind = details?.kind;
+    _kind = details.kind!;
   }
 
   Widget _wrapInsideGestureDetector() {
     final _DataGridSettings dataGridSettings =
-        widget.dataCell?._dataRow?._dataGridStateDetails();
+        widget.dataCell._dataRow!._dataGridStateDetails!();
     return GestureDetector(
       onTapUp: dataGridSettings.onCellTap != null ||
               dataGridSettings.sortingGestureType == SortingGestureType.tap
@@ -157,106 +164,67 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
 
   Widget _wrapInsideContainer() {
     final _DataGridSettings dataGridSettings =
-        widget.dataCell?._dataRow?._dataGridStateDetails();
-    final column = widget.dataCell?.gridColumn;
-    bool isSortIconLoaded = false;
+        widget.dataCell._dataRow!._dataGridStateDetails!();
+    final column = widget.dataCell.gridColumn;
 
     Widget checkHeaderCellConstraints(Widget child) {
-      final iconWidth = dataGridSettings.columnSizer._getSortIconWidth(column);
+      final iconWidth = dataGridSettings.columnSizer._getSortIconWidth(column!);
       return LayoutBuilder(builder: (context, constraints) {
         if (_sortDirection == null || constraints.maxWidth < iconWidth) {
           return child;
         } else {
-          isSortIconLoaded = true;
           return _getCellWithSortIcon(child);
         }
       });
     }
 
-    final Widget headerCellWidget =
-        (dataGridSettings != null && dataGridSettings.headerCellBuilder != null)
-            ? dataGridSettings.headerCellBuilder(context, column)
-            : null;
-    Widget child = headerCellWidget ?? widget.child;
-    _ensureSortIconVisiblity(column, dataGridSettings);
-    child = checkHeaderCellConstraints(child);
-    final alignment = !isSortIconLoaded ? widget.alignment : null;
-
-    EdgeInsets _getPadding(DataCellBase dataCell, EdgeInsets padding) {
-      final dataGridSettings = dataCell._dataRow?._dataGridStateDetails();
-
-      if (dataGridSettings == null) {
-        return const EdgeInsets.all(0.0);
-      }
-
-      final visualDensityPadding = dataGridSettings.visualDensity.vertical * 2;
-
-      padding ??= EdgeInsets.all(16) +
-          EdgeInsets.fromLTRB(
-              0.0, visualDensityPadding, 0.0, visualDensityPadding);
-
-      return padding != null && padding.isNonNegative
-          ? padding
-          : EdgeInsets.zero;
-    }
+    _ensureSortIconVisiblity(column!, dataGridSettings);
 
     return Container(
         key: widget.key,
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(border: _getCellBorder(widget.dataCell)),
-        alignment: Alignment.center,
         child: _wrapInsideCellContainer(
-          child: child,
+          child: checkHeaderCellConstraints(widget.child),
           dataCell: widget.dataCell,
-          key: widget.key,
+          key: widget.key!,
           backgroundColor: widget.backgroundColor,
-          alignment: alignment,
-          padding: headerCellWidget == null
-              ? _getPadding(widget.dataCell, widget.padding)
-              : null,
         ));
   }
 
-  Color _getHoverBackgroundColor() {
-    final _DataGridSettings dataGridSettings =
-        widget.dataCell?._dataRow?._dataGridStateDetails();
+  Color? _getHoverBackgroundColor() {
+    final _DataGridSettings? dataGridSettings =
+        widget.dataCell._dataRow!._dataGridStateDetails!();
     if (dataGridSettings == null) {
       return null;
     }
 
-    final hoverColor = (widget.dataCell.gridColumn?.headerStyle?.hoverColor ??
-            dataGridSettings.dataGridThemeData.headerStyle?.hoverColor) ??
-        ((dataGridSettings.dataGridThemeData.brightness == Brightness.light)
-            ? Color.fromRGBO(245, 245, 245, 1)
-            : Color.fromRGBO(66, 66, 66, 1));
-    return hoverColor;
+    return dataGridSettings.dataGridThemeData!.headerHoverColor;
   }
 
   void onMouseHover() {
-    final _DataGridSettings dataGridSettings =
-        widget.dataCell?._dataRow?._dataGridStateDetails();
+    final _DataGridSettings? dataGridSettings =
+        widget.dataCell._dataRow!._dataGridStateDetails!();
 
-    if (dataGridSettings != null && widget.dataCell != null) {
+    if (dataGridSettings != null) {
       widget.dataCell
-        .._ishover = true
         .._isDirty = true
         .._updateColumn();
-      dataGridSettings.source
-          .notifyDataSourceListeners(propertyName: 'hoverOnHeaderCell');
+      dataGridSettings.source._notifyDataGridPropertyChangeListeners(
+          propertyName: 'hoverOnHeaderCell');
     }
   }
 
   void onMouseExit() {
-    final _DataGridSettings dataGridSettings =
-        widget.dataCell?._dataRow?._dataGridStateDetails();
+    final _DataGridSettings? dataGridSettings =
+        widget.dataCell._dataRow?._dataGridStateDetails!();
 
-    if (dataGridSettings != null && widget.dataCell != null) {
+    if (dataGridSettings != null) {
       widget.dataCell
-        .._ishover = false
         .._isDirty = true
         .._updateColumn();
-      dataGridSettings.source
-          .notifyDataSourceListeners(propertyName: 'hoverOnHeaderCell');
+      dataGridSettings.source._notifyDataGridPropertyChangeListeners(
+          propertyName: 'hoverOnHeaderCell');
     }
   }
 
@@ -292,22 +260,20 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
   }
 
   void _ensureSortIconVisiblity(
-      GridColumn column, _DataGridSettings dataGridSettings) {
+      GridColumn column, _DataGridSettings? dataGridSettings) {
     if (dataGridSettings != null) {
-      final sortColumn = dataGridSettings.source.sortedColumns.firstWhere(
-          (sortColumn) => sortColumn.name == column.mappingName,
-          orElse: () => null);
+      final sortColumn = dataGridSettings.source.sortedColumns.firstWhereOrNull(
+          (sortColumn) => sortColumn.name == column.columnName);
       if (dataGridSettings.source.sortedColumns.isNotEmpty &&
           sortColumn != null) {
         final sortNumber =
             dataGridSettings.source.sortedColumns.indexOf(sortColumn) + 1;
         final isLight =
-            dataGridSettings.dataGridThemeData.brightness == Brightness.light;
+            dataGridSettings.dataGridThemeData!.brightness == Brightness.light;
         _sortDirection = sortColumn.sortDirection;
-        _sortIconColor = column?.headerStyle?.sortIconColor ??
-            dataGridSettings.dataGridThemeData.headerStyle?.sortIconColor;
+        _sortIconColor = dataGridSettings.dataGridThemeData!.sortIconColor;
         _sortNumberBackgroundColor =
-            isLight ? Colors.grey[350] : Colors.grey[700];
+            isLight ? Colors.grey[350]! : Colors.grey[700]!;
         _sortNumberTextColor = isLight ? Colors.black87 : Colors.white54;
         if (dataGridSettings.source.sortedColumns.length > 1 &&
             dataGridSettings.showSortNumbers) {
@@ -326,7 +292,7 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
     final List<Widget> children = [];
 
     children.add(_SortIcon(
-      sortDirection: _sortDirection,
+      sortDirection: _sortDirection!,
       sortIconColor: _sortIconColor,
     ));
 
@@ -338,10 +304,10 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Flexible(
-            child: Container(child: child, alignment: widget.alignment),
+            child: Container(child: child),
           ),
           Container(
-            padding: EdgeInsets.only(left: 4.0),
+            padding: EdgeInsets.only(left: 4.0, right: 4.0),
             child: Center(child: Row(children: children)),
           )
         ]);
@@ -355,7 +321,7 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
         color: _sortNumberBackgroundColor,
       ),
       child: Center(
-        child: Text(_sortNumber?.toString(),
+        child: Text(_sortNumber.toString(),
             style: TextStyle(fontSize: 12, color: _sortNumberTextColor)),
       ),
     );
@@ -363,25 +329,23 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
 
   void _sort(DataCellBase dataCell) {
     final _DataGridSettings dataGridSettings =
-        widget.dataCell?._dataRow?._dataGridStateDetails();
-    if (dataCell?._dataRow?.rowType == RowType.headerRow &&
-        dataCell?._dataRow?.rowIndex ==
+        widget.dataCell._dataRow!._dataGridStateDetails!();
+    if (dataCell._dataRow?.rowType == RowType.headerRow &&
+        dataCell._dataRow?.rowIndex ==
             _GridIndexResolver.getHeaderIndex(dataGridSettings)) {
       _makeSort(dataCell);
     }
   }
 
   Future<void> _makeSort(DataCellBase dataCell) async {
-    final GridColumn column = dataCell?.gridColumn;
-    final _DataGridSettings dataGridSettings =
-        widget.dataCell?._dataRow?._dataGridStateDetails();
-    if (column.mappingName == null) {
-      return;
-    }
+    final GridColumn column = dataCell.gridColumn!;
+    final _DataGridSettings? dataGridSettings =
+        widget.dataCell._dataRow!._dataGridStateDetails!();
+
     if (dataGridSettings != null &&
         column.allowSorting &&
         dataGridSettings.allowSorting) {
-      final sortColumnName = column.mappingName;
+      final sortColumnName = column.columnName;
       final allowMultiSort = dataGridSettings._isDesktop
           ? (dataGridSettings.isControlKeyPressed &&
               dataGridSettings.allowMultiColumnSorting)
@@ -390,9 +354,8 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
 
       final sortedColumns = source.sortedColumns;
       if (sortedColumns.isNotEmpty && allowMultiSort) {
-        var sortedColumn = sortedColumns.firstWhere(
-            (sortColumn) => sortColumn.name == sortColumnName,
-            orElse: () => null);
+        var sortedColumn = sortedColumns.firstWhereOrNull(
+            (sortColumn) => sortColumn.name == sortColumnName);
         if (sortedColumn == null) {
           final newSortColumn = SortColumnDetails(
               name: sortColumnName,
@@ -404,9 +367,8 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
         } else {
           if (sortedColumn.sortDirection == DataGridSortDirection.descending &&
               dataGridSettings.allowTriStateSorting) {
-            final removedSortColumn = sortedColumns.firstWhere(
-                (sortColumn) => sortColumn.name == sortColumnName,
-                orElse: () => null);
+            final removedSortColumn = sortedColumns.firstWhereOrNull(
+                (sortColumn) => sortColumn.name == sortColumnName);
             sortedColumns.remove(removedSortColumn);
             await source._updateDataSource();
           } else {
@@ -416,9 +378,8 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
                         DataGridSortDirection.ascending
                     ? DataGridSortDirection.descending
                     : DataGridSortDirection.ascending);
-            final removedSortColumn = sortedColumns.firstWhere(
-                (sortColumn) => sortColumn.name == sortedColumn.name,
-                orElse: () => null);
+            final removedSortColumn = sortedColumns.firstWhereOrNull(
+                (sortColumn) => sortColumn.name == sortedColumn!.name);
             sortedColumns.remove(removedSortColumn);
             sortedColumns.add(sortedColumn);
             if (!await source._updateDataSource()) {
@@ -427,9 +388,8 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
           }
         }
       } else {
-        var currentSortColumn = sortedColumns.firstWhere(
-            (sortColumn) => sortColumn.name == sortColumnName,
-            orElse: () => null);
+        var currentSortColumn = sortedColumns.firstWhereOrNull(
+            (sortColumn) => sortColumn.name == sortColumnName);
         if (sortedColumns.isNotEmpty && currentSortColumn != null) {
           if (currentSortColumn.sortDirection ==
                   DataGridSortDirection.descending &&
@@ -468,13 +428,13 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
         }
       }
       dataGridSettings.source
-          .notifyDataSourceListeners(propertyName: 'Sorting');
+          ._notifyDataGridPropertyChangeListeners(propertyName: 'Sorting');
     }
   }
 }
 
 class _SortIcon extends StatefulWidget {
-  _SortIcon({this.sortDirection, this.sortIconColor});
+  _SortIcon({required this.sortDirection, required this.sortIconColor});
   final DataGridSortDirection sortDirection;
   final Color sortIconColor;
   @override
@@ -483,8 +443,8 @@ class _SortIcon extends StatefulWidget {
 
 class _SortIconState extends State<_SortIcon>
     with SingleTickerProviderStateMixin {
-  AnimationController _animationController;
-  Animation<double> _sortingAnimation;
+  late AnimationController _animationController;
+  late Animation<double> _sortingAnimation;
 
   @override
   void initState() {

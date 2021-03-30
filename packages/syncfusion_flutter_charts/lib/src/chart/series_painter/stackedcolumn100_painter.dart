@@ -2,17 +2,17 @@ part of charts;
 
 class _StackedColumn100ChartPainter extends CustomPainter {
   _StackedColumn100ChartPainter({
-    this.chartState,
-    this.seriesRenderer,
-    this.isRepaint,
-    this.animationController,
-    this.painterKey,
-    ValueNotifier<num> notifier,
-  })  : chart = chartState._chart,
+    required this.chartState,
+    required this.seriesRenderer,
+    required this.isRepaint,
+    required this.animationController,
+    required this.painterKey,
+    required ValueNotifier<num> notifier,
+  })   : chart = chartState._chart,
         super(repaint: notifier);
   final SfCartesianChartState chartState;
   final SfCartesianChart chart;
-  CartesianChartPoint<dynamic> point;
+  CartesianChartPoint<dynamic>? point;
   final bool isRepaint;
   final AnimationController animationController;
   List<_ChartLocation> currentChartLocations = <_ChartLocation>[];

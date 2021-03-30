@@ -2,7 +2,7 @@ part of pdf;
 
 class _ContentParser {
   // Constructor
-  _ContentParser(List<int> contentStream) {
+  _ContentParser(List<int>? contentStream) {
     _lexer = _ContentLexer(contentStream);
     _operatorParams = _lexer._operatorParams;
     _recordCollection = _PdfRecordCollection();
@@ -10,11 +10,11 @@ class _ContentParser {
   }
 
   // Fields
-  _ContentLexer _lexer;
-  StringBuffer _operatorParams;
-  _PdfRecordCollection _recordCollection;
+  late _ContentLexer _lexer;
+  StringBuffer? _operatorParams;
+  _PdfRecordCollection? _recordCollection;
   bool _isByteOperands = false;
-  bool _isTextExtractionProcess;
+  late bool _isTextExtractionProcess;
   final bool _conformanceEnabled = false;
 
   static const List<String> _operators = <String>[
@@ -100,7 +100,7 @@ class _ContentParser {
   ];
 
   // Implementation
-  _PdfRecordCollection _readContent() {
+  _PdfRecordCollection? _readContent() {
     _parseObject(_PdfTokenType.eof);
     if (_isTextExtractionProcess) {
       _lexer._dispose();
@@ -145,16 +145,13 @@ class _ContentParser {
         case _PdfTokenType.operators:
           if (_operatorParams.toString() == 'true') {
             _operands.add(_operatorParams.toString());
-            break;
           } else if (_operatorParams.toString() == 'ID') {
             _createRecord(_operands);
             _operands.clear();
             _consumeValue(_operands);
-            break;
           } else {
             _createRecord(_operands);
             _operands.clear();
-            break;
           }
           break;
 
@@ -175,7 +172,7 @@ class _ContentParser {
     return _lexer._getNextToken();
   }
 
-  void _createRecord(List<String> operands, [List<int> inlineImageBytes]) {
+  void _createRecord(List<String> operands, [List<int>? inlineImageBytes]) {
     final String operand = _operatorParams.toString();
     final int occurence = _operators.indexOf(operand);
     if (occurence < 0) {
@@ -191,15 +188,15 @@ class _ContentParser {
     if (!_isByteOperands) {
       record = _PdfRecord(operand, op);
     } else {
-      final List<int> imBytes = inlineImageBytes.isNotEmpty
-          ? List<int>(inlineImageBytes.length)
+      final List<int> imBytes = inlineImageBytes!.isNotEmpty
+          ? List<int>.filled(inlineImageBytes.length, 0, growable: true)
           : <int>[];
       if (inlineImageBytes.isNotEmpty) {
         List.copyRange(imBytes, 0, inlineImageBytes);
       }
       record = _PdfRecord.fromImage(operand, imBytes);
     }
-    _recordCollection._add(record);
+    _recordCollection!._add(record);
   }
 
   void _consumeValue(List<String> operands) {
@@ -246,10 +243,11 @@ class _ContentParser {
                   String.fromCharCode(
                           int.parse(thirdChar[thirdChar.length - 1])) ==
                       'S') {
-                _operatorParams.clear();
-                _operatorParams
+                _operatorParams!.clear();
+                _operatorParams!
                     .write(String.fromCharCode(int.parse(currentChar)));
-                _operatorParams.write(String.fromCharCode(int.parse(nextChar)));
+                _operatorParams!
+                    .write(String.fromCharCode(int.parse(nextChar)));
                 _isByteOperands = true;
                 _createRecord(operands, _inlineImageBytes);
                 _isByteOperands = false;
@@ -316,10 +314,11 @@ class _ContentParser {
               if (String.fromCharCode(int.parse(thirdChar)) == 'Q' ||
                   thirdChar == '65535' ||
                   String.fromCharCode(int.parse(thirdChar)) == 'S') {
-                _operatorParams.clear();
-                _operatorParams
+                _operatorParams!.clear();
+                _operatorParams!
                     .write(String.fromCharCode(int.parse(currentChar)));
-                _operatorParams.write(String.fromCharCode(int.parse(nextChar)));
+                _operatorParams!
+                    .write(String.fromCharCode(int.parse(nextChar)));
                 _isByteOperands = true;
                 _createRecord(operands, _inlineImageBytes);
                 _isByteOperands = false;
@@ -353,7 +352,7 @@ class _PdfRecordCollection {
   }
 
   // Fields
-  List<_PdfRecord> _recordCollection;
+  late List<_PdfRecord> _recordCollection;
 
   //Properties
   int get _count => _recordCollection.length;
@@ -377,8 +376,8 @@ class _PdfRecord {
   }
 
   // Fields
-  String _operatorName;
-  List<String> _operands;
+  String? _operatorName;
+  List<String>? _operands;
   // ignore: unused_field
-  List<int> _inlineImageBytes;
+  List<int>? _inlineImageBytes;
 }

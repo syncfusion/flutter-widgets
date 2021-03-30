@@ -1,9 +1,20 @@
-part of gauges;
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
+import 'package:flutter/foundation.dart';
+import '../axis/radial_axis.dart';
+import '../common/common.dart';
+import '../common/radial_gauge_renderer.dart';
+import '../gauge/radial_gauge.dart';
+import '../pointers/needle_pointer.dart';
+import '../renderers/needle_pointer_renderer_base.dart';
+import '../renderers/radial_axis_renderer_base.dart';
 
 /// Represents the painter to render the needle pointer
-class _NeedlePointerPainter extends CustomPainter {
+class NeedlePointerPainter extends CustomPainter {
   /// Creates the needle pointer painter
-  _NeedlePointerPainter(
+  NeedlePointerPainter(
       this._gauge,
       this._axis,
       this._needlePointer,
@@ -29,90 +40,111 @@ class _NeedlePointerPainter extends CustomPainter {
   final bool _isRepaint;
 
   /// Specifies the animation value of needle pointer
-  final Animation<double> _pointerAnimation;
+  final Animation<double>? _pointerAnimation;
 
   /// Specifies the gauge theme data.
   final SfGaugeThemeData _gaugeThemeData;
 
   /// Hold the radial gauge animation details
-  final _RenderingDetails _renderingDetails;
+  final RenderingDetails _renderingDetails;
 
   /// holds the axis renderer
-  final RadialAxisRenderer _axisRenderer;
+  final RadialAxisRendererBase _axisRenderer;
 
   /// Holds the needle pointer renderer
-  final NeedlePointerRenderer _needlePointerRenderer;
+  final NeedlePointerRendererBase _needlePointerRenderer;
 
   @override
   void paint(Canvas canvas, Size size) {
-    double angle;
-    bool needsShowPointer;
+    double? angle;
+    bool? needsShowPointer;
     final bool needsPointerAnimation =
-        _needlePointerRenderer._getIsPointerAnimationEnabled();
+        _needlePointerRenderer.getIsPointerAnimationEnabled();
     if (_pointerAnimation != null) {
       needsShowPointer = _axis.isInversed
-          ? _pointerAnimation.value < 1
-          : _pointerAnimation.value > 0;
+          ? _pointerAnimation!.value < 1
+          : _pointerAnimation!.value > 0;
     }
 
-    if (_renderingDetails.needsToAnimatePointers || needsPointerAnimation) {
-      if ((_renderingDetails.needsToAnimatePointers && needsShowPointer) ||
+    if ((_renderingDetails.needsToAnimatePointers &&
+            (!_renderingDetails.isOpacityAnimation &&
+                _axis.minimum != _needlePointerRenderer.currentValue)) ||
+        (needsPointerAnimation &&
+            (!_gauge.enableLoadingAnimation ||
+                (_gauge.enableLoadingAnimation &&
+                    _pointerAnimation!.value != 1 &&
+                    !_renderingDetails.isOpacityAnimation &&
+                    !_renderingDetails.needsToAnimatePointers)))) {
+      if ((_renderingDetails.needsToAnimatePointers &&
+              needsShowPointer != null &&
+              needsShowPointer) ||
           !_renderingDetails.needsToAnimatePointers) {
-        angle = (_axisRenderer._sweepAngle * _pointerAnimation.value) +
+        angle = (_axisRenderer.sweepAngle * _pointerAnimation!.value) +
             _axis.startAngle +
             90; //Since the needle rect has been
         // calculated with -90 degree, additional 90 degree is added
       }
     } else {
-      angle = _needlePointerRenderer._angle + 90; //Since the needle rect has
+      angle = _needlePointerRenderer.angle + 90; //Since the needle rect has
       //been calculated with -90 degree, additional 90 degree is added
     }
     final Offset startPosition =
-        Offset(_needlePointerRenderer._startX, _needlePointerRenderer._startY);
+        Offset(_needlePointerRenderer.startX, _needlePointerRenderer.startY);
     final Offset endPosition =
-        Offset(_needlePointerRenderer._stopX, _needlePointerRenderer._stopY);
+        Offset(_needlePointerRenderer.stopX, _needlePointerRenderer.stopY);
     if (angle != null) {
       final PointerPaintingDetails pointerPaintingDetails =
           PointerPaintingDetails(
               startOffset: startPosition,
               endOffset: endPosition,
               pointerAngle: angle,
-              axisRadius: _axisRenderer._radius,
-              axisCenter: _axisRenderer._axisCenter);
-      _needlePointerRenderer.drawPointer(
-          canvas, pointerPaintingDetails, _gaugeThemeData);
+              axisRadius: _axisRenderer.radius,
+              axisCenter: _axisRenderer.axisCenter);
+      _needlePointerRenderer.renderingDetails = _renderingDetails;
+      _needlePointerRenderer.pointerAnimation =
+          _pointerAnimation != null ? _pointerAnimation! : null;
+
+      if (_needlePointerRenderer.renderer != null) {
+        _needlePointerRenderer.renderer!
+            .drawPointer(canvas, pointerPaintingDetails, _gaugeThemeData);
+      } else {
+        _needlePointerRenderer.drawPointer(
+            canvas, pointerPaintingDetails, _gaugeThemeData);
+      }
     }
 
     _setPointerAnimation(needsPointerAnimation, angle);
   }
 
   /// Method to set the pointer animation
-  void _setPointerAnimation(bool needsPointerAnimation, double angle) {
+  void _setPointerAnimation(bool needsPointerAnimation, double? angle) {
     final bool isPointerEndAngle = _getIsEndAngle(angle);
 
     // Disables the animation once the animation reached the current
     // pointer angle
     if (needsPointerAnimation && isPointerEndAngle) {
-      _needlePointerRenderer._needsAnimate = false;
+      _needlePointerRenderer.needsAnimate = false;
     }
 
     // Disables the load time pointer animation
     if (_renderingDetails.needsToAnimatePointers &&
         _gauge.axes[_gauge.axes.length - 1] == _axis &&
-        _axis.pointers[_axis.pointers.length - 1] == _needlePointer &&
-        isPointerEndAngle) {
+        _axis.pointers![_axis.pointers!.length - 1] == _needlePointer &&
+        ((!_renderingDetails.isOpacityAnimation && isPointerEndAngle) ||
+            (_renderingDetails.isOpacityAnimation &&
+                _pointerAnimation!.value == 1))) {
       _renderingDetails.needsToAnimatePointers = false;
     }
   }
 
   /// Checks whether the current angle is pointer end angle
-  bool _getIsEndAngle(double angle) {
+  bool _getIsEndAngle(double? angle) {
     return angle ==
-        _axisRenderer._sweepAngle * _needlePointerRenderer._animationEndValue +
+        _axisRenderer.sweepAngle * _needlePointerRenderer.animationEndValue! +
             _axis.startAngle +
             90;
   }
 
   @override
-  bool shouldRepaint(_NeedlePointerPainter oldDelegate) => _isRepaint;
+  bool shouldRepaint(NeedlePointerPainter oldDelegate) => _isRepaint;
 }

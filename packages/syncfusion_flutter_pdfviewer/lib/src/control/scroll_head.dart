@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
@@ -13,7 +14,8 @@ const double kPdfScrollHeadHeight = 32.0;
 @immutable
 class ScrollHead extends StatefulWidget {
   /// Constructor for ScrollHead.
-  ScrollHead(this.scrollHeadOffset, this.pdfViewerController);
+  ScrollHead(
+      this.scrollHeadOffset, this.pdfViewerController, this.isMobileWebView);
 
   /// Position of the [ScrollHead] in [SfPdfViewer].
   final double scrollHeadOffset;
@@ -21,13 +23,16 @@ class ScrollHead extends StatefulWidget {
   /// PdfViewer controller of PdfViewer
   final PdfViewerController pdfViewerController;
 
+  /// If true,MobileWebView is enabled.Default value is false.
+  final bool isMobileWebView;
+
   @override
   _ScrollHeadState createState() => _ScrollHeadState();
 }
 
 /// State for [ScrollHead]
 class _ScrollHeadState extends State<ScrollHead> {
-  SfPdfViewerThemeData _pdfViewerThemeData;
+  SfPdfViewerThemeData? _pdfViewerThemeData;
 
   @override
   void didChangeDependencies() {
@@ -43,14 +48,33 @@ class _ScrollHeadState extends State<ScrollHead> {
 
   @override
   Widget build(BuildContext context) {
+    if (kIsWeb) {
+      return Container(
+        alignment: Alignment.topRight,
+        margin: EdgeInsets.only(top: widget.scrollHeadOffset),
+        child: Material(
+          color: Colors.grey,
+          borderRadius: BorderRadius.all(Radius.circular(7.0)),
+          child: Container(
+            constraints: BoxConstraints.tight(
+              Size(10.0, 54.0),
+            ),
+          ),
+        ),
+      );
+    }
     return Container(
       margin: EdgeInsets.only(top: widget.scrollHeadOffset),
       child: Stack(
         children: <Widget>[
           Material(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(kPdfScrollHeadHeight),
+              bottomLeft: Radius.circular(kPdfScrollHeadHeight),
+            ),
             child: Container(
               decoration: BoxDecoration(
-                color: _pdfViewerThemeData.scrollHeadStyle.backgroundColor,
+                color: _pdfViewerThemeData!.scrollHeadStyle.backgroundColor,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(kPdfScrollHeadHeight),
                   bottomLeft: Radius.circular(kPdfScrollHeadHeight),
@@ -76,17 +100,13 @@ class _ScrollHeadState extends State<ScrollHead> {
               constraints: BoxConstraints.tightFor(
                   width: kPdfScrollHeadHeight, height: kPdfScrollHeadHeight),
             ),
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(kPdfScrollHeadHeight),
-              bottomLeft: Radius.circular(kPdfScrollHeadHeight),
-            ),
           ),
           Positioned.fill(
             child: Align(
               alignment: Alignment.center,
               child: Text(
                 '${widget.pdfViewerController.pageNumber}',
-                style: _pdfViewerThemeData.scrollHeadStyle.pageNumberTextStyle,
+                style: _pdfViewerThemeData!.scrollHeadStyle.pageNumberTextStyle,
               ),
             ),
           ),

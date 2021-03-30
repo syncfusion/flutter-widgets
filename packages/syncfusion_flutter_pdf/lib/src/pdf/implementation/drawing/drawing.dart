@@ -21,10 +21,10 @@ class _Size {
   int get hashCode => width.hashCode;
 
   /// Gets or sets the width value.
-  double width;
+  late double width;
 
   /// Gets or sets the height value.
-  double height;
+  late double height;
 
   /// Gets the empty size.
   static _Size get empty => _Size(0, 0);
@@ -50,10 +50,10 @@ class _Point {
   int get hashCode => x.hashCode;
 
   /// Gets or sets the x value.
-  double x;
+  late double x;
 
   /// Gets or sets the y value.
-  double y;
+  late double y;
 
   /// Gets the empty [_Point].
   static _Point get empty => _Point(0, 0);
@@ -87,16 +87,16 @@ class _Rectangle {
   int get hashCode => x.hashCode;
 
   /// Gets or sets the [x] value.
-  double x;
+  late double x;
 
   /// Gets or sets the [y] value.
-  double y;
+  late double y;
 
   /// Gets or sets the [width] value.
-  double width;
+  late double width;
 
   /// Gets or sets the [height] value.
-  double height;
+  late double height;
 
   /// Gets the [location].
   _Point get location => _Point(x, y);

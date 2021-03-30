@@ -16,36 +16,38 @@ class _Inflater {
     _output = _DecompressedOutput();
     _input = _InBuffer();
     _loopCounter = 0;
-    _codeList = List<int>(_HuffmanTree._maxLTree + _HuffmanTree._maxDTree);
-    _cltcl = List<int>(_HuffmanTree._nCLength);
+    _codeList = List<int>.filled(
+        _HuffmanTree._maxLTree + _HuffmanTree._maxDTree, 0,
+        growable: true);
+    _cltcl = List<int>.filled(_HuffmanTree._nCLength, 0, growable: true);
     _inflaterstate = _InflaterState.readingBFinal;
   }
 
   //Fields
-  _DecompressedOutput _output;
-  _InBuffer _input;
-  _HuffmanTree _llTree;
-  _HuffmanTree _distanceTree;
-  _InflaterState _inflaterstate;
-  int _bfinal;
-  _BlockType _blockType;
-  List<int> _blBuffer;
-  int _bLength;
-  int _length;
-  int _distanceCode;
-  int _extraBits;
-  int _loopCounter;
-  int _llCodeCount;
-  int _dCodeCount;
-  int _clCodeCount;
-  int _caSize;
-  int _lengthCode;
-  List<int> _codeList;
-  List<int> _cltcl;
-  _HuffmanTree _clTree;
+  late _DecompressedOutput _output;
+  late _InBuffer _input;
+  late _HuffmanTree _llTree;
+  late _HuffmanTree _distanceTree;
+  late _InflaterState _inflaterstate;
+  late int _bfinal;
+  late _BlockType _blockType;
+  late List<int> _blBuffer;
+  late int _bLength;
+  late int _length;
+  late int _distanceCode;
+  late int _extraBits;
+  late int _loopCounter;
+  late int _llCodeCount;
+  late int _dCodeCount;
+  late int _clCodeCount;
+  late int _caSize;
+  late int _lengthCode;
+  late List<int> _codeList;
+  late List<int> _cltcl;
+  late _HuffmanTree _clTree;
 
   //Implementation
-  void _setInput(List<int> inputBytes, int offset, int length) {
+  void _setInput(List<int>? inputBytes, int offset, int length) {
     _input._setInput(inputBytes, offset, length);
   }
 
@@ -68,13 +70,13 @@ class _Inflater {
       if (length == 0) {
         break;
       }
-    } while (!_finished && _decode());
+    } while (!_finished && _decode()!);
     return <String, dynamic>{'count': i, 'data': bytes};
   }
 
-  bool _decode() {
-    bool eob = false;
-    bool result = false;
+  bool? _decode() {
+    bool? eob = false;
+    bool? result = false;
     if (_finished) {
       return true;
     }
@@ -122,13 +124,13 @@ class _Inflater {
       eob = returnedValue['eob'];
       _output = returnedValue['output'];
     }
-    if (eob && (_bfinal != 0)) {
+    if (eob! && (_bfinal != 0)) {
       _inflaterstate = _InflaterState.done;
     }
     return result;
   }
 
-  Map<String, dynamic> _decodeUncompressedBlock(bool endblock) {
+  Map<String, dynamic> _decodeUncompressedBlock(bool? endblock) {
     endblock = false;
     while (true) {
       switch (_inflaterstate) {
@@ -205,7 +207,7 @@ class _Inflater {
     return true;
   }
 
-  Map<String, dynamic> _decodeBlock(bool endblock) {
+  Map<String, dynamic> _decodeBlock(bool? endblock) {
     endblock = false;
     int fb = _output.unusedBytes;
     while (fb > 258) {
@@ -575,7 +577,7 @@ class _Inflater {
     }
   }
 
-  int _getInflaterStateValue(_InflaterState state) {
+  int _getInflaterStateValue(_InflaterState? state) {
     switch (state) {
       case _InflaterState.readingHeader:
         return 0;

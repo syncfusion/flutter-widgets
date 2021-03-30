@@ -3,7 +3,6 @@ part of pdf;
 class _DeflateStream {
   //Constructor
   _DeflateStream(List<int> data, int offset, bool leaveOpen) {
-    ArgumentError.checkNotNull(data);
     _offset = offset;
     _data = data;
     _leaveOpen = leaveOpen;
@@ -12,24 +11,24 @@ class _DeflateStream {
   }
 
   //Fields
-  List<int> _data;
+  late List<int> _data;
   // ignore: unused_field
-  bool _leaveOpen;
-  int _offset;
-  List<int> _buffer;
-  _Inflater _inflater;
+  bool? _leaveOpen;
+  late int _offset;
+  List<int>? _buffer;
+  late _Inflater _inflater;
 
   //Implementation
-  Map<String, dynamic> _read(List<int> array, int offset, int count) {
-    int length;
+  Map<String, dynamic> _read(List<int>? array, int offset, int count) {
+    int? length;
     int cOffset = offset;
     int rCount = count;
     while (true) {
       final Map<String, dynamic> inflateResult =
-          _inflater._inflate(array, cOffset, rCount);
+          _inflater._inflate(array!, cOffset, rCount);
       length = inflateResult['count'];
       array = inflateResult['data'];
-      cOffset += length;
+      cOffset += length!;
       rCount -= length;
       if (rCount == 0) {
         break;
@@ -38,12 +37,12 @@ class _DeflateStream {
         break;
       }
       final Map<String, dynamic> result = _readBytes();
-      final int bytes = result['count'];
+      final int? bytes = result['count'];
       _buffer = result['buffer'];
       if (bytes == 0) {
         break;
       }
-      _inflater._setInput(_buffer, 0, bytes);
+      _inflater._setInput(_buffer, 0, bytes!);
     }
     return <String, dynamic>{'count': count - rCount, 'data': array};
   }
@@ -53,8 +52,8 @@ class _DeflateStream {
       return <String, dynamic>{'buffer': <int>[], 'count': 0};
     } else {
       int count = 0;
-      for (int i = 0; i < _buffer.length && i + _offset < _data.length; i++) {
-        _buffer[i] = _data[_offset + i];
+      for (int i = 0; i < _buffer!.length && i + _offset < _data.length; i++) {
+        _buffer![i] = _data[_offset + i];
         count++;
       }
       _offset += count;

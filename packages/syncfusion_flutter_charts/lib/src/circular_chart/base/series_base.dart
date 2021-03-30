@@ -9,15 +9,15 @@ class _CircularSeries {
   //When we initialize chart widget as a property to other classes like _ChartSeries, the chart widget is not updated properly and by using get we can rectify this..
   SfCircularChart get chart => _chartState._chart;
 
-  CircularSeries<dynamic, dynamic> currentSeries;
+  late CircularSeries<dynamic, dynamic> currentSeries;
 
-  num size;
+  late num size;
 
-  num sumOfGroup;
+  late num sumOfGroup;
 
-  _Region explodedRegion;
+  late _Region explodedRegion;
 
-  _Region selectRegion;
+  late _Region selectRegion;
 
   List<CircularSeriesRenderer> visibleSeriesRenderers =
       <CircularSeriesRenderer>[];
@@ -31,14 +31,14 @@ class _CircularSeries {
       series = seriesRenderer._series = chart.series[0];
       seriesRenderer._dataPoints = <ChartPoint<dynamic>>[];
       seriesRenderer._needsAnimation = false;
-      final List<ChartPoint<dynamic>> _oldPoints =
+      final List<ChartPoint<dynamic>>? _oldPoints =
           _chartState._prevSeriesRenderer?._oldRenderPoints;
-      final CircularSeries<dynamic, dynamic> oldSeries =
+      final CircularSeries<dynamic, dynamic>? oldSeries =
           _chartState._prevSeriesRenderer?._series;
       int oldPointIndex = 0;
       if (series.dataSource != null) {
         for (int pointIndex = 0;
-            pointIndex < series.dataSource.length;
+            pointIndex < series.dataSource!.length;
             pointIndex++) {
           final ChartPoint<dynamic> currentPoint =
               _getCircularPoint(seriesRenderer, pointIndex);
@@ -119,11 +119,13 @@ class _CircularSeries {
             ? 1
             : (secondPoint.sortValue == null
                 ? -1
-                : (firstPoint.sortValue is String
-                    ? secondPoint.sortValue
+                : (firstPoint.sortValue! is String
+                    ? secondPoint.sortValue!
                         .toLowerCase()
-                        .compareTo(firstPoint.sortValue.toLowerCase())
-                    : secondPoint.sortValue.compareTo(firstPoint.sortValue)));
+                        .compareTo(firstPoint.sortValue!.toLowerCase())
+                    : secondPoint.sortValue!.compareTo(firstPoint.sortValue)));
+      } else {
+        return 0;
       }
     });
   }
@@ -133,10 +135,10 @@ class _CircularSeries {
     final List<CircularSeriesRenderer> seriesRenderers =
         _chartState._chartSeries.visibleSeriesRenderers;
     final CircularSeriesRenderer seriesRenderer = seriesRenderers[0];
-    final num groupValue = currentSeries.groupTo;
-    final CircularChartGroupMode mode = currentSeries.groupMode;
-    bool isYText;
-    final ChartIndexedValueMapper<String> textMapping =
+    final double? groupValue = currentSeries.groupTo;
+    final CircularChartGroupMode? mode = currentSeries.groupMode;
+    late bool isYText;
+    final ChartIndexedValueMapper<String>? textMapping =
         currentSeries.dataLabelMapper;
     ChartPoint<dynamic> point;
     sumOfGroup = 0;
@@ -155,22 +157,22 @@ class _CircularSeries {
         if (mode == CircularChartGroupMode.point &&
             groupValue != null &&
             i >= groupValue) {
-          sumOfGroup += point.y.abs();
+          sumOfGroup += point.y!.abs();
         } else if (mode == CircularChartGroupMode.value &&
             groupValue != null &&
-            point.y <= groupValue) {
-          sumOfGroup += point.y.abs();
+            point.y! <= groupValue) {
+          sumOfGroup += point.y!.abs();
         } else {
-          seriesRenderer._renderPoints.add(point);
+          seriesRenderer._renderPoints!.add(point);
         }
       }
     }
 
     if (sumOfGroup > 0) {
-      seriesRenderer._renderPoints
+      seriesRenderer._renderPoints!
           .add(ChartPoint<dynamic>('Others', sumOfGroup));
       seriesRenderer
-              ._renderPoints[seriesRenderer._renderPoints.length - 1].text =
+              ._renderPoints![seriesRenderer._renderPoints!.length - 1].text =
           isYText == true ? 'Others : ' + sumOfGroup.toString() : 'Others';
     }
     _setPointStyle(seriesRenderer);
@@ -181,7 +183,7 @@ class _CircularSeries {
     final EmptyPointSettings empty = currentSeries.emptyPointSettings;
     final List<Color> palette = chart.palette;
     int i = 0;
-    for (final ChartPoint<dynamic> point in seriesRenderer._renderPoints) {
+    for (final ChartPoint<dynamic> point in seriesRenderer._renderPoints!) {
       point.fill = point.isEmpty && empty.color != null
           ? empty.color
           : point.pointColor ?? palette[i % palette.length];
@@ -243,13 +245,13 @@ class _CircularSeries {
             seriesRenderer._seriesType == 'doughnut')) {
       final Rect areaRect = _chartState._chartAreaRect;
       bool needExecute = true;
-      double radius = seriesRenderer._currentRadius;
+      double radius = seriesRenderer._currentRadius.toDouble();
       while (needExecute) {
         radius += 1;
         final Rect circularRect = _getArcPath(
                 0.0,
                 radius,
-                seriesRenderer._center,
+                seriesRenderer._center!,
                 seriesRenderer._start,
                 seriesRenderer._end,
                 seriesRenderer._totalAngle,
@@ -270,14 +272,14 @@ class _CircularSeries {
       seriesRenderer._rect = _getArcPath(
               0.0,
               seriesRenderer._currentRadius,
-              seriesRenderer._center,
+              seriesRenderer._center!,
               seriesRenderer._start,
               seriesRenderer._end,
               seriesRenderer._totalAngle,
               chart,
               true)
           .getBounds();
-      for (final ChartPoint<dynamic> point in seriesRenderer._renderPoints) {
+      for (final ChartPoint<dynamic> point in seriesRenderer._renderPoints!) {
         point.outerRadius = seriesRenderer._currentRadius;
       }
     }
@@ -289,16 +291,16 @@ class _CircularSeries {
     num pointEndAngle;
     num pointStartAngle = seriesRenderer._start;
     final num innerRadius = seriesRenderer._currentInnerRadius;
-    for (final ChartPoint<dynamic> point in seriesRenderer._renderPoints) {
+    for (final ChartPoint<dynamic> point in seriesRenderer._renderPoints!) {
       if (point.isVisible) {
         point.innerRadius =
             (seriesRenderer._seriesType == 'doughnut') ? innerRadius : 0.0;
-        point.degree = (point.y.abs() /
+        point.degree = (point.y!.abs() /
                 (seriesRenderer._sumOfPoints != 0
                     ? seriesRenderer._sumOfPoints
                     : 1)) *
             seriesRenderer._totalAngle;
-        pointEndAngle = pointStartAngle + point.degree;
+        pointEndAngle = pointStartAngle + point.degree!;
         point.startAngle = pointStartAngle;
         point.endAngle = pointEndAngle;
         point.midAngle = (pointStartAngle + pointEndAngle) / 2;
@@ -306,7 +308,7 @@ class _CircularSeries {
             point.radius, point, seriesRenderer._currentRadius);
         point.center = _needExplode(pointIndex, currentSeries)
             ? _findExplodeCenter(
-                point.midAngle, seriesRenderer, point.outerRadius)
+                point.midAngle!, seriesRenderer, point.outerRadius!)
             : seriesRenderer._center;
         if (currentSeries.dataLabelSettings != null) {
           _findDataLabelPosition(point);
@@ -322,12 +324,12 @@ class _CircularSeries {
     bool isNeedExplode = false;
     final SfCircularChartState chartState = _chartState;
     if (series.explode) {
-      if (chartState._initialRender) {
+      if (chartState._initialRender!) {
         if (pointIndex == series.explodeIndex || series.explodeAll) {
           chartState._explodedPoints.add(pointIndex);
           isNeedExplode = true;
         }
-      } else if (chartState._widgetNeedUpdate || chartState._isLegendToggled) {
+      } else if (!chartState._initialRender! || chartState._isLegendToggled) {
         isNeedExplode = chartState._explodedPoints.contains(pointIndex);
       }
     }
@@ -337,9 +339,9 @@ class _CircularSeries {
   /// To find sum of points in the series
   void _findSumOfPoints(CircularSeriesRenderer seriesRenderer) {
     seriesRenderer._sumOfPoints = 0;
-    for (final ChartPoint<dynamic> point in seriesRenderer._renderPoints) {
+    for (final ChartPoint<dynamic> point in seriesRenderer._renderPoints!) {
       if (point.isVisible) {
-        seriesRenderer._sumOfPoints += point.y.abs();
+        seriesRenderer._sumOfPoints += point.y!.abs();
       }
     }
   }
@@ -378,9 +380,9 @@ class _CircularSeries {
     final Rect chartAreaRect = chartState._chartAreaRect;
     size = min(chartAreaRect.width, chartAreaRect.height);
     seriesRenderer._currentRadius =
-        _percentToValue(currentSeries.radius, size / 2).toDouble();
+        _percentToValue(currentSeries.radius, size / 2)!.toDouble();
     seriesRenderer._currentInnerRadius = _percentToValue(
-        currentSeries.innerRadius, seriesRenderer._currentRadius);
+        currentSeries.innerRadius, seriesRenderer._currentRadius)!;
   }
 
   /// To calculate center location of chart
@@ -389,54 +391,54 @@ class _CircularSeries {
     final Rect chartAreaRect = chartState._chartAreaRect;
     final Rect chartContainerRect = chartState._chartContainerRect;
     seriesRenderer._center = Offset(
-        _percentToValue(chart.centerX, chartAreaRect.width).toDouble(),
-        _percentToValue(chart.centerY, chartAreaRect.height).toDouble());
+        _percentToValue(chart.centerX, chartAreaRect.width)!.toDouble(),
+        _percentToValue(chart.centerY, chartAreaRect.height)!.toDouble());
     seriesRenderer._center = Offset(
-        seriesRenderer._center.dx +
+        seriesRenderer._center!.dx +
             (chartContainerRect.width - chartAreaRect.width).abs() / 2,
-        seriesRenderer._center.dy +
+        seriesRenderer._center!.dy +
             (chartContainerRect.height - chartAreaRect.height).abs() / 2);
-    chartState._centerLocation = seriesRenderer._center;
+    chartState._centerLocation = seriesRenderer._center!;
   }
 
   /// To find explode center position
   Offset _findExplodeCenter(
       num midAngle, CircularSeriesRenderer seriesRenderer, num currentRadius) {
     final num explodeCenter =
-        _percentToValue(seriesRenderer._series.explodeOffset, currentRadius);
-    return _degreeToPoint(midAngle, explodeCenter, seriesRenderer._center);
+        _percentToValue(seriesRenderer._series.explodeOffset, currentRadius)!;
+    return _degreeToPoint(midAngle, explodeCenter, seriesRenderer._center!);
   }
 
   /// To calculate and return point radius
   num _calculatePointRadius(
       dynamic value, ChartPoint<dynamic> point, num radius) {
     if (value != null) {
-      radius = value != null ? _percentToValue(value, size / 2) : radius;
+      radius = value != null ? _percentToValue(value, size / 2)! : radius;
     }
     return radius;
   }
 
   /// To add selection points to selection list
-  void _seriesPointSelection(_Region pointRegion, ActivationMode mode,
-      [int pointIndex, int seriesIndex]) {
+  void _seriesPointSelection(_Region? pointRegion, ActivationMode mode,
+      [int? pointIndex, int? seriesIndex]) {
     bool isPointAlreadySelected = false;
     pointIndex = pointRegion != null ? pointRegion.pointIndex : pointIndex;
     seriesIndex = pointRegion != null ? pointRegion.seriesIndex : seriesIndex;
     final SfCircularChartState chartState = _chartState;
     final CircularSeriesRenderer seriesRenderer =
-        _chartState._chartSeries.visibleSeriesRenderers[seriesIndex];
-    int currentSelectedIndex;
+        _chartState._chartSeries.visibleSeriesRenderers[seriesIndex!];
+    int? currentSelectedIndex;
     if (seriesRenderer._isSelectionEnable && mode == chart.selectionGesture) {
       if (chartState._selectionData.isNotEmpty) {
         if (!chart.enableMultiSelection &&
             chartState._selectionData.isNotEmpty &&
             chartState._selectionData.length > 1) {
           if (chartState._selectionData.contains(pointIndex)) {
-            currentSelectedIndex = pointIndex;
+            currentSelectedIndex = pointIndex!;
           }
           chartState._selectionData.clear();
           if (currentSelectedIndex != null) {
-            chartState._selectionData.add(pointIndex);
+            chartState._selectionData.add(pointIndex!);
           }
         }
         for (int i = 0; i < chartState._selectionData.length; i++) {
@@ -455,19 +457,19 @@ class _CircularSeries {
         }
       }
       if (!isPointAlreadySelected) {
-        chartState._selectionData.add(pointIndex);
+        chartState._selectionData.add(pointIndex!);
         chartState._seriesRepaintNotifier.value++;
       }
     }
   }
 
-  void _seriesPointExplosion(_Region pointRegion) {
+  void _seriesPointExplosion(_Region? pointRegion) {
     bool existExplodedRegion = false;
     final SfCircularChartState chartState = _chartState;
     final CircularSeriesRenderer seriesRenderer = _chartState
-        ._chartSeries.visibleSeriesRenderers[pointRegion.seriesIndex];
+        ._chartSeries.visibleSeriesRenderers[pointRegion!.seriesIndex];
     final ChartPoint<dynamic> point =
-        seriesRenderer._renderPoints[pointRegion.pointIndex];
+        seriesRenderer._renderPoints![pointRegion.pointIndex];
     if (seriesRenderer._series.explode) {
       if (chartState._explodedPoints.isNotEmpty) {
         if (chartState._explodedPoints.length == 1 &&
@@ -478,33 +480,37 @@ class _CircularSeries {
               chartState._explodedPoints.indexOf(pointRegion.pointIndex);
           chartState._explodedPoints.removeAt(index);
           chartState._seriesRepaintNotifier.value++;
+          chartState._renderDataLabel!.state.dataLabelRepaintNotifier.value++;
         } else if (seriesRenderer._series.explodeAll &&
             chartState._explodedPoints.length > 1 &&
             chartState._explodedPoints.contains(pointRegion.pointIndex)) {
           for (int i = 0; i < chartState._explodedPoints.length; i++) {
             final int explodeIndex = chartState._explodedPoints[i];
-            seriesRenderer._renderPoints[explodeIndex].center =
+            seriesRenderer._renderPoints![explodeIndex].center =
                 seriesRenderer._center;
             chartState._explodedPoints.removeAt(i);
             i--;
           }
           existExplodedRegion = true;
           chartState._seriesRepaintNotifier.value++;
+          chartState._renderDataLabel!.state.dataLabelRepaintNotifier.value++;
         } else if (chartState._explodedPoints.length == 1) {
           for (int i = 0; i < chartState._explodedPoints.length; i++) {
             final int explodeIndex = chartState._explodedPoints[i];
-            seriesRenderer._renderPoints[explodeIndex].center =
+            seriesRenderer._renderPoints![explodeIndex].center =
                 seriesRenderer._center;
             chartState._explodedPoints.removeAt(i);
             chartState._seriesRepaintNotifier.value++;
+            chartState._renderDataLabel!.state.dataLabelRepaintNotifier.value++;
           }
         }
       }
       if (!existExplodedRegion) {
         point.center = _findExplodeCenter(
-            point.midAngle, seriesRenderer, point.outerRadius);
+            point.midAngle!, seriesRenderer, point.outerRadius!);
         chartState._explodedPoints.add(pointRegion.pointIndex);
         chartState._seriesRepaintNotifier.value++;
+        chartState._renderDataLabel!.state.dataLabelRepaintNotifier.value++;
       }
     }
   }

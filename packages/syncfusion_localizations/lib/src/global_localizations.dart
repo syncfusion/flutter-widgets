@@ -7,7 +7,6 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
-import 'package:intl/date_symbols.dart' as intl;
 import 'package:syncfusion_flutter_core/localizations.dart';
 
 import 'l10n/generated_syncfusion_localizations.dart';
@@ -17,7 +16,7 @@ import 'l10n/generated_syncfusion_localizations.dart';
 /// To include the localizations provided by this class in a [MaterialApp],
 /// add [SfGlobalLocalizations.delegate] to
 /// [MaterialApp.localizationsDelegates], and specify the locales your
-/// app supports with [MaterialApp.supportedLocales]:
+/// app supports with `MaterialApp.supportedLocales`:
 ///
 /// ```dart
 /// new MaterialApp(
@@ -38,8 +37,8 @@ import 'l10n/generated_syncfusion_localizations.dart';
 abstract class SfGlobalLocalizations implements SfLocalizations {
   /// Created an constructor of SfGlobalLocalizations class.
   const SfGlobalLocalizations({
-    @required String localeName,
-  })  : assert(localeName != null),
+    required String localeName,
+  })   : assert(localeName != null),
         _localeName = localeName;
   // ignore: unused_field
   final String _localeName;
@@ -92,7 +91,7 @@ class _SfLocalizationsDelegate extends LocalizationsDelegate<SfLocalizations> {
 
       return SynchronousFuture<SfLocalizations>(getSyncfusionTranslation(
         locale,
-      ));
+      )!);
     });
   }
 

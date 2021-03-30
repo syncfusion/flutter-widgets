@@ -20,7 +20,7 @@ class MapsApp extends StatelessWidget {
 /// This widget is the home page of the application.
 class MyHomePage extends StatefulWidget {
   /// Initialize the instance of the [MyHomePage] class.
-  const MyHomePage({Key key}) : super(key: key);
+  const MyHomePage({Key? key}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -29,7 +29,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   _MyHomePageState();
 
-  List<Model> _data;
+  late List<Model> _data;
+  late MapShapeSource _mapSource;
 
   @override
   void initState() {
@@ -47,6 +48,15 @@ class _MyHomePageState extends State<MyHomePage> {
       Model('Tasmania', Color.fromRGBO(99, 164, 230, 1), 'Tasmania'),
       Model('Australian Capital Territory', Colors.teal, 'ACT')
     ];
+
+    _mapSource = MapShapeSource.asset(
+      'assets/australia.json',
+      shapeDataField: 'STATE_NAME',
+      dataCount: _data.length,
+      primaryValueMapper: (int index) => _data[index].state,
+      dataLabelMapper: (int index) => _data[index].stateCode,
+      shapeColorValueMapper: (int index) => _data[index].color,
+    );
     super.initState();
   }
 
@@ -57,17 +67,9 @@ class _MyHomePageState extends State<MyHomePage> {
         height: 520,
         child: Center(
           child: SfMaps(
-            title: const MapTitle('Australia map'),
             layers: <MapShapeLayer>[
               MapShapeLayer(
-                source: MapShapeSource.asset(
-                  'assets/australia.json',
-                  shapeDataField: 'STATE_NAME',
-                  dataCount: _data.length,
-                  primaryValueMapper: (int index) => _data[index].state,
-                  dataLabelMapper: (int index) => _data[index].stateCode,
-                  shapeColorValueMapper: (int index) => _data[index].color,
-                ),
+                source: _mapSource,
                 showDataLabels: true,
                 legend: MapLegend(MapElement.shape),
                 tooltipSettings: MapTooltipSettings(
@@ -90,7 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
                         fontSize:
-                            Theme.of(context).textTheme.caption.fontSize)),
+                            Theme.of(context).textTheme.caption!.fontSize)),
               ),
             ],
           ),

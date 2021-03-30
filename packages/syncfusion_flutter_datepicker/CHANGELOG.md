@@ -1,4 +1,17 @@
-## [13.4.30-beta]
+## [Unreleased version]
+**Features**
+* Implemented the free scroll support in the date range picker.
+* Implemented action buttons to confirm and cancel the selection in the date range picker.
+* Provided the support for enabling and disable the swiping interaction in the date range picker.
+
+**Breaking changes**
+* Now, the header text will align to the left instead of center when the multiview is enabled in the date range picker.
+
+## [18.4.34-beta]
+**Breaking changes**
+* Now, the `date` and `visibleDates` types are changed from dynamic to respective types in the cell builder of the Date range picker.
+
+## [18.4.30-beta]
 **Features**
 * Hijri date picker support is provided.
 * The custom builder support is provided for the month cells and year cells in the date range picker.

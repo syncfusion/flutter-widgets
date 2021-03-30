@@ -4,13 +4,11 @@ part of datagrid;
 class GridCell extends StatefulWidget {
   /// Creates the [GridCell] for [SfDataGrid] widget.
   const GridCell({
-    @required Key key,
-    this.dataCell,
-    this.padding,
-    this.backgroundColor,
-    this.isDirty,
-    this.child,
-    this.alignment,
+    required Key key,
+    required this.dataCell,
+    required this.isDirty,
+    required this.backgroundColor,
+    required this.child,
   }) : super(key: key);
 
   /// Holds the information required to display the cell.
@@ -19,9 +17,6 @@ class GridCell extends StatefulWidget {
   /// The [child] contained by the [GridCell].
   final Widget child;
 
-  /// Empty space to inscribe inside the [GridCell].
-  final EdgeInsets padding;
-
   /// The color to paint behind the [child].
   final Color backgroundColor;
 
@@ -29,34 +24,31 @@ class GridCell extends StatefulWidget {
   /// rebuild.
   final bool isDirty;
 
-  /// Align the [child] within the GridCell.
-  final Alignment alignment;
-
   @override
   State<StatefulWidget> createState() => _GridCellState();
 }
 
 class _GridCellState extends State<GridCell> {
-  PointerDeviceKind _kind;
+  late PointerDeviceKind _kind;
 
   void _handleOnTapDown(TapDownDetails details) {
-    _kind = details?.kind;
+    _kind = details.kind!;
   }
 
   Widget _wrapInsideGestureDetector() {
     final dataCell = widget.dataCell;
-    final _DataGridSettings dataGridSettings =
-        dataCell?._dataRow?._dataGridStateDetails();
+    final _DataGridSettings? dataGridSettings =
+        dataCell._dataRow!._dataGridStateDetails!();
     return GestureDetector(
       onTapUp: (details) {
         _handleOnTapUp(
             tapUpDetails: details,
-            dataGridSettings: dataGridSettings,
+            dataGridSettings: dataGridSettings!,
             dataCell: dataCell,
             kind: _kind);
       },
       onTapDown: _handleOnTapDown,
-      onDoubleTap: dataGridSettings.onCellDoubleTap != null
+      onDoubleTap: dataGridSettings!.onCellDoubleTap != null
           ? () {
               _handleOnDoubleTap(
                   dataCell: dataCell, dataGridSettings: dataGridSettings);
@@ -88,10 +80,8 @@ class _GridCellState extends State<GridCell> {
       child: _wrapInsideCellContainer(
         child: widget.child,
         dataCell: widget.dataCell,
-        key: widget.key,
+        key: widget.key!,
         backgroundColor: widget.backgroundColor,
-        alignment: widget.alignment,
-        padding: widget.padding,
       ));
 
   @override
@@ -110,115 +100,12 @@ class _GridCellState extends State<GridCell> {
   }
 }
 
-/// A widget which loads any widget in the cells.
-///
-/// This widget is typically used for [GridWidgetColumn].
-class GridWidgetCell extends GridCell {
-  /// Creates the [GridWidgetCell] for [SfDataGrid] widget.
-  const GridWidgetCell({
-    @required Key key,
-    DataCellBase dataCell,
-    EdgeInsets padding,
-    Color backgroundColor,
-    bool isDirty,
-    Widget child,
-  }) : super(
-            key: key,
-            dataCell: dataCell,
-            padding: padding,
-            backgroundColor: backgroundColor,
-            isDirty: isDirty,
-            child: child);
-
-  @override
-  State<StatefulWidget> createState() => _GridWidgetCellState();
-}
-
-class _GridWidgetCellState extends State<GridWidgetCell> {
-  PointerDeviceKind _kind;
-
-  void _handleOnTapDown(TapDownDetails details) {
-    _kind = details?.kind;
-  }
-
-  Widget _wrapInsideGestureDetector(BuildContext context) {
-    final dataCell = widget.dataCell;
-    final _DataGridSettings dataGridSettings =
-        dataCell?._dataRow?._dataGridStateDetails();
-    return GestureDetector(
-      onTapUp: (details) {
-        _handleOnTapUp(
-            tapUpDetails: details,
-            dataGridSettings: dataGridSettings,
-            dataCell: dataCell,
-            kind: _kind);
-      },
-      onTapDown: _handleOnTapDown,
-      onDoubleTap: dataGridSettings.onCellDoubleTap != null
-          ? () {
-              _handleOnDoubleTap(
-                  dataCell: dataCell, dataGridSettings: dataGridSettings);
-            }
-          : null,
-      onLongPressEnd: (details) {
-        _handleOnLongPressEnd(
-            longPressEndDetails: details,
-            dataGridSettings: dataGridSettings,
-            dataCell: dataCell);
-      },
-      onSecondaryTapUp: (details) {
-        _handleOnSecondaryTapUp(
-            tapUpDetails: details,
-            dataGridSettings: dataGridSettings,
-            dataCell: dataCell,
-            kind: _kind);
-      },
-      onSecondaryTapDown: _handleOnTapDown,
-      child: _wrapInsideContainer(context),
-    );
-  }
-
-  Widget _wrapInsideContainer(BuildContext context) {
-    final _DataGridSettings dataGridSettings =
-        widget.dataCell?._dataRow?._dataGridStateDetails();
-    Widget child;
-    if (dataGridSettings != null && dataGridSettings.cellBuilder != null) {
-      final recordIndex = _GridIndexResolver.resolveToRecordIndex(
-          dataGridSettings, widget.dataCell.rowIndex);
-      child = dataGridSettings.cellBuilder(
-          context, widget.dataCell.gridColumn, recordIndex);
-    }
-
-    return Container(
-        key: widget.key,
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(border: _getCellBorder(widget.dataCell)),
-        child: _wrapInsideCellContainer(
-          child: child,
-          dataCell: widget.dataCell,
-          key: widget.key,
-          backgroundColor: widget.backgroundColor,
-          alignment: widget.alignment,
-          padding: widget.padding,
-        ));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final Widget child = _wrapInsideGestureDetector(context);
-
-    return _GridCellRenderObjectWidget(
-      key: widget.key,
-      dataCell: widget.dataCell,
-      isDirty: widget.isDirty,
-      child: child,
-    );
-  }
-}
-
 class _GridCellRenderObjectWidget extends SingleChildRenderObjectWidget {
   _GridCellRenderObjectWidget(
-      {@required Key key, this.dataCell, this.isDirty, this.child})
+      {required Key? key,
+      required this.dataCell,
+      required this.isDirty,
+      required this.child})
       : super(key: key, child: RepaintBoundary.wrap(child, 0));
 
   @override
@@ -243,7 +130,8 @@ class _GridCellRenderObjectWidget extends SingleChildRenderObjectWidget {
 
 class _RenderGridCell extends RenderBox
     with RenderObjectWithChildMixin<RenderBox> {
-  _RenderGridCell({RenderBox child, DataCellBase dataCell, bool isDirty})
+  _RenderGridCell(
+      {RenderBox? child, required DataCellBase dataCell, required bool isDirty})
       : _dataCell = dataCell,
         _isDirty = isDirty {
     this.child = child;
@@ -272,28 +160,30 @@ class _RenderGridCell extends RenderBox
       markNeedsPaint();
     }
 
-    dataCell?._isDirty = false;
+    dataCell._isDirty = false;
   }
 
-  Rect columnRect = Rect.zero;
+  Rect? columnRect = Rect.zero;
 
-  Rect cellClipRect;
+  Rect? cellClipRect;
 
-  Rect _measureColumnRect(double rowHeight) {
-    if (dataCell._dataRow.isVisible && dataCell.isVisible) {
-      final DataRow dataRow = dataCell._dataRow;
+  Rect? _measureColumnRect(double rowHeight) {
+    if (dataCell._dataRow != null &&
+        dataCell._dataRow!.isVisible &&
+        dataCell.isVisible) {
+      final DataRowBase dataRow = dataCell._dataRow!;
       final _DataGridSettings _dataGridSettings =
-          dataRow._dataGridStateDetails();
-      final double lineWidth = dataCell._dataRow._getColumnWidth(
+          dataRow._dataGridStateDetails!();
+      final double lineWidth = dataRow._getColumnWidth(
           dataCell.columnIndex, dataCell.columnIndex + dataCell._columnSpan);
-      final double lineHeight = dataCell._dataRow._getRowHeight(
+      final double lineHeight = dataRow._getRowHeight(
           dataCell.rowIndex - dataCell._rowSpan, dataCell.rowIndex);
 
       if (dataRow.rowType == RowType.stackedHeaderRow) {
         columnRect =
             _getStackedHeaderCellRect(_dataGridSettings, lineWidth, lineHeight);
       } else {
-        final _VisibleLineInfo lineInfo =
+        final _VisibleLineInfo? lineInfo =
             dataRow._getColumnVisibleLineInfo(dataCell.columnIndex);
         final double origin = lineInfo != null ? lineInfo.origin : 0.0;
         columnRect = _getCellRect(
@@ -306,13 +196,13 @@ class _RenderGridCell extends RenderBox
     return columnRect;
   }
 
-  Rect _getCellRect(
+  Rect? _getCellRect(
       _DataGridSettings dataGridSettings,
-      _VisibleLineInfo lineInfo,
+      _VisibleLineInfo? lineInfo,
       double origin,
       double lineWidth,
       double lineHeight) {
-    final DataRow dataRow = dataCell._dataRow;
+    final DataRowBase dataRow = dataCell._dataRow!;
     final int rowIndex = dataCell.rowIndex;
     final int rowSpan = dataCell._rowSpan;
 
@@ -323,7 +213,7 @@ class _RenderGridCell extends RenderBox
     if (dataGridSettings.textDirection == TextDirection.rtl &&
         lineInfo != null &&
         lineInfo.visibleIndex ==
-            _SfDataGridHelper.getVisibleLines(dataRow._dataGridStateDetails())
+            _SfDataGridHelper.getVisibleLines(dataRow._dataGridStateDetails!())
                 .firstBodyVisibleIndex) {
       origin += lineInfo.scrollOffset;
     }
@@ -341,9 +231,9 @@ class _RenderGridCell extends RenderBox
     return columnRect;
   }
 
-  Rect _getStackedHeaderCellRect(
+  Rect? _getStackedHeaderCellRect(
       _DataGridSettings dataGridSettings, double lineWidth, double lineHeight) {
-    final DataRow dataRow = dataCell._dataRow;
+    final DataRowBase dataRow = dataCell._dataRow!;
     final int cellStartIndex = dataCell.columnIndex;
     final int columnSpan = dataCell._columnSpan;
     final int cellEndIndex = cellStartIndex + columnSpan;
@@ -354,10 +244,11 @@ class _RenderGridCell extends RenderBox
     final int footerFrozenColumnsCount =
         dataGridSettings.footerFrozenColumnsCount;
     final int columnsLength = dataGridSettings.columns.length;
-    final scrollColumns = dataGridSettings.container.scrollColumns;
-    Rect columnRect = Rect.zero;
-    double origin;
-    _VisibleLineInfo lineInfo;
+    final _ScrollAxisBase scrollColumns =
+        dataGridSettings.container.scrollColumns;
+    Rect? columnRect = Rect.zero;
+    double? origin;
+    _VisibleLineInfo? lineInfo;
 
     if (frozenColumns > cellStartIndex && frozenColumns <= cellEndIndex) {
       if (dataGridSettings.textDirection == TextDirection.ltr) {
@@ -366,9 +257,9 @@ class _RenderGridCell extends RenderBox
             index--) {
           lineInfo = scrollColumns.getVisibleLineAtLineIndex(index);
           if (lineInfo != null) {
-            final startLineInfo =
+            final _VisibleLineInfo? startLineInfo =
                 scrollColumns.getVisibleLineAtLineIndex(cellStartIndex);
-            origin = startLineInfo.origin;
+            origin = startLineInfo?.origin;
             lineWidth = _getClippedWidth(
                 dataGridSettings, cellStartIndex, cellEndIndex);
             break;
@@ -414,17 +305,20 @@ class _RenderGridCell extends RenderBox
         for (int index = cellStartIndex; index <= cellEndIndex; index++) {
           lineInfo = scrollColumns.getVisibleLineAtLineIndex(index);
           if (lineInfo != null) {
-            final line = scrollColumns.getVisibleLineAtLineIndex(cellEndIndex);
-            if (index == columnsLength - footerFrozenColumnsCount) {
-              origin = line.origin;
-              lineWidth =
-                  dataRow._getColumnWidth(cellStartIndex + span, cellEndIndex);
-              break;
-            } else {
-              origin = line.clippedOrigin - lineInfo.scrollOffset;
-              lineWidth = _getClippedWidth(
-                  dataGridSettings, cellStartIndex, cellEndIndex);
-              break;
+            final _VisibleLineInfo? line =
+                scrollColumns.getVisibleLineAtLineIndex(cellEndIndex);
+            if (line != null) {
+              if (index == columnsLength - footerFrozenColumnsCount) {
+                origin = line.origin;
+                lineWidth = dataRow._getColumnWidth(
+                    cellStartIndex + span, cellEndIndex);
+                break;
+              } else {
+                origin = line.clippedOrigin - lineInfo.scrollOffset;
+                lineWidth = _getClippedWidth(
+                    dataGridSettings, cellStartIndex, cellEndIndex);
+                break;
+              }
             }
           }
           span += 1;
@@ -465,7 +359,7 @@ class _RenderGridCell extends RenderBox
 
     if (lineInfo != null) {
       columnRect = _getCellRect(
-          dataGridSettings, lineInfo, origin, lineWidth, lineHeight);
+          dataGridSettings, lineInfo, origin!, lineWidth, lineHeight);
     }
     return columnRect;
   }
@@ -474,7 +368,7 @@ class _RenderGridCell extends RenderBox
       _DataGridSettings dataGridSettings, int startIndex, int endIndex) {
     double clippedWidth = 0;
     for (int index = startIndex; index <= endIndex; index++) {
-      final newline = dataCell._dataRow._getColumnVisibleLineInfo(index);
+      final newline = dataCell._dataRow!._getColumnVisibleLineInfo(index);
       if (newline != null) {
         if (dataGridSettings.textDirection == TextDirection.ltr) {
           clippedWidth +=
@@ -492,17 +386,17 @@ class _RenderGridCell extends RenderBox
   }
 
   @override
-  bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
     if (child == null) {
       return false;
     }
 
-    final BoxParentData childParentData = child.parentData;
+    final BoxParentData childParentData = child!.parentData as BoxParentData;
     final bool isHit = result.addWithPaintOffset(
         offset: childParentData.offset,
         position: position,
         hitTest: (result, transformed) =>
-            child.hitTest(result, position: transformed));
+            child!.hitTest(result, position: transformed));
     if (isHit) {
       return true;
     } else {
@@ -522,7 +416,7 @@ class _RenderGridCell extends RenderBox
         .constrain(Size(constraints.maxWidth, constraints.maxHeight));
 
     if (child != null) {
-      child.layout(
+      child!.layout(
           BoxConstraints.tightFor(
               width: constraints.maxWidth, height: constraints.maxHeight),
           parentUsesSize: true);
@@ -532,7 +426,7 @@ class _RenderGridCell extends RenderBox
   @override
   void paint(PaintingContext context, Offset offset) {
     if (child != null) {
-      context.paintChild(child, offset);
+      context.paintChild(child!, offset);
     }
 
     super.paint(context, offset);
@@ -541,9 +435,9 @@ class _RenderGridCell extends RenderBox
 
 BorderDirectional _getCellBorder(DataCellBase dataCell) {
   final _DataGridSettings dataGridSettings =
-      dataCell._dataRow._dataGridStateDetails();
-  final Color borderColor = dataGridSettings.dataGridThemeData?.gridLineColor;
-  final borderWidth = dataGridSettings.dataGridThemeData?.gridLineStrokeWidth;
+      dataCell._dataRow!._dataGridStateDetails!();
+  final Color borderColor = dataGridSettings.dataGridThemeData!.gridLineColor;
+  final borderWidth = dataGridSettings.dataGridThemeData!.gridLineStrokeWidth;
 
   final rowIndex = (dataCell._rowSpan > 0)
       ? dataCell.rowIndex - dataCell._rowSpan
@@ -602,20 +496,26 @@ BorderDirectional _getCellBorder(DataCellBase dataCell) {
       _GridIndexResolver.getStartFooterFrozenColumnIndex(dataGridSettings) ==
           columnIndex;
 
+  final bool isFrozenPaneElevationApplied =
+      (dataGridSettings.dataGridThemeData!.frozenPaneElevation > 0.0);
+
   final Color frozenPaneLineColor =
-      dataGridSettings.dataGridThemeData?.frozenPaneLineColor;
+      dataGridSettings.dataGridThemeData!.frozenPaneLineColor;
 
   final double frozenPaneLineWidth =
-      dataGridSettings.dataGridThemeData?.frozenPaneLineWidth;
+      dataGridSettings.dataGridThemeData!.frozenPaneLineWidth;
 
   BorderSide _getLeftBorder() {
     if ((columnIndex == 0 &&
             (canDrawVerticalBorder || canDrawHeaderVerticalBorder)) ||
         canDrawLeftFrozenBorder) {
-      if (canDrawLeftFrozenBorder && !isStackedHeaderCell) {
+      if (canDrawLeftFrozenBorder &&
+          !isStackedHeaderCell &&
+          !isFrozenPaneElevationApplied) {
         return BorderSide(
             width: frozenPaneLineWidth, color: frozenPaneLineColor);
-      } else if (canDrawVerticalBorder || canDrawHeaderVerticalBorder) {
+      } else if ((canDrawVerticalBorder || canDrawHeaderVerticalBorder) &&
+          !canDrawLeftFrozenBorder) {
         return BorderSide(width: borderWidth, color: borderColor);
       } else {
         return BorderSide.none;
@@ -629,11 +529,15 @@ BorderDirectional _getCellBorder(DataCellBase dataCell) {
     if ((rowIndex == 0 &&
             (canDrawHorizontalBorder || canDrawHeaderHorizontalBorder)) ||
         canDrawTopFrozenBorder) {
-      if (canDrawTopFrozenBorder && !isStackedHeaderCell) {
+      if (canDrawTopFrozenBorder &&
+          !isStackedHeaderCell &&
+          !isFrozenPaneElevationApplied) {
         return BorderSide(
             width: frozenPaneLineWidth, color: frozenPaneLineColor);
-      } else {
+      } else if (!canDrawTopFrozenBorder) {
         return BorderSide(width: borderWidth, color: borderColor);
+      } else {
+        return BorderSide.none;
       }
     } else {
       return BorderSide.none;
@@ -644,10 +548,13 @@ BorderDirectional _getCellBorder(DataCellBase dataCell) {
     if (canDrawVerticalBorder ||
         canDrawHeaderVerticalBorder ||
         canDrawRightFrozenBorder) {
-      if (canDrawRightFrozenBorder && !isStackedHeaderCell) {
+      if (canDrawRightFrozenBorder &&
+          !isStackedHeaderCell &&
+          !isFrozenPaneElevationApplied) {
         return BorderSide(
             width: frozenPaneLineWidth, color: frozenPaneLineColor);
-      } else if (canDrawVerticalBorder || canDrawHeaderVerticalBorder) {
+      } else if ((canDrawVerticalBorder || canDrawHeaderVerticalBorder) &&
+          !canDrawRightFrozenBorder) {
         return BorderSide(width: borderWidth, color: borderColor);
       } else {
         return BorderSide.none;
@@ -661,11 +568,15 @@ BorderDirectional _getCellBorder(DataCellBase dataCell) {
     if (canDrawHorizontalBorder ||
         canDrawHeaderHorizontalBorder ||
         canDrawBottomFrozenBorder) {
-      if (canDrawBottomFrozenBorder && !isStackedHeaderCell) {
+      if (canDrawBottomFrozenBorder &&
+          !isStackedHeaderCell &&
+          !isFrozenPaneElevationApplied) {
         return BorderSide(
             width: frozenPaneLineWidth, color: frozenPaneLineColor);
-      } else {
+      } else if (!canDrawBottomFrozenBorder) {
         return BorderSide(width: borderWidth, color: borderColor);
+      } else {
+        return BorderSide.none;
       }
     } else {
       return BorderSide.none;
@@ -681,20 +592,20 @@ BorderDirectional _getCellBorder(DataCellBase dataCell) {
 }
 
 Widget _wrapInsideCellContainer(
-    {@required DataCell dataCell,
-    @required Key key,
-    @required EdgeInsets padding,
-    @required Alignment alignment,
-    @required Color backgroundColor,
-    @required Widget child}) {
-  final dataGridSettings = dataCell._dataRow._dataGridStateDetails();
+    {required DataCellBase dataCell,
+    required Key key,
+    required Color backgroundColor,
+    required Widget child}) {
+  final _DataGridSettings? dataGridSettings =
+      dataCell._dataRow!._dataGridStateDetails!();
   if (dataGridSettings == null) {
     return child;
   }
 
-  final color = dataGridSettings.dataGridThemeData.currentCellStyle.borderColor;
+  final color =
+      dataGridSettings.dataGridThemeData!.currentCellStyle.borderColor;
   final borderWidth =
-      dataGridSettings.dataGridThemeData.currentCellStyle.borderWidth ?? 1.0;
+      dataGridSettings.dataGridThemeData!.currentCellStyle.borderWidth;
 
   Border getBorder() {
     final isCurrentCell = dataCell.isCurrentCell;
@@ -714,10 +625,10 @@ Widget _wrapInsideCellContainer(
     );
   }
 
-  double getCellHeight(DataCell dataCell, double defaultHeight) {
+  double getCellHeight(DataCellBase dataCell, double defaultHeight) {
     double height;
     if (dataCell._rowSpan > 0) {
-      height = dataCell._dataRow._getRowHeight(
+      height = dataCell._dataRow!._getRowHeight(
           dataCell.rowIndex - dataCell._rowSpan, dataCell.rowIndex);
     } else {
       height = defaultHeight;
@@ -725,10 +636,10 @@ Widget _wrapInsideCellContainer(
     return height;
   }
 
-  double getCellWidth(DataCell dataCell, double defaultWidth) {
+  double getCellWidth(DataCellBase dataCell, double defaultWidth) {
     double width;
     if (dataCell._columnSpan > 0) {
-      width = dataCell._dataRow._getColumnWidth(
+      width = dataCell._dataRow!._getColumnWidth(
           dataCell.columnIndex, dataCell.columnIndex + dataCell._columnSpan);
     } else {
       width = defaultWidth;
@@ -736,43 +647,41 @@ Widget _wrapInsideCellContainer(
     return width;
   }
 
-  return LayoutBuilder(
-      builder: (context, constraint) => Container(
-          key: key,
-          width: getCellWidth(dataCell, constraint.maxWidth),
-          height: getCellHeight(dataCell, constraint.maxHeight),
-          padding: _getPadding(dataCell, padding),
-          alignment: alignment,
-          clipBehavior: Clip.antiAlias,
-          decoration:
-              BoxDecoration(color: backgroundColor, border: getBorder()),
-          child: child));
-}
+  Widget getChild(BoxConstraints constraint) {
+    final double width = getCellWidth(dataCell, constraint.maxWidth);
+    final double height = getCellHeight(dataCell, constraint.maxHeight);
 
-EdgeInsets _getPadding(DataCellBase dataCell, EdgeInsets padding) {
-  final dataGridSettings = dataCell._dataRow?._dataGridStateDetails();
-
-  if (dataGridSettings == null) {
-    return const EdgeInsets.all(0.0);
+    if (dataCell.isCurrentCell) {
+      return Stack(
+        children: [
+          Container(width: width, height: height, child: child),
+          Positioned(
+              left: 0,
+              top: 0,
+              width: width,
+              height: height,
+              child: IgnorePointer(
+                ignoring: true,
+                child: Container(
+                    key: key,
+                    clipBehavior: Clip.antiAlias,
+                    decoration: BoxDecoration(
+                        color: backgroundColor, border: getBorder())),
+              )),
+        ],
+      );
+    } else {
+      return Container(width: width, height: height, child: child);
+    }
   }
 
-  final themeData = dataGridSettings.dataGridThemeData;
-  final currentCellBorderWidth = themeData.currentCellStyle.borderWidth ?? 1.0;
-  final visualDensityPadding = dataGridSettings.visualDensity.vertical * 2;
-
-  padding ??= EdgeInsets.all(16) +
-      EdgeInsets.fromLTRB(0.0, visualDensityPadding, 0.0, visualDensityPadding);
-
-  padding = padding != null
-      ? padding -
-          EdgeInsets.all(dataCell.isCurrentCell ? currentCellBorderWidth : 0.0)
-      : padding;
-
-  return padding != null && padding.isNonNegative ? padding : EdgeInsets.zero;
+  return LayoutBuilder(builder: (context, constraint) {
+    return getChild(constraint);
+  });
 }
 
-Rect _getCellClipRect(_DataGridSettings _dataGridSettings,
-    _VisibleLineInfo lineInfo, double rowHeight) {
+Rect? _getCellClipRect(_DataGridSettings _dataGridSettings,
+    _VisibleLineInfo? lineInfo, double rowHeight) {
   // FLUT-1971 Need to check whether the lineInfo is null or not. Because it
   // will be null when load empty to the columns collection.
   if (lineInfo == null) {
@@ -812,19 +721,19 @@ Rect _getCellClipRect(_DataGridSettings _dataGridSettings,
   }
 }
 
-Rect _getSpannedCellClipRect(
+Rect? _getSpannedCellClipRect(
     _DataGridSettings dataGridSettings,
-    DataRow dataRow,
+    DataRowBase dataRow,
     DataCellBase dataCell,
     double cellHeight,
     double cellWidth) {
-  Rect clipRect;
+  Rect? clipRect;
   var firstVisibleStackedColumnIndex = dataCell.columnIndex;
   double lastCellClippedSize = 0.0;
   var isLastCellClippedCorner = false;
   var isLastCellClippedBody = false;
 
-  double getClippedWidth(DataCellBase dataCell, _SpannedDataRow dataRow,
+  double getClippedWidth(DataCellBase dataCell, DataRowBase dataRow,
       {bool columnsNotInViewWidth = false, bool allCellsClippedWidth = false}) {
     final startIndex = dataCell.columnIndex;
     final endIndex = dataCell.columnIndex + dataCell._columnSpan;
@@ -866,32 +775,32 @@ Rect _getSpannedCellClipRect(
     return null;
   }
 
-  if (dataRow != null && dataCell._renderer != null) {
+  if (dataCell._renderer != null) {
     final columnsNotInViewWidth =
         getClippedWidth(dataCell, dataRow, columnsNotInViewWidth: true);
     final clippedWidth =
         getClippedWidth(dataCell, dataRow, allCellsClippedWidth: true);
-    final visiblelineInfo =
+    final visibleLineInfo =
         dataRow._getColumnVisibleLineInfo(firstVisibleStackedColumnIndex);
 
-    if (visiblelineInfo != null) {
-      if (visiblelineInfo.isClippedOrigin && visiblelineInfo.isClippedCorner) {
+    if (visibleLineInfo != null) {
+      if (visibleLineInfo.isClippedOrigin && visibleLineInfo.isClippedCorner) {
         final clippedOrigin = columnsNotInViewWidth +
-            visiblelineInfo.size -
-            (visiblelineInfo.clippedSize + visiblelineInfo.clippedCornerExtent);
+            visibleLineInfo.size -
+            (visibleLineInfo.clippedSize + visibleLineInfo.clippedCornerExtent);
 
         final double left = dataGridSettings.textDirection == TextDirection.ltr
             ? clippedOrigin
-            : visiblelineInfo.clippedSize;
+            : visibleLineInfo.clippedSize;
         final double right = dataGridSettings.textDirection == TextDirection.ltr
             ? clippedWidth
-            : visiblelineInfo.clippedCornerExtent;
+            : visibleLineInfo.clippedCornerExtent;
 
         clipRect = Rect.fromLTWH(left, 0.0, right, cellHeight);
-      } else if (visiblelineInfo.isClippedOrigin) {
+      } else if (visibleLineInfo.isClippedOrigin) {
         final clippedOriginLTR = columnsNotInViewWidth +
-            visiblelineInfo.size -
-            visiblelineInfo.clippedSize;
+            visibleLineInfo.size -
+            visibleLineInfo.clippedSize;
         final clippedOriginRTL =
             (isLastCellClippedCorner && isLastCellClippedBody)
                 ? lastCellClippedSize
@@ -903,7 +812,7 @@ Rect _getSpannedCellClipRect(
         final double right = dataGridSettings.textDirection == TextDirection.ltr
             ? clippedWidth
             : cellWidth -
-                (columnsNotInViewWidth + visiblelineInfo.scrollOffset);
+                (columnsNotInViewWidth + visibleLineInfo.scrollOffset);
 
         clipRect = Rect.fromLTWH(left, 0.0, right, cellHeight);
       } else if (isLastCellClippedCorner && isLastCellClippedBody) {
@@ -943,78 +852,65 @@ Rect _getSpannedCellClipRect(
 // Gesture Events
 
 void _handleOnTapUp(
-    {TapUpDetails tapUpDetails,
-    DataCellBase dataCell,
-    _DataGridSettings dataGridSettings,
-    PointerDeviceKind kind}) {
-  if (dataGridSettings == null || dataCell == null) {
-    return;
-  }
+    {required TapUpDetails tapUpDetails,
+    required DataCellBase dataCell,
+    required _DataGridSettings dataGridSettings,
+    required PointerDeviceKind kind}) {
   if (dataGridSettings.onCellTap != null) {
     final DataGridCellTapDetails details = DataGridCellTapDetails(
         rowColumnIndex: RowColumnIndex(dataCell.rowIndex, dataCell.columnIndex),
-        column: dataCell.gridColumn,
-        globalPosition: tapUpDetails?.globalPosition,
-        localPosition: tapUpDetails?.localPosition,
+        column: dataCell.gridColumn!,
+        globalPosition: tapUpDetails.globalPosition,
+        localPosition: tapUpDetails.localPosition,
         kind: kind);
-    dataGridSettings.onCellTap(details);
+    dataGridSettings.onCellTap!(details);
   }
 
-  dataGridSettings.dataGridFocusNode.requestFocus();
+  dataGridSettings.dataGridFocusNode?.requestFocus();
   dataCell._onTouchUp();
 }
 
 void _handleOnDoubleTap(
-    {DataCellBase dataCell, _DataGridSettings dataGridSettings}) {
-  if (dataGridSettings == null || dataCell == null) {
-    return;
-  }
-
+    {required DataCellBase dataCell,
+    required _DataGridSettings dataGridSettings}) {
   if (dataGridSettings.onCellDoubleTap != null) {
     final DataGridCellDoubleTapDetails details = DataGridCellDoubleTapDetails(
         rowColumnIndex: RowColumnIndex(dataCell.rowIndex, dataCell.columnIndex),
-        column: dataCell.gridColumn);
-    dataGridSettings.onCellDoubleTap(details);
+        column: dataCell.gridColumn!);
+    dataGridSettings.onCellDoubleTap!(details);
   }
 
-  dataGridSettings.dataGridFocusNode.requestFocus();
+  dataGridSettings.dataGridFocusNode?.requestFocus();
   dataCell._onTouchUp();
 }
 
 void _handleOnLongPressEnd(
-    {LongPressEndDetails longPressEndDetails,
-    DataCellBase dataCell,
-    _DataGridSettings dataGridSettings}) {
-  if (dataGridSettings == null || dataCell == null) {
-    return;
-  }
-
+    {required LongPressEndDetails longPressEndDetails,
+    required DataCellBase dataCell,
+    required _DataGridSettings dataGridSettings}) {
   if (dataGridSettings.onCellLongPress != null) {
     final DataGridCellLongPressDetails details = DataGridCellLongPressDetails(
         rowColumnIndex: RowColumnIndex(dataCell.rowIndex, dataCell.columnIndex),
-        column: dataCell.gridColumn,
-        globalPosition: longPressEndDetails?.globalPosition,
-        localPosition: longPressEndDetails?.localPosition,
-        velocity: longPressEndDetails?.velocity);
-    dataGridSettings.onCellLongPress(details);
+        column: dataCell.gridColumn!,
+        globalPosition: longPressEndDetails.globalPosition,
+        localPosition: longPressEndDetails.localPosition,
+        velocity: longPressEndDetails.velocity);
+    dataGridSettings.onCellLongPress!(details);
   }
 }
 
 void _handleOnSecondaryTapUp(
-    {TapUpDetails tapUpDetails,
-    DataCellBase dataCell,
-    _DataGridSettings dataGridSettings,
-    PointerDeviceKind kind}) {
-  if (dataGridSettings == null || dataCell == null) {
-    return;
-  }
+    {required TapUpDetails tapUpDetails,
+    required DataCellBase dataCell,
+    required _DataGridSettings dataGridSettings,
+    required PointerDeviceKind kind}) {
   if (dataGridSettings.onCellSecondaryTap != null) {
     final DataGridCellTapDetails details = DataGridCellTapDetails(
         rowColumnIndex: RowColumnIndex(dataCell.rowIndex, dataCell.columnIndex),
-        column: dataCell.gridColumn,
-        globalPosition: tapUpDetails?.globalPosition,
-        localPosition: tapUpDetails?.localPosition,
+        column: dataCell.gridColumn!,
+        globalPosition: tapUpDetails.globalPosition,
+        localPosition: tapUpDetails.localPosition,
         kind: kind);
-    dataGridSettings.onCellSecondaryTap(details);
+    dataGridSettings.onCellSecondaryTap!(details);
   }
 }
