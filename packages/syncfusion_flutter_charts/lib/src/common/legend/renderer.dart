@@ -183,8 +183,10 @@ class _LegendRenderer with _CustomizeLegend {
     }
     style = _getPathAndStyle(iconType, style, path, location, width, height,
         legendRenderContext.seriesRenderer, chartState, canvas);
+    // ignore: unnecessary_null_comparison
     assert(legend.iconBorderWidth != null ? legend.iconBorderWidth >= 0 : true,
         'The icon border width of legend should not be less than 0.');
+    // ignore: unnecessary_null_comparison
     if (color != null) {
       final Paint fillPaint = Paint()
         ..color = !legendRenderContext.isSelect
@@ -273,6 +275,7 @@ class _LegendRenderer with _CustomizeLegend {
     final double iconBorderWidth = legendRenderer._renderer
         .getLegendIconBorderWidth(
             index, legendRenderContext, legend.iconBorderWidth);
+    // ignore: unnecessary_null_comparison
     if (iconBorderWidth != null && iconBorderWidth > 0) {
       final Paint strokePaint = Paint()
         ..color = !legendRenderContext.isSelect
@@ -641,6 +644,7 @@ class _ChartLegendStylePainter extends CustomPainter {
                 chartState._chartTheme.legendBackgroundColor
             ..style = PaintingStyle.fill);
     }
+    // ignore: unnecessary_null_comparison
     if (legend.borderColor != null && legend.borderWidth > 0) {
       canvas.drawRect(
           Rect.fromLTWH(0, 0, size.width, size.height),

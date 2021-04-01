@@ -38,6 +38,7 @@ class _SplineAreaChartPainter extends CustomPainter {
     double? startControlX, startControlY, endControlX, endControlY;
     if (seriesRenderer._visible!) {
       assert(
+          // ignore: unnecessary_null_comparison
           series.animationDuration != null
               ? series.animationDuration >= 0
               : true,
@@ -219,7 +220,7 @@ class _SplineAreaChartPainter extends CustomPainter {
           prevPoint = point;
         }
       }
-
+      // ignore: unnecessary_null_comparison
       if (_path != null) {
         seriesRenderer._drawSegment(
             canvas,
@@ -245,6 +246,7 @@ class _SplineAreaChartPainter extends CustomPainter {
               animationFactor >= chartState._seriesDurationFactor) &&
           (series.markerSettings.isVisible ||
               series.dataLabelSettings.isVisible)) {
+        // ignore: unnecessary_null_comparison
         assert(seriesRenderer != null,
             'The spline area series should be available to render a marker on it.');
         canvas.clipRect(clipRect);

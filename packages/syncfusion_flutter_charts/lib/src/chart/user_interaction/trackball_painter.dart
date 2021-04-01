@@ -258,7 +258,7 @@ class _TrackballPainter extends CustomPainter {
                 ._linePainter(trackballLinePaint),
             chartPointInfo.indexOf(trackLinePoint));
       }
-
+// ignore: unnecessary_null_comparison
       if (_tooltipTop != null && _tooltipTop.isNotEmpty) {
         _tooltipPosition = chartState._trackballBehaviorRenderer
             ._smartTooltipPositions(
@@ -1034,6 +1034,7 @@ class _TrackballPainter extends CustomPainter {
             labelStyle,
             0);
       } else {
+        // ignore: unnecessary_null_comparison
         if (stringValue[i].label != null) {
           final List<String> str = stringValue[i].label.split('\n');
           double padding = 0;
@@ -1314,6 +1315,7 @@ class _TrackballPainter extends CustomPainter {
       } else {
         if (i > 0 && labelValue != '') {
           seriesRenderer = stringValue[i].seriesRenderer!;
+          // ignore: unnecessary_null_comparison
           if ((seriesRenderer != null &&
               seriesRenderer._series.name != null &&
               seriesRenderer._chart.trackballBehavior.tooltipSettings.format ==

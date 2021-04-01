@@ -28,53 +28,53 @@ Create a highly interactive and customizable Flutter Treemap that has features s
 
 * **Squarified:**
 
-![Squarified layout](https://cdn.syncfusion.com/content/images/Flutter/pub_images/treemap_images/squarified.png)
+![Squarified layout](https://cdn.syncfusion.com/content/images/Flutter/pub_images/treemap_images/squarified.jpg)
 
 * **Slice:**
 
-![Slice layout](https://cdn.syncfusion.com/content/images/Flutter/pub_images/treemap_images/slice.png)
+![Slice layout](https://cdn.syncfusion.com/content/images/Flutter/pub_images/treemap_images/slice.jpg)
 
 * **Dice:**
 
-![Dice layout](https://cdn.syncfusion.com/content/images/Flutter/pub_images/treemap_images/dice.png)
+![Dice layout](https://cdn.syncfusion.com/content/images/Flutter/pub_images/treemap_images/dice.jpg)
 
 **Hierarchical support** - Along with the flat level, treemap supports hierarchical structure too. Each tile of the treemap is a rectangle which is filled with smaller rectangles representing sub-data.
 
-![Hierarchical support](https://cdn.syncfusion.com/content/images/Flutter/pub_images/treemap_images/hierarchical.png)
+![Hierarchical support](https://cdn.syncfusion.com/content/images/Flutter/pub_images/treemap_images/hierarchical.jpg)
 
 **Labels** - Add any type of widgets (like text widget) to improve the readability of the individual tiles by providing brief descriptions on labels.
 
 **Selection** - Allows you to select the tiles to highlight it and do any specific functionalities like showing pop-up or navigate to a different page.
 
-![Selection support](https://cdn.syncfusion.com/content/images/Flutter/pub_images/treemap_images/selection.png)
+![Selection support](https://cdn.syncfusion.com/content/images/Flutter/pub_images/treemap_images/selection.jpg)
 
 **Legend** - Use different legend styles to provide information on the treemap data clearly.
 
-![Legend support](https://cdn.syncfusion.com/content/images/Flutter/pub_images/treemap_images/legend.png)
+![Legend support](https://cdn.syncfusion.com/content/images/Flutter/pub_images/treemap_images/legend.jpg)
 
 **Colors** - Categorize the tiles on the treemap by customizing their color based on the levels. It is possible to set the tile color for a specific value or for a range of values.
 
-![Color customization](https://cdn.syncfusion.com/content/images/Flutter/pub_images/treemap_images/color-mapper.png)
+![Color customization](https://cdn.syncfusion.com/content/images/Flutter/pub_images/treemap_images/color-mapper.jpg)
 
 **Tooltip** - Display additional information about the tile using a completely customizable tooltip on the treemap.
 
-![Tooltip support](https://cdn.syncfusion.com/content/images/Flutter/pub_images/treemap_images/tooltip.png)
+![Tooltip support](https://cdn.syncfusion.com/content/images/Flutter/pub_images/treemap_images/tooltip.jpg)
 
 **Custom background widgets** - Add any type of custom widgets such as image widget as a background of the tiles to enrich the UI and easily visualize the type of data that a particular tile shows.
 
-![Treemap customization](https://cdn.syncfusion.com/content/images/Flutter/pub_images/treemap_images/customization.png)
+![Treemap customization](https://cdn.syncfusion.com/content/images/Flutter/pub_images/treemap_images/customization.jpg)
 
 ## Get the demo application
 
 Explore the full capability of our Flutter widgets on your device by installing our sample browser application from the following app stores. View sample codes in GitHub.
 
-<p align=“center”>
-<a href="https://play.google.com/store/apps/details?id=com.syncfusion.flutter.examples“><img src=”https://cdn.syncfusion.com/content/images/FTControl/google-play.png“/></a>
-<a href=”https://apps.apple.com/us/app/syncfusion-flutter-ui-widgets/id1475231341“><img src=”https://cdn.syncfusion.com/content/images/FTControl/apple-button.png“/></a>
+<p align="center">
+  <a href="https://play.google.com/store/apps/details?id=com.syncfusion.flutter.examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/google-play.png"/></a>
+  <a href="https://apps.apple.com/us/app/syncfusion-flutter-ui-widgets/id1475231341"><img src="https://cdn.syncfusion.com/content/images/FTControl/apple-button.png"/></a>
 </p>
-<p align=“center”>
-<a href=”https://github.com/syncfusion/flutter-examples“><img src=”https://cdn.syncfusion.com/content/images/FTControl/GitHub.png“/></a>
-<a href=”https://flutter.syncfusion.com“><img src=”https://cdn.syncfusion.com/content/images/FTControl/web_sample_browser.png"/></a>
+<p align="center">
+  <a href="https://github.com/syncfusion/flutter-examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/GitHub.png"/></a>
+  <a href="https://flutter.syncfusion.com"><img src="https://cdn.syncfusion.com/content/images/FTControl/web_sample_browser.png"/></a>
 </p>
 
 ## Useful links

@@ -109,6 +109,7 @@ class _ChartSeries {
       final String seriesType = seriesRenderer._seriesType;
       final bool needSorting = series.sortingOrder != SortingOrder.none &&
           series.sortFieldValueMapper != null;
+      // ignore: unnecessary_null_comparison
       if (series.dataSource != null) {
         dynamic xVal;
         dynamic yVal;
@@ -161,6 +162,7 @@ class _ChartSeries {
                     xMax != null ||
                     yMin != null ||
                     yMax != null) &&
+                // ignore: unnecessary_null_comparison
                 _chartState._oldSeriesRenderers != null &&
                 _chartState._oldSeriesRenderers.isNotEmpty) {
               final int seriesIndex = _chartState
@@ -492,6 +494,7 @@ class _ChartSeries {
         if (seriesRenderer._dataPoints.isNotEmpty) {
           groupName = (seriesRenderer._seriesType.contains('stackedarea'))
               ? 'stackedareagroup'
+              // ignore: unnecessary_null_comparison
               : (stackedSeriesBase.groupName == null
                   ? ('series ' + i.toString())
                   : stackedSeriesBase.groupName);
@@ -786,6 +789,7 @@ class _ChartSeries {
 
   ///below method is for indicator rendering
   void _calculateIndicators() {
+    // ignore: unnecessary_null_comparison
     if (chart.indicators != null && chart.indicators.isNotEmpty) {
       dynamic indicator;
       bool existField;

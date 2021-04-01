@@ -615,11 +615,13 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
     _markerShapes = <Path?>[];
     _markerShapes2 = <Path?>[];
     assert(
+        // ignore: unnecessary_null_comparison
         _series.markerSettings.height != null
             ? _series.markerSettings.height >= 0
             : true,
         'The height of the marker should be greater than or equal to 0.');
     assert(
+        // ignore: unnecessary_null_comparison
         _series.markerSettings.width != null
             ? _series.markerSettings.width >= 0
             : true,
@@ -669,6 +671,7 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
     // calculates the tooltip region for trenlines in this series
     final List<Trendline>? trendlines = _series.trendlines;
     if (trendlines != null &&
+        // ignore: unnecessary_null_comparison
         _chart.tooltipBehavior != null &&
         _chart.tooltipBehavior.enable) {
       for (int j = 0; j < trendlines.length; j++) {
@@ -772,6 +775,7 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
               midY);
         }
       }
+      // ignore: unnecessary_null_comparison
       if (_chart.tooltipBehavior != null &&
           (_chart.tooltipBehavior.enable || _chart.onPointTapped != null) &&
           _seriesType != 'boxandwhisker') {
@@ -784,8 +788,10 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
   void calculateTooltipRegion(SfCartesianChart chart, int seriesIndex,
       CartesianChartPoint<dynamic> point, int pointIndex) {
     /// For tooltip implementation
+    // ignore: unnecessary_null_comparison
     if (_series.enableTooltip != null &&
         _series.enableTooltip &&
+        // ignore: unnecessary_null_comparison
         point != null &&
         !point.isGap &&
         !point.isDrop) {

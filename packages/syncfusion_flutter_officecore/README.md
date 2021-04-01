@@ -1,6 +1,6 @@
-# Syncfusion Flutter OfficeCore
+# Flutter OfficeCore Library
 
-Syncfusion Flutter OfficeCore is a dependent package for the following Syncfusion Flutter packages.
+Flutter OfficeCore is a dependent package for the following Syncfusion Flutter packages.
 
 * [syncfusion_flutter_xlsio](https://pub.dev/packages/syncfusion_flutter_xlsio)
 * [syncfusion_flutter_officechart](https://pub.dev/packages/syncfusion_officechart)

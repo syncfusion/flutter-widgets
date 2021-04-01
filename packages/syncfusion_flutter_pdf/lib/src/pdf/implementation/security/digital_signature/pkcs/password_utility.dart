@@ -746,7 +746,7 @@ class _DataEncryptionParameter extends _KeyParameter {
 
 class _DesedeAlgorithmParameter extends _DataEncryptionParameter {
   _DesedeAlgorithmParameter(List<int> key, int keyOffset, int? keyLength)
-      : super(fixKey(key, keyOffset, keyLength)) {}
+      : super(fixKey(key, keyOffset, keyLength));
   //Implementation
   static List<int> fixKey(List<int> key, int keyOffset, int? keyLength) {
     final List<int> tmp = List.generate(24, (i) => 0);

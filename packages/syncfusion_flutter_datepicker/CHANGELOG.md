@@ -1,4 +1,4 @@
-## [Unreleased version]
+## [19.1.54-beta] - 03/30/2021
 **Features**
 * Implemented the free scroll support in the date range picker.
 * Implemented action buttons to confirm and cancel the selection in the date range picker.

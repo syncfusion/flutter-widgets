@@ -96,6 +96,7 @@ class StackedBar100Series<T, D> extends _StackedSeriesBase<T, D> {
     if (onCreateRenderer != null) {
       stackedBarSeriesRenderer =
           onCreateRenderer!(series) as StackedBar100SeriesRenderer;
+      // ignore: unnecessary_null_comparison
       assert(stackedBarSeriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return stackedBarSeriesRenderer;
@@ -122,6 +123,7 @@ class StackedBar100SeriesRenderer extends _StackedSeriesRenderer {
     final StackedBar100Series<dynamic, dynamic> _stackedBar100Series =
         _series as StackedBar100Series;
     _isRectSeries = true;
+    // ignore: unnecessary_null_comparison
     if (segment != null) {
       segment._seriesIndex = seriesIndex;
       segment.currentSegmentIndex = pointIndex;

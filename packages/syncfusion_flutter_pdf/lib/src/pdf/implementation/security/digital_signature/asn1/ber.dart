@@ -1,7 +1,7 @@
 part of pdf;
 
 class _BerOctet extends _DerOctet {
-  _BerOctet(List<int> bytes) : super(bytes) {}
+  _BerOctet(List<int> bytes) : super(bytes);
   _BerOctet.fromCollection(List<_Asn1Encode> octets)
       : super(_BerOctet.getBytes(octets)) {
     _octets = octets;
@@ -135,8 +135,8 @@ class _BerTagHelper implements _IAsn1Tag {
 
 class _BerSequence extends _DerSequence {
   _BerSequence({List<_Asn1Encode>? array, _Asn1EncodeCollection? collection})
-      : super(array: array, collection: collection) {}
-  _BerSequence.fromObject(_Asn1Encode? object) : super.fromObject(object) {}
+      : super(array: array, collection: collection);
+  _BerSequence.fromObject(_Asn1Encode? object) : super.fromObject(object);
   static _BerSequence empty = _BerSequence();
   static _BerSequence fromCollection(_Asn1EncodeCollection collection) {
     return collection.count < 1 ? empty : _BerSequence(collection: collection);

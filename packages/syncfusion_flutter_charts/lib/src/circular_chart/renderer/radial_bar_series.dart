@@ -211,6 +211,7 @@ class RadialBarSeries<T, D> extends CircularSeries<T, D> {
     RadialBarSeriesRenderer seriesRenderer;
     if (onCreateRenderer != null) {
       seriesRenderer = onCreateRenderer!(series) as RadialBarSeriesRenderer;
+      // ignore: unnecessary_null_comparison
       assert(seriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return seriesRenderer;
@@ -616,7 +617,9 @@ class RadialBarSeriesRenderer extends CircularSeriesRenderer {
             point._pathRect,
             point.shader);
         if (point.shader != null) {
+          // ignore: unnecessary_null_comparison
           if (strokeColor != null &&
+              // ignore: unnecessary_null_comparison
               strokeWidth != null &&
               strokeWidth > 0 &&
               _chartState._animateCompleted) {

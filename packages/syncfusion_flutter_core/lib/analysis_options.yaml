@@ -78,6 +78,9 @@ linter:
     - unnecessary_brace_in_string_interps
     - unnecessary_getters_setters
     - unnecessary_statements
+    - avoid_init_to_null
+    - unrelated_type_equality_checks
+    - empty_constructor_bodies
 
     # The below linters are added manually
     - directives_ordering

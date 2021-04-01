@@ -446,7 +446,9 @@ class TooltipBehavior {
     }
     if (chart is SfCartesianChart &&
         activationMode != ActivationMode.none &&
+        // ignore: unnecessary_null_comparison
         x != null &&
+        // ignore: unnecessary_null_comparison
         y != null &&
         _chartState._requireAxisTooltip) {
       final SfTooltipState? tooltipState =
@@ -462,7 +464,9 @@ class TooltipBehavior {
       }
     } else if (tooltipBehaviorRenderer._chartTooltip != null &&
         activationMode != ActivationMode.none &&
+        // ignore: unnecessary_null_comparison
         x != null &&
+        // ignore: unnecessary_null_comparison
         y != null) {
       final SfTooltipState? tooltipState =
           tooltipBehaviorRenderer._chartTooltipState;
@@ -490,10 +494,12 @@ class TooltipBehavior {
     }
     if (chart is SfCartesianChart &&
         chart.tooltipBehavior.builder != null &&
-        x != null &&
+        x != null && // ignore: unnecessary_null_comparison
+        // ignore: unnecessary_null_comparison
         y != null) {
       tooltipBehaviorRenderer._showTemplateTooltip(Offset(x, y));
     }
+    // ignore: unnecessary_null_comparison
     if (tooltipBehaviorRenderer != null) {
       tooltipBehaviorRenderer._isInteraction = false;
     }
@@ -651,7 +657,7 @@ class TooltipBehavior {
           tooltipBehaviorRenderer._showTooltip(x, y);
         }
       }
-    } else if (pointIndex != null &&
+    } else if (pointIndex != null && // ignore: unnecessary_null_comparison
         pointIndex <
             _chartState
                 ._chartSeries.visibleSeriesRenderers[0]._dataPoints.length) {
@@ -678,6 +684,7 @@ class TooltipBehavior {
   void hide() {
     final TooltipBehaviorRenderer tooltipBehaviorRenderer =
         _chartState._tooltipBehaviorRenderer;
+    // ignore: unnecessary_null_comparison
     if (tooltipBehaviorRenderer != null) {
       tooltipBehaviorRenderer._showLocation = null;
       tooltipBehaviorRenderer._show = false;
@@ -895,6 +902,7 @@ class TooltipBehaviorRenderer with ChartBehavior {
       }
       _timer?.cancel();
       assert(
+          // ignore: unnecessary_null_comparison
           _tooltipBehavior.duration != null
               ? _tooltipBehavior.duration >= 0
               : true,

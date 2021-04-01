@@ -104,6 +104,7 @@ class _CircularDataLabelPainter extends CustomPainter {
         seriesIndex++) {
       final CircularSeriesRenderer seriesRenderer =
           visibleSeriesRenderers[seriesIndex];
+      // ignore: unnecessary_null_comparison
       if (seriesRenderer._series.dataLabelSettings != null &&
           seriesRenderer._series.dataLabelSettings.isVisible) {
         seriesRenderer._dataLabelSettingsRenderer =
@@ -578,6 +579,7 @@ void _drawLabel(
     final Color strokeColor = seriesRenderer._series._renderer!
         .getDataLabelStrokeColor(seriesRenderer, point, pointIndex, seriesIndex,
             dataLabel.borderColor.withOpacity(dataLabel.opacity));
+    // ignore: unnecessary_null_comparison
     if (strokeWidth != null && strokeWidth > 0) {
       rectPaint = Paint()
         ..color = strokeColor.withOpacity(
@@ -621,6 +623,7 @@ void _triggerCircularDataLabelEvent(
   for (int index = 0; index < seriesRenderer._dataPoints.length; index++) {
     final ChartPoint<dynamic> point = seriesRenderer._dataPoints[index];
     if (dataLabel.isVisible &&
+        // ignore: unnecessary_null_comparison
         seriesRenderer._dataPoints[index].labelRect != null &&
         position != null &&
         seriesRenderer._dataPoints[index].labelRect.contains(position)) {

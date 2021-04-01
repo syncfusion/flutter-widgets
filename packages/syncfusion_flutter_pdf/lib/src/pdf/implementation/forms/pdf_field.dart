@@ -2033,7 +2033,7 @@ abstract class PdfField implements _IPdfWrapper {
   }
 
   List<double>? _obtainDashPatern() {
-    List<double>? array = null;
+    List<double>? array;
     if (_borderStyle == PdfBorderStyle.dashed) {
       final _PdfDictionary widget =
           _getWidgetAnnotation(_dictionary, _crossTable);

@@ -167,6 +167,7 @@ class BoxAndWhiskerSeries<T, D> extends XyDataSeries<T, D> {
     BoxAndWhiskerSeriesRenderer seriesRenderer;
     if (onCreateRenderer != null) {
       seriesRenderer = onCreateRenderer!(series) as BoxAndWhiskerSeriesRenderer;
+      // ignore: unnecessary_null_comparison
       assert(seriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return seriesRenderer;

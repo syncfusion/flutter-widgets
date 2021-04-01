@@ -1424,6 +1424,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
     _needsRepaintChart(
         this, _chartAxis._axisRenderersCollection, oldWidgetSeriesRenderers);
     _isLegendToggled = false;
+    // ignore: unnecessary_null_comparison
     if (_legendWidgetContext != null && _legendWidgetContext.isNotEmpty) {
       _legendWidgetContext.clear();
     }
@@ -1583,6 +1584,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
       [SfCartesianChart? oldWidget,
       List<CartesianSeriesRenderer>? oldWidgetSeriesRenderers,
       List<CartesianSeriesRenderer>? oldWidgetOldSeriesRenderers]) {
+    // ignore: unnecessary_null_comparison
     if (widget.series != null && widget.series.isNotEmpty) {
       if (oldWidget != null) {
         _oldSeriesRenderers = <CartesianSeriesRenderer>[];
@@ -1617,6 +1619,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
 
         if (index != null &&
             index < oldWidgetOldSeriesRenderers!.length &&
+            // ignore: unnecessary_null_comparison
             oldWidgetOldSeriesRenderers[index] != null) {
           seriesRenderer = oldWidgetOldSeriesRenderers[index];
         } else {
@@ -1736,6 +1739,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
         }
       }
     }
+    // ignore: unnecessary_null_comparison
     if (_zoomedAxisRendererStates != null &&
         _zoomedAxisRendererStates.isNotEmpty) {
       _zoomedState = false;
@@ -1807,6 +1811,7 @@ class SfCartesianChartState extends State<SfCartesianChart>
 
   Widget _renderTitle() {
     Widget titleWidget;
+    // ignore: unnecessary_null_comparison
     if (_chart.title.text != null && _chart.title.text.isNotEmpty) {
       final Paint titleBackground = Paint()
         ..color = _chart.title.borderColor
@@ -2180,8 +2185,7 @@ class _ContainerArea extends StatelessWidget {
   late CartesianSeries<dynamic, dynamic> _series;
   late XyDataSeriesRenderer _seriesRenderer;
   Offset? _zoomStartPosition;
-  bool _enableMouseHover =
-      kIsWeb || Platform.isLinux || Platform.isMacOS || Platform.isWindows;
+  final bool _enableMouseHover = kIsWeb;
   @override
   Widget build(BuildContext context) {
     final bool isUserInteractionEnabled =
@@ -2414,6 +2418,7 @@ class _ContainerArea extends StatelessWidget {
       _seriesRenderer = _chartState._chartSeries.visibleSeriesRenderers[i]
           as XyDataSeriesRenderer;
       _series = _seriesRenderer._series;
+      // ignore: unnecessary_null_comparison
       if (_seriesRenderer != null &&
           _seriesRenderer._visible! &&
           _series.trendlines != null) {
@@ -2597,6 +2602,7 @@ class _ContainerArea extends StatelessWidget {
               .addStatusListener(_seriesRenderer._animationStatusListener);
         }
       }
+      // ignore: unnecessary_null_comparison
       if (_seriesRenderer != null && _seriesRenderer._visible!) {
         _calculateTrendlineRegion(_chartState, _seriesRenderer);
         _series.selectionBehavior._chartState = _chartState;
@@ -2700,7 +2706,7 @@ class _ContainerArea extends StatelessWidget {
               ..addAll(_series.initialSelectedDataIndexes!);
           }
         }
-
+        // ignore: unnecessary_null_comparison
         if (_seriesRenderer._animationController != null &&
             _series.animationDuration > 0 &&
             (_chartState._oldDeviceOrientation == null ||
@@ -2757,6 +2763,7 @@ class _ContainerArea extends StatelessWidget {
 
   /// Bind the axis widgets
   void _bindAxisWidgets(String renderType) {
+    // ignore: unnecessary_null_comparison
     if (_chartState._chartAxis._axisRenderersCollection != null &&
         _chartState._chartAxis._axisRenderersCollection.isNotEmpty &&
         _chartState._chartAxis._axisRenderersCollection.length > 1) {
@@ -2857,6 +2864,7 @@ class _ContainerArea extends StatelessWidget {
     }
     final Offset position = renderBox.globalToLocal(event.position);
     _touchPosition = position;
+    // ignore: unnecessary_null_comparison
     if (_chartState._chartSeries.visibleSeriesRenderers != null &&
         _chartState._chartSeries.visibleSeriesRenderers.isNotEmpty &&
         chart.selectionGesture == ActivationMode.singleTap &&
@@ -2873,6 +2881,7 @@ class _ContainerArea extends StatelessWidget {
         selectionBehaviorRenderer.onTouchDown(position.dx, position.dy);
       }
     }
+    // ignore: unnecessary_null_comparison
     if (chart.trackballBehavior != null &&
         chart.trackballBehavior.enable &&
         chart.trackballBehavior.activationMode == ActivationMode.singleTap) {
@@ -2884,6 +2893,7 @@ class _ContainerArea extends StatelessWidget {
             .onTouchDown(position.dx, position.dy);
       }
     }
+    // ignore: unnecessary_null_comparison
     if (chart.crosshairBehavior != null &&
         chart.crosshairBehavior.enable &&
         chart.crosshairBehavior.activationMode == ActivationMode.singleTap) {
@@ -2936,12 +2946,14 @@ class _ContainerArea extends StatelessWidget {
     _chartState._zoomPanBehaviorRenderer._delayRedraw = false;
     _chartState._tooltipBehaviorRenderer._isHovering = false;
     final Offset position = renderBox.globalToLocal(event.position);
+    // ignore: unnecessary_null_comparison
     if ((chart.trackballBehavior != null &&
             chart.trackballBehavior.enable &&
             !chart.trackballBehavior.shouldAlwaysShow &&
             chart.trackballBehavior.activationMode !=
                 ActivationMode.doubleTap &&
             _chartState._zoomPanBehaviorRenderer._isPinching != true) ||
+        // ignore: unnecessary_null_comparison
         (chart.zoomPanBehavior != null &&
             ((chart.zoomPanBehavior.enableDoubleTapZooming ||
                     chart.zoomPanBehavior.enablePanning ||
@@ -2953,12 +2965,14 @@ class _ContainerArea extends StatelessWidget {
 
       _chartState._trackballBehaviorRenderer._isLongPressActivated = false;
     }
+    // ignore: unnecessary_null_comparison
     if ((chart.crosshairBehavior != null &&
             chart.crosshairBehavior.enable &&
             !chart.crosshairBehavior.shouldAlwaysShow &&
             chart.crosshairBehavior.activationMode !=
                 ActivationMode.doubleTap &&
             _chartState._zoomPanBehaviorRenderer._isPinching != true) ||
+        // ignore: unnecessary_null_comparison
         (chart.zoomPanBehavior != null &&
             ((chart.zoomPanBehavior.enableDoubleTapZooming ||
                     chart.zoomPanBehavior.enablePanning ||
@@ -3051,8 +3065,10 @@ class _ContainerArea extends StatelessWidget {
             _zoomStartPosition!.dy);
       }
     }
+    // ignore: unnecessary_null_comparison
     if (chart.trackballBehavior != null &&
         chart.trackballBehavior.enable &&
+        // ignore: unnecessary_null_comparison
         _chartState != null &&
         chart.trackballBehavior.activationMode != ActivationMode.doubleTap &&
         position != null) {
@@ -3076,6 +3092,7 @@ class _ContainerArea extends StatelessWidget {
         }
       }
     }
+    // ignore: unnecessary_null_comparison
     if (chart.crosshairBehavior != null &&
         chart.crosshairBehavior.enable &&
         chart.crosshairBehavior.activationMode != ActivationMode.doubleTap &&
@@ -3083,6 +3100,7 @@ class _ContainerArea extends StatelessWidget {
       if (chart.crosshairBehavior.activationMode == ActivationMode.singleTap) {
         _chartState._crosshairBehaviorRenderer
             .onTouchMove(position.dx, position.dy);
+        // ignore: unnecessary_null_comparison
       } else if ((chart.crosshairBehavior != null &&
               chart.crosshairBehavior.activationMode ==
                   ActivationMode.longPress &&
@@ -3140,6 +3158,7 @@ class _ContainerArea extends StatelessWidget {
         }
       }
     }
+    // ignore: unnecessary_null_comparison
     if (_chartState._chartSeries.visibleSeriesRenderers != null &&
         position != null &&
         chart.selectionGesture == ActivationMode.longPress) {
@@ -3151,7 +3170,7 @@ class _ContainerArea extends StatelessWidget {
           selectionSeriesRenderer;
       selectionBehaviorRenderer.onLongPress(position.dx, position.dy);
     }
-
+    // ignore: unnecessary_null_comparison
     if ((chart.trackballBehavior != null &&
             chart.trackballBehavior.enable == true &&
             chart.trackballBehavior.activationMode ==
@@ -3166,6 +3185,7 @@ class _ContainerArea extends StatelessWidget {
             .onTouchDown(position.dx, position.dy);
       }
     }
+    // ignore: unnecessary_null_comparison
     if ((chart.crosshairBehavior != null &&
             chart.crosshairBehavior.enable == true &&
             chart.crosshairBehavior.activationMode ==
@@ -3183,6 +3203,7 @@ class _ContainerArea extends StatelessWidget {
   void _performDoubleTap() {
     if (_tapDownDetails != null) {
       final Offset position = renderBox.globalToLocal(_tapDownDetails!);
+      // ignore: unnecessary_null_comparison
       if (chart.trackballBehavior != null &&
           chart.trackballBehavior.enable &&
           chart.trackballBehavior.activationMode == ActivationMode.doubleTap) {
@@ -3200,6 +3221,7 @@ class _ContainerArea extends StatelessWidget {
         _chartState._isTouchUp = false;
         _chartState._enableDoubleTap = false;
       }
+      // ignore: unnecessary_null_comparison
       if (chart.crosshairBehavior != null &&
           chart.crosshairBehavior.enable &&
           chart.crosshairBehavior.activationMode == ActivationMode.doubleTap) {
@@ -3224,6 +3246,7 @@ class _ContainerArea extends StatelessWidget {
               .onDoubleTap(position.dx, position.dy);
         }
       }
+      // ignore: unnecessary_null_comparison
       if (_chartState._chartSeries.visibleSeriesRenderers != null &&
           chart.selectionGesture == ActivationMode.doubleTap) {
         final CartesianSeriesRenderer selectionSeriesRenderer =
@@ -3263,6 +3286,7 @@ class _ContainerArea extends StatelessWidget {
     }
     final bool panInProgress = chart.zoomPanBehavior.enablePanning &&
         _chartState._zoomPanBehaviorRenderer._previousMovedPosition != null;
+    // ignore: unnecessary_null_comparison
     if (chart.trackballBehavior != null &&
         chart.trackballBehavior.enable &&
         position != null &&
@@ -3277,6 +3301,7 @@ class _ContainerArea extends StatelessWidget {
           _chartState._trackballBehaviorRenderer
               .onTouchMove(position.dx, position.dy);
         }
+        // ignore: unnecessary_null_comparison
       } else if (chart.trackballBehavior != null &&
           chart.trackballBehavior.activationMode == ActivationMode.longPress &&
           _chartState._trackballBehaviorRenderer._isLongPressActivated ==
@@ -3290,6 +3315,7 @@ class _ContainerArea extends StatelessWidget {
         }
       }
     }
+    // ignore: unnecessary_null_comparison
     if (chart.crosshairBehavior != null &&
         chart.crosshairBehavior.enable &&
         chart.crosshairBehavior.activationMode != ActivationMode.doubleTap &&
@@ -3298,6 +3324,7 @@ class _ContainerArea extends StatelessWidget {
       if (chart.crosshairBehavior.activationMode == ActivationMode.singleTap) {
         _chartState._crosshairBehaviorRenderer
             .onTouchMove(position.dx, position.dy);
+        // ignore: unnecessary_null_comparison
       } else if (chart.crosshairBehavior != null &&
           chart.crosshairBehavior.activationMode == ActivationMode.longPress &&
           _chartState._crosshairBehaviorRenderer._isLongPressActivated) {
@@ -3488,6 +3515,7 @@ class _ContainerArea extends StatelessWidget {
     chart.trackballBehavior._chartState = chart.tooltipBehavior._chartState =
         chart.zoomPanBehavior._chartState =
             chart.crosshairBehavior._chartState = _chartState;
+    // ignore: unnecessary_null_comparison
     if (chart.trackballBehavior != null && chart.trackballBehavior.enable) {
       if (chart.trackballBehavior.builder != null) {
         _chartState._trackballBehaviorRenderer._trackballTemplate =
@@ -3510,6 +3538,7 @@ class _ContainerArea extends StatelessWidget {
             child: CustomPaint(painter: trackballPainter)));
       }
     }
+    // ignore: unnecessary_null_comparison
     if (chart.crosshairBehavior != null && chart.crosshairBehavior.enable) {
       crosshairPainter = _CrosshairPainter(
           chartState: _chartState,

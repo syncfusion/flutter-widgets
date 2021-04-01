@@ -689,6 +689,7 @@ class PyramidSeries<T, D> extends _PyramidSeriesBase<T, D> {
     PyramidSeriesRenderer seriesRenderer;
     if (onCreateRenderer != null) {
       seriesRenderer = onCreateRenderer!(series) as PyramidSeriesRenderer;
+      // ignore: unnecessary_null_comparison
       assert(seriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return seriesRenderer;
@@ -951,6 +952,7 @@ class PyramidSeriesController {
     }
     if (seriesRenderer._series.dataLabelSettings.isVisible &&
         _chartState._chartTemplate != null &&
+        // ignore: unnecessary_null_comparison
         _chartState._chartTemplate!.state != null) {
       _chartState._chartTemplate!.state.templateRender();
     }

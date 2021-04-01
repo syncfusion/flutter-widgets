@@ -1676,8 +1676,10 @@ class CircularSeriesRenderer extends ChartSeriesRenderer {
             renderPath,
             point!._pathRect,
             point.shader ?? _renderModeShader);
+        // ignore: unnecessary_null_comparison
         if (point != null &&
             (_renderModeShader != null || point.shader != null)) {
+          // ignore: unnecessary_null_comparison
           if (strokeColor != null &&
               strokeWidth != null &&
               strokeWidth > 0 &&
@@ -1864,6 +1866,7 @@ class CircularSeriesController {
     }
     if (seriesRenderer._series.dataLabelSettings.isVisible &&
         _chartState._chartTemplate != null &&
+        // ignore: unnecessary_null_comparison
         _chartState._chartTemplate!.state != null) {
       _chartState._chartTemplate!.state.templateRender();
     }

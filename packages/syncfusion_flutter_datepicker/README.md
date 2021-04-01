@@ -33,8 +33,6 @@ The Flutter Date Range Picker is a lightweight widget that allows users to easil
 
 * **Vertical picker** - Displays two Date Range Pickers side by side in the vertical direction, allowing you to select date ranges between two months easily. Also enable or disable the view navigation using swipe interaction along with snap and free scroll picker view navigation modes.
 
-![vertical_date_picker](https://cdn.syncfusion.com/content/images/FTControl/Flutter/calendar/free_scroll_gif.gif)
-
 * **Hijri date picker** - In addition to the Gregorian calendar, the date range picker supports displaying the Islamic calendar (Hijri date picker).
 
 ![hijri_date_picker](https://cdn.syncfusion.com/content/images/FTControl/date+range+picker/hijricalendar.png)

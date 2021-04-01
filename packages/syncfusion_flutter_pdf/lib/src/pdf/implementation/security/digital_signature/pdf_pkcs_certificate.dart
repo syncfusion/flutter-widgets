@@ -253,7 +253,8 @@ class _PdfPKCSCertificate {
                 if (attributeSet._objects.length > 0) {
                   attribute = attributeSet[0];
                   if (attributes.containsKey(id!._id)) {
-                    if (!attributes[id._id] == attribute) {
+                    final _Asn1Encode? attr = attributes[id._id];
+                    if (attr != null && attr != attribute) {
                       throw ArgumentError.value(sq, 'sequence',
                           'attempt to add existing attribute with different value');
                     }

@@ -309,7 +309,7 @@ class _Asn1Octet extends _Asn1 implements _IAsn1Octet {
 }
 
 abstract class _Asn1Null extends _Asn1 {
-  _Asn1Null() : super(<_Asn1UniversalTags>[_Asn1UniversalTags.nullValue]) {}
+  _Asn1Null() : super(<_Asn1UniversalTags>[_Asn1UniversalTags.nullValue]);
   //Implementation
   List<int> toArray() {
     return <int>[];

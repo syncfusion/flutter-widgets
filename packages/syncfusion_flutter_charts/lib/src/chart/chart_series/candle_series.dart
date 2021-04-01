@@ -58,9 +58,11 @@ class CandleSeries<T, D> extends _FinancialSeriesBase<T, D> {
             xValueMapper: xValueMapper,
             lowValueMapper: lowValueMapper,
             highValueMapper: highValueMapper,
+            // ignore: unnecessary_null_comparison
             openValueMapper: openValueMapper != null
                 ? (int index) => openValueMapper(dataSource[index], index)
                 : null,
+            // ignore: unnecessary_null_comparison
             closeValueMapper: closeValueMapper != null
                 ? (int index) => closeValueMapper(dataSource[index], index)
                 : null,
@@ -95,6 +97,7 @@ class CandleSeries<T, D> extends _FinancialSeriesBase<T, D> {
     CandleSeriesRenderer seriesRenderer;
     if (onCreateRenderer != null) {
       seriesRenderer = onCreateRenderer!(series) as CandleSeriesRenderer;
+      // ignore: unnecessary_null_comparison
       assert(seriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return seriesRenderer;
@@ -128,6 +131,7 @@ class CandleSeriesRenderer extends _FinancialSerieBaseRenderer {
     _segment = createSegment();
     _oldSeriesRenderers = _chartState!._oldSeriesRenderers;
     _isRectSeries = false;
+    // ignore: unnecessary_null_comparison
     if (_segment != null) {
       _segment._seriesIndex = seriesIndex;
       _segment.currentSegmentIndex = pointIndex;

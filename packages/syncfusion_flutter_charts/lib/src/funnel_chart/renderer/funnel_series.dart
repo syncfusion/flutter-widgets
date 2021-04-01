@@ -719,6 +719,7 @@ class FunnelSeries<T, D> extends _FunnelSeriesBase<T, D> {
     FunnelSeriesRenderer? seriesRenderer;
     if (onCreateRenderer != null) {
       seriesRenderer = onCreateRenderer!(series) as FunnelSeriesRenderer;
+      // ignore: unnecessary_null_comparison
       assert(seriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return seriesRenderer;
@@ -979,6 +980,7 @@ class FunnelSeriesController {
     }
     if (seriesRenderer._series.dataLabelSettings.isVisible &&
         chartState._chartTemplate != null &&
+        // ignore: unnecessary_null_comparison
         chartState._chartTemplate!.state != null) {
       chartState._chartTemplate!.state.templateRender();
     }

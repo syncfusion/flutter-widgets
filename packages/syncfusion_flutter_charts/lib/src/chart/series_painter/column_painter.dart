@@ -33,6 +33,7 @@ class _ColumnChartPainter extends CustomPainter {
       CartesianChartPoint<dynamic> point;
       canvas.save();
       assert(
+          // ignore: unnecessary_null_comparison
           series.animationDuration != null
               ? series.animationDuration >= 0
               : true,
@@ -82,6 +83,7 @@ class _ColumnChartPainter extends CustomPainter {
               animationFactor >= chartState._seriesDurationFactor) &&
           (series.markerSettings.isVisible ||
               series.dataLabelSettings.isVisible)) {
+        // ignore: unnecessary_null_comparison
         assert(seriesRenderer != null,
             'The column series should be available to render a marker on it.');
         canvas.clipRect(clipRect);

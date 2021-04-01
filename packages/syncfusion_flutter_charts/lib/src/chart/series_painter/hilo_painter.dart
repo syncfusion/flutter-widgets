@@ -33,6 +33,7 @@ class _HiloPainter extends CustomPainter {
     if (seriesRenderer._visible!) {
       canvas.save();
       assert(
+          // ignore: unnecessary_null_comparison
           series.animationDuration != null
               ? series.animationDuration >= 0
               : true,
@@ -85,6 +86,7 @@ class _HiloPainter extends CustomPainter {
               animationFactor >= chartState._seriesDurationFactor) &&
           (series.markerSettings.isVisible ||
               series.dataLabelSettings.isVisible)) {
+        // ignore: unnecessary_null_comparison
         assert(seriesRenderer != null,
             'The Hilo series should be available to render a marker on it.');
         canvas.clipRect(clipRect);

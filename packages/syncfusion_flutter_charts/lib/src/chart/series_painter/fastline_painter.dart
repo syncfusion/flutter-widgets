@@ -30,6 +30,7 @@ class _FastLineChartPainter extends CustomPainter {
     if (seriesRenderer._visible!) {
       canvas.save();
       assert(
+          // ignore: unnecessary_null_comparison
           series.animationDuration != null
               ? series.animationDuration >= 0
               : true,
@@ -65,11 +66,13 @@ class _FastLineChartPainter extends CustomPainter {
       final num xTolerance = (xVisibleRange.delta / areaBounds.width).abs();
       final num yTolerance = (yVisibleRange.delta / areaBounds.height).abs();
       num prevXValue = (seriesPoints.isNotEmpty &&
+              // ignore: unnecessary_null_comparison
               seriesPoints[0] != null &&
               seriesPoints[0].xValue > xTolerance)
           ? 0
           : xTolerance;
       num prevYValue = (seriesPoints.isNotEmpty &&
+              // ignore: unnecessary_null_comparison
               seriesPoints[0] != null &&
               seriesPoints[0].yValue > yTolerance)
           ? 0
@@ -157,6 +160,7 @@ class _FastLineChartPainter extends CustomPainter {
               animationFactor >= chartState._seriesDurationFactor) &&
           (series.markerSettings.isVisible ||
               series.dataLabelSettings.isVisible)) {
+        // ignore: unnecessary_null_comparison
         assert(seriesRenderer != null,
             'The fast line series should be available to render a marker on it.');
         canvas.clipRect(clipRect);

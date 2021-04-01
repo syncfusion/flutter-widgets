@@ -80,15 +80,18 @@ class _FunnelSeries {
     for (int i = 0; i < points.length; i++) {
       PointInfo<dynamic> currentPoint;
       currentPoint = points[i];
+      // ignore: unnecessary_null_comparison
       currentPoint.fill = currentPoint.isEmpty && empty.color != null
           ? empty.color
           : pointColor!(i) ?? palette[i % palette.length];
       currentPoint.color = currentPoint.fill;
       currentPoint.borderColor =
+          // ignore: unnecessary_null_comparison
           currentPoint.isEmpty && empty.borderColor != null
               ? empty.borderColor
               : currentSeries.borderColor;
       currentPoint.borderWidth =
+          // ignore: unnecessary_null_comparison
           currentPoint.isEmpty && empty.borderWidth != null
               ? empty.borderWidth
               : currentSeries.borderWidth;
@@ -160,6 +163,7 @@ class _FunnelSeries {
     final List<PointInfo<dynamic>> points = seriesRenderer._renderPoints;
     double y;
     assert(
+        // ignore: unnecessary_null_comparison
         seriesRenderer._series.gapRatio != null
             ? seriesRenderer._series.gapRatio >= 0 &&
                 seriesRenderer._series.gapRatio <= 1

@@ -77,6 +77,7 @@ class StepLineSeries<T, D> extends XyDataSeries<T, D> {
     if (onCreateRenderer != null) {
       stepLineSeriesRenderer =
           onCreateRenderer!(series) as StepLineSeriesRenderer;
+      // ignore: unnecessary_null_comparison
       assert(stepLineSeriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return stepLineSeriesRenderer;
@@ -116,6 +117,7 @@ class StepLineSeriesRenderer extends XyDataSeriesRenderer {
     segment.animationFactor = animateFactor;
     segment._pointColorMapper = currentPoint.pointColorMapper;
     if (_chartState!._widgetNeedUpdate &&
+        // ignore: unnecessary_null_comparison
         _oldSeriesRenderers != null &&
         _oldSeriesRenderers.isNotEmpty &&
         _oldSeriesRenderers.length - 1 >= segment._seriesIndex &&

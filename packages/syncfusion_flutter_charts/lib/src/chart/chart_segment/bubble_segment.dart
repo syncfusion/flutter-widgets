@@ -108,6 +108,7 @@ class BubbleSegment extends ChartSegment {
     assert(bubbleSeries.minimumRadius >= 0 && bubbleSeries.maximumRadius >= 0,
         'The min radius and max radius of the bubble should be greater than or equal to 0.');
     if (bubbleSeries.sizeValueMapper == null) {
+      // ignore: unnecessary_null_comparison
       bubbleSeries.minimumRadius != null
           ? bubbleRadius = bubbleSeries.minimumRadius
           : bubbleRadius = bubbleSeries.maximumRadius;

@@ -1,8 +1,8 @@
 ﻿![syncfusion_flutter_xlsio_banner](https://cdn.syncfusion.com/content/images/FTControl/Flutter-XlsIO-Banner.png)
 
-# Syncfusion Flutter XlsIO
+# Excel (XlsIO) Library
 
-Syncfusion Flutter XlsIO is a feature rich and high-performance non-UI Excel library written natively in Dart. It allows you to add robust Excel functionalities to Flutter applications.
+Flutter XlsIO is a feature rich and high-performance non-UI Excel library written natively in Dart. It allows you to add robust Excel functionalities to Flutter applications.
 
 ## Overview
 

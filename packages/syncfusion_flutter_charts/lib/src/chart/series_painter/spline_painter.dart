@@ -33,6 +33,7 @@ class _SplineChartPainter extends CustomPainter {
     /// Clip rect will be added for series.
     if (seriesRenderer._visible!) {
       assert(
+          // ignore: unnecessary_null_comparison
           series.animationDuration != null
               ? series.animationDuration >= 0
               : true,
@@ -124,6 +125,7 @@ class _SplineChartPainter extends CustomPainter {
               animationFactor >= chartState._seriesDurationFactor) &&
           (series.markerSettings.isVisible ||
               series.dataLabelSettings.isVisible)) {
+        // ignore: unnecessary_null_comparison
         assert(seriesRenderer != null,
             'The spline series should be available to render a marker on it.');
         canvas.clipRect(clipRect);

@@ -164,6 +164,7 @@ class BollingerBandIndicator<T, D> extends TechnicalIndicators<T, D> {
     technicalIndicatorsRenderer._targetSeriesRenderers =
         <CartesianSeriesRenderer>[];
     if (indicator.bandColor != Colors.transparent &&
+        // ignore: unnecessary_null_comparison
         indicator.bandColor != null) {
       isLine = false;
       isRangeArea = true;
@@ -188,6 +189,7 @@ class BollingerBandIndicator<T, D> extends TechnicalIndicators<T, D> {
   void _initDataSource(BollingerBandIndicator<dynamic, dynamic> indicator,
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
     final bool enableBand = indicator.bandColor != Colors.transparent &&
+        // ignore: unnecessary_null_comparison
         indicator.bandColor != null;
     final int start = enableBand ? 1 : 0;
     final List<CartesianChartPoint<dynamic>> signalCollection =

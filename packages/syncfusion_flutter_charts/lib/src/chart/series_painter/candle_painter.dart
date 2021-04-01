@@ -33,6 +33,7 @@ class _CandlePainter extends CustomPainter {
     if (seriesRenderer._visible!) {
       canvas.save();
       assert(
+          // ignore: unnecessary_null_comparison
           series.animationDuration != null
               ? series.animationDuration >= 0
               : true,
@@ -90,6 +91,7 @@ class _CandlePainter extends CustomPainter {
       if ((series.animationDuration <= 0 ||
               animationFactor >= chartState._seriesDurationFactor) &&
           series.dataLabelSettings.isVisible) {
+        // ignore: unnecessary_null_comparison
         assert(seriesRenderer != null,
             'The candle series should be available to render a data label on it.');
         canvas.clipRect(clipRect);

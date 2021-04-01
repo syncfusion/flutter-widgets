@@ -36,6 +36,7 @@ class _BoxAndWhiskerPainter extends CustomPainter {
     if (seriesRenderer._visible!) {
       canvas.save();
       assert(
+          // ignore: unnecessary_null_comparison
           series.animationDuration != null
               ? series.animationDuration >= 0
               : true,
@@ -101,6 +102,7 @@ class _BoxAndWhiskerPainter extends CustomPainter {
                 outlierIndex);
           }
         }
+        // ignore: unnecessary_null_comparison
         if (chart.tooltipBehavior != null && chart.tooltipBehavior.enable) {
           _calculateTooltipRegion(
               point, seriesIndex, seriesRenderer, chartState);
@@ -123,6 +125,7 @@ class _BoxAndWhiskerPainter extends CustomPainter {
       if ((series.animationDuration <= 0 ||
               animationFactor >= chartState._seriesDurationFactor) &&
           series.dataLabelSettings.isVisible) {
+        // ignore: unnecessary_null_comparison
         assert(seriesRenderer != null,
             'The box and whisker series should be available to render a data label on it.');
         canvas.clipRect(clipRect);

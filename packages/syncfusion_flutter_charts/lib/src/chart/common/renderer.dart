@@ -124,6 +124,7 @@ class _DataLabelPainter extends CustomPainter {
             seriesRenderer._visibleDataPoints!.isNotEmpty) {
           for (int j = 0; j < seriesRenderer._visibleDataPoints!.length; j++) {
             if (seriesRenderer._visible! &&
+                // ignore: unnecessary_null_comparison
                 seriesRenderer._series.dataLabelSettings != null) {
               dataLabelSettingsRenderer =
                   seriesRenderer._dataLabelSettingsRenderer;
@@ -325,11 +326,14 @@ void _calculatePointSeriesRegion(
     }
     bubbleSize = ((point.bubbleSize) ?? 4).toDouble();
     if (bubbleSeries.sizeValueMapper == null) {
+      // ignore: unnecessary_null_comparison
       bubbleSeries.minimumRadius != null
           ? bubbleRadius = bubbleSeries.minimumRadius
           : bubbleRadius = bubbleSeries.maximumRadius;
     } else {
+      // ignore: unnecessary_null_comparison
       if ((bubbleSeries.maximumRadius != null) &&
+          // ignore: unnecessary_null_comparison
           (bubbleSeries.minimumRadius != null)) {
         if (sizeRange == 0) {
           bubbleRadius = bubbleSeries.maximumRadius;
@@ -806,12 +810,15 @@ void _calculateTooltipRegion(
   final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
   final CartesianSeries<dynamic, dynamic> series = seriesRenderer._series;
   final num? crossesAt = _getCrossesAtValue(seriesRenderer, _chartState);
+  // ignore: unnecessary_null_comparison
   if ((series.enableTooltip != null ||
+          // ignore: unnecessary_null_comparison
           seriesRenderer._chart.trackballBehavior != null ||
           chart.onPointTapped != null) &&
       (series.enableTooltip ||
           seriesRenderer._chart.trackballBehavior.enable ||
           chart.onPointTapped != null) &&
+      // ignore: unnecessary_null_comparison
       point != null &&
       !point.isGap &&
       !point.isDrop &&

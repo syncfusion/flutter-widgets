@@ -99,6 +99,7 @@ class _FunnelDataLabelPainter extends CustomPainter {
     final FunnelSeriesRenderer seriesRenderer =
         chartState._chartSeries.visibleSeriesRenderers[0];
     final FunnelSeries<dynamic, dynamic> series = seriesRenderer._series;
+    // ignore: unnecessary_null_comparison
     if (series.dataLabelSettings != null &&
         series.dataLabelSettings.isVisible) {
       seriesRenderer._dataLabelSettingsRenderer =
@@ -444,6 +445,7 @@ void _drawFunnelLabel(
             : dataLabelSettingsRenderer._color);
     final Color? strokeColor =
         dataLabel.borderColor.withOpacity(dataLabel.opacity);
+    // ignore: unnecessary_null_comparison
     if (strokeWidth != null && strokeWidth > 0) {
       rectPaint = Paint()
         ..color = strokeColor!.withOpacity(

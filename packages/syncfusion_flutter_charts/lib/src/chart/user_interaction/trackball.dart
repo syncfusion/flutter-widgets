@@ -528,8 +528,9 @@ class TrackballBehaviorRenderer with ChartBehavior {
         dataPoints.add(seriesRenderer._dataPoints[i]);
       }
     }
+    // ignore: unnecessary_null_comparison
     assert(pointIndex != null, 'Point index must not be null');
-
+// ignore: unnecessary_null_comparison
     if (pointIndex != null &&
         pointIndex.abs() < seriesRenderer._dataPoints.length) {
       final int index = pointIndex;
@@ -670,6 +671,7 @@ class TrackballBehaviorRenderer with ChartBehavior {
         in _chartState._seriesRenderers) {
       visibleSeriesRenderer = seriesRenderer;
       chartAxisRenderer = visibleSeriesRenderer._xAxisRenderer!;
+      // ignore: unnecessary_null_comparison
       if (chartAxisRenderer == null) {
         continue;
       }

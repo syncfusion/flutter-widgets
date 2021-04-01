@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io' show Platform;
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -79,8 +78,7 @@ class _SparckChartTrackballRendererState
   /// Specifies whether to render the trackball on top
   bool? _isTop;
 
-  bool _enableMouseHover =
-      kIsWeb || Platform.isLinux || Platform.isMacOS || Platform.isWindows;
+  final bool _enableMouseHover = kIsWeb;
 
   @override
   void initState() {
@@ -312,6 +310,7 @@ class TrackballPainter extends CustomPainter {
     double xPosition;
     double yPosition;
     bool isBottom = false;
+    // ignore: unnecessary_null_comparison
     if (screenPoint != null) {
       if (!isTop) {
         xPosition = screenPoint.dx + pointerLength + tooltipPadding;

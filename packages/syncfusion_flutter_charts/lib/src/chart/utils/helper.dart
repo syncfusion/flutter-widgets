@@ -69,6 +69,7 @@ num _valueToCoefficient(num? value, ChartAxisRenderer axisRenderer) {
   num result = 0;
   if (axisRenderer._visibleRange != null && value != null) {
     final _VisibleRange range = axisRenderer._visibleRange!;
+    // ignore: unnecessary_null_comparison
     if (range != null) {
       result = (value - range.minimum) / (range.delta);
       result = axisRenderer._axis.isInversed ? (1 - result) : result;
@@ -83,6 +84,7 @@ num _calculateLogBaseValue(num value, num base) =>
 
 /// To check if value is within range
 bool _withInRange(num value, _VisibleRange range) =>
+// ignore: unnecessary_null_comparison
     value != null && (value <= range.maximum) && (value >= range.minimum);
 
 /// To find the proper series color of each point in waterfall chart,
@@ -173,6 +175,7 @@ num _calculateMinPointsDelta(
       } else {
         for (int i = 0; i < xValues.length; i++) {
           value = xValues[i];
+          // ignore: unnecessary_null_comparison
           if (i > 0 && value != null) {
             minVal = value - xValues[i - 1];
             if (minVal != 0) {
@@ -919,7 +922,7 @@ _ChartLocation _getRotatedTextLocation(double pointX, double pointY,
         ? (((angle - 270) / 90) * textSize.height) +
             (textSize.height * ((angle - 270) / 90)) / 2
         : 0;
-
+// ignore: unnecessary_null_comparison
     if (axis != null && axis.labelRotation.isNegative) {
       final num rotation = axis.labelRotation.abs();
       if (rotation > 15 && rotation < 90) {
@@ -993,8 +996,10 @@ void _calculateSideBySidePositions(
         seriesRenderer = seriesCollection[i];
         series = seriesRenderer._series as _StackedSeriesBase;
       }
+      // ignore: unnecessary_null_comparison
       if (seriesRenderer != null && seriesRenderer is _StackedSeriesRenderer) {
         final String groupName = series!.groupName;
+        // ignore: unnecessary_null_comparison
         if (groupName != null) {
           stackingGroupPos ??= <_StackingGroup>[];
           if (stackingGroupPos.isEmpty) {
@@ -1196,6 +1201,7 @@ dynamic _getLabelValue(dynamic value, dynamic axis, [int? showDigits]) {
 /// Calculate the X value from the current screen point
 double _pointToXValue(bool _requireInvertedAxis, ChartAxisRenderer axisRenderer,
     Rect rect, double x, double y) {
+  // ignore: unnecessary_null_comparison
   if (axisRenderer != null) {
     if (!_requireInvertedAxis) {
       return _coefficientToValue(x / rect.width, axisRenderer);
@@ -1209,6 +1215,7 @@ double _pointToXValue(bool _requireInvertedAxis, ChartAxisRenderer axisRenderer,
 // ignore: unused_element
 double _pointToYValue(bool _requireInvertedAxis, ChartAxisRenderer axisRenderer,
     Rect rect, double x, double y) {
+  // ignore: unnecessary_null_comparison
   if (axisRenderer != null) {
     if (!_requireInvertedAxis) {
       return _coefficientToValue(1 - (y / rect.height), axisRenderer);
@@ -1408,6 +1415,7 @@ void _canRepaintChartSeries(SfCartesianChartState _chartState,
 /// To check axis repaint
 void _canRepaintAxis(SfCartesianChartState _chartState,
     List<ChartAxisRenderer> oldChartAxisRenderers, int axisIndex) {
+  // ignore: unnecessary_null_comparison
   if (_chartState._chartAxis._axisRenderersCollection != null &&
       _chartState._chartAxis._axisRenderersCollection.isNotEmpty) {
     final ChartAxisRenderer axisRenderer =
@@ -1588,6 +1596,7 @@ void _loadMarkerImage(CartesianSeriesRenderer seriesRenderer,
           trackballBehavior.markerSettings != null &&
           trackballBehavior.markerSettings!.shape == DataMarkerType.image &&
           trackballBehavior.markerSettings!.image != null) ||
+      // ignore: unnecessary_null_comparison
       (series.markerSettings != null &&
           (series.markerSettings.isVisible ||
               seriesRenderer._seriesType == 'scatter') &&
@@ -1703,6 +1712,7 @@ RRect _getRoundedCornerRect(Rect rect, double cornerRadius) =>
 /// Calculate the X value from the current screen point
 double _pointToXVal(SfCartesianChart chart, ChartAxisRenderer axisRenderer,
     Rect rect, double x, double y) {
+  // ignore: unnecessary_null_comparison
   if (axisRenderer != null) {
     return _coefficientToValue(x / rect.width, axisRenderer);
   }
@@ -1712,6 +1722,7 @@ double _pointToXVal(SfCartesianChart chart, ChartAxisRenderer axisRenderer,
 /// Calculate the Y value from the current screen point
 double _pointToYVal(SfCartesianChart chart, ChartAxisRenderer axisRenderer,
     Rect rect, double x, double y) {
+  // ignore: unnecessary_null_comparison
   if (axisRenderer != null) {
     return _coefficientToValue(1 - (y / rect.height), axisRenderer);
   }
@@ -2063,6 +2074,7 @@ void _stackedAreaPainter(
         }
       }
     }
+    // ignore: unnecessary_null_comparison
     if (_path != null &&
         seriesRenderer._segments != null &&
         seriesRenderer._segments.isNotEmpty) {
@@ -2129,6 +2141,7 @@ void _stackedRectPainter(Canvas canvas, dynamic seriesRenderer,
         seriesRenderer._seriesElementAnimation;
     seriesRenderer._storeSeriesProperties(_chartState, seriesIndex);
     double animationFactor;
+    // ignore: unnecessary_null_comparison
     animationFactor = seriesAnimation != null &&
             (seriesRenderer._reAnimate ||
                 (!(_chartState._widgetNeedUpdate ||
@@ -2424,11 +2437,17 @@ List<num?> _naturalSpline(List<num> xValues, List<num> yValues,
     if ((yValues[i + 1] != double.nan) &&
         (yValues[i - 1] != double.nan) &&
         (yValues[i] != double.nan) &&
+        // ignore: unnecessary_null_comparison
         yValues[i + 1] != null &&
+        // ignore: unnecessary_null_comparison
         xValues[i + 1] != null &&
+        // ignore: unnecessary_null_comparison
         yValues[i - 1] != null &&
+        // ignore: unnecessary_null_comparison
         xValues[i - 1] != null &&
+        // ignore: unnecessary_null_comparison
         xValues[i] != null &&
+        // ignore: unnecessary_null_comparison
         yValues[i] != null) {
       d1 = xValues[i].toDouble() - xValues[i - 1].toDouble();
       d2 = xValues[i + 1].toDouble() - xValues[i - 1].toDouble();
@@ -2441,6 +2460,7 @@ List<num?> _naturalSpline(List<num> xValues, List<num> yValues,
       } else {
         p = 1 / ((d1 * yCoef[i - 1]!) + (2 * d2));
         yCoef[i] = -p * d3;
+        // ignore: unnecessary_null_comparison
         if (d1 != null && u[i - 1] != null) {
           u[i] = p * ((a * ((dy1 / d3) - (dy2 / d1))) - (d1 * u[i - 1]!));
         }
@@ -2689,9 +2709,13 @@ void _updateSplineAreaControlPoints(
   List<Offset> controlPoints;
   for (pointIndex = 0; pointIndex < xValues.length - 1; pointIndex++) {
     controlPoints = <Offset>[];
+    // ignore: unnecessary_null_comparison
     if (xValues[pointIndex] != null &&
+        // ignore: unnecessary_null_comparison
         yValues[pointIndex] != null &&
+        // ignore: unnecessary_null_comparison
         xValues[pointIndex + 1] != null &&
+        // ignore: unnecessary_null_comparison
         yValues[pointIndex + 1] != null) {
       x = xValues[pointIndex].toDouble();
       y = yValues[pointIndex].toDouble();
@@ -2749,9 +2773,11 @@ void _findSplineRangeAreaControlPoint(
   for (pointIndex = 0; pointIndex < xValues.length - 1; pointIndex++) {
     controlPointslow = <Offset>[];
     controlPointshigh = <Offset>[];
+    // ignore: unnecessary_null_comparison
     if (xValues[pointIndex] != null &&
         seriesRenderer._dataPoints[pointIndex].low != null &&
         seriesRenderer._dataPoints[pointIndex].high != null &&
+        // ignore: unnecessary_null_comparison
         xValues[pointIndex + 1] != null &&
         seriesRenderer._dataPoints[pointIndex + 1].low != null &&
         seriesRenderer._dataPoints[pointIndex + 1].high != null) {
@@ -3070,6 +3096,7 @@ _VisibleRange _calculateYRangeOnZoomX(
         axisRenderer._chartState, 'AnchoringRange');
     final _VisibleRange xRange = xAxisRenderer._visibleRange;
     if (_seriesRenderers[i]._yAxisRenderer == axisRenderer &&
+        // ignore: unnecessary_null_comparison
         xRange != null &&
         _seriesRenderers[i]._visible!) {
       for (int j = 0; j < _seriesRenderers[i]._dataPoints.length; j++) {
@@ -3520,6 +3547,7 @@ CartesianSeriesRenderer? _getOldSeriesRenderer(
   if (chartState._widgetNeedUpdate &&
       seriesRenderer._xAxisRenderer!._zoomFactor == 1 &&
       seriesRenderer._yAxisRenderer!._zoomFactor == 1 &&
+      // ignore: unnecessary_null_comparison
       oldSeriesRenderers != null &&
       oldSeriesRenderers.isNotEmpty &&
       oldSeriesRenderers.length - 1 >= seriesIndex &&
@@ -3544,6 +3572,7 @@ CartesianChartPoint? _getOldChartPoint(
           (seriesRenderer._series.animationDuration > 0 &&
               chartState._widgetNeedUpdate &&
               !chartState._isLegendToggled &&
+              // ignore: unnecessary_null_comparison
               oldSeriesRenderers != null &&
               oldSeriesRenderers.isNotEmpty &&
               oldSeriesRenderer != null &&

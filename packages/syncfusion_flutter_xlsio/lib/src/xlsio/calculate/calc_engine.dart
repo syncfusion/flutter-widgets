@@ -5339,7 +5339,7 @@ class CalcEngine {
     double? d;
     bool? indexValue = false;
     List<double>? vector;
-    List<String>? ranges = null;
+    List<String>? ranges;
     //Below code has been added to calculate the array structure values.
     if (!range.contains(parseArgumentSeparator.toString()) &&
         !range.contains(_sheetToken.toString())) {

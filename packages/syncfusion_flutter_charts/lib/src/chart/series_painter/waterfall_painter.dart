@@ -34,6 +34,7 @@ class _WaterfallChartPainter extends CustomPainter {
     num originValue = 0;
     if (seriesRenderer._visible!) {
       assert(
+          // ignore: unnecessary_null_comparison
           series.animationDuration != null
               ? series.animationDuration >= 0
               : true,
@@ -65,6 +66,7 @@ class _WaterfallChartPainter extends CustomPainter {
             point.y = point.isTotalSum! ? currentEndValue : point.yValue;
         originValue = (point.isIntermediateSum == true
             ? intermediateOrigin
+            // ignore: unnecessary_null_comparison
             : ((prevEndValue != null) ? prevEndValue : origin));
         originValue = point.isTotalSum! ? 0 : originValue;
         point.yValue = point.y = point.isIntermediateSum!
@@ -108,6 +110,7 @@ class _WaterfallChartPainter extends CustomPainter {
               animationFactor >= chartState._seriesDurationFactor) &&
           (series.markerSettings.isVisible ||
               series.dataLabelSettings.isVisible)) {
+        // ignore: unnecessary_null_comparison
         assert(seriesRenderer != null,
             'The waterfall series should be available to render a marker on it.');
         canvas.clipRect(clipRect);

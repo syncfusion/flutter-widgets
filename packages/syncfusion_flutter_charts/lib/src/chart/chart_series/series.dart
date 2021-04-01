@@ -1599,6 +1599,7 @@ class ChartSeriesController {
         _needXRecalculation = true;
       }
       seriesRenderer._dataPoints.removeAt(index);
+      // ignore: unnecessary_null_comparison
       if (currentPoint != null) {
         if (!_needXRecalculation &&
             (seriesRenderer._minimumX == currentPoint.x ||

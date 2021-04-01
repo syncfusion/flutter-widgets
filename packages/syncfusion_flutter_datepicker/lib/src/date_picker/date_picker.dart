@@ -5019,7 +5019,7 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker> {
   }
 
   void _handleOk() {
-    dynamic value = null;
+    dynamic value;
     switch (widget.selectionMode) {
       case DateRangePickerSelectionMode.single:
         {
@@ -9855,7 +9855,7 @@ class _PickerViewState extends State<_PickerView>
 
   void _drawMultipleSelectionForMonth(dynamic selectedDate) {
     final int selectedIndex = DateRangePickerHelper.isDateIndexInCollection(
-        _pickerStateDetails.selectedDates!, selectedDate);
+        _pickerStateDetails.selectedDates, selectedDate);
     if (selectedIndex == -1) {
       _pickerStateDetails.selectedDates ??= <dynamic>[];
       _pickerStateDetails.selectedDates!.add(selectedDate);

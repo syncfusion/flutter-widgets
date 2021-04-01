@@ -8,7 +8,7 @@
 * Provided the support to swipe a row “right to left” or “left to right” for custom actions such as deleting, editing, and so on. When the user swipes a row, the row will be moved, and swipe view will be shown for custom actions.
 * Provided the support to scroll to a specific row, column, or cell. Also, users can scroll a row or column based on offset values.
 
-**Breakings Changes**
+**Breaking Changes**
 
 We have documented all the API breaking details in  [this](https://www.syncfusion.com/downloads/support/directtrac/general/doc/API_Breaking_Changes_in_Flutter_DataGrid_in_2021_Volume_1-1910747829.docx) document.
 

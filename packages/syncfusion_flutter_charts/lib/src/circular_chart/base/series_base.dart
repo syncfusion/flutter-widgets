@@ -184,13 +184,16 @@ class _CircularSeries {
     final List<Color> palette = chart.palette;
     int i = 0;
     for (final ChartPoint<dynamic> point in seriesRenderer._renderPoints!) {
+      // ignore: unnecessary_null_comparison
       point.fill = point.isEmpty && empty.color != null
           ? empty.color
           : point.pointColor ?? palette[i % palette.length];
       point.color = point.fill;
+      // ignore: unnecessary_null_comparison
       point.strokeColor = point.isEmpty && empty.borderColor != null
           ? empty.borderColor
           : currentSeries.borderColor;
+      // ignore: unnecessary_null_comparison
       point.strokeWidth = point.isEmpty && empty.borderWidth != null
           ? empty.borderWidth
           : currentSeries.borderWidth;
@@ -310,6 +313,7 @@ class _CircularSeries {
             ? _findExplodeCenter(
                 point.midAngle!, seriesRenderer, point.outerRadius!)
             : seriesRenderer._center;
+        // ignore: unnecessary_null_comparison
         if (currentSeries.dataLabelSettings != null) {
           _findDataLabelPosition(point);
         }

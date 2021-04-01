@@ -67,7 +67,7 @@ class _RsaAlgorithm implements _ICipherBlock {
 }
 
 class _RsaCoreAlgorithm {
-  _RsaCoreAlgorithm() {}
+  _RsaCoreAlgorithm();
 
   //Fields
   late _RsaKeyParam _key;

@@ -245,6 +245,7 @@ class BarSeries<T, D> extends XyDataSeries<T, D> {
     BarSeriesRenderer seriesRenderer;
     if (onCreateRenderer != null) {
       seriesRenderer = onCreateRenderer!(series) as BarSeriesRenderer;
+      // ignore: unnecessary_null_comparison
       assert(seriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return seriesRenderer;
@@ -283,6 +284,7 @@ class BarSeriesRenderer extends XyDataSeriesRenderer {
     segment._currentPoint = currentPoint;
     if (_chartState!._widgetNeedUpdate &&
         !_chartState!._isLegendToggled &&
+        // ignore: unnecessary_null_comparison
         oldSeriesRenderers != null &&
         oldSeriesRenderers.isNotEmpty &&
         oldSeriesRenderers.length - 1 >= segment._seriesIndex &&
@@ -296,6 +298,7 @@ class BarSeriesRenderer extends XyDataSeriesRenderer {
           : null;
       segment._oldSegmentIndex = _getOldSegmentIndex(segment);
     } else if (_chartState!._isLegendToggled &&
+        // ignore: unnecessary_null_comparison
         _chartState!._segments != null &&
         _chartState!._segments.isNotEmpty) {
       segment._oldSeriesVisible =
