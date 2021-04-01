@@ -1,16 +1,16 @@
-## [Unreleased version]
-** Bug fixes**
+## [19.1.54] - 03/30/2021
+**Bug fixes**
 * Now, the localization is working properly for the spanned appointment count text in Flutter event calendar.
 
 **Features**
 * Provided the LoadMore support for the event calendar.
 * Provided the negative values support for BYSETPOS in recurrence to display the appointment in the last and second last week of a month.
-* Provided the support for the month header format in the Flutter event calendar.
-* Provided the support for Getting appointments between the start and end dates in the Flutter event calendar.
+* Provided the support for the header date format in the Flutter event calendar.
+* Provided the support for getting appointments between the start and end date range by using the `getVisibleAppointments` method in the Flutter event calendar.
 * Provided the current time indicator support for timeslot views.
 * Provided the support for enabling and disabling the swiping interaction in the Flutter event calendar.
 * Provided the support for the selected date changed callback in the Flutter event calendar.
-* Improved the timeline views disabled slots appearance in the Flutter event calendar.
+* Improved the timeslot views disabled slots appearance in the Flutter event calendar.
 
 **Breaking changes**
 * The `startTime` and `endTime` properties of the `Appointment` class are now marked as required.

@@ -51,8 +51,6 @@ The Flutter Calendar widget has built-in configurable views such as day, week, w
 
 * **Load more** - Load appointments on-demand whenever users switch from one view to another or when scrolling to the start or end position of the schedule view.
 
-![load_more](https://cdn.syncfusion.com/content/images/FTControl/Flutter/calendar/load_more_gif.gif)
-
 * **Special time regions** - Disable interactions and selections for specific time ranges. This is useful when you want to block user interaction during holidays or another special events and to highlight those time slots.
 
 ![special_time_regions](https://cdn.syncfusion.com/content/images/FTControl/Flutter/flutter-calendar-special-time-regions.png)

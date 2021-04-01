@@ -12,7 +12,6 @@
 library charts;
 
 import 'dart:async';
-import 'dart:io' show Platform;
 import 'dart:math' as math_lib;
 import 'dart:math' as math;
 import 'dart:math';

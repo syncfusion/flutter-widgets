@@ -410,7 +410,7 @@ class _SubjectKeyID extends _Asn1Encode {
 }
 
 class _X509CertificateParser {
-  _X509CertificateParser() {}
+  _X509CertificateParser();
   //Fields
   _Asn1Set? _sData;
   int? _sDataObjectCount;

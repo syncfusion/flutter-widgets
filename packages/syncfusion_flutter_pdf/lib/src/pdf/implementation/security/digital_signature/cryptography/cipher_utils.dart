@@ -16,8 +16,8 @@ class _CipherUtils {
       algorithm = value;
     }
     final List<String> parts = algorithm.split('/');
-    _ICipher? blockCipher = null;
-    _ICipherBlock? asymBlockCipher = null;
+    _ICipher? blockCipher;
+    _ICipherBlock? asymBlockCipher;
     String algorithmName = parts[0];
     if (_algorithms.length > 0) {
       value = _algorithms[algorithmName];
@@ -44,7 +44,7 @@ class _CipherUtils {
             cipherAlgorithm, 'algorithm', 'Invalid cipher algorithm');
     }
     bool isPadded = true;
-    _IPadding? padding = null;
+    _IPadding? padding;
     if (parts.length > 2) {
       final String paddingName = parts[2];
       _CipherPaddingType cipherPadding;

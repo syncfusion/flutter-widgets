@@ -34,6 +34,7 @@ class _ChartLegend {
     if (legend != null && legend!.isVisible!) {
       legendCollections = <_LegendRenderContext>[];
       _calculateSeriesLegends();
+      // ignore: unnecessary_null_comparison
       assert(legend!.itemPadding != null ? legend!.itemPadding >= 0 : true,
           'The padding between the legend and chart area should not be less than 0.');
       if (legendCollections!.isNotEmpty ||
@@ -89,10 +90,13 @@ class _ChartLegend {
         late _LegendRenderContext legendRenderContext;
         String legendText;
         Size textSize;
+        // ignore: unnecessary_null_comparison
         assert(legend!.iconWidth != null ? legend!.iconWidth >= 0 : true,
             'The icon width of legend should not be less than 0.');
+        // ignore: unnecessary_null_comparison
         assert(legend!.iconHeight != null ? legend!.iconHeight >= 0 : true,
             'The icon height of legend should not be less than 0.');
+        // ignore: unnecessary_null_comparison
         assert(legend!.padding != null ? legend!.padding >= 0 : true,
             'The padding between legend text and legend icon should not be less than 0.');
         for (int i = 0; i < length; i++) {
@@ -292,6 +296,7 @@ class _ChartLegend {
           }
           if (seriesRenderer is CartesianSeriesRenderer) {
             final CartesianSeriesRenderer xYSeriesRenderer = seriesRenderer;
+            // ignore: unnecessary_null_comparison
             if (xYSeriesRenderer._series != null &&
                 xYSeriesRenderer._series.trendlines != null) {
               for (int j = 0;

@@ -111,6 +111,7 @@ void _calculateDataLabelPosition(
     dataLabelSettingsRenderer._textStyle = point._dataLabelStyle;
     dataLabelStyle = dataLabelSettingsRenderer._textStyle!;
   }
+  // ignore: unnecessary_null_comparison
   if (point != null &&
       point.isVisible &&
       point.isGap != true &&
@@ -704,6 +705,7 @@ void _calculateDataLabelRegion(
   }
   if (dataLabelSettingsRenderer._color != null ||
       dataLabel.useSeriesColor ||
+      // ignore: unnecessary_null_comparison
       (dataLabel.borderColor != null && dataLabel.borderWidth > 0)) {
     final RRect fillRect =
         _calculatePaddedFillRect(rect, dataLabel.borderRadius, margin);
@@ -1171,6 +1173,7 @@ void _drawDataLabel(
     y = dataLabelSettingsRenderer._offset!.dy;
   }
   final double opacity =
+      // ignore: unnecessary_null_comparison
       seriesRenderer._needAnimateSeriesElements && dataLabelAnimation != null
           ? dataLabelAnimation.value
           : 1;
@@ -1179,6 +1182,7 @@ void _drawDataLabel(
   dataLabelStyle = dataLabelSettingsRenderer._textStyle;
   if (label != null &&
       label.isNotEmpty &&
+      // ignore: unnecessary_null_comparison
       point != null &&
       point.isVisible &&
       point.isGap != true &&
@@ -1202,6 +1206,7 @@ void _drawDataLabel(
             (dataLabelSettingsRenderer._angle / 90) % 2 != 1) &&
         _findingCollision(labelRect, _chartState._renderDatalabelRegions);
     if (label.isNotEmpty && isDatalabelCollide
+        // ignore: unnecessary_null_comparison
         ? dataLabel.labelIntersectAction == null
         : true) {
       final TextStyle _textStyle = TextStyle(
@@ -1283,6 +1288,7 @@ void _drawDataLabelRectAndText(
       seriesRenderer._seriesType.contains('candle');
   final bool isBoxSeries = seriesRenderer._seriesType.contains('boxandwhisker');
   double padding = 0.0;
+  // ignore: unnecessary_null_comparison
   if (dataLabelSettingsRenderer._angle != null &&
       dataLabelSettingsRenderer._angle > 0) {
     final Rect rect = rotatedTextSize(
@@ -1300,6 +1306,7 @@ void _drawDataLabelRectAndText(
   }
   if (dataLabelSettingsRenderer._color != null ||
       dataLabel.useSeriesColor ||
+      // ignore: unnecessary_null_comparison
       (dataLabel.borderColor != null && dataLabel.borderWidth > 0)) {
     final RRect fillRect = point.labelFillRect!;
     final Path path = Path();
@@ -1324,6 +1331,7 @@ void _drawDataLabelRectAndText(
         path5.addRRect(fillRect5!);
       }
     }
+    // ignore: unnecessary_null_comparison
     if (dataLabel.borderColor != null && dataLabel.borderWidth > 0) {
       final Paint strokePaint = Paint()
         ..color = dataLabel.borderColor.withOpacity(
@@ -1338,6 +1346,7 @@ void _drawDataLabelRectAndText(
       canvas.save();
       canvas.translate(point.dataLabelRegion!.center.dx + x,
           point.dataLabelRegion!.center.dy - padding);
+      // ignore: unnecessary_null_comparison
       if (dataLabelSettingsRenderer._angle != null &&
           dataLabelSettingsRenderer._angle > 0) {
         canvas.rotate((dataLabelSettingsRenderer._angle * math.pi) / 180);
@@ -1371,6 +1380,7 @@ void _drawDataLabelRectAndText(
       canvas.save();
       canvas.translate(point.dataLabelRegion!.center.dx + x,
           point.dataLabelRegion!.center.dy - padding);
+      // ignore: unnecessary_null_comparison
       if (dataLabelSettingsRenderer._angle != null &&
           dataLabelSettingsRenderer._angle > 0) {
         canvas.rotate((dataLabelSettingsRenderer._angle * math.pi) / 180);
@@ -1524,6 +1534,7 @@ void _drawDataLabelRectAndText(
             outliersLocation.add(_ChartLocation(
                 point.outliersPoint[outlierIndex].x,
                 point.outliersPoint[outlierIndex].y + outlierPadding));
+            // ignore: unnecessary_null_comparison
             if (outliersLocation[outlierIndex] != null) {
               outliersRect.add(_calculateLabelRect(
                   outliersLocation[outlierIndex],
@@ -1540,7 +1551,9 @@ void _drawDataLabelRectAndText(
             }
             if (dataLabelSettingsRenderer._color != null ||
                 dataLabel.useSeriesColor ||
+                // ignore: unnecessary_null_comparison
                 (dataLabel.borderColor != null && dataLabel.borderWidth > 0)) {
+              // ignore: unnecessary_null_comparison
               if (outliersRect[outlierIndex] != null) {
                 final RRect outliersFillRect = _calculatePaddedFillRect(
                     outliersRect[outlierIndex],
@@ -1591,6 +1604,7 @@ void _drawDataLabelRectAndText(
                 canvas.drawPath(outlierPath, strokePaint);
               }
             } else {
+              // ignore: unnecessary_null_comparison
               if (outliersRect[outlierIndex] != null) {
                 point.outliersLocation.add(_ChartLocation(
                     outliersRect[outlierIndex].left +

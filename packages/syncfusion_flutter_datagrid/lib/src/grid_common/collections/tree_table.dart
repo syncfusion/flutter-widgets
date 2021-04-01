@@ -1329,7 +1329,7 @@ class _TreeTable extends _TreeTableBase {
       // replace root
       _root = value;
     } else {
-      var leaf = null;
+      var leaf;
       if (lastIndex != -1) {
         if (index == lastIndex) {
           leaf = lastIndexLeaf;

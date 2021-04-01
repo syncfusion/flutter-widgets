@@ -142,6 +142,7 @@ class SplineAreaSeries<T, D> extends XyDataSeries<T, D> {
     SplineAreaSeriesRenderer seriesRenderer;
     if (onCreateRenderer != null) {
       seriesRenderer = onCreateRenderer!(series) as SplineAreaSeriesRenderer;
+      // ignore: unnecessary_null_comparison
       assert(seriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return seriesRenderer;
@@ -161,6 +162,7 @@ class SplineAreaSeriesRenderer extends XyDataSeriesRenderer {
       [List<Offset>? _points]) {
     final SplineAreaSegment segment = createSegment();
     _isRectSeries = false;
+    // ignore: unnecessary_null_comparison
     if (segment != null) {
       segment._seriesIndex = seriesIndex;
       segment.animationFactor = animateFactor;

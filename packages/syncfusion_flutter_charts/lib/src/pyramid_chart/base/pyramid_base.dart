@@ -676,8 +676,10 @@ class SfPyramidChartState extends State<SfPyramidChart>
 
   // In this method, create and update the series renderer for each series //
   void _createAndUpdateSeriesRenderer([SfPyramidChart? oldWidget]) {
+    // ignore: unnecessary_null_comparison
     if (widget.series != null) {
       final PyramidSeriesRenderer? oldSeriesRenderer =
+          // ignore: unnecessary_null_comparison
           oldWidget != null && oldWidget.series != null
               ? _chartSeries.visibleSeriesRenderers[0]
               : null;
@@ -798,8 +800,7 @@ class _PyramidPlotArea extends StatelessWidget {
   _Region? pointRegion;
   late TapDownDetails tapDownDetails;
   Offset? doubleTapPosition;
-  bool _enableMouseHover =
-      kIsWeb || Platform.isLinux || Platform.isMacOS || Platform.isWindows;
+  final bool _enableMouseHover = kIsWeb;
 
   @override
   Widget build(BuildContext context) {
@@ -828,6 +829,7 @@ class _PyramidPlotArea extends StatelessWidget {
                         chartState._tapPosition =
                             renderBox.globalToLocal(details.globalPosition);
                         if (chart.onPointTapped != null &&
+                            // ignore: unnecessary_null_comparison
                             seriesRenderer != null) {
                           _calculatePointSeriesIndex(
                               chart, seriesRenderer, chartState._tapPosition!);
@@ -943,6 +945,7 @@ class _PyramidPlotArea extends StatelessWidget {
                     chartState._renderDataLabel!.state?.render();
                   }
                   if (chartState._chartTemplate != null &&
+                      // ignore: unnecessary_null_comparison
                       chartState._chartTemplate!.state != null) {
                     chartState._chartTemplate!.state.templateRender();
                   }
@@ -1194,6 +1197,7 @@ class _PyramidPlotArea extends StatelessWidget {
         isPoint ? chartState._currentActive! : null;
     ChartTouchInteractionArgs touchArgs;
     if (currentActive != null) {
+      // ignore: unnecessary_null_comparison
       if (chart.onDataLabelTapped != null && seriesRenderer != null) {
         _triggerPyramidDataLabelEvent(
             chart, seriesRenderer, chartState, chartState._tapPosition!);

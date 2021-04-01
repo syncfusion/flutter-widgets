@@ -38,6 +38,7 @@ Path _getArcPath(num innerRadius, num radius, Offset center, num? startAngle,
   }
 
   final bool isFullCircle =
+      // ignore: unnecessary_null_comparison
       startAngle != null && endAngle != null && endAngle - startAngle == 2 * pi;
 
   final num midpointAngle = (endAngle + startAngle) / 2;

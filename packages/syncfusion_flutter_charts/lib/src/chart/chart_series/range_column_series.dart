@@ -240,6 +240,7 @@ class RangeColumnSeries<T, D> extends XyDataSeries<T, D> {
     RangeColumnSeriesRenderer seriesRenderer;
     if (onCreateRenderer != null) {
       seriesRenderer = onCreateRenderer!(series) as RangeColumnSeriesRenderer;
+      // ignore: unnecessary_null_comparison
       assert(seriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return seriesRenderer;
@@ -297,6 +298,7 @@ class RangeColumnSeriesRenderer extends XyDataSeriesRenderer {
           : null;
       segment._oldSegmentIndex = _getOldSegmentIndex(segment);
     } else if (_chartState!._isLegendToggled &&
+        // ignore: unnecessary_null_comparison
         _chartState!._segments != null &&
         _chartState!._segments.isNotEmpty) {
       segment._oldSeriesVisible =
@@ -312,6 +314,7 @@ class RangeColumnSeriesRenderer extends XyDataSeriesRenderer {
     }
     segment._path = _findingRectSeriesDashedBorder(
         currentPoint, _rangeColumnSeries.borderWidth);
+    // ignore: unnecessary_null_comparison
     if (borderRadius != null) {
       segment.segmentRect =
           _getRRectFromRect(currentPoint.region!, borderRadius);

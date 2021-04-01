@@ -62,6 +62,7 @@ class _SplineRangeAreaChartPainter extends CustomPainter {
       final SplineRangeAreaSeries<dynamic, dynamic> series =
           seriesRenderer._series as SplineRangeAreaSeries;
       assert(
+          // ignore: unnecessary_null_comparison
           series.animationDuration != null
               ? series.animationDuration >= 0
               : true,
@@ -327,7 +328,9 @@ class _SplineRangeAreaChartPainter extends CustomPainter {
       }
 
       /// Draw the spline range area series
+      // ignore: unnecessary_null_comparison
       if (_path != null &&
+          // ignore: unnecessary_null_comparison
           seriesRenderer._segments != null &&
           seriesRenderer._segments.isNotEmpty) {
         splineRangeAreaSegment =
@@ -358,6 +361,7 @@ class _SplineRangeAreaChartPainter extends CustomPainter {
               animationFactor >= chartState._seriesDurationFactor) &&
           (series.markerSettings.isVisible ||
               series.dataLabelSettings.isVisible)) {
+        // ignore: unnecessary_null_comparison
         assert(seriesRenderer != null,
             'The spline range area series should be available to render a marker on it.');
         canvas.clipRect(clipRect);

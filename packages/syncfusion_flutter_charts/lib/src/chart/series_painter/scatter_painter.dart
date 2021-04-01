@@ -26,6 +26,7 @@ class _ScatterChartPainter extends CustomPainter {
         seriesRenderer._series as ScatterSeries;
     if (seriesRenderer._visible!) {
       assert(
+          // ignore: unnecessary_null_comparison
           series.animationDuration != null
               ? series.animationDuration >= 0
               : true,

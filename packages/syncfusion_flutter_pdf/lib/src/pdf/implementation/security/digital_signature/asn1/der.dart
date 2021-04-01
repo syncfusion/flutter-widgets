@@ -618,8 +618,8 @@ class _DerObjectID extends _Asn1 {
 }
 
 class _DerOctet extends _Asn1Octet {
-  _DerOctet(List<int> bytes) : super(bytes) {}
-  _DerOctet.fromObject(_Asn1Encode asn1) : super.fromObject(asn1) {}
+  _DerOctet(List<int> bytes) : super(bytes);
+  _DerOctet.fromObject(_Asn1Encode asn1) : super.fromObject(asn1);
   @override
   void encode(_DerStream stream) {
     stream.writeEncoded(_Asn1Tags.octetString, _value);

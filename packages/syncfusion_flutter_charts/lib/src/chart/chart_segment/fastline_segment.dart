@@ -52,6 +52,7 @@ class FastLineSegment extends ChartSegment {
   /// Draws segment in series bounds.
   @override
   void onPaint(Canvas canvas) {
+    // ignore: unnecessary_null_comparison
     _series.dashArray != null
         ? _drawDashedLine(canvas, _series.dashArray, strokePaint!,
             _seriesRenderer._segmentPath!)

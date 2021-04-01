@@ -82,6 +82,7 @@ class HiloSeries<T, D> extends _FinancialSeriesBase<T, D> {
     HiloSeriesRenderer seriesRenderer;
     if (onCreateRenderer != null) {
       seriesRenderer = onCreateRenderer!(series) as HiloSeriesRenderer;
+      // ignore: unnecessary_null_comparison
       assert(seriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return seriesRenderer;
@@ -108,6 +109,7 @@ class HiloSeriesRenderer extends _FinancialSerieBaseRenderer {
     final HiloSegment segment = createSegment();
     final List<CartesianSeriesRenderer> oldSeriesRenderers =
         _chartState!._oldSeriesRenderers;
+    // ignore: unnecessary_null_comparison
     if (segment != null) {
       segment._seriesIndex = seriesIndex;
       segment.currentSegmentIndex = pointIndex;
@@ -122,6 +124,7 @@ class HiloSeriesRenderer extends _FinancialSerieBaseRenderer {
       segment._currentPoint = currentPoint;
       if (_chartState!._widgetNeedUpdate &&
           !_chartState!._isLegendToggled &&
+          // ignore: unnecessary_null_comparison
           oldSeriesRenderers != null &&
           oldSeriesRenderers.isNotEmpty &&
           oldSeriesRenderers.length - 1 >= segment._seriesIndex &&

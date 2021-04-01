@@ -1214,14 +1214,15 @@ class _SelectionRenderer {
           endSegment = seriesRenderer._segments[dataPointIndex];
         }
       }
+      // ignore: unnecessary_null_comparison
       startSegment != null
           ? cartesianSeriesIndex = startSegment._seriesIndex
           : cartesianSeriesIndex = endSegment!._seriesIndex;
-
+// ignore: unnecessary_null_comparison
       startSegment != null
           ? cartesianPointIndex = startSegment.currentSegmentIndex
           : cartesianPointIndex = endSegment!.currentSegmentIndex;
-
+// ignore: unnecessary_null_comparison
       if (startSegment != null) {
         if (_isSegmentIntersect(startSegment, position.dx, position.dy)) {
           return true;

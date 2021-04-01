@@ -59,6 +59,7 @@ class SfLocalizationsAf extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'items';
 
   @override
@@ -213,6 +214,7 @@ class SfLocalizationsAm extends SfGlobalLocalizations {
   String get dhualqiLabel => r'ዱ አል-ቂዳህ';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'ዕቃዎች';
 
   @override
@@ -367,6 +369,7 @@ class SfLocalizationsAr extends SfGlobalLocalizations {
   String get dhualqiLabel => r'ذو القعدة';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'العناصر';
 
   @override
@@ -522,6 +525,7 @@ class SfLocalizationsAz extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Zülqüda';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'maddələr';
 
   @override
@@ -677,6 +681,7 @@ class SfLocalizationsBe extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Ду аль-Кіда';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'прадметы';
 
   @override
@@ -833,6 +838,7 @@ class SfLocalizationsBg extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'елементи';
 
   @override
@@ -987,6 +993,7 @@ class SfLocalizationsBn extends SfGlobalLocalizations {
   String get dhualqiLabel => r'ধু আল-কিয়াদাহ';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'আইটেম';
 
   @override
@@ -1141,6 +1148,7 @@ class SfLocalizationsBs extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'predmeta';
 
   @override
@@ -1296,6 +1304,7 @@ class SfLocalizationsCa extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'articles';
 
   @override
@@ -1452,6 +1461,7 @@ class SfLocalizationsCs extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'položky';
 
   @override
@@ -1606,6 +1616,7 @@ class SfLocalizationsDa extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'genstande';
 
   @override
@@ -1760,6 +1771,7 @@ class SfLocalizationsDe extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'Artikel';
 
   @override
@@ -1916,6 +1928,7 @@ class SfLocalizationsEl extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'αντικείμενα';
 
   @override
@@ -2071,6 +2084,7 @@ class SfLocalizationsEn extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'items';
 
   @override
@@ -2226,6 +2240,7 @@ class SfLocalizationsEs extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'artículos';
 
   @override
@@ -2380,6 +2395,7 @@ class SfLocalizationsEt extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'esemed';
 
   @override
@@ -2534,6 +2550,7 @@ class SfLocalizationsEu extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'elementuak';
 
   @override
@@ -2689,6 +2706,7 @@ class SfLocalizationsFa extends SfGlobalLocalizations {
   String get dhualqiLabel => r'ذو القعده';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'موارد';
 
   @override
@@ -2843,6 +2861,7 @@ class SfLocalizationsFi extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'kohteita';
 
   @override
@@ -2998,6 +3017,7 @@ class SfLocalizationsFil extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'mga item';
 
   @override
@@ -3154,6 +3174,7 @@ class SfLocalizationsFr extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'articles';
 
   @override
@@ -3310,6 +3331,7 @@ class SfLocalizationsGl extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'elementos';
 
   @override
@@ -3465,6 +3487,7 @@ class SfLocalizationsGu extends SfGlobalLocalizations {
   String get dhualqiLabel => r'ધુ અલ-કિયાદહ';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'વસ્તુઓ';
 
   @override
@@ -3619,6 +3642,7 @@ class SfLocalizationsHe extends SfGlobalLocalizations {
   String get dhualqiLabel => r'דהו אל-קי' "'" r'דה';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'פריטים';
 
   @override
@@ -3773,6 +3797,7 @@ class SfLocalizationsHi extends SfGlobalLocalizations {
   String get dhualqiLabel => r'धू अल-कियूबाह';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'आइटम';
 
   @override
@@ -3927,6 +3952,7 @@ class SfLocalizationsHr extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'predmeta';
 
   @override
@@ -4081,6 +4107,7 @@ class SfLocalizationsHu extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'elemeket';
 
   @override
@@ -4237,6 +4264,7 @@ class SfLocalizationsHy extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Դհու ալ-Քիդա';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'իրեր';
 
   @override
@@ -4391,6 +4419,7 @@ class SfLocalizationsId extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'item';
 
   @override
@@ -4545,6 +4574,7 @@ class SfLocalizationsIs extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'hlutir';
 
   @override
@@ -4699,6 +4729,7 @@ class SfLocalizationsIt extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'elementi';
 
   @override
@@ -4854,6 +4885,7 @@ class SfLocalizationsJa extends SfGlobalLocalizations {
   String get dhualqiLabel => r'ズル・カイダ';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'アイテム';
 
   @override
@@ -5008,6 +5040,7 @@ class SfLocalizationsKa extends SfGlobalLocalizations {
   String get dhualqiLabel => r'დუ ალ-ქიდა';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'საგნები';
 
   @override
@@ -5162,6 +5195,7 @@ class SfLocalizationsKk extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Зуль-әл-Қида';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'заттар';
 
   @override
@@ -5316,6 +5350,7 @@ class SfLocalizationsKm extends SfGlobalLocalizations {
   String get dhualqiLabel => r'ឌូអាល់ឈីឌា';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'របស់របរ';
 
   @override
@@ -5479,6 +5514,7 @@ class SfLocalizationsKn extends SfGlobalLocalizations {
       '\u{ca7}\u{cc1}\u{20}\u{c85}\u{cb2}\u{ccd}\u{2d}\u{c96}\u{cbf}\u{ca6}\u{cbe}';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel =>
       '\u{cb5}\u{cb8}\u{ccd}\u{ca4}\u{cc1}\u{c97}\u{cb3}\u{cc1}';
 
@@ -5654,6 +5690,7 @@ class SfLocalizationsKo extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'항목';
 
   @override
@@ -5808,6 +5845,7 @@ class SfLocalizationsKy extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Zhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'буюмдар';
 
   @override
@@ -5963,6 +6001,7 @@ class SfLocalizationsLo extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'ລາຍການ';
 
   @override
@@ -6117,6 +6156,7 @@ class SfLocalizationsLt extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'daiktų';
 
   @override
@@ -6271,6 +6311,7 @@ class SfLocalizationsLv extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'preces';
 
   @override
@@ -6425,6 +6466,7 @@ class SfLocalizationsMk extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Huу ал-Кида';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'предмети';
 
   @override
@@ -6579,6 +6621,7 @@ class SfLocalizationsMl extends SfGlobalLocalizations {
   String get dhualqiLabel => r'ധു അൽ ക്വിദ';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'ഇനങ്ങൾ';
 
   @override
@@ -6733,6 +6776,7 @@ class SfLocalizationsMn extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'зүйлс';
 
   @override
@@ -6887,6 +6931,7 @@ class SfLocalizationsMr extends SfGlobalLocalizations {
   String get dhualqiLabel => r'धु अल-कायदा';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'आयटम';
 
   @override
@@ -7041,6 +7086,7 @@ class SfLocalizationsMs extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'barang';
 
   @override
@@ -7195,6 +7241,7 @@ class SfLocalizationsMy extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'ပစ္စည်းတွေ';
 
   @override
@@ -7349,6 +7396,7 @@ class SfLocalizationsNb extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'gjenstander';
 
   @override
@@ -7503,6 +7551,7 @@ class SfLocalizationsNe extends SfGlobalLocalizations {
   String get dhualqiLabel => r'धु अल Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'वस्तुहरू';
 
   @override
@@ -7658,6 +7707,7 @@ class SfLocalizationsNl extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'artikelen';
 
   @override
@@ -7812,6 +7862,7 @@ class SfLocalizationsPa extends SfGlobalLocalizations {
   String get dhualqiLabel => r'ਧੂ ਅਲ ਕਿਆਦਾਹ';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'ਇਕਾਈ';
 
   @override
@@ -7966,6 +8017,7 @@ class SfLocalizationsPl extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'przedmiotów';
 
   @override
@@ -8120,6 +8172,7 @@ class SfLocalizationsPs extends SfGlobalLocalizations {
   String get dhualqiLabel => r'ذي القده';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'توکي';
 
   @override
@@ -8276,6 +8329,7 @@ class SfLocalizationsPt extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'Itens';
 
   @override
@@ -8465,6 +8519,7 @@ class SfLocalizationsRo extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'obiecte';
 
   @override
@@ -8620,6 +8675,7 @@ class SfLocalizationsRu extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Зу аль-Киада';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'Предметы';
 
   @override
@@ -8775,6 +8831,7 @@ class SfLocalizationsSi extends SfGlobalLocalizations {
   String get dhualqiLabel => r'ධු අල්-කයිඩා';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'අයිතම';
 
   @override
@@ -8930,6 +8987,7 @@ class SfLocalizationsSk extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'položky';
 
   @override
@@ -9084,6 +9142,7 @@ class SfLocalizationsSl extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'predmetov';
 
   @override
@@ -9239,6 +9298,7 @@ class SfLocalizationsSq extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'sende';
 
   @override
@@ -9395,6 +9455,7 @@ class SfLocalizationsSr extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Дху ал-Ки' "'" r'дах';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'предмета';
 
   @override
@@ -9559,6 +9620,7 @@ class SfLocalizationsSv extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'föremål';
 
   @override
@@ -9714,6 +9776,7 @@ class SfLocalizationsSw extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'vitu';
 
   @override
@@ -9868,6 +9931,7 @@ class SfLocalizationsTa extends SfGlobalLocalizations {
   String get dhualqiLabel => r'து அல்-கிதா';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'பொருட்களை';
 
   @override
@@ -10022,6 +10086,7 @@ class SfLocalizationsTe extends SfGlobalLocalizations {
   String get dhualqiLabel => r'ధు అల్-ఖిదా';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'అంశాలు';
 
   @override
@@ -10177,6 +10242,7 @@ class SfLocalizationsTh extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'รายการ';
 
   @override
@@ -10332,6 +10398,7 @@ class SfLocalizationsTl extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'mga item';
 
   @override
@@ -10488,6 +10555,7 @@ class SfLocalizationsTr extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'öğeler';
 
   @override
@@ -10642,6 +10710,7 @@ class SfLocalizationsUk extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Дху аль-Кіда';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'предметів';
 
   @override
@@ -10796,6 +10865,7 @@ class SfLocalizationsUr extends SfGlobalLocalizations {
   String get dhualqiLabel => r'ذو الکعدہ';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'اشیاء';
 
   @override
@@ -10952,6 +11022,7 @@ class SfLocalizationsUz extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Zul al-Qida';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'buyumlar';
 
   @override
@@ -11107,6 +11178,7 @@ class SfLocalizationsVi extends SfGlobalLocalizations {
   String get dhualqiLabel => r'Dhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'mặt hàng';
 
   @override
@@ -11261,6 +11333,7 @@ class SfLocalizationsZh extends SfGlobalLocalizations {
   String get dhualqiLabel => r'齐达';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'项目';
 
   @override
@@ -11536,6 +11609,7 @@ class SfLocalizationsZu extends SfGlobalLocalizations {
   String get dhualqiLabel => r'UDhu al-Qi' "'" r'dah';
 
   @override
+  // ignore: override_on_non_overriding_member
   String get itemsDataPagerLabel => r'izinto';
 
   @override

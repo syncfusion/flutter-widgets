@@ -82,18 +82,19 @@ class _PyramidSeries {
     for (int i = 0; i < points.length; i++) {
       PointInfo<dynamic> currentPoint;
       currentPoint = points[i];
-      currentPoint.fill = currentPoint.isEmpty && empty.color != null
+      currentPoint.fill = currentPoint.isEmpty &&
+              empty.color != null // ignore: unnecessary_null_comparison
           ? empty.color
           : pointColor!(i) ?? palette[i % palette.length];
       currentPoint.color = currentPoint.fill;
-      currentPoint.borderColor =
-          currentPoint.isEmpty && empty.borderColor != null
-              ? empty.borderColor
-              : currentSeries.borderColor;
-      currentPoint.borderWidth =
-          currentPoint.isEmpty && empty.borderWidth != null
-              ? empty.borderWidth
-              : currentSeries.borderWidth;
+      currentPoint.borderColor = currentPoint.isEmpty &&
+              empty.borderColor != null // ignore: unnecessary_null_comparison
+          ? empty.borderColor
+          : currentSeries.borderColor;
+      currentPoint.borderWidth = currentPoint.isEmpty &&
+              empty.borderWidth != null // ignore: unnecessary_null_comparison
+          ? empty.borderWidth
+          : currentSeries.borderWidth;
       currentPoint.borderColor = currentPoint.borderWidth == 0
           ? Colors.transparent
           : currentPoint.borderColor;
@@ -212,6 +213,7 @@ class _PyramidSeries {
     final List<PointInfo<dynamic>> points = seriesRenderer._renderPoints!;
     double y;
     assert(
+        // ignore: unnecessary_null_comparison
         seriesRenderer._series.gapRatio != null
             ? seriesRenderer._series.gapRatio >= 0 &&
                 seriesRenderer._series.gapRatio <= 1

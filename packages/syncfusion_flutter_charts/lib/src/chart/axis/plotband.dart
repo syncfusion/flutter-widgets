@@ -875,6 +875,7 @@ class _PlotBandPainter extends CustomPainter {
       Canvas canvas, ChartAxis axis) {
     final List<double> dashArray = plotBand.dashArray;
     bool needDashLine = true;
+    // ignore: unnecessary_null_comparison
     if (plotBandRect != null && plotBand.color != null) {
       Path? path;
       for (int i = 1; i < dashArray.length; i = i + 2) {
@@ -902,6 +903,7 @@ class _PlotBandPainter extends CustomPainter {
       } else {
         dashPath = path;
       }
+      // ignore: unnecessary_null_comparison
       if (path != null) {
         Paint fillPaint;
         if (plotBand.gradient != null) {
@@ -915,7 +917,9 @@ class _PlotBandPainter extends CustomPainter {
         }
         canvas.drawPath(path, fillPaint);
         if (plotBand.borderWidth > 0 &&
+            // ignore: unnecessary_null_comparison
             plotBand.borderColor != null &&
+            // ignore: unnecessary_null_comparison
             dashPath != null) {
           canvas.drawPath(
               dashPath,

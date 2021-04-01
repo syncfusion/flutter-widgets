@@ -997,8 +997,7 @@ class _CircularArea extends StatelessWidget {
   _Region? pointRegion;
   late TapDownDetails tapDownDetails;
   late Offset? doubleTapPosition;
-  bool _enableMouseHover =
-      kIsWeb || Platform.isLinux || Platform.isMacOS || Platform.isWindows;
+  final bool _enableMouseHover = kIsWeb;
 
   @override
   Widget build(BuildContext context) {

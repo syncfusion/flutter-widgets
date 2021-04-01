@@ -186,6 +186,7 @@ class _CartesianAxisRendererState extends State<_CartesianAxisRenderer>
       if ((widget.chartState._requireInvertedAxis
               ? axisRenderer._orientation == AxisOrientation.vertical
               : axisRenderer._orientation == AxisOrientation.horizontal) &&
+          // ignore: unnecessary_null_comparison
           widget.chartState._oldAxisRenderers != null &&
           widget.chartState._oldAxisRenderers.isNotEmpty &&
           (axisRenderer._axis.visibleMinimum != null ||
@@ -390,6 +391,7 @@ class _CartesianAxesPainter extends CustomPainter {
   /// To draw chart axes
   void _drawAxes(Canvas canvas) {
     final double animationFactor =
+        // ignore: unnecessary_null_comparison
         axisAnimation != null ? axisAnimation.value : 1;
     for (int axisIndex = 0;
         axisIndex < chartState._chartAxis._axisRenderersCollection.length;
@@ -401,6 +403,7 @@ class _CartesianAxesPainter extends CustomPainter {
           (axis.tickPosition == TickPosition.inside) ? true : false;
       ChartAxisRenderer? oldAxisRenderer;
       bool needAnimate = false;
+      // ignore: unnecessary_null_comparison
       if (chartState._oldAxisRenderers != null &&
           chartState._oldAxisRenderers.isNotEmpty &&
           axisRenderer._visibleRange != null) {

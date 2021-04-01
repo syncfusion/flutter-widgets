@@ -106,6 +106,7 @@ class DoughnutSeries<T, D> extends CircularSeries<T, D> {
     DoughnutSeriesRenderer? seriesRenderer;
     if (onCreateRenderer != null) {
       seriesRenderer = onCreateRenderer!(series) as DoughnutSeriesRenderer;
+      // ignore: unnecessary_null_comparison
       assert(seriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return seriesRenderer;

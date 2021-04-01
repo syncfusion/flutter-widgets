@@ -37,6 +37,7 @@ class _HistogramChartPainter extends CustomPainter {
           seriesRenderer._series as HistogramSeries;
       canvas.save();
       assert(
+          // ignore: unnecessary_null_comparison
           series.animationDuration != null
               ? series.animationDuration >= 0
               : true,
@@ -110,6 +111,7 @@ class _HistogramChartPainter extends CustomPainter {
               animationFactor >= chartState._seriesDurationFactor) &&
           (series.markerSettings.isVisible ||
               series.dataLabelSettings.isVisible)) {
+        // ignore: unnecessary_null_comparison
         assert(seriesRenderer != null,
             'The histogram series should be available to render a marker on it.');
         canvas.clipRect(clipRect);

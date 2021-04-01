@@ -109,6 +109,7 @@ class StepAreaSeries<T, D> extends XyDataSeries<T, D> {
     StepAreaSeriesRenderer stepAreaRenderer;
     if (onCreateRenderer != null) {
       stepAreaRenderer = onCreateRenderer!(series) as StepAreaSeriesRenderer;
+      // ignore: unnecessary_null_comparison
       assert(stepAreaRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return stepAreaRenderer;

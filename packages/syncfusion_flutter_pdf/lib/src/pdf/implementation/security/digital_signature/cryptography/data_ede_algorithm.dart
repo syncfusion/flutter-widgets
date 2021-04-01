@@ -1,7 +1,7 @@
 part of pdf;
 
 class _DesEdeAlogorithm extends _DataEncryption {
-  _DesEdeAlogorithm() : super() {}
+  _DesEdeAlogorithm() : super();
   List<int>? _key1;
   List<int>? _key2;
   List<int>? _key3;

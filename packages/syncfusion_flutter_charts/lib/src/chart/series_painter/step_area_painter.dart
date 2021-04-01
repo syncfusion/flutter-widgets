@@ -44,6 +44,7 @@ class _StepAreaChartPainter extends CustomPainter {
     /// Clip rect will be added for series.
     if (seriesRenderer._visible!) {
       assert(
+          // ignore: unnecessary_null_comparison
           _series.animationDuration != null
               ? _series.animationDuration >= 0
               : true,
@@ -146,7 +147,7 @@ class _StepAreaChartPainter extends CustomPainter {
           prevOldPoint = oldPoint;
         }
       }
-
+      // ignore: unnecessary_null_comparison
       if (_path != null && _strokePath != null) {
         seriesRenderer._drawSegment(
             canvas,
@@ -172,6 +173,7 @@ class _StepAreaChartPainter extends CustomPainter {
               animationFactor >= chartState._seriesDurationFactor) &&
           (series.markerSettings.isVisible ||
               series.dataLabelSettings.isVisible)) {
+        // ignore: unnecessary_null_comparison
         assert(seriesRenderer != null,
             'The step area series should be available to render a marker on it.');
         canvas.clipRect(clipRect);

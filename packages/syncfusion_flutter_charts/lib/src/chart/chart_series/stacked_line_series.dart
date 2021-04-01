@@ -82,6 +82,7 @@ class StackedLineSeries<T, D> extends _StackedSeriesBase<T, D> {
     if (onCreateRenderer != null) {
       stackedLineSeriesRenderer =
           onCreateRenderer!(series) as StackedLineSeriesRenderer;
+      // ignore: unnecessary_null_comparison
       assert(stackedLineSeriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return stackedLineSeriesRenderer;
@@ -109,6 +110,7 @@ class StackedLineSeriesRenderer extends _StackedSeriesRenderer {
     final List<CartesianSeriesRenderer>? _oldSeriesRenderers =
         _chartState!._oldSeriesRenderers;
     _isRectSeries = false;
+    // ignore: unnecessary_null_comparison
     if (segment != null) {
       segment._seriesRenderer = this;
       segment._series = _series as XyDataSeries;

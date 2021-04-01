@@ -336,6 +336,7 @@ class MarkerSettingsRenderer {
         point.isVisible &&
         _withInRect(seriesRenderer, point.markerPoint, axisClipRect) &&
         (point.markerPoint != null ||
+            // ignore: unnecessary_null_comparison
             point.outliersPoint[outlierIndex!] != null) &&
         point.isGap != true &&
         (!isScatter || series.markerSettings.shape == DataMarkerType.image) &&

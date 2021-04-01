@@ -240,6 +240,7 @@ class ColumnSeries<T, D> extends XyDataSeries<T, D> {
     ColumnSeriesRenderer seriesRenderer;
     if (onCreateRenderer != null) {
       seriesRenderer = onCreateRenderer!(series) as ColumnSeriesRenderer;
+      // ignore: unnecessary_null_comparison
       assert(seriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return seriesRenderer;
@@ -280,6 +281,7 @@ class ColumnSeriesRenderer extends XyDataSeriesRenderer {
     if (_chartState!._widgetNeedUpdate &&
         _chartState!._zoomPanBehaviorRenderer._isPinching != true &&
         !_chartState!._isLegendToggled &&
+        // ignore: unnecessary_null_comparison
         oldSeriesRenderers != null &&
         oldSeriesRenderers.isNotEmpty &&
         oldSeriesRenderers.length - 1 >= segment._seriesIndex &&
@@ -293,6 +295,7 @@ class ColumnSeriesRenderer extends XyDataSeriesRenderer {
           : null;
       segment._oldSegmentIndex = _getOldSegmentIndex(segment);
     } else if (_chartState!._isLegendToggled &&
+        // ignore: unnecessary_null_comparison
         _chartState!._segments != null &&
         _chartState!._segments.isNotEmpty) {
       segment._oldSeriesVisible =
@@ -308,7 +311,7 @@ class ColumnSeriesRenderer extends XyDataSeriesRenderer {
     }
     segment._path =
         _findingRectSeriesDashedBorder(currentPoint, _columnSeries.borderWidth);
-
+    // ignore: unnecessary_null_comparison
     if (_columnSeries.borderRadius != null) {
       segment.segmentRect =
           _getRRectFromRect(currentPoint.region!, _columnSeries.borderRadius);

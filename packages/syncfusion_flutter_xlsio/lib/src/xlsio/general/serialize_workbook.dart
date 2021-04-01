@@ -1715,7 +1715,7 @@ class SerializeWorkbook {
     if (iRulesCount == 0) return [_iDxfIndex, iPriority, iPriorityCount];
     for (final _ConditionalFormatImpl format in formats.innerList) {
       if (format.formatType == ExcelCFType.iconSet) {
-        _IconSetImpl? iconSet = null;
+        _IconSetImpl? iconSet;
         if (format.iconSet != null) {
           iconSet = (format.iconSet as _IconSetImpl);
         }
@@ -1753,7 +1753,7 @@ class SerializeWorkbook {
       String prefix, int _iDxfIndex, int iPriority, int iCount) {
     final _ConditionalFormatImpl condFormat =
         condition as _ConditionalFormatImpl;
-    _IconSetImpl? iconSet = null;
+    _IconSetImpl? iconSet;
     if (condFormat.iconSet != null) {
       iconSet = (condFormat.iconSet as _IconSetImpl);
     }
@@ -2292,7 +2292,7 @@ class SerializeWorkbook {
                   (conditions as _ConditionalFormatsImpl).innerList[i];
               final _ConditionalFormatImpl format =
                   (condition as _ConditionalFormatImpl);
-              _IconSetImpl? iconSet = null;
+              _IconSetImpl? iconSet;
               if (format.iconSet != null) {
                 iconSet = (format.iconSet as _IconSetImpl);
               }

@@ -1031,7 +1031,7 @@ class SfDataGridState extends State<SfDataGrid>
 
       if (!listEquals<GridColumn>(_columns, widget.columns)) {
         if (widget.selectionMode != SelectionMode.none &&
-            widget.navigationMode == GridNavigationMode &&
+            widget.navigationMode == GridNavigationMode.cell &&
             _rowSelectionManager != null) {
           _rowSelectionManager!._onRowColumnChanged(-1, widget.columns.length);
         }

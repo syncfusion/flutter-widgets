@@ -107,6 +107,7 @@ class StackedBarSeries<T, D> extends _StackedSeriesBase<T, D> {
     if (onCreateRenderer != null) {
       stackedAreaSeriesRenderer =
           onCreateRenderer!(series) as StackedBarSeriesRenderer;
+      // ignore: unnecessary_null_comparison
       assert(stackedAreaSeriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return stackedAreaSeriesRenderer;
@@ -132,6 +133,7 @@ class StackedBarSeriesRenderer extends _StackedSeriesRenderer {
     final StackedBarSeries<dynamic, dynamic> _stackedBarSeries =
         _series as StackedBarSeries;
     _isRectSeries = true;
+    // ignore: unnecessary_null_comparison
     if (segment != null) {
       segment._seriesIndex = seriesIndex;
       segment.currentSegmentIndex = pointIndex;
@@ -143,6 +145,7 @@ class StackedBarSeriesRenderer extends _StackedSeriesRenderer {
       segment.animationFactor = animateFactor;
       segment._path = _findingRectSeriesDashedBorder(
           currentPoint, _stackedBarSeries.borderWidth);
+      // ignore: unnecessary_null_comparison
       if (_stackedBarSeries.borderRadius != null) {
         segment.segmentRect = _getRRectFromRect(
             currentPoint.region!, _stackedBarSeries.borderRadius);

@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   syncfusion_flutter_charts: 
-    path: ../syncfusion_flutter_charts
+    path: ../
   cupertino_icons: ^1.0.2
 
 flutter:

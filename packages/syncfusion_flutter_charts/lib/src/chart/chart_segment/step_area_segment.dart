@@ -20,6 +20,7 @@ class StepAreaSegment extends ChartSegment {
         fillPaint!.style = PaintingStyle.fill;
       }
     } else {
+      // ignore: unnecessary_null_comparison
       fillPaint = (_pathRect != null)
           ? _getLinearGradientPaint(_series.gradient!, _pathRect!,
               _seriesRenderer._chartState!._requireInvertedAxis)

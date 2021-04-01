@@ -99,6 +99,7 @@ class _PyramidDataLabelPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final PyramidSeriesRenderer seriesRenderer =
         chartState._chartSeries.visibleSeriesRenderers[0];
+    // ignore: unnecessary_null_comparison
     if (seriesRenderer._series.dataLabelSettings != null &&
         seriesRenderer._series.dataLabelSettings.isVisible) {
       seriesRenderer._dataLabelSettingsRenderer =
@@ -123,6 +124,7 @@ void _renderPyramidDataLabel(
   final DataLabelSettingsRenderer dataLabelSettingsRenderer =
       seriesRenderer._dataLabelSettingsRenderer;
   String? label;
+  // ignore: unnecessary_null_comparison
   final double animateOpacity = animation != null ? animation.value : 1;
   DataLabelRenderArgs dataLabelArgs;
   TextStyle dataLabelStyle;
@@ -429,6 +431,7 @@ void _drawPyramidLabel(
             : dataLabelSettingsRenderer._color);
     final Color? strokeColor =
         dataLabel.borderColor.withOpacity(dataLabel.opacity);
+    // ignore: unnecessary_null_comparison
     if (strokeWidth != null && strokeWidth > 0) {
       rectPaint = Paint()
         ..color = strokeColor!.withOpacity(

@@ -1,7 +1,7 @@
 part of pdf;
 
 abstract class _BufferedBlockPaddingBase implements _IBufferedCipher {
-  _BufferedBlockPaddingBase() {}
+  _BufferedBlockPaddingBase();
   //Fields
   static List<int> emptyBuffer = <int>[];
 
@@ -449,7 +449,7 @@ class _BufferedBlockPadding extends _BufferedCipher {
 }
 
 class _Pkcs7Padding implements _IPadding {
-  _Pkcs7Padding() {}
+  _Pkcs7Padding();
   //Properties
   String get paddingName => _Asn1Constants.pkcs7;
   //Implementation

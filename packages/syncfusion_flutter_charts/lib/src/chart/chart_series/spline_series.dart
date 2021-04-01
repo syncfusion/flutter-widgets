@@ -121,6 +121,7 @@ class SplineSeries<T, D> extends XyDataSeries<T, D> {
     SplineSeriesRenderer seriesRenderer;
     if (onCreateRenderer != null) {
       seriesRenderer = onCreateRenderer!(series) as SplineSeriesRenderer;
+      // ignore: unnecessary_null_comparison
       assert(seriesRenderer != null,
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return seriesRenderer;
@@ -148,6 +149,7 @@ class SplineSeriesRenderer extends XyDataSeriesRenderer {
     final List<CartesianSeriesRenderer> _oldSeriesRenderers =
         _chartState!._oldSeriesRenderers;
     _isRectSeries = false;
+    // ignore: unnecessary_null_comparison
     if (segment != null) {
       segment._chart = _chart;
       segment._chartState = _chartState!;
@@ -160,6 +162,7 @@ class SplineSeriesRenderer extends XyDataSeriesRenderer {
       segment._series = _series as XyDataSeries;
       segment._seriesRenderer = this;
       if (_chartState!._widgetNeedUpdate &&
+          // ignore: unnecessary_null_comparison
           _oldSeriesRenderers != null &&
           _oldSeriesRenderers.isNotEmpty &&
           _oldSeriesRenderers.length - 1 >= segment._seriesIndex &&

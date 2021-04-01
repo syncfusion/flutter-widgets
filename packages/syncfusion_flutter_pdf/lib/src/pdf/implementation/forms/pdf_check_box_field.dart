@@ -131,7 +131,7 @@ class PdfCheckBoxField extends PdfCheckFieldBase {
 
   String? _enableCheckBox(bool value) {
     bool isChecked = false;
-    String? val = null;
+    String? val;
     if (_dictionary.containsKey(_DictionaryProperties.usageApplication)) {
       final _PdfName? state = _PdfCrossTable._dereference(
           _dictionary[_DictionaryProperties.usageApplication]) as _PdfName?;

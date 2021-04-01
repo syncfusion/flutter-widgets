@@ -1,8 +1,8 @@
 ﻿![syncfusion_flutter_officechart_banner](https://cdn.syncfusion.com/content/images/Flutter-OfficeChart-Banner.png)
 
-# Syncfusion Flutter OfficeChart
+# Flutter OfficeChart Library
 
-Syncfusion Flutter OfficeChart is a feature rich and high-performance non-UI Excel chart library written natively in Dart. It allows you to add robust Excel chart functionalities to Flutter applications.
+Flutter OfficeChart is a feature rich and high-performance non-UI Excel chart library written natively in Dart. It allows you to add robust Excel chart functionalities to Flutter applications.
 
 ## Overview
 

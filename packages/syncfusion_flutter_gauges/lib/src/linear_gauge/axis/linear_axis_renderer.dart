@@ -1104,7 +1104,7 @@ class RenderLinearAxis extends RenderBox {
   }
 
   /// Get the child padding for positioning.
-  double getChildPadding({dynamic child = null}) {
+  double getChildPadding({dynamic child}) {
     double paddingSize = math.max(
         math.max(axisTrackExtent, pointerStartPadding!),
         _getStartLabelPadding());
