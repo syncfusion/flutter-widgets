@@ -92,10 +92,6 @@ class Workbook {
   // Collection of workbook's formats.
   late FormatsCollection _rawFormats;
 
-  /// Indicates whether all the formula in the workbook is evaluated.
-  // ignore: unused_field
-  bool _enabledCalcEngine = false;
-
   /// Represents the culture info.
   late CultureInfo _cultureInfo;
 
@@ -105,7 +101,7 @@ class Workbook {
   // late HyperlinkCollection _hyperlink;
 
   /// Represents the unit conversion list.
-  List<double> _unitsProportions = [
+  final List<double> _unitsProportions = <double>[
     96 / 75.0, // Display
     96 / 300.0, // Document
     96, // Inch
@@ -138,7 +134,7 @@ class Workbook {
   }
 
   /// Gets dictionary with default content types.
-  Map get _defaultContentType {
+  Map<String, String> get _defaultContentType {
     return _defaultContentTypes;
   }
 
@@ -161,7 +157,9 @@ class Workbook {
 
   /// Returns the font metrics collections.
   Map<String, _FontMetrics> get _fontMetrics {
-    if (_fontMetricsCollection == null) _initFontMetricsCollection();
+    if (_fontMetricsCollection == null) {
+      _initFontMetricsCollection();
+    }
     return _fontMetricsCollection!;
   }
 
@@ -1421,7 +1419,7 @@ class Workbook {
   }
 
   /// Arial widths table.
-  final List<int> _arialWidthTable = [
+  final List<int> _arialWidthTable = <int>[
     278,
     278,
     355,
@@ -1649,7 +1647,7 @@ class Workbook {
   ];
 
   /// Arial bold widths table.
-  final List<int> _arialBoldWidthTable = [
+  final List<int> _arialBoldWidthTable = <int>[
     278,
     333,
     474,
@@ -1880,7 +1878,7 @@ class Workbook {
   static const int _courierWidth = 600;
 
   /// Times New Roman widths table.
-  final List<int> _timesRomanWidthTable = [
+  final List<int> _timesRomanWidthTable = <int>[
     250,
     333,
     408,
@@ -2108,7 +2106,7 @@ class Workbook {
   ];
 
   /// Times New Roman bold widths table.
-  final List<int> _timesRomanBoldWidthTable = [
+  final List<int> _timesRomanBoldWidthTable = <int>[
     250,
     333,
     555,
@@ -2336,7 +2334,7 @@ class Workbook {
   ];
 
   /// Times New Roman italic widths table.
-  final List<int> _timesRomanItalicWidthTable = [
+  final List<int> _timesRomanItalicWidthTable = <int>[
     250,
     333,
     420,
@@ -2564,7 +2562,7 @@ class Workbook {
   ];
 
   /// Times New Roman bold italic widths table.
-  final List<int> _timesRomanBoldItalicWidthTable = [
+  final List<int> _timesRomanBoldItalicWidthTable = <int>[
     250,
     389,
     555,
@@ -2792,7 +2790,7 @@ class Workbook {
   ];
 
   /// Tahoma widths table.
-  final List<int> _tahomaWidthTable = [
+  final List<int> _tahomaWidthTable = <int>[
     312,
     332,
     401,
@@ -3114,7 +3112,7 @@ class Workbook {
   ];
 
   /// Tahoma Bold widths table.
-  final List<int> _tahomaBoldWidthTable = [
+  final List<int> _tahomaBoldWidthTable = <int>[
     292,
     342,
     489,
@@ -3436,7 +3434,7 @@ class Workbook {
   ];
 
   /// Calibri Width Table.
-  final List<int> _calibriWidthTable = [
+  final List<int> _calibriWidthTable = <int>[
     226,
     325,
     400,
@@ -3758,7 +3756,7 @@ class Workbook {
   ];
 
   /// Calibri Bold Width Table.
-  final List<int> _calibriBoldWidthTable = [
+  final List<int> _calibriBoldWidthTable = <int>[
     226,
     325,
     438,
@@ -4080,7 +4078,7 @@ class Workbook {
   ];
 
   /// Calibri Italic Width Table.
-  final List<int> _calibriItalicWidthTable = [
+  final List<int> _calibriItalicWidthTable = <int>[
     226,
     325,
     400,
@@ -4402,7 +4400,7 @@ class Workbook {
   ];
 
   /// Calibri Bold Italic Width Table.
-  final List<int> _calibriBoldItalicWidthTable = [
+  final List<int> _calibriBoldItalicWidthTable = <int>[
     226,
     325,
     438,
@@ -4724,7 +4722,7 @@ class Workbook {
   ];
 
   /// Verdana Widths Table.
-  final List<int> _verdanaWidthTable = [
+  final List<int> _verdanaWidthTable = <int>[
     351,
     393,
     458,
@@ -5046,7 +5044,7 @@ class Workbook {
   ];
 
   /// Verdana Italic widths table
-  final List<int> _verdanaItalicWidthTable = [
+  final List<int> _verdanaItalicWidthTable = <int>[
     351,
     393,
     458,
@@ -5368,7 +5366,7 @@ class Workbook {
   ];
 
   /// Verdana Bold Width Table.
-  final List<int> _verdanaBoldWidthTable = [
+  final List<int> _verdanaBoldWidthTable = <int>[
     341,
     402,
     587,
@@ -5690,7 +5688,7 @@ class Workbook {
   ];
 
   /// Verdana Bold Italics Widths table
-  final List<int> _verdanaBoldItalicWidthTable = [
+  final List<int> _verdanaBoldItalicWidthTable = <int>[
     341,
     402,
     587,
@@ -6119,16 +6117,16 @@ class Workbook {
 
   void _initialize() {
     _sharedString = <String, int>{};
-    fonts = [];
-    borders = [];
+    fonts = <Font>[];
+    borders = <Borders>[];
     _styles = StylesCollection(this);
     _rawFormats = FormatsCollection(this);
     _rawFormats._insertDefaultFormats();
     fills = <String, int>{};
     _styles.addStyle(CellStyle(this));
     fonts.add(Font());
-    _cellXfs = [];
-    _cellStyleXfs = [];
+    _cellXfs = <_CellXfs>[];
+    _cellStyleXfs = <_CellStyleXfs>[];
     _drawingCount = 0;
     _imageCount = 0;
     _sharedStringCount = 0;
@@ -6143,13 +6141,13 @@ class Workbook {
   /// File('ExcelSave.xlsx').writeAsBytes(bytes);
   /// workbook.dispose();
   /// ```
-  List<int>? saveAsStream() {
+  List<int> saveAsStream() {
     _saving = true;
     final SerializeWorkbook serializer = SerializeWorkbook(this);
     serializer._saveInternal();
     final List<int>? bytes = ZipEncoder().encode(archive);
     _saving = false;
-    return bytes;
+    return bytes!;
   }
 
   /// Check whether the cell style font already exists.
@@ -6160,7 +6158,7 @@ class Workbook {
       index++;
       String fontColor = '';
       if (toCompareStyle.fontColor.length == 7) {
-        fontColor = ('FF' + toCompareStyle.fontColor.replaceAll('#', ''));
+        fontColor = 'FF' + toCompareStyle.fontColor.replaceAll('#', '');
       } else {
         fontColor = toCompareStyle.fontColor;
       }
@@ -6185,10 +6183,10 @@ class Workbook {
   static bool _isNewBorder(CellStyle toCompareStyle) {
     final CellStyle bStyle = CellStyle(toCompareStyle._workbook);
     if (_isAllBorder(toCompareStyle.borders)) {
-      return (bStyle.borders.all.color == toCompareStyle.borders.all.color &&
-          bStyle.borders.all.lineStyle == toCompareStyle.borders.all.lineStyle);
+      return bStyle.borders.all.color == toCompareStyle.borders.all.color &&
+          bStyle.borders.all.lineStyle == toCompareStyle.borders.all.lineStyle;
     } else {
-      return (bStyle.borders.left.color == toCompareStyle.borders.left.color &&
+      return bStyle.borders.left.color == toCompareStyle.borders.left.color &&
           bStyle.borders.left.lineStyle ==
               toCompareStyle.borders.left.lineStyle &&
           bStyle.borders.right.color == toCompareStyle.borders.right.color &&
@@ -6199,7 +6197,7 @@ class Workbook {
               toCompareStyle.borders.top.lineStyle &&
           bStyle.borders.bottom.color == toCompareStyle.borders.bottom.color &&
           bStyle.borders.bottom.lineStyle ==
-              toCompareStyle.borders.bottom.lineStyle);
+              toCompareStyle.borders.bottom.lineStyle;
     }
   }
 
@@ -6219,7 +6217,9 @@ class Workbook {
   /// Truncate the double value
   static double _truncate(double value) {
     double result = value.roundToDouble();
-    if (result > value) result -= 1;
+    if (result > value) {
+      result -= 1;
+    }
     return result;
   }
 
@@ -6334,7 +6334,7 @@ class Workbook {
     } else {
       width = _getTotalWidthOfText(text, _verdanaWidthTable, false);
     }
-    width = (width * 0.001 * font.size);
+    width = width * 0.001 * font.size;
     width = _convertToPixels(width, 6);
     return _SizeF(width, height);
   }
@@ -6356,7 +6356,7 @@ class Workbook {
       width = _getTotalWidthOfText(text, _calibriWidthTable, false);
     }
     //1.02f value multiplied where measure String and measure character ranges method differs
-    width = (width * 0.001 * font.size * 1.02);
+    width = width * 0.001 * font.size * 1.02;
     width = _convertToPixels(width, 6);
     return _SizeF(width, height);
   }
@@ -6377,7 +6377,7 @@ class Workbook {
     } else {
       width = _getTotalWidthOfText(text, _tahomaWidthTable, false);
     }
-    width = (width * 0.001 * font.size);
+    width = width * 0.001 * font.size;
     width = _convertToPixels(width, 6);
     return _SizeF(width, height);
   }
@@ -6398,7 +6398,7 @@ class Workbook {
     }
     height = _convertToPixels(fontMetrics._getHeight(font), 6);
     width = _convertToPixels(text.length * _courierWidth * 1.03, 6);
-    width = (width * 0.001 * font.size);
+    width = width * 0.001 * font.size;
     return _SizeF(width, height);
   }
 
@@ -6422,7 +6422,7 @@ class Workbook {
     }
     height = _convertToPixels(fontMetrics._getHeight(font), 6);
     width = _convertToPixels(width, 6) * 1.02;
-    width = (width * 0.001 * font.size);
+    width = width * 0.001 * font.size;
     return _SizeF(width, height);
   }
 
@@ -6451,7 +6451,7 @@ class Workbook {
         text.length - text.replaceAll('\n', '').length + 1;
     height = _convertToPixels(fontMetrics._getHeight(font), 6);
     width = _convertToPixels(width, 6);
-    width = (width * 0.001 * font.size);
+    width = width * 0.001 * font.size;
     return _SizeF(width, height * _newLineCount);
   }
 
@@ -6522,20 +6522,21 @@ class Workbook {
 
   /// Measures the specified string when drawn with this font.
   _SizeF _measureString(String strValue, Font font) {
-    final Rectangle rectF = Rectangle(0, 0, 1800, 100);
-    final Rectangle rect = _getMeasuredRectangle(strValue, font, rectF);
+    const Rectangle<num> rectF = Rectangle<num>(0, 0, 1800, 100);
+    final Rectangle<num> rect = _getMeasuredRectangle(strValue, font, rectF);
     return _SizeF(rect.width.toDouble(), rect.height.toDouble());
   }
 
   /// Measure the Text with a given font.
-  Rectangle _getMeasuredRectangle(String text, Font font, Rectangle bounds) {
+  Rectangle<num> _getMeasuredRectangle(
+      String text, Font font, Rectangle<num> bounds) {
     final _SizeF size = _getTextSizeFromFont(text, font);
     final double height = (size._height * 1.03).ceilToDouble();
     final int length = bounds.width == 1800.0
         ? 1
         : _getLengthOfLines(size._width, bounds.width.toDouble(), text, font);
-    final Rectangle result =
-        Rectangle(0, 0, (size._width).ceil(), height * length);
+    final Rectangle<num> result =
+        Rectangle<num>(0, 0, (size._width).ceil(), height * length);
     return result;
   }
 
@@ -6572,7 +6573,7 @@ class Workbook {
     int length = 0;
     double width = 0;
     double currentWidth = 0;
-    final double spaceWidth = 14;
+    const double spaceWidth = 14;
     for (int i = 0; i < text.length; i++) {
       currentWidth = (_getTextSizeFromFont(text[i].toString(), font)._width)
           .ceilToDouble();

@@ -32,7 +32,7 @@ const double _kPdfCloseIconRightPosition = 16.0;
 /// A material design bookmark toolbar.
 class BookmarkToolbar extends StatefulWidget {
   /// Creates a material design bookmark toolbar.
-  BookmarkToolbar(this.onCloseButtonPressed);
+  const BookmarkToolbar(this.onCloseButtonPressed);
 
   /// A tap with a close button is occurred.
   ///
@@ -64,28 +64,29 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
 
   @override
   Widget build(BuildContext context) {
+    const List<BoxShadow> boxShadows = <BoxShadow>[
+      BoxShadow(
+        color: Color.fromRGBO(0, 0, 0, 0.14),
+        blurRadius: 2,
+        offset: Offset(0, 0),
+      ),
+      BoxShadow(
+        color: Color.fromRGBO(0, 0, 0, 0.12),
+        blurRadius: 2,
+        offset: Offset(0, 2),
+      ),
+      BoxShadow(
+        color: Color.fromRGBO(0, 0, 0, 0.2),
+        blurRadius: 3,
+        offset: Offset(0, 1),
+      ),
+    ];
     return Container(
       height: _kPdfHeaderBarHeight,
-      margin: EdgeInsets.only(bottom: 3),
+      margin: const EdgeInsets.only(bottom: 3),
       decoration: BoxDecoration(
         color: _pdfViewerThemeData!.bookmarkViewStyle.headerBarColor,
-        boxShadow: [
-          BoxShadow(
-            color: Color.fromRGBO(0, 0, 0, 0.14),
-            blurRadius: 2,
-            offset: Offset(0, 0),
-          ),
-          BoxShadow(
-            color: Color.fromRGBO(0, 0, 0, 0.12),
-            blurRadius: 2,
-            offset: Offset(0, 2),
-          ),
-          BoxShadow(
-            color: Color.fromRGBO(0, 0, 0, 0.2),
-            blurRadius: 3,
-            offset: Offset(0, 1),
-          ),
-        ],
+        boxShadow: boxShadows,
       ),
       child: Stack(
         children: <Widget>[

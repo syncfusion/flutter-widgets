@@ -169,7 +169,7 @@ class _VisibleLineInfo extends Comparable<_VisibleLineInfo> {
   /// Returns a string describing the state of the object.
   @override
   String toString() {
-    final sb = '''
+    final String sb = '''
             VisibleLineInfo {
             visibleIndex = ${_visibleIndex.toString()}
             lineIndex =  ${lineIndex.toString()}
@@ -188,7 +188,8 @@ class _VisibleLineInfo extends Comparable<_VisibleLineInfo> {
 ///
 /// A strong-typed collection of `VisibleLineInfo` items.
 class _VisibleLinesCollection extends ListBase<_VisibleLineInfo> {
-  List<_VisibleLineInfo?> visibleLines = List.empty(growable: true);
+  List<_VisibleLineInfo?> visibleLines =
+      List<_VisibleLineInfo?>.empty(growable: true);
   _VisibleLineInfoLineIndexComparer lineIndexComparer =
       _VisibleLineInfoLineIndexComparer();
   Map<int, _VisibleLineInfo>? lineIndexes = <int, _VisibleLineInfo>{};
@@ -284,8 +285,7 @@ class _VisibleLinesCollection extends ListBase<_VisibleLineInfo> {
   ///
   /// Returns the visible line at point.
   _VisibleLineInfo? getVisibleLineAtPoint(double point) {
-    final List<_VisibleLineInfo> _visibleLines =
-        visibleLines as List<_VisibleLineInfo>;
+    final List<_VisibleLineInfo> _visibleLines = visibleLines.cast();
     int index = _MathHelper.binarySearch<_VisibleLineInfo>(
         _visibleLines, _VisibleLineInfo.fromClippedOrigin(point));
     index = (index < 0) ? (~index) - 1 : index;
@@ -351,7 +351,7 @@ class _VisibleLinesCollection extends ListBase<_VisibleLineInfo> {
   @override
   _VisibleLinesCollection get reversed {
     final _VisibleLinesCollection reverseCollection = _VisibleLinesCollection();
-    for (var i = this.length - 1; i >= 0; i--) {
+    for (int i = length - 1; i >= 0; i--) {
       reverseCollection.add(this[i]);
     }
     return reverseCollection;

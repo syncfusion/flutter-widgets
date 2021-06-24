@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
-import '../behavior/zoom_pan_behavior.dart';
+import '../../maps.dart';
 import '../common.dart';
 import '../controller/map_controller.dart';
 import '../enum.dart';
@@ -63,21 +63,17 @@ class MapDataLabel extends LeafRenderObjectWidget {
 
 class _RenderMapDataLabel extends ShapeLayerChildRenderBoxBase {
   _RenderMapDataLabel({
-    required MapShapeSource source,
-    required Map<String, MapModel> mapDataSource,
+    required this.source,
+    required this.mapDataSource,
     required MapDataLabelSettings settings,
     required TextStyle effectiveTextStyle,
     required SfMapsThemeData themeData,
-    required MapController? controller,
-    required AnimationController dataLabelAnimationController,
+    required this.controller,
+    required this.dataLabelAnimationController,
     required MediaQueryData mediaQueryData,
-  })   : source = source,
-        mapDataSource = mapDataSource,
-        _settings = settings,
+  })  : _settings = settings,
         _effectiveTextStyle = effectiveTextStyle,
         _themeData = themeData,
-        controller = controller,
-        dataLabelAnimationController = dataLabelAnimationController,
         _mediaQueryData = mediaQueryData {
     _effectiveTextScaleFactor = _mediaQueryData.textScaleFactor;
 
@@ -248,7 +244,7 @@ class _RenderMapDataLabel extends ShapeLayerChildRenderBoxBase {
         }
 
         // ignore: avoid_as
-        final TextSpan textSpan = _textPainter.text as TextSpan;
+        final TextSpan textSpan = _textPainter.text! as TextSpan;
         model.visibleDataLabelText = textSpan.text;
       }
       context.canvas

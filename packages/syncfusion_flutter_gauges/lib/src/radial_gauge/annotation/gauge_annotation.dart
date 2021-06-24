@@ -1,7 +1,9 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import '../utils/enum.dart';
+
+import '../../radial_gauge/annotation/gauge_annotation_renderer.dart';
+import '../../radial_gauge/axis/radial_axis_scope.dart';
+import '../../radial_gauge/utils/enum.dart';
 
 /// [RadialAxis] allows to add widgets such as text and image as
 /// an annotation to a specific point of interest in the radial gauge.
@@ -23,38 +25,22 @@ import '../utils/enum.dart';
 ///        ));
 ///}
 /// ```
-class GaugeAnnotation {
+class GaugeAnnotation extends SingleChildRenderObjectWidget {
   /// Create an [GaugeAnnotation] with the required properties.
   ///
   /// The arguments [positionFactor] must not be null and [positionFactor] must
   /// be non-negative.
-  GaugeAnnotation(
-      {required this.widget,
+  const GaugeAnnotation(
+      {Key? key,
       this.axisValue,
       this.horizontalAlignment = GaugeAlignment.center,
       this.angle,
       this.verticalAlignment = GaugeAlignment.center,
-      this.positionFactor = 0})
+      this.positionFactor = 0,
+      required this.widget})
       : assert(
-            positionFactor >= 0, 'Position factor must be greater than zero.');
-
-  /// Specifies the annotation widget.
-  ///
-  /// Applied widget added over a gauge with respect to [angle] or [axisValue].
-  ///
-  /// Defaults to `null`.
-  ///
-  /// ```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfRadialGauge(
-  ///          axes:<RadialAxis>[RadialAxis
-  ///            annotations: <GaugeAnnotation>[
-  ///            GaugeAnnotation(widget: Text('Annotation'))])]
-  ///        ));
-  ///}
-  /// ```
-  final Widget widget;
+            positionFactor >= 0, 'Position factor must be greater than zero.'),
+        super(key: key, child: widget);
 
   /// Specifies the axis value for positioning annotation.
   ///
@@ -169,32 +155,50 @@ class GaugeAnnotation {
   /// ```
   final double? angle;
 
+  /// Specifies the annotation widget.
+  ///
+  /// Applied widget added over a gauge with respect to [angle] or [axisValue].
+  ///
+  /// Defaults to `null`.
+  ///
+  /// ```dart
+  ///Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis
+  ///            annotations: <GaugeAnnotation>[
+  ///            GaugeAnnotation(widget: Text('Annotation'))])]
+  ///        ));
+  ///}
+  /// ```
+  final Widget widget;
+
   @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) {
-      return true;
-    }
-    if (other.runtimeType != runtimeType) {
-      return false;
-    }
-    return other is GaugeAnnotation &&
-        other.axisValue == axisValue &&
-        other.horizontalAlignment == horizontalAlignment &&
-        other.angle == angle &&
-        other.verticalAlignment == verticalAlignment &&
-        other.positionFactor == positionFactor;
+  RenderObject createRenderObject(BuildContext context) {
+    final RadialAxisScope radialAxis = RadialAxisScope.of(context);
+    return RenderGaugeAnnotation(
+      axisValue: axisValue,
+      horizontalAlignment: horizontalAlignment,
+      angle: angle,
+      verticalAlignment: verticalAlignment,
+      annotationAnimation: radialAxis.animation,
+      repaintNotifier: radialAxis.repaintNotifier,
+      positionFactor: positionFactor,
+    );
   }
 
   @override
-  int get hashCode {
-    final List<Object?> values = <Object?>[
-      widget,
-      axisValue,
-      horizontalAlignment,
-      angle,
-      verticalAlignment,
-      positionFactor
-    ];
-    return hashList(values);
+  void updateRenderObject(
+      BuildContext context, RenderGaugeAnnotation renderObject) {
+    final RadialAxisScope radialAxis = RadialAxisScope.of(context);
+    renderObject
+      ..axisValue = axisValue
+      ..horizontalAlignment = horizontalAlignment
+      ..angle = angle
+      ..verticalAlignment = verticalAlignment
+      ..annotationAnimation = radialAxis.animation
+      ..repaintNotifier = radialAxis.repaintNotifier
+      ..positionFactor = positionFactor;
+    super.updateRenderObject(context, renderObject);
   }
 }

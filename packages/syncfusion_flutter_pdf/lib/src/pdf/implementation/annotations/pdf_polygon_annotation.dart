@@ -6,9 +6,9 @@ class PdfPolygonAnnotation extends PdfAnnotation {
   /// Initializes new instance of the [PdfPolygonAnnotation] class.
   ///
   /// ``` dart
-  /// final PdfDocument document = PdfDocument();
-  /// final PdfPage page = document.pages.add();
-  /// final List<int> polypoints = <int>[
+  /// PdfDocument document = PdfDocument();
+  /// PdfPage page = document.pages.add();
+  /// List<int> polypoints = <int>[
   ///   50,
   ///   298,
   ///   100,
@@ -20,12 +20,12 @@ class PdfPolygonAnnotation extends PdfAnnotation {
   ///   180,
   ///   230
   /// ];
-  /// final PdfPolygonAnnotation polygonAnnotation =
+  /// PdfPolygonAnnotation polygonAnnotation =
   ///     PdfPolygonAnnotation(polypoints, 'PolygonAnnotation');
   /// polygonAnnotation.color = PdfColor(255, 0, 0);
   /// polygonAnnotation.innerColor = PdfColor(255, 0, 255);
   /// page.annotations.add(polygonAnnotation);
-  /// final List<int> bytes = document.save();
+  /// List<int> bytes = document.save();
   /// document.dispose();
   /// ```
   PdfPolygonAnnotation(List<int> points, String text,
@@ -71,6 +71,7 @@ class PdfPolygonAnnotation extends PdfAnnotation {
         final _PdfArray? linePoints =
             _dictionary[_DictionaryProperties.vertices] as _PdfArray?;
         if (linePoints != null) {
+          // ignore: avoid_function_literals_in_foreach_calls
           linePoints._elements.forEach((_IPdfPrimitive? element) {
             if (element != null && element is _PdfNumber) {
               points.add(element.value!.toInt());
@@ -189,7 +190,7 @@ class PdfPolygonAnnotation extends PdfAnnotation {
           if (_dictionary._items![_PdfName(_DictionaryProperties.bs)]
               is _PdfReferenceHolder) {
             bSDictionary =
-                (_dictionary._items![_PdfName(_DictionaryProperties.bs)]
+                (_dictionary._items![_PdfName(_DictionaryProperties.bs)]!
                         as _PdfReferenceHolder)
                     ._object as _PdfDictionary?;
           } else {
@@ -225,10 +226,10 @@ class PdfPolygonAnnotation extends PdfAnnotation {
           }
           if (_dictionary.containsKey(_DictionaryProperties.be)) {
             final _PdfDictionary beDictionary =
-                _dictionary[_PdfName(_DictionaryProperties.be)]
+                _dictionary[_PdfName(_DictionaryProperties.be)]!
                     as _PdfDictionary;
             final double? iNumber = (beDictionary
-                    ._items![_PdfName(_DictionaryProperties.i)] as _PdfNumber)
+                    ._items![_PdfName(_DictionaryProperties.i)]! as _PdfNumber)
                 .value as double?;
             final double radius = iNumber == 1 ? 5 : 10;
             if (radius > 0) {
@@ -257,10 +258,10 @@ class PdfPolygonAnnotation extends PdfAnnotation {
           }
           if (_dictionary.containsKey(_DictionaryProperties.be)) {
             final _PdfDictionary beDictionary =
-                _dictionary[_PdfName(_DictionaryProperties.be)]
+                _dictionary[_PdfName(_DictionaryProperties.be)]!
                     as _PdfDictionary;
             final double? iNumber = (beDictionary
-                    ._items![_PdfName(_DictionaryProperties.i)] as _PdfNumber)
+                    ._items![_PdfName(_DictionaryProperties.i)]! as _PdfNumber)
                 .value as double?;
             final double radius = iNumber == 1 ? 5 : 10;
             List<Offset> points = _getLinePoints()!;
@@ -326,9 +327,9 @@ class PdfPolygonAnnotation extends PdfAnnotation {
               _dictionary[_PdfName(_DictionaryProperties.be)];
           final _PdfDictionary beDictionary = (primitive is _PdfReferenceHolder
               ? primitive._object
-              : primitive) as _PdfDictionary;
+              : primitive)! as _PdfDictionary;
           final double? iNumber = (beDictionary
-                  ._items![_PdfName(_DictionaryProperties.i)] as _PdfNumber)
+                  ._items![_PdfName(_DictionaryProperties.i)]! as _PdfNumber)
               .value as double?;
           final double radius = iNumber == 1 ? 5 : 10;
           _drawCloudStyle(page!.graphics, backgroundBrush, _borderPen, radius,
@@ -356,7 +357,7 @@ class PdfPolygonAnnotation extends PdfAnnotation {
         if (linePoints != null) {
           final List<double> point = <double>[];
           for (int i = 0; i < linePoints.count; i++) {
-            final _PdfNumber number = linePoints[i] as _PdfNumber;
+            final _PdfNumber number = linePoints[i]! as _PdfNumber;
             point.add(number.value!.toDouble());
           }
           points = <Offset>[];
@@ -385,7 +386,7 @@ class PdfPolygonAnnotation extends PdfAnnotation {
           if (_flatten) {
             page!._isLoadedPage
                 ? points.add(
-                    Offset(pointsValue[j], (pageHeight - pointsValue[j + 1])))
+                    Offset(pointsValue[j], pageHeight - pointsValue[j + 1]))
                 : points.add(Offset(
                     pointsValue[j] - page!._section!.pageSettings.margins.left,
                     pageHeight -
@@ -403,22 +404,22 @@ class PdfPolygonAnnotation extends PdfAnnotation {
   void _getBoundsValue() {
     if (_isLoadedAnnotation) {
       final _PdfArray rect =
-          _dictionary[_DictionaryProperties.rect] as _PdfArray;
+          _dictionary[_DictionaryProperties.rect]! as _PdfArray;
       bounds = rect.toRectangle().rect;
       final List<double> xval = <double>[];
       final List<double> yval = <double>[];
       if (_dictionary.containsKey(_DictionaryProperties.vertices)) {
         final _PdfArray linePoints = _PdfCrossTable._dereference(
-            _dictionary[_DictionaryProperties.vertices]) as _PdfArray;
+            _dictionary[_DictionaryProperties.vertices])! as _PdfArray;
         if (linePoints.count > 0) {
           final List<double> points =
               List<double>.filled(linePoints.count, 0, growable: true);
           for (int j = 0; j < linePoints.count; j++) {
-            final _PdfNumber number = linePoints[j] as _PdfNumber;
+            final _PdfNumber number = linePoints[j]! as _PdfNumber;
             points[j] = number.value!.toDouble();
           }
           for (int i = 0; i < points.length; i++) {
-            if (i % 2 == 0) {
+            if (i.isEven) {
               xval.add(points[i]);
             } else {
               yval.add(points[i]);
@@ -442,7 +443,7 @@ class PdfPolygonAnnotation extends PdfAnnotation {
           }
         }
         for (int i = 0; i < pointsValue.length; i++) {
-          if (i % 2 == 0) {
+          if (i.isEven) {
             xval.add(pointsValue[i]);
           } else {
             yval.add(pointsValue[i]);

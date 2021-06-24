@@ -72,7 +72,9 @@ class _IconSetImpl implements IconSet {
 
   /// Get as true if the IconSet has a Custom Iconset.
   bool get _isCustom {
-    if (_hasCustomIconSet) return _hasCustomIconSet;
+    if (_hasCustomIconSet) {
+      return _hasCustomIconSet;
+    }
 
     for (int index = 0; index < iconCriteria.length; index++) {
       final IconConditionValue iconCondition =

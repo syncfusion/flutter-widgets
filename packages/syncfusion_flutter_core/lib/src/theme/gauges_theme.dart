@@ -117,6 +117,7 @@ class SfGaugeTheme extends InheritedTheme {
 /// and [SfThemeData](https://pub.dev/documentation/syncfusion_flutter_core/latest/theme/SfThemeData-class.html),
 /// for customizing the visual appearance of the radial gauges widgets.
 ///
+@immutable
 class SfGaugeThemeData with Diagnosticable {
   /// Initialize the gauge theme data
   factory SfGaugeThemeData({

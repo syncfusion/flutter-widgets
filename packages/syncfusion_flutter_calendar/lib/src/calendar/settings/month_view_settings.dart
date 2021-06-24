@@ -44,7 +44,11 @@ class MonthViewSettings with Diagnosticable {
       this.showTrailingAndLeadingDates = true,
       this.agendaViewHeight = -1,
       this.monthCellStyle = const MonthCellStyle(),
-      this.agendaStyle = const AgendaStyle()});
+      this.agendaStyle = const AgendaStyle()})
+      : assert(appointmentDisplayCount >= 0),
+        assert(numberOfWeeksInView >= 1 && numberOfWeeksInView <= 6),
+        assert(agendaItemHeight >= -1),
+        assert(agendaViewHeight >= -1);
 
   /// Formats the text in the [SfCalendar] month view view header.
   ///
@@ -237,7 +241,7 @@ class MonthViewSettings with Diagnosticable {
   ///    ));
   ///
   ///    return DataSource(appointments);
-  ///  }S
+  ///  }
   ///
   final MonthCellStyle monthCellStyle;
 
@@ -465,7 +469,10 @@ class MonthViewSettings with Diagnosticable {
       return false;
     }
 
-    final MonthViewSettings otherSetting = other;
+    late final MonthViewSettings otherSetting;
+    if (other is MonthViewSettings) {
+      otherSetting = other;
+    }
     return otherSetting.dayFormat == dayFormat &&
         otherSetting.monthCellStyle == monthCellStyle &&
         otherSetting.agendaStyle == agendaStyle &&
@@ -739,7 +746,10 @@ class AgendaStyle with Diagnosticable {
       return false;
     }
 
-    final AgendaStyle otherStyle = other;
+    late final AgendaStyle otherStyle;
+    if (other is AgendaStyle) {
+      otherStyle = other;
+    }
     return otherStyle.appointmentTextStyle == appointmentTextStyle &&
         otherStyle.dayTextStyle == dayTextStyle &&
         otherStyle.dateTextStyle == dateTextStyle &&
@@ -1186,7 +1196,10 @@ class MonthCellStyle with Diagnosticable {
       return false;
     }
 
-    final MonthCellStyle otherStyle = other;
+    late final MonthCellStyle otherStyle;
+    if (other is MonthCellStyle) {
+      otherStyle = other;
+    }
     return otherStyle.textStyle == textStyle &&
         otherStyle.trailingDatesTextStyle == trailingDatesTextStyle &&
         otherStyle.leadingDatesTextStyle == leadingDatesTextStyle &&

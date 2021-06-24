@@ -3,8 +3,8 @@ part of pdf;
 class _Asn1Parser {
   _Asn1Parser(_StreamReader stream, [int? limit]) {
     _stream = stream;
-    _limit = limit != null ? limit : _Asn1Stream.getLimit(stream);
-    _buffers = List.generate(16, (i) => <int>[]);
+    _limit = limit ?? _Asn1Stream.getLimit(stream);
+    _buffers = List<List<int>>.generate(16, (int i) => <int>[]);
   }
 
   //Fields
@@ -47,7 +47,7 @@ class _Asn1Parser {
 
   _Asn1 readTaggedObject(bool constructed, int? tagNumber) {
     if (!constructed) {
-      final _Asn1StreamHelper stream = _stream as _Asn1StreamHelper;
+      final _Asn1StreamHelper stream = _stream! as _Asn1StreamHelper;
       return _DerTag(tagNumber, _DerOctet(stream.toArray()), false);
     }
     final _Asn1EncodeCollection collection = readCollection();
@@ -75,7 +75,7 @@ class _Asn1Parser {
 
   void setEndOfFile(bool enabled) {
     if (_stream is _Asn1LengthStream) {
-      (_stream as _Asn1LengthStream).setEndOfFileOnStart(enabled);
+      (_stream! as _Asn1LengthStream).setEndOfFileOnStart(enabled);
     }
   }
 

@@ -47,6 +47,7 @@ class SfDataPagerTheme extends InheritedTheme {
 ///  this class to configure a [SfDataPagerTheme] widget
 ///
 /// To obtain the current theme, use [SfDataPagerTheme.of].
+@immutable
 class SfDataPagerThemeData with Diagnosticable {
   /// Create a [SfDataPagerThemeData] that's used to configure a
   /// [SfDataPagerTheme].
@@ -66,17 +67,17 @@ class SfDataPagerThemeData with Diagnosticable {
     final bool isLight = brightness == Brightness.light;
 
     backgroundColor ??= isLight
-        ? Color.fromRGBO(255, 255, 255, 1)
-        : Color.fromRGBO(33, 33, 33, 1);
+        ? const Color.fromRGBO(255, 255, 255, 1)
+        : const Color.fromRGBO(33, 33, 33, 1);
 
     itemColor ??= isLight
-        ? Color.fromRGBO(255, 255, 255, 1)
-        : Color.fromRGBO(33, 33, 33, 1);
+        ? const Color.fromRGBO(255, 255, 255, 1)
+        : const Color.fromRGBO(33, 33, 33, 1);
 
     itemTextStyle ??= TextStyle(
         color: isLight
-            ? Color.fromRGBO(0, 0, 0, 0.87)
-            : Color.fromRGBO(255, 255, 255, 1),
+            ? const Color.fromRGBO(0, 0, 0, 0.87)
+            : const Color.fromRGBO(255, 255, 255, 1),
         fontSize: 14,
         fontFamily: 'Roboto',
         fontWeight: FontWeight.w400);
@@ -85,9 +86,9 @@ class SfDataPagerThemeData with Diagnosticable {
 
     itemBorderColor ??= Colors.transparent;
 
-    selectedItemColor ??= Color.fromRGBO(33, 150, 243, 1);
+    selectedItemColor ??= const Color.fromRGBO(33, 150, 243, 1);
 
-    selectedItemTextStyle ??= TextStyle(
+    selectedItemTextStyle ??= const TextStyle(
         color: Color.fromRGBO(255, 255, 255, 1),
         fontSize: 14,
         fontFamily: 'Roboto',
@@ -97,8 +98,8 @@ class SfDataPagerThemeData with Diagnosticable {
 
     disabledItemTextStyle ??= TextStyle(
         color: isLight
-            ? Color.fromRGBO(0, 0, 0, 0.36)
-            : Color.fromRGBO(255, 255, 255, 0.36));
+            ? const Color.fromRGBO(0, 0, 0, 0.36)
+            : const Color.fromRGBO(255, 255, 255, 0.36));
 
     return SfDataPagerThemeData.raw(
         brightness: brightness,
@@ -168,7 +169,8 @@ class SfDataPagerThemeData with Diagnosticable {
   /// The width of the border in page item.
   final double? itemBorderWidth;
 
-  ///If non null, the corners of the page item are rounded by this [ItemBorderRadius].
+  /// If non null, the corners of the page item are rounded by
+  /// this [ItemBorderRadius].
   ///
   /// Applies only to boxes with rectangular shapes;
   /// see also:

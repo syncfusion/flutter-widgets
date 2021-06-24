@@ -1,8 +1,35 @@
 import 'dart:math' as math;
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import '../common/common.dart';
+
+import '../../radial_gauge/styles/radial_text_style.dart';
+import '../../radial_gauge/utils/enum.dart';
+
+/// Specifies the offset value of tick
+class TickOffset {
+  /// Holds the start point
+  late Offset startPoint;
+
+  /// Holds the end point
+  late Offset endPoint;
+
+  /// Holds the tick value
+  late double value;
+}
+
+/// Represents the arc data
+class ArcData {
+  /// Represents the start angle
+  late double startAngle;
+
+  /// Represents the end angle
+  late double endAngle;
+
+  /// Represents the arc rect
+  late Rect arcRect;
+}
 
 /// Converts degree to radian
 double getDegreeToRadian(double degree) {
@@ -73,6 +100,35 @@ List<double> calculateGradientStops(
   }
 
   return isInversed ? gradientStops.reversed.toList() : gradientStops;
+}
+
+/// Method returns the curve animation function based on the animation type
+Curve getCurveAnimation(AnimationType type) {
+  Curve curve = Curves.linear;
+  switch (type) {
+    case AnimationType.bounceOut:
+      curve = Curves.bounceOut;
+      break;
+    case AnimationType.ease:
+      curve = Curves.ease;
+      break;
+    case AnimationType.easeInCirc:
+      curve = Curves.easeInCirc;
+      break;
+    case AnimationType.easeOutBack:
+      curve = Curves.easeOutBack;
+      break;
+    case AnimationType.elasticOut:
+      curve = Curves.elasticOut;
+      break;
+    case AnimationType.linear:
+      curve = Curves.linear;
+      break;
+    case AnimationType.slowMiddle:
+      curve = Curves.slowMiddle;
+      break;
+  }
+  return curve;
 }
 
 /// Represents the circular interval list

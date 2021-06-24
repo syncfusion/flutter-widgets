@@ -122,6 +122,11 @@ typedef LoadMoreWidgetBuilder = Widget Function(
 /// that return a [Future] to indicate when their work is complete.
 typedef LoadMoreCallback = Future<void> Function();
 
+/// Signature for a function that creates a widget based on resource
+/// header details.
+typedef ResourceViewHeaderBuilder = Widget Function(
+    BuildContext context, ResourceViewHeaderDetails details);
+
 /// Contains the details that needed on month cell builder.
 class MonthCellDetails {
   /// Default constructor to store the details needed in month cell builder
@@ -168,7 +173,7 @@ class CalendarAppointmentDetails {
   /// The appointment details associated with the appointment view widget.
   /// It holds more appointments when it is more appointment
   /// region [All day panel and Month cell more region].
-  final Iterable appointments;
+  final Iterable<dynamic> appointments;
 
   /// Determines whether the widget replaces the more appointment region.
   /// It is applicable on the day, week, workweek views all day panel and
@@ -189,6 +194,20 @@ class TimeRegionDetails {
   final DateTime date;
 
   /// Position and size of the time region view widget.
+  final Rect bounds;
+}
+
+/// Contains the details that needed on resource view header builder.
+class ResourceViewHeaderDetails {
+  /// Default constructor to store the details needed in resource view
+  /// header builder.
+  ResourceViewHeaderDetails(this.resource, this.bounds);
+
+  /// The resource details such as display name, color, id and image associated
+  /// with the resource header widget.
+  final CalendarResource resource;
+
+  /// The position and size of the widget.
   final Rect bounds;
 }
 

@@ -5,7 +5,7 @@ class TextLine {
   //constructor
   TextLine._() {
     wordCollection = <TextWord>[];
-    bounds = Rect.fromLTWH(0, 0, 0, 0);
+    bounds = const Rect.fromLTWH(0, 0, 0, 0);
     fontSize = 0;
     text = '';
     pageIndex = 0;

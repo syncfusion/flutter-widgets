@@ -15,15 +15,23 @@ class _VirtualizingCellsWidget extends StatefulWidget {
 class _VirtualizingCellsWidgetState extends State<_VirtualizingCellsWidget> {
   @override
   Widget build(BuildContext context) {
-    final List<Widget> children = widget.dataRow._visibleColumns
-        .map<Widget>((dataCell) => dataCell._columnElement!)
-        .toList(growable: false);
+    final List<Widget> children = <Widget>[];
+
+    if (widget.dataRow.rowType == RowType.footerRow) {
+      if (widget.dataRow._footerView != null) {
+        children.add(widget.dataRow._footerView!);
+      }
+    } else {
+      children.addAll(widget.dataRow._visibleColumns
+          .map<Widget>((DataCellBase dataCell) => dataCell._columnElement!)
+          .toList(growable: false));
+    }
 
     return _VirtualizingCellsRenderObjectWidget(
       key: widget.key!,
       dataRow: widget.dataRow,
       isDirty: widget.isDirty,
-      children: List.from(children),
+      children: List<Widget>.from(children),
     );
   }
 }
@@ -35,7 +43,9 @@ class _VirtualizingCellsRenderObjectWidget
       required this.dataRow,
       required this.isDirty,
       required this.children})
-      : super(key: key, children: RepaintBoundary.wrapAll(List.from(children)));
+      : super(
+            key: key,
+            children: RepaintBoundary.wrapAll(List<Widget>.from(children)));
 
   @override
   final List<Widget> children;
@@ -77,7 +87,9 @@ class _RenderVirtualizingCellsWidget extends RenderBox
         ContainerRenderObjectMixin<RenderBox,
             _VirtualizingCellWidgetParentData>,
         RenderBoxContainerDefaultsMixin<RenderBox,
-            _VirtualizingCellWidgetParentData> {
+            _VirtualizingCellWidgetParentData>
+    implements
+        MouseTrackerAnnotation {
   _RenderVirtualizingCellsWidget(
       {List<RenderBox>? children,
       required DataRowBase dataRow,
@@ -119,6 +131,10 @@ class _RenderVirtualizingCellsWidget extends RenderBox
 
   DataGridRowSwipeDirection? swipeDirection;
 
+  // It's helps to find the difference of dy action between on [PointerDownEvent]
+  // and [PointerMoveEvent] event.
+  double dy = 0.0;
+
   Rect _measureRowRect(double width) {
     if (dataRow.isVisible) {
       final _DataGridSettings dataGridSettings =
@@ -129,7 +145,7 @@ class _RenderVirtualizingCellsWidget extends RenderBox
           container.scrollRows.getVisibleLineAtLineIndex(dataRow.rowIndex);
 
       final double lineSize = lineInfo != null ? lineInfo.size : 0.0;
-      var origin = (lineInfo != null) ? lineInfo.origin : 0.0;
+      double origin = (lineInfo != null) ? lineInfo.origin : 0.0;
 
       origin += container.verticalOffset;
 
@@ -175,9 +191,9 @@ class _RenderVirtualizingCellsWidget extends RenderBox
       return null;
     }
     double leftPosition = 0.0;
-    final viewWidth = dataGridSettings.viewWidth;
-    final extentWidth = dataGridSettings.container.extentWidth;
-    final swipingDelta = dataGridSettings.swipingOffset >= 0
+    final double viewWidth = dataGridSettings.viewWidth;
+    final double extentWidth = dataGridSettings.container.extentWidth;
+    final double swipingDelta = dataGridSettings.swipingOffset >= 0
         ? dataGridSettings.swipingAnimation!.value
         : -dataGridSettings.swipingAnimation!.value;
 
@@ -192,12 +208,13 @@ class _RenderVirtualizingCellsWidget extends RenderBox
     return Rect.fromLTWH(leftPosition, top, extentWidth - swipingDelta, height);
   }
 
-  Rect _getRowRect(_DataGridSettings dataGridSettings, Offset offset) {
+  Rect _getRowRect(_DataGridSettings dataGridSettings, Offset offset,
+      {bool isHoveredLayer = false}) {
     bool needToSetMaxConstraint() =>
         dataGridSettings.container.extentWidth < dataGridSettings.viewWidth &&
         dataGridSettings.textDirection == TextDirection.rtl;
 
-    final rect = Rect.fromLTWH(
+    final Rect rect = Rect.fromLTWH(
         needToSetMaxConstraint()
             ? constraints.maxWidth -
                 min(dataGridSettings.container.extentWidth,
@@ -209,38 +226,46 @@ class _RenderVirtualizingCellsWidget extends RenderBox
             ? constraints.maxWidth
             : min(dataGridSettings.container.extentWidth,
                 dataGridSettings.viewWidth),
-        constraints.maxHeight);
+        (isHoveredLayer &&
+                dataRow._isHoveredRow &&
+                (dataGridSettings.gridLinesVisibility ==
+                        GridLinesVisibility.horizontal ||
+                    dataGridSettings.gridLinesVisibility ==
+                        GridLinesVisibility.both))
+            ? constraints.maxHeight -
+                dataGridSettings.dataGridThemeData!.gridLineStrokeWidth
+            : constraints.maxHeight);
 
     return rect;
   }
 
-  void _drawRowBackground(PaintingContext context, Offset offset) {
-    final _DataGridSettings dataGridSettings = dataRow._dataGridStateDetails!();
-    final rect = _getRowRect(dataGridSettings, offset);
-    var backgroundColor = Colors.transparent;
+  void _drawRowBackground(_DataGridSettings dataGridSettings,
+      PaintingContext context, Offset offset) {
+    final Rect rect = _getRowRect(dataGridSettings, offset);
+    Color? backgroundColor;
 
-    Color getDefaultHeaderBackgroundColor() {
+    Color getDefaultRowBackgroundColor() {
       return dataGridSettings.dataGridThemeData!.brightness == Brightness.light
-          ? Color.fromRGBO(255, 255, 255, 1)
-          : Color.fromRGBO(33, 33, 33, 1);
+          ? const Color.fromRGBO(255, 255, 255, 1)
+          : const Color.fromRGBO(33, 33, 33, 1);
     }
 
     void drawSpannedRowBackgroundColor(Color backgroundColor) {
-      final bool isRowSpanned =
-          dataRow._visibleColumns.any((dataCell) => dataCell._rowSpan > 0);
+      final bool isRowSpanned = dataRow._visibleColumns
+          .any((DataCellBase dataCell) => dataCell._rowSpan > 0);
 
       if (isRowSpanned) {
         RenderBox? child = lastChild;
         while (child != null && child is _RenderGridCell) {
           final _VirtualizingCellWidgetParentData childParentData =
-              child.parentData as _VirtualizingCellWidgetParentData;
-          final dataCell = child.dataCell;
-          final lineInfo =
+              child.parentData! as _VirtualizingCellWidgetParentData;
+          final DataCellBase dataCell = child.dataCell;
+          final _VisibleLineInfo? lineInfo =
               dataRow._getColumnVisibleLineInfo(dataCell.columnIndex);
           if (dataCell._rowSpan > 0 && lineInfo != null) {
-            final columnRect = child.columnRect;
-            final cellClipRect = child.cellClipRect;
-            final height = dataRow._getRowHeight(
+            final Rect? columnRect = child.columnRect;
+            final Rect? cellClipRect = child.cellClipRect;
+            final double height = dataRow._getRowHeight(
                 dataCell.rowIndex - dataCell._rowSpan, dataCell.rowIndex);
             Rect cellRect = Rect.zero;
             if (cellClipRect != null) {
@@ -270,13 +295,12 @@ class _RenderVirtualizingCellsWidget extends RenderBox
       dataGridSettings.gridPaint!.style = PaintingStyle.fill;
 
       if (dataRow.rowRegion == RowRegion.header &&
-          dataRow.rowType == RowType.headerRow) {
+              dataRow.rowType == RowType.headerRow ||
+          dataRow.rowType == RowType.stackedHeaderRow) {
         backgroundColor = dataGridSettings.dataGridThemeData!.headerColor;
         drawSpannedRowBackgroundColor(backgroundColor);
-      } else if (dataRow.rowRegion == RowRegion.header &&
-          dataRow.rowType == RowType.stackedHeaderRow) {
-        backgroundColor = getDefaultHeaderBackgroundColor();
-        drawSpannedRowBackgroundColor(backgroundColor);
+      } else if (dataRow.rowType == RowType.footerRow) {
+        backgroundColor = getDefaultRowBackgroundColor();
       } else {
         /// Need to check the rowStyle Please look the previous version and
         /// selection preference
@@ -288,9 +312,7 @@ class _RenderVirtualizingCellsWidget extends RenderBox
       // Default theme color are common for both the HeaderBackgroundColor and
       // CellBackgroundColor, so we have checked commonly at outside of the
       // condition
-      if (backgroundColor == Colors.transparent) {
-        backgroundColor = getDefaultHeaderBackgroundColor();
-      }
+      backgroundColor ??= getDefaultRowBackgroundColor();
 
       dataGridSettings.gridPaint?.color = backgroundColor;
       context.canvas.drawRect(rect, dataGridSettings.gridPaint!);
@@ -308,17 +330,17 @@ class _RenderVirtualizingCellsWidget extends RenderBox
           dataGridSettings.container.extentWidth < dataGridSettings.viewWidth &&
           dataGridSettings.textDirection == TextDirection.rtl;
 
-      final double stokeWidth = 1;
-      final origin = (stokeWidth / 2 +
+      const double stokeWidth = 1;
+      final int origin = (stokeWidth / 2 +
               dataGridSettings.dataGridThemeData!.gridLineStrokeWidth)
           .ceil();
 
       final Rect rowRect = _getRowRect(dataGridSettings, offset);
-      final maxWidth = needToSetMaxConstraint()
+      final double maxWidth = needToSetMaxConstraint()
           ? rowRect.width - rowRect.left
           : rowRect.right - rowRect.left;
 
-      final isHorizontalGridLinesEnabled =
+      final bool isHorizontalGridLinesEnabled =
           dataGridSettings.gridLinesVisibility == GridLinesVisibility.both ||
               dataGridSettings.gridLinesVisibility ==
                   GridLinesVisibility.horizontal;
@@ -374,7 +396,7 @@ class _RenderVirtualizingCellsWidget extends RenderBox
     RenderBox? child = lastChild;
     while (child != null) {
       final _VirtualizingCellWidgetParentData childParentData =
-          child.parentData as _VirtualizingCellWidgetParentData;
+          child.parentData! as _VirtualizingCellWidgetParentData;
       final bool isHit = result.addWithPaintOffset(
         offset: childParentData.offset,
         position: position,
@@ -399,19 +421,33 @@ class _RenderVirtualizingCellsWidget extends RenderBox
 
   @override
   bool hitTest(BoxHitTestResult result, {required Offset position}) {
-    final bool isRowSpanned =
-        dataRow._visibleColumns.any((dataCell) => dataCell._rowSpan > 0);
+    final bool isRowSpanned = dataRow._visibleColumns
+        .any((DataCellBase dataCell) => dataCell._rowSpan > 0);
 
     if (isRowSpanned) {
       RenderBox? child = lastChild;
       while (child != null) {
         final _VirtualizingCellWidgetParentData childParentData =
-            child.parentData as _VirtualizingCellWidgetParentData;
+            child.parentData! as _VirtualizingCellWidgetParentData;
         if (child is _RenderGridCell &&
             child.columnRect != null &&
             child.columnRect!.contains(position)) {
-          return super.hitTest(result,
-              position: Offset(position.dx.abs(), position.dy.abs()));
+          // Need to resolve the position when dataCell has row span.
+          if (child.dataCell._rowSpan > 0) {
+            final DataCellBase dataCell = child.dataCell;
+            final double cellActualHeight = dataCell._dataRow!
+                ._getRowHeight(dataCell.rowIndex, dataCell.rowIndex);
+            final double cellTotalHeight = dataCell._dataRow!._getRowHeight(
+                dataCell.rowIndex - dataCell._rowSpan, dataCell.rowIndex);
+
+            final double resolvedXPosition = child.globalToLocal(position).dx;
+            final double resolvedYPosition =
+                cellTotalHeight + (position.dy - cellActualHeight);
+
+            return child.hitTest(result,
+                position: Offset(resolvedXPosition, resolvedYPosition));
+          }
+          return super.hitTest(result, position: position);
         }
         child = childParentData.previousSibling;
       }
@@ -431,84 +467,114 @@ class _RenderVirtualizingCellsWidget extends RenderBox
 
   void _handleSwipeStart(
       PointerDownEvent event, _DataGridSettings dataGridSettings) {
-    dataGridSettings.isSwipingApplied =
-        (dataGridSettings.swipingOffset.abs() > 0) ? true : false;
+    // Need to reset the swiping and scrolling state to default when pointer
+    // up and touch again
+    dataGridSettings.isSwipingApplied = false;
+    dataGridSettings.scrollingState = ScrollDirection.idle;
+    swipeDirection = null;
 
-    final swipedRow = dataGridSettings.rowGenerator.items.firstWhereOrNull(
-        (row) => row._isSwipingRow && dataGridSettings.swipingOffset.abs() > 0);
+    // Need to check whether tap action placed on another [DataGridRow]
+    // instead of swiped [DataGridRow].
+    //
+    // If its tapped on the same swiped [DataGridRow], we don't do anything.
+    // If it's tapped on different [DataGridRow] or scrolled, we need to end
+    // the swiping.
+    final DataRowBase? swipedRow = dataGridSettings.rowGenerator.items
+        .firstWhereOrNull((DataRowBase row) =>
+            row._isSwipingRow && dataGridSettings.swipingOffset.abs() > 0);
 
     if (swipedRow != null && swipedRow.rowIndex != dataRow.rowIndex) {
-      swipedRow._isSwipingRow = false;
-      dataGridSettings.swipingOffset = 0;
+      dataGridSettings.container
+          .resetSwipeOffset(swipedRow: swipedRow, canUpdate: true);
+      dataGridSettings.swipingOffset = event.localDelta.dx;
+      dy = event.localDelta.dy;
     }
-
-    dataGridSettings.source
-        ._notifyDataGridPropertyChangeListeners(propertyName: 'Swiping');
   }
 
   void _handleSwipeUpdate(
       PointerMoveEvent event, _DataGridSettings dataGridSettings) {
-    bool canStartSwiping = true;
-    bool canUpdateSwiping = true;
-    final oldSwipingDelta = dataGridSettings.swipingOffset;
-    final currentSwipingDelta =
+    final double currentSwipingDelta =
         dataGridSettings.swipingOffset + event.localDelta.dx;
-    final rowIndex = _GridIndexResolver.resolveToRecordIndex(
-        dataGridSettings, dataRow.rowIndex);
-    final rowSwipeDirection = _SfDataGridHelper.getSwipeDirection(
-        dataGridSettings, currentSwipingDelta);
+    dy = dy - event.localDelta.dy;
 
-    if (dataGridSettings.onSwipeStart != null) {
-      final swipeStartDetails = DataGridSwipeStartDetails(
-          rowIndex: rowIndex, swipeDirection: rowSwipeDirection);
-      canStartSwiping = dataGridSettings.onSwipeStart!(swipeStartDetails);
-    }
-
-    swipeDirection = currentSwipingDelta < 0
-        ? DataGridRowSwipeDirection.endToStart
-        : DataGridRowSwipeDirection.startToEnd;
-
-    if (dataGridSettings.swipingOffset.abs() == 0 ||
-        dataGridSettings.swipingOffset.abs() ==
-            dataGridSettings.swipeMaxOffset) {
+    // If it's fling or scrolled, we have to ignore the swiping action
+    if (!dataGridSettings.isSwipingApplied &&
+        (dataGridSettings.scrollingState == ScrollDirection.forward ||
+            dy.abs() > 3)) {
       dataGridSettings.isSwipingApplied = false;
-    } else {
-      dataGridSettings.isSwipingApplied = true;
+      return;
     }
 
-    if (canStartSwiping &&
-        dataGridSettings.allowSwiping &&
-        (event.localDelta.dx.abs() > event.localDelta.dy.abs()) &&
+    final ScrollController horizontalController =
+        dataGridSettings.horizontalScrollController!;
+
+    /// Swipe must to happen when it's reach the max and min scroll extend.
+    if (currentSwipingDelta > 2) {
+      if (dataGridSettings.container.horizontalOffset ==
+              horizontalController.position.minScrollExtent &&
+          swipeDirection == null) {
+        swipeDirection = _SfDataGridHelper.getSwipeDirection(
+            dataGridSettings, currentSwipingDelta);
+        // Resricted the continuous swiping of both directions by dragging.
+      } else if (swipeDirection == DataGridRowSwipeDirection.endToStart) {
+        swipeDirection = null;
+      }
+    } else if (currentSwipingDelta < -2) {
+      if (dataGridSettings.container.horizontalOffset ==
+              horizontalController.position.maxScrollExtent &&
+          swipeDirection == null) {
+        swipeDirection = _SfDataGridHelper.getSwipeDirection(
+            dataGridSettings, currentSwipingDelta);
+        // Resricted the continuous swiping of both directions by dragging.
+      } else if (swipeDirection == DataGridRowSwipeDirection.startToEnd) {
+        swipeDirection = null;
+      }
+    }
+
+    if (swipeDirection != null &&
         _SfDataGridHelper.canSwipeRow(
-            dataGridSettings, swipeDirection!, event.localDelta.dx)) {
-      if (dataGridSettings.onSwipeUpdate != null) {
-        final swipeUpdateDetails = DataGridSwipeUpdateDetails(
-            rowIndex: rowIndex,
-            swipeDirection: rowSwipeDirection,
-            swipeOffset: currentSwipingDelta);
-        canUpdateSwiping = dataGridSettings.onSwipeUpdate!(swipeUpdateDetails);
+            dataGridSettings, swipeDirection!, currentSwipingDelta)) {
+      bool canStartSwiping = true;
+      final double oldSwipingDelta = dataGridSettings.swipingOffset;
+      final int rowIndex = _GridIndexResolver.resolveToRecordIndex(
+          dataGridSettings, dataRow.rowIndex);
+
+      // Need to skip the [onSwipeStart] callback when swiping is applied.
+      if (dataGridSettings.onSwipeStart != null &&
+          !dataGridSettings.isSwipingApplied) {
+        final DataGridSwipeStartDetails swipeStartDetails =
+            DataGridSwipeStartDetails(
+                rowIndex: rowIndex, swipeDirection: swipeDirection!);
+        canStartSwiping = dataGridSettings.onSwipeStart!(swipeStartDetails);
       }
 
-      if (canUpdateSwiping) {
+      if (canStartSwiping) {
+        dataGridSettings.isSwipingApplied = true;
+        if (dataGridSettings.onSwipeUpdate != null) {
+          final DataGridSwipeUpdateDetails swipeUpdateDetails =
+              DataGridSwipeUpdateDetails(
+                  rowIndex: rowIndex,
+                  swipeDirection: swipeDirection!,
+                  swipeOffset: currentSwipingDelta);
+          canStartSwiping = dataGridSettings.onSwipeUpdate!(swipeUpdateDetails);
+        }
+
+        if (!canStartSwiping) {
+          return;
+        }
+
         if (dataGridSettings.swipingAnimationController!.isAnimating) {
           return;
         }
-        if (currentSwipingDelta >= 0 &&
-            swipeDirection == DataGridRowSwipeDirection.startToEnd &&
-            currentSwipingDelta >= dataGridSettings.swipeMaxOffset) {
+
+        if (currentSwipingDelta >= dataGridSettings.swipeMaxOffset) {
           dataGridSettings.swipingOffset = dataGridSettings.swipeMaxOffset;
-        } else if (currentSwipingDelta < 0 &&
-            swipeDirection == DataGridRowSwipeDirection.endToStart &&
-            -currentSwipingDelta >= dataGridSettings.swipeMaxOffset) {
-          dataGridSettings.swipingOffset = -dataGridSettings.swipeMaxOffset;
         } else {
-          if (rowSwipeDirection == DataGridRowSwipeDirection.startToEnd
-              ? dataGridSettings.startSwipeActionsBuilder != null
-              : dataGridSettings.endSwipeActionsBuilder != null) {
-            dataGridSettings.swipingOffset += event.localDelta.dx;
-          }
+          dataGridSettings.swipingOffset += event.localDelta.dx;
         }
+
         dataRow._isSwipingRow = true;
+
         if (oldSwipingDelta.sign != currentSwipingDelta.sign) {
           _updateSwipingAnimation(dataGridSettings);
         }
@@ -517,8 +583,8 @@ class _RenderVirtualizingCellsWidget extends RenderBox
               dataGridSettings.swipingOffset.abs() /
                   dataGridSettings.swipeMaxOffset;
         }
-        dataGridSettings.source
-            ._notifyDataGridPropertyChangeListeners(propertyName: 'Swiping');
+      } else {
+        dataGridSettings.container.resetSwipeOffset(canUpdate: true);
       }
     }
   }
@@ -527,12 +593,13 @@ class _RenderVirtualizingCellsWidget extends RenderBox
       PointerUpEvent event, _DataGridSettings dataGridSettings) {
     void _onSwipeEnd() {
       if (dataGridSettings.onSwipeEnd != null) {
-        final rowSwipeDirection = _SfDataGridHelper.getSwipeDirection(
-            dataGridSettings, dataGridSettings.swipingOffset);
-        final rowIndex = _GridIndexResolver.resolveToRecordIndex(
+        final int rowIndex = _GridIndexResolver.resolveToRecordIndex(
             dataGridSettings, dataRow.rowIndex);
-        final swipeEndDetails = DataGridSwipeEndDetails(
-            rowIndex: rowIndex, swipeDirection: rowSwipeDirection);
+        final DataGridRowSwipeDirection swipeDirection =
+            _SfDataGridHelper.getSwipeDirection(
+                dataGridSettings, dataGridSettings.swipingOffset);
+        final DataGridSwipeEndDetails swipeEndDetails = DataGridSwipeEndDetails(
+            rowIndex: rowIndex, swipeDirection: swipeDirection);
         dataGridSettings.onSwipeEnd!(swipeEndDetails);
       }
     }
@@ -541,41 +608,34 @@ class _RenderVirtualizingCellsWidget extends RenderBox
       if (dataGridSettings.swipingAnimationController!.isAnimating) {
         return;
       }
-      if (dataGridSettings.swipingOffset >= 0 &&
-          swipeDirection == DataGridRowSwipeDirection.startToEnd &&
-          dataGridSettings.swipingOffset >
-              dataGridSettings.swipeMaxOffset / 2) {
-        dataGridSettings.swipingOffset = dataGridSettings.swipeMaxOffset;
-        dataGridSettings.swipingAnimationController!
-            .forward()
-            .then((value) => _onSwipeEnd());
-      } else if (dataGridSettings.swipingOffset < 0 &&
-          swipeDirection == DataGridRowSwipeDirection.endToStart &&
-          -dataGridSettings.swipingOffset >
-              dataGridSettings.swipeMaxOffset / 2) {
-        dataGridSettings.swipingOffset = -dataGridSettings.swipeMaxOffset;
-        dataGridSettings.swipingAnimationController!
-            .forward()
-            .then((value) => _onSwipeEnd());
-      } else {
-        dataGridSettings.swipingAnimationController!.reverse().then((value) {
-          dataGridSettings.swipingOffset = 0;
-          dataRow._isSwipingRow = false;
-          _onSwipeEnd();
-          dataGridSettings.source
-              ._notifyDataGridPropertyChangeListeners(propertyName: 'Swiping');
-        });
-      }
 
       dataGridSettings.isSwipingApplied = false;
-      dataGridSettings.source
-          ._notifyDataGridPropertyChangeListeners(propertyName: 'Swiping');
+      if (dataGridSettings.swipingOffset.abs() >
+          dataGridSettings.swipeMaxOffset / 2) {
+        dataGridSettings.swipingOffset = dataGridSettings.swipingOffset >= 0
+            ? dataGridSettings.swipeMaxOffset
+            : -dataGridSettings.swipeMaxOffset;
+        dataGridSettings.swipingAnimationController!
+            .forward()
+            .then((_) => _onSwipeEnd());
+      } else {
+        if (dataGridSettings.swipingOffset.abs() <
+            dataGridSettings.swipeMaxOffset) {
+          dataGridSettings.swipingAnimationController!.reverse().then((_) {
+            _onSwipeEnd();
+            dataGridSettings.container.resetSwipeOffset(swipedRow: dataRow);
+          });
+        }
+      }
     }
+
+    dy = 0.0;
+    dataGridSettings.scrollingState = ScrollDirection.idle;
   }
 
   void _handleSwiping(PointerEvent event) {
     final _DataGridSettings dataGridSettings = dataRow._dataGridStateDetails!();
-    if (dataGridSettings.allowSwiping) {
+    if (dataGridSettings.allowSwiping && dataRow.rowType == RowType.dataRow) {
       if (event is PointerDownEvent) {
         _handleSwipeStart(event, dataGridSettings);
       }
@@ -590,8 +650,8 @@ class _RenderVirtualizingCellsWidget extends RenderBox
 
   @override
   void handleEvent(PointerEvent event, BoxHitTestEntry entry) {
-    _handleSwiping(event);
     super.handleEvent(event, entry);
+    _handleSwiping(event);
   }
 
   @override
@@ -607,7 +667,7 @@ class _RenderVirtualizingCellsWidget extends RenderBox
     RenderBox? child = firstChild;
     while (child != null) {
       final _VirtualizingCellWidgetParentData _parentData =
-          child.parentData as _VirtualizingCellWidgetParentData;
+          child.parentData! as _VirtualizingCellWidgetParentData;
       if (dataRow.isVisible &&
           child is _RenderGridCell &&
           child.dataCell.isVisible) {
@@ -622,32 +682,69 @@ class _RenderVirtualizingCellsWidget extends RenderBox
             child: child, width: _parentData.width, height: _parentData.height);
         _parentData.offset = Offset(columnRect.left, columnRect.top);
       } else {
-        size = constraints.constrain(Size.zero);
-        child.layout(const BoxConstraints.tightFor(width: 0, height: 0));
-        _parentData.reset();
+        if (dataRow.rowType == RowType.footerRow) {
+          final _DataGridSettings dataGridSettings =
+              dataRow._dataGridStateDetails!();
+          final Rect cellRect = Rect.fromLTWH(
+              dataGridSettings.container.horizontalOffset,
+              0.0,
+              dataGridSettings.viewWidth,
+              dataGridSettings.footerHeight);
+
+          size = constraints.constrain(Size(cellRect.width, cellRect.height));
+          _parentData
+            ..width = cellRect.width
+            ..height = cellRect.height
+            ..offset = Offset(cellRect.left, cellRect.top);
+          _layout(
+              child: child,
+              width: _parentData.width,
+              height: _parentData.height);
+        } else {
+          size = constraints.constrain(Size.zero);
+          child.layout(const BoxConstraints.tightFor(width: 0, height: 0));
+          _parentData.reset();
+        }
       }
       child = _parentData.nextSibling;
     }
   }
 
+  void _drawRowHoverBackground(_DataGridSettings dataGridSettings,
+      PaintingContext context, Offset offset) {
+    if (dataGridSettings._isDesktop &&
+        dataGridSettings.highlightRowOnHover &&
+        dataRow._isHoveredRow) {
+      dataGridSettings.gridPaint?.color =
+          dataGridSettings.dataGridThemeData!.rowHoverColor;
+      context.canvas.drawRect(
+          _getRowRect(dataGridSettings, offset, isHoveredLayer: true),
+          dataGridSettings.gridPaint!);
+    }
+  }
+
   @override
   void paint(PaintingContext context, Offset offset) {
+    final _DataGridSettings dataGridSettings = dataRow._dataGridStateDetails!();
+
     // Remove the below method if the mentioned report has resolved
     // form framework side
     // https://github.com/flutter/flutter/issues/29702
-    _drawRowBackground(context, offset);
+    _drawRowBackground(dataGridSettings, context, offset);
+
+    _drawRowHoverBackground(dataGridSettings, context, offset);
 
     RenderBox? child = firstChild;
     while (child != null) {
       final _VirtualizingCellWidgetParentData childParentData =
-          child.parentData as _VirtualizingCellWidgetParentData;
+          child.parentData! as _VirtualizingCellWidgetParentData;
       if (childParentData.width != 0.0 && childParentData.height != 0.0) {
         if (childParentData.cellClipRect != null) {
           context.pushClipRect(
             needsCompositing,
             childParentData.offset + offset,
             childParentData.cellClipRect!,
-            (context, offset) {
+            (PaintingContext context, Offset offset) {
               context.paintChild(child!, offset);
             },
             clipBehavior: Clip.antiAlias,
@@ -658,10 +755,80 @@ class _RenderVirtualizingCellsWidget extends RenderBox
       }
       child = childParentData.nextSibling;
     }
-    final _DataGridSettings dataGridSettings = dataRow._dataGridStateDetails!();
     if (dataGridSettings._isDesktop) {
       _drawCurrentRowBorder(context, offset);
     }
+  }
+
+  @override
+  MouseCursor get cursor => MouseCursor.defer;
+
+  @override
+  PointerEnterEventListener? get onEnter {
+    final _DataGridSettings dataGridSettings = dataRow._dataGridStateDetails!();
+    if (dataGridSettings.highlightRowOnHover &&
+        dataGridSettings._isDesktop &&
+        dataRow.rowType == RowType.dataRow) {
+      dataRow._isHoveredRow = true;
+
+      final TextStyle rowStyle =
+          dataGridSettings.dataGridThemeData!.brightness == Brightness.light
+              ? const TextStyle(
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.w400,
+                  fontSize: 14,
+                  color: Colors.black87)
+              : const TextStyle(
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.w400,
+                  fontSize: 14,
+                  color: Color.fromRGBO(255, 255, 255, 1));
+      if (dataGridSettings.dataGridThemeData!.rowHoverTextStyle != rowStyle) {
+        dataRow._rowIndexChanged();
+        dataGridSettings.source._notifyDataGridPropertyChangeListeners(
+            propertyName: 'hoverOnCell');
+      }
+      markNeedsPaint();
+    }
+  }
+
+  @override
+  PointerExitEventListener? get onExit {
+    final _DataGridSettings dataGridSettings = dataRow._dataGridStateDetails!();
+    if (dataGridSettings.highlightRowOnHover &&
+        dataGridSettings._isDesktop &&
+        dataRow.rowType == RowType.dataRow) {
+      dataRow._isHoveredRow = false;
+
+      final TextStyle rowStyle =
+          dataGridSettings.dataGridThemeData!.brightness == Brightness.light
+              ? const TextStyle(
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.w400,
+                  fontSize: 14,
+                  color: Colors.black87)
+              : const TextStyle(
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.w400,
+                  fontSize: 14,
+                  color: Color.fromRGBO(255, 255, 255, 1));
+      if (dataGridSettings.dataGridThemeData!.rowHoverTextStyle != rowStyle) {
+        dataRow._rowIndexChanged();
+        dataGridSettings.source._notifyDataGridPropertyChangeListeners(
+            propertyName: 'hoverOnCell');
+      }
+      markNeedsPaint();
+    }
+  }
+
+  @override
+  bool get validForMouseTracker {
+    final _DataGridSettings dataGridSettings = dataRow._dataGridStateDetails!();
+    if (dataGridSettings.highlightRowOnHover &&
+        dataRow.rowType == RowType.dataRow) {
+      return true;
+    }
+    return false;
   }
 }
 

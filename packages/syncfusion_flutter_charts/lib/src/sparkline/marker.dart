@@ -12,6 +12,7 @@ import 'utils/enum.dart';
 /// Provides the options of [color], [borderWidth], [borderColor] and [shape]
 /// of the marker to customize the appearance.
 ///
+@immutable
 class SparkChartMarker {
   /// Creates an instance of spark chart marker to add and customizes the marker
   /// in spark chart widget. To make, the marker visible, set `displayeMode`
@@ -30,7 +31,7 @@ class SparkChartMarker {
   ///  );
   /// }
   /// ```
-  SparkChartMarker(
+  const SparkChartMarker(
       {this.displayMode = SparkChartMarkerDisplayMode.none,
       this.borderColor,
       this.borderWidth = 2,

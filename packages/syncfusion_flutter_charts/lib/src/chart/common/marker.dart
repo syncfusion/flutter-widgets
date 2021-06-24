@@ -7,6 +7,7 @@ part of charts;
 ///
 /// Provides the options of [color], border width, border color and [shape] of the marker to customize the appearance.
 ///
+@immutable
 class MarkerSettings {
   /// Creating an argument constructor of MarkerSettings class.
   const MarkerSettings(
@@ -180,6 +181,41 @@ class MarkerSettings {
   ///}
   ///```
   final ImageProvider? image;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is MarkerSettings &&
+        other.isVisible == isVisible &&
+        other.height == height &&
+        other.width == width &&
+        other.color == color &&
+        other.shape == shape &&
+        other.borderWidth == borderWidth &&
+        other.borderColor == borderColor &&
+        other.image == image;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      isVisible,
+      height,
+      width,
+      color,
+      shape,
+      borderWidth,
+      borderColor,
+      image
+    ];
+    return hashList(values);
+  }
 }
 
 /// Marker settings renderer class for mutable fields and methods
@@ -216,16 +252,16 @@ class MarkerSettingsRenderer {
         seriesRenderer, seriesRenderer._dataPoints[markerIndex]);
     Paint strokePaint, fillPaint;
     final XyDataSeries<dynamic, dynamic> series =
-        seriesRenderer._series as XyDataSeries;
+        seriesRenderer._series as XyDataSeries<dynamic, dynamic>;
     final Size size =
         Size(series.markerSettings.width, series.markerSettings.height);
     final DataMarkerType markerType = series.markerSettings.shape;
     CartesianChartPoint<dynamic> point;
-    final bool hasPointColor = (series.pointColorMapper != null) ? true : false;
+    final bool hasPointColor = series.pointColorMapper != null;
     final bool isBoxSeries =
         seriesRenderer._seriesType.contains('boxandwhisker');
     final double opacity = (animationController != null &&
-            (seriesRenderer._chartState!._initialRender! ||
+            (seriesRenderer._renderingDetails!.initialRender! ||
                 seriesRenderer._needAnimateSeriesElements))
         ? animationController.value
         : 1;
@@ -233,35 +269,35 @@ class MarkerSettingsRenderer {
     Color? seriesColor = seriesRenderer._seriesColor;
     if (seriesRenderer._seriesType == 'waterfall') {
       seriesColor = _getWaterfallSeriesColor(
-          seriesRenderer._series as WaterfallSeries, point, seriesColor);
+          seriesRenderer._series as WaterfallSeries<dynamic, dynamic>,
+          point,
+          seriesColor);
     }
     _borderColor = series.markerSettings.borderColor ?? seriesColor;
     _color = series.markerSettings.color;
     _borderWidth = series.markerSettings.borderWidth;
-    if (!isBoxSeries) {
-      seriesRenderer._markerShapes.add(isDataPointVisible
-          ? _getMarkerShapesPath(
-              markerType,
-              Offset(point.markerPoint!.x, point.markerPoint!.y),
-              size,
-              seriesRenderer,
-              markerIndex,
-              null,
-              animationController)
-          : null);
-    } else {
-      seriesRenderer._markerShapes.add(isDataPointVisible
-          ? _getMarkerShapesPath(
-              markerType,
-              Offset(point.outliersPoint[outlierIndex!].x,
-                  point.outliersPoint[outlierIndex].y),
-              size,
-              seriesRenderer,
-              markerIndex,
-              null,
-              animationController)
-          : null);
-    }
+    !isBoxSeries
+        ? seriesRenderer._markerShapes.add(isDataPointVisible
+            ? _getMarkerShapesPath(
+                markerType,
+                Offset(point.markerPoint!.x, point.markerPoint!.y),
+                size,
+                seriesRenderer,
+                markerIndex,
+                null,
+                animationController)
+            : null)
+        : seriesRenderer._markerShapes.add(isDataPointVisible
+            ? _getMarkerShapesPath(
+                markerType,
+                Offset(point.outliersPoint[outlierIndex!].x,
+                    point.outliersPoint[outlierIndex].y),
+                size,
+                seriesRenderer,
+                markerIndex,
+                null,
+                animationController)
+            : null);
     if (seriesRenderer._seriesType.contains('range') ||
         seriesRenderer._seriesType == 'hilo') {
       seriesRenderer._markerShapes2.add(isDataPointVisible
@@ -320,7 +356,8 @@ class MarkerSettingsRenderer {
           ? series.emptyPointSettings.color
           : _color != Colors.transparent
               ? (_color ??
-                      (seriesRenderer._chartState!._chartTheme.brightness ==
+                      (seriesRenderer
+                                  ._renderingDetails!.chartTheme.brightness ==
                               Brightness.light
                           ? Colors.white
                           : Colors.black))

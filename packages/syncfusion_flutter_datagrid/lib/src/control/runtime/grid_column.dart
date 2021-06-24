@@ -9,9 +9,11 @@ class GridColumn {
       this.columnWidthMode = ColumnWidthMode.none,
       this.visible = true,
       this.allowSorting = true,
+      this.autoFitPadding = const EdgeInsets.all(16.0),
       this.minimumWidth = double.nan,
       this.maximumWidth = double.nan,
-      this.width = double.nan}) {
+      this.width = double.nan,
+      this.allowEditing = true}) {
     _actualWidth = double.nan;
     _autoWidth = double.nan;
   }
@@ -43,10 +45,6 @@ class GridColumn {
   ///
   /// This must not be empty or null.
   final String columnName;
-
-  /// The cell type of the column which denotes renderer associated with column.
-  String? get cellType => _cellType;
-  String? _cellType;
 
   /// The actual display width of the column when auto fitted based on
   /// [SfDataGrid.columnWidthMode] or [columnWidthMode].
@@ -102,14 +100,31 @@ class GridColumn {
   /// [SortColumnDetails] programmatically to [DataGridSource.sortedColumns].
   final bool allowSorting;
 
-  /// Sets the cell type which indicates the renderer for the column.
+  /// Decides whether cell should be moved into edit mode based on
+  /// [SfDataGrid.editingGestureType].
   ///
-  /// Call this method in constructor of the column when you write the custom
-  /// column and renderer.
-  @protected
-  void setCellType(String cellType) {
-    _cellType = cellType;
-  }
+  /// Defaults to false.
+  ///
+  /// Editing can be enabled only if the [SfDataGrid.selectionMode] is other
+  /// than none and [SfDataGrid.navigationMode] is cell.
+  ///
+  /// See also,
+  ///
+  /// You can load the required widget on editing using
+  /// [DataGridSource.buildEditWidget] method.
+  ///
+  /// See also,
+  /// [DataGridSource.onCellBeginEdit]- This will be triggered when a cell is
+  /// moved to edit mode.
+  /// [DataGridSource.onCellSubmit] – This will be triggered when the cell’s
+  /// editing is completed.
+  final bool allowEditing;
+
+  /// The amount of space which should be added with the auto size calculated
+  /// when you use [SfDataGrid.columnWidthMode] as [ColumnWidthMode.auto] or
+  /// [ColumnWidthMode.fitByCellValue] or [ColumnWidthMode.fitByColumnName]
+  /// option.
+  final EdgeInsets autoFitPadding;
 }
 
 /// A column which displays the values of the string in its cells.
@@ -129,26 +144,29 @@ class GridColumn {
 ///    );
 ///  }
 /// ```
+@Deprecated('Use GridColumn instead.')
 class GridTextColumn extends GridColumn {
   /// Creates a String column using [columnName] and [label].
   GridTextColumn({
     required String columnName,
     required Widget label,
     ColumnWidthMode columnWidthMode = ColumnWidthMode.none,
+    EdgeInsets autoFitPadding = const EdgeInsets.all(16.0),
     bool visible = true,
     bool allowSorting = true,
     double minimumWidth = double.nan,
     double maximumWidth = double.nan,
     double width = double.nan,
+    bool allowEditing = true,
   }) : super(
             columnName: columnName,
             label: label,
             columnWidthMode: columnWidthMode,
+            autoFitPadding: autoFitPadding,
             visible: visible,
             allowSorting: allowSorting,
             minimumWidth: minimumWidth,
             maximumWidth: maximumWidth,
-            width: width) {
-    _cellType = 'TextField';
-  }
+            width: width,
+            allowEditing: allowEditing);
 }

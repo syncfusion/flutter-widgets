@@ -1,3 +1,4 @@
+import 'package:syncfusion_flutter_calendar/src/calendar/common/date_time_engine.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
 import '../common/calendar_view_helper.dart';
@@ -295,14 +296,7 @@ class MonthAppointmentHelper {
     for (int i = count - DateTime.daysPerWeek;
         i >= 0;
         i -= DateTime.daysPerWeek) {
-      DateTime currentDate = visibleDates[i];
-      currentDate = DateTime(
-          currentDate.year,
-          currentDate.month,
-          currentDate.day,
-          currentDate.hour,
-          currentDate.minute,
-          currentDate.second);
+      final DateTime currentDate = visibleDates[i];
       if (currentDate.isBefore(date) ||
           (currentDate.day == date.day &&
               currentDate.month == date.month &&
@@ -313,7 +307,8 @@ class MonthAppointmentHelper {
       }
     }
 
-    final DateTime endDateTime = addDays(dateTime, 6);
+    final DateTime endDateTime =
+        DateTimeHelper.getDateTimeValue(addDays(dateTime, 6));
     int currentViewIndex = 0;
     while (
         dateTime.isBefore(endDateTime) || isSameDate(dateTime, endDateTime)) {
@@ -322,7 +317,7 @@ class MonthAppointmentHelper {
       }
 
       currentViewIndex++;
-      dateTime = addDays(dateTime, 1);
+      dateTime = DateTimeHelper.getDateTimeValue(addDays(dateTime, 1));
     }
 
     return -1;

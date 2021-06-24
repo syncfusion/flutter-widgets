@@ -68,7 +68,7 @@ class _RmdSigner implements _ISigner {
       throw ArgumentError.value('Invalid entry');
     }
     _input.close();
-    final List<int>? hash = _output.events.single.bytes;
+    final List<int>? hash = _output.events.single.bytes as List<int>?;
     final List<int> data = derEncode(hash)!;
     return _rsaEngine.processBlock(data, 0, data.length);
   }

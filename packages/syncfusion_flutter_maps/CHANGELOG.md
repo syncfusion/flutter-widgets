@@ -1,5 +1,12 @@
 ## Unreleased
 
+### Features
+
+* #I323663, I318077 - Provided multiple tile layer support in the maps.
+* **Legend pointer** - Show a pointer at the top of the legend while hovering.
+
+## [19.1.54-beta] - 03/30/2021
+
 **Features**
 
 * Inverted circle.

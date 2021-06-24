@@ -33,6 +33,17 @@ class _PdfTransformationMatrix {
     _matrix._elements[3] = cos(angle);
   }
 
+  void _skew(double angleX, double angleY) {
+    _matrix._multiply(_Matrix(<double>[
+      1,
+      tan((pi / 180) * angleX),
+      tan((pi / 180) * angleY),
+      1,
+      0,
+      0
+    ]));
+  }
+
   String _toString() {
     String builder = '';
     const String whitespace = ' ';

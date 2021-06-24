@@ -28,16 +28,14 @@ class _HiloPainter extends CustomPainter {
     Rect clipRect;
     double animationFactor;
     final HiloSeries<dynamic, dynamic> series =
-        seriesRenderer._series as HiloSeries;
+        seriesRenderer._series as HiloSeries<dynamic, dynamic>;
     CartesianChartPoint<dynamic> point;
     if (seriesRenderer._visible!) {
       canvas.save();
       assert(
           // ignore: unnecessary_null_comparison
-          series.animationDuration != null
-              ? series.animationDuration >= 0
-              : true,
-          'The animation duration of the Hilo series must be greater or equal to 0.');
+          !(series.animationDuration != null) || series.animationDuration >= 0,
+          'The animation duration of the fast line series must be greater or equal to 0.');
       final int seriesIndex = painterKey.index;
       seriesRenderer._storeSeriesProperties(chartState, seriesIndex);
       final Rect axisClipRect = _calculatePlotOffset(
@@ -56,12 +54,14 @@ class _HiloPainter extends CustomPainter {
       }
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
-        seriesRenderer._calculateRegionData(chartState, seriesRenderer,
-            painterKey.index, point, pointIndex, seriesRenderer.sideBySideInfo);
-        if (point.isVisible &&
-            !point.isGap &&
-            (!((point.low == point.high) &&
-                !series.showIndicationForSameValues))) {
+        seriesRenderer._calculateRegionData(
+            chartState,
+            seriesRenderer,
+            painterKey.index,
+            point,
+            pointIndex,
+            seriesRenderer._sideBySideInfo);
+        if (point.isVisible && !point.isGap) {
           seriesRenderer._drawSegment(
               canvas,
               seriesRenderer._createSegments(

@@ -38,8 +38,9 @@ class _FunnelDataLabelRendererState extends State<_FunnelDataLabelRenderer>
   @override
   Widget build(BuildContext context) {
     widget.state = this;
-    animationController.duration =
-        Duration(milliseconds: widget.chartState._initialRender! ? 500 : 0);
+    animationController.duration = Duration(
+        milliseconds:
+            widget.chartState._renderingDetails.initialRender! ? 500 : 0);
     final Animation<double> dataLabelAnimation =
         Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
       parent: animationController,
@@ -129,6 +130,7 @@ void _renderFunnelDataLabel(
   TextStyle dataLabelStyle;
   final List<Rect> renderDataLabelRegions = <Rect>[];
   DataLabelSettingsRenderer dataLabelSettingsRenderer;
+  Size textSize;
   for (int pointIndex = 0;
       pointIndex < seriesRenderer._renderPoints.length;
       pointIndex++) {
@@ -159,7 +161,7 @@ void _renderFunnelDataLabel(
           ? _getDataLabelTextStyle(
               seriesRenderer, point, chartState, animateOpacity)
           : dataLabelStyle;
-      final Size textSize = measureText(label!, dataLabelStyle);
+      textSize = measureText(label!, dataLabelStyle);
 
       ///Label check after event
       if (label != '') {
@@ -282,14 +284,14 @@ void _renderOutsideFunnelDataLabel(
   Rect? rect;
   Offset labelLocation;
   // Maximum available space for rendering datalabel.
-  final int maximumAvailableWidth = 22;
+  const int maximumAvailableWidth = 22;
   final EdgeInsets margin = seriesRenderer._series.dataLabelSettings.margin;
   final ConnectorLineSettings connector =
       seriesRenderer._series.dataLabelSettings.connectorLineSettings;
   const num regionPadding = 10;
   connectorPath = Path();
-  final num connectorLength = _percentToValue(
-          connector.length ?? '0%', _chartState._chartAreaRect.width / 2)! +
+  final num connectorLength = _percentToValue(connector.length ?? '0%',
+          _chartState._renderingDetails.chartAreaRect.width / 2)! +
       seriesRenderer._maximumDataLabelRegion.width / 2 -
       regionPadding;
   final List<Offset> regions =
@@ -304,10 +306,10 @@ void _renderOutsideFunnelDataLabel(
       connectorLength;
   final Offset endPoint = Offset(
       (dx + textSize.width + margin.left + margin.right) >
-              _chartState._chartAreaRect.right
+              _chartState._renderingDetails.chartAreaRect.right
           ? dx -
               (_percentToValue(seriesRenderer._series.explodeOffset,
-                  _chartState._chartAreaRect.width)!)
+                  _chartState._renderingDetails.chartAreaRect.width)!)
           : dx,
       (regions[1].dy + regions[2].dy) / 2);
   connectorPath.moveTo(startPoint.dx, startPoint.dy);
@@ -318,7 +320,7 @@ void _renderOutsideFunnelDataLabel(
   rect = _getDataLabelRect(point.dataLabelPosition!, connector.type, margin,
       connectorPath, endPoint, textSize);
   if (rect != null) {
-    final Rect containerRect = _chartState._chartAreaRect;
+    final Rect containerRect = _chartState._renderingDetails.chartAreaRect;
     point.labelRect = rect;
     labelLocation = Offset(rect.left + margin.left,
         rect.top + rect.height / 2 - textSize.height / 2);
@@ -430,9 +432,10 @@ void _drawFunnelLabel(
           ..color = connector.width <= 0
               ? Colors.transparent
               : connector.color ??
-                  point.fill.withOpacity(!_chartState._isLegendToggled
-                      ? animateOpacity
-                      : dataLabel.opacity)
+                  point.fill.withOpacity(
+                      !_chartState._renderingDetails.isLegendToggled
+                          ? animateOpacity
+                          : dataLabel.opacity)
           ..strokeWidth = connector.width
           ..style = PaintingStyle.stroke);
   }
@@ -449,7 +452,9 @@ void _drawFunnelLabel(
     if (strokeWidth != null && strokeWidth > 0) {
       rectPaint = Paint()
         ..color = strokeColor!.withOpacity(
-            !_chartState._isLegendToggled ? animateOpacity : dataLabel.opacity)
+            !_chartState._renderingDetails.isLegendToggled
+                ? animateOpacity
+                : dataLabel.opacity)
         ..style = PaintingStyle.stroke
         ..strokeWidth = strokeWidth;
       _drawLabelRect(
@@ -462,11 +467,12 @@ void _drawFunnelLabel(
     if (labelFill != null) {
       _drawLabelRect(
           Paint()
-            ..color = labelFill.withOpacity(!_chartState._isLegendToggled
-                ? (animateOpacity - (1 - dataLabel.opacity)) < 0
-                    ? 0
-                    : animateOpacity - (1 - dataLabel.opacity)
-                : dataLabel.opacity)
+            ..color = labelFill
+                .withOpacity(!_chartState._renderingDetails.isLegendToggled
+                    ? (animateOpacity - (1 - dataLabel.opacity)) < 0
+                        ? 0
+                        : animateOpacity - (1 - dataLabel.opacity)
+                    : dataLabel.opacity)
             ..style = PaintingStyle.fill,
           Rect.fromLTRB(
               labelRect.left, labelRect.top, labelRect.right, labelRect.bottom),
@@ -483,12 +489,14 @@ void _triggerFunnelDataLabelEvent(
     FunnelSeriesRenderer seriesRenderer,
     SfFunnelChartState chartState,
     Offset position) {
-  final int seriesIndex = 0;
+  const int seriesIndex = 0;
+  PointInfo<dynamic> point;
+  DataLabelSettings dataLabel;
+  Offset labelLocation;
   for (int index = 0; index < seriesRenderer._renderPoints.length; index++) {
-    final PointInfo<dynamic> point = seriesRenderer._renderPoints[index];
-    final DataLabelSettings dataLabel =
-        seriesRenderer._series.dataLabelSettings;
-    final Offset labelLocation = point.symbolLocation;
+    point = seriesRenderer._renderPoints[index];
+    dataLabel = seriesRenderer._series.dataLabelSettings;
+    labelLocation = point.symbolLocation;
     if (dataLabel.isVisible &&
         seriesRenderer._renderPoints[index].labelRect != null &&
         seriesRenderer._renderPoints[index].labelRect!.contains(position)) {

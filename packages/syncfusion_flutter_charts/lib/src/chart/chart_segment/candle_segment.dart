@@ -79,7 +79,7 @@ class CandleSegment extends ChartSegment {
   /// Calculates the rendering bounds of a segment.
   @override
   void calculateSegmentPoints() {
-    _candleSeries = _series as CandleSeries;
+    _candleSeries = _series as CandleSeries<dynamic, dynamic>;
     _isBull = _currentPoint!.open < _currentPoint!.close;
     _x = _high = _low = double.nan;
     _isTransposed = _seriesRenderer._chartState!._requireInvertedAxis;
@@ -184,18 +184,19 @@ class CandleSegment extends ChartSegment {
   void onPaint(Canvas canvas) {
     if (fillPaint != null &&
         (_seriesRenderer._reAnimate ||
-            !(_seriesRenderer._chartState!._widgetNeedUpdate &&
-                !_seriesRenderer._chartState!._isLegendToggled))) {
+            !(_seriesRenderer._renderingDetails!.widgetNeedUpdate &&
+                !_seriesRenderer._renderingDetails!.isLegendToggled))) {
       _path = Path();
       _linePath = Path();
 
-      if (!_isTransposed && _currentPoint!.open > _currentPoint!.close) {
+      if (!_isTransposed &&
+          _currentPoint!.open > _currentPoint!.close == true) {
         final double temp = _closeY;
         _closeY = _openY;
         _openY = temp;
       }
 
-      if (_seriesRenderer._chartState!._isLegendToggled) {
+      if (_seriesRenderer._renderingDetails!.isLegendToggled) {
         animationFactor = 1;
       }
       _centersY = _closeY + ((_closeY - _openY).abs() / 2);
@@ -214,7 +215,7 @@ class CandleSegment extends ChartSegment {
           : _topLineY;
 
       if (_isTransposed) {
-        _currentPoint!.open > _currentPoint!.close
+        _currentPoint!.open > _currentPoint!.close == true
             ? _calculateCandlePositions(_openX, _closeX)
             : _calculateCandlePositions(_closeX, _openX);
 
@@ -266,22 +267,20 @@ class CandleSegment extends ChartSegment {
       } else {
         canvas.drawPath(_path, fillPaint!);
         if (fillPaint!.style == PaintingStyle.fill) {
-          if (_isTransposed) {
-            _showSameValue
-                ? canvas.drawLine(
-                    Offset(_centerHighPoint.x, _centerHighPoint.y),
-                    Offset(_centerLowPoint.x, _centerHighPoint.y),
-                    fillPaint!)
-                : _drawFillLine(canvas);
-          } else {
-            _showSameValue
-                ? canvas.drawLine(Offset(_centerHighPoint.x, _highPoint.y),
-                    Offset(_centerHighPoint.x, _lowPoint.y), fillPaint!)
-                : _drawLine(canvas);
-          }
+          _isTransposed
+              ? _showSameValue
+                  ? canvas.drawLine(
+                      Offset(_centerHighPoint.x, _centerHighPoint.y),
+                      Offset(_centerLowPoint.x, _centerHighPoint.y),
+                      fillPaint!)
+                  : _drawFillLine(canvas)
+              : _showSameValue
+                  ? canvas.drawLine(Offset(_centerHighPoint.x, _highPoint.y),
+                      Offset(_centerHighPoint.x, _lowPoint.y), fillPaint!)
+                  : _drawLine(canvas);
         }
       }
-    } else if (!_seriesRenderer._chartState!._isLegendToggled) {
+    } else if (!_seriesRenderer._renderingDetails!.isLegendToggled) {
       _currentSegment =
           _seriesRenderer._segments[currentSegmentIndex!] as CandleSegment;
       _oldSegment = !_seriesRenderer._reAnimate &&

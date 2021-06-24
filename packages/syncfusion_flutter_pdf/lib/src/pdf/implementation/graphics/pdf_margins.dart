@@ -37,6 +37,7 @@ class PdfMargins {
   double _top = 0;
   double _right = 0;
   double _bottom = 0;
+  // ignore: prefer_final_fields
   bool _isPageAdded = false;
 
   //Properties

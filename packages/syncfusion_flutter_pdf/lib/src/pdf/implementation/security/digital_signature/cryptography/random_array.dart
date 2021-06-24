@@ -16,7 +16,7 @@ class _RandomArray implements _IRandom {
       if (offset >= _array.length) {
         return -1;
       }
-      return (0xff & _array[offset]);
+      return 0xff & _array[offset];
     } else {
       if (offset >= _array.length) {
         return -1;
@@ -63,7 +63,7 @@ class _RandomGroup implements _IRandom {
     _sources = <_SourceEntry>[];
     int totalSize = 0;
     int i = 0;
-    sources.forEach((ras) {
+    sources.toList().forEach((_IRandom? ras) {
       _sources.add(_SourceEntry(i, ras!, totalSize));
       ++i;
       totalSize += ras.length!;
@@ -152,11 +152,12 @@ class _SourceEntry {
 
 class _RandomStream extends _StreamReader {
   _RandomStream(_IRandom source)
-      : super(List<int>.generate(source.length!, (i) => 0)) {
+      : super(List<int>.generate(source.length!, (int i) => 0)) {
     _random = source;
   }
   //Fields
   late _IRandom _random;
+  @override
   int position = 0;
   //Properties
   @override

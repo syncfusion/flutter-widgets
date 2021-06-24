@@ -353,6 +353,65 @@ class TooltipBehavior {
   ///```
   final bool shared;
 
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is TooltipBehavior &&
+        other.textStyle == textStyle &&
+        other.activationMode == activationMode &&
+        other.animationDuration == animationDuration &&
+        other.enable == enable &&
+        other.opacity == opacity &&
+        other.borderColor == borderColor &&
+        other.borderWidth == borderWidth &&
+        other.duration == duration &&
+        other.shouldAlwaysShow == shouldAlwaysShow &&
+        other.elevation == elevation &&
+        other.canShowMarker == canShowMarker &&
+        other.textAlignment == textAlignment &&
+        other.decimalPlaces == decimalPlaces &&
+        other.tooltipPosition == tooltipPosition &&
+        other.shared == shared &&
+        other.color == color &&
+        other.header == header &&
+        other.format == format &&
+        other.builder == builder &&
+        other.shadowColor == shadowColor;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      textStyle,
+      activationMode,
+      animationDuration,
+      enable,
+      opacity,
+      borderColor,
+      borderWidth,
+      duration,
+      shouldAlwaysShow,
+      elevation,
+      canShowMarker,
+      textAlignment,
+      decimalPlaces,
+      tooltipPosition,
+      shared,
+      color,
+      header,
+      format,
+      builder,
+      shadowColor
+    ];
+    return hashList(values);
+  }
+
   dynamic _chartState;
 
   /// Displays the tooltip at the specified x and y-positions.
@@ -367,7 +426,7 @@ class TooltipBehavior {
     final dynamic chartState = _chartState;
     final dynamic chart = chartState._chart;
     final TooltipBehaviorRenderer tooltipBehaviorRenderer =
-        _chartState._tooltipBehaviorRenderer;
+        _chartState._renderingDetails.tooltipBehaviorRenderer;
     bool? isInsidePointRegion;
     String text = '';
     String trimmedText = '';
@@ -381,14 +440,13 @@ class TooltipBehavior {
             _chartState._chartAxis._axisRenderersCollection[i]._visibleLabels;
         for (int k = 0; k < labels.length; k++) {
           if (_chartState
-                  ._chartAxis._axisRenderersCollection[i]._axis.isVisible &&
+                      ._chartAxis._axisRenderersCollection[i]._axis.isVisible ==
+                  true &&
               labels[k]._labelRegion != null &&
               labels[k]._labelRegion!.contains(Offset(x, y))) {
             _chartState._requireAxisTooltip = true;
             text = labels[k].text;
             trimmedText = labels[k].renderText ?? '';
-            tooltipBehaviorRenderer._prevTooltipValue =
-                tooltipBehaviorRenderer._currentTooltipValue;
             axisLabelPosition = labels[k]._labelRegion!.center;
             // -3 to indicte axis tooltip
             tooltipBehaviorRenderer._currentTooltipValue =
@@ -397,7 +455,7 @@ class TooltipBehavior {
         }
       }
     }
-    if (chart is SfCartesianChart && !_chartState._requireAxisTooltip) {
+    if (chart is SfCartesianChart && _chartState._requireAxisTooltip == false) {
       for (int i = 0;
           i < _chartState._chartSeries.visibleSeriesRenderers.length;
           i++) {
@@ -412,7 +470,9 @@ class TooltipBehavior {
                   seriesType.contains('column') ||
                   seriesType.contains('bar'))
               ? 0
-              : _chartState._tooltipBehaviorRenderer._isHovering
+              : _chartState._renderingDetails.tooltipBehaviorRenderer
+                          ._isHovering ==
+                      true
                   ? 0
                   : 15; // regional padding to detect smooth touch
           seriesRenderer._regionalData!
@@ -450,7 +510,7 @@ class TooltipBehavior {
         x != null &&
         // ignore: unnecessary_null_comparison
         y != null &&
-        _chartState._requireAxisTooltip) {
+        _chartState._requireAxisTooltip == true) {
       final SfTooltipState? tooltipState =
           tooltipBehaviorRenderer._chartTooltipState;
       if (trimmedText.contains('...')) {
@@ -460,7 +520,10 @@ class TooltipBehavior {
             axisLabelPosition!, chart, text);
       } else {
         tooltipBehaviorRenderer._show = false;
-        hide();
+        if (!shouldAlwaysShow) {
+          tooltipBehaviorRenderer._chartTooltipState
+              ?.hide(hideDelay: duration.toInt());
+        }
       }
     } else if (tooltipBehaviorRenderer._chartTooltip != null &&
         activationMode != ActivationMode.none &&
@@ -470,17 +533,20 @@ class TooltipBehavior {
         y != null) {
       final SfTooltipState? tooltipState =
           tooltipBehaviorRenderer._chartTooltipState;
-      if (!(chart is SfCartesianChart) ||
+      if ((chart is SfCartesianChart) == false ||
           tooltipBehaviorRenderer._isInteraction ||
           (isInsidePointRegion ?? false)) {
-        tooltipState?.needMarker = chart is SfCartesianChart;
+        final bool isHovering =
+            _chartState._renderingDetails.tooltipBehaviorRenderer._isHovering;
         if (isInsidePointRegion == true ||
-            _chartState._tooltipBehaviorRenderer._isHovering ||
-            !(chart is SfCartesianChart)) {
+            isHovering ||
+            (chart is SfCartesianChart) == false) {
           tooltipBehaviorRenderer._showTooltip(x, y);
         } else {
           tooltipBehaviorRenderer._show = false;
-          hide();
+          if (chart.tooltipBehavior.shouldAlwaysShow == false) {
+            hide();
+          }
         }
       } else if (tooltipBehaviorRenderer._renderBox != null) {
         tooltipBehaviorRenderer._show = true;
@@ -519,8 +585,9 @@ class TooltipBehavior {
   void show(dynamic x, double y, [String? xAxisName, String? yAxisName]) {
     if (_chartState._chart is SfCartesianChart) {
       final dynamic chart = _chartState._chart;
+      final _RenderingDetails renderingDetails = _chartState._renderingDetails;
       final TooltipBehaviorRenderer tooltipBehaviorRenderer =
-          _chartState._tooltipBehaviorRenderer;
+          renderingDetails.tooltipBehaviorRenderer;
       bool? isInsidePointRegion = false;
       ChartAxisRenderer? xAxisRenderer, yAxisRenderer;
       if (xAxisName != null && yAxisName != null) {
@@ -537,7 +604,8 @@ class TooltipBehavior {
         yAxisRenderer = _chartState._chartAxis._primaryYAxisRenderer;
       }
       final _ChartLocation position = _calculatePoint(
-          (x is DateTime && !(xAxisRenderer! is DateTimeCategoryAxisRenderer))
+          (x is DateTime &&
+                  (xAxisRenderer! is DateTimeCategoryAxisRenderer) == false)
               ? x.millisecondsSinceEpoch
               : ((x is DateTime &&
                       xAxisRenderer! is DateTimeCategoryAxisRenderer)
@@ -581,17 +649,16 @@ class TooltipBehavior {
           });
         }
       }
-      if (_chartState._tooltipBehaviorRenderer._tooltipTemplate == null) {
+      if (renderingDetails.tooltipBehaviorRenderer._tooltipTemplate == null) {
         final SfTooltipState? tooltipState =
             tooltipBehaviorRenderer._chartTooltipState;
         if (isInsidePointRegion ?? false) {
-          tooltipState?.needMarker = chart is SfCartesianChart;
           tooltipBehaviorRenderer._showTooltip(position.x, position.y);
         } else {
           //to show tooltip when the position is out of point region
           tooltipBehaviorRenderer._show = true;
           tooltipState?.needMarker = false;
-          _chartState._tooltipBehaviorRenderer._showChartAreaTooltip(
+          renderingDetails.tooltipBehaviorRenderer._showChartAreaTooltip(
               Offset(position.x, position.y),
               xAxisRenderer,
               yAxisRenderer,
@@ -611,7 +678,7 @@ class TooltipBehavior {
     final dynamic chartState = _chartState;
     final dynamic chart = chartState._chart;
     final TooltipBehaviorRenderer tooltipBehaviorRenderer =
-        _chartState._tooltipBehaviorRenderer;
+        _chartState._renderingDetails.tooltipBehaviorRenderer;
     dynamic x, y;
     if (chart is SfCartesianChart) {
       if (_validIndex(pointIndex, seriesIndex, chart)) {
@@ -640,7 +707,7 @@ class TooltipBehavior {
         _chartState._circularArea
             ._showCircularTooltipTemplate(seriesIndex, pointIndex);
       } else if (chart.tooltipBehavior.builder == null &&
-          chartState._animationCompleted &&
+          chartState._animationCompleted == true &&
           pointIndex >= 0 &&
           (pointIndex + 1 <=
               _chartState._chartSeries.visibleSeriesRenderers[seriesIndex]
@@ -670,9 +737,10 @@ class TooltipBehavior {
         y = position?.dy;
         tooltipBehaviorRenderer._showTooltip(x, y);
       } else {
-        if (chart is SfFunnelChart && chartState._animationCompleted) {
+        if (chart is SfFunnelChart && chartState._animationCompleted == true) {
           _chartState._funnelplotArea._showFunnelTooltipTemplate(pointIndex);
-        } else if (chart is SfPyramidChart && chartState._animationCompleted) {
+        } else if (chart is SfPyramidChart &&
+            chartState._animationCompleted == true) {
           _chartState._chartPlotArea._showPyramidTooltipTemplate(pointIndex);
         }
       }
@@ -683,7 +751,7 @@ class TooltipBehavior {
   /// Hides the tooltip if it is displayed.
   void hide() {
     final TooltipBehaviorRenderer tooltipBehaviorRenderer =
-        _chartState._tooltipBehaviorRenderer;
+        _chartState._renderingDetails.tooltipBehaviorRenderer;
     // ignore: unnecessary_null_comparison
     if (tooltipBehaviorRenderer != null) {
       tooltipBehaviorRenderer._showLocation = null;
@@ -691,16 +759,13 @@ class TooltipBehavior {
     }
     if (builder != null) {
       // hides tooltip template
-      tooltipBehaviorRenderer._chartTooltipState?.widget.hide();
+      tooltipBehaviorRenderer._chartTooltipState?.hide(hideDelay: 0);
     } else {
       //hides default tooltip
       tooltipBehaviorRenderer._currentTooltipValue =
           tooltipBehaviorRenderer._prevTooltipValue = null;
 
-      tooltipBehaviorRenderer._chartTooltipState?.widget.hide();
-      if (tooltipBehaviorRenderer._renderBox != null) {
-        tooltipBehaviorRenderer._renderBox!.canResetPath = true;
-      }
+      tooltipBehaviorRenderer._chartTooltipState?.hide(hideDelay: 0);
     }
   }
 }
@@ -714,7 +779,8 @@ class TooltipBehaviorRenderer with ChartBehavior {
 
   final dynamic _chartState;
 
-  TooltipBehavior get _tooltipBehavior => _chart?.tooltipBehavior;
+  TooltipBehavior get _tooltipBehavior =>
+      _chart?.tooltipBehavior as TooltipBehavior;
 
   SfTooltip? _chartTooltip;
 
@@ -745,16 +811,15 @@ class TooltipBehaviorRenderer with ChartBehavior {
   TooltipValue? _currentTooltipValue;
 
   CartesianSeriesRenderer? _seriesRenderer;
-  dynamic? _currentSeries, _dataPoint;
+  dynamic _currentSeries, _dataPoint;
   int? _pointIndex;
   late int _seriesIndex;
   late Color _markerColor;
   late DataMarkerType _markerType;
-  Timer? _timer;
   bool _show = false;
   Offset? _showLocation;
   Rect? _tooltipBounds;
-  String? _stringVal;
+  String? _stringVal, _header;
   set _stringValue(String? value) {
     _stringVal = value;
   }
@@ -838,18 +903,12 @@ class TooltipBehaviorRenderer with ChartBehavior {
   void onExit(double xPos, double yPos) {
     if (_renderBox != null && _tooltipBehavior.builder != null) {
       _hideMouseTooltip();
-    } else if (_tooltipTemplate != null) {
-      //ignore: unused_local_variable
-      _timer?.cancel();
-      _timer = Timer(
-          Duration(milliseconds: _tooltipBehavior.duration.toInt()), () {});
     }
   }
 
   /// To render chart tooltip
   // ignore:unused_element
   void _renderTooltipView(Offset position) {
-    _chartTooltipState?.needMarker = _chart is SfCartesianChart;
     if (_chart is SfCartesianChart) {
       _renderCartesianChartTooltip(position);
     } else if (_chart is SfCircularChart) {
@@ -866,7 +925,7 @@ class TooltipBehaviorRenderer with ChartBehavior {
         _renderBox != null &&
         _chartTooltipState != null) {
       _show = true;
-      _chartTooltipState?.needMarker = true;
+      _mouseTooltip = false;
       _isHovering ? _showMouseTooltip(x, y) : _showTooltipView(x, y);
     }
   }
@@ -875,49 +934,78 @@ class TooltipBehaviorRenderer with ChartBehavior {
   void _showTooltipView(double x, double y) {
     if (_tooltipBehavior.enable &&
         _renderBox != null &&
-        _chartState._animationCompleted) {
-      _renderBox!.canResetPath = false;
+        _chartState._animationCompleted == true) {
       _renderTooltipView(Offset(x, y));
-      final bool needAnimate = !(_chart is SfCartesianChart) &&
-          (_currentTooltipValue?.pointIndex ==
-              _presentTooltipValue?.pointIndex) &&
-          _chartState._chartSeries.currentSeries.explode &&
-          !(_tooltipBehavior.tooltipPosition == TooltipPosition.pointer);
-      if ((_presentTooltipValue != null && _currentTooltipValue == null) ||
-          needAnimate) {
-        _renderBox!.stringValue = _stringVal;
-        _renderBox!.boundaryRect = _tooltipBounds!;
-        _chartTooltipState?.widget
-            .show(_showLocation, _tooltipBehavior.animationDuration);
-        _currentTooltipValue = _presentTooltipValue;
+      if (_presentTooltipValue != null &&
+          _tooltipBehavior.tooltipPosition != TooltipPosition.pointer) {
+        _chartTooltipState!.boundaryRect = _tooltipBounds!;
+        if (_showLocation != null) {
+          _chartTooltipState?.needMarker = _chart is SfCartesianChart;
+          _resolveLocation();
+          _chartTooltipState?.show(
+              tooltipHeader: _header,
+              tooltipContent: _stringVal,
+              tooltipData: _presentTooltipValue,
+              position: _showLocation,
+              duration: _tooltipBehavior.animationDuration);
+        }
       } else {
         if (_tooltipBehavior.tooltipPosition == TooltipPosition.pointer &&
-            (!(_chart is SfCartesianChart) || _currentSeries._isRectSeries)) {
-          _renderBox!.stringValue = _stringVal;
-          _renderBox!.boundaryRect = _tooltipBounds!;
-          _chartTooltipState?.widget
-              .show(_showLocation, _tooltipBehavior.animationDuration);
+            ((_chart is SfCartesianChart) == false ||
+                _currentSeries._isRectSeries == true)) {
+          _presentTooltipValue?.pointerPosition = _showLocation;
+          _chartTooltipState!.boundaryRect = _tooltipBounds!;
+          if (_showLocation != null) {
+            _chartTooltipState?.needMarker = _chart is SfCartesianChart;
+            _chartTooltipState?.show(
+                tooltipHeader: _header,
+                tooltipContent: _stringVal,
+                tooltipData: _presentTooltipValue,
+                position: _showLocation,
+                duration: _tooltipBehavior.animationDuration);
+          }
           _currentTooltipValue = _presentTooltipValue;
         }
       }
-      _timer?.cancel();
       assert(
           // ignore: unnecessary_null_comparison
-          _tooltipBehavior.duration != null
-              ? _tooltipBehavior.duration >= 0
-              : true,
+          !(_tooltipBehavior.duration != null) ||
+              _tooltipBehavior.duration >= 0,
           'The duration time for the tooltip must not be less than 0.');
       if (!_tooltipBehavior.shouldAlwaysShow) {
-        _timer = Timer(
-            Duration(milliseconds: _tooltipBehavior.duration.toInt()), () {
-          _show = false;
-          _currentTooltipValue = _presentTooltipValue = null;
-          if (_chartTooltipState?.widget != null && _renderBox != null) {
-            _chartTooltipState?.widget.hide();
-            _renderBox!.canResetPath = true;
-          }
-        });
+        _show = false;
+        _currentTooltipValue = _presentTooltipValue = null;
+        if (_chartTooltipState != null && _renderBox != null) {
+          _chartTooltipState?.hide(
+              hideDelay: _tooltipBehavior.duration.toInt());
+        }
       }
+    }
+  }
+
+  // this method resolves the position issue when the markerPoint is residing
+  // out of the axis cliprect
+  void _resolveLocation() {
+    if (_chart is SfCartesianChart &&
+        _tooltipBehavior.tooltipPosition == TooltipPosition.auto &&
+        (_seriesRenderer!._isRectSeries ||
+            _seriesRenderer!._seriesType.contains('bubble') ||
+            _seriesRenderer!._seriesType.contains('candle') ||
+            _seriesRenderer!._seriesType.contains('boxandwhisker') ||
+            _seriesRenderer!._seriesType.contains('waterfall'))) {
+      Offset position = _showLocation!;
+      final Rect bounds = _chartState._chartAxis._axisClipRect;
+      if (!_isPointWithInRect(position, bounds)) {
+        if (position.dy < bounds.top) {
+          position = Offset(position.dx, bounds.top);
+        }
+        if (position.dx < bounds.left) {
+          position = Offset(bounds.left, position.dy);
+        } else if (position.dx > bounds.right) {
+          position = Offset(bounds.right, position.dy);
+        }
+      }
+      _showLocation = position;
     }
   }
 
@@ -929,20 +1017,15 @@ class TooltipBehaviorRenderer with ChartBehavior {
     final ChartAxis xAxis = xAxisRenderer._axis, yAxis = yAxisRenderer._axis;
     if (_tooltipBehavior.enable &&
         _renderBox != null &&
-        _chartState._animationCompleted) {
-      _renderBox!.stringValue = _stringVal;
-      _renderBox!.boundaryRect = _tooltipBounds!;
-      _chartTooltipState?.widget
-          .show(_showLocation, _tooltipBehavior.animationDuration);
-      _renderBox!.canResetPath = false;
-      //render
+        _chartState._animationCompleted == true) {
       _tooltipBounds = _chartState._chartAxis._axisClipRect;
-      if (_chartState._chartAxis._axisClipRect.contains(position)) {
+      _chartTooltipState!.boundaryRect = _tooltipBounds!;
+      if (_isPointWithInRect(position, _chartState._chartAxis._axisClipRect)) {
         _currentSeries = _chartState._chartSeries.visibleSeriesRenderers[0];
         _currentSeries = _chartState._chartSeries.visibleSeriesRenderers[0];
         _renderBox!.normalPadding = 5;
         _renderBox!.inversePadding = 5;
-        _renderBox!.header = null;
+        _header = '';
         dynamic xValue = _pointToXValue(
             _chartState._requireInvertedAxis,
             xAxisRenderer,
@@ -969,41 +1052,50 @@ class TooltipBehaviorRenderer with ChartBehavior {
         } else if (xAxisRenderer is CategoryAxisRenderer) {
           xValue = xAxisRenderer._visibleLabels[xValue.toInt()].text;
         } else if (xAxisRenderer is NumericAxisRenderer) {
-          xValue = xValue.toStringAsFixed(2).contains('.00')
+          xValue = xValue.toStringAsFixed(2).contains('.00') == true
               ? xValue.floor()
               : xValue.toStringAsFixed(2);
         }
 
         if (yAxisRenderer is NumericAxisRenderer ||
             yAxisRenderer is LogarithmicAxisRenderer) {
-          yValue = yValue.toStringAsFixed(2).contains('.00')
+          yValue = yValue.toStringAsFixed(2).contains('.00') == true
               ? yValue.floor()
               : yValue.toStringAsFixed(2);
         }
         _stringValue = ' $xValue :  $yValue ';
         _showLocation = position;
       }
-      _timer?.cancel();
+
+      if (_showLocation != null &&
+          _stringVal != null &&
+          _tooltipBounds != null) {
+        _chartTooltipState?.needMarker = false;
+        _chartTooltipState?.show(
+            tooltipHeader: _header,
+            tooltipContent: _stringVal,
+            tooltipData: _presentTooltipValue,
+            position: _showLocation,
+            duration: _tooltipBehavior.animationDuration);
+      }
+
       if (!_tooltipBehavior.shouldAlwaysShow) {
-        _timer = Timer(
-            Duration(milliseconds: _tooltipBehavior.duration.toInt()), () {
-          _show = false;
-          if (_chartTooltipState?.widget != null && _renderBox != null) {
-            _chartTooltipState?.widget.hide();
-            _renderBox!.canResetPath = true;
-          }
-        });
+        _show = false;
+        if (_chartTooltipState != null && _renderBox != null) {
+          _chartTooltipState?.hide();
+        }
       }
     }
   }
 
   void _showTemplateTooltip(Offset position, [dynamic xValue, dynamic yValue]) {
     final dynamic chart = _chartState._chart;
+    _presentTooltipValue = null;
     _tooltipBounds = _chartState._chartAxis._axisClipRect;
     dynamic series;
     double yPadding = 0;
-    if (_chartState._chartAxis._axisClipRect.contains(position) &&
-        _chartState._animationCompleted) {
+    if (_isPointWithInRect(position, _chartState._chartAxis._axisClipRect) &&
+        _chartState._animationCompleted == true) {
       int? seriesIndex, pointIndex;
       int outlierIndex = -1;
       bool isTooltipRegion = false;
@@ -1021,7 +1113,7 @@ class TooltipBehaviorRenderer with ChartBehavior {
 
         int j = 0;
         if (seriesRenderer._visible! &&
-            series.enableTooltip &&
+            series.enableTooltip == true &&
             seriesRenderer._regionalData != null) {
           seriesRenderer._regionalData!
               .forEach((dynamic regionRect, dynamic values) {
@@ -1075,6 +1167,7 @@ class TooltipBehaviorRenderer with ChartBehavior {
               yPadding = paddingData[0]!.dy;
               tooltipPosition = paddingData[1] ?? tooltipPosition;
               _showLocation = tooltipPosition;
+              _seriesRenderer = seriesRenderer;
               _renderBox!.normalPadding =
                   _seriesRenderer is BubbleSeriesRenderer ? 0 : yPadding;
               _renderBox!.inversePadding = yPadding;
@@ -1097,7 +1190,7 @@ class TooltipBehaviorRenderer with ChartBehavior {
           pointIndex != presentTooltip.pointIndex ||
           outlierIndex != presentTooltip.outlierIndex ||
           (_currentSeries != null &&
-              _currentSeries._isRectSeries &&
+              _currentSeries._isRectSeries == true &&
               _tooltipBehavior.tooltipPosition != TooltipPosition.auto)) {
         //Current point is different than previous one so tooltip re-renders
         if (seriesIndex != null && pointIndex != null) {
@@ -1105,26 +1198,22 @@ class TooltipBehaviorRenderer with ChartBehavior {
               TooltipValue(seriesIndex, pointIndex!, outlierIndex);
         }
         if (isTooltipRegion && _tooltipTemplate != null) {
-          _timer?.cancel();
-          if (!_isHovering && _renderBox != null) {
-            _timer = Timer(
-                Duration(milliseconds: _tooltipBehavior.duration.toInt()),
-                _hideTooltipTemplate);
-          }
           _show = isTooltipRegion;
           _performTooltip();
+          if (!_isHovering && _renderBox != null) {
+            _hideTooltipTemplate();
+          }
         }
       } else {
         //Current point is same as previous one so timer is reset and tooltip is not re-rendered
         if (!_isHovering) {
-          _timer?.cancel();
-          _timer = Timer(
-              Duration(milliseconds: _tooltipBehavior.duration.toInt()),
-              _hideTooltipTemplate);
+          _hideTooltipTemplate();
         }
       }
 
-      if (!isTooltipRegion && !_isInteraction && chart.series.isNotEmpty) {
+      if (!isTooltipRegion &&
+          !_isInteraction &&
+          chart.series.isNotEmpty == true) {
         //to show tooltip temlate when the position resides outside point region
         final dynamic x = xValue ??
             _pointToXValue(
@@ -1158,7 +1247,7 @@ class TooltipBehaviorRenderer with ChartBehavior {
         _performTooltip();
       }
       if (!isTooltipRegion) {
-        _hideOnTimer();
+        _hideTooltipTemplate();
       }
     }
     _isInteraction = false;
@@ -1166,37 +1255,23 @@ class TooltipBehaviorRenderer with ChartBehavior {
 
   /// To hide the tooltip when the timer ends
   void _hide() {
-    _timer?.cancel();
-    _timer =
-        Timer(Duration(milliseconds: _tooltipBehavior.duration.toInt()), () {
+    if (!_tooltipBehavior.shouldAlwaysShow) {
       _show = false;
       _currentTooltipValue = _presentTooltipValue = null;
-      if (_chartTooltipState?.widget != null && _renderBox != null) {
-        _chartTooltipState?.widget.hide();
-        _renderBox!.canResetPath = true;
+      if (_chartTooltipState != null && _renderBox != null) {
+        _chartTooltipState?.hide(hideDelay: _tooltipBehavior.duration.toInt());
       }
-    });
-  }
-
-  /// To hide tooltip template with timer
-  void _hideOnTimer() {
-    if (_prevTooltipValue == null && _currentTooltipValue == null) {
-      _hideTooltipTemplate();
-    } else {
-      _timer?.cancel();
-      _timer = Timer(Duration(milliseconds: _tooltipBehavior.duration.toInt()),
-          _hideTooltipTemplate);
     }
   }
 
   /// To hide tooltip templates
   void _hideTooltipTemplate() {
-    _presentTooltipValue = null;
-    if (!(_tooltipBehavior.shouldAlwaysShow)) {
+    if (_tooltipBehavior.shouldAlwaysShow == false) {
       _show = false;
-      _chartTooltipState?.widget.hide();
+      _chartTooltipState?.hide(hideDelay: _tooltipBehavior.duration.toInt());
       _prevTooltipValue = null;
       _currentTooltipValue = null;
+      _presentTooltipValue = null;
     }
   }
 
@@ -1205,29 +1280,34 @@ class TooltipBehaviorRenderer with ChartBehavior {
     //for mouse hover the tooltip is redrawn only when the current tooltip value differs from the previous one
     if (_show &&
         ((_prevTooltipValue == null && _currentTooltipValue == null) ||
-            ((_chartState is SfCartesianChartState &&
-                (_currentSeries?._isRectSeries ?? false) &&
-                _tooltipBehavior.tooltipPosition != TooltipPosition.auto)) ||
+            (_chartState is SfCartesianChartState &&
+                (_currentSeries?._isRectSeries ?? false) == true &&
+                _tooltipBehavior.tooltipPosition != TooltipPosition.auto) ||
             (_prevTooltipValue?.seriesIndex !=
                     _currentTooltipValue?.seriesIndex ||
                 _prevTooltipValue?.outlierIndex !=
                     _currentTooltipValue?.outlierIndex ||
                 _prevTooltipValue?.pointIndex !=
                     _currentTooltipValue?.pointIndex))) {
-      final bool reRender = (_isHovering &&
+      final bool reRender = _isHovering &&
           _prevTooltipValue != null &&
           _currentTooltipValue != null &&
           _prevTooltipValue!.seriesIndex == _currentTooltipValue!.seriesIndex &&
           _prevTooltipValue!.pointIndex == _currentTooltipValue!.pointIndex &&
-          _prevTooltipValue!.outlierIndex ==
-              _currentTooltipValue!.outlierIndex);
+          _prevTooltipValue!.outlierIndex == _currentTooltipValue!.outlierIndex;
       if (_tooltipBehavior.builder != null && _tooltipBounds != null) {
-        _renderBox!.stringValue = _stringVal;
-        _renderBox!.boundaryRect = _tooltipBounds!;
-        _chartTooltipState?.widget.show(
-            _showLocation,
-            (!reRender) ? _tooltipBehavior.animationDuration.toInt() : 0,
-            _tooltipTemplate);
+        _chartTooltipState!.boundaryRect = _tooltipBounds!;
+        if (_tooltipBehavior.tooltipPosition != TooltipPosition.auto)
+          _presentTooltipValue!.pointerPosition = _showLocation;
+        if (_showLocation != null) {
+          _resolveLocation();
+          _chartTooltipState?.show(
+              tooltipData: _presentTooltipValue,
+              position: _showLocation,
+              duration:
+                  (!reRender) ? _tooltipBehavior.animationDuration.toInt() : 0,
+              template: _tooltipTemplate);
+        }
       }
     }
   }
@@ -1236,31 +1316,46 @@ class TooltipBehaviorRenderer with ChartBehavior {
   void _showMouseTooltip(double x, double y) {
     if (_tooltipBehavior.enable &&
         _renderBox != null &&
-        _chartState._animationCompleted) {
-      _renderBox!.canResetPath = false;
+        _chartState._animationCompleted == true) {
       _renderTooltipView(Offset(x, y));
-      _timer?.cancel();
       if (!_mouseTooltip) {
-        _hide();
+        _chartTooltipState?.hide(hideDelay: _tooltipBehavior.duration.toInt());
+        _currentTooltipValue = null;
       } else {
-        if (_presentTooltipValue != null && _currentTooltipValue == null) {
-          _renderBox!.stringValue = _stringVal;
-          _renderBox!.boundaryRect = _tooltipBounds!;
-          _chartTooltipState?.widget
-              .show(_showLocation, _tooltipBehavior.animationDuration);
+        if (_presentTooltipValue != null &&
+            (_currentTooltipValue == null ||
+                _tooltipBehavior.tooltipPosition == TooltipPosition.auto)) {
+          _chartTooltipState!.boundaryRect = _tooltipBounds!;
+          if (_tooltipBehavior.tooltipPosition != TooltipPosition.auto)
+            _presentTooltipValue!.pointerPosition = _showLocation;
+          if (_showLocation != null) {
+            _chartTooltipState?.needMarker = _chart is SfCartesianChart;
+            _resolveLocation();
+            _chartTooltipState?.show(
+                tooltipHeader: _header,
+                tooltipContent: _stringVal,
+                tooltipData: _presentTooltipValue,
+                position: _showLocation,
+                duration: _tooltipBehavior.animationDuration);
+          }
           _currentTooltipValue = _presentTooltipValue;
         } else if (_presentTooltipValue != null &&
             _currentTooltipValue != null &&
             _tooltipBehavior.tooltipPosition != TooltipPosition.auto &&
-            (!(_seriesRenderer is CartesianSeriesRenderer) ||
-                _seriesRenderer!._isRectSeries) &&
-            _currentTooltipValue!.seriesIndex ==
-                _presentTooltipValue!.seriesIndex &&
-            _currentTooltipValue!.pointIndex ==
-                _presentTooltipValue!.pointIndex) {
-          _renderBox!.stringValue = _stringVal;
-          _renderBox!.boundaryRect = _tooltipBounds!;
-          _chartTooltipState?.widget.show(_showLocation, 0);
+            ((_seriesRenderer is CartesianSeriesRenderer) == false ||
+                _seriesRenderer!._isRectSeries)) {
+          _presentTooltipValue!.pointerPosition = _showLocation;
+          _chartTooltipState!.boundaryRect = _tooltipBounds!;
+          if (_showLocation != null) {
+            _chartTooltipState?.needMarker = _chart is SfCartesianChart;
+            _resolveLocation();
+            _chartTooltipState?.show(
+                tooltipHeader: _header,
+                tooltipContent: _stringVal,
+                tooltipData: _presentTooltipValue,
+                position: _showLocation,
+                duration: 0);
+          }
         }
       }
     }
@@ -1278,11 +1373,12 @@ class TooltipBehaviorRenderer with ChartBehavior {
       final int seriesIndex = _chart is SfCartesianChart
           ? _currentSeries._segments[0]._seriesIndex
           : 0;
-      if ((_chart is SfCartesianChart && !_chartState._requireAxisTooltip) ||
-          !(_chart is SfCartesianChart)) {
+      if ((_chart is SfCartesianChart &&
+              _chartState._requireAxisTooltip == false) ||
+          (_chart is SfCartesianChart) == false) {
         if (_chart.onTooltipRender != null &&
             _dataPoint != null &&
-            !(_dataPoint.isTooltipRenderEvent ?? false)) {
+            (_dataPoint.isTooltipRenderEvent ?? false) == false) {
           _dataPoint.isTooltipRenderEvent = true;
           tooltipArgs = TooltipArgs(
               seriesIndex,
@@ -1334,13 +1430,14 @@ class TooltipBehaviorRenderer with ChartBehavior {
   /// To render a chart tooltip for circular series
   void _renderCircularChartTooltip(Offset position) {
     final SfCircularChart chart = _chartState._chart;
-    _tooltipBounds = _chartState._chartContainerRect;
+    _tooltipBounds = _chartState._renderingDetails.chartContainerRect;
     bool isContains = false;
     final _Region? pointRegion = _getCircularPointRegion(
         chart, position, _chartState._chartSeries.visibleSeriesRenderers[0]);
     if (pointRegion != null &&
         _chartState._chartSeries.visibleSeriesRenderers[pointRegion.seriesIndex]
-            ._series.enableTooltip) {
+                ._series.enableTooltip ==
+            true) {
       _prevTooltipValue =
           TooltipValue(pointRegion.seriesIndex, pointRegion.pointIndex);
       _presentTooltipValue = _prevTooltipValue;
@@ -1378,7 +1475,7 @@ class TooltipBehaviorRenderer with ChartBehavior {
                   .visibleSeriesRenderers[pointRegion.seriesIndex]._series.name
               : null
           : header;
-      _renderBox!.header = header ?? '';
+      _header = header ?? '';
       if (chart.tooltipBehavior.format != null) {
         final String resultantString = chart.tooltipBehavior.format!
             .replaceAll('point.x', chartPoint.x.toString())
@@ -1399,9 +1496,11 @@ class TooltipBehaviorRenderer with ChartBehavior {
             _getDecimalLabelValue(chartPoint.y, digits);
         _showLocation = location;
       }
+      if (chart.series[0].explode) {
+        _presentTooltipValue!.pointerPosition = _showLocation;
+      }
       isContains = true;
     } else {
-      chart.tooltipBehavior.hide();
       isContains = false;
     }
     _mouseTooltip = isContains;
@@ -1415,17 +1514,18 @@ class TooltipBehaviorRenderer with ChartBehavior {
     final dynamic chart = _chart;
     final dynamic chartState = _chartState;
 
-    _tooltipBounds = chartState._chartContainerRect;
+    _tooltipBounds = chartState._renderingDetails.chartContainerRect;
     bool isContains = false;
     const int seriesIndex = 0;
     _pointIndex = _chartState._tooltipPointIndex;
-    if (_pointIndex == null && _chartState._currentActive == null) {
+    if (_pointIndex == null &&
+        _chartState._renderingDetails.currentActive == null) {
       int? _pointIndex;
       bool isPoint;
       final dynamic seriesRenderer =
           chartState._chartSeries.visibleSeriesRenderers[seriesIndex];
       for (int j = 0; j < seriesRenderer._renderPoints.length; j++) {
-        if (seriesRenderer._renderPoints[j].isVisible) {
+        if (seriesRenderer._renderPoints[j].isVisible == true) {
           isPoint = _isPointInPolygon(
               seriesRenderer._renderPoints[j].pathRegion, position);
           if (isPoint) {
@@ -1434,19 +1534,19 @@ class TooltipBehaviorRenderer with ChartBehavior {
           }
         }
       }
-      chartState._currentActive = _ChartInteraction(
+      chartState._renderingDetails.currentActive = _ChartInteraction(
         seriesIndex,
         _pointIndex,
         seriesRenderer._series,
         seriesRenderer._renderPoints[_pointIndex],
       );
     }
-    _pointIndex ??= chartState._currentActive.pointIndex;
+    _pointIndex ??= chartState._renderingDetails.currentActive.pointIndex;
     _dataPoint = _chartState
         ._chartSeries.visibleSeriesRenderers[0]._dataPoints[_pointIndex];
     _chartState._tooltipPointIndex = null;
     final int digits = chart.tooltipBehavior.decimalPlaces;
-    if (chart.tooltipBehavior.enable) {
+    if (chart.tooltipBehavior.enable == true) {
       _prevTooltipValue = TooltipValue(seriesIndex, _pointIndex!);
       _presentTooltipValue = _prevTooltipValue;
       if (_prevTooltipValue != null &&
@@ -1459,11 +1559,13 @@ class TooltipBehaviorRenderer with ChartBehavior {
       final Offset location = chart.tooltipBehavior.tooltipPosition ==
                   TooltipPosition.pointer &&
               _chartState._chartSeries.visibleSeriesRenderers[seriesIndex]
-                  ._series.explode
+                      ._series.explode ==
+                  true
           ? chartPoint.symbolLocation
           : chart.tooltipBehavior.tooltipPosition == TooltipPosition.pointer &&
-                  !_chartState._chartSeries.visibleSeriesRenderers[seriesIndex]
-                      ._series.explode
+                  _chartState._chartSeries.visibleSeriesRenderers[seriesIndex]
+                          ._series.explode ==
+                      false
               ? position
               : chartPoint.symbolLocation;
       _currentSeries = seriesIndex;
@@ -1477,7 +1579,7 @@ class TooltipBehaviorRenderer with ChartBehavior {
                   ._chartSeries.visibleSeriesRenderers[seriesIndex]._series.name
               : null
           : header;
-      _renderBox!.header = header ?? '';
+      _header = header ?? '';
       if (chart.tooltipBehavior.format != null) {
         final String resultantString = chart.tooltipBehavior.format
             .replaceAll('point.x', chartPoint.x.toString())
@@ -1497,8 +1599,10 @@ class TooltipBehaviorRenderer with ChartBehavior {
       }
       isContains = true;
     } else {
-      chart.tooltipBehavior.hide();
       isContains = false;
+    }
+    if (chart.series.explode == true) {
+      _presentTooltipValue!.pointerPosition = _showLocation;
     }
     _mouseTooltip = isContains;
     if (!isContains) {
@@ -1508,42 +1612,33 @@ class TooltipBehaviorRenderer with ChartBehavior {
 
   /// To show the axis label tooltip for trimmed axes label texts.
   void _showAxisTooltip(Offset position, dynamic chart, String text) {
+    final _RenderingDetails renderingDetails = _chartState._renderingDetails;
     if (_renderBox != null) {
-      _chartTooltipState?.needMarker = false;
-      _renderBox!.canResetPath = false;
-      _renderBox!.header = '';
+      _header = '';
       _stringValue = text;
       _showLocation = position;
-      _tooltipBounds = _chartState._containerRect;
+      _tooltipBounds = renderingDetails.chartContainerRect;
       _renderBox!.inversePadding = 0;
-      if ((_prevTooltipValue != null) &&
-          (_prevTooltipValue!.pointIndex == _currentTooltipValue!.pointIndex)) {
-        _renderBox!.stringValue = _stringVal;
-        _renderBox!.boundaryRect = _tooltipBounds!;
-        _chartTooltipState?.widget.show(_showLocation, 0);
-      } else {
-        _renderBox!.stringValue = _stringVal;
-        _renderBox!.boundaryRect = _tooltipBounds!;
-        _chartTooltipState?.widget
-            .show(_showLocation, _tooltipBehavior.animationDuration);
-        _timer?.cancel();
+      _chartTooltipState!.boundaryRect = _tooltipBounds!;
+      if (_showLocation != null) {
+        _chartTooltipState?.needMarker = false;
+        _chartTooltipState?.show(
+            tooltipHeader: _header,
+            tooltipContent: _stringVal,
+            tooltipData: _currentTooltipValue,
+            position: _showLocation,
+            duration: 0);
       }
-      _timer =
-          Timer(Duration(milliseconds: _tooltipBehavior.duration.toInt()), () {
-        _show = false;
-        if (_chartTooltipState?.widget != null && _renderBox != null) {
-          _chartTooltipState?.widget.hide();
-          _renderBox!.canResetPath = true;
-        }
-      });
+      if (!_isHovering) {
+        _chartTooltipState?.hide(hideDelay: _tooltipBehavior.duration.toInt());
+      }
     }
   }
 
   /// To render a chart tooltip for cartesian series
   void _renderCartesianChartTooltip(Offset position) {
-    _tooltipBounds = _chartState._chartAxis._axisClipRect;
     bool isContains = false;
-    if (_chartState._chartAxis._axisClipRect.contains(position)) {
+    if (_isPointWithInRect(position, _chartState._chartAxis._axisClipRect)) {
       Offset? tooltipPosition;
       double touchPadding;
       Offset? padding;
@@ -1599,7 +1694,8 @@ class TooltipBehaviorRenderer with ChartBehavior {
             }
 
             if (paddedRegion.contains(position) &&
-                (isTrendLine! ? regionRect[4].isVisible : true)) {
+                (isTrendLine! ? regionRect[4].isVisible : true) == true) {
+              _tooltipBounds = _chartState._chartAxis._axisClipRect;
               if (_seriesRenderer!._seriesType != 'boxandwhisker'
                   ? !region.contains(position)
                   : (paddedRegion.contains(position) ||
@@ -1617,7 +1713,8 @@ class TooltipBehaviorRenderer with ChartBehavior {
               Color? seriesColor = _seriesRenderer!._seriesColor;
               if (_seriesRenderer!._seriesType == 'waterfall') {
                 seriesColor = _getWaterfallSeriesColor(
-                    _seriesRenderer!._series as WaterfallSeries,
+                    _seriesRenderer!._series
+                        as WaterfallSeries<dynamic, dynamic>,
                     _seriesRenderer!._dataPoints[_pointIndex!],
                     seriesColor)!;
               }
@@ -1664,16 +1761,50 @@ class TooltipBehaviorRenderer with ChartBehavior {
             count++;
           });
           if (_tooltipBehavior.shared) {
-            markerGradients.add(_seriesRenderer!._series.gradient);
-            markerImages.add(_seriesRenderer!._markerSettingsRenderer?._image);
-            markerTypes.add(_seriesRenderer!._series.markerSettings.shape);
+            int indexValue = 0;
+            int tooltipElementsLength = 0;
             final Paint markerPaint = Paint();
             markerPaint.color =
                 _seriesRenderer!._series.markerSettings.borderColor ??
                     _seriesRenderer!._seriesColor ??
                     _seriesRenderer!._series.color!
                         .withOpacity(_tooltipBehavior.opacity);
+            markerGradients.add(_seriesRenderer!._series.gradient);
+            markerImages.add(_seriesRenderer!._markerSettingsRenderer?._image);
+            markerTypes.add(_seriesRenderer!._series.markerSettings.shape);
             markerPaints.add(markerPaint);
+            if ((_seriesRenderer!._seriesType.contains('range') ||
+                    _seriesRenderer!._seriesType == 'hilo') &&
+                !isTrendLine!) {
+              // Assigned value '2' for this variable because for range and
+              // hilo series there will be two display value types
+              // such as high and low.
+              tooltipElementsLength = 2;
+              indexValue = _getTooltipNewLineLength(tooltipElementsLength);
+            } else if (_seriesRenderer!._seriesType == 'hiloopenclose' ||
+                _seriesRenderer!._seriesType == 'candle') {
+              // Assigned value '4' for this variable because for hiloopenclose
+              // and candle series there will be four display values
+              // such as high, low, open and close.
+              tooltipElementsLength = 4;
+              indexValue = _getTooltipNewLineLength(tooltipElementsLength);
+            } else if (_seriesRenderer!._seriesType == 'boxandwhisker') {
+              // Assigned value '1' or '6' this variable field because for the
+              // box and whiskers series there will be one display values if
+              // the outlier's tooltip is activated otherwise there will be
+              // six display values such as maximum, minimum, mean, median,
+              // lowerQuartile and upperQuartile.
+              tooltipElementsLength = outlierTooltip ? 1 : 6;
+              indexValue = _getTooltipNewLineLength(tooltipElementsLength);
+            } else {
+              indexValue = _getTooltipNewLineLength(tooltipElementsLength);
+            }
+            for (int j = 0; j < indexValue; j++) {
+              markerTypes.add(null);
+              markerImages.add(null);
+              markerGradients.add(null);
+              markerPaints.add(null);
+            }
           }
         }
       }
@@ -1683,20 +1814,7 @@ class TooltipBehaviorRenderer with ChartBehavior {
         _renderBox!.markerPaints = markerPaints;
         _renderBox!.markerTypes = markerTypes;
         _seriesRenderer = _currentSeries ?? _seriesRenderer;
-        if (_presentTooltipValue != null &&
-            _currentTooltipValue != null &&
-            (_presentTooltipValue!.pointIndex !=
-                    _currentTooltipValue!.pointIndex ||
-                _presentTooltipValue!.seriesIndex !=
-                    _currentTooltipValue!.seriesIndex)) {
-          _currentTooltipValue = null;
-        } else if (_seriesRenderer!._seriesType == 'boxandwhisker' &&
-            _currentTooltipValue != null &&
-            _presentTooltipValue!.outlierIndex !=
-                _currentTooltipValue!.outlierIndex) {
-          _currentTooltipValue = null;
-        }
-        if (_currentSeries._isRectSeries &&
+        if (_currentSeries._isRectSeries == true &&
             _tooltipBehavior.tooltipPosition == TooltipPosition.pointer) {
           tooltipPosition = position;
           _showLocation = tooltipPosition;
@@ -1713,7 +1831,7 @@ class TooltipBehaviorRenderer with ChartBehavior {
                     : _currentSeries._series.name ??
                         _currentSeries._seriesName))
             : header;
-        _renderBox!.header = header ?? '';
+        _header = header ?? '';
         _stringValue = '';
         if (_tooltipBehavior.shared) {
           _textValues = <String>[];
@@ -1755,7 +1873,6 @@ class TooltipBehaviorRenderer with ChartBehavior {
         _stringValue = null;
         if (!_isHovering) {
           _presentTooltipValue = _currentTooltipValue = null;
-          _tooltipBehavior.hide();
         } else {
           _mouseTooltip = isContains;
         }
@@ -1774,7 +1891,7 @@ class TooltipBehaviorRenderer with ChartBehavior {
     final bool isTrendLine = values[values.length - 1].contains('true');
     String resultantString;
     final ChartAxisRenderer axisRenderer = seriesRenderer._yAxisRenderer!;
-    final tooltip = _tooltipBehavior;
+    final TooltipBehavior tooltip = _tooltipBehavior;
     final int digits = seriesRenderer._chart.tooltipBehavior.decimalPlaces;
     String? minimumValue,
         maximumValue,
@@ -1803,17 +1920,17 @@ class TooltipBehaviorRenderer with ChartBehavior {
               point.outliers![outlierTooltipIndex], axisRenderer._axis, digits)
           : null;
       boxPlotString = '\nMinimum : ' +
-          minimumValue! +
+          minimumValue +
           '\nMaximum : ' +
-          maximumValue! +
+          maximumValue +
           '\nMedian : ' +
-          medianValue! +
+          medianValue +
           '\nMean : ' +
-          meanValue! +
+          meanValue +
           '\nLQ : ' +
-          lowerQuartileValue! +
+          lowerQuartileValue +
           '\nHQ : ' +
-          upperQuartileValue!;
+          upperQuartileValue;
     } else if (seriesRenderer._seriesType.contains('range') ||
         seriesRenderer._seriesType == 'hilo' ||
         seriesRenderer._seriesType == 'hiloopenclose' ||
@@ -1837,7 +1954,7 @@ class TooltipBehaviorRenderer with ChartBehavior {
               .replaceAll('point.x', values[0])
               .replaceAll('point.high', highValue!)
               .replaceAll('point.low', lowValue!)
-              .replaceAll('seriesRenderer._series.name',
+              .replaceAll('series.name',
                   seriesRenderer._series.name ?? seriesRenderer._seriesName!))
           : (seriesRenderer._seriesType.contains('hiloopenclose') ||
                       seriesRenderer._seriesType.contains('candle')) &&
@@ -1849,7 +1966,7 @@ class TooltipBehaviorRenderer with ChartBehavior {
                   .replaceAll('point.open', openValue!)
                   .replaceAll('point.close', closeValue!)
                   .replaceAll(
-                      'seriesRenderer._series.name',
+                      'series.name',
                       seriesRenderer._series.name ??
                           seriesRenderer._seriesName!))
               : (seriesRenderer._seriesType.contains('boxandwhisker')) &&
@@ -1862,7 +1979,7 @@ class TooltipBehaviorRenderer with ChartBehavior {
                       .replaceAll('point.upperQuartile', upperQuartileValue!)
                       .replaceAll('point.mean', meanValue!)
                       .replaceAll('point.median', medianValue!)
-                      .replaceAll('seriesRenderer._series.name',
+                      .replaceAll('series.name',
                           seriesRenderer._series.name ?? seriesRenderer._seriesName!))
                   : seriesRenderer._seriesType.contains('stacked')
                       ? tooltip.format!.replaceAll('point.cumulativeValue', cumulativeValue!)
@@ -1896,6 +2013,27 @@ class TooltipBehaviorRenderer with ChartBehavior {
     }
     return resultantString;
   }
+
+  // Returns the cumulative length of the number of new line character '\n'
+  // available in series name and tooltip format string.
+  int _getTooltipNewLineLength(int value) {
+    value += _seriesRenderer!._series.name != null
+        ? '\n'.allMatches(_seriesRenderer!._series.name!).length
+        : 0;
+    if (_tooltipBehavior.format != null) {
+      value += '\n'.allMatches(_tooltipBehavior.format!).length;
+    }
+    return value;
+  }
+
+  //finds whether the point resides inside the given rect including its edges
+  bool _isPointWithInRect(Offset point, Rect rect) {
+    return point != null &&
+        point.dx >= rect.left &&
+        point.dx <= rect.right &&
+        point.dy <= rect.bottom &&
+        point.dy >= rect.top;
+  }
 }
 
 /// Holds the tooltip series and point index
@@ -1913,4 +2051,20 @@ class TooltipValue {
 
   ///Index of outlier points.
   final int? outlierIndex;
+
+  ///Position of the pointer when the tooltip position mode is set as pointer
+  Offset? pointerPosition;
+
+  @override
+  //ignore: hash_and_equals
+  bool operator ==(Object other) {
+    if (other is TooltipValue) {
+      return seriesIndex == other.seriesIndex &&
+          pointIndex == other.pointIndex &&
+          outlierIndex == other.outlierIndex &&
+          (pointerPosition == null || pointerPosition == other.pointerPosition);
+    } else {
+      return false;
+    }
+  }
 }

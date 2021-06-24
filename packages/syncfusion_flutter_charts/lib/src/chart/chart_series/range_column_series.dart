@@ -10,6 +10,9 @@ part of charts;
 ///
 /// * [highValueMapper] - Field in the data source, which is considered as high value for the data points.
 /// * [lowValueMapper] - Field in the data source, which is considered as low value for the data points.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=uSsKhlRzC2Q}
+@immutable
 class RangeColumnSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of RangeColumnSeries class.
   RangeColumnSeries(
@@ -46,8 +49,6 @@ class RangeColumnSeries<T, D> extends XyDataSeries<T, D> {
       Color? borderColor,
       List<Trendline>? trendlines,
       double? borderWidth,
-      // ignore: deprecated_member_use_from_same_package
-      SelectionSettings? selectionSettings,
       SelectionBehavior? selectionBehavior,
       bool? isVisibleInLegend,
       LegendIconType? legendIconType,
@@ -55,6 +56,9 @@ class RangeColumnSeries<T, D> extends XyDataSeries<T, D> {
       double? opacity,
       List<double>? dashArray,
       SeriesRendererCreatedCallback? onRendererCreated,
+      ChartPointInteractionCallback? onPointTap,
+      ChartPointInteractionCallback? onPointDoubleTap,
+      ChartPointInteractionCallback? onPointLongPress,
       List<int>? initialSelectedDataIndexes})
       : super(
             key: key,
@@ -82,7 +86,6 @@ class RangeColumnSeries<T, D> extends XyDataSeries<T, D> {
             animationDuration: animationDuration,
             borderColor: borderColor,
             borderWidth: borderWidth,
-            selectionSettings: selectionSettings,
             selectionBehavior: selectionBehavior,
             legendItemText: legendItemText,
             isVisibleInLegend: isVisibleInLegend,
@@ -91,6 +94,9 @@ class RangeColumnSeries<T, D> extends XyDataSeries<T, D> {
             opacity: opacity,
             dashArray: dashArray,
             onRendererCreated: onRendererCreated,
+            onPointTap: onPointTap,
+            onPointDoubleTap: onPointDoubleTap,
+            onPointLongPress: onPointLongPress,
             initialSelectedDataIndexes: initialSelectedDataIndexes);
 
   ///Color of the track.
@@ -247,6 +253,111 @@ class RangeColumnSeries<T, D> extends XyDataSeries<T, D> {
     }
     return RangeColumnSeriesRenderer();
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is RangeColumnSeries &&
+        other.key == key &&
+        other.onCreateRenderer == onCreateRenderer &&
+        other.dataSource == dataSource &&
+        other.xValueMapper == xValueMapper &&
+        other.highValueMapper == highValueMapper &&
+        other.lowValueMapper == lowValueMapper &&
+        other.sortFieldValueMapper == sortFieldValueMapper &&
+        other.pointColorMapper == pointColorMapper &&
+        other.dataLabelMapper == dataLabelMapper &&
+        other.sortingOrder == sortingOrder &&
+        other.xAxisName == xAxisName &&
+        other.yAxisName == yAxisName &&
+        other.name == name &&
+        other.color == color &&
+        other.markerSettings == markerSettings &&
+        other.emptyPointSettings == emptyPointSettings &&
+        other.dataLabelSettings == dataLabelSettings &&
+        other.trendlines == trendlines &&
+        other.isVisible == isVisible &&
+        other.enableTooltip == enableTooltip &&
+        other.dashArray == dashArray &&
+        other.animationDuration == animationDuration &&
+        other.borderColor == borderColor &&
+        other.borderWidth == borderWidth &&
+        other.gradient == gradient &&
+        other.borderGradient == borderGradient &&
+        other.selectionBehavior == selectionBehavior &&
+        other.isVisibleInLegend == isVisibleInLegend &&
+        other.legendIconType == legendIconType &&
+        other.legendItemText == legendItemText &&
+        other.opacity == opacity &&
+        other.trackColor == trackColor &&
+        other.trackBorderColor == trackBorderColor &&
+        other.trackBorderWidth == trackBorderWidth &&
+        other.trackPadding == trackPadding &&
+        other.spacing == spacing &&
+        other.borderRadius == borderRadius &&
+        other.isTrackVisible == isTrackVisible &&
+        other.onRendererCreated == onRendererCreated &&
+        other.onPointTap == onPointTap &&
+        other.onPointDoubleTap == onPointDoubleTap &&
+        other.onPointLongPress == onPointLongPress &&
+        other.initialSelectedDataIndexes == initialSelectedDataIndexes;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      key,
+      onCreateRenderer,
+      dataSource,
+      xValueMapper,
+      highValueMapper,
+      lowValueMapper,
+      sortFieldValueMapper,
+      pointColorMapper,
+      dataLabelMapper,
+      sortingOrder,
+      xAxisName,
+      yAxisName,
+      name,
+      color,
+      markerSettings,
+      emptyPointSettings,
+      dataLabelSettings,
+      trendlines,
+      isVisible,
+      enableTooltip,
+      dashArray,
+      animationDuration,
+      borderColor,
+      borderWidth,
+      gradient,
+      borderGradient,
+      selectionBehavior,
+      isVisibleInLegend,
+      legendIconType,
+      legendItemText,
+      opacity,
+      trackColor,
+      trackBorderColor,
+      trackBorderWidth,
+      trackPadding,
+      spacing,
+      borderRadius,
+      isTrackVisible,
+      onRendererCreated,
+      initialSelectedDataIndexes,
+      onPointTap,
+      onPointDoubleTap,
+      onPointLongPress
+    ];
+    return hashList(values);
+  }
 }
 
 /// Creates series renderer for Range column series
@@ -268,7 +379,7 @@ class RangeColumnSeriesRenderer extends XyDataSeriesRenderer {
     final List<CartesianSeriesRenderer>? oldSeriesRenderers =
         _chartState!._oldSeriesRenderers;
     final RangeColumnSeries<dynamic, dynamic> _rangeColumnSeries =
-        _series as RangeColumnSeries;
+        _series as RangeColumnSeries<dynamic, dynamic>;
     final BorderRadius borderRadius = _rangeColumnSeries.borderRadius;
     segment._seriesIndex = seriesIndex;
     segment.currentSegmentIndex = pointIndex;
@@ -282,9 +393,9 @@ class RangeColumnSeriesRenderer extends XyDataSeriesRenderer {
     segment._chartState = _chartState!;
     segment.animationFactor = animateFactor;
     segment._currentPoint = currentPoint;
-    if (_chartState!._widgetNeedUpdate &&
+    if (_renderingDetails!.widgetNeedUpdate &&
         _chartState!._zoomPanBehaviorRenderer._isPinching != true &&
-        !_chartState!._isLegendToggled &&
+        !_renderingDetails!.isLegendToggled &&
         oldSeriesRenderers != null &&
         oldSeriesRenderers.isNotEmpty &&
         oldSeriesRenderers.length - 1 >= segment._seriesIndex &&
@@ -297,7 +408,16 @@ class RangeColumnSeriesRenderer extends XyDataSeriesRenderer {
           ? segment._oldSeriesRenderer!._dataPoints[pointIndex]
           : null;
       segment._oldSegmentIndex = _getOldSegmentIndex(segment);
-    } else if (_chartState!._isLegendToggled &&
+      if ((_chartState!._selectedSegments.length - 1 >= pointIndex) &&
+          _chartState?._selectedSegments[pointIndex]._oldSegmentIndex == null) {
+        final ChartSegment selectedSegment =
+            _chartState?._selectedSegments[pointIndex] as ChartSegment;
+        selectedSegment._oldSeriesRenderer =
+            oldSeriesRenderers[selectedSegment._seriesIndex];
+        selectedSegment._seriesRenderer = this;
+        selectedSegment._oldSegmentIndex = _getOldSegmentIndex(selectedSegment);
+      }
+    } else if (_renderingDetails!.isLegendToggled &&
         // ignore: unnecessary_null_comparison
         _chartState!._segments != null &&
         _chartState!._segments.isNotEmpty) {

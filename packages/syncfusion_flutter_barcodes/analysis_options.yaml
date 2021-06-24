@@ -5,3 +5,4 @@ analyzer:
     include_file_not_found: ignore
     lines_longer_than_80_chars: ignore
     avoid_as: false
+    use_raw_strings: ignore

@@ -11,7 +11,9 @@ class ChartTextArea {
       _chart = (_parent as ChartCategoryAxis)._chart;
     } else if (_parent is ChartValueAxis) {
       _chart = (_parent as ChartValueAxis)._chart;
-    } else if (_parent is ChartSerie) _chart = (_parent as ChartSerie)._chart;
+    } else if (_parent is ChartSerie) {
+      _chart = (_parent as ChartSerie)._chart;
+    }
     _createFont();
   }
 

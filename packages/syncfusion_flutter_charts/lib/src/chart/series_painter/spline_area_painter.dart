@@ -26,10 +26,13 @@ class _SplineAreaChartPainter extends CustomPainter {
     _ChartLocation? currentPoint, originPoint, oldPointLocation;
     final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
     final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer!;
+    final _RenderingDetails renderingDetails = chartState._renderingDetails;
     Rect clipRect;
     final SplineAreaSeries<dynamic, dynamic> series =
-        seriesRenderer._series as SplineAreaSeries;
-    seriesRenderer._drawControlPoints.clear();
+        seriesRenderer._series as SplineAreaSeries<dynamic, dynamic>;
+    if (!seriesRenderer._hasDataLabelTemplate) {
+      seriesRenderer._drawControlPoints.clear();
+    }
     final Path _path = Path();
     final Path _strokePath = Path();
     final List<Offset> _points = <Offset>[];
@@ -39,10 +42,8 @@ class _SplineAreaChartPainter extends CustomPainter {
     if (seriesRenderer._visible!) {
       assert(
           // ignore: unnecessary_null_comparison
-          series.animationDuration != null
-              ? series.animationDuration >= 0
-              : true,
-          'The animation duration of the spline area series must be greater or equal to 0.');
+          !(series.animationDuration != null) || series.animationDuration >= 0,
+          'The animation duration of the fast line series must be greater or equal to 0.');
       final List<CartesianSeriesRenderer> oldSeriesRenderers =
           chartState._oldSeriesRenderers;
       final List<CartesianChartPoint<dynamic>> dataPoints =
@@ -65,7 +66,8 @@ class _SplineAreaChartPainter extends CustomPainter {
           chartState, seriesRenderer, seriesIndex, oldSeriesRenderers);
 
       if (seriesRenderer._reAnimate ||
-          ((!(chartState._widgetNeedUpdate || chartState._isLegendToggled) ||
+          ((!(renderingDetails.widgetNeedUpdate ||
+                      renderingDetails.isLegendToggled) ||
                   !chartState._oldSeriesKeys.contains(series.key)) &&
               series.animationDuration > 0)) {
         _performLinearAnimation(
@@ -118,19 +120,16 @@ class _SplineAreaChartPainter extends CustomPainter {
           startControlX = startControlY = endControlX = endControlY = null;
           _points.add(Offset(currentPoint.x, currentPoint.y));
           final bool closed =
-              series.emptyPointSettings.mode == EmptyPointMode.drop
-                  ? _getSeriesVisibility(dataPoints, pointIndex)
-                  : false;
+              series.emptyPointSettings.mode == EmptyPointMode.drop &&
+                  _getSeriesVisibility(dataPoints, pointIndex);
 
           //calculates animation values for control points and data points
           if (oldPointLocation != null) {
-            if (isTransposed) {
-              x = _getAnimateValue(animationFactor, x, oldPointLocation.x,
-                  currentPoint.x, seriesRenderer);
-            } else {
-              y = _getAnimateValue(animationFactor, y, oldPointLocation.y,
-                  currentPoint.y, seriesRenderer);
-            }
+            isTransposed
+                ? x = _getAnimateValue(animationFactor, x, oldPointLocation.x,
+                    currentPoint.x, seriesRenderer)
+                : y = _getAnimateValue(animationFactor, y, oldPointLocation.y,
+                    currentPoint.y, seriesRenderer);
             if (point.startControl != null) {
               startControlY = _getAnimateValue(
                   animationFactor,
@@ -242,7 +241,7 @@ class _SplineAreaChartPainter extends CustomPainter {
               xAxisRenderer._axis.plotOffset, yAxisRenderer._axis.plotOffset));
       canvas.restore();
       if ((series.animationDuration <= 0 ||
-              !chartState._initialRender! ||
+              !renderingDetails.initialRender! ||
               animationFactor >= chartState._seriesDurationFactor) &&
           (series.markerSettings.isVisible ||
               series.dataLabelSettings.isVisible)) {

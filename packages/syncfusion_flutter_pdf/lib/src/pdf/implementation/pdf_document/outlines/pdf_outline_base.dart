@@ -107,8 +107,8 @@ class PdfBookmarkBase implements _IPdfWrapper {
   bool get _isExpanded {
     if (_dictionary!.containsKey('Count')) {
       final _PdfNumber number =
-          _dictionary![_DictionaryProperties.count] as _PdfNumber;
-      return number.value! < 0 ? false : true;
+          _dictionary![_DictionaryProperties.count]! as _PdfNumber;
+      return !(number.value! < 0);
     } else {
       return _expanded;
     }
@@ -374,8 +374,7 @@ class PdfBookmarkBase implements _IPdfWrapper {
 }
 
 class _CurrentNodeInfo {
-  _CurrentNodeInfo(List<PdfBookmarkBase?> kids, [int? index]) {
-    this.kids = kids;
+  _CurrentNodeInfo(this.kids, [int? index]) {
     this.index = index ?? 0;
   }
   //Fields

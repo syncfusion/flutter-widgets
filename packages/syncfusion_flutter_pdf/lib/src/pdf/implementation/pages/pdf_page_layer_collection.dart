@@ -129,7 +129,7 @@ class PdfPageLayerCollection extends PdfObjectCollection {
     final bool decompress = _page._isLoadedPage;
     List<int>? combinedData;
     final List<int> end = <int>[13, 10];
-    if (_page._isLoadedPage && (_page._contents.count != count + 2)) {
+    if (_page._isLoadedPage) {
       combinedData = _combineProcess(_page, decompress, end, skipSave);
     }
     return combinedData;
@@ -152,9 +152,7 @@ class PdfPageLayerCollection extends PdfObjectCollection {
       if (layerStream != null) {
         if (decompress) {
           final bool isChanged =
-              layerStream._isChanged != null && layerStream._isChanged!
-                  ? true
-                  : false;
+              layerStream._isChanged != null && layerStream._isChanged!;
           layerStream._decompress();
           layerStream._isChanged = isChanged || !isTextExtraction;
         }
@@ -198,7 +196,7 @@ class PdfPageLayerCollection extends PdfObjectCollection {
             _PdfArray? off = _PdfCrossTable._dereference(
                 defaultView[_DictionaryProperties.ocgOff]) as _PdfArray?;
             final _PdfArray? usage = _PdfCrossTable._dereference(
-                    (defaultView[_DictionaryProperties.usageApplication]))
+                    defaultView[_DictionaryProperties.usageApplication])
                 as _PdfArray?;
 
             if (_on == null) {
@@ -362,9 +360,9 @@ class PdfPageLayerCollection extends PdfObjectCollection {
               as _PdfArray?;
       if (visible != null && layerDictionary.isNotEmpty) {
         for (int i = 0; i < visible.count; i++) {
-          if (layerDictionary.containsKey(visible[i] as _PdfReferenceHolder)) {
+          if (layerDictionary.containsKey(visible[i]! as _PdfReferenceHolder)) {
             final PdfPageLayer? pdfLayer =
-                layerDictionary[visible[i] as _PdfReferenceHolder];
+                layerDictionary[visible[i]! as _PdfReferenceHolder];
             if (pdfLayer != null) {
               pdfLayer._visible = false;
               if (pdfLayer._dictionary != null &&
@@ -406,11 +404,9 @@ class PdfPageLayerCollection extends PdfObjectCollection {
       ArgumentError.value(
           '$index Value can not be less 0 and greater List.Count - 1');
     }
-    final PdfPageLayer? layer = this[index];
-    if (layer != null) {
-      _removeLayer(layer);
-      _list.removeAt(index);
-    }
+    final PdfPageLayer layer = this[index];
+    _removeLayer(layer);
+    _list.removeAt(index);
   }
 
   /// Clears layers from the [PdfPageLayerCollection].
@@ -436,15 +432,13 @@ class PdfPageLayerCollection extends PdfObjectCollection {
         properties.remove(layer._layerID);
       }
     }
-    final PdfPage? page = _page;
-    if (page != null) {
-      if (page._document != null &&
-          page._document!._catalog
-              .containsKey(_DictionaryProperties.ocProperties)) {
-        ocProperties = _PdfCrossTable._dereference(
-                page._document!._catalog[_DictionaryProperties.ocProperties])
-            as _PdfDictionary?;
-      }
+    final PdfPage page = _page;
+    if (page._document != null &&
+        page._document!._catalog
+            .containsKey(_DictionaryProperties.ocProperties)) {
+      ocProperties = _PdfCrossTable._dereference(
+              page._document!._catalog[_DictionaryProperties.ocProperties])
+          as _PdfDictionary?;
     }
     if (ocProperties != null) {
       final _PdfArray? ocGroup =
@@ -463,8 +457,7 @@ class PdfPageLayerCollection extends PdfObjectCollection {
         final _PdfArray? off = _PdfCrossTable._dereference(
             defaultView[_DictionaryProperties.ocgOff]) as _PdfArray?;
         final _PdfArray? usage = _PdfCrossTable._dereference(
-                (defaultView[_DictionaryProperties.usageApplication]))
-            as _PdfArray?;
+            defaultView[_DictionaryProperties.usageApplication]) as _PdfArray?;
 
         if (usage != null && usage.count > 0) {
           for (int i = 0; i < usage.count; i++) {
@@ -540,7 +533,7 @@ class PdfPageLayerCollection extends PdfObjectCollection {
         }
       }
       final _PdfStream pageContent =
-          _PdfCrossTable._dereference(_page._contents[m]) as _PdfStream;
+          _PdfCrossTable._dereference(_page._contents[m])! as _PdfStream;
       final _PdfStream data = _PdfStream();
       if (_page._isLoadedPage) {
         pageContent._decompress();

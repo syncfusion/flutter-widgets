@@ -8,7 +8,7 @@ class _StackedColumn100ChartPainter extends CustomPainter {
     required this.animationController,
     required this.painterKey,
     required ValueNotifier<num> notifier,
-  })   : chart = chartState._chart,
+  })  : chart = chartState._chart,
         super(repaint: notifier);
   final SfCartesianChartState chartState;
   final SfCartesianChart chart;

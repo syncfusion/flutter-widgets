@@ -1,7 +1,10 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
+import 'package:syncfusion_flutter_pdfviewer/src/common/pdfviewer_helper.dart';
 
 /// Width of the back icon in the bookmark.
 const double _kPdfBackIconWidth = 24.0;
@@ -42,7 +45,7 @@ const double _kPdfExpandIconRightPosition = 16.0;
 /// A material design bookmark.
 class BookmarkItem extends StatefulWidget {
   /// Creates a material design bookmark.
-  BookmarkItem(
+  const BookmarkItem(
       {this.title = '',
       this.height = 48,
       required this.onNavigate,
@@ -136,8 +139,8 @@ class _BookmarkItemState extends State<BookmarkItem> {
 
   void _handleTapDown(TapDownDetails details) {
     setState(() {
-      if (kIsWeb && !widget.isMobileWebView) {
-        _color = Color(0xFF000000).withOpacity(0.08);
+      if (kIsDesktop && !widget.isMobileWebView) {
+        _color = const Color(0xFF000000).withOpacity(0.08);
       } else {
         _color = _pdfViewerThemeData!.bookmarkViewStyle.selectionColor!;
       }
@@ -174,7 +177,7 @@ class _BookmarkItemState extends State<BookmarkItem> {
                   ),
                 ),
               )
-            : BoxDecoration(),
+            : const BoxDecoration(),
         child: Stack(
           children: <Widget>[
             Visibility(
@@ -226,15 +229,15 @@ class _BookmarkItemState extends State<BookmarkItem> {
         ),
       ),
     );
-    if (kIsWeb && !widget.isMobileWebView) {
+    if ((kIsWeb || Platform.isMacOS) && !widget.isMobileWebView) {
       return MouseRegion(
         cursor: SystemMouseCursors.click,
-        onEnter: (details) {
+        onEnter: (PointerEnterEvent details) {
           setState(() {
-            _color = Color(0xFF000000).withOpacity(0.04);
+            _color = const Color(0xFF000000).withOpacity(0.04);
           });
         },
-        onExit: (details) {
+        onExit: (PointerExitEvent details) {
           setState(() {
             _color = _pdfViewerThemeData!.bookmarkViewStyle.backgroundColor!;
           });

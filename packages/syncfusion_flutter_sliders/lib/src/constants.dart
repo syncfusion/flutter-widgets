@@ -2,6 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+// ignore_for_file: public_member_api_docs
+
 const double minPaddleTopCircleRadius = 16;
 // Difference between paddle top circle and neck radius
 const double neckDifference = 3.0;

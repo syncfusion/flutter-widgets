@@ -40,9 +40,9 @@ class PdfButtonField extends PdfField {
   String get text => _isLoadedField ? _obtainText() : _text;
   set text(String value) {
     if (_isLoadedField) {
-      final bool readOnly = ((1 & (_flagValues ?? 65536)) != 0);
+      final bool readOnly = 1 & (_flagValues ?? 65536) != 0;
       if (!readOnly) {
-        this.form!._setAppearanceDictionary = true;
+        form!._setAppearanceDictionary = true;
         _assignText(value);
       }
     } else {
@@ -100,7 +100,7 @@ class PdfButtonField extends PdfField {
     if (_isLoadedField && _actions == null) {
       if (_dictionary.containsKey(_DictionaryProperties.aa)) {
         final _PdfDictionary actionDict =
-            _crossTable!._getObject(_dictionary[_DictionaryProperties.aa])
+            _crossTable!._getObject(_dictionary[_DictionaryProperties.aa])!
                 as _PdfDictionary;
         _actions = PdfFieldActions._loaded(actionDict);
         _widget!.actions = _actions!._annotationActions;
@@ -122,7 +122,7 @@ class PdfButtonField extends PdfField {
   void _initValues(String? txt, PdfFieldActions? action) {
     _format!.alignment = PdfTextAlignment.center;
     _widget!.textAlignment = PdfTextAlignment.center;
-    text = txt != null ? txt : name!;
+    text = txt ?? name!;
     if (action != null) {
       _actions = action;
       _widget!.actions = action._annotationActions;
@@ -154,20 +154,20 @@ class PdfButtonField extends PdfField {
           ._getObject(_dictionary[_DictionaryProperties.kids]) as _PdfArray?;
       if (kidsArray != null) {
         final _PdfReferenceHolder buttonObject =
-            kidsArray[0] as _PdfReferenceHolder;
+            kidsArray[0]! as _PdfReferenceHolder;
         final _PdfDictionary buttonDictionary =
-            buttonObject._object as _PdfDictionary;
+            buttonObject._object! as _PdfDictionary;
         buttonDictionary.setProperty(_DictionaryProperties.a, actionDictionary);
       } else {
         _dictionary.setProperty(_DictionaryProperties.a, actionDictionary);
       }
     } else {
       final _PdfArray kidsArray =
-          _dictionary[_DictionaryProperties.kids] as _PdfArray;
+          _dictionary[_DictionaryProperties.kids]! as _PdfArray;
       final _PdfReferenceHolder buttonObject =
-          kidsArray[0] as _PdfReferenceHolder;
+          kidsArray[0]! as _PdfReferenceHolder;
       final _PdfDictionary buttonDictionary =
-          buttonObject._object as _PdfDictionary;
+          buttonObject._object! as _PdfDictionary;
       buttonDictionary.setProperty(_DictionaryProperties.a, actionDictionary);
     }
   }
@@ -177,14 +177,14 @@ class PdfButtonField extends PdfField {
     super._save();
     if (page != null &&
         page!.formFieldsTabOrder == PdfFormFieldsTabOrder.manual &&
-        !(page!._isLoadedPage)) {
+        !page!._isLoadedPage) {
       final PdfPage? page = this.page;
       final PdfField textField = this;
       if (textField._widget != null) {
         page!.annotations.remove(textField._widget!);
         page.annotations._annotations
-            ._insert(this.tabIndex, _PdfReferenceHolder(textField._widget));
-        page.annotations._list.insert(this.tabIndex, textField._widget!);
+            ._insert(tabIndex, _PdfReferenceHolder(textField._widget));
+        page.annotations._list.insert(tabIndex, textField._widget!);
       }
     }
     if (form != null && !form!._needAppearances!) {
@@ -251,21 +251,19 @@ class PdfButtonField extends PdfField {
     String? str;
     if (widget.containsKey(_DictionaryProperties.mk)) {
       final _PdfDictionary appearance = _crossTable!
-          ._getObject(widget[_DictionaryProperties.mk]) as _PdfDictionary;
+          ._getObject(widget[_DictionaryProperties.mk])! as _PdfDictionary;
       if (appearance.containsKey(_DictionaryProperties.ca)) {
         final _PdfString text = _crossTable!
-            ._getObject(appearance[_DictionaryProperties.ca]) as _PdfString;
+            ._getObject(appearance[_DictionaryProperties.ca])! as _PdfString;
         str = text.value;
       }
     }
     if (str == null) {
       _PdfString? val = _crossTable!
           ._getObject(_dictionary[_DictionaryProperties.v]) as _PdfString?;
-      if (val == null) {
-        val = PdfField._getValue(
-                _dictionary, _crossTable, _DictionaryProperties.v, true)
-            as _PdfString?;
-      }
+      val ??= PdfField._getValue(
+              _dictionary, _crossTable, _DictionaryProperties.v, true)
+          as _PdfString?;
       if (val != null) {
         str = val.value;
       } else {
@@ -281,7 +279,7 @@ class PdfButtonField extends PdfField {
         _getWidgetAnnotation(_dictionary, _crossTable);
     if (widget.containsKey(_DictionaryProperties.mk)) {
       final _PdfDictionary appearance = _crossTable!
-          ._getObject(widget[_DictionaryProperties.mk]) as _PdfDictionary;
+          ._getObject(widget[_DictionaryProperties.mk])! as _PdfDictionary;
       appearance._setString(_DictionaryProperties.ca, text);
       widget.setProperty(
           _DictionaryProperties.mk, _PdfReferenceHolder(appearance));
@@ -301,7 +299,7 @@ class PdfButtonField extends PdfField {
   void _beginSave() {
     super._beginSave();
     final _PdfArray? kids = _obtainKids();
-    if ((kids != null)) {
+    if (kids != null) {
       for (int i = 0; i < kids.count; ++i) {
         final _PdfDictionary? widget =
             _crossTable!._getObject(kids[i]) as _PdfDictionary?;
@@ -310,16 +308,17 @@ class PdfButtonField extends PdfField {
     }
   }
 
+  @override
   void _draw() {
     super._draw();
     if (_isLoadedField) {
       final _PdfArray? kids = _obtainKids();
       if ((kids != null) && (kids.count > 1)) {
         for (int i = 0; i < kids.count; ++i) {
-          if (this.page != null) {
+          if (page != null) {
             final _PdfDictionary? widget =
                 _crossTable!._getObject(kids[i]) as _PdfDictionary?;
-            _drawButton(this.page!.graphics, this, widget);
+            _drawButton(page!.graphics, this, widget);
           }
         }
       } else {
@@ -333,9 +332,7 @@ class PdfButtonField extends PdfField {
         Rect rect = bounds;
         rect = Rect.fromLTWH(0, 0, bounds.width, bounds.height);
         PdfFont? font = _font;
-        if (font == null) {
-          font = PdfStandardFont(PdfFontFamily.helvetica, 8);
-        }
+        font ??= PdfStandardFont(PdfFontFamily.helvetica, 8);
         final _PaintParams params = _PaintParams(
             bounds: rect,
             backBrush: _backBrush,
@@ -354,15 +351,6 @@ class PdfButtonField extends PdfField {
             brush: params._foreBrush, bounds: bounds, format: _stringFormat);
       }
     }
-  }
-
-  _PdfArray? _obtainKids() {
-    _PdfArray? kids;
-    if (_dictionary.containsKey(_DictionaryProperties.kids)) {
-      kids = _crossTable!._getObject(_dictionary[_DictionaryProperties.kids])
-          as _PdfArray?;
-    }
-    return kids;
   }
 
   void _applyAppearance(_PdfDictionary? widget, PdfButtonField? item) {
@@ -444,14 +432,11 @@ class PdfButtonField extends PdfField {
         borderWidth: gp._borderWidth,
         shadowBrush: gp._shadowBrush,
         rotationAngle: 0);
-    if (this._dictionary.containsKey(_DictionaryProperties.ap) &&
+    if (_dictionary.containsKey(_DictionaryProperties.ap) &&
         !(graphics!._layer != null &&
             graphics._page!._rotation != PdfPageRotateAngle.rotateAngle0)) {
-      _IPdfPrimitive? buttonAppearance =
-          this._dictionary[_DictionaryProperties.ap];
-      if (buttonAppearance == null) {
-        buttonAppearance = widget![_DictionaryProperties.ap];
-      }
+      _IPdfPrimitive? buttonAppearance = _dictionary[_DictionaryProperties.ap];
+      buttonAppearance ??= widget![_DictionaryProperties.ap];
       _PdfDictionary? buttonResource =
           _PdfCrossTable._dereference(buttonAppearance) as _PdfDictionary?;
       if (buttonResource != null) {
@@ -467,15 +452,13 @@ class PdfButtonField extends PdfField {
           }
         }
       }
-    } else if (this._dictionary.containsKey(_DictionaryProperties.kids) &&
+    } else if (_dictionary.containsKey(_DictionaryProperties.kids) &&
         item != null &&
         !(graphics!._layer != null &&
             graphics._page!._rotation != PdfPageRotateAngle.rotateAngle0)) {
       _IPdfPrimitive? buttonAppearance =
           item._dictionary[_DictionaryProperties.ap];
-      if (buttonAppearance == null) {
-        buttonAppearance = widget![_DictionaryProperties.ap];
-      }
+      buttonAppearance ??= widget![_DictionaryProperties.ap];
       _PdfDictionary? buttonResource =
           _PdfCrossTable._dereference(buttonAppearance) as _PdfDictionary?;
       if (buttonResource != null) {

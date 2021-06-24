@@ -2,7 +2,7 @@ part of xlsio;
 
 /// Represent stack class.
 class Stack {
-  final Queue _queue = Queue();
+  final Queue<dynamic> _queue = Queue<dynamic>();
 
   /// Represent the count.
   int get _count {
@@ -10,7 +10,7 @@ class Stack {
   }
 
   /// Represent the pop.
-  Object _pop() {
+  dynamic _pop() {
     return _queue.removeFirst();
   }
 

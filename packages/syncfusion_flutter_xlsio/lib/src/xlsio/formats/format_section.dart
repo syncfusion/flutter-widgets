@@ -3,16 +3,15 @@ part of xlsio;
 /// Class used for Format Section.
 class _FormatSection {
   /// Initializes a new instance of the FormatSection class based on array of tokens.
-  _FormatSection(
-      Workbook workbook, var parent, List<_FormatTokenBase> arrTokens) {
+  _FormatSection(Workbook workbook, List<_FormatTokenBase> arrTokens) {
     _workbook = workbook;
     _arrTokens = arrTokens;
     _prepareFormat();
   }
 
   /// Table for token type detection. Value in TokenType arrays must be sorted.
-  final _defultPossibleTokens = [
-    [
+  final List<dynamic> _defultPossibleTokens = <dynamic>[
+    <_TokenType>[
       _TokenType.unknown,
       _TokenType.string,
       _TokenType.reservedPlace,
@@ -20,9 +19,9 @@ class _FormatSection {
       _TokenType.color
     ],
     ExcelFormatType.unknown,
-    [_TokenType.general, _TokenType.culture],
+    <_TokenType>[_TokenType.general, _TokenType.culture],
     ExcelFormatType.general,
-    [
+    <_TokenType>[
       _TokenType.unknown,
       _TokenType.string,
       _TokenType.reservedPlace,
@@ -34,7 +33,7 @@ class _FormatSection {
       _TokenType.culture,
     ],
     ExcelFormatType.text,
-    [
+    <_TokenType>[
       _TokenType.unknown,
       _TokenType.string,
       _TokenType.reservedPlace,
@@ -54,7 +53,7 @@ class _FormatSection {
       _TokenType.dollar,
     ],
     ExcelFormatType.number,
-    [
+    <_TokenType>[
       _TokenType.unknown,
       _TokenType.day,
       _TokenType.string,
@@ -75,7 +74,7 @@ class _FormatSection {
       _TokenType.dollar,
     ],
     ExcelFormatType.number,
-    [
+    <_TokenType>[
       _TokenType.unknown,
       _TokenType.hour,
       _TokenType.hour24,
@@ -102,10 +101,10 @@ class _FormatSection {
   ];
 
   /// Break tokens when locating hour token.
-  final _defultBreakHour = [_TokenType.minute];
+  final List<_TokenType> _defultBreakHour = <_TokenType>[_TokenType.minute];
 
   /// Break tokens when locating second token.
-  final _defultBreakSecond = [
+  final List<_TokenType> _defultBreakSecond = <_TokenType>[
     _TokenType.minute,
     _TokenType.hour,
     _TokenType.day,
@@ -114,15 +113,15 @@ class _FormatSection {
   ];
 
   /// Return this value when element wasn't found.
-  final _defultNotFoundIndex = -1;
+  final int _defultNotFoundIndex = -1;
 
   /// Possible digit tokens in the millisecond token.
-  final _defultMilliSecondTokens = [
+  final List<dynamic> _defultMilliSecondTokens = <dynamic>[
     _TokenType.significantDigit,
   ];
 
   /// Maximum month token length.
-  final _defultMonthTokenLength = 5;
+  final int _defultMonthTokenLength = 5;
 
   /// Array of tokens.
   late List<_FormatTokenBase> _arrTokens;
@@ -149,7 +148,7 @@ class _FormatSection {
   ExcelFormatType _formatType = ExcelFormatType.unknown;
 
   /// Indicates whether we digits must be grouped.
-  final _bGroupDigits = false;
+  final bool _bGroupDigits = false;
 
   /// Indicates whether more than one decimal point was met in the format string.
   bool _bMultiplePoints = false;
@@ -176,7 +175,9 @@ class _FormatSection {
 
   /// Prepares format if necessary.
   void _prepareFormat() {
-    if (_bFormatPrepared) return;
+    if (_bFormatPrepared) {
+      return;
+    }
 
     _preparePositions();
 
@@ -202,7 +203,9 @@ class _FormatSection {
       switch (token._tokenType) {
         case _TokenType.amPm:
           final _HourToken? hour = _findCorrespondingHourSection(i);
-          if (hour != null) hour._isAmPm = true;
+          if (hour != null) {
+            hour._isAmPm = true;
+          }
           break;
 
         case _TokenType.minute:
@@ -249,7 +252,9 @@ class _FormatSection {
 
     do {
       i--;
-      if (i < 0) i += _count;
+      if (i < 0) {
+        i += _count;
+      }
 
       final _FormatTokenBase token = _arrTokens[i];
 
@@ -273,7 +278,9 @@ class _FormatSection {
     }
     bool bAddNegative = value < 0;
 
-    if (value == 0) bAddNegative &= dFractionValue > 0;
+    if (value == 0) {
+      bAddNegative &= dFractionValue > 0;
+    }
     String strResult;
     strResult = _applyFormatNumber(value, bShowReservedSymbols, 0, _iIntegerEnd,
         false, _bGroupDigits, bAddNegative);
@@ -289,7 +296,9 @@ class _FormatSection {
   /// Assigns position to the variable and checks if it wasn't assigned
   ///  before (throws ForamtException if it was).
   int _assignPosition(int iToAssign, int iCurrentPos) {
-    if (iToAssign >= 0) throw FormatException();
+    if (iToAssign >= 0) {
+      throw const FormatException();
+    }
 
     iToAssign = iCurrentPos;
     return iToAssign;
@@ -304,7 +313,7 @@ class _FormatSection {
       bool bForward,
       bool bGroupDigits,
       bool bAddNegativeSign) {
-    final List<String> builder = [];
+    final List<String> builder = <String>[];
     final int iDelta = bForward ? 1 : -1;
     final int iStart = bForward ? iStartToken : iEndToken;
     final int iEnd = bForward ? iEndToken : iStartToken;
@@ -371,7 +380,7 @@ class _FormatSection {
       final List<_TokenType> arrPossibleTokens =
           _defultPossibleTokens[i] as List<_TokenType>;
       final ExcelFormatType formatType =
-          (_defultPossibleTokens[i + 1]) as ExcelFormatType;
+          _defultPossibleTokens[i + 1] as ExcelFormatType;
 
       if (formatType == ExcelFormatType.number && _bMultiplePoints) {
         continue;
@@ -387,13 +396,17 @@ class _FormatSection {
   /// Checks whether section contains only specified token types.
   bool _checkTokenTypes(List<_TokenType> arrPossibleTokens) {
     final int iCount = _count;
-    if (iCount == 0 && arrPossibleTokens.isEmpty) return true;
+    if (iCount == 0 && arrPossibleTokens.isEmpty) {
+      return true;
+    }
 
     final int len = iCount;
     for (int i = 0; i < len; i++) {
       final _FormatTokenBase token = _arrTokens[i];
 
-      if (!_containsIn(arrPossibleTokens, token._tokenType)) return false;
+      if (!_containsIn(arrPossibleTokens, token._tokenType)) {
+        return false;
+      }
     }
 
     return true;
@@ -406,13 +419,15 @@ class _FormatSection {
     // section before it or second section after it.
     final _FormatTokenBase token = _arrTokens[iTokenIndex];
 
-    if (token._tokenType != _TokenType.minute) throw ('Wrong token type.');
+    if (token._tokenType != _TokenType.minute) {
+      throw 'Wrong token type.';
+    }
 
     final bool bMinute = (_findTimeToken(iTokenIndex - 1, _defultBreakHour,
-                false, [_TokenType.hour, _TokenType.hour24]) !=
+                false, <_TokenType>[_TokenType.hour, _TokenType.hour24]) !=
             -1) ||
         (_findTimeToken(iTokenIndex + 1, _defultBreakSecond, true,
-                [_TokenType.second, _TokenType.secondTotal]) !=
+                <_TokenType>[_TokenType.second, _TokenType.secondTotal]) !=
             -1);
 
     if (!bMinute) {
@@ -432,11 +447,13 @@ class _FormatSection {
       final _FormatTokenBase token = _arrTokens[iTokenIndex];
       final _TokenType tokenType = token._tokenType;
 
-      // ignore: prefer_contains
-      if (arrBreakTypes.indexOf(tokenType) != -1) break;
+      if (arrBreakTypes.contains(tokenType)) {
+        break;
+      }
 
-      // ignore: prefer_contains
-      if (arrTypes.indexOf(tokenType) != -1) return iTokenIndex;
+      if (arrTypes.contains(tokenType)) {
+        return iTokenIndex;
+      }
 
       iTokenIndex += iDelta;
     }
@@ -478,7 +495,9 @@ class _FormatSection {
       }
     }
 
-    if (bRound) return;
+    if (bRound) {
+      return;
+    }
 
     for (int i = 0; i < iCount; i++) {
       final _FormatTokenBase token = _arrTokens[i];
@@ -500,33 +519,39 @@ class _FormatSection {
 
       if (_TokenType.values.indexOf(curToken) >=
           _TokenType.values.indexOf(token)) {
-        if (iLastIndex == iMiddleIndex.floor()) break;
+        if (iLastIndex == iMiddleIndex.floor()) {
+          break;
+        }
 
         iLastIndex = iMiddleIndex.floor();
       } else if (_TokenType.values.indexOf(curToken) <
           _TokenType.values.indexOf(token)) {
-        if (iFirstIndex == iMiddleIndex.floor()) break;
+        if (iFirstIndex == iMiddleIndex.floor()) {
+          break;
+        }
 
         iFirstIndex = iMiddleIndex.floor();
       }
     }
 
-    return (arrPossibleTokens[iFirstIndex] == token ||
-        arrPossibleTokens[iLastIndex] == token);
+    return arrPossibleTokens[iFirstIndex] == token ||
+        arrPossibleTokens[iLastIndex] == token;
   }
 
   /// Rounds value.
   static double _round(double value) {
     final bool bLargerThanZero = value >= 0;
     double dIntPart =
-        (bLargerThanZero) ? value.floor().toDouble() : value.ceil().toDouble();
+        bLargerThanZero ? value.floor().toDouble() : value.ceil().toDouble();
 
     final int iSign = value.sign.toInt();
 
     final double dFloatPart =
-        (bLargerThanZero) ? value - dIntPart : dIntPart - value;
+        bLargerThanZero ? value - dIntPart : dIntPart - value;
 
-    if (dFloatPart >= 0.49999999999999995) dIntPart += iSign;
+    if (dFloatPart >= 0.49999999999999995) {
+      dIntPart += iSign;
+    }
 
     return dIntPart;
   }

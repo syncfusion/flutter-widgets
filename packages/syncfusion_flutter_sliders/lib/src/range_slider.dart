@@ -1,17 +1,19 @@
-import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
-import 'package:intl/intl.dart' show DateFormat, NumberFormat;
-import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+// ignore: unused_import
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart' show DateFormat, NumberFormat;
 import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import 'common.dart';
 import 'constants.dart';
-import 'render_slider_base.dart';
+import 'range_slider_base.dart';
 import 'slider_shapes.dart';
 
 /// A Material Design range slider.
@@ -32,7 +34,7 @@ import 'slider_shapes.dart';
 /// left thumb, and the right thumb and the [max] value.
 /// For RTL, the inactive side of the range slider is between
 /// the [max] value and the left thumb, and the right thumb and the [min] value.
-/// * The "divisors", which is a shape that renders on the track based on
+/// * The "dividers", which is a shape that renders on the track based on
 /// the given [interval] value.
 /// * The "ticks", which is a shape that rendered based on
 /// given [interval] value.
@@ -125,7 +127,7 @@ class SfRangeSlider extends StatefulWidget {
       this.minorTicksPerInterval = 0,
       this.showTicks = false,
       this.showLabels = false,
-      this.showDivisors = false,
+      this.showDividers = false,
       this.enableTooltip = false,
       this.enableIntervalSelection = false,
       this.inactiveColor,
@@ -138,7 +140,7 @@ class SfRangeSlider extends StatefulWidget {
       this.tooltipTextFormatterCallback,
       this.semanticFormatterCallback,
       this.trackShape = const SfTrackShape(),
-      this.divisorShape = const SfDivisorShape(),
+      this.dividerShape = const SfDividerShape(),
       this.overlayShape = const SfOverlayShape(),
       this.thumbShape = const SfThumbShape(),
       this.tickShape = const SfTickShape(),
@@ -148,8 +150,6 @@ class SfRangeSlider extends StatefulWidget {
       this.endThumbIcon})
       : _sliderType = SliderType.horizontal,
         _tooltipPosition = null,
-        assert(min != null),
-        assert(max != null),
         assert(min != max),
         assert(interval == null || interval > 0),
         super(key: key);
@@ -206,7 +206,7 @@ class SfRangeSlider extends StatefulWidget {
       this.minorTicksPerInterval = 0,
       this.showTicks = false,
       this.showLabels = false,
-      this.showDivisors = false,
+      this.showDividers = false,
       this.enableTooltip = false,
       this.enableIntervalSelection = false,
       this.inactiveColor,
@@ -219,7 +219,7 @@ class SfRangeSlider extends StatefulWidget {
       this.tooltipTextFormatterCallback,
       this.semanticFormatterCallback,
       this.trackShape = const SfTrackShape(),
-      this.divisorShape = const SfDivisorShape(),
+      this.dividerShape = const SfDividerShape(),
       this.overlayShape = const SfOverlayShape(),
       this.thumbShape = const SfThumbShape(),
       this.tickShape = const SfTickShape(),
@@ -231,8 +231,6 @@ class SfRangeSlider extends StatefulWidget {
       : _sliderType = SliderType.vertical,
         _tooltipPosition = tooltipPosition,
         assert(tooltipShape is! SfPaddleTooltipShape),
-        assert(min != null),
-        assert(max != null),
         assert(min != max),
         assert(interval == null || interval > 0),
         super(key: key);
@@ -262,7 +260,7 @@ class SfRangeSlider extends StatefulWidget {
   /// For date values, the range slider doesn’t have auto interval support.
   /// So, you may need to set [interval], [dateIntervalType], and
   /// [dateFormat] for date values,
-  /// if the labels, ticks, and divisors are needed.
+  /// if the labels, ticks, and dividers are needed.
   ///
   /// This snippet shows how to create a numeric [SfRangeSlider].
   ///
@@ -338,22 +336,22 @@ class SfRangeSlider extends StatefulWidget {
   final ValueChanged<SfRangeValues>? onChanged;
 
   /// Splits the range slider into given interval.
-  /// It is mandatory if labels, major ticks and divisors are needed.
+  /// It is mandatory if labels, major ticks and dividers are needed.
   ///
   /// For example, if [min] is 0.0 and [max] is 10.0 and [interval] is 2.0,
   /// the range slider will render the labels, major ticks,
-  /// and divisors at 0.0, 2.0, 4.0 and so on.
+  /// and dividers at 0.0, 2.0, 4.0 and so on.
   ///
   /// For date values, the range slider doesn’t have auto interval support.
   /// So, you may need to set [interval], [dateIntervalType],
   /// and [dateFormat] for date values, if labels, ticks, and
-  /// divisors are needed.
+  /// dividers are needed.
   ///
   /// For example, if [min] is DateTime(2000, 01, 01, 00) and
   /// [max] is DateTime(2005, 12, 31, 24), [interval] is 1.0,
   /// [dateFormat] is DateFormat.y(), and
   /// [dateIntervalType] is DateIntervalType.years, then the range slider will
-  /// render the labels, major ticks, and divisors at 2000, 2001, 2002 and
+  /// render the labels, major ticks, and dividers at 2000, 2001, 2002 and
   /// so on.
   ///
   /// Defaults to `null`. Must be greater than 0.
@@ -403,7 +401,7 @@ class SfRangeSlider extends StatefulWidget {
   ///
   /// See also:
   ///
-  /// * [showDivisors], to render divisors at given interval.
+  /// * [showDividers], to render dividers at given interval.
   /// * [showTicks], to render major ticks at given interval.
   /// * [showLabels], to render labels at given interval.
   final double? interval;
@@ -581,17 +579,17 @@ class SfRangeSlider extends StatefulWidget {
   /// * [SfRangeSliderThemeData](https://pub.dev/documentation/syncfusion_flutter_core/latest/theme/SfRangeSliderThemeData-class.html), for customizing the appearance of the labels.
   final bool showLabels;
 
-  /// Option to render the divisors on the track.
+  /// Option to render the dividers on the track.
   ///
   /// It is a shape which is used to represent the
   /// major interval points of the track.
   ///
   /// For example, if [min] is 0.0 and [max] is 10.0 and [interval] is 2.0,
-  /// the range slider will render the divisors at 0.0, 2.0, 4.0 and so on.
+  /// the range slider will render the dividers at 0.0, 2.0, 4.0 and so on.
   ///
   /// Defaults to `false`.
   ///
-  /// This snippet shows how to show divisors in [SfRangeSlider].
+  /// This snippet shows how to show dividers in [SfRangeSlider].
   ///
   /// ```dart
   /// SfRangeValues _values = SfRangeValues(4.0, 8.0);
@@ -601,7 +599,7 @@ class SfRangeSlider extends StatefulWidget {
   ///   max: 10.0,
   ///   values: _values,
   ///   interval: 2,
-  ///   showDivisors: true,
+  ///   showDividers: true,
   ///   onChanged: (SfRangeValues newValues) {
   ///     setState(() {
   ///       _values = newValues;
@@ -614,9 +612,9 @@ class SfRangeSlider extends StatefulWidget {
   ///
   /// * [showTicks], to render major ticks at given interval.
   /// * [showLabels], to render labels at given interval.
-  /// * [divisorShape] and [SfRangeSliderThemeData](https://pub.dev/documentation/syncfusion_flutter_core/latest/theme/SfRangeSliderThemeData-class.html) for customizing
-  /// the divisor’s visual appearance.
-  final bool showDivisors;
+  /// * [dividerShape] and [SfRangeSliderThemeData](https://pub.dev/documentation/syncfusion_flutter_core/latest/theme/SfRangeSliderThemeData-class.html) for customizing
+  /// the divider’s visual appearance.
+  final bool showDividers;
 
   /// Option to enable tooltips for both the thumbs.
   ///
@@ -686,7 +684,7 @@ class SfRangeSlider extends StatefulWidget {
   /// ```
   final bool enableIntervalSelection;
 
-  /// Color applied to the inactive track and active divisors.
+  /// Color applied to the inactive track and active dividers.
   ///
   /// The inactive side of the range slider is between the [min] value and
   /// the left thumb, and the right thumb and the [max] value.
@@ -722,7 +720,7 @@ class SfRangeSlider extends StatefulWidget {
   /// inactive range slider element’s visual.
   final Color? inactiveColor;
 
-  /// Color applied to the active track, thumb, overlay, and inactive divisors.
+  /// Color applied to the active track, thumb, overlay, and inactive dividers.
   ///
   /// The active side of the range slider is between the start and end thumbs.
   ///
@@ -815,7 +813,7 @@ class SfRangeSlider extends StatefulWidget {
   /// For date values, the range slider doesn’t have auto interval support.
   /// So, you may need to set [interval], [dateIntervalType],
   /// and [dateFormat] for date values, if labels, ticks, and
-  /// divisors are needed.
+  /// dividers are needed.
   ///
   /// Defaults to `null`.
   ///
@@ -857,7 +855,7 @@ class SfRangeSlider extends StatefulWidget {
   /// For date values, the range slider doesn’t have auto interval support.
   /// So, you may need to set [interval], [dateIntervalType],
   /// and [dateFormat] for date values, if labels, ticks, and
-  /// divisors are needed.
+  /// dividers are needed.
   ///
   /// Defaults to `null`.
   ///
@@ -982,8 +980,8 @@ class SfRangeSlider extends StatefulWidget {
   /// Base class for [SfRangeSlider] track shapes.
   final SfTrackShape trackShape;
 
-  /// Base class for [SfRangeSlider] divisors shapes.
-  final SfDivisorShape divisorShape;
+  /// Base class for [SfRangeSlider] dividers shapes.
+  final SfDividerShape dividerShape;
 
   /// Base class for [SfRangeSlider] overlay shapes.
   final SfOverlayShape overlayShape;
@@ -1132,10 +1130,10 @@ class SfRangeSlider extends StatefulWidget {
         ifTrue: 'Labels are showing',
         ifFalse: 'Labels are not showing',
         showName: false));
-    properties.add(FlagProperty('showDivisors',
-        value: showDivisors,
-        ifTrue: 'Divisors are  showing',
-        ifFalse: 'Divisors are not showing',
+    properties.add(FlagProperty('showDividers',
+        value: showDividers,
+        ifTrue: 'Dividers are  showing',
+        ifFalse: 'Dividers are not showing',
         showName: false));
     properties.add(FlagProperty('enableTooltip',
         value: enableTooltip,
@@ -1181,7 +1179,6 @@ class _SfRangeSliderState extends State<SfRangeSlider>
   late AnimationController tooltipAnimationEndController;
   late RangeController rangeController;
   final Duration duration = const Duration(milliseconds: 100);
-  Timer? tooltipDelayTimer;
 
   void _onChanged(SfRangeValues values) {
     if (values != widget.values) {
@@ -1249,17 +1246,17 @@ class _SfRangeSliderState extends State<SfRangeSlider>
       overlayColor: widget.activeColor?.withOpacity(0.12) ??
           rangeSliderThemeData.overlayColor ??
           themeData.primaryColor.withOpacity(0.12),
-      inactiveDivisorColor: widget.activeColor ??
-          rangeSliderThemeData.inactiveDivisorColor ??
+      inactiveDividerColor: widget.activeColor ??
+          rangeSliderThemeData.inactiveDividerColor ??
           themeData.colorScheme.primary.withOpacity(0.54),
-      activeDivisorColor: widget.inactiveColor ??
-          rangeSliderThemeData.activeDivisorColor ??
+      activeDividerColor: widget.inactiveColor ??
+          rangeSliderThemeData.activeDividerColor ??
           themeData.colorScheme.onPrimary.withOpacity(0.54),
-      disabledInactiveDivisorColor:
-          rangeSliderThemeData.disabledInactiveDivisorColor ??
+      disabledInactiveDividerColor:
+          rangeSliderThemeData.disabledInactiveDividerColor ??
               themeData.colorScheme.onSurface.withOpacity(0.12),
-      disabledActiveDivisorColor:
-          rangeSliderThemeData.disabledActiveDivisorColor ??
+      disabledActiveDividerColor:
+          rangeSliderThemeData.disabledActiveDividerColor ??
               themeData.colorScheme.onPrimary.withOpacity(0.12),
       disabledActiveTrackColor: rangeSliderThemeData.disabledActiveTrackColor ??
           themeData.colorScheme.onSurface.withOpacity(0.32),
@@ -1277,9 +1274,9 @@ class _SfRangeSliderState extends State<SfRangeSlider>
       overlappingThumbStrokeColor:
           rangeSliderThemeData.overlappingThumbStrokeColor ??
               themeData.colorScheme.surface,
-      activeDivisorStrokeColor: rangeSliderThemeData.activeDivisorStrokeColor,
-      inactiveDivisorStrokeColor:
-          rangeSliderThemeData.inactiveDivisorStrokeColor,
+      activeDividerStrokeColor: rangeSliderThemeData.activeDividerStrokeColor,
+      inactiveDividerStrokeColor:
+          rangeSliderThemeData.inactiveDividerStrokeColor,
       overlappingTooltipStrokeColor:
           rangeSliderThemeData.overlappingTooltipStrokeColor ??
               themeData.colorScheme.surface,
@@ -1287,14 +1284,14 @@ class _SfRangeSliderState extends State<SfRangeSlider>
           rangeSliderThemeData.trackCornerRadius ?? maxTrackHeight / 2,
       thumbRadius: rangeSliderThemeData.thumbRadius,
       overlayRadius: rangeSliderThemeData.overlayRadius,
-      activeDivisorRadius:
-          rangeSliderThemeData.activeDivisorRadius ?? minTrackHeight / 4,
-      inactiveDivisorRadius:
-          rangeSliderThemeData.inactiveDivisorRadius ?? minTrackHeight / 4,
+      activeDividerRadius:
+          rangeSliderThemeData.activeDividerRadius ?? minTrackHeight / 4,
+      inactiveDividerRadius:
+          rangeSliderThemeData.inactiveDividerRadius ?? minTrackHeight / 4,
       thumbStrokeWidth: rangeSliderThemeData.thumbStrokeWidth,
-      activeDivisorStrokeWidth: rangeSliderThemeData.activeDivisorStrokeWidth,
-      inactiveDivisorStrokeWidth:
-          rangeSliderThemeData.inactiveDivisorStrokeWidth,
+      activeDividerStrokeWidth: rangeSliderThemeData.activeDividerStrokeWidth,
+      inactiveDividerStrokeWidth:
+          rangeSliderThemeData.inactiveDividerStrokeWidth,
     );
 
     if (widget._sliderType == SliderType.vertical) {
@@ -1320,7 +1317,6 @@ class _SfRangeSliderState extends State<SfRangeSlider>
 
   @override
   void initState() {
-    super.initState();
     overlayStartController =
         AnimationController(vsync: this, duration: duration);
     overlayEndController = AnimationController(vsync: this, duration: duration);
@@ -1335,6 +1331,7 @@ class _SfRangeSliderState extends State<SfRangeSlider>
         AnimationController(vsync: this, duration: duration);
     stateController.value =
         widget.onChanged != null && (widget.min != widget.max) ? 1.0 : 0.0;
+    super.initState();
   }
 
   @override
@@ -1367,7 +1364,7 @@ class _SfRangeSliderState extends State<SfRangeSlider>
       minorTicksPerInterval: widget.minorTicksPerInterval,
       showTicks: widget.showTicks,
       showLabels: widget.showLabels,
-      showDivisors: widget.showDivisors,
+      showDividers: widget.showDividers,
       enableTooltip: widget.enableTooltip,
       enableIntervalSelection: widget.enableIntervalSelection,
       inactiveColor:
@@ -1383,66 +1380,66 @@ class _SfRangeSliderState extends State<SfRangeSlider>
           widget.tooltipTextFormatterCallback ?? _getFormattedTooltipText,
       semanticFormatterCallback: widget.semanticFormatterCallback,
       trackShape: widget.trackShape,
-      divisorShape: widget.divisorShape,
+      dividerShape: widget.dividerShape,
       overlayShape: widget.overlayShape,
       thumbShape: widget.thumbShape,
       tickShape: widget.tickShape,
       minorTickShape: widget.minorTickShape,
       tooltipShape: widget.tooltipShape,
       rangeSliderThemeData: _getRangeSliderThemeData(themeData, isActive),
-      state: this,
       sliderType: widget._sliderType,
       tooltipPosition: widget._tooltipPosition,
       startThumbIcon: widget.startThumbIcon,
       endThumbIcon: widget.endThumbIcon,
+      state: this,
     );
   }
 }
 
 class _RangeSliderRenderObjectWidget extends RenderObjectWidget {
-  const _RangeSliderRenderObjectWidget(
-      {Key? key,
-      required this.min,
-      required this.max,
-      required this.values,
-      required this.onChanged,
-      required this.interval,
-      required this.stepSize,
-      required this.stepDuration,
-      required this.minorTicksPerInterval,
-      required this.showTicks,
-      required this.showLabels,
-      required this.showDivisors,
-      required this.enableTooltip,
-      required this.enableIntervalSelection,
-      required this.inactiveColor,
-      required this.activeColor,
-      required this.labelPlacement,
-      required this.numberFormat,
-      required this.dateFormat,
-      required this.dateIntervalType,
-      required this.labelFormatterCallback,
-      required this.tooltipTextFormatterCallback,
-      required this.semanticFormatterCallback,
-      required this.trackShape,
-      required this.divisorShape,
-      required this.overlayShape,
-      required this.thumbShape,
-      required this.tickShape,
-      required this.minorTickShape,
-      required this.tooltipShape,
-      required this.rangeSliderThemeData,
-      required this.startThumbIcon,
-      required this.endThumbIcon,
-      required this.state,
-      required this.tooltipPosition,
-      required this.sliderType})
-      : super(key: key);
+  const _RangeSliderRenderObjectWidget({
+    Key? key,
+    required this.min,
+    required this.max,
+    required this.values,
+    required this.onChanged,
+    required this.interval,
+    required this.stepSize,
+    required this.stepDuration,
+    required this.minorTicksPerInterval,
+    required this.showTicks,
+    required this.showLabels,
+    required this.showDividers,
+    required this.enableTooltip,
+    required this.enableIntervalSelection,
+    required this.inactiveColor,
+    required this.activeColor,
+    required this.labelPlacement,
+    required this.numberFormat,
+    required this.dateFormat,
+    required this.dateIntervalType,
+    required this.labelFormatterCallback,
+    required this.tooltipTextFormatterCallback,
+    required this.semanticFormatterCallback,
+    required this.trackShape,
+    required this.dividerShape,
+    required this.overlayShape,
+    required this.thumbShape,
+    required this.tickShape,
+    required this.minorTickShape,
+    required this.tooltipShape,
+    required this.rangeSliderThemeData,
+    required this.startThumbIcon,
+    required this.endThumbIcon,
+    required this.tooltipPosition,
+    required this.sliderType,
+    required this.state,
+  }) : super(key: key);
   final SliderType sliderType;
   final SliderTooltipPosition? tooltipPosition;
   final dynamic min;
   final dynamic max;
-  final SfRangeValues values;
+  final SfRangeValues? values;
   final ValueChanged<SfRangeValues>? onChanged;
   final double? interval;
   final double? stepSize;
@@ -1451,7 +1448,7 @@ class _RangeSliderRenderObjectWidget extends RenderObjectWidget {
 
   final bool showTicks;
   final bool showLabels;
-  final bool showDivisors;
+  final bool showDividers;
   final bool enableTooltip;
   final bool enableIntervalSelection;
 
@@ -1466,7 +1463,7 @@ class _RangeSliderRenderObjectWidget extends RenderObjectWidget {
   final LabelFormatterCallback labelFormatterCallback;
   final TooltipTextFormatterCallback tooltipTextFormatterCallback;
   final RangeSliderSemanticFormatterCallback? semanticFormatterCallback;
-  final SfDivisorShape divisorShape;
+  final SfDividerShape dividerShape;
   final SfTrackShape trackShape;
   final SfTickShape tickShape;
   final SfTickShape minorTickShape;
@@ -1493,11 +1490,9 @@ class _RangeSliderRenderObjectWidget extends RenderObjectWidget {
       minorTicksPerInterval: minorTicksPerInterval,
       showTicks: showTicks,
       showLabels: showLabels,
-      showDivisors: showDivisors,
+      showDividers: showDividers,
       enableTooltip: enableTooltip,
       enableIntervalSelection: enableIntervalSelection,
-      inactiveColor: inactiveColor,
-      activeColor: activeColor,
       labelPlacement: labelPlacement,
       numberFormat: numberFormat,
       dateFormat: dateFormat,
@@ -1506,7 +1501,7 @@ class _RangeSliderRenderObjectWidget extends RenderObjectWidget {
       tooltipTextFormatterCallback: tooltipTextFormatterCallback,
       semanticFormatterCallback: semanticFormatterCallback,
       trackShape: trackShape,
-      divisorShape: divisorShape,
+      dividerShape: dividerShape,
       overlayShape: overlayShape,
       thumbShape: thumbShape,
       tickShape: tickShape,
@@ -1527,7 +1522,7 @@ class _RangeSliderRenderObjectWidget extends RenderObjectWidget {
     renderObject
       ..min = min
       ..max = max
-      ..values = values
+      ..values = values!
       ..onChanged = onChanged
       ..interval = interval
       ..stepSize = stepSize
@@ -1535,7 +1530,7 @@ class _RangeSliderRenderObjectWidget extends RenderObjectWidget {
       ..minorTicksPerInterval = minorTicksPerInterval
       ..showTicks = showTicks
       ..showLabels = showLabels
-      ..showDivisors = showDivisors
+      ..showDividers = showDividers
       ..enableTooltip = enableTooltip
       ..enableIntervalSelection = enableIntervalSelection
       ..labelPlacement = labelPlacement
@@ -1546,7 +1541,7 @@ class _RangeSliderRenderObjectWidget extends RenderObjectWidget {
       ..tooltipTextFormatterCallback = tooltipTextFormatterCallback
       ..semanticFormatterCallback = semanticFormatterCallback
       ..trackShape = trackShape
-      ..divisorShape = divisorShape
+      ..dividerShape = dividerShape
       ..overlayShape = overlayShape
       ..thumbShape = thumbShape
       ..tickShape = tickShape
@@ -1651,12 +1646,11 @@ class _RenderRangeSliderElement extends RenderObjectElement {
   }
 }
 
-class _RenderRangeSlider extends RenderBaseSlider
-    implements MouseTrackerAnnotation {
+class _RenderRangeSlider extends RenderBaseRangeSlider {
   _RenderRangeSlider({
     required dynamic min,
     required dynamic max,
-    required SfRangeValues values,
+    required SfRangeValues? values,
     required ValueChanged<SfRangeValues>? onChanged,
     required double? interval,
     required double? stepSize,
@@ -1664,11 +1658,9 @@ class _RenderRangeSlider extends RenderBaseSlider
     required int minorTicksPerInterval,
     required bool showTicks,
     required bool showLabels,
-    required bool showDivisors,
+    required bool showDividers,
     required bool enableTooltip,
     required bool enableIntervalSelection,
-    required Color inactiveColor,
-    required Color activeColor,
     required LabelPlacement labelPlacement,
     required NumberFormat numberFormat,
     required DateFormat? dateFormat,
@@ -1677,7 +1669,7 @@ class _RenderRangeSlider extends RenderBaseSlider
     required TooltipTextFormatterCallback tooltipTextFormatterCallback,
     required RangeSliderSemanticFormatterCallback? semanticFormatterCallback,
     required SfTrackShape trackShape,
-    required SfDivisorShape divisorShape,
+    required SfDividerShape dividerShape,
     required SfOverlayShape overlayShape,
     required SfThumbShape thumbShape,
     required SfTickShape tickShape,
@@ -1689,22 +1681,23 @@ class _RenderRangeSlider extends RenderBaseSlider
     required TextDirection textDirection,
     required MediaQueryData mediaQueryData,
     required _SfRangeSliderState state,
-  })   : _state = state,
-        _values = values,
+  })  : _state = state,
         _onChanged = onChanged,
-        _enableIntervalSelection = enableIntervalSelection,
         _semanticFormatterCallback = semanticFormatterCallback,
         super(
             min: min,
             max: max,
+            values: values,
             interval: interval,
             stepSize: stepSize,
             stepDuration: stepDuration,
             minorTicksPerInterval: minorTicksPerInterval,
             showTicks: showTicks,
             showLabels: showLabels,
-            showDivisors: showDivisors,
+            showDividers: showDividers,
             enableTooltip: enableTooltip,
+            enableIntervalSelection: enableIntervalSelection,
+            dragMode: SliderDragMode.onThumb,
             labelPlacement: labelPlacement,
             numberFormat: numberFormat,
             dateFormat: dateFormat,
@@ -1712,7 +1705,7 @@ class _RenderRangeSlider extends RenderBaseSlider
             labelFormatterCallback: labelFormatterCallback,
             tooltipTextFormatterCallback: tooltipTextFormatterCallback,
             trackShape: trackShape,
-            divisorShape: divisorShape,
+            dividerShape: dividerShape,
             overlayShape: overlayShape,
             thumbShape: thumbShape,
             tickShape: tickShape,
@@ -1722,114 +1715,12 @@ class _RenderRangeSlider extends RenderBaseSlider
             sliderType: sliderType,
             tooltipPosition: tooltipPosition,
             textDirection: textDirection,
-            mediaQueryData: mediaQueryData) {
-    final GestureArenaTeam team = GestureArenaTeam();
-
-    if (sliderType == SliderType.horizontal) {
-      horizontalDragGestureRecognizer = HorizontalDragGestureRecognizer()
-        ..team = team
-        ..onStart = _onDragStart
-        ..onUpdate = _onDragUpdate
-        ..onEnd = _onDragEnd
-        ..onCancel = _onDragCancel;
-    }
-
-    if (sliderType == SliderType.vertical) {
-      verticalDragGestureRecognizer = VerticalDragGestureRecognizer()
-        ..team = team
-        ..onStart = _onVerticalDragStart
-        ..onUpdate = _onVerticalDragUpdate
-        ..onEnd = _onVerticalDragEnd
-        ..onCancel = _onVerticalDragCancel;
-    }
-
-    tapGestureRecognizer = TapGestureRecognizer()
-      ..team = team
-      ..onTapDown = _onTapDown
-      ..onTapUp = _onTapUp;
-
-    _overlayStartAnimation = CurvedAnimation(
-        parent: _state.overlayStartController, curve: Curves.fastOutSlowIn);
-
-    _overlayEndAnimation = CurvedAnimation(
-        parent: _state.overlayEndController, curve: Curves.fastOutSlowIn);
-
-    _stateAnimation = CurvedAnimation(
-        parent: _state.stateController, curve: Curves.easeInOut);
-
-    _tooltipStartAnimation = CurvedAnimation(
-        parent: _state.tooltipAnimationStartController,
-        curve: Curves.fastOutSlowIn);
-    _tooltipEndAnimation = CurvedAnimation(
-        parent: _state.tooltipAnimationEndController,
-        curve: Curves.fastOutSlowIn);
-
-    if (isDateTime) {
-      _valuesInMilliseconds = SfRangeValues(
-          values.start.millisecondsSinceEpoch.toDouble(),
-          values.end.millisecondsSinceEpoch.toDouble());
-    }
-    unformattedLabels = <double>[];
-    updateTextPainter();
-
-    if (_enableIntervalSelection) {
-      _state.startPositionController.value =
-          getFactorFromValue(actualValues.start);
-      _state.endPositionController.value = getFactorFromValue(actualValues.end);
-    }
-  }
+            mediaQueryData: mediaQueryData);
 
   final _SfRangeSliderState _state;
 
-  final Map<ChildElements, RenderBox> slotToChild =
-      <ChildElements, RenderBox>{};
-
-  final Map<RenderBox, ChildElements> childToSlot =
-      <RenderBox, ChildElements>{};
-
-  late Animation<double> _overlayStartAnimation;
-
-  late Animation<double> _overlayEndAnimation;
-
-  late Animation<double> _stateAnimation;
-
-  late Animation<double> _tooltipStartAnimation;
-
-  late Animation<double> _tooltipEndAnimation;
-
-  SfRangeValues? _valuesInMilliseconds;
-
-  // It stores the interaction start it's main axis at [tapDown] and [dragStart]
-  // method, which is used to check whether dragging is started or not.
-  double _interactionStartOffset = 0.0;
-
-  bool _isDragging = false;
-
-  bool _isIntervalTapped = false;
-
-  static const Duration _positionAnimationDuration =
-      Duration(milliseconds: 500);
-
-  SfRangeValues get values => _values;
-  SfRangeValues _values;
-
-  set values(SfRangeValues values) {
-    if (_values == values) {
-      return;
-    }
-
-    _values = values;
-    if (isDateTime) {
-      _valuesInMilliseconds = SfRangeValues(
-          _values.start.millisecondsSinceEpoch.toDouble(),
-          _values.end.millisecondsSinceEpoch.toDouble());
-    }
-    markNeedsPaint();
-  }
-
   ValueChanged<SfRangeValues>? get onChanged => _onChanged;
   ValueChanged<SfRangeValues>? _onChanged;
-
   set onChanged(ValueChanged<SfRangeValues>? value) {
     if (value == _onChanged) {
       return;
@@ -1847,24 +1738,9 @@ class _RenderRangeSlider extends RenderBaseSlider
     }
   }
 
-  bool get enableIntervalSelection => _enableIntervalSelection;
-  bool _enableIntervalSelection;
-
-  set enableIntervalSelection(bool value) {
-    if (_enableIntervalSelection == value) {
-      return;
-    }
-    _enableIntervalSelection = value;
-    _state.startPositionController.value =
-        getFactorFromValue(actualValues.start);
-    _state.endPositionController.value = getFactorFromValue(actualValues.end);
-  }
-
   RangeSliderSemanticFormatterCallback? get semanticFormatterCallback =>
       _semanticFormatterCallback;
-
   RangeSliderSemanticFormatterCallback? _semanticFormatterCallback;
-
   set semanticFormatterCallback(RangeSliderSemanticFormatterCallback? value) {
     if (_semanticFormatterCallback == value) {
       return;
@@ -1873,618 +1749,92 @@ class _RenderRangeSlider extends RenderBaseSlider
     markNeedsSemanticsUpdate();
   }
 
-  RenderBox? get startThumbIcon => _startThumbIcon;
-  RenderBox? _startThumbIcon;
-
-  set startThumbIcon(RenderBox? value) {
-    _startThumbIcon =
-        _updateChild(_startThumbIcon, value, ChildElements.startThumbIcon);
-  }
-
-  RenderBox? get endThumbIcon => _endThumbIcon;
-  RenderBox? _endThumbIcon;
-
-  set endThumbIcon(RenderBox? value) {
-    _endThumbIcon =
-        _updateChild(_endThumbIcon, value, ChildElements.endThumbIcon);
-  }
-
-  SfThumb? get activeThumb => _activeThumb;
-  SfThumb? _activeThumb;
-
-  set activeThumb(SfThumb? value) {
-    // Ensuring whether the animation is already completed
-    // and calling controller's forward again is not needed.
-    if (_activeThumb == value &&
-        (_state.overlayEndController.status == AnimationStatus.completed ||
-            _state.overlayStartController.status ==
-                AnimationStatus.completed)) {
-      return;
-    }
-    _activeThumb = value;
-    if (value == SfThumb.start) {
-      _state.overlayStartController.forward();
-      _state.overlayEndController.reverse();
-      if (enableTooltip) {
-        willDrawTooltip = true;
-        _state.tooltipAnimationStartController.forward();
-        _state.tooltipAnimationEndController.reverse();
-      }
-    } else {
-      _state.overlayEndController.forward();
-      _state.overlayStartController.reverse();
-      if (enableTooltip) {
-        willDrawTooltip = true;
-        _state.tooltipAnimationEndController.forward();
-        _state.tooltipAnimationStartController.reverse();
-      }
-    }
-  }
-
   bool get isInteractive => onChanged != null;
 
-  double get minThumbGap => sliderType == SliderType.vertical
-      ? (actualMax - actualMin) * (8 / actualTrackRect.height).clamp(0.0, 1.0)
-      : (actualMax - actualMin) * (8 / actualTrackRect.width).clamp(0.0, 1.0);
+  @override
+  AnimationController get overlayStartController =>
+      _state.overlayStartController;
 
-  SfRangeValues get actualValues =>
-      isDateTime ? _valuesInMilliseconds! : _values;
+  @override
+  AnimationController get overlayEndController => _state.overlayEndController;
 
-  dynamic get _increasedStartValue {
-    return getNextSemanticValue(values.start, semanticActionUnit,
-        actualValue: actualValues.start);
-  }
+  @override
+  AnimationController get stateController => _state.stateController;
 
-  dynamic get _decreasedStartValue {
-    return getPrevSemanticValue(values.start, semanticActionUnit,
-        actualValue: actualValues.start);
-  }
+  @override
+  AnimationController get startPositionController =>
+      _state.startPositionController;
 
-  dynamic get _increasedEndValue {
-    return getNextSemanticValue(values.end, semanticActionUnit,
-        actualValue: actualValues.end);
-  }
+  @override
+  AnimationController get endPositionController => _state.endPositionController;
 
-  dynamic get _decreasedEndValue {
-    return getPrevSemanticValue(values.end, semanticActionUnit,
-        actualValue: actualValues.end);
-  }
+  @override
+  AnimationController get tooltipAnimationStartController =>
+      _state.tooltipAnimationStartController;
 
-  // The returned list is ordered for hit testing.
-  Iterable<RenderBox> get children sync* {
-    if (_startThumbIcon != null) {
-      yield startThumbIcon!;
+  @override
+  AnimationController get tooltipAnimationEndController =>
+      _state.tooltipAnimationEndController;
+
+  @override
+  bool get mounted => _state.mounted;
+
+  @override
+  void updateValues(SfRangeValues newValues) {
+    if (!isIntervalTapped &&
+        (newValues.start != values.start || newValues.end != values.end)) {
+      onChanged!(newValues);
     }
-    if (_endThumbIcon != null) {
-      yield endThumbIcon!;
-    }
+    super.updateValues(newValues);
   }
 
-  void _onTapDown(TapDownDetails details) {
-    currentPointerType = PointerType.down;
-    _interactionStartOffset = (sliderType == SliderType.vertical
-        ? globalToLocal(details.globalPosition).dy
-        : globalToLocal(details.globalPosition).dx);
-    mainAxisOffset = _interactionStartOffset;
-    _beginInteraction();
-  }
-
-  void _onTapUp(TapUpDetails details) {
-    _endInteraction();
-  }
-
-  void _onDragStart(DragStartDetails details) {
-    _interactionStartOffset = globalToLocal(details.globalPosition).dx;
-    mainAxisOffset = _interactionStartOffset;
-    _beginInteraction();
-  }
-
-  void _onDragUpdate(DragUpdateDetails details) {
-    isInteractionEnd = false;
-    currentPointerType = PointerType.move;
-    mainAxisOffset = globalToLocal(details.globalPosition).dx;
-    _updateRangeValues();
-    markNeedsPaint();
-  }
-
-  void _onDragEnd(DragEndDetails details) {
-    _endInteraction();
-  }
-
-  void _onDragCancel() {
-    _endInteraction();
-  }
-
-  void _onVerticalDragStart(DragStartDetails details) {
-    _interactionStartOffset = globalToLocal(details.globalPosition).dy;
-    mainAxisOffset = _interactionStartOffset;
-    _beginInteraction();
-  }
-
-  void _onVerticalDragUpdate(DragUpdateDetails details) {
-    isInteractionEnd = false;
-    currentPointerType = PointerType.move;
-    mainAxisOffset = globalToLocal(details.globalPosition).dy;
-    _updateRangeValues();
-    markNeedsPaint();
-  }
-
-  void _onVerticalDragEnd(DragEndDetails details) {
-    _endInteraction();
-  }
-
-  void _onVerticalDragCancel() {
-    _endInteraction();
-  }
-
-  void _beginInteraction() {
-    // This field is used in the [paint] method to handle the
-    // interval selection animation, so we can't reset this
-    // field in [endInteraction] method.
-    _isIntervalTapped = false;
-    final double startPosition = sliderType == SliderType.vertical
-        ? actualTrackRect.bottom -
-            getFactorFromValue(actualValues.start) * actualTrackRect.height
-        : getFactorFromValue(actualValues.start) * actualTrackRect.width +
-            actualTrackRect.left;
-    final double endPosition = sliderType == SliderType.vertical
-        ? actualTrackRect.bottom -
-            getFactorFromValue(actualValues.end) * actualTrackRect.height
-        : getFactorFromValue(actualValues.end) * actualTrackRect.width +
-            actualTrackRect.left;
-    final double leftThumbWidth = (startPosition - mainAxisOffset).abs();
-    final double rightThumbWidth = (endPosition - mainAxisOffset).abs();
-
-    if (rightThumbWidth == leftThumbWidth) {
-      switch (activeThumb!) {
-        case SfThumb.start:
-          _state.overlayStartController.forward();
-          break;
-        case SfThumb.end:
-          _state.overlayEndController.forward();
-          break;
-      }
-    } else {
-      if (rightThumbWidth > leftThumbWidth) {
-        activeThumb = SfThumb.start;
-        _state.overlayStartController.forward();
-      } else {
-        activeThumb = SfThumb.end;
-        _state.overlayEndController.forward();
-      }
-    }
-
-    _forwardTooltipAnimation();
-    isInteractionEnd = false;
-    _updateRangeValues();
-    markNeedsPaint();
-  }
-
-  void _forwardTooltipAnimation() {
-    if (enableTooltip) {
-      willDrawTooltip = true;
-      _state.tooltipAnimationStartController.forward();
-      _state.tooltipAnimationEndController.forward();
-      _state.tooltipDelayTimer?.cancel();
-      _state.tooltipDelayTimer = Timer(const Duration(milliseconds: 500), () {
-        _reverseTooltipAnimation();
-      });
-    }
-  }
-
-  void _reverseTooltipAnimation() {
-    _state.tooltipDelayTimer = null;
-    if (isInteractionEnd &&
-        willDrawTooltip &&
-        _state.tooltipAnimationStartController.status ==
-            AnimationStatus.completed) {
-      _state.tooltipAnimationStartController.reverse();
-    }
-    if (isInteractionEnd &&
-        willDrawTooltip &&
-        _state.tooltipAnimationEndController.status ==
-            AnimationStatus.completed) {
-      _state.tooltipAnimationEndController.reverse();
-    }
-    if (_state.tooltipAnimationStartController.status ==
-            AnimationStatus.dismissed &&
-        _state.tooltipAnimationEndController.status ==
-            AnimationStatus.dismissed) {
-      willDrawTooltip = false;
-    }
-  }
-
-  void _updateRangeValues() {
-    double start;
-    double end;
-    SfRangeValues newValues;
-    final double factor = getFactorFromCurrentPosition();
-    if (isDateTime) {
-      start = values.start.millisecondsSinceEpoch.toDouble();
-      end = values.end.millisecondsSinceEpoch.toDouble();
-    } else {
-      start = values.start;
-      end = values.end;
-    }
-
-    final double value = lerpDouble(actualMin, actualMax, factor)!;
-    _isDragging = (_interactionStartOffset - mainAxisOffset).abs() > 1;
-    _isIntervalTapped = _enableIntervalSelection && !_isDragging;
-
-    if (!_isIntervalTapped) {
-      switch (activeThumb!) {
-        case SfThumb.start:
-          final double startValue = math.min(value, end - minThumbGap);
-          final dynamic actualStartValue =
-              getActualValue(valueInDouble: startValue);
-          newValues = values.copyWith(start: actualStartValue);
-          break;
-        case SfThumb.end:
-          final double endValue = math.max(value, start + minThumbGap);
-          final dynamic actualEndValue =
-              getActualValue(valueInDouble: endValue);
-          newValues = values.copyWith(end: actualEndValue);
-          break;
-      }
-      if (newValues.start != _values.start || newValues.end != _values.end) {
-        onChanged!(newValues);
-      }
-    }
-  }
-
-  void _endInteraction() {
-    if (!isInteractionEnd) {
-      if (_enableIntervalSelection) {
-        _state.startPositionController.value =
-            getFactorFromValue(actualValues.start);
-        _state.endPositionController.value =
-            getFactorFromValue(actualValues.end);
-
-        if (_isIntervalTapped) {
-          final double? value =
-              lerpDouble(actualMin, actualMax, getFactorFromCurrentPosition());
-          final SfRangeValues newValues = _getSelectedRange(value!);
-          _updatePositionControllerValue(newValues);
-          onChanged!(newValues);
-        }
-      }
-
-      _isDragging = false;
-      currentPointerType = PointerType.up;
-      _state.overlayStartController.reverse();
-      _state.overlayEndController.reverse();
-      if (enableTooltip && _state.tooltipDelayTimer == null) {
-        _state.tooltipAnimationStartController.reverse();
-        _state.tooltipAnimationEndController.reverse();
-      }
-
-      isInteractionEnd = true;
-      markNeedsPaint();
-    }
-  }
-
-  void _updatePositionControllerValue(SfRangeValues newValues) {
-    DateTime? startDate;
-    DateTime? endDate;
-
-    if (isDateTime) {
-      startDate = newValues.start;
-      endDate = newValues.end;
-    }
-    final double startValueFactor = getFactorFromValue(isDateTime
-        ? startDate!.millisecondsSinceEpoch.toDouble()
-        : newValues.start);
-    final double endValueFactor = getFactorFromValue(isDateTime
-        ? endDate!.millisecondsSinceEpoch.toDouble()
-        : newValues.end);
-    final double startDistanceFactor =
-        (startValueFactor - _state.startPositionController.value).abs();
-    final double endDistanceFactor =
-        (endValueFactor - _state.endPositionController.value).abs();
-    _state.startPositionController.duration = startDistanceFactor != 0.0
-        ? _positionAnimationDuration * (1.0 / startDistanceFactor)
-        : Duration.zero;
-    _state.endPositionController.duration = endDistanceFactor != 0.0
-        ? _positionAnimationDuration * (1.0 / endDistanceFactor)
-        : Duration.zero;
-    _state.startPositionController
-        .animateTo(startValueFactor, curve: Curves.easeInOut);
-    _state.endPositionController
-        .animateTo(endValueFactor, curve: Curves.easeInOut);
-  }
-
-  SfRangeValues _getSelectedRange(double value) {
-    late SfRangeValues rangeValues;
-    dynamic start;
-    dynamic end;
-
-    for (int i = 0; i < divisions!; i++) {
-      final double currentLabel = unformattedLabels![i];
-      if (i < divisions! - 1) {
-        final double nextLabel = unformattedLabels![i + 1];
-        if (value >= currentLabel && value <= nextLabel) {
-          if (isDateTime) {
-            start = DateTime.fromMillisecondsSinceEpoch(currentLabel.toInt());
-            end = DateTime.fromMillisecondsSinceEpoch(nextLabel.toInt());
-          } else {
-            start = currentLabel;
-            end = nextLabel;
-          }
-          rangeValues = SfRangeValues(start, end);
-          break;
-        }
-      } else {
-        start = isDateTime
-            ? DateTime.fromMillisecondsSinceEpoch(currentLabel.toInt())
-            : currentLabel;
-        end = this.max;
-        rangeValues = SfRangeValues(start, end);
-      }
-    }
-    return rangeValues;
-  }
-
-  RenderBox? _updateChild(
-      RenderBox? oldChild, RenderBox? newChild, ChildElements slot) {
-    if (oldChild != null) {
-      dropChild(oldChild);
-      childToSlot.remove(oldChild);
-      slotToChild.remove(slot);
-    }
-    if (newChild != null) {
-      childToSlot[newChild] = slot;
-      slotToChild[slot] = newChild;
-      adoptChild(newChild);
-    }
-    return newChild;
-  }
-
-  void _handleTooltipAnimationStatusChange(AnimationStatus status) {
-    if (_state.tooltipAnimationStartController.status ==
-            AnimationStatus.dismissed &&
-        _state.tooltipAnimationEndController.status ==
-            AnimationStatus.dismissed) {
-      willDrawTooltip = false;
-    }
-  }
-
-  void _drawOverlayAndThumb(
-    PaintingContext context,
-    Offset endThumbCenter,
-    Offset startThumbCenter,
-  ) {
-    final bool isStartThumbActive = activeThumb == SfThumb.start;
-    Offset thumbCenter = isStartThumbActive ? endThumbCenter : startThumbCenter;
-    RenderBox? thumbIcon = isStartThumbActive ? _endThumbIcon : _startThumbIcon;
-    // Ignore overlapping thumb stroke for bottom thumb.
-    showOverlappingThumbStroke = false;
-    // Drawing thumb.
-    thumbShape.paint(context, thumbCenter,
-        parentBox: this,
-        child: thumbIcon,
-        themeData: sliderThemeData,
-        currentValues: _values,
-        enableAnimation: _stateAnimation,
-        textDirection: textDirection,
-        thumb: isStartThumbActive ? SfThumb.end : SfThumb.start,
-        paint: null);
-
-    thumbCenter = isStartThumbActive ? startThumbCenter : endThumbCenter;
-    thumbIcon = isStartThumbActive ? _startThumbIcon : _endThumbIcon;
-    // Drawing overlay.
-    overlayShape.paint(
-      context,
-      thumbCenter,
-      parentBox: this,
-      themeData: sliderThemeData,
-      currentValues: _values,
-      animation:
-          isStartThumbActive ? _overlayStartAnimation : _overlayEndAnimation,
-      thumb: activeThumb,
-      paint: null,
-    );
-    showOverlappingThumbStroke = (getFactorFromValue(actualValues.start) -
-                    getFactorFromValue(actualValues.end))
-                .abs() *
-            (sliderType == SliderType.vertical
-                ? actualTrackRect.height
-                : actualTrackRect.width) <
-        actualThumbSize.width;
-
-    // Drawing thumb.
-    thumbShape.paint(context, thumbCenter,
-        parentBox: this,
-        child: thumbIcon,
-        themeData: sliderThemeData,
-        currentValues: _values,
-        enableAnimation: _stateAnimation,
-        textDirection: textDirection,
-        thumb: activeThumb,
-        paint: null);
-  }
-
-  void _drawTooltip(
-      PaintingContext context,
-      Offset endThumbCenter,
-      Offset startThumbCenter,
-      Offset offset,
-      Offset actualTrackOffset,
-      Rect trackRect) {
-    if (willDrawTooltip) {
-      final Paint paint = Paint()
-        ..color = sliderThemeData.tooltipBackgroundColor!
-        ..style = PaintingStyle.fill
-        ..strokeWidth = 0;
-
-      final bool isStartThumbActive = activeThumb == SfThumb.start;
-      Offset thumbCenter =
-          isStartThumbActive ? endThumbCenter : startThumbCenter;
-      dynamic actualText = (sliderType == SliderType.vertical)
-          ? getValueFromPosition(trackRect.bottom - thumbCenter.dy)
-          : getValueFromPosition(thumbCenter.dx - offset.dx);
-
-      String tooltipText = tooltipTextFormatterCallback(
-          actualText, getFormattedText(actualText));
-      TextSpan textSpan =
-          TextSpan(text: tooltipText, style: sliderThemeData.tooltipTextStyle);
-      textPainter.text = textSpan;
-      textPainter.layout();
-
-      Rect? bottomTooltipRect;
-      if (tooltipShape is SfPaddleTooltipShape) {
-        bottomTooltipRect = getPaddleTooltipRect(
-            textPainter,
-            Offset(actualTrackOffset.dx, tooltipStartY),
-            thumbCenter,
-            trackRect,
-            sliderThemeData);
-      } else if (tooltipShape is SfRectangularTooltipShape) {
-        bottomTooltipRect = getRectangularTooltipRect(
-            textPainter,
-            Offset(actualTrackOffset.dx, tooltipStartY),
-            thumbCenter,
-            trackRect,
-            sliderThemeData);
-      }
-
-      // Ignore overlapping tooltip stroke for bottom tooltip.
-      showOverlappingTooltipStroke = false;
-      tooltipShape.paint(context, thumbCenter,
-          Offset(actualTrackOffset.dx, tooltipStartY), textPainter,
-          parentBox: this,
-          sliderThemeData: sliderThemeData,
-          paint: paint,
-          animation: isStartThumbActive
-              ? _tooltipEndAnimation
-              : _tooltipStartAnimation,
-          trackRect: trackRect);
-
-      thumbCenter = isStartThumbActive ? startThumbCenter : endThumbCenter;
-      actualText = (sliderType == SliderType.vertical)
-          ? getValueFromPosition(trackRect.bottom - thumbCenter.dy)
-          : getValueFromPosition(thumbCenter.dx - offset.dx);
-
-      tooltipText = tooltipTextFormatterCallback(
-          actualText, getFormattedText(actualText));
-      textSpan =
-          TextSpan(text: tooltipText, style: sliderThemeData.tooltipTextStyle);
-      textPainter.text = textSpan;
-      textPainter.layout();
-
-      Rect? topTooltipRect;
-      if (tooltipShape is SfPaddleTooltipShape) {
-        topTooltipRect = getPaddleTooltipRect(
-            textPainter,
-            Offset(actualTrackOffset.dx, tooltipStartY),
-            thumbCenter,
-            trackRect,
-            sliderThemeData);
-      } else if (tooltipShape is SfRectangularTooltipShape) {
-        topTooltipRect = getRectangularTooltipRect(
-            textPainter,
-            Offset(actualTrackOffset.dx, tooltipStartY),
-            thumbCenter,
-            trackRect,
-            sliderThemeData);
-      }
-      if (bottomTooltipRect != null && topTooltipRect != null) {
-        final Rect overlapRect = topTooltipRect.intersect(bottomTooltipRect);
-        showOverlappingTooltipStroke = sliderType == SliderType.vertical
-            ? overlapRect.top < overlapRect.bottom
-            : overlapRect.right > overlapRect.left;
-      }
-
-      tooltipShape.paint(context, thumbCenter,
-          Offset(actualTrackOffset.dx, tooltipStartY), textPainter,
-          parentBox: this,
-          sliderThemeData: sliderThemeData,
-          paint: paint,
-          animation: isStartThumbActive
-              ? _tooltipStartAnimation
-              : _tooltipEndAnimation,
-          trackRect: trackRect);
+  @override
+  void updateIntervalTappedAndDeferredUpdateValues(SfRangeValues newValues) {
+    if (isIntervalTapped) {
+      onChanged!(newValues);
     }
   }
 
   void _increaseStartAction() {
     if (isInteractive) {
-      final SfRangeValues actualNewValues =
-          SfRangeValues(_increasedStartValue, values.end);
-      final SfRangeValues newValues = isDateTime
-          ? SfRangeValues(
-              actualNewValues.start.millisecondsSinceEpoch.toDouble(),
-              actualNewValues.end.millisecondsSinceEpoch.toDouble())
-          : actualNewValues;
-
-      if (newValues.start <= newValues.end) {
-        onChanged!(actualNewValues);
+      final SfRangeValues newValues =
+          SfRangeValues(increasedStartValue, values.end);
+      if (getNumerizedValue(newValues.start) <=
+          (getNumerizedValue(newValues.end))) {
+        onChanged!(newValues);
       }
     }
   }
 
   void _decreaseStartAction() {
     if (isInteractive) {
-      onChanged!(SfRangeValues(_decreasedStartValue, values.end));
+      onChanged!(SfRangeValues(decreasedStartValue, values.end));
     }
   }
 
   void _increaseEndAction() {
     if (isInteractive) {
-      onChanged!(SfRangeValues(values.start, _increasedEndValue));
+      onChanged!(SfRangeValues(values.start, increasedEndValue));
     }
   }
 
   void _decreaseEndAction() {
     if (isInteractive) {
-      final SfRangeValues actualNewValues =
-          SfRangeValues(values.start, _decreasedEndValue);
-      final SfRangeValues newValues = isDateTime
-          ? SfRangeValues(
-              actualNewValues.start.millisecondsSinceEpoch.toDouble(),
-              actualNewValues.end.millisecondsSinceEpoch.toDouble())
-          : actualNewValues;
-
-      if (newValues.start <= newValues.end) {
-        onChanged!(actualNewValues);
+      final SfRangeValues newValues =
+          SfRangeValues(values.start, decreasedEndValue);
+      if (getNumerizedValue(newValues.start) <=
+          (getNumerizedValue(newValues.end))) {
+        onChanged!(newValues);
       }
     }
   }
 
-  void _handleExit(PointerExitEvent event) {
-    // Ensuring whether the thumb is drag or move
-    // not needed to call controller's reverse.
-    if (currentPointerType != PointerType.move) {
-      _state.overlayStartController.reverse();
-      _state.overlayEndController.reverse();
-      if (enableTooltip) {
-        _state.tooltipAnimationStartController.reverse();
-        _state.tooltipAnimationEndController.reverse();
-      }
+  Iterable<RenderBox> get children sync* {
+    if (startThumbIcon != null) {
+      yield startThumbIcon!;
     }
-  }
-
-  void _handleHover(PointerHoverEvent details) {
-    double cursorPosition = 0.0;
-    final double startThumbPosition = sliderType == SliderType.vertical
-        ? actualTrackRect.bottom -
-            getFactorFromValue(actualValues.start) * actualTrackRect.height
-        : getFactorFromValue(actualValues.start) * actualTrackRect.width +
-            actualTrackRect.left;
-    final double endThumbPosition = sliderType == SliderType.vertical
-        ? actualTrackRect.bottom -
-            getFactorFromValue(actualValues.end) * actualTrackRect.height
-        : getFactorFromValue(actualValues.end) * actualTrackRect.width +
-            actualTrackRect.left;
-    cursorPosition = sliderType == SliderType.vertical
-        ? details.localPosition.dy
-        : details.localPosition.dx;
-    final double startThumbDistance =
-        (cursorPosition - startThumbPosition).abs();
-    final double endThumbDistance = (cursorPosition - endThumbPosition).abs();
-    if (endThumbDistance > startThumbDistance) {
-      activeThumb = SfThumb.start;
-    } else {
-      activeThumb = SfThumb.end;
+    if (endThumbIcon != null) {
+      yield endThumbIcon!;
     }
   }
 
@@ -2499,18 +1849,13 @@ class _RenderRangeSlider extends RenderBaseSlider
   }
 
   @override
-  void attach(PipelineOwner owner) {
+  void visitChildren(RenderObjectVisitor visitor) {
+    children.forEach(visitor);
+  }
+
+  @override
+  void attach(covariant PipelineOwner owner) {
     super.attach(owner);
-    _overlayStartAnimation.addListener(markNeedsPaint);
-    _overlayEndAnimation.addListener(markNeedsPaint);
-    _stateAnimation.addListener(markNeedsPaint);
-    _state.startPositionController.addListener(markNeedsPaint);
-    _state.endPositionController.addListener(markNeedsPaint);
-    _tooltipStartAnimation.addListener(markNeedsPaint);
-    _tooltipStartAnimation
-        .addStatusListener(_handleTooltipAnimationStatusChange);
-    _tooltipEndAnimation.addListener(markNeedsPaint);
-    _tooltipEndAnimation.addStatusListener(_handleTooltipAnimationStatusChange);
     for (final RenderBox child in children) {
       child.attach(owner);
     }
@@ -2518,51 +1863,10 @@ class _RenderRangeSlider extends RenderBaseSlider
 
   @override
   void detach() {
-    _overlayStartAnimation.removeListener(markNeedsPaint);
-    _overlayEndAnimation.removeListener(markNeedsPaint);
-    _stateAnimation.removeListener(markNeedsPaint);
-    _state.startPositionController.removeListener(markNeedsPaint);
-    _state.endPositionController.removeListener(markNeedsPaint);
-    _tooltipStartAnimation.removeListener(markNeedsPaint);
-    _tooltipStartAnimation
-        .removeStatusListener(_handleTooltipAnimationStatusChange);
-    _tooltipEndAnimation.removeListener(markNeedsPaint);
-    _tooltipEndAnimation
-        .removeStatusListener(_handleTooltipAnimationStatusChange);
     super.detach();
     for (final RenderBox child in children) {
       child.detach();
     }
-  }
-
-  @override
-  void visitChildren(RenderObjectVisitor visitor) {
-    children.forEach(visitor);
-  }
-
-  @override
-  MouseCursor get cursor => MouseCursor.defer;
-
-  @override
-  PointerEnterEventListener? get onEnter => null;
-
-  @override
-  // ignore: override_on_non_overriding_member
-  PointerHoverEventListener get onHover => _handleHover;
-
-  @override
-  PointerExitEventListener get onExit => _handleExit;
-
-  @override
-  // ignore: override_on_non_overriding_member
-  bool get validForMouseTracker => true;
-
-  @override
-  void handleEvent(PointerEvent event, HitTestEntry entry) {
-    if (event is PointerHoverEvent) {
-      return onHover(event);
-    }
-    super.handleEvent(event, entry);
   }
 
   @override
@@ -2584,52 +1888,8 @@ class _RenderRangeSlider extends RenderBaseSlider
                 trackOffset.dy -
                 maxTrackHeight / 2);
 
-    // Drawing track.
-    final Rect trackRect =
-        trackShape.getPreferredRect(this, sliderThemeData, actualTrackOffset);
-    final double thumbStartPosition = getFactorFromValue(_isIntervalTapped
-            ? getValueFromFactor(_state.startPositionController.value)
-            : actualValues.start) *
-        (sliderType == SliderType.vertical
-            ? trackRect.height
-            : trackRect.width);
-    final double thumbEndPosition = getFactorFromValue(_isIntervalTapped
-            ? getValueFromFactor(_state.endPositionController.value)
-            : actualValues.end) *
-        (sliderType == SliderType.vertical
-            ? trackRect.height
-            : trackRect.width);
-    final Offset startThumbCenter = sliderType == SliderType.vertical
-        ? Offset(trackRect.center.dx, trackRect.bottom - thumbStartPosition)
-        : Offset(trackRect.left + thumbStartPosition, trackRect.center.dy);
-    final Offset endThumbCenter = sliderType == SliderType.vertical
-        ? Offset(trackRect.center.dx, trackRect.bottom - thumbEndPosition)
-        : Offset(trackRect.left + thumbEndPosition, trackRect.center.dy);
-    trackShape.paint(
-        context, actualTrackOffset, null, startThumbCenter, endThumbCenter,
-        parentBox: this,
-        themeData: sliderThemeData,
-        currentValues: _values,
-        enableAnimation: _stateAnimation,
-        textDirection: textDirection,
-        activePaint: null,
-        inactivePaint: null);
-
-    if (showLabels || showTicks || showDivisors) {
-      drawLabelsTicksAndDivisors(context, trackRect, offset, null,
-          startThumbCenter, endThumbCenter, _stateAnimation, null, _values);
-    }
-
-    _drawOverlayAndThumb(context, endThumbCenter, startThumbCenter);
-    _drawTooltip(context, endThumbCenter, startThumbCenter, offset,
-        actualTrackOffset, trackRect);
+    drawRangeSliderElements(context, offset, actualTrackOffset);
   }
-
-  /// Describe the semantics of the start thumb.
-  SemanticsNode? _startSemanticsNode = SemanticsNode();
-
-  /// Describe the semantics of the end thumb.
-  SemanticsNode? _endSemanticsNode = SemanticsNode();
 
   // Create the semantics configuration for a single value.
   SemanticsConfiguration _createSemanticsConfiguration(
@@ -2671,8 +1931,8 @@ class _RenderRangeSlider extends RenderBaseSlider
     final SemanticsConfiguration startSemanticsConfiguration =
         _createSemanticsConfiguration(
       values.start,
-      _increasedStartValue,
-      _decreasedStartValue,
+      increasedStartValue,
+      decreasedStartValue,
       SfThumb.start,
       _increaseStartAction,
       _decreaseStartAction,
@@ -2680,8 +1940,8 @@ class _RenderRangeSlider extends RenderBaseSlider
     final SemanticsConfiguration endSemanticsConfiguration =
         _createSemanticsConfiguration(
       values.end,
-      _increasedEndValue,
-      _decreasedEndValue,
+      increasedEndValue,
+      decreasedEndValue,
       SfThumb.end,
       _increaseEndAction,
       _decreaseEndAction,
@@ -2695,19 +1955,19 @@ class _RenderRangeSlider extends RenderBaseSlider
         : Rect.fromPoints(node.rect.topCenter, node.rect.bottomRight);
     if (sliderType == SliderType.vertical ||
         textDirection == TextDirection.ltr) {
-      _startSemanticsNode!.rect = startRect;
-      _endSemanticsNode!.rect = endRect;
+      startSemanticsNode!.rect = startRect;
+      endSemanticsNode!.rect = endRect;
     } else {
-      _startSemanticsNode!.rect = endRect;
-      _endSemanticsNode!.rect = startRect;
+      startSemanticsNode!.rect = endRect;
+      endSemanticsNode!.rect = startRect;
     }
 
-    _startSemanticsNode!.updateWith(config: startSemanticsConfiguration);
-    _endSemanticsNode!.updateWith(config: endSemanticsConfiguration);
+    startSemanticsNode!.updateWith(config: startSemanticsConfiguration);
+    endSemanticsNode!.updateWith(config: endSemanticsConfiguration);
 
     final List<SemanticsNode> finalChildren = <SemanticsNode>[
-      _startSemanticsNode!,
-      _endSemanticsNode!,
+      startSemanticsNode!,
+      endSemanticsNode!,
     ];
 
     node.updateWith(config: config, childrenInInversePaintOrder: finalChildren);
@@ -2716,8 +1976,8 @@ class _RenderRangeSlider extends RenderBaseSlider
   @override
   void clearSemantics() {
     super.clearSemantics();
-    _startSemanticsNode = null;
-    _endSemanticsNode = null;
+    startSemanticsNode = null;
+    endSemanticsNode = null;
   }
 
   @override
@@ -2729,23 +1989,6 @@ class _RenderRangeSlider extends RenderBaseSlider
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(StringProperty(
-        'thumbSize', thumbShape.getPreferredSize(sliderThemeData).toString()));
-    properties.add(StringProperty(
-        'activeDivisorSize',
-        divisorShape
-            .getPreferredSize(sliderThemeData, isActive: true)
-            .toString()));
-    properties.add(StringProperty(
-        'inactiveDivisorSize',
-        divisorShape
-            .getPreferredSize(sliderThemeData, isActive: false)
-            .toString()));
-    properties.add(StringProperty('overlaySize',
-        overlayShape.getPreferredSize(sliderThemeData).toString()));
-    properties.add(StringProperty(
-        'tickSize', tickShape.getPreferredSize(sliderThemeData).toString()));
-    properties.add(StringProperty('minorTickSize',
-        minorTickShape.getPreferredSize(sliderThemeData).toString()));
+    debugRangeSliderFillProperties(properties);
   }
 }

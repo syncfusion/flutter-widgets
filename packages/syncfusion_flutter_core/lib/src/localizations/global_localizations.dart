@@ -14,8 +14,9 @@ abstract class SfLocalizations {
 
   /// Label that is displayed when there are no events for a
   /// selected date in a calendar widget.
-  /// This label is displayed when there are no events on today date and display date in schedule view and
-  /// displayed under agenda section in month view.
+  /// This label is displayed when there are no events on today date and
+  /// display date in schedule view and displayed under agenda section
+  /// in month view.
   String get noEventsCalendarLabel;
 
   /// A label that is shown on a spanned appointment. This label will be

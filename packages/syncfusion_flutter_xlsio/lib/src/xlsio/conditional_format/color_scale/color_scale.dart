@@ -26,7 +26,7 @@ abstract class ColorScale {
   ///
   /// // set colorscale CF.
   /// conditionalFormat.formatType = ExcelCFType.colorScale;
-  /// final ColorScale colorScale = conditionalFormat.colorScale;
+  /// final ColorScale colorScale = conditionalFormat.colorScale!;
   ///
   /// //Sets 3 - color scale and its constraints
   /// colorScale.setConditionCount(3);
@@ -70,7 +70,7 @@ abstract class ColorScale {
   ///
   /// // set colorscale CF.
   /// conditionalFormat.formatType = ExcelCFType.colorScale;
-  /// final ColorScale colorScale = conditionalFormat.colorScale;
+  /// final ColorScale colorScale = conditionalFormat.colorScale!;
   ///
   /// //Sets 3 - color scale and its constraints
   /// colorScale.setConditionCount(3);

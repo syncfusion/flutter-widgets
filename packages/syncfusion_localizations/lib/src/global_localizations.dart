@@ -39,7 +39,7 @@ abstract class SfGlobalLocalizations implements SfLocalizations {
   const SfGlobalLocalizations({
     required String localeName,
     // ignore: unnecessary_null_comparison
-  })   : assert(localeName != null),
+  })  : assert(localeName != null),
         _localeName = localeName;
   // ignore: unused_field
   final String _localeName;

@@ -1,13 +1,15 @@
 import 'dart:math';
+import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import 'behavior/zoom_pan_behavior.dart';
+import '../maps.dart';
 import 'common.dart';
 import 'controller/map_controller.dart';
+import 'controller/map_provider.dart';
 
 // ignore_for_file: public_member_api_docs
 
@@ -121,6 +123,19 @@ double getLayerSizeFactor(MapController controller) {
       ? 1.0
       : (controller.shapeLayerSizeFactor *
           (controller.gesture == Gesture.scale ? controller.localScale : 1.0));
+}
+
+MapProvider getSourceProvider(
+    Object geoJsonSource, GeoJSONSourceType geoJSONSourceType) {
+  switch (geoJSONSourceType) {
+    case GeoJSONSourceType.asset:
+      return AssetMapProvider(geoJsonSource.toString());
+    case GeoJSONSourceType.network:
+      return NetworkMapProvider(geoJsonSource.toString());
+    case GeoJSONSourceType.memory:
+      // ignore: avoid_as
+      return MemoryMapProvider(geoJsonSource as Uint8List);
+  }
 }
 
 /// An interpolation between two latlng.

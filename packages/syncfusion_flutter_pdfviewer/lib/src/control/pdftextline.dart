@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'package:flutter/material.dart';
 
 /// The class PdfTextLine represents the selected text line
 /// which contains the text and the bounding rectangular size relative to the page dimension

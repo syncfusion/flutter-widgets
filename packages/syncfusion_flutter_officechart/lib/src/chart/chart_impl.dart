@@ -47,13 +47,13 @@ class Chart {
   ChartLegend? _legend;
 
   /// Represent the clustered chart collection.
-  final List<ExcelChartType> _chartsCluster = [
+  final List<ExcelChartType> _chartsCluster = <ExcelChartType>[
     ExcelChartType.bar,
     ExcelChartType.column
   ];
 
   /// Represent the stacked chart collection.
-  final List<ExcelChartType> _stackedCharts = [
+  final List<ExcelChartType> _stackedCharts = <ExcelChartType>[
     ExcelChartType.barStacked,
     ExcelChartType.columnStacked,
     ExcelChartType.lineStacked,
@@ -61,7 +61,7 @@ class Chart {
   ];
 
   /// Represent 100% charts.Here each value in a series is shown as a portion of 100%.
-  final List<ExcelChartType> _charts100 = [
+  final List<ExcelChartType> _charts100 = <ExcelChartType>[
     ExcelChartType.columnStacked100,
     ExcelChartType.barStacked100,
     ExcelChartType.lineStacked100,
@@ -235,7 +235,7 @@ class Chart {
   set hasLegend(bool value) {
     if (_bHasLegend != value) {
       _bHasLegend = value;
-      _legend = (value) ? ChartLegend(_worksheet, this) : null;
+      _legend = value ? ChartLegend(_worksheet, this) : null;
     }
   }
 
@@ -366,7 +366,9 @@ class Chart {
   /// workbook.dispose();
   /// ```
   ChartTextArea get chartTitleArea {
-    if (_textArea == null) _createChartTitle();
+    if (_textArea == null) {
+      _createChartTitle();
+    }
     return _textArea!;
   }
 
@@ -492,7 +494,7 @@ class Chart {
     final int iCount = _series.count;
 
     if (dataRange == null && iCount != 0) {
-      throw ('This property supported only in chart where can detect data range.');
+      throw 'This property supported only in chart where can detect data range.';
     }
 
     if (_bSeriesInRows != value) {
@@ -506,7 +508,7 @@ class Chart {
 
   /// True if chart is a bar chart. False otherwise. Read-only.
   bool get isChartBar {
-    return chartType == ExcelChartType.pie ? true : false;
+    return chartType == ExcelChartType.pie;
   }
 
   /// Get a plotArea
@@ -631,7 +633,9 @@ class Chart {
   set dataRange(Range? value) {
     if (_dataRange != value) {
       _dataRange = value;
-      if (value == null) return;
+      if (value == null) {
+        return;
+      }
       final ExcelChartType type = chartType;
       _onDataRangeChanged(type);
 
@@ -652,7 +656,7 @@ class Chart {
       values = chartValues;
       return chartValues;
     }
-    result = (bIsInRow)
+    result = bIsInRow
         ? chartValues.worksheet
             .getRangeByIndex(firstRow, firstColumn, lastRow, firstColumn)
         : chartValues.worksheet
@@ -660,7 +664,7 @@ class Chart {
     if (firstRow == lastRow && firstColumn == lastColumn) {
       values = result;
     } else if (firstRow == lastRow) {
-      values = (bIsInRow)
+      values = bIsInRow
           ? chartValues.worksheet
               .getRangeByIndex(firstRow, firstColumn, lastRow, lastColumn)
           : chartValues
@@ -669,7 +673,7 @@ class Chart {
       final int add = bIsInRow
           ? (firstColumn == lastColumn ? 0 : 1)
           : (firstRow == lastRow ? 0 : 1);
-      values = (bIsInRow)
+      values = bIsInRow
           ? chartValues.worksheet
               .getRangeByIndex(firstRow, firstColumn + add, lastRow, lastColumn)
           : chartValues.worksheet.getRangeByIndex(
@@ -692,14 +696,14 @@ class Chart {
     axisRange = _getSerieOrAxisRange(_serieValue, !_bSeriesInRows, _serieValue);
     // }
     if (!_validateSerieRangeForChartType(_serieValue, type, _bSeriesInRows)) {
-      throw ("Can't set data range.");
+      throw 'Can\'t set data range.';
     }
 
     primaryCategoryAxis._categoryLabels = axisRange;
     int iIndex = 0;
 
     if (serieNameRange != null && axisRange != null) {
-      iIndex = (_bSeriesInRows)
+      iIndex = _bSeriesInRows
           ? axisRange.lastRow - axisRange.row + 1
           : axisRange.lastColumn - axisRange.column + 1;
     }
@@ -710,7 +714,9 @@ class Chart {
 
   /// Gets data range that represents series name or category axis.
   Range? _getSerieOrAxisRange(Range? range, bool bIsInRow, Range? serieRange) {
-    if (range == null) throw ('range-Value should not be null');
+    if (range == null) {
+      throw 'range-Value should not be null';
+    }
 
     final int iFirstLen = bIsInRow ? range.row : range.column;
     final int iRowColumn = bIsInRow ? range.lastRow : range.lastColumn;
@@ -727,12 +733,13 @@ class Chart {
           ? range.worksheet.getRangeByIndex(iRowColumn, i)
           : range.worksheet.getRangeByIndex(i, iRowColumn);
 
-      bIsName = (curRange.number != null && (curRange.dateTime == null)) ||
-          (curRange.formula != null
-              ? ((curRange.formula != null) ? false : true)
-              : false);
+      bIsName = (curRange.number != null ||
+              (curRange.dateTime == null && curRange.text == null)) ||
+          curRange.formula != null;
 
-      if (!bIsName) iIndex = i;
+      if (!bIsName) {
+        iIndex = i;
+      }
     }
 
     if (iIndex == -1) {
@@ -741,13 +748,13 @@ class Chart {
       return null;
     }
 
-    final Range result = (bIsInRow)
+    final Range result = bIsInRow
         ? range.worksheet
             .getRangeByIndex(iFirstLen, iFirsCount, iRowColumn, iIndex)
         : range.worksheet
             .getRangeByIndex(iFirsCount, iFirstLen, iIndex, iRowColumn);
 
-    serieRange = (bIsInRow)
+    serieRange = bIsInRow
         ? range.worksheet.getRangeByIndex(
             range.row, result.lastColumn + 1, range.lastRow, range.lastColumn)
         : range.worksheet.getRangeByIndex(
@@ -760,14 +767,16 @@ class Chart {
   void _updateSeriesByDataRange(Range? serieValue, Range? serieNameRange,
       Range? axisRange, int iIndex, bool isSeriesInRows) {
     Worksheet? sheet;
-    if (serieValue != null) sheet = serieValue.worksheet;
+    if (serieValue != null) {
+      sheet = serieValue.worksheet;
+    }
     if (sheet == null && serieNameRange != null) {
       sheet = serieNameRange.worksheet;
     }
     sheet ??= _worksheet;
     final int iLen = _series.count;
     for (int i = 0; i < iLen; i++) {
-      final Range value = (isSeriesInRows)
+      final Range value = isSeriesInRows
           ? sheet.getRangeByIndex(serieValue!.row + i, serieValue.column,
               serieValue.row + i, serieValue.lastColumn)
           : sheet.getRangeByIndex(serieValue!.row, serieValue.column + i,
@@ -781,9 +790,9 @@ class Chart {
       serie._isDefaultName = true;
       if (serieNameRange != null) {
         iAddIndex +=
-            (isSeriesInRows) ? serieNameRange.row : serieNameRange.column;
+            isSeriesInRows ? serieNameRange.row : serieNameRange.column;
 
-        String? formula = (isSeriesInRows)
+        String? formula = isSeriesInRows
             ? sheet
                 .getRangeByIndex(iAddIndex + i, serieNameRange.column,
                     iAddIndex + i, serieNameRange.lastColumn)
@@ -793,7 +802,7 @@ class Chart {
                     serieNameRange.lastRow, iAddIndex + i)
                 .addressGlobal;
         serie._nameOrFormula = formula;
-        formula = (isSeriesInRows)
+        formula = isSeriesInRows
             ? sheet
                 .getRangeByIndex(iAddIndex + i, serieNameRange.column,
                     iAddIndex + i, serieNameRange.lastColumn)
@@ -810,9 +819,11 @@ class Chart {
   /// Validates Series range for min Series count of custom chart type.
   bool _validateSerieRangeForChartType(
       Range? serieValue, ExcelChartType type, bool isSeriesInRows) {
-    if (serieValue == null) throw ('serieValue - Value cannot be null');
+    if (serieValue == null) {
+      throw 'serieValue - Value cannot be null';
+    }
 
-    final int iSeriesInRangeCount = (isSeriesInRows)
+    final int iSeriesInRangeCount = isSeriesInRows
         ? serieValue.lastRow - serieValue.row + 1
         : serieValue.lastColumn - serieValue.column + 1;
     final int iSeriesCount = _series.count;
@@ -837,16 +848,16 @@ class Chart {
 
   /// Indicates whether if given chart type is stacked chart or not.
   bool _getIsStacked(ExcelChartType chartType) {
-    return (_stackedCharts.contains(chartType));
+    return _stackedCharts.contains(chartType);
   }
 
   /// Indicates whether if given chart type is clustered chart or not.
   bool _getIsClustered(ExcelChartType chartType) {
-    return (_chartsCluster.contains(chartType));
+    return _chartsCluster.contains(chartType);
   }
 
   /// Indicates whether if given chart type is clustered chart or not.
   bool _getIs100(ExcelChartType chartType) {
-    return (_charts100.contains(chartType));
+    return _charts100.contains(chartType);
   }
 }

@@ -2,14 +2,8 @@ part of pdf;
 
 class _MatrixHelper {
   //constructor
-  _MatrixHelper(double m11, double m12, double m21, double m22, double offsetX,
-      double offsetY) {
-    this.m11 = m11;
-    this.m12 = m12;
-    this.m21 = m21;
-    this.m22 = m22;
-    this.offsetX = offsetX;
-    this.offsetY = offsetY;
+  _MatrixHelper(
+      this.m11, this.m12, this.m21, this.m22, this.offsetX, this.offsetY) {
     type = _MatrixTypes.unknown;
     _checkMatrixType();
   }

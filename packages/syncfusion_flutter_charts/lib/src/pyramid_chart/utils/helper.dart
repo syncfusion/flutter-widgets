@@ -1,7 +1,7 @@
 part of charts;
 
 /// Method for checking if point is within polygon
-bool _isPointInPolygon(List<Offset> polygon, dynamic point) {
+bool _isPointInPolygon(List<Offset> polygon, Offset point) {
   bool p = false;
   int i = -1;
   final int l = polygon.length;
@@ -26,20 +26,20 @@ void _findTemplates(dynamic _chartState) {
   const num lineLength = 10;
   PointInfo<dynamic> point;
   Widget labelWidget;
-  _chartState._templates = <_ChartTemplateInfo>[];
-  _chartState._dataLabelTemplateRegions = <Rect>[];
+  _chartState._renderingDetails.dataLabelTemplateRegions = <Rect>[];
+  _chartState._renderingDetails.templates = <_ChartTemplateInfo>[];
   dynamic series;
+  dynamic seriesRenderer;
+  ChartAlignment labelAlign;
   for (int k = 0;
       k < _chartState._chartSeries.visibleSeriesRenderers.length;
       k++) {
-    final dynamic seriesRenderer =
-        _chartState._chartSeries.visibleSeriesRenderers[k];
+    seriesRenderer = _chartState._chartSeries.visibleSeriesRenderers[k];
     series = seriesRenderer._series;
-    if (series.dataLabelSettings.isVisible &&
+    if (series.dataLabelSettings.isVisible == true &&
         series.dataLabelSettings.builder != null) {
       for (int i = 0; i < seriesRenderer._renderPoints.length; i++) {
         point = seriesRenderer._renderPoints[i];
-        ChartAlignment labelAlign;
         if (point.isVisible) {
           labelWidget = series.dataLabelSettings
               .builder(series.dataSource[i], point, series, i, k);
@@ -58,13 +58,13 @@ void _findTemplates(dynamic _chartState) {
                 ? ChartAlignment.far
                 : ChartAlignment.near;
           }
-          _chartState._templates.add(_ChartTemplateInfo(
+          _chartState._renderingDetails.templates.add(_ChartTemplateInfo(
               key: GlobalKey(),
               templateType: 'DataLabel',
               pointIndex: i,
               seriesIndex: k,
               needMeasure: true,
-              clipRect: _chartState._chartAreaRect,
+              clipRect: _chartState._renderingDetails.chartAreaRect,
               animationDuration: 500,
               widget: labelWidget,
               horizontalAlignment: labelAlign,
@@ -78,17 +78,21 @@ void _findTemplates(dynamic _chartState) {
 
 /// To render a template
 void _renderTemplates(dynamic _chartState) {
-  if (_chartState._templates.isNotEmpty) {
-    for (int i = 0; i < _chartState._templates.length; i++) {
-      final _ChartTemplateInfo chartTemplateInfo = _chartState._templates[i];
+  if (_chartState._renderingDetails.templates.isNotEmpty == true) {
+    _ChartTemplateInfo chartTemplateInfo;
+    for (int i = 0; i < _chartState._renderingDetails.templates.length; i++) {
+      chartTemplateInfo = _chartState._renderingDetails.templates[i];
       chartTemplateInfo.animationDuration =
-          !_chartState._initialRender ? 0 : chartTemplateInfo.animationDuration;
+          _chartState._renderingDetails.initialRender == false
+              ? 0
+              : chartTemplateInfo.animationDuration;
     }
-    _chartState._chartTemplate = _ChartTemplate(
-        templates: _chartState._templates,
-        render: _chartState._animateCompleted,
+    _chartState._renderingDetails.chartTemplate = _ChartTemplate(
+        templates: _chartState._renderingDetails.templates,
+        render: _chartState._renderingDetails.animateCompleted,
         chartState: _chartState);
-    _chartState._chartWidgets.add(_chartState._chartTemplate);
+    _chartState._renderingDetails.chartWidgets
+        .add(_chartState._renderingDetails.chartTemplate);
   }
 }
 
@@ -100,21 +104,20 @@ Color _getPyramidFunnelColor(PointInfo<dynamic> currentPoint,
   final DataLabelSettings dataLabel = series.dataLabelSettings;
   final DataLabelSettingsRenderer dataLabelSettingsRenderer =
       seriesRenderer._dataLabelSettingsRenderer;
-  if (currentPoint.renderPosition == null ||
-      currentPoint.renderPosition == ChartDataLabelPosition.inside &&
-          !currentPoint.saturationRegionOutside) {
-    color = _innerColor(dataLabelSettingsRenderer._color, currentPoint.fill,
-        _chartState._chartTheme);
-  } else {
-    color = _outerColor(
-        dataLabelSettingsRenderer._color,
-        dataLabel.useSeriesColor
-            ? currentPoint.fill
-            : (_chartState._chart.backgroundColor != null
-                ? _chartState._chartTheme.plotAreaBackgroundColor
-                : null),
-        _chartState._chartTheme);
-  }
+  color = (currentPoint.renderPosition == null ||
+          currentPoint.renderPosition == ChartDataLabelPosition.inside &&
+              !currentPoint.saturationRegionOutside)
+      ? _innerColor(dataLabelSettingsRenderer._color, currentPoint.fill,
+          _chartState._renderingDetails.chartTheme)
+      : _outerColor(
+          dataLabelSettingsRenderer._color,
+          dataLabel.useSeriesColor
+              ? currentPoint.fill
+              : (_chartState._chart.backgroundColor != null
+                  ? _chartState
+                      ._renderingDetails.chartTheme.plotAreaBackgroundColor
+                  : null),
+          _chartState._renderingDetails.chartTheme);
 
   return _getSaturationColor(color);
 }
@@ -174,14 +177,16 @@ TextStyle _getDataLabelTextStyle(
 /// To check the point explosion
 bool _isNeedExplode(int pointIndex, dynamic series, dynamic _chartState) {
   bool isNeedExplode = false;
-  if (series.explode) {
-    if (_chartState._initialRender) {
+  if (series.explode == true) {
+    if (_chartState._renderingDetails.initialRender == true) {
       if (pointIndex == series.explodeIndex) {
-        _chartState._explodedPoints.add(pointIndex);
+        _chartState._renderingDetails.explodedPoints.add(pointIndex);
         isNeedExplode = true;
       }
-    } else if (_chartState._widgetNeedUpdate || _chartState._isLegendToggled) {
-      isNeedExplode = _chartState._explodedPoints.contains(pointIndex);
+    } else if (_chartState._renderingDetails.widgetNeedUpdate == true ||
+        _chartState._renderingDetails.isLegendToggled == true) {
+      isNeedExplode =
+          _chartState._renderingDetails.explodedPoints.contains(pointIndex);
     }
   }
   return isNeedExplode;

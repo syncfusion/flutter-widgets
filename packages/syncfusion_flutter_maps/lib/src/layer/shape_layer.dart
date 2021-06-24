@@ -11,14 +11,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart' show SchedulerBinding;
+// ignore: unused_import
+import 'package:flutter/services.dart';
+import 'package:syncfusion_flutter_core/legend_internal.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_maps/maps.dart';
 
-import '../behavior/zoom_pan_behavior.dart';
 import '../common.dart';
+import '../controller/layer_controller.dart';
 import '../controller/map_controller.dart';
 import '../controller/map_provider.dart';
-import '../controller/shape_layer_controller.dart';
 import '../elements/bubble.dart';
 import '../elements/data_label.dart';
 import '../elements/legend.dart';
@@ -30,7 +32,829 @@ import '../layer/layer_base.dart';
 import '../layer/vector_layers.dart';
 import '../settings.dart';
 import '../utils.dart';
-import 'tile_layer.dart';
+
+/// The source that maps the data source with the shape file and provides
+/// data for the elements of the shape layer like data labels, bubbles, tooltip,
+/// and shape colors.
+///
+/// The source can be set as the .json file from an asset bundle, network
+/// or from [Uint8List] as bytes. Use the respective constructor depends on the
+/// type of the source.
+///
+/// The [MapShapeSource.shapeDataField] property is used to
+/// refer the unique field name in the .json file to identify each shapes and
+/// map with the respective data in the data source.
+///
+/// By default, the value specified for the
+/// [MapShapeSource.shapeDataField] in the GeoJSON file will be used in
+/// the elements like data labels, tooltip, and legend for their respective
+/// shapes.
+///
+/// However, it is possible to keep a data source and customize these elements
+/// based on the requirement. The value of the
+/// [MapShapeSource.shapeDataField] will be used to map with the
+/// respective data returned in [MapShapeSource.primaryValueMapper]
+/// from the data source.
+///
+/// Once the above mapping is done, you can customize the elements using the
+/// APIs like [MapShapeSource.dataLabelMapper],
+/// [MapShapeSource.shapeColorMappers], etc.
+///
+/// ```dart
+/// late MapShapeSource _mapSource;
+/// late List<Model> _data;
+///
+/// @override
+/// void initState() {
+///   _data = <Model>[
+///    Model('India', 280, "Low"),
+///    Model('United States of America', 190, "High"),
+///    Model('Pakistan', 37, "Low"),
+///   ];
+///
+///   _mapSource = MapShapeSource.asset(
+///     'assets/world_map.json',
+///     shapeDataField: 'name',
+///     dataCount: _data.length,
+///     primaryValueMapper: (int index) {
+///       return _data[index].country;
+///     },
+///     dataLabelMapper: (int index) {
+///       return _data[index].country;
+///     },
+///   );
+///
+///   super.initState();
+/// }
+///
+/// @override
+/// Widget build(BuildContext context) {
+///   return
+///     SfMaps(
+///       layers: [
+///         MapShapeLayer(
+///           source: _mapSource,
+///           showDataLabels: true,
+///        )
+///     ],
+///   );
+/// }
+///
+/// class Model {
+///  const Model(this.country, this.count, this.storage);
+///
+///  final String country;
+///  final double count;
+///  final String storage;
+/// }
+/// ```
+/// See also:
+/// * [MapShapeSource.primaryValueMapper], to map the data of the data
+/// source collection with the respective [MapShapeSource.shapeDataField] in
+/// .json file.
+/// * [MapShapeSource.bubbleSizeMapper], to customize the bubble size.
+/// * [MapShapeSource.dataLabelMapper], to customize the
+/// data label's text.
+/// * [MapShapeSource.shapeColorValueMapper] and
+/// [MapShapeSource.shapeColorMappers], to customize the shape colors.
+/// * [MapShapeSource.bubbleColorValueMapper] and
+/// [MapShapeSource.bubbleColorMappers], to customize the
+/// bubble colors.
+class MapShapeSource extends DiagnosticableTree {
+  /// Creates a layer using the .json file from an asset bundle.
+  ///
+  /// ```dart
+  /// late MapShapeSource _mapSource;
+  ///
+  /// @override
+  /// void initState() {
+  ///   _mapSource = MapShapeSource.asset(
+  ///     'assets/Ireland.json',
+  ///     shapeDataField: 'name',
+  ///   );
+  ///
+  ///  super.initState();
+  /// }
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     appBar: AppBar(
+  ///       title: Text('Asset sample'),
+  ///     ),
+  ///     body: Container(
+  ///       color: Colors.blue[100],
+  ///       child: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             showDataLabels: true,
+  ///             color: Colors.orange[100],
+  ///           ),
+  ///        ],
+  ///       ),
+  ///     ),
+  ///   );
+  /// }
+  /// ```
+  const MapShapeSource.asset(
+    String name, {
+    this.shapeDataField,
+    this.dataCount = 0,
+    this.primaryValueMapper,
+    this.shapeColorMappers,
+    this.bubbleColorMappers,
+    this.dataLabelMapper,
+    this.bubbleSizeMapper,
+    this.shapeColorValueMapper,
+    this.bubbleColorValueMapper,
+  })  : _path = name,
+        _type = GeoJSONSourceType.asset,
+        assert((primaryValueMapper != null && dataCount > 0) ||
+            primaryValueMapper == null),
+        assert((shapeColorMappers != null &&
+                primaryValueMapper != null &&
+                shapeColorValueMapper != null) ||
+            shapeColorMappers == null),
+        assert((bubbleColorMappers != null &&
+                primaryValueMapper != null &&
+                bubbleColorValueMapper != null) ||
+            bubbleColorMappers == null);
+
+  /// Creates a layer using the .json file from the network.
+  ///
+  /// ```dart
+  /// late MapShapeSource _mapSource;
+  ///
+  /// @override
+  /// void initState() {
+  ///   _mapSource = MapShapeSource.network(
+  ///     'http://www.json-generator.com/api/json/get/bVqXoJvfjC?indent=2',
+  ///   );
+  ///
+  ///   super.initState();
+  /// }
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     appBar: AppBar(
+  ///       title: Text('Network sample'),
+  ///     ),
+  ///     body: SfMaps(
+  ///       layers: [
+  ///         MapShapeLayer(
+  ///           source: _mapSource,
+  ///         ),
+  ///       ],
+  ///     ),
+  ///   );
+  /// }
+  /// ```
+  const MapShapeSource.network(
+    String src, {
+    this.shapeDataField,
+    this.dataCount = 0,
+    this.primaryValueMapper,
+    this.shapeColorMappers,
+    this.bubbleColorMappers,
+    this.dataLabelMapper,
+    this.bubbleSizeMapper,
+    this.shapeColorValueMapper,
+    this.bubbleColorValueMapper,
+  })  : _path = src,
+        _type = GeoJSONSourceType.network,
+        assert((primaryValueMapper != null && dataCount > 0) ||
+            primaryValueMapper == null),
+        assert((shapeColorMappers != null &&
+                primaryValueMapper != null &&
+                shapeColorValueMapper != null) ||
+            shapeColorMappers == null),
+        assert((bubbleColorMappers != null &&
+                primaryValueMapper != null &&
+                bubbleColorValueMapper != null) ||
+            bubbleColorMappers == null);
+
+  /// Creates a layer using the GeoJSON source as bytes from [Uint8List].
+  ///
+  /// ```dart
+  /// late MapShapeSource _mapSource;
+  ///
+  /// @override
+  /// void initState() {
+  ///   _mapSource = MapShapeSource.memory(
+  ///     bytes,
+  ///     shapeDataField: 'name'
+  ///   );
+  /// }
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     appBar: AppBar(
+  ///       title: Text('Memory sample'),
+  ///     ),
+  ///     body: Center(
+  ///         child: SfMaps(
+  ///       layers: [
+  ///         MapShapeLayer(
+  ///          source: _mapSource,
+  ///           showDataLabels: true,
+  ///           color: Colors.orange[100],
+  ///         ),
+  ///       ],
+  ///     )),
+  ///   );
+  /// }
+  /// ```
+  const MapShapeSource.memory(
+    Uint8List bytes, {
+    this.shapeDataField,
+    this.dataCount = 0,
+    this.primaryValueMapper,
+    this.shapeColorMappers,
+    this.bubbleColorMappers,
+    this.dataLabelMapper,
+    this.bubbleSizeMapper,
+    this.shapeColorValueMapper,
+    this.bubbleColorValueMapper,
+  })  : _path = bytes,
+        _type = GeoJSONSourceType.memory,
+        assert((primaryValueMapper != null && dataCount > 0) ||
+            primaryValueMapper == null),
+        assert((shapeColorMappers != null &&
+                primaryValueMapper != null &&
+                shapeColorValueMapper != null) ||
+            shapeColorMappers == null),
+        assert((bubbleColorMappers != null &&
+                primaryValueMapper != null &&
+                bubbleColorValueMapper != null) ||
+            bubbleColorMappers == null);
+
+  /// Field name in the .json file to identify each shape.
+  ///
+  /// It is used to refer the field name in the .json file to identify
+  /// each shape and map that shape with the respective data in
+  /// the data source.
+  final String? shapeDataField;
+
+  /// Length of the data source.
+  final int dataCount;
+
+  /// Collection of [MapColorMapper] which specifies shape's color based on the
+  /// data.
+  ///
+  /// It provides option to set the shape color based on the specific
+  /// [MapColorMapper.value] or the range of values which falls between
+  /// [MapColorMapper.from] and [MapColorMapper.to].
+  ///
+  /// Based on the returned values, legend items will be rendered. The text of
+  /// legend item will be [MapColorMapper.text] of the [MapColorMapper].
+  ///
+  /// The below code snippet represents how color can be applied to the shape
+  /// based on the [MapColorMapper.value] property of [MapColorMapper].
+  ///
+  /// ```dart
+  /// late List<Model> _data;
+  /// late MapShapeSource _mapSource;
+  ///
+  /// @override
+  /// void initState() {
+  ///   _data = <Model>[
+  ///    Model('India', 280, "Low"),
+  ///    Model('United States of America', 190, "High"),
+  ///    Model('Pakistan', 37, "Low"),
+  ///   ];
+  ///
+  ///   _mapSource = MapShapeSource.asset(
+  ///     "assets/world_map.json",
+  ///     shapeDataField: "name",
+  ///     dataCount: _data.length,
+  ///     primaryValueMapper: (int index) {
+  ///       return _data[index].country;
+  ///     },
+  ///     shapeColorValueMapper: (int index) {
+  ///        return _data[index].storage;
+  ///     },
+  ///     shapeColorMappers: [
+  ///        MapColorMapper(value: "Low", color: Colors.red),
+  ///        MapColorMapper(value: "High", color: Colors.green)
+  ///     ],
+  ///   );
+  ///
+  ///   super.initState();
+  /// }
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return SfMaps(
+  ///     layers: [
+  ///       MapShapeLayer(
+  ///         source: _mapSource,
+  ///       )
+  ///     ],
+  ///   );
+  /// }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.count, this.storage);
+  ///
+  ///  final String country;
+  ///  final double count;
+  ///  final String storage;
+  /// }
+  /// ```
+  /// The below code snippet represents how color can be applied to the shape
+  /// based on the range between [MapColorMapper.from] and [MapColorMapper.to]
+  /// properties of [MapColorMapper].
+  ///
+  /// ```dart
+  /// late List<Model> _data;
+  /// late MapShapeSource _mapSource;
+  ///
+  /// @override
+  /// void initState() {
+  ///   _data = <Model>[
+  ///    Model('India', 100, "Low"),
+  ///    Model('United States of America', 200, "High"),
+  ///    Model('Pakistan', 75, "Low"),
+  ///   ];
+  ///
+  ///   _mapSource = MapShapeSource.asset(
+  ///     "assets/world_map.json",
+  ///     shapeDataField: "name",
+  ///     dataCount: _data.length,
+  ///     primaryValueMapper: (int index) {
+  ///       return _data[index].country;
+  ///     },
+  ///     shapeColorValueMapper: (int index) {
+  ///        return _data[index].count;
+  ///     },
+  ///     shapeColorMappers: [
+  ///        MapColorMapper(from: 0, to:  100, color: Colors.red),
+  ///        MapColorMapper(from: 101, to: 200, color: Colors.yellow)
+  ///     ]
+  ///   );
+  ///
+  ///   super.initState();
+  /// }
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return SfMaps(
+  ///     layers: [MapShapeLayer(source: _mapSource)],
+  ///   );
+  /// }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.count, this.storage);
+  ///
+  ///  final String country;
+  ///  final double count;
+  ///  final String storage;
+  /// }
+  /// ```
+  final List<MapColorMapper>? shapeColorMappers;
+
+  /// Collection of [MapColorMapper] which specifies bubble's color
+  /// based on the data.
+  ///
+  /// It provides option to set the bubble color based on the specific
+  /// [MapColorMapper.value] or the range of values which falls between
+  /// [MapColorMapper.from] and [MapColorMapper.to].
+  ///
+  /// The below code snippet represents how color can be applied to the bubble
+  /// based on the [MapColorMapper.value] property of [MapColorMapper].
+  ///
+  /// ```dart
+  /// late List<Model> _data;
+  /// late MapShapeSource _mapSource;
+  ///
+  /// @override
+  /// void initState() {
+  ///   _data = <Model>[
+  ///    Model('India', 280, "Low"),
+  ///    Model('United States of America', 190, "High"),
+  ///    Model('Pakistan', 37, "Low"),
+  ///   ];
+  ///
+  ///   _mapSource = MapShapeSource.asset(
+  ///     "assets/world_map.json",
+  ///     shapeDataField: "name",
+  ///     dataCount: _data.length,
+  ///     primaryValueMapper: (int index) {
+  ///       return _data[index].country;
+  ///     },
+  ///     bubbleColorValueMapper: (int index) {
+  ///       return _data[index].count;
+  ///     },
+  ///     bubbleSizeMapper: (int index) {
+  ///       return _data[index].count;
+  ///     },
+  ///     bubbleColorMappers: [
+  ///       MapColorMapper(from: 0, to: 100, color: Colors.red),
+  ///       MapColorMapper(from: 101, to: 300, color: Colors.yellow)
+  ///     ]
+  ///   );
+  ///
+  ///   super.initState();
+  /// }
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return SfMaps(
+  ///     layers: [
+  ///       MapShapeLayer(
+  ///         source: _mapSource,
+  ///       )
+  ///     ],
+  ///   );
+  /// }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.count, this.storage);
+  ///
+  ///  final String country;
+  ///  final double count;
+  ///  final String storage;
+  /// }
+  /// ```
+  /// The below code snippet represents how color can be applied to the bubble
+  /// based on the range between [MapColorMapper.from] and [MapColorMapper.to]
+  /// properties of [MapColorMapper].
+  ///
+  /// ```dart
+  /// late List<Model> _data;
+  /// late MapShapeSource _mapSource;
+  ///
+  /// @override
+  /// void initState() {
+  ///   _data = <Model>[
+  ///    Model('India', 280, "Low"),
+  ///    Model('United States of America', 190, "High"),
+  ///    Model('Pakistan', 37, "Low"),
+  ///   ];
+  ///
+  ///   _mapSource = MapShapeSource.asset(
+  ///     "assets/world_map.json",
+  ///     shapeDataField: "name",
+  ///     dataCount: _data.length,
+  ///     primaryValueMapper: (int index) {
+  ///       return _data[index].country;
+  ///     },
+  ///     bubbleColorValueMapper: (int index) {
+  ///       return _data[index].storage;
+  ///     },
+  ///     bubbleSizeMapper: (int index) {
+  ///       return _data[index].count;
+  ///     },
+  ///    bubbleColorMappers: [
+  ///      MapColorMapper(value: "Low", color: Colors.red),
+  ///      MapColorMapper(value: "High", color: Colors.yellow)
+  ///    ]
+  ///   );
+  ///
+  ///   super.initState();
+  /// }
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return SfMaps(
+  ///     layers: [
+  ///       MapShapeLayer(
+  ///         source: _mapSource,
+  ///       )
+  ///     ],
+  ///   );
+  /// }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.count, this.storage);
+  ///
+  ///  final String country;
+  ///  final double count;
+  ///  final String storage;
+  /// }
+  /// ```
+  final List<MapColorMapper>? bubbleColorMappers;
+
+  /// Returns the the primary value for the every data in the data source
+  /// collection.
+  ///
+  /// This primary value will be mapped with the [shapeDataField] value in the
+  /// respective shape detail in the .json file. This mapping will then be used
+  /// in the rendering of bubbles, data labels, shape colors, tooltip
+  /// in their respective shape's coordinates.
+  /// ```dart
+  /// late List<Model> _data;
+  /// late MapShapeSource _mapSource;
+  ///
+  /// @override
+  /// void initState() {
+  ///   _data = <Model>[
+  ///    Model('India', 280, "Low"),
+  ///    Model('United States of America', 190, "High"),
+  ///    Model('Pakistan', 37, "Low"),
+  ///   ];
+  ///
+  ///   _mapSource = MapShapeSource.asset(
+  ///     "assets/world_map.json",
+  ///     shapeDataField: "name",
+  ///     dataCount: _data.length,
+  ///     primaryValueMapper: (int index) {
+  ///       return _data[index].country;
+  ///     },
+  ///   );
+  ///
+  ///   super.initState();
+  /// }
+  ///
+  ///  @override
+  /// Widget build(BuildContext context) {
+  ///   return SfMaps(
+  ///     layers: [
+  ///       MapShapeLayer(
+  ///         source: _mapSource,
+  ///       )
+  ///     ],
+  ///   );
+  /// }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.count, this.storage);
+  ///
+  ///  final String country;
+  ///  final double count;
+  ///  final String storage;
+  /// }
+  /// ```
+  final IndexedStringValueMapper? primaryValueMapper;
+
+  /// Returns the data label text for each shape.
+  ///
+  /// ```dart
+  /// late List<Model> _data;
+  /// late MapShapeSource _mapSource;
+  ///
+  /// @override
+  /// void initState() {
+  ///   _data = <Model>[
+  ///    Model('India', 280, "Low"),
+  ///    Model('United States of America', 190, "High"),
+  ///    Model('Pakistan', 37, "Low"),
+  ///   ];
+  ///
+  ///   _mapSource = MapShapeSource.asset(
+  ///     "assets/world_map.json",
+  ///     shapeDataField: "name",
+  ///     dataCount: _data.length,
+  ///     primaryValueMapper: (int index) {
+  ///       return _data[index].country;
+  ///     },
+  ///     dataLabelMapper: (int index) {
+  ///       return _data[index].country;
+  ///     },
+  ///   );
+  ///
+  ///   super.initState();
+  /// }
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return SfMaps(
+  ///     layers: [
+  ///       MapShapeLayer(
+  ///         showDataLabels: true,
+  ///         source: _mapSource,
+  ///       )
+  ///     ],
+  ///   );
+  /// }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.count, this.storage);
+  ///
+  ///  final String country;
+  ///  final double count;
+  ///  final String storage;
+  /// }
+  /// ```
+  final IndexedStringValueMapper? dataLabelMapper;
+
+  /// Returns a value based on which bubble size will be calculated.
+  ///
+  /// The minimum and maximum size of the bubble can be customized using the
+  /// [MapBubbleSettings.minRadius] and [MapBubbleSettings.maxRadius].
+  ///
+  /// ```dart
+  /// late List<Model> _data;
+  /// late MapShapeSource _mapSource;
+  ///
+  /// @override
+  /// void initState() {
+  ///   _data = <Model>[
+  ///    Model('India', 280, "Low"),
+  ///    Model('United States of America', 190, "High"),
+  ///    Model('Pakistan', 37, "Low"),
+  ///   ];
+  ///
+  ///   _mapSource = MapShapeSource.asset(
+  ///     "assets/world_map.json",
+  ///     shapeDataField: "name",
+  ///     dataCount: _data.length,
+  ///     primaryValueMapper: (int index) {
+  ///       return _data[index].country;
+  ///     },
+  ///     bubbleSizeMapper: (int index) {
+  ///       return _data[index].usersCount;
+  ///     }
+  ///   );
+  ///
+  ///   super.initState();
+  /// }
+  ///
+  ///  @override
+  /// Widget build(BuildContext context) {
+  ///   return SfMaps(
+  ///     layers: [
+  ///       MapShapeLayer(
+  ///           source: _mapSource,
+  ///       )
+  ///     ],
+  ///   );
+  /// }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.usersCount, this.storage);
+  ///
+  ///  final String country;
+  ///  final double usersCount;
+  ///  final String storage;
+  /// }
+  /// ```
+  final IndexedDoubleValueMapper? bubbleSizeMapper;
+
+  /// Returns a color or value based on which shape color will be updated.
+  ///
+  /// If this returns a color, then this color will be applied to the shape
+  /// straightaway.
+  ///
+  /// If it returns a value other than the color, then you must set the
+  /// [MapShapeSource.shapeColorMappers] property.
+  ///
+  /// The value returned from the [shapeColorValueMapper] will be used for the
+  /// comparison in the [MapColorMapper.value] or [MapColorMapper.from] and
+  /// [MapColorMapper.to]. Then, the [MapColorMapper.color] will be applied to
+  /// the respective shape.
+  ///
+  /// ```dart
+  /// late List<Model> _data;
+  /// late MapShapeSource _mapSource;
+  ///
+  /// @override
+  /// void initState() {
+  ///   _data = <Model>[
+  ///    Model('India', 280, "Low", Colors.red),
+  ///    Model('United States of America', 190, "High", Colors.green),
+  ///    Model('Pakistan', 37, "Low", Colors.yellow),
+  ///   ];
+  ///
+  ///   _mapSource = MapShapeSource.asset(
+  ///     "assets/world_map.json",
+  ///     shapeDataField: "name",
+  ///     dataCount: _data.length,
+  ///     primaryValueMapper: (int index) {
+  ///       return _data[index].country;
+  ///     },
+  ///     shapeColorValueMapper: (int index) {
+  ///       return _data[index].color;
+  ///     }
+  ///   );
+  ///
+  ///   super.initState();
+  /// }
+  ///
+  ///  @override
+  /// Widget build(BuildContext context) {
+  ///   return SfMaps(
+  ///     layers: [
+  ///       MapShapeLayer(
+  ///         source: _mapSource,
+  ///       )
+  ///     ],
+  ///   );
+  /// }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.usersCount, this.storage, this.color);
+  ///
+  ///  final String country;
+  ///  final double usersCount;
+  ///  final String storage;
+  ///  final Color color;
+  /// }
+  /// ```
+  final IndexedColorValueMapper? shapeColorValueMapper;
+
+  /// Returns a color or value based on which bubble color will be updated.
+  ///
+  /// If this returns a color, then this color will be applied to the bubble
+  /// straightaway.
+  ///
+  /// If it returns a value other than the color, then you must set the
+  /// [MapShapeSource.bubbleColorMappers] property.
+  ///
+  /// The value returned from the [bubbleColorValueMapper] will be used for the
+  /// comparison in the [MapColorMapper.value] or [MapColorMapper.from] and
+  /// [MapColorMapper.to]. Then, the [MapColorMapper.color] will be applied to
+  /// the respective bubble.
+  ///
+  /// ```dart
+  /// late List<Model> _data;
+  /// late MapShapeSource _mapSource;
+  ///
+  /// @override
+  /// void initState() {
+  ///   _data = <Model>[
+  ///    Model('India', 280, "Low", Colors.red),
+  ///    Model('United States of America', 190, "High", Colors.green),
+  ///    Model('Pakistan', 37, "Low", Colors.yellow),
+  ///   ];
+  ///
+  ///   _mapSource = MapShapeSource.asset(
+  ///     "assets/world_map.json",
+  ///     shapeDataField: "name",
+  ///     dataCount: _data.length,
+  ///     primaryValueMapper: (int index) {
+  ///       return _data[index].country;
+  ///     },
+  ///     bubbleColorValueMapper: (int index) {
+  ///       return _data[index].color;
+  ///     },
+  ///     bubbleSizeMapper: (int index) {
+  ///       return _data[index].usersCount;
+  ///     }
+  ///   );
+  ///
+  ///   super.initState();
+  /// }
+  ///
+  ///  @override
+  /// Widget build(BuildContext context) {
+  ///   return SfMaps(
+  ///     layers: [
+  ///       MapShapeLayer(
+  ///         source: _mapSource,
+  ///       )
+  ///     ],
+  ///   );
+  /// }
+  ///
+  /// class Model {
+  ///  const Model(this.country, this.usersCount, this.storage, this.color);
+  ///
+  ///  final String country;
+  ///  final double usersCount;
+  ///  final String storage;
+  ///  final Color  color;
+  /// }
+  /// ```
+  final IndexedColorValueMapper? bubbleColorValueMapper;
+
+  /// Specifies the GeoJSON data source file.
+  final Object _path;
+
+  /// Specifies the type of the source.
+  final GeoJSONSourceType _type;
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    final MapProvider provider = getSourceProvider(_path, _type);
+    if (provider.shapePath != null) {
+      properties.add(StringProperty('', provider.shapePath));
+    }
+    if (provider.bytes != null) {
+      properties.add(StringProperty('', 'Shape source in bytes'));
+    }
+    properties.add(StringProperty('shapeDataField', shapeDataField));
+    properties.add(IntProperty('dataCount', dataCount));
+    properties.add(ObjectFlagProperty<IndexedStringValueMapper>.has(
+        'primaryValueMapper', primaryValueMapper));
+    properties.add(ObjectFlagProperty<List<MapColorMapper>>.has(
+        'shapeColorMappers', shapeColorMappers));
+    properties.add(ObjectFlagProperty<List<MapColorMapper>>.has(
+        'bubbleColorMappers', bubbleColorMappers));
+    properties.add(ObjectFlagProperty<IndexedStringValueMapper>.has(
+        'dataLabelMapper', dataLabelMapper));
+    properties.add(ObjectFlagProperty<IndexedDoubleValueMapper>.has(
+        'bubbleSizeMapper', bubbleSizeMapper));
+    properties.add(ObjectFlagProperty<IndexedColorValueMapper>.has(
+        'shapeColorValueMapper', shapeColorValueMapper));
+    properties.add(ObjectFlagProperty<IndexedColorValueMapper>.has(
+        'bubbleColorValueMapper', bubbleColorValueMapper));
+  }
+}
 
 class _ShapeBounds {
   _ShapeBounds(
@@ -92,7 +916,8 @@ Future<_ShapeFileData> _retrieveDataFromShapeFile(
 _ShapeFileData _decodeJsonData(Map<String, dynamic> data) {
   data['ShapeFileData'].decodedJsonData = jsonDecode(data['AssertBundleData']);
   _readJsonFile(data);
-  return data['ShapeFileData'];
+  // ignore: avoid_as
+  return data['ShapeFileData'] as _ShapeFileData;
 }
 
 void _readJsonFile(Map<String, dynamic> data) {
@@ -101,9 +926,12 @@ void _readJsonFile(Map<String, dynamic> data) {
   late Map<String, dynamic> geometry;
   Map<String, dynamic>? properties;
 
-  final _ShapeFileData shapeFileData = data['ShapeFileData'];
-  final String? shapeDataField = data['ShapeDataField'];
-  final bool isSublayer = data['IsSublayer'];
+  // ignore: avoid_as
+  final _ShapeFileData shapeFileData = data['ShapeFileData'] as _ShapeFileData;
+  // ignore: avoid_as
+  final String? shapeDataField = data['ShapeDataField'] as String?;
+  // ignore: avoid_as
+  final bool isSublayer = data['IsSublayer'] as bool;
   final bool hasFeatures =
       shapeFileData.decodedJsonData!.containsKey('features');
   final bool hasGeometries =
@@ -115,7 +943,8 @@ void _readJsonFile(Map<String, dynamic> data) {
           : null;
   final int jsonLength = key == null || key.isEmpty
       ? 0
-      : shapeFileData.decodedJsonData![key].length;
+      // ignore: avoid_as
+      : shapeFileData.decodedJsonData![key].length as int;
   if (isSublayer) {
     shapeFileData.bounds = _ShapeBounds(
         minLatitude: minimumLatitude,
@@ -127,20 +956,26 @@ void _readJsonFile(Map<String, dynamic> data) {
   for (int i = 0; i < jsonLength; i++) {
     if (hasFeatures) {
       final dynamic features = shapeFileData.decodedJsonData![key][i];
-      geometry = features['geometry'];
-      properties = features['properties'];
+      // ignore: avoid_as
+      geometry = features['geometry'] as Map<String, dynamic>;
+      // ignore: avoid_as
+      properties = features['properties'] as Map<String, dynamic>;
     } else if (hasGeometries) {
-      geometry = shapeFileData.decodedJsonData![key][i];
+      // ignore: avoid_as
+      geometry = shapeFileData.decodedJsonData![key][i] as Map<String, dynamic>;
     }
 
     if (geometry['type'] == 'Polygon') {
-      polygonGeometryData = geometry['coordinates'][0];
+      // ignore: avoid_as
+      polygonGeometryData = geometry['coordinates'][0] as List<dynamic>;
       _updateMapDataSource(shapeFileData, shapeDataField, properties,
           polygonGeometryData, isSublayer);
     } else {
-      multipolygonGeometryLength = geometry['coordinates'].length;
+      // ignore: avoid_as
+      multipolygonGeometryLength = geometry['coordinates'].length as int;
       for (int j = 0; j < multipolygonGeometryLength; j++) {
-        polygonGeometryData = geometry['coordinates'][j][0];
+        // ignore: avoid_as
+        polygonGeometryData = geometry['coordinates'][j][0] as List<dynamic>;
         _updateMapDataSource(shapeFileData, shapeDataField, properties,
             polygonGeometryData, isSublayer);
       }
@@ -151,7 +986,8 @@ void _readJsonFile(Map<String, dynamic> data) {
 void _updateMapDataSource(_ShapeFileData shapeFileData, String? shapeDataField,
     Map<String, dynamic>? properties, List<dynamic> points, bool isSublayer) {
   final String dataPath =
-      properties != null ? (properties[shapeDataField] ?? '') : '';
+      // ignore: avoid_as
+      (properties != null ? (properties[shapeDataField] ?? '') : '') as String;
   shapeFileData.mapDataSource.update(
     dataPath,
     (MapModel model) {
@@ -179,9 +1015,12 @@ void _updateShapeBounds(
   num longitude, latitude;
   final int length = coordinates.length;
   for (int i = 0; i < length; i++) {
-    data = coordinates[i];
-    longitude = data[0];
-    latitude = data[1];
+    // ignore: avoid_as
+    data = coordinates[i] as List<dynamic>;
+    // ignore: avoid_as
+    longitude = data[0] as num;
+    // ignore: avoid_as
+    latitude = data[1] as num;
     if (shapeFileData.bounds.minLongitude == null) {
       shapeFileData.bounds.minLongitude = longitude;
       shapeFileData.bounds.minLatitude = latitude;
@@ -197,846 +1036,6 @@ void _updateShapeBounds(
       shapeFileData.bounds.maxLatitude =
           max(latitude, shapeFileData.bounds.maxLatitude!);
     }
-  }
-}
-
-MapProvider _sourceProvider(
-    Object geoJsonSource, _MapSourceType geoJSONSourceType) {
-  switch (geoJSONSourceType) {
-    case _MapSourceType.asset:
-      return AssetMapProvider(geoJsonSource.toString());
-    case _MapSourceType.network:
-      return NetworkMapProvider(geoJsonSource.toString());
-    case _MapSourceType.memory:
-      // ignore: avoid_as
-      return MemoryMapProvider(geoJsonSource as Uint8List);
-  }
-}
-
-enum _MapSourceType { asset, network, memory }
-
-/// The source that maps the data source with the shape file and provides
-/// data for the elements of the shape layer like data labels, bubbles, tooltip,
-/// and shape colors.
-///
-/// The source can be set as the .json file from an asset bundle, network
-/// or from [Uint8List] as bytes. Use the respective constructor depends on the
-/// type of the source.
-///
-/// The [MapShapeSource.shapeDataField] property is used to
-/// refer the unique field name in the .json file to identify each shapes and
-/// map with the respective data in the data source.
-///
-/// By default, the value specified for the
-/// [MapShapeSource.shapeDataField] in the GeoJSON file will be used in
-/// the elements like data labels, tooltip, and legend for their respective
-/// shapes.
-///
-/// However, it is possible to keep a data source and customize these elements
-/// based on the requirement. The value of the
-/// [MapShapeSource.shapeDataField] will be used to map with the
-/// respective data returned in [MapShapeSource.primaryValueMapper]
-/// from the data source.
-///
-/// Once the above mapping is done, you can customize the elements using the
-/// APIs like [MapShapeSource.dataLabelMapper],
-/// [MapShapeSource.shapeColorMappers], etc.
-///
-/// ```dart
-///  MapShapeSource _mapSource;
-///  List<Model> _data;
-///
-///  @override
-///  void initState() {
-///
-///    _data = <Model>[
-///     Model('India', 280, "Low"),
-///     Model('United States of America', 190, "High"),
-///     Model('Pakistan', 37, "Low"),
-///    ];
-///
-///    _mapSource = MapShapeSource.asset(
-///      'assets/world_map.json',
-///      shapeDataField: 'name',
-///      dataCount: _data.length,
-///      primaryValueMapper: (int index) {
-///        return _data[index].country;
-///      },
-///      dataLabelMapper: (int index) {
-///        return _data[index].country;
-///      },
-///    );
-///  }
-///
-///  @override
-///  Widget build(BuildContext context) {
-///    return
-///      SfMaps(
-///        layers: [
-///          MapShapeLayer(
-///            source: _mapSource,
-///            showDataLabels: true,
-///         )
-///      ],
-///    );
-///  }
-///
-/// class Model {
-///  const Model(this.country, this.count, this.storage);
-///
-///  final String country;
-///  final double count;
-///  final String storage;
-/// }
-/// ```
-/// See also:
-/// * [MapShapeSource.primaryValueMapper], to map the data of the data
-/// source collection with the respective [MapShapeSource.shapeDataField] in
-/// .json file.
-/// * [MapShapeSource.bubbleSizeMapper], to customize the bubble size.
-/// * [MapShapeSource.dataLabelMapper], to customize the
-/// data label's text.
-/// * [MapShapeSource.shapeColorValueMapper] and
-/// [MapShapeSource.shapeColorMappers], to customize the shape colors.
-/// * [MapShapeSource.bubbleColorValueMapper] and
-/// [MapShapeSource.bubbleColorMappers], to customize the
-/// bubble colors.
-class MapShapeSource extends DiagnosticableTree {
-  /// Creates a layer using the .json file from an asset bundle.
-  ///
-  /// ```dart
-  ///  MapShapeSource _mapSource;
-  ///
-  ///  @override
-  ///  void initState() {
-  ///    _mapSource = MapShapeSource.asset(
-  ///      'assets/Ireland.json',
-  ///      shapeDataField: 'name',
-  ///    );
-  ///  }
-  ///
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///   return Scaffold(
-  ///     appBar: AppBar(
-  ///       title: Text('Asset sample'),
-  ///     ),
-  ///     body: Container(
-  ///       color: Colors.blue[100],
-  ///       child: SfMaps(
-  ///         layers: [
-  ///           MapShapeLayer(
-  ///             source: _mapSource,
-  ///             showDataLabels: true,
-  ///             color: Colors.orange[100],
-  ///           ),
-  ///        ],
-  ///       ),
-  ///     ),
-  ///   );
-  /// }
-  /// ```
-  const MapShapeSource.asset(
-    String name, {
-    this.shapeDataField,
-    this.dataCount = 0,
-    this.primaryValueMapper,
-    this.shapeColorMappers,
-    this.bubbleColorMappers,
-    this.dataLabelMapper,
-    this.bubbleSizeMapper,
-    this.shapeColorValueMapper,
-    this.bubbleColorValueMapper,
-  })  : _geoJSONSource = name,
-        _geoJSONSourceType = _MapSourceType.asset,
-        assert((primaryValueMapper != null && dataCount > 0) ||
-            primaryValueMapper == null),
-        assert((shapeColorMappers != null &&
-                primaryValueMapper != null &&
-                shapeColorValueMapper != null) ||
-            shapeColorMappers == null),
-        assert((bubbleColorMappers != null &&
-                primaryValueMapper != null &&
-                bubbleColorValueMapper != null) ||
-            bubbleColorMappers == null);
-
-  /// Creates a layer using the .json file from the network.
-  ///
-  /// ```dart
-  ///  MapShapeSource _mapSource;
-  ///
-  ///  @override
-  ///  void initState() {
-  ///    _mapSource = MapShapeSource.network(
-  ///      'http://www.json-generator.com/api/json/get/bVqXoJvfjC?indent=2',
-  ///    );
-  ///
-  ///    super.initState();
-  ///  }
-  ///
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///   return Scaffold(
-  ///     appBar: AppBar(
-  ///       title: Text('Network sample'),
-  ///     ),
-  ///     body: SfMaps(
-  ///       layers: [
-  ///         MapShapeLayer(
-  ///           source: _mapSource,
-  ///         ),
-  ///       ],
-  ///     ),
-  ///   );
-  /// }
-  /// ```
-  const MapShapeSource.network(
-    String src, {
-    this.shapeDataField,
-    this.dataCount = 0,
-    this.primaryValueMapper,
-    this.shapeColorMappers,
-    this.bubbleColorMappers,
-    this.dataLabelMapper,
-    this.bubbleSizeMapper,
-    this.shapeColorValueMapper,
-    this.bubbleColorValueMapper,
-  })  : _geoJSONSource = src,
-        _geoJSONSourceType = _MapSourceType.network,
-        assert((primaryValueMapper != null && dataCount > 0) ||
-            primaryValueMapper == null),
-        assert((shapeColorMappers != null &&
-                primaryValueMapper != null &&
-                shapeColorValueMapper != null) ||
-            shapeColorMappers == null),
-        assert((bubbleColorMappers != null &&
-                primaryValueMapper != null &&
-                bubbleColorValueMapper != null) ||
-            bubbleColorMappers == null);
-
-  /// Creates a layer using the GeoJSON source as bytes from [Uint8List].
-  ///
-  /// ```dart
-  ///  MapShapeSource _mapSource;
-  ///
-  ///  @override
-  ///  void initState() {
-  ///    _mapSource = MapShapeSource.memory(
-  ///      bytes,
-  ///      shapeDataField: 'name'
-  ///    );
-  ///  }
-  ///
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///   return Scaffold(
-  ///     appBar: AppBar(
-  ///       title: Text('Memory sample'),
-  ///     ),
-  ///     body: Center(
-  ///         child: SfMaps(
-  ///       layers: [
-  ///         MapShapeLayer(
-  ///          source: _mapSource,
-  ///           showDataLabels: true,
-  ///           color: Colors.orange[100],
-  ///         ),
-  ///       ],
-  ///     )),
-  ///   );
-  /// }
-  /// ```
-  const MapShapeSource.memory(
-    Uint8List bytes, {
-    this.shapeDataField,
-    this.dataCount = 0,
-    this.primaryValueMapper,
-    this.shapeColorMappers,
-    this.bubbleColorMappers,
-    this.dataLabelMapper,
-    this.bubbleSizeMapper,
-    this.shapeColorValueMapper,
-    this.bubbleColorValueMapper,
-  })  : _geoJSONSource = bytes,
-        _geoJSONSourceType = _MapSourceType.memory,
-        assert((primaryValueMapper != null && dataCount > 0) ||
-            primaryValueMapper == null),
-        assert((shapeColorMappers != null &&
-                primaryValueMapper != null &&
-                shapeColorValueMapper != null) ||
-            shapeColorMappers == null),
-        assert((bubbleColorMappers != null &&
-                primaryValueMapper != null &&
-                bubbleColorValueMapper != null) ||
-            bubbleColorMappers == null);
-
-  /// Field name in the .json file to identify each shape.
-  ///
-  /// It is used to refer the field name in the .json file to identify
-  /// each shape and map that shape with the respective data in
-  /// the data source.
-  final String? shapeDataField;
-
-  /// Length of the data source.
-  final int dataCount;
-
-  /// Collection of [MapColorMapper] which specifies shape's color based on the
-  /// data.
-  ///
-  /// It provides option to set the shape color based on the specific
-  /// [MapColorMapper.value] or the range of values which falls between
-  /// [MapColorMapper.from] and [MapColorMapper.to].
-  ///
-  /// Based on the returned values, legend items will be rendered. The text of
-  /// legend item will be [MapColorMapper.text] of the [MapColorMapper].
-  ///
-  /// The below code snippet represents how color can be applied to the shape
-  /// based on the [MapColorMapper.value] property of [MapColorMapper].
-  ///
-  /// ```dart
-  /// List<Model> _data;
-  /// MapShapeSource _mapSource;
-  ///
-  ///  @override
-  ///  void initState() {
-  ///    super.initState();
-  ///
-  ///    _data = <Model>[
-  ///     Model('India', 280, "Low"),
-  ///     Model('United States of America', 190, "High"),
-  ///     Model('Pakistan', 37, "Low"),
-  ///    ];
-  ///
-  ///    _mapSource = MapShapeSource.asset(
-  ///      "assets/world_map.json",
-  ///      shapeDataField: "name",
-  ///      dataCount: _data.length,
-  ///      primaryValueMapper: (int index) {
-  ///        return _data[index].country;
-  ///      },
-  ///      shapeColorValueMapper: (int index) {
-  ///         return _data[index].storage;
-  ///      },
-  ///      shapeColorMappers: [
-  ///         MapColorMapper(value: "Low", color: Colors.red),
-  ///         MapColorMapper(value: "High", color: Colors.green)
-  ///      ],
-  ///    );
-  ///  }
-  ///
-  ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: _mapSource,
-  ///        )
-  ///      ],
-  ///    );
-  ///  }
-  ///
-  /// class Model {
-  ///  const Model(this.country, this.count, this.storage);
-  ///
-  ///  final String country;
-  ///  final double count;
-  ///  final String storage;
-  /// }
-  /// ```
-  /// The below code snippet represents how color can be applied to the shape
-  /// based on the range between [MapColorMapper.from] and [MapColorMapper.to]
-  /// properties of [MapColorMapper].
-  ///
-  /// ```dart
-  /// List<Model> _data;
-  /// MapShapeSource _mapSource;
-  ///
-  ///  @override
-  ///  void initState() {
-  ///    super.initState();
-  ///
-  ///    _data = <Model>[
-  ///     Model('India', 100, "Low"),
-  ///     Model('United States of America', 200, "High"),
-  ///     Model('Pakistan', 75, "Low"),
-  ///    ];
-  ///
-  ///    _mapSource = MapShapeSource.asset(
-  ///      "assets/world_map.json",
-  ///      shapeDataField: "name",
-  ///      dataCount: _data.length,
-  ///      primaryValueMapper: (int index) {
-  ///        return _data[index].country;
-  ///      },
-  ///      shapeColorValueMapper: (int index) {
-  ///         return _data[index].count;
-  ///      },
-  ///      shapeColorMappers: [
-  ///         MapColorMapper(from: 0, to:  100, color: Colors.red),
-  ///         MapColorMapper(from: 101, to: 200, color: Colors.yellow)
-  ///      ]
-  ///    );
-  ///  }
-  ///
-  ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: _mapSource,
-  ///        )
-  ///      ],
-  ///    );
-  ///  }
-  ///
-  /// class Model {
-  ///  const Model(this.country, this.count, this.storage);
-  ///
-  ///  final String country;
-  ///  final double count;
-  ///  final String storage;
-  /// }
-  /// ```
-  final List<MapColorMapper>? shapeColorMappers;
-
-  /// Collection of [MapColorMapper] which specifies bubble's color
-  /// based on the data.
-  ///
-  /// It provides option to set the bubble color based on the specific
-  /// [MapColorMapper.value] or the range of values which falls between
-  /// [MapColorMapper.from] and [MapColorMapper.to].
-  ///
-  /// The below code snippet represents how color can be applied to the bubble
-  /// based on the [MapColorMapper.value] property of [MapColorMapper].
-  ///
-  /// ```dart
-  /// List<Model> _data;
-  /// MapShapeSource _mapSource;
-  ///
-  ///  @override
-  ///  void initState() {
-  ///    super.initState();
-  ///
-  ///    _data = <Model>[
-  ///     Model('India', 280, "Low"),
-  ///     Model('United States of America', 190, "High"),
-  ///     Model('Pakistan', 37, "Low"),
-  ///    ];
-  ///
-  ///    _mapSource = MapShapeSource.asset(
-  ///      "assets/world_map.json",
-  ///      shapeDataField: "name",
-  ///      dataCount: _data.length,
-  ///      primaryValueMapper: (int index) {
-  ///        return _data[index].country;
-  ///      },
-  ///      bubbleColorValueMapper: (int index) {
-  ///        return _data[index].count;
-  ///      },
-  ///      bubbleSizeMapper: (int index) {
-  ///        return _data[index].count;
-  ///      },
-  ///      bubbleColorMappers: [
-  ///        MapColorMapper(from: 0, to: 100, color: Colors.red),
-  ///        MapColorMapper(from: 101, to: 300, color: Colors.yellow)
-  ///      ]
-  ///    );
-  ///  }
-  ///
-  ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: _mapSource,
-  ///        )
-  ///      ],
-  ///    );
-  ///  }
-  ///
-  /// class Model {
-  ///  const Model(this.country, this.count, this.storage);
-  ///
-  ///  final String country;
-  ///  final double count;
-  ///  final String storage;
-  /// }
-  /// ```
-  /// The below code snippet represents how color can be applied to the bubble
-  /// based on the range between [MapColorMapper.from] and [MapColorMapper.to]
-  /// properties of [MapColorMapper].
-  ///
-  /// ```dart
-  /// List<Model> _data;
-  /// MapShapeSource _mapSource;
-  ///
-  ///  @override
-  ///  void initState() {
-  ///    super.initState();
-  ///
-  ///    _data = <Model>[
-  ///     Model('India', 280, "Low"),
-  ///     Model('United States of America', 190, "High"),
-  ///     Model('Pakistan', 37, "Low"),
-  ///    ];
-  ///
-  ///    _mapSource = MapShapeSource.asset(
-  ///      "assets/world_map.json",
-  ///      shapeDataField: "name",
-  ///      dataCount: _data.length,
-  ///      primaryValueMapper: (int index) {
-  ///        return _data[index].country;
-  ///      },
-  ///      bubbleColorValueMapper: (int index) {
-  ///        return _data[index].storage;
-  ///      },
-  ///      bubbleSizeMapper: (int index) {
-  ///        return _data[index].count;
-  ///      },
-  ///     bubbleColorMappers: [
-  ///       MapColorMapper(value: "Low", color: Colors.red),
-  ///       MapColorMapper(value: "High", color: Colors.yellow)
-  ///     ]
-  ///   );
-  ///  }
-  ///
-  ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: _mapSource,
-  ///        )
-  ///      ],
-  ///    );
-  ///  }
-  ///
-  /// class Model {
-  ///  const Model(this.country, this.count, this.storage);
-  ///
-  ///  final String country;
-  ///  final double count;
-  ///  final String storage;
-  /// }
-  /// ```
-  final List<MapColorMapper>? bubbleColorMappers;
-
-  /// Returns the the primary value for the every data in the data source
-  /// collection.
-  ///
-  /// This primary value will be mapped with the [shapeDataField] value in the
-  /// respective shape detail in the .json file. This mapping will then be used
-  /// in the rendering of bubbles, data labels, shape colors, tooltip
-  /// in their respective shape's coordinates.
-  /// ```dart
-  /// List<Model> _data;
-  /// MapShapeSource _mapSource;
-  ///
-  ///  @override
-  ///  void initState() {
-  ///    super.initState();
-  ///
-  ///    _data = <Model>[
-  ///     Model('India', 280, "Low"),
-  ///     Model('United States of America', 190, "High"),
-  ///     Model('Pakistan', 37, "Low"),
-  ///    ];
-  ///
-  ///    _mapSource = MapShapeSource.asset(
-  ///      "assets/world_map.json",
-  ///      shapeDataField: "name",
-  ///      dataCount: _data.length,
-  ///      primaryValueMapper: (int index) {
-  ///        return _data[index].country;
-  ///      },
-  ///   );
-  ///  }
-  ///
-  ///   @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: _mapSource,
-  ///        )
-  ///      ],
-  ///    );
-  ///  }
-  ///
-  /// class Model {
-  ///  const Model(this.country, this.count, this.storage);
-  ///
-  ///  final String country;
-  ///  final double count;
-  ///  final String storage;
-  /// }
-  /// ```
-  final IndexedStringValueMapper? primaryValueMapper;
-
-  /// Returns the data label text for each shape.
-  ///
-  /// ```dart
-  /// List<Model> _data;
-  /// MapShapeSource _mapSource;
-  ///
-  ///  @override
-  ///  void initState() {
-  ///    super.initState();
-  ///
-  ///    _data = <Model>[
-  ///     Model('India', 280, "Low"),
-  ///     Model('United States of America', 190, "High"),
-  ///     Model('Pakistan', 37, "Low"),
-  ///    ];
-  ///
-  ///    _mapSource = MapShapeSource.asset(
-  ///      "assets/world_map.json",
-  ///      shapeDataField: "name",
-  ///      dataCount: _data.length,
-  ///      primaryValueMapper: (int index) {
-  ///        return _data[index].country;
-  ///      },
-  ///      dataLabelMapper: (int index) {
-  ///        return _data[index].country;
-  ///      },
-  ///   );
-  ///  }
-  ///
-  ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          showDataLabels: true,
-  ///          source: _mapSource,
-  ///        )
-  ///      ],
-  ///    );
-  ///  }
-  ///
-  /// class Model {
-  ///  const Model(this.country, this.count, this.storage);
-  ///
-  ///  final String country;
-  ///  final double count;
-  ///  final String storage;
-  /// }
-  /// ```
-  final IndexedStringValueMapper? dataLabelMapper;
-
-  /// Returns a value based on which bubble size will be calculated.
-  ///
-  /// The minimum and maximum size of the bubble can be customized using the
-  /// [MapBubbleSettings.minRadius] and [MapBubbleSettings.maxRadius].
-  ///
-  /// ```dart
-  /// List<Model> _data;
-  /// MapShapeSource _mapSource;
-  ///
-  ///  @override
-  ///  void initState() {
-  ///    super.initState();
-  ///
-  ///    _data = <Model>[
-  ///     Model('India', 280, "Low"),
-  ///     Model('United States of America', 190, "High"),
-  ///     Model('Pakistan', 37, "Low"),
-  ///    ];
-  ///
-  ///    _mapSource = MapShapeSource.asset(
-  ///      "assets/world_map.json",
-  ///      shapeDataField: "name",
-  ///      dataCount: _data.length,
-  ///      primaryValueMapper: (int index) {
-  ///        return _data[index].country;
-  ///      },
-  ///      bubbleSizeMapper: (int index) {
-  ///        return _data[index].usersCount;
-  ///      }
-  ///   );
-  ///  }
-  ///
-  ///   @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///            source: _mapSource,
-  ///        )
-  ///      ],
-  ///    );
-  ///  }
-  ///
-  /// class Model {
-  ///  const Model(this.country, this.usersCount, this.storage);
-  ///
-  ///  final String country;
-  ///  final double usersCount;
-  ///  final String storage;
-  /// }
-  /// ```
-  final IndexedDoubleValueMapper? bubbleSizeMapper;
-
-  /// Returns a color or value based on which shape color will be updated.
-  ///
-  /// If this returns a color, then this color will be applied to the shape
-  /// straightaway.
-  ///
-  /// If it returns a value other than the color, then you must set the
-  /// [MapShapeSource.shapeColorMappers] property.
-  ///
-  /// The value returned from the [shapeColorValueMapper] will be used for the
-  /// comparison in the [MapColorMapper.value] or [MapColorMapper.from] and
-  /// [MapColorMapper.to]. Then, the [MapColorMapper.color] will be applied to
-  /// the respective shape.
-  ///
-  /// ```dart
-  /// List<Model> _data;
-  /// MapShapeSource _mapSource;
-  ///
-  ///  @override
-  ///  void initState() {
-  ///    super.initState();
-  ///
-  ///    _data = <Model>[
-  ///     Model('India', 280, "Low", Colors.red),
-  ///     Model('United States of America', 190, "High", Colors.green),
-  ///     Model('Pakistan', 37, "Low", Colors.yellow),
-  ///    ];
-  ///
-  ///    _mapSource = MapShapeSource.asset(
-  ///      "assets/world_map.json",
-  ///      shapeDataField: "name",
-  ///      dataCount: _data.length,
-  ///      primaryValueMapper: (int index) {
-  ///        return _data[index].country;
-  ///      },
-  ///      shapeColorValueMapper: (int index) {
-  ///        return _data[index].color;
-  ///      }
-  ///   );
-  ///  }
-  ///
-  ///   @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: _mapSource,
-  ///        )
-  ///      ],
-  ///    );
-  ///  }
-  ///
-  /// class Model {
-  ///  const Model(this.country, this.usersCount, this.storage, this.color);
-  ///
-  ///  final String country;
-  ///  final double usersCount;
-  ///  final String storage;
-  ///  final Color color;
-  /// }
-  /// ```
-  final IndexedColorValueMapper? shapeColorValueMapper;
-
-  /// Returns a color or value based on which bubble color will be updated.
-  ///
-  /// If this returns a color, then this color will be applied to the bubble
-  /// straightaway.
-  ///
-  /// If it returns a value other than the color, then you must set the
-  /// [MapShapeSource.bubbleColorMappers] property.
-  ///
-  /// The value returned from the [bubbleColorValueMapper] will be used for the
-  /// comparison in the [MapColorMapper.value] or [MapColorMapper.from] and
-  /// [MapColorMapper.to]. Then, the [MapColorMapper.color] will be applied to
-  /// the respective bubble.
-  ///
-  /// ```dart
-  /// List<Model> _data;
-  /// MapShapeSource _mapSource;
-  ///
-  ///  @override
-  ///  void initState() {
-  ///    super.initState();
-  ///
-  ///    _data = <Model>[
-  ///     Model('India', 280, "Low", Colors.red),
-  ///     Model('United States of America', 190, "High", Colors.green),
-  ///     Model('Pakistan', 37, "Low", Colors.yellow),
-  ///    ];
-  ///
-  ///    _mapSource = MapShapeSource.asset(
-  ///      "assets/world_map.json",
-  ///      shapeDataField: "name",
-  ///      dataCount: _data.length,
-  ///      primaryValueMapper: (int index) {
-  ///        return _data[index].country;
-  ///      },
-  ///      bubbleColorValueMapper: (int index) {
-  ///        return _data[index].color;
-  ///      },
-  ///      bubbleSizeMapper: (int index) {
-  ///        return _data[index].usersCount;
-  ///      }
-  ///   );
-  ///  }
-  ///
-  ///   @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: _mapSource,
-  ///        )
-  ///      ],
-  ///    );
-  ///  }
-  ///
-  /// class Model {
-  ///  const Model(this.country, this.usersCount, this.storage, this.color);
-  ///
-  ///  final String country;
-  ///  final double usersCount;
-  ///  final String storage;
-  ///  final Color  color;
-  /// }
-  /// ```
-  final IndexedColorValueMapper? bubbleColorValueMapper;
-
-  /// Specifies the GeoJSON data source file.
-  final Object _geoJSONSource;
-
-  /// Specifies the type of the source.
-  final _MapSourceType _geoJSONSourceType;
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    final MapProvider provider =
-        _sourceProvider(_geoJSONSource, _geoJSONSourceType);
-    if (provider.shapePath != null) {
-      properties.add(StringProperty('', provider.shapePath));
-    }
-    if (provider.bytes != null) {
-      properties.add(StringProperty('', 'Shape source in bytes'));
-    }
-    properties.add(StringProperty('shapeDataField', shapeDataField));
-    properties.add(IntProperty('dataCount', dataCount));
-    properties.add(ObjectFlagProperty<IndexedStringValueMapper>.has(
-        'primaryValueMapper', primaryValueMapper));
-    properties.add(ObjectFlagProperty<List<MapColorMapper>>.has(
-        'shapeColorMappers', shapeColorMappers));
-    properties.add(ObjectFlagProperty<List<MapColorMapper>>.has(
-        'bubbleColorMappers', bubbleColorMappers));
-    properties.add(ObjectFlagProperty<IndexedStringValueMapper>.has(
-        'dataLabelMapper', dataLabelMapper));
-    properties.add(ObjectFlagProperty<IndexedDoubleValueMapper>.has(
-        'bubbleSizeMapper', bubbleSizeMapper));
-    properties.add(ObjectFlagProperty<IndexedColorValueMapper>.has(
-        'shapeColorValueMapper', shapeColorValueMapper));
-    properties.add(ObjectFlagProperty<IndexedColorValueMapper>.has(
-        'bubbleColorValueMapper', bubbleColorValueMapper));
   }
 }
 
@@ -1140,1445 +1139,9 @@ class MapShapeLayerController extends MapLayerController {
   }
 }
 
-/// The shape sublayer for tile and shape layer.
-///
-/// This sublayer can be added as a sublayer of both [MapShapeLayer] and
-/// [MapTileLayer].
-///
-/// The actual geographical rendering is done here using the
-/// [MapShapeSublayer.source]. The source can be set as the .json file from an
-/// asset bundle, network or from [Uint8List] as bytes.
-///
-/// The [MapShapeSublayer.shapeDataField] property is used to
-/// refer the unique field name in the .json file to identify each shapes and
-/// map with the respective data in the data source.
-///
-/// By default, the value specified for the
-/// [MapShapeSublayer.shapeDataField] in the GeoJSON source will be used in
-/// the elements like data labels, and tooltip for their respective
-/// shapes.
-///
-/// However, it is possible to keep a data source and customize these elements
-/// based on the requirement. The value of the
-/// [MapShapeSublayer.shapeDataField] will be used to map with the
-/// respective data returned in [MapShapeSublayer.primaryValueMapper]
-/// from the data source.
-///
-/// Once the above mapping is done, you can customize the elements using the
-/// APIs like [MapShapeSublayer.dataLabelMapper],
-/// [MapShapeSublayer.shapeColorMappers], etc.
-///
-/// The snippet below shows how to render the basic world map using the data
-/// from .json file.
-///
-/// ```dart
-/// MapShapeSource _mapSource;
-/// MapShapeSource _mapSublayerSource;
-///
-/// @override
-/// void initState() {
-///    _mapSource = MapShapeSource.asset(
-///      "assets/world_map.json",
-///      shapeDataField: "name",
-///   );
-///
-///    _mapSublayerSource = MapShapeSource.asset(
-///      "assets/africa.json",
-///      shapeDataField: "name",
-///   );
-///
-///    super.initState();
-/// }
-///  @override
-///  Widget build(BuildContext context) {
-///    return SfMaps(
-///      layers: [
-///        MapShapeLayer(
-///          source: _mapSource,
-///          sublayers:[
-///             MapShapeSublayer(
-///               source: _mapSublayerSource,
-///               color: Colors.red,
-///             ),
-///          ]
-///        )
-///      ],
-///    );
-///  }
-/// ```
-/// See also:
-/// * [source], to provide data for the elements of this layer like data
-/// labels, bubbles, tooltip, and shape colors.
-class MapShapeSublayer extends MapSublayer {
-  /// Creates a [MapShapeSublayer].
-  const MapShapeSublayer({
-    Key? key,
-    required this.source,
-    this.controller,
-    this.initialMarkersCount = 0,
-    this.markerBuilder,
-    this.shapeTooltipBuilder,
-    this.bubbleTooltipBuilder,
-    this.markerTooltipBuilder,
-    this.selectedIndex = -1,
-    this.onSelectionChanged,
-    this.showDataLabels = false,
-    this.color,
-    this.strokeColor,
-    this.strokeWidth,
-    this.dataLabelSettings = const MapDataLabelSettings(),
-    this.bubbleSettings = const MapBubbleSettings(),
-    this.selectionSettings = const MapSelectionSettings(),
-  });
-
-  /// The source that maps the data source with the shape file and provides
-  /// data for the elements of the this layer like data labels, bubbles,
-  /// tooltip, and shape colors.
-  ///
-  /// The source can be set as the .json file from an asset bundle, network
-  /// or from [Uint8List] as bytes.
-  ///
-  /// The [MapShapeSource.shapeDataField] property is used to
-  /// refer the unique field name in the .json file to identify each shapes and
-  /// map with the respective data in the data source.
-  ///
-  /// By default, the value specified for the [MapShapeSource.shapeDataField]
-  /// in the GeoJSON file will be used in the elements like data labels,
-  /// tooltip, and legend for their respective shapes.
-  ///
-  /// However, it is possible to keep a data source and customize these elements
-  /// based on the requirement. The value of the
-  /// [MapShapeSource.shapeDataField] will be used to map with the
-  /// respective data returned in [MapShapeSource.primaryValueMapper]
-  /// from the data source.
-  ///
-  /// Once the above mapping is done, you can customize the elements using the
-  /// APIs like [MapShapeSource.dataLabelMapper],
-  /// [MapShapeSource.shapeColorMappers], etc.
-  ///
-  /// ```dart
-  /// MapShapeSource _mapSource;
-  /// MapShapeSource _mapSublayerSource;
-  ///
-  /// @override
-  /// void initState() {
-  ///    _mapSource = MapShapeSource.asset(
-  ///      "assets/world_map.json",
-  ///      shapeDataField: "name",
-  ///   );
-  ///
-  ///    _mapSublayerSource = MapShapeSource.asset(
-  ///      "assets/africa.json",
-  ///      shapeDataField: "name",
-  ///   );
-  ///
-  ///    super.initState();
-  /// }
-  ///
-  ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: _mapSource,
-  ///          sublayers:[
-  ///             MapShapeSublayer(
-  ///               source: _mapSublayerSource,
-  ///               color: Colors.red,
-  ///             ),
-  ///          ]
-  ///        )
-  ///      ],
-  ///    );
-  ///  }
-  /// ```
-  /// See also:
-  /// * [MapShapeSource.primaryValueMapper], to map the data of the data
-  /// source collection with the respective
-  /// [MapShapeSource.shapeDataField] in .json file.
-  /// * [MapShapeSource.bubbleSizeMapper], to customize the bubble size.
-  /// * [MapShapeSource.dataLabelMapper], to customize the data label's text.
-  /// * [MapShapeSource.shapeColorValueMapper] and
-  /// [MapShapeSource.shapeColorMappers], to customize the shape colors.
-  /// * [MapShapeSource.bubbleColorValueMapper] and
-  /// [MapShapeSource.bubbleColorMappers], to customize the bubble colors.
-  final MapShapeSource source;
-
-  /// Option to set markers count initially. It cannot be updated dynamically.
-  ///
-  /// The [MapLayer.markerBuilder] callback will be called number of times equal
-  /// to the value specified in the [MapLayer.initialMarkersCount] property.
-  /// The default value of the of this property is null.
-  final int initialMarkersCount;
-
-  /// Returns the [MapMarker] for the given index. Markers which be used to
-  /// denote the locations on the map.
-  ///
-  /// It is possible to use the built-in symbols or display a custom widget at
-  /// a specific latitude and longitude on a map.
-  ///
-  /// The [MapLayer.markerBuilder] callback will be called number of times equal
-  /// to the value specified in the [MapLayer.initialMarkersCount] property.
-  /// The default value of the of this property is null.
-  ///
-  /// For rendering the custom widget for the marker, pass the required widget
-  /// for child in [MapMarker] constructor.
-  final MapMarkerBuilder? markerBuilder;
-
-  /// Returns a widget for the shape tooltip based on the index.
-  ///
-  /// A shape tooltip displays additional information about the shapes on a map.
-  /// To show tooltip for the shape, return a widget in
-  /// [MapShapeSublayer.shapeTooltipBuilder]. This widget will then be wrapped
-  /// in the existing tooltip shape which comes with the nose at the bottom.
-  ///
-  /// It is possible to customize the stroke appearance using the
-  /// [MapTooltipSettings.strokeColor] and [MapTooltipSettings.strokeWidth].
-  /// To customize the corners, use [SfMapsThemeData.tooltipBorderRadius].
-  ///
-  /// The [MapShapeSublayer.shapeTooltipBuilder] callback will be called when
-  /// the user interacts with the shapes i.e., while tapping in touch devices
-  /// and hovering in the mouse enabled devices.
-  ///
-  /// ```dart
-  /// MapShapeSource _mapSource;
-  ///   MapShapeSource _mapSublayerSource;
-  ///   List<DataModel> _data;
-  ///   MapZoomPanBehavior _zoomPanBehavior;
-  ///
-  ///   @override
-  ///   void initState() {
-  ///     _data = <DataModel>[
-  ///       DataModel('Orissa', 280, "Low", Colors.red),
-  ///       DataModel('Karnataka', 190, "High", Colors.green),
-  ///       DataModel('Tamil Nadu', 37, "Low", Colors.yellow),
-  ///     ];
-  ///
-  ///     _mapSource = MapShapeSource.asset("assets/world_map.json",
-  ///         shapeDataField: "continent");
-  ///
-  ///     _mapSublayerSource = MapShapeSource.asset("assets/india.json",
-  ///         shapeDataField: "name",
-  ///         dataCount: _data.length,
-  ///         primaryValueMapper: (int index) => _data[index].country,
-  ///         shapeColorValueMapper: (int index) => _data[index].color);
-  ///
-  ///     _zoomPanBehavior = MapZoomPanBehavior(
-  ///         zoomLevel: 5, focalLatLng: MapLatLng(28.7041, 77.1025));
-  ///
-  ///     super.initState();
-  ///   }
-  ///
-  ///   @override
-  ///   Widget build(BuildContext context) {
-  ///     return Scaffold(
-  ///       body: Padding(
-  ///         padding: EdgeInsets.all(15),
-  ///         child: SfMaps(
-  ///           layers: <MapLayer>[
-  ///             MapShapeLayer(
-  ///               source: _mapSource,
-  ///               zoomPanBehavior: _zoomPanBehavior,
-  ///               sublayers: [
-  ///                 MapShapeSublayer(
-  ///                   source: _mapSublayerSource,
-  ///                   shapeTooltipBuilder: (BuildContext context, int index) {
-  ///                     if (index == 0) {
-  ///                       return Container(
-  ///                         child: Icon(Icons.airplanemode_inactive),
-  ///                       );
-  ///                     } else {
-  ///                       return Container(
-  ///                         child: Icon(Icons.airplanemode_active),
-  ///                       );
-  ///                     }
-  ///                   },
-  ///                 ),
-  ///               ],
-  ///             ),
-  ///           ],
-  ///         ),
-  ///       ),
-  ///     );
-  ///   }
-  ///
-  /// class DataModel {
-  ///   const DataModel(
-  ///     this.country,
-  ///     this.usersCount,
-  ///     this.storage,
-  ///     this.color,
-  ///   );
-  ///
-  ///   final String country;
-  ///   final double usersCount;
-  ///   final String storage;
-  ///   final Color color;
-  /// }
-  /// ```
-  final IndexedWidgetBuilder? shapeTooltipBuilder;
-
-  /// Returns a widget for the bubble tooltip based on the index.
-  ///
-  /// A bubble tooltip displays additional information about the bubble
-  /// on a map. To show tooltip for the bubble, return a widget in
-  /// [MapShapeSublayer.bubbleTooltipBuilder]. This widget will then be wrapped
-  /// in the existing tooltip shape which comes with the nose at the bottom.
-  ///
-  /// It is possible to customize the stroke appearance using the
-  /// [MapTooltipSettings.strokeColor] and [MapTooltipSettings.strokeWidth].
-  /// To customize the corners, use [SfMapsThemeData.tooltipBorderRadius].
-  ///
-  /// The [MapShapeSublayer.bubbleTooltipBuilder] callback will be called when
-  /// the user interacts with the bubbles i.e., while tapping in touch devices
-  /// and hovering in the mouse enabled devices.
-  ///
-  /// ```dart
-  ///  MapShapeSource _mapSource;
-  ///   MapShapeSource _mapSublayerSource;
-  ///   List<DataModel> _data;
-  ///   MapZoomPanBehavior _zoomPanBehavior;
-  ///
-  ///   @override
-  ///   void initState() {
-  ///     _data = <DataModel>[
-  ///       DataModel('Orissa', 280, "Low", Colors.red),
-  ///       DataModel('Karnataka', 190, "High", Colors.green),
-  ///       DataModel('Tamil Nadu', 37, "Low", Colors.yellow),
-  ///     ];
-  ///
-  ///     _mapSource = MapShapeSource.asset("assets/world_map.json",
-  ///         shapeDataField: "continent");
-  ///
-  ///     _mapSublayerSource = MapShapeSource.asset("assets/india.json",
-  ///         shapeDataField: "name",
-  ///         dataCount: _data.length,
-  ///         primaryValueMapper: (int index) => _data[index].country,
-  ///         bubbleColorValueMapper: (int index) {
-  ///           return _data[index].color;
-  ///         },
-  ///         bubbleSizeMapper: (int index) {
-  ///           return _data[index].usersCount;
-  ///         });
-  ///
-  ///     _zoomPanBehavior = MapZoomPanBehavior(
-  ///         zoomLevel: 5, focalLatLng: MapLatLng(28.7041, 77.1025));
-  ///
-  ///     super.initState();
-  ///   }
-  ///
-  ///   @override
-  ///   Widget build(BuildContext context) {
-  ///     return Scaffold(
-  ///       body: Padding(
-  ///         padding: EdgeInsets.all(15),
-  ///         child: SfMaps(
-  ///           layers: <MapLayer>[
-  ///             MapShapeLayer(
-  ///               source: _mapSource,
-  ///               zoomPanBehavior: _zoomPanBehavior,
-  ///               sublayers: [
-  ///                 MapShapeSublayer(
-  ///                  source: _mapSublayerSource,
-  ///                  bubbleTooltipBuilder: (BuildContext context, int index) {
-  ///                     if (index == 0) {
-  ///                       return Container(
-  ///                         child: Icon(Icons.airplanemode_inactive),
-  ///                       );
-  ///                     } else {
-  ///                       return Container(
-  ///                         child: Icon(Icons.airplanemode_active),
-  ///                       );
-  ///                     }
-  ///                   },
-  ///                 ),
-  ///               ],
-  ///             ),
-  ///           ],
-  ///         ),
-  ///       ),
-  ///     );
-  ///   }
-  ///
-  /// class DataModel {
-  ///   const DataModel(
-  ///     this.country,
-  ///     this.usersCount,
-  ///     this.storage,
-  ///     this.color,
-  ///   );
-  ///
-  ///   final String country;
-  ///   final double usersCount;
-  ///   final String storage;
-  ///   final Color color;
-  /// }
-  /// ```
-  final IndexedWidgetBuilder? bubbleTooltipBuilder;
-
-  /// Returns the widget for the tooltip of the [MapMarker].
-  ///
-  /// To show the tooltip for markers, return a customized widget in this.
-  /// This widget will then be wrapped in the in-built shape which comes with
-  /// the nose at the bottom.
-  ///
-  /// This will be called when the user interacts with the markers i.e.,
-  /// while tapping in touch devices and hovering in the mouse enabled devices.
-  ///
-  /// See also:
-  /// * [MapLayer.tooltipSettings], to customize the color and stroke of the
-  /// tooltip.
-  /// * [SfMapsThemeData.tooltipBorderRadius], to customize the corners of the
-  /// tooltip.
-  ///
-  /// ```dart
-  ///  MapShapeSource _mapSource;
-  ///   MapShapeSource _mapSublayerSource;
-  ///   List<MapLatLng> _data;
-  ///   MapZoomPanBehavior _zoomPanBehavior;
-  ///
-  ///   @override
-  ///   void initState() {
-  ///     _data = <MapLatLng>[
-  ///       MapLatLng(11.1271, 78.6569),
-  ///       MapLatLng(15.3173, 75.7139),
-  ///       MapLatLng(28.7041, 77.1025)
-  ///     ];
-  ///
-  ///     _mapSource = MapShapeSource.asset("assets/world_map.json",
-  ///         shapeDataField: "continent");
-  ///
-  ///     _mapSublayerSource = MapShapeSource.asset(
-  ///       "assets/india.json",
-  ///       shapeDataField: "name",
-  ///     );
-  ///
-  ///     _zoomPanBehavior = MapZoomPanBehavior(
-  ///         zoomLevel: 5, focalLatLng: MapLatLng(28.7041, 77.1025));
-  ///
-  ///     super.initState();
-  ///   }
-  ///
-  ///   @override
-  ///   Widget build(BuildContext context) {
-  ///     return Scaffold(
-  ///       body: Padding(
-  ///         padding: EdgeInsets.all(15),
-  ///         child: SfMaps(
-  ///           layers: <MapLayer>[
-  ///             MapShapeLayer(
-  ///               source: _mapSource,
-  ///               zoomPanBehavior: _zoomPanBehavior,
-  ///               sublayers: [
-  ///                 MapShapeSublayer(
-  ///                   source: _mapSublayerSource,
-  ///                   initialMarkersCount: 3,
-  ///                   markerBuilder: (BuildContext context, int index) {
-  ///                     return MapMarker(
-  ///                       latitude: _data[index].latitude,
-  ///                       longitude: _data[index].longitude,
-  ///                     );
-  ///                  },
-  ///                  markerTooltipBuilder: (BuildContext context, int index) {
-  ///                     if(index == 0) {
-  ///                       return Container(
-  ///                         child: Icon(Icons.airplanemode_inactive),
-  ///                       );
-  ///                     }
-  ///                     else
-  ///                     {
-  ///                       return Container(
-  ///                        child: Icon(Icons.airplanemode_active),
-  ///                       );
-  ///                      }
-  ///                   },
-  ///                 ),
-  ///               ],
-  ///             ),
-  ///           ],
-  ///         ),
-  ///       ),
-  ///     );
-  ///   }
-  ///
-  /// class DataModel {
-  ///   const DataModel(
-  ///    this.country,
-  ///    this.usersCount,
-  ///    this.storage,
-  ///    this.color,
-  ///   );
-  ///
-  ///   final String country;
-  ///   final double usersCount;
-  ///   final String storage;
-  ///   final Color color;
-  /// }
-  /// ```
-  final IndexedWidgetBuilder? markerTooltipBuilder;
-
-  /// Provides option for adding, removing, deleting and updating marker
-  /// collection.
-  ///
-  /// You can also get the current markers count from this.
-  final MapShapeLayerController? controller;
-
-  /// Shows or hides the data labels in the sublayer.
-  ///
-  /// Defaults to `false`.
-  final bool showDataLabels;
-
-  /// Color which is used to paint the sublayer shapes.
-  final Color? color;
-
-  /// Color which is used to paint the stroke of the sublayer shapes.
-  final Color? strokeColor;
-
-  /// Sets the stroke width of the sublayer shapes.
-  final double? strokeWidth;
-
-  /// Customizes the appearance of the data labels.
-  final MapDataLabelSettings dataLabelSettings;
-
-  /// Customizes the appearance of the bubbles.
-  final MapBubbleSettings bubbleSettings;
-
-  /// Customizes the appearance of the selected shape.
-  final MapSelectionSettings selectionSettings;
-
-  /// Selects the shape in the given index.
-  ///
-  /// The map passes the selected index to the [onSelectionChanged] callback but
-  /// does not actually change this value until the parent widget rebuilds the
-  /// maps with the new value.
-  ///
-  /// To unselect a shape, set -1 to the [MapShapeSublayer.selectedIndex].
-  ///
-  /// Must not be null. Defaults to -1.
-  ///
-  /// See also:
-  /// * [MapSelectionSettings], to customize the selected shape's appearance.
-  /// * [MapShapeSublayer.onSelectionChanged], for getting the current tapped
-  /// shape index.
-  final int selectedIndex;
-
-  /// Called when the user tapped or clicked on a shape.
-  ///
-  /// The map passes the selected index to the [onSelectionChanged] callback but
-  /// does not actually change this value until the parent widget rebuilds the
-  /// maps with the new value.
-  final ValueChanged<int>? onSelectionChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return _GeoJSONLayer(
-      source: source,
-      controller: controller,
-      initialMarkersCount: initialMarkersCount,
-      markerBuilder: markerBuilder,
-      shapeTooltipBuilder: shapeTooltipBuilder,
-      bubbleTooltipBuilder: bubbleTooltipBuilder,
-      markerTooltipBuilder: markerTooltipBuilder,
-      showDataLabels: showDataLabels,
-      color: color,
-      strokeColor: strokeColor,
-      strokeWidth: strokeWidth,
-      dataLabelSettings: dataLabelSettings,
-      bubbleSettings: bubbleSettings,
-      selectionSettings: selectionSettings,
-      tooltipSettings: const MapTooltipSettings(),
-      selectedIndex: selectedIndex,
-      onSelectionChanged: onSelectionChanged,
-      sublayerAncestor: this,
-    );
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties.add(source.toDiagnosticsNode(name: 'source'));
-    if (controller != null) {
-      properties.add(IntProperty('markersCount', controller!.markersCount));
-    } else {
-      properties.add(IntProperty('markersCount', initialMarkersCount));
-    }
-
-    properties.add(ObjectFlagProperty<MapMarkerBuilder>.has(
-        'markerBuilder', markerBuilder));
-    properties.add(ObjectFlagProperty<IndexedWidgetBuilder>.has(
-        'shapeTooltip', shapeTooltipBuilder));
-    properties.add(ObjectFlagProperty<IndexedWidgetBuilder>.has(
-        'bubbleTooltip', bubbleTooltipBuilder));
-    properties.add(ObjectFlagProperty<IndexedWidgetBuilder>.has(
-        'markerTooltip', markerTooltipBuilder));
-    properties.add(FlagProperty('showDataLabels',
-        value: showDataLabels,
-        ifTrue: 'Data labels are showing',
-        ifFalse: 'Data labels are not showing',
-        showName: false));
-    if (color != null) {
-      properties.add(ColorProperty('color', color));
-    }
-
-    if (strokeColor != null) {
-      properties.add(ColorProperty('strokeColor', strokeColor));
-    }
-
-    if (strokeWidth != null) {
-      properties.add(DoubleProperty('strokeWidth', strokeWidth));
-    }
-
-    properties.add(IntProperty('selectedIndex', selectedIndex));
-    properties
-        .add(dataLabelSettings.toDiagnosticsNode(name: 'dataLabelSettings'));
-    properties.add(bubbleSettings.toDiagnosticsNode(name: 'bubbleSettings'));
-    properties
-        .add(selectionSettings.toDiagnosticsNode(name: 'selectionSettings'));
-  }
-}
-
-/// The shape layer in which geographical rendering is done.
-///
-/// The actual geographical rendering is done here using the
-/// [MapShapeLayer.source]. The source can be set as the .json file from an
-/// asset bundle, network or from [Uint8List] as bytes.
-///
-/// The [MapShapeSource.shapeDataField] property is used to
-/// refer the unique field name in the .json file to identify each shapes and
-/// map with the respective data in the data source.
-///
-/// By default, the value specified for the
-/// [MapShapeSource.shapeDataField] in the GeoJSON file will be used in
-/// the elements like data labels, tooltip, and legend for their respective
-/// shapes.
-///
-/// However, it is possible to keep a data source and customize these elements
-/// based on the requirement. The value of the
-/// [MapShapeSource.shapeDataField] will be used to map with the
-/// respective data returned in [MapShapeSource.primaryValueMapper]
-/// from the data source.
-///
-/// Once the above mapping is done, you can customize the elements using the
-/// APIs like [MapShapeSource.dataLabelMapper],
-/// [MapShapeSource.shapeColorMappers], etc.
-///
-/// The snippet below shows how to render the basic world map using the data
-/// from .json file.
-///
-/// ```dart
-/// MapShapeSource _mapSource;
-///
-/// @override
-/// void initState() {
-///    _mapSource = MapShapeSource.asset(
-///      "assets/world_map.json",
-///      shapeDataField: "name",
-///   );
-///    super.initState();
-/// }
-///
-///  @override
-///  Widget build(BuildContext context) {
-///    return SfMaps(
-///      layers: [
-///        MapShapeLayer(
-///          source: _mapSource,
-///        )
-///      ],
-///    );
-///  }
-/// ```
-/// See also:
-/// * [source], to provide data for the elements of the [SfMaps] like data
-/// labels, bubbles, tooltip, shape colors, and legend.
-class MapShapeLayer extends MapLayer {
-  /// Creates a [MapShapeLayer].
-  const MapShapeLayer({
-    Key? key,
-    required this.source,
-    this.loadingBuilder,
-    this.controller,
-    List<MapSublayer>? sublayers,
-    int initialMarkersCount = 0,
-    MapMarkerBuilder? markerBuilder,
-    this.shapeTooltipBuilder,
-    this.bubbleTooltipBuilder,
-    IndexedWidgetBuilder? markerTooltipBuilder,
-    this.showDataLabels = false,
-    this.color,
-    this.strokeColor,
-    this.strokeWidth,
-    this.legend,
-    this.dataLabelSettings = const MapDataLabelSettings(),
-    this.bubbleSettings = const MapBubbleSettings(),
-    this.selectionSettings = const MapSelectionSettings(),
-    MapTooltipSettings tooltipSettings = const MapTooltipSettings(),
-    this.selectedIndex = -1,
-    MapZoomPanBehavior? zoomPanBehavior,
-    this.onSelectionChanged,
-    WillZoomCallback? onWillZoom,
-    WillPanCallback? onWillPan,
-  }) : super(
-          key: key,
-          sublayers: sublayers,
-          initialMarkersCount: initialMarkersCount,
-          markerBuilder: markerBuilder,
-          markerTooltipBuilder: markerTooltipBuilder,
-          tooltipSettings: tooltipSettings,
-          zoomPanBehavior: zoomPanBehavior,
-          onWillZoom: onWillZoom,
-          onWillPan: onWillPan,
-        );
-
-  /// The source that maps the data source with the shape file and provides
-  /// data for the elements of the this layer like data labels, bubbles,
-  /// tooltip, and shape colors.
-  ///
-  /// The source can be set as the .json file from an asset bundle, network
-  /// or from [Uint8List] as bytes.
-  ///
-  /// The [MapShapeSource.shapeDataField] property is used to
-  /// refer the unique field name in the .json file to identify each shapes and
-  /// map with the respective data in the data source.
-  ///
-  /// By default, the value specified for the
-  /// [MapShapeSource.shapeDataField] in the GeoJSON file will be used in
-  /// the elements like data labels, tooltip, and legend for their respective
-  /// shapes.
-  ///
-  /// However, it is possible to keep a data source and customize these elements
-  /// based on the requirement. The value of the
-  /// [MapShapeSource.shapeDataField] will be used to map with the
-  /// respective data returned in [MapShapeSource.primaryValueMapper]
-  /// from the data source.
-  ///
-  /// Once the above mapping is done, you can customize the elements using the
-  /// APIs like [MapShapeSource.dataLabelMapper],
-  /// [MapShapeSource.shapeColorMappers], etc.
-  ///
-  /// ```dart
-  /// MapShapeSource _mapSource;
-  /// List<Model> _data;
-  ///
-  /// @override
-  /// void initState() {
-  ///
-  ///    _data = <Model>[
-  ///     Model('India', 280, "Low", Colors.red),
-  ///     Model('United States of America', 190, "High", Colors.green),
-  ///     Model('Pakistan', 37, "Low", Colors.yellow),
-  ///    ];
-  ///
-  ///    _mapSource = MapShapeSource.asset(
-  ///      "assets/world_map.json",
-  ///      shapeDataField: "name",
-  ///      dataCount: _data.length,
-  ///      primaryValueMapper: (int index) {
-  ///        return _data[index].country;
-  ///      },
-  ///      dataLabelMapper: (int index) {
-  ///        return _data[index].country;
-  ///      }
-  ///   );
-  ///    super.initState();
-  /// }
-  ///
-  ///   @override
-  ///  Widget build(BuildContext context) {
-  ///    return
-  ///      SfMaps(
-  ///        layers: [
-  ///          MapShapeLayer(
-  ///            source: _mapSource,
-  ///            showDataLabels: true,
-  ///        )
-  ///      ],
-  ///    );
-  ///  }
-  ///
-  /// class Model {
-  ///  const Model(this.country, this.usersCount, this.storage, this.color);
-  ///
-  ///  final String country;
-  ///  final double usersCount;
-  ///  final String storage;
-  ///  final Color  color;
-  /// }
-  /// ```
-  /// See also:
-  /// * [MapShapeSource.primaryValueMapper], to map the data of the data
-  /// source collection with the respective
-  /// [MapShapeSource.shapeDataField] in .json file.
-  /// * [MapShapeSource.bubbleSizeMapper], to customize the bubble size.
-  /// * [MapShapeSource.dataLabelMapper], to customize the
-  /// data label's text.
-  /// * [MapShapeSource.shapeColorValueMapper] and
-  /// [MapShapeSource.shapeColorMappers], to customize the shape colors.
-  /// * [MapShapeSource.bubbleColorValueMapper] and
-  /// [MapShapeSource.bubbleColorMappers], to customize the
-  /// bubble colors.
-  final MapShapeSource source;
-
-  /// A builder that specifies the widget to display to the user while the
-  /// map is still loading.
-  ///
-  /// ```dart
-  /// MapShapeSource _mapSource;
-  ///
-  /// @override
-  /// void initState() {
-  ///
-  ///    _mapSource = MapShapeSource.asset(
-  ///      "assets/world_map.json",
-  ///      shapeDataField: "continent",
-  ///    );
-  ///
-  ///    super.initState();
-  /// }
-  ///
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///   return Scaffold(
-  ///      body: Padding(
-  ///        padding: EdgeInsets.all(15),
-  ///        child: SfMaps(
-  ///          layers: <MapLayer>[
-  ///            MapShapeLayer(
-  ///              source: _mapSource,
-  ///              loadingBuilder: (BuildContext context) {
-  ///                return Container(
-  ///                  height: 25,
-  ///                  width: 25,
-  ///                  child: const CircularProgressIndicator(
-  ///                    strokeWidth: 3,
-  ///                  ),
-  ///                );
-  ///              },
-  ///            ),
-  ///          ],
-  ///        ),
-  ///      ),
-  ///   );
-  /// }
-  /// ```
-  final MapLoadingBuilder? loadingBuilder;
-
-  /// Returns a widget for the shape tooltip based on the index.
-  ///
-  /// A shape tooltip displays additional information about
-  /// the shapes on a map. To show tooltip for the shape return a widget in
-  /// [MapShapeLayer.shapeTooltipBuilder]. This widget will
-  /// then be wrapped in the existing tooltip shape which comes with the nose at
-  /// the bottom. It is still possible to customize the stroke appearance using
-  /// the [MapTooltipSettings.strokeColor] and [MapTooltipSettings.strokeWidth].
-  ///
-  /// To customize the corners, use [SfMapsThemeData.tooltipBorderRadius].
-  ///
-  /// The will be called when the user interacts with the shapes i.e., while
-  /// tapping in touch devices and hovering in the mouse enabled devices.
-  ///
-  /// ```dart
-  /// MapShapeSource _mapSource;
-  /// List<Model> _data;
-  ///
-  /// @override
-  /// void initState() {
-  ///
-  ///    _data = <Model>[
-  ///     Model('India', 280, "Low", Colors.red),
-  ///     Model('United States of America', 190, "High", Colors.green),
-  ///     Model('Pakistan', 37, "Low", Colors.yellow),
-  ///    ];
-  ///
-  ///    _mapSource = MapShapeSource.asset(
-  ///      "assets/world_map.json",
-  ///      shapeDataField: "name",
-  ///      dataCount: _data.length,
-  ///      primaryValueMapper: (int index) => _data[index].country,
-  ///      shapeColorValueMapper: (int index) => _data[index].color
-  ///    );
-  ///
-  ///    super.initState();
-  /// }
-  ///
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///   return Scaffold(
-  ///      body: Padding(
-  ///        padding: EdgeInsets.all(15),
-  ///        child: SfMaps(
-  ///          layers: <MapLayer>[
-  ///            MapShapeLayer(
-  ///              source: _mapSource,
-  ///              shapeTooltipBuilder: (BuildContext context, int index) {
-  ///                if(index == 0) {
-  ///                  return Container(
-  ///                    child: Icon(Icons.airplanemode_inactive),
-  ///                  );
-  ///                }
-  ///                else
-  ///                {
-  ///                  return Container(
-  ///                       child: Icon(Icons.airplanemode_active),
-  ///                  );
-  ///                }
-  ///              },
-  ///            ),
-  ///          ],
-  ///        ),
-  ///      ),
-  ///   );
-  /// }
-  ///
-  /// class Model {
-  ///  const Model(this.country, this.usersCount, this.storage, this.color);
-  ///
-  ///  final String country;
-  ///  final double usersCount;
-  ///  final String storage;
-  ///  final Color  color;
-  /// }
-  /// ```
-  final IndexedWidgetBuilder? shapeTooltipBuilder;
-
-  /// Returns a widget for the bubble tooltip based on the index.
-  ///
-  /// A bubble tooltip displays additional information about the bubble on a
-  /// map. To show tooltip for the bubble, return a widget in
-  /// [MapShapeLayer.bubbleTooltipBuilder]. This widget will then be wrapped in
-  /// the existing tooltip shape which comes with the nose at the bottom. It is
-  /// still possible to customize the stroke appearance using the
-  /// [MapTooltipSettings.strokeColor] and [MapTooltipSettings.strokeWidth].
-  ///
-  /// To customize the corners, use [SfMapsThemeData.tooltipBorderRadius].
-  ///
-  /// The will be called when the user interacts with the bubbles i.e., while
-  /// tapping in touch devices and hovering in the mouse enabled devices.
-  ///
-  /// ```dart
-  /// List<Model> _data;
-  /// MapShapeSource _mapSource;
-  ///
-  ///  @override
-  ///  void initState() {
-  ///    super.initState();
-  ///
-  ///    _data = <Model>[
-  ///     Model('India', 280, "Low", Colors.red),
-  ///     Model('United States of America', 190, "High", Colors.green),
-  ///     Model('Pakistan', 37, "Low", Colors.yellow),
-  ///    ];
-  ///
-  ///    _mapSource = MapShapeSource.asset(
-  ///      "assets/world_map.json",
-  ///      shapeDataField: "name",
-  ///      dataCount: _data.length,
-  ///      primaryValueMapper: (int index) {
-  ///        return _data[index].country;
-  ///      },
-  ///      bubbleColorValueMapper: (int index) {
-  ///        return _data[index].color;
-  ///      },
-  ///      bubbleSizeMapper: (int index) {
-  ///        return _data[index].usersCount;
-  ///      }
-  ///   );
-  ///  }
-  ///
-  ///   @override
-  ///  Widget build(BuildContext context) {
-  ///    return SfMaps(
-  ///      layers: [
-  ///        MapShapeLayer(
-  ///          source: _mapSource,
-  ///          bubbleTooltipBuilder: (BuildContext context, int index) {
-  ///            if(index == 0) {
-  ///               return Container(
-  ///                 child: Icon(Icons.airplanemode_inactive),
-  ///               );
-  ///            }
-  ///            else
-  ///             {
-  ///               return Container(
-  ///                 child: Icon(Icons.airplanemode_active),
-  ///               );
-  ///             }
-  ///          },
-  ///        )
-  ///      ],
-  ///    );
-  ///  }
-  ///
-  /// class Model {
-  ///  const Model(this.country, this.usersCount, this.storage, this.color);
-  ///
-  ///  final String country;
-  ///  final double usersCount;
-  ///  final String storage;
-  ///  final Color  color;
-  /// }
-  /// ```
-  final IndexedWidgetBuilder? bubbleTooltipBuilder;
-
-  /// Provides option for adding, removing, deleting and updating marker
-  /// collection.
-  ///
-  /// You can also get the current markers count and selected shape's index from
-  /// this.
-  ///
-  /// ```dart
-  /// List<Model> _data;
-  /// MapShapeLayerController _controller;
-  /// Random _random = Random();
-  /// MapShapeSource _mapSource;
-  ///
-  /// @override
-  /// void initState() {
-  ///     _data = <Model>[
-  ///       Model(-14.235004, -51.92528),
-  ///       Model(51.16569, 10.451526),
-  ///       Model(-25.274398, 133.775136),
-  ///       Model(20.593684, 78.96288),
-  ///       Model(61.52401, 105.318756)
-  ///     ];
-  ///
-  ///    _mapSource = MapShapeSource.asset(
-  ///      "assets/world_map.json",
-  ///      shapeDataField: "name",
-  ///   );
-  ///
-  ///    _controller = MapShapeLayerController();
-  ///    super.initState();
-  /// }
-  ///
-  /// @override
-  /// Widget build(BuildContext context) {
-  ///    return Scaffold(
-  ///      body: Center(
-  ///          child: Container(
-  ///            height: 350,
-  ///            child: Padding(
-  ///              padding: EdgeInsets.only(left: 15, right: 15),
-  ///              child: Column(
-  ///                children: [
-  ///                  SfMaps(
-  ///                    layers: <MapLayer>[
-  ///                      MapShapeLayer(
-  ///                       source: _mapSource,
-  ///                        initialMarkersCount: 5,
-  ///                        markerBuilder: (BuildContext context, int index) {
-  ///                          return MapMarker(
-  ///                            latitude: _data[index].latitude,
-  ///                            longitude: _data[index].longitude,
-  ///                            child: Icon(Icons.add_location),
-  ///                          );
-  ///                        },
-  ///                        controller: _controller,
-  ///                      ),
-  ///                    ],
-  ///                  ),
-  ///                  RaisedButton(
-  ///                    child: Text('Add marker'),
-  ///                    onPressed: () {
-  ///                      _data.add(Model(
-  ///                          -180 + _random.nextInt(360).toDouble(),
-  ///                          -55 + _random.nextInt(139).toDouble()));
-  ///                      _controller.insertMarker(5);
-  ///                    },
-  ///                  ),
-  ///                ],
-  ///              ),
-  ///            ),
-  ///         )
-  ///      ),
-  ///   );
-  /// }
-  ///
-  /// class Model {
-  ///  Model(this.latitude, this.longitude);
-  ///
-  ///  final double latitude;
-  ///  final double longitude;
-  /// }
-  /// ```
-  final MapShapeLayerController? controller;
-
-  /// Shows or hides the data labels.
-  ///
-  /// Defaults to `false`.
-  ///
-  /// See also:
-  /// * [MapDataLabelSettings], to customize the tooltip.
-  /// * [MapShapeSource.dataLabelMapper], for customizing the
-  /// data label's text.
-  final bool showDataLabels;
-
-  /// Color which is used to paint the shapes.
-  final Color? color;
-
-  /// Color which is used to paint the stroke of the shapes.
-  final Color? strokeColor;
-
-  /// Sets the stroke width of the shapes.
-  final double? strokeWidth;
-
-  /// Customizes the appearance of the data labels.
-  final MapDataLabelSettings dataLabelSettings;
-
-  /// Customizes the appearance of the bubbles.
-  ///
-  /// See also:
-  /// * [MapShapeLayer.bubbleSizeMapper], to show the bubbles.
-  final MapBubbleSettings bubbleSettings;
-
-  /// Shows legend for the bubbles or shapes.
-  ///
-  /// Information provided in the legend helps to identify the data rendered in
-  /// the map shapes or bubbles.
-  ///
-  /// Defaults to `null`.
-  ///
-  /// By default, legend will not be shown.
-  ///
-  /// ## Legend for shape
-  ///
-  /// Set [MapLegend.source] to [MapElement.shape] to show legend for shapes.
-  ///
-  /// If [MapShapeSource.shapeColorMappers] is not null, then
-  /// [MapColorMapper.color] and [MapColorMapper.text] will be used for the
-  /// legend item's icon and the legend item's text respectively.
-  ///
-  /// If [MapShapeSource.shapeColorMappers] is null, the color returned
-  /// in the [MapShapeSource.shapeColorValueMapper] will be applied to
-  /// the legend item's icon and the legend item's text will be taken from the
-  /// [MapShapeSource.shapeDataField].
-  ///
-  /// In a rare case, if both the [MapShapeSource.shapeColorMappers] and
-  /// the [MapShapeSource.shapeColorValueMapper] properties are null,
-  /// the legend item's text will be taken from the
-  /// [MapShapeSource.shapeDataField] property and the legend item's
-  /// icon will have the default color.
-  ///
-  /// ## Legend for bubbles
-  ///
-  /// Set [MapLegend.source] to [MapElement.bubble] to show legend for bubbles.
-  ///
-  /// If [MapShapeSource.bubbleColorMappers] is not null, then
-  /// [MapColorMapper.color] and [MapColorMapper.text] will be used for the
-  /// legend item's icon and the legend item's text respectively.
-  ///
-  /// If [MapShapeSource.bubbleColorMappers] is null, the color returned
-  /// in the [MapShapeSource.bubbleColorValueMapper] will be applied to
-  /// the legend item's icon and the legend item's text will be taken from the
-  /// [MapShapeSource.shapeDataField].
-  ///
-  /// If both the [MapShapeSource.bubbleColorMappers] and
-  /// the [MapShapeSource.bubbleColorValueMapper] properties are null,
-  /// the legend item's text will be taken from the
-  /// [MapShapeSource.shapeDataField] property and the legend item's
-  /// icon will have the default color.
-  ///
-  /// See also:
-  /// * [MapLegend.source], to enable legend for shape or bubbles.
-  final MapLegend? legend;
-
-  /// Customizes the appearance of the selected shape.
-  ///
-  /// See also:
-  /// * [MapShapeLayer.selectedIndex], for selecting or unselecting a shape.
-  /// * [MapShapeLayer.onSelectionChanged], passes the current tapped shape
-  /// index.
-  final MapSelectionSettings selectionSettings;
-
-  /// Selects the shape in the given index.
-  ///
-  /// The map passes the selected index to the [onSelectionChanged] callback but
-  /// does not actually change this value until the parent widget rebuilds the
-  /// maps with the new value.
-  ///
-  /// To unselect a shape, set -1 to the [MapShapeLayer.selectedIndex].
-  ///
-  /// Must not be null. Defaults to -1.
-  ///
-  /// See also:
-  /// * [MapSelectionSettings], to customize the selected shape's appearance.
-  /// * [MapShapeLayer.onSelectionChanged], for getting the current tapped
-  /// shape index.
-  final int selectedIndex;
-
-  /// Called when the user tapped or clicked on a shape.
-  ///
-  /// The map passes the selected index to the [onSelectionChanged] callback but
-  /// does not actually change this value until the parent widget rebuilds the
-  /// maps with the new value.
-  ///
-  /// This snippet shows how to use onSelectionChanged callback in [SfMaps].
-  ///
-  /// ```dart
-  /// List<DataModel> _data;
-  ///   MapShapeSource _mapSource;
-  ///   int _selectedIndex = -1;
-  ///
-  ///   @override
-  ///   void initState() {
-  ///     super.initState();
-  ///
-  ///     _data = <DataModel>[
-  ///       DataModel('India', 280, "Low", Colors.red),
-  ///       DataModel('United States of America', 190, "High", Colors.green),
-  ///       DataModel('Pakistan', 37, "Low", Colors.yellow),
-  ///     ];
-  ///
-  ///     _mapSource = MapShapeSource.asset(
-  ///       "assets/world_map.json",
-  ///       shapeDataField: "name",
-  ///       dataCount: _data.length,
-  ///       primaryValueMapper: (int index) => _data[index].country,
-  ///       shapeColorValueMapper: (int index) => _data[index].color,
-  ///     );
-  ///   }
-  ///
-  ///   @override
-  ///   Widget build(BuildContext context) {
-  ///     return Scaffold(
-  ///       body: Center(
-  ///           child: Container(
-  ///         height: 350,
-  ///         child: Padding(
-  ///           padding: EdgeInsets.only(left: 15, right: 15),
-  ///           child: Column(
-  ///             children: [
-  ///               SfMaps(
-  ///                 layers: <MapLayer>[
-  ///                   MapShapeLayer(
-  ///                     source: _mapSource,
-  ///                     selectedIndex: _selectedIndex,
-  ///                     selectionSettings: MapSelectionSettings(
-  ///                         color: Colors.pink,),
-  ///                     onSelectionChanged: (int index) {
-  ///                       setState(() {
-  ///                         _selectedIndex = (_selectedIndex == index) ?
-  ///                                -1 : index;
-  ///                       });
-  ///                     },
-  ///                   ),
-  ///                 ],
-  ///               ),
-  ///             ],
-  ///           ),
-  ///         ),
-  ///       )),
-  ///     );
-  ///   }
-  /// }
-  ///
-  /// class DataModel {
-  ///   const DataModel(
-  ///      this.country,
-  ///      this.usersCount,
-  ///      this.storage,
-  ///      this.color,
-  ///   );
-  ///   final String country;
-  ///   final double usersCount;
-  ///   final String storage;
-  ///   final Color color;
-  /// }
-  /// ```
-  final ValueChanged<int>? onSelectionChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return _ShapeLayer(
-      source: source,
-      loadingBuilder: loadingBuilder,
-      controller: controller,
-      sublayers: sublayers,
-      initialMarkersCount: initialMarkersCount,
-      markerBuilder: markerBuilder,
-      shapeTooltipBuilder: shapeTooltipBuilder,
-      bubbleTooltipBuilder: bubbleTooltipBuilder,
-      markerTooltipBuilder: markerTooltipBuilder,
-      showDataLabels: showDataLabels,
-      color: color,
-      strokeColor: strokeColor,
-      strokeWidth: strokeWidth,
-      legend: legend,
-      dataLabelSettings: dataLabelSettings,
-      bubbleSettings: bubbleSettings,
-      selectionSettings: selectionSettings,
-      tooltipSettings: tooltipSettings,
-      selectedIndex: selectedIndex,
-      zoomPanBehavior: zoomPanBehavior,
-      onSelectionChanged: onSelectionChanged,
-      onWillZoom: onWillZoom,
-      onWillPan: onWillPan,
-    );
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties.add(source.toDiagnosticsNode(name: 'source'));
-    properties.add(ObjectFlagProperty<MapLoadingBuilder>.has(
-        'loadingBuilder', loadingBuilder));
-    if (controller != null) {
-      properties.add(IntProperty('markersCount', controller!.markersCount));
-    } else {
-      properties.add(IntProperty('markersCount', initialMarkersCount));
-    }
-    if (sublayers != null && sublayers!.isNotEmpty) {
-      final DebugSublayerTree pointerTreeNode = DebugSublayerTree(sublayers!);
-      properties.add(pointerTreeNode.toDiagnosticsNode());
-    }
-    properties.add(ObjectFlagProperty<MapMarkerBuilder>.has(
-        'markerBuilder', markerBuilder));
-    properties.add(ObjectFlagProperty<IndexedWidgetBuilder>.has(
-        'shapeTooltip', shapeTooltipBuilder));
-    properties.add(ObjectFlagProperty<IndexedWidgetBuilder>.has(
-        'bubbleTooltip', bubbleTooltipBuilder));
-    properties.add(ObjectFlagProperty<IndexedWidgetBuilder>.has(
-        'markerTooltip', markerTooltipBuilder));
-    properties.add(FlagProperty('showDataLabels',
-        value: showDataLabels,
-        ifTrue: 'Data labels are showing',
-        ifFalse: 'Data labels are not showing',
-        showName: false));
-    if (color != null) {
-      properties.add(ColorProperty('color', color));
-    }
-
-    if (strokeColor != null) {
-      properties.add(ColorProperty('strokeColor', strokeColor));
-    }
-
-    if (strokeWidth != null) {
-      properties.add(DoubleProperty('strokeWidth', strokeWidth));
-    }
-
-    properties.add(IntProperty('selectedIndex', selectedIndex));
-    properties
-        .add(dataLabelSettings.toDiagnosticsNode(name: 'dataLabelSettings'));
-    if (legend != null) {
-      properties.add(legend!.toDiagnosticsNode(name: 'legend'));
-    }
-    properties.add(bubbleSettings.toDiagnosticsNode(name: 'bubbleSettings'));
-    properties
-        .add(selectionSettings.toDiagnosticsNode(name: 'selectionSettings'));
-    properties.add(tooltipSettings.toDiagnosticsNode(name: 'tooltipSettings'));
-    if (zoomPanBehavior != null) {
-      properties
-          .add(zoomPanBehavior!.toDiagnosticsNode(name: 'zoomPanBehavior'));
-    }
-    properties.add(
-        ObjectFlagProperty<WillZoomCallback>.has('onWillZoom', onWillZoom));
-    properties
-        .add(ObjectFlagProperty<WillPanCallback>.has('onWillPan', onWillPan));
-  }
-}
-
-class _ShapeLayer extends StatefulWidget {
-  _ShapeLayer({
-    required this.source,
-    required this.loadingBuilder,
-    required this.controller,
-    required this.sublayers,
-    required this.initialMarkersCount,
-    required this.markerBuilder,
-    required this.shapeTooltipBuilder,
-    required this.bubbleTooltipBuilder,
-    required this.markerTooltipBuilder,
-    required this.showDataLabels,
-    required this.color,
-    required this.strokeColor,
-    required this.strokeWidth,
-    required this.legend,
-    required this.dataLabelSettings,
-    required this.bubbleSettings,
-    required this.selectionSettings,
-    required this.tooltipSettings,
-    required this.selectedIndex,
-    required this.zoomPanBehavior,
-    required this.onSelectionChanged,
-    required this.onWillZoom,
-    required this.onWillPan,
-  });
-
-  final MapShapeSource source;
-  final MapLoadingBuilder? loadingBuilder;
-  final MapShapeLayerController? controller;
-  final List<MapSublayer>? sublayers;
-  final int initialMarkersCount;
-  final MapMarkerBuilder? markerBuilder;
-  final IndexedWidgetBuilder? shapeTooltipBuilder;
-  final IndexedWidgetBuilder? bubbleTooltipBuilder;
-  final IndexedWidgetBuilder? markerTooltipBuilder;
-  final bool showDataLabels;
-  final Color? color;
-  final Color? strokeColor;
-  final double? strokeWidth;
-  final MapDataLabelSettings dataLabelSettings;
-  final MapLegend? legend;
-  final MapBubbleSettings bubbleSettings;
-  final MapSelectionSettings selectionSettings;
-  final MapTooltipSettings tooltipSettings;
-  final int selectedIndex;
-  final MapZoomPanBehavior? zoomPanBehavior;
-  final ValueChanged<int>? onSelectionChanged;
-  final WillZoomCallback? onWillZoom;
-  final WillPanCallback? onWillPan;
-
-  @override
-  _ShapeLayerState createState() => _ShapeLayerState();
-}
-
-class _ShapeLayerState extends State<_ShapeLayer> {
-  late MapController _controller;
-
-  @override
-  void initState() {
-    _controller = MapController()
-      ..tooltipKey = GlobalKey()
-      ..layerType = LayerType.shape;
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MapLayerInheritedWidget(
-      controller: _controller,
-      sublayers: widget.sublayers,
-      child: _GeoJSONLayer(
-        source: widget.source,
-        loadingBuilder: widget.loadingBuilder,
-        controller: widget.controller,
-        sublayers: widget.sublayers,
-        initialMarkersCount: widget.initialMarkersCount,
-        markerBuilder: widget.markerBuilder,
-        shapeTooltipBuilder: widget.shapeTooltipBuilder,
-        bubbleTooltipBuilder: widget.bubbleTooltipBuilder,
-        markerTooltipBuilder: widget.markerTooltipBuilder,
-        showDataLabels: widget.showDataLabels,
-        color: widget.color,
-        strokeColor: widget.strokeColor,
-        strokeWidth: widget.strokeWidth,
-        legend: widget.legend,
-        dataLabelSettings: widget.dataLabelSettings,
-        bubbleSettings: widget.bubbleSettings,
-        selectionSettings: widget.selectionSettings,
-        tooltipSettings: widget.tooltipSettings,
-        selectedIndex: widget.selectedIndex,
-        zoomPanBehavior: widget.zoomPanBehavior,
-        onSelectionChanged: widget.onSelectionChanged,
-        onWillZoom: widget.onWillZoom,
-        onWillPan: widget.onWillPan,
-      ),
-    );
-  }
-}
-
-class _GeoJSONLayer extends StatefulWidget {
-  const _GeoJSONLayer({
+// ignore_for_file: public_member_api_docs
+class GeoJSONLayer extends StatefulWidget {
+  const GeoJSONLayer({
     required this.source,
     required this.controller,
     required this.initialMarkersCount,
@@ -2634,7 +1197,7 @@ class _GeoJSONLayer extends StatefulWidget {
   _GeoJSONLayerState createState() => _GeoJSONLayerState();
 }
 
-class _GeoJSONLayerState extends State<_GeoJSONLayer>
+class _GeoJSONLayerState extends State<GeoJSONLayer>
     with TickerProviderStateMixin {
   late GlobalKey bubbleKey;
   late _ShapeFileData shapeFileData;
@@ -2651,10 +1214,9 @@ class _GeoJSONLayerState extends State<_GeoJSONLayer>
   late AnimationController selectionAnimationController;
   late AnimationController zoomLevelAnimationController;
   late AnimationController focalLatLngAnimationController;
+  late PointerController _pointerController;
 
   List<Widget>? _markers;
-  MapLegend? _legendConfiguration;
-  MapLegendWidget? _legendWidget;
 
   double? minBubbleValue;
   double? maxBubbleValue;
@@ -2684,7 +1246,7 @@ class _GeoJSONLayerState extends State<_GeoJSONLayer>
         mapDataSource: shapeFileData.mapDataSource,
         mapSource: widget.source,
         selectedIndex: widget.selectedIndex,
-        legend: _legendWidget,
+        legend: widget.legend,
         selectionSettings: widget.selectionSettings,
         zoomPanBehavior: widget.zoomPanBehavior,
         bubbleSettings: widget.bubbleSettings.copyWith(
@@ -2705,7 +1267,7 @@ class _GeoJSONLayerState extends State<_GeoJSONLayer>
             color: _mapsThemeData.bubbleColor,
             strokeColor: _mapsThemeData.bubbleStrokeColor,
             strokeWidth: _mapsThemeData.bubbleStrokeWidth),
-        legend: _legendWidget,
+        legend: widget.legend,
         showDataLabels: widget.showDataLabels,
         themeData: _mapsThemeData,
         bubbleAnimationController: bubbleAnimationController,
@@ -2786,56 +1348,29 @@ class _GeoJSONLayerState extends State<_GeoJSONLayer>
   }
 
   Widget get _shapeLayerWithLegend {
-    if (_legendConfiguration != null) {
-      _updateLegendWidget();
-      if (_legendConfiguration!.offset == null) {
-        switch (_legendConfiguration!.position) {
-          case MapLegendPosition.top:
-            return Column(
-              children: <Widget>[_legendWidget!, _expandedShapeLayerWidget],
-            );
-          case MapLegendPosition.bottom:
-            return Column(
-                children: <Widget>[_expandedShapeLayerWidget, _legendWidget!]);
-          case MapLegendPosition.left:
-            return Row(
-              children: <Widget>[_legendWidget!, _expandedShapeLayerWidget],
-            );
-          case MapLegendPosition.right:
-            return Row(
-              children: <Widget>[_expandedShapeLayerWidget, _legendWidget!],
-            );
-        }
-      } else {
-        return _stackedLegendAndShapeLayerWidget;
-      }
+    if (widget.legend != null) {
+      return Legend(
+        colorMappers: _getLegendSource(),
+        dataSource: shapeFileData.mapDataSource,
+        legend: widget.legend!,
+        pointerController: _pointerController,
+        controller: _controller,
+        themeData: _mapsThemeData,
+        child: _shapeLayerWithElements,
+      );
     }
 
     return _shapeLayerWithElements;
   }
 
-  Widget get _expandedShapeLayerWidget => Expanded(
-        child: Stack(
-          alignment: Alignment.center,
-          children: <Widget>[_shapeLayerWithElements],
-        ),
-      );
-
-  /// Returns the legend and map overlapping widget.
-  Widget get _stackedLegendAndShapeLayerWidget => Stack(
-        children: <Widget>[
-          _shapeLayerWithElements,
-          Align(
-            alignment:
-                _getActualLegendAlignment(_legendConfiguration!.position),
-            // Padding widget is used to set the custom position to the legend.
-            child: Padding(
-              padding: _getActualLegendOffset(context),
-              child: _legendWidget,
-            ),
-          ),
-        ],
-      );
+  List<MapColorMapper>? _getLegendSource() {
+    switch (widget.legend!.source) {
+      case MapElement.bubble:
+        return widget.source.bubbleColorMappers;
+      case MapElement.shape:
+        return widget.source.shapeColorMappers;
+    }
+  }
 
   bool _hasTooltipBuilder() {
     if (isSublayer) {
@@ -2862,74 +1397,7 @@ class _GeoJSONLayerState extends State<_GeoJSONLayer>
     return false;
   }
 
-  void _updateLegendWidget() {
-    _legendWidget = _legendWidget!.copyWith(
-      dataSource: _getLegendSource() ?? shapeFileData.mapDataSource,
-      legend: _legendConfiguration!,
-      themeData: _mapsThemeData,
-      controller: _controller,
-      toggleAnimationController: toggleAnimationController,
-    );
-  }
-
-  List<MapColorMapper>? _getLegendSource() {
-    switch (widget.legend!.source) {
-      case MapElement.bubble:
-        return widget.source.bubbleColorMappers;
-      case MapElement.shape:
-        return widget.source.shapeColorMappers;
-    }
-  }
-
-  /// Returns the alignment for the legend if we set the legend offset.
-  AlignmentGeometry _getActualLegendAlignment(MapLegendPosition position) {
-    switch (position) {
-      case MapLegendPosition.top:
-        return Alignment.topCenter;
-      case MapLegendPosition.bottom:
-        return Alignment.bottomCenter;
-      case MapLegendPosition.left:
-        return Alignment.centerLeft;
-      case MapLegendPosition.right:
-        return Alignment.centerRight;
-    }
-  }
-
-  /// Returns the padding value to render the legend based on offset value.
-  EdgeInsetsGeometry _getActualLegendOffset(BuildContext context) {
-    final Offset offset = _legendConfiguration!.offset!;
-    final MapLegendPosition legendPosition = _legendConfiguration!.position;
-    // Here the default alignment is center for all the positions.
-    // So need to handle the offset by multiplied it by 2.
-    switch (legendPosition) {
-      // Returns the insets for the offset if the legend position is top.
-      case MapLegendPosition.top:
-        return EdgeInsets.only(
-            left: offset.dx > 0 ? offset.dx * 2 : 0,
-            right: offset.dx < 0 ? offset.dx.abs() * 2 : 0,
-            top: offset.dy > 0 ? offset.dy : 0);
-      // Returns the insets for the offset if the legend position is left.
-      case MapLegendPosition.left:
-        return EdgeInsets.only(
-            top: offset.dy > 0 ? offset.dy * 2 : 0,
-            bottom: offset.dy < 0 ? offset.dy.abs() * 2 : 0,
-            left: offset.dx > 0 ? offset.dx : 0);
-      // Returns the insets for the offset if the legend position is right.
-      case MapLegendPosition.right:
-        return EdgeInsets.only(
-            top: offset.dy > 0 ? offset.dy * 2 : 0,
-            bottom: offset.dy < 0 ? offset.dy.abs() * 2 : 0,
-            right: offset.dx < 0 ? offset.dx.abs() : 0);
-      // Returns the insets for the offset if the legend position is bottom.
-      case MapLegendPosition.bottom:
-        return EdgeInsets.only(
-            left: offset.dx > 0 ? offset.dx * 2 : 0,
-            right: offset.dx < 0 ? offset.dx.abs() * 2 : 0,
-            bottom: offset.dy < 0 ? offset.dy.abs() : 0);
-    }
-  }
-
-  void _updateThemeData(BuildContext context) {
+  void _updateThemeData(BuildContext context, ThemeData themeData) {
     final bool isLightTheme = _mapsThemeData.brightness == Brightness.light;
     _mapsThemeData = _mapsThemeData.copyWith(
       layerColor: widget.color ??
@@ -2950,7 +1418,10 @@ class _GeoJSONLayerState extends State<_GeoJSONLayer>
               : _mapsThemeData.layerStrokeWidth),
       shapeHoverStrokeWidth: _mapsThemeData.shapeHoverStrokeWidth ??
           _mapsThemeData.layerStrokeWidth,
-      legendTextStyle: _legendWidget?.textStyle,
+      legendTextStyle: themeData.textTheme.caption!
+          .copyWith(
+              color: themeData.textTheme.caption!.color!.withOpacity(0.87))
+          .merge(widget.legend?.textStyle ?? _mapsThemeData.legendTextStyle),
       bubbleColor: widget.bubbleSettings.color ?? _mapsThemeData.bubbleColor,
       bubbleStrokeColor:
           widget.bubbleSettings.strokeColor ?? _mapsThemeData.bubbleStrokeColor,
@@ -2971,9 +1442,12 @@ class _GeoJSONLayerState extends State<_GeoJSONLayer>
           _mapsThemeData.tooltipStrokeWidth,
       tooltipBorderRadius: _mapsThemeData.tooltipBorderRadius
           .resolve(Directionality.of(context)),
-      toggledItemColor: _legendWidget?.toggledItemColor,
-      toggledItemStrokeColor: _legendWidget?.toggledItemStrokeColor,
-      toggledItemStrokeWidth: _legendWidget?.toggledItemStrokeWidth,
+      toggledItemColor:
+          widget.legend?.toggledItemColor ?? _mapsThemeData.toggledItemColor,
+      toggledItemStrokeColor: widget.legend?.toggledItemStrokeColor ??
+          _mapsThemeData.toggledItemStrokeColor,
+      toggledItemStrokeWidth: widget.legend?.toggledItemStrokeWidth ??
+          _mapsThemeData.toggledItemStrokeWidth,
     );
   }
 
@@ -2991,8 +1465,9 @@ class _GeoJSONLayerState extends State<_GeoJSONLayer>
           if (_shouldUpdateMapDataSource) {
             minBubbleValue = null;
             maxBubbleValue = null;
-            shapeFileData.mapDataSource.values
-                .forEach((MapModel model) => model.reset());
+            for (final MapModel model in shapeFileData.mapDataSource.values) {
+              model.reset();
+            }
             _bindMapsSourceIntoDataSource();
             _shouldUpdateMapDataSource = false;
           }
@@ -3082,9 +1557,42 @@ class _GeoJSONLayerState extends State<_GeoJSONLayer>
     }
   }
 
+  Offset _getLegendPointerOffset(double? value) {
+    double normalized = 0.0;
+    final List<MapColorMapper>? colorMappers = _getLegendSource();
+    if (value != null && colorMappers != null && colorMappers.isNotEmpty) {
+      final int length = colorMappers.length;
+      // Range color mapper.
+      if (colorMappers[0].from != null) {
+        final double slab = 1 / length;
+        for (int i = 0; i < length; i++) {
+          final MapColorMapper mapper = colorMappers[i];
+          if (mapper.from! <= value && mapper.to! >= value) {
+            normalized +=
+                (value - mapper.from!) / (mapper.to! - mapper.from!) * slab;
+            break;
+          }
+          normalized += slab;
+        }
+      } else {
+        // Equal color mapper.
+        normalized = value / (length - 1);
+      }
+    }
+    return Offset(normalized, normalized);
+  }
+
+  void _updateLegendPointer(double? value) {
+    if (_pointerController.colorValue != value) {
+      _pointerController
+        ..position = value != null ? _getLegendPointerOffset(value) : null
+        ..colorValue = value;
+    }
+  }
+
   /// Returns color from [MapColorMapper] based on the data source value.
   Color? _getActualColor(Object? colorValue, List<MapColorMapper>? colorMappers,
-      MapModel? mapModel) {
+      MapModel mapModel) {
     MapColorMapper mapper;
     if (colorValue == null) {
       return null;
@@ -3097,7 +1605,8 @@ class _GeoJSONLayerState extends State<_GeoJSONLayer>
         mapper = colorMappers![i];
         assert(mapper.value != null);
         if (mapper.value == colorValue) {
-          mapModel?.legendMapperIndex = i;
+          mapModel.legendMapperIndex = i;
+          mapModel.colorValue = i;
           return mapper.color;
         }
       }
@@ -3109,7 +1618,8 @@ class _GeoJSONLayerState extends State<_GeoJSONLayer>
         mapper = colorMappers![i];
         assert(mapper.from != null && mapper.to != null);
         if (mapper.from! <= colorValue && mapper.to! >= colorValue) {
-          mapModel?.legendMapperIndex = i;
+          mapModel.legendMapperIndex = i;
+          mapModel.colorValue = colorValue;
           if (mapper.minOpacity != null && mapper.maxOpacity != null) {
             return mapper.color.withOpacity(lerpDouble(
                 mapper.minOpacity,
@@ -3169,6 +1679,7 @@ class _GeoJSONLayerState extends State<_GeoJSONLayer>
   @override
   void initState() {
     super.initState();
+    _pointerController = PointerController();
     bubbleKey = GlobalKey();
     shapeFileData = _ShapeFileData()
       ..mapDataSource = <String, MapModel>{}
@@ -3204,8 +1715,7 @@ class _GeoJSONLayerState extends State<_GeoJSONLayer>
 
     widget.controller?.addListener(refreshMarkers);
     isSublayer = widget.sublayerAncestor != null;
-    _provider = _sourceProvider(
-        widget.source._geoJSONSource, widget.source._geoJSONSourceType);
+    _provider = getSourceProvider(widget.source._path, widget.source._type);
   }
 
   @override
@@ -3219,13 +1729,13 @@ class _GeoJSONLayerState extends State<_GeoJSONLayer>
   }
 
   @override
-  void didUpdateWidget(_GeoJSONLayer oldWidget) {
+  void didUpdateWidget(GeoJSONLayer oldWidget) {
     _shouldUpdateMapDataSource = oldWidget.source != widget.source;
     _hasSublayer = widget.sublayers != null && widget.sublayers!.isNotEmpty;
     isSublayer = widget.sublayerAncestor != null;
 
-    final MapProvider currentProvider = _sourceProvider(
-        widget.source._geoJSONSource, widget.source._geoJSONSourceType);
+    final MapProvider currentProvider =
+        getSourceProvider(widget.source._path, widget.source._type);
     if (_provider != currentProvider) {
       _provider = currentProvider;
       _isShapeFileDecoded = false;
@@ -3235,7 +1745,7 @@ class _GeoJSONLayerState extends State<_GeoJSONLayer>
     if (oldWidget.controller != widget.controller) {
       widget.controller!._parentBox =
           // ignore: avoid_as
-          context.findRenderObject() as _RenderGeoJSONLayer;
+          context.findRenderObject()! as _RenderGeoJSONLayer;
     }
 
     if (_controller != null && _shouldUpdateMapDataSource && !isSublayer) {
@@ -3264,6 +1774,7 @@ class _GeoJSONLayerState extends State<_GeoJSONLayer>
 
     shapeFileData.reset();
     _controller = null;
+    _pointerController.dispose();
     super.dispose();
   }
 
@@ -3281,26 +1792,11 @@ class _GeoJSONLayerState extends State<_GeoJSONLayer>
 
     final ThemeData themeData = Theme.of(context);
     _mapsThemeData = SfMapsTheme.of(context)!;
-    if (widget.legend != null) {
-      _legendConfiguration = widget.legend!.copyWith(
-          textStyle: themeData.textTheme.caption!
-              .copyWith(
-                  color: themeData.textTheme.caption!.color!.withOpacity(0.87))
-              .merge(
-                  widget.legend!.textStyle ?? _mapsThemeData.legendTextStyle),
-          toggledItemColor: _mapsThemeData.toggledItemColor,
-          toggledItemStrokeColor: _mapsThemeData.toggledItemStrokeColor,
-          toggledItemStrokeWidth: _mapsThemeData.toggledItemStrokeWidth);
-      _legendWidget = MapLegendWidget(legend: _legendConfiguration!);
-    } else {
-      _legendConfiguration = null;
-    }
-
     isDesktop = kIsWeb ||
         themeData.platform == TargetPlatform.macOS ||
         themeData.platform == TargetPlatform.windows ||
         themeData.platform == TargetPlatform.linux;
-    _updateThemeData(context);
+    _updateThemeData(context, themeData);
     return _buildShapeLayer();
   }
 }
@@ -3328,7 +1824,7 @@ class _GeoJSONLayerRenderObjectWidget extends Stack {
   final MapSelectionSettings selectionSettings;
   final SfMapsThemeData themeData;
   final _GeoJSONLayerState state;
-  final MapLegendWidget? legend;
+  final MapLegend? legend;
   final MapZoomPanBehavior? zoomPanBehavior;
 
   @override
@@ -3371,14 +1867,14 @@ class _RenderGeoJSONLayer extends RenderStack
     required Map<String, MapModel> mapDataSource,
     required MapShapeSource mapSource,
     required int selectedIndex,
-    required MapLegendWidget? legend,
+    required MapLegend? legend,
     required MapBubbleSettings bubbleSettings,
     required MapSelectionSettings selectionSettings,
     required MapZoomPanBehavior? zoomPanBehavior,
     required SfMapsThemeData themeData,
-    required BuildContext context,
+    required this.context,
     required _GeoJSONLayerState state,
-  })   : _controller = controller,
+  })  : _controller = controller,
         _mapDataSource = mapDataSource,
         _mapSource = mapSource,
         _selectedIndex = selectedIndex,
@@ -3388,7 +1884,6 @@ class _RenderGeoJSONLayer extends RenderStack
         _zoomPanBehavior = zoomPanBehavior,
         _themeData = themeData,
         _state = state,
-        context = context,
         super(textDirection: Directionality.of(state.context)) {
     _scaleGestureRecognizer = ScaleGestureRecognizer()
       ..onStart = _handleScaleStart
@@ -3452,6 +1947,7 @@ class _RenderGeoJSONLayer extends RenderStack
   bool _avoidPanUpdate = false;
   bool _isFlingAnimationActive = false;
   bool _doubleTapEnabled = false;
+  late bool _validForMouseTracker;
   late Size _size;
   late Size _actualShapeSize;
   late ScaleGestureRecognizer _scaleGestureRecognizer;
@@ -3538,9 +2034,8 @@ class _RenderGeoJSONLayer extends RenderStack
 
     if (_mapSource != null &&
         value != null &&
-        _sourceProvider(
-                _mapSource!._geoJSONSource, _mapSource!._geoJSONSourceType) !=
-            _sourceProvider(value._geoJSONSource, value._geoJSONSourceType)) {
+        getSourceProvider(_mapSource!._path, _mapSource!._type) !=
+            getSourceProvider(value._path, value._type)) {
       _mapSource = value;
       return;
     }
@@ -3574,9 +2069,9 @@ class _RenderGeoJSONLayer extends RenderStack
     markNeedsPaint();
   }
 
-  MapLegendWidget? get legend => _legend;
-  MapLegendWidget? _legend;
-  set legend(MapLegendWidget? value) {
+  MapLegend? get legend => _legend;
+  MapLegend? _legend;
+  set legend(MapLegend? value) {
     // Update [MapsShapeLayer.legend] value only when
     // [MapsShapeLayer.legend] property is set to shape.
     if (_legend != null && _legend!.source != MapElement.shape ||
@@ -3672,8 +2167,7 @@ class _RenderGeoJSONLayer extends RenderStack
   PointerExitEventListener get onExit => _handleExit;
 
   @override
-  // ignore: override_on_non_overriding_member
-  bool get validForMouseTracker => true;
+  bool get validForMouseTracker => _validForMouseTracker;
 
   void _initializeZoomPanAnimations() {
     _flingZoomLevelCurvedAnimation = CurvedAnimation(
@@ -3746,10 +2240,10 @@ class _RenderGeoJSONLayer extends RenderStack
   }
 
   void _initializeToggledShapeTweenColors() {
-    final Color? toggledShapeColor = _themeData.toggledItemColor !=
-            Colors.transparent
-        ? _themeData.toggledItemColor.withOpacity(_legend!.toggledItemOpacity)
-        : null;
+    final Color? toggledShapeColor =
+        _themeData.toggledItemColor != Colors.transparent
+            ? _themeData.toggledItemColor
+            : null;
 
     _forwardToggledShapeColorTween.end = toggledShapeColor;
     _forwardToggledShapeStrokeColorTween.begin = _themeData.layerStrokeColor;
@@ -3905,13 +2399,14 @@ class _RenderGeoJSONLayer extends RenderStack
     _mapDataSource.forEach((String key, MapModel mapModel) {
       double signedArea = 0.0, centerX = 0.0, centerY = 0.0;
       rawPointsLength = mapModel.rawPoints.length;
-      mapModel.pixelPoints = List.filled(rawPointsLength, []);
+      mapModel.pixelPoints =
+          List<List<Offset>>.filled(rawPointsLength, <Offset>[]);
       shapePath = Path();
       for (int j = 0; j < rawPointsLength; j++) {
         rawPoints = mapModel.rawPoints[j];
         pointsLength = rawPoints.length;
-        pixelPoints =
-            mapModel.pixelPoints![j] = List.filled(pointsLength, Offset.zero);
+        pixelPoints = mapModel.pixelPoints![j] =
+            List<Offset>.filled(pointsLength, Offset.zero);
         for (int k = 0; k < pointsLength; k++) {
           coordinate = rawPoints[k];
           point = pixelPoints[k] = pixelFromLatLng(
@@ -4298,7 +2793,7 @@ class _RenderGeoJSONLayer extends RenderStack
     _zoomPanBehavior!.zoomLevel = details.newZoomLevel!;
   }
 
-  void _handleZoomLevelChange(double zoomLevel, {MapLatLng? latlng}) {
+  void _handleZoomLevelChange(double zoomLevel) {
     if (_controller.isInInteractive &&
         !_state.focalLatLngAnimationController.isAnimating &&
         !_state.zoomLevelAnimationController.isAnimating) {
@@ -4606,39 +3101,60 @@ class _RenderGeoJSONLayer extends RenderStack
 
   void _handleHover(PointerHoverEvent event) {
     // ignore: avoid_as
-    final RenderBox renderBox = context.findRenderObject() as RenderBox;
+    final RenderBox renderBox = context.findRenderObject()! as RenderBox;
     final Offset localPosition = renderBox.globalToLocal(event.position);
     _prevSelectedItem = null;
     _performChildHover(localPosition);
+    if (_legend != null && _legend!.showPointerOnHover) {
+      if ((_currentInteractedElement == MapLayerElement.bubble &&
+              _legend!.source == MapElement.bubble) ||
+          (_currentInteractedElement == MapLayerElement.shape &&
+              _legend!.source == MapElement.shape)) {
+        _state._updateLegendPointer(
+            _currentInteractedItem!.colorValue?.toDouble());
+      } else {
+        _state._updateLegendPointer(null);
+      }
+    }
   }
 
   void _handleExit(PointerExitEvent event) {
-    if (_state.widget.source.bubbleSizeMapper != null && hasBubbleHoverColor) {
-      final ShapeLayerChildRenderBoxBase bubbleRenderObject =
-          _state.bubbleKey.currentContext!.findRenderObject()
-              // ignore: avoid_as
-              as ShapeLayerChildRenderBoxBase;
-      bubbleRenderObject.onExit();
-    }
+    if (_state.mounted) {
+      if (_state.widget.source.bubbleSizeMapper != null &&
+          _state.bubbleKey.currentContext != null &&
+          hasBubbleHoverColor) {
+        final ShapeLayerChildRenderBoxBase bubbleRenderObject =
+            _state.bubbleKey.currentContext!.findRenderObject()!
+                // ignore: avoid_as
+                as ShapeLayerChildRenderBoxBase;
+        bubbleRenderObject.onExit();
+      }
 
-    if (hasShapeHoverColor && _currentHoverItem != null) {
-      _previousHoverItem = _currentHoverItem;
-      _currentHoverItem = null;
-      _updateHoverItemTween();
-    }
+      if (hasShapeHoverColor && _currentHoverItem != null) {
+        _previousHoverItem = _currentHoverItem;
+        _currentHoverItem = null;
+        _updateHoverItemTween();
+      }
 
-    // In sublayer, we have updated [hitTestSelf] as true only if the cursor
-    // position lies inside a shape. If not, we will make it as false.
-    // When setting false to [hitTestSelf], the framework will invoke the
-    // [_handleExit] method in desktop. To hide the previous rendered tooltip,
-    // we had passed the null value for model.
-    if ((_state.widget.shapeTooltipBuilder != null ||
-        _state.widget.bubbleTooltipBuilder != null)) {
-      final ShapeLayerChildRenderBoxBase tooltipRenderObject =
-          _controller.tooltipKey!.currentContext!.findRenderObject()
-              // ignore: avoid_as
-              as ShapeLayerChildRenderBoxBase;
-      tooltipRenderObject.hideTooltip();
+      // In sublayer, we have updated [hitTestSelf] as true only if the cursor
+      // position lies inside a shape. If not, we will make it as false.
+      // When setting false to [hitTestSelf], the framework will invoke the
+      // [_handleExit] method in desktop. To hide the previous rendered tooltip,
+      // we had passed the null value for model.
+      if ((_state.widget.shapeTooltipBuilder != null ||
+              _state.widget.bubbleTooltipBuilder != null) &&
+          _controller.tooltipKey != null &&
+          _controller.tooltipKey!.currentContext != null) {
+        final ShapeLayerChildRenderBoxBase tooltipRenderObject =
+            _controller.tooltipKey!.currentContext!.findRenderObject()!
+                // ignore: avoid_as
+                as ShapeLayerChildRenderBoxBase;
+        tooltipRenderObject.hideTooltip();
+      }
+
+      if (_legend != null && _legend!.showPointerOnHover) {
+        _state._updateLegendPointer(null);
+      }
     }
   }
 
@@ -4783,9 +3299,10 @@ class _RenderGeoJSONLayer extends RenderStack
         model: _currentInteractedItem,
         element: _currentInteractedElement,
         kind: PointerKind.hover);
-    if (_state.widget.source.bubbleSizeMapper != null) {
+    if (_state.widget.source.bubbleSizeMapper != null &&
+        _state.bubbleKey.currentContext != null) {
       final ShapeLayerChildRenderBoxBase bubbleRenderObject =
-          _state.bubbleKey.currentContext!.findRenderObject()
+          _state.bubbleKey.currentContext!.findRenderObject()!
               // ignore: avoid_as
               as ShapeLayerChildRenderBoxBase;
       bubbleRenderObject.onHover(
@@ -4825,10 +3342,12 @@ class _RenderGeoJSONLayer extends RenderStack
       MapLayerElement? element,
       PointerKind kind = PointerKind.touch}) {
     if ((_state.widget.shapeTooltipBuilder != null ||
-        _state.widget.bubbleTooltipBuilder != null)) {
+            _state.widget.bubbleTooltipBuilder != null) &&
+        _controller.tooltipKey != null &&
+        _controller.tooltipKey!.currentContext != null) {
       Rect? elementRect;
       final ShapeLayerChildRenderBoxBase tooltipRenderObject =
-          _controller.tooltipKey!.currentContext!.findRenderObject()
+          _controller.tooltipKey!.currentContext!.findRenderObject()!
               // ignore: avoid_as
               as ShapeLayerChildRenderBoxBase;
       if (model != null && element == MapLayerElement.bubble) {
@@ -4879,7 +3398,7 @@ class _RenderGeoJSONLayer extends RenderStack
         model =
             mapDataSource.values.elementAt(_controller.currentToggledItemIndex);
       } else {
-        for (final mapModel in _mapDataSource.values) {
+        for (final MapModel mapModel in _mapDataSource.values) {
           if (mapModel.dataIndex != null &&
               mapModel.legendMapperIndex ==
                   _controller.currentToggledItemIndex) {
@@ -4902,6 +3421,7 @@ class _RenderGeoJSONLayer extends RenderStack
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
+    _validForMouseTracker = true;
     _state.selectionAnimationController.addListener(markNeedsPaint);
     _state.toggleAnimationController.addListener(markNeedsPaint);
     _state.hoverShapeAnimationController.addListener(markNeedsPaint);
@@ -4928,6 +3448,7 @@ class _RenderGeoJSONLayer extends RenderStack
 
   @override
   void detach() {
+    _validForMouseTracker = false;
     _state.dataLabelAnimationController.value = 0.0;
     _state.bubbleAnimationController.value = 0.0;
     _state.selectionAnimationController.removeListener(markNeedsPaint);
@@ -5013,7 +3534,7 @@ class _RenderGeoJSONLayer extends RenderStack
     while (child != null) {
       final StackParentData childParentData =
           // ignore: avoid_as
-          child.parentData as StackParentData;
+          child.parentData! as StackParentData;
       child.layout(looseConstraints);
       child = childParentData.nextSibling;
     }
@@ -5141,7 +3662,7 @@ class _RenderGeoJSONLayer extends RenderStack
         strokePaint
           ..color = shapeStrokeColor ?? Colors.transparent
           ..strokeWidth = _controller.wasToggled(model)
-              ? _legend!.toggledItemStrokeWidth
+              ? _themeData.toggledItemStrokeWidth!
               : _themeData.layerStrokeWidth;
         return;
       } else if (hasToggledIndices && _controller.wasToggled(model)) {
@@ -5149,7 +3670,7 @@ class _RenderGeoJSONLayer extends RenderStack
         strokePaint
           ..color =
               _forwardToggledShapeStrokeColorTween.end ?? Colors.transparent
-          ..strokeWidth = _legend!.toggledItemStrokeWidth;
+          ..strokeWidth = _themeData.toggledItemStrokeWidth!;
         return;
       }
     }

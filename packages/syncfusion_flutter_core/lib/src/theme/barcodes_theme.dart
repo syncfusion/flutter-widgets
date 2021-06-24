@@ -125,6 +125,7 @@ class SfBarcodeTheme extends InheritedTheme {
 /// and [SfThemeData](https://pub.dev/documentation/syncfusion_flutter_core/latest/theme/SfThemeData-class.html),
 /// for customizing the visual appearance of the barcode widgets.
 ///
+@immutable
 class SfBarcodeThemeData with Diagnosticable {
   /// Initialize the SfBarcode theme data
   factory SfBarcodeThemeData({

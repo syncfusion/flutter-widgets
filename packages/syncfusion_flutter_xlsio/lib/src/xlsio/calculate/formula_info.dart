@@ -2,7 +2,9 @@ part of xlsio;
 
 /// FormulaInfo maintains information on a single formula object.
 class FormulaInfo {
+  // ignore: prefer_final_fields
   String _formulaValue = '';
+  // ignore: prefer_final_fields
   String _parsedFormula = '';
   // ignore: prefer_final_fields
   int _calcID = -2147483648 + 1;

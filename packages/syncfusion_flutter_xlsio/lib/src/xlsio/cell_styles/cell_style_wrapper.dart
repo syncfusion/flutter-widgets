@@ -19,7 +19,7 @@ class CellStyleWrapper implements Style {
   /// Represent the sheet.
   late Worksheet sheet;
 
-  final List<Range> _arrRanges = [];
+  final List<Range> _arrRanges = <Range>[];
   @override
   String get name {
     String nameStyle = '';
@@ -542,7 +542,7 @@ class CellStyleWrapper implements Style {
 
   @override
   Color get backColorRgb {
-    Color backColorStyle = Color.fromARGB(255, 0, 0, 0);
+    Color backColorStyle = const Color.fromARGB(255, 0, 0, 0);
     bool first = true;
 
     final int last = _arrRanges.length;
@@ -553,7 +553,7 @@ class CellStyleWrapper implements Style {
         backColorStyle = range.cellStyle.backColorRgb;
         first = false;
       } else if (range.cellStyle.backColorRgb != backColorStyle) {
-        return Color.fromARGB(255, 0, 0, 0);
+        return const Color.fromARGB(255, 0, 0, 0);
       }
     }
     return backColorStyle;
@@ -570,7 +570,7 @@ class CellStyleWrapper implements Style {
 
   @override
   Color get fontColorRgb {
-    Color fontColorStyle = Color.fromARGB(255, 0, 0, 0);
+    Color fontColorStyle = const Color.fromARGB(255, 0, 0, 0);
     bool first = true;
 
     final int last = _arrRanges.length;
@@ -581,7 +581,7 @@ class CellStyleWrapper implements Style {
         fontColorStyle = range.cellStyle.fontColorRgb;
         first = false;
       } else if (range.cellStyle.fontColorRgb != fontColorStyle) {
-        return Color.fromARGB(255, 0, 0, 0);
+        return const Color.fromARGB(255, 0, 0, 0);
       }
     }
     return fontColorStyle;

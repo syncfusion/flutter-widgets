@@ -9,6 +9,9 @@ part of charts;
 ///
 ///Provides options to customize properties such as [color], [opacity],
 ///[borderWidth], [borderColor], [borderRadius] of the Stackedcolumn segemnts.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=NCUDBD_ClHo}
+@immutable
 class StackedColumnSeries<T, D> extends _StackedSeriesBase<T, D> {
   /// Creating an argument constructor of StackedColumnSeries class.
   StackedColumnSeries(
@@ -45,8 +48,6 @@ class StackedColumnSeries<T, D> extends _StackedSeriesBase<T, D> {
       double? trackPadding,
       Color? borderColor,
       double? borderWidth,
-      // ignore: deprecated_member_use_from_same_package
-      SelectionSettings? selectionSettings,
       SelectionBehavior? selectionBehavior,
       bool? isVisibleInLegend,
       LegendIconType? legendIconType,
@@ -54,6 +55,9 @@ class StackedColumnSeries<T, D> extends _StackedSeriesBase<T, D> {
       List<double>? dashArray,
       double? opacity,
       SeriesRendererCreatedCallback? onRendererCreated,
+      ChartPointInteractionCallback? onPointTap,
+      ChartPointInteractionCallback? onPointDoubleTap,
+      ChartPointInteractionCallback? onPointLongPress,
       List<int>? initialSelectedDataIndexes})
       : super(
             key: key,
@@ -89,7 +93,6 @@ class StackedColumnSeries<T, D> extends _StackedSeriesBase<T, D> {
             borderColor: borderColor,
             borderWidth: borderWidth,
             borderRadius: borderRadius,
-            selectionSettings: selectionSettings,
             selectionBehavior: selectionBehavior,
             legendItemText: legendItemText,
             isVisibleInLegend: isVisibleInLegend,
@@ -97,7 +100,115 @@ class StackedColumnSeries<T, D> extends _StackedSeriesBase<T, D> {
             sortingOrder: sortingOrder,
             opacity: opacity,
             onRendererCreated: onRendererCreated,
+            onPointTap: onPointTap,
+            onPointDoubleTap: onPointDoubleTap,
+            onPointLongPress: onPointLongPress,
             initialSelectedDataIndexes: initialSelectedDataIndexes);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is StackedColumnSeries &&
+        other.key == key &&
+        other.onCreateRenderer == onCreateRenderer &&
+        other.dataSource == dataSource &&
+        other.xValueMapper == xValueMapper &&
+        other.yValueMapper == yValueMapper &&
+        other.sortFieldValueMapper == sortFieldValueMapper &&
+        other.pointColorMapper == pointColorMapper &&
+        other.dataLabelMapper == dataLabelMapper &&
+        other.sortingOrder == sortingOrder &&
+        other.xAxisName == xAxisName &&
+        other.yAxisName == yAxisName &&
+        other.name == name &&
+        other.color == color &&
+        other.groupName == groupName &&
+        other.markerSettings == markerSettings &&
+        other.emptyPointSettings == emptyPointSettings &&
+        other.dataLabelSettings == dataLabelSettings &&
+        other.trendlines == trendlines &&
+        other.isVisible == isVisible &&
+        other.enableTooltip == enableTooltip &&
+        other.dashArray == dashArray &&
+        other.animationDuration == animationDuration &&
+        other.borderColor == borderColor &&
+        other.borderWidth == borderWidth &&
+        other.gradient == gradient &&
+        other.borderGradient == borderGradient &&
+        other.selectionBehavior == selectionBehavior &&
+        other.isVisibleInLegend == isVisibleInLegend &&
+        other.legendIconType == legendIconType &&
+        other.legendItemText == legendItemText &&
+        other.opacity == opacity &&
+        other.trackColor == trackColor &&
+        other.trackBorderColor == trackBorderColor &&
+        other.trackBorderWidth == trackBorderWidth &&
+        other.trackPadding == trackPadding &&
+        other.spacing == spacing &&
+        other.borderRadius == borderRadius &&
+        other.isTrackVisible == isTrackVisible &&
+        other.onRendererCreated == onRendererCreated &&
+        other.onPointTap == onPointTap &&
+        other.onPointDoubleTap == onPointDoubleTap &&
+        other.onPointLongPress == onPointLongPress &&
+        other.initialSelectedDataIndexes == initialSelectedDataIndexes;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      key,
+      onCreateRenderer,
+      dataSource,
+      xValueMapper,
+      yValueMapper,
+      sortFieldValueMapper,
+      pointColorMapper,
+      dataLabelMapper,
+      sortingOrder,
+      xAxisName,
+      yAxisName,
+      name,
+      color,
+      groupName,
+      markerSettings,
+      emptyPointSettings,
+      dataLabelSettings,
+      trendlines,
+      isVisible,
+      enableTooltip,
+      dashArray,
+      animationDuration,
+      borderColor,
+      borderWidth,
+      gradient,
+      borderGradient,
+      selectionBehavior,
+      isVisibleInLegend,
+      legendIconType,
+      legendItemText,
+      opacity,
+      trackColor,
+      trackBorderColor,
+      trackBorderWidth,
+      trackPadding,
+      spacing,
+      borderRadius,
+      isTrackVisible,
+      onRendererCreated,
+      initialSelectedDataIndexes,
+      onPointTap,
+      onPointDoubleTap,
+      onPointLongPress
+    ];
+    return hashList(values);
+  }
 
   /// Create the stacked area series renderer.
   StackedColumnSeriesRenderer createRenderer(ChartSeries<T, D> series) {
@@ -129,7 +240,7 @@ class StackedColumnSeriesRenderer extends _StackedSeriesRenderer {
       int pointIndex, int seriesIndex, double animateFactor) {
     final StackedColumnSegment segment = createSegment();
     final StackedColumnSeries<dynamic, dynamic> _stackedColumnSeries =
-        _series as StackedColumnSeries;
+        _series as StackedColumnSeries<dynamic, dynamic>;
     _isRectSeries = true;
     // ignore: unnecessary_null_comparison
     if (segment != null) {

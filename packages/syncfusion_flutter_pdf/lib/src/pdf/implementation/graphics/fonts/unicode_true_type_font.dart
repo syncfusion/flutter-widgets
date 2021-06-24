@@ -209,10 +209,8 @@ class _UnicodeTrueTypeFont {
 
   void _descendantFontBeginSave(Object sender, _SavePdfPrimitiveArgs? ars) {
     if (_usedChars != null && _usedChars!.isNotEmpty) {
-      final _PdfArray? width = _getDescendantWidth();
-      if (width != null) {
-        _descendantFont![_DictionaryProperties.w] = width;
-      }
+      final _PdfArray width = _getDescendantWidth();
+      _descendantFont![_DictionaryProperties.w] = width;
     }
   }
 
@@ -402,7 +400,7 @@ class _UnicodeTrueTypeFont {
 
   //This is important for PDF/A conformance validation
   void _generateCidSet() {
-    final List<int> dummyBits = [
+    final List<int> dummyBits = <int>[
       0x80,
       0x40,
       0x20,
@@ -420,7 +418,7 @@ class _UnicodeTrueTypeFont {
         cidChars.sort();
         final int last = cidChars[cidChars.length - 1];
         charBytes = List<int>.filled((last ~/ 8) + 1, 0, growable: true);
-        charBytes.fillRange(0, ((last ~/ 8) + 1), 0);
+        charBytes.fillRange(0, (last ~/ 8) + 1, 0);
         for (int i = 0; i < cidChars.length; i++) {
           final int cid = cidChars[i];
           charBytes[cid ~/ 8] |= dummyBits[cid % 8];

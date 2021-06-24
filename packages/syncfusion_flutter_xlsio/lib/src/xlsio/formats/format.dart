@@ -21,7 +21,7 @@ class _Format {
   _FormatSectionCollection? _parsedFormat;
 
   /// Reference to the format parser.
-  final _parser = _FormatParser();
+  final _FormatParser _parser = _FormatParser();
 
   /// Returns format type for a specified value.
   ExcelFormatType _getFormatTypeFromDouble(double value) {
@@ -31,9 +31,11 @@ class _Format {
 
   /// Checks whether format is already parsed, if it isn't than parses it.
   void _prepareFormat() {
-    if (_parsedFormat != null) return;
+    if (_parsedFormat != null) {
+      return;
+    }
 
-    final formatString = _formatString;
+    final String? formatString = _formatString;
     _parsedFormat = _parser._parse(_parent.parent, formatString);
   }
 

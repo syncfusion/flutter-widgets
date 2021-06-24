@@ -83,8 +83,7 @@ class PdfPageNumberField extends _PdfMultipleValueField {
   PdfPageNumberField(
       {PdfFont? font, PdfBrush? brush, Rect? bounds, bool? isSectionPageNumber})
       : super(font: font, brush: brush, bounds: bounds) {
-    _isSectionPageNumber =
-        (isSectionPageNumber == null) ? false : isSectionPageNumber;
+    _isSectionPageNumber = isSectionPageNumber != null && isSectionPageNumber;
   }
 
   // fields

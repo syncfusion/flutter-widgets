@@ -1208,7 +1208,7 @@ class _AdobeGlyphList {
     map!['ayinhebrew'] = 'ע';
     map!['b'] = 'b';
     map!['babengali'] = 'ব';
-    map!['backslash'] = '\\';
+    map!['backslash'] = r'\';
     map!['backslashmonospace'] = '＼';
     map!['badeva'] = 'ब';
     map!['bagujarati'] = 'બ';
@@ -1442,7 +1442,7 @@ class _AdobeGlyphList {
     map!['contourintegral'] = '∮';
     map!['control'] = '⌃';
     map!['controlACK'] = '\u0006';
-    map!['controlBEL'] = '\a';
+    map!['controlBEL'] = r'a';
     map!['controlBS'] = '\b';
     map!['controlCAN'] = '\u0018';
     map!['controlCR'] = '\r';
@@ -1609,7 +1609,7 @@ class _AdobeGlyphList {
     map!['dodekthai'] = 'ด';
     map!['dohiragana'] = 'ど';
     map!['dokatakana'] = 'ド';
-    map!['dollar'] = '\$';
+    map!['dollar'] = r'$';
     map!['dollarinferior'] = '';
     map!['dollarmonospace'] = '＄';
     map!['dollaroldstyle'] = '';
@@ -4218,7 +4218,7 @@ class _AdobeGlyphList {
 
   String? getUnicode(String? names) {
     if (names == null) {
-      return '\0';
+      return '\u0000';
     }
     final int n = names.indexOf('.');
     if (n > 0) {
@@ -4228,7 +4228,7 @@ class _AdobeGlyphList {
     if (array.isNotEmpty) {
       return getUnicodeForName(array[0]);
     }
-    return '\0';
+    return '\u0000';
   }
 
   String parseHex(String hex) {
@@ -4236,7 +4236,7 @@ class _AdobeGlyphList {
     try {
       result = String.fromCharCode(int.parse(hex, radix: 16));
     } catch (e) {
-      result = '\0';
+      result = '\u0000';
     }
     return result;
   }
@@ -4250,7 +4250,7 @@ class _AdobeGlyphList {
       if (name.length >= 4) {
         return parseHex(name.substring(0, 4));
       }
-      return '\0';
+      return '\u0000';
     } else {
       if (name.startsWith('u')) {
         return parseHex(name.substring(1, name.length));

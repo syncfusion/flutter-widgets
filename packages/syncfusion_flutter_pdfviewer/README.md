@@ -2,7 +2,7 @@
 
 # Flutter PDF Viewer library
 
-The Flutter PDF Viewer plugin lets you view the PDF documents seamlessly and efficiently in the Android, iOS and Web platforms. It has highly interactive and customizable features such as magnification, virtual scrolling, page navigation, text selection, text search, document link navigation, and bookmark navigation.
+The Flutter PDF Viewer plugin lets you view the PDF documents seamlessly and efficiently in the Android, iOS, Web and macOS platforms. It has highly interactive and customizable features such as magnification, virtual scrolling, page navigation, text selection, text search, document link navigation, and bookmark navigation.
 
 **Disclaimer:** This is a commercial package. To use this package, you need to have either a Syncfusion commercial license or [Free Syncfusion Community license](https://www.syncfusion.com/products/communitylicense). For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
 
@@ -56,12 +56,17 @@ The Flutter PDF Viewer plugin lets you view the PDF documents seamlessly and eff
 Explore the full capabilities of our Flutter widgets on your device by installing our sample browser applications from the below app stores, and view samples code in GitHub.
 
 <p align="center">
-  <a href="https://play.google.com/store/apps/details?id=com.syncfusion.flutter.examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/google-play.png"/></a>
-  <a href="https://apps.apple.com/us/app/syncfusion-flutter-ui-widgets/id1475231341"><img src="https://cdn.syncfusion.com/content/images/FTControl/apple-button.png"/></a>
+  <a href="https://play.google.com/store/apps/details?id=com.syncfusion.flutter.examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/google-play-store.png"/></a>
+  <a href="https://apps.apple.com/us/app/syncfusion-flutter-ui-widgets/id1475231341"><img src="https://cdn.syncfusion.com/content/images/FTControl/ios-store.png"/></a>
+  <a href="https://flutter.syncfusion.com"><img src="https://cdn.syncfusion.com/content/images/FTControl/web-sample-browser.png"/></a> 
 </p>
 <p align="center">
-  <a href="https://github.com/syncfusion/flutter-examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/GitHub.png"/></a>
-  <a href="https://flutter.syncfusion.com"><img src="https://cdn.syncfusion.com/content/images/FTControl/web_sample_browser.png"/></a>
+  <a href="https://www.microsoft.com/en-us/p/syncfusion-flutter-gallery/9nhnbwcsf85d?activetab=pivot:overviewtab"><img src="https://cdn.syncfusion.com/content/images/FTControl/windows-store.png"/></a> 
+  <a href="https://install.appcenter.ms/orgs/syncfusion-demos/apps/syncfusion-flutter-gallery/distribution_groups/release"><img src="https://cdn.syncfusion.com/content/images/FTControl/macos-app-center.png"/></a>
+  <a href="https://snapcraft.io/syncfusion-flutter-gallery"><img src="https://cdn.syncfusion.com/content/images/FTControl/snap-store.png"/></a>
+</p>
+<p align="center">
+  <a href="https://github.com/syncfusion/flutter-examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/github-samples.png"/></a>
 </p>
 
 ## Other useful links
@@ -95,6 +100,19 @@ Widget build(BuildContext context) {
           child: SfPdfViewer.network(
               'https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf')));
 }
+```
+
+### Web integration
+
+We have used [PdfJs](https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.4.456/pdf.min.js) for rendering the PDF page as an image on the web platform, so the script file must be referred to in your `web/index.html` file.
+
+On your `web/index.html` file, add the following `script` tags, somewhere in the `body` of the document:
+
+```html
+<script src="//cdnjs.cloudflare.com/ajax/libs/pdf.js/2.4.456/pdf.min.js"></script>
+<script type="text/javascript">
+   pdfjsLib.GlobalWorkerOptions.workerSrc = "//cdnjs.cloudflare.com/ajax/libs/pdf.js/2.4.456/pdf.worker.min.js";
+</script>
 ```
 
 ## Customize the visibility of scroll head and scroll status

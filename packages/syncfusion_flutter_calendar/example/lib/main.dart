@@ -9,22 +9,20 @@ void main() {
 class CalendarApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(title: 'Calendar Demo', home: MyHomePage());
+    return const MaterialApp(title: 'Calendar Demo', home: MyHomePage());
   }
 }
 
 /// The hove page which hosts the calendar
 class MyHomePage extends StatefulWidget {
   /// Creates the home page to display teh calendar widget.
-  const MyHomePage({Key key}) : super(key: key);
+  const MyHomePage({Key? key}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<Meeting> meetings;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,13 +32,13 @@ class _MyHomePageState extends State<MyHomePage> {
       // by default the month appointment display mode set as Indicator, we can
       // change the display mode as appointment using the appointment display
       // mode property
-      monthViewSettings: MonthViewSettings(
+      monthViewSettings: const MonthViewSettings(
           appointmentDisplayMode: MonthAppointmentDisplayMode.appointment),
     ));
   }
 
   List<Meeting> _getDataSource() {
-    meetings = <Meeting>[];
+    final List<Meeting> meetings = <Meeting>[];
     final DateTime today = DateTime.now();
     final DateTime startTime =
         DateTime(today.year, today.month, today.day, 9, 0, 0);
@@ -63,27 +61,37 @@ class MeetingDataSource extends CalendarDataSource {
 
   @override
   DateTime getStartTime(int index) {
-    return appointments[index].from;
+    return _getMeetingData(index).from;
   }
 
   @override
   DateTime getEndTime(int index) {
-    return appointments[index].to;
+    return _getMeetingData(index).to;
   }
 
   @override
   String getSubject(int index) {
-    return appointments[index].eventName;
+    return _getMeetingData(index).eventName;
   }
 
   @override
   Color getColor(int index) {
-    return appointments[index].background;
+    return _getMeetingData(index).background;
   }
 
   @override
   bool isAllDay(int index) {
-    return appointments[index].isAllDay;
+    return _getMeetingData(index).isAllDay;
+  }
+
+  Meeting _getMeetingData(int index) {
+    final dynamic meeting = appointments![index];
+    late final Meeting meetingData;
+    if (meeting is Meeting) {
+      meetingData = meeting;
+    }
+
+    return meetingData;
   }
 }
 

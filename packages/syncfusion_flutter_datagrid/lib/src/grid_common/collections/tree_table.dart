@@ -621,12 +621,16 @@ class _TreeTableEmpty extends _TreeTableNode {
 
 /// Tree table interface definition.
 class _TreeTableBase extends _ListBase {
+  _TreeTableBase() {
+    _isInitializing = false;
+  }
+
   /// Gets the comparer value used by sorted trees.
-  Comparable? get comparer => _comparer;
-  Comparable? _comparer;
+  Comparable<dynamic>? get comparer => _comparer;
+  Comparable<dynamic>? _comparer;
 
   /// Sets the comparer value used by sorted trees.
-  set comparer(Comparable? value) {
+  set comparer(Comparable<dynamic>? value) {
     if (value == _comparer) {
       return;
     }
@@ -645,7 +649,7 @@ class _TreeTableBase extends _ListBase {
 
   /// Gets a value indicating whether the tree was initialize or not.
   bool get isInitializing => _isInitializing;
-  bool _isInitializing = false;
+  late bool _isInitializing;
 
   /// Optimizes insertion of many elements when tree is initialized
   /// for the first time.
@@ -704,11 +708,11 @@ class _TreeTable extends _TreeTableBase {
 
   /// Gets the comparer used by sorted trees.
   @override
-  Comparable? get comparer => _comparer;
+  Comparable<dynamic>? get comparer => _comparer;
 
   /// Sets the comparer used by sorted trees.
   @override
-  set comparer(Comparable? value) {
+  set comparer(Comparable<dynamic>? value) {
     _comparer = value;
     _sorted = _comparer != null;
   }
@@ -779,12 +783,12 @@ class _TreeTable extends _TreeTableBase {
         current = branch.right;
       }
 
-      final _TreeTableEntryBase? leaf = current as _TreeTableEntryBase;
+      final _TreeTableEntryBase leaf = current! as _TreeTableEntryBase;
 
-      final _TreeTableBranchBase? newBranch = leaf?.createBranch(this);
+      final _TreeTableBranchBase? newBranch = leaf.createBranch(this);
       if (newBranch != null) {
         newBranch
-          ..setLeft(leaf!, _inAddMode, sorted)
+          ..setLeft(leaf, _inAddMode, sorted)
           // will set leaf.Parent ...
           ..setRight(value, _inAddMode);
       }
@@ -835,7 +839,8 @@ class _TreeTable extends _TreeTableBase {
   /// * value - _required_ - Node value to add.
   ///
   /// Returns the instance for the tree
-  _TreeTableEntryBase? addIfNotExists(Object? key, _TreeTableEntryBase? value) {
+  _TreeTableEntryBase? addIfNotExists(
+      Comparable<dynamic>? key, _TreeTableEntryBase? value) {
     if (!sorted) {
       throw Exception('This tree is not sorted.');
     }
@@ -849,17 +854,17 @@ class _TreeTable extends _TreeTableBase {
     } else {
       // find node
       _TreeTableBranchBase? branch;
-      _TreeTableNodeBase? current = _root as _TreeTableNodeBase;
+      _TreeTableNodeBase? current = _root!;
       int cmp = 0;
-      final Comparable? comparer = this.comparer;
-      final bool inAddMode = false;
-      Comparable? comparableKey = key as Comparable;
+      final Comparable<dynamic>? comparer = this.comparer;
+      const bool inAddMode = false;
+      Comparable<dynamic>? comparableKey = key!;
       while (current != null && !current.isEntry()) {
         branch = current as _TreeTableBranchBase;
         if (comparer != null) {
           final _TreeTableNodeBase? tableNodeBase = branch.right;
           if (tableNodeBase != null) {
-            final value = tableNodeBase.getMinimum();
+            final Object? value = tableNodeBase.getMinimum();
             cmp = key.compareTo(value);
           }
         } else if (comparableKey is Comparable) {
@@ -876,7 +881,7 @@ class _TreeTable extends _TreeTableBase {
             current = _current.left;
           }
 
-          return current as _TreeTableEntryBase;
+          return current! as _TreeTableEntryBase;
         } else if (cmp < 0) {
           current = branch.left;
         } else {
@@ -884,7 +889,7 @@ class _TreeTable extends _TreeTableBase {
         }
       }
 
-      final _TreeTableEntryBase leaf = current as _TreeTableEntryBase;
+      final _TreeTableEntryBase leaf = current! as _TreeTableEntryBase;
 
       if (comparer != null) {
         cmp = key.compareTo(leaf.getSortKey());
@@ -942,8 +947,8 @@ class _TreeTable extends _TreeTableBase {
       _root = value;
       return 0;
     } else {
-      final bool inAddMode = false;
-      final Comparable? comparer = this.comparer;
+      const bool inAddMode = false;
+      final Comparable<dynamic>? comparer = this.comparer;
 
       // find node
       _TreeTableBranchBase? branch;
@@ -954,8 +959,8 @@ class _TreeTable extends _TreeTableBase {
       while (current != null && !current.isEntry()) {
         branch = current as _TreeTableBranchBase;
         if (comparer != null) {
-          final dynamic? minimum = value.getMinimum();
-          final dynamic? right = branch.right!.getMinimum();
+          final dynamic minimum = value.getMinimum();
+          final dynamic right = branch.right!.getMinimum();
           cmp = Comparable.compare(minimum, right);
         } else if (value.getMinimum() is Comparable) {
           final Object? _minimum = value.getMinimum();
@@ -982,8 +987,8 @@ class _TreeTable extends _TreeTableBase {
       final _TreeTableBranchBase? newBranch = leaf.createBranch(this);
 
       if (comparer != null) {
-        final minimum = value.getMinimum();
-        final sortKey = leaf.getSortKey();
+        final Object? minimum = value.getMinimum();
+        final Object? sortKey = leaf.getSortKey();
         if (minimum is Comparable && sortKey is Comparable) {
           cmp = Comparable.compare(minimum, sortKey);
         }
@@ -1060,17 +1065,19 @@ class _TreeTable extends _TreeTableBase {
   }
 
   void deleteFixup(_TreeTableBranchBase? x, bool isLeft) {
-    final bool inAddMode = false;
+    const bool inAddMode = false;
     while (x != null &&
         !_MathHelper.referenceEquals(x, _root) &&
         x._color == _TreeTableNodeColor.black) {
       if (isLeft) {
-        var w = x.parent?.right;
+        _TreeTableNodeBase? w = x.parent?.right;
         if (w != null && w.color == _TreeTableNodeColor.red) {
           w.color = _TreeTableNodeColor.black;
           x.parent?.color = _TreeTableNodeColor.black;
           leftRotate(x.parent!, inAddMode);
-          w = x.parent?.right as _TreeTableBranchBase;
+          if (x.parent != null) {
+            w = x.parent!.right! as _TreeTableBranchBase;
+          }
         }
 
         if (w == null) {
@@ -1118,7 +1125,7 @@ class _TreeTable extends _TreeTableBase {
           return;
         }
       } else {
-        var w = x.parent?.left;
+        _TreeTableNodeBase? w = x.parent?.left;
         if (w != null && w.color == _TreeTableNodeColor.red) {
           w.color = _TreeTableNodeColor.black;
           x.parent!.color = _TreeTableNodeColor.red;
@@ -1204,12 +1211,12 @@ class _TreeTable extends _TreeTableBase {
       throw Exception('This tree is not sorted.');
     }
 
-    var comparableKey = key;
+    Object? comparableKey = key;
     if (root == null) {
       // replace root
       return null;
     } else {
-      final Comparable? comparer = this.comparer;
+      final Comparable<dynamic>? comparer = this.comparer;
       int cmp = 0;
 
       if (_lastFoundEntry != null &&
@@ -1217,7 +1224,7 @@ class _TreeTable extends _TreeTableBase {
           key != null &&
           _lastFoundEntryHighestSmallerValue == highestSmallerValue) {
         if (comparer != null) {
-          final lastFoundEntry = _lastFoundEntry!.getMinimum();
+          final Object? lastFoundEntry = _lastFoundEntry!.getMinimum();
           if (key is Comparable && lastFoundEntry is Comparable) {
             cmp = Comparable.compare(key, lastFoundEntry);
           }
@@ -1231,46 +1238,46 @@ class _TreeTable extends _TreeTableBase {
       }
 
       // find node
-      var branch;
+      _TreeTableBranchBase branch;
       _TreeTableNodeBase current = root!;
 
       _TreeTableNodeBase? lastLeft;
 
       while (!current.isEntry()) {
-        branch = current;
+        branch = current as _TreeTableBranchBase;
         if (comparer != null) {
-          final minimum = branch.right.getMinimum();
+          final Object? minimum = branch.right!.getMinimum();
           if (key is Comparable && minimum is Comparable) {
             cmp = Comparable.compare(key, minimum);
           }
         } else if (comparableKey != null && comparableKey is Comparable) {
-          cmp = comparableKey.compareTo(branch.right.getMinimum());
+          cmp = comparableKey.compareTo(branch.right!.getMinimum());
         } else {
           throw Exception('No Comparer specified.');
         }
 
         if (cmp == 0) {
-          current = branch.right;
+          current = branch.right!;
           while (!current.isEntry()) {
             if (current is _TreeTableBranchBase) {
-              current = current.left as _TreeTableNodeBase;
+              current = current.left!;
             }
           }
 
           return cacheLastFoundEntry(
               current as _TreeTableEntryBase, key, highestSmallerValue);
         } else if (cmp < 0) {
-          current = branch.left;
+          current = branch.left!;
           lastLeft = branch.left;
         } else {
-          current = branch.right;
+          current = branch.right!;
         }
       }
 
       final _TreeTableEntryBase leaf = current as _TreeTableEntryBase;
 
       if (comparer != null) {
-        final sortKey = leaf.getSortKey();
+        final Object? sortKey = leaf.getSortKey();
         if (key is Comparable && sortKey is Comparable) {
           cmp = Comparable.compare(key, sortKey);
         }
@@ -1329,7 +1336,7 @@ class _TreeTable extends _TreeTableBase {
       // replace root
       _root = value;
     } else {
-      var leaf;
+      _TreeTableEntryBase? leaf;
       if (lastIndex != -1) {
         if (index == lastIndex) {
           leaf = lastIndexLeaf;
@@ -1339,8 +1346,9 @@ class _TreeTable extends _TreeTableBase {
       }
 
       leaf ??= _getEntryAt(index);
-      final _TreeTableBranchBase? branch = leaf.parent;
-      final _TreeTableBranchBase newBranch = leaf.createBranch(this)
+      final _TreeTableBranchBase? branch = leaf?.parent;
+      final _TreeTableBranchBase newBranch = leaf!.createBranch(this)!;
+      newBranch
         ..setLeft(value, false, sorted) // will set leaf.Parent ...
         ..right = leaf;
 
@@ -1399,7 +1407,7 @@ class _TreeTable extends _TreeTableBase {
         x.parent!.parent != null) {
       // We have a violation
       if (x.parent == x.parent!.parent!.left) {
-        final y = x.parent!.parent?.right;
+        final _TreeTableNodeBase? y = x.parent!.parent?.right;
         if (y != null && y.color == _TreeTableNodeColor.red) {
           // uncle is red
           x.parent!.color = _TreeTableNodeColor.black;
@@ -1421,7 +1429,7 @@ class _TreeTable extends _TreeTableBase {
         }
       } else {
         // Mirror image of above code
-        final y = x.parent!.parent?.left;
+        final _TreeTableNodeBase? y = x.parent!.parent?.left;
         if (y != null && y.color == _TreeTableNodeColor.red) {
           // uncle is red
           x.parent!.color = _TreeTableNodeColor.black;
@@ -1518,22 +1526,24 @@ class _TreeTable extends _TreeTableBase {
 
   _TreeTableNodeBase _getSisterNode(
       _TreeTableBranchBase leafsParent, _TreeTableNodeBase node) {
-    final sisterNode = _MathHelper.referenceEquals(leafsParent.left!, node)
-        ? leafsParent.right
-        : leafsParent.left;
+    final _TreeTableNodeBase? sisterNode =
+        _MathHelper.referenceEquals(leafsParent.left!, node)
+            ? leafsParent.right
+            : leafsParent.left;
 
-    return sisterNode as _TreeTableNodeBase;
+    return sisterNode!;
   }
 
   void leftRotate(_TreeTableBranchBase? x, bool inAddMode) {
-    final _TreeTableBranchBase? y = x?.right! as _TreeTableBranchBase;
-    if (y == null) {
+    if (x == null) {
       return;
     }
 
+    final _TreeTableBranchBase y = x.right! as _TreeTableBranchBase;
+
     if (y.left is _TreeTableNodeBase) {
       y.setLeft(_TreeTableEmpty.empty, inAddMode, sorted);
-      x!.setRight(y.left, inAddMode);
+      x.setRight(y.left, inAddMode);
       if (x.parent != null) {
         if (_MathHelper.referenceEquals(x, x.parent!.left)) {
           x.parent!.setLeft(y, inAddMode, sorted);
@@ -1627,15 +1637,16 @@ class _TreeTable extends _TreeTableBase {
   }
 
   void rightRotate(_TreeTableBranchBase? x, bool inAddMode) {
-    final _TreeTableBranchBase? y = x?.left as _TreeTableBranchBase;
-    if (y == null) {
+    if (x == null) {
       return;
     }
 
-    final _TreeTableNodeBase yRight = y.right as _TreeTableNodeBase;
+    final _TreeTableBranchBase y = x.left! as _TreeTableBranchBase;
+
+    final _TreeTableNodeBase yRight = y.right!;
     y.setRight(_TreeTableEmpty.empty,
         inAddMode); // make sure Parent is not reset later
-    x!.setLeft(yRight, inAddMode, sorted);
+    x.setLeft(yRight, inAddMode, sorted);
     if (x.parent != null) {
       if (x == x.parent!.right) {
         x.parent!.setRight(y, inAddMode);
@@ -1658,7 +1669,7 @@ class _TreeTable extends _TreeTableBase {
       _root = value;
     } else {
       if (leaf != null) {
-        final _TreeTableBranchBase branch = leaf.parent as _TreeTableBranchBase;
+        final _TreeTableBranchBase branch = leaf.parent!;
         _replaceNode(branch, leaf, value, false);
       }
     }
@@ -1911,7 +1922,7 @@ class _TreeTableEnumerator implements _EnumeratorBase {
     _tree = tree;
     _cursor = null;
     if (tree.count > 0 && (tree[0] is _TreeTableNodeBase)) {
-      _next = tree[0] as _TreeTableNodeBase;
+      _next = tree[0]! as _TreeTableNodeBase;
     }
   }
 
@@ -1925,7 +1936,7 @@ class _TreeTableEnumerator implements _EnumeratorBase {
   /// Gets the current node.
   _TreeTableEntryBase? get currentBase {
     if (_cursor is _TreeTableEntryBase) {
-      return _cursor as _TreeTableEntryBase;
+      return _cursor! as _TreeTableEntryBase;
     } else {
       return null;
     }
@@ -1986,7 +1997,7 @@ class _TreeTableEnumerator implements _EnumeratorBase {
         _tree!.count > 0 &&
         _tree?[0] != null &&
         (_tree![0] is _TreeTableNodeBase)) {
-      _next = _tree![0] as _TreeTableNodeBase;
+      _next = _tree![0]! as _TreeTableNodeBase;
     } else {
       _next = null;
     }
@@ -2044,7 +2055,7 @@ class _TreeTableEntrySourceCollection extends _ListBase {
   ///
   /// Returns an instance for the tree with newly added entry.
   int addBase(_TreeTableEntryBaseSource value) {
-    final entry = _TreeTableEntry()..value = value;
+    final _TreeTableEntry entry = _TreeTableEntry()..value = value;
     value.entry = entry;
     return inner.add(entry);
   }
@@ -2075,7 +2086,7 @@ class _TreeTableEntrySourceCollection extends _ListBase {
   void copyToBase(List<_TreeTableEntryBaseSource>? array, int index) {
     final int count = inner.count;
     for (int n = 0; n < count; n++) {
-      final Object _n = [n];
+      final Object _n = <Object>[n];
       if (_n is _TreeTableEntryBaseSource && array != null) {
         array[index + n] = _n;
       }
@@ -2097,7 +2108,7 @@ class _TreeTableEntrySourceCollection extends _ListBase {
       return;
     }
 
-    final entry = _TreeTableEntry()..value = value;
+    final _TreeTableEntry entry = _TreeTableEntry()..value = value;
     value.entry = entry;
     inner.insert(index, entry);
   }
@@ -2218,7 +2229,7 @@ class _TreeTableEntrySourceCollection extends _ListBase {
   /// Returns the entry value for the specified position.
   @override
   void operator []=(int index, Object value) {
-    final entry = _TreeTableEntry()..value = value;
+    final _TreeTableEntry entry = _TreeTableEntry()..value = value;
     if (value is _TreeTableEntryBaseSource) {
       value.entry = entry;
     }
@@ -2234,7 +2245,7 @@ class _TreeTableEntrySourceCollection extends _ListBase {
   _TreeTableEntryBaseSource? operator [](num index) {
     final Object? entry = inner[index.toInt()];
     if (entry is _TreeTableEntryBase) {
-      return entry.value as _TreeTableEntryBaseSource;
+      return entry.value! as _TreeTableEntryBaseSource;
     } else {
       return null;
     }
@@ -2259,9 +2270,11 @@ class _TreeTableEntrySourceCollectionEnumerator implements _EnumeratorBase {
 
   /// Gets the current `_TreeTableEntryBaseSource` object.
   _TreeTableEntryBaseSource? get currentBase {
+    final Object? currentBaseValue = inner?.currentBase?.value;
     if (inner != null &&
-        inner?.currentBase?.value is _TreeTableEntryBaseSource) {
-      return inner?.currentBase?.value as _TreeTableEntryBaseSource;
+        currentBaseValue != null &&
+        currentBaseValue is _TreeTableEntryBaseSource) {
+      return currentBaseValue;
     } else {
       return null;
     }

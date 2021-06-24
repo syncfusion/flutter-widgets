@@ -7,13 +7,10 @@ part of charts;
 ///
 /// Gets the path and color from the `series`.
 class ScatterSegment extends ChartSegment {
-  // @override
-  // CartesianChartPoint<dynamic> _currentPoint;
-
   /// Gets the color of the series.
   @override
   Paint getFillPaint() {
-    final bool hasPointColor = _series.pointColorMapper != null ? true : false;
+    final bool hasPointColor = _series.pointColorMapper != null;
     if (_series.gradient == null) {
       if (_color != null) {
         fillPaint = Paint()
@@ -74,9 +71,17 @@ class ScatterSegment extends ChartSegment {
   void onPaint(Canvas canvas) {
     if (fillPaint != null) {
       _series.animationDuration > 0 &&
-              !_seriesRenderer._chartState!._isLegendToggled
-          ? _animateScatterSeries(_seriesRenderer, _point!, _oldPoint,
-              animationFactor, canvas, fillPaint!, strokePaint!)
+              !_seriesRenderer._renderingDetails!.isLegendToggled
+          ? _animateScatterSeries(
+              _seriesRenderer,
+              _point!,
+              _oldPoint,
+              animationFactor,
+              canvas,
+              fillPaint!,
+              strokePaint!,
+              currentSegmentIndex!,
+              this)
           : _seriesRenderer.drawDataMarker(
               currentSegmentIndex!,
               canvas,

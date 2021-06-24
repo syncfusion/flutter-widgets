@@ -39,7 +39,7 @@ class _SelectionRenderer {
   /// Selection type and multi-selection functionality is also applicable for this, but it is based on
   /// the API values specified in [ChartSelectionBehavior].
   ///
-  ///_Note:_ - Even though, the [enable] property in [ChartSelectionBehavior] is set to false, this method
+  ///_Note:_  Even though, the [enable] property in [ChartSelectionBehavior] is set to false, this method
   /// will work.
 
   void selectDataPoints(int? pointIndex, [int? seriesIndex]) {
@@ -56,11 +56,11 @@ class _SelectionRenderer {
         final SelectionBehaviorRenderer selectionBehaviorRenderer =
             seriesRenderer._selectionBehaviorRenderer;
         selectionBehaviorRenderer._selectionRenderer!._isInteraction = true;
-        if (_checkSeriesType(seriesType) ||
+        if (_isLineTypeSeries(seriesType) ||
             seriesType.contains('hilo') ||
             seriesType == 'candle' ||
             seriesType.contains('boxandwhisker')) {
-          if (seriesRenderer._isSelectionEnable) {
+          if (seriesRenderer._isSelectionEnable = true) {
             selectionBehaviorRenderer._selectionRenderer!.cartesianPointIndex =
                 pointIndex;
             selectionBehaviorRenderer._selectionRenderer!.cartesianSeriesIndex =
@@ -179,16 +179,14 @@ class _SelectionRenderer {
     final dynamic selectionBehavior = seriesRenderer._selectionBehavior;
     final CartesianSeries<dynamic, dynamic> series = seriesRenderer._series;
     assert(
-        selectionBehavior.selectedOpacity != null
-            ? selectionBehavior.selectedOpacity >= 0 &&
-                selectionBehavior.selectedOpacity <= 1
-            : true,
+        ((selectionBehavior.selectedOpacity != null) == false) ||
+            selectionBehavior.selectedOpacity >= 0 == true &&
+                selectionBehavior.selectedOpacity <= 1 == true,
         'The selected opacity of selection settings should between 0 and 1.');
     assert(
-        selectionBehavior.unselectedOpacity != null
-            ? selectionBehavior.unselectedOpacity >= 0 &&
-                selectionBehavior.unselectedOpacity <= 1
-            : true,
+        ((selectionBehavior.unselectedOpacity != null) == false) ||
+            selectionBehavior.unselectedOpacity >= 0 == true &&
+                selectionBehavior.unselectedOpacity <= 1 == true,
         'The unselected opacity of selection settings should between 0 and 1.');
     final ChartSelectionCallback? chartEventSelection =
         chart.onSelectionChanged;
@@ -316,7 +314,9 @@ class _SelectionRenderer {
                 segment is HiloOpenCloseSegment ||
                 segment is CandleSegment ||
                 segment is BoxAndWhiskerSegment
-            ? strokeColor = chartEventSelection != null && selectionArgs != null
+            ? strokeColor = chartEventSelection != null &&
+                    selectionArgs != null &&
+                    selectionArgs!.unselectedColor != null
                 ? selectionArgs!.unselectedColor
                 : _chartState._selectionArgs != null &&
                         _chartState._selectionArgs!.unselectedColor != null
@@ -364,7 +364,7 @@ class _SelectionRenderer {
     for (int i = 0; i < selectedSegments.length; i++) {
       seriesRenderer = _chartState._chartSeries
           .visibleSeriesRenderers[selectedSegments[i]._seriesIndex];
-      if (!seriesRenderer._seriesType.contains('area') &&
+      if (seriesRenderer._seriesType.contains('area') == false &&
           seriesRenderer._seriesType != 'fastline') {
         final ChartSegment currentSegment =
             seriesRenderer._segments[selectedSegments[i].currentSegmentIndex];
@@ -401,7 +401,7 @@ class _SelectionRenderer {
     for (int i = 0; i < unselectedSegments.length; i++) {
       seriesRenderer = _chartState._chartSeries
           .visibleSeriesRenderers[unselectedSegments[i]._seriesIndex];
-      if (!seriesRenderer._seriesType.contains('area') &&
+      if (seriesRenderer._seriesType.contains('area') == false &&
           seriesRenderer._seriesType != 'fastline') {
         final ChartSegment currentSegment =
             seriesRenderer._segments[unselectedSegments[i].currentSegmentIndex];
@@ -446,7 +446,7 @@ class _SelectionRenderer {
     while (unselectedSegments.isNotEmpty) {
       seriesRenderer = _chartState._chartSeries
           .visibleSeriesRenderers[unselectedSegments[k]._seriesIndex];
-      if (!seriesRenderer._seriesType.contains('area') &&
+      if (seriesRenderer._seriesType.contains('area') == false &&
           seriesRenderer._seriesType != 'fastline') {
         if (unselectedSegments[k].currentSegmentIndex! <
             seriesRenderer._segments.length) {
@@ -481,7 +481,7 @@ class _SelectionRenderer {
     while (selectedSegments.isNotEmpty) {
       seriesRenderer = _chartState._chartSeries
           .visibleSeriesRenderers[selectedSegments[j]._seriesIndex];
-      if (!seriesRenderer._seriesType.contains('area') &&
+      if (seriesRenderer._seriesType.contains('area') == false &&
           seriesRenderer._seriesType != 'fastline') {
         if (selectedSegments[j].currentSegmentIndex! <
             seriesRenderer._segments.length) {
@@ -498,9 +498,9 @@ class _SelectionRenderer {
               seriesRenderer._seriesType == 'stepline' ||
               seriesRenderer._seriesType == 'stackedline' ||
               seriesRenderer._seriesType == 'stackedline100' ||
-              seriesRenderer._seriesType.contains('hilo') ||
+              seriesRenderer._seriesType.contains('hilo') == true ||
               seriesRenderer._seriesType == 'candle' ||
-              seriesRenderer._seriesType.contains('boxandwhisker')) {
+              seriesRenderer._seriesType.contains('boxandwhisker') == true) {
             if (selectedSegments[j]._currentPoint!.overallDataPointIndex ==
                     cartesianPointIndex &&
                 selectedSegments[j]._seriesIndex == cartesianSeriesIndex) {
@@ -535,6 +535,55 @@ class _SelectionRenderer {
       }
     }
     return isSamePointSelect;
+  }
+
+  bool _isSamePointSelected(List<ChartSegment> selectedSegments) {
+    bool isSamePointSelected = false;
+    for (int j = 0;
+        j < selectedSegments.length && selectedSegments.isNotEmpty;
+        j++) {
+      seriesRenderer = _chartState._chartSeries
+          .visibleSeriesRenderers[selectedSegments[j]._seriesIndex];
+      if (seriesRenderer._seriesType.contains('area') == false &&
+          seriesRenderer._seriesType != 'fastline') {
+        if (selectedSegments[j].currentSegmentIndex! <
+            seriesRenderer._segments.length) {
+          final ChartSegment currentSegment =
+              seriesRenderer._segments[selectedSegments[j].currentSegmentIndex];
+          if (((seriesRenderer._seriesType.indexOf('line') >= 0) == true ||
+                  seriesRenderer._seriesType.contains('hilo') == true ||
+                  seriesRenderer._seriesType == 'candle' ||
+                  seriesRenderer._seriesType.contains('boxandwhisker') ==
+                      true) &&
+              selectedSegments[j]._currentPoint!.overallDataPointIndex ==
+                  cartesianPointIndex &&
+              selectedSegments[j]._seriesIndex == cartesianSeriesIndex) {
+            isSamePointSelected = true;
+          } else {
+            if ((currentSegment._currentPoint!.overallDataPointIndex ==
+                        pointIndex ||
+                    selectedSegments[j]._currentPoint!.overallDataPointIndex ==
+                        pointIndex) &&
+                currentSegment._oldSegmentIndex ==
+                    selectedSegments[j]._oldSegmentIndex &&
+                selectedSegments[j]._seriesIndex == seriesIndex) {
+              isSamePointSelected = true;
+            }
+          }
+        }
+      } else {
+        final ChartSegment currentSegment = seriesRenderer._segments[0];
+        final Paint fillPaint = getDefaultFillColor(null, null, currentSegment);
+        currentSegment.fillPaint = fillPaint;
+        final Paint strokePaint =
+            getDefaultStrokeColor(null, null, currentSegment);
+        currentSegment.strokePaint = strokePaint;
+        if (selectedSegments[0]._seriesIndex == seriesIndex) {
+          isSamePointSelected = true;
+        }
+      }
+    }
+    return isSamePointSelected;
   }
 
   ChartSegment? getTappedSegment() {
@@ -606,7 +655,10 @@ class _SelectionRenderer {
     chart = chartAssign;
     seriesRenderer = seriesAssign;
 
-    if (chart.onSelectionChanged != null && selected) {
+    if (chart.onSelectionChanged != null &&
+        selected &&
+        (!(seriesRenderer._selectionBehavior.toggleSelection == false &&
+            _isSamePointSelected(selectedSegments)))) {
       chart.onSelectionChanged(getSelectionEventArgs(seriesRenderer._series,
           seriesIndex!, viewportIndex!, seriesRenderer));
       selected = false;
@@ -619,159 +671,501 @@ class _SelectionRenderer {
 
     /// For point mode
     if ((selectionType ?? chart.selectionType) == SelectionType.point) {
-      bool isSamePointSelect = false;
+      if (!(seriesRenderer._selectionBehavior.toggleSelection == false &&
+          _isSamePointSelected(selectedSegments))) {
+        bool isSamePointSelect = false;
 
-      /// UnSelecting the last selected segment
-      if (selectedSegments.length == 1) {
-        changeColorAndPopUnselectedSegments(unselectedSegments!);
-      }
+        /// UnSelecting the last selected segment
+        if (selectedSegments.length == 1) {
+          changeColorAndPopUnselectedSegments(unselectedSegments!);
+        }
 
-      /// Executes when multiSelection is enabled
-      bool multiSelect = false;
-      if (chart.enableMultiSelection) {
-        if (selectedSegments.isNotEmpty) {
-          for (int i =
-                  _chartState._chartSeries.visibleSeriesRenderers.length - 1;
-              i >= 0;
-              i--) {
-            final CartesianSeriesRenderer seriesRenderer =
-                _chartState._chartSeries.visibleSeriesRenderers[i];
+        /// Executes when multiSelection is enabled
+        bool multiSelect = false;
+        if (chart.enableMultiSelection == true) {
+          if (selectedSegments.isNotEmpty) {
+            for (int i =
+                    _chartState._chartSeries.visibleSeriesRenderers.length - 1;
+                i >= 0;
+                i--) {
+              final CartesianSeriesRenderer seriesRenderer =
+                  _chartState._chartSeries.visibleSeriesRenderers[i];
 
-            /// To identify the tapped segment
-            for (int k = 0; k < seriesRenderer._segments.length; k++) {
-              currentSegment = seriesRenderer._segments[k];
-              if ((currentSegment!._currentPoint!.overallDataPointIndex ==
-                      pointIndex) &&
-                  currentSegment!._seriesIndex == seriesIndex) {
-                selectedSegment = seriesRenderer._segments[k];
-                break;
+              /// To identify the tapped segment
+              for (int k = 0; k < seriesRenderer._segments.length; k++) {
+                currentSegment = seriesRenderer._segments[k];
+                if ((currentSegment!._currentPoint!.overallDataPointIndex ==
+                        pointIndex) &&
+                    currentSegment!._seriesIndex == seriesIndex) {
+                  selectedSegment = seriesRenderer._segments[k];
+                  break;
+                }
               }
             }
-          }
 
-          /// To identify that tapped segment in any one of the selected segment
-          if (selectedSegment != null) {
-            for (int k = 0; k < selectedSegments.length; k++) {
-              if ((selectedSegment!.currentSegmentIndex ==
-                          selectedSegments[k].currentSegmentIndex ||
-                      selectedSegment!._currentPoint!.overallDataPointIndex ==
-                          selectedSegments[k]
-                              ._currentPoint!
-                              .overallDataPointIndex) &&
-                  selectedSegment!._seriesIndex ==
-                      selectedSegments[k]._seriesIndex) {
-                multiSelect = true;
-                break;
+            /// To identify that tapped segment in any one of the selected segment
+            if (selectedSegment != null) {
+              for (int k = 0; k < selectedSegments.length; k++) {
+                if ((selectedSegment!.currentSegmentIndex ==
+                            selectedSegments[k].currentSegmentIndex ||
+                        selectedSegment!._currentPoint!.overallDataPointIndex ==
+                            selectedSegments[k]
+                                ._currentPoint!
+                                .overallDataPointIndex) &&
+                    selectedSegment!._seriesIndex ==
+                        selectedSegments[k]._seriesIndex) {
+                  multiSelect = true;
+                  break;
+                }
               }
             }
-          }
 
-          /// Executes when tapped again in one of the selected segments
-          if (multiSelect) {
-            for (int j = selectedSegments.length - 1; j >= 0; j--) {
-              seriesRenderer = _chartState._chartSeries
-                  .visibleSeriesRenderers[selectedSegments[j]._seriesIndex];
-              final ChartSegment currentSegment = seriesRenderer
-                  ._segments[selectedSegments[j].currentSegmentIndex];
+            /// Executes when tapped again in one of the selected segments
+            if (multiSelect) {
+              for (int j = selectedSegments.length - 1; j >= 0; j--) {
+                seriesRenderer = _chartState._chartSeries
+                    .visibleSeriesRenderers[selectedSegments[j]._seriesIndex];
+                final ChartSegment currentSegment = seriesRenderer
+                    ._segments[selectedSegments[j].currentSegmentIndex];
 
-              /// Applying default settings when last selected segment becomes unselected
-              if (((selectedSegment!.currentSegmentIndex ==
-                              selectedSegments[j].currentSegmentIndex ||
-                          selectedSegment!
-                                  ._currentPoint!.overallDataPointIndex ==
-                              selectedSegments[j]
+                /// Applying default settings when last selected segment becomes unselected
+                if (((selectedSegment!.currentSegmentIndex ==
+                                selectedSegments[j].currentSegmentIndex ||
+                            selectedSegment!
+                                    ._currentPoint!.overallDataPointIndex ==
+                                selectedSegments[j]
+                                    ._currentPoint!
+                                    .overallDataPointIndex) &&
+                        selectedSegment!._seriesIndex ==
+                            selectedSegments[j]._seriesIndex) &&
+                    (selectedSegments.length == 1)) {
+                  final Paint fillPaint =
+                      getDefaultFillColor(null, null, currentSegment);
+                  final Paint strokePaint =
+                      getDefaultStrokeColor(null, null, currentSegment);
+                  currentSegment.fillPaint = fillPaint;
+                  currentSegment.strokePaint = strokePaint;
+
+                  if ((currentSegment._currentPoint!.overallDataPointIndex ==
+                              pointIndex ||
+                          selectedSegments[j]
                                   ._currentPoint!
-                                  .overallDataPointIndex) &&
-                      selectedSegment!._seriesIndex ==
-                          selectedSegments[j]._seriesIndex) &&
-                  (selectedSegments.length == 1)) {
-                final Paint fillPaint =
-                    getDefaultFillColor(null, null, currentSegment);
-                final Paint strokePaint =
-                    getDefaultStrokeColor(null, null, currentSegment);
-                currentSegment.fillPaint = fillPaint;
-                currentSegment.strokePaint = strokePaint;
-
-                if ((currentSegment._currentPoint!.overallDataPointIndex ==
-                            pointIndex ||
-                        selectedSegments[j]
-                                ._currentPoint!
-                                .overallDataPointIndex ==
-                            pointIndex) &&
-                    selectedSegments[j]._seriesIndex == seriesIndex) {
-                  isSamePointSelect = true;
+                                  .overallDataPointIndex ==
+                              pointIndex) &&
+                      selectedSegments[j]._seriesIndex == seriesIndex) {
+                    isSamePointSelect = true;
+                  }
+                  selectedSegments.remove(selectedSegments[j]);
                 }
-                selectedSegments.remove(selectedSegments[j]);
-              }
 
-              /// Applying unselected color for unselected segments in multiSelect option
-              else if ((selectedSegment!._currentPoint!.overallDataPointIndex ==
-                      selectedSegments[j]
-                          ._currentPoint!
-                          .overallDataPointIndex) &&
-                  selectedSegment!._seriesIndex ==
-                      selectedSegments[j]._seriesIndex) {
-                final Paint fillPaint = getFillColor(false, currentSegment);
-                currentSegment.fillPaint = fillPaint;
-                final Paint strokePaint = getStrokeColor(false, currentSegment);
-                currentSegment.strokePaint = strokePaint;
-
-                if ((currentSegment._currentPoint!.overallDataPointIndex ==
-                            pointIndex ||
+                /// Applying unselected color for unselected segments in multiSelect option
+                else if ((selectedSegment!
+                            ._currentPoint!.overallDataPointIndex ==
                         selectedSegments[j]
-                                ._currentPoint!
-                                .overallDataPointIndex ==
-                            pointIndex) &&
-                    selectedSegments[j]._seriesIndex == seriesIndex) {
-                  isSamePointSelect = true;
+                            ._currentPoint!
+                            .overallDataPointIndex) &&
+                    selectedSegment!._seriesIndex ==
+                        selectedSegments[j]._seriesIndex) {
+                  final Paint fillPaint = getFillColor(false, currentSegment);
+                  currentSegment.fillPaint = fillPaint;
+                  final Paint strokePaint =
+                      getStrokeColor(false, currentSegment);
+                  currentSegment.strokePaint = strokePaint;
+
+                  if ((currentSegment._currentPoint!.overallDataPointIndex ==
+                              pointIndex ||
+                          selectedSegments[j]
+                                  ._currentPoint!
+                                  .overallDataPointIndex ==
+                              pointIndex) &&
+                      selectedSegments[j]._seriesIndex == seriesIndex) {
+                    isSamePointSelect = true;
+                  }
+                  unselectedSegments!.add(selectedSegments[j]);
+                  selectedSegments.remove(selectedSegments[j]);
                 }
-                unselectedSegments!.add(selectedSegments[j]);
-                selectedSegments.remove(selectedSegments[j]);
               }
+            }
+          }
+        } else {
+          unselectedSegments?.clear();
+          isSamePointSelect = changeColorAndPopSelectedSegments(
+              selectedSegments, isSamePointSelect);
+        }
+
+        /// To check that the selection setting is enable or not
+        if (seriesRenderer._isSelectionEnable == true) {
+          if (!isSamePointSelect) {
+            seriesRenderer._seriesType == 'column' ||
+                    seriesRenderer._seriesType == 'bar' ||
+                    seriesRenderer._seriesType == 'scatter' ||
+                    seriesRenderer._seriesType == 'bubble' ||
+                    seriesRenderer._seriesType.contains('stackedcolumn') ==
+                        true ||
+                    seriesRenderer._seriesType.contains('stackedbar') == true ||
+                    seriesRenderer._seriesType == 'rangecolumn' ||
+                    seriesRenderer._seriesType == 'waterfall'
+                ? isSelected = checkPosition()
+                : isSelected = true;
+            unselectedSegments?.clear();
+            for (int i =
+                    _chartState._chartSeries.visibleSeriesRenderers.length - 1;
+                i >= 0;
+                i--) {
+              final CartesianSeriesRenderer seriesRenderer =
+                  _chartState._chartSeries.visibleSeriesRenderers[i];
+              if (isSelected) {
+                for (int j = 0; j < seriesRenderer._segments.length; j++) {
+                  currentSegment = seriesRenderer._segments[j];
+                  if (currentSegment!.currentSegmentIndex == null ||
+                      pointIndex == null) {
+                    break;
+                  }
+                  (seriesRenderer._seriesType.contains('area')
+                              ? currentSegment!.currentSegmentIndex ==
+                                  pointIndex
+                              : currentSegment!
+                                      ._currentPoint!.overallDataPointIndex ==
+                                  pointIndex) &&
+                          currentSegment!._seriesIndex == seriesIndex
+                      ? selectedSegments.add(seriesRenderer._segments[j])
+                      : unselectedSegments!.add(seriesRenderer._segments[j]);
+                }
+
+                /// Giving color to unselected segments
+                _unselectedSegmentsColors(unselectedSegments!);
+
+                /// Giving Color to selected segments
+                _selectedSegmentsColors(selectedSegments);
+              }
+            }
+          } else {
+            isSelected = true;
+          }
+        }
+      }
+    }
+
+    ///For Series Mode
+    else if ((selectionType ?? chart.selectionType) == SelectionType.series) {
+      if (!(seriesRenderer._selectionBehavior.toggleSelection == false &&
+          _isSamePointSelected(selectedSegments))) {
+        bool isSamePointSelect = false;
+
+        for (int i = 0;
+            i < _chartState._chartSeries.visibleSeriesRenderers.length;
+            i++) {
+          final CartesianSeriesRenderer seriesRenderer =
+              _chartState._chartSeries.visibleSeriesRenderers[i];
+          for (int k = 0; k < seriesRenderer._segments.length; k++) {
+            currentSegment = seriesRenderer._segments[k];
+            final ChartSegment compareSegment = seriesRenderer._segments[k];
+            if (currentSegment!.currentSegmentIndex !=
+                    compareSegment.currentSegmentIndex &&
+                currentSegment!._seriesIndex != compareSegment._seriesIndex) {
+              isSelected = false;
             }
           }
         }
-      } else {
-        unselectedSegments?.clear();
-        isSamePointSelect = changeColorAndPopSelectedSegments(
-            selectedSegments, isSamePointSelect);
-      }
 
-      /// To check that the selection setting is enable or not
-      if (seriesRenderer._isSelectionEnable) {
-        if (!isSamePointSelect) {
-          seriesRenderer._seriesType == 'column' ||
-                  seriesRenderer._seriesType == 'bar' ||
-                  seriesRenderer._seriesType == 'scatter' ||
-                  seriesRenderer._seriesType == 'bubble' ||
-                  seriesRenderer._seriesType.contains('stackedcolumn') ||
-                  seriesRenderer._seriesType.contains('stackedbar') ||
-                  seriesRenderer._seriesType == 'rangecolumn' ||
-                  seriesRenderer._seriesType == 'waterfall'
-              ? isSelected = checkPosition()
-              : isSelected = true;
+        /// Executes only when final selected segment became unselected
+        if (selectedSegments.length == seriesRenderer._segments.length) {
+          changeColorAndPopUnselectedSegments(unselectedSegments!);
+        }
+
+        /// Executes when multiSelect option is enabled
+        bool multiSelect = false;
+        if (chart.enableMultiSelection == true) {
+          if (selectedSegments.isNotEmpty) {
+            selectedSegment = getTappedSegment();
+
+            /// To identify that tapped again in any one of the selected segments
+            if (selectedSegment != null) {
+              for (int k = 0; k < selectedSegments.length; k++) {
+                if (seriesIndex == selectedSegments[k]._seriesIndex) {
+                  multiSelect = true;
+                  break;
+                }
+              }
+            }
+
+            /// Executes when tapped again in one of the selected segments
+            if (multiSelect) {
+              ChartSegment currentSegment;
+              for (int j = selectedSegments.length - 1; j >= 0; j--) {
+                seriesRenderer = _chartState._chartSeries
+                    .visibleSeriesRenderers[selectedSegments[j]._seriesIndex];
+
+                currentSegment =
+                    (seriesRenderer._seriesType.contains('area') == false &&
+                            seriesRenderer._seriesType != 'fastline')
+                        ? seriesRenderer
+                            ._segments[selectedSegments[j].currentSegmentIndex]
+                        : seriesRenderer._segments[0];
+
+                /// Applying series fill when all last selected segment becomes unselected
+                if (seriesRenderer._seriesType.contains('area') == false &&
+                    seriesRenderer._seriesType != 'fastline') {
+                  if ((selectedSegment!._seriesIndex ==
+                          selectedSegments[j]._seriesIndex) &&
+                      (selectedSegments.length <=
+                          seriesRenderer._segments.length)) {
+                    final Paint fillPaint =
+                        getDefaultFillColor(null, null, currentSegment);
+                    final Paint strokePaint =
+                        getDefaultStrokeColor(null, null, currentSegment);
+                    currentSegment.fillPaint = fillPaint;
+                    currentSegment.strokePaint = strokePaint;
+                    if (selectedSegments[j]
+                                ._currentPoint!
+                                .overallDataPointIndex ==
+                            pointIndex &&
+                        selectedSegments[j]._seriesIndex == seriesIndex) {
+                      isSamePointSelect = true;
+                    }
+                    selectedSegments.remove(selectedSegments[j]);
+                  }
+
+                  /// Applying unselected color for unselected segments in multiSelect option
+                  else if (selectedSegment!._seriesIndex ==
+                      selectedSegments[j]._seriesIndex) {
+                    final Paint fillPaint = getFillColor(false, currentSegment);
+                    final Paint strokePaint =
+                        getStrokeColor(false, currentSegment);
+                    currentSegment.fillPaint = fillPaint;
+                    currentSegment.strokePaint = strokePaint;
+                    if (selectedSegments[j]
+                                ._currentPoint!
+                                .overallDataPointIndex ==
+                            pointIndex &&
+                        selectedSegments[j]._seriesIndex == seriesIndex) {
+                      isSamePointSelect = true;
+                    }
+                    unselectedSegments!.add(selectedSegments[j]);
+                    selectedSegments.remove(selectedSegments[j]);
+                  }
+                } else {
+                  if ((selectedSegment!._seriesIndex ==
+                          selectedSegments[j]._seriesIndex) &&
+                      (selectedSegments.length <=
+                          seriesRenderer._segments.length)) {
+                    final Paint fillPaint =
+                        getDefaultFillColor(null, null, currentSegment);
+                    final Paint strokePaint =
+                        getDefaultStrokeColor(null, null, currentSegment);
+                    currentSegment.fillPaint = fillPaint;
+                    currentSegment.strokePaint = strokePaint;
+                    if (selectedSegments[j]._seriesIndex == seriesIndex) {
+                      isSamePointSelect = true;
+                    }
+                    selectedSegments.remove(selectedSegments[j]);
+                  }
+
+                  /// Applying unselected color for unselected segments in multiSelect option
+                  else if (selectedSegment!._seriesIndex ==
+                      selectedSegments[j]._seriesIndex) {
+                    final Paint fillPaint = getFillColor(false, currentSegment);
+                    final Paint strokePaint =
+                        getStrokeColor(false, currentSegment);
+                    currentSegment.fillPaint = fillPaint;
+                    currentSegment.strokePaint = strokePaint;
+                    if (selectedSegments[j]._seriesIndex == seriesIndex) {
+                      isSamePointSelect = true;
+                    }
+                    unselectedSegments!.add(selectedSegments[j]);
+                    selectedSegments.remove(selectedSegments[j]);
+                  }
+                }
+              }
+            }
+          }
+        } else {
+          ///Executes when multiSelect is not enable
           unselectedSegments?.clear();
-          for (int i =
-                  _chartState._chartSeries.visibleSeriesRenderers.length - 1;
-              i >= 0;
-              i--) {
-            final CartesianSeriesRenderer seriesRenderer =
-                _chartState._chartSeries.visibleSeriesRenderers[i];
+          isSamePointSelect = changeColorAndPopSelectedSegments(
+              selectedSegments, isSamePointSelect);
+        }
+
+        /// To identify the Tapped segment
+        if (seriesRenderer._isSelectionEnable == true) {
+          if (!isSamePointSelect) {
+            seriesRenderer._seriesType == 'column' ||
+                    seriesRenderer._seriesType == 'bar' ||
+                    seriesRenderer._seriesType == 'scatter' ||
+                    seriesRenderer._seriesType == 'bubble' ||
+                    seriesRenderer._seriesType.contains('stackedcolumn') ==
+                        true ||
+                    seriesRenderer._seriesType.contains('stackedbar') == true ||
+                    seriesRenderer._seriesType == 'rangecolumn' ||
+                    seriesRenderer._seriesType == 'waterfall'
+                ? isSelected = checkPosition()
+                : isSelected = true;
+            selectedSegment = getTappedSegment();
             if (isSelected) {
-              for (int j = 0; j < seriesRenderer._segments.length; j++) {
-                currentSegment = seriesRenderer._segments[j];
+              /// To Push the Selected and Unselected segment
+              for (int i = 0;
+                  i < _chartState._chartSeries.visibleSeriesRenderers.length;
+                  i++) {
+                final CartesianSeriesRenderer seriesRenderer =
+                    _chartState._chartSeries.visibleSeriesRenderers[i];
+                if (!seriesRenderer._seriesType.contains('area') &&
+                    seriesRenderer._seriesType != 'fastline') {
+                  if (seriesIndex != null) {
+                    for (int k = 0; k < seriesRenderer._segments.length; k++) {
+                      currentSegment = seriesRenderer._segments[k];
+                      currentSegment!._seriesIndex == seriesIndex
+                          ? selectedSegments.add(seriesRenderer._segments[k])
+                          : unselectedSegments!
+                              .add(seriesRenderer._segments[k]);
+                    }
+                  }
+                } else {
+                  currentSegment = seriesRenderer._segments[0];
+                  currentSegment!._seriesIndex == seriesIndex
+                      ? selectedSegments.add(seriesRenderer._segments[0])
+                      : unselectedSegments!.add(seriesRenderer._segments[0]);
+                }
+
+                /// Give Color to the Unselected segment
+                _unselectedSegmentsColors(unselectedSegments!);
+
+                /// Give Color to the Selected segment
+                _selectedSegmentsColors(selectedSegments);
+              }
+            }
+          } else {
+            isSelected = true;
+          }
+        }
+      }
+    }
+
+    /// For Cluster Mode
+    else if ((selectionType ?? chart.selectionType) == SelectionType.cluster) {
+      if (!(seriesRenderer._selectionBehavior.toggleSelection == false &&
+          _isSamePointSelected(selectedSegments))) {
+        bool isSamePointSelect = false;
+
+        /// Executes only when last selected segment became unselected
+        if (selectedSegments.length ==
+            _chartState._chartSeries.visibleSeriesRenderers.length) {
+          changeColorAndPopUnselectedSegments(unselectedSegments!);
+        }
+
+        /// Executes when multiSelect option is enabled
+        bool multiSelect = false;
+        if (chart.enableMultiSelection == true) {
+          if (selectedSegments.isNotEmpty) {
+            selectedSegment = getTappedSegment();
+
+            /// To identify that tapped again in any one of the selected segment
+            if (selectedSegment != null) {
+              for (int k = 0; k < selectedSegments.length; k++) {
+                if (selectedSegment!.currentSegmentIndex ==
+                    selectedSegments[k].currentSegmentIndex) {
+                  multiSelect = true;
+                  break;
+                }
+              }
+            }
+
+            /// Executes when tapped again in one of the selected segment
+            if (multiSelect) {
+              for (int j = selectedSegments.length - 1; j >= 0; j--) {
+                seriesRenderer = _chartState._chartSeries
+                    .visibleSeriesRenderers[selectedSegments[j]._seriesIndex];
+                final ChartSegment currentSegment = seriesRenderer
+                    ._segments[selectedSegments[j].currentSegmentIndex];
+
+                /// Applying default settings when last selected segment becomes unselected
+                if ((selectedSegment!.currentSegmentIndex ==
+                        selectedSegments[j].currentSegmentIndex) &&
+                    (selectedSegments.length <=
+                        _chartState
+                            ._chartSeries.visibleSeriesRenderers.length)) {
+                  final Paint fillPaint =
+                      getDefaultFillColor(null, null, currentSegment);
+                  final Paint strokePaint =
+                      getDefaultStrokeColor(null, null, currentSegment);
+                  currentSegment.fillPaint = fillPaint;
+                  currentSegment.strokePaint = strokePaint;
+
+                  if (selectedSegments[j].currentSegmentIndex == pointIndex &&
+                      selectedSegments[j]._seriesIndex == seriesIndex) {
+                    isSamePointSelect = true;
+                  }
+                  // if(isSamePointSelect == false && )
+                  selectedSegments.remove(selectedSegments[j]);
+                }
+
+                /// Applying unselected color for unselected segment in multiSelect option
+                else if (selectedSegment!.currentSegmentIndex ==
+                    selectedSegments[j].currentSegmentIndex) {
+                  final Paint fillPaint = getFillColor(false, currentSegment);
+                  final Paint strokePaint =
+                      getStrokeColor(false, currentSegment);
+                  currentSegment.fillPaint = fillPaint;
+                  currentSegment.strokePaint = strokePaint;
+
+                  if (selectedSegments[j].currentSegmentIndex == pointIndex &&
+                      selectedSegments[j]._seriesIndex == seriesIndex) {
+                    isSamePointSelect = true;
+                  }
+
+                  unselectedSegments!.add(selectedSegments[j]);
+                  selectedSegments.remove(selectedSegments[j]);
+                }
+              }
+            }
+          }
+        } else {
+          unselectedSegments?.clear();
+
+          ///Executes when multiSelect is not enable
+          isSamePointSelect = changeColorAndPopSelectedSegments(
+              selectedSegments, isSamePointSelect);
+        }
+
+        /// To identify the Tapped segment
+        if (seriesRenderer._isSelectionEnable == true) {
+          if (!isSamePointSelect) {
+            final bool isSegmentSeries = seriesRenderer._seriesType ==
+                    'column' ||
+                seriesRenderer._seriesType == 'bar' ||
+                seriesRenderer._seriesType == 'scatter' ||
+                seriesRenderer._seriesType == 'bubble' ||
+                seriesRenderer._seriesType.contains('stackedcolumn') == true ||
+                seriesRenderer._seriesType.contains('stackedbar') == true ||
+                seriesRenderer._seriesType == 'rangecolumn' ||
+                seriesRenderer._seriesType == 'waterfall';
+            selectedSegment = getTappedSegment();
+            isSegmentSeries ? isSelected = checkPosition() : isSelected = true;
+            if (isSelected) {
+              /// To Push the Selected and Unselected segments
+              for (int i = 0;
+                  i < _chartState._chartSeries.visibleSeriesRenderers.length;
+                  i++) {
+                final CartesianSeriesRenderer seriesRenderer =
+                    _chartState._chartSeries.visibleSeriesRenderers[i];
                 if (currentSegment!.currentSegmentIndex == null ||
                     pointIndex == null) {
                   break;
                 }
-                (seriesRenderer._seriesType.contains('area')
-                            ? currentSegment!.currentSegmentIndex == pointIndex
-                            : currentSegment!
-                                    ._currentPoint!.overallDataPointIndex ==
-                                pointIndex) &&
-                        currentSegment!._seriesIndex == seriesIndex
-                    ? selectedSegments.add(seriesRenderer._segments[j])
-                    : unselectedSegments!.add(seriesRenderer._segments[j]);
+                for (int k = 0; k < seriesRenderer._segments.length; k++) {
+                  currentSegment = seriesRenderer._segments[k];
+
+                  if (isSegmentSeries) {
+                    currentSegment!._currentPoint!.xValue ==
+                            selectedSegment!._currentPoint!.xValue
+                        ? selectedSegments.add(seriesRenderer._segments[k])
+                        : unselectedSegments!.add(seriesRenderer._segments[k]);
+                  } else {
+                    currentSegment!.currentSegmentIndex ==
+                            selectedSegment!.currentSegmentIndex
+                        ? selectedSegments.add(seriesRenderer._segments[k])
+                        : unselectedSegments!.add(seriesRenderer._segments[k]);
+                  }
+                }
               }
 
               /// Giving color to unselected segments
@@ -780,334 +1174,9 @@ class _SelectionRenderer {
               /// Giving Color to selected segments
               _selectedSegmentsColors(selectedSegments);
             }
+          } else {
+            isSelected = true;
           }
-        } else {
-          isSelected = true;
-        }
-      }
-    }
-
-    ///For Series Mode
-    else if ((selectionType ?? chart.selectionType) == SelectionType.series) {
-      bool isSamePointSelect = false;
-
-      for (int i = 0;
-          i < _chartState._chartSeries.visibleSeriesRenderers.length;
-          i++) {
-        final CartesianSeriesRenderer seriesRenderer =
-            _chartState._chartSeries.visibleSeriesRenderers[i];
-        for (int k = 0; k < seriesRenderer._segments.length; k++) {
-          currentSegment = seriesRenderer._segments[k];
-          final ChartSegment compareSegment = seriesRenderer._segments[k];
-          if (currentSegment!.currentSegmentIndex !=
-                  compareSegment.currentSegmentIndex &&
-              currentSegment!._seriesIndex != compareSegment._seriesIndex) {
-            isSelected = false;
-          }
-        }
-      }
-
-      /// Executes only when final selected segment became unselected
-      if (selectedSegments.length == seriesRenderer._segments.length) {
-        changeColorAndPopUnselectedSegments(unselectedSegments!);
-      }
-
-      /// Executes when multiSelect option is enabled
-      bool multiSelect = false;
-      if (chart.enableMultiSelection) {
-        if (selectedSegments.isNotEmpty) {
-          selectedSegment = getTappedSegment();
-
-          /// To identify that tapped again in any one of the selected segments
-          if (selectedSegment != null) {
-            for (int k = 0; k < selectedSegments.length; k++) {
-              if (seriesIndex == selectedSegments[k]._seriesIndex) {
-                multiSelect = true;
-                break;
-              }
-            }
-          }
-
-          /// Executes when tapped again in one of the selected segments
-          if (multiSelect) {
-            ChartSegment currentSegment;
-            for (int j = selectedSegments.length - 1; j >= 0; j--) {
-              seriesRenderer = _chartState._chartSeries
-                  .visibleSeriesRenderers[selectedSegments[j]._seriesIndex];
-
-              if (!seriesRenderer._seriesType.contains('area') &&
-                  seriesRenderer._seriesType != 'fastline') {
-                currentSegment = seriesRenderer
-                    ._segments[selectedSegments[j].currentSegmentIndex];
-              } else {
-                currentSegment = seriesRenderer._segments[0];
-              }
-
-              /// Applying series fill when all last selected segment becomes unselected
-              if (!seriesRenderer._seriesType.contains('area') &&
-                  seriesRenderer._seriesType != 'fastline') {
-                if ((selectedSegment!._seriesIndex ==
-                        selectedSegments[j]._seriesIndex) &&
-                    (selectedSegments.length <=
-                        seriesRenderer._segments.length)) {
-                  final Paint fillPaint =
-                      getDefaultFillColor(null, null, currentSegment);
-                  final Paint strokePaint =
-                      getDefaultStrokeColor(null, null, currentSegment);
-                  currentSegment.fillPaint = fillPaint;
-                  currentSegment.strokePaint = strokePaint;
-                  if (selectedSegments[j]
-                              ._currentPoint!
-                              .overallDataPointIndex ==
-                          pointIndex &&
-                      selectedSegments[j]._seriesIndex == seriesIndex) {
-                    isSamePointSelect = true;
-                  }
-                  selectedSegments.remove(selectedSegments[j]);
-                }
-
-                /// Applying unselected color for unselected segments in multiSelect option
-                else if (selectedSegment!._seriesIndex ==
-                    selectedSegments[j]._seriesIndex) {
-                  final Paint fillPaint = getFillColor(false, currentSegment);
-                  final Paint strokePaint =
-                      getStrokeColor(false, currentSegment);
-                  currentSegment.fillPaint = fillPaint;
-                  currentSegment.strokePaint = strokePaint;
-                  if (selectedSegments[j]
-                              ._currentPoint!
-                              .overallDataPointIndex ==
-                          pointIndex &&
-                      selectedSegments[j]._seriesIndex == seriesIndex) {
-                    isSamePointSelect = true;
-                  }
-                  unselectedSegments!.add(selectedSegments[j]);
-                  selectedSegments.remove(selectedSegments[j]);
-                }
-              } else {
-                if ((selectedSegment!._seriesIndex ==
-                        selectedSegments[j]._seriesIndex) &&
-                    (selectedSegments.length <=
-                        seriesRenderer._segments.length)) {
-                  final Paint fillPaint =
-                      getDefaultFillColor(null, null, currentSegment);
-                  final Paint strokePaint =
-                      getDefaultStrokeColor(null, null, currentSegment);
-                  currentSegment.fillPaint = fillPaint;
-                  currentSegment.strokePaint = strokePaint;
-                  if (selectedSegments[j]._seriesIndex == seriesIndex) {
-                    isSamePointSelect = true;
-                  }
-                  selectedSegments.remove(selectedSegments[j]);
-                }
-
-                /// Applying unselected color for unselected segments in multiSelect option
-                else if (selectedSegment!._seriesIndex ==
-                    selectedSegments[j]._seriesIndex) {
-                  final Paint fillPaint = getFillColor(false, currentSegment);
-                  final Paint strokePaint =
-                      getStrokeColor(false, currentSegment);
-                  currentSegment.fillPaint = fillPaint;
-                  currentSegment.strokePaint = strokePaint;
-                  if (selectedSegments[j]._seriesIndex == seriesIndex) {
-                    isSamePointSelect = true;
-                  }
-                  unselectedSegments!.add(selectedSegments[j]);
-                  selectedSegments.remove(selectedSegments[j]);
-                }
-              }
-            }
-          }
-        }
-      } else {
-        ///Executes when multiSelect is not enable
-        unselectedSegments?.clear();
-        isSamePointSelect = changeColorAndPopSelectedSegments(
-            selectedSegments, isSamePointSelect);
-      }
-
-      /// To identify the Tapped segment
-      if (seriesRenderer._isSelectionEnable) {
-        if (!isSamePointSelect) {
-          seriesRenderer._seriesType == 'column' ||
-                  seriesRenderer._seriesType == 'bar' ||
-                  seriesRenderer._seriesType == 'scatter' ||
-                  seriesRenderer._seriesType == 'bubble' ||
-                  seriesRenderer._seriesType.contains('stackedcolumn') ||
-                  seriesRenderer._seriesType.contains('stackedbar') ||
-                  seriesRenderer._seriesType == 'rangecolumn' ||
-                  seriesRenderer._seriesType == 'waterfall'
-              ? isSelected = checkPosition()
-              : isSelected = true;
-          selectedSegment = getTappedSegment();
-          if (isSelected) {
-            /// To Push the Selected and Unselected segment
-            for (int i = 0;
-                i < _chartState._chartSeries.visibleSeriesRenderers.length;
-                i++) {
-              final CartesianSeriesRenderer seriesRenderer =
-                  _chartState._chartSeries.visibleSeriesRenderers[i];
-              if (!seriesRenderer._seriesType.contains('area') &&
-                  seriesRenderer._seriesType != 'fastline') {
-                if (seriesIndex != null) {
-                  for (int k = 0; k < seriesRenderer._segments.length; k++) {
-                    currentSegment = seriesRenderer._segments[k];
-                    currentSegment!._seriesIndex == seriesIndex
-                        ? selectedSegments.add(seriesRenderer._segments[k])
-                        : unselectedSegments!.add(seriesRenderer._segments[k]);
-                  }
-                }
-              } else {
-                currentSegment = seriesRenderer._segments[0];
-                currentSegment!._seriesIndex == seriesIndex
-                    ? selectedSegments.add(seriesRenderer._segments[0])
-                    : unselectedSegments!.add(seriesRenderer._segments[0]);
-              }
-
-              /// Give Color to the Unselected segment
-              _unselectedSegmentsColors(unselectedSegments!);
-
-              /// Give Color to the Selected segment
-              _selectedSegmentsColors(selectedSegments);
-            }
-          }
-        } else {
-          isSelected = true;
-        }
-      }
-    }
-
-    /// For Cluster Mode
-    else if ((selectionType ?? chart.selectionType) == SelectionType.cluster) {
-      bool isSamePointSelect = false;
-
-      /// Executes only when last selected segment became unselected
-      if (selectedSegments.length ==
-          _chartState._chartSeries.visibleSeriesRenderers.length) {
-        changeColorAndPopUnselectedSegments(unselectedSegments!);
-      }
-
-      /// Executes when multiSelect option is enabled
-      bool multiSelect = false;
-      if (chart.enableMultiSelection) {
-        if (selectedSegments.isNotEmpty) {
-          selectedSegment = getTappedSegment();
-
-          /// To identify that tapped again in any one of the selected segment
-          if (selectedSegment != null) {
-            for (int k = 0; k < selectedSegments.length; k++) {
-              if (selectedSegment!.currentSegmentIndex ==
-                  selectedSegments[k].currentSegmentIndex) {
-                multiSelect = true;
-                break;
-              }
-            }
-          }
-
-          /// Executes when tapped again in one of the selected segment
-          if (multiSelect) {
-            for (int j = selectedSegments.length - 1; j >= 0; j--) {
-              seriesRenderer = _chartState._chartSeries
-                  .visibleSeriesRenderers[selectedSegments[j]._seriesIndex];
-              final ChartSegment currentSegment = seriesRenderer
-                  ._segments[selectedSegments[j].currentSegmentIndex];
-
-              /// Applying default settings when last selected segment becomes unselected
-              if ((selectedSegment!.currentSegmentIndex ==
-                      selectedSegments[j].currentSegmentIndex) &&
-                  (selectedSegments.length <=
-                      _chartState._chartSeries.visibleSeriesRenderers.length)) {
-                final Paint fillPaint =
-                    getDefaultFillColor(null, null, currentSegment);
-                final Paint strokePaint =
-                    getDefaultStrokeColor(null, null, currentSegment);
-                currentSegment.fillPaint = fillPaint;
-                currentSegment.strokePaint = strokePaint;
-
-                if (selectedSegments[j].currentSegmentIndex == pointIndex &&
-                    selectedSegments[j]._seriesIndex == seriesIndex) {
-                  isSamePointSelect = true;
-                }
-
-                selectedSegments.remove(selectedSegments[j]);
-              }
-
-              /// Applying unselected color for unselected segment in multiSelect option
-              else if (selectedSegment!.currentSegmentIndex ==
-                  selectedSegments[j].currentSegmentIndex) {
-                final Paint fillPaint = getFillColor(false, currentSegment);
-                final Paint strokePaint = getStrokeColor(false, currentSegment);
-                currentSegment.fillPaint = fillPaint;
-                currentSegment.strokePaint = strokePaint;
-
-                if (selectedSegments[j].currentSegmentIndex == pointIndex &&
-                    selectedSegments[j]._seriesIndex == seriesIndex) {
-                  isSamePointSelect = true;
-                }
-
-                unselectedSegments!.add(selectedSegments[j]);
-                selectedSegments.remove(selectedSegments[j]);
-              }
-            }
-          }
-        }
-      } else {
-        unselectedSegments?.clear();
-
-        ///Executes when multiSelect is not enable
-        isSamePointSelect = changeColorAndPopSelectedSegments(
-            selectedSegments, isSamePointSelect);
-      }
-
-      /// To identify the Tapped segment
-      if (seriesRenderer._isSelectionEnable) {
-        if (!isSamePointSelect) {
-          final bool isSegmentSeries = seriesRenderer._seriesType == 'column' ||
-              seriesRenderer._seriesType == 'bar' ||
-              seriesRenderer._seriesType == 'scatter' ||
-              seriesRenderer._seriesType == 'bubble' ||
-              seriesRenderer._seriesType.contains('stackedcolumn') ||
-              seriesRenderer._seriesType.contains('stackedbar') ||
-              seriesRenderer._seriesType == 'rangecolumn' ||
-              seriesRenderer._seriesType == 'waterfall';
-          selectedSegment = getTappedSegment();
-          isSegmentSeries ? isSelected = checkPosition() : isSelected = true;
-          if (isSelected) {
-            /// To Push the Selected and Unselected segments
-            for (int i = 0;
-                i < _chartState._chartSeries.visibleSeriesRenderers.length;
-                i++) {
-              final CartesianSeriesRenderer seriesRenderer =
-                  _chartState._chartSeries.visibleSeriesRenderers[i];
-              if (currentSegment!.currentSegmentIndex == null ||
-                  pointIndex == null) {
-                break;
-              }
-              for (int k = 0; k < seriesRenderer._segments.length; k++) {
-                currentSegment = seriesRenderer._segments[k];
-
-                if (isSegmentSeries) {
-                  currentSegment!._currentPoint!.xValue ==
-                          selectedSegment!._currentPoint!.xValue
-                      ? selectedSegments.add(seriesRenderer._segments[k])
-                      : unselectedSegments!.add(seriesRenderer._segments[k]);
-                } else {
-                  currentSegment!.currentSegmentIndex ==
-                          selectedSegment!.currentSegmentIndex
-                      ? selectedSegments.add(seriesRenderer._segments[k])
-                      : unselectedSegments!.add(seriesRenderer._segments[k]);
-                }
-              }
-            }
-
-            /// Giving color to unselected segments
-            _unselectedSegmentsColors(unselectedSegments!);
-
-            /// Giving Color to selected segments
-            _selectedSegmentsColors(selectedSegments);
-          }
-        } else {
-          isSelected = true;
         }
       }
     }
@@ -1205,31 +1274,32 @@ class _SelectionRenderer {
           seriesRenderer._seriesType.contains('boxandwhisker')) {
         startSegment = seriesRenderer._segments[dataPointIndex];
       } else {
-        if (dataPointIndex == 0) {
+        if (dataPointIndex == 0 &&
+            dataPointIndex < seriesRenderer._segments.length) {
           startSegment = seriesRenderer._segments[dataPointIndex];
-        } else if (dataPointIndex == seriesRenderer._dataPoints.length - 1) {
+        } else if (dataPointIndex == seriesRenderer._dataPoints.length - 1 &&
+            dataPointIndex - 1 < seriesRenderer._segments.length) {
           startSegment = seriesRenderer._segments[dataPointIndex - 1];
         } else {
-          startSegment = seriesRenderer._segments[dataPointIndex - 1];
-          endSegment = seriesRenderer._segments[dataPointIndex];
+          if (dataPointIndex - 1 < seriesRenderer._segments.length) {
+            startSegment = seriesRenderer._segments[dataPointIndex - 1];
+          }
+
+          if (dataPointIndex < seriesRenderer._segments.length) {
+            endSegment = seriesRenderer._segments[dataPointIndex];
+          }
         }
       }
       // ignore: unnecessary_null_comparison
-      startSegment != null
-          ? cartesianSeriesIndex = startSegment._seriesIndex
-          : cartesianSeriesIndex = endSegment!._seriesIndex;
-// ignore: unnecessary_null_comparison
-      startSegment != null
-          ? cartesianPointIndex = startSegment.currentSegmentIndex
-          : cartesianPointIndex = endSegment!.currentSegmentIndex;
-// ignore: unnecessary_null_comparison
       if (startSegment != null) {
+        cartesianSeriesIndex = startSegment._seriesIndex;
+        cartesianPointIndex = startSegment.currentSegmentIndex;
         if (_isSegmentIntersect(startSegment, position.dx, position.dy)) {
           return true;
         }
-      }
-
-      if (endSegment != null) {
+      } else if (endSegment != null) {
+        cartesianSeriesIndex = endSegment._seriesIndex;
+        cartesianPointIndex = endSegment.currentSegmentIndex;
         return _isSegmentIntersect(endSegment, position.dx, position.dy);
       }
     }
@@ -1279,9 +1349,9 @@ class _SelectionRenderer {
             firstNearestDataPoints);
 
     for (final CartesianChartPoint<dynamic> dataPoint in firstNearestPoints!) {
-      if (seriesRenderer._seriesType.contains('hilo') ||
+      if (seriesRenderer._seriesType.contains('hilo') == true ||
           seriesRenderer._seriesType == 'candle' ||
-          seriesRenderer._seriesType.contains('boxandwhisker')) {
+          seriesRenderer._seriesType.contains('boxandwhisker') == true) {
         nearestDataPointIndex = dataPointIndex;
       } else {
         if (dataPointIndex! < dataPoint.overallDataPointIndex!) {
@@ -1405,7 +1475,9 @@ class _SelectionRenderer {
         }
       }
     }
-    if (selectionBehaviorRenderer == null) return;
+    if (selectionBehaviorRenderer == null) {
+      return;
+    }
     selectionBehaviorRenderer._selectionRenderer!.seriesIndex = seriesIndex;
   }
 
@@ -1419,13 +1491,12 @@ class _SelectionRenderer {
         seriesRenderer._seriesType == 'spline' ||
         seriesRenderer._seriesType == 'stepline' ||
         seriesRenderer._seriesType == 'stackedline' ||
-        seriesRenderer._seriesType.contains('hilo') ||
+        seriesRenderer._seriesType.contains('hilo') == true ||
         seriesRenderer._seriesType == 'candle' ||
-        seriesRenderer._seriesType.contains('boxandwhisker') ||
+        seriesRenderer._seriesType.contains('boxandwhisker') == true ||
         seriesRenderer._seriesType == 'stackedline100') {
-      isSelect = seriesRenderer._isSelectionEnable
-          ? _isSeriesContainsPoint(seriesRenderer, position)
-          : false;
+      isSelect = seriesRenderer._isSelectionEnable == true &&
+          _isSeriesContainsPoint(seriesRenderer, position);
       if (isSelect) {
         cartesianPointIndex = getCartesianPointIndex(position);
         selected = cartesianPointIndex != null;
@@ -1435,12 +1506,11 @@ class _SelectionRenderer {
       }
     } else {
       _chartState._renderDatalabelRegions = <Rect>[];
-      if (seriesRenderer._seriesType.contains('area') ||
-          seriesRenderer._seriesType == 'fastline') {
-        getSelectedSeriesIndex(chart, position, seriesRenderer);
-      } else {
-        getPointAndSeriesIndex(chart, position, seriesRenderer);
-      }
+      (seriesRenderer._seriesType.contains('area') == true ||
+              seriesRenderer._seriesType == 'fastline')
+          ? getSelectedSeriesIndex(chart, position, seriesRenderer)
+          : getPointAndSeriesIndex(chart, position, seriesRenderer);
+
       select = seriesRenderer._selectionBehaviorRenderer._selectionRenderer
           .isCartesianSelection(chart, seriesRenderer, pointIndex, seriesIndex);
     }
@@ -1461,7 +1531,7 @@ class _SelectionRenderer {
       for (int i = 0; i < selectedSegments.length; i++) {
         if (selectedSegments[i]._seriesIndex == currentSegment._seriesIndex &&
             (_isInteraction || currentSegment._oldSegmentIndex != -1) &&
-            (seriesRenderer._seriesType.contains('area')
+            (seriesRenderer._seriesType.contains('area') == true
                 ? selectedSegments[i].currentSegmentIndex ==
                     currentSegment.currentSegmentIndex
                 : selectedSegments[i]._currentPoint!.overallDataPointIndex ==
@@ -1484,7 +1554,7 @@ class _SelectionRenderer {
             (currentSegment._oldSegmentIndex == -1 ||
                     currentSegment._oldSegmentIndex !=
                         currentSegment.currentSegmentIndex ||
-                    seriesRenderer._seriesType.contains('area')
+                    seriesRenderer._seriesType.contains('area') == true
                 ? unselectedSegments![i].currentSegmentIndex ==
                     currentSegment.currentSegmentIndex
                 : unselectedSegments![i]._currentPoint?.overallDataPointIndex ==
@@ -1497,8 +1567,9 @@ class _SelectionRenderer {
     }
   }
 
-  SelectionArgs getSelectionEventArgs(dynamic series, int seriesIndex,
-      int pointIndex, CartesianSeriesRenderer seriesRender) {
+  SelectionArgs getSelectionEventArgs(CartesianSeries<dynamic, dynamic> series,
+      int seriesIndex, int pointIndex, CartesianSeriesRenderer seriesRender) {
+    // ignore: unnecessary_null_comparison
     if (series != null) {
       selectionArgs = SelectionArgs(
           seriesRenderer: seriesRenderer,
@@ -1506,17 +1577,6 @@ class _SelectionRenderer {
           viewportPointIndex: pointIndex,
           pointIndex: seriesRender
               ._visibleDataPoints![pointIndex].overallDataPointIndex!);
-      final dynamic selectionBehavior = seriesRenderer._selectionBehavior;
-      selectionArgs!.selectedBorderColor =
-          selectionBehavior.selectedBorderColor;
-      selectionArgs!.unselectedBorderColor =
-          selectionBehavior.unselectedBorderColor;
-      selectionArgs!.selectedBorderWidth =
-          selectionBehavior.selectedBorderWidth;
-      selectionArgs!.unselectedBorderWidth =
-          selectionBehavior.unselectedBorderWidth;
-      selectionArgs!.selectedColor = selectionBehavior.selectedColor;
-      selectionArgs!.unselectedColor = selectionBehavior.unselectedColor;
     }
     return selectionArgs!;
   }

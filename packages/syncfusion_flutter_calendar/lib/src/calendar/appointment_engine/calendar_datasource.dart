@@ -2,10 +2,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/src/calendar/appointment_engine/appointment_helper.dart';
 import 'package:syncfusion_flutter_calendar/src/calendar/common/calendar_view_helper.dart';
+import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart'
     show IterableDiagnostics;
 
 import '../../../calendar.dart';
+import '../common/calendar_view_helper.dart';
 import '../common/enums.dart';
 import '../resource_view/calendar_resource.dart';
 
@@ -35,62 +37,61 @@ import '../resource_view/calendar_resource.dart';
 ///
 ///  @override
 ///  DateTime getStartTime(int index) {
-///    return appointments[index].from;
+///    return appointments![index].from;
 ///  }
 ///
 ///  @override
 ///  DateTime getEndTime(int index) {
-///    return appointments[index].to;
+///    return appointments![index].to;
 ///  }
 ///
 ///  @override
 ///  Color getColor(int index) {
-///    return appointments[index].background;
+///    return appointments![index].background;
 ///  }
 ///
 ///  @override
 ///  String getEndTimeZone(int index) {
-///    return appointments[index].toZone;
+///    return appointments![index].toZone;
 ///  }
 ///
 ///  @override
 ///  List<DateTime> getRecurrenceExceptionDates(int index) {
-///    return appointments[index].exceptionDates;
+///    return appointments![index].exceptionDates;
 ///  }
 ///
 ///  @override
 ///  String getRecurrenceRule(int index) {
-///    return appointments[index].recurrenceRule;
+///    return appointments![index].recurrenceRule;
 ///  }
 ///
 ///  @override
 ///  String getStartTimeZone(int index) {
-///    return appointments[index].fromZone;
+///    return appointments![index].fromZone;
 ///  }
 ///
 ///  @override
 ///  String getSubject(int index) {
-///    return appointments[index].title;
+///    return appointments![index].title;
 ///  }
 ///
 ///  @override
 ///  bool isAllDay(int index) {
-///    return appointments[index].isAllDay;
+///    return appointments![index].isAllDay;
 ///  }
 /// }
 ///
-/// class Meeting {
-///  Meeting(
-///      {this.from,
-///      this.to,
-///      this.title,
-///      this.isAllDay,
-///      this.background,
-///      this.fromZone,
-///      this.toZone,
+///class _Meeting {
+///  _Meeting(
+///      {required this.from,
+///      required this.to,
+///      this.title='',
+///      this.isAllDay=false,
+///      required this.background,
+///      this.fromZone='',
+///      this.toZone='',
 ///      this.exceptionDates,
-///      this.recurrenceRule});
-///
+///      this.recurrenceRule=''});
 ///  DateTime from;
 ///  DateTime to;
 ///  String title;
@@ -99,13 +100,13 @@ import '../resource_view/calendar_resource.dart';
 ///  String fromZone;
 ///  String toZone;
 ///  String recurrenceRule;
-///  List<DateTime> exceptionDates;
+///  List<DateTime>? exceptionDates;
 /// }
 ///
 /// final DateTime date = DateTime.now();
 ///  MeetingDataSource _getCalendarDataSource() {
-///    List<Meeting> appointments = <Meeting>[];
-///    appointments.add(Meeting(
+///    List<_Meeting> appointments = <_Meeting>[];
+///    appointments.add(_Meeting(
 ///     from: date,
 ///     to: date.add(const Duration(hours: 1)),
 ///     title: 'General Meeting',
@@ -147,13 +148,12 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   ///
   /// class MyAppState extends State<MyApp> {
   ///
-  ///   CalendarController _calendarController;
-  ///   _AppointmentDataSource _dataSource;
+  ///   CalendarController _calendarController = CalendarController();
+  ///   late _AppointmentDataSource _dataSource;
   ///
   ///   @override
   ///   initState() {
-  ///     _calendarController = CalendarController();
-  ///     _dataSource = _getCalendarDataSource();
+  ///   _dataSource = _getCalendarDataSource();
   ///     super.initState();
   ///   }
   ///
@@ -199,7 +199,7 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   ///       isAllDay: true
   ///   ));
   ///   return _AppointmentDataSource(appointments);
-  /// }}
+  /// }
   ///
   /// class _AppointmentDataSource extends CalendarDataSource {
   ///   _AppointmentDataSource(List<Appointment> source) {
@@ -231,6 +231,232 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
     }
 
     return visibleAppointments;
+  }
+
+  /// Returns the occurrence appointment for the
+  /// given pattern appointment at the specified date.
+  ///
+  /// If there is no appointment occurring on
+  /// the date specified, null is returned.
+  ///
+  /// patternAppointment - required - The pattern appointment is
+  /// the start appointment in a recurrence series from which the occurrence
+  /// appointments are cloned with pattern appointment characteristics.
+  ///
+  /// date - required - The date on which the
+  /// occurrence appointment is requested.
+  ///
+  /// ```dart
+  ///
+  /// class MyAppState extends State<MyApp>{
+  ///
+  ///  CalendarController _calendarController;
+  ///  _AppointmentDataSource _dataSource;
+  ///  Appointment recurrenceApp;
+  ///  @override
+  ///  initState(){
+  ///    _calendarController = CalendarController();
+  ///	   _dataSource = _getCalendarDataSource();
+  ///    super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return MaterialApp(
+  ///      home: Scaffold(
+  ///        body: SfCalendar(
+  ///          view: CalendarView.month,
+  ///          controller: _calendarController,
+  ///		       dataSource: _dataSource,
+  ///		       onTap: (CalendarTapDetails details) {
+  ///          	DateTime date = details.date;
+  ///          	String calendarTimeZone = '';
+  ///          	Appointment appointment = _dataSource.getOccurrenceAppointment(
+  ///              	recurrenceApp, date, calendarTimeZone);
+  ///        },
+  ///        ),
+  ///      ),
+  ///    );
+  ///  }
+  ///}
+  ///
+  ///  _AppointmentDataSource _getCalendarDataSource() {
+  ///  List<Appointment> appointments = <Appointment>[];
+  ///  recurrenceApp = appointments.add(Appointment(
+  ///     startTime: DateTime(2020,11,27,9),
+  ///     endTime: DateTime(2020,11,27,9).add(Duration(hours: 2)),
+  ///     subject: 'Meeting',
+  ///     color: Colors.cyanAccent,
+  ///     startTimeZone: '',
+  ///     endTimeZone: '',
+  ///     recurrenceRule: 'FREQ=DAILY;INTERVAL=2;COUNT=5',
+  ///     ));
+  ///  appointments.add(recurrenceApp);
+  ///  appointments.add(Appointment(
+  ///     startTime: DateTime(2020,11,28,5),
+  ///     endTime: DateTime(2020,11,30,7),
+  ///     subject: 'Discussion',
+  ///     color: Colors.orangeAccent,
+  ///     startTimeZone: '',
+  ///     endTimeZone: '',
+  ///     isAllDay: true
+  ///     ));
+  ///  return _AppointmentDataSource(appointments);
+  ///   }
+  /// }
+  ///
+  /// class _AppointmentDataSource extends CalendarDataSource {
+  ///  _AppointmentDataSource(List<Appointment> source){
+  ///     appointments = source;
+  ///  }
+  ///}
+  /// ```
+  Appointment? getOccurrenceAppointment(
+      Object? patternAppointment, DateTime date, String calendarTimeZone) {
+    if (patternAppointment == null) {
+      return null;
+    }
+
+    final List<dynamic> patternAppointmentColl = <dynamic>[patternAppointment];
+    final List<CalendarAppointment> patternAppointments =
+        AppointmentHelper.generateCalendarAppointments(
+            this, calendarTimeZone, patternAppointmentColl);
+    final CalendarAppointment patternCalendarAppointment =
+        patternAppointments[0];
+
+    if (patternCalendarAppointment.recurrenceRule == null ||
+        patternCalendarAppointment.recurrenceRule!.isEmpty) {
+      return null;
+    } else if (CalendarViewHelper.isDateInDateCollection(
+        patternCalendarAppointment.recurrenceExceptionDates, date)) {
+      final List<CalendarAppointment> dataSourceAppointments =
+          AppointmentHelper.generateCalendarAppointments(
+              this, calendarTimeZone);
+      for (int i = 0; i < dataSourceAppointments.length; i++) {
+        final CalendarAppointment dataSourceAppointment =
+            dataSourceAppointments[i];
+        if (patternCalendarAppointment.id ==
+                dataSourceAppointment.recurrenceId &&
+            (isSameDate(dataSourceAppointment.startTime, date))) {
+          return dataSourceAppointment.convertToCalendarAppointment();
+        }
+      }
+    } else {
+      final List<CalendarAppointment> occurrenceAppointments =
+          AppointmentHelper.getVisibleAppointments(
+              date, date, patternAppointments, calendarTimeZone, false,
+              canCreateNewAppointment: false);
+
+      if (occurrenceAppointments.isEmpty) {
+        return null;
+      }
+
+      return occurrenceAppointments[0].convertToCalendarAppointment();
+    }
+  }
+
+  /// Returns the Pattern appointment for the provided occurrence appointment.
+  ///
+  /// occurrenceAppointment - required - The occurrence appointment for which
+  /// the Pattern appointment is obtained.
+  ///
+  /// ```dart
+  ///
+  /// class MyAppState extends State<MyApp>{
+  ///
+  ///  CalendarController _calendarController;
+  ///  _AppointmentDataSource _dataSource;
+  ///  Appointment recurrenceApp;
+  ///  @override
+  ///  initState(){
+  ///    _calendarController = CalendarController();
+  ///	   _dataSource = _getCalendarDataSource();
+  ///    super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return MaterialApp(
+  ///      home: Scaffold(
+  ///        body: SfCalendar(
+  ///          view: CalendarView.month,
+  ///          controller: _calendarController,
+  ///		       dataSource: _dataSource,
+  ///		       onTap: (CalendarTapDetails details) {
+  ///          	DateTime date = details.date;
+  ///          	String calendarTimeZone = '';
+  ///          	Appointment appointment = _dataSource.getPatternAppointment(
+  ///              	occurrenceAppointment, calendarTimeZone);
+  ///        },
+  ///        ),
+  ///      ),
+  ///    );
+  ///  }
+  ///}
+  ///
+  ///  _AppointmentDataSource _getCalendarDataSource() {
+  ///  List<Appointment> appointments = <Appointment>[];
+  ///  recurrenceApp = appointments.add(Appointment(
+  ///     startTime: DateTime(2020,11,27,9),
+  ///     endTime: DateTime(2020,11,27,9).add(Duration(hours: 2)),
+  ///     subject: 'Meeting',
+  ///     color: Colors.cyanAccent,
+  ///     startTimeZone: '',
+  ///     endTimeZone: '',
+  ///     recurrenceRule: 'FREQ=DAILY;INTERVAL=2;COUNT=5',
+  ///     ));
+  ///  appointments.add(recurrenceApp);
+  ///  appointments.add(Appointment(
+  ///     startTime: DateTime(2020,11,28,5),
+  ///     endTime: DateTime(2020,11,30,7),
+  ///     subject: 'Discussion',
+  ///     color: Colors.orangeAccent,
+  ///     startTimeZone: '',
+  ///     endTimeZone: '',
+  ///     isAllDay: true
+  ///     ));
+  ///  return _AppointmentDataSource(appointments);
+  ///   }
+  /// }
+  ///
+  /// class _AppointmentDataSource extends CalendarDataSource {
+  ///  _AppointmentDataSource(List<Appointment> source){
+  ///     appointments = source;
+  ///  }
+  ///}
+  /// ```
+  Object? getPatternAppointment(
+      Object? occurrenceAppointment, String calendarTimeZone) {
+    if (occurrenceAppointment == null) {
+      return null;
+    }
+    final List<dynamic> occurrenceAppointmentColl = <dynamic>[
+      occurrenceAppointment
+    ];
+    final List<CalendarAppointment> occurrenceAppointments =
+        AppointmentHelper.generateCalendarAppointments(
+            this, calendarTimeZone, occurrenceAppointmentColl);
+    final CalendarAppointment occurrenceCalendarAppointment =
+        occurrenceAppointments[0];
+    if ((occurrenceCalendarAppointment.recurrenceRule == null ||
+            occurrenceCalendarAppointment.recurrenceRule!.isEmpty) &&
+        occurrenceCalendarAppointment.recurrenceId == null) {
+      return null;
+    }
+    final List<CalendarAppointment> dataSourceAppointments =
+        AppointmentHelper.generateCalendarAppointments(
+            this, calendarTimeZone, appointments);
+
+    for (int i = 0; i < dataSourceAppointments.length; i++) {
+      final CalendarAppointment dataSourceAppointment =
+          dataSourceAppointments[i];
+      if ((dataSourceAppointment.id ==
+              occurrenceCalendarAppointment.recurrenceId) ||
+          (dataSourceAppointment.id == occurrenceCalendarAppointment.id)) {
+        return dataSourceAppointment.data;
+      }
+    }
+    return null;
   }
 
   /// The collection of resource to be displayed in the timeline views of
@@ -267,7 +493,7 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// ```dart
   ///  @override
   ///  DateTime getStartTime(int index) {
-  ///    return appointments[index].from;
+  ///    return appointments![index].from;
   ///  }
   /// ```
   DateTime getStartTime(int index) => DateTime.now();
@@ -288,7 +514,7 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// ```dart
   ///  @override
   ///  DateTime getEndTime(int index) {
-  ///    return appointments[index].to;
+  ///    return appointments![index].to;
   ///  }
   /// ```
   DateTime getEndTime(int index) => DateTime.now();
@@ -306,7 +532,7 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// ```dart
   ///  @override
   ///  DateTime getSubject(int index) {
-  ///    return appointments[index].title;
+  ///    return appointments![index].title;
   ///  }
   /// ```
   String getSubject(int index) => '';
@@ -324,7 +550,7 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// ```dart
   ///  @override
   ///  DateTime isAllDay(int index) {
-  ///    return appointments[index].isAllDay;
+  ///    return appointments![index].isAllDay;
   ///  }
   /// ```
   bool isAllDay(int index) => false;
@@ -342,7 +568,7 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// ```dart
   ///  @override
   ///  DateTime getColor(int index) {
-  ///    return appointments[index].background;
+  ///    return appointments![index].background;
   ///  }
   /// ```
   Color getColor(int index) => Colors.lightBlue;
@@ -360,7 +586,7 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// ```dart
   ///  @override
   ///  DateTime getNotes(int index) {
-  ///    return appointments[index].notes;
+  ///    return appointments![index].notes;
   ///  }
   /// ```
   String? getNotes(int index) => null;
@@ -378,7 +604,7 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// ```dart
   ///  @override
   ///  DateTime getLocation(int index) {
-  ///    return appointments[index].place;
+  ///    return appointments![index].place;
   ///  }
   /// ```
   String? getLocation(int index) => null;
@@ -396,7 +622,7 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// ```dart
   ///  @override
   ///  DateTime getStartTimeZone(int index) {
-  ///    return appointments[index].fromZone;
+  ///    return appointments![index].fromZone;
   ///  }
   /// ```
   String? getStartTimeZone(int index) => null;
@@ -414,7 +640,7 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// ```dart
   ///  @override
   ///  DateTime getEndTimeZone(int index) {
-  ///    return appointments[index].toZone;
+  ///    return appointments![index].toZone;
   ///  }
   /// ```
   String? getEndTimeZone(int index) => null;
@@ -432,7 +658,7 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// ```dart
   ///  @override
   ///  DateTime getRecurrenceRule(int index) {
-  ///    return appointments[index].recurrenceRule;
+  ///    return appointments![index].recurrenceRule;
   ///  }
   /// ```
   String? getRecurrenceRule(int index) => null;
@@ -450,7 +676,7 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// ```dart
   ///  @override
   ///  DateTime getRecurrenceExceptionDates(int index) {
-  ///    return appointments[index].exceptionDates;
+  ///    return appointments![index].exceptionDates;
   ///  }
   /// ```
   List<DateTime>? getRecurrenceExceptionDates(int index) => null;
@@ -469,10 +695,46 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// ```dart
   ///  @override
   ///  DateTime getResourceIds(int index) {
-  ///    return appointments[index].resourceIds;
+  ///    return appointments![index].resourceIds;
   ///  }
   /// ```
   List<Object>? getResourceIds(int index) => null;
+
+  /// Maps the custom appointments recurrence id to the [Appointment].
+  ///
+  /// Allows to set the custom appointments corresponding property to the
+  /// [Appointment]'s recurrenceId property.
+  ///
+  /// _Note:_ It is applicable only when the custom appointments set to the
+  /// [appointments].
+  ///
+  /// See also: [Appointment.recurrenceId].
+  ///
+  /// ```dart
+  ///  @override
+  ///  DateTime getRecurrenceId(int index) {
+  ///    return appointments[index].recurrenceId;
+  ///  }
+  /// ```
+  Object? getRecurrenceId(int index) => null;
+
+  /// Maps the custom appointments id to the [Appointment].
+  ///
+  /// Allows to set the custom appointments corresponding property to the
+  /// [Appointment]'s id property.
+  ///
+  /// _Note:_ It is applicable only when the custom appointments set to the
+  /// [appointments].
+  ///
+  /// See also: [Appointment.id].
+  ///
+  /// ```dart
+  ///  @override
+  ///  DateTime getId(int index) {
+  ///    return appointments[index].id;
+  ///  }
+  /// ```
+  Object? getId(int index) => null;
 
   /// Called when loadMoreAppointments function is called from the
   /// loadMoreWidgetBuilder.
@@ -482,7 +744,7 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   ///
   /// ```dart
   ///  @override
-  ///  void handleLoadMore(DateTime startDate, DateTime endDate){
+  ///  Future<void> handleLoadMore(DateTime startDate, DateTime endDate) async {
   ///  await Future.delayed(Duration(seconds: 5));
   ///    List<Appointment> newColl = <Appointment>[];
   ///    for (DateTime date = startDate;
@@ -496,7 +758,7 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   ///      ));
   ///    }
   ///
-  ///    appointments.addAll(newColl);
+  ///    appointments!.addAll(newColl);
   ///    notifyListeners(CalendarDataSourceAction.add, newColl);
   ///  }
   /// ```

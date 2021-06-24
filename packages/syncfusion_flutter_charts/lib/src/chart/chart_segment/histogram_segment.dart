@@ -11,8 +11,6 @@ class HistogramSegment extends ChartSegment {
   /// Render path.
   late Path _path;
   late RRect _trackRect;
-  // @override
-  // CartesianChartPoint<dynamic> _currentPoint;
   Paint? _trackerFillPaint, _trackerStrokePaint;
 
   //We are using `segmentRect` to draw the histogram segment in the series.
@@ -80,7 +78,7 @@ class HistogramSegment extends ChartSegment {
   /// Method to get series tracker fill.
   Paint _getTrackerFillPaint() {
     final HistogramSeries<dynamic, dynamic> histogramSeries =
-        _series as HistogramSeries;
+        _series as HistogramSeries<dynamic, dynamic>;
     if (_color != null) {
       _trackerFillPaint = Paint()
         ..color = histogramSeries.trackColor
@@ -92,7 +90,7 @@ class HistogramSegment extends ChartSegment {
   /// Method to get series tracker stroke color.
   Paint _getTrackerStrokePaint() {
     final HistogramSeries<dynamic, dynamic> histogramSeries =
-        _series as HistogramSeries;
+        _series as HistogramSeries<dynamic, dynamic>;
     _trackerStrokePaint = Paint()
       ..color = histogramSeries.trackBorderColor
       ..strokeWidth = histogramSeries.trackBorderWidth
@@ -111,7 +109,7 @@ class HistogramSegment extends ChartSegment {
   @override
   void onPaint(Canvas canvas) {
     final HistogramSeries<dynamic, dynamic> histogramSeries =
-        _series as HistogramSeries;
+        _series as HistogramSeries<dynamic, dynamic>;
 
     if (_trackerFillPaint != null && histogramSeries.isTrackVisible) {
       _drawSegmentRect(_trackerFillPaint!, canvas, _trackRect);
@@ -125,18 +123,16 @@ class HistogramSegment extends ChartSegment {
       _drawSegmentRect(fillPaint!, canvas, segmentRect);
     }
     if (strokePaint != null) {
-      if (_series.dashArray[0] != 0 && _series.dashArray[1] != 0) {
-        _drawDashedLine(canvas, _series.dashArray, strokePaint!, _path);
-      } else {
-        _drawSegmentRect(strokePaint!, canvas, segmentRect);
-      }
+      (_series.dashArray[0] != 0 && _series.dashArray[1] != 0)
+          ? _drawDashedLine(canvas, _series.dashArray, strokePaint!, _path)
+          : _drawSegmentRect(strokePaint!, canvas, segmentRect);
     }
   }
 
   /// To draw the rect of a given segment
   void _drawSegmentRect(Paint getPaint, Canvas canvas, RRect getRect) {
-    ((_chartState._initialRender! ||
-                _chartState._isLegendToggled ||
+    ((_renderingDetails.initialRender! ||
+                _renderingDetails.isLegendToggled ||
                 (_series.key != null &&
                     _chartState._oldSeriesKeys.contains(_series.key))) &&
             _series.animationDuration > 0)

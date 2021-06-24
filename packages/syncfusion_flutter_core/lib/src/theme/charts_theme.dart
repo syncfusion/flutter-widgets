@@ -117,6 +117,7 @@ class SfChartTheme extends InheritedTheme {
 /// and [SfThemeData](https://pub.dev/documentation/syncfusion_flutter_core/latest/theme/SfThemeData-class.html),
 /// for customizing the visual appearance of the chart widget.
 ///
+@immutable
 class SfChartThemeData with Diagnosticable {
   /// Creating an argument constructor of SfChartThemeData class.
   factory SfChartThemeData(

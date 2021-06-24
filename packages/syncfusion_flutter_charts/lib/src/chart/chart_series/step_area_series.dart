@@ -13,6 +13,7 @@ part of charts;
 ///To render a spline area chart, create an instance of StepAreaSeries, and add it to the series collection property of [SfCartesianChart].
 ///
 ///Provides options to customize the [color], [opacity], [width] of the StepArea segments.
+@immutable
 class StepAreaSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of StepAreaSeries class.
   StepAreaSeries(
@@ -41,14 +42,15 @@ class StepAreaSeries<T, D> extends XyDataSeries<T, D> {
       double? borderWidth,
       LinearGradient? gradient,
       LinearGradient? borderGradient,
-      // ignore: deprecated_member_use_from_same_package
-      SelectionSettings? selectionSettings,
       SelectionBehavior? selectionBehavior,
       bool? isVisibleInLegend,
       LegendIconType? legendIconType,
       String? legendItemText,
       double? opacity,
       SeriesRendererCreatedCallback? onRendererCreated,
+      ChartPointInteractionCallback? onPointTap,
+      ChartPointInteractionCallback? onPointDoubleTap,
+      ChartPointInteractionCallback? onPointLongPress,
       this.borderDrawMode = BorderDrawMode.top})
       : super(
             key: key,
@@ -75,13 +77,15 @@ class StepAreaSeries<T, D> extends XyDataSeries<T, D> {
             borderWidth: borderWidth,
             gradient: gradient,
             borderGradient: borderGradient,
-            selectionSettings: selectionSettings,
             selectionBehavior: selectionBehavior,
             legendItemText: legendItemText,
             isVisibleInLegend: isVisibleInLegend,
             legendIconType: legendIconType,
             sortingOrder: sortingOrder,
             onRendererCreated: onRendererCreated,
+            onPointTap: onPointTap,
+            onPointDoubleTap: onPointDoubleTap,
+            onPointLongPress: onPointLongPress,
             opacity: opacity);
 
   ///Border type of step area series.
@@ -116,6 +120,95 @@ class StepAreaSeries<T, D> extends XyDataSeries<T, D> {
     }
     return StepAreaSeriesRenderer();
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is StepAreaSeries &&
+        other.key == key &&
+        other.onCreateRenderer == onCreateRenderer &&
+        other.dataSource == dataSource &&
+        other.xValueMapper == xValueMapper &&
+        other.yValueMapper == yValueMapper &&
+        other.sortFieldValueMapper == sortFieldValueMapper &&
+        other.pointColorMapper == pointColorMapper &&
+        other.dataLabelMapper == dataLabelMapper &&
+        other.sortingOrder == sortingOrder &&
+        other.xAxisName == xAxisName &&
+        other.yAxisName == yAxisName &&
+        other.name == name &&
+        other.color == color &&
+        other.markerSettings == markerSettings &&
+        other.emptyPointSettings == emptyPointSettings &&
+        other.dataLabelSettings == dataLabelSettings &&
+        other.trendlines == trendlines &&
+        other.isVisible == isVisible &&
+        other.enableTooltip == enableTooltip &&
+        other.dashArray == dashArray &&
+        other.animationDuration == animationDuration &&
+        other.borderColor == borderColor &&
+        other.borderWidth == borderWidth &&
+        other.gradient == gradient &&
+        other.borderGradient == borderGradient &&
+        other.selectionBehavior == selectionBehavior &&
+        other.isVisibleInLegend == isVisibleInLegend &&
+        other.legendIconType == legendIconType &&
+        other.legendItemText == legendItemText &&
+        other.opacity == opacity &&
+        other.borderDrawMode == borderDrawMode &&
+        other.onRendererCreated == onRendererCreated &&
+        other.onPointTap == onPointTap &&
+        other.onPointDoubleTap == onPointDoubleTap &&
+        other.onPointLongPress == onPointLongPress;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      key,
+      onCreateRenderer,
+      dataSource,
+      xValueMapper,
+      yValueMapper,
+      sortFieldValueMapper,
+      pointColorMapper,
+      dataLabelMapper,
+      sortingOrder,
+      xAxisName,
+      yAxisName,
+      name,
+      color,
+      markerSettings,
+      emptyPointSettings,
+      dataLabelSettings,
+      trendlines,
+      isVisible,
+      enableTooltip,
+      dashArray,
+      animationDuration,
+      borderColor,
+      borderWidth,
+      gradient,
+      borderGradient,
+      selectionBehavior,
+      isVisibleInLegend,
+      legendIconType,
+      legendItemText,
+      opacity,
+      borderDrawMode,
+      onRendererCreated,
+      onPointTap,
+      onPointDoubleTap,
+      onPointLongPress
+    ];
+    return hashList(values);
+  }
 }
 
 /// Creates series renderer for Step area series
@@ -133,8 +226,10 @@ class StepAreaSeriesRenderer extends XyDataSeriesRenderer {
     segment._strokePath = strokePath;
     segment._seriesIndex = seriesIndex;
     segment._seriesRenderer = this;
-    segment._series = _series as XyDataSeries;
-    if (_points != null) segment.points = _points;
+    segment._series = _series as XyDataSeries<dynamic, dynamic>;
+    if (_points != null) {
+      segment.points = _points;
+    }
     segment._chart = _chart;
     segment._chartState = _chartState!;
     segment.animationFactor = animateFactor;

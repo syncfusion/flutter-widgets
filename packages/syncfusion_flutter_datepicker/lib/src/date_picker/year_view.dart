@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -13,7 +15,7 @@ import 'picker_helper.dart';
 class YearView extends StatefulWidget {
   /// Constructor for create the year view widget used to hold the year cell
   /// widgets.
-  YearView(
+  const YearView(
       this.visibleDates,
       this.cellStyle,
       this.minDate,
@@ -97,7 +99,7 @@ class YearView extends StatefulWidget {
   final SfDateRangePickerThemeData datePickerTheme;
 
   /// Used to specify the mouse hover position of the year view.
-  final ValueNotifier<Offset?> mouseHoverPosition;
+  final ValueNotifier<HoveringDetails?> mouseHoverPosition;
 
   /// Used to call repaint when the selection changes.
   final ValueNotifier<bool> selectionNotifier;
@@ -159,9 +161,9 @@ class YearView extends StatefulWidget {
 
 class _YearViewState extends State<YearView> {
   late PickerStateArgs _pickerStateDetails;
-  dynamic? _selectedDate;
+  dynamic _selectedDate;
   List<dynamic>? _selectedDates;
-  dynamic? _selectedRange;
+  dynamic _selectedRange;
   List<dynamic>? _selectedRanges;
   late List<Widget> _children;
 
@@ -284,8 +286,8 @@ class _YearViewState extends State<YearView> {
                   : DateRangePickerCellDetails(
                       date: date,
                       visibleDates: widget.visibleDates.cast<DateTime>(),
-                      bounds: Rect.fromLTWH(
-                          xPosition, yPosition, cellWidth, cellHeight)));
+                      bounds: Rect.fromLTWH(xPosition, yPosition, cellWidth,
+                          cellHeight))) as Widget;
           _children.add(child);
           xPosition += cellWidth;
         }
@@ -402,6 +404,41 @@ class _YearViewState extends State<YearView> {
               widget.navigationDirection,
               widgets: _children);
         }
+      case DateRangePickerSelectionMode.extendableRange:
+        {
+          return _ExtendableRangeSelectionRenderWidget(
+              widget.visibleDates,
+              widget.cellStyle,
+              widget.minDate,
+              widget.maxDate,
+              widget.enablePastDates,
+              widget.todayHighlightColor,
+              widget.selectionShape,
+              widget.monthFormat,
+              widget.isRtl,
+              widget.datePickerTheme,
+              widget.locale,
+              widget.mouseHoverPosition,
+              widget.enableMultiView,
+              widget.multiViewSpacing,
+              widget.selectionTextStyle,
+              widget.rangeTextStyle,
+              widget.selectionColor,
+              widget.startRangeSelectionColor,
+              widget.endRangeSelectionColor,
+              widget.rangeSelectionColor,
+              widget.allowViewNavigation ? null : _getSelectedDateValue(),
+              widget.selectionRadius,
+              widget.selectionNotifier,
+              widget.textScaleFactor,
+              widget.width,
+              widget.height,
+              widget.view,
+              widget.isHijri,
+              widget.localizations,
+              widget.navigationDirection,
+              widgets: _children);
+        }
       case DateRangePickerSelectionMode.multiRange:
         {
           return _MultiRangeSelectionRenderWidget(
@@ -485,6 +522,7 @@ class _YearViewState extends State<YearView> {
           return _selectedDates;
         }
       case DateRangePickerSelectionMode.range:
+      case DateRangePickerSelectionMode.extendableRange:
         {
           return _selectedRange;
         }
@@ -507,6 +545,7 @@ class _YearViewState extends State<YearView> {
               _selectedDates, _pickerStateDetails.selectedDates);
         }
       case DateRangePickerSelectionMode.range:
+      case DateRangePickerSelectionMode.extendableRange:
         {
           return DateRangePickerHelper.isRangeEquals(
               _selectedRange, _pickerStateDetails.selectedRange);
@@ -603,13 +642,13 @@ class _SingleSelectionRenderWidget extends MultiChildRenderObjectWidget {
   final SfDateRangePickerThemeData datePickerTheme;
 
   /// Used to specify the mouse hover position of the year view.
-  final ValueNotifier<Offset?> mouseHoverPosition;
+  final ValueNotifier<HoveringDetails?> mouseHoverPosition;
 
   /// Used to call repaint when the selection changes.
   final ValueNotifier<bool> selectionNotifier;
 
   /// Holds the selected date value.
-  final dynamic? selectedDate;
+  final dynamic selectedDate;
 
   /// Holds the selection radius of the year cell.
   final double selectionRadius;
@@ -792,7 +831,7 @@ class _MultiSelectionRenderWidget extends MultiChildRenderObjectWidget {
   final SfDateRangePickerThemeData datePickerTheme;
 
   /// Used to specify the mouse hover position of the year view.
-  final ValueNotifier<Offset?> mouseHoverPosition;
+  final ValueNotifier<HoveringDetails?> mouseHoverPosition;
 
   /// Used to call repaint when the selection changes.
   final ValueNotifier<bool> selectionNotifier;
@@ -981,13 +1020,13 @@ class _RangeSelectionRenderWidget extends MultiChildRenderObjectWidget {
   final SfDateRangePickerThemeData datePickerTheme;
 
   /// Used to specify the mouse hover position of the year view.
-  final ValueNotifier<Offset?> mouseHoverPosition;
+  final ValueNotifier<HoveringDetails?> mouseHoverPosition;
 
   /// Used to call repaint when the selection changes.
   final ValueNotifier<bool> selectionNotifier;
 
   /// Holds the selected range value..
-  final dynamic? selectedRange;
+  final dynamic selectedRange;
 
   /// Holds the selection radius of the year cell.
   final double selectionRadius;
@@ -1054,6 +1093,197 @@ class _RangeSelectionRenderWidget extends MultiChildRenderObjectWidget {
   @override
   void updateRenderObject(
       BuildContext context, _RangeSelectionRenderObject renderObject) {
+    renderObject
+      ..visibleDates = visibleDates
+      ..cellStyle = cellStyle
+      ..minDate = minDate
+      ..maxDate = maxDate
+      ..enablePastDates = enablePastDates
+      ..todayHighlightColor = todayHighlightColor
+      ..selectionShape = selectionShape
+      ..isRtl = isRtl
+      ..datePickerTheme = datePickerTheme
+      ..mouseHoverPosition = mouseHoverPosition
+      ..enableMultiView = enableMultiView
+      ..multiViewSpacing = multiViewSpacing
+      ..selectionTextStyle = selectionTextStyle
+      ..rangeTextStyle = rangeTextStyle
+      ..selectionColor = selectionColor
+      ..startRangeSelectionColor = startRangeSelectionColor
+      ..endRangeSelectionColor = endRangeSelectionColor
+      ..rangeSelectionColor = rangeSelectionColor
+      ..selectedRange = selectedRange
+      ..selectionRadius = selectionRadius
+      ..textScaleFactor = textScaleFactor
+      ..width = width
+      ..height = height
+      ..isHijri = isHijri
+      ..localizations = localizations
+      ..navigationDirection = navigationDirection
+      ..monthFormat = monthFormat
+      ..locale = locale
+      ..view = view;
+  }
+}
+
+class _ExtendableRangeSelectionRenderWidget
+    extends MultiChildRenderObjectWidget {
+  _ExtendableRangeSelectionRenderWidget(
+      this.visibleDates,
+      this.cellStyle,
+      this.minDate,
+      this.maxDate,
+      this.enablePastDates,
+      this.todayHighlightColor,
+      this.selectionShape,
+      this.monthFormat,
+      this.isRtl,
+      this.datePickerTheme,
+      this.locale,
+      this.mouseHoverPosition,
+      this.enableMultiView,
+      this.multiViewSpacing,
+      this.selectionTextStyle,
+      this.rangeTextStyle,
+      this.selectionColor,
+      this.startRangeSelectionColor,
+      this.endRangeSelectionColor,
+      this.rangeSelectionColor,
+      this.selectedRange,
+      this.selectionRadius,
+      this.selectionNotifier,
+      this.textScaleFactor,
+      this.width,
+      this.height,
+      this.view,
+      this.isHijri,
+      this.localizations,
+      this.navigationDirection,
+      {required List<Widget> widgets})
+      : super(children: widgets);
+
+  /// Defines the year cell style.
+  final dynamic cellStyle;
+
+  /// Defines the text style for selected year cell.
+  final TextStyle? selectionTextStyle;
+
+  /// Defines the range text style for selected range year cell.
+  final TextStyle? rangeTextStyle;
+
+  /// Defines the background color for selected year cell.
+  final Color? selectionColor;
+
+  /// Defines the background color for selected range start date year cell.
+  final Color? startRangeSelectionColor;
+
+  /// Defines the background color for selected range end date year cell.
+  final Color? endRangeSelectionColor;
+
+  /// Defines the background color for selected range in between dates cell.
+  final Color? rangeSelectionColor;
+
+  /// Holds the visible dates for the year view.
+  final List<dynamic> visibleDates;
+
+  /// Used to identify the widget direction is RTL.
+  final bool isRtl;
+
+  /// Defines the today cell highlight color.
+  final Color? todayHighlightColor;
+
+  /// The minimum date as much as the [SfDateRangePicker] will navigate.
+  final dynamic minDate;
+
+  /// The maximum date as much as the [SfDateRangePicker] will navigate.
+  final dynamic maxDate;
+
+  final DateRangePickerNavigationDirection navigationDirection;
+
+  /// Decides to enable past dates or not.
+  final bool enablePastDates;
+
+  /// Decides the year cell highlight and selection shape.
+  final DateRangePickerSelectionShape selectionShape;
+
+  /// Holds the theme data for date range picker.
+  final SfDateRangePickerThemeData datePickerTheme;
+
+  /// Used to specify the mouse hover position of the year view.
+  final ValueNotifier<HoveringDetails?> mouseHoverPosition;
+
+  /// Used to call repaint when the selection changes.
+  final ValueNotifier<bool> selectionNotifier;
+
+  /// Holds the selected range value..
+  final dynamic selectedRange;
+
+  /// Holds the selection radius of the year cell.
+  final double selectionRadius;
+
+  /// Decides to show the multi view of year view or not.
+  final bool enableMultiView;
+
+  /// Specifies the space between the multi year views.
+  final double multiViewSpacing;
+
+  /// Defines the text scale factor of [SfDateRangePicker].
+  final double textScaleFactor;
+
+  final String? monthFormat;
+
+  final Locale locale;
+
+  final double width;
+
+  final double height;
+
+  final DateRangePickerView view;
+
+  /// Defines the pickerType for [SfDateRangePicker].
+  final bool isHijri;
+
+  /// Specifies the localizations.
+  final SfLocalizations localizations;
+
+  @override
+  _ExtendableRangeSelectionRenderObject createRenderObject(
+      BuildContext context) {
+    return _ExtendableRangeSelectionRenderObject(
+        visibleDates,
+        cellStyle,
+        minDate,
+        maxDate,
+        enablePastDates,
+        todayHighlightColor,
+        selectionShape,
+        isRtl,
+        datePickerTheme,
+        mouseHoverPosition,
+        enableMultiView,
+        multiViewSpacing,
+        selectionTextStyle,
+        rangeTextStyle,
+        selectionColor,
+        startRangeSelectionColor,
+        endRangeSelectionColor,
+        rangeSelectionColor,
+        selectionRadius,
+        textScaleFactor,
+        width,
+        height,
+        monthFormat,
+        locale,
+        view,
+        isHijri,
+        navigationDirection,
+        localizations,
+        selectedRange);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context,
+      _ExtendableRangeSelectionRenderObject renderObject) {
     renderObject
       ..visibleDates = visibleDates
       ..cellStyle = cellStyle
@@ -1171,7 +1401,7 @@ class _MultiRangeSelectionRenderWidget extends MultiChildRenderObjectWidget {
   final SfDateRangePickerThemeData datePickerTheme;
 
   /// Used to specify the mouse hover position of the year view.
-  final ValueNotifier<Offset?> mouseHoverPosition;
+  final ValueNotifier<HoveringDetails?> mouseHoverPosition;
 
   /// Used to call repaint when the selection changes.
   final ValueNotifier<bool> selectionNotifier;
@@ -1329,11 +1559,11 @@ abstract class _IYearViewRenderObject extends RenderBox
     }
   }
 
-  dynamic? _cellStyle;
+  dynamic _cellStyle;
 
-  dynamic? get cellStyle => _cellStyle;
+  dynamic get cellStyle => _cellStyle;
 
-  set cellStyle(dynamic? value) {
+  set cellStyle(dynamic value) {
     if (_cellStyle == value) {
       return;
     }
@@ -1576,11 +1806,11 @@ abstract class _IYearViewRenderObject extends RenderBox
     markNeedsPaint();
   }
 
-  ValueNotifier<Offset?> _mouseHoverPosition;
+  ValueNotifier<HoveringDetails?> _mouseHoverPosition;
 
-  ValueNotifier<Offset?> get mouseHoverPosition => _mouseHoverPosition;
+  ValueNotifier<HoveringDetails?> get mouseHoverPosition => _mouseHoverPosition;
 
-  set mouseHoverPosition(ValueNotifier<Offset?> value) {
+  set mouseHoverPosition(ValueNotifier<HoveringDetails?> value) {
     if (_mouseHoverPosition == value) {
       return;
     }
@@ -1762,7 +1992,7 @@ abstract class _IYearViewRenderObject extends RenderBox
   SfLocalizations localizations;
 
   /// Used to draw year cell text in month view.
-  TextPainter _textPainter = TextPainter(
+  final TextPainter _textPainter = TextPainter(
       textAlign: TextAlign.start,
       textDirection: TextDirection.ltr,
       maxLines: 2,
@@ -1770,7 +2000,7 @@ abstract class _IYearViewRenderObject extends RenderBox
 
   /// Used to paint the selection of year cell and today highlight on all
   /// the selection mode.
-  Paint _todayHighlightPaint = Paint();
+  final Paint _todayHighlightPaint = Paint();
 
   /// Caches [SemanticsNode]s created during [assembleSemanticsNode] so they
   /// can be re-used when [assembleSemanticsNode] is called again. This ensures
@@ -1908,7 +2138,7 @@ abstract class _IYearViewRenderObject extends RenderBox
       double highlightPadding,
       double selectionPadding,
       double textHalfHeight,
-      centerYPosition,
+      double centerYPosition,
       double xPosition,
       double yPosition,
       TextSpan yearText);
@@ -2010,7 +2240,7 @@ abstract class _IYearViewRenderObject extends RenderBox
 
     /// Check the start date as before of end date, if not then swap
     /// the start and end date values.
-    if (startDate != null && startDate.isAfter(endDate)) {
+    if (startDate != null && startDate.isAfter(endDate) == true) {
       final dynamic temp = startDate;
       startDate = endDate;
       endDate = temp;
@@ -2021,7 +2251,8 @@ abstract class _IYearViewRenderObject extends RenderBox
         visibleDates[viewEndIndex], pickerView, _isHijri);
     if (startDate != null) {
       /// Assign start index as -1 when the start date before view start date.
-      if (viewStartDate.isAfter(startDate) && viewStartDate.isBefore(endDate)) {
+      if (viewStartDate.isAfter(startDate) == true &&
+          viewStartDate.isBefore(endDate) == true) {
         startIndex = -1;
       } else {
         startIndex = DateRangePickerHelper.getDateCellIndex(
@@ -2033,7 +2264,8 @@ abstract class _IYearViewRenderObject extends RenderBox
     if (endDate != null) {
       /// Assign end index as visible dates length when the
       /// end date after of view end date.
-      if (viewEndDate.isAfter(startDate) && viewEndDate.isBefore(endDate)) {
+      if (viewEndDate.isAfter(startDate) == true &&
+          viewEndDate.isBefore(endDate) == true) {
         endIndex = viewEndIndex + 1;
       } else {
         endIndex = DateRangePickerHelper.getDateCellIndex(
@@ -2116,10 +2348,10 @@ abstract class _IYearViewRenderObject extends RenderBox
       double xPosition,
       double yOffset,
       double yPosition) {
-    if (xPosition <= _mouseHoverPosition.value!.dx &&
-        xPosition + cellWidth >= _mouseHoverPosition.value!.dx &&
-        yPosition <= _mouseHoverPosition.value!.dy &&
-        yPosition + cellHeight >= _mouseHoverPosition.value!.dy) {
+    if (xPosition <= _mouseHoverPosition.value!.offset!.dx &&
+        xPosition + cellWidth >= _mouseHoverPosition.value!.offset!.dx &&
+        yPosition <= _mouseHoverPosition.value!.offset!.dy &&
+        yPosition + cellHeight >= _mouseHoverPosition.value!.offset!.dy) {
       _todayHighlightPaint.style = PaintingStyle.fill;
       _todayHighlightPaint.strokeWidth = 2;
       _todayHighlightPaint.color = selectionColor != null
@@ -2150,6 +2382,137 @@ abstract class _IYearViewRenderObject extends RenderBox
           RRect.fromRectAndRadius(rect, Radius.circular(cornerRadius)),
           _todayHighlightPaint);
     }
+  }
+
+  /// Add the hovering effect when the selection mode set as extendable and the
+  /// hovering date extends the range.
+  void _addRangeHoverEffect(
+      Canvas canvas,
+      double xPosition,
+      double yPosition,
+      int currentIndex,
+      List<int>? hoveringIndex,
+      _IYearViewRenderObject yearView,
+      double centerYPosition,
+      double textHalfHeight,
+      double selectionPadding,
+      double highlightPadding,
+      double cellWidth,
+      double cellHeight) {
+    if (hoveringIndex == null || hoveringIndex.isEmpty) {
+      return;
+    }
+    late _ExtendableRangeSelectionRenderObject rangeSelectionYearView;
+    if (yearView is _ExtendableRangeSelectionRenderObject) {
+      rangeSelectionYearView = yearView;
+    }
+
+    final List<bool> hoveringDetails = rangeSelectionYearView
+        ._getSelectedRangePosition(currentIndex, hoveringIndex);
+    final bool isSelectedDate = hoveringDetails[0];
+    final bool isStartRange = hoveringDetails[1];
+    final bool isEndRange = hoveringDetails[2];
+    final bool isBetweenRange = hoveringDetails[3];
+
+    final double maximumHighlight =
+        centerYPosition - textHalfHeight - selectionPadding;
+    if (maximumHighlight < highlightPadding) {
+      highlightPadding = maximumHighlight;
+    }
+
+    final Rect rect = Rect.fromLTRB(
+        xPosition,
+        yPosition + centerYPosition - highlightPadding - textHalfHeight,
+        xPosition + cellWidth,
+        yPosition + centerYPosition + highlightPadding + textHalfHeight);
+    final double cornerRadius = isBetweenRange
+        ? 0
+        : (selectionShape == DateRangePickerSelectionShape.circle
+            ? rect.height / 2
+            : 3);
+    final double leftRadius = isStartRange || isSelectedDate ? cornerRadius : 0;
+    final double rightRadius = isEndRange || isSelectedDate ? cornerRadius : 0;
+
+    final RRect roundRect = RRect.fromRectAndCorners(rect,
+        topLeft: Radius.circular(leftRadius),
+        bottomLeft: Radius.circular(leftRadius),
+        bottomRight: Radius.circular(rightRadius),
+        topRight: Radius.circular(rightRadius));
+
+    _todayHighlightPaint.style = PaintingStyle.stroke;
+    _todayHighlightPaint.strokeWidth = 1.0;
+    _todayHighlightPaint.color = selectionColor != null
+        ? selectionColor!.withOpacity(0.4)
+        : datePickerTheme.selectionColor!.withOpacity(0.4);
+    final Path path = Path();
+    if (isStartRange || isSelectedDate) {
+      switch (selectionShape) {
+        case DateRangePickerSelectionShape.circle:
+          path.addArc(
+              Rect.fromCenter(
+                  center: Offset(roundRect.left + leftRadius,
+                      roundRect.top + (roundRect.height / 2)),
+                  width: leftRadius * 1.5,
+                  height: roundRect.height),
+              pi / 2,
+              pi);
+          break;
+        case DateRangePickerSelectionShape.rectangle:
+          path.addRRect(RRect.fromLTRBR(
+              rect.left + selectionPadding,
+              rect.top,
+              rect.right - selectionPadding,
+              rect.bottom,
+              Radius.circular(leftRadius)));
+      }
+      canvas.drawPath(
+          DateRangePickerHelper.getDashedPath(
+              path,
+              isStartRange || isSelectedDate,
+              isEndRange,
+              selectionShape == DateRangePickerSelectionShape.rectangle),
+          _todayHighlightPaint);
+    } else if (isEndRange) {
+      switch (selectionShape) {
+        case DateRangePickerSelectionShape.circle:
+          path.addArc(
+              Rect.fromCenter(
+                  center: Offset(roundRect.right - rightRadius,
+                      roundRect.top + (roundRect.height / 2)),
+                  width: rightRadius * 1.5,
+                  height: roundRect.height),
+              -(pi / 2),
+              pi);
+          break;
+        case DateRangePickerSelectionShape.rectangle:
+          path.addRRect(RRect.fromLTRBR(
+              rect.left + selectionPadding,
+              rect.top,
+              rect.right - selectionPadding,
+              rect.bottom,
+              Radius.circular(rightRadius)));
+      }
+      canvas.drawPath(
+          DateRangePickerHelper.getDashedPath(
+              path,
+              isStartRange || isSelectedDate,
+              isEndRange,
+              selectionShape == DateRangePickerSelectionShape.rectangle),
+          _todayHighlightPaint);
+    }
+
+    DateRangePickerHelper.drawDashedLine(
+        roundRect.left + leftRadius,
+        roundRect.top,
+        roundRect.right - rightRadius,
+        canvas,
+        _todayHighlightPaint);
+    DateRangePickerHelper.drawDashedLine(
+        roundRect.left + leftRadius,
+        roundRect.bottom,
+        roundRect.right - rightRadius,
+        canvas,
+        _todayHighlightPaint);
   }
 
   void _drawTodayHighlight(
@@ -2215,7 +2578,7 @@ abstract class _IYearViewRenderObject extends RenderBox
   TextStyle _updateCellTextStyle(int j, bool isCurrentDate, bool isSelected,
       bool isEnableDate, bool isActiveDate) {
     if (!isEnableDate) {
-      return cellStyle.disabledDatesTextStyle ??
+      return cellStyle.disabledDatesTextStyle as TextStyle? ??
           datePickerTheme.disabledCellTextStyle;
     }
 
@@ -2224,39 +2587,41 @@ abstract class _IYearViewRenderObject extends RenderBox
     }
 
     if (isCurrentDate) {
-      return cellStyle.todayTextStyle ?? datePickerTheme.todayCellTextStyle;
+      return cellStyle.todayTextStyle as TextStyle? ??
+          datePickerTheme.todayCellTextStyle;
     }
 
     if (!isActiveDate && !_isHijri) {
-      return cellStyle.leadingDatesTextStyle ??
+      return cellStyle.leadingDatesTextStyle as TextStyle? ??
           datePickerTheme.leadingCellTextStyle;
     }
 
-    return cellStyle.textStyle ?? datePickerTheme.cellTextStyle;
+    return cellStyle.textStyle as TextStyle? ?? datePickerTheme.cellTextStyle;
   }
 
   Decoration? _updateCellDecoration(
       int j, bool isCurrentDate, bool isEnableDate, bool isActiveDate) {
     if (!isEnableDate) {
-      return cellStyle.disabledDatesDecoration;
+      return cellStyle.disabledDatesDecoration as Decoration?;
     }
 
     if (isCurrentDate) {
-      return cellStyle.todayCellDecoration ?? cellStyle.cellDecoration;
+      return cellStyle.todayCellDecoration as Decoration? ??
+          cellStyle.cellDecoration as Decoration?;
     }
 
     if (!isActiveDate && !_isHijri) {
-      return cellStyle.leadingDatesDecoration;
+      return cellStyle.leadingDatesDecoration as Decoration?;
     }
 
-    return cellStyle.cellDecoration;
+    return cellStyle.cellDecoration as Decoration?;
   }
 }
 
 class _SingleSelectionRenderObject extends _IYearViewRenderObject {
   _SingleSelectionRenderObject(
       List<dynamic> visibleDates,
-      cellStyle,
+      dynamic cellStyle,
       dynamic minDate,
       dynamic maxDate,
       bool enablePastDates,
@@ -2264,7 +2629,7 @@ class _SingleSelectionRenderObject extends _IYearViewRenderObject {
       DateRangePickerSelectionShape selectionShape,
       bool isRtl,
       SfDateRangePickerThemeData datePickerTheme,
-      ValueNotifier<Offset?> mouseHoverPosition,
+      ValueNotifier<HoveringDetails?> mouseHoverPosition,
       bool enableMultiView,
       double multiViewSpacing,
       TextStyle? selectionTextStyle,
@@ -2314,11 +2679,11 @@ class _SingleSelectionRenderObject extends _IYearViewRenderObject {
             navigationDirection,
             localizations);
 
-  dynamic? _selectedDate;
+  dynamic _selectedDate;
 
-  dynamic? get selectedDate => _selectedDate;
+  dynamic get selectedDate => _selectedDate;
 
-  set selectedDate(dynamic? value) {
+  set selectedDate(dynamic value) {
     if (isSameDate(_selectedDate, value)) {
       return;
     }
@@ -2344,7 +2709,7 @@ class _SingleSelectionRenderObject extends _IYearViewRenderObject {
       double highlightPadding,
       double selectionPadding,
       double textHalfHeight,
-      centerYPosition,
+      double centerYPosition,
       double xPosition,
       double yPosition,
       TextSpan yearText) {
@@ -2403,7 +2768,7 @@ class _SingleSelectionRenderObject extends _IYearViewRenderObject {
 class _MultipleSelectionRenderObject extends _IYearViewRenderObject {
   _MultipleSelectionRenderObject(
       List<dynamic> visibleDates,
-      cellStyle,
+      dynamic cellStyle,
       dynamic minDate,
       dynamic maxDate,
       bool enablePastDates,
@@ -2411,7 +2776,7 @@ class _MultipleSelectionRenderObject extends _IYearViewRenderObject {
       DateRangePickerSelectionShape selectionShape,
       bool isRtl,
       SfDateRangePickerThemeData datePickerTheme,
-      ValueNotifier<Offset?> mouseHoverPosition,
+      ValueNotifier<HoveringDetails?> mouseHoverPosition,
       bool enableMultiView,
       double multiViewSpacing,
       TextStyle? selectionTextStyle,
@@ -2491,7 +2856,7 @@ class _MultipleSelectionRenderObject extends _IYearViewRenderObject {
       double highlightPadding,
       double selectionPadding,
       double textHalfHeight,
-      centerYPosition,
+      double centerYPosition,
       double xPosition,
       double yPosition,
       TextSpan yearText) {
@@ -2551,7 +2916,7 @@ class _MultipleSelectionRenderObject extends _IYearViewRenderObject {
 class _RangeSelectionRenderObject extends _IYearViewRenderObject {
   _RangeSelectionRenderObject(
       List<dynamic> visibleDates,
-      cellStyle,
+      dynamic cellStyle,
       dynamic minDate,
       dynamic maxDate,
       bool enablePastDates,
@@ -2559,7 +2924,7 @@ class _RangeSelectionRenderObject extends _IYearViewRenderObject {
       DateRangePickerSelectionShape selectionShape,
       bool isRtl,
       SfDateRangePickerThemeData datePickerTheme,
-      ValueNotifier<Offset?> mouseHoverPosition,
+      ValueNotifier<HoveringDetails?> mouseHoverPosition,
       bool enableMultiView,
       double multiViewSpacing,
       TextStyle? selectionTextStyle,
@@ -2609,11 +2974,11 @@ class _RangeSelectionRenderObject extends _IYearViewRenderObject {
             navigationDirection,
             localizations);
 
-  dynamic? _selectedRange;
+  dynamic _selectedRange;
 
-  dynamic? get selectedRange => _selectedRange;
+  dynamic get selectedRange => _selectedRange;
 
-  set selectedRange(dynamic? value) {
+  set selectedRange(dynamic value) {
     if (DateRangePickerHelper.isRangeEquals(_selectedRange, value)) {
       return;
     }
@@ -2642,7 +3007,7 @@ class _RangeSelectionRenderObject extends _IYearViewRenderObject {
       double highlightPadding,
       double selectionPadding,
       double textHalfHeight,
-      centerYPosition,
+      double centerYPosition,
       double xPosition,
       double yPosition,
       TextSpan yearText) {
@@ -2785,10 +3150,10 @@ class _RangeSelectionRenderObject extends _IYearViewRenderObject {
   }
 }
 
-class _MultiRangeSelectionRenderObject extends _IYearViewRenderObject {
-  _MultiRangeSelectionRenderObject(
+class _ExtendableRangeSelectionRenderObject extends _IYearViewRenderObject {
+  _ExtendableRangeSelectionRenderObject(
       List<dynamic> visibleDates,
-      cellStyle,
+      dynamic cellStyle,
       dynamic minDate,
       dynamic maxDate,
       bool enablePastDates,
@@ -2796,7 +3161,246 @@ class _MultiRangeSelectionRenderObject extends _IYearViewRenderObject {
       DateRangePickerSelectionShape selectionShape,
       bool isRtl,
       SfDateRangePickerThemeData datePickerTheme,
-      ValueNotifier<Offset?> mouseHoverPosition,
+      ValueNotifier<HoveringDetails?> mouseHoverPosition,
+      bool enableMultiView,
+      double multiViewSpacing,
+      TextStyle? selectionTextStyle,
+      TextStyle? rangeTextStyle,
+      Color? selectionColor,
+      Color? startRangeSelectionColor,
+      Color? endRangeSelectionColor,
+      Color? rangeSelectionColor,
+      double selectionRadius,
+      double textScaleFactor,
+      double width,
+      double height,
+      String? monthFormat,
+      Locale locale,
+      DateRangePickerView view,
+      bool isHijri,
+      DateRangePickerNavigationDirection navigationDirection,
+      SfLocalizations localizations,
+      this._selectedRange)
+      : super(
+            visibleDates,
+            cellStyle,
+            minDate,
+            maxDate,
+            enablePastDates,
+            todayHighlightColor,
+            selectionShape,
+            isRtl,
+            datePickerTheme,
+            mouseHoverPosition,
+            enableMultiView,
+            multiViewSpacing,
+            selectionTextStyle,
+            rangeTextStyle,
+            selectionColor,
+            startRangeSelectionColor,
+            endRangeSelectionColor,
+            rangeSelectionColor,
+            selectionRadius,
+            textScaleFactor,
+            width,
+            height,
+            monthFormat,
+            locale,
+            view,
+            isHijri,
+            navigationDirection,
+            localizations);
+
+  dynamic _selectedRange;
+
+  dynamic get selectedRange => _selectedRange;
+
+  set selectedRange(dynamic value) {
+    if (DateRangePickerHelper.isRangeEquals(_selectedRange, value)) {
+      return;
+    }
+
+    _selectedRange = value;
+    if (childCount == 0) {
+      markNeedsPaint();
+    } else {
+      markNeedsLayout();
+    }
+  }
+
+  List<int> _selectedIndex = <int>[];
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    _selectedIndex = <int>[];
+    _drawYearCells(context, size, this);
+  }
+
+  @override
+  void drawSelection(
+      Canvas canvas,
+      double cellWidth,
+      int currentIndex,
+      double highlightPadding,
+      double selectionPadding,
+      double textHalfHeight,
+      double centerYPosition,
+      double xPosition,
+      double yPosition,
+      TextSpan yearText) {
+    _todayHighlightPaint.isAntiAlias = true;
+    _todayHighlightPaint.style = PaintingStyle.fill;
+    final double maximumHighlight =
+        centerYPosition - textHalfHeight - selectionPadding;
+    if (maximumHighlight < highlightPadding) {
+      highlightPadding = maximumHighlight;
+    }
+
+    final List<bool> selectionDetails =
+        _getSelectedRangePosition(currentIndex, _selectedIndex);
+    final bool isSelectedDate = selectionDetails[0];
+    final bool isStartRange = selectionDetails[1];
+    final bool isEndRange = selectionDetails[2];
+    final bool isBetweenRange = selectionDetails[3];
+
+    final Rect rect = Rect.fromLTRB(
+        xPosition + (isBetweenRange || isEndRange ? 0 : selectionPadding),
+        yPosition + centerYPosition - highlightPadding - textHalfHeight,
+        xPosition +
+            cellWidth -
+            (isBetweenRange || isStartRange ? 0 : selectionPadding),
+        yPosition + centerYPosition + highlightPadding + textHalfHeight);
+    final double cornerRadius = isBetweenRange
+        ? 0
+        : (selectionShape == DateRangePickerSelectionShape.circle
+            ? rect.height / 2
+            : 3);
+    final double leftRadius = isStartRange || isSelectedDate ? cornerRadius : 0;
+    final double rightRadius = isEndRange || isSelectedDate ? cornerRadius : 0;
+    if (isSelectedDate) {
+      _todayHighlightPaint.color =
+          startRangeSelectionColor ?? datePickerTheme.startRangeSelectionColor!;
+    } else if (isStartRange) {
+      _todayHighlightPaint.color =
+          startRangeSelectionColor ?? datePickerTheme.startRangeSelectionColor!;
+    } else if (isBetweenRange) {
+      yearText = TextSpan(
+        text: yearText.text,
+        style: rangeTextStyle ?? datePickerTheme.rangeSelectionTextStyle,
+      );
+
+      _todayHighlightPaint.color =
+          rangeSelectionColor ?? datePickerTheme.rangeSelectionColor!;
+      _textPainter.text = yearText;
+      _textPainter.layout(minWidth: cellWidth, maxWidth: cellWidth);
+    } else if (isEndRange) {
+      _todayHighlightPaint.color =
+          endRangeSelectionColor ?? datePickerTheme.endRangeSelectionColor!;
+    }
+
+    canvas.drawRRect(
+        RRect.fromRectAndCorners(rect,
+            topLeft: Radius.circular(leftRadius),
+            bottomLeft: Radius.circular(leftRadius),
+            bottomRight: Radius.circular(rightRadius),
+            topRight: Radius.circular(rightRadius)),
+        _todayHighlightPaint);
+  }
+
+  @override
+  void drawCustomCellSelection(Canvas canvas, Rect rect, int index) {
+    _todayHighlightPaint.isAntiAlias = true;
+    _todayHighlightPaint.style = PaintingStyle.fill;
+    final List<bool> selectionDetails =
+        _getSelectedRangePosition(index, _selectedIndex);
+    final bool isSelectedDate = selectionDetails[0];
+    final bool isStartRange = selectionDetails[1];
+    final bool isEndRange = selectionDetails[2];
+    final bool isBetweenRange = selectionDetails[3];
+    if (isSelectedDate) {
+      _todayHighlightPaint.color =
+          startRangeSelectionColor ?? datePickerTheme.startRangeSelectionColor!;
+    } else if (isStartRange) {
+      _todayHighlightPaint.color =
+          startRangeSelectionColor ?? datePickerTheme.startRangeSelectionColor!;
+    } else if (isBetweenRange) {
+      _todayHighlightPaint.color =
+          rangeSelectionColor ?? datePickerTheme.rangeSelectionColor!;
+    } else if (isEndRange) {
+      _todayHighlightPaint.color =
+          endRangeSelectionColor ?? datePickerTheme.endRangeSelectionColor!;
+    }
+    canvas.drawRect(rect, _todayHighlightPaint);
+  }
+
+  List<bool> _getSelectedRangePosition(int index, List<int> indexList) {
+    /// isSelectedDate value used to notify the year cell as selected and
+    /// the range hold only start date value on range and multi range selection.
+    bool isSelectedDate = false;
+
+    /// isStartRange value used to notify the year cell as selected and
+    /// the year cell as start date cell of the picker date range.
+    /// its selection mode as range or multi range.
+    bool isStartRange = false;
+
+    /// isEndRange value used to notify the year cell as selected and
+    /// the year cell as end date cell of the picker date range.
+    /// its selection mode as range or multi range.
+    bool isEndRange = false;
+
+    /// isBetweenRange value used to notify the year cell as selected and
+    /// the year cell as in between the start and  end date cell of the
+    /// picker date range. its selection mode as range or multi range.
+    bool isBetweenRange = false;
+    if (indexList.length == 1) {
+      isSelectedDate = true;
+    } else if (indexList[0] == index) {
+      if (isRtl) {
+        isEndRange = true;
+      } else {
+        isStartRange = true;
+      }
+    } else if (indexList[indexList.length - 1] == index) {
+      if (isRtl) {
+        isStartRange = true;
+      } else {
+        isEndRange = true;
+      }
+    } else {
+      isBetweenRange = true;
+    }
+
+    return <bool>[isSelectedDate, isStartRange, isEndRange, isBetweenRange];
+  }
+
+  @override
+  List<int> getSelectedIndex(int viewStartIndex, int viewEndIndex) {
+    _selectedIndex = <int>[];
+    if (_selectedRange == null) {
+      return _selectedIndex;
+    }
+
+    final dynamic startDate = _selectedRange.startDate;
+    final dynamic endDate = _selectedRange.endDate ?? _selectedRange.startDate;
+    _selectedIndex.addAll(
+        _getRangeIndex(startDate, endDate, view, viewStartIndex, viewEndIndex));
+
+    return _selectedIndex;
+  }
+}
+
+class _MultiRangeSelectionRenderObject extends _IYearViewRenderObject {
+  _MultiRangeSelectionRenderObject(
+      List<dynamic> visibleDates,
+      dynamic cellStyle,
+      dynamic minDate,
+      dynamic maxDate,
+      bool enablePastDates,
+      Color? todayHighlightColor,
+      DateRangePickerSelectionShape selectionShape,
+      bool isRtl,
+      SfDateRangePickerThemeData datePickerTheme,
+      ValueNotifier<HoveringDetails?> mouseHoverPosition,
       bool enableMultiView,
       double multiViewSpacing,
       TextStyle? selectionTextStyle,
@@ -2879,7 +3483,7 @@ class _MultiRangeSelectionRenderObject extends _IYearViewRenderObject {
       double highlightPadding,
       double selectionPadding,
       double textHalfHeight,
-      centerYPosition,
+      double centerYPosition,
       double xPosition,
       double yPosition,
       TextSpan yearText) {
@@ -3049,7 +3653,7 @@ bool _isCurrentViewDateCell(dynamic date, int index, List<dynamic> visibleDates,
   final int datesCount =
       enableMultiView ? visibleDates.length ~/ 2 : visibleDates.length;
   final int middleIndex = (index * datesCount) + (datesCount ~/ 2);
-  final int currentYear = visibleDates[middleIndex].year;
+  final int currentYear = visibleDates[middleIndex].year as int;
   if (pickerView == DateRangePickerView.decade) {
     return currentYear ~/ 10 == date.year ~/ 10;
   } else if (pickerView == DateRangePickerView.century) {
@@ -3157,11 +3761,14 @@ void _drawYearCells(
 
         if (!isSelected &&
             isEnableDate &&
-            yearView.mouseHoverPosition.value != null) {
-          if (xPosition <= yearView.mouseHoverPosition.value!.dx &&
-              xPosition + cellWidth >= yearView.mouseHoverPosition.value!.dx &&
-              yPosition <= yearView.mouseHoverPosition.value!.dy &&
-              yPosition + cellHeight >= yearView.mouseHoverPosition.value!.dy) {
+            yearView.mouseHoverPosition.value != null &&
+            yearView.mouseHoverPosition.value!.offset != null) {
+          if (xPosition <= yearView.mouseHoverPosition.value!.offset!.dx &&
+              xPosition + cellWidth >=
+                  yearView.mouseHoverPosition.value!.offset!.dx &&
+              yPosition <= yearView.mouseHoverPosition.value!.offset!.dy &&
+              yPosition + cellHeight >=
+                  yearView.mouseHoverPosition.value!.offset!.dy) {
             yearView._todayHighlightPaint.style = PaintingStyle.fill;
             yearView._todayHighlightPaint.strokeWidth = 2;
             yearView._todayHighlightPaint.color =
@@ -3171,7 +3778,8 @@ void _drawYearCells(
 
             final Rect rect = Rect.fromLTRB(xPosition, yPosition,
                 xPosition + cellWidth, yPosition + cellHeight);
-            canvas.drawRRect(RRect.fromRectAndRadius(rect, Radius.circular(2)),
+            canvas.drawRRect(
+                RRect.fromRectAndRadius(rect, const Radius.circular(2)),
                 yearView._todayHighlightPaint);
           }
         }
@@ -3200,6 +3808,16 @@ void _drawYearCells(
     /// Calculate the selected index values based on selected date property.
     final List<int> selectedIndex =
         yearView.getSelectedIndex(viewStartIndex, viewEndIndex);
+    List<int>? hoveringIndex;
+    if (yearView.mouseHoverPosition.value != null &&
+        yearView.mouseHoverPosition.value!.hoveringRange != null) {
+      hoveringIndex = yearView._getRangeIndex(
+          yearView.mouseHoverPosition.value!.hoveringRange.startDate,
+          yearView.mouseHoverPosition.value!.hoveringRange.endDate,
+          yearView.view,
+          viewStartIndex,
+          viewEndIndex);
+    }
 
     final double viewStartPosition = isVerticalMultiView
         ? 0
@@ -3296,9 +3914,29 @@ void _drawYearCells(
           yPosition + ((cellHeight - yearView._textPainter.height) / 2);
       yOffset = yOffset < 0 ? 0 : yOffset;
 
+      if (hoveringIndex != null &&
+          hoveringIndex.isNotEmpty &&
+          hoveringIndex.contains(currentIndex) &&
+          isEnableDate) {
+        yearView._addRangeHoverEffect(
+            canvas,
+            xPosition,
+            yPosition,
+            currentIndex,
+            hoveringIndex,
+            yearView,
+            centerYPosition,
+            textHalfHeight,
+            selectionPadding,
+            highlightPadding,
+            cellWidth,
+            cellHeight);
+      }
+
       if (!isSelected &&
           isEnableDate &&
-          yearView.mouseHoverPosition.value != null) {
+          yearView.mouseHoverPosition.value != null &&
+          yearView.mouseHoverPosition.value!.offset != null) {
         yearView._addMouseHovering(
             canvas,
             cellWidth,

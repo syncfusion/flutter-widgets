@@ -11,13 +11,20 @@ class _CurrentCellManager {
 
   int columnIndex = -1;
 
+  /// Current editing dataCell.
+  DataCellBase? dataCell;
+
+  /// Indicate the any [DataGridCell] is in editing state.
+  bool isEditing = false;
+
   bool _handlePointerOperation(
       _DataGridSettings dataGridSettings, RowColumnIndex rowColumnIndex) {
     if (dataGridSettings.allowSwiping) {
       dataGridSettings.container.resetSwipeOffset();
     }
-    final previousRowColumnIndex = RowColumnIndex(rowIndex, columnIndex);
-    if (rowColumnIndex != previousRowColumnIndex &&
+    final RowColumnIndex previousRowColumnIndex =
+        RowColumnIndex(rowIndex, columnIndex);
+    if (!rowColumnIndex.equals(previousRowColumnIndex) &&
         dataGridSettings.navigationMode != GridNavigationMode.row) {
       if (!_raiseCurrentCellActivating(rowColumnIndex)) {
         return false;
@@ -46,17 +53,25 @@ class _CurrentCellManager {
 
     _removeCurrentCell(dataGridSettings, needToUpdateColumn);
     _updateCurrentRowColumnIndex(rowIndex, columnIndex);
-    final dataRowBase = _getDataRow(dataGridSettings, rowIndex);
+    _updateCurrentCell(
+        dataGridSettings, rowIndex, columnIndex, needToUpdateColumn);
+  }
+
+  void _updateCurrentCell(
+      _DataGridSettings dataGridSettings, int rowIndex, int columnIndex,
+      [bool needToUpdateColumn = true]) {
+    final DataRowBase? dataRowBase = _getDataRow(dataGridSettings, rowIndex);
     if (dataRowBase != null && needToUpdateColumn) {
-      final dataCellBase = _getDataCell(dataRowBase, columnIndex);
+      final DataCellBase? dataCellBase = _getDataCell(dataRowBase, columnIndex);
       if (dataCellBase != null) {
+        dataCell = dataCellBase;
         _setCurrentCellDirty(dataRowBase, dataCellBase, true);
         dataCellBase._updateColumn();
       }
     }
 
     dataGridSettings.controller._currentCell =
-        _GridIndexResolver.resolveToRowColumnIndex(
+        _GridIndexResolver.resolveToRecordRowColumnIndex(
             dataGridSettings, RowColumnIndex(rowIndex, columnIndex));
   }
 
@@ -66,9 +81,9 @@ class _CurrentCellManager {
       return;
     }
 
-    final dataRowBase = _getDataRow(dataGridSettings, rowIndex);
+    final DataRowBase? dataRowBase = _getDataRow(dataGridSettings, rowIndex);
     if (dataRowBase != null && needToUpdateColumn) {
-      final dataCellBase = _getDataCell(dataRowBase, columnIndex);
+      final DataCellBase? dataCellBase = _getDataCell(dataRowBase, columnIndex);
       if (dataCellBase != null) {
         _setCurrentCellDirty(dataRowBase, dataCellBase, false);
         dataCellBase._updateColumn();
@@ -80,12 +95,13 @@ class _CurrentCellManager {
   }
 
   DataRowBase? _getDataRow(_DataGridSettings dataGridSettings, int rowIndex) {
-    final dataRows = dataGridSettings.rowGenerator.items;
+    final List<DataRowBase> dataRows = dataGridSettings.rowGenerator.items;
     if (dataRows.isEmpty) {
       return null;
     }
 
-    return dataRows.firstWhereOrNull((row) => row.rowIndex == rowIndex);
+    return dataRows
+        .firstWhereOrNull((DataRowBase row) => row.rowIndex == rowIndex);
   }
 
   DataCellBase? _getDataCell(DataRowBase dataRow, int columnIndex) {
@@ -93,8 +109,8 @@ class _CurrentCellManager {
       return null;
     }
 
-    return dataRow._visibleColumns
-        .firstWhereOrNull((dataCell) => dataCell.columnIndex == columnIndex);
+    return dataRow._visibleColumns.firstWhereOrNull(
+        (DataCellBase dataCell) => dataCell.columnIndex == columnIndex);
   }
 
   void _updateCurrentRowColumnIndex(int rowIndex, int columnIndex) {
@@ -116,10 +132,12 @@ class _CurrentCellManager {
       return true;
     }
 
-    final newRowColumnIndex = _GridIndexResolver.resolveToRowColumnIndex(
-        dataGridSettings, rowColumnIndex);
-    final oldRowColumnIndex = _GridIndexResolver.resolveToRowColumnIndex(
-        dataGridSettings, RowColumnIndex(rowIndex, columnIndex));
+    final RowColumnIndex newRowColumnIndex =
+        _GridIndexResolver.resolveToRecordRowColumnIndex(
+            dataGridSettings, rowColumnIndex);
+    final RowColumnIndex oldRowColumnIndex =
+        _GridIndexResolver.resolveToRecordRowColumnIndex(
+            dataGridSettings, RowColumnIndex(rowIndex, columnIndex));
     return dataGridSettings.onCurrentCellActivating!(
         newRowColumnIndex, oldRowColumnIndex);
   }
@@ -130,10 +148,12 @@ class _CurrentCellManager {
       return;
     }
 
-    final newRowColumnIndex = _GridIndexResolver.resolveToRowColumnIndex(
-        dataGridSettings, RowColumnIndex(rowIndex, columnIndex));
-    final oldRowColumnIndex = _GridIndexResolver.resolveToRowColumnIndex(
-        dataGridSettings, previousRowColumnIndex);
+    final RowColumnIndex newRowColumnIndex =
+        _GridIndexResolver.resolveToRecordRowColumnIndex(
+            dataGridSettings, RowColumnIndex(rowIndex, columnIndex));
+    final RowColumnIndex oldRowColumnIndex =
+        _GridIndexResolver.resolveToRecordRowColumnIndex(
+            dataGridSettings, previousRowColumnIndex);
     dataGridSettings.onCurrentCellActivated!(
         newRowColumnIndex, oldRowColumnIndex);
   }
@@ -141,7 +161,7 @@ class _CurrentCellManager {
   void _moveCurrentCellTo(
       _DataGridSettings dataGridSettings, RowColumnIndex nextRowColumnIndex,
       {bool isSelectionChanged = false, bool needToUpdateColumn = true}) {
-    final previousRowColumnIndex = RowColumnIndex(
+    final RowColumnIndex previousRowColumnIndex = RowColumnIndex(
         dataGridSettings.currentCell.rowIndex,
         dataGridSettings.currentCell.columnIndex);
 
@@ -159,7 +179,8 @@ class _CurrentCellManager {
     if (dataGridSettings.selectionMode != SelectionMode.none &&
         dataGridSettings.selectionMode != SelectionMode.multiple &&
         !isSelectionChanged) {
-      final rowSelectionController = dataGridSettings.rowSelectionManager;
+      final SelectionManagerBase rowSelectionController =
+          dataGridSettings.rowSelectionManager;
       if (rowSelectionController is RowSelectionManager) {
         rowSelectionController
           .._processSelection(
@@ -235,7 +256,7 @@ class _CurrentCellManager {
       }
 
       if (nextRowColumnIndex != null) {
-        final firstVisibleColumnIndex =
+        final int firstVisibleColumnIndex =
             _GridIndexResolver.resolveToStartColumnIndex(dataGridSettings);
         _updateCurrentRowColumnIndex(
             nextRowColumnIndex.rowIndex >= 0
@@ -253,5 +274,266 @@ class _CurrentCellManager {
             ?._isDirty = true;
       }
     }
+  }
+
+  // ------------------------------Editing-------------------------------------
+
+  void _onCellBeginEdit(
+      {DataCellBase? editingDataCell,
+      RowColumnIndex? editingRowColumnIndex,
+      bool isProgrammatic = false,
+      bool needToResolveIndex = true}) {
+    final _DataGridSettings dataGridSettings = _dataGridStateDetails();
+
+    final bool checkEditingIsEnabled = dataGridSettings.allowEditing &&
+        dataGridSettings.selectionMode != SelectionMode.none &&
+        dataGridSettings.navigationMode != GridNavigationMode.row;
+
+    bool checkDataCellIsValidForEditing(DataCellBase? editingDataCell) =>
+        editingDataCell != null &&
+        editingDataCell.gridColumn!.allowEditing &&
+        !editingDataCell._isEditing &&
+        editingDataCell._renderer != null &&
+        editingDataCell._renderer!._isEditable &&
+        editingDataCell._dataRow!.rowType == RowType.dataRow;
+
+    if (!checkEditingIsEnabled ||
+        (!isProgrammatic && !checkDataCellIsValidForEditing(editingDataCell))) {
+      return;
+    }
+
+    // Enable the current cell first to start the on programmatic case.
+    if (isProgrammatic) {
+      if (editingRowColumnIndex == null ||
+          editingRowColumnIndex.rowIndex.isNegative ||
+          editingRowColumnIndex.columnIndex.isNegative) {
+        return;
+      }
+
+      // When editing is initiate from the f2 key, we need not to to resolve
+      // the editing row column index because its already resolved based on the
+      // SfDataGrid.
+      editingRowColumnIndex = needToResolveIndex
+          ? _GridIndexResolver.resolveToRowColumnIndex(
+              dataGridSettings, editingRowColumnIndex)
+          : editingRowColumnIndex;
+
+      if (editingRowColumnIndex.rowIndex.isNegative ||
+          editingRowColumnIndex.columnIndex.isNegative ||
+          editingRowColumnIndex.columnIndex >
+              _SelectionHelper.getLastCellIndex(dataGridSettings) ||
+          editingRowColumnIndex.rowIndex >
+              _SelectionHelper.getLastRowIndex(dataGridSettings)) {
+        return;
+      }
+
+      // If the editing is initiate from f2 key, need not to process the
+      // handleTap.
+      if (needToResolveIndex) {
+        dataGridSettings.rowSelectionManager.handleTap(editingRowColumnIndex);
+      } else {
+        // Need to skip the editing when current cell is not in view and we
+        // process initiate the editing from f2 key.
+        final DataRowBase? dataRow =
+            _getDataRow(dataGridSettings, editingRowColumnIndex.rowIndex);
+        if (dataRow != null) {
+          dataCell = _getDataCell(dataRow, editingRowColumnIndex.columnIndex);
+        } else {
+          return;
+        }
+      }
+
+      editingDataCell = dataCell;
+    }
+
+    if (!checkDataCellIsValidForEditing(editingDataCell)) {
+      return;
+    }
+
+    editingRowColumnIndex = _GridIndexResolver.resolveToRecordRowColumnIndex(
+        dataGridSettings,
+        RowColumnIndex(editingDataCell!.rowIndex, editingDataCell.columnIndex));
+
+    if (editingRowColumnIndex.rowIndex.isNegative ||
+        editingRowColumnIndex.columnIndex.isNegative) {
+      return;
+    }
+
+    final bool beginEdit = _raiseCellBeginEdit(
+        dataGridSettings, editingRowColumnIndex, editingDataCell);
+
+    if (beginEdit) {
+      void onCellSubmit() {
+        _onCellSubmit(dataGridSettings);
+      }
+
+      final Widget? child = dataGridSettings.source.buildEditWidget(
+          editingDataCell._dataRow!._dataGridRow!,
+          editingRowColumnIndex,
+          editingDataCell.gridColumn!,
+          onCellSubmit);
+
+      /// If child is null, we will not initiate the editing
+      if (child != null) {
+        /// Wrapped the editing widget inside the FocusScope.
+        /// To bring the focus automatically to editing widget.
+        /// canRequestFocus need to set true to auto detect the focus
+        /// User need to set the autoFocus to true in their editable widget.
+        editingDataCell._editingWidget =
+            FocusScope(canRequestFocus: true, child: child);
+        editingDataCell._isEditing =
+            editingDataCell._dataRow!._isEditing = isEditing = true;
+
+        dataGridSettings.source._notifyDataGridPropertyChangeListeners(
+            rowColumnIndex: editingRowColumnIndex, propertyName: 'editing');
+      }
+    }
+  }
+
+  bool _raiseCellBeginEdit(_DataGridSettings dataGridSettings,
+      RowColumnIndex rowColumnIndex, DataCellBase dataCell) {
+    return dataGridSettings.source.onCellBeginEdit(
+        dataCell._dataRow!._dataGridRow!, rowColumnIndex, dataCell.gridColumn!);
+  }
+
+  /// Help to end-edit editable widget and refresh the [DataGridCell].
+  ///
+  /// * isCellCancelEdit - Used to avoid the onCellSubmit behaviour and perform
+  /// the cellCancelEdit behaviour,
+  /// * Default value is [false].
+  /// Case:
+  /// 1) Keyboard navigation - Escape key
+  ///
+  /// * cancelCanCellSubmit - Used to skip the call canCellSubmit.
+  /// * Default value is [false].
+  /// Case:
+  /// 1) In keyboard navigation we will call the canCellSubmit before the
+  /// processing the key. So, we need to skip the canCellSubmit second time. so
+  /// if we pass the cancelCanCellSubmit to false its will skip it.
+  ///
+  /// * canRefresh - Used to skip the call notifyListener
+  /// * Default value is [true].
+  /// Case:
+  /// 1) _onCellSubmit is call from handleDataGridSource we no need to call the
+  /// _notifyDataGridPropertyChangeListeners to refresh twice.By, set value false
+  /// it will skip the refreshing.
+  void _onCellSubmit(_DataGridSettings dataGridSettings,
+      {bool isCellCancelEdit = false,
+      bool cancelCanSubmitCell = false,
+      bool canRefresh = true}) {
+    if (!isEditing) {
+      return;
+    }
+
+    final DataRowBase? dataRow = _getEditingRow(dataGridSettings);
+
+    if (dataRow == null) {
+      return;
+    }
+
+    final DataCellBase? dataCell = _getEditingCell(dataRow);
+
+    if (dataCell == null || !dataCell._isEditing) {
+      return;
+    }
+
+    if (isEditing) {
+      final RowColumnIndex rowColumnIndex =
+          _GridIndexResolver.resolveToRecordRowColumnIndex(dataGridSettings,
+              RowColumnIndex(dataCell.rowIndex, dataCell.columnIndex));
+
+      if (rowColumnIndex.rowIndex.isNegative ||
+          rowColumnIndex.columnIndex.isNegative) {
+        return;
+      }
+
+      final DataGridRow dataGridRow = dataCell._dataRow!._dataGridRow!;
+
+      void resetEditing() {
+        dataCell._editingWidget = null;
+        dataCell._isDirty = true;
+        dataCell._isEditing = dataRow._isEditing = isEditing = false;
+      }
+
+      if (!isCellCancelEdit) {
+        bool canSubmitCell = false;
+
+        /// Via keyboard navigation we will check the canCellSubmit before
+        /// moving to other cell or another row. so we need to skip the
+        /// canCellSubmit method calling once again
+        if (!cancelCanSubmitCell) {
+          canSubmitCell = dataGridSettings.source
+              .canSubmitCell(dataGridRow, rowColumnIndex, dataCell.gridColumn!);
+        } else {
+          canSubmitCell = true;
+        }
+        if (canSubmitCell) {
+          resetEditing();
+          dataGridSettings.source
+              .onCellSubmit(dataGridRow, rowColumnIndex, dataCell.gridColumn!);
+        }
+      } else {
+        resetEditing();
+        dataGridSettings.source.onCellCancelEdit(
+            dataGridRow, rowColumnIndex, dataCell.gridColumn!);
+      }
+
+      if (canRefresh) {
+        /// Refresh the visible [DataRow]'s on editing the [DataCell] when
+        /// sorting enabled
+        if (dataGridSettings.allowSorting) {
+          dataGridSettings.source._updateDataSource();
+          dataGridSettings.container
+            .._updateDataGridRows(dataGridSettings)
+            .._isDirty = true;
+        }
+
+        dataGridSettings.source._notifyDataGridPropertyChangeListeners(
+            rowColumnIndex: rowColumnIndex, propertyName: 'editing');
+      }
+
+      if (dataGridSettings.dataGridFocusNode != null &&
+          !dataGridSettings.dataGridFocusNode!.hasPrimaryFocus) {
+        dataGridSettings.dataGridFocusNode!.requestFocus();
+      }
+    }
+  }
+
+  DataRowBase? _getEditingRow(_DataGridSettings dataGridSettings) {
+    return dataGridSettings.rowGenerator.items
+        .firstWhereOrNull((DataRowBase dataRow) => dataRow._isEditing);
+  }
+
+  DataCellBase? _getEditingCell(DataRowBase dataRow) {
+    return dataRow._visibleColumns
+        .firstWhereOrNull((DataCellBase dataCell) => dataCell._isEditing);
+  }
+
+  bool _canSubmitCell(_DataGridSettings dataGridSettings) {
+    final DataRowBase? dataRow = _getEditingRow(dataGridSettings);
+
+    if (dataRow == null) {
+      return false;
+    }
+
+    final DataCellBase? dataCell = _getEditingCell(dataRow);
+
+    if (dataCell == null || !dataCell._isEditing) {
+      return false;
+    }
+
+    final RowColumnIndex rowColumnIndex =
+        _GridIndexResolver.resolveToRecordRowColumnIndex(dataGridSettings,
+            RowColumnIndex(dataCell.rowIndex, dataCell.columnIndex));
+
+    if (rowColumnIndex.rowIndex.isNegative ||
+        rowColumnIndex.columnIndex.isNegative) {
+      return false;
+    }
+
+    final DataGridRow dataGridRow = dataCell._dataRow!._dataGridRow!;
+
+    return dataGridSettings.source
+        .canSubmitCell(dataGridRow, rowColumnIndex, dataCell.gridColumn!);
   }
 }

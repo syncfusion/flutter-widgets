@@ -97,13 +97,18 @@ Add shapes such as polylines, lines, polygons, circles, and arcs as a sublayer i
 
 Explore the full capability of our Flutter widgets on your device by installing our sample browser application from the following app stores. View sample codes in GitHub.
 
-<p align=“center”>
-<a href="https://play.google.com/store/apps/details?id=com.syncfusion.flutter.examples“><img src=”https://cdn.syncfusion.com/content/images/FTControl/google-play.png“/></a>
-<a href=”https://apps.apple.com/us/app/syncfusion-flutter-ui-widgets/id1475231341“><img src=”https://cdn.syncfusion.com/content/images/FTControl/apple-button.png“/></a>
+<p align="center">
+  <a href="https://play.google.com/store/apps/details?id=com.syncfusion.flutter.examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/google-play-store.png"/></a>
+  <a href="https://apps.apple.com/us/app/syncfusion-flutter-ui-widgets/id1475231341"><img src="https://cdn.syncfusion.com/content/images/FTControl/ios-store.png"/></a>
+  <a href="https://flutter.syncfusion.com"><img src="https://cdn.syncfusion.com/content/images/FTControl/web-sample-browser.png"/></a> 
 </p>
-<p align=“center”>
-<a href=”https://github.com/syncfusion/flutter-examples“><img src=”https://cdn.syncfusion.com/content/images/FTControl/GitHub.png“/></a>
-<a href=”https://flutter.syncfusion.com“><img src=”https://cdn.syncfusion.com/content/images/FTControl/web_sample_browser.png"/></a>
+<p align="center">
+  <a href="https://www.microsoft.com/en-us/p/syncfusion-flutter-gallery/9nhnbwcsf85d?activetab=pivot:overviewtab"><img src="https://cdn.syncfusion.com/content/images/FTControl/windows-store.png"/></a> 
+  <a href="https://install.appcenter.ms/orgs/syncfusion-demos/apps/syncfusion-flutter-gallery/distribution_groups/release"><img src="https://cdn.syncfusion.com/content/images/FTControl/macos-app-center.png"/></a>
+  <a href="https://snapcraft.io/syncfusion-flutter-gallery"><img src="https://cdn.syncfusion.com/content/images/FTControl/snap-store.png"/></a>
+</p>
+<p align="center">
+  <a href="https://github.com/syncfusion/flutter-examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/github-samples.png"/></a>
 </p>
 
 ## Useful links
@@ -148,7 +153,7 @@ The `layers` in `SfMaps` contains collection of `MapShapeLayer`. The actual geog
 The `shapeDataField` property of the `MapShapeSource` is used to refer the unique field name in the .json file to identify each shapes. In 'Mapping the data source' section of this document, this `shapeDataField` will be used to map with respective value returned in `primaryValueMapper` from the data source.
 
 ```dart
-MapShapeSource _mapSource;
+late MapShapeSource _mapSource;
 
 @override
 void initState() {
@@ -181,14 +186,13 @@ Widget build(BuildContext context) {
 By default, the value specified for the `shapeDataField` in the GeoJSON file will be used in the elements like data labels, tooltip, and legend for their respective shapes. However, it is possible to keep a data source and customize these elements based on the requirement. As mentioned above, `shapeDataField` will be used to map with respective value returned in `primaryValueMapper` from the data source.
 
 ```dart
-List<Model> data;
-MapShapeSource _mapSource;
+late List<Model> data;
+late MapShapeSource _mapSource;
 
 @override
 void initState() {
   data = <Model>[
-    Model('New South Wales',
-     '       New\nSouth Wales'),
+    Model('New South Wales', '       New\nSouth Wales'),
     Model('Queensland', 'Queensland'),
     Model('Northern Territory', 'Northern\nTerritory'),
     Model('Victoria', 'Victoria'),
@@ -212,13 +216,13 @@ void initState() {
 Widget build(BuildContext context) {
   return Scaffold(
     body: SfMaps(
-       layers: <MapShapeLayer>[
-         MapShapeLayer(
-           source: _mapSource,
-         ),
-       ],
-     ),
-   );
+      layers: <MapShapeLayer>[
+        MapShapeLayer(
+          source: _mapSource,
+        ),
+      ],
+    ),
+  );
 }
 
 class Model {
@@ -231,9 +235,7 @@ class Model {
 
 ### Add maps elements
 
-Add the basic maps elements such as title, data labels, legend, and tooltip as shown in the below code snippet.
-
-* **Title** - You can add a title to the maps to provide a quick information about the data plotted in the map using the `title` property in the `SfMaps`.
+Add the basic maps elements such as data labels, legend, and tooltip as shown in the below code snippet.
 
 * **Data label** - You can show data labels using the `showDataLabels` property in the `MapShapeLayer` and also, it is possible to show data labels only for the particular shapes/or show custom text using the `dataLabelMapper` property in the `MapShapeSource`.
 
@@ -242,8 +244,8 @@ Add the basic maps elements such as title, data labels, legend, and tooltip as s
 * **Tooltip** - You can enable tooltip only for the particular shapes/or show custom text using the `shapeTooltipBuilder` property in the `MapShapeLayer`.
 
 ```dart
-List<Model> data;
-MapShapeSource _mapSource;
+late List<Model> data;
+late MapShapeSource _mapSource;
 
 @override
 void initState() {
@@ -281,7 +283,6 @@ Widget build(BuildContext context) {
       height: 520,
       child: Center(
         child: SfMaps(
-          title: const MapTitle('Australia map'),
           layers: <MapShapeLayer>[
             MapShapeLayer(
               source: _mapSource,
@@ -291,8 +292,8 @@ Widget build(BuildContext context) {
                 return Padding(
                   padding: const EdgeInsets.all(7),
                   child: Text(data[index].stateCode,
-                    style: themeData.textTheme.caption
-                      .copyWith(color: themeData.colorScheme.surface)),
+                      style: themeData.textTheme.caption!
+                          .copyWith(color: themeData.colorScheme.surface)),
                 );
               },
               tooltipSettings: MapTooltipSettings(
@@ -303,9 +304,9 @@ Widget build(BuildContext context) {
               strokeWidth: 0.5,
               dataLabelSettings: MapDataLabelSettings(
                   textStyle: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: themeData.textTheme.caption.fontSize)),
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: themeData.textTheme.caption!.fontSize)),
             ),
           ],
         ),

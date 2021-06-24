@@ -24,7 +24,6 @@ class ChartSeries<T, D> {
       this.animationDuration,
       this.borderColor,
       this.borderWidth,
-      this.selectionSettings,
       this.selectionBehavior,
       this.legendItemText,
       this.legendIconType,
@@ -354,28 +353,6 @@ class ChartSeries<T, D> {
   ///}
   ///```
   final LegendIconType? legendIconType;
-
-  ///Customizes the data points or series on selection.
-  ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <BarSeries<SalesData, num>>[
-  ///                BarSeries<SalesData, num>(
-  ///                  selectionSettings: SelectionSettings(
-  ///                    selectedColor: Colors.red,
-  ///                    unselectedColor: Colors.grey,
-  ///                    selectedOpacity : 0.8,
-  ///                    unselectedOpacity: 0.4
-  ///                  ),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
-  // ignore: deprecated_member_use_from_same_package
-  final SelectionSettings? selectionSettings;
 
   ///Customizes the data points or series on selection.
   ///

@@ -189,7 +189,7 @@ class _PasswordUtility {
       final int? bitLen = getBlockSize(digest);
       parameters = generator.generateParam(bitLen);
     }
-    keyBytes = List<int>.generate(keyBytes.length, (i) => 0);
+    keyBytes = List<int>.generate(keyBytes.length, (int i) => 0);
     return fixDataEncryptionParity(mechanism, parameters);
   }
 
@@ -230,7 +230,7 @@ class _PasswordUtility {
           fixDataEncryptionParity(mechanism, parameters._parameters),
           parameters._bytes!);
     }
-    final _KeyParameter kParam = parameters as _KeyParameter;
+    final _KeyParameter kParam = parameters! as _KeyParameter;
     final List<int> keyBytes = kParam.keys;
     for (int i = 0; i < keyBytes.length; i++) {
       final int value = keyBytes[i];
@@ -258,9 +258,7 @@ class _PasswordUtility {
 
   String getDigest(String algorithm) {
     String? digest = getAlgorithmFromUpeerInvariant(algorithm);
-    if (digest == null) {
-      digest = algorithm;
-    }
+    digest ??= algorithm;
     if (digest.contains('sha_1') ||
         digest.contains('sha-1') ||
         digest.contains('sha1')) {
@@ -318,14 +316,15 @@ abstract class _PasswordGenerator {
   }
 
   static List<int> toBytes(String password, bool isWrong) {
-    if (password.length < 1) {
-      return isWrong ? List<int>.generate(2, (i) => 0) : <int>[];
+    if (password.isEmpty) {
+      return isWrong ? List<int>.generate(2, (int i) => 0) : <int>[];
     }
     final List<int> bytes =
-        List<int>.generate((password.length + 1) * 2, (i) => 0);
+        List<int>.generate((password.length + 1) * 2, (int i) => 0);
     final List<int> tempBytes = _encodeBigEndian(password);
     int i = 0;
-    tempBytes.forEach((tempByte) {
+    // ignore: avoid_function_literals_in_foreach_calls
+    tempBytes.forEach((int tempByte) {
       bytes[i] = tempBytes[i];
       i++;
     });
@@ -396,16 +395,16 @@ class _Pkcs12AlgorithmGenerator extends _PasswordGenerator {
   }
 
   List<int> generateDerivedKey(int? id, int length) {
-    final List<int> d = List<int>.generate(_length, (index) => 0);
-    final List<int> derivedKey = List<int>.generate(length, (index) => 0);
+    final List<int> d = List<int>.generate(_length, (int index) => 0);
+    final List<int> derivedKey = List<int>.generate(length, (int index) => 0);
     for (int index = 0; index != d.length; index++) {
       d[index] = id!.toUnsigned(8);
     }
     List<int> s;
-    if (_value != null && _value!.length != 0) {
+    if (_value != null && _value!.isNotEmpty) {
       s = List<int>.generate(
-          (_length * ((_value!.length + _length - 1) ~/ _length)),
-          (index) => 0);
+          _length * ((_value!.length + _length - 1) ~/ _length),
+          (int index) => 0);
       for (int index = 0; index != s.length; index++) {
         s[index] = _value![index % _value!.length];
       }
@@ -413,10 +412,10 @@ class _Pkcs12AlgorithmGenerator extends _PasswordGenerator {
       s = <int>[];
     }
     List<int> password;
-    if (_password != null && _password!.length != 0) {
+    if (_password != null && _password!.isNotEmpty) {
       password = List<int>.generate(
-          (_length * ((_password!.length + _length - 1) ~/ _length)),
-          (index) => 0);
+          _length * ((_password!.length + _length - 1) ~/ _length),
+          (int index) => 0);
       for (int index = 0; index != password.length; index++) {
         password[index] = _password![index % _password!.length];
       }
@@ -424,21 +423,21 @@ class _Pkcs12AlgorithmGenerator extends _PasswordGenerator {
       password = <int>[];
     }
     List<int> tempBytes =
-        List<int>.generate(s.length + password.length, (index) => 0);
+        List<int>.generate(s.length + password.length, (int index) => 0);
     List.copyRange(tempBytes, 0, s, 0, s.length);
     List.copyRange(tempBytes, s.length, password, 0, password.length);
-    final List<int> b = List<int>.generate(_length, (index) => 0);
+    final List<int> b = List<int>.generate(_length, (int index) => 0);
     final int c = (length + _size! - 1) ~/ _size!;
-    List<int>? a = List<int>.generate(_size!, (index) => 0);
+    List<int>? a = List<int>.generate(_size!, (int index) => 0);
     for (int i = 1; i <= c; i++) {
       final dynamic output = AccumulatorSink<Digest>();
       final dynamic input = sha1.startChunkedConversion(output);
       input.add(d);
       input.add(tempBytes);
       input.close();
-      a = output.events.single.bytes;
+      a = output.events.single.bytes as List<int>?;
       for (int j = 1; j != _count; j++) {
-        a = _digest.convert(a).bytes;
+        a = _digest.convert(a).bytes as List<int>?;
       }
       for (int j = 0; j != b.length; j++) {
         b[j] = a![j % a.length];
@@ -507,6 +506,7 @@ class _KeyEntry {
   _CipherParameter? _key;
   //Implementation
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object obj) {
     if (obj is _KeyEntry) {
       return _key == obj._key;
@@ -516,6 +516,7 @@ class _KeyEntry {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode => _key.hashCode;
 }
 
@@ -539,7 +540,8 @@ class _ParamUtility {
   //Implementation
   void addAlgorithm(String name, List<dynamic> objects) {
     _algorithms[name] = name;
-    objects.forEach((entry) {
+    // ignore: avoid_function_literals_in_foreach_calls
+    objects.forEach((dynamic entry) {
       if (entry is String) {
         _algorithms[entry] = name;
       } else {
@@ -749,7 +751,7 @@ class _DesedeAlgorithmParameter extends _DataEncryptionParameter {
       : super(fixKey(key, keyOffset, keyLength));
   //Implementation
   static List<int> fixKey(List<int> key, int keyOffset, int? keyLength) {
-    final List<int> tmp = List.generate(24, (i) => 0);
+    final List<int> tmp = List<int>.generate(24, (int i) => 0);
     switch (keyLength) {
       case 16:
         List.copyRange(tmp, 0, key, keyOffset, keyOffset + 16);

@@ -184,13 +184,13 @@ class PdfCheckFieldBase extends PdfField {
       [PdfFieldItem? fieldItem]) {
     if (widget != null && item != null) {
       if (item._dictionary.containsKey(_DictionaryProperties.v) &&
-          !(item is PdfRadioButtonListItem)) {
+          item is! PdfRadioButtonListItem) {
         widget._setName(
             _PdfName(_DictionaryProperties.v), _DictionaryProperties.yes);
         widget._setName(_PdfName(_DictionaryProperties.usageApplication),
             _DictionaryProperties.yes);
       } else if (!item._dictionary.containsKey(_DictionaryProperties.v) &&
-          !(item is PdfRadioButtonListItem)) {
+          item is! PdfRadioButtonListItem) {
         widget.remove(_DictionaryProperties.v);
         widget._setName(_PdfName(_DictionaryProperties.usageApplication),
             _DictionaryProperties.off);
@@ -220,7 +220,7 @@ class PdfCheckFieldBase extends PdfField {
         _IPdfPrimitive? holder =
             _PdfCrossTable._dereference(appearance[_DictionaryProperties.n]);
         _PdfDictionary? normal = holder as _PdfDictionary?;
-        if (this._fieldChanged == true && normal != null) {
+        if (_fieldChanged == true && normal != null) {
           normal = _PdfDictionary();
           final PdfTemplate checkedTemplate =
               PdfTemplate(rect.width, rect.height);
@@ -239,7 +239,7 @@ class PdfCheckFieldBase extends PdfField {
         holder =
             _PdfCrossTable._dereference(appearance[_DictionaryProperties.d]);
         _PdfDictionary? pressed = holder as _PdfDictionary?;
-        if (this._fieldChanged == true && pressed != null) {
+        if (_fieldChanged == true && pressed != null) {
           pressed = _PdfDictionary();
           final PdfTemplate checkedTemplate =
               PdfTemplate(rect.width, rect.height);
@@ -257,10 +257,9 @@ class PdfCheckFieldBase extends PdfField {
         }
       }
       widget.setProperty(_DictionaryProperties.ap, appearance);
-    } else if ((this).form!._setAppearanceDictionary) {
-      (this).form!._needAppearances = true;
-    } else if ((this)._form!._setAppearanceDictionary &&
-        !_form!._needAppearances!) {
+    } else if (form!._setAppearanceDictionary) {
+      form!._needAppearances = true;
+    } else if (_form!._setAppearanceDictionary && !_form!._needAppearances!) {
       final _PdfDictionary dic = _PdfDictionary();
       final PdfTemplate template = PdfTemplate(bounds.width, bounds.height);
       _drawAppearance(template);
@@ -275,7 +274,7 @@ class PdfCheckFieldBase extends PdfField {
     PdfCheckBoxStyle style = PdfCheckBoxStyle.check;
     if (widget.containsKey(_DictionaryProperties.mk)) {
       final _PdfDictionary bs = _crossTable!
-          ._getObject(widget[_DictionaryProperties.mk]) as _PdfDictionary;
+          ._getObject(widget[_DictionaryProperties.mk])! as _PdfDictionary;
       style = _createStyle(bs);
     }
     return style;
@@ -320,34 +319,34 @@ class PdfCheckFieldBase extends PdfField {
     if (widget.containsKey(_DictionaryProperties.mk)) {
       switch (checkStyle) {
         case PdfCheckBoxStyle.check:
-          style = "4";
+          style = '4';
           break;
         case PdfCheckBoxStyle.circle:
-          style = "l";
+          style = 'l';
           break;
         case PdfCheckBoxStyle.cross:
-          style = "8";
+          style = '8';
           break;
         case PdfCheckBoxStyle.diamond:
-          style = "u";
+          style = 'u';
           break;
         case PdfCheckBoxStyle.square:
-          style = "n";
+          style = 'n';
           break;
         case PdfCheckBoxStyle.star:
-          style = "H";
+          style = 'H';
           break;
       }
       if (widget[_DictionaryProperties.mk] is _PdfReferenceHolder) {
         final _PdfDictionary widgetDict = _crossTable!
-            ._getObject(widget[_DictionaryProperties.mk]) as _PdfDictionary;
+            ._getObject(widget[_DictionaryProperties.mk])! as _PdfDictionary;
         if (widgetDict.containsKey(_DictionaryProperties.ca)) {
           widgetDict[_DictionaryProperties.ca] = _PdfString(style);
         } else {
           widgetDict.setProperty(_DictionaryProperties.ca, _PdfString(style));
         }
       } else {
-        (widget[_DictionaryProperties.mk]
+        (widget[_DictionaryProperties.mk]!
             as _PdfDictionary)[_DictionaryProperties.ca] = _PdfString(style);
       }
       _widget!._widgetAppearance!.normalCaption = style;

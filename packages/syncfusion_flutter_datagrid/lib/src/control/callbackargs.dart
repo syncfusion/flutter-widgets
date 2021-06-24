@@ -59,6 +59,8 @@ class RowHeightDetails {
   /// and [rowHeight].
   RowHeightDetails(this.rowIndex, this.rowHeight);
 
+  late ColumnSizer _columnSizer;
+
   /// An index of a row.
   int rowIndex;
 
@@ -66,6 +68,29 @@ class RowHeightDetails {
   ///If you want to change this height, you can return a different
   /// height from the [SfDataGrid.onQueryRowHeight] callback.
   double rowHeight;
+
+  /// Gets the row height to fit the row based on the [DataGridCell.value]. For
+  /// header cells, it considers the [GridColumn.columnName].
+  ///
+  /// You can set the [canIncludeHiddenColumns] argument as true to consider the
+  /// hidden columns also in auto size calculation. If you want to exclude any
+  /// column, you can use `excludedColumn` argument.
+  ///
+  /// You can override [ColumnSizer.computeHeaderCellHeight] or
+  /// [ColumnSizer.computeCellHeight] methods to perform the custom calculation
+  /// for height. If you want to calculate the height based on different
+  /// [TextStyle], you can override these methods and call the super method with
+  ///  the required [TextStyle]. Also, set the custom [ColumnSizer] to
+  /// [SfDataGrid.columnSizer] property.
+  ///
+  /// The auto size is calculated based on default [TextStyle] of the datagrid.
+  double getIntrinsicRowHeight(int rowIndex,
+      {bool canIncludeHiddenColumns = false,
+      List<String> excludedColumns = const <String>[]}) {
+    return _columnSizer._getAutoFitRowHeight(rowIndex,
+        canIncludeHiddenColumns: canIncludeHiddenColumns,
+        excludedColumns: excludedColumns);
+  }
 }
 
 /// Details for callbacks that use [DataGridCellDoubleTapDetails].
@@ -167,4 +192,40 @@ class DataGridSwipeEndDetails {
 
   /// The direction in which a row is swiped.
   final DataGridRowSwipeDirection swipeDirection;
+}
+
+/// Holds the arguments for the [SfDataGrid.onColumnResizeStart] callback.
+class ColumnResizeStartDetails {
+  /// Creates the [ColumnResizeStartDetails] with the specified [column] and [width].
+  ColumnResizeStartDetails({required this.column, required this.width});
+
+  ///  A column that is going to be resized.
+  final GridColumn column;
+
+  /// Current width of a column.
+  final double width;
+}
+
+/// Holds the arguments for the [SfDataGrid.onColumnResizeUpdate] callback.
+class ColumnResizeUpdateDetails {
+  /// Creates the [ColumnResizeUpdateDetails] with the specified [column] and [width].
+  ColumnResizeUpdateDetails({required this.column, required this.width});
+
+  ///  A column that is being resized.
+  final GridColumn column;
+
+  /// Currently resized width of a column.
+  final double width;
+}
+
+/// Holds the arguments for the [SfDataGrid.onColumnResizeEnd] callback.
+class ColumnResizeEndDetails {
+  /// Creates the [ColumnResizeEndDetails] with the specified [column] and [width].
+  ColumnResizeEndDetails({required this.column, required this.width});
+
+  ///  A column that is resized.
+  final GridColumn column;
+
+  /// Currently resized width of a column.
+  final double width;
 }

@@ -10,7 +10,7 @@ class ChartSerialization {
   /// Workbook to serialize.
   late Workbook _workbook;
 
-  final Map _linePattern = {
+  final Map<dynamic, dynamic> _linePattern = <dynamic, dynamic>{
     ExcelChartLinePattern.roundDot: 'sysDot',
     ExcelChartLinePattern.squareDot: 'sysDash',
     ExcelChartLinePattern.dash: 'dash',
@@ -22,9 +22,9 @@ class ChartSerialization {
 
   /// serializes charts from the worksheet.
   void _saveCharts(Worksheet sheet) {
-    for (final Chart chart in (sheet.charts as ChartCollection).innerList) {
+    for (final Chart chart in (sheet.charts! as ChartCollection).innerList) {
       sheet.workbook.chartCount++;
-      final builder = XmlBuilder();
+      final XmlBuilder builder = XmlBuilder();
       builder.processing('xml', 'version="1.0"');
       builder.element('c:chartSpace', nest: () {
         builder.attribute(
@@ -40,7 +40,9 @@ class ChartSerialization {
           });
         }
         builder.element('c:chart', nest: () {
-          if (chart.hasTitle) _serializeTitle(builder, chart.chartTitleArea);
+          if (chart.hasTitle) {
+            _serializeTitle(builder, chart.chartTitleArea);
+          }
           _serializePlotArea(builder, chart);
           if (chart.series.count > 0 && chart.hasLegend) {
             _serializeLegend(builder, chart.legend!);
@@ -56,7 +58,7 @@ class ChartSerialization {
             builder, chart.linePattern, chart.linePatternColor, false);
         _serializePrinterSettings(builder, chart);
       });
-      final stringXml = builder.buildDocument().copy().toString();
+      final String stringXml = builder.buildDocument().copy().toString();
       final List<int> bytes = utf8.encode(stringXml);
       _addToArchive(bytes,
           'xl/charts/chart' + sheet.workbook.chartCount.toString() + '.xml');
@@ -92,28 +94,28 @@ class ChartSerialization {
 
   /// serializes chart's drawing.
   void _serializeChartDrawing(XmlBuilder builder, Worksheet sheet) {
-    for (final Chart chart in (sheet.charts as ChartCollection).innerList) {
+    for (final Chart chart in (sheet.charts! as ChartCollection).innerList) {
       builder.element('xdr:twoCellAnchor', nest: () {
         builder.attribute('editAs', 'twoCell');
         builder.element('xdr:from', nest: () {
           builder.element('xdr:col',
-              nest: (chart.leftColumn > 0 ? chart.leftColumn - 1 : 0));
+              nest: chart.leftColumn > 0 ? chart.leftColumn - 1 : 0);
           builder.element('xdr:colOff', nest: 0);
           builder.element('xdr:row',
-              nest: (chart.topRow > 0 ? chart.topRow - 1 : 0));
+              nest: chart.topRow > 0 ? chart.topRow - 1 : 0);
           builder.element('xdr:rowOff', nest: 0);
         });
 
         builder.element('xdr:to', nest: () {
           builder.element('xdr:col',
-              nest: (chart.rightColumn > 0
+              nest: chart.rightColumn > 0
                   ? chart.rightColumn - 1
-                  : chart.leftColumn + 7));
+                  : chart.leftColumn + 7);
           builder.element('xdr:colOff', nest: 0);
           builder.element('xdr:row',
-              nest: (chart.bottomRow > 0
+              nest: chart.bottomRow > 0
                   ? chart.bottomRow - 1
-                  : chart.topRow + 15));
+                  : chart.topRow + 15);
           builder.element('xdr:rowOff', nest: 0);
         });
 

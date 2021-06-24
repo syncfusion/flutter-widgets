@@ -4,4 +4,4 @@ analyzer:
   errors:
     include_file_not_found: ignore
     invalid_dependency: ignore
-
+    avoid_as: ignore

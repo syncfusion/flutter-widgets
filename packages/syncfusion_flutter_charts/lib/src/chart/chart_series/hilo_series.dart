@@ -5,44 +5,47 @@ part of charts;
 ///HiLo series illustrates the price movements in stock using the high and low values.
 ///
 ///To render a HiLo chart, create an instance of HiloSeries, and add it to the series collection property of [SfCartesianChart].
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=uSsKhlRzC2Q}
 class HiloSeries<T, D> extends _FinancialSeriesBase<T, D> {
   /// Creating an argument constructor of HiloSeries class.
-  HiloSeries(
-      {ValueKey<String>? key,
-      ChartSeriesRendererFactory<T, D>? onCreateRenderer,
-      required List<T> dataSource,
-      required ChartValueMapper<T, D> xValueMapper,
-      required ChartValueMapper<T, num> lowValueMapper,
-      required ChartValueMapper<T, num> highValueMapper,
-      ChartValueMapper<T, dynamic>? sortFieldValueMapper,
-      ChartValueMapper<T, Color>? pointColorMapper,
-      ChartValueMapper<T, String>? dataLabelMapper,
-      SortingOrder? sortingOrder,
-      String? xAxisName,
-      String? yAxisName,
-      String? name,
-      Color? color,
-      MarkerSettings? markerSettings,
-      EmptyPointSettings? emptyPointSettings,
-      DataLabelSettings? dataLabelSettings,
-      bool? isVisible,
-      bool? enableTooltip,
-      double? animationDuration,
-      double? borderWidth,
-      // ignore: deprecated_member_use_from_same_package
-      SelectionSettings? selectionSettings,
-      SelectionBehavior? selectionBehavior,
-      bool? isVisibleInLegend,
-      LegendIconType? legendIconType,
-      String? legendItemText,
-      List<double>? dashArray,
-      double? opacity,
-      double? spacing,
-      List<int>? initialSelectedDataIndexes,
-      bool? showIndicationForSameValues,
-      List<Trendline>? trendlines,
-      SeriesRendererCreatedCallback? onRendererCreated})
-      : super(
+  HiloSeries({
+    ValueKey<String>? key,
+    ChartSeriesRendererFactory<T, D>? onCreateRenderer,
+    required List<T> dataSource,
+    required ChartValueMapper<T, D> xValueMapper,
+    required ChartValueMapper<T, num> lowValueMapper,
+    required ChartValueMapper<T, num> highValueMapper,
+    ChartValueMapper<T, dynamic>? sortFieldValueMapper,
+    ChartValueMapper<T, Color>? pointColorMapper,
+    ChartValueMapper<T, String>? dataLabelMapper,
+    SortingOrder? sortingOrder,
+    String? xAxisName,
+    String? yAxisName,
+    String? name,
+    Color? color,
+    MarkerSettings? markerSettings,
+    EmptyPointSettings? emptyPointSettings,
+    DataLabelSettings? dataLabelSettings,
+    bool? isVisible,
+    bool? enableTooltip,
+    double? animationDuration,
+    double? borderWidth,
+    SelectionBehavior? selectionBehavior,
+    bool? isVisibleInLegend,
+    LegendIconType? legendIconType,
+    String? legendItemText,
+    List<double>? dashArray,
+    double? opacity,
+    double? spacing,
+    List<int>? initialSelectedDataIndexes,
+    bool? showIndicationForSameValues,
+    List<Trendline>? trendlines,
+    SeriesRendererCreatedCallback? onRendererCreated,
+    ChartPointInteractionCallback? onPointTap,
+    ChartPointInteractionCallback? onPointDoubleTap,
+    ChartPointInteractionCallback? onPointLongPress,
+  }) : super(
             key: key,
             onCreateRenderer: onCreateRenderer,
             name: name,
@@ -65,7 +68,6 @@ class HiloSeries<T, D> extends _FinancialSeriesBase<T, D> {
             enableTooltip: enableTooltip,
             animationDuration: animationDuration,
             borderWidth: borderWidth ?? 2,
-            selectionSettings: selectionSettings,
             selectionBehavior: selectionBehavior,
             legendItemText: legendItemText,
             isVisibleInLegend: isVisibleInLegend,
@@ -73,6 +75,9 @@ class HiloSeries<T, D> extends _FinancialSeriesBase<T, D> {
             sortingOrder: sortingOrder,
             opacity: opacity,
             onRendererCreated: onRendererCreated,
+            onPointTap: onPointTap,
+            onPointDoubleTap: onPointDoubleTap,
+            onPointLongPress: onPointLongPress,
             showIndicationForSameValues: showIndicationForSameValues ?? false,
             initialSelectedDataIndexes: initialSelectedDataIndexes,
             trendlines: trendlines);
@@ -89,6 +94,95 @@ class HiloSeries<T, D> extends _FinancialSeriesBase<T, D> {
     }
     return HiloSeriesRenderer();
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is HiloSeries &&
+        other.key == key &&
+        other.onCreateRenderer == onCreateRenderer &&
+        other.dataSource == dataSource &&
+        other.xValueMapper == xValueMapper &&
+        other.lowValueMapper == lowValueMapper &&
+        other.highValueMapper == highValueMapper &&
+        other.sortFieldValueMapper == sortFieldValueMapper &&
+        other.pointColorMapper == pointColorMapper &&
+        other.dataLabelMapper == dataLabelMapper &&
+        other.sortingOrder == sortingOrder &&
+        other.xAxisName == xAxisName &&
+        other.yAxisName == yAxisName &&
+        other.name == name &&
+        other.bearColor == bearColor &&
+        other.bullColor == bullColor &&
+        other.emptyPointSettings == emptyPointSettings &&
+        other.dataLabelSettings == dataLabelSettings &&
+        other.trendlines == trendlines &&
+        other.isVisible == isVisible &&
+        other.enableTooltip == enableTooltip &&
+        other.dashArray == dashArray &&
+        other.animationDuration == animationDuration &&
+        other.borderWidth == borderWidth &&
+        other.selectionBehavior == selectionBehavior &&
+        other.isVisibleInLegend == isVisibleInLegend &&
+        other.legendIconType == legendIconType &&
+        other.legendItemText == legendItemText &&
+        other.opacity == opacity &&
+        other.spacing == spacing &&
+        other.showIndicationForSameValues == showIndicationForSameValues &&
+        other.initialSelectedDataIndexes == other.initialSelectedDataIndexes &&
+        other.onRendererCreated == onRendererCreated &&
+        other.onPointTap == onPointTap &&
+        other.onPointDoubleTap == onPointDoubleTap &&
+        other.onPointLongPress == onPointLongPress;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      key,
+      onCreateRenderer,
+      dataSource,
+      xValueMapper,
+      lowValueMapper,
+      highValueMapper,
+      sortFieldValueMapper,
+      pointColorMapper,
+      dataLabelMapper,
+      sortingOrder,
+      xAxisName,
+      yAxisName,
+      name,
+      bearColor,
+      bullColor,
+      emptyPointSettings,
+      dataLabelSettings,
+      isVisible,
+      enableTooltip,
+      animationDuration,
+      borderWidth,
+      selectionBehavior,
+      isVisibleInLegend,
+      legendIconType,
+      legendItemText,
+      dashArray,
+      opacity,
+      spacing,
+      onRendererCreated,
+      initialSelectedDataIndexes,
+      showIndicationForSameValues,
+      trendlines,
+      onPointTap,
+      onPointDoubleTap,
+      onPointLongPress
+    ];
+    return hashList(values);
+  }
 }
 
 /// Creates series renderer for Hilo series
@@ -97,9 +191,11 @@ class HiloSeriesRenderer extends _FinancialSerieBaseRenderer {
   HiloSeriesRenderer();
 
   // Store the rect position //
+  @override
   late num _rectPosition;
 
   // Store the rect count //
+  @override
   late num _rectCount;
 
   /// Hilo segment is created here
@@ -117,13 +213,13 @@ class HiloSeriesRenderer extends _FinancialSerieBaseRenderer {
           Offset(currentPoint.markerPoint!.x, currentPoint.markerPoint!.y));
       segment.points.add(
           Offset(currentPoint.markerPoint2!.x, currentPoint.markerPoint2!.y));
-      segment._series = _series as XyDataSeries;
+      segment._series = _series as XyDataSeries<dynamic, dynamic>;
       segment._seriesRenderer = this;
       segment.animationFactor = animateFactor;
       segment._pointColorMapper = currentPoint.pointColorMapper;
       segment._currentPoint = currentPoint;
-      if (_chartState!._widgetNeedUpdate &&
-          !_chartState!._isLegendToggled &&
+      if (_renderingDetails!.widgetNeedUpdate &&
+          !_renderingDetails!.isLegendToggled &&
           // ignore: unnecessary_null_comparison
           oldSeriesRenderers != null &&
           oldSeriesRenderers.isNotEmpty &&
@@ -151,7 +247,11 @@ class HiloSeriesRenderer extends _FinancialSerieBaseRenderer {
       selectionBehaviorRenderer?._selectionRenderer?._checkWithSelectionState(
           _segments[segment.currentSegmentIndex!], _chart);
     }
-    segment.onPaint(canvas);
+    if (!((segment._currentPoint?.low == segment._currentPoint?.high) &&
+        //ignore: always_specify_types
+        !(_series as HiloSeries).showIndicationForSameValues)) {
+      segment.onPaint(canvas);
+    }
   }
 
   @override

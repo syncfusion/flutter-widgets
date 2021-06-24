@@ -6,7 +6,7 @@ class StylesCollection {
   StylesCollection(Workbook workbook) {
     _book = workbook;
     _dictStyles = <String, CellStyle>{};
-    _styles = [];
+    _styles = <Style>[];
   }
 
   /// Parent workbook
@@ -34,7 +34,7 @@ class StylesCollection {
   }
 
   /// Default styles names.
-  final List<String> _defaultStyleNames = [
+  final List<String> _defaultStyleNames = <String>[
     'normal',
     'rowLevel_',
     'colLevel_',
@@ -92,7 +92,7 @@ class StylesCollection {
   ];
 
   /// Indexer of the class
-  Style? operator [](index) {
+  Style? operator [](dynamic index) {
     if (index is String) {
       if (!_dictStyles.containsKey(index)) {
         throw Exception('Style with specified name does not exist. Name: ' +
@@ -450,11 +450,11 @@ class StylesCollection {
         break;
 
       case 'currency':
-        style.numberFormat = '_(\$* #,##0.00_)';
+        style.numberFormat = r'_($* #,##0.00_)';
         break;
 
       case 'currency0':
-        style.numberFormat = '_(\$* #,##0_)';
+        style.numberFormat = r'_($* #,##0_)';
         break;
 
       case 'percent':

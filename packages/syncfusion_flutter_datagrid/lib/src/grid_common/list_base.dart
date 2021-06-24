@@ -5,12 +5,17 @@ part of datagrid;
 /// Creates a list of the given length.
 /// The created list is fixed-length if [length] is provided.
 class _ListBase implements _CollectionBase, _EnumerableBase {
+  _ListBase() {
+    _isFixedSize = false;
+    _isReadOnly = false;
+  }
+
   /// Gets the fixed size value
   bool get isFixedSize => _isFixedSize;
-  bool _isFixedSize = false;
+  late bool _isFixedSize;
 
   bool get isReadOnly => _isReadOnly;
-  bool _isReadOnly = false;
+  late bool _isReadOnly;
 
   /// Add an new element to the list collection
   ///
@@ -62,11 +67,12 @@ class _ListBase implements _CollectionBase, _EnumerableBase {
 class _CollectionBase extends _EnumerableBase {
   _CollectionBase() {
     _isSynchronized = false;
+    _count = 0;
   }
 
   /// Gets the count of the collection.
   int get count => _count;
-  int _count = 0;
+  late int _count;
 
   /// Gets the synchronized.
   bool get isSynchronized => _isSynchronized;

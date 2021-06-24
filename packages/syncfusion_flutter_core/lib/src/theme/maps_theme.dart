@@ -125,6 +125,7 @@ class SfMapsTheme extends InheritedTheme {
 ///   );
 /// }
 /// ```
+@immutable
 class SfMapsThemeData with Diagnosticable {
   /// Returns a new instance of [SfMapsThemeData.raw] for the given values.
   ///
@@ -188,7 +189,7 @@ class SfMapsThemeData with Diagnosticable {
         ? const Color.fromRGBO(117, 117, 117, 1)
         : const Color.fromRGBO(245, 245, 245, 1);
     tooltipStrokeWidth ??= 1.0;
-    tooltipBorderRadius ??= BorderRadius.all(Radius.circular(4.0));
+    tooltipBorderRadius ??= const BorderRadius.all(Radius.circular(4.0));
     toggledItemColor ??= isLight
         ? const Color.fromRGBO(245, 245, 245, 1)
         : const Color.fromRGBO(66, 66, 66, 1);

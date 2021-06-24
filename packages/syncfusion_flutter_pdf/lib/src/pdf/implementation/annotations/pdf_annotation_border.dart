@@ -44,6 +44,7 @@ class PdfAnnotationBorder implements _IPdfWrapper {
   double _borderWidth = 1;
   int? _dashArray;
   late PdfBorderStyle _borderStyle;
+  // ignore: prefer_final_fields
   bool _isLineBorder = false;
   bool _isWidgetBorder = false;
   final _PdfDictionary _dictionary = _PdfDictionary();
@@ -108,7 +109,7 @@ class PdfAnnotationBorder implements _IPdfWrapper {
   }
 
   void _setNumber(int index, double value) {
-    final _PdfNumber number = _array[index] as _PdfNumber;
+    final _PdfNumber number = _array[index]! as _PdfNumber;
     number.value = value;
   }
 

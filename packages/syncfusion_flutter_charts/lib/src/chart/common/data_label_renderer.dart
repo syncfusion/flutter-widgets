@@ -19,23 +19,25 @@ void _calculateDataLabelPosition(
   final DataLabelSettings dataLabel = series.dataLabelSettings;
   Size? textSize, textSize2, textSize3, textSize4, textSize5;
   double? value1, value2;
-  final int boxPlotPadding = 8;
+  const int boxPlotPadding = 8;
   final Rect rect = _calculatePlotOffset(
       _chartState._chartAxis._axisClipRect,
       Offset(seriesRenderer._xAxisRenderer!._axis.plotOffset,
           seriesRenderer._yAxisRenderer!._axis.plotOffset));
   if (seriesRenderer._seriesType.contains('hilo') ||
       seriesRenderer._seriesType.contains('candle')) {
-    value1 =
-        ((point.open != null && point.close != null && point.close < point.open)
-                ? point.close
-                : point.open)
-            ?.toDouble();
-    value2 =
-        ((point.open != null && point.close != null && point.close > point.open)
-                ? point.close
-                : point.open)
-            ?.toDouble();
+    value1 = ((point.open != null &&
+                point.close != null &&
+                (point.close < point.open) == true)
+            ? point.close
+            : point.open)
+        ?.toDouble();
+    value2 = ((point.open != null &&
+                point.close != null &&
+                (point.close > point.open) == true)
+            ? point.close
+            : point.open)
+        ?.toDouble();
   }
   final bool transposed = _chartState._requireInvertedAxis;
   final bool inversed = seriesRenderer._yAxisRenderer!._axis.isInversed;
@@ -251,7 +253,7 @@ void _calculateDataLabelPosition(
         if (!isBoxSeries) {
           point.label3 = point.dataLabelMapper ??
               _getLabelText(
-                  point.open > point.close
+                  (point.open > point.close) == true
                       ? !inversed
                           ? point.close
                           : point.open
@@ -261,7 +263,7 @@ void _calculateDataLabelPosition(
                   seriesRenderer);
           point.label4 = point.dataLabelMapper ??
               _getLabelText(
-                  point.open > point.close
+                  (point.open > point.close) == true
                       ? !inversed
                           ? point.open
                           : point.close
@@ -297,33 +299,22 @@ void _calculateDataLabelPosition(
             ? measureText(point.label3!, font)
             : templateSize;
         if (seriesRenderer._seriesType.contains('hilo')) {
-          if (point.open > point.close) {
-            chartLocation3 = _ChartLocation(
-                point.centerClosePoint!.x + textSize3!.width,
-                point.closePoint!.y);
-          } else {
-            chartLocation3 = _ChartLocation(
-                point.centerOpenPoint!.x - textSize3!.width,
-                point.openPoint!.y);
-          }
+          chartLocation3 = (point.open > point.close) == true
+              ? _ChartLocation(point.centerClosePoint!.x + textSize3!.width,
+                  point.closePoint!.y)
+              : _ChartLocation(point.centerOpenPoint!.x - textSize3!.width,
+                  point.openPoint!.y);
         } else if (seriesRenderer._seriesType == 'candle' &&
             seriesRenderer._chartState!._requireInvertedAxis) {
-          if (point.open > point.close) {
-            chartLocation3 =
-                _ChartLocation(point.closePoint!.x, markerPoint2.y + 1);
-          } else {
-            chartLocation3 =
-                _ChartLocation(point.openPoint!.x, markerPoint2.y + 1);
-          }
+          chartLocation3 = (point.open > point.close) == true
+              ? _ChartLocation(point.closePoint!.x, markerPoint2.y + 1)
+              : _ChartLocation(point.openPoint!.x, markerPoint2.y + 1);
         } else if (isBoxSeries) {
-          if (seriesRenderer._chartState!._requireInvertedAxis) {
-            chartLocation3 = _ChartLocation(
-                point.lowerQuartilePoint!.x + boxPlotPadding,
-                markerPoint2.y + 1);
-          } else {
-            chartLocation3 = _ChartLocation(
-                point.region!.topCenter.dx, markerPoint2.y - boxPlotPadding);
-          }
+          chartLocation3 = (seriesRenderer._chartState!._requireInvertedAxis)
+              ? _ChartLocation(point.lowerQuartilePoint!.x + boxPlotPadding,
+                  markerPoint2.y + 1)
+              : _ChartLocation(
+                  point.region!.topCenter.dx, markerPoint2.y - boxPlotPadding);
         } else {
           chartLocation3 =
               _ChartLocation(point.region!.topCenter.dx, markerPoint2.y);
@@ -332,46 +323,33 @@ void _calculateDataLabelPosition(
             ? measureText(point.label4!, font)
             : templateSize;
         if (seriesRenderer._seriesType.contains('hilo')) {
-          if (point.open > point.close) {
-            chartLocation4 = _ChartLocation(
-                point.centerOpenPoint!.x - textSize4!.width,
-                point.openPoint!.y);
-          } else {
-            chartLocation4 = _ChartLocation(
-                point.centerClosePoint!.x + textSize4!.width,
-                point.closePoint!.y);
-          }
+          chartLocation4 = (point.open > point.close) == true
+              ? _ChartLocation(point.centerOpenPoint!.x - textSize4!.width,
+                  point.openPoint!.y)
+              : _ChartLocation(point.centerClosePoint!.x + textSize4!.width,
+                  point.closePoint!.y);
         } else if (seriesRenderer._seriesType == 'candle' &&
             seriesRenderer._chartState!._requireInvertedAxis) {
-          if (point.open > point.close) {
-            chartLocation4 =
-                _ChartLocation(point.openPoint!.x, markerPoint3.y + 1);
-          } else {
-            chartLocation4 =
-                _ChartLocation(point.closePoint!.x, markerPoint3.y + 1);
-          }
+          chartLocation4 = (point.open > point.close) == true
+              ? _ChartLocation(point.openPoint!.x, markerPoint3.y + 1)
+              : _ChartLocation(point.closePoint!.x, markerPoint3.y + 1);
         } else if (isBoxSeries) {
-          if (seriesRenderer._chartState!._requireInvertedAxis) {
-            chartLocation4 = _ChartLocation(
-                point.upperQuartilePoint!.x - boxPlotPadding,
-                markerPoint3.y + 1);
-          } else {
-            chartLocation4 = _ChartLocation(
-                point.region!.bottomCenter.dx, markerPoint3.y + boxPlotPadding);
-          }
+          chartLocation4 = (seriesRenderer._chartState!._requireInvertedAxis)
+              ? _ChartLocation(point.upperQuartilePoint!.x - boxPlotPadding,
+                  markerPoint3.y + 1)
+              : _ChartLocation(point.region!.bottomCenter.dx,
+                  markerPoint3.y + boxPlotPadding);
         } else {
           chartLocation4 =
               _ChartLocation(point.region!.bottomCenter.dx, markerPoint3.y + 1);
         }
         if (isBoxSeries) {
           textSize5 = measureText(point.label5!, font);
-          if (!seriesRenderer._chartState!._requireInvertedAxis) {
-            chartLocation5 = _ChartLocation(
-                point.centerMedianPoint!.x, point.centerMedianPoint!.y);
-          } else {
-            chartLocation5 = _ChartLocation(
-                point.centerMedianPoint!.x, point.centerMedianPoint!.y);
-          }
+          chartLocation5 = (!seriesRenderer._chartState!._requireInvertedAxis)
+              ? _ChartLocation(
+                  point.centerMedianPoint!.x, point.centerMedianPoint!.y)
+              : _ChartLocation(
+                  point.centerMedianPoint!.x, point.centerMedianPoint!.y);
         }
         final List<_ChartLocation?> alignedLabelLocations2 =
             _getAlignedLabelLocations(_chartState, seriesRenderer, point,
@@ -424,7 +402,7 @@ List<_ChartLocation?> _getAlignedLabelLocations(
     Size textSize) {
   final SfCartesianChart chart = _chartState._chart;
   final XyDataSeries<dynamic, dynamic> series =
-      seriesRenderer._series as XyDataSeries;
+      seriesRenderer._series as XyDataSeries<dynamic, dynamic>;
   final bool transposed = _chartState._requireInvertedAxis;
   final bool isRangeSeries = seriesRenderer._seriesType.contains('range') ||
       seriesRenderer._seriesType.contains('hilo') ||
@@ -601,12 +579,10 @@ _ChartLocation _getSecondLabelLocation(
   final EdgeInsets margin = dataLabel.margin;
   bool minus;
 
-  if (seriesRenderer._seriesType == 'boxandwhisker') {
-    minus = (point.minimum! < 0 && !inversed) ||
-        (!(point.minimum! < 0) && inversed);
-  } else {
-    minus = (point.low < 0 && !inversed) || (!(point.low < 0) && inversed);
-  }
+  minus = (seriesRenderer._seriesType == 'boxandwhisker')
+      ? (point.minimum! < 0 && !inversed) || (!(point.minimum! < 0) && inversed)
+      : ((point.low < 0) == true && !inversed) ||
+          ((point.low < 0) == false && inversed);
 
   if (!_chartState._requireInvertedAxis) {
     chartLocation2.y = _calculateRectPosition(
@@ -720,7 +696,7 @@ void _calculateDataLabelRegion(
       final Rect rect = fillRect.middleRect;
       if (seriesRenderer._seriesType == 'candle' &&
           _chartState._requireInvertedAxis &&
-          point.close > point.high) {
+          (point.close > point.high) == true) {
         point.labelLocation = _ChartLocation(
             rect.left - rect.width - textSize.width,
             rect.top + rect.height / 2 - textSize.height / 2);
@@ -732,7 +708,7 @@ void _calculateDataLabelRegion(
             rect.top + rect.height / 2 - textSize.height / 2);
       } else if (seriesRenderer._seriesType == 'candle' &&
           !_chartState._requireInvertedAxis &&
-          point.close > point.high) {
+          (point.close > point.high) == true) {
         point.labelLocation = _ChartLocation(
             rect.left + rect.width / 2 - textSize.width / 2,
             rect.top + rect.height + textSize.height);
@@ -834,7 +810,7 @@ void _calculateDataLabelRegion(
   } else {
     if (seriesRenderer._seriesType == 'candle' &&
         _chartState._requireInvertedAxis &&
-        point.close > point.high) {
+        (point.close > point.high) == true) {
       point.labelLocation = _ChartLocation(
           rect.left - rect.width - textSize.width - 2,
           rect.top + rect.height / 2 - textSize.height / 2);
@@ -846,7 +822,7 @@ void _calculateDataLabelRegion(
           rect.top + rect.height / 2 - textSize.height / 2);
     } else if (seriesRenderer._seriesType == 'candle' &&
         !_chartState._requireInvertedAxis &&
-        point.close > point.high) {
+        (point.close > point.high) == true) {
       point.labelLocation = _ChartLocation(
           rect.left + rect.width / 2 - textSize.width / 2,
           rect.top + rect.height + textSize.height / 2);
@@ -866,7 +842,7 @@ void _calculateDataLabelRegion(
     if (isRangeSeries || isBoxSeries) {
       if (seriesRenderer._seriesType == 'candle' &&
           _chartState._requireInvertedAxis &&
-          point.close > point.high) {
+          (point.close > point.high) == true) {
         point.labelLocation2 = _ChartLocation(
             rect2!.left + rect2.width + textSize2!.width + 2,
             rect2.top + rect2.height / 2 - textSize2.height / 2);
@@ -878,7 +854,7 @@ void _calculateDataLabelRegion(
             rect2.top + rect2.height / 2 - textSize2.height / 2);
       } else if (seriesRenderer._seriesType == 'candle' &&
           !_chartState._requireInvertedAxis &&
-          point.close > point.high) {
+          (point.close > point.high) == true) {
         point.labelLocation2 = _ChartLocation(
             rect2!.left + rect2.width / 2 - textSize2!.width / 2,
             rect2.top - rect2.height - textSize2.height);
@@ -935,7 +911,7 @@ double _calculatePathPosition(
     CartesianChartPoint<dynamic> currentPoint,
     Size markerSize) {
   final XyDataSeries<dynamic, dynamic> series =
-      seriesRenderer._series as XyDataSeries;
+      seriesRenderer._series as XyDataSeries<dynamic, dynamic>;
   const double padding = 5;
   final bool needFill = series.dataLabelSettings.color != null ||
       series.dataLabelSettings.color != Colors.transparent ||
@@ -1025,7 +1001,7 @@ double _calculatePathActualPosition(
     CartesianChartPoint<dynamic> currentPoint,
     bool inversed) {
   final XyDataSeries<dynamic, dynamic> series =
-      seriesRenderer._series as XyDataSeries;
+      seriesRenderer._series as XyDataSeries<dynamic, dynamic>;
   late double yLocation;
   bool isBottom, isOverLap = true;
   Rect labelRect;
@@ -1099,10 +1075,10 @@ ChartDataLabelAlignment _getActualPathDataLabelAlignment(
       if (!_nextPoint!.isVisible && !previousPoint!.isVisible) {
         position = ChartDataLabelAlignment.top;
       } else if (!_nextPoint.isVisible) {
-        position =
-            (_nextPoint.yValue > yValue || previousPoint!.yValue > yValue)
-                ? ChartDataLabelAlignment.bottom
-                : ChartDataLabelAlignment.top;
+        position = ((_nextPoint.yValue > yValue) == true ||
+                (previousPoint!.yValue > yValue) == true)
+            ? ChartDataLabelAlignment.bottom
+            : ChartDataLabelAlignment.top;
       } else {
         final num slope = (_nextPoint.yValue - previousPoint!.yValue) / 2;
         final num intersectY =
@@ -1205,10 +1181,10 @@ void _drawDataLabel(
     final bool isDatalabelCollide = (_chartState._requireInvertedAxis ||
             (dataLabelSettingsRenderer._angle / 90) % 2 != 1) &&
         _findingCollision(labelRect, _chartState._renderDatalabelRegions);
-    if (label.isNotEmpty && isDatalabelCollide
+    if (!(label.isNotEmpty && isDatalabelCollide)
         // ignore: unnecessary_null_comparison
-        ? dataLabel.labelIntersectAction == null
-        : true) {
+        ||
+        dataLabel.labelIntersectAction == null) {
       final TextStyle _textStyle = TextStyle(
           color: fontColor.withOpacity(opacity),
           fontSize: font.fontSize,
@@ -1368,14 +1344,18 @@ void _drawDataLabelRectAndText(
       Color? seriesColor = seriesRenderer._seriesColor!;
       if (seriesRenderer._seriesType == 'waterfall') {
         seriesColor = _getWaterfallSeriesColor(
-            seriesRenderer._series as WaterfallSeries, point, seriesColor);
+            seriesRenderer._series as WaterfallSeries<dynamic, dynamic>,
+            point,
+            seriesColor);
       }
       final Paint paint = Paint()
-        ..color = (dataLabelSettingsRenderer._color ??
-                (point.pointColorMapper ?? seriesColor!))
-            .withOpacity((opacity - (1 - dataLabel.opacity)) < 0
-                ? 0
-                : opacity - (1 - dataLabel.opacity))
+        ..color = dataLabelSettingsRenderer._color != Colors.transparent
+            ? ((dataLabelSettingsRenderer._color ??
+                    (point.pointColorMapper ?? seriesColor!))
+                .withOpacity((opacity - (1 - dataLabel.opacity)) < 0
+                    ? 0
+                    : opacity - (1 - dataLabel.opacity)))
+            : Colors.transparent
         ..style = PaintingStyle.fill;
       canvas.save();
       canvas.translate(point.dataLabelRegion!.center.dx + x,
@@ -1516,7 +1496,7 @@ void _drawDataLabelRectAndText(
           final List<_ChartLocation> outliersLocation = <_ChartLocation>[];
           final List<Size> outliersTextSize = <Size>[];
           final List<Rect> outliersRect = <Rect>[];
-          final int outlierPadding = 12;
+          const int outlierPadding = 12;
           for (int outlierIndex = 0;
               outlierIndex < point.outliers!.length;
               outlierIndex++) {
@@ -1642,7 +1622,7 @@ String _getLabelText(
     dynamic labelValue, CartesianSeriesRenderer seriesRenderer) {
   if (labelValue.toString().split('.').length > 1) {
     final String str = labelValue.toString();
-    final List<dynamic> list = str.split('.');
+    final List<String> list = str.split('.');
     labelValue = double.parse(labelValue.toStringAsFixed(6));
     if (list[1] == '0' ||
         list[1] == '00' ||
@@ -1658,12 +1638,11 @@ String _getLabelText(
     final dynamic value = yAxis?.numberFormat != null
         ? yAxis.numberFormat.format(labelValue)
         : labelValue;
-    return (yAxis.labelFormat != null && yAxis.labelFormat != '')
+    return ((yAxis.labelFormat != null && yAxis.labelFormat != '')
         ? yAxis.labelFormat.replaceAll(RegExp('{value}'), value.toString())
-        : value.toString();
+        : value.toString()) as String;
   } else {
-    final dynamic value = labelValue;
-    return value.toString();
+    return labelValue.toString();
   }
 }
 
@@ -1682,7 +1661,7 @@ double _calculateRectPosition(
     bool inverted,
     EdgeInsets margin) {
   final XyDataSeries<dynamic, dynamic> series =
-      seriesRenderer._series as XyDataSeries;
+      seriesRenderer._series as XyDataSeries<dynamic, dynamic>;
   double padding;
   padding = seriesRenderer._seriesType.contains('hilo') ||
           seriesRenderer._seriesType.contains('candle') ||
@@ -1773,7 +1752,7 @@ double _calculateRectActualPosition(
   bool isOverLap = true;
   int position = 0;
   final XyDataSeries<dynamic, dynamic> series =
-      seriesRenderer._series as XyDataSeries;
+      seriesRenderer._series as XyDataSeries<dynamic, dynamic>;
   final int finalPosition =
       seriesRenderer._seriesType.contains('range') ? 2 : 4;
   while (isOverLap && position < finalPosition) {
@@ -1816,11 +1795,9 @@ double _calculateRectActualPosition(
               _findingCollision(
                   labelRect, _chartState._renderDatalabelRegions));
     }
-    seriesRenderer
-        ._dataPoints[index].dataLabelSaturationRegionInside = isOverLap ||
-            seriesRenderer._dataPoints[index].dataLabelSaturationRegionInside
-        ? true
-        : false;
+    seriesRenderer._dataPoints[index].dataLabelSaturationRegionInside =
+        isOverLap ||
+            seriesRenderer._dataPoints[index].dataLabelSaturationRegionInside;
     position++;
   }
   return location;
@@ -1840,7 +1817,7 @@ double _calculateTopAndOuterPosition(
     bool inverted,
     double borderWidth) {
   final XyDataSeries<dynamic, dynamic> series =
-      seriesRenderer._series as XyDataSeries;
+      seriesRenderer._series as XyDataSeries<dynamic, dynamic>;
   final num markerHeight =
       series.markerSettings.isVisible ? series.markerSettings.height / 2 : 0;
   if (((isMinus && !seriesRenderer._seriesType.contains('range')) &&
@@ -1898,15 +1875,17 @@ bool _isLabelWithinRange(CartesianSeriesRenderer seriesRenderer,
     CartesianChartPoint<dynamic> point) {
   bool withInRange = true;
   final bool isBoxSeries = seriesRenderer._seriesType.contains('boxandwhisker');
-  if (!(seriesRenderer._yAxisRenderer is LogarithmicAxisRenderer)) {
+  if (seriesRenderer._yAxisRenderer is! LogarithmicAxisRenderer) {
     withInRange = _withInRange(
             point.xValue, seriesRenderer._xAxisRenderer!._visibleRange!) &&
         (seriesRenderer._seriesType.contains('range') ||
                 seriesRenderer._seriesType == 'hilo'
-            ? (_withInRange(isBoxSeries ? point.minimum : point.low,
-                    seriesRenderer._yAxisRenderer!._visibleRange!) ||
-                _withInRange(isBoxSeries ? point.maximum : point.high,
-                    seriesRenderer._yAxisRenderer!._visibleRange!))
+            ? (isBoxSeries && point.minimum != null && point.maximum != null) ||
+                (!isBoxSeries && point.low != null && point.high != null) &&
+                    (_withInRange(isBoxSeries ? point.minimum : point.low,
+                            seriesRenderer._yAxisRenderer!._visibleRange!) ||
+                        _withInRange(isBoxSeries ? point.maximum : point.high,
+                            seriesRenderer._yAxisRenderer!._visibleRange!))
             : seriesRenderer._seriesType == 'hiloopenclose' ||
                     seriesRenderer._seriesType.contains('candle') ||
                     isBoxSeries

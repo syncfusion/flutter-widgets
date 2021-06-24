@@ -41,7 +41,7 @@ class _PngDecoder extends _ImageDecoder {
     _PngChunkTypes? header;
     dynamic result = _hasValidChunkType(header);
     while (result['hasValidChunk'] as bool) {
-      header = result['type'];
+      header = result['type'] as _PngChunkTypes?;
       switch (header) {
         case _PngChunkTypes.iHDR:
           readHeader();
@@ -251,8 +251,8 @@ class _PngDecoder extends _ImageDecoder {
     do {
       final Map<String, dynamic> result =
           deflateStream._read(buffer, 0, buffer.length);
-      numRead = result['count'];
-      buffer = result['data'];
+      numRead = result['count'] as int?;
+      buffer = result['data'] as List<int>;
       for (int i = 0; i < numRead!; i++) {
         outputData.add(buffer[i]);
       }
@@ -286,7 +286,7 @@ class _PngDecoder extends _ImageDecoder {
       for (int sourceY = 0, destinationY = yOffset;
           sourceY < height!;
           sourceY++, destinationY += yStep) {
-        final int? filter = _dataStream[_dataStreamOffset!];
+        final int filter = _dataStream[_dataStreamOffset!];
         _dataStreamOffset = _dataStreamOffset! + 1;
         _dataStreamOffset =
             _readStream(_dataStream, _dataStreamOffset, current, bytesPerRow);
@@ -319,9 +319,9 @@ class _PngDecoder extends _ImageDecoder {
   int? _readStream(
       List<int> stream, int? streamOffset, List<int>? data, int count) {
     final dynamic result = _read(stream, streamOffset, data, count);
-    data = result['outputBuffer'];
-    streamOffset = result['offset'];
-    final int n = result['length'];
+    data = result['outputBuffer'] as List<int>?;
+    streamOffset = result['offset'] as int?;
+    final int n = result['length'] as int;
     if (n <= 0) {
       throw Exception('Insufficient data');
     }
@@ -348,8 +348,7 @@ class _PngDecoder extends _ImageDecoder {
         destX += step;
       }
     }
-    final bool shades =
-        (((_header.colorType & 4) != 0) || _shades) ? true : false;
+    final bool shades = (_header.colorType & 4) != 0 || _shades;
     if (shades) {
       if ((_header.colorType & 4) != 0) {
         if (_header.bitDepth == 16) {
@@ -407,9 +406,9 @@ class _PngDecoder extends _ImageDecoder {
       for (int n = 0; n < data.length; ++n) {
         for (int i = p - 1; i >= 0; --i) {
           final int hb = _header.bitDepth * i;
-          final int? d = data[n];
+          final int d = data[n];
           pixel[index++] =
-              ((hb < 1) ? d : (d!.toUnsigned(32) >> hb).toSigned(32))! & mask;
+              ((hb < 1) ? d : (d.toUnsigned(32) >> hb).toSigned(32)) & mask;
         }
       }
       return pixel;

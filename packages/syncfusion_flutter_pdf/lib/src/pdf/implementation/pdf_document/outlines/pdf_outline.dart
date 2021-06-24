@@ -530,12 +530,10 @@ class PdfBookmark extends PdfBookmarkBase {
         }
         if (title != null) {
           for (int i = 0; i < namedCollection.count; i++) {
-            final PdfNamedDestination? nameDest = namedCollection[i];
-            if (nameDest != null) {
-              if (nameDest.title == title) {
-                namedDestination = nameDest;
-                break;
-              }
+            final PdfNamedDestination nameDest = namedCollection[i];
+            if (nameDest.title == title) {
+              namedDestination = nameDest;
+              break;
             }
           }
         }
@@ -570,28 +568,28 @@ class PdfBookmark extends PdfBookmarkBase {
           }
           _PdfName? mode;
           if (array.count > 1) {
-            mode = array[1] as _PdfName;
+            mode = array[1]! as _PdfName;
           }
           if (mode != null) {
             if (mode._name == _DictionaryProperties.xyz) {
               _PdfNumber? left;
               _PdfNumber? top;
               if (array.count > 2) {
-                left = array[2] as _PdfNumber;
+                left = array[2]! as _PdfNumber;
               }
               if (array.count > 3) {
-                top = array[3] as _PdfNumber;
+                top = array[3]! as _PdfNumber;
               }
               _PdfNumber? zoom;
               if (array.count > 4) {
-                zoom = array[4] as _PdfNumber;
+                zoom = array[4]! as _PdfNumber;
               }
 
               if (page != null) {
                 double? topValue =
                     (top == null) ? 0 : page.size.height - top.value!;
                 final double leftValue =
-                    (left == null) ? 0 : left.value as double;
+                    (left == null) ? 0 : left.value! as double;
 
                 if (page._isLoadedPage &&
                     page._rotation != PdfPageRotateAngle.rotateAngle0) {
@@ -610,16 +608,16 @@ class PdfBookmark extends PdfBookmarkBase {
                 _PdfNumber? right;
                 _PdfNumber? top;
                 if (array.count > 2) {
-                  left = array[2] as _PdfNumber;
+                  left = array[2]! as _PdfNumber;
                 }
                 if (array.count > 3) {
-                  bottom = array[3] as _PdfNumber;
+                  bottom = array[3]! as _PdfNumber;
                 }
                 if (array.count > 4) {
-                  right = array[4] as _PdfNumber;
+                  right = array[4]! as _PdfNumber;
                 }
                 if (array.count > 5) {
-                  top = array[5] as _PdfNumber;
+                  top = array[5]! as _PdfNumber;
                 }
 
                 if (page != null) {
@@ -641,7 +639,7 @@ class PdfBookmark extends PdfBookmarkBase {
                   mode._name == _DictionaryProperties.fitH) {
                 _PdfNumber? top;
                 if (array.count >= 3) {
-                  top = array[2] as _PdfNumber;
+                  top = array[2]! as _PdfNumber;
                 }
                 if (page != null) {
                   final double topValue =
@@ -699,14 +697,14 @@ class PdfBookmark extends PdfBookmarkBase {
 
         _PdfName? mode;
         if (array.count > 1) {
-          mode = array[1] as _PdfName;
+          mode = array[1]! as _PdfName;
         }
         if (mode != null) {
           if (mode._name == _DictionaryProperties.fitBH ||
               mode._name == _DictionaryProperties.fitH) {
             _PdfNumber? top;
             if (array.count >= 3) {
-              top = array[2] as _PdfNumber;
+              top = array[2]! as _PdfNumber;
             }
             if (page != null) {
               final double topValue =
@@ -718,21 +716,21 @@ class PdfBookmark extends PdfBookmarkBase {
             _PdfNumber? left;
             _PdfNumber? top;
             if (array.count > 2) {
-              left = array[2] as _PdfNumber;
+              left = array[2]! as _PdfNumber;
             }
             if (array.count > 3) {
-              top = array[3] as _PdfNumber;
+              top = array[3]! as _PdfNumber;
             }
             _PdfNumber? zoom;
             if (array.count > 4 && (array[4] is _PdfNumber)) {
-              zoom = array[4] as _PdfNumber;
+              zoom = array[4]! as _PdfNumber;
             }
 
             if (page != null) {
               final double topValue =
                   (top == null) ? 0 : page.size.height - top.value!;
               final double leftValue =
-                  (left == null) ? 0 : left.value as double;
+                  (left == null) ? 0 : left.value! as double;
               _destination = PdfDestination(page, Offset(leftValue, topValue));
               if (zoom != null) {
                 _destination!.zoom = zoom.value!.toDouble();
@@ -761,9 +759,9 @@ class PdfBookmark extends PdfBookmarkBase {
     left = (left == null) ? _PdfNumber(0) : left;
 
     if (page._rotation == PdfPageRotateAngle.rotateAngle90) {
-      topValue = (top == null) ? 0 : left.value as double;
+      topValue = (top == null) ? 0 : left.value! as double;
     } else if (page._rotation == PdfPageRotateAngle.rotateAngle180) {
-      topValue = (top == null) ? 0 : top.value as double;
+      topValue = (top == null) ? 0 : top.value! as double;
     } else if (page._rotation == PdfPageRotateAngle.rotateAngle270) {
       topValue = (top == null) ? 0 : page.size.width - left.value!;
     }

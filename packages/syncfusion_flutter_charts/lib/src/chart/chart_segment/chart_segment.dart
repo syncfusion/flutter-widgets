@@ -55,7 +55,8 @@ abstract class ChartSegment {
   Paint? _defaultFillColor, _defaultStrokeColor;
 
   /// Current index value.
-  int? currentSegmentIndex, _oldSegmentIndex;
+  int? currentSegmentIndex;
+  int? _oldSegmentIndex;
   late int _seriesIndex;
 
   CartesianChartPoint<dynamic>? _currentPoint, _point, _oldPoint, _nextPoint;
@@ -71,4 +72,6 @@ abstract class ChartSegment {
 
   /// Cartesian chart state properties
   late SfCartesianChartState _chartState;
+
+  _RenderingDetails get _renderingDetails => _chartState._renderingDetails;
 }

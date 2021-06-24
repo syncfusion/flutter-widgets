@@ -15,10 +15,12 @@ class SelectionBehavior {
       this.unselectedBorderWidth,
       double? selectedOpacity,
       double? unselectedOpacity,
-      this.selectionController})
+      this.selectionController,
+      bool? toggleSelection})
       : enable = enable ?? false,
         selectedOpacity = selectedOpacity ?? 1.0,
-        unselectedOpacity = unselectedOpacity ?? 0.5;
+        unselectedOpacity = unselectedOpacity ?? 0.5,
+        toggleSelection = toggleSelection ?? true;
 
   ///Enables or disables the selection.
   ///
@@ -205,6 +207,73 @@ class SelectionBehavior {
   ///```
   final RangeController? selectionController;
 
+  ///Decides whether to deselect the selected item or not.
+  ///
+  ///Provides an option to decide, whether to deselect the selected data point/series
+  /// or remain selected, when interacted with it again.
+  ///
+  ///If set to true, deselection will be performed else the point will not get deselected.
+  /// This works even while calling public methods, in various selection modes, with
+  /// multi-selection, and also on dynamic changes.
+  ///
+  ///Defaults to `true`.
+  ///
+  ///```dart
+  ///Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfCartesianChart(
+  ///            series: <BarSeries<SalesData, num>>[
+  ///                BarSeries<SalesData, num>(
+  ///                  selectionBehavior: SelectionBehavior(
+  ///                    enable: true,
+  ///                    toggleSelection: false,
+  ///                  ),
+  ///                ),
+  ///              ],
+  ///        ));
+  ///}
+  ///```
+  final bool toggleSelection;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is SelectionBehavior &&
+        other.enable == enable &&
+        other.selectedColor == selectedColor &&
+        other.selectedBorderColor == selectedBorderColor &&
+        other.selectedBorderWidth == selectedBorderWidth &&
+        other.unselectedColor == unselectedColor &&
+        other.unselectedBorderColor == unselectedBorderColor &&
+        other.unselectedBorderWidth == unselectedBorderWidth &&
+        other.selectedOpacity == selectedOpacity &&
+        other.unselectedOpacity == unselectedOpacity &&
+        other.selectionController == selectionController;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      enable,
+      selectedColor,
+      selectedBorderColor,
+      selectedBorderWidth,
+      unselectedColor,
+      unselectedBorderColor,
+      unselectedBorderWidth,
+      selectedOpacity,
+      unselectedOpacity,
+      selectionController
+    ];
+    return hashList(values);
+  }
+
   dynamic _chartState;
 
   ////Selects or deselects the specified data point in the series.
@@ -222,11 +291,11 @@ class SelectionBehavior {
   /// Selection type and multi-selection functionality is also applicable for this, but it is based on
   /// the API values specified in [ChartSelectionBehavior].
   ///
-  ///_Note:_ - Even though, the [enable] property in [ChartSelectionBehavior] is set to false, this method
+  ///_Note:_ Even though, the [enable] property in [ChartSelectionBehavior] is set to false, this method
   /// will work.
   /// ```dart
   /// Widget build(BuildContext context) {
-  /// selection = SelectionSettings(enable: true);
+  /// selection = SelectionBehavior(enable: true);
   /// chart = SfCartesianChart(series:getChartData);
   ///   return Scaffold(
   ///      child: Column(
@@ -246,9 +315,8 @@ class SelectionBehavior {
     final dynamic seriesRenderer =
         _chartState._chartSeries.visibleSeriesRenderers[seriesIndex];
     assert(
-        seriesRenderer._chartState! is SfCartesianChartState
-            ? _getVisibleDataPointIndex(pointIndex, seriesRenderer) != null
-            : true,
+        seriesRenderer._chartState! is SfCartesianChartState == false ||
+            _getVisibleDataPointIndex(pointIndex, seriesRenderer) != null,
         'Provided point index is not in the visible range. Provide point index which is in the visible range.');
     final SelectionBehaviorRenderer selectionBehaviorRenderer =
         seriesRenderer._selectionBehaviorRenderer;
@@ -275,7 +343,7 @@ class SelectionBehavior {
 
 /// Selection renderer class for mutable fields and methods
 class SelectionBehaviorRenderer with ChartSelectionBehavior {
-  /// Creates an argument constructor for SelectionSettings renderer class
+  /// Creates an argument constructor for SelectionBehavior renderer class
   SelectionBehaviorRenderer(
       this._selectionBehavior, this._chart, this._sfChartState);
 
@@ -283,7 +351,6 @@ class SelectionBehaviorRenderer with ChartSelectionBehavior {
 
   final dynamic _sfChartState;
 
-  // ignore: deprecated_member_use_from_same_package
   final dynamic _selectionBehavior;
 
   _SelectionRenderer? _selectionRenderer;
@@ -294,7 +361,7 @@ class SelectionBehaviorRenderer with ChartSelectionBehavior {
     final CartesianSeriesRenderer seriesRenderer =
         _selectionRenderer!.seriesRenderer;
     final SfCartesianChartState chartState = _selectionRenderer!._chartState;
-    if (_selectionBehavior.enable &&
+    if (_selectionBehavior.enable == true &&
         _selectionBehavior.selectionController != null) {
       _selectionBehavior.selectionController.addListener(() {
         chartState._isRangeSelectionSlider = true;
@@ -326,7 +393,7 @@ class SelectionBehaviorRenderer with ChartSelectionBehavior {
         }
       });
     }
-    if (chartState._initialRender!) {
+    if (chartState._renderingDetails.initialRender!) {
       chartState._isRangeSelectionSlider = false;
     }
     _selectionRenderer!._chartState = chartState;

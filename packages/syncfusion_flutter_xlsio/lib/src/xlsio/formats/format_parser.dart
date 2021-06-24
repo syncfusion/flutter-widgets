@@ -1,23 +1,8 @@
 part of xlsio;
 
-/// <summary>
 /// Class used for format parsing.
-/// </summary>
 class _FormatParser {
-  /// <summary>
-  /// List with all known format tokens.
-  /// </summary>
-  List<_FormatTokenBase> _arrFormatTokens = [];
-
-  /// <summary>
-  /// Regular expression for checking if specified switch argument present in numberformat.
-  /// </summary>
-  static final _numberFormatRegex = RegExp('\\[(DBNUM[1-4]{1}|GB[1-4]{1})\\]');
-
-  /// <summary>
   /// Initializes a new instance of the FormatParserImpl class.
-  /// </summary>
-  // ignore: sort_constructors_first
   _FormatParser() {
     _arrFormatTokens.add(_CharacterToken());
     _arrFormatTokens.add(_YearToken());
@@ -34,24 +19,36 @@ class _FormatParser {
     _arrFormatTokens.add(_UnknownToken());
   }
 
-  /// <summary>
+  /// List with all known format tokens.
+
+  // ignore: prefer_final_fields
+  List<_FormatTokenBase> _arrFormatTokens = <_FormatTokenBase>[];
+
+  /// Regular expression for checking if specified switch argument present in numberformat.
+  static final RegExp _numberFormatRegex =
+      // ignore: use_raw_strings
+      RegExp('\\[(DBNUM[1-4]{1}|GB[1-4]{1})\\]');
+
   /// Parses format string.
-  /// </summary>
   // ignore: unused_element
   _FormatSectionCollection _parse(Workbook workbook, String? strFormat) {
-    if (strFormat == null) throw ('strFormat - string cannot be null');
+    if (strFormat == null) {
+      throw 'strFormat - string cannot be null';
+    }
     strFormat = _numberFormatRegex.hasMatch(strFormat)
         ? strFormat.replaceAll(RegExp(r'strFormat'), '')
         : strFormat;
     final int iFormatLength = strFormat.length;
 
-    if (iFormatLength == 0) throw ('strFormat - string cannot be empty');
+    if (iFormatLength == 0) {
+      throw 'strFormat - string cannot be empty';
+    }
 
-    final List<_FormatTokenBase> arrParsedExpression = [];
+    final List<_FormatTokenBase> arrParsedExpression = <_FormatTokenBase>[];
     int iPos = 0;
 
     while (iPos < iFormatLength) {
-      final len = _arrFormatTokens.length;
+      final int len = _arrFormatTokens.length;
       for (int i = 0; i < len; i++) {
         final _FormatTokenBase token = _arrFormatTokens[i];
         final int iNewPos = token._tryParse(strFormat, iPos);

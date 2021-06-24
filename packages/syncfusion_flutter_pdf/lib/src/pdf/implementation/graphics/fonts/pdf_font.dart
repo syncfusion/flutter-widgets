@@ -149,9 +149,9 @@ abstract class PdfFont implements _IPdfWrapper {
   ///     brush: PdfBrushes.black,
   ///     bounds: Rect.fromLTWH(0, 0, size.width, size.height));
   /// //Saves the document.
-  /// List<int> bytes = doc.save();
+  /// List<int> bytes = document.save();
   /// //Dispose the document.
-  /// doc.dispose();
+  /// document.dispose();
   /// ```
   Size measureString(String text, {Size? layoutArea, PdfStringFormat? format}) {
     layoutArea ??= const Size(0, 0);

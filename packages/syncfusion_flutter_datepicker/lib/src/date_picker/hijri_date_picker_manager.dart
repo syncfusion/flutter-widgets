@@ -21,11 +21,11 @@ import 'picker_helper.dart';
 ///              firstDayOfWeek: 1,
 ///              dayFormat: 'E',
 ///              viewHeaderHeight: 70,
-///              viewHeaderStyle: HijriDatePickerViewHeaderStyle(
+///              viewHeaderStyle: DateRangePickerViewHeaderStyle(
 ///                  backgroundColor: Colors.blue,
 ///                  textStyle:
 ///                      TextStyle(fontWeight: FontWeight.w400, fontSize: 15,
-///                           Colors.black)),
+///                           color: Colors.black)),
 ///              enableSwipeSelection: false,
 ///              blackoutDates: <HijriDateTime>[
 ///                HijriDateTime.now().add(Duration(days: 4))
@@ -58,7 +58,11 @@ class HijriDatePickerMonthViewSettings with Diagnosticable {
       this.enableSwipeSelection = true,
       this.blackoutDates,
       this.specialDates,
-      this.weekendDays = const <int>[6, 7]});
+      this.showWeekNumber = false,
+      this.weekNumberStyle = const DateRangePickerWeekNumberStyle(),
+      this.weekendDays = const <int>[6, 7]})
+      : assert(firstDayOfWeek >= 1 && firstDayOfWeek <= 7),
+        assert(viewHeaderHeight >= -1);
 
   /// Formats a text in the [SfHijriDateRangePicker] month view view header.
   ///
@@ -189,7 +193,7 @@ class HijriDatePickerMonthViewSettings with Diagnosticable {
   ///        body: SfHijriDateRangePicker(
   ///          controller: _pickerController,
   ///          view: HijriDatePickerView.month,
-  ///          selectionMode: HDateRangePickerSelectionMode.range,
+  ///          selectionMode: DateRangePickerSelectionMode.range,
   ///          monthViewSettings:
   ///              HijriDatePickerMonthViewSettings(viewHeaderHeight: 50),
   ///        ),
@@ -276,6 +280,52 @@ class HijriDatePickerMonthViewSettings with Diagnosticable {
   /// ```
   final List<HijriDateTime>? specialDates;
 
+  /// Used to displays the week number of the year in the month view of
+  /// the SfHijriDateRangePicker.
+  ///
+  /// In the month view, it is displayed at the the left side of the month view
+  /// as a separate column in the SfHijriDateRangePicker.
+  ///
+  /// Defaults to false
+  ///
+  /// see also: [weekNumberStyle]
+  ///
+  /// ``` dart
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     body: SfHijriDateRangePicker(
+  ///       view: HijriDatePickerView.month,
+  ///       monthViewSettings: const HijriDatePickerMonthViewSettings(
+  ///       showWeekNumber: true,
+  ///       ),
+  ///      ),
+  ///    );
+  ///  }
+  final bool showWeekNumber;
+
+  /// Defines the text style for the text in the week number panel of the
+  /// SfHijriDateRangePicker.
+  ///
+  /// Defaults to null
+  ///
+  /// see also: [showWeekNumber]
+  ///
+  /// ``` dart
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///   body: SfHijriDateRangePicker(
+  ///     view: HijriDatePickerView.month,
+  ///     monthViewSettings: const HijriDatePickerMonthViewSettings(
+  ///     showWeekNumber: true,
+  ///     weekNumberStyle: const DateRangePickerWeekNumberStyle(
+  ///         textStyle: TextStyle(fontStyle: FontStyle.italic),
+  ///         backgroundColor: Colors.purple),
+  ///     ),
+  ///   ),
+  ///  );
+  /// }
+  final DateRangePickerWeekNumberStyle weekNumberStyle;
+
   /// The weekends for month view in [SfHijriDateRangePicker].
   ///
   /// Defaults to `<int>[6,7]` represents `<int>[DateTime.saturday,
@@ -313,7 +363,10 @@ class HijriDatePickerMonthViewSettings with Diagnosticable {
       return false;
     }
 
-    final HijriDatePickerMonthViewSettings otherStyle = other;
+    late final HijriDatePickerMonthViewSettings otherStyle;
+    if (other is HijriDatePickerMonthViewSettings) {
+      otherStyle = other;
+    }
     return otherStyle.dayFormat == dayFormat &&
         otherStyle.firstDayOfWeek == firstDayOfWeek &&
         otherStyle.viewHeaderStyle == viewHeaderStyle &&
@@ -321,15 +374,17 @@ class HijriDatePickerMonthViewSettings with Diagnosticable {
         otherStyle.blackoutDates == blackoutDates &&
         otherStyle.specialDates == specialDates &&
         otherStyle.weekendDays == weekendDays &&
-        otherStyle.enableSwipeSelection == enableSwipeSelection;
+        otherStyle.enableSwipeSelection == enableSwipeSelection &&
+        otherStyle.showWeekNumber == showWeekNumber &&
+        otherStyle.weekNumberStyle == weekNumberStyle;
   }
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(IterableDiagnostics(blackoutDates)
+    properties.add(IterableDiagnostics<HijriDateTime>(blackoutDates)
         .toDiagnosticsNode(name: 'blackoutDates'));
-    properties.add(IterableDiagnostics(specialDates)
+    properties.add(IterableDiagnostics<HijriDateTime>(specialDates)
         .toDiagnosticsNode(name: 'specialDates'));
     properties.add(IntProperty('firstDayOfWeek', firstDayOfWeek));
     properties.add(DoubleProperty('viewHeaderHeight', viewHeaderHeight));
@@ -338,6 +393,8 @@ class HijriDatePickerMonthViewSettings with Diagnosticable {
         'enableSwipeSelection', enableSwipeSelection));
     properties.add(viewHeaderStyle.toDiagnosticsNode(name: 'viewHeaderStyle'));
     properties.add(IterableProperty<int>('weekendDays', weekendDays));
+    properties.add(DiagnosticsProperty<bool>('showWeekNumber', showWeekNumber));
+    properties.add(weekNumberStyle.toDiagnosticsNode(name: 'weekNumberStyle'));
   }
 
   @override
@@ -348,6 +405,8 @@ class HijriDatePickerMonthViewSettings with Diagnosticable {
         viewHeaderStyle,
         enableSwipeSelection,
         viewHeaderHeight,
+        showWeekNumber,
+        weekNumberStyle,
         hashList(specialDates),
         hashList(blackoutDates),
         hashList(weekendDays));
@@ -370,7 +429,7 @@ class HijriDatePickerMonthViewSettings with Diagnosticable {
 ///        body: SfHijriDateRangePicker(
 ///          view: HijriDatePickerView.decade,
 ///          enablePastDates: false,
-///          yearCellStyle: HijriDateRangePickerYearCellStyle(
+///          yearCellStyle: HijriDatePickerYearCellStyle(
 ///            textStyle: TextStyle(
 ///                fontWeight: FontWeight.w400, fontSize: 15,
 ///                     color: Colors.black),
@@ -607,7 +666,10 @@ class HijriDatePickerYearCellStyle with Diagnosticable {
       return false;
     }
 
-    final HijriDatePickerYearCellStyle otherStyle = other;
+    late final HijriDatePickerYearCellStyle otherStyle;
+    if (other is HijriDatePickerYearCellStyle) {
+      otherStyle = other;
+    }
     return otherStyle.textStyle == textStyle &&
         otherStyle.todayTextStyle == todayTextStyle &&
         otherStyle.disabledDatesDecoration == disabledDatesDecoration &&
@@ -1113,7 +1175,10 @@ class HijriDatePickerMonthCellStyle with Diagnosticable {
       return false;
     }
 
-    final HijriDatePickerMonthCellStyle otherStyle = other;
+    late final HijriDatePickerMonthCellStyle otherStyle;
+    if (other is HijriDatePickerMonthCellStyle) {
+      otherStyle = other;
+    }
     return otherStyle.textStyle == textStyle &&
         otherStyle.todayTextStyle == todayTextStyle &&
         otherStyle.blackoutDateTextStyle == blackoutDateTextStyle &&
@@ -1221,11 +1286,10 @@ class HijriDatePickerMonthCellStyle with Diagnosticable {
 ///}
 ///
 ///class MyAppState extends State<MyApp> {
-///  HijriDatePickerController _pickerController;
+///  HijriDatePickerController _pickerController = HijriDatePickerController();
 ///
 ///  @override
 ///  void initState() {
-///    _pickerController = HijriDatePickerController();
 ///    _pickerController.selectedDates = <HijriDateTime>[
 ///      HijriDateTime.now().add(Duration(days: 2)),
 ///      HijriDateTime.now().add(Duration(days: 4)),
@@ -1240,9 +1304,9 @@ class HijriDatePickerMonthCellStyle with Diagnosticable {
 ///  void handlePropertyChange(String propertyName) {
 ///    if (propertyName == 'selectedDates') {
 ///      final List<HijriDateTime> selectedDates =
-///                                 _pickerController.selectedDates;
+///                                 _pickerController.selectedDates!;
 ///    } else if (propertyName == 'displayDate') {
-///      final HijriDateTime displayDate = _pickerController.displayDate;
+///      final HijriDateTime displayDate = _pickerController.displayDate!;
 ///    }
 ///  }
 ///
@@ -1253,7 +1317,7 @@ class HijriDatePickerMonthCellStyle with Diagnosticable {
 ///        body: SfHijriDateRangePicker(
 ///          view: HijriDatePickerView.month,
 ///          controller: _pickerController,
-///          selectionMode: HijriDateRangePickerSelectionMode.multiple,
+///          selectionMode: DateRangePickerSelectionMode.multiple,
 ///        ),
 ///      ),
 ///    );
@@ -1293,11 +1357,10 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
   /// ``` dart
   ///
   /// class MyAppState extends State<MyApp> {
-  ///  DateRangePickerController _pickerController;
+  /// HijriDatePickerController _pickerController = HijriDatePickerController();
   ///
   ///  @override
   ///  void initState() {
-  ///    _pickerController = HijriDatePickerController();
   ///    _pickerController.selectedDate = HijriDateTime.now().add((Duration(
   ///                                days: 4)));
   ///    super.initState();
@@ -1310,7 +1373,7 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
   ///        body: SfHijriDateRangePicker(
   ///          controller: _pickerController,
   ///          view: HijriDatePickerView.month,
-  ///          selectionMode: HijriDateRangePickerSelectionMode.single,
+  ///          selectionMode: DateRangePickerSelectionMode.single,
   ///          showNavigationArrow: true,
   ///        ),
   ///      ),
@@ -1352,11 +1415,10 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
   /// ``` dart
   ///
   /// class MyAppState extends State<MyApp> {
-  ///  DateRangePickerController _pickerController;
+  /// HijriDatePickerController _pickerController = HijriDatePickerController();
   ///
   ///  @override
   ///  void initState() {
-  ///    _pickerController = HijriDatePickerController();
   ///    _pickerController.selectedDates = <HijriDateTime>[
   ///      HijriDateTime.now().add((Duration(days: 4))),
   ///      HijriDateTime.now().add((Duration(days: 7))),
@@ -1415,12 +1477,11 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
   /// ``` dart
   ///
   /// class MyAppState extends State<MyApp> {
-  ///  DateRangePickerController _pickerController;
+  /// HijriDatePickerController _pickerController = HijriDatePickerController();
   ///
   ///  @override
   ///  void initState() {
-  ///    _pickerController = HijriDatePickerController();
-  ///    _pickerController.selectedRange = HijriPickerDateRange(
+  ///    _pickerController.selectedRange = HijriDateRange(
   ///        HijriDateTime.now().add(Duration(days: 4)),
   ///        HijriDateTime.now().add(Duration(days: 5)));
   ///    super.initState();
@@ -1474,15 +1535,14 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
   /// ``` dart
   ///
   /// class MyAppState extends State<MyApp> {
-  ///  HijriDatePickerController _pickerController;
+  /// HijriDatePickerController _pickerController = HijriDatePickerController();
   ///
   ///  @override
   ///  void initState() {
-  ///    _pickerController = HijriDatePickerController();
-  ///    _pickerController.selectedRanges = <HijriPickerDateRange>[
-  ///      PickerDateRange(HijriDateTime.now().subtract(Duration(days: 4)),
+  ///    _pickerController.selectedRanges = <HijriDateRange>[
+  ///      HijriDateRange(HijriDateTime.now().subtract(Duration(days: 4)),
   ///          HijriDateTime.now().add(Duration(days: 4))),
-  ///      PickerDateRange(HijriDateTime.now().add(Duration(days: 11)),
+  ///      HijriDateRange(HijriDateTime.now().add(Duration(days: 11)),
   ///          HijriDateTime.now().add(Duration(days: 16)))
   ///    ];
   ///    super.initState();
@@ -1535,11 +1595,10 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
   /// ``` dart
   ///
   /// class MyAppState extends State<MyApp> {
-  ///  HijriDatePickerController _pickerController;
+  /// HijriDatePickerController _pickerController = HijriDatePickerController();
   ///
   ///  @override
   ///  void initState() {
-  ///    _pickerController = HijriDatePickerController();
   ///    _pickerController.displayDate = HijriDateTime(2022, 02, 05);
   ///    super.initState();
   ///  }
@@ -1580,11 +1639,10 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
   /// ```dart
   ///
   /// class MyAppState extends State<MyApp> {
-  ///  HijriDatePickerController _pickerController;
+  /// HijriDatePickerController _pickerController = HijriDatePickerController();
   ///
   ///  @override
   ///  void initState() {
-  ///    _pickerController = HijriDatePickerController();
   ///    _pickerController.view = HijriDatePickerView.year;
   ///    super.initState();
   ///  }
@@ -1627,13 +1685,7 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
   ///}
   ///
   ///class MyAppState extends State<MyApp> {
-  ///  HijriDatePickerController _pickerController;
-  ///
-  ///  @override
-  ///  void initState() {
-  ///    _pickerController = HijriDatePickerController();
-  ///    super.initState();
-  ///  }
+  /// HijriDatePickerController _pickerController = HijriDatePickerController();
   ///
   ///  @override
   ///  Widget build(BuildContext context) {
@@ -1644,7 +1696,7 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
   ///            IconButton(
   ///              icon: Icon(Icons.arrow_forward),
   ///              onPressed: () {
-  ///                _pickerController.forward();
+  ///                _pickerController.forward!();
   ///              },
   ///            )
   ///          ],
@@ -1652,7 +1704,7 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
   ///          leading: IconButton(
   ///            icon: Icon(Icons.arrow_back),
   ///            onPressed: () {
-  ///              _pickerController.backward();
+  ///              _pickerController.backward!();
   ///            },
   ///          ),
   ///        ),
@@ -1684,13 +1736,7 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
   ///}
   ///
   ///class MyAppState extends State<MyApp> {
-  ///  HijriDatePickerController _pickerController;
-  ///
-  ///  @override
-  ///  void initState() {
-  ///    _pickerController = HijriDatePickerController();
-  ///    super.initState();
-  ///  }
+  /// HijriDatePickerController _pickerController = HijriDatePickerController();
   ///
   ///  @override
   ///  Widget build(BuildContext context) {
@@ -1701,7 +1747,7 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
   ///            IconButton(
   ///              icon: Icon(Icons.arrow_forward),
   ///              onPressed: () {
-  ///                _pickerController.forward();
+  ///                _pickerController.forward!();
   ///              },
   ///            )
   ///          ],
@@ -1709,7 +1755,7 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
   ///          leading: IconButton(
   ///            icon: Icon(Icons.arrow_back),
   ///            onPressed: () {
-  ///              _pickerController.backward();
+  ///              _pickerController.backward!();
   ///            },
   ///          ),
   ///        ),
@@ -1733,11 +1779,11 @@ class HijriDatePickerController extends DateRangePickerValueChangeNotifier {
         .add(DiagnosticsProperty<HijriDateTime>('displayDate', displayDate));
     properties
         .add(DiagnosticsProperty<HijriDateTime>('selectedDate', selectedDate));
-    properties.add(IterableDiagnostics(selectedDates)
+    properties.add(IterableDiagnostics<HijriDateTime>(selectedDates)
         .toDiagnosticsNode(name: 'selectedDates'));
     properties.add(
         DiagnosticsProperty<HijriDateRange>('selectedRange', selectedRange));
-    properties.add(IterableDiagnostics(selectedRanges)
+    properties.add(IterableDiagnostics<HijriDateRange>(selectedRanges)
         .toDiagnosticsNode(name: 'selectedRanges'));
     properties.add(EnumProperty<HijriDatePickerView>('view', view));
   }

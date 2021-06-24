@@ -13,8 +13,10 @@ class _X509Certificates {
   //Properties
   _X509Certificate? get certificate => _certificate;
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode => _certificate.hashCode;
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
     if (other is _X509Certificates) {
       return _certificate == other._certificate;
@@ -53,6 +55,7 @@ class _X509Extension {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
     if (other is _X509Extension) {
       return _value == other._value && _critical == other._critical;
@@ -62,6 +65,7 @@ class _X509Extension {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode => _critical! ? _value.hashCode : ~_value.hashCode;
 }
 
@@ -71,14 +75,16 @@ class _X509Extensions extends _Asn1Encode {
     _extensions = <_DerObjectID?, _X509Extension?>{};
     if (ordering == null) {
       final List<_DerObjectID?> der = <_DerObjectID?>[];
-      extensions.keys.forEach((col) {
+      // ignore: avoid_function_literals_in_foreach_calls
+      extensions.keys.forEach((_DerObjectID? col) {
         der.add(col);
       });
       _ordering = der;
     } else {
       _ordering = ordering;
     }
-    _ordering.forEach((oid) {
+    // ignore: avoid_function_literals_in_foreach_calls
+    _ordering.forEach((_DerObjectID? oid) {
       _extensions[oid] = extensions[oid!];
     });
   }
@@ -86,7 +92,7 @@ class _X509Extensions extends _Asn1Encode {
     _ordering = <_DerObjectID?>[];
     _extensions = <_DerObjectID?, _X509Extension?>{};
     for (int i = 0; i < seq._objects!.length; i++) {
-      final _Asn1Encode ae = seq._objects![i];
+      final _Asn1Encode ae = seq._objects![i] as _Asn1Encode;
       final _Asn1Sequence s = _Asn1Sequence.getSequence(ae.getAsn1())!;
       if (s.count < 2 || s.count > 3) {
         throw ArgumentError.value(
@@ -94,7 +100,7 @@ class _X509Extensions extends _Asn1Encode {
       }
       final _DerObjectID? oid = _DerObjectID.getID(s[0]!.getAsn1());
       final bool isCritical =
-          s.count == 3 && (s[1]!.getAsn1() as _DerBoolean).isTrue;
+          s.count == 3 && (s[1]!.getAsn1()! as _DerBoolean).isTrue;
       final _Asn1Octet? octets =
           _Asn1Octet.getOctetStringFromObject(s[s.count - 1]!.getAsn1());
       _extensions[oid] = _X509Extension(isCritical, octets);
@@ -105,7 +111,7 @@ class _X509Extensions extends _Asn1Encode {
     _X509Extensions? result;
     if (explicitly == null) {
       if (obj == null || obj is _X509Extensions) {
-        result = obj;
+        result = obj as _X509Extensions?;
       } else if (obj is _Asn1Sequence) {
         result = _X509Extensions.fromSequence(obj);
       } else if (obj is _Asn1Tag) {
@@ -127,7 +133,8 @@ class _X509Extensions extends _Asn1Encode {
   @override
   _Asn1 getAsn1() {
     final _Asn1EncodeCollection vec = _Asn1EncodeCollection();
-    _ordering.forEach((oid) {
+    // ignore: avoid_function_literals_in_foreach_calls
+    _ordering.forEach((_DerObjectID? oid) {
       final _X509Extension ext = _extensions[oid]!;
       final _Asn1EncodeCollection v =
           _Asn1EncodeCollection(<_Asn1Encode?>[oid]);
@@ -156,7 +163,7 @@ class _X509Certificate extends _X509ExtensionBase {
         final List<int> bytes = bits.getBytes()!;
         final int length = (bytes.length * 8) - bits._extra!;
         _keyUsage =
-            List<bool>.generate((length < 9) ? 9 : length, (i) => false);
+            List<bool>.generate((length < 9) ? 9 : length, (int i) => false);
         for (int i = 0; i != length; i++) {
           _keyUsage![i] = (bytes[i ~/ 8] & (0x80 >> (i % 8))) != 0;
         }
@@ -242,7 +249,7 @@ class _SingnedCertificate extends _Asn1Encode {
     int seqStart = 0;
     _sequence = sequence;
     if (sequence[0] is _DerTag || sequence[0] is _Asn1Tag) {
-      _version = _DerInteger.getNumberFromTag(sequence[0] as _Asn1Tag, true);
+      _version = _DerInteger.getNumberFromTag(sequence[0]! as _Asn1Tag, true);
     } else {
       seqStart = -1;
       _version = _DerInteger(_bigIntToBytes(BigInt.from(0)));
@@ -250,7 +257,7 @@ class _SingnedCertificate extends _Asn1Encode {
     _serialNumber = _DerInteger.getNumber(sequence[seqStart + 1]);
     _signature = _Algorithms.getAlgorithms(sequence[seqStart + 2]);
     _issuer = _X509Name.getName(sequence[seqStart + 3]);
-    final _Asn1Sequence dates = sequence[seqStart + 4] as _Asn1Sequence;
+    final _Asn1Sequence dates = sequence[seqStart + 4]! as _Asn1Sequence;
     _startDate = _X509Time.getTime(dates[0]);
     _endDate = _X509Time.getTime(dates[1]);
     _subject = _X509Name.getName(sequence[seqStart + 5]);
@@ -259,7 +266,7 @@ class _SingnedCertificate extends _Asn1Encode {
     for (int extras = sequence.count - (seqStart + 6) - 1;
         extras > 0;
         extras--) {
-      final _Asn1Tag extra = sequence[seqStart + 6 + extras] as _Asn1Tag;
+      final _Asn1Tag extra = sequence[seqStart + 6 + extras]! as _Asn1Tag;
       switch (extra.tagNumber) {
         case 1:
           _issuerID = _DerBitString.getDerBitStringFromTag(extra, false);
@@ -370,7 +377,7 @@ class _RsaPublicKey extends _Asn1Encode {
   static _RsaPublicKey? getPublicKey(dynamic obj) {
     _RsaPublicKey? result;
     if (obj == null || obj is _RsaPublicKey) {
-      result = obj;
+      result = obj as _RsaPublicKey?;
     } else if (obj is _Asn1Sequence) {
       result = _RsaPublicKey.fromSequence(obj);
     } else {
@@ -400,7 +407,7 @@ class _SubjectKeyID extends _Asn1Encode {
   List<int>? _bytes;
   //Implementation
   static List<int> getDigest(_PublicKeyInformation publicKey) {
-    return sha1.convert(publicKey.publicKey!._data as List<int>).bytes;
+    return sha1.convert(publicKey.publicKey!._data!).bytes;
   }
 
   @override
@@ -461,12 +468,13 @@ class _X509CertificateParser {
     final dynamic seq = dIn.readAsn1();
     if (seq != null && seq is _Asn1Sequence) {
       if (seq.count > 1 && seq[0] is _DerObjectID) {
-        if ((seq[0] as _DerObjectID)._id == _PkcsObjectId.signedData._id) {
+        if ((seq[0]! as _DerObjectID)._id == _PkcsObjectId.signedData._id) {
           if (seq.count >= 2) {
             final _Asn1Sequence signedSequence =
                 _Asn1Sequence.getSequence(seq[1] as _Asn1Tag?, true)!;
             bool isContinue = true;
-            signedSequence._objects!.forEach((o) {
+            // ignore: avoid_function_literals_in_foreach_calls
+            signedSequence._objects!.forEach((dynamic o) {
               if (isContinue && o is _Asn1Tag) {
                 if (o.tagNumber == 0) {
                   _sData = _Asn1Set.getAsn1Set(o, false);

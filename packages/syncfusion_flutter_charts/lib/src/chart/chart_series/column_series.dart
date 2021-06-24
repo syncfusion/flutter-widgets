@@ -3,57 +3,58 @@ part of charts;
 /// This class has the properties of the column series.
 ///
 /// To render a column chart, create an instance of [ColumnSeries], and add it to the series collection property of [SfCartesianChart].
-/// The column series is a rectangular column with heights or lengths proportional to the values that they represent. it has the spacing
+/// The column series is a rectangular column with heights or lengths proportional to the values that they represent. It has the spacing
 /// property to separate the column.
 ///
 /// Provide the options of color, opacity, border color, and border width to customize the appearance.
 ///
 class ColumnSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of ColumnSeries class.
-  ColumnSeries(
-      {ValueKey<String>? key,
-      ChartSeriesRendererFactory<T, D>? onCreateRenderer,
-      required List<T> dataSource,
-      required ChartValueMapper<T, D> xValueMapper,
-      required ChartValueMapper<T, num> yValueMapper,
-      ChartValueMapper<T, dynamic>? sortFieldValueMapper,
-      ChartValueMapper<T, Color>? pointColorMapper,
-      ChartValueMapper<T, String>? dataLabelMapper,
-      SortingOrder? sortingOrder,
-      this.isTrackVisible = false,
-      String? xAxisName,
-      String? yAxisName,
-      String? name,
-      Color? color,
-      double? width,
-      this.spacing = 0,
-      MarkerSettings? markerSettings,
-      List<Trendline>? trendlines,
-      EmptyPointSettings? emptyPointSettings,
-      DataLabelSettings? dataLabelSettings,
-      bool? isVisible,
-      LinearGradient? gradient,
-      LinearGradient? borderGradient,
-      this.borderRadius = const BorderRadius.all(Radius.zero),
-      bool? enableTooltip,
-      double? animationDuration,
-      this.trackColor = Colors.grey,
-      this.trackBorderColor = Colors.transparent,
-      this.trackBorderWidth = 1,
-      this.trackPadding = 0,
-      Color? borderColor,
-      double? borderWidth,
-      // ignore: deprecated_member_use_from_same_package
-      SelectionSettings? selectionSettings,
-      SelectionBehavior? selectionBehavior,
-      bool? isVisibleInLegend,
-      LegendIconType? legendIconType,
-      String? legendItemText,
-      double? opacity,
-      List<double>? dashArray,
-      SeriesRendererCreatedCallback? onRendererCreated,
-      List<int>? initialSelectedDataIndexes})
-      : super(
+  ColumnSeries({
+    ValueKey<String>? key,
+    ChartSeriesRendererFactory<T, D>? onCreateRenderer,
+    required List<T> dataSource,
+    required ChartValueMapper<T, D> xValueMapper,
+    required ChartValueMapper<T, num> yValueMapper,
+    ChartValueMapper<T, dynamic>? sortFieldValueMapper,
+    ChartValueMapper<T, Color>? pointColorMapper,
+    ChartValueMapper<T, String>? dataLabelMapper,
+    SortingOrder? sortingOrder,
+    this.isTrackVisible = false,
+    String? xAxisName,
+    String? yAxisName,
+    String? name,
+    Color? color,
+    double? width,
+    this.spacing = 0,
+    MarkerSettings? markerSettings,
+    List<Trendline>? trendlines,
+    EmptyPointSettings? emptyPointSettings,
+    DataLabelSettings? dataLabelSettings,
+    bool? isVisible,
+    LinearGradient? gradient,
+    LinearGradient? borderGradient,
+    this.borderRadius = const BorderRadius.all(Radius.zero),
+    bool? enableTooltip,
+    double? animationDuration,
+    this.trackColor = Colors.grey,
+    this.trackBorderColor = Colors.transparent,
+    this.trackBorderWidth = 1,
+    this.trackPadding = 0,
+    Color? borderColor,
+    double? borderWidth,
+    SelectionBehavior? selectionBehavior,
+    bool? isVisibleInLegend,
+    LegendIconType? legendIconType,
+    String? legendItemText,
+    double? opacity,
+    List<double>? dashArray,
+    SeriesRendererCreatedCallback? onRendererCreated,
+    List<int>? initialSelectedDataIndexes,
+    ChartPointInteractionCallback? onPointTap,
+    ChartPointInteractionCallback? onPointDoubleTap,
+    ChartPointInteractionCallback? onPointLongPress,
+  }) : super(
             key: key,
             onCreateRenderer: onCreateRenderer,
             name: name,
@@ -78,7 +79,6 @@ class ColumnSeries<T, D> extends XyDataSeries<T, D> {
             animationDuration: animationDuration,
             borderColor: borderColor,
             borderWidth: borderWidth,
-            selectionSettings: selectionSettings,
             selectionBehavior: selectionBehavior,
             legendItemText: legendItemText,
             isVisibleInLegend: isVisibleInLegend,
@@ -87,7 +87,10 @@ class ColumnSeries<T, D> extends XyDataSeries<T, D> {
             opacity: opacity,
             dashArray: dashArray,
             onRendererCreated: onRendererCreated,
-            initialSelectedDataIndexes: initialSelectedDataIndexes);
+            initialSelectedDataIndexes: initialSelectedDataIndexes,
+            onPointTap: onPointTap,
+            onPointDoubleTap: onPointDoubleTap,
+            onPointLongPress: onPointLongPress);
 
   ///Color of the track.
   ///
@@ -247,6 +250,109 @@ class ColumnSeries<T, D> extends XyDataSeries<T, D> {
     }
     return ColumnSeriesRenderer();
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is ColumnSeries &&
+        other.key == key &&
+        other.onCreateRenderer == onCreateRenderer &&
+        other.dataSource == dataSource &&
+        other.xValueMapper == xValueMapper &&
+        other.yValueMapper == yValueMapper &&
+        other.sortFieldValueMapper == sortFieldValueMapper &&
+        other.pointColorMapper == pointColorMapper &&
+        other.dataLabelMapper == dataLabelMapper &&
+        other.sortingOrder == sortingOrder &&
+        other.xAxisName == xAxisName &&
+        other.yAxisName == yAxisName &&
+        other.name == name &&
+        other.color == color &&
+        other.markerSettings == markerSettings &&
+        other.emptyPointSettings == emptyPointSettings &&
+        other.dataLabelSettings == dataLabelSettings &&
+        other.trendlines == trendlines &&
+        other.isVisible == isVisible &&
+        other.enableTooltip == enableTooltip &&
+        other.dashArray == dashArray &&
+        other.animationDuration == animationDuration &&
+        other.borderColor == borderColor &&
+        other.borderWidth == borderWidth &&
+        other.gradient == gradient &&
+        other.borderGradient == borderGradient &&
+        other.selectionBehavior == selectionBehavior &&
+        other.isVisibleInLegend == isVisibleInLegend &&
+        other.legendIconType == legendIconType &&
+        other.legendItemText == legendItemText &&
+        other.opacity == opacity &&
+        other.trackColor == trackColor &&
+        other.trackBorderColor == trackBorderColor &&
+        other.trackBorderWidth == trackBorderWidth &&
+        other.trackPadding == trackPadding &&
+        other.spacing == spacing &&
+        other.borderRadius == borderRadius &&
+        other.isTrackVisible == isTrackVisible &&
+        other.onRendererCreated == onRendererCreated &&
+        other.initialSelectedDataIndexes == initialSelectedDataIndexes &&
+        other.onPointTap == onPointTap &&
+        other.onPointDoubleTap == onPointDoubleTap &&
+        other.onPointLongPress == onPointLongPress;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      key,
+      onCreateRenderer,
+      dataSource,
+      xValueMapper,
+      yValueMapper,
+      sortFieldValueMapper,
+      pointColorMapper,
+      dataLabelMapper,
+      sortingOrder,
+      xAxisName,
+      yAxisName,
+      name,
+      color,
+      markerSettings,
+      emptyPointSettings,
+      dataLabelSettings,
+      trendlines,
+      isVisible,
+      enableTooltip,
+      dashArray,
+      animationDuration,
+      borderColor,
+      borderWidth,
+      gradient,
+      borderGradient,
+      selectionBehavior,
+      isVisibleInLegend,
+      legendIconType,
+      legendItemText,
+      opacity,
+      trackColor,
+      trackBorderColor,
+      trackBorderWidth,
+      trackPadding,
+      spacing,
+      borderRadius,
+      isTrackVisible,
+      initialSelectedDataIndexes,
+      onRendererCreated,
+      onPointTap,
+      onPointDoubleTap,
+      onPointLongPress
+    ];
+    return hashList(values);
+  }
 }
 
 /// Creates series renderer for Column series
@@ -267,7 +373,7 @@ class ColumnSeriesRenderer extends XyDataSeriesRenderer {
     final List<CartesianSeriesRenderer> oldSeriesRenderers =
         _chartState!._oldSeriesRenderers;
     final ColumnSeries<dynamic, dynamic> _columnSeries =
-        _series as ColumnSeries;
+        _series as ColumnSeries<dynamic, dynamic>;
     segment._seriesRenderer = this;
     segment._series = _columnSeries;
     segment._chart = _chart;
@@ -278,9 +384,9 @@ class ColumnSeriesRenderer extends XyDataSeriesRenderer {
         .add(Offset(currentPoint.markerPoint!.x, currentPoint.markerPoint!.y));
     segment.animationFactor = animateFactor;
     segment._currentPoint = currentPoint;
-    if (_chartState!._widgetNeedUpdate &&
+    if (_renderingDetails!.widgetNeedUpdate &&
         _chartState!._zoomPanBehaviorRenderer._isPinching != true &&
-        !_chartState!._isLegendToggled &&
+        !_renderingDetails!.isLegendToggled &&
         // ignore: unnecessary_null_comparison
         oldSeriesRenderers != null &&
         oldSeriesRenderers.isNotEmpty &&
@@ -294,7 +400,16 @@ class ColumnSeriesRenderer extends XyDataSeriesRenderer {
           ? segment._oldSeriesRenderer!._dataPoints[pointIndex]
           : null;
       segment._oldSegmentIndex = _getOldSegmentIndex(segment);
-    } else if (_chartState!._isLegendToggled &&
+      if ((_chartState!._selectedSegments.length - 1 >= pointIndex) &&
+          _chartState?._selectedSegments[pointIndex]._oldSegmentIndex == null) {
+        final ChartSegment selectedSegment =
+            _chartState?._selectedSegments[pointIndex] as ChartSegment;
+        selectedSegment._oldSeriesRenderer =
+            oldSeriesRenderers[selectedSegment._seriesIndex];
+        selectedSegment._seriesRenderer = this;
+        selectedSegment._oldSegmentIndex = _getOldSegmentIndex(selectedSegment);
+      }
+    } else if (_renderingDetails!.isLegendToggled &&
         // ignore: unnecessary_null_comparison
         _chartState!._segments != null &&
         _chartState!._segments.isNotEmpty) {

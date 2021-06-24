@@ -6,6 +6,7 @@ part of charts;
 /// This feature can be enabled using enable property of [TrackballBehavior].
 ///
 /// Provides options to customize the [activationMode], [tooltipDisplayMode], [lineType] and [tooltipSettings].
+@immutable
 class TrackballBehavior {
   /// Creating an argument constructor of TrackballBehavior class.
   TrackballBehavior({
@@ -291,6 +292,51 @@ class TrackballBehavior {
   ///```
   final ChartTrackballBuilder<dynamic>? builder;
 
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is TrackballBehavior &&
+        other.activationMode == activationMode &&
+        other.lineType == lineType &&
+        other.tooltipDisplayMode == tooltipDisplayMode &&
+        other.tooltipAlignment == tooltipAlignment &&
+        other.tooltipSettings == tooltipSettings &&
+        other.lineDashArray == lineDashArray &&
+        other.markerSettings == markerSettings &&
+        other.enable == enable &&
+        other.lineColor == lineColor &&
+        other.lineWidth == lineWidth &&
+        other.shouldAlwaysShow == shouldAlwaysShow &&
+        other.builder == builder &&
+        other.hideDelay == hideDelay;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      activationMode,
+      lineType,
+      tooltipDisplayMode,
+      tooltipAlignment,
+      tooltipSettings,
+      markerSettings,
+      lineDashArray,
+      enable,
+      lineColor,
+      lineWidth,
+      shouldAlwaysShow,
+      builder,
+      hideDelay
+    ];
+    return hashList(values);
+  }
+
   SfCartesianChartState? _chartState;
 
   ///Options to customize the markers that are displayed when trackball is enabled.
@@ -326,7 +372,7 @@ class TrackballBehavior {
       final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
       if (coordinateUnit != 'pixel') {
         final _ChartLocation location = _calculatePoint(
-            (x is DateTime && !(xAxisRenderer is DateTimeCategoryAxisRenderer))
+            (x is DateTime && (xAxisRenderer is! DateTimeCategoryAxisRenderer))
                 ? x.millisecondsSinceEpoch
                 : ((x is DateTime &&
                         xAxisRenderer is DateTimeCategoryAxisRenderer)
@@ -355,7 +401,7 @@ class TrackballBehavior {
 
     if (trackballBehaviorRenderer._trackballPainter != null) {
       trackballBehaviorRenderer._trackballPainter!.canResetPath = false;
-      chartState._trackballRepaintNotifier.value++;
+      chartState._repaintNotifiers['trackball']!.value++;
     }
   }
 
@@ -377,8 +423,8 @@ class TrackballBehavior {
       }
       if (trackballBehaviorRenderer._trackballPainter != null) {
         trackballBehaviorRenderer._trackballPainter!.canResetPath = false;
-        trackballBehaviorRenderer
-            ._trackballPainter!.chartState._trackballRepaintNotifier.value++;
+        trackballBehaviorRenderer._trackballPainter!.chartState
+            ._repaintNotifiers['trackball']!.value++;
       }
     }
   }
@@ -394,15 +440,15 @@ class TrackballBehavior {
       if (chartState._chart.trackballBehavior.activationMode ==
           ActivationMode.doubleTap) {
         trackballBehaviorRenderer._trackballPainter!.canResetPath = false;
-        ValueNotifier<int>(trackballBehaviorRenderer
-            ._trackballPainter!.chartState._trackballRepaintNotifier.value++);
+        ValueNotifier<int>(trackballBehaviorRenderer._trackballPainter!
+            .chartState._repaintNotifiers['trackball']!.value++);
         if (trackballBehaviorRenderer._trackballPainter!.timer != null) {
           trackballBehaviorRenderer._trackballPainter!.timer?.cancel();
         }
       }
       if (!_chartState!._isTouchUp) {
-        trackballBehaviorRenderer
-            ._trackballPainter!.chartState._trackballRepaintNotifier.value++;
+        trackballBehaviorRenderer._trackballPainter!.chartState
+            ._repaintNotifiers['trackball']!.value++;
         trackballBehaviorRenderer._trackballPainter!.canResetPath = true;
       } else {
         final double duration =
@@ -411,7 +457,7 @@ class TrackballBehavior {
           trackballBehaviorRenderer._trackballPainter!.timer =
               Timer(Duration(milliseconds: duration.toInt()), () {
             trackballBehaviorRenderer._trackballPainter!.chartState
-                ._trackballRepaintNotifier.value++;
+                ._repaintNotifiers['trackball']!.value++;
             trackballBehaviorRenderer._trackballPainter!.canResetPath = true;
           });
         }
@@ -442,10 +488,11 @@ class TrackballBehaviorRenderer with ChartBehavior {
   TrackballBehavior get _trackballBehavior => _chart.trackballBehavior;
 
   /// Check whether long press activated or not .
+  // ignore: prefer_final_fields
   bool _isLongPressActivated = false;
 
   /// check whether onPointerMove or not.
-  /// ignore: prefer_final_fields
+  // ignore: prefer_final_fields
   bool _isMoving = false;
 
   /// Touch position
@@ -462,10 +509,11 @@ class TrackballBehaviorRenderer with ChartBehavior {
   late double _xPos;
   //ignore: unused_field
   late double _yPos;
-  List<CartesianChartPoint> _points = <CartesianChartPoint>[];
+  List<CartesianChartPoint<dynamic>> _points = <CartesianChartPoint<dynamic>>[];
   List<int> _currentPointIndices = <int>[];
   List<int> _visibleSeriesIndices = <int>[];
-  List<CartesianSeries> _visibleSeriesList = <CartesianSeries>[];
+  List<CartesianSeries<dynamic, dynamic>> _visibleSeriesList =
+      <CartesianSeries<dynamic, dynamic>>[];
   late TrackballGroupingModeInfo _groupingModeInfo;
   List<_ChartPointInfo> _chartPointInfo = <_ChartPointInfo>[];
   List<num> _tooltipTop = <num>[];
@@ -600,10 +648,10 @@ class TrackballBehaviorRenderer with ChartBehavior {
       trackballTemplateState._markerShapes = _markerShapes;
       trackballTemplateState.refresh();
     }
-    _points = <CartesianChartPoint>[];
+    _points = <CartesianChartPoint<dynamic>>[];
     _currentPointIndices = <int>[];
     _visibleSeriesIndices = <int>[];
-    _visibleSeriesList = <CartesianSeries>[];
+    _visibleSeriesList = <CartesianSeries<dynamic, dynamic>>[];
     _tooltipTop.clear();
     _tooltipBottom.clear();
   }
@@ -615,11 +663,9 @@ class TrackballBehaviorRenderer with ChartBehavior {
     _chartPointInfo = <_ChartPointInfo>[];
     _visiblePoints = <_ClosestPoints>[];
     _markerShapes.clear();
-    _tooltipTop = <num>[];
-    _tooltipBottom = <num>[];
+    _tooltipTop = _tooltipBottom = _visibleLocation = <num>[];
     _trackballPainter?._tooltipTop = <num>[];
     _trackballPainter?._tooltipBottom = <num>[];
-    _visibleLocation = <num>[];
     final Rect seriesBounds = _axisClipRect;
     _tapPosition = position;
     double? xPos = 0,
@@ -641,10 +687,8 @@ class TrackballBehaviorRenderer with ChartBehavior {
         maxYPos,
         maxXPos;
     int seriesIndex = 0, index;
-    final List<ChartAxisRenderer> seriesAxisRenderers = <ChartAxisRenderer>[];
-    CartesianSeriesRenderer visibleSeriesRenderer, cartesianSeriesRenderer;
-    ChartAxisRenderer? chartAxisRenderer;
-    ChartAxisRenderer xAxisRenderer, yAxisRenderer;
+    late CartesianSeriesRenderer cartesianSeriesRenderer;
+    ChartAxisRenderer chartAxisRenderer, xAxisRenderer, yAxisRenderer;
     CartesianChartPoint<dynamic> chartDataPoint;
     _ChartAxis chartAxis;
     String seriesType, labelValue, seriesName;
@@ -667,275 +711,214 @@ class TrackballBehaviorRenderer with ChartBehavior {
     final TrackballDisplayMode tooltipDisplayMode =
         _chartState._chart.trackballBehavior.tooltipDisplayMode;
     _ChartLocation highLocation, maxLocation;
-    for (final CartesianSeriesRenderer seriesRenderer
-        in _chartState._seriesRenderers) {
-      visibleSeriesRenderer = seriesRenderer;
-      chartAxisRenderer = visibleSeriesRenderer._xAxisRenderer!;
-      // ignore: unnecessary_null_comparison
-      if (chartAxisRenderer == null) {
+    chartAxisRenderer = _chartState._seriesRenderers[0]._xAxisRenderer!;
+    for (final CartesianSeriesRenderer axisSeriesRenderer
+        in chartAxisRenderer._seriesRenderers) {
+      cartesianSeriesRenderer = axisSeriesRenderer;
+      seriesType = cartesianSeriesRenderer._seriesType;
+      _isRangeSeries = seriesType.contains('range') ||
+          seriesType.contains('hilo') ||
+          seriesType == 'candle';
+      _isBoxSeries = seriesType == 'boxandwhisker';
+      if (axisSeriesRenderer._visible == false ||
+          (axisSeriesRenderer._dataPoints.isEmpty &&
+              !axisSeriesRenderer._isRectSeries)) {
         continue;
       }
-      if (!seriesAxisRenderers.contains(chartAxisRenderer)) {
-        seriesAxisRenderers.add(chartAxisRenderer);
-        for (final CartesianSeriesRenderer axisSeriesRenderer
-            in chartAxisRenderer._seriesRenderers) {
-          cartesianSeriesRenderer = axisSeriesRenderer;
-          seriesType = cartesianSeriesRenderer._seriesType;
-          _isRangeSeries = seriesType.contains('range') ||
-              seriesType.contains('hilo') ||
-              seriesType == 'candle';
-          _isBoxSeries = seriesType == 'boxandwhisker';
-          if (axisSeriesRenderer._visible == false ||
-              (axisSeriesRenderer._dataPoints.isEmpty &&
-                  !axisSeriesRenderer._isRectSeries)) {
-            continue;
+      if (cartesianSeriesRenderer._dataPoints.isNotEmpty) {
+        final List<CartesianChartPoint<dynamic>>? nearestDataPoints =
+            _getNearestChartPoints(
+                position.dx,
+                position.dy,
+                cartesianSeriesRenderer._xAxisRenderer!,
+                cartesianSeriesRenderer._yAxisRenderer!,
+                cartesianSeriesRenderer);
+        for (final CartesianChartPoint<dynamic> dataPoint
+            in nearestDataPoints!) {
+          index = axisSeriesRenderer._dataPoints.indexOf(dataPoint);
+          chartDataPoint = cartesianSeriesRenderer._dataPoints[index];
+          xAxisRenderer = cartesianSeriesRenderer._xAxisRenderer!;
+          yAxisRenderer = cartesianSeriesRenderer._yAxisRenderer!;
+          chartAxis = cartesianSeriesRenderer._chartState!._chartAxis;
+          invertedAxis = _chartState._requireInvertedAxis;
+          series = cartesianSeriesRenderer._series;
+          xValue = chartDataPoint.xValue;
+          if (seriesType != 'boxandwhisker') {
+            yValue = chartDataPoint.yValue;
           }
-          if (cartesianSeriesRenderer._dataPoints.isNotEmpty) {
-            final List<CartesianChartPoint<dynamic>>? nearestDataPoints =
-                _getNearestChartPoints(
-                    position.dx,
-                    position.dy,
-                    chartAxisRenderer,
-                    visibleSeriesRenderer._yAxisRenderer!,
-                    cartesianSeriesRenderer);
-            for (final CartesianChartPoint<dynamic> dataPoint
-                in nearestDataPoints!) {
-              index = axisSeriesRenderer._dataPoints.indexOf(dataPoint);
-              chartDataPoint = cartesianSeriesRenderer._dataPoints[index];
-              xAxisRenderer = cartesianSeriesRenderer._xAxisRenderer!;
-              yAxisRenderer = cartesianSeriesRenderer._yAxisRenderer!;
-              chartAxis = cartesianSeriesRenderer._chartState!._chartAxis;
-              invertedAxis = _chartState._requireInvertedAxis;
-              series = cartesianSeriesRenderer._series;
-              xValue = chartDataPoint.xValue;
-              if (seriesType != 'boxandwhisker') {
-                yValue = chartDataPoint.yValue;
-              }
-              minimumValue = chartDataPoint.minimum;
-              maximumValue = chartDataPoint.maximum;
-              lowerQuartileValue = chartDataPoint.lowerQuartile;
-              upperQuartileValue = chartDataPoint.upperQuartile;
-              meanValue = chartDataPoint.mean;
-              highValue = chartDataPoint.high;
-              lowValue = chartDataPoint.low;
-              openValue = chartDataPoint.open;
-              closeValue = chartDataPoint.close;
-              seriesName =
-                  cartesianSeriesRenderer._series.name ?? 'Series $seriesIndex';
-              bubbleSize = chartDataPoint.bubbleSize;
-              cumulativeValue = chartDataPoint.cumulativeValue;
-              axisClipRect = _calculatePlotOffset(
-                  chartAxis._axisClipRect,
-                  Offset(xAxisRenderer._axis.plotOffset,
-                      yAxisRenderer._axis.plotOffset));
-              cummulativePos = _calculatePoint(
-                      xValue!,
-                      cumulativeValue,
-                      xAxisRenderer,
-                      yAxisRenderer,
-                      invertedAxis,
-                      series,
-                      axisClipRect)
+          minimumValue = chartDataPoint.minimum;
+          maximumValue = chartDataPoint.maximum;
+          lowerQuartileValue = chartDataPoint.lowerQuartile;
+          upperQuartileValue = chartDataPoint.upperQuartile;
+          meanValue = chartDataPoint.mean;
+          highValue = chartDataPoint.high;
+          lowValue = chartDataPoint.low;
+          openValue = chartDataPoint.open;
+          closeValue = chartDataPoint.close;
+          seriesName =
+              cartesianSeriesRenderer._series.name ?? 'Series $seriesIndex';
+          bubbleSize = chartDataPoint.bubbleSize;
+          cumulativeValue = chartDataPoint.cumulativeValue;
+          axisClipRect = _calculatePlotOffset(
+              chartAxis._axisClipRect,
+              Offset(xAxisRenderer._axis.plotOffset,
+                  yAxisRenderer._axis.plotOffset));
+          cummulativePos = _calculatePoint(
+                  xValue!,
+                  cumulativeValue,
+                  xAxisRenderer,
+                  yAxisRenderer,
+                  invertedAxis,
+                  series,
+                  axisClipRect)
+              .y;
+          xPos = _calculatePoint(
+                  xValue,
+                  seriesType.contains('stacked') ? cumulativeValue : yValue,
+                  xAxisRenderer,
+                  yAxisRenderer,
+                  invertedAxis,
+                  series,
+                  axisClipRect)
+              .x;
+          if (!xPos.toDouble().isNaN) {
+            if (seriesIndex == 0 ||
+                ((leastX! - position.dx) > (leastX - xPos))) {
+              leastX = xPos;
+            }
+            labelValue = _getTrackballLabelText(
+                cartesianSeriesRenderer,
+                xValue,
+                yValue,
+                lowValue,
+                highValue,
+                openValue,
+                closeValue,
+                minimumValue,
+                maximumValue,
+                lowerQuartileValue,
+                upperQuartileValue,
+                meanValue,
+                seriesName,
+                bubbleSize,
+                cumulativeValue,
+                dataPoint);
+            yPos = seriesType.contains('stacked')
+                ? cummulativePos
+                : _calculatePoint(xValue, yValue, xAxisRenderer, yAxisRenderer,
+                        invertedAxis, series, axisClipRect)
+                    .y;
+            if (_isRangeSeries) {
+              lowYPos = _calculatePoint(xValue, lowValue, xAxisRenderer,
+                      yAxisRenderer, invertedAxis, series, axisClipRect)
                   .y;
-              xPos = _calculatePoint(
-                      xValue,
-                      seriesType.contains('stacked') ? cumulativeValue : yValue,
-                      xAxisRenderer,
-                      yAxisRenderer,
-                      invertedAxis,
-                      series,
-                      axisClipRect)
-                  .x;
-              if (!xPos.toDouble().isNaN) {
-                if (seriesIndex == 0 ||
-                    ((leastX! - position.dx) > (leastX - xPos))) {
-                  leastX = xPos;
-                }
-                labelValue = _getTrackballLabelText(
-                    cartesianSeriesRenderer,
-                    xValue,
-                    yValue,
-                    lowValue,
-                    highValue,
-                    openValue,
-                    closeValue,
-                    minimumValue,
-                    maximumValue,
-                    lowerQuartileValue,
-                    upperQuartileValue,
-                    meanValue,
-                    seriesName,
-                    bubbleSize,
-                    cumulativeValue,
-                    dataPoint);
-                yPos = seriesType.contains('stacked')
-                    ? cummulativePos
-                    : _calculatePoint(xValue, yValue, xAxisRenderer,
-                            yAxisRenderer, invertedAxis, series, axisClipRect)
-                        .y;
-                if (_isRangeSeries) {
-                  lowYPos = _calculatePoint(xValue, lowValue, xAxisRenderer,
-                          yAxisRenderer, invertedAxis, series, axisClipRect)
-                      .y;
-                  highLocation = _calculatePoint(
-                      xValue,
-                      highValue,
-                      xAxisRenderer,
-                      yAxisRenderer,
-                      invertedAxis,
-                      series,
-                      axisClipRect);
-                  highYPos = highLocation.y;
-                  highXPos = highLocation.x;
-                  if (seriesType == 'hiloopenclose' || seriesType == 'candle') {
-                    openXPos = dataPoint.openPoint!.x;
-                    openYPos = dataPoint.openPoint!.y;
-                    closeXPos = dataPoint.closePoint!.x;
-                    closeYPos = dataPoint.closePoint!.y;
-                  }
-                } else if (seriesType == 'boxandwhisker') {
-                  minYPos = _calculatePoint(xValue, minimumValue, xAxisRenderer,
-                          yAxisRenderer, invertedAxis, series, axisClipRect)
-                      .y;
-                  maxLocation = _calculatePoint(
-                      xValue,
-                      maximumValue,
-                      xAxisRenderer,
-                      yAxisRenderer,
-                      invertedAxis,
-                      series,
-                      axisClipRect);
-                  maxXPos = maxLocation.x;
-                  maxYPos = maxLocation.y;
-                  lowerXPos = dataPoint.lowerQuartilePoint!.x;
-                  lowerYPos = dataPoint.lowerQuartilePoint!.y;
-                  upperXPos = dataPoint.upperQuartilePoint!.x;
-                  upperYPos = dataPoint.upperQuartilePoint!.y;
-                }
-                final Rect rect = seriesBounds.intersect(Rect.fromLTWH(
-                    xPos - 1,
+              highLocation = _calculatePoint(xValue, highValue, xAxisRenderer,
+                  yAxisRenderer, invertedAxis, series, axisClipRect);
+              highYPos = highLocation.y;
+              highXPos = highLocation.x;
+              if (seriesType == 'hiloopenclose' || seriesType == 'candle') {
+                openXPos = dataPoint.openPoint!.x;
+                openYPos = dataPoint.openPoint!.y;
+                closeXPos = dataPoint.closePoint!.x;
+                closeYPos = dataPoint.closePoint!.y;
+              }
+            } else if (seriesType == 'boxandwhisker') {
+              minYPos = _calculatePoint(xValue, minimumValue, xAxisRenderer,
+                      yAxisRenderer, invertedAxis, series, axisClipRect)
+                  .y;
+              maxLocation = _calculatePoint(xValue, maximumValue, xAxisRenderer,
+                  yAxisRenderer, invertedAxis, series, axisClipRect);
+              maxXPos = maxLocation.x;
+              maxYPos = maxLocation.y;
+              lowerXPos = dataPoint.lowerQuartilePoint!.x;
+              lowerYPos = dataPoint.lowerQuartilePoint!.y;
+              upperXPos = dataPoint.upperQuartilePoint!.x;
+              upperYPos = dataPoint.upperQuartilePoint!.y;
+            }
+            final Rect rect = seriesBounds.intersect(Rect.fromLTWH(
+                xPos - 1,
+                _isRangeSeries
+                    ? highYPos! - 1
+                    : _isBoxSeries
+                        ? maxYPos! - 1
+                        : yPos - 1,
+                2,
+                2));
+            if (seriesBounds.contains(Offset(
+                    xPos,
                     _isRangeSeries
-                        ? highYPos! - 1
+                        ? highYPos!
                         : _isBoxSeries
-                            ? maxYPos! - 1
-                            : yPos - 1,
-                    2,
-                    2));
-                if (seriesBounds.contains(Offset(
-                        xPos,
-                        _isRangeSeries
-                            ? highYPos!
-                            : _isBoxSeries
-                                ? maxYPos!
-                                : yPos)) ||
-                    seriesBounds.overlaps(rect)) {
-                  _visiblePoints.add(_ClosestPoints(
-                      closestPointX: !_isRangeSeries
-                          ? xPos
-                          : _isBoxSeries
-                              ? maxXPos!
-                              : highXPos!,
-                      closestPointY: _isRangeSeries
-                          ? highYPos!
-                          : _isBoxSeries
-                              ? maxYPos!
-                              : yPos));
-                  _addChartPointInfo(
-                      cartesianSeriesRenderer,
-                      xPos,
-                      yPos,
-                      index,
-                      !_isTrackballTemplate ? labelValue : null,
-                      seriesIndex,
-                      lowYPos,
-                      highXPos,
-                      highYPos,
-                      openXPos,
-                      openYPos,
-                      closeXPos,
-                      closeYPos,
-                      minYPos,
-                      maxXPos,
-                      maxYPos,
-                      lowerXPos,
-                      lowerYPos,
-                      upperXPos,
-                      upperYPos);
-                  if (tooltipDisplayMode ==
-                          TrackballDisplayMode.groupAllPoints &&
-                      leastX >= seriesBounds.left) {
-                    invertedAxis ? yPos = leastX : xPos = leastX;
-                  }
-                }
+                            ? maxYPos!
+                            : yPos)) ||
+                seriesBounds.overlaps(rect)) {
+              _visiblePoints.add(_ClosestPoints(
+                  closestPointX: !_isRangeSeries
+                      ? xPos
+                      : _isBoxSeries
+                          ? maxXPos!
+                          : highXPos!,
+                  closestPointY: _isRangeSeries
+                      ? highYPos!
+                      : _isBoxSeries
+                          ? maxYPos!
+                          : yPos));
+              _addChartPointInfo(
+                  cartesianSeriesRenderer,
+                  xPos,
+                  yPos,
+                  index,
+                  !_isTrackballTemplate ? labelValue : null,
+                  seriesIndex,
+                  lowYPos,
+                  highXPos,
+                  highYPos,
+                  openXPos,
+                  openYPos,
+                  closeXPos,
+                  closeYPos,
+                  minYPos,
+                  maxXPos,
+                  maxYPos,
+                  lowerXPos,
+                  lowerYPos,
+                  upperXPos,
+                  upperYPos);
+              if (tooltipDisplayMode == TrackballDisplayMode.groupAllPoints &&
+                  leastX >= seriesBounds.left) {
+                invertedAxis ? yPos = leastX : xPos = leastX;
               }
             }
-            seriesIndex++;
-          }
-          _validateNearestXValue(
-              leastX!, cartesianSeriesRenderer, position.dx, position.dy);
-        }
-        if (_visiblePoints.isNotEmpty) {
-          invertedAxis
-              ? _visiblePoints.sort((_ClosestPoints a, _ClosestPoints b) =>
-                  a.closestPointX.compareTo(b.closestPointX))
-              : _visiblePoints.sort((_ClosestPoints a, _ClosestPoints b) =>
-                  a.closestPointY.compareTo(b.closestPointY));
-        }
-        if (_chartPointInfo.isNotEmpty) {
-          if (tooltipDisplayMode != TrackballDisplayMode.groupAllPoints) {
-            invertedAxis
-                ? _chartPointInfo.sort((_ChartPointInfo a, _ChartPointInfo b) =>
-                    a.xPosition!.compareTo(b.xPosition!))
-                : _chartPointInfo.sort((_ChartPointInfo a, _ChartPointInfo b) =>
-                    a.yPosition!.compareTo(b.yPosition!));
-          }
-          if (tooltipDisplayMode == TrackballDisplayMode.nearestPoint ||
-              (seriesRenderer._isRectSeries &&
-                  tooltipDisplayMode != TrackballDisplayMode.groupAllPoints)) {
-            _validateNearestPointForAllSeries(
-                leastX!, _chartPointInfo, position.dx, position.dy);
           }
         }
+        seriesIndex++;
+      }
+      _validateNearestXValue(
+          leastX!, cartesianSeriesRenderer, position.dx, position.dy);
+    }
+    if (_visiblePoints.isNotEmpty) {
+      invertedAxis
+          ? _visiblePoints.sort((_ClosestPoints a, _ClosestPoints b) =>
+              a.closestPointX.compareTo(b.closestPointX))
+          : _visiblePoints.sort((_ClosestPoints a, _ClosestPoints b) =>
+              a.closestPointY.compareTo(b.closestPointY));
+    }
+    if (_chartPointInfo.isNotEmpty) {
+      if (tooltipDisplayMode != TrackballDisplayMode.groupAllPoints) {
+        invertedAxis
+            ? _chartPointInfo.sort((_ChartPointInfo a, _ChartPointInfo b) =>
+                a.xPosition!.compareTo(b.xPosition!))
+            : _chartPointInfo.sort((_ChartPointInfo a, _ChartPointInfo b) =>
+                a.yPosition!.compareTo(b.yPosition!));
+      }
+      if (tooltipDisplayMode == TrackballDisplayMode.nearestPoint ||
+          (cartesianSeriesRenderer._isRectSeries &&
+              tooltipDisplayMode != TrackballDisplayMode.groupAllPoints)) {
+        _validateNearestPointForAllSeries(
+            leastX!, _chartPointInfo, position.dx, position.dy);
       }
     }
     _triggerTrackballRenderCallback();
-    _chartPointInfo = _getValidPoints(_chartPointInfo, position);
-  }
-
-  /// To get valid points of trackball
-  List<_ChartPointInfo> _getValidPoints(
-      List<_ChartPointInfo> points, Offset position) {
-    final List<_ChartPointInfo> validPoints = <_ChartPointInfo>[];
-    for (final _ChartPointInfo point in points) {
-      if (validPoints.isEmpty) {
-        validPoints.add(point);
-      } else if (validPoints[0].seriesRenderer!._xAxisRenderer ==
-          point.seriesRenderer!._xAxisRenderer) {
-        if (!point.seriesRenderer!._chartState!._requireInvertedAxis) {
-          if ((validPoints[0].xPosition! - position.dx).abs() ==
-                  (point.xPosition! - position.dx).abs() ||
-              validPoints[0].series != point.series) {
-            validPoints.add(point);
-          }
-        } else if ((validPoints[0].yPosition! - position.dy).abs() ==
-                (point.yPosition! - position.dy).abs() ||
-            validPoints[0].series != point.series) {
-          validPoints.add(point);
-        }
-      } else if ((validPoints[0].xPosition! - position.dx).abs() >
-          (point.xPosition! - position.dx).abs()) {
-        validPoints.clear();
-        validPoints.add(point);
-      } else if ((validPoints[0].xPosition! - position.dx).abs() ==
-          (point.xPosition! - position.dx).abs()) {
-        if ((validPoints[0].yPosition! - position.dy).abs() >
-            (point.yPosition! - position.dy).abs()) {
-          validPoints.clear();
-          validPoints.add(point);
-        }
-      }
-    }
-    return validPoints;
   }
 
   /// Event for trackball render
@@ -1011,7 +994,7 @@ class TrackballBehaviorRenderer with ChartBehavior {
         yPos = touchYPos;
         if (pointInfoIndex < tempTrackballInfo.length - 1) {
           nextPointInfo = tempTrackballInfo[pointInfoIndex + 1];
-          if ((pointInfo.yPosition! > yPos && pointInfoIndex == 0)) {
+          if (pointInfo.yPosition! > yPos && pointInfoIndex == 0) {
             continue;
           }
           if (!(yPos <
@@ -1064,7 +1047,7 @@ class TrackballBehaviorRenderer with ChartBehavior {
     num xValue;
     num? yValue;
     CartesianChartPoint<dynamic> dataPoint;
-    CartesianSeries series;
+    CartesianSeries<dynamic, dynamic> series;
     ChartAxisRenderer xAxisRenderer, yAxisRenderer;
     _ChartLocation currXLocation;
     for (final _ChartPointInfo pointInfo in _chartPointInfo) {
@@ -1129,6 +1112,8 @@ class TrackballBehaviorRenderer with ChartBehavior {
         seriesRenderer._dataPoints[index];
     final TrackballMarkerSettings markerSettings =
         trackballBehavior.markerSettings!;
+    final _RenderingDetails renderingDetails =
+        seriesRenderer._renderingDetails!;
     if (markerSettings.shape == DataMarkerType.image) {
       _drawImageMarker(null, canvas, _chartPointInfo[index].markerXPos!,
           _chartPointInfo[index].markerYPos!, markerSettings, _chartState);
@@ -1144,7 +1129,7 @@ class TrackballBehaviorRenderer with ChartBehavior {
 
     final Paint fillPaint = Paint()
       ..color = markerSettings.color ??
-          (_chartState._chartTheme.brightness == Brightness.light
+          (renderingDetails.chartTheme.brightness == Brightness.light
               ? Colors.white
               : Colors.black)
       ..style = PaintingStyle.fill;
@@ -1231,23 +1216,21 @@ class TrackballBehaviorRenderer with ChartBehavior {
     num tooltipWidth = 0;
     _TooltipPositions tooltipPosition;
     for (int i = 0; i < chartPointInfo.length; i++) {
-      if (requireInvertedAxis) {
-        _visibleLocation.add(chartPointInfo[i].xPosition!);
-      } else {
-        _visibleLocation.add((chartPointInfo[i]
-                    .seriesRenderer!
-                    ._seriesType
-                    .contains('range') ||
-                chartPointInfo[i]
-                    .seriesRenderer!
-                    ._seriesType
-                    .contains('hilo') ||
-                chartPointInfo[i].seriesRenderer!._seriesType == 'candle')
-            ? chartPointInfo[i].highYPosition!
-            : chartPointInfo[i].seriesRenderer!._seriesType == 'boxandwhisker'
-                ? chartPointInfo[i].maxYPosition!
-                : chartPointInfo[i].yPosition!);
-      }
+      requireInvertedAxis
+          ? _visibleLocation.add(chartPointInfo[i].xPosition!)
+          : _visibleLocation.add((chartPointInfo[i]
+                      .seriesRenderer!
+                      ._seriesType
+                      .contains('range') ||
+                  chartPointInfo[i]
+                      .seriesRenderer!
+                      ._seriesType
+                      .contains('hilo') ||
+                  chartPointInfo[i].seriesRenderer!._seriesType == 'candle')
+              ? chartPointInfo[i].highYPosition!
+              : chartPointInfo[i].seriesRenderer!._seriesType == 'boxandwhisker'
+                  ? chartPointInfo[i].maxYPosition!
+                  : chartPointInfo[i].yPosition!);
 
       tooltipWidth += tooltipBottom[i] - tooltipTop[i] + _tooltipPadding;
     }
@@ -1268,7 +1251,7 @@ class TrackballBehaviorRenderer with ChartBehavior {
     final _TooltipPositions tooltipPosition = tooltipPPosition;
     num? startPos, chartHeight;
     final bool isTransposed = _chartState._requireInvertedAxis;
-    dynamic secWidth, width;
+    num secWidth, width;
     final int length = tooltipPosition.tooltipTop.length;
     ChartAxisRenderer yAxisRenderer;
     final int axesLength =
@@ -1308,7 +1291,6 @@ class TrackballBehaviorRenderer with ChartBehavior {
         }
       }
     }
-
     for (int i = 0; i < length; i++) {
       yAxisRenderer = _yAxesInfo[i];
       for (int k = 0; k < axesLength; k++) {
@@ -1368,7 +1350,6 @@ class TrackballBehaviorRenderer with ChartBehavior {
             tooltipBottom[i + 1] - tooltipTop[i + 1] + _tooltipPadding;
         temp += tooltipHeight;
         count++;
-
         // This condition executes when the tooltip count is half of the total number of tooltips
         if (count - 1 == endPoint - 1 || i == endPoint - 1) {
           halfHeight = (temp - start) / 2;
@@ -1388,7 +1369,6 @@ class TrackballBehaviorRenderer with ChartBehavior {
               break;
             }
           }
-
           // To set tool tip positions based on the half height and other tooltip height
           for (j = startPoint + 1; j <= startPoint + count; j++) {
             tempTooltipHeight = tooltipBottom[j] - tooltipTop[j];
@@ -1398,7 +1378,6 @@ class TrackballBehaviorRenderer with ChartBehavior {
         }
       } else {
         count = i > 0 ? count : 0;
-
         // This exectutes when any of the middle tooltip collides
         if (count > 0) {
           halfHeight = (temp - start) / 2;
@@ -1439,7 +1418,7 @@ class TrackballBehaviorRenderer with ChartBehavior {
 
   /// To get and return label text of the trackball
   String _getTrackballLabelText(
-      CartesianSeriesRenderer cartesianSeriesRenderer,
+      CartesianSeriesRenderer seriesRenderer,
       num? xValue,
       num? yValue,
       num? lowValue,
@@ -1457,14 +1436,14 @@ class TrackballBehaviorRenderer with ChartBehavior {
       CartesianChartPoint<dynamic> dataPoint) {
     String labelValue;
     final int digits = _trackballBehavior.tooltipSettings.decimalPlaces;
+    final ChartAxis yAxis = seriesRenderer._yAxisRenderer!._axis;
     if (_trackballBehavior.tooltipSettings.format != null) {
       dynamic x;
-      final ChartAxisRenderer axisRenderer =
-          cartesianSeriesRenderer._xAxisRenderer!;
+      final ChartAxisRenderer axisRenderer = seriesRenderer._xAxisRenderer!;
       if (axisRenderer is DateTimeAxisRenderer) {
-        final DateTimeAxis _axis = axisRenderer._axis as DateTimeAxis;
         final DateFormat dateFormat =
-            _axis.dateFormat ?? _getDateTimeLabelFormat(axisRenderer);
+            (axisRenderer._axis as DateTimeAxis).dateFormat ??
+                _getDateTimeLabelFormat(axisRenderer);
         x = dateFormat
             .format(DateTime.fromMillisecondsSinceEpoch(xValue! as int));
       } else if (axisRenderer is CategoryAxisRenderer) {
@@ -1473,76 +1452,97 @@ class TrackballBehaviorRenderer with ChartBehavior {
         x = axisRenderer._labels
             .indexOf(axisRenderer._dateFormat.format(dataPoint.x));
       }
-      labelValue = _trackballBehavior.tooltipSettings.format!
-          .replaceAll('point.x', (x ?? xValue).toString())
-          .replaceAll(
-              'point.y',
-              _getLabelValue(yValue,
-                  cartesianSeriesRenderer._yAxisRenderer!._axis, digits))
-          .replaceAll('point.high', highValue.toString())
-          .replaceAll('point.low', lowValue.toString())
-          .replaceAll('point.open', openValue.toString())
-          .replaceAll('point.close', closeValue.toString())
-          .replaceAll('point.minimum', minValue.toString())
-          .replaceAll('point.maximum', maxValue.toString())
-          .replaceAll('point.lowerQuartile', lowerQuartileValue.toString())
-          .replaceAll('point.upperQuartile', upperQuartileValue.toString())
-          .replaceAll('{', '')
-          .replaceAll('}', '')
-          .replaceAll('series.name', seriesName)
-          .replaceAll('point.size', bubbleSize.toString())
-          .replaceAll('point.cumulativeValue', cumulativeValue.toString());
+      labelValue = seriesRenderer._seriesType.contains('hilo') ||
+              seriesRenderer._seriesType.contains('range') ||
+              seriesRenderer._seriesType.contains('candle') ||
+              seriesRenderer._seriesType.contains('boxandwhisker')
+          ? seriesRenderer._seriesType.contains('boxandwhisker')
+              ? (_trackballBehavior.tooltipSettings.format!
+                  .replaceAll('point.x', (x ?? xValue).toString())
+                  .replaceAll('point.minimum', minValue.toString())
+                  .replaceAll('point.maximum', maxValue.toString())
+                  .replaceAll(
+                      'point.lowerQuartile', lowerQuartileValue.toString())
+                  .replaceAll(
+                      'point.upperQuartile', upperQuartileValue.toString())
+                  .replaceAll('{', '')
+                  .replaceAll('}', '')
+                  .replaceAll('series.name', seriesName))
+              : seriesRenderer._seriesType == 'hilo' ||
+                      seriesRenderer._seriesType.contains('range')
+                  ? (_trackballBehavior.tooltipSettings.format!
+                      .replaceAll('point.x', (x ?? xValue).toString())
+                      .replaceAll('point.high', highValue.toString())
+                      .replaceAll('point.low', lowValue.toString())
+                      .replaceAll('{', '')
+                      .replaceAll('}', '')
+                      .replaceAll('series.name', seriesName))
+                  : (_trackballBehavior.tooltipSettings.format!
+                      .replaceAll('point.x', (x ?? xValue).toString())
+                      .replaceAll('point.high', highValue.toString())
+                      .replaceAll('point.low', lowValue.toString())
+                      .replaceAll('point.open', openValue.toString())
+                      .replaceAll('point.close', closeValue.toString())
+                      .replaceAll('{', '')
+                      .replaceAll('}', '')
+                      .replaceAll('series.name', seriesName))
+          : seriesRenderer._seriesType == 'bubble'
+              ? (_trackballBehavior.tooltipSettings.format!
+                  .replaceAll('point.x', (x ?? xValue).toString())
+                  .replaceAll(
+                      'point.y',
+                      _getLabelValue(
+                          yValue, seriesRenderer._yAxisRenderer!._axis, digits))
+                  .replaceAll('{', '')
+                  .replaceAll('}', '')
+                  .replaceAll('series.name', seriesName)
+                  .replaceAll('point.size', bubbleSize.toString()))
+              : seriesRenderer._seriesType.contains('stacked')
+                  ? (_trackballBehavior.tooltipSettings.format!
+                      .replaceAll('point.x', (x ?? xValue).toString())
+                      .replaceAll('point.y', _getLabelValue(yValue, seriesRenderer._yAxisRenderer!._axis, digits))
+                      .replaceAll('{', '')
+                      .replaceAll('}', '')
+                      .replaceAll('series.name', seriesName)
+                      .replaceAll('point.cumulativeValue', cumulativeValue.toString()))
+                  : (_trackballBehavior.tooltipSettings.format!.replaceAll('point.x', (x ?? xValue).toString()).replaceAll('point.y', _getLabelValue(yValue, seriesRenderer._yAxisRenderer!._axis, digits)).replaceAll('{', '').replaceAll('}', '').replaceAll('series.name', seriesName));
     } else {
-      labelValue = !cartesianSeriesRenderer._seriesType.contains('range') &&
-              !cartesianSeriesRenderer._seriesType.contains('candle') &&
-              !cartesianSeriesRenderer._seriesType.contains('hilo') &&
-              !cartesianSeriesRenderer._seriesType.contains('boxandwhisker')
-          ? _getLabelValue(
-              yValue, cartesianSeriesRenderer._yAxisRenderer!._axis, digits)
-          : cartesianSeriesRenderer._seriesType == 'hiloopenclose' ||
-                  cartesianSeriesRenderer._seriesType.contains('candle') ||
-                  cartesianSeriesRenderer._seriesType.contains('boxandwhisker')
-              ? cartesianSeriesRenderer._seriesType.contains('boxandwhisker')
+      labelValue = !seriesRenderer._seriesType.contains('range') &&
+              !seriesRenderer._seriesType.contains('candle') &&
+              !seriesRenderer._seriesType.contains('hilo') &&
+              !seriesRenderer._seriesType.contains('boxandwhisker')
+          ? _getLabelValue(yValue, yAxis, digits)
+          : seriesRenderer._seriesType == 'hiloopenclose' ||
+                  seriesRenderer._seriesType.contains('candle') ||
+                  seriesRenderer._seriesType.contains('boxandwhisker')
+              ? seriesRenderer._seriesType.contains('boxandwhisker')
                   ? 'Maximum : ' +
-                      _getLabelValue(maxValue, cartesianSeriesRenderer._yAxisRenderer!._axis)
-                          .toString() +
+                      _getLabelValue(maxValue, yAxis) +
                       '\n' +
                       'Minimum : ' +
-                      _getLabelValue(minValue, cartesianSeriesRenderer._yAxisRenderer!._axis)
-                          .toString() +
+                      _getLabelValue(minValue, yAxis) +
                       '\n' +
                       'LowerQuartile : ' +
-                      _getLabelValue(lowerQuartileValue,
-                              cartesianSeriesRenderer._yAxisRenderer!._axis)
-                          .toString() +
+                      _getLabelValue(lowerQuartileValue, yAxis) +
                       '\n' +
                       'UpperQuartile : ' +
-                      _getLabelValue(upperQuartileValue,
-                              cartesianSeriesRenderer._yAxisRenderer!._axis)
-                          .toString()
+                      _getLabelValue(upperQuartileValue, yAxis)
                   : 'High : ' +
-                      _getLabelValue(highValue, cartesianSeriesRenderer._yAxisRenderer!._axis)
-                          .toString() +
+                      _getLabelValue(highValue, yAxis) +
                       '\n' +
                       'Low : ' +
-                      _getLabelValue(lowValue, cartesianSeriesRenderer._yAxisRenderer!._axis)
-                          .toString() +
+                      _getLabelValue(lowValue, yAxis) +
                       '\n' +
                       'Open : ' +
-                      _getLabelValue(openValue, cartesianSeriesRenderer._yAxisRenderer!._axis)
-                          .toString() +
+                      _getLabelValue(openValue, yAxis) +
                       '\n' +
                       'Close : ' +
-                      _getLabelValue(closeValue,
-                              cartesianSeriesRenderer._yAxisRenderer!._axis)
-                          .toString()
+                      _getLabelValue(closeValue, yAxis)
               : 'High : ' +
-                  _getLabelValue(highValue, cartesianSeriesRenderer._yAxisRenderer!._axis)
-                      .toString() +
+                  _getLabelValue(highValue, yAxis) +
                   '\n' +
                   'Low : ' +
-                  _getLabelValue(lowValue, cartesianSeriesRenderer._yAxisRenderer!._axis)
-                      .toString();
+                  _getLabelValue(lowValue, yAxis);
     }
     return labelValue;
   }
@@ -1569,8 +1569,7 @@ class TrackballBehaviorRenderer with ChartBehavior {
                     '${point.x.microsecondsSinceEpoch}',
                     xAxisRenderer._dateFormat)
                 : _getLabelValue(point.xValue, xAxisRenderer._axis,
-                        _chart.tooltipBehavior.decimalPlaces)
-                    .toString());
+                    _chart.tooltipBehavior.decimalPlaces));
     return headerText;
   }
 
@@ -1681,7 +1680,7 @@ class TrackballGroupingModeInfo {
       this.visibleSeriesIndices, this.visibleSeriesList);
 
   /// It specifies the cartesian chart points.
-  final List<CartesianChartPoint> points;
+  final List<CartesianChartPoint<dynamic>> points;
 
   /// It specifies the current point indices.
   final List<int> currentPointIndices;
@@ -1690,5 +1689,5 @@ class TrackballGroupingModeInfo {
   final List<int> visibleSeriesIndices;
 
   /// It specifies the cartesian visible series list.
-  final List<CartesianSeries> visibleSeriesList;
+  final List<CartesianSeries<dynamic, dynamic>> visibleSeriesList;
 }

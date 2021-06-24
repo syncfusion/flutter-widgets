@@ -30,12 +30,17 @@ class NetworkPdf extends PdfProvider {
   /// Creates an object that fetches the PDF at the given URL.
   ///
   /// The arguments [url] must not be null.
-  NetworkPdf(String url) : assert(url.isNotEmpty) {
+  NetworkPdf(String url, Map<String, String>? headers)
+      : assert(url.isNotEmpty) {
     _url = url;
+    _headers = headers;
   }
 
   /// The URL from which the PDF will be fetched.
   late String _url;
+
+  /// The document headers
+  Map<String, String>? _headers;
 
   /// The document bytes
   Uint8List? _documentBytes;
@@ -44,12 +49,13 @@ class NetworkPdf extends PdfProvider {
   Future<Uint8List> getPdfBytes(BuildContext context) async {
     if (_documentBytes == null) {
       try {
-        _documentBytes = await http.readBytes(Uri.parse(_url));
+        _documentBytes =
+            await http.readBytes(Uri.parse(_url), headers: _headers);
       } on Exception catch (e) {
-        throw (e.toString());
+        throw e.toString();
       }
     }
-    return Future.value(_documentBytes);
+    return Future<Uint8List>.value(_documentBytes);
   }
 }
 
@@ -73,7 +79,7 @@ class MemoryPdf extends PdfProvider {
 
   @override
   Future<Uint8List> getPdfBytes(BuildContext context) async {
-    return Future.value(_pdfBytes);
+    return Future<Uint8List>.value(_pdfBytes);
   }
 }
 
@@ -103,15 +109,15 @@ class AssetPdf extends PdfProvider {
   Future<Uint8List> getPdfBytes(BuildContext context) async {
     if (_documentBytes == null) {
       try {
-        final bytes = await ((_bundle != null)
+        final ByteData bytes = await ((_bundle != null)
             ? _bundle!.load(_pdfPath)
             : DefaultAssetBundle.of(context).load(_pdfPath));
         _documentBytes = bytes.buffer.asUint8List();
       } on Exception catch (e) {
-        throw (e.toString());
+        throw e.toString();
       }
     }
-    return Future.value(_documentBytes);
+    return Future<Uint8List>.value(_documentBytes);
   }
 }
 
@@ -139,9 +145,9 @@ class FilePdf extends PdfProvider {
       try {
         _documentBytes = await _file.readAsBytes();
       } on Exception catch (e) {
-        throw (e.toString());
+        throw e.toString();
       }
     }
-    return Future.value(_documentBytes);
+    return Future<Uint8List>.value(_documentBytes);
   }
 }

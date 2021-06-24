@@ -9,6 +9,9 @@ abstract class XyDataSeries<T, D> extends CartesianSeries<T, D> {
       {ValueKey<String>? key,
       ChartSeriesRendererFactory<T, D>? onCreateRenderer,
       SeriesRendererCreatedCallback? onRendererCreated,
+      ChartPointInteractionCallback? onPointTap,
+      ChartPointInteractionCallback? onPointDoubleTap,
+      ChartPointInteractionCallback? onPointLongPress,
       ChartValueMapper<T, D>? xValueMapper,
       ChartValueMapper<T, dynamic>? yValueMapper,
       ChartValueMapper<T, String>? dataLabelMapper,
@@ -37,8 +40,6 @@ abstract class XyDataSeries<T, D> extends CartesianSeries<T, D> {
       List<double>? dashArray,
       Color? borderColor,
       double? borderWidth,
-      // ignore: deprecated_member_use_from_same_package
-      SelectionSettings? selectionSettings,
       SelectionBehavior? selectionBehavior,
       bool? isVisibleInLegend,
       LegendIconType? legendIconType,
@@ -50,6 +51,9 @@ abstract class XyDataSeries<T, D> extends CartesianSeries<T, D> {
             key: key,
             onRendererCreated: onRendererCreated,
             onCreateRenderer: onCreateRenderer,
+            onPointTap: onPointTap,
+            onPointDoubleTap: onPointDoubleTap,
+            onPointLongPress: onPointLongPress,
             isVisible: isVisible,
             legendItemText: legendItemText,
             xAxisName: xAxisName,
@@ -98,7 +102,6 @@ abstract class XyDataSeries<T, D> extends CartesianSeries<T, D> {
             dataLabelSettings: dataLabelSettings,
             enableTooltip: enableTooltip,
             animationDuration: animationDuration,
-            selectionSettings: selectionSettings,
             selectionBehavior: selectionBehavior,
             legendIconType: legendIconType,
             sortingOrder: sortingOrder,
@@ -108,11 +111,6 @@ abstract class XyDataSeries<T, D> extends CartesianSeries<T, D> {
             markerSettings: markerSettings,
             initialSelectedDataIndexes: initialSelectedDataIndexes);
 }
-
-/// Returns the widget.
-typedef ChartDataLabelTemplateBuilder<T> = Widget Function(
-    T data, CartesianChartPoint<dynamic> point, int pointIndex,
-    {int seriesIndex, CartesianSeries<dynamic, dynamic> series});
 
 /// This class has the properties of CartesianChartPoint.
 ///
@@ -178,13 +176,13 @@ class CartesianChartPoint<D> {
   /// X value of the point.
   D? x;
 
-  /// Y value of the point
+  /// Y value of the point.
   D? y;
 
-  /// Stores the xValues of the point
+  /// Stores the xValues of the point.
   D? xValue;
 
-  /// Stores the yValues of the Point
+  /// Stores the yValues of the point.
   D? yValue;
 
   /// Sort value of the point.
@@ -199,43 +197,43 @@ class CartesianChartPoint<D> {
   /// Open value of the point.
   D? open;
 
-  /// Close value of the point
+  /// Close value of the point.
   D? close;
 
-  /// Volume value of the point
+  /// Volume value of the point.
   num? volume;
 
   /// Marker point location.
   _ChartLocation? markerPoint;
 
-  /// second Marker point location.
+  /// Second marker point location.
   _ChartLocation? markerPoint2;
 
   /// Size of the bubble.
   num? bubbleSize;
 
-  /// To set empty value
+  /// To set empty value.
   bool? isEmpty;
 
-  /// To set gap value
+  /// To set gap value.
   bool isGap = false;
 
-  /// To set the drop value
+  /// To set the drop value.
   bool isDrop = false;
 
-  /// Set the visibility of the series.
+  /// Sets the visibility of the series.
   bool isVisible = true;
 
-  /// Used to map the color value from data point.
+  /// Used to map the color value from data points.
   Color? pointColorMapper;
 
-  /// Map the datalabel value from data point.
+  /// Maps the datalabel value from data points.
   String? dataLabelMapper;
 
-  /// Store the region.
+  /// Stores the region rect.
   Rect? region;
 
-  /// Store the region for box series rect.
+  /// Stores the region of box series rect.
   Rect? boxRectRegion;
 
   /// Store the outliers region.
@@ -253,10 +251,10 @@ class CartesianChartPoint<D> {
   /// Outlier values of box plot series.
   List<num>? outliers = <num>[];
 
-  /// Upper quartile values of box plot series.
+  /// Upper quartile value of box plot series.
   double? upperQuartile;
 
-  /// Lower quartile values of box plot series.
+  /// Lower quartile value of box plot series.
   double? lowerQuartile;
 
   /// Average value of the given data source in box plot series.
@@ -337,109 +335,109 @@ class CartesianChartPoint<D> {
   /// Stores the outliers location.
   List<_ChartLocation> outliersPoint = <_ChartLocation>[];
 
-  /// control points for spline series.
+  /// Control points for spline series.
   List<Offset>? controlPoint;
 
-  /// control points for spline range area series.
+  /// Control points for spline range area series.
   List<Offset>? controlPointshigh;
 
-  /// control points for spline range area series.
+  /// Control points for spline range area series.
   List<Offset>? controlPointslow;
 
-  /// Store the List of region.
+  /// Stores the list of regions.
   List<Rect>? regions;
 
-  /// store the cumulative value.
+  /// Stores the cumulative value.
   double? cumulativeValue;
 
-  /// Stores the tracker rect region
+  /// Stores the tracker rect region.
   Rect? trackerRectRegion;
 
-  /// Stores the forth data label text
+  /// Stores the yValue/high value data label text
   String? label;
 
-  /// Stores the forth data label text
+  /// Stores the data label text of low value.
   String? label2;
 
-  /// Stores the forth data label text
+  /// Stores the data label text of close value.
   String? label3;
 
-  /// Stores the forth data label text
+  /// Stores the data label text of open value.
   String? label4;
 
-  /// Stores the median data label text
+  /// Stores the median data label text.
   String? label5;
 
-  /// Stores the outliers data label text
+  /// Stores the outliers data label text.
   List<String> outliersLabel = <String>[];
 
-  /// Stores the forth data label Rect
+  /// Stores the yValue/high value data label Rect.
   RRect? labelFillRect;
 
-  /// Stores the forth data label Rect
+  /// Stores the data label text of low value Rect.
   RRect? labelFillRect2;
 
-  /// Stores the forth data label Rect
+  /// Stores the data label text of close value Rect.
   RRect? labelFillRect3;
 
-  /// Stores the forth data label Rect
+  /// Stores the data label text of open value Rect.
   RRect? labelFillRect4;
 
-  /// Stores the median data label Rect
+  /// Stores the median data label Rect.
   RRect? labelFillRect5;
 
-  /// Stores the outliers data label Rect
+  /// Stores the outliers data label Rect.
   List<RRect> outliersFillRect = <RRect>[];
 
-  /// Stores the data label location
+  /// Stores the data label location.
   _ChartLocation? labelLocation;
 
-  /// Stores the second data label location
+  /// Stores the second data label location.
   _ChartLocation? labelLocation2;
 
-  /// Stores the third data label location
+  /// Stores the third data label location.
   _ChartLocation? labelLocation3;
 
-  /// Stores the forth data label location
+  /// Stores the fourth data label location.
   _ChartLocation? labelLocation4;
 
-  /// Stores the median data label location
+  /// Stores the median data label location.
   _ChartLocation? labelLocation5;
 
-  /// Stores the outliers data label location
+  /// Stores the outliers data label location.
   List<_ChartLocation> outliersLocation = <_ChartLocation>[];
 
   /// Data label region saturation.
   bool dataLabelSaturationRegionInside = false;
 
-  /// Stores the data label region
+  /// Stores the data label region.
   Rect? dataLabelRegion;
 
-  /// Stores the second data label region
+  /// Stores the second data label region.
   Rect? dataLabelRegion2;
 
-  /// Stores the third data label region
+  /// Stores the third data label region.
   Rect? dataLabelRegion3;
 
-  /// Stores the forth data label region
+  /// Stores the forth data label region.
   Rect? dataLabelRegion4;
 
-  /// Stores the median data label region
+  /// Stores the median data label region.
   Rect? dataLabelRegion5;
 
-  /// Stores the outliers data label region
+  /// Stores the outliers data label region.
   List<Rect> outliersDataLabelRegion = <Rect>[];
 
-  /// Stores the data point index
+  /// Stores the data point index.
   int? index;
 
-  /// Stores the data index
+  /// Stores the data index.
   int? overallDataPointIndex;
 
-  /// Store the region data of the data point.
+  /// Stores the region data of the data point.
   List<String>? regionData;
 
-  /// Store the visible point index.
+  /// Stores the visible point index.
   int? visiblePointIndex;
 }
 
@@ -611,25 +609,23 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
 
   /// To render a series of elements for all series
   void _renderSeriesElements(SfCartesianChart chart, Canvas canvas,
-      Animation<double> animationController) {
+      Animation<double>? animationController) {
     _markerShapes = <Path?>[];
     _markerShapes2 = <Path?>[];
     assert(
         // ignore: unnecessary_null_comparison
-        _series.markerSettings.height != null
-            ? _series.markerSettings.height >= 0
-            : true,
+        !(_series.markerSettings.height != null) ||
+            _series.markerSettings.height >= 0,
         'The height of the marker should be greater than or equal to 0.');
     assert(
         // ignore: unnecessary_null_comparison
-        _series.markerSettings.width != null
-            ? _series.markerSettings.width >= 0
-            : true,
+        !(_series.markerSettings.width != null) ||
+            _series.markerSettings.width >= 0,
         'The width of the marker must be greater than or equal to 0.');
     for (int pointIndex = 0; pointIndex < _dataPoints.length; pointIndex++) {
       final CartesianChartPoint<dynamic> point = _dataPoints[pointIndex];
       if ((_series.markerSettings.isVisible &&
-              !(this is BoxAndWhiskerSeriesRenderer)) ||
+              this is! BoxAndWhiskerSeriesRenderer) ||
           this is ScatterSeriesRenderer) {
         final MarkerSettingsRenderer? markerSettingsRenderer =
             _markerSettingsRenderer!;
@@ -650,7 +646,7 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
       _chartState!._animationCompleteCount++;
       _setAnimationStatus(_chartState);
     } else if (_chartState != null && status == AnimationStatus.forward) {
-      _chartState!._animateCompleted = false;
+      _renderingDetails!.animateCompleted = false;
       _animationCompleted = false;
     }
   }
@@ -748,13 +744,13 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
         }
 
         /// side by side range calculated
-        seriesRenderer.sideBySideInfo = (_isRectSeries ||
+        seriesRenderer._sideBySideInfo = (_isRectSeries ||
                 (_seriesType.contains('candle') ||
                     _seriesType.contains('hilo') ||
                     _seriesType.contains('histogram') ||
                     _seriesType.contains('box')))
             ? _calculateSideBySideInfo(seriesRenderer, _chartState)
-            : seriesRenderer.sideBySideInfo;
+            : seriesRenderer._sideBySideInfo;
         if (_isRectSeries) {
           _calculateRectSeriesRegion(point, pointIndex, this, _chartState);
         } else if (isPointSeries) {
@@ -777,7 +773,11 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
       }
       // ignore: unnecessary_null_comparison
       if (_chart.tooltipBehavior != null &&
-          (_chart.tooltipBehavior.enable || _chart.onPointTapped != null) &&
+          (_chart.tooltipBehavior.enable ||
+              _chart.onPointTapped != null ||
+              seriesRenderer._series.onPointTap != null ||
+              seriesRenderer._series.onPointDoubleTap != null ||
+              seriesRenderer._series.onPointLongPress != null) &&
           _seriesType != 'boxandwhisker') {
         _calculateTooltipRegion(point, seriesIndex, this, _chartState);
       }
@@ -835,7 +835,7 @@ abstract class XyDataSeriesRenderer extends CartesianSeriesRenderer {
       regionRect.add(point.region);
       regionRect.add(_isRectSeries
           ? _seriesType == 'column' || _seriesType.contains('stackedcolumn')
-              ? point.yValue > 0
+              ? (point.yValue > 0) == true
                   ? point.region!.topCenter
                   : point.region!.bottomCenter
               : point.region!.topCenter

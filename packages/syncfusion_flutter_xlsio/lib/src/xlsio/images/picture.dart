@@ -17,15 +17,17 @@ class Picture {
     }
   }
 
-  static const List<int> _jpegSignature = [255, 216];
-  static const List<int> _pngSignature = [137, 80, 78, 71, 13, 10, 26, 10];
+  static const List<int> _jpegSignature = <int>[255, 216];
+  static const List<int> _pngSignature = <int>[137, 80, 78, 71, 13, 10, 26, 10];
 
   /// Gets/Sets the image data.
   List<int>? _imageData;
 
   // ignore: prefer_final_fields
   bool _isHyperlink = false;
-  Hyperlink? _link;
+
+  /// Gets/Sets the image hyperlink.
+  Hyperlink? hyperlink;
 
   /// Gets/Sets the image row.
   ///

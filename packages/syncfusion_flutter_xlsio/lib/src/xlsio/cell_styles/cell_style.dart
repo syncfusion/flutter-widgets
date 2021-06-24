@@ -23,7 +23,9 @@ class CellStyle implements Style {
     isGlobalStyle = false;
     locked = true;
     _borders = BordersCollection(_book);
-    if (name != null) this.name = name;
+    if (name != null) {
+      this.name = name;
+    }
   }
 
   /// Represents cell style name.
@@ -174,9 +176,9 @@ class CellStyle implements Style {
     return _book;
   }
 
-  Color _backColorRgb = Color.fromARGB(255, 0, 0, 0);
+  Color _backColorRgb = const Color.fromARGB(255, 0, 0, 0);
 
-  Color _fontColorRgb = Color.fromARGB(255, 0, 0, 0);
+  Color _fontColorRgb = const Color.fromARGB(255, 0, 0, 0);
 
   @override
 
@@ -232,12 +234,13 @@ class CellStyle implements Style {
 
   /// Compares two instances of the Cell styles.
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object toCompare) {
     final CellStyle baseStyle = this;
     // ignore: test_types_in_equals
     final CellStyle toCompareStyle = toCompare as CellStyle;
 
-    return (baseStyle.backColor == toCompareStyle.backColor &&
+    return baseStyle.backColor == toCompareStyle.backColor &&
         baseStyle.bold == toCompareStyle.bold &&
         baseStyle.numberFormatIndex == toCompareStyle.numberFormatIndex &&
         baseStyle.numberFormat == toCompareStyle.numberFormat &&
@@ -254,10 +257,11 @@ class CellStyle implements Style {
         baseStyle.borders == toCompareStyle.borders &&
         baseStyle.locked == toCompareStyle.locked &&
         baseStyle.backColorRgb == toCompareStyle.backColorRgb &&
-        baseStyle.fontColorRgb == toCompareStyle.fontColorRgb);
+        baseStyle.fontColorRgb == toCompareStyle.fontColorRgb;
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode => hashValues(
         name,
         backColor,

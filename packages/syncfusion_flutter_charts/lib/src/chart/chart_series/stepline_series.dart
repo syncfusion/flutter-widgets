@@ -7,6 +7,7 @@ part of charts;
 ///
 /// To render a step line chart, create an instance of StepLineSeries, and add it to the series collection property of [SfCartesianChart].
 /// Provides option to customise the [color], [opacity], [width] of the stepline segments
+@immutable
 class StepLineSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of StepLineSeries class.
   StepLineSeries(
@@ -31,14 +32,15 @@ class StepLineSeries<T, D> extends XyDataSeries<T, D> {
       bool? enableTooltip,
       List<double>? dashArray,
       double? animationDuration,
-      // ignore: deprecated_member_use_from_same_package
-      SelectionSettings? selectionSettings,
       SelectionBehavior? selectionBehavior,
       SortingOrder? sortingOrder,
       bool? isVisibleInLegend,
       LegendIconType? legendIconType,
       String? legendItemText,
       SeriesRendererCreatedCallback? onRendererCreated,
+      ChartPointInteractionCallback? onPointTap,
+      ChartPointInteractionCallback? onPointDoubleTap,
+      ChartPointInteractionCallback? onPointLongPress,
       double? opacity})
       : super(
             key: key,
@@ -62,13 +64,15 @@ class StepLineSeries<T, D> extends XyDataSeries<T, D> {
             dashArray: dashArray,
             isVisible: isVisible,
             animationDuration: animationDuration,
-            selectionSettings: selectionSettings,
             selectionBehavior: selectionBehavior,
             legendItemText: legendItemText,
             isVisibleInLegend: isVisibleInLegend,
             legendIconType: legendIconType,
             sortingOrder: sortingOrder,
             onRendererCreated: onRendererCreated,
+            onPointTap: onPointTap,
+            onPointDoubleTap: onPointDoubleTap,
+            onPointLongPress: onPointLongPress,
             opacity: opacity);
 
   /// Create the stacked area series renderer.
@@ -83,6 +87,89 @@ class StepLineSeries<T, D> extends XyDataSeries<T, D> {
       return stepLineSeriesRenderer;
     }
     return StepLineSeriesRenderer();
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is StepLineSeries &&
+        other.key == key &&
+        other.onCreateRenderer == onCreateRenderer &&
+        other.dataSource == dataSource &&
+        other.xValueMapper == xValueMapper &&
+        other.yValueMapper == yValueMapper &&
+        other.sortFieldValueMapper == sortFieldValueMapper &&
+        other.dataLabelMapper == dataLabelMapper &&
+        other.pointColorMapper == pointColorMapper &&
+        other.sortingOrder == sortingOrder &&
+        other.xAxisName == xAxisName &&
+        other.yAxisName == yAxisName &&
+        other.name == name &&
+        other.color == color &&
+        other.width == width &&
+        other.markerSettings == markerSettings &&
+        other.emptyPointSettings == emptyPointSettings &&
+        other.dataLabelSettings == dataLabelSettings &&
+        other.trendlines == trendlines &&
+        other.isVisible == isVisible &&
+        other.enableTooltip == enableTooltip &&
+        other.dashArray == dashArray &&
+        other.animationDuration == animationDuration &&
+        other.gradient == gradient &&
+        other.selectionBehavior == selectionBehavior &&
+        other.isVisibleInLegend == isVisibleInLegend &&
+        other.legendIconType == legendIconType &&
+        other.legendItemText == legendItemText &&
+        other.opacity == opacity &&
+        other.onRendererCreated == onRendererCreated &&
+        other.onPointTap == onPointTap &&
+        other.onPointDoubleTap == onPointDoubleTap &&
+        other.onPointLongPress == onPointLongPress;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      key,
+      onCreateRenderer,
+      dataSource,
+      xValueMapper,
+      yValueMapper,
+      sortFieldValueMapper,
+      dataLabelMapper,
+      pointColorMapper,
+      sortingOrder,
+      xAxisName,
+      yAxisName,
+      name,
+      color,
+      width,
+      markerSettings,
+      emptyPointSettings,
+      dataLabelSettings,
+      trendlines,
+      isVisible,
+      enableTooltip,
+      dashArray,
+      animationDuration,
+      gradient,
+      selectionBehavior,
+      isVisibleInLegend,
+      legendIconType,
+      legendItemText,
+      opacity,
+      onRendererCreated,
+      onPointTap,
+      onPointDoubleTap,
+      onPointLongPress
+    ];
+    return hashList(values);
   }
 }
 
@@ -107,7 +194,7 @@ class StepLineSeriesRenderer extends XyDataSeriesRenderer {
     segment.currentSegmentIndex = pointIndex;
     segment._seriesIndex = seriesIndex;
     segment._seriesRenderer = this;
-    segment._series = _series as XyDataSeries;
+    segment._series = _series as XyDataSeries<dynamic, dynamic>;
     segment._currentPoint = currentPoint;
     segment._midX = midX;
     segment._midY = midY;
@@ -116,7 +203,7 @@ class StepLineSeriesRenderer extends XyDataSeriesRenderer {
     segment._chartState = _chartState!;
     segment.animationFactor = animateFactor;
     segment._pointColorMapper = currentPoint.pointColorMapper;
-    if (_chartState!._widgetNeedUpdate &&
+    if (_renderingDetails!.widgetNeedUpdate &&
         // ignore: unnecessary_null_comparison
         _oldSeriesRenderers != null &&
         _oldSeriesRenderers.isNotEmpty &&

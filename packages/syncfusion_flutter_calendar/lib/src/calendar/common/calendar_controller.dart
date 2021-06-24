@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:syncfusion_flutter_core/core.dart';
 
 import 'calendar_view_helper.dart';
 import 'enums.dart';
@@ -104,10 +103,9 @@ class CalendarValueChangedNotifier with Diagnosticable {
 ///
 /// class MyAppState extends State<MyApp>{
 ///
-///  CalendarController _calendarController;
+///  CalendarController _calendarController = CalendarController();
 ///  @override
 ///  initState(){
-///    _calendarController = CalendarController();
 ///    _calendarController.selectedDate = DateTime(2022, 02, 05);
 ///    _calendarController.displayDate = DateTime(2022, 02, 05);
 ///    super.initState();
@@ -143,10 +141,9 @@ class CalendarController extends CalendarValueChangedNotifier {
   /// ```dart
   /// class MyAppState extends State<MyApp>{
   ///
-  ///  CalendarController _calendarController;
+  ///  CalendarController _calendarController = CalendarController();
   ///  @override
   ///  initState(){
-  ///    _calendarController = CalendarController();
   ///    _calendarController.selectedDate = DateTime(2022, 02, 05);
   ///    _calendarController.displayDate = DateTime(2022, 02, 05);
   ///    super.initState();
@@ -196,10 +193,9 @@ class CalendarController extends CalendarValueChangedNotifier {
   /// ```dart
   /// class MyAppState extends State<MyApp>{
   ///
-  /// CalendarController _calendarController;
+  /// CalendarController _calendarController = CalendarController();
   /// @override
   ///  initState(){
-  ///    _calendarController = CalendarController();
   ///    _calendarController.selectedDate = DateTime(2022, 02, 05);
   ///    _calendarController.displayDate = DateTime(2022, 02, 05);
   ///    super.initState();
@@ -219,7 +215,7 @@ class CalendarController extends CalendarValueChangedNotifier {
   ///}
   /// ```
   set displayDate(DateTime? date) {
-    if (date == null || isSameDate(_displayDate, date)) {
+    if (date == null) {
       return;
     }
 
@@ -235,10 +231,9 @@ class CalendarController extends CalendarValueChangedNotifier {
   /// ```dart
   /// class MyAppState extends State<MyApp>{
   ///
-  ///  CalendarController _calendarController;
+  ///  CalendarController _calendarController = CalendarController();
   ///  @override
   ///  initState(){
-  ///    _calendarController = CalendarController();
   ///    _calendarController.view = CalendarView.week;
   ///    super.initState();
   ///  }
@@ -273,11 +268,10 @@ class CalendarController extends CalendarValueChangedNotifier {
   ///
   /// ```dart
   /// class MyAppState extends State<MyApp> {
-  ///  CalendarController _calendarController;
+  ///  CalendarController _calendarController = CalendarController();
   ///
   ///  @override
   ///  initState() {
-  ///    _calendarController = CalendarController();
   ///    _calendarController.selectedDate = DateTime(2022, 02, 05);
   ///    _calendarController.displayDate = DateTime(2022, 02, 05);
   ///    super.initState();
@@ -293,14 +287,14 @@ class CalendarController extends CalendarValueChangedNotifier {
   ///            IconButton(
   ///              icon: Icon(Icons.arrow_forward),
   ///              onPressed: () {
-  ///                _calendarController.forward();
+  ///                _calendarController.forward!();
   ///              },
   ///            ),
   ///          ],
   ///          leading: IconButton(
   ///            icon: Icon(Icons.arrow_back),
   ///            onPressed: () {
-  ///              _calendarController.backward();
+  ///              _calendarController.backward!();
   ///            },
   ///          ),
   ///        ),
@@ -324,11 +318,10 @@ class CalendarController extends CalendarValueChangedNotifier {
   ///
   /// ```dart
   /// class MyAppState extends State<MyApp> {
-  ///  CalendarController _calendarController;
+  ///  CalendarController _calendarController = CalendarController();
   ///
   ///  @override
   ///  initState() {
-  ///    _calendarController = CalendarController();
   ///    _calendarController.selectedDate = DateTime(2022, 02, 05);
   ///    _calendarController.displayDate = DateTime(2022, 02, 05);
   ///    super.initState();
@@ -344,14 +337,14 @@ class CalendarController extends CalendarValueChangedNotifier {
   ///            IconButton(
   ///              icon: Icon(Icons.arrow_forward),
   ///              onPressed: () {
-  ///                _calendarController.forward();
+  ///                _calendarController.forward!();
   ///              },
   ///            ),
   ///          ],
   ///          leading: IconButton(
   ///            icon: Icon(Icons.arrow_back),
   ///            onPressed: () {
-  ///              _calendarController.backward();
+  ///              _calendarController.backward!();
   ///            },
   ///          ),
   ///        ),

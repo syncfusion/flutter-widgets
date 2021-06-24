@@ -50,8 +50,9 @@ class PdfNamedDestination implements _IPdfWrapper {
     if (_isLoaded) {
       String? title = '';
       if (_dictionary.containsKey(_DictionaryProperties.title)) {
-        final _PdfString str = _crossTable
-            ._getObject(_dictionary[_DictionaryProperties.title]) as _PdfString;
+        final _PdfString str =
+            _crossTable._getObject(_dictionary[_DictionaryProperties.title])!
+                as _PdfString;
         title = str.value;
       }
       return title!;
@@ -114,13 +115,13 @@ class PdfNamedDestination implements _IPdfWrapper {
             final _PdfNumber? top = destination[3] as _PdfNumber?;
             _PdfNumber? zoom;
             if (destination.count > 4 && destination[4] is _PdfNumber) {
-              zoom = destination[4] as _PdfNumber;
+              zoom = destination[4]! as _PdfNumber;
             }
             if (page != null) {
               final double topValue =
                   (top == null) ? 0 : page.size.height - top.value!;
               final double leftValue =
-                  (left == null) ? 0 : left.value as double;
+                  (left == null) ? 0 : left.value! as double;
               _destination = PdfDestination(page, Offset(leftValue, topValue));
               if (zoom != null) {
                 _destination!.zoom = zoom.value!.toDouble();

@@ -243,12 +243,15 @@ class _PdfStream extends _PdfDictionary {
     if (pdfObject == null) {
       throw ArgumentError.value(pdfObject, 'pdfObject', 'value cannot be null');
     }
-    if (pdfObject.isEmpty) {
-      throw ArgumentError.value(pdfObject, 'value cannot be empty');
-    }
     if (pdfObject is String || pdfObject is String?) {
+      if ((pdfObject as String).isEmpty) {
+        throw ArgumentError.value(pdfObject, 'value cannot be empty');
+      }
       _write(utf8.encode(pdfObject));
     } else if (pdfObject is List<int> || pdfObject is List<int?>) {
+      if ((pdfObject as List<int>).isEmpty) {
+        throw ArgumentError.value(pdfObject, 'value cannot be empty');
+      }
       _dataStream!.addAll(pdfObject);
       _modify();
     } else {
@@ -273,9 +276,8 @@ class _PdfStream extends _PdfDictionary {
         _SavePdfPrimitiveArgs(writer);
     _onBeginSave(beginSaveArguments);
     List<int>? data = _compressContent(writer!._document);
-    final PdfSecurity? security = writer._document!.security;
-    if (security != null &&
-        security._encryptor.encrypt &&
+    final PdfSecurity security = writer._document!.security;
+    if (security._encryptor.encrypt &&
         security._encryptor._encryptOnlyAttachment!) {
       bool attachmentEncrypted = false;
       if (containsKey(_DictionaryProperties.type)) {
@@ -294,15 +296,15 @@ class _PdfStream extends _PdfDictionary {
           if ((isArray == null && isString == null) ||
               !isArray! ||
               (isArray &&
-                  (filterPrimitive as _PdfArray)
+                  (filterPrimitive! as _PdfArray)
                       ._contains(_PdfName(_DictionaryProperties.crypt)))) {
             if (_compress! ||
                 !containsKey(_DictionaryProperties.filter) ||
                 (isArray! &&
-                        (filterPrimitive as _PdfArray)._contains(
+                        (filterPrimitive! as _PdfArray)._contains(
                             _PdfName(_DictionaryProperties.flateDecode)) ||
                     (isString! &&
-                        (filterPrimitive as _PdfString).value ==
+                        (filterPrimitive! as _PdfString).value ==
                             _DictionaryProperties.flateDecode))) {
               data = _compressContent(writer._document);
             }
@@ -330,7 +332,7 @@ class _PdfStream extends _PdfDictionary {
             if (decodeParamArray.count > 0 &&
                 decodeParamArray[0] is _PdfDictionary) {
               final _PdfDictionary decode =
-                  decodeParamArray[0] as _PdfDictionary;
+                  decodeParamArray[0]! as _PdfDictionary;
               if (decode.containsKey(_DictionaryProperties.name)) {
                 final _IPdfPrimitive? name = decode[_DictionaryProperties.name];
                 if (name is _PdfName &&
@@ -373,8 +375,7 @@ class _PdfStream extends _PdfDictionary {
         }
       }
     }
-    if (security != null &&
-        !security._encryptor._encryptMetadata! &&
+    if (!security._encryptor._encryptMetadata! &&
         containsKey(_DictionaryProperties.type)) {
       final _IPdfPrimitive? primitive = _items![_DictionaryProperties.type];
       if (primitive != null && primitive is _PdfName) {

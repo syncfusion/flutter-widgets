@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
 /// Ticks style for the linear axis.
+@immutable
 class LinearTickStyle {
   /// Creates linear tick style with default or required properties.
   ///
   /// The arguments [length], [thickness], must be non-negative.
-  LinearTickStyle({this.length = 4, this.thickness = 1, this.color});
+  const LinearTickStyle({this.length = 4, this.thickness = 1, this.color});
 
   /// Specifies the length of major and minor ticks.
   ///
@@ -70,7 +71,9 @@ class LinearTickStyle {
       return false;
     }
 
-    if (other is LinearTickStyle) otherStyle = other;
+    if (other is LinearTickStyle) {
+      otherStyle = other;
+    }
 
     return otherStyle.length == length &&
         otherStyle.color == color &&

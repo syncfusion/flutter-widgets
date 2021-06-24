@@ -40,7 +40,9 @@ class ChartAxis {
 
   /// Gets chart axis title.
   String? get title {
-    if (_titleArea == null) return null;
+    if (_titleArea == null) {
+      return null;
+    }
     return _titleArea!.text;
   }
 

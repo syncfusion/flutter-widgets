@@ -8,7 +8,6 @@ import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_maps/maps.dart';
 
-import '../behavior/zoom_pan_behavior.dart';
 import '../common.dart';
 import '../controller/map_controller.dart';
 import '../layer/layer_base.dart';
@@ -185,14 +184,13 @@ class _RenderMapTooltip extends ShapeLayerChildRenderBoxBase {
     required MapTooltipSettings tooltipSettings,
     required SfMapsThemeData themeData,
     required MediaQueryData mediaQueryData,
-    required BuildContext context,
+    required this.context,
     required _MapTooltipState state,
-  })   : _source = source,
+  })  : _source = source,
         _tooltipSettings = tooltipSettings,
         _themeData = themeData,
         _mediaQueryData = mediaQueryData,
-        _state = state,
-        context = context {
+        _state = state {
     _scaleAnimation =
         CurvedAnimation(parent: _state.controller, curve: Curves.easeOutBack);
   }

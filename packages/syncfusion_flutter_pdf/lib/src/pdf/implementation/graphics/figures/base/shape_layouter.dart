@@ -25,14 +25,14 @@ class _ShapeLayouter extends _ElementLayouter {
       // ref is there so implement in proper way
       final Map<String, dynamic> returnedValue =
           _raiseBeforePageLayout(currentPage, currentBounds!.rect);
-      bool cancel = returnedValue['cancel'];
+      bool cancel = returnedValue['cancel'] as bool;
       currentBounds = _Rectangle.fromRect(returnedValue['bounds']);
       EndPageLayoutArgs? endArgs;
       if (!cancel) {
         pageResult = _layoutOnPage(
             currentPage!, currentBounds, shapeLayoutBounds!, param);
         endArgs = _raiseEndPageLayout(pageResult);
-        cancel = (endArgs == null) ? false : endArgs.cancel;
+        cancel = endArgs != null && endArgs.cancel;
       }
       if (!pageResult._end && !cancel) {
         currentBounds = _getPaginateBounds(param);
@@ -167,7 +167,7 @@ class _ShapeLayouter extends _ElementLayouter {
 class _ShapeLayoutResult {
   //Constructor
   _ShapeLayoutResult() {
-    _bounds = Rect.fromLTWH(0, 0, 0, 0);
+    _bounds = const Rect.fromLTWH(0, 0, 0, 0);
     _end = false;
   }
   //Fields

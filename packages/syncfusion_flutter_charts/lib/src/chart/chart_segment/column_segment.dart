@@ -11,8 +11,6 @@ class ColumnSegment extends ChartSegment {
   /// Render path.
   late Path _path;
   late RRect _trackRect;
-  // @override
-  // CartesianChartPoint<dynamic> _currentPoint;
   Paint? _trackerFillPaint, _trackerStrokePaint;
 
   /// Rectangle of the segment this could be used to render the segment while overriding this segment
@@ -54,14 +52,12 @@ class ColumnSegment extends ChartSegment {
       ..strokeWidth = _currentPoint!.isEmpty == true
           ? _series.emptyPointSettings.borderWidth
           : _strokeWidth!;
-    if (_series.borderGradient != null) {
-      strokePaint!.shader =
-          _series.borderGradient!.createShader(_currentPoint!.region!);
-    } else {
-      strokePaint!.color = _currentPoint!.isEmpty == true
-          ? _series.emptyPointSettings.borderColor
-          : _strokeColor!;
-    }
+    _series.borderGradient != null
+        ? strokePaint!.shader =
+            _series.borderGradient!.createShader(_currentPoint!.region!)
+        : strokePaint!.color = _currentPoint!.isEmpty == true
+            ? _series.emptyPointSettings.borderColor
+            : _strokeColor!;
     _series.borderWidth == 0
         ? strokePaint!.color = Colors.transparent
         : strokePaint!.color;
@@ -71,7 +67,8 @@ class ColumnSegment extends ChartSegment {
 
   /// Method to get series tracker fill.
   Paint _getTrackerFillPaint() {
-    final ColumnSeries<dynamic, dynamic> columnSeries = _series as ColumnSeries;
+    final ColumnSeries<dynamic, dynamic> columnSeries =
+        _series as ColumnSeries<dynamic, dynamic>;
     _trackerFillPaint = Paint()
       ..color = columnSeries.trackColor
       ..style = PaintingStyle.fill;
@@ -80,7 +77,8 @@ class ColumnSegment extends ChartSegment {
 
   /// Method to getseries tracker stroke color.
   Paint _getTrackerStrokePaint() {
-    final ColumnSeries<dynamic, dynamic> columnSeries = _series as ColumnSeries;
+    final ColumnSeries<dynamic, dynamic> columnSeries =
+        _series as ColumnSeries<dynamic, dynamic>;
     _trackerStrokePaint = Paint()
       ..color = columnSeries.trackBorderColor
       ..strokeWidth = columnSeries.trackBorderWidth
@@ -98,7 +96,8 @@ class ColumnSegment extends ChartSegment {
   /// Draws segment in series bounds.
   @override
   void onPaint(Canvas canvas) {
-    final ColumnSeries<dynamic, dynamic> columnSeries = _series as ColumnSeries;
+    final ColumnSeries<dynamic, dynamic> columnSeries =
+        _series as ColumnSeries<dynamic, dynamic>;
 
     if (_trackerFillPaint != null && columnSeries.isTrackVisible) {
       _drawSegmentRect(canvas, _trackRect, _trackerFillPaint!);
@@ -112,11 +111,9 @@ class ColumnSegment extends ChartSegment {
       _drawSegmentRect(canvas, segmentRect, fillPaint!);
     }
     if (strokePaint != null) {
-      if (_series.dashArray[0] != 0 && _series.dashArray[1] != 0) {
-        _drawDashedLine(canvas, _series.dashArray, strokePaint!, _path);
-      } else {
-        _drawSegmentRect(canvas, segmentRect, strokePaint!);
-      }
+      (_series.dashArray[0] != 0 && _series.dashArray[1] != 0)
+          ? _drawDashedLine(canvas, _series.dashArray, strokePaint!, _path)
+          : _drawSegmentRect(canvas, segmentRect, strokePaint!);
     }
   }
 

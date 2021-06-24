@@ -25,23 +25,24 @@ class _CircularSeries {
   /// To find the visible series
   void _findVisibleSeries() {
     CircularSeries<dynamic, dynamic> series;
+    List<ChartPoint<dynamic>>? _oldPoints;
+    CircularSeries<dynamic, dynamic>? oldSeries;
+    int oldPointIndex = 0;
+    ChartPoint<dynamic> currentPoint;
     for (final CircularSeriesRenderer seriesRenderer
         in _chartState._chartSeries.visibleSeriesRenderers) {
       _setSeriesType(seriesRenderer);
       series = seriesRenderer._series = chart.series[0];
       seriesRenderer._dataPoints = <ChartPoint<dynamic>>[];
       seriesRenderer._needsAnimation = false;
-      final List<ChartPoint<dynamic>>? _oldPoints =
-          _chartState._prevSeriesRenderer?._oldRenderPoints;
-      final CircularSeries<dynamic, dynamic>? oldSeries =
-          _chartState._prevSeriesRenderer?._series;
-      int oldPointIndex = 0;
+      _oldPoints = _chartState._prevSeriesRenderer?._oldRenderPoints;
+      oldSeries = _chartState._prevSeriesRenderer?._series;
+      oldPointIndex = 0;
       if (series.dataSource != null) {
         for (int pointIndex = 0;
             pointIndex < series.dataSource!.length;
             pointIndex++) {
-          final ChartPoint<dynamic> currentPoint =
-              _getCircularPoint(seriesRenderer, pointIndex);
+          currentPoint = _getCircularPoint(seriesRenderer, pointIndex);
           if (currentPoint.x != null) {
             seriesRenderer._dataPoints.add(currentPoint);
             if (!seriesRenderer._needsAnimation) {
@@ -50,15 +51,12 @@ class _CircularSeries {
                     (oldSeries.startAngle != series.startAngle) ||
                         (oldSeries.endAngle != series.endAngle);
               }
-              if (_oldPoints != null &&
-                  _oldPoints.isNotEmpty &&
-                  !seriesRenderer._needsAnimation &&
-                  oldPointIndex < _oldPoints.length) {
-                seriesRenderer._needsAnimation =
-                    isDataUpdated(currentPoint, _oldPoints[oldPointIndex++]);
-              } else {
-                seriesRenderer._needsAnimation = true;
-              }
+
+              seriesRenderer._needsAnimation = !(_oldPoints != null &&
+                      _oldPoints.isNotEmpty &&
+                      !seriesRenderer._needsAnimation &&
+                      oldPointIndex < _oldPoints.length) ||
+                  isDataUpdated(currentPoint, _oldPoints[oldPointIndex++]);
             }
           }
         }
@@ -112,7 +110,8 @@ class _CircularSeries {
                     ? firstPoint.sortValue
                         .toLowerCase()
                         .compareTo(secondPoint.sortValue.toLowerCase())
-                    : firstPoint.sortValue.compareTo(secondPoint.sortValue)));
+                    : firstPoint.sortValue
+                        .compareTo(secondPoint.sortValue))) as int;
       } else if (seriesRenderer._series.sortingOrder ==
           SortingOrder.descending) {
         return (firstPoint.sortValue == null)
@@ -123,7 +122,8 @@ class _CircularSeries {
                     ? secondPoint.sortValue!
                         .toLowerCase()
                         .compareTo(firstPoint.sortValue!.toLowerCase())
-                    : secondPoint.sortValue!.compareTo(firstPoint.sortValue)));
+                    : secondPoint.sortValue!
+                        .compareTo(firstPoint.sortValue))) as int;
       } else {
         return 0;
       }
@@ -151,16 +151,13 @@ class _CircularSeries {
               ? textMapping(i) ?? point.y.toString()
               : point.y.toString()
           : point.text;
-      isYText = point.text == point.y.toString() ? true : false;
+      isYText = point.text == point.y.toString();
 
       if (point.isVisible) {
-        if (mode == CircularChartGroupMode.point &&
-            groupValue != null &&
-            i >= groupValue) {
-          sumOfGroup += point.y!.abs();
-        } else if (mode == CircularChartGroupMode.value &&
-            groupValue != null &&
-            point.y! <= groupValue) {
+        if (groupValue != null &&
+            ((mode == CircularChartGroupMode.point && i >= groupValue) ||
+                (mode == CircularChartGroupMode.value &&
+                    point.y! <= groupValue))) {
           sumOfGroup += point.y!.abs();
         } else {
           seriesRenderer._renderPoints!.add(point);
@@ -183,6 +180,9 @@ class _CircularSeries {
     final EmptyPointSettings empty = currentSeries.emptyPointSettings;
     final List<Color> palette = chart.palette;
     int i = 0;
+    List<_MeasureWidgetContext> legendToggles;
+    _MeasureWidgetContext item;
+    _LegendRenderContext legendRenderContext;
     for (final ChartPoint<dynamic> point in seriesRenderer._renderPoints!) {
       // ignore: unnecessary_null_comparison
       point.fill = point.isEmpty && empty.color != null
@@ -201,11 +201,11 @@ class _CircularSeries {
           point.strokeWidth == 0 ? Colors.transparent : point.strokeColor;
 
       if (chart.legend.legendItemBuilder != null) {
-        final List<_MeasureWidgetContext> legendToggles =
-            _chartState._legendToggleTemplateStates;
+        legendToggles =
+            _chartState._renderingDetails.legendToggleTemplateStates;
         if (legendToggles.isNotEmpty) {
           for (int j = 0; j < legendToggles.length; j++) {
-            final _MeasureWidgetContext item = legendToggles[j];
+            item = legendToggles[j];
             if (i == item.pointIndex) {
               point.isVisible = false;
               break;
@@ -213,10 +213,12 @@ class _CircularSeries {
           }
         }
       } else {
-        if (_chartState._legendToggleStates.isNotEmpty) {
-          for (int j = 0; j < _chartState._legendToggleStates.length; j++) {
-            final _LegendRenderContext legendRenderContext =
-                _chartState._legendToggleStates[j];
+        if (_chartState._renderingDetails.legendToggleStates.isNotEmpty) {
+          for (int j = 0;
+              j < _chartState._renderingDetails.legendToggleStates.length;
+              j++) {
+            legendRenderContext =
+                _chartState._renderingDetails.legendToggleStates[j];
             if (i == legendRenderContext.seriesIndex) {
               point.isVisible = false;
               break;
@@ -246,27 +248,24 @@ class _CircularSeries {
         currentSeries.pointRadiusMapper == null &&
         (seriesRenderer._seriesType == 'pie' ||
             seriesRenderer._seriesType == 'doughnut')) {
-      final Rect areaRect = _chartState._chartAreaRect;
+      final Rect areaRect = _chartState._renderingDetails.chartAreaRect;
       bool needExecute = true;
-      double radius = seriesRenderer._currentRadius.toDouble();
+      double radius =
+          seriesRenderer._segmentRenderingValues['currentRadius']!.toDouble();
       while (needExecute) {
         radius += 1;
         final Rect circularRect = _getArcPath(
                 0.0,
                 radius,
                 seriesRenderer._center!,
-                seriesRenderer._start,
-                seriesRenderer._end,
-                seriesRenderer._totalAngle,
+                seriesRenderer._segmentRenderingValues['start'],
+                seriesRenderer._segmentRenderingValues['end'],
+                seriesRenderer._segmentRenderingValues['totalAngle'],
                 chart,
                 true)
             .getBounds();
-        if (circularRect.width > areaRect.width) {
-          needExecute = false;
-          seriesRenderer._rect = circularRect;
-          break;
-        }
-        if (circularRect.height > areaRect.height) {
+        if (circularRect.width > areaRect.width ||
+            circularRect.height > areaRect.height) {
           needExecute = false;
           seriesRenderer._rect = circularRect;
           break;
@@ -274,16 +273,17 @@ class _CircularSeries {
       }
       seriesRenderer._rect = _getArcPath(
               0.0,
-              seriesRenderer._currentRadius,
+              seriesRenderer._segmentRenderingValues['currentRadius']!,
               seriesRenderer._center!,
-              seriesRenderer._start,
-              seriesRenderer._end,
-              seriesRenderer._totalAngle,
+              seriesRenderer._segmentRenderingValues['start'],
+              seriesRenderer._segmentRenderingValues['end'],
+              seriesRenderer._segmentRenderingValues['totalAngle'],
               chart,
               true)
           .getBounds();
       for (final ChartPoint<dynamic> point in seriesRenderer._renderPoints!) {
-        point.outerRadius = seriesRenderer._currentRadius;
+        point.outerRadius =
+            seriesRenderer._segmentRenderingValues['currentRadius'];
       }
     }
   }
@@ -292,23 +292,24 @@ class _CircularSeries {
   void _calculateStartAndEndAngle(CircularSeriesRenderer seriesRenderer) {
     int pointIndex = 0;
     num pointEndAngle;
-    num pointStartAngle = seriesRenderer._start;
-    final num innerRadius = seriesRenderer._currentInnerRadius;
+    num pointStartAngle = seriesRenderer._segmentRenderingValues['start']!;
+    final num innerRadius =
+        seriesRenderer._segmentRenderingValues['currentInnerRadius']!;
     for (final ChartPoint<dynamic> point in seriesRenderer._renderPoints!) {
       if (point.isVisible) {
         point.innerRadius =
             (seriesRenderer._seriesType == 'doughnut') ? innerRadius : 0.0;
         point.degree = (point.y!.abs() /
-                (seriesRenderer._sumOfPoints != 0
-                    ? seriesRenderer._sumOfPoints
+                (seriesRenderer._segmentRenderingValues['sumOfPoints']! != 0
+                    ? seriesRenderer._segmentRenderingValues['sumOfPoints']!
                     : 1)) *
-            seriesRenderer._totalAngle;
+            seriesRenderer._segmentRenderingValues['totalAngle']!;
         pointEndAngle = pointStartAngle + point.degree!;
         point.startAngle = pointStartAngle;
         point.endAngle = pointEndAngle;
         point.midAngle = (pointStartAngle + pointEndAngle) / 2;
-        point.outerRadius = _calculatePointRadius(
-            point.radius, point, seriesRenderer._currentRadius);
+        point.outerRadius = _calculatePointRadius(point.radius, point,
+            seriesRenderer._segmentRenderingValues['currentRadius']!);
         point.center = _needExplode(pointIndex, currentSeries)
             ? _findExplodeCenter(
                 point.midAngle!, seriesRenderer, point.outerRadius!)
@@ -328,13 +329,26 @@ class _CircularSeries {
     bool isNeedExplode = false;
     final SfCircularChartState chartState = _chartState;
     if (series.explode) {
-      if (chartState._initialRender!) {
+      if (chartState._renderingDetails.initialRender!) {
         if (pointIndex == series.explodeIndex || series.explodeAll) {
-          chartState._explodedPoints.add(pointIndex);
+          chartState._renderingDetails.explodedPoints.add(pointIndex);
           isNeedExplode = true;
         }
-      } else if (!chartState._initialRender! || chartState._isLegendToggled) {
-        isNeedExplode = chartState._explodedPoints.contains(pointIndex);
+      } else if (!chartState._renderingDetails.initialRender!) {
+        if (!chartState._renderingDetails.explodedPoints.contains(pointIndex) &&
+            !chartState._renderingDetails.isLegendToggled) {
+          if (pointIndex == series.explodeIndex || series.explodeAll) {
+            chartState._renderingDetails.explodedPoints.add(pointIndex);
+            isNeedExplode = true;
+          } else if (!series.explodeAll &&
+              chartState._renderingDetails.explodedPoints.isNotEmpty &&
+              pointIndex <=
+                  chartState._renderingDetails.explodedPoints.length - 1) {
+            chartState._renderingDetails.explodedPoints.removeAt(pointIndex);
+          }
+        }
+        isNeedExplode =
+            chartState._renderingDetails.explodedPoints.contains(pointIndex);
       }
     }
     return isNeedExplode;
@@ -342,58 +356,75 @@ class _CircularSeries {
 
   /// To find sum of points in the series
   void _findSumOfPoints(CircularSeriesRenderer seriesRenderer) {
-    seriesRenderer._sumOfPoints = 0;
+    seriesRenderer._segmentRenderingValues['sumOfPoints'] = 0;
     for (final ChartPoint<dynamic> point in seriesRenderer._renderPoints!) {
       if (point.isVisible) {
-        seriesRenderer._sumOfPoints += point.y!.abs();
+        seriesRenderer._segmentRenderingValues['sumOfPoints'] =
+            seriesRenderer._segmentRenderingValues['sumOfPoints']! +
+                point.y!.abs();
       }
     }
   }
 
   /// To calculate angle of series
   void _calculateAngle(CircularSeriesRenderer seriesRenderer) {
-    seriesRenderer._start = currentSeries.startAngle < 0
-        ? currentSeries.startAngle < -360
-            ? (currentSeries.startAngle % 360) + 360
-            : currentSeries.startAngle + 360
-        : currentSeries.startAngle;
-    seriesRenderer._end = currentSeries.endAngle < 0
+    seriesRenderer._segmentRenderingValues['start'] =
+        currentSeries.startAngle < 0
+            ? currentSeries.startAngle < -360
+                ? (currentSeries.startAngle % 360) + 360
+                : currentSeries.startAngle + 360
+            : currentSeries.startAngle;
+    seriesRenderer._segmentRenderingValues['end'] = currentSeries.endAngle < 0
         ? currentSeries.endAngle < -360
             ? (currentSeries.endAngle % 360) + 360
             : currentSeries.endAngle + 360
         : currentSeries.endAngle;
-    seriesRenderer._start = seriesRenderer._start > 360
-        ? seriesRenderer._start % 360
-        : seriesRenderer._start;
-    seriesRenderer._end = seriesRenderer._end > 360
-        ? seriesRenderer._end % 360
-        : seriesRenderer._end;
-    seriesRenderer._start -= 90;
-    seriesRenderer._end -= 90;
-    seriesRenderer._end = seriesRenderer._start == seriesRenderer._end
-        ? seriesRenderer._start + 360
-        : seriesRenderer._end;
-    seriesRenderer._totalAngle = seriesRenderer._start > seriesRenderer._end
-        ? (seriesRenderer._start - 360).abs() + seriesRenderer._end
-        : (seriesRenderer._start - seriesRenderer._end).abs();
+    seriesRenderer._segmentRenderingValues['start'] =
+        seriesRenderer._segmentRenderingValues['start']! > 360 == true
+            ? seriesRenderer._segmentRenderingValues['start']! % 360
+            : seriesRenderer._segmentRenderingValues['start']!;
+    seriesRenderer._segmentRenderingValues['end'] =
+        seriesRenderer._segmentRenderingValues['end']! > 360 == true
+            ? seriesRenderer._segmentRenderingValues['end']! % 360
+            : seriesRenderer._segmentRenderingValues['end']!;
+    seriesRenderer._segmentRenderingValues['start'] =
+        seriesRenderer._segmentRenderingValues['start']! - 90;
+    seriesRenderer._segmentRenderingValues['end'] =
+        seriesRenderer._segmentRenderingValues['end']! - 90;
+    seriesRenderer._segmentRenderingValues['end'] =
+        seriesRenderer._segmentRenderingValues['start']! ==
+                seriesRenderer._segmentRenderingValues['end']!
+            ? seriesRenderer._segmentRenderingValues['start']! + 360
+            : seriesRenderer._segmentRenderingValues['end']!;
+    seriesRenderer._segmentRenderingValues['totalAngle'] =
+        seriesRenderer._segmentRenderingValues['start']! >
+                    seriesRenderer._segmentRenderingValues['end']! ==
+                true
+            ? (seriesRenderer._segmentRenderingValues['start']! - 360).abs() +
+                seriesRenderer._segmentRenderingValues['end']!
+            : (seriesRenderer._segmentRenderingValues['start']! -
+                    seriesRenderer._segmentRenderingValues['end']!)
+                .abs();
   }
 
   /// To calculate radius of circular chart
   void _calculateRadius(CircularSeriesRenderer seriesRenderer) {
     final SfCircularChartState chartState = _chartState;
-    final Rect chartAreaRect = chartState._chartAreaRect;
+    final Rect chartAreaRect = chartState._renderingDetails.chartAreaRect;
     size = min(chartAreaRect.width, chartAreaRect.height);
-    seriesRenderer._currentRadius =
+    seriesRenderer._segmentRenderingValues['currentRadius'] =
         _percentToValue(currentSeries.radius, size / 2)!.toDouble();
-    seriesRenderer._currentInnerRadius = _percentToValue(
-        currentSeries.innerRadius, seriesRenderer._currentRadius)!;
+    seriesRenderer._segmentRenderingValues['currentInnerRadius'] =
+        _percentToValue(currentSeries.innerRadius,
+            seriesRenderer._segmentRenderingValues['currentRadius']!)!;
   }
 
   /// To calculate center location of chart
   void _calculateOrigin(CircularSeriesRenderer seriesRenderer) {
     final SfCircularChartState chartState = _chartState;
-    final Rect chartAreaRect = chartState._chartAreaRect;
-    final Rect chartContainerRect = chartState._chartContainerRect;
+    final Rect chartAreaRect = chartState._renderingDetails.chartAreaRect;
+    final Rect chartContainerRect =
+        chartState._renderingDetails.chartContainerRect;
     seriesRenderer._center = Offset(
         _percentToValue(chart.centerX, chartAreaRect.width)!.toDouble(),
         _percentToValue(chart.centerY, chartAreaRect.height)!.toDouble());
@@ -416,9 +447,7 @@ class _CircularSeries {
   /// To calculate and return point radius
   num _calculatePointRadius(
       dynamic value, ChartPoint<dynamic> point, num radius) {
-    if (value != null) {
-      radius = value != null ? _percentToValue(value, size / 2)! : radius;
-    }
+    radius = value != null ? _percentToValue(value, size / 2)! : radius;
     return radius;
   }
 
@@ -433,38 +462,82 @@ class _CircularSeries {
         _chartState._chartSeries.visibleSeriesRenderers[seriesIndex!];
     int? currentSelectedIndex;
     if (seriesRenderer._isSelectionEnable && mode == chart.selectionGesture) {
-      if (chartState._selectionData.isNotEmpty) {
+      if (chartState._renderingDetails.selectionData.isNotEmpty) {
         if (!chart.enableMultiSelection &&
-            chartState._selectionData.isNotEmpty &&
-            chartState._selectionData.length > 1) {
-          if (chartState._selectionData.contains(pointIndex)) {
+            chartState._renderingDetails.selectionData.isNotEmpty &&
+            chartState._renderingDetails.selectionData.length > 1) {
+          if (chartState._renderingDetails.selectionData.contains(pointIndex)) {
             currentSelectedIndex = pointIndex!;
           }
-          chartState._selectionData.clear();
+          chartState._renderingDetails.selectionData.clear();
           if (currentSelectedIndex != null) {
-            chartState._selectionData.add(pointIndex!);
+            chartState._renderingDetails.selectionData.add(pointIndex!);
           }
         }
-        for (int i = 0; i < chartState._selectionData.length; i++) {
-          final int selectionIndex = chartState._selectionData[i];
+
+        int selectionIndex;
+        for (int i = 0;
+            i < chartState._renderingDetails.selectionData.length;
+            i++) {
+          selectionIndex = chartState._renderingDetails.selectionData[i];
           if (!chart.enableMultiSelection) {
-            isPointAlreadySelected = chartState._selectionData.length == 1 &&
-                pointIndex == selectionIndex;
-            chartState._selectionData.removeAt(i);
-            chartState._seriesRepaintNotifier.value++;
+            isPointAlreadySelected =
+                chartState._renderingDetails.selectionData.length == 1 &&
+                    pointIndex == selectionIndex;
+            if (seriesRenderer._selectionBehavior.toggleSelection == true ||
+                !isPointAlreadySelected) {
+              chartState._renderingDetails.selectionData.removeAt(i);
+            }
+            chartState._renderingDetails.seriesRepaintNotifier.value++;
+            if (chart.onSelectionChanged != null) {
+              chart.onSelectionChanged!(_getSelectionEventArgs(
+                  seriesRenderer, seriesIndex, selectionIndex));
+            }
           } else if (pointIndex == selectionIndex) {
-            chartState._selectionData.removeAt(i);
+            if (seriesRenderer._selectionBehavior.toggleSelection == true) {
+              chartState._renderingDetails.selectionData.removeAt(i);
+            }
             isPointAlreadySelected = true;
-            chartState._seriesRepaintNotifier.value++;
+            chartState._renderingDetails.seriesRepaintNotifier.value++;
+            if (chart.onSelectionChanged != null) {
+              chart.onSelectionChanged!(_getSelectionEventArgs(
+                  seriesRenderer, seriesIndex, selectionIndex));
+            }
             break;
           }
         }
       }
       if (!isPointAlreadySelected) {
-        chartState._selectionData.add(pointIndex!);
-        chartState._seriesRepaintNotifier.value++;
+        chartState._renderingDetails.selectionData.add(pointIndex!);
+        chartState._renderingDetails.seriesRepaintNotifier.value++;
+        if (chart.onSelectionChanged != null) {
+          chart.onSelectionChanged!(
+              _getSelectionEventArgs(seriesRenderer, seriesIndex, pointIndex));
+        }
       }
     }
+  }
+
+  /// To perform slection event and return Selection Args
+  SelectionArgs _getSelectionEventArgs(
+      dynamic seriesRenderer, int seriesIndex, int pointIndex) {
+    if (seriesRenderer != null) {
+      final SelectionBehavior selectionBehavior =
+          seriesRenderer._selectionBehavior;
+      final SelectionArgs args = SelectionArgs(
+          seriesRenderer: seriesRenderer,
+          seriesIndex: seriesIndex,
+          viewportPointIndex: pointIndex,
+          pointIndex: pointIndex);
+      args.selectedBorderColor = selectionBehavior.selectedBorderColor;
+      args.selectedBorderWidth = selectionBehavior.selectedBorderWidth;
+      args.selectedColor = selectionBehavior.selectedColor;
+      args.unselectedBorderColor = selectionBehavior.unselectedBorderColor;
+      args.unselectedBorderWidth = selectionBehavior.unselectedBorderWidth;
+      args.unselectedColor = selectionBehavior.unselectedColor;
+      seriesRenderer._selectionArgs = args;
+    }
+    return seriesRenderer._selectionArgs as SelectionArgs;
   }
 
   void _seriesPointExplosion(_Region? pointRegion) {
@@ -474,37 +547,44 @@ class _CircularSeries {
         ._chartSeries.visibleSeriesRenderers[pointRegion!.seriesIndex];
     final ChartPoint<dynamic> point =
         seriesRenderer._renderPoints![pointRegion.pointIndex];
+    int explodeIndex;
     if (seriesRenderer._series.explode) {
-      if (chartState._explodedPoints.isNotEmpty) {
-        if (chartState._explodedPoints.length == 1 &&
-            chartState._explodedPoints.contains(pointRegion.pointIndex)) {
+      if (chartState._renderingDetails.explodedPoints.isNotEmpty) {
+        if (chartState._renderingDetails.explodedPoints.length == 1 &&
+            chartState._renderingDetails.explodedPoints
+                .contains(pointRegion.pointIndex)) {
           existExplodedRegion = true;
           point.center = seriesRenderer._center;
-          final int index =
-              chartState._explodedPoints.indexOf(pointRegion.pointIndex);
-          chartState._explodedPoints.removeAt(index);
-          chartState._seriesRepaintNotifier.value++;
+          final int index = chartState._renderingDetails.explodedPoints
+              .indexOf(pointRegion.pointIndex);
+          chartState._renderingDetails.explodedPoints.removeAt(index);
+          chartState._renderingDetails.seriesRepaintNotifier.value++;
           chartState._renderDataLabel!.state.dataLabelRepaintNotifier.value++;
         } else if (seriesRenderer._series.explodeAll &&
-            chartState._explodedPoints.length > 1 &&
-            chartState._explodedPoints.contains(pointRegion.pointIndex)) {
-          for (int i = 0; i < chartState._explodedPoints.length; i++) {
-            final int explodeIndex = chartState._explodedPoints[i];
+            chartState._renderingDetails.explodedPoints.length > 1 &&
+            chartState._renderingDetails.explodedPoints
+                .contains(pointRegion.pointIndex)) {
+          for (int i = 0;
+              i < chartState._renderingDetails.explodedPoints.length;
+              i++) {
+            explodeIndex = chartState._renderingDetails.explodedPoints[i];
             seriesRenderer._renderPoints![explodeIndex].center =
                 seriesRenderer._center;
-            chartState._explodedPoints.removeAt(i);
+            chartState._renderingDetails.explodedPoints.removeAt(i);
             i--;
           }
           existExplodedRegion = true;
-          chartState._seriesRepaintNotifier.value++;
+          chartState._renderingDetails.seriesRepaintNotifier.value++;
           chartState._renderDataLabel!.state.dataLabelRepaintNotifier.value++;
-        } else if (chartState._explodedPoints.length == 1) {
-          for (int i = 0; i < chartState._explodedPoints.length; i++) {
-            final int explodeIndex = chartState._explodedPoints[i];
+        } else if (chartState._renderingDetails.explodedPoints.length == 1) {
+          for (int i = 0;
+              i < chartState._renderingDetails.explodedPoints.length;
+              i++) {
+            explodeIndex = chartState._renderingDetails.explodedPoints[i];
             seriesRenderer._renderPoints![explodeIndex].center =
                 seriesRenderer._center;
-            chartState._explodedPoints.removeAt(i);
-            chartState._seriesRepaintNotifier.value++;
+            chartState._renderingDetails.explodedPoints.removeAt(i);
+            chartState._renderingDetails.seriesRepaintNotifier.value++;
             chartState._renderDataLabel!.state.dataLabelRepaintNotifier.value++;
           }
         }
@@ -512,8 +592,8 @@ class _CircularSeries {
       if (!existExplodedRegion) {
         point.center = _findExplodeCenter(
             point.midAngle!, seriesRenderer, point.outerRadius!);
-        chartState._explodedPoints.add(pointRegion.pointIndex);
-        chartState._seriesRepaintNotifier.value++;
+        chartState._renderingDetails.explodedPoints.add(pointRegion.pointIndex);
+        chartState._renderingDetails.seriesRepaintNotifier.value++;
         chartState._renderDataLabel!.state.dataLabelRepaintNotifier.value++;
       }
     }

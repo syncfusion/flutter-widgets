@@ -23,7 +23,8 @@ class PdfPath extends PdfShapeElement {
   }
 
   // fields
-  List<Offset> _points = [];
+  // ignore: prefer_final_fields
+  List<Offset> _points = <Offset>[];
   final List<_PathPointType> _pathTypes = <_PathPointType>[];
   final bool _isBeziers3 = false;
   bool _bStartFigure = true;

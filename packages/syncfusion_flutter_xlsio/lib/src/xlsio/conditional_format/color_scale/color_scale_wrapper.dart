@@ -17,7 +17,7 @@ class _ColorScaleWrapper implements ColorScale {
   late _ConditionalFormatWrapper _format;
 
   /// Wrapper over condition values.
-  List<ColorConditionValue> _arrConditions = [];
+  List<ColorConditionValue> _arrConditions = <ColorConditionValue>[];
 
   @override
 

@@ -26,8 +26,7 @@ class RenderLinearRange extends RenderOpacity {
       required LinearGaugeOrientation orientation,
       Animation<double>? rangeAnimation,
       required bool isAxisInversed,
-      required bool isMirrored,
-      RenderBox? child})
+      required bool isMirrored})
       : _startValue = startValue,
         _midValue = midValue,
         _endValue = endValue,
@@ -44,7 +43,7 @@ class RenderLinearRange extends RenderOpacity {
         _isAxisInversed = isAxisInversed,
         _isMirrored = isMirrored {
     _rangePaint = Paint()..color = Colors.black12;
-    _rangeOffsets = List<Offset>.filled(5, Offset(0, 0), growable: false);
+    _rangeOffsets = List<Offset>.filled(5, const Offset(0, 0), growable: false);
     _isHorizontal = orientation == LinearGaugeOrientation.horizontal;
     _path = Path();
   }
@@ -301,7 +300,8 @@ class RenderLinearRange extends RenderOpacity {
 
   @override
   void performLayout() {
-    final thickness = max(max(startThickness, midThickness), endThickness);
+    final double thickness =
+        max(max(startThickness, midThickness), endThickness);
     double rangeWidth = 0;
 
     if (axis != null) {
@@ -340,7 +340,7 @@ class RenderLinearRange extends RenderOpacity {
   }
 
   void _getRangeOffsets() {
-    final rangeElementPosition =
+    final LinearElementPosition rangeElementPosition =
         LinearGaugeHelper.getEffectiveElementPosition(position, isMirrored);
     double _bottom = _rangeOffset.dy + _rangeRect.height;
 
@@ -348,9 +348,9 @@ class RenderLinearRange extends RenderOpacity {
       _bottom = _rangeOffset.dx + _rangeRect.width;
     }
 
-    final _leftStart = _getPosition(startValue);
-    final _leftMid = _getPosition(midValue.clamp(startValue, endValue));
-    final _leftEnd = _getPosition(endValue);
+    final double _leftStart = _getPosition(startValue);
+    final double _leftMid = _getPosition(midValue.clamp(startValue, endValue));
+    final double _leftEnd = _getPosition(endValue);
     double _topStart = _bottom - startThickness;
     double _topMid = _bottom - midThickness;
     double _topEnd = _bottom - endThickness;
@@ -392,8 +392,8 @@ class RenderLinearRange extends RenderOpacity {
 
   void _getRangePath() {
     if (startThickness == endThickness && startThickness == midThickness) {
-      final rangeRect = Rect.fromLTRB(_rangeOffsets[0].dx, _rangeOffsets[0].dy,
-          _rangeOffsets[3].dx, _rangeOffsets[3].dy);
+      final Rect rangeRect = Rect.fromLTRB(_rangeOffsets[0].dx,
+          _rangeOffsets[0].dy, _rangeOffsets[3].dx, _rangeOffsets[3].dy);
 
       if (rangeRect.hasNaN) {
         return;
@@ -404,8 +404,8 @@ class RenderLinearRange extends RenderOpacity {
           _path.addRect(rangeRect);
           break;
         case LinearEdgeStyle.bothCurve:
-          _path.addRRect((RRect.fromRectAndRadius(
-              rangeRect, Radius.circular(startThickness / 2))));
+          _path.addRRect(RRect.fromRectAndRadius(
+              rangeRect, Radius.circular(startThickness / 2)));
           break;
         case LinearEdgeStyle.startCurve:
           _path.addRRect(LinearGaugeHelper.getStartCurve(

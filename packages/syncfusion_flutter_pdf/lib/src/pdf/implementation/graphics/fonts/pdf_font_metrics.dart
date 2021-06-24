@@ -206,10 +206,7 @@ class _CjkSameWidth extends _CjkWidth {
 /// Implements capabilities to control a sequent range of characters
 /// with different width.
 class _CjkDifferentWidth extends _CjkWidth {
-  _CjkDifferentWidth(from, width) {
-    this.from = from;
-    this.width = width;
-  }
+  _CjkDifferentWidth(this.from, this.width);
 
   /// The form
   @override

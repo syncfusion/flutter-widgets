@@ -209,15 +209,35 @@ enum CalendarDataSourceAction {
 
 /// Available view navigation modes for [SfCalendar].
 enum ViewNavigationMode {
-  /// - ViewNavigationMode.snap, Allows to switching to previous/next views
+  /// - ViewNavigationMode.snap, allows to switching to previous/next views
   /// through swipe interaction in SfCalendar.
   snap,
 
-  /// - ViewNavigationMode.none, Restrict the next or previous view dates
+  /// - ViewNavigationMode.none, restrict the next or previous view dates
   /// to be shown by swipe interaction in SfCalendar.
   ///
   /// It will not impact scrolling timeslot views,
   /// [controller.forward], [controller.backward]
   /// and [showNavigationArrow].
   none
+}
+
+/// Available Appointment types for [Appointment]
+enum AppointmentType {
+  /// - AppointmentType.changedOccurrence, this specifies the appointment is
+  /// a changed occurrence from the recurrence series.
+  changedOccurrence,
+
+  /// AppointmentType.normal, this specifies a standard appointment.
+  normal,
+
+  /// - AppointmentType.occurrence, this specifies the appointment is
+  /// an occurrence of pattern appointment which was created based on
+  /// RRule of the pattern appointment.
+  occurrence,
+
+  /// - AppointmentType.pattern, this specifies the pattern appointment
+  /// which has the RRule value and it is the pattern for the
+  /// occurrence appointment in the recurrence series.
+  pattern
 }

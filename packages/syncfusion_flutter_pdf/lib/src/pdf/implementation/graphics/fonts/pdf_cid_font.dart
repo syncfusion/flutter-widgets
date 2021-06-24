@@ -9,7 +9,7 @@ class _PdfCidFont extends _PdfDictionary {
         _PdfName(_DictionaryProperties.cidFontType2);
     this[_DictionaryProperties.baseFont] = _PdfName(fontMetrics.postScriptName);
     this[_DictionaryProperties.dw] =
-        _PdfNumber((fontMetrics._widthTable as _CjkWidthTable).defaultWidth);
+        _PdfNumber((fontMetrics._widthTable! as _CjkWidthTable).defaultWidth);
     this[_DictionaryProperties.w] = fontMetrics._widthTable!.toArray();
     this[_DictionaryProperties.fontDescriptor] =
         _PdfCjkFontDescryptorFactory.getFontDescryptor(

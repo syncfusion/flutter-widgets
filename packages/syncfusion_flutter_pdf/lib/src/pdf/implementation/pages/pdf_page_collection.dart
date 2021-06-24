@@ -142,16 +142,16 @@ class PdfPageCollection {
     final PdfSection sec = PdfSection._(_document, settings);
     sec._dropCropBox();
     sec._add(page);
-    _PdfDictionary dic = sec._element as _PdfDictionary;
+    _PdfDictionary dic = sec._element! as _PdfDictionary;
     int? localIndex = 0;
     final Map<String, dynamic> result =
         _getValidParent(index, localIndex, false);
-    final _PdfDictionary parent = result['node'];
-    localIndex = result['index'];
+    final _PdfDictionary parent = result['node'] as _PdfDictionary;
+    localIndex = result['index'] as int?;
     if (parent.containsKey(_DictionaryProperties.rotate)) {
       final int rotationValue = page._rotation.index * 90;
       final _PdfNumber parentRotation =
-          parent[_DictionaryProperties.rotate] as _PdfNumber;
+          parent[_DictionaryProperties.rotate]! as _PdfNumber;
       if (parentRotation.value!.toInt() != rotationValue &&
           (!dic.containsKey(_DictionaryProperties.rotate))) {
         page._dictionary[_DictionaryProperties.rotate] =
@@ -162,7 +162,7 @@ class PdfPageCollection {
     final _PdfArray kids = _getNodeKids(parent)!;
     kids._insert(localIndex!, _PdfReferenceHolder(dic));
     _updateCount(parent);
-    dic = page._element as _PdfDictionary;
+    dic = page._element! as _PdfDictionary;
     _pageCache![dic] = page;
     page.graphics.colorSpace = _document!.colorSpace;
     page.graphics._layer!._colorSpace = _document!.colorSpace;
@@ -217,22 +217,22 @@ class PdfPageCollection {
     if (_document!._isLoadedDocument) {
       int localIndex = 0;
       final Map<String, dynamic> result = _getParent(index, localIndex);
-      _PdfDictionary node = result['node'];
-      localIndex = result['index']!;
+      _PdfDictionary node = result['node'] as _PdfDictionary;
+      localIndex = result['index'] as int;
       final _PdfArray? kids = _getNodeKids(node);
       int i = localIndex;
       int j = 0;
       while (true) {
-        node = _crossTable!._getObject(kids![localIndex]) as _PdfDictionary;
-        if ((node[_DictionaryProperties.type] as _PdfName)._name == 'Pages') {
+        node = _crossTable!._getObject(kids![localIndex])! as _PdfDictionary;
+        if ((node[_DictionaryProperties.type]! as _PdfName)._name == 'Pages') {
           i++;
-          node = _crossTable!._getObject(kids[i]) as _PdfDictionary;
+          node = _crossTable!._getObject(kids[i])! as _PdfDictionary;
           final _PdfArray? innerKids = _getNodeKids(node);
           if (innerKids == null) {
             break;
           }
           if (innerKids.count > 0) {
-            node = _crossTable!._getObject(innerKids[j]) as _PdfDictionary;
+            node = _crossTable!._getObject(innerKids[j])! as _PdfDictionary;
             j++;
             break;
           }
@@ -283,7 +283,7 @@ class PdfPageCollection {
     }
     final _IPdfPrimitive? obj =
         _document!._catalog[_DictionaryProperties.pages];
-    _PdfDictionary node = _crossTable!._getObject(obj) as _PdfDictionary;
+    _PdfDictionary node = _crossTable!._getObject(obj)! as _PdfDictionary;
     int lowIndex = 0;
     localIndex = _getNodeCount(node);
     if (index == 0 && !zeroValid) {
@@ -295,7 +295,7 @@ class PdfPageCollection {
         if (primitive != null && primitive is _PdfReferenceHolder) {
           final _PdfReferenceHolder pageReferenceHolder = primitive;
           final _PdfDictionary kidsCollection =
-              pageReferenceHolder.object as _PdfDictionary;
+              pageReferenceHolder.object! as _PdfDictionary;
           final List<_PdfName?> keys = kidsCollection._items!.keys.toList();
           for (int keyIndex = 0; keyIndex < keys.length; keyIndex++) {
             final _PdfName key = keys[keyIndex]!;
@@ -316,9 +316,9 @@ class PdfPageCollection {
       }
       for (int i = 0, count = kids.count; i < count; ++i) {
         final _PdfDictionary subNode =
-            _crossTable!._getObject(kids[i]) as _PdfDictionary;
+            _crossTable!._getObject(kids[i])! as _PdfDictionary;
         String? pageValue =
-            (subNode[_DictionaryProperties.type] as _PdfName)._name;
+            (subNode[_DictionaryProperties.type]! as _PdfName)._name;
         if (_isNodeLeaf(subNode) &&
             !(pageValue == _DictionaryProperties.pages)) {
           if ((lowIndex + i) == index) {
@@ -335,9 +335,9 @@ class PdfPageCollection {
             count = kids.count;
             if (nodeCount == count) {
               final _PdfDictionary kidsSubNode =
-                  _crossTable!._getObject(kids[0]) as _PdfDictionary;
+                  _crossTable!._getObject(kids[0])! as _PdfDictionary;
               pageValue =
-                  (kidsSubNode[_DictionaryProperties.type] as _PdfName)._name;
+                  (kidsSubNode[_DictionaryProperties.type]! as _PdfName)._name;
               if (pageValue == _DictionaryProperties.pages) {
                 continue;
               } else {
@@ -392,7 +392,7 @@ class PdfPageCollection {
           if (primitive != null && primitive is _PdfReferenceHolder) {
             final _PdfReferenceHolder pageReferenceHolder = primitive;
             final _PdfDictionary kidsCollection =
-                pageReferenceHolder.object as _PdfDictionary;
+                pageReferenceHolder.object! as _PdfDictionary;
             final List<_PdfName?> keys = kidsCollection._items!.keys.toList();
             for (int keyIndex = 0; keyIndex < keys.length; keyIndex++) {
               final _PdfName key = keys[keyIndex]!;
@@ -426,22 +426,22 @@ class PdfPageCollection {
       if (kids!.count == count) {
         Map<String, dynamic> returnValue = _getParentNode(kidStartIndex, kids,
             0, index, tempNode, tempLocalIndex, isParentNodeFetched);
-        tempNode = returnValue['tempNode'];
-        tempLocalIndex = returnValue['tempLocalIndex'];
-        isParentNodeFetched = returnValue['isParentNodeFetched'];
+        tempNode = returnValue['tempNode'] as _PdfDictionary?;
+        tempLocalIndex = returnValue['tempLocalIndex'] as int?;
+        isParentNodeFetched = returnValue['isParentNodeFetched'] as bool?;
         if (!isParentNodeFetched!) {
           returnValue = _getParentNode(
               0, kids, 0, index, tempNode, tempLocalIndex, isParentNodeFetched);
-          tempNode = returnValue['tempNode'];
-          tempLocalIndex = returnValue['tempLocalIndex'];
-          isParentNodeFetched = returnValue['isParentNodeFetched'];
+          tempNode = returnValue['tempNode'] as _PdfDictionary?;
+          tempLocalIndex = returnValue['tempLocalIndex'] as int?;
+          isParentNodeFetched = returnValue['isParentNodeFetched'] as bool?;
         }
       } else {
         final Map<String, dynamic> returnValue = _getParentNode(
             0, kids, 0, index, tempNode, tempLocalIndex, isParentNodeFetched);
-        tempNode = returnValue['tempNode'];
-        tempLocalIndex = returnValue['tempLocalIndex'];
-        isParentNodeFetched = returnValue['isParentNodeFetched'];
+        tempNode = returnValue['tempNode'] as _PdfDictionary?;
+        tempLocalIndex = returnValue['tempLocalIndex'] as int?;
+        isParentNodeFetched = returnValue['isParentNodeFetched'] as bool?;
       }
 
       if (tempNode != null) {
@@ -481,7 +481,7 @@ class PdfPageCollection {
       if (primitive != null && primitive is _PdfDictionary) {
         final _PdfDictionary subNode = primitive;
         final String? pageValue =
-            (subNode[_DictionaryProperties.type] as _PdfName)._name;
+            (subNode[_DictionaryProperties.type]! as _PdfName)._name;
         if (_isNodeLeaf(subNode) &&
             !(pageValue == _DictionaryProperties.pages)) {
           if ((lowIndex + i) == pageIndex) {
@@ -616,11 +616,11 @@ class PdfPageCollection {
           }
         }
       }
-      final _PdfDictionary dic = page!._element as _PdfDictionary;
+      final _PdfDictionary dic = page!._element! as _PdfDictionary;
       int? localIndex = 0;
       final Map<String, dynamic> result = _getParent(index, localIndex);
-      final _PdfDictionary parent = result['node'];
-      localIndex = result['index'];
+      final _PdfDictionary parent = result['node'] as _PdfDictionary;
+      localIndex = result['index'] as int?;
       dic[_DictionaryProperties.parent] = _PdfReferenceHolder(parent);
       _PdfArray? kids = _getNodeKids(parent);
       if (index == 0) {
@@ -642,7 +642,16 @@ class PdfPageCollection {
               if (documentDic.containsKey('D')) {
                 final _IPdfPrimitive? documentObject = documentDic['D'];
                 if (documentObject != null && documentObject is _PdfArray) {
-                  documentObject._remove(_PdfReferenceHolder(dic));
+                  for (int i = 0; i < documentObject.count; i++) {
+                    final _IPdfPrimitive? entry = documentObject[i];
+                    if (entry != null && entry is _PdfReferenceHolder) {
+                      final _IPdfPrimitive? referenceDictionary = entry.object;
+                      if (referenceDictionary != null &&
+                          referenceDictionary == dic) {
+                        documentObject._remove(entry);
+                      }
+                    }
+                  }
                 }
               }
             }

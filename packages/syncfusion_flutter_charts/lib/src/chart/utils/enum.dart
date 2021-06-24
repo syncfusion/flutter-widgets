@@ -61,7 +61,7 @@ enum AxisLabelIntersectAction {
   rotate90
 }
 
-/// Interval type of the DateTime axis.
+/// Interval type of the DateTime and DateTimeCategory axis.
 enum DateTimeIntervalType {
   /// - DateTimeIntervalType.auto, will calculate interval based on the data points.
   auto,
@@ -82,7 +82,10 @@ enum DateTimeIntervalType {
   minutes,
 
   /// - DateTimeIntervalType.seconds, will consider interval as seconds.
-  seconds
+  seconds,
+
+  /// - DateTimeIntervalType.milliseconds, will consider interval as milliseconds(ms).
+  milliseconds,
 }
 
 /// Position of the axis labels.
@@ -410,7 +413,7 @@ enum ChartSwipeDirection {
 
 ///Determines whether the axis should be scrolled from the start position or end position.
 ///
-///For example, if there are 10 data points and [autoScrollingDelta] value is 5 and `AutoScrollingMode.end`
+///For example, if there are 10 data points and `autoScrollingDelta` value is 5 and `AutoScrollingMode.end`
 /// is specified to this property, last 5 points will be displayed in the chart. If `AutoScrollingMode.start`
 /// is set to this property, first 5 points will be displayed.
 ///

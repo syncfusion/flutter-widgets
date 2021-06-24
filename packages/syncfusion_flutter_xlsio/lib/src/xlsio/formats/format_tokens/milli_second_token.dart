@@ -1,31 +1,20 @@
 part of xlsio;
 
-/// <summary>
 /// Class used for MilliSecond Token.
-/// </summary>
 class _MilliSecondToken extends _FormatTokenBase {
-  //Class constants
-  /// <summary>
   /// Long format.
-  /// </summary>
   static const String _defaultFormatLong = '000';
 
-  /// <summary>
   /// Maximum format length.
-  /// </summary>
   static const int _defaultMaxLen = _defaultFormatLong.length;
 
-  /// <summary>
   /// Tries to parse format string.
-  /// </summary>
   @override
   int _tryParse(String strFormat, int iIndex) {
-    throw ('NotImplementedException');
+    throw 'NotImplementedException';
   }
 
-  /// <summary>
   /// Applies format to the value.
-  /// </summary>
   @override
   String _applyFormat(double value, bool bShowHiddenSymbols,
       CultureInfo culture, _FormatSection section) {
@@ -51,18 +40,14 @@ class _MilliSecondToken extends _FormatTokenBase {
         strPostfix;
   }
 
-  /// <summary>
   /// Applies format to the value.
-  /// </summary>
   @override
   // ignore: unused_element
   String _applyFormatString(String value, bool bShowHiddenSymbols) {
     return '';
   }
 
-  /// <summary>
   /// Gets type of the token. Read-only.
-  /// </summary>
   @override
   _TokenType get _tokenType {
     return _TokenType.milliSecond;

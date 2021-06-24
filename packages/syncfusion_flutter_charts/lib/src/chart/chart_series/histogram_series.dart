@@ -3,7 +3,7 @@ part of charts;
 /// This class has the properties of the column series.
 ///
 /// To render a column chart, create an instance of [HistogramSeries], and add it to the series collection property of [SfCartesianChart].
-/// The column series is a rectangular column with heights or lengths proportional to the values that they represent. it has the spacing
+/// The column series is a rectangular column with heights or lengths proportional to the values that they represent. It has the spacing
 /// property to separate the column.
 ///
 /// Provide the options of color, opacity, border color, and border width to customize the appearance.
@@ -42,8 +42,6 @@ class HistogramSeries<T, D> extends XyDataSeries<T, D> {
       this.trackPadding = 0,
       Color? borderColor,
       double? borderWidth,
-      // ignore: deprecated_member_use_from_same_package
-      SelectionSettings? selectionSettings,
       SelectionBehavior? selectionBehavior,
       bool? isVisibleInLegend,
       LegendIconType? legendIconType,
@@ -55,7 +53,10 @@ class HistogramSeries<T, D> extends XyDataSeries<T, D> {
       this.curveColor = Colors.blue,
       this.curveWidth = 2,
       this.curveDashArray,
-      SeriesRendererCreatedCallback? onRendererCreated})
+      SeriesRendererCreatedCallback? onRendererCreated,
+      ChartPointInteractionCallback? onPointTap,
+      ChartPointInteractionCallback? onPointDoubleTap,
+      ChartPointInteractionCallback? onPointLongPress})
       : super(
             key: key,
             onCreateRenderer: onCreateRenderer,
@@ -80,13 +81,15 @@ class HistogramSeries<T, D> extends XyDataSeries<T, D> {
             animationDuration: animationDuration,
             borderColor: borderColor,
             borderWidth: borderWidth,
-            selectionSettings: selectionSettings,
             selectionBehavior: selectionBehavior,
             legendItemText: legendItemText,
             isVisibleInLegend: isVisibleInLegend,
             legendIconType: legendIconType,
             sortingOrder: sortingOrder,
             onRendererCreated: onRendererCreated,
+            onPointTap: onPointTap,
+            onPointDoubleTap: onPointDoubleTap,
+            onPointLongPress: onPointLongPress,
             opacity: opacity,
             dashArray: dashArray);
 
@@ -345,6 +348,117 @@ class HistogramSeries<T, D> extends XyDataSeries<T, D> {
     }
     return HistogramSeriesRenderer();
   }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is HistogramSeries &&
+        other.key == key &&
+        other.onCreateRenderer == onCreateRenderer &&
+        other.dataSource == dataSource &&
+        other.yValueMapper == yValueMapper &&
+        other.sortFieldValueMapper == sortFieldValueMapper &&
+        other.pointColorMapper == pointColorMapper &&
+        other.dataLabelMapper == dataLabelMapper &&
+        other.sortingOrder == sortingOrder &&
+        other.xAxisName == xAxisName &&
+        other.yAxisName == yAxisName &&
+        other.name == name &&
+        other.color == color &&
+        other.markerSettings == markerSettings &&
+        other.emptyPointSettings == emptyPointSettings &&
+        other.dataLabelSettings == dataLabelSettings &&
+        other.trendlines == trendlines &&
+        other.isVisible == isVisible &&
+        other.enableTooltip == enableTooltip &&
+        other.dashArray == dashArray &&
+        other.animationDuration == animationDuration &&
+        other.borderColor == borderColor &&
+        other.borderWidth == borderWidth &&
+        other.gradient == gradient &&
+        other.borderGradient == borderGradient &&
+        other.selectionBehavior == selectionBehavior &&
+        other.isVisibleInLegend == isVisibleInLegend &&
+        other.legendIconType == legendIconType &&
+        other.legendItemText == legendItemText &&
+        other.opacity == opacity &&
+        other.trackColor == trackColor &&
+        other.trackBorderColor == trackBorderColor &&
+        other.trackBorderWidth == trackBorderWidth &&
+        other.trackPadding == trackPadding &&
+        other.spacing == spacing &&
+        other.binInterval == binInterval &&
+        other.showNormalDistributionCurve == showNormalDistributionCurve &&
+        other.curveColor == curveColor &&
+        other.curveWidth == curveWidth &&
+        other.curveDashArray == curveDashArray &&
+        other.borderRadius == borderRadius &&
+        other.isTrackVisible == isTrackVisible &&
+        other.onRendererCreated == onRendererCreated &&
+        other.onPointTap == onPointTap &&
+        other.onPointDoubleTap == onPointDoubleTap &&
+        other.onPointLongPress == onPointLongPress;
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      key,
+      onCreateRenderer,
+      dataSource,
+      yValueMapper,
+      sortFieldValueMapper,
+      pointColorMapper,
+      dataLabelMapper,
+      sortingOrder,
+      xAxisName,
+      yAxisName,
+      name,
+      color,
+      markerSettings,
+      emptyPointSettings,
+      dataLabelSettings,
+      trendlines,
+      isVisible,
+      enableTooltip,
+      dashArray,
+      animationDuration,
+      borderColor,
+      borderWidth,
+      gradient,
+      borderGradient,
+      selectionBehavior,
+      isVisibleInLegend,
+      legendIconType,
+      legendItemText,
+      opacity,
+      trackColor,
+      trackBorderColor,
+      trackBorderWidth,
+      trackPadding,
+      spacing,
+      borderRadius,
+      binInterval,
+      showNormalDistributionCurve,
+      curveColor,
+      curveWidth,
+      curveDashArray,
+      isTrackVisible,
+      onRendererCreated,
+      onPointTap,
+      onPointDoubleTap,
+      onPointLongPress
+    ];
+    return hashList(values);
+  }
 }
 
 class _HistogramValues {
@@ -428,7 +542,7 @@ class HistogramSeriesRenderer extends XyDataSeriesRenderer {
       double animateFactor) {
     _segment = createSegment();
     _oldSeriesRenderers = _chartState!._oldSeriesRenderers;
-    _histogramSeries = _series as HistogramSeries;
+    _histogramSeries = _series as HistogramSeries<dynamic, dynamic>;
     _borderRadius = _histogramSeries.borderRadius;
     _segment._seriesRenderer = this;
     _segment._series = _histogramSeries;
@@ -448,8 +562,8 @@ class HistogramSeriesRenderer extends XyDataSeriesRenderer {
         this,
         _chartState!);
     _segment._currentPoint = currentPoint;
-    if (_chartState!._widgetNeedUpdate &&
-        !_chartState!._isLegendToggled &&
+    if (_renderingDetails!.widgetNeedUpdate &&
+        !_renderingDetails!.isLegendToggled &&
         _oldSeriesRenderers != null &&
         _oldSeriesRenderers!.isNotEmpty &&
         _oldSeriesRenderers!.length - 1 >= _segment._seriesIndex &&
@@ -462,7 +576,7 @@ class HistogramSeriesRenderer extends XyDataSeriesRenderer {
           ? _segment._oldSeriesRenderer!._dataPoints[pointIndex]
           : null;
       _segment._oldSegmentIndex = _getOldSegmentIndex(_segment);
-    } else if (_chartState!._isLegendToggled &&
+    } else if (_renderingDetails!.isLegendToggled &&
         // ignore: unnecessary_null_comparison
         _chartState!._segments != null &&
         _chartState!._segments.isNotEmpty) {

@@ -5,16 +5,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+// ignore: unused_import
+import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../../maps.dart';
-import '../behavior/zoom_pan_behavior.dart';
 import '../common.dart';
 import '../controller/map_controller.dart';
 import '../layer/layer_base.dart';
 import '../utils.dart';
-import 'shape_layer.dart';
-import 'tile_layer.dart';
 
 /// This enum supported only for circle and polygon shapes.
 enum _VectorFillType { inner, outer }
@@ -98,9 +97,9 @@ abstract class MapVectorLayer extends MapSublayer {
 /// [MapTileLayer].
 ///
 /// ```dart
-///   List<Model> _lines;
-///   MapZoomPanBehavior _zoomPanBehavior;
-///   MapShapeSource _mapSource;
+///   late List<Model> _lines;
+///   late MapZoomPanBehavior _zoomPanBehavior;
+///   late MapShapeSource _mapSource;
 ///
 ///   @override
 ///   void initState() {
@@ -166,12 +165,13 @@ abstract class MapVectorLayer extends MapSublayer {
 /// * [MapPolygonLayer], for adding polygons.
 class MapLineLayer extends MapVectorLayer {
   /// Creates the [MapLineLayer].
-  MapLineLayer({
+  const MapLineLayer({
     Key? key,
     required this.lines,
     this.animation,
     this.color,
     this.width = 2,
+    this.dashArray = const <double>[0, 0],
     IndexedWidgetBuilder? tooltipBuilder,
   }) : super(key: key, tooltipBuilder: tooltipBuilder);
 
@@ -181,9 +181,9 @@ class MapLineLayer extends MapVectorLayer {
   /// straight line.
   ///
   /// ```dart
-  /// List<Model> _lines;
-  /// MapZoomPanBehavior _zoomPanBehavior;
-  /// MapShapeSource _mapSource;
+  /// late List<Model> _lines;
+  /// late MapZoomPanBehavior _zoomPanBehavior;
+  /// late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -250,11 +250,11 @@ class MapLineLayer extends MapVectorLayer {
   /// the animation flow, curve, duration and listen to the animation status.
   ///
   /// ```dart
-  ///   AnimationController _animationController;
-  ///   Animation _animation;
-  ///   MapZoomPanBehavior _zoomPanBehavior;
-  ///   MapShapeSource _mapSource;
-  ///   List<Model> _lines;
+  ///   late AnimationController _animationController;
+  ///   late Animation<double> _animation;
+  ///   late MapZoomPanBehavior _zoomPanBehavior;
+  ///   late MapShapeSource _mapSource;
+  ///   late List<Model> _lines;
   ///
   ///   @override
   ///   void initState() {
@@ -330,7 +330,7 @@ class MapLineLayer extends MapVectorLayer {
   ///   MapLatLng to;
   /// }
   /// ```
-  final Animation? animation;
+  final Animation<double>? animation;
 
   /// The color of all the [lines].
   ///
@@ -338,9 +338,9 @@ class MapLineLayer extends MapVectorLayer {
   /// property.
   ///
   /// ```dart
-  /// List<Model> _lines;
-  /// MapZoomPanBehavior _zoomPanBehavior;
-  /// MapShapeSource _mapSource;
+  /// late List<Model> _lines;
+  /// late MapZoomPanBehavior _zoomPanBehavior;
+  /// late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -410,9 +410,9 @@ class MapLineLayer extends MapVectorLayer {
   /// property.
   ///
   /// ```dart
-  /// List<Model> _lines;
-  /// MapZoomPanBehavior _zoomPanBehavior;
-  /// MapShapeSource _mapSource;
+  /// late List<Model> _lines;
+  /// late MapZoomPanBehavior _zoomPanBehavior;
+  /// late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -476,13 +476,89 @@ class MapLineLayer extends MapVectorLayer {
   /// [color], to set the color.
   final double width;
 
+  /// Apply same dash pattern for all the [MapLine] in the [lines] collection.
+  ///
+  /// A sequence of dash and gap will be rendered based on the values in this
+  /// list. Once all values of the list is rendered, it will be repeated again
+  /// till the end of the line.
+  ///
+  /// ```dart
+  /// late List<Model> _lines;
+  /// late MapZoomPanBehavior _zoomPanBehavior;
+  /// late MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _zoomPanBehavior = MapZoomPanBehavior(
+  ///      focalLatLng: MapLatLng(40.7128, -95.3698),
+  ///      zoomLevel: 3,
+  ///    );
+  ///
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "continent",
+  ///    );
+  ///
+  ///    _lines = <Model>[
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+  ///    ];
+  ///
+  ///    super.initState();
+  ///  }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             zoomPanBehavior: _zoomPanBehavior,
+  ///             sublayers: [
+  ///               MapLineLayer(
+  ///                 dashArray: [8, 3, 4, 3],
+  ///                 lines: List<MapLine>.generate(
+  ///                   _lines.length,
+  ///                   (int index) {
+  ///                     return MapLine(
+  ///                       from: _lines[index].from,
+  ///                       to: _lines[index].to,
+  ///                     );
+  ///                   },
+  ///                 ).toSet(),
+  ///               ),
+  ///             ],
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  ///
+  /// class Model {
+  ///   Model(this.from, this.to);
+  ///
+  ///   MapLatLng from;
+  ///   MapLatLng to;
+  /// }
+  /// ```
+  ///
+  /// See also:
+  /// * The [MapLine.dashArray], to apply dash pattern for the individual map
+  /// line.
+  final List<double> dashArray;
+
   @override
   Widget build(BuildContext context) {
+    assert(dashArray.length >= 2 && dashArray.length.isEven);
     return _MapLineLayer(
       lines: lines,
       animation: animation,
       color: color,
       width: width,
+      dashArray: dashArray,
       tooltipBuilder: tooltipBuilder,
       lineLayer: this,
     );
@@ -496,31 +572,35 @@ class MapLineLayer extends MapVectorLayer {
           _DebugVectorShapeTree(lines);
       properties.add(pointerTreeNode.toDiagnosticsNode());
     }
-    properties.add(ObjectFlagProperty<Animation>.has('animation', animation));
+    properties
+        .add(ObjectFlagProperty<Animation<double>>.has('animation', animation));
     properties.add(ObjectFlagProperty<IndexedWidgetBuilder>.has(
         'tooltip', tooltipBuilder));
+
+    properties.add(DiagnosticsProperty<List<double>>('dashArray', dashArray));
     if (color != null) {
       properties.add(ColorProperty('color', color));
     }
-
     properties.add(DoubleProperty('width', width));
   }
 }
 
 class _MapLineLayer extends StatefulWidget {
-  _MapLineLayer({
+  const _MapLineLayer({
     required this.lines,
     required this.animation,
     required this.color,
     required this.width,
+    required this.dashArray,
     required this.tooltipBuilder,
     required this.lineLayer,
   });
 
   final Set<MapLine> lines;
-  final Animation? animation;
+  final Animation<double>? animation;
   final Color? color;
   final double width;
+  final List<double> dashArray;
   final IndexedWidgetBuilder? tooltipBuilder;
   final MapLineLayer lineLayer;
 
@@ -576,6 +656,7 @@ class _MapLineLayerState extends State<_MapLineLayer>
               ? const Color.fromRGBO(140, 140, 140, 1)
               : const Color.fromRGBO(208, 208, 208, 1)),
       width: widget.width,
+      dashArray: widget.dashArray,
       tooltipBuilder: widget.tooltipBuilder,
       lineLayer: widget.lineLayer,
       themeData: _mapsThemeData,
@@ -593,6 +674,7 @@ class _MapLineLayerRenderObject extends LeafRenderObjectWidget {
     required this.animation,
     required this.color,
     required this.width,
+    required this.dashArray,
     required this.tooltipBuilder,
     required this.lineLayer,
     required this.themeData,
@@ -603,9 +685,10 @@ class _MapLineLayerRenderObject extends LeafRenderObjectWidget {
 
   final MapController? controller;
   final Set<MapLine> lines;
-  final Animation? animation;
+  final Animation<double>? animation;
   final Color color;
   final double width;
+  final List<double> dashArray;
   final IndexedWidgetBuilder? tooltipBuilder;
   final MapLineLayer lineLayer;
   final SfMapsThemeData themeData;
@@ -621,6 +704,7 @@ class _MapLineLayerRenderObject extends LeafRenderObjectWidget {
       animation: animation,
       color: color,
       width: width,
+      dashArray: dashArray,
       tooltipBuilder: tooltipBuilder,
       context: context,
       lineLayer: lineLayer,
@@ -638,6 +722,7 @@ class _MapLineLayerRenderObject extends LeafRenderObjectWidget {
       ..animation = animation
       ..color = color
       ..width = width
+      ..dashArray = dashArray
       ..tooltipBuilder = tooltipBuilder
       ..context = context
       ..themeData = themeData
@@ -649,27 +734,25 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
   _RenderMapLine({
     required MapController? controller,
     required Set<MapLine> lines,
-    required Animation? animation,
+    required Animation<double>? animation,
     required Color color,
     required double width,
+    required List<double> dashArray,
     required IndexedWidgetBuilder? tooltipBuilder,
-    required BuildContext context,
-    required MapLineLayer lineLayer,
+    required this.context,
+    required this.lineLayer,
     required SfMapsThemeData themeData,
-    required bool isDesktop,
-    required AnimationController hoverAnimationController,
+    required this.isDesktop,
+    required this.hoverAnimationController,
     required this.state,
-  })   : _controller = controller,
+  })  : _controller = controller,
         _lines = lines,
         _animation = animation,
         _color = color,
         _width = width,
+        _dashArray = dashArray,
         _tooltipBuilder = tooltipBuilder,
-        context = context,
-        lineLayer = lineLayer,
-        _themeData = themeData,
-        isDesktop = isDesktop,
-        hoverAnimationController = hoverAnimationController {
+        _themeData = themeData {
     selectedLinePoints = <Offset>[];
     _forwardHoverColor = ColorTween();
     _reverseHoverColor = ColorTween();
@@ -711,9 +794,9 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
     markNeedsPaint();
   }
 
-  Animation? get animation => _animation;
-  Animation? _animation;
-  set animation(Animation? value) {
+  Animation<double>? get animation => _animation;
+  Animation<double>? _animation;
+  set animation(Animation<double>? value) {
     if (_animation == value) {
       return;
     }
@@ -752,6 +835,16 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
       return;
     }
     _width = value;
+    markNeedsPaint();
+  }
+
+  List<double> get dashArray => _dashArray;
+  List<double> _dashArray;
+  set dashArray(List<double> value) {
+    if (_dashArray == value) {
+      return;
+    }
+    _dashArray = value;
     markNeedsPaint();
   }
 
@@ -795,12 +888,15 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
       _currentHoverItem = null;
       _updateHoverItemTween();
     }
-
-    final ShapeLayerChildRenderBoxBase tooltipRenderer =
-        _controller!.tooltipKey!.currentContext!.findRenderObject()
-            // ignore: avoid_as
-            as ShapeLayerChildRenderBoxBase;
-    tooltipRenderer.hideTooltip();
+    if (_controller != null &&
+        _controller!.tooltipKey != null &&
+        _controller!.tooltipKey!.currentContext != null) {
+      final ShapeLayerChildRenderBoxBase tooltipRenderer =
+          _controller!.tooltipKey!.currentContext!.findRenderObject()!
+              // ignore: avoid_as
+              as ShapeLayerChildRenderBoxBase;
+      tooltipRenderer.hideTooltip();
+    }
   }
 
   void _handleZooming(MapZoomDetails details) {
@@ -813,9 +909,11 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
 
   void _handleInteraction(Offset position,
       [PointerKind kind = PointerKind.touch]) {
-    if (_controller?.tooltipKey != null && _tooltipBuilder != null) {
+    if (_controller != null &&
+        _controller!.tooltipKey != null &&
+        _controller!.tooltipKey!.currentContext != null) {
       final ShapeLayerChildRenderBoxBase tooltipRenderer =
-          _controller!.tooltipKey!.currentContext!.findRenderObject()
+          _controller!.tooltipKey!.currentContext!.findRenderObject()!
               // ignore: avoid_as
               as ShapeLayerChildRenderBoxBase;
       if (selectedLinePoints != null && selectedLinePoints!.isNotEmpty) {
@@ -921,7 +1019,7 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
       }
 
       // ignore: avoid_as
-      final RenderBox renderBox = context.findRenderObject() as RenderBox;
+      final RenderBox renderBox = context.findRenderObject()! as RenderBox;
       _handleInteraction(
           renderBox.globalToLocal(event.position), PointerKind.hover);
     }
@@ -1019,7 +1117,13 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
       if (_animation != null) {
         path = _getAnimatedPath(path, _animation!);
       }
-      _drawDashedLine(context.canvas, line.dashArray, paint, path);
+
+      if (line.dashArray != null) {
+        assert(line.dashArray!.length >= 2 && line.dashArray!.length.isEven);
+        _drawDashedLine(context.canvas, line.dashArray!, paint, path);
+      } else {
+        _drawDashedLine(context.canvas, _dashArray, paint, path);
+      }
     }
     context.canvas.restore();
   }
@@ -1029,9 +1133,9 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
 /// [MapTileLayer].
 ///
 /// ```dart
-///  List<Model> _arcs;
-///  MapZoomPanBehavior _zoomPanBehavior;
-///  MapShapeSource _mapSource;
+///  late List<Model> _arcs;
+///  late MapZoomPanBehavior _zoomPanBehavior;
+///  late MapShapeSource _mapSource;
 ///
 ///  @override
 ///  void initState() {
@@ -1096,12 +1200,13 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
 /// * [MapPolygonLayer], for adding polygons.
 class MapArcLayer extends MapVectorLayer {
   /// Creates the [MapArcLayer].
-  MapArcLayer({
+  const MapArcLayer({
     Key? key,
     required this.arcs,
     this.animation,
     this.color,
     this.width = 2,
+    this.dashArray = const <double>[0, 0],
     IndexedWidgetBuilder? tooltipBuilder,
   }) : super(key: key, tooltipBuilder: tooltipBuilder);
 
@@ -1112,9 +1217,9 @@ class MapArcLayer extends MapVectorLayer {
   /// modified to change the appearance of the arcs.
   ///
   /// ```dart
-  ///  List<Model> _arcs;
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  MapShapeSource _mapSource;
+  ///  late List<Model> _arcs;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -1180,11 +1285,11 @@ class MapArcLayer extends MapVectorLayer {
   /// the animation flow, curve, duration and listen to the animation status.
   ///
   /// ```dart
-  ///  AnimationController _animationController;
-  ///  Animation _animation;
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  MapShapeSource _mapSource;
-  ///  List<Model> _arcs;
+  ///  late AnimationController _animationController;
+  ///  late Animation<double> _animation;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late MapShapeSource _mapSource;
+  ///  late List<Model> _arcs;
   ///
   ///  @override
   ///  void initState() {
@@ -1260,7 +1365,7 @@ class MapArcLayer extends MapVectorLayer {
   ///   MapLatLng to;
   /// }
   /// ```
-  final Animation? animation;
+  final Animation<double>? animation;
 
   /// The color of all the [arcs].
   ///
@@ -1268,9 +1373,9 @@ class MapArcLayer extends MapVectorLayer {
   /// property.
   ///
   /// ```dart
-  ///  List<Model> _arcs;
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  MapShapeSource _mapSource;
+  ///  late List<Model> _arcs;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -1339,9 +1444,9 @@ class MapArcLayer extends MapVectorLayer {
   /// property.
   ///
   /// ```dart
-  ///  List<Model> _arcs;
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  MapShapeSource _mapSource;
+  ///  late List<Model> _arcs;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -1403,13 +1508,88 @@ class MapArcLayer extends MapVectorLayer {
   /// [color], to set the color.
   final double width;
 
+  /// Apply same dash pattern for all the [MapArc] in the [arcs] collection.
+  ///
+  /// A sequence of dash and gap will be rendered based on the values in this
+  /// list. Once all values of the list is rendered, it will be repeated again
+  /// till the end of the arc.
+  ///
+  /// ```dart
+  ///  late List<Model> _arcs;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _zoomPanBehavior = MapZoomPanBehavior(
+  ///      focalLatLng: MapLatLng(40.7128, -95.3698),
+  ///      zoomLevel: 3,
+  ///    );
+  ///
+  ///   _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "continent",
+  ///    );
+  ///
+  ///    _arcs = <Model>[
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+  ///    ];
+  ///   super.initState();
+  ///  }
+  ///
+  ///  @override
+  ///  Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///      body: SfMaps(
+  ///        layers: [
+  ///          MapShapeLayer(
+  ///            source: _mapSource,
+  ///            zoomPanBehavior: _zoomPanBehavior,
+  ///            sublayers: [
+  ///              MapArcLayer(
+  ///                dashArray: [8, 3, 4, 3],
+  ///                arcs: List<MapArc>.generate(
+  ///                  _arcs.length,
+  ///                  (int index) {
+  ///                    return MapArc(
+  ///                      from: _arcs[index].from,
+  ///                      to: _arcs[index].to,
+  ///                    );
+  ///                  },
+  ///                ).toSet(),
+  ///              ),
+  ///            ],
+  ///          ),
+  ///        ],
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// class Model {
+  ///   Model(this.from, this.to);
+  ///
+  ///   MapLatLng from;
+  ///   MapLatLng to;
+  /// }
+  /// ```
+  ///
+  /// See also:
+  /// * The [MapArc.dashArray], to apply dash pattern for the individual map
+  /// arc.
+  final List<double> dashArray;
+
   @override
   Widget build(BuildContext context) {
+    assert(dashArray.length >= 2 && dashArray.length.isEven);
     return _MapArcLayer(
       arcs: arcs,
       animation: animation,
       color: color,
       width: width,
+      dashArray: dashArray,
       tooltipBuilder: tooltipBuilder,
       arcLayer: this,
     );
@@ -1422,13 +1602,14 @@ class MapArcLayer extends MapVectorLayer {
       final _DebugVectorShapeTree pointerTreeNode = _DebugVectorShapeTree(arcs);
       properties.add(pointerTreeNode.toDiagnosticsNode());
     }
-    properties.add(ObjectFlagProperty<Animation>.has('animation', animation));
+    properties
+        .add(ObjectFlagProperty<Animation<double>>.has('animation', animation));
     properties.add(ObjectFlagProperty<IndexedWidgetBuilder>.has(
         'tooltip', tooltipBuilder));
+    properties.add(DiagnosticsProperty<List<double>>('dashArray', dashArray));
     if (color != null) {
       properties.add(ColorProperty('color', color));
     }
-
     properties.add(DoubleProperty('width', width));
   }
 }
@@ -1439,14 +1620,16 @@ class _MapArcLayer extends StatefulWidget {
     required this.animation,
     required this.color,
     required this.width,
+    required this.dashArray,
     required this.tooltipBuilder,
     required this.arcLayer,
   });
 
   final Set<MapArc> arcs;
-  final Animation? animation;
+  final Animation<double>? animation;
   final Color? color;
   final double width;
+  final List<double> dashArray;
   final IndexedWidgetBuilder? tooltipBuilder;
   final MapArcLayer arcLayer;
 
@@ -1502,6 +1685,7 @@ class _MapArcLayerState extends State<_MapArcLayer>
               ? const Color.fromRGBO(140, 140, 140, 1)
               : const Color.fromRGBO(208, 208, 208, 1)),
       width: widget.width,
+      dashArray: widget.dashArray,
       tooltipBuilder: widget.tooltipBuilder,
       arcLayer: widget.arcLayer,
       themeData: _mapsThemeData,
@@ -1519,6 +1703,7 @@ class _MapArcLayerRenderObject extends LeafRenderObjectWidget {
     required this.animation,
     required this.color,
     required this.width,
+    required this.dashArray,
     required this.tooltipBuilder,
     required this.arcLayer,
     required this.themeData,
@@ -1529,9 +1714,10 @@ class _MapArcLayerRenderObject extends LeafRenderObjectWidget {
 
   final MapController? controller;
   final Set<MapArc> arcs;
-  final Animation? animation;
+  final Animation<double>? animation;
   final Color color;
   final double width;
+  final List<double> dashArray;
   final IndexedWidgetBuilder? tooltipBuilder;
   final MapArcLayer arcLayer;
   final SfMapsThemeData themeData;
@@ -1547,6 +1733,7 @@ class _MapArcLayerRenderObject extends LeafRenderObjectWidget {
       animation: animation,
       color: color,
       width: width,
+      dashArray: dashArray,
       tooltipBuilder: tooltipBuilder,
       context: context,
       arcLayer: arcLayer,
@@ -1564,6 +1751,7 @@ class _MapArcLayerRenderObject extends LeafRenderObjectWidget {
       ..animation = animation
       ..color = color
       ..width = width
+      ..dashArray = dashArray
       ..tooltipBuilder = tooltipBuilder
       ..context = context
       ..themeData = themeData
@@ -1575,27 +1763,25 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
   _RenderMapArc({
     required MapController? controller,
     required Set<MapArc> arcs,
-    required Animation? animation,
+    required Animation<double>? animation,
     required Color color,
     required double width,
+    required List<double> dashArray,
     required IndexedWidgetBuilder? tooltipBuilder,
-    required BuildContext context,
-    required MapArcLayer arcLayer,
+    required this.context,
+    required this.arcLayer,
     required SfMapsThemeData themeData,
-    required bool isDesktop,
-    required AnimationController hoverAnimationController,
+    required this.isDesktop,
+    required this.hoverAnimationController,
     required this.state,
-  })   : _controller = controller,
+  })  : _controller = controller,
         _arcs = arcs,
         _color = color,
         _width = width,
+        _dashArray = dashArray,
         _animation = animation,
         _tooltipBuilder = tooltipBuilder,
-        context = context,
-        arcLayer = arcLayer,
-        _themeData = themeData,
-        isDesktop = isDesktop,
-        hoverAnimationController = hoverAnimationController {
+        _themeData = themeData {
     _forwardHoverColor = ColorTween();
     _reverseHoverColor = ColorTween();
     _hoverColorAnimation = CurvedAnimation(
@@ -1670,6 +1856,16 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
     markNeedsPaint();
   }
 
+  List<double> get dashArray => _dashArray;
+  List<double> _dashArray;
+  set dashArray(List<double> value) {
+    if (_dashArray == value) {
+      return;
+    }
+    _dashArray = value;
+    markNeedsPaint();
+  }
+
   SfMapsThemeData get themeData => _themeData;
   SfMapsThemeData _themeData;
   set themeData(SfMapsThemeData value) {
@@ -1680,9 +1876,9 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
     markNeedsPaint();
   }
 
-  Animation? get animation => _animation;
-  Animation? _animation;
-  set animation(Animation? value) {
+  Animation<double>? get animation => _animation;
+  Animation<double>? _animation;
+  set animation(Animation<double>? value) {
     if (_animation == value) {
       return;
     }
@@ -1720,11 +1916,15 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
       _updateHoverItemTween();
     }
 
-    final ShapeLayerChildRenderBoxBase tooltipRenderer =
-        _controller!.tooltipKey!.currentContext!.findRenderObject()
-            // ignore: avoid_as
-            as ShapeLayerChildRenderBoxBase;
-    tooltipRenderer.hideTooltip();
+    if (_controller != null &&
+        _controller!.tooltipKey != null &&
+        _controller!.tooltipKey!.currentContext != null) {
+      final ShapeLayerChildRenderBoxBase tooltipRenderer =
+          _controller!.tooltipKey!.currentContext!.findRenderObject()!
+              // ignore: avoid_as
+              as ShapeLayerChildRenderBoxBase;
+      tooltipRenderer.hideTooltip();
+    }
   }
 
   void _handleZooming(MapZoomDetails details) {
@@ -1756,9 +1956,11 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
 
   void _handleInteraction(Offset position,
       [PointerKind kind = PointerKind.touch]) {
-    if (_controller?.tooltipKey != null && _tooltipBuilder != null) {
+    if (_controller != null &&
+        _controller!.tooltipKey != null &&
+        _controller!.tooltipKey!.currentContext != null) {
       final ShapeLayerChildRenderBoxBase tooltipRenderer =
-          _controller!.tooltipKey!.currentContext!.findRenderObject()
+          _controller!.tooltipKey!.currentContext!.findRenderObject()!
               // ignore: avoid_as
               as ShapeLayerChildRenderBoxBase;
       tooltipRenderer.paintTooltip(
@@ -1832,7 +2034,7 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
       }
 
       // ignore: avoid_as
-      final RenderBox renderBox = context.findRenderObject() as RenderBox;
+      final RenderBox renderBox = context.findRenderObject()! as RenderBox;
       _handleInteraction(
           renderBox.globalToLocal(event.position), PointerKind.hover);
     }
@@ -1933,7 +2135,13 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
       if (_animation != null) {
         path = _getAnimatedPath(path, _animation!);
       }
-      _drawDashedLine(context.canvas, arc.dashArray, paint, path);
+
+      if (arc.dashArray != null) {
+        assert(arc.dashArray!.length >= 2 && arc.dashArray!.length.isEven);
+        _drawDashedLine(context.canvas, arc.dashArray!, paint, path);
+      } else {
+        _drawDashedLine(context.canvas, _dashArray, paint, path);
+      }
     }
     context.canvas.restore();
   }
@@ -1951,10 +2159,10 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
     // value. Converting factor value into pixel value using this formula
     // (((1 − factor)𝑥0 + factor * 𝑥1),((1 − factor)𝑦0 + factor * 𝑦1))
     Offset controlPoint = Offset(
-        ((1 - controlPointFactor) * startPoint.dx +
-            controlPointFactor * endPoint.dx),
-        ((1 - controlPointFactor) * startPoint.dy +
-            controlPointFactor * endPoint.dy));
+        (1 - controlPointFactor) * startPoint.dx +
+            controlPointFactor * endPoint.dx,
+        (1 - controlPointFactor) * startPoint.dy +
+            controlPointFactor * endPoint.dy);
 
     if (startPoint.dx < endPoint.dx) {
       controlPoint = Offset(controlPoint.dx + horizontalDistance,
@@ -1971,9 +2179,9 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
 /// [MapTileLayer].
 ///
 /// ```dart
-///  MapZoomPanBehavior _zoomPanBehavior;
-///  List<MapLatLng> _polyLines;
-///  MapShapeSource _mapSource;
+///  late MapZoomPanBehavior _zoomPanBehavior;
+///  late List<MapLatLng> _polyLines;
+///  late MapShapeSource _mapSource;
 ///
 ///   @override
 ///   void initState() {
@@ -2033,12 +2241,13 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
 /// * [MapPolygonLayer], for adding polygons.
 class MapPolylineLayer extends MapVectorLayer {
   /// Creates the [MapPolylineLayer].
-  MapPolylineLayer({
+  const MapPolylineLayer({
     Key? key,
     required this.polylines,
     this.animation,
     this.color,
     this.width = 2,
+    this.dashArray = const <double>[0, 0],
     IndexedWidgetBuilder? tooltipBuilder,
   }) : super(key: key, tooltipBuilder: tooltipBuilder);
 
@@ -2048,9 +2257,9 @@ class MapPolylineLayer extends MapVectorLayer {
   /// group of [MapPolyline.points].
   ///
   /// ```dart
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  List<MapLatLng> _polyLines;
-  ///  MapShapeSource _mapSource;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late List<MapLatLng> _polyLines;
+  ///  late MapShapeSource _mapSource;
   ///
   ///   @override
   ///   void initState() {
@@ -2111,11 +2320,11 @@ class MapPolylineLayer extends MapVectorLayer {
   /// the animation flow, curve, duration and listen to the animation status.
   ///
   /// ```dart
-  /// AnimationController _animationController;
-  /// Animation _animation;
-  /// MapZoomPanBehavior _zoomPanBehavior;
-  /// List<MapLatLng> _polyLines;
-  /// MapShapeSource _mapSource;
+  /// late AnimationController _animationController;
+  /// late Animation<double> _animation;
+  /// late MapZoomPanBehavior _zoomPanBehavior;
+  /// late List<MapLatLng> _polyLines;
+  /// late MapShapeSource _mapSource;
   ///
   /// @override
   /// void initState() {
@@ -2181,7 +2390,7 @@ class MapPolylineLayer extends MapVectorLayer {
   ///   super.dispose();
   /// }
   /// ```
-  final Animation? animation;
+  final Animation<double>? animation;
 
   /// The color of all the [polylines].
   ///
@@ -2189,9 +2398,9 @@ class MapPolylineLayer extends MapVectorLayer {
   /// [MapPolyline.color] property.
   ///
   /// ```dart
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  List<MapLatLng> _polyLines;
-  ///  MapShapeSource _mapSource;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late List<MapLatLng> _polyLines;
+  ///  late MapShapeSource _mapSource;
   ///
   ///   @override
   ///   void initState() {
@@ -2255,9 +2464,9 @@ class MapPolylineLayer extends MapVectorLayer {
   /// [MapPolyline.width] property.
   ///
   /// ```dart
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  List<MapLatLng> _polyLines;
-  ///  MapShapeSource _mapSource;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late List<MapLatLng> _polyLines;
+  ///  late MapShapeSource _mapSource;
   ///
   ///   @override
   ///   void initState() {
@@ -2315,13 +2524,78 @@ class MapPolylineLayer extends MapVectorLayer {
   /// [color], for setting the color.
   final double width;
 
+  /// Apply same dash pattern for all the [MapPolyline] in the [polylines]
+  /// collection.
+  ///
+  /// A sequence of dash and gap will be rendered based on the values in this
+  /// list. Once all values of the list is rendered, it will be repeated again
+  /// till the end of the polyline.
+  ///
+  /// ```dart
+  ///  late List<MapLatLng> _polylines;
+  ///  late MapShapeSource _mapSource;
+  ///
+  ///   @override
+  ///   void initState() {
+  ///     _polylines = <MapLatLng>[
+  ///       MapLatLng(13.0827, 80.2707),
+  ///       MapLatLng(14.4673, 78.8242),
+  ///       MapLatLng(14.9091, 78.0092),
+  ///       MapLatLng(16.2160, 77.3566),
+  ///       MapLatLng(17.1557, 76.8697),
+  ///       MapLatLng(18.0975, 75.4249),
+  ///       MapLatLng(18.5204, 73.8567),
+  ///       MapLatLng(19.0760, 72.8777),
+  ///     ];
+  ///
+  ///     _mapSource = MapShapeSource.asset(
+  ///       'assets/india.json',
+  ///       shapeDataField: 'name',
+  ///     );
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             sublayers: [
+  ///               MapPolylineLayer(
+  ///                 dashArray: [8, 3, 4, 3],
+  ///                 polylines: List<MapPolyline>.generate(
+  ///                   1,
+  ///                   (int index) {
+  ///                     return MapPolyline(
+  ///                       points: _polylines,
+  ///                     );
+  ///                   },
+  ///                 ).toSet(),
+  ///               ),
+  ///             ],
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  /// ```
+  ///
+  /// See also:
+  /// * The [MapPolyline.dashArray], to apply dash pattern for the individual
+  /// map polyline.
+  final List<double> dashArray;
+
   @override
   Widget build(BuildContext context) {
+    assert(dashArray.length >= 2 && dashArray.length.isEven);
     return _MapPolylineLayer(
       polylines: polylines,
       animation: animation,
       color: color,
       width: width,
+      dashArray: dashArray,
       tooltipBuilder: tooltipBuilder,
       polylineLayer: this,
     );
@@ -2335,13 +2609,14 @@ class MapPolylineLayer extends MapVectorLayer {
           _DebugVectorShapeTree(polylines);
       properties.add(pointerTreeNode.toDiagnosticsNode());
     }
-    properties.add(ObjectFlagProperty<Animation>.has('animation', animation));
+    properties
+        .add(ObjectFlagProperty<Animation<double>>.has('animation', animation));
     properties.add(ObjectFlagProperty<IndexedWidgetBuilder>.has(
         'tooltip', tooltipBuilder));
+    properties.add(DiagnosticsProperty<List<double>>('dashArray', dashArray));
     if (color != null) {
       properties.add(ColorProperty('color', color));
     }
-
     properties.add(DoubleProperty('width', width));
   }
 }
@@ -2352,14 +2627,16 @@ class _MapPolylineLayer extends StatefulWidget {
     required this.animation,
     required this.color,
     required this.width,
+    required this.dashArray,
     required this.tooltipBuilder,
     required this.polylineLayer,
   });
 
   final Set<MapPolyline> polylines;
-  final Animation? animation;
+  final Animation<double>? animation;
   final Color? color;
   final double width;
+  final List<double> dashArray;
   final IndexedWidgetBuilder? tooltipBuilder;
   final MapPolylineLayer polylineLayer;
 
@@ -2415,6 +2692,7 @@ class _MapPolylineLayerState extends State<_MapPolylineLayer>
               ? const Color.fromRGBO(140, 140, 140, 1)
               : const Color.fromRGBO(208, 208, 208, 1)),
       width: widget.width,
+      dashArray: widget.dashArray,
       tooltipBuilder: widget.tooltipBuilder,
       polylineLayer: widget.polylineLayer,
       isDesktop: isDesktop,
@@ -2432,6 +2710,7 @@ class _MapPolylineLayerRenderObject extends LeafRenderObjectWidget {
     required this.animation,
     required this.color,
     required this.width,
+    required this.dashArray,
     required this.tooltipBuilder,
     required this.polylineLayer,
     required this.themeData,
@@ -2442,9 +2721,10 @@ class _MapPolylineLayerRenderObject extends LeafRenderObjectWidget {
 
   final MapController? controller;
   final Set<MapPolyline> polylines;
-  final Animation? animation;
+  final Animation<double>? animation;
   final Color color;
   final double width;
+  final List<double> dashArray;
   final IndexedWidgetBuilder? tooltipBuilder;
   final MapPolylineLayer polylineLayer;
   final SfMapsThemeData themeData;
@@ -2460,6 +2740,7 @@ class _MapPolylineLayerRenderObject extends LeafRenderObjectWidget {
       animation: animation,
       color: color,
       width: width,
+      dashArray: dashArray,
       tooltipBuilder: tooltipBuilder,
       context: context,
       polylineLayer: polylineLayer,
@@ -2478,6 +2759,7 @@ class _MapPolylineLayerRenderObject extends LeafRenderObjectWidget {
       ..animation = animation
       ..color = color
       ..width = width
+      ..dashArray = dashArray
       ..tooltipBuilder = tooltipBuilder
       ..context = context
       ..themeData = themeData
@@ -2489,27 +2771,25 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
   _RenderMapPolyline({
     required MapController? controller,
     required Set<MapPolyline> polylines,
-    required Animation? animation,
+    required Animation<double>? animation,
     required Color color,
     required double width,
+    required List<double> dashArray,
     required IndexedWidgetBuilder? tooltipBuilder,
-    required BuildContext context,
-    required MapPolylineLayer polylineLayer,
+    required this.context,
+    required this.polylineLayer,
     required SfMapsThemeData themeData,
-    required bool isDesktop,
-    required AnimationController hoverAnimationController,
+    required this.isDesktop,
+    required this.hoverAnimationController,
     required this.state,
-  })   : _controller = controller,
+  })  : _controller = controller,
         _polylines = polylines,
         _color = color,
         _width = width,
+        _dashArray = dashArray,
         _animation = animation,
         _tooltipBuilder = tooltipBuilder,
-        context = context,
-        polylineLayer = polylineLayer,
-        _themeData = themeData,
-        isDesktop = isDesktop,
-        hoverAnimationController = hoverAnimationController {
+        _themeData = themeData {
     _forwardHoverColor = ColorTween();
     _reverseHoverColor = ColorTween();
     _hoverColorAnimation = CurvedAnimation(
@@ -2548,9 +2828,9 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
     markNeedsPaint();
   }
 
-  Animation? get animation => _animation;
-  Animation? _animation;
-  set animation(Animation? value) {
+  Animation<double>? get animation => _animation;
+  Animation<double>? _animation;
+  set animation(Animation<double>? value) {
     if (_animation == value) {
       return;
     }
@@ -2589,6 +2869,16 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
       return;
     }
     _width = value;
+    markNeedsPaint();
+  }
+
+  List<double> get dashArray => _dashArray;
+  List<double> _dashArray;
+  set dashArray(List<double> value) {
+    if (_dashArray == value) {
+      return;
+    }
+    _dashArray = value;
     markNeedsPaint();
   }
 
@@ -2633,11 +2923,15 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
       _updateHoverItemTween();
     }
 
-    final ShapeLayerChildRenderBoxBase tooltipRenderer =
-        _controller!.tooltipKey!.currentContext!.findRenderObject()
-            // ignore: avoid_as
-            as ShapeLayerChildRenderBoxBase;
-    tooltipRenderer.hideTooltip();
+    if (_controller != null &&
+        _controller!.tooltipKey != null &&
+        _controller!.tooltipKey!.currentContext != null) {
+      final ShapeLayerChildRenderBoxBase tooltipRenderer =
+          _controller!.tooltipKey!.currentContext!.findRenderObject()!
+              // ignore: avoid_as
+              as ShapeLayerChildRenderBoxBase;
+      tooltipRenderer.hideTooltip();
+    }
   }
 
   void _handleZooming(MapZoomDetails details) {
@@ -2650,9 +2944,11 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
 
   void _handleInteraction(Offset position,
       [PointerKind kind = PointerKind.touch]) {
-    if (_controller?.tooltipKey != null && _tooltipBuilder != null) {
+    if (_controller != null &&
+        _controller!.tooltipKey != null &&
+        _controller!.tooltipKey!.currentContext != null) {
       final ShapeLayerChildRenderBoxBase tooltipRenderer =
-          _controller!.tooltipKey!.currentContext!.findRenderObject()
+          _controller!.tooltipKey!.currentContext!.findRenderObject()!
               // ignore: avoid_as
               as ShapeLayerChildRenderBoxBase;
       tooltipRenderer.paintTooltip(
@@ -2783,7 +3079,7 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
       }
 
       // ignore: avoid_as
-      final RenderBox renderBox = context.findRenderObject() as RenderBox;
+      final RenderBox renderBox = context.findRenderObject()! as RenderBox;
       _handleInteraction(
           renderBox.globalToLocal(event.position), PointerKind.hover);
     }
@@ -2852,7 +3148,14 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
       if (_animation != null) {
         path = _getAnimatedPath(path, _animation!);
       }
-      _drawDashedLine(context.canvas, polyline.dashArray, paint, path);
+
+      if (polyline.dashArray != null) {
+        assert(polyline.dashArray!.length >= 2 &&
+            polyline.dashArray!.length.isEven);
+        _drawDashedLine(context.canvas, polyline.dashArray!, paint, path);
+      } else {
+        _drawDashedLine(context.canvas, _dashArray, paint, path);
+      }
     }
     context.canvas.restore();
   }
@@ -2862,9 +3165,9 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
 /// [MapTileLayer].
 ///
 /// ```dart
-///  MapZoomPanBehavior _zoomPanBehavior;
-///  List<MapLatLng> _polygon;
-///  MapShapeSource _mapSource;
+///  late MapZoomPanBehavior _zoomPanBehavior;
+///  late List<MapLatLng> _polygon;
+///  late MapShapeSource _mapSource;
 ///
 ///  @override
 ///  void initState() {
@@ -2914,7 +3217,7 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
 /// ```
 class MapPolygonLayer extends MapVectorLayer {
   /// Creates the [MapPolygonLayer].
-  MapPolygonLayer({
+  const MapPolygonLayer({
     Key? key,
     required this.polygons,
     this.color,
@@ -2931,8 +3234,8 @@ class MapPolygonLayer extends MapVectorLayer {
   /// polygons property of [MapPolygonLayer.inverted].
   ///
   /// ```dart
-  ///  List<MapLatLng> _polygon;
-  ///  MapShapeSource _dataSource;
+  ///  late List<MapLatLng> _polygon;
+  ///  late MapShapeSource _dataSource;
   ///
   ///   @override
   ///   void initState() {
@@ -2977,7 +3280,7 @@ class MapPolygonLayer extends MapVectorLayer {
   /// See also:
   /// * [`MapPolygonLayer`], for adding normal polygon shape.
   /// ```
-  MapPolygonLayer.inverted({
+  const MapPolygonLayer.inverted({
     Key? key,
     required this.polygons,
     this.strokeWidth = 1,
@@ -2993,9 +3296,9 @@ class MapPolygonLayer extends MapVectorLayer {
   /// location coordinates through group of [MapPolygon.points].
   ///
   /// ```dart
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  List<MapLatLng> _polygon;
-  ///  MapShapeSource _mapSource;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late List<MapLatLng> _polygon;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -3047,9 +3350,9 @@ class MapPolygonLayer extends MapVectorLayer {
   /// [MapPolygon.color] property.
   ///
   /// ```dart
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  List<MapLatLng> _polygon;
-  ///  MapShapeSource _mapSource;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late List<MapLatLng> _polygon;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -3102,9 +3405,9 @@ class MapPolygonLayer extends MapVectorLayer {
   /// [MapPolygon.strokeWidth] property.
   ///
   /// ```dart
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  List<MapLatLng> _polygon;
-  ///  MapShapeSource _mapSource;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late List<MapLatLng> _polygon;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -3160,9 +3463,9 @@ class MapPolygonLayer extends MapVectorLayer {
   /// [MapPolygon.strokeColor] property.
   ///
   /// ```dart
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  List<MapLatLng> _polygon;
-  ///  MapShapeSource _mapSource;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late List<MapLatLng> _polygon;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -3448,23 +3751,19 @@ class _RenderMapPolygon extends RenderBox implements MouseTrackerAnnotation {
     required Color strokeColor,
     required IndexedWidgetBuilder? tooltipBuilder,
     required SfMapsThemeData themeData,
-    required BuildContext context,
-    required MapPolygonLayer polygonLayer,
-    required AnimationController hoverAnimationController,
-    required bool isDesktop,
+    required this.context,
+    required this.polygonLayer,
+    required this.hoverAnimationController,
+    required this.isDesktop,
     required this.fillType,
     required this.state,
-  })   : _controller = controller,
+  })  : _controller = controller,
         _polygons = polygons,
         _color = color,
         _strokeWidth = strokeWidth,
         _strokeColor = strokeColor,
         _tooltipBuilder = tooltipBuilder,
-        _themeData = themeData,
-        context = context,
-        polygonLayer = polygonLayer,
-        hoverAnimationController = hoverAnimationController,
-        isDesktop = isDesktop {
+        _themeData = themeData {
     _forwardHoverColor = ColorTween();
     _reverseHoverColor = ColorTween();
     _forwardHoverStrokeColor = ColorTween();
@@ -3635,11 +3934,15 @@ class _RenderMapPolygon extends RenderBox implements MouseTrackerAnnotation {
       _initializeHoverItemTween();
     }
 
-    final ShapeLayerChildRenderBoxBase tooltipRenderer =
-        _controller!.tooltipKey!.currentContext!.findRenderObject()
-            // ignore: avoid_as
-            as ShapeLayerChildRenderBoxBase;
-    tooltipRenderer.hideTooltip();
+    if (_controller != null &&
+        _controller!.tooltipKey != null &&
+        _controller!.tooltipKey!.currentContext != null) {
+      final ShapeLayerChildRenderBoxBase tooltipRenderer =
+          _controller!.tooltipKey!.currentContext!.findRenderObject()!
+              // ignore: avoid_as
+              as ShapeLayerChildRenderBoxBase;
+      tooltipRenderer.hideTooltip();
+    }
   }
 
   void _handleZooming(MapZoomDetails details) {
@@ -3652,9 +3955,11 @@ class _RenderMapPolygon extends RenderBox implements MouseTrackerAnnotation {
 
   void _handleInteraction(Offset position,
       [PointerKind kind = PointerKind.touch]) {
-    if (_controller?.tooltipKey != null && _tooltipBuilder != null) {
+    if (_controller != null &&
+        _controller!.tooltipKey != null &&
+        _controller!.tooltipKey!.currentContext != null) {
       final ShapeLayerChildRenderBoxBase tooltipRenderer =
-          _controller!.tooltipKey!.currentContext!.findRenderObject()
+          _controller!.tooltipKey!.currentContext!.findRenderObject()!
               // ignore: avoid_as
               as ShapeLayerChildRenderBoxBase;
       tooltipRenderer.paintTooltip(_selectedIndex, null, MapLayerElement.vector,
@@ -3743,7 +4048,7 @@ class _RenderMapPolygon extends RenderBox implements MouseTrackerAnnotation {
       }
 
       // ignore: avoid_as
-      final RenderBox renderBox = context.findRenderObject() as RenderBox;
+      final RenderBox renderBox = context.findRenderObject()! as RenderBox;
       _handleInteraction(
           renderBox.globalToLocal(event.position), PointerKind.hover);
     }
@@ -3913,8 +4218,8 @@ class _RenderMapPolygon extends RenderBox implements MouseTrackerAnnotation {
 /// [MapTileLayer].
 ///
 /// ```dart
-///  List<MapLatLng> _circles;
-///  MapShapeSource _mapSource;
+///  late List<MapLatLng> _circles;
+///  late MapShapeSource _mapSource;
 ///
 ///  @override
 ///  void initState() {
@@ -3970,7 +4275,7 @@ class _RenderMapPolygon extends RenderBox implements MouseTrackerAnnotation {
 /// ```
 class MapCircleLayer extends MapVectorLayer {
   /// Creates the [MapCircleLayer].
-  MapCircleLayer({
+  const MapCircleLayer({
     Key? key,
     required this.circles,
     this.animation,
@@ -3989,8 +4294,8 @@ class MapCircleLayer extends MapVectorLayer {
   /// the top of all sublayers added under the [sublayers] property.
   ///
   /// ```dart
-  ///  List<MapLatLng> _circles;
-  ///  MapShapeSource _mapSource;
+  ///  late List<MapLatLng> _circles;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -4037,7 +4342,7 @@ class MapCircleLayer extends MapVectorLayer {
   /// See also:
   /// * [MapCircleLayer()], for normal circle shape on the map.
   /// ```
-  MapCircleLayer.inverted({
+  const MapCircleLayer.inverted({
     Key? key,
     required this.circles,
     this.animation,
@@ -4054,8 +4359,8 @@ class MapCircleLayer extends MapVectorLayer {
   /// and [MapCircle.radius].
   ///
   /// ```dart
-  ///  List<MapLatLng> _circles;
-  ///  MapShapeSource _mapSource;
+  ///  late List<MapLatLng> _circles;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -4115,10 +4420,10 @@ class MapCircleLayer extends MapVectorLayer {
   /// the animation flow, curve, duration and listen to the animation status.
   ///
   /// ```dart
-  ///  List<MapLatLng> circles;
-  ///  MapShapeSource _mapSource;
-  ///  AnimationController _animationController;
-  ///  Animation _animation;
+  ///  late List<MapLatLng> circles;
+  ///  late MapShapeSource _mapSource;
+  ///  late AnimationController _animationController;
+  ///  late Animation<double> _animation;
   ///
   ///  @override
   ///  void initState() {
@@ -4186,7 +4491,7 @@ class MapCircleLayer extends MapVectorLayer {
   ///    super.dispose();
   ///  }
   /// ```
-  final Animation? animation;
+  final Animation<double>? animation;
 
   /// The fill color of all the [MapCircle].
   ///
@@ -4194,8 +4499,8 @@ class MapCircleLayer extends MapVectorLayer {
   /// [MapCircle.color] property.
   ///
   /// ```dart
-  ///  List<MapLatLng> _circles;
-  ///  MapShapeSource _mapSource;
+  ///  late List<MapLatLng> _circles;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -4255,8 +4560,8 @@ class MapCircleLayer extends MapVectorLayer {
   /// [MapCircle.strokeWidth] property.
   ///
   /// ```dart
-  ///  List<MapLatLng> _circles;
-  ///  MapShapeSource _mapSource;
+  ///  late List<MapLatLng> _circles;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -4319,8 +4624,8 @@ class MapCircleLayer extends MapVectorLayer {
   /// [MapCircle.strokeColor] property.
   ///
   /// ```dart
-  ///  List<MapLatLng> _circles;
-  ///  MapShapeSource _mapSource;
+  ///  late List<MapLatLng> _circles;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -4403,7 +4708,8 @@ class MapCircleLayer extends MapVectorLayer {
           _DebugVectorShapeTree(circles);
       properties.add(pointerTreeNode.toDiagnosticsNode());
     }
-    properties.add(ObjectFlagProperty<Animation>.has('animation', animation));
+    properties
+        .add(ObjectFlagProperty<Animation<double>>.has('animation', animation));
     properties.add(ObjectFlagProperty<IndexedWidgetBuilder>.has(
         'tooltip', tooltipBuilder));
 
@@ -4432,7 +4738,7 @@ class _MapCircleLayer extends StatefulWidget {
   });
 
   final Set<MapCircle> circles;
-  final Animation? animation;
+  final Animation<double>? animation;
   final Color? color;
   final double strokeWidth;
   final Color? strokeColor;
@@ -4565,7 +4871,7 @@ class _MapCircleLayerRenderObject extends LeafRenderObjectWidget {
 
   final MapController? controller;
   final Set<MapCircle> circles;
-  final Animation? animation;
+  final Animation<double>? animation;
   final Color color;
   final double strokeWidth;
   final Color strokeColor;
@@ -4617,30 +4923,26 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
   _RenderMapCircle({
     required MapController? controller,
     required Set<MapCircle> circles,
-    required Animation? animation,
+    required Animation<double>? animation,
     required Color color,
     required double strokeWidth,
     required Color strokeColor,
     required IndexedWidgetBuilder? tooltipBuilder,
     required SfMapsThemeData themeData,
-    required BuildContext context,
-    required MapCircleLayer circleLayer,
-    required AnimationController hoverAnimationController,
-    required bool isDesktop,
+    required this.context,
+    required this.circleLayer,
+    required this.hoverAnimationController,
+    required this.isDesktop,
     required this.fillType,
     required this.state,
-  })   : _controller = controller,
+  })  : _controller = controller,
         _circles = circles,
         _animation = animation,
         _color = color,
         _strokeColor = strokeColor,
         _strokeWidth = strokeWidth,
         _tooltipBuilder = tooltipBuilder,
-        _themeData = themeData,
-        context = context,
-        circleLayer = circleLayer,
-        hoverAnimationController = hoverAnimationController,
-        isDesktop = isDesktop {
+        _themeData = themeData {
     _forwardHoverColor = ColorTween();
     _reverseHoverColor = ColorTween();
     _forwardHoverStrokeColor = ColorTween();
@@ -4683,9 +4985,9 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
     markNeedsPaint();
   }
 
-  Animation? get animation => _animation;
-  Animation? _animation;
-  set animation(Animation? value) {
+  Animation<double>? get animation => _animation;
+  Animation<double>? _animation;
+  set animation(Animation<double>? value) {
     if (_animation == value) {
       return;
     }
@@ -4820,13 +5122,15 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
       _initializeHoverItemTween();
     }
 
-    final ShapeLayerChildRenderBoxBase tooltipRenderer =
-        // ignore: lines_longer_than_80_chars
-        // ignore: avoid_as
-        _controller!.tooltipKey!.currentContext!.findRenderObject()
-            // ignore: avoid_as
-            as ShapeLayerChildRenderBoxBase;
-    tooltipRenderer.hideTooltip();
+    if (_controller != null &&
+        _controller!.tooltipKey != null &&
+        _controller!.tooltipKey!.currentContext != null) {
+      final ShapeLayerChildRenderBoxBase tooltipRenderer =
+          _controller!.tooltipKey!.currentContext!.findRenderObject()!
+              // ignore: avoid_as
+              as ShapeLayerChildRenderBoxBase;
+      tooltipRenderer.hideTooltip();
+    }
   }
 
   void _handleZooming(MapZoomDetails details) {
@@ -4839,10 +5143,11 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
 
   void _handleInteraction(Offset position,
       [PointerKind kind = PointerKind.touch]) {
-    if (_controller?.tooltipKey != null && _tooltipBuilder != null) {
+    if (_controller != null &&
+        _controller!.tooltipKey != null &&
+        _controller!.tooltipKey!.currentContext != null) {
       final ShapeLayerChildRenderBoxBase tooltipRenderer =
-          // ignore: avoid_as
-          _controller!.tooltipKey!.currentContext!.findRenderObject()
+          _controller!.tooltipKey!.currentContext!.findRenderObject()!
               // ignore: avoid_as
               as ShapeLayerChildRenderBoxBase;
       final Size boxSize = _controller?.layerType == LayerType.tile
@@ -4979,7 +5284,7 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
       }
 
       // ignore: avoid_as
-      final RenderBox renderBox = context.findRenderObject() as RenderBox;
+      final RenderBox renderBox = context.findRenderObject()! as RenderBox;
       _handleInteraction(
           renderBox.globalToLocal(event.position), PointerKind.hover);
     }
@@ -5114,9 +5419,9 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
 /// Creates a line between the two geographical coordinates on the map.
 ///
 /// ```dart
-///   List<Model> _lines;
-///   MapZoomPanBehavior _zoomPanBehavior;
-///   MapShapeSource _mapSource;
+///   late List<Model> _lines;
+///   late MapZoomPanBehavior _zoomPanBehavior;
+///   late MapShapeSource _mapSource;
 ///
 ///   @override
 ///   void initState() {
@@ -5179,7 +5484,7 @@ class MapLine extends DiagnosticableTree {
   const MapLine({
     required this.from,
     required this.to,
-    this.dashArray = const [0, 0],
+    this.dashArray,
     this.color,
     this.width,
     this.onTap,
@@ -5188,9 +5493,9 @@ class MapLine extends DiagnosticableTree {
   /// The starting coordinate of the line.
   ///
   ///```dart
-  ///   List<Model> _lines;
-  ///   MapZoomPanBehavior _zoomPanBehavior;
-  ///   MapShapeSource _mapSource;
+  ///   late List<Model> _lines;
+  ///   late MapZoomPanBehavior _zoomPanBehavior;
+  ///   late MapShapeSource _mapSource;
   ///
   ///   @override
   ///   void initState() {
@@ -5253,9 +5558,9 @@ class MapLine extends DiagnosticableTree {
   /// The ending coordinate of the line.
   ///
   /// ```dart
-  ///   List<Model> _lines;
-  ///   MapZoomPanBehavior _zoomPanBehavior;
-  ///   MapShapeSource _mapSource;
+  ///   late List<Model> _lines;
+  ///   late MapZoomPanBehavior _zoomPanBehavior;
+  ///   late MapShapeSource _mapSource;
   ///
   ///   @override
   ///   void initState() {
@@ -5315,16 +5620,16 @@ class MapLine extends DiagnosticableTree {
   ///```
   final MapLatLng to;
 
-  /// The dash pattern for the line.
+  /// Apply dash pattern for the line.
   ///
   /// A sequence of dash and gap will be rendered based on the values in this
-  /// list. Once all values of the list is rendered, it will be repeated
-  /// again till the end of the line.
+  /// list. Once all values of the list is rendered, it will be repeated again
+  /// till the end of the line.
   ///
   /// ```dart
-  ///   List<Model> _lines;
-  ///   MapZoomPanBehavior _zoomPanBehavior;
-  ///   MapShapeSource _mapSource;
+  ///   late List<Model> _lines;
+  ///   late MapZoomPanBehavior _zoomPanBehavior;
+  ///   late MapShapeSource _mapSource;
   ///
   ///   @override
   ///   void initState() {
@@ -5383,14 +5688,17 @@ class MapLine extends DiagnosticableTree {
   ///   MapLatLng to;
   /// }
   ///```
-  final List<double> dashArray;
+  ///
+  /// See also:
+  ///	* The [MapLineLayer.dashArray], to apply same dash pattern for all lines.
+  final List<double>? dashArray;
 
   /// Color of the line.
   ///
   /// ```dart
-  ///   List<Model> _lines;
-  ///   MapZoomPanBehavior _zoomPanBehavior;
-  ///   MapShapeSource _mapSource;
+  ///   late List<Model> _lines;
+  ///   late MapZoomPanBehavior _zoomPanBehavior;
+  ///   late MapShapeSource _mapSource;
   ///
   ///   @override
   ///   void initState() {
@@ -5454,9 +5762,9 @@ class MapLine extends DiagnosticableTree {
   /// Width of the line.
   ///
   /// ```dart
-  ///   List<Model> _lines;
-  ///   MapZoomPanBehavior _zoomPanBehavior;
-  ///   MapShapeSource _mapSource;
+  ///   late List<Model> _lines;
+  ///   late MapZoomPanBehavior _zoomPanBehavior;
+  ///   late MapShapeSource _mapSource;
   ///
   ///   @override
   ///   void initState() {
@@ -5523,10 +5831,10 @@ class MapLine extends DiagnosticableTree {
   /// passed on it as shown in the below code snippet.
   ///
   /// ```dart
-  ///  List<Model> _lines;
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  MapShapeSource _mapSource;
-  ///  int _selectedIndex;
+  ///  late List<Model> _lines;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late MapShapeSource _mapSource;
+  ///  int _selectedIndex = -1;
   ///
   ///  @override
   ///  void initState() {
@@ -5598,7 +5906,9 @@ class MapLine extends DiagnosticableTree {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<MapLatLng>('from', from));
     properties.add(DiagnosticsProperty<MapLatLng>('to', to));
-    properties.add((DiagnosticsProperty<List<double>>('dashArray', dashArray)));
+    if (dashArray != null) {
+      properties.add(DiagnosticsProperty<List<double>>('dashArray', dashArray));
+    }
     if (color != null) {
       properties.add(ColorProperty('color', color));
     }
@@ -5615,9 +5925,9 @@ class MapLine extends DiagnosticableTree {
 /// group of [points].
 ///
 /// ```dart
-///  MapZoomPanBehavior _zoomPanBehavior;
-///  List<MapLatLng> _polyLines;
-///  MapShapeSource _mapSource;
+///  late MapZoomPanBehavior _zoomPanBehavior;
+///  late List<MapLatLng> _polyLines;
+///  late MapShapeSource _mapSource;
 ///
 ///   @override
 ///   void initState() {
@@ -5673,7 +5983,7 @@ class MapPolyline extends DiagnosticableTree {
   /// Creates a [MapPolyline].
   const MapPolyline({
     required this.points,
-    this.dashArray = const [0, 0],
+    this.dashArray,
     this.color,
     this.width,
     this.onTap,
@@ -5684,9 +5994,9 @@ class MapPolyline extends DiagnosticableTree {
   /// Lines are drawn between consecutive [points].
   ///
   /// ```dart
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  List<MapLatLng> _polyLines;
-  ///  MapShapeSource _mapSource;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late List<MapLatLng> _polyLines;
+  ///  late MapShapeSource _mapSource;
   ///
   ///   @override
   ///   void initState() {
@@ -5740,16 +6050,16 @@ class MapPolyline extends DiagnosticableTree {
   /// ```
   final List<MapLatLng> points;
 
-  /// The dash pattern for the polyline.
+  /// Apply dash pattern for the polyline.
   ///
   /// A sequence of dash and gap will be rendered based on the values in this
   /// list. Once all values of the list is rendered, it will be repeated
   /// again till the end of the polyline.
   ///
   /// ```dart
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  List<MapLatLng> _polyLines;
-  ///  MapShapeSource _mapSource;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late List<MapLatLng> _polyLines;
+  ///  late MapShapeSource _mapSource;
   ///
   ///   @override
   ///   void initState() {
@@ -5802,14 +6112,18 @@ class MapPolyline extends DiagnosticableTree {
   ///     );
   ///   }
   /// ```
-  final List<double> dashArray;
+  ///
+  /// See also:
+  /// * The [MapPolylineLayer.dashArray], to apply same dash pattern for all
+  /// polylines.
+  final List<double>? dashArray;
 
   /// Color of the polyline.
   ///
   /// ```dart
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  List<MapLatLng> _polyLines;
-  ///  MapShapeSource _mapSource;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late List<MapLatLng> _polyLines;
+  ///  late MapShapeSource _mapSource;
   ///
   ///   @override
   ///   void initState() {
@@ -5867,9 +6181,9 @@ class MapPolyline extends DiagnosticableTree {
   /// Width of the polyline.
   ///
   /// ```dart
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  List<MapLatLng> _polyLines;
-  ///  MapShapeSource _mapSource;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late List<MapLatLng> _polyLines;
+  ///  late MapShapeSource _mapSource;
   ///
   ///   @override
   ///   void initState() {
@@ -5930,10 +6244,10 @@ class MapPolyline extends DiagnosticableTree {
   /// index passed in it as shown in the below code snippet.
   ///
   /// ```dart
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  List<MapLatLng> _polyLines;
-  ///  MapShapeSource _mapSource;
-  ///  int _selectedIndex;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late List<MapLatLng> _polyLines;
+  ///  late MapShapeSource _mapSource;
+  ///  int _selectedIndex = -1;
   ///
   ///   @override
   ///   void initState() {
@@ -5999,7 +6313,9 @@ class MapPolyline extends DiagnosticableTree {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<List<MapLatLng>>('points', points));
-    properties.add((DiagnosticsProperty<List<double>>('dashArray', dashArray)));
+    if (dashArray != null) {
+      properties.add(DiagnosticsProperty<List<double>>('dashArray', dashArray));
+    }
     if (color != null) {
       properties.add(ColorProperty('color', color));
     }
@@ -6016,9 +6332,9 @@ class MapPolyline extends DiagnosticableTree {
 /// through group of [MapPolygon.points].
 ///
 /// ```dart
-///  MapZoomPanBehavior _zoomPanBehavior;
-///  List<MapLatLng> _polygon;
-///  MapShapeSource _mapSource;
+///  late MapZoomPanBehavior _zoomPanBehavior;
+///  late List<MapLatLng> _polygon;
+///  late MapShapeSource _mapSource;
 ///
 ///  @override
 ///  void initState() {
@@ -6077,9 +6393,9 @@ class MapPolygon extends DiagnosticableTree {
   /// Lines are drawn between consecutive [points] to form a closed shape.
   ///
   /// ```dart
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  List<MapLatLng> _polygon;
-  ///  MapShapeSource _mapSource;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late List<MapLatLng> _polygon;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -6128,9 +6444,9 @@ class MapPolygon extends DiagnosticableTree {
   /// Specifies the fill color of the polygon.
   ///
   /// ```dart
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  List<MapLatLng> _polygon;
-  ///  MapShapeSource _mapSource;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late List<MapLatLng> _polygon;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -6180,9 +6496,9 @@ class MapPolygon extends DiagnosticableTree {
   /// Specifies the stroke color of the polygon.
   ///
   /// ```dart
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  List<MapLatLng> _polygon;
-  ///  MapShapeSource _mapSource;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late List<MapLatLng> _polygon;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -6233,9 +6549,9 @@ class MapPolygon extends DiagnosticableTree {
   /// Specifies the stroke width of the polygon.
   ///
   /// ```dart
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  List<MapLatLng> _polygon;
-  ///  MapShapeSource _mapSource;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late List<MapLatLng> _polygon;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -6289,10 +6605,10 @@ class MapPolygon extends DiagnosticableTree {
   /// passed on it as shown in the below code snippet.
   ///
   /// ```dart
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  List<MapLatLng> _polygon;
-  ///  MapShapeSource _mapSource;
-  ///  int _selectedIndex;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late List<MapLatLng> _polygon;
+  ///  late MapShapeSource _mapSource;
+  ///  int _selectedIndex = -1;
   ///
   ///  @override
   ///  void initState() {
@@ -6369,8 +6685,8 @@ class MapPolygon extends DiagnosticableTree {
 /// [radius].
 ///
 /// ```dart
-///  List<MapLatLng> _circles;
-///  MapShapeSource _mapSource;
+///  late List<MapLatLng> _circles;
+///  late MapShapeSource _mapSource;
 ///
 ///  @override
 ///  void initState() {
@@ -6435,8 +6751,8 @@ class MapCircle extends DiagnosticableTree {
   /// The center of the circle.
   ///
   /// ```dart
-  ///  List<MapLatLng> _circles;
-  ///  MapShapeSource _mapSource;
+  ///  late List<MapLatLng> _circles;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -6492,8 +6808,8 @@ class MapCircle extends DiagnosticableTree {
   /// The radius of the circle.
   ///
   /// ```dart
-  ///  List<MapLatLng> _circles;
-  ///  MapShapeSource _mapSource;
+  ///  late List<MapLatLng> _circles;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -6550,8 +6866,8 @@ class MapCircle extends DiagnosticableTree {
   /// The fill color of the circle.
   ///
   /// ```dart
-  ///  List<MapLatLng> _circles;
-  ///  MapShapeSource _mapSource;
+  ///  late List<MapLatLng> _circles;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -6608,8 +6924,8 @@ class MapCircle extends DiagnosticableTree {
   /// Stroke width of the circle.
   ///
   /// ```dart
-  ///  List<MapLatLng> _circles;
-  ///  MapShapeSource _mapSource;
+  ///  late List<MapLatLng> _circles;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -6667,8 +6983,8 @@ class MapCircle extends DiagnosticableTree {
   /// Stroke color of the circle.
   ///
   /// ```dart
-  ///  List<MapLatLng> _circles;
-  ///  MapShapeSource _mapSource;
+  ///  late List<MapLatLng> _circles;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -6729,9 +7045,9 @@ class MapCircle extends DiagnosticableTree {
   /// passed on it as shown in the below code snippet.
   ///
   /// ```dart
-  ///  List<MapLatLng> _circles;
-  ///  MapShapeSource _mapSource;
-  ///  int _selectedIndex;
+  ///  late List<MapLatLng> _circles;
+  ///  late MapShapeSource _mapSource;
+  ///  int _selectedIndex = -1;
   ///
   ///  @override
   ///  void initState() {
@@ -6815,9 +7131,9 @@ class MapCircle extends DiagnosticableTree {
 /// Creates an arc by connecting the two geographical coordinates.
 ///
 /// ```dart
-///  List<Model> _arcs;
-///  MapZoomPanBehavior _zoomPanBehavior;
-///  MapShapeSource _mapSource;
+///  late List<Model> _arcs;
+///  late MapZoomPanBehavior _zoomPanBehavior;
+///  late MapShapeSource _mapSource;
 ///
 ///  @override
 ///  void initState() {
@@ -6881,7 +7197,7 @@ class MapArc extends DiagnosticableTree {
     required this.to,
     this.heightFactor = 0.2,
     this.controlPointFactor = 0.5,
-    this.dashArray = const [0, 0],
+    this.dashArray,
     this.color,
     this.width,
     this.onTap,
@@ -6890,9 +7206,9 @@ class MapArc extends DiagnosticableTree {
   /// Represents the start coordinate of an arc.
   ///
   ///```dart
-  ///  List<Model> _arcs;
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  MapShapeSource _mapSource;
+  ///  late List<Model> _arcs;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -6954,9 +7270,9 @@ class MapArc extends DiagnosticableTree {
   /// Represents the end coordinate of an arc.
   ///
   /// ```dart
-  ///  List<Model> _arcs;
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  MapShapeSource _mapSource;
+  ///  late List<Model> _arcs;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -7026,9 +7342,9 @@ class MapArc extends DiagnosticableTree {
   /// To render the arc below the points, set the value between -1 to 0.
   ///
   /// ```dart
-  ///  List<Model> _arcs;
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  MapShapeSource _mapSource;
+  ///  late List<Model> _arcs;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -7098,9 +7414,9 @@ class MapArc extends DiagnosticableTree {
   /// The value ranges from 0 to 1.
   ///
   /// ```dart
-  ///  List<Model> _arcs;
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  MapShapeSource _mapSource;
+  ///  late List<Model> _arcs;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -7160,16 +7476,16 @@ class MapArc extends DiagnosticableTree {
   ///```
   final double controlPointFactor;
 
-  /// The dash pattern for the arc.
+  /// Apply dash pattern for the arc.
   ///
   /// A sequence of dash and gap will be rendered based on the values in this
   /// list. Once all values of the list is rendered, it will be repeated
   /// again till the end of the arc.
   ///
   /// ```dart
-  ///  List<Model> _arcs;
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  MapShapeSource _mapSource;
+  ///  late List<Model> _arcs;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -7227,14 +7543,18 @@ class MapArc extends DiagnosticableTree {
   ///   MapLatLng to;
   /// }
   ///```
-  final List<double> dashArray;
+  ///
+  /// See also:
+  /// * The [MapArcLayer.dashArray], to apply same dash pattern for all
+  /// arcs.
+  final List<double>? dashArray;
 
   /// Color of the arc.
   ///
   /// ```dart
-  ///  List<Model> _arcs;
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  MapShapeSource _mapSource;
+  ///  late List<Model> _arcs;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -7297,9 +7617,9 @@ class MapArc extends DiagnosticableTree {
   /// Width of the arc.
   ///
   /// ```dart
-  ///  List<Model> _arcs;
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  MapShapeSource _mapSource;
+  ///  late List<Model> _arcs;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -7365,10 +7685,10 @@ class MapArc extends DiagnosticableTree {
   /// passed on it as shown in the below code snippet.
   ///
   /// ```dart
-  ///  List<Model> _arcs;
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  MapShapeSource _mapSource;
-  ///  int _selectedIndex;
+  ///  late List<Model> _arcs;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late MapShapeSource _mapSource;
+  ///  int _selectedIndex = -1;
   ///
   ///  @override
   ///  void initState() {
@@ -7442,7 +7762,9 @@ class MapArc extends DiagnosticableTree {
     properties.add(DiagnosticsProperty<MapLatLng>('to', to));
     properties.add(DoubleProperty('heightFactor', heightFactor));
     properties.add(DoubleProperty('controlPointFactor', controlPointFactor));
-    properties.add((DiagnosticsProperty<List<double>>('dashArray', dashArray)));
+    if (dashArray != null) {
+      properties.add(DiagnosticsProperty<List<double>>('dashArray', dashArray));
+    }
     if (color != null) {
       properties.add(ColorProperty('color', color));
     }
@@ -7544,7 +7866,7 @@ bool _liesPointOnLine(Offset startPoint, Offset endPoint, double touchTolerance,
   return path.contains(touchPosition);
 }
 
-Path _getAnimatedPath(Path originalPath, Animation animation) {
+Path _getAnimatedPath(Path originalPath, Animation<double> animation) {
   final Path extractedPath = Path();
   double currentLength = 0.0;
   final PathMetrics pathMetrics = originalPath.computeMetrics();

@@ -36,7 +36,7 @@ This library is used to create three different types of sliders, namely slider, 
 * **Labels** - Render labels for the date and numeric ranges with an option to customize formats based on the requirement.
 ![slider labels](https://cdn.syncfusion.com/content/images/Flutter/pub_images/slider_images/slider_labels.png)
 
-* **Ticks and divisors** - Show ticks and divisors based on the interval. Also, enable minor ticks between the ticks to indicate the selected values. These options show the selected range in a more intuitive way for the end users.
+* **Ticks and dividers** - Show ticks and dividers based on the interval. Also, enable minor ticks between the ticks to indicate the selected values. These options show the selected range in a more intuitive way for the end users.
 ![slider ticks](https://cdn.syncfusion.com/content/images/Flutter/pub_images/slider_images/slider_ticks.png)
 
 * **Tooltip** - Render tooltip to show the selected value clearly. It is also possible to customize the format of the text shown in the tooltip.
@@ -76,12 +76,17 @@ Range selector supports all the above-mentioned features(except orientation) of 
 Explore the full capability of our Flutter widgets on your device by installing our sample browser application from the following app stores. View sample codes in GitHub.
 
 <p align="center">
-  <a href="https://play.google.com/store/apps/details?id=com.syncfusion.flutter.examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/google-play.png"/></a>
-  <a href="https://apps.apple.com/us/app/syncfusion-flutter-ui-widgets/id1475231341"><img src="https://cdn.syncfusion.com/content/images/FTControl/apple-button.png"/></a>
+  <a href="https://play.google.com/store/apps/details?id=com.syncfusion.flutter.examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/google-play-store.png"/></a>
+  <a href="https://apps.apple.com/us/app/syncfusion-flutter-ui-widgets/id1475231341"><img src="https://cdn.syncfusion.com/content/images/FTControl/ios-store.png"/></a>
+  <a href="https://flutter.syncfusion.com"><img src="https://cdn.syncfusion.com/content/images/FTControl/web-sample-browser.png"/></a> 
 </p>
 <p align="center">
-  <a href="https://github.com/syncfusion/flutter-examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/GitHub.png"/></a>
-  <a href="https://flutter.syncfusion.com"><img src="https://cdn.syncfusion.com/content/images/FTControl/web_sample_browser.png"/></a>
+  <a href="https://www.microsoft.com/en-us/p/syncfusion-flutter-gallery/9nhnbwcsf85d?activetab=pivot:overviewtab"><img src="https://cdn.syncfusion.com/content/images/FTControl/windows-store.png"/></a> 
+  <a href="https://install.appcenter.ms/orgs/syncfusion-demos/apps/syncfusion-flutter-gallery/distribution_groups/release"><img src="https://cdn.syncfusion.com/content/images/FTControl/macos-app-center.png"/></a>
+  <a href="https://snapcraft.io/syncfusion-flutter-gallery"><img src="https://cdn.syncfusion.com/content/images/FTControl/snap-store.png"/></a>
+</p>
+<p align="center">
+  <a href="https://github.com/syncfusion/flutter-examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/github-samples.png"/></a>
 </p>
 
 ## Useful links
@@ -318,7 +323,8 @@ Add a child of any type inside the range selector. Here, the Charts widget is ad
 ```dart
 final DateTime dateMin = DateTime(2003, 01, 01);
 final DateTime dateMax = DateTime(2010, 01, 01);
-final SfRangeValues dateValues = SfRangeValues(DateTime(2005, 01, 01), DateTime(2008, 01, 01));
+final SfRangeValues dateValues = 
+            SfRangeValues(DateTime(2005, 01, 01), DateTime(2008, 01, 01));
 
 @override
   Widget build(BuildContext context) {
@@ -356,8 +362,8 @@ final SfRangeValues dateValues = SfRangeValues(DateTime(2005, 01, 01), DateTime(
                         series: <SplineAreaSeries<Data, DateTime>>[
                           SplineAreaSeries<Data, DateTime>(
                               dataSource: chartData,
-                              xValueMapper: (Data sales, _) => sales.x,
-                              yValueMapper: (Data sales, _) => sales.y)
+                              xValueMapper: (Data sales, int index) => sales.x,
+                              yValueMapper: (Data sales, int index) => sales.y)
                         ],
                       ),
                       height: 200,

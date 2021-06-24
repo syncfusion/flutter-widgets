@@ -2,7 +2,8 @@ part of core;
 
 /// Holds the arguments for the event onTooltipRender.
 ///
-/// Event is triggered when the tooltip is rendered, which allows you to customize tooltip arguments.
+/// Event is triggered when the tooltip is rendered, which allows you to
+/// customize tooltip arguments.
 class TooltipRenderArgs {
   /// Creating an argument constructor of TooltipArgs class.
   TooltipRenderArgs(this.header, this.text, this.location);
@@ -34,7 +35,8 @@ enum TooltipAlignment {
 /// Data marker shapes.
 ///
 /// Data marker supports the below shapes.
-/// If the shape is DataMarkerType.image, specify the image path in the imageUrl property of markerSettings.
+/// If the shape is DataMarkerType.image, specify the image path in the
+/// imageUrl property of markerSettings.
 enum DataMarkerType {
   ///- DataMarkerType.cicle, will render marker shape  circle.
   circle,
@@ -60,7 +62,8 @@ enum DataMarkerType {
   ///- DataMarkerType.triangle, will render marker shape  triangle.
   triangle,
 
-  ///- DataMarkerType.invertedTriangle, will render marker shape  invertedTriangle.
+  ///- DataMarkerType.invertedTriangle, will render
+  /// marker shape invertedTriangle.
   invertedTriangle,
 
   ///- DataMarkerType.none, will skip rendering marker.

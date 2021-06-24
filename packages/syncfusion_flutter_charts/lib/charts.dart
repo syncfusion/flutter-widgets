@@ -3,6 +3,8 @@
 ///
 /// To use, import `package:syncfusion_flutter_charts/charts.dart`.
 ///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=JAAnmOfoqg8}
+///
 /// See also:
 /// * [Syncfusion Flutter Charts product page](https://www.syncfusion.com/flutter-widgets/flutter-charts)
 /// * [User guide documentation](https://help.syncfusion.com/flutter/chart/overview)
@@ -23,6 +25,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/foundation.dart';
+//ignore: implementation_imports
+import 'package:flutter/src/foundation/platform.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:intl/intl.dart' show NumberFormat;
@@ -198,12 +202,13 @@ part './src/chart/utils/helper.dart';
 // export common library
 part './src/common/common.dart';
 part './src/common/event_args.dart';
+part './src/common/rendering_details.dart';
 part './src/common/legend/legend.dart';
 part './src/common/legend/renderer.dart';
 part './src/common/series/chart_series.dart';
 part './src/common/template/rendering.dart';
-part './src/common/user_interaction/selection.dart';
 part './src/common/user_interaction/selection_behavior.dart';
 part './src/common/user_interaction/tooltip.dart';
 part './src/common/utils/enum.dart';
 part './src/common/utils/helper.dart';
+part './src/common/utils/typedef.dart';

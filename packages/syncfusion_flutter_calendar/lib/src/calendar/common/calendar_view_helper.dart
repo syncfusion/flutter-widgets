@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:syncfusion_flutter_core/core.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../../../calendar.dart';
 import '../appointment_engine/calendar_datasource.dart';
@@ -13,6 +15,7 @@ import '../settings/schedule_view_settings.dart';
 import '../settings/time_region.dart';
 import '../settings/time_slot_view_settings.dart';
 import '../sfcalendar.dart';
+import 'date_time_engine.dart';
 import 'enums.dart';
 import 'event_args.dart';
 
@@ -124,7 +127,7 @@ class CalendarViewHelper {
 
   /// Return the copy of list passed.
   static List<T>? cloneList<T>(List<T>? value) {
-    if (value == null || value.isEmpty) {
+    if (value == null) {
       return null;
     }
     return value.sublist(0);
@@ -151,32 +154,6 @@ class CalendarViewHelper {
 
     for (int i = 0; i < collectionCount; i++) {
       if (collection1[i] != collection2[i]) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  /// Check both the resource collection resources are equal or not.
-  static bool isResourceCollectionEqual(
-      List<CalendarResource>? originalCollection,
-      List<CalendarResource>? copyCollection) {
-    if (originalCollection == copyCollection) {
-      return true;
-    }
-
-    if (originalCollection == null || copyCollection == null) {
-      return false;
-    }
-
-    final int datesCount = originalCollection.length;
-    if (datesCount != copyCollection.length) {
-      return false;
-    }
-
-    for (int i = 0; i < datesCount; i++) {
-      if (originalCollection[i] != copyCollection[i]) {
         return false;
       }
     }
@@ -301,22 +278,30 @@ class CalendarViewHelper {
     }
   }
 
+  /// Get the today text color based on today highlight color and today text
+  /// style.
+  static Color? getTodayHighlightTextColor(Color? todayHighlightColor,
+      TextStyle? todayTextStyle, SfCalendarThemeData calendarTheme) {
+    Color? todayTextColor = todayHighlightColor;
+    if (todayTextColor != null && todayTextColor == Colors.transparent) {
+      todayTextColor = todayTextStyle != null
+          ? todayTextStyle.color
+          : calendarTheme.todayTextStyle.color;
+    }
+
+    return todayTextColor;
+  }
+
   /// Get the exact the time from the position and the date time includes
   /// minutes value.
   static double getTimeToPosition(Duration duration,
       TimeSlotViewSettings timeSlotViewSettings, double minuteHeight) {
+    final int startHour = timeSlotViewSettings.startHour.toInt();
     final Duration startDuration = Duration(
-        hours: timeSlotViewSettings.startHour.toInt(),
-        minutes: ((timeSlotViewSettings.startHour -
-                    timeSlotViewSettings.startHour.toInt()) *
-                60)
-            .toInt());
+        hours: startHour,
+        minutes: ((timeSlotViewSettings.startHour - startHour) * 60).toInt());
     final Duration difference = duration - startDuration;
-    if (difference.isNegative) {
-      return 0;
-    }
-
-    return difference.inMinutes * minuteHeight;
+    return difference.isNegative ? 0 : difference.inMinutes * minuteHeight;
   }
 
   /// Returns the time interval value based on the given start time, end time
@@ -338,13 +323,14 @@ class CalendarViewHelper {
 
     totalMinutes = defaultLinesCount * 60;
 
-    if (settings.timeInterval.inMinutes >= 0 &&
-        settings.timeInterval.inMinutes <= totalMinutes &&
-        totalMinutes.round() % settings.timeInterval.inMinutes.round() == 0) {
-      return settings.timeInterval.inMinutes;
-    } else if (settings.timeInterval.inMinutes >= 0 &&
-        settings.timeInterval.inMinutes <= totalMinutes) {
-      return _getNearestValue(settings.timeInterval.inMinutes, totalMinutes);
+    final int timeIntervalMinutes = settings.timeInterval.inMinutes;
+    if (timeIntervalMinutes >= 0 &&
+        timeIntervalMinutes <= totalMinutes &&
+        totalMinutes.round() % timeIntervalMinutes == 0) {
+      return timeIntervalMinutes;
+    } else if (timeIntervalMinutes >= 0 &&
+        timeIntervalMinutes <= totalMinutes) {
+      return _getNearestValue(timeIntervalMinutes, totalMinutes);
     } else {
       return 60;
     }
@@ -374,7 +360,7 @@ class CalendarViewHelper {
 
   static int _getNearestValue(int timeInterval, double totalMinutes) {
     timeInterval++;
-    if (totalMinutes.round() % timeInterval.round() == 0) {
+    if (totalMinutes.round() % timeInterval == 0) {
       return timeInterval;
     }
 
@@ -477,9 +463,7 @@ class CalendarViewHelper {
       List<dynamic>? appointments,
       CalendarElement element,
       CalendarResource? resource) {
-    final CalendarTapDetails calendarTapDetails =
-        CalendarTapDetails(appointments, date, element, resource);
-    calendar.onTap!(calendarTapDetails);
+    calendar.onTap!(CalendarTapDetails(appointments, date, element, resource));
   }
 
   /// Method that raise the calendar long press callback with given parameters.
@@ -489,27 +473,22 @@ class CalendarViewHelper {
       List<dynamic>? appointments,
       CalendarElement element,
       CalendarResource? resource) {
-    final CalendarLongPressDetails calendarLongPressDetails =
-        CalendarLongPressDetails(appointments, date, element, resource);
-    calendar.onLongPress!(calendarLongPressDetails);
+    calendar.onLongPress!(
+        CalendarLongPressDetails(appointments, date, element, resource));
   }
 
   /// method that raise the calendar selection changed callback
   /// with the given parameters
   static void raiseCalendarSelectionChangedCallback(
       SfCalendar calendar, DateTime? date, CalendarResource? resource) {
-    final CalendarSelectionDetails calendarSelectionDetails =
-        CalendarSelectionDetails(date, resource);
-    calendar.onSelectionChanged!(calendarSelectionDetails);
+    calendar.onSelectionChanged!(CalendarSelectionDetails(date, resource));
   }
 
   /// method that raises the visible dates changed callback with the given
   /// parameters
   static void raiseViewChangedCallback(
       SfCalendar calendar, List<DateTime> visibleDates) {
-    final ViewChangedDetails viewChangedDetails =
-        ViewChangedDetails(visibleDates);
-    calendar.onViewChanged!(viewChangedDetails);
+    calendar.onViewChanged!(ViewChangedDetails(visibleDates));
   }
 
   /// Check the calendar view is timeline view or not.
@@ -534,16 +513,25 @@ class CalendarViewHelper {
   static List<dynamic> getCustomAppointments(
       List<CalendarAppointment>? appointments) {
     final List<dynamic> customAppointments = <dynamic>[];
-    if (appointments != null) {
-      for (int i = 0; i < appointments.length; i++) {
-        final CalendarAppointment appointment = appointments[i];
-        customAppointments.add(appointment.data ?? appointment);
-      }
-
+    if (appointments == null) {
       return customAppointments;
     }
 
+    for (int i = 0; i < appointments.length; i++) {
+      customAppointments.add(getAppointmentDetail(appointments[i]));
+    }
+
     return customAppointments;
+  }
+
+  /// Returns the appointment details with given appointment type.
+  static dynamic getAppointmentDetail(CalendarAppointment appointment) {
+    if (appointment.recurrenceRule != null &&
+        appointment.recurrenceRule!.isNotEmpty) {
+      return appointment.convertToCalendarAppointment();
+    } else {
+      return appointment.data;
+    }
   }
 
   /// Returns the index of the passed id's resource from the passed resource
@@ -554,7 +542,8 @@ class CalendarViewHelper {
       return -1;
     }
 
-    return resourceCollection.indexWhere((resource) => resource.id == id);
+    return resourceCollection
+        .indexWhere((CalendarResource resource) => resource.id == id);
   }
 
   /// Check the date in between first and last date
@@ -563,7 +552,7 @@ class CalendarViewHelper {
     if (startDate.isAfter(endDate)) {
       final dynamic temp = startDate;
       startDate = endDate;
-      endDate = temp;
+      endDate = DateTimeHelper.getDateTimeValue(temp);
     }
 
     if (isSameOrBeforeDateTime(endDate, date) &&
@@ -592,6 +581,53 @@ class CalendarViewHelper {
   static bool isSameOrAfterDateTime(DateTime firstDate, DateTime date) {
     return CalendarViewHelper.isSameTimeSlot(firstDate, date) ||
         firstDate.isBefore(date);
+  }
+
+  /// Method to switch the views based on the keyboard interaction.
+  static KeyEventResult handleViewSwitchKeyBoardEvent(RawKeyEvent event,
+      CalendarController controller, List<CalendarView>? allowedViews) {
+    /// Ctrl + and Ctrl - used by browser to zoom the page, hence as referred
+    /// EJ2 scheduler, we have used alt + numeric to switch between views in
+    /// calendar web and windows
+    CalendarView view = controller.view!;
+    if (event.isAltPressed) {
+      if (event.logicalKey == LogicalKeyboardKey.digit1) {
+        view = CalendarView.day;
+      } else if (event.logicalKey == LogicalKeyboardKey.digit2) {
+        view = CalendarView.week;
+      } else if (event.logicalKey == LogicalKeyboardKey.digit3) {
+        view = CalendarView.workWeek;
+      } else if (event.logicalKey == LogicalKeyboardKey.digit4) {
+        view = CalendarView.month;
+      } else if (event.logicalKey == LogicalKeyboardKey.digit5) {
+        view = CalendarView.timelineDay;
+      } else if (event.logicalKey == LogicalKeyboardKey.digit6) {
+        view = CalendarView.timelineWeek;
+      } else if (event.logicalKey == LogicalKeyboardKey.digit7) {
+        view = CalendarView.timelineWorkWeek;
+      } else if (event.logicalKey == LogicalKeyboardKey.digit8) {
+        view = CalendarView.timelineMonth;
+      } else if (event.logicalKey == LogicalKeyboardKey.digit9) {
+        view = CalendarView.schedule;
+      }
+    }
+
+    if (allowedViews != null &&
+        allowedViews.isNotEmpty &&
+        !allowedViews.contains(view)) {
+      return KeyEventResult.ignored;
+    }
+
+    controller.view = view;
+    return KeyEventResult.handled;
+  }
+
+  /// Check the showWeekNumber is true or not and returns the position.
+  static double getWeekNumberPanelWidth(
+      bool showWeekNumber, double width, bool isMobilePlatform) {
+    return showWeekNumber
+        ? (width / (DateTime.daysPerWeek + 1)) / (isMobilePlatform ? 1.3 : 4)
+        : 0;
   }
 }
 
@@ -679,6 +715,8 @@ class CalendarAppointment {
     this.notes,
     this.location,
     this.resourceIds,
+    this.recurrenceId,
+    this.id,
     required this.startTime,
     required this.endTime,
     this.subject = '',
@@ -754,6 +792,15 @@ class CalendarAppointment {
   /// The ids of the [CalendarResource] that shares this [CalendarAppointment].
   List<Object>? resourceIds;
 
+  /// Defines the recurrence id that
+  /// used to create an exception for recurrence appointment in [SfCalendar].
+  Object? recurrenceId;
+
+  /// Defines the id for [Appointment] in [SfCalendar].
+  ///
+  /// Defaults to hashCode.
+  Object? id;
+
   /// Holds the parent appointment details
   Object? data;
 
@@ -793,6 +840,8 @@ class CalendarAppointment {
         recurrenceRule: recurrenceRule,
         isAllDay: isAllDay,
         resourceIds: resourceIds,
+        recurrenceId: recurrenceId,
+        id: id,
         startTimeZone: startTimeZone,
         endTimeZone: endTimeZone,
         notes: notes,
@@ -801,6 +850,7 @@ class CalendarAppointment {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(dynamic other) {
     if (identical(this, other)) {
       return true;
@@ -809,7 +859,10 @@ class CalendarAppointment {
       return false;
     }
 
-    final CalendarAppointment otherAppointment = other;
+    late final CalendarAppointment otherAppointment;
+    if (other is CalendarAppointment) {
+      otherAppointment = other;
+    }
     return CalendarViewHelper.isSameTimeSlot(
             otherAppointment.startTime, startTime) &&
         CalendarViewHelper.isSameTimeSlot(otherAppointment.endTime, endTime) &&
@@ -824,6 +877,8 @@ class CalendarAppointment {
         otherAppointment.notes == notes &&
         otherAppointment.location == location &&
         otherAppointment.resourceIds == resourceIds &&
+        otherAppointment.recurrenceId == recurrenceId &&
+        otherAppointment.id == otherAppointment.id &&
         otherAppointment.subject == subject &&
         otherAppointment.color == color &&
         CalendarViewHelper.isDateCollectionEqual(
@@ -832,6 +887,7 @@ class CalendarAppointment {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     return hashValues(
       startTimeZone,
@@ -841,6 +897,8 @@ class CalendarAppointment {
       notes,
       location,
       hashList(resourceIds),
+      recurrenceId,
+      id,
       startTime,
       endTime,
       subject,
@@ -952,6 +1010,7 @@ class CalendarTimeRegion {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(dynamic other) {
     if (identical(this, other)) {
       return true;
@@ -960,7 +1019,10 @@ class CalendarTimeRegion {
       return false;
     }
 
-    final CalendarTimeRegion region = other;
+    late final CalendarTimeRegion region;
+    if (other is CalendarTimeRegion) {
+      region = other;
+    }
     return region.textStyle == textStyle &&
         CalendarViewHelper.isSameTimeSlot(region.startTime, startTime) &&
         CalendarViewHelper.isSameTimeSlot(region.endTime, endTime) &&
@@ -980,6 +1042,7 @@ class CalendarTimeRegion {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     return hashValues(
         startTime,

@@ -69,7 +69,7 @@ class RangeAreaSegment extends ChartSegment {
   @override
   void onPaint(Canvas canvas) {
     final RangeAreaSeries<dynamic, dynamic> _series =
-        this._series as RangeAreaSeries;
+        this._series as RangeAreaSeries<dynamic, dynamic>;
     _pathRect = _path.getBounds();
     canvas.drawPath(
         _path, (_series.gradient == null) ? fillPaint! : getFillPaint());

@@ -25,7 +25,8 @@ class SfPdfViewerTheme extends InheritedTheme {
   const SfPdfViewerTheme({Key? key, required this.data, required this.child})
       : super(key: key, child: child);
 
-  /// Specifies the color and typography values for descendant [SfPdfViewer] widgets.
+  /// Specifies the color and typography values for descendant
+  /// [SfPdfViewer] widgets.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
@@ -62,11 +63,11 @@ class SfPdfViewerTheme extends InheritedTheme {
   @override
   final Widget child;
 
-  /// The data from the closest [SfPdfViewerTheme] instance that encloses the given
-  /// context.
+  /// The data from the closest [SfPdfViewerTheme] instance that encloses
+  /// the given context.
   ///
-  /// Defaults to [SfThemeData.pdfViewerThemeData] if there is no [SfPdfViewerTheme]
-  /// in the given build context.
+  /// Defaults to [SfThemeData.pdfViewerThemeData] if there is no
+  /// [SfPdfViewerTheme] in the given build context.
   ///
   static SfPdfViewerThemeData? of(BuildContext context) {
     final SfPdfViewerTheme? pdfViewerTheme =
@@ -106,6 +107,7 @@ class SfPdfViewerTheme extends InheritedTheme {
 ///   );
 /// }
 /// ```
+@immutable
 class SfPdfViewerThemeData with Diagnosticable {
   /// Creating an argument constructor of SfPdfViewerThemeData class.
   factory SfPdfViewerThemeData(
@@ -118,20 +120,21 @@ class SfPdfViewerThemeData with Diagnosticable {
       PdfPaginationDialogStyle? paginationDialogStyle}) {
     brightness = brightness ?? Brightness.light;
     final bool isLight = brightness == Brightness.light;
-    backgroundColor ??= isLight ? Color(0xFFD6D6D6) : Color(0xFF303030);
-    scrollStatusStyle ??= PdfScrollStatusStyle(
+    backgroundColor ??=
+        isLight ? const Color(0xFFD6D6D6) : const Color(0xFF303030);
+    scrollStatusStyle ??= const PdfScrollStatusStyle(
         backgroundColor: Color(0xFF757575),
         pageInfoTextStyle:
             TextStyle(fontFamily: 'Roboto', fontSize: 16, color: Colors.white));
     scrollHeadStyle ??= isLight
-        ? PdfScrollHeadStyle(
+        ? const PdfScrollHeadStyle(
             backgroundColor: Color(0xFFFAFAFA),
             pageNumberTextStyle: TextStyle(fontSize: 12, color: Colors.black))
-        : PdfScrollHeadStyle(
+        : const PdfScrollHeadStyle(
             backgroundColor: Color(0xFF424242),
             pageNumberTextStyle: TextStyle(fontSize: 12, color: Colors.white));
     bookmarkViewStyle ??= isLight
-        ? PdfBookmarkViewStyle(
+        ? const PdfBookmarkViewStyle(
             backgroundColor: Colors.white,
             headerBarColor: Color(0xFFFAFAFA),
             closeIconColor: Colors.black54,
@@ -153,13 +156,13 @@ class SfPdfViewerThemeData with Diagnosticable {
             ),
           )
         : PdfBookmarkViewStyle(
-            backgroundColor: Color(0xFF212121),
-            headerBarColor: Color(0xFF424242),
+            backgroundColor: const Color(0xFF212121),
+            headerBarColor: const Color(0xFF424242),
             closeIconColor: Colors.white54,
             backIconColor: Colors.white54,
             navigationIconColor: Colors.white54,
-            selectionColor: Color.fromRGBO(255, 255, 255, 0.12),
-            titleSeparatorColor: Color.fromRGBO(255, 255, 255, 0.16),
+            selectionColor: const Color.fromRGBO(255, 255, 255, 0.12),
+            titleSeparatorColor: const Color.fromRGBO(255, 255, 255, 0.16),
             headerTextStyle: TextStyle(
               fontSize: 16,
               fontFamily: 'Roboto',
@@ -176,33 +179,33 @@ class SfPdfViewerThemeData with Diagnosticable {
     paginationDialogStyle ??= isLight
         ? PdfPaginationDialogStyle(
             backgroundColor: Colors.white,
-            headerTextStyle: TextStyle(
+            headerTextStyle: const TextStyle(
                 fontFamily: 'Roboto',
                 fontSize: 20,
                 fontWeight: FontWeight.w500,
                 color: Colors.black87),
-            inputFieldTextStyle: TextStyle(
+            inputFieldTextStyle: const TextStyle(
                 fontFamily: 'Roboto', fontSize: 16, color: Colors.black87),
             hintTextStyle: TextStyle(
                 fontFamily: 'Roboto',
                 fontSize: 16,
                 color: Colors.black87.withOpacity(0.54)),
-            pageInfoTextStyle: TextStyle(
+            pageInfoTextStyle: const TextStyle(
                 fontFamily: 'Roboto',
                 fontSize: 12,
                 color: Color.fromRGBO(0, 0, 0, 0.6)),
-            validationTextStyle: TextStyle(
+            validationTextStyle: const TextStyle(
                 fontFamily: 'Roboto', fontSize: 12, color: Color(0xFFC33F38)),
-            okTextStyle: TextStyle(
+            okTextStyle: const TextStyle(
                 fontFamily: 'Roboto',
                 fontSize: 14,
                 fontWeight: FontWeight.w500),
-            cancelTextStyle: TextStyle(
+            cancelTextStyle: const TextStyle(
                 fontFamily: 'Roboto',
                 fontSize: 14,
                 fontWeight: FontWeight.w500))
         : PdfPaginationDialogStyle(
-            backgroundColor: Color(0xFF424242),
+            backgroundColor: const Color(0xFF424242),
             headerTextStyle: TextStyle(
                 fontFamily: 'Roboto',
                 fontSize: 20,
@@ -215,16 +218,16 @@ class SfPdfViewerThemeData with Diagnosticable {
             hintTextStyle: TextStyle(
                 fontFamily: 'Roboto',
                 fontSize: 16,
-                color: Color(0xFFB3B3B3).withOpacity(0.54)),
-            pageInfoTextStyle: TextStyle(
+                color: const Color(0xFFB3B3B3).withOpacity(0.54)),
+            pageInfoTextStyle: const TextStyle(
                 fontFamily: 'Roboto', fontSize: 12, color: Color(0xFFB3B3B3)),
-            validationTextStyle: TextStyle(
+            validationTextStyle: const TextStyle(
                 fontFamily: 'Roboto', fontSize: 12, color: Color(0xFFFF8781)),
-            okTextStyle: TextStyle(
+            okTextStyle: const TextStyle(
                 fontFamily: 'Roboto',
                 fontSize: 14,
                 fontWeight: FontWeight.w500),
-            cancelTextStyle: TextStyle(
+            cancelTextStyle: const TextStyle(
                 fontFamily: 'Roboto',
                 fontSize: 14,
                 fontWeight: FontWeight.w500));
@@ -441,8 +444,8 @@ class SfPdfViewerThemeData with Diagnosticable {
   /// ```
   final PdfPaginationDialogStyle paginationDialogStyle;
 
-  /// Creates a copy of this [SfPdfViewer] theme data object with the matching fields
-  /// replaced with the non-null parameter values.
+  /// Creates a copy of this [SfPdfViewer] theme data object with the
+  /// matching fields replaced with the non-null parameter values.
   SfPdfViewerThemeData copyWith(
       {Brightness? brightness,
       Color? backgroundColor,
@@ -551,12 +554,14 @@ class PdfScrollStatusStyle {
   final TextStyle? pageInfoTextStyle;
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     final List<Object?> values = <Object?>[backgroundColor, pageInfoTextStyle];
     return hashList(values);
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
@@ -595,6 +600,7 @@ class PdfScrollHeadStyle {
   final TextStyle? pageNumberTextStyle;
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     final List<Object?> values = <Object?>[
       backgroundColor,
@@ -604,6 +610,7 @@ class PdfScrollHeadStyle {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
@@ -672,6 +679,7 @@ class PdfBookmarkViewStyle {
   final TextStyle? headerTextStyle;
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     final List<Object?> values = <Object?>[
       backgroundColor,
@@ -688,6 +696,7 @@ class PdfBookmarkViewStyle {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
@@ -729,10 +738,11 @@ class PdfBookmarkViewStyle {
   }
 }
 
-/// Holds the color and text styles for the pagination dialog in the [SfPdfViewer].
+/// Holds the color and text styles for the pagination dialog in
+/// the [SfPdfViewer].
 class PdfPaginationDialogStyle {
-  /// Creates a [PdfPaginationDialogStyle] that's used to configure styles for the
-  /// pagination dialog in [SfPdfViewer].
+  /// Creates a [PdfPaginationDialogStyle] that's used to configure styles for
+  /// the pagination dialog in [SfPdfViewer].
   const PdfPaginationDialogStyle(
       {this.backgroundColor,
       this.headerTextStyle,
@@ -752,10 +762,12 @@ class PdfPaginationDialogStyle {
   /// The style for the input text field of pagination dialog in [SfPdfViewer].
   final TextStyle? inputFieldTextStyle;
 
-  /// The style for the hint text of pagination dialog text field in [SfPdfViewer].
+  /// The style for the hint text of pagination dialog text field
+  /// in [SfPdfViewer].
   final TextStyle? hintTextStyle;
 
-  /// The style for the page information text of pagination dialog in [SfPdfViewer].
+  /// The style for the page information text of pagination dialog
+  /// in [SfPdfViewer].
   final TextStyle? pageInfoTextStyle;
 
   /// The style for the validation text of pagination dialog in [SfPdfViewer].
@@ -768,6 +780,7 @@ class PdfPaginationDialogStyle {
   final TextStyle? cancelTextStyle;
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     final List<Object?> values = <Object?>[
       backgroundColor,
@@ -783,6 +796,7 @@ class PdfPaginationDialogStyle {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;

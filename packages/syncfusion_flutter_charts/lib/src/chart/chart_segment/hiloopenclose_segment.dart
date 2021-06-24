@@ -28,8 +28,6 @@ class HiloOpenCloseSegment extends ChartSegment {
   late Path _path;
 
   Color? _pointColorMapper;
-  // @override
-  // CartesianChartPoint<dynamic> _currentPoint;
   late _ChartLocation _centerLowPoint, _centerHighPoint, _lowPoint, _highPoint;
   late bool _showSameValue, _isTransposed, _isBull = false;
   late HiloOpenCloseSegment _currentSegment;
@@ -82,7 +80,7 @@ class HiloOpenCloseSegment extends ChartSegment {
   /// Calculates the rendering bounds of a segment.
   @override
   void calculateSegmentPoints() {
-    _hiloOpenCloseSeries = _series as HiloOpenCloseSeries;
+    _hiloOpenCloseSeries = _series as HiloOpenCloseSeries<dynamic, dynamic>;
     _isTransposed = _seriesRenderer._chartState!._requireInvertedAxis;
     _isBull = _currentPoint!.open < _currentPoint!.close;
     _lowPoint = _currentPoint!.lowPoint!;
@@ -157,8 +155,8 @@ class HiloOpenCloseSegment extends ChartSegment {
     if (strokePaint != null) {
       _path = Path();
       if (_series.animationDuration > 0 &&
-          !_seriesRenderer._chartState!._isLegendToggled) {
-        if (!_seriesRenderer._chartState!._widgetNeedUpdate ||
+          !_seriesRenderer._renderingDetails!.isLegendToggled) {
+        if (!_seriesRenderer._renderingDetails!.widgetNeedUpdate ||
             _seriesRenderer._reAnimate) {
           if (_isTransposed) {
             _centerX = _highX + ((_lowX - _highX) / 2);
@@ -240,12 +238,10 @@ class HiloOpenCloseSegment extends ChartSegment {
               _seriesRenderer);
         }
       } else {
-        if (_series.dashArray[0] != 0 && _series.dashArray[1] != 0) {
-          _drawDashedLine(canvas, _series.dashArray, strokePaint!,
-              _drawDashedHiloOpenClosePath(canvas));
-        } else {
-          drawHiloOpenClosePath(canvas);
-        }
+        (_series.dashArray[0] != 0 && _series.dashArray[1] != 0)
+            ? _drawDashedLine(canvas, _series.dashArray, strokePaint!,
+                _drawDashedHiloOpenClosePath(canvas))
+            : drawHiloOpenClosePath(canvas);
       }
     }
   }

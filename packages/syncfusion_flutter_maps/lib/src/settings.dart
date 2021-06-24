@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import 'behavior/zoom_pan_behavior.dart';
+import '../maps.dart';
 import 'elements/marker.dart';
 import 'enum.dart';
 
@@ -65,8 +65,8 @@ typedef WillPanCallback = bool Function(MapPanDetails);
 /// based on the [MapColorMapper.value] property of [MapColorMapper].
 ///
 /// ```dart
-/// List<Model> _data;
-/// MapShapeSource _mapSource;
+/// late List<Model> _data;
+/// late MapShapeSource _mapSource;
 ///
 ///  @override
 ///  void initState() {
@@ -119,8 +119,8 @@ typedef WillPanCallback = bool Function(MapPanDetails);
 /// properties of [MapColorMapper].
 ///
 /// ```dart
-/// List<Model> _data;
-/// MapShapeSource _mapSource;
+/// late List<Model> _data;
+/// late MapShapeSource _mapSource;
 ///
 ///  @override
 ///  void initState() {
@@ -176,6 +176,7 @@ typedef WillPanCallback = bool Function(MapPanDetails);
 /// * [MapShapeSource.bubbleColorValueMapper] and
 /// [MapShapeSource.bubbleColorMappers], to customize the shape colors
 /// based on the data.
+@immutable
 class MapColorMapper {
   /// Creates a [MapColorMapper].
   const MapColorMapper({
@@ -199,8 +200,8 @@ class MapColorMapper {
   /// and [to] range.
   ///
   /// ```dart
-  /// List<Model> _data;
-  /// MapShapeSource _mapSource;
+  /// late List<Model> _data;
+  /// late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -266,8 +267,8 @@ class MapColorMapper {
   /// and [to] range.
   ///
   /// ```dart
-  /// List<Model> _data;
-  /// MapShapeSource _mapSource;
+  /// late List<Model> _data;
+  /// late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -332,8 +333,8 @@ class MapColorMapper {
   /// [MapShapeSource.bubbleColorValueMapper] is equal to this [value].
   ///
   /// ```dart
-  /// List<Model> _data;
-  /// MapShapeSource _mapSource;
+  /// late List<Model> _data;
+  /// late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -393,8 +394,8 @@ class MapColorMapper {
   /// Specifies the color applies to the shape or bubble based on the value.
   ///
   /// ```dart
-  /// List<Model> _data;
-  /// MapShapeSource _mapSource;
+  /// late List<Model> _data;
+  /// late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -462,8 +463,8 @@ class MapColorMapper {
   /// between the range will get a opacity based on their respective value.
   ///
   /// ```dart
-  /// List<Model> _data;
-  /// MapShapeSource _mapSource;
+  /// late List<Model> _data;
+  /// late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -536,8 +537,8 @@ class MapColorMapper {
   /// between the range will get a opacity based on their respective value.
   ///
   /// ```dart
-  /// List<Model> _data;
-  /// MapShapeSource _mapSource;
+  /// late List<Model> _data;
+  /// late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -607,8 +608,8 @@ class MapColorMapper {
   /// [MapColorMapper.value] will be used as the text of the legend item.
   ///
   /// ```dart
-  /// List<Model> _data;
-  /// MapShapeSource _mapSource;
+  /// late List<Model> _data;
+  /// late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -695,8 +696,8 @@ class MapColorMapper {
 /// data labels when it exceeds their respective shapes.
 ///
 /// ```dart
-/// List<Model> _data;
-/// MapShapeSource _mapSource;
+/// late List<Model> _data;
+/// late MapShapeSource _mapSource;
 ///
 ///  @override
 ///  void initState() {
@@ -758,8 +759,8 @@ class MapDataLabelSettings extends DiagnosticableTree {
   /// This snippet shows how to set [textStyle] for the data labels in [SfMaps].
   ///
   /// ```dart
-  /// List<Model> _data;
-  /// MapShapeSource _mapSource;
+  /// late List<Model> _data;
+  /// late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -822,8 +823,8 @@ class MapDataLabelSettings extends DiagnosticableTree {
   /// [SfMaps].
   ///
   /// ```dart
-  /// List<Model> _data;
-  /// MapShapeSource _mapSource;
+  /// late List<Model> _data;
+  /// late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -909,8 +910,8 @@ class MapDataLabelSettings extends DiagnosticableTree {
 /// bubbles.
 ///
 /// ```dart
-/// List<Model> _data;
-/// MapShapeSource _mapSource;
+/// late List<Model> _data;
+/// late MapShapeSource _mapSource;
 ///
 ///  @override
 ///  void initState() {
@@ -974,8 +975,8 @@ class MapBubbleSettings extends DiagnosticableTree {
   /// [maxRadius].
   ///
   /// ```dart
-  /// List<Model> _data;
-  /// MapShapeSource _mapSource;
+  /// late List<Model> _data;
+  /// late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -1030,8 +1031,8 @@ class MapBubbleSettings extends DiagnosticableTree {
   /// [maxRadius].
   ///
   /// ```dart
-  /// List<Model> _data;
-  /// MapShapeSource _mapSource;
+  /// late List<Model> _data;
+  /// late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -1081,8 +1082,8 @@ class MapBubbleSettings extends DiagnosticableTree {
   /// Default color of the bubbles.
   ///
   /// ```dart
-  /// List<Model> _data;
-  /// MapShapeSource _mapSource;
+  /// late List<Model> _data;
+  /// late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -1137,8 +1138,8 @@ class MapBubbleSettings extends DiagnosticableTree {
   /// Stroke width of the bubbles.
   ///
   /// ```dart
-  /// List<Model> _data;
-  /// MapShapeSource _mapSource;
+  /// late List<Model> _data;
+  /// late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -1194,8 +1195,8 @@ class MapBubbleSettings extends DiagnosticableTree {
   /// Stroke color of the bubbles.
   ///
   /// ```dart
-  /// List<Model> _data;
-  /// MapShapeSource _mapSource;
+  /// late List<Model> _data;
+  /// late MapShapeSource _mapSource;
   ///
   ///  @override
   ///  void initState() {
@@ -1308,8 +1309,8 @@ class MapBubbleSettings extends DiagnosticableTree {
 /// Customizes the appearance of the selected shape.
 ///
 /// ```dart
-/// List<DataModel> _data;
-/// MapShapeSource _mapSource;
+/// late List<DataModel> _data;
+/// late MapShapeSource _mapSource;
 /// int _selectedIndex = -1;
 ///
 ///   @override
@@ -1388,8 +1389,8 @@ class MapSelectionSettings extends DiagnosticableTree {
   /// This snippet shows how to set selection color in [SfMaps].
   ///
   /// ```dart
-  /// List<DataModel> _data;
-  /// MapShapeSource _mapSource;
+  /// late List<DataModel> _data;
+  /// late MapShapeSource _mapSource;
   /// int _selectedIndex = -1;
   ///
   ///   @override
@@ -1467,8 +1468,8 @@ class MapSelectionSettings extends DiagnosticableTree {
   /// This snippet shows how to set stroke color for the selected shape.
   ///
   /// ```dart
-  /// List<DataModel> _data;
-  /// MapShapeSource _mapSource;
+  /// late List<DataModel> _data;
+  /// late MapShapeSource _mapSource;
   /// int _selectedIndex = -1;
   ///
   ///   @override
@@ -1548,8 +1549,8 @@ class MapSelectionSettings extends DiagnosticableTree {
   /// This snippet shows how to set stroke width for the selected shape.
   ///
   /// ```dart
-  /// List<DataModel> _data;
-  /// MapShapeSource _mapSource;
+  /// late List<DataModel> _data;
+  /// late MapShapeSource _mapSource;
   /// int _selectedIndex = -1;
   ///
   ///   @override
@@ -1660,8 +1661,8 @@ class MapSelectionSettings extends DiagnosticableTree {
 /// Customizes the appearance of the bubble's or shape's tooltip.
 ///
 /// ```dart
-/// MapShapeSource _mapSource;
-/// List<Model> _data;
+/// late MapShapeSource _mapSource;
+/// late List<Model> _data;
 ///
 /// @override
 /// void initState() {
@@ -1740,8 +1741,8 @@ class MapTooltipSettings extends DiagnosticableTree {
   /// This snippet shows how to set the tooltip color in [SfMaps].
   ///
   /// ```dart
-  /// MapShapeSource _mapSource;
-  /// List<Model> _data;
+  /// late MapShapeSource _mapSource;
+  /// late List<Model> _data;
   ///
   /// @override
   /// void initState() {
@@ -1811,8 +1812,8 @@ class MapTooltipSettings extends DiagnosticableTree {
   /// This snippet shows how to customize the stroke width in [SfMaps].
   ///
   /// ```dart
-  /// MapShapeSource _mapSource;
-  /// List<Model> _data;
+  /// late MapShapeSource _mapSource;
+  /// late List<Model> _data;
   ///
   /// @override
   /// void initState() {
@@ -1885,8 +1886,8 @@ class MapTooltipSettings extends DiagnosticableTree {
   /// This snippet shows how to customize stroke color in [SfMaps].
   ///
   /// ```dart
-  /// MapShapeSource _mapSource;
-  /// List<Model> _data;
+  /// late MapShapeSource _mapSource;
+  /// late List<Model> _data;
   ///
   /// @override
   /// void initState() {
@@ -1992,8 +1993,8 @@ class MapTooltipSettings extends DiagnosticableTree {
 /// platform.
 ///
 /// ```dart
-///  MapZoomPanBehavior _zoomPanBehavior;
-///  MapShapeSource _mapSource;
+///  late MapZoomPanBehavior _zoomPanBehavior;
+///  late MapShapeSource _mapSource;
 ///
 ///   @override
 ///   void initState() {
@@ -2038,8 +2039,8 @@ class MapToolbarSettings extends DiagnosticableTree {
   /// Specifies the color applies to the tooltip icons.
   ///
   ///```dart
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  MapShapeSource _mapSource;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
+  ///  late MapShapeSource _mapSource;
   ///
   ///   @override
   ///   void initState() {
@@ -2076,8 +2077,8 @@ class MapToolbarSettings extends DiagnosticableTree {
   /// Specifies the color applies to the tooltip icon's background.
   ///
   ///```dart
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  MapShapeSource _mapSource;
+  /// late MapZoomPanBehavior _zoomPanBehavior;
+  /// late MapShapeSource _mapSource;
   ///
   ///   @override
   ///   void initState() {
@@ -2115,8 +2116,8 @@ class MapToolbarSettings extends DiagnosticableTree {
   /// Specifies the color applies to the tooltip icon's background on hovering.
   ///
   ///```dart
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  MapShapeSource _mapSource;
+  /// late MapZoomPanBehavior _zoomPanBehavior;
+  /// late MapShapeSource _mapSource;
   ///
   ///   @override
   ///   void initState() {
@@ -2156,8 +2157,8 @@ class MapToolbarSettings extends DiagnosticableTree {
   /// Defaults to [Axis.horizontal].
   ///
   ///```dart
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  MapShapeSource _mapSource;
+  /// late MapZoomPanBehavior _zoomPanBehavior;
+  /// late MapShapeSource _mapSource;
   ///
   ///   @override
   ///   void initState() {
@@ -2197,8 +2198,8 @@ class MapToolbarSettings extends DiagnosticableTree {
   /// Defaults to [MapToolbarPosition.topRight].
   ///
   ///```dart
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///  MapShapeSource _mapSource;
+  /// late MapZoomPanBehavior _zoomPanBehavior;
+  /// late MapShapeSource _mapSource;
   ///
   ///   @override
   ///   void initState() {

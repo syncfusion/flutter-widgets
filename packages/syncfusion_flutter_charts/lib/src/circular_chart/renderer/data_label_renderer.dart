@@ -40,7 +40,9 @@ class _CircularDataLabelRendererState extends State<_CircularDataLabelRenderer>
   Widget build(BuildContext context) {
     widget.state = this;
     animationController.duration = Duration(
-        milliseconds: widget.circularChartState._initialRender! ? 500 : 0);
+        milliseconds: widget.circularChartState._renderingDetails.initialRender!
+            ? 500
+            : 0);
     final Animation<double> dataLabelAnimation =
         Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
       parent: animationController,
@@ -99,11 +101,11 @@ class _CircularDataLabelPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final List<CircularSeriesRenderer> visibleSeriesRenderers =
         circularChartState._chartSeries.visibleSeriesRenderers;
+    CircularSeriesRenderer seriesRenderer;
     for (int seriesIndex = 0;
         seriesIndex < visibleSeriesRenderers.length;
         seriesIndex++) {
-      final CircularSeriesRenderer seriesRenderer =
-          visibleSeriesRenderers[seriesIndex];
+      seriesRenderer = visibleSeriesRenderers[seriesIndex];
       // ignore: unnecessary_null_comparison
       if (seriesRenderer._series.dataLabelSettings != null &&
           seriesRenderer._series.dataLabelSettings.isVisible) {
@@ -139,6 +141,7 @@ void _renderCircularDataLabel(
   DataLabelRenderArgs dataLabelArgs;
   TextStyle dataLabelStyle;
   final List<Rect> renderDataLabelRegions = <Rect>[];
+  Size textSize;
   for (int pointIndex = 0;
       pointIndex < seriesRenderer._renderPoints!.length;
       pointIndex++) {
@@ -166,7 +169,7 @@ void _renderCircularDataLabel(
           seriesRenderer._dataPoints[pointIndex].labelRenderEvent = true;
         }
       }
-      final Size textSize = measureText(label, dataLabelStyle);
+      textSize = measureText(label, dataLabelStyle);
 
       /// condition check for labels after event.
       if (label != '') {
@@ -370,11 +373,8 @@ void _setLabelPosition(
               dataLabelStyle.debugLabel ?? dataLabel.textStyle.debugLabel,
           fontFamilyFallback: dataLabelStyle.fontFamilyFallback ??
               dataLabel.textStyle.fontFamilyFallback);
-      if (isDataLabelCollide
-          ? (dataLabel.labelIntersectAction == LabelIntersectAction.hide)
-              ? false
-              : true
-          : true) {
+      if (!isDataLabelCollide ||
+          (dataLabel.labelIntersectAction == LabelIntersectAction.hide)) {
         _drawLabel(
             point.labelRect,
             labelLocation,
@@ -478,7 +478,7 @@ void _renderOutsideDataLabel(
   point.labelRect = rect!;
   labelLocation = Offset(rect.left + margin.left,
       rect.top + rect.height / 2 - textSize.height / 2);
-  final Rect containerRect = _chartState._chartAreaRect;
+  final Rect containerRect = _chartState._renderingDetails.chartAreaRect;
   if (seriesRenderer._series.dataLabelSettings.builder == null) {
     if (seriesRenderer._series.dataLabelSettings.labelIntersectAction ==
         LabelIntersectAction.hide) {
@@ -618,24 +618,27 @@ void _triggerCircularDataLabelEvent(
     CircularSeriesRenderer seriesRenderer,
     SfCircularChartState chartState,
     Offset? position) {
-  final int seriesIndex = 0;
+  const int seriesIndex = 0;
   final DataLabelSettings dataLabel = seriesRenderer._series.dataLabelSettings;
+  Offset labelLocation;
+  num connectorLength;
+  ChartPoint<dynamic> point;
   for (int index = 0; index < seriesRenderer._dataPoints.length; index++) {
-    final ChartPoint<dynamic> point = seriesRenderer._dataPoints[index];
+    point = seriesRenderer._dataPoints[index];
     if (dataLabel.isVisible &&
         // ignore: unnecessary_null_comparison
         seriesRenderer._dataPoints[index].labelRect != null &&
         position != null &&
         seriesRenderer._dataPoints[index].labelRect.contains(position)) {
       if (dataLabel.labelPosition == ChartDataLabelPosition.inside) {
-        final Offset labelLocation = _degreeToPoint(point.midAngle!,
+        labelLocation = _degreeToPoint(point.midAngle!,
             (point.innerRadius! + point.outerRadius!) / 2, point.center!);
         position = Offset(labelLocation.dx, labelLocation.dy);
       } else {
-        final num connectorLength = _percentToValue(
+        connectorLength = _percentToValue(
             dataLabel.connectorLineSettings.length ?? '10%',
             point.outerRadius!)!;
-        final Offset labelLocation = _degreeToPoint(point.midAngle!,
+        labelLocation = _degreeToPoint(point.midAngle!,
             point.outerRadius! + connectorLength, point.center!);
         position = Offset(labelLocation.dx, labelLocation.dy);
       }
@@ -670,7 +673,8 @@ Color _findthemecolor(SfCircularChartState _chartState,
       (dataLabel.useSeriesColor
           ? point.fill
           : (_chartState._chart.backgroundColor ??
-              (_chartState._chartTheme.brightness == Brightness.light
+              (_chartState._renderingDetails.chartTheme.brightness ==
+                      Brightness.light
                   ? Colors.white
                   : Colors.black)));
 }

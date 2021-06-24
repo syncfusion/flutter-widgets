@@ -113,9 +113,11 @@ class _ConditionalFormatImpl implements ConditionalFormat {
   bool _bCFHasExtensionList = false;
 
   /// Represents the range refernce of Conditional formatting
+  // ignore: prefer_final_fields
   String _rangeRefernce = '';
 
   /// Represents the priority of the conditional format.
+  // ignore: prefer_final_fields
   int _priority = 0;
 
   /// Gets TopBottom conditional formatting rule. Read-only.
@@ -405,31 +407,31 @@ class _ConditionalFormatImpl implements ConditionalFormat {
       case ExcelComparisonOperator.beginsWith:
         val = _defaultBeginsWithFormula;
         val = val.replaceAll('{0}', _cellList);
-        val = val.replaceAll('{1}', '\"' + value.toString() + '\"');
+        val = val.replaceAll('{1}', '"' + value.toString() + '"');
         firstFormula = val;
         break;
       case ExcelComparisonOperator.endsWith:
         val = _defaultEndsWithFormula;
         val = val.replaceAll('{0}', _cellList);
-        val = val.replaceAll('{1}', '\"' + value.toString() + '\"');
+        val = val.replaceAll('{1}', '"' + value.toString() + '"');
         firstFormula = val;
         break;
       case ExcelComparisonOperator.containsText:
         val = _defaultContainsTextFormula;
-        val = val.replaceAll('{0}', '\"' + value.toString() + '\"');
+        val = val.replaceAll('{0}', '"' + value.toString() + '"');
         val = val.replaceAll('{1}', _cellList);
         firstFormula = val;
         break;
       case ExcelComparisonOperator.notContainsText:
         val = _defaultNotContainsTextFormula;
-        val = val.replaceAll('{0}', '\"' + value.toString() + '\"');
+        val = val.replaceAll('{0}', '"' + value.toString() + '"');
         val = val.replaceAll('{1}', _cellList);
         firstFormula = val;
         break;
       default:
         operator = ExcelComparisonOperator.containsText;
         val = _defaultContainsTextFormula;
-        val = val.replaceAll('{0}', '\"' + value.toString() + '\"');
+        val = val.replaceAll('{0}', '"' + value.toString() + '"');
         val = val.replaceAll('{1}', _cellList);
         firstFormula = val;
         break;
@@ -505,7 +507,7 @@ class _ConditionalFormatImpl implements ConditionalFormat {
 
   @override
   set topBottom(TopBottom? value) {
-    _topBottom = value as _TopBottomImpl;
+    _topBottom = value! as _TopBottomImpl;
   }
 
   @override
@@ -517,7 +519,7 @@ class _ConditionalFormatImpl implements ConditionalFormat {
 
   @override
   set aboveBelowAverage(AboveBelowAverage? value) {
-    _aboveBelowAverage = value as _AboveBelowAverageImpl;
+    _aboveBelowAverage = value! as _AboveBelowAverageImpl;
   }
 
   @override
@@ -529,7 +531,7 @@ class _ConditionalFormatImpl implements ConditionalFormat {
 
   @override
   set colorScale(ColorScale? value) {
-    _colorScale = value as _ColorScaleImpl;
+    _colorScale = value! as _ColorScaleImpl;
   }
 
   @override
@@ -541,7 +543,7 @@ class _ConditionalFormatImpl implements ConditionalFormat {
 
   @override
   set iconSet(IconSet? value) {
-    _iconSet = value as _IconSetImpl;
+    _iconSet = value! as _IconSetImpl;
   }
 
   @override
@@ -553,7 +555,7 @@ class _ConditionalFormatImpl implements ConditionalFormat {
 
   @override
   set dataBar(DataBar? value) {
-    _dataBar = value as _DataBarImpl;
+    _dataBar = value! as _DataBarImpl;
   }
 
   late String _firstFormulaR1C1;
@@ -583,37 +585,37 @@ class _ConditionalFormatImpl implements ConditionalFormat {
   String _getFormulaValue(String formulaR1C1) {
     String formula = '';
     if (_range != null) {
-      final List<String> cells = [];
+      final List<String> cells = <String>[];
       final RegExp regex = RegExp(
           r'\R\C(-?\d+)|\R\[(-?\d+)\]\C(-?\d+)|\R(-?\d+)\C(-?\d+)|\R(-?\d+)\C\[(-?\d+)\]|\R\[(-?\d+)\]\C\[(-?\d+)\]|\R\C\[(-?\d+)\]|\R\[(-?\d+)\]\C|\R\C|\R(-?\d+)\C');
-      final matches = regex.allMatches(formulaR1C1);
+      final List<RegExpMatch> matches = regex.allMatches(formulaR1C1).toList();
       for (final Match match in matches) {
         cells.add(formulaR1C1.substring(match.start, match.end));
       }
       final int iLen = cells.length;
       int val1, val2;
-      List result;
+      List<dynamic> result;
       int row, column;
       bool bRow, bColumn;
-      final List<String> formulaValue = [];
+      final List<String> formulaValue = <String>[];
       for (int i = 0; i < iLen; i++) {
         result = _parseR1C1Expression(cells[i]);
-        val1 = result[0];
-        val2 = result[1];
-        bRow = result[2];
-        bColumn = result[3];
+        val1 = result[0] as int;
+        val2 = result[1] as int;
+        bRow = result[2] as bool;
+        bColumn = result[3] as bool;
         row = val1 + _range!.row;
         column = val2 + _range!.column;
         String strFormula, strRow, strColumn;
         if (bRow) {
           strRow = row.toString();
         } else {
-          strRow = '\$' + (row - 1).toString();
+          strRow = r'$' + (row - 1).toString();
         }
         if (bColumn) {
           strColumn = Range._getColumnName(column);
         } else {
-          strColumn = '\$' + Range._getColumnName(column - 1);
+          strColumn = r'$' + Range._getColumnName(column - 1);
         }
         strFormula = strColumn + strRow;
         formulaValue.add(strFormula);
@@ -627,7 +629,7 @@ class _ConditionalFormatImpl implements ConditionalFormat {
   }
 
   // Parse the R1C1 cell style to get index of cells
-  List _parseR1C1Expression(String cells) {
+  List<dynamic> _parseR1C1Expression(String cells) {
     final int iColumnStart = cells.indexOf('C');
     final bool bRowPresent = cells[0] == 'R';
     final bool bColPresent = iColumnStart != -1;
@@ -652,7 +654,7 @@ class _ConditionalFormatImpl implements ConditionalFormat {
     }
     final int iRowIndex = _getIndexFromR1C1(strRow);
     final int iColumnIndex = _getIndexFromR1C1(strColumn);
-    return [iRowIndex, iColumnIndex, bRow, bColumn];
+    return <dynamic>[iRowIndex, iColumnIndex, bRow, bColumn];
   }
 
   // Return the indexes of R1C1 style value.
@@ -775,78 +777,5 @@ class _ConditionalFormatImpl implements ConditionalFormat {
     _bottomBorderColorRgb = value;
     _bottomBorderColor =
         _bottomBorderColorRgb.value.toRadixString(16).toUpperCase();
-  }
-}
-
-/// Represents the top or bottom conditional formatting rule.
-/// Applying this rule to a range helps you highlight the top or bottom 'n' cells from the selected range
-class _TopBottomImpl implements TopBottom {
-  int _rank = 10;
-  // ExcelCFTopBottomType _type = ExcelCFTopBottomType.top;
-
-  @override
-
-  /// Specifies whether the ranking is evaluated from the top or bottom.
-  ExcelCFTopBottomType type = ExcelCFTopBottomType.top;
-
-  @override
-
-  /// Specifies whether the rank is determined by a percentage value.
-  bool percent = false;
-
-  @override
-
-  /// Specifies the maximum number or percentage of cells to be highlighted for this conditional formatting rule.
-  int get rank => _rank;
-
-  @override
-  set rank(int value) {
-    if (percent && (value < 1 || value > 100)) {
-      throw Exception('Rank must be between 1 and 100');
-    }
-    if (value < 1 || value > 1000) {
-      throw Exception('Rank must be between 1 and 1000');
-    }
-    _rank = value;
-  }
-}
-
-/// Represents the top or bottom conditional formatting rule.
-/// Applying this rule to a range helps you highlight the top or bottom 'n' cells from the selected range
-class _AboveBelowAverageImpl implements AboveBelowAverage {
-  /// Specifies whether the conditional formatting rule looks for cell values above or below the range average or standard deviation.
-  ExcelCFAverageType _averageType = ExcelCFAverageType.above;
-
-  /// Specifies standard deviation number for AboveAverage conditional formatting rule.
-  int _stdDevValue = 1;
-
-  @override
-
-  /// Specifies whether the conditional formatting rule looks for cell values above or below the range average or standard deviation.
-  ExcelCFAverageType get averageType {
-    return _averageType;
-  }
-
-  @override
-  set averageType(ExcelCFAverageType value) {
-    if (_averageType != value) {
-      _stdDevValue = 1;
-    }
-    _averageType = value;
-  }
-
-  @override
-
-  /// Specifies standard deviation number for AboveAverage conditional formatting rule.
-  int get stdDevValue {
-    return _stdDevValue;
-  }
-
-  @override
-  set stdDevValue(int value) {
-    if (value < 1 || value > 3) {
-      throw Exception('NumStd must be between 1 and 3');
-    }
-    _stdDevValue = value;
   }
 }

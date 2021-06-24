@@ -5,7 +5,7 @@ class WorksheetCollection {
   /// Create an instance of Worksheets
   WorksheetCollection(Workbook workbook, [int worksheetCount = 0]) {
     _book = workbook;
-    _worksheets = [];
+    _worksheets = <Worksheet>[];
     create(worksheetCount);
   }
 
@@ -26,7 +26,7 @@ class WorksheetCollection {
   }
 
   /// Indexer of the class
-  Worksheet operator [](index) {
+  Worksheet operator [](dynamic index) {
     if (index is String) {
       for (int i = 0; i < innerList.length; i++) {
         final Worksheet sheet = innerList[i];

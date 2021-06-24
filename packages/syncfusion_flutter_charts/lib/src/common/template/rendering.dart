@@ -55,11 +55,13 @@ class _RenderTemplateState extends State<_RenderTemplate>
           ? widget.chartState._chartSeries
               .visibleSeriesRenderers[templateInfo.seriesIndex]
           : null;
-      final bool needsAnimate = widget.chartState._oldDeviceOrientation ==
-              MediaQuery.of(context).orientation &&
-          ((seriesRenderer != null && seriesRenderer is CartesianSeriesRenderer)
-              ? seriesRenderer._needAnimateSeriesElements
-              : true);
+      final Orientation? orientation =
+          widget.chartState._renderingDetails.oldDeviceOrientation;
+      final bool needsAnimate =
+          orientation == MediaQuery.of(context).orientation &&
+              (!(seriesRenderer != null &&
+                      seriesRenderer is CartesianSeriesRenderer) ||
+                  seriesRenderer._needAnimateSeriesElements);
       animationController = AnimationController(
           duration: Duration(milliseconds: widget.template.animationDuration),
           vsync: this);
@@ -118,7 +120,7 @@ class _ChartTemplateRenderObject extends SingleChildRenderObjectWidget {
   @override
   void updateRenderObject(
       BuildContext context, covariant _ChartTemplateRenderBox renderBox) {
-    renderBox..templateInfo = templateInfo;
+    renderBox.templateInfo = templateInfo;
   }
 }
 
@@ -153,8 +155,6 @@ class _ChartTemplateRenderBox extends RenderShiftedBox {
       locationX = _templateInfo.location.dx;
       locationY = _templateInfo.location.dy;
 
-      /// Here we have added 5px padding to each templates
-      const int padding = 5;
       child!.layout(constraints, parentUsesSize: true);
       size = constraints.constrain(Size(child!.size.width, child!.size.height));
       if (child!.parentData is BoxParentData) {
@@ -170,9 +170,7 @@ class _ChartTemplateRenderBox extends RenderShiftedBox {
             (_templateInfo.verticalAlignment == ChartAlignment.near
                 ? 0
                 : _templateInfo.verticalAlignment == ChartAlignment.center
-                    ? _templateInfo.templateType == 'DataLabel'
-                        ? child!.size.height + padding
-                        : child!.size.height / 2
+                    ? child!.size.height / 2
                     : child!.size.height);
         if (_templateInfo.templateType == 'DataLabel' &&
             _chartState is SfCartesianChartState) {
@@ -183,26 +181,30 @@ class _ChartTemplateRenderBox extends RenderShiftedBox {
               seriesRenderer._series.dataLabelSettings);
           final CartesianChartPoint<dynamic>? point =
               seriesRenderer._dataPoints != null
-                  ? (seriesRenderer._dataPoints.isNotEmpty)
+                  ? (seriesRenderer._dataPoints.isNotEmpty == true)
                       ? seriesRenderer._dataPoints[_templateInfo.pointIndex]
                       : null
                   : null;
-          if (seriesRenderer._isRectSeries ||
-              seriesRenderer._seriesType.contains('hilo') ||
-              seriesRenderer._seriesType.contains('candle') ||
-              seriesRenderer._seriesType.contains('box')) {
-            seriesRenderer.sideBySideInfo =
+          if (seriesRenderer._isRectSeries == true ||
+              seriesRenderer._seriesType.contains('hilo') == true ||
+              seriesRenderer._seriesType.contains('candle') == true ||
+              seriesRenderer._seriesType.contains('box') == true) {
+            seriesRenderer._sideBySideInfo =
                 _calculateSideBySideInfo(seriesRenderer, _chartState);
           }
           seriesRenderer._hasDataLabelTemplate = true;
-          if (seriesRenderer._seriesType.contains('spline')) {
+          if (seriesRenderer._seriesType.contains('spline') == true) {
+            if (seriesRenderer._drawControlPoints.isNotEmpty == true) {
+              seriesRenderer._drawControlPoints.clear();
+            }
             _calculateSplineAreaControlPoints(seriesRenderer);
           }
           if (point != null && seriesRenderer._seriesType != 'boxandwhisker') {
             if (point.region == null) {
               if (seriesRenderer._visibleDataPoints == null ||
                   seriesRenderer._visibleDataPoints.length >=
-                      seriesRenderer._dataPoints.length) {
+                          seriesRenderer._dataPoints.length ==
+                      true) {
                 seriesRenderer._visibleDataPoints =
                     <CartesianChartPoint<dynamic>>[];
               }
@@ -225,14 +227,15 @@ class _ChartTemplateRenderBox extends RenderShiftedBox {
         }
         final Rect rect =
             Rect.fromLTWH(locationX, locationY, size.width, size.height);
-        final bool isCollide = (_templateInfo.templateType == 'DataLabel')
-            ? _findingCollision(rect, _chartState._dataLabelTemplateRegions)
-            : false;
+        final List<Rect> dataLabelTemplateRegions =
+            _chartState._renderingDetails.dataLabelTemplateRegions;
+        final bool isCollide = (_templateInfo.templateType == 'DataLabel') &&
+            _findingCollision(rect, dataLabelTemplateRegions);
         if (!isCollide &&
             _isTemplateWithinBounds(_templateInfo.clipRect, rect) &&
             isLabelWithInRange) {
           (_templateInfo.templateType == 'DataLabel')
-              ? _chartState._dataLabelTemplateRegions.add(rect)
+              ? dataLabelTemplateRegions.add(rect)
               : _chartState._annotationRegions.add(rect);
           childParentData.offset = Offset(locationX, locationY);
         } else {
@@ -284,7 +287,9 @@ class _ChartTemplateState extends State<_ChartTemplate> {
   Widget build(BuildContext context) {
     widget.state = this;
     Widget renderTemplate = Container();
-    if (widget.chartState._animateCompleted && widget.templates.isNotEmpty) {
+    final bool animationCompleted =
+        widget.chartState._renderingDetails.animateCompleted;
+    if (animationCompleted && widget.templates.isNotEmpty) {
       final List<Widget> renderWidgets = <Widget>[];
       for (int i = 0; i < widget.templates.length; i++) {
         renderWidgets.add(_RenderTemplate(
@@ -297,11 +302,6 @@ class _ChartTemplateState extends State<_ChartTemplate> {
       renderTemplate = Stack(children: renderWidgets);
     }
     return renderTemplate;
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   void templateRender() {

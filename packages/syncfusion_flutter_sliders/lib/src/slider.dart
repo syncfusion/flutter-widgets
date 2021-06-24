@@ -1,16 +1,19 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
-import 'package:intl/intl.dart' show DateFormat, NumberFormat;
-import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+// ignore: unused_import
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart' show DateFormat, NumberFormat;
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import 'common.dart';
 import 'constants.dart';
-import 'render_slider_base.dart';
+import 'slider_base.dart';
 import 'slider_shapes.dart';
 
 /// A Material Design slider.
@@ -28,7 +31,7 @@ import 'slider_shapes.dart';
 /// * The "active" side of the slider is between the [min] value and thumb.
 /// * The "inactive" side of the slider is between the thumb and
 /// the [max] value.
-/// * The "divisors", which is a shape that renders on the track based on
+/// * The "dividers", which is a shape that renders on the track based on
 /// the given [interval] value.
 /// * The "ticks", which is a shape that rendered based on
 /// given [interval] value.
@@ -119,7 +122,7 @@ class SfSlider extends StatefulWidget {
       this.minorTicksPerInterval = 0,
       this.showTicks = false,
       this.showLabels = false,
-      this.showDivisors = false,
+      this.showDividers = false,
       this.enableTooltip = false,
       this.activeColor,
       this.inactiveColor,
@@ -131,7 +134,7 @@ class SfSlider extends StatefulWidget {
       this.tooltipTextFormatterCallback,
       this.semanticFormatterCallback,
       this.trackShape = const SfTrackShape(),
-      this.divisorShape = const SfDivisorShape(),
+      this.dividerShape = const SfDividerShape(),
       this.overlayShape = const SfOverlayShape(),
       this.thumbShape = const SfThumbShape(),
       this.tickShape = const SfTickShape(),
@@ -140,8 +143,6 @@ class SfSlider extends StatefulWidget {
       this.thumbIcon})
       : _sliderType = SliderType.horizontal,
         _tooltipPosition = null,
-        assert(min != null),
-        assert(max != null),
         assert(min != max),
         assert(interval == null || interval > 0),
         super(key: key);
@@ -200,7 +201,7 @@ class SfSlider extends StatefulWidget {
       this.minorTicksPerInterval = 0,
       this.showTicks = false,
       this.showLabels = false,
-      this.showDivisors = false,
+      this.showDividers = false,
       this.enableTooltip = false,
       this.activeColor,
       this.inactiveColor,
@@ -212,7 +213,7 @@ class SfSlider extends StatefulWidget {
       this.tooltipTextFormatterCallback,
       this.semanticFormatterCallback,
       this.trackShape = const SfTrackShape(),
-      this.divisorShape = const SfDivisorShape(),
+      this.dividerShape = const SfDividerShape(),
       this.overlayShape = const SfOverlayShape(),
       this.thumbShape = const SfThumbShape(),
       this.tickShape = const SfTickShape(),
@@ -223,8 +224,6 @@ class SfSlider extends StatefulWidget {
       : _sliderType = SliderType.vertical,
         _tooltipPosition = tooltipPosition,
         assert(tooltipShape is! SfPaddleTooltipShape),
-        assert(min != null),
-        assert(max != null),
         assert(min != max),
         assert(interval == null || interval > 0),
         super(key: key);
@@ -251,7 +250,7 @@ class SfSlider extends StatefulWidget {
   /// For date value, the slider doesn’t have auto interval support.
   /// So, you may need to set [interval], [dateIntervalType], and
   /// [dateFormat] for date value,
-  /// if the labels, ticks, and divisors are needed.
+  /// if the labels, ticks, and dividers are needed.
   ///
   /// This snippet shows how to create a numeric [SfSlider].
   ///
@@ -325,22 +324,22 @@ class SfSlider extends StatefulWidget {
   final ValueChanged<dynamic>? onChanged;
 
   /// Splits the slider into given interval.
-  /// It is mandatory if labels, major ticks and divisors are needed.
+  /// It is mandatory if labels, major ticks and dividers are needed.
   ///
   /// For example, if [min] is 0.0 and [max] is 10.0 and [interval] is 2.0,
   /// the slider will render the labels, major ticks,
-  /// and divisors at 0.0, 2.0, 4.0 and so on.
+  /// and dividers at 0.0, 2.0, 4.0 and so on.
   ///
   /// For date value, the slider doesn’t have auto interval support.
   /// So, you may need to set [interval], [dateIntervalType],
   /// and [dateFormat] for date value, if labels, ticks, and
-  /// divisors are needed.
+  /// dividers are needed.
   ///
   /// For example, if [min] is DateTime(2000, 01, 01, 00) and
   /// [max] is DateTime(2005, 12, 31, 24), [interval] is 1.0,
   /// [dateFormat] is DateFormat.y(), and
   /// [dateIntervalType] is DateIntervalType.years, then the slider will render
-  /// the labels, major ticks, and divisors at 2000, 2001, 2002 and so on.
+  /// the labels, major ticks, and dividers at 2000, 2001, 2002 and so on.
   ///
   /// Defaults to `null`. Must be greater than 0.
   ///
@@ -388,7 +387,7 @@ class SfSlider extends StatefulWidget {
   ///
   /// See also:
   ///
-  /// * [showDivisors], to render divisors at given interval.
+  /// * [showDividers], to render dividers at given interval.
   /// * [showTicks], to render major ticks at given interval.
   /// * [showLabels], to render labels at given interval.
   final double? interval;
@@ -565,17 +564,17 @@ class SfSlider extends StatefulWidget {
   /// * [SfSliderThemeData](https://pub.dev/documentation/syncfusion_flutter_core/latest/theme/SfSliderThemeData-class.html), for customizing the appearance of the labels.
   final bool showLabels;
 
-  /// Option to render the divisors on the track.
+  /// Option to render the dividers on the track.
   ///
   /// It is a shape which is used to represent
   /// the major interval points of the track.
   ///
   /// For example, if [min] is 0.0 and [max] is 10.0 and [interval] is 2.0,
-  /// the slider will render the divisors at 0.0, 2.0, 4.0 and so on.
+  /// the slider will render the dividers at 0.0, 2.0, 4.0 and so on.
   ///
   /// Defaults to `false`.
   ///
-  /// This snippet shows how to show divisors in [SfSlider].
+  /// This snippet shows how to show dividers in [SfSlider].
   ///
   /// ```dart
   /// double _value = 4.0;
@@ -585,7 +584,7 @@ class SfSlider extends StatefulWidget {
   ///   max: 10.0,
   ///   value: _value,
   ///   interval: 2,
-  ///   showDivisors: true,
+  ///   showDividers: true,
   ///   onChanged: (dynamic newValue) {
   ///     setState(() {
   ///       _value = newValue;
@@ -598,9 +597,9 @@ class SfSlider extends StatefulWidget {
   ///
   /// * [showTicks], to render major ticks at given interval.
   /// * [showLabels], to render labels at given interval.
-  /// * [divisorShape] and [SfSliderThemeData](https://pub.dev/documentation/syncfusion_flutter_core/latest/theme/SfSliderThemeData-class.html) for customizing
-  /// the divisor’s visual appearance.
-  final bool showDivisors;
+  /// * [dividerShape] and [SfSliderThemeData](https://pub.dev/documentation/syncfusion_flutter_core/latest/theme/SfSliderThemeData-class.html) for customizing
+  /// the divider’s visual appearance.
+  final bool showDividers;
 
   /// Option to enable tooltip for the thumb.
   ///
@@ -637,7 +636,7 @@ class SfSlider extends StatefulWidget {
   /// * [SfSliderThemeData](https://pub.dev/documentation/syncfusion_flutter_core/latest/theme/SfSliderThemeData-class.html), for customizing the appearance of the tooltip text.
   final bool enableTooltip;
 
-  /// Color applied to the inactive track and active divisors.
+  /// Color applied to the inactive track and active dividers.
   ///
   /// The inactive side of the slider is between the thumb and the [max] value.
   ///
@@ -668,7 +667,7 @@ class SfSlider extends StatefulWidget {
   /// inactive slider element’s visual.
   final Color? inactiveColor;
 
-  /// Color applied to the active track, thumb, overlay, and inactive divisors.
+  /// Color applied to the active track, thumb, overlay, and inactive dividers.
   ///
   /// The active side of the slider is between the [min] value and the thumb.
   ///
@@ -760,7 +759,7 @@ class SfSlider extends StatefulWidget {
   /// For date value, the slider doesn’t have auto interval support.
   /// So, you may need to set [interval], [dateIntervalType],
   /// and [dateFormat] for date values, if labels, ticks, and
-  /// divisors are needed.
+  /// dividers are needed.
   ///
   /// Defaults to `null`.
   ///
@@ -801,7 +800,7 @@ class SfSlider extends StatefulWidget {
   /// For date value, the slider doesn’t have auto interval support.
   /// So, you may need to set [interval], [dateIntervalType],
   /// and [dateFormat] for date value, if labels, ticks, and
-  /// divisors are needed.
+  /// dividers are needed.
   ///
   /// Defaults to `null`.
   ///
@@ -923,8 +922,8 @@ class SfSlider extends StatefulWidget {
   /// Base class for [SfSlider] track shapes.
   final SfTrackShape trackShape;
 
-  /// Base class for [SfSlider] divisors shapes.
-  final SfDivisorShape divisorShape;
+  /// Base class for [SfSlider] dividers shapes.
+  final SfDividerShape dividerShape;
 
   /// Base class for [SfSlider] overlay shapes.
   final SfOverlayShape overlayShape;
@@ -1031,10 +1030,10 @@ class SfSlider extends StatefulWidget {
         ifTrue: 'Labels are showing',
         ifFalse: 'Labels are not showing',
         showName: false));
-    properties.add(FlagProperty('showDivisors',
-        value: showDivisors,
-        ifTrue: 'Divisors are  showing',
-        ifFalse: 'Divisors are not showing',
+    properties.add(FlagProperty('showDividers',
+        value: showDividers,
+        ifTrue: 'Dividers are  showing',
+        ifFalse: 'Dividers are not showing',
         showName: false));
     properties.add(FlagProperty('enableTooltip',
         value: enableTooltip,
@@ -1048,10 +1047,8 @@ class SfSlider extends StatefulWidget {
     properties
         .add(DiagnosticsProperty<NumberFormat>('numberFormat', numberFormat));
     if (value.runtimeType == DateTime && dateFormat != null) {
-      properties.add(StringProperty(
-          'dateFormat',
-          'Formatted value is ' +
-              (dateFormat!.format(value.start)).toString()));
+      properties.add(StringProperty('dateFormat',
+          'Formatted value is ' + (dateFormat!.format(value)).toString()));
     }
     properties.add(
         EnumProperty<DateIntervalType>('dateIntervalType', dateIntervalType));
@@ -1133,16 +1130,16 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
       overlayColor: widget.activeColor?.withOpacity(0.12) ??
           sliderThemeData.overlayColor ??
           themeData.primaryColor.withOpacity(0.12),
-      inactiveDivisorColor: widget.activeColor ??
-          sliderThemeData.inactiveDivisorColor ??
+      inactiveDividerColor: widget.activeColor ??
+          sliderThemeData.inactiveDividerColor ??
           themeData.colorScheme.primary.withOpacity(0.54),
-      activeDivisorColor: widget.inactiveColor ??
-          sliderThemeData.activeDivisorColor ??
+      activeDividerColor: widget.inactiveColor ??
+          sliderThemeData.activeDividerColor ??
           themeData.colorScheme.onPrimary.withOpacity(0.54),
-      disabledInactiveDivisorColor:
-          sliderThemeData.disabledInactiveDivisorColor ??
+      disabledInactiveDividerColor:
+          sliderThemeData.disabledInactiveDividerColor ??
               themeData.colorScheme.onSurface.withOpacity(0.12),
-      disabledActiveDivisorColor: sliderThemeData.disabledActiveDivisorColor ??
+      disabledActiveDividerColor: sliderThemeData.disabledActiveDividerColor ??
           themeData.colorScheme.onPrimary.withOpacity(0.12),
       disabledActiveTrackColor: sliderThemeData.disabledActiveTrackColor ??
           themeData.colorScheme.onSurface.withOpacity(0.32),
@@ -1156,19 +1153,19 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
                   ? const Color.fromRGBO(97, 97, 97, 1)
                   : const Color.fromRGBO(224, 224, 224, 1)),
       thumbStrokeColor: sliderThemeData.thumbStrokeColor,
-      activeDivisorStrokeColor: sliderThemeData.activeDivisorStrokeColor,
-      inactiveDivisorStrokeColor: sliderThemeData.inactiveDivisorStrokeColor,
+      activeDividerStrokeColor: sliderThemeData.activeDividerStrokeColor,
+      inactiveDividerStrokeColor: sliderThemeData.inactiveDividerStrokeColor,
       trackCornerRadius:
           sliderThemeData.trackCornerRadius ?? maxTrackHeight / 2,
       thumbRadius: sliderThemeData.thumbRadius,
       overlayRadius: sliderThemeData.overlayRadius,
-      activeDivisorRadius:
-          sliderThemeData.activeDivisorRadius ?? minTrackHeight / 4,
-      inactiveDivisorRadius:
-          sliderThemeData.inactiveDivisorRadius ?? minTrackHeight / 4,
+      activeDividerRadius:
+          sliderThemeData.activeDividerRadius ?? minTrackHeight / 4,
+      inactiveDividerRadius:
+          sliderThemeData.inactiveDividerRadius ?? minTrackHeight / 4,
       thumbStrokeWidth: sliderThemeData.thumbStrokeWidth,
-      activeDivisorStrokeWidth: sliderThemeData.activeDivisorStrokeWidth,
-      inactiveDivisorStrokeWidth: sliderThemeData.inactiveDivisorStrokeWidth,
+      activeDividerStrokeWidth: sliderThemeData.activeDividerStrokeWidth,
+      inactiveDividerStrokeWidth: sliderThemeData.inactiveDividerStrokeWidth,
     );
     if (widget._sliderType == SliderType.vertical) {
       return sliderThemeData.copyWith(
@@ -1227,7 +1224,7 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
         minorTicksPerInterval: widget.minorTicksPerInterval,
         showTicks: widget.showTicks,
         showLabels: widget.showLabels,
-        showDivisors: widget.showDivisors,
+        showDividers: widget.showDividers,
         enableTooltip: widget.enableTooltip,
         inactiveColor:
             widget.inactiveColor ?? themeData.primaryColor.withOpacity(0.24),
@@ -1242,7 +1239,7 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
             widget.tooltipTextFormatterCallback ?? _getFormattedTooltipText,
         semanticFormatterCallback: widget.semanticFormatterCallback,
         trackShape: widget.trackShape,
-        divisorShape: widget.divisorShape,
+        dividerShape: widget.dividerShape,
         overlayShape: widget.overlayShape,
         thumbShape: widget.thumbShape,
         tickShape: widget.tickShape,
@@ -1269,7 +1266,7 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
       required this.minorTicksPerInterval,
       required this.showTicks,
       required this.showLabels,
-      required this.showDivisors,
+      required this.showDividers,
       required this.enableTooltip,
       required this.inactiveColor,
       required this.activeColor,
@@ -1281,7 +1278,7 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
       required this.tooltipTextFormatterCallback,
       required this.semanticFormatterCallback,
       required this.trackShape,
-      required this.divisorShape,
+      required this.dividerShape,
       required this.overlayShape,
       required this.thumbShape,
       required this.tickShape,
@@ -1307,7 +1304,7 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
 
   final bool showTicks;
   final bool showLabels;
-  final bool showDivisors;
+  final bool showDividers;
   final bool enableTooltip;
 
   final Color inactiveColor;
@@ -1321,7 +1318,7 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
   final LabelFormatterCallback labelFormatterCallback;
   final TooltipTextFormatterCallback tooltipTextFormatterCallback;
   final SfSliderSemanticFormatterCallback? semanticFormatterCallback;
-  final SfDivisorShape divisorShape;
+  final SfDividerShape dividerShape;
   final SfTrackShape trackShape;
   final SfTickShape tickShape;
   final SfTickShape minorTickShape;
@@ -1347,10 +1344,8 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
         stepDuration: stepDuration,
         showTicks: showTicks,
         showLabels: showLabels,
-        showDivisors: showDivisors,
+        showDividers: showDividers,
         enableTooltip: enableTooltip,
-        inactiveColor: inactiveColor,
-        activeColor: activeColor,
         labelPlacement: labelPlacement,
         numberFormat: numberFormat,
         dateFormat: dateFormat,
@@ -1359,7 +1354,7 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
         tooltipTextFormatterCallback: tooltipTextFormatterCallback,
         semanticFormatterCallback: semanticFormatterCallback,
         trackShape: trackShape,
-        divisorShape: divisorShape,
+        dividerShape: dividerShape,
         overlayShape: overlayShape,
         thumbShape: thumbShape,
         tickShape: tickShape,
@@ -1386,7 +1381,7 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
       ..minorTicksPerInterval = minorTicksPerInterval
       ..showTicks = showTicks
       ..showLabels = showLabels
-      ..showDivisors = showDivisors
+      ..showDividers = showDividers
       ..enableTooltip = enableTooltip
       ..labelPlacement = labelPlacement
       ..numberFormat = numberFormat
@@ -1396,7 +1391,7 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
       ..tooltipTextFormatterCallback = tooltipTextFormatterCallback
       ..semanticFormatterCallback = semanticFormatterCallback
       ..trackShape = trackShape
-      ..divisorShape = divisorShape
+      ..dividerShape = dividerShape
       ..overlayShape = overlayShape
       ..thumbShape = thumbShape
       ..tickShape = tickShape
@@ -1507,10 +1502,8 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
     required int minorTicksPerInterval,
     required bool showTicks,
     required bool showLabels,
-    required bool showDivisors,
+    required bool showDividers,
     required bool enableTooltip,
-    required Color inactiveColor,
-    required Color activeColor,
     required LabelPlacement labelPlacement,
     required NumberFormat numberFormat,
     required DateFormat? dateFormat,
@@ -1519,7 +1512,7 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
     required TooltipTextFormatterCallback tooltipTextFormatterCallback,
     required SfSliderSemanticFormatterCallback? semanticFormatterCallback,
     required SfTrackShape trackShape,
-    required SfDivisorShape divisorShape,
+    required SfDividerShape dividerShape,
     required SfOverlayShape overlayShape,
     required SfThumbShape thumbShape,
     required SfTickShape tickShape,
@@ -1531,7 +1524,7 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
     required TextDirection textDirection,
     required MediaQueryData mediaQueryData,
     required _SfSliderState state,
-  })   : _state = state,
+  })  : _state = state,
         _value = value,
         _semanticFormatterCallback = semanticFormatterCallback,
         _onChanged = onChanged,
@@ -1545,7 +1538,7 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
             minorTicksPerInterval: minorTicksPerInterval,
             showTicks: showTicks,
             showLabels: showLabels,
-            showDivisors: showDivisors,
+            showDividers: showDividers,
             enableTooltip: enableTooltip,
             labelPlacement: labelPlacement,
             numberFormat: numberFormat,
@@ -1554,7 +1547,7 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
             labelFormatterCallback: labelFormatterCallback,
             tooltipTextFormatterCallback: tooltipTextFormatterCallback,
             trackShape: trackShape,
-            divisorShape: divisorShape,
+            dividerShape: dividerShape,
             overlayShape: overlayShape,
             thumbShape: thumbShape,
             tickShape: tickShape,
@@ -1600,7 +1593,9 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
     updateTextPainter();
 
     if (isDateTime) {
-      _valueInMilliseconds = value.millisecondsSinceEpoch.toDouble();
+      _valueInMilliseconds =
+          // ignore: avoid_as
+          (value as DateTime).millisecondsSinceEpoch.toDouble();
     }
   }
 
@@ -1611,6 +1606,8 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
   late Animation<double> _stateAnimation;
 
   late Animation<double> _tooltipAnimation;
+
+  late bool _validForMouseTracker;
 
   double? _valueInMilliseconds;
 
@@ -1630,9 +1627,12 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
 
     _value = value;
     if (isDateTime) {
-      _valueInMilliseconds = _value.millisecondsSinceEpoch.toDouble();
+      _valueInMilliseconds =
+          // ignore: avoid_as
+          (_value as DateTime).millisecondsSinceEpoch.toDouble();
     }
     markNeedsPaint();
+    markNeedsSemanticsUpdate();
   }
 
   ValueChanged<dynamic>? get onChanged => _onChanged;
@@ -1676,7 +1676,9 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
 
   bool get isInteractive => onChanged != null;
 
-  double get actualValue => isDateTime ? _valueInMilliseconds : _value;
+  double get actualValue =>
+      // ignore: avoid_as
+      (isDateTime ? _valueInMilliseconds : _value.toDouble()) as double;
 
   // The returned list is ordered for hit testing.
   Iterable<RenderBox> get children sync* {
@@ -1712,9 +1714,9 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
 
   void _onTapDown(TapDownDetails details) {
     currentPointerType = PointerType.down;
-    mainAxisOffset = (sliderType == SliderType.vertical
+    mainAxisOffset = sliderType == SliderType.vertical
         ? globalToLocal(details.globalPosition).dy
-        : globalToLocal(details.globalPosition).dx);
+        : globalToLocal(details.globalPosition).dx;
     _beginInteraction();
   }
 
@@ -1870,7 +1872,7 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
   void _handleExit(PointerExitEvent event) {
     // Ensuring whether the thumb is drag or move
     // not needed to call controller's reverse.
-    if (currentPointerType != PointerType.move) {
+    if (_state.mounted && currentPointerType != PointerType.move) {
       _state.overlayController.reverse();
       if (enableTooltip) {
         _state.tooltipAnimationController.reverse();
@@ -1886,6 +1888,7 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
+    _validForMouseTracker = true;
     _overlayAnimation.addListener(markNeedsPaint);
     _stateAnimation.addListener(markNeedsPaint);
     _tooltipAnimation.addListener(markNeedsPaint);
@@ -1897,6 +1900,7 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
 
   @override
   void detach() {
+    _validForMouseTracker = false;
     _overlayAnimation.removeListener(markNeedsPaint);
     _stateAnimation.removeListener(markNeedsPaint);
     _tooltipAnimation.removeListener(markNeedsPaint);
@@ -1917,8 +1921,7 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
   PointerExitEventListener get onExit => _handleExit;
 
   @override
-  // ignore: override_on_non_overriding_member
-  bool get validForMouseTracker => true;
+  bool get validForMouseTracker => _validForMouseTracker;
 
   @override
   bool hitTestSelf(Offset position) => isInteractive;
@@ -1969,8 +1972,8 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
         activePaint: null,
         inactivePaint: null);
 
-    if (showLabels || showTicks || showDivisors) {
-      drawLabelsTicksAndDivisors(context, trackRect, offset, thumbCenter, null,
+    if (showLabels || showTicks || showDividers) {
+      drawLabelsTicksAndDividers(context, trackRect, offset, thumbCenter, null,
           null, _stateAnimation, _value, null);
     }
 
@@ -2023,13 +2026,13 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
     properties.add(StringProperty(
         'thumbSize', thumbShape.getPreferredSize(sliderThemeData).toString()));
     properties.add(StringProperty(
-        'activeDivisorSize',
-        divisorShape
+        'activeDividerSize',
+        dividerShape
             .getPreferredSize(sliderThemeData, isActive: true)
             .toString()));
     properties.add(StringProperty(
-        'inactiveDivisorSize',
-        divisorShape
+        'inactiveDividerSize',
+        dividerShape
             .getPreferredSize(sliderThemeData, isActive: false)
             .toString()));
     properties.add(StringProperty('overlaySize',

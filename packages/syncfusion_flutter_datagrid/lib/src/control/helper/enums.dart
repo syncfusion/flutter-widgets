@@ -25,6 +25,9 @@ enum RowType {
 
   /// Specifies the StackedHeaderRow that displays the stacked header text.
   stackedHeaderRow,
+
+  /// Specifies the footer row that displays the footer row data
+  footerRow,
 }
 
 /// Describes the possible values for cell types.
@@ -65,6 +68,42 @@ enum ColumnWidthMode {
   /// No sizing. Default column width or defined width set to column.
   none,
 
+  /// Calculates the width of column based on [GridColumn.columnName].
+  ///
+  /// The default [TextStyle] of datagrid is considered internally to calculate
+  /// the auto size. If you want to set your required [TextStyle] for calculation,
+  /// you can override the [ColumnSizer.computeHeaderCellWidth] method and pass
+  /// the required [TextStyle] to base class.
+  ///
+  /// See also,
+  ///
+  /// [GridColumn.autoFitPadding] – Represents the amount of space which should
+  /// be added along with the auto size.
+  fitByColumnName,
+
+  /// Set the column width by calculating the max size among the header cell and
+  /// among the cells in column.
+  ///
+  /// See also,
+  ///
+  /// [GridColumn.autoFitPadding] – Represents the amount of space which should
+  /// be added along with the auto size.
+  auto,
+
+  /// Set the column width by calculating the max size among the cells in column.
+  /// Auto fit calculation will be depending upon the [DataGridCell.value] property.
+  ///
+  /// The default [TextStyle] of datagrid is considered internally to calculate
+  /// the auto size. If you want to set your required [TextStyle] for calculation,
+  /// you can override the [ColumnSizer.computeCellWidth] method and pass the
+  /// required [TextStyle] to base class.
+  ///
+  /// See also,
+  ///
+  /// [GridColumn.autoFitPadding] – Represents the amount of space which should
+  /// be added along with the auto size.
+  fitByCellValue,
+
   /// Applies [SfDataGrid.defaultColumnWidth] or [GridColumn.width] to all the
   /// columns except last column which is visible and the remaining width
   /// from total width of [SfDataGrid] is set to last column if `width` of this
@@ -73,20 +112,6 @@ enum ColumnWidthMode {
 
   /// Divides the total width equally for columns.
   fill,
-}
-
-/// Determines how the column widths should be calculated.
-enum ColumnWidthCalculationMode {
-  /// The cell size is calculated by calculating and comparing the size of
-  /// the text in a cell.
-  textSize,
-
-  /// The cell size is calculated by calculating the
-  /// string width of the longest string (maximum length) in a column.
-  ///
-  /// By this way, the width will not be calculated for each cell and
-  /// width is calculated for longest string alone.
-  textLength,
 }
 
 /// Determines how the row count should be considered when calculating
@@ -182,4 +207,22 @@ enum DataGridScrollPosition {
 
   /// Scroll to the center of a [SfDataGrid].
   center,
+}
+
+/// Decides whether column resizing should be processed when resizing indicator moves or pointer stopped contacting the screen.
+enum ColumnResizeMode {
+  /// Column resizing happens as the resizing indicator moves.
+  onResize,
+
+  /// Column resizing happens when pointer stopped contacting the screen.
+  onResizeEnd,
+}
+
+/// Specifies the different tap actions available for allow editing.
+enum EditingGestureType {
+  /// Editing is triggered on single tap.
+  tap,
+
+  /// Editing is triggered on double tap.
+  doubleTap
 }

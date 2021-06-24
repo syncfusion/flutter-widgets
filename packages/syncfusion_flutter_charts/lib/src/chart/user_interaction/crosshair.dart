@@ -2,7 +2,7 @@ part of charts;
 
 /// This class has the properties of the crosshair behavior.
 ///
-/// crosshair behavior has the activation mode and line type property to set the behavior of the crosshair.
+/// Crosshair behavior has the activation mode and line type property to set the behavior of the crosshair.
 /// It also has the property to customize the appearance.
 ///
 /// Provide options for activation mode, line type, line color, line width, hide delay for customizing the
@@ -53,7 +53,6 @@ class CrosshairBehavior {
   /// Color will be applied based on the brightness
   ///property of the app.
   ///
-  ///Defaults to `1`
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
@@ -89,7 +88,7 @@ class CrosshairBehavior {
   ///
   /// Defaults to `ActivationMode.longPress`
   ///
-  /// Also refer ActivationMode
+  /// Also refer [ActivationMode]
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
@@ -136,7 +135,7 @@ class CrosshairBehavior {
   ///```
   final bool shouldAlwaysShow;
 
-  ///Giving disapper delay for crosshair
+  ///Time delay for hiding the crosshair.
   ///
   /// Defaults to `0`
   ///```dart
@@ -148,6 +147,43 @@ class CrosshairBehavior {
   ///}
   ///```
   final double hideDelay;
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is CrosshairBehavior &&
+        other.activationMode == activationMode &&
+        other.lineType == lineType &&
+        other.lineDashArray == lineDashArray &&
+        other.enable == enable &&
+        other.lineColor == lineColor &&
+        other.lineWidth == lineWidth &&
+        other.shouldAlwaysShow == shouldAlwaysShow &&
+        other.hideDelay == hideDelay;
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      activationMode,
+      lineType,
+      lineDashArray,
+      enable,
+      lineColor,
+      lineWidth,
+      shouldAlwaysShow,
+      hideDelay
+    ];
+    return hashList(values);
+  }
 
   SfCartesianChartState? _chartState;
 
@@ -167,7 +203,7 @@ class CrosshairBehavior {
           ._crosshairPainter!.chartState._chartSeries.visibleSeriesRenderers[0];
       final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
       final _ChartLocation location = _calculatePoint(
-          (x is DateTime && !(xAxisRenderer is DateTimeCategoryAxisRenderer))
+          (x is DateTime && xAxisRenderer is! DateTimeCategoryAxisRenderer)
               ? x.millisecondsSinceEpoch
               : ((x is DateTime &&
                       xAxisRenderer is DateTimeCategoryAxisRenderer)
@@ -192,8 +228,8 @@ class CrosshairBehavior {
       crosshairBehaviorRenderer._crosshairPainter!
           ._generateAllPoints(Offset(x.toDouble(), y));
       crosshairBehaviorRenderer._crosshairPainter!.canResetPath = false;
-      crosshairBehaviorRenderer
-          ._crosshairPainter!.chartState._crosshairRepaintNotifier.value++;
+      crosshairBehaviorRenderer._crosshairPainter!.chartState
+          ._repaintNotifiers['crosshair']!.value++;
     }
   }
 
@@ -217,8 +253,8 @@ class CrosshairBehavior {
             seriesRenderer._dataPoints[pointIndex].markerPoint!.x,
             seriesRenderer._dataPoints[pointIndex].markerPoint!.y));
         crosshairBehaviorRenderer._crosshairPainter!.canResetPath = false;
-        crosshairBehaviorRenderer
-            ._crosshairPainter!.chartState._crosshairRepaintNotifier.value++;
+        crosshairBehaviorRenderer._crosshairPainter!.chartState
+            ._repaintNotifiers['crosshair']!.value++;
       }
     }
   }
@@ -230,12 +266,12 @@ class CrosshairBehavior {
         chartState._crosshairBehaviorRenderer;
     if (crosshairBehaviorRenderer._crosshairPainter != null) {
       crosshairBehaviorRenderer._crosshairPainter!.canResetPath = false;
-      ValueNotifier<int>(crosshairBehaviorRenderer
-          ._crosshairPainter!.chartState._crosshairRepaintNotifier.value++);
+      ValueNotifier<int>(crosshairBehaviorRenderer._crosshairPainter!.chartState
+          ._repaintNotifiers['crosshair']!.value++);
       crosshairBehaviorRenderer._crosshairPainter!.timer?.cancel();
       if (!chartState._isTouchUp) {
-        crosshairBehaviorRenderer
-            ._crosshairPainter!.chartState._trackballRepaintNotifier.value++;
+        crosshairBehaviorRenderer._crosshairPainter!.chartState
+            ._repaintNotifiers['crosshair']!.value++;
         crosshairBehaviorRenderer._crosshairPainter!.canResetPath = true;
       } else {
         if (!shouldAlwaysShow) {
@@ -247,7 +283,7 @@ class CrosshairBehavior {
           crosshairBehaviorRenderer._crosshairPainter!.timer =
               Timer(Duration(milliseconds: duration.toInt()), () {
             crosshairBehaviorRenderer._crosshairPainter!.chartState
-                ._crosshairRepaintNotifier.value++;
+                ._repaintNotifiers['crosshair']!.value++;
             crosshairBehaviorRenderer._crosshairPainter!.canResetPath = true;
           });
         }
@@ -261,9 +297,9 @@ class CrosshairBehaviorRenderer with ChartBehavior {
   /// Creates an argument constructor for Crosshair renderer class
   CrosshairBehaviorRenderer(this._chartState);
 
-  dynamic get _chart => _chartState._chart;
+  SfCartesianChart get _chart => _chartState._chart;
 
-  final dynamic _chartState;
+  final SfCartesianChartState _chartState;
 
   CrosshairBehavior get _crosshairBehavior => _chart.crosshairBehavior;
 

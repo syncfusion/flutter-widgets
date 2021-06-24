@@ -1,3 +1,8 @@
+## [19.2.44]
+**Features**
+* Provided support to display week numbers of the year.
+* Provided extendable range selection support to extend the selected range.
+
 ## [19.1.54-beta] - 03/30/2021
 **Features**
 * Implemented the free scroll support in the date range picker.

@@ -24,7 +24,7 @@ class _StreamReader {
   //Implementation
   int? readByte() {
     if (_position != length) {
-      final int? result = _data![position];
+      final int result = _data![position];
       _position = _position! + 1;
       return result;
     } else {

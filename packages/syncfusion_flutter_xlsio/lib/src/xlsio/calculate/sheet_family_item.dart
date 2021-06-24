@@ -7,20 +7,20 @@ class SheetFamilyItem {
   bool _isSheeted = false;
 
   /// Holds mapping from parent object to sheet token.
-  Map? _parentObjectToToken;
+  Map<dynamic, dynamic>? _parentObjectToToken;
 
   /// Holds mapping for formula information table.
-  Map? _sheetFormulaInfoTable;
+  Map<dynamic, dynamic>? _sheetFormulaInfoTable;
 
   /// Holds mapping for dependent formula cells.
-  Map? _sheetDependentFormulaCells;
+  Map<dynamic, dynamic>? _sheetDependentFormulaCells;
 
   /// Holds mapping from sheet token to parent object.
-  Map? _tokenToParentObject;
+  Map<dynamic, dynamic>? _tokenToParentObject;
 
   /// Holds mapping from parent object to sheet name.
-  Map? _sheetNameToToken;
+  Map<dynamic, dynamic>? _sheetNameToToken;
 
   /// Holds mapping from sheet name to parent object.
-  Map? _sheetNameToParentObject;
+  Map<dynamic, dynamic>? _sheetNameToParentObject;
 }

@@ -142,7 +142,8 @@ class _CustomScrollViewLayout extends RenderWrap {
       height = height / 3;
     }
 
-    // sets the position as zero to restrict the view update when the view refreshed without swiping the view
+    // sets the position as zero to restrict the view update when the view
+    // refreshed without swiping the view
     if (_position == width || _position == -width) {
       if (_currentChild.parentData.offset.dx == width) {
         _position = 0;
@@ -153,9 +154,12 @@ class _CustomScrollViewLayout extends RenderWrap {
       }
     }
 
-    firstChildParentData = _firstChild.parentData;
-    lastChildParentData = _lastChild.parentData;
-    currentChildParentData = _currentChild.parentData;
+    // ignore: avoid_as
+    firstChildParentData = _firstChild.parentData as WrapParentData;
+    // ignore: avoid_as
+    lastChildParentData = _lastChild.parentData as WrapParentData;
+    // ignore: avoid_as
+    currentChildParentData = _currentChild.parentData as WrapParentData;
     if (_navigationDirection == CustomScrollDirection.horizontal) {
       currentChildXPos = width;
       lastChildXPos = width * 2;

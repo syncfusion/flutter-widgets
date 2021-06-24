@@ -58,21 +58,6 @@ class _DoubleSpan {
   @override
   String toString() => 'DoubleSpan Start = $start, End = $end';
 
-  /// Implements the operator == for comparing the given objects.
-  ///
-  /// * obj1 - _required_ - The object 1.
-  /// * obj2 - _required_ - The object 2.
-  ///
-  /// Returns the comparison result of the operator.
-  @override
-  bool operator ==(Object obj) => equals(obj);
-
-  /// Gets the hashcode
-  ///
-  /// Returns the hashcode
-  @override
-  int get hashCode => getHashCode();
-
   /// Gets an empty object.
   Object operator [](int index) => this[index];
 

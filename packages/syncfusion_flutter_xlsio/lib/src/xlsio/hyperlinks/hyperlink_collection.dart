@@ -5,7 +5,7 @@ class HyperlinkCollection {
   /// Create a instances of Hyperlink collection.
   HyperlinkCollection(Worksheet worksheet) {
     _worksheet = worksheet;
-    _hyperlink = [];
+    _hyperlink = <Hyperlink>[];
   }
 
   /// Represent the parent worksheet.
@@ -19,7 +19,7 @@ class HyperlinkCollection {
   }
 
   /// Hyperlink cell index.
-  Hyperlink operator [](index) => _hyperlink[index];
+  Hyperlink operator [](dynamic index) => _hyperlink[index];
 
   /// Returns the count of hyperlink reference collection.
   int get count {
@@ -51,8 +51,12 @@ class HyperlinkCollection {
     hyperlink._column = range.column;
     hyperlink.type = linkType;
     hyperlink.address = address;
-    if (screenTip != null) hyperlink.screenTip = screenTip;
-    if (textToDisplay != null) hyperlink.textToDisplay = textToDisplay;
+    if (screenTip != null) {
+      hyperlink.screenTip = screenTip;
+    }
+    if (textToDisplay != null) {
+      hyperlink.textToDisplay = textToDisplay;
+    }
     hyperlink._attachedType = ExcelHyperlinkAttachedType.range;
     addHyperlink(hyperlink);
     return hyperlink;
@@ -80,10 +84,12 @@ class HyperlinkCollection {
     final Hyperlink hyperlink = Hyperlink(_worksheet);
     hyperlink.type = linkType;
     hyperlink.address = address;
-    if (screenTip != null) hyperlink.screenTip = screenTip;
+    if (screenTip != null) {
+      hyperlink.screenTip = screenTip;
+    }
     hyperlink._attachedType = ExcelHyperlinkAttachedType.shape;
     picture._isHyperlink = true;
-    picture._link = hyperlink;
+    picture.hyperlink = hyperlink;
     addHyperlink(hyperlink);
     return hyperlink;
   }

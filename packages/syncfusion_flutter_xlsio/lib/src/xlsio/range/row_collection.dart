@@ -5,7 +5,7 @@ class RowCollection {
   /// Create a instance of rows collection.
   RowCollection(Worksheet worksheet) {
     _worksheet = worksheet;
-    _innerList = [];
+    _innerList = <Row?>[];
   }
 
   /// Parent worksheet.
@@ -33,7 +33,7 @@ class RowCollection {
   }
 
   /// Indexer get of the class
-  Row? operator [](index) {
+  Row? operator [](int index) {
     if (index <= _innerList.length) {
       return _innerList[index - 1];
     } else {
@@ -42,7 +42,7 @@ class RowCollection {
   }
 
   /// Indexer set of the class
-  operator []=(index, value) {
+  operator []=(int index, Row? value) {
     if (_iCount < index) {
       _updateSize(index);
     }
@@ -89,7 +89,9 @@ class RowCollection {
     for (int i = 0; i < _innerList.length; i++) {
       final Row? row = _innerList[i];
       _innerList[i] = null;
-      if (row != null) row._clear();
+      if (row != null) {
+        row._clear();
+      }
     }
   }
 }

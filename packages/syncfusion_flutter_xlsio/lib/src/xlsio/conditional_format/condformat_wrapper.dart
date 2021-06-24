@@ -349,7 +349,7 @@ class _ConditionalFormatWrapper implements ConditionalFormat {
   TopBottom? get topBottom {
     if (formatType == ExcelCFType.topBottom) {
       _topBottom ??=
-          _TopBottomWrapper(_getCondition().topBottom as _TopBottomImpl, this);
+          _TopBottomWrapper(_getCondition().topBottom! as _TopBottomImpl, this);
     } else {
       _topBottom = null;
     }
@@ -358,7 +358,7 @@ class _ConditionalFormatWrapper implements ConditionalFormat {
 
   @override
   set topBottom(TopBottom? value) {
-    _topBottom = value as _TopBottomWrapper;
+    _topBottom = value! as _TopBottomWrapper;
   }
 
   @override
@@ -367,7 +367,7 @@ class _ConditionalFormatWrapper implements ConditionalFormat {
   AboveBelowAverage? get aboveBelowAverage {
     if (formatType == ExcelCFType.aboveBelowAverage) {
       _aboveBelowAverage ??= _AboveBelowAverageWrapper(
-          _getCondition().aboveBelowAverage as _AboveBelowAverageImpl, this);
+          _getCondition().aboveBelowAverage! as _AboveBelowAverageImpl, this);
     } else {
       _aboveBelowAverage = null;
     }
@@ -377,7 +377,7 @@ class _ConditionalFormatWrapper implements ConditionalFormat {
 
   @override
   set aboveBelowAverage(AboveBelowAverage? value) {
-    _aboveBelowAverage = value as _AboveBelowAverageWrapper;
+    _aboveBelowAverage = value! as _AboveBelowAverageWrapper;
   }
 
   @override
@@ -386,7 +386,7 @@ class _ConditionalFormatWrapper implements ConditionalFormat {
   ColorScale? get colorScale {
     if (formatType == ExcelCFType.colorScale) {
       _colorScale ??= _ColorScaleWrapper(
-          _getCondition().colorScale as _ColorScaleImpl, this);
+          _getCondition().colorScale! as _ColorScaleImpl, this);
     } else {
       _colorScale = null;
     }
@@ -396,7 +396,7 @@ class _ConditionalFormatWrapper implements ConditionalFormat {
 
   @override
   set colorScale(ColorScale? value) {
-    _colorScale = value as _ColorScaleWrapper;
+    _colorScale = value! as _ColorScaleWrapper;
   }
 
   @override
@@ -405,7 +405,7 @@ class _ConditionalFormatWrapper implements ConditionalFormat {
   IconSet? get iconSet {
     if (formatType == ExcelCFType.iconSet) {
       _iconSet ??=
-          _IconSetWrapper(_getCondition().iconSet as _IconSetImpl, this);
+          _IconSetWrapper(_getCondition().iconSet! as _IconSetImpl, this);
     } else {
       _iconSet = null;
     }
@@ -415,7 +415,7 @@ class _ConditionalFormatWrapper implements ConditionalFormat {
 
   @override
   set iconSet(IconSet? value) {
-    _iconSet = value as _IconSetWrapper;
+    _iconSet = value! as _IconSetWrapper;
   }
 
   @override
@@ -424,7 +424,7 @@ class _ConditionalFormatWrapper implements ConditionalFormat {
   DataBar? get dataBar {
     if (formatType == ExcelCFType.dataBar) {
       _dataBar ??=
-          _DataBarWrapper(_getCondition().dataBar as _DataBarImpl, this);
+          _DataBarWrapper(_getCondition().dataBar! as _DataBarImpl, this);
     } else {
       _dataBar = null;
     }
@@ -434,7 +434,7 @@ class _ConditionalFormatWrapper implements ConditionalFormat {
 
   @override
   set dataBar(DataBar? value) {
-    _dataBar = value as _DataBarWrapper;
+    _dataBar = value! as _DataBarWrapper;
   }
 
   /// This method should be called before several updates to the object will take place.
@@ -573,107 +573,5 @@ class _ConditionalFormatWrapper implements ConditionalFormat {
   /// Gets or sets the bottom border color from Rgb.
   set bottomBorderColorRgb(Color value) {
     _getCondition().bottomBorderColorRgb = value;
-  }
-}
-
-/// Represents the top or bottom conditional formatting rule.
-/// Applying this rule to a range helps you highlight the top or bottom “n” cells from the selected range
-class _TopBottomWrapper implements TopBottom {
-  /// Initializes new instance of the wrapper.
-  _TopBottomWrapper(_TopBottomImpl top10, _ConditionalFormatWrapper format) {
-    _wrapped = top10;
-    _format = format;
-  }
-
-  /// Wrapped data Top10 object.
-  late _TopBottomImpl _wrapped;
-
-  /// Parent conditional format wrapper.
-  // ignore: unused_field
-  late _ConditionalFormatWrapper _format;
-
-  @override
-
-  /// Specifies whether the ranking is evaluated from the top or bottom.
-  ExcelCFTopBottomType get type {
-    return _wrapped.type;
-  }
-
-  @override
-
-  /// Specifies whether the ranking is evaluated from the top or bottom.
-  set type(ExcelCFTopBottomType value) {
-    _wrapped.type = value;
-  }
-
-  @override
-
-  /// Specifies whether the rank is determined by a percentage value.
-  bool get percent {
-    return _wrapped.percent;
-  }
-
-  @override
-
-  /// Specifies whether the rank is determined by a percentage value.
-  set percent(bool value) {
-    _wrapped.percent = value;
-  }
-
-  @override
-
-  /// Specifies the maximum number or percentage of cells to be highlighted for this conditional formatting rule.
-  int get rank {
-    return _wrapped.rank;
-  }
-
-  @override
-
-  /// Specifies the maximum number or percentage of cells to be highlighted for this conditional formatting rule.
-  set rank(int value) {
-    _wrapped.rank = value;
-  }
-}
-
-/// Represents the above or below conditional formatting rule.
-/// Applying this rule to a range helps you highlight the cells which contain values above or below the average of selected range.
-
-class _AboveBelowAverageWrapper implements AboveBelowAverage {
-  /// Initializes new instance of the wrapper.
-  _AboveBelowAverageWrapper(
-      _AboveBelowAverageImpl aboveAverage, _ConditionalFormatWrapper format) {
-    _wrapped = aboveAverage;
-    _format = format;
-  }
-
-  /// Wrapped data Top10 object.
-  late _AboveBelowAverageImpl _wrapped;
-
-  /// Parent conditional format wrapper.
-  // ignore: unused_field
-  late _ConditionalFormatWrapper _format;
-
-  @override
-
-  /// Specifies whether the conditional formatting rule looks for cell values above or below the range average or standard deviation.
-  ExcelCFAverageType get averageType {
-    return _wrapped.averageType;
-  }
-
-  @override
-  set averageType(ExcelCFAverageType value) {
-    _wrapped.averageType = value;
-  }
-
-  @override
-
-  /// Specifies standard deviation number for AboveAverage conditional formatting rule.
-  int get stdDevValue {
-    return _wrapped.stdDevValue;
-  }
-
-  @override
-  set stdDevValue(int value) {
-    _wrapped.stdDevValue = value;
   }
 }

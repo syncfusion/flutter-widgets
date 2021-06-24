@@ -22,7 +22,7 @@ class PdfAttachmentCollection extends PdfObjectCollection
   // ignore: prefer_final_fields
   bool _conformance = false;
   int _count = 0;
-  final Map<String, _PdfReferenceHolder> _dic = {};
+  final Map<String, _PdfReferenceHolder> _dic = <String, _PdfReferenceHolder>{};
   _PdfCrossTable? _crossTable;
 
   //Properties
@@ -84,12 +84,12 @@ class PdfAttachmentCollection extends PdfObjectCollection
         : fileName;
     if (_dic.isEmpty && _array!.count > 0) {
       for (int i = 0; i < _array!.count; i += 2) {
-        if (!_dic.containsKey((_array![i] as _PdfString).value)) {
-          _dic[(_array![i] as _PdfString).value!] =
-              _array![i + 1] as _PdfReferenceHolder;
+        if (!_dic.containsKey((_array![i]! as _PdfString).value)) {
+          _dic[(_array![i]! as _PdfString).value!] =
+              _array![i + 1]! as _PdfReferenceHolder;
         } else {
-          final String value = (_array![i] as _PdfString).value! + '_copy';
-          _dic[value] = _array![i + 1] as _PdfReferenceHolder;
+          final String value = (_array![i]! as _PdfString).value! + '_copy';
+          _dic[value] = _array![i + 1]! as _PdfReferenceHolder;
         }
       }
     }
@@ -99,7 +99,7 @@ class PdfAttachmentCollection extends PdfObjectCollection
     final List<String?> orderList = _dic.keys.toList();
     orderList.sort();
     _array!._clear();
-    for (final key in orderList) {
+    for (final String? key in orderList) {
       _array!._add(_PdfString(key!));
       _array!._add(_dic[key]!);
     }
@@ -164,8 +164,8 @@ class PdfAttachmentCollection extends PdfObjectCollection
   void _doClear() {
     _list.clear();
     if (_crossTable != null) {
-      final _PdfMainObjectCollection? coll = _crossTable!._document!._objects;
-      if (coll != null) {
+      final _PdfMainObjectCollection coll = _crossTable!._document!._objects;
+      if (coll._count > 0) {
         for (int i = 1; i < _array!.count; i = i + 2) {
           if (_array![i] is _PdfReferenceHolder) {
             final _IPdfPrimitive? dic = _PdfCrossTable._dereference(_array![i]);
@@ -188,17 +188,17 @@ class PdfAttachmentCollection extends PdfObjectCollection
     if (embedDictionary is _PdfDictionary) {
       final _IPdfPrimitive? obj = embedDictionary[_DictionaryProperties.names];
       final _IPdfPrimitive? kid = embedDictionary[_DictionaryProperties.kids];
-      if (!(obj is _PdfArray) && kid != null && kid is _PdfArray) {
+      if (obj is! _PdfArray && kid != null && kid is _PdfArray) {
         final _PdfArray kids = kid;
         if (kids.count != 0) {
           for (int l = 0; l < kids.count; l++) {
             if (kids[l] is _PdfReferenceHolder || kids[l] is _PdfDictionary) {
               embedDictionary = kids[l] is _PdfDictionary
-                  ? kids[l] as _PdfDictionary
-                  : (kids[l] as _PdfReferenceHolder).object != null &&
-                          (kids[l] as _PdfReferenceHolder).object
+                  ? kids[l]! as _PdfDictionary
+                  : (kids[l]! as _PdfReferenceHolder).object != null &&
+                          (kids[l]! as _PdfReferenceHolder).object
                               is _PdfDictionary
-                      ? (kids[l] as _PdfReferenceHolder).object
+                      ? (kids[l]! as _PdfReferenceHolder).object
                       : null;
               if (embedDictionary != null &&
                   embedDictionary is _PdfDictionary) {
@@ -226,7 +226,7 @@ class PdfAttachmentCollection extends PdfObjectCollection
         if (_array[k] is _PdfReferenceHolder || _array[k] is _PdfDictionary) {
           _IPdfPrimitive? streamDictionary = _array[k];
           if (_array[k] is _PdfReferenceHolder) {
-            streamDictionary = (_array[k] as _PdfReferenceHolder).object;
+            streamDictionary = (_array[k]! as _PdfReferenceHolder).object;
           }
           if (streamDictionary is _PdfDictionary) {
             _PdfStream? stream = _PdfStream();
@@ -239,7 +239,7 @@ class PdfAttachmentCollection extends PdfObjectCollection
               } else if (streamDictionary[_DictionaryProperties.ef]
                   is _PdfReferenceHolder) {
                 final _PdfReferenceHolder streamHolder =
-                    streamDictionary[_DictionaryProperties.ef]
+                    streamDictionary[_DictionaryProperties.ef]!
                         as _PdfReferenceHolder;
                 attachmentStream = streamHolder.object as _PdfDictionary?;
               }
@@ -265,7 +265,7 @@ class PdfAttachmentCollection extends PdfObjectCollection
               stream._decompress();
               if (streamDictionary.containsKey('F')) {
                 attachment = PdfAttachment(
-                    (streamDictionary['F'] as _PdfString).value!,
+                    (streamDictionary['F']! as _PdfString).value!,
                     stream._dataStream!);
                 final _IPdfPrimitive fileStream = stream;
                 if (fileStream is _PdfDictionary) {
@@ -312,20 +312,20 @@ class PdfAttachmentCollection extends PdfObjectCollection
                 }
                 if (streamDictionary.containsKey('Desc')) {
                   attachment.description =
-                      (streamDictionary['Desc'] as _PdfString).value!;
+                      (streamDictionary['Desc']! as _PdfString).value!;
                 }
               } else {
                 attachment = PdfAttachment(
-                    (streamDictionary['Desc'] as _PdfString).value!,
+                    (streamDictionary['Desc']! as _PdfString).value!,
                     stream._dataStream!);
               }
             } else {
               if (streamDictionary.containsKey('Desc')) {
                 attachment = PdfAttachment(
-                    (streamDictionary['Desc'] as _PdfString).value!, []);
+                    (streamDictionary['Desc']! as _PdfString).value!, <int>[]);
               } else {
                 attachment = PdfAttachment(
-                    (streamDictionary['F'] as _PdfString).value!, []);
+                    (streamDictionary['F']! as _PdfString).value!, <int>[]);
               }
             }
             _list.add(attachment);

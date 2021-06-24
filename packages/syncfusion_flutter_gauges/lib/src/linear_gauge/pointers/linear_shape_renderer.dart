@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_core/core.dart';
 
 import '../../linear_gauge/utils/enum.dart';
 
@@ -26,7 +27,7 @@ class RenderLinearShapePointer extends RenderBox {
       required bool isMirrored,
       Animation<double>? pointerAnimation,
       VoidCallback? onAnimationCompleted,
-      AnimationController? animationController})
+      this.animationController})
       : _value = value,
         _onValueChanged = onValueChanged,
         _color = color,
@@ -42,15 +43,14 @@ class RenderLinearShapePointer extends RenderBox {
         _position = position,
         _markerAlignment = markerAlignment,
         _isMirrored = isMirrored,
-        animationController = animationController,
         _onAnimationCompleted = onAnimationCompleted,
         _pointerAnimation = pointerAnimation {
     _shapePaint = Paint();
-    _path = Path();
+    _borderPaint = Paint();
   }
 
   late Paint _shapePaint;
-  late Path _path;
+  Paint? _borderPaint;
 
   Rect _shapeRect = Rect.zero;
 
@@ -314,7 +314,9 @@ class RenderLinearShapePointer extends RenderBox {
         onAnimationCompleted!();
       }
 
-      if (oldValue != value) oldValue = value;
+      if (oldValue != value) {
+        oldValue = value;
+      }
     }
   }
 
@@ -354,106 +356,6 @@ class RenderLinearShapePointer extends RenderBox {
     return true;
   }
 
-  ///Gets the diamond path for shape drawing.
-  void _getDiamondPath(double left, double top, double height, double width) {
-    _path
-      ..moveTo(left + width / 2.0, top)
-      ..lineTo(left, top + height / 2.0)
-      ..lineTo(left + width / 2.0, top + height)
-      ..lineTo(left + width, top + height / 2.0)
-      ..close();
-  }
-
-  ///Gets the triangle path for shape drawing.
-  void _getTrianglePath(double left, double top, {bool isInverted = true}) {
-    if (_orientation == LinearGaugeOrientation.horizontal) {
-      if (isInverted) {
-        _path.moveTo(left, top);
-        _path.lineTo(left + width, top);
-        _path.lineTo(left + (width / 2), top + height);
-      } else {
-        _path.moveTo(left + (width / 2), top);
-        _path.lineTo(left, top + height);
-        _path.lineTo(left + width, top + height);
-      }
-    } else {
-      if (isInverted) {
-        _path.moveTo(left, top);
-        _path.lineTo(left + width, top + (height / 2));
-        _path.lineTo(left, top + height);
-      } else {
-        _path.moveTo(left, top + (height / 2));
-        _path.lineTo(left + width, top);
-        _path.lineTo(left + width, top + height);
-      }
-    }
-
-    _path.close();
-  }
-
-  void _setBorderStyle() {
-    _shapePaint.style = PaintingStyle.stroke;
-    _shapePaint.strokeWidth = borderWidth;
-    _shapePaint.color = borderColor;
-  }
-
-  void _drawCircleShape(Canvas canvas) {
-    if (elevation > 0) {
-      _path.addOval(_shapeRect);
-      canvas.drawShadow(_path, elevationColor, elevation, true);
-    }
-
-    canvas.drawOval(_shapeRect, _shapePaint);
-
-    if (borderWidth > 0) {
-      _setBorderStyle();
-      canvas.drawOval(_shapeRect, _shapePaint);
-    }
-  }
-
-  void _drawRectangleShape(Canvas canvas) {
-    _path.addRect(_shapeRect);
-    if (elevation > 0) {
-      canvas.drawShadow(_path, elevationColor, elevation, true);
-    }
-
-    canvas.drawRect(_shapeRect, _shapePaint);
-
-    if (borderWidth > 0) {
-      _setBorderStyle();
-      canvas.drawRect(_shapeRect, _shapePaint);
-    }
-  }
-
-  void _drawTriangle(Canvas canvas, bool isInverted) {
-    _getTrianglePath(_shapeRect.left, _shapeRect.top, isInverted: isInverted);
-    if (elevation > 0) {
-      canvas.drawShadow(_path, elevationColor, elevation, true);
-    }
-    canvas.drawPath(_path, _shapePaint);
-
-    if (borderWidth > 0) {
-      _setBorderStyle();
-      canvas.drawPath(_path, _shapePaint);
-    }
-  }
-
-  void _drawDiamond(Canvas canvas) {
-    _getDiamondPath(
-        _shapeRect.left, _shapeRect.top, _shapeRect.height, _shapeRect.width);
-
-    if (elevation > 0) {
-      canvas.drawShadow(_path, elevationColor, elevation, true);
-    }
-
-    canvas.drawPath(_path, _shapePaint);
-
-    if (borderWidth > 0) {
-      _setBorderStyle();
-      canvas.drawPath(_path, _shapePaint);
-    }
-  }
-
   @override
   void paint(PaintingContext context, Offset offset) {
     if (pointerAnimation == null ||
@@ -463,30 +365,65 @@ class RenderLinearShapePointer extends RenderBox {
           offset.dy + borderWidth / 2,
           size.width - borderWidth,
           size.height - borderWidth);
+
       _shapePaint.style = PaintingStyle.fill;
       _shapePaint.color = color;
 
-      final canvas = context.canvas;
-      _path.reset();
-      switch (shapeType) {
+      if (_borderPaint != null && borderWidth > 0) {
+        _borderPaint!.style = PaintingStyle.stroke;
+        _borderPaint!.strokeWidth = borderWidth;
+        _borderPaint!.color = borderColor;
+      } else {
+        _borderPaint = null;
+      }
+
+      final Canvas canvas = context.canvas;
+      LinearShapePointerType gaugeShapeType = shapeType!;
+
+      if (isMirrored) {
+        if (gaugeShapeType == LinearShapePointerType.triangle) {
+          gaugeShapeType = LinearShapePointerType.invertedTriangle;
+        } else if (gaugeShapeType == LinearShapePointerType.invertedTriangle) {
+          gaugeShapeType = LinearShapePointerType.triangle;
+        }
+      }
+
+      late ShapeMarkerType markerType;
+
+      switch (gaugeShapeType) {
         case LinearShapePointerType.circle:
-          _drawCircleShape(canvas);
+          markerType = ShapeMarkerType.circle;
           break;
         case LinearShapePointerType.rectangle:
-          _drawRectangleShape(canvas);
+          markerType = ShapeMarkerType.rectangle;
           break;
         case LinearShapePointerType.triangle:
-          _drawTriangle(canvas, isMirrored ? true : false);
+          markerType = ShapeMarkerType.triangle;
+          if (orientation == LinearGaugeOrientation.vertical) {
+            markerType = ShapeMarkerType.verticalTriangle;
+          }
           break;
         case LinearShapePointerType.invertedTriangle:
-          _drawTriangle(canvas, isMirrored ? false : true);
+          markerType = ShapeMarkerType.invertedTriangle;
+          if (orientation == LinearGaugeOrientation.vertical) {
+            markerType = ShapeMarkerType.verticalInvertedTriangle;
+          }
           break;
         case LinearShapePointerType.diamond:
-          _drawDiamond(canvas);
+          markerType = ShapeMarkerType.diamond;
           break;
         default:
           break;
       }
+
+      ShapePainter.paint(
+          canvas: canvas,
+          rect: _shapeRect,
+          elevation: elevation,
+          shapeType: markerType,
+          elevationColor: elevationColor,
+          paint: _shapePaint,
+          borderPaint: _borderPaint);
     }
   }
 }

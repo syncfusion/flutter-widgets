@@ -1,5 +1,23 @@
 ## Unreleased
 
+**Features**
+
+* Provided the support to import and export form fields.
+* Provided the support to add skew transformation in PDF graphics.
+
+**Bugs**
+
+* The text extraction issue has been resolved now.
+* The document corruption issue while removing pages has been resolved now.
+
+## [19.1.67-beta] - 06/08/2021
+
+**Bugs**
+
+* The wrong text bounds calculation issue has been resolved now.
+
+## [19.1.54-beta] - 03/30/2021
+
 **Breaking changes**
 
 * The property flatten has been removed from the `PdfAnnotation` and `PdfAnnotationCollection`. And added a new method called `flatten` and `flattenAllAnnotations` instead.

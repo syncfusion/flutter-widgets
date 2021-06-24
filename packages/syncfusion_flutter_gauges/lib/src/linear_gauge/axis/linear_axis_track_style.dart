@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import '../../linear_gauge/utils/enum.dart';
 
 /// [LinearAxisTrackStyle] has properties for customizing the axis track.
+@immutable
 class LinearAxisTrackStyle {
   /// Creates a style for axis line.
-  LinearAxisTrackStyle(
+  const LinearAxisTrackStyle(
       {this.thickness = 5.0,
       this.edgeStyle = LinearEdgeStyle.bothFlat,
       this.color,
@@ -128,7 +129,9 @@ class LinearAxisTrackStyle {
       return false;
     }
 
-    if (other is LinearAxisTrackStyle) otherStyle = other;
+    if (other is LinearAxisTrackStyle) {
+      otherStyle = other;
+    }
 
     return otherStyle.thickness == thickness &&
         otherStyle.color == color &&

@@ -1,9 +1,11 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
-import '../common/common.dart';
-import '../pointers/marker_pointer.dart';
+
+import '../../radial_gauge/pointers/marker_pointer.dart';
+import '../../radial_gauge/pointers/pointer_painting_details.dart';
 
 ///  The [MarkerPointerRenderer] has methods to render marker pointer
 ///
@@ -17,7 +19,7 @@ class MarkerPointerRenderer {
   /// Method to draw pointer the marker pointer.
   ///
   /// By overriding this method, you can draw the customized marker
-  /// pointer using required values.
+  /// pointer using required values .
   ///
   void drawPointer(Canvas canvas, PointerPaintingDetails pointerPaintingDetails,
       SfGaugeThemeData gaugeThemeData) {}

@@ -20,8 +20,9 @@ class PdfFormFieldCollection extends PdfObjectCollection
   //Fields
   PdfForm? _form;
   final _PdfArray _array = _PdfArray();
+  // ignore: prefer_final_fields
   bool _isAction = false;
-  final List<String?> _addedFieldNames = [];
+  final List<String?> _addedFieldNames = <String?>[];
 
   //Properties
   /// Gets the [PdfField] at the specified index.
@@ -43,7 +44,8 @@ class PdfFormFieldCollection extends PdfObjectCollection
     if (fields.isEmpty) {
       throw ArgumentError('fields can\'t be empty');
     }
-    fields.forEach((element) => add(element));
+    // ignore: avoid_function_literals_in_foreach_calls
+    fields.forEach((PdfField element) => add(element));
   }
 
   /// Removes the specified field in the collection.
@@ -73,7 +75,7 @@ class PdfFormFieldCollection extends PdfObjectCollection
 
   //Implementations
   int _doAdd(PdfField field) {
-    final bool isLoaded = _form != null ? _form!._isLoadedForm : false;
+    final bool isLoaded = _form != null && _form!._isLoadedForm;
     if (!_isAction) {
       field._setForm(_form);
       String? name = field.name;
@@ -138,11 +140,11 @@ class PdfFormFieldCollection extends PdfObjectCollection
                   }
                   if (!isPresent) {
                     oldField._array._add(_PdfReferenceHolder(oldField._widget));
-                    oldField._fieldItems ??= [];
+                    oldField._fieldItems ??= <PdfField>[];
                     oldField._fieldItems!.add(oldField);
                   }
                   oldField._array._add(_PdfReferenceHolder(field._widget));
-                  oldField._fieldItems ??= [];
+                  oldField._fieldItems ??= <PdfField>[];
                   oldField._fieldItems!.add(field);
                   oldField._dictionary
                       .setProperty(_DictionaryProperties.kids, oldField._array);
@@ -168,7 +170,7 @@ class PdfFormFieldCollection extends PdfObjectCollection
                         ._items![_PdfName(_DictionaryProperties.kids)];
                   }
                   if (newKids != null && newKids is _PdfArray) {
-                    if (oldKids == null || !(oldKids is _PdfArray)) {
+                    if (oldKids == null || oldKids is! _PdfArray) {
                       oldKids = _PdfArray();
                     }
                     for (int i = 0; i < newKids.count; i++) {
@@ -197,7 +199,7 @@ class PdfFormFieldCollection extends PdfObjectCollection
     if (isLoaded && !_addedFieldNames.contains(field.name)) {
       _addedFieldNames.add(field.name);
     }
-    if (!(field is PdfRadioButtonListField) && field._page != null) {
+    if (field is! PdfRadioButtonListField && field._page != null) {
       field._page!.annotations.add(field._widget!);
     }
     _array._add(_PdfReferenceHolder(field));
@@ -259,9 +261,10 @@ class PdfFormFieldCollection extends PdfObjectCollection
     }
     if (_form!._widgetDictionary != null &&
         _form!._widgetDictionary!.isNotEmpty) {
-      for (final dictValue in _form!._widgetDictionary!.values) {
+      for (final List<_PdfDictionary> dictValue
+          in _form!._widgetDictionary!.values) {
         if (dictValue.isNotEmpty) {
-          final PdfField? field = _getField(dictionary: dictValue[0])!;
+          final PdfField? field = _getField(dictionary: dictValue[0]);
           if (field != null) {
             _form!._terminalFields.add(field._dictionary);
             _doAdd(field);
@@ -416,7 +419,7 @@ class PdfFormFieldCollection extends PdfObjectCollection
 
   /// Gets the new name of the field.
   String? _getCorrectName(String? name) {
-    final List<String?> list = [];
+    final List<String?> list = <String?>[];
     for (int i = 0; i < count; i++) {
       if (_list[i] is PdfField) {
         list.add((_list[i] as PdfField).name);
@@ -424,7 +427,7 @@ class PdfFormFieldCollection extends PdfObjectCollection
     }
     String? correctName = name;
     int index = 0;
-    while (list.indexOf(correctName) != -1) {
+    while (list.contains(correctName)) {
       correctName = name! + index.toString();
       ++index;
     }
@@ -437,6 +440,27 @@ class PdfFormFieldCollection extends PdfObjectCollection
       _form!._removeFromDictionaries(field);
     }
     _addedFieldNames.remove(field.name);
+  }
+
+  int _getFieldIndex(String name) {
+    int i = -1;
+    final List<String> _fieldNames = <String>[];
+    final List<String> _indexedFieldNames = <String>[];
+    for (int j = 0; j < count; j++) {
+      if (_list[j] is PdfField) {
+        final PdfField field = _list[j] as PdfField;
+        _fieldNames.add(field.name!);
+        if (field.name != null) {
+          _indexedFieldNames.add(field.name!.split('[')[0]);
+        }
+      }
+    }
+    if (_fieldNames.contains(name)) {
+      i = _fieldNames.indexOf(name);
+    } else if (_indexedFieldNames.contains(name)) {
+      i = _indexedFieldNames.indexOf(name);
+    }
+    return i;
   }
 
   //Overrides

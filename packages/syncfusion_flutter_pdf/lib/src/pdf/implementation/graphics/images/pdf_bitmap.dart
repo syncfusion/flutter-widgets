@@ -62,7 +62,9 @@ class PdfBitmap extends PdfImage {
   _ImageDecoder? _decoder;
   late int _height;
   late int _width;
+  // ignore: prefer_final_fields
   double _horizontalResolution = 0;
+  // ignore: prefer_final_fields
   double _verticalResolution = 0;
   bool _imageStatus = true;
   PdfColorSpace? _colorSpace;
@@ -75,7 +77,7 @@ class PdfBitmap extends PdfImage {
   /// ```dart
   /// //Creates a new PDF document.
   /// PdfDocument doc = PdfDocument();
-  /// Create a PDF image instance.
+  /// //Create a PDF image instance.
   /// PdfImage image = PdfBitmap(imageData);
   /// //Draw the image with image's width and height.
   /// doc.pages
@@ -96,7 +98,7 @@ class PdfBitmap extends PdfImage {
   /// ```dart
   /// //Creates a new PDF document.
   /// PdfDocument doc = PdfDocument();
-  /// Create a PDF image instance.
+  /// //Create a PDF image instance.
   /// PdfImage image = PdfBitmap(imageData);
   /// //Draw the image with image's width and height.
   /// doc.pages
@@ -117,7 +119,7 @@ class PdfBitmap extends PdfImage {
   /// ```dart
   /// //Creates a new PDF document.
   /// PdfDocument doc = PdfDocument();
-  /// Create a PDF image instance.
+  /// //Create a PDF image instance.
   /// PdfImage image = PdfBitmap(imageData);
   /// //Gets horizontal resolution
   /// double horizontalResolution = image.horizontalResolution;
@@ -140,7 +142,7 @@ class PdfBitmap extends PdfImage {
   /// ```dart
   /// //Creates a new PDF document.
   /// PdfDocument doc = PdfDocument();
-  /// Create a PDF image instance.
+  /// //Create a PDF image instance.
   /// PdfImage image = PdfBitmap(imageData);
   /// //Gets vertical resolution
   /// double verticalResolution = image.verticalResolution;
@@ -184,7 +186,7 @@ class PdfBitmap extends PdfImage {
       _colorSpace = PdfColorSpace.grayScale;
     }
     if (_decoder is _PngDecoder &&
-        (_decoder as _PngDecoder)._colorSpace != null) {
+        (_decoder! as _PngDecoder)._colorSpace != null) {
       _colorSpace = PdfColorSpace.indexed;
     }
     switch (_colorSpace) {
@@ -207,7 +209,7 @@ class PdfBitmap extends PdfImage {
         break;
       case PdfColorSpace.indexed:
         stream[_DictionaryProperties.colorSpace] =
-            (_decoder as _PngDecoder)._colorSpace;
+            (_decoder! as _PngDecoder)._colorSpace;
         break;
       default:
         break;

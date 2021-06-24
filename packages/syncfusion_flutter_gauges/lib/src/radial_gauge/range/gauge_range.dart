@@ -1,6 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import '../common/common.dart';
-import '../utils/enum.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
+
+import '../../radial_gauge/axis/radial_axis_scope.dart';
+import '../../radial_gauge/range/gauge_range_renderer.dart';
+import '../../radial_gauge/styles/radial_text_style.dart';
+import '../../radial_gauge/utils/enum.dart';
 
 /// Create the range to add a color bar in the gauge.
 ///
@@ -19,12 +24,13 @@ import '../utils/enum.dart';
 ///        ));
 ///}
 /// ```
-class GaugeRange {
+class GaugeRange extends LeafRenderObjectWidget {
   /// Create a range with the default or required properties.
   ///
   /// The arguments [startValue], [endValue], must not be null.
   GaugeRange(
-      {required this.startValue,
+      {Key? key,
+      required this.startValue,
       required this.endValue,
       double? startWidth,
       double? endWidth,
@@ -38,7 +44,7 @@ class GaugeRange {
             startWidth = startWidth ?? (label != null ? startWidth : 10),
         endWidth = endWidth = endWidth ?? (label != null ? endWidth : 10),
         labelStyle = labelStyle ??
-            GaugeTextStyle(
+            const GaugeTextStyle(
                 fontSize: 12.0,
                 fontFamily: 'Segoe UI',
                 fontStyle: FontStyle.normal,
@@ -46,7 +52,8 @@ class GaugeRange {
         assert(
             (gradient != null && gradient is SweepGradient) || gradient == null,
             'The gradient must be null or else the gradient must be equal'
-            ' to sweep gradient.');
+            ' to sweep gradient.'),
+        super(key: key);
 
   /// Specifies the range start value.
   ///
@@ -282,40 +289,43 @@ class GaugeRange {
   final Gradient? gradient;
 
   @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) {
-      return true;
-    }
-    if (other.runtimeType != runtimeType) {
-      return false;
-    }
-    return other is GaugeRange &&
-        other.startValue == startValue &&
-        other.endValue == endValue &&
-        other.startWidth == startWidth &&
-        other.endWidth == endWidth &&
-        other.gradient == gradient &&
-        other.rangeOffset == rangeOffset &&
-        other.sizeUnit == sizeUnit &&
-        other.label == label &&
-        other.color == color &&
-        other.labelStyle == labelStyle;
+  RenderObject createRenderObject(BuildContext context) {
+    final SfGaugeThemeData gaugeTheme = SfGaugeTheme.of(context)!;
+    final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
+    return RenderGaugeRange(
+        startValue: startValue,
+        endValue: endValue,
+        startWidth: startWidth,
+        endWidth: endWidth,
+        sizeUnit: sizeUnit,
+        color: color,
+        gradient: gradient,
+        rangeOffset: rangeOffset,
+        label: label,
+        rangeAnimation: radialAxisScope.animation,
+        labelStyle: labelStyle,
+        repaintNotifier: radialAxisScope.repaintNotifier,
+        gaugeThemeData: gaugeTheme);
   }
 
   @override
-  int get hashCode {
-    final List<Object?> values = <Object?>[
-      startValue,
-      endValue,
-      startWidth,
-      endWidth,
-      gradient,
-      rangeOffset,
-      sizeUnit,
-      label,
-      color,
-      labelStyle
-    ];
-    return hashList(values);
+  void updateRenderObject(BuildContext context, RenderGaugeRange renderObject) {
+    final SfGaugeThemeData gaugeTheme = SfGaugeTheme.of(context)!;
+    final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
+    renderObject
+      ..startValue = startValue
+      ..endValue = endValue
+      ..startWidth = startWidth
+      ..endWidth = endWidth
+      ..sizeUnit = sizeUnit
+      ..color = color
+      ..gradient = gradient
+      ..rangeOffset = rangeOffset
+      ..rangeAnimation = radialAxisScope.animation
+      ..label = label
+      ..labelStyle = labelStyle
+      ..repaintNotifier = radialAxisScope.repaintNotifier
+      ..gaugeThemeData = gaugeTheme;
+    super.updateRenderObject(context, renderObject);
   }
 }

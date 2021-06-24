@@ -6,6 +6,7 @@ class _CrosshairPainter extends CustomPainter {
         super(repaint: valueNotifier);
   final SfCartesianChartState chartState;
   final SfCartesianChart chart;
+  _RenderingDetails get _renderingDetails => chartState._renderingDetails;
   Timer? timer;
   ValueNotifier<int> valueNotifier;
   // double pointerLength;
@@ -98,13 +99,13 @@ class _CrosshairPainter extends CustomPainter {
   /// To draw cross hair
   void _drawCrosshair(Canvas canvas) {
     final Paint fillPaint = Paint()
-      ..color = chartState._chartTheme.crosshairBackgroundColor
+      ..color = _renderingDetails.chartTheme.crosshairBackgroundColor
       ..strokeCap = StrokeCap.butt
       ..isAntiAlias = false
       ..style = PaintingStyle.fill;
 
     final Paint strokePaint = Paint()
-      ..color = chartState._chartTheme.crosshairBackgroundColor
+      ..color = _renderingDetails.chartTheme.crosshairBackgroundColor
       ..strokeCap = StrokeCap.butt
       ..isAntiAlias = false
       ..style = PaintingStyle.stroke;
@@ -117,7 +118,7 @@ class _CrosshairPainter extends CustomPainter {
       final Offset position = chartState._crosshairBehaviorRenderer._position!;
 
       crosshairLinePaint.color = chart.crosshairBehavior.lineColor ??
-          chartState._chartTheme.crosshairLineColor;
+          _renderingDetails.chartTheme.crosshairLineColor;
       crosshairLinePaint.strokeWidth = chart.crosshairBehavior.lineWidth;
       crosshairLinePaint.style = PaintingStyle.stroke;
       CrosshairRenderArgs crosshairEventArgs;
@@ -144,7 +145,7 @@ class _CrosshairPainter extends CustomPainter {
   void _drawBottomAxesTooltip(
       Canvas canvas, Offset position, Paint strokePaint, Paint fillPaint) {
     ChartAxisRenderer axisRenderer;
-    dynamic value;
+    String value;
     Size labelSize;
     Rect labelRect, validatedRect;
     RRect tooltipRect;
@@ -159,29 +160,29 @@ class _CrosshairPainter extends CustomPainter {
       final ChartAxis axis = axisRenderer._axis;
       if (_needToAddTooltip(axisRenderer)) {
         fillPaint.color = axis.interactiveTooltip.color ??
-            chartState._chartTheme.crosshairBackgroundColor;
+            _renderingDetails.chartTheme.crosshairBackgroundColor;
         strokePaint.color = axis.interactiveTooltip.borderColor ??
-            chartState._chartTheme.crosshairBackgroundColor;
+            _renderingDetails.chartTheme.crosshairBackgroundColor;
         strokePaint.strokeWidth = axis.interactiveTooltip.borderWidth;
         value = _getXValue(axisRenderer, position);
         if (chart.onCrosshairPositionChanging != null) {
           crosshairEventArgs = CrosshairRenderArgs(
               axis, value, axisRenderer._name, axisRenderer._orientation);
-          crosshairEventArgs.text = value.toString();
+          crosshairEventArgs.text = value;
           crosshairEventArgs.lineColor = chart.crosshairBehavior.lineColor ??
-              chartState._chartTheme.crosshairLineColor;
+              _renderingDetails.chartTheme.crosshairLineColor;
           chart.onCrosshairPositionChanging!(crosshairEventArgs);
           value = crosshairEventArgs.text;
           color = crosshairEventArgs.lineColor;
         }
-        labelSize =
-            measureText(value.toString(), axis.interactiveTooltip.textStyle);
+        labelSize = measureText(value, axis.interactiveTooltip.textStyle);
         labelRect = Rect.fromLTWH(
             position.dx - (labelSize.width / 2 + padding / 2),
             axisRenderer._bounds.top + axis.interactiveTooltip.arrowLength,
             labelSize.width + padding,
             labelSize.height + padding);
-        labelRect = _validateRectBounds(labelRect, chartState._containerRect);
+        labelRect = _validateRectBounds(
+            labelRect, _renderingDetails.chartContainerRect);
         validatedRect = _validateRectXPosition(labelRect, chartState);
         backgroundPath.reset();
         tooltipRect = _getRoundedCornerRect(
@@ -202,44 +203,8 @@ class _CrosshairPainter extends CustomPainter {
             tooltipRect.top,
             position.dx,
             tooltipRect.top - axis.interactiveTooltip.arrowLength);
-        _drawText(
-            canvas,
-            value.toString(),
-            Offset(
-                (tooltipRect.left + tooltipRect.width / 2) -
-                    labelSize.width / 2,
-                (tooltipRect.top + tooltipRect.height / 2) -
-                    labelSize.height / 2),
-            TextStyle(
-                color: axis.interactiveTooltip.textStyle.color ??
-                    chartState._chartTheme.tooltipLabelColor,
-                fontSize: axis.interactiveTooltip.textStyle.fontSize,
-                fontWeight: axis.interactiveTooltip.textStyle.fontWeight,
-                fontFamily: axis.interactiveTooltip.textStyle.fontFamily,
-                fontStyle: axis.interactiveTooltip.textStyle.fontStyle,
-                inherit: axis.interactiveTooltip.textStyle.inherit,
-                backgroundColor:
-                    axis.interactiveTooltip.textStyle.backgroundColor,
-                letterSpacing: axis.interactiveTooltip.textStyle.letterSpacing,
-                wordSpacing: axis.interactiveTooltip.textStyle.wordSpacing,
-                textBaseline: axis.interactiveTooltip.textStyle.textBaseline,
-                height: axis.interactiveTooltip.textStyle.height,
-                locale: axis.interactiveTooltip.textStyle.locale,
-                foreground: axis.interactiveTooltip.textStyle.foreground,
-                background: axis.interactiveTooltip.textStyle.background,
-                shadows: axis.interactiveTooltip.textStyle.shadows,
-                fontFeatures: axis.interactiveTooltip.textStyle.fontFeatures,
-                decoration: axis.interactiveTooltip.textStyle.decoration,
-                decorationColor:
-                    axis.interactiveTooltip.textStyle.decorationColor,
-                decorationStyle:
-                    axis.interactiveTooltip.textStyle.decorationStyle,
-                decorationThickness:
-                    axis.interactiveTooltip.textStyle.decorationThickness,
-                debugLabel: axis.interactiveTooltip.textStyle.debugLabel,
-                fontFamilyFallback:
-                    axis.interactiveTooltip.textStyle.fontFamilyFallback),
-            0);
+        _drawTooltipText(canvas, value, axis.interactiveTooltip.textStyle,
+            tooltipRect, labelSize);
       }
     }
   }
@@ -249,7 +214,7 @@ class _CrosshairPainter extends CustomPainter {
       Canvas canvas, Offset position, Paint strokePaint, Paint fillPaint) {
     ChartAxis axis;
     ChartAxisRenderer axisRenderer;
-    dynamic value;
+    String value;
     Size labelSize;
     Rect labelRect, validatedRect;
     RRect tooltipRect;
@@ -264,23 +229,22 @@ class _CrosshairPainter extends CustomPainter {
       axis = axisRenderer._axis;
       if (_needToAddTooltip(axisRenderer)) {
         fillPaint.color = axis.interactiveTooltip.color ??
-            chartState._chartTheme.crosshairBackgroundColor;
+            _renderingDetails.chartTheme.crosshairBackgroundColor;
         strokePaint.color = axis.interactiveTooltip.borderColor ??
-            chartState._chartTheme.crosshairBackgroundColor;
+            _renderingDetails.chartTheme.crosshairBackgroundColor;
         strokePaint.strokeWidth = axis.interactiveTooltip.borderWidth;
         value = _getXValue(axisRenderer, position);
         if (chart.onCrosshairPositionChanging != null) {
           crosshairEventArgs = CrosshairRenderArgs(axisRenderer._axis, value,
               axisRenderer._name, axisRenderer._orientation);
-          crosshairEventArgs.text = value.toString();
+          crosshairEventArgs.text = value;
           crosshairEventArgs.lineColor = chart.crosshairBehavior.lineColor ??
-              chartState._chartTheme.crosshairLineColor;
+              _renderingDetails.chartTheme.crosshairLineColor;
           chart.onCrosshairPositionChanging!(crosshairEventArgs);
           value = crosshairEventArgs.text;
           color = crosshairEventArgs.lineColor;
         }
-        labelSize =
-            measureText(value.toString(), axis.interactiveTooltip.textStyle);
+        labelSize = measureText(value, axis.interactiveTooltip.textStyle);
         labelRect = Rect.fromLTWH(
             position.dx - (labelSize.width / 2 + padding / 2),
             axisRenderer._bounds.top -
@@ -288,13 +252,13 @@ class _CrosshairPainter extends CustomPainter {
                 axis.interactiveTooltip.arrowLength,
             labelSize.width + padding,
             labelSize.height + padding);
-        labelRect = _validateRectBounds(labelRect, chartState._containerRect);
+        labelRect = _validateRectBounds(
+            labelRect, _renderingDetails.chartContainerRect);
         validatedRect = _validateRectXPosition(labelRect, chartState);
         backgroundPath.reset();
         tooltipRect = _getRoundedCornerRect(
             validatedRect, axis.interactiveTooltip.borderRadius);
         backgroundPath.addRRect(tooltipRect);
-
         _drawTooltipArrowhead(
             canvas,
             backgroundPath,
@@ -310,44 +274,8 @@ class _CrosshairPainter extends CustomPainter {
             tooltipRect.bottom,
             position.dx,
             tooltipRect.bottom + axis.interactiveTooltip.arrowLength);
-        _drawText(
-            canvas,
-            value.toString(),
-            Offset(
-                (tooltipRect.left + tooltipRect.width / 2) -
-                    labelSize.width / 2,
-                (tooltipRect.top + tooltipRect.height / 2) -
-                    labelSize.height / 2),
-            TextStyle(
-                color: axis.interactiveTooltip.textStyle.color ??
-                    chartState._chartTheme.tooltipLabelColor,
-                fontSize: axis.interactiveTooltip.textStyle.fontSize,
-                fontWeight: axis.interactiveTooltip.textStyle.fontWeight,
-                fontFamily: axis.interactiveTooltip.textStyle.fontFamily,
-                fontStyle: axis.interactiveTooltip.textStyle.fontStyle,
-                inherit: axis.interactiveTooltip.textStyle.inherit,
-                backgroundColor:
-                    axis.interactiveTooltip.textStyle.backgroundColor,
-                letterSpacing: axis.interactiveTooltip.textStyle.letterSpacing,
-                wordSpacing: axis.interactiveTooltip.textStyle.wordSpacing,
-                textBaseline: axis.interactiveTooltip.textStyle.textBaseline,
-                height: axis.interactiveTooltip.textStyle.height,
-                locale: axis.interactiveTooltip.textStyle.locale,
-                foreground: axis.interactiveTooltip.textStyle.foreground,
-                background: axis.interactiveTooltip.textStyle.background,
-                shadows: axis.interactiveTooltip.textStyle.shadows,
-                fontFeatures: axis.interactiveTooltip.textStyle.fontFeatures,
-                decoration: axis.interactiveTooltip.textStyle.decoration,
-                decorationColor:
-                    axis.interactiveTooltip.textStyle.decorationColor,
-                decorationStyle:
-                    axis.interactiveTooltip.textStyle.decorationStyle,
-                decorationThickness:
-                    axis.interactiveTooltip.textStyle.decorationThickness,
-                debugLabel: axis.interactiveTooltip.textStyle.debugLabel,
-                fontFamilyFallback:
-                    axis.interactiveTooltip.textStyle.fontFamilyFallback),
-            0);
+        _drawTooltipText(canvas, value, axis.interactiveTooltip.textStyle,
+            tooltipRect, labelSize);
       }
     }
   }
@@ -357,7 +285,7 @@ class _CrosshairPainter extends CustomPainter {
       Canvas canvas, Offset position, Paint strokePaint, Paint fillPaint) {
     ChartAxis axis;
     ChartAxisRenderer axisRenderer;
-    dynamic value;
+    String value;
     Size labelSize;
     Rect labelRect, validatedRect;
     RRect tooltipRect;
@@ -372,23 +300,22 @@ class _CrosshairPainter extends CustomPainter {
       axis = axisRenderer._axis;
       if (_needToAddTooltip(axisRenderer)) {
         fillPaint.color = axis.interactiveTooltip.color ??
-            chartState._chartTheme.crosshairBackgroundColor;
+            _renderingDetails.chartTheme.crosshairBackgroundColor;
         strokePaint.color = axis.interactiveTooltip.borderColor ??
-            chartState._chartTheme.crosshairBackgroundColor;
+            _renderingDetails.chartTheme.crosshairBackgroundColor;
         strokePaint.strokeWidth = axis.interactiveTooltip.borderWidth;
         value = _getYValue(axisRenderer, position);
         if (chart.onCrosshairPositionChanging != null) {
           crosshairEventArgs = CrosshairRenderArgs(
               axis, value, axisRenderer._name, axisRenderer._orientation);
-          crosshairEventArgs.text = value.toString();
+          crosshairEventArgs.text = value;
           crosshairEventArgs.lineColor = chart.crosshairBehavior.lineColor ??
-              chartState._chartTheme.crosshairLineColor;
+              _renderingDetails.chartTheme.crosshairLineColor;
           chart.onCrosshairPositionChanging!(crosshairEventArgs);
           value = crosshairEventArgs.text;
           color = crosshairEventArgs.lineColor;
         }
-        labelSize =
-            measureText(value.toString(), axis.interactiveTooltip.textStyle);
+        labelSize = measureText(value, axis.interactiveTooltip.textStyle);
         labelRect = Rect.fromLTWH(
             axisRenderer._bounds.left -
                 (labelSize.width + padding) -
@@ -396,7 +323,8 @@ class _CrosshairPainter extends CustomPainter {
             position.dy - (labelSize.height + padding) / 2,
             labelSize.width + padding,
             labelSize.height + padding);
-        labelRect = _validateRectBounds(labelRect, chartState._containerRect);
+        labelRect = _validateRectBounds(
+            labelRect, _renderingDetails.chartContainerRect);
         validatedRect = _validateRectYPosition(labelRect, chartState);
         backgroundPath.reset();
         tooltipRect = _getRoundedCornerRect(
@@ -420,44 +348,9 @@ class _CrosshairPainter extends CustomPainter {
             position.dy,
             tooltipRect.right + axis.interactiveTooltip.arrowLength,
             position.dy);
-        _drawText(
-            canvas,
-            value.toString(),
-            Offset(
-                (tooltipRect.left + tooltipRect.width / 2) -
-                    labelSize.width / 2,
-                (tooltipRect.top + tooltipRect.height / 2) -
-                    labelSize.height / 2),
-            TextStyle(
-                color: axis.interactiveTooltip.textStyle.color ??
-                    chartState._chartTheme.tooltipLabelColor,
-                fontSize: axis.interactiveTooltip.textStyle.fontSize,
-                fontWeight: axis.interactiveTooltip.textStyle.fontWeight,
-                fontFamily: axis.interactiveTooltip.textStyle.fontFamily,
-                fontStyle: axis.interactiveTooltip.textStyle.fontStyle,
-                inherit: axis.interactiveTooltip.textStyle.inherit,
-                backgroundColor:
-                    axis.interactiveTooltip.textStyle.backgroundColor,
-                letterSpacing: axis.interactiveTooltip.textStyle.letterSpacing,
-                wordSpacing: axis.interactiveTooltip.textStyle.wordSpacing,
-                textBaseline: axis.interactiveTooltip.textStyle.textBaseline,
-                height: axis.interactiveTooltip.textStyle.height,
-                locale: axis.interactiveTooltip.textStyle.locale,
-                foreground: axis.interactiveTooltip.textStyle.foreground,
-                background: axis.interactiveTooltip.textStyle.background,
-                shadows: axis.interactiveTooltip.textStyle.shadows,
-                fontFeatures: axis.interactiveTooltip.textStyle.fontFeatures,
-                decoration: axis.interactiveTooltip.textStyle.decoration,
-                decorationColor:
-                    axis.interactiveTooltip.textStyle.decorationColor,
-                decorationStyle:
-                    axis.interactiveTooltip.textStyle.decorationStyle,
-                decorationThickness:
-                    axis.interactiveTooltip.textStyle.decorationThickness,
-                debugLabel: axis.interactiveTooltip.textStyle.debugLabel,
-                fontFamilyFallback:
-                    axis.interactiveTooltip.textStyle.fontFamilyFallback),
-            0);
+
+        _drawTooltipText(canvas, value, axis.interactiveTooltip.textStyle,
+            tooltipRect, labelSize);
       }
     }
   }
@@ -467,7 +360,7 @@ class _CrosshairPainter extends CustomPainter {
       Canvas canvas, Offset position, Paint strokePaint, Paint fillPaint) {
     ChartAxis axis;
     ChartAxisRenderer axisRenderer;
-    dynamic value;
+    String value;
     Size labelSize;
     Rect labelRect, validatedRect;
     CrosshairRenderArgs crosshairEventArgs;
@@ -482,29 +375,29 @@ class _CrosshairPainter extends CustomPainter {
       axis = axisRenderer._axis;
       if (_needToAddTooltip(axisRenderer)) {
         fillPaint.color = axis.interactiveTooltip.color ??
-            chartState._chartTheme.crosshairBackgroundColor;
+            _renderingDetails.chartTheme.crosshairBackgroundColor;
         strokePaint.color = axis.interactiveTooltip.borderColor ??
-            chartState._chartTheme.crosshairBackgroundColor;
+            _renderingDetails.chartTheme.crosshairBackgroundColor;
         strokePaint.strokeWidth = axis.interactiveTooltip.borderWidth;
         value = _getYValue(axisRenderer, position);
         if (chart.onCrosshairPositionChanging != null) {
           crosshairEventArgs = CrosshairRenderArgs(
               axis, value, axisRenderer._name, axisRenderer._orientation);
-          crosshairEventArgs.text = value.toString();
+          crosshairEventArgs.text = value;
           crosshairEventArgs.lineColor = chart.crosshairBehavior.lineColor ??
-              chartState._chartTheme.crosshairLineColor;
+              _renderingDetails.chartTheme.crosshairLineColor;
           chart.onCrosshairPositionChanging!(crosshairEventArgs);
           value = crosshairEventArgs.text;
           color = crosshairEventArgs.lineColor;
         }
-        labelSize =
-            measureText(value.toString(), axis.interactiveTooltip.textStyle);
+        labelSize = measureText(value, axis.interactiveTooltip.textStyle);
         labelRect = Rect.fromLTWH(
             axisRenderer._bounds.left + axis.interactiveTooltip.arrowLength,
             position.dy - (labelSize.height / 2 + padding / 2),
             labelSize.width + padding,
             labelSize.height + padding);
-        labelRect = _validateRectBounds(labelRect, chartState._containerRect);
+        labelRect = _validateRectBounds(
+            labelRect, _renderingDetails.chartContainerRect);
         validatedRect = _validateRectYPosition(labelRect, chartState);
         backgroundPath.reset();
         tooltipRect = _getRoundedCornerRect(
@@ -527,51 +420,49 @@ class _CrosshairPainter extends CustomPainter {
             position.dy,
             tooltipRect.left - axis.interactiveTooltip.arrowLength,
             position.dy);
-        _drawText(
-            canvas,
-            value.toString(),
-            Offset(
-                (tooltipRect.left + tooltipRect.width / 2) -
-                    labelSize.width / 2,
-                (tooltipRect.top + tooltipRect.height / 2) -
-                    labelSize.height / 2),
-            TextStyle(
-                color: axis.interactiveTooltip.textStyle.color ??
-                    chartState._chartTheme.tooltipLabelColor,
-                fontSize: axis.interactiveTooltip.textStyle.fontSize,
-                fontWeight: axis.interactiveTooltip.textStyle.fontWeight,
-                fontFamily: axis.interactiveTooltip.textStyle.fontFamily,
-                fontStyle: axis.interactiveTooltip.textStyle.fontStyle,
-                inherit: axis.interactiveTooltip.textStyle.inherit,
-                backgroundColor:
-                    axis.interactiveTooltip.textStyle.backgroundColor,
-                letterSpacing: axis.interactiveTooltip.textStyle.letterSpacing,
-                wordSpacing: axis.interactiveTooltip.textStyle.wordSpacing,
-                textBaseline: axis.interactiveTooltip.textStyle.textBaseline,
-                height: axis.interactiveTooltip.textStyle.height,
-                locale: axis.interactiveTooltip.textStyle.locale,
-                foreground: axis.interactiveTooltip.textStyle.foreground,
-                background: axis.interactiveTooltip.textStyle.background,
-                shadows: axis.interactiveTooltip.textStyle.shadows,
-                fontFeatures: axis.interactiveTooltip.textStyle.fontFeatures,
-                decoration: axis.interactiveTooltip.textStyle.decoration,
-                decorationColor:
-                    axis.interactiveTooltip.textStyle.decorationColor,
-                decorationStyle:
-                    axis.interactiveTooltip.textStyle.decorationStyle,
-                decorationThickness:
-                    axis.interactiveTooltip.textStyle.decorationThickness,
-                debugLabel: axis.interactiveTooltip.textStyle.debugLabel,
-                fontFamilyFallback:
-                    axis.interactiveTooltip.textStyle.fontFamilyFallback),
-            0);
+        _drawTooltipText(canvas, value, axis.interactiveTooltip.textStyle,
+            tooltipRect, labelSize);
       }
     }
   }
 
+  void _drawTooltipText(Canvas canvas, String text, TextStyle textStyle,
+      RRect tooltipRect, Size labelSize) {
+    _drawText(
+        canvas,
+        text,
+        Offset((tooltipRect.left + tooltipRect.width / 2) - labelSize.width / 2,
+            (tooltipRect.top + tooltipRect.height / 2) - labelSize.height / 2),
+        TextStyle(
+            color: textStyle.color ??
+                _renderingDetails.chartTheme.tooltipLabelColor,
+            fontSize: textStyle.fontSize,
+            fontWeight: textStyle.fontWeight,
+            fontFamily: textStyle.fontFamily,
+            fontStyle: textStyle.fontStyle,
+            inherit: textStyle.inherit,
+            backgroundColor: textStyle.backgroundColor,
+            letterSpacing: textStyle.letterSpacing,
+            wordSpacing: textStyle.wordSpacing,
+            textBaseline: textStyle.textBaseline,
+            height: textStyle.height,
+            locale: textStyle.locale,
+            foreground: textStyle.foreground,
+            background: textStyle.background,
+            shadows: textStyle.shadows,
+            fontFeatures: textStyle.fontFeatures,
+            decoration: textStyle.decoration,
+            decorationColor: textStyle.decorationColor,
+            decorationStyle: textStyle.decorationStyle,
+            decorationThickness: textStyle.decorationThickness,
+            debugLabel: textStyle.debugLabel,
+            fontFamilyFallback: textStyle.fontFamilyFallback),
+        0);
+  }
+
   /// To find the x value of crosshair
-  dynamic _getXValue(ChartAxisRenderer axisRenderer, Offset position) {
-    final dynamic value = _pointToXVal(
+  String _getXValue(ChartAxisRenderer axisRenderer, Offset position) {
+    final num value = _pointToXVal(
         chart,
         axisRenderer,
         axisRenderer._bounds,
@@ -592,7 +483,7 @@ class _CrosshairPainter extends CustomPainter {
   }
 
   /// To find the y value of crosshair
-  dynamic _getYValue(ChartAxisRenderer axisRenderer, Offset position) {
+  String _getYValue(ChartAxisRenderer axisRenderer, Offset position) {
     final num value = _pointToYVal(
         chart,
         axisRenderer,
@@ -616,7 +507,7 @@ class _CrosshairPainter extends CustomPainter {
   /// To add the tooltip for crosshair
   bool _needToAddTooltip(ChartAxisRenderer axisRenderer) {
     return axisRenderer._axis.interactiveTooltip.enable &&
-        ((!(axisRenderer is CategoryAxisRenderer) &&
+        ((axisRenderer is! CategoryAxisRenderer &&
                 axisRenderer._visibleLabels.isNotEmpty) ||
             (axisRenderer is CategoryAxisRenderer &&
                 axisRenderer._labels.isNotEmpty));

@@ -11,7 +11,7 @@ class ChartCollection extends ChartHelper {
   /// ```
   ChartCollection(Worksheet worksheet) {
     _worksheet = worksheet;
-    _innerList = [];
+    _innerList = <Chart>[];
   }
 
   /// Parent worksheet.
@@ -39,7 +39,7 @@ class ChartCollection extends ChartHelper {
   }
 
   /// Indexer of the class
-  Chart operator [](index) => innerList[index];
+  Chart operator [](dynamic index) => innerList[index];
 
   /// Add chart to the chart collection.
   ///

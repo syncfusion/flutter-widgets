@@ -66,7 +66,7 @@ class StackedAreaSegment extends ChartSegment {
   /// Draws segment in series bounds.
   @override
   void onPaint(Canvas canvas) {
-    _renderStackedAreaSeries(_seriesRenderer, fillPaint!, strokePaint!, canvas,
-        _seriesIndex, getFillPaint(), _path, _strokePath!);
+    _drawStackedAreaPath(
+        _path, _strokePath!, _seriesRenderer, canvas, fillPaint!, strokePaint!);
   }
 }

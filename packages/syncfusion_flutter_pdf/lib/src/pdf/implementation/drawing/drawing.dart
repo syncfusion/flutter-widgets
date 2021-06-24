@@ -11,13 +11,13 @@ class _Size {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
-    return other is _Size
-        ? width == other.width && height == other.height
-        : false;
+    return other is _Size && width == other.width && height == other.height;
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode => width.hashCode;
 
   /// Gets or sets the width value.
@@ -42,11 +42,13 @@ class _Point {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
-    return other is _Point ? x == other.x && y == other.y : false;
+    return other is _Point && x == other.x && y == other.y;
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode => x.hashCode;
 
   /// Gets or sets the x value.
@@ -74,16 +76,17 @@ class _Rectangle {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
-    return other is _Rectangle
-        ? x == other.x &&
-            y == other.y &&
-            height == other.height &&
-            width == other.width
-        : false;
+    return other is _Rectangle &&
+        x == other.x &&
+        y == other.y &&
+        height == other.height &&
+        width == other.width;
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode => x.hashCode;
 
   /// Gets or sets the [x] value.

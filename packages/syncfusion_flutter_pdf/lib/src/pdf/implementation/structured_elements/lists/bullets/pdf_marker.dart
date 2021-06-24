@@ -13,7 +13,7 @@ part of pdf;
 ///   ..draw(
 ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
 /// //Save the document.
-/// final List<int> bytes = document.save();
+/// List<int> bytes = document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -33,7 +33,7 @@ abstract class PdfMarker {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// final List<int> bytes = document.save();
+  /// List<int> bytes = document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -54,7 +54,7 @@ abstract class PdfMarker {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// final List<int> bytes = document.save();
+  /// List<int> bytes = document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -76,7 +76,7 @@ abstract class PdfMarker {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// final List<int> bytes = document.save();
+  /// List<int> bytes = document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -98,7 +98,7 @@ abstract class PdfMarker {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// final List<int> bytes = document.save();
+  /// List<int> bytes = document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -120,7 +120,7 @@ abstract class PdfMarker {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// final List<int> bytes = document.save();
+  /// List<int> bytes = document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```

@@ -248,8 +248,8 @@ class _PdfReader {
           pos = position - 1;
           final Map<String, dynamic> result =
               _copyBytes(buf, 1, token.length - 1);
-          final int length = result['next'];
-          buf = result['buffer'];
+          final int length = result['next'] as int;
+          buf = result['buffer'] as List<int>?;
           position = pos;
           if (length < token.length - 1) {
             return -1;
@@ -268,7 +268,7 @@ class _PdfReader {
             List<int>.filled(_Operators.startCrossReference.length, 0);
         final Map<String, dynamic> result =
             _copyBytes(buff, 1, _Operators.startCrossReference.length);
-        buff = result['buffer'];
+        buff = result['buffer'] as List<int>?;
         if (_Operators.startCrossReference == String.fromCharCodes(buff!)) {
           isStartXref = true;
           position = ++newPosition;
@@ -300,16 +300,16 @@ class _PdfReader {
     character = _peek();
     if (_isDelimiter(_getEqualChar(character))) {
       final Map<String, dynamic> result = _appendChar(token);
-      character = result['character'];
-      token = result['token'];
+      character = result['character'] as int?;
+      token = result['token'] as String?;
       return token;
     }
     while (character != -1 &&
         !_isSeparator(_getEqualChar(character)) &&
         token != '\u0000') {
       final Map<String, dynamic> result = _appendChar(token);
-      character = result['character'];
-      token = result['token'];
+      character = result['character'] as int?;
+      token = result['token'] as String?;
       character = _peek();
     }
     return token;
@@ -351,5 +351,38 @@ class _PdfReader {
 
   bool _isSeparator(String character) {
     return _spaceCharacters.contains(character) || _isDelimiter(character);
+  }
+
+  bool _isJsonDelimiter(String character) {
+    // ignore: unnecessary_string_escapes
+    return character.contains(RegExp('[":,{}]|[\[]|]'));
+  }
+
+  String _getNextJsonToken() {
+    String token = '';
+    int character;
+    final List<int> word = <int>[];
+    _skipWhiteSpace();
+    character = _peek();
+    //Return the character if it is a delimiter character.
+    if (_isJsonDelimiter(_getEqualChar(character))) {
+      final Map<String, dynamic> result = _appendChar(token);
+      character = result['character'] as int;
+      return token = result['token'] as String;
+    }
+    //Read all character sequentially until separator read.
+    while (character != -1 &&
+        !_isJsonDelimiter(String.fromCharCode(character)) &&
+        token != '\u0000') {
+      word.add(character.toUnsigned(8));
+      _read();
+      character = _peek();
+    }
+    token = '';
+    if (word.isNotEmpty) {
+      token = utf8.decode(word);
+    }
+    word.clear();
+    return token;
   }
 }

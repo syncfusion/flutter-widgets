@@ -2,10 +2,9 @@ part of pdf;
 
 class _PdfAutomaticFieldInfo {
   // constructor
-  _PdfAutomaticFieldInfo(PdfAutomaticField field,
+  _PdfAutomaticFieldInfo(this.field,
       [_Point? location, double scalingX = 1, double scalingY = 1]) {
-    this.field = field;
-    this.location = location != null ? location : _Point.empty;
+    this.location = location ?? _Point.empty;
     scalingX = scalingX;
     scalingY = scalingY;
   }

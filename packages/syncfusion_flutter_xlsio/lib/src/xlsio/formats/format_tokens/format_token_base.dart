@@ -11,10 +11,12 @@ abstract class _FormatTokenBase {
   /// Tries to parse format string using regular expression.
   int _tryParseRegex(RegExp regex, String strFormat, int iIndex) {
     final int iFormatLength = strFormat.length;
-    if (iFormatLength == 0) throw ('strFormat - string cannot be empty');
+    if (iFormatLength == 0) {
+      throw 'strFormat - string cannot be empty';
+    }
 
     if (iIndex < 0 || iIndex > iFormatLength) {
-      throw ('iIndex - Value cannot be less than 0 or greater than Format Length');
+      throw 'iIndex - Value cannot be less than 0 or greater than Format Length';
     }
     final Match? m = regex.matchAsPrefix(strFormat, iIndex);
     if (regex.hasMatch(strFormat) && m != null && m.start == iIndex) {
@@ -42,7 +44,9 @@ abstract class _FormatTokenBase {
   }
 
   set _format(String value) {
-    if (value.isEmpty) throw ('value - string cannot be empty.');
+    if (value.isEmpty) {
+      throw 'value - string cannot be empty.';
+    }
 
     if (_strFormat != value) {
       _strFormat = value;
@@ -56,10 +60,12 @@ abstract class _FormatTokenBase {
       List<String> arrStrings, String strFormat, int iIndex, bool bIgnoreCase) {
     final int iFormatLength = strFormat.length;
 
-    if (iFormatLength == 0) throw ('strFormat - string cannot be empty.');
+    if (iFormatLength == 0) {
+      throw 'strFormat - string cannot be empty.';
+    }
 
     if (iIndex < 0 || iIndex > iFormatLength - 1) {
-      throw ('iIndex - Value cannot be less than 0 and greater than than format length - 1.');
+      throw 'iIndex - Value cannot be less than 0 and greater than than format length - 1.';
     }
     return -1;
   }

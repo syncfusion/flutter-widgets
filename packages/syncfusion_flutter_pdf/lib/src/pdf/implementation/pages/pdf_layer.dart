@@ -55,7 +55,7 @@ class PdfLayer implements _IPdfWrapper {
     if (_dictionary != null &&
         _dictionary!.containsKey(_DictionaryProperties.visible)) {
       _visible =
-          (_dictionary![_DictionaryProperties.visible] as _PdfBoolean).value!;
+          (_dictionary![_DictionaryProperties.visible]! as _PdfBoolean).value!;
     }
     return _visible;
   }
@@ -119,28 +119,28 @@ class PdfLayer implements _IPdfWrapper {
           as _PdfArray?;
       if (mediaBox != null) {
         // Lower Left X co-ordinate Value.
-        llx = (mediaBox[0] as _PdfNumber).value!.toDouble();
+        llx = (mediaBox[0]! as _PdfNumber).value!.toDouble();
         // Lower Left Y co-ordinate value.
-        lly = (mediaBox[1] as _PdfNumber).value!.toDouble();
+        lly = (mediaBox[1]! as _PdfNumber).value!.toDouble();
         // Upper right X co-ordinate value.
-        urx = (mediaBox[2] as _PdfNumber).value!.toDouble();
+        urx = (mediaBox[2]! as _PdfNumber).value!.toDouble();
         // Upper right Y co-ordinate value.
-        ury = (mediaBox[3] as _PdfNumber).value!.toDouble();
+        ury = (mediaBox[3]! as _PdfNumber).value!.toDouble();
       }
       _PdfArray? cropBox;
       if (page._dictionary.containsKey(_DictionaryProperties.cropBox)) {
         cropBox = page._dictionary._getValue(
                 _DictionaryProperties.cropBox, _DictionaryProperties.parent)
             as _PdfArray?;
-        final double cropX = (cropBox![0] as _PdfNumber).value!.toDouble();
-        final double cropY = (cropBox[1] as _PdfNumber).value!.toDouble();
-        final double cropRX = (cropBox[2] as _PdfNumber).value!.toDouble();
-        final double cropRY = (cropBox[3] as _PdfNumber).value!.toDouble();
+        final double cropX = (cropBox![0]! as _PdfNumber).value!.toDouble();
+        final double cropY = (cropBox[1]! as _PdfNumber).value!.toDouble();
+        final double cropRX = (cropBox[2]! as _PdfNumber).value!.toDouble();
+        final double cropRY = (cropBox[3]! as _PdfNumber).value!.toDouble();
         if ((cropX < 0 || cropY < 0 || cropRX < 0 || cropRY < 0) &&
             (cropY.abs().floor() == page.size.height.abs().floor()) &&
             (cropX.abs().floor()) == page.size.width.abs().floor()) {
-          final Size pageSize =
-              Size([cropX, cropRX].reduce(max), [cropY, cropRY].reduce(max));
+          final Size pageSize = Size(<double>[cropX, cropRX].reduce(max),
+              <double>[cropY, cropRY].reduce(max));
           _graphics = PdfGraphics._(pageSize, resources, _content!);
         } else {
           _graphics = PdfGraphics._(page.size, resources, _content!);
@@ -149,8 +149,8 @@ class PdfLayer implements _IPdfWrapper {
       } else if ((llx < 0 || lly < 0 || urx < 0 || ury < 0) &&
           (lly.abs().floor() == page.size.height.abs().floor()) &&
           (urx.abs().floor() == page.size.width.abs().floor())) {
-        final Size pageSize =
-            Size([llx, urx].reduce(max), [lly, ury].reduce(max));
+        final Size pageSize = Size(
+            <double>[llx, urx].reduce(max), <double>[lly, ury].reduce(max));
         if (pageSize.width <= 0 || pageSize.height <= 0) {
           _graphics = PdfGraphics._(pageSize, resources, _content!);
         }
@@ -237,15 +237,15 @@ class PdfLayer implements _IPdfWrapper {
       graphics!.translateTransform(0, page.size.height);
       graphics.rotateTransform(-90);
       if (cropBox != null) {
-        final double height = (cropBox[3] as _PdfNumber).value!.toDouble();
+        final double height = (cropBox[3]! as _PdfNumber).value!.toDouble();
         final Size cropBoxSize = Size(
-            (cropBox[2] as _PdfNumber).value!.toDouble(),
+            (cropBox[2]! as _PdfNumber).value!.toDouble(),
             height != 0
                 ? height
-                : (cropBox[1] as _PdfNumber).value!.toDouble());
+                : (cropBox[1]! as _PdfNumber).value!.toDouble());
         final Offset cropBoxOffset = Offset(
-            (cropBox[0] as _PdfNumber).value!.toDouble(),
-            (cropBox[1] as _PdfNumber).value!.toDouble());
+            (cropBox[0]! as _PdfNumber).value!.toDouble(),
+            (cropBox[1]! as _PdfNumber).value!.toDouble());
         if (page.size.height < cropBoxSize.height) {
           graphics._clipBounds.size = _Size(page.size.height - cropBoxOffset.dy,
               cropBoxSize.width - cropBoxOffset.dx);
@@ -330,7 +330,7 @@ class PdfLayer implements _IPdfWrapper {
     if (_document != null && _document!._isLoadedDocument) {
       for (int i = 0; i < _document!.pages.count; i++) {
         final _PdfDictionary pageDictionary = _document!.pages[i]._dictionary;
-        final PdfPage? page = _document!.pages[i];
+        final PdfPage page = _document!.pages[i];
         if (pageDictionary.containsKey(_DictionaryProperties.resources)) {
           final _PdfDictionary? resources = _PdfCrossTable._dereference(
                   pageDictionary[_DictionaryProperties.resources])
@@ -357,12 +357,12 @@ class PdfLayer implements _IPdfWrapper {
             }
             if (xObject != null) {
               xObject._items!.forEach((_PdfName? key, _IPdfPrimitive? value) {
-                _PdfReferenceHolder reference = value as _PdfReferenceHolder;
-                _PdfDictionary dictionary = reference.object as _PdfDictionary;
+                _PdfReferenceHolder reference = value! as _PdfReferenceHolder;
+                _PdfDictionary dictionary = reference.object! as _PdfDictionary;
                 if (dictionary.containsKey('OC')) {
                   final _PdfName? layerID = key;
-                  reference = dictionary['OC'] as _PdfReferenceHolder;
-                  dictionary = _PdfCrossTable._dereference(dictionary['OC'])
+                  reference = dictionary['OC']! as _PdfReferenceHolder;
+                  dictionary = _PdfCrossTable._dereference(dictionary['OC'])!
                       as _PdfDictionary;
                   final bool isPresent =
                       _parsingDictionary(dictionary, reference, page, layerID)!;
@@ -403,7 +403,7 @@ class PdfLayer implements _IPdfWrapper {
           } else {
             for (int a = 0; a < pdfArray.count; a++) {
               if (pdfArray[a] is _PdfReferenceHolder) {
-                reference = pdfArray[a] as _PdfReferenceHolder;
+                reference = pdfArray[a]! as _PdfReferenceHolder;
                 dictionary = reference.object as _PdfDictionary?;
                 _isPresent = _setLayerPage(reference, page, layerID);
               }

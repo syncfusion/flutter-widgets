@@ -12,6 +12,7 @@ import 'package:flutter/rendering.dart';
 /// Provides the property of [start], [end], [color], [borderColor], and
 /// [borderWidth] to customize the appearance.
 ///
+@immutable
 class SparkChartPlotBand {
   /// Creates an instance of spark chart plot band to add and customizes the
   /// plot band in spark chart widget. To make, the plot band visible, define
@@ -29,7 +30,7 @@ class SparkChartPlotBand {
   ///  );
   /// }
   /// ```
-  SparkChartPlotBand(
+  const SparkChartPlotBand(
       {this.color = const Color.fromRGBO(191, 212, 252, 0.5),
       this.start,
       this.end,

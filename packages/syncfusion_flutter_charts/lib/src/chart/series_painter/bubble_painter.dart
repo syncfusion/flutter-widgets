@@ -22,19 +22,18 @@ class _BubbleChartPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
     final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer!;
+    final _RenderingDetails renderingDetails = chartState._renderingDetails;
     final List<CartesianChartPoint<dynamic>> dataPoints =
         seriesRenderer._dataPoints;
     double animationFactor;
     final BubbleSeries<dynamic, dynamic> series =
-        seriesRenderer._series as BubbleSeries;
+        seriesRenderer._series as BubbleSeries<dynamic, dynamic>;
     if (seriesRenderer._visible!) {
       canvas.save();
       assert(
           // ignore: unnecessary_null_comparison
-          series.animationDuration != null
-              ? series.animationDuration >= 0
-              : true,
-          'The animation duration of the bubble series must be greater than or equal to 0.');
+          !(series.animationDuration != null) || series.animationDuration >= 0,
+          'The animation duration of the bar series must be greater than or equal to 0.');
       final int seriesIndex = painterKey.index;
       seriesRenderer._storeSeriesProperties(chartState, seriesIndex);
       animationFactor = seriesRenderer._seriesAnimation != null
@@ -64,7 +63,7 @@ class _BubbleChartPainter extends CustomPainter {
       }
       canvas.restore();
       if ((series.animationDuration <= 0 ||
-              (!chartState._initialRender! &&
+              (!renderingDetails.initialRender! &&
                   !seriesRenderer._needAnimateSeriesElements) ||
               animationFactor >= chartState._seriesDurationFactor) &&
           (series.markerSettings.isVisible ||

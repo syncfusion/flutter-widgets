@@ -39,13 +39,12 @@ class PdfListItem {
   /// document.dispose();
   /// ```
   PdfListItem(
-      {String text = '',
+      {this.text = '',
       this.font,
       PdfStringFormat? format,
       this.pen,
       this.brush,
       this.subList}) {
-    this.text = text;
     stringFormat = format;
   }
 

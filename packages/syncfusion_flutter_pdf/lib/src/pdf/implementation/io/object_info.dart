@@ -22,7 +22,7 @@ class _ObjectInfo {
   //Properties
   bool? get _modified {
     if (_object is _IPdfChangable) {
-      _isModified |= (_object as _IPdfChangable).changed!;
+      _isModified |= (_object! as _IPdfChangable).changed!;
     }
     return _isModified;
   }

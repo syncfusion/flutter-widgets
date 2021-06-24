@@ -11,9 +11,9 @@ part of pdf;
 ///     .graphics
 ///     .drawRectangle(pen: PdfPens.black,
 ///     bounds: Rect.fromLTWH(0, 0, 200, 100));
-/// // Save the document.
+/// //Save the document.
 /// List<int> bytes = doc.save();
-/// // Dispose the document.
+/// //Dispose the document.
 /// doc.dispose();
 /// ```
 class PdfPens {

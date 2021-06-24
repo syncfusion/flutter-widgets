@@ -33,7 +33,7 @@ class _AutoFitManager {
 
   /// Measures the character ranges.
   int _measureCharacterRanges(
-      Style style, String strText, int _num, Rectangle rectF) {
+      Style style, String strText, int _num, Rectangle<num> rectF) {
     Font? font2;
     final _FontStyle regular = _FontStyle._regular;
     double size = 10;
@@ -52,10 +52,10 @@ class _AutoFitManager {
     font2 = _createFont(familyName, size, regular);
 
     if (style.rotation == 90) {
-      return ((((_getFontHeight(font2) * 1.1) + 0.5)) + 6).toInt();
+      return (((_getFontHeight(font2) * 1.1) + 0.5) + 6).toInt();
     }
 
-    final Rectangle bounds = _measureString(strText, font2, rectF, false);
+    final Rectangle<num> bounds = _measureString(strText, font2, rectF, false);
     if (style.rotation == 0 || style.rotation == 0xff) {
       int num2 = (bounds.width + 0.5).toInt() + _num;
       if (num2 > 100) {
@@ -63,7 +63,7 @@ class _AutoFitManager {
       }
       return num2;
     }
-    final int num3 = ((bounds.width + 0.5)).toInt() + _num;
+    final int num3 = (bounds.width + 0.5).toInt() + _num;
     final int num4 = ((_getFontHeight(font2) * 1.1) + 0.5).toInt();
     final double d = (3.1415926535897931 * style.rotation.abs()) / 180.0;
     font2 = null;
@@ -71,8 +71,8 @@ class _AutoFitManager {
   }
 
   /// Measures the character ranges.
-  int _measureCharacterRangesStyle(
-      _StyleWithText styleWithText, int paramNum, Rectangle rectF, int column) {
+  int _measureCharacterRangesStyle(_StyleWithText styleWithText, int paramNum,
+      Rectangle<num> rectF, int column) {
     int _num = 0;
     final Font font = _createFont(
         styleWithText._fontName, styleWithText._size, styleWithText._style!);
@@ -96,7 +96,7 @@ class _AutoFitManager {
             indentLevel =
                 indentLevel * 2.55 + 9; // one indent is equal to 9 pixels.
           } else {
-            indentLevel = ((text.length) * 2 - indentLevel - 9);
+            indentLevel = (text.length) * 2 - indentLevel - 9;
           }
 
           for (int idx = 1; idx <= indentLevel; idx++) {
@@ -111,8 +111,12 @@ class _AutoFitManager {
       if (defIndentWidthinPixels > 0) {
         num3 += defIndentWidthinPixels - paramNum;
       }
-      if (num3 > 100) num3++;
-      if (_num < num3) _num = num3;
+      if (num3 > 100) {
+        num3++;
+      }
+      if (_num < num3) {
+        _num = num3;
+      }
     }
 
     return _num;
@@ -150,8 +154,8 @@ class _AutoFitManager {
     return _book._getTextSizeFromFont('a', font)._height;
   }
 
-  Rectangle _measureString(
-      String text, Font font, Rectangle rectF, bool isAutoFitRow) {
+  Rectangle<num> _measureString(
+      String text, Font font, Rectangle<num> rectF, bool isAutoFitRow) {
     return _book._getMeasuredRectangle(text, font, rectF);
   }
 
@@ -195,7 +199,7 @@ class _AutoFitManager {
       swText._fontName = name;
       if (autoFilter &&
           (alignment != HAlignType.left && alignment != HAlignType.center)) {
-        swText._size = (size + _defaultAutoFilterFontSize);
+        swText._size = size + _defaultAutoFilterFontSize;
         // swText._fontSizeIncreased = true;
       } else {
         swText._size = size;
@@ -208,14 +212,14 @@ class _AutoFitManager {
 
   /// Measures to fit column.
   void _measureToFitColumn() {
-    final int _num = 14;
+    const int _num = 14;
     final int firstRow = _row;
     final int lastRow = _lastRow;
     final int firstColumn = _column;
     final int lastColumn = _lastColumn;
     final Map<int, List<Object>> measurable = <int, List<Object>>{};
     final Map<int, int> columnsWidth = <int, int>{};
-    final Rectangle ef = Rectangle(0, 0, 1800, 100);
+    const Rectangle<num> ef = Rectangle<num>(0, 0, 1800, 100);
 
     for (int row = firstRow; row <= lastRow; row++) {
       for (int column = firstColumn; column <= lastColumn; column++) {
@@ -228,9 +232,10 @@ class _AutoFitManager {
         int num4 = 0;
 
         final bool autofit = migrantRange._bAutofitText;
-        final List result = Range._isMergedCell(migrantRange, false, num4);
-        num4 = result[0];
-        final bool isMerged = result[1];
+        final List<dynamic> result =
+            Range._isMergedCell(migrantRange, false, num4);
+        num4 = result[0] as int;
+        final bool isMerged = result[1] as bool;
 
         if (!isMerged || num4 != 0) {
           if (!autofit) {
@@ -246,7 +251,7 @@ class _AutoFitManager {
           }
 
           migrantRange = _worksheet.getRangeByIndex(row, column);
-          final bool hasWrapText = (style.wrapText);
+          final bool hasWrapText = style.wrapText;
           if (!hasWrapText) {
             text = text.replaceAll('\n', '');
           }
@@ -254,7 +259,7 @@ class _AutoFitManager {
             List<Object>? arrList =
                 (measurable.containsKey(column)) ? measurable[column] : null;
             if (arrList == null) {
-              arrList = [];
+              arrList = <Object>[];
               measurable[column] = arrList;
             }
             final HAlignType horizontalAlignment = style.hAlign;
@@ -364,17 +369,21 @@ class _AutoFitManager {
         final _StyleWithText styleWithText = list3[k] as _StyleWithText;
         final int num10 =
             _measureCharacterRangesStyle(styleWithText, _num, ef, key);
-        if (num8 < num10) num8 = num10;
+        if (num8 < num10) {
+          num8 = num10;
+        }
       }
       final int num11 =
           (columnsWidth.containsKey(key)) ? columnsWidth[key]! : 0;
-      if (num8 > num11) columnsWidth[key] = num8;
+      if (num8 > num11) {
+        columnsWidth[key] = num8;
+      }
     }
 
     for (final int key in columnsWidth.keys) {
       final int num12 = columnsWidth[key]!;
       if (num12 != 0) {
-        _worksheet._setColumnWidthInPixels(key, num12, true);
+        _worksheet._setColumnWidthInPixels(key, num12);
       }
     }
   }
@@ -386,13 +395,13 @@ class _AutoFitManager {
     font.size = format.fontSize;
     double num9 = 0;
     double num6 = 0;
-    final int number = 19;
+    const int number = 19;
 
     if (stringValue.isEmpty) {
       return 0;
     } else {
-      final double calculatedValue = ((stringValue.length / 406) * (font.size) +
-          (2 * ((font.bold || font.italic) ? 1 : 0)));
+      final double calculatedValue = (stringValue.length / 406) * (font.size) +
+          (2 * ((font.bold || font.italic) ? 1 : 0));
       num9 = (calculatedValue < columnWidth)
           ? columnWidth.toDouble()
           : calculatedValue;
@@ -424,22 +433,22 @@ class _AutoFitManager {
     }
 
     final Font font2 = _createFont(font.name, size, regular);
-    final double num2 = 0;
-    final double num3 = 0;
-    final double num4 = 600;
+    const double num2 = 0;
+    const double num3 = 0;
+    const double num4 = 600;
     if (!format.wrapText) {
       columnWidth = 600;
     } else if (columnWidth < 100) {
       if (format.hAlign == HAlignType.left ||
           format.hAlign == HAlignType.right) {
-        columnWidth = (columnWidth - 1);
+        columnWidth = columnWidth - 1;
       }
     } else {
-      columnWidth = (columnWidth - 2);
+      columnWidth = columnWidth - 2;
     }
 
-    final Rectangle ef = Rectangle(num2, num3, columnWidth, num4);
-    final Rectangle bounds = _measureString(stringValue, font2, ef, true);
+    final Rectangle<num> ef = Rectangle<num>(num2, num3, columnWidth, num4);
+    final Rectangle<num> bounds = _measureString(stringValue, font2, ef, true);
     double num5;
 
     num5 = (bounds.height).ceilToDouble();
@@ -454,17 +463,17 @@ class _AutoFitManager {
       final int num6 = _calculateFontHeight(font);
       double num7 = bounds.height as double;
       if (num7 > 100) {
-        num7 = (num7 + 1);
+        num7 = num7 + 1;
       }
-      int num8 = ((num7 * 1.0) / (num6)).ceil();
+      int num8 = ((num7 * 1.0) / num6).ceil();
       if (num7 > 100) {
-        num8 = ((((num7 * 1.0) / (num6))) + 1).toInt();
+        num8 = (((num7 * 1.0) / num6) + 1).toInt();
       }
       if (num8 == 1) {
         return _calculateFontHeightFromGraphics(font);
       }
       final StringBuffer buffer = StringBuffer();
-      for (int i = 0; i < num8; i = (i + 1)) {
+      for (int i = 0; i < num8; i = i + 1) {
         buffer.write('0');
         if (i + 1 < num8) {
           buffer.write('\n');
@@ -474,13 +483,13 @@ class _AutoFitManager {
     }
     final int num10 = format.rotation.abs();
     if (num10 == 90) {
-      return (((bounds.width + 0.5)) + number);
+      return (bounds.width + 0.5) + number;
     }
-    final int num11 = (((bounds.width + 0.5)) + number).toInt();
+    final int num11 = ((bounds.width + 0.5) + number).toInt();
     final int num12 = ((_getFontHeight(font2) * 1.1) + 0.5).toInt();
-    return ((((num11 * sin(((3.1415926535897931 * num10) / 180.0))) +
-            (num12 * cos(((3.1415926535897931 * num10) / 180.0)))) +
-        6.5));
+    return (num11 * sin((3.1415926535897931 * num10) / 180.0)) +
+        (num12 * cos((3.1415926535897931 * num10) / 180.0)) +
+        6.5;
   }
 
   double _calculateFontHeightFromGraphics(Font font) {
@@ -495,12 +504,12 @@ class _AutoFitManager {
     double num3 = _getFontHeight(font2).ceilToDouble();
     if (((font.size >= 20) || (num3 > 100)) ||
         ((font.size == 12) && font.bold)) {
-      num3 = (num3 + 1);
+      num3 = num3 + 1;
     }
     if (font.size == 8) {
-      num3 = (num3 + 2);
+      num3 = num3 + 2;
     } else if (font.size < 10) {
-      num3 = (num3 + 1);
+      num3 = num3 + 1;
     }
     return num3;
   }
@@ -526,14 +535,14 @@ class _AutoFitManager {
     final Font font =
         _createFont(extendedFromat.fontName, size, _FontStyle._regular);
 
-    final double num2 = 0;
-    final double num3 = 0;
-    final double num4 = 600;
+    const double num2 = 0;
+    const double num3 = 0;
+    const double num4 = 600;
     if (!extendedFromat.wrapText) {
       columnWidth = 600;
     }
-    final Rectangle ef = Rectangle(num2, num3, columnWidth, num4);
-    return ((_measureString(stringValue, font, ef, true).height * 1.1 + 0.5));
+    final Rectangle<num> ef = Rectangle<num>(num2, num3, columnWidth, num4);
+    return (_measureString(stringValue, font, ef, true).height * 1.1) + 0.5;
   }
 
   String _modifySepicalChar(String stringValue) {
@@ -572,7 +581,7 @@ class _AutoFitManager {
 class _StyleWithText {
   /// Creates an new instances of the Workbook.
   _StyleWithText() {
-    _strValues = [];
+    _strValues = <String>[];
   }
   String _fontName = '';
   double _size = 0;
@@ -636,26 +645,26 @@ class _FontMetrics {
 
   /// Returns ascent taking into consideration font's size.
   double _getAscent(Font format) {
-    return (_ascent * _chartSizeMultiplier * _getSize(format));
+    return _ascent * _chartSizeMultiplier * _getSize(format);
   }
 
   /// Returns descent taking into consideration font's size.
   double _getDescent(Font format) {
-    return (_descent * _chartSizeMultiplier * _getSize(format));
+    return _descent * _chartSizeMultiplier * _getSize(format);
   }
 
   /// Returns Line gap taking into consideration font's size.
   double _getLineGap(Font format) {
-    return (_lineGap * _chartSizeMultiplier * _getSize(format));
+    return _lineGap * _chartSizeMultiplier * _getSize(format);
   }
 
   /// Returns height taking into consideration font's size.
   double _getHeight(Font format) {
     double height;
     if (_getDescent(format) < 0) {
-      height = (_getAscent(format) - _getDescent(format) + _getLineGap(format));
+      height = _getAscent(format) - _getDescent(format) + _getLineGap(format);
     } else {
-      height = (_getAscent(format) + _getDescent(format) + _getLineGap(format));
+      height = _getAscent(format) + _getDescent(format) + _getLineGap(format);
     }
 
     return height;
@@ -673,12 +682,12 @@ class _SizeF {
     _width = width;
     _height = height;
   }
-  static _SizeF _empty = _SizeF(0, 0);
+  static final _SizeF _empty = _SizeF(0, 0);
   late double _width;
   late double _height;
 
   // ignore: unused_element
   bool get _isEmpty {
-    return ((_width == 0) && (_height == 0));
+    return (_width == 0) && (_height == 0);
   }
 }

@@ -30,6 +30,7 @@ abstract class _ScrollAxisBase {
     _viewSize = 0.0;
     _headerExtent = 0.0;
     _footerExtent = 0.0;
+    _isPixelScroll = false;
     this.scrollBar = scrollBar;
     _scrollLinesHost = scrollLinesHost;
     wireScrollLinesHost();
@@ -139,13 +140,13 @@ abstract class _ScrollAxisBase {
   /// @value
   /// `true` if this instance supports pixel scrolling, otherwise `false`.
   bool get isPixelScroll => _isPixelScroll;
-  bool _isPixelScroll = false;
+  late bool _isPixelScroll;
 
   /// Gets the last visible line.
   ///
   /// Returns the last visible line.
   _VisibleLineInfo? get lastBodyVisibleLine {
-    final visibleLines = getVisibleLines();
+    final _VisibleLinesCollection visibleLines = getVisibleLines();
     if (visibleLines.isEmpty ||
         visibleLines.lastBodyVisibleIndex > visibleLines.length) {
       return null;
@@ -349,15 +350,17 @@ abstract class _ScrollAxisBase {
   /// The size from `ScrollLinesHost` or if the line is being resized
   /// then get temporary value previously set with `SetLineResize`.
   /// If size is negative then `DefaultLineSize` is returned.
-  List getScrollLinesHostSize(int index, int repeatSizeCount) {
-    double size = scrollLinesHost!.getSize(index, repeatSizeCount)[0];
-    repeatSizeCount = scrollLinesHost!.getSize(index, repeatSizeCount)[1];
+  List<dynamic> getScrollLinesHostSize(int index, int repeatSizeCount) {
+    final List<dynamic> lineSize =
+        scrollLinesHost!.getSize(index, repeatSizeCount);
+    double size = lineSize[0] as double;
+    repeatSizeCount = lineSize[1] as int;
 
     if (size < 0) {
       size = defaultLineSize;
     }
 
-    return [size, repeatSizeCount];
+    return <dynamic>[size, repeatSizeCount];
   }
 
   /// Gets the size from `ScrollLinesHost` or if the line is being resized
@@ -367,18 +370,18 @@ abstract class _ScrollAxisBase {
   /// * repeatSizeCount The number of subsequent values with same size.
   /// Returns the size from `ScrollLinesHost` or if the line is being resized
   /// then get temporary value previously set with `SetLineResize`
-  List getLineSizeWithTwoArgs(int index, int? repeatSizeCount) {
+  List<dynamic> getLineSizeWithTwoArgs(int index, int? repeatSizeCount) {
     repeatSizeCount = 1;
     if (index == _lineResizeIndex) {
-      return [_lineResizeSize, repeatSizeCount];
+      return <dynamic>[_lineResizeSize, repeatSizeCount];
     }
 
     if (scrollLinesHost == null) {
       repeatSizeCount = _MathHelper.maxvalue;
-      return [defaultLineSize, repeatSizeCount];
+      return <dynamic>[defaultLineSize, repeatSizeCount];
     }
 
-    return [
+    return <dynamic>[
       getScrollLinesHostSize(index, repeatSizeCount)[0],
       getScrollLinesHostSize(index, repeatSizeCount)[1]
     ];
@@ -390,7 +393,7 @@ abstract class _ScrollAxisBase {
   /// Returns the size of the line.
   double getLineSize(int index) {
     int? repeatSizeCount;
-    return getLineSizeWithTwoArgs(index, repeatSizeCount)[0];
+    return getLineSizeWithTwoArgs(index, repeatSizeCount)[0] as double;
   }
 
   /// Gets the index of the next scroll line.
@@ -406,8 +409,10 @@ abstract class _ScrollAxisBase {
   void getOriginAndCornerOfBodyRegion(double origin, double corner) {
     int scrollLineIndex = 0;
     double scrollOffset = 0.0;
-    scrollLineIndex = getScrollLineIndex(scrollLineIndex, scrollOffset)[0];
-    scrollOffset = getScrollLineIndex(scrollLineIndex, scrollOffset)[1];
+    final List<dynamic> lineInfo =
+        getScrollLineIndex(scrollLineIndex, scrollOffset);
+    scrollLineIndex = lineInfo[0] as int;
+    scrollOffset = lineInfo[1] as double;
     final double arrangeSize = renderSize;
     final double adjustedFooterExtent =
         adjustFooterExtentToAvoidGap(footerExtent, arrangeSize);
@@ -427,7 +432,7 @@ abstract class _ScrollAxisBase {
   /// * scrollLineOffset The scroll line offset.
   /// * isRightToLeft The boolean value used to calculate visible columns
   /// in right to left mode.
-  List getScrollLineIndex(int scrollLineIndex, double scrollLineOffset,
+  List<dynamic> getScrollLineIndex(int scrollLineIndex, double scrollLineOffset,
       [bool isRightToLeft = false]);
 
   /// Gets the maximum range
@@ -472,10 +477,10 @@ abstract class _ScrollAxisBase {
           int scrollLineIndex = 0;
           double scrollOffset = 0.0;
           final int headerLineCount = this.headerLineCount;
-          final List scrollLineValues =
+          final List<dynamic> scrollLineValues =
               getScrollLineIndex(scrollLineIndex, scrollOffset);
-          scrollLineIndex = scrollLineValues[0];
-          scrollOffset = scrollLineValues[1];
+          scrollLineIndex = scrollLineValues[0] as int;
+          scrollOffset = scrollLineValues[1] as double;
           final int firstFooterLine = lineCount - footerLineCount;
           final double footerStartPoint = renderSize - footerExtent;
           int index;
@@ -490,8 +495,9 @@ abstract class _ScrollAxisBase {
                   index < headerLineCount;
               index = getNextScrollLineIndex(index)) {
             final double size = getLineSize(index);
-            _visibleLines.add(_VisibleLineInfo(
-                visibleIndex++, index, size, point, 0, true, false));
+            final _VisibleLineInfo line = _VisibleLineInfo(
+                visibleIndex++, index, size, point, 0, true, false);
+            _visibleLines.add(line);
             point += size;
             lastHeaderLineIndex = index;
           }
@@ -602,10 +608,10 @@ abstract class _ScrollAxisBase {
           int scrollLineIndex = 0;
           double scrollOffset = 0.0;
           final int _headerLineCount = headerLineCount;
-          final List scrollLineValues =
+          final List<dynamic> scrollLineValues =
               getScrollLineIndex(scrollLineIndex, scrollOffset, true);
-          scrollLineIndex = scrollLineValues[0];
-          scrollOffset = scrollLineValues[1];
+          scrollLineIndex = scrollLineValues[0] as int;
+          scrollOffset = scrollLineValues[1] as double;
           final int firstFooterLine = lineCount - footerLineCount;
           int index;
           double footerStartPoint = renderSize + clip.start;
@@ -770,7 +776,8 @@ abstract class _ScrollAxisBase {
         point = max(point, 0);
       }
 
-      final lineInfo = getVisibleLines().getVisibleLineAtPoint(point);
+      final _VisibleLineInfo? lineInfo =
+          getVisibleLines().getVisibleLineAtPoint(point);
       if (lineInfo != null && (allowOutSideLines || point <= lineInfo.corner)) {
         return lineInfo;
       }
@@ -780,8 +787,9 @@ abstract class _ScrollAxisBase {
       }
 
       final _VisibleLinesCollection collection = getVisibleLines(true);
-      final reversedCollection = collection.reversed;
-      final lineInfo = reversedCollection.getVisibleLineAtPoint(point);
+      final _VisibleLinesCollection reversedCollection = collection.reversed;
+      final _VisibleLineInfo? lineInfo =
+          reversedCollection.getVisibleLineAtPoint(point);
       if (lineInfo != null && (allowOutSideLines || point <= lineInfo.corner)) {
         return lineInfo;
       }
@@ -832,9 +840,9 @@ abstract class _ScrollAxisBase {
   /// by section.
   _Int32Span getVisibleLinesRange(_ScrollAxisRegion section) {
     final _VisibleLinesCollection visibleLines = getVisibleLines();
-    var start = 0;
-    var end = 0;
-    final visibleSection = getVisibleSection(section, start, end);
+    int start = 0;
+    int end = 0;
+    final List<int> visibleSection = getVisibleSection(section, start, end);
     start = visibleSection[0];
     end = visibleSection[1];
     return _Int32Span(
@@ -858,7 +866,7 @@ abstract class _ScrollAxisBase {
   /// 1 - Body, 2 - Footer
   /// * start The start index.
   /// * end The end index.
-  List getVisibleSection(_ScrollAxisRegion section, int start, int end) {
+  List<int> getVisibleSection(_ScrollAxisRegion section, int start, int end) {
     final _VisibleLinesCollection visibleLines = getVisibleLines();
     switch (section) {
       case _ScrollAxisRegion.header:
@@ -877,7 +885,7 @@ abstract class _ScrollAxisBase {
         start = end = -1;
         break;
     }
-    return [start, end];
+    return <int>[start, end];
   }
 
   /// Returns the clipping area for the specified visible lines.
@@ -916,11 +924,11 @@ abstract class _ScrollAxisBase {
   /// * isRightToLeft The boolean value used to calculate visible columns
   /// in right to left mode.
   /// Returns the visible line.
-  _VisibleLineInfo getLineNearCorner(
+  _VisibleLineInfo? getLineNearCorner(
           double point, double hitTestPrecision, _CornerSide side,
           {bool isRightToLeft = false}) =>
-      getLineNearCorner(point, hitTestPrecision, _CornerSide.both,
-          isRightToLeft: isRightToLeft);
+      getLineNearCornerWithFourArgs(
+          point, hitTestPrecision, _CornerSide.both, isRightToLeft);
 
   /// Gets the line near the given corner point. Use this method
   /// for hit-testing row or column lines for resizing cells.
@@ -1028,7 +1036,7 @@ abstract class _ScrollAxisBase {
   /// is not in viewable area.
   /// * lastLine The last line or null if allowAdjust is false and line
   /// is not in viewable area.
-  List getLinesAndVisibility(
+  List<dynamic> getLinesAndVisibility(
       int firstIndex,
       int lastIndex,
       bool allowAdjust,
@@ -1138,7 +1146,7 @@ abstract class _ScrollAxisBase {
       lastVisible = true;
       lastLine = visibleLines.getVisibleLineNearLineIndex(lastIndex);
     }
-    return [firstVisible, lastVisible, firstLine, lastLine];
+    return <dynamic>[firstVisible, lastVisible, firstLine, lastLine];
   }
 
   /// Gets the visible lines clip points (clipped origin of first line
@@ -1153,8 +1161,8 @@ abstract class _ScrollAxisBase {
   /// corner of last line).
 
   _DoubleSpan getVisibleLinesClipPoints(int firstIndex, int lastIndex) {
-    final bool firstVisible = false;
-    final bool lastVisible = false;
+    const bool firstVisible = false;
+    const bool lastVisible = false;
     _VisibleLineInfo? firstLine, lastLine;
 
     getLinesAndVisibility(firstIndex, lastIndex, true, firstVisible,
@@ -1177,7 +1185,7 @@ abstract class _ScrollAxisBase {
     final _VisibleLinesCollection lines = getVisibleLines();
     int start = -1;
     int end = -1;
-    final visibleLineSection = getVisibleSection(region, start, end);
+    final List<int> visibleLineSection = getVisibleSection(region, start, end);
     start = visibleLineSection[0];
     end = visibleLineSection[1];
     if (start == end &&
@@ -1206,7 +1214,7 @@ abstract class _ScrollAxisBase {
     final double pageExtent = scrollPageSize - getLineSize(lineIndex);
     final int count = lineCount;
     while (extent < pageExtent && lineIndex < count && lineIndex != -1) {
-      final index = getNextScrollLineIndex(lineIndex);
+      final int index = getNextScrollLineIndex(lineIndex);
       if (index < 0) {
         break;
       }
@@ -1245,8 +1253,10 @@ abstract class _ScrollAxisBase {
         n <= hiddenRangeChangedArgs.to;
         n++) {
       int repeatSizeCount = 0;
-      final bool hide = scrollLinesHost!.getHidden(n, repeatSizeCount)[0];
-      repeatSizeCount = scrollLinesHost!.getHidden(n, repeatSizeCount)[1];
+      final List<dynamic> hiddenValue =
+          scrollLinesHost!.getHidden(n, repeatSizeCount);
+      final bool hide = hiddenValue[0] as bool;
+      repeatSizeCount = hiddenValue[1] as int;
       final int rangeTo =
           getRangeToHelper(n, hiddenRangeChangedArgs.to, repeatSizeCount);
       setLineHiddenState(n, rangeTo, hide);
@@ -1311,7 +1321,7 @@ abstract class _ScrollAxisBase {
 
   /// Resets temporary value for line size after a resize operation.
   void resetLineResize() {
-    final int repeatSizeCount = 0;
+    const int repeatSizeCount = 0;
     if (_lineResizeIndex >= 0 && _scrollLinesHost != null) {
       setLineSize(_lineResizeIndex, _lineResizeIndex,
           getScrollLinesHostSize(_lineResizeIndex, repeatSizeCount)[0]);
@@ -1326,8 +1336,9 @@ abstract class _ScrollAxisBase {
   void rangeChangedCallback(_RangeChangedArgs rangeChangedArgs) {
     for (int n = rangeChangedArgs.from; n <= rangeChangedArgs.to; n++) {
       int repeatSizeCount = 0;
-      final double size = getScrollLinesHostSize(n, repeatSizeCount)[0];
-      repeatSizeCount = getScrollLinesHostSize(n, repeatSizeCount)[1];
+      final List<dynamic> lineSize = getScrollLinesHostSize(n, repeatSizeCount);
+      final double size = lineSize[0] as double;
+      repeatSizeCount = lineSize[1] as int;
       final int rangeTo =
           getRangeToHelper(n, rangeChangedArgs.to, repeatSizeCount);
       setLineSize(n, rangeTo, size);
@@ -1373,7 +1384,8 @@ abstract class _ScrollAxisBase {
   /// * action scroll action
   void raiseChanged(_ScrollChangedAction action) {
     if (onChangedCallback != null) {
-      final scrollChangedArgs = _ScrollChangedArgs.fromArgs(action);
+      final _ScrollChangedArgs scrollChangedArgs =
+          _ScrollChangedArgs.fromArgs(action);
       onChangedCallback!(scrollChangedArgs);
     }
   }
@@ -1496,10 +1508,12 @@ abstract class _ScrollAxisBase {
   double get viewCorner {
     int scrollLineIndex = 0;
     double scrollOffset = 0.0;
-    scrollLineIndex = getScrollLineIndex(scrollLineIndex, scrollOffset)[0];
-    scrollOffset = getScrollLineIndex(scrollLineIndex, scrollOffset)[1];
-    final arrangeSize = renderSize;
-    final adjustedFooterExtent =
+    final List<dynamic> lineSize =
+        getScrollLineIndex(scrollLineIndex, scrollOffset);
+    scrollLineIndex = lineSize[0] as int;
+    scrollOffset = lineSize[1] as double;
+    final double arrangeSize = renderSize;
+    final double adjustedFooterExtent =
         adjustFooterExtentToAvoidGap(footerExtent, arrangeSize);
 
     return arrangeSize - adjustedFooterExtent;

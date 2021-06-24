@@ -81,16 +81,17 @@ class PdfPaddings {
 
   //Properties
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
-    return other is PdfPaddings
-        ? left == other.left &&
-            right == other.right &&
-            top == other.top &&
-            bottom == other.bottom
-        : false;
+    return other is PdfPaddings &&
+        left == other.left &&
+        right == other.right &&
+        top == other.top &&
+        bottom == other.bottom;
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode => _left.hashCode;
 
   /// Sets space value to all sides of a cell Left,Right,Top,Bottom.

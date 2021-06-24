@@ -70,7 +70,7 @@ class _PdfCatalog extends _PdfDictionary {
     final _IPdfPrimitive? rhMetadata = this[_DictionaryProperties.metadata];
     if (_PdfCrossTable._dereference(rhMetadata) is _PdfStream) {
       final _PdfStream xmpStream =
-          _PdfCrossTable._dereference(rhMetadata) as _PdfStream;
+          _PdfCrossTable._dereference(rhMetadata)! as _PdfStream;
       bool isFlateDecode = false;
       if (xmpStream.containsKey(_DictionaryProperties.filter)) {
         _IPdfPrimitive? obj = xmpStream[_DictionaryProperties.filter];
@@ -109,13 +109,11 @@ class _PdfCatalog extends _PdfDictionary {
       }
       XmlDocument xmp;
       try {
-        xmp =
-            XmlDocument.parse(utf8.decode(xmpStream._dataStream as List<int>));
+        xmp = XmlDocument.parse(utf8.decode(xmpStream._dataStream!));
       } catch (e) {
         xmpStream._decompress();
         try {
-          xmp = XmlDocument.parse(
-              utf8.decode(xmpStream._dataStream as List<int>));
+          xmp = XmlDocument.parse(utf8.decode(xmpStream._dataStream!));
         } catch (e1) {
           return;
         }

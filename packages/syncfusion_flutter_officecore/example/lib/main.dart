@@ -1,8 +1,9 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_xlsio/xlsio.dart' hide Column, Alignment;
-import 'package:path_provider/path_provider.dart' as path_provider;
-import 'package:open_file/open_file.dart' as open_file;
+
+//Local imports
+import 'helper/save_file_mobile.dart'
+    if (dart.library.html) 'helper/save_file_web.dart';
 
 void main() {
   runApp(CreateExcelWidget());
@@ -131,7 +132,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
 
     sheet.getRangeByName('F11').dateTime = DateTime(2020, 08, 31);
     sheet.getRangeByName('F11').numberFormat =
-        '[\$-x-sysdate]dddd, mmmm dd, yyyy';
+        r'[$-x-sysdate]dddd, mmmm dd, yyyy';
     range4.cellStyle.fontSize = 9;
     range4.cellStyle.hAlign = HAlignType.right;
 
@@ -184,7 +185,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     sheet.getRangeByIndex(18, 7).setFormula('=E18*F18+(E18*F18)');
     sheet.getRangeByIndex(19, 7).setFormula('=E19*F19+(E19*F19)');
     sheet.getRangeByIndex(20, 7).setFormula('=E20*F20+(E20*F20)');
-    sheet.getRangeByIndex(15, 6, 20, 7).numberFormat = '\$#,##0.00';
+    sheet.getRangeByIndex(15, 6, 20, 7).numberFormat = r'$#,##0.00';
 
     sheet.getRangeByName('E15:G15').cellStyle.hAlign = HAlignType.right;
     sheet.getRangeByName('B15:G15').cellStyle.fontSize = 10;
@@ -200,7 +201,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     range7.setText('TOTAL');
     range7.cellStyle.fontSize = 8;
     range8.setFormula('=SUM(G16:G20)');
-    range8.numberFormat = '\$#,##0.00';
+    range8.numberFormat = r'$#,##0.00';
     range8.cellStyle.fontSize = 24;
     range8.cellStyle.hAlign = HAlignType.right;
     range8.cellStyle.bold = true;
@@ -216,18 +217,10 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     range9.cellStyle.vAlign = VAlignType.center;
 
     //Save and launch the excel.
-    final List<int>? bytes = workbook.saveAsStream();
+    final List<int> bytes = workbook.saveAsStream();
     //Dispose the document.
     workbook.dispose();
 
-    //Get the storage folder location using path_provider package.
-    final Directory directory =
-        await path_provider.getApplicationDocumentsDirectory();
-    final String path = directory.path;
-    final File file = File('$path/output.xlsx');
-    await file.writeAsBytes(bytes!);
-
-    //Launch the file (used open_file package)
-    await open_file.OpenFile.open('$path/output.xlsx');
+    await FileSaveHelper.saveAndLaunchFile(bytes, 'Invoice.xlsx');
   }
 }

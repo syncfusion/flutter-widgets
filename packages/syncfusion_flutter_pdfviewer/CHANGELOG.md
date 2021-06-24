@@ -1,5 +1,14 @@
 ## [unreleased]
 
+* The macOS platform support has been provided.
+
+## [19.1.56-beta] - 04/13/2021
+
+* Added headers parameter in `SfPdfViewer.network`.
+* Now, PDF document will be displayed properly inside the `SizedBox` or `Container` Widgets in Web platform.
+
+## [19.1.55-beta] - 04/06/2021
+
 **Features**
 
 * The Web platform support has been provided.	

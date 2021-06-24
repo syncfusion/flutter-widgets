@@ -22,9 +22,6 @@ class SplineSegment extends ChartSegment {
   /// End point Y value
   double? endControlY;
 
-  // @override
-  // CartesianChartPoint<dynamic> _currentPoint, _nextPoint;
-
   Color? _pointColorMapper;
   late _ChartLocation _currentPointLocation, _nextPointLocation;
   late ChartAxisRenderer _xAxisRenderer, _yAxisRenderer;
@@ -128,8 +125,8 @@ class SplineSegment extends ChartSegment {
     /// Draw spline series
     if (_series.animationDuration > 0 &&
         !_seriesRenderer._reAnimate &&
-        _seriesRenderer._chartState!._widgetNeedUpdate &&
-        !_seriesRenderer._chartState!._isLegendToggled &&
+        _seriesRenderer._renderingDetails!.widgetNeedUpdate &&
+        !_seriesRenderer._renderingDetails!.isLegendToggled &&
         _seriesRenderer._chartState!._oldSeriesRenderers.isNotEmpty &&
         _oldSeries != null &&
         _oldSeriesRenderer!._segments.isNotEmpty &&

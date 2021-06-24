@@ -1,4 +1,17 @@
-## [Unreleased]
+## Unreleased
+
+**Features**
+
+* Provided the support to import data from collection objects to worksheet.
+
+## [19.1.54-beta] - 03/31/2021 
+
+**Features**
+
+* Provided the support to import data from List<Object> to worksheet.
+* Provided the support to apply conditional formatting for worksheet.
+
+## [18.4.30-beta] - 12/17/2020
 
 **Features**
 

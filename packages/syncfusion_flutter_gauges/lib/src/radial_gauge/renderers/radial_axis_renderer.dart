@@ -1,10 +1,10 @@
-import '../axis/gauge_axis.dart';
-import '../common/axis_label.dart';
+import '../../radial_gauge/axis/radial_axis.dart';
+import '../../radial_gauge/axis/radial_axis_label.dart';
 
 /// Represents the renderer for gauge axis
 abstract class GaugeAxisRenderer {
   /// Represents the gauge axis
-  late GaugeAxis axis;
+  late RadialAxis axis;
 
   /// Returns the visible labels on [GaugeAxis]
   ///

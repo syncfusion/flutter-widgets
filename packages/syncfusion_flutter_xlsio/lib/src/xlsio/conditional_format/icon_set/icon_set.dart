@@ -26,7 +26,7 @@ abstract class IconSet {
   ///
   /// //Set FormatType as IconSet.
   /// conditionalFormat.formatType = ExcelCFType.iconSet;
-  /// final IconSet iconSet = conditionalFormat.iconSet;
+  /// final IconSet iconSet = conditionalFormat.iconSet!;
   ///
   /// //Set conditions for IconCriteria.
   /// iconSet.iconSet = ExcelIconSetType.threeSymbols;
@@ -66,7 +66,7 @@ abstract class IconSet {
   ///
   /// //Set FormatType as IconSet.
   /// conditionalFormat.formatType = ExcelCFType.iconSet;
-  /// final IconSet iconSet = conditionalFormat.iconSet;
+  /// final IconSet iconSet = conditionalFormat.iconSet!;
   ///
   /// //Set conditions for IconCriteria.
   /// iconSet.iconSet = ExcelIconSetType.threeSymbols;
@@ -106,7 +106,7 @@ abstract class IconSet {
   ///
   /// //Set FormatType as IconSet.
   /// conditionalFormat.formatType = ExcelCFType.iconSet;
-  /// final IconSet iconSet = conditionalFormat.iconSet;
+  /// final IconSet iconSet = conditionalFormat.iconSet!;
   ///
   /// //Set conditions for IconCriteria.
   /// iconSet.iconSet = ExcelIconSetType.threeSymbols;
@@ -149,7 +149,7 @@ abstract class IconSet {
   ///
   /// //Set FormatType as IconSet.
   /// conditionalFormat.formatType = ExcelCFType.iconSet;
-  /// final IconSet iconSet = conditionalFormat.iconSet;
+  /// final IconSet iconSet = conditionalFormat.iconSet!;
   ///
   /// //Set conditions for IconCriteria.
   /// iconSet.iconSet = ExcelIconSetType.threeSymbols;
@@ -187,7 +187,7 @@ abstract class IconSet {
   ///
   /// //Set FormatType as IconSet.
   /// conditionalFormat.formatType = ExcelCFType.iconSet;
-  /// final IconSet iconSet = conditionalFormat.iconSet;
+  /// final IconSet iconSet = conditionalFormat.iconSet!;
   ///
   /// //Set conditions for IconCriteria.
   /// iconSet.iconSet = ExcelIconSetType.threeSymbols;

@@ -38,8 +38,10 @@ abstract class _Asn1 extends _Asn1Encode {
   //Abstract methods
   void encode(_DerStream derOut);
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode;
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other);
 
   //Implementation
@@ -72,6 +74,7 @@ abstract class _Asn1 extends _Asn1Encode {
     }
   }
 
+  @override
   List<int>? getDerEncoded() {
     final _DerStream stream = _DerStream(<int>[])..writeObject(this);
     return stream._stream;
@@ -83,7 +86,7 @@ abstract class _Asn1 extends _Asn1Encode {
 
   int getTagValue(List<_Asn1UniversalTags> tags) {
     int value = 0;
-    tags.forEach((tag) {
+    for (final _Asn1UniversalTags tag in tags) {
       switch (tag) {
         case _Asn1UniversalTags.reservedBER:
           value |= 0;
@@ -182,12 +185,13 @@ abstract class _Asn1 extends _Asn1Encode {
           value |= 128;
           break;
       }
-    });
+    }
     return value;
   }
 }
 
 abstract class _Asn1Encode implements _IAsn1 {
+  @override
   _Asn1? getAsn1();
 
   //Implementation
@@ -208,11 +212,13 @@ abstract class _Asn1Encode implements _IAsn1 {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     return getAsn1()!.getAsn1Hash();
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other);
 }
 
@@ -226,16 +232,17 @@ class _Asn1EncodeCollection {
   late List<dynamic> _encodableObjects;
 
   //Properties
-  _Asn1Encode? operator [](int index) => _encodableObjects[index];
+  _Asn1Encode? operator [](int index) =>
+      _encodableObjects[index] as _Asn1Encode?;
   int get count => _encodableObjects.length;
 
   //Implementation
   void add(List<dynamic> objs) {
-    objs.forEach((obj) {
+    for (final dynamic obj in objs) {
       if (obj is _Asn1Encode) {
         _encodableObjects.add(obj);
       }
-    });
+    }
   }
 }
 
@@ -261,11 +268,13 @@ class _Asn1Octet extends _Asn1 implements _IAsn1Octet {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     return _Asn1Constants.getHashCode(getOctets());
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object asn1) {
     if (asn1 is _DerOctet) {
       return _Asn1Constants.areEqual(getOctets(), asn1.getOctets());
@@ -299,7 +308,7 @@ class _Asn1Octet extends _Asn1 implements _IAsn1Octet {
 
   static _Asn1Octet? getOctetStringFromObject(dynamic obj) {
     if (obj == null || obj is _Asn1Octet) {
-      return obj;
+      return obj as _Asn1Octet?;
     }
     if (obj is _Asn1Tag) {
       return getOctetStringFromObject(obj.getObject());
@@ -356,7 +365,7 @@ class _Asn1Sequence extends _Asn1 {
     } else {
       result = null;
     }
-    return result;
+    return result as _IAsn1?;
   }
 
   //Implementation
@@ -364,7 +373,7 @@ class _Asn1Sequence extends _Asn1 {
     _Asn1Sequence? result;
     if (explicitly == null) {
       if (obj == null || obj is _Asn1Sequence) {
-        result = obj;
+        result = obj as _Asn1Sequence?;
       } else if (obj is _IAsn1Collection) {
         result = _Asn1Sequence.getSequence(obj.getAsn1());
       } else if (obj is List<int>) {
@@ -403,20 +412,22 @@ class _Asn1Sequence extends _Asn1 {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     int hashCode = count;
-    _objects!.forEach((o) {
+    for (final dynamic o in _objects!) {
       hashCode *= 17;
       if (o == null) {
         hashCode ^= _DerNull().getAsn1Hash();
       } else {
         hashCode ^= o.hashCode;
       }
-    });
+    }
     return hashCode;
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object asn1) {
     if (asn1 is _Asn1Sequence) {
       if (count != asn1.count) {
@@ -462,7 +473,7 @@ class _Asn1Sequence extends _Asn1 {
 
   List<int> toArray() {
     final List<int> stream = <int>[];
-    _objects!.forEach((obj) {
+    for (final dynamic obj in _objects!) {
       List<int>? buffer;
       if (obj is _Asn1Null) {
         buffer = obj.asnEncode();
@@ -476,7 +487,7 @@ class _Asn1Sequence extends _Asn1 {
       if (buffer != null && buffer.isNotEmpty) {
         stream.addAll(buffer);
       }
-    });
+    }
     return stream;
   }
 
@@ -493,7 +504,7 @@ class _Asn1Sequence extends _Asn1 {
 class _Asn1SequenceCollection extends _Asn1Encode {
   _Asn1SequenceCollection(_Asn1Sequence sequence) {
     _id = _DerObjectID.getID(sequence[0]);
-    _value = (sequence[1] as _Asn1Tag).getObject();
+    _value = (sequence[1]! as _Asn1Tag).getObject();
     if (sequence.count == 3) {
       _attributes = sequence[2] as _DerSet?;
     }
@@ -522,6 +533,7 @@ class _Asn1SequenceHelper implements _IAsn1Collection {
   int? _max;
   int? _index;
   //Implementation
+  @override
   _IAsn1? readObject() {
     if (_index == _max) {
       return null;
@@ -537,6 +549,7 @@ class _Asn1SequenceHelper implements _IAsn1Collection {
     return obj;
   }
 
+  @override
   _Asn1? getAsn1() {
     return _sequence;
   }
@@ -545,7 +558,7 @@ class _Asn1SequenceHelper implements _IAsn1Collection {
 class _Asn1Set extends _Asn1 {
   _Asn1Set([int? capacity]) {
     _objects = capacity != null
-        ? List<dynamic>.generate(capacity, (i) => null)
+        ? List<dynamic>.generate(capacity, (dynamic i) => null)
         : <dynamic>[];
   }
   //Fields
@@ -556,24 +569,26 @@ class _Asn1Set extends _Asn1 {
     return _Asn1SetHelper(this);
   }
 
-  _Asn1Encode? operator [](int index) => _objects[index];
+  _Asn1Encode? operator [](int index) => _objects[index] as _Asn1Encode?;
 
   //Implementation
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     int hc = _objects.length;
-    _objects.forEach((o) {
+    for (final dynamic o in _objects) {
       hc *= 17;
       if (o == null) {
         hc ^= _DerNull.value.getAsn1Hash();
       } else {
         hc ^= o.hashCode;
       }
-    });
+    }
     return hc;
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object asn1) {
     if (asn1 is _Asn1Set) {
       if (_objects.length != asn1._objects.length) {
@@ -657,7 +672,7 @@ class _Asn1Set extends _Asn1 {
     _Asn1Set? result;
     if (isExplicit == null) {
       if (obj == null || obj is _Asn1Set) {
-        result = obj;
+        result = obj as _Asn1Set?;
       } else if (obj is _IAsn1SetHelper) {
         result = _Asn1Set.getAsn1Set(obj.getAsn1());
       } else if (obj is List<int>) {
@@ -684,9 +699,9 @@ class _Asn1Set extends _Asn1 {
         result = inner;
       } else if (inner is _Asn1Sequence) {
         final _Asn1EncodeCollection collection = _Asn1EncodeCollection();
-        inner._objects!.forEach((entry) {
-          collection._encodableObjects.add(entry);
-        });
+        // ignore: avoid_function_literals_in_foreach_calls
+        inner._objects!.toList().forEach(
+            (dynamic entry) => collection._encodableObjects.add(entry));
         result = _DerSet(collection: collection, isSort: false);
       } else {
         throw ArgumentError.value(obj, 'obj', 'Invalid entry in sequence');
@@ -704,6 +719,7 @@ class _Asn1SetHelper implements _IAsn1SetHelper {
   _Asn1Set? _set;
   int? _max;
   int? _index;
+  @override
   _IAsn1? readObject() {
     if (_index == _max) {
       return null;
@@ -720,6 +736,7 @@ class _Asn1SetHelper implements _IAsn1SetHelper {
     }
   }
 
+  @override
   _Asn1? getAsn1() {
     return _set;
   }
@@ -736,6 +753,7 @@ class _Asn1Tag extends _Asn1 implements _IAsn1Tag {
   bool? _isExplicit;
   _Asn1Encode? _object;
   //Properties
+  @override
   int? get tagNumber {
     return _tagNumber;
   }
@@ -749,7 +767,7 @@ class _Asn1Tag extends _Asn1 implements _IAsn1Tag {
       throw ArgumentError.value(obj, 'obj', 'Explicit tag is not used');
     } else {
       if (obj == null || obj is _Asn1Tag) {
-        return obj;
+        return obj as _Asn1Tag?;
       }
       throw ArgumentError.value(obj, 'obj', 'Invalid entry in sequence');
     }
@@ -757,6 +775,7 @@ class _Asn1Tag extends _Asn1 implements _IAsn1Tag {
 
   //Implementation
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object asn1) {
     if (asn1 is _Asn1Tag) {
       return _tagNumber == asn1._tagNumber &&
@@ -768,6 +787,7 @@ class _Asn1Tag extends _Asn1 implements _IAsn1Tag {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     int code = _tagNumber.hashCode;
     if (_object != null) {
@@ -793,6 +813,7 @@ class _Asn1Tag extends _Asn1 implements _IAsn1Tag {
     return null;
   }
 
+  @override
   _IAsn1? getParser(int tagNumber, bool isExplicit) {
     switch (tagNumber) {
       case _Asn1Tags.setTag:
@@ -837,11 +858,13 @@ class _GeneralizedTime extends _Asn1 {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object asn1Object) {
     throw ArgumentError.value('Not implemented');
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     return _time.hashCode;
   }
@@ -977,7 +1000,7 @@ class _Asn1Constants {
   }
 
   static List<int> clone(List<int> data) {
-    return List<int>.generate(data.length, (i) => data[i]);
+    return List<int>.generate(data.length, (int i) => data[i]);
   }
 
   static void uInt32ToBe(int n, List<int> bs, int off) {

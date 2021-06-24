@@ -98,7 +98,7 @@ class RenderTooltip extends RenderProxyBox {
     required TreemapTooltipSettings settings,
     required MediaQueryData mediaQueryData,
     required _TreemapTooltipState state,
-  })   : _settings = settings,
+  })  : _settings = settings,
         _mediaQueryData = mediaQueryData,
         _state = state {
     _scaleAnimation =

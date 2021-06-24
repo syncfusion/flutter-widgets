@@ -32,8 +32,8 @@ abstract class PdfLinkAnnotation extends PdfAnnotation {
       _isLoadedAnnotation ? _obtainHighlightMode() : _highlightMode;
   set highlightMode(PdfHighlightMode value) {
     _highlightMode = value;
-    final String? mode = _getHighlightMode(_highlightMode);
-    _dictionary.._setName(_PdfName(_DictionaryProperties.h), mode);
+    final String mode = _getHighlightMode(_highlightMode);
+    _dictionary._setName(_PdfName(_DictionaryProperties.h), mode);
   }
 
   // implementation
@@ -66,7 +66,7 @@ abstract class PdfLinkAnnotation extends PdfAnnotation {
   PdfHighlightMode _obtainHighlightMode() {
     PdfHighlightMode mode = PdfHighlightMode.noHighlighting;
     if (_dictionary.containsKey(_DictionaryProperties.h)) {
-      final _PdfName name = _dictionary[_DictionaryProperties.h] as _PdfName;
+      final _PdfName name = _dictionary[_DictionaryProperties.h]! as _PdfName;
       switch (name._name) {
         case 'I':
           mode = PdfHighlightMode.invert;

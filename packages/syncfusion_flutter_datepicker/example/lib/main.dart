@@ -14,19 +14,10 @@ class MyApp extends StatefulWidget {
 
 /// State for MyApp
 class MyAppState extends State<MyApp> {
-  String _selectedDate;
-  String _dateCount;
-  String _range;
-  String _rangeCount;
-
-  @override
-  void initState() {
-    _selectedDate = '';
-    _dateCount = '';
-    _range = '';
-    _rangeCount = '';
-    super.initState();
-  }
+  String _selectedDate = '';
+  String _dateCount = '';
+  String _range = '';
+  String _rangeCount = '';
 
   /// The method for [DateRangePickerSelectionChanged] callback, which will be
   /// called whenever a selection changed on the date picker widget.
@@ -52,7 +43,7 @@ class MyAppState extends State<MyApp> {
                     .format(args.value.endDate ?? args.value.startDate)
                     .toString();
       } else if (args.value is DateTime) {
-        _selectedDate = args.value;
+        _selectedDate = args.value.toString();
       } else if (args.value is List<DateTime>) {
         _dateCount = args.value.length.toString();
       } else {
@@ -74,10 +65,10 @@ class MyAppState extends State<MyApp> {
                   left: 0,
                   right: 0,
                   top: 0,
-                  height: 70,
+                  height: 80,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    mainAxisSize: MainAxisSize.max,
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text('Selected date: ' + _selectedDate),

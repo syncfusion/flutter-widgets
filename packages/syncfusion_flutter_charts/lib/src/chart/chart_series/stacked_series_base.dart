@@ -36,14 +36,15 @@ abstract class _StackedSeriesBase<T, D> extends XyDataSeries<T, D> {
       double? trackPadding,
       Color? borderColor,
       double? borderWidth,
-      // ignore: deprecated_member_use_from_same_package
-      SelectionSettings? selectionSettings,
       SelectionBehavior? selectionBehavior,
       List<int>? initialSelectedDataIndexes,
       bool? isVisibleInLegend,
       LegendIconType? legendIconType,
       String? legendItemText,
       SeriesRendererCreatedCallback? onRendererCreated,
+      ChartPointInteractionCallback? onPointTap,
+      ChartPointInteractionCallback? onPointDoubleTap,
+      ChartPointInteractionCallback? onPointLongPress,
       double? opacity})
       : borderRadius = borderRadius ?? const BorderRadius.all(Radius.zero),
         trackColor = trackColor ?? Colors.grey,
@@ -79,7 +80,6 @@ abstract class _StackedSeriesBase<T, D> extends XyDataSeries<T, D> {
             animationDuration: animationDuration,
             borderColor: borderColor,
             borderWidth: borderWidth,
-            selectionSettings: selectionSettings,
             selectionBehavior: selectionBehavior,
             initialSelectedDataIndexes: initialSelectedDataIndexes,
             legendItemText: legendItemText,
@@ -87,6 +87,9 @@ abstract class _StackedSeriesBase<T, D> extends XyDataSeries<T, D> {
             legendIconType: legendIconType,
             sortingOrder: sortingOrder,
             onRendererCreated: onRendererCreated,
+            onPointTap: onPointTap,
+            onPointDoubleTap: onPointDoubleTap,
+            onPointLongPress: onPointLongPress,
             opacity: opacity);
 
   ///Customizes the corners of the column. Each corner can be customized with a desired

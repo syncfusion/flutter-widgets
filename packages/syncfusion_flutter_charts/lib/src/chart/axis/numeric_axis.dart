@@ -8,6 +8,7 @@ part of charts;
 /// Provides the options of [name], axis line, label rotation, label format, alignment and label position are
 /// used to customize the appearance.
 ///
+@immutable
 class NumericAxis extends ChartAxis {
   /// Creating an argument constructor of NumericAxis class.
   NumericAxis({
@@ -44,7 +45,7 @@ class NumericAxis extends ChartAxis {
     double? interval,
     this.visibleMinimum,
     this.visibleMaximum,
-    dynamic? crossesAt,
+    dynamic crossesAt,
     String? associatedAxisName,
     bool? placeLabelsNearAxisLine,
     List<PlotBand>? plotBands,
@@ -201,6 +202,108 @@ class NumericAxis extends ChartAxis {
   ///}
   ///```
   final int decimalPlaces;
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is NumericAxis &&
+        other.name == name &&
+        other.isVisible == isVisible &&
+        other.title == title &&
+        other.axisLine == axisLine &&
+        other.numberFormat == numberFormat &&
+        other.labelFormat == labelFormat &&
+        other.rangePadding == rangePadding &&
+        other.decimalPlaces == decimalPlaces &&
+        other.edgeLabelPlacement == edgeLabelPlacement &&
+        other.labelPosition == labelPosition &&
+        other.tickPosition == tickPosition &&
+        other.labelRotation == labelRotation &&
+        other.labelIntersectAction == labelIntersectAction &&
+        other.labelAlignment == labelAlignment &&
+        other.isInversed == isInversed &&
+        other.opposedPosition == opposedPosition &&
+        other.minorTicksPerInterval == minorTicksPerInterval &&
+        other.maximumLabels == maximumLabels &&
+        other.majorTickLines == majorTickLines &&
+        other.minorTickLines == minorTickLines &&
+        other.majorGridLines == majorGridLines &&
+        other.minorGridLines == minorGridLines &&
+        other.labelStyle == labelStyle &&
+        other.plotOffset == plotOffset &&
+        other.zoomFactor == zoomFactor &&
+        other.zoomPosition == zoomPosition &&
+        other.interactiveTooltip == interactiveTooltip &&
+        other.minimum == minimum &&
+        other.maximum == maximum &&
+        other.interval == interval &&
+        other.visibleMinimum == visibleMinimum &&
+        other.visibleMaximum == visibleMaximum &&
+        other.crossesAt == crossesAt &&
+        other.associatedAxisName == associatedAxisName &&
+        other.placeLabelsNearAxisLine == placeLabelsNearAxisLine &&
+        other.plotBands == plotBands &&
+        other.desiredIntervals == desiredIntervals &&
+        other.rangeController == rangeController &&
+        other.maximumLabelWidth == maximumLabelWidth &&
+        other.labelsExtent == labelsExtent &&
+        other.autoScrollingDelta == autoScrollingDelta &&
+        other.autoScrollingMode == autoScrollingMode;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      name,
+      isVisible,
+      title,
+      axisLine,
+      numberFormat,
+      labelFormat,
+      rangePadding,
+      decimalPlaces,
+      edgeLabelPlacement,
+      labelPosition,
+      tickPosition,
+      labelRotation,
+      labelIntersectAction,
+      labelAlignment,
+      isInversed,
+      opposedPosition,
+      minorTicksPerInterval,
+      maximumLabels,
+      majorTickLines,
+      minorTickLines,
+      majorGridLines,
+      minorGridLines,
+      labelStyle,
+      plotOffset,
+      zoomFactor,
+      zoomPosition,
+      interactiveTooltip,
+      minimum,
+      maximum,
+      interval,
+      visibleMinimum,
+      visibleMaximum,
+      crossesAt,
+      associatedAxisName,
+      placeLabelsNearAxisLine,
+      plotBands,
+      desiredIntervals,
+      rangeController,
+      maximumLabelWidth,
+      labelsExtent,
+      autoScrollingDelta,
+      autoScrollingMode
+    ];
+    return hashList(values);
+  }
 }
 
 /// Creates an axis renderer for Numeric axis.
@@ -305,8 +408,10 @@ class NumericAxisRenderer extends ChartAxisRenderer {
 
   /// Listener for range controller
   void _controlListener() {
+    _chartState._canSetRangeController = false;
     if (_axis.rangeController != null && !_chartState._rangeChangedByChart) {
       _updateRangeControllerValues(this);
+      _chartState._rangeChangeBySlider = true;
       _chartState._redrawByRangeChange();
     }
   }
@@ -320,7 +425,7 @@ class NumericAxisRenderer extends ChartAxisRenderer {
       _chartState._rangeChangeBySlider = true;
       _axis.rangeController!.addListener(_controlListener);
     }
-    final Rect containerRect = _chartState._containerRect;
+    final Rect containerRect = _chartState._renderingDetails.chartContainerRect;
     final Rect rect = Rect.fromLTWH(containerRect.left, containerRect.top,
         containerRect.width, containerRect.height);
     _axisSize = Size(rect.width, rect.height);
@@ -338,13 +443,19 @@ class NumericAxisRenderer extends ChartAxisRenderer {
   void _calculateActualRange() {
     _min ??= 0;
     _max ??= 5;
+
+    /// Below condition is for checking whether the min and max are equal and
+    /// also whether they are positive or negative in order
+    /// to set the min and max as zero accordingly.
+    if (_min == _max && _min! < 0 && _max! < 0) {
+      _max = 0;
+    }
+    if (_min == _max && _min! > 0 && _max! > 0) {
+      _min = 0;
+    }
+
     _actualRange = _VisibleRange(
-        _chartState._rangeChangeBySlider && _numericAxis.rangeController != null
-            ? _rangeMinimum ?? _numericAxis.rangeController!.start
-            : _numericAxis.minimum ?? _min,
-        _chartState._rangeChangeBySlider && _numericAxis.rangeController != null
-            ? _rangeMaximum ?? _numericAxis.rangeController!.end
-            : _numericAxis.maximum ?? _max);
+        _numericAxis.minimum ?? _min, _numericAxis.maximum ?? _max);
     if (_axis.anchorRangeToVisiblePoints &&
         _needCalculateYrange(_numericAxis.minimum, _numericAxis.maximum,
             _chartState, _orientation!)) {
@@ -357,7 +468,7 @@ class NumericAxisRenderer extends ChartAxisRenderer {
     }
 
     ///Below condition is for checking the axis min value is greater than max value, then swapping min max values
-    else if (_actualRange!.minimum > _actualRange!.maximum) {
+    else if ((_actualRange!.minimum > _actualRange!.maximum) == true) {
       _actualRange!.minimum = _actualRange!.minimum + _actualRange!.maximum;
       _actualRange!.maximum = _actualRange!.minimum - _actualRange!.maximum;
       _actualRange!.minimum = _actualRange!.minimum - _actualRange!.maximum;
@@ -422,7 +533,6 @@ class NumericAxisRenderer extends ChartAxisRenderer {
   void generateVisibleLabels() {
     num tempInterval = _visibleRange!.minimum;
     String text;
-    final String minimum = tempInterval.toString();
     final num maximumVisibleRange = _visibleRange!.maximum;
     num interval = _visibleRange!.interval;
     interval = interval.toString().split('.').length >= 2
@@ -436,9 +546,8 @@ class NumericAxisRenderer extends ChartAxisRenderer {
       num minimumVisibleRange = tempInterval;
       if (minimumVisibleRange <= maximumVisibleRange &&
           minimumVisibleRange >= _visibleRange!.minimum) {
-        final int fractionDigits = (minimum.split('.').length >= 2)
-            ? minimum.split('.')[1].toString().length
-            : (minimumVisibleRange.toString().split('.').length >= 2)
+        final int fractionDigits =
+            (minimumVisibleRange.toString().split('.').length >= 2)
                 ? minimumVisibleRange.toString().split('.')[1].toString().length
                 : 0;
         final int fractionDigitValue =
@@ -447,9 +556,12 @@ class NumericAxisRenderer extends ChartAxisRenderer {
             ? minimumVisibleRange
             : num.tryParse(
                 minimumVisibleRange.toStringAsFixed(fractionDigitValue))!;
+        if (minimumVisibleRange % 1 == 0) {
+          minimumVisibleRange = minimumVisibleRange.round();
+        }
         if (minimumVisibleRange.toString().split('.').length > 1) {
           final String str = minimumVisibleRange.toString();
-          final List<dynamic>? list = str.split('.');
+          final List<String>? list = str.split('.');
           minimumVisibleRange = double.parse(
               minimumVisibleRange.toStringAsFixed(_numericAxis.decimalPlaces));
           if (list != null &&
@@ -486,7 +598,12 @@ class NumericAxisRenderer extends ChartAxisRenderer {
   /// Calculates the visible range for an axis in chart.
   @override
   void calculateVisibleRange(Size availableSize) {
-    _visibleRange = _VisibleRange(_actualRange!.minimum, _actualRange!.maximum);
+    _setOldRangeFromRangeController();
+    _visibleRange = _chartState._rangeChangeBySlider &&
+            _rangeMinimum != null &&
+            _rangeMaximum != null
+        ? _VisibleRange(_rangeMinimum, _rangeMaximum)
+        : _VisibleRange(_actualRange!.minimum, _actualRange!.maximum);
     _visibleRange!.delta = _actualRange!.delta;
     _visibleRange!.interval = _actualRange!.interval;
     bool canAutoScroll = false;
@@ -496,21 +613,33 @@ class NumericAxisRenderer extends ChartAxisRenderer {
       canAutoScroll = true;
       super._updateAutoScrollingDelta(_numericAxis.autoScrollingDelta!, this);
     }
-    if (!canAutoScroll) {
+    if ((!canAutoScroll || _chartState._zoomedState == true) &&
+        !(_chartState._rangeChangeBySlider &&
+            !_chartState._canSetRangeController)) {
       _setZoomFactorAndPosition(this, _chartState._zoomedAxisRendererStates);
     }
-    if (_zoomFactor < 1 || _zoomPosition > 0) {
+    if (_zoomFactor < 1 ||
+        _zoomPosition > 0 ||
+        (_axis.rangeController != null &&
+                !_chartState._renderingDetails.initialRender!) &&
+            !(_chartState._rangeChangeBySlider ||
+                !_chartState._canSetRangeController)) {
       _chartState._zoomProgress = true;
       _calculateZoomRange(this, availableSize);
-      _visibleRange!.interval =
-          _axis.enableAutoIntervalOnZooming && _chartState._zoomProgress
-              ? calculateInterval(_visibleRange!, _axisSize)
-              : _visibleRange!.interval;
-      if (_axis.rangeController != null) {
+      _visibleRange!.interval = !canAutoScroll &&
+              _axis.enableAutoIntervalOnZooming &&
+              _chartState._zoomProgress
+          ? calculateInterval(_visibleRange!, _axisSize)
+          : _visibleRange!.interval;
+      if (_axis.rangeController != null &&
+          _chartState._isRedrawByZoomPan &&
+          _chartState._canSetRangeController &&
+          _chartState._zoomProgress) {
         _chartState._rangeChangedByChart = true;
         _setRangeControllerValues(this);
       }
     }
+    _setZoomValuesFromRangeController();
   }
 
   /// Finds the interval of an axis.

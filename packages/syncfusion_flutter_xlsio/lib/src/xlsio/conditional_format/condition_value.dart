@@ -276,10 +276,7 @@ abstract class ConditionValue {
 /// Represents implementation of single condition value for iconset, databar, colorscale conditions.
 class _ConditionValueImpl extends ConditionValue {
   /// Initializes new instance of the class.
-  _ConditionValueImpl(ConditionValueType type, String value) {
-    this.type = type;
-    this.value = value;
-  }
+  _ConditionValueImpl(this.type, this.value);
 
   @override
 
@@ -402,10 +399,7 @@ class ColorConditionValue extends ConditionValue {
 /// Represents the implementation of color condition value
 class _ColorConditionValueImpl implements ColorConditionValue {
   /// Initializes new instance of the class.
-  _ColorConditionValueImpl(
-      ConditionValueType type, String value, String color) {
-    this.type = type;
-    this.value = value;
+  _ColorConditionValueImpl(this.type, this.value, String color) {
     formatColor = color;
   }
 
@@ -661,19 +655,11 @@ class IconConditionValue extends ConditionValue {
 /// Represents the implementation of Icon condition value
 class _IconConditionValueImpl implements IconConditionValue {
   /// Initializes new instance of the class.
-  _IconConditionValueImpl._withType(
-      ExcelIconSetType icon, int index, ConditionValueType type, String value) {
-    iconSet = icon;
-    this.index = index;
-    this.type = type;
-    this.value = value;
-  }
+  _IconConditionValueImpl(this.iconSet, this.index);
 
   /// Initializes new instance of the class.
-  _IconConditionValueImpl(ExcelIconSetType icon, int index) {
-    iconSet = icon;
-    index = index;
-  }
+  _IconConditionValueImpl._withType(
+      this.iconSet, this.index, this.type, this.value);
 
   @override
 

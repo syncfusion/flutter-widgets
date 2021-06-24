@@ -43,13 +43,13 @@ abstract class ChartAxis {
     bool? placeLabelsNearAxisLine,
     List<PlotBand>? plotBands,
     this.rangeController,
-    double? maximumLabelWidth,
-    double? labelsExtent,
-    int? autoScrollingDelta,
+    this.maximumLabelWidth,
+    this.labelsExtent,
+    this.autoScrollingDelta,
     AutoScrollingMode? autoScrollingMode,
   })  : isVisible = isVisible ?? true,
         anchorRangeToVisiblePoints = anchorRangeToVisiblePoints ?? true,
-        interactiveTooltip = interactiveTooltip ?? InteractiveTooltip(),
+        interactiveTooltip = interactiveTooltip ?? const InteractiveTooltip(),
         isInversed = isInversed ?? false,
         plotOffset = plotOffset ?? 0,
         placeLabelsNearAxisLine = placeLabelsNearAxisLine ?? true,
@@ -70,19 +70,16 @@ abstract class ChartAxis {
             fontWeight: FontWeight.normal,
             fontFamily: 'Normal'),
         title = title ?? AxisTitle(),
-        axisLine = axisLine ?? AxisLine(),
-        majorTickLines = majorTickLines ?? MajorTickLines(),
-        minorTickLines = minorTickLines ?? MinorTickLines(),
-        majorGridLines = majorGridLines ?? MajorGridLines(),
-        minorGridLines = minorGridLines ?? MinorGridLines(),
+        axisLine = axisLine ?? const AxisLine(),
+        majorTickLines = majorTickLines ?? const MajorTickLines(),
+        minorTickLines = minorTickLines ?? const MinorTickLines(),
+        majorGridLines = majorGridLines ?? const MajorGridLines(),
+        minorGridLines = minorGridLines ?? const MinorGridLines(),
         edgeLabelPlacement = edgeLabelPlacement ?? EdgeLabelPlacement.none,
         zoomFactor = zoomFactor ?? 1,
         zoomPosition = zoomPosition ?? 0,
         enableAutoIntervalOnZooming = enableAutoIntervalOnZooming ?? true,
         plotBands = plotBands ?? <PlotBand>[],
-        maximumLabelWidth = maximumLabelWidth,
-        labelsExtent = labelsExtent,
-        autoScrollingDelta = autoScrollingDelta,
         autoScrollingMode = autoScrollingMode ?? AutoScrollingMode.end;
 
   ///Toggles the visibility of the axis.
@@ -148,7 +145,7 @@ abstract class ChartAxis {
   ///Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfCartesianChart(
-  ///           primaryXAxis: NumericAxis(majorTickLines: MajorTickLines(width: 2)),
+  ///           primaryXAxis: NumericAxis(majorTickLines: const MajorTickLines(width: 2)),
   ///        ));
   ///}
   ///```
@@ -157,7 +154,7 @@ abstract class ChartAxis {
   ///Customizes the appearance of the minor tick lines.
   ///
   /// Minor ticks are small lines
-  ///used to indicate the minor intervals between a major interval
+  ///used to indicate the minor intervals between a major interval.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -380,7 +377,7 @@ abstract class ChartAxis {
 
   ///Alignment of the labels.
   ///
-  ///Axis labels can be placed either start or
+  ///Axis labels can be placed either to the start,
   ///end or center of the grid lines.
   ///
   ///Defaults to `LabelAlignment.start`.
@@ -542,7 +539,7 @@ abstract class ChartAxis {
   ///```
   final InteractiveTooltip interactiveTooltip;
 
-  ///Customize to place the axis crossing on another axis based on the value
+  ///Customization to place the axis crossing on another axis based on the value
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -733,6 +730,7 @@ abstract class ChartAxis {
 ///
 /// Provides  options for label style, label size, text, and value to customize the appearance.
 ///
+@immutable
 class AxisLabel {
   /// Creating an argument constructor of AxisLabel class.
   AxisLabel(this.labelStyle, this.labelSize, this.text, this.value,
@@ -768,6 +766,37 @@ class AxisLabel {
   /// Holds the value of the visible range of the axis.
   num value;
 
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is AxisLabel &&
+        other.labelStyle == labelStyle &&
+        other.labelSize == labelSize &&
+        other.text == text &&
+        other.trimmedText == trimmedText &&
+        other.renderText == renderText &&
+        other.value == value;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      labelStyle,
+      labelSize,
+      text,
+      trimmedText,
+      renderText,
+      value
+    ];
+    return hashList(values);
+  }
+
   List<String>? _labelCollection;
 
   int _index = 1;
@@ -802,7 +831,7 @@ class MajorTickLines {
   ///     return Container(
   ///         child: SfCartesianChart(
   ///             primaryXAxis: NumericAxis(
-  ///                  majorTickLines: MajorTickLines(
+  ///                  majorTickLines: const MajorTickLines(
   ///                    size: 6
   ///                  )
   ///                 ),
@@ -820,7 +849,7 @@ class MajorTickLines {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///            primaryXAxis: NumericAxis(
-  ///                 majorTickLines: MajorTickLines(
+  ///                 majorTickLines: const MajorTickLines(
   ///                   width: 2
   ///                 )
   ///                ),
@@ -837,7 +866,7 @@ class MajorTickLines {
   ///    return Container(
   ///        child: SfCartesianChart(
   ///            primaryXAxis: NumericAxis(
-  ///                 majorTickLines: MajorTickLines(
+  ///                 majorTickLines: const MajorTickLines(
   ///                   color: Colors.black
   ///                 )
   ///                ),
@@ -845,6 +874,27 @@ class MajorTickLines {
   ///}
   ///```
   final Color? color;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is MajorTickLines &&
+        other.size == size &&
+        other.width == width &&
+        other.color == color;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[size, width, color];
+    return hashList(values);
+  }
 }
 
 /// This class has the properties of minor tick lines.
@@ -854,6 +904,7 @@ class MajorTickLines {
 ///
 /// Provides the color option to change the [color] of the tick line for the customization.
 ///
+@immutable
 class MinorTickLines {
   /// Creating an argument constructor of MinorTickLines class.
   const MinorTickLines({this.size = 3, this.width = 0.7, this.color});
@@ -914,6 +965,27 @@ class MinorTickLines {
   ///}
   ///```
   final Color? color;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is MinorTickLines &&
+        other.size == size &&
+        other.width == width &&
+        other.color == color;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[size, width, color];
+    return hashList(values);
+  }
 }
 
 /// Customizes the major grid lines.
@@ -925,6 +997,7 @@ class MinorTickLines {
 ///
 /// Provides options for [color], [width], and [dashArray] to customize the appearance.
 ///
+@immutable
 class MajorGridLines {
   /// Creating an argument constructor of MajorGridLines class.
   const MajorGridLines({this.width = 0.7, this.color, this.dashArray});
@@ -979,6 +1052,27 @@ class MajorGridLines {
   ///}
   ///```
   final Color? color;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is MajorGridLines &&
+        other.dashArray == dashArray &&
+        other.width == width &&
+        other.color == color;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[dashArray, width, color];
+    return hashList(values);
+  }
 }
 
 /// Customizes the minor grid lines.
@@ -1048,6 +1142,27 @@ class MinorGridLines {
   ///}
   ///```
   final Color? color;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is MinorGridLines &&
+        other.dashArray == dashArray &&
+        other.width == width &&
+        other.color == color;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[dashArray, width, color];
+    return hashList(values);
+  }
 }
 
 /// This class holds the property of the axis title.
@@ -1132,6 +1247,27 @@ class AxisTitle {
   ///}
   ///```
   final ChartAlignment alignment;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is AxisTitle &&
+        other.text == text &&
+        other.textStyle == textStyle &&
+        other.alignment == alignment;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[text, textStyle, alignment];
+    return hashList(values);
+  }
 }
 
 /// This class consists of axis line properties.
@@ -1197,12 +1333,33 @@ class AxisLine {
   ///}
   ///```
   final List<double>? dashArray;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is AxisLine &&
+        other.dashArray == dashArray &&
+        other.width == width &&
+        other.color == color;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[dashArray, width, color];
+    return hashList(values);
+  }
 }
 
 ///calculate visible range based on min, max values
 class _VisibleRange {
   _VisibleRange(dynamic min, dynamic max) {
-    if (min < max) {
+    if ((min < max) == true) {
       minimum = min;
       maximum = max;
     } else {
@@ -1240,6 +1397,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
   late ChartAxis _axis;
   ChartAxis? _oldAxis;
   late SfCartesianChartState _chartState;
+  _RenderingDetails get _renderingDetails => _chartState._renderingDetails;
   late SfCartesianChart _chart;
   //ignore: prefer_final_fields
   bool _isStack100 = false;
@@ -1297,6 +1455,8 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
   Offset? _xAxisStart, _xAxisEnd;
 
   num? _visibleMinimum, _visibleMaximum;
+
+  int? _scrollingDelta;
 
   @override
   Color? getAxisLineColor(ChartAxis axis) => axis.axisLine.color;
@@ -1373,7 +1533,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
     final _CustomPaintStyle paintStyle = _CustomPaintStyle(
         axisRenderer.getAxisLineWidth(axis),
         axisRenderer.getAxisLineColor(axis) ??
-            _chartState._chartTheme.axisLineColor,
+            _renderingDetails.chartTheme.axisLineColor,
         PaintingStyle.stroke);
     _drawDashedPath(canvas, paintStyle, Offset(rect.left, rect.top),
         Offset(rect.left + rect.width, rect.top), axis.axisLine.dashArray);
@@ -1394,7 +1554,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
     final _CustomPaintStyle paintStyle = _CustomPaintStyle(
         axisRenderer.getAxisLineWidth(axis),
         axisRenderer.getAxisLineColor(axis) ??
-            _chartState._chartTheme.axisLineColor,
+            _renderingDetails.chartTheme.axisLineColor,
         PaintingStyle.stroke);
     _drawDashedPath(canvas, paintStyle, Offset(rect.left, rect.top),
         Offset(rect.left, rect.top + rect.height), axis.axisLine.dashArray);
@@ -1445,9 +1605,9 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
         }
         if (axisBounds.left.roundToDouble() <= pointX &&
             axisBounds.right.roundToDouble() >= pointX) {
-          if (axis.majorGridLines.width > 0 &&
+          if ((axis.majorGridLines.width > 0) == true &&
               renderType == 'outside' &&
-              (axis.plotOffset > 0 ||
+              ((axis.plotOffset > 0) == true ||
                   (i != 0 &&
                       (isBetweenTicks ? i != length - 1 : i != length)) ||
                   (axisBounds.left <= pointX &&
@@ -1461,7 +1621,8 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
                 i,
                 chart);
           }
-          if (axis.minorGridLines.width > 0 || axis.minorTickLines.width > 0) {
+          if ((axis.minorGridLines.width > 0) == true ||
+              (axis.minorTickLines.width > 0) == true) {
             num? nextValue = isBetweenTicks
                 ? (tempInterval + axisRenderer._visibleRange!.interval)
                 : i == length - 1
@@ -1477,7 +1638,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
             }
           }
         }
-        if (axis.majorTickLines.width > 0 &&
+        if (axis.majorTickLines.width > 0 == true &&
             (axisBounds.left <= pointX &&
                 axisBounds.right.roundToDouble() >= pointX) &&
             renderType == axis.tickPosition.toString().split('.')[1]) {
@@ -1486,12 +1647,12 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
               _CustomPaintStyle(
                   axisRenderer.getAxisMajorTickWidth(axis, i),
                   axisRenderer.getAxisMajorTickColor(axis, i) ??
-                      _chartState._chartTheme.majorTickLineColor,
+                      _renderingDetails.chartTheme.majorTickLineColor,
                   PaintingStyle.stroke),
               Offset(pointX, pointY),
               Offset(
                   pointX,
-                  !axis.opposedPosition
+                  axis.opposedPosition == false
                       ? (axisRenderer._isInsideTickPosition!
                           ? pointY - ticks.size
                           : pointY + ticks.size)
@@ -1515,7 +1676,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
     final _CustomPaintStyle paintStyle = _CustomPaintStyle(
         axisRenderer.getAxisMajorGridWidth(axisRenderer._axis, index),
         axisRenderer.getAxisMajorGridColor(axisRenderer._axis, index) ??
-            _chartState._chartTheme.majorGridLineColor,
+            _renderingDetails.chartTheme.majorGridLineColor,
         PaintingStyle.stroke);
     _drawDashedPath(
         canvas,
@@ -1559,7 +1720,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
                     axisRenderer._axis, index, i),
                 axisRenderer.getAxisMinorGridColor(
                         axisRenderer._axis, index, i) ??
-                    _chartState._chartTheme.minorGridLineColor,
+                    _renderingDetails.chartTheme.minorGridLineColor,
                 PaintingStyle.stroke),
             Offset(position, _chartState._chartAxis._axisClipRect.top),
             Offset(
@@ -1578,7 +1739,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
             _CustomPaintStyle(
                 axisRenderer.getAxisMinorTickWidth(axis, index, i),
                 axisRenderer.getAxisMinorTickColor(axis, index, i) ??
-                    _chartState._chartTheme.minorTickLineColor,
+                    _renderingDetails.chartTheme.minorTickLineColor,
                 PaintingStyle.stroke),
             Offset(position, pointY),
             Offset(
@@ -1638,13 +1799,13 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
             : pointY;
       }
       if (pointY >= axisBounds.top && pointY <= axisBounds.bottom) {
-        if (axis.majorGridLines.width > 0 &&
+        if (axis.majorGridLines.width > 0 == true &&
             renderType == 'outside' &&
-            (axis.plotOffset > 0 ||
+            (axis.plotOffset > 0 == true ||
                 ((i == 0 || i == length - 1) &&
                     chart.plotAreaBorderWidth == 0) ||
-                (((i == 0 && !axis.opposedPosition) ||
-                        (i == length - 1 && axis.opposedPosition)) &&
+                (((i == 0 && axis.opposedPosition == false) ||
+                        (i == length - 1 && axis.opposedPosition == true)) &&
                     axis.axisLine.width == 0) ||
                 (axisBounds.top < pointY - axis.majorGridLines.width &&
                     axisBounds.bottom > pointY + axis.majorGridLines.width))) {
@@ -1656,22 +1817,23 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
               i,
               chart);
         }
-        if (axis.minorGridLines.width > 0 || axis.minorTickLines.width > 0) {
+        if (axis.minorGridLines.width > 0 == true ||
+            axis.minorTickLines.width > 0 == true) {
           axisRenderer.drawVerticalAxesMinorTickLines(canvas, axisRenderer,
               tempInterval, axisBounds, i, chart, renderType!);
         }
-        if (axis.majorTickLines.width > 0 &&
+        if (axis.majorTickLines.width > 0 == true &&
             renderType == axis.tickPosition.toString().split('.')[1]) {
           _drawDashedPath(
               canvas,
               _CustomPaintStyle(
                   axisRenderer.getAxisMajorTickWidth(axis, i),
                   axisRenderer.getAxisMajorTickColor(axis, i) ??
-                      _chartState._chartTheme.majorTickLineColor,
+                      _renderingDetails.chartTheme.majorTickLineColor,
                   PaintingStyle.stroke),
               Offset(pointX, pointY),
               Offset(
-                  !axis.opposedPosition
+                  axis.opposedPosition == false
                       ? (axisRenderer._isInsideTickPosition!
                           ? pointX + axis.majorTickLines.size
                           : pointX - axis.majorTickLines.size)
@@ -1696,7 +1858,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
     final _CustomPaintStyle paintStyle = _CustomPaintStyle(
         axisRenderer.getAxisMajorGridWidth(axisRenderer._axis, index),
         axisRenderer.getAxisMajorGridColor(axisRenderer._axis, index) ??
-            _chartState._chartTheme.majorGridLineColor,
+            _renderingDetails.chartTheme.majorGridLineColor,
         PaintingStyle.stroke);
     if (_chartState._chartAxis._primaryXAxisRenderer._xAxisStart !=
             Offset(_chartState._chartAxis._axisClipRect.left, point.dy) &&
@@ -1748,7 +1910,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
                 _CustomPaintStyle(
                     axisRenderer.getAxisMinorGridWidth(axis, index, i),
                     axisRenderer.getAxisMinorGridColor(axis, index, i) ??
-                        _chartState._chartTheme.minorGridLineColor,
+                        _renderingDetails.chartTheme.minorGridLineColor,
                     PaintingStyle.stroke),
                 Offset(_chartState._chartAxis._axisClipRect.left, position),
                 Offset(
@@ -1764,7 +1926,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
                 _CustomPaintStyle(
                     axisRenderer.getAxisMinorTickWidth(axis, index, i),
                     axisRenderer.getAxisMinorTickColor(axis, index, i) ??
-                        _chartState._chartTheme.minorTickLineColor,
+                        _renderingDetails.chartTheme.minorTickLineColor,
                     PaintingStyle.stroke),
                 Offset(rect.left, position),
                 Offset(
@@ -1806,7 +1968,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
         textStyle = _getTextStyle(
             textStyle: textStyle,
             fontColor:
-                textStyle.color ?? _chartState._chartTheme.axisLabelColor);
+                textStyle.color ?? _renderingDetails.chartTheme.axisLabelColor);
         tempInterval = label.value.toDouble();
         angle = axisRenderer.getAxisLabelAngle(axisRenderer, labelText, i);
 
@@ -1925,7 +2087,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
         textStyle = _getTextStyle(
             textStyle: textStyle,
             fontColor:
-                textStyle.color ?? _chartState._chartTheme.axisLabelColor);
+                textStyle.color ?? _renderingDetails.chartTheme.axisLabelColor);
         tempInterval = visibleLabels[i].value.toDouble();
         final Size textSize = measureText(labelText, textStyle, 0);
         pointY = (_valueToCoefficient(tempInterval, axisRenderer) *
@@ -2022,7 +2184,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
     final Rect bounds = axisRenderer._bounds;
     final ChartAxis axis = axisRenderer._axis;
     textSize ??= const Size(0, 0);
-    if (oldAxisRenderer._visibleRange!.minimum > value) {
+    if (oldAxisRenderer._visibleRange!.minimum > value == false) {
       location = axisRenderer._orientation == AxisOrientation.vertical
           ? (axis.isInversed
               ? ((bounds.top + bounds.height) -
@@ -2043,7 +2205,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
               : ((_valueToCoefficient(value, oldAxisRenderer) * bounds.width) -
                       bounds.left)
                   .roundToDouble());
-    } else if (oldAxisRenderer._visibleRange!.maximum < value) {
+    } else if (oldAxisRenderer._visibleRange!.maximum < value == false) {
       location = axisRenderer._orientation == AxisOrientation.vertical
           ? (axis.isInversed
               ? (bounds.bottom -
@@ -2250,7 +2412,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
     TextStyle style = axis.title.textStyle;
     style = _getTextStyle(
         textStyle: style,
-        fontColor: style.color ?? _chartState._chartTheme.axisTitleColor);
+        fontColor: style.color ?? _renderingDetails.chartTheme.axisTitleColor);
     final Size textSize = measureText(title, style);
     double top;
     if (axis.labelPosition == ChartDataLabelPosition.inside) {
@@ -2313,7 +2475,7 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
     TextStyle style = axis.title.textStyle;
     style = _getTextStyle(
         textStyle: style,
-        fontColor: style.color ?? _chartState._chartTheme.axisTitleColor);
+        fontColor: style.color ?? _renderingDetails.chartTheme.axisTitleColor);
     final Size textSize = measureText(title, style);
     double left;
     if (axis.labelPosition == ChartDataLabelPosition.inside) {
@@ -2916,6 +3078,10 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
           oldAxisRenderer._axis.zoomPosition != axis.zoomPosition
               ? axis.zoomPosition
               : axisRenderer._zoomPosition;
+      if (axisRenderer._axis.autoScrollingDelta ==
+          oldAxisRenderer._axis.autoScrollingDelta) {
+        axisRenderer._scrollingDelta = oldAxisRenderer._scrollingDelta;
+      }
     }
 
     final _VisibleRange baseRange = axisRenderer._visibleRange!;
@@ -2950,14 +3116,18 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
     } else {
       didUpdateAxis = false;
     }
-    for (final zoomedAxisRenderer in _chartState._zoomedAxisRendererStates) {
+    for (final ChartAxisRenderer zoomedAxisRenderer
+        in _chartState._zoomedAxisRendererStates) {
       if (zoomedAxisRenderer._name == _name) {
         if (didUpdateAxis) {
           zoomedAxisRenderer._zoomFactor = _zoomFactor;
           zoomedAxisRenderer._zoomPosition = _zoomPosition;
         } else {
-          axisRenderer._zoomFactor = zoomedAxisRenderer._zoomFactor;
-          axisRenderer._zoomPosition = zoomedAxisRenderer._zoomPosition;
+          if (_axis.autoScrollingDelta == null ||
+              _scrollingDelta != zoomedAxisRenderer._visibleRange!.delta) {
+            axisRenderer._zoomFactor = zoomedAxisRenderer._zoomFactor;
+            axisRenderer._zoomPosition = zoomedAxisRenderer._zoomPosition;
+          }
         }
         break;
       }
@@ -2966,11 +3136,12 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
 
   /// To provide chart changes to range controller
   void _setRangeControllerValues(ChartAxisRenderer _axisRenderer) {
-    if (_axisRenderer is DateTimeAxisRenderer) {
+    if (_axisRenderer is DateTimeAxisRenderer ||
+        _axisRenderer is DateTimeCategoryAxisRenderer) {
       _axis.rangeController!.start = DateTime.fromMillisecondsSinceEpoch(
-          _axisRenderer._visibleRange!.minimum);
+          _axisRenderer._visibleRange!.minimum.toInt());
       _axis.rangeController!.end = DateTime.fromMillisecondsSinceEpoch(
-          _axisRenderer._visibleRange!.maximum);
+          _axisRenderer._visibleRange!.maximum.toInt());
     } else {
       _axis.rangeController!.start = _axisRenderer._visibleRange!.minimum;
       _axis.rangeController!.end = _axisRenderer._visibleRange!.maximum;
@@ -2979,7 +3150,10 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
 
   /// To change chart based on range controller
   void _updateRangeControllerValues(ChartAxisRenderer _axisRenderer) {
-    if (_axisRenderer is DateTimeAxisRenderer) {
+    _chartState._zoomProgress = false;
+    _chartState._isRedrawByZoomPan = false;
+    if (_axisRenderer is DateTimeAxisRenderer ||
+        _axisRenderer is DateTimeCategoryAxisRenderer) {
       _axisRenderer._rangeMinimum =
           _axis.rangeController!.start.millisecondsSinceEpoch;
       _axisRenderer._rangeMaximum =
@@ -2990,9 +3164,48 @@ abstract class ChartAxisRenderer with _CustomizeAxisElements {
     }
   }
 
+  void _setOldRangeFromRangeController() {
+    if (!_chartState._renderingDetails.initialRender! &&
+        _axis.rangeController != null &&
+        !_chartState._canSetRangeController) {
+      final ChartAxisRenderer? oldrenderer =
+          _getOldAxisRenderer(this, _chartState._oldAxisRenderers);
+      if (oldrenderer != null) {
+        _visibleMinimum = _rangeMinimum = oldrenderer._rangeMinimum;
+        _visibleMaximum = _rangeMaximum = oldrenderer._rangeMaximum;
+      }
+    }
+  }
+
+  void _setZoomValuesFromRangeController() {
+    if (!(_chartState._isRedrawByZoomPan ||
+        _chartState._canSetRangeController)) {
+      if (_chartState._rangeChangeBySlider &&
+          !_chartState._canSetRangeController &&
+          _rangeMinimum != null &&
+          _rangeMaximum != null) {
+        _visibleRange!.delta = _visibleRange!.maximum - _visibleRange!.minimum;
+        if (this is! DateTimeCategoryAxisRenderer) {
+          _visibleRange!.interval = this is LogarithmicAxisRenderer
+              ? (this as LogarithmicAxisRenderer)
+                  .calculateLogNiceInterval(_visibleRange!.delta)
+              : calculateInterval(_visibleRange!, _axisSize);
+        }
+        _visibleRange!.interval =
+            _actualRange!.interval != null && _actualRange!.interval % 1 != 0
+                ? _actualRange!.interval
+                : _visibleRange!.interval;
+        _zoomFactor = _visibleRange!.delta / (_actualRange!.delta);
+        _zoomPosition = (_visibleRange!.minimum - _actualRange!.minimum) /
+            _actualRange!.delta;
+      }
+    }
+  }
+
   /// Auto scrolling feature
   void _updateAutoScrollingDelta(
       int scrollingDelta, ChartAxisRenderer _axisRenderer) {
+    _axisRenderer._scrollingDelta = scrollingDelta;
     switch (_axis.autoScrollingMode) {
       case AutoScrollingMode.start:
         final _VisibleRange autoScrollRange = _VisibleRange(

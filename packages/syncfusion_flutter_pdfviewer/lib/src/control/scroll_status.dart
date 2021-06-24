@@ -10,7 +10,7 @@ const double _kPdfScrollStatusBottomPosition = 25.0;
 @immutable
 class ScrollStatus extends StatefulWidget {
   /// Constructs the Scroll status for PdfViewer Widget
-  ScrollStatus(this.pdfViewerController);
+  const ScrollStatus(this.pdfViewerController);
 
   /// PdfViewer controller of PdfViewer
   final PdfViewerController pdfViewerController;
@@ -49,13 +49,14 @@ class _ScrollStatusState extends State<ScrollStatus> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Container(
-              padding: EdgeInsets.only(left: 16, top: 6, right: 16, bottom: 6),
+              padding:
+                  const EdgeInsets.only(left: 16, top: 6, right: 16, bottom: 6),
               constraints: BoxConstraints(
                 maxWidth: MediaQuery.of(context).size.width * 0.7,
               ),
               decoration: BoxDecoration(
                 color: _pdfViewerThemeData!.scrollStatusStyle.backgroundColor,
-                borderRadius: BorderRadius.all(
+                borderRadius: const BorderRadius.all(
                   Radius.circular(16.0),
                 ),
               ),

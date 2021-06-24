@@ -21,8 +21,6 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
   /// ```dart
   /// //Create a new Pdf document
   /// PdfDocument document = PdfDocument();
-  /// //Create a new Pdf document
-  /// PdfDocument document = PdfDocument();
   /// //Create a document link and add to the PDF page.
   /// document.pages.add().annotations.add(PdfDocumentLinkAnnotation(
   ///     Rect.fromLTWH(10, 40, 30, 30),
@@ -57,7 +55,7 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
   ///     Rect.fromLTWH(10, 40, 30, 30),
   ///     PdfDestination(document.pages.add(), Offset(10, 0)));
   /// //Gets the destination and set the destination mode.
-  /// documentLinkAnnotation.destination.mode = PdfDestinationMode.fitToPage;
+  /// documentLinkAnnotation.destination!.mode = PdfDestinationMode.fitToPage;
   /// //Add the document link to the page
   /// page.annotations.add(documentLinkAnnotation);
   /// //Save the document.
@@ -97,7 +95,7 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
       PdfPage page;
       if (array != null && array[0] is _PdfReferenceHolder) {
         final _PdfDictionary? dic = _crossTable
-            ._getObject(array[0] as _PdfReferenceHolder) as _PdfDictionary?;
+            ._getObject(array[0]! as _PdfReferenceHolder) as _PdfDictionary?;
         page = _crossTable._document!.pages._getPage(dic);
         final _PdfName? mode = array[1] as _PdfName?;
         if (mode != null) {
@@ -106,13 +104,13 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
             _PdfNumber? top;
             _PdfNumber? zoom;
             if (array[2] is _PdfNumber) {
-              left = array[2] as _PdfNumber;
+              left = array[2]! as _PdfNumber;
             }
             if (array[3] is _PdfNumber) {
-              top = array[3] as _PdfNumber;
+              top = array[3]! as _PdfNumber;
             }
             if (array[4] is _PdfNumber) {
-              zoom = array[4] as _PdfNumber;
+              zoom = array[4]! as _PdfNumber;
             }
             final double topValue =
                 (top == null) ? 0 : page.size.height - (top.value!.toDouble());
@@ -129,17 +127,17 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
           } else if (mode._name == 'FitH') {
             late _PdfNumber top;
             if (array[2] is _PdfNumber) {
-              top = array[2] as _PdfNumber;
+              top = array[2]! as _PdfNumber;
             }
             final double topValue = (page.size.height - top.value!).toDouble();
             _destination = PdfDestination(page, Offset(0, topValue));
             _destination.mode = PdfDestinationMode.fitH;
           } else if (mode._name == 'FitR') {
             if (array.count == 6) {
-              final double left = (array[2] as _PdfNumber).value!.toDouble();
-              final double top = (array[3] as _PdfNumber).value!.toDouble();
-              final double width = (array[4] as _PdfNumber).value!.toDouble();
-              final double height = (array[5] as _PdfNumber).value!.toDouble();
+              final double left = (array[2]! as _PdfNumber).value!.toDouble();
+              final double top = (array[3]! as _PdfNumber).value!.toDouble();
+              final double width = (array[4]! as _PdfNumber).value!.toDouble();
+              final double height = (array[5]! as _PdfNumber).value!.toDouble();
               _destination =
                   PdfDestination._(page, _Rectangle(left, top, width, height));
               _destination.mode = PdfDestinationMode.fitR;
@@ -166,7 +164,7 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
         }
       }
       if (array != null && array[0] is _PdfReferenceHolder) {
-        final _PdfReferenceHolder holder = array[0] as _PdfReferenceHolder;
+        final _PdfReferenceHolder holder = array[0]! as _PdfReferenceHolder;
         PdfPage? page;
         final _IPdfPrimitive? primitiveObj =
             _PdfCrossTable._dereference(holder);
@@ -175,11 +173,11 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
           page = _crossTable._document!.pages._getPage(dic);
         }
         if (page != null) {
-          final _PdfName mode = array[1] as _PdfName;
+          final _PdfName mode = array[1]! as _PdfName;
           if (mode._name == 'FitBH' || mode._name == 'FitH') {
             _PdfNumber? top;
             if (array[2] is _PdfNumber) {
-              top = array[2] as _PdfNumber;
+              top = array[2]! as _PdfNumber;
             }
             final double topValue =
                 (top == null) ? 0 : page.size.height - (top.value!.toDouble());
@@ -190,13 +188,13 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
             _PdfNumber? top;
             _PdfNumber? zoom;
             if (array[2] is _PdfNumber) {
-              left = array[2] as _PdfNumber;
+              left = array[2]! as _PdfNumber;
             }
             if (array[3] is _PdfNumber) {
-              top = array[3] as _PdfNumber;
+              top = array[3]! as _PdfNumber;
             }
             if (array[4] is _PdfNumber) {
-              zoom = array[4] as _PdfNumber;
+              zoom = array[4]! as _PdfNumber;
             }
             final double topValue =
                 (top == null) ? 0 : page.size.height - (top.value!.toDouble());
@@ -209,10 +207,10 @@ class PdfDocumentLinkAnnotation extends PdfLinkAnnotation {
             _destination.mode = PdfDestinationMode.location;
           } else if (mode._name == 'FitR') {
             if (array.count == 6) {
-              final _PdfNumber left = array[2] as _PdfNumber;
-              final _PdfNumber bottom = array[3] as _PdfNumber;
-              final _PdfNumber right = array[4] as _PdfNumber;
-              final _PdfNumber top = array[5] as _PdfNumber;
+              final _PdfNumber left = array[2]! as _PdfNumber;
+              final _PdfNumber bottom = array[3]! as _PdfNumber;
+              final _PdfNumber right = array[4]! as _PdfNumber;
+              final _PdfNumber top = array[5]! as _PdfNumber;
               _destination = PdfDestination._(
                   page,
                   _Rectangle(left.value!.toDouble(), bottom.value!.toDouble(),

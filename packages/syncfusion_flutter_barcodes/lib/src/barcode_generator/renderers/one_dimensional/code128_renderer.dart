@@ -77,14 +77,14 @@ class Code128Renderer extends SymbologyRenderer {
     code128ACharacterSets.add(']');
     code128ACharacterSets.add('^');
     code128ACharacterSets.add('_');
-    code128ACharacterSets.add('\0');
+    code128ACharacterSets.add('0');
     code128ACharacterSets.add('\u0001');
     code128ACharacterSets.add('\u0002');
     code128ACharacterSets.add('\u0003');
     code128ACharacterSets.add('\u0004');
     code128ACharacterSets.add('\u0005');
     code128ACharacterSets.add('\u0006');
-    code128ACharacterSets.add('\a');
+    code128ACharacterSets.add('a');
     code128ACharacterSets.add('\b');
     code128ACharacterSets.add('\t');
     code128ACharacterSets.add('\n');

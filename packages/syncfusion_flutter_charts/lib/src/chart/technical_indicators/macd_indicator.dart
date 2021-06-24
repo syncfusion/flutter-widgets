@@ -10,6 +10,7 @@ part of charts;
 ///
 /// Provides the options of macd type, name, short Period, long period and macd line color is used to customize the appearance.
 ///
+@immutable
 class MacdIndicator<T, D> extends TechnicalIndicators<T, D> {
   /// Creating an argument constructor of MacdIndicator class.
   MacdIndicator(
@@ -35,7 +36,8 @@ class MacdIndicator<T, D> extends TechnicalIndicators<T, D> {
       this.macdLineWidth = 2,
       this.macdType = MacdType.both,
       this.histogramPositiveColor = Colors.green,
-      this.histogramNegativeColor = Colors.red})
+      this.histogramNegativeColor = Colors.red,
+      ChartIndicatorRenderCallback? onRenderDetailsUpdate})
       : super(
             isVisible: isVisible,
             xAxisName: xAxisName,
@@ -52,7 +54,8 @@ class MacdIndicator<T, D> extends TechnicalIndicators<T, D> {
             legendItemText: legendItemText,
             signalLineColor: signalLineColor,
             signalLineWidth: signalLineWidth,
-            period: period);
+            period: period,
+            onRenderDetailsUpdate: onRenderDetailsUpdate);
 
   /// Short period value of the macd indicator.
   ///
@@ -173,23 +176,145 @@ class MacdIndicator<T, D> extends TechnicalIndicators<T, D> {
   ///
   final Color histogramNegativeColor;
 
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is MacdIndicator &&
+        other.isVisible == isVisible &&
+        other.xAxisName == xAxisName &&
+        other.yAxisName == yAxisName &&
+        other.seriesName == seriesName &&
+        other.dashArray == dashArray &&
+        other.animationDuration == animationDuration &&
+        other.dataSource == dataSource &&
+        other.xValueMapper == xValueMapper &&
+        other.closeValueMapper == closeValueMapper &&
+        other.period == period &&
+        other.name == name &&
+        other.isVisibleInLegend == isVisibleInLegend &&
+        other.legendIconType == legendIconType &&
+        other.legendItemText == legendItemText &&
+        other.signalLineColor == signalLineColor &&
+        other.signalLineWidth == signalLineWidth &&
+        other.shortPeriod == shortPeriod &&
+        other.longPeriod == longPeriod &&
+        other.macdLineColor == macdLineColor &&
+        other.macdLineWidth == macdLineWidth &&
+        other.macdType == macdType &&
+        other.histogramPositiveColor == histogramPositiveColor &&
+        other.histogramNegativeColor == histogramNegativeColor;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      isVisible,
+      xAxisName,
+      yAxisName,
+      seriesName,
+      dashArray,
+      animationDuration,
+      dataSource,
+      xValueMapper,
+      closeValueMapper,
+      name,
+      isVisibleInLegend,
+      legendIconType,
+      legendItemText,
+      signalLineColor,
+      signalLineWidth,
+      period,
+      shortPeriod,
+      longPeriod,
+      macdLineColor,
+      macdLineWidth,
+      macdType,
+      histogramPositiveColor,
+      histogramNegativeColor
+    ];
+    return hashList(values);
+  }
+
   /// To initialise indicators collections
   // ignore:unused_element
   void _initSeriesCollection(
       MacdIndicator<dynamic, dynamic> indicator,
       SfCartesianChart chart,
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
-    // To describe the type of series renderer to be assigned
-    bool isLine, isRangeArea, isHistogram;
     technicalIndicatorsRenderer._targetSeriesRenderers =
         <CartesianSeriesRenderer>[];
+  }
+
+  /// To initialise data source of technical indicators
+  // ignore:unused_element
+  void _initDataSource(
+    MacdIndicator<dynamic, dynamic> indicator,
+    TechnicalIndicatorsRenderer technicalIndicatorsRenderer,
+    SfCartesianChart chart,
+  ) {
+    List<CartesianChartPoint<dynamic>> signalCollection =
+        <CartesianChartPoint<dynamic>>[];
+    final num fastPeriod = indicator.longPeriod;
+    final num slowPeriod = indicator.shortPeriod;
+    final num trigger = indicator.period;
+    final num length = fastPeriod + trigger;
+    List<CartesianChartPoint<dynamic>> macdCollection =
+            <CartesianChartPoint<dynamic>>[],
+        histogramCollection = <CartesianChartPoint<dynamic>>[];
+    final List<CartesianChartPoint<dynamic>> validData =
+        technicalIndicatorsRenderer._dataPoints!;
+    List<dynamic> signalX = <dynamic>[],
+        histogramX = <dynamic>[],
+        macdX = <dynamic>[],
+        collection;
+    CartesianSeriesRenderer? histogramSeriesRenderer, macdLineSeriesRenderer;
+
+    if (validData.isNotEmpty &&
+        length < validData.length &&
+        slowPeriod <= fastPeriod &&
+        slowPeriod > 0 &&
+        indicator.period > 0 &&
+        (length - 2) >= 0) {
+      final List<num> shortEMA = _calculateEMAValues(
+          slowPeriod, validData, 'close', technicalIndicatorsRenderer);
+      final List<num> longEMA = _calculateEMAValues(
+          fastPeriod, validData, 'close', technicalIndicatorsRenderer);
+      final List<num> macdValues = _getMACDVales(indicator, shortEMA, longEMA);
+      collection = _getMACDPoints(
+          indicator, macdValues, validData, technicalIndicatorsRenderer);
+      macdCollection = collection[0];
+      macdX = collection[1];
+      final List<num> signalEMA = _calculateEMAValues(
+          trigger, macdCollection, 'y', technicalIndicatorsRenderer);
+      collection = _getSignalPoints(
+          indicator, signalEMA, validData, technicalIndicatorsRenderer);
+      signalCollection = collection[0];
+      signalX = collection[1];
+      if (indicator.macdType == MacdType.histogram ||
+          indicator.macdType == MacdType.both) {
+        collection = _getHistogramPoints(indicator, macdValues, signalEMA,
+            validData, technicalIndicatorsRenderer);
+        histogramCollection = collection[0];
+        histogramX = collection[1];
+      }
+    }
+    technicalIndicatorsRenderer._renderPoints = signalCollection;
+    technicalIndicatorsRenderer._macdHistogram = histogramCollection;
+    technicalIndicatorsRenderer._macdLine = macdCollection;
     technicalIndicatorsRenderer._setSeriesProperties(
         indicator,
         indicator.name ?? 'MACD',
         indicator.signalLineColor,
         indicator.signalLineWidth,
         chart);
-
+    // To describe the type of series renderer to be assigned
+    bool isLine, isRangeArea, isHistogram;
     if (indicator.macdType == MacdType.line ||
         indicator.macdType == MacdType.both) {
       // Decides the type of renderer class to be used
@@ -212,33 +337,6 @@ class MacdIndicator<T, D> extends TechnicalIndicators<T, D> {
           isRangeArea,
           isHistogram);
     }
-  }
-
-  /// To initialise data source of technical indicators
-  // ignore:unused_element
-  void _initDataSource(MacdIndicator<dynamic, dynamic> indicator,
-      TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
-    List<CartesianChartPoint<dynamic>> signalCollection =
-        <CartesianChartPoint<dynamic>>[];
-    final num fastPeriod = indicator.longPeriod;
-    final num slowPeriod = indicator.shortPeriod;
-    final num trigger = indicator.period;
-    final num length = fastPeriod + trigger;
-    List<CartesianChartPoint<dynamic>> macdCollection =
-        <CartesianChartPoint<dynamic>>[];
-    List<CartesianChartPoint<dynamic>> histogramCollection =
-        <CartesianChartPoint<dynamic>>[];
-    final List<CartesianChartPoint<dynamic>> validData =
-        technicalIndicatorsRenderer._dataPoints!;
-    final CartesianSeriesRenderer signalSeriesRenderer =
-        technicalIndicatorsRenderer._targetSeriesRenderers[0];
-    List<dynamic> signalX = <dynamic>[],
-        histogramX = <dynamic>[],
-        macdX = <dynamic>[],
-        collection;
-    CartesianSeriesRenderer? histogramSeriesRenderer;
-    CartesianSeriesRenderer? macdLineSeriesRenderer;
-
     if (indicator.macdType == MacdType.histogram) {
       histogramSeriesRenderer =
           technicalIndicatorsRenderer._targetSeriesRenderers[1];
@@ -250,40 +348,6 @@ class MacdIndicator<T, D> extends TechnicalIndicators<T, D> {
             technicalIndicatorsRenderer._targetSeriesRenderers[2];
       }
     }
-
-    if (validData.isNotEmpty &&
-        length < validData.length &&
-        slowPeriod <= fastPeriod &&
-        slowPeriod > 0 &&
-        indicator.period > 0 &&
-        (length - 2) >= 0) {
-      final List<num> shortEMA = _calculateEMAValues(
-          slowPeriod, validData, 'close', technicalIndicatorsRenderer);
-      final List<num> longEMA = _calculateEMAValues(
-          fastPeriod, validData, 'close', technicalIndicatorsRenderer);
-      final List<num> macdValues = _getMACDVales(indicator, shortEMA, longEMA);
-      collection = _getMACDPoints(
-          indicator,
-          macdValues,
-          validData,
-          macdLineSeriesRenderer ?? signalSeriesRenderer,
-          technicalIndicatorsRenderer);
-      macdCollection = collection[0];
-      macdX = collection[1];
-      final List<num> signalEMA = _calculateEMAValues(
-          trigger, macdCollection, 'y', technicalIndicatorsRenderer);
-      collection = _getSignalPoints(indicator, signalEMA, validData,
-          signalSeriesRenderer, technicalIndicatorsRenderer);
-      signalCollection = collection[0];
-      signalX = collection[1];
-      if (histogramSeriesRenderer != null) {
-        collection = _getHistogramPoints(indicator, macdValues, signalEMA,
-            validData, histogramSeriesRenderer, technicalIndicatorsRenderer);
-        histogramCollection = collection[0];
-        histogramX = collection[1];
-      }
-    }
-    technicalIndicatorsRenderer._renderPoints = signalCollection;
     technicalIndicatorsRenderer._setSeriesRange(signalCollection, indicator,
         signalX, technicalIndicatorsRenderer._targetSeriesRenderers[0]);
     if (histogramSeriesRenderer != null) {
@@ -302,8 +366,7 @@ class MacdIndicator<T, D> extends TechnicalIndicators<T, D> {
       List<CartesianChartPoint<dynamic>> validData,
       String valueField,
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
-    num sum = 0;
-    num initialEMA = 0;
+    num sum = 0, initialEMA = 0;
     final List<num> emaValues = <num>[];
     final num emaPercent = 2 / (period + 1);
     for (int i = 0; i < period; i++) {
@@ -329,19 +392,16 @@ class MacdIndicator<T, D> extends TechnicalIndicators<T, D> {
       MacdIndicator<dynamic, dynamic> indicator,
       List<num> macdPoints,
       List<CartesianChartPoint<dynamic>> validData,
-      CartesianSeriesRenderer seriesRenderer,
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
     final List<CartesianChartPoint<dynamic>> macdCollection =
         <CartesianChartPoint<dynamic>>[];
     final List<dynamic> xValues = <dynamic>[];
-    int dataMACDIndex = indicator.longPeriod - 1;
-    int macdIndex = 0;
+    int dataMACDIndex = indicator.longPeriod - 1, macdIndex = 0;
     while (dataMACDIndex < validData.length) {
       macdCollection.add(technicalIndicatorsRenderer._getDataPoint(
           validData[dataMACDIndex].x,
           macdPoints[macdIndex],
           validData[dataMACDIndex],
-          seriesRenderer,
           macdCollection.length));
       xValues.add(validData[dataMACDIndex].x);
       dataMACDIndex++;
@@ -355,7 +415,6 @@ class MacdIndicator<T, D> extends TechnicalIndicators<T, D> {
       MacdIndicator<dynamic, dynamic> indicator,
       List<num> signalEma,
       List<CartesianChartPoint<dynamic>> validData,
-      CartesianSeriesRenderer seriesRenderer,
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
     int dataSignalIndex = indicator.longPeriod + indicator.period - 2;
     int signalIndex = 0;
@@ -367,7 +426,6 @@ class MacdIndicator<T, D> extends TechnicalIndicators<T, D> {
           validData[dataSignalIndex].x,
           signalEma[signalIndex],
           validData[dataSignalIndex],
-          seriesRenderer,
           signalCollection.length));
       xValues.add(validData[dataSignalIndex].x);
       dataSignalIndex++;
@@ -393,7 +451,6 @@ class MacdIndicator<T, D> extends TechnicalIndicators<T, D> {
       List<num> macdPoints,
       List<num> signalEma,
       List<CartesianChartPoint<dynamic>> validData,
-      CartesianSeriesRenderer seriesRenderer,
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
     int dataHistogramIndex = indicator.longPeriod + indicator.period - 2;
     int histogramIndex = 0;
@@ -406,7 +463,6 @@ class MacdIndicator<T, D> extends TechnicalIndicators<T, D> {
           macdPoints[histogramIndex + (indicator.period - 1)] -
               signalEma[histogramIndex],
           validData[dataHistogramIndex],
-          seriesRenderer,
           histogramCollection.length,
           indicator));
       xValues.add(validData[dataHistogramIndex].x);

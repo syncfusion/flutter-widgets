@@ -5,12 +5,14 @@ bool hasPrimaryFocus = false;
 
 /// Prevent default menu.
 void preventDefaultMenu() {
-  html.window.document.onKeyDown.listen((e) => _preventSpecificDefaultMenu(e));
-  html.window.document.onContextMenu.listen((e) => e.preventDefault());
+  html.window.document.onKeyDown
+      .listen((html.KeyboardEvent e) => _preventSpecificDefaultMenu(e));
+  html.window.document.onContextMenu
+      .listen((html.MouseEvent e) => e.preventDefault());
 }
 
 /// Prevent specific default menu such as zoom panel,search.
-void _preventSpecificDefaultMenu(e) {
+void _preventSpecificDefaultMenu(html.KeyboardEvent e) {
   if (e.keyCode == 114 || (e.ctrlKey && e.keyCode == 70)) {
     e.preventDefault();
   }

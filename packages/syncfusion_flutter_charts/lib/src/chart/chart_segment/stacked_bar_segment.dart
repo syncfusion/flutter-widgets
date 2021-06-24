@@ -9,8 +9,6 @@ part of charts;
 class StackedBarSegment extends ChartSegment {
   /// Stacked values
   late double stackValues;
-  // @override
-  // CartesianChartPoint<dynamic> _currentPoint;
 
   /// Render path
   late Path _path;
@@ -76,7 +74,7 @@ class StackedBarSegment extends ChartSegment {
   /// Method to get series tracker fill.
   Paint _getTrackerFillPaint() {
     final StackedBarSeries<dynamic, dynamic> columnSeries =
-        _series as StackedBarSeries;
+        _series as StackedBarSeries<dynamic, dynamic>;
     _trackerFillPaint = Paint()
       ..color = columnSeries.trackColor
       ..style = PaintingStyle.fill;
@@ -85,7 +83,7 @@ class StackedBarSegment extends ChartSegment {
 
   /// Method to get _series tracker stroke color.
   Paint _getTrackerStrokePaint() {
-    _stackedBarSeries = _series as StackedBarSeries;
+    _stackedBarSeries = _series as StackedBarSeries<dynamic, dynamic>;
     _trackerStrokePaint = Paint()
       ..color = _stackedBarSeries.trackBorderColor
       ..strokeWidth = _stackedBarSeries.trackBorderWidth
@@ -103,7 +101,7 @@ class StackedBarSegment extends ChartSegment {
   /// Draws segment in series bounds.
   @override
   void onPaint(Canvas canvas) {
-    _stackedBarSeries = _series as StackedBarSeries;
+    _stackedBarSeries = _series as StackedBarSeries<dynamic, dynamic>;
     if (_trackerFillPaint != null && _stackedBarSeries.isTrackVisible) {
       canvas.drawRRect(_trackRect, _trackerFillPaint!);
     }

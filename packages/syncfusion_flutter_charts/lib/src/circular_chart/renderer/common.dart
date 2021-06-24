@@ -10,7 +10,7 @@ class ChartPoint<D> {
   ChartPoint([this.x, this.y, this.radius, this.pointColor, this.sortValue]);
 
   /// X value of chart point
-  dynamic? x;
+  dynamic x;
 
   /// Y value of chart point
   num? y;
@@ -108,7 +108,7 @@ class ChartPoint<D> {
   late int index;
 
   // Data type
-  dynamic? _data;
+  dynamic _data;
 
   /// PointShader Mapper
   ChartShaderMapper<dynamic>? _pointShaderMapper;
@@ -252,6 +252,30 @@ class ConnectorLineSettings {
   ///}
   ///```
   final ConnectorType type;
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is ConnectorLineSettings &&
+        other.length == length &&
+        other.width == width &&
+        other.color == color &&
+        other.type == type;
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode {
+    final List<Object?> values = <Object?>[length, width, color, type];
+    return hashList(values);
+  }
 }
 
 class _ChartInteraction {
@@ -269,13 +293,14 @@ class _ChartInteraction {
 ///Circular chart allows you to mark the specific area of interest in the chart area.
 /// You can add the custom widgets using this annotation feature, It has the properties for customizing the appearance.
 ///
-/// You can able set the angle, alignment, height, and width of the inserted annotation.
+/// The angle, orientation, height, and width of the inserted annotation can all be customized.
 ///
-/// It provides options for an angle, height, width, vertical and horizontal alignment to customize the appearance.
+/// It provides options for angle, height, width, vertical and horizontal alignment to customize the appearance.
 ///
+@immutable
 class CircularChartAnnotation {
   /// Creating an argument constructor of CircularChartAnnotation class.
-  CircularChartAnnotation(
+  const CircularChartAnnotation(
       {int? angle,
       String? radius,
       this.widget,
@@ -443,6 +468,39 @@ class CircularChartAnnotation {
   ///}
   ///```
   final ChartAlignment verticalAlignment;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is CircularChartAnnotation &&
+        other.angle == angle &&
+        other.radius == radius &&
+        other.height == height &&
+        other.horizontalAlignment == horizontalAlignment &&
+        other.verticalAlignment == verticalAlignment &&
+        other.widget == widget &&
+        other.width == width;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      angle,
+      radius,
+      height,
+      horizontalAlignment,
+      verticalAlignment,
+      widget,
+      width
+    ];
+    return hashList(values);
+  }
 }
 
 ///To get circular series data label saturation color
@@ -462,23 +520,22 @@ Color _getCircularDataLabelColor(ChartPoint<dynamic> currentPoint,
   switch (seriesType) {
     case 'Pie':
     case 'Doughnut':
-      if (currentPoint.renderPosition == ChartDataLabelPosition.inside &&
-          !currentPoint.saturationRegionOutside) {
-        color = _getInnerColor(dataLabelSettingsRenderer._color,
-            currentPoint.fill, _chartState._chartTheme);
-      } else {
-        color = _getOuterColor(
-            dataLabelSettingsRenderer._color,
-            dataLabel.useSeriesColor
-                ? currentPoint.fill
-                : (_chartState._chart.backgroundColor ??
-                    _chartState._chartTheme.plotAreaBackgroundColor),
-            _chartState._chartTheme);
-      }
+      color = (currentPoint.renderPosition == ChartDataLabelPosition.inside &&
+              !currentPoint.saturationRegionOutside)
+          ? _getInnerColor(dataLabelSettingsRenderer._color, currentPoint.fill,
+              _chartState._renderingDetails.chartTheme)
+          : _getOuterColor(
+              dataLabelSettingsRenderer._color,
+              dataLabel.useSeriesColor
+                  ? currentPoint.fill
+                  : (_chartState._chart.backgroundColor ??
+                      _chartState._renderingDetails.chartTheme
+                          .plotAreaBackgroundColor),
+              _chartState._renderingDetails.chartTheme);
       break;
     case 'RadialBar':
       final RadialBarSeries<dynamic, dynamic> radialBar =
-          seriesRenderer._series as RadialBarSeries;
+          seriesRenderer._series as RadialBarSeries<dynamic, dynamic>;
       color = radialBar.trackColor;
       break;
     default:
@@ -518,8 +575,9 @@ bool _checkIsAnyPointSelect(CircularSeriesRenderer seriesRenderer,
   bool isAnyPointSelected = false;
   final CircularSeries<dynamic, dynamic> series = seriesRenderer._series;
   if (series.initialSelectedDataIndexes.isNotEmpty) {
+    int data;
     for (int i = 0; i < series.initialSelectedDataIndexes.length; i++) {
-      final int data = series.initialSelectedDataIndexes[i];
+      data = series.initialSelectedDataIndexes[i];
       for (int j = 0; j < seriesRenderer._renderPoints!.length; j++) {
         if (j == data) {
           isAnyPointSelected = true;

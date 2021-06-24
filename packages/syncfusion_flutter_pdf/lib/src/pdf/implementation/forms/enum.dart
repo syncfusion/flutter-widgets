@@ -165,3 +165,18 @@ enum _SignatureFlags {
   /// will be invalidated and requiring explicit confirmation before continuing with the operation.
   appendOnly
 }
+
+/// Specifies the format of Export or Import data.
+enum DataFormat {
+  /// Specifies  Forms Data Format file format.
+  fdf,
+
+  /// Specifies  XFDF file format.
+  xfdf,
+
+  /// Specifies JSON file format.
+  json,
+
+  /// Specifies  XML file format
+  xml
+}

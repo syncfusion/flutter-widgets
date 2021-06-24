@@ -1,13 +1,22 @@
+import 'dart:async';
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart' show NumberFormat;
-import '../annotation/gauge_annotation.dart';
-import '../common/common.dart';
-import '../pointers/gauge_pointer.dart';
-import '../range/gauge_range.dart';
-import '../utils/enum.dart';
-import 'gauge_axis.dart';
+
+import '../../radial_gauge/annotation/gauge_annotation.dart';
+import '../../radial_gauge/axis/radial_axis_parent_widget.dart';
+import '../../radial_gauge/axis/radial_axis_scope.dart';
+import '../../radial_gauge/axis/radial_axis_widget.dart';
+import '../../radial_gauge/gauge/radial_gauge_scope.dart';
+import '../../radial_gauge/pointers/gauge_pointer.dart';
+import '../../radial_gauge/range/gauge_range.dart';
+import '../../radial_gauge/styles/radial_text_style.dart';
+import '../../radial_gauge/styles/radial_tick_style.dart';
+import '../../radial_gauge/utils/enum.dart';
+import '../../radial_gauge/utils/radial_callback_args.dart';
+import '../../radial_gauge/utils/radial_gauge_typedef.dart';
 
 /// The [RadialAxis] is a circular arc in which a set of values are
 /// displayed along a linear or custom scale
@@ -22,7 +31,7 @@ import 'gauge_axis.dart';
 ///        ));
 ///}
 /// ```
-class RadialAxis extends GaugeAxis {
+class RadialAxis extends StatefulWidget {
   /// Create [RadialAxis] with the default or required scale range and
   /// customized axis properties.
   ///
@@ -30,84 +39,65 @@ class RadialAxis extends GaugeAxis {
   /// [radiusFactor], [centerX], [centerY],
   /// [tickOffset] and [labelOffset] must not be null.
   /// Additionally [centerX], [centerY] must be non-negative
-  /// and [maximum] must be creater than [minimum].
+  /// and [maximum] must be greater than [minimum].
   RadialAxis(
-      {this.startAngle = 130,
+      {Key? key,
+      this.startAngle = 130,
       this.endAngle = 50,
       this.radiusFactor = 0.95,
       this.centerX = 0.5,
+      this.centerY = 0.5,
       this.onLabelCreated,
       this.onAxisTapped,
       this.canRotateLabels = false,
-      this.centerY = 0.5,
       this.showFirstLabel = true,
       this.showLastLabel = false,
       this.canScaleToFit = false,
-      List<GaugeRange>? ranges,
-      List<GaugePointer>? pointers,
-      List<GaugeAnnotation>? annotations,
+      this.backgroundImage,
+      this.ranges,
+      this.pointers,
+      this.annotations,
+      this.minimum = 0,
+      this.maximum = 100,
+      this.interval,
+      this.minorTicksPerInterval = 1,
+      this.showLabels = true,
+      this.showAxisLine = true,
+      this.showTicks = true,
+      this.tickOffset = 0,
+      this.labelOffset = 15,
+      this.isInversed = false,
+      this.maximumLabels = 3,
+      this.useRangeColorForAxis = false,
+      this.labelFormat,
+      NumberFormat? numberFormat,
+      this.onCreateAxisRenderer,
+      this.ticksPosition = ElementsPosition.inside,
+      this.labelsPosition = ElementsPosition.inside,
+      this.offsetUnit = GaugeSizeUnit.logicalPixel,
       GaugeTextStyle? axisLabelStyle,
       AxisLineStyle? axisLineStyle,
       MajorTickStyle? majorTickStyle,
-      MinorTickStyle? minorTickStyle,
-      this.backgroundImage,
-      GaugeAxisRendererFactory? onCreateAxisRenderer,
-      double minimum = 0,
-      double maximum = 100,
-      double? interval,
-      double minorTicksPerInterval = 1,
-      bool showLabels = true,
-      bool showAxisLine = true,
-      bool showTicks = true,
-      double tickOffset = 0,
-      double labelOffset = 15,
-      bool isInversed = false,
-      GaugeSizeUnit offsetUnit = GaugeSizeUnit.logicalPixel,
-      int maximumLabels = 3,
-      bool useRangeColorForAxis = false,
-      String? labelFormat,
-      NumberFormat? numberFormat,
-      ElementsPosition ticksPosition = ElementsPosition.inside,
-      ElementsPosition labelsPosition = ElementsPosition.inside})
+      MinorTickStyle? minorTickStyle})
       : assert(
             radiusFactor >= 0, 'Radius factor must be a non-negative value.'),
         assert(centerX >= 0, 'Center X must be a non-negative value.'),
         assert(centerY >= 0, 'Center Y must be a non-negative value.'),
         assert(minimum < maximum, 'Maximum should be greater than minimum.'),
-        super(
-            ranges: ranges,
-            annotations: annotations,
-            pointers: pointers,
-            onCreateAxisRenderer: onCreateAxisRenderer,
-            minimum: minimum,
-            maximum: maximum,
-            interval: interval,
-            minorTicksPerInterval: minorTicksPerInterval,
-            showLabels: showLabels,
-            showAxisLine: showAxisLine,
-            showTicks: showTicks,
-            tickOffset: tickOffset,
-            labelOffset: labelOffset,
-            isInversed: isInversed,
-            maximumLabels: maximumLabels,
-            useRangeColorForAxis: useRangeColorForAxis,
-            labelFormat: labelFormat,
-            offsetUnit: offsetUnit,
-            numberFormat: numberFormat,
-            ticksPosition: ticksPosition,
-            labelsPosition: labelsPosition,
-            axisLabelStyle: axisLabelStyle ??
-                GaugeTextStyle(
-                    fontSize: 12.0,
-                    fontFamily: 'Segoe UI',
-                    fontStyle: FontStyle.normal,
-                    fontWeight: FontWeight.normal),
-            axisLineStyle: axisLineStyle ??
-                AxisLineStyle(
-                  thickness: 10,
-                ),
-            majorTickStyle: majorTickStyle ?? MajorTickStyle(),
-            minorTickStyle: minorTickStyle ?? MinorTickStyle());
+        axisLabelStyle = axisLabelStyle ??
+            const GaugeTextStyle(
+                fontSize: 12.0,
+                fontFamily: 'Segoe UI',
+                fontStyle: FontStyle.normal,
+                fontWeight: FontWeight.normal),
+        axisLineStyle = axisLineStyle ??
+            const AxisLineStyle(
+              thickness: 10,
+            ),
+        numberFormat = numberFormat ?? NumberFormat('#.##'),
+        majorTickStyle = majorTickStyle ?? const MajorTickStyle(),
+        minorTickStyle = minorTickStyle ?? const MinorTickStyle(),
+        super(key: key);
 
   /// Specifies the start angle of axis.
   ///
@@ -354,91 +344,875 @@ class RadialAxis extends GaugeAxis {
   ///```
   final bool canScaleToFit;
 
+  /// Add a list of gauge range to the radial gauge and customize
+  /// each range by adding it to the [ranges] collection.
+  ///
+  /// Also refer [GaugeRange]
+  ///
+  /// ```dart
+  ///Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///          ranges: <GaugeRange>[GaugeRange(startValue: 50,
+  ///          endValue: 100)],
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  final List<GaugeRange>? ranges;
+
+  /// Add a list of gauge pointer to the radial gauge and customize
+  /// each pointer by adding it to the [pointers] collection.
+  ///
+  /// Also refer [GaugePointer]
+  ///
+  /// ```dart
+  ///Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///             pointers: <GaugePointer>[MarkerPointer(value: 50)],
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  final List<GaugePointer>? pointers;
+
+  /// Add a list of gauge annotation to the radial gauge and customize
+  /// each annotation by adding it to the [annotations] collection.
+  ///
+  /// Also refer [GaugeAnnotation]
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///            annotations: <GaugeAnnotation>[
+  ///            GaugeAnnotation(widget: Text('Annotation'))
+  ///            ]
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  final List<GaugeAnnotation>? annotations;
+
+  /// The minimum value for the axis.
+  ///
+  /// The range of the axis scale is starting from this value.
+  ///
+  /// Defaults to `0`.
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///          minimum : 30,
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  final double minimum;
+
+  /// The maximum value for the axis.
+  ///
+  /// The range of the axis scale is end with this value.
+  ///
+  /// Defaults to `100`.
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///          maximum: 200,
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  final double maximum;
+
+  /// The interval value for the axis.
+  ///
+  /// Using this, the axis labels can be shown at a certain interval value.
+  /// Unless the interval is not defined,
+  /// interval will be measured automatically based on scale range
+  /// along with the available width.
+  ///
+  /// Defaults to `null`.
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///          interval: 20,
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  final double? interval;
+
+  /// Add minor ticks count per interval.
+  ///
+  /// Defaults to `1`.
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///          minorTicksPerInterval: 3,
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  final double minorTicksPerInterval;
+
+  /// Whether to show the labels on the axis of the gauge.
+  ///
+  /// Defaults to `true`.
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///          showLabels: false,
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  final bool showLabels;
+
+  /// Whether to show the axis line of the gauge.
+  ///
+  /// Defaults to `true`.
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///           showAxisLine: false,
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  final bool showAxisLine;
+
+  /// Whether to show the ticks on the axis of the gauge.
+  ///
+  /// Defaults to `true`.
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///           showTicks: false,
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  final bool showTicks;
+
+  /// Adjusts the axis ticks distance from the axis line.
+  ///
+  /// You can specify value either in logical pixel or radius factor
+  /// using the [offsetUnit] property.
+  /// if [offsetUnit] is [GaugeSizeUnit.factor], value will be given
+  /// from 0 to 1. Here ticks placing position is calculated
+  /// by [tickOffset] * axis radius value.
+  ///
+  /// Example: [tickOffset] value is 0.2 and axis radius is 100, ticks
+  /// moving 20(0.2 * 100) logical pixels from axis line.
+  /// If [offsetUnit] is [GaugeSizeUnit.logicalPixel], the defined value
+  /// distance ticks will move from the axis line.
+  ///
+  /// Defaults to `0` and [offsetUnit] is `GaugeSizeUnit.logicalPixel`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///           tickOffset: 20
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  final double tickOffset;
+
+  /// Adjusts the axis label distance from tick end.
+  ///
+  /// You can specify value either in logical pixel or radius factor using the
+  /// [offsetUnit] property.
+  /// if [offsetUnit] is [GaugeSizeUnit.factor], value will be given
+  /// from 0 to 1. Here labels placing position is calculated
+  /// by [labelOffset] * axis radius value.
+  ///
+  /// Example: [labelOffset] value is 0.2 and axis radius is 100, labels
+  /// moving 20(0.2 * 100) logical pixels from ticks end.
+  /// If [offsetUnit] is [GaugeSizeUnit.logicalPixel], the defined value
+  /// distance labels will move from the end of the tick.
+  ///
+  /// Defaults to `15` and [offsetUnit] is `GaugeSizeUnit.logicalPixel`.
+  ///```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///           labelOffset: 30
+  ///            )]
+  ///        ));
+  ///}
+  ///```
+  final double labelOffset;
+
+  /// Inverts the axis from right to left.
+  ///
+  /// Axis is rendered by default in the clockwise direction and can be
+  /// inverted to render the axis element in the counter clockwise direction.
+  ///
+  /// Defaults to `false`.
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///            isInversed: true,
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  final bool isInversed;
+
+  /// The maximum number of labels to be displayed in 100 logical
+  /// pixels on the axis.
+  ///
+  /// Defaults to `3`.
+  ///```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///           maximumLabels: 5
+  ///            )]
+  ///        ));
+  ///}
+  ///```
+  final int maximumLabels;
+
+  /// Whether to use the range color for axis elements such as labels and ticks.
+  ///
+  /// Defaults to `false`.
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///           useRangeColorForAxis : true,
+  ///           ranges: <GaugeRange>[GaugeRange(
+  ///           startValue: 50,
+  ///           endValue: 100)],
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  final bool useRangeColorForAxis;
+
+  /// Formats the axis labels.
+  ///
+  /// The labels can be customized by adding the desired text as prefix
+  /// or suffix.
+  ///
+  /// Defaults to `null`.
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///           labelFormat: '{value}M'
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  final String? labelFormat;
+
+  /// Formats the axis labels with globalized label formats.
+  ///
+  /// Defaults to `null`.
+  ///
+  /// Also refer [NumberFormat].
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///           numberFormat: NumberFormat.currencyCompact()
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  final NumberFormat? numberFormat;
+
+  /// Positions the tick lines inside or outside the axis line.
+  ///
+  /// If [ElementsPosition.inside], the position of the tick is inside the
+  /// axis line.
+  /// If [ElementsPosition.outside], the position of the tick is outside the
+  /// axis line.
+  ///
+  /// Defaults to `ElementsPosition.inside`.
+  ///
+  /// Also refer [ElementsPosition].
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///           ticksPosition: ElementsPosition.outside,
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  final ElementsPosition ticksPosition;
+
+  /// Positions the axis labels inside or outside the axis line.
+  ///
+  /// If [ElementsPosition.inside], the position of the labels is inside the
+  /// axis line.
+  /// If [ElementsPosition.outside], the position of the labels is outside the
+  /// axis line.
+  ///
+  /// Defaults to `ElementsPosition.inside`.
+  ///
+  /// Also refer [ElementsPosition]
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///           labelsPosition: ElementsPosition.outside,
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  final ElementsPosition labelsPosition;
+
+  /// The style to use for the axis label text.
+  ///
+  /// Using [GaugeTextStyle] to add the style to the axis labels.
+  ///
+  /// Defaults to the [GaugeTextStyle] property with font size `12.0` and
+  /// font family `Segoe UI`.
+  ///
+  /// Also refer [GaugeTextStyle]
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///          axisLabelStyle: GaugeTextStyle(fontSize: 20,
+  ///          fontStyle: FontStyle.italic),
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  final GaugeTextStyle axisLabelStyle;
+
+  /// The style to use for the axis line.
+  ///
+  /// Using [AxisLineStyle] to add the customized style to the axis line.
+  ///
+  /// Defaults to the [AxisLineStyle] property with thickness `10
+  /// logical pixels`.
+  ///
+  /// Also refer [AxisLineStyle]
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///           axisLineStyle: AxisLineStyle(color: Colors.red,
+  ///           thickness: 20),
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  final AxisLineStyle axisLineStyle;
+
+  /// The style to use for the major axis tick lines.
+  ///
+  /// Using [MajorTickStyle] to add the customized style to the axis
+  /// major tick line.
+  ///
+  /// Defaults to the [MajorTickStyle] property with length `10 logical
+  /// pixels`.
+  ///
+  /// Also refer [MajorTickStyle]
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///            majorTickStyle: MajorTickStyle(color: Colors.red,
+  ///            thickness: 3,
+  ///            length: 10),
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  final MajorTickStyle majorTickStyle;
+
+  /// The style to use for the minor axis tick lines.
+  ///
+  /// Using [MinorTickStyle] to add the customized style to the axis minor tick
+  /// line.
+  ///
+  /// Defaults to the [MinorTickStyle] property with length `5
+  /// logical pixels`.
+  ///
+  /// Also refer [MinorTickStyle].
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///            minorTickStyle: MinorTickStyle(color: Colors.red,
+  ///            thickness: 3,
+  ///            length: 10),
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  final MinorTickStyle minorTickStyle;
+
+  /// Calculates the position either in logical pixel or radius factor.
+  ///
+  /// Using [GaugeSizeUnit], axis ticks and label position is calculated.
+  ///
+  /// Defaults to `GaugeSizeUnit.logicalPixel`.
+  ///```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///           labelOffset: 0.3, offsetUnit: GaugeSizeUnit.factor
+  ///            )]
+  ///        ));
+  ///}
+  ///```
+  final GaugeSizeUnit offsetUnit;
+
+  /// The callback that is called when the custom renderer for
+  /// the custom axis is created. and it is not applicable for
+  /// built-in axis
+  ///
+  /// The corresponding axis is passed as the argument to the callback in
+  /// order to access the axis property
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///           onCreateAxisRenderer: handleCreateAxisRenderer,
+  ///            )]
+  ///        ));
+  ///}
+  ///
+  /// Called before creating the renderer
+  /// GaugeAxisRenderer handleCreateAxisRenderer(){
+  /// final _CustomAxisRenderer _customAxisRenderer = _CustomAxisRenderer();
+  /// return _customAxisRenderer;
+  ///}
+  ///
+  /// class _CustomAxisRenderer extends RadialAxisRenderer{
+  /// _CustomAxisRenderer class implementation
+  /// }
+  ///
+  /// ```
+  final GaugeAxisRendererFactory? onCreateAxisRenderer;
+
   @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) {
-      return true;
-    }
-    if (other.runtimeType != runtimeType) {
-      return false;
-    }
-    return other is RadialAxis &&
-        other.startAngle == startAngle &&
-        other.endAngle == endAngle &&
-        other.minimum == minimum &&
-        other.maximum == maximum &&
-        other.axisLineStyle == axisLineStyle &&
-        other.labelOffset == labelOffset &&
-        other.tickOffset == tickOffset &&
-        other.showLabels == showLabels &&
-        other.showTicks == showTicks &&
-        other.showAxisLine == showAxisLine &&
-        other.showLastLabel == showLastLabel &&
-        other.showFirstLabel == showFirstLabel &&
-        other.interval == interval &&
-        other.minorTicksPerInterval == minorTicksPerInterval &&
-        other.maximumLabels == maximumLabels &&
-        other.isInversed == isInversed &&
-        other.labelFormat == labelFormat &&
-        other.numberFormat == numberFormat &&
-        other.radiusFactor == radiusFactor &&
-        other.ticksPosition == ticksPosition &&
-        other.labelsPosition == labelsPosition &&
-        other.onLabelCreated == onLabelCreated &&
-        other.centerX == centerX &&
-        other.centerY == centerY &&
-        other.canScaleToFit == canScaleToFit &&
-        other.onAxisTapped == onAxisTapped &&
-        other.canRotateLabels == canRotateLabels &&
-        other.majorTickStyle == majorTickStyle &&
-        other.minorTickStyle == minorTickStyle &&
-        other.useRangeColorForAxis == useRangeColorForAxis &&
-        other.axisLabelStyle == axisLabelStyle &&
-        other.onCreateAxisRenderer == other.onCreateAxisRenderer &&
-        other.backgroundImage == backgroundImage;
+  State<StatefulWidget> createState() => _RadialAxisState();
+}
+
+class _RadialAxisState extends State<RadialAxis> with TickerProviderStateMixin {
+  bool _hasAxisLine = false,
+      _hasAxisElements = false,
+      _hasRanges = false,
+      _hasPointers = false,
+      _hasAnnotations = false;
+
+  /// Specifies the axis line interval for animation
+  List<double?> _axisLineInterval =
+      List<double?>.filled(5, null, growable: false);
+  List<double?> _axisElementsInterval =
+      List<double?>.filled(5, null, growable: false);
+  List<double?> _rangesInterval =
+      List<double?>.filled(5, null, growable: false);
+  List<double?> _pointersInterval =
+      List<double?>.filled(5, null, growable: false);
+  List<double?> _annotationInterval =
+      List<double?>.filled(5, null, growable: false);
+
+  AnimationController? _animationController;
+
+  Animation<double>? _axisAnimation,
+      _axisElementAnimation,
+      _rangeAnimation,
+      _annotationAnimation;
+
+  final List<Widget> _radialAxisWidgets = <Widget>[];
+  final List<AnimationController?> _pointerAnimationControllers =
+      <AnimationController?>[];
+  List<GaugePointer>? _oldPointerList = <GaugePointer>[];
+
+  late bool _enableAnimation;
+  bool _isPointerAnimationStarted = false;
+
+  /// Holds the pointer repaint notifier.
+  final ValueNotifier<int> _repaintNotifier = ValueNotifier<int>(0);
+  Timer? _timer;
+
+  @override
+  void initState() {
+    _calculateDurationForAnimation();
+    _updateOldList();
+    _initializeAnimations();
+    super.initState();
   }
 
   @override
-  int get hashCode {
-    final List<Object?> values = <Object?>[
-      startAngle,
-      endAngle,
-      hashList(ranges),
-      hashList(pointers),
-      hashList(annotations),
-      minimum,
-      maximum,
-      axisLineStyle,
-      labelOffset,
-      tickOffset,
-      offsetUnit,
-      showLabels,
-      showTicks,
-      showAxisLine,
-      showLastLabel,
-      showFirstLabel,
-      interval,
-      minorTicksPerInterval,
-      maximumLabels,
-      isInversed,
-      labelFormat,
-      numberFormat,
-      radiusFactor,
-      ticksPosition,
-      labelsPosition,
-      onLabelCreated,
-      centerX,
-      centerY,
-      canScaleToFit,
-      onAxisTapped,
-      canRotateLabels,
-      majorTickStyle,
-      minorTickStyle,
-      useRangeColorForAxis,
-      axisLabelStyle,
-      backgroundImage,
-      onCreateAxisRenderer
-    ];
-    return hashList(values);
+  void didUpdateWidget(covariant RadialAxis oldWidget) {
+    final bool isAnimationEnabled =
+        RadialGaugeScope.of(context).enableLoadingAnimation;
+    if (isAnimationEnabled != _enableAnimation ||
+        !_isEqualLists(widget.pointers, _oldPointerList)) {
+      _updateOldList();
+      _initializeAnimations();
+    }
+
+    super.didUpdateWidget(oldWidget);
+  }
+
+  void _updateOldList() {
+    _oldPointerList = (widget.pointers != null)
+        ? List<GaugePointer>.from(widget.pointers!)
+        : null;
+  }
+
+  bool _isEqualLists(List<dynamic>? a, List<dynamic>? b) {
+    if (a == null) {
+      return b == null;
+    }
+
+    if (b == null || a.length != b.length) {
+      return false;
+    }
+
+    for (int index = 0; index < a.length; index++) {
+      if (a[index].enableAnimation != b[index].enableAnimation ||
+          a[index].animationDuration != b[index].animationDuration ||
+          a[index].animationType != b[index].animationType) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /// Initialize the animations.
+  void _initializeAnimations() {
+    _enableAnimation = RadialGaugeScope.of(context).enableLoadingAnimation;
+    final int animationDuration =
+        RadialGaugeScope.of(context).animationDuration;
+    _isPointerAnimationStarted = false;
+    _disposeAnimationControllers();
+    if (_enableAnimation) {
+      _animationController = AnimationController(
+          vsync: this, duration: Duration(milliseconds: animationDuration));
+      _animationController!.addListener(_axisAnimationListener);
+      if (_hasAxisLine) {
+        _axisAnimation = Tween<double>(begin: 0, end: 1).animate(
+            CurvedAnimation(
+                parent: _animationController!,
+                curve: Interval(_axisLineInterval[0]!, _axisLineInterval[1]!,
+                    curve: Curves.easeIn)));
+      }
+
+      // Includes animation duration for axis ticks and labels
+      if (_hasAxisElements) {
+        _axisElementAnimation = Tween<double>(begin: 0, end: 1).animate(
+            CurvedAnimation(
+                parent: _animationController!,
+                curve: Interval(
+                    _axisElementsInterval[0]!, _axisElementsInterval[1]!,
+                    curve: Curves.easeIn)));
+      }
+
+      if (_hasRanges) {
+        _rangeAnimation = Tween<double>(begin: 0, end: 1).animate(
+            CurvedAnimation(
+                parent: _animationController!,
+                curve: Interval(_rangesInterval[0]!, _rangesInterval[1]!,
+                    curve: Curves.easeIn)));
+      }
+
+      if (_hasAnnotations) {
+        _annotationAnimation = Tween<double>(begin: 0, end: 1).animate(
+            CurvedAnimation(
+                parent: _animationController!,
+                curve: Interval(
+                    _annotationInterval[0]!, _annotationInterval[1]!,
+                    curve: Curves.easeIn)));
+      }
+    }
+
+    if (_hasPointers) {
+      _pointerAnimationControllers.clear();
+
+      for (int i = 0; i < widget.pointers!.length; i++) {
+        AnimationController? pointerAnimationController;
+        if (widget.pointers![i].enableAnimation) {
+          pointerAnimationController = AnimationController(
+              vsync: this,
+              duration: Duration(
+                  milliseconds: widget.pointers![i].animationDuration.toInt()));
+          _pointerAnimationControllers.add(pointerAnimationController);
+        }
+      }
+    }
+
+    _animateElements();
+  }
+
+  void _axisAnimationListener() {
+    if (_pointersInterval[0] == null ||
+        (_pointersInterval[0] != null &&
+            _pointersInterval[0]! <= _animationController!.value &&
+            !_isPointerAnimationStarted)) {
+      _isPointerAnimationStarted = true;
+      _animatePointers();
+    }
+  }
+
+  /// Animates the gauge elements.
+  void _animateElements() {
+    if (_enableAnimation) {
+      _animationController!.forward();
+    } else {
+      if (mounted) {
+        _timer = Timer(const Duration(milliseconds: 50), () {
+          _animatePointers();
+        });
+      }
+    }
+  }
+
+  void _animatePointers() {
+    if (_pointerAnimationControllers.isNotEmpty) {
+      for (int i = 0; i < _pointerAnimationControllers.length; i++) {
+        _pointerAnimationControllers[i]!.forward();
+      }
+    }
+  }
+
+  List<Widget> _buildRadialAxis() {
+    _radialAxisWidgets.clear();
+
+    /// Adding the axis widget.
+    _radialAxisWidgets.add(RadialAxisScope(
+        child: RadialAxisRenderObjectWidget(axis: widget),
+        animation1: _axisElementAnimation,
+        isRadialGaugeAnimationEnabled: _enableAnimation,
+        repaintNotifier: _repaintNotifier,
+        animation: _axisAnimation));
+
+    if (widget.ranges != null) {
+      for (int i = 0; i < widget.ranges!.length; i++) {
+        _radialAxisWidgets.add(RadialAxisScope(
+            child: widget.ranges![i],
+            isRadialGaugeAnimationEnabled: _enableAnimation,
+            repaintNotifier: _repaintNotifier,
+            animation: _rangeAnimation));
+      }
+    }
+
+    if (widget.pointers != null) {
+      int pointerIndex = 0;
+
+      for (int i = 0; i < widget.pointers!.length; i++) {
+        AnimationController? pointerAnimationController;
+        if (widget.pointers![i].enableAnimation) {
+          pointerAnimationController =
+              _pointerAnimationControllers[pointerIndex];
+          pointerIndex++;
+        } else if (_enableAnimation) {
+          pointerAnimationController = _animationController!;
+        }
+
+        _radialAxisWidgets.add(RadialAxisScope(
+            child: widget.pointers![i] as Widget,
+            animationController: pointerAnimationController,
+            isRadialGaugeAnimationEnabled: _enableAnimation,
+            repaintNotifier: _repaintNotifier,
+            pointerInterval: _pointersInterval));
+      }
+    }
+
+    if (widget.annotations != null) {
+      for (int i = 0; i < widget.annotations!.length; i++) {
+        _radialAxisWidgets.add(RadialAxisScope(
+            child: widget.annotations![i],
+            isRadialGaugeAnimationEnabled: _enableAnimation,
+            repaintNotifier: _repaintNotifier,
+            animation: _annotationAnimation));
+      }
+    }
+
+    return _radialAxisWidgets;
+  }
+
+  /// Calculates the  gauge elements
+  void _calculateAxisElements() {
+    final RadialAxis axis = widget;
+
+    if (axis.showAxisLine && !_hasAxisLine) {
+      _hasAxisLine = true;
+    }
+
+    if ((axis.showTicks || axis.showLabels) && !_hasAxisElements) {
+      _hasAxisElements = true;
+    }
+
+    if (axis.ranges != null && axis.ranges!.isNotEmpty && !_hasRanges) {
+      _hasRanges = true;
+    }
+
+    if (axis.pointers != null && axis.pointers!.isNotEmpty && !_hasPointers) {
+      _hasPointers = true;
+    }
+
+    if (axis.annotations != null &&
+        axis.annotations!.isNotEmpty &&
+        !_hasAnnotations) {
+      _hasAnnotations = true;
+    }
+  }
+
+  ///calculates the duration for animation
+  void _calculateDurationForAnimation() {
+    num totalCount = 5;
+    double interval;
+    double startValue = 0.05;
+    double endValue = 0;
+    _calculateAxisElements();
+
+    totalCount = _getElementsCount(totalCount);
+
+    interval = 1 / totalCount;
+    endValue = interval;
+
+    if (_hasAxisLine) {
+      _axisLineInterval = List<double?>.filled(2, null);
+      _axisLineInterval[0] = startValue;
+      _axisLineInterval[1] = endValue;
+      startValue = endValue;
+      endValue += interval;
+    }
+
+    if (_hasAxisElements) {
+      _axisElementsInterval = List<double?>.filled(2, null);
+      _axisElementsInterval[0] = startValue;
+      _axisElementsInterval[1] = endValue;
+      startValue = endValue;
+      endValue += interval;
+    }
+
+    if (_hasRanges) {
+      _rangesInterval = List<double?>.filled(2, null);
+      _rangesInterval[0] = startValue;
+      _rangesInterval[1] = endValue;
+      startValue = endValue;
+      endValue += interval;
+    }
+
+    if (_hasPointers) {
+      _pointersInterval = List<double?>.filled(2, null);
+      _pointersInterval[0] = startValue;
+      _pointersInterval[1] = endValue;
+      startValue = endValue;
+      endValue += interval;
+    }
+
+    if (_hasAnnotations) {
+      _annotationInterval = List<double?>.filled(2, null);
+      _annotationInterval[0] = startValue;
+      _annotationInterval[1] = endValue;
+    }
+  }
+
+  /// Returns the total elements count
+  num _getElementsCount(num totalCount) {
+    if (!_hasAnnotations) {
+      totalCount -= 1;
+    }
+
+    if (!_hasPointers) {
+      totalCount -= 1;
+    }
+
+    if (!_hasRanges) {
+      totalCount -= 1;
+    }
+
+    if (!_hasAxisElements) {
+      totalCount -= 1;
+    }
+
+    if (!_hasAxisLine) {
+      totalCount -= 1;
+    }
+
+    return totalCount;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RadialAxisParentWidget(children: _buildRadialAxis());
+  }
+
+  void _disposeAnimationControllers() {
+    if (_timer != null) {
+      _timer!.cancel();
+      _timer = null;
+    }
+
+    if (_animationController != null) {
+      _animationController!.removeListener(_axisAnimationListener);
+      _animationController!.dispose();
+      _animationController = null;
+    }
+
+    if (_pointerAnimationControllers.isNotEmpty) {
+      for (int i = 0; i < _pointerAnimationControllers.length; i++) {
+        if (_pointerAnimationControllers[i] != null) {
+          _pointerAnimationControllers[i]!.dispose();
+          _pointerAnimationControllers[i] = null;
+        }
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _disposeAnimationControllers();
+    super.dispose();
   }
 }

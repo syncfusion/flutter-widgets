@@ -10,14 +10,18 @@ class _ColorScaleImpl implements ColorScale {
 
   /// Default color sequence for two color gradient.
   // ignore: prefer_final_fields
-  static List<String> _defaultColors2 = ['#FF7128', '#FFEF9C'];
+  static List<String> _defaultColors2 = <String>['#FF7128', '#FFEF9C'];
 
   /// Default color sequence for three color gradient.
   // ignore: prefer_final_fields
-  static List<String> _defaultColors3 = ['#F8696B', '#FFEB84', '#63BE7B'];
+  static List<String> _defaultColors3 = <String>[
+    '#F8696B',
+    '#FFEB84',
+    '#63BE7B'
+  ];
 
   /// A collection of individual ConditionValue objects.
-  List<ColorConditionValue> _arrCriteria = [];
+  List<ColorConditionValue> _arrCriteria = <ColorConditionValue>[];
 
   @override
 

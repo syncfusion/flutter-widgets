@@ -19,11 +19,12 @@ class _FontStructure {
             if (fontDictionary['CharProcs'] is _PdfDictionary) {
               charProcs = fontDictionary['CharProcs'] as _PdfDictionary?;
             } else {
-              charProcs = (fontDictionary['CharProcs'] as _PdfReferenceHolder)
+              charProcs = (fontDictionary['CharProcs']! as _PdfReferenceHolder)
                   .object as _PdfDictionary?;
             }
             final List<_PdfName?> names = charProcs!._items!.keys.toList();
             int i = 0;
+            // ignore: avoid_function_literals_in_foreach_calls
             charProcs._items!.values.forEach((_IPdfPrimitive? value) {
               if (value != null && value is _PdfReferenceHolder) {
                 final _PdfReferenceHolder holder = value;
@@ -254,14 +255,14 @@ class _FontStructure {
       'ZapfDingbats'
     ];
     _windows1252MapTable = <String>[
-      '\0',
+      '\u0000',
       '\u0001',
       '\u0002',
       '\u0003',
       '\u0004',
       '\u0005',
       '\u0006',
-      '\a',
+      '\u0007',
       '\b',
       '\t',
       '\n',
@@ -290,7 +291,7 @@ class _FontStructure {
       '!',
       '"',
       '#',
-      '\$',
+      r'$',
       '%',
       '&',
       '\'',
@@ -346,7 +347,7 @@ class _FontStructure {
       'Y',
       'Z',
       '[',
-      '\\',
+      r'\',
       ']',
       '^',
       '_',
@@ -543,7 +544,7 @@ class _FontStructure {
           final _PdfArray descenarray = primitive;
           if (descenarray.count > 0 && descenarray[0] is _PdfReferenceHolder) {
             final _PdfReferenceHolder referenceholder =
-                descenarray[0] as _PdfReferenceHolder;
+                descenarray[0]! as _PdfReferenceHolder;
             final _IPdfPrimitive? primitiveObject = referenceholder.object;
             if (primitiveObject != null && primitiveObject is _PdfDictionary) {
               final _PdfDictionary dictionary = primitiveObject;
@@ -596,10 +597,10 @@ class _FontStructure {
         }
         if (arr != null && arr.count > 0) {
           if (arr[0] is _PdfDictionary) {
-            dictionary = arr[0] as _PdfDictionary;
+            dictionary = arr[0]! as _PdfDictionary;
           } else if (arr[0] is _PdfReferenceHolder) {
             final _IPdfPrimitive? holder =
-                (arr[0] as _PdfReferenceHolder).object;
+                (arr[0]! as _PdfReferenceHolder).object;
             if (holder != null && holder is _PdfDictionary) {
               dictionary = holder;
             }
@@ -634,39 +635,39 @@ class _FontStructure {
         }
         for (int i = 0; i < w.count;) {
           if (w[i] is _PdfNumber) {
-            index = (w[i] as _PdfNumber).value!.toInt();
+            index = (w[i]! as _PdfNumber).value!.toInt();
           }
           i++;
           if (w[i] is _PdfArray) {
-            widthArray = (w[i] as _PdfArray);
+            widthArray = w[i]! as _PdfArray;
             for (int j = 0; j < widthArray.count; j++) {
               if (!_containsCmap) {
                 _fontGlyphWidth![index] =
-                    (widthArray[j] as _PdfNumber).value!.toInt();
+                    (widthArray[j]! as _PdfNumber).value!.toInt();
               } else if (!_fontGlyphWidth!.containsKey(index)) {
                 _fontGlyphWidth![index] =
-                    (widthArray[j] as _PdfNumber).value!.toInt();
+                    (widthArray[j]! as _PdfNumber).value!.toInt();
               }
               index++;
             }
           } else if (w[i] is _PdfNumber) {
-            endIndex = (w[i] as _PdfNumber).value!.toInt();
+            endIndex = (w[i]! as _PdfNumber).value!.toInt();
             i++;
             for (; index <= endIndex; index++) {
               if (!_fontGlyphWidth!.containsKey(index)) {
-                _fontGlyphWidth![index] = (w[i] as _PdfNumber).value!.toInt();
+                _fontGlyphWidth![index] = (w[i]! as _PdfNumber).value!.toInt();
               }
             }
           } else if (w[i] is _PdfReferenceHolder) {
-            widthArray = (w[i] as _PdfReferenceHolder).object as _PdfArray?;
+            widthArray = (w[i]! as _PdfReferenceHolder).object as _PdfArray?;
             for (int j = 0; j < widthArray!.count; j++) {
               if (!_containsCmap) {
                 _fontGlyphWidth![index] =
-                    (widthArray[j] as _PdfNumber).value!.toInt();
+                    (widthArray[j]! as _PdfNumber).value!.toInt();
               } else {
                 if (!_fontGlyphWidth!.containsKey(index)) {
                   _fontGlyphWidth![index] =
-                      (widthArray[j] as _PdfNumber).value!.toInt();
+                      (widthArray[j]! as _PdfNumber).value!.toInt();
                 }
               }
               index++;
@@ -686,12 +687,12 @@ class _FontStructure {
     int firstChar = 0;
     final _PdfDictionary dictionary = fontDictionary;
     if (dictionary.containsKey(_DictionaryProperties.dw)) {
-      defaultGlyphWidth = (dictionary[_DictionaryProperties.dw] as _PdfNumber)
+      defaultGlyphWidth = (dictionary[_DictionaryProperties.dw]! as _PdfNumber)
           .value!
           .toDouble();
     }
     if (dictionary.containsKey(_DictionaryProperties.firstChar)) {
-      firstChar = (dictionary[_DictionaryProperties.firstChar] as _PdfNumber)
+      firstChar = (dictionary[_DictionaryProperties.firstChar]! as _PdfNumber)
           .value!
           .toInt();
     }
@@ -716,7 +717,7 @@ class _FontStructure {
         final _PdfArray descendantdicArray = primitive;
         if (descendantdicArray.count > 0 &&
             descendantdicArray[0] is _PdfReferenceHolder) {
-          primitive = (descendantdicArray[0] as _PdfReferenceHolder).object;
+          primitive = (descendantdicArray[0]! as _PdfReferenceHolder).object;
           if (primitive != null && primitive is _PdfDictionary) {
             final _PdfDictionary descendantDictionary = primitive;
             if (descendantDictionary.containsKey(_DictionaryProperties.w)) {
@@ -738,17 +739,17 @@ class _FontStructure {
               differencesDictionary.isNotEmpty) {
             if (characterMapTable.containsKey(index)) {
               if (!_fontGlyphWidth!.containsKey(index)) {
-                _fontGlyphWidth![index] = (w[i] as _PdfNumber).value!.toInt();
+                _fontGlyphWidth![index] = (w[i]! as _PdfNumber).value!.toInt();
               }
             } else if (differencesDictionary.containsKey(index.toString())) {
               if (!_fontGlyphWidth!.containsKey(index)) {
-                _fontGlyphWidth![index] = (w[i] as _PdfNumber).value!.toInt();
+                _fontGlyphWidth![index] = (w[i]! as _PdfNumber).value!.toInt();
               }
             } else if (!_fontGlyphWidth!.containsKey(index)) {
-              _fontGlyphWidth![index] = (w[i] as _PdfNumber).value!.toInt();
+              _fontGlyphWidth![index] = (w[i]! as _PdfNumber).value!.toInt();
             }
           } else if (w[i] is _PdfArray) {
-            final _PdfArray tempW = w[i] as _PdfArray;
+            final _PdfArray tempW = w[i]! as _PdfArray;
             for (int j = i; j < tempW.count; j++) {
               index = firstChar + j;
               if (characterMapTable.isNotEmpty ||
@@ -758,27 +759,27 @@ class _FontStructure {
                   final int entryValue = mappingString.codeUnitAt(0);
                   if (!_fontGlyphWidth!.containsKey(entryValue)) {
                     _fontGlyphWidth![entryValue] =
-                        (tempW[j] as _PdfNumber).value!.toInt();
+                        (tempW[j]! as _PdfNumber).value!.toInt();
                   }
                 } else if (differencesDictionary
                     .containsKey(index.toString())) {
                   if (!_fontGlyphWidth!.containsKey(index)) {
                     _fontGlyphWidth![index] =
-                        (tempW[j] as _PdfNumber).value!.toInt();
+                        (tempW[j]! as _PdfNumber).value!.toInt();
                   }
                 } else {
                   if (!_fontGlyphWidth!.containsKey(index)) {
                     _fontGlyphWidth![index] =
-                        (tempW[j] as _PdfNumber).value!.toInt();
+                        (tempW[j]! as _PdfNumber).value!.toInt();
                   }
                 }
               } else {
                 _fontGlyphWidth![index] =
-                    (tempW[j] as _PdfNumber).value!.toInt();
+                    (tempW[j]! as _PdfNumber).value!.toInt();
               }
             }
           } else {
-            final int value = (w[i] as _PdfNumber).value!.toInt();
+            final int value = (w[i]! as _PdfNumber).value!.toInt();
             if (!_fontGlyphWidth!.containsKey(index)) {
               _fontGlyphWidth![index] = value;
             }
@@ -989,21 +990,21 @@ class _FontStructure {
           baseFontDict =
               fontDictionary[_DictionaryProperties.encoding] as _PdfDictionary?;
           if (baseFontDict == null) {
-            baseFont = (fontDictionary[_DictionaryProperties.encoding]
+            baseFont = (fontDictionary[_DictionaryProperties.encoding]!
                     as _PdfReferenceHolder)
                 .object as _PdfName?;
             fontEncoding = baseFont!._name;
           }
         } else if (fontDictionary[_DictionaryProperties.encoding]
             is _PdfReferenceHolder) {
-          baseFontDict = (fontDictionary[_DictionaryProperties.encoding]
+          baseFontDict = (fontDictionary[_DictionaryProperties.encoding]!
                   as _PdfReferenceHolder)
               .object as _PdfDictionary?;
         }
         if (baseFontDict != null &&
             baseFontDict.containsKey(_DictionaryProperties.type)) {
           fontEncoding =
-              (baseFontDict[_DictionaryProperties.type] as _PdfName)._name;
+              (baseFontDict[_DictionaryProperties.type]! as _PdfName)._name;
         }
       }
     }
@@ -1030,7 +1031,7 @@ class _FontStructure {
     if (fontDictionary.containsKey(_DictionaryProperties.baseFont)) {
       _PdfName? baseFont =
           fontDictionary[_DictionaryProperties.baseFont] as _PdfName?;
-      baseFont ??= (fontDictionary[_DictionaryProperties.baseFont]
+      baseFont ??= (fontDictionary[_DictionaryProperties.baseFont]!
               as _PdfReferenceHolder)
           .object as _PdfName?;
       String font = baseFont!._name!;
@@ -1199,7 +1200,7 @@ class _FontStructure {
       if (mapStream != null) {
         mapStream._decompress();
         mapStream._isChanged = false;
-        final String text = utf8.decode(mapStream._dataStream as List<int>);
+        final String text = utf8.decode(mapStream._dataStream!);
         bool isBfRange = false, isBfChar = false;
         int start, end, startCmap, endCmap, endPointer;
         startCmap = text.indexOf('begincmap');
@@ -1492,7 +1493,7 @@ class _FontStructure {
     if (fontDictionary.containsKey(_DictionaryProperties.encoding)) {
       if (fontDictionary[_DictionaryProperties.encoding]
           is _PdfReferenceHolder) {
-        encodingDictionary = (fontDictionary[_DictionaryProperties.encoding]
+        encodingDictionary = (fontDictionary[_DictionaryProperties.encoding]!
                 as _PdfReferenceHolder)
             .object as _PdfDictionary?;
       } else if (fontDictionary[_DictionaryProperties.encoding]
@@ -1516,11 +1517,11 @@ class _FontStructure {
             for (int i = 0; i < differences.count; i++) {
               String? text = '';
               if (differences[i] is _PdfNumber) {
-                final _PdfNumber number = differences[i] as _PdfNumber;
+                final _PdfNumber number = differences[i]! as _PdfNumber;
                 text = number.value.toString();
                 differenceCount = number.value!.toInt();
               } else if (differences[i] is _PdfName) {
-                text = (differences[i] as _PdfName)._name;
+                text = (differences[i]! as _PdfName)._name;
                 if ((fontType!._name == 'Type1') && (text == '.notdef')) {
                   text = ' ';
                   differencesDictionary[differenceCount.toString()] =
@@ -1584,7 +1585,7 @@ class _FontStructure {
       case 'atilde':
         return 'ã';
       case 'backslash':
-        return '\\';
+        return r'\';
       case 'bar':
         return '|';
       case 'braceleft':
@@ -1632,7 +1633,7 @@ class _FontStructure {
       case 'divide':
         return '÷';
       case 'dollar':
-        return '\$';
+        return r'$';
       case 'dotaccent':
         return '˙';
       case 'dotlessi':
@@ -1758,7 +1759,7 @@ class _FontStructure {
       case 'questiondown':
         return '¿';
       case 'quotedbl':
-        return '\"';
+        return '"';
       case 'quotedblbase':
         return '„';
       case 'quotedblleft':
@@ -2284,44 +2285,45 @@ class _FontStructure {
   }
 
   String skipEscapeSequence(String text) {
-    if (text.contains('\\')) {
-      final int i = text.indexOf('\\');
+    if (text.contains(r'\')) {
+      final int i = text.indexOf(r'\');
       if (i + 1 != text.length) {
         final String escapeSequence = text.substring(i + 1, i + 2);
         switch (escapeSequence) {
           case 'a':
-            text = text.replaceAll('\\u0007', '\u0007');
+            text = text.replaceAll(r'\u0007', '\u0007');
             break;
           case 'b':
-            text = text.replaceAll('\\b', '\b');
+            text = text.replaceAll(r'\b', '\b');
             break;
           case 'e':
-            text = text.replaceAll('\\e', r'\e');
+            text = text.replaceAll(r'\e', r'\e');
             break;
           case 'f':
-            text = text.replaceAll('\\f', '\f');
+            text = text.replaceAll(r'\f', '\f');
             break;
           case 'n':
-            text = text.replaceAll('\\n', '\n');
+            text = text.replaceAll(r'\n', '\n');
             break;
           case 'r':
-            text = text.replaceAll('\\r', '\r');
+            text = text.replaceAll(r'\r', '\r');
             break;
           case 't':
-            text = text.replaceAll('\\t', '\t');
+            text = text.replaceAll(r'\t', '\t');
             break;
           case 'v':
-            text = text.replaceAll('\\v', '\v');
+            text = text.replaceAll(r'\v', '\v');
             break;
           case "'":
-            text = text.replaceAll("\\'", "\'");
+            // ignore: use_raw_strings
+            text = text.replaceAll("\\'", "'");
             break;
           default:
             {
               if (escapeSequence.codeUnitAt(0) == 3) {
-                text = text.replaceAll('\\', r'\"');
+                text = text.replaceAll(r'\', r'\"');
               } else if (escapeSequence.codeUnitAt(0) >= 127) {
-                text = text.replaceAll('\\', '');
+                text = text.replaceAll(r'\', '');
               } else {
                 try {
                   text = _unescape(text);
@@ -2395,6 +2397,7 @@ class _FontStructure {
           }
           encodedText = encodedText.substring(1, encodedText.length - 1);
           decodedText = getLiteralString(encodedText);
+          // ignore: use_raw_strings
           if (decodedText.contains('\\\\') && fontEncoding == 'Identity-H') {
             hasEscapeChar = true;
             decodedText = skipEscapeSequence(decodedText);
@@ -2408,7 +2411,7 @@ class _FontStructure {
                 'UniJIS-UCS2-H',
                 'UniGB-UCS2-H'
               ].contains(
-                  (fontDictionary[_DictionaryProperties.encoding] as _PdfName)
+                  (fontDictionary[_DictionaryProperties.encoding]! as _PdfName)
                       ._name)) {
                 String text = decodedText;
                 if (!hasEscapeChar) {
@@ -2456,7 +2459,7 @@ class _FontStructure {
                 break;
               }
             } else if (textEnd > 0) {
-              while (encodedText[textEnd - 1] == '\\') {
+              while (encodedText[textEnd - 1] == r'\') {
                 if (encodedText.contains(')', textEnd + 1)) {
                   textEnd = encodedText.indexOf(')', textEnd + 1);
                 } else {
@@ -2579,8 +2582,8 @@ class _FontStructure {
           decodedList.add(listElement);
           break;
         } else if (textEnd > 0) {
-          while (encodedText[textEnd - 1] == '\\') {
-            if (textEnd - 1 > 0 && encodedText[textEnd - 2] == '\\') {
+          while (encodedText[textEnd - 1] == r'\') {
+            if (textEnd - 1 > 0 && encodedText[textEnd - 2] == r'\') {
               break;
             }
             if (encodedText.contains(')', textEnd + 1)) {
@@ -2673,7 +2676,7 @@ class _FontStructure {
           decodedText = getLiteralString(encodedText);
           if (fontDictionary.containsKey(_DictionaryProperties.encoding)) {
             if (fontDictionary[_DictionaryProperties.encoding] is _PdfName) {
-              if ((fontDictionary[_DictionaryProperties.encoding] as _PdfName)
+              if ((fontDictionary[_DictionaryProperties.encoding]! as _PdfName)
                       ._name ==
                   'Identity-H') {
                 final String text = skipEscapeSequence(decodedText);
@@ -2732,8 +2735,8 @@ class _FontStructure {
               decodedList.add(listElement);
               break;
             } else if (textEnd > 0) {
-              while (encodedText[textEnd - 1] == '\\') {
-                if (textEnd - 1 > 0 && encodedText[textEnd - 2] == '\\') {
+              while (encodedText[textEnd - 1] == r'\') {
+                if (textEnd - 1 > 0 && encodedText[textEnd - 2] == r'\') {
                   break;
                 }
                 if (encodedText.contains(')', textEnd + 1)) {
@@ -2751,7 +2754,8 @@ class _FontStructure {
                 encodedText.substring(textStart + 1, textEnd);
             if (isHex) {
               listElement = getHexaDecimalString(tempString);
-              if (listElement.contains('\\')) {
+              if (listElement.contains(r'\')) {
+                // ignore: use_raw_strings
                 listElement = listElement.replaceAll('\\', '\\\\');
               }
               decodedText += listElement;
@@ -2830,7 +2834,7 @@ class _FontStructure {
         break;
     }
     decodedText = skipEscapeSequence(decodedText);
-    isWhiteSpace = (decodedText.isEmpty || decodedText.trimRight() == '');
+    isWhiteSpace = decodedText.isEmpty || decodedText.trimRight() == '';
     return decodedList;
   }
 
@@ -2853,7 +2857,7 @@ class _FontStructure {
         i++;
       }
     }
-    isWhiteSpace = (result.isEmpty || result.trimRight() == '');
+    isWhiteSpace = result.isEmpty || result.trimRight() == '';
     return result;
   }
 
@@ -2873,6 +2877,7 @@ class _FontStructure {
           }
           textToEncode = textToEncode.substring(1, textToEncode.length - 1);
           encodedText = getLiteralString(textToEncode);
+          // ignore: use_raw_strings
           if (encodedText.contains('\\\\') && fontEncoding == 'Identity-H') {
             hasEscapeChar = true;
             encodedText = skipEscapeSequence(encodedText);
@@ -2885,23 +2890,23 @@ class _FontStructure {
               if (encoding == 'Identity-H') {
                 String text = encodedText;
                 if (!hasEscapeChar) {
-                  if (text.contains('\\a') ||
-                      text.contains('\\') ||
-                      text.contains('\\b') ||
-                      text.contains('\\f') ||
-                      text.contains('\\r') ||
-                      text.contains('\\t') ||
-                      text.contains('\\n') ||
-                      text.contains('\\v') ||
+                  if (text.contains(r'\a') ||
+                      text.contains(r'\') ||
+                      text.contains(r'\b') ||
+                      text.contains(r'\f') ||
+                      text.contains(r'\r') ||
+                      text.contains(r'\t') ||
+                      text.contains(r'\n') ||
+                      text.contains(r'\v') ||
                       text.contains('\\\'')) {
-                    while (text.contains('\\a') ||
-                        text.contains('\\') ||
-                        text.contains('\\b') ||
-                        text.contains('\\f') ||
-                        text.contains('\\r') ||
-                        text.contains('\\t') ||
-                        text.contains('\\n') ||
-                        text.contains('\\v') ||
+                    while (text.contains(r'\a') ||
+                        text.contains(r'\') ||
+                        text.contains(r'\b') ||
+                        text.contains(r'\f') ||
+                        text.contains(r'\r') ||
+                        text.contains(r'\t') ||
+                        text.contains(r'\n') ||
+                        text.contains(r'\v') ||
                         text.contains('\\\'')) {
                       text = skipEscapeSequence(text);
                     }
@@ -2916,7 +2921,8 @@ class _FontStructure {
                 if (encoding == 'Identity-H') {
                   encodedText = _decodeBigEndian(bytes);
                 }
-                if (encodedText.contains('\\')) {
+                if (encodedText.contains(r'\')) {
+                  // ignore: use_raw_strings
                   encodedText = encodedText.replaceAll('\\', '\\\\');
                 }
               }
@@ -2961,7 +2967,7 @@ class _FontStructure {
                 break;
               }
             } else if (textEnd > 0) {
-              while (textToEncode[textEnd - 1] == '\\') {
+              while (textToEncode[textEnd - 1] == r'\') {
                 if (textToEncode.contains(')', textEnd + 1)) {
                   textEnd = textToEncode.indexOf(')', textEnd + 1);
                 } else {
@@ -2988,7 +2994,8 @@ class _FontStructure {
           final String hexEncodedText =
               textToEncode.substring(1, textToEncode.length - 1);
           encodedText = getHexaDecimalString(hexEncodedText);
-          if (encodedText.contains('\\')) {
+          if (encodedText.contains(r'\')) {
+            // ignore: use_raw_strings
             encodedText = encodedText.replaceAll('\\', '\\\\');
           }
         }
@@ -3004,7 +3011,7 @@ class _FontStructure {
     if (!isTextExtraction) {
       encodedText = skipEscapeSequence(encodedText);
     }
-    isWhiteSpace = (encodedText.isEmpty || encodedText.trimRight() == '');
+    isWhiteSpace = encodedText.isEmpty || encodedText.trimRight() == '';
     return encodedText;
   }
 
@@ -3020,7 +3027,7 @@ class _FontStructure {
           final _PdfArray descendantFontArray = primitive;
           if (descendantFontArray.count > 0 &&
               descendantFontArray[0] is _PdfReferenceHolder) {
-            primitive = (descendantFontArray[0] as _PdfReferenceHolder).object;
+            primitive = (descendantFontArray[0]! as _PdfReferenceHolder).object;
             if (primitive is _PdfDictionary) {
               final _PdfDictionary descendantDictionary = primitive;
               if (descendantDictionary
@@ -3028,7 +3035,7 @@ class _FontStructure {
                 primitive = descendantDictionary[_DictionaryProperties.subtype];
                 if (primitive is _PdfName) {
                   final _PdfName subtype =
-                      descendantDictionary[_DictionaryProperties.subtype]
+                      descendantDictionary[_DictionaryProperties.subtype]!
                           as _PdfName;
                   if (subtype._name == 'CIDFontType2' ||
                       subtype._name == 'CIDFontType0') {
@@ -3043,7 +3050,7 @@ class _FontStructure {
         final _PdfArray descendantFontArray = primitive;
         if (descendantFontArray.count > 0 &&
             descendantFontArray[0] is _PdfReferenceHolder) {
-          primitive = (descendantFontArray[0] as _PdfReferenceHolder).object;
+          primitive = (descendantFontArray[0]! as _PdfReferenceHolder).object;
           if (primitive is _PdfDictionary) {
             final _PdfDictionary descendantDictionary = primitive;
             if (descendantDictionary
@@ -3051,7 +3058,7 @@ class _FontStructure {
               primitive = descendantDictionary[_DictionaryProperties.subtype];
               if (primitive is _PdfName) {
                 final _PdfName subtype =
-                    descendantDictionary[_DictionaryProperties.subtype]
+                    descendantDictionary[_DictionaryProperties.subtype]!
                         as _PdfName;
                 if (subtype._name == 'CIDFontType2' ||
                     subtype._name == 'CIDFontType0') {
@@ -3077,9 +3084,9 @@ class _FontStructure {
         if (codeUnit == 1) {
           charCode = codeUnit;
           rawString += rawChar;
-        } else if (rawChar == '\\') {
+        } else if (rawChar == r'\') {
           isNonPrintable = true;
-          rawString += '\\';
+          rawString += r'\';
         } else if (isNonPrintable) {
           String escapeChar = rawChar;
           bool isEscapeCharacter = false;
@@ -3223,7 +3230,7 @@ class _FontStructure {
               break;
           }
           skip = false;
-        } else if (encodedText[i] == '\\') {
+        } else if (encodedText[i] == r'\') {
           skip = true;
         } else {
           decodedText += encodedText[i];
@@ -4159,7 +4166,7 @@ class _FontStructure {
               break;
           }
           skip = false;
-        } else if (decodedText[i] == '\\') {
+        } else if (decodedText[i] == r'\') {
           skip = true;
         }
       }
@@ -4168,16 +4175,16 @@ class _FontStructure {
   }
 
   bool hasEscapeCharacter(String text) {
-    return text.contains('\\u0007') ||
-        text.contains('\\') ||
-        text.contains('\\b') ||
-        text.contains('\\f') ||
-        text.contains('\\r') ||
-        text.contains('\\t') ||
-        text.contains('\\n') ||
-        text.contains('\\v') ||
-        text.contains("\\'") ||
-        text.contains('\\u0000');
+    return text.contains(r'\u0007') ||
+        text.contains(r'\') ||
+        text.contains(r'\b') ||
+        text.contains(r'\f') ||
+        text.contains(r'\r') ||
+        text.contains(r'\t') ||
+        text.contains(r'\n') ||
+        text.contains(r'\v') ||
+        text.contains(r"\'") ||
+        text.contains(r'\u0000');
   }
 
   // Decodes the octal text in the encoded text.
@@ -4187,11 +4194,12 @@ class _FontStructure {
     int limit = 3;
     bool isMacCharProcessed = false;
     bool isWinAnsiProcessed = false;
-    while ((decodedText.contains('\\') && (!decodedText.contains('\\\\'))) ||
+    // ignore: use_raw_strings
+    while ((decodedText.contains(r'\') && (!decodedText.contains('\\\\'))) ||
         decodedText.contains('\u0000')) {
       String octalText = '';
-      if (decodedText.contains('\\', octalIndex + 1)) {
-        octalIndex = decodedText.indexOf('\\', octalIndex + 1);
+      if (decodedText.contains(r'\', octalIndex + 1)) {
+        octalIndex = decodedText.indexOf(r'\', octalIndex + 1);
       } else {
         octalIndex = decodedText.indexOf('\u0000', octalIndex + 1);
         if (octalIndex < 0) {
@@ -4267,15 +4275,16 @@ class _FontStructure {
         decodedText = str.join();
       }
     }
-    if (decodedText.contains('\\') && fontEncoding != 'Identity-H') {
+    if (decodedText.contains(r'\') && fontEncoding != 'Identity-H') {
       if (decodedText.length > 1) {
-        final int index = decodedText.indexOf('\\');
+        final int index = decodedText.indexOf(r'\');
         final String char = decodedText[index + 1];
         if (char == '(' || char == ')') {
           _unescape(decodedText);
+          // ignore: use_raw_strings
         } else if (!decodedText.contains('\\\\')) {
           int initialLength = 0;
-          while ((decodedText.contains('\\')) &&
+          while ((decodedText.contains(r'\')) &&
               (decodedText.length != initialLength)) {
             initialLength = decodedText.length;
             decodedText = skipEscapeSequence(decodedText);
@@ -4322,6 +4331,7 @@ class _FontStructure {
 
   String _getWindows1252DecodedText(List<int> charcodes) {
     String result = '';
+    // ignore: avoid_function_literals_in_foreach_calls
     charcodes.forEach((int code) {
       if (code >= 0 && code < 256) {
         result += _windows1252MapTable[code];
@@ -4336,7 +4346,7 @@ class _FontStructure {
     // IsHexaDecimalString = true;
     if (hexEncodedText.isNotEmpty) {
       final _PdfName fontType =
-          fontDictionary._items![_PdfName('Subtype')] as _PdfName;
+          fontDictionary._items![_PdfName('Subtype')]! as _PdfName;
       int limit = 2;
       if (fontType._name != 'Type1' &&
           fontType._name != 'TrueType' &&
@@ -4361,10 +4371,11 @@ class _FontStructure {
           if (descendantArray != null) {
             _PdfDictionary? descendantDictionary;
             if (descendantArray[0] is _PdfReferenceHolder) {
-              descendantDictionary = (descendantArray[0] as _PdfReferenceHolder)
-                  .object as _PdfDictionary?;
+              descendantDictionary =
+                  (descendantArray[0]! as _PdfReferenceHolder).object
+                      as _PdfDictionary?;
             } else if (descendantArray[0] is _PdfDictionary) {
-              descendantDictionary = descendantArray[0] as _PdfDictionary;
+              descendantDictionary = descendantArray[0]! as _PdfDictionary;
             }
             if (descendantDictionary != null) {
               _PdfDictionary? descriptorDictionary;
@@ -4387,7 +4398,7 @@ class _FontStructure {
                     !descriptorDictionary
                         .containsKey(_DictionaryProperties.fontFile2)) {
                   final _PdfName subtype =
-                      descendantDictionary[_DictionaryProperties.subtype]
+                      descendantDictionary[_DictionaryProperties.subtype]!
                           as _PdfName;
                   if (subtype._name == 'CIDFontType2') {
                     hexChar = mapHebrewCharacters(hexChar);
@@ -4404,10 +4415,10 @@ class _FontStructure {
             if (descendantFontArrayReference != null) {
               _PdfName? subtype;
               final _PdfArray descendantFontArray =
-                  descendantFontArrayReference.object as _PdfArray;
+                  descendantFontArrayReference.object! as _PdfArray;
               if (descendantFontArray[0] is _PdfReferenceHolder) {
                 final _PdfDictionary? descendantDictionary =
-                    (descendantFontArray[0] as _PdfReferenceHolder).object
+                    (descendantFontArray[0]! as _PdfReferenceHolder).object
                         as _PdfDictionary?;
                 if (descendantDictionary != null &&
                     descendantDictionary
@@ -4416,10 +4427,10 @@ class _FontStructure {
                         .containsKey(_DictionaryProperties.subtype)) {
                   subtype = descendantDictionary[_DictionaryProperties.subtype]
                       as _PdfName?;
-                  final _PdfDictionary? cidSystemInfo =
-                      (descendantDictionary[_DictionaryProperties.cidSystemInfo]
-                              as _PdfReferenceHolder)
-                          .object as _PdfDictionary?;
+                  final _PdfDictionary? cidSystemInfo = (descendantDictionary[
+                              _DictionaryProperties.cidSystemInfo]!
+                          as _PdfReferenceHolder)
+                      .object as _PdfDictionary?;
                   if (cidSystemInfo != null &&
                       cidSystemInfo
                           .containsKey(_DictionaryProperties.registry) &&
@@ -4428,7 +4439,7 @@ class _FontStructure {
                       cidSystemInfo
                           .containsKey(_DictionaryProperties.supplement)) {
                     final _PdfString pdfRegistry =
-                        cidSystemInfo[_DictionaryProperties.registry]
+                        cidSystemInfo[_DictionaryProperties.registry]!
                             as _PdfString;
                     final _PdfNumber? pdfSupplement =
                         cidSystemInfo[_DictionaryProperties.supplement]
@@ -4554,7 +4565,7 @@ class _FontStructure {
         }
       } else if (tempMapTable.containsKey(character.codeUnitAt(0)) && !skip) {
         String? mappingString = tempMapTable[character.codeUnitAt(0)];
-        if (character == '\\' && isTextExtraction) {
+        if (character == r'\' && isTextExtraction) {
           mappingString = '';
         }
         if (mappingString!.contains('�')) {
@@ -4615,7 +4626,7 @@ class _FontStructure {
               break;
           }
           skip = false;
-        } else if (character == '\\') {
+        } else if (character == r'\') {
           skip = true;
         } else {
           finalText += character;

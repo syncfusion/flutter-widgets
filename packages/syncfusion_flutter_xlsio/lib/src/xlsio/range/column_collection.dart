@@ -5,14 +5,17 @@ class ColumnCollection {
   /// Create a instance of rows collection.
   ColumnCollection(Worksheet worksheet) {
     _worksheet = worksheet;
-    _innerList = [];
+    _innerList = <Column>[];
   }
 
   /// Parent worksheet.
   late Worksheet _worksheet;
 
   /// Inner list.
-  late List<Column> _innerList;
+  late List<Column?> _innerList;
+
+  /// Represents count of elements.
+  int _iCount = 0;
 
   /// Represents parent worksheet.
   Worksheet get worksheet {
@@ -20,7 +23,7 @@ class ColumnCollection {
   }
 
   /// Get/set the inner list.
-  List<Column> get innerList {
+  List<Column?> get innerList {
     return _innerList;
   }
 
@@ -29,8 +32,38 @@ class ColumnCollection {
     return _innerList.length;
   }
 
-  /// Indexer of the class
-  Column operator [](index) => innerList[index];
+  /// Indexer get of the class
+  Column? operator [](int index) {
+    if (index <= _innerList.length) {
+      return _innerList[index - 1];
+    } else {
+      return null;
+    }
+  }
+
+  /// Indexer set of the class
+  operator []=(int index, Column? value) {
+    if (_iCount < index) {
+      _updateSize(index);
+    }
+    _innerList[index - 1] = value;
+  }
+
+  /// Updates count of storage array.
+  void _updateSize(int iCount) {
+    if (iCount > _iCount) {
+      final int iBufCount = _iCount * 2;
+
+      _iCount = (iCount >= iBufCount) ? iCount : iBufCount;
+
+      final List<Column?> list =
+          List<Column?>.filled(_iCount, null, growable: true);
+
+      list.setAll(0, _innerList);
+
+      _innerList = list;
+    }
+  }
 
   /// Add row to the row collection.
   Column add() {
@@ -38,44 +71,6 @@ class ColumnCollection {
     innerList.add(column);
     column.index = innerList.length;
     return column;
-  }
-
-  /// Add row to the rows collection.
-  void addColumn(Column column) {
-    bool inserted = false;
-    int count = 0;
-    final List<Column> columns = [];
-    columns.addAll(innerList);
-    for (final Column c in columns) {
-      if (c.index == column.index) {
-        innerList[count] = column;
-        inserted = true;
-      }
-      count++;
-    }
-    if (!inserted) {
-      innerList.add(column);
-    }
-  }
-
-  /// Get a column from columns collection based on row index.
-  Column? getColumn(int colIndex) {
-    for (final Column col in innerList) {
-      if (col.index == colIndex) {
-        return col;
-      }
-    }
-    return null;
-  }
-
-  /// check whether the column contains.
-  bool contains(int colIndex) {
-    for (final Column col in innerList) {
-      if (col.index == colIndex) {
-        return true;
-      }
-    }
-    return false;
   }
 
   /// clear the column.

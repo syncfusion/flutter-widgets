@@ -1,9 +1,10 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
-import 'package:path_provider/path_provider.dart' as path_provider;
-import 'package:open_file/open_file.dart' as open_file;
+
+//Local imports
+import 'helper/save_file_mobile.dart'
+    if (dart.library.html) 'helper/save_file_web.dart';
 
 void main() {
   runApp(CreatePdfWidget());
@@ -33,7 +34,7 @@ class _CreatePdfState extends State<CreatePdfStatefulWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create PDF document'),
+        title: const Text('Create PDF document'),
       ),
       body: Center(
         child: Column(
@@ -73,18 +74,12 @@ class _CreatePdfState extends State<CreatePdfStatefulWidget> {
     drawGrid(page, grid, result);
     //Add invoice footer
     drawFooter(page, pageSize);
-    //Save and launch the document
+    //Save the PDF document
     final List<int> bytes = document.save();
     //Dispose the document.
     document.dispose();
-    //Get the storage folder location using path_provider package.
-    final Directory directory =
-        await path_provider.getApplicationDocumentsDirectory();
-    final String path = directory.path;
-    final File file = File('$path/output.pdf');
-    await file.writeAsBytes(bytes);
-    //Launch the file (used open_file package)
-    await open_file.OpenFile.open('$path/output.pdf');
+    //Save and launch the file.
+    await FileSaveHelper.saveAndLaunchFile(bytes, 'Invoice.pdf');
   }
 
   //Draws the invoice header
@@ -104,7 +99,7 @@ class _CreatePdfState extends State<CreatePdfStatefulWidget> {
         bounds: Rect.fromLTWH(400, 0, pageSize.width - 400, 90),
         brush: PdfSolidBrush(PdfColor(65, 104, 205)));
 
-    page.graphics.drawString('\$' + getTotalAmount(grid).toString(),
+    page.graphics.drawString(r'$' + getTotalAmount(grid).toString(),
         PdfStandardFont(PdfFontFamily.helvetica, 18),
         bounds: Rect.fromLTWH(400, 0, pageSize.width - 400, 100),
         brush: PdfBrushes.white,
@@ -125,6 +120,7 @@ class _CreatePdfState extends State<CreatePdfStatefulWidget> {
     final String invoiceNumber = 'Invoice Number: 2058557939\r\n\r\nDate: ' +
         format.format(DateTime.now());
     final Size contentSize = contentFont.measureString(invoiceNumber);
+    // ignore: leading_newlines_in_multiline_strings
     const String address = '''Bill To: \r\n\r\nAbraham Swearegin, 
         \r\n\r\nUnited States, California, San Mateo, 
         \r\n\r\n9920 BridgePointe Parkway, \r\n\r\n9365550136''';
@@ -184,6 +180,7 @@ class _CreatePdfState extends State<CreatePdfStatefulWidget> {
         Offset(pageSize.width, pageSize.height - 100));
 
     const String footerContent =
+        // ignore: leading_newlines_in_multiline_strings
         '''800 Interchange Blvd.\r\n\r\nSuite 2501, Austin,
          TX 78721\r\n\r\nAny Questions? support@adventure-works.com''';
 
@@ -255,7 +252,8 @@ class _CreatePdfState extends State<CreatePdfStatefulWidget> {
   double getTotalAmount(PdfGrid grid) {
     double total = 0;
     for (int i = 0; i < grid.rows.count; i++) {
-      final String value = grid.rows[i].cells[grid.columns.count - 1].value;
+      final String value =
+          grid.rows[i].cells[grid.columns.count - 1].value as String;
       total += double.parse(value);
     }
     return total;

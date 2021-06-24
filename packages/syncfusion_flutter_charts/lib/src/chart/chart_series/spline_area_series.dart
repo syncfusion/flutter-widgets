@@ -4,6 +4,7 @@ part of charts;
 ///
 /// To render a spline area chart, create an instance of SplineAreaSeries, and add it to the series collection property of [SfCartesianChart].
 ///  Properties such as [color], [opacity], [width] are used to customize the appearance of spline area chart.
+@immutable
 class SplineAreaSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of SplineAreaSeries class.
   SplineAreaSeries(
@@ -33,14 +34,15 @@ class SplineAreaSeries<T, D> extends XyDataSeries<T, D> {
       double? borderWidth,
       LinearGradient? gradient,
       LinearGradient? borderGradient,
-      // ignore: deprecated_member_use_from_same_package
-      SelectionSettings? selectionSettings,
       SelectionBehavior? selectionBehavior,
       bool? isVisibleInLegend,
       LegendIconType? legendIconType,
       String? legendItemText,
       double? opacity,
       SeriesRendererCreatedCallback? onRendererCreated,
+      ChartPointInteractionCallback? onPointTap,
+      ChartPointInteractionCallback? onPointDoubleTap,
+      ChartPointInteractionCallback? onPointLongPress,
       this.borderDrawMode = BorderDrawMode.top})
       : super(
             key: key,
@@ -66,13 +68,15 @@ class SplineAreaSeries<T, D> extends XyDataSeries<T, D> {
             borderWidth: borderWidth,
             gradient: gradient,
             borderGradient: borderGradient,
-            selectionSettings: selectionSettings,
             selectionBehavior: selectionBehavior,
             legendItemText: legendItemText,
             isVisibleInLegend: isVisibleInLegend,
             legendIconType: legendIconType,
             sortingOrder: sortingOrder,
             onRendererCreated: onRendererCreated,
+            onPointTap: onPointTap,
+            onPointDoubleTap: onPointDoubleTap,
+            onPointLongPress: onPointLongPress,
             opacity: opacity);
 
   ///Border type of area series.
@@ -149,6 +153,99 @@ class SplineAreaSeries<T, D> extends XyDataSeries<T, D> {
     }
     return SplineAreaSeriesRenderer();
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is SplineAreaSeries &&
+        other.key == key &&
+        other.onCreateRenderer == onCreateRenderer &&
+        other.dataSource == dataSource &&
+        other.xValueMapper == xValueMapper &&
+        other.yValueMapper == yValueMapper &&
+        other.sortFieldValueMapper == sortFieldValueMapper &&
+        other.pointColorMapper == pointColorMapper &&
+        other.dataLabelMapper == dataLabelMapper &&
+        other.sortingOrder == sortingOrder &&
+        other.xAxisName == xAxisName &&
+        other.yAxisName == yAxisName &&
+        other.name == name &&
+        other.color == color &&
+        other.markerSettings == markerSettings &&
+        other.emptyPointSettings == emptyPointSettings &&
+        other.dataLabelSettings == dataLabelSettings &&
+        other.trendlines == trendlines &&
+        other.isVisible == isVisible &&
+        other.enableTooltip == enableTooltip &&
+        other.dashArray == dashArray &&
+        other.animationDuration == animationDuration &&
+        other.borderColor == borderColor &&
+        other.borderWidth == borderWidth &&
+        other.gradient == gradient &&
+        other.borderGradient == borderGradient &&
+        other.selectionBehavior == selectionBehavior &&
+        other.isVisibleInLegend == isVisibleInLegend &&
+        other.legendIconType == legendIconType &&
+        other.legendItemText == legendItemText &&
+        other.opacity == opacity &&
+        other.borderDrawMode == borderDrawMode &&
+        other.onRendererCreated == onRendererCreated &&
+        other.onPointTap == onPointTap &&
+        other.onPointDoubleTap == onPointDoubleTap &&
+        other.onPointLongPress == onPointLongPress &&
+        other.cardinalSplineTension == cardinalSplineTension &&
+        other.splineType == splineType;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      key,
+      onCreateRenderer,
+      dataSource,
+      xValueMapper,
+      yValueMapper,
+      sortFieldValueMapper,
+      pointColorMapper,
+      dataLabelMapper,
+      sortingOrder,
+      xAxisName,
+      yAxisName,
+      name,
+      color,
+      markerSettings,
+      emptyPointSettings,
+      dataLabelSettings,
+      trendlines,
+      isVisible,
+      enableTooltip,
+      dashArray,
+      animationDuration,
+      borderColor,
+      borderWidth,
+      gradient,
+      borderGradient,
+      selectionBehavior,
+      isVisibleInLegend,
+      legendIconType,
+      legendItemText,
+      opacity,
+      borderDrawMode,
+      onRendererCreated,
+      cardinalSplineTension,
+      splineType,
+      onPointTap,
+      onPointDoubleTap,
+      onPointLongPress
+    ];
+    return hashList(values);
+  }
 }
 
 /// Creates series renderer for Spline area series
@@ -166,9 +263,11 @@ class SplineAreaSeriesRenderer extends XyDataSeriesRenderer {
     if (segment != null) {
       segment._seriesIndex = seriesIndex;
       segment.animationFactor = animateFactor;
-      segment._series = _series as XyDataSeries;
+      segment._series = _series as XyDataSeries<dynamic, dynamic>;
       segment._seriesRenderer = this;
-      if (_points != null) segment.points = _points;
+      if (_points != null) {
+        segment.points = _points;
+      }
       segment._path = path;
       segment._strokePath = strokePath;
       segment._chart = chart;

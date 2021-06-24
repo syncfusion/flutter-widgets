@@ -85,7 +85,7 @@ class CodabarRenderer extends SymbologyRenderer {
       final double barHeight = size.height;
       final int codeLength = codeValue!.length;
       for (int j = 0; j < codeLength; j++) {
-        final bool canDraw = codeValue[j] == '1' ? true : false;
+        final bool canDraw = codeValue[j] == '1';
 
         // Draws the barcode when the corresponding bar value is one
         if (canDraw &&

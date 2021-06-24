@@ -48,7 +48,7 @@ class _PdfCatalogNames implements _IPdfWrapper {
   //Finds the name in the tree.
   _IPdfPrimitive? _findName(_PdfDictionary current, _PdfString name) {
     final _PdfArray names =
-        _PdfCrossTable._dereference(current[_DictionaryProperties.names])
+        _PdfCrossTable._dereference(current[_DictionaryProperties.names])!
             as _PdfArray;
     final int halfLength = names.count ~/ 2;
     int lowIndex = 0, topIndex = halfLength - 1, half = 0;
@@ -59,7 +59,7 @@ class _PdfCatalogNames implements _IPdfWrapper {
         break;
       }
       final _PdfString str =
-          _PdfCrossTable._dereference(names[half * 2]) as _PdfString;
+          _PdfCrossTable._dereference(names[half * 2])! as _PdfString;
       final int cmp = _byteCompare(name, str);
       if (cmp > 0) {
         lowIndex = half + 1;
@@ -80,10 +80,10 @@ class _PdfCatalogNames implements _IPdfWrapper {
   //Gets the proper kid from an array.
   _PdfDictionary? _getProperKid(_PdfDictionary current, _PdfString name) {
     final _PdfArray kids =
-        _PdfCrossTable._dereference(current[_DictionaryProperties.kids])
+        _PdfCrossTable._dereference(current[_DictionaryProperties.kids])!
             as _PdfArray;
     _PdfDictionary? kid;
-    for (final obj in kids._elements) {
+    for (final _IPdfPrimitive? obj in kids._elements) {
       kid = _PdfCrossTable._dereference(obj) as _PdfDictionary?;
       if (_checkLimits(kid!, name)) {
         break;
@@ -101,9 +101,9 @@ class _PdfCatalogNames implements _IPdfWrapper {
     if (obj is _PdfArray && obj.count >= 2) {
       final _PdfArray limits = obj;
       obj = limits[0];
-      final _PdfString lowerLimit = obj as _PdfString;
+      final _PdfString lowerLimit = obj! as _PdfString;
       obj = limits[1];
-      final _PdfString higherLimit = obj as _PdfString;
+      final _PdfString higherLimit = obj! as _PdfString;
       final int lowCmp = _byteCompare(lowerLimit, name);
       final int hiCmp = _byteCompare(higherLimit, name);
       if (lowCmp == 0 || hiCmp == 0) {
@@ -118,7 +118,7 @@ class _PdfCatalogNames implements _IPdfWrapper {
   int _byteCompare(_PdfString str1, _PdfString str2) {
     final List<int> data1 = str1.data!;
     final List<int> data2 = str2.data!;
-    final int commonSize = [data1.length, data2.length].reduce(min);
+    final int commonSize = <int>[data1.length, data2.length].reduce(min);
     int result = 0;
     for (int i = 0; i < commonSize; ++i) {
       final int byte1 = data1[i];

@@ -49,8 +49,8 @@ class PdfCjkStandardFont extends PdfFont {
   /// //Draw the text.
   /// document.pages.add().graphics.drawString(
   ///     'Hello World!',
-  ///     PdfStandardFont.prototype(
-  ///         PdfStandardFont(PdfFontFamily.helvetica, 12), 12),
+  ///     PdfCjkStandardFont.prototype(
+  ///         PdfCjkStandardFont(PdfCjkFontFamily.heiseiMinchoW3, 12), 12),
   ///     brush: PdfBrushes.black);
   /// //Save the document.
   /// List<int> bytes = document.save();

@@ -1,9 +1,10 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_xlsio/xlsio.dart' hide Column, Alignment;
 import 'package:syncfusion_officechart/officechart.dart';
-import 'package:path_provider/path_provider.dart' as path_provider;
-import 'package:open_file/open_file.dart' as open_file;
+
+//Local imports
+import 'helper/save_file_mobile.dart'
+    if (dart.library.html) 'helper/save_file_web.dart';
 
 void main() {
   runApp(CreateOfficeChartWidget());
@@ -84,7 +85,7 @@ class _CreateOfficeChartState extends State<CreateOfficeChartStatefulWidget> {
     final Style style2 = workbook.styles.add('Style2');
     style2.backColor = '#8EA9DB';
     style2.vAlign = VAlignType.center;
-    style2.numberFormat = '[Red](\$#,###)';
+    style2.numberFormat = r'[Red](\$#,###)';
     style2.bold = true;
 
     sheet1.getRangeByName('A10').cellStyle = style1;
@@ -103,7 +104,7 @@ class _CreateOfficeChartState extends State<CreateOfficeChartStatefulWidget> {
     sheet1.getRangeByName('A18:C18').cellStyle.backColor = '#8EA9DB';
     sheet1.getRangeByName('A18:C18').cellStyle.vAlign = VAlignType.center;
     sheet1.getRangeByName('A18:C18').cellStyle.bold = true;
-    sheet1.getRangeByName('A18:C18').numberFormat = '\$#,###';
+    sheet1.getRangeByName('A18:C18').numberFormat = r'\$#,###';
 
     sheet1.getRangeByIndex(10, 1).setText('Category');
     sheet1.getRangeByIndex(10, 2).setText('Expected cost');
@@ -118,10 +119,10 @@ class _CreateOfficeChartState extends State<CreateOfficeChartStatefulWidget> {
     sheet1.getRangeByIndex(17, 1).setText('Marketing');
     sheet1.getRangeByIndex(18, 1).setText('Total');
 
-    sheet1.getRangeByName('B11:D17').numberFormat = '\$#,###';
-    sheet1.getRangeByName('D11').numberFormat = '[Red](\$#,###)';
-    sheet1.getRangeByName('D12').numberFormat = '[Red](\$#,###)';
-    sheet1.getRangeByName('D14').numberFormat = '[Red](\$#,###)';
+    sheet1.getRangeByName('B11:D17').numberFormat = r'\$#,###';
+    sheet1.getRangeByName('D11').numberFormat = r'[Red](\$#,###)';
+    sheet1.getRangeByName('D12').numberFormat = r'[Red](\$#,###)';
+    sheet1.getRangeByName('D14').numberFormat = r'[Red](\$#,###)';
 
     sheet1.getRangeByName('B11').setNumber(16250);
     sheet1.getRangeByName('B12').setNumber(1600);
@@ -168,17 +169,9 @@ class _CreateOfficeChartState extends State<CreateOfficeChartStatefulWidget> {
     sheet1.charts = charts;
 
     //Save and launch Excel.
-    final List<int>? bytes = workbook.saveAsStream();
+    final List<int> bytes = workbook.saveAsStream();
     workbook.dispose();
 
-    //Get the storage folder location using path_provider package.
-    final Directory directory =
-        await path_provider.getApplicationDocumentsDirectory();
-    final String path = directory.path;
-    final File file = File('$path/output.xlsx');
-    await file.writeAsBytes(bytes!);
-
-    //Launch the file (used open_file package)
-    await open_file.OpenFile.open('$path/output.xlsx');
+    await FileSaveHelper.saveAndLaunchFile(bytes, 'ExpenseReport.xlsx');
   }
 }

@@ -24,6 +24,7 @@ class TechnicalIndicators<T, D> {
       ChartValueMapper<T, num>? openValueMapper,
       ChartValueMapper<T, num>? closeValueMapper,
       this.name,
+      this.onRenderDetailsUpdate,
       bool? isVisibleInLegend,
       LegendIconType? legendIconType,
       this.legendItemText,
@@ -365,9 +366,25 @@ class TechnicalIndicators<T, D> {
   ///}
   ///```
   final int period;
+
+  /// Callback which gets called while rendering the indicators
+  ///```dart
+  ///Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfCartesianChart(
+  ///  indicators: <TechnicalIndicators<dynamic, dynamic>>[
+  ///            SmaIndicator<dynamic, dynamic>(
+  /// onRenderDetailsUpdate: (IndicatorRenderParams params) {
+  ///             return ChartIndicator(Colors.cyan, 3.0, <double>[5,5]);
+  ///                },
+  /// )],
+  ///        ));
+  ///}
+  ///```
+  final ChartIndicatorRenderCallback? onRenderDetailsUpdate;
 }
 
-///Technical indicaor renderer class for mutable fields and methods
+///Technical indicator renderer class for mutable fields and methods
 class TechnicalIndicatorsRenderer {
   /// Creates an argument constructor for TechnicalIndicator renderer class
   TechnicalIndicatorsRenderer(this._technicalIndicatorRenderer);
@@ -380,6 +397,7 @@ class TechnicalIndicatorsRenderer {
   bool _isIndicator = true;
   final String _seriesType = 'indicator';
   late String _indicatorType;
+  //ignore: unused_field
   late int _index;
 
   //ignore: prefer_final_fields
@@ -394,13 +412,38 @@ class TechnicalIndicatorsRenderer {
   List<CartesianChartPoint<dynamic>> _renderPoints =
       <CartesianChartPoint<dynamic>>[];
 
+  ///used for events
+  //ignore: prefer_final_fields
+  List<CartesianChartPoint<dynamic>>? _bollingerUpper =
+      <CartesianChartPoint<dynamic>>[];
+
+  ///used for events
+  //ignore: prefer_final_fields
+  List<CartesianChartPoint<dynamic>>? _bollingerLower =
+      <CartesianChartPoint<dynamic>>[];
+
+  ///used for events
+  //ignore: prefer_final_fields
+  List<CartesianChartPoint<dynamic>>? _macdLine =
+      <CartesianChartPoint<dynamic>>[];
+
+  ///used for events
+  //ignore: prefer_final_fields
+  List<CartesianChartPoint<dynamic>>? _macdHistogram =
+      <CartesianChartPoint<dynamic>>[];
+
+  ///used for events
+  //ignore: prefer_final_fields
+  List<CartesianChartPoint<dynamic>>? _stochasticperiod =
+      <CartesianChartPoint<dynamic>>[];
+
+  ///used for events
+  //ignore: prefer_final_fields
+  double? _momentumCenterLineValue;
+
   /// To get and return  CartesianChartPoint
   CartesianChartPoint<dynamic> _getDataPoint(
-      dynamic x,
-      dynamic y,
-      CartesianChartPoint<dynamic> sourcePoint,
-      CartesianSeriesRenderer seriesRenderer,
-      int index,
+      dynamic x, num y, CartesianChartPoint<dynamic> sourcePoint, int index,
       [TechnicalIndicators<dynamic, dynamic>? indicator]) {
     final CartesianChartPoint<dynamic> point =
         CartesianChartPoint<dynamic>(x, y);
@@ -408,9 +451,11 @@ class TechnicalIndicatorsRenderer {
     point.index = index;
     point.yValue = y;
     point.isVisible = true;
-    if (indicator is MacdIndicator && seriesRenderer._seriesType == 'column') {
+    if (indicator is MacdIndicator &&
+        (indicator.macdType == MacdType.histogram ||
+            indicator.macdType == MacdType.both)) {
       final MacdIndicator<dynamic, dynamic> _indicator = indicator;
-      point.pointColorMapper = point.yValue >= 0
+      point.pointColorMapper = point.yValue >= 0 == true
           ? _indicator.histogramPositiveColor
           : _indicator.histogramNegativeColor;
     }
@@ -418,13 +463,8 @@ class TechnicalIndicatorsRenderer {
   }
 
   /// To get chart point of range type series
-  CartesianChartPoint<dynamic> _getRangePoint(
-      dynamic x,
-      num high,
-      num low,
-      CartesianChartPoint<dynamic> sourcePoint,
-      CartesianSeries<dynamic, dynamic>? series,
-      int index,
+  CartesianChartPoint<dynamic> _getRangePoint(dynamic x, num high, num low,
+      CartesianChartPoint<dynamic> sourcePoint, int index,
       //ignore: unused_element
       [TechnicalIndicators<dynamic, dynamic>? indicator]) {
     final CartesianChartPoint<dynamic> point =
@@ -440,25 +480,47 @@ class TechnicalIndicatorsRenderer {
   /// To set properties of technical indicators
   void _setSeriesProperties(TechnicalIndicators<dynamic, dynamic> indicator,
       String name, Color color, double width, SfCartesianChart chart,
-      [isLine = false, isRangeArea = false, isHistogram = false]) {
+      [bool isLine = false,
+      bool isRangeArea = false,
+      bool isHistogram = false]) {
     List<double>? _dashArray;
-    if (chart.onIndicatorRender != null &&
-        !isRangeArea &&
-        !isHistogram &&
-        !isLine) {
-      final IndicatorRenderArgs indicatorArgs = IndicatorRenderArgs(
-          indicator, _index, chart.indicators[_index].seriesName, _dataPoints);
-      indicatorArgs.indicatorName = name;
-      indicatorArgs.signalLineColor = color;
-      indicatorArgs.signalLineWidth = width;
-      indicatorArgs.lineDashArray = indicator.dashArray;
-      chart.onIndicatorRender!(indicatorArgs);
-      color = indicatorArgs.signalLineColor;
-      width = indicatorArgs.signalLineWidth;
-      name = indicatorArgs.indicatorName;
-      _dashArray = indicatorArgs.lineDashArray;
+    if (indicator.onRenderDetailsUpdate != null &&
+        isRangeArea == false &&
+        isHistogram == false &&
+        isLine == false) {
+      TechnicalIndicatorRenderDetails indicators;
+      if (indicator is BollingerBandIndicator) {
+        final BollingerBandIndicatorRenderParams indicatorRenderParams =
+            BollingerBandIndicatorRenderParams(_bollingerUpper, _bollingerLower,
+                _renderPoints, name, width, color, indicator.dashArray);
+        indicators = indicator.onRenderDetailsUpdate!(indicatorRenderParams);
+      } else if (indicator is MomentumIndicator) {
+        final MomentumIndicatorRenderParams indicatorRenderParams =
+            MomentumIndicatorRenderParams(_momentumCenterLineValue,
+                _renderPoints, name, width, color, indicator.dashArray);
+        indicators = indicator.onRenderDetailsUpdate!(indicatorRenderParams);
+      } else if (indicator is StochasticIndicator) {
+        final StochasticIndicatorRenderParams indicatorRenderParams =
+            StochasticIndicatorRenderParams(_stochasticperiod, _renderPoints,
+                name, width, color, indicator.dashArray);
+        indicators = indicator.onRenderDetailsUpdate!(indicatorRenderParams);
+      } else if (indicator is MacdIndicator) {
+        final MacdIndicatorRenderParams indicatorRenderParams =
+            MacdIndicatorRenderParams(_macdLine, _macdHistogram, _renderPoints,
+                name, width, color, indicator.dashArray);
+        indicators = indicator.onRenderDetailsUpdate!(indicatorRenderParams);
+      } else {
+        final IndicatorRenderParams indicatorRenderParams =
+            IndicatorRenderParams(
+                _renderPoints, name, width, color, indicator.dashArray);
+        indicators = indicator.onRenderDetailsUpdate!(indicatorRenderParams);
+      }
+
+      color = indicators.signalLineColor ?? color;
+      width = indicators.signalLineWidth ?? width;
+      _dashArray = indicators.signalLineDashArray ?? indicator.dashArray;
     }
-    final CartesianSeries<dynamic, dynamic> series = isRangeArea
+    final CartesianSeries<dynamic, dynamic> series = isRangeArea == true
         ? RangeAreaSeries<dynamic, dynamic>(
             name: name,
             color: color,
@@ -468,11 +530,14 @@ class TechnicalIndicatorsRenderer {
             animationDuration: indicator.animationDuration,
             yAxisName: indicator.yAxisName,
             enableTooltip: false,
+            //ignore: always_specify_types
             xValueMapper: (dynamic, _) => null,
+            //ignore: always_specify_types
             highValueMapper: (dynamic, _) => null,
+            //ignore: always_specify_types
             lowValueMapper: (dynamic, _) => null,
-            dataSource: [])
-        : (isHistogram
+            dataSource: <dynamic>[])
+        : (isHistogram == true
             ? ColumnSeries<dynamic, dynamic>(
                 name: name,
                 color: color,
@@ -480,9 +545,11 @@ class TechnicalIndicatorsRenderer {
                 xAxisName: indicator.xAxisName,
                 animationDuration: indicator.animationDuration,
                 yAxisName: indicator.yAxisName,
+                //ignore: always_specify_types
                 xValueMapper: (dynamic, _) => null,
+                //ignore: always_specify_types
                 yValueMapper: (dynamic, _) => null,
-                dataSource: [])
+                dataSource: <dynamic>[])
             : LineSeries<dynamic, dynamic>(
                 name: name,
                 color: color,
@@ -491,17 +558,20 @@ class TechnicalIndicatorsRenderer {
                 xAxisName: indicator.xAxisName,
                 animationDuration: indicator.animationDuration,
                 yAxisName: indicator.yAxisName,
+                //ignore: always_specify_types
                 xValueMapper: (dynamic, _) => null,
+                //ignore: always_specify_types
                 yValueMapper: (dynamic, _) => null,
-                dataSource: []));
-    final CartesianSeriesRenderer seriesRenderer = isRangeArea
+                dataSource: <dynamic>[]));
+    final CartesianSeriesRenderer seriesRenderer = isRangeArea == true
         ? RangeAreaSeriesRenderer()
-        : (isHistogram ? ColumnSeriesRenderer() : LineSeriesRenderer());
+        : (isHistogram == true ? ColumnSeriesRenderer() : LineSeriesRenderer());
     seriesRenderer._series = series;
     seriesRenderer._visible = _visible;
     seriesRenderer._chart = chart;
-    seriesRenderer._seriesType =
-        isRangeArea ? 'rangearea' : (isHistogram ? 'column' : 'line');
+    seriesRenderer._seriesType = isRangeArea == true
+        ? 'rangearea'
+        : (isHistogram == true ? 'column' : 'line');
     seriesRenderer._isIndicator = true;
     seriesRenderer._seriesName = _name;
     _targetSeriesRenderers.add(seriesRenderer);
@@ -521,19 +591,19 @@ class TechnicalIndicatorsRenderer {
   }
 
   /// To get the value field value of technical indicators
-  num _getFieldValue(
-      List<CartesianChartPoint<dynamic>?> point, int itr, String valueField) {
+  num _getFieldValue(List<CartesianChartPoint<dynamic>?> dataPoints, int index,
+      String valueField) {
     num? val;
     if (valueField == 'low') {
-      val = point[itr]?.low;
+      val = dataPoints[index]?.low;
     } else if (valueField == 'high') {
-      val = point[itr]?.high;
+      val = dataPoints[index]?.high;
     } else if (valueField == 'open') {
-      val = point[itr]?.open;
+      val = dataPoints[index]?.open;
     } else if (valueField == 'y') {
-      val = point[itr]?.y;
+      val = dataPoints[index]?.y;
     } else {
-      val = point[itr]?.close;
+      val = dataPoints[index]?.close;
     }
 
     ///ignore: unnecessary_statements

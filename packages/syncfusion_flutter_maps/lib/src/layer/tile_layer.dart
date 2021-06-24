@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
 import 'dart:ui';
 
@@ -8,99 +7,18 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/rendering.dart';
-import 'package:http/http.dart' as http;
 import 'package:syncfusion_flutter_core/theme.dart';
 
-import '../behavior/zoom_pan_behavior.dart';
+import '../../maps.dart';
 import '../common.dart';
 import '../controller/map_controller.dart';
-import '../controller/shape_layer_controller.dart';
 import '../elements/marker.dart';
 import '../elements/toolbar.dart';
 import '../elements/tooltip.dart';
 import '../layer/layer_base.dart';
-import '../layer/shape_layer.dart';
 import '../layer/vector_layers.dart';
 import '../settings.dart';
 import '../utils.dart';
-
-/// Returns the URL template in the required format for the Bing Maps.
-///
-/// For Bing Maps, an additional step is required. The format of the required
-/// URL varies from the other tile services. Hence, we have added this top-level
-/// function which returns the URL in the required format.
-///
-/// You can use the URL template returned from this function to set it to the
-/// [MapTileLayer.urlTemplate] property.
-///
-/// ```dart
-///  MapZoomPanBehavior _zoomPanBehavior;
-///
-///   @override
-///   void initState() {
-///     _zoomPanBehavior = MapZoomPanBehavior();
-///     super.initState();
-///   }
-///
-///   @override
-///   Widget build(BuildContext context) {
-///     return FutureBuilder(
-///         future: getBingUrlTemplate(
-///             'http://dev.virtualearth.net/REST/V1/Imagery/Metadata/Road
-///             OnDemand?output=json&include=ImageryProviders&key=YOUR_KEY'),
-///         builder: (context, snapshot) {
-///           if (snapshot.hasData) {
-///             return SfMaps(
-///               layers: [
-///                 MapTileLayer(
-///                   initialFocalLatLng: MapLatLng(20.5937, 78.9629),
-///                   zoomPanBehavior: _zoomPanBehavior,
-///                   initialZoomLevel: 3,
-///                   urlTemplate: snapshot.data,
-///                 ),
-///               ],
-///             );
-///           }
-///           return CircularProgressIndicator();
-///         });
-///   }
-/// ```
-Future<String?> getBingUrlTemplate(String url) async {
-  final http.Response response = await _fetchResponse(url);
-  assert(response.statusCode == 200, 'Invalid key');
-  if (response.statusCode == 200) {
-    final Map<String, dynamic> decodedJson = json.decode(response.body);
-    late String imageUrl;
-    late String imageUrlSubDomains;
-    if (decodedJson['authenticationResultCode'] == 'ValidCredentials') {
-      for (final String key in decodedJson.keys) {
-        if (key == 'resourceSets') {
-          final List<dynamic> resourceSets = decodedJson[key];
-          for (final key in resourceSets[0].keys) {
-            if (key == 'resources') {
-              final List<dynamic> resources = (resourceSets[0])[key];
-              final Map<String, dynamic> resourcesMap = resources[0];
-              imageUrl = resourcesMap['imageUrl'];
-              final List<dynamic> subDomains =
-                  resourcesMap['imageUrlSubdomains'];
-              imageUrlSubDomains = subDomains[0];
-              break;
-            }
-          }
-          break;
-        }
-      }
-
-      final List<String> splitUrl = imageUrl.split('{subdomain}');
-      return splitUrl[0] + imageUrlSubDomains + splitUrl[1];
-    }
-  }
-  return null;
-}
-
-Future<http.Response> _fetchResponse(String url) {
-  return http.get(Uri.tryParse(url)!);
-}
 
 Offset _pixelFromLatLng(MapLatLng latLng, double scale) {
   final double latitude =
@@ -116,18 +34,19 @@ MapLatLng _pixelToLatLng(Offset point, double scale) {
 }
 
 /// Represents the tile factor like x position, y position and scale value.
+@immutable
 class _MapTileCoordinate {
   /// Creates a [_MapTileCoordinate].
-  _MapTileCoordinate(this.x, this.y, this.z);
+  const _MapTileCoordinate(this.x, this.y, this.z);
 
   /// Represents the x-coordinate of the tile.
-  int x;
+  final int x;
 
   /// Represents the y-coordinate of the tile.
-  int y;
+  final int y;
 
   /// Represents the scale value of the tile.
-  int z;
+  final int z;
 
   double distanceTo(Offset startPoint, Offset endPoint) {
     final double dx = startPoint.dx - endPoint.dx;
@@ -151,9 +70,10 @@ class _MapTileCoordinate {
 }
 
 /// Represents the information about the tile.
+@immutable
 class _MapTile {
   /// Creates a [_MapTile].
-  _MapTile({
+  const _MapTile({
     required this.xyzKey,
     required this.coordinates,
     required this.tilePos,
@@ -181,7 +101,7 @@ class _MapTile {
   int get hashCode => coordinates.hashCode;
 
   @override
-  bool operator ==(other) {
+  bool operator ==(Object other) {
     return other is _MapTile && coordinates == other.coordinates;
   }
 }
@@ -209,343 +129,9 @@ class MapTileLayerController extends MapLayerController {
   }
 }
 
-/// Tile layer which renders the tiles returned from the Web Map Tile
-/// Services (WMTS) like OpenStreetMap, Bing Maps, Google Maps, TomTom etc.
-///
-/// The [urlTemplate] accepts the URL in WMTS format i.e. {z} — zoom level, {x}
-/// and {y} — tile coordinates.
-///
-/// This URL might vary slightly depends on the providers. The formats can be,
-/// https://exampleprovider/{z}/{x}/{y}.png,
-/// https://exampleprovider/z={z}/x={x}/y={y}.png,
-/// https://exampleprovider/z={z}/x={x}/y={y}.png?key=subscription_key, etc.
-///
-/// We will replace the {z}, {x}, {y} internally based on the
-/// current center point and the zoom level.
-///
-/// The subscription key may be needed for some of the providers. Please include
-/// them in the [urlTemplate] itself as mentioned in above example. Please note
-/// that the format may vary between the each map providers. You can check the
-/// exact URL format needed for the providers in their official websites.
-///
-/// Regarding the tile rendering, at the lowest zoom level (Level 0), the map is
-/// 256 x 256 pixels and the
-/// whole world map renders as a single tile. At each increase in level, the map
-/// width and height grow by a factor of 2 i.e. Level 1 is 512 x 512 pixels with
-/// 4 tiles ((0, 0), (0, 1), (1, 0), (1, 1) where 0 and 1 are {x} and {y} in
-/// [urlTemplate]), Level 2 is 2048 x 2048 pixels with 8
-/// tiles (from (0, 0) to (3, 3)), and so on.
-/// (These details are just for your information and all these calculation are
-/// done internally.)
-///
-/// However, based on the size of the [SfMaps] widget, [initialFocalLatLng] and
-/// [initialZoomLevel] number of initial tiles needed in the view port alone
-/// will be rendered. While zooming and panning, new tiles will be requested and
-/// rendered on demand based on the current zoom level and focal point.
-/// The current zoom level and focal point can be obtained from the
-/// [MapZoomPanBehavior.zoomLevel] and [MapZoomPanBehavior.focalLatLng]
-/// respectively. Once the particular tile is rendered, it will be stored in the
-/// cache and it will be used from it next time for better performance.
-///
-/// Regarding the cache and clearing it, please check the APIs in [imageCache]
-/// (https://api.flutter.dev/flutter/painting/imageCache.html).
-///
-/// ```dart
-///   @override
-///   Widget build(BuildContext context) {
-///     return SfMaps(
-///       layers: [
-///         MapTileLayer(
-///           urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-///           initialFocalLatLng: MapLatLng(-23.698042, 133.880753),
-///           initialZoomLevel: 3
-///         ),
-///       ],
-///     );
-///   }
-/// ```
-///
-/// See also:
-/// * For enabling zooming and panning, set [zoomPanBehavior] with the instance
-/// of [MapZoomPanBehavior].
-class MapTileLayer extends MapLayer {
-  /// Creates a [MapTileLayer].
-  MapTileLayer({
-    Key? key,
-    required this.urlTemplate,
-    this.initialFocalLatLng = const MapLatLng(0.0, 0.0),
-    this.initialZoomLevel = 1,
-    this.controller,
-    List<MapSublayer>? sublayers,
-    int initialMarkersCount = 0,
-    MapMarkerBuilder? markerBuilder,
-    IndexedWidgetBuilder? markerTooltipBuilder,
-    MapTooltipSettings tooltipSettings = const MapTooltipSettings(),
-    MapZoomPanBehavior? zoomPanBehavior,
-    WillZoomCallback? onWillZoom,
-    WillPanCallback? onWillPan,
-  })  : assert(initialZoomLevel >= 1 && initialZoomLevel <= 15),
-        assert(initialMarkersCount == 0 ||
-            initialMarkersCount != 0 && markerBuilder != null),
-        super(
-          key: key,
-          sublayers: sublayers,
-          initialMarkersCount: initialMarkersCount,
-          markerBuilder: markerBuilder,
-          markerTooltipBuilder: markerTooltipBuilder,
-          tooltipSettings: tooltipSettings,
-          zoomPanBehavior: zoomPanBehavior,
-          onWillZoom: onWillZoom,
-          onWillPan: onWillPan,
-        );
-
-  /// URL template to request the tiles from the providers.
-  ///
-  /// The [urlTemplate] accepts the URL in WMTS format i.e. {z} — zoom level,
-  /// {x} and {y} — tile coordinates.
-  ///
-  /// This URL might vary slightly depends on the providers. The formats can be,
-  /// https://exampleprovider/{z}/{x}/{y}.png,
-  /// https://exampleprovider/z={z}/x={x}/y={y}.png,
-  /// https://exampleprovider/z={z}/x={x}/y={y}.png?key=subscription_key, etc.
-  ///
-  /// We will replace the {z}, {x}, {y} internally based on the
-  /// current center point and the zoom level.
-  ///
-  /// The subscription key may be needed for some of the providers. Please
-  /// include them in the [urlTemplate] itself as mentioned in above example.
-  /// Please note that the format may vary between the each map provider. You
-  /// can check the exact URL format needed for the providers in their official
-  /// websites.
-  ///
-  /// ```dart
-  ///   @override
-  ///   Widget build(BuildContext context) {
-  ///     return SfMaps(
-  ///       layers: [
-  ///         MapTileLayer(
-  ///           urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-  ///           initialFocalLatLng: MapLatLng(-23.698042, 133.880753),
-  ///           initialZoomLevel: 3
-  ///         ),
-  ///       ],
-  ///     );
-  ///   }
-  /// ```
-  ///
-  /// For Bing Maps, an additional step is required. The format of the required
-  /// URL varies from the other tile services. Hence, we have added a top-level
-  /// [getBingUrlTemplate] function which returns the URL in the required
-  /// format. You can use the URL returned from this function to set it to the
-  /// [urlTemplate] property.
-  ///
-  /// ```dart
-  ///  MapZoomPanBehavior _zoomPanBehavior;
-  ///
-  ///   @override
-  ///   void initState() {
-  ///     _zoomPanBehavior = MapZoomPanBehavior();
-  ///     super.initState();
-  ///   }
-  ///
-  ///   @override
-  ///   Widget build(BuildContext context) {
-  ///     return FutureBuilder(
-  ///         future: getBingUrlTemplate(
-  ///             'http://dev.virtualearth.net/REST/V1/Imagery/Metadata/Road
-  ///             OnDemand?output=json&include=ImageryProviders&key=YOUR_KEY'),
-  ///         builder: (context, snapshot) {
-  ///           if (snapshot.hasData) {
-  ///             return SfMaps(
-  ///               layers: [
-  ///                 MapTileLayer(
-  ///                   initialFocalLatLng: MapLatLng(20.5937, 78.9629),
-  ///                   zoomPanBehavior: _zoomPanBehavior,
-  ///                   initialZoomLevel: 3,
-  ///                   urlTemplate: snapshot.data,
-  ///                 ),
-  ///               ],
-  ///             );
-  ///           }
-  ///           return CircularProgressIndicator();
-  ///         });
-  ///   }
-  /// ```
-  ///
-  /// Some of the providers provide different map types. For example, Bing Maps
-  /// provide map types like Road, Aerial, AerialWithLabels etc. These types too
-  /// can be passed in the [urlTemplate] itself as shown in the above example.
-  /// You can check the official websites of the tile providers to know about
-  /// the available types and the code for it.
-  ///
-  /// See also:
-  /// * For Bing Maps, use the [getBingUrlTemplate] method to get the URL in
-  /// required format and set it to the [urlTemplate].
-  final String urlTemplate;
-
-  /// Represents the initial focal latitude and longitude position.
-  ///
-  /// Based on the size of the [SfMaps] widget, [initialFocalLatLng] and
-  /// [initialZoomLevel], number of initial tiles needed in the view port alone
-  /// will be rendered. While zooming and panning, new tiles will be requested
-  /// and rendered on demand based on the current zoom level and focal point.
-  /// The current zoom level and focal point can be obtained from the
-  /// [MapZoomPanBehavior.zoomLevel] and [MapZoomPanBehavior.focalLatLng].
-  ///
-  /// This property cannot be changed dynamically.
-  ///
-  /// Defaults to `MapLatLng(0.0, 0.0)`.
-  ///
-  /// See also:
-  /// * For enabling zooming and panning, set [zoomPanBehavior] with the
-  /// instance of [MapZoomPanBehavior].
-  /// * [MapZoomPanBehavior.focalLatLng], to dynamically change the center
-  /// position.
-  /// * [MapZoomPanBehavior.zoomLevel], to dynamically change the zoom level.
-  final MapLatLng initialFocalLatLng;
-
-  /// Represents the initial zooming level.
-  ///
-  /// Based on the size of the [SfMaps] widget, [initialFocalLatLng] and
-  /// [initialZoomLevel], number of initial tiles needed in the view port alone
-  /// will be rendered. While zooming and panning, new tiles will be requested
-  /// and rendered on demand based on the current zoom level and focal point.
-  /// The current zoom level and focal point can be obtained from the
-  /// [MapZoomPanBehavior.zoomLevel] and [MapZoomPanBehavior.focalLatLng].
-  ///
-  /// This property cannot be changed dynamically.
-  ///
-  /// Defaults to 1.
-  ///
-  /// See also:
-  /// * For enabling zooming and panning, set [zoomPanBehavior] with the
-  /// instance of [MapZoomPanBehavior].
-  /// * [MapZoomPanBehavior.focalLatLng], to dynamically change the center
-  /// position.
-  /// * [MapZoomPanBehavior.zoomLevel], to dynamically change the zoom level.
-  final int initialZoomLevel;
-
-  /// Provides options for adding, removing, deleting, updating markers
-  /// collection and converting pixel points to latitude and
-  /// longitude.
-  ///
-  ///   ```dart
-  ///   List<Model> data;
-  ///   MapTileLayerController controller;
-  ///   Random random = Random();
-  ///   MapZoomPanBehavior _zoomPanBehavior;
-  ///
-  ///   @override
-  ///   void initState() {
-  ///     super.initState();
-  ///
-  ///     data = <Model>[
-  ///       Model(-14.235004, -51.92528),
-  ///       Model(51.16569, 10.451526),
-  ///       Model(-25.274398, 133.775136),
-  ///       Model(20.593684, 78.96288),
-  ///       Model(61.52401, 105.318756)
-  ///     ];
-  ///
-  ///     controller = MapTileLayerController();
-  ///     _zoomPanBehavior = MapZoomPanBehavior();
-  ///   }
-  ///
-  ///   @override
-  ///   Widget build(BuildContext context) {
-  ///     return FutureBuilder(
-  ///         future: getBingUrlTemplate(
-  ///             'http://dev.virtualearth.net/REST/V1/Imagery/Metadata/RoadOn
-  ///             Demand?output=json&include=ImageryProviders&key=YOUR_KEY'),
-  ///         builder: (context, snapshot) {
-  ///           if (snapshot.hasData) {
-  ///             return Column(
-  ///               children: [
-  ///                 SfMaps(
-  ///                   layers: [
-  ///                     MapTileLayer(
-  ///                       initialFocalLatLng: MapLatLng(20.5937, 78.9629),
-  ///                       zoomPanBehavior: _zoomPanBehavior,
-  ///                       initialZoomLevel: 3,
-  ///                       urlTemplate: snapshot.data,
-  ///                       initialMarkersCount: 5,
-  ///                       markerBuilder: (BuildContext context, int index) {
-  ///                        return MapMarker(
-  ///                           latitude: data[index].latitude,
-  ///                           longitude: data[index].longitude,
-  ///                           child: Icon(Icons.add_location),
-  ///                         );
-  ///                       },
-  ///                     ),
-  ///                   ],
-  ///                 ),
-  ///                 RaisedButton(
-  ///                   child: Text('Add marker'),
-  ///                   onPressed: () {
-  ///                     data.add(Model(-180 + random.nextInt(360).toDouble(),
-  ///                         -55 + random.nextInt(139).toDouble()));
-  ///                     controller.insertMarker(5);
-  ///                   },
-  ///                 ),
-  ///               ],
-  ///             );
-  ///           }
-  ///           return CircularProgressIndicator();
-  ///         });
-  ///   }
-  /// ```
-  final MapTileLayerController? controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return _TileLayerBase(
-      urlTemplate: urlTemplate,
-      initialFocalLatLng: initialFocalLatLng,
-      initialZoomLevel: initialZoomLevel,
-      sublayers: sublayers,
-      initialMarkersCount: initialMarkersCount,
-      markerBuilder: markerBuilder,
-      markerTooltipBuilder: markerTooltipBuilder,
-      tooltipSettings: tooltipSettings,
-      zoomPanBehavior: zoomPanBehavior,
-      controller: controller,
-      onWillZoom: onWillZoom,
-      onWillPan: onWillPan,
-    );
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-
-    properties.add(StringProperty('urlTemplate', urlTemplate));
-    properties.add(DiagnosticsProperty<MapLatLng>(
-        'initialFocalLatLng', initialFocalLatLng));
-    properties.add(IntProperty('initialZoomLevel', initialZoomLevel));
-    if (sublayers != null && sublayers!.isNotEmpty) {
-      final DebugSublayerTree pointerTreeNode = DebugSublayerTree(sublayers!);
-      properties.add(pointerTreeNode.toDiagnosticsNode());
-    }
-    if (zoomPanBehavior != null) {
-      properties
-          .add(zoomPanBehavior!.toDiagnosticsNode(name: 'zoomPanBehavior'));
-    }
-    properties.add(ObjectFlagProperty<MapMarkerBuilder>.has(
-        'markerBuilder', markerBuilder));
-    if (controller != null) {
-      properties.add(IntProperty('markersCount', controller!.markersCount));
-    } else {
-      properties.add(IntProperty('markersCount', initialMarkersCount));
-    }
-    properties.add(
-        ObjectFlagProperty<WillZoomCallback>.has('onWillZoom', onWillZoom));
-    properties
-        .add(ObjectFlagProperty<WillPanCallback>.has('onWillPan', onWillPan));
-  }
-}
-
-class _TileLayerBase extends StatefulWidget {
-  const _TileLayerBase({
+// ignore_for_file: public_member_api_docs
+class TileLayer extends StatefulWidget {
+  const TileLayer({
     required this.urlTemplate,
     required this.initialFocalLatLng,
     required this.initialZoomLevel,
@@ -558,6 +144,7 @@ class _TileLayerBase extends StatefulWidget {
     required this.controller,
     required this.onWillZoom,
     required this.onWillPan,
+    required this.isTransparent,
   });
 
   final String urlTemplate;
@@ -572,85 +159,23 @@ class _TileLayerBase extends StatefulWidget {
   final MapTileLayerController? controller;
   final WillZoomCallback? onWillZoom;
   final WillPanCallback? onWillPan;
-
-  @override
-  _TileLayerBaseState createState() => _TileLayerBaseState();
-}
-
-class _TileLayerBaseState extends State<_TileLayerBase> {
-  late MapController _controller;
-
-  @override
-  void initState() {
-    _controller = MapController()
-      ..tooltipKey = GlobalKey()
-      ..layerType = LayerType.tile;
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MapLayerInheritedWidget(
-      controller: _controller,
-      sublayers: widget.sublayers,
-      child: _TileLayer(
-        urlTemplate: widget.urlTemplate,
-        initialFocalLatLng: widget.initialFocalLatLng,
-        initialZoomLevel: widget.initialZoomLevel,
-        sublayers: widget.sublayers,
-        initialMarkersCount: widget.initialMarkersCount,
-        markerBuilder: widget.markerBuilder,
-        markerTooltipBuilder: widget.markerTooltipBuilder,
-        tooltipSettings: widget.tooltipSettings,
-        zoomPanBehavior: widget.zoomPanBehavior,
-        controller: widget.controller,
-        onWillZoom: widget.onWillZoom,
-        onWillPan: widget.onWillPan,
-      ),
-    );
-  }
-}
-
-class _TileLayer extends StatefulWidget {
-  _TileLayer({
-    required this.urlTemplate,
-    required this.initialFocalLatLng,
-    required this.initialZoomLevel,
-    required this.zoomPanBehavior,
-    required this.sublayers,
-    required this.initialMarkersCount,
-    required this.markerBuilder,
-    required this.markerTooltipBuilder,
-    required this.tooltipSettings,
-    required this.controller,
-    required this.onWillZoom,
-    required this.onWillPan,
-  });
-
-  final String urlTemplate;
-  final MapLatLng initialFocalLatLng;
-  final int initialZoomLevel;
-  final MapZoomPanBehavior? zoomPanBehavior;
-  final List<MapSublayer>? sublayers;
-  final int initialMarkersCount;
-  final MapMarkerBuilder? markerBuilder;
-  final IndexedWidgetBuilder? markerTooltipBuilder;
-  final MapTooltipSettings tooltipSettings;
-  final MapTileLayerController? controller;
-  final WillZoomCallback? onWillZoom;
-  final WillPanCallback? onWillPan;
+  final bool isTransparent;
 
   @override
   _TileLayerState createState() => _TileLayerState();
 }
 
-class _TileLayerState extends State<_TileLayer> with TickerProviderStateMixin {
+class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   // Both width and height of each tile is 256.
   static const double tileSize = 256;
   static const double _frictionCoefficient = 0.05;
+  // The [globalTileStart] represents the tile start factor value based on
+  // the zoom level.
+  static const Offset _globalTileStart = Offset.zero;
 
-  final Map<String, _MapTile> _tiles = {};
-  final Map<double, TileZoomLevelDetails> _levels = {};
+  final Map<String, _MapTile> _tiles = <String, _MapTile>{};
+  final Map<double, TileZoomLevelDetails> _levels =
+      <double, TileZoomLevelDetails>{};
 
   late double _currentZoomLevel;
   late int _nextZoomLevel;
@@ -693,76 +218,6 @@ class _TileLayerState extends State<_TileLayer> with TickerProviderStateMixin {
   Offset? _mouseStartGlobalPoint;
   Offset? _touchStartOffset;
 
-  Widget get _sublayerContainer =>
-      SublayerContainer(ancestor: _ancestor, children: widget.sublayers!);
-
-  Widget get _markerContainer => MarkerContainer(
-        markerTooltipBuilder: widget.markerTooltipBuilder,
-        controller: _controller!,
-        children: _markers,
-      );
-
-  Widget get _behaviorViewRenderObjectWidget => BehaviorViewRenderObjectWidget(
-      controller: _controller!, zoomPanBehavior: widget.zoomPanBehavior!);
-
-  Widget get _toolbarWidget => MapToolbar(
-        onWillZoom: widget.onWillZoom,
-        zoomPanBehavior: widget.zoomPanBehavior!,
-        controller: _controller,
-      );
-
-  Widget get _tooltipWidget => MapTooltip(
-        key: _controller!.tooltipKey,
-        controller: _controller,
-        sublayers: widget.sublayers,
-        markerTooltipBuilder: widget.markerTooltipBuilder,
-        tooltipSettings: widget.tooltipSettings,
-        themeData: _mapsThemeData,
-      );
-
-  Widget get _tileLayerChildren {
-    final List<Widget> children = <Widget>[];
-    children.add(_getTiles());
-    if (_hasSublayer) {
-      children.add(_sublayerContainer);
-    }
-
-    if (_markers != null && _markers!.isNotEmpty) {
-      children.add(_markerContainer);
-    }
-
-    return Listener(
-      onPointerDown: _handlePointerDown,
-      onPointerMove: _handlePointerMove,
-      onPointerUp: _handlePointerUp,
-      onPointerSignal: _handleMouseWheelZooming,
-      child: GestureDetector(
-        onScaleStart: _handleScaleStart,
-        onScaleUpdate: _handleScaleUpdate,
-        onScaleEnd: _handleScaleEnd,
-        child: Stack(children: children),
-      ),
-    );
-  }
-
-  Widget get _tileLayerElements {
-    final List<Widget> children = <Widget>[];
-    children.add(_tileLayerChildren);
-
-    if (widget.zoomPanBehavior != null) {
-      children.add(_behaviorViewRenderObjectWidget);
-      if (_isDesktop && widget.zoomPanBehavior!.showToolbar) {
-        children.add(_toolbarWidget);
-      }
-    }
-
-    if (_hasTooltipBuilder()) {
-      children.add(_tooltipWidget);
-    }
-
-    return ClipRect(child: Stack(children: children));
-  }
-
   bool _hasTooltipBuilder() {
     if (widget.markerTooltipBuilder != null) {
       return true;
@@ -784,13 +239,13 @@ class _TileLayerState extends State<_TileLayer> with TickerProviderStateMixin {
 
   // Generate tiles for the visible bounds and placed the tiles in a positioned
   // widget.
-  Widget _getTiles() {
+  Widget _buildTiles() {
     // Calculate new visible bounds based on the [_currentFocalLatLng] value
     // and request new tiles for the visible bounds. This method called only
     // when new zoom level reached.
     _requestAndPopulateNewTiles();
     // The populated tiles are stored in the [_tiles] collection field.
-    final tiles = _tiles.values.toList();
+    final List<_MapTile> tiles = _tiles.values.toList();
     final List<Widget> positionedTiles = <Widget>[];
     for (final _MapTile tile in tiles) {
       positionedTiles.add(_getPositionedTiles(tile));
@@ -815,9 +270,8 @@ class _TileLayerState extends State<_TileLayer> with TickerProviderStateMixin {
     _updateVisibleBounds(visibleLatLngBounds);
     final Offset halfSize = Offset(_size!.width, _size!.height) / 2;
 
-    // The [globalTileStart] and [globalTileEnd] represents the tile start and
-    // end factor value based on the zoom level.
-    final Offset globalTileStart = Offset(0, 0);
+    // The [globalTileEnd] represents the tile end factor value based on
+    // the zoom level.
     final Offset globalTileEnd = Offset(tileCount - 1, tileCount - 1);
 
     // The [visualTileStart] and [visualTileEnd] represents the visual
@@ -840,9 +294,9 @@ class _TileLayerState extends State<_TileLayer> with TickerProviderStateMixin {
         final _MapTileCoordinate tileCoordinate =
             _MapTileCoordinate(i, j, _nextZoomLevel);
 
-        if ((tileCoordinate.x < globalTileStart.dx ||
+        if ((tileCoordinate.x < _globalTileStart.dx ||
                 tileCoordinate.x > globalTileEnd.dx) ||
-            (tileCoordinate.y < globalTileStart.dy ||
+            (tileCoordinate.y < _globalTileStart.dy ||
                 tileCoordinate.y > globalTileEnd.dy)) {
           continue;
         }
@@ -857,10 +311,11 @@ class _TileLayerState extends State<_TileLayer> with TickerProviderStateMixin {
     }
 
     final Offset tileCenter = Offset((startX + endX) / 2, (startY + endY) / 2);
-    tileCoordinates.sort((a, b) => (a.distanceTo(
-                Offset(a.x.toDouble(), a.y.toDouble()), tileCenter) -
-            b.distanceTo(Offset(b.x.toDouble(), b.y.toDouble()), tileCenter))
-        .toInt());
+    tileCoordinates.sort((_MapTileCoordinate a, _MapTileCoordinate b) =>
+        (a.distanceTo(Offset(a.x.toDouble(), a.y.toDouble()), tileCenter) -
+                b.distanceTo(
+                    Offset(b.x.toDouble(), b.y.toDouble()), tileCenter))
+            .toInt());
 
     for (int i = 0; i < tileCoordinates.length; i++) {
       _addTile(tileCoordinates[i]);
@@ -887,25 +342,28 @@ class _TileLayerState extends State<_TileLayer> with TickerProviderStateMixin {
 
   // Calculate tiles visual bounds origin for each new zoom level.
   TileZoomLevelDetails? _updateZoomLevel() {
-    final int? zoom = _nextZoomLevel;
-    if (zoom == null) {
-      return null;
-    }
+    final int zoom = _nextZoomLevel;
 
     // Remove zoom-out level tiles from the [_tiles] collection when doing
     // zoom-out action.
     final List<double> removePrevLevels = <double>[];
-    for (final level in _levels.entries) {
+    final int levelsCount = _levels.entries.length;
+    for (final MapEntry<double, TileZoomLevelDetails> level
+        in _levels.entries) {
       final double key = level.key;
 
-      if (_levels.entries.length > 1) {
-        if (zoom < key) {
+      if (levelsCount > 1) {
+        if (!widget.isTransparent) {
+          if (key > zoom) {
+            removePrevLevels.add(key);
+          }
+        } else if (zoom != key) {
           removePrevLevels.add(key);
         }
       }
     }
 
-    for (final levelKey in removePrevLevels) {
+    for (final double levelKey in removePrevLevels) {
       _removeTilesAtZoom(levelKey);
       _levels.remove(levelKey);
     }
@@ -943,16 +401,13 @@ class _TileLayerState extends State<_TileLayer> with TickerProviderStateMixin {
 
   void _removeTilesAtZoom(double zoom) {
     final List<String> removePrevTiles = <String>[];
-    for (final tile in _tiles.entries) {
+    for (final MapEntry<String, _MapTile> tile in _tiles.entries) {
       if (tile.value.coordinates.z != zoom) {
         continue;
       }
       removePrevTiles.add(tile.key);
     }
-
-    for (final key in removePrevTiles) {
-      _removeTile(key);
-    }
+    removePrevTiles.forEach(_removeTile);
   }
 
   void _removeTile(String key) {
@@ -1025,7 +480,7 @@ class _TileLayerState extends State<_TileLayer> with TickerProviderStateMixin {
 
     if (widget.urlTemplate.contains('{quadkey}')) {
       final String quadKey = _getQuadKey(x, y, z);
-      final splitQuad = widget.urlTemplate.split('{quadkey}');
+      final List<String> splitQuad = widget.urlTemplate.split('{quadkey}');
       url = splitQuad[0] + quadKey + splitQuad[1];
     } else {
       for (int i = 0; i < widget.urlTemplate.length; i++) {
@@ -1117,7 +572,7 @@ class _TileLayerState extends State<_TileLayer> with TickerProviderStateMixin {
     if (_pointerCount == 2) {
       _touchStartLocalPoint = event.localPosition;
       // ignore: avoid_as
-      final RenderBox renderBox = context.findRenderObject() as RenderBox;
+      final RenderBox renderBox = context.findRenderObject()! as RenderBox;
       _touchStartGlobalPoint = renderBox.localToGlobal(_touchStartLocalPoint);
       _resetDoubleTapTimer();
       _handleDoubleTap();
@@ -1408,7 +863,7 @@ class _TileLayerState extends State<_TileLayer> with TickerProviderStateMixin {
   // Check whether gesture type is scale or pan.
   Gesture? _getGestureType(double scale, Offset focalPoint) {
     // The minimum distance required to start scale or pan gesture.
-    final int minScaleDistance = 3;
+    const int minScaleDistance = 3;
     final Offset distance = focalPoint - _touchStartLocalPoint;
     if (scale == 1) {
       return distance.dx.abs() > minScaleDistance ||
@@ -1508,7 +963,7 @@ class _TileLayerState extends State<_TileLayer> with TickerProviderStateMixin {
 
   // This method called when dynamically changing the [zoomLevel] property of
   // ZoomPanBehavior.
-  void _handleZoomLevelChange(double zoomLevel, {MapLatLng? latlng}) {
+  void _handleZoomLevelChange(double zoomLevel) {
     if (_gestureType == null &&
         _currentZoomLevel != widget.zoomPanBehavior!.zoomLevel) {
       if (!_isFlingAnimationActive && !_doubleTapEnabled) {
@@ -1564,7 +1019,7 @@ class _TileLayerState extends State<_TileLayer> with TickerProviderStateMixin {
       _touchStartLocalPoint =
           _pixelFromLatLng(_currentFocalLatLng, _zoomLevelTween.begin!);
       // ignore: avoid_as
-      final RenderBox renderBox = context.findRenderObject() as RenderBox;
+      final RenderBox renderBox = context.findRenderObject()! as RenderBox;
       _invokeOnZooming(_currentZoomLevel, _touchStartLocalPoint,
           renderBox.localToGlobal(_touchStartLocalPoint), _currentFocalLatLng);
     } else {
@@ -1651,7 +1106,7 @@ class _TileLayerState extends State<_TileLayer> with TickerProviderStateMixin {
     final Offset currentFocalPoint =
         _pixelFromLatLng(_currentFocalLatLng, _currentZoomLevel);
     // ignore: avoid_as
-    final RenderBox renderBox = context.findRenderObject() as RenderBox;
+    final RenderBox renderBox = context.findRenderObject()! as RenderBox;
     _invokeOnPanning(_currentZoomLevel,
         localFocalPoint: currentFocalPoint,
         globalFocalPoint: renderBox.localToGlobal(currentFocalPoint),
@@ -1695,7 +1150,7 @@ class _TileLayerState extends State<_TileLayer> with TickerProviderStateMixin {
   // Calculate amount of scale and translation for all [_levels] while
   // scaling.
   void _updateZoomLevelTransforms(MapLatLng center, double zoom) {
-    for (final key in _levels.keys) {
+    for (final double key in _levels.keys) {
       _updateZoomLevelTransform(_levels[key]!, center, zoom);
     }
   }
@@ -1740,6 +1195,66 @@ class _TileLayerState extends State<_TileLayer> with TickerProviderStateMixin {
     setState(() {
       // Rebuilds to visually update the markers when it was updated or added.
     });
+  }
+
+  Widget _buildTileLayer() {
+    final List<Widget> children = <Widget>[];
+    Widget current;
+
+    current = Listener(
+      onPointerDown: _handlePointerDown,
+      onPointerMove: _handlePointerMove,
+      onPointerUp: _handlePointerUp,
+      onPointerSignal: _handleMouseWheelZooming,
+      child: GestureDetector(
+        onScaleStart: _handleScaleStart,
+        onScaleUpdate: _handleScaleUpdate,
+        onScaleEnd: _handleScaleEnd,
+        child: Stack(children: <Widget>[
+          _buildTiles(),
+          if (_hasSublayer)
+            SublayerContainer(ancestor: _ancestor, children: widget.sublayers!),
+          if (_markers != null && _markers!.isNotEmpty)
+            MarkerContainer(
+              markerTooltipBuilder: widget.markerTooltipBuilder,
+              controller: _controller!,
+              children: _markers,
+            ),
+        ]),
+      ),
+    );
+
+    children.add(current);
+    if (widget.zoomPanBehavior != null) {
+      children.add(BehaviorViewRenderObjectWidget(
+        controller: _controller!,
+        zoomPanBehavior: widget.zoomPanBehavior!,
+      ));
+      if (_isDesktop && widget.zoomPanBehavior!.showToolbar) {
+        children.add(MapToolbar(
+          onWillZoom: widget.onWillZoom,
+          zoomPanBehavior: widget.zoomPanBehavior!,
+          controller: _controller,
+        ));
+      }
+    }
+
+    if (_hasTooltipBuilder()) {
+      children.add(MapTooltip(
+        key: _controller!.tooltipKey,
+        controller: _controller,
+        sublayers: widget.sublayers,
+        markerTooltipBuilder: widget.markerTooltipBuilder,
+        tooltipSettings: widget.tooltipSettings,
+        themeData: _mapsThemeData,
+      ));
+    }
+
+    return SizedBox(
+      width: _size!.width,
+      height: _size!.height,
+      child: ClipRect(child: Stack(children: children)),
+    );
   }
 
   void _initializeMapController() {
@@ -1809,7 +1324,7 @@ class _TileLayerState extends State<_TileLayer> with TickerProviderStateMixin {
   }
 
   @override
-  void didUpdateWidget(_TileLayer oldWidget) {
+  void didUpdateWidget(TileLayer oldWidget) {
     _hasSublayer = widget.sublayers != null && widget.sublayers!.isNotEmpty;
     super.didUpdateWidget(oldWidget);
   }
@@ -1859,6 +1374,7 @@ class _TileLayerState extends State<_TileLayer> with TickerProviderStateMixin {
       tooltipBorderRadius: _mapsThemeData.tooltipBorderRadius
           .resolve(Directionality.of(context)),
     );
+
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         if (_size != null) {
@@ -1867,10 +1383,7 @@ class _TileLayerState extends State<_TileLayer> with TickerProviderStateMixin {
         }
         _size = getBoxSize(constraints);
         _controller!.tileLayerBoxSize = _size;
-        return Container(
-            width: _size!.width,
-            height: _size!.height,
-            child: _tileLayerElements);
+        return _buildTileLayer();
       },
     );
   }

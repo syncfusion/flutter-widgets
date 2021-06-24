@@ -1,6 +1,8 @@
 import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
 import '../../theme.dart';
 
 /// Applies a theme to descendant Syncfusion range slider widgets.
@@ -62,7 +64,7 @@ class SfRangeSliderTheme extends InheritedTheme {
 /// left thumb, and the right thumb and the [max] value.
 /// For RTL, the inactive side of the range slider is between
 /// the [max] value and the left thumb, and the right thumb and the [min] value.
-/// * The "divisors", which is a shape that renders on the track based on
+/// * The "dividers", which is a shape that renders on the track based on
 /// the given [interval] value.
 /// * The "ticks", which is a shape that rendered based on
 /// given [interval] value.
@@ -110,12 +112,12 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
       Color? disabledActiveMinorTickColor,
       Color? disabledInactiveMinorTickColor,
       Color? overlayColor,
-      Color? inactiveDivisorColor,
-      Color? activeDivisorColor,
+      Color? inactiveDividerColor,
+      Color? activeDividerColor,
       Color? disabledActiveTrackColor,
       Color? disabledInactiveTrackColor,
-      Color? disabledActiveDivisorColor,
-      Color? disabledInactiveDivisorColor,
+      Color? disabledActiveDividerColor,
+      Color? disabledInactiveDividerColor,
       Color? disabledThumbColor,
       Color? activeRegionColor,
       Color? inactiveRegionColor,
@@ -123,16 +125,16 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
       Color? overlappingTooltipStrokeColor,
       Color? thumbStrokeColor,
       Color? overlappingThumbStrokeColor,
-      Color? activeDivisorStrokeColor,
-      Color? inactiveDivisorStrokeColor,
+      Color? activeDividerStrokeColor,
+      Color? inactiveDividerStrokeColor,
       double? trackCornerRadius,
       double? overlayRadius,
       double? thumbRadius,
-      double? activeDivisorRadius,
-      double? inactiveDivisorRadius,
+      double? activeDividerRadius,
+      double? inactiveDividerRadius,
       double? thumbStrokeWidth,
-      double? activeDivisorStrokeWidth,
-      double? inactiveDivisorStrokeWidth}) {
+      double? activeDividerStrokeWidth,
+      double? inactiveDividerStrokeWidth}) {
     brightness = brightness ?? Brightness.light;
     final bool isLight = brightness == Brightness.light;
     activeTrackHeight ??= 6.0;
@@ -168,13 +170,13 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
         tooltipTextStyle: tooltipTextStyle,
         inactiveTrackColor: inactiveTrackColor,
         activeTrackColor: activeTrackColor,
-        inactiveDivisorColor: inactiveDivisorColor,
-        activeDivisorColor: activeDivisorColor,
+        inactiveDividerColor: inactiveDividerColor,
+        activeDividerColor: activeDividerColor,
         thumbColor: thumbColor,
         thumbStrokeColor: thumbStrokeColor,
         overlappingThumbStrokeColor: overlappingThumbStrokeColor,
-        activeDivisorStrokeColor: activeDivisorStrokeColor,
-        inactiveDivisorStrokeColor: inactiveDivisorStrokeColor,
+        activeDividerStrokeColor: activeDividerStrokeColor,
+        inactiveDividerStrokeColor: inactiveDividerStrokeColor,
         overlayColor: overlayColor,
         activeTickColor: activeTickColor,
         inactiveTickColor: inactiveTickColor,
@@ -186,18 +188,18 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
         disabledInactiveMinorTickColor: disabledInactiveMinorTickColor,
         disabledActiveTrackColor: disabledActiveTrackColor,
         disabledInactiveTrackColor: disabledInactiveTrackColor,
-        disabledActiveDivisorColor: disabledActiveDivisorColor,
-        disabledInactiveDivisorColor: disabledInactiveDivisorColor,
+        disabledActiveDividerColor: disabledActiveDividerColor,
+        disabledInactiveDividerColor: disabledInactiveDividerColor,
         disabledThumbColor: disabledThumbColor,
         tooltipBackgroundColor: tooltipBackgroundColor,
         overlappingTooltipStrokeColor: overlappingTooltipStrokeColor,
         overlayRadius: overlayRadius,
         thumbRadius: thumbRadius,
-        activeDivisorRadius: activeDivisorRadius,
-        inactiveDivisorRadius: inactiveDivisorRadius,
+        activeDividerRadius: activeDividerRadius,
+        inactiveDividerRadius: inactiveDividerRadius,
         thumbStrokeWidth: thumbStrokeWidth,
-        activeDivisorStrokeWidth: activeDivisorStrokeWidth,
-        inactiveDivisorStrokeWidth: inactiveDivisorStrokeWidth,
+        activeDividerStrokeWidth: activeDividerStrokeWidth,
+        inactiveDividerStrokeWidth: inactiveDividerStrokeWidth,
         trackCornerRadius: trackCornerRadius);
   }
 
@@ -223,8 +225,8 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
     required Color? thumbColor,
     required Color? thumbStrokeColor,
     required this.overlappingThumbStrokeColor,
-    required Color? activeDivisorStrokeColor,
-    required Color? inactiveDivisorStrokeColor,
+    required Color? activeDividerStrokeColor,
+    required Color? inactiveDividerStrokeColor,
     required Color activeTickColor,
     required Color inactiveTickColor,
     required Color disabledActiveTickColor,
@@ -234,23 +236,23 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
     required Color disabledActiveMinorTickColor,
     required Color disabledInactiveMinorTickColor,
     required Color? overlayColor,
-    required Color? inactiveDivisorColor,
-    required Color? activeDivisorColor,
+    required Color? inactiveDividerColor,
+    required Color? activeDividerColor,
     required Color? disabledActiveTrackColor,
     required Color? disabledInactiveTrackColor,
-    required Color? disabledActiveDivisorColor,
-    required Color? disabledInactiveDivisorColor,
+    required Color? disabledActiveDividerColor,
+    required Color? disabledInactiveDividerColor,
     required Color disabledThumbColor,
     required Color? tooltipBackgroundColor,
     required this.overlappingTooltipStrokeColor,
     required double? trackCornerRadius,
     required double overlayRadius,
     required double thumbRadius,
-    required double? activeDivisorRadius,
-    required double? inactiveDivisorRadius,
+    required double? activeDividerRadius,
+    required double? inactiveDividerRadius,
     required double? thumbStrokeWidth,
-    required double? activeDivisorStrokeWidth,
-    required double? inactiveDivisorStrokeWidth,
+    required double? activeDividerStrokeWidth,
+    required double? inactiveDividerStrokeWidth,
   }) : super.raw(
             brightness: brightness,
             activeTrackHeight: activeTrackHeight,
@@ -264,12 +266,12 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
             tooltipTextStyle: tooltipTextStyle,
             inactiveTrackColor: inactiveTrackColor,
             activeTrackColor: activeTrackColor,
-            inactiveDivisorColor: inactiveDivisorColor,
-            activeDivisorColor: activeDivisorColor,
+            inactiveDividerColor: inactiveDividerColor,
+            activeDividerColor: activeDividerColor,
             thumbColor: thumbColor,
             thumbStrokeColor: thumbStrokeColor,
-            activeDivisorStrokeColor: activeDivisorStrokeColor,
-            inactiveDivisorStrokeColor: inactiveDivisorStrokeColor,
+            activeDividerStrokeColor: activeDividerStrokeColor,
+            inactiveDividerStrokeColor: inactiveDividerStrokeColor,
             overlayColor: overlayColor,
             activeTickColor: activeTickColor,
             inactiveTickColor: inactiveTickColor,
@@ -281,17 +283,17 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
             disabledInactiveMinorTickColor: disabledInactiveMinorTickColor,
             disabledActiveTrackColor: disabledActiveTrackColor,
             disabledInactiveTrackColor: disabledInactiveTrackColor,
-            disabledActiveDivisorColor: disabledActiveDivisorColor,
-            disabledInactiveDivisorColor: disabledInactiveDivisorColor,
+            disabledActiveDividerColor: disabledActiveDividerColor,
+            disabledInactiveDividerColor: disabledInactiveDividerColor,
             disabledThumbColor: disabledThumbColor,
             tooltipBackgroundColor: tooltipBackgroundColor,
             overlayRadius: overlayRadius,
             thumbRadius: thumbRadius,
-            activeDivisorRadius: activeDivisorRadius,
-            inactiveDivisorRadius: inactiveDivisorRadius,
+            activeDividerRadius: activeDividerRadius,
+            inactiveDividerRadius: inactiveDividerRadius,
             thumbStrokeWidth: thumbStrokeWidth,
-            activeDivisorStrokeWidth: activeDivisorStrokeWidth,
-            inactiveDivisorStrokeWidth: inactiveDivisorStrokeWidth,
+            activeDividerStrokeWidth: activeDividerStrokeWidth,
+            inactiveDividerStrokeWidth: inactiveDividerStrokeWidth,
             trackCornerRadius: trackCornerRadius);
 
   /// Specifies the stroke color for the thumbs when they overlap in the
@@ -375,8 +377,8 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
     Color? thumbColor,
     Color? thumbStrokeColor,
     Color? overlappingThumbStrokeColor,
-    Color? activeDivisorStrokeColor,
-    Color? inactiveDivisorStrokeColor,
+    Color? activeDividerStrokeColor,
+    Color? inactiveDividerStrokeColor,
     Color? activeTickColor,
     Color? inactiveTickColor,
     Color? disabledActiveTickColor,
@@ -386,12 +388,12 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
     Color? disabledActiveMinorTickColor,
     Color? disabledInactiveMinorTickColor,
     Color? overlayColor,
-    Color? inactiveDivisorColor,
-    Color? activeDivisorColor,
+    Color? inactiveDividerColor,
+    Color? activeDividerColor,
     Color? disabledActiveTrackColor,
     Color? disabledInactiveTrackColor,
-    Color? disabledActiveDivisorColor,
-    Color? disabledInactiveDivisorColor,
+    Color? disabledActiveDividerColor,
+    Color? disabledInactiveDividerColor,
     Color? disabledThumbColor,
     Color? activeRegionColor,
     Color? inactiveRegionColor,
@@ -400,11 +402,11 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
     double? trackCornerRadius,
     double? overlayRadius,
     double? thumbRadius,
-    double? activeDivisorRadius,
-    double? inactiveDivisorRadius,
+    double? activeDividerRadius,
+    double? inactiveDividerRadius,
     double? thumbStrokeWidth,
-    double? activeDivisorStrokeWidth,
-    double? inactiveDivisorStrokeWidth,
+    double? activeDividerStrokeWidth,
+    double? inactiveDividerStrokeWidth,
   }) {
     return SfRangeSliderThemeData.raw(
       brightness: brightness ?? this.brightness,
@@ -423,10 +425,10 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
       thumbStrokeColor: thumbStrokeColor ?? this.thumbStrokeColor,
       overlappingThumbStrokeColor:
           overlappingThumbStrokeColor ?? this.overlappingThumbStrokeColor,
-      activeDivisorStrokeColor:
-          activeDivisorStrokeColor ?? this.activeDivisorStrokeColor,
-      inactiveDivisorStrokeColor:
-          inactiveDivisorStrokeColor ?? this.inactiveDivisorStrokeColor,
+      activeDividerStrokeColor:
+          activeDividerStrokeColor ?? this.activeDividerStrokeColor,
+      inactiveDividerStrokeColor:
+          inactiveDividerStrokeColor ?? this.inactiveDividerStrokeColor,
       activeTickColor: activeTickColor ?? this.activeTickColor,
       inactiveTickColor: inactiveTickColor ?? this.inactiveTickColor,
       disabledActiveTickColor:
@@ -441,16 +443,16 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
       disabledInactiveMinorTickColor:
           disabledInactiveMinorTickColor ?? this.disabledInactiveMinorTickColor,
       overlayColor: overlayColor ?? this.overlayColor,
-      inactiveDivisorColor: inactiveDivisorColor ?? this.inactiveDivisorColor,
-      activeDivisorColor: activeDivisorColor ?? this.activeDivisorColor,
+      inactiveDividerColor: inactiveDividerColor ?? this.inactiveDividerColor,
+      activeDividerColor: activeDividerColor ?? this.activeDividerColor,
       disabledActiveTrackColor:
           disabledActiveTrackColor ?? this.disabledActiveTrackColor,
       disabledInactiveTrackColor:
           disabledInactiveTrackColor ?? this.disabledInactiveTrackColor,
-      disabledActiveDivisorColor:
-          disabledActiveDivisorColor ?? this.disabledActiveDivisorColor,
-      disabledInactiveDivisorColor:
-          disabledInactiveDivisorColor ?? this.disabledInactiveDivisorColor,
+      disabledActiveDividerColor:
+          disabledActiveDividerColor ?? this.disabledActiveDividerColor,
+      disabledInactiveDividerColor:
+          disabledInactiveDividerColor ?? this.disabledInactiveDividerColor,
       disabledThumbColor: disabledThumbColor ?? this.disabledThumbColor,
       tooltipBackgroundColor:
           tooltipBackgroundColor ?? this.tooltipBackgroundColor,
@@ -459,14 +461,14 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
       trackCornerRadius: trackCornerRadius ?? this.trackCornerRadius,
       overlayRadius: overlayRadius ?? this.overlayRadius,
       thumbRadius: thumbRadius ?? this.thumbRadius,
-      activeDivisorRadius: activeDivisorRadius ?? this.activeDivisorRadius,
-      inactiveDivisorRadius:
-          inactiveDivisorRadius ?? this.inactiveDivisorRadius,
+      activeDividerRadius: activeDividerRadius ?? this.activeDividerRadius,
+      inactiveDividerRadius:
+          inactiveDividerRadius ?? this.inactiveDividerRadius,
       thumbStrokeWidth: thumbStrokeWidth ?? this.thumbStrokeWidth,
-      activeDivisorStrokeWidth:
-          activeDivisorStrokeWidth ?? this.activeDivisorStrokeWidth,
-      inactiveDivisorStrokeWidth:
-          inactiveDivisorStrokeWidth ?? this.inactiveDivisorStrokeWidth,
+      activeDividerStrokeWidth:
+          activeDividerStrokeWidth ?? this.activeDividerStrokeWidth,
+      inactiveDividerStrokeWidth:
+          inactiveDividerStrokeWidth ?? this.inactiveDividerStrokeWidth,
     );
   }
 
@@ -500,10 +502,10 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
         thumbStrokeColor: Color.lerp(a.thumbStrokeColor, b.thumbStrokeColor, t),
         overlappingThumbStrokeColor: Color.lerp(
             a.overlappingThumbStrokeColor, b.overlappingThumbStrokeColor, t),
-        activeDivisorStrokeColor: Color.lerp(
-            a.activeDivisorStrokeColor, b.activeDivisorStrokeColor, t),
-        inactiveDivisorStrokeColor: Color.lerp(
-            a.inactiveDivisorStrokeColor, b.inactiveDivisorStrokeColor, t),
+        activeDividerStrokeColor: Color.lerp(
+            a.activeDividerStrokeColor, b.activeDividerStrokeColor, t),
+        inactiveDividerStrokeColor: Color.lerp(
+            a.inactiveDividerStrokeColor, b.inactiveDividerStrokeColor, t),
         activeTickColor: Color.lerp(a.activeTickColor, b.activeTickColor, t),
         inactiveTickColor:
             Color.lerp(a.inactiveTickColor, b.inactiveTickColor, t),
@@ -522,32 +524,42 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
             b.disabledInactiveMinorTickColor,
             t),
         overlayColor: Color.lerp(a.overlayColor, b.overlayColor, t),
-        inactiveDivisorColor:
-            Color.lerp(a.inactiveDivisorColor, b.inactiveDivisorColor, t),
-        activeDivisorColor:
-            Color.lerp(a.activeDivisorColor, b.activeDivisorColor, t),
+        inactiveDividerColor:
+            Color.lerp(a.inactiveDividerColor, b.inactiveDividerColor, t),
+        activeDividerColor:
+            Color.lerp(a.activeDividerColor, b.activeDividerColor, t),
         disabledActiveTrackColor: Color.lerp(
             a.disabledActiveTrackColor, b.disabledActiveTrackColor, t),
         disabledInactiveTrackColor: Color.lerp(
             a.disabledInactiveTrackColor, b.disabledInactiveTrackColor, t),
-        disabledActiveDivisorColor: Color.lerp(
-            a.disabledActiveDivisorColor, b.disabledActiveDivisorColor, t),
-        disabledInactiveDivisorColor: Color.lerp(
-            a.disabledInactiveDivisorColor, b.disabledInactiveDivisorColor, t),
+        disabledActiveDividerColor: Color.lerp(
+            a.disabledActiveDividerColor, b.disabledActiveDividerColor, t),
+        disabledInactiveDividerColor: Color.lerp(
+            a.disabledInactiveDividerColor, b.disabledInactiveDividerColor, t),
         disabledThumbColor:
             Color.lerp(a.disabledThumbColor, b.disabledThumbColor, t),
         tooltipBackgroundColor:
             Color.lerp(a.tooltipBackgroundColor, b.tooltipBackgroundColor, t),
         overlappingTooltipStrokeColor: Color.lerp(
-            a.overlappingTooltipStrokeColor, b.overlappingTooltipStrokeColor, t),
-        trackCornerRadius: lerpDouble(a.trackCornerRadius, b.trackCornerRadius, t),
+            // ignore: lines_longer_than_80_chars
+            a.overlappingTooltipStrokeColor,
+            b.overlappingTooltipStrokeColor,
+            t),
+        // ignore: lines_longer_than_80_chars
+        trackCornerRadius:
+            lerpDouble(a.trackCornerRadius, b.trackCornerRadius, t),
         overlayRadius: lerpDouble(a.overlayRadius, b.overlayRadius, t),
         thumbRadius: lerpDouble(a.thumbRadius, b.thumbRadius, t),
-        activeDivisorRadius: lerpDouble(a.activeDivisorRadius, b.activeDivisorRadius, t),
-        inactiveDivisorRadius: lerpDouble(a.inactiveDivisorRadius, b.inactiveDivisorRadius, t),
+        // ignore: lines_longer_than_80_chars
+        activeDividerRadius:
+            lerpDouble(a.activeDividerRadius, b.activeDividerRadius, t),
+        // ignore: lines_longer_than_80_chars
+        inactiveDividerRadius: lerpDouble(a.inactiveDividerRadius, b.inactiveDividerRadius, t),
         thumbStrokeWidth: lerpDouble(a.thumbStrokeWidth, b.thumbStrokeWidth, t),
-        activeDivisorStrokeWidth: lerpDouble(a.activeDivisorStrokeWidth, b.activeDivisorStrokeWidth, t),
-        inactiveDivisorStrokeWidth: lerpDouble(a.inactiveDivisorStrokeWidth, b.inactiveDivisorStrokeWidth, t));
+        // ignore: lines_longer_than_80_chars
+        activeDividerStrokeWidth: lerpDouble(a.activeDividerStrokeWidth, b.activeDividerStrokeWidth, t),
+        // ignore: lines_longer_than_80_chars
+        inactiveDividerStrokeWidth: lerpDouble(a.inactiveDividerStrokeWidth, b.inactiveDividerStrokeWidth, t));
   }
 
   @override
@@ -575,8 +587,8 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
         other.thumbColor == thumbColor &&
         other.thumbStrokeColor == thumbStrokeColor &&
         other.overlappingThumbStrokeColor == overlappingThumbStrokeColor &&
-        other.activeDivisorStrokeColor == activeDivisorStrokeColor &&
-        other.inactiveDivisorStrokeColor == inactiveDivisorStrokeColor &&
+        other.activeDividerStrokeColor == activeDividerStrokeColor &&
+        other.inactiveDividerStrokeColor == inactiveDividerStrokeColor &&
         other.activeTickColor == activeTickColor &&
         other.inactiveTickColor == inactiveTickColor &&
         other.disabledActiveTickColor == disabledActiveTickColor &&
@@ -587,23 +599,23 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
         other.disabledInactiveMinorTickColor ==
             disabledInactiveMinorTickColor &&
         other.overlayColor == overlayColor &&
-        other.inactiveDivisorColor == inactiveDivisorColor &&
-        other.activeDivisorColor == activeDivisorColor &&
+        other.inactiveDividerColor == inactiveDividerColor &&
+        other.activeDividerColor == activeDividerColor &&
         other.disabledActiveTrackColor == disabledActiveTrackColor &&
         other.disabledInactiveTrackColor == disabledInactiveTrackColor &&
-        other.disabledActiveDivisorColor == disabledActiveDivisorColor &&
-        other.disabledInactiveDivisorColor == disabledInactiveDivisorColor &&
+        other.disabledActiveDividerColor == disabledActiveDividerColor &&
+        other.disabledInactiveDividerColor == disabledInactiveDividerColor &&
         other.disabledThumbColor == disabledThumbColor &&
         other.tooltipBackgroundColor == tooltipBackgroundColor &&
         other.overlappingTooltipStrokeColor == overlappingTooltipStrokeColor &&
         other.trackCornerRadius == trackCornerRadius &&
         other.overlayRadius == overlayRadius &&
         other.thumbRadius == thumbRadius &&
-        other.activeDivisorRadius == activeDivisorRadius &&
-        other.inactiveDivisorRadius == inactiveDivisorRadius &&
+        other.activeDividerRadius == activeDividerRadius &&
+        other.inactiveDividerRadius == inactiveDividerRadius &&
         other.thumbStrokeWidth == thumbStrokeWidth &&
-        other.activeDivisorStrokeWidth == activeDivisorStrokeWidth &&
-        other.inactiveDivisorStrokeWidth == inactiveDivisorStrokeWidth;
+        other.activeDividerStrokeWidth == activeDividerStrokeWidth &&
+        other.inactiveDividerStrokeWidth == inactiveDividerStrokeWidth;
   }
 
   @override
@@ -624,8 +636,8 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
       thumbColor,
       thumbStrokeColor,
       overlappingThumbStrokeColor,
-      activeDivisorStrokeColor,
-      inactiveDivisorStrokeColor,
+      activeDividerStrokeColor,
+      inactiveDividerStrokeColor,
       activeTickColor,
       inactiveTickColor,
       disabledActiveTickColor,
@@ -635,23 +647,23 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
       disabledActiveMinorTickColor,
       disabledInactiveMinorTickColor,
       overlayColor,
-      inactiveDivisorColor,
-      activeDivisorColor,
+      inactiveDividerColor,
+      activeDividerColor,
       disabledActiveTrackColor,
       disabledInactiveTrackColor,
-      disabledActiveDivisorColor,
-      disabledInactiveDivisorColor,
+      disabledActiveDividerColor,
+      disabledInactiveDividerColor,
       disabledThumbColor,
       tooltipBackgroundColor,
       overlappingTooltipStrokeColor,
       trackCornerRadius,
       overlayRadius,
-      activeDivisorRadius,
-      inactiveDivisorRadius,
+      activeDividerRadius,
+      inactiveDividerRadius,
       thumbRadius,
       thumbStrokeWidth,
-      activeDivisorStrokeWidth,
-      inactiveDivisorStrokeWidth,
+      activeDividerStrokeWidth,
+      inactiveDividerStrokeWidth,
     ]);
   }
 
@@ -694,11 +706,11 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
         'overlappingThumbStrokeColor', overlappingThumbStrokeColor,
         defaultValue: defaultData.overlappingThumbStrokeColor));
     properties.add(ColorProperty(
-        'activeDivisorStrokeColor', activeDivisorStrokeColor,
-        defaultValue: defaultData.activeDivisorStrokeColor));
+        'activeDividerStrokeColor', activeDividerStrokeColor,
+        defaultValue: defaultData.activeDividerStrokeColor));
     properties.add(ColorProperty(
-        'inactiveDivisorStrokeColor', inactiveDivisorStrokeColor,
-        defaultValue: defaultData.inactiveDivisorStrokeColor));
+        'inactiveDividerStrokeColor', inactiveDividerStrokeColor,
+        defaultValue: defaultData.inactiveDividerStrokeColor));
     properties.add(ColorProperty('activeTickColor', activeTickColor,
         defaultValue: defaultData.activeTickColor));
     properties.add(ColorProperty('inactiveTickColor', inactiveTickColor,
@@ -722,10 +734,10 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
         defaultValue: defaultData.disabledInactiveMinorTickColor));
     properties.add(ColorProperty('overlayColor', overlayColor,
         defaultValue: defaultData.overlayColor));
-    properties.add(ColorProperty('inactiveDivisorColor', inactiveDivisorColor,
-        defaultValue: defaultData.inactiveDivisorColor));
-    properties.add(ColorProperty('activeDivisorColor', activeDivisorColor,
-        defaultValue: defaultData.activeDivisorColor));
+    properties.add(ColorProperty('inactiveDividerColor', inactiveDividerColor,
+        defaultValue: defaultData.inactiveDividerColor));
+    properties.add(ColorProperty('activeDividerColor', activeDividerColor,
+        defaultValue: defaultData.activeDividerColor));
     properties.add(ColorProperty(
         'disabledActiveTrackColor', disabledActiveTrackColor,
         defaultValue: defaultData.disabledActiveTrackColor));
@@ -733,11 +745,11 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
         'disabledInactiveTrackColor', disabledInactiveTrackColor,
         defaultValue: defaultData.disabledInactiveTrackColor));
     properties.add(ColorProperty(
-        'disabledActiveDivisorColor', disabledActiveDivisorColor,
-        defaultValue: defaultData.disabledActiveDivisorColor));
+        'disabledActiveDividerColor', disabledActiveDividerColor,
+        defaultValue: defaultData.disabledActiveDividerColor));
     properties.add(ColorProperty(
-        'disabledInactiveDivisorColor', disabledInactiveDivisorColor,
-        defaultValue: defaultData.disabledInactiveDivisorColor));
+        'disabledInactiveDividerColor', disabledInactiveDividerColor,
+        defaultValue: defaultData.disabledInactiveDividerColor));
     properties.add(ColorProperty('disabledThumbColor', disabledThumbColor,
         defaultValue: defaultData.disabledThumbColor));
     properties.add(ColorProperty(
@@ -752,18 +764,18 @@ class SfRangeSliderThemeData extends SfSliderThemeData {
         defaultValue: defaultData.overlayRadius));
     properties.add(DoubleProperty('thumbRadius', thumbRadius,
         defaultValue: defaultData.thumbRadius));
-    properties.add(DoubleProperty('activeDivisorRadius', activeDivisorRadius,
-        defaultValue: defaultData.activeDivisorRadius));
+    properties.add(DoubleProperty('activeDividerRadius', activeDividerRadius,
+        defaultValue: defaultData.activeDividerRadius));
     properties.add(DoubleProperty(
-        'inactiveDivisorRadius', inactiveDivisorRadius,
-        defaultValue: defaultData.inactiveDivisorRadius));
+        'inactiveDividerRadius', inactiveDividerRadius,
+        defaultValue: defaultData.inactiveDividerRadius));
     properties.add(DoubleProperty('thumbStrokeWidth', thumbStrokeWidth,
         defaultValue: defaultData.thumbStrokeWidth));
     properties.add(DoubleProperty(
-        'activeDivisorStrokeWidth', activeDivisorStrokeWidth,
-        defaultValue: defaultData.activeDivisorStrokeWidth));
+        'activeDividerStrokeWidth', activeDividerStrokeWidth,
+        defaultValue: defaultData.activeDividerStrokeWidth));
     properties.add(DoubleProperty(
-        'inactiveDivisorStrokeWidth', inactiveDivisorStrokeWidth,
-        defaultValue: defaultData.inactiveDivisorStrokeWidth));
+        'inactiveDividerStrokeWidth', inactiveDividerStrokeWidth,
+        defaultValue: defaultData.inactiveDividerStrokeWidth));
   }
 }

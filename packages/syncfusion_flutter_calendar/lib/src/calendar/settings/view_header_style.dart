@@ -112,7 +112,10 @@ class ViewHeaderStyle with Diagnosticable {
       return false;
     }
 
-    final ViewHeaderStyle otherStyle = other;
+    late final ViewHeaderStyle otherStyle;
+    if (other is ViewHeaderStyle) {
+      otherStyle = other;
+    }
     return otherStyle.backgroundColor == backgroundColor &&
         otherStyle.dayTextStyle == dayTextStyle &&
         otherStyle.dateTextStyle == dateTextStyle;

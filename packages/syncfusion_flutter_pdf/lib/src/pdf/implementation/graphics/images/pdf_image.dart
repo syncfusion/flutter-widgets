@@ -27,7 +27,7 @@ abstract class PdfImage extends PdfShapeElement implements _IPdfWrapper {
   /// ```dart
   /// //Creates a new PDF document.
   /// PdfDocument doc = PdfDocument();
-  /// Create a PDF image instance.
+  /// //Create a PDF image instance.
   /// PdfImage image = PdfBitmap(imageData);
   /// //Draw the image with image's width and height.
   /// doc.pages
@@ -46,7 +46,7 @@ abstract class PdfImage extends PdfShapeElement implements _IPdfWrapper {
   /// ```dart
   /// //Creates a new PDF document.
   /// PdfDocument doc = PdfDocument();
-  /// Create a PDF image instance.
+  /// //Create a PDF image instance.
   /// PdfImage image = PdfBitmap(imageData);
   /// //Draw the image with image's width and height.
   /// doc.pages
@@ -65,7 +65,7 @@ abstract class PdfImage extends PdfShapeElement implements _IPdfWrapper {
   /// ```dart
   /// //Creates a new PDF document.
   /// PdfDocument doc = PdfDocument();
-  /// Create a PDF image instance.
+  /// //Create a PDF image instance.
   /// PdfImage image = PdfBitmap(imageData);
   /// //Gets horizontal resolution
   /// double horizontalResolution = image.horizontalResolution;
@@ -86,7 +86,7 @@ abstract class PdfImage extends PdfShapeElement implements _IPdfWrapper {
   /// ```dart
   /// //Creates a new PDF document.
   /// PdfDocument doc = PdfDocument();
-  /// Create a PDF image instance.
+  /// //Create a PDF image instance.
   /// PdfImage image = PdfBitmap(imageData);
   /// //Gets vertical resolution
   /// double verticalResolution = image.verticalResolution;
@@ -107,7 +107,7 @@ abstract class PdfImage extends PdfShapeElement implements _IPdfWrapper {
   /// ```dart
   /// //Creates a new PDF document.
   /// PdfDocument doc = PdfDocument();
-  /// Create a PDF image instance.
+  /// //Create a PDF image instance.
   /// PdfImage image = PdfBitmap(imageData);
   /// //Gets the size of an image
   /// Size size = image.physicalDimension;

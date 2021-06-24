@@ -20,8 +20,11 @@ class _CipherBlockChainingMode implements _ICipher {
   bool? _isEncryption;
 
   //Fields
+  @override
   int? get blockSize => _cipher!.blockSize;
+  @override
   String get algorithmName => _cipher!.algorithmName! + '/CBC';
+  @override
   bool get isBlock => false;
 
   //Implementation
@@ -132,7 +135,7 @@ class _KeyParameter implements _ICipherParameter {
     if (length < 0 || (offset + length) > bytes.length) {
       throw ArgumentError.value(length, 'length', 'Out of range');
     }
-    _bytes = List.generate(length, (i) => 0);
+    _bytes = List<int>.generate(length, (int i) => 0);
     List.copyRange(_bytes!, 0, bytes, offset, offset + length);
   }
 
@@ -160,7 +163,8 @@ class _CipherParameter implements _ICipherParameter {
   @override
   set keys(List<int>? value) {}
   @override
-  operator ==(Object other) {
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
     if (other is _CipherParameter) {
       return _privateKey == other._privateKey;
     } else {
@@ -169,6 +173,7 @@ class _CipherParameter implements _ICipherParameter {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode => _privateKey.hashCode;
 }
 
@@ -190,7 +195,8 @@ class _RsaKeyParam extends _CipherParameter {
   set keys(List<int>? value) {}
   //Implementation
   @override
-  operator ==(Object other) {
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
     if (other is _RsaKeyParam) {
       return other.isPrivate == isPrivate &&
           other.modulus == _modulus &&
@@ -201,6 +207,7 @@ class _RsaKeyParam extends _CipherParameter {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode =>
       _modulus.hashCode ^ _exponent.hashCode ^ isPrivate.hashCode;
 }
@@ -251,7 +258,8 @@ class _RsaPrivateKeyParam extends _RsaKeyParam {
   set keys(List<int>? value) {}
 
   @override
-  operator ==(Object other) {
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
     if (other is _RsaPrivateKeyParam) {
       return other._dP == _dP &&
           other._dQ == _dQ &&
@@ -267,6 +275,7 @@ class _RsaPrivateKeyParam extends _RsaKeyParam {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode =>
       _dP.hashCode ^
       _dQ.hashCode ^

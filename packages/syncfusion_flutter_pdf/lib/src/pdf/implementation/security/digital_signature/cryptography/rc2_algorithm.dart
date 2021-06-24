@@ -269,14 +269,17 @@ class _Rc2Algorithm implements _ICipher {
   late List<int> _piTable;
 
   //Properties
+  @override
   String get algorithmName => 'RC2';
+  @override
   bool get isBlock => false;
+  @override
   int? get blockSize => _blockSize;
 
   //Implementation
   List<int> generateKey(List<int> key, int bits) {
     int x;
-    final List<int> xKey = List<int>.generate(128, (i) => 0);
+    final List<int> xKey = List<int>.generate(128, (int i) => 0);
     for (int i = 0; i != key.length; i++) {
       xKey[i] = key[i] & 0xff;
     }
@@ -298,11 +301,12 @@ class _Rc2Algorithm implements _ICipher {
     }
     final List<int> newKey = <int>[];
     for (int i = 0; i < 64; i++) {
-      newKey.add((xKey[2 * i] + (xKey[2 * i + 1] << 8)));
+      newKey.add(xKey[2 * i] + (xKey[2 * i + 1] << 8));
     }
     return newKey;
   }
 
+  @override
   void initialize(bool? forEncryption, _ICipherParameter? parameters) {
     _isEncrypt = forEncryption;
     if (parameters is _KeyParameter) {
@@ -311,7 +315,10 @@ class _Rc2Algorithm implements _ICipher {
     }
   }
 
+  @override
   void reset() {}
+
+  @override
   Map<String, dynamic> processBlock(
       List<int>? input, int inOff, List<int>? output, int? outOff) {
     if (_isEncrypt!) {

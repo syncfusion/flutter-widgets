@@ -5,7 +5,7 @@ class PicturesCollection {
   /// Create an instance of Pictures collection.
   PicturesCollection(Worksheet sheet) {
     _worksheet = sheet;
-    _pictures = [];
+    _pictures = <Picture>[];
   }
 
   // Parent workbook
@@ -30,7 +30,7 @@ class PicturesCollection {
   }
 
   /// Indexer of the class
-  Picture operator [](index) {
+  Picture operator [](dynamic index) {
     return _pictures[index];
   }
 

@@ -48,7 +48,7 @@ void drawText(Canvas canvas, String dataLabel, Offset point, TextStyle style) {
   tp.layout();
   canvas.save();
   canvas.translate(point.dx, point.dy);
-  final Offset labelOffset = const Offset(0.0, 0.0);
+  const Offset labelOffset = Offset(0.0, 0.0);
   tp.paint(canvas, labelOffset);
   canvas.restore();
 }
@@ -91,11 +91,13 @@ Path? _dashPath(
   }
   const double intialValue = 0.0;
   final Path path = Path();
+  double distance, length;
+  bool draw;
   for (final PathMetric measurePath in source.computeMetrics()) {
-    double distance = intialValue;
-    bool draw = true;
+    distance = intialValue;
+    draw = true;
     while (distance < measurePath.length) {
-      final double length = dashArray!.next;
+      length = dashArray!.next;
       if (draw) {
         path.addPath(
             measurePath.extractPath(distance, distance + length), Offset.zero);
@@ -157,12 +159,13 @@ Path drawTriangle(Path path, double x, double y, double size) {
 
 /// Method to find the sorted spark chart points
 List<SparkChartPoint> sortSparkChartPoints(List<SparkChartPoint> dataPoints) {
-  final List<SparkChartPoint> sortedPoints = List.from(dataPoints);
+  final List<SparkChartPoint> sortedPoints =
+      List<SparkChartPoint>.from(dataPoints);
   sortedPoints.sort((SparkChartPoint firstPoint, SparkChartPoint secondPoint) {
     firstPoint.x.compareTo(secondPoint.x);
-    if (firstPoint.x < secondPoint.x) {
+    if (firstPoint.x < secondPoint.x == true) {
       return -1;
-    } else if (firstPoint.x > secondPoint.x) {
+    } else if (firstPoint.x > secondPoint.x == true) {
       return 1;
     } else {
       return 0;
@@ -196,7 +199,7 @@ Offset transformToCoordinatePoint(
     double maxY,
     double diffX,
     double diffY,
-    size,
+    Size size,
     double x,
     double y,
     int dataLength) {
@@ -211,26 +214,18 @@ Offset transformToCoordinatePoint(
 
 /// Calculates and return the spark chart layout size
 Size getLayoutSize(BoxConstraints constraints, BuildContext context) {
-  final double minHeight = 270;
-  final double minWidth = 480;
+  const double minHeight = 270;
+  const double minWidth = 480;
   double height = constraints.maxHeight;
   double width = constraints.maxWidth;
   final double deviceWidth = MediaQuery.of(context).size.width;
   final double deviceHeight = MediaQuery.of(context).size.height;
   if (height == double.infinity) {
-    if (width != double.infinity) {
-      height = (width / 16) * 9;
-    } else {
-      height = minHeight;
-    }
+    height = width != double.infinity ? (width / 16) * 9 : minHeight;
   }
 
   if (width == double.infinity) {
-    if (height != double.infinity) {
-      width = (height / 9) * 16;
-    } else {
-      width = minWidth;
-    }
+    width = height != double.infinity ? (height / 9) * 16 : minWidth;
   }
 
   if (width > deviceWidth) {
@@ -266,16 +261,15 @@ class DashArrayIntervalList<T> {
 /// Represents the spark chart point
 class SparkChartPoint {
   /// Creates the spark chart point
-  SparkChartPoint({this.x, this.y});
+  SparkChartPoint({this.x, this.y = 0});
 
   /// Specifies the x point
-  dynamic? x;
+  dynamic x;
 
   /// Specifies the y point
-  dynamic? y;
+  num y;
 
   /// Specifes the pixel location of  data label
-
   Offset? dataLabelOffset;
 
   /// Specifies the x label
@@ -285,7 +279,7 @@ class SparkChartPoint {
   String? labelY;
 
   /// Specifies the actual x value
-  dynamic? actualX;
+  dynamic actualX;
 
   /// Specifies the color of that particular segment in bar series
   Color? color;
@@ -345,6 +339,7 @@ class _SparKChartContainerBox extends RenderShiftedBox {
   }
 
   @override
+  // ignore: unnecessary_overrides
   void paint(PaintingContext context, Offset offset) {
     super.paint(context, offset);
   }
@@ -416,7 +411,7 @@ void renderMarker(
   final SparkChartMarkerShape markerShape = marker.shape;
   final double markerSize = marker.size;
   final SparkChartMarkerDisplayMode markerDisplayMode = marker.displayMode;
-  final themeBasedColor =
+  final Color themeBasedColor =
       themeData.brightness == Brightness.light ? Colors.white : Colors.black;
   Path markerPath;
   final Offset lastMarkerOffset = Offset(
@@ -636,7 +631,7 @@ TextStyle _getTextStyle(
       _getDataLabelSaturationColor(dataLabelOffset, coordinateOffset, theme,
           offset, seriesColor, type, segment, yValue);
 
-  final _textStyle = TextStyle(
+  final TextStyle _textStyle = TextStyle(
       color: fontColor,
       fontFamily: font.fontFamily,
       fontSize: font.fontSize,

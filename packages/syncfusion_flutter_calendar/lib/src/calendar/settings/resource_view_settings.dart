@@ -68,7 +68,9 @@ class ResourceViewSettings with Diagnosticable {
       {this.size = 75,
       this.visibleResourceCount = -1,
       this.showAvatar = true,
-      this.displayNameTextStyle});
+      this.displayNameTextStyle})
+      : assert(size >= 0),
+        assert(visibleResourceCount >= -1);
 
   /// The number of resources to be displayed in the available screen height in
   /// [SfCalendar]
@@ -210,7 +212,10 @@ class ResourceViewSettings with Diagnosticable {
       return false;
     }
 
-    final ResourceViewSettings otherStyle = other;
+    late final ResourceViewSettings otherStyle;
+    if (other is ResourceViewSettings) {
+      otherStyle = other;
+    }
     return otherStyle.size == size &&
         otherStyle.visibleResourceCount == visibleResourceCount &&
         otherStyle.showAvatar == showAvatar &&

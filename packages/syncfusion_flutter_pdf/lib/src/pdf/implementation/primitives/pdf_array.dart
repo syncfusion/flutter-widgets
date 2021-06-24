@@ -21,6 +21,7 @@ class _PdfArray implements _IPdfPrimitive, _IPdfChangable {
   static const String endMark = ']';
 
   //Fields
+  // ignore: prefer_final_fields
   List<_IPdfPrimitive?> _elements = <_IPdfPrimitive?>[];
   bool? _isChanged;
   bool? _isSaving;

@@ -6,6 +6,7 @@ class _ChartSeries {
   //Here, we are using get keyword inorder to get the proper & updated instance of chart widget
   //When we initialize chart widget as a property to other classes like _ChartSeries, the chart widget is not updated properly and by using get we can rectify this.
   SfCartesianChart get chart => _chartState._chart;
+  _RenderingDetails get _renderingDetails => _chartState._renderingDetails;
   bool isStacked100 = false;
   int paletteIndex = 0;
   num sumOfYvalues = 0;
@@ -90,7 +91,7 @@ class _ChartSeries {
       }
       if (seriesRenderer is HistogramSeriesRenderer) {
         final HistogramSeries<dynamic, dynamic> series =
-            seriesRenderer._series as HistogramSeries;
+            seriesRenderer._series as HistogramSeries<dynamic, dynamic>;
         for (int pointIndex = 0;
             pointIndex < series.dataSource.length;
             pointIndex++) {
@@ -115,6 +116,7 @@ class _ChartSeries {
         dynamic yVal;
         num? low, high;
         num maxYValue = 0;
+        seriesRenderer._overAllDataPoints = <CartesianChartPoint<dynamic>?>[];
         for (int pointIndex = 0; pointIndex < series.dataSource.length;) {
           currentPoint = _getChartPoint(
               seriesRenderer, series.dataSource[pointIndex], pointIndex);
@@ -123,6 +125,8 @@ class _ChartSeries {
           high = currentPoint?.high;
           low = currentPoint?.low;
           currentPoint?.overallDataPointIndex = pointIndex;
+
+          seriesRenderer._overAllDataPoints.add(currentPoint);
           if (seriesRenderer is WaterfallSeriesRenderer) {
             yVal ??= 0;
             maxYValue += yVal;
@@ -130,7 +134,7 @@ class _ChartSeries {
           }
 
           if (xVal != null) {
-            dynamic bubbleSize;
+            num bubbleSize;
             final dynamic xAxis = seriesRenderer._xAxisRenderer?._axis;
             final dynamic yAxis = seriesRenderer._yAxisRenderer?._axis;
             dynamic xMin = xAxis?.visibleMinimum;
@@ -183,29 +187,33 @@ class _ChartSeries {
               }
             }
 
-            if ((!(isSelectionRangeChangeByEvent ||
+            if (!(!(isSelectionRangeChangeByEvent ||
+                        _chartState._rangeChangeBySlider ||
                         _chartState._zoomedState == true ||
                         _chartState._zoomProgress) &&
                     (xMin != null ||
                         xMax != null ||
                         yMin != null ||
                         yMax != null) &&
-                    (yVal != null || (low != null && high != null)))
-                ? ((xMin != null && xMax != null)
-                        ? (xPointValue >= xMin) && (xPointValue <= xMax)
+                    (yVal != null || (low != null && high != null))) ||
+                ((xMin != null && xMax != null)
+                        ? (xPointValue >= xMin) == true &&
+                            (xPointValue <= xMax) == true
                         : xMin != null
                             ? xPointValue >= xMin
                             : xMax != null
                                 ? xPointValue <= xMax
-                                : false) ||
-                    ((yMin != null && yMax != null)
-                        ? ((yVal ?? low) >= yMin) && ((yVal ?? high) <= yMax)
+                                : false) ==
+                    true ||
+                ((yMin != null && yMax != null)
+                        ? ((yVal ?? low) >= yMin) == true &&
+                            ((yVal ?? high) <= yMax) == true
                         : yMin != null
                             ? (yVal ?? low) >= yMin
                             : yMax != null
                                 ? (yVal ?? high) <= yMax
-                                : false)
-                : true) {
+                                : false) ==
+                    true) {
               _isXVisibleRange = true;
               _isYVisibleRange = true;
               seriesRenderer._dataPoints.add(currentPoint!);
@@ -275,18 +283,17 @@ class _ChartSeries {
                   seriesRenderer._needAnimateSeriesElements = true;
                   seriesRenderer._needsAnimation = seriesRenderer._visible!;
                 } else {
-                  if (seriesRenderer._dataPoints.length <=
-                      seriesRenderer._oldDataPoints!.length) {
-                    seriesRenderer._needsAnimation = seriesRenderer._visible! &&
-                        _findChangesInPoint(
-                          currentPoint,
-                          seriesRenderer._oldDataPoints![
-                              seriesRenderer._dataPoints.length - 1],
-                          seriesRenderer,
-                        );
-                  } else {
-                    seriesRenderer._needsAnimation = seriesRenderer._visible!;
-                  }
+                  seriesRenderer._needsAnimation =
+                      (seriesRenderer._dataPoints.length <=
+                              seriesRenderer._oldDataPoints!.length)
+                          ? seriesRenderer._visible! &&
+                              _findChangesInPoint(
+                                currentPoint,
+                                seriesRenderer._oldDataPoints![
+                                    seriesRenderer._dataPoints.length - 1],
+                                seriesRenderer,
+                              )
+                          : seriesRenderer._visible!;
                 }
               }
             }
@@ -413,17 +420,16 @@ class _ChartSeries {
         for (int i = 0; i < seriesRenderer._series.trendlines!.length; i++) {
           trendline = seriesRenderer._series.trendlines![i];
           trendlineRenderer = seriesRenderer._trendlineRenderer[i];
-          trendlineRenderer._isNeedRender =
-              trendlineRenderer._visible == true &&
-                  seriesRenderer._visible! &&
-                  (trendline.type == TrendlineType.polynomial
-                      ? (trendline.polynomialOrder >= 2 &&
-                          trendline.polynomialOrder <= 6)
-                      : trendline.type == TrendlineType.movingAverage
-                          ? (trendline.period >= 2 &&
-                              trendline.period <=
-                                  seriesRenderer._series.dataSource.length - 1)
-                          : true);
+          trendlineRenderer._isNeedRender = trendlineRenderer._visible ==
+                  true &&
+              seriesRenderer._visible! &&
+              (trendline.type == TrendlineType.polynomial
+                  ? (trendline.polynomialOrder >= 2 &&
+                      trendline.polynomialOrder <= 6)
+                  : !(trendline.type == TrendlineType.movingAverage) ||
+                      (trendline.period >= 2 &&
+                          trendline.period <=
+                              seriesRenderer._series.dataSource.length - 1));
           trendlineRenderer._animationController =
               AnimationController(vsync: _chartState)
                 ..addListener(_chartState._repaintTrendlines);
@@ -444,7 +450,7 @@ class _ChartSeries {
         (CartesianChartPoint<dynamic> firstPoint,
             CartesianChartPoint<dynamic> secondPoint) {
       if (seriesRenderer._series.sortingOrder == SortingOrder.ascending) {
-        return (firstPoint.sortValue == null)
+        return ((firstPoint.sortValue == null)
             ? -1
             : (secondPoint.sortValue == null
                 ? 1
@@ -452,10 +458,11 @@ class _ChartSeries {
                     ? firstPoint.sortValue
                         .toLowerCase()
                         .compareTo(secondPoint.sortValue.toLowerCase())
-                    : firstPoint.sortValue.compareTo(secondPoint.sortValue)));
+                    : firstPoint.sortValue
+                        .compareTo(secondPoint.sortValue)))) as int;
       } else if (seriesRenderer._series.sortingOrder ==
           SortingOrder.descending) {
-        return (firstPoint.sortValue == null)
+        return ((firstPoint.sortValue == null)
             ? 1
             : (secondPoint.sortValue == null
                 ? -1
@@ -463,7 +470,8 @@ class _ChartSeries {
                     ? secondPoint.sortValue
                         .toLowerCase()
                         .compareTo(firstPoint.sortValue.toLowerCase())
-                    : secondPoint.sortValue.compareTo(firstPoint.sortValue)));
+                    : secondPoint.sortValue
+                        .compareTo(firstPoint.sortValue)))) as int;
       } else {
         return 0;
       }
@@ -490,14 +498,13 @@ class _ChartSeries {
       if (seriesRenderer is _StackedSeriesRenderer &&
           seriesRenderer._series is _StackedSeriesBase) {
         final _StackedSeriesBase<dynamic, dynamic> stackedSeriesBase =
-            seriesRenderer._series as _StackedSeriesBase;
+            seriesRenderer._series as _StackedSeriesBase<dynamic, dynamic>;
         if (seriesRenderer._dataPoints.isNotEmpty) {
           groupName = (seriesRenderer._seriesType.contains('stackedarea'))
               ? 'stackedareagroup'
               // ignore: unnecessary_null_comparison
-              : (stackedSeriesBase.groupName == null
-                  ? ('series ' + i.toString())
-                  : stackedSeriesBase.groupName);
+              : stackedSeriesBase.groupName;
+          // : (stackedSeriesBase.groupName ?? ('series ' + i.toString()));
           stackedItemInfo = _StackedItemInfo(i, seriesRenderer);
           if (_chartState._chartSeries.clusterStackedItemInfo.isNotEmpty) {
             for (int k = 0;
@@ -642,7 +649,7 @@ class _ChartSeries {
       if (seriesRenderer is _StackedSeriesRenderer &&
           seriesRenderer._series is _StackedSeriesBase) {
         final _StackedSeriesBase<dynamic, dynamic> stackedSeriesBase =
-            seriesRenderer._series as _StackedSeriesBase;
+            seriesRenderer._series as _StackedSeriesBase<dynamic, dynamic>;
         if (seriesRenderer._dataPoints.isNotEmpty) {
           groupName = (seriesRenderer._seriesType == 'stackedarea100')
               ? 'stackedareagroup'
@@ -779,6 +786,7 @@ class _ChartSeries {
     } else if (seriesRenderer is WaterfallSeriesRenderer) {
       seriesRenderer._seriesType = 'waterfall';
     }
+
     if (index == 0) {
       _chartState._requireInvertedAxis = (!chart.isTransposed &&
               seriesRenderer._seriesType.toLowerCase().contains('bar')) ||
@@ -793,7 +801,7 @@ class _ChartSeries {
     if (chart.indicators != null && chart.indicators.isNotEmpty) {
       dynamic indicator;
       bool existField;
-      Map<String, int> _map = Map<String, int>();
+      Map<String, int> _map = <String, int>{};
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer;
       if (!chart.legend.isVisible!) {
         final List<String> textCollection = <String>[];
@@ -835,9 +843,10 @@ class _ChartSeries {
                       : ' ' + count.toString()));
         }
         if (indicator != null &&
-            indicator.isVisible &&
+            indicator.isVisible == true &&
             (indicator.dataSource != null || indicator.seriesName != null)) {
-          if (indicator.dataSource != null && indicator.dataSource.isNotEmpty) {
+          if (indicator.dataSource != null &&
+              indicator.dataSource.isNotEmpty == true) {
             existField = technicalIndicatorsRenderer._indicatorType == 'SMA' ||
                 technicalIndicatorsRenderer._indicatorType == 'TMA' ||
                 technicalIndicatorsRenderer._indicatorType == 'EMA';
@@ -953,7 +962,8 @@ class _ChartSeries {
               technicalIndicatorsRenderer._dataPoints!.isNotEmpty) {
             indicator._initSeriesCollection(
                 indicator, chart, technicalIndicatorsRenderer);
-            indicator._initDataSource(indicator, technicalIndicatorsRenderer);
+            indicator._initDataSource(
+                indicator, technicalIndicatorsRenderer, chart);
             if (technicalIndicatorsRenderer._renderPoints.isNotEmpty) {
               _chartState._chartSeries.visibleSeriesRenderers
                   .addAll(technicalIndicatorsRenderer._targetSeriesRenderers);
@@ -1020,13 +1030,14 @@ class _ChartSeries {
         seriesRenderer._xAxisRenderer as DateTimeCategoryAxisRenderer;
     seriesRenderer._dataPoints.sort((CartesianChartPoint<dynamic> point1,
         CartesianChartPoint<dynamic> point2) {
-      return point2.x.isAfter(point1.x) ? -1 : 1;
+      return point2.x.isAfter(point1.x) == true ? -1 : 1;
     });
     axisRenderer._labels.sort((String first, String second) {
       return int.parse(first) < int.parse(second) ? -1 : 1;
     });
     seriesRenderer._xValues?.sort();
-    for (final CartesianChartPoint point in seriesRenderer._dataPoints) {
+    for (final CartesianChartPoint<dynamic> point
+        in seriesRenderer._dataPoints) {
       point.xValue = axisRenderer._labels
           .indexOf(point.x.microsecondsSinceEpoch.toString());
     }

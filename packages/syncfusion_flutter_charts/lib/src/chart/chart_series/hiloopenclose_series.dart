@@ -4,8 +4,10 @@ part of charts;
 ///
 /// HiLoOpenClose series is used to represent the low, high, open and closing values over time.
 ///
-///To render a HiloOpenClose chart, create an instance of _hiloOpenCloseSeries,
+///To render a HiloOpenClose chart, create an instance of HiloOpenCloseSeries,
 /// and add it to the series collection property of [SfCartesianChart].
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=g5cniDExpRw}
 class HiloOpenCloseSeries<T, D> extends _FinancialSeriesBase<T, D> {
   /// Creating an argument constructor of HiloOpenCloseSeries class.
   HiloOpenCloseSeries(
@@ -33,8 +35,6 @@ class HiloOpenCloseSeries<T, D> extends _FinancialSeriesBase<T, D> {
       bool? enableTooltip,
       double? animationDuration,
       double? borderWidth,
-      // ignore: deprecated_member_use_from_same_package
-      SelectionSettings? selectionSettings,
       SelectionBehavior? selectionBehavior,
       bool? isVisibleInLegend,
       LegendIconType? legendIconType,
@@ -45,7 +45,10 @@ class HiloOpenCloseSeries<T, D> extends _FinancialSeriesBase<T, D> {
       List<int>? initialSelectedDataIndexes,
       bool? showIndicationForSameValues,
       List<Trendline>? trendlines,
-      SeriesRendererCreatedCallback? onRendererCreated})
+      SeriesRendererCreatedCallback? onRendererCreated,
+      ChartPointInteractionCallback? onPointTap,
+      ChartPointInteractionCallback? onPointDoubleTap,
+      ChartPointInteractionCallback? onPointLongPress})
       : super(
             key: key,
             onCreateRenderer: onCreateRenderer,
@@ -79,7 +82,6 @@ class HiloOpenCloseSeries<T, D> extends _FinancialSeriesBase<T, D> {
             enableTooltip: enableTooltip,
             animationDuration: animationDuration,
             borderWidth: borderWidth ?? 2,
-            selectionSettings: selectionSettings,
             selectionBehavior: selectionBehavior,
             legendItemText: legendItemText,
             isVisibleInLegend: isVisibleInLegend,
@@ -90,6 +92,9 @@ class HiloOpenCloseSeries<T, D> extends _FinancialSeriesBase<T, D> {
             bullColor: bullColor ?? Colors.green,
             initialSelectedDataIndexes: initialSelectedDataIndexes,
             onRendererCreated: onRendererCreated,
+            onPointTap: onPointTap,
+            onPointDoubleTap: onPointDoubleTap,
+            onPointLongPress: onPointLongPress,
             showIndicationForSameValues: showIndicationForSameValues ?? false,
             trendlines: trendlines);
 
@@ -104,6 +109,103 @@ class HiloOpenCloseSeries<T, D> extends _FinancialSeriesBase<T, D> {
       return seriesRenderer;
     }
     return HiloOpenCloseSeriesRenderer();
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is HiloOpenCloseSeries &&
+        other.key == key &&
+        other.onCreateRenderer == onCreateRenderer &&
+        other.dataSource == dataSource &&
+        other.xValueMapper == xValueMapper &&
+        other.lowValueMapper == lowValueMapper &&
+        other.highValueMapper == highValueMapper &&
+        other.openValueMapper == openValueMapper &&
+        other.closeValueMapper == closeValueMapper &&
+        other.volumeValueMapper == volumeValueMapper &&
+        other.sortFieldValueMapper == sortFieldValueMapper &&
+        other.pointColorMapper == pointColorMapper &&
+        other.dataLabelMapper == dataLabelMapper &&
+        other.sortingOrder == sortingOrder &&
+        other.xAxisName == xAxisName &&
+        other.yAxisName == yAxisName &&
+        other.name == name &&
+        other.bearColor == bearColor &&
+        other.bullColor == bullColor &&
+        other.emptyPointSettings == emptyPointSettings &&
+        other.dataLabelSettings == dataLabelSettings &&
+        other.trendlines == trendlines &&
+        other.isVisible == isVisible &&
+        other.enableTooltip == enableTooltip &&
+        other.dashArray == dashArray &&
+        other.animationDuration == animationDuration &&
+        other.borderWidth == borderWidth &&
+        other.selectionBehavior == selectionBehavior &&
+        other.isVisibleInLegend == isVisibleInLegend &&
+        other.legendIconType == legendIconType &&
+        other.legendItemText == legendItemText &&
+        other.opacity == opacity &&
+        other.spacing == spacing &&
+        other.showIndicationForSameValues == showIndicationForSameValues &&
+        other.initialSelectedDataIndexes == other.initialSelectedDataIndexes &&
+        other.onRendererCreated == onRendererCreated &&
+        other.onPointTap == onPointTap &&
+        other.onPointDoubleTap == onPointDoubleTap &&
+        other.onPointLongPress == onPointLongPress;
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      key,
+      onCreateRenderer,
+      dataSource,
+      xValueMapper,
+      lowValueMapper,
+      highValueMapper,
+      openValueMapper,
+      closeValueMapper,
+      volumeValueMapper,
+      sortFieldValueMapper,
+      pointColorMapper,
+      dataLabelMapper,
+      sortingOrder,
+      xAxisName,
+      yAxisName,
+      name,
+      bearColor,
+      bullColor,
+      emptyPointSettings,
+      dataLabelSettings,
+      isVisible,
+      enableTooltip,
+      animationDuration,
+      borderWidth,
+      selectionBehavior,
+      isVisibleInLegend,
+      legendIconType,
+      legendItemText,
+      dashArray,
+      opacity,
+      spacing,
+      onRendererCreated,
+      initialSelectedDataIndexes,
+      showIndicationForSameValues,
+      trendlines,
+      onPointTap,
+      onPointDoubleTap,
+      onPointLongPress
+    ];
+    return hashList(values);
   }
 }
 
@@ -135,12 +237,12 @@ class HiloOpenCloseSeriesRenderer extends XyDataSeriesRenderer {
       _segment._seriesIndex = seriesIndex;
       _segment.currentSegmentIndex = pointIndex;
       _segment._seriesRenderer = this;
-      _segment._series = _series as XyDataSeries;
+      _segment._series = _series as XyDataSeries<dynamic, dynamic>;
       _segment.animationFactor = animateFactor;
       _segment._pointColorMapper = currentPoint.pointColorMapper;
       _segment._currentPoint = currentPoint;
-      if (_chartState!._widgetNeedUpdate &&
-          !_chartState!._isLegendToggled &&
+      if (_renderingDetails!.widgetNeedUpdate &&
+          !_renderingDetails!.isLegendToggled &&
           _oldSeriesRenderers != null &&
           _oldSeriesRenderers!.isNotEmpty &&
           _oldSeriesRenderers!.length - 1 >= _segment._seriesIndex &&
@@ -183,7 +285,7 @@ class HiloOpenCloseSeriesRenderer extends XyDataSeriesRenderer {
   /// Changes the series color, border color, and border width.
   @override
   void customizeSegment(ChartSegment _segment) {
-    _hiloOpenCloseSeries = _series as HiloOpenCloseSeries;
+    _hiloOpenCloseSeries = _series as HiloOpenCloseSeries<dynamic, dynamic>;
     _segment._color = _segment._seriesRenderer._seriesColor;
     _segment._strokeColor = _segment is HiloOpenCloseSegment && _segment._isBull
         ? _hiloOpenCloseSeries.bullColor

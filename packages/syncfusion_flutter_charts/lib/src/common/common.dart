@@ -38,6 +38,7 @@ class _ChartContainerBox extends RenderShiftedBox {
   }
 
   @override
+  // ignore: unnecessary_overrides
   void paint(PaintingContext context, Offset offset) {
     super.paint(context, offset);
   }
@@ -176,6 +177,37 @@ class ChartTitle {
   ///}
   ///```
   final double borderWidth;
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is ChartTitle &&
+        other.textStyle == textStyle &&
+        other.alignment == alignment &&
+        other.borderColor == borderColor &&
+        other.borderWidth == borderWidth &&
+        other.backgroundColor == backgroundColor;
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      text,
+      textStyle,
+      alignment,
+      borderColor,
+      borderWidth,
+      backgroundColor
+    ];
+    return hashList(values);
+  }
 }
 
 /// This class has the property of the chart text style.
@@ -203,7 +235,7 @@ class ChartTextStyle extends TextStyle {
           inherit: true,
         );
 
-  /// To set the color to chart text
+  /// To set the color of chart text.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -217,7 +249,7 @@ class ChartTextStyle extends TextStyle {
   @override
   final Color? color;
 
-  /// To set the font family to chart text
+  /// To set the font family of chart text.
   ///
   /// Defaults to `Roboto`
   ///
@@ -233,7 +265,7 @@ class ChartTextStyle extends TextStyle {
   @override
   final String fontFamily;
 
-  /// To set the font style to chart text
+  /// To set the font style of chart text.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
@@ -247,7 +279,7 @@ class ChartTextStyle extends TextStyle {
   @override
   final FontStyle fontStyle;
 
-  /// To set the font weight to chart text
+  /// To set the font weight of chart text.
   ///
   /// Defaults to `FontStyle.normal`
   ///
@@ -263,7 +295,7 @@ class ChartTextStyle extends TextStyle {
   @override
   final FontWeight fontWeight;
 
-  /// To set the fot size to chart text
+  /// To change the font size of chart text
   ///
   /// Defaults to `12`
   ///
@@ -288,10 +320,10 @@ class ChartTextStyle extends TextStyle {
 ///legend item and for [SfCircularChart] type chart by default values mapped with
 ///xValueMapper will be displayed.
 ///
-///You can customized with `isVisible`, `borderWidth`, `alignment`, `opacity`, `borderColor`,
-///`padding` and so on.
+/// Provides options such as  isVisible, borderWidth, alignment, opacity, borderColor,
+///padding and so on to customize the appearance of the legend.
 ///
-///_Note:_ This is common for [SfCartesianChart] and [SfCircularChart]
+@immutable
 class Legend {
   /// Creating an argument constructor of Legend class.
   Legend(
@@ -317,6 +349,7 @@ class Legend {
       Color? iconBorderColor,
       double? iconBorderWidth,
       double? itemPadding,
+      this.offset,
       this.image})
       : isVisible = isVisible ?? false,
         position = position ?? LegendPosition.auto,
@@ -380,7 +413,7 @@ class Legend {
   ///Alignment of the legend.
   ///
   ///Alignment will work if the legend width is greater than
-  ///the total legend items’ width.
+  ///the total legend item's width.
   ///
   ///Defaults to `ChartAlignment.center`
   ///
@@ -735,8 +768,26 @@ class Legend {
   ///```
   final double itemPadding;
 
-  ///Padding of the legend items.
+  ///Places the legend in custom position.
   ///
+  ///If the [offset] has been set, the legend is moved from its actual position.
+  /// For example, if the [position] is `top`, then the legend will be placed in the top
+  /// but in the position added to the actual top position.
+  ///
+  ///Also, the legend will not take a dedicated position for it and will be drawn
+  /// on the top of the chart's plot area.
+  ///```dart
+  ///Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfCartesianChart(
+  ///            legend: Legend(
+  ///               isVisible: true,
+  ///               offset: Offset(20,40))
+  ///        ));
+  ///}
+  ///```
+  final Offset? offset;
+
   ///Used to add image to the legend icon.
   ///
   ///Default image size is `10.0`.
@@ -751,6 +802,70 @@ class Legend {
   ///}
   ///```
   final ImageProvider? image;
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is Legend &&
+        other.isVisible == isVisible &&
+        other.position == position &&
+        other.alignment == alignment &&
+        other.backgroundColor == backgroundColor &&
+        other.borderColor == borderColor &&
+        other.borderWidth == borderWidth &&
+        other.opacity == opacity &&
+        other.height == height &&
+        other.width == width &&
+        other.padding == padding &&
+        other.iconHeight == iconHeight &&
+        other.iconWidth == iconWidth &&
+        other.toggleSeriesVisibility == toggleSeriesVisibility &&
+        other.textStyle == textStyle &&
+        other.isResponsive == isResponsive &&
+        other.orientation == orientation &&
+        other.title == title &&
+        other.overflowMode == overflowMode &&
+        other.legendItemBuilder == legendItemBuilder &&
+        other.iconBorderColor == iconBorderColor &&
+        other.iconBorderWidth == iconBorderWidth &&
+        other.itemPadding == itemPadding &&
+        other.image == image;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      isVisible,
+      position,
+      alignment,
+      backgroundColor,
+      borderColor,
+      borderWidth,
+      opacity,
+      height,
+      width,
+      padding,
+      iconHeight,
+      iconWidth,
+      toggleSeriesVisibility,
+      textStyle,
+      isResponsive,
+      orientation,
+      title,
+      overflowMode,
+      legendItemBuilder,
+      iconBorderColor,
+      iconBorderWidth,
+      itemPadding,
+      image
+    ];
+    return hashList(values);
+  }
 }
 
 /// Legend renderer class for mutable fields and methods
@@ -760,7 +875,7 @@ class LegendRenderer {
 
   //ignore: unused_field
   final Legend? _legend;
-  _LegendRenderer _renderer = _LegendRenderer();
+  final _LegendRenderer _renderer = _LegendRenderer();
   late LegendPosition _legendPosition;
   late LegendItemOrientation _orientation;
 }
@@ -783,6 +898,7 @@ class _MeasureWidgetContext {
 ///aligned to the chart's width and it will placed at the bottom of the chart.
 ///
 ///Provides Options to customize the [text], [textStyle] and [alignment] properties.
+@immutable
 class LegendTitle {
   /// Creating an argument constructor of LegendTitle class.
   LegendTitle({this.text, TextStyle? textStyle, ChartAlignment? alignment})
@@ -861,14 +977,28 @@ class LegendTitle {
   ///}
   ///```
   final ChartAlignment alignment;
-}
 
-/// Returns the widget.
-///
-/// Customize the appearance of legend items with your template by
-/// using legendItemBuilder property of legend.
-typedef LegendItemBuilder = Widget Function(
-    String legendText, dynamic series, dynamic point, int seriesIndex);
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is LegendTitle &&
+        other.textStyle == textStyle &&
+        other.alignment == alignment &&
+        other.text == text;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[text, textStyle, alignment];
+    return hashList(values);
+  }
+}
 
 ///Handling empty points in charts
 ///
@@ -959,38 +1089,32 @@ class EmptyPointSettings {
   ///}
   ///```
   final EmptyPointMode mode;
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is EmptyPointSettings &&
+        other.color == color &&
+        other.mode == mode &&
+        other.borderColor == borderColor &&
+        other.borderWidth == borderWidth;
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      color,
+      mode,
+      borderColor,
+      borderWidth
+    ];
+    return hashList(values);
+  }
 }
-
-/// Maps the index value.
-typedef ChartIndexedValueMapper<R> = R? Function(int index);
-
-/// Maps the data from data source.
-typedef ChartValueMapper<T, R> = R? Function(T datum, int index);
-
-///Signature for the callback that returns the shader from the data source based on the index.
-/// Can get the data, index, color and rect values.
-///
-///
-///T - Data of the current data point
-///
-///
-///index - Index of the current data point
-///
-///
-///rect - Rect value of the current data point slice
-///
-///color - Color of the current data point
-typedef ChartShaderMapper<T> = Shader Function(
-    T datum, int index, Color color, Rect rect);
-
-/// Returns the widget.
-typedef ChartWidgetBuilder<T> = Widget Function(dynamic data, dynamic point,
-    dynamic series, int pointIndex, int seriesIndex);
-
-/// Returns the widget as a template of trackball
-typedef ChartTrackballBuilder<T> = Widget Function(
-    BuildContext context, TrackballDetails trackballDetails);
-
-/// Custom renderer for series
-typedef ChartSeriesRendererFactory<T, D> = ChartSeriesRenderer Function(
-    ChartSeries<T, D> series);

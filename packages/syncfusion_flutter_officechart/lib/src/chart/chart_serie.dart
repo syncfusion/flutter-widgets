@@ -22,9 +22,11 @@ class ChartSerie {
   late int _index;
 
   /// serie name or formula.
-  late String _nameOrFormula;
+  // ignore: prefer_final_fields
+  String _nameOrFormula = '';
 
   /// Check if the serie name is default.
+  // ignore: prefer_final_fields
   bool _isDefaultName = false;
 
   /// Chart Range Values

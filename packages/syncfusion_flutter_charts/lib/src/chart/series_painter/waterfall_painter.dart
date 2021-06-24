@@ -23,23 +23,20 @@ class _WaterfallChartPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
     final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer!;
+    final _RenderingDetails renderingDetails = chartState._renderingDetails;
     final List<CartesianChartPoint<dynamic>> dataPoints =
         seriesRenderer._dataPoints;
     final WaterfallSeries<dynamic, dynamic> series =
-        seriesRenderer._series as WaterfallSeries;
+        seriesRenderer._series as WaterfallSeries<dynamic, dynamic>;
     final num origin = math.max(yAxisRenderer._visibleRange!.minimum, 0);
-    num currentEndValue = 0;
-    num intermediateOrigin = 0;
-    num prevEndValue = 0;
+    num currentEndValue = 0, intermediateOrigin = 0, prevEndValue = 0;
     num originValue = 0;
     if (seriesRenderer._visible!) {
       assert(
           // ignore: unnecessary_null_comparison
-          series.animationDuration != null
-              ? series.animationDuration >= 0
-              : true,
-          'The animation duration of the waterfall series must be greater or equal to 0.');
-      Rect axisClipRect, clipRect;
+          !(series.animationDuration != null) || series.animationDuration >= 0,
+          'The animation duration of the fast line series must be greater or equal to 0.');
+      Rect axisClipRect;
       double animationFactor;
       CartesianChartPoint<dynamic>? point;
       canvas.save();
@@ -64,10 +61,10 @@ class _WaterfallChartPainter extends CustomPainter {
             (point.isIntermediateSum! || point.isTotalSum!) ? 0 : point.yValue;
         point.yValue =
             point.y = point.isTotalSum! ? currentEndValue : point.yValue;
-        originValue = (point.isIntermediateSum == true
+        originValue = point.isIntermediateSum == true
             ? intermediateOrigin
             // ignore: unnecessary_null_comparison
-            : ((prevEndValue != null) ? prevEndValue : origin));
+            : ((prevEndValue != null) ? prevEndValue : origin);
         originValue = point.isTotalSum! ? 0 : originValue;
         point.yValue = point.y = point.isIntermediateSum!
             ? currentEndValue - originValue
@@ -76,8 +73,8 @@ class _WaterfallChartPainter extends CustomPainter {
         point.originValue = originValue;
         seriesRenderer._calculateRegionData(
             chartState, seriesRenderer, painterKey.index, point, pointIndex);
-        if (chartState._templates.isNotEmpty) {
-          chartState._templates[pointIndex].location =
+        if (renderingDetails.templates.isNotEmpty) {
+          renderingDetails.templates[pointIndex].location =
               Offset(point.markerPoint!.x, point.markerPoint!.y);
         }
         if (point.isVisible && !point.isGap) {
@@ -91,35 +88,42 @@ class _WaterfallChartPainter extends CustomPainter {
         }
         prevEndValue = currentEndValue;
       }
-      clipRect = _calculatePlotOffset(
-          Rect.fromLTRB(
-              chartState._chartAxis._axisClipRect.left -
-                  series.markerSettings.width,
-              chartState._chartAxis._axisClipRect.top -
-                  series.markerSettings.height,
-              chartState._chartAxis._axisClipRect.right +
-                  series.markerSettings.width,
-              chartState._chartAxis._axisClipRect.bottom +
-                  series.markerSettings.height),
-          Offset(
-              xAxisRenderer._axis.plotOffset, yAxisRenderer._axis.plotOffset));
-      canvas.restore();
-      if ((series.animationDuration <= 0 ||
-              (!chartState._initialRender! &&
-                  !seriesRenderer._needAnimateSeriesElements) ||
-              animationFactor >= chartState._seriesDurationFactor) &&
-          (series.markerSettings.isVisible ||
-              series.dataLabelSettings.isVisible)) {
-        // ignore: unnecessary_null_comparison
-        assert(seriesRenderer != null,
-            'The waterfall series should be available to render a marker on it.');
-        canvas.clipRect(clipRect);
-        seriesRenderer._renderSeriesElements(
-            chart, canvas, seriesRenderer._seriesElementAnimation);
-      }
-      if (animationFactor >= 1) {
-        chartState._setPainterKey(painterKey.index, painterKey.name, true);
-      }
+      _drawSeries(canvas, animationFactor);
+    }
+  }
+
+  ///Draw series elements and add cliprect
+  void _drawSeries(Canvas canvas, double animationFactor) {
+    final WaterfallSeries<dynamic, dynamic> series =
+        seriesRenderer._series as WaterfallSeries<dynamic, dynamic>;
+    final Rect clipRect = _calculatePlotOffset(
+        Rect.fromLTRB(
+            chartState._chartAxis._axisClipRect.left -
+                series.markerSettings.width,
+            chartState._chartAxis._axisClipRect.top -
+                series.markerSettings.height,
+            chartState._chartAxis._axisClipRect.right +
+                series.markerSettings.width,
+            chartState._chartAxis._axisClipRect.bottom +
+                series.markerSettings.height),
+        Offset(seriesRenderer._xAxisRenderer!._axis.plotOffset,
+            seriesRenderer._yAxisRenderer!._axis.plotOffset));
+    canvas.restore();
+    if ((series.animationDuration <= 0 ||
+            (!chartState._renderingDetails.initialRender! &&
+                !seriesRenderer._needAnimateSeriesElements) ||
+            animationFactor >= chartState._seriesDurationFactor) &&
+        (series.markerSettings.isVisible ||
+            series.dataLabelSettings.isVisible)) {
+      // ignore: unnecessary_null_comparison
+      assert(seriesRenderer != null,
+          'The waterfall series should be available to render a marker on it.');
+      canvas.clipRect(clipRect);
+      seriesRenderer._renderSeriesElements(
+          chart, canvas, seriesRenderer._seriesElementAnimation);
+    }
+    if (animationFactor >= 1) {
+      chartState._setPainterKey(painterKey.index, painterKey.name, true);
     }
   }
 

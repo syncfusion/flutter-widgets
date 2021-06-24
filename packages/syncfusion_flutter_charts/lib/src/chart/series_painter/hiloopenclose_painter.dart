@@ -29,15 +29,13 @@ class _HiloOpenClosePainter extends CustomPainter {
     final List<CartesianChartPoint<dynamic>> dataPoints =
         seriesRenderer._dataPoints;
     final HiloOpenCloseSeries<dynamic, dynamic> series =
-        seriesRenderer._series as HiloOpenCloseSeries;
+        seriesRenderer._series as HiloOpenCloseSeries<dynamic, dynamic>;
     if (seriesRenderer._visible!) {
       canvas.save();
       assert(
           // ignore: unnecessary_null_comparison
-          series.animationDuration != null
-              ? series.animationDuration >= 0
-              : true,
-          'The animation duration of the Hilo open-close series must be greater or equal to 0.');
+          !(series.animationDuration != null) || series.animationDuration >= 0,
+          'The animation duration of the fast line series must be greater or equal to 0.');
       final int seriesIndex = painterKey.index;
       seriesRenderer._storeSeriesProperties(chartState, seriesIndex);
       final Rect axisClipRect = _calculatePlotOffset(
@@ -56,13 +54,15 @@ class _HiloOpenClosePainter extends CustomPainter {
       }
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
-        seriesRenderer._calculateRegionData(chartState, seriesRenderer,
-            painterKey.index, point, pointIndex, seriesRenderer.sideBySideInfo);
+        seriesRenderer._calculateRegionData(
+            chartState,
+            seriesRenderer,
+            painterKey.index,
+            point,
+            pointIndex,
+            seriesRenderer._sideBySideInfo);
 
-        if (point.isVisible &&
-            !point.isGap &&
-            (!((point.low == point.high) &&
-                !series.showIndicationForSameValues))) {
+        if (point.isVisible && !point.isGap) {
           seriesRenderer._drawSegment(
               canvas,
               seriesRenderer._createSegments(

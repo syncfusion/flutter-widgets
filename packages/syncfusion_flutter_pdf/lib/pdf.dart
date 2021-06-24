@@ -221,6 +221,7 @@ part 'src/pdf/implementation/actions/pdf_submit_action.dart';
 part 'src/pdf/implementation/forms/pdf_signature_field.dart';
 part 'src/pdf/implementation/forms/pdf_field_item.dart';
 part 'src/pdf/implementation/forms/pdf_field_item_collection.dart';
+part 'src/pdf/implementation/forms/pdf_xfdf_document.dart';
 
 /// Compression
 part 'src/pdf/implementation/compression/compressed_stream_writer.dart';
@@ -271,3 +272,4 @@ part 'src/pdf/implementation/security/digital_signature/pdf_pkcs_certificate.dar
 part 'src/pdf/implementation/security/digital_signature/pdf_signature.dart';
 part 'src/pdf/implementation/security/digital_signature/pdf_signature_dictionary.dart';
 part 'src/pdf/implementation/security/digital_signature/pdf_external_signer.dart';
+

@@ -3,10 +3,10 @@ part of datagrid;
 class _RowGenerator {
   _RowGenerator({required _DataGridStateDetails dataGridStateDetails}) {
     _dataGridStateDetails = dataGridStateDetails;
-    items = [];
+    items = <DataRowBase>[];
   }
 
-  List<DataRowBase> items = [];
+  late List<DataRowBase> items;
 
   _DataGridStateDetails get dataGridStateDetails => _dataGridStateDetails;
   late _DataGridStateDetails _dataGridStateDetails;
@@ -44,18 +44,19 @@ class _RowGenerator {
 
   void _ensureRows(_VisibleLinesCollection visibleRows,
       _VisibleLinesCollection visibleColumns) {
-    List<int>? actualStartAndEndIndex = [];
+    List<int>? actualStartAndEndIndex = <int>[];
     RowRegion? region = RowRegion.header;
 
     List<DataRowBase> reUseRows() => items
-        .where((row) =>
+        .where((DataRowBase row) =>
             (row.rowIndex < 0 ||
                 row.rowIndex < actualStartAndEndIndex![0] ||
                 row.rowIndex > actualStartAndEndIndex[1]) &&
-            !row._isEnsured)
+            !row._isEnsured &&
+            !row._isEditing)
         .toList(growable: false);
 
-    for (final row in items) {
+    for (final DataRowBase row in items) {
       row._isEnsured = false;
     }
 
@@ -83,7 +84,8 @@ class _RowGenerator {
           }
         }
 
-        dr ??= items.firstWhereOrNull((row) => row.rowIndex == index);
+        dr ??=
+            items.firstWhereOrNull((DataRowBase row) => row.rowIndex == index);
 
         if (dr != null) {
           if (!dr._isVisible) {
@@ -106,7 +108,7 @@ class _RowGenerator {
       }
     }
 
-    for (final row in items) {
+    for (final DataRowBase row in items) {
       if (!row._isEnsured || row.rowIndex == -1) {
         row._isVisible = false;
       }
@@ -117,7 +119,7 @@ class _RowGenerator {
   }
 
   void _ensureColumns(_VisibleLinesCollection visibleColumns) {
-    for (final row in items) {
+    for (final DataRowBase row in items) {
       row._ensureColumns(visibleColumns);
     }
   }
@@ -126,25 +128,37 @@ class _RowGenerator {
       int rowIndex, _VisibleLinesCollection visibleColumns,
       {RowRegion rowRegion = RowRegion.body}) {
     final _DataGridSettings dataGridSettings = dataGridStateDetails();
-    final dr = DataRow()
-      .._dataGridStateDetails = dataGridStateDetails
-      ..rowIndex = rowIndex
-      ..rowRegion = rowRegion
-      ..rowType = RowType.dataRow;
-    dr._key = ObjectKey(dr);
-    dr
-      .._dataGridRow =
-          _SfDataGridHelper.getDataGridRow(dataGridSettings, rowIndex)
-      .._dataGridRowAdapter = _SfDataGridHelper.getDataGridRowAdapter(
-          dataGridSettings, dr._dataGridRow!);
-    assert(_SfDataGridHelper.debugCheckTheLength(
-        dataGridSettings.columns.length,
-        dr._dataGridRowAdapter!.cells.length,
-        'SfDataGrid.columns.length == DataGridRowAdapter.cells.length'));
-    _checkForCurrentRow(dr);
-    _checkForSelection(dr);
-    dr._initializeDataRow(visibleColumns);
-    return dr;
+    DataRow dr;
+    if (_GridIndexResolver.isFooterWidgetRow(rowIndex, dataGridSettings)) {
+      dr = DataRow()
+        .._dataGridStateDetails = dataGridStateDetails
+        ..rowIndex = rowIndex
+        ..rowRegion = rowRegion
+        ..rowType = RowType.footerRow;
+      dr._key = ObjectKey(dr);
+      dr._footerView = _buildFooterWidget(dataGridSettings, rowIndex);
+      return dr;
+    } else {
+      dr = DataRow()
+        .._dataGridStateDetails = dataGridStateDetails
+        ..rowIndex = rowIndex
+        ..rowRegion = rowRegion
+        ..rowType = RowType.dataRow;
+      dr._key = ObjectKey(dr);
+      dr
+        .._dataGridRow =
+            _SfDataGridHelper.getDataGridRow(dataGridSettings, rowIndex)
+        .._dataGridRowAdapter = _SfDataGridHelper.getDataGridRowAdapter(
+            dataGridSettings, dr._dataGridRow!);
+      assert(_SfDataGridHelper.debugCheckTheLength(
+          dataGridSettings.columns.length,
+          dr._dataGridRowAdapter!.cells.length,
+          'SfDataGrid.columns.length == DataGridRowAdapter.cells.length'));
+      _checkForCurrentRow(dr);
+      _checkForSelection(dr);
+      dr._initializeDataRow(visibleColumns);
+      return dr;
+    }
   }
 
   DataRowBase _createHeaderRow(
@@ -180,7 +194,7 @@ class _RowGenerator {
 
   void _createStackedHeaderCell(StackedHeaderRow header, int rowIndex) {
     final _DataGridSettings dataGridSettings = dataGridStateDetails();
-    for (final column in header.cells) {
+    for (final StackedHeaderCell column in header.cells) {
       final List<int> childSequence = _StackedHeaderHelper._getChildSequence(
           dataGridSettings, column, rowIndex);
       childSequence.sort();
@@ -192,6 +206,56 @@ class _RowGenerator {
       int rowIndex, _VisibleLinesCollection visibleColumns) {
     return _createDataRow(rowIndex, visibleColumns,
         rowRegion: RowRegion.footer);
+  }
+
+  Widget? _buildFooterWidget(_DataGridSettings dataGridSettings, int rowIndex) {
+    if (dataGridSettings.footer == null) {
+      return null;
+    }
+
+    BoxDecoration drawBorder() {
+      final SfDataGridThemeData themeData = dataGridSettings.dataGridThemeData!;
+      final GridLinesVisibility gridLinesVisibility =
+          dataGridSettings.gridLinesVisibility;
+
+      final bool canDrawHorizontalBorder =
+          gridLinesVisibility == GridLinesVisibility.horizontal ||
+              gridLinesVisibility == GridLinesVisibility.both;
+      final bool canDrawVerticalBorder =
+          gridLinesVisibility == GridLinesVisibility.vertical ||
+              gridLinesVisibility == GridLinesVisibility.both;
+
+      final bool canDrawTopFrozenBorder = dataGridSettings
+              .footerFrozenRowsCount.isFinite &&
+          dataGridSettings.footerFrozenRowsCount > 0 &&
+          _GridIndexResolver.getStartFooterFrozenRowIndex(dataGridSettings) ==
+              rowIndex;
+
+      return BoxDecoration(
+        border: BorderDirectional(
+          top: canDrawTopFrozenBorder && themeData.frozenPaneElevation <= 0.0
+              ? BorderSide(
+                  color: themeData.frozenPaneLineColor,
+                  width: themeData.frozenPaneLineWidth)
+              : BorderSide.none,
+          bottom: canDrawHorizontalBorder
+              ? BorderSide(
+                  color: themeData.gridLineColor,
+                  width: themeData.gridLineStrokeWidth)
+              : BorderSide.none,
+          end: canDrawVerticalBorder
+              ? BorderSide(
+                  color: themeData.gridLineColor,
+                  width: themeData.gridLineStrokeWidth)
+              : BorderSide.none,
+        ),
+      );
+    }
+
+    return Container(
+        decoration: drawBorder(),
+        clipBehavior: Clip.antiAlias,
+        child: dataGridSettings.footer);
   }
 
   DataRowBase? _indexer(int index) {
@@ -206,10 +270,11 @@ class _RowGenerator {
 
   void _updateRow(List<DataRowBase> rows, int index, RowRegion region) {
     final _DataGridSettings dataGridSettings = dataGridStateDetails();
+    DataRowBase? dr;
     if (region == RowRegion.header) {
-      DataRowBase? dr;
       if (index == _GridIndexResolver.getHeaderIndex(dataGridSettings)) {
-        dr = rows.firstWhereOrNull((row) => row.rowType == RowType.headerRow);
+        dr = rows.firstWhereOrNull(
+            (DataRowBase row) => row.rowType == RowType.headerRow);
         if (dr != null) {
           dr
             .._key = dr._key
@@ -226,8 +291,8 @@ class _RowGenerator {
           dr = null;
         }
       } else if (index < dataGridSettings.stackedHeaderRows.length) {
-        dr =
-            rows.firstWhereOrNull((r) => r.rowType == RowType.stackedHeaderRow);
+        dr = rows.firstWhereOrNull(
+            (DataRowBase r) => r.rowType == RowType.stackedHeaderRow);
         if (dr != null) {
           dr._key = dr._key;
           dr.rowIndex = index;
@@ -248,6 +313,22 @@ class _RowGenerator {
       } else {
         _updateDataRow(rows, index, region, dataGridSettings);
       }
+    } else if (_GridIndexResolver.isFooterWidgetRow(index, dataGridSettings)) {
+      dr = rows
+          .firstWhereOrNull((DataRowBase r) => r.rowType == RowType.footerRow);
+      if (dr != null) {
+        dr
+          .._key = dr._key
+          ..rowIndex = index
+          ..rowRegion = region
+          ..rowType = RowType.footerRow;
+        dr._footerView = _buildFooterWidget(dataGridSettings, index);
+      } else {
+        dr = _createDataRow(
+            index, _SfDataGridHelper.getVisibleLines(dataGridStateDetails()));
+        items.add(dr);
+        dr = null;
+      }
     } else {
       _updateDataRow(rows, index, region, dataGridSettings);
     }
@@ -256,7 +337,7 @@ class _RowGenerator {
   void _updateDataRow(List<DataRowBase> rows, int index, RowRegion region,
       _DataGridSettings dataGridSettings) {
     DataRowBase? row = rows.firstWhereOrNull(
-        (row) => row is DataRow && row.rowType == RowType.dataRow);
+        (DataRowBase row) => row is DataRow && row.rowType == RowType.dataRow);
 
     if (row != null && row is DataRow) {
       if (index < 0 || index >= container.scrollRows.lineCount) {
@@ -289,10 +370,11 @@ class _RowGenerator {
 
   double _queryRowHeight(int rowIndex, double height) {
     final _DataGridSettings dataGridSettings = dataGridStateDetails();
-    var rowHeight = height;
+    double rowHeight = height;
     if (dataGridSettings.onQueryRowHeight != null) {
-      rowHeight = dataGridSettings
-          .onQueryRowHeight!(RowHeightDetails(rowIndex, height));
+      final RowHeightDetails details = RowHeightDetails(rowIndex, height)
+        .._columnSizer = dataGridSettings.columnSizer;
+      rowHeight = dataGridSettings.onQueryRowHeight!(details);
     }
 
     return rowHeight;
@@ -301,16 +383,13 @@ class _RowGenerator {
   void _checkForSelection(DataRowBase row) {
     final _DataGridSettings dataGridSettings = dataGridStateDetails();
     if (dataGridSettings.selectionMode != SelectionMode.none) {
-      final RowSelectionManager? rowSelectionManager =
+      final RowSelectionManager rowSelectionManager =
           dataGridSettings.rowSelectionManager as RowSelectionManager;
       final int recordIndex = _GridIndexResolver.resolveToRecordIndex(
           dataGridSettings, row.rowIndex);
-      final DataGridRow? record =
+      final DataGridRow record =
           dataGridSettings.source._effectiveRows[recordIndex];
-      if (record != null) {
-        row._isSelectedRow =
-            rowSelectionManager!._selectedRows.contains(record);
-      }
+      row._isSelectedRow = rowSelectionManager._selectedRows.contains(record);
     }
   }
 
@@ -325,18 +404,19 @@ class _RowGenerator {
           return null;
         }
 
-        final dc = dr._visibleColumns.firstWhereOrNull((dataCell) =>
-            dataCell.columnIndex == currentCellManager.columnIndex);
+        final DataCellBase? dc = dr._visibleColumns.firstWhereOrNull(
+            (DataCellBase dataCell) =>
+                dataCell.columnIndex == currentCellManager.columnIndex);
         return dc;
       }
 
       if (currentCellManager.rowIndex != -1 &&
           currentCellManager.columnIndex != -1 &&
           currentCellManager.rowIndex == dr.rowIndex) {
-        final dataCell = getDataCell();
+        final DataCellBase? dataCell = getDataCell();
         currentCellManager._setCurrentCellDirty(dr, dataCell, true);
       } else if (dr.isCurrentRow) {
-        final dataCell = getDataCell();
+        final DataCellBase? dataCell = getDataCell();
         currentCellManager._setCurrentCellDirty(dr, dataCell, false);
       } else {
         dr.isCurrentRow = false;

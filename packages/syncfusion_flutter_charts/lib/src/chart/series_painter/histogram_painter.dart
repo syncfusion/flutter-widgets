@@ -28,20 +28,19 @@ class _HistogramChartPainter extends CustomPainter {
     CartesianChartPoint<dynamic> point;
     final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
     final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer!;
+    final _RenderingDetails renderingDetails = chartState._renderingDetails;
     final List<CartesianChartPoint<dynamic>> dataPoints =
         seriesRenderer._dataPoints;
 
     /// Clip rect added
     if (seriesRenderer._visible!) {
       final HistogramSeries<dynamic, dynamic> series =
-          seriesRenderer._series as HistogramSeries;
+          seriesRenderer._series as HistogramSeries<dynamic, dynamic>;
       canvas.save();
       assert(
           // ignore: unnecessary_null_comparison
-          series.animationDuration != null
-              ? series.animationDuration >= 0
-              : true,
-          'The animation duration of the histogram series must be greater or equal to 0.');
+          !(series.animationDuration != null) || series.animationDuration >= 0,
+          'The animation duration of the fast line series must be greater or equal to 0.');
       final int seriesIndex = painterKey.index;
       seriesRenderer._storeSeriesProperties(chartState, seriesIndex);
       axisClipRect = _calculatePlotOffset(
@@ -62,22 +61,28 @@ class _HistogramChartPainter extends CustomPainter {
       }
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
-        seriesRenderer._calculateRegionData(chartState, seriesRenderer,
-            painterKey.index, point, pointIndex, seriesRenderer.sideBySideInfo);
+        seriesRenderer._calculateRegionData(
+            chartState,
+            seriesRenderer,
+            painterKey.index,
+            point,
+            pointIndex,
+            seriesRenderer._sideBySideInfo);
         if (point.isVisible && !point.isGap) {
           seriesRenderer._drawSegment(
               canvas,
               seriesRenderer._createSegments(
                   point,
                   segmentIndex += 1,
-                  seriesRenderer.sideBySideInfo!,
+                  seriesRenderer._sideBySideInfo!,
                   painterKey.index,
                   animationFactor));
         }
       }
       if (series.showNormalDistributionCurve) {
         if (seriesRenderer._reAnimate ||
-            ((!(chartState._widgetNeedUpdate || chartState._isLegendToggled) ||
+            ((!(renderingDetails.widgetNeedUpdate ||
+                        renderingDetails.isLegendToggled) ||
                     !chartState._oldSeriesKeys.contains(series.key)) &&
                 series.animationDuration > 0)) {
           _performLinearAnimation(
@@ -107,7 +112,7 @@ class _HistogramChartPainter extends CustomPainter {
               xAxisRenderer._axis.plotOffset, yAxisRenderer._axis.plotOffset));
       canvas.restore();
       if ((series.animationDuration <= 0 ||
-              !chartState._initialRender! ||
+              !renderingDetails.initialRender! ||
               animationFactor >= chartState._seriesDurationFactor) &&
           (series.markerSettings.isVisible ||
               series.dataLabelSettings.isVisible)) {

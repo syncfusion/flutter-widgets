@@ -22,7 +22,7 @@ class _AesCipher {
     }
     final Map<String, dynamic> result =
         _bp.processBytes(input, inputOffset, inputLength, output, 0);
-    output = result['output'];
+    output = result['output'] as List<int>?;
     return output;
   }
 }
@@ -47,7 +47,7 @@ class _AesCipherNoPadding {
     while (length > 0) {
       final Map<String, dynamic> result =
           _cbc.processBlock(input, offset, output, tempOffset);
-      output = result['output'];
+      output = result['output'] as List<int>?;
       length -= _cbc.blockSize!;
       tempOffset += _cbc.blockSize!;
       offset += _cbc.blockSize!;
@@ -150,7 +150,7 @@ class _AesEncryptor {
 
   int _finalize(List<int> output) {
     int resultLen = 0;
-    final int outOff = 0;
+    const int outOff = 0;
     if (_isEncryption) {
       if (_ivOff == _blockSize) {
         resultLen = processBlock(_buf, 0, output, outOff);
@@ -228,8 +228,8 @@ class _Aes {
   }
 
   void _keyExpansion() {
-    keySheduleArray =
-        List.generate((nb * (nr! + 1)), (i) => List.generate(4, (j) => 0));
+    keySheduleArray = List<List<int>>.generate(
+        nb * (nr! + 1), (int i) => List<int>.generate(4, (int j) => 0));
     for (int row = 0; row < nk; ++row) {
       keySheduleArray[row][0] = key[4 * row];
       keySheduleArray[row][1] = key[(4 * row) + 1];
@@ -290,7 +290,8 @@ class _Aes {
 
   int _cipher(List<int>? input, List<int> output, int outOff) {
     initialize();
-    state = List.generate(4, (i) => List.generate(nb, (j) => 0));
+    state = List<List<int>>.generate(
+        4, (int i) => List<int>.generate(nb, (int j) => 0));
     for (int i = 0; i < (4 * nb); ++i) {
       state[i % 4][i ~/ 4] = input![i];
     }
@@ -311,7 +312,8 @@ class _Aes {
   }
 
   int _invCipher(List<int>? input, List<int> output, int outOff) {
-    state = List.generate(4, (i) => List.generate(nb, (j) => 0));
+    state = List<List<int>>.generate(
+        4, (int i) => List<int>.generate(nb, (int j) => 0));
     for (int i = 0; i < (4 * nb); ++i) {
       state[i % 4][i ~/ 4] = input![i];
     }
@@ -332,8 +334,8 @@ class _Aes {
   }
 
   void _mixColumns() {
-    final List<List<int>> temp =
-        List.generate(4, (i) => List.generate(4, (j) => 0));
+    final List<List<int>> temp = List<List<int>>.generate(
+        4, (int i) => List<int>.generate(4, (int j) => 0));
     for (int r = 0; r < 4; ++r) {
       for (int c = 0; c < 4; ++c) {
         temp[r][c] = state[r][c];
@@ -364,8 +366,8 @@ class _Aes {
   }
 
   void _invMixColumns() {
-    final List<List<int>> temp =
-        List.generate(4, (i) => List.generate(4, (j) => 0));
+    final List<List<int>> temp = List<List<int>>.generate(
+        4, (int i) => List<int>.generate(4, (int j) => 0));
     for (int r = 0; r < 4; ++r) {
       for (int c = 0; c < 4; ++c) {
         temp[r][c] = state[r][c];
@@ -425,17 +427,17 @@ class _Aes {
   int _gfmultby02(int b) {
     return (b < 0x80
             ? (b << 1).toSigned(32)
-            : ((b << 1).toSigned(32) ^ (0x1b).toSigned(32)))
+            : ((b << 1).toSigned(32) ^ 0x1b.toSigned(32)))
         .toUnsigned(8);
   }
 
   int _gfmultby03(int b) {
-    return (_gfmultby02(b).toSigned(32) ^ (b).toSigned(32)).toUnsigned(8);
+    return (_gfmultby02(b).toSigned(32) ^ b.toSigned(32)).toUnsigned(8);
   }
 
   void _shiftRows() {
-    final List<List<int>> temp =
-        List.generate(4, (i) => List.generate(4, (j) => 0));
+    final List<List<int>> temp = List<List<int>>.generate(
+        4, (int i) => List<int>.generate(4, (int j) => 0));
     for (int r = 0; r < 4; ++r) {
       for (int c = 0; c < 4; ++c) {
         temp[r][c] = state[r][c];
@@ -449,8 +451,8 @@ class _Aes {
   }
 
   void _invShiftRows() {
-    final List<List<int>> temp =
-        List.generate(4, (i) => List.generate(4, (j) => 0));
+    final List<List<int>> temp = List<List<int>>.generate(
+        4, (int i) => List<int>.generate(4, (int j) => 0));
     for (int r = 0; r < 4; ++r) {
       for (int c = 0; c < 4; ++c) {
         temp[r][c] = state[r][c];

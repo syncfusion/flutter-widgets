@@ -25,7 +25,9 @@ abstract class PdfListField extends PdfField {
             borderStyle: borderStyle,
             tooltip: tooltip) {
     if (items != null && items.isNotEmpty) {
-      items.forEach((element) => this.items.add(element));
+      items
+          .toList()
+          .forEach((PdfListFieldItem element) => this.items.add(element));
     }
   }
 
@@ -34,7 +36,7 @@ abstract class PdfListField extends PdfField {
 
   //Fields
   PdfListFieldItemCollection? _items;
-  List<int> _selectedIndex = [-1];
+  List<int> _selectedIndex = <int>[-1];
 
   //Properties
   /// Gets the list field items.
@@ -53,11 +55,11 @@ abstract class PdfListField extends PdfField {
   List<int> get _selectedIndexes =>
       _isLoadedField ? _obtainSelectedIndex() : _selectedIndex;
   set _selectedIndexes(List<int> value) {
-    value.forEach((element) {
+    for (final int element in value) {
       if (element < 0 || element >= items.count) {
         throw RangeError('index');
       }
-    });
+    }
     if (_isLoadedField) {
       _assignSelectedIndex(value);
     } else {
@@ -73,11 +75,13 @@ abstract class PdfListField extends PdfField {
     if (_isLoadedField) {
       return _obtainSelectedValue();
     } else {
-      if (_selectedIndex == [-1]) {
+      if (_selectedIndex == <int>[-1]) {
         throw ArgumentError('No value is selected.');
       }
-      final List<String> values = [];
-      _selectedIndex.forEach((element) => values.add(_items![element].value));
+      final List<String> values = <String>[];
+      for (final int index in _selectedIndex) {
+        values.add(_items![index].value);
+      }
       return values;
     }
   }
@@ -108,12 +112,12 @@ abstract class PdfListField extends PdfField {
   }
 
   PdfListFieldItemCollection get _selectedItems {
-    if (_selectedIndex == [-1]) {
+    if (_selectedIndex == <int>[-1]) {
       throw ArgumentError('No item is selected.');
     }
     final PdfListFieldItemCollection item =
         PdfListFieldItemCollection._(_isLoadedField ? this : null);
-    for (final index in _selectedIndexes) {
+    for (final int index in _selectedIndexes) {
       if (index > -1 && items.count > 0 && items.count > index) {
         item._addItem(items[index]);
       }
@@ -192,10 +196,11 @@ abstract class PdfListField extends PdfField {
           final _PdfString str = primitive;
           item = PdfListFieldItem._load(str.value, null, this, _crossTable);
         } else {
-          final _PdfArray arr = primitive as _PdfArray;
+          final _PdfArray arr = primitive! as _PdfArray;
           final _PdfString value =
-              _crossTable!._getObject(arr[0]) as _PdfString;
-          final _PdfString text = _crossTable!._getObject(arr[1]) as _PdfString;
+              _crossTable!._getObject(arr[0])! as _PdfString;
+          final _PdfString text =
+              _crossTable!._getObject(arr[1])! as _PdfString;
           item = PdfListFieldItem._load(
               text.value, value.value, this, _crossTable);
         }
@@ -206,7 +211,7 @@ abstract class PdfListField extends PdfField {
   }
 
   List<int> _obtainSelectedIndex() {
-    final List<int> selectedIndex = [];
+    final List<int> selectedIndex = <int>[];
     if (_dictionary.containsKey(_DictionaryProperties.i)) {
       final _IPdfPrimitive? array =
           _crossTable!._getObject(_dictionary[_DictionaryProperties.i]);
@@ -227,7 +232,7 @@ abstract class PdfListField extends PdfField {
         }
       }
     }
-    if (selectedIndex.length == 0) {
+    if (selectedIndex.isEmpty) {
       selectedIndex.add(-1);
     }
     return selectedIndex;
@@ -235,21 +240,21 @@ abstract class PdfListField extends PdfField {
 
   //Gets selected value.
   List<String> _obtainSelectedValue() {
-    final List<String> value = [];
+    final List<String> value = <String>[];
     if (_dictionary.containsKey(_DictionaryProperties.v)) {
       final _IPdfPrimitive? primitive =
           _crossTable!._getObject(_dictionary[_DictionaryProperties.v]);
       if (primitive is _PdfString) {
         value.add(primitive.value!);
       } else {
-        final _PdfArray array = primitive as _PdfArray;
+        final _PdfArray array = primitive! as _PdfArray;
         for (int i = 0; i < array.count; i++) {
-          final _PdfString stringValue = array[i] as _PdfString;
+          final _PdfString stringValue = array[i]! as _PdfString;
           value.add(stringValue.value!);
         }
       }
     } else {
-      for (final index in _selectedIndexes) {
+      for (final int index in _selectedIndexes) {
         if (index > -1) {
           value.add(items[index].value);
         }
@@ -259,32 +264,35 @@ abstract class PdfListField extends PdfField {
   }
 
   void _assignSelectedIndex(List<int> value) {
-    if ((value.length == 0) || (value.length > items.count)) {
+    if ((value.isEmpty) || (value.length > items.count)) {
       throw RangeError('selectedIndex');
     }
-    value.forEach((element) {
-      if ((element >= items.count)) {
+    // ignore: avoid_function_literals_in_foreach_calls
+    value.forEach((int element) {
+      if (element >= items.count) {
         throw RangeError('selectedIndex');
       }
     });
     if (readOnly == false) {
       value.sort();
       _dictionary.setProperty(_DictionaryProperties.i, _PdfArray(value));
-      List<String> selectedValues = [];
+      List<String> selectedValues = <String>[];
       bool isText = false;
-      value.forEach((element) {
+      // ignore: avoid_function_literals_in_foreach_calls
+      value.forEach((int element) {
         if (element >= 0) {
           selectedValues.add(items[element].value);
         }
       });
       if (items[0].value.isEmpty) {
-        selectedValues = [];
+        selectedValues = <String>[];
         isText = true;
-        value.forEach((element) {
+        // ignore: avoid_function_literals_in_foreach_calls
+        value.forEach((int element) {
           selectedValues.add(items[element].text);
         });
       }
-      if (selectedValues.length > 0) {
+      if (selectedValues.isNotEmpty) {
         _assignSelectedValue(selectedValues, isText);
       }
       _changed = true;
@@ -292,12 +300,13 @@ abstract class PdfListField extends PdfField {
   }
 
   void _assignSelectedValue(List<String?> values, bool isText) {
-    final List<int> selectedIndexes = [];
-    final PdfListFieldItemCollection? collection = items;
+    final List<int> selectedIndexes = <int>[];
+    final PdfListFieldItemCollection collection = items;
     if (readOnly == false) {
-      values.forEach((element) {
+      // ignore: avoid_function_literals_in_foreach_calls
+      values.forEach((String? element) {
         bool isvaluePresent = false;
-        for (int i = 0; i < collection!.count; i++) {
+        for (int i = 0; i < collection.count; i++) {
           if ((isText ? collection[i].text : collection[i].value) == element) {
             isvaluePresent = true;
             selectedIndexes.add(i);
@@ -306,17 +315,17 @@ abstract class PdfListField extends PdfField {
         if (!isvaluePresent &&
             (this is PdfComboBoxField) &&
             !(this as PdfComboBoxField).editable) {
-          throw new RangeError('index');
+          throw RangeError('index');
         }
       });
       if (this is PdfListBoxField && values.length > 1) {
         final PdfListBoxField listfield = this as PdfListBoxField;
         if (!listfield.multiSelect) {
           selectedIndexes.removeRange(1, selectedIndexes.length - 1);
-          values = [collection![selectedIndexes[0]].value];
+          values = <String?>[collection[selectedIndexes[0]].value];
         }
       }
-      if (selectedIndexes.length != 0) {
+      if (selectedIndexes.isNotEmpty) {
         selectedIndexes.sort();
         _dictionary.setProperty(
             _DictionaryProperties.i, _PdfArray(selectedIndexes));
@@ -329,7 +338,7 @@ abstract class PdfListField extends PdfField {
       if ((primitive == null) || (primitive is _PdfString)) {
         if (this is PdfListBoxField) {
           final _PdfArray array = _PdfArray();
-          for (final selectedValue in values) {
+          for (final String? selectedValue in values) {
             array._add(_PdfString(selectedValue!));
           }
           _dictionary.setProperty(_DictionaryProperties.v, array);
@@ -339,7 +348,7 @@ abstract class PdfListField extends PdfField {
       } else {
         final _PdfArray array = primitive as _PdfArray;
         array._clear();
-        for (final selectedValue in values) {
+        for (final String? selectedValue in values) {
           array._add(_PdfString(selectedValue!));
         }
         _dictionary.setProperty(_DictionaryProperties.v, array);
@@ -348,7 +357,7 @@ abstract class PdfListField extends PdfField {
       _dictionary._setString(_DictionaryProperties.v, values[0]);
     } else {
       final _PdfArray array = _PdfArray();
-      for (final selectedValue in values) {
+      for (final String? selectedValue in values) {
         array._add(_PdfString(selectedValue!));
       }
       _dictionary.setProperty(_DictionaryProperties.v, array);

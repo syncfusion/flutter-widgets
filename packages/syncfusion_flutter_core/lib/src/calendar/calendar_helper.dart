@@ -73,8 +73,8 @@ dynamic getNextMonthDate(dynamic date) {
 /// else return first date/last date when the date before of first date or after
 /// last date
 dynamic getValidDate(dynamic minDate, dynamic maxDate, dynamic date) {
-  if (date.isAfter(minDate)) {
-    if (date.isBefore(maxDate)) {
+  if (date.isAfter(minDate) == true) {
+    if (date.isBefore(maxDate) == true) {
       return date;
     } else {
       return maxDate;
@@ -112,7 +112,7 @@ bool isDateWithInDateRange(dynamic startDate, dynamic endDate, dynamic date) {
     return false;
   }
 
-  if (startDate.isAfter(endDate)) {
+  if (startDate.isAfter(endDate) == true) {
     final dynamic temp = startDate;
     startDate = endDate;
     endDate = temp;
@@ -127,17 +127,19 @@ bool isDateWithInDateRange(dynamic startDate, dynamic endDate, dynamic date) {
 
 /// Check the date before/same of last date
 bool isSameOrBeforeDate(dynamic lastDate, dynamic date) {
-  return isSameDate(lastDate, date) || lastDate.isAfter(date);
+  return isSameDate(lastDate, date) || lastDate.isAfter(date) == true;
 }
 
 /// Check the date after/same of first date
 bool isSameOrAfterDate(dynamic firstDate, dynamic date) {
-  return isSameDate(firstDate, date) || firstDate.isBefore(date);
+  return isSameDate(firstDate, date) || firstDate.isBefore(date) == true;
 }
 
 /// Get the visible dates based on the date value and visible dates count.
+// ignore: always_specify_types
 List getVisibleDates(dynamic date, List<int>? nonWorkingDays,
     int firstDayOfWeek, int visibleDatesCount) {
+  // ignore: always_specify_types
   List datesCollection;
   if (date is HijriDateTime) {
     datesCollection = <HijriDateTime>[];
@@ -188,7 +190,8 @@ dynamic getFirstDayOfWeekDate(
     }
   }
 
-  int value = -currentDate.weekday + firstDayOfWeek - numberOfWeekDays;
+  // ignore: avoid_as
+  int value = -(currentDate.weekday as int) + firstDayOfWeek - numberOfWeekDays;
   if (value.abs() >= numberOfWeekDays) {
     value += numberOfWeekDays;
   }

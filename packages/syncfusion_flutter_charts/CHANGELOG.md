@@ -1,3 +1,45 @@
+## Unreleased
+
+**Bugs**
+* The axis interval, zoom factor and zoom position will be maintained properly when enabled auto-scrolling.
+* Now, no exception will be thrown while adding multiple indicators and enabling the legend.
+
+**Features**
+* Provided milliseconds interval support for date time and date time category axis.
+* Provided support to place the legend anywhere at the top of the chart. 
+* Provided support to decide whether to deselect or let the data point remain selected on tapping the selected data point in the chart. 
+* Provided overfilled radial bar support which indicates the value that is above the maximum value. 
+* Provided support to trigger an event when long-pressing or double-tapping the data points. 
+* Now all the internally calculated indicator values can be retrieved for further use in the application. 
+
+**Breaking changes**
+
+* `onPointTapped` callback has been deprecated, instead use `onPointTap` callback in Series class to get the tapped data point details. 
+* `onIndicatorRender` callback has been deprecated, instead use ` onRenderDetailsUpdate` callback in TechnicalIndicators class to get the indicator details.
+
+
+## [19.1.54] - 03/30/2021 
+
+**Bugs**
+* The annotation will not flicker on zooming or panning and will get positioned properly in the plot area of the chart.
+
+**Features**
+* Provided on-demand data loading support to load more data lazily.
+* Provided auto-scrolling support to display a fixed number of data points in the visible range and can view the remaining data by panning.
+* Implemented a new x-axis type named DateTimeCategory axis, which is a mixture of date-time and category axis.
+* Provided support to fill the circular charts with gradient and image shader.
+* Provided support to switch the circular charts rendering mode as gradient instead of solid colors.
+* Now, the trackball tooltip can be rendered along with markers alike the series tooltip.
+* The swiping gesture has been added to the chart to achieve pagination functionality.
+* Provided support to change the trackball/crosshair position even after the touch interaction leaves the chart area.
+
+**Breaking changes**
+
+* `onAxisLabelRender` callback has been deprecated, instead use `labelFormatter` callback to customize the axis labels.
+* Hereafter initialize the chart behaviors in the `initState` method instead of `build method.
+* Now, the marker will be displayed in the trackball tooltip by default.
+
+
 ## [18.4.44] - 02/23/2021 
 
 **Bugs**

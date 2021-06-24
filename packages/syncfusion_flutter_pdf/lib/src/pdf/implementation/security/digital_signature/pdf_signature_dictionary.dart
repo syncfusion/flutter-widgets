@@ -6,9 +6,9 @@ class _PdfSignatureDictionary implements _IPdfWrapper {
   _PdfSignatureDictionary(PdfDocument doc, PdfSignature sig) {
     _doc = doc;
     _sig = sig;
-    doc._documentSavedList ??= [];
+    doc._documentSavedList ??= <_DocumentSavedHandler>[];
     doc._documentSavedList!.add(_documentSaved);
-    _dictionary._beginSaveList ??= [];
+    _dictionary._beginSaveList ??= <_SavePdfPrimitiveCallback>[];
     _dictionary._beginSaveList!.add(_dictionaryBeginSave);
     _cert = sig.certificate;
   }
@@ -16,9 +16,9 @@ class _PdfSignatureDictionary implements _IPdfWrapper {
   _PdfSignatureDictionary._fromDictionary(PdfDocument doc, _PdfDictionary dic) {
     _doc = doc;
     _dictionary = dic;
-    doc._documentSavedList ??= [];
+    doc._documentSavedList ??= <_DocumentSavedHandler>[];
     doc._documentSavedList!.add(_documentSaved);
-    _dictionary._beginSaveList ??= [];
+    _dictionary._beginSaveList ??= <_SavePdfPrimitiveCallback>[];
     _dictionary._beginSaveList!.add(_dictionaryBeginSave);
   }
 
@@ -33,7 +33,7 @@ class _PdfSignatureDictionary implements _IPdfWrapper {
   int? _firstRangeLength;
   int? _secondRangeIndex;
   int? _startPositionByteRange;
-  int _estimatedSize = 8192;
+  final int _estimatedSize = 8192;
   PdfCertificate? _cert;
   late List<int> _range;
   List<int>? _stream;
@@ -187,7 +187,7 @@ class _PdfSignatureDictionary implements _IPdfWrapper {
 
   void _addDigest(_IPdfWriter? writer) {
     if (_allowMDP()) {
-      final _PdfDictionary? cat = writer!._document!._catalog;
+      final _PdfDictionary cat = writer!._document!._catalog;
       writer._write(_PdfName(_DictionaryProperties.reference));
       writer._write(_PdfArray.startMark);
       writer._write('<<');
@@ -257,16 +257,16 @@ class _PdfSignatureDictionary implements _IPdfWrapper {
   void _documentSaved(Object sender, _DocumentSavedArgs e) {
     final bool enabled = _doc.security._encryptor.encrypt;
     _doc.security._encryptor.encrypt = false;
-    final _PdfWriter writer = e.writer as _PdfWriter;
+    final _PdfWriter writer = e.writer! as _PdfWriter;
     final int number = e.writer!._length! - _secondRangeIndex!;
-    final String str = '0 ';
+    const String str = '0 ';
     final String str2 = _firstRangeLength.toString() + ' ';
     final String str3 = _secondRangeIndex.toString() + ' ';
     final String str4 = number.toString();
     int startPosition = _saveRangeItem(writer, str, _startPositionByteRange!);
     startPosition = _saveRangeItem(writer, str2, startPosition);
     startPosition = _saveRangeItem(writer, str3, startPosition);
-    _saveRangeItem(e.writer as _PdfWriter, str4, startPosition);
+    _saveRangeItem(e.writer! as _PdfWriter, str4, startPosition);
     _range = <int>[0, int.parse(str2), int.parse(str3), int.parse(str4)];
     _stream = writer._buffer;
     final String text = _PdfString._bytesToHex(getPkcs7Content()!);
@@ -276,7 +276,7 @@ class _PdfSignatureDictionary implements _IPdfWrapper {
     _stream!.replaceRange(_firstRangeLength! + 1, newPos, utf8.encode(text));
     final int num3 = (_secondRangeIndex! - newPos) ~/ 2;
     final String emptyText =
-        _PdfString._bytesToHex(List<int>.generate(num3, (i) => 0));
+        _PdfString._bytesToHex(List<int>.generate(num3, (int i) => 0));
     _stream!.replaceRange(
         newPos, newPos + emptyText.length, utf8.encode(emptyText));
     _stream!.replaceRange(newPos + emptyText.length,
@@ -302,7 +302,8 @@ class _PdfSignatureDictionary implements _IPdfWrapper {
       final List<String> keys =
           _cert!._pkcsCertificate.getContentTable().keys.toList();
       bool isContinue = true;
-      keys.forEach((key) {
+      // ignore: avoid_function_literals_in_foreach_calls
+      keys.forEach((String key) {
         if (isContinue &&
             _cert!._pkcsCertificate.isKey(key) &&
             _cert!._pkcsCertificate.getKey(key)!._key!.isPrivate!) {
@@ -313,7 +314,8 @@ class _PdfSignatureDictionary implements _IPdfWrapper {
       final _KeyEntry pk = _cert!._pkcsCertificate.getKey(certificateAlias)!;
       final List<_X509Certificates> certificates =
           _cert!._pkcsCertificate.getCertificateChain(certificateAlias)!;
-      certificates.forEach((c) {
+      // ignore: avoid_function_literals_in_foreach_calls
+      certificates.forEach((_X509Certificates c) {
         chain!.add(c.certificate);
       });
       final _RsaPrivateKeyParam? parameters = pk._key as _RsaPrivateKeyParam?;
@@ -328,7 +330,7 @@ class _PdfSignatureDictionary implements _IPdfWrapper {
         _PdfCmsSigner(null, chain!, hasalgorithm!, false);
     final _IRandom source = getUnderlyingSource();
     final List<_IRandom?> sources =
-        List<_IRandom?>.generate(_range.length ~/ 2, (i) => null);
+        List<_IRandom?>.generate(_range.length ~/ 2, (int i) => null);
     for (int j = 0; j < _range.length; j += 2) {
       sources[j ~/ 2] = _WindowRandom(source, _range[j], _range[j + 1]);
     }
@@ -438,14 +440,14 @@ class _MessageDigestAlgorithms {
     _algorithms[_DerObjectID('1.3.14.3.2.26')._id] = 'SHA-1';
     _algorithms['SHA256'] = 'SHA-256';
     _algorithms[_NistObjectIds.sha256._id] = 'SHA-256';
-    _algorithms["SHA384"] = 'SHA-384';
+    _algorithms['SHA384'] = 'SHA-384';
     _algorithms[_NistObjectIds.sha384._id] = 'SHA-384';
-    _algorithms["SHA512"] = 'SHA-512';
+    _algorithms['SHA512'] = 'SHA-512';
     _algorithms[_NistObjectIds.sha512._id] = 'SHA-512';
-    _algorithms["MD5"] = 'MD5';
+    _algorithms['MD5'] = 'MD5';
     _algorithms[_PkcsObjectId.md5._id] = 'MD5';
-    _algorithms["RIPEMD-160"] = 'RIPEMD160';
-    _algorithms["RIPEMD160"] = 'RIPEMD160';
+    _algorithms['RIPEMD-160'] = 'RIPEMD160';
+    _algorithms['RIPEMD160'] = 'RIPEMD160';
     _algorithms[_NistObjectIds.ripeMD160._id] = 'RIPEMD160';
   }
   static const String secureHash1 = 'SHA-1';
@@ -515,11 +517,11 @@ class _MessageDigestAlgorithms {
     final dynamic output = AccumulatorSink<Digest>();
     final dynamic input = algorithm.startChunkedConversion(output);
     int? count;
-    final List<int> bytes = List<int>.generate(8192, (i) => 0);
+    final List<int> bytes = List<int>.generate(8192, (int i) => 0);
     while ((count = data.read(bytes, 0, bytes.length))! > 0) {
       input.add(bytes.sublist(0, count));
     }
     input.close();
-    return output.events.single.bytes;
+    return output.events.single.bytes as List<int>?;
   }
 }

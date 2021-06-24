@@ -14,8 +14,8 @@ class _PdfCmsSigner {
     }
     _version = 1;
     _signerVersion = 1;
-    _certificates =
-        List<_X509Certificate?>.generate(certChain.length, (i) => certChain[i]);
+    _certificates = List<_X509Certificate?>.generate(
+        certChain.length, (int i) => certChain[i]);
     _digestOid = <String?, Object?>{};
     _digestOid[_digestAlgorithmOid] = null;
     _signCert = _certificates[0];
@@ -82,7 +82,7 @@ class _PdfCmsSigner {
       final List<int> dig = alg
           .getMessageDigest(hashAlgorithm!)
           .convert(_signCert!._c!.getEncoded(_Asn1Constants.der))
-          .bytes;
+          .bytes as List<int>;
       aaV2._encodableObjects.add(_DerOctet(dig));
       v._encodableObjects.add(_DerSet(array: <_Asn1Encode>[
         _DerSequence.fromObject(
@@ -127,7 +127,8 @@ class _PdfCmsSigner {
     }
     final _Asn1EncodeCollection digestAlgorithms = _Asn1EncodeCollection();
     final List<String?> keys = _digestOid.keys.toList();
-    keys.forEach((dal) {
+    // ignore: avoid_function_literals_in_foreach_calls
+    keys.forEach((String? dal) {
       final _Asn1EncodeCollection algos = _Asn1EncodeCollection();
       algos._encodableObjects.add(_DerObjectID(dal!));
       algos._encodableObjects.add(_DerNull.value);
@@ -141,7 +142,8 @@ class _PdfCmsSigner {
     final _DerSequence contentinfo = _DerSequence(collection: v);
 
     v = _Asn1EncodeCollection();
-    _certificates.forEach((xcert) {
+    // ignore: avoid_function_literals_in_foreach_calls
+    _certificates.forEach((_X509Certificate? xcert) {
       v._encodableObjects.add(
           _Asn1Stream(_StreamReader(xcert!._c!.getEncoded(_Asn1Constants.der)))
               .readAsn1());
@@ -186,7 +188,7 @@ class _PdfCmsSigner {
 
   _Asn1? getIssuer(List<int>? data) {
     final _Asn1Sequence seq =
-        _Asn1Stream(_StreamReader(data)).readAsn1() as _Asn1Sequence;
+        _Asn1Stream(_StreamReader(data)).readAsn1()! as _Asn1Sequence;
     return seq[seq[0] is _Asn1Tag ? 3 : 2] as _Asn1?;
   }
 }

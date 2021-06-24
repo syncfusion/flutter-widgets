@@ -12,6 +12,7 @@ class _ZoomRectPainter extends CustomPainter {
   final SfCartesianChart chart;
   SfCartesianChartState chartState;
   late Paint strokePaint, fillPaint;
+  _RenderingDetails get renderingDetails => chartState._renderingDetails;
 
   @override
   void paint(Canvas canvas, Size size) =>
@@ -22,7 +23,7 @@ class _ZoomRectPainter extends CustomPainter {
     final Color? fillColor = chart.zoomPanBehavior.selectionRectColor;
     strokePaint = Paint()
       ..color = chart.zoomPanBehavior.selectionRectBorderColor ??
-          chartState._chartTheme.selectionRectBorderColor
+          renderingDetails.chartTheme.selectionRectBorderColor
       ..strokeWidth = chart.zoomPanBehavior.selectionRectBorderWidth
       ..style = PaintingStyle.stroke;
     chart.zoomPanBehavior.selectionRectBorderWidth == 0
@@ -31,7 +32,7 @@ class _ZoomRectPainter extends CustomPainter {
     fillPaint = Paint()
       ..color = fillColor != null
           ? Color.fromRGBO(fillColor.red, fillColor.green, fillColor.blue, 0.3)
-          : chartState._chartTheme.selectionRectColor
+          : renderingDetails.chartTheme.selectionRectColor
       ..style = PaintingStyle.fill;
     strokePaint.isAntiAlias = false;
     if (chartState._zoomPanBehaviorRenderer._rectPath != null) {
@@ -59,16 +60,14 @@ class _ZoomRectPainter extends CustomPainter {
 
   /// To draw connector line
   void _drawConnectorLine(Canvas canvas, Offset start, Offset end) {
-    final Offset startPosition = start;
-    final Offset endPosition = end;
-    _drawAxisTooltip(chartState._chartAxis._bottomAxisRenderers, canvas,
-        startPosition, endPosition, 'bottom');
-    _drawAxisTooltip(chartState._chartAxis._topAxisRenderers, canvas,
-        startPosition, endPosition, 'top');
-    _drawAxisTooltip(chartState._chartAxis._leftAxisRenderers, canvas,
-        startPosition, endPosition, 'left');
-    _drawAxisTooltip(chartState._chartAxis._rightAxisRenderers, canvas,
-        startPosition, endPosition, 'right');
+    _drawAxisTooltip(chartState._chartAxis._bottomAxisRenderers, canvas, start,
+        end, 'bottom');
+    _drawAxisTooltip(
+        chartState._chartAxis._topAxisRenderers, canvas, start, end, 'top');
+    _drawAxisTooltip(
+        chartState._chartAxis._leftAxisRenderers, canvas, start, end, 'left');
+    _drawAxisTooltip(
+        chartState._chartAxis._rightAxisRenderers, canvas, start, end, 'right');
   }
 
   /// Draw axis tootip connector line
@@ -85,36 +84,32 @@ class _ZoomRectPainter extends CustomPainter {
   }
 
   /// It returns the tooltip label on zooming
-  dynamic _getValue(
+  String _getValue(
       Offset position, ChartAxisRenderer axisRenderer, String axisPosition) {
-    dynamic value;
     final ChartAxis axis = axisRenderer._axis;
     final bool isHorizontal = axisPosition == 'bottom' || axisPosition == 'top';
-    value = isHorizontal
+    final Rect axisClipRect = chartState._chartAxis._axisClipRect;
+    final num value = isHorizontal
         ? _pointToXVal(
             chart,
             axisRenderer,
             axisRenderer._bounds,
-            position.dx -
-                (chartState._chartAxis._axisClipRect.left + axis.plotOffset),
-            position.dy -
-                (chartState._chartAxis._axisClipRect.top + axis.plotOffset))
+            position.dx - (axisClipRect.left + axis.plotOffset),
+            position.dy - (axisClipRect.top + axis.plotOffset))
         : _pointToYVal(
             chart,
             axisRenderer,
             axisRenderer._bounds,
-            position.dx -
-                (chartState._chartAxis._axisClipRect.left + axis.plotOffset),
-            position.dy -
-                (chartState._chartAxis._axisClipRect.top + axis.plotOffset));
+            position.dx - (axisClipRect.left + axis.plotOffset),
+            position.dy - (axisClipRect.top + axis.plotOffset));
 
-    dynamic resultantString = _getInteractiveTooltipLabel(value, axisRenderer);
+    dynamic result = _getInteractiveTooltipLabel(value, axisRenderer);
     if (axis.interactiveTooltip.format != null) {
-      final String stringValue = axis.interactiveTooltip.format!
-          .replaceAll('{value}', resultantString);
-      resultantString = stringValue;
+      final String stringValue =
+          axis.interactiveTooltip.format!.replaceAll('{value}', result);
+      result = stringValue;
     }
-    return resultantString;
+    return result.toString();
   }
 
   /// Validate the rect by comparing small and large rect.
@@ -134,11 +129,12 @@ class _ZoomRectPainter extends CustomPainter {
       Size labelSize, String axisPosition) {
     Rect rect;
     const double paddingForRect = 10;
-    final ChartAxis axis = axisRenderer._axis;
+    final double arrowLength =
+        axisRenderer._axis.interactiveTooltip.arrowLength;
     if (axisPosition == 'bottom') {
       rect = Rect.fromLTWH(
           position.dx - (labelSize.width / 2 + paddingForRect / 2),
-          axisRenderer._bounds.top + axis.interactiveTooltip.arrowLength,
+          axisRenderer._bounds.top + arrowLength,
           labelSize.width + paddingForRect,
           labelSize.height + paddingForRect);
     } else if (axisPosition == 'top') {
@@ -146,20 +142,20 @@ class _ZoomRectPainter extends CustomPainter {
           position.dx - (labelSize.width / 2 + paddingForRect / 2),
           axisRenderer._bounds.top -
               (labelSize.height + paddingForRect) -
-              axis.interactiveTooltip.arrowLength,
+              arrowLength,
           labelSize.width + paddingForRect,
           labelSize.height + paddingForRect);
     } else if (axisPosition == 'left') {
       rect = Rect.fromLTWH(
           axisRenderer._bounds.left -
               (labelSize.width + paddingForRect) -
-              axis.interactiveTooltip.arrowLength,
+              arrowLength,
           position.dy - (labelSize.height + paddingForRect) / 2,
           labelSize.width + paddingForRect,
           labelSize.height + paddingForRect);
     } else {
       rect = Rect.fromLTWH(
-          axisRenderer._bounds.left + axis.interactiveTooltip.arrowLength,
+          axisRenderer._bounds.left + arrowLength,
           position.dy - (labelSize.height / 2 + paddingForRect / 2),
           labelSize.width + paddingForRect,
           labelSize.height + paddingForRect);
@@ -174,30 +170,26 @@ class _ZoomRectPainter extends CustomPainter {
       Offset endPosition,
       Canvas canvas,
       String axisPosition) {
-    RRect? startTooltipRect;
-    RRect? endTooltipRect;
-    String startValue;
-    String endValue;
-    Size startLabelSize;
-    Size endLabelSize;
-    Rect startLabelRect;
-    Rect endLabelRect;
+    RRect? startTooltipRect, endTooltipRect;
+    String startValue, endValue;
+    Size startLabelSize, endLabelSize;
+    Rect startLabelRect, endLabelRect;
     final ChartAxis axis = axisRenderer._axis;
     final Paint labelFillPaint = Paint()
-      ..color = chartState._chartTheme.crosshairBackgroundColor
+      ..color = renderingDetails.chartTheme.crosshairBackgroundColor
       ..strokeCap = StrokeCap.butt
       ..isAntiAlias = false
       ..style = PaintingStyle.fill;
 
     final Paint labelStrokePaint = Paint()
-      ..color = chartState._chartTheme.crosshairBackgroundColor
+      ..color = renderingDetails.chartTheme.crosshairBackgroundColor
       ..strokeCap = StrokeCap.butt
       ..isAntiAlias = false
       ..style = PaintingStyle.stroke;
 
     final Paint connectorLinePaint = Paint()
       ..color = axis.interactiveTooltip.connectorLineColor ??
-          chartState._chartTheme.selectionTooltipConnectorLineColor
+          renderingDetails.chartTheme.selectionTooltipConnectorLineColor
       ..strokeWidth = axis.interactiveTooltip.connectorLineWidth
       ..style = PaintingStyle.stroke;
 
@@ -210,10 +202,8 @@ class _ZoomRectPainter extends CustomPainter {
     final bool isHorizontal = axisPosition == 'bottom' || axisPosition == 'top';
     startValue = _getValue(startPosition, axisRenderer, axisPosition);
     endValue = _getValue(endPosition, axisRenderer, axisPosition);
-    startLabelSize =
-        measureText(startValue.toString(), axis.interactiveTooltip.textStyle);
-    endLabelSize =
-        measureText(endValue.toString(), axis.interactiveTooltip.textStyle);
+    startLabelSize = measureText(startValue, axis.interactiveTooltip.textStyle);
+    endLabelSize = measureText(endValue, axis.interactiveTooltip.textStyle);
     startLabelRect = _calculateRect(
         axisRenderer, startPosition, startLabelSize, axisPosition);
     endLabelRect =
@@ -305,18 +295,19 @@ class _ZoomRectPainter extends CustomPainter {
       Offset position,
       Rect labelRect,
       RRect? rect,
-      dynamic value,
+      String value,
       Size labelSize,
       InteractiveTooltip tooltip,
       String axisPosition) {
     fillPaint.color =
-        tooltip.color ?? chartState._chartTheme.crosshairBackgroundColor;
-    strokePaint.color =
-        tooltip.borderColor ?? chartState._chartTheme.crosshairBackgroundColor;
+        tooltip.color ?? renderingDetails.chartTheme.crosshairBackgroundColor;
+    strokePaint.color = tooltip.borderColor ??
+        renderingDetails.chartTheme.crosshairBackgroundColor;
     strokePaint.strokeWidth = tooltip.borderWidth;
 
     final bool isHorizontal = axisPosition == 'bottom' || axisPosition == 'top';
-    labelRect = _validateRectBounds(labelRect, chartState._containerRect);
+    labelRect =
+        _validateRectBounds(labelRect, renderingDetails.chartContainerRect);
     labelRect = isHorizontal
         ? _validateRectXPosition(labelRect, chartState)
         : _validateRectYPosition(labelRect, chartState);
@@ -327,12 +318,12 @@ class _ZoomRectPainter extends CustomPainter {
         position, rect, tooltip);
     _drawText(
         canvas,
-        value.toString(),
+        value,
         Offset((rect.left + rect.width / 2) - labelSize.width / 2,
             (rect.top + rect.height / 2) - labelSize.height / 2),
         TextStyle(
             color: tooltip.textStyle.color ??
-                chartState._chartTheme.tooltipLabelColor,
+                renderingDetails.chartTheme.tooltipLabelColor,
             fontSize: tooltip.textStyle.fontSize,
             fontWeight: tooltip.textStyle.fontWeight,
             fontFamily: tooltip.textStyle.fontFamily,

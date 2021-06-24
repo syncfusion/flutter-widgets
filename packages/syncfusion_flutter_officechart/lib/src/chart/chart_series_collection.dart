@@ -6,7 +6,7 @@ class ChartSeriesCollection {
   ChartSeriesCollection(Worksheet worksheet, Chart chart) {
     _worksheet = worksheet;
     _chart = chart;
-    _innerList = [];
+    _innerList = <ChartSerie>[];
   }
 
   /// Parent worksheet.
@@ -34,7 +34,7 @@ class ChartSeriesCollection {
   }
 
   /// Indexer of the class
-  ChartSerie operator [](index) => innerList[index];
+  ChartSerie operator [](dynamic index) => innerList[index];
 
   /// Add serie to the chart serie collection.
   ChartSerie _add() {
