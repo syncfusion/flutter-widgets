@@ -44,7 +44,7 @@ class PdfDocumentInformation extends _IPdfWrapper {
     if (_dictionary!.containsKey(_DictionaryProperties.creationDate) &&
         _dictionary![_DictionaryProperties.creationDate] is _PdfString) {
       return _creationDate = _dictionary!._getDateTime(
-          _dictionary![_DictionaryProperties.creationDate] as _PdfString);
+          _dictionary![_DictionaryProperties.creationDate]! as _PdfString);
     }
     return _creationDate = DateTime.now();
   }
@@ -63,7 +63,7 @@ class PdfDocumentInformation extends _IPdfWrapper {
     if (_dictionary!.containsKey(_DictionaryProperties.modificationDate) &&
         _dictionary![_DictionaryProperties.modificationDate] is _PdfString) {
       return _modificationDate = _dictionary!._getDateTime(
-          _dictionary![_DictionaryProperties.modificationDate] as _PdfString);
+          _dictionary![_DictionaryProperties.modificationDate]! as _PdfString);
     }
     return _modificationDate = DateTime.now();
   }
@@ -79,7 +79,7 @@ class PdfDocumentInformation extends _IPdfWrapper {
   String get title {
     if (_dictionary!.containsKey(_DictionaryProperties.title) &&
         _dictionary![_DictionaryProperties.title] is _PdfString) {
-      return _title = (_dictionary![_DictionaryProperties.title] as _PdfString)
+      return _title = (_dictionary![_DictionaryProperties.title]! as _PdfString)
           .value!
           .replaceAll('\u0000', '');
     }
@@ -99,7 +99,7 @@ class PdfDocumentInformation extends _IPdfWrapper {
     if (_dictionary!.containsKey(_DictionaryProperties.author) &&
         _dictionary![_DictionaryProperties.author] is _PdfString) {
       return _author =
-          (_dictionary![_DictionaryProperties.author] as _PdfString).value!;
+          (_dictionary![_DictionaryProperties.author]! as _PdfString).value!;
     }
     return _author = '';
   }
@@ -117,7 +117,7 @@ class PdfDocumentInformation extends _IPdfWrapper {
     if (_dictionary!.containsKey(_DictionaryProperties.subject) &&
         _dictionary![_DictionaryProperties.subject] is _PdfString) {
       return _subject =
-          (_dictionary![_DictionaryProperties.subject] as _PdfString).value!;
+          (_dictionary![_DictionaryProperties.subject]! as _PdfString).value!;
     }
     return _subject = '';
   }
@@ -135,7 +135,7 @@ class PdfDocumentInformation extends _IPdfWrapper {
     if (_dictionary!.containsKey(_DictionaryProperties.keywords) &&
         _dictionary![_DictionaryProperties.keywords] is _PdfString) {
       return _keywords =
-          (_dictionary![_DictionaryProperties.keywords] as _PdfString).value!;
+          (_dictionary![_DictionaryProperties.keywords]! as _PdfString).value!;
     }
     return _keywords = '';
   }
@@ -156,7 +156,7 @@ class PdfDocumentInformation extends _IPdfWrapper {
     if (_dictionary!.containsKey(_DictionaryProperties.creator) &&
         _dictionary![_DictionaryProperties.creator] is _PdfString) {
       return _creator =
-          (_dictionary![_DictionaryProperties.creator] as _PdfString).value!;
+          (_dictionary![_DictionaryProperties.creator]! as _PdfString).value!;
     }
     return _creator = '';
   }
@@ -174,7 +174,7 @@ class PdfDocumentInformation extends _IPdfWrapper {
     if (_dictionary!.containsKey(_DictionaryProperties.producer) &&
         _dictionary![_DictionaryProperties.producer] is _PdfString) {
       return _producer =
-          (_dictionary![_DictionaryProperties.producer] as _PdfString).value!;
+          (_dictionary![_DictionaryProperties.producer]! as _PdfString).value!;
     }
     return _producer = '';
   }

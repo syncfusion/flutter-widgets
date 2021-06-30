@@ -23,13 +23,14 @@ class _AreaChartPainter extends CustomPainter {
     final int seriesIndex = painterKey.index;
     Rect clipRect;
     final AreaSeries<dynamic, dynamic> series =
-        seriesRenderer._series as AreaSeries;
+        seriesRenderer._series as AreaSeries<dynamic, dynamic>;
     seriesRenderer._storeSeriesProperties(chartState, seriesIndex);
     double animationFactor;
     CartesianChartPoint<dynamic>? prevPoint, point, _point;
     _ChartLocation? currentPoint, originPoint, _oldPoint;
     final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
     final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer!;
+    final _RenderingDetails renderingDetails = chartState._renderingDetails;
     CartesianSeriesRenderer? oldSeriesRenderer;
     final Path _path = Path();
     final Path _strokePath = Path();
@@ -39,16 +40,14 @@ class _AreaChartPainter extends CustomPainter {
     if (seriesRenderer._visible!) {
       assert(
           // ignore: unnecessary_null_comparison
-          series.animationDuration != null
-              ? series.animationDuration >= 0
-              : true,
+          !(series.animationDuration != null) || series.animationDuration >= 0,
           'The animation duration of the area series must be greater than or equal to 0.');
       final List<CartesianSeriesRenderer> oldSeriesRenderers =
           chartState._oldSeriesRenderers;
       final List<CartesianChartPoint<dynamic>> dataPoints =
           seriesRenderer._dataPoints;
-      final bool widgetNeedUpdate = chartState._widgetNeedUpdate;
-      final bool isLegendToggled = chartState._isLegendToggled;
+      final bool widgetNeedUpdate = renderingDetails.widgetNeedUpdate;
+      final bool isLegendToggled = renderingDetails.isLegendToggled;
       final bool isTransposed =
           seriesRenderer._chartState!._requireInvertedAxis;
       canvas.save();
@@ -106,17 +105,14 @@ class _AreaChartPainter extends CustomPainter {
           double y = currentPoint.y;
           _points.add(Offset(x, y));
           final bool closed =
-              series.emptyPointSettings.mode == EmptyPointMode.drop
-                  ? _getSeriesVisibility(dataPoints, pointIndex)
-                  : false;
+              series.emptyPointSettings.mode == EmptyPointMode.drop &&
+                  _getSeriesVisibility(dataPoints, pointIndex);
           if (_oldPoint != null) {
-            if (isTransposed) {
-              x = _getAnimateValue(animationFactor, x, _oldPoint.x,
-                  currentPoint.x, seriesRenderer);
-            } else {
-              y = _getAnimateValue(animationFactor, y, _oldPoint.y,
-                  currentPoint.y, seriesRenderer);
-            }
+            isTransposed
+                ? x = _getAnimateValue(animationFactor, x, _oldPoint.x,
+                    currentPoint.x, seriesRenderer)
+                : y = _getAnimateValue(animationFactor, y, _oldPoint.y,
+                    currentPoint.y, seriesRenderer);
           }
           if (prevPoint == null ||
               dataPoints[pointIndex - 1].isGap == true ||
@@ -183,7 +179,7 @@ class _AreaChartPainter extends CustomPainter {
               xAxisRenderer._axis.plotOffset, yAxisRenderer._axis.plotOffset));
       canvas.restore();
       if ((series.animationDuration <= 0 ||
-              (!chartState._initialRender! &&
+              (!renderingDetails.initialRender! &&
                   !seriesRenderer._needAnimateSeriesElements) ||
               animationFactor >= chartState._seriesDurationFactor) &&
           (series.markerSettings.isVisible ||

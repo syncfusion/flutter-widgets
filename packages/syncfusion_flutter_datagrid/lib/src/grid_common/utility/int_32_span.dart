@@ -40,18 +40,4 @@ class _Int32Span {
   ///
   /// Returns the hash code for this instance.
   int getHashCode() => super.hashCode;
-
-  /// Gets the hashcode
-  ///
-  /// Returns the hashcode.
-  @override
-  int get hashCode => getHashCode();
-
-  /// Implements the operator == for comparing the given objects.
-  ///
-  /// * obj - _required_ - Object to compare with the current instance.
-  ///
-  /// Returns the comparison result of the operator.
-  @override
-  bool operator ==(Object obj) => equals(obj);
 }

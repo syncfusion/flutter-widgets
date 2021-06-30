@@ -20,7 +20,8 @@ class PdfForm implements _IPdfWrapper {
     _crossTable = crossTable;
     _dictionary._setBoolean(
         _DictionaryProperties.needAppearances, _needAppearances);
-    _crossTable!._document!._catalog._beginSaveList ??= [];
+    _crossTable!._document!._catalog._beginSaveList ??=
+        <_SavePdfPrimitiveCallback>[];
     _crossTable!._document!._catalog._beginSaveList!.add(_beginSave);
     _crossTable!._document!._catalog.modify();
     if (_crossTable!._document!._catalog
@@ -40,19 +41,28 @@ class PdfForm implements _IPdfWrapper {
   _PdfResources? _resource;
   final List<String?> _fieldNames = <String?>[];
   _PdfCrossTable? _crossTable;
-  List<_PdfDictionary> _terminalFields = [];
+  final List<_PdfDictionary> _terminalFields = <_PdfDictionary>[];
   bool _formHasKids = false;
   bool _isLoadedForm = false;
   bool _isDefaultAppearance = true;
   Map<String?, List<_PdfDictionary>>? _widgetDictionary;
   bool _readOnly = false;
   bool _isUR3 = false;
-  List<_SignatureFlags> _signatureFlags = [_SignatureFlags.none];
+  // ignore: prefer_final_fields
+  List<_SignatureFlags> _signatureFlags = <_SignatureFlags>[
+    _SignatureFlags.none
+  ];
 
   /// Gets or sets a value indicating whether field auto naming.
   ///
   /// The default value is true.
   bool fieldAutoNaming = true;
+
+  /// Gets or sets the ExportEmptyFields property, enabling this will export
+  /// the empty acroform fields.
+  ///
+  /// The default value is false.
+  bool exportEmptyFields = false;
 
   //Properties
   /// Gets the fields collection.
@@ -110,6 +120,58 @@ class PdfForm implements _IPdfWrapper {
     _flatten = true;
   }
 
+  /// Imports form value from base 64 string to the file with the specific [DataFormat].
+  void importDataFromBase64String(String base64String, DataFormat dataFormat,
+      [bool continueImportOnError = false]) {
+    importData(base64.decode(base64String).toList(), dataFormat,
+        continueImportOnError);
+  }
+
+  /// Imports form value to the file with the specific [DataFormat].
+  void importData(List<int> inputBytes, DataFormat dataFormat,
+      [bool continueImportOnError = false]) {
+    if (dataFormat == DataFormat.fdf) {
+      _importDataFDF(inputBytes, continueImportOnError);
+    } else if (dataFormat == DataFormat.json) {
+      _importDataJSON(inputBytes, continueImportOnError);
+    } else if (dataFormat == DataFormat.xfdf) {
+      _importDataXFDF(inputBytes);
+    } else if (dataFormat == DataFormat.xml) {
+      _importDataXml(inputBytes, continueImportOnError);
+    }
+  }
+
+  /// Export the form data to a file with the specific [DataFormat] and form name.
+  List<int> exportData(DataFormat dataFormat, [String formName = '']) {
+    List<int>? data;
+    if (dataFormat == DataFormat.fdf) {
+      data = _exportDataFDF(formName);
+    } else if (dataFormat == DataFormat.xfdf) {
+      data = _exportDataXFDF(formName);
+    } else if (dataFormat == DataFormat.json) {
+      data = _exportDataJSON();
+    } else if (dataFormat == DataFormat.xml) {
+      data = _exportDataXML();
+    }
+    return data!;
+  }
+
+  /// Imports XFDF Data from the given data.
+  void _importDataXFDF(List<int> bytes) {
+    final String data = String.fromCharCodes(bytes);
+    final XmlDocument xmlDoc = XmlDocument.parse(data);
+    PdfField formField;
+    for (final XmlNode node in xmlDoc.rootElement.firstElementChild!.children) {
+      if (node is XmlElement) {
+        final String fieldName = node.attributes.first.value;
+        final int index = fields._getFieldIndex(fieldName);
+        formField = fields[index];
+        final String fieldInnerValue = node.firstElementChild!.innerText;
+        formField._importFieldValue(fieldInnerValue);
+      }
+    }
+  }
+
   //Implementation
   //Raises before stream saves.
   void _beginSave(Object sender, _SavePdfPrimitiveArgs? ars) {
@@ -140,56 +202,53 @@ class PdfForm implements _IPdfWrapper {
               _DictionaryProperties.needAppearances, _needAppearances);
       }
       while (i < fields.count) {
-        final PdfField? field = fields[i];
-        if (field != null) {
-          if (field._isLoadedField) {
-            final _PdfDictionary dic = field._dictionary;
-            bool isNeedAppearance = false;
-            if (!dic.containsKey(_DictionaryProperties.ap) &&
-                _isDefaultAppearance &&
-                !_needAppearances! &&
-                !field._changed) {
-              isNeedAppearance = true;
+        final PdfField field = fields[i];
+        if (field._isLoadedField) {
+          final _PdfDictionary dic = field._dictionary;
+          bool isNeedAppearance = false;
+          if (!dic.containsKey(_DictionaryProperties.ap) &&
+              _isDefaultAppearance &&
+              !_needAppearances! &&
+              !field._changed) {
+            isNeedAppearance = true;
+          }
+          if (field._flags.length > 1) {
+            field._changed = true;
+            field._setFlags(field._flags);
+          }
+          int fieldFlag = 0;
+          if (dic.containsKey(_DictionaryProperties.f)) {
+            final _IPdfPrimitive? flag =
+                _PdfCrossTable._dereference(dic[_DictionaryProperties.f]);
+            if (flag != null && flag is _PdfNumber) {
+              fieldFlag = flag.value!.toInt();
             }
-            if (field._flags.length > 1) {
-              field._changed = true;
-              field._setFlags(field._flags);
-            }
-            int fieldFlag = 0;
-            if (dic.containsKey(_DictionaryProperties.f)) {
-              final _IPdfPrimitive? flag =
-                  _PdfCrossTable._dereference(dic[_DictionaryProperties.f]);
-              if (flag != null && flag is _PdfNumber) {
-                fieldFlag = flag.value!.toInt();
-              }
-            }
-            _PdfArray? kids;
-            if (field._dictionary.containsKey(_DictionaryProperties.kids)) {
-              kids = _PdfCrossTable._dereference(
-                  field._dictionary[_DictionaryProperties.kids]) as _PdfArray?;
-            }
-            if (field._flattenField && fieldFlag != 6) {
-              if (field.page != null || kids != null) {
-                field._draw();
-              }
-              fields.remove(field);
-              final int? index =
-                  _crossTable!._items!._lookFor(field._dictionary);
-              if (index != -1) {
-                _crossTable!._items!._objectCollection!.removeAt(index!);
-              }
-              --i;
-            } else if (field._changed || isNeedAppearance) {
-              field._beginSave();
-            }
-          } else {
-            if (field._flattenField) {
-              fields.remove(field);
+          }
+          _PdfArray? kids;
+          if (field._dictionary.containsKey(_DictionaryProperties.kids)) {
+            kids = _PdfCrossTable._dereference(
+                field._dictionary[_DictionaryProperties.kids]) as _PdfArray?;
+          }
+          if (field._flattenField && fieldFlag != 6) {
+            if (field.page != null || kids != null) {
               field._draw();
-              --i;
-            } else {
-              field._save();
             }
+            fields.remove(field);
+            final int? index = _crossTable!._items!._lookFor(field._dictionary);
+            if (index != -1) {
+              _crossTable!._items!._objectCollection!.removeAt(index!);
+            }
+            --i;
+          } else if (field._changed || isNeedAppearance) {
+            field._beginSave();
+          }
+        } else {
+          if (field._flattenField) {
+            fields.remove(field);
+            field._draw();
+            --i;
+          } else {
+            field._save();
           }
         }
         ++i;
@@ -198,12 +257,15 @@ class PdfForm implements _IPdfWrapper {
         _dictionary._setBoolean(
             _DictionaryProperties.needAppearances, _needAppearances);
       }
+      _dictionary.remove('XFA');
     }
   }
 
   void _setSignatureFlags(List<_SignatureFlags> value) {
     int n = 0;
-    value.forEach((element) => n |= element.index);
+    for (final _SignatureFlags element in value) {
+      n |= element.index;
+    }
     _dictionary._setNumber(_DictionaryProperties.sigFlags, n);
   }
 
@@ -229,22 +291,22 @@ class PdfForm implements _IPdfWrapper {
     final bool isLoaded = field._isLoadedField;
     if (dic._items != null) {
       if (dic.containsKey(kidsName)) {
-        final _PdfArray array = (dic[kidsName]) as _PdfArray;
+        final _PdfArray array = dic[kidsName]! as _PdfArray;
         for (int i = 0; i < array.count; ++i) {
-          final _PdfReferenceHolder holder = array[i] as _PdfReferenceHolder;
+          final _PdfReferenceHolder holder = array[i]! as _PdfReferenceHolder;
           final _PdfDictionary? widget = holder.object as _PdfDictionary?;
           _PdfDictionary? page;
           if (!isLoaded) {
             final _PdfReferenceHolder pageRef =
-                (widget![pName]) as _PdfReferenceHolder;
-            page = (pageRef.object) as _PdfDictionary?;
+                widget![pName]! as _PdfReferenceHolder;
+            page = pageRef.object as _PdfDictionary?;
           } else {
             _PdfReference? pageRef;
             if (widget!.containsKey(pName) &&
-                !(widget[_DictionaryProperties.p] is _PdfNull)) {
+                widget[_DictionaryProperties.p] is! _PdfNull) {
               pageRef = _crossTable!._getReference(widget[pName]);
             } else if (dic.containsKey(pName) &&
-                !(dic[_DictionaryProperties.p] is _PdfNull)) {
+                dic[_DictionaryProperties.p] is! _PdfNull) {
               pageRef = _crossTable!._getReference(dic[pName]);
             } else if (field.page != null) {
               pageRef = _crossTable!._getReference(field.page!._dictionary);
@@ -270,8 +332,8 @@ class PdfForm implements _IPdfWrapper {
             } else {
               if (page[_DictionaryProperties.annots] is _PdfReferenceHolder) {
                 final _PdfReferenceHolder annotReference =
-                    (page[_DictionaryProperties.annots]) as _PdfReferenceHolder;
-                annots = (annotReference.object) as _PdfArray?;
+                    page[_DictionaryProperties.annots]! as _PdfReferenceHolder;
+                annots = annotReference.object as _PdfArray?;
                 for (int i = 0; i < annots!.count; i++) {
                   final _IPdfPrimitive? obj = annots._elements[i];
                   if (obj != null &&
@@ -286,9 +348,9 @@ class PdfForm implements _IPdfWrapper {
                 page.setProperty(_DictionaryProperties.annots, annots);
               } else if (page[_DictionaryProperties.annots] is _PdfArray) {
                 if (field._page != null) {
-                  final PdfAnnotationCollection? annotCollection =
+                  final PdfAnnotationCollection annotCollection =
                       field._page!.annotations;
-                  if (annotCollection != null && annotCollection.count > 0) {
+                  if (annotCollection.count > 0) {
                     final int index =
                         annotCollection._annotations._indexOf(holder);
                     if (index >= 0 && index < annotCollection.count) {
@@ -307,8 +369,9 @@ class PdfForm implements _IPdfWrapper {
             field._requiredReference = holder;
             if (field.page != null &&
                 field.page!._dictionary.containsKey(annotsName)) {
-              final _PdfArray annots = _crossTable!
-                  ._getObject(field.page!._dictionary[annotsName]) as _PdfArray;
+              final _PdfArray annots =
+                  _crossTable!._getObject(field.page!._dictionary[annotsName])!
+                      as _PdfArray;
               for (int i = 0; i < annots.count; i++) {
                 final _IPdfPrimitive? obj = annots._elements[i];
                 if (obj != null &&
@@ -324,7 +387,7 @@ class PdfForm implements _IPdfWrapper {
             if (_crossTable!._items != null &&
                 _crossTable!._items!.contains(widget)) {
               _crossTable!._items!._objectCollection!
-                  .remove(_crossTable!._items!._lookFor(widget));
+                  .removeAt(_crossTable!._items!._lookFor(widget)!);
             }
             field._requiredReference = null;
           }
@@ -339,7 +402,7 @@ class PdfForm implements _IPdfWrapper {
         } else {
           _PdfReference? pageRef;
           if (dic.containsKey(pName) &&
-              !(dic[_DictionaryProperties.p] is _PdfNull)) {
+              dic[_DictionaryProperties.p] is! _PdfNull) {
             pageRef = _crossTable!._getReference(dic[pName]);
           } else if (field.page != null) {
             pageRef = _crossTable!._getReference(field.page!._dictionary);
@@ -368,7 +431,7 @@ class PdfForm implements _IPdfWrapper {
             field.page != null &&
             field.page!._dictionary.containsKey(annotsName)) {
           final _PdfArray annots = _crossTable!
-              ._getObject(field.page!._dictionary[annotsName]) as _PdfArray;
+              ._getObject(field.page!._dictionary[annotsName])! as _PdfArray;
           for (int i = 0; i < annots.count; i++) {
             final _IPdfPrimitive? obj = annots._elements[i];
             if (obj != null &&
@@ -407,7 +470,7 @@ class PdfForm implements _IPdfWrapper {
     //Gets NeedAppearance
     if (_dictionary.containsKey(_DictionaryProperties.needAppearances)) {
       final _PdfBoolean needAppearance = _crossTable!
-              ._getObject(_dictionary[_DictionaryProperties.needAppearances])
+              ._getObject(_dictionary[_DictionaryProperties.needAppearances])!
           as _PdfBoolean;
       _needAppearances = needAppearance.value;
       _setAppearanceDictionary = true;
@@ -435,7 +498,7 @@ class PdfForm implements _IPdfWrapper {
       }
     }
     int count = 0;
-    final Queue<_NodeInfo> nodes = Queue();
+    final Queue<_NodeInfo> nodes = Queue<_NodeInfo>();
     while (true && fields != null) {
       for (; count < fields!.count; ++count) {
         final _IPdfPrimitive? fieldDictionary =
@@ -467,7 +530,7 @@ class PdfForm implements _IPdfWrapper {
             }
           }
         } else {
-          if (!(fieldDictionary as _PdfDictionary)
+          if (!(fieldDictionary! as _PdfDictionary)
                   .containsKey(_DictionaryProperties.ft) ||
               _isNode(fieldKids)) {
             nodes.addFirst(_NodeInfo(fields, count));
@@ -475,7 +538,7 @@ class PdfForm implements _IPdfWrapper {
             count = -1;
             fields = fieldKids;
           } else {
-            _terminalFields.add(fieldDictionary);
+            _terminalFields.add(fieldDictionary as _PdfDictionary);
           }
         }
       }
@@ -494,10 +557,10 @@ class PdfForm implements _IPdfWrapper {
     bool isNode = false;
     if (kids.count >= 1) {
       final _PdfDictionary dictionary =
-          _crossTable!._getObject(kids[0]) as _PdfDictionary;
+          _crossTable!._getObject(kids[0])! as _PdfDictionary;
       if (dictionary.containsKey(_DictionaryProperties.subtype)) {
         final _PdfName name = _crossTable!
-            ._getObject(dictionary[_DictionaryProperties.subtype]) as _PdfName;
+            ._getObject(dictionary[_DictionaryProperties.subtype])! as _PdfName;
         if (name._name != _DictionaryProperties.widget) {
           isNode = true;
         }
@@ -511,7 +574,7 @@ class PdfForm implements _IPdfWrapper {
     if (_fields != null && _fields!.count > 0) {
       final _PdfName fieldsDict = _PdfName(_DictionaryProperties.fields);
       final _PdfArray fields =
-          _crossTable!._getObject(_dictionary[fieldsDict]) as _PdfArray;
+          _crossTable!._getObject(_dictionary[fieldsDict])! as _PdfArray;
       late _PdfReferenceHolder holder;
       for (int i = 0; i < fields._elements.length; i++) {
         final _IPdfPrimitive? obj = fields._elements[i];
@@ -526,8 +589,8 @@ class PdfForm implements _IPdfWrapper {
       fields._remove(holder);
       fields.changed = true;
       if (!_formHasKids ||
-          !(field._dictionary._items!
-              .containsKey(_PdfName(_DictionaryProperties.parent)))) {
+          !field._dictionary._items!
+              .containsKey(_PdfName(_DictionaryProperties.parent))) {
         for (int i = 0; i < fields.count; i++) {
           final _IPdfPrimitive? fieldDictionary =
               _PdfCrossTable._dereference(_crossTable!._getObject(fields[i]));
@@ -535,13 +598,15 @@ class PdfForm implements _IPdfWrapper {
           if (fieldDictionary != null &&
               fieldDictionary is _PdfDictionary &&
               fieldDictionary.containsKey(kidsName)) {
-            final _PdfArray kids =
-                _crossTable!._getObject(fieldDictionary[kidsName]) as _PdfArray;
+            final _PdfArray kids = _crossTable!
+                ._getObject(fieldDictionary[kidsName])! as _PdfArray;
             for (int i = 0; i < kids.count; i++) {
               final _IPdfPrimitive? obj = kids[i];
               if (obj != null &&
                   obj is _PdfReferenceHolder &&
-                  obj.object == holder.object) kids._remove(obj);
+                  obj.object == holder.object) {
+                kids._remove(obj);
+              }
             }
           }
         }
@@ -549,14 +614,14 @@ class PdfForm implements _IPdfWrapper {
         if (field._dictionary._items!
             .containsKey(_PdfName(_DictionaryProperties.parent))) {
           final _PdfDictionary dic =
-              (field._dictionary[_DictionaryProperties.parent]
+              (field._dictionary[_DictionaryProperties.parent]!
                       as _PdfReferenceHolder)
-                  .object as _PdfDictionary;
+                  .object! as _PdfDictionary;
           final _PdfArray kids =
-              dic._items![_PdfName(_DictionaryProperties.kids)] as _PdfArray;
+              dic._items![_PdfName(_DictionaryProperties.kids)]! as _PdfArray;
           for (int k = 0; k < kids.count; k++) {
             final _PdfReferenceHolder kidsReference =
-                kids[k] as _PdfReferenceHolder;
+                kids[k]! as _PdfReferenceHolder;
             if (kidsReference.object == holder.object) {
               kids._remove(kidsReference);
             }
@@ -579,7 +644,7 @@ class PdfForm implements _IPdfWrapper {
         int? fieldFlag = 0;
         final _PdfDictionary fieldDictionary = field._dictionary;
         if (fieldDictionary.containsKey(_DictionaryProperties.f)) {
-          fieldFlag = (fieldDictionary[_DictionaryProperties.f] as _PdfNumber)
+          fieldFlag = (fieldDictionary[_DictionaryProperties.f]! as _PdfNumber)
               .value as int?;
         }
         if (fieldFlag != 6) {
@@ -608,7 +673,8 @@ class PdfForm implements _IPdfWrapper {
         fieldFontResource = fieldFontResource.object as _PdfDictionary?;
       }
       if (fieldFontResource != null && fieldFontResource is _PdfDictionary) {
-        fieldFontResource._items!.keys.forEach((key) {
+        // ignore: avoid_function_literals_in_foreach_calls
+        fieldFontResource._items!.keys.forEach((_PdfName? key) {
           final _PdfResources pageResources = field.page!._getResources()!;
           _IPdfPrimitive? pageFontResource =
               pageResources[_DictionaryProperties.font];
@@ -619,7 +685,7 @@ class PdfForm implements _IPdfWrapper {
           if (pageFontResource == null ||
               (pageFontResource is _PdfDictionary &&
                   !pageFontResource.containsKey(key))) {
-            final _PdfReferenceHolder? fieldFontReference = (fieldFontResource
+            final _PdfReferenceHolder? fieldFontReference = (fieldFontResource!
                 as _PdfDictionary)[key] as _PdfReferenceHolder?;
             if (pageFontResource == null) {
               final _PdfDictionary fontDictionary = _PdfDictionary();
@@ -639,13 +705,551 @@ class PdfForm implements _IPdfWrapper {
     _IPdfPrimitive? permission = catalog[_DictionaryProperties.perms];
     if (permission is _PdfReferenceHolder) {
       permission =
-          (catalog[_DictionaryProperties.perms] as _PdfReferenceHolder).object;
+          (catalog[_DictionaryProperties.perms]! as _PdfReferenceHolder).object;
     }
     if (permission != null &&
         permission is _PdfDictionary &&
         permission.containsKey('UR3')) {
       _isUR3 = true;
     }
+  }
+
+  /// Imports form value from FDF file.
+  void _importDataFDF(List<int> inputBytes, bool continueImportOnError) {
+    final _PdfReader reader = _PdfReader(inputBytes);
+    reader.position = 0;
+    String? token = reader._getNextToken();
+    if (token != null && token.startsWith('%')) {
+      token = reader._getNextToken();
+      if (token != null && !token.startsWith('FDF-')) {
+        throw ArgumentError(
+            'The source is not a valid FDF file because it does not start with"%FDF-"');
+      }
+    }
+    final Map<String, List<String>> table = <String, List<String>>{};
+    String? fieldName = '';
+    token = reader._getNextToken();
+    while (token != null && token.isNotEmpty) {
+      if (token.toUpperCase() == 'T') {
+        final List<String?> out = _getFieldName(reader, token);
+        fieldName = out[0];
+        token = out[1];
+      }
+      if (token != null && token.toUpperCase() == 'V') {
+        _getFieldValue(reader, token, fieldName!, table);
+      }
+      token = reader._getNextToken();
+    }
+    PdfField? field;
+    table.forEach((String k, List<String> v) {
+      try {
+        final int index = fields._getFieldIndex(k.toString());
+        if (index == -1) {
+          throw ArgumentError('Incorrect field name.');
+        }
+        field = fields[index];
+        if (field != null) {
+          field!._importFieldValue(v);
+        }
+      } catch (e) {
+        if (!continueImportOnError) {
+          rethrow;
+        }
+      }
+    });
+  }
+
+  /// Export the form data in FDF file format.
+  List<int> _exportDataFDF(String formName) {
+    List<int> bytes = <int>[];
+    final _PdfString headerString = _PdfString('%FDF-1.2\n')
+      ..encode = _ForceEncoding.ascii;
+    bytes.addAll(headerString.value!.codeUnits);
+    int count = 1;
+    for (int i = 0; i < fields.count; i++) {
+      final PdfField field = fields[i];
+      field._exportEmptyField = exportEmptyFields;
+      if (field.canExport && field._isLoadedField) {
+        final Map<String, dynamic> out = field._exportField(bytes, count);
+        bytes = out['bytes'] as List<int>;
+        count = out['objectID'] as int;
+      }
+    }
+    final _PdfString formNameEncodedString = _PdfString(formName)
+      ..encode = _ForceEncoding.ascii;
+    final StringBuffer buffer = StringBuffer();
+    buffer.write(
+        '$count 0 obj<</F <${_PdfString._bytesToHex(formNameEncodedString.value!.codeUnits)}>  /Fields [');
+    for (int i = 0; i < fields.count; i++) {
+      final PdfField field = fields[i];
+      if (field._isLoadedField && field.canExport && field._objectID != 0) {
+        buffer.write('${field._objectID} 0 R ');
+      }
+    }
+    buffer.write(']>>endobj\n');
+    buffer.write('${count + 1} 0 obj<</Version /1.4 /FDF $count 0 R>>endobj\n');
+    buffer.write('trailer\n<</Root ${count + 1} 0 R>>\n');
+    final _PdfString fdfString = _PdfString(buffer.toString())
+      ..encode = _ForceEncoding.ascii;
+    bytes.addAll(fdfString.value!.codeUnits);
+    return bytes;
+  }
+
+  List<String?> _getFieldName(_PdfReader reader, String? token) {
+    String? fieldname = '';
+    token = reader._getNextToken();
+    if (token != null && token.isNotEmpty) {
+      if (token == '<') {
+        token = reader._getNextToken();
+        if (token != null && token.isNotEmpty && token != '>') {
+          final _PdfString str = _PdfString('');
+          final List<int> buffer = str._hexToBytes(token);
+          token = _PdfString._byteToString(buffer);
+          fieldname = token;
+        }
+      } else {
+        token = reader._getNextToken();
+        if (token != null && token.isNotEmpty) {
+          String? str = ' ';
+          while (str != ')') {
+            str = reader._getNextToken();
+            if (str != null && str.isNotEmpty && str != ')') {
+              token = token! + ' ' + str;
+            }
+          }
+          fieldname = token;
+          token = str;
+        }
+      }
+    }
+    return <String?>[fieldname, token];
+  }
+
+  void _getFieldValue(_PdfReader reader, String? token, String fieldName,
+      Map<String, List<String>> table) {
+    token = reader._getNextToken();
+    if (token != null && token.isNotEmpty) {
+      if (token == '[') {
+        token = reader._getNextToken();
+        if (token != null && token.isNotEmpty) {
+          final List<String> fieldValues = <String>[];
+          while (token != ']') {
+            token = _fieldValue(
+                reader, token!, true, table, fieldName, fieldValues);
+          }
+          if (!table.containsKey(fieldName) && fieldValues.isNotEmpty) {
+            table[fieldName] = fieldValues;
+          }
+        }
+      } else {
+        _fieldValue(reader, token, false, table, fieldName, null);
+      }
+    }
+  }
+
+  String? _fieldValue(
+      _PdfReader reader,
+      String? token,
+      bool isMultiSelect,
+      Map<String, List<String>> table,
+      String fieldName,
+      List<String>? fieldValues) {
+    if (token == '<') {
+      token = reader._getNextToken();
+      if (token != null && token.isNotEmpty && token != '>') {
+        final _PdfString str = _PdfString('');
+        final List<int> buffer = str._hexToBytes(token);
+        token = _PdfString._byteToString(buffer);
+        if (isMultiSelect && fieldValues != null) {
+          fieldValues.add(token);
+        } else if (!table.containsKey(fieldName)) {
+          table[fieldName] = <String>[token];
+        }
+      }
+    } else {
+      if (isMultiSelect && fieldValues != null) {
+        while (token != '>' && token != ')' && token != ']') {
+          if (token != null &&
+              token.isNotEmpty &&
+              (token == '/' || token != ')')) {
+            token = reader._getNextToken();
+            if (token != null &&
+                token.isNotEmpty &&
+                token != '>' &&
+                token != ')') {
+              String? str = ' ';
+              while (str != ')' && str != '>') {
+                str = reader._getNextToken();
+                if (str != null &&
+                    str.isNotEmpty &&
+                    str != '>' &&
+                    str != ')' &&
+                    str != '/') {
+                  token = token! + ' ' + str;
+                }
+                fieldValues.add(token!);
+              }
+            }
+          }
+          token = reader._getNextToken();
+        }
+      } else {
+        while (token != '>' && token != ')') {
+          if (token != null &&
+              token.isNotEmpty &&
+              (token == '/' || token != ')')) {
+            token = reader._getNextToken();
+            if (token != null &&
+                token.isNotEmpty &&
+                token != '>' &&
+                token != ')') {
+              String? str = ' ';
+              while (str != ')' && str != '>') {
+                str = reader._getNextToken();
+                if (str != null &&
+                    str.isNotEmpty &&
+                    str != '>' &&
+                    str != ')' &&
+                    str != '/') {
+                  token = token! + ' ' + str;
+                }
+              }
+              if (!table.containsKey(fieldName)) {
+                table[fieldName] = <String>[token!];
+              }
+            }
+          }
+          token = reader._getNextToken();
+        }
+      }
+    }
+    return token;
+  }
+
+  List<int> _exportDataXFDF(String formName) {
+    final _XFdfDocument xfdf = _XFdfDocument(formName);
+    for (int i = 0; i < fields.count; i++) {
+      final PdfField field = fields[i];
+      if (field.canExport) {
+        field._exportEmptyField = exportEmptyFields;
+        final _IPdfPrimitive? name = PdfField._getValue(field._dictionary,
+            field._crossTable, _DictionaryProperties.ft, true);
+        if (name != null && name is _PdfName) {
+          switch (name._name) {
+            case 'Tx':
+              final _IPdfPrimitive? fieldValue = PdfField._getValue(
+                  field._dictionary,
+                  field._crossTable,
+                  _DictionaryProperties.v,
+                  true);
+              if (fieldValue is _PdfString) {
+                xfdf._setFields(field.name!, fieldValue.value!);
+              } else if (exportEmptyFields) {
+                xfdf._setFields(field.name!, '');
+              }
+              break;
+            case 'Ch':
+              if (field is PdfListBoxField) {
+                final _IPdfPrimitive? primitive = PdfField._getValue(
+                    field._dictionary,
+                    field._crossTable,
+                    _DictionaryProperties.v,
+                    true);
+                if (primitive is _PdfArray) {
+                  xfdf._setFields(field.name!, primitive);
+                } else if (primitive is _PdfString) {
+                  xfdf._setFields(field.name!, primitive.value!);
+                } else if (exportEmptyFields) {
+                  xfdf._setFields(field.name!, '');
+                }
+              } else {
+                final _IPdfPrimitive? listField = PdfField._getValue(
+                    field._dictionary,
+                    field._crossTable,
+                    _DictionaryProperties.v,
+                    true);
+                if (listField is _PdfName) {
+                  xfdf._setFields(field._name!, listField._name!);
+                } else {
+                  final _IPdfPrimitive? comboValue = PdfField._getValue(
+                      field._dictionary,
+                      field._crossTable,
+                      _DictionaryProperties.v,
+                      true);
+                  if (comboValue is _PdfString) {
+                    xfdf._setFields(field.name!, comboValue.value!);
+                  } else if (exportEmptyFields) {
+                    xfdf._setFields(field.name!, '');
+                  }
+                }
+              }
+              break;
+            case 'Btn':
+              final _IPdfPrimitive? buttonFieldPrimitive = PdfField._getValue(
+                  field._dictionary,
+                  field._crossTable,
+                  _DictionaryProperties.v,
+                  true);
+              if (buttonFieldPrimitive != null) {
+                final String? value =
+                    field._getExportValue(field, buttonFieldPrimitive);
+                if (value != null && value.isNotEmpty) {
+                  xfdf._setFields(field.name!, value);
+                } else if (field is PdfRadioButtonListField ||
+                    field is PdfCheckBoxField) {
+                  if (exportEmptyFields) {
+                    xfdf._setFields(field.name!, '');
+                  } else {
+                    xfdf._setFields(field.name!, _DictionaryProperties.off);
+                  }
+                }
+              } else {
+                if (field is PdfRadioButtonListField) {
+                  xfdf._setFields(
+                      field.name!, field._getAppearanceStateValue(field));
+                } else {
+                  final _PdfDictionary holder = field._getWidgetAnnotation(
+                      field._dictionary, field._crossTable);
+                  final _IPdfPrimitive? holderName =
+                      holder[_DictionaryProperties.usageApplication];
+                  if (holderName is _PdfName) {
+                    xfdf._setFields(field.name!, holderName._name!);
+                  } else if (exportEmptyFields) {
+                    xfdf._setFields(field.name!, '');
+                  }
+                }
+              }
+              break;
+          }
+        }
+      }
+    }
+    return xfdf._save();
+  }
+
+  void _importDataJSON(List<int> bytes, bool continueImportOnError) {
+    String? fieldKey, fieldValue;
+    final Map<String, String> table = <String, String>{};
+    final _PdfReader reader = _PdfReader(bytes);
+    String? token = reader._getNextJsonToken();
+    reader.position = 0;
+    while (token != null && token.isNotEmpty) {
+      if (token != '{' && token != '}' && token != '"' && token != ',') {
+        fieldKey = token;
+        do {
+          token = reader._getNextJsonToken();
+        } while (token != ':');
+        do {
+          token = reader._getNextJsonToken();
+        } while (token != '"');
+        token = reader._getNextJsonToken();
+        if (token != '"') {
+          fieldValue = token;
+        }
+      }
+      if (fieldKey != null && fieldValue != null) {
+        table[_decodeXMLConversion(fieldKey)] =
+            _decodeXMLConversion(fieldValue);
+        fieldKey = fieldValue = null;
+      }
+      token = reader._getNextJsonToken();
+    }
+    PdfField? field;
+    table.forEach((String k, String v) {
+      try {
+        final int index = fields._getFieldIndex(k.toString());
+        if (index == -1) {
+          throw ArgumentError('Incorrect field name.');
+        }
+        field = fields[index];
+        if (field != null) {
+          field!._importFieldValue(v);
+        }
+      } catch (e) {
+        if (!continueImportOnError) {
+          rethrow;
+        }
+      }
+    });
+  }
+
+  List<int> _exportDataJSON() {
+    final List<int> bytes = <int>[];
+    final Map<String, String> table = <String, String>{};
+    for (int i = 0; i < fields.count; i++) {
+      final PdfField field = fields[i];
+      if (field._isLoadedField && field.canExport) {
+        final _IPdfPrimitive? name = PdfField._getValue(field._dictionary,
+            field._crossTable, _DictionaryProperties.ft, true);
+        if (name != null && name is _PdfName)
+          switch (name._name) {
+            case 'Tx':
+              final _IPdfPrimitive? textField = PdfField._getValue(
+                  field._dictionary,
+                  field._crossTable,
+                  _DictionaryProperties.v,
+                  true);
+              if (textField != null && textField is _PdfString) {
+                table[field.name!] = textField.value!;
+              }
+              break;
+            case 'Ch':
+              if (field is PdfListBoxField || field is PdfComboBoxField) {
+                final _IPdfPrimitive? listValue = PdfField._getValue(
+                    field._dictionary,
+                    field._crossTable,
+                    _DictionaryProperties.v,
+                    true);
+                if (listValue != null) {
+                  final String? value = field._getExportValue(field, listValue);
+                  if (value != null && value.isNotEmpty) {
+                    table[field.name!] = value;
+                  }
+                }
+              }
+              break;
+            case 'Btn':
+              final _IPdfPrimitive? buttonFieldPrimitive = PdfField._getValue(
+                  field._dictionary,
+                  field._crossTable,
+                  _DictionaryProperties.v,
+                  true);
+              if (buttonFieldPrimitive != null) {
+                final String? value =
+                    field._getExportValue(field, buttonFieldPrimitive);
+                if (value != null && value.isNotEmpty) {
+                  table[field.name!] = value;
+                } else if (field is PdfRadioButtonListField ||
+                    field is PdfCheckBoxField) {
+                  table[field.name!] = 'Off';
+                }
+              } else {
+                if (field is PdfRadioButtonListField) {
+                  table[field.name!] = field._getAppearanceStateValue(field);
+                } else {
+                  final _PdfDictionary holder = field._getWidgetAnnotation(
+                      field._dictionary, field._crossTable);
+                  final _IPdfPrimitive? holderName =
+                      holder[_DictionaryProperties.usageApplication];
+                  if (holderName != null && holderName is _PdfName) {
+                    table[field.name!] = holderName._name!;
+                  }
+                }
+              }
+              break;
+          }
+      }
+    }
+    bytes.addAll(utf8.encode('{'));
+    String json;
+    int j = 0;
+    table.forEach((String k, String v) {
+      json = '"${_replaceJsonDelimiters(k)}":"${_replaceJsonDelimiters(v)}"';
+      bytes.addAll(utf8.encode(j > 0 ? ',$json' : json));
+      j++;
+    });
+    bytes.addAll(utf8.encode('}'));
+    return bytes;
+  }
+
+  String _replaceJsonDelimiters(String value) {
+    // ignore: unnecessary_string_escapes
+    return value.contains(RegExp('[":,{}]|[\[]|]'))
+        ? value
+            .replaceAll(',', '_x002C_')
+            .replaceAll('"', '_x0022_')
+            .replaceAll(':', '_x003A_')
+            .replaceAll('{', '_x007B_')
+            .replaceAll('}', '_x007D_')
+            .replaceAll('[', '_x005B_')
+            .replaceAll(']', '_x005D_')
+        : value;
+  }
+
+  String _decodeXMLConversion(String value) {
+    String newString = value;
+    while (newString.contains('_x')) {
+      final int index = newString.indexOf('_x');
+      final String tempString = newString.substring(index);
+      if (tempString.length >= 7 && tempString[6] == '_') {
+        newString = newString.replaceRange(index, index + 2, '--');
+        final int? charCode =
+            int.tryParse(value.substring(index + 2, index + 6), radix: 16);
+        if (charCode != null && charCode >= 0) {
+          value = value.replaceRange(
+              index, index + 7, String.fromCharCode(charCode));
+          newString = newString.replaceRange(index, index + 7, '-');
+        }
+      } else {
+        break;
+      }
+    }
+    return value;
+  }
+
+  /// Imports XML Data from the given data.
+  void _importDataXml(List<int> bytes, bool continueImportOnError) {
+    final String data = String.fromCharCodes(bytes);
+    final XmlDocument document = XmlDocument.parse(data);
+    if (document.rootElement.name.local != 'Fields') {
+      ArgumentError.value('The XML form data stream is not valid');
+    } else {
+      _importXmlData(document.rootElement.children, continueImportOnError);
+    }
+  }
+
+  void _importXmlData(List<XmlNode> children, bool continueImportOnError) {
+    for (final XmlNode childNode in children) {
+      if (childNode is XmlElement) {
+        if (childNode.innerText.isNotEmpty) {
+          String fieldName = childNode.name.local.replaceAll('_x0020_', ' ');
+          fieldName = fieldName
+              .replaceAll('_x0023_', '#')
+              .replaceAll('_x002C_', ',')
+              .replaceAll('_x005C_', r'\')
+              .replaceAll('_x0022_', '"')
+              .replaceAll('_x003A_', ':')
+              .replaceAll('_x005D_', ']')
+              .replaceAll('_x005D_', ']')
+              .replaceAll('_x007B_', '{')
+              .replaceAll('_x007D_', '}')
+              .replaceAll('_x0024_', r'$');
+          try {
+            final int index = fields._getFieldIndex(fieldName);
+            if (index == -1) {
+              throw ArgumentError('Incorrect field name.');
+            }
+            final PdfField formField = fields[index];
+            formField._importFieldValue(childNode.innerText);
+          } catch (e) {
+            if (!continueImportOnError) {
+              rethrow;
+            }
+          }
+        }
+        if (childNode.children.isNotEmpty) {
+          _importXmlData(childNode.children, continueImportOnError);
+        }
+      }
+    }
+  }
+
+  List<int> _exportDataXML() {
+    final XmlBuilder builder = XmlBuilder();
+    final List<XmlElement> elements = <XmlElement>[];
+    builder.processing('xml', 'version="1.0" encoding="utf-8"');
+    for (int i = 0; i < fields.count; i++) {
+      final PdfField field = fields[i];
+      if (field.canExport) {
+        field._exportEmptyField = exportEmptyFields;
+        final XmlElement? element = field._exportFieldForXml();
+        if (element != null) {
+          elements.add(element);
+        }
+      }
+    }
+    builder.element('Fields', nest: elements);
+    return utf8.encode(builder.buildDocument().toXmlString(pretty: true));
   }
 
   //Overrides

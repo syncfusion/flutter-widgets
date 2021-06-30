@@ -80,7 +80,7 @@ abstract class _LineSizeHostBase {
   /// same state.
   ///
   /// Returns the boolean value indicating the hidden state for a line.
-  List getHidden(int index, int repeatValueCount);
+  List<dynamic> getHidden(int index, int repeatValueCount);
 
   /// Returns the line count.
   int getLineCount();
@@ -93,7 +93,7 @@ abstract class _LineSizeHostBase {
   /// with same size.
   ///
   /// Retuns the size of the line at the given index.
-  List getSize(int index, int repeatValueCount);
+  List<dynamic> getSize(int index, int repeatValueCount);
 
   /// Initializes the scroll axis.
   ///

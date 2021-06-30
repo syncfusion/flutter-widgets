@@ -49,7 +49,13 @@ class TimeSlotViewSettings with Diagnosticable {
       this.dateFormat = 'd',
       this.dayFormat = 'EE',
       this.timeRulerSize = -1,
-      this.timeTextStyle});
+      this.timeTextStyle})
+      : assert(startHour >= 0 && startHour <= 24),
+        assert(endHour >= 0 && endHour <= 24),
+        assert(timeIntervalHeight >= -1),
+        assert(timeIntervalWidth >= -2),
+        assert(timelineAppointmentHeight >= -1),
+        assert(timeRulerSize >= -1);
 
   /// The start hour for the time slot views in [SfCalendar].
   ///
@@ -479,7 +485,10 @@ class TimeSlotViewSettings with Diagnosticable {
       return false;
     }
 
-    final TimeSlotViewSettings otherStyle = other;
+    late final TimeSlotViewSettings otherStyle;
+    if (other is TimeSlotViewSettings) {
+      otherStyle = other;
+    }
     return otherStyle.startHour == startHour &&
         otherStyle.endHour == endHour &&
         otherStyle.nonWorkingDays == nonWorkingDays &&

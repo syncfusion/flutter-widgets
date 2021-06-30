@@ -16,7 +16,7 @@ class _IconSetWrapper implements IconSet {
   late _ConditionalFormatWrapper _format;
 
   /// Wrapper over condition values.
-  List<ConditionValue> _arrConditions = [];
+  List<ConditionValue> _arrConditions = <ConditionValue>[];
 
   @override
 

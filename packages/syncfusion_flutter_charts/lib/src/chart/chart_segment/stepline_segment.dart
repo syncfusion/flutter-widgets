@@ -110,8 +110,8 @@ class StepLineSegment extends ChartSegment {
     _path = Path();
     if (_series.animationDuration > 0 &&
         !_seriesRenderer._reAnimate &&
-        _seriesRenderer._chartState!._widgetNeedUpdate &&
-        !_seriesRenderer._chartState!._isLegendToggled &&
+        _seriesRenderer._renderingDetails!.widgetNeedUpdate &&
+        !_seriesRenderer._renderingDetails!.isLegendToggled &&
         _seriesRenderer._chartState!._oldSeriesRenderers.isNotEmpty &&
         _oldSeriesRenderer != null &&
         _oldSeriesRenderer!._segments.isNotEmpty &&

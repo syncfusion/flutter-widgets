@@ -8,6 +8,7 @@ part of charts;
 /// Provides options for series visible, axis name, series name, animation duration, legend visibility,
 /// band color to customize the appearance.
 ///
+@immutable
 class BollingerBandIndicator<T, D> extends TechnicalIndicators<T, D> {
   /// Creating an argument constructor of BollingerBandIndicator class.
   BollingerBandIndicator(
@@ -32,7 +33,8 @@ class BollingerBandIndicator<T, D> extends TechnicalIndicators<T, D> {
       this.upperLineWidth = 2,
       this.lowerLineColor = Colors.green,
       this.lowerLineWidth = 2,
-      this.bandColor = const Color(0x409e9e9e)})
+      this.bandColor = const Color(0x409e9e9e),
+      ChartIndicatorRenderCallback? onRenderDetailsUpdate})
       : super(
             isVisible: isVisible,
             xAxisName: xAxisName,
@@ -49,7 +51,8 @@ class BollingerBandIndicator<T, D> extends TechnicalIndicators<T, D> {
             legendItemText: legendItemText,
             signalLineColor: signalLineColor,
             signalLineWidth: signalLineWidth,
-            period: period);
+            period: period,
+            onRenderDetailsUpdate: onRenderDetailsUpdate);
 
   /// Standard Deviation value of the bollinger bands
   ///
@@ -153,62 +156,95 @@ class BollingerBandIndicator<T, D> extends TechnicalIndicators<T, D> {
   ///
   final Color bandColor;
 
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is BollingerBandIndicator &&
+        other.isVisible == isVisible &&
+        other.xAxisName == xAxisName &&
+        other.yAxisName == yAxisName &&
+        other.seriesName == seriesName &&
+        other.dashArray == dashArray &&
+        other.animationDuration == animationDuration &&
+        other.dataSource == dataSource &&
+        other.xValueMapper == xValueMapper &&
+        other.closeValueMapper == closeValueMapper &&
+        other.period == period &&
+        other.name == name &&
+        other.isVisibleInLegend == isVisibleInLegend &&
+        other.legendIconType == legendIconType &&
+        other.legendItemText == legendItemText &&
+        other.signalLineColor == signalLineColor &&
+        other.signalLineWidth == signalLineWidth &&
+        other.standardDeviation == standardDeviation &&
+        other.upperLineColor == upperLineColor &&
+        other.upperLineWidth == upperLineWidth &&
+        other.lowerLineColor == lowerLineColor &&
+        other.lowerLineWidth == lowerLineWidth &&
+        other.bandColor == bandColor;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      isVisible,
+      xAxisName,
+      yAxisName,
+      seriesName,
+      dashArray,
+      animationDuration,
+      dataSource,
+      xValueMapper,
+      closeValueMapper,
+      name,
+      isVisibleInLegend,
+      legendIconType,
+      legendItemText,
+      signalLineColor,
+      signalLineWidth,
+      period,
+      standardDeviation,
+      upperLineColor,
+      upperLineWidth,
+      lowerLineColor,
+      lowerLineWidth,
+      bandColor
+    ];
+    return hashList(values);
+  }
+
   /// To initialise indicators collections
   // ignore:unused_element
   void _initSeriesCollection(
       BollingerBandIndicator<dynamic, dynamic> indicator,
       SfCartesianChart chart,
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
-    // Decides the type of renderer class to be used
-    bool isLine, isRangeArea;
     technicalIndicatorsRenderer._targetSeriesRenderers =
         <CartesianSeriesRenderer>[];
-    if (indicator.bandColor != Colors.transparent &&
-        // ignore: unnecessary_null_comparison
-        indicator.bandColor != null) {
-      isLine = false;
-      isRangeArea = true;
-      technicalIndicatorsRenderer._setSeriesProperties(indicator, 'rangearea',
-          indicator.bandColor, 0, chart, isLine, isRangeArea);
-    }
-    isLine = true;
-    technicalIndicatorsRenderer._setSeriesProperties(
-        indicator,
-        indicator.name ?? 'BollingerBand',
-        indicator.signalLineColor,
-        indicator.signalLineWidth,
-        chart);
-    technicalIndicatorsRenderer._setSeriesProperties(indicator, 'UpperLine',
-        indicator.upperLineColor, indicator.upperLineWidth, chart, isLine);
-    technicalIndicatorsRenderer._setSeriesProperties(indicator, 'LowerLine',
-        indicator.lowerLineColor, indicator.lowerLineWidth, chart, isLine);
   }
 
   /// To initialise data source of technical indicators
   // ignore:unused_element
-  void _initDataSource(BollingerBandIndicator<dynamic, dynamic> indicator,
-      TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
+  void _initDataSource(
+    BollingerBandIndicator<dynamic, dynamic> indicator,
+    TechnicalIndicatorsRenderer technicalIndicatorsRenderer,
+    SfCartesianChart chart,
+  ) {
     final bool enableBand = indicator.bandColor != Colors.transparent &&
         // ignore: unnecessary_null_comparison
         indicator.bandColor != null;
     final int start = enableBand ? 1 : 0;
     final List<CartesianChartPoint<dynamic>> signalCollection =
-        <CartesianChartPoint<dynamic>>[];
-    final List<CartesianChartPoint<dynamic>> upperCollection =
-        <CartesianChartPoint<dynamic>>[];
-    final List<CartesianChartPoint<dynamic>> lowerCollection =
-        <CartesianChartPoint<dynamic>>[];
-    final List<CartesianChartPoint<dynamic>> bandCollection =
-        <CartesianChartPoint<dynamic>>[];
-    final CartesianSeriesRenderer upperSeriesRenderer =
-        technicalIndicatorsRenderer._targetSeriesRenderers[start + 1];
-    final CartesianSeriesRenderer lowerSeriesRenderer =
-        technicalIndicatorsRenderer._targetSeriesRenderers[start + 2];
-    final CartesianSeriesRenderer signalSeriesRenderer =
-        technicalIndicatorsRenderer._targetSeriesRenderers[start];
-    final CartesianSeriesRenderer? rangeAreaSeriesRenderer = enableBand
-        ? technicalIndicatorsRenderer._targetSeriesRenderers[0]
-        : null;
+            <CartesianChartPoint<dynamic>>[],
+        upperCollection = <CartesianChartPoint<dynamic>>[],
+        lowerCollection = <CartesianChartPoint<dynamic>>[],
+        bandCollection = <CartesianChartPoint<dynamic>>[];
     final List<dynamic> xValues = <dynamic>[];
 
     //prepare data
@@ -217,14 +253,12 @@ class BollingerBandIndicator<T, D> extends TechnicalIndicators<T, D> {
     if (validData.isNotEmpty &&
         validData.length >= indicator.period &&
         indicator.period > 0) {
-      num sum = 0;
-      num deviationSum = 0;
+      num sum = 0, deviationSum = 0;
       final num multiplier = indicator.standardDeviation;
-      final int limit = validData.length;
-      final int length = indicator.period.round();
+      final int limit = validData.length, length = indicator.period.round();
       // This has been null before
-      final List<num> smaPoints = List<num>.filled(limit, -1);
-      final List<num> deviations = List<num>.filled(limit, -1);
+      final List<num> smaPoints = List<num>.filled(limit, -1),
+          deviations = List<num>.filled(limit, -1);
       final List<_BollingerData> bollingerPoints = List<_BollingerData>.filled(
           limit,
           _BollingerData(
@@ -276,8 +310,7 @@ class BollingerBandIndicator<T, D> extends TechnicalIndicators<T, D> {
           }
         }
       }
-      int i = -1;
-      int j = -1;
+      int i = -1, j = -1;
       for (int k = 0; k < limit; k++) {
         if (k >= (length - 1)) {
           xValues.add(validData[k].x);
@@ -285,19 +318,16 @@ class BollingerBandIndicator<T, D> extends TechnicalIndicators<T, D> {
               validData[k].x,
               bollingerPoints[k].upBand,
               validData[k],
-              upperSeriesRenderer,
               upperCollection.length));
           lowerCollection.add(technicalIndicatorsRenderer._getDataPoint(
               validData[k].x,
               bollingerPoints[k].lowBand,
               validData[k],
-              lowerSeriesRenderer,
               lowerCollection.length));
           signalCollection.add(technicalIndicatorsRenderer._getDataPoint(
               validData[k].x,
               bollingerPoints[k].midBand,
               validData[k],
-              signalSeriesRenderer,
               signalCollection.length));
           if (enableBand) {
             bandCollection.add(technicalIndicatorsRenderer._getRangePoint(
@@ -305,13 +335,35 @@ class BollingerBandIndicator<T, D> extends TechnicalIndicators<T, D> {
                 upperCollection[++i].y,
                 lowerCollection[++j].y,
                 validData[k],
-                rangeAreaSeriesRenderer?._series,
                 bandCollection.length));
           }
         }
       }
     }
     technicalIndicatorsRenderer._renderPoints = signalCollection;
+    technicalIndicatorsRenderer._bollingerUpper = upperCollection;
+    technicalIndicatorsRenderer._bollingerLower = lowerCollection;
+    // Decides the type of renderer class to be used
+    bool isLine, isRangeArea;
+    if (indicator.bandColor != Colors.transparent &&
+        // ignore: unnecessary_null_comparison
+        indicator.bandColor != null) {
+      isLine = false;
+      isRangeArea = true;
+      technicalIndicatorsRenderer._setSeriesProperties(indicator, 'rangearea',
+          indicator.bandColor, 0, chart, isLine, isRangeArea);
+    }
+    isLine = true;
+    technicalIndicatorsRenderer._setSeriesProperties(
+        indicator,
+        indicator.name ?? 'BollingerBand',
+        indicator.signalLineColor,
+        indicator.signalLineWidth,
+        chart);
+    technicalIndicatorsRenderer._setSeriesProperties(indicator, 'UpperLine',
+        indicator.upperLineColor, indicator.upperLineWidth, chart, isLine);
+    technicalIndicatorsRenderer._setSeriesProperties(indicator, 'LowerLine',
+        indicator.lowerLineColor, indicator.lowerLineWidth, chart, isLine);
     if (enableBand) {
       technicalIndicatorsRenderer._setSeriesRange(bandCollection, indicator,
           xValues, technicalIndicatorsRenderer._targetSeriesRenderers[0]);

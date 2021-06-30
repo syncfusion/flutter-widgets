@@ -11,9 +11,10 @@ import '../utils/helper.dart';
 import 'spark_chart_trackball.dart';
 
 /// Represents the trackball renderer
+@immutable
 class SparkChartTrackballRenderer extends StatefulWidget {
   /// Creates the trackball renderer
-  SparkChartTrackballRenderer(
+  const SparkChartTrackballRenderer(
       {Key? key,
       this.trackball,
       this.coordinatePoints,
@@ -114,9 +115,9 @@ class _SparckChartTrackballRendererState
         onHover: (PointerHoverEvent event) => _enableMouseHover
             ? _enableAndUpdateTrackball(context, event.position)
             : null,
-        onExit: (event) => _hide(),
+        onExit: (PointerExitEvent event) => _hide(),
         child: Listener(
-          onPointerUp: (event) => _hide(),
+          onPointerUp: (PointerUpEvent event) => _hide(),
           child: GestureDetector(
               onVerticalDragStart: (widget.trackball != null && widget.trackball!.activationMode != SparkChartActivationMode.doubleTap)
                   ? (DragStartDetails details) =>
@@ -300,9 +301,9 @@ class TrackballPainter extends CustomPainter {
     borderRadius = _getBorderRadius(borderRadius, textWidth);
     Rect labelRect = Rect.fromLTWH(screenPoint.dx, screenPoint.dy,
         textSize.width + 15, textSize.height + 10);
-    final double tooltipPadding = 5;
-    final double pointerWidth = 5;
-    final double pointerLength = 7;
+    const double tooltipPadding = 5;
+    const double pointerWidth = 5;
+    const double pointerLength = 7;
     final double totalWidth = areaBounds.right - areaBounds.left;
     final double totalHeight = areaBounds.bottom - areaBounds.top;
     final bool isTop = _rendererState._isTop!;
@@ -316,8 +317,8 @@ class TrackballPainter extends CustomPainter {
         xPosition = screenPoint.dx + pointerLength + tooltipPadding;
         yPosition = screenPoint.dy - labelRect.height / 2;
         if ((xPosition + labelRect.width) > totalWidth) {
-          xPosition = ((xPosition - labelRect.width - (2 * tooltipPadding)) -
-              (2 * pointerLength));
+          xPosition = (xPosition - labelRect.width - 2 * tooltipPadding) -
+              2 * pointerLength;
           isRight = true;
         } else if (xPosition >= totalWidth) {
           xPosition = totalWidth - (xPosition + labelRect.width);
@@ -330,7 +331,7 @@ class TrackballPainter extends CustomPainter {
           yPosition = totalHeight - labelRect.height;
         }
       } else {
-        final double padding = 2;
+        const double padding = 2;
         xPosition = screenPoint.dx - (labelRect.width / 2);
 
         final double tooltipRight = screenPoint.dx + (labelRect.width) / 2;
@@ -428,9 +429,9 @@ class TrackballPainter extends CustomPainter {
       bool isTop,
       bool isBottom) {
     final Color backgroundColor =
-        (_rendererState._themeData!.brightness == Brightness.light
+        _rendererState._themeData!.brightness == Brightness.light
             ? const Color.fromRGBO(79, 79, 79, 1)
-            : const Color.fromRGBO(255, 255, 255, 1));
+            : const Color.fromRGBO(255, 255, 255, 1);
     final Paint paint = Paint()
       ..color = _trackball!.backgroundColor ?? backgroundColor;
     final Path path = Path();

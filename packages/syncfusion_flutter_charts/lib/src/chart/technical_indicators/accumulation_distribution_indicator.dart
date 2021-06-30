@@ -8,7 +8,7 @@ part of charts;
 /// It provides options for series visible, axis name, series name, animation duration, legend visibility,
 /// signal line width, and color.
 ///
-
+@immutable
 class AccumulationDistributionIndicator<T, D>
     extends TechnicalIndicators<T, D> {
   /// Creating an argument constructor of AccumulationDistributionIndicator class.
@@ -30,7 +30,8 @@ class AccumulationDistributionIndicator<T, D>
       LegendIconType? legendIconType,
       String? legendItemText,
       Color? signalLineColor,
-      double? signalLineWidth})
+      double? signalLineWidth,
+      ChartIndicatorRenderCallback? onRenderDetailsUpdate})
       : volumeValueMapper = (volumeValueMapper != null)
             ? ((int index) => volumeValueMapper(dataSource![index], index))
             : null,
@@ -51,7 +52,8 @@ class AccumulationDistributionIndicator<T, D>
             legendIconType: legendIconType,
             legendItemText: legendItemText,
             signalLineColor: signalLineColor,
-            signalLineWidth: signalLineWidth);
+            signalLineWidth: signalLineWidth,
+            onRenderDetailsUpdate: onRenderDetailsUpdate);
 
   /// Volume of series.
   ///
@@ -79,6 +81,61 @@ class AccumulationDistributionIndicator<T, D>
   ///
   final ChartIndexedValueMapper<num>? volumeValueMapper;
 
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is AccumulationDistributionIndicator &&
+        other.isVisible == isVisible &&
+        other.xAxisName == xAxisName &&
+        other.yAxisName == yAxisName &&
+        other.seriesName == seriesName &&
+        other.dashArray == dashArray &&
+        other.animationDuration == animationDuration &&
+        other.dataSource == dataSource &&
+        other.xValueMapper == xValueMapper &&
+        other.highValueMapper == highValueMapper &&
+        other.lowValueMapper == lowValueMapper &&
+        other.closeValueMapper == closeValueMapper &&
+        other.volumeValueMapper == volumeValueMapper &&
+        other.name == name &&
+        other.isVisibleInLegend == isVisibleInLegend &&
+        other.legendIconType == legendIconType &&
+        other.legendItemText == legendItemText &&
+        other.signalLineColor == signalLineColor &&
+        other.signalLineWidth == signalLineWidth;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      isVisible,
+      xAxisName,
+      yAxisName,
+      seriesName,
+      dashArray,
+      animationDuration,
+      dataSource,
+      xValueMapper,
+      highValueMapper,
+      lowValueMapper,
+      closeValueMapper,
+      volumeValueMapper,
+      name,
+      isVisibleInLegend,
+      legendIconType,
+      legendItemText,
+      signalLineColor,
+      signalLineWidth
+    ];
+    return hashList(values);
+  }
+
   /// To initialise indicators collections
   // ignore:unused_element
   void _initSeriesCollection(
@@ -87,23 +144,20 @@ class AccumulationDistributionIndicator<T, D>
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
     technicalIndicatorsRenderer._targetSeriesRenderers =
         <CartesianSeriesRenderer>[];
-    technicalIndicatorsRenderer._setSeriesProperties(
-        indicator,
-        indicator.name ?? 'AD',
-        indicator.signalLineColor,
-        indicator.signalLineWidth,
-        chart);
   }
 
   /// To initialise data source of technical indicators
   // ignore:unused_element
-  void _initDataSource(TechnicalIndicators<dynamic, dynamic> indicator,
-      TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
+  void _initDataSource(
+      TechnicalIndicators<dynamic, dynamic> indicator,
+      TechnicalIndicatorsRenderer technicalIndicatorsRenderer,
+      SfCartesianChart chart) {
     final List<CartesianChartPoint<dynamic>> validData =
         technicalIndicatorsRenderer._dataPoints!;
     if (validData.isNotEmpty &&
         indicator is AccumulationDistributionIndicator) {
-      _calculateADPoints(indicator, validData, technicalIndicatorsRenderer);
+      _calculateADPoints(
+          indicator, validData, technicalIndicatorsRenderer, chart);
     }
   }
 
@@ -111,30 +165,31 @@ class AccumulationDistributionIndicator<T, D>
   void _calculateADPoints(
       AccumulationDistributionIndicator<dynamic, dynamic> indicator,
       List<CartesianChartPoint<dynamic>> validData,
-      TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
+      TechnicalIndicatorsRenderer technicalIndicatorsRenderer,
+      SfCartesianChart chart) {
     final List<CartesianChartPoint<dynamic>> points =
         <CartesianChartPoint<dynamic>>[];
     final List<dynamic> xValues = <dynamic>[];
     CartesianChartPoint<dynamic> point;
-    final CartesianSeriesRenderer signalSeriesRenderer =
-        technicalIndicatorsRenderer._targetSeriesRenderers[0];
-    num sum = 0;
-    num value = 0;
-    num high = 0;
-    num low = 0;
-    num close = 0;
+    num sum = 0, value = 0, high = 0, low = 0, close = 0;
     for (int i = 0; i < validData.length; i++) {
       high = validData[i].high ?? 0;
       low = validData[i].low ?? 0;
       close = validData[i].close ?? 0;
       value = ((close - low) - (high - close)) / (high - low);
       sum = sum + value * validData[i].volume!;
-      point = technicalIndicatorsRenderer._getDataPoint(validData[i].x, sum,
-          validData[i], signalSeriesRenderer, points.length);
+      point = technicalIndicatorsRenderer._getDataPoint(
+          validData[i].x, sum, validData[i], points.length);
       points.add(point);
       xValues.add(point.x);
     }
     technicalIndicatorsRenderer._renderPoints = points;
+    technicalIndicatorsRenderer._setSeriesProperties(
+        indicator,
+        indicator.name ?? 'AD',
+        indicator.signalLineColor,
+        indicator.signalLineWidth,
+        chart);
     technicalIndicatorsRenderer._setSeriesRange(points, indicator, xValues);
   }
 }

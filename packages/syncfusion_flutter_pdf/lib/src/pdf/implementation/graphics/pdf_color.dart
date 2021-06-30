@@ -106,22 +106,23 @@ class PdfColor {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
-    return other is PdfColor
-        ? _red == other._red &&
-            _cyan == other._cyan &&
-            _green == other._green &&
-            _magenta == other._magenta &&
-            _blue == other._blue &&
-            _yellow == other._yellow &&
-            _black == other._black &&
-            _gray == other._gray &&
-            _alpha == other._alpha &&
-            _isFilled == other._isFilled
-        : false;
+    return other is PdfColor &&
+        _red == other._red &&
+        _cyan == other._cyan &&
+        _green == other._green &&
+        _magenta == other._magenta &&
+        _blue == other._blue &&
+        _yellow == other._yellow &&
+        _black == other._black &&
+        _gray == other._gray &&
+        _alpha == other._alpha &&
+        _isFilled == other._isFilled;
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode => _alpha.hashCode;
 
   /// Gets the empty(null) color.

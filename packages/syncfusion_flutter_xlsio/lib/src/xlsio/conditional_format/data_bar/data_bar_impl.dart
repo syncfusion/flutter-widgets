@@ -33,19 +33,19 @@ class _DataBarImpl implements DataBar {
   DataBarDirection _direction = _defaultDataBarDirection;
 
   /// The color of the bars in a data bar conditional format.
-  Color _barColorRgb = Color.fromARGB(0, 0, 0, 0);
+  Color _barColorRgb = const Color.fromARGB(0, 0, 0, 0);
 
   /// Represents the negative border color of the data bar.
-  Color _negativeBorderColorRgb = Color.fromARGB(0, 0, 0, 0);
+  Color _negativeBorderColorRgb = const Color.fromARGB(0, 0, 0, 0);
 
   /// Represents the negative fill color of the data bar.
-  Color _negativeFillColorRgb = Color.fromARGB(0, 0, 0, 0);
+  Color _negativeFillColorRgb = const Color.fromARGB(0, 0, 0, 0);
 
   /// Represents the axis color of the data bar in Rgb.
-  Color _barAxisColorRgb = Color.fromARGB(0, 0, 0, 0);
+  Color _barAxisColorRgb = const Color.fromARGB(0, 0, 0, 0);
 
   /// Represents the border color of the data bar in Rgb.
-  Color _borderColorRgb = Color.fromARGB(0, 0, 0, 0);
+  Color _borderColorRgb = const Color.fromARGB(0, 0, 0, 0);
 
   /// Represents whether the data bar has a negative bar color
   /// that is different from the positive bar color.
@@ -212,7 +212,7 @@ class _DataBarImpl implements DataBar {
   set _hasExtensionList(bool value) {
     _bHasExtensionList = value;
     if (_stGUID == null) {
-      final guid = _Guid();
+      final _Guid guid = _Guid();
       _stGUID = '{' + guid._newGuid() + '}';
     }
   }
@@ -300,7 +300,7 @@ class _Guid {
 
   /// Generate new Guid.
   String _newGuid() {
-    final str = 8 + _rand.nextInt(4);
+    final int str = 8 + _rand.nextInt(4);
 
     return '${_generateDigits(16, 4)}${_generateDigits(16, 4)}-'
         '${_generateDigits(16, 4)}-'

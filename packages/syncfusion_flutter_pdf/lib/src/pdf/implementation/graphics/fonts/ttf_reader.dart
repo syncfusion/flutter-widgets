@@ -732,14 +732,16 @@ class _TtfReader {
     final List<int> offsets = _readLocaTable(_isLocaShort);
     _updateGlyphChars(glyphChars, offsets);
     final Map<String, dynamic> returnedValue =
-        _generateGlyphTable(glyphChars, offsets, null, null);
-    final int? glyphTableSize = returnedValue['glyphTableSize'];
-    final List<int> newLocaTable = returnedValue['newLocaTable'];
-    final List<int> newGlyphTable = returnedValue['newGlyphTable'];
+        _generateGlyphTable(glyphChars, offsets, null, null)
+            as Map<String, dynamic>;
+    final int? glyphTableSize = returnedValue['glyphTableSize'] as int?;
+    final List<int> newLocaTable = returnedValue['newLocaTable'] as List<int>;
+    final List<int> newGlyphTable = returnedValue['newGlyphTable'] as List<int>;
     final Map<String, dynamic> result =
-        _updateLocaTable(newLocaTable, _isLocaShort, null);
-    final int? newLocaSize = result['newLocaSize'];
-    final List<int> newLocaUpdated = result['newLocaUpdated'];
+        _updateLocaTable(newLocaTable, _isLocaShort, null)
+            as Map<String, dynamic>;
+    final int? newLocaSize = result['newLocaSize'] as int?;
+    final List<int> newLocaUpdated = result['newLocaUpdated'] as List<int>;
     final List<int>? fontProgram = _getFontProgram(
         newLocaUpdated, newGlyphTable, glyphTableSize, newLocaSize);
     return fontProgram;
@@ -869,8 +871,9 @@ class _TtfReader {
         if (oldNextGlyphOffset > 0) {
           _offset = table!.offset! + oldGlyphOffset;
           final Map<String, dynamic> result =
-              _read(newGlyphTable!, nextGlyphOffset, oldNextGlyphOffset);
-          newGlyphTable = result['buffer'];
+              _read(newGlyphTable!, nextGlyphOffset, oldNextGlyphOffset)
+                  as Map<String, dynamic>;
+          newGlyphTable = result['buffer'] as List<int>?;
           nextGlyphOffset += oldNextGlyphOffset;
         }
       }
@@ -890,8 +893,8 @@ class _TtfReader {
       int? glyphTableSize, int? locaTableSize) {
     final dynamic result =
         _getFontProgramLength(newLocaTableOut, newGlyphTable, 0);
-    final int fontProgramLength = result['fontProgramLength'];
-    final int numTables = result['numTables'];
+    final int fontProgramLength = result['fontProgramLength'] as int;
+    final int numTables = result['numTables'] as int;
     final _BigEndianWriter writer = _BigEndianWriter(fontProgramLength);
     writer._writeInt(0x10000);
     writer._writeShort(numTables);

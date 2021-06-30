@@ -25,7 +25,7 @@ abstract class DataBar {
   ///     sheet.getRangeByName('A1:A8').conditionalFormats;
   /// final ConditionalFormat conditionalFormat = conditionalFormats.addCondition();
   /// conditionalFormat.formatType = ExcelCFType.dataBar;
-  /// final DataBar dataBar = conditionalFormat.dataBar;
+  /// final DataBar dataBar = conditionalFormat.dataBar!;
   ///
   /// //Set type and value.
   /// dataBar.minPoint.type = ConditionValueType.percent;
@@ -62,7 +62,7 @@ abstract class DataBar {
   ///     sheet.getRangeByName('A1:A8').conditionalFormats;
   /// final ConditionalFormat conditionalFormat = conditionalFormats.addCondition();
   /// conditionalFormat.formatType = ExcelCFType.dataBar;
-  /// final DataBar dataBar = conditionalFormat.dataBar;
+  /// final DataBar dataBar = conditionalFormat.dataBar!;
   ///
   /// //Set type and value.
   /// dataBar.minPoint.type = ConditionValueType.percent;
@@ -98,7 +98,7 @@ abstract class DataBar {
   ///     sheet.getRangeByName('A1:A8').conditionalFormats;
   /// final ConditionalFormat conditionalFormat = conditionalFormats.addCondition();
   /// conditionalFormat.formatType = ExcelCFType.dataBar;
-  /// final DataBar dataBar = conditionalFormat.dataBar;
+  /// final DataBar dataBar = conditionalFormat.dataBar!;
   ///
   /// //Set type and value.
   /// dataBar.minPoint.type = ConditionValueType.percent;
@@ -136,7 +136,7 @@ abstract class DataBar {
   ///     sheet.getRangeByName('A1:A8').conditionalFormats;
   /// final ConditionalFormat conditionalFormat = conditionalFormats.addCondition();
   /// conditionalFormat.formatType = ExcelCFType.dataBar;
-  /// final DataBar dataBar = conditionalFormat.dataBar;
+  /// final DataBar dataBar = conditionalFormat.dataBar!;
   ///
   /// //Set minumum percentage.
   /// dataBar.percentMax = 90;
@@ -172,7 +172,7 @@ abstract class DataBar {
   ///     sheet.getRangeByName('A1:A8').conditionalFormats;
   /// final ConditionalFormat conditionalFormat = conditionalFormats.addCondition();
   /// conditionalFormat.formatType = ExcelCFType.dataBar;
-  /// final DataBar dataBar = conditionalFormat.dataBar;
+  /// final DataBar dataBar = conditionalFormat.dataBar!;
   ///
   /// // Set maximum percentage.
   /// dataBar.percentMin = 20;
@@ -207,7 +207,7 @@ abstract class DataBar {
   ///     sheet.getRangeByName('A1:A8').conditionalFormats;
   /// final ConditionalFormat conditionalFormat = conditionalFormats.addCondition();
   /// conditionalFormat.formatType = ExcelCFType.dataBar;
-  /// final DataBar dataBar = conditionalFormat.dataBar;
+  /// final DataBar dataBar = conditionalFormat.dataBar!;
   ///
   /// //Set type and value.
   /// dataBar.minPoint.type = ConditionValueType.percent;
@@ -248,7 +248,7 @@ abstract class DataBar {
   ///     sheet.getRangeByName('A1:A8').conditionalFormats;
   /// final ConditionalFormat conditionalFormat = conditionalFormats.addCondition();
   /// conditionalFormat.formatType = ExcelCFType.dataBar;
-  /// final DataBar dataBar = conditionalFormat.dataBar;
+  /// final DataBar dataBar = conditionalFormat.dataBar!;
   ///
   /// //Set type and value.
   /// dataBar.minPoint.type = ConditionValueType.percent;
@@ -288,7 +288,7 @@ abstract class DataBar {
   ///     sheet.getRangeByName('A1:A8').conditionalFormats;
   /// final ConditionalFormat conditionalFormat = conditionalFormats.addCondition();
   /// conditionalFormat.formatType = ExcelCFType.dataBar;
-  /// final DataBar dataBar = conditionalFormat.dataBar;
+  /// final DataBar dataBar = conditionalFormat.dataBar!;
   ///
   /// //Set type and value.
   /// dataBar.minPoint.type = ConditionValueType.percent;
@@ -328,7 +328,7 @@ abstract class DataBar {
   ///     sheet.getRangeByName('A1:A8').conditionalFormats;
   /// final ConditionalFormat conditionalFormat = conditionalFormats.addCondition();
   /// conditionalFormat.formatType = ExcelCFType.dataBar;
-  /// final DataBar dataBar = conditionalFormat.dataBar;
+  /// final DataBar dataBar = conditionalFormat.dataBar!;
   ///
   /// //Set type and value.
   /// dataBar.minPoint.type = ConditionValueType.percent;
@@ -368,7 +368,7 @@ abstract class DataBar {
   ///     sheet.getRangeByName('A1:A8').conditionalFormats;
   /// final ConditionalFormat conditionalFormat = conditionalFormats.addCondition();
   /// conditionalFormat.formatType = ExcelCFType.dataBar;
-  /// final DataBar dataBar = conditionalFormat.dataBar;
+  /// final DataBar dataBar = conditionalFormat.dataBar!;
   ///
   /// //Set type and value.
   /// dataBar.minPoint.type = ConditionValueType.percent;
@@ -411,7 +411,7 @@ abstract class DataBar {
   ///     sheet.getRangeByName('A1:A8').conditionalFormats;
   /// final ConditionalFormat conditionalFormat = conditionalFormats.addCondition();
   /// conditionalFormat.formatType = ExcelCFType.dataBar;
-  /// final DataBar dataBar = conditionalFormat.dataBar;
+  /// final DataBar dataBar = conditionalFormat.dataBar!;
   ///
   /// //Set type and value.
   /// dataBar.minPoint.type = ConditionValueType.percent;
@@ -451,7 +451,7 @@ abstract class DataBar {
   ///     sheet.getRangeByName('A1:A8').conditionalFormats;
   /// final ConditionalFormat conditionalFormat = conditionalFormats.addCondition();
   /// conditionalFormat.formatType = ExcelCFType.dataBar;
-  /// final DataBar dataBar = conditionalFormat.dataBar;
+  /// final DataBar dataBar = conditionalFormat.dataBar!;
   ///
   /// //Set type and value.
   /// dataBar.minPoint.type = ConditionValueType.percent;
@@ -492,7 +492,7 @@ abstract class DataBar {
   ///     sheet.getRangeByName('A1:A8').conditionalFormats;
   /// final ConditionalFormat conditionalFormat = conditionalFormats.addCondition();
   /// conditionalFormat.formatType = ExcelCFType.dataBar;
-  /// final DataBar dataBar = conditionalFormat.dataBar;
+  /// final DataBar dataBar = conditionalFormat.dataBar!;
   ///
   /// //Set type and value.
   /// dataBar.minPoint.type = ConditionValueType.percent;
@@ -531,7 +531,7 @@ abstract class DataBar {
   ///     sheet.getRangeByName('A1:A8').conditionalFormats;
   /// final ConditionalFormat conditionalFormat = conditionalFormats.addCondition();
   /// conditionalFormat.formatType = ExcelCFType.dataBar;
-  /// final DataBar dataBar = conditionalFormat.dataBar;
+  /// final DataBar dataBar = conditionalFormat.dataBar!;
   ///
   /// //Set type and value.
   /// dataBar.minPoint.type = ConditionValueType.percent;
@@ -570,7 +570,7 @@ abstract class DataBar {
   ///     sheet.getRangeByName('A1:A8').conditionalFormats;
   /// final ConditionalFormat conditionalFormat = conditionalFormats.addCondition();
   /// conditionalFormat.formatType = ExcelCFType.dataBar;
-  /// final DataBar dataBar = conditionalFormat.dataBar;
+  /// final DataBar dataBar = conditionalFormat.dataBar!;
   ///
   /// //Set type and value.
   /// dataBar.minPoint.type = ConditionValueType.percent;
@@ -607,7 +607,7 @@ abstract class DataBar {
   ///     sheet.getRangeByName('A1:A8').conditionalFormats;
   /// final ConditionalFormat conditionalFormat = conditionalFormats.addCondition();
   /// conditionalFormat.formatType = ExcelCFType.dataBar;
-  /// final DataBar dataBar = conditionalFormat.dataBar;
+  /// final DataBar dataBar = conditionalFormat.dataBar!;
   ///
   /// //Set type and value.
   /// dataBar.minPoint.type = ConditionValueType.percent;
@@ -648,7 +648,7 @@ abstract class DataBar {
   ///     sheet.getRangeByName('A1:A8').conditionalFormats;
   /// final ConditionalFormat conditionalFormat = conditionalFormats.addCondition();
   /// conditionalFormat.formatType = ExcelCFType.dataBar;
-  /// final DataBar dataBar = conditionalFormat.dataBar;
+  /// final DataBar dataBar = conditionalFormat.dataBar!;
   ///
   /// //Set type and value.
   /// dataBar.minPoint.type = ConditionValueType.percent;
@@ -689,7 +689,7 @@ abstract class DataBar {
   ///     sheet.getRangeByName('A1:A8').conditionalFormats;
   /// final ConditionalFormat conditionalFormat = conditionalFormats.addCondition();
   /// conditionalFormat.formatType = ExcelCFType.dataBar;
-  /// final DataBar dataBar = conditionalFormat.dataBar;
+  /// final DataBar dataBar = conditionalFormat.dataBar!;
   ///
   /// //Set type and value.
   /// dataBar.minPoint.type = ConditionValueType.percent;
@@ -730,7 +730,7 @@ abstract class DataBar {
   ///     sheet.getRangeByName('A1:A8').conditionalFormats;
   /// final ConditionalFormat conditionalFormat = conditionalFormats.addCondition();
   /// conditionalFormat.formatType = ExcelCFType.dataBar;
-  /// final DataBar dataBar = conditionalFormat.dataBar;
+  /// final DataBar dataBar = conditionalFormat.dataBar!;
   ///
   /// //Set type and value.
   /// dataBar.minPoint.type = ConditionValueType.percent;

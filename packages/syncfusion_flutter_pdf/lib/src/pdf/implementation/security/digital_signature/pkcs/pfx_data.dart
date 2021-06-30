@@ -31,7 +31,7 @@ class _ContentInformation extends _Asn1Encode {
     }
     _contentType = sequence[0] as _DerObjectID?;
     if (sequence.count > 1) {
-      final _Asn1Tag tagged = sequence[1] as _Asn1Tag;
+      final _Asn1Tag tagged = sequence[1]! as _Asn1Tag;
       if (!tagged._isExplicit! || tagged.tagNumber != 0) {
         throw ArgumentError.value(tagged, 'tagged', 'Invalid tag');
       }
@@ -45,7 +45,7 @@ class _ContentInformation extends _Asn1Encode {
   static _ContentInformation? getInformation(dynamic obj) {
     _ContentInformation? result;
     if (obj == null || obj is _ContentInformation) {
-      result = obj;
+      result = obj as _ContentInformation?;
     } else if (obj is _Asn1Sequence) {
       result = _ContentInformation(obj);
     } else {
@@ -68,9 +68,9 @@ class _ContentInformation extends _Asn1Encode {
 class _MacInformation extends _Asn1Encode {
   _MacInformation(_Asn1Sequence sequence) {
     _digest = _DigestInformation.getDigestInformation(sequence[0]);
-    _value = (sequence[1] as _Asn1Octet).getOctets();
+    _value = (sequence[1]! as _Asn1Octet).getOctets();
     if (sequence.count == 3) {
-      _count = (sequence[2] as _DerInteger).value;
+      _count = (sequence[2]! as _DerInteger).value;
     } else {
       _count = BigInt.one;
     }
@@ -116,14 +116,14 @@ class _Algorithms extends _Asn1Encode {
       throw ArgumentError.value('Invalid length in sequence');
     }
     _objectID = _DerObjectID.getID(sequence[0]);
-    _parametersDefined = (sequence.count == 2);
+    _parametersDefined = sequence.count == 2;
     if (_parametersDefined) {
       _parameters = sequence[1] as _Asn1Encode?;
     }
   }
   static _Algorithms? getAlgorithms(dynamic obj) {
     if (obj == null || obj is _Algorithms) {
-      return obj;
+      return obj as _Algorithms?;
     }
     if (obj is _DerObjectID) {
       return _Algorithms(obj);
@@ -148,8 +148,7 @@ class _Algorithms extends _Asn1Encode {
     final _Asn1EncodeCollection collection =
         _Asn1EncodeCollection(<_Asn1Encode?>[_objectID]);
     if (_parametersDefined) {
-      collection._encodableObjects
-          .add(_parameters == null ? _DerNull.value : _parameters);
+      collection._encodableObjects.add(_parameters ?? _DerNull.value);
     }
     return _DerSequence(collection: collection);
   }
@@ -243,7 +242,7 @@ class _KeyInformation extends _Asn1Encode {
           throw ArgumentError.value(sequence, 'sequence', 'Invalid sequence');
         }
         if (objects.length > 3) {
-          _attributes = _Asn1Set.getAsn1Set((objects[3] as _Asn1Tag?), false);
+          _attributes = _Asn1Set.getAsn1Set(objects[3]! as _Asn1Tag?, false);
         }
       } else {
         throw ArgumentError.value(sequence, 'sequence', 'Invalid sequence');
@@ -301,18 +300,18 @@ class _RsaKey extends _Asn1Encode {
     _coefficient = coefficient;
   }
   _RsaKey.fromSequence(_Asn1Sequence sequence) {
-    final BigInt version = (sequence[0] as _DerInteger).value;
+    final BigInt version = (sequence[0]! as _DerInteger).value;
     if (version.toSigned(32).toInt() != 0) {
       throw ArgumentError.value(sequence, 'sequence', 'Invalid RSA key');
     }
-    _modulus = (sequence[1] as _DerInteger).value;
-    _publicExponent = (sequence[2] as _DerInteger).value;
-    _privateExponent = (sequence[3] as _DerInteger).value;
-    _prime1 = (sequence[4] as _DerInteger).value;
-    _prime2 = (sequence[5] as _DerInteger).value;
-    _exponent1 = (sequence[6] as _DerInteger).value;
-    _exponent2 = (sequence[7] as _DerInteger).value;
-    _coefficient = (sequence[8] as _DerInteger).value;
+    _modulus = (sequence[1]! as _DerInteger).value;
+    _publicExponent = (sequence[2]! as _DerInteger).value;
+    _privateExponent = (sequence[3]! as _DerInteger).value;
+    _prime1 = (sequence[4]! as _DerInteger).value;
+    _prime2 = (sequence[5]! as _DerInteger).value;
+    _exponent1 = (sequence[6]! as _DerInteger).value;
+    _exponent2 = (sequence[7]! as _DerInteger).value;
+    _coefficient = (sequence[8]! as _DerInteger).value;
   }
   BigInt? _modulus;
   BigInt? _publicExponent;
@@ -338,6 +337,7 @@ class _RsaKey extends _Asn1Encode {
   }
 }
 
+// ignore: avoid_classes_with_only_static_members
 class _PkcsObjectId {
   static const String pkcs1 = '1.2.840.113549.1.1';
   static const String encryptionAlgorithm = '1.2.840.113549.3';
@@ -384,6 +384,7 @@ class _PkcsObjectId {
   static _DerObjectID md5 = _DerObjectID(messageDigestAlgorithm + '5');
 }
 
+// ignore: avoid_classes_with_only_static_members
 class _NistObjectIds {
   static _DerObjectID nistAlgorithm = _DerObjectID('2.16.840.1.101.3.4');
   static _DerObjectID hashAlgs = _DerObjectID(nistAlgorithm._id! + '.2');
@@ -400,6 +401,7 @@ class _NistObjectIds {
       _DerObjectID(tttRsaSignatureAlgorithm._id! + '.2');
 }
 
+// ignore: avoid_classes_with_only_static_members
 class _X509Objects {
   static const String id = '2.5.4';
   static _DerObjectID telephoneNumberID = _DerObjectID(id + '.20');

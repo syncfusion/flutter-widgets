@@ -138,7 +138,7 @@ abstract class PdfAnnotation implements _IPdfWrapper {
     if (!_isLoadedAnnotation) {
       if (_dictionary.containsKey(_DictionaryProperties.contents)) {
         _text =
-            (_dictionary[_DictionaryProperties.contents] as _PdfString).value;
+            (_dictionary[_DictionaryProperties.contents]! as _PdfString).value;
       }
       return _text!;
     } else {
@@ -207,9 +207,9 @@ abstract class PdfAnnotation implements _IPdfWrapper {
     if (!_isLoadedAnnotation) {
       if (_dictionary.containsKey(_DictionaryProperties.author)) {
         _author =
-            (_dictionary[_DictionaryProperties.author] as _PdfString).value;
+            (_dictionary[_DictionaryProperties.author]! as _PdfString).value;
       } else if (_dictionary.containsKey(_DictionaryProperties.t)) {
-        _author = (_dictionary[_DictionaryProperties.t] as _PdfString).value;
+        _author = (_dictionary[_DictionaryProperties.t]! as _PdfString).value;
       }
     } else {
       _author = _obtainAuthor();
@@ -232,10 +232,10 @@ abstract class PdfAnnotation implements _IPdfWrapper {
     } else {
       if (_dictionary.containsKey(_DictionaryProperties.subject)) {
         _subject =
-            (_dictionary[_DictionaryProperties.subject] as _PdfString).value;
+            (_dictionary[_DictionaryProperties.subject]! as _PdfString).value;
       } else if (_dictionary.containsKey(_DictionaryProperties.subj)) {
         _subject =
-            (_dictionary[_DictionaryProperties.subj] as _PdfString).value;
+            (_dictionary[_DictionaryProperties.subj]! as _PdfString).value;
       }
     }
     return _subject!;
@@ -275,9 +275,8 @@ abstract class PdfAnnotation implements _IPdfWrapper {
       return _obtainOpacity()!;
     }
     if (_dictionary._items!.containsKey(_PdfName('CA'))) {
-      final _PdfNumber ca = _dictionary._items![_PdfName('CA')] as _PdfNumber;
+      final _PdfNumber ca = _dictionary._items![_PdfName('CA')]! as _PdfNumber;
       _opacity = ca.value!.toDouble();
-      (_dictionary._items![_PdfName('CA')] as _PdfNumber).value as double?;
     }
     return _opacity;
   }
@@ -415,7 +414,7 @@ abstract class PdfAnnotation implements _IPdfWrapper {
             'The specified annotation type is not supported by PDF/A1-B or PDF/A1-A standard documents.');
       }
       //This is needed to attain specific PDF/A conformance.
-      if (!(this is PdfLinkAnnotation) &&
+      if (this is! PdfLinkAnnotation &&
           !setAppearance &&
           (_page!._document!._conformanceLevel == PdfConformanceLevel.a2b ||
               _page!._document!._conformanceLevel == PdfConformanceLevel.a3b)) {
@@ -460,12 +459,12 @@ abstract class PdfAnnotation implements _IPdfWrapper {
     }
     if (cropOrMediaBox != null) {
       if (cropOrMediaBox.count > 2) {
-        if ((cropOrMediaBox[0] as _PdfNumber).value != 0 ||
-            (cropOrMediaBox[1] as _PdfNumber).value != 0) {
+        if ((cropOrMediaBox[0]! as _PdfNumber).value != 0 ||
+            (cropOrMediaBox[1]! as _PdfNumber).value != 0) {
           nativeRectangle.x = nativeRectangle.x +
-              (cropOrMediaBox[0] as _PdfNumber).value!.toDouble();
+              (cropOrMediaBox[0]! as _PdfNumber).value!.toDouble();
           nativeRectangle.y = nativeRectangle.y +
-              (cropOrMediaBox[1] as _PdfNumber).value!.toDouble();
+              (cropOrMediaBox[1]! as _PdfNumber).value!.toDouble();
         }
       }
     }
@@ -487,7 +486,8 @@ abstract class PdfAnnotation implements _IPdfWrapper {
     _page = page;
     if (!page._isLoadedPage) {
       if (_page!._document != null) {
-        _page!._document!._catalog._beginSaveList ??= [];
+        _page!._document!._catalog._beginSaveList ??=
+            <_SavePdfPrimitiveCallback>[];
         final PdfGraphics graphics =
             page.graphics; //Accessed for creating page content.
         ArgumentError.checkNotNull(graphics);
@@ -512,7 +512,8 @@ abstract class PdfAnnotation implements _IPdfWrapper {
       if (_dictionary.containsKey(_DictionaryProperties.subtype)) {
         final _PdfName? name = _dictionary
             ._items![_PdfName(_DictionaryProperties.subtype)] as _PdfName?;
-        _page!._document!._catalog._beginSaveList ??= [];
+        _page!._document!._catalog._beginSaveList ??=
+            <_SavePdfPrimitiveCallback>[];
         if (name != null) {
           if (name._name == _DictionaryProperties.circle ||
               name._name == _DictionaryProperties.square ||
@@ -555,11 +556,12 @@ abstract class PdfAnnotation implements _IPdfWrapper {
         if (borderArray[0] is _PdfNumber &&
             borderArray[1] is _PdfNumber &&
             borderArray[2] is _PdfNumber) {
-          final double width = (borderArray[0] as _PdfNumber).value!.toDouble();
+          final double width =
+              (borderArray[0]! as _PdfNumber).value!.toDouble();
           final double hRadius =
-              (borderArray[1] as _PdfNumber).value!.toDouble();
+              (borderArray[1]! as _PdfNumber).value!.toDouble();
           final double vRadius =
-              (borderArray[2] as _PdfNumber).value!.toDouble();
+              (borderArray[2]! as _PdfNumber).value!.toDouble();
           border.width = vRadius;
           border.horizontalRadius = width;
           border.verticalRadius = hRadius;
@@ -567,7 +569,7 @@ abstract class PdfAnnotation implements _IPdfWrapper {
       }
     } else if (_dictionary.containsKey(_DictionaryProperties.bs)) {
       final _PdfDictionary lbDic = _crossTable
-          ._getObject(_dictionary[_DictionaryProperties.bs]) as _PdfDictionary;
+          ._getObject(_dictionary[_DictionaryProperties.bs])! as _PdfDictionary;
       if (lbDic.containsKey(_DictionaryProperties.w)) {
         final _PdfNumber? value = lbDic[_DictionaryProperties.w] as _PdfNumber?;
         if (value != null) {
@@ -576,7 +578,7 @@ abstract class PdfAnnotation implements _IPdfWrapper {
       }
       if (lbDic.containsKey(_DictionaryProperties.s)) {
         final _PdfName bstr =
-            _PdfCrossTable._dereference(lbDic[_DictionaryProperties.s])
+            _PdfCrossTable._dereference(lbDic[_DictionaryProperties.s])!
                 as _PdfName;
         border.borderStyle = _getBorderStyle(bstr._name.toString());
       }
@@ -585,7 +587,7 @@ abstract class PdfAnnotation implements _IPdfWrapper {
             _PdfCrossTable._dereference(lbDic[_DictionaryProperties.d])
                 as _PdfArray?;
         if (_dasharray != null) {
-          final _PdfNumber dashArray = _dasharray[0] as _PdfNumber;
+          final _PdfNumber dashArray = _dasharray[0]! as _PdfNumber;
           final int _dashArray = dashArray.value!.toInt();
           _dasharray._clear();
           _dasharray._insert(0, _PdfNumber(_dashArray));
@@ -625,12 +627,12 @@ abstract class PdfAnnotation implements _IPdfWrapper {
       final _PdfNumber? color0 =
           _crossTable._getObject(colours[0]) as _PdfNumber?;
       if (color0 != null) {
-        color = PdfColor._fromGray(color0.value as double);
+        color = PdfColor._fromGray(color0.value! as double);
       }
     } else if (colours != null && colours._elements.length == 3) {
-      final _PdfNumber color0 = colours[0] as _PdfNumber;
-      final _PdfNumber color1 = colours[1] as _PdfNumber;
-      final _PdfNumber color2 = colours[2] as _PdfNumber;
+      final _PdfNumber color0 = colours[0]! as _PdfNumber;
+      final _PdfNumber color1 = colours[1]! as _PdfNumber;
+      final _PdfNumber color2 = colours[2]! as _PdfNumber;
       //Convert the float color values into bytes
       final int red = (color0.value! * 255).round().toUnsigned(8).toInt();
       final int green = (color1.value! * 255).round().toUnsigned(8).toInt();
@@ -650,10 +652,10 @@ abstract class PdfAnnotation implements _IPdfWrapper {
           color2 != null &&
           color3 != null) {
         //Convert the float color values into bytes
-        final double cyan = color0.value as double;
-        final double magenta = color1.value as double;
-        final double yellow = color2.value as double;
-        final double black = color3.value as double;
+        final double cyan = color0.value! as double;
+        final double magenta = color1.value! as double;
+        final double yellow = color2.value! as double;
+        final double black = color3.value! as double;
         color = PdfColor.fromCMYK(cyan, magenta, yellow, black);
       }
     }
@@ -732,9 +734,8 @@ abstract class PdfAnnotation implements _IPdfWrapper {
   }
 
   String _getEnumName(dynamic annotText) {
-    annotText = annotText.toString();
-    final int index = annotText.indexOf('.');
-    final String name = annotText.substring(index + 1);
+    final int index = annotText.toString().indexOf('.');
+    final String name = annotText.toString().substring(index + 1);
     return name[0].toUpperCase() + name.substring(1);
   }
 
@@ -748,11 +749,11 @@ abstract class PdfAnnotation implements _IPdfWrapper {
               as _PdfArray?;
       if (colours != null && colours.count > 0) {
         final int red =
-            ((colours[0] as _PdfNumber).value! * 255).round().toUnsigned(8);
+            ((colours[0]! as _PdfNumber).value! * 255).round().toUnsigned(8);
         final int green =
-            ((colours[1] as _PdfNumber).value! * 255).round().toUnsigned(8);
+            ((colours[1]! as _PdfNumber).value! * 255).round().toUnsigned(8);
         final int blue =
-            ((colours[2] as _PdfNumber).value! * 255).round().toUnsigned(8);
+            ((colours[2]! as _PdfNumber).value! * 255).round().toUnsigned(8);
         color = PdfColor(red, green, blue);
       }
     }
@@ -802,10 +803,10 @@ abstract class PdfAnnotation implements _IPdfWrapper {
           final _PdfNumber height =
               crosstable._getReference(rectValue[3]) as _PdfNumber;
           bounds = Rect.fromLTWH(
-              left.value as double,
-              top.value as double,
-              width.value! - (left.value as double),
-              height.value! - (top.value as double));
+              left.value! as double,
+              top.value! as double,
+              width.value! - (left.value! as double),
+              height.value! - (top.value! as double));
         }
       }
     }
@@ -995,12 +996,8 @@ abstract class PdfAnnotation implements _IPdfWrapper {
         0,
         0,
         1,
-        ((bbox[0] as _PdfNumber).value == 0)
-            ? 0
-            : -(bbox[0] as _PdfNumber).value! as double,
-        ((bbox[0] as _PdfNumber).value == 0)
-            ? 0
-            : -(bbox[1] as _PdfNumber).value! as double
+        -(bbox[0]! as _PdfNumber).value! as double,
+        -(bbox[1]! as _PdfNumber).value! as double
       ];
       template[_DictionaryProperties.matrix] = _PdfArray(elements);
     }
@@ -1088,7 +1085,7 @@ abstract class PdfAnnotation implements _IPdfWrapper {
       final List<_Point> stylePoint = <_Point>[];
 
       for (int i = 0; i < lineStyle.count; i++) {
-        final _PdfName lineEndingStyle = lineStyle[i] as _PdfName;
+        final _PdfName lineEndingStyle = lineStyle[i]! as _PdfName;
         final _Point point = _Point.empty;
         switch (_getEnumName(lineEndingStyle._name)) {
           case 'Square':
@@ -1191,7 +1188,7 @@ abstract class PdfAnnotation implements _IPdfWrapper {
   }
 
   List<double> _getAxisValue(List<double> value, double angle, double length) {
-    final double degToRad = pi / 180.0;
+    const double degToRad = pi / 180.0;
     final List<double> xy = List<double>.filled(2, 0);
     xy[0] = value[0] + cos(angle * degToRad) * length;
     xy[1] = value[1] + sin(angle * degToRad) * length;
@@ -1238,7 +1235,7 @@ abstract class PdfAnnotation implements _IPdfWrapper {
       }
     }
     for (int i = 0; i < lineStyle.count; i++) {
-      final _PdfName lineEndingStyle = lineStyle[i] as _PdfName;
+      final _PdfName lineEndingStyle = lineStyle[i]! as _PdfName;
       if (i == 0) {
         axisPoint = startingPoint;
       } else {
@@ -1430,10 +1427,10 @@ abstract class PdfAnnotation implements _IPdfWrapper {
           _PdfCrossTable._dereference(dictionary[_DictionaryProperties.matrix])
               as _PdfArray?;
       if (matrix != null && matrix.count > 3) {
-        if ((matrix[0] as _PdfNumber).value == 1 &&
-            (matrix[1] as _PdfNumber).value == 0 &&
-            (matrix[2] as _PdfNumber).value == 0 &&
-            (matrix[3] as _PdfNumber).value == 1) {
+        if ((matrix[0]! as _PdfNumber).value == 1 &&
+            (matrix[1]! as _PdfNumber).value == 0 &&
+            (matrix[2]! as _PdfNumber).value == 0 &&
+            (matrix[3]! as _PdfNumber).value == 1) {
           isRotatedMatrix = true;
         }
       }
@@ -1461,7 +1458,7 @@ abstract class PdfAnnotation implements _IPdfWrapper {
       double radius, double overlap, List<Offset> points, bool isAppearance) {
     if (_isClockWise(points)) {
       points = List<Offset>.generate(
-          points.length, (i) => (points[points.length - (i + 1)]));
+          points.length, (int i) => points[points.length - (i + 1)]);
     }
 
     // Create a list of circles
@@ -1553,7 +1550,7 @@ abstract class PdfAnnotation implements _IPdfWrapper {
     if (brush != null) {
       graphics.drawPath(pdfPath, brush: brush);
     }
-    final double incise = 180 / (pi * 3);
+    const double incise = 180 / (pi * 3);
     path = PdfPath();
     for (int i = 0; i < circles.length; i++) {
       final _CloudStyleArc curr = circles[i];

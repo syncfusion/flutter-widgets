@@ -24,17 +24,16 @@ class _LineChartPainter extends CustomPainter {
     Rect clipRect;
     final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
     final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer!;
+    final _RenderingDetails renderingDetails = chartState._renderingDetails;
     final List<CartesianChartPoint<dynamic>> dataPoints =
         seriesRenderer._dataPoints;
     final LineSeries<dynamic, dynamic> series =
-        seriesRenderer._series as LineSeries;
+        seriesRenderer._series as LineSeries<dynamic, dynamic>;
     if (seriesRenderer._visible!) {
       assert(
           // ignore: unnecessary_null_comparison
-          series.animationDuration != null
-              ? series.animationDuration >= 0
-              : true,
-          'The animation duration of the line series must be greater or equal to 0.');
+          !(series.animationDuration != null) || series.animationDuration >= 0,
+          'The animation duration of the fast line series must be greater or equal to 0.');
       canvas.save();
       final int seriesIndex = painterKey.index;
       seriesRenderer._storeSeriesProperties(chartState, seriesIndex);
@@ -47,7 +46,8 @@ class _LineChartPainter extends CustomPainter {
               xAxisRenderer._axis.plotOffset, yAxisRenderer._axis.plotOffset));
       canvas.clipRect(axisClipRect);
       if (seriesRenderer._reAnimate ||
-          ((!(chartState._widgetNeedUpdate || chartState._isLegendToggled) ||
+          ((!(renderingDetails.widgetNeedUpdate ||
+                      renderingDetails.isLegendToggled) ||
                   !chartState._oldSeriesKeys.contains(series.key)) &&
               series.animationDuration > 0)) {
         _performLinearAnimation(
@@ -103,7 +103,7 @@ class _LineChartPainter extends CustomPainter {
 
       canvas.restore();
       if ((series.animationDuration <= 0 ||
-              (!chartState._initialRender! &&
+              (!renderingDetails.initialRender! &&
                   !seriesRenderer._needAnimateSeriesElements) ||
               animationFactor >= chartState._seriesDurationFactor) &&
           (series.markerSettings.isVisible ||

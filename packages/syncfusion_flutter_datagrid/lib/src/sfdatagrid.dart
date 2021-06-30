@@ -61,6 +61,10 @@ typedef DataGridSwipeEndCallback = void Function(
 typedef DataGridSwipeActionsBuilder = Widget? Function(
     BuildContext context, DataGridRow dataGridRow);
 
+/// The signature of [DataGridSource.canSubmitCell] and
+/// [DataGridSource.onCellSubmit] methods.
+typedef CellSubmit = void Function();
+
 /// Row configuration and cell data for a [SfDataGrid].
 ///
 /// Return this list of [DataGridRow] objects to [DataGridSource.rows] property.
@@ -88,6 +92,7 @@ class DataGridRow {
 ///
 /// The list of [DataGridCell] objects should be passed as the cells argument
 /// to the constructor of each [DataGridRow] object.
+@optionalTypeArgs
 class DataGridCell<T> {
   /// ToDo
   const DataGridCell({required this.columnName, required this.value});
@@ -108,14 +113,13 @@ class DataGridCell<T> {
 /// property.
 class DataGridRowAdapter {
   /// ToDo
-  const DataGridRowAdapter(
-      {required this.cells, this.key, this.color = Colors.transparent});
+  const DataGridRowAdapter({required this.cells, this.key, this.color});
 
   /// ToDo
   final Key? key;
 
   /// The color for the row.
-  final Color color;
+  final Color? color;
 
   /// The widget of each cell for this row.
   ///
@@ -125,6 +129,8 @@ class DataGridRowAdapter {
 }
 
 /// A material design datagrid.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=-ULsEfjxFuY}
 ///
 /// DataGrid lets you display and manipulate data in a tabular view. It is built
 /// from the ground up to achieve the best possible performance even when
@@ -155,10 +161,10 @@ class DataGridRowAdapter {
 ///       source: _employeeDataSource,
 ///       columnWidthMode: ColumnWidthMode.fill,
 ///       columns: <GridColumn>[
-///         GridTextColumn(columnName: 'id', label: Text('ID')),
-///         GridTextColumn(columnName: 'name', label: Text('Name')),
-///         GridTextColumn(columnName: 'designation', label: Text('Designation')),
-///         GridTextColumn(columnName: 'salary', label: Text('Salary')),
+///         GridColumn(columnName: 'id', label: Text('ID')),
+///         GridColumn(columnName: 'name', label: Text('Name')),
+///         GridColumn(columnName: 'designation', label: Text('Designation')),
+///         GridColumn(columnName: 'salary', label: Text('Salary')),
 ///     );
 ///   }
 ///
@@ -197,7 +203,7 @@ class DataGridRowAdapter {
 ///       .toList();
 ///
 ///   @override
-///   DataGridRowAdapter buildRow(DataGridRow row) {
+///   DataGridRowAdapter? buildRow(DataGridRow row) {
 ///     return DataGridRowAdapter(
 ///         cells: row.getCells().map<Widget>((dataCell) {
 ///           return Text(dataCell.value.toString());
@@ -220,6 +226,9 @@ class SfDataGrid extends StatefulWidget {
       this.gridLinesVisibility = GridLinesVisibility.horizontal,
       this.headerGridLinesVisibility = GridLinesVisibility.horizontal,
       this.columnWidthMode = ColumnWidthMode.none,
+      this.columnSizer,
+      this.columnWidthCalculationRange =
+          ColumnWidthCalculationRange.visibleRows,
       this.selectionMode = SelectionMode.none,
       this.navigationMode = GridNavigationMode.row,
       this.frozenColumnsCount = 0,
@@ -253,11 +262,18 @@ class SfDataGrid extends StatefulWidget {
       this.refreshIndicatorStrokeWidth = 2.0,
       this.allowSwiping = false,
       this.swipeMaxOffset = 200.0,
+      this.horizontalScrollController,
+      this.verticalScrollController,
       this.onSwipeStart,
       this.onSwipeUpdate,
       this.onSwipeEnd,
       this.startSwipeActionsBuilder,
-      this.endSwipeActionsBuilder})
+      this.endSwipeActionsBuilder,
+      this.highlightRowOnHover = true,
+      this.allowEditing = false,
+      this.editingGestureType = EditingGestureType.doubleTap,
+      this.footer,
+      this.footerHeight = 49.0})
       : assert(frozenColumnsCount >= 0),
         assert(footerFrozenColumnsCount >= 0),
         assert(frozenRowsCount >= 0),
@@ -304,6 +320,24 @@ class SfDataGrid extends StatefulWidget {
   ///
   /// Also refer [ColumnWidthMode]
   final ColumnWidthMode columnWidthMode;
+
+  /// How the row count should be considered when calculating the width of a
+  /// column.
+  ///
+  /// Provides options to consider only visible rows or all the rows which are
+  /// available in [SfDataGrid].
+  ///
+  /// Defaults to [ColumnWidthCalculationRange.visibleRows]
+  ///
+  /// Also refer [ColumnWidthCalculationRange]
+  final ColumnWidthCalculationRange columnWidthCalculationRange;
+
+  /// The [ColumnSizer] used to control the column width sizing operation of
+  /// each columns.
+  ///
+  /// You can override the available methods and customize the required
+  /// operations in the custom [ColumnSizer].
+  final ColumnSizer? columnSizer;
 
   /// How the border should be visible.
   ///
@@ -478,10 +512,10 @@ class SfDataGrid extends StatefulWidget {
   ///     source: _employeeDataSource,
   ///     allowSorting: true,
   ///     columns: [
-  ///         GridTextColumn(columnName: 'id', label: Text('ID')),
-  ///         GridTextColumn(columnName: 'name', label: Text('Name')),
-  ///         GridTextColumn(columnName: 'designation', label: Text('Designation')),
-  ///         GridTextColumn(columnName: 'salary', label: Text('Salary')),
+  ///         GridColumn(columnName: 'id', label: Text('ID')),
+  ///         GridColumn(columnName: 'name', label: Text('Name')),
+  ///         GridColumn(columnName: 'designation', label: Text('Designation')),
+  ///         GridColumn(columnName: 'salary', label: Text('Salary')),
   ///   ]);
   /// }
   ///
@@ -496,8 +530,9 @@ class SfDataGrid extends StatefulWidget {
   ///             DataGridCell<int>(columnName: 'salary', value: dataRow.salary),
   ///           ]))
   ///       .toList();
+  ///
   ///   @override
-  ///   DataGridRowAdapter buildRow(DataGridRow row) {
+  ///   DataGridRowAdapter? buildRow(DataGridRow row) {
   ///     return DataGridRowAdapter(
   ///         cells: row.getCells().map<Widget>((dataCell) {
   ///       return Text(dataCell.value.toString());
@@ -585,10 +620,10 @@ class SfDataGrid extends StatefulWidget {
   /// @override
   /// Widget build(BuildContext context) {
   ///   return SfDataGrid(source: _employeeDataSource, columns: <GridColumn>[
-  ///     GridTextColumn(columnName: 'id', label: Text('ID')),
-  ///     GridTextColumn(columnName: 'name', label: Text('Name')),
-  ///     GridTextColumn(columnName: 'designation', label: Text('Designation')),
-  ///     GridTextColumn(columnName: 'salary', label: Text('Salary'))
+  ///     GridColumn(columnName: 'id', label: Text('ID')),
+  ///     GridColumn(columnName: 'name', label: Text('Name')),
+  ///     GridColumn(columnName: 'designation', label: Text('Designation')),
+  ///     GridColumn(columnName: 'salary', label: Text('Salary'))
   ///   ], stackedHeaderRows: [
   ///     StackedHeaderRow(cells: [
   ///       StackedHeaderCell(
@@ -671,10 +706,10 @@ class SfDataGrid extends StatefulWidget {
   ///         );
   ///       },
   ///       columns: <GridColumn>[
-  ///           GridTextColumn(columnName: 'id', label: Text('ID')),
-  ///           GridTextColumn(columnName: 'name', label: Text('Name')),
-  ///           GridTextColumn(columnName: 'designation', label: Text('Designation')),
-  ///           GridTextColumn(columnName: 'salary', label: Text('Salary')),
+  ///           GridColumn(columnName: 'id', label: Text('ID')),
+  ///           GridColumn(columnName: 'name', label: Text('Name')),
+  ///           GridColumn(columnName: 'designation', label: Text('Designation')),
+  ///           GridColumn(columnName: 'salary', label: Text('Salary')),
   ///       ],
   ///     ),
   ///   );
@@ -745,10 +780,10 @@ class SfDataGrid extends StatefulWidget {
   ///         });
   ///       },
   ///       columns: <GridColumn>[
-  ///           GridTextColumn(columnName: 'id', label: Text('ID')),
-  ///           GridTextColumn(columnName: 'name', label: Text('Name')),
-  ///           GridTextColumn(columnName: 'designation', label: Text('Designation')),
-  ///           GridTextColumn(columnName: 'salary', label: Text('Salary')),
+  ///           GridColumn(columnName: 'id', label: Text('ID')),
+  ///           GridColumn(columnName: 'name', label: Text('Name')),
+  ///           GridColumn(columnName: 'designation', label: Text('Designation')),
+  ///           GridColumn(columnName: 'salary', label: Text('Salary')),
   ///       ],
   ///     ),
   ///   );
@@ -796,6 +831,18 @@ class SfDataGrid extends StatefulWidget {
   /// Defaults to 200.
   final double swipeMaxOffset;
 
+  /// Controls a horizontal scrolling in DataGrid.
+  ///
+  /// You can use addListener method to listen whenever you do the horizontal scrolling.
+  ///
+  final ScrollController? horizontalScrollController;
+
+  /// Controls a vertical scrolling in DataGrid.
+  ///
+  /// You can use addListener method to listen whenever you do the vertical scrolling.
+  ///
+  final ScrollController? verticalScrollController;
+
   /// Called when row swiping is started.
   ///
   /// You can disable the swiping for specific row by returning false.
@@ -820,6 +867,245 @@ class SfDataGrid extends StatefulWidget {
   /// left-to-right languages).
   final DataGridSwipeActionsBuilder? endSwipeActionsBuilder;
 
+  /// Decides whether to highlight a row when mouse hovers over it.
+  ///
+  /// see also,
+  /// [SfDataGridThemeData.rowHoverColor] – This helps you to change row highlighting color on hovering.
+  /// [SfDataGridThemeData.rowHoverTextStyle] – This helps you to change the [TextStyle] of row on hovering.
+  final bool highlightRowOnHover;
+
+  /// Decides whether cell should be moved into edit mode based on
+  /// [editingGestureType].
+  ///
+  /// Defaults to false.
+  ///
+  /// Editing can be enabled only if the [selectionMode] is other than none and
+  /// [navigationMode] is cell.
+  ///
+  /// You can load the required widget on editing using [DataGridSource.buildEditWidget] method.
+  ///
+  /// The following example shows how to load the [TextField] for `id` column
+  /// by overriding the `onCellSubmit` and `buildEditWidget` methods in
+  /// [DataGridSource] class.
+  ///
+  /// ```dart
+  ///
+  /// class EmployeeDataSource extends DataGridSource {
+  ///
+  ///  TextEditingController editingController = TextEditingController();
+  ///
+  ///  dynamic newCellValue;
+  ///
+  ///  /// Creates the employee data source class with required details.
+  ///   EmployeeDataSource({required List<Employee> employeeData}) {
+  ///     employees = employeeData;
+  ///     _employeeData = employeeData
+  ///         .map<DataGridRow>((e) => DataGridRow(cells: [
+  ///               DataGridCell<int>(columnName: 'id', value: e.id),
+  ///               DataGridCell<String>(columnName: 'name', value: e.name),
+  ///               DataGridCell<String>(
+  ///                   columnName: 'designation', value: e.designation),
+  ///               DataGridCell<int>(columnName: 'salary', value: e.salary),
+  ///             ]))
+  ///         .toList();
+  ///   }
+  ///
+  ///   List<DataGridRow> _employeeData = [];
+  ///
+  ///   List<Employee> employees = [];
+  ///
+  ///   @override
+  ///   List<DataGridRow> get rows => _employeeData;
+  ///
+  ///   @override
+  ///   DataGridRowAdapter buildRow(DataGridRow row) {
+  ///     return DataGridRowAdapter(
+  ///         cells: row.getCells().map<Widget>((e) {
+  ///       return Container(
+  ///         alignment: (e.columnName == 'id' || e.columnName == 'salary')
+  ///             ? Alignment.centerRight
+  ///             : Alignment.centerLeft,
+  ///         padding: EdgeInsets.all(8.0),
+  ///         child: Text(e.value.toString()),
+  ///       );
+  ///     }).toList());
+  ///   }
+  ///
+  ///   @override
+  ///   Widget? buildEditWidget(DataGridRow dataGridRow,
+  ///       RowColumnIndex rowColumnIndex, GridColumn column, submitCell) {
+  ///     // To set the value for TextField when cell is moved into edit mode.
+  ///     final String displayText = dataGridRow
+  ///             .getCells()
+  ///             .firstWhere((DataGridCell dataGridCell) =>
+  ///                 dataGridCell.columnName == column.columnName)
+  ///             .value
+  ///             ?.toString() ??
+  ///         '';
+  ///
+  ///     /// Returning the TextField with the numeric keyboard configuration.
+  ///     if (column.columnName == 'id') {
+  ///       return Container(
+  ///           padding: const EdgeInsets.all(8.0),
+  ///           alignment: Alignment.centerRight,
+  ///           child: TextField(
+  ///             autofocus: true,
+  ///             controller: editingController..text = displayText,
+  ///             textAlign: TextAlign.right,
+  ///             decoration: const InputDecoration(
+  ///                 contentPadding: EdgeInsets.all(0),
+  ///                 border: InputBorder.none,
+  ///                 isDense: true),
+  ///             inputFormatters: [
+  ///               FilteringTextInputFormatter.allow(RegExp('[0-9]'))
+  ///             ],
+  ///             keyboardType: TextInputType.number,
+  ///             onChanged: (String value) {
+  ///               if (value.isNotEmpty) {
+  ///                 print(value);
+  ///                 newCellValue = int.parse(value);
+  ///               } else {
+  ///                 newCellValue = null;
+  ///               }
+  ///             },
+  ///             onSubmitted: (String value) {
+  ///               /// Call [CellSubmit] callback to fire the canSubmitCell and
+  ///               /// onCellSubmit to commit the new value in single place.
+  ///               submitCell();
+  ///             },
+  ///           ));
+  ///     }
+  ///   }
+  ///
+  ///   @override
+  ///   void onCellSubmit(DataGridRow dataGridRow, RowColumnIndex rowColumnIndex,
+  ///       GridColumn column) {
+  ///     final dynamic oldValue = dataGridRow
+  ///             .getCells()
+  ///             .firstWhereOrNull((DataGridCell dataGridCell) =>
+  ///                 dataGridCell.columnName == column.columnName)
+  ///             ?.value ??
+  ///         '';
+  ///
+  ///     final int dataRowIndex = rows.indexOf(dataGridRow);
+  ///
+  ///     if (newCellValue == null || oldValue == newCellValue) {
+  ///       return;
+  ///     }
+  ///
+  ///     if (column.columnName == 'id') {
+  ///       rows[dataRowIndex].getCells()[rowColumnIndex.columnIndex] =
+  ///           DataGridCell<int>(columnName: 'id', value: newCellValue);
+  ///
+  ///       // Save the new cell value to model collection also.
+  ///       employees[dataRowIndex].id = newCellValue as int;
+  ///     }
+  ///
+  ///     // To reset the new cell value after successfully updated to DataGridRow
+  ///     //and underlying mode.
+  ///     newCellValue = null;
+  ///   }
+  /// }
+  ///
+  /// ```
+  /// The following example shows how to enable editing and set the
+  /// [DataGridSource] for [SfDataGrid].
+  /// ```dart
+  ///
+  /// List<Employee> employees = <Employee>[];
+  ///
+  /// late EmployeeDataSource employeeDataSource;
+  ///
+  /// @override
+  /// void initState() {
+  ///   super.initState();
+  ///   employees = getEmployeeData();
+  ///   employeeDataSource = EmployeeDataSource(employeeData: employees);
+  /// }
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     appBar: AppBar(
+  ///       title: const Text('Syncfusion Flutter DataGrid'),
+  ///     ),
+  ///     body: SfDataGrid(
+  ///       source: employeeDataSource,
+  ///       allowEditing: true,
+  ///       columnWidthMode: ColumnWidthMode.fill,
+  ///       selectionMode: SelectionMode.single,
+  ///       navigationMode: GridNavigationMode.cell,
+  ///       columns: <GridColumn>[
+  ///         GridColumn(
+  ///             columnName: 'id',
+  ///             label: Container(
+  ///                 padding: EdgeInsets.all(16.0),
+  ///                 alignment: Alignment.centerRight,
+  ///                 child: Text(
+  ///                   'ID',
+  ///                 ))),
+  ///         GridColumn(
+  ///             columnName: 'name',
+  ///             label: Container(
+  ///                 padding: EdgeInsets.all(8.0),
+  ///                 alignment: Alignment.centerLeft,
+  ///                 child: Text('Name'))),
+  ///         GridColumn(
+  ///             columnName: 'designation',
+  ///             label: Container(
+  ///                 padding: EdgeInsets.all(8.0),
+  ///                 alignment: Alignment.centerLeft,
+  ///                 child: Text(
+  ///                   'Designation',
+  ///                   overflow: TextOverflow.ellipsis,
+  ///                 ))),
+  ///         GridColumn(
+  ///             columnName: 'salary',
+  ///             label: Container(
+  ///                 padding: EdgeInsets.all(8.0),
+  ///                 alignment: Alignment.centerRight,
+  ///                 child: Text('Salary'))),
+  ///       ],
+  ///     ),
+  ///   );
+  /// }
+  /// ```
+  /// See also,
+  /// * [GridColumn.allowEditing] – You can enable or disable editing for an
+  /// individual column.
+  /// * [DataGridSource.onCellBeginEdit]- This will be triggered when a cell is
+  /// moved to edit mode.
+  /// * [DataGridSource.canSubmitCell]- This will be triggered before
+  /// [DataGridSource.onCellSubmit] method is called. You can use this method
+  /// if you want to not end the editing based on any criteria.
+  /// * [DataGridSource.onCellSubmit] – This will be triggered when the cell’s
+  /// editing is completed.
+  final bool allowEditing;
+
+  /// Decides whether the editing should be triggered on tap or double tap
+  /// the cells.
+  ///
+  /// Defaults to [EditingGestureType.doubleTap].
+  ///
+  /// See also,
+  /// * [allowEditing] – This will enable the editing option for cells.
+  final EditingGestureType editingGestureType;
+
+  /// The widget to show over the bottom of the [SfDataGrid].
+  ///
+  /// This footer will be displayed like normal row and shown below to last row.
+  ///
+  /// See also,
+  ///
+  /// [SfDataGrid.footerHeight] – This enables you to change the height of the
+  /// footer.
+  final Widget? footer;
+
+  /// The height of the footer.
+  ///
+  /// Defaults to 49.0.
+  final double footerHeight;
+
   @override
   State<StatefulWidget> createState() => SfDataGridState();
 }
@@ -838,11 +1124,11 @@ class SfDataGridState extends State<SfDataGrid>
   late _VisualContainerHelper _container;
   late _DataGridStateDetails _dataGridStateDetails;
   late _DataGridSettings _dataGridSettings;
-  late _ColumnSizer _columnSizer;
+  late ColumnSizer _columnSizer;
   late _CurrentCellManager _currentCell;
   AnimationController? _swipingAnimationController;
 
-  Map<String, GridCellRendererBase> _cellRenderers = {};
+  late Map<String, GridCellRendererBase> _cellRenderers;
   TextDirection _textDirection = TextDirection.ltr;
   SfDataGridThemeData? _dataGridThemeData;
   DataGridSource? _source;
@@ -853,10 +1139,11 @@ class SfDataGridState extends State<SfDataGrid>
 
   @override
   void initState() {
-    _columns = [];
+    _columns = <GridColumn>[];
     _dataGridSettings = _DataGridSettings();
     _dataGridStateDetails = _onDataGridStateDetailsChanged;
     _dataGridSettings.gridPaint = Paint();
+
     _rowGenerator = _RowGenerator(dataGridStateDetails: _dataGridStateDetails);
     _container = _VisualContainerHelper(rowGenerator: _rowGenerator);
     _swipingAnimationController = AnimationController(
@@ -881,7 +1168,7 @@ class SfDataGridState extends State<SfDataGrid>
       return;
     }
 
-    final canUpdate =
+    final bool canUpdate =
         _dataGridThemeData != null && _dataGridThemeData != newThemeData;
     _dataGridThemeData = newThemeData;
     _dataGridSettings.dataGridThemeData = newThemeData;
@@ -889,6 +1176,58 @@ class SfDataGridState extends State<SfDataGrid>
     if (canUpdate) {
       _container._refreshViewStyle();
     }
+  }
+
+  void _onDataGridTextScaleFactorChanged(double textScaleFactor) {
+    if (textScaleFactor == _dataGridSettings.textScaleFactor) {
+      return;
+    }
+
+    _dataGridSettings.textScaleFactor = textScaleFactor;
+    _dataGridSettings.headerRowHeight = widget.headerRowHeight.isNaN
+        ? (_dataGridSettings.textScaleFactor > 1.0)
+            ? _headerRowHeight * _dataGridSettings.textScaleFactor
+            : _headerRowHeight
+        : widget.headerRowHeight;
+    _dataGridSettings.rowHeight = widget.rowHeight.isNaN
+        ? (_dataGridSettings.textScaleFactor > 1.0)
+            ? _rowHeight * _dataGridSettings.textScaleFactor
+            : _rowHeight
+        : widget.rowHeight;
+    // Refreshes the default line size, column widths and row heights in initial
+    // `SfDataGrid` build. So, restricts the codes in initial loading by using
+    // the `_container._isGridLoaded` property.
+    if (_container._isGridLoaded) {
+      if (_dataGridSettings.columnWidthMode != ColumnWidthMode.none) {
+        _dataGridSettings.columnSizer._resetAutoCalculation();
+        if (!_container._isDirty) {
+          // Refreshes the autofit columns only if don't have explicit width.
+          _dataGridSettings.columnSizer._refresh(0.0);
+        }
+      }
+      // Refresh header rows height.
+      _updateHeaderRowHeight();
+      // Refresh data rows height.
+      _container.rowHeights.defaultLineSize = _dataGridSettings.rowHeight;
+      if (!_container._isDirty) {
+        _container.setRowHeights();
+      }
+    }
+  }
+
+  void _updateHeaderRowHeight() {
+    final _LineSizeCollection lineSizeCollection =
+        _container.columnWidths as _LineSizeCollection;
+    lineSizeCollection.suspendUpdates();
+    final int headerIndex =
+        _GridIndexResolver.getHeaderIndex(_dataGridSettings);
+    if (_container.rowCount > 0) {
+      for (int i = 0; i <= headerIndex; i++) {
+        _container.rowHeights[i] = _dataGridSettings.headerRowHeight;
+      }
+    }
+    lineSizeCollection.resumeUpdates();
+    _container.updateScrollBars();
   }
 
   void _setUp() {
@@ -903,9 +1242,15 @@ class SfDataGridState extends State<SfDataGrid>
     _controller!._addDataGridPropertyChangeListener(
         _handleDataGridPropertyChangeListeners);
 
+    _dataGridSettings.verticalScrollController =
+        widget.verticalScrollController ?? ScrollController();
+    _dataGridSettings.horizontalScrollController =
+        widget.horizontalScrollController ?? ScrollController();
+
     //AutoFit controller initializing
-    _columnSizer = _ColumnSizer()
-      .._dataGridStateDetails = _dataGridStateDetails;
+    _columnSizer =
+        _dataGridSettings.columnSizer = widget.columnSizer ?? ColumnSizer()
+          .._dataGridStateDetails = _dataGridStateDetails;
 
     //CurrentCell Manager initializing
     _currentCell = _dataGridSettings.currentCell =
@@ -941,13 +1286,27 @@ class SfDataGridState extends State<SfDataGrid>
       .._isGridLoaded = true;
   }
 
-  void _updateVisualDensity() {
-    final baseDensity = _dataGridSettings.visualDensity?.baseSizeAdjustment;
+  void _updateVisualDensity(VisualDensity visualDensity) {
+    if (_dataGridSettings.visualDensity == visualDensity) {
+      return;
+    }
 
-    _dataGridSettings.headerRowHeight =
-        _dataGridSettings.headerRowHeight + baseDensity!.dy;
+    final Offset baseDensity = visualDensity.baseSizeAdjustment;
 
-    _dataGridSettings.rowHeight = _dataGridSettings.rowHeight + baseDensity.dy;
+    _dataGridSettings
+      ..visualDensity = visualDensity
+      ..headerRowHeight += baseDensity.dy
+      ..rowHeight += baseDensity.dy;
+
+    // Refreshes the default line size, and row heights in initial
+    // `SfDataGrid` build. So, restricts the codes in initial loading by using
+    // the `_container._isGridLoaded` property.
+    if (_container._isGridLoaded) {
+      // Refresh header rows height.
+      _updateHeaderRowHeight();
+      // Refresh data rows height.
+      _container.rowHeights.defaultLineSize = _dataGridSettings.rowHeight;
+    }
   }
 
   void _initializeDataGridDataSource() {
@@ -975,7 +1334,7 @@ class SfDataGridState extends State<SfDataGrid>
   }
 
   void _initializeCellRendererCollection() {
-    _cellRenderers = {};
+    _cellRenderers = <String, GridCellRendererBase>{};
     _cellRenderers['TextField'] =
         GridCellTextFieldRenderer(_dataGridStateDetails);
     _cellRenderers['ColumnHeader'] =
@@ -985,7 +1344,8 @@ class SfDataGridState extends State<SfDataGrid>
 
     if (widget.onCellRenderersCreated != null) {
       widget.onCellRenderersCreated!(_cellRenderers);
-      for (final renderer in _cellRenderers.entries) {
+      for (final MapEntry<String, GridCellRendererBase> renderer
+          in _cellRenderers.entries) {
         renderer.value._dataGridStateDetails = _dataGridStateDetails;
       }
     }
@@ -993,13 +1353,13 @@ class SfDataGridState extends State<SfDataGrid>
 
   void _processCellUpdate(RowColumnIndex rowColumnIndex) {
     if (rowColumnIndex != RowColumnIndex(-1, -1)) {
-      final rowIndex = _GridIndexResolver.resolveToRowIndex(
+      final int rowIndex = _GridIndexResolver.resolveToRowIndex(
           _dataGridSettings, rowColumnIndex.rowIndex);
-      final columnIndex = _GridIndexResolver.resolveToScrollColumnIndex(
+      final int columnIndex = _GridIndexResolver.resolveToScrollColumnIndex(
           _dataGridSettings, rowColumnIndex.columnIndex);
 
-      final dataRow = _rowGenerator.items
-          .firstWhereOrNull((dataRow) => dataRow.rowIndex == rowIndex);
+      final DataRowBase? dataRow = _rowGenerator.items.firstWhereOrNull(
+          (DataRowBase dataRow) => dataRow.rowIndex == rowIndex);
 
       if (dataRow == null) {
         return;
@@ -1009,8 +1369,8 @@ class SfDataGridState extends State<SfDataGrid>
       dataRow._dataGridRowAdapter = _SfDataGridHelper.getDataGridRowAdapter(
           _dataGridSettings, dataRow._dataGridRow!);
 
-      final dataCell = dataRow._visibleColumns
-          .firstWhereOrNull((dataCell) => dataCell.columnIndex == columnIndex);
+      final DataCellBase? dataCell = dataRow._visibleColumns.firstWhereOrNull(
+          (DataCellBase dataCell) => dataCell.columnIndex == columnIndex);
 
       if (dataCell == null) {
         return;
@@ -1026,6 +1386,12 @@ class SfDataGridState extends State<SfDataGrid>
 
   void _processUpdateDataSource() {
     setState(() {
+      // Need to endEdit the editing [DataGridCell] before perform refreshing.
+      if (_dataGridSettings.currentCell.isEditing) {
+        _dataGridSettings.currentCell
+            ._onCellSubmit(_dataGridSettings, canRefresh: false);
+      }
+
       _initializeDataGridDataSource();
       _dataGridSettings.source = _source!;
 
@@ -1050,6 +1416,17 @@ class SfDataGridState extends State<SfDataGrid>
         _dataGridSettings.container.resetSwipeOffset();
       }
 
+      if (widget.footer != null) {
+        final DataRowBase? footerRow = _rowGenerator.items.firstWhereOrNull(
+            (DataRowBase row) =>
+                row.rowType == RowType.footerRow && row.rowIndex >= 0);
+        if (footerRow != null) {
+          // Need to reset the old footer row height in rowHeights collection.
+          _container.rowHeights[footerRow.rowIndex] =
+              _dataGridSettings.rowHeight;
+        }
+      }
+
       _container
         .._updateRowAndColumnCount()
         .._refreshView()
@@ -1057,9 +1434,9 @@ class SfDataGridState extends State<SfDataGrid>
 
       // FLUT-3219 Need to reset the vertical offset when both the controller offset
       // scrollbar offset are not identical
-      if (_dataGridSettings.verticalController != null &&
-          _dataGridSettings.verticalController!.hasClients &&
-          _dataGridSettings.verticalController!.offset == 0 &&
+      if (_dataGridSettings.verticalScrollController != null &&
+          _dataGridSettings.verticalScrollController!.hasClients &&
+          _dataGridSettings.verticalScrollController!.offset == 0 &&
           _dataGridSettings.container.verticalOffset > 0) {
         _dataGridSettings.container.verticalOffset = 0;
         _dataGridSettings.container.verticalScrollBar._value = 0;
@@ -1068,11 +1445,15 @@ class SfDataGridState extends State<SfDataGrid>
     if (_dataGridSettings.source.shouldRecalculateColumnWidths()) {
       _dataGridSettings.columnSizer._resetAutoCalculation();
     }
+
+    if (_dataGridSettings.dataGridFocusNode != null &&
+        !_dataGridSettings.dataGridFocusNode!.hasPrimaryFocus) {
+      _dataGridSettings.dataGridFocusNode!.requestFocus();
+    }
   }
 
   void _processSorting() {
     setState(() {
-      _dataGridSettings.source._updateDataSource();
       _container
         .._updateRowAndColumnCount()
         .._refreshView()
@@ -1080,7 +1461,7 @@ class SfDataGridState extends State<SfDataGrid>
     });
   }
 
-  void _resetColumn() {
+  void _resetColumn({bool clearEditing = true}) {
     if (_columns != null) {
       _columns!
         ..clear()
@@ -1088,8 +1469,12 @@ class SfDataGridState extends State<SfDataGrid>
       _dataGridSettings.columns = _columns!;
     }
 
-    for (final dataRow in _rowGenerator.items) {
-      for (final dataCell in dataRow._visibleColumns) {
+    for (final DataRowBase dataRow in _rowGenerator.items) {
+      if (!clearEditing && dataRow._isEditing) {
+        return;
+      }
+
+      for (final DataCellBase dataCell in dataRow._visibleColumns) {
         dataCell.columnIndex = -1;
       }
     }
@@ -1119,11 +1504,14 @@ class SfDataGridState extends State<SfDataGrid>
       bool recalculateRowHeight = false}) {
     if (propertyName == 'refreshRow') {
       if (rowColumnIndex != null) {
-        final rowIndex = _GridIndexResolver.resolveToRowIndex(
+        // Need to endEdit before refreshing the row.
+        _dataGridSettings.currentCell
+            ._onCellSubmit(_dataGridSettings, canRefresh: false);
+        final int rowIndex = _GridIndexResolver.resolveToRowIndex(
             _dataGridSettings, rowColumnIndex.rowIndex);
 
-        final dataRow = _rowGenerator.items
-            .firstWhereOrNull((dataRow) => dataRow.rowIndex == rowIndex);
+        final DataRowBase? dataRow = _rowGenerator.items.firstWhereOrNull(
+            (DataRowBase dataRow) => dataRow.rowIndex == rowIndex);
 
         if (dataRow == null) {
           return;
@@ -1146,7 +1534,7 @@ class SfDataGridState extends State<SfDataGrid>
       _processSorting();
     }
 
-    if (propertyName == 'hoverOnHeaderCell') {
+    if (propertyName == 'hoverOnCell') {
       setState(() {
         // To rebuild the datagrid on hovering the header cell. isDirtly already
         // been set in header cell widget itself
@@ -1155,8 +1543,16 @@ class SfDataGridState extends State<SfDataGrid>
 
     if (propertyName == 'Swiping') {
       setState(() {
+        // Need to end-edit the editing [DataGridCell] before swiping a
+        // [DataGridRow] or refreshing
+        _dataGridSettings.currentCell
+            ._onCellSubmit(_dataGridSettings, canRefresh: false);
         _container._isDirty = true;
       });
+    }
+
+    if (propertyName == 'editing' && rowColumnIndex != null) {
+      _processCellUpdate(rowColumnIndex);
     }
   }
 
@@ -1175,7 +1571,7 @@ class SfDataGridState extends State<SfDataGrid>
       ..gridLinesVisibility = widget.gridLinesVisibility
       ..headerGridLinesVisibility = widget.headerGridLinesVisibility
       ..columnWidthMode = widget.columnWidthMode
-      ..columnSizer = _columnSizer
+      ..columnWidthCalculationRange = widget.columnWidthCalculationRange
       ..selectionMode = widget.selectionMode
       ..onSelectionChanged = widget.onSelectionChanged
       ..onSelectionChanging = widget.onSelectionChanging
@@ -1213,8 +1609,9 @@ class SfDataGridState extends State<SfDataGrid>
       ..endSwipeActionsBuilder = widget.endSwipeActionsBuilder
       ..swipingAnimationController ??= _swipingAnimationController
       ..swipingAnimation ??= _swipingAnimation
-      ..swipingOffset = 0.0
-      ..isSwipingApplied = false
+      ..highlightRowOnHover = widget.highlightRowOnHover
+      ..editingGestureType = widget.editingGestureType
+      ..allowEditing = widget.allowEditing
       ..rowHeight = (widget.rowHeight.isNaN
           ? _dataGridSettings.rowHeight.isNaN
               ? _rowHeight
@@ -1227,7 +1624,9 @@ class SfDataGridState extends State<SfDataGrid>
           : widget.headerRowHeight)
       ..defaultColumnWidth = (widget.defaultColumnWidth.isNaN
           ? _dataGridSettings.defaultColumnWidth
-          : widget.defaultColumnWidth);
+          : widget.defaultColumnWidth)
+      ..footer = widget.footer
+      ..footerHeight = widget.footerHeight;
 
     if (widget.allowPullToRefresh) {
       _dataGridSettings.refreshIndicatorKey ??=
@@ -1238,39 +1637,114 @@ class SfDataGridState extends State<SfDataGrid>
   _DataGridSettings _onDataGridStateDetailsChanged() => _dataGridSettings;
 
   void _updateProperties(SfDataGrid oldWidget) {
-    final isSourceChanged = widget.source != oldWidget.source;
-    final isDataSourceChanged =
+    final bool isSourceChanged = widget.source != oldWidget.source;
+    final bool isDataSourceChanged =
         !listEquals<DataGridRow>(oldWidget.source.rows, widget.source.rows);
-    final isColumnsChanged = !listEquals<GridColumn>(_columns, widget.columns);
-    final isSelectionManagerChanged =
+    final bool isColumnsChanged =
+        !listEquals<GridColumn>(_columns, widget.columns);
+    final bool isSelectionManagerChanged =
         oldWidget.selectionManager != widget.selectionManager ||
             oldWidget.selectionMode != widget.selectionMode;
-    final isColumnSizerChanged =
-        oldWidget.columnWidthMode != widget.columnWidthMode;
-    final isDataGridControllerChanged =
+    final bool isColumnSizerChanged =
+        oldWidget.columnSizer != widget.columnSizer ||
+            oldWidget.columnWidthMode != widget.columnWidthMode ||
+            oldWidget.columnWidthCalculationRange !=
+                widget.columnWidthCalculationRange;
+    final bool isDataGridControllerChanged =
         oldWidget.controller != widget.controller;
-    final isFrozenColumnPaneChanged = oldWidget.frozenColumnsCount !=
+    final bool isFrozenColumnPaneChanged = oldWidget.frozenColumnsCount !=
             widget.frozenColumnsCount ||
         oldWidget.footerFrozenColumnsCount != widget.footerFrozenColumnsCount;
-    final isFrozenRowPaneChanged =
+    final bool isFrozenRowPaneChanged =
         oldWidget.frozenRowsCount != widget.frozenRowsCount ||
             oldWidget.footerFrozenRowsCount != widget.footerFrozenRowsCount;
-    final isSortingChanged = oldWidget.allowSorting != widget.allowSorting;
-    final isMultiColumnSortingChanged =
+    final bool isSortingChanged = oldWidget.allowSorting != widget.allowSorting;
+    final bool isMultiColumnSortingChanged =
         oldWidget.allowMultiColumnSorting != widget.allowMultiColumnSorting;
-    final isShowSortNumbersChanged =
+    final bool isShowSortNumbersChanged =
         oldWidget.showSortNumbers != widget.showSortNumbers;
-    final isStackedHeaderRowsChanged = !listEquals<StackedHeaderRow>(
+    final bool isStackedHeaderRowsChanged = !listEquals<StackedHeaderRow>(
         oldWidget.stackedHeaderRows, widget.stackedHeaderRows);
-    final isPullToRefreshPropertiesChanged =
+    final bool isPullToRefreshPropertiesChanged =
         oldWidget.allowPullToRefresh != widget.allowPullToRefresh ||
             oldWidget.refreshIndicatorDisplacement !=
                 widget.refreshIndicatorDisplacement ||
             oldWidget.refreshIndicatorStrokeWidth !=
                 widget.refreshIndicatorStrokeWidth;
-    final isSwipingChanged = widget.allowSwiping != oldWidget.allowSwiping;
-    final isMaxSwipeOffsetChanged =
+    final bool isSwipingChanged = widget.allowSwiping != oldWidget.allowSwiping;
+    final bool isMaxSwipeOffsetChanged =
         widget.swipeMaxOffset != oldWidget.swipeMaxOffset;
+    final bool isFooterRowChanged = widget.footer != oldWidget.footer ||
+        widget.footerHeight != oldWidget.footerHeight;
+
+    if (oldWidget.verticalScrollController != widget.verticalScrollController) {
+      _dataGridSettings.verticalScrollController =
+          widget.verticalScrollController ?? ScrollController();
+    }
+
+    if (oldWidget.horizontalScrollController !=
+        widget.horizontalScrollController) {
+      _dataGridSettings.horizontalScrollController =
+          widget.horizontalScrollController ?? ScrollController();
+    }
+
+    final bool isEditingChanged =
+        oldWidget.allowEditing != widget.allowEditing ||
+            oldWidget.editingGestureType != widget.editingGestureType;
+
+    void refreshEditing() {
+      bool isEditingImpactAPIsChanged = isSourceChanged ||
+          isDataSourceChanged ||
+          oldWidget.stackedHeaderRows.length != widget.stackedHeaderRows.length;
+
+      /// Need to end-edit the editing when sorting re-order the row on
+      /// refreshing
+      isEditingImpactAPIsChanged =
+          (isSortingChanged || isMultiColumnSortingChanged) &&
+              (oldWidget.source.sortedColumns.isNotEmpty ||
+                  widget.source.sortedColumns.isNotEmpty ||
+                  oldWidget.source.sortedColumns.length !=
+                      widget.source.sortedColumns.length);
+
+      if (isEditingChanged ||
+          isEditingImpactAPIsChanged ||
+          isSelectionManagerChanged ||
+          oldWidget.navigationMode != widget.navigationMode) {
+        isEditingImpactAPIsChanged = isEditingImpactAPIsChanged ||
+            isColumnsChanged ||
+            isStackedHeaderRowsChanged;
+
+        if (_dataGridSettings.currentCell.isEditing) {
+          _dataGridSettings.currentCell._onCellSubmit(_dataGridSettings,
+              canRefresh: !isEditingImpactAPIsChanged);
+        }
+      }
+    }
+
+    void refreshFooterView() {
+      if (oldWidget.footer != null) {
+        final DataRowBase? footerRow = _rowGenerator.items.firstWhereOrNull(
+            (DataRowBase row) =>
+                row.rowType == RowType.footerRow && row.rowIndex >= 0);
+        if (footerRow != null) {
+          if (isFooterRowChanged) {
+            // Need to reset the old footer row height in rowHeights collection.
+            _container.rowHeights[footerRow.rowIndex] =
+                _dataGridSettings.rowHeight;
+            // We remove the old footer view widget and recreate it in
+            // `ScrollViewWidget` when the footer property is changed. Thus updates
+            // the runtime changes of the footer view widget.
+            _rowGenerator.items.remove(footerRow);
+          } else if (isSourceChanged ||
+              isDataSourceChanged ||
+              isStackedHeaderRowsChanged) {
+            _container.rowHeights[footerRow.rowIndex] =
+                _dataGridSettings.rowHeight;
+          }
+        }
+      }
+    }
+
     if (isSourceChanged ||
         isColumnsChanged ||
         isDataSourceChanged ||
@@ -1284,17 +1758,22 @@ class SfDataGridState extends State<SfDataGrid>
         isShowSortNumbersChanged ||
         isStackedHeaderRowsChanged ||
         isSwipingChanged ||
+        isFooterRowChanged ||
         oldWidget.rowHeight != widget.rowHeight ||
         oldWidget.headerRowHeight != widget.headerRowHeight ||
         oldWidget.defaultColumnWidth != widget.defaultColumnWidth ||
         oldWidget.navigationMode != widget.navigationMode) {
+      // Need to endEdit before refreshing
+      refreshEditing();
+
       if (isSourceChanged) {
         _initializeDataGridDataSource();
       }
       if (isSortingChanged || isMultiColumnSortingChanged) {
         if (!widget.allowSorting) {
-          _dataGridSettings.source.sortedColumns.clear();
-          _dataGridSettings.source._updateDataSource();
+          _dataGridSettings.source
+            ..sortedColumns.clear()
+            .._updateDataSource();
         } else if (widget.allowSorting && !widget.allowMultiColumnSorting) {
           while (_dataGridSettings.source.sortedColumns.length > 1) {
             _dataGridSettings.source.sortedColumns.removeAt(0);
@@ -1315,11 +1794,19 @@ class SfDataGridState extends State<SfDataGrid>
             _handleDataGridPropertyChangeListeners);
       }
 
+      if (oldWidget.columnSizer != widget.columnSizer) {
+        _columnSizer =
+            _dataGridSettings.columnSizer = widget.columnSizer ?? ColumnSizer()
+              .._dataGridStateDetails = _dataGridStateDetails;
+      }
+
       _initializeProperties();
 
       if (isStackedHeaderRowsChanged || isColumnsChanged) {
         _onStackedHeaderRowsPropertyChanged(oldWidget, widget);
       }
+
+      refreshFooterView();
 
       _container._refreshDefaultLineSize();
 
@@ -1341,7 +1828,7 @@ class SfDataGridState extends State<SfDataGrid>
           widget.allowSorting &&
               widget.allowMultiColumnSorting &&
               isShowSortNumbersChanged) {
-        _resetColumn();
+        _resetColumn(clearEditing: false);
         if (isColumnSizerChanged) {
           _dataGridSettings.columnSizer._resetAutoCalculation();
         }
@@ -1350,8 +1837,10 @@ class SfDataGridState extends State<SfDataGrid>
       if (isSourceChanged ||
           isDataSourceChanged ||
           isFrozenRowPaneChanged ||
-          isStackedHeaderRowsChanged) {
-        _container._refreshView();
+          isStackedHeaderRowsChanged ||
+          isSortingChanged ||
+          widget.allowSorting && isMultiColumnSortingChanged) {
+        _container._refreshView(clearEditing: false);
       }
 
       if (widget.allowSwiping ||
@@ -1370,7 +1859,15 @@ class SfDataGridState extends State<SfDataGrid>
     } else {
       if (oldWidget.gridLinesVisibility != widget.gridLinesVisibility ||
           oldWidget.allowTriStateSorting != widget.allowTriStateSorting ||
-          oldWidget.sortingGestureType != widget.sortingGestureType) {
+          oldWidget.headerGridLinesVisibility !=
+              widget.headerGridLinesVisibility ||
+          oldWidget.sortingGestureType != widget.sortingGestureType ||
+          isEditingChanged) {
+        // Need to endEdit before refreshing
+        if (isEditingChanged && _dataGridSettings.currentCell.isEditing) {
+          _dataGridSettings.currentCell
+              ._onCellSubmit(_dataGridSettings, canRefresh: false);
+        }
         _initializeProperties();
         _container._isDirty = true;
       } else if (isPullToRefreshPropertiesChanged || isMaxSwipeOffsetChanged) {
@@ -1416,8 +1913,8 @@ class SfDataGridState extends State<SfDataGrid>
       SfDataGrid oldWidget, SfDataGrid widget) {
     _container._refreshHeaderLineCount();
     if (oldWidget.stackedHeaderRows.isNotEmpty) {
-      _rowGenerator.items
-          .removeWhere((row) => row.rowType == RowType.stackedHeaderRow);
+      _rowGenerator.items.removeWhere(
+          (DataRowBase row) => row.rowType == RowType.stackedHeaderRow);
     }
     if (widget.onQueryRowHeight != null) {
       _container.rowHeightManager.reset();
@@ -1429,12 +1926,12 @@ class SfDataGridState extends State<SfDataGrid>
             widget.stackedHeaderRows.isEmpty) ||
         (oldWidget.stackedHeaderRows.isEmpty &&
             widget.stackedHeaderRows.isNotEmpty)) {
-      if (_dataGridSettings.verticalController!.hasClients &&
+      if (_dataGridSettings.verticalScrollController!.hasClients &&
           _dataGridSettings.container.verticalOffset > 0) {
         _dataGridSettings.container.verticalOffset = 0;
         _dataGridSettings.container.verticalScrollBar._value = 0;
       }
-      if (_dataGridSettings.horizontalController!.hasClients &&
+      if (_dataGridSettings.horizontalScrollController!.hasClients &&
           _dataGridSettings.container.horizontalOffset > 0) {
         _dataGridSettings.container.horizontalOffset = 0;
         _dataGridSettings.container.horizontalScrollBar._value = 0;
@@ -1468,9 +1965,9 @@ class SfDataGridState extends State<SfDataGrid>
   }
 
   void _updateDecoration() {
-    final borderSide =
+    final BorderSide borderSide =
         BorderSide(color: _dataGridThemeData!.currentCellStyle.borderColor);
-    final decoration = BoxDecoration(
+    final BoxDecoration decoration = BoxDecoration(
         border: Border(
             bottom: borderSide,
             top: borderSide,
@@ -1527,24 +2024,13 @@ class SfDataGridState extends State<SfDataGrid>
         themeData.platform == TargetPlatform.linux;
     _onDataGridTextDirectionChanged(Directionality.of(context));
     _onDataGridThemeDataChanged(SfDataGridTheme.of(context));
-    _dataGridSettings.textScaleFactor = MediaQuery.textScaleFactorOf(context);
-    _dataGridSettings.visualDensity = themeData.visualDensity;
-    _dataGridSettings.headerRowHeight = widget.headerRowHeight.isNaN
-        ? (_dataGridSettings.textScaleFactor > 1.0)
-            ? _headerRowHeight * _dataGridSettings.textScaleFactor
-            : _headerRowHeight
-        : widget.headerRowHeight;
-    _dataGridSettings.rowHeight = widget.rowHeight.isNaN
-        ? (_dataGridSettings.textScaleFactor > 1.0)
-            ? _rowHeight * _dataGridSettings.textScaleFactor
-            : _rowHeight
-        : widget.rowHeight;
+    _onDataGridTextScaleFactorChanged(MediaQuery.textScaleFactorOf(context));
+    _updateVisualDensity(themeData.visualDensity);
     _dataGridSettings.defaultColumnWidth = widget.defaultColumnWidth.isNaN
         ? _dataGridSettings._isDesktop
             ? 100
             : 90
         : widget.defaultColumnWidth;
-    _updateVisualDensity();
     super.didChangeDependencies();
   }
 
@@ -1560,7 +2046,8 @@ class SfDataGridState extends State<SfDataGrid>
       _updateBoxPainter();
     }
 
-    return LayoutBuilder(builder: (_context, _constraints) {
+    return LayoutBuilder(
+        builder: (BuildContext _context, BoxConstraints _constraints) {
       final double _measuredHeight = _dataGridSettings.viewHeight =
           _constraints.maxHeight.isInfinite
               ? _minHeight
@@ -1607,11 +2094,11 @@ class _DataGridSettings {
   late Map<String, GridCellRendererBase> cellRenderers;
   late DataGridSource source;
   late List<GridColumn> columns;
-  late double textScaleFactor;
   late _VisualContainerHelper container;
   late _RowGenerator rowGenerator;
   late ColumnWidthMode columnWidthMode;
-  late _ColumnSizer columnSizer;
+  late ColumnWidthCalculationRange columnWidthCalculationRange;
+  late ColumnSizer columnSizer;
   late SelectionManagerBase rowSelectionManager;
   late DataGridController controller;
   late _CurrentCellManager currentCell;
@@ -1632,6 +2119,8 @@ class _DataGridSettings {
   double refreshIndicatorDisplacement = 40.0;
   double refreshIndicatorStrokeWidth = 2.0;
   double swipeMaxOffset = 200.0;
+  double textScaleFactor = 1.0;
+  double footerHeight = 49.0;
 
   bool allowSorting = false;
   bool allowMultiColumnSorting = false;
@@ -1645,6 +2134,8 @@ class _DataGridSettings {
   // This flag is used to restrict the scrolling while updating the swipe offset
   // of a row that already swiped in view.
   bool isSwipingApplied = false;
+  bool highlightRowOnHover = true;
+  bool allowEditing = false;
 
   SortingGestureType sortingGestureType = SortingGestureType.tap;
   GridNavigationMode navigationMode = GridNavigationMode.row;
@@ -1653,20 +2144,22 @@ class _DataGridSettings {
   GridLinesVisibility headerGridLinesVisibility =
       GridLinesVisibility.horizontal;
   SelectionMode selectionMode = SelectionMode.none;
+  ColumnResizeMode columnResizeMode = ColumnResizeMode.onResize;
+  ScrollDirection scrollingState = ScrollDirection.idle;
+  EditingGestureType editingGestureType = EditingGestureType.doubleTap;
 
   Paint? gridPaint;
   BoxPainter? boxPainter;
-  ScrollController? verticalController;
-  ScrollController? horizontalController;
   FocusNode? dataGridFocusNode;
   ImageConfiguration? configuration;
   GlobalKey<RefreshIndicatorState>? refreshIndicatorKey;
   Animation<double>? swipingAnimation;
   AnimationController? swipingAnimationController;
-  List<StackedHeaderRow> stackedHeaderRows = [];
-  VisualDensity? visualDensity;
+  List<StackedHeaderRow> stackedHeaderRows = <StackedHeaderRow>[];
+  VisualDensity visualDensity = VisualDensity.adaptivePlatformDensity;
   SfDataGridThemeData? dataGridThemeData;
-
+  ScrollController? verticalScrollController;
+  ScrollController? horizontalScrollController;
   DataGridSwipeStartCallback? onSwipeStart;
   DataGridSwipeUpdateCallback? onSwipeUpdate;
   DataGridSwipeEndCallback? onSwipeEnd;
@@ -1682,4 +2175,5 @@ class _DataGridSettings {
   DataGridCellTapCallback? onCellSecondaryTap;
   DataGridCellLongPressCallback? onCellLongPress;
   LoadMoreViewBuilder? loadMoreViewBuilder;
+  Widget? footer;
 }

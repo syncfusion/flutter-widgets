@@ -13,7 +13,7 @@ class DataMatrixRenderer extends SymbologyRenderer {
   /// Creates the data matrix renderer
   DataMatrixRenderer({Symbology? symbology}) : super(symbology: symbology) {
     // ignore: avoid_as
-    _dataMatrixSymbology = symbology as DataMatrix;
+    _dataMatrixSymbology = symbology! as DataMatrix;
     _initialize();
   }
 

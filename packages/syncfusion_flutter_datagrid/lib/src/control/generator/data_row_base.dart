@@ -2,20 +2,35 @@ part of datagrid;
 
 /// A base class which provides functionalities for [DataRow].
 abstract class DataRowBase {
+  /// Creates [DataRow] for the [SfDataGrid].
+  DataRowBase() {
+    _isDirty = false;
+    _isEnsured = false;
+    _isVisible = true;
+    _visibleColumns = <DataCellBase>[];
+    _isSwipingRow = false;
+    _isEditing = false;
+    _isHoveredRow = false;
+  }
+
   _DataGridStateDetails? _dataGridStateDetails;
 
   Key? _key;
 
-  bool _isDirty = false;
+  Widget? _footerView;
 
-  bool _isEnsured = false;
+  late bool _isDirty;
 
-  bool _isVisible = true;
+  late bool _isEnsured;
 
-  List<DataCellBase> _visibleColumns = [];
+  late bool _isVisible;
+
+  late List<DataCellBase> _visibleColumns;
 
   // This flag is used to indicating whether the row is swiped or not.
-  bool _isSwipingRow = false;
+  late bool _isSwipingRow;
+
+  late bool _isEditing;
 
   /// The row index of the [DataRow].
   int rowIndex = -1;
@@ -32,6 +47,9 @@ abstract class DataRowBase {
   /// Decides whether the [DataRow] is currently active
   bool isCurrentRow = false;
 
+  /// Decides whether the [DataRow] is hovered.
+  late bool _isHoveredRow;
+
   DataGridRow? _dataGridRow;
 
   DataGridRowAdapter? _dataGridRowAdapter;
@@ -41,7 +59,7 @@ abstract class DataRowBase {
       return;
     }
 
-    for (final col in _visibleColumns) {
+    for (final DataCellBase col in _visibleColumns) {
       col
         ..rowIndex = rowIndex
         .._dataRow = this
@@ -71,14 +89,14 @@ abstract class DataRowBase {
 
   double _getColumnWidth(int startIndex, int endIndex) {
     if (startIndex != endIndex) {
-      final currentPos = _dataGridStateDetails!()
+      final List<_DoubleSpan> currentPos = _dataGridStateDetails!()
           .container
           .scrollColumns
           .rangeToRegionPoints(startIndex, endIndex, true);
       return currentPos[1].length;
     }
 
-    final line = _getColumnVisibleLineInfo(startIndex);
+    final _VisibleLineInfo? line = _getColumnVisibleLineInfo(startIndex);
     if (line == null) {
       return 0;
     }
@@ -88,14 +106,14 @@ abstract class DataRowBase {
 
   double _getRowHeight(int startIndex, int endIndex) {
     if (startIndex != endIndex) {
-      final currentPos = _dataGridStateDetails!()
+      final List<_DoubleSpan> currentPos = _dataGridStateDetails!()
           .container
           .scrollRows
           .rangeToRegionPoints(startIndex, endIndex, true);
       return currentPos[1].length;
     }
 
-    final line = _getRowVisibleLineInfo(startIndex);
+    final _VisibleLineInfo? line = _getRowVisibleLineInfo(startIndex);
     if (line == null) {
       return 0;
     }
@@ -111,7 +129,7 @@ abstract class DataRowBase {
   set isSelectedRow(bool newValue) {
     if (_isSelectedRow != newValue) {
       _isSelectedRow = newValue;
-      for (final dataCell in _visibleColumns) {
+      for (final DataCellBase dataCell in _visibleColumns) {
         dataCell
           .._isDirty = true
           .._updateColumn();

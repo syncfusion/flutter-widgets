@@ -194,7 +194,7 @@ class _CartesianAxisRendererState extends State<_CartesianAxisRenderer>
         oldAxisRenderer = _getOldAxisRenderer(
             axisRenderer, widget.chartState._oldAxisRenderers);
         if (oldAxisRenderer != null &&
-            (oldAxisRenderer._axis.visibleMinimum != null ||
+            (oldAxisRenderer._axis.visibleMinimum != null &&
                 oldAxisRenderer._axis.visibleMaximum != null)) {
           needAnimate =
               axisRenderer.runtimeType == oldAxisRenderer.runtimeType &&
@@ -238,6 +238,7 @@ class _CartesianAxisRendererState extends State<_CartesianAxisRenderer>
             }
             if (axisRenderer is DateTimeCategoryAxisRenderer) {
               axisRenderer._labels.clear();
+              //ignore: prefer_foreach
               for (final CartesianSeriesRenderer seriesRenderer
                   in axisRenderer._seriesRenderers) {
                 widget.chartState._chartSeries
@@ -321,9 +322,10 @@ class _CartesianAxesPainter extends CustomPainter {
   /// To draw a plot area border of a container
   void _drawPlotAreaBorder(Canvas canvas) {
     final Rect axisClipRect = chartState._chartAxis._axisClipRect;
+    final _RenderingDetails renderingDetails = chartState._renderingDetails;
     final Paint paint = Paint();
-    paint.color =
-        chart.plotAreaBorderColor ?? chartState._chartTheme.plotAreaBorderColor;
+    paint.color = chart.plotAreaBorderColor ??
+        renderingDetails.chartTheme.plotAreaBorderColor;
     paint.style = PaintingStyle.stroke;
     paint.strokeWidth = chart.plotAreaBorderWidth;
     chart.plotAreaBorderWidth == 0
@@ -335,7 +337,7 @@ class _CartesianAxesPainter extends CustomPainter {
         axisClipRect,
         Paint()
           ..color = chart.plotAreaBackgroundColor ??
-              chartState._chartTheme.plotAreaBackgroundColor
+              renderingDetails.chartTheme.plotAreaBackgroundColor
           ..style = PaintingStyle.fill);
   }
 
@@ -400,7 +402,7 @@ class _CartesianAxesPainter extends CustomPainter {
           chartState._chartAxis._axisRenderersCollection[axisIndex];
       final ChartAxis axis = axisRenderer._axis;
       axisRenderer._isInsideTickPosition =
-          (axis.tickPosition == TickPosition.inside) ? true : false;
+          axis.tickPosition == TickPosition.inside;
       ChartAxisRenderer? oldAxisRenderer;
       bool needAnimate = false;
       // ignore: unnecessary_null_comparison

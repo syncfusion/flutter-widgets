@@ -6,17 +6,17 @@ class PdfEllipseAnnotation extends PdfAnnotation {
   /// Initializes new instance of the [PdfEllipseAnnotation] class.
   /// ``` dart
   /// //Create a  PDF document.
-  /// final PdfDocument document = PdfDocument();
+  /// PdfDocument document = PdfDocument();
   /// //Create a  page.
-  /// final PdfPage page = document.pages.add();
+  /// PdfPage page = document.pages.add();
   /// //Create a PDF Ellipse annotation.
-  /// final PdfEllipseAnnotation ellipseAnnotation = PdfEllipseAnnotation(
+  /// PdfEllipseAnnotation ellipseAnnotation = PdfEllipseAnnotation(
   ///     const Rect.fromLTWH(0, 30, 100, 50), 'EllipseAnnotation',
   ///     innerColor: PdfColor(255, 0, 0), color: PdfColor(255, 255, 0));
   /// //Add annotation to the page.
   /// page.annotations.add(ellipseAnnotation);
   /// //Saves the document.
-  /// final List<int> bytes = document.save();
+  /// List<int> bytes = document.save();
   /// document.dispose();
   /// ```
   PdfEllipseAnnotation(Rect bounds, String text,
@@ -213,7 +213,7 @@ class PdfEllipseAnnotation extends PdfAnnotation {
       if (bSDictionary != null &&
           bSDictionary.containsKey(_DictionaryProperties.d)) {
         final _PdfArray dashPatternArray =
-            _PdfCrossTable._dereference(bSDictionary[_DictionaryProperties.d])
+            _PdfCrossTable._dereference(bSDictionary[_DictionaryProperties.d])!
                 as _PdfArray;
         final List<double> dashPattern = <double>[];
         for (int i = 0; i < dashPatternArray.count; i++) {

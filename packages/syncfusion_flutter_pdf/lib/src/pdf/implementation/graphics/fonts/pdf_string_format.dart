@@ -113,7 +113,7 @@ class PdfStringFormat {
   /// PdfDocument document = PdfDocument()
   ///   ..pages.add().graphics.drawString(
   ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
-  ///       format: PdfStringFormat(textDirection: PdfTextAlignment.rightToLeft));
+  ///       format: PdfStringFormat(textDirection: PdfTextDirection.rightToLeft));
   /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Close the document.
@@ -307,6 +307,7 @@ class PdfStringFormat {
   late PdfWordWrapType wordWrap;
 
   //The scaling factor of the text being drawn.
+  // ignore: prefer_final_fields
   double _scalingFactor = 100;
 
   //Indent of the first line in the paragraph.

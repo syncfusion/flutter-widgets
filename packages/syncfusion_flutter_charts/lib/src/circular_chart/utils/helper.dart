@@ -2,13 +2,12 @@ part of charts;
 
 /// To get equivalent value for the percentage
 num? _percentToValue(String? value, num size) {
-  if (value != null) {
-    return value.contains('%')
-        ? (size / 100) *
-            (num.tryParse(value.replaceAll(RegExp('%'), '')))!.abs()
-        : (num.tryParse(value))?.abs();
-  }
-  return null;
+  return value != null
+      ? value.contains('%')
+          ? (size / 100) *
+              (num.tryParse(value.replaceAll(RegExp('%'), '')))!.abs()
+          : (num.tryParse(value))?.abs()
+      : null;
 }
 
 /// Convert degree to radian
@@ -197,13 +196,18 @@ _Region? _getCircularPointRegion(SfCircularChart chart, Offset? position,
     CircularSeriesRenderer seriesRenderer) {
   _Region? pointRegion;
   const num chartStartAngle = -.5 * pi;
+  num fromCenterX,
+      fromCenterY,
+      tapAngle,
+      pointStartAngle,
+      pointEndAngle,
+      distanceFromCenter;
   for (final _Region region in seriesRenderer._pointRegions) {
-    final num fromCenterX = position!.dx - region.center!.dx;
-    final num fromCenterY = position.dy - region.center!.dy;
-    num tapAngle =
-        (atan2(fromCenterY, fromCenterX) - chartStartAngle) % (2 * pi);
-    num pointStartAngle = region.start - _degreesToRadians(-90);
-    num pointEndAngle = region.end - _degreesToRadians(-90);
+    fromCenterX = position!.dx - region.center!.dx;
+    fromCenterY = position.dy - region.center!.dy;
+    tapAngle = (atan2(fromCenterY, fromCenterX) - chartStartAngle) % (2 * pi);
+    pointStartAngle = region.start - _degreesToRadians(-90);
+    pointEndAngle = region.end - _degreesToRadians(-90);
     if (chart.onDataLabelRender != null) {
       seriesRenderer._dataPoints[region.pointIndex].labelRenderEvent = false;
     }
@@ -214,7 +218,7 @@ _Region? _getCircularPointRegion(SfCircularChart chart, Offset? position,
       tapAngle = tapAngle > pointStartAngle ? tapAngle : 2 * pi + tapAngle;
     }
     if (tapAngle >= pointStartAngle && tapAngle <= pointEndAngle) {
-      final num distanceFromCenter =
+      distanceFromCenter =
           sqrt(pow(fromCenterX.abs(), 2) + pow(fromCenterY.abs(), 2));
       if (distanceFromCenter <= region.outerRadius &&
           distanceFromCenter >= region.innerRadius!) {
@@ -222,7 +226,7 @@ _Region? _getCircularPointRegion(SfCircularChart chart, Offset? position,
       }
     }
   }
-  // }
+
   return pointRegion;
 }
 
@@ -231,7 +235,7 @@ void _drawPath(Canvas canvas, _StyleOptions style, Path path,
     [Rect? rect, Shader? shader]) {
   final Paint paint = Paint();
   if (shader != null) {
-    paint..shader = shader;
+    paint.shader = shader;
   }
   if (style.fill != null) {
     paint.color = style.fill == Colors.transparent
@@ -290,11 +294,15 @@ void _canRepaintSeries(List<CircularSeriesRenderer> currentSeriesRenderers,
       series.borderWidth != oldWidgetSeries.borderWidth ||
       series.name != oldWidgetSeries.name ||
       series.borderColor.value != oldWidgetSeries.borderColor.value ||
-      seriesRenderer._currentInnerRadius !=
-          oldWidgetSeriesRenderer._currentInnerRadius ||
-      seriesRenderer._currentRadius != oldWidgetSeriesRenderer._currentRadius ||
-      seriesRenderer._start != oldWidgetSeriesRenderer._start ||
-      seriesRenderer._totalAngle != oldWidgetSeriesRenderer._totalAngle ||
+      seriesRenderer._segmentRenderingValues['currentInnerRadius'] !=
+          oldWidgetSeriesRenderer
+              ._segmentRenderingValues['currentInnerRadius'] ||
+      seriesRenderer._segmentRenderingValues['currentRadius'] !=
+          oldWidgetSeriesRenderer._segmentRenderingValues['currentRadius'] ||
+      seriesRenderer._segmentRenderingValues['start'] !=
+          oldWidgetSeriesRenderer._segmentRenderingValues['start'] ||
+      seriesRenderer._segmentRenderingValues['totalAngle'] !=
+          oldWidgetSeriesRenderer._segmentRenderingValues['totalAngle'] ||
       seriesRenderer._dataPoints.length !=
           oldWidgetSeriesRenderer._dataPoints.length ||
       series.emptyPointSettings.borderWidth !=
@@ -362,10 +370,10 @@ num _findAngleDeviation(num innerRadius, num outerRadius, num totalAngle) {
 }
 
 /// It returns the actual label value for tooltip and data label etc
-dynamic _getDecimalLabelValue(dynamic value, [int? showDigits]) {
-  if (value.toString().split('.').length > 1) {
+String _getDecimalLabelValue(num? value, [int? showDigits]) {
+  if (value != null && value.toString().split('.').length > 1) {
     final String str = value.toString();
-    final List<dynamic> list = str.split('.');
+    final List<String> list = str.split('.');
     value = double.parse(value.toStringAsFixed(showDigits ?? 3));
     value = (list[1] == '0' ||
             list[1] == '00' ||
@@ -377,8 +385,8 @@ dynamic _getDecimalLabelValue(dynamic value, [int? showDigits]) {
         ? value.round()
         : value;
   }
-  final dynamic text = value;
-  return text.toString();
+
+  return value.toString();
 }
 
 /// Method to rotate Sweep gradient

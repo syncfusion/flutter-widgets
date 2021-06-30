@@ -10,10 +10,10 @@ import 'renderer_base.dart';
 /// Represents the render object for spark chart
 class SfSparkBarChartRenderObjectWidget extends SfSparkChartRenderObjectWidget {
   /// Creates the render object for spark chart
-  SfSparkBarChartRenderObjectWidget(
+  const SfSparkBarChartRenderObjectWidget(
       {Key? key,
-      double? borderWidth,
-      Color? borderColor,
+      this.borderWidth,
+      this.borderColor,
       List<dynamic>? data,
       int? dataCount,
       SparkChartIndexedValueMapper<dynamic>? xValueMapper,
@@ -30,17 +30,13 @@ class SfSparkBarChartRenderObjectWidget extends SfSparkChartRenderObjectWidget {
       Color? negativePointColor,
       Color? color,
       SparkChartPlotBand? plotBand,
-      SparkChartLabelDisplayMode? labelDisplayMode,
-      TextStyle? labelStyle,
+      this.labelDisplayMode,
+      this.labelStyle,
       ThemeData? themeData,
       SparkChartDataDetails? sparkChartDataDetails,
       List<Offset>? coordinatePoints,
       List<SparkChartPoint>? dataPoints})
-      : borderWidth = borderWidth,
-        borderColor = borderColor,
-        labelDisplayMode = labelDisplayMode,
-        labelStyle = labelStyle,
-        super(
+      : super(
             key: key,
             data: data,
             dataCount: dataCount,
@@ -282,15 +278,12 @@ class _RenderSparkBarChart extends RenderSparkChart {
     final double xInterval = dataPoints!.length > 1
         ? dataPoints![1].x.toDouble() - dataPoints![0].x.toDouble()
         : dataPoints!.length.toDouble();
-    final double columnSpace = 0.5; // Default space for column and winloss
-    final double space = columnSpace * 2;
-    final axisBaseValue = minY! < 0 ? minY : 0;
+    const double columnSpace = 0.5; // Default space for column and winloss
+    const double space = columnSpace * 2;
+    final double? axisBaseValue = minY! < 0 ? minY : 0;
     double visibleXPoint;
     Rect rect;
-    double top;
-    double x, y, y2;
-    double columnHeight;
-    double currentColumnHeight;
+    double top, x, y, y2, columnHeight, currentColumnHeight, yPoint;
     double columnWidth = areaSize!.width / (((maxX! - minX!) / xInterval) + 1);
     columnWidth -= space;
     diffY = maxY! - axisBaseValue!;
@@ -321,7 +314,7 @@ class _RenderSparkBarChart extends RenderSparkChart {
       rect = Rect.fromLTRB(visibleXPoint, top, visibleXPoint + columnWidth,
           top + (y2 - axisHeight!).abs());
       _segments!.add(rect);
-      final double yPoint = y >= axisCrossesAt ? rect.top : rect.bottom;
+      yPoint = y >= axisCrossesAt ? rect.top : rect.bottom;
       coordinatePoints!.add(Offset(visibleXPoint + columnWidth / 2, yPoint));
     }
   }
@@ -355,8 +348,8 @@ class _RenderSparkBarChart extends RenderSparkChart {
     final double end =
         (plotBand!.end ?? maxY!) > maxY! ? maxY! : (plotBand!.end ?? maxY!);
     final double baseValue = minY! < 0 ? minY! : 0;
-    plotBandStartHeight = (height - ((height / diffY!) * (start - baseValue)));
-    plotBandEndHeight = (height - ((height / diffY!) * (end - baseValue)));
+    plotBandStartHeight = height - ((height / diffY!) * (start - baseValue));
+    plotBandEndHeight = height - ((height / diffY!) * (end - baseValue));
   }
 
   /// Method to render bar series
@@ -414,16 +407,16 @@ class _RenderSparkBarChart extends RenderSparkChart {
       if (labelDisplayMode != SparkChartLabelDisplayMode.none &&
           labelStyle != null) {
         size = getTextSize(dataLabels![i], labelStyle!);
-        yPosition = (dataPoints![i].y > 0
+        yPosition = dataPoints![i].y > 0
             ? ((_segments![i].topCenter.dy + offset.dy) - size.height)
-            : ((_segments![i].bottomCenter.dy + offset.dy)));
+            : (_segments![i].bottomCenter.dy + offset.dy);
         dataPoints![i].dataLabelOffset = Offset(
             (offset.dx + _segments![i].topCenter.dx) - size.width / 2,
             yPosition);
 
         if (dataPoints![i].dataLabelOffset!.dy <= offset.dy) {
           dataPoints![i].dataLabelOffset = Offset(
-              dataPoints![i].dataLabelOffset!.dx, (offset.dy + size.height));
+              dataPoints![i].dataLabelOffset!.dx, offset.dy + size.height);
         }
         if (dataPoints![i].dataLabelOffset!.dy >=
             offset.dy + areaSize!.height) {

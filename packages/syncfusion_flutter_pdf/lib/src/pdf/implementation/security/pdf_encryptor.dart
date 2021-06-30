@@ -66,8 +66,8 @@ class _PdfEncryptor {
   List<int>? get randomBytes {
     if (_randomBytes == null) {
       final Random random = Random.secure();
-      _randomBytes =
-          List<int>.generate(_randomBytesAmount!, (i) => random.nextInt(256));
+      _randomBytes = List<int>.generate(
+          _randomBytesAmount!, (int i) => random.nextInt(256));
     }
     return _randomBytes;
   }
@@ -90,10 +90,10 @@ class _PdfEncryptor {
   bool get encrypt {
     final List<PdfPermissionsFlags> perm = permissions;
     final bool bEncrypt =
-        (perm.length == 1 && !perm.contains(PdfPermissionsFlags.none)) ||
+        (!(perm.length == 1 && perm.contains(PdfPermissionsFlags.none))) ||
             _userPassword!.isNotEmpty ||
             _ownerPassword!.isNotEmpty;
-    return !_encrypt! ? false : bEncrypt;
+    return _encrypt! && bEncrypt;
   }
 
   set encrypt(bool value) {
@@ -284,7 +284,7 @@ class _PdfEncryptor {
     data.addAll(randomBytes!);
     final List<int> resultBytes = md5.convert(data).bytes;
     final List<int> dataForCustom =
-        List<int>.generate(_randomBytesAmount!, (i) => resultBytes[i]);
+        List<int>.generate(_randomBytesAmount!, (int i) => resultBytes[i]);
     List<int> dataFromCustom = _encryptDataByCustom(
         dataForCustom, _encryptionKey, _encryptionKey!.length);
     for (int i = 1; i < _ownerLoopNum2!; i++) {
@@ -298,11 +298,11 @@ class _PdfEncryptor {
   List<int> _create256BitUserPassword() {
     final Random random = Random.secure();
     _userRandomBytes =
-        List<int>.generate(_randomBytesAmount!, (i) => random.nextInt(256));
+        List<int>.generate(_randomBytesAmount!, (int i) => random.nextInt(256));
     final List<int> userPasswordBytes = utf8.encode(_userPassword!);
     final List<int> hash = <int>[];
     hash.addAll(userPasswordBytes);
-    hash.addAll(List<int>.generate(8, (i) => _userRandomBytes![i]));
+    hash.addAll(List<int>.generate(8, (int i) => _userRandomBytes![i]));
     final List<int> userPasswordOut = <int>[];
     userPasswordOut.addAll(sha256.convert(hash).bytes);
     userPasswordOut.addAll(_userRandomBytes!);
@@ -330,13 +330,13 @@ class _PdfEncryptor {
   List<int> _create256BitOwnerPassword() {
     final Random random = Random.secure();
     _ownerRandomBytes =
-        List<int>.generate(_randomBytesAmount!, (i) => random.nextInt(256));
+        List<int>.generate(_randomBytesAmount!, (int i) => random.nextInt(256));
     final String password =
         ownerPassword.isEmpty ? userPassword : ownerPassword;
     final List<int> ownerPasswordBytes = utf8.encode(password);
     final List<int> hash = <int>[];
     hash.addAll(ownerPasswordBytes);
-    hash.addAll(List<int>.generate(8, (i) => _ownerRandomBytes![i]));
+    hash.addAll(List<int>.generate(8, (int i) => _ownerRandomBytes![i]));
     hash.addAll(_userPasswordOut!);
     final List<int> ownerPasswordOut = <int>[];
     ownerPasswordOut.addAll(sha256.convert(hash).bytes);
@@ -347,7 +347,7 @@ class _PdfEncryptor {
   List<int>? _createUserEncryptionKey() {
     final List<int> hash = <int>[];
     hash.addAll(utf8.encode(userPassword));
-    hash.addAll(List<int>.generate(8, (i) => _userRandomBytes![i + 8]));
+    hash.addAll(List<int>.generate(8, (int i) => _userRandomBytes![i + 8]));
     final List<int> hashBytes = sha256.convert(hash).bytes;
     return _AesCipherNoPadding(true, hashBytes)
         .processBlock(_fileEncryptionKey, 0, _fileEncryptionKey!.length);
@@ -358,7 +358,7 @@ class _PdfEncryptor {
         ownerPassword.isEmpty ? userPassword : ownerPassword;
     final List<int> hash = <int>[];
     hash.addAll(utf8.encode(password));
-    hash.addAll(List<int>.generate(8, (i) => _ownerRandomBytes![i + 8]));
+    hash.addAll(List<int>.generate(8, (int i) => _ownerRandomBytes![i + 8]));
     hash.addAll(_userPasswordOut!);
     final List<int> hashBytes = sha256.convert(hash).bytes;
     return _AesCipherNoPadding(true, hashBytes)
@@ -375,6 +375,7 @@ class _PdfEncryptor {
       255,
       255,
       255,
+      // ignore: prefer_if_elements_to_conditional_expressions
       encryptMetadata ? 84 : 70,
       97,
       100,
@@ -392,9 +393,9 @@ class _PdfEncryptor {
     final List<int> userPasswordBytes = utf8.encode(_userPassword!);
     final Random random = Random.secure();
     final List<int> userValidationSalt =
-        List<int>.generate(8, (i) => random.nextInt(256));
+        List<int>.generate(8, (int i) => random.nextInt(256));
     final List<int> userKeySalt =
-        List<int>.generate(8, (i) => random.nextInt(256));
+        List<int>.generate(8, (int i) => random.nextInt(256));
     List<int> hash = <int>[];
     hash.addAll(userPasswordBytes);
     hash.addAll(userValidationSalt);
@@ -417,9 +418,9 @@ class _PdfEncryptor {
     final List<int> ownerPasswordBytes = utf8.encode(password);
     final Random random = Random.secure();
     final List<int> ownerValidationSalt =
-        List<int>.generate(8, (i) => random.nextInt(256));
+        List<int>.generate(8, (int i) => random.nextInt(256));
     final List<int> ownerKeySalt =
-        List<int>.generate(8, (i) => random.nextInt(256));
+        List<int>.generate(8, (int i) => random.nextInt(256));
     final List<int> owenrPasswordOut = <int>[];
     owenrPasswordOut.addAll(ownerPasswordBytes);
     owenrPasswordOut.addAll(ownerValidationSalt);
@@ -440,7 +441,7 @@ class _PdfEncryptor {
 
   void _createFileEncryptionKey() {
     final Random random = Random.secure();
-    _fileEncryptionKey = List<int>.generate(32, (i) => random.nextInt(256));
+    _fileEncryptionKey = List<int>.generate(32, (int i) => random.nextInt(256));
   }
 
   List<int> _encryptDataByCustom(
@@ -488,13 +489,13 @@ class _PdfEncryptor {
         currentHash = md5
             .convert(currentHash.length == length
                 ? currentHash
-                : List<int>.generate(length!, (i) => currentHash[i]))
+                : List<int>.generate(length!, (int i) => currentHash[i]))
             .bytes;
       }
     }
     return currentHash.length == length
         ? currentHash
-        : List<int>.generate(length!, (i) => currentHash[i]);
+        : List<int>.generate(length!, (int i) => currentHash[i]);
   }
 
   int? _getKeyLength() {
@@ -517,7 +518,7 @@ class _PdfEncryptor {
       passwordBytes.addAll(paddingBytes!
           .getRange(0, paddingBytes!.length - passwordBytes.length));
     }
-    return List<int>.generate(_stringLength!, (i) => passwordBytes[i]);
+    return List<int>.generate(_stringLength!, (int i) => passwordBytes[i]);
   }
 
   List<int> _getKeyWithOwnerPassword(List<int> originalKey, int index) {
@@ -562,13 +563,13 @@ class _PdfEncryptor {
         currentHash = md5
             .convert(currentHash.length == length
                 ? currentHash
-                : List<int>.generate(length!, (i) => currentHash[i]))
+                : List<int>.generate(length!, (int i) => currentHash[i]))
             .bytes;
       }
     }
     return currentHash.length == length
         ? currentHash
-        : List<int>.generate(length!, (i) => currentHash[i]);
+        : List<int>.generate(length!, (int i) => currentHash[i]);
   }
 
   List<int> _acrobatXComputeHash(
@@ -595,12 +596,13 @@ class _PdfEncryptor {
           position += 48;
         }
       }
-      final List<int> hashFirst = List<int>.generate(16, (i) => hash[i]);
-      final List<int> hashSecond = List<int>.generate(16, (i) => hash[i + 16]);
+      final List<int> hashFirst = List<int>.generate(16, (int i) => hash[i]);
+      final List<int> hashSecond =
+          List<int>.generate(16, (int i) => hash[i + 16]);
       final _AesCipher encrypt = _AesCipher(true, hashFirst, hashSecond);
       finalHashKey = encrypt._update(roundHash, 0, roundHash.length);
       final List<int> finalHashKeyFirst =
-          List<int>.generate(16, (i) => finalHashKey![i]);
+          List<int>.generate(16, (int i) => finalHashKey![i]);
       final BigInt finalKeyBigInteger =
           _readBigIntFromBytes(finalHashKeyFirst, 0, finalHashKeyFirst.length);
       final BigInt divisior = BigInt.parse('3');
@@ -614,7 +616,9 @@ class _PdfEncryptor {
         hash = sha512.convert(finalHashKey!).bytes;
       }
     }
-    return (hash.length > 32) ? List<int>.generate(32, (i) => hash[i]) : hash;
+    return (hash.length > 32)
+        ? List<int>.generate(32, (int i) => hash[i])
+        : hash;
   }
 
   BigInt _readBigIntFromBytes(List<int> bytes, int start, int end) {
@@ -626,9 +630,9 @@ class _PdfEncryptor {
       return BigInt.from(result);
     }
     final int mid = start + ((end - start) >> 1);
-    return (_readBigIntFromBytes(bytes, start, mid) +
+    return _readBigIntFromBytes(bytes, start, mid) +
         _readBigIntFromBytes(bytes, mid, end) *
-            (BigInt.one << ((mid - start) * 8)));
+            (BigInt.one << ((mid - start) * 8));
   }
 
   void _readFromDictionary(_PdfDictionary dictionary) {
@@ -674,9 +678,9 @@ class _PdfEncryptor {
     } else if ((keyLength == 128 || keyLength == 256) &&
         _revisionNumberOut! >= 4) {
       final _PdfDictionary cryptFilter =
-          dictionary[_DictionaryProperties.cf] as _PdfDictionary;
+          dictionary[_DictionaryProperties.cf]! as _PdfDictionary;
       final _PdfDictionary standardCryptFilter =
-          cryptFilter[_DictionaryProperties.stdCF] as _PdfDictionary;
+          cryptFilter[_DictionaryProperties.stdCF]! as _PdfDictionary;
       if (standardCryptFilter.containsKey(_DictionaryProperties.authEvent)) {
         final _IPdfPrimitive? authEventPrimitive =
             standardCryptFilter[_DictionaryProperties.authEvent];
@@ -686,7 +690,7 @@ class _PdfEncryptor {
         }
       }
       final String? filterName =
-          (standardCryptFilter[_DictionaryProperties.cfm] as _PdfName)._name;
+          (standardCryptFilter[_DictionaryProperties.cfm]! as _PdfName)._name;
       if (keyLength == 128) {
         keySize = 2;
         encryptionAlgorithm = filterName != 'V2'
@@ -800,7 +804,7 @@ class _PdfEncryptor {
         buff = _ownerPasswordOut;
         for (int i = 0; i < _ownerLoopNum2!; ++i) {
           final List<int> currKey = _getKeyWithOwnerPassword(
-              _encryptionKey!, (_ownerLoopNum2! - i - 1));
+              _encryptionKey!, _ownerLoopNum2! - i - 1);
           buff = _encryptDataByCustom(buff!, currKey, currKey.length);
         }
       }
@@ -1002,7 +1006,7 @@ class _PdfEncryptor {
       List.copyRange(hash, 0, ownerPassword, 0, ownerPassword.length);
       List.copyRange(
           hash, ownerPassword.length, ownerKeySalt, 0, ownerKeySalt.length);
-      List.copyRange(hash, (ownerPassword.length + ownerValidationSalt.length),
+      List.copyRange(hash, ownerPassword.length + ownerValidationSalt.length,
           userPasswordOut, 0, userPasswordOut.length);
       hashFound = sha256.convert(hash).bytes;
       forDecryption = _ownerEncryptionKeyOut;
@@ -1029,7 +1033,7 @@ class _PdfEncryptor {
     bool result = true;
     if (size == null) {
       if (array2 == null) {
-        result = (array1 == array2);
+        result = array1 == array2;
       } else if (array1.length != array2.length) {
         result = false;
       } else {
@@ -1042,7 +1046,7 @@ class _PdfEncryptor {
       }
     } else {
       if (array2 == null) {
-        result = (array1 == array2);
+        result = array1 == array2;
       } else if (array1.length < size || array2.length < size) {
         throw ArgumentError.value(
             'Size of one of the arrays are less then requisted size.');
@@ -1108,7 +1112,7 @@ class _PdfEncryptor {
 
   List<int> _generateInitVector() {
     final Random random = Random.secure();
-    return List<int>.generate(16, (i) => random.nextInt(256));
+    return List<int>.generate(16, (int i) => random.nextInt(256));
   }
 
   _PdfDictionary _saveToDictionary(_PdfDictionary dictionary) {
@@ -1129,7 +1133,7 @@ class _PdfEncryptor {
       keyLength = 0;
     }
     dictionary[_DictionaryProperties.length] = _PdfNumber(_getKeyLength()! * 8);
-    final bool isAes4Dict = false;
+    const bool isAes4Dict = false;
     if (_encryptOnlyAttachment! &&
         (encryptionAlgorithm == PdfEncryptionAlgorithm.rc4x128Bit ||
             encryptionAlgorithm == PdfEncryptionAlgorithm.rc4x40Bit)) {
@@ -1235,7 +1239,7 @@ class _PdfEncryptor {
 
   int _getPermissionValue(List<PdfPermissionsFlags> permissionFlags) {
     int defaultValue = 0;
-    permissionFlags.forEach((PdfPermissionsFlags flag) {
+    permissionFlags.toList().forEach((PdfPermissionsFlags flag) {
       defaultValue |= _permissionFlagValues![flag.index];
     });
     return defaultValue;
@@ -1272,7 +1276,7 @@ class _PdfEncryptor {
           : _aesDecrypt(data, _fileEncryptionKey);
     }
     _initializeData();
-    final int genNumber = 0;
+    const int genNumber = 0;
     int keyLen = 0;
     List<int> newKey;
     if (_encryptionKey!.length == 5) {
@@ -1308,10 +1312,10 @@ class _PdfEncryptor {
       newKey[++j] = genNumber.toUnsigned(8);
       newKey[++j] = (genNumber >> 8).toUnsigned(8);
       if (encryptionAlgorithm == PdfEncryptionAlgorithm.aesx128Bit) {
-        newKey[++j] = (0x73).toUnsigned(8);
-        newKey[++j] = (0x41).toUnsigned(8);
-        newKey[++j] = (0x6c).toUnsigned(8);
-        newKey[++j] = (0x54).toUnsigned(8);
+        newKey[++j] = 0x73.toUnsigned(8);
+        newKey[++j] = 0x41.toUnsigned(8);
+        newKey[++j] = 0x6c.toUnsigned(8);
+        newKey[++j] = 0x54.toUnsigned(8);
       }
       newKey = md5.convert(newKey).bytes;
       keyLen = newKey.length;
@@ -1446,7 +1450,8 @@ class _PdfEncryptor {
       .._ownerPassword = _ownerPassword
       .._encryptionOptions = _encryptionOptions;
     encryptor._permissions = _permissions != null
-        ? List.generate(_permissions!.length, (i) => _permissions![i])
+        ? List<PdfPermissionsFlags>.generate(
+            _permissions!.length, (int i) => _permissions![i])
         : null;
     return encryptor;
   }
@@ -1473,7 +1478,8 @@ class _PdfEncryptor {
 
   List<int>? _cloneList(List<int>? value) {
     if (value != null) {
-      return List.generate(value.length, (i) => value[i], growable: true);
+      return List<int>.generate(value.length, (int i) => value[i],
+          growable: true);
     } else {
       return null;
     }

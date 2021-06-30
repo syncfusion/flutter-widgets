@@ -12,6 +12,9 @@ part of charts;
 ///
 /// Provides options to customize the [color], [opacity], [borderWidth], [borderColor],
 /// [borderDrawMode] of the stackedarea100 series segments.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=NCUDBD_ClHo}
+@immutable
 class StackedArea100Series<T, D> extends _StackedSeriesBase<T, D> {
   /// Creating an argument constructor of StackedArea100Series class.
   StackedArea100Series(
@@ -41,14 +44,15 @@ class StackedArea100Series<T, D> extends _StackedSeriesBase<T, D> {
       double? borderWidth,
       LinearGradient? gradient,
       LinearGradient? borderGradient,
-      // ignore: deprecated_member_use_from_same_package
-      SelectionSettings? selectionSettings,
       SelectionBehavior? selectionBehavior,
       bool? isVisibleInLegend,
       LegendIconType? legendIconType,
       String? legendItemText,
       double? opacity,
       SeriesRendererCreatedCallback? onRendererCreated,
+      ChartPointInteractionCallback? onPointTap,
+      ChartPointInteractionCallback? onPointDoubleTap,
+      ChartPointInteractionCallback? onPointLongPress,
       this.borderDrawMode = BorderDrawMode.top})
       : super(
             key: key,
@@ -75,7 +79,6 @@ class StackedArea100Series<T, D> extends _StackedSeriesBase<T, D> {
             borderWidth: borderWidth,
             gradient: gradient,
             borderGradient: borderGradient,
-            selectionSettings: selectionSettings,
             selectionBehavior: selectionBehavior,
             legendItemText: legendItemText,
             isVisibleInLegend: isVisibleInLegend,
@@ -83,6 +86,9 @@ class StackedArea100Series<T, D> extends _StackedSeriesBase<T, D> {
             sortingOrder: sortingOrder,
             groupName: groupName,
             onRendererCreated: onRendererCreated,
+            onPointTap: onPointTap,
+            onPointDoubleTap: onPointDoubleTap,
+            onPointLongPress: onPointLongPress,
             opacity: opacity);
 
   ///Border type of stacked area series.
@@ -104,6 +110,97 @@ class StackedArea100Series<T, D> extends _StackedSeriesBase<T, D> {
   ///}
   ///```
   final BorderDrawMode borderDrawMode;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is StackedArea100Series &&
+        other.key == key &&
+        other.onCreateRenderer == onCreateRenderer &&
+        other.dataSource == dataSource &&
+        other.xValueMapper == xValueMapper &&
+        other.yValueMapper == yValueMapper &&
+        other.sortFieldValueMapper == sortFieldValueMapper &&
+        other.dataLabelMapper == dataLabelMapper &&
+        other.pointColorMapper == pointColorMapper &&
+        other.sortingOrder == sortingOrder &&
+        other.xAxisName == xAxisName &&
+        other.yAxisName == yAxisName &&
+        other.name == name &&
+        other.groupName == groupName &&
+        other.color == color &&
+        other.markerSettings == markerSettings &&
+        other.emptyPointSettings == emptyPointSettings &&
+        other.dataLabelSettings == dataLabelSettings &&
+        other.trendlines == trendlines &&
+        other.isVisible == isVisible &&
+        other.enableTooltip == enableTooltip &&
+        other.dashArray == dashArray &&
+        other.animationDuration == animationDuration &&
+        other.gradient == gradient &&
+        other.selectionBehavior == selectionBehavior &&
+        other.isVisibleInLegend == isVisibleInLegend &&
+        other.legendIconType == legendIconType &&
+        other.legendItemText == legendItemText &&
+        other.opacity == opacity &&
+        other.onRendererCreated == onRendererCreated &&
+        other.onPointTap == onPointTap &&
+        other.onPointDoubleTap == onPointDoubleTap &&
+        other.onPointLongPress == onPointLongPress &&
+        other.borderColor == borderColor &&
+        other.borderWidth == borderWidth &&
+        other.borderGradient == borderGradient &&
+        other.borderDrawMode == borderDrawMode;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      key,
+      onCreateRenderer,
+      dataSource,
+      xValueMapper,
+      yValueMapper,
+      sortFieldValueMapper,
+      dataLabelMapper,
+      pointColorMapper,
+      sortingOrder,
+      xAxisName,
+      yAxisName,
+      name,
+      groupName,
+      color,
+      markerSettings,
+      emptyPointSettings,
+      dataLabelSettings,
+      trendlines,
+      isVisible,
+      enableTooltip,
+      dashArray,
+      animationDuration,
+      gradient,
+      selectionBehavior,
+      isVisibleInLegend,
+      legendIconType,
+      legendItemText,
+      opacity,
+      onRendererCreated,
+      borderColor,
+      borderWidth,
+      borderGradient,
+      borderDrawMode,
+      onPointTap,
+      onPointDoubleTap,
+      onPointLongPress
+    ];
+    return hashList(values);
+  }
 
   /// Create the stacked area series renderer.
   StackedArea100SeriesRenderer createRenderer(ChartSeries<T, D> series) {
@@ -137,11 +234,13 @@ class StackedArea100SeriesRenderer extends _StackedSeriesRenderer {
     // ignore: unnecessary_null_comparison
     if (segment != null) {
       segment._seriesRenderer = this;
-      segment._series = _series as XyDataSeries;
+      segment._series = _series as XyDataSeries<dynamic, dynamic>;
       segment._seriesIndex = seriesIndex;
-      if (_points != null) segment.points = _points;
+      if (_points != null) {
+        segment.points = _points;
+      }
       segment.animationFactor = animateFactor;
-      if (_chartState!._widgetNeedUpdate &&
+      if (_renderingDetails!.widgetNeedUpdate &&
           _xAxisRenderer!._zoomFactor == 1 &&
           _yAxisRenderer!._zoomFactor == 1 &&
           // ignore: unnecessary_null_comparison
@@ -151,8 +250,8 @@ class StackedArea100SeriesRenderer extends _StackedSeriesRenderer {
           _oldSeriesRenderers[segment._seriesIndex]._seriesName ==
               segment._seriesRenderer._seriesName) {
         segment._oldSeriesRenderer = _oldSeriesRenderers[segment._seriesIndex];
-        segment._oldSeries =
-            segment._oldSeriesRenderer!._series as XyDataSeries;
+        segment._oldSeries = segment._oldSeriesRenderer!._series
+            as XyDataSeries<dynamic, dynamic>;
         segment._oldSegmentIndex = 0;
       }
       customizeSegment(segment);

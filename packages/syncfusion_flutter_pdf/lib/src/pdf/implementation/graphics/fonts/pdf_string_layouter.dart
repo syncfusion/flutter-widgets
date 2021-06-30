@@ -46,9 +46,10 @@ class _PdfStringLayouter {
       lineResult = _layoutLine(line, lineIndent!);
       int? numSymbolsInserted = 0;
       final Map<String, dynamic> returnedValue =
-          _copyToResult(result, lineResult, lines, numSymbolsInserted);
-      final bool success = returnedValue['success'];
-      numSymbolsInserted = returnedValue['numInserted'];
+          _copyToResult(result, lineResult, lines, numSymbolsInserted)
+              as Map<String, dynamic>;
+      final bool success = returnedValue['success'] as bool;
+      numSymbolsInserted = returnedValue['numInserted'] as int?;
       if (!success) {
         _reader!._read(numSymbolsInserted);
         break;

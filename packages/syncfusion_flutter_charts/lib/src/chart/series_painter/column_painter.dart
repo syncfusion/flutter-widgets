@@ -23,10 +23,11 @@ class _ColumnChartPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
     final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer!;
+    final _RenderingDetails renderingDetails = chartState._renderingDetails;
     final List<CartesianChartPoint<dynamic>> dataPoints =
         seriesRenderer._dataPoints;
     final ColumnSeries<dynamic, dynamic> series =
-        seriesRenderer._series as ColumnSeries;
+        seriesRenderer._series as ColumnSeries<dynamic, dynamic>;
     if (seriesRenderer._visible!) {
       Rect axisClipRect, clipRect;
       double animationFactor;
@@ -34,10 +35,8 @@ class _ColumnChartPainter extends CustomPainter {
       canvas.save();
       assert(
           // ignore: unnecessary_null_comparison
-          series.animationDuration != null
-              ? series.animationDuration >= 0
-              : true,
-          'The animation duration of the column series must be greater or equal to 0.');
+          !(series.animationDuration != null) || series.animationDuration >= 0,
+          'The animation duration of the bar series must be greater than or equal to 0.');
       final int seriesIndex = painterKey.index;
       seriesRenderer._storeSeriesProperties(chartState, seriesIndex);
       axisClipRect = _calculatePlotOffset(
@@ -78,7 +77,7 @@ class _ColumnChartPainter extends CustomPainter {
               xAxisRenderer._axis.plotOffset, yAxisRenderer._axis.plotOffset));
       canvas.restore();
       if ((series.animationDuration <= 0 ||
-              (!chartState._initialRender! &&
+              (!renderingDetails.initialRender! &&
                   !seriesRenderer._needAnimateSeriesElements) ||
               animationFactor >= chartState._seriesDurationFactor) &&
           (series.markerSettings.isVisible ||

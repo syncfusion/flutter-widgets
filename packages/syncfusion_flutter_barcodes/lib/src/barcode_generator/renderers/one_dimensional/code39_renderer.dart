@@ -139,7 +139,7 @@ class Code39Renderer extends SymbologyRenderer {
       final int codeLength = codeValue.length;
       for (int j = 0; j < codeLength; j++) {
         // The current bar is drawn, if its value is divisible by 2
-        final bool canDraw = j % 2 == 0 ? true : false;
+        final bool canDraw = j.isEven;
         final int currentValue = int.parse(codeValue[j]);
         if (canDraw &&
             (left >= barCodeRect.left &&
@@ -180,7 +180,7 @@ class Code39Renderer extends SymbologyRenderer {
   /// Represents the encoded value for provided input
   List<String> getEncodedValue(String providedValue) {
     // ignore: avoid_as
-    final Code39 code39Symbology = symbology as Code39;
+    final Code39 code39Symbology = symbology! as Code39;
     if (code39Symbology.enableCheckSum) {
       final String checkSum = _getCheckSum(providedValue, _character);
       providedValue += checkSum;

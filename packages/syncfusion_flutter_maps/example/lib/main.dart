@@ -71,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
               MapShapeLayer(
                 source: _mapSource,
                 showDataLabels: true,
-                legend: MapLegend(MapElement.shape),
+                legend: const MapLegend(MapElement.shape),
                 tooltipSettings: MapTooltipSettings(
                     color: Colors.grey[700],
                     strokeColor: Colors.white,
@@ -83,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
                       _data[index].stateCode,
-                      style: TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white),
                     ),
                   );
                 },

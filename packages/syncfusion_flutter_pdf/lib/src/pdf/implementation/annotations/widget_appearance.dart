@@ -23,7 +23,8 @@ class _WidgetAppearance implements _IPdfWrapper {
     if (_borderColor != value) {
       _borderColor = value;
       value._alpha == 0
-          ? _dictionary.setProperty(_DictionaryProperties.bc, _PdfArray([]))
+          ? _dictionary.setProperty(
+              _DictionaryProperties.bc, _PdfArray(<int>[]))
           : _dictionary.setProperty(_DictionaryProperties.bc,
               _borderColor._toArray(PdfColorSpace.rgb));
     }
@@ -35,7 +36,8 @@ class _WidgetAppearance implements _IPdfWrapper {
     if (_backColor != value) {
       _backColor = value;
       if (_backColor._alpha == 0) {
-        _dictionary.setProperty(_DictionaryProperties.bc, _PdfArray([0, 0, 0]));
+        _dictionary.setProperty(
+            _DictionaryProperties.bc, _PdfArray(<int>[0, 0, 0]));
         _dictionary.remove(_DictionaryProperties.bg);
       } else {
         _dictionary.setProperty(

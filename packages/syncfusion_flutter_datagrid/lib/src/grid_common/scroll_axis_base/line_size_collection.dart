@@ -66,7 +66,7 @@ class _LineSizeCollection extends _PaddedEditableLineSizeHostBase
       }
 
       if (onDefaultLineSizeChanged != null) {
-        final defaultLineSizeChangedArgs =
+        final _DefaultLineSizeChangedArgs defaultLineSizeChangedArgs =
             _DefaultLineSizeChangedArgs.fromArgs(savedValue, _defaultLineSize);
         onDefaultLineSizeChanged!(defaultLineSizeChangedArgs);
       }
@@ -233,11 +233,11 @@ class _LineSizeCollection extends _PaddedEditableLineSizeHostBase
   ///
   /// Returns the size of the line at the given index.
   @override
-  List getSize(int index, int repeatValueCount) {
+  List<dynamic> getSize(int index, int repeatValueCount) {
     repeatValueCount = 1;
     final _EditableLineSizeHostBase? nested = getNestedLines(index);
     if (nested != null) {
-      return [nested.totalExtent, repeatValueCount];
+      return <dynamic>[nested.totalExtent, repeatValueCount];
     }
 
     return getRange(index, repeatValueCount);
@@ -253,30 +253,34 @@ class _LineSizeCollection extends _PaddedEditableLineSizeHostBase
   ///
   /// Returns the boolean value indicating the hidden state for a line.
   @override
-  List getHidden(int index, int repeatValueCount) => [
-        _lineHidden.getRange(index, repeatValueCount)[0],
-        _lineHidden.getRange(index, repeatValueCount)[1]
-      ];
+  List<dynamic> getHidden(int index, int repeatValueCount) {
+    final List<dynamic> rangeValue =
+        _lineHidden.getRange(index, repeatValueCount);
+    return <dynamic>[rangeValue[0], rangeValue[1]];
+  }
 
-  List getRange(int index, int repeatValueCount) {
+  List<dynamic> getRange(int index, int repeatValueCount) {
     repeatValueCount = 1;
 
     if (_lineNested.containsKey(index)) {
-      return [_lineNested[index]?.totalExtent, repeatValueCount];
+      return <dynamic>[_lineNested[index]?.totalExtent, repeatValueCount];
     }
-
-    final bool hide = _lineHidden.getRange(index, repeatValueCount)[0];
-    repeatValueCount = _lineHidden.getRange(index, repeatValueCount)[1];
+    final List<dynamic> hiddenValue =
+        _lineHidden.getRange(index, repeatValueCount);
+    final bool hide = hiddenValue[0] as bool;
+    repeatValueCount = hiddenValue[1] as int;
     if (hide) {
-      return [0.0, repeatValueCount];
+      return <dynamic>[0.0, repeatValueCount];
     }
 
-    final double size = _lineSizes.getRange(index, repeatValueCount)[0];
-    repeatValueCount = _lineSizes.getRange(index, repeatValueCount)[1];
+    final List<dynamic> rangeValue =
+        _lineSizes.getRange(index, repeatValueCount);
+    final double size = rangeValue[0] as double;
+    repeatValueCount = rangeValue[1] as int;
     if (size >= 0) {
-      return [size, repeatValueCount];
+      return <dynamic>[size, repeatValueCount];
     }
-    return [_defaultLineSize, repeatValueCount];
+    return <dynamic>[_defaultLineSize, repeatValueCount];
   }
 
   void initializeDistances() {
@@ -285,10 +289,11 @@ class _LineSizeCollection extends _PaddedEditableLineSizeHostBase
         ..clear()
         ..count = getLineCount()
         ..defaultDistance = defaultLineSize;
-      _lineNested.forEach((key, value) {
+      _lineNested.forEach((int key, _LineSizeCollection value) {
         int repeatSizeCount = -1;
-        final bool hide = getHidden(key, repeatSizeCount)[0];
-        repeatSizeCount = getHidden(key, repeatSizeCount)[1];
+        final List<dynamic> hiddenValue = getHidden(key, repeatSizeCount);
+        final bool hide = hiddenValue[0] as bool;
+        repeatSizeCount = hiddenValue[1] as int;
         if (hide) {
           _distances!.setNestedDistances(key, null);
         } else {
@@ -297,14 +302,16 @@ class _LineSizeCollection extends _PaddedEditableLineSizeHostBase
       });
 
       for (final _RangeValuePair<double> entry in _lineSizes.rangeValues) {
-        if (entry.value != -2) {
+        final double entryValue = entry.value as double;
+        if (entryValue != -2) {
           _distances!.setRange(entry.start.toInt(), entry.end.toInt(),
-              entry.value < 0.0 ? defaultLineSize : entry.value);
+              entryValue < 0.0 ? defaultLineSize : entryValue);
         }
       }
 
       for (final _RangeValuePair<bool> entry in _lineHidden.rangeValues) {
-        if (entry.value is bool && entry.value) {
+        final bool entryValue = entry.value as bool;
+        if (entryValue is bool && entryValue) {
           setRange(entry.start.toInt(), entry.end.toInt(), 0.0);
         }
       }
@@ -338,7 +345,7 @@ class _LineSizeCollection extends _PaddedEditableLineSizeHostBase
         _moveLines == null ? null : _moveLines._lineHidden);
     _lineNested = <int, _LineSizeCollection>{};
 
-    _lineNested.forEach((key, value) {
+    _lineNested.forEach((int key, _LineSizeCollection value) {
       if (key >= insertAtLine) {
         _lineNested.putIfAbsent(key + count, () => value);
       } else {
@@ -348,7 +355,7 @@ class _LineSizeCollection extends _PaddedEditableLineSizeHostBase
 
     if (_moveLines != null) {
       for (int i = 0; i < _moveLines._lineNested.length; i++) {
-        _moveLines._lineNested.forEach((key, value) {
+        _moveLines._lineNested.forEach((int key, _LineSizeCollection value) {
           _lineNested.putIfAbsent(key + insertAtLine, () => value);
         });
       }
@@ -365,7 +372,7 @@ class _LineSizeCollection extends _PaddedEditableLineSizeHostBase
     }
 
     if (onLinesInserted != null) {
-      final linesInsertedArgs =
+      final _LinesInsertedArgs linesInsertedArgs =
           _LinesInsertedArgs.fromArgs(insertAtLine, count);
       onLinesInserted!(linesInsertedArgs);
     }
@@ -376,8 +383,8 @@ class _LineSizeCollection extends _PaddedEditableLineSizeHostBase
   /// * scrollAxis - _required_ - The scroll axis.
   @override
   void initializeScrollAxis(_ScrollAxisBase scrollAxis) {
-    final _PixelScrollAxis? pixelScrollAxis = scrollAxis as _PixelScrollAxis;
-    if (_lineNested.isNotEmpty && pixelScrollAxis == null) {
+    final _PixelScrollAxis pixelScrollAxis = scrollAxis as _PixelScrollAxis;
+    if (_lineNested.isNotEmpty) {
       throw Exception(
           'When you have nested line collections you need to use PixelScrolling!');
     }
@@ -387,13 +394,15 @@ class _LineSizeCollection extends _PaddedEditableLineSizeHostBase
 
     for (final _RangeValuePair<double> entry in _lineSizes) {
       if (entry.value != -2) {
+        final double entryValue = entry.value as double;
         scrollAxis.setLineSize(entry.start, entry.end,
-            entry.value < 0 ? defaultLineSize : entry.value);
+            entryValue < 0 ? defaultLineSize : entry.value);
       }
     }
 
-    for (final entry in _lineNested.entries) {
-      pixelScrollAxis!.setNestedLines(entry.key, entry.value.distances);
+    for (final MapEntry<int, _LineSizeCollection> entry
+        in _lineNested.entries) {
+      pixelScrollAxis.setNestedLines(entry.key, entry.value.distances);
     }
 
     for (final _RangeValuePair<bool> entry in _lineHidden) {
@@ -432,7 +441,7 @@ class _LineSizeCollection extends _PaddedEditableLineSizeHostBase
     _lineNested = <int, _LineSizeCollection>{};
 
     for (int i = 0; i < lineNested.length; i++) {
-      lineNested.forEach((key, value) {
+      lineNested.forEach((int key, _LineSizeCollection value) {
         if (key >= removeAtLine) {
           if (key >= removeAtLine + count) {
             _lineNested.putIfAbsent(key - count, () => value);
@@ -456,7 +465,8 @@ class _LineSizeCollection extends _PaddedEditableLineSizeHostBase
     }
 
     if (onLinesRemoved != null) {
-      final linesRemovedArgs = _LinesRemovedArgs.fromArgs(removeAtLine, count);
+      final _LinesRemovedArgs linesRemovedArgs =
+          _LinesRemovedArgs.fromArgs(removeAtLine, count);
       onLinesRemoved!(linesRemovedArgs);
     }
   }
@@ -473,7 +483,7 @@ class _LineSizeCollection extends _PaddedEditableLineSizeHostBase
   /// default line size.
   void resetNestedLines() {
     for (int i = 0; i < _lineNested.length; i++) {
-      _lineNested.forEach((key, value) {
+      _lineNested.forEach((int key, _LineSizeCollection value) {
         _lineSizes[key] = -1;
       });
     }
@@ -498,7 +508,7 @@ class _LineSizeCollection extends _PaddedEditableLineSizeHostBase
       }
 
       if (onLineHiddenChanged != null) {
-        final hiddenRangeChangedArgs =
+        final _HiddenRangeChangedArgs hiddenRangeChangedArgs =
             _HiddenRangeChangedArgs.fromArgs(0, _lineCount - 1, false);
         onLineHiddenChanged!(hiddenRangeChangedArgs);
       }
@@ -582,7 +592,7 @@ class _LineSizeCollection extends _PaddedEditableLineSizeHostBase
   void setHiddenInterval(int start, int lineCount, List<bool> values) {
     suspendUpdates();
 
-    _lineHidden = _SortedRangeValueList();
+    _lineHidden = _SortedRangeValueList<bool>();
 
     for (int index = start; index < lineCount; index += values.length) {
       for (int n = 0; n < values.length; n++) {
@@ -635,8 +645,9 @@ class _LineSizeCollection extends _PaddedEditableLineSizeHostBase
   @override
   void setRange(int from, int to, double size) {
     int count = 0;
-    final double saveValue = getRange(from, count)[0];
-    count = getRange(from, count)[1];
+    final List<dynamic> rangeValue = getRange(from, count);
+    final double saveValue = rangeValue[0] as double;
+    count = rangeValue[1] as int;
     _lineSizes.setRange(from, to - from + 1, size);
 
     if (isSuspendUpdates) {
@@ -666,8 +677,7 @@ class _LineSizeCollection extends _PaddedEditableLineSizeHostBase
   /// Returns the line size at the specified index.
   @override
   double operator [](int index) {
-    final int repeatValueCount = -1;
-    return getRange(index, repeatValueCount)[0];
+    return getRange(index, -1)[0] as double;
   }
 
   /// Sets the line size at the specified index.
@@ -696,11 +706,12 @@ class _DistancesUtil {
     final Object ndh = linesHost;
     for (int n = from; n <= to; n++) {
       int repeatSizeCount = -1;
-      final bool hide = linesHost.getHidden(n, repeatSizeCount)[0];
-      repeatSizeCount = linesHost.getHidden(n, repeatSizeCount)[1];
+      final List<dynamic> hiddenLine = linesHost.getHidden(n, repeatSizeCount);
+      final bool hide = hiddenLine[0] as bool;
+      repeatSizeCount = hiddenLine[1] as int;
 
       void _setRange() {
-        final rangeTo = getRangeToHelper(n, to, repeatSizeCount);
+        final int rangeTo = getRangeToHelper(n, to, repeatSizeCount);
         if (hide) {
           distances.setRange(n, rangeTo, 0.0);
         } else {
@@ -735,8 +746,9 @@ class _DistancesUtil {
     for (int n = from; n <= to; n++) {
       void _setRange() {
         int repeatSizeCount = -1;
-        final double size = linesHost.getSize(n, repeatSizeCount)[0];
-        repeatSizeCount = linesHost.getSize(n, repeatSizeCount)[1];
+        final List<dynamic> lineSize = linesHost.getSize(n, repeatSizeCount);
+        final double size = lineSize[0] as double;
+        repeatSizeCount = lineSize[1] as int;
         final int rangeTo = getRangeToHelper(n, to, repeatSizeCount);
         distances.setRange(n, rangeTo, size);
         n = rangeTo;
@@ -783,8 +795,9 @@ class _DistancesUtil {
 
     // Set line sizes
     for (int index = insertAt; index <= to; index++) {
-      final double size = linesHost.getSize(index, repeatSizeCount)[0];
-      repeatSizeCount = linesHost.getSize(index, repeatSizeCount)[1];
+      final List<dynamic> lineSize = linesHost.getSize(index, repeatSizeCount);
+      final double size = lineSize[0] as double;
+      repeatSizeCount = lineSize[1] as int;
       if (size != distances.defaultDistance) {
         final int rangeTo = getRangeToHelper(index, to, repeatSizeCount);
         distances.setRange(index, rangeTo, size);
@@ -794,7 +807,7 @@ class _DistancesUtil {
 
     // Also check for hidden rows and reset line sizes for them.
     for (int index = insertAt; index <= to; index++) {
-      final bool hide = linesHost.getHidden(index, repeatSizeCount)[0];
+      final bool hide = linesHost.getHidden(index, repeatSizeCount)[0] as bool;
       if (hide) {
         final int rangeTo = getRangeToHelper(index, to, repeatSizeCount);
         distances.setRange(index, rangeTo, 0.0);

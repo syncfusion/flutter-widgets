@@ -21,6 +21,7 @@ class PdfSignature {
   PdfPage? _page;
   PdfSignatureField? _field;
   PdfDocument? _document;
+  // ignore: prefer_final_fields
   bool _certificated = false;
   _PdfSignatureDictionary? _signatureDictionary;
   _PdfArray? _byteRange;
@@ -70,7 +71,7 @@ class PdfSignature {
       _IPdfPrimitive? lastElement;
       if (annotationElements != null &&
           annotationElements is _PdfArray &&
-          annotationElements._elements.length > 0) {
+          annotationElements._elements.isNotEmpty) {
         lastElement = _PdfCrossTable._dereference(
             annotationElements[annotationElements._elements.length - 1]);
       }
@@ -81,12 +82,12 @@ class PdfSignature {
             _PdfCrossTable._dereference(lastElement[_DictionaryProperties.t]);
         String tempName = '';
         if (name != null && name is _PdfString) {
-          tempName = utf8.decode(name.data as List<int>);
+          tempName = utf8.decode(name.data!);
         }
         if (tempName == signatureName &&
             annotationElements != null &&
             annotationElements is _PdfArray &&
-            annotationElements._elements.length > 0) {
+            annotationElements._elements.isNotEmpty) {
           annotationElements._elements
               .removeAt(annotationElements._elements.length - 1);
         }
@@ -157,9 +158,10 @@ class PdfSignature {
     _externalRootCert = publicCertificatesData;
     if (_externalRootCert != null) {
       final _X509CertificateParser parser = _X509CertificateParser();
-      _externalChain = [];
-      _externalRootCert!.forEach((certRawData) => _externalChain!
-          .add(parser.readCertificate(_StreamReader(certRawData))));
+      _externalChain = <_X509Certificate?>[];
+      _externalRootCert!.toList().forEach((List<int> certRawData) =>
+          _externalChain!
+              .add(parser.readCertificate(_StreamReader(certRawData))));
     }
   }
 
@@ -198,7 +200,7 @@ class PdfSignature {
 
   int _getCertificateFlagResult(List<PdfCertificationFlags> flags) {
     int result = 0;
-    flags.forEach((flag) {
+    flags.toList().forEach((PdfCertificationFlags flag) {
       result |= _getCertificateFlagValue(flag)!;
     });
     if (result == 0) {

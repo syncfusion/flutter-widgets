@@ -7,9 +7,10 @@ part of charts;
 ///
 /// Provide options like color, border width, border color, alignment and data label text style for customization.
 ///
+@immutable
 class DataLabelSettings {
   /// Creating an argument constructor of DataLabelSettings class.
-  DataLabelSettings(
+  const DataLabelSettings(
       {this.alignment = ChartAlignment.center,
       this.color,
       this.textStyle = const TextStyle(
@@ -84,6 +85,7 @@ class DataLabelSettings {
   ///        ));
   ///}
   ///```
+
   final TextStyle textStyle;
 
   ///Margin between the data label text and its shape.
@@ -417,12 +419,69 @@ class DataLabelSettings {
   ///
   ///Also refer [labelAlignment].
   ///
-  ///_Note:_ - This property is only applicable for Cartesian charts and not for
+  ///_Note:_  This property is only applicable for Cartesian charts and not for
   /// Circular, Pyramid and Funnel charts.
   ///
   ///Defaults to `null`.
 
   final Offset? offset;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is DataLabelSettings &&
+        other.alignment == alignment &&
+        other.color == color &&
+        other.textStyle == textStyle &&
+        other.margin == margin &&
+        other.opacity == opacity &&
+        other.labelAlignment == labelAlignment &&
+        other.borderRadius == borderRadius &&
+        other.isVisible == isVisible &&
+        other.angle == angle &&
+        other.builder == builder &&
+        other.useSeriesColor == useSeriesColor &&
+        other.offset == offset &&
+        other.showCumulativeValues == showCumulativeValues &&
+        other.showZeroValue == showZeroValue &&
+        other.borderColor == borderColor &&
+        other.borderWidth == borderWidth &&
+        other.labelIntersectAction == labelIntersectAction &&
+        other.connectorLineSettings == connectorLineSettings &&
+        other.labelPosition == labelPosition;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      alignment,
+      color,
+      textStyle,
+      margin,
+      opacity,
+      labelAlignment,
+      borderRadius,
+      isVisible,
+      angle,
+      builder,
+      useSeriesColor,
+      offset,
+      showCumulativeValues,
+      showZeroValue,
+      borderColor,
+      borderWidth,
+      labelIntersectAction,
+      connectorLineSettings,
+      labelPosition
+    ];
+    return hashList(values);
+  }
 }
 
 ///Datalabel renderer class for mutable fields and methods

@@ -134,7 +134,7 @@ class PdfAnnotationCollection extends PdfObjectCollection
       for (int i = 0; i < array._elements.length; i++) {
         if (array._elements[i] is _PdfReferenceHolder) {
           final _PdfReferenceHolder holder =
-              array._elements[i] as _PdfReferenceHolder;
+              array._elements[i]! as _PdfReferenceHolder;
           if (holder.object == reference.object) {
             result = true;
             break;
@@ -167,7 +167,7 @@ class PdfAnnotationCollection extends PdfObjectCollection
       final _IPdfPrimitive? popUpDictionary =
           (annot._dictionary[_PdfName(_DictionaryProperties.popup)]
                   is _PdfReferenceHolder)
-              ? (annot._dictionary[_PdfName(_DictionaryProperties.popup)]
+              ? (annot._dictionary[_PdfName(_DictionaryProperties.popup)]!
                       as _PdfReferenceHolder)
                   .object
               : annot._dictionary[_PdfName(_DictionaryProperties.popup)];
@@ -206,7 +206,7 @@ class PdfAnnotationCollection extends PdfObjectCollection
     final _IPdfPrimitive? dictionary =
         obj is _PdfReferenceHolder ? obj.object : obj;
     if (dictionary is _PdfDictionary) {
-      dictionary._items!.forEach((k, v) {
+      dictionary._items!.forEach((_PdfName? k, _IPdfPrimitive? v) {
         if ((v is _PdfReferenceHolder || v is _PdfDictionary) &&
             k!._name != _DictionaryProperties.p &&
             k._name != _DictionaryProperties.parent) {
@@ -216,7 +216,7 @@ class PdfAnnotationCollection extends PdfObjectCollection
             _page._crossTable!._items!._objectCollection!.removeAt(index);
           }
           _removeAllReference(v!);
-          (_PdfCrossTable._dereference(v) as _PdfStream)
+          (_PdfCrossTable._dereference(v)! as _PdfStream)
             ..dispose()
             .._isChanged = false;
         }
@@ -231,7 +231,7 @@ class PdfAnnotationCollection extends PdfObjectCollection
     PdfAnnotation? annot;
     if (dictionary.containsKey(_DictionaryProperties.subtype)) {
       final _PdfName name = PdfAnnotation._getValue(
-              dictionary, crossTable, _DictionaryProperties.subtype, true)
+              dictionary, crossTable, _DictionaryProperties.subtype, true)!
           as _PdfName;
       final _PdfAnnotationTypes type =
           _getAnnotationType(name, dictionary, crossTable);
@@ -311,7 +311,7 @@ class PdfAnnotationCollection extends PdfObjectCollection
                   as _PdfDictionary?;
         }
         if (linkDic != null && linkDic.containsKey(_DictionaryProperties.s)) {
-          name = _PdfCrossTable._dereference(linkDic[_DictionaryProperties.s])
+          name = _PdfCrossTable._dereference(linkDic[_DictionaryProperties.s])!
               as _PdfName;
           final _PdfArray? border = (_PdfCrossTable._dereference(
                   dictionary[_DictionaryProperties.border]) is _PdfArray)
@@ -443,7 +443,7 @@ class PdfAnnotationCollection extends PdfObjectCollection
     }
     for (int i = 0; i < arr.count; i++) {
       if (arr[i] is _PdfArray) {
-        final _PdfArray temp = arr[i] as _PdfArray;
+        final _PdfArray temp = arr[i]! as _PdfArray;
         for (int j = 0; j < temp.count; j++) {
           final _PdfNumber? value =
               (temp[j] is _PdfNumber) ? temp[j] as _PdfNumber? : null;

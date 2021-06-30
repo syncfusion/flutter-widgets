@@ -31,16 +31,14 @@ class _BoxAndWhiskerPainter extends CustomPainter {
     Rect clipRect;
     double animationFactor;
     final BoxAndWhiskerSeries<dynamic, dynamic> series =
-        seriesRenderer._series as BoxAndWhiskerSeries;
+        seriesRenderer._series as BoxAndWhiskerSeries<dynamic, dynamic>;
     CartesianChartPoint<dynamic>? point;
     if (seriesRenderer._visible!) {
       canvas.save();
       assert(
           // ignore: unnecessary_null_comparison
-          series.animationDuration != null
-              ? series.animationDuration >= 0
-              : true,
-          'The animation duration of the box and whisker series must be greater or equal to 0.');
+          !(series.animationDuration != null) || series.animationDuration >= 0,
+          'The animation duration of the bar series must be greater than or equal to 0.');
       final int seriesIndex = painterKey.index;
       seriesRenderer._storeSeriesProperties(chartState, seriesIndex);
       final Rect axisClipRect = _calculatePlotOffset(
@@ -63,8 +61,13 @@ class _BoxAndWhiskerPainter extends CustomPainter {
         (point.y).remove(null);
         (point.y).sort();
         seriesRenderer._findBoxPlotValues(point.y, point, series.boxPlotMode);
-        seriesRenderer._calculateRegionData(chartState, seriesRenderer,
-            painterKey.index, point, pointIndex, seriesRenderer.sideBySideInfo);
+        seriesRenderer._calculateRegionData(
+            chartState,
+            seriesRenderer,
+            painterKey.index,
+            point,
+            pointIndex,
+            seriesRenderer._sideBySideInfo);
         if (point.isVisible && !point.isGap) {
           seriesRenderer._drawSegment(
               canvas,

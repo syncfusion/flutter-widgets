@@ -101,7 +101,7 @@ class _StringTokenizer {
   }
 
   String _peek() {
-    return (!_isEndOfFile) ? _text![_position!] : '\0';
+    return (!_isEndOfFile) ? _text![_position!] : '\u0000';
   }
 
   String _read([int? count]) {
@@ -115,7 +115,7 @@ class _StringTokenizer {
       }
       return builder;
     } else {
-      String character = '\0';
+      String character = '\u0000';
       if (!_isEndOfFile) {
         character = _text![_position!];
         _position = _position! + 1;

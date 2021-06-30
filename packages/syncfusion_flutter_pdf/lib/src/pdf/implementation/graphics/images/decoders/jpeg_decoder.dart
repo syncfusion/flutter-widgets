@@ -54,8 +54,8 @@ class _JpegDecoder extends _ImageDecoder {
     bitsPerComponent = 8;
     int? imageOrientation = 0;
     final Map<String, dynamic> returnValue = _checkForExifData();
-    final bool hasOrientation = returnValue['hasOrientation'];
-    imageOrientation = returnValue['imageOrientation'];
+    final bool hasOrientation = returnValue['hasOrientation'] as bool;
+    imageOrientation = returnValue['imageOrientation'] as int?;
     jpegDecoderOrientationAngle = 0;
     if (hasOrientation) {
       switch (imageOrientation) {

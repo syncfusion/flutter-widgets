@@ -23,7 +23,7 @@ class _FastLineChartPainter extends CustomPainter {
     Rect clipRect;
     double animationFactor;
     final FastLineSeries<dynamic, dynamic> series =
-        seriesRenderer._series as FastLineSeries;
+        seriesRenderer._series as FastLineSeries<dynamic, dynamic>;
     final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
     final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer!;
     final List<Offset> _points = <Offset>[];
@@ -31,9 +31,7 @@ class _FastLineChartPainter extends CustomPainter {
       canvas.save();
       assert(
           // ignore: unnecessary_null_comparison
-          series.animationDuration != null
-              ? series.animationDuration >= 0
-              : true,
+          !(series.animationDuration != null) || series.animationDuration >= 0,
           'The animation duration of the fast line series must be greater or equal to 0.');
       final int seriesIndex = painterKey.index;
       seriesRenderer._storeSeriesProperties(chartState, seriesIndex);
@@ -47,7 +45,7 @@ class _FastLineChartPainter extends CustomPainter {
       canvas.clipRect(axisClipRect);
       if (seriesRenderer._reAnimate ||
           (series.animationDuration > 0 &&
-              !seriesRenderer._chartState!._isLegendToggled)) {
+              !seriesRenderer._renderingDetails!.isLegendToggled)) {
         seriesRenderer._needAnimateSeriesElements =
             seriesRenderer._needsAnimation;
         _performLinearAnimation(
@@ -68,13 +66,13 @@ class _FastLineChartPainter extends CustomPainter {
       num prevXValue = (seriesPoints.isNotEmpty &&
               // ignore: unnecessary_null_comparison
               seriesPoints[0] != null &&
-              seriesPoints[0].xValue > xTolerance)
+              (seriesPoints[0].xValue > xTolerance) == true)
           ? 0
           : xTolerance;
       num prevYValue = (seriesPoints.isNotEmpty &&
               // ignore: unnecessary_null_comparison
               seriesPoints[0] != null &&
-              seriesPoints[0].yValue > yTolerance)
+              (seriesPoints[0].yValue > yTolerance) == true)
           ? 0
           : yTolerance;
       num xVal = 0;

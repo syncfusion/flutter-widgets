@@ -25,7 +25,7 @@ class TooltipArgs {
   double? locationY;
 
   /// Get the index of the current series.
-  final dynamic? seriesIndex;
+  final dynamic seriesIndex;
 
   /// Get the list of data points in the series.
   final List<dynamic>? dataPoints;
@@ -37,9 +37,9 @@ class TooltipArgs {
   final num? viewportPointIndex;
 }
 
-/// Holds the [onActualRangeChanged] event arguments.
+/// Holds the `onActualRangeChanged` event arguments.
 ///
-/// ActualRangeChangedArgs is the type argument for [onActualRangeChanged] event. Whenever the actual range is changed, the [onActualRangeChanged] event is
+/// ActualRangeChangedArgs is the type argument for `onActualRangeChanged` event. Whenever the actual range is changed, the `onActualRangeChanged` event is
 /// triggered and provides options to set the visible minimum and maximum values.
 ///
 /// It has the public properties of axis name, axis type, actual minimum, and maximum, visible minimum and maximum and axis orientation.
@@ -60,13 +60,13 @@ class ActualRangeChangedArgs {
   /// Get the axis type.
   final ChartAxis? axis;
 
-  /// Get the actual minimum range for an axis.
+  /// Get the actual minimum range of an axis.
   final dynamic actualMin;
 
-  /// Get the actual maximum range for an axis.
+  /// Get the actual maximum range of an axis.
   final dynamic actualMax;
 
-  /// Get the actual interval for an axis.
+  /// Get the actual interval of an axis.
   final dynamic actualInterval;
 
   /// Get and set the minimum visible range for an axis.
@@ -75,10 +75,10 @@ class ActualRangeChangedArgs {
   /// Get and set the maximum visible range for an axis.
   dynamic visibleMax;
 
-  /// Get and set the interval for the visible range of an axis.
+  /// Get and set the interval for the visible range for an axis.
   dynamic visibleInterval;
 
-  /// Get the orientation for an axis.
+  /// Get the orientation of an axis.
   final AxisOrientation? orientation;
 }
 
@@ -102,7 +102,7 @@ class AxisLabelRenderArgs {
   /// Get the axis name.
   final String? axisName;
 
-  /// Get the orientation for an axis.
+  /// Get the orientation of an axis.
   final AxisOrientation? orientation;
 
   /// Get the chart axis type and its properties.
@@ -135,7 +135,7 @@ class AxisLabelRenderDetails {
   /// Get the axis name.
   final String? axisName;
 
-  /// Get the orientation for an axis.
+  /// Get the orientation of an axis.
   final AxisOrientation orientation;
 
   /// Get the chart axis type and its properties.
@@ -204,7 +204,7 @@ class DataLabelRenderArgs {
   ///  )
   /// ```
   ///
-  /// _Note_: Series type may vary based on the chart type.
+  /// _Note:_ Series type may vary based on the chart type.
   ///
   /// * Cartesian chart: CartesianSeries<dynamic, dynamic> series;
   /// * Circular chart: CircularSeries<dynamic, dynamic> series;
@@ -327,7 +327,7 @@ class CrosshairRenderArgs {
   late Color lineColor;
 
   /// Get the visible range value.
-  final dynamic? value;
+  final dynamic value;
 
   /// Get the name of the axis.
   final String? axisName;
@@ -380,6 +380,30 @@ class ZoomPanArgs {
 class PointTapArgs {
   /// Creating an argument constructor of PointTapArgs class.
   PointTapArgs(
+      [this.seriesIndex,
+      this.viewportPointIndex,
+      this.dataPoints,
+      this.pointIndex]);
+
+  /// Get the series index.
+  final int? seriesIndex;
+
+  /// Get the overall index value.
+  final int? pointIndex;
+
+  /// Get the list of data points.
+  final List<dynamic>? dataPoints;
+
+  /// Get the viewport index value.
+  final num? viewportPointIndex;
+}
+
+///Holds the arguments of `onPointTap`, `onPointDoubleTap` and `onPointLongPress` callbacks.
+///
+///The user can fetch the series index, point index, viewport point index and data of the current point.
+class ChartPointDetails {
+  /// Creating an argument constructor of PointTapArgs class.
+  ChartPointDetails(
       [this.seriesIndex,
       this.viewportPointIndex,
       this.dataPoints,
@@ -502,20 +526,26 @@ class SelectionArgs {
   final int viewportPointIndex;
 }
 
-/// Holds the onIndicatorRender event arguments.
+@Deprecated('Use IndicatorRenderParams instead.')
+
+/// Holds the onRenderDetailsUpdate event arguments.
 ///
-///Triggers when indicator is rendering. You can customize the [indicatorName], [signalLineColor], [signalLineWidth], and [lineDashArray].
+///Triggers when indicator is rendering. You can customize the [signalLineColor], [signalLineWidth], and [signalLineDashArray].
 ///
 /// _Note:_ This is only applicable for [SfCartesianChart].
 class IndicatorRenderArgs {
   /// Creating an argument constructor of IndicatorRenderArgs class.
-  IndicatorRenderArgs(
-      [this.indicator, this.index, this.seriesName, this.dataPoints]);
+  IndicatorRenderArgs([
+    this.indicator,
+    this.index,
+    this.seriesName,
+    this.dataPoints,
+  ]);
 
   /// Get the technical indicator information.
   final TechnicalIndicators<dynamic, dynamic>? indicator;
 
-  /// Get and set the indicator name.
+  /// Get the indicator name.
   late String indicatorName;
 
   /// Get the current index of the technical indicator.
@@ -621,4 +651,122 @@ class ChartShaderDetails {
 
   ///Holds the doughnut and radial bar chart's inner rect value.
   final Rect? innerRect;
+}
+
+/// Holds the onRenderDetailsUpdate callback arguments.
+class IndicatorRenderParams {
+  /// Creating an argument constructor of IndicatorRenderParams class.
+  IndicatorRenderParams(this.calculatedDataPoints, this.name,
+      this.signalLineWidth, this.signalLineColor, this.signalLineDashArray);
+
+  ///Gets the calculated indicator data points details.
+  final List<CartesianChartPoint<dynamic>>? calculatedDataPoints;
+
+  ///Gets the width of the signal line.
+  late double signalLineWidth;
+
+  ///Gets the color of the signal line.
+  late Color signalLineColor;
+
+  ///Gets the name of the indicator.
+  ///
+  ///If the user specifies a value for the `name` property in the `TechnicalIndicators` class,
+  /// that value can be fetched here. If it is null, then the name generated internally for the
+  /// indicator can be fetched here.
+  final String name;
+
+  ///Gets the dash array of the signal line.
+  late List<double> signalLineDashArray;
+}
+
+/// Holds the onRenderDetailsUpdate callback arguments.
+class BollingerBandIndicatorRenderParams extends IndicatorRenderParams {
+  /// Creating an argument constructor of BollingerBandIndicatorRenderParams class.
+  BollingerBandIndicatorRenderParams(
+      this.upperLineValues,
+      this.lowerLineValues,
+      List<CartesianChartPoint<dynamic>>? calculatedDataPoints,
+      String name,
+      double signalLineWidth,
+      Color signalLineColor,
+      List<double> signalLineDashArray)
+      : super(calculatedDataPoints, name, signalLineWidth, signalLineColor,
+            signalLineDashArray);
+
+  ///Gets the calculated upper line values of the Bollinger band indicator.
+  final List<CartesianChartPoint<dynamic>>? upperLineValues;
+
+  ///Gets the calculated lower line values of the Bollinger band indicator.
+  final List<CartesianChartPoint<dynamic>>? lowerLineValues;
+}
+
+/// Holds the onRenderDetailsUpdate callback arguments.
+class MomentumIndicatorRenderParams extends IndicatorRenderParams {
+  /// Creating an argument constructor of MomentumIndicatorRenderParams class.
+  MomentumIndicatorRenderParams(
+      this.centerLineValue,
+      List<CartesianChartPoint<dynamic>>? calculatedDataPoints,
+      String name,
+      double signalLineWidth,
+      Color signalLineColor,
+      List<double> signalLineDashArray)
+      : super(calculatedDataPoints, name, signalLineWidth, signalLineColor,
+            signalLineDashArray);
+
+  ///Gets the calculated center line value of the Momentum indicator.
+  final double? centerLineValue;
+}
+
+/// Holds the onRenderDetailsUpdate callback arguments.
+class StochasticIndicatorRenderParams extends IndicatorRenderParams {
+  /// Creating an argument constructor of StochasticIndicatorRenderParams class.
+  StochasticIndicatorRenderParams(
+      this.periodLineValues,
+      List<CartesianChartPoint<dynamic>>? calculatedDataPoints,
+      String name,
+      double signalLineWidth,
+      Color signalLineColor,
+      List<double> signalLineDashArray)
+      : super(calculatedDataPoints, name, signalLineWidth, signalLineColor,
+            signalLineDashArray);
+
+  ///Gets the calculated period line values of the Stochastic indicator.
+  final List<CartesianChartPoint<dynamic>>? periodLineValues;
+}
+
+/// Holds the onRenderDetailsUpdate callback arguments.
+class MacdIndicatorRenderParams extends IndicatorRenderParams {
+  /// Creating an argument constructor of MacdIndicatorRenderParams class.
+  MacdIndicatorRenderParams(
+      this.macdLineValues,
+      this.macdHistogramValues,
+      List<CartesianChartPoint<dynamic>>? calculatedDataPoints,
+      String name,
+      double signalLineWidth,
+      Color signalLineColor,
+      List<double> signalLineDashArray)
+      : super(calculatedDataPoints, name, signalLineWidth, signalLineColor,
+            signalLineDashArray);
+
+  ///Gets the calculated Macd line values of the Macd indicator.
+  final List<CartesianChartPoint<dynamic>>? macdLineValues;
+
+  ///Gets the calculated histogram values of the Macd indicator.
+  final List<CartesianChartPoint<dynamic>>? macdHistogramValues;
+}
+
+/// Holds the TechnicalIndicatorRenderDetails values
+class TechnicalIndicatorRenderDetails {
+  /// Creating an argument constructor of TechnicalIndicatorRenderDetails class.
+  TechnicalIndicatorRenderDetails(
+      this.signalLineColor, this.signalLineWidth, this.signalLineDashArray);
+
+  ///Color of the signal line.
+  final Color? signalLineColor;
+
+  ///Width of the signal line.
+  final double? signalLineWidth;
+
+  ///Dash array of the signal line
+  final List<double>? signalLineDashArray;
 }

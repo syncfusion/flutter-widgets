@@ -1,12 +1,13 @@
 import 'dart:math' as math;
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import 'common.dart';
 import 'constants.dart';
-import 'render_slider_base.dart';
+import 'slider_base.dart';
 
 /// Base class for [SfSlider], [SfRangeSlider] and [SfRangeSelector] track
 /// shapes.
@@ -387,11 +388,11 @@ class SfThumbShape {
   }
 }
 
-/// Base class for [SfSlider], [SfRangeSlider] and [SfRangeSelector] divisors
+/// Base class for [SfSlider], [SfRangeSlider] and [SfRangeSelector] dividers
 /// shapes.
-class SfDivisorShape {
+class SfDividerShape {
   /// Enables subclasses to provide constant constructors.
-  const SfDivisorShape();
+  const SfDividerShape();
 
   bool _isVertical(RenderBaseSlider parentBox) {
     return parentBox.sliderType == SliderType.vertical;
@@ -401,12 +402,12 @@ class SfDivisorShape {
   Size getPreferredSize(SfSliderThemeData themeData, {bool? isActive}) {
     return Size.fromRadius(isActive != null
         ? (isActive
-            ? themeData.activeDivisorRadius!
-            : themeData.inactiveDivisorRadius!)
+            ? themeData.activeDividerRadius!
+            : themeData.inactiveDividerRadius!)
         : 0);
   }
 
-  /// Paints the divisors based on the values passed to it.
+  /// Paints the dividers based on the values passed to it.
   void paint(PaintingContext context, Offset center, Offset? thumbCenter,
       Offset? startThumbCenter, Offset? endThumbCenter,
       {required RenderBox parentBox,
@@ -451,42 +452,42 @@ class SfDivisorShape {
     if (paint == null) {
       paint = Paint();
       final Color begin = isActive
-          ? themeData.disabledActiveDivisorColor!
-          : themeData.disabledInactiveDivisorColor!;
+          ? themeData.disabledActiveDividerColor!
+          : themeData.disabledInactiveDividerColor!;
       final Color end = isActive
-          ? themeData.activeDivisorColor!
-          : themeData.inactiveDivisorColor!;
+          ? themeData.activeDividerColor!
+          : themeData.inactiveDividerColor!;
 
       paint.color =
           ColorTween(begin: begin, end: end).evaluate(enableAnimation)!;
     }
 
-    final double divisorRadius =
+    final double dividerRadius =
         getPreferredSize(themeData, isActive: isActive).width / 2;
-    context.canvas.drawCircle(center, divisorRadius, paint);
+    context.canvas.drawCircle(center, dividerRadius, paint);
 
-    final double? divisorStrokeWidth = isActive
-        ? themeData.activeDivisorStrokeWidth
-        : themeData.inactiveDivisorStrokeWidth;
-    final Color? divisorStrokeColor = isActive
-        ? themeData.activeDivisorStrokeColor
-        : themeData.inactiveDivisorStrokeColor;
+    final double? dividerStrokeWidth = isActive
+        ? themeData.activeDividerStrokeWidth
+        : themeData.inactiveDividerStrokeWidth;
+    final Color? dividerStrokeColor = isActive
+        ? themeData.activeDividerStrokeColor
+        : themeData.inactiveDividerStrokeColor;
 
-    if (divisorStrokeColor != null &&
-        divisorStrokeWidth != null &&
-        divisorStrokeWidth > 0) {
-      // Drawing divisor stroke
+    if (dividerStrokeColor != null &&
+        dividerStrokeWidth != null &&
+        dividerStrokeWidth > 0) {
+      // Drawing divider stroke
       context.canvas.drawCircle(
           center,
-          divisorStrokeWidth > divisorRadius
-              ? divisorRadius / 2
-              : divisorRadius - divisorStrokeWidth / 2,
+          dividerStrokeWidth > dividerRadius
+              ? dividerRadius / 2
+              : dividerRadius - dividerStrokeWidth / 2,
           paint
-            ..color = divisorStrokeColor
+            ..color = dividerStrokeColor
             ..style = PaintingStyle.stroke
-            ..strokeWidth = divisorStrokeWidth > divisorRadius
-                ? divisorRadius
-                : divisorStrokeWidth);
+            ..strokeWidth = dividerStrokeWidth > dividerRadius
+                ? dividerRadius
+                : dividerStrokeWidth);
     }
   }
 }
@@ -613,7 +614,10 @@ abstract class SfTooltipShape {
       required Rect trackRect});
 }
 
+/// Base class for [SfSlider], [SfRangeSlider] and [SfRangeSelector] minor tick
+/// shapes.
 class SfMinorTickShape extends SfTickShape {
+  /// Enables subclasses to provide constant constructors.
   const SfMinorTickShape();
   @override
   Size getPreferredSize(SfSliderThemeData themeData) {
@@ -1013,7 +1017,7 @@ class SfRectangularTooltipShape extends SfTooltipShape {
       double rightLineWidth = dx + halfTooltipWidth > trackRect.right
           ? trackRect.right - dx
           : halfTooltipWidth;
-      final double leftLineWidth = (isVertical)
+      final double leftLineWidth = isVertical
           ? tooltipWidth - rightLineWidth
           : dx - halfTooltipWidth < trackRect.left
               ? dx - trackRect.left

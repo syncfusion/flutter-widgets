@@ -82,7 +82,7 @@ class EAN8Renderer extends SymbologyRenderer {
       final int codeLength = codeValue.length;
       for (int j = 0; j < codeLength; j++) {
         // Draw the barcode when the current code value is 1
-        final bool canDraw = codeValue[j] == '1' ? true : false;
+        final bool canDraw = codeValue[j] == '1';
         if (canDraw &&
             (left >= barCodeRect.left && left + ratio < barCodeRect.right)) {
           final Rect individualBarRect = Rect.fromLTRB(

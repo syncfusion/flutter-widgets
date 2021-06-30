@@ -87,11 +87,13 @@ class PdfPen {
 
   //Properties
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
-    return other is PdfPen ? _isEqual(other) : false;
+    return other is PdfPen && _isEqual(other);
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode => width.hashCode;
 
   /// Gets or sets the color of the pen.
@@ -187,7 +189,7 @@ class PdfPen {
   ///           dashStyle: PdfDashStyle.custom, lineCap: PdfLineCap.round)
   ///         ..dashPattern = [4, 2, 1, 3],
   ///       bounds: Rect.fromLTWH(0, 0, 200, 100));
-  /// /Save the document.
+  /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Close the document.
   /// document.dispose();
@@ -208,7 +210,7 @@ class PdfPen {
   ///           dashStyle: PdfDashStyle.custom, lineJoin: PdfLineJoin.bevel)
   ///         ..dashPattern = [4, 2, 1, 3],
   ///       bounds: Rect.fromLTWH(0, 0, 200, 100));
-  /// /Save the document.
+  /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Close the document.
   /// document.dispose();
@@ -270,7 +272,7 @@ class PdfPen {
   ///           dashStyle: PdfDashStyle.custom, lineJoin: PdfLineJoin.bevel)
   ///         ..dashPattern = [4, 2, 1, 3],
   ///       bounds: Rect.fromLTWH(0, 0, 200, 100));
-  /// /Save the document.
+  /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Close the document.
   /// document.dispose();
@@ -393,10 +395,10 @@ class PdfPen {
   }
 
   List<double>? _getPattern() {
-    final List<double>? pattern = dashPattern;
+    final List<double> pattern = dashPattern;
     _isSkipPatternWidth ??= false;
     if (!_isSkipPatternWidth!) {
-      for (int i = 0; i < pattern!.length; ++i) {
+      for (int i = 0; i < pattern.length; ++i) {
         pattern[i] *= width;
       }
     }

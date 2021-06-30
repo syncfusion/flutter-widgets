@@ -12,6 +12,7 @@ class _DataLabelRenderer extends StatefulWidget {
   _DataLabelRendererState? state;
 
   @override
+  // ignore: no_logic_in_create_state
   State<StatefulWidget> createState() {
     state = _DataLabelRendererState();
     return state!;
@@ -40,7 +41,10 @@ class _DataLabelRendererState extends State<_DataLabelRenderer>
   Widget build(BuildContext context) {
     widget.state = this;
     animationController.duration = Duration(
-        milliseconds: widget.cartesianChartState._initialRender! ? 500 : 0);
+        milliseconds:
+            widget.cartesianChartState._renderingDetails.initialRender!
+                ? 500
+                : 0);
     final Animation<double> dataLabelAnimation =
         Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
       parent: animationController,
@@ -110,7 +114,7 @@ class _DataLabelPainter extends CustomPainter {
       if (seriesRenderer._series.dataLabelSettings.isVisible &&
           (seriesRenderer._animationCompleted ||
               seriesRenderer._series.animationDuration == 0 ||
-              !cartesianChartState._initialRender!) &&
+              !cartesianChartState._renderingDetails.initialRender!) &&
           (!seriesRenderer._needAnimateSeriesElements ||
               (cartesianChartState._seriesDurationFactor <
                       seriesRenderer._animationController.value ||
@@ -159,9 +163,9 @@ void _calculateRectSeriesRegion(
   final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
   final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer!;
   final num? crossesAt = _getCrossesAtValue(seriesRenderer, _chartState);
-  final num sideBySideMinimumVal = seriesRenderer.sideBySideInfo!.minimum;
+  final num sideBySideMinimumVal = seriesRenderer._sideBySideInfo!.minimum;
 
-  final num sideBySideMaximumVal = seriesRenderer.sideBySideInfo!.maximum;
+  final num sideBySideMaximumVal = seriesRenderer._sideBySideInfo!.maximum;
 
   final num origin =
       crossesAt ?? math.max(yAxisRenderer._visibleRange!.minimum, 0);
@@ -205,7 +209,7 @@ void _calculateRectSeriesRegion(
   if (seriesRenderer._seriesType != 'stackedcolumn100' &&
       seriesRenderer._seriesType != 'stackedbar100' &&
       seriesRenderer._seriesType != 'waterfall' &&
-      series.isTrackVisible) {
+      series.isTrackVisible == true) {
     final Rect shadowPointRect = _calculateShadowRectangle(
         point.xValue + sideBySideMinimumVal,
         seriesRenderer._seriesType == 'rangecolumn' ? point.high : point.yValue,
@@ -230,17 +234,17 @@ void _calculateRectSeriesRegion(
   } else {
     point.markerPoint = _chartState._requireInvertedAxis != true
         ? (yAxisRenderer._axis.isInversed
-            ? (point.yValue.isNegative
+            ? (point.yValue.isNegative == true
                 ? _ChartLocation(rect.topCenter.dx, rect.topCenter.dy)
                 : _ChartLocation(rect.bottomCenter.dx, rect.bottomCenter.dy))
-            : (point.yValue.isNegative
+            : (point.yValue.isNegative == true
                 ? _ChartLocation(rect.bottomCenter.dx, rect.bottomCenter.dy)
                 : _ChartLocation(rect.topCenter.dx, rect.topCenter.dy)))
         : (yAxisRenderer._axis.isInversed
-            ? (point.yValue.isNegative
+            ? (point.yValue.isNegative == true
                 ? _ChartLocation(rect.centerRight.dx, rect.centerRight.dy)
                 : _ChartLocation(rect.centerLeft.dx, rect.centerLeft.dy))
-            : (point.yValue.isNegative
+            : (point.yValue.isNegative == true
                 ? _ChartLocation(rect.centerLeft.dx, rect.centerLeft.dy)
                 : _ChartLocation(rect.centerRight.dx, rect.centerRight.dy)));
   }
@@ -319,7 +323,8 @@ void _calculatePointSeriesRegion(
         currentPoint.x + series.markerSettings.width,
         currentPoint.y + series.markerSettings.width);
   } else {
-    final BubbleSeries<dynamic, dynamic> bubbleSeries = series as BubbleSeries;
+    final BubbleSeries<dynamic, dynamic> bubbleSeries =
+        series as BubbleSeries<dynamic, dynamic>;
     num bubbleRadius = 0, sizeRange = 0, radiusRange, bubbleSize;
     if (seriesRenderer is BubbleSeriesRenderer) {
       sizeRange = seriesRenderer._maxSize! - seriesRenderer._minSize!;
@@ -372,9 +377,9 @@ void _calculatePathSeriesRegion(
     num? midY]) {
   final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
   final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer!;
-  final num? sideBySideMinimumVal = seriesRenderer.sideBySideInfo?.minimum;
+  final num? sideBySideMinimumVal = seriesRenderer._sideBySideInfo?.minimum;
 
-  final num? sideBySideMaximumVal = seriesRenderer.sideBySideInfo?.maximum;
+  final num? sideBySideMaximumVal = seriesRenderer._sideBySideInfo?.maximum;
   if (seriesRenderer._seriesType != 'rangearea' &&
       seriesRenderer._seriesType != 'splinerangearea' &&
       (!seriesRenderer._seriesType.contains('hilo')) &&
@@ -480,10 +485,14 @@ void _calculatePathSeriesRegion(
     point.markerPoint = currentPoint;
   } else {
     num? value1, value2;
-    value1 = (point.low != null && point.high != null && point.low < point.high)
+    value1 = (point.low != null &&
+            point.high != null &&
+            (point.low < point.high) == true)
         ? point.high
         : point.low;
-    value2 = (point.low != null && point.high != null && point.low > point.high)
+    value2 = (point.low != null &&
+            point.high != null &&
+            (point.low > point.high) == true)
         ? point.high
         : point.low;
     if (seriesRenderer._seriesType == 'boxandwhisker') {
@@ -814,10 +823,16 @@ void _calculateTooltipRegion(
   if ((series.enableTooltip != null ||
           // ignore: unnecessary_null_comparison
           seriesRenderer._chart.trackballBehavior != null ||
-          chart.onPointTapped != null) &&
+          chart.onPointTapped != null ||
+          seriesRenderer._series.onPointTap != null ||
+          seriesRenderer._series.onPointDoubleTap != null ||
+          seriesRenderer._series.onPointLongPress != null) &&
       (series.enableTooltip ||
           seriesRenderer._chart.trackballBehavior.enable ||
-          chart.onPointTapped != null) &&
+          chart.onPointTapped != null ||
+          seriesRenderer._series.onPointTap != null ||
+          seriesRenderer._series.onPointDoubleTap != null ||
+          seriesRenderer._series.onPointLongPress != null) &&
       // ignore: unnecessary_null_comparison
       point != null &&
       !point.isGap &&
@@ -906,7 +921,7 @@ void _calculateTooltipRegion(
         ? seriesRenderer._seriesType == 'column' ||
                 seriesRenderer._seriesType.contains('stackedcolumn') ||
                 seriesRenderer._seriesType == 'histogram'
-            ? (point.yValue > (crossesAt ?? 0))
+            ? (point.yValue > (crossesAt ?? 0)) == true
                 ? point.region!.topCenter
                 : point.region!.bottomCenter
             : seriesRenderer._seriesType.contains('hilo') ||

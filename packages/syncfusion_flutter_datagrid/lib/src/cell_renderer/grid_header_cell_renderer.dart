@@ -30,12 +30,12 @@ class GridHeaderCellRenderer
         _dataGridStateDetails().dataGridThemeData!;
     TextStyle getDefaultHeaderTextStyle() {
       return themeData.brightness == Brightness.light
-          ? TextStyle(
+          ? const TextStyle(
               fontFamily: 'Roboto',
               fontWeight: FontWeight.w500,
               fontSize: 14,
               color: Colors.black87)
-          : TextStyle(
+          : const TextStyle(
               fontFamily: 'Roboto',
               fontWeight: FontWeight.w500,
               fontSize: 14,

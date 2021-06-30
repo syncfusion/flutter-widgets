@@ -3,6 +3,7 @@ part of pdf;
 /// Interface for external signing to a PDF document
 class IPdfExternalSigner {
   //Fields
+  // ignore: prefer_final_fields
   DigestAlgorithm _hashAlgorithm = DigestAlgorithm.sha256;
 
   //Properties
@@ -19,9 +20,7 @@ class IPdfExternalSigner {
 /// External signing result
 class SignerResult {
   /// Initializes a new instance of the [SignerResult] class with signed data.
-  SignerResult(List<int> signedData) {
-    this.signedData = signedData;
-  }
+  SignerResult(this.signedData);
 
   /// Gets and sets the signed Message Digest.
   late List<int> signedData;

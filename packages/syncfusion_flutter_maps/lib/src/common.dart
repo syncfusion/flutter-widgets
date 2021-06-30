@@ -16,6 +16,8 @@ enum MarkerAction { insert, removeAt, replace, clear }
 
 enum LayerType { shape, tile }
 
+enum GeoJSONSourceType { asset, network, memory }
+
 /// Specifies the layer for tooltip.
 enum MapLayerElement {
   /// Shows tooltip for shape layer.
@@ -73,6 +75,7 @@ class MapModel {
     this.bubbleRadius,
     this.bubblePath,
     this.tooltipText,
+    this.colorValue,
   });
 
   /// Contains [sourceDataPath] values.
@@ -115,7 +118,7 @@ class MapModel {
   Color? shapeColor;
 
   /// Contains the actual shape color value.
-  dynamic? shapeColorValue;
+  dynamic shapeColorValue;
 
   /// Contains the shape path.
   Path? shapePath;
@@ -138,6 +141,9 @@ class MapModel {
   /// Contains the bubble path.
   Path? bubblePath;
 
+  /// Contains the color value.
+  dynamic colorValue;
+
   void reset() {
     dataIndex = null;
     isSelected = false;
@@ -153,6 +159,7 @@ class MapModel {
     bubbleSizeValue = null;
     bubbleRadius = null;
     bubblePath = null;
+    colorValue = null;
   }
 }
 
@@ -212,7 +219,7 @@ class RenderSublayerContainer extends RenderStack {
     while (child != null) {
       final StackParentData childParentData =
           // ignore: avoid_as
-          child.parentData as StackParentData;
+          child.parentData! as StackParentData;
       child.layout(constraints);
       child = childParentData.nextSibling;
     }

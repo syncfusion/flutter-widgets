@@ -81,13 +81,17 @@ The Flutter Calendar widget has built-in configurable views such as day, week, w
  
 ![month_agenda_view](https://cdn.syncfusion.com/content/images/FTControl/Flutter/Month+agenda+view+2.png)
 
+* **Week numbers** - Display the week numbers of the year in the month, week, and work week views of the Calendar. 
+
+![week_numbers](https://cdn.syncfusion.com/content/images/FTControl/Calendar/calendar-weeknumber.png)
+
 * **Quick view navigation** - Navigate among calendar views easily using the header date picker views button in the calendar header and clicking month cell and view headers.
 
 ![quick_view_navigation](https://cdn.syncfusion.com/content/images/FTControl/Calendar/flutter-calendar-quickview-navigation.png)
 
-* **Builders** - Allows you to design and set your own custom view to the month cells, month header of schedule view, special time regions, and appointments view of the calendar.
+* **Builders** - Allows you to design and set your own custom view to the month cells, month header of schedule view, resource header of timeline views, special time regions, and appointments view of the calendar.
 
-![bulders_in_calendar](https://cdn.syncfusion.com/content/images/FTControl/Calendar/builders.png)
+![builders_in_calendar](https://cdn.syncfusion.com/content/images/FTControl/Calendar/calendar-builders.png)
 
 * **Appearance customization or Theming** - Provide a uniform and consistent look to the Calendar’s appearance and format. Theming support to provide a consistent look to the calendar.
 
@@ -114,19 +118,24 @@ The Flutter Calendar widget has built-in configurable views such as day, week, w
 ## Coming soon
 
 - Drag and drop
-- Remainder
+- Reminder
 
 ## Get the demo application
 
 Explore the full capabilities of our Flutter widgets on your device by installing our sample browser applications from the below app stores, and view samples code in GitHub.
 
 <p align="center">
-  <a href="https://play.google.com/store/apps/details?id=com.syncfusion.flutter.examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/google-play.png"/></a>
-  <a href="https://apps.apple.com/us/app/syncfusion-flutter-ui-widgets/id1475231341"><img src="https://cdn.syncfusion.com/content/images/FTControl/apple-button.png"/></a>
+  <a href="https://play.google.com/store/apps/details?id=com.syncfusion.flutter.examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/google-play-store.png"/></a>
+  <a href="https://apps.apple.com/us/app/syncfusion-flutter-ui-widgets/id1475231341"><img src="https://cdn.syncfusion.com/content/images/FTControl/ios-store.png"/></a>
+  <a href="https://flutter.syncfusion.com"><img src="https://cdn.syncfusion.com/content/images/FTControl/web-sample-browser.png"/></a> 
 </p>
 <p align="center">
-  <a href="https://github.com/syncfusion/flutter-examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/GitHub.png"/></a>
-  <a href="https://flutter.syncfusion.com"><img src="https://cdn.syncfusion.com/content/images/FTControl/web_sample_browser.png"/></a>  
+  <a href="https://www.microsoft.com/en-us/p/syncfusion-flutter-gallery/9nhnbwcsf85d?activetab=pivot:overviewtab"><img src="https://cdn.syncfusion.com/content/images/FTControl/windows-store.png"/></a> 
+  <a href="https://install.appcenter.ms/orgs/syncfusion-demos/apps/syncfusion-flutter-gallery/distribution_groups/release"><img src="https://cdn.syncfusion.com/content/images/FTControl/macos-app-center.png"/></a>
+  <a href="https://snapcraft.io/syncfusion-flutter-gallery"><img src="https://cdn.syncfusion.com/content/images/FTControl/snap-store.png"/></a>
+</p>
+<p align="center">
+  <a href="https://github.com/syncfusion/flutter-examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/github-samples.png"/></a>
 </p>
 
 ## Other useful links
@@ -237,18 +246,18 @@ You can also map custom appointment data to our calendar.
   Widget build(BuildContext context) {
     return Scaffold(
         body: SfCalendar(
-      view: CalendarView.month,
-      dataSource: MeetingDataSource(_getDataSource()),
-      monthViewSettings: MonthViewSettings(
-          appointmentDisplayMode: MonthAppointmentDisplayMode.appointment),
-    ));
+          view: CalendarView.month,
+          dataSource: MeetingDataSource(_getDataSource()),
+          monthViewSettings: MonthViewSettings(
+              appointmentDisplayMode: MonthAppointmentDisplayMode.appointment),
+        ));
   }
 
   List<Meeting> _getDataSource() {
-    meetings = <Meeting>[];
+    final List<Meeting> meetings = <Meeting>[];
     final DateTime today = DateTime.now();
     final DateTime startTime =
-        DateTime(today.year, today.month, today.day, 9, 0, 0);
+    DateTime(today.year, today.month, today.day, 9, 0, 0);
     final DateTime endTime = startTime.add(const Duration(hours: 2));
     meetings.add(
         Meeting('Conference', startTime, endTime, const Color(0xFF0F8644), false));
@@ -263,27 +272,27 @@ class MeetingDataSource extends CalendarDataSource {
 
   @override
   DateTime getStartTime(int index) {
-    return appointments[index].from;
+    return appointments![index].from;
   }
 
   @override
   DateTime getEndTime(int index) {
-    return appointments[index].to;
+    return appointments![index].to;
   }
 
   @override
   String getSubject(int index) {
-    return appointments[index].eventName;
+    return appointments![index].eventName;
   }
 
   @override
   Color getColor(int index) {
-    return appointments[index].background;
+    return appointments![index].background;
   }
 
   @override
   bool isAllDay(int index) {
-    return appointments[index].isAllDay;
+    return appointments![index].isAllDay;
   }
 }
 

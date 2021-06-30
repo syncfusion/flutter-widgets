@@ -21,7 +21,7 @@ abstract class _PdfFileSpecificationBase implements _IPdfWrapper {
 
   //Formats file name to Unix format.
   String _formatFileName(String fileName, bool flag) {
-    const String oldSlash = '\\';
+    const String oldSlash = r'\';
     const String newSlash = '/';
     const String driveDelimiter = ':';
     if (fileName.isEmpty) {

@@ -42,7 +42,7 @@ class PdfSubmitAction extends PdfFormAction {
   String _url = '';
   HttpMethod _httpMethod = HttpMethod.post;
   SubmitDataFormat _dataFormat = SubmitDataFormat.fdf;
-  List<PdfSubmitFormFlags> _flags = <PdfSubmitFormFlags>[];
+  final List<PdfSubmitFormFlags> _flags = <PdfSubmitFormFlags>[];
   bool _canonicalDateTimeFormat = false;
   bool _submitCoordinates = false;
   bool _includeNoValueFields = false;
@@ -191,7 +191,6 @@ class PdfSubmitAction extends PdfFormAction {
   }
 
   @override
-  bool get include => super.include;
   set include(bool value) {
     if (super.include != value) {
       super.include = value;
@@ -240,7 +239,8 @@ class PdfSubmitAction extends PdfFormAction {
     embedForm = embed;
     include = initInclude;
     if (field != null) {
-      field.forEach((f) => fields.add(f));
+      // ignore: avoid_function_literals_in_foreach_calls
+      field.forEach((PdfField f) => fields.add(f));
     }
   }
 

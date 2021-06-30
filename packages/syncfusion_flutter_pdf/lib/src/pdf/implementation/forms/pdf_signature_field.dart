@@ -15,7 +15,7 @@ class PdfSignatureField extends PdfField {
             highlightMode: highlightMode,
             tooltip: tooltip) {
     if (page._document != null) {
-      form!._signatureFlags = [
+      form!._signatureFlags = <_SignatureFlags>[
         _SignatureFlags.signaturesExists,
         _SignatureFlags.appendOnly
       ];
@@ -29,6 +29,7 @@ class PdfSignatureField extends PdfField {
       : super._load(dictionary, crossTable);
 
   //Fields
+  // ignore: prefer_final_fields
   bool _skipKidsCertificate = false;
   PdfSignature? _signature;
 
@@ -82,7 +83,7 @@ class PdfSignatureField extends PdfField {
       _signature!._field = this;
       _signature!._document!._catalog._beginSave =
           _signature!._catalogBeginSave;
-      _dictionary._beginSaveList ??= [];
+      _dictionary._beginSaveList ??= <_SavePdfPrimitiveCallback>[];
       _dictionary._beginSaveList!.add(_signature!._dictionaryBeginSave);
       if (!_skipKidsCertificate) {
         _signature!._signatureDictionary =
@@ -124,6 +125,7 @@ class PdfSignatureField extends PdfField {
     }
   }
 
+  @override
   void _draw() {
     if (!_isLoadedField) {
       super._draw();
@@ -170,6 +172,7 @@ class PdfSignatureField extends PdfField {
     }
   }
 
+  @override
   void _drawAppearance(PdfTemplate template) {
     super._drawAppearance(template);
     _FieldPainter().drawSignature(template.graphics!, _PaintParams());
@@ -180,7 +183,7 @@ class PdfSignatureField extends PdfField {
         signature.object != null &&
         signature.object is _PdfDictionary) {
       final _PdfDictionary signatureDictionary =
-          signature.object as _PdfDictionary;
+          signature.object! as _PdfDictionary;
       _signature = PdfSignature();
       _signature!._document = _crossTable!._document;
       String? subFilterType = '';
@@ -203,13 +206,13 @@ class PdfSignatureField extends PdfField {
             final _IPdfPrimitive? tempDictionary = tempArray._elements[0];
             if (tempDictionary != null && tempDictionary is _PdfDictionary) {
               if (tempDictionary.containsKey(_DictionaryProperties.data)) {
-                final _PdfMainObjectCollection? mainObjectCollection =
+                final _PdfMainObjectCollection mainObjectCollection =
                     _crossTable!._document!._objects;
                 _IPdfPrimitive? tempReferenceHolder =
                     tempDictionary[_DictionaryProperties.data];
                 if (tempReferenceHolder != null &&
                     tempReferenceHolder is _PdfReferenceHolder &&
-                    !mainObjectCollection!
+                    !mainObjectCollection
                         ._containsReference(tempReferenceHolder.reference!)) {
                   final _IPdfPrimitive? tempObject = mainObjectCollection
                       ._objectCollection![
@@ -232,12 +235,12 @@ class PdfSignatureField extends PdfField {
       if (signatureDictionary.containsKey(_DictionaryProperties.m) &&
           signatureDictionary[_DictionaryProperties.m] is _PdfString) {
         _signature!._signedDate = _dictionary._getDateTime(
-            signatureDictionary[_DictionaryProperties.m] as _PdfString);
+            signatureDictionary[_DictionaryProperties.m]! as _PdfString);
       }
       if (signatureDictionary.containsKey(_DictionaryProperties.name) &&
           signatureDictionary[_DictionaryProperties.name] is _PdfString) {
         _signature!.signedName =
-            (signatureDictionary[_DictionaryProperties.name] as _PdfString)
+            (signatureDictionary[_DictionaryProperties.name]! as _PdfString)
                 .value;
       }
       if (signatureDictionary.containsKey(_DictionaryProperties.reason)) {
@@ -328,7 +331,7 @@ class PdfSignatureField extends PdfField {
                 reference.containsKey('TransformParams')) {
               primitive = reference['TransformParams'];
               if (primitive is _PdfReferenceHolder) {
-                reference = primitive.object as _PdfDictionary;
+                reference = primitive.object as _PdfDictionary?;
               } else if (primitive is _PdfDictionary) {
                 reference = primitive;
               }
@@ -340,7 +343,7 @@ class PdfSignatureField extends PdfField {
                 if (permissionNumber != null &&
                     permissionNumber is _PdfNumber) {
                   _signature!.documentPermissions = _signature!
-                      ._getCertificateFlags(permissionNumber.value as int);
+                      ._getCertificateFlags(permissionNumber.value! as int);
                 }
               }
             }

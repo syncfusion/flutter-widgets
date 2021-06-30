@@ -51,14 +51,12 @@ class BarSegment extends ChartSegment {
       ..strokeWidth = _currentPoint!.isEmpty == true
           ? _series.emptyPointSettings.borderWidth
           : _strokeWidth!;
-    if (_series.borderGradient != null) {
-      strokePaint!.shader =
-          _series.borderGradient!.createShader(_currentPoint!.region!);
-    } else {
-      strokePaint!.color = _currentPoint!.isEmpty == true
-          ? _series.emptyPointSettings.borderColor
-          : _strokeColor!;
-    }
+    (_series.borderGradient != null)
+        ? strokePaint!.shader =
+            _series.borderGradient!.createShader(_currentPoint!.region!)
+        : strokePaint!.color = _currentPoint!.isEmpty == true
+            ? _series.emptyPointSettings.borderColor
+            : _strokeColor!;
     _series.borderWidth == 0
         ? strokePaint!.color = Colors.transparent
         : strokePaint!.color;
@@ -69,7 +67,8 @@ class BarSegment extends ChartSegment {
   /// Method to get series tracker fill.
   Paint _getTrackerFillPaint() {
     if (_series is BarSeries) {
-      final BarSeries<dynamic, dynamic> barSeries = _series as BarSeries;
+      final BarSeries<dynamic, dynamic> barSeries =
+          _series as BarSeries<dynamic, dynamic>;
       _trackerFillPaint = Paint()
         ..color = barSeries.trackColor
         ..style = PaintingStyle.fill;
@@ -79,7 +78,8 @@ class BarSegment extends ChartSegment {
 
   /// Method to get series tracker stroke color.
   Paint _getTrackerStrokePaint() {
-    final BarSeries<dynamic, dynamic> barSeries = _series as BarSeries;
+    final BarSeries<dynamic, dynamic> barSeries =
+        _series as BarSeries<dynamic, dynamic>;
     _trackerStrokePaint = Paint()
       ..color = barSeries.trackBorderColor
       ..strokeWidth = barSeries.trackBorderWidth
@@ -97,7 +97,8 @@ class BarSegment extends ChartSegment {
   /// Draws segment in series bounds.
   @override
   void onPaint(Canvas canvas) {
-    final BarSeries<dynamic, dynamic> barSeries = _series as BarSeries;
+    final BarSeries<dynamic, dynamic> barSeries =
+        _series as BarSeries<dynamic, dynamic>;
     if (_trackerFillPaint != null && barSeries.isTrackVisible) {
       _drawSegmentRect(canvas, _trackBarRect, _trackerFillPaint!);
     }
@@ -110,11 +111,9 @@ class BarSegment extends ChartSegment {
       _drawSegmentRect(canvas, segmentRect, fillPaint!);
     }
     if (strokePaint != null) {
-      if (_series.dashArray[0] != 0 && _series.dashArray[1] != 0) {
-        _drawDashedLine(canvas, _series.dashArray, strokePaint!, _path);
-      } else {
-        _drawSegmentRect(canvas, segmentRect, strokePaint!);
-      }
+      (_series.dashArray[0] != 0 && _series.dashArray[1] != 0)
+          ? _drawDashedLine(canvas, _series.dashArray, strokePaint!, _path)
+          : _drawSegmentRect(canvas, segmentRect, strokePaint!);
     }
   }
 

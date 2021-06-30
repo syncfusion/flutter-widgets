@@ -28,7 +28,7 @@ List<int> _convertCodeUnitsToCodePoints(List<int> codeUnits,
 
 class _UtfbeDecoder {
   _UtfbeDecoder(List<int>? encodedBytes, [int offset = 0, int? length]) {
-    length = (length ?? encodedBytes!.length - offset);
+    length = length ?? encodedBytes!.length - offset;
     byteRange = _ByteRange(encodedBytes, offset, length);
     if (isBeBom(encodedBytes, offset, length)) {
       byteRange.skip(2);
@@ -58,7 +58,7 @@ class _UtfbeDecoder {
 
   List<int> decodeRemaining() {
     final List<int> codeunits = List<int>.filled(remaining, 0, growable: true);
-    var i = 0;
+    int i = 0;
     while (moveNext) {
       codeunits[i++] = _current!;
     }
@@ -89,7 +89,7 @@ class _UtfbeDecoder {
 
 class _ByteRange {
   _ByteRange(List<int>? source, int offset, int? length) {
-    length = (length ?? source!.length - offset);
+    length = length ?? source!.length - offset;
     _source = source;
     _offset = offset - 1;
     _length = length;

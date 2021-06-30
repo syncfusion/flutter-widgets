@@ -886,8 +886,8 @@ class PdfGrid extends PdfLayoutElement {
       ArgumentError.value('width', 'width', 'out of range');
     }
     if (rows.count != 0) {
-      final PdfBorders? borders = rows[0].cells[0].style.borders;
-      if (borders != null && borders.left.width != 1) {
+      final PdfBorders borders = rows[0].cells[0].style.borders;
+      if (borders.left.width != 1) {
         final double x = borders.left.width / 2;
         final double y = borders.top.width / 2;
         if (param.bounds!.x == _defaultBorder.right.width / 2 &&
@@ -926,7 +926,7 @@ class PdfGrid extends PdfLayoutElement {
   /// row.cells[0].value = 'E02';
   /// row.cells[1].value = 'Simon';
   /// row.cells[2].value = '\$12,000';
-  /// final PdfGridBuiltInStyleSettings tableStyleOption =
+  /// PdfGridBuiltInStyleSettings tableStyleOption =
   ///     PdfGridBuiltInStyleSettings();
   /// tableStyleOption.applyStyleForBandedRows = true;
   /// tableStyleOption.applyStyleForHeaderRow = true;
@@ -1486,13 +1486,14 @@ class PdfGrid extends PdfLayoutElement {
           style: PdfFontStyle.italic);
     } else {
       if (_italicFontCache!.containsKey(font)) {
-        return _italicFontCache![font as PdfTrueTypeFont];
+        return _italicFontCache![font! as PdfTrueTypeFont];
       } else {
-        final PdfTrueTypeFont trueTypeFont = font as PdfTrueTypeFont;
+        final PdfTrueTypeFont trueTypeFont = font! as PdfTrueTypeFont;
         final PdfFont italicStyleFont = PdfTrueTypeFont(
             trueTypeFont._fontInternal._fontData, font.size,
             style: PdfFontStyle.italic);
-        _italicFontCache![font] = italicStyleFont as PdfTrueTypeFont;
+        _italicFontCache![font as PdfTrueTypeFont] =
+            italicStyleFont as PdfTrueTypeFont;
         return italicStyleFont;
       }
     }
@@ -1512,11 +1513,11 @@ class PdfGrid extends PdfLayoutElement {
       bool firstColumn, PdfColor backColor, int cellIndex) {
     PdfBrush? backBrush;
     if (firstColumn) {
-      if (cellIndex % 2 == 0) {
+      if (cellIndex.isEven) {
         backBrush = PdfSolidBrush(backColor);
       }
     } else {
-      if (cellIndex % 2 != 0) {
+      if (cellIndex.isOdd) {
         backBrush = PdfSolidBrush(backColor);
       }
     }
@@ -1527,11 +1528,11 @@ class PdfGrid extends PdfLayoutElement {
       bool headerRow, PdfColor backColor, int rowIndex) {
     PdfBrush? backBrush;
     if (headerRow) {
-      if (rowIndex % 2 != 0) {
+      if (rowIndex.isOdd) {
         backBrush = PdfSolidBrush(backColor);
       }
     } else {
-      if (rowIndex % 2 == 0) {
+      if (rowIndex.isEven) {
         backBrush = PdfSolidBrush(backColor);
       }
     }
@@ -2183,7 +2184,7 @@ class PdfGrid extends PdfLayoutElement {
               cell.style.borders.right = borderPen;
             }
             if (_lastColumn && j == row.cells.count) {
-              final PdfFont? font = cell.style.font ??
+              final PdfFont font = cell.style.font ??
                   row.style.font ??
                   row._grid.style.font ??
                   _defaultFont;
@@ -2264,7 +2265,7 @@ class PdfGrid extends PdfLayoutElement {
         }
         if (_lastColumn && j == row.cells.count) {
           if (!(_totalRow && i == rows.count)) {
-            final PdfFont? font = cell.style.font ??
+            final PdfFont font = cell.style.font ??
                 row.style.font ??
                 row._grid.style.font ??
                 _defaultFont;
@@ -2567,7 +2568,7 @@ class PdfGrid extends PdfLayoutElement {
             if (_firstColumn && j == 1) {
               cell.style.backgroundBrush = null;
               cell.style.borders.all = whitePen;
-              final PdfFont? font = cell.style.font ??
+              final PdfFont font = cell.style.font ??
                   row.style.font ??
                   row._grid.style.font ??
                   _defaultFont;
@@ -2576,7 +2577,7 @@ class PdfGrid extends PdfLayoutElement {
             if (_lastColumn && j == row.cells.count) {
               cell.style.backgroundBrush = null;
               cell.style.borders.all = whitePen;
-              final PdfFont? font = cell.style.font ??
+              final PdfFont font = cell.style.font ??
                   row.style.font ??
                   row._grid.style.font ??
                   _defaultFont;
@@ -2622,7 +2623,7 @@ class PdfGrid extends PdfLayoutElement {
           if (!(_totalRow && i == rows.count)) {
             cell.style.backgroundBrush = null;
             cell.style.borders.all = whitePen;
-            final PdfFont? font = cell.style.font ??
+            final PdfFont font = cell.style.font ??
                 row.style.font ??
                 row._grid.style.font ??
                 _defaultFont;
@@ -2638,7 +2639,7 @@ class PdfGrid extends PdfLayoutElement {
           if (!(_totalRow && i == rows.count)) {
             cell.style.backgroundBrush = null;
             cell.style.borders.all = whitePen;
-            final PdfFont? font = cell.style.font ??
+            final PdfFont font = cell.style.font ??
                 row.style.font ??
                 row._grid.style.font ??
                 _defaultFont;
@@ -3053,7 +3054,7 @@ class PdfGrid extends PdfLayoutElement {
             if (_firstColumn && j == 1) {
               cell.style.backgroundBrush = null;
               cell.style.borders.all = whitePen;
-              final PdfFont? font = cell.style.font ??
+              final PdfFont font = cell.style.font ??
                   row.style.font ??
                   row._grid.style.font ??
                   _defaultFont;
@@ -3062,7 +3063,7 @@ class PdfGrid extends PdfLayoutElement {
             if (_lastColumn && j == row.cells.count) {
               cell.style.backgroundBrush = null;
               cell.style.borders.all = whitePen;
-              final PdfFont? font = cell.style.font ??
+              final PdfFont font = cell.style.font ??
                   row.style.font ??
                   row._grid.style.font ??
                   _defaultFont;
@@ -3112,7 +3113,7 @@ class PdfGrid extends PdfLayoutElement {
             if (i == 1 && _headerRow) {
               cell.style.borders.top = borderPen;
             }
-            final PdfFont? font = cell.style.font ??
+            final PdfFont font = cell.style.font ??
                 row.style.font ??
                 row._grid.style.font ??
                 _defaultFont;
@@ -3130,7 +3131,7 @@ class PdfGrid extends PdfLayoutElement {
             if (i == 1 && _headerRow) {
               cell.style.borders.top = borderPen;
             }
-            final PdfFont? font = cell.style.font ??
+            final PdfFont font = cell.style.font ??
                 row.style.font ??
                 row._grid.style.font ??
                 _defaultFont;
@@ -3844,7 +3845,7 @@ class PdfGrid extends PdfLayoutElement {
                     _applyBandedColStyle(_firstColumn, backColor, j);
               }
               if (cell.style.backgroundBrush != null) {
-                cell..style.borders.left = backColorPen;
+                cell.style.borders.left = backColorPen;
                 cell.style.borders.right = backColorPen;
               }
             }
@@ -3869,7 +3870,7 @@ class PdfGrid extends PdfLayoutElement {
               if (i % 2 != 0) {
                 cell.style.backgroundBrush = backColorBrush;
                 if (j == 1) {
-                  cell..style.borders.left = backColorPen;
+                  cell.style.borders.left = backColorPen;
                 } else if (j == row.cells.count) {
                   cell.style.borders.right = backColorPen;
                 }
@@ -3899,7 +3900,7 @@ class PdfGrid extends PdfLayoutElement {
                   row._grid.style.font ??
                   _defaultFont;
               cell.style.font = _changeFontStyle(font);
-              cell..style.borders.left = emptyPen;
+              cell.style.borders.left = emptyPen;
             }
           }
         }
@@ -3927,7 +3928,7 @@ class PdfGrid extends PdfLayoutElement {
               _applyBandedRowStyle(_headerRow, backColor, i);
           if (cell.style.backgroundBrush != null) {
             if (j == 1) {
-              cell..style.borders.left = backColorPen;
+              cell.style.borders.left = backColorPen;
             } else if (j == row.cells.count) {
               cell.style.borders.right = backColorPen;
             }
@@ -3940,7 +3941,7 @@ class PdfGrid extends PdfLayoutElement {
             cell.style.backgroundBrush =
                 _applyBandedColStyle(_firstColumn, backColor, j);
             if (cell.style.backgroundBrush != null) {
-              cell..style.borders.left = backColorPen;
+              cell.style.borders.left = backColorPen;
               cell.style.borders.right = backColorPen;
               if (i == 1 && _headerRow) {
                 cell.style.borders.top = borderColorPen;
@@ -3951,7 +3952,7 @@ class PdfGrid extends PdfLayoutElement {
             cell.style.backgroundBrush =
                 _applyBandedRowStyle(_headerRow, backColor, i);
             if (j == 1) {
-              cell..style.borders.left = backColorPen;
+              cell.style.borders.left = backColorPen;
             } else if (j == row.cells.count) {
               cell.style.borders.right = backColorPen;
             }
@@ -3972,7 +3973,7 @@ class PdfGrid extends PdfLayoutElement {
         if (_lastColumn && j == row.cells.count) {
           if (!(_totalRow && i == rows.count)) {
             cell.style.backgroundBrush = null;
-            cell..style.borders.left = emptyPen;
+            cell.style.borders.left = emptyPen;
             cell.style.borders.right = emptyPen;
             if (_bandedRow) {
               cell.style.backgroundBrush =
@@ -3996,7 +3997,7 @@ class PdfGrid extends PdfLayoutElement {
         }
         if (_totalRow && i == rows.count) {
           cell.style.backgroundBrush = null;
-          cell..style.borders.left = emptyPen;
+          cell.style.borders.left = emptyPen;
           cell.style.borders.right = emptyPen;
           final PdfFont font = cell.style.font ??
               row.style.font ??
@@ -4011,7 +4012,7 @@ class PdfGrid extends PdfLayoutElement {
               cell.style.backgroundBrush = null;
             }
             if (cell.style.backgroundBrush != null) {
-              cell..style.borders.left = backColorPen;
+              cell.style.borders.left = backColorPen;
               cell.style.borders.right = backColorPen;
             }
           }
@@ -4063,7 +4064,7 @@ class PdfGrid extends PdfLayoutElement {
             if (_firstColumn && j == 1) {
               cell.style.backgroundBrush = null;
               cell.style.borders.all = emptyPen;
-              final PdfFont? font = cell.style.font ??
+              final PdfFont font = cell.style.font ??
                   row.style.font ??
                   row._grid.style.font ??
                   _defaultFont;
@@ -4072,7 +4073,7 @@ class PdfGrid extends PdfLayoutElement {
             }
             if (_lastColumn && j == row.cells.count) {
               cell.style.backgroundBrush = null;
-              final PdfFont? font = cell.style.font ??
+              final PdfFont font = cell.style.font ??
                   row.style.font ??
                   row._grid.style.font ??
                   _defaultFont;
@@ -4125,7 +4126,7 @@ class PdfGrid extends PdfLayoutElement {
           if (!(_totalRow && i == rows.count)) {
             cell.style.backgroundBrush = null;
             cell.style.borders.all = emptyPen;
-            final PdfFont? font = cell.style.font ??
+            final PdfFont font = cell.style.font ??
                 row.style.font ??
                 row._grid.style.font ??
                 _defaultFont;
@@ -4154,7 +4155,7 @@ class PdfGrid extends PdfLayoutElement {
         if (_lastColumn && j == row.cells.count) {
           if (!(_totalRow && i == rows.count)) {
             cell.style.backgroundBrush = null;
-            final PdfFont? font = cell.style.font ??
+            final PdfFont font = cell.style.font ??
                 row.style.font ??
                 row._grid.style.font ??
                 _defaultFont;
@@ -4650,7 +4651,7 @@ class PdfGridBuiltInStyleSettings {
   /// row.cells[0].value = 'E02';
   /// row.cells[1].value = 'Simon';
   /// row.cells[2].value = '\$12,000';
-  /// final PdfGridBuiltInStyleSettings tableStyleOption =
+  /// PdfGridBuiltInStyleSettings tableStyleOption =
   ///     PdfGridBuiltInStyleSettings();
   /// //Sets applyStyleForBandedColumns
   /// tableStyleOption.applyStyleForBandedColumns = true;
@@ -4691,7 +4692,7 @@ class PdfGridBuiltInStyleSettings {
   /// row.cells[0].value = 'E02';
   /// row.cells[1].value = 'Simon';
   /// row.cells[2].value = '\$12,000';
-  /// final PdfGridBuiltInStyleSettings tableStyleOption =
+  /// PdfGridBuiltInStyleSettings tableStyleOption =
   ///     PdfGridBuiltInStyleSettings();
   /// //Sets applyStyleForBandedRows
   /// tableStyleOption.applyStyleForBandedRows = true;
@@ -4732,7 +4733,7 @@ class PdfGridBuiltInStyleSettings {
   /// row.cells[0].value = 'E02';
   /// row.cells[1].value = 'Simon';
   /// row.cells[2].value = '\$12,000';
-  /// final PdfGridBuiltInStyleSettings tableStyleOption =
+  /// PdfGridBuiltInStyleSettings tableStyleOption =
   ///     PdfGridBuiltInStyleSettings();
   /// //Sets applyStyleForFirstColumn
   /// tableStyleOption.applyStyleForFirstColumn = true;
@@ -4773,7 +4774,7 @@ class PdfGridBuiltInStyleSettings {
   /// row.cells[0].value = 'E02';
   /// row.cells[1].value = 'Simon';
   /// row.cells[2].value = '\$12,000';
-  /// final PdfGridBuiltInStyleSettings tableStyleOption =
+  /// PdfGridBuiltInStyleSettings tableStyleOption =
   ///     PdfGridBuiltInStyleSettings();
   /// //Sets applyStyleForHeaderRow
   /// tableStyleOption.applyStyleForHeaderRow = true;
@@ -4814,7 +4815,7 @@ class PdfGridBuiltInStyleSettings {
   /// row.cells[0].value = 'E02';
   /// row.cells[1].value = 'Simon';
   /// row.cells[2].value = '\$12,000';
-  /// final PdfGridBuiltInStyleSettings tableStyleOption =
+  /// PdfGridBuiltInStyleSettings tableStyleOption =
   ///     PdfGridBuiltInStyleSettings();
   /// //Sets applyStyleForLastColumn
   /// tableStyleOption.applyStyleForLastColumn = true;
@@ -4855,7 +4856,7 @@ class PdfGridBuiltInStyleSettings {
   /// row.cells[0].value = 'E02';
   /// row.cells[1].value = 'Simon';
   /// row.cells[2].value = '\$12,000';
-  /// final PdfGridBuiltInStyleSettings tableStyleOption =
+  /// PdfGridBuiltInStyleSettings tableStyleOption =
   ///     PdfGridBuiltInStyleSettings();
   /// //Sets applyStyleForLastRow
   /// tableStyleOption.applyStyleForLastRow = true;

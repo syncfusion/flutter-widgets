@@ -3,9 +3,9 @@ part of pdf;
 class _ImageRenderer {
   //Constructor
   _ImageRenderer(_PdfRecordCollection? contentElements,
-      _PdfPageResources resources, double pageBottom,
+      _PdfPageResources resources, this.currentPageHeight,
       [_GraphicsObject? g]) {
-    final int dpiX = 96;
+    const int dpiX = 96;
     _graphicsObject = _GraphicsObject();
     _graphicsState = _GraphicStateCollection();
     _objects = _GraphicObjectDataCollection();
@@ -25,12 +25,11 @@ class _ImageRenderer {
         0,
         -1.33333333333333 * (dpiX / 96) * transformMatrix.m22,
         0,
-        pageBottom * transformMatrix.m22);
+        currentPageHeight! * transformMatrix.m22);
     _objects!._push(newObject);
     _objects!._push(newObject);
     _contentElements = contentElements;
     _resources = resources;
-    currentPageHeight = pageBottom;
     imageRenderGlyphList = <_Glyph>[];
     _initialize();
   }
@@ -148,7 +147,7 @@ class _ImageRenderer {
     _renderingMode = 0;
     _textMatrix = false;
     _isCurrentPositionChanged = false;
-    _currentLocation = Offset(0, 0);
+    _currentLocation = const Offset(0, 0);
     isScaledText = false;
     _skipRendering = false;
     _layersVisibilityDictionary = <String, bool>{};
@@ -262,7 +261,7 @@ class _ImageRenderer {
               _graphicsState!._push(state);
               _graphicsObject!
                   ._multiplyTransform(_MatrixHelper(a, -b, -c, d, e, -f));
-              currentLocation = Offset(0, 0);
+              currentLocation = const Offset(0, 0);
               _textMatrix = true;
               break;
             }
@@ -281,12 +280,12 @@ class _ImageRenderer {
             {
               textLineMatrix = _MatrixHelper(1, 0, 0, 1, 0, 0);
               textMatrix = _MatrixHelper(1, 0, 0, 1, 0, 0);
-              currentLocation = Offset(0, 0);
+              currentLocation = const Offset(0, 0);
               break;
             }
           case 'ET':
             {
-              currentLocation = Offset(0, 0);
+              currentLocation = const Offset(0, 0);
               if (isScaledText) {
                 isScaledText = false;
                 _graphicsObject!._restore(_graphicsState!._pop()!);
@@ -461,7 +460,7 @@ class _ImageRenderer {
         fontSize! * (objects._horizontalScaling! / 100),
         0,
         0,
-        (isPath ? fontSize! : (-fontSize!)),
+        isPath ? fontSize! : (-fontSize!),
         0,
         (isPath ? objects.rise! : (fontSize! + objects.rise!)) as double);
     mat *= textLineMatrix! * currentTransformationMatrix!;
@@ -481,7 +480,7 @@ class _ImageRenderer {
     final double y = double.tryParse(rectangle[1])!;
     double? height = double.tryParse(rectangle[3]);
     if (x < 0 && height! < 0 && _isNextFill) {
-      if (-(height) >= currentPageHeight!) {
+      if (-height >= currentPageHeight!) {
         x = 0;
         height = 0;
       }
@@ -548,11 +547,11 @@ class _ImageRenderer {
             _objects,
             currentPageHeight,
             xObjectGlyphs);
-        _graphicsState = result['graphicStates'];
-        _objects = result['objects'];
-        xObjectGlyphs = result['glyphList'];
+        _graphicsState = result['graphicStates'] as _GraphicStateCollection?;
+        _objects = result['objects'] as _GraphicObjectDataCollection?;
+        xObjectGlyphs = result['glyphList'] as List<_Glyph>?;
         final List<_TextElement>? tempExtractTextElement =
-            result['extractTextElement'];
+            result['extractTextElement'] as List<_TextElement>?;
         if (tempExtractTextElement != null &&
             tempExtractTextElement.isNotEmpty) {
           extractTextElement.addAll(tempExtractTextElement);
@@ -677,7 +676,8 @@ class _ImageRenderer {
     List<String> decodedList = <String>[];
     final String text = textElements.join();
     if (_resources!.containsKey(currentFont)) {
-      final _FontStructure structure = _resources![currentFont!];
+      final _FontStructure structure =
+          _resources![currentFont!] as _FontStructure;
       structure.isSameFont = _resources!.isSameFont();
       structure.fontSize = fontSize;
       List<double>? characterSpacings;

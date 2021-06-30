@@ -1,26 +1,5 @@
 part of charts;
 
-/// Returns the LegendRenderArgs.
-typedef PyramidLegendRenderCallback = void Function(
-    LegendRenderArgs legendRenderArganimateCompleteds);
-
-/// Returns the TooltipArgs.
-typedef PyramidTooltipCallback = void Function(TooltipArgs tooltipArgs);
-
-/// Returns the DataLabelRenderArgs.
-typedef PyramidDataLabelRenderCallback = void Function(
-    DataLabelRenderArgs dataLabelArgs);
-
-/// Returns the SelectionArgs.
-typedef PyramidSelectionCallback = void Function(SelectionArgs selectionArgs);
-
-///Returns tha PointTapArgs.
-typedef PyramidPointTapCallback = void Function(PointTapArgs pointTapArgs);
-
-/// Returns the Offset
-typedef PyramidTouchInteractionCallback = void Function(
-    ChartTouchInteractionArgs tapArgs);
-
 ///Renders the pyramid chart
 ///
 ///To render a pyramid chart, create an instance of PyramidSeries, and add it to the series property of SfPyramidChart
@@ -39,7 +18,7 @@ class SfPyramidChart extends StatefulWidget {
     this.onLegendItemRender,
     this.onTooltipRender,
     this.onDataLabelRender,
-    this.onPointTapped,
+    @deprecated this.onPointTapped,
     this.onDataLabelTapped,
     this.onLegendTapped,
     this.onSelectionChanged,
@@ -233,7 +212,7 @@ class SfPyramidChart extends StatefulWidget {
   ///        child: SfPyramidChart(
   ///           series: PyramidSeries<ChartData, String>(
   ///                  initialSelectedDataIndexes: <int>[1,0],
-  ///                  selectionSettings: SelectionSettings(
+  ///                  selectionBehavior: SelectionBehavior(
   ///                    selectedColor: Colors.red,
   ///                    unselectedColor: Colors.grey
   ///                  ),
@@ -256,7 +235,7 @@ class SfPyramidChart extends StatefulWidget {
   ///        child: SfPyramidChart(
   ///           selectionGesture: ActivationMode.singleTap,
   ///           series: PyramidSeries<ChartData, String>(
-  ///                  selectionSettings: SelectionSettings(
+  ///                  selectionBehavior: SelectionBehavior(
   ///                    selectedColor: Colors.red,
   ///                    unselectedColor: Colors.grey
   ///                  ),
@@ -276,7 +255,7 @@ class SfPyramidChart extends StatefulWidget {
   ///        child: SfPyramidChart(
   ///           enableMultiSelection: true,
   ///           series: PyramidSeries<ChartData, String>(
-  ///                  selectionSettings: SelectionSettings(
+  ///                  selectionBehavior: SelectionBehavior(
   ///                    selectedColor: Colors.red,
   ///                    unselectedColor: Colors.grey
   ///                  ),
@@ -329,6 +308,7 @@ class SfPyramidChart extends StatefulWidget {
   ///   print(args.pointIndex);
   ///}
   ///```
+  @Deprecated('Use onPointTap in PyramidSeries instead.')
   final PyramidPointTapCallback? onPointTapped;
 
   //Called when the data label is tapped.
@@ -336,7 +316,7 @@ class SfPyramidChart extends StatefulWidget {
   ///Whenever the data label is tapped, `onDataLabelTapped` callback will be called. Provides options to
   /// get the position of the data label, series index, point index and its text.
   ///
-  ///_Note:_ - This callback will not be called, when the builder is specified for data label
+  ///_Note:_  This callback will not be called, when the builder is specified for data label
   /// (data label template). For this case, custom widget specified in the `DataLabelSettings.builder` property
   /// can be wrapped using the `GestureDetector` and this functionality can be achieved in the application level.
   ///
@@ -403,64 +383,26 @@ class SfPyramidChart extends StatefulWidget {
 ///
 class SfPyramidChartState extends State<SfPyramidChart>
     with TickerProviderStateMixin {
-  //ignore: unused_field
-  late List<AnimationController> _controllerList;
-  //ignore: unused_field
-  late AnimationController
-      _animationController; // Animation controller for series
-
-  //ignore: unused_field
-  late AnimationController _annotationController; // Controller for Annotations
-
-  late ValueNotifier<int> _seriesRepaintNotifier;
-  late List<_MeasureWidgetContext>
-      _legendWidgetContext; // To measure legend size and position
-  late List<_ChartTemplateInfo> _templates; // Chart Template info
-  late List<Widget> _chartWidgets;
-  //ignore: unused_field
-  late PyramidSeriesRenderer _seriesRenderer;
-
-  /// Holds the information of chart theme arguments
-  late SfChartThemeData _chartTheme;
-  late Rect _chartContainerRect;
-  late Rect _chartAreaRect;
-  _ChartTemplate? _chartTemplate;
-  _ChartInteraction? _currentActive;
-  bool? _initialRender;
-  late List<_LegendRenderContext> _legendToggleStates;
-  late List<_MeasureWidgetContext> _legendToggleTemplateStates;
-  late bool _isLegendToggled;
-  Offset? _tapPosition;
-  bool? _animateCompleted;
-  //ignore: unused_field
-  late Animation<double> _chartElementAnimation;
   _PyramidDataLabelRenderer? _renderDataLabel;
-  late bool _widgetNeedUpdate;
-  late List<int> _explodedPoints;
-  late List<Rect> _dataLabelTemplateRegions;
-  late List<int> _selectionData;
   int? _tooltipPointIndex;
-  Orientation? _oldDeviceOrientation;
-  late Orientation _deviceOrientation;
-  Size? _prevSize;
-  bool _didSizeChange = false;
   //Internal variables
   late String _seriesType;
   late List<PointInfo<dynamic>> _dataPoints;
   List<PointInfo<dynamic>>? _renderPoints;
   late _PyramidSeries _chartSeries;
-  late _ChartLegend _chartLegend;
-  //ignore: unused_field
   late _PyramidPlotArea _chartPlotArea;
-  late TooltipBehaviorRenderer _tooltipBehaviorRenderer;
-  late LegendRenderer _legendRenderer;
+
   //Here, we are using get keyword inorder to get the proper & updated instance of chart widget
   //When we initialize chart widget as a property to other classes like _ChartSeries, the chart widget is not updated properly and by using get we can rectify this.
   SfPyramidChart get _chart => widget;
 
+  /// Specifies the chart rendering details
+  late _RenderingDetails _renderingDetails;
+
   // ignore: unused_element
   bool get _animationCompleted {
-    return _animationController.status != AnimationStatus.forward;
+    return _renderingDetails.animationController.status !=
+        AnimationStatus.forward;
   }
 
   /// Called when this object is inserted into the tree.
@@ -476,6 +418,8 @@ class SfPyramidChartState extends State<SfPyramidChart>
 
   @override
   void initState() {
+    _renderingDetails = _RenderingDetails();
+    _renderingDetails.didSizeChange = false;
     _initializeDefaultValues();
     //Update and maintain the series state, when we update the series in the series collection //
     _createAndUpdateSeriesRenderer();
@@ -493,7 +437,7 @@ class SfPyramidChartState extends State<SfPyramidChart>
 
   @override
   void didChangeDependencies() {
-    _chartTheme = SfChartTheme.of(context);
+    _renderingDetails.chartTheme = SfChartTheme.of(context);
     super.didChangeDependencies();
   }
 
@@ -514,13 +458,11 @@ class SfPyramidChartState extends State<SfPyramidChart>
   void didUpdateWidget(SfPyramidChart oldWidget) {
     //Update and maintain the series state, when we update the series in the series collection //
     _createAndUpdateSeriesRenderer(oldWidget);
-    _initialRender = !widget.series.explode;
-    if (_tooltipBehaviorRenderer._chartTooltipState != null) {
-      _tooltipBehaviorRenderer._show = false;
+    if (_renderingDetails.tooltipBehaviorRenderer._chartTooltipState != null) {
+      _renderingDetails.tooltipBehaviorRenderer._show = false;
     }
     super.didUpdateWidget(oldWidget);
-    _isLegendToggled = false;
-    _widgetNeedUpdate = true;
+    _renderingDetails.widgetNeedUpdate = true;
   }
 
   /// Describes the part of the user interface represented by this widget.
@@ -536,13 +478,11 @@ class SfPyramidChartState extends State<SfPyramidChart>
 
   @override
   Widget build(BuildContext context) {
-    _prevSize = _prevSize ?? MediaQuery.of(context).size;
-    _didSizeChange = _prevSize != MediaQuery.of(context).size;
-    _prevSize = MediaQuery.of(context).size;
-    _oldDeviceOrientation = _oldDeviceOrientation == null
-        ? MediaQuery.of(context).orientation
-        : _deviceOrientation;
-    _deviceOrientation = MediaQuery.of(context).orientation;
+    _renderingDetails.oldDeviceOrientation =
+        _renderingDetails.oldDeviceOrientation == null
+            ? MediaQuery.of(context).orientation
+            : _renderingDetails.deviceOrientation;
+    _renderingDetails.deviceOrientation = MediaQuery.of(context).orientation;
     return RepaintBoundary(
         child: _ChartContainer(
             child: GestureDetector(
@@ -579,7 +519,8 @@ class SfPyramidChartState extends State<SfPyramidChart>
 
   @override
   void dispose() {
-    _disposeAnimationController(_animationController, _repaintChartElements);
+    _disposeAnimationController(
+        _renderingDetails.animationController, _repaintChartElements);
     super.dispose();
   }
 
@@ -653,25 +594,24 @@ class SfPyramidChartState extends State<SfPyramidChart>
   /// To intialize default chart elements value
   void _initializeDefaultValues() {
     _chartSeries = _PyramidSeries(this);
-    _chartLegend = _ChartLegend(this);
+    _renderingDetails.chartLegend = _ChartLegend(this);
     _chartPlotArea = _PyramidPlotArea(chartState: this);
-    _initialRender = true;
-    _controllerList = <AnimationController>[];
-    _annotationController = AnimationController(vsync: this);
-    _seriesRepaintNotifier = ValueNotifier<int>(0);
-    _legendToggleStates = <_LegendRenderContext>[];
-    _legendToggleTemplateStates = <_MeasureWidgetContext>[];
-    _explodedPoints = <int>[];
-    _animateCompleted = false;
-    _isLegendToggled = false;
-    _widgetNeedUpdate = false;
-    _legendWidgetContext = <_MeasureWidgetContext>[];
-    _dataLabelTemplateRegions = <Rect>[];
-    _selectionData = <int>[];
-    _animationController = AnimationController(vsync: this)
+    _renderingDetails.initialRender = true;
+    _renderingDetails.annotationController = AnimationController(vsync: this);
+    _renderingDetails.seriesRepaintNotifier = ValueNotifier<int>(0);
+    _renderingDetails.legendToggleStates = <_LegendRenderContext>[];
+    _renderingDetails.legendToggleTemplateStates = <_MeasureWidgetContext>[];
+    _renderingDetails.explodedPoints = <int>[];
+    _renderingDetails.animateCompleted = false;
+    _renderingDetails.isLegendToggled = false;
+    _renderingDetails.widgetNeedUpdate = false;
+    _renderingDetails.legendWidgetContext = <_MeasureWidgetContext>[];
+    _renderingDetails.dataLabelTemplateRegions = <Rect>[];
+    _renderingDetails.selectionData = <int>[];
+    _renderingDetails.animationController = AnimationController(vsync: this)
       ..addListener(_repaintChartElements);
-    _tooltipBehaviorRenderer = TooltipBehaviorRenderer(this);
-    _legendRenderer = LegendRenderer(widget.legend);
+    _renderingDetails.tooltipBehaviorRenderer = TooltipBehaviorRenderer(this);
+    _renderingDetails.legendRenderer = LegendRenderer(widget.legend);
   }
 
   // In this method, create and update the series renderer for each series //
@@ -683,7 +623,7 @@ class SfPyramidChartState extends State<SfPyramidChart>
           oldWidget != null && oldWidget.series != null
               ? _chartSeries.visibleSeriesRenderers[0]
               : null;
-      dynamic series;
+      PyramidSeries<dynamic, dynamic> series;
       series = widget.series;
 
       // Create and update the series list here
@@ -698,13 +638,12 @@ class SfPyramidChartState extends State<SfPyramidChart>
             series.onRendererCreated != null) {
           seriesRenderers._controller =
               PyramidSeriesController(seriesRenderers);
-          series.onRendererCreated(seriesRenderers._controller);
+          series.onRendererCreated!(seriesRenderers._controller!);
         }
       }
 
       seriesRenderers._series = series;
-      seriesRenderers._isSelectionEnable =
-          series.selectionBehavior.enable || series.selectionSettings.enable;
+      seriesRenderers._isSelectionEnable = series.selectionBehavior.enable;
       seriesRenderers._chartState = this;
       _chartSeries.visibleSeriesRenderers
         ..clear()
@@ -713,7 +652,7 @@ class SfPyramidChartState extends State<SfPyramidChart>
   }
 
   void _repaintChartElements() {
-    _seriesRepaintNotifier.value++;
+    _renderingDetails.seriesRepaintNotifier.value++;
   }
 
   /// To render chart elements
@@ -721,17 +660,24 @@ class SfPyramidChartState extends State<SfPyramidChart>
     return Expanded(child: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
       Widget element;
+      _renderingDetails.prevSize =
+          _renderingDetails.prevSize ?? constraints.biggest;
+      _renderingDetails.didSizeChange =
+          _renderingDetails.prevSize != constraints.biggest;
+      _renderingDetails.prevSize = constraints.biggest;
       if (widget.series.dataSource != null) {
         _initialize(constraints);
 
         _chartSeries._findVisibleSeries();
         _chartSeries._processDataPoints();
         final List<Widget> legendTemplates = _bindLegendTemplateWidgets(this);
-        if (legendTemplates.isNotEmpty && _legendWidgetContext.isEmpty) {
+        if (legendTemplates.isNotEmpty &&
+            _renderingDetails.legendWidgetContext.isEmpty) {
           element = Container(child: Stack(children: legendTemplates));
           SchedulerBinding.instance!.addPostFrameCallback((_) => _refresh());
         } else {
-          _chartLegend._calculateLegendBounds(_chartLegend.chartSize);
+          _renderingDetails.chartLegend
+              ._calculateLegendBounds(_renderingDetails.chartLegend.chartSize);
           element = _getElements(
               this, _PyramidPlotArea(chartState: this), constraints)!;
         }
@@ -744,12 +690,13 @@ class SfPyramidChartState extends State<SfPyramidChart>
 
   void _refresh() {
     final List<_MeasureWidgetContext> legendWidgetContexts =
-        _legendWidgetContext;
+        _renderingDetails.legendWidgetContext;
     if (legendWidgetContexts.isNotEmpty) {
+      _MeasureWidgetContext templateContext;
+      RenderBox renderBox;
       for (int i = 0; i < legendWidgetContexts.length; i++) {
-        final _MeasureWidgetContext templateContext = legendWidgetContexts[i];
-        final RenderBox renderBox =
-            templateContext.context!.findRenderObject() as RenderBox;
+        templateContext = legendWidgetContexts[i];
+        renderBox = templateContext.context!.findRenderObject() as RenderBox;
         templateContext.size = renderBox.size;
       }
       setState(() {
@@ -760,9 +707,9 @@ class SfPyramidChartState extends State<SfPyramidChart>
 
   // ignore:unused_element
   void _redraw() {
-    _initialRender = false;
-    if (_tooltipBehaviorRenderer._chartTooltipState != null) {
-      _tooltipBehaviorRenderer._show = false;
+    _renderingDetails.initialRender = false;
+    if (_renderingDetails.tooltipBehaviorRenderer._chartTooltipState != null) {
+      _renderingDetails.tooltipBehaviorRenderer._show = false;
     }
     setState(() {
       /// The chart will be rebuilding again, When we do the legend toggle, zoom/pan the chart.
@@ -771,18 +718,18 @@ class SfPyramidChartState extends State<SfPyramidChart>
 
   /// To intialize chart container area
   void _initialize(BoxConstraints constraints) {
-    _chartWidgets = <Widget>[];
+    _renderingDetails.chartWidgets = <Widget>[];
     final num width = constraints.maxWidth;
     final num height = constraints.maxHeight;
     final EdgeInsets margin = widget.margin;
-    final LegendRenderer legendRenderer = _legendRenderer;
-    if (widget.legend.position == LegendPosition.auto) {
-      legendRenderer._legendPosition =
-          height > width ? LegendPosition.bottom : LegendPosition.right;
-    } else {
-      legendRenderer._legendPosition = widget.legend.position;
-    }
-    _chartLegend.chartSize = Size(width - margin.left - margin.right,
+    final LegendRenderer legendRenderer = _renderingDetails.legendRenderer;
+    legendRenderer._legendPosition =
+        widget.legend.position == LegendPosition.auto
+            ? (height > width ? LegendPosition.bottom : LegendPosition.right)
+            : widget.legend.position;
+
+    _renderingDetails.chartLegend.chartSize = Size(
+        width - margin.left - margin.right,
         height - margin.top - margin.bottom);
   }
 }
@@ -813,9 +760,10 @@ class _PyramidPlotArea extends StatelessWidget {
               onHover: (PointerEvent event) =>
                   _enableMouseHover ? _onHover(event) : null,
               onExit: (PointerEvent event) {
-                chartState._tooltipBehaviorRenderer._isHovering = false;
+                chartState._renderingDetails.tooltipBehaviorRenderer
+                    ._isHovering = false;
               },
-              child: Stack(children: <Widget>[
+              child: Stack(textDirection: TextDirection.ltr, children: <Widget>[
                 _initializeChart(constraints, context),
                 Listener(
                   onPointerUp: (PointerUpEvent event) => _onTapUp(event),
@@ -826,13 +774,23 @@ class _PyramidPlotArea extends StatelessWidget {
                       onLongPress: _onLongPress,
                       onDoubleTap: _onDoubleTap,
                       onTapUp: (TapUpDetails details) {
-                        chartState._tapPosition =
+                        chartState._renderingDetails.tapPosition =
                             renderBox.globalToLocal(details.globalPosition);
                         if (chart.onPointTapped != null &&
                             // ignore: unnecessary_null_comparison
                             seriesRenderer != null) {
+                          _calculatePointSeriesIndex(chart, seriesRenderer,
+                              chartState._renderingDetails.tapPosition!);
+                        }
+                        if (chart.series.onPointTap != null &&
+                            // ignore: unnecessary_null_comparison
+                            seriesRenderer != null) {
                           _calculatePointSeriesIndex(
-                              chart, seriesRenderer, chartState._tapPosition!);
+                              chart,
+                              seriesRenderer,
+                              chartState._renderingDetails.tapPosition!,
+                              null,
+                              ActivationMode.singleTap);
                         }
                       },
                       child: Container(
@@ -859,10 +817,10 @@ class _PyramidPlotArea extends StatelessWidget {
   void _calculateContainerSize(BoxConstraints constraints) {
     final num width = constraints.maxWidth;
     final num height = constraints.maxHeight;
-    chartState._chartContainerRect =
+    chartState._renderingDetails.chartContainerRect =
         Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble());
     final EdgeInsets margin = chart.margin;
-    chartState._chartAreaRect = Rect.fromLTWH(
+    chartState._renderingDetails.chartAreaRect = Rect.fromLTWH(
         margin.left,
         margin.top,
         width - margin.right - margin.left,
@@ -877,7 +835,10 @@ class _PyramidPlotArea extends StatelessWidget {
     _bindTooltipWidgets(constraints);
     renderBox = context.findRenderObject() as RenderBox;
     chartState._chartPlotArea = this;
-    return Container(child: Stack(children: chartState._chartWidgets));
+    return Container(
+        child: Stack(
+            textDirection: TextDirection.ltr,
+            children: chartState._renderingDetails.chartWidgets!));
   }
 
   /// To calculate region path of pyramid
@@ -901,17 +862,15 @@ class _PyramidPlotArea extends StatelessWidget {
     PyramidSeries<dynamic, dynamic> series;
     final List<PyramidSeriesRenderer> visibleSeriesRenderers =
         chartState._chartSeries.visibleSeriesRenderers;
+    SelectionBehaviorRenderer selectionBehaviorRenderer;
+    dynamic selectionBehavior;
     for (int i = 0; i < visibleSeriesRenderers.length; i++) {
       seriesRenderer = visibleSeriesRenderers[i];
       series = seriesRenderer._series;
       series.selectionBehavior._chartState = chartState;
-      series.selectionSettings._chartState = chartState;
       chartState._chartSeries._initializeSeriesProperties(seriesRenderer);
-      SelectionBehaviorRenderer selectionBehaviorRenderer;
-      final dynamic selectionBehavior = seriesRenderer._selectionBehavior =
-          series.selectionBehavior.enable
-              ? series.selectionBehavior
-              : series.selectionSettings;
+      selectionBehavior =
+          seriesRenderer._selectionBehavior = series.selectionBehavior;
       selectionBehaviorRenderer = seriesRenderer._selectionBehaviorRenderer =
           SelectionBehaviorRenderer(selectionBehavior, chart, chartState);
       selectionBehaviorRenderer = seriesRenderer._selectionBehaviorRenderer;
@@ -923,67 +882,76 @@ class _PyramidPlotArea extends StatelessWidget {
         for (int index = 0;
             index < series.initialSelectedDataIndexes.length;
             index++) {
-          chartState._selectionData
+          chartState._renderingDetails.selectionData
               .add(series.initialSelectedDataIndexes[index]);
         }
       }
       if (series.animationDuration > 0 &&
-          !chartState._didSizeChange &&
-          (chartState._deviceOrientation == chartState._oldDeviceOrientation) &&
-          ((!chartState._widgetNeedUpdate && chartState._initialRender!) ||
-              chartState._isLegendToggled)) {
-        chartState._animationController.duration =
+          !chartState._renderingDetails.didSizeChange &&
+          (chartState._renderingDetails.deviceOrientation ==
+              chartState._renderingDetails.oldDeviceOrientation) &&
+          ((!chartState._renderingDetails.widgetNeedUpdate &&
+                  chartState._renderingDetails.initialRender!) ||
+              chartState._renderingDetails.isLegendToggled)) {
+        chartState._renderingDetails.animationController.duration =
             Duration(milliseconds: series.animationDuration.toInt());
         seriesAnimation =
             Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
-          parent: chartState._animationController,
+          parent: chartState._renderingDetails.animationController,
           curve: const Interval(0.1, 0.8, curve: Curves.linear),
         )..addStatusListener((AnimationStatus status) {
                 if (status == AnimationStatus.completed) {
-                  chartState._animateCompleted = true;
+                  chartState._renderingDetails.animateCompleted = true;
                   if (chartState._renderDataLabel != null) {
                     chartState._renderDataLabel!.state?.render();
                   }
-                  if (chartState._chartTemplate != null &&
+                  if (chartState._renderingDetails.chartTemplate != null &&
                       // ignore: unnecessary_null_comparison
-                      chartState._chartTemplate!.state != null) {
-                    chartState._chartTemplate!.state.templateRender();
+                      chartState._renderingDetails.chartTemplate!.state !=
+                          null) {
+                    chartState._renderingDetails.chartTemplate!.state
+                        .templateRender();
                   }
                 }
               }));
-        chartState._chartElementAnimation =
+        chartState._renderingDetails.chartElementAnimation =
             Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
-          parent: chartState._animationController,
+          parent: chartState._renderingDetails.animationController,
           curve: const Interval(0.85, 1.0, curve: Curves.decelerate),
         ));
-        chartState._animationController.forward(from: 0.0);
+        chartState._renderingDetails.animationController.forward(from: 0.0);
       } else {
-        chartState._animateCompleted = true;
+        chartState._renderingDetails.animateCompleted = true;
         if (chartState._renderDataLabel != null) {
           chartState._renderDataLabel!.state?.render();
         }
       }
-      seriesRenderer._repaintNotifier = chartState._seriesRepaintNotifier;
+      seriesRenderer._repaintNotifier =
+          chartState._renderingDetails.seriesRepaintNotifier;
       if (seriesRenderer._seriesType == 'pyramid') {
         seriesPainter = _PyramidChartPainter(
             chartState: chartState,
             seriesIndex: i,
             isRepaint: seriesRenderer._needsRepaint,
-            animationController: chartState._animationController,
+            animationController:
+                chartState._renderingDetails.animationController,
             seriesAnimation: seriesAnimation,
-            notifier: chartState._seriesRepaintNotifier);
+            notifier: chartState._renderingDetails.seriesRepaintNotifier);
       }
-      chartState._chartWidgets
+      chartState._renderingDetails.chartWidgets!
           .add(RepaintBoundary(child: CustomPaint(painter: seriesPainter)));
       chartState._renderDataLabel = _PyramidDataLabelRenderer(
           key: GlobalKey(),
           chartState: chartState,
-          show: !chartState._widgetNeedUpdate
-              ? chartState._animationController.status ==
+          //ignore: avoid_bool_literals_in_conditional_expressions
+          show: !chartState._renderingDetails.widgetNeedUpdate
+              ? chartState._renderingDetails.animationController.status ==
                       AnimationStatus.completed ||
-                  chartState._animationController.duration == null
+                  chartState._renderingDetails.animationController.duration ==
+                      null
               : true);
-      chartState._chartWidgets.add(chartState._renderDataLabel!);
+      chartState._renderingDetails.chartWidgets!
+          .add(chartState._renderDataLabel!);
     }
   }
 
@@ -991,63 +959,52 @@ class _PyramidPlotArea extends StatelessWidget {
   void _bindTooltipWidgets(BoxConstraints constraints) {
     final TooltipBehavior tooltip = chart.tooltipBehavior;
     final TooltipBehaviorRenderer tooltipBehaviorRenderer =
-        chartState._tooltipBehaviorRenderer;
+        chartState._renderingDetails.tooltipBehaviorRenderer;
     tooltip._chartState = chartState;
     if (tooltip.enable) {
-      final SfChartThemeData _chartTheme = chartState._chartTheme;
+      final SfChartThemeData _chartTheme =
+          chartState._renderingDetails.chartTheme;
       tooltipBehaviorRenderer._prevTooltipValue =
           tooltipBehaviorRenderer._currentTooltipValue = null;
-      chartState._tooltipBehaviorRenderer._chartTooltip = SfTooltip(
-          color: tooltip.color ?? _chartTheme.tooltipColor,
-          key: GlobalKey(),
-          textStyle: tooltip.textStyle,
-          animationDuration: tooltip.animationDuration,
-          enable: tooltip.enable,
-          opacity: tooltip.opacity,
-          borderColor: tooltip.borderColor,
-          borderWidth: tooltip.borderWidth,
-          duration: tooltip.duration,
-          shouldAlwaysShow: tooltip.shouldAlwaysShow,
-          elevation: tooltip.elevation,
-          canShowMarker: tooltip.canShowMarker,
-          textAlignment: tooltip.textAlignment,
-          decimalPlaces: tooltip.decimalPlaces,
-          labelColor: tooltip.textStyle.color ?? _chartTheme.tooltipLabelColor,
-          header: tooltip.header,
-          format: tooltip.format,
-          builder: tooltip.builder,
-          shadowColor: tooltip.shadowColor,
-          onTooltipRender: chart.onTooltipRender != null
-              ? chartState._tooltipBehaviorRenderer._tooltipRenderingEvent
-              : null);
-      chartState._chartWidgets.add(tooltipBehaviorRenderer._chartTooltip!);
-    }
-  }
-
-  /// Find point index for selection
-  void _calculatePointSeriesIndex(SfPyramidChart chart,
-      PyramidSeriesRenderer seriesRenderer, Offset touchPosition) {
-    PointTapArgs pointTapArgs;
-    int? index;
-    for (int i = 0; i < seriesRenderer._renderPoints!.length; i++) {
-      if (seriesRenderer._renderPoints![i].region != null &&
-          seriesRenderer._renderPoints![i].region!.contains(touchPosition)) {
-        index = i;
-        break;
-      }
-    }
-    if (index != null) {
-      pointTapArgs = PointTapArgs(0, index, seriesRenderer._dataPoints, index);
-      chart.onPointTapped!(pointTapArgs);
+      chartState._renderingDetails.tooltipBehaviorRenderer._chartTooltip =
+          SfTooltip(
+              color: tooltip.color ?? _chartTheme.tooltipColor,
+              key: GlobalKey(),
+              textStyle: tooltip.textStyle,
+              animationDuration: tooltip.animationDuration,
+              animationCurve:
+                  const Interval(0.1, 0.8, curve: Curves.easeOutBack),
+              enable: tooltip.enable,
+              opacity: tooltip.opacity,
+              borderColor: tooltip.borderColor,
+              borderWidth: tooltip.borderWidth,
+              duration: tooltip.duration.toInt(),
+              shouldAlwaysShow: tooltip.shouldAlwaysShow,
+              elevation: tooltip.elevation,
+              canShowMarker: tooltip.canShowMarker,
+              textAlignment: tooltip.textAlignment,
+              decimalPlaces: tooltip.decimalPlaces,
+              labelColor:
+                  tooltip.textStyle.color ?? _chartTheme.tooltipLabelColor,
+              header: tooltip.header,
+              format: tooltip.format,
+              shadowColor: tooltip.shadowColor,
+              onTooltipRender: chart.onTooltipRender != null
+                  ? chartState._renderingDetails.tooltipBehaviorRenderer
+                      ._tooltipRenderingEvent
+                  : null);
+      chartState._renderingDetails.chartWidgets!
+          .add(tooltipBehaviorRenderer._chartTooltip!);
     }
   }
 
   /// To perform pointer down event
   void _onTapDown(PointerDownEvent event) {
-    chartState._tooltipBehaviorRenderer._isHovering = false;
+    chartState._renderingDetails.tooltipBehaviorRenderer._isHovering = false;
     //renderBox = context.findRenderObject();
-    chartState._currentActive = null;
-    chartState._tapPosition = renderBox.globalToLocal(event.position);
+    chartState._renderingDetails.currentActive = null;
+    chartState._renderingDetails.tapPosition =
+        renderBox.globalToLocal(event.position);
     bool isPoint = false;
     const int seriesIndex = 0;
     late int pointIndex;
@@ -1062,7 +1019,7 @@ class _PyramidPlotArea extends StatelessWidget {
       }
       if (seriesRenderer._renderPoints![j].isVisible && !isPoint) {
         isPoint = _isPointInPolygon(seriesRenderer._renderPoints![j].pathRegion,
-            chartState._tapPosition);
+            chartState._renderingDetails.tapPosition!);
         if (isPoint) {
           pointIndex = j;
           if (chart.onDataLabelRender == null) {
@@ -1071,9 +1028,9 @@ class _PyramidPlotArea extends StatelessWidget {
         }
       }
     }
-    doubleTapPosition = chartState._tapPosition;
-    if (chartState._tapPosition != null && isPoint) {
-      chartState._currentActive = _ChartInteraction(
+    doubleTapPosition = chartState._renderingDetails.tapPosition;
+    if (chartState._renderingDetails.tapPosition != null && isPoint) {
+      chartState._renderingDetails.currentActive = _ChartInteraction(
         seriesIndex,
         pointIndex,
         visibleSeriesRenderers[seriesIndex]._series,
@@ -1081,8 +1038,9 @@ class _PyramidPlotArea extends StatelessWidget {
       );
     } else {
       //hides the tooltip if the point of interaction is outside pyramid region of the chart
-      chartState._tooltipBehaviorRenderer._show = false;
-      chartState._tooltipBehaviorRenderer._hideOnTimer();
+      chartState._renderingDetails.tooltipBehaviorRenderer._show = false;
+      chartState._renderingDetails.tooltipBehaviorRenderer
+          ._hideTooltipTemplate();
     }
     if (chart.onChartTouchInteractionDown != null) {
       touchArgs = ChartTouchInteractionArgs();
@@ -1105,17 +1063,30 @@ class _PyramidPlotArea extends StatelessWidget {
   /// To perform double tap touch interactions
   void _onDoubleTap() {
     const int seriesIndex = 0;
-    if (doubleTapPosition != null && chartState._currentActive != null) {
-      final int pointIndex = chartState._currentActive!.pointIndex!;
+    if (doubleTapPosition != null &&
+        chartState._renderingDetails.currentActive != null) {
+      if (chart.series.onPointDoubleTap != null &&
+          // ignore: unnecessary_null_comparison
+          seriesRenderer != null) {
+        _calculatePointSeriesIndex(
+            chart,
+            seriesRenderer,
+            chartState._renderingDetails.tapPosition!,
+            null,
+            ActivationMode.doubleTap);
+        chartState._renderingDetails.tapPosition = null;
+      }
+      final int pointIndex =
+          chartState._renderingDetails.currentActive!.pointIndex!;
       final List<PyramidSeriesRenderer> visibleSeriesRenderers =
           chartState._chartSeries.visibleSeriesRenderers;
-      chartState._currentActive = _ChartInteraction(
+      chartState._renderingDetails.currentActive = _ChartInteraction(
           seriesIndex,
           pointIndex,
           visibleSeriesRenderers[seriesIndex]._series,
           visibleSeriesRenderers[seriesIndex]._renderPoints![pointIndex]);
-      if (chartState._currentActive != null) {
-        if (chartState._currentActive!.series.explodeGesture ==
+      if (chartState._renderingDetails.currentActive != null) {
+        if (chartState._renderingDetails.currentActive!.series.explodeGesture ==
             ActivationMode.doubleTap) {
           chartState._chartSeries._pointExplode(pointIndex);
           final GlobalKey key = chartState._renderDataLabel!.key as GlobalKey;
@@ -1127,12 +1098,12 @@ class _PyramidPlotArea extends StatelessWidget {
       chartState._chartSeries
           ._seriesPointSelection(pointIndex, ActivationMode.doubleTap);
       if (chart.tooltipBehavior.enable &&
-          chartState._animateCompleted! &&
+          chartState._renderingDetails.animateCompleted &&
           chart.tooltipBehavior.activationMode == ActivationMode.doubleTap) {
         if (chart.tooltipBehavior.builder != null) {
           _showPyramidTooltipTemplate();
         } else {
-          chartState._tooltipBehaviorRenderer.onDoubleTap(
+          chartState._renderingDetails.tooltipBehaviorRenderer.onDoubleTap(
               doubleTapPosition!.dx.toDouble(),
               doubleTapPosition!.dy.toDouble());
         }
@@ -1143,11 +1114,24 @@ class _PyramidPlotArea extends StatelessWidget {
   /// To perform long press touch interactions
   void _onLongPress() {
     const int seriesIndex = 0;
-    if (chartState._tapPosition != null && chartState._currentActive != null) {
+    if (chartState._renderingDetails.tapPosition != null &&
+        chartState._renderingDetails.currentActive != null) {
+      if (chart.series.onPointLongPress != null &&
+          // ignore: unnecessary_null_comparison
+          seriesRenderer != null) {
+        _calculatePointSeriesIndex(
+            chart,
+            seriesRenderer,
+            chartState._renderingDetails.tapPosition!,
+            null,
+            ActivationMode.longPress);
+        chartState._renderingDetails.tapPosition = null;
+      }
       final List<PyramidSeriesRenderer> visibleSeriesRenderers =
           chartState._chartSeries.visibleSeriesRenderers;
-      final int pointIndex = chartState._currentActive!.pointIndex!;
-      chartState._currentActive = _ChartInteraction(
+      final int pointIndex =
+          chartState._renderingDetails.currentActive!.pointIndex!;
+      chartState._renderingDetails.currentActive = _ChartInteraction(
           seriesIndex,
           pointIndex,
           visibleSeriesRenderers[seriesIndex]._series,
@@ -1155,8 +1139,8 @@ class _PyramidPlotArea extends StatelessWidget {
           pointRegion);
       chartState._chartSeries
           ._seriesPointSelection(pointIndex, ActivationMode.longPress);
-      if (chartState._currentActive != null) {
-        if (chartState._currentActive!.series.explodeGesture ==
+      if (chartState._renderingDetails.currentActive != null) {
+        if (chartState._renderingDetails.currentActive!.series.explodeGesture ==
             ActivationMode.longPress) {
           chartState._chartSeries._pointExplode(pointIndex);
           final GlobalKey key = chartState._renderDataLabel!.key as GlobalKey;
@@ -1166,14 +1150,14 @@ class _PyramidPlotArea extends StatelessWidget {
         }
       }
       if (chart.tooltipBehavior.enable &&
-          chartState._animateCompleted! &&
+          chartState._renderingDetails.animateCompleted &&
           chart.tooltipBehavior.activationMode == ActivationMode.longPress) {
         if (chart.tooltipBehavior.builder != null) {
           _showPyramidTooltipTemplate();
         } else {
-          chartState._tooltipBehaviorRenderer.onLongPress(
-              chartState._tapPosition!.dx.toDouble(),
-              chartState._tapPosition!.dy.toDouble());
+          chartState._renderingDetails.tooltipBehaviorRenderer.onLongPress(
+              chartState._renderingDetails.tapPosition!.dx.toDouble(),
+              chartState._renderingDetails.tapPosition!.dy.toDouble());
         }
       }
     }
@@ -1181,29 +1165,30 @@ class _PyramidPlotArea extends StatelessWidget {
 
   /// To perform pointer up event
   void _onTapUp(PointerUpEvent event) {
-    chartState._tooltipBehaviorRenderer._isHovering = false;
+    chartState._renderingDetails.tooltipBehaviorRenderer._isHovering = false;
     bool isPoint = false;
-    chartState._tapPosition = renderBox.globalToLocal(event.position);
+    chartState._renderingDetails.tapPosition =
+        renderBox.globalToLocal(event.position);
     for (int j = 0; j < seriesRenderer._renderPoints!.length; j++) {
       if (seriesRenderer._renderPoints![j].isVisible) {
         isPoint = _isPointInPolygon(seriesRenderer._renderPoints![j].pathRegion,
-            chartState._tapPosition);
+            chartState._renderingDetails.tapPosition!);
         if (isPoint) {
           break;
         }
       }
     }
     final _ChartInteraction? currentActive =
-        isPoint ? chartState._currentActive! : null;
+        isPoint ? chartState._renderingDetails.currentActive! : null;
     ChartTouchInteractionArgs touchArgs;
     if (currentActive != null) {
       // ignore: unnecessary_null_comparison
       if (chart.onDataLabelTapped != null && seriesRenderer != null) {
-        _triggerPyramidDataLabelEvent(
-            chart, seriesRenderer, chartState, chartState._tapPosition!);
+        _triggerPyramidDataLabelEvent(chart, seriesRenderer, chartState,
+            chartState._renderingDetails.tapPosition!);
       }
-      if (chartState._tapPosition != null &&
-          chartState._currentActive != null) {
+      if (chartState._renderingDetails.tapPosition != null &&
+          chartState._renderingDetails.currentActive != null) {
         if (currentActive.series != null &&
             currentActive.series.explodeGesture == ActivationMode.singleTap) {
           chartState._chartSeries._pointExplode(currentActive.pointIndex!);
@@ -1220,14 +1205,14 @@ class _PyramidPlotArea extends StatelessWidget {
         }
 
         if (chart.tooltipBehavior.enable &&
-            chartState._animateCompleted! &&
+            chartState._renderingDetails.animateCompleted &&
             chart.tooltipBehavior.activationMode == ActivationMode.singleTap &&
             currentActive.series != null) {
           if (chart.tooltipBehavior.builder != null) {
             _showPyramidTooltipTemplate();
           } else {
             final Offset position = renderBox.globalToLocal(event.position);
-            chartState._tooltipBehaviorRenderer
+            chartState._renderingDetails.tooltipBehaviorRenderer
                 .onTouchUp(position.dx.toDouble(), position.dy.toDouble());
           }
         }
@@ -1238,13 +1223,18 @@ class _PyramidPlotArea extends StatelessWidget {
       touchArgs.position = renderBox.globalToLocal(event.position);
       chart.onChartTouchInteractionUp!(touchArgs);
     }
-    chartState._tapPosition = null;
+    if (chart.series.onPointTap == null &&
+        chart.series.onPointDoubleTap == null &&
+        chart.series.onPointLongPress == null) {
+      chartState._renderingDetails.tapPosition = null;
+    }
   }
 
   /// To perform event on mouse hover
   void _onHover(PointerEvent event) {
-    chartState._currentActive = null;
-    chartState._tapPosition = renderBox.globalToLocal(event.position);
+    chartState._renderingDetails.currentActive = null;
+    chartState._renderingDetails.tapPosition =
+        renderBox.globalToLocal(event.position);
     bool? isPoint;
     const int seriesIndex = 0;
     int? pointIndex;
@@ -1252,19 +1242,21 @@ class _PyramidPlotArea extends StatelessWidget {
         chartState._chartSeries.visibleSeriesRenderers[seriesIndex];
     final TooltipBehavior tooltip = chart.tooltipBehavior;
     final TooltipBehaviorRenderer tooltipBehaviorRenderer =
-        chartState._tooltipBehaviorRenderer;
+        chartState._renderingDetails.tooltipBehaviorRenderer;
     for (int j = 0; j < seriesRenderer._renderPoints!.length; j++) {
       if (seriesRenderer._renderPoints![j].isVisible) {
         isPoint = _isPointInPolygon(seriesRenderer._renderPoints![j].pathRegion,
-            chartState._tapPosition);
+            chartState._renderingDetails.tapPosition!);
         if (isPoint) {
           pointIndex = j;
           break;
         }
       }
     }
-    if (chartState._tapPosition != null && isPoint != null && isPoint) {
-      chartState._currentActive = _ChartInteraction(
+    if (chartState._renderingDetails.tapPosition != null &&
+        isPoint != null &&
+        isPoint) {
+      chartState._renderingDetails.currentActive = _ChartInteraction(
         seriesIndex,
         pointIndex!,
         chartState._chartSeries.visibleSeriesRenderers[seriesIndex]._series,
@@ -1274,12 +1266,13 @@ class _PyramidPlotArea extends StatelessWidget {
     } else if (tooltip.builder != null) {
       tooltipBehaviorRenderer._hide();
     }
-    if (chartState._tapPosition != null) {
+    if (chartState._renderingDetails.tapPosition != null) {
       if (tooltip.enable &&
-          chartState._currentActive != null &&
-          chartState._currentActive!.series != null) {
+          chartState._renderingDetails.currentActive != null &&
+          chartState._renderingDetails.currentActive!.series != null) {
         tooltipBehaviorRenderer._isHovering = true;
-        if (tooltip.builder != null && chartState._animateCompleted!) {
+        if (tooltip.builder != null &&
+            chartState._renderingDetails.animateCompleted) {
           _showPyramidTooltipTemplate();
         } else {
           final Offset position = renderBox.globalToLocal(event.position);
@@ -1292,14 +1285,14 @@ class _PyramidPlotArea extends StatelessWidget {
         tooltipBehaviorRenderer._hide();
       }
     }
-    chartState._tapPosition = null;
+    chartState._renderingDetails.tapPosition = null;
   }
 
   /// This method gets executed for showing tooltip when builder is provided in behavior
   void _showPyramidTooltipTemplate([int? pointIndex]) {
     final TooltipBehavior tooltip = chart.tooltipBehavior;
     final TooltipBehaviorRenderer tooltipBehaviorRenderer =
-        chartState._tooltipBehaviorRenderer;
+        chartState._renderingDetails.tooltipBehaviorRenderer;
 
     if (!tooltipBehaviorRenderer._isHovering) {
       //assingning null for the previous and current tooltip values in case of touch interaction
@@ -1307,21 +1300,21 @@ class _PyramidPlotArea extends StatelessWidget {
       tooltipBehaviorRenderer._currentTooltipValue = null;
     }
     final PyramidSeries<dynamic, dynamic> chartSeries =
-        chartState._currentActive?.series ?? chart.series;
+        chartState._renderingDetails.currentActive?.series ?? chart.series;
     final PointInfo<dynamic> point = pointIndex == null
-        ? chartState._currentActive?.point
+        ? chartState._renderingDetails.currentActive?.point
         : chartState
             ._chartSeries.visibleSeriesRenderers[0]._dataPoints[pointIndex];
     final Offset? location = chart.tooltipBehavior.tooltipPosition ==
                 TooltipPosition.pointer &&
             !chartState._chartSeries.visibleSeriesRenderers[0]._series.explode
-        ? chartState._tapPosition!
+        ? chartState._renderingDetails.tapPosition!
         : point.symbolLocation;
     bool isPoint = false;
     for (int j = 0; j < seriesRenderer._renderPoints!.length; j++) {
       if (seriesRenderer._renderPoints![j].isVisible) {
         isPoint = _isPointInPolygon(
-            seriesRenderer._renderPoints![j].pathRegion, location);
+            seriesRenderer._renderPoints![j].pathRegion, location!);
         if (isPoint) {
           pointIndex = j;
           break;
@@ -1330,28 +1323,34 @@ class _PyramidPlotArea extends StatelessWidget {
     }
     if (location != null && isPoint && (chartSeries.enableTooltip)) {
       tooltipBehaviorRenderer._showLocation = location;
-      chartState._tooltipBehaviorRenderer._renderBox!.boundaryRect =
-          chartState._chartContainerRect;
+      chartState._renderingDetails.tooltipBehaviorRenderer._chartTooltipState!
+              .boundaryRect =
+          chartState._renderingDetails.tooltipBehaviorRenderer._tooltipBounds =
+              chartState._renderingDetails.chartContainerRect;
       tooltipBehaviorRenderer._tooltipTemplate = tooltip.builder!(
-          chartSeries.dataSource![
-              pointIndex ?? chartState._currentActive!.pointIndex!],
+          chartSeries.dataSource![pointIndex ??
+              chartState._renderingDetails.currentActive!.pointIndex!],
           point,
           chartSeries,
-          chartState._currentActive?.seriesIndex ?? 0,
-          pointIndex ?? chartState._currentActive!.pointIndex!);
+          chartState._renderingDetails.currentActive?.seriesIndex ?? 0,
+          pointIndex ??
+              chartState._renderingDetails.currentActive!.pointIndex!);
       if (tooltipBehaviorRenderer._isHovering) {
         //assingning values for the previous and current tooltip values on mouse hover
         tooltipBehaviorRenderer._prevTooltipValue =
             tooltipBehaviorRenderer._currentTooltipValue;
         tooltipBehaviorRenderer._currentTooltipValue = TooltipValue(
-            0, pointIndex ?? chartState._currentActive!.pointIndex!);
+            0,
+            pointIndex ??
+                chartState._renderingDetails.currentActive!.pointIndex!);
       } else {
-        chartState._tooltipBehaviorRenderer._timer = Timer(
-            Duration(milliseconds: chart.tooltipBehavior.duration.toInt()),
-            chartState._tooltipBehaviorRenderer._hideTooltipTemplate);
+        chartState._renderingDetails.tooltipBehaviorRenderer
+            ._hideTooltipTemplate();
       }
       tooltipBehaviorRenderer._show = true;
       tooltipBehaviorRenderer._performTooltip();
+      tooltipBehaviorRenderer._chartTooltipState!
+          .hide(hideDelay: tooltip.duration.toInt());
     }
   }
 }

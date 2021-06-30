@@ -4,7 +4,7 @@ part of pdf;
 /// Represents an automatic field to display total number of pages
 /// in section(if set isSectionPageCount as true).
 /// ```dart
-/// Create a new pdf document
+/// //Create a new pdf document
 /// PdfDocument document = PdfDocument();
 /// //Add the pages to the document
 /// for (int i = 1; i <= 5; i++) {
@@ -45,7 +45,7 @@ class PdfPageCountField extends _PdfSingleValueField {
   /// Initializes a new instance of the [PdfPageCountField] class
   /// and may also with the classes are [PdfFont], [PdfBrush] and [Rect].
   /// ```dart
-  /// Create a new pdf document
+  /// //Create a new pdf document
   /// PdfDocument document = PdfDocument();
   /// //Add the pages to the document
   /// for (int i = 1; i <= 5; i++) {
@@ -84,14 +84,13 @@ class PdfPageCountField extends _PdfSingleValueField {
   PdfPageCountField(
       {PdfFont? font, PdfBrush? brush, Rect? bounds, bool? isSectionPageCount})
       : super(font, brush, bounds) {
-    _isSectionPageCount =
-        (isSectionPageCount == null) ? false : isSectionPageCount;
+    _isSectionPageCount = isSectionPageCount != null && isSectionPageCount;
   }
 
   // fields
   /// Gets or sets the specific number style.
   /// ```dart
-  /// Create a new pdf document
+  /// //Create a new pdf document
   /// PdfDocument document = PdfDocument();
   /// //Add the pages to the document
   /// for (int i = 1; i <= 5; i++) {

@@ -12,7 +12,10 @@ abstract class GridVirtualizingCellRendererBase<T1 extends Widget,
   void onInitializeDisplayWidget(DataCellBase dataCell) {
     final _DataGridSettings dataGridSettings = _dataGridStateDetails();
 
-    if (dataCell.columnIndex < 0) {
+    // Need to restrict invisible rows (rowIndex == -1) from the item collection.
+    // Because we generate the `ensureColumns` for all the data rows in the
+    // `rowGenerator.items` collection not visible rows.
+    if (dataCell.columnIndex < 0 || dataCell.rowIndex < 0) {
       return;
     }
 
@@ -20,17 +23,24 @@ abstract class GridVirtualizingCellRendererBase<T1 extends Widget,
         dataGridSettings, dataCell.columnIndex);
     final Widget child = dataCell._dataRow!._dataGridRowAdapter!.cells[index];
 
-    dataCell
-      .._columnElement = GridCell(
-        key: dataCell._key!,
-        dataCell: dataCell,
-        child: DefaultTextStyle(
-            key: dataCell._key, style: dataCell._textStyle!, child: child),
-        backgroundColor: Colors.transparent,
-        isDirty: dataGridSettings.container._isDirty ||
-            dataCell._isDirty ||
-            dataCell._dataRow!._isDirty,
-      );
+    Widget getChild() {
+      if (dataGridSettings.currentCell.isEditing && dataCell._isEditing) {
+        return dataCell._editingWidget ?? child;
+      } else {
+        return child;
+      }
+    }
+
+    dataCell._columnElement = GridCell(
+      key: dataCell._key!,
+      dataCell: dataCell,
+      child: DefaultTextStyle(
+          key: dataCell._key, style: dataCell._textStyle!, child: getChild()),
+      backgroundColor: Colors.transparent,
+      isDirty: dataGridSettings.container._isDirty ||
+          dataCell._isDirty ||
+          dataCell._dataRow!._isDirty,
+    );
   }
 
   @override

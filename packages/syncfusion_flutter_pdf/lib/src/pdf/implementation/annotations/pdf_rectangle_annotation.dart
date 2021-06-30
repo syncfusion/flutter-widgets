@@ -5,9 +5,9 @@ class PdfRectangleAnnotation extends PdfAnnotation {
   // Constructor
   /// Initializes new instance of the [PdfRectangleAnnotation] with bounds, text, border, color, innerColor, author, rotate, subject and modifiedDate.
   /// ``` dart
-  /// final PdfDocument document = PdfDocument();
-  /// final PdfPage page = document.pages.add();
-  /// final PdfRectangleAnnotation rectangleAnnotation = PdfRectangleAnnotation(
+  /// PdfDocument document = PdfDocument();
+  /// PdfPage page = document.pages.add();
+  /// PdfRectangleAnnotation rectangleAnnotation = PdfRectangleAnnotation(
   ///     const Rect.fromLTWH(0, 30, 80, 80), 'SquareAnnotation',
   ///     innerColor: PdfColor(255, 0, 0), color: PdfColor(255, 255, 0));
   /// page.annotations.add(rectangleAnnotation);
@@ -181,15 +181,15 @@ class PdfRectangleAnnotation extends PdfAnnotation {
     if (!_dictionary.containsKey(_DictionaryProperties.rd) &&
         _dictionary.containsKey(_DictionaryProperties.be)) {
       final _PdfDictionary dict =
-          _PdfCrossTable._dereference(_dictionary[_DictionaryProperties.be])
+          _PdfCrossTable._dereference(_dictionary[_DictionaryProperties.be])!
               as _PdfDictionary;
       if (dict.containsKey(_DictionaryProperties.s)) {
         borderStyle =
-            _getEnumName((dict[_DictionaryProperties.s] as _PdfName)._name);
+            _getEnumName((dict[_DictionaryProperties.s]! as _PdfName)._name);
       }
       if (dict.containsKey(_DictionaryProperties.i)) {
         borderIntensity =
-            (dict[_DictionaryProperties.i] as _PdfNumber).value!.toDouble();
+            (dict[_DictionaryProperties.i]! as _PdfNumber).value!.toDouble();
       }
       if (borderIntensity != 0 && borderStyle == 'C') {
         final Rect cloudRectangle = Rect.fromLTWH(
@@ -210,7 +210,7 @@ class PdfRectangleAnnotation extends PdfAnnotation {
     }
     if (!_isBounds && _dictionary[_DictionaryProperties.rd] != null) {
       final _PdfArray mRdArray =
-          _dictionary[_DictionaryProperties.rd] as _PdfArray;
+          _dictionary[_DictionaryProperties.rd]! as _PdfArray;
       final _PdfNumber num1 = mRdArray._elements[0]! as _PdfNumber;
       final _PdfNumber num2 = mRdArray._elements[1]! as _PdfNumber;
       final _PdfNumber num3 = mRdArray._elements[2]! as _PdfNumber;
@@ -239,7 +239,10 @@ class PdfRectangleAnnotation extends PdfAnnotation {
       }
       bounds = cloudRectangle;
     }
-    return {'borderIntensity': borderIntensity, 'borderStyle': borderStyle};
+    return <String, dynamic>{
+      'borderIntensity': borderIntensity,
+      'borderStyle': borderStyle
+    };
   }
 
   void _flattenAnnotation(PdfPage? page, PdfTemplate? appearance) {
@@ -309,7 +312,7 @@ class PdfRectangleAnnotation extends PdfAnnotation {
       if (bSDictionary != null &&
           bSDictionary.containsKey(_DictionaryProperties.d)) {
         final _PdfArray dashPatternArray =
-            _PdfCrossTable._dereference(bSDictionary[_DictionaryProperties.d])
+            _PdfCrossTable._dereference(bSDictionary[_DictionaryProperties.d])!
                 as _PdfArray;
         final List<double> dashPattern = <double>[];
         for (int i = 0; i < dashPatternArray.count; i++) {

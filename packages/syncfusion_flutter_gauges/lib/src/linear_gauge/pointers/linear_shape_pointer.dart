@@ -12,7 +12,7 @@ import '../../linear_gauge/utils/enum.dart';
 class LinearShapePointer extends LeafRenderObjectWidget
     implements LinearMarkerPointer {
   /// Creates a shape marker pointer for linear axis.
-  LinearShapePointer(
+  const LinearShapePointer(
       {Key? key,
       required this.value,
       this.onValueChanged,
@@ -356,7 +356,7 @@ class LinearShapePointer extends LeafRenderObjectWidget
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    final linearGaugeScope = LinearGaugeScope.of(context);
+    final LinearGaugeScope linearGaugeScope = LinearGaugeScope.of(context);
     final ThemeData theme = Theme.of(context);
     final bool isDarkTheme = theme.brightness == Brightness.dark;
     return RenderLinearShapePointer(
@@ -385,7 +385,7 @@ class LinearShapePointer extends LeafRenderObjectWidget
   @override
   void updateRenderObject(
       BuildContext context, RenderLinearShapePointer renderObject) {
-    final linearGaugeScope = LinearGaugeScope.of(context);
+    final LinearGaugeScope linearGaugeScope = LinearGaugeScope.of(context);
     final ThemeData theme = Theme.of(context);
     final bool isDarkTheme = theme.brightness == Brightness.dark;
 

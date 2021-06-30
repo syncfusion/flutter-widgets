@@ -8,6 +8,8 @@ part of charts;
 ///
 /// Provides options for color, opacity, border color and border width to customize the appearance.
 ///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=MHQzCN_jD1Q}
+@immutable
 class BarSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of BarSeries class.
   BarSeries(
@@ -43,8 +45,6 @@ class BarSeries<T, D> extends XyDataSeries<T, D> {
       List<Trendline>? trendlines,
       Color? borderColor,
       double? borderWidth,
-      // ignore: deprecated_member_use_from_same_package
-      SelectionSettings? selectionSettings,
       SelectionBehavior? selectionBehavior,
       bool? isVisibleInLegend,
       LegendIconType? legendIconType,
@@ -52,12 +52,18 @@ class BarSeries<T, D> extends XyDataSeries<T, D> {
       double? opacity,
       List<double>? dashArray,
       SeriesRendererCreatedCallback? onRendererCreated,
+      ChartPointInteractionCallback? onPointTap,
+      ChartPointInteractionCallback? onPointDoubleTap,
+      ChartPointInteractionCallback? onPointLongPress,
       List<int>? initialSelectedDataIndexes})
       : super(
             key: key,
             onCreateRenderer: onCreateRenderer,
             name: name,
             onRendererCreated: onRendererCreated,
+            onPointTap: onPointTap,
+            onPointDoubleTap: onPointDoubleTap,
+            onPointLongPress: onPointLongPress,
             xValueMapper: xValueMapper,
             yValueMapper: yValueMapper,
             sortFieldValueMapper: sortFieldValueMapper,
@@ -79,7 +85,6 @@ class BarSeries<T, D> extends XyDataSeries<T, D> {
             animationDuration: animationDuration,
             borderColor: borderColor,
             borderWidth: borderWidth,
-            selectionSettings: selectionSettings,
             selectionBehavior: selectionBehavior,
             legendItemText: legendItemText,
             isVisibleInLegend: isVisibleInLegend,
@@ -252,6 +257,109 @@ class BarSeries<T, D> extends XyDataSeries<T, D> {
     }
     return BarSeriesRenderer();
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is BarSeries &&
+        other.key == key &&
+        other.onCreateRenderer == onCreateRenderer &&
+        other.dataSource == dataSource &&
+        other.xValueMapper == xValueMapper &&
+        other.yValueMapper == yValueMapper &&
+        other.sortFieldValueMapper == sortFieldValueMapper &&
+        other.pointColorMapper == pointColorMapper &&
+        other.dataLabelMapper == dataLabelMapper &&
+        other.sortingOrder == sortingOrder &&
+        other.xAxisName == xAxisName &&
+        other.yAxisName == yAxisName &&
+        other.name == name &&
+        other.color == color &&
+        other.markerSettings == markerSettings &&
+        other.emptyPointSettings == emptyPointSettings &&
+        other.dataLabelSettings == dataLabelSettings &&
+        other.trendlines == trendlines &&
+        other.isVisible == isVisible &&
+        other.enableTooltip == enableTooltip &&
+        other.dashArray == dashArray &&
+        other.animationDuration == animationDuration &&
+        other.borderColor == borderColor &&
+        other.borderWidth == borderWidth &&
+        other.gradient == gradient &&
+        other.borderGradient == borderGradient &&
+        other.selectionBehavior == selectionBehavior &&
+        other.isVisibleInLegend == isVisibleInLegend &&
+        other.legendIconType == legendIconType &&
+        other.legendItemText == legendItemText &&
+        other.opacity == opacity &&
+        other.trackColor == trackColor &&
+        other.trackBorderColor == trackBorderColor &&
+        other.trackBorderWidth == trackBorderWidth &&
+        other.trackPadding == trackPadding &&
+        other.spacing == spacing &&
+        other.borderRadius == borderRadius &&
+        other.isTrackVisible == isTrackVisible &&
+        other.onRendererCreated == onRendererCreated &&
+        other.onPointTap == onPointTap &&
+        other.onPointDoubleTap == onPointDoubleTap &&
+        other.onPointLongPress == onPointLongPress &&
+        other.initialSelectedDataIndexes == initialSelectedDataIndexes;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      key,
+      onCreateRenderer,
+      dataSource,
+      xValueMapper,
+      yValueMapper,
+      sortFieldValueMapper,
+      pointColorMapper,
+      dataLabelMapper,
+      sortingOrder,
+      xAxisName,
+      yAxisName,
+      name,
+      color,
+      markerSettings,
+      emptyPointSettings,
+      dataLabelSettings,
+      trendlines,
+      isVisible,
+      enableTooltip,
+      dashArray,
+      animationDuration,
+      borderColor,
+      borderWidth,
+      gradient,
+      borderGradient,
+      selectionBehavior,
+      isVisibleInLegend,
+      legendIconType,
+      legendItemText,
+      opacity,
+      trackColor,
+      trackBorderColor,
+      trackBorderWidth,
+      trackPadding,
+      spacing,
+      borderRadius,
+      isTrackVisible,
+      onRendererCreated,
+      initialSelectedDataIndexes,
+      onPointTap,
+      onPointDoubleTap,
+      onPointLongPress
+    ];
+    return hashList(values);
+  }
 }
 
 /// Creates series renderer for Bar series
@@ -268,7 +376,8 @@ class BarSeriesRenderer extends XyDataSeriesRenderer {
   /// To add bar segments to chart segments
   ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
       int pointIndex, int seriesIndex, double animateFactor) {
-    final BarSeries<dynamic, dynamic> _barSeries = _series as BarSeries;
+    final BarSeries<dynamic, dynamic> _barSeries =
+        _series as BarSeries<dynamic, dynamic>;
     final BarSegment segment = createSegment();
     final List<CartesianSeriesRenderer> oldSeriesRenderers =
         _chartState!._oldSeriesRenderers;
@@ -282,8 +391,8 @@ class BarSeriesRenderer extends XyDataSeriesRenderer {
         .add(Offset(currentPoint.markerPoint!.x, currentPoint.markerPoint!.y));
     segment.animationFactor = animateFactor;
     segment._currentPoint = currentPoint;
-    if (_chartState!._widgetNeedUpdate &&
-        !_chartState!._isLegendToggled &&
+    if (_renderingDetails!.widgetNeedUpdate &&
+        !_renderingDetails!.isLegendToggled &&
         // ignore: unnecessary_null_comparison
         oldSeriesRenderers != null &&
         oldSeriesRenderers.isNotEmpty &&
@@ -297,7 +406,16 @@ class BarSeriesRenderer extends XyDataSeriesRenderer {
           ? segment._oldSeriesRenderer!._dataPoints[pointIndex]
           : null;
       segment._oldSegmentIndex = _getOldSegmentIndex(segment);
-    } else if (_chartState!._isLegendToggled &&
+      if ((_chartState!._selectedSegments.length - 1 >= pointIndex) &&
+          _chartState?._selectedSegments[pointIndex]._oldSegmentIndex == null) {
+        final ChartSegment selectedSegment =
+            _chartState?._selectedSegments[pointIndex] as ChartSegment;
+        selectedSegment._oldSeriesRenderer =
+            oldSeriesRenderers[selectedSegment._seriesIndex];
+        selectedSegment._seriesRenderer = this;
+        selectedSegment._oldSegmentIndex = _getOldSegmentIndex(selectedSegment);
+      }
+    } else if (_renderingDetails!.isLegendToggled &&
         // ignore: unnecessary_null_comparison
         _chartState!._segments != null &&
         _chartState!._segments.isNotEmpty) {

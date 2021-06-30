@@ -23,14 +23,12 @@ class _ScatterChartPainter extends CustomPainter {
     canvas.save();
     double animationFactor;
     final ScatterSeries<dynamic, dynamic> series =
-        seriesRenderer._series as ScatterSeries;
+        seriesRenderer._series as ScatterSeries<dynamic, dynamic>;
     if (seriesRenderer._visible!) {
       assert(
           // ignore: unnecessary_null_comparison
-          series.animationDuration != null
-              ? series.animationDuration >= 0
-              : true,
-          'The animation duration of the scatter series must be greater or equal to 0.');
+          !(series.animationDuration != null) || series.animationDuration >= 0,
+          'The animation duration of the fast line series must be greater or equal to 0.');
       final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
       final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer!;
       final List<CartesianChartPoint<dynamic>> dataPoints =

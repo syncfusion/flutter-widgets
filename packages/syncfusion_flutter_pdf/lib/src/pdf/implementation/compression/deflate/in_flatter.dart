@@ -60,8 +60,8 @@ class _Inflater {
     do {
       final Map<String, dynamic> result =
           _output._copyTo(bytes, offset, length);
-      final int copied = result['count'];
-      bytes = result['data'];
+      final int copied = result['count'] as int;
+      bytes = result['data'] as List<int>;
       if (copied > 0) {
         offset += copied;
         i += copied;
@@ -109,20 +109,20 @@ class _Inflater {
         result = _decodeDynamicBlockHeader();
       } else {
         final Map<String, dynamic> returnedValue = _decodeBlock(eob);
-        result = returnedValue['result'];
-        eob = returnedValue['eob'];
-        _output = returnedValue['output'];
+        result = returnedValue['result'] as bool?;
+        eob = returnedValue['eob'] as bool?;
+        _output = returnedValue['output'] as _DecompressedOutput;
       }
     } else if (_blockType == _BlockType.staticType) {
       final Map<String, dynamic> returnedValue = _decodeBlock(eob);
-      result = returnedValue['result'];
-      eob = returnedValue['eob'];
-      _output = returnedValue['output'];
+      result = returnedValue['result'] as bool?;
+      eob = returnedValue['eob'] as bool?;
+      _output = returnedValue['output'] as _DecompressedOutput;
     } else if (_blockType == _BlockType.unCompressedType) {
       final Map<String, dynamic> returnedValue = _decodeUncompressedBlock(eob);
-      result = returnedValue['result'];
-      eob = returnedValue['eob'];
-      _output = returnedValue['output'];
+      result = returnedValue['result'] as bool?;
+      eob = returnedValue['eob'] as bool?;
+      _output = returnedValue['output'] as _DecompressedOutput;
     }
     if (eob! && (_bfinal != 0)) {
       _inflaterstate = _InflaterState.done;
@@ -249,8 +249,8 @@ class _Inflater {
             }
             _length = symbol;
             final Map<String, dynamic> inLengthResult = _inLength(fb);
-            fb = inLengthResult['fb'];
-            if (!inLengthResult['value']) {
+            fb = inLengthResult['fb'] as int;
+            if (!(inLengthResult['value'] as bool)) {
               return <String, dynamic>{
                 'result': false,
                 'eob': endblock,
@@ -261,8 +261,8 @@ class _Inflater {
           break;
         case _InflaterState.iLength:
           final Map<String, dynamic> inLengthResult = _inLength(fb);
-          fb = inLengthResult['fb'];
-          if (!inLengthResult['value']) {
+          fb = inLengthResult['fb'] as int;
+          if (!(inLengthResult['value'] as bool)) {
             return <String, dynamic>{
               'result': false,
               'eob': endblock,
@@ -272,8 +272,8 @@ class _Inflater {
           break;
         case _InflaterState.fLength:
           final Map<String, dynamic> fLengthResult = _fLength(fb);
-          fb = fLengthResult['fb'];
-          if (!fLengthResult['value']) {
+          fb = fLengthResult['fb'] as int;
+          if (!(fLengthResult['value'] as bool)) {
             return <String, dynamic>{
               'result': false,
               'eob': endblock,
@@ -283,8 +283,8 @@ class _Inflater {
           break;
         case _InflaterState.dCode:
           final Map<String, dynamic> dCodeResult = _dcode(fb);
-          fb = dCodeResult['fb'];
-          if (!dCodeResult['value']) {
+          fb = dCodeResult['fb'] as int;
+          if (!(dCodeResult['value'] as bool)) {
             return <String, dynamic>{
               'result': false,
               'eob': endblock,
@@ -317,8 +317,8 @@ class _Inflater {
     }
     _inflaterstate = _InflaterState.fLength;
     final Map<String, dynamic> fLengthResult = _fLength(fb);
-    fb = fLengthResult['fb'];
-    if (!fLengthResult['value']) {
+    fb = fLengthResult['fb'] as int;
+    if (!(fLengthResult['value'] as bool)) {
       return <String, dynamic>{'value': false, 'fb': fb};
     }
     return <String, dynamic>{'value': true, 'fb': fb};
@@ -338,8 +338,8 @@ class _Inflater {
     }
     _inflaterstate = _InflaterState.dCode;
     final Map<String, dynamic> dCodeResult = _dcode(fb);
-    fb = dCodeResult['fb'];
-    if (!dCodeResult['value']) {
+    fb = dCodeResult['fb'] as int;
+    if (!(dCodeResult['value'] as bool)) {
       return <String, dynamic>{'value': false, 'fb': fb};
     }
     return <String, dynamic>{'value': true, 'fb': fb};

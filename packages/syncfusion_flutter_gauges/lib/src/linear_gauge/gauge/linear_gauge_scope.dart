@@ -35,7 +35,7 @@ class LinearGaugeScope extends InheritedWidget {
   static LinearGaugeScope of(BuildContext context) {
     late LinearGaugeScope scope;
 
-    final widget = context
+    final InheritedWidget widget = context
         .getElementForInheritedWidgetOfExactType<LinearGaugeScope>()!
         .widget;
 
@@ -47,11 +47,11 @@ class LinearGaugeScope extends InheritedWidget {
   }
 
   @override
-  bool updateShouldNotify(LinearGaugeScope old) {
-    return (orientation != old.orientation ||
-        isMirrored != old.isMirrored ||
-        isAxisInversed != old.isAxisInversed ||
-        animationController != old.animationController ||
-        animation != old.animation);
+  bool updateShouldNotify(LinearGaugeScope oldWidget) {
+    return orientation != oldWidget.orientation ||
+        isMirrored != oldWidget.isMirrored ||
+        isAxisInversed != oldWidget.isAxisInversed ||
+        animationController != oldWidget.animationController ||
+        animation != oldWidget.animation;
   }
 }

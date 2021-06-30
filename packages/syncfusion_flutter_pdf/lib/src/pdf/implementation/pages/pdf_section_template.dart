@@ -5,7 +5,7 @@ part of pdf;
 /// //Create a new PDF documentation
 /// PdfDocument document = PdfDocument();
 /// //Create a new PDF section
-/// PdfSection section = document.sections.add();
+/// PdfSection section = document.sections!.add();
 /// //Create a section template
 /// PdfSectionTemplate template = PdfSectionTemplate();
 /// //Sets the template for the page in the section
@@ -25,7 +25,7 @@ class PdfSectionTemplate extends PdfDocumentTemplate {
   /// //Create a new PDF documentation
   /// PdfDocument document = PdfDocument();
   /// //Create a new PDF section
-  /// PdfSection section = document.sections.add();
+  /// PdfSection section = document.sections!.add();
   /// //Create a section template
   /// PdfSectionTemplate template = PdfSectionTemplate();
   /// //Sets the template for the page in the section
@@ -49,7 +49,7 @@ class PdfSectionTemplate extends PdfDocumentTemplate {
   /// //Create a new PDF documentation
   /// PdfDocument document = PdfDocument();
   /// //Create a new PDF section
-  /// PdfSection section = document.sections.add();
+  /// PdfSection section = document.sections!.add();
   /// //Create a section template
   /// PdfSectionTemplate template = PdfSectionTemplate()..leftTemplate = false;
   /// //Sets the template for the page in the section
@@ -71,7 +71,7 @@ class PdfSectionTemplate extends PdfDocumentTemplate {
   /// //Create a new PDF documentation
   /// PdfDocument document = PdfDocument();
   /// //Create a new PDF section
-  /// PdfSection section = document.sections.add();
+  /// PdfSection section = document.sections!.add();
   /// //Create a section template
   /// PdfSectionTemplate template = PdfSectionTemplate()..topTemplate = false;
   /// //Sets the template for the page in the section
@@ -93,7 +93,7 @@ class PdfSectionTemplate extends PdfDocumentTemplate {
   /// //Create a new PDF documentation
   /// PdfDocument document = PdfDocument();
   /// //Create a new PDF section
-  /// PdfSection section = document.sections.add();
+  /// PdfSection section = document.sections!.add();
   /// //Create a section template
   /// PdfSectionTemplate template = PdfSectionTemplate()..rightTemplate = false;
   /// //Sets the template for the page in the section
@@ -115,7 +115,7 @@ class PdfSectionTemplate extends PdfDocumentTemplate {
   /// //Create a new PDF documentation
   /// PdfDocument document = PdfDocument();
   /// //Create a new PDF section
-  /// PdfSection section = document.sections.add();
+  /// PdfSection section = document.sections!.add();
   /// //Create a section template
   /// PdfSectionTemplate template = PdfSectionTemplate()..bottomTemplate = false;
   /// //Sets the template for the page in the section
@@ -137,7 +137,7 @@ class PdfSectionTemplate extends PdfDocumentTemplate {
   /// //Create a new PDF documentation
   /// PdfDocument document = PdfDocument();
   /// //Create a new PDF section
-  /// PdfSection section = document.sections.add();
+  /// PdfSection section = document.sections!.add();
   /// //Create a section template
   /// PdfSectionTemplate template = PdfSectionTemplate()..stamp = false;
   /// //Sets the template for the page in the section

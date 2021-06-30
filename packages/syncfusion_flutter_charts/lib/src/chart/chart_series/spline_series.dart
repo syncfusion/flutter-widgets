@@ -6,6 +6,7 @@ part of charts;
 /// SplineSeries, and add it to the series collection property of [SfCartesianChart].
 ///
 /// Provides options to customize the color, opacity and width of the spline series segments.
+@immutable
 class SplineSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of SplineSeries class.
   SplineSeries(
@@ -32,8 +33,6 @@ class SplineSeries<T, D> extends XyDataSeries<T, D> {
       bool? enableTooltip,
       List<double>? dashArray,
       double? animationDuration,
-      // ignore: deprecated_member_use_from_same_package
-      SelectionSettings? selectionSettings,
       SelectionBehavior? selectionBehavior,
       bool? isVisibleInLegend,
       LegendIconType? legendIconType,
@@ -41,6 +40,9 @@ class SplineSeries<T, D> extends XyDataSeries<T, D> {
       String? legendItemText,
       double? opacity,
       SeriesRendererCreatedCallback? onRendererCreated,
+      ChartPointInteractionCallback? onPointTap,
+      ChartPointInteractionCallback? onPointDoubleTap,
+      ChartPointInteractionCallback? onPointLongPress,
       List<int>? initialSelectedDataIndexes})
       : super(
             key: key,
@@ -64,7 +66,6 @@ class SplineSeries<T, D> extends XyDataSeries<T, D> {
             isVisible: isVisible,
             dashArray: dashArray,
             animationDuration: animationDuration,
-            selectionSettings: selectionSettings,
             selectionBehavior: selectionBehavior,
             legendItemText: legendItemText,
             isVisibleInLegend: isVisibleInLegend,
@@ -72,6 +73,9 @@ class SplineSeries<T, D> extends XyDataSeries<T, D> {
             sortingOrder: sortingOrder,
             opacity: opacity,
             onRendererCreated: onRendererCreated,
+            onPointTap: onPointTap,
+            onPointDoubleTap: onPointDoubleTap,
+            onPointLongPress: onPointLongPress,
             initialSelectedDataIndexes: initialSelectedDataIndexes);
 
   ///Type of the spline curve. Various type of curves such as clamped, cardinal,
@@ -128,6 +132,95 @@ class SplineSeries<T, D> extends XyDataSeries<T, D> {
     }
     return SplineSeriesRenderer();
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is SplineSeries &&
+        other.key == key &&
+        other.onCreateRenderer == onCreateRenderer &&
+        other.dataSource == dataSource &&
+        other.xValueMapper == xValueMapper &&
+        other.yValueMapper == yValueMapper &&
+        other.sortFieldValueMapper == sortFieldValueMapper &&
+        other.dataLabelMapper == dataLabelMapper &&
+        other.pointColorMapper == pointColorMapper &&
+        other.sortingOrder == sortingOrder &&
+        other.xAxisName == xAxisName &&
+        other.yAxisName == yAxisName &&
+        other.name == name &&
+        other.color == color &&
+        other.width == width &&
+        other.markerSettings == markerSettings &&
+        other.emptyPointSettings == emptyPointSettings &&
+        other.dataLabelSettings == dataLabelSettings &&
+        other.trendlines == trendlines &&
+        other.isVisible == isVisible &&
+        other.enableTooltip == enableTooltip &&
+        other.dashArray == dashArray &&
+        other.animationDuration == animationDuration &&
+        other.gradient == gradient &&
+        other.selectionBehavior == selectionBehavior &&
+        other.isVisibleInLegend == isVisibleInLegend &&
+        other.legendIconType == legendIconType &&
+        other.legendItemText == legendItemText &&
+        other.opacity == opacity &&
+        other.onRendererCreated == onRendererCreated &&
+        other.onPointTap == onPointTap &&
+        other.onPointDoubleTap == onPointDoubleTap &&
+        other.onPointLongPress == onPointLongPress &&
+        other.initialSelectedDataIndexes == initialSelectedDataIndexes &&
+        other.cardinalSplineTension == cardinalSplineTension &&
+        other.splineType == splineType;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      key,
+      onCreateRenderer,
+      dataSource,
+      xValueMapper,
+      yValueMapper,
+      sortFieldValueMapper,
+      dataLabelMapper,
+      pointColorMapper,
+      sortingOrder,
+      xAxisName,
+      yAxisName,
+      name,
+      color,
+      width,
+      markerSettings,
+      emptyPointSettings,
+      dataLabelSettings,
+      trendlines,
+      isVisible,
+      enableTooltip,
+      dashArray,
+      animationDuration,
+      gradient,
+      selectionBehavior,
+      isVisibleInLegend,
+      legendIconType,
+      legendItemText,
+      opacity,
+      onRendererCreated,
+      initialSelectedDataIndexes,
+      cardinalSplineTension,
+      splineType,
+      onPointTap,
+      onPointDoubleTap,
+      onPointLongPress
+    ];
+    return hashList(values);
+  }
 }
 
 /// Creates series renderer for Spline series
@@ -159,9 +252,9 @@ class SplineSeriesRenderer extends XyDataSeriesRenderer {
       segment._pointColorMapper = currentPoint.pointColorMapper;
       segment.currentSegmentIndex = pointIndex;
       segment._seriesIndex = seriesIndex;
-      segment._series = _series as XyDataSeries;
+      segment._series = _series as XyDataSeries<dynamic, dynamic>;
       segment._seriesRenderer = this;
-      if (_chartState!._widgetNeedUpdate &&
+      if (_renderingDetails!.widgetNeedUpdate &&
           // ignore: unnecessary_null_comparison
           _oldSeriesRenderers != null &&
           _oldSeriesRenderers.isNotEmpty &&
@@ -169,8 +262,8 @@ class SplineSeriesRenderer extends XyDataSeriesRenderer {
           _oldSeriesRenderers[segment._seriesIndex]._seriesName ==
               segment._seriesRenderer._seriesName) {
         segment._oldSeriesRenderer = _oldSeriesRenderers[segment._seriesIndex];
-        segment._oldSeries =
-            segment._oldSeriesRenderer!._series as XyDataSeries;
+        segment._oldSeries = segment._oldSeriesRenderer!._series
+            as XyDataSeries<dynamic, dynamic>;
       }
       segment.calculateSegmentPoints();
       segment.points.add(

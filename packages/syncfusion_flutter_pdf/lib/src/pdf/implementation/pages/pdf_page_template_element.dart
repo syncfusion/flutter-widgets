@@ -30,7 +30,7 @@ class PdfPageTemplateElement {
   //Constructor
   /// Initializes a new instance of the [PdfPageTemplateElement] class.
   /// ```dart
-  /// Create a new pdf document
+  /// //Create a new pdf document
   /// PdfDocument document = PdfDocument();
   /// //Add the pages to the document
   /// for (int i = 1; i <= 5; i++) {
@@ -87,7 +87,7 @@ class PdfPageTemplateElement {
   /// //Set margins.
   /// document.pageSettings.setMargins(25);
   /// //Create the page template with specific bounds
-  /// final PdfPageTemplateElement custom = PdfPageTemplateElement(
+  /// PdfPageTemplateElement custom = PdfPageTemplateElement(
   ///     Rect.fromLTWH(0, 0, 100, 100), document.pages.add());
   /// document.template.stamps.add(custom);
   /// //Gets or sets the dock style
@@ -119,12 +119,12 @@ class PdfPageTemplateElement {
   /// //Set margins.
   /// document.pageSettings.setMargins(25);
   /// //Create the page template with specific bounds
-  /// final PdfPageTemplateElement custom = PdfPageTemplateElement(
+  /// PdfPageTemplateElement custom = PdfPageTemplateElement(
   ///     Rect.fromLTWH(0, 0, 100, 100), document.pages.add());
   /// document.template.stamps.add(custom);
   /// //Gets or sets  dock style.
   /// custom.dock = PdfDockStyle.right;
-  /// Gets or sets  alignment style.
+  /// //Gets or sets  alignment style.
   /// custom.alignment = PdfAlignmentStyle.middleCenter;
   /// //Draw template into pdf page.
   /// custom.graphics.drawRectangle(
@@ -151,10 +151,10 @@ class PdfPageTemplateElement {
   /// //Set margins.
   /// document.pageSettings.setMargins(25);
   /// //Create the page template with specific bounds
-  /// final PdfPageTemplateElement custom = PdfPageTemplateElement(
+  /// PdfPageTemplateElement custom = PdfPageTemplateElement(
   ///     const Offset(5, 5) & const Size(110, 110), document.pages.add());
   /// document.template.stamps.add(custom);
-  /// Gets or sets  background.
+  /// //Gets or sets  background.
   /// custom.background = true;
   /// //Draw template into pdf page.
   /// custom.graphics.drawRectangle(
@@ -178,7 +178,7 @@ class PdfPageTemplateElement {
   /// //Set margins.
   /// document.pageSettings.setMargins(25);
   /// //Create the page template with specific bounds
-  /// final PdfPageTemplateElement custom = PdfPageTemplateElement(
+  /// PdfPageTemplateElement custom = PdfPageTemplateElement(
   ///     Rect.fromLTWH(0, 0, 100, 100), document.pages.add());
   /// document.template.stamps.add(custom);
   /// //Gets or sets  location.
@@ -207,7 +207,7 @@ class PdfPageTemplateElement {
   /// //Set margins.
   /// document.pageSettings.setMargins(25);
   /// //Create the page template with specific bounds
-  /// final PdfPageTemplateElement custom = PdfPageTemplateElement(
+  /// PdfPageTemplateElement custom = PdfPageTemplateElement(
   ///     Rect.fromLTWH(0, 0, 100, 100), document.pages.add());
   /// document.template.stamps.add(custom);
   /// //Gets or sets  X co-ordinate.
@@ -236,7 +236,7 @@ class PdfPageTemplateElement {
   /// //Set margins.
   /// document.pageSettings.setMargins(25);
   /// //Create the page template with specific bounds
-  /// final PdfPageTemplateElement custom = PdfPageTemplateElement(
+  /// PdfPageTemplateElement custom = PdfPageTemplateElement(
   ///     Rect.fromLTWH(0, 0, 100, 100), document.pages.add());
   /// document.template.stamps.add(custom);
   /// //Gets or sets  Y co-ordinate.
@@ -265,7 +265,7 @@ class PdfPageTemplateElement {
   /// //Set margins.
   /// document.pageSettings.setMargins(25);
   /// //Create the page template with specific bounds
-  /// final PdfPageTemplateElement custom = PdfPageTemplateElement(
+  /// PdfPageTemplateElement custom = PdfPageTemplateElement(
   ///     Rect.fromLTWH(0, 0, 100, 100), document.pages.add());
   /// document.template.stamps.add(custom);
   /// //Gets or sets  size.
@@ -294,7 +294,7 @@ class PdfPageTemplateElement {
   /// //Set margins.
   /// document.pageSettings.setMargins(25);
   /// //Create the page template with specific bounds
-  /// final PdfPageTemplateElement custom = PdfPageTemplateElement(
+  /// PdfPageTemplateElement custom = PdfPageTemplateElement(
   ///     Rect.fromLTWH(0, 0, 100, 100), document.pages.add());
   /// document.template.stamps.add(custom);
   /// //Gets or sets  width.
@@ -323,7 +323,7 @@ class PdfPageTemplateElement {
   /// //Set margins.
   /// document.pageSettings.setMargins(25);
   /// //Create the page template with specific bounds
-  /// final PdfPageTemplateElement custom = PdfPageTemplateElement(
+  /// PdfPageTemplateElement custom = PdfPageTemplateElement(
   ///     Rect.fromLTWH(0, 0, 100, 100), document.pages.add());
   /// document.template.stamps.add(custom);
   /// //Gets or sets  height.
@@ -352,7 +352,7 @@ class PdfPageTemplateElement {
   /// //Set margins.
   /// document.pageSettings.setMargins(25);
   /// //Create the page template with specific bounds
-  /// final PdfPageTemplateElement custom = PdfPageTemplateElement(
+  /// PdfPageTemplateElement custom = PdfPageTemplateElement(
   ///     Rect.fromLTWH(0, 0, 100, 100), document.pages.add());
   /// document.template.stamps.add(custom);
   /// //Draw template into pdf page.
@@ -386,7 +386,7 @@ class PdfPageTemplateElement {
   /// //Set margins.
   /// document.pageSettings.setMargins(25);
   /// //Create the page template with specific bounds
-  /// final PdfPageTemplateElement custom = PdfPageTemplateElement(
+  /// PdfPageTemplateElement custom = PdfPageTemplateElement(
   ///     Rect.fromLTWH(0, 0, 100, 100), document.pages.add());
   /// document.template.stamps.add(custom);
   /// //Gets or sets  bounds.

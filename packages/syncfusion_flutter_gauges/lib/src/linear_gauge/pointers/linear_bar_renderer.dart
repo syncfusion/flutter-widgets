@@ -23,7 +23,7 @@ class RenderLinearBarPointer extends RenderOpacity {
       required LinearGaugeOrientation orientation,
       Animation<double>? pointerAnimation,
       VoidCallback? onAnimationCompleted,
-      AnimationController? animationController,
+      this.animationController,
       required bool isAxisInversed})
       : _value = value,
         _edgeStyle = edgeStyle,
@@ -37,7 +37,6 @@ class RenderLinearBarPointer extends RenderOpacity {
         _orientation = orientation,
         _pointerAnimation = pointerAnimation,
         _onAnimationCompleted = onAnimationCompleted,
-        animationController = animationController,
         _isAxisInversed = isAxisInversed {
     _barPaint = Paint();
     _isHorizontal = orientation == LinearGaugeOrientation.horizontal;
@@ -402,7 +401,7 @@ class RenderLinearBarPointer extends RenderOpacity {
   @override
   void paint(PaintingContext context, Offset offset) {
     _barPointerOffset = offset;
-    final canvas = context.canvas;
+    final Canvas canvas = context.canvas;
 
     if (_pointerAnimation == null ||
         (_pointerAnimation != null && _pointerAnimation!.value > 0)) {
@@ -413,7 +412,7 @@ class RenderLinearBarPointer extends RenderOpacity {
         _barPaint.shader = shaderCallback!(_barRect);
       }
 
-      final path = _getBarPointerPath(offset);
+      final Path path = _getBarPointerPath(offset);
       canvas.drawPath(path, _barPaint);
 
       if (borderWidth > 0) {

@@ -51,12 +51,14 @@ class _LegendRenderer with _CustomizeLegend {
   @override
   void drawLegendItem(int index, _LegendRenderContext legendItem, Legend legend,
       dynamic chartState, Canvas canvas, Size size) {
-    final LegendRenderer legendRenderer = chartState._legendRenderer;
+    final LegendRenderer legendRenderer =
+        chartState._renderingDetails.legendRenderer;
     final dynamic chart = chartState._chart;
     final String legendText = legendItem.text;
     final List<Color> palette = chartState._chart.palette;
     TrendlineRenderer? trendlineRenderer;
-    Color color = legendItem.iconColor ?? palette[index % palette.length];
+    Color color = legendItem.iconColor ??
+        palette[legendItem.seriesIndex % palette.length];
     color =
         legendRenderer._renderer.getLegendIconColor(index, legendItem, color);
     final Size textSize = legendItem.textSize!;
@@ -71,8 +73,10 @@ class _LegendRenderer with _CustomizeLegend {
             ? !trendlineRenderer!._visible
             : legendItem.seriesRenderer is TechnicalIndicators<dynamic, dynamic>
                 ? !legendItem.indicatorRenderer!._visible!
-                : !legendItem.seriesRenderer._visible)
-        : !legendItem.point.isVisible;
+                : legendItem.seriesRenderer._visible == false)
+        : legendItem.point.isVisible == false;
+    final Color legendTextColor =
+        chartState._renderingDetails.chartTheme.legendTextColor;
     final TextStyle textStyle = legendItem.isSelect
         ? _getTextStyle(
             textStyle: legend.textStyle,
@@ -80,8 +84,8 @@ class _LegendRenderer with _CustomizeLegend {
             fontColor: const Color.fromRGBO(211, 211, 211, 1))
         : _getTextStyle(
             textStyle: legend.textStyle,
-            fontColor: legendRenderer._renderer.getLegendTextColor(
-                index, legendItem, chartState._chartTheme.legendTextColor));
+            fontColor: legendRenderer._renderer
+                .getLegendTextColor(index, legendItem, legendTextColor));
     canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
     _drawLegendShape(
         index,
@@ -151,7 +155,8 @@ class _LegendRenderer with _CustomizeLegend {
       dynamic chartState) {
     final Path path = Path();
     final LegendIconType actualIconType = iconType;
-    final LegendRenderer legendRenderer = chartState._legendRenderer;
+    final LegendRenderer legendRenderer =
+        chartState._renderingDetails.legendRenderer;
     PaintingStyle style = PaintingStyle.fill;
     final String seriesType = legendRenderContext.seriesRenderer
             is TechnicalIndicators<dynamic, dynamic>
@@ -184,7 +189,7 @@ class _LegendRenderer with _CustomizeLegend {
     style = _getPathAndStyle(iconType, style, path, location, width, height,
         legendRenderContext.seriesRenderer, chartState, canvas);
     // ignore: unnecessary_null_comparison
-    assert(legend.iconBorderWidth != null ? legend.iconBorderWidth >= 0 : true,
+    assert(!(legend.iconBorderWidth != null) || legend.iconBorderWidth >= 0,
         'The icon border width of legend should not be less than 0.');
     // ignore: unnecessary_null_comparison
     if (color != null) {
@@ -309,7 +314,7 @@ class _LegendRenderer with _CustomizeLegend {
                   (seriesType == 'line' ||
                       seriesType == 'fastline' ||
                       seriesType.contains('stackedline')) &&
-                  legendRenderContext.series.markerSettings.isVisible &&
+                  legendRenderContext.series.markerSettings.isVisible == true &&
                   legendRenderContext.series.markerSettings.shape !=
                       DataMarkerType.image
               ? _getIconType(legendRenderContext.series.markerSettings.shape)
@@ -328,19 +333,23 @@ class _LegendRenderer with _CustomizeLegend {
       dynamic seriesRenderer,
       dynamic chartState,
       Canvas canvas) {
-    final double x = location.dx;
-    final double y = location.dy;
+    final double x = location.dx -
+        (iconType == LegendIconType.image ? 0 : width / 2).toDouble();
+    final double y = location.dy -
+        (iconType == LegendIconType.image ? 0 : height / 2).toDouble();
+    final Rect rect = Rect.fromLTWH(x, y, width, height);
     switch (iconType) {
       case LegendIconType.seriesType:
-        style = _calculateLegendShapes(
-            path, x, y, width, height, seriesRenderer._seriesType);
+        style = _calculateLegendShapes(path, rect, seriesRenderer._seriesType);
         break;
       case LegendIconType.circle:
-        ShapeMaker.drawCircle(path, x, y, width, height);
+        ShapePainter.getShapesPath(
+            path: path, rect: rect, shapeType: ShapeMarkerType.circle);
         break;
 
       case LegendIconType.rectangle:
-        ShapeMaker.drawRectangle(path, x, y, width, height);
+        ShapePainter.getShapesPath(
+            path: path, rect: rect, shapeType: ShapeMarkerType.rectangle);
         break;
       case LegendIconType.image:
         {
@@ -365,27 +374,35 @@ class _LegendRenderer with _CustomizeLegend {
           break;
         }
       case LegendIconType.pentagon:
-        ShapeMaker.drawPentagon(path, x, y, width, height);
+        ShapePainter.getShapesPath(
+            path: path, rect: rect, shapeType: ShapeMarkerType.pentagon);
         break;
 
       case LegendIconType.verticalLine:
-        ShapeMaker.drawVerticalLine(path, x, y, width, height);
+        ShapePainter.getShapesPath(
+            path: path, rect: rect, shapeType: ShapeMarkerType.verticalLine);
         break;
 
       case LegendIconType.invertedTriangle:
-        ShapeMaker.drawInvertedTriangle(path, x, y, width, height);
+        ShapePainter.getShapesPath(
+            path: path,
+            rect: rect,
+            shapeType: ShapeMarkerType.invertedTriangle);
         break;
 
       case LegendIconType.horizontalLine:
-        ShapeMaker.drawHorizontalLine(path, x, y, width, height);
+        ShapePainter.getShapesPath(
+            path: path, rect: rect, shapeType: ShapeMarkerType.horizontalLine);
         break;
 
       case LegendIconType.diamond:
-        ShapeMaker.drawDiamond(path, x, y, width, height);
+        ShapePainter.getShapesPath(
+            path: path, rect: rect, shapeType: ShapeMarkerType.diamond);
         break;
 
       case LegendIconType.triangle:
-        ShapeMaker.drawTriangle(path, x, y, width, height);
+        ShapePainter.getShapesPath(
+            path: path, rect: rect, shapeType: ShapeMarkerType.triangle);
         break;
     }
     return style;
@@ -407,6 +424,9 @@ class _LegendRenderer with _CustomizeLegend {
       Path path,
       Shader? shader) {
     final dynamic chart = chartState._chart;
+    final double x = location.dx - width / 2;
+    final double y = location.dy - height / 2;
+    final Rect rect = Rect.fromLTWH(x, y, width, height);
     if (seriesType.contains('line')) {
       if (iconType != LegendIconType.seriesType) {
         canvas.drawPath(path, fillPaint);
@@ -417,8 +437,9 @@ class _LegendRenderer with _CustomizeLegend {
       final Paint paint = Paint()
         ..color = fillPaint.color.withOpacity(chart.legend.opacity)
         ..style = PaintingStyle.stroke
-        ..strokeWidth =
-            chart.legend.iconBorderWidth > 0 ? chart.legend.iconBorderWidth : 3;
+        ..strokeWidth = chart.legend.iconBorderWidth > 0 == true
+            ? chart.legend.iconBorderWidth
+            : 3;
       legendRenderContext.series.dashArray[0] != 0
           ? canvas.drawPath(
               !kIsWeb
@@ -428,75 +449,68 @@ class _LegendRenderer with _CustomizeLegend {
               paint)
           : canvas.drawPath(linePath, paint);
     } else if (seriesType == 'radialbar') {
-      final num radius = (width + height) / 2;
+      final double radius = (width + height) / 2;
       _drawPath(
           canvas,
           _StyleOptions(
               fill: Colors.grey[100]!,
               strokeWidth: fillPaint.strokeWidth,
               strokeColor: Colors.grey[300]!.withOpacity(0.5)),
-          _getArcPath(
-              (radius / 2) - 2,
-              radius / 2,
-              Offset(location.dx, location.dy),
-              0,
-              360 - 0.01,
-              360 - 0.01,
-              chartState._chart,
-              true));
-      const num pointStartAngle = -90;
-      num degree =
+          ShapePainter.getShapesPath(
+              rect: rect,
+              shapeType: ShapeMarkerType.radialBarSeries,
+              borderPaint: Paint(),
+              radius: radius));
+      const double pointStartAngle = -90;
+      double degree =
           legendRenderContext.seriesRenderer._renderPoints[index].y.abs() /
               (legendRenderContext.series.maximumValue ??
-                  legendRenderContext.seriesRenderer._sumOfPoints);
+                  legendRenderContext
+                      .seriesRenderer._segmentRenderingValues['sumOfPoints']!);
       degree = (degree > 1 ? 1 : degree) * (360 - 0.001);
-      final num pointEndAngle = pointStartAngle + degree;
+      final double pointEndAngle = pointStartAngle + degree;
       _drawPath(
           canvas,
           _StyleOptions(
               fill: fillPaint.color,
               strokeWidth: fillPaint.strokeWidth,
               strokeColor: Colors.transparent),
-          _getArcPath(
-              (radius / 2) - 2,
-              radius / 2,
-              Offset(location.dx, location.dy),
-              pointStartAngle,
-              pointEndAngle,
-              degree,
-              chart,
-              true),
+          ShapePainter.getShapesPath(
+              rect: rect,
+              shapeType: ShapeMarkerType.radialBarSeries,
+              radius: radius,
+              startAngle: pointStartAngle,
+              degree: degree,
+              endAngle: pointEndAngle),
           null,
-          !legendRenderContext.isSelect ? shader ?? null : null);
+          !legendRenderContext.isSelect ? shader : null);
     } else {
-      final num radius = (width + height) / 2;
+      final double radius = (width + height) / 2;
       _drawPath(
           canvas,
           _StyleOptions(
               fill: fillPaint.color,
               strokeWidth: fillPaint.strokeWidth,
               strokeColor: Colors.grey[300]!.withOpacity(0.5)),
-          _getArcPath(radius / 4, radius / 2, Offset(location.dx, location.dy),
-              0, 270, 270, chart, true),
+          ShapePainter.getShapesPath(
+              rect: rect,
+              shapeType: ShapeMarkerType.doughnutSeries,
+              borderPaint: Paint(),
+              radius: radius),
           null,
-          !legendRenderContext.isSelect ? shader ?? null : null);
+          !legendRenderContext.isSelect ? shader : null);
       _drawPath(
           canvas,
           _StyleOptions(
               fill: fillPaint.color,
               strokeWidth: fillPaint.strokeWidth,
               strokeColor: Colors.grey[300]!.withOpacity(0.5)),
-          _getArcPath(
-              radius / 4,
-              radius / 2,
-              Offset(location.dx + 1, location.dy - 1),
-              -5,
-              -85,
-              -85,
-              chart,
-              true),
+          ShapePainter.getShapesPath(
+              rect: rect,
+              shapeType: ShapeMarkerType.doughnutSeries,
+              radius: radius),
           null,
-          !legendRenderContext.isSelect ? shader ?? null : null);
+          !legendRenderContext.isSelect ? shader : null);
     }
   }
 }
@@ -521,7 +535,7 @@ class _RenderLegend extends StatelessWidget {
     bool? isSelect;
     if (chart.legend.legendItemBuilder != null) {
       final _MeasureWidgetContext _measureWidgetContext =
-          chartState._legendWidgetContext[index];
+          chartState._renderingDetails.legendWidgetContext[index];
       isSelect = chart is SfCartesianChart
           ? chartState
               ._chartSeries
@@ -533,13 +547,15 @@ class _RenderLegend extends StatelessWidget {
               ._renderPoints[_measureWidgetContext.pointIndex]
               .isVisible;
     }
+    final _ChartLegend chartLegend = chartState._renderingDetails.chartLegend;
+    final LegendRenderer legendRenderer =
+        chartState._renderingDetails.legendRenderer;
     return Container(
         height: size.height,
-        width: chartState._legendRenderer._orientation ==
-                    LegendItemOrientation.vertical &&
+        width: legendRenderer._orientation == LegendItemOrientation.vertical &&
                 (chart.legend.overflowMode == LegendItemOverflowMode.scroll ||
                     chart.legend.overflowMode == LegendItemOverflowMode.none)
-            ? chartState._chartLegend.legendSize.width
+            ? chartLegend.legendSize.width
             : size.width,
         child: HandCursor(
             child: GestureDetector(
@@ -558,16 +574,16 @@ class _RenderLegend extends StatelessWidget {
                         painter: _ChartLegendPainter(
                             chartState: chartState,
                             legendIndex: index,
-                            isSelect: chartState
-                                ._chartLegend.legendCollections[index].isSelect,
-                            notifier: chartState
-                                ._chartLegend.legendRepaintNotifier)))));
+                            isSelect:
+                                chartLegend.legendCollections![index].isSelect,
+                            notifier: chartLegend.legendRepaintNotifier)))));
   }
 
   /// To process chart on circular chart legend toggle
   void _processCircularPointsToggle() {
     LegendTapArgs legendTapArgs;
     const int seriesIndex = 0;
+    final _ChartLegend chartLegend = chartState._renderingDetails.chartLegend;
     if (chart.onLegendTapped != null) {
       if (chart != null) {
         legendTapArgs = LegendTapArgs(chart.series, seriesIndex, index);
@@ -577,15 +593,15 @@ class _RenderLegend extends StatelessWidget {
       }
       chart.onLegendTapped(legendTapArgs);
     }
-    if (chart.legend.toggleSeriesVisibility) {
+    if (chart.legend.toggleSeriesVisibility == true) {
       if (chart.legend.legendItemBuilder != null) {
-        _legendToggleTemplateState(
-            chartState._legendWidgetContext[index], chartState, '');
+        final _MeasureWidgetContext legendWidgetContext =
+            chartState._renderingDetails.legendWidgetContext[index];
+        _legendToggleTemplateState(legendWidgetContext, chartState, '');
       } else {
-        _legendToggleState(
-            chartState._chartLegend.legendCollections[index], chartState);
+        _legendToggleState(chartLegend.legendCollections![index], chartState);
       }
-      chartState._isLegendToggled = true;
+      chartState._renderingDetails.isLegendToggled = true;
       chartState._redraw();
     }
   }
@@ -597,28 +613,34 @@ class _RenderLegend extends StatelessWidget {
     _LegendRenderContext _legendRenderContext;
     if (chart.onLegendTapped != null) {
       if (chart.legend.legendItemBuilder != null) {
-        _measureWidgetContext = chartState._legendWidgetContext[index];
+        _measureWidgetContext =
+            chartState._renderingDetails.legendWidgetContext[index];
         legendTapArgs = LegendTapArgs(
             chartState._chartSeries
                 .visibleSeriesRenderers[_measureWidgetContext.seriesIndex],
             _measureWidgetContext.seriesIndex!,
             0);
       } else {
-        _legendRenderContext = chartState._chartLegend.legendCollections[index];
+        _legendRenderContext =
+            chartState._renderingDetails.chartLegend.legendCollections[index];
         legendTapArgs = LegendTapArgs(
             _legendRenderContext.series, _legendRenderContext.seriesIndex, 0);
       }
       chart.onLegendTapped(legendTapArgs);
     }
-    if (chart.legend.toggleSeriesVisibility) {
+    if (chart.legend.toggleSeriesVisibility == true) {
       if (chart.legend.legendItemBuilder != null) {
         _legendToggleTemplateState(
-            chartState._legendWidgetContext[index], chartState, '');
+            chartState._renderingDetails.legendWidgetContext[index],
+            chartState,
+            '');
       } else {
         _cartesianLegendToggleState(
-            chartState._chartLegend.legendCollections[index], chartState);
+            chartState._renderingDetails.chartLegend.legendCollections[index],
+            chartState);
       }
-      chartState._isLegendToggled = true;
+      chartState._renderingDetails.isLegendToggled = true;
+      chartState._renderingDetails.isImageDrawn = false;
       chartState._legendToggling = true;
       chartState._redraw();
     }
@@ -636,12 +658,13 @@ class _ChartLegendStylePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final Legend legend = chart.legend;
+    final Color legendBackgroundColor =
+        chartState._renderingDetails.chartTheme.legendBackgroundColor;
     if (legend.backgroundColor != null) {
       canvas.drawRect(
           Rect.fromLTWH(0, 0, size.width, size.height),
           Paint()
-            ..color = legend.backgroundColor ??
-                chartState._chartTheme.legendBackgroundColor
+            ..color = legend.backgroundColor ?? legendBackgroundColor
             ..style = PaintingStyle.fill);
     }
     // ignore: unnecessary_null_comparison
@@ -679,9 +702,10 @@ class _ChartLegendPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final Legend legend = chart.legend;
-    final LegendRenderer legendRenderer = chartState._legendRenderer;
+    final LegendRenderer legendRenderer =
+        chartState._renderingDetails.legendRenderer;
     final _LegendRenderContext legendRenderContext =
-        chartState._chartLegend.legendCollections[legendIndex];
+        chartState._renderingDetails.chartLegend.legendCollections[legendIndex];
     legendRenderer._renderer.drawLegendItem(
         legendIndex, legendRenderContext, legend, chartState, canvas, size);
   }

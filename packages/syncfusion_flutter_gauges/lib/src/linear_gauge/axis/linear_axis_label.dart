@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 ///This class represents the linear axis label.
+@immutable
 class LinearAxisLabel {
   ///Creates a linear axis label.
   const LinearAxisLabel({required this.text, required this.value});
@@ -49,7 +50,9 @@ class LinearAxisLabel {
       return false;
     }
 
-    if (other is LinearAxisLabel) otherStyle = other;
+    if (other is LinearAxisLabel) {
+      otherStyle = other;
+    }
 
     return otherStyle.text == text && otherStyle.value == value;
   }

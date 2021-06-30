@@ -20,16 +20,19 @@ class _VisualContainer extends StatefulWidget {
 
 class _VisualContainerState extends State<_VisualContainer> {
   void _addSwipeBackgroundWidget(List<Widget> children) {
-    final dataGridSettings = widget.dataGridSettings;
+    final _DataGridSettings dataGridSettings = widget.dataGridSettings;
     if (dataGridSettings.allowSwiping &&
         dataGridSettings.swipingOffset.abs() > 0.0) {
-      final swipeRow = widget.rowGenerator.items
-          .where((row) =>
-              row.rowRegion == RowRegion.body || row.rowType == RowType.dataRow)
-          .firstWhereOrNull((row) => row._isSwipingRow);
+      final DataRowBase? swipeRow = widget.rowGenerator.items
+          .where((DataRowBase row) =>
+              (row.rowRegion == RowRegion.body ||
+                  row.rowType == RowType.dataRow) &&
+              row.rowIndex >= 0)
+          .firstWhereOrNull((DataRowBase row) => row._isSwipingRow);
       if (swipeRow != null) {
-        final swipeDirection = _SfDataGridHelper.getSwipeDirection(
-            dataGridSettings, dataGridSettings.swipingOffset);
+        final DataGridRowSwipeDirection swipeDirection =
+            _SfDataGridHelper.getSwipeDirection(
+                dataGridSettings, dataGridSettings.swipingOffset);
 
         switch (swipeDirection) {
           case DataGridRowSwipeDirection.startToEnd:
@@ -51,17 +54,36 @@ class _VisualContainerState extends State<_VisualContainer> {
     }
   }
 
+  void _addFooterRow(List<Widget> children) {
+    if (widget.dataGridSettings.footer != null) {
+      final DataRowBase? footerRow = widget.rowGenerator.items.firstWhereOrNull(
+          (DataRowBase row) =>
+              row.rowType == RowType.footerRow && row.rowIndex >= 0);
+      if (footerRow != null) {
+        children.add(_VirtualizingCellsWidget(
+          key: footerRow._key!,
+          dataRow: footerRow,
+          isDirty: widget.isDirty || footerRow._isDirty,
+        ));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Need to restrict the layout of the currently unused rows that keep the
+    // row index to -1 in the `rowGenerator.items` collection.
     final List<Widget> children = widget.rowGenerator.items
-        .where((row) =>
-            row.rowRegion == RowRegion.body || row.rowType == RowType.dataRow)
-        .map<Widget>((dataRow) => _VirtualizingCellsWidget(
+        .where((DataRowBase row) =>
+            row.rowType == RowType.dataRow && row.rowIndex >= 0)
+        .map<Widget>((DataRowBase dataRow) => _VirtualizingCellsWidget(
               key: dataRow._key!,
               dataRow: dataRow,
               isDirty: widget.isDirty || dataRow._isDirty,
             ))
         .toList();
+
+    _addFooterRow(children);
 
     _addSwipeBackgroundWidget(children);
 
@@ -82,7 +104,9 @@ class _VisualContainerRenderObjectWidget extends MultiChildRenderObjectWidget {
       required this.isDirty,
       required this.children,
       required this.dataGridSettings})
-      : super(key: key, children: RepaintBoundary.wrapAll(List.from(children)));
+      : super(
+            key: key,
+            children: RepaintBoundary.wrapAll(List<Widget>.from(children)));
 
   @override
   final List<Widget> children;
@@ -181,7 +205,7 @@ class _RenderVisualContainer extends RenderBox
     RenderBox? child = lastChild;
     while (child != null) {
       final _VisualContainerParentData childParentData =
-          child.parentData as _VisualContainerParentData;
+          child.parentData! as _VisualContainerParentData;
       final bool isHit = result.addWithPaintOffset(
         offset: childParentData.offset,
         position: position,
@@ -210,9 +234,9 @@ class _RenderVisualContainer extends RenderBox
 
   Offset _getSwipingChildOffset(Rect swipeRowRect) {
     double dxPosition = 0.0;
-    final viewWidth = _dataGridSettings.viewWidth;
-    final maxSwipeOffset = _dataGridSettings.swipeMaxOffset;
-    final extentWidth = _dataGridSettings.container.extentWidth;
+    final double viewWidth = _dataGridSettings.viewWidth;
+    final double maxSwipeOffset = _dataGridSettings.swipeMaxOffset;
+    final double extentWidth = _dataGridSettings.container.extentWidth;
 
     if (_dataGridSettings.textDirection == TextDirection.rtl &&
         viewWidth > extentWidth) {
@@ -244,13 +268,12 @@ class _RenderVisualContainer extends RenderBox
     RenderBox? child = firstChild;
     while (child != null) {
       final _VisualContainerParentData parentData =
-          child.parentData as _VisualContainerParentData;
+          child.parentData! as _VisualContainerParentData;
       // Need to ensure whether the child type is _RenderVirtualizingCellsWidget
       // or not before accessing it. Because swiping widget's render object won't be
       // _RenderVirtualizingCellsWidget.
-      final RenderBox? wholeRowElement = child;
-      if (wholeRowElement != null &&
-          wholeRowElement is _RenderVirtualizingCellsWidget) {
+      final RenderBox wholeRowElement = child;
+      if (wholeRowElement is _RenderVirtualizingCellsWidget) {
         if (wholeRowElement.dataRow.isVisible) {
           final Rect rowRect = wholeRowElement._measureRowRect(size.width);
 
@@ -282,7 +305,7 @@ class _RenderVisualContainer extends RenderBox
         // So, we can get it diretly from lastChild property.
         final RenderBox? swipingWidget = lastChild;
         if (swipingWidget != null && _swipeWholeRowElement != null) {
-          final swipeRowRect =
+          final Rect swipeRowRect =
               _swipeWholeRowElement!._measureRowRect(size.width);
 
           parentData
@@ -306,10 +329,9 @@ class _RenderVisualContainer extends RenderBox
     RenderBox? child = firstChild;
     while (child != null) {
       final _VisualContainerParentData childParentData =
-          child.parentData as _VisualContainerParentData;
-      final RenderBox? wholeRowElement = child;
-      if (wholeRowElement != null &&
-          wholeRowElement is _RenderVirtualizingCellsWidget) {
+          child.parentData! as _VisualContainerParentData;
+      final RenderBox wholeRowElement = child;
+      if (wholeRowElement is _RenderVirtualizingCellsWidget) {
         if (childParentData.width != 0.0 && childParentData.height != 0.0) {
           if (childParentData.rowClipRect != null) {
             if (wholeRowElement.dataRow._isSwipingRow &&
@@ -319,7 +341,7 @@ class _RenderVisualContainer extends RenderBox
               final RenderBox? swipeWidget = lastChild;
               if (swipeWidget != null) {
                 final _VisualContainerParentData childParentData =
-                    swipeWidget.parentData as _VisualContainerParentData;
+                    swipeWidget.parentData! as _VisualContainerParentData;
                 context.paintChild(
                     swipeWidget, childParentData.offset + offset);
               }
@@ -329,7 +351,7 @@ class _RenderVisualContainer extends RenderBox
               needsCompositing,
               childParentData.offset + offset,
               childParentData.rowClipRect!,
-              (context, offset) {
+              (PaintingContext context, Offset offset) {
                 context.paintChild(child!, offset);
               },
               clipBehavior: Clip.antiAlias,

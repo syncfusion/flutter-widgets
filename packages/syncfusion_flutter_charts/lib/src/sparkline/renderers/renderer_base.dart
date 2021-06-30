@@ -9,9 +9,10 @@ import '../utils/enum.dart';
 import '../utils/helper.dart';
 
 /// Represents the render object for spark chart
+@immutable
 abstract class SfSparkChartRenderObjectWidget extends LeafRenderObjectWidget {
   /// Creates the render object for spark chart
-  SfSparkChartRenderObjectWidget(
+  const SfSparkChartRenderObjectWidget(
       {Key? key,
       this.data,
       this.dataCount,
@@ -100,7 +101,9 @@ abstract class SfSparkChartRenderObjectWidget extends LeafRenderObjectWidget {
 abstract class RenderSparkChart extends RenderBox {
   /// Creates the render object widget
   RenderSparkChart(
-      {Widget? child,
+      {
+      //ignore: avoid_unused_constructor_parameters
+      Widget? child,
       List<dynamic>? data,
       int? dataCount,
       SparkChartIndexedValueMapper<dynamic>? xValueMapper,
@@ -504,7 +507,7 @@ abstract class RenderSparkChart extends RenderBox {
       }
     } else {
       dynamic xValue;
-      dynamic yValue;
+      num? yValue;
       late String labelX;
       dynamic actualX;
       if (xValueMapper != null &&
@@ -527,6 +530,7 @@ abstract class RenderSparkChart extends RenderBox {
 
           yValue = yValueMapper!(i);
           labelY = _getDataLabel(yValue);
+          // ignore: unnecessary_null_comparison
           if (xValue != null && yValue != null) {
             currentPoint = SparkChartPoint(x: xValue, y: yValue);
             currentPoint.actualX = actualX;
@@ -560,11 +564,11 @@ abstract class RenderSparkChart extends RenderBox {
     final double value = axisCrossesAt!;
     double? axisLineHeight =
         areaSize!.height - ((areaSize!.height / diffY!) * (-minY!));
-    axisLineHeight = ((minY! < 0 && maxY! <= 0)
+    axisLineHeight = minY! < 0 && maxY! <= 0
         ? 0
         : (minY! < 0 && maxY! > 0)
             ? axisHeight
-            : areaSize!.height);
+            : areaSize!.height;
     if (value >= minY! && value <= maxY!) {
       axisLineHeight = areaSize!.height -
           (areaSize!.height * ((value - minY!) / diffY!)).roundToDouble();
@@ -575,7 +579,7 @@ abstract class RenderSparkChart extends RenderBox {
   /// Inverse the data Points
   void inverseDataPoints() {
     final List<SparkChartPoint> temp = dataPoints!.reversed.toList();
-    reversedDataLabels = List.from(dataLabels!.reversed);
+    reversedDataLabels = List<String>.from(dataLabels!.reversed);
     dataLabels!.clear();
     dataLabels!.addAll(reversedDataLabels!);
     dataPoints!.clear();
@@ -605,7 +609,7 @@ abstract class RenderSparkChart extends RenderBox {
         x = dataPoints![i].x.toDouble();
         y = dataPoints![i].y.toDouble();
         visiblePoint = transformToCoordinatePoint(minX!, maxX!, minY!, maxY!,
-            diffX!, diffY!, areaSize, x, y, dataPoints!.length);
+            diffX!, diffY!, areaSize!, x, y, dataPoints!.length);
         coordinatePoints!.add(visiblePoint);
       }
       coordinatePoints = sortScreenCoordiantePoints(coordinatePoints!);
@@ -625,8 +629,8 @@ abstract class RenderSparkChart extends RenderBox {
         : (plotBand!.end ?? maxY!) > maxY!
             ? maxY
             : (plotBand!.end ?? maxY);
-    plotBandStartHeight = (height - ((height / diffY!) * (start! - minY!)));
-    plotBandEndHeight = (height - ((height / diffY!) * (end! - minY!)));
+    plotBandStartHeight = height - ((height / diffY!) * (start! - minY!));
+    plotBandEndHeight = height - ((height / diffY!) * (end! - minY!));
   }
 
   /// Method to render axis line

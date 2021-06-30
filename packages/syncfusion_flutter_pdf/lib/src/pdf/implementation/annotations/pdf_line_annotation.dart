@@ -5,10 +5,10 @@ class PdfLineAnnotation extends PdfAnnotation {
   // Constructor
   /// Initializes new instance of [PdfLineAnnotation] class.
   /// ``` dart
-  /// final PdfDocument document = PdfDocument();
-  /// final PdfPage page = document.pages.add();
-  /// final List<int> points = <int>[80, 420, 250, 420];
-  /// final PdfLineAnnotation lineAnnotation = PdfLineAnnotation(
+  /// PdfDocument document = PdfDocument();
+  /// PdfPage page = document.pages.add();
+  /// List<int> points = <int>[80, 420, 250, 420];
+  /// PdfLineAnnotation lineAnnotation = PdfLineAnnotation(
   ///     points, 'Line Annotation',
   ///     opacity: 0.95,
   ///     border: PdfAnnotationBorder(1),
@@ -22,7 +22,7 @@ class PdfLineAnnotation extends PdfAnnotation {
   ///     lineCaption: true,
   ///     captionType: PdfLineCaptionType.top);
   /// page.annotations.add(lineAnnotation);
-  /// final List<int> bytes = document.save();
+  /// List<int> bytes = document.save();
   /// document.dispose();
   /// ```
   PdfLineAnnotation(List<int> linePoints, String text,
@@ -295,7 +295,7 @@ class PdfLineAnnotation extends PdfAnnotation {
     int lLineOffset = 0;
     if (_dictionary.containsKey(_DictionaryProperties.llo)) {
       final _PdfNumber lOffset =
-          _dictionary[_DictionaryProperties.llo] as _PdfNumber;
+          _dictionary[_DictionaryProperties.llo]! as _PdfNumber;
       lLineOffset = lOffset.value!.toInt();
     }
     return lLineOffset;
@@ -629,7 +629,8 @@ class PdfLineAnnotation extends PdfAnnotation {
   int _obtainLeaderLine() {
     int lLine = 0;
     if (_dictionary.containsKey(_DictionaryProperties.ll)) {
-      final _PdfNumber ll = _dictionary[_DictionaryProperties.ll] as _PdfNumber;
+      final _PdfNumber ll =
+          _dictionary[_DictionaryProperties.ll]! as _PdfNumber;
       lLine = ll.value!.toInt();
     }
     return lLine;
@@ -640,7 +641,7 @@ class PdfLineAnnotation extends PdfAnnotation {
     PdfLineIntent _lineintent = PdfLineIntent.lineArrow;
     if (_dictionary.containsKey(_DictionaryProperties.it)) {
       final _PdfName lineintent = _crossTable
-          ._getObject(_dictionary[_DictionaryProperties.it]) as _PdfName;
+          ._getObject(_dictionary[_DictionaryProperties.it])! as _PdfName;
       _lineintent = _getLineIntentText(lineintent._name.toString());
     }
     return _lineintent;
@@ -665,7 +666,7 @@ class PdfLineAnnotation extends PdfAnnotation {
     bool lCaption = false;
     if (_dictionary.containsKey(_DictionaryProperties.cap)) {
       final _PdfBoolean lCap =
-          _dictionary[_DictionaryProperties.cap] as _PdfBoolean;
+          _dictionary[_DictionaryProperties.cap]! as _PdfBoolean;
       lCaption = lCap.value!;
     }
     return lCaption;
@@ -676,7 +677,7 @@ class PdfLineAnnotation extends PdfAnnotation {
     int lLineExt = 0;
     if (_dictionary.containsKey(_DictionaryProperties.lle)) {
       final _PdfNumber lExt =
-          _dictionary[_DictionaryProperties.lle] as _PdfNumber;
+          _dictionary[_DictionaryProperties.lle]! as _PdfNumber;
       lLineExt = lExt.value!.toInt();
     }
     return lLineExt;
@@ -688,7 +689,7 @@ class PdfLineAnnotation extends PdfAnnotation {
     if (value is int) {
       final _PdfArray? array = _obtainLineStyle();
       if (array != null) {
-        final _PdfName style = array[value] as _PdfName;
+        final _PdfName style = array[value]! as _PdfName;
         linestyle = _getLineStyle(style._name);
       }
     } else if (value is String) {
@@ -742,7 +743,7 @@ class PdfLineAnnotation extends PdfAnnotation {
   PdfLineCaptionType _obtainCaptionType() {
     PdfLineCaptionType _captiontype = PdfLineCaptionType.inline;
     if (_dictionary.containsKey(_DictionaryProperties.cp)) {
-      final _PdfName cType = _dictionary[_DictionaryProperties.cp] as _PdfName;
+      final _PdfName cType = _dictionary[_DictionaryProperties.cp]! as _PdfName;
       _captiontype = _getCaptionType(cType._name.toString());
     }
     return _captiontype;

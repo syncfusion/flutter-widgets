@@ -4,9 +4,7 @@ part of pdf;
 class PdfSolidBrush implements PdfBrush {
   //Constructor
   /// Initializes a new instance of the [PdfSolidBrush] class.
-  PdfSolidBrush(PdfColor color) {
-    this.color = color;
-  }
+  PdfSolidBrush(this.color);
 
   //Fields
   final PdfColorSpace _colorSpace = PdfColorSpace.rgb;
@@ -15,15 +13,13 @@ class PdfSolidBrush implements PdfBrush {
   late PdfColor color;
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
-    return other is PdfSolidBrush
-        ? color == other.color
-            ? true
-            : false
-        : false;
+    return other is PdfSolidBrush && color == other.color;
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode => color.hashCode;
 
   @override
@@ -39,8 +35,8 @@ class PdfSolidBrush implements PdfBrush {
         diff = true;
         streamWriter._setColorAndSpace(color, currentColorSpace, false);
       } else if (brush != this) {
-        final PdfSolidBrush? solidBrush = brush as PdfSolidBrush;
-        if (solidBrush != null) {
+        final PdfSolidBrush solidBrush = brush as PdfSolidBrush;
+        if (brush is PdfSolidBrush) {
           if (solidBrush.color != color ||
               solidBrush._colorSpace != currentColorSpace) {
             diff = true;

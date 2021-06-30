@@ -5,7 +5,7 @@ class RangeCollection {
   /// Create a instance of rows collection.
   RangeCollection(Row row) {
     _row = row;
-    _innerList = [];
+    _innerList = <Range?>[];
   }
 
   /// Parent worksheet.
@@ -28,7 +28,7 @@ class RangeCollection {
   }
 
   /// Indexer get of the class
-  Range? operator [](index) {
+  Range? operator [](int index) {
     if (index <= _innerList.length) {
       return _innerList[index - 1];
     } else {
@@ -37,7 +37,7 @@ class RangeCollection {
   }
 
   /// Indexer set of the class
-  operator []=(index, value) {
+  operator []=(int index, Range? value) {
     if (_iCount < index) {
       _updateSize(index);
     }
@@ -87,7 +87,9 @@ class RangeCollection {
       final Range? range = _innerList[i];
       _innerList[i] = null;
 
-      if (range != null) range._clear();
+      if (range != null) {
+        range._clear();
+      }
     }
     _innerList.clear();
   }

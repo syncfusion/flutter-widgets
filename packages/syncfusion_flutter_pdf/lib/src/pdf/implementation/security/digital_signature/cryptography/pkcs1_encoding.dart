@@ -10,9 +10,12 @@ class _Pkcs1Encoding implements _ICipherBlock {
   bool? _isPrivateKey;
   late Random _random;
   //Properties
+  @override
   String get algorithmName => _cipher!.algorithmName! + '/PKCS1Padding';
+  @override
   int? get inputBlock =>
       _isEncryption ? _cipher!.inputBlock! - 10 : _cipher!.inputBlock;
+  @override
   int? get outputBlock =>
       _isEncryption ? _cipher!.outputBlock : _cipher!.outputBlock! - 10;
   //Implmentation
@@ -26,6 +29,7 @@ class _Pkcs1Encoding implements _ICipherBlock {
     _isEncryption = forEncryption;
   }
 
+  @override
   List<int>? processBlock(List<int> input, int inOff, int length) {
     return _isEncryption
         ? encodeBlock(input, inOff, length)
@@ -36,15 +40,15 @@ class _Pkcs1Encoding implements _ICipherBlock {
     if (inLen > inputBlock!) {
       throw ArgumentError.value(inLen, 'inLen', 'Input data too large');
     }
-    List<int> block = List<int>.generate(_cipher!.inputBlock!, (i) => 0);
+    List<int> block = List<int>.generate(_cipher!.inputBlock!, (int i) => 0);
     if (_isPrivateKey!) {
       block[0] = 0x01;
       for (int i = 1; i != block.length - inLen - 1; i++) {
-        block[i] = (0xFF).toUnsigned(8);
+        block[i] = 0xFF.toUnsigned(8);
       }
     } else {
-      block =
-          List<int>.generate(_cipher!.inputBlock!, (i) => _random.nextInt(256));
+      block = List<int>.generate(
+          _cipher!.inputBlock!, (int i) => _random.nextInt(256));
       block[0] = 0x02;
       for (int i = 1; i != block.length - inLen - 1; i++) {
         while (block[i] == 0) {
@@ -76,7 +80,7 @@ class _Pkcs1Encoding implements _ICipherBlock {
       if (pad == 0) {
         break;
       }
-      if (type == 1 && pad != (0xff).toUnsigned(8)) {
+      if (type == 1 && pad != 0xff.toUnsigned(8)) {
         throw ArgumentError.value(type, 'type', 'Invalid block padding');
       }
     }
@@ -84,7 +88,8 @@ class _Pkcs1Encoding implements _ICipherBlock {
     if (start > block.length || start < 10) {
       throw ArgumentError.value(start, 'start', 'no data in block');
     }
-    final List<int> result = List<int>.generate(block.length - start, (i) => 0);
+    final List<int> result =
+        List<int>.generate(block.length - start, (int i) => 0);
     List.copyRange(result, 0, block, start, start + result.length);
     return result;
   }

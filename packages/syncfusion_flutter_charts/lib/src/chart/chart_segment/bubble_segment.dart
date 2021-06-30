@@ -15,7 +15,7 @@ class BubbleSegment extends ChartSegment {
   /// Gets the color of the series.
   @override
   Paint getFillPaint() {
-    final bool hasPointColor = _series.pointColorMapper != null ? true : false;
+    final bool hasPointColor = _series.pointColorMapper != null;
     if (_series.gradient == null) {
       if (_color != null) {
         fillPaint = Paint()
@@ -54,14 +54,12 @@ class BubbleSegment extends ChartSegment {
       ..strokeWidth = _currentPoint!.isEmpty == true
           ? _series.emptyPointSettings.borderWidth
           : _strokeWidth!;
-    if (_series.borderGradient != null) {
-      _strokePaint.shader =
-          _series.borderGradient!.createShader(_currentPoint!.region!);
-    } else {
-      _strokePaint.color = _currentPoint!.isEmpty == true
-          ? _series.emptyPointSettings.borderColor
-          : _strokeColor!;
-    }
+    _series.borderGradient != null
+        ? _strokePaint.shader =
+            _series.borderGradient!.createShader(_currentPoint!.region!)
+        : _strokePaint.color = _currentPoint!.isEmpty == true
+            ? _series.emptyPointSettings.borderColor
+            : _strokeColor!;
     _series.borderWidth == 0
         ? _strokePaint.color = Colors.transparent
         : _strokePaint.color;
@@ -99,7 +97,8 @@ class BubbleSegment extends ChartSegment {
 
   /// To calculate and return the bubble size
   double _calculateBubbleRadius(BubbleSeriesRenderer _seriesRenderer) {
-    final BubbleSeries<dynamic, dynamic> bubbleSeries = _series as BubbleSeries;
+    final BubbleSeries<dynamic, dynamic> bubbleSeries =
+        _series as BubbleSeries<dynamic, dynamic>;
     num bubbleRadius, sizeRange, radiusRange, maxSize, minSize;
     maxSize = _seriesRenderer._maxSize!;
     minSize = _seriesRenderer._minSize!;
@@ -132,9 +131,9 @@ class BubbleSegment extends ChartSegment {
   @override
   void onPaint(Canvas canvas) {
     _segmentRect = RRect.fromRectAndRadius(_currentPoint!.region!, Radius.zero);
-    if (_seriesRenderer._chartState!._widgetNeedUpdate &&
+    if (_seriesRenderer._renderingDetails!.widgetNeedUpdate &&
         !_seriesRenderer._reAnimate &&
-        !_seriesRenderer._chartState!._isLegendToggled &&
+        !_seriesRenderer._renderingDetails!.isLegendToggled &&
         _seriesRenderer._chartState!._oldSeriesRenderers.isNotEmpty &&
         _oldSeriesRenderer != null &&
         _oldSeriesRenderer!._segments.isNotEmpty &&

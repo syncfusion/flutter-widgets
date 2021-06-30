@@ -244,7 +244,6 @@ class PdfResetAction extends PdfFormAction {
 
   //Properties
   @override
-  bool get include => super.include;
   set include(bool value) {
     if (super.include != value) {
       super.include = value;
@@ -266,7 +265,8 @@ class PdfResetAction extends PdfFormAction {
       include = initInclude;
     }
     if (field != null) {
-      field.forEach((f) => fields.add(f));
+      // ignore: avoid_function_literals_in_foreach_calls
+      field.forEach((PdfField f) => fields.add(f));
     }
   }
 }

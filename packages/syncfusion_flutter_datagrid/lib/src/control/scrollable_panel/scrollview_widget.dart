@@ -28,21 +28,23 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
 
   @override
   void initState() {
-    _verticalController = ScrollController()..addListener(_verticalListener);
-    _horizontalController = ScrollController()
-      ..addListener(_horizontalListener);
-
+    _verticalController = _dataGridSettings.verticalScrollController;
+    _verticalController!.addListener(_verticalListener);
+    _horizontalController = _dataGridSettings.horizontalScrollController;
+    _horizontalController!.addListener(_horizontalListener);
     _height = widget.height;
     _width = widget.width;
-    _dataGridSettings
-      ..verticalController = _verticalController
-      ..horizontalController = _horizontalController;
 
     _dataGridSettings.rowSelectionManager
         .addListener(_handleSelectionController);
 
     if (_dataGridFocusNode == null) {
-      _dataGridFocusNode = FocusNode(onKey: _handleFocusKeyOperation);
+      // [FocusNode.onKey] callback is not firing on key navigation after flutter
+      // 2.2.0 and its breaking our key navigation on tab, shift + tab, arrow keys.
+      // So, we have used the focus widget and its need to remove when below
+      // mentioned issue is resolved on framework end.
+      //_dataGridFocusNode = FocusNode(onKey: _handleFocusKeyOperation);
+      _dataGridFocusNode = FocusNode();
       _dataGridSettings.dataGridFocusNode = _dataGridFocusNode!;
       if (_dataGridSettings.source.sortedColumns.isNotEmpty) {
         _dataGridFocusNode!.requestFocus();
@@ -63,22 +65,28 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
 
   void _verticalListener() {
     setState(() {
-      final newValue = _verticalController!.offset;
+      final double newValue = _verticalController!.offset;
       _container.verticalOffset = newValue;
       _container.setRowHeights();
       _container.resetSwipeOffset();
       _isScrolling = true;
       _container._isDirty = true;
+      _dataGridSettings.scrollingState = ScrollDirection.forward;
       _isLoadMoreViewLoaded = false;
     });
   }
 
   void _horizontalListener() {
     setState(() {
-      final newValue = _horizontalController!.offset;
+      final double newValue = _horizontalController!.offset;
       _container.horizontalOffset = newValue;
-      _dataGridSettings.columnSizer._refresh(widget.width);
+      // Updating the width of all columns initially and inside the
+      // `ScrollViewWidget` build method when setting the container_isDirty to
+      // `true`. Thus, Don't necessary to update column widths while horizontal
+      // scrolling.
+      // _dataGridSettings.columnSizer._refresh(widget.width);
       _container.resetSwipeOffset();
+      _dataGridSettings.scrollingState = ScrollDirection.forward;
       _isScrolling = true;
       _container._isDirty = true;
     });
@@ -102,7 +110,7 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
   }
 
   void _updateColumnSizer() {
-    final columnSizer = _dataGridSettings.columnSizer;
+    final ColumnSizer columnSizer = _dataGridSettings.columnSizer;
     if (columnSizer._isColumnSizerLoadedInitially) {
       columnSizer
         .._initialRefresh(widget.width)
@@ -113,10 +121,6 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
   }
 
   void _ensureWidgets() {
-    if (_dataGridSettings.source._effectiveRows.isEmpty) {
-      return;
-    }
-
     if (!_container._isPreGenerator) {
       _container.preGenerateItems();
     } else {
@@ -154,7 +158,7 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
       child: SingleChildScrollView(
         controller: _verticalController,
         physics: _dataGridSettings.isSwipingApplied
-            ? NeverScrollableScrollPhysics()
+            ? const NeverScrollableScrollPhysics()
             : _dataGridSettings.verticalScrollPhysics,
         child: ConstrainedBox(
           constraints:
@@ -166,12 +170,12 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
               controller: _horizontalController,
               scrollDirection: Axis.horizontal,
               physics: _dataGridSettings.isSwipingApplied
-                  ? NeverScrollableScrollPhysics()
+                  ? const NeverScrollableScrollPhysics()
                   : _dataGridSettings.horizontalScrollPhysics,
               child: ConstrainedBox(
                 constraints: BoxConstraints(minWidth: min(_width, extentWidth)),
                 child: _VisualContainer(
-                  key: ValueKey('SfDataGrid-VisualContainer'),
+                  key: const ValueKey<String>('SfDataGrid-VisualContainer'),
                   isDirty: _container._isDirty,
                   rowGenerator: _rowGenerator,
                   containerSize: containerSize,
@@ -233,13 +237,13 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
             : max(_width, _container.extentWidth);
 
     List<Widget> _buildHeaderRows() {
-      final List<Widget> headerRows = [];
+      final List<Widget> headerRows = <Widget>[];
       if (_dataGridSettings.stackedHeaderRows.isNotEmpty) {
         headerRows.addAll(_rowGenerator.items
-            .where((rows) =>
+            .where((DataRowBase rows) =>
                 rows.rowRegion == RowRegion.header &&
                 rows.rowType == RowType.stackedHeaderRow)
-            .map<Widget>((dataRow) => _HeaderCellsWidget(
+            .map<Widget>((DataRowBase dataRow) => _HeaderCellsWidget(
                   key: dataRow._key!,
                   dataRow: dataRow,
                   isDirty: _container._isDirty || dataRow._isDirty,
@@ -247,10 +251,10 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
             .toList(growable: false));
       }
       headerRows.addAll(_rowGenerator.items
-          .where((rows) =>
+          .where((DataRowBase rows) =>
               rows.rowRegion == RowRegion.header &&
               rows.rowType == RowType.headerRow)
-          .map<Widget>((dataRow) => _HeaderCellsWidget(
+          .map<Widget>((DataRowBase dataRow) => _HeaderCellsWidget(
                 key: dataRow._key!,
                 dataRow: dataRow,
                 isDirty: _container._isDirty || dataRow._isDirty,
@@ -281,7 +285,8 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
     if (_rowGenerator.items.isNotEmpty) {
       final List<Widget> headerRows = _buildHeaderRows();
       for (int i = 0; i < headerRows.length; i++) {
-        final lineInfo = _container.scrollRows.getVisibleLineAtLineIndex(i);
+        final _VisibleLineInfo? lineInfo =
+            _container.scrollRows.getVisibleLineAtLineIndex(i);
         final Positioned header = Positioned.directional(
             textDirection: _dataGridSettings.textDirection,
             start: getStartX(),
@@ -315,7 +320,7 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
             _dataGridSettings.loadMoreViewBuilder!(context, loadMoreRows);
 
         if (loadMoreView != null) {
-          final loadMoreAlignment =
+          final Alignment loadMoreAlignment =
               _dataGridSettings.textDirection == TextDirection.ltr
                   ? Alignment.bottomLeft
                   : Alignment.bottomRight;
@@ -334,7 +339,8 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
   }
 
   void _addFreezePaneLinesElevation(List<Widget> children) {
-    final dataGridThemeData = _dataGridSettings.dataGridThemeData;
+    final SfDataGridThemeData? dataGridThemeData =
+        _dataGridSettings.dataGridThemeData;
     if (dataGridThemeData!.frozenPaneElevation <= 0.0 ||
         _dataGridSettings.columns.isEmpty ||
         _dataGridSettings.source._effectiveRows.isEmpty) {
@@ -349,21 +355,23 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
       double? top,
       Axis? axis,
     }) {
-      final elevationLine = ClipRect(
+      final Widget elevationLine = ClipRect(
           child: Container(
               width: axis == Axis.vertical ? 1 : 0,
               height: axis == Axis.horizontal ? 1 : 0,
               margin: margin,
-              decoration: BoxDecoration(color: Color(0xFF000000), boxShadow: [
-                BoxShadow(
-                  color: dataGridThemeData.brightness == Brightness.light
-                      ? Color(0x3D000000)
-                      : Color(0x3DFFFFFF),
-                  offset: Offset.zero,
-                  spreadRadius: 3.0,
-                  blurRadius: dataGridThemeData.frozenPaneElevation,
-                )
-              ])));
+              decoration: BoxDecoration(
+                  color: const Color(0xFF000000),
+                  boxShadow: <BoxShadow>[
+                    BoxShadow(
+                      color: dataGridThemeData.brightness == Brightness.light
+                          ? const Color(0x3D000000)
+                          : const Color(0x3DFFFFFF),
+                      offset: Offset.zero,
+                      spreadRadius: 3.0,
+                      blurRadius: dataGridThemeData.frozenPaneElevation,
+                    )
+                  ])));
 
       children.add(Positioned.directional(
         top: top,
@@ -381,7 +389,8 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
         top = columnHeaderRow._getRowHeight(
             0, _dataGridSettings.stackedHeaderRows.length - 1);
         final DataCellBase? dataCell = columnHeaderRow._visibleColumns
-            .firstWhereOrNull((cell) => cell.columnIndex == columnIndex);
+            .firstWhereOrNull(
+                (DataCellBase cell) => cell.columnIndex == columnIndex);
         // Need to ignore header cell spanned height from the total stacked
         // header rows height if it is spanned.
         if (dataCell != null && dataCell._rowSpan > 0) {
@@ -395,38 +404,38 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
     // The field remainingViewPortHeight and remainingViewPortWidth are used to
     // restrict the elevation height and width fill in the entire screen when
     // extent width and height is smaller than the view size.
-    final remainingViewPortHeight =
+    final double remainingViewPortHeight =
         (_dataGridSettings.container.extentHeight < _height)
             ? _height - _dataGridSettings.container.extentHeight
             : 0.0;
-    final remainingViewPortWidth =
+    final double remainingViewPortWidth =
         (_dataGridSettings.container.extentWidth < _width)
             ? _width - _dataGridSettings.container.extentWidth
             : 0.0;
 
-    final DataRowBase? columnHeaderRow = _dataGridSettings
-        .container.rowGenerator.items
-        .firstWhereOrNull((row) => row.rowType == RowType.headerRow);
+    final DataRowBase? columnHeaderRow =
+        _dataGridSettings.container.rowGenerator.items.firstWhereOrNull(
+            (DataRowBase row) => row.rowType == RowType.headerRow);
 
     // Provided the margin to allow shadow only to the corresponding side.
     // In 4.0 pixels, 1.0 pixel defines the size of the container and
     // 3.0 pixels defines the amount of spreadRadius.
     final double margin = dataGridThemeData.frozenPaneElevation + 4.0;
 
-    final frozenColumnIndex =
+    final int frozenColumnIndex =
         _GridIndexResolver.getLastFrozenColumnIndex(_dataGridSettings);
-    final footerFrozenColumnIndex =
+    final int footerFrozenColumnIndex =
         _GridIndexResolver.getStartFooterFrozenColumnIndex(_dataGridSettings);
-    final frozenRowIndex =
+    final int frozenRowIndex =
         _GridIndexResolver.getLastFrozenRowIndex(_dataGridSettings);
-    final footerFrozenRowIndex =
+    final int footerFrozenRowIndex =
         _GridIndexResolver.getStartFooterFrozenRowIndex(_dataGridSettings);
 
     if (columnHeaderRow != null &&
         frozenColumnIndex >= 0 &&
         !_canDisableHorizontalScrolling(_dataGridSettings)) {
-      final top = getTopPosition(columnHeaderRow, frozenColumnIndex);
-      final left = columnHeaderRow._getColumnWidth(
+      final double top = getTopPosition(columnHeaderRow, frozenColumnIndex);
+      final double left = columnHeaderRow._getColumnWidth(
           0, _dataGridSettings.frozenColumnsCount - 1);
 
       drawElevation(
@@ -442,8 +451,9 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
     if (columnHeaderRow != null &&
         footerFrozenColumnIndex >= 0 &&
         !_canDisableHorizontalScrolling(_dataGridSettings)) {
-      final top = getTopPosition(columnHeaderRow, footerFrozenColumnIndex);
-      final right = columnHeaderRow._getColumnWidth(
+      final double top =
+          getTopPosition(columnHeaderRow, footerFrozenColumnIndex);
+      final double right = columnHeaderRow._getColumnWidth(
           footerFrozenColumnIndex, _dataGridSettings.container.columnCount);
 
       drawElevation(
@@ -459,7 +469,7 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
     if (columnHeaderRow != null &&
         frozenRowIndex >= 0 &&
         !_canDisableVerticalScrolling(_dataGridSettings)) {
-      final top = columnHeaderRow._getRowHeight(0, frozenRowIndex);
+      final double top = columnHeaderRow._getRowHeight(0, frozenRowIndex);
 
       drawElevation(
           top: top,
@@ -472,7 +482,7 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
     if (columnHeaderRow != null &&
         footerFrozenRowIndex >= 0 &&
         !_canDisableVerticalScrolling(_dataGridSettings)) {
-      final bottom = columnHeaderRow._getRowHeight(
+      final double bottom = columnHeaderRow._getRowHeight(
           footerFrozenRowIndex, _dataGridSettings.container.rowCount);
 
       drawElevation(
@@ -484,82 +494,236 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
     }
   }
 
-  void _handleSelectionController() async {
+  void _handleSelectionController() {
     setState(() {
       /* Rebuild the DataGrid when the selection or currentcell is processed. */
     });
   }
 
-  bool _handleFocusKeyOperation(FocusNode focusNode, RawKeyEvent e) {
-    bool needToMoveFocus() {
-      final _DataGridSettings dataGridSettings = _dataGridSettings;
+  // -------------------------------------------------------------------------
+  // Below method and callback are used in [RawKeyboardListener] widget.
+  // Due to break on [FocusNode.onKey] callback after flutter 2.2.0.
+  // So, instead of using the [RawKeyboardListener] we replaced with [Focus]
+  // widget to adapt our all use case on key navigation. Need to remove the Focus
+  // widget and its related method and callback when the below mentioned github
+  // issue resolved on framework end.
+  // [https://github.com/flutter/flutter/issues/83023]
+  //---------------------------------------------------------------------------
 
+  // KeyEventResult _handleFocusKeyOperation(FocusNode focusNode, RawKeyEvent e) {
+  //   final _DataGridSettings dataGridSettings = _dataGridSettings;
+  //   final _CurrentCellManager currentCell = dataGridSettings.currentCell;
+  //
+  //   KeyEventResult needToMoveFocus() {
+  //     bool canAllowToRemoveFocus(int rowIndex, int columnIndex) =>
+  //         (dataGridSettings.navigationMode == GridNavigationMode.cell &&
+  //             currentCell.rowIndex == rowIndex &&
+  //             currentCell.columnIndex == columnIndex) ||
+  //         (dataGridSettings.navigationMode == GridNavigationMode.row &&
+  //             currentCell.rowIndex == rowIndex) ||
+  //         (!_dataGridFocusNode!.hasPrimaryFocus && currentCell.isEditing);
+  //
+  //     if (e.isShiftPressed) {
+  //       final int firstRowIndex =
+  //           _SelectionHelper.getFirstRowIndex(_dataGridSettings);
+  //       final int firstCellIndex =
+  //           _SelectionHelper.getFirstCellIndex(_dataGridSettings);
+  //
+  //       if (canAllowToRemoveFocus(firstRowIndex, firstCellIndex)) {
+  //         return KeyEventResult.ignored;
+  //       } else {
+  //         return KeyEventResult.handled;
+  //       }
+  //     } else {
+  //       final int lastRowIndex =
+  //           _SelectionHelper.getLastNavigatingRowIndex(_dataGridSettings);
+  //       final int lastCellIndex =
+  //           _SelectionHelper.getLastCellIndex(_dataGridSettings);
+  //
+  //       if (canAllowToRemoveFocus(lastRowIndex, lastCellIndex)) {
+  //         return KeyEventResult.ignored;
+  //       } else {
+  //         return KeyEventResult.handled;
+  //       }
+  //     }
+  //   }
+  //
+  //   if (e.logicalKey == LogicalKeyboardKey.tab) {
+  //     return needToMoveFocus();
+  //   } else {
+  //     return _handleKeys(e);
+  //   }
+  // }
+
+  // KeyEventResult _handleKeyOperation(
+  //     FocusNode focusNode, RawKeyEvent keyEvent) {
+  //   final _DataGridSettings dataGridSettings = _dataGridSettings;
+  //   final _CurrentCellManager currentCell = dataGridSettings.currentCell;
+  //
+  //   KeyEventResult needToMoveFocus() {
+  //     bool canAllowToRemoveFocus(int rowIndex, int columnIndex) =>
+  //         (dataGridSettings.navigationMode == GridNavigationMode.cell &&
+  //             currentCell.rowIndex == rowIndex &&
+  //             currentCell.columnIndex == columnIndex) ||
+  //         (dataGridSettings.navigationMode == GridNavigationMode.row &&
+  //             currentCell.rowIndex == rowIndex) ||
+  //         (!_dataGridFocusNode!.hasPrimaryFocus && currentCell.isEditing);
+  //
+  //     if (e.isShiftPressed) {
+  //       final int firstRowIndex =
+  //           _SelectionHelper.getFirstRowIndex(_dataGridSettings);
+  //       final int firstCellIndex =
+  //           _SelectionHelper.getFirstCellIndex(_dataGridSettings);
+  //
+  //       if (canAllowToRemoveFocus(firstRowIndex, firstCellIndex)) {
+  //         return KeyEventResult.ignored;
+  //       } else {
+  //         return KeyEventResult.handled;
+  //       }
+  //     } else {
+  //       final int lastRowIndex =
+  //           _SelectionHelper.getLastNavigatingRowIndex(_dataGridSettings);
+  //       final int lastCellIndex =
+  //           _SelectionHelper.getLastCellIndex(_dataGridSettings);
+  //
+  //       if (canAllowToRemoveFocus(lastRowIndex, lastCellIndex)) {
+  //         return KeyEventResult.ignored;
+  //       } else {
+  //         return KeyEventResult.handled;
+  //       }
+  //     }
+  //   }
+  //
+  //   if (e.logicalKey == LogicalKeyboardKey.tab) {
+  //     return needToMoveFocus();
+  //   } else {
+  //     return _handleKeys(e);
+  //   }
+  // }
+
+  // KeyEventResult _handleKeys(RawKeyEvent keyEvent) {
+  //   final _CurrentCellManager currentCell = _dataGridSettings.currentCell;
+  //   if (_dataGridSettings.allowEditing &&
+  //       currentCell.isEditing &&
+  //       !_dataGridFocusNode!.hasPrimaryFocus) {
+  //     if (keyEvent.logicalKey == LogicalKeyboardKey.tab ||
+  //         keyEvent.logicalKey == LogicalKeyboardKey.escape ||
+  //         keyEvent.logicalKey == LogicalKeyboardKey.arrowDown ||
+  //         keyEvent.logicalKey == LogicalKeyboardKey.arrowUp ||
+  //         keyEvent.logicalKey == LogicalKeyboardKey.pageUp ||
+  //         keyEvent.logicalKey == LogicalKeyboardKey.pageDown) {
+  //       return KeyEventResult.handled;
+  //     }
+  //   }
+  //
+  //   return _dataGridFocusNode!.hasPrimaryFocus
+  //       ? KeyEventResult.handled
+  //       : KeyEventResult.ignored;
+  // }
+
+  // --------------------------------------------------------------------------
+
+  KeyEventResult _handleKeyOperation(
+      FocusNode focusNode, RawKeyEvent keyEvent) {
+    final _DataGridSettings dataGridSettings = _dataGridSettings;
+    final _CurrentCellManager currentCell = dataGridSettings.currentCell;
+
+    void processKeys() {
+      if (keyEvent.runtimeType == RawKeyDownEvent) {
+        _rowSelectionManager.handleKeyEvent(keyEvent);
+        if (keyEvent.isControlPressed) {
+          dataGridSettings.isControlKeyPressed = true;
+        }
+      }
+      if (keyEvent.runtimeType == RawKeyUpEvent) {
+        if (keyEvent.logicalKey == LogicalKeyboardKey.controlLeft ||
+            keyEvent.logicalKey == LogicalKeyboardKey.controlRight) {
+          dataGridSettings.isControlKeyPressed = false;
+        }
+      }
+    }
+
+    // Move to the next focusable widget when it reach the last and first
+    // [DataGridCell] on tab & shift + tab key.
+    KeyEventResult needToMoveFocus() {
       bool canAllowToRemoveFocus(int rowIndex, int columnIndex) =>
           (dataGridSettings.navigationMode == GridNavigationMode.cell &&
-              _dataGridSettings.currentCell.rowIndex == rowIndex &&
-              _dataGridSettings.currentCell.columnIndex == columnIndex) ||
+              currentCell.rowIndex == rowIndex &&
+              currentCell.columnIndex == columnIndex) ||
           (dataGridSettings.navigationMode == GridNavigationMode.row &&
-              _dataGridSettings.currentCell.rowIndex == rowIndex) ||
-          !_dataGridFocusNode!.hasPrimaryFocus;
+              currentCell.rowIndex == rowIndex) ||
+          (!_dataGridFocusNode!.hasPrimaryFocus && currentCell.isEditing);
 
-      if (e.isShiftPressed) {
-        final firstRowIndex =
+      if (keyEvent.isShiftPressed) {
+        final int firstRowIndex =
             _SelectionHelper.getFirstRowIndex(_dataGridSettings);
-        final firstCellIndex =
+        final int firstCellIndex =
             _SelectionHelper.getFirstCellIndex(_dataGridSettings);
 
         if (canAllowToRemoveFocus(firstRowIndex, firstCellIndex)) {
-          return false;
+          return KeyEventResult.ignored;
         } else {
-          return true;
+          return KeyEventResult.handled;
         }
       } else {
-        final lastRowIndex =
+        final int lastRowIndex =
             _SelectionHelper.getLastNavigatingRowIndex(_dataGridSettings);
-        final lastCellIndex =
+        final int lastCellIndex =
             _SelectionHelper.getLastCellIndex(_dataGridSettings);
 
         if (canAllowToRemoveFocus(lastRowIndex, lastCellIndex)) {
-          return false;
+          return KeyEventResult.ignored;
         } else {
-          return true;
+          return KeyEventResult.handled;
         }
       }
     }
 
-    if (e.logicalKey == LogicalKeyboardKey.tab) {
-      return needToMoveFocus();
-    } else {
-      return _dataGridFocusNode!.hasPrimaryFocus;
-    }
-  }
-
-  void _handleKeyOperation(RawKeyEvent e) {
     if (_dataGridFocusNode!.hasPrimaryFocus) {
-      if (e.runtimeType == RawKeyDownEvent) {
-        _rowSelectionManager.handleKeyEvent(e);
-        if (e.isControlPressed) {
-          _dataGridSettings.isControlKeyPressed = true;
+      if (keyEvent.logicalKey == LogicalKeyboardKey.tab &&
+          needToMoveFocus() != KeyEventResult.handled) {
+        return KeyEventResult.ignored;
+      }
+
+      processKeys();
+      return KeyEventResult.handled;
+    } else {
+      // On Editing, we have to handle below [LogicalKeyboardKey]'s. For, that
+      // we have return [KeyEventResult.handled] to handle those keys on
+      // editing.
+      if (_dataGridSettings.allowEditing &&
+          currentCell.isEditing &&
+          !_dataGridFocusNode!.hasPrimaryFocus) {
+        if (keyEvent.logicalKey == LogicalKeyboardKey.tab ||
+            keyEvent.logicalKey == LogicalKeyboardKey.escape ||
+            keyEvent.logicalKey == LogicalKeyboardKey.arrowDown ||
+            keyEvent.logicalKey == LogicalKeyboardKey.arrowUp ||
+            keyEvent.logicalKey == LogicalKeyboardKey.pageUp ||
+            keyEvent.logicalKey == LogicalKeyboardKey.pageDown ||
+            keyEvent.logicalKey == LogicalKeyboardKey.enter) {
+          processKeys();
+          return KeyEventResult.handled;
         }
       }
-      if (e.runtimeType == RawKeyUpEvent) {
-        if (e.logicalKey == LogicalKeyboardKey.controlLeft ||
-            e.logicalKey == LogicalKeyboardKey.controlRight) {
-          _dataGridSettings.isControlKeyPressed = false;
-        }
-      }
+
+      return KeyEventResult.ignored;
     }
   }
 
   @override
   void didUpdateWidget(_ScrollViewWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-
     if (oldWidget.width != widget.width ||
         oldWidget.height != widget.height ||
         _container._needToSetHorizontalOffset) {
+      /// Need not to change the height when onScreenKeyboard appears.
+      /// Cause: If we change the height on editing, editable widget will not move
+      /// above the onScreenKeyboard on mobile platforms.
+      final bool needToResizeHeight = !_dataGridSettings._isDesktop &&
+          _dataGridSettings.currentCell.isEditing;
+
       _width = widget.width;
-      _height = widget.height;
+      _height = !needToResizeHeight ? widget.height : _height;
       _container
         .._needToSetHorizontalOffset = true
         .._isDirty = true;
@@ -573,6 +737,24 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
           _dataGridSettings.onQueryRowHeight != null) {
         _container.rowHeightManager.reset();
       }
+    }
+
+    if (_verticalController !=
+        widget.dataGridStateDetails().verticalScrollController) {
+      _verticalController!.removeListener(_verticalListener);
+      _verticalController =
+          widget.dataGridStateDetails().verticalScrollController ??
+              ScrollController();
+      _verticalController!.addListener(_verticalListener);
+    }
+
+    if (_horizontalController !=
+        widget.dataGridStateDetails().horizontalScrollController) {
+      _horizontalController!.removeListener(_horizontalListener);
+      _horizontalController =
+          widget.dataGridStateDetails().horizontalScrollController ??
+              ScrollController();
+      _horizontalController!.addListener(_horizontalListener);
     }
   }
 
@@ -594,7 +776,7 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
       _ensureWidgets();
     }
 
-    final List<Positioned> children = [];
+    final List<Positioned> children = <Positioned>[];
 
     _addHeaderRows(children);
 
@@ -607,18 +789,43 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
     _container._isDirty = false;
     _isScrolling = false;
 
-    return RawKeyboardListener(
-        focusNode: _dataGridFocusNode!,
-        onKey: _handleKeyOperation,
-        child: Container(
-            height: _height,
-            width: _width,
-            decoration: const BoxDecoration(
-              color: Colors.transparent,
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: Stack(
-                fit: StackFit.passthrough, children: List.from(children))));
+    // return RawKeyboardListener(
+    //     focusNode: _dataGridFocusNode!,
+    //     onKey: _handleKeyOperation,
+    //     child: Container(
+    //         height: _height,
+    //         width: _width,
+    //         decoration: const BoxDecoration(
+    //           color: Colors.transparent,
+    //         ),
+    //         clipBehavior: Clip.antiAlias,
+    //         child: _dataGridSettings.allowColumnsResizing
+    //             ? _wrapInsideGestureDetector(children)
+    //             : _wrapInsideStack(children)));
+
+    // [FocusNode.onKey] callback is not firing on key navigation after flutter
+    // 2.2.0 and its breaking our key navigation on tab, shift + tab, arrow keys.
+    // So, we have used the focus widget. Need to remove [Focus] widget when
+    // below mentioned issue is resolved on framework end.
+    // [https://github.com/flutter/flutter/issues/83023]
+    return Focus(
+      focusNode: _dataGridFocusNode,
+      onKey: _handleKeyOperation,
+      child: Container(
+        height: _height,
+        width: _width,
+        decoration: const BoxDecoration(
+          color: Colors.transparent,
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: _wrapInsideStack(children),
+      ),
+    );
+  }
+
+  Widget _wrapInsideStack(List<Positioned> children) {
+    return Stack(
+        fit: StackFit.passthrough, children: List<Positioned>.from(children));
   }
 
   @override
@@ -640,23 +847,15 @@ class _ScrollViewWidgetState extends State<_ScrollViewWidget> {
 }
 
 bool _canDisableVerticalScrolling(_DataGridSettings dataGridSettings) {
-  final _VisualContainerHelper? container = dataGridSettings.container;
-  if (container != null) {
-    return (container.scrollRows.headerExtent +
-            container.scrollRows.footerExtent) >
-        dataGridSettings.viewHeight;
-  } else {
-    return false;
-  }
+  final _VisualContainerHelper container = dataGridSettings.container;
+  return (container.scrollRows.headerExtent +
+          container.scrollRows.footerExtent) >
+      dataGridSettings.viewHeight;
 }
 
 bool _canDisableHorizontalScrolling(_DataGridSettings dataGridSettings) {
-  final _VisualContainerHelper? container = dataGridSettings.container;
-  if (container != null) {
-    return (container.scrollColumns.headerExtent +
-            container.scrollColumns.footerExtent) >
-        dataGridSettings.viewWidth;
-  } else {
-    return false;
-  }
+  final _VisualContainerHelper container = dataGridSettings.container;
+  return (container.scrollColumns.headerExtent +
+          container.scrollColumns.footerExtent) >
+      dataGridSettings.viewWidth;
 }

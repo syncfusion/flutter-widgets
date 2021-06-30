@@ -6,6 +6,7 @@ part of charts;
 /// By default, the range will be calculated automatically based on the provided data.
 ///
 /// _Note:_ This is only applicable for [SfCartesianChart].
+@immutable
 class LogarithmicAxis extends ChartAxis {
   /// Creating an argument constructor of LogarithmicAxis class.
   LogarithmicAxis({
@@ -42,7 +43,7 @@ class LogarithmicAxis extends ChartAxis {
     this.visibleMinimum,
     this.visibleMaximum,
     LabelAlignment? labelAlignment,
-    dynamic? crossesAt,
+    dynamic crossesAt,
     String? associatedAxisName,
     bool? placeLabelsNearAxisLine,
     List<PlotBand>? plotBands,
@@ -199,6 +200,108 @@ class LogarithmicAxis extends ChartAxis {
   ///}
   ///```
   final double? visibleMaximum;
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is LogarithmicAxis &&
+        other.name == name &&
+        other.isVisible == isVisible &&
+        other.title == title &&
+        other.axisLine == axisLine &&
+        other.numberFormat == numberFormat &&
+        other.labelFormat == labelFormat &&
+        other.rangePadding == rangePadding &&
+        other.logBase == logBase &&
+        other.edgeLabelPlacement == edgeLabelPlacement &&
+        other.labelPosition == labelPosition &&
+        other.tickPosition == tickPosition &&
+        other.labelRotation == labelRotation &&
+        other.labelIntersectAction == labelIntersectAction &&
+        other.labelAlignment == labelAlignment &&
+        other.isInversed == isInversed &&
+        other.opposedPosition == opposedPosition &&
+        other.minorTicksPerInterval == minorTicksPerInterval &&
+        other.maximumLabels == maximumLabels &&
+        other.majorTickLines == majorTickLines &&
+        other.minorTickLines == minorTickLines &&
+        other.majorGridLines == majorGridLines &&
+        other.minorGridLines == minorGridLines &&
+        other.labelStyle == labelStyle &&
+        other.plotOffset == plotOffset &&
+        other.zoomFactor == zoomFactor &&
+        other.zoomPosition == zoomPosition &&
+        other.interactiveTooltip == interactiveTooltip &&
+        other.minimum == minimum &&
+        other.maximum == maximum &&
+        other.interval == interval &&
+        other.visibleMinimum == visibleMinimum &&
+        other.visibleMaximum == visibleMaximum &&
+        other.crossesAt == crossesAt &&
+        other.associatedAxisName == associatedAxisName &&
+        other.placeLabelsNearAxisLine == placeLabelsNearAxisLine &&
+        other.plotBands == plotBands &&
+        other.desiredIntervals == desiredIntervals &&
+        other.rangeController == rangeController &&
+        other.maximumLabelWidth == maximumLabelWidth &&
+        other.labelsExtent == labelsExtent &&
+        other.autoScrollingDelta == autoScrollingDelta &&
+        other.autoScrollingMode == autoScrollingMode;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      name,
+      isVisible,
+      title,
+      axisLine,
+      numberFormat,
+      labelFormat,
+      rangePadding,
+      logBase,
+      edgeLabelPlacement,
+      labelPosition,
+      tickPosition,
+      labelRotation,
+      labelIntersectAction,
+      labelAlignment,
+      isInversed,
+      opposedPosition,
+      minorTicksPerInterval,
+      maximumLabels,
+      majorTickLines,
+      minorTickLines,
+      majorGridLines,
+      minorGridLines,
+      labelStyle,
+      plotOffset,
+      zoomFactor,
+      zoomPosition,
+      interactiveTooltip,
+      minimum,
+      maximum,
+      interval,
+      visibleMinimum,
+      visibleMaximum,
+      crossesAt,
+      associatedAxisName,
+      placeLabelsNearAxisLine,
+      plotBands,
+      desiredIntervals,
+      rangeController,
+      maximumLabelWidth,
+      labelsExtent,
+      autoScrollingDelta,
+      autoScrollingMode
+    ];
+    return hashList(values);
+  }
 }
 
 /// Creates an axis renderer for Logarithmic axis
@@ -272,8 +375,10 @@ class LogarithmicAxisRenderer extends ChartAxisRenderer {
 
   /// Listener for range controller
   void _controlListener() {
+    _chartState._canSetRangeController = false;
     if (_axis.rangeController != null && !_chartState._rangeChangedByChart) {
       _updateRangeControllerValues(this);
+      _chartState._rangeChangeBySlider = true;
       _chartState._redrawByRangeChange();
     }
   }
@@ -287,7 +392,7 @@ class LogarithmicAxisRenderer extends ChartAxisRenderer {
       _chartState._rangeChangeBySlider = true;
       _logarithmicAxis.rangeController!.addListener(_controlListener);
     }
-    final Rect containerRect = _chartState._containerRect;
+    final Rect containerRect = _chartState._renderingDetails.chartContainerRect;
     final Rect rect = Rect.fromLTWH(containerRect.left, containerRect.top,
         containerRect.width, containerRect.height);
     _axisSize = Size(rect.width, rect.height);
@@ -342,14 +447,8 @@ class LogarithmicAxisRenderer extends ChartAxisRenderer {
     num logStart, logEnd;
     _min ??= 0;
     _max ??= 5;
-    _min = _chartState._rangeChangeBySlider &&
-            _logarithmicAxis.rangeController != null
-        ? _rangeMinimum ?? _logarithmicAxis.rangeController!.start
-        : _logarithmicAxis.minimum ?? _min;
-    _max = _chartState._rangeChangeBySlider &&
-            _logarithmicAxis.rangeController != null
-        ? _rangeMaximum ?? _logarithmicAxis.rangeController!.end
-        : _logarithmicAxis.maximum ?? _max;
+    _min = _logarithmicAxis.minimum ?? _min;
+    _max = _logarithmicAxis.maximum ?? _max;
     if (_axis.anchorRangeToVisiblePoints &&
         _needCalculateYrange(_logarithmicAxis.minimum, _logarithmicAxis.maximum,
             _chartState, _orientation!)) {
@@ -375,7 +474,7 @@ class LogarithmicAxisRenderer extends ChartAxisRenderer {
 
   /// To get the axis interval for logarithmic axis
   num calculateLogNiceInterval(num delta) {
-    final dynamic intervalDivisions = <dynamic>[10, 5, 2, 1];
+    final List<num> intervalDivisions = <num>[10, 5, 2, 1];
     final num actualDesiredIntervalCount =
         _calculateDesiredIntervalCount(_axisSize, this);
     num niceInterval = delta;
@@ -395,7 +494,12 @@ class LogarithmicAxisRenderer extends ChartAxisRenderer {
   /// Calculates the visible range for an axis in chart.
   @override
   void calculateVisibleRange(Size availableSize) {
-    _visibleRange = _VisibleRange(_actualRange!.minimum, _actualRange!.maximum);
+    _setOldRangeFromRangeController();
+    _visibleRange = _chartState._rangeChangeBySlider &&
+            _rangeMinimum != null &&
+            _rangeMaximum != null
+        ? _VisibleRange(_rangeMinimum, _rangeMaximum)
+        : _VisibleRange(_actualRange!.minimum, _actualRange!.maximum);
     _visibleRange!.delta = _actualRange!.delta;
     _visibleRange!.interval = _actualRange!.interval;
     bool canAutoScroll = false;
@@ -406,10 +510,17 @@ class LogarithmicAxisRenderer extends ChartAxisRenderer {
       super._updateAutoScrollingDelta(
           _logarithmicAxis.autoScrollingDelta!, this);
     }
-    if (!canAutoScroll) {
+    if ((!canAutoScroll || _chartState._zoomedState == true) &&
+        !(_chartState._rangeChangeBySlider &&
+            !_chartState._canSetRangeController)) {
       _setZoomFactorAndPosition(this, _chartState._zoomedAxisRendererStates);
     }
-    if (_zoomFactor < 1 || _zoomPosition > 0) {
+    if (_zoomFactor < 1 ||
+        _zoomPosition > 0 ||
+        (_axis.rangeController != null &&
+                !_chartState._renderingDetails.initialRender!) &&
+            !(_chartState._rangeChangeBySlider ||
+                !_chartState._canSetRangeController)) {
       _chartState._zoomProgress = true;
       _calculateZoomRange(this, availableSize);
       _visibleRange!.delta = _visibleRange!.maximum - _visibleRange!.minimum;
@@ -420,11 +531,15 @@ class LogarithmicAxisRenderer extends ChartAxisRenderer {
       _visibleRange!.interval = _visibleRange!.interval.floor() == 0
           ? 1
           : _visibleRange!.interval.floor();
-      if (_axis.rangeController != null) {
+      if (_axis.rangeController != null &&
+          _chartState._isRedrawByZoomPan &&
+          _chartState._canSetRangeController &&
+          _chartState._zoomProgress) {
         _chartState._rangeChangedByChart = true;
         _setRangeControllerValues(this);
       }
     }
+    _setZoomValuesFromRangeController();
   }
 
   /// Applies range padding to auto, normal, additional, round, and none types.

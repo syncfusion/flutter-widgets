@@ -12,8 +12,10 @@ part of charts;
 /// Provides the property of visible, opacity, start, end, color, border color, and border width to
 /// customize the appearance.
 ///
+@immutable
 class PlotBand {
   /// Creating an argument constructor of PlotBand class.
+  // ignore: prefer_const_constructors_in_immutables
   PlotBand(
       {this.isVisible = true,
       this.start,
@@ -564,6 +566,72 @@ class PlotBand {
   ///        ));
   ///}
   final String? horizontalTextPadding;
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is PlotBand &&
+        other.isVisible == isVisible &&
+        other.start == start &&
+        other.end == end &&
+        other.color == color &&
+        other.opacity == opacity &&
+        other.borderColor == borderColor &&
+        other.borderWidth == borderWidth &&
+        other.text == text &&
+        other.textStyle == textStyle &&
+        other.isRepeatable == isRepeatable &&
+        other.repeatEvery == repeatEvery &&
+        other.verticalTextPadding == verticalTextPadding &&
+        other.horizontalTextPadding == horizontalTextPadding &&
+        other.repeatUntil == repeatUntil &&
+        other.textAngle == textAngle &&
+        other.shouldRenderAboveSeries == shouldRenderAboveSeries &&
+        other.sizeType == sizeType &&
+        other.dashArray == dashArray &&
+        other.size == size &&
+        other.associatedAxisStart == associatedAxisStart &&
+        other.associatedAxisEnd == associatedAxisEnd &&
+        other.verticalTextAlignment == verticalTextAlignment &&
+        other.horizontalTextAlignment == horizontalTextAlignment &&
+        other.gradient == gradient;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      isVisible,
+      start,
+      end,
+      color,
+      opacity,
+      borderColor,
+      borderWidth,
+      text,
+      textStyle,
+      isRepeatable,
+      repeatEvery,
+      verticalTextPadding,
+      horizontalTextPadding,
+      repeatUntil,
+      textAngle,
+      shouldRenderAboveSeries,
+      sizeType,
+      dashArray,
+      size,
+      associatedAxisStart,
+      associatedAxisEnd,
+      verticalTextAlignment,
+      horizontalTextAlignment,
+      gradient
+    ];
+    return hashList(values);
+  }
 }
 
 class _PlotBandPainter extends CustomPainter {
@@ -591,13 +659,11 @@ class _PlotBandPainter extends CustomPainter {
         final PlotBand plotBand = axis.plotBands[j];
         if (plotBand.isVisible &&
             shouldRenderAboveSeries != plotBand.shouldRenderAboveSeries) {
-          clipRect = _calculatePlotOffset(
-              Rect.fromLTRB(
-                  chartState._chartAxis._axisClipRect.left,
-                  chartState._chartAxis._axisClipRect.top,
-                  chartState._chartAxis._axisClipRect.right,
-                  chartState._chartAxis._axisClipRect.bottom),
-              Offset(axis.plotOffset, axis.plotOffset));
+          clipRect = Rect.fromLTRB(
+              chartState._chartAxis._axisClipRect.left,
+              chartState._chartAxis._axisClipRect.top,
+              chartState._chartAxis._axisClipRect.right,
+              chartState._chartAxis._axisClipRect.bottom);
           canvas.clipRect(clipRect);
           _renderPlotBand(canvas, axisRenderer, plotBand);
         }
@@ -712,27 +778,31 @@ class _PlotBandPainter extends CustomPainter {
       switch (intervalType) {
         case DateTimeIntervalType.years:
           date = DateTime(date.year + addValue, date.month, date.day, date.hour,
-              date.minute, date.second);
+              date.minute, date.second, date.millisecond);
           break;
         case DateTimeIntervalType.months:
           date = DateTime(date.year, date.month + addValue, date.day, date.hour,
-              date.minute, date.second);
+              date.minute, date.second, date.millisecond);
           break;
         case DateTimeIntervalType.days:
           date = DateTime(date.year, date.month, date.day + addValue, date.hour,
-              date.minute, date.second);
+              date.minute, date.second, date.millisecond);
           break;
         case DateTimeIntervalType.hours:
           date = DateTime(date.year, date.month, date.day, date.hour + addValue,
-              date.minute, date.second);
+              date.minute, date.second, date.millisecond);
           break;
         case DateTimeIntervalType.minutes:
           date = DateTime(date.year, date.month, date.day, date.hour,
-              date.minute + addValue, date.second);
+              date.minute + addValue, date.second, date.millisecond);
           break;
         case DateTimeIntervalType.seconds:
           date = DateTime(date.year, date.month, date.day, date.hour,
-              date.minute, date.second + addValue);
+              date.minute, date.second + addValue, date.millisecond);
+          break;
+        case DateTimeIntervalType.milliseconds:
+          date = DateTime(date.year, date.month, date.day, date.hour,
+              date.minute, date.second, date.millisecond + addValue);
           break;
         case DateTimeIntervalType.auto:
           break;
@@ -748,11 +818,19 @@ class _PlotBandPainter extends CustomPainter {
   void _renderPlotBandElement(ChartAxisRenderer axisRenderer, num startValue,
       num endValue, PlotBand plotBand, Canvas canvas) {
     _ChartLocation startPoint, endPoint, segmentStartPoint, segmentEndPoint;
-    final Rect axisRect = chartState._chartAxis._axisClipRect;
     Rect plotBandRect;
     int textAngle;
     double? left, top, bottom, right;
     final ChartAxis axis = axisRenderer._axis;
+    final Rect axisRect = _calculatePlotOffset(
+        chartState._chartAxis._axisClipRect,
+        Offset(
+            axisRenderer._orientation == AxisOrientation.horizontal
+                ? axis.plotOffset
+                : 0,
+            axisRenderer._orientation == AxisOrientation.vertical
+                ? axis.plotOffset
+                : 0));
 
     startValue = axis is LogarithmicAxis
         ? _calculateLogBaseValue(startValue, axis.logBase)

@@ -981,7 +981,7 @@ class ConditionalFormat {
   ///
   /// //Applying top or bottom rule in the conditional formatting.
   /// condition.formatType = ExcelCFType.topBottom;
-  /// final TopBottom topBottom = condition.topBottom;
+  /// final TopBottom topBottom = condition.topBottom!;
   ///
   /// //Set type as Top for TopBottom rule.
   /// topBottom.type = ExcelCFTopBottomType.top;
@@ -1030,7 +1030,7 @@ class ConditionalFormat {
   ///
   /// //Applying above or below average rule in the conditional formatting.
   /// condition.formatType = ExcelCFType.aboveBelowAverage;
-  /// final AboveBelowAverage aboveBelowAverage = condition.aboveBelowAverage;
+  /// final AboveBelowAverage aboveBelowAverage = condition.aboveBelowAverage!;
   ///
   /// //Set AverageType as AboveStdDev for AboveBelowAverage rule.
   /// aboveBelowAverage.averageType = ExcelCFAverageType.aboveStdDev;
@@ -1508,28 +1508,4 @@ class ConditionalFormat {
   ///  workbook.dispose();
   /// ```
   late Color bottomBorderColorRgb;
-}
-
-/// Represents the top or bottom conditional formatting rule.
-/// Applying this rule to a range helps you highlight the top or bottom “n” cells from the selected range.
-class TopBottom {
-  /// Specifies whether the ranking is evaluated from the top or bottom.
-  late ExcelCFTopBottomType type;
-
-  /// Specifies whether the rank is determined by a percentage value.
-  late bool percent;
-
-  /// Specifies the maximum number or percentage of cells to be highlighted for this conditional formatting rule.
-  late int rank;
-}
-
-/// Represents the above or below conditional formatting rule.
-/// Applying this rule to a range helps you highlight the cells which contain values above or below the average of selected range.
-class AboveBelowAverage {
-  /// Specifies whether the conditional formatting rule looks for cell values above or below the range average or standard deviation.
-  late ExcelCFAverageType averageType;
-
-  /// Specifies standard deviation number for AboveBelowAverage conditional formatting rule.
-  /// Valid only if AverageType is set to AboveStdDev or BelowStdDev.
-  late int stdDevValue;
 }

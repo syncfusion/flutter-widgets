@@ -176,7 +176,7 @@ class _PdfCjkFontDescryptorFactory {
         _PdfName(_DictionaryProperties.fontDescriptor);
     fontDescryptor[_DictionaryProperties.italicAngle] = _PdfNumber(0);
     fontDescryptor[_DictionaryProperties.missingWidth] =
-        _PdfNumber((fontMetrics._widthTable as _CjkWidthTable).defaultWidth);
+        _PdfNumber((fontMetrics._widthTable! as _CjkWidthTable).defaultWidth);
     fontDescryptor[_DictionaryProperties.ascent] =
         _PdfNumber(fontMetrics.ascent);
     fontDescryptor[_DictionaryProperties.descent] =

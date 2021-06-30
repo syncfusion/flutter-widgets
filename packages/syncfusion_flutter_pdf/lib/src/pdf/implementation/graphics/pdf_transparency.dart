@@ -37,7 +37,7 @@ class _PdfTransparency implements _IPdfWrapper {
     double? result = 0;
     if (_dictionary!.containsKey(keyName) &&
         _dictionary![keyName] is _PdfNumber) {
-      final _PdfNumber numb = _dictionary![keyName] as _PdfNumber;
+      final _PdfNumber numb = _dictionary![keyName]! as _PdfNumber;
       result = numb.value as double?;
     }
     return result;

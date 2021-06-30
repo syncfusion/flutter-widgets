@@ -2,8 +2,7 @@ part of pdf;
 
 class _XObjectElement {
   //constructor
-  _XObjectElement(_PdfDictionary dictionary, String? name) {
-    this.dictionary = dictionary;
+  _XObjectElement(this.dictionary, String? name) {
     _objectName = name;
     getObjectType();
     _isPrintSelected = false;
@@ -34,7 +33,7 @@ class _XObjectElement {
     if (_objectType != null &&
         _objectType == 'Form' &&
         dictionary is _PdfStream) {
-      final _PdfStream stream = dictionary as _PdfStream;
+      final _PdfStream stream = dictionary! as _PdfStream;
       stream._decompress();
       return _ContentParser(stream._dataStream)._readContent();
     } else {
@@ -55,7 +54,7 @@ class _XObjectElement {
         _objectType == 'Form' &&
         dictionary != null &&
         dictionary is _PdfStream) {
-      final _PdfStream stream = dictionary as _PdfStream;
+      final _PdfStream stream = dictionary! as _PdfStream;
       stream._decompress();
       final _ContentParser parser = _ContentParser(stream._dataStream);
       final _PdfRecordCollection? contentTree = parser._readContent();
@@ -84,12 +83,12 @@ class _XObjectElement {
             xobjects[_DictionaryProperties.matrix];
         if (arrayReference is _PdfArray) {
           final _PdfArray matrixArray = arrayReference;
-          final double a = (matrixArray[0] as _PdfNumber).value!.toDouble();
-          final double b = (matrixArray[1] as _PdfNumber).value!.toDouble();
-          final double c = (matrixArray[2] as _PdfNumber).value!.toDouble();
-          final double d = (matrixArray[3] as _PdfNumber).value!.toDouble();
-          final double e = (matrixArray[4] as _PdfNumber).value!.toDouble();
-          final double f = (matrixArray[5] as _PdfNumber).value!.toDouble();
+          final double a = (matrixArray[0]! as _PdfNumber).value!.toDouble();
+          final double b = (matrixArray[1]! as _PdfNumber).value!.toDouble();
+          final double c = (matrixArray[2]! as _PdfNumber).value!.toDouble();
+          final double d = (matrixArray[3]! as _PdfNumber).value!.toDouble();
+          final double e = (matrixArray[4]! as _PdfNumber).value!.toDouble();
+          final double f = (matrixArray[5]! as _PdfNumber).value!.toDouble();
           xFormsMatrix = _MatrixHelper(a, b, c, d, e, f);
           if (e != 0 || f != 0) {
             g!._translateTransform(e, -f);
@@ -139,7 +138,7 @@ class _XObjectElement {
       objects.last.currentTransformationMatrix = parentMatrix;
       extractTextElement = renderer.extractTextElement;
     }
-    return {
+    return <String, dynamic>{
       'graphicStates': graphicsStates,
       'glyphList': glyphList,
       'objects': objects,
@@ -151,7 +150,7 @@ class _XObjectElement {
 String _unescape(String str) {
   final StringBuffer buffer = StringBuffer();
   while (str.isNotEmpty) {
-    final int index = str.indexOf('\\');
+    final int index = str.indexOf(r'\');
     if (index != -1) {
       buffer.write(str.substring(0, index));
       if (index == str.length - 1) {
@@ -160,8 +159,8 @@ String _unescape(String str) {
       final String next = String.fromCharCode(str.codeUnitAt(index + 1));
       str = str.substring(index + 2);
       switch (next) {
-        case '\\':
-          buffer.write('\\');
+        case r'\':
+          buffer.write(r'\');
           break;
         case 't':
           buffer.write('\t');

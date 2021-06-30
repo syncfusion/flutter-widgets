@@ -2,10 +2,7 @@ part of pdf;
 
 class _PdfTemplateValuePair {
   // constructor
-  _PdfTemplateValuePair(PdfTemplate template, String value) {
-    this.template = template;
-    this.value = value;
-  }
+  _PdfTemplateValuePair(this.template, this.value);
 
   // field
   late PdfTemplate template;

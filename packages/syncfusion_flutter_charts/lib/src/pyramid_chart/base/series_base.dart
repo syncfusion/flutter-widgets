@@ -79,8 +79,11 @@ class _PyramidSeries {
     final ChartIndexedValueMapper<String>? textMapping =
         currentSeries.textFieldMapper;
     final List<PointInfo<dynamic>> points = seriesRenderer._renderPoints!;
+    PointInfo<dynamic> currentPoint;
+    List<_MeasureWidgetContext> legendToggles;
+    _MeasureWidgetContext item;
+    _LegendRenderContext legendRenderContext;
     for (int i = 0; i < points.length; i++) {
-      PointInfo<dynamic> currentPoint;
       currentPoint = points[i];
       currentPoint.fill = currentPoint.isEmpty &&
               empty.color != null // ignore: unnecessary_null_comparison
@@ -105,11 +108,11 @@ class _PyramidSeries {
               : currentPoint.y.toString());
 
       if (_chartState._chart.legend.legendItemBuilder != null) {
-        final List<_MeasureWidgetContext> legendToggles =
-            _chartState._legendToggleTemplateStates;
+        legendToggles =
+            _chartState._renderingDetails.legendToggleTemplateStates;
         if (legendToggles.isNotEmpty) {
           for (int j = 0; j < legendToggles.length; j++) {
-            final _MeasureWidgetContext item = legendToggles[j];
+            item = legendToggles[j];
             if (i == item.pointIndex) {
               currentPoint.isVisible = false;
               break;
@@ -117,10 +120,12 @@ class _PyramidSeries {
           }
         }
       } else {
-        if (_chartState._legendToggleStates.isNotEmpty) {
-          for (int j = 0; j < _chartState._legendToggleStates.length; j++) {
-            final _LegendRenderContext legendRenderContext =
-                _chartState._legendToggleStates[j];
+        if (_chartState._renderingDetails.legendToggleStates.isNotEmpty) {
+          for (int j = 0;
+              j < _chartState._renderingDetails.legendToggleStates.length;
+              j++) {
+            legendRenderContext =
+                _chartState._renderingDetails.legendToggleStates[j];
             if (i == legendRenderContext.seriesIndex) {
               currentPoint.isVisible = false;
               break;
@@ -144,8 +149,8 @@ class _PyramidSeries {
   /// To initialise the series properties in chart
   void _initializeSeriesProperties(PyramidSeriesRenderer seriesRenderer) {
     final PyramidSeries<dynamic, dynamic> series = seriesRenderer._series;
-    final Rect chartAreaRect = _chartState._chartAreaRect;
-    final bool reverse = seriesRenderer._seriesType == 'pyramid' ? true : false;
+    final Rect chartAreaRect = _chartState._renderingDetails.chartAreaRect;
+    final bool reverse = seriesRenderer._seriesType == 'pyramid';
     seriesRenderer._triangleSize = Size(
         _percentToValue(series.width, chartAreaRect.width)!.toDouble(),
         _percentToValue(series.height, chartAreaRect.height)!.toDouble());
@@ -214,10 +219,9 @@ class _PyramidSeries {
     double y;
     assert(
         // ignore: unnecessary_null_comparison
-        seriesRenderer._series.gapRatio != null
-            ? seriesRenderer._series.gapRatio >= 0 &&
-                seriesRenderer._series.gapRatio <= 1
-            : true,
+        !(seriesRenderer._series.gapRatio != null) ||
+            seriesRenderer._series.gapRatio >= 0 &&
+                seriesRenderer._series.gapRatio <= 1,
         'The gap ratio for the pyramid chart must be between 0 and 1.');
     final double gapRatio = min(max(seriesRenderer._series.gapRatio, 0), 1);
     final double coEff =
@@ -245,22 +249,23 @@ class _PyramidSeries {
     final SfPyramidChartState chartState = _chartState;
     final PointInfo<dynamic> point = seriesRenderer._renderPoints![pointIndex];
     if (seriesRenderer._series.explode) {
-      if (chartState._explodedPoints.isNotEmpty) {
+      if (chartState._renderingDetails.explodedPoints.isNotEmpty) {
         existExplodedRegion = true;
-        final int previousIndex = chartState._explodedPoints[0];
+        final int previousIndex =
+            chartState._renderingDetails.explodedPoints[0];
         seriesRenderer._renderPoints![previousIndex].explodeDistance = 0;
         point.explodeDistance =
             previousIndex == pointIndex ? 0 : seriesRenderer._explodeDistance;
-        chartState._explodedPoints[0] = pointIndex;
+        chartState._renderingDetails.explodedPoints[0] = pointIndex;
         if (previousIndex == pointIndex) {
-          chartState._explodedPoints = <int>[];
+          chartState._renderingDetails.explodedPoints = <int>[];
         }
-        chartState._seriesRepaintNotifier.value++;
+        chartState._renderingDetails.seriesRepaintNotifier.value++;
       }
       if (!existExplodedRegion) {
         point.explodeDistance = seriesRenderer._explodeDistance;
-        chartState._explodedPoints.add(pointIndex);
-        chartState._seriesRepaintNotifier.value++;
+        chartState._renderingDetails.explodedPoints.add(pointIndex);
+        chartState._renderingDetails.seriesRepaintNotifier.value++;
       }
       _calculatePathRegion(pointIndex, seriesRenderer);
     }
@@ -274,7 +279,7 @@ class _PyramidSeries {
     currentPoint.pathRegion = <Offset>[];
     final SfPyramidChartState chartState = _chartState;
     final Size area = seriesRenderer._triangleSize;
-    final Rect rect = chartState._chartContainerRect;
+    final Rect rect = chartState._renderingDetails.chartContainerRect;
     final num seriesTop = rect.top + (rect.height - area.height) / 2;
     const num offset = 0;
     // ignore: prefer_if_null_operators
@@ -352,7 +357,9 @@ class _PyramidSeries {
         canvas,
         _StyleOptions(
             fill: fillColor,
-            strokeWidth: _chartState._animateCompleted! ? strokeWidth : 0,
+            strokeWidth: _chartState._renderingDetails.animateCompleted
+                ? strokeWidth
+                : 0,
             strokeColor: strokeColor,
             opacity: opacity),
         path);
@@ -379,37 +386,61 @@ class _PyramidSeries {
         _chartState._chartSeries.visibleSeriesRenderers[0];
     final SfPyramidChartState chartState = _chartState;
     int? currentSelectedIndex;
+    const int seriesIndex = 0;
     if (seriesRenderer._isSelectionEnable && mode == chart.selectionGesture) {
-      if (chartState._selectionData.isNotEmpty) {
+      if (chartState._renderingDetails.selectionData.isNotEmpty) {
         if (!chart.enableMultiSelection &&
-            _chartState._selectionData.isNotEmpty &&
-            _chartState._selectionData.length > 1) {
-          if (_chartState._selectionData.contains(pointIndex)) {
+            _chartState._renderingDetails.selectionData.isNotEmpty &&
+            _chartState._renderingDetails.selectionData.length > 1) {
+          if (_chartState._renderingDetails.selectionData
+              .contains(pointIndex)) {
             currentSelectedIndex = pointIndex;
           }
-          _chartState._selectionData.clear();
+          _chartState._renderingDetails.selectionData.clear();
           if (currentSelectedIndex != null) {
-            _chartState._selectionData.add(pointIndex);
+            _chartState._renderingDetails.selectionData.add(pointIndex);
           }
         }
-        for (int i = 0; i < chartState._selectionData.length; i++) {
-          final int selectionIndex = chartState._selectionData[i];
+
+        int selectionIndex;
+        for (int i = 0;
+            i < chartState._renderingDetails.selectionData.length;
+            i++) {
+          selectionIndex = chartState._renderingDetails.selectionData[i];
           if (!chart.enableMultiSelection) {
-            isPointAlreadySelected = chartState._selectionData.length == 1 &&
-                pointIndex == selectionIndex;
-            chartState._selectionData.removeAt(i);
-            chartState._seriesRepaintNotifier.value++;
+            isPointAlreadySelected =
+                chartState._renderingDetails.selectionData.length == 1 &&
+                    pointIndex == selectionIndex;
+            if (seriesRenderer._selectionBehavior.toggleSelection == true ||
+                !isPointAlreadySelected) {
+              chartState._renderingDetails.selectionData.removeAt(i);
+            }
+            chartState._renderingDetails.seriesRepaintNotifier.value++;
+            if (chart.onSelectionChanged != null) {
+              chart.onSelectionChanged!(_getSelectionEventArgs(
+                  seriesRenderer, seriesIndex, selectionIndex));
+            }
           } else if (pointIndex == selectionIndex) {
-            chartState._selectionData.removeAt(i);
+            if (seriesRenderer._selectionBehavior.toggleSelection == true) {
+              chartState._renderingDetails.selectionData.removeAt(i);
+            }
             isPointAlreadySelected = true;
-            chartState._seriesRepaintNotifier.value++;
+            chartState._renderingDetails.seriesRepaintNotifier.value++;
+            if (chart.onSelectionChanged != null) {
+              chart.onSelectionChanged!(_getSelectionEventArgs(
+                  seriesRenderer, seriesIndex, selectionIndex));
+            }
             break;
           }
         }
       }
       if (!isPointAlreadySelected) {
-        chartState._selectionData.add(pointIndex);
-        chartState._seriesRepaintNotifier.value++;
+        chartState._renderingDetails.selectionData.add(pointIndex);
+        chartState._renderingDetails.seriesRepaintNotifier.value++;
+        if (chart.onSelectionChanged != null) {
+          chart.onSelectionChanged!(
+              _getSelectionEventArgs(seriesRenderer, seriesIndex, pointIndex));
+        }
       }
     }
   }
@@ -421,18 +452,14 @@ class _PyramidSeries {
       SfPyramidChart chart,
       PointInfo<dynamic> point) {
     _StyleOptions? pointStyle;
-    final dynamic selection = seriesRenderer._series.selectionBehavior.enable
-        ? seriesRenderer._series.selectionBehavior
-        : seriesRenderer._series.selectionSettings;
-    const int seriesIndex = 0;
-    if (selection.enable) {
-      if (_chartState._selectionData.isNotEmpty) {
-        for (int i = 0; i < _chartState._selectionData.length; i++) {
-          final int selectionIndex = _chartState._selectionData[i];
-          if (chart.onSelectionChanged != null) {
-            chart.onSelectionChanged!(_getSelectionEventArgs(
-                seriesRenderer, seriesIndex, selectionIndex));
-          }
+    final dynamic selection = seriesRenderer._series.selectionBehavior;
+    if (selection.enable == true) {
+      if (_chartState._renderingDetails.selectionData.isNotEmpty) {
+        int selectionIndex;
+        for (int i = 0;
+            i < _chartState._renderingDetails.selectionData.length;
+            i++) {
+          selectionIndex = _chartState._renderingDetails.selectionData[i];
           if (currentPointIndex == selectionIndex) {
             pointStyle = _StyleOptions(
                 fill: _selectionArgs != null
@@ -446,7 +473,8 @@ class _PyramidSeries {
                     : selection!.selectedBorderColor,
                 opacity: selection.selectedOpacity);
             break;
-          } else if (i == _chartState._selectionData.length - 1) {
+          } else if (i ==
+              _chartState._renderingDetails.selectionData.length - 1) {
             pointStyle = _StyleOptions(
                 fill: _selectionArgs != null
                     ? _selectionArgs!.unselectedColor
@@ -467,9 +495,11 @@ class _PyramidSeries {
 
   /// To perform selection event and return selectionArgs
   SelectionArgs _getSelectionEventArgs(
-      dynamic seriesRenderer, int seriesIndex, int pointIndex) {
-    final SfPyramidChart chart = seriesRenderer._chartState!._chart;
+      PyramidSeriesRenderer seriesRenderer, int seriesIndex, int pointIndex) {
+    final SfPyramidChart chart = seriesRenderer._chartState._chart;
+    // ignore: unnecessary_null_comparison
     if (seriesRenderer != null &&
+        //ignore: unnecessary_null_comparison
         chart.series != null &&
         pointIndex < chart.series.dataSource!.length) {
       final dynamic selectionBehavior = seriesRenderer._selectionBehavior;

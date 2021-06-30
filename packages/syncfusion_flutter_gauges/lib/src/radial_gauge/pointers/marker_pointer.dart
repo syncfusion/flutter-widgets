@@ -1,8 +1,15 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import '../common/common.dart';
-import '../pointers/gauge_pointer.dart';
-import '../renderers/marker_pointer_renderer.dart';
-import '../utils/enum.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
+
+import '../../radial_gauge/axis/radial_axis_scope.dart';
+import '../../radial_gauge/pointers/gauge_pointer.dart';
+import '../../radial_gauge/pointers/marker_pointer_renderer.dart';
+import '../../radial_gauge/renderers/marker_pointer_renderer.dart';
+import '../../radial_gauge/styles/radial_text_style.dart';
+import '../../radial_gauge/utils/enum.dart';
+import '../../radial_gauge/utils/radial_callback_args.dart';
+import '../../radial_gauge/utils/radial_gauge_typedef.dart';
 
 /// Create the pointer to indicate the value with built-in shape.
 ///
@@ -21,23 +28,24 @@ import '../utils/enum.dart';
 ///        ));
 ///}
 /// ```
-class MarkerPointer extends GaugePointer {
+class MarkerPointer extends LeafRenderObjectWidget implements GaugePointer {
   /// Create a marker pointer with the default or required properties.
   ///
   /// The arguments [value], [markerOffset], must not be null and
   /// [animationDuration], [markerWidth], [markerHeight], [borderWidth]
   /// must be non-negative.
   ///
-  MarkerPointer({
-    double value = 0,
-    bool enableDragging = false,
-    ValueChanged<double>? onValueChanged,
-    ValueChanged<double>? onValueChangeStart,
-    ValueChanged<double>? onValueChangeEnd,
-    ValueChanged<ValueChangingArgs>? onValueChanging,
-    AnimationType animationType = AnimationType.ease,
-    bool enableAnimation = false,
-    double animationDuration = 1000,
+  const MarkerPointer({
+    Key? key,
+    this.value = 0,
+    this.enableDragging = false,
+    this.onValueChanged,
+    this.onValueChangeStart,
+    this.onValueChangeEnd,
+    this.onValueChanging,
+    this.animationType = AnimationType.ease,
+    this.enableAnimation = false,
+    this.animationDuration = 1000,
     this.markerType = MarkerType.invertedTriangle,
     this.color,
     this.markerWidth = 10,
@@ -54,7 +62,7 @@ class MarkerPointer extends GaugePointer {
     this.overlayRadius,
     this.elevation = 0,
   })  : textStyle = textStyle ??
-            GaugeTextStyle(
+            const GaugeTextStyle(
                 fontSize: 12.0,
                 fontFamily: 'Segoe UI',
                 fontStyle: FontStyle.normal,
@@ -66,16 +74,7 @@ class MarkerPointer extends GaugePointer {
         assert(borderWidth >= 0, 'Border width must be non-negative value.'),
         assert(
             elevation >= 0, 'Shadow elevation must be a non-negative value.'),
-        super(
-            value: value,
-            enableDragging: enableDragging,
-            onValueChanged: onValueChanged,
-            onValueChangeStart: onValueChangeStart,
-            onValueChangeEnd: onValueChangeEnd,
-            onValueChanging: onValueChanging,
-            animationType: animationType,
-            enableAnimation: enableAnimation,
-            animationDuration: animationDuration);
+        super(key: key);
 
   /// Specifies the built-in shape type for  pointer.
   ///
@@ -427,67 +426,319 @@ class MarkerPointer extends GaugePointer {
   /// ```
   final double? overlayRadius;
 
+  /// Specifies the duration of the pointer animation.
+  ///
+  /// Duration is defined in milliseconds.
+  ///
+  /// Defaults to `1000`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///             pointers: <GaugePointer>[MarkerPointer(value: 50,
+  ///             enableAnimation: true, animationDuration: 2000 )],
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
   @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) {
-      return true;
+  final double animationDuration;
+
+  /// Specifies the different type of animation for pointer.
+  ///
+  /// Different type of animation provides visually appealing way
+  /// when the pointer moves from one value to another.
+  ///
+  /// Defaults to `AnimationType.linear`.
+  ///
+  /// Also refer [AnimationType]
+  ///
+  ///```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///             pointers: <GaugePointer>[MarkerPointer(value: 50,
+  ///             animationType: AnimationType.ease
+  ///             enableAnimation: true, animationDuration: 2000 )],
+  ///            )]
+  ///        ));
+  ///}
+  ///```
+  @override
+  final AnimationType animationType;
+
+  /// Whether to enable the pointer animation.
+  ///
+  /// Set [enableAnimation] is true, the pointer value will cause the pointer
+  /// to animate to the new value.
+  /// The animation duration is specified by [animationDuration].
+  ///
+  /// Defaults to `false`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///             pointers: <GaugePointer>[MarkerPointer(value: 50,
+  ///             enableAnimation: true)],
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  @override
+  final bool enableAnimation;
+
+  /// Whether to allow the pointer dragging.
+  ///
+  /// It provides an option to drag a pointer from one value to another.
+  /// It is used to change the value at run time.
+  ///
+  /// Defaults to `false`.
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///             pointers: <GaugePointer>[MarkerPointer(value: 50,
+  ///             enableDragging: true)],
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  @override
+  final bool enableDragging;
+
+  /// Called when the user is done selecting a new value of the pointer
+  /// by dragging.
+  ///
+  /// This callback shouldn't be used to update the pointer
+  /// value (use onValueChanged for that),
+  /// but rather to know when the user has completed selecting a new value
+  /// by ending a drag.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Container(
+  ///      child: SfRadialGauge(axes: <RadialAxis>[
+  ///    RadialAxis(
+  ///      pointers: <GaugePointer>[
+  ///        MarkerPointer(
+  ///            value: 50,
+  ///            onValueChangeStart: (double newValue) {
+  ///              setState(() {
+  ///                print('Ended change on $newValue');
+  ///              });
+  ///            })
+  ///      ],
+  ///    )
+  ///  ]));
+  /// }
+  /// ```
+  @override
+  final ValueChanged<double>? onValueChangeEnd;
+
+  /// Called when the user starts selecting a new value of pointer by dragging.
+  ///
+  /// This callback shouldn't be used to update the pointer value
+  /// (use onValueChanged for that), but rather to be notified  when the user
+  /// has started selecting a new value by starting a drag.
+
+  /// The value passed will be the last value that the pointer had before
+  /// the change began.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Container(
+  ///      child: SfRadialGauge(axes: <RadialAxis>[
+  ///    RadialAxis(
+  ///      pointers: <GaugePointer>[
+  ///        MarkerPointer(
+  ///            value: 50,
+  ///            onValueChangeStart: (double startValue) {
+  ///              setState(() {
+  ///                print('Started change at $startValue');
+  ///              });
+  ///            })
+  ///      ],
+  ///    )
+  ///  ]));
+  /// }
+  /// ```
+  @override
+  final ValueChanged<double>? onValueChangeStart;
+
+  /// Called during a drag when the user is selecting a new value for the
+  /// pointer by dragging.
+  ///
+  /// The pointer passes the new value to the callback but does not actually
+  /// change state until the parent widget rebuilds the pointer
+  /// with the new value.
+  ///
+  /// The callback provided to onValueChanged should update the state
+  /// of the parent [StatefulWidget] using the [State.setState] method,
+  /// so that the parent gets rebuilt; for example:
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Container(
+  ///      child: SfRadialGauge(axes: <RadialAxis>[
+  ///    RadialAxis(
+  ///      pointers: <GaugePointer>[
+  ///        MarkerPointer(
+  ///            value: _currentValue,
+  ///            onValueChanged: (double newValue) {
+  ///              setState(() {
+  ///                _currentValue = newValue;
+  ///              });
+  ///            })
+  ///      ],
+  ///    )
+  ///  ]));
+  /// }
+  /// ```
+  @override
+  final ValueChanged<double>? onValueChanged;
+
+  /// Called during a drag when the user is selecting before a new value
+  /// for the pointer by dragging.
+  ///
+  /// This callback shouldn't be used to update the pointer value
+  /// (use onValueChanged for that), but rather to know the new value before
+  /// when the user has completed selecting a new value by drag.
+  ///
+  /// To restrict the update of current drag pointer value,
+  /// set [ValueChangingArgs.cancel] is true.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return Container(
+  ///       child: SfRadialGauge(axes: <RadialAxis>[
+  ///     RadialAxis(
+  ///       pointers: <GaugePointer>[
+  ///         MarkerPointer(
+  ///             value: 50,
+  ///             onValueChanging: (ValueChangingArgs args) {
+  ///               setState(() {
+  ///                 if (args.value > 10) {
+  ///                   args.cancel = false;
+  ///                 }
+  ///               });
+  ///             })
+  ///       ],
+  ///     )
+  ///   ]));
+  /// }
+  /// ```
+  @override
+  final ValueChanged<ValueChangingArgs>? onValueChanging;
+
+  /// Specifies the value to the pointer.
+  ///
+  /// Changing the pointer value will cause the pointer to animate to the
+  /// new value.
+  ///
+  /// Defaults to `0`.
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///             pointers: <GaugePointer>[MarkerPointer(value: 50,
+  ///             )],
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  @override
+  final double value;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) {
+    final SfGaugeThemeData gaugeTheme = SfGaugeTheme.of(context)!;
+    final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
+
+    MarkerPointerRenderer? markerPointerRenderer;
+    if (onCreatePointerRenderer != null) {
+      markerPointerRenderer = onCreatePointerRenderer!();
+      markerPointerRenderer.pointer = this;
     }
-    if (other.runtimeType != runtimeType) {
-      return false;
-    }
-    return other is MarkerPointer &&
-        other.value == value &&
-        other.enableDragging == enableDragging &&
-        other.onValueChanged == onValueChanged &&
-        other.onValueChangeStart == onValueChangeStart &&
-        other.onValueChanging == onValueChanging &&
-        other.onValueChangeEnd == onValueChangeEnd &&
-        other.enableAnimation == enableAnimation &&
-        other.animationDuration == animationDuration &&
-        other.markerType == markerType &&
-        other.color == color &&
-        other.markerWidth == markerWidth &&
-        other.markerHeight == markerHeight &&
-        other.borderWidth == borderWidth &&
-        other.markerOffset == markerOffset &&
-        other.text == text &&
-        other.borderColor == borderColor &&
-        other.imageUrl == imageUrl &&
-        other.offsetUnit == offsetUnit &&
-        other.onCreatePointerRenderer == onCreatePointerRenderer &&
-        other.textStyle == textStyle &&
-        other.overlayColor == overlayColor &&
-        other.overlayRadius == overlayRadius &&
-        other.elevation == elevation;
+
+    return RenderMarkerPointer(
+        value: value,
+        enableDragging: enableDragging,
+        onValueChanged: onValueChanged,
+        onValueChangeStart: onValueChangeStart,
+        onValueChangeEnd: onValueChangeEnd,
+        onValueChanging: onValueChanging,
+        markerType: markerType,
+        color: color,
+        markerWidth: markerWidth,
+        markerHeight: markerHeight,
+        borderWidth: borderWidth,
+        markerOffset: markerOffset,
+        text: text,
+        borderColor: borderColor,
+        offsetUnit: offsetUnit,
+        imageUrl: imageUrl,
+        markerPointerRenderer: markerPointerRenderer,
+        textStyle: textStyle,
+        overlayColor: overlayColor,
+        overlayRadius: overlayRadius,
+        elevation: elevation,
+        animationType: animationType,
+        pointerInterval: radialAxisScope.pointerInterval,
+        enableAnimation: enableAnimation,
+        isRadialGaugeAnimationEnabled:
+            radialAxisScope.isRadialGaugeAnimationEnabled,
+        pointerAnimationController: radialAxisScope.animationController,
+        repaintNotifier: radialAxisScope.repaintNotifier,
+        gaugeThemeData: gaugeTheme);
   }
 
   @override
-  int get hashCode {
-    final List<Object?> values = <Object?>[
-      value,
-      enableDragging,
-      onValueChanged,
-      onValueChangeStart,
-      onValueChanging,
-      onValueChangeEnd,
-      enableAnimation,
-      animationDuration,
-      markerType,
-      color,
-      markerWidth,
-      markerHeight,
-      borderWidth,
-      markerOffset,
-      text,
-      borderColor,
-      imageUrl,
-      offsetUnit,
-      textStyle,
-      onCreatePointerRenderer,
-      overlayColor,
-      overlayRadius,
-      elevation
-    ];
-    return hashList(values);
+  void updateRenderObject(
+      BuildContext context, RenderMarkerPointer renderObject) {
+    final SfGaugeThemeData gaugeTheme = SfGaugeTheme.of(context)!;
+    final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
+    MarkerPointerRenderer? markerPointerRenderer;
+    if (onCreatePointerRenderer != null) {
+      markerPointerRenderer = onCreatePointerRenderer!();
+      markerPointerRenderer.pointer = this;
+    }
+
+    renderObject
+      ..enableDragging = enableDragging
+      ..onValueChanged = onValueChanged
+      ..onValueChangeStart = onValueChangeStart
+      ..onValueChangeEnd = onValueChangeEnd
+      ..onValueChanging = onValueChanging
+      ..markerType = markerType
+      ..color = color
+      ..markerWidth = markerWidth
+      ..markerHeight = markerHeight
+      ..borderWidth = borderWidth
+      ..markerOffset = markerOffset
+      ..text = text
+      ..borderColor = borderColor
+      ..offsetUnit = offsetUnit
+      ..imageUrl = imageUrl
+      ..markerPointerRenderer = markerPointerRenderer
+      ..textStyle = textStyle
+      ..overlayColor = overlayColor
+      ..overlayRadius = overlayRadius
+      ..elevation = elevation
+      ..enableAnimation = enableAnimation
+      ..animationType = animationType
+      ..pointerAnimationController = radialAxisScope.animationController
+      ..repaintNotifier = radialAxisScope.repaintNotifier
+      ..isRadialGaugeAnimationEnabled =
+          radialAxisScope.isRadialGaugeAnimationEnabled
+      ..gaugeThemeData = gaugeTheme
+      ..value = value;
+    super.updateRenderObject(context, renderObject);
   }
 }

@@ -20,29 +20,30 @@ class _PdfPKCSCertificate {
   //Implementation
   void _loadCertificate(List<int> certificateBytes, String password) {
     final _Asn1Sequence sequence = _Asn1Stream(_StreamReader(certificateBytes))
-        .readAsn1() as _Asn1Sequence;
+        .readAsn1()! as _Asn1Sequence;
     final _PfxData pfxData = _PfxData(sequence);
     final _ContentInformation information = pfxData._contentInformation!;
     bool isUnmarkedKey = false;
-    final bool isInvalidPassword = password.length == 0 ? true : false;
+    final bool isInvalidPassword = password.isEmpty;
     final List<_Asn1SequenceCollection> certificateChain =
         <_Asn1SequenceCollection>[];
     if (information._contentType!._id == _PkcsObjectId.data._id) {
-      final List<int>? octs = (information._content as _Asn1Octet).getOctets();
+      final List<int>? octs = (information._content! as _Asn1Octet).getOctets();
       final _Asn1Sequence asn1Sequence =
-          (_Asn1Stream(_StreamReader(octs)).readAsn1()) as _Asn1Sequence;
+          (_Asn1Stream(_StreamReader(octs)).readAsn1())! as _Asn1Sequence;
       final List<_ContentInformation?> contentInformation =
           <_ContentInformation?>[];
       for (int i = 0; i < asn1Sequence.count; i++) {
         contentInformation
             .add(_ContentInformation.getInformation(asn1Sequence[i]));
       }
-      contentInformation.forEach((entry) {
+      // ignore: avoid_function_literals_in_foreach_calls
+      contentInformation.forEach((_ContentInformation? entry) {
         final _DerObjectID type = entry!._contentType!;
         if (type._id == _PkcsObjectId.data._id) {
-          final List<int>? octets = (entry._content as _Asn1Octet).getOctets();
+          final List<int>? octets = (entry._content! as _Asn1Octet).getOctets();
           final _Asn1Sequence asn1SubSequence =
-              (_Asn1Stream(_StreamReader(octets)).readAsn1()) as _Asn1Sequence;
+              (_Asn1Stream(_StreamReader(octets)).readAsn1())! as _Asn1Sequence;
           for (int index = 0; index < asn1SubSequence.count; index++) {
             final dynamic subSequence = asn1SubSequence[index];
             if (subSequence != null && subSequence is _Asn1Sequence) {
@@ -82,13 +83,13 @@ class _PdfPKCSCertificate {
                 if (subSequenceCollection._attributes != null) {
                   final _Asn1Set sq = subSequenceCollection._attributes!;
                   for (int i = 0; i < sq._objects.length; i++) {
-                    final _Asn1Encode? entry = sq._objects[i];
+                    final _Asn1Encode? entry = sq._objects[i] as _Asn1Encode?;
                     if (entry is _Asn1Sequence) {
                       final _DerObjectID? algorithmId =
                           _DerObjectID.getID(entry[0]);
-                      final _Asn1Set attributeSet = entry[1] as _Asn1Set;
+                      final _Asn1Set attributeSet = entry[1]! as _Asn1Set;
                       _Asn1Encode? attribute;
-                      if (attributeSet._objects.length > 0) {
+                      if (attributeSet._objects.isNotEmpty) {
                         attribute = attributeSet[0];
                         if (attributes.containsKey(algorithmId!._id)) {
                           if (attributes[algorithmId._id] != attribute) {
@@ -101,7 +102,7 @@ class _PdfPKCSCertificate {
                         if (algorithmId._id ==
                             _PkcsObjectId.pkcs9AtFriendlyName._id) {
                           localIdentifier =
-                              (attribute as _DerBmpString).getString();
+                              (attribute! as _DerBmpString).getString();
                           _keys.setValue(localIdentifier!, key);
                         } else if (algorithmId._id ==
                             _PkcsObjectId.pkcs9AtLocalKeyID._id) {
@@ -130,21 +131,21 @@ class _PdfPKCSCertificate {
             }
           }
         } else if (type._id == _PkcsObjectId.encryptedData._id) {
-          final _Asn1Sequence sequence1 = entry._content as _Asn1Sequence;
+          final _Asn1Sequence sequence1 = entry._content! as _Asn1Sequence;
           if (sequence1.count != 2) {
             throw ArgumentError.value(
                 entry, 'sequence', 'Invalid length of the sequence');
           }
           final int version =
-              (sequence1[0] as _DerInteger).value.toSigned(32).toInt();
+              (sequence1[0]! as _DerInteger).value.toSigned(32).toInt();
           if (version != 0) {
             throw ArgumentError.value(
                 version, 'version', 'Invalid sequence version');
           }
-          final _Asn1Sequence data = sequence1[1] as _Asn1Sequence;
+          final _Asn1Sequence data = sequence1[1]! as _Asn1Sequence;
           _Asn1Octet? content;
           if (data.count == 3) {
-            final _DerTag taggedObject = data[2] as _DerTag;
+            final _DerTag taggedObject = data[2]! as _DerTag;
             content = _Asn1Octet.getOctetString(taggedObject, false);
           }
           final List<int>? octets = getCryptographicData(
@@ -154,8 +155,9 @@ class _PdfPKCSCertificate {
               isInvalidPassword,
               content!.getOctets());
           final _Asn1Sequence seq =
-              _Asn1Stream(_StreamReader(octets)).readAsn1() as _Asn1Sequence;
-          seq._objects!.forEach((subSequence) {
+              _Asn1Stream(_StreamReader(octets)).readAsn1()! as _Asn1Sequence;
+          // ignore: avoid_function_literals_in_foreach_calls
+          seq._objects!.forEach((dynamic subSequence) {
             final _Asn1SequenceCollection subSequenceCollection =
                 _Asn1SequenceCollection(subSequence);
             if (subSequenceCollection._id!._id == _PkcsObjectId.certBag._id) {
@@ -189,12 +191,13 @@ class _PdfPKCSCertificate {
               final _KeyEntry keyEntry = _KeyEntry(privateKey);
               String? key;
               _Asn1Octet? localIdentity;
-              subSequenceCollection._attributes!._objects.forEach((sq) {
+              // ignore: avoid_function_literals_in_foreach_calls
+              subSequenceCollection._attributes!._objects.forEach((dynamic sq) {
                 final _DerObjectID? asn1Id = sq[0] as _DerObjectID?;
                 final _Asn1Set attributeSet = sq[1] as _Asn1Set;
                 _Asn1Encode? attribute;
-                if (attributeSet._objects.length > 0) {
-                  attribute = attributeSet._objects[0];
+                if (attributeSet._objects.isNotEmpty) {
+                  attribute = attributeSet._objects[0] as _Asn1Encode?;
                   if (attributes.containsKey(asn1Id!._id)) {
                     if (!(attributes[asn1Id._id] == attribute)) {
                       throw ArgumentError.value(attributes, 'attributes',
@@ -204,7 +207,7 @@ class _PdfPKCSCertificate {
                     attributes[asn1Id._id] = attribute;
                   }
                   if (asn1Id._id == _PkcsObjectId.pkcs9AtFriendlyName._id) {
-                    key = (attribute as _DerBmpString).getString();
+                    key = (attribute! as _DerBmpString).getString();
                     _keys.setValue(key!, keyEntry);
                   } else if (asn1Id._id ==
                       _PkcsObjectId.pkcs9AtLocalKeyID._id) {
@@ -246,14 +249,16 @@ class _PdfPKCSCertificate {
               _Asn1Octet? localId;
               final Map<dynamic, dynamic> attributes = <dynamic, dynamic>{};
               final _KeyEntry keyEntry = _KeyEntry(privateKey);
-              subSequenceCollection._attributes!._objects.forEach((sq) {
+              // ignore: avoid_function_literals_in_foreach_calls
+              subSequenceCollection._attributes!._objects.forEach((dynamic sq) {
                 final _DerObjectID? id = sq[0] as _DerObjectID?;
                 final _Asn1Set attributeSet = sq[1] as _Asn1Set;
                 _Asn1Encode? attribute;
-                if (attributeSet._objects.length > 0) {
+                if (attributeSet._objects.isNotEmpty) {
                   attribute = attributeSet[0];
                   if (attributes.containsKey(id!._id)) {
-                    final _Asn1Encode? attr = attributes[id._id];
+                    final _Asn1Encode? attr =
+                        attributes[id._id] as _Asn1Encode?;
                     if (attr != null && attr != attribute) {
                       throw ArgumentError.value(sq, 'sequence',
                           'attempt to add existing attribute with different value');
@@ -262,7 +267,7 @@ class _PdfPKCSCertificate {
                     attributes[id._id] = attribute;
                   }
                   if (id._id == _PkcsObjectId.pkcs9AtFriendlyName._id) {
-                    key = (attribute as _DerBmpString).getString();
+                    key = (attribute! as _DerBmpString).getString();
                     _keys.setValue(key!, keyEntry);
                   } else if (id._id == _PkcsObjectId.pkcs9AtLocalKeyID._id) {
                     localId = attribute as _Asn1Octet?;
@@ -283,8 +288,10 @@ class _PdfPKCSCertificate {
     _certificates = _CertificateTable();
     _chainCertificates = <_CertificateIdentifier, _X509Certificates>{};
     _keyCertificates = <String, _X509Certificates>{};
-    certificateChain.forEach((asn1Collection) {
-      final _Asn1Sequence asn1Sequence = asn1Collection._value as _Asn1Sequence;
+    // ignore: avoid_function_literals_in_foreach_calls
+    certificateChain.forEach((_Asn1SequenceCollection asn1Collection) {
+      final _Asn1Sequence asn1Sequence =
+          asn1Collection._value! as _Asn1Sequence;
       final _Asn1 certValue = _Asn1Tag.getTag(asn1Sequence[1])!.getObject()!;
       final List<int>? octets = (certValue as _Asn1Octet).getOctets();
       final _X509Certificate certificate =
@@ -295,10 +302,10 @@ class _PdfPKCSCertificate {
       final _Asn1Set? tempAttributes = asn1Collection._attributes;
       if (tempAttributes != null) {
         for (int i = 0; i < tempAttributes._objects.length; i++) {
-          final _Asn1Sequence sq = tempAttributes._objects[i];
+          final _Asn1Sequence sq = tempAttributes._objects[i] as _Asn1Sequence;
           final _DerObjectID? aOid = _DerObjectID.getID(sq[0]);
-          final _Asn1Set attrSet = sq[1] as _Asn1Set;
-          if (attrSet._objects.length > 0) {
+          final _Asn1Set attrSet = sq[1]! as _Asn1Set;
+          if (attrSet._objects.isNotEmpty) {
             final _Asn1Encode? attr = attrSet[0];
             if (attributes.containsKey(aOid!._id)) {
               if (attributes[aOid._id] != attr) {
@@ -309,7 +316,7 @@ class _PdfPKCSCertificate {
               attributes[aOid._id] = attr;
             }
             if (aOid._id == _PkcsObjectId.pkcs9AtFriendlyName._id) {
-              key = (attr as _DerBmpString).getString();
+              key = (attr! as _DerBmpString).getString();
             } else if (aOid._id == _PkcsObjectId.pkcs9AtLocalKeyID._id) {
               localId = attr as _Asn1Octet?;
             }
@@ -390,10 +397,12 @@ class _PdfPKCSCertificate {
 
   Map<String, String> getContentTable() {
     final Map<String, String> result = <String, String>{};
-    _certificates.keys.forEach((key) {
+    // ignore: avoid_function_literals_in_foreach_calls
+    _certificates.keys.forEach((String key) {
       result[key] = 'cert';
     });
-    _keys.keys.forEach((key) {
+    // ignore: avoid_function_literals_in_foreach_calls
+    _keys.keys.forEach((String key) {
       if (!result.containsKey(key)) {
         result[key] = 'key';
       }
@@ -406,7 +415,7 @@ class _PdfPKCSCertificate {
   }
 
   _KeyEntry? getKey(String key) {
-    return _keys[key] is _KeyEntry ? _keys[key] : null;
+    return _keys[key] is _KeyEntry ? _keys[key] as _KeyEntry? : null;
   }
 
   _X509Certificates? getCertificate(String key) {
@@ -431,7 +440,7 @@ class _PdfPKCSCertificate {
               : null;
         }
       }
-      return certificates;
+      return certificates as _X509Certificates?;
     }
   }
 
@@ -465,7 +474,8 @@ class _PdfPKCSCertificate {
           if (!(issuer == subject)) {
             final List<_CertificateIdentifier> keys =
                 _chainCertificates.keys.toList();
-            keys.forEach((certId) {
+            // ignore: avoid_function_literals_in_foreach_calls
+            keys.forEach((_CertificateIdentifier certId) {
               _X509Certificates? x509CertEntry;
               if (_chainCertificates.containsKey(certId)) {
                 x509CertEntry = _chainCertificates[certId];
@@ -476,7 +486,9 @@ class _PdfPKCSCertificate {
                   // x509Certificate.verify(certificate.getPublicKey());
                   // nextCertificate = x509CertEntry;
                   isContinue = false;
-                } catch (e) {}
+                } catch (e) {
+                  //
+                }
               }
             });
           }
@@ -490,7 +502,7 @@ class _PdfPKCSCertificate {
         }
       }
       return List<_X509Certificates>.generate(
-          certificateList.length, (i) => certificateList[i]);
+          certificateList.length, (int i) => certificateList[i]);
     }
     return null;
   }
@@ -519,7 +531,7 @@ class _CertificateTable {
     String? k;
     _keys.forEach((String tempKey, dynamic tempValue) {
       if (lower == tempKey.toLowerCase()) {
-        k = _keys[tempKey];
+        k = _keys[tempKey] as String?;
       }
     });
     if (k == null) {
@@ -574,6 +586,7 @@ class _CertificateIdentifier {
   List<int>? _id;
   //Implements
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
     if (other is _CertificateIdentifier) {
       return _Asn1Constants.areEqual(_id, other._id);
@@ -583,5 +596,6 @@ class _CertificateIdentifier {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode => _Asn1Constants.getHashCode(_id);
 }

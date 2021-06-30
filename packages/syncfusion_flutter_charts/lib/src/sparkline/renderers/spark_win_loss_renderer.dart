@@ -11,7 +11,7 @@ import 'renderer_base.dart';
 class SfSparkWinLossChartRenderObjectWidget
     extends SfSparkChartRenderObjectWidget {
   /// Creates the render object for spark chart
-  SfSparkWinLossChartRenderObjectWidget(
+  const SfSparkWinLossChartRenderObjectWidget(
       {Key? key,
       List<dynamic>? data,
       int? dataCount,
@@ -19,9 +19,9 @@ class SfSparkWinLossChartRenderObjectWidget
       SparkChartIndexedValueMapper<num>? yValueMapper,
       Color? color,
       SparkChartPlotBand? plotBand,
-      double? borderWidth,
-      Color? borderColor,
-      Color? tiePointColor,
+      this.borderWidth,
+      this.borderColor,
+      this.tiePointColor,
       bool? isInversed,
       double? axisCrossesAt,
       Color? axisLineColor,
@@ -36,10 +36,7 @@ class SfSparkWinLossChartRenderObjectWidget
       ThemeData? themeData,
       List<Offset>? coordinatePoints,
       List<SparkChartPoint>? dataPoints})
-      : borderWidth = borderWidth,
-        borderColor = borderColor,
-        tiePointColor = tiePointColor,
-        super(
+      : super(
             key: key,
             data: data,
             dataCount: dataCount,
@@ -236,10 +233,10 @@ class _RenderSparkWinLossChart extends RenderSparkChart {
     final double xInterval = dataPoints!.length > 1
         ? dataPoints![1].x.toDouble() - dataPoints![0].x.toDouble()
         : dataPoints!.length.toDouble();
-    final double columnSpace = 0.5; // Default space for column and winloss
-    final double space = columnSpace * 2;
-    final double winLossFactor = 0.5;
-    final double heightFactor = 40;
+    const double columnSpace = 0.5; // Default space for column and winloss
+    const double space = columnSpace * 2;
+    const double winLossFactor = 0.5;
+    const double heightFactor = 40;
     double visibleXPoint;
     double rectHeight;
     double bottom;
@@ -298,7 +295,7 @@ class _RenderSparkWinLossChart extends RenderSparkChart {
           _segments[i].top + offset.dy,
           _segments[i].right + offset.dx,
           _segments[i].bottom + offset.dy);
-      if (dataPoints![i].y < axisCrossesAt) {
+      if (dataPoints![i].y < axisCrossesAt!) {
         canvas.drawRect(rect, negativePointPaint);
       } else if (dataPoints![i].y == axisCrossesAt) {
         canvas.drawRect(rect, tiePointPaint);

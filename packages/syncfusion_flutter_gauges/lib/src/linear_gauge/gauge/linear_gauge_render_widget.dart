@@ -5,6 +5,7 @@ import 'package:flutter/gestures.dart'
     show
         DragStartBehavior,
         GestureArenaTeam,
+        HitTestTarget,
         HorizontalDragGestureRecognizer,
         TapGestureRecognizer,
         VerticalDragGestureRecognizer;
@@ -39,13 +40,14 @@ class LinearGaugeRenderWidget extends MultiChildRenderObjectWidget {
   /// Linear gauge pointer animations.
   final List<Animation<double>> pointerAnimations;
 
+  @override
   RenderObject createRenderObject(BuildContext context) =>
       RenderLinearGauge(pointerAnimations: pointerAnimations);
 
   @override
   void updateRenderObject(
       BuildContext context, RenderLinearGauge renderObject) {
-    renderObject..pointerAnimations = pointerAnimations;
+    renderObject.pointerAnimations = pointerAnimations;
     super.updateRenderObject(context, renderObject);
   }
 
@@ -60,7 +62,6 @@ class LinearGaugeRenderElement extends MultiChildRenderObjectElement {
   LinearGaugeRenderElement(MultiChildRenderObjectWidget widget) : super(widget);
 
   @override
-  // ignore: avoid_as
   RenderLinearGauge get renderObject => super.renderObject as RenderLinearGauge;
 
   @override
@@ -77,12 +78,6 @@ class LinearGaugeRenderElement extends MultiChildRenderObjectElement {
     } else if (child is RenderLinearWidgetPointer) {
       renderObject.addWidgetPointer(child);
     }
-  }
-
-  @override
-  void moveRenderObjectChild(RenderObject child, IndexedSlot<Element?> oldSlot,
-      IndexedSlot<Element?> newSlot) {
-    super.moveRenderObjectChild(child, oldSlot, newSlot);
   }
 
   @override
@@ -151,8 +146,8 @@ class RenderLinearGauge extends RenderBox
       _pointX = 0,
       _pointY = 0;
 
-  double? _actualSizeDelta, _overflow;
-
+  double? _actualSizeDelta;
+  late double? _overflow;
   bool _isAxisInversed = false;
   bool _isHorizontalOrientation = true;
   bool _isMarkerPointerInteraction = false;
@@ -249,13 +244,13 @@ class RenderLinearGauge extends RenderBox
   }
 
   void _updateAxis() {
-    _ranges.forEach((element) {
-      element..axis = axis;
-    });
+    for (final RenderLinearRange range in _ranges) {
+      range.axis = axis;
+    }
 
-    _barPointers.forEach((element) {
-      element..axis = axis;
-    });
+    for (final RenderLinearBarPointer barPointer in _barPointers) {
+      barPointer.axis = axis;
+    }
 
     if (axis != null) {
       _isHorizontalOrientation =
@@ -275,10 +270,12 @@ class RenderLinearGauge extends RenderBox
     final double labelSize = axis!.getEffectiveLabelSize();
     final double tickSize = axis!.getTickSize();
     final double axisLineSize = axis!.getAxisLineThickness();
-    final position = LinearGaugeHelper.getEffectiveElementPosition(
-        axis!.tickPosition, axis!.isMirrored);
-    final labelPosition = LinearGaugeHelper.getEffectiveLabelPosition(
-        axis!.labelPosition, axis!.isMirrored);
+    final LinearElementPosition position =
+        LinearGaugeHelper.getEffectiveElementPosition(
+            axis!.tickPosition, axis!.isMirrored);
+    final LinearLabelPosition labelPosition =
+        LinearGaugeHelper.getEffectiveLabelPosition(
+            axis!.labelPosition, axis!.isMirrored);
     final bool isInsideLabel = labelPosition == LinearLabelPosition.inside;
 
     late double _insideElementSize;
@@ -332,10 +329,12 @@ class RenderLinearGauge extends RenderBox
     final double labelSize = axis!.getEffectiveLabelSize();
     final double tickSize = axis!.getTickSize();
     final double axisSize = axis!.getAxisLineThickness();
-    final position = LinearGaugeHelper.getEffectiveElementPosition(
-        axis!.tickPosition, axis!.isMirrored);
-    final labelPlacement = LinearGaugeHelper.getEffectiveLabelPosition(
-        axis!.labelPosition, axis!.isMirrored);
+    final LinearElementPosition position =
+        LinearGaugeHelper.getEffectiveElementPosition(
+            axis!.tickPosition, axis!.isMirrored);
+    final LinearLabelPosition labelPlacement =
+        LinearGaugeHelper.getEffectiveLabelPosition(
+            axis!.labelPosition, axis!.isMirrored);
     final bool isInsideLabel = labelPlacement == LinearLabelPosition.inside;
 
     switch (position) {
@@ -418,8 +417,9 @@ class RenderLinearGauge extends RenderBox
       required LinearElementPosition position,
       required double thickness,
       required double offset}) {
-    final pointerPosition = LinearGaugeHelper.getEffectiveElementPosition(
-        position, axis!.isMirrored);
+    final LinearElementPosition pointerPosition =
+        LinearGaugeHelper.getEffectiveElementPosition(
+            position, axis!.isMirrored);
 
     switch (pointerPosition) {
       case LinearElementPosition.inside:
@@ -441,10 +441,10 @@ class RenderLinearGauge extends RenderBox
   void _positionChildElement(RenderObject linearGaugeChild,
       {double thickness = 0}) {
     final MultiChildLayoutParentData? childParentData =
-        // ignore: avoid_as
         linearGaugeChild.parentData as MultiChildLayoutParentData?;
-    final xPoint = _pointX + axis!.getChildPadding(child: linearGaugeChild);
-    final yPoint = _pointY;
+    final double xPoint =
+        _pointX + axis!.getChildPadding(child: linearGaugeChild);
+    final double yPoint = _pointY;
 
     if (_isHorizontalOrientation) {
       childParentData!.offset =
@@ -462,8 +462,9 @@ class RenderLinearGauge extends RenderBox
       required Size size}) {
     final double markerSize =
         _isHorizontalOrientation ? size.height : size.width;
-    final pointerPosition = LinearGaugeHelper.getEffectiveElementPosition(
-        elementPosition, axis!.isMirrored);
+    final LinearElementPosition pointerPosition =
+        LinearGaugeHelper.getEffectiveElementPosition(
+            elementPosition, axis!.isMirrored);
     switch (pointerPosition) {
       case LinearElementPosition.inside:
         return _outsideWidgetElementSize +
@@ -490,7 +491,9 @@ class RenderLinearGauge extends RenderBox
 
   double _getCrossElementPosition(double width) {
     final double axisSize = axis!.getAxisLineThickness();
-    if (axisSize == 0) return axisSize;
+    if (axisSize == 0) {
+      return axisSize;
+    }
 
     if (axisSize > width) {
       return (axisSize - width) / 2 + _axisTop;
@@ -507,13 +510,13 @@ class RenderLinearGauge extends RenderBox
 
     if (!isDragCall) {
       if (pointer.pointerAnimation != null) {
-        animationValue = pointer.pointerAnimation.value;
+        animationValue = pointer.pointerAnimation.value as double;
       }
     }
 
-    final startPosition =
-        (axis!.valueToPixel(pointer.oldValue ?? axis!.minimum));
-    final endPosition = (axis!.valueToPixel(pointer.value)).abs();
+    final double startPosition =
+        axis!.valueToPixel(pointer.oldValue ?? axis!.minimum);
+    final double endPosition = (axis!.valueToPixel(pointer.value)).abs();
 
     _pointX = startPosition + ((endPosition - startPosition) * animationValue);
     _pointY = _calculateMarkerOffset(
@@ -544,13 +547,14 @@ class RenderLinearGauge extends RenderBox
     _pointerEndPadding = 0;
 
     _markerPointers.clear();
-    _markerPointers =
-        [_shapePointers, _widgetPointers].expand((x) => x).toList();
+    _markerPointers = <List<RenderBox>>[_shapePointers, _widgetPointers]
+        .expand((List<RenderBox> x) => x)
+        .toList();
 
-    final width = constraints.hasBoundedWidth
+    final double width = constraints.hasBoundedWidth
         ? constraints.maxWidth
         : kDefaultLinearGaugeWidth;
-    final height = constraints.hasBoundedHeight
+    final double height = constraints.hasBoundedHeight
         ? constraints.maxHeight
         : kDefaultLinearGaugeHeight;
     _parentConstraints = BoxConstraints(maxWidth: width, maxHeight: height);
@@ -562,9 +566,9 @@ class RenderLinearGauge extends RenderBox
       for (final dynamic pointer in _markerPointers) {
         pointer.layout(_parentConstraints, parentUsesSize: true);
 
-        final thickness = (_isHorizontalOrientation
-            ? pointer.size.width
-            : pointer.size.height);
+        final double thickness = _isHorizontalOrientation
+            ? pointer.size.width as double
+            : pointer.size.height as double;
 
         if (pointer.markerAlignment == LinearMarkerAlignment.start) {
           _pointerEndPadding = math.max(_pointerEndPadding, thickness);
@@ -588,7 +592,7 @@ class RenderLinearGauge extends RenderBox
   }
 
   BoxConstraints _getChildBoxConstraints() {
-    final padding = axis!.getAxisLayoutPadding();
+    final double padding = axis!.getAxisLayoutPadding();
     if (_isHorizontalOrientation) {
       return BoxConstraints(
           maxWidth: _parentConstraints.maxWidth - padding,
@@ -619,12 +623,13 @@ class RenderLinearGauge extends RenderBox
   /// Layout the range elements.
   void _layoutRange() {
     if (_ranges.isNotEmpty) {
-      for (final range in _ranges) {
+      for (final RenderLinearRange range in _ranges) {
         range.layout(_childConstraints, parentUsesSize: true);
-        final rangeThickness =
+        final double rangeThickness =
             _isHorizontalOrientation ? range.size.height : range.size.width;
-        final position = LinearGaugeHelper.getEffectiveElementPosition(
-            range.position, range.isMirrored);
+        final LinearElementPosition position =
+            LinearGaugeHelper.getEffectiveElementPosition(
+                range.position, range.isMirrored);
 
         switch (position) {
           case LinearElementPosition.inside:
@@ -647,7 +652,7 @@ class RenderLinearGauge extends RenderBox
   /// Layout the bar pointers.
   void _layoutBarPointers() {
     if (_barPointers.isNotEmpty) {
-      for (final barPointer in _barPointers) {
+      for (final RenderLinearBarPointer barPointer in _barPointers) {
         barPointer.layout(_childConstraints, parentUsesSize: true);
 
         _layoutPointerChild(
@@ -662,9 +667,9 @@ class RenderLinearGauge extends RenderBox
   void _measureMarkerPointersSize() {
     if (_markerPointers.isNotEmpty) {
       for (final dynamic markerPointer in _markerPointers) {
-        final thickness = (_isHorizontalOrientation
-            ? markerPointer.size.height
-            : markerPointer.size.width);
+        final double thickness = _isHorizontalOrientation
+            ? markerPointer.size.height as double
+            : markerPointer.size.width as double;
 
         _layoutPointerChild(
             renderObject: markerPointer,
@@ -708,7 +713,6 @@ class RenderLinearGauge extends RenderBox
     _overflow = math.max(0.0, -_actualSizeDelta!);
     if (axis != null) {
       final MultiChildLayoutParentData? childParentData =
-          // ignore: avoid_as
           axis!.parentData as MultiChildLayoutParentData?;
       _pointX = axis!.getAxisPositionPadding();
       _pointY = _outsideWidgetElementSize + _actualSizeDelta! / 2;
@@ -724,16 +728,17 @@ class RenderLinearGauge extends RenderBox
   /// Position the range elements.
   void _positionRanges() {
     if (_ranges.isNotEmpty) {
-      for (final range in _ranges) {
-        final thickness =
+      for (final RenderLinearRange range in _ranges) {
+        final double thickness =
             _isHorizontalOrientation ? range.size.height : range.size.width;
-        final rangeWidth =
+        final double rangeWidth =
             _isHorizontalOrientation ? range.size.width : range.size.height;
 
         _pointX = axis!.valueToPixel(range.startValue).abs();
 
-        final position = LinearGaugeHelper.getEffectiveElementPosition(
-            range.position, range.isMirrored);
+        final LinearElementPosition position =
+            LinearGaugeHelper.getEffectiveElementPosition(
+                range.position, range.isMirrored);
         final double axisSize = axis!.showAxisTrack ? axis!.thickness : 0.0;
 
         switch (position) {
@@ -744,9 +749,10 @@ class RenderLinearGauge extends RenderBox
                 (_actualSizeDelta! / 2);
             break;
           case LinearElementPosition.outside:
-            final positionY = thickness < _outsideWidgetElementSize + _axisTop
-                ? _outsideWidgetElementSize + _axisTop - thickness
-                : 0;
+            final double positionY =
+                thickness < _outsideWidgetElementSize + _axisTop
+                    ? _outsideWidgetElementSize + _axisTop - thickness
+                    : 0;
             _pointY = positionY + (_actualSizeDelta! / 2);
             break;
           case LinearElementPosition.cross:
@@ -766,15 +772,16 @@ class RenderLinearGauge extends RenderBox
   /// Position the bar pointers.
   void _positionBarPointers() {
     if (_barPointers.isNotEmpty) {
-      for (final barPointer in _barPointers) {
+      for (final RenderLinearBarPointer barPointer in _barPointers) {
         _pointX = axis!.valueToPixel(axis!.minimum).abs();
 
-        final barWidth = _isHorizontalOrientation
+        final double barWidth = _isHorizontalOrientation
             ? barPointer.size.width
             : barPointer.size.height;
 
-        final position = LinearGaugeHelper.getEffectiveElementPosition(
-            barPointer.position, axis!.isMirrored);
+        final LinearElementPosition position =
+            LinearGaugeHelper.getEffectiveElementPosition(
+                barPointer.position, axis!.isMirrored);
 
         switch (position) {
           case LinearElementPosition.inside:
@@ -810,15 +817,13 @@ class RenderLinearGauge extends RenderBox
   /// Position the marker pointers.
   void _positionMarkerPointers() {
     if (_markerPointers.isNotEmpty) {
-      for (final dynamic pointer in _markerPointers) {
-        _updatePointerPositionOnDrag(pointer);
-      }
+      _markerPointers.forEach(_updatePointerPositionOnDrag);
     }
   }
 
   void _addPointerAnimationListeners() {
     if (_pointerAnimations.isNotEmpty) {
-      for (final animation in _pointerAnimations) {
+      for (final Animation<double> animation in _pointerAnimations) {
         animation.addListener(_updatePointerPosition);
       }
     }
@@ -826,7 +831,7 @@ class RenderLinearGauge extends RenderBox
 
   void _removePointerAnimationListeners() {
     if (_pointerAnimations.isNotEmpty) {
-      for (final animation in _pointerAnimations) {
+      for (final Animation<double> animation in _pointerAnimations) {
         animation.removeListener(_updatePointerPosition);
       }
     }
@@ -865,10 +870,10 @@ class RenderLinearGauge extends RenderBox
 
   @override
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
-    final isHit = super.defaultHitTestChildren(result, position: position);
+    final bool isHit = super.defaultHitTestChildren(result, position: position);
 
     if (isHit && !_restrictHitTestPointerChange) {
-      final child = result.path.last.target;
+      final HitTestTarget child = result.path.last.target;
 
       if (child is RenderLinearShapePointer ||
           child is RenderLinearWidgetPointer) {
@@ -901,7 +906,7 @@ class RenderLinearGauge extends RenderBox
 
   /// Handles the drag update callback.
   void _handleDragUpdate(DragUpdateDetails details) {
-    final _currentValue = _getValueFromPosition(details.localPosition);
+    final double _currentValue = _getValueFromPosition(details.localPosition);
     if (_markerRenderObject.onValueChanged != null &&
         _markerRenderObject.value != _currentValue) {
       _markerRenderObject.oldValue = _currentValue;
@@ -934,7 +939,7 @@ class RenderLinearGauge extends RenderBox
   void paint(PaintingContext context, Offset offset) {
     context.pushClipRect(
         needsCompositing, offset, Rect.fromLTWH(0, 0, size.width, size.height),
-        (context, offset) {
+        (PaintingContext context, Offset offset) {
       defaultPaint(context, offset);
       // There's no point in drawing the children if we're empty.
       if (size.isEmpty) {

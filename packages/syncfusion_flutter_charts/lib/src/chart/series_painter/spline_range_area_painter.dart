@@ -36,6 +36,7 @@ class _SplineRangeAreaChartPainter extends CustomPainter {
     final List<Offset> _points = <Offset>[];
     final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
     final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer!;
+    final _RenderingDetails renderingDetails = chartState._renderingDetails;
     final List<CartesianSeriesRenderer> oldSeriesRenderers =
         chartState._oldSeriesRenderers;
     double? currentPointLowX,
@@ -60,13 +61,11 @@ class _SplineRangeAreaChartPainter extends CustomPainter {
       seriesRenderer._storeSeriesProperties(chartState, seriesIndex);
       final bool isTransposed = chartState._requireInvertedAxis;
       final SplineRangeAreaSeries<dynamic, dynamic> series =
-          seriesRenderer._series as SplineRangeAreaSeries;
+          seriesRenderer._series as SplineRangeAreaSeries<dynamic, dynamic>;
       assert(
           // ignore: unnecessary_null_comparison
-          series.animationDuration != null
-              ? series.animationDuration >= 0
-              : true,
-          'The animation duration of the spline range area series must be greater or equal to 0.');
+          !(series.animationDuration != null) || series.animationDuration >= 0,
+          'The animation duration of the fast line series must be greater or equal to 0.');
       SplineRangeAreaSegment splineRangeAreaSegment;
       final Rect axisClipRect = _calculatePlotOffset(
           chartState._chartAxis._axisClipRect,
@@ -77,7 +76,8 @@ class _SplineRangeAreaChartPainter extends CustomPainter {
           ? seriesRenderer._seriesAnimation!.value
           : 1;
       if (seriesRenderer._reAnimate ||
-          ((!(chartState._widgetNeedUpdate || chartState._isLegendToggled) ||
+          ((!(renderingDetails.widgetNeedUpdate ||
+                      renderingDetails.isLegendToggled) ||
                   !chartState._oldSeriesKeys.contains(series.key)) &&
               series.animationDuration > 0)) {
         _performLinearAnimation(
@@ -104,18 +104,17 @@ class _SplineRangeAreaChartPainter extends CustomPainter {
               pointIndex,
               oldSeriesRenderer,
               oldSeriesRenderers);
-          if (oldChartPoint != null) {
-            oldPointHigh = _calculatePoint(
-                oldChartPoint.xValue,
-                oldChartPoint.high,
-                oldSeriesRenderer!._xAxisRenderer!,
-                oldSeriesRenderer._yAxisRenderer!,
-                isTransposed,
-                series,
-                axisClipRect);
-          } else {
-            oldPointHigh = null;
-          }
+
+          oldPointHigh = (oldChartPoint != null)
+              ? _calculatePoint(
+                  oldChartPoint.xValue,
+                  oldChartPoint.high,
+                  oldSeriesRenderer!._xAxisRenderer!,
+                  oldSeriesRenderer._yAxisRenderer!,
+                  isTransposed,
+                  series,
+                  axisClipRect)
+              : null;
           currentPointLow = _calculatePoint(point.xValue, point.low,
               xAxisRenderer, yAxisRenderer, isTransposed, series, axisClipRect);
           currentPointHigh = _calculatePoint(point.xValue, point.high,
@@ -314,13 +313,17 @@ class _SplineRangeAreaChartPainter extends CustomPainter {
             _strokePath.moveTo(currentPointLowX, currentPointLowY);
             _path.moveTo(currentPointLowX, currentPointLowY);
           } else if (dataPoints[pointIndex].isGap != true) {
-            if (pointIndex + 1 == dataPoints.length - 1 &&
-                dataPoints[pointIndex + 1].isDrop) {
-              _strokePath.moveTo(currentPointLowX, currentPointLowY);
-            } else {
-              _strokePath.cubicTo(endControlX!, endControlY!, startControlX!,
-                  startControlY!, currentPointLowX, currentPointLowY);
-            }
+            (pointIndex + 1 == dataPoints.length - 1 &&
+                    dataPoints[pointIndex + 1].isDrop)
+                ? _strokePath.moveTo(currentPointLowX, currentPointLowY)
+                : _strokePath.cubicTo(
+                    endControlX!,
+                    endControlY!,
+                    startControlX!,
+                    startControlY!,
+                    currentPointLowX,
+                    currentPointLowY);
+
             _path.cubicTo(endControlX!, endControlY!, startControlX!,
                 startControlY!, currentPointLowX, currentPointLowY);
           }
@@ -356,7 +359,7 @@ class _SplineRangeAreaChartPainter extends CustomPainter {
               xAxisRenderer._axis.plotOffset, yAxisRenderer._axis.plotOffset));
       canvas.restore();
       if ((series.animationDuration <= 0 ||
-              (!chartState._initialRender! &&
+              (!renderingDetails.initialRender! &&
                   !seriesRenderer._needAnimateSeriesElements) ||
               animationFactor >= chartState._seriesDurationFactor) &&
           (series.markerSettings.isVisible ||

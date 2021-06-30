@@ -1,14 +1,26 @@
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_core/core.dart';
+import 'package:syncfusion_flutter_core/legend_internal.dart';
 
 import '../treemap.dart';
 
-enum _MapLegendType { vector, bar }
+/// Specifies the legend type.
+enum _LegendType {
+  /// Vector type.
+  vector,
+
+  /// Bar type.
+  bar,
+}
+
+/// Signature to return a [Widget] for the given value.
+typedef TreemapLegendPointerBuilder = Widget Function(
+    BuildContext context, dynamic value);
 
 /// Positions the legend in the different directions.
 enum TreemapLegendPosition {
@@ -120,7 +132,7 @@ enum TreemapLegendPaintingStyle {
 /// to the tree map.
 ///
 /// ```dart
-/// List<SocialMediaUsers> _source;
+/// late List<SocialMediaUsers> _source;
 ///
 /// @override
 /// void initState() {
@@ -171,7 +183,7 @@ enum TreemapLegendPaintingStyle {
 /// to the tree map.
 ///
 /// ```dart
-/// List<SocialMediaUsers> _source;
+/// late List<SocialMediaUsers> _source;
 ///
 /// @override
 /// void initState() {
@@ -229,7 +241,7 @@ class TreemapLegend extends DiagnosticableTree {
   ///
   /// By default, legend will not be shown.
   ///
-  /// If [SfTreemap.colorMappers] is null, then the legend items's icon color
+  /// If [SfTreemap.colorMappers] is null, then the legend item's icon color
   /// and legend item's text applied based on the value of [TreemapLevel.color]
   /// and the [TreemapLevel.groupMapper] properties of first [TreemapLevel]
   /// added in the [SfTreemap.levels] collection respectively.
@@ -250,7 +262,7 @@ class TreemapLegend extends DiagnosticableTree {
   /// the tree map.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _source;
+  /// late List<SocialMediaUsers> _source;
   ///
   /// @override
   /// void initState() {
@@ -308,16 +320,18 @@ class TreemapLegend extends DiagnosticableTree {
     this.padding = const EdgeInsets.all(10.0),
     this.spacing = 10.0,
     this.textStyle,
-    TreemapIconType iconType = TreemapIconType.circle,
-    Size iconSize = const Size(8.0, 8.0),
-  })  : _legendType = _MapLegendType.vector,
-        _iconType = iconType,
-        _iconSize = iconSize,
-        _segmentSize = null,
-        _labelsPlacement = null,
-        _edgeLabelsPlacement = null,
-        _labelOverflow = null,
-        _segmentPaintingStyle = null,
+    this.iconType = TreemapIconType.circle,
+    this.iconSize = const Size(8.0, 8.0),
+  })  : _type = _LegendType.vector,
+        segmentSize = null,
+        labelsPlacement = null,
+        edgeLabelsPlacement = TreemapLegendEdgeLabelsPlacement.inside,
+        labelOverflow = TreemapLabelOverflow.visible,
+        segmentPaintingStyle = TreemapLegendPaintingStyle.solid,
+        showPointerOnHover = false,
+        pointerBuilder = null,
+        pointerColor = null,
+        pointerSize = const Size(16, 12),
         assert(spacing >= 0);
 
   /// Creates a bar type legend for the tree map.
@@ -349,9 +363,10 @@ class TreemapLegend extends DiagnosticableTree {
   /// * labelOverflow - Option to trim or remove the legend item's text when
   /// it is overflowed. Defaults to [TreemapLabelOverflow.hide].
   ///
-  /// List<SocialMediaUsers> _source;
-  ///
   /// ```dart
+  /// late List<SocialMediaUsers> _source;
+  /// late List<TreemapColorMapper> _colorMappers;
+  ///
   /// @override
   /// void initState() {
   ///   _source = <SocialMediaUsers>[
@@ -361,6 +376,14 @@ class TreemapLegend extends DiagnosticableTree {
   ///     SocialMediaUsers('USA', 'Instagram', 120),
   ///     SocialMediaUsers('Japan', 'Twitter', 48),
   ///     SocialMediaUsers('Japan', 'Instagram', 31),
+  ///   ];
+  ///   _colorMappers = <TreemapColorMapper>[
+  ///     TreemapColorMapper.range(
+  ///         from: 0, to: 10, color: Colors.red, name: '10'),
+  ///     TreemapColorMapper.range(
+  ///         from: 11, to: 20, color: Colors.green, name: '20'),
+  ///     TreemapColorMapper.range(
+  ///         from: 21, to: 30, color: Colors.blue, name: '30'),
   ///   ];
   ///   super.initState();
   /// }
@@ -381,26 +404,7 @@ class TreemapLegend extends DiagnosticableTree {
   ///         ),
   ///       ],
   ///       legend: TreemapLegend(),
-  ///       colorMappers: [
-  ///         TreemapColorMapper.range(
-  ///            0,
-  ///            10,
-  ///            Colors.red,
-  ///            name: '10',
-  ///         ),
-  ///         TreemapColorMapper.range(
-  ///            11,
-  ///            20,
-  ///            Colors.green,
-  ///            name: '20',
-  ///         ),
-  ///         TreemapColorMapper.range(
-  ///            21,
-  ///            30,
-  ///            Colors.blue,
-  ///            name: '30',
-  ///         ),
-  ///       ],
+  ///       colorMappers: _colorMappers,
   ///     ),
   ///   );
   /// }
@@ -429,21 +433,18 @@ class TreemapLegend extends DiagnosticableTree {
     this.spacing = 2.0,
     this.textStyle,
     this.direction,
-    Size? segmentSize,
-    TreemapLegendLabelsPlacement? labelsPlacement,
-    TreemapLegendEdgeLabelsPlacement edgeLabelsPlacement =
-        TreemapLegendEdgeLabelsPlacement.inside,
-    TreemapLabelOverflow labelOverflow = TreemapLabelOverflow.visible,
-    TreemapLegendPaintingStyle segmentPaintingStyle =
-        TreemapLegendPaintingStyle.solid,
-  })  : _legendType = _MapLegendType.bar,
-        _labelsPlacement = labelsPlacement,
-        _edgeLabelsPlacement = edgeLabelsPlacement,
-        _labelOverflow = labelOverflow,
-        _segmentPaintingStyle = segmentPaintingStyle,
-        _segmentSize = segmentSize,
-        _iconType = null,
-        _iconSize = null,
+    this.segmentSize,
+    this.labelsPlacement,
+    this.edgeLabelsPlacement = TreemapLegendEdgeLabelsPlacement.inside,
+    this.labelOverflow = TreemapLabelOverflow.visible,
+    this.segmentPaintingStyle = TreemapLegendPaintingStyle.solid,
+    this.showPointerOnHover = false,
+    this.pointerBuilder,
+    this.pointerColor,
+    this.pointerSize = const Size(16, 12),
+  })  : _type = _LegendType.bar,
+        iconType = TreemapIconType.circle,
+        iconSize = const Size(8.0, 8.0),
         assert(spacing >= 0);
 
   /// Enables a title for the legends to provide a small note about the legends.
@@ -451,7 +452,7 @@ class TreemapLegend extends DiagnosticableTree {
   /// Defaults to `null`.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _source;
+  /// late List<SocialMediaUsers> _source;
   ///
   /// @override
   /// void initState() {
@@ -488,13 +489,15 @@ class TreemapLegend extends DiagnosticableTree {
   ///   );
   /// }
   ///
-  /// class Population {
-  ///   const Population(this.continent, this.country,
-  ///               this.populationInMillions);
-  ///
+  /// class SocialMediaUsers {
+  ///   const SocialMediaUsers(
+  ///     this.country,
+  ///     this.socialMedia,
+  ///     this.usersInMillions,
+  ///   );
   ///   final String country;
-  ///   final String continent;
-  ///   final double populationInMillions;
+  ///   final String socialMedia;
+  ///   final double usersInMillions;
   /// }
   /// ```
   final Widget? title;
@@ -504,7 +507,7 @@ class TreemapLegend extends DiagnosticableTree {
   /// Defaults to EdgeInsets.all(10.0).
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _source;
+  /// late List<SocialMediaUsers> _source;
   ///
   /// @override
   /// void initState() {
@@ -541,13 +544,15 @@ class TreemapLegend extends DiagnosticableTree {
   ///   );
   /// }
   ///
-  /// class Population {
-  ///   const Population(this.continent, this.country,
-  ///               this.populationInMillions);
-  ///
+  /// class SocialMediaUsers {
+  ///   const SocialMediaUsers(
+  ///     this.country,
+  ///     this.socialMedia,
+  ///     this.usersInMillions,
+  ///   );
   ///   final String country;
-  ///   final String continent;
-  ///   final double populationInMillions;
+  ///   final String socialMedia;
+  ///   final double usersInMillions;
   /// }
   /// ```
   final EdgeInsetsGeometry? padding;
@@ -558,7 +563,7 @@ class TreemapLegend extends DiagnosticableTree {
   /// Defaults to vertical, if the [position] is left or right.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _source;
+  /// late List<SocialMediaUsers> _source;
   ///
   /// @override
   /// void initState() {
@@ -595,13 +600,15 @@ class TreemapLegend extends DiagnosticableTree {
   ///   );
   /// }
   ///
-  /// class Population {
-  ///   const Population(this.continent, this.country,
-  ///               this.populationInMillions);
-  ///
+  /// class SocialMediaUsers {
+  ///   const SocialMediaUsers(
+  ///     this.country,
+  ///     this.socialMedia,
+  ///     this.usersInMillions,
+  ///   );
   ///   final String country;
-  ///   final String continent;
-  ///   final double populationInMillions;
+  ///   final String socialMedia;
+  ///   final double usersInMillions;
   /// }
   /// ```
   ///
@@ -614,7 +621,7 @@ class TreemapLegend extends DiagnosticableTree {
   /// Defaults to [TreemapLegendPosition.top].
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _source;
+  /// late List<SocialMediaUsers> _source;
   ///
   /// @override
   /// void initState() {
@@ -652,13 +659,14 @@ class TreemapLegend extends DiagnosticableTree {
   /// }
   ///
   /// class SocialMediaUsers {
-  /// class Population {
-  ///   const Population(this.continent, this.country,
-  ///               this.populationInMillions);
-  ///
+  ///   const SocialMediaUsers(
+  ///     this.country,
+  ///     this.socialMedia,
+  ///     this.usersInMillions,
+  ///   );
   ///   final String country;
-  ///   final String continent;
-  ///   final double populationInMillions;
+  ///   final String socialMedia;
+  ///   final double usersInMillions;
   /// }
   /// ```
   /// See also:
@@ -673,7 +681,7 @@ class TreemapLegend extends DiagnosticableTree {
   /// it and will be drawn on the top of map.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _source;
+  /// late List<SocialMediaUsers> _source;
   ///
   /// @override
   /// void initState() {
@@ -710,13 +718,15 @@ class TreemapLegend extends DiagnosticableTree {
   ///   );
   /// }
   ///
-  /// class Population {
-  ///   const Population(this.continent, this.country,
-  ///               this.populationInMillions);
-  ///
+  /// class SocialMediaUsers {
+  ///   const SocialMediaUsers(
+  ///     this.country,
+  ///     this.socialMedia,
+  ///     this.usersInMillions,
+  ///   );
   ///   final String country;
-  ///   final String continent;
-  ///   final double populationInMillions;
+  ///   final String socialMedia;
+  ///   final double usersInMillions;
   /// }
   /// ```
   ///
@@ -729,7 +739,7 @@ class TreemapLegend extends DiagnosticableTree {
   /// Defaults to 10.0 for default legend and 2.0 for bar legend.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _source;
+  /// late List<SocialMediaUsers> _source;
   ///
   /// @override
   /// void initState() {
@@ -766,13 +776,15 @@ class TreemapLegend extends DiagnosticableTree {
   ///   );
   /// }
   ///
-  /// class Population {
-  ///   const Population(this.continent, this.country,
-  ///               this.populationInMillions);
-  ///
+  /// class SocialMediaUsers {
+  ///   const SocialMediaUsers(
+  ///     this.country,
+  ///     this.socialMedia,
+  ///     this.usersInMillions,
+  ///   );
   ///   final String country;
-  ///   final String continent;
-  ///   final double populationInMillions;
+  ///   final String socialMedia;
+  ///   final double usersInMillions;
   /// }
   /// ```
   final double spacing;
@@ -780,7 +792,7 @@ class TreemapLegend extends DiagnosticableTree {
   /// Customizes the legend item's text style.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _source;
+  /// late List<SocialMediaUsers> _source;
   ///
   /// @override
   /// void initState() {
@@ -821,13 +833,15 @@ class TreemapLegend extends DiagnosticableTree {
   ///   );
   /// }
   ///
-  /// class Population {
-  ///   const Population(this.continent, this.country,
-  ///               this.populationInMillions);
-  ///
+  /// class SocialMediaUsers {
+  ///   const SocialMediaUsers(
+  ///     this.country,
+  ///     this.socialMedia,
+  ///     this.usersInMillions,
+  ///   );
   ///   final String country;
-  ///   final String continent;
-  ///   final double populationInMillions;
+  ///   final String socialMedia;
+  ///   final double usersInMillions;
   /// }
   /// ```
   final TextStyle? textStyle;
@@ -844,7 +858,7 @@ class TreemapLegend extends DiagnosticableTree {
   /// [TreemapLegendOverflowMode.scroll] for bar legend.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _source;
+  /// late List<SocialMediaUsers> _source;
   ///
   /// @override
   /// void initState() {
@@ -881,13 +895,15 @@ class TreemapLegend extends DiagnosticableTree {
   ///   );
   /// }
   ///
-  /// class Population {
-  ///   const Population(this.continent, this.country,
-  ///               this.populationInMillions);
-  ///
+  /// class SocialMediaUsers {
+  ///   const SocialMediaUsers(
+  ///     this.country,
+  ///     this.socialMedia,
+  ///     this.usersInMillions,
+  ///   );
   ///   final String country;
-  ///   final String continent;
-  ///   final double populationInMillions;
+  ///   final String socialMedia;
+  ///   final double usersInMillions;
   /// }
   /// ```
   ///
@@ -901,67 +917,9 @@ class TreemapLegend extends DiagnosticableTree {
   /// Defaults to [TreemapIconType.circle].
   ///
   /// ```dart
-  ///  List<Population> _source;
+  ///  late List<SocialMediaUsers> _source;
   ///
-  ///   @override
-  ///   void initState() {
-  ///     _source = <Population>[
-  ///       Population('Asia', 'Thailand', 7.54),
-  ///       Population('Africa', 'South Africa', 25.4),
-  ///       Population('North America', 'Canada', 13.3),
-  ///       Population('South America', 'Chile', 19.11),
-  ///       Population('Australia', 'New Zealand', 4.93),
-  ///       Population('Europe', 'Czech Republic', 10.65),
-  ///     ];
-  ///     super.initState();
-  ///   }
-  ///
-  ///   @override
-  ///   Widget build(BuildContext context) {
-  ///    return Scaffold(
-  ///       appBar: AppBar(title: Text('Treemap legend')),
-  ///       body: SfTreemap.dice(
-  ///         dataCount: _source.length,
-  ///         weightValueMapper: (int index) {
-  ///           return _source[index].populationInMillions;
-  ///         },
-  ///         levels: [
-  ///           TreemapLevel(
-  //             padding: EdgeInsets.only(left: 2.5, right: 2.5),
-  ///             groupMapper: (int index) {
-  ///               return _source[index].continent;
-  ///            },
-  ///             color: Colors.teal,
-  ///           ),
-  ///         ],
-  ///         legend: TreemapLegend(
-  ///           iconType: TreemapIconType.diamond,
-  ///         ),
-  ///       ),
-  ///     );
-  ///   }
-  ///
-  /// class Population {
-  ///   const Population(this.continent, this.country,
-  ///               this.populationInMillions);
-  ///
-  ///   final String country;
-  ///   final String continent;
-  ///   final double populationInMillions;
-  /// }
-  /// ```
-  ///
-  /// See also:
-  /// * [iconSize], to set the size of the icon.
-  final TreemapIconType? _iconType;
-
-  /// Customizes the size of the bar segments.
-  ///
-  /// Defaults to Size(80.0, 12.0).
-  ///
-  /// ```dart
-  /// List<SocialMediaUsers> _source;
-  ///  /// @override
+  /// @override
   /// void initState() {
   ///   _source = <SocialMediaUsers>[
   ///     SocialMediaUsers('India', 'Facebook', 280),
@@ -973,7 +931,78 @@ class TreemapLegend extends DiagnosticableTree {
   ///   ];
   ///   super.initState();
   /// }
-  ///  /// @override
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///       appBar: AppBar(title: Text('Treemap legend')),
+  ///       body: SfTreemap.dice(
+  ///         dataCount: _source.length,
+  ///         weightValueMapper: (int index) {
+  ///           return _source[index].usersInMillions;
+  ///         },
+  ///         levels: [
+  ///           TreemapLevel(
+  ///             padding: EdgeInsets.only(left: 2.5, right: 2.5),
+  ///             groupMapper: (int index) {
+  ///               return _source[index].country;
+  ///            },
+  ///             color: Colors.teal,
+  ///           ),
+  ///         ],
+  ///         legend: TreemapLegend(
+  ///           iconType: TreemapIconType.diamond,
+  ///         ),
+  ///       ),
+  ///     );
+  ///   }
+  ///
+  /// class SocialMediaUsers {
+  ///   const SocialMediaUsers(
+  ///     this.country,
+  ///     this.socialMedia,
+  ///     this.usersInMillions,
+  ///   );
+  ///   final String country;
+  ///   final String socialMedia;
+  ///   final double usersInMillions;
+  /// }
+  /// ```
+  ///
+  /// See also:
+  /// * [iconSize], to set the size of the icon.
+  final TreemapIconType iconType;
+
+  /// Customizes the size of the bar segments.
+  ///
+  /// Defaults to Size(80.0, 12.0).
+  ///
+  /// ```dart
+  /// late List<SocialMediaUsers> _source;
+  /// late List<TreemapColorMapper> _colorMappers;
+  ///
+  /// @override
+  /// void initState() {
+  ///   _source = <SocialMediaUsers>[
+  ///     SocialMediaUsers('India', 'Facebook', 280),
+  ///     SocialMediaUsers('India', 'Instagram', 88),
+  ///     SocialMediaUsers('USA', 'Facebook', 190),
+  ///     SocialMediaUsers('USA', 'Instagram', 120),
+  ///     SocialMediaUsers('Japan', 'Twitter', 48),
+  ///     SocialMediaUsers('Japan', 'Instagram', 31),
+  ///   ];
+  ///   _colorMappers = <TreemapColorMapper>[
+  ///     TreemapColorMapper.range(
+  ///         from: 0, to: 10, color: Colors.red, name: '10'),
+  ///     TreemapColorMapper.range(
+  ///         from: 11, to: 20, color: Colors.green, name: '20'),
+  ///     TreemapColorMapper.range(
+  ///         from: 21, to: 30, color: Colors.blue, name: '30'),
+  ///   ];
+  ///   super.initState();
+  /// }
+  ///
+  /// @override
   /// Widget build(BuildContext context) {
   ///   return Scaffold(
   ///     body: SfTreemap(
@@ -988,26 +1017,7 @@ class TreemapLegend extends DiagnosticableTree {
   ///           },
   ///         ),
   ///       ],
-  ///       colorMappers: [
-  ///         TreemapColorMapper.range(
-  ///            0,
-  ///            10,
-  ///            Colors.red,
-  ///            name: '10',
-  ///         ),
-  ///         TreemapColorMapper.range(
-  ///            11,
-  ///            20,
-  ///            Colors.green,
-  ///            name: '20',
-  ///         ),
-  ///         TreemapColorMapper.range(
-  ///            21,
-  ///            30,
-  ///            Colors.blue,
-  ///            name: '30',
-  ///         ),
-  ///       ],
+  ///       colorMappers: _colorMappers,
   ///       legend: TreemapLegend.bar(
   ///         segmentSize: Size(60, 18),
   ///       ),
@@ -1015,23 +1025,25 @@ class TreemapLegend extends DiagnosticableTree {
   ///   );
   /// }
   ///
-  /// class Population {
-  ///   const Population(this.continent, this.country,
-  ///               this.populationInMillions);
-  ///
+  /// class SocialMediaUsers {
+  ///   const SocialMediaUsers(
+  ///     this.country,
+  ///     this.socialMedia,
+  ///     this.usersInMillions,
+  ///   );
   ///   final String country;
-  ///   final String continent;
-  ///   final double populationInMillions;
+  ///   final String socialMedia;
+  ///   final double usersInMillions;
   /// }
   /// ```
-  final Size? _segmentSize;
+  final Size? segmentSize;
 
   /// Customizes the size of the icon.
   ///
   /// Defaults to Size(12.0, 12.0).
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _source;
+  /// late List<SocialMediaUsers> _source;
   ///
   /// @override
   /// void initState() {
@@ -1068,19 +1080,21 @@ class TreemapLegend extends DiagnosticableTree {
   ///   );
   /// }
   ///
-  /// class Population {
-  ///   const Population(this.continent, this.country,
-  ///               this.populationInMillions);
-  ///
+  /// class SocialMediaUsers {
+  ///   const SocialMediaUsers(
+  ///     this.country,
+  ///     this.socialMedia,
+  ///     this.usersInMillions,
+  ///   );
   ///   final String country;
-  ///   final String continent;
-  ///   final double populationInMillions;
+  ///   final String socialMedia;
+  ///   final double usersInMillions;
   /// }
   /// ```
   ///
   /// See also:
   /// * [iconType], to set shape of the default legend icon.
-  final Size? _iconSize;
+  final Size iconSize;
 
   /// Place the labels either between the segments or on the segments.
   ///
@@ -1092,7 +1106,8 @@ class TreemapLegend extends DiagnosticableTree {
   /// This snippet shows how to set label placement in [SfTreemap].
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _source;
+  /// late List<SocialMediaUsers> _source;
+  /// late List<TreemapColorMapper> _colorMappers;
   ///
   /// @override
   /// void initState() {
@@ -1103,6 +1118,14 @@ class TreemapLegend extends DiagnosticableTree {
   ///     SocialMediaUsers('USA', 'Instagram', 120),
   ///     SocialMediaUsers('Japan', 'Twitter', 48),
   ///     SocialMediaUsers('Japan', 'Instagram', 31),
+  ///   ];
+  ///   _colorMappers = <TreemapColorMapper>[
+  ///     TreemapColorMapper.range(
+  ///         from: 0, to: 10, color: Colors.red, name: '10'),
+  ///     TreemapColorMapper.range(
+  ///         from: 11, to: 20, color: Colors.green, name: '20'),
+  ///     TreemapColorMapper.range(
+  ///         from: 21, to: 30, color: Colors.blue, name: '30'),
   ///   ];
   ///   super.initState();
   /// }
@@ -1122,26 +1145,7 @@ class TreemapLegend extends DiagnosticableTree {
   ///           },
   ///         ),
   ///       ],
-  ///       colorMappers: [
-  ///         TreemapColorMapper.range(
-  ///            0,
-  ///            10,
-  ///            Colors.red,
-  ///            name: '10',
-  ///         ),
-  ///         TreemapColorMapper.range(
-  ///            11,
-  ///            20,
-  ///            Colors.green,
-  ///            name: '20',
-  ///         ),
-  ///         TreemapColorMapper.range(
-  ///            21,
-  ///            30,
-  ///            Colors.blue,
-  ///            name: '30',
-  ///         ),
-  ///       ],
+  ///       colorMappers: _colorMappers,
   ///       legend: TreemapLegend.bar(
   ///         labelsPlacement: TreemapLegendLabelsPlacement.onItem,
   ///       ),
@@ -1149,13 +1153,15 @@ class TreemapLegend extends DiagnosticableTree {
   ///   );
   /// }
   ///
-  /// class Population {
-  ///   const Population(this.continent, this.country,
-  ///               this.populationInMillions);
-  ///
+  /// class SocialMediaUsers {
+  ///   const SocialMediaUsers(
+  ///     this.country,
+  ///     this.socialMedia,
+  ///     this.usersInMillions,
+  ///   );
   ///   final String country;
-  ///   final String continent;
-  ///   final double populationInMillions;
+  ///   final String socialMedia;
+  ///   final double usersInMillions;
   /// }
   /// ```
   ///
@@ -1165,7 +1171,7 @@ class TreemapLegend extends DiagnosticableTree {
   ///
   /// * [labelOverflow], to trims or removes the legend text
   /// when it is overflowed from the bar legend.
-  final TreemapLegendLabelsPlacement? _labelsPlacement;
+  final TreemapLegendLabelsPlacement? labelsPlacement;
 
   /// Place the edge labels either inside or outside of the bar legend.
   ///
@@ -1177,7 +1183,8 @@ class TreemapLegend extends DiagnosticableTree {
   /// This snippet shows how to set edge label placement in [SfTreemap].
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _source;
+  /// late List<SocialMediaUsers> _source;
+  /// late List<TreemapColorMapper> _colorMappers;
   ///
   /// @override
   /// void initState() {
@@ -1188,6 +1195,14 @@ class TreemapLegend extends DiagnosticableTree {
   ///     SocialMediaUsers('USA', 'Instagram', 120),
   ///     SocialMediaUsers('Japan', 'Twitter', 48),
   ///     SocialMediaUsers('Japan', 'Instagram', 31),
+  ///   ];
+  ///   _colorMappers = <TreemapColorMapper>[
+  ///     TreemapColorMapper.range(
+  ///         from: 0, to: 10, color: Colors.red, name: '10'),
+  ///     TreemapColorMapper.range(
+  ///         from: 11, to: 20, color: Colors.green, name: '20'),
+  ///     TreemapColorMapper.range(
+  ///         from: 21, to: 30, color: Colors.blue, name: '30'),
   ///   ];
   ///   super.initState();
   /// }
@@ -1207,26 +1222,7 @@ class TreemapLegend extends DiagnosticableTree {
   ///           },
   ///         ),
   ///       ],
-  ///       colorMappers: [
-  ///         TreemapColorMapper.range(
-  ///            0,
-  ///            10,
-  ///            Colors.red,
-  ///            name: '10',
-  ///         ),
-  ///         TreemapColorMapper.range(
-  ///            11,
-  ///            20,
-  ///            Colors.green,
-  ///            name: '20',
-  ///         ),
-  ///         TreemapColorMapper.range(
-  ///            21,
-  ///            30,
-  ///            Colors.blue,
-  ///            name: '30',
-  ///         ),
-  ///       ],
+  ///       colorMappers: _colorMappers,
   ///       legend: TreemapLegend.bar(
   ///         edgeLabelsPlacement: TreemapLegendEdgeLabelsPlacement.center,
   ///       ),
@@ -1234,13 +1230,15 @@ class TreemapLegend extends DiagnosticableTree {
   ///   );
   /// }
   ///
-  /// class Population {
-  ///   const Population(this.continent, this.country,
-  ///               this.populationInMillions);
-  ///
+  /// class SocialMediaUsers {
+  ///   const SocialMediaUsers(
+  ///     this.country,
+  ///     this.socialMedia,
+  ///     this.usersInMillions,
+  ///   );
   ///   final String country;
-  ///   final String continent;
-  ///   final double populationInMillions;
+  ///   final String socialMedia;
+  ///   final double usersInMillions;
   /// }
   /// ```
   ///
@@ -1249,7 +1247,7 @@ class TreemapLegend extends DiagnosticableTree {
   /// on the segments.
   /// * [labelOverflow], to trims or removes the legend text
   /// when it is overflowed from the bar legend.
-  final TreemapLegendEdgeLabelsPlacement? _edgeLabelsPlacement;
+  final TreemapLegendEdgeLabelsPlacement edgeLabelsPlacement;
 
   /// Trims or removes the legend text when it is overflowed from the
   /// bar legend.
@@ -1264,7 +1262,8 @@ class TreemapLegend extends DiagnosticableTree {
   ///  in [SfTreemap].
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _source;
+  /// late List<SocialMediaUsers> _source;
+  /// late List<TreemapColorMapper> _colorMappers;
   ///
   /// @override
   /// void initState() {
@@ -1275,6 +1274,14 @@ class TreemapLegend extends DiagnosticableTree {
   ///     SocialMediaUsers('USA', 'Instagram', 120),
   ///     SocialMediaUsers('Japan', 'Twitter', 48),
   ///     SocialMediaUsers('Japan', 'Instagram', 31),
+  ///   ];
+  ///   _colorMappers = <TreemapColorMapper>[
+  ///     TreemapColorMapper.range(
+  ///         from: 0, to: 10, color: Colors.red, name: '10'),
+  ///     TreemapColorMapper.range(
+  ///         from: 11, to: 20, color: Colors.green, name: '20'),
+  ///     TreemapColorMapper.range(
+  ///         from: 21, to: 30, color: Colors.blue, name: '30'),
   ///   ];
   ///   super.initState();
   /// }
@@ -1294,26 +1301,7 @@ class TreemapLegend extends DiagnosticableTree {
   ///           },
   ///         ),
   ///       ],
-  ///       colorMappers: [
-  ///         TreemapColorMapper.range(
-  ///            0,
-  ///            10,
-  ///            Colors.red,
-  ///            name: '10',
-  ///         ),
-  ///         TreemapColorMapper.range(
-  ///            11,
-  ///            20,
-  ///            Colors.green,
-  ///            name: '20',
-  ///         ),
-  ///         TreemapColorMapper.range(
-  ///            21,
-  ///            30,
-  ///            Colors.blue,
-  ///            name: '30',
-  ///         ),
-  ///       ],
+  ///       colorMappers: _colorMappers,
   ///       legend: TreemapLegend.bar(
   ///         labelOverflow: TreemapLabelOverflow.ellipsis,
   ///       ),
@@ -1321,13 +1309,15 @@ class TreemapLegend extends DiagnosticableTree {
   ///   );
   /// }
   ///
-  /// class Population {
-  ///   const Population(this.continent, this.country,
-  ///               this.populationInMillions);
-  ///
+  /// class SocialMediaUsers {
+  ///   const SocialMediaUsers(
+  ///     this.country,
+  ///     this.socialMedia,
+  ///     this.usersInMillions,
+  ///   );
   ///   final String country;
-  ///   final String continent;
-  ///   final double populationInMillions;
+  ///   final String socialMedia;
+  ///   final double usersInMillions;
   /// }
   /// ```
   ///
@@ -1336,15 +1326,13 @@ class TreemapLegend extends DiagnosticableTree {
   /// on the segments.
   /// * [edgeLabelsPlacement], to place the edge labels either inside or
   /// outside of the bar legend.
-  final TreemapLabelOverflow? _labelOverflow;
-
-  /// Specifies the type of the legend.
-  final _MapLegendType _legendType;
+  final TreemapLabelOverflow labelOverflow;
 
   /// Applies gradient or solid color for the bar segments.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _source;
+  /// late List<SocialMediaUsers> _source;
+  /// late List<TreemapColorMapper> _colorMappers;
   ///
   /// @override
   /// void initState() {
@@ -1355,6 +1343,14 @@ class TreemapLegend extends DiagnosticableTree {
   ///     SocialMediaUsers('USA', 'Instagram', 120),
   ///     SocialMediaUsers('Japan', 'Twitter', 48),
   ///     SocialMediaUsers('Japan', 'Instagram', 31),
+  ///   ];
+  ///   _colorMappers = <TreemapColorMapper>[
+  ///     TreemapColorMapper.range(
+  ///         from: 0, to: 10, color: Colors.red, name: '10'),
+  ///     TreemapColorMapper.range(
+  ///         from: 11, to: 20, color: Colors.green, name: '20'),
+  ///     TreemapColorMapper.range(
+  ///         from: 21, to: 30, color: Colors.blue, name: '30'),
   ///   ];
   ///   super.initState();
   /// }
@@ -1374,26 +1370,7 @@ class TreemapLegend extends DiagnosticableTree {
   ///           },
   ///         ),
   ///       ],
-  ///       colorMappers: [
-  ///         TreemapColorMapper.range(
-  ///            0,
-  ///            10,
-  ///            Colors.red,
-  ///            name: '10',
-  ///         ),
-  ///         TreemapColorMapper.range(
-  ///            11,
-  ///            20,
-  ///            Colors.green,
-  ///            name: '20',
-  ///         ),
-  ///         TreemapColorMapper.range(
-  ///            21,
-  ///            30,
-  ///            Colors.blue,
-  ///            name: '30',
-  ///         ),
-  ///       ],
+  ///       colorMappers: _colorMappers,
   ///       legend: TreemapLegend.bar(
   ///         segmentPaintingStyle: TreemapLegendPaintingStyle.gradient,
   ///       ),
@@ -1401,13 +1378,15 @@ class TreemapLegend extends DiagnosticableTree {
   ///   );
   /// }
   ///
-  /// class Population {
-  ///   const Population(this.continent, this.country,
-  ///               this.populationInMillions);
-  ///
+  /// class SocialMediaUsers {
+  ///   const SocialMediaUsers(
+  ///     this.country,
+  ///     this.socialMedia,
+  ///     this.usersInMillions,
+  ///   );
   ///   final String country;
-  ///   final String continent;
-  ///   final double populationInMillions;
+  ///   final String socialMedia;
+  ///   final double usersInMillions;
   /// }
   /// ```
   ///
@@ -1418,7 +1397,30 @@ class TreemapLegend extends DiagnosticableTree {
   /// when it is overflowed from the bar legend.
   /// * [edgeLabelsPlacement], to place the edge labels either inside or
   /// outside of the bar legend.
-  final TreemapLegendPaintingStyle? _segmentPaintingStyle;
+  final TreemapLegendPaintingStyle segmentPaintingStyle;
+
+  /// Specifies whether the pointer should be shown while hovering
+  /// on the [TreemapLegend] segments.
+  final bool showPointerOnHover;
+
+  /// Returns a widget for the given value.
+  ///
+  /// The pointer is used to indicate the exact colour of the hovering
+  /// shape or bubble on the segment.
+  ///
+  /// The [pointerBuilder] will be called when the user interacts with the
+  /// shapes or bubbles i.e., while tapping in touch devices and hovering in
+  ///  the mouse enabled devices.
+  final TreemapLegendPointerBuilder? pointerBuilder;
+
+  /// Customizes the size of the pointer.
+  final Size pointerSize;
+
+  /// Customizes the color of the pointer.
+  final Color? pointerColor;
+
+  /// Specifies the type of the legend.
+  final _LegendType _type;
 
   @override
   bool operator ==(Object other) {
@@ -1429,7 +1431,7 @@ class TreemapLegend extends DiagnosticableTree {
       return false;
     }
 
-    if (other is TreemapLegend && other._legendType != _legendType) {
+    if (other is TreemapLegend && other._type != _type) {
       return false;
     }
 
@@ -1451,1417 +1453,268 @@ class TreemapLegend extends DiagnosticableTree {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-
-    properties.add(EnumProperty<_MapLegendType>('legendType', _legendType));
-    properties.add(DiagnosticsProperty<EdgeInsetsGeometry>('padding', padding));
-    properties.add(DiagnosticsProperty<Offset>('offset', offset));
+    properties.add(EnumProperty<_LegendType>('legendType', _type));
+    if (padding != null) {
+      properties
+          .add(DiagnosticsProperty<EdgeInsetsGeometry>('padding', padding));
+    }
+    if (offset != null) {
+      properties.add(DiagnosticsProperty<Offset>('offset', offset));
+    }
     properties.add(DoubleProperty('spacing', spacing));
     if (direction != null) {
       properties.add(EnumProperty<Axis>('direction', direction));
     }
-
     properties.add(
         EnumProperty<TreemapLegendOverflowMode>('overflowMode', overflowMode));
     properties.add(EnumProperty<TreemapLegendPosition>('position', position));
     if (textStyle != null) {
       properties.add(textStyle!.toDiagnosticsNode(name: 'textStyle'));
     }
-
-    if (_legendType == _MapLegendType.vector) {
-      properties.add(DiagnosticsProperty<Size>('iconSize', _iconSize));
-      properties.add(EnumProperty<TreemapIconType>('iconType', _iconType));
+    if (_type == _LegendType.vector) {
+      properties.add(DiagnosticsProperty<Size>('iconSize', iconSize));
+      properties.add(EnumProperty<TreemapIconType>('iconType', iconType));
     } else {
-      properties.add(DiagnosticsProperty<Size>('segmentSize', _segmentSize));
+      if (segmentSize != null) {
+        properties.add(DiagnosticsProperty<Size>('segmentSize', segmentSize));
+      }
       properties.add(EnumProperty<TreemapLegendLabelsPlacement>(
-          'labelsPlacement', _labelsPlacement));
+          'labelsPlacement', labelsPlacement));
       properties.add(EnumProperty<TreemapLegendEdgeLabelsPlacement>(
-          'edgeLabelsPlacement', _edgeLabelsPlacement));
+          'edgeLabelsPlacement', edgeLabelsPlacement));
       properties.add(EnumProperty<TreemapLabelOverflow>(
-          'labelOverflowMode', _labelOverflow));
+          'labelOverflowMode', labelOverflow));
       properties.add(EnumProperty<TreemapLegendPaintingStyle>(
-          'segmentPaintingStyle', _segmentPaintingStyle));
+          'segmentPaintingStyle', segmentPaintingStyle));
     }
   }
 }
 
-/// For rendering the tree map legend based on legend type.
-class LegendWidget extends StatefulWidget {
-  /// Creates a [LegendWidget].
-  LegendWidget({required this.dataSource, required this.settings});
+/// Represents the class for SfLegend.
+class Legend extends StatelessWidget {
+  /// Constructor of [Legend].
+  const Legend({
+    Key? key,
+    this.colorMappers,
+    this.dataSource,
+    required this.legend,
+    required this.controller,
+    required this.child,
+  })  : assert(colorMappers != null || dataSource != null),
+        super(key: key);
 
-  /// map with the respective data in the data source.
-  final dynamic dataSource;
+  /// Collection of [TreemapColorMapper] which specifies treemap color based
+  /// on the data.
+  final List<TreemapColorMapper>? colorMappers;
 
-  /// Customizes the appearance of the the legend.
-  final TreemapLegend settings;
+  /// Internal grouped data.
+  final Map<String, TreemapTile>? dataSource;
 
-  @override
-  _LegendWidgetState createState() => _LegendWidgetState();
-}
+  /// Specifies the legend properties.
+  final TreemapLegend legend;
 
-class _LegendWidgetState extends State<LegendWidget> {
-  late TextStyle _textStyle;
+  /// Specifies the pointer controller.
+  final PointerController controller;
 
-  @override
-  // ignore: missing_return
-  Widget build(BuildContext context) {
-    final ThemeData themeData = Theme.of(context);
-    _textStyle = themeData.textTheme.caption!
-        .copyWith(color: themeData.textTheme.caption!.color!.withOpacity(0.87))
-        .merge(widget.settings.textStyle);
-    if (widget.settings.title == null) {
-      switch (widget.settings.overflowMode) {
-        case TreemapLegendOverflowMode.scroll:
-          return _getScrollableWidget();
-        case TreemapLegendOverflowMode.wrap:
-          return actualChild;
-      }
-    } else {
-      switch (widget.settings.overflowMode) {
-        case TreemapLegendOverflowMode.scroll:
-          if (widget.settings.position == TreemapLegendPosition.top ||
-              widget.settings.position == TreemapLegendPosition.bottom) {
-            return Column(
-              mainAxisAlignment:
-                  widget.settings.position == TreemapLegendPosition.bottom
-                      ? MainAxisAlignment.end
-                      : MainAxisAlignment.start,
-              children: [widget.settings.title!, _getScrollableWidget()],
-            );
-          } else {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                widget.settings.title!,
-                Flexible(fit: FlexFit.loose, child: _getScrollableWidget()),
-              ],
-            );
-          }
-        case TreemapLegendOverflowMode.wrap:
-          if (widget.settings.position == TreemapLegendPosition.top ||
-              widget.settings.position == TreemapLegendPosition.bottom) {
-            return Column(
-              mainAxisAlignment:
-                  widget.settings.position == TreemapLegendPosition.bottom
-                      ? MainAxisAlignment.end
-                      : MainAxisAlignment.start,
-              children: [widget.settings.title!, actualChild],
-            );
-          } else {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                widget.settings.title!,
-                Flexible(fit: FlexFit.loose, child: actualChild)
-              ],
-            );
-          }
-      }
-    }
-  }
+  /// Specifies the child of the legend.
+  final Widget child;
 
-  Widget _getScrollableWidget() {
-    return SingleChildScrollView(
-        scrollDirection:
-            widget.settings.position == TreemapLegendPosition.top ||
-                    widget.settings.position == TreemapLegendPosition.bottom
-                ? Axis.horizontal
-                : Axis.vertical,
-        child: actualChild);
-  }
-
-  Widget get actualChild {
-    if (widget.settings._legendType == _MapLegendType.vector) {
-      final Widget child = Wrap(
-        direction: widget.settings.direction ??
-            (widget.settings.position == TreemapLegendPosition.top ||
-                    widget.settings.position == TreemapLegendPosition.bottom
-                ? Axis.horizontal
-                : Axis.vertical),
-        spacing: widget.settings.spacing,
-        children: _getLegendItems(),
-        runSpacing: 6,
-        runAlignment: WrapAlignment.center,
-        alignment: WrapAlignment.start,
-      );
-
-      if (widget.settings.padding != null) {
-        return Padding(padding: widget.settings.padding!, child: child);
-      }
-
-      return child;
-    } else {
-      if (widget.settings._segmentPaintingStyle ==
-          TreemapLegendPaintingStyle.solid) {
-        return _SolidBarLegend(
-          dataSource: widget.dataSource,
-          settings: widget.settings,
-          textStyle: _textStyle,
-        );
-      } else {
-        return _GradientBarLegend(
-          dataSource: widget.dataSource,
-          settings: widget.settings,
-          textStyle: _textStyle,
-        );
-      }
-    }
-  }
-
-  /// Returns the list of legend items based on the data source.
-  List<Widget> _getLegendItems() {
-    final List<Widget> legendItems = <Widget>[];
-    if (widget.dataSource != null && widget.dataSource.isNotEmpty) {
+  List<LegendItem> _getLegendItems() {
+    final List<LegendItem> items = <LegendItem>[];
+    final TreemapLegendLabelsPlacement labelsPlacement =
+        _getActualLabelsPlacement();
+    if (colorMappers != null) {
       // The legend items calculated based on color mappers.
-      if (widget.dataSource is List) {
-        final int length = widget.dataSource.length;
-        for (int i = 0; i < length; i++) {
-          final TreemapColorMapper colorMapper = widget.dataSource[i];
-          final String text = colorMapper.from != null
-              ? colorMapper.name ?? '${colorMapper.from} - ${colorMapper.to}'
-              : colorMapper.value!;
-          legendItems.add(_getLegendItem(
-            text,
-            colorMapper.color,
-          ));
-        }
-      } else {
-        // The legend items calculated based on the first level
-        // [TreemapLevel.groupMapper] and [TreemapLevel.color] values.
-        widget.dataSource.forEach((String key, TreemapTile treeModel) {
-          legendItems.add(_getLegendItem(
-            treeModel.group,
-            treeModel.color,
-          ));
-        });
-      }
-    }
-
-    return legendItems;
-  }
-
-  /// Returns the legend icon and label.
-  Widget _getLegendItem(String text, Color? color) {
-    return _LegendItem(
-        text: text,
-        iconShapeColor: color,
-        settings: widget.settings,
-        textStyle: _textStyle);
-  }
-}
-
-class _LegendItem extends LeafRenderObjectWidget {
-  const _LegendItem({
-    required this.text,
-    required this.iconShapeColor,
-    required this.settings,
-    required this.textStyle,
-  });
-
-  final String text;
-  final Color? iconShapeColor;
-  final TreemapLegend settings;
-  final TextStyle textStyle;
-
-  @override
-  RenderObject createRenderObject(BuildContext context) {
-    return _RenderLegendItem(
-      text: text,
-      iconShapeColor: iconShapeColor,
-      settings: settings,
-      textStyle: textStyle,
-      mediaQueryData: MediaQuery.of(context),
-    );
-  }
-
-  @override
-  void updateRenderObject(
-      BuildContext context, _RenderLegendItem renderObject) {
-    renderObject
-      ..text = text
-      ..iconShapeColor = iconShapeColor
-      ..settings = settings
-      ..textStyle = textStyle
-      ..mediaQueryData = MediaQuery.of(context);
-  }
-}
-
-class _RenderLegendItem extends RenderBox {
-  _RenderLegendItem({
-    required String text,
-    required Color? iconShapeColor,
-    required TreemapLegend settings,
-    required TextStyle textStyle,
-    required MediaQueryData mediaQueryData,
-  })   : _text = text,
-        _iconShapeColor = iconShapeColor,
-        _settings = settings,
-        _textStyle = textStyle,
-        _mediaQueryData = mediaQueryData {
-    _textPainter = TextPainter(textDirection: TextDirection.ltr);
-    _updateTextPainter();
-  }
-
-  final int _spacing = 3;
-  final _TreemapIconShape _iconShape = const _TreemapIconShape();
-  late TextPainter _textPainter;
-
-  String get text => _text;
-  String _text;
-  set text(String value) {
-    if (_text == value) {
-      return;
-    }
-    _text = value;
-    _updateTextPainter();
-    markNeedsLayout();
-  }
-
-  Color? get iconShapeColor => _iconShapeColor;
-  Color? _iconShapeColor;
-  set iconShapeColor(Color? value) {
-    if (_iconShapeColor == value) {
-      return;
-    }
-    _iconShapeColor = value;
-    markNeedsPaint();
-  }
-
-  TreemapLegend get settings => _settings;
-  TreemapLegend _settings;
-  set settings(TreemapLegend value) {
-    if (_settings == value) {
-      return;
-    }
-    _settings = value;
-    _updateTextPainter();
-    markNeedsLayout();
-  }
-
-  MediaQueryData get mediaQueryData => _mediaQueryData;
-  MediaQueryData _mediaQueryData;
-  set mediaQueryData(MediaQueryData value) {
-    if (_mediaQueryData == value) {
-      return;
-    }
-    _mediaQueryData = value;
-    _updateTextPainter();
-    markNeedsLayout();
-  }
-
-  TextStyle get textStyle => _textStyle;
-  TextStyle _textStyle;
-  set textStyle(TextStyle value) {
-    if (_textStyle == value) {
-      return;
-    }
-    _textStyle = value;
-    markNeedsLayout();
-  }
-
-  void _updateTextPainter() {
-    _textPainter.textScaleFactor = _mediaQueryData.textScaleFactor;
-    _textPainter.text = TextSpan(text: _text, style: textStyle);
-    _textPainter.layout();
-  }
-
-  @override
-  void performLayout() {
-    final double width =
-        _settings._iconSize!.width + _spacing + _textPainter.width;
-    final double height =
-        max(_settings._iconSize!.height, _textPainter.height) + _spacing;
-    size = Size(width, height);
-  }
-
-  @override
-  void paint(PaintingContext context, Offset offset) {
-    Color? iconColor;
-    Offset actualOffset;
-    iconColor = _iconShapeColor;
-    final Size halfIconSize =
-        _iconShape.getPreferredSize(_settings._iconSize!) / 2;
-    actualOffset =
-        offset + Offset(0, (size.height - (halfIconSize.height * 2)) / 2);
-    _iconShape.paint(context, actualOffset,
-        parentBox: this,
-        iconSize: _settings._iconSize!,
-        color: iconColor ?? Colors.transparent,
-        iconType: _settings._iconType!);
-
-    _textPainter.text = TextSpan(
-        style: textStyle.copyWith(color: textStyle.color), text: _text);
-    _textPainter.layout();
-    actualOffset = offset +
-        Offset(_settings._iconSize!.width + _spacing,
-            (size.height - _textPainter.height) / 2);
-    _textPainter.paint(context.canvas, actualOffset);
-  }
-}
-
-class _SolidBarLegend extends StatefulWidget {
-  const _SolidBarLegend(
-      {required this.dataSource,
-      required this.settings,
-      required this.textStyle});
-
-  final dynamic dataSource;
-  final TreemapLegend settings;
-  final TextStyle textStyle;
-
-  @override
-  _SolidBarLegendState createState() => _SolidBarLegendState();
-}
-
-class _SolidBarLegendState extends State<_SolidBarLegend> {
-  late Axis _direction;
-  late TextDirection _textDirection;
-  TreemapLegendLabelsPlacement? _labelsPlacement;
-  late TextPainter _textPainter;
-  bool _isOverlapSegmentText = false;
-  late Size _segmentSize;
-
-  @override
-  void initState() {
-    _textPainter = TextPainter(textDirection: TextDirection.ltr);
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    _segmentSize = widget.settings._segmentSize ?? const Size(80.0, 12.0);
-    _labelsPlacement = widget.settings._labelsPlacement;
-    final TextDirection textDirection = Directionality.of(context);
-    _direction = widget.settings.direction ??
-        (widget.settings.position == TreemapLegendPosition.top ||
-                widget.settings.position == TreemapLegendPosition.bottom
-            ? Axis.horizontal
-            : Axis.vertical);
-    _textDirection = textDirection == TextDirection.ltr
-        ? textDirection
-        : (_direction == Axis.vertical ? TextDirection.ltr : textDirection);
-    _textPainter.textScaleFactor = MediaQuery.of(context).textScaleFactor;
-
-    final Widget child = Directionality(
-      textDirection: _textDirection,
-      child: Wrap(
-        direction: _direction,
-        spacing: widget.settings.spacing,
-        children: _getBarSegments(),
-        runSpacing: 6,
-        runAlignment: WrapAlignment.center,
-        alignment: WrapAlignment.start,
-      ),
-    );
-
-    if (widget.settings.padding != null) {
-      return Padding(padding: widget.settings.padding!, child: child);
-    }
-
-    return child;
-  }
-
-  List<Widget> _getBarSegments() {
-    if (widget.dataSource != null && widget.dataSource.isNotEmpty) {
-      if (widget.dataSource is List) {
-        return _getSegmentsForColorMapper();
-      } else {
-        _labelsPlacement = widget.settings._labelsPlacement ??
-            TreemapLegendLabelsPlacement.onItem;
-        return _getSegmentsForShapeSource();
-      }
-    }
-
-    return [];
-  }
-
-  List<Widget> _getSegmentsForColorMapper() {
-    final List<Widget> legendItems = <Widget>[];
-    final int length = widget.dataSource.length;
-    String? currentText;
-    for (int i = 0; i < length; i++) {
-      _isOverlapSegmentText = false;
-      final TreemapColorMapper colorMapper = widget.dataSource[i];
-      _labelsPlacement = _labelsPlacement ??
-          (colorMapper.from != null
-              ? TreemapLegendLabelsPlacement.betweenItems
-              : TreemapLegendLabelsPlacement.onItem);
-      if (_labelsPlacement == TreemapLegendLabelsPlacement.betweenItems) {
-        if (i == length - 1) {
-          currentText = _getTrimmedText(
-              _getText(widget.dataSource[i]), currentText, i, length);
-        } else {
-          if (i == 0) {
-            final List<String> firstSegmentLabels =
-                _getStartSegmentLabel(colorMapper);
-            currentText = (firstSegmentLabels.length > 1
-                ? firstSegmentLabels[1]
-                : firstSegmentLabels[0]);
-          } else {
-            currentText = _getText(colorMapper);
-          }
-
-          currentText = _getTrimmedText(
-              currentText, _getText(widget.dataSource[i + 1]), i, length);
-        }
-      } else {
-        currentText = _getText(colorMapper);
-        if (_direction == Axis.horizontal &&
-            _labelsPlacement == TreemapLegendLabelsPlacement.onItem) {
-          _isOverlapSegmentText =
-              _getTextWidth(currentText) > _segmentSize.width;
-        }
-      }
-
-      legendItems.add(
-          _getSegment(currentText, colorMapper.color, i, length, colorMapper));
-    }
-
-    return legendItems;
-  }
-
-  List<Widget> _getSegmentsForShapeSource() {
-    final List<Widget> barSegments = <Widget>[];
-    final int length = widget.dataSource.length;
-    // If we use as iterator, it will check first and second model and then
-    // check third and fourth model. But we can't check second and third item
-    // is overlapping or not. Since the iterator in second model . So we uses
-    // two iterator. If we use move next first iterator gives current model and
-    // second iterator gives next model.
-    final Iterator<TreemapTile> currentIterator =
-        widget.dataSource.values.iterator;
-    final Iterator<TreemapTile> nextIterator =
-        widget.dataSource.values.iterator;
-    String? text;
-    nextIterator.moveNext();
-    while (currentIterator.moveNext()) {
-      final TreemapTile treemapModel = currentIterator.current;
-      if (_labelsPlacement == TreemapLegendLabelsPlacement.betweenItems) {
-        if (nextIterator.moveNext()) {
-          text = _getTrimmedText(
-              treemapModel.group, nextIterator.current.group, 0, length);
-        } else {
-          text =
-              _getTrimmedText(currentIterator.current.group, text, 0, length);
-        }
-      } else if (_direction == Axis.horizontal &&
-          _labelsPlacement == TreemapLegendLabelsPlacement.onItem) {
-        text = treemapModel.group;
-        _isOverlapSegmentText = _getTextWidth(text) > _segmentSize.width;
-      }
-
-      barSegments.add(_getSegment(text!, treemapModel.color, 0, length));
-    }
-
-    return barSegments;
-  }
-
-  String _getTrimmedText(
-      String currentText, String? nextText, int index, int length) {
-    if (widget.settings._labelOverflow == TreemapLabelOverflow.visible ||
-        currentText.isEmpty ||
-        (nextText != null && nextText.isEmpty) ||
-        nextText == null) {
-      return currentText;
-    }
-
-    final Size barSize = _segmentSize;
-    double refCurrentTextWidth;
-    double refNextTextWidth;
-    if (_direction == Axis.horizontal &&
-        _labelsPlacement == TreemapLegendLabelsPlacement.betweenItems) {
-      bool isLastInsideItem = false;
-      if (index == length - 1) {
-        isLastInsideItem = widget.settings._edgeLabelsPlacement ==
-            TreemapLegendEdgeLabelsPlacement.inside;
-        refNextTextWidth = _getTextWidth(nextText) / 2;
-        refCurrentTextWidth = isLastInsideItem
-            ? _getTextWidth(currentText)
-            : _getTextWidth(currentText) / 2;
-      } else {
-        refCurrentTextWidth = _getTextWidth(currentText) / 2;
-        refNextTextWidth = index + 1 == length - 1 &&
-                widget.settings._edgeLabelsPlacement ==
-                    TreemapLegendEdgeLabelsPlacement.inside
-            ? _getTextWidth(nextText)
-            : _getTextWidth(nextText) / 2;
-      }
-      _isOverlapSegmentText = refCurrentTextWidth + refNextTextWidth >
-          barSize.width + widget.settings.spacing;
-      if (widget.settings._labelOverflow == TreemapLabelOverflow.ellipsis) {
-        final double textWidth = refCurrentTextWidth + refNextTextWidth;
-        return _getTrimText(
-            currentText,
-            widget.textStyle,
-            _segmentSize.width + widget.settings.spacing / 2,
-            _textPainter,
-            textWidth,
-            refNextTextWidth,
-            isLastInsideItem);
-      }
-    }
-
-    return currentText;
-  }
-
-  String _getText(TreemapColorMapper colorMapper) {
-    return colorMapper.from != null
-        ? colorMapper.name ??
-            (_labelsPlacement == TreemapLegendLabelsPlacement.betweenItems
-                ? colorMapper.to.toString()
-                : (_textDirection == TextDirection.ltr
-                    ? '${colorMapper.from} - ${colorMapper.to}'
-                    : '${colorMapper.to} - ${colorMapper.from}'))
-        : colorMapper.value!;
-  }
-
-  double _getTextWidth(String text) {
-    _textPainter.text = TextSpan(text: text, style: widget.textStyle);
-    _textPainter.layout();
-    return _textPainter.width;
-  }
-
-  /// Returns the bar legend icon and label.
-  Widget _getSegment(String text, Color color, int index, int length,
-      [TreemapColorMapper? colorMapper]) {
-    final Color iconColor = color;
-    return _getBarWithLabel(iconColor, index, text, colorMapper, length);
-  }
-
-  Widget _getBarWithLabel(Color iconColor, int index, String text,
-      TreemapColorMapper? colorMapper, int dataSourceLength) {
-    Offset textOffset = _getTextOffset(index, text, dataSourceLength);
-    final CrossAxisAlignment crossAxisAlignment =
-        _getCrossAxisAlignment(index, dataSourceLength);
-    if (_direction == Axis.horizontal) {
-      textOffset =
-          _textDirection == TextDirection.rtl ? -textOffset : textOffset;
-      return Container(
-        width: _segmentSize.width,
-        child: Column(
-          crossAxisAlignment: crossAxisAlignment,
-          children: [
-            Padding(
-              // Gap between segment text and icon.
-              padding: EdgeInsets.only(bottom: 7.0),
-              child: Container(
-                height: _segmentSize.height,
-                color: iconColor,
-              ),
-            ),
-            _getTextWidget(index, text, colorMapper, textOffset),
-          ],
-        ),
-      );
-    } else {
-      return _getVerticalBar(
-          crossAxisAlignment, iconColor, index, text, colorMapper, textOffset);
-    }
-  }
-
-  Widget _getVerticalBar(
-      CrossAxisAlignment crossAxisAlignment,
-      Color iconColor,
-      int index,
-      String text,
-      TreemapColorMapper? colorMapper,
-      Offset textOffset) {
-    return Container(
-      height: _segmentSize.width,
-      child: Row(
-        crossAxisAlignment: crossAxisAlignment,
-        children: [
-          Padding(
-            // Gap between segment text and icon.
-            padding: EdgeInsets.only(right: 7.0),
-            child: Container(
-              width: _segmentSize.height,
-              color: iconColor,
-            ),
-          ),
-          _getTextWidget(index, text, colorMapper, textOffset),
-        ],
-      ),
-    );
-  }
-
-  CrossAxisAlignment _getCrossAxisAlignment(int index, int length) {
-    if (_labelsPlacement == TreemapLegendLabelsPlacement.onItem &&
-        widget.settings._labelOverflow != TreemapLabelOverflow.visible) {
-      return CrossAxisAlignment.center;
-    } else {
-      return CrossAxisAlignment.start;
-    }
-  }
-
-  Widget _getTextWidget(int index, String text, TreemapColorMapper? colorMapper,
-      Offset legendOffset) {
-    if (index == 0 &&
-        colorMapper != null &&
-        colorMapper.from != null &&
-        _labelsPlacement == TreemapLegendLabelsPlacement.betweenItems) {
-      return _getStartSegmentText(colorMapper, text, legendOffset);
-    } else {
-      return _getAlignedTextWidget(legendOffset, text, _isOverlapSegmentText);
-    }
-  }
-
-  Widget _getStartSegmentText(
-      TreemapColorMapper colorMapper, String text, Offset legendOffset) {
-    bool isStartTextOverlapping = false;
-    String startText;
-    final List<String> firstSegmentLabels = _getStartSegmentLabel(colorMapper);
-    if (firstSegmentLabels.length > 1) {
-      startText = firstSegmentLabels[0];
-    } else {
-      startText = colorMapper.from!.toString();
-    }
-
-    if (_direction == Axis.horizontal &&
-        widget.settings._labelOverflow != TreemapLabelOverflow.visible &&
-        startText.isNotEmpty &&
-        text.isNotEmpty) {
-      final double refStartTextWidth = widget.settings._edgeLabelsPlacement ==
-              TreemapLegendEdgeLabelsPlacement.inside
-          ? _getTextWidth(startText)
-          : _getTextWidth(startText) / 2;
-      final double refCurrentTextWidth = _getTextWidth(text) / 2;
-      isStartTextOverlapping = refStartTextWidth + refCurrentTextWidth >
-          _segmentSize.width + widget.settings.spacing;
-      if (_labelsPlacement == TreemapLegendLabelsPlacement.betweenItems &&
-          widget.settings._labelOverflow == TreemapLabelOverflow.ellipsis) {
-        startText = _getTrimText(
-            startText,
-            widget.textStyle,
-            _segmentSize.width + widget.settings.spacing / 2,
-            _textPainter,
-            refStartTextWidth + refCurrentTextWidth,
-            refCurrentTextWidth);
-      }
-    }
-
-    Offset startTextOffset = _getStartTextOffset(startText);
-    startTextOffset =
-        _textDirection == TextDirection.rtl && _direction == Axis.horizontal
-            ? -startTextOffset
-            : startTextOffset;
-    return Stack(
-      children: [
-        _getAlignedTextWidget(
-            startTextOffset, startText, isStartTextOverlapping),
-        _getAlignedTextWidget(legendOffset, text, _isOverlapSegmentText),
-      ],
-    );
-  }
-
-  List<String> _getStartSegmentLabel(TreemapColorMapper colorMapper) {
-    if (colorMapper.from != null &&
-        colorMapper.name != null &&
-        colorMapper.name!.isNotEmpty &&
-        colorMapper.name![0] == '{' &&
-        _labelsPlacement == TreemapLegendLabelsPlacement.betweenItems) {
-      final List<String> splitText = colorMapper.name!.split('},{');
-      if (splitText.length > 1) {
-        splitText[0] = splitText[0].replaceAll('{', '');
-        splitText[1] = splitText[1].replaceAll('}', '');
-      }
-
-      return splitText;
-    } else {
-      return [_getText(colorMapper)];
-    }
-  }
-
-  Widget _getAlignedTextWidget(Offset offset, String text, bool isOverlapping) {
-    if ((widget.settings._labelOverflow == TreemapLabelOverflow.hide &&
-            isOverlapping) ||
-        text.isEmpty) {
-      return SizedBox(width: 0.0, height: 0.0);
-    }
-
-    return Directionality(
-      textDirection: TextDirection.ltr,
-      child: offset != Offset.zero
-          ? Transform.translate(
-              offset: offset,
-              child: Text(
-                text,
-                softWrap: false,
-                overflow: TextOverflow.visible,
-                style: widget.textStyle,
-              ),
-            )
-          : Text(
-              text,
-              textAlign: TextAlign.center,
-              softWrap: false,
-              overflow: widget.settings._labelOverflow ==
-                          TreemapLabelOverflow.ellipsis &&
-                      _labelsPlacement == TreemapLegendLabelsPlacement.onItem
-                  ? TextOverflow.ellipsis
-                  : TextOverflow.visible,
-              style: widget.textStyle,
-            ),
-    );
-  }
-
-  Offset _getTextOffset(int index, String text, int dataSourceLength) {
-    if (_labelsPlacement == TreemapLegendLabelsPlacement.onItem &&
-        widget.settings._labelOverflow != TreemapLabelOverflow.visible) {
-      return Offset.zero;
-    }
-
-    if (_direction == Axis.horizontal) {
-      return _getHorizontalTextOffset(index, text, dataSourceLength);
-    } else {
-      return _getVerticalTextOffset(index, text, dataSourceLength);
-    }
-  }
-
-  Offset _getVerticalTextOffset(int index, String text, int dataSourceLength) {
-    _textPainter.text = TextSpan(text: text, style: widget.textStyle);
-    _textPainter.layout();
-    if (_labelsPlacement == TreemapLegendLabelsPlacement.betweenItems) {
-      if (index == dataSourceLength - 1) {
-        if (widget.settings._edgeLabelsPlacement ==
-            TreemapLegendEdgeLabelsPlacement.inside) {
-          return Offset(0.0, _segmentSize.width - _textPainter.height);
-        }
-        return Offset(0.0, _segmentSize.width - _textPainter.height / 2);
-      }
-
-      return Offset(
-          0.0,
-          _segmentSize.width -
-              _textPainter.height / 2 +
-              widget.settings.spacing / 2);
-    } else {
-      return Offset(0.0, _segmentSize.width / 2 - _textPainter.height / 2);
-    }
-  }
-
-  Offset _getHorizontalTextOffset(
-      int index, String text, int dataSourceLength) {
-    _textPainter.text = TextSpan(text: text, style: widget.textStyle);
-    _textPainter.layout();
-    if (_labelsPlacement == TreemapLegendLabelsPlacement.betweenItems) {
-      final double width = _textDirection == TextDirection.rtl &&
-              _segmentSize.width < _textPainter.width
-          ? _textPainter.width
-          : _segmentSize.width;
-      if (index == dataSourceLength - 1) {
-        if (widget.settings._edgeLabelsPlacement ==
-            TreemapLegendEdgeLabelsPlacement.inside) {
-          return Offset(width - _textPainter.width, 0.0);
-        }
-        return Offset(width - _textPainter.width / 2, 0.0);
-      }
-
-      return Offset(
-          width - _textPainter.width / 2 + widget.settings.spacing / 2, 0.0);
-    } else {
-      final double xPosition = _textDirection == TextDirection.rtl &&
-              _segmentSize.width < _textPainter.width
-          ? _textPainter.width / 2 - _segmentSize.width / 2
-          : _segmentSize.width / 2 - _textPainter.width / 2;
-      return Offset(xPosition, 0.0);
-    }
-  }
-
-  Offset _getStartTextOffset(String text) {
-    _textPainter.text = TextSpan(text: text, style: widget.textStyle);
-    _textPainter.layout();
-    if (widget.settings._edgeLabelsPlacement ==
-        TreemapLegendEdgeLabelsPlacement.inside) {
-      return Offset(0.0, 0.0);
-    }
-
-    if (_direction == Axis.horizontal) {
-      return Offset(-_textPainter.width / 2, 0.0);
-    } else {
-      return Offset(0.0, -_textPainter.height / 2);
-    }
-  }
-}
-
-class _GradientBarLabel {
-  _GradientBarLabel(this.label,
-      [this.offset = Offset.zero, this.isOverlapping = false]);
-
-  String label;
-  Offset offset;
-  bool isOverlapping;
-}
-
-// ignore: must_be_immutable
-class _GradientBarLegend extends StatelessWidget {
-  _GradientBarLegend(
-      {required this.dataSource,
-      required this.settings,
-      required this.textStyle});
-
-  final dynamic dataSource;
-  final TreemapLegend settings;
-  final TextStyle textStyle;
-  final List<Color> colors = <Color>[];
-  final List<_GradientBarLabel> labels = <_GradientBarLabel>[];
-
-  late Axis _direction;
-  late Size _segmentSize;
-  late TextPainter _textPainter;
-  late double _referenceArea;
-  bool _isRTL = false;
-  bool _isOverlapSegmentText = false;
-  TreemapLegendLabelsPlacement? _labelsPlacement;
-
-  @override
-  Widget build(BuildContext context) {
-    _labelsPlacement =
-        settings._labelsPlacement ?? TreemapLegendLabelsPlacement.betweenItems;
-    TextDirection textDirection = Directionality.of(context);
-    _isRTL = textDirection == TextDirection.rtl;
-    _textPainter = TextPainter(
-        textDirection: TextDirection.ltr,
-        textScaleFactor: MediaQuery.of(context).textScaleFactor);
-    _direction = settings.direction ??
-        (settings.position == TreemapLegendPosition.top ||
-                settings.position == TreemapLegendPosition.bottom
-            ? Axis.horizontal
-            : Axis.vertical);
-    textDirection = _isRTL
-        ? (_direction == Axis.vertical ? TextDirection.ltr : textDirection)
-        : textDirection;
-
-    final Widget child = Directionality(
-      textDirection: textDirection,
-      child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-        final double width =
-            constraints.hasBoundedWidth ? constraints.maxWidth : 300;
-        final double height =
-            constraints.hasBoundedHeight ? constraints.maxHeight : 300;
-        _updateSegmentSize(Size(width, height).shortestSide);
-        _collectLabelsAndColors();
-        return _buildGradientBar();
-      }),
-    );
-    if (settings.padding != null) {
-      return Padding(padding: settings.padding!, child: child);
-    }
-
-    return child;
-  }
-
-  void _updateSegmentSize(double shortestSide) {
-    if (_direction == Axis.horizontal) {
-      final double availableWidth = settings.padding != null
-          ? shortestSide - settings.padding!.horizontal
-          : shortestSide;
-      _segmentSize = settings._segmentSize == null
-          ? Size(availableWidth, 12.0)
-          : Size(
-              settings._segmentSize!.width > availableWidth
-                  ? availableWidth
-                  : settings._segmentSize!.width,
-              settings._segmentSize!.height);
-      return;
-    }
-
-    final double availableHeight = settings.padding != null
-        ? shortestSide - settings.padding!.vertical
-        : shortestSide;
-    _segmentSize = settings._segmentSize == null
-        ? Size(12.0, availableHeight)
-        : Size(
-            settings._segmentSize!.width,
-            settings._segmentSize!.height > availableHeight
-                ? availableHeight
-                : settings._segmentSize!.height);
-  }
-
-  void _collectLabelsAndColors() {
-    final int length = dataSource.length;
-    _referenceArea = _direction == Axis.horizontal
-        ? _segmentSize.width
-        : _segmentSize.height;
-    if (dataSource != null && dataSource.isNotEmpty) {
-      if (dataSource is List) {
-        _collectColorMapperLabelsAndColors(length);
-      } else {
-        final int length = dataSource.length;
-        String? text;
-        double slab;
-        // If we use as iterator, it will check first and second model and
-        // then check third and fourth model. But we can't check second and
-        // third item is overlapping or not. Since the iterator in second model.
-        // So we uses two iterator. If we use move next first iterator gives
-        // current model and second iterator gives next model.
-        final Iterator<TreemapTile> currentIterator =
-            dataSource.values.iterator;
-        final Iterator<TreemapTile> nextIterator = dataSource.values.iterator;
-        int index = 0;
-        nextIterator.moveNext();
-        while (currentIterator.moveNext()) {
-          final TreemapTile treemapModel = currentIterator.current;
-          int positionIndex;
-          if (_labelsPlacement == TreemapLegendLabelsPlacement.betweenItems) {
-            slab = _referenceArea / (length - 1);
-            positionIndex = index;
-          } else {
-            slab = _referenceArea / length;
-            positionIndex = index + 1;
-          }
-
-          if (_labelsPlacement == TreemapLegendLabelsPlacement.betweenItems) {
-            if (nextIterator.moveNext()) {
-              text = _getTrimmedText(treemapModel.group, positionIndex, length,
-                  slab, nextIterator.current.group);
+      if (colorMappers!.isNotEmpty) {
+        final int length = colorMappers!.length;
+        for (int index = 0; index < length; index++) {
+          final TreemapColorMapper colorMapper = colorMappers![index];
+          if (legend._type == _LegendType.bar &&
+              labelsPlacement == TreemapLegendLabelsPlacement.betweenItems) {
+            if (index == 0) {
+              final String startValue = _getStartSegmentLabel(colorMapper);
+              items.add(LegendItem(text: startValue, color: colorMapper.color));
             } else {
-              text = _getTrimmedText(
-                  treemapModel.group, positionIndex, length, slab, text);
+              final String text = colorMapper.from != null
+                  ? colorMapper.name ?? colorMapper.to.toString()
+                  : colorMapper.value!;
+              items.add(LegendItem(text: text, color: colorMapper.color));
             }
           } else {
-            if (_direction == Axis.horizontal) {
-              text = _getTrimmedText(
-                  treemapModel.group, positionIndex, length, slab);
-            }
-          }
-
-          labels.add(_GradientBarLabel(
-              text!,
-              _getTextOffset(text, positionIndex, length - 1, slab),
-              _isOverlapSegmentText));
-          colors.add(treemapModel.color);
-          index++;
-        }
-      }
-    }
-  }
-
-  void _collectColorMapperLabelsAndColors(int length) {
-    if (dataSource.isNotEmpty) {
-      final double slab = _referenceArea /
-          (_labelsPlacement == TreemapLegendLabelsPlacement.betweenItems &&
-                  dataSource[0].value != null
-              ? length - 1
-              : length);
-      for (int i = 0; i < length; i++) {
-        _isOverlapSegmentText = false;
-        final TreemapColorMapper colorMapper = dataSource[i];
-        String text;
-        if (i == 0) {
-          final List<String> firstSegmentLabels =
-              _getStartSegmentLabel(colorMapper);
-          text = (firstSegmentLabels.length > 1
-              ? firstSegmentLabels[1]
-              : firstSegmentLabels[0]);
-        } else {
-          text = _getActualText(colorMapper);
-        }
-
-        if (dataSource[0].from != null) {
-          _collectRageColorMapperLabels(i, colorMapper, text, slab, length);
-        } else {
-          final int positionIndex =
-              _labelsPlacement == TreemapLegendLabelsPlacement.onItem
-                  ? i + 1
-                  : i;
-          if (_labelsPlacement == TreemapLegendLabelsPlacement.onItem) {
-            text = _getTrimmedText(text, i, length, slab);
-          } else if (i < length - 1) {
-            text = _getTrimmedText(
-                text, i, length, slab, _getActualText(dataSource[i + 1]));
-          }
-          // For equal color mapper, slab is equals to the color mapper
-          // length -1.
-          labels.add(_GradientBarLabel(
-              text,
-              _getTextOffset(text, positionIndex, length - 1, slab),
-              _isOverlapSegmentText));
-        }
-        colors.add(colorMapper.color);
-      }
-    }
-  }
-
-  void _collectRageColorMapperLabels(int i, TreemapColorMapper colorMapper,
-      String text, double slab, int length) {
-    if (i == 0 &&
-        _labelsPlacement == TreemapLegendLabelsPlacement.betweenItems) {
-      String startText;
-      final List<String> firstSegmentLabels =
-          _getStartSegmentLabel(colorMapper);
-      if (firstSegmentLabels.length > 1) {
-        startText = firstSegmentLabels[0];
-      } else {
-        startText = colorMapper.from!.toString();
-      }
-
-      if (_direction == Axis.horizontal &&
-          _labelsPlacement == TreemapLegendLabelsPlacement.betweenItems &&
-          startText.isNotEmpty &&
-          text.isNotEmpty) {
-        final double refCurrentTextWidth = settings._edgeLabelsPlacement ==
-                TreemapLegendEdgeLabelsPlacement.inside
-            ? _getTextWidth(startText)
-            : _getTextWidth(startText) / 2;
-        final double refNextTextWidth = _getTextWidth(text) / 2;
-        _isOverlapSegmentText = refCurrentTextWidth + refNextTextWidth > slab;
-        if (settings._labelOverflow == TreemapLabelOverflow.ellipsis) {
-          if (_labelsPlacement == TreemapLegendLabelsPlacement.betweenItems) {
-            final double textWidth = refCurrentTextWidth + refNextTextWidth;
-            startText = _getTrimText(startText, textStyle, slab, _textPainter,
-                textWidth, refNextTextWidth);
+            final String text = colorMapper.from != null
+                ? colorMapper.name ?? '${colorMapper.from} - ${colorMapper.to}'
+                : colorMapper.value!;
+            items.add(LegendItem(text: text, color: colorMapper.color));
           }
         }
       }
-
-      labels.add(_GradientBarLabel(startText,
-          _getTextOffset(startText, i, length, slab), _isOverlapSegmentText));
+    } else if (dataSource != null && dataSource!.isNotEmpty) {
+      // The legend items calculated based on the first level's
+      // [TreemapLevel.groupMapper] and [TreemapLevel.color] values.
+      dataSource!.forEach((String key, TreemapTile tile) {
+        items.add(LegendItem(text: tile.group, color: tile.color));
+      });
     }
-
-    if (_labelsPlacement == TreemapLegendLabelsPlacement.onItem) {
-      text = _getTrimmedText(text, i, length, slab);
-    } else if (i < length - 1) {
-      text = _getTrimmedText(
-          text, i, length, slab, _getActualText(dataSource[i + 1]));
-    }
-
-    // For range color mapper, slab is equals to the color mapper
-    // length. So adding +1 to point out its position index.
-    labels.add(_GradientBarLabel(text,
-        _getTextOffset(text, i + 1, length, slab), _isOverlapSegmentText));
+    return items;
   }
 
-  String _getTrimmedText(String currentText, int index, int length, double slab,
-      [String? nextText]) {
-    if (settings._labelOverflow == TreemapLabelOverflow.visible ||
-        currentText.isEmpty ||
-        (nextText != null && nextText.isEmpty) ||
-        nextText == null) {
-      return currentText;
-    }
-
-    if (_direction == Axis.horizontal &&
-        _labelsPlacement == TreemapLegendLabelsPlacement.betweenItems) {
-      double refCurrentTextWidth;
-      double refNextTextWidth;
-      bool isLastInsideItem = false;
-      if (index == length - 1) {
-        refNextTextWidth = _getTextWidth(nextText) / 2;
-
-        if (settings._edgeLabelsPlacement ==
-            TreemapLegendEdgeLabelsPlacement.inside) {
-          refCurrentTextWidth = _getTextWidth(currentText);
-          isLastInsideItem = true;
-        } else {
-          refCurrentTextWidth = _getTextWidth(currentText) / 2;
-          isLastInsideItem = false;
-        }
-      } else {
-        refCurrentTextWidth = _getTextWidth(currentText) / 2;
-        refNextTextWidth = index + 1 == length - 1 &&
-                settings._edgeLabelsPlacement ==
-                    TreemapLegendEdgeLabelsPlacement.inside
-            ? _getTextWidth(nextText)
-            : _getTextWidth(nextText) / 2;
-      }
-      _isOverlapSegmentText = refCurrentTextWidth + refNextTextWidth > slab;
-      if (settings._labelOverflow == TreemapLabelOverflow.ellipsis &&
-          _isOverlapSegmentText) {
-        if (_labelsPlacement == TreemapLegendLabelsPlacement.betweenItems) {
-          final double textWidth = refCurrentTextWidth + refNextTextWidth;
-          return _getTrimText(currentText, textStyle, slab, _textPainter,
-              textWidth, refNextTextWidth, isLastInsideItem);
-        }
-      }
-    } else if (_direction == Axis.horizontal &&
-        _labelsPlacement == TreemapLegendLabelsPlacement.onItem) {
-      final double textWidth = _getTextWidth(currentText);
-      _isOverlapSegmentText = textWidth > slab;
-      if (_isOverlapSegmentText) {
-        return _getTrimText(
-            currentText, textStyle, slab, _textPainter, textWidth);
-      }
-    }
-
-    return currentText;
-  }
-
-  double _getTextWidth(String text) {
-    _textPainter.text = TextSpan(text: text, style: textStyle);
-    _textPainter.layout();
-    return _textPainter.width;
-  }
-
-  List<String> _getStartSegmentLabel(TreemapColorMapper colorMapper) {
+  String _getStartSegmentLabel(TreemapColorMapper colorMapper) {
+    String startText;
     if (colorMapper.from != null &&
         colorMapper.name != null &&
         colorMapper.name!.isNotEmpty &&
-        colorMapper.name![0] == '{' &&
-        _labelsPlacement == TreemapLegendLabelsPlacement.betweenItems) {
-      final List<String> splitText = colorMapper.name!.split('},{');
-      if (splitText.length > 1) {
-        splitText[0] = splitText[0].replaceAll('{', '');
-        splitText[1] = splitText[1].replaceAll('}', '');
-      }
-
-      return splitText;
+        colorMapper.name![0] == '{') {
+      startText = colorMapper.name!;
+    } else if (colorMapper.from != null &&
+        colorMapper.name != null &&
+        colorMapper.name!.isNotEmpty) {
+      startText = '{${colorMapper.from}},{${colorMapper.name}}';
     } else {
-      return [_getActualText(colorMapper)];
-    }
-  }
-
-  Offset _getTextOffset(
-      String? text, int positionIndex, int length, double slab) {
-    _textPainter.text = TextSpan(text: text, style: textStyle);
-    _textPainter.layout();
-    final bool canAdjustLabelToCenter = settings._edgeLabelsPlacement ==
-                TreemapLegendEdgeLabelsPlacement.center &&
-            (positionIndex == 0 || positionIndex == length) ||
-        (positionIndex > 0 && positionIndex < length) ||
-        settings._labelsPlacement == TreemapLegendLabelsPlacement.onItem;
-    if (_direction == Axis.horizontal) {
-      return _getHorizontalOffset(
-          canAdjustLabelToCenter, positionIndex, slab, length);
-    } else {
-      final double referenceTextWidth = canAdjustLabelToCenter
-          ? _textPainter.height / 2
-          : (positionIndex == length ? _textPainter.height : 0.0);
-      if (_labelsPlacement == TreemapLegendLabelsPlacement.betweenItems) {
-        return Offset(0.0, slab * positionIndex - referenceTextWidth);
+      if (colorMapper.from != null) {
+        startText = '{${colorMapper.from}},{${colorMapper.to}}';
+      } else {
+        startText = colorMapper.value!;
       }
+    }
+    return startText;
+  }
 
-      return Offset(
-          0.0, (slab * positionIndex) - referenceTextWidth - slab / 2);
+  TreemapLegendLabelsPlacement _getActualLabelsPlacement() {
+    if (legend.labelsPlacement != null) {
+      return legend.labelsPlacement!;
+    }
+
+    if (colorMappers != null && colorMappers!.isNotEmpty) {
+      return colorMappers![0].from != null
+          ? TreemapLegendLabelsPlacement.betweenItems
+          : TreemapLegendLabelsPlacement.onItem;
+    }
+
+    return TreemapLegendLabelsPlacement.onItem;
+  }
+
+  LegendPaintingStyle _getEffectiveSegmentPaintingStyle(
+      TreemapLegendPaintingStyle paintingStyle) {
+    switch (paintingStyle) {
+      case TreemapLegendPaintingStyle.solid:
+        return LegendPaintingStyle.solid;
+      case TreemapLegendPaintingStyle.gradient:
+        return LegendPaintingStyle.gradient;
     }
   }
 
-  Offset _getHorizontalOffset(
-      bool canAdjustLabelToCenter, int positionIndex, double slab, int length) {
-    if (_isRTL) {
-      final double referenceTextWidth = canAdjustLabelToCenter
-          ? -_textPainter.width / 2
-          : (positionIndex == 0 ? -_textPainter.width : 0.0);
-      double dx =
-          _segmentSize.width - (slab * positionIndex - referenceTextWidth);
-
-      if (_labelsPlacement == TreemapLegendLabelsPlacement.betweenItems) {
-        return Offset(dx, 0.0);
-      }
-
-      dx = _segmentSize.width - (slab * positionIndex);
-
-      return Offset(dx + slab / 2 - _textPainter.width / 2, 0.0);
+  LegendLabelOverflow _getEffectiveLabelOverflow(
+      TreemapLabelOverflow labelOverflow) {
+    switch (labelOverflow) {
+      case TreemapLabelOverflow.visible:
+        return LegendLabelOverflow.visible;
+      case TreemapLabelOverflow.hide:
+        return LegendLabelOverflow.hide;
+      case TreemapLabelOverflow.ellipsis:
+        return LegendLabelOverflow.ellipsis;
     }
+  }
 
-    final double referenceTextWidth = canAdjustLabelToCenter
-        ? _textPainter.width / 2
-        : (positionIndex == length ? _textPainter.width : 0.0);
-    if (_labelsPlacement == TreemapLegendLabelsPlacement.betweenItems) {
-      return Offset(slab * positionIndex - referenceTextWidth, 0.0);
+  LegendEdgeLabelsPlacement _getEffectiveEdgeLabelsPlacement(
+      TreemapLegendEdgeLabelsPlacement edgeLabelsPlacement) {
+    switch (edgeLabelsPlacement) {
+      case TreemapLegendEdgeLabelsPlacement.center:
+        return LegendEdgeLabelsPlacement.center;
+      case TreemapLegendEdgeLabelsPlacement.inside:
+        return LegendEdgeLabelsPlacement.inside;
     }
-
-    return Offset(
-        slab * positionIndex - _textPainter.width / 2 - slab / 2, 0.0);
   }
 
-  Widget _buildGradientBar() {
-    return _direction == Axis.horizontal
-        ? Column(children: _getChildren())
-        : Row(children: _getChildren());
-  }
-
-  List<Widget> _getChildren() {
-    double? labelBoxWidth = _segmentSize.width;
-    double? labelBoxHeight;
-    Alignment startAlignment = Alignment.centerLeft;
-    Alignment endAlignment = Alignment.centerRight;
-
-    if (_direction == Axis.vertical) {
-      labelBoxWidth = null;
-      labelBoxHeight = _segmentSize.height;
-      startAlignment = Alignment.topCenter;
-      endAlignment = Alignment.bottomCenter;
+  LegendLabelsPlacement _getEffectiveLabelPlacement(
+      TreemapLegendLabelsPlacement labelsPlacement) {
+    switch (labelsPlacement) {
+      case TreemapLegendLabelsPlacement.betweenItems:
+        return LegendLabelsPlacement.betweenItems;
+      case TreemapLegendLabelsPlacement.onItem:
+        return LegendLabelsPlacement.onItem;
     }
+  }
 
-    if (_isRTL && _direction == Axis.horizontal) {
-      final Alignment temp = startAlignment;
-      startAlignment = endAlignment;
-      endAlignment = temp;
+  LegendPosition _getEffectivePosition(TreemapLegendPosition position) {
+    switch (position) {
+      case TreemapLegendPosition.top:
+        return LegendPosition.top;
+      case TreemapLegendPosition.bottom:
+        return LegendPosition.bottom;
+      case TreemapLegendPosition.left:
+        return LegendPosition.left;
+      case TreemapLegendPosition.right:
+        return LegendPosition.right;
     }
-
-    return [
-      Container(
-        width: _segmentSize.width,
-        height: _segmentSize.height,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-              begin: startAlignment, end: endAlignment, colors: colors),
-        ),
-      ),
-      SizedBox(
-          width: _direction == Axis.vertical ? 7.0 : 0.0,
-          height: _direction == Axis.horizontal ? 7.0 : 0.0),
-      Container(
-          width: labelBoxWidth, height: labelBoxHeight, child: _getLabels()),
-    ];
   }
 
-  Widget _getLabels() {
-    return Stack(
-      textDirection: TextDirection.ltr,
-      children: List.generate(labels.length, (int index) {
-        if ((settings._labelOverflow == TreemapLabelOverflow.hide &&
-                labels[index].isOverlapping) ||
-            labels[index].label.isEmpty) {
-          return SizedBox(height: 0.0, width: 0.0);
-        }
-
-        return Directionality(
-          textDirection: TextDirection.ltr,
-          child: Transform.translate(
-            offset: labels[index].offset,
-            child: Text(
-              labels[index].label,
-              style: textStyle,
-              softWrap: false,
-            ),
-          ),
-        );
-      }),
-    );
+  LegendOverflowMode _getEffectiveOverflowMode(
+      TreemapLegendOverflowMode overflowMode) {
+    switch (overflowMode) {
+      case TreemapLegendOverflowMode.scroll:
+        return LegendOverflowMode.scroll;
+      case TreemapLegendOverflowMode.wrap:
+        return LegendOverflowMode.wrap;
+    }
   }
 
-  String _getActualText(TreemapColorMapper colorMapper) {
-    return colorMapper.from != null
-        ? colorMapper.name ??
-            (_labelsPlacement == TreemapLegendLabelsPlacement.betweenItems
-                ? colorMapper.to.toString()
-                : (_isRTL
-                    ? '${colorMapper.to} - ${colorMapper.from}'
-                    : '${colorMapper.from} - ${colorMapper.to}'))
-        : colorMapper.value!;
-  }
-}
-
-class _TreemapIconShape {
-  const _TreemapIconShape();
-
-  /// Returns the size based on the value passed to it.
-  Size getPreferredSize(Size iconSize) => iconSize;
-
-  /// Paints the shapes based on the value passed to it.
-  void paint(
-    PaintingContext context,
-    Offset offset, {
-    required RenderBox parentBox,
-    required Size iconSize,
-    required Color color,
-    Color? strokeColor,
-    double? strokeWidth,
-    required TreemapIconType iconType,
-  }) {
-    iconSize = getPreferredSize(iconSize);
-    final double halfIconWidth = iconSize.width / 2;
-    final double halfIconHeight = iconSize.height / 2;
-    final bool hasStroke = strokeWidth != null &&
-        strokeWidth > 0 &&
-        strokeColor != null &&
-        strokeColor != Colors.transparent;
-    final Paint paint = Paint()
-      ..isAntiAlias = true
-      ..color = color;
-    Path path;
-
+  ShapeMarkerType _getEffectiveLegendIconType(TreemapIconType iconType) {
     switch (iconType) {
       case TreemapIconType.circle:
-        final Rect rect = Rect.fromLTWH(
-            offset.dx, offset.dy, iconSize.width, iconSize.height);
-        context.canvas.drawOval(rect, paint);
-        if (hasStroke) {
-          paint
-            ..strokeWidth = strokeWidth
-            ..color = strokeColor
-            ..style = PaintingStyle.stroke;
-          context.canvas.drawOval(rect, paint);
-        }
-        break;
-      case TreemapIconType.rectangle:
-        final Rect rect = Rect.fromLTWH(
-            offset.dx, offset.dy, iconSize.width, iconSize.height);
-        context.canvas.drawRect(rect, paint);
-        if (hasStroke) {
-          paint
-            ..strokeWidth = strokeWidth
-            ..color = strokeColor
-            ..style = PaintingStyle.stroke;
-          context.canvas.drawRect(rect, paint);
-        }
-        break;
-      case TreemapIconType.triangle:
-        path = Path()
-          ..moveTo(offset.dx + halfIconWidth, offset.dy)
-          ..lineTo(offset.dx + iconSize.width, offset.dy + iconSize.height)
-          ..lineTo(offset.dx, offset.dy + iconSize.height)
-          ..close();
-        context.canvas.drawPath(path, paint);
-        if (hasStroke) {
-          paint
-            ..strokeWidth = strokeWidth
-            ..color = strokeColor
-            ..style = PaintingStyle.stroke;
-          context.canvas.drawPath(path, paint);
-        }
-        break;
+        return ShapeMarkerType.circle;
       case TreemapIconType.diamond:
-        path = Path()
-          ..moveTo(offset.dx + halfIconWidth, offset.dy)
-          ..lineTo(offset.dx + iconSize.width, offset.dy + halfIconHeight)
-          ..lineTo(offset.dx + halfIconWidth, offset.dy + iconSize.height)
-          ..lineTo(offset.dx, offset.dy + halfIconHeight)
-          ..close();
-        context.canvas.drawPath(path, paint);
-        if (hasStroke) {
-          paint
-            ..strokeWidth = strokeWidth
-            ..color = strokeColor
-            ..style = PaintingStyle.stroke;
-          context.canvas.drawPath(path, paint);
-        }
-        break;
-    }
-  }
-}
-
-String _getTrimText(String text, TextStyle style, double maxWidth,
-    TextPainter painter, double width,
-    [double? nextTextHalfWidth, bool isInsideLastItem = false]) {
-  final int actualTextLength = text.length;
-  String trimmedText = text;
-  int trimLength = 3; // 3 dots
-  while (width > maxWidth) {
-    if (trimmedText.length <= 4) {
-      trimmedText = trimmedText[0] + '...';
-      painter.text = TextSpan(style: style, text: trimmedText);
-      painter.layout();
-      break;
-    } else {
-      trimmedText = text.replaceRange(
-          actualTextLength - trimLength, actualTextLength, '...');
-      painter.text = TextSpan(style: style, text: trimmedText);
-      painter.layout();
-      trimLength++;
-    }
-
-    if (isInsideLastItem && nextTextHalfWidth != null) {
-      width = painter.width + nextTextHalfWidth;
-    } else {
-      width = nextTextHalfWidth != null
-          ? painter.width / 2 + nextTextHalfWidth
-          : painter.width;
+        return ShapeMarkerType.diamond;
+      case TreemapIconType.triangle:
+        return ShapeMarkerType.triangle;
+      case TreemapIconType.rectangle:
+        return ShapeMarkerType.rectangle;
     }
   }
 
-  return trimmedText;
+  @override
+  Widget build(BuildContext context) {
+    switch (legend._type) {
+      case _LegendType.vector:
+        return SfLegend(
+          items: _getLegendItems(),
+          child: child,
+          direction: legend.direction,
+          offset: legend.offset,
+          padding: legend.padding,
+          position: _getEffectivePosition(legend.position),
+          overflowMode: _getEffectiveOverflowMode(legend.overflowMode),
+          itemSpacing: legend.spacing,
+          textStyle: legend.textStyle,
+          title: legend.title,
+          iconType: _getEffectiveLegendIconType(legend.iconType),
+          iconSize: legend.iconSize,
+        );
+      case _LegendType.bar:
+        return SfLegend.bar(
+          items: _getLegendItems(),
+          child: child,
+          title: legend.title,
+          position: _getEffectivePosition(legend.position),
+          overflowMode: _getEffectiveOverflowMode(legend.overflowMode),
+          itemSpacing: legend.spacing,
+          direction: legend.direction,
+          offset: legend.offset,
+          padding: legend.padding,
+          textStyle: legend.textStyle,
+          labelsPlacement:
+              _getEffectiveLabelPlacement(_getActualLabelsPlacement()),
+          edgeLabelsPlacement:
+              _getEffectiveEdgeLabelsPlacement(legend.edgeLabelsPlacement),
+          labelOverflow: _getEffectiveLabelOverflow(legend.labelOverflow),
+          segmentSize: legend.segmentSize,
+          segmentPaintingStyle:
+              _getEffectiveSegmentPaintingStyle(legend.segmentPaintingStyle),
+          pointerBuilder: legend.pointerBuilder,
+          pointerColor: legend.pointerColor,
+          pointerSize:
+              legend.showPointerOnHover ? legend.pointerSize : Size.zero,
+          pointerController: controller,
+        );
+    }
+  }
 }

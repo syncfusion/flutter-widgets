@@ -1,10 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_maps/src/layer/vector_layers.dart';
 
-import '../behavior/zoom_pan_behavior.dart';
+import '../../maps.dart';
 import '../layer/shape_layer.dart';
-import '../layer/tile_layer.dart';
 import '../settings.dart';
 
 /// Base class for the [MapShapeLayer] and [MapTileLayer].
@@ -31,9 +29,9 @@ abstract class MapLayer extends StatelessWidget {
   /// It is applicable for both the [MapShapeLayer] and [MapTileLayer].
   ///
   /// ```dart
-  /// MapShapeSource _mapSource;
-  /// int _selectedIndex;
-  /// List<DataModel> _data;
+  /// late MapShapeSource _mapSource;
+  /// late List<DataModel> _data;
+  /// int _selectedIndex = -1;
   ///
   /// @override
   /// void initState() {
@@ -130,8 +128,8 @@ abstract class MapLayer extends StatelessWidget {
   /// for child in [MapMarker] constructor.
   ///
   /// ```dart
-  /// List<Model> _data;
-  /// MapShapeSource _mapSource;
+  /// late List<Model> _data;
+  /// late MapShapeSource _mapSource;
   ///
   /// @override
   /// void initState() {
@@ -205,8 +203,8 @@ abstract class MapLayer extends StatelessWidget {
   /// mouse enabled devices.
   ///
   /// ```dart
-  /// List<Model> _worldMapData;
-  /// MapShapeSource _mapSource;
+  /// late List<Model> _worldMapData;
+  /// late MapShapeSource _mapSource;
   ///
   /// @override
   /// void initState() {
@@ -333,8 +331,8 @@ abstract class MapLayer extends StatelessWidget {
   /// and [MapTileLayer].
   ///
   /// ```dart
-  ///   MapShapeSource _mapSource;
-  ///   MapZoomPanBehavior _zoomPanBehavior;
+  ///  late MapShapeSource _mapSource;
+  ///  late MapZoomPanBehavior _zoomPanBehavior;
   ///
   ///   @override
   ///   void initState() {
@@ -428,9 +426,9 @@ abstract class MapSublayer extends StatelessWidget {
   /// user interacts with the shape.
   ///
   /// ```dart
-  ///  MapShapeSource _mapSource;
-  ///  int _selectedIndex;
-  ///  List<DataModel> _data;
+  /// late MapShapeSource _mapSource;
+  /// late List<DataModel> _data;
+  /// int _selectedIndex = -1;
   ///
   ///  @override
   ///  void initState() {

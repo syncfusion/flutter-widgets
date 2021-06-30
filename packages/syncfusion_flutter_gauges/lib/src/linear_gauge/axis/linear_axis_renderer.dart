@@ -18,7 +18,7 @@ import '../../linear_gauge/utils/linear_gauge_typedef.dart';
 /// Represents the renderer of linear axis.
 class LinearAxisRenderObjectWidget extends LeafRenderObjectWidget {
   /// Creates the axis render with required properties.
-  LinearAxisRenderObjectWidget(
+  const LinearAxisRenderObjectWidget(
       {Key? key, required this.linearGauge, this.fadeAnimation})
       : super(key: key);
 
@@ -224,7 +224,7 @@ class RenderLinearAxis extends RenderBox {
     _textPainter = TextPainter(textDirection: TextDirection.ltr);
     _visibleLabels = <LinearAxisLabel>[];
     _isHorizontalOrientation = orientation == LinearGaugeOrientation.horizontal;
-    _labelMap = Map();
+    _labelMap = <double?, String?>{};
     _path = Path();
   }
 
@@ -801,7 +801,7 @@ class RenderLinearAxis extends RenderBox {
 
   /// Returns the measured the label size.
   Size _measureLabelSize(double? value) {
-    final label = _labelMap[value];
+    final String? label = _labelMap[value];
     final TextSpan textSpan = TextSpan(
       text: label,
       style: textStyle,
@@ -826,11 +826,11 @@ class RenderLinearAxis extends RenderBox {
     _maxLabelWidth = 0;
 
     if (showLabels) {
-      _visibleLabels.forEach((element) {
+      for (final LinearAxisLabel element in _visibleLabels) {
         final Size labelSize = _measureLabelSize(element.value);
         _maxLabelHeight = math.max(_maxLabelHeight, labelSize.height);
         _maxLabelWidth = math.max(_maxLabelWidth, labelSize.width);
-      });
+      }
 
       return (_isHorizontalOrientation ? _maxLabelHeight : _maxLabelWidth) +
           labelOffset;
@@ -895,9 +895,9 @@ class RenderLinearAxis extends RenderBox {
     final double tickSize = getTickSize() - tickMarginSize;
     final double labelSize = getEffectiveLabelSize() - labelMarginSize;
     final double axisSize = getAxisLineThickness();
-    final LinearElementPosition? position =
+    final LinearElementPosition position =
         LinearGaugeHelper.getEffectiveElementPosition(tickPosition, isMirrored);
-    final LinearLabelPosition? labelPlacement =
+    final LinearLabelPosition labelPlacement =
         LinearGaugeHelper.getEffectiveLabelPosition(labelPosition, isMirrored);
 
     switch (position) {
@@ -1030,8 +1030,8 @@ class RenderLinearAxis extends RenderBox {
     double _layoutStartPadding = 0;
     double _layoutEndPadding = 0;
 
-    final labelStartPadding = _getStartLabelPadding();
-    final labelEndPadding = _getEndLabelPadding();
+    final double labelStartPadding = _getStartLabelPadding();
+    final double labelEndPadding = _getEndLabelPadding();
 
     if (axisTrackExtent == 0) {
       if (pointerStartPadding! > labelStartPadding) {
@@ -1077,12 +1077,12 @@ class RenderLinearAxis extends RenderBox {
 
   /// Return the axis position padding.
   double getAxisPositionPadding() {
-    final axisStartPadding = _getStartLabelPadding();
+    final double axisStartPadding = _getStartLabelPadding();
     double padding = 0;
 
     if (axisTrackExtent == 0) {
       if (pointerStartPadding! > axisStartPadding) {
-        padding = (pointerStartPadding! - _getStartLabelPadding());
+        padding = pointerStartPadding! - _getStartLabelPadding();
       }
     } else {
       if (pointerStartPadding! < axisTrackExtent) {
@@ -1112,8 +1112,9 @@ class RenderLinearAxis extends RenderBox {
     if (child != null &&
         (child is RenderLinearWidgetPointer ||
             child is RenderLinearShapePointer)) {
-      final childSize =
-          _isHorizontalOrientation ? child.size.width : child.size.height;
+      final double childSize = _isHorizontalOrientation
+          ? child.size.width as double
+          : child.size.height as double;
 
       if (child.markerAlignment == LinearMarkerAlignment.start) {
         return paddingSize;
@@ -1131,7 +1132,7 @@ class RenderLinearAxis extends RenderBox {
   void _generateVisibleLabels(Size size) {
     _visibleLabels.clear();
     if (onGenerateLabels == null) {
-      final actualInterval = interval ?? _calculateAxisInterval(size);
+      final double actualInterval = interval ?? _calculateAxisInterval(size);
 
       if (actualInterval != 0 && minimum != maximum) {
         for (double i = minimum; i <= maximum; i += actualInterval) {
@@ -1150,8 +1151,9 @@ class RenderLinearAxis extends RenderBox {
     }
 
     _labelMap.clear();
-    _visibleLabels
-        .forEach((element) => _labelMap[element.value] = element.text);
+    for (final LinearAxisLabel element in _visibleLabels) {
+      _labelMap[element.value] = element.text;
+    }
   }
 
   LinearAxisLabel _getAxisLabel(double value) {
@@ -1212,15 +1214,15 @@ class RenderLinearAxis extends RenderBox {
 
   /// To calculate the axis interval based on the maximum axis label count.
   double _calculateAxisInterval(Size size) {
-    final delta = (maximum - minimum).abs();
-    final area = _isHorizontalOrientation ? size.width : size.height;
-    final actualDesiredIntervalsCount =
+    final double delta = (maximum - minimum).abs();
+    final double area = _isHorizontalOrientation ? size.width : size.height;
+    final double actualDesiredIntervalsCount =
         math.max((area * maximumLabels) / 100, 1.0);
     double niceInterval = delta / actualDesiredIntervalsCount;
-    final minInterval =
+    final num minInterval =
         math.pow(10, (math.log(niceInterval) / math.log(10)).floor());
-    final intervalDivisions = <double>[10, 5, 2, 1];
-    for (final intervalDivision in intervalDivisions) {
+    final List<double> intervalDivisions = <double>[10, 5, 2, 1];
+    for (final double intervalDivision in intervalDivisions) {
       final double currentInterval = minInterval * intervalDivision;
       if (actualDesiredIntervalsCount < (delta / currentInterval)) {
         break;
@@ -1273,7 +1275,7 @@ class RenderLinearAxis extends RenderBox {
 
   /// Returns the pixel position based on value.
   double valueToPixel(double value, {bool isTickPositionCalculation = false}) {
-    final factor = valueToFactor(value,
+    final double factor = valueToFactor(value,
         isTickPositionCalculation: isTickPositionCalculation);
 
     double? labelStartPadding = _getStartLabelPadding();
@@ -1312,7 +1314,7 @@ class RenderLinearAxis extends RenderBox {
           isTickPositionCalculation: true);
     }
 
-    final width = (endValuePosition -
+    final double width = (endValuePosition -
                 valueToPixel(_visibleLabels[index].value,
                     isTickPositionCalculation: true))
             .abs() /
@@ -1347,7 +1349,7 @@ class RenderLinearAxis extends RenderBox {
   ///Draws minor tick elements.
   void _drawMinorTicks(double minorTickLeftPosition, double top,
       int majorTickIndex, Canvas canvas) {
-    final position =
+    final LinearElementPosition position =
         LinearGaugeHelper.getEffectiveElementPosition(tickPosition, isMirrored);
 
     if (_isHorizontalOrientation) {
@@ -1366,8 +1368,8 @@ class RenderLinearAxis extends RenderBox {
       }
     }
 
-    final minorTickGap = _getMinorTickGap(majorTickIndex);
-    final valueGap = _getMinorTickValueGap(majorTickIndex);
+    final double? minorTickGap = _getMinorTickGap(majorTickIndex);
+    final double? valueGap = _getMinorTickValueGap(majorTickIndex);
 
     if (minorTickGap != null) {
       for (int minorTickIndex = 1;
@@ -1442,30 +1444,32 @@ class RenderLinearAxis extends RenderBox {
   ///Draws axis label elements.
   void _drawLabels(Canvas canvas, int majorTickIndex,
       double majorTickLeftPosition, double top) {
-    final paragraphStyle = dart_ui.ParagraphStyle(
+    final dart_ui.ParagraphStyle paragraphStyle = dart_ui.ParagraphStyle(
         textDirection: TextDirection.ltr, textAlign: TextAlign.left);
-    final labelText = _labelMap[_visibleLabels[majorTickIndex].value]!;
-    final value = _visibleLabels[majorTickIndex].value;
-    final labelTextStyle = _getTextStyle(
+    final String labelText = _labelMap[_visibleLabels[majorTickIndex].value]!;
+    final double value = _visibleLabels[majorTickIndex].value;
+    final dart_ui.TextStyle labelTextStyle = _getTextStyle(
         style: textStyle,
         color: useRangeColorForAxis
             ? _getRangeColor(_visibleLabels[majorTickIndex].value) ??
                 textStyle.color
             : textStyle.color);
-    final paragraphBuilder = dart_ui.ParagraphBuilder(paragraphStyle)
-      ..pushStyle(labelTextStyle)
-      ..addText(labelText);
-    final paragraph = paragraphBuilder.build();
+    final dart_ui.ParagraphBuilder paragraphBuilder =
+        dart_ui.ParagraphBuilder(paragraphStyle)
+          ..pushStyle(labelTextStyle)
+          ..addText(labelText);
+    final dart_ui.Paragraph paragraph = paragraphBuilder.build();
     final Size labelSize = _measureLabelSize(value);
     paragraph.layout(dart_ui.ParagraphConstraints(width: labelSize.width));
 
     Offset labelOffset;
 
     if (_isHorizontalOrientation) {
-      final _labelLeftPosition = majorTickLeftPosition - (labelSize.width / 2);
+      final double _labelLeftPosition =
+          majorTickLeftPosition - (labelSize.width / 2);
       labelOffset = Offset(_labelLeftPosition, _labelTop);
     } else {
-      final _labelLeftPosition = top - (labelSize.height / 2);
+      final double _labelLeftPosition = top - (labelSize.height / 2);
 
       if (_labelTop == 0 && _maxLabelWidth > labelSize.width) {
         labelOffset =
@@ -1563,7 +1567,7 @@ class RenderLinearAxis extends RenderBox {
   }
 
   void _drawTicksAndLabels(Canvas canvas, Offset offset) {
-    final majorTickLeftPosition =
+    final double majorTickLeftPosition =
         math.max(_getStartLabelPadding(), axisTrackExtent);
 
     Offset tickStartPoint, tickEndPoint;
@@ -1574,7 +1578,8 @@ class RenderLinearAxis extends RenderBox {
           ? _getRangeColor(_visibleLabels[index].value) ?? majorTickColor
           : majorTickColor);
       _axisPaint.strokeWidth = majorTickThickness;
-      final calculatedPosition = valueToPixel(_visibleLabels[index].value,
+      final double calculatedPosition = valueToPixel(
+              _visibleLabels[index].value,
               isTickPositionCalculation: true) +
           majorTickLeftPosition;
 
@@ -1604,7 +1609,7 @@ class RenderLinearAxis extends RenderBox {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    final canvas = context.canvas;
+    final Canvas canvas = context.canvas;
     _drawAxisLine(canvas, offset);
 
     if (showTicks || showLabels) {

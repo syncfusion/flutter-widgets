@@ -12,6 +12,7 @@ class _PdfAppearanceState implements _IPdfWrapper {
   final _PdfDictionary _dictionary = _PdfDictionary();
   PdfTemplate? _on;
   PdfTemplate? _off;
+  // ignore: prefer_final_fields
   String _onMappingName = _DictionaryProperties.yes;
   static const String _offMappingName = _DictionaryProperties.off;
 

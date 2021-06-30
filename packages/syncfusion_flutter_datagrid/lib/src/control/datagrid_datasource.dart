@@ -40,7 +40,7 @@ typedef _DataGridPropertyChangeListener = void Function(
 ///       .toList();
 ///
 ///   @override
-///   DataGridRowAdapter buildRow(DataGridRow row) {
+///   DataGridRowAdapter? buildRow(DataGridRow row) {
 ///     return DataGridRowAdapter(
 ///         cells: row.getCells().map<Widget>((dataCell) {
 ///           return Text(dataCell.value.toString());
@@ -54,7 +54,7 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
   /// The collection of rows to display in [SfDataGrid].
   ///
   /// This must be non-null, but may be empty.
-  List<DataGridRow> get rows => List.empty();
+  List<DataGridRow> get rows => List<DataGridRow>.empty();
 
   /// Called to obtain the widget for each cell of the row.
   ///
@@ -71,9 +71,9 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
   /// This method will be called whenever you call the [notifyListeners] method.
   DataGridRowAdapter? buildRow(DataGridRow row);
 
-  List<DataGridRow> _effectiveRows = [];
+  List<DataGridRow> _effectiveRows = <DataGridRow>[];
 
-  List<DataGridRow> _unSortedRows = [];
+  List<DataGridRow> _unSortedRows = <DataGridRow>[];
 
   /// Called whenever you call [notifyListeners] or [notifyDataSourceListeners]
   /// in the DataGridSource class. If you want to recalculate all columns
@@ -106,7 +106,7 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
   ///   }
   ///
   ///   @override
-  ///   DataGridRowAdapter buildRow(DataGridRow row) {
+  ///   DataGridRowAdapter? buildRow(DataGridRow row) {
   ///     return DataGridRowAdapter(
   ///         cells: row.getCells().map<Widget>((dataCell) {
   ///           return Text(dataCell.value.toString());
@@ -138,7 +138,7 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
   ///     ),
   ///     body: Column(
   ///       children: [
-  ///         FlatButton(
+  ///         TextButton(
   ///           child: Text('Click'),
   ///           onPressed: () {
   ///             _employeeDataSource.sortedColumns
@@ -150,10 +150,10 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
   ///           source: _employeeDataSource,
   ///           allowSorting: true,
   ///           columns: <GridColumn>[
-  ///               GridTextColumn(columnName: 'id', label = Text('ID')),
-  ///               GridTextColumn(columnName: 'name', label = Text('Name')),
-  ///               GridTextColumn(columnName: 'designation', label = Text('Designation')),
-  ///               GridTextColumn(columnName: 'salary', label = Text('Salary')),
+  ///               GridColumn(columnName: 'id', label: Text('ID')),
+  ///               GridColumn(columnName: 'name', label: Text('Name')),
+  ///               GridColumn(columnName: 'designation', label: Text('Designation')),
+  ///               GridColumn(columnName: 'salary', label: Text('Salary')),
   ///           ],
   ///         ),
   ///       ],
@@ -170,31 +170,37 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
   /// * [DataGridSource.sort] - call this method when you are adding the
   /// [SortColumnDetails] programmatically to [DataGridSource.sortedColumns].
   List<SortColumnDetails> get sortedColumns => _sortedColumns;
-  List<SortColumnDetails> _sortedColumns = [];
+  final List<SortColumnDetails> _sortedColumns = <SortColumnDetails>[];
 
-  /// Called when the sorting is applied to a column.
+  /// Called when the sorting is applied to the column.
   ///
-  /// [SfDataGrid] sorts the data by cloning the datasource assigned in
-  /// [rows] property and applying the sorting in that cloned datasource.
-  /// So, users won’t need to apply the sorting for the columns in application
-  /// level.
+  /// Overriding this method gives complete control over sorting. You can handle
+  /// the sorting completely in your own way. The rows argument provides the
+  /// unsorted [DataGridRow] collection.
   ///
-  /// This method will be called when the corresponding column’s
-  /// [GridColumn.allowSorting] and [SfDataGrid.allowSorting] are enabled.
+  /// You can apply the sorting to rows argument. DataGrid will render the rows
+  /// based on the [rows] argument. You don’t need to call [notifyListeners]
+  /// within this method. However, you must override this method only if you
+  /// want to write the entire sorting logic by yourself. Otherwise, for custom
+  /// comparison, you can just override [DataGridSource.compare] method and
+  /// return the custom sorting order.
   ///
-  /// You can override this method and apply the custom sorting based on your
-  /// requirement.
+  /// For most of your cases, the 'compare' method should be sufficient.
+  /// The [DataGridSource.compare] method can be used to do custom sorting based
+  /// on the length of the text, case insensitive sorting, and so on.
+  ///
+  /// See also,
+  ///
+  /// [DataGridSource.compare] – To write the custom sorting for most of the use
+  /// cases.
   @protected
-  Future<bool> handleSort() async {
+  void performSorting(List<DataGridRow> rows) {
     if (sortedColumns.isEmpty) {
-      return true;
+      return;
     }
-
-    _effectiveRows.sort((a, b) {
+    rows.sort((DataGridRow a, DataGridRow b) {
       return _compareValues(sortedColumns, a, b);
     });
-
-    return true;
   }
 
   int _compareValues(
@@ -202,18 +208,18 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
     if (sortedColumns.length > 1) {
       for (int i = 0; i < sortedColumns.length; i++) {
         final SortColumnDetails sortColumn = sortedColumns[i];
-        final compareResult = compare(a, b, sortColumn);
+        final int compareResult = compare(a, b, sortColumn);
         if (compareResult != 0) {
           return compareResult;
         } else {
           final List<SortColumnDetails> remainingSortColumns = sortedColumns
-              .skipWhile((value) => value == sortColumn)
+              .skipWhile((SortColumnDetails value) => value == sortColumn)
               .toList(growable: false);
           return _compareValues(remainingSortColumns, a, b);
         }
       }
     }
-    final sortColumn = sortedColumns.last;
+    final SortColumnDetails sortColumn = sortedColumns.last;
     return compare(a, b, sortColumn);
   }
 
@@ -249,49 +255,51 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
   ///       .toList();
   ///
   ///   @override
-  ///   DataGridRowAdapter buildRow(DataGridRow row) {
+  ///   DataGridRowAdapter? buildRow(DataGridRow row) {
   ///     return DataGridRowAdapter(
   ///         cells: row.getCells().map<Widget>((dataCell) {
   ///           return Text(dataCell.value.toString());
   ///         }).toList());
   ///   }
   ///
-  ///   @override
-  ///   int compare(DataGridRow a, DataGridRow b, SortColumnDetails sortColumn) {
-  ///     if (sortColumn.name == 'name') {
-  ///       final String valueA = a
-  ///           .getCells()
-  ///           .firstWhere((dataCell) => dataCell.columnName == 'name',
-  ///               orElse: () => null)
-  ///           ?.value;
-  ///       final String valueB = b
-  ///           .getCells()
-  ///           .firstWhere((dataCell) => dataCell.columnName == 'name',
-  ///               orElse: () => null)
-  ///           ?.value;
-  ///       if (sortColumn.sortDirection == DataGridSortDirection.ascending) {
-  ///         return valueA.toLowerCase().compareTo(valueB.toLowerCase());
-  ///       } else {
-  ///         return valueA.toLowerCase().compareTo(valueB.toLowerCase());
-  ///       }
-  ///     }
+  ///  @override
+  ///   int compare(DataGridRow? a, DataGridRow? b, SortColumnDetails sortColumn) {
+  ///    if (sortColumn.name == 'name') {
+  ///      final String? valueA = a
+  ///          ?.getCells()
+  ///          .firstWhereOrNull((dataCell) => dataCell.columnName == 'name')
+  ///          ?.value;
+  ///      final String? valueB = b
+  ///          ?.getCells()
+  ///          .firstWhereOrNull((dataCell) => dataCell.columnName == 'name')
+  ///          ?.value;
   ///
-  ///     return super.compare(a, b, sortColumn);
-  ///   }
-  /// }
+  ///      if (valueA == null || valueB == null) {
+  ///        return 0;
+  ///      }
+  ///
+  ///      if (sortColumn.sortDirection == DataGridSortDirection.ascending) {
+  ///        return valueA.toLowerCase().compareTo(valueB.toLowerCase());
+  ///      } else {
+  ///        return valueA.toLowerCase().compareTo(valueB.toLowerCase());
+  ///      }
+  ///    }
+  ///
+  ///    return super.compare(a, b, sortColumn);
+  ///  }
   ///
   /// ```
   @protected
   int compare(DataGridRow? a, DataGridRow? b, SortColumnDetails sortColumn) {
     Object? _getCellValue(List<DataGridCell>? cells, String columnName) {
       return cells
-              ?.firstWhereOrNull((element) => element.columnName == columnName)
-              ?.value ??
-          null;
+          ?.firstWhereOrNull(
+              (DataGridCell element) => element.columnName == columnName)
+          ?.value;
     }
 
-    final valueA = _getCellValue(a?.getCells() ?? null, sortColumn.name);
-    final valueB = _getCellValue(b?.getCells() ?? null, sortColumn.name);
+    final Object? valueA = _getCellValue(a?.getCells(), sortColumn.name);
+    final Object? valueB = _getCellValue(b?.getCells(), sortColumn.name);
     return _compareTo(valueA, valueB, sortColumn.sortDirection);
   }
 
@@ -303,26 +311,26 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
       } else if (value2 == null) {
         return 1;
       }
-      return value1.compareTo(value2);
+      return value1.compareTo(value2) as int;
     } else {
       if (value1 == null) {
         return 1;
       } else if (value2 == null) {
         return -1;
       }
-      return value2.compareTo(value1);
+      return value2.compareTo(value1) as int;
     }
   }
 
-  Future<bool> _updateDataSource() {
+  void _updateDataSource() {
     if (sortedColumns.isNotEmpty) {
       _unSortedRows = rows.toList();
       _effectiveRows = _unSortedRows;
     } else {
       _effectiveRows = rows;
     }
-
-    return handleSort();
+    // Should refresh sorting when the data grid source is updated.
+    performSorting(_effectiveRows);
   }
 
   /// Call this method when you are adding the [SortColumnDetails]
@@ -349,10 +357,10 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
   ///           source: _employeeDataSource,
   ///           allowSorting: true,
   ///           columns: <GridColumn>[
-  ///               GridTextColumn(columnName: 'id', label = Text('ID')),
-  ///               GridTextColumn(columnName: 'name', label = Text('Name')),
-  ///               GridTextColumn(columnName: 'designation', label = Text('Designation')),
-  ///               GridTextColumn(columnName: 'salary', label = Text('Salary')),
+  ///               GridColumn(columnName: 'id', label:Text('ID')),
+  ///               GridColumn(columnName: 'name', label:Text('Name')),
+  ///               GridColumn(columnName: 'designation', label: Text('Designation')),
+  ///               GridColumn(columnName: 'salary', label: Text('Salary')),
   ///           ],
   ///         ),
   ///       ],
@@ -392,6 +400,148 @@ abstract class DataGridSource extends DataGridSourceChangeNotifier
   /// available rows.
   @protected
   Future<void> handleRefresh() async {}
+
+  /// Called to obtain the widget when a cell is moved into edit mode.
+  ///
+  /// The following example shows how to override this method and return the
+  /// widget for specific column.
+  ///
+  /// ```dart
+  ///
+  /// TextEditingController editingController = TextEditingController();
+  ///
+  /// dynamic newCellValue;
+  ///
+  /// @override
+  /// Widget? buildEditWidget(DataGridRow dataGridRow,
+  ///     RowColumnIndex rowColumnIndex, GridColumn column,
+  ///     CellSubmit submitCell) {
+  ///   // To set the value for TextField when cell is moved into edit mode.
+  ///   final String displayText = dataGridRow
+  ///       .getCells()
+  ///       .firstWhere((DataGridCell dataGridCell) =>
+  ///   dataGridCell.columnName == column.columnName)
+  ///       .value
+  ///       ?.toString() ??
+  ///       '';
+  ///
+  ///   /// Returning the TextField with the numeric keyboard configuration.
+  ///   if (column.columnName == 'id') {
+  ///     return Container(
+  ///         padding: const EdgeInsets.all(8.0),
+  ///         alignment: Alignment.centerRight,
+  ///         child: TextField(
+  ///           autofocus: true,
+  ///           controller: editingController..text = displayText,
+  ///           textAlign: TextAlign.right,
+  ///           decoration: const InputDecoration(
+  ///               contentPadding: EdgeInsets.all(0),
+  ///               border: InputBorder.none,
+  ///               isDense: true),
+  ///           inputFormatters: [
+  ///             FilteringTextInputFormatter.allow(RegExp('[0-9]'))
+  ///           ],
+  ///           keyboardType: TextInputType.number,
+  ///           onChanged: (String value) {
+  ///             if (value.isNotEmpty) {
+  ///               print(value);
+  ///               newCellValue = int.parse(value);
+  ///             } else {
+  ///               newCellValue = null;
+  ///             }
+  ///           },
+  ///           onSubmitted: (String value) {
+  ///             /// Call [CellSubmit] callback to fire the canSubmitCell and
+  ///             /// onCellSubmit to commit the new value in single place.
+  ///             submitCell();
+  ///           },
+  ///         ));
+  ///   }
+  /// }
+  /// ```
+  /// Call the cellSubmit function whenever you are trying to save the cell
+  /// values. When you call this method, it will call [canSubmitCell] and
+  /// [onCellSubmit] methods. So, your usual cell value updation will be done
+  /// in single place.
+  Widget? buildEditWidget(DataGridRow dataGridRow,
+      RowColumnIndex rowColumnIndex, GridColumn column, CellSubmit submitCell) {
+    return null;
+  }
+
+  /// Called whenever the cell is moved into edit mode.
+  ///
+  /// If you want to disable editing for the cells in specific scenarios,
+  /// you can return false.
+  ///
+  /// [rowColumnIndex] represents the index of row and column which are
+  /// currently in view not based on the actual index. If you want to get the
+  /// actual row index even after sorting is applied, you can use
+  /// `DataGridSource.rows.indexOf` method and pass the [dataGridRow]. It will
+  /// provide the actual row index from unsorted [DataGridRow] collection.
+  bool onCellBeginEdit(DataGridRow dataGridRow, RowColumnIndex rowColumnIndex,
+      GridColumn column) {
+    return true;
+  }
+
+  /// Called whenever the cell’s editing is completed.
+  ///
+  /// Typically, this will be called whenever the [notifyListeners] is called
+  /// when cell is in editing mode and key navigation is performed to move a
+  /// cell to another cell from the cell which is currently editing.
+  /// For eg, Enter key, TAB key and so on.
+  ///
+  /// The following example show how to override this method and save the
+  /// currently edited value for specific column.
+  ///
+  /// ``` dart
+  /// @override
+  /// void onCellSubmit(DataGridRow dataGridRow, RowColumnIndex rowColumnIndex,
+  ///     GridColumn column) {
+  ///   final dynamic oldValue = dataGridRow
+  ///       .getCells()
+  ///       .firstWhereOrNull((DataGridCell dataGridCell) =>
+  ///   dataGridCell.columnName == column.columnName)
+  ///       ?.value ??
+  ///       '';
+  ///
+  ///   final int dataRowIndex = rows.indexOf(dataGridRow);
+  ///
+  ///   if (newCellValue == null || oldValue == newCellValue) {
+  ///     return;
+  ///   }
+  ///
+  ///   if (column.columnName == 'id') {
+  ///     rows[dataRowIndex].getCells()[rowColumnIndex.columnIndex] =
+  ///         DataGridCell<int>(columnName: 'id', value: newCellValue);
+  ///
+  ///     // Save the new cell value to model collection also.
+  ///     employees[dataRowIndex].id = newCellValue as int;
+  ///   }
+  ///
+  ///   // To reset the new cell value after successfully updated to DataGridRow
+  ///   //and underlying mode.
+  ///   newCellValue = null;
+  /// }
+  ///```
+  /// This method will never be called when you return false from [onCellBeginEdit].
+  void onCellSubmit(DataGridRow dataGridRow, RowColumnIndex rowColumnIndex,
+      GridColumn column) {}
+
+  /// Called whenever the cell’s editing is completed i.e. prior to
+  /// [onCellSubmit] method.
+  ///
+  /// If you want to restrict the cell from being end its editing, you can
+  /// return false. Otherwise, return true. [onCellSubmit] will be called only
+  /// if the [canSubmitCell] returns true.
+  bool canSubmitCell(DataGridRow dataGridRow, RowColumnIndex rowColumnIndex,
+      GridColumn column) {
+    return true;
+  }
+
+  /// Called when you press the [LogicalKeyboardKey.escape] key when
+  /// the [DataGridCell] on editing to cancel the editing.
+  void onCellCancelEdit(DataGridRow dataGridRow, RowColumnIndex rowColumnIndex,
+      GridColumn column) {}
 }
 
 /// Controls a [SfDataGrid] widget.
@@ -413,6 +563,8 @@ class DataGridController extends DataGridSourceChangeNotifier {
         _selectedIndex = selectedIndex,
         _selectedRows = selectedRows.toList() {
     _currentCell = RowColumnIndex(-1, -1);
+    _horizontalOffset = 0.0;
+    _verticalOffset = 0.0;
   }
 
   _DataGridStateDetails? _dataGridStateDetails;
@@ -420,7 +572,7 @@ class DataGridController extends DataGridSourceChangeNotifier {
   /// The collection of objects that contains object of corresponding
   /// to the selected rows in [SfDataGrid].
   List<DataGridRow> get selectedRows => _selectedRows;
-  List<DataGridRow> _selectedRows = List.empty();
+  List<DataGridRow> _selectedRows = List<DataGridRow>.empty();
 
   /// The collection of objects that contains object of corresponding
   /// to the selected rows in [SfDataGrid].
@@ -469,11 +621,11 @@ class DataGridController extends DataGridSourceChangeNotifier {
 
   /// The current scroll offset of the vertical scrollbar.
   double get verticalOffset => _verticalOffset;
-  double _verticalOffset = 0.0;
+  late double _verticalOffset;
 
   /// The current scroll offset of the horizontal scrollbar.
   double get horizontalOffset => _horizontalOffset;
-  double _horizontalOffset = 0.0;
+  late double _horizontalOffset;
 
   ///If the [rowIndex] alone is given, the entire row will be set as dirty.
   ///So, data which is displayed in a row will be refreshed.
@@ -502,19 +654,22 @@ class DataGridController extends DataGridSourceChangeNotifier {
   /// Moves the currentcell to the specified cell coordinates.
   void moveCurrentCellTo(RowColumnIndex rowColumnIndex) {
     if (_dataGridStateDetails != null) {
-      final _DataGridSettings? dataGridSettings = _dataGridStateDetails!();
-      if (dataGridSettings != null &&
-          rowColumnIndex != RowColumnIndex(-1, -1) &&
+      final _DataGridSettings dataGridSettings = _dataGridStateDetails!();
+      if (rowColumnIndex != RowColumnIndex(-1, -1) &&
           dataGridSettings.selectionMode != SelectionMode.none &&
           dataGridSettings.navigationMode != GridNavigationMode.row) {
-        final rowIndex = _GridIndexResolver.resolveToRowIndex(
+        final int rowIndex = _GridIndexResolver.resolveToRowIndex(
             dataGridSettings, rowColumnIndex.rowIndex);
-        final columnIndex = _GridIndexResolver.resolveToGridVisibleColumnIndex(
-            dataGridSettings, rowColumnIndex.columnIndex);
-        if (rowIndex < 0 || columnIndex < 0) {
+        final int columnIndex =
+            _GridIndexResolver.resolveToGridVisibleColumnIndex(
+                dataGridSettings, rowColumnIndex.columnIndex);
+        // Ignore the scrolling when the row index or column index are in negative
+        // or invalid.
+        if (rowIndex.isNegative || columnIndex.isNegative) {
           return;
         }
-        final rowSelectionController = dataGridSettings.rowSelectionManager;
+        final SelectionManagerBase rowSelectionController =
+            dataGridSettings.rowSelectionManager;
         if (rowSelectionController is RowSelectionManager) {
           rowSelectionController._processSelectionAndCurrentCell(
               dataGridSettings, RowColumnIndex(rowIndex, columnIndex),
@@ -539,25 +694,26 @@ class DataGridController extends DataGridSourceChangeNotifier {
           DataGridScrollPosition.start}) async {
     if (_dataGridStateDetails != null) {
       final _DataGridSettings dataGridSettings = _dataGridStateDetails!();
-      final scrollRows = dataGridSettings.container.scrollRows;
-      final scrollColumns = dataGridSettings.container.scrollColumns;
+      final _ScrollAxisBase scrollRows = dataGridSettings.container.scrollRows;
+      final _ScrollAxisBase scrollColumns =
+          dataGridSettings.container.scrollColumns;
 
       if (rowIndex > dataGridSettings.container.rowCount ||
-          columnIndex > scrollColumns.lineCount) {
+          columnIndex > scrollColumns.lineCount ||
+          (rowIndex.isNegative && columnIndex.isNegative)) {
         return;
       }
-      final _rowIndex = _GridIndexResolver.resolveToRowIndex(
+
+      final int _rowIndex = _GridIndexResolver.resolveToRowIndex(
           dataGridSettings, rowIndex.toInt());
-      final _columnIndex = _GridIndexResolver.resolveToGridVisibleColumnIndex(
-          dataGridSettings, columnIndex.toInt());
-      double verticalOffset = _rowIndex < 0
-          ? dataGridSettings.container.verticalOffset
-          : _SelectionHelper.getVerticalCumulativeDistance(
-              dataGridSettings, _rowIndex);
-      double horizontalOffset = _columnIndex < 0
-          ? dataGridSettings.container.horizontalOffset
-          : _SelectionHelper.getHorizontalCumulativeDistance(
-              dataGridSettings, _columnIndex);
+      final int _columnIndex =
+          _GridIndexResolver.resolveToGridVisibleColumnIndex(
+              dataGridSettings, columnIndex.toInt());
+      double verticalOffset =
+          _SfDataGridHelper.getVerticalOffset(dataGridSettings, _rowIndex);
+      double horizontalOffset =
+          _SfDataGridHelper.getHorizontalOffset(dataGridSettings, _columnIndex);
+
       if (dataGridSettings.textDirection == TextDirection.rtl &&
           columnIndex == -1) {
         horizontalOffset = dataGridSettings.container.extentWidth -
@@ -569,67 +725,28 @@ class DataGridController extends DataGridSourceChangeNotifier {
                 horizontalOffset
             : 0;
       }
-      if (rowPosition == DataGridScrollPosition.center) {
-        verticalOffset = verticalOffset -
-            ((dataGridSettings.viewHeight -
-                    scrollRows.footerExtent -
-                    scrollRows.headerExtent) /
-                2) +
-            (dataGridSettings.rowHeight / 2);
-      } else if (rowPosition == DataGridScrollPosition.end) {
-        verticalOffset = verticalOffset -
-            (dataGridSettings.viewHeight -
-                scrollRows.footerExtent -
-                scrollRows.headerExtent) +
-            dataGridSettings.rowHeight;
-      } else if (rowPosition == DataGridScrollPosition.makeVisible) {
-        final visibleRows = scrollRows.getVisibleLines();
-        final startIndex =
-            visibleRows[visibleRows.firstBodyVisibleIndex].lineIndex;
-        final endIndex =
-            visibleRows[visibleRows.lastBodyVisibleIndex].lineIndex;
-        if (_rowIndex > startIndex && _rowIndex < endIndex) {
-          verticalOffset = dataGridSettings.container.verticalOffset;
-        }
-        if (dataGridSettings.container.verticalOffset - verticalOffset < 0) {
-          verticalOffset = verticalOffset -
-              (dataGridSettings.viewHeight -
-                  scrollRows.footerExtent -
-                  scrollRows.headerExtent) +
-              dataGridSettings.rowHeight;
-        }
-      }
-      if (columnPosition == DataGridScrollPosition.center) {
-        horizontalOffset = horizontalOffset -
-            ((dataGridSettings.viewWidth -
-                    scrollColumns.footerExtent -
-                    scrollColumns.headerExtent) /
-                2) +
-            (dataGridSettings.defaultColumnWidth / 2);
-      } else if (columnPosition == DataGridScrollPosition.end) {
-        horizontalOffset = horizontalOffset -
-            (dataGridSettings.viewWidth -
-                scrollColumns.footerExtent -
-                scrollColumns.headerExtent) +
-            dataGridSettings.defaultColumnWidth;
-      } else if (columnPosition == DataGridScrollPosition.makeVisible) {
-        final visibleColumns = scrollColumns.getVisibleLines();
-        final startIndex =
-            visibleColumns[visibleColumns.firstBodyVisibleIndex].lineIndex;
-        final endIndex =
-            visibleColumns[visibleColumns.lastBodyVisibleIndex].lineIndex;
-        if (_columnIndex > startIndex && _columnIndex < endIndex) {
-          horizontalOffset = dataGridSettings.container.horizontalOffset;
-        }
-        if (dataGridSettings.container.horizontalOffset - horizontalOffset <
-            0) {
-          horizontalOffset = horizontalOffset -
-              (dataGridSettings.viewWidth -
-                  scrollColumns.footerExtent -
-                  scrollColumns.headerExtent) +
-              dataGridSettings.defaultColumnWidth;
-        }
-      }
+
+      verticalOffset = _SfDataGridHelper.resolveScrollOffsetToPosition(
+          rowPosition,
+          scrollRows,
+          verticalOffset,
+          dataGridSettings.viewHeight,
+          scrollRows.headerExtent,
+          scrollRows.footerExtent,
+          dataGridSettings.rowHeight,
+          dataGridSettings.container.verticalOffset,
+          _rowIndex);
+
+      horizontalOffset = _SfDataGridHelper.resolveScrollOffsetToPosition(
+          columnPosition,
+          scrollColumns,
+          horizontalOffset,
+          dataGridSettings.viewWidth,
+          scrollColumns.headerExtent,
+          scrollColumns.footerExtent,
+          dataGridSettings.defaultColumnWidth,
+          dataGridSettings.container.horizontalOffset,
+          _columnIndex);
 
       _SfDataGridHelper.scrollVertical(
           dataGridSettings, verticalOffset, canAnimate);
@@ -688,6 +805,35 @@ class DataGridController extends DataGridSourceChangeNotifier {
           dataGridSettings, offset, canAnimate);
     }
   }
+
+  /// Begins the edit to the given [RowColumnIndex] in [SfDataGrid].
+  void beginEdit(RowColumnIndex rowColumnIndex) {
+    if (_dataGridStateDetails != null) {
+      final _DataGridSettings dataGridSettings = _dataGridStateDetails!();
+      if (!dataGridSettings.allowEditing ||
+          dataGridSettings.selectionMode == SelectionMode.none ||
+          dataGridSettings.navigationMode == GridNavigationMode.row) {
+        return;
+      }
+
+      dataGridSettings.currentCell._onCellBeginEdit(
+          editingRowColumnIndex: rowColumnIndex, isProgrammatic: true);
+    }
+  }
+
+  /// Ends the current editing of a cell in [SfDataGrid].
+  void endEdit() {
+    if (_dataGridStateDetails != null) {
+      final _DataGridSettings dataGridSettings = _dataGridStateDetails!();
+      if (!dataGridSettings.allowEditing ||
+          dataGridSettings.selectionMode == SelectionMode.none ||
+          dataGridSettings.navigationMode == GridNavigationMode.row) {
+        return;
+      }
+
+      dataGridSettings.currentCell._onCellSubmit(dataGridSettings);
+    }
+  }
 }
 
 /// ToDO
@@ -727,7 +873,7 @@ class DataGridSourceChangeNotifier extends ChangeNotifier {
   /// Call this method whenever the underlying data is added or removed. If the value of the specific cell is updated, call this method with RowColumnIndex argument where it refers the corresponding row and column index of the cell.
   @protected
   void notifyDataSourceListeners({RowColumnIndex? rowColumnIndex}) {
-    for (final listener in _dataGridSourceListeners) {
+    for (final Function listener in _dataGridSourceListeners) {
       listener(rowColumnIndex: rowColumnIndex);
     }
   }
@@ -737,7 +883,7 @@ class DataGridSourceChangeNotifier extends ChangeNotifier {
       {RowColumnIndex? rowColumnIndex,
       String? propertyName,
       bool recalculateRowHeight = false}) {
-    for (final listener in _dataGridPropertyChangeListeners) {
+    for (final Function listener in _dataGridPropertyChangeListeners) {
       listener(
           rowColumnIndex: rowColumnIndex,
           propertyName: propertyName,

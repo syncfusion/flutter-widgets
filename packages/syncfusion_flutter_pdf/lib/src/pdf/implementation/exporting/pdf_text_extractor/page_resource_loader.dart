@@ -20,7 +20,7 @@ class _PageResourceLoader {
       _PdfDictionary? xobjects;
       if (resources[_DictionaryProperties.xObject] is _PdfReferenceHolder) {
         xobjects =
-            (resources[_DictionaryProperties.xObject] as _PdfReferenceHolder)
+            (resources[_DictionaryProperties.xObject]! as _PdfReferenceHolder)
                 .object as _PdfDictionary?;
       } else {
         xobjects = resources[_DictionaryProperties.xObject] as _PdfDictionary?;
@@ -38,7 +38,7 @@ class _PageResourceLoader {
           if (xobjectDictionary[_DictionaryProperties.resources]
               is _PdfReferenceHolder) {
             final _PdfReferenceHolder resourceReference =
-                xobjectDictionary[_DictionaryProperties.resources]
+                xobjectDictionary[_DictionaryProperties.resources]!
                     as _PdfReferenceHolder;
             if (resourceNumber != resourceReference.reference!._objNum) {
               resources = resourceReference.object as _PdfDictionary?;
@@ -140,7 +140,7 @@ class _PageResourceLoader {
                 pageResources[k!._name] = _FontStructure(v);
               } else {
                 pageResources[k!._name] = _FontStructure(
-                    v, (v as _PdfReferenceHolder).reference.toString());
+                    v, (v! as _PdfReferenceHolder).reference.toString());
               }
             }
           });
@@ -155,17 +155,15 @@ class _PageResourceLoader {
           final _PdfResources parentResources =
               _PdfResources(parentRef as _PdfDictionary?);
           fonts = parentResources[_DictionaryProperties.font];
-          if (fonts != null) {
-            final _PdfDictionary? fontsDictionary = fonts as _PdfDictionary;
-            if (fontsDictionary != null) {
-              fontsDictionary._items!.forEach((_PdfName? k, _IPdfPrimitive? v) {
-                if (v is _PdfDictionary) {
-                  pageResources[k!._name] = (v as _PdfReferenceHolder).object;
-                }
-                pageResources[k!._name] = _FontStructure(
-                    v, (v as _PdfReferenceHolder).reference.toString());
-              });
-            }
+          if (fonts != null && fonts is _PdfDictionary) {
+            final _PdfDictionary fontsDictionary = fonts;
+            fontsDictionary._items!.forEach((_PdfName? k, _IPdfPrimitive? v) {
+              if (v is _PdfDictionary) {
+                pageResources[k!._name] = (v as _PdfReferenceHolder).object;
+              }
+              pageResources[k!._name] = _FontStructure(
+                  v, (v! as _PdfReferenceHolder).reference.toString());
+            });
           }
         }
       }

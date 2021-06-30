@@ -5,8 +5,8 @@ part of charts;
 /// Category axis displays text labels instead of numbers. When the string values are bound to x values, then the x-axis
 /// must be initialized with CategoryAxis.
 ///
-/// Provides the options for Label placement, arrange by index and interval are used to customize the appearance.
-///
+/// Provides the options for Label placement, arrange by index and interval used to customize the appearance.
+@immutable
 class CategoryAxis extends ChartAxis {
   /// Creating an argument constructor of CategoryAxis class.
   CategoryAxis({
@@ -41,7 +41,7 @@ class CategoryAxis extends ChartAxis {
     double? interval,
     this.visibleMinimum,
     this.visibleMaximum,
-    dynamic? crossesAt,
+    dynamic crossesAt,
     String? associatedAxisName,
     bool? placeLabelsNearAxisLine,
     List<PlotBand>? plotBands,
@@ -185,15 +185,116 @@ class CategoryAxis extends ChartAxis {
   ///}
   ///```
   final double? visibleMaximum;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is CategoryAxis &&
+        other.name == name &&
+        other.isVisible == isVisible &&
+        other.title == title &&
+        other.axisLine == axisLine &&
+        other.arrangeByIndex == arrangeByIndex &&
+        other.rangePadding == rangePadding &&
+        other.labelPlacement == labelPlacement &&
+        other.edgeLabelPlacement == edgeLabelPlacement &&
+        other.labelPosition == labelPosition &&
+        other.tickPosition == tickPosition &&
+        other.labelRotation == labelRotation &&
+        other.labelIntersectAction == labelIntersectAction &&
+        other.labelAlignment == labelAlignment &&
+        other.isInversed == isInversed &&
+        other.opposedPosition == opposedPosition &&
+        other.minorTicksPerInterval == minorTicksPerInterval &&
+        other.maximumLabels == maximumLabels &&
+        other.majorTickLines == majorTickLines &&
+        other.minorTickLines == minorTickLines &&
+        other.majorGridLines == majorGridLines &&
+        other.minorGridLines == minorGridLines &&
+        other.labelStyle == labelStyle &&
+        other.plotOffset == plotOffset &&
+        other.zoomFactor == zoomFactor &&
+        other.zoomPosition == zoomPosition &&
+        other.interactiveTooltip == interactiveTooltip &&
+        other.minimum == minimum &&
+        other.maximum == maximum &&
+        other.interval == interval &&
+        other.visibleMinimum == visibleMinimum &&
+        other.visibleMaximum == visibleMaximum &&
+        other.crossesAt == crossesAt &&
+        other.associatedAxisName == associatedAxisName &&
+        other.placeLabelsNearAxisLine == placeLabelsNearAxisLine &&
+        other.plotBands == plotBands &&
+        other.desiredIntervals == desiredIntervals &&
+        other.rangeController == rangeController &&
+        other.maximumLabelWidth == maximumLabelWidth &&
+        other.labelsExtent == labelsExtent &&
+        other.autoScrollingDelta == autoScrollingDelta &&
+        other.autoScrollingMode == autoScrollingMode;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      name,
+      isVisible,
+      title,
+      axisLine,
+      arrangeByIndex,
+      rangePadding,
+      labelPlacement,
+      edgeLabelPlacement,
+      labelPosition,
+      tickPosition,
+      labelRotation,
+      labelIntersectAction,
+      labelAlignment,
+      isInversed,
+      opposedPosition,
+      minorTicksPerInterval,
+      maximumLabels,
+      majorTickLines,
+      minorTickLines,
+      majorGridLines,
+      minorGridLines,
+      labelStyle,
+      plotOffset,
+      zoomFactor,
+      zoomPosition,
+      interactiveTooltip,
+      minimum,
+      maximum,
+      interval,
+      visibleMinimum,
+      visibleMaximum,
+      crossesAt,
+      associatedAxisName,
+      placeLabelsNearAxisLine,
+      plotBands,
+      desiredIntervals,
+      rangeController,
+      maximumLabelWidth,
+      labelsExtent,
+      autoScrollingDelta,
+      autoScrollingMode
+    ];
+    return hashList(values);
+  }
 }
 
 /// Creates an axis renderer for Category axis
 class CategoryAxisRenderer extends ChartAxisRenderer {
   /// Creating an argument constructor of CategoryAxisRenderer class.
   CategoryAxisRenderer(this._categoryAxis) : super(_categoryAxis) {
-    _labels = <dynamic>[];
+    _labels = <String>[];
   }
-  dynamic _labels;
+  late List<String> _labels;
   late Rect _rect;
   final CategoryAxis _categoryAxis;
 
@@ -201,12 +302,13 @@ class CategoryAxisRenderer extends ChartAxisRenderer {
       CartesianChartPoint<dynamic> point, int pointIndex, int dataLength,
       [bool? isXVisibleRange, bool? isYVisibleRange]) {
     if (_categoryAxis.arrangeByIndex) {
+      // ignore: unnecessary_null_comparison
       pointIndex < _labels.length && _labels[pointIndex] != null
           ? _labels[pointIndex] += ', ' + point.x
           : _labels.add(point.x.toString());
       point.xValue = pointIndex;
     } else {
-      if (_labels.indexOf(point.x.toString()) < 0) {
+      if (!_labels.contains(point.x.toString())) {
         _labels.add(point.x.toString());
       }
       point.xValue = _labels.indexOf(point.x.toString());
@@ -218,8 +320,10 @@ class CategoryAxisRenderer extends ChartAxisRenderer {
 
   /// Listener for range controller
   void _controlListener() {
+    _chartState._canSetRangeController = false;
     if (_axis.rangeController != null && !_chartState._rangeChangedByChart) {
       _updateRangeControllerValues(this);
+      _chartState._rangeChangeBySlider = true;
       _chartState._redrawByRangeChange();
     }
   }
@@ -233,9 +337,10 @@ class CategoryAxisRenderer extends ChartAxisRenderer {
       _chartState._rangeChangeBySlider = true;
       _axis.rangeController!.addListener(_controlListener);
     }
-    final Rect containerRect = _chartState._containerRect;
+    final Rect containerRect = _chartState._renderingDetails.chartContainerRect;
     _rect = Rect.fromLTWH(containerRect.left, containerRect.top,
         containerRect.width, containerRect.height);
+    _axisSize = Size(_rect.width, _rect.height);
     calculateRange(this);
     _calculateActualRange();
     if (_actualRange != null) {
@@ -250,19 +355,13 @@ class CategoryAxisRenderer extends ChartAxisRenderer {
   void _calculateActualRange() {
     if (_min != null && _max != null) {
       _actualRange = _VisibleRange(
-          _chartState._rangeChangeBySlider &&
-                  _categoryAxis.rangeController != null
-              ? _rangeMinimum ?? _categoryAxis.rangeController!.start
-              : _categoryAxis.minimum ?? _min,
-          _chartState._rangeChangeBySlider &&
-                  _categoryAxis.rangeController != null
-              ? _rangeMaximum ?? _categoryAxis.rangeController!.end
-              : _categoryAxis.maximum ?? _max);
+          _categoryAxis.minimum ?? _min, _categoryAxis.maximum ?? _max);
       final List<CartesianSeriesRenderer> seriesRenderers = _seriesRenderers;
       CartesianSeriesRenderer seriesRenderer;
       for (int i = 0; i < seriesRenderers.length; i++) {
         seriesRenderer = seriesRenderers[i];
-        if (_actualRange!.maximum > seriesRenderer._dataPoints.length - 1) {
+        if ((_actualRange!.maximum > seriesRenderer._dataPoints.length - 1) ==
+            true) {
           for (int i = _labels.length; i < _actualRange!.maximum + 1; i++) {
             _labels.add(i.toString());
           }
@@ -286,7 +385,12 @@ class CategoryAxisRenderer extends ChartAxisRenderer {
   /// Calculates the visible range for an axis in chart.
   @override
   void calculateVisibleRange(Size availableSize) {
-    _visibleRange = _VisibleRange(_actualRange!.minimum, _actualRange!.maximum);
+    _setOldRangeFromRangeController();
+    _visibleRange = _chartState._rangeChangeBySlider &&
+            _rangeMinimum != null &&
+            _rangeMaximum != null
+        ? _VisibleRange(_rangeMinimum, _rangeMaximum)
+        : _VisibleRange(_actualRange!.minimum, _actualRange!.maximum);
     _visibleRange!.delta = _actualRange!.delta;
     _visibleRange!.interval = _actualRange!.interval;
     bool canAutoScroll = false;
@@ -296,17 +400,26 @@ class CategoryAxisRenderer extends ChartAxisRenderer {
       canAutoScroll = true;
       super._updateAutoScrollingDelta(_categoryAxis.autoScrollingDelta!, this);
     }
-    if (!canAutoScroll) {
+    if ((!canAutoScroll || _chartState._zoomedState == true) &&
+        !(_chartState._rangeChangeBySlider &&
+            !_chartState._canSetRangeController)) {
       _setZoomFactorAndPosition(this, _chartState._zoomedAxisRendererStates);
     }
-    if (_zoomFactor < 1 || _zoomPosition > 0) {
+    if (_zoomFactor < 1 ||
+        _zoomPosition > 0 ||
+        (_axis.rangeController != null &&
+            !_chartState._renderingDetails.initialRender!)) {
       _chartState._zoomProgress = true;
       _calculateZoomRange(this, availableSize);
-      if (_axis.rangeController != null) {
+      if (_axis.rangeController != null &&
+          _chartState._isRedrawByZoomPan &&
+          _chartState._canSetRangeController &&
+          _chartState._zoomProgress) {
         _chartState._rangeChangedByChart = true;
         _setRangeControllerValues(this);
       }
     }
+    _setZoomValuesFromRangeController();
   }
 
   /// Applies range padding
@@ -375,7 +488,7 @@ class CategoryAxisRenderer extends ChartAxisRenderer {
   @override
   void generateVisibleLabels() {
     num tempInterval = _visibleRange!.minimum.ceil();
-    num position;
+    int position;
     String labelText;
     _visibleLabels = <AxisLabel>[];
     for (;
@@ -386,6 +499,7 @@ class CategoryAxisRenderer extends ChartAxisRenderer {
         if (position <= -1 ||
             (_labels.isNotEmpty && position >= _labels.length)) {
           continue;
+          // ignore: unnecessary_null_comparison
         } else if (_labels.isNotEmpty && _labels[position] != null) {
           labelText = _labels[position];
         } else {

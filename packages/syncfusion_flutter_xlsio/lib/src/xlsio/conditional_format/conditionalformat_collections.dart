@@ -5,7 +5,7 @@ class _ConditionalFormatsImpl implements ConditionalFormats {
   /// Create a instances of conditionsal collection.
   _ConditionalFormatsImpl(Worksheet sheet, Range range) {
     _sheet = sheet;
-    conditionalFormat = [];
+    conditionalFormat = <_ConditionalFormatImpl>[];
     _cellList = range._cfValue;
   }
 

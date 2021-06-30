@@ -18,7 +18,7 @@ import '../settings/view_header_style.dart';
 class TimelineWidget extends StatefulWidget {
   /// Constructor to create the timeline widget to holds time slots view for
   /// timeline views.
-  TimelineWidget(
+  const TimelineWidget(
       this.horizontalLinesCountPerView,
       this.visibleDates,
       this.timeSlotViewSettings,
@@ -106,7 +106,7 @@ class TimelineWidget extends StatefulWidget {
 }
 
 class _TimelineWidgetState extends State<TimelineWidget> {
-  List<Widget> _children = <Widget>[];
+  final List<Widget> _children = <Widget>[];
   List<TimeRegionView> _specialRegionViews = <TimeRegionView>[];
 
   @override
@@ -179,7 +179,8 @@ class _TimelineWidgetState extends State<TimelineWidget> {
 
   void _updateSpecialRegionDetails() {
     _specialRegionViews = <TimeRegionView>[];
-    if (widget.visibleDates.length > DateTime.daysPerWeek ||
+    final int visibleDatesCount = widget.visibleDates.length;
+    if (visibleDatesCount > DateTime.daysPerWeek ||
         widget.specialRegion == null ||
         widget.specialRegion!.isEmpty) {
       return;
@@ -190,8 +191,8 @@ class _TimelineWidgetState extends State<TimelineWidget> {
     final DateTime startDate =
         AppointmentHelper.convertToStartTime(widget.visibleDates[0]);
     final DateTime endDate = AppointmentHelper.convertToEndTime(
-        widget.visibleDates[widget.visibleDates.length - 1]);
-    final double viewWidth = widget.width / widget.visibleDates.length;
+        widget.visibleDates[visibleDatesCount - 1]);
+    final double viewWidth = widget.width / visibleDatesCount;
     final bool isResourceEnabled = widget.resourceCollection != null &&
         widget.resourceCollection!.isNotEmpty;
     for (int i = 0; i < widget.specialRegion!.length; i++) {
@@ -231,7 +232,7 @@ class _TimelineWidgetState extends State<TimelineWidget> {
           startIndex = 0;
         } else {
           /// Find the next index when the start date as non working date.
-          for (int k = 1; k < widget.visibleDates.length; k++) {
+          for (int k = 1; k < visibleDatesCount; k++) {
             final DateTime currentDate = widget.visibleDates[k];
             if (currentDate.isBefore(regionStartTime)) {
               continue;
@@ -258,7 +259,7 @@ class _TimelineWidgetState extends State<TimelineWidget> {
       if (endIndex == -1) {
         /// Find the previous index when the end date as non working date.
         if (endDate.isAfter(regionEndTime)) {
-          for (int k = widget.visibleDates.length - 2; k >= 0; k--) {
+          for (int k = visibleDatesCount - 2; k >= 0; k--) {
             final DateTime _currentDate = widget.visibleDates[k];
             if (_currentDate.isAfter(regionEndTime)) {
               continue;
@@ -269,12 +270,12 @@ class _TimelineWidgetState extends State<TimelineWidget> {
           }
 
           if (endIndex == -1) {
-            endIndex = widget.visibleDates.length - 1;
+            endIndex = visibleDatesCount - 1;
           }
         } else {
           /// Set index as visible date end date index when the
           /// region end date before the visible end date
-          endIndex = widget.visibleDates.length - 1;
+          endIndex = visibleDatesCount - 1;
         }
 
         /// End date as non working day and its index as previous date index.
@@ -698,7 +699,7 @@ class _TimelineRenderObject extends CustomCalendarRenderObject {
 
   late ScrollController scrollController;
   late bool isMobilePlatform;
-  Paint _linePainter = Paint();
+  final Paint _linePainter = Paint();
 
   @override
   bool get isRepaintBoundary => true;
@@ -749,9 +750,12 @@ class _TimelineRenderObject extends CustomCalendarRenderObject {
     final bool isNeedDefaultPaint = childCount == 0;
     final bool isResourceEnabled =
         resourceCollection != null && resourceCollection!.isNotEmpty;
-    _minMaxExceeds(minDate, maxDate, blackoutDates, context.canvas);
+    final int visibleDatesCount = visibleDates.length;
+    final bool isTimelineMonth = visibleDatesCount > DateTime.daysPerWeek;
+    _minMaxExceeds(visibleDatesCount, isTimelineMonth, minDate, maxDate,
+        blackoutDates, context.canvas);
     if (isNeedDefaultPaint) {
-      _addSpecialRegion(context.canvas, isResourceEnabled);
+      _addSpecialRegion(context.canvas, isResourceEnabled, isTimelineMonth);
     } else {
       if (specialRegion == null || specialRegion!.isEmpty) {
         return;
@@ -764,47 +768,64 @@ class _TimelineRenderObject extends CustomCalendarRenderObject {
           continue;
         }
         final Rect rect = view.bound;
-        child.paint(context, Offset(rect.left, rect.top));
+        context.paintChild(child, Offset(rect.left, rect.top));
         child = childAfter(child);
       }
     }
 
-    _drawTimeline(context.canvas, isResourceEnabled);
+    _drawTimeline(context.canvas, isResourceEnabled, visibleDatesCount);
   }
 
   void _minMaxExceeds(
-      DateTime minDate, DateTime maxDate, blackoutDates, Canvas canvas) {
+      int visibleDatesCount,
+      bool isTimelineMonth,
+      DateTime minDate,
+      DateTime maxDate,
+      List<DateTime>? blackoutDates,
+      Canvas canvas) {
     final DateTime visibleStartDate = visibleDates[0];
-    final DateTime visibleEndDate = visibleDates[visibleDates.length - 1];
-    final bool isTimelineMonth = visibleDates.length > DateTime.daysPerWeek;
+    final DateTime visibleEndDate = visibleDates[visibleDatesCount - 1];
+    final int timeInterval =
+        CalendarViewHelper.getTimeInterval(timeSlotViewSettings);
 
     if (isDateWithInDateRange(visibleStartDate, visibleEndDate, minDate)) {
-      _drawDisabledDate(minDate, false, false, canvas, isTimelineMonth);
+      _drawDisabledDate(minDate, false, false, canvas, isTimelineMonth,
+          timeInterval, visibleDatesCount);
     }
     if (isDateWithInDateRange(visibleStartDate, visibleEndDate, maxDate)) {
-      _drawDisabledDate(maxDate, true, false, canvas, isTimelineMonth);
+      _drawDisabledDate(maxDate, true, false, canvas, isTimelineMonth,
+          timeInterval, visibleDatesCount);
     }
-    if (blackoutDates != null && isTimelineMonth) {
-      final int count = blackoutDates.length;
-      for (int i = 0; i < count; i++) {
-        final DateTime blackoutDate = blackoutDates[i];
-        if (isDateWithInDateRange(
-            visibleStartDate, visibleEndDate, blackoutDate)) {
-          _drawDisabledDate(blackoutDate, false, true, canvas, isTimelineMonth);
-        }
+
+    if (blackoutDates == null || !isTimelineMonth) {
+      return;
+    }
+
+    final int count = blackoutDates.length;
+    for (int i = 0; i < count; i++) {
+      final DateTime blackoutDate = blackoutDates[i];
+      if (isDateWithInDateRange(
+          visibleStartDate, visibleEndDate, blackoutDate)) {
+        _drawDisabledDate(blackoutDate, false, true, canvas, isTimelineMonth,
+            timeInterval, visibleDatesCount);
       }
     }
   }
 
-  void _drawDisabledDate(DateTime disabledDate, isMaxDate, isBlackOutDate,
-      canvas, bool isTimelineMonth) {
-    final double minuteHeight = timeIntervalWidth /
-        CalendarViewHelper.getTimeInterval(timeSlotViewSettings);
-    final double viewWidth = width / visibleDates.length;
+  void _drawDisabledDate(
+      DateTime disabledDate,
+      bool isMaxDate,
+      bool isBlackOutDate,
+      Canvas canvas,
+      bool isTimelineMonth,
+      int timeInterval,
+      int visibleDatesCount) {
+    final double minuteHeight = timeIntervalWidth / timeInterval;
+    final double viewWidth = width / visibleDatesCount;
     final int dateIndex =
         DateTimeHelper.getVisibleDateIndex(visibleDates, disabledDate);
     double leftPosition = 0;
-    final double topPosition = 0;
+    const double topPosition = 0;
 
     final double xPosition = isTimelineMonth
         ? 0
@@ -813,14 +834,14 @@ class _TimelineRenderObject extends CustomCalendarRenderObject {
             timeSlotViewSettings,
             minuteHeight);
     double rightPosition = (dateIndex * viewWidth) + xPosition;
-    if (isMaxDate) {
+    if (isMaxDate == true) {
       leftPosition =
           (dateIndex * viewWidth) + (isTimelineMonth ? viewWidth : xPosition);
       rightPosition = size.width;
     }
     final double bottomPosition = topPosition + height;
-    if (isBlackOutDate) {
-      leftPosition = (dateIndex * timeIntervalWidth);
+    if (isBlackOutDate == true) {
+      leftPosition = dateIndex * timeIntervalWidth;
       rightPosition = leftPosition + timeIntervalWidth;
     }
     Rect rect;
@@ -835,7 +856,8 @@ class _TimelineRenderObject extends CustomCalendarRenderObject {
     canvas.drawRect(rect, _linePainter);
   }
 
-  void _drawTimeline(Canvas canvas, bool isResourceEnabled) {
+  void _drawTimeline(
+      Canvas canvas, bool isResourceEnabled, int visibleDatesCount) {
     _linePainter.strokeWidth = 0.5;
     _linePainter.strokeCap = StrokeCap.round;
     _linePainter.color = cellBorderColor ?? calendarTheme.cellBorderColor;
@@ -858,9 +880,7 @@ class _TimelineRenderObject extends CustomCalendarRenderObject {
     }
 
     final List<Offset> points = <Offset>[];
-    for (int i = 0;
-        i < horizontalLinesCountPerView * visibleDates.length;
-        i++) {
+    for (int i = 0; i < horizontalLinesCountPerView * visibleDatesCount; i++) {
       if (isMobilePlatform) {
         points.add(Offset(startXPosition, startYPosition));
         points.add(Offset(endXPosition, endYPosition));
@@ -940,13 +960,12 @@ class _TimelineRenderObject extends CustomCalendarRenderObject {
 
   /// Calculate the position for special regions and draw the special regions
   /// in the timeline views .
-  void _addSpecialRegion(Canvas canvas, bool isResourceEnabled) {
+  void _addSpecialRegion(
+      Canvas canvas, bool isResourceEnabled, bool isTimelineMonth) {
     /// Condition added to check and add the special region for timeline day,
     /// timeline week and timeline work week view only, since the special region
     /// support not applicable for timeline month view.
-    if (visibleDates.length > DateTime.daysPerWeek ||
-        _specialRegion == null ||
-        _specialRegion!.isEmpty) {
+    if (isTimelineMonth || _specialRegion == null || _specialRegion!.isEmpty) {
       return;
     }
 
@@ -959,15 +978,15 @@ class _TimelineRenderObject extends CustomCalendarRenderObject {
 
     _linePainter.style = PaintingStyle.fill;
     final int count = specialRegionBounds.length;
+    final TextStyle defaultTextStyle = TextStyle(
+        color: calendarTheme.brightness == Brightness.dark
+            ? Colors.white54
+            : Colors.black45);
     for (int i = 0; i < count; i++) {
       final TimeRegionView view = specialRegionBounds[i];
       final CalendarTimeRegion region = view.region;
       _linePainter.color = region.color ?? Colors.grey.withOpacity(0.2);
-      final TextStyle textStyle = region.textStyle ??
-          TextStyle(
-              color: calendarTheme.brightness == Brightness.dark
-                  ? Colors.white54
-                  : Colors.black45);
+      final TextStyle textStyle = region.textStyle ?? defaultTextStyle;
       final Rect rect = view.bound;
       canvas.drawRect(rect, _linePainter);
       if ((region.text == null || region.text!.isEmpty) &&
@@ -1018,17 +1037,16 @@ class _TimelineRenderObject extends CustomCalendarRenderObject {
       double height, List<CustomPainterSemantics> semanticsBuilder,
       [CalendarResource? resource]) {
     double left = isRTL ? size.width - timeIntervalWidth : 0;
+    final int startHour = timeSlotViewSettings.startHour.toInt();
+    final int startHourMinutes =
+        ((timeSlotViewSettings.startHour - startHour) * 60).toInt();
+    final int timeInterval =
+        CalendarViewHelper.getTimeInterval(timeSlotViewSettings);
     for (int j = 0; j < visibleDates.length; j++) {
       DateTime date = visibleDates[j];
-      final double hour = (timeSlotViewSettings.startHour -
-              timeSlotViewSettings.startHour.toInt()) *
-          60;
       for (int i = 0; i < horizontalLinesCountPerView; i++) {
-        final double minute =
-            (i * CalendarViewHelper.getTimeInterval(timeSlotViewSettings)) +
-                hour;
-        date = DateTime(date.year, date.month, date.day,
-            timeSlotViewSettings.startHour.toInt(), minute.toInt());
+        final int minute = (i * timeInterval) + startHourMinutes;
+        date = DateTime(date.year, date.month, date.day, startHour, minute);
         semanticsBuilder.add(CustomPainterSemantics(
           rect: Rect.fromLTWH(left, top, timeIntervalWidth, height),
           properties: SemanticsProperties(
@@ -1050,7 +1068,7 @@ class _TimelineRenderObject extends CustomCalendarRenderObject {
   String _getAccessibilityText(DateTime date, [CalendarResource? resource]) {
     String dateText;
     if (visibleDates.length > DateTime.daysPerWeek) {
-      dateText = DateFormat('EEEEE, dd\MMMM\yyyy').format(date).toString();
+      dateText = DateFormat('EEEEE, dd/MMMM/yyyy').format(date).toString();
     }
     dateText = DateFormat('h a, dd/MMMM/yyyy').format(date).toString();
 
@@ -1146,15 +1164,17 @@ class TimelineViewHeaderView extends CustomPainter {
   final double textScaleFactor;
   final double _padding = 5;
   double _xPosition = 0;
-  TextPainter _dayTextPainter = TextPainter(), _dateTextPainter = TextPainter();
-  Paint _hoverPainter = Paint();
+  final TextPainter _dayTextPainter = TextPainter(),
+      _dateTextPainter = TextPainter();
+  final Paint _hoverPainter = Paint();
 
   @override
   void paint(Canvas canvas, Size size) {
     canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
-    final bool isTimelineMonth = visibleDates.length > DateTime.daysPerWeek;
+    final int visibleDatesLength = visibleDates.length;
+    final bool isTimelineMonth = visibleDatesLength > DateTime.daysPerWeek;
     final DateTime today = DateTime.now();
-    final double childWidth = size.width / visibleDates.length;
+    final double childWidth = size.width / visibleDatesLength;
     final int index = isTimelineMonth
         ? 0
         : timelineViewHeaderScrollController.offset ~/ childWidth;
@@ -1166,12 +1186,12 @@ class TimelineViewHeaderView extends CustomPainter {
 
     TextStyle viewHeaderDayTextStyle =
         calendarTheme.brightness == Brightness.light
-            ? TextStyle(
+            ? const TextStyle(
                 color: Colors.black87,
                 fontSize: 11,
                 fontWeight: FontWeight.w400,
                 fontFamily: 'Roboto')
-            : TextStyle(
+            : const TextStyle(
                 color: Colors.white,
                 fontSize: 11,
                 fontWeight: FontWeight.w400,
@@ -1183,7 +1203,7 @@ class TimelineViewHeaderView extends CustomPainter {
                 fontSize: 15,
                 fontWeight: FontWeight.w400,
                 fontFamily: 'Roboto')
-            : TextStyle(
+            : const TextStyle(
                 color: Colors.white,
                 fontSize: 15,
                 fontWeight: FontWeight.w400,
@@ -1211,14 +1231,17 @@ class TimelineViewHeaderView extends CustomPainter {
     TextStyle dayTextStyle = viewHeaderDayStyle;
     TextStyle dateTextStyle = viewHeaderDateStyle;
 
+    final Color? todayTextColor = CalendarViewHelper.getTodayHighlightTextColor(
+        todayHighlightColor, todayTextStyle, calendarTheme);
+
     if (isTimelineMonth) {
       _hoverPainter.strokeWidth = 0.5;
       _hoverPainter.strokeCap = StrokeCap.round;
       _hoverPainter.color = cellBorderColor ?? calendarTheme.cellBorderColor;
-      canvas.drawLine(Offset(0, 0), Offset(size.width, 0), _hoverPainter);
+      canvas.drawLine(const Offset(0, 0), Offset(size.width, 0), _hoverPainter);
     }
 
-    for (int i = 0; i < visibleDates.length; i++) {
+    for (int i = 0; i < visibleDatesLength; i++) {
       if (i < index && !isTimelineMonth) {
         continue;
       }
@@ -1242,14 +1265,12 @@ class TimelineViewHeaderView extends CustomPainter {
       if (isSameDate(currentDate, today)) {
         dayTextStyle = todayTextStyle != null
             ? todayTextStyle!.copyWith(
-                fontSize: viewHeaderDayStyle.fontSize,
-                color: todayHighlightColor)
-            : viewHeaderDayStyle.copyWith(color: todayHighlightColor);
+                fontSize: viewHeaderDayStyle.fontSize, color: todayTextColor)
+            : viewHeaderDayStyle.copyWith(color: todayTextColor);
         dateTextStyle = todayTextStyle != null
             ? todayTextStyle!.copyWith(
-                fontSize: viewHeaderDateStyle.fontSize,
-                color: todayHighlightColor)
-            : viewHeaderDateStyle.copyWith(color: todayHighlightColor);
+                fontSize: viewHeaderDateStyle.fontSize, color: todayTextColor)
+            : viewHeaderDateStyle.copyWith(color: todayTextColor);
       } else {
         dateTextStyle = viewHeaderDateStyle;
         dayTextStyle = viewHeaderDayStyle;
@@ -1423,8 +1444,8 @@ class TimelineViewHeaderView extends CustomPainter {
   @override
   bool shouldRepaint(TimelineViewHeaderView oldDelegate) {
     final TimelineViewHeaderView oldWidget = oldDelegate;
+    final bool isTimelineMonth = visibleDates.length > DateTime.daysPerWeek;
     return oldWidget.visibleDates != visibleDates ||
-        oldWidget._xPosition != _xPosition ||
         oldWidget.viewHeaderStyle != viewHeaderStyle ||
         oldWidget.timeSlotViewSettings != timeSlotViewSettings ||
         oldWidget.viewHeaderHeight != viewHeaderHeight ||
@@ -1434,17 +1455,21 @@ class TimelineViewHeaderView extends CustomPainter {
         oldWidget.viewHeaderNotifier.value != viewHeaderNotifier.value ||
         oldWidget.todayTextStyle != todayTextStyle ||
         oldWidget.textScaleFactor != textScaleFactor ||
-        !CalendarViewHelper.isDateCollectionEqual(
-            oldWidget.blackoutDates, blackoutDates);
+        oldWidget.calendarTheme != calendarTheme ||
+        (isTimelineMonth &&
+            (oldWidget.blackoutDatesTextStyle != blackoutDatesTextStyle ||
+                !CalendarViewHelper.isDateCollectionEqual(
+                    oldWidget.blackoutDates, blackoutDates)));
   }
 
   List<CustomPainterSemantics> _getSemanticsBuilder(Size size) {
     final List<CustomPainterSemantics> semanticsBuilder =
         <CustomPainterSemantics>[];
-    final double cellWidth = size.width / visibleDates.length;
+    final int visibleDatesLength = visibleDates.length;
+    final double cellWidth = size.width / visibleDatesLength;
     double left = isRTL ? size.width - cellWidth : 0;
     const double top = 0;
-    for (int i = 0; i < visibleDates.length; i++) {
+    for (int i = 0; i < visibleDatesLength; i++) {
       semanticsBuilder.add(CustomPainterSemantics(
         rect: Rect.fromLTWH(left, top, cellWidth, size.height),
         properties: SemanticsProperties(
@@ -1490,7 +1515,6 @@ class TimelineViewHeaderView extends CustomPainter {
   @override
   bool shouldRebuildSemantics(TimelineViewHeaderView oldDelegate) {
     final TimelineViewHeaderView oldWidget = oldDelegate;
-    return oldWidget.visibleDates != visibleDates ||
-        oldWidget.calendarTheme != calendarTheme;
+    return oldWidget.visibleDates != visibleDates;
   }
 }

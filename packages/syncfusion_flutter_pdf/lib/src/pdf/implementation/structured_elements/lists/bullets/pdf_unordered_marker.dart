@@ -15,7 +15,7 @@ part of pdf;
 ///   ..draw(
 ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
 /// //Save the document.
-/// final List<int> bytes = document.save();
+/// List<int> bytes = document.save();
 /// //Dispose the document.
 /// document.dispose();
 /// ```
@@ -37,7 +37,7 @@ class PdfUnorderedMarker extends PdfMarker {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// final List<int> bytes = document.save();
+  /// List<int> bytes = document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -73,7 +73,7 @@ class PdfUnorderedMarker extends PdfMarker {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// final List<int> bytes = document.save();
+  /// List<int> bytes = document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -106,13 +106,13 @@ class PdfUnorderedMarker extends PdfMarker {
   ///     font: PdfStandardFont(PdfFontFamily.helvetica, 16,
   ///         style: PdfFontStyle.italic),
   ///     marker: PdfUnorderedMarker(template: (PdfTemplate(100, 100)
-  ///         ..graphics.drawRectangle(
+  ///         ..graphics!.drawRectangle(
   ///             brush: PdfBrushes.red,
   ///             bounds: const Rect.fromLTWH(0, 0, 100, 100)))))
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// final List<int> bytes = document.save();
+  /// List<int> bytes = document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```
@@ -138,7 +138,7 @@ class PdfUnorderedMarker extends PdfMarker {
   ///   ..draw(
   ///       page: document.pages.add(), bounds: const Rect.fromLTWH(20, 20, 0, 0));
   /// //Save the document.
-  /// final List<int> bytes = document.save();
+  /// List<int> bytes = document.save();
   /// //Dispose the document.
   /// document.dispose();
   /// ```

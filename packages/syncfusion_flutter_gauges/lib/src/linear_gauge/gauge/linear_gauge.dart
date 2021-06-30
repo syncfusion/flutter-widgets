@@ -56,17 +56,16 @@ class SfLinearGauge extends StatefulWidget {
       this.valueToFactorCallback,
       this.factorToValueCallback,
       this.labelFormatterCallback,
-      TextStyle? axisLabelStyle,
+      this.axisLabelStyle,
       LinearAxisTrackStyle? axisTrackStyle,
       LinearTickStyle? majorTickStyle,
       LinearTickStyle? minorTickStyle})
       : assert(minimum <= maximum, 'Maximum should be greater than minimum.'),
-        axisLabelStyle = axisLabelStyle,
-        axisTrackStyle = axisTrackStyle ?? LinearAxisTrackStyle(),
+        axisTrackStyle = axisTrackStyle ?? const LinearAxisTrackStyle(),
         tickOffset = tickOffset > 0 ? tickOffset : 0,
         labelOffset = labelOffset > 0 ? labelOffset : 4,
-        majorTickStyle = majorTickStyle ?? LinearTickStyle(length: 8.0),
-        minorTickStyle = minorTickStyle ?? LinearTickStyle(length: 4.0),
+        majorTickStyle = majorTickStyle ?? const LinearTickStyle(length: 8.0),
+        minorTickStyle = minorTickStyle ?? const LinearTickStyle(length: 4.0),
         numberFormat = numberFormat ?? NumberFormat('#.##'),
         super(key: key);
 
@@ -513,12 +512,12 @@ class _SfLinearGaugeState extends State<SfLinearGauge>
   late List<AnimationController> _pointerAnimationControllers;
   late List<Widget> _linearGaugeWidgets;
 
-  final _pointerAnimationStartValue = 0.5;
+  final double _pointerAnimationStartValue = 0.5;
 
   @override
   void initState() {
-    _pointerAnimationControllers = [];
-    _linearGaugeWidgets = [];
+    _pointerAnimationControllers = <AnimationController>[];
+    _linearGaugeWidgets = <Widget>[];
     _updateOldList();
     _initializeAnimations();
     super.initState();
@@ -538,16 +537,23 @@ class _SfLinearGaugeState extends State<SfLinearGauge>
   }
 
   void _updateOldList() {
-    _oldBarPointerList =
-        (widget.barPointers != null) ? List.from(widget.barPointers!) : null;
+    _oldBarPointerList = (widget.barPointers != null)
+        ? List<LinearBarPointer>.from(widget.barPointers!)
+        : null;
     _oldMarkerPointerList = (widget.markerPointers != null)
-        ? List.from(widget.markerPointers!)
+        ? List<LinearMarkerPointer>.from(widget.markerPointers!)
         : null;
   }
 
-  bool _isEqualLists(List? a, List? b) {
-    if (a == null) return b == null;
-    if (b == null || a.length != b.length) return false;
+  bool _isEqualLists(List<dynamic>? a, List<dynamic>? b) {
+    if (a == null) {
+      return b == null;
+    }
+
+    if (b == null || a.length != b.length) {
+      return false;
+    }
+
     for (int index = 0; index < a.length; index++) {
       if (a[index].enableAnimation != b[index].enableAnimation ||
           a[index].animationDuration != b[index].animationDuration ||
@@ -561,10 +567,6 @@ class _SfLinearGaugeState extends State<SfLinearGauge>
 
   /// Initialize the animations.
   void _initializeAnimations() {
-    if (_animationController != null) {
-      _animationController!.removeListener(_axisAnimationListener);
-    }
-
     _disposeAnimationControllers();
     _isPointerAnimationStarted = false;
 
@@ -576,7 +578,7 @@ class _SfLinearGaugeState extends State<SfLinearGauge>
 
       _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
           parent: _animationController!,
-          curve: Interval(0.05, 1.0, curve: Curves.ease)));
+          curve: const Interval(0.05, 1.0, curve: Curves.ease)));
     } else {
       if (_animationController != null) {
         _animationController!.removeListener(_axisAnimationListener);
@@ -591,13 +593,14 @@ class _SfLinearGaugeState extends State<SfLinearGauge>
   }
 
   void _addPointerAnimation(int duration, LinearAnimationType animationType) {
-    final pointerController = AnimationController(
+    final AnimationController pointerController = AnimationController(
         vsync: this, duration: Duration(milliseconds: duration));
 
-    final animation = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
-        parent: pointerController,
-        curve: Interval(0, 1,
-            curve: LinearGaugeHelper.getCurveAnimation(animationType))));
+    final Animation<double> animation = Tween<double>(begin: 0, end: 1).animate(
+        CurvedAnimation(
+            parent: pointerController,
+            curve: Interval(0, 1,
+                curve: LinearGaugeHelper.getCurveAnimation(animationType))));
 
     _pointerAnimations.add(animation);
     _pointerAnimationControllers.add(pointerController);
@@ -605,12 +608,12 @@ class _SfLinearGaugeState extends State<SfLinearGauge>
 
   //Create animation for pointers.
   void _createPointerAnimations() {
-    _pointerAnimations = [];
+    _pointerAnimations = <Animation<double>>[];
     _pointerAnimationControllers.clear();
 
     if (widget.barPointers != null && widget.barPointers!.isNotEmpty) {
       ///Adding linear gauge range widgets.
-      for (final barPointer in widget.barPointers!) {
+      for (final LinearBarPointer barPointer in widget.barPointers!) {
         if (barPointer.position == LinearElementPosition.outside ||
             barPointer.position == LinearElementPosition.inside) {
           if (barPointer.enableAnimation && barPointer.animationDuration > 0) {
@@ -623,7 +626,7 @@ class _SfLinearGaugeState extends State<SfLinearGauge>
 
     if (widget.barPointers != null && widget.barPointers!.isNotEmpty) {
       ///Adding linear gauge range widgets.
-      for (final barPointer in widget.barPointers!) {
+      for (final LinearBarPointer barPointer in widget.barPointers!) {
         if (barPointer.position == LinearElementPosition.cross &&
             barPointer.enableAnimation &&
             barPointer.animationDuration > 0) {
@@ -635,7 +638,7 @@ class _SfLinearGaugeState extends State<SfLinearGauge>
 
     ///Adding linear gauge range widgets.
     if (widget.markerPointers != null && widget.markerPointers!.isNotEmpty) {
-      for (final dynamic shapePointer in widget.markerPointers!) {
+      for (final LinearMarkerPointer shapePointer in widget.markerPointers!) {
         if (shapePointer.enableAnimation &&
             shapePointer.animationDuration > 0) {
           _addPointerAnimation(
@@ -687,17 +690,17 @@ class _SfLinearGaugeState extends State<SfLinearGauge>
 
     if (widget.ranges != null && widget.ranges!.isNotEmpty) {
       ///Adding linear gauge range widgets.
-      for (final range in widget.ranges!) {
+      for (final LinearGaugeRange range in widget.ranges!) {
         if (range.position == LinearElementPosition.outside ||
             range.position == LinearElementPosition.inside) {
-          _addChild(range, (widget.animateRange ? _fadeAnimation : null), null);
+          _addChild(range, widget.animateRange ? _fadeAnimation : null, null);
         }
       }
     }
 
     if (widget.barPointers != null && widget.barPointers!.isNotEmpty) {
       ///Adding linear gauge range widgets.
-      for (final barPointer in widget.barPointers!) {
+      for (final LinearBarPointer barPointer in widget.barPointers!) {
         if (barPointer.position == LinearElementPosition.outside ||
             barPointer.position == LinearElementPosition.inside) {
           if (barPointer.enableAnimation && barPointer.animationDuration > 0) {
@@ -718,16 +721,16 @@ class _SfLinearGaugeState extends State<SfLinearGauge>
 
     if (widget.ranges != null && widget.ranges!.isNotEmpty) {
       /// Adding linear gauge range widgets.
-      for (final range in widget.ranges!) {
+      for (final LinearGaugeRange range in widget.ranges!) {
         if (range.position == LinearElementPosition.cross) {
-          _addChild(range, (widget.animateRange ? _fadeAnimation : null), null);
+          _addChild(range, widget.animateRange ? _fadeAnimation : null, null);
         }
       }
     }
 
     if (widget.barPointers != null && widget.barPointers!.isNotEmpty) {
       /// Adding linear gauge range widgets.
-      for (final barPointer in widget.barPointers!) {
+      for (final LinearBarPointer barPointer in widget.barPointers!) {
         if (barPointer.position == LinearElementPosition.cross) {
           if (barPointer.enableAnimation && barPointer.animationDuration > 0) {
             _addChild(barPointer, _pointerAnimations[index],
@@ -742,13 +745,13 @@ class _SfLinearGaugeState extends State<SfLinearGauge>
 
     if (widget.markerPointers != null && widget.markerPointers!.isNotEmpty) {
       /// Adding linear gauge widget bar pointer element.
-      for (final dynamic pointer in widget.markerPointers!) {
+      for (final LinearMarkerPointer pointer in widget.markerPointers!) {
         if (pointer.enableAnimation && pointer.animationDuration > 0) {
-          _addChild(pointer, _pointerAnimations[index],
+          _addChild(pointer as Widget, _pointerAnimations[index],
               _pointerAnimationControllers[index]);
           index++;
         } else {
-          _addChild(pointer, null, null);
+          _addChild(pointer as Widget, null, null);
         }
       }
     }
@@ -765,13 +768,15 @@ class _SfLinearGaugeState extends State<SfLinearGauge>
 
   void _disposeAnimationControllers() {
     if (_animationController != null) {
+      _animationController!.removeListener(_axisAnimationListener);
       _animationController!.dispose();
     }
 
     if (_pointerAnimationControllers.isNotEmpty) {
-      _pointerAnimationControllers.forEach((controller) {
+      for (final AnimationController controller
+          in _pointerAnimationControllers) {
         controller.dispose();
-      });
+      }
     }
   }
 

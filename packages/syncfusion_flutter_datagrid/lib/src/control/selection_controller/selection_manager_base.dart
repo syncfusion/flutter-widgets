@@ -4,7 +4,7 @@ part of datagrid;
 class SelectionManagerBase extends ChangeNotifier {
   /// Creates the [SelectionManagerBase].
   SelectionManagerBase() {
-    _selectedRows = _SelectedRowCollection()..selectedRow = [];
+    _selectedRows = _SelectedRowCollection();
   }
 
   late _SelectedRowCollection _selectedRows;
@@ -50,8 +50,8 @@ class SelectionManagerBase extends ChangeNotifier {
       bool isDataSourceChanged = false}) {}
 
   bool _raiseSelectionChanging(
-      {List<DataGridRow> oldItems = const [],
-      List<DataGridRow> newItems = const []}) {
+      {List<DataGridRow> oldItems = const <DataGridRow>[],
+      List<DataGridRow> newItems = const <DataGridRow>[]}) {
     final _DataGridSettings dataGridSettings = _dataGridStateDetails();
     if (dataGridSettings.onSelectionChanging == null) {
       return true;
@@ -61,8 +61,8 @@ class SelectionManagerBase extends ChangeNotifier {
   }
 
   void _raiseSelectionChanged(
-      {List<DataGridRow> oldItems = const [],
-      List<DataGridRow> newItems = const []}) {
+      {List<DataGridRow> oldItems = const <DataGridRow>[],
+      List<DataGridRow> newItems = const <DataGridRow>[]}) {
     final _DataGridSettings dataGridSettings = _dataGridStateDetails();
     if (dataGridSettings.onSelectionChanged == null) {
       return;
@@ -75,7 +75,7 @@ class SelectionManagerBase extends ChangeNotifier {
       _DataGridSettings dataGridSettings, int currentColumnIndex) {
     final _DataGridSettings dataGridSettings = _dataGridStateDetails();
     int previousCellIndex = currentColumnIndex;
-    final column =
+    final GridColumn? column =
         _getNextGridColumn(dataGridSettings, currentColumnIndex - 1, false);
     if (column != null) {
       previousCellIndex = _GridIndexResolver.resolveToScrollColumnIndex(
@@ -91,19 +91,19 @@ class SelectionManagerBase extends ChangeNotifier {
 
   int _getPreviousRowIndex(
       _DataGridSettings dataGridSettings, int currentRowIndex) {
-    final lastRowIndex =
+    final int lastRowIndex =
         _SelectionHelper.getLastNavigatingRowIndex(dataGridSettings);
     if (currentRowIndex > lastRowIndex) {
       return lastRowIndex;
     }
 
-    final firstRowIndex =
+    final int firstRowIndex =
         _SelectionHelper.getFirstNavigatingRowIndex(dataGridSettings);
     if (currentRowIndex <= firstRowIndex) {
       return firstRowIndex;
     }
 
-    var previousIndex = currentRowIndex;
+    int previousIndex = currentRowIndex;
     previousIndex = dataGridSettings.container.scrollRows
         .getPreviousScrollLineIndex(currentRowIndex);
     if (previousIndex == currentRowIndex) {
@@ -115,8 +115,9 @@ class SelectionManagerBase extends ChangeNotifier {
 
   GridColumn? _getNextGridColumn(
       _DataGridSettings dataGridSettings, int columnIndex, bool moveToRight) {
-    final resolvedIndex = _GridIndexResolver.resolveToGridVisibleColumnIndex(
-        dataGridSettings, columnIndex);
+    final int resolvedIndex =
+        _GridIndexResolver.resolveToGridVisibleColumnIndex(
+            dataGridSettings, columnIndex);
     if (resolvedIndex < 0 || resolvedIndex >= dataGridSettings.columns.length) {
       return null;
     }
@@ -133,12 +134,13 @@ class SelectionManagerBase extends ChangeNotifier {
   int _getNextColumnIndex(
       _DataGridSettings dataGridSettings, int currentColumnIndex) {
     int nextCellIndex = currentColumnIndex;
-    final lastCellIndex = _SelectionHelper.getLastCellIndex(dataGridSettings);
+    final int lastCellIndex =
+        _SelectionHelper.getLastCellIndex(dataGridSettings);
 
-    final column =
+    final GridColumn? column =
         _getNextGridColumn(dataGridSettings, currentColumnIndex + 1, true);
     if (column != null) {
-      final columnIndex = dataGridSettings.columns.indexOf(column);
+      final int columnIndex = dataGridSettings.columns.indexOf(column);
       nextCellIndex = _GridIndexResolver.resolveToScrollColumnIndex(
           dataGridSettings, columnIndex);
     }
@@ -152,13 +154,13 @@ class SelectionManagerBase extends ChangeNotifier {
 
   int _getNextRowIndex(
       _DataGridSettings dataGridSettings, int currentRowIndex) {
-    final lastRowIndex =
+    final int lastRowIndex =
         _SelectionHelper.getLastNavigatingRowIndex(dataGridSettings);
     if (currentRowIndex >= lastRowIndex) {
       return lastRowIndex;
     }
 
-    final firstRowIndex =
+    final int firstRowIndex =
         _SelectionHelper.getFirstNavigatingRowIndex(dataGridSettings);
 
     if (currentRowIndex < firstRowIndex) {
@@ -169,7 +171,7 @@ class SelectionManagerBase extends ChangeNotifier {
       return -1;
     }
 
-    var nextIndex = 0;
+    int nextIndex = 0;
     nextIndex = dataGridSettings.container.scrollRows
         .getNextScrollLineIndex(currentRowIndex);
     if (nextIndex == currentRowIndex) {

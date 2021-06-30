@@ -145,7 +145,7 @@ class PdfNamedDestinationCollection implements _IPdfWrapper {
       for (int i = 1; i <= elements.count; i = i + 2) {
         _PdfReferenceHolder? reference;
         if (elements[i] is _PdfReferenceHolder) {
-          reference = elements[i] as _PdfReferenceHolder;
+          reference = elements[i]! as _PdfReferenceHolder;
         }
         _PdfDictionary? dictionary;
         if (reference != null && reference.object is _PdfArray) {
@@ -154,7 +154,7 @@ class PdfNamedDestinationCollection implements _IPdfWrapper {
               _PdfArray(reference.object as _PdfArray?));
         } else if (reference == null && elements[i] is _PdfArray) {
           dictionary = _PdfDictionary();
-          final _PdfArray referenceArray = elements[i] as _PdfArray;
+          final _PdfArray referenceArray = elements[i]! as _PdfArray;
           dictionary.setProperty(
               _DictionaryProperties.d, _PdfArray(referenceArray));
         } else {

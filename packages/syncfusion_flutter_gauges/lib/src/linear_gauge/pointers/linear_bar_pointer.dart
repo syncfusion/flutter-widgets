@@ -10,7 +10,7 @@ import '../../linear_gauge/utils/enum.dart';
 /// [LinearBarPointer] has properties for customizing the linear gauge bar pointer.
 class LinearBarPointer extends SingleChildRenderObjectWidget {
   /// Creates a new instance for [LinearBarPointer].
-  LinearBarPointer(
+  const LinearBarPointer(
       {Key? key,
       required this.value,
       this.enableAnimation = true,
@@ -271,13 +271,13 @@ class LinearBarPointer extends SingleChildRenderObjectWidget {
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    final linearGaugeScope = LinearGaugeScope.of(context);
+    final LinearGaugeScope linearGaugeScope = LinearGaugeScope.of(context);
     return RenderLinearBarPointer(
         value: value,
         edgeStyle: edgeStyle,
         shaderCallback: shaderCallback,
-        color: color ?? Color(0xff0074E3),
-        borderColor: borderColor ?? Color(0xff0074E3),
+        color: color ?? const Color(0xff0074E3),
+        borderColor: borderColor ?? const Color(0xff0074E3),
         borderWidth: borderWidth,
         thickness: thickness,
         offset: offset,
@@ -292,13 +292,13 @@ class LinearBarPointer extends SingleChildRenderObjectWidget {
   @override
   void updateRenderObject(
       BuildContext context, RenderLinearBarPointer renderObject) {
-    final linearGaugeScope = LinearGaugeScope.of(context);
+    final LinearGaugeScope linearGaugeScope = LinearGaugeScope.of(context);
     renderObject
       ..value = value
       ..edgeStyle = edgeStyle
       ..shaderCallback = shaderCallback
-      ..color = color ?? Color(0xff0074E3)
-      ..borderColor = borderColor ?? Color(0xff0074E3)
+      ..color = color ?? const Color(0xff0074E3)
+      ..borderColor = borderColor ?? const Color(0xff0074E3)
       ..borderWidth = borderWidth
       ..thickness = thickness
       ..offset = offset

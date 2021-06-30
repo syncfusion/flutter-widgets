@@ -166,7 +166,7 @@ class PdfGraphics {
   /// Applies the specified rotation
   /// to the transformation matrix of this Graphics.
   ///
-  /// /// ```dart
+  /// ```dart
   /// //Creates a new PDF document.
   /// PdfDocument doc = PdfDocument();
   /// //Adds a page to the PDF document.
@@ -375,10 +375,10 @@ class PdfGraphics {
   /// PdfDocument doc = PdfDocument();
   /// //Create a PDF Template.
   /// PdfTemplate template = PdfTemplate(200, 100)
-  ///   ..graphics.drawRectangle(
+  ///   ..graphics!.drawRectangle(
   ///       brush: PdfSolidBrush(PdfColor(255, 0, 0)),
   ///       bounds: Rect.fromLTWH(0, 20, 200, 50))
-  ///   ..graphics.drawString(
+  ///   ..graphics!.drawString(
   ///       'This is PDF template.', PdfStandardFont(PdfFontFamily.courier, 14));
   /// //Draws the template into the page graphics of the document.
   /// doc.pages.add().graphics.drawPdfTemplate(template, Offset(100, 100));
@@ -643,6 +643,30 @@ class PdfGraphics {
     _endMarkContent();
   }
 
+  /// Skews the coordinate system axes.
+  ///
+  /// ```dart
+  /// //Create a PDF Document.
+  /// PdfDocument document = PdfDocument();
+  /// document.pages.add().graphics
+  ///   ..save()
+  ///   //Set skew transform
+  ///   ..skewTransform(10, 10)
+  ///   ..drawString('Hello world!', PdfStandardFont(PdfFontFamily.helvetica, 12),
+  ///       pen: PdfPens.red)
+  ///   ..restore();
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
+  void skewTransform(double angleX, double angleY) {
+    final _PdfTransformationMatrix matrix = _PdfTransformationMatrix();
+    _getSkewTransform(angleX, angleY, matrix);
+    _streamWriter!._modifyCurrentMatrix(matrix);
+    matrix._multiply(matrix);
+  }
+
   //Implementation
   void _initialize() {
     _mediaBoxUpperRightBound = 0;
@@ -671,13 +695,12 @@ class PdfGraphics {
     }
     if (transparency == null) {
       transparency = _PdfTransparency(alpha, alphaBrush, mode,
-          conformance: _layer != null
-              ? _page!._document != null &&
-                  _page!._document!._conformanceLevel == PdfConformanceLevel.a1b
-              : false);
+          conformance: _layer != null &&
+              _page!._document != null &&
+              _page!._document!._conformanceLevel == PdfConformanceLevel.a1b);
       _trasparencies![transparencyData] = transparency;
     }
-    final _PdfResources resources = _getResources!();
+    final _PdfResources resources = _getResources!() as _PdfResources;
     final _PdfName name = resources._getName(transparency);
     if (_layer != null) {
       _page!._setResources(resources);
@@ -736,7 +759,7 @@ class PdfGraphics {
     matrix._translate(bounds.x, -(bounds.y + bounds.height));
     matrix._scale(bounds.width, bounds.height);
     _streamWriter!._modifyCurrentMatrix(matrix);
-    final _PdfResources resources = _getResources!();
+    final _PdfResources resources = _getResources!() as _PdfResources;
     final _PdfName name = resources._getName(image);
     if (_layer != null) {
       _page!._setResources(resources);
@@ -803,14 +826,28 @@ class PdfGraphics {
         _page!._document!._conformanceLevel == PdfConformanceLevel.a1b &&
         template.graphics!._currentFont != null &&
         template.graphics!._currentFont is PdfTrueTypeFont) {
-      (template.graphics!._currentFont as PdfTrueTypeFont)
+      (template.graphics!._currentFont! as PdfTrueTypeFont)
           ._fontInternal
           ._initializeCidSet();
     }
     if ((_layer != null || _documentLayer != null) &&
         template._isLoadedPageTemplate) {
       _PdfCrossTable? crossTable;
-      crossTable = _page!._section!._document!._crossTable;
+      if (_page!._isLoadedPage) {
+        if (_page!._section != null) {
+          crossTable = _page!._section!._document!._crossTable;
+        } else {
+          crossTable = _page!._document!._crossTable;
+        }
+      } else {
+        if (_page!._section != null) {
+          crossTable = (_page!._section!._document != null)
+              ? _page!._section!._document!._crossTable
+              : _page!._section!._pdfDocument!._crossTable;
+        } else {
+          crossTable = _page!._document!._crossTable;
+        }
+      }
       if ((template._isReadonly) || (template._isLoadedPageTemplate)) {
         template._cloneResources(crossTable);
       }
@@ -824,7 +861,8 @@ class PdfGraphics {
     final _PdfTransformationMatrix matrix = _PdfTransformationMatrix();
     if ((_layer != null || _documentLayer != null) &&
         _page != null &&
-        template._isLoadedPageTemplate) {
+        template._isLoadedPageTemplate &&
+        _page!._isLoadedPage) {
       bool needTransformation = false;
       if (_page!._dictionary.containsKey(_DictionaryProperties.cropBox) &&
           _page!._dictionary.containsKey(_DictionaryProperties.mediaBox)) {
@@ -832,7 +870,7 @@ class PdfGraphics {
         _PdfArray? mediaBox;
         if (_page!._dictionary[_DictionaryProperties.cropBox]
             is _PdfReferenceHolder) {
-          cropBox = (_page!._dictionary[_DictionaryProperties.cropBox]
+          cropBox = (_page!._dictionary[_DictionaryProperties.cropBox]!
                   as _PdfReferenceHolder)
               .object as _PdfArray?;
         } else {
@@ -841,7 +879,7 @@ class PdfGraphics {
         }
         if (_page!._dictionary[_DictionaryProperties.mediaBox]
             is _PdfReferenceHolder) {
-          mediaBox = (_page!._dictionary[_DictionaryProperties.mediaBox]
+          mediaBox = (_page!._dictionary[_DictionaryProperties.mediaBox]!
                   as _PdfReferenceHolder)
               .object as _PdfArray?;
         } else {
@@ -858,7 +896,7 @@ class PdfGraphics {
         _PdfArray? mBox;
         if (_page!._dictionary[_DictionaryProperties.mediaBox]
             is _PdfReferenceHolder) {
-          mBox = (_page!._dictionary[_DictionaryProperties.mediaBox]
+          mBox = (_page!._dictionary[_DictionaryProperties.mediaBox]!
                   as _PdfReferenceHolder)
               .object as _PdfArray?;
         } else {
@@ -866,7 +904,7 @@ class PdfGraphics {
               _page!._dictionary[_DictionaryProperties.mediaBox] as _PdfArray?;
         }
         if (mBox != null) {
-          if ((mBox[3] as _PdfNumber).value == 0) {
+          if ((mBox[3]! as _PdfNumber).value == 0) {
             needTransformation = true;
           }
         }
@@ -874,7 +912,7 @@ class PdfGraphics {
       if ((_page!._origin.dx >= 0 && _page!._origin.dy >= 0) ||
           needTransformation) {
         matrix._translate(location.dx, -(location.dy + size.height));
-      } else if ((_page!._origin.dx >= 0 && _page!._origin.dy <= 0)) {
+      } else if (_page!._origin.dx >= 0 && _page!._origin.dy <= 0) {
         matrix._translate(location.dx, -(location.dy + size.height));
       } else {
         matrix._translate(location.dx, -(location.dy + 0));
@@ -886,7 +924,7 @@ class PdfGraphics {
       matrix._scale(scaleX, scaleY);
     }
     _streamWriter!._modifyCurrentMatrix(matrix);
-    final _PdfResources resources = _getResources!();
+    final _PdfResources resources = _getResources!() as _PdfResources;
     final _PdfName name = resources._getName(template);
     _streamWriter!._executeObject(name);
     restore(state);
@@ -962,10 +1000,10 @@ class PdfGraphics {
       if (_cropBox == null) {
         _translate();
       } else {
-        final double cropX = (_cropBox![0] as _PdfNumber).value!.toDouble();
-        final double cropY = (_cropBox![1] as _PdfNumber).value!.toDouble();
-        final double cropW = (_cropBox![2] as _PdfNumber).value!.toDouble();
-        final double cropH = (_cropBox![3] as _PdfNumber).value!.toDouble();
+        final double cropX = (_cropBox![0]! as _PdfNumber).value!.toDouble();
+        final double cropY = (_cropBox![1]! as _PdfNumber).value!.toDouble();
+        final double cropW = (_cropBox![2]! as _PdfNumber).value!.toDouble();
+        final double cropH = (_cropBox![3]! as _PdfNumber).value!.toDouble();
         if (cropX > 0 ||
             cropY > 0 ||
             size.width == cropW ||
@@ -1068,8 +1106,7 @@ class PdfGraphics {
     if (!result._isEmpty) {
       _beginMarkContent();
       _applyStringSettings(font, pen, brush, format, layoutRectangle);
-      final double? textScaling =
-          format != null ? format._scalingFactor : 100.0;
+      final double textScaling = format != null ? format._scalingFactor : 100.0;
       if (textScaling != _previousTextScaling) {
         _streamWriter!._setTextScaling(textScaling);
         _previousTextScaling = textScaling;
@@ -1227,8 +1264,8 @@ class PdfGraphics {
       _drawUnicodeBlocks(blocks, words, ttfFont, format, wordSpacing);
     } else if (useWordSpace) {
       final dynamic result = _breakUnicodeLine(line!, ttfFont, null);
-      final List<String> blocks = result['tokens'];
-      final List<String> words = result['words']!;
+      final List<String> blocks = result['tokens'] as List<String>;
+      final List<String> words = result['words']! as List<String>;
       _drawUnicodeBlocks(blocks, words, ttfFont, format, wordSpacing);
     } else {
       final String token = _convertToUnicode(line!, ttfFont)!;
@@ -1425,13 +1462,13 @@ class PdfGraphics {
       _streamWriter!._setTextRenderingMode(renderingMode);
       _previousTextRenderingMode = renderingMode;
     }
-    final double? characterSpace =
+    final double characterSpace =
         (format != null) ? format.characterSpacing : 0;
     if (characterSpace != _previousCharacterSpacing) {
       _streamWriter!._setCharacterSpacing(characterSpace);
       _previousCharacterSpacing = characterSpace;
     }
-    final double? wordSpace = (format != null) ? format.wordSpacing : 0;
+    final double wordSpace = (format != null) ? format.wordSpacing : 0;
     if (wordSpace != _previousWordSpacing) {
       _streamWriter!._setWordSpacing(wordSpace);
       _previousWordSpacing = wordSpace;
@@ -1510,13 +1547,13 @@ class PdfGraphics {
           _page!._document!._conformanceLevel == PdfConformanceLevel.a1b) {
         font._fontInternal._initializeCidSet();
       }
-      final PdfSubSuperscript? current =
+      final PdfSubSuperscript current =
           format != null ? format.subSuperscript : PdfSubSuperscript.none;
-      final PdfSubSuperscript? privious = _currentStringFormat != null
+      final PdfSubSuperscript privious = _currentStringFormat != null
           ? _currentStringFormat!.subSuperscript
           : PdfSubSuperscript.none;
       if (saveState || font != _currentFont || current != privious) {
-        final _PdfResources resources = _getResources!();
+        final _PdfResources resources = _getResources!() as _PdfResources;
         _currentFont = font;
         _currentStringFormat = format;
         _streamWriter!._setFont(
@@ -1652,8 +1689,8 @@ class PdfGraphics {
           (!_shouldJustify(line, layoutRectangle.width, format))
               ? lineWidth! - lineIndent!
               : layoutRectangle.width - lineIndent!;
-      final double? height = result._lineHeight;
-      bounds = _Rectangle(x, y, width, height!);
+      final double height = result._lineHeight;
+      bounds = _Rectangle(x, y, width, height);
     }
     return bounds.rect;
   }
@@ -1687,8 +1724,8 @@ class PdfGraphics {
           Offset? p2, p3;
           final Map<String, dynamic> returnValue =
               _getBezierPoints(points, types, i, p2, p3);
-          i = returnValue['i'];
-          final List<Offset> p = returnValue['points'];
+          i = returnValue['i'] as int;
+          final List<Offset> p = returnValue['points'] as List<Offset>;
           p2 = p.first;
           p3 = p.last;
           _streamWriter!._appendBezierSegment(
@@ -1833,31 +1870,33 @@ class PdfGraphics {
       }
     }
   }
+
+  _PdfTransformationMatrix _getSkewTransform(
+      double angleX, double angleY, _PdfTransformationMatrix input) {
+    input._skew(-angleX, -angleY);
+    return input;
+  }
 }
 
 class _TransparencyData {
   //Constructor
-  _TransparencyData(
-      double alphaPen, double alphaBrush, PdfBlendMode blendMode) {
-    this.alphaPen = alphaPen;
-    this.alphaBrush = alphaBrush;
-    this.blendMode = blendMode;
-  }
+  const _TransparencyData(this.alphaPen, this.alphaBrush, this.blendMode);
   //Fields
-  double? alphaPen;
-  double? alphaBrush;
-  PdfBlendMode? blendMode;
+  final double? alphaPen;
+  final double? alphaBrush;
+  final PdfBlendMode? blendMode;
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
-    return other is _TransparencyData
-        ? other.alphaPen == alphaPen &&
-            alphaBrush == other.alphaBrush &&
-            blendMode == other.blendMode
-        : false;
+    return other is _TransparencyData &&
+        other.alphaPen == alphaPen &&
+        alphaBrush == other.alphaBrush &&
+        blendMode == other.blendMode;
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode =>
       alphaPen.hashCode + alphaBrush.hashCode + blendMode.hashCode;
 }

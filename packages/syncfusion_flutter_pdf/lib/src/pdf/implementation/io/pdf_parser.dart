@@ -140,7 +140,7 @@ class _PdfParser {
       obj = _trailer();
       final _PdfDictionary trailerDic = obj as _PdfDictionary;
       if (trailerDic.containsKey('Size')) {
-        final int size = (trailerDic['Size'] as _PdfNumber).value!.toInt();
+        final int size = (trailerDic['Size']! as _PdfNumber).value!.toInt();
         int initialNumber = 0;
         if (cTable._initialSubsectionCount ==
             cTable._initialNumberOfSubsection) {
@@ -531,7 +531,7 @@ class _PdfParser {
     _lexer!.isArray = true;
     while ((obj = _simple()) != null) {
       array._add(obj!);
-      if (array[0] is _PdfName && (array[0] as _PdfName)._name == 'Indexed') {
+      if (array[0] is _PdfName && (array[0]! as _PdfName)._name == 'Indexed') {
         _isColorSpace = true;
       } else {
         _isColorSpace = false;
@@ -615,7 +615,7 @@ class _PdfParser {
       if (_next != _TokenType.objectEnd) {}
       return innerStream;
     } else if (reference != null) {
-      final _PdfReferenceHolder reference = obj as _PdfReferenceHolder;
+      final _PdfReferenceHolder reference = obj! as _PdfReferenceHolder;
       final _PdfLexer? lex = _lexer;
       final int position = _reader.position;
       _lexer = _PdfLexer(_reader);

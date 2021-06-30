@@ -24,7 +24,7 @@ class _PdfName implements _IPdfPrimitive {
       for (int i = 0; i < value.length; i++) {
         final int code = value.codeUnitAt(i);
         if (code == _replacements[3]) {
-          result += '\\r';
+          result += r'\r';
         } else if (code == _replacements[2]) {
           result += '\n';
         } else {
@@ -42,11 +42,13 @@ class _PdfName implements _IPdfPrimitive {
 
   //_IPdfPrimitive members
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(covariant _IPdfPrimitive name) {
-    return (name is _PdfName && _name == name._name);
+    return name is _PdfName && _name == name._name;
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode => _name.hashCode;
 
   @override

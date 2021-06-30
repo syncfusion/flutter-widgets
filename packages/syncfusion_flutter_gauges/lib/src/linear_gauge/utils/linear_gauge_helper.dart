@@ -34,13 +34,13 @@ class LinearGaugeHelper {
       required Rect rect,
       required double radius}) {
     if (isHorizontal) {
-      return (!isAxisInversed
+      return !isAxisInversed
           ? _getHorizontalStartCurve(rect, radius)
-          : _getHorizontalEndCurvePath(rect, radius));
+          : _getHorizontalEndCurvePath(rect, radius);
     } else {
-      return (!isAxisInversed
+      return !isAxisInversed
           ? _getVerticalEndCurvePath(rect, radius)
-          : _getVerticalStartCurve(rect, radius));
+          : _getVerticalStartCurve(rect, radius);
     }
   }
 
@@ -51,13 +51,13 @@ class LinearGaugeHelper {
       required Rect rect,
       required double radius}) {
     if (isHorizontal) {
-      return (!isAxisInversed
+      return !isAxisInversed
           ? _getHorizontalEndCurvePath(rect, radius)
-          : _getHorizontalStartCurve(rect, radius));
+          : _getHorizontalStartCurve(rect, radius);
     } else {
-      return (!isAxisInversed
+      return !isAxisInversed
           ? _getVerticalStartCurve(rect, radius)
-          : _getVerticalEndCurvePath(rect, radius));
+          : _getVerticalEndCurvePath(rect, radius);
     }
   }
 

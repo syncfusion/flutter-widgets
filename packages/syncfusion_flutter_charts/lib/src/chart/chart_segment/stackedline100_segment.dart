@@ -110,7 +110,7 @@ class StackedLine100Segment extends ChartSegment {
   /// Draws segment in series bounds.
   @override
   void onPaint(Canvas canvas) {
-    _renderStackedLineSeries(_series as _StackedSeriesBase, canvas,
-        strokePaint!, _x1, _y1, _x2, _y2);
+    _renderStackedLineSeries(_series as _StackedSeriesBase<dynamic, dynamic>,
+        canvas, strokePaint!, _x1, _y1, _x2, _y2);
   }
 }

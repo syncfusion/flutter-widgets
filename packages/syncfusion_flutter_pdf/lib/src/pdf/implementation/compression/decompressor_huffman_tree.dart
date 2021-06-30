@@ -68,8 +68,8 @@ class _DecompressorHuffmanTree {
     int? code = 0;
     final Map<String, dynamic> result =
         _prepareData(blCount, nextCode, lengths, treeSize);
-    treeSize = result['treeSize'];
-    code = result['code'];
+    treeSize = result['treeSize'] as int?;
+    code = result['code'] as int;
     _tree = _treeFromData(blCount, nextCode, lengths, code, treeSize!);
   }
 

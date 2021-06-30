@@ -2,11 +2,11 @@ part of pdf;
 
 /// Represents PDF Template object.
 /// ```dart
-/// Create a new PDF template and draw graphical content like text, images, and more.
+/// //Create a new PDF template and draw graphical content like text, images, and more.
 /// PdfDocument document = PdfDocument()
 ///   ..pages.add().graphics.drawPdfTemplate(
 ///       PdfTemplate(100, 50)
-///         ..graphics.drawString(
+///         ..graphics!.drawString(
 ///             'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 14),
 ///             brush: PdfBrushes.black, bounds: Rect.fromLTWH(5, 5, 0, 0)),
 ///       Offset(0, 0));
@@ -18,11 +18,11 @@ part of pdf;
 class PdfTemplate implements _IPdfWrapper {
   /// Initializes a new instance of the [PdfTemplate] class.
   /// ```dart
-  /// Create a new PDF template and draw graphical content like text, images, and more.
+  /// //Create a new PDF template and draw graphical content like text, images, and more.
   /// PdfDocument document = PdfDocument()
   ///   ..pages.add().graphics.drawPdfTemplate(
   ///       PdfTemplate(100, 50)
-  ///         ..graphics.drawString(
+  ///         ..graphics!.drawString(
   ///             'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 14),
   ///             brush: PdfBrushes.black, bounds: Rect.fromLTWH(5, 5, 0, 0)),
   ///       Offset(0, 0));
@@ -98,7 +98,7 @@ class PdfTemplate implements _IPdfWrapper {
   /// //Gets the PDF template size.
   /// Size size = template.size;
   /// //Draw a string using the graphics of the template.
-  /// template.graphics.drawString(
+  /// template.graphics!.drawString(
   ///     'Hello World', PdfStandardFont(PdfFontFamily.helvetica, 14),
   ///     brush: PdfBrushes.black, bounds: Rect.fromLTWH(5, 5, 0, 0));
   /// //Add a new page and draw the template on the page graphics of the document.
@@ -117,10 +117,10 @@ class PdfTemplate implements _IPdfWrapper {
   /// //Create a PDF Template.
   /// PdfTemplate template = PdfTemplate(100, 50);
   /// //Draw a rectangle on the template graphics
-  /// template.graphics.drawRectangle(
+  /// template.graphics!.drawRectangle(
   ///     brush: PdfBrushes.burlyWood, bounds: Rect.fromLTWH(0, 0, 100, 50));
   /// //Draw a string using the graphics of the template.
-  /// template.graphics.drawString(
+  /// template.graphics!.drawString(
   ///     'Hello World', PdfStandardFont(PdfFontFamily.helvetica, 14),
   ///     brush: PdfBrushes.black, bounds: Rect.fromLTWH(5, 5, 0, 0));
   /// //Add a new page and draw the template on the page graphics of the document.
@@ -151,14 +151,14 @@ class PdfTemplate implements _IPdfWrapper {
   /// //Create a PDF Template.
   /// PdfTemplate template = PdfTemplate(100, 50);
   /// //Draw a rectangle on the template graphics
-  /// template.graphics.drawRectangle(
+  /// template.graphics!.drawRectangle(
   ///     brush: PdfBrushes.burlyWood, bounds: Rect.fromLTWH(0, 0, 100, 50));
   /// //Add a new page and draw the template on the page graphics of the document.
   /// document.pages.add().graphics.drawPdfTemplate(template, Offset(0, 0));
   /// //Reset PDF template
   /// template.reset();
   /// //Draw a string using the graphics of the template.
-  /// template.graphics.drawString(
+  /// template.graphics!.drawString(
   ///     'Hello World', PdfStandardFont(PdfFontFamily.helvetica, 14),
   ///     brush: PdfBrushes.black, bounds: Rect.fromLTWH(5, 5, 0, 0));
   /// //Add a new page and draw the template on the page graphics of the document.
@@ -194,7 +194,8 @@ class PdfTemplate implements _IPdfWrapper {
 
   void _setSize(double width, double height, [Offset? origin]) {
     if (origin != null) {
-      final _PdfArray array = _PdfArray([origin.dx, origin.dy, width, height]);
+      final _PdfArray array =
+          _PdfArray(<double>[origin.dx, origin.dy, width, height]);
       _content[_DictionaryProperties.bBox] = array;
       _size = _Size(width, height);
     } else {

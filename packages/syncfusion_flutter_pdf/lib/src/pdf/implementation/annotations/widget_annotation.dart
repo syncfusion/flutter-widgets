@@ -169,7 +169,7 @@ class _WidgetAnnotation extends PdfAnnotation {
   PdfHighlightMode _obtainHighlightMode() {
     PdfHighlightMode mode = PdfHighlightMode.noHighlighting;
     if (_dictionary.containsKey(_DictionaryProperties.h)) {
-      final _PdfName name = _dictionary[_DictionaryProperties.h] as _PdfName;
+      final _PdfName name = _dictionary[_DictionaryProperties.h]! as _PdfName;
       switch (name._name) {
         case 'I':
           mode = PdfHighlightMode.invert;

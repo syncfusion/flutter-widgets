@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+// ignore_for_file: public_member_api_docs
+
 /// Signature for formatting or changing the whole numeric or date label text.
 typedef LabelFormatterCallback = String Function(
 
@@ -142,18 +144,18 @@ class SfRangeValues extends DiagnosticableTree {
   final dynamic end;
 
   SfRangeValues copyWith({dynamic start, dynamic end}) {
-    // HACK: In web, 0.00 and 0 are considered as identical.
-    // So, we had considered both double and int.
     if (start != null &&
-        (start.runtimeType == double || start.runtimeType == int) &&
+        start.runtimeType == num &&
         this.end.runtimeType == DateTime) {
-      final double value = start;
+      // ignore: avoid_as
+      final double value = start as double;
       return SfRangeValues(
           DateTime.fromMillisecondsSinceEpoch(value.toInt()), end ?? this.end);
     } else if (end != null &&
-        (end.runtimeType == double || end.runtimeType == int) &&
+        end.runtimeType == num &&
         this.start.runtimeType == DateTime) {
-      final double value = end;
+      // ignore: avoid_as
+      final double value = end as double;
       return SfRangeValues(start ?? this.start,
           DateTime.fromMillisecondsSinceEpoch(value.toInt()));
     }

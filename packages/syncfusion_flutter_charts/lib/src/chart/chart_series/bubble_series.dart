@@ -7,6 +7,7 @@ part of charts;
 ///
 /// Provide the options for color, opacity, border color, and border width to customize the appearance.
 ///
+@immutable
 class BubbleSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of BubbleSeries class.
   BubbleSeries(
@@ -37,8 +38,6 @@ class BubbleSeries<T, D> extends XyDataSeries<T, D> {
       double? borderWidth,
       LinearGradient? gradient,
       LinearGradient? borderGradient,
-      // ignore: deprecated_member_use_from_same_package
-      SelectionSettings? selectionSettings,
       SelectionBehavior? selectionBehavior,
       bool? isVisibleInLegend,
       LegendIconType? legendIconType,
@@ -46,12 +45,18 @@ class BubbleSeries<T, D> extends XyDataSeries<T, D> {
       String? legendItemText,
       double? opacity,
       SeriesRendererCreatedCallback? onRendererCreated,
+      ChartPointInteractionCallback? onPointTap,
+      ChartPointInteractionCallback? onPointDoubleTap,
+      ChartPointInteractionCallback? onPointLongPress,
       List<int>? initialSelectedDataIndexes})
       : super(
             key: key,
             onCreateRenderer: onCreateRenderer,
             name: name,
             onRendererCreated: onRendererCreated,
+            onPointTap: onPointTap,
+            onPointDoubleTap: onPointDoubleTap,
+            onPointLongPress: onPointLongPress,
             xValueMapper: xValueMapper,
             yValueMapper: yValueMapper,
             sortFieldValueMapper: sortFieldValueMapper,
@@ -74,7 +79,6 @@ class BubbleSeries<T, D> extends XyDataSeries<T, D> {
             borderWidth: borderWidth,
             gradient: gradient,
             borderGradient: borderGradient,
-            selectionSettings: selectionSettings,
             selectionBehavior: selectionBehavior,
             legendItemText: legendItemText,
             isVisibleInLegend: isVisibleInLegend,
@@ -133,6 +137,99 @@ class BubbleSeries<T, D> extends XyDataSeries<T, D> {
     }
     return BubbleSeriesRenderer();
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is BubbleSeries &&
+        other.key == key &&
+        other.onCreateRenderer == onCreateRenderer &&
+        other.dataSource == dataSource &&
+        other.xValueMapper == xValueMapper &&
+        other.yValueMapper == yValueMapper &&
+        other.sortFieldValueMapper == sortFieldValueMapper &&
+        other.pointColorMapper == pointColorMapper &&
+        other.dataLabelMapper == dataLabelMapper &&
+        other.sortingOrder == sortingOrder &&
+        other.xAxisName == xAxisName &&
+        other.yAxisName == yAxisName &&
+        other.name == name &&
+        other.color == color &&
+        other.markerSettings == markerSettings &&
+        other.emptyPointSettings == emptyPointSettings &&
+        other.dataLabelSettings == dataLabelSettings &&
+        other.trendlines == trendlines &&
+        other.isVisible == isVisible &&
+        other.enableTooltip == enableTooltip &&
+        other.dashArray == dashArray &&
+        other.animationDuration == animationDuration &&
+        other.borderColor == borderColor &&
+        other.borderWidth == borderWidth &&
+        other.gradient == gradient &&
+        other.borderGradient == borderGradient &&
+        other.selectionBehavior == selectionBehavior &&
+        other.isVisibleInLegend == isVisibleInLegend &&
+        other.legendIconType == legendIconType &&
+        other.legendItemText == legendItemText &&
+        other.opacity == opacity &&
+        other.maximumRadius == maximumRadius &&
+        other.minimumRadius == minimumRadius &&
+        other.initialSelectedDataIndexes == other.initialSelectedDataIndexes &&
+        other.onRendererCreated == onRendererCreated &&
+        other.onPointTap == onPointTap &&
+        other.onPointDoubleTap == onPointDoubleTap &&
+        other.onPointLongPress == onPointLongPress;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      key,
+      onCreateRenderer,
+      dataSource,
+      xValueMapper,
+      yValueMapper,
+      sortFieldValueMapper,
+      pointColorMapper,
+      dataLabelMapper,
+      sortingOrder,
+      xAxisName,
+      yAxisName,
+      name,
+      color,
+      markerSettings,
+      emptyPointSettings,
+      dataLabelSettings,
+      trendlines,
+      isVisible,
+      enableTooltip,
+      dashArray,
+      animationDuration,
+      borderColor,
+      borderWidth,
+      gradient,
+      borderGradient,
+      selectionBehavior,
+      isVisibleInLegend,
+      legendIconType,
+      legendItemText,
+      opacity,
+      maximumRadius,
+      minimumRadius,
+      initialSelectedDataIndexes,
+      onRendererCreated,
+      onPointTap,
+      onPointDoubleTap,
+      onPointLongPress
+    ];
+    return hashList(values);
+  }
 }
 
 /// Creates series renderer for Bubble series
@@ -149,7 +246,7 @@ class BubbleSeriesRenderer extends XyDataSeriesRenderer {
   /// To add bubble segments to segment list
   ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
       int pointIndex, int seriesIndex, double animateFactor) {
-    final BubbleSegment segment = this.createSegment();
+    final BubbleSegment segment = createSegment();
     final List<CartesianSeriesRenderer> oldSeriesRenderers =
         _chartState!._oldSeriesRenderers;
     _isRectSeries = false;
@@ -158,11 +255,11 @@ class BubbleSeriesRenderer extends XyDataSeriesRenderer {
     segment.points
         .add(Offset(currentPoint.markerPoint!.x, currentPoint.markerPoint!.y));
     segment._seriesIndex = seriesIndex;
-    segment._series = _series as XyDataSeries;
+    segment._series = _series as XyDataSeries<dynamic, dynamic>;
     segment.animationFactor = animateFactor;
     segment._currentPoint = currentPoint;
     segment._seriesRenderer = this;
-    if (_chartState!._widgetNeedUpdate &&
+    if (_renderingDetails!.widgetNeedUpdate &&
         oldSeriesRenderers.isNotEmpty &&
         oldSeriesRenderers.length - 1 >= segment._seriesIndex &&
         oldSeriesRenderers[segment._seriesIndex]._seriesName ==
@@ -173,6 +270,15 @@ class BubbleSeriesRenderer extends XyDataSeriesRenderer {
               ? segment._oldSeriesRenderer!._dataPoints[pointIndex]
               : null;
       segment._oldSegmentIndex = _getOldSegmentIndex(segment);
+      if ((_chartState!._selectedSegments.length - 1 >= pointIndex) &&
+          _chartState?._selectedSegments[pointIndex]._oldSegmentIndex == null) {
+        final ChartSegment selectedSegment =
+            _chartState?._selectedSegments[pointIndex] as ChartSegment;
+        selectedSegment._oldSeriesRenderer =
+            oldSeriesRenderers[selectedSegment._seriesIndex];
+        selectedSegment._seriesRenderer = this;
+        selectedSegment._oldSegmentIndex = _getOldSegmentIndex(selectedSegment);
+      }
     }
     segment.calculateSegmentPoints();
     customizeSegment(segment);

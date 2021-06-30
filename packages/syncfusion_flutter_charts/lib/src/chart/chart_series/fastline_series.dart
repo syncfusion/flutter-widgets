@@ -9,9 +9,9 @@ part of charts;
 ///
 /// The following properties are used to customize the appearance of fast line segment:
 ///
-/// * color – Changes the color of the line.
+/// * color - Changes the color of the line.
 /// * opacity - Controls the transparency of the chart series.
-/// * width – Changes the stroke width of the line.
+/// * width - Changes the stroke width of the line.
 class FastLineSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of FastLineSeries class.
   FastLineSeries(
@@ -37,14 +37,15 @@ class FastLineSeries<T, D> extends XyDataSeries<T, D> {
       String? name,
       bool? enableTooltip,
       double? animationDuration,
-      // ignore: deprecated_member_use_from_same_package
-      SelectionSettings? selectionSettings,
       SelectionBehavior? selectionBehavior,
       bool? isVisibleInLegend,
       LegendIconType? legendIconType,
       String? legendItemText,
       double? opacity,
-      SeriesRendererCreatedCallback? onRendererCreated})
+      SeriesRendererCreatedCallback? onRendererCreated,
+      ChartPointInteractionCallback? onPointTap,
+      ChartPointInteractionCallback? onPointDoubleTap,
+      ChartPointInteractionCallback? onPointLongPress})
       : super(
             key: key,
             onCreateRenderer: onCreateRenderer,
@@ -67,13 +68,15 @@ class FastLineSeries<T, D> extends XyDataSeries<T, D> {
             isVisible: isVisible,
             enableTooltip: enableTooltip,
             animationDuration: animationDuration,
-            selectionSettings: selectionSettings,
             selectionBehavior: selectionBehavior,
             legendItemText: legendItemText,
             isVisibleInLegend: isVisibleInLegend,
             legendIconType: legendIconType,
             sortingOrder: sortingOrder,
             onRendererCreated: onRendererCreated,
+            onPointTap: onPointTap,
+            onPointDoubleTap: onPointDoubleTap,
+            onPointLongPress: onPointLongPress,
             opacity: opacity);
 
   /// Create the fastline series renderer.
@@ -87,6 +90,87 @@ class FastLineSeries<T, D> extends XyDataSeries<T, D> {
       return seriesRenderer;
     }
     return FastLineSeriesRenderer();
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is FastLineSeries &&
+        other.key == key &&
+        other.onCreateRenderer == onCreateRenderer &&
+        other.dataSource == dataSource &&
+        other.xValueMapper == xValueMapper &&
+        other.yValueMapper == yValueMapper &&
+        other.sortFieldValueMapper == sortFieldValueMapper &&
+        other.dataLabelMapper == dataLabelMapper &&
+        other.sortingOrder == sortingOrder &&
+        other.xAxisName == xAxisName &&
+        other.yAxisName == yAxisName &&
+        other.name == name &&
+        other.color == color &&
+        other.width == width &&
+        other.markerSettings == markerSettings &&
+        other.emptyPointSettings == emptyPointSettings &&
+        other.dataLabelSettings == dataLabelSettings &&
+        other.trendlines == trendlines &&
+        other.isVisible == isVisible &&
+        other.enableTooltip == enableTooltip &&
+        other.dashArray == dashArray &&
+        other.animationDuration == animationDuration &&
+        other.gradient == gradient &&
+        other.selectionBehavior == selectionBehavior &&
+        other.isVisibleInLegend == isVisibleInLegend &&
+        other.legendIconType == legendIconType &&
+        other.legendItemText == legendItemText &&
+        other.opacity == opacity &&
+        other.onRendererCreated == onRendererCreated &&
+        other.onPointTap == onPointTap &&
+        other.onPointDoubleTap == onPointDoubleTap &&
+        other.onPointLongPress == onPointLongPress;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      key,
+      onCreateRenderer,
+      dataSource,
+      xValueMapper,
+      yValueMapper,
+      sortFieldValueMapper,
+      dataLabelMapper,
+      sortingOrder,
+      xAxisName,
+      yAxisName,
+      name,
+      color,
+      width,
+      markerSettings,
+      emptyPointSettings,
+      dataLabelSettings,
+      trendlines,
+      isVisible,
+      enableTooltip,
+      dashArray,
+      animationDuration,
+      gradient,
+      selectionBehavior,
+      isVisibleInLegend,
+      legendIconType,
+      legendItemText,
+      opacity,
+      onRendererCreated,
+      onPointTap,
+      onPointDoubleTap,
+      onPointLongPress
+    ];
+    return hashList(values);
   }
 }
 
@@ -104,11 +188,13 @@ class FastLineSeriesRenderer extends XyDataSeriesRenderer {
       int seriesIndex, SfCartesianChart chart, double animateFactor,
       [List<Offset>? _points]) {
     final FastLineSegment segment = createSegment();
-    segment._series = _series as XyDataSeries;
+    segment._series = _series as XyDataSeries<dynamic, dynamic>;
     segment._seriesIndex = seriesIndex;
     segment._seriesRenderer = this;
     segment.animationFactor = animateFactor;
-    if (_points != null) segment.points = _points;
+    if (_points != null) {
+      segment.points = _points;
+    }
     segment._oldSegmentIndex = 0;
     customizeSegment(segment);
     segment._chart = chart;

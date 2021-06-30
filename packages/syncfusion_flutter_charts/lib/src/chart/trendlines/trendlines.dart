@@ -374,6 +374,63 @@ class Trendline {
   ///}
   ///```
   final int period;
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is Trendline &&
+        other.enableTooltip == enableTooltip &&
+        other.intercept == intercept &&
+        other.name == name &&
+        other.dashArray == dashArray &&
+        other.color == color &&
+        other.type == type &&
+        other.backwardForecast == backwardForecast &&
+        other.forwardForecast == forwardForecast &&
+        other.opacity == opacity &&
+        other.isVisible == isVisible &&
+        other.width == width &&
+        other.animationDuration == animationDuration &&
+        other.valueField == valueField &&
+        other.isVisibleInLegend == isVisibleInLegend &&
+        other.legendIconType == legendIconType &&
+        other.markerSettings == markerSettings &&
+        other.polynomialOrder == polynomialOrder &&
+        other.period == period;
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      enableTooltip,
+      intercept,
+      name,
+      dashArray,
+      color,
+      type,
+      backwardForecast,
+      forwardForecast,
+      opacity,
+      isVisible,
+      width,
+      animationDuration,
+      valueField,
+      isVisibleInLegend,
+      legendIconType,
+      markerSettings,
+      polynomialOrder,
+      period
+    ];
+    return hashList(values);
+  }
 }
 
 ///Trendline renderer class for mutable fields and methods
@@ -454,7 +511,7 @@ class TrendlineRenderer {
       x1Linear = _increaseDateTimeForecast(
           seriesRenderer._xAxisRenderer as DateTimeAxisRenderer,
           xValues[0],
-          -(_trendline.backwardForecast));
+          -_trendline.backwardForecast);
       x2Linear = _increaseDateTimeForecast(
           seriesRenderer._xAxisRenderer as DateTimeAxisRenderer,
           xValues[xValues.length - 1],
@@ -483,17 +540,16 @@ class TrendlineRenderer {
     while (index < points.length) {
       final CartesianChartPoint<dynamic> point = points[index];
       xValues.add(point.xValue ?? point.x);
-      if (!(seriesRenderer._series is RangeAreaSeries<dynamic, dynamic> ||
-          seriesRenderer._series is RangeColumnSeries<dynamic, dynamic> ||
-          seriesRenderer._series is HiloSeries<dynamic, dynamic> ||
-          seriesRenderer._series is HiloOpenCloseSeries<dynamic, dynamic> ||
-          seriesRenderer._series is CandleSeries)) {
-        yValues.add(point.yValue ?? point.y);
-      } else {
-        yValues.add(_trendline.valueField.toLowerCase() == 'low'
-            ? point.low
-            : point.high);
-      }
+      (!(seriesRenderer._series is RangeAreaSeries ||
+              seriesRenderer._series is RangeColumnSeries ||
+              seriesRenderer._series is HiloSeries ||
+              seriesRenderer._series is HiloOpenCloseSeries ||
+              seriesRenderer._series is CandleSeries))
+          ? yValues.add(point.yValue ?? point.y)
+          : yValues.add(_trendline.valueField.toLowerCase() == 'low'
+              ? point.low
+              : point.high);
+
       index++;
     }
     _slopeIntercept = _findSlopeIntercept(xValues, yValues, points);
@@ -516,7 +572,7 @@ class TrendlineRenderer {
       x1 = _increaseDateTimeForecast(
           seriesRenderer._xAxisRenderer as DateTimeAxisRenderer,
           xValues[0],
-          -(_trendline.backwardForecast));
+          -_trendline.backwardForecast);
       x2 = xValues[midPoint - 1];
       x3 = _increaseDateTimeForecast(
           seriesRenderer._xAxisRenderer as DateTimeAxisRenderer,
@@ -553,17 +609,16 @@ class TrendlineRenderer {
     while (index < points.length) {
       final CartesianChartPoint<dynamic> point = points[index];
       xValues.add(point.xValue ?? point.x);
-      if (!(seriesRenderer._series is RangeAreaSeries<dynamic, dynamic> ||
-          seriesRenderer._series is RangeColumnSeries<dynamic, dynamic> ||
-          seriesRenderer._series is HiloSeries<dynamic, dynamic> ||
-          seriesRenderer._series is HiloOpenCloseSeries<dynamic, dynamic> ||
-          seriesRenderer._series is CandleSeries<dynamic, dynamic>)) {
-        yValues.add(math.log(point.yValue ?? point.y));
-      } else {
-        yValues.add(_trendline.valueField.toLowerCase() == 'low'
-            ? math.log(point.low)
-            : math.log(point.high));
-      }
+      (!(seriesRenderer._series is RangeAreaSeries ||
+              seriesRenderer._series is RangeColumnSeries ||
+              seriesRenderer._series is HiloSeries ||
+              seriesRenderer._series is HiloOpenCloseSeries ||
+              seriesRenderer._series is CandleSeries))
+          ? yValues.add(math.log(point.yValue ?? point.y))
+          : yValues.add(_trendline.valueField.toLowerCase() == 'low'
+              ? math.log(point.low)
+              : math.log(point.high));
+
       index++;
     }
     _slopeIntercept = _findSlopeIntercept(xValues, yValues, points);
@@ -586,7 +641,7 @@ class TrendlineRenderer {
       x1 = _increaseDateTimeForecast(
           seriesRenderer._xAxisRenderer as DateTimeAxisRenderer,
           xValues[0],
-          -(_trendline.backwardForecast));
+          -_trendline.backwardForecast);
       x2 = xValues[midPoint - 1];
       x3 = _increaseDateTimeForecast(
           seriesRenderer._xAxisRenderer as DateTimeAxisRenderer,
@@ -631,17 +686,15 @@ class TrendlineRenderer {
               ? point.xValue
               : point.x;
       xValues.add(xVal);
-      if (!(seriesRenderer._series is RangeAreaSeries<dynamic, dynamic> ||
-          seriesRenderer._series is RangeColumnSeries<dynamic, dynamic> ||
-          seriesRenderer._series is HiloSeries<dynamic, dynamic> ||
-          seriesRenderer._series is HiloOpenCloseSeries<dynamic, dynamic> ||
-          seriesRenderer._series is CandleSeries<dynamic, dynamic>)) {
-        yValues.add(math.log(point.yValue ?? point.y));
-      } else {
-        yValues.add(_trendline.valueField.toLowerCase() == 'low'
-            ? math.log(point.low)
-            : math.log(point.high));
-      }
+      (!(seriesRenderer._series is RangeAreaSeries ||
+              seriesRenderer._series is RangeColumnSeries ||
+              seriesRenderer._series is HiloSeries ||
+              seriesRenderer._series is HiloOpenCloseSeries ||
+              seriesRenderer._series is CandleSeries))
+          ? yValues.add(math.log(point.yValue ?? point.y))
+          : yValues.add(_trendline.valueField.toLowerCase() == 'low'
+              ? math.log(point.low)
+              : math.log(point.high));
       index++;
     }
     _slopeIntercept = _findSlopeIntercept(xValues, yValues, points);
@@ -664,7 +717,7 @@ class TrendlineRenderer {
       x1 = _increaseDateTimeForecast(
           seriesRenderer._xAxisRenderer as DateTimeAxisRenderer,
           xValues[0],
-          -(_trendline.backwardForecast));
+          -_trendline.backwardForecast);
       x2 = xValues[midPoint - 1];
       x3 = _increaseDateTimeForecast(
           seriesRenderer._xAxisRenderer as DateTimeAxisRenderer,
@@ -710,17 +763,15 @@ class TrendlineRenderer {
               ? point.xValue
               : point.x;
       xLogValue.add(xVal);
-      if (!(seriesRenderer._series is RangeAreaSeries<dynamic, dynamic> ||
-          seriesRenderer._series is RangeColumnSeries<dynamic, dynamic> ||
-          seriesRenderer._series is HiloSeries<dynamic, dynamic> ||
-          seriesRenderer._series is HiloOpenCloseSeries<dynamic, dynamic> ||
-          seriesRenderer._series is CandleSeries<dynamic, dynamic>)) {
-        yLogValue.add(point.yValue ?? point.y);
-      } else {
-        yLogValue.add(_trendline.valueField.toLowerCase() == 'low'
-            ? point.low
-            : point.high);
-      }
+      (!(seriesRenderer._series is RangeAreaSeries ||
+              seriesRenderer._series is RangeColumnSeries ||
+              seriesRenderer._series is HiloSeries ||
+              seriesRenderer._series is HiloOpenCloseSeries ||
+              seriesRenderer._series is CandleSeries))
+          ? yLogValue.add(point.yValue ?? point.y)
+          : yLogValue.add(_trendline.valueField.toLowerCase() == 'low'
+              ? point.low
+              : point.high);
       index++;
     }
     _slopeIntercept = _findSlopeIntercept(xLogValue, yLogValue, points);
@@ -775,7 +826,9 @@ class TrendlineRenderer {
       }
     }
     if (!_gaussJordanElimination(matrix, _polynomialSlopes!)) {
-      _polynomialSlopes = null;
+      //The trendline will not be generated if there is just one data point or if the x and y values are the same,
+      //for example (1,1), (1,1). So, the line was commented. And now marker alone will be rendered in this case.
+      // _polynomialSlopes = null;
     }
     pts = _getPoints(points, xValues, yValues, seriesRenderer);
     return pts;
@@ -790,17 +843,15 @@ class TrendlineRenderer {
     while (index < points.length) {
       final CartesianChartPoint<dynamic> point = points[index];
       xPolyValues.add(point.xValue ?? point.x);
-      if (!(seriesRenderer._series is RangeAreaSeries<dynamic, dynamic> ||
-          seriesRenderer._series is RangeColumnSeries<dynamic, dynamic> ||
-          seriesRenderer._series is HiloSeries<dynamic, dynamic> ||
-          seriesRenderer._series is HiloOpenCloseSeries<dynamic, dynamic> ||
-          seriesRenderer._series is CandleSeries<dynamic, dynamic>)) {
-        yPolyValues.add(point.yValue ?? point.y);
-      } else {
-        yPolyValues.add(_trendline.valueField.toLowerCase() == 'low'
-            ? point.low
-            : point.high);
-      }
+      (!(seriesRenderer._series is RangeAreaSeries ||
+              seriesRenderer._series is RangeColumnSeries ||
+              seriesRenderer._series is HiloSeries ||
+              seriesRenderer._series is HiloOpenCloseSeries ||
+              seriesRenderer._series is CandleSeries))
+          ? yPolyValues.add(point.yValue ?? point.y)
+          : yPolyValues.add(_trendline.valueField.toLowerCase() == 'low'
+              ? point.low
+              : point.high);
       index++;
     }
     _pointsData =
@@ -822,11 +873,11 @@ class TrendlineRenderer {
     num x1 = 1;
     dynamic xVal;
     num yVal;
-    final dynamic _backwardForecast =
+    final num _backwardForecast =
         seriesRenderer._xAxisRenderer is DateTimeAxisRenderer
             ? _getForecastDate(seriesRenderer._xAxisRenderer!, false)
             : _trendline.backwardForecast;
-    final dynamic _forwardForecast =
+    final num _forwardForecast =
         seriesRenderer._xAxisRenderer is DateTimeAxisRenderer
             ? _getForecastDate(seriesRenderer._xAxisRenderer!, true)
             : _trendline.forwardForecast;
@@ -877,8 +928,7 @@ class TrendlineRenderer {
     periods = max(2, periods);
     int? y;
     dynamic x;
-    int count;
-    int nullCount;
+    int count, nullCount;
     for (int index = 0; index < points.length - 1; index++) {
       y = count = nullCount = 0;
       for (int j = index; count < periods; j++) {
@@ -901,25 +951,22 @@ class TrendlineRenderer {
   /// Setting the moving average range for trendline series
   void _setMovingAverageRange(List<CartesianChartPoint<dynamic>> points,
       CartesianSeriesRenderer seriesRenderer) {
-    final List<dynamic> xValues = <dynamic>[];
+    final List<dynamic> xValues = <dynamic>[], xAvgValues = <dynamic>[];
     final List<num> yValues = <num>[];
-    final List<dynamic> xAvgValues = <dynamic>[];
 
     for (int index = 0; index < points.length; index++) {
       final dynamic point = points[index];
       xAvgValues.add(point.xValue ?? point.x);
       xValues.add(index + 1);
-      if (!(seriesRenderer._series is RangeAreaSeries<dynamic, dynamic> ||
-          seriesRenderer._series is RangeColumnSeries<dynamic, dynamic> ||
-          seriesRenderer._series is HiloSeries<dynamic, dynamic> ||
-          seriesRenderer._series is HiloOpenCloseSeries<dynamic, dynamic> ||
-          seriesRenderer._series is CandleSeries<dynamic, dynamic>)) {
-        yValues.add(point.yValue ?? point.y);
-      } else {
-        yValues.add(_trendline.valueField.toLowerCase() == 'low'
-            ? point.low
-            : point.high);
-      }
+      (!(seriesRenderer._series is RangeAreaSeries ||
+              seriesRenderer._series is RangeColumnSeries ||
+              seriesRenderer._series is HiloSeries ||
+              seriesRenderer._series is HiloOpenCloseSeries ||
+              seriesRenderer._series is CandleSeries))
+          ? yValues.add(point.yValue ?? point.y)
+          : yValues.add(_trendline.valueField.toLowerCase() == 'low'
+              ? point.low
+              : point.high);
     }
     _pointsData =
         getMovingAveragePoints(points, xAvgValues, yValues, seriesRenderer);
@@ -928,16 +975,11 @@ class TrendlineRenderer {
   /// Setting the slope intercept for trendline series
   _SlopeIntercept _findSlopeIntercept(dynamic xValues, dynamic yValues,
       List<CartesianChartPoint<dynamic>> points) {
-    double xAvg = 0.0;
-    double yAvg = 0.0;
-    double xyAvg = 0.0;
-    double xxAvg = 0.0;
-    // double yyAvg = 0.0;
+    double xAvg = 0.0, yAvg = 0.0, xyAvg = 0.0, xxAvg = 0.0;
     int index = 0;
-    double slope = 0.0;
-    double intercept = 0.0;
+    double slope = 0.0, intercept = 0.0;
     while (index < points.length) {
-      if ((yValues[index]).isNaN) {
+      if ((yValues[index]).isNaN == true) {
         yValues[index] = (yValues[index - 1] + yValues[index + 1]) / 2;
       }
       xAvg += xValues[index];
@@ -964,15 +1006,13 @@ class TrendlineRenderer {
     } else {
       slope = ((points.length * xyAvg) - (xAvg * yAvg)) /
           ((points.length * xxAvg) - (xAvg * xAvg));
-      if (_trendline.type == TrendlineType.exponential ||
-          _trendline.type == TrendlineType.power) {
-        intercept = math.exp((yAvg - (slope * xAvg)) / points.length);
-      } else {
-        intercept = (yAvg - (slope * xAvg)) / points.length;
-      }
+
+      intercept = (_trendline.type == TrendlineType.exponential ||
+              _trendline.type == TrendlineType.power)
+          ? math.exp((yAvg - (slope * xAvg)) / points.length)
+          : (yAvg - (slope * xAvg)) / points.length;
     }
-    _SlopeIntercept _slopeIntercept;
-    _slopeIntercept = _SlopeIntercept();
+    final _SlopeIntercept _slopeIntercept = _SlopeIntercept();
     _slopeIntercept.slope = slope;
     _slopeIntercept.intercept = intercept;
     return _slopeIntercept;
@@ -1075,8 +1115,7 @@ class TrendlineRenderer {
   List<Offset> _getControlPoints(List<Offset> _dataPoints, int index) {
     List<num?> yCoef = <num?>[];
     final List<Offset> controlPoints = <Offset>[];
-    final List<num> xValues = <num>[];
-    final List<num> yValues = <num>[];
+    final List<num> xValues = <num>[], yValues = <num>[];
     for (int i = 0; i < _dataPoints.length; i++) {
       xValues.add(_dataPoints[i].dx);
       yValues.add(_dataPoints[i].dy);
@@ -1095,27 +1134,43 @@ class TrendlineRenderer {
     switch (axis.intervalType) {
       case DateTimeIntervalType.years:
         dateTime = DateTime(dateTime.year + interval.floor(), dateTime.month,
-            dateTime.day, 0, 0, 0);
+            dateTime.day, 0, 0, 0, 0);
         break;
       case DateTimeIntervalType.months:
         dateTime = DateTime(dateTime.year, dateTime.month + interval.floor(),
-            dateTime.day, 0, 0, 0);
+            dateTime.day, 0, 0, 0, 0);
         break;
       case DateTimeIntervalType.days:
         dateTime = DateTime(dateTime.year, dateTime.month,
-            dateTime.day + interval.floor(), 0, 0, 0);
+            dateTime.day + interval.floor(), 0, 0, 0, 0);
         break;
       case DateTimeIntervalType.hours:
         dateTime = DateTime(dateTime.year, dateTime.month, dateTime.day,
-            dateTime.hour + interval.floor(), 0, 0);
+            dateTime.hour + interval.floor(), 0, 0, 0);
         break;
       case DateTimeIntervalType.minutes:
         dateTime = DateTime(dateTime.year, dateTime.month, dateTime.day,
-            dateTime.hour, dateTime.minute + interval.floor(), 0);
+            dateTime.hour, dateTime.minute + interval.floor(), 0, 0);
         break;
       case DateTimeIntervalType.seconds:
-        dateTime = DateTime(dateTime.year, dateTime.month, dateTime.day,
-            dateTime.hour, dateTime.minute, dateTime.second + interval.floor());
+        dateTime = DateTime(
+            dateTime.year,
+            dateTime.month,
+            dateTime.day,
+            dateTime.hour,
+            dateTime.minute,
+            dateTime.second + interval.floor(),
+            0);
+        break;
+      case DateTimeIntervalType.milliseconds:
+        dateTime = DateTime(
+            dateTime.year,
+            dateTime.month,
+            dateTime.day,
+            dateTime.hour,
+            dateTime.minute,
+            dateTime.second,
+            dateTime.millisecond + interval.floor());
         break;
       case DateTimeIntervalType.auto:
         break;
@@ -1137,15 +1192,13 @@ class TrendlineRenderer {
     int index1 = 0;
     while (index1 < length) {
       num num1 = 0;
-      int index2 = 0;
-      int index3 = 0;
-      int index4 = 0;
+      int index2 = 0, index3 = 0, index4 = 0;
       while (index4 < length) {
         if (numArray3[index4] != 1) {
           int index5 = 0;
           while (index5 < length) {
             if (numArray3[index5] == 0 &&
-                (matrix[index4][index5]).abs() >= num1) {
+                (matrix[index4][index5]).abs() >= num1 == true) {
               num1 = (matrix[index4][index5]).abs();
               index2 = index4;
               index3 = index5;
@@ -1225,7 +1278,7 @@ class TrendlineRenderer {
     for (dynamic x = start;
         polyPoints.length <= 100;
         x += (end - start) / 100) {
-      final dynamic y = _getPolynomialYValue(_polynomialSlopes!, x);
+      final double y = _getPolynomialYValue(_polynomialSlopes!, x);
       final _ChartLocation position = _calculatePoint(
           x,
           y,
@@ -1240,9 +1293,9 @@ class TrendlineRenderer {
   }
 
   /// To return predicted forecast values
-  dynamic _getForecastDate(dynamic axisRenderer, bool _isForward) {
+  int _getForecastDate(ChartAxisRenderer axisRenderer, bool _isForward) {
     Duration duration = const Duration(seconds: 0);
-    final DateTimeAxis axis = axisRenderer._axis;
+    final DateTimeAxis axis = axisRenderer._axis as DateTimeAxis;
     switch (axis.intervalType) {
       case DateTimeIntervalType.auto:
         duration = const Duration(seconds: 0);
@@ -1287,6 +1340,13 @@ class TrendlineRenderer {
       case DateTimeIntervalType.seconds:
         duration = Duration(
             seconds: (_isForward
+                    ? _trendline.forwardForecast
+                    : _trendline.backwardForecast)
+                .round());
+        break;
+      case DateTimeIntervalType.milliseconds:
+        duration = Duration(
+            milliseconds: (_isForward
                     ? _trendline.forwardForecast
                     : _trendline.backwardForecast)
                 .round());

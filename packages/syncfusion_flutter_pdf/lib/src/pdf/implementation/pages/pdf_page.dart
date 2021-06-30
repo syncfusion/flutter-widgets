@@ -7,8 +7,10 @@ part of pdf;
 /// PdfDocument document = PdfDocument();
 /// //Create a new PDF page and draw the text
 /// document.pages.add().graphics.drawString(
-///     'Hello World!!!', PdfStandardFont(PdfFontFamily.helvetica, 27),
-///     brush: PdfBrushes.darkBlue, bounds: const Rect.fromLTWH(170, 100, 0, 0));
+///     'Hello World!!!',
+///     PdfStandardFont(PdfFontFamily.helvetica, 27),
+///     brush: PdfBrushes.darkBlue,
+///     bounds: const Rect.fromLTWH(170, 100, 0, 0));
 /// //Save the document.
 /// List<int> bytes = document.save();
 /// //Dispose the document.
@@ -24,8 +26,10 @@ class PdfPage implements _IPdfWrapper {
   /// PdfPage page = document.pages.add();
   /// //Draw the text to the page
   /// page.graphics.drawString(
-  ///     'Hello World!!!', PdfStandardFont(PdfFontFamily.helvetica, 27),
-  ///     brush: PdfBrushes.darkBlue, bounds: const Rect.fromLTWH(170, 100, 0, 0));
+  ///     'Hello World!!!',
+  ///     PdfStandardFont(PdfFontFamily.helvetica, 27),
+  ///     brush: PdfBrushes.darkBlue,
+  ///     bounds: const Rect.fromLTWH(170, 100, 0, 0));
   /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Dispose the document.
@@ -90,10 +94,10 @@ class PdfPage implements _IPdfWrapper {
             _DictionaryProperties.mediaBox, _DictionaryProperties.parent);
         if (primitive is _PdfArray) {
           final _PdfArray mBox = primitive;
-          final num m0 = (mBox[0] as _PdfNumber).value!;
-          final num? m1 = (mBox[1] as _PdfNumber).value;
-          final num m2 = (mBox[2] as _PdfNumber).value!;
-          final num? m3 = (mBox[3] as _PdfNumber).value;
+          final num m0 = (mBox[0]! as _PdfNumber).value!;
+          final num? m1 = (mBox[1]! as _PdfNumber).value;
+          final num m2 = (mBox[2]! as _PdfNumber).value!;
+          final num? m3 = (mBox[3]! as _PdfNumber).value;
           width = (m2 - m0).toDouble();
           height = m3 != 0 ? (m3! - m1!).toDouble() : m1!.toDouble();
         }
@@ -178,8 +182,10 @@ class PdfPage implements _IPdfWrapper {
   /// PdfDocument document = PdfDocument();
   /// //Create a new PDF page and draw the text
   /// document.pages.add().graphics.drawString(
-  ///     'Hello World!!!', PdfStandardFont(PdfFontFamily.helvetica, 27),
-  ///     brush: PdfBrushes.darkBlue, bounds: const Rect.fromLTWH(170, 100, 0, 0));
+  ///     'Hello World!!!',
+  ///     PdfStandardFont(PdfFontFamily.helvetica, 27),
+  ///     brush: PdfBrushes.darkBlue,
+  ///     bounds: const Rect.fromLTWH(170, 100, 0, 0));
   /// //Save the document.
   /// List<int> bytes = document.save();
   /// //Dispose the document.
@@ -384,7 +390,7 @@ class PdfPage implements _IPdfWrapper {
     while (parent != null && angle == null) {
       if (parent.containsKey(_DictionaryProperties.rotate)) {
         if (parent[_DictionaryProperties.rotate] is _PdfReferenceHolder) {
-          angle = (parent[_DictionaryProperties.rotate] as _PdfReferenceHolder)
+          angle = (parent[_DictionaryProperties.rotate]! as _PdfReferenceHolder)
               .object as _PdfNumber?;
         } else {
           angle = parent[_DictionaryProperties.rotate] as _PdfNumber?;
@@ -470,15 +476,14 @@ class PdfPage implements _IPdfWrapper {
                       if (content != null) {
                         for (int i = 0; i < content.count; i++) {
                           final _PdfStream pageContent =
-                              _PdfCrossTable._dereference(content[i])
+                              _PdfCrossTable._dereference(content[i])!
                                   as _PdfStream;
                           pageContent._decompress();
                         }
                       } else {
                         final _PdfStream pageContent =
-                            _PdfCrossTable._dereference(
-                                    _dictionary[_DictionaryProperties.contents])
-                                as _PdfStream;
+                            _PdfCrossTable._dereference(_dictionary[
+                                _DictionaryProperties.contents])! as _PdfStream;
                         pageContent._decompress();
                       }
                       _resources!
@@ -491,7 +496,7 @@ class PdfPage implements _IPdfWrapper {
 
                   if (obj is _PdfReferenceHolder) {
                     final _PdfDictionary pageSourceDictionary =
-                        obj.object as _PdfDictionary;
+                        obj.object! as _PdfDictionary;
                     if (pageSourceDictionary._items!.length ==
                             _resources!._items!.length ||
                         _resources!._items!.isEmpty) {
@@ -577,7 +582,7 @@ class PdfPage implements _IPdfWrapper {
           final _PdfDictionary? annotDicrionary =
               _crossTable!._getObject(annots[count]) as _PdfDictionary?;
           final _PdfReferenceHolder annotReference =
-              annots[count] as _PdfReferenceHolder;
+              annots[count]! as _PdfReferenceHolder;
           if (_document != null &&
               _document!._crossTable.encryptor != null &&
               _document!._crossTable.encryptor!._encryptOnlyAttachment!) {
@@ -643,7 +648,7 @@ class PdfPage implements _IPdfWrapper {
             if (name != null && name._name.toString() == 'Widget') {
               if (annotDicrionary.containsKey(_DictionaryProperties.parent)) {
                 final _PdfDictionary? annotParentDictionary = (annotDicrionary
-                            ._items![_PdfName(_DictionaryProperties.parent)]
+                            ._items![_PdfName(_DictionaryProperties.parent)]!
                         as _PdfReferenceHolder)
                     .object as _PdfDictionary?;
                 if (annotParentDictionary != null) {
@@ -669,10 +674,11 @@ class PdfPage implements _IPdfWrapper {
                 }
               } else if (!_document!.form._terminalFields
                   .contains(annotDicrionary)) {
-                _document!.form._widgetDictionary ??= {};
+                _document!.form._widgetDictionary ??=
+                    <String?, List<_PdfDictionary>>{};
                 if (annotDicrionary.containsKey(_DictionaryProperties.t)) {
                   final String? fieldName = (annotDicrionary
-                              ._items![_PdfName(_DictionaryProperties.t)]
+                              ._items![_PdfName(_DictionaryProperties.t)]!
                           as _PdfString)
                       .value;
                   if (_document!.form._widgetDictionary!
@@ -683,9 +689,8 @@ class PdfPage implements _IPdfWrapper {
                   } else {
                     if (!_document!.form.fields._addedFieldNames
                         .contains(fieldName)) {
-                      _document!.form._widgetDictionary![fieldName] = [
-                        annotDicrionary
-                      ];
+                      _document!.form._widgetDictionary![fieldName] =
+                          <_PdfDictionary>[annotDicrionary];
                     }
                   }
                 }
@@ -701,12 +706,12 @@ class PdfPage implements _IPdfWrapper {
                 widgetReferences.contains(annotReference.reference!._objNum)) {
               final PdfFormFieldCollection collection = _document!.form.fields;
               for (int i = 0; i < collection.count; i++) {
-                final PdfField? field = collection[i];
-                if (field != null && field._isLoadedField) {
-                  final _IPdfPrimitive? widget = field._getWidgetAnnotation(
+                final PdfField field = collection[i];
+                if (field._isLoadedField) {
+                  final _IPdfPrimitive widget = field._getWidgetAnnotation(
                       field._dictionary, field._crossTable);
                   final _PdfReference widgetReference =
-                      _crossTable!._getReference(widget!);
+                      _crossTable!._getReference(widget);
                   if (annotReference.reference!._objNum ==
                           widgetReference._objNum &&
                       annotReference.reference!._genNum ==
@@ -768,15 +773,15 @@ class PdfPage implements _IPdfWrapper {
 
   // Gets the documents widget reference collection
   List<int> _getWidgetReferences() {
-    final List<int> _widgetReferences = [];
+    final List<int> _widgetReferences = <int>[];
     final PdfFormFieldCollection collection = _document!.form.fields;
     for (int i = 0; i < collection.count; i++) {
-      final PdfField? field = collection[i];
-      if (field != null && field._isLoadedField) {
-        final _IPdfPrimitive? widget =
+      final PdfField field = collection[i];
+      if (field._isLoadedField) {
+        final _IPdfPrimitive widget =
             field._getWidgetAnnotation(field._dictionary, field._crossTable);
         final Map<String, dynamic> widgetReference =
-            _document!._objects._getReference(widget!, false);
+            _document!._objects._getReference(widget, false);
         _widgetReferences.add(((widgetReference['isNew'] as bool)
                 ? _crossTable!._getReference(widget)._objNum
                 : (widgetReference['reference'] as _PdfReference)._objNum)!
@@ -800,6 +805,6 @@ class PdfPage implements _IPdfWrapper {
   @override
   //ignore: unused_element
   set _element(_IPdfPrimitive? value) {
-    _dictionary = value as _PdfDictionary;
+    _dictionary = value! as _PdfDictionary;
   }
 }

@@ -1,12 +1,13 @@
 library treemap;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'src/layouts.dart';
 import 'src/legend.dart';
 
 export 'src/layouts.dart' show TreemapTile;
-export 'src/legend.dart' hide LegendWidget;
+export 'src/legend.dart' hide Legend;
 
 /// Signature to return the string values from the data source based
 /// on the index.
@@ -42,6 +43,45 @@ typedef TreemapTileColorValueMapper = dynamic Function(TreemapTile tile);
 typedef TreemapTileWidgetBuilder = Widget? Function(
     BuildContext context, TreemapTile tile);
 
+/// Signature to return a widget based on the given tile.
+///
+/// isCurrent - Specifies whether the current tile’s descendants are in visual.
+/// For example, if we drilling down into [0] -> [1] -> [2] level, only the
+/// second level tiles will be visible, and the rest are hidden in the
+/// background.
+///
+/// See also:
+/// * [IndexedStringValueMapper] returns a string based on the given index.
+/// * [TreemapTileColorValueMapper] returns a dynamic value based on the group
+/// and parent.
+/// * [TreemapTileWidgetBuilder] returns a widget based on a given tile.
+typedef TreemapBreadcrumbBuilder = Widget? Function(
+    BuildContext context, TreemapTile tile, bool isCurrent);
+
+/// Positions the tiles in the different corners.
+enum TreemapLayoutDirection {
+  /// The tiles start to position from the top left direction.
+  topLeft,
+
+  /// The tiles start to position from the top right direction.
+  topRight,
+
+  /// The tiles start to position from the bottom left direction.
+  bottomLeft,
+
+  /// The tiles start to position from the bottom right direction.
+  bottomRight,
+}
+
+/// Positions the breadcrumb in the different directions.
+enum TreemapBreadcrumbPosition {
+  /// Places the breadcrumbs at the top of the treemap.
+  top,
+
+  /// Places the breadcrumbs at the bottom of the treemap.
+  bottom,
+}
+
 /// The levels collection which forms either flat or hierarchal treemap.
 ///
 /// You can have more than one [TreemapLevel] in this collection to form a
@@ -53,7 +93,7 @@ typedef TreemapTileWidgetBuilder = Widget? Function(
 /// [Treemap.levels] collection.
 ///
 /// ```dart
-/// List<SocialMediaUsers> _socialMediaUsersData;
+/// late List<SocialMediaUsers> _socialMediaUsersData;
 ///
 ///   @override
 ///   void initState() {
@@ -102,7 +142,8 @@ typedef TreemapTileWidgetBuilder = Widget? Function(
 ///
 /// See also:
 /// * [SfTreemap], to know how treemap render the tiles.
-class TreemapLevel {
+@immutable
+class TreemapLevel extends DiagnosticableTree {
   /// Creates a [TreemapLevel].
   ///
   /// The levels collection which forms either flat or hierarchal treemap.
@@ -116,7 +157,7 @@ class TreemapLevel {
   /// the [TreemapLevel.levels] collection.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _socialMediaUsersData;
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
   ///
   ///   @override
   ///   void initState() {
@@ -168,7 +209,7 @@ class TreemapLevel {
   const TreemapLevel({
     this.color,
     this.border,
-    this.padding = const EdgeInsets.all(1.0),
+    this.padding = const EdgeInsets.all(0.5),
     required this.groupMapper,
     this.colorValueMapper,
     this.tooltipBuilder,
@@ -179,7 +220,7 @@ class TreemapLevel {
   /// Specifies the color applied to the tiles.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _socialMediaUsersData;
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
   ///
   ///   @override
   ///   void initState() {
@@ -231,7 +272,7 @@ class TreemapLevel {
   /// Specifies the border of the rectangular box with rounded corners.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _socialMediaUsersData;
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
   ///
   ///   @override
   ///   void initState() {
@@ -287,8 +328,8 @@ class TreemapLevel {
 
   /// Sets the padding around the tiles based on the value.
   ///
-  ///  ```dart
-  /// List<SocialMediaUsers> _socialMediaUsersData;
+  /// ```dart
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
   ///
   ///   @override
   ///   void initState() {
@@ -346,7 +387,7 @@ class TreemapLevel {
   /// Returns the group to be mapped based on the data source.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _socialMediaUsersData;
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
   ///
   ///   @override
   ///   void initState() {
@@ -420,8 +461,8 @@ class TreemapLevel {
   /// If it returns null, we have applied color based on the tile weight.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _socialMediaUsersData;
-  ///  List<TreemapColorMapper> _colorMappers;
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
+  /// late List<TreemapColorMapper> _colorMappers;
   ///
   ///   @override
   ///   void initState() {
@@ -434,10 +475,10 @@ class TreemapLevel {
   ///       SocialMediaUsers('Japan', 'Instagram', 31),
   ///     ];
   ///     _colorMappers = <TreemapColorMapper>[
-  ///       TreemapColorMapper.range(0, 100, Colors.green),
-  ///       TreemapColorMapper.range(101, 200, Colors.blue),
-  ///       TreemapColorMapper.range(201, 300, Colors.red),
-  ///     ];
+  ///       TreemapColorMapper.range(from: 0, to: 100, color: Colors.green),
+  ///       TreemapColorMapper.range(from: 101, to: 200, color: Colors.blue),
+  ///       TreemapColorMapper.range(from: 201, to: 300, color: Colors.red),
+  ///      ];
   ///     super.initState();
   ///   }
   ///
@@ -485,7 +526,7 @@ class TreemapLevel {
   /// on a treemap.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _socialMediaUsersData;
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
   ///
   ///   @override
   ///   void initState() {
@@ -552,7 +593,7 @@ class TreemapLevel {
   /// customize it, the Align widget can be wrapped and aligned.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _socialMediaUsersData;
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
   ///
   ///   @override
   ///   void initState() {
@@ -619,7 +660,7 @@ class TreemapLevel {
   /// [TreemapTooltipSettings.borderRadius].
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _socialMediaUsersData;
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
   ///
   ///   @override
   ///   void initState() {
@@ -679,6 +720,32 @@ class TreemapLevel {
   final TreemapTileWidgetBuilder? tooltipBuilder;
 
   @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    if (color != null) {
+      properties.add(ColorProperty('color', color));
+    }
+    if (border != null) {
+      properties
+          .add(DiagnosticsProperty<RoundedRectangleBorder>('border', border));
+    }
+    if (padding != null) {
+      properties
+          .add(DiagnosticsProperty<EdgeInsetsGeometry>('padding', padding));
+    }
+    properties.add(ObjectFlagProperty<IndexedStringValueMapper>.has(
+        'groupMapper', groupMapper));
+    properties.add(ObjectFlagProperty<TreemapTileColorValueMapper>.has(
+        'colorValueMapper', colorValueMapper));
+    properties.add(ObjectFlagProperty<TreemapTileWidgetBuilder>.has(
+        'tooltipBuilder', tooltipBuilder));
+    properties.add(ObjectFlagProperty<TreemapTileWidgetBuilder>.has(
+        'labelBuilder', labelBuilder));
+    properties.add(ObjectFlagProperty<TreemapTileWidgetBuilder>.has(
+        'itemBuilder', itemBuilder));
+  }
+
+  @override
   bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
@@ -705,7 +772,7 @@ class TreemapLevel {
 /// Customized the appearance of the tiles in selection state.
 ///
 /// ```dart
-/// List<SocialMediaUsers> _source;
+/// late List<SocialMediaUsers> _source;
 ///
 /// @override
 /// void initState() {
@@ -757,13 +824,14 @@ class TreemapLevel {
 /// * [TreemapSelectionSettings.color], for changing the selected tile color.
 /// * [TreemapSelectionSettings.border], for applying border color, width and
 ///  border radius to the selected tile.
-class TreemapSelectionSettings {
+@immutable
+class TreemapSelectionSettings extends DiagnosticableTree {
   /// Creates [TreemapSelectionSettings].
   ///
   /// Customized the appearance of the tiles in selection state.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _source;
+  /// late List<SocialMediaUsers> _source;
   ///
   /// @override
   /// void initState() {
@@ -827,11 +895,11 @@ class TreemapSelectionSettings {
   /// Apply border to the selected by initializing the [border] property.
   ///
   /// You can change the border color and border width of the selected tile
-  /// using the [RoundedRectangleBorder.size] property and border radius applied
+  /// using the [RoundedRectangleBorder.side] property and border radius applied
   /// using the [RoundedRectangleBorder.borderRadius] property.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _source;
+  /// late List<SocialMediaUsers> _source;
   ///
   /// @override
   /// void initState() {
@@ -892,6 +960,18 @@ class TreemapSelectionSettings {
   final RoundedRectangleBorder? border;
 
   @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    if (color != null) {
+      properties.add(ColorProperty('color', color));
+    }
+    if (border != null) {
+      properties
+          .add(DiagnosticsProperty<RoundedRectangleBorder>('border', border));
+    }
+  }
+
+  @override
   bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
@@ -911,7 +991,7 @@ class TreemapSelectionSettings {
 /// Customizes the appearance of the tooltip.
 ///
 /// ```dart
-/// List<SocialMediaUsers> _socialMediaUsersData;
+/// late List<SocialMediaUsers> _socialMediaUsersData;
 ///
 ///   @override
 ///   void initState() {
@@ -972,13 +1052,14 @@ class TreemapSelectionSettings {
 ///
 /// See also:
 /// * [TreemapLevel.tooltipBuilder], to enable the tooltip.
-class TreemapTooltipSettings {
+@immutable
+class TreemapTooltipSettings extends DiagnosticableTree {
   /// Creates [TreemapTooltipSettings].
   ///
   /// Customizes the appearance of the tooltip.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _socialMediaUsersData;
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
   ///
   ///   @override
   ///   void initState() {
@@ -1078,6 +1159,20 @@ class TreemapTooltipSettings {
   final BorderRadiusGeometry borderRadius;
 
   @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    if (color != null) {
+      properties.add(ColorProperty('color', color));
+    }
+    if (borderColor != null) {
+      properties.add(ColorProperty('borderColor', borderColor));
+    }
+    properties.add(DoubleProperty('borderWidth', borderWidth));
+    properties.add(DiagnosticsProperty<BorderRadiusGeometry>(
+        'borderRadius', borderRadius));
+  }
+
+  @override
   bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
@@ -1129,8 +1224,8 @@ class TreemapTooltipSettings {
 /// based on the [TreemapColorMapper.value] property of [TreemapColorMapper].
 ///
 /// ```dart
-/// List<SocialMediaUsers> _socialMediaUsersData;
-///   List<TreemapColorMapper> _colorMappers;
+/// late List<SocialMediaUsers> _socialMediaUsersData;
+/// late List<TreemapColorMapper> _colorMappers;
 ///
 ///   @override
 ///   void initState() {
@@ -1143,9 +1238,9 @@ class TreemapTooltipSettings {
 ///       SocialMediaUsers('Japan', 'Instagram', 31),
 ///     ];
 ///     _colorMappers = <TreemapColorMapper>[
-///       TreemapColorMapper.value('India', Colors.green),
-///       TreemapColorMapper.value(USA, Colors.blue),
-///       TreemapColorMapper.value(Japan, Colors.red),
+///       TreemapColorMapper.value(value: 'India', color: Colors.green),
+///       TreemapColorMapper.value(value: 'USA', color: Colors.blue),
+///       TreemapColorMapper.value(value: 'Japan', color: Colors.red),
 ///     ];
 ///     super.initState();
 ///   }
@@ -1188,8 +1283,8 @@ class TreemapTooltipSettings {
 /// [TreemapColorMapper.to] properties of [TreemapColorMapper].
 ///
 /// ```dart
-/// List<SocialMediaUsers> _socialMediaUsersData;
-///   List<TreemapColorMapper> _colorMappers;
+/// late List<SocialMediaUsers> _socialMediaUsersData;
+/// late List<TreemapColorMapper> _colorMappers;
 ///
 ///   @override
 ///   void initState() {
@@ -1243,7 +1338,7 @@ class TreemapTooltipSettings {
 /// ```
 /// See also:
 /// * [SfTreemap.legend], to enable and customize the legend.
-class TreemapColorMapper {
+class TreemapColorMapper extends DiagnosticableTree {
   /// Applies color to the tiles which lies between the
   /// [TreemapColorMapper.from] and [TreemapColorMapper.to] given range. The
   /// [TreemapColorMapper.from] and [TreemapColorMapper.to] must not be null.
@@ -1253,8 +1348,8 @@ class TreemapColorMapper {
   /// [TreemapColorMapper.name] value.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _socialMediaUsersData;
-  ///   List<TreemapColorMapper> _colorMappers;
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
+  /// late List<TreemapColorMapper> _colorMappers;
   ///
   ///   @override
   ///   void initState() {
@@ -1267,10 +1362,10 @@ class TreemapColorMapper {
   ///       SocialMediaUsers('Japan', 'Instagram', 31),
   ///     ];
   ///     _colorMappers = <TreemapColorMapper>[
-  ///       TreemapColorMapper.range(0, 100, Colors.green),
-  ///       TreemapColorMapper.range(101, 200, Colors.blue),
-  ///       TreemapColorMapper.range(201, 300, Colors.red),
-  ///     ];
+  ///       TreemapColorMapper.range(from: 0, to: 100, color: Colors.green),
+  ///       TreemapColorMapper.range(from: 101, to: 200, color: Colors.blue),
+  ///       TreemapColorMapper.range(from: 201, to: 300, color: Colors.red),
+  ///      ];
   ///     super.initState();
   ///   }
   ///
@@ -1309,9 +1404,20 @@ class TreemapColorMapper {
   ///
   /// See also:
   /// * [SfTreemap.legend], to enable and customize the legend.
-  const TreemapColorMapper.range(
-      {required this.from, required this.to, required this.color, this.name})
-      : assert(from != null && to != null && from <= to),
+  const TreemapColorMapper.range({
+    required this.from,
+    required this.to,
+    required this.color,
+    this.minSaturation,
+    this.maxSaturation,
+    this.name,
+  })  : assert(from != null && to != null && from <= to),
+        assert((minSaturation == null && maxSaturation == null) ||
+            (minSaturation != null &&
+                maxSaturation != null &&
+                minSaturation < maxSaturation &&
+                (minSaturation >= 0 && minSaturation <= 1) &&
+                (maxSaturation >= 0 && maxSaturation <= 1))),
         value = null;
 
   /// Applies the color to the tiles which is equal to the given
@@ -1323,8 +1429,8 @@ class TreemapColorMapper {
   /// based on the [TreemapColorMapper.color] and [TreemapColorMapper.value].
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _socialMediaUsersData;
-  ///   List<TreemapColorMapper> _colorMappers;
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
+  /// late List<TreemapColorMapper> _colorMappers;
   ///
   ///   @override
   ///   void initState() {
@@ -1337,9 +1443,9 @@ class TreemapColorMapper {
   ///       SocialMediaUsers('Japan', 'Instagram', 31),
   ///     ];
   ///     _colorMappers = <TreemapColorMapper>[
-  ///       TreemapColorMapper.value('India', Colors.green),
-  ///       TreemapColorMapper.value(USA, Colors.blue),
-  ///       TreemapColorMapper.value(Japan, Colors.red),
+  ///       TreemapColorMapper.value(value: 'India', color: Colors.green),
+  ///       TreemapColorMapper.value(value: 'USA', color: Colors.blue),
+  ///       TreemapColorMapper.value(value: 'Japan', color: Colors.red),
   ///     ];
   ///     super.initState();
   ///   }
@@ -1380,9 +1486,10 @@ class TreemapColorMapper {
   /// See also:
   /// * [SfTreemap.legend], to enable and customize the legend.
   const TreemapColorMapper.value({required this.value, required this.color})
-      : assert(value != null),
-        from = null,
+      : from = null,
         to = null,
+        minSaturation = null,
+        maxSaturation = null,
         name = null;
 
   /// Specifies the color applies to the tile based on the value returned in
@@ -1423,6 +1530,22 @@ class TreemapColorMapper {
   /// in [TreemapLevel.colorValueMapper].
   final String? value;
 
+  /// Specifies the minimum saturation of tiles while using [from] and [to].
+  ///
+  /// The tiles with the lowest value which is [from] will be applied a
+  /// [minSaturation] and the tiles with the highest value which is [to] will
+  /// be applied a [maxSaturation]. The tiles with values in-between the range
+  /// will get a saturation based on their respective value.
+  final double? minSaturation;
+
+  /// Specifies the maximum saturation of tiles while using [from] and [to].
+  ///
+  /// The tiles with the lowest value which is [from] will be applied a
+  /// [minSaturation] and the tiles with the highest value which is [to] will
+  /// be applied a [maxSaturation]. The tiles with values in-between the range
+  /// will get a saturation based on their respective value.
+  final double? maxSaturation;
+
   /// Sets the identifier text to the color mapping. The same will be used
   /// to the legend item text and [color] will be used as legend item color.
   ///
@@ -1430,6 +1553,24 @@ class TreemapColorMapper {
   /// * [from], sets the start range for the color mapping.
   /// * [to], sets the end range for the color mapping.
   final String? name;
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    if (from != null) {
+      properties.add(DoubleProperty('from', from));
+    }
+    if (to != null) {
+      properties.add(DoubleProperty('to', to));
+    }
+    if (value != null && value!.isNotEmpty) {
+      properties.add(StringProperty('value', value));
+    }
+    properties.add(ColorProperty('color', color));
+    if (name != null && name!.isNotEmpty) {
+      properties.add(StringProperty('name', name));
+    }
+  }
 }
 
 /// A data visualization widget that provides an effective way to visualize
@@ -1485,8 +1626,8 @@ class TreemapColorMapper {
 /// will go on till the last [TreemapLevel] in the [levels] collection.
 ///
 /// ```dart
-/// List<SocialMediaUsers> _socialMediaUsersData;
-/// List<TreemapColorMapper> _colorMappers;
+/// late List<SocialMediaUsers> _socialMediaUsersData;
+/// late List<TreemapColorMapper> _colorMappers;
 ///
 /// @override
 /// void initState() {
@@ -1586,8 +1727,8 @@ class SfTreemap extends StatelessWidget {
   /// [TreemapLevel] in the [SfTreemap.levels] collection.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _socialMediaUsersData;
-  /// List<TreemapColorMapper> _colorMappers;
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
+  /// late List<TreemapColorMapper> _colorMappers;
   ///
   /// @override
   /// void initState() {
@@ -1662,14 +1803,22 @@ class SfTreemap extends StatelessWidget {
     required this.dataCount,
     required this.levels,
     required this.weightValueMapper,
+    this.layoutDirection = TreemapLayoutDirection.topLeft,
     this.colorMappers,
     this.legend,
     this.onSelectionChanged,
+    this.tileHoverColor = Colors.transparent,
+    this.tileHoverBorder = const RoundedRectangleBorder(
+        side: BorderSide(width: 1, color: Color.fromRGBO(0, 0, 0, 0.5))),
     this.selectionSettings = const TreemapSelectionSettings(),
     this.tooltipSettings = const TreemapTooltipSettings(),
+    this.enableDrilldown = false,
+    this.breadcrumbs,
   })  : assert(dataCount > 0),
         assert(levels.length > 0),
         assert(colorMappers == null || colorMappers.length > 0),
+        assert(!enableDrilldown || (enableDrilldown && breadcrumbs != null)),
+        sortAscending = false,
         _layoutType = LayoutType.squarified,
         super(key: key);
 
@@ -1700,8 +1849,8 @@ class SfTreemap extends StatelessWidget {
   /// [TreemapLevel] in the [SfTreemap.levels] collection.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _socialMediaUsersData;
-  /// List<TreemapColorMapper> _colorMappers;
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
+  /// late List<TreemapColorMapper> _colorMappers;
   ///
   /// @override
   /// void initState() {
@@ -1776,14 +1925,23 @@ class SfTreemap extends StatelessWidget {
     required this.dataCount,
     required this.levels,
     required this.weightValueMapper,
+    this.sortAscending = false,
     this.colorMappers,
     this.legend,
     this.onSelectionChanged,
     this.selectionSettings = const TreemapSelectionSettings(),
     this.tooltipSettings = const TreemapTooltipSettings(),
+    this.tileHoverColor = Colors.transparent,
+    this.tileHoverBorder = const RoundedRectangleBorder(
+      side: BorderSide(width: 1, color: Color.fromRGBO(0, 0, 0, 0.5)),
+    ),
+    this.enableDrilldown = false,
+    this.breadcrumbs,
   })  : assert(dataCount > 0),
         assert(levels.length > 0),
         assert(colorMappers == null || colorMappers.length > 0),
+        assert(!enableDrilldown || (enableDrilldown && breadcrumbs != null)),
+        layoutDirection = TreemapLayoutDirection.topLeft,
         _layoutType = LayoutType.slice,
         super(key: key);
 
@@ -1813,8 +1971,8 @@ class SfTreemap extends StatelessWidget {
   /// [TreemapLevel] in the [SfTreemap.levels] collection.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _socialMediaUsersData;
-  /// List<TreemapColorMapper> _colorMappers;
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
+  /// late List<TreemapColorMapper> _colorMappers;
   ///
   /// @override
   /// void initState() {
@@ -1889,15 +2047,23 @@ class SfTreemap extends StatelessWidget {
     required this.dataCount,
     required this.levels,
     required this.weightValueMapper,
+    this.sortAscending = false,
     this.colorMappers,
     this.legend,
     this.onSelectionChanged,
     this.selectionSettings = const TreemapSelectionSettings(),
     this.tooltipSettings = const TreemapTooltipSettings(),
+    this.tileHoverColor = Colors.transparent,
+    this.tileHoverBorder = const RoundedRectangleBorder(
+        side: BorderSide(width: 1, color: Color.fromRGBO(0, 0, 0, 0.5))),
+    this.enableDrilldown = false,
+    this.breadcrumbs,
   })  : assert(dataCount > 0),
         assert(levels.length > 0),
         assert(colorMappers == null || colorMappers.length > 0),
+        assert(!enableDrilldown || (enableDrilldown && breadcrumbs != null)),
         _layoutType = LayoutType.dice,
+        layoutDirection = TreemapLayoutDirection.topLeft,
         super(key: key);
 
   /// Specifies the length of the data source.
@@ -1908,7 +2074,7 @@ class SfTreemap extends StatelessWidget {
   /// [dataCount] to determine the number of tiles and the size of the tiles.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _socialMediaUsersData;
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
   ///
   ///   @override
   ///   void initState() {
@@ -1973,7 +2139,7 @@ class SfTreemap extends StatelessWidget {
   /// be the sum of values returned from [weightValueMapper] for those indices.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _socialMediaUsersData;
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
   ///
   ///   @override
   ///   void initState() {
@@ -2035,7 +2201,7 @@ class SfTreemap extends StatelessWidget {
   /// collection.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _socialMediaUsersData;
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
   ///
   ///   @override
   ///   void initState() {
@@ -2086,10 +2252,136 @@ class SfTreemap extends StatelessWidget {
   /// * [SfTreemap], to know how treemap render the tiles.
   final List<TreemapLevel> levels;
 
+  /// Sort the tiles based on the value returned from the [weightValueMapper]
+  /// callback.
+  ///
+  /// * If true, the tiles will be arranged from smallest to largest.
+  /// * If false, the tiles will be arranged from largest to smallest.
+  ///
+  /// Defaults to `false`.
+  ///
+  /// ```dart
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
+  ///
+  /// @override
+  /// void initState() {
+  ///   _socialMediaUsersData = <SocialMediaUsers>[
+  ///     SocialMediaUsers('India', 'Facebook', 280),
+  ///    SocialMediaUsers('India', 'Instagram', 88),
+  ///     SocialMediaUsers('USA', 'Facebook', 190),
+  ///     SocialMediaUsers('USA', 'Instagram', 120),
+  ///     SocialMediaUsers('Japan', 'Twitter', 48),
+  ///     SocialMediaUsers('Japan', 'Instagram', 31),
+  ///   ];
+  ///   super.initState();
+  /// }
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     body: SfTreemap.slice(
+  ///       dataCount: _socialMediaUsersData.length,
+  ///       weightValueMapper: (int index) {
+  ///         return _socialMediaUsersData[index].usersInMillions;
+  ///       },
+  ///       sortAscending: true,
+  ///       levels: [
+  ///         TreemapLevel(
+  ///             groupMapper: (int index) {
+  ///               return _socialMediaUsersData[index].country;
+  ///             },
+  ///          ),
+  ///       ],
+  ///     ),
+  ///   );
+  /// }
+  ///
+  /// class SocialMediaUsers {
+  ///   const SocialMediaUsers(
+  ///     this.country,
+  ///     this.socialMedia,
+  ///     this.usersInMillions,
+  ///   );
+  ///   final String country;
+  ///   final String socialMedia;
+  ///   final double usersInMillions;
+  /// }
+  /// ```
+  ///
+  /// See also:
+  /// *	The [weightValueMapper], determines the weight of each tile.
+  final bool sortAscending;
+
+  /// Represents the layout direction of the tiles.
+  ///
+  /// * The `TreemapLayoutDirection.topLeft` will layout the tiles from top-left
+  /// to bottom-right of the rectangle.
+  /// * The `TreemapLayoutDirection.topRight` will layout the tiles from
+  /// top-right to bottom-left of the rectangle.
+  /// * The `TreemapLayoutDirection.bottomLeft` will start layout the tiles
+  /// from bottom-left to top-right of the rectangle.
+  /// * The `TreemapLayoutDirection.bottomRight` will start layout the tiles
+  /// from bottom-right to top-left of the rectangle.
+  ///
+  /// Defaults to `TreemapLayoutDirection.topLeft`.
+  ///
+  /// ```dart
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
+  ///
+  /// @override
+  /// void initState() {
+  ///   _socialMediaUsersData = <SocialMediaUsers>[
+  ///     SocialMediaUsers('India', 'Facebook', 280),
+  ///     SocialMediaUsers('India', 'Instagram', 88),
+  ///     SocialMediaUsers('USA', 'Facebook', 190),
+  ///     SocialMediaUsers('USA', 'Instagram', 120),
+  ///     SocialMediaUsers('Japan', 'Twitter', 48),
+  ///     SocialMediaUsers('Japan', 'Instagram', 31),
+  ///   ];
+  ///   super.initState();
+  /// }
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     body: SfTreemap(
+  ///      dataCount: _socialMediaUsersData.length,
+  ///       weightValueMapper: (int index) {
+  ///         return _socialMediaUsersData[index].usersInMillions;
+  ///       },
+  ///       layoutDirection: TreemapLayoutDirection.topRight,
+  ///       levels: [
+  ///         TreemapLevel(
+  ///             groupMapper: (int index) {
+  ///               return _socialMediaUsersData[index].country;
+  ///             },
+  ///          ),
+  ///       ],
+  ///     ),
+  ///   );
+  /// }
+  ///
+  /// class SocialMediaUsers {
+  ///   const SocialMediaUsers(
+  ///     this.country,
+  ///     this.socialMedia,
+  ///     this.usersInMillions,
+  ///   );
+  ///
+  ///   final String country;
+  ///   final String socialMedia;
+  ///   final double usersInMillions;
+  /// }
+  /// ```
+  ///
+  /// See also:
+  /// *	The [weightValueMapper], determines the weight of each tile.
+  final TreemapLayoutDirection layoutDirection;
+
   /// Customizes the appearance of the tooltip.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _socialMediaUsersData;
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
   ///
   ///   @override
   ///   void initState() {
@@ -2170,8 +2462,8 @@ class SfTreemap extends StatelessWidget {
   /// based on the [TreemapColorMapper.value] property of [TreemapColorMapper].
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _socialMediaUsersData;
-  ///   List<TreemapColorMapper> _colorMappers;
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
+  /// late List<TreemapColorMapper> _colorMappers;
   ///
   ///   @override
   ///   void initState() {
@@ -2184,9 +2476,9 @@ class SfTreemap extends StatelessWidget {
   ///       SocialMediaUsers('Japan', 'Instagram', 31),
   ///     ];
   ///     _colorMappers = <TreemapColorMapper>[
-  ///       TreemapColorMapper.value('India', Colors.green),
-  ///       TreemapColorMapper.value(USA, Colors.blue),
-  ///       TreemapColorMapper.value(Japan, Colors.red),
+  ///       TreemapColorMapper.value(value: 'India', color: Colors.green),
+  ///       TreemapColorMapper.value(value: 'USA', color: Colors.blue),
+  ///       TreemapColorMapper.value(value: 'Japan', color: Colors.red),
   ///     ];
   ///     super.initState();
   ///   }
@@ -2229,8 +2521,8 @@ class SfTreemap extends StatelessWidget {
   /// [TreemapColorMapper.to]properties of [TreemapColorMapper].
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _socialMediaUsersData;
-  ///   List<TreemapColorMapper> _colorMappers;
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
+  /// late List<TreemapColorMapper> _colorMappers;
   ///
   ///   @override
   ///   void initState() {
@@ -2243,10 +2535,10 @@ class SfTreemap extends StatelessWidget {
   ///       SocialMediaUsers('Japan', 'Instagram', 31),
   ///     ];
   ///     _colorMappers = <TreemapColorMapper>[
-  ///       TreemapColorMapper.range(0, 100, Colors.green),
-  ///       TreemapColorMapper.range(101, 200, Colors.blue),
-  ///       TreemapColorMapper.range(201, 300, Colors.red),
-  ///     ];
+  ///       TreemapColorMapper.range(from: 0, to: 100, color: Colors.green),
+  ///       TreemapColorMapper.range(from: 101, to: 200, color: Colors.blue),
+  ///       TreemapColorMapper.range(from: 201, to: 300, color: Colors.red),
+  ///      ];
   ///     super.initState();
   ///   }
   ///
@@ -2300,7 +2592,7 @@ class SfTreemap extends StatelessWidget {
   /// Customized the appearance of the tiles in selection state.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _source;
+  /// late List<SocialMediaUsers> _source;
   ///
   /// @override
   /// void initState() {
@@ -2354,6 +2646,91 @@ class SfTreemap extends StatelessWidget {
   ///  border radius to the selected tile.
   final TreemapSelectionSettings selectionSettings;
 
+  /// Customizes the appearance of the hovered tile’s fill color.
+  ///
+  /// ```dart
+  ///  late List<SocialMediaUsers> _source;
+  ///
+  ///   @override
+  ///   void initState() {
+  ///     _source = <SocialMediaUsers>[
+  ///       SocialMediaUsers('India', 'Facebook', 280),
+  ///       SocialMediaUsers('India', 'Instagram', 88),
+  ///       SocialMediaUsers('USA', 'Facebook', 190),
+  ///       SocialMediaUsers('USA', 'Instagram', 120),
+  ///       SocialMediaUsers('Japan', 'Twitter', 48),
+  ///       SocialMediaUsers('Japan', 'Instagram', 31),
+  ///     ];
+  ///     super.initState();
+  ///   }
+  ///
+  ///  @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///      body: SfTreemap(
+  ///         dataCount: _source.length,
+  ///         weightValueMapper: (int index) {
+  ///           return _source[index].usersInMillions;
+  ///         },
+  ///         levels: [
+  ///           TreemapLevel(
+  ///             groupMapper: (int index) {
+  ///               return _source[index].country;
+  ///             },
+  ///           ),
+  ///         ],
+  ///         onSelectionChanged: (TreemapTile tile) {},
+  ///         tileHoverColor: Colors.green,
+  ///       ),
+  ///     );
+  ///   }
+  /// ```
+  final Color? tileHoverColor;
+
+  /// Customizes the appearance of the hovered tile’s border.
+  ///
+  /// ```dart
+  ///  late List<SocialMediaUsers> _source;
+  ///
+  ///   @override
+  ///   void initState() {
+  ///     _source = <SocialMediaUsers>[
+  ///       SocialMediaUsers('India', 'Facebook', 280),
+  ///       SocialMediaUsers('India', 'Instagram', 88),
+  ///       SocialMediaUsers('USA', 'Facebook', 190),
+  ///       SocialMediaUsers('USA', 'Instagram', 120),
+  ///       SocialMediaUsers('Japan', 'Twitter', 48),
+  ///       SocialMediaUsers('Japan', 'Instagram', 31),
+  ///     ];
+  ///     super.initState();
+  ///   }
+  ///
+  ///  @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///      body: SfTreemap(
+  ///         dataCount: _source.length,
+  ///         weightValueMapper: (int index) {
+  ///           return _source[index].usersInMillions;
+  ///         },
+  ///         levels: [
+  ///           TreemapLevel(
+  ///             groupMapper: (int index) {
+  ///               return _source[index].country;
+  ///             },
+  ///           ),
+  ///         ],
+  ///         onSelectionChanged: (TreemapTile tile) {},
+  ///         tileHoverBorder: RoundedRectangleBorder(
+  ///           side: BorderSide(color: Colors.red),
+  ///           borderRadius: BorderRadius.circular(3),
+  ///         ),
+  ///       ),
+  ///     );
+  ///   }
+  /// ```
+  final RoundedRectangleBorder tileHoverBorder;
+
   /// Specifies the type of the treemap.
   final LayoutType _layoutType;
 
@@ -2386,7 +2763,7 @@ class SfTreemap extends StatelessWidget {
   /// to the tree map.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _source;
+  /// late List<SocialMediaUsers> _source;
   ///
   /// @override
   /// void initState() {
@@ -2437,7 +2814,7 @@ class SfTreemap extends StatelessWidget {
   /// to the tree map.
   ///
   /// ```dart
-  /// List<SocialMediaUsers> _source;
+  /// late List<SocialMediaUsers> _source;
   ///
   /// @override
   /// void initState() {
@@ -2488,6 +2865,147 @@ class SfTreemap extends StatelessWidget {
   /// * To render bar legend, refer [TreemapLegend.bar] constructor.
   final TreemapLegend? legend;
 
+  /// Specifies whether this treemap is complex enough (having larger data) to
+  /// enable drilldown.
+  ///
+  /// If enabled, only one level is visible in the UI at a time. While tapping
+  /// a particular tile, it is expanded to the viewport size and loads its
+  /// descendant tiles with smoother animation.
+  ///
+  /// At the same time [TreemapBreadcrumbs.builder] is called with the tapped
+  /// tile details.
+  ///
+  /// The [TreemapBreadcrumbs.builder] will return a widget which will be added
+  /// in breadcrumbs item.
+  ///
+  /// Selection for touch and mouse enabled devices, and tooltip for touch
+  /// devices will work only for the tiles which don’t have descendants.
+  ///
+  /// ```dart
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
+  ///
+  /// @override
+  /// void initState() {
+  ///    _socialMediaUsersData = <SocialMediaUsers>[
+  ///       SocialMediaUsers('India', 'Facebook', 280),
+  ///      SocialMediaUsers('India', 'Instagram', 88),
+  ///       SocialMediaUsers('USA', 'Facebook', 190),
+  ///       SocialMediaUsers('USA', 'Instagram', 120),
+  ///       SocialMediaUsers('Japan', 'Twitter', 48),
+  ///       SocialMediaUsers('Japan', 'Instagram', 31),
+  ///    ];
+  ///    super.initState();
+  /// }
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///       body: SfTreemap(
+  ///         dataCount: _socialMediaUsersData.length,
+  ///         weightValueMapper: (int index) {
+  ///           return _socialMediaUsersData[index].usersInMillions;
+  ///         },
+  ///         enableDrilldown: true,
+  ///         breadcrumbs: TreemapBreadcrumbs(
+  ///           builder:
+  ///           (BuildContext context, TreemapTile tile, bool isCurrent) {
+  ///             return Text(tile.group);
+  ///           },
+  ///         ),
+  ///         levels: [
+  ///           TreemapLevel(
+  ///             groupMapper: (int index) {
+  ///               return _socialMediaUsersData[index].country;
+  ///             },
+  ///             labelBuilder: (BuildContext context, TreemapTile tile) {
+  ///               return Text(tile.group);
+  ///             },
+  ///           ),
+  ///           TreemapLevel(
+  ///             groupMapper: (int index) {
+  ///               return _socialMediaUsersData[index].socialMedia;
+  ///             },
+  ///             labelBuilder: (BuildContext context, TreemapTile tile) {
+  ///               return Text(tile.group);
+  ///             },
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  /// ```
+  ///
+  /// See also:
+  /// * The [breadcrumbs], for return back to the previous levels.
+  final bool enableDrilldown;
+
+  /// It is a navigation strategy that reveals the location of the current tile.
+  /// Also provides an option to navigate back to previous levels by tapping or
+  /// clicking on the previous breadcrumb items.
+  ///
+  /// Breadcrumbs aligned horizontally across the top of the treemap.
+  ///
+  /// ```dart
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
+  ///
+  /// @override
+  /// void initState() {
+  ///    _socialMediaUsersData = <SocialMediaUsers>[
+  ///       SocialMediaUsers('India', 'Facebook', 280),
+  ///      SocialMediaUsers('India', 'Instagram', 88),
+  ///       SocialMediaUsers('USA', 'Facebook', 190),
+  ///       SocialMediaUsers('USA', 'Instagram', 120),
+  ///       SocialMediaUsers('Japan', 'Twitter', 48),
+  ///       SocialMediaUsers('Japan', 'Instagram', 31),
+  ///    ];
+  ///    super.initState();
+  /// }
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///       body: SfTreemap(
+  ///         dataCount: _socialMediaUsersData.length,
+  ///         weightValueMapper: (int index) {
+  ///           return _socialMediaUsersData[index].usersInMillions;
+  ///         },
+  ///         enableDrilldown: true,
+  ///         breadcrumbs: TreemapBreadcrumbs(
+  ///           builder:
+  ///           (BuildContext context, TreemapTile tile, bool isCurrent) {
+  ///             return Text(tile.group);
+  ///           },
+  ///         ),
+  ///         levels: [
+  ///           TreemapLevel(
+  ///             groupMapper: (int index) {
+  ///               return _socialMediaUsersData[index].country;
+  ///             },
+  ///             labelBuilder: (BuildContext context, TreemapTile tile) {
+  ///               return Text(tile.group);
+  ///             },
+  ///           ),
+  ///           TreemapLevel(
+  ///             groupMapper: (int index) {
+  ///               return _socialMediaUsersData[index].socialMedia;
+  ///             },
+  ///             labelBuilder: (BuildContext context, TreemapTile tile) {
+  ///               return Text(tile.group);
+  ///             },
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  /// ```
+  ///
+  /// See also:
+  /// * The [TreemapBreadcrumbs.position] position the breadcrumbs either top
+  /// or bottom of the treemap.
+  /// * The [TreemapBreadcrumbs.divider] to add a separator between two
+  /// breadcrumbs.
+  final TreemapBreadcrumbs? breadcrumbs;
+
   @override
   Widget build(BuildContext context) {
     return Treemap(
@@ -2495,11 +3013,302 @@ class SfTreemap extends StatelessWidget {
       dataCount: dataCount,
       levels: levels,
       weightValueMapper: weightValueMapper,
+      layoutDirection: layoutDirection,
+      sortAscending: sortAscending,
       colorMappers: colorMappers,
       legend: legend,
+      tileHoverColor: tileHoverColor,
+      tileHoverBorder: tileHoverBorder,
       onSelectionChanged: onSelectionChanged,
       selectionSettings: selectionSettings,
       tooltipSettings: tooltipSettings,
+      enableDrilldown: enableDrilldown,
+      breadcrumbs: breadcrumbs,
     );
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(EnumProperty<LayoutType>('layoutType ', _layoutType));
+    properties.add(IntProperty('dataCount', dataCount));
+    if (tileHoverColor != null) {
+      properties.add(ColorProperty('tileHoverColor', tileHoverColor));
+    }
+    properties.add(DiagnosticsProperty<RoundedRectangleBorder>(
+        'tileHoverBorder', tileHoverBorder));
+    if (levels.isNotEmpty) {
+      properties.add(_DebugLevelsTree(levels).toDiagnosticsNode());
+    }
+    properties.add(ObjectFlagProperty<IndexedDoubleValueMapper>.has(
+        'weightValueMapper', weightValueMapper));
+    if (colorMappers != null && colorMappers!.isNotEmpty) {
+      properties.add(_DebugColorMappersTree(colorMappers!).toDiagnosticsNode());
+    }
+    if (legend != null) {
+      properties.add(legend!.toDiagnosticsNode(name: 'legend'));
+    }
+    properties.add(ObjectFlagProperty<ValueChanged<TreemapTile>>.has(
+        'onSelectionChanged', onSelectionChanged));
+    properties
+        .add(selectionSettings.toDiagnosticsNode(name: 'selectionSettings'));
+    properties.add(tooltipSettings.toDiagnosticsNode(name: 'tooltipSettings'));
+    properties.add(FlagProperty('enableDrilldown',
+        value: enableDrilldown,
+        ifTrue: 'drilldown is enabled',
+        ifFalse: 'drilldown is disabled',
+        showName: false));
+    if (breadcrumbs != null) {
+      properties.add(breadcrumbs!.toDiagnosticsNode(name: 'breadcrumbs'));
+    }
+  }
+}
+
+class _DebugLevelsTree extends DiagnosticableTree {
+  _DebugLevelsTree(this.levels);
+
+  final List<TreemapLevel> levels;
+
+  @override
+  List<DiagnosticsNode> debugDescribeChildren() {
+    if (levels.isNotEmpty) {
+      return levels.map<DiagnosticsNode>((TreemapLevel level) {
+        return level.toDiagnosticsNode();
+      }).toList();
+    }
+    return super.debugDescribeChildren();
+  }
+
+  @override
+  String toStringShort() {
+    return levels.length > 1
+        ? 'contains ${levels.length} levels'
+        : 'contains ${levels.length} level';
+  }
+}
+
+class _DebugColorMappersTree extends DiagnosticableTree {
+  _DebugColorMappersTree(this.colorMappers);
+
+  final List<TreemapColorMapper> colorMappers;
+
+  @override
+  List<DiagnosticsNode> debugDescribeChildren() {
+    if (colorMappers.isNotEmpty) {
+      return colorMappers
+          .map<DiagnosticsNode>((TreemapColorMapper colorMapper) {
+        return colorMapper.toDiagnosticsNode();
+      }).toList();
+    }
+    return super.debugDescribeChildren();
+  }
+
+  @override
+  String toStringShort() {
+    return colorMappers.length > 1
+        ? 'contains ${colorMappers.length} color mappers'
+        : 'contains ${colorMappers.length} color mapper';
+  }
+}
+
+/// Treemap breadcrumb class.
+@immutable
+class TreemapBreadcrumbs extends DiagnosticableTree {
+  /// Creates a [TreemapBreadcrumbs].
+  const TreemapBreadcrumbs(
+      {required this.builder,
+      this.divider,
+      this.position = TreemapBreadcrumbPosition.top});
+
+  /// Returns a widget for the breadcrumb divider.
+  ///
+  /// Placed between two breadcrumb items.
+  ///
+  /// ```dart
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
+  ///
+  /// @override
+  /// void initState() {
+  ///    _socialMediaUsersData = <SocialMediaUsers>[
+  ///       SocialMediaUsers('India', 'Facebook', 280),
+  ///      SocialMediaUsers('India', 'Instagram', 88),
+  ///       SocialMediaUsers('USA', 'Facebook', 190),
+  ///       SocialMediaUsers('USA', 'Instagram', 120),
+  ///       SocialMediaUsers('Japan', 'Twitter', 48),
+  ///       SocialMediaUsers('Japan', 'Instagram', 31),
+  ///    ];
+  ///    super.initState();
+  /// }
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///       body: SfTreemap(
+  ///         dataCount: _socialMediaUsersData.length,
+  ///         weightValueMapper: (int index) {
+  ///           return _socialMediaUsersData[index].usersInMillions;
+  ///         },
+  ///         enableDrilldown: true,
+  ///         breadcrumbs: TreemapBreadcrumbs(
+  ///           builder:
+  ///           (BuildContext context, TreemapTile tile, bool isCurrent) {
+  ///             return Text(tile.group);
+  ///           },
+  ///           divider: Icon(Icons.arrow_right, color: Colors.grey),
+  ///         ),
+  ///         levels: [
+  ///           TreemapLevel(
+  ///             groupMapper: (int index) {
+  ///               return _socialMediaUsersData[index].country;
+  ///             },
+  ///             labelBuilder: (BuildContext context, TreemapTile tile) {
+  ///               return Text(tile.group);
+  ///             },
+  ///           ),
+  ///           TreemapLevel(
+  ///             groupMapper: (int index) {
+  ///               return _socialMediaUsersData[index].socialMedia;
+  ///             },
+  ///             labelBuilder: (BuildContext context, TreemapTile tile) {
+  ///               return Text(tile.group);
+  ///             },
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  /// ```
+  final Widget? divider;
+
+  /// Returns a widget for the breadcrumb.
+  ///
+  /// The [TreemapBreadcrumbs.builder] is called when the tile is tapped.
+  ///
+  /// ```dart
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
+  ///
+  /// @override
+  /// void initState() {
+  ///    _socialMediaUsersData = <SocialMediaUsers>[
+  ///       SocialMediaUsers('India', 'Facebook', 280),
+  ///      SocialMediaUsers('India', 'Instagram', 88),
+  ///       SocialMediaUsers('USA', 'Facebook', 190),
+  ///       SocialMediaUsers('USA', 'Instagram', 120),
+  ///       SocialMediaUsers('Japan', 'Twitter', 48),
+  ///       SocialMediaUsers('Japan', 'Instagram', 31),
+  ///    ];
+  ///    super.initState();
+  /// }
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///       body: SfTreemap(
+  ///         dataCount: _socialMediaUsersData.length,
+  ///         weightValueMapper: (int index) {
+  ///           return _socialMediaUsersData[index].usersInMillions;
+  ///         },
+  ///         enableDrilldown: true,
+  ///         breadcrumbs: TreemapBreadcrumbs(
+  ///           builder:
+  ///           (BuildContext context, TreemapTile tile, bool isCurrent) {
+  ///             return Text(tile.group);
+  ///           },
+  ///         ),
+  ///         levels: [
+  ///           TreemapLevel(
+  ///             groupMapper: (int index) {
+  ///               return _socialMediaUsersData[index].country;
+  ///             },
+  ///             labelBuilder: (BuildContext context, TreemapTile tile) {
+  ///               return Text(tile.group);
+  ///             },
+  ///           ),
+  ///           TreemapLevel(
+  ///             groupMapper: (int index) {
+  ///               return _socialMediaUsersData[index].socialMedia;
+  ///             },
+  ///             labelBuilder: (BuildContext context, TreemapTile tile) {
+  ///               return Text(tile.group);
+  ///             },
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  /// ```
+  final TreemapBreadcrumbBuilder builder;
+
+  /// Place the breadcrumbs either at the top or bottom of the treemap.
+  ///
+  /// Defaults to `TreemapBreadcrumbPosition.top`.
+  ///
+  /// ```dart
+  /// late List<SocialMediaUsers> _socialMediaUsersData;
+  ///
+  /// @override
+  /// void initState() {
+  ///    _socialMediaUsersData = <SocialMediaUsers>[
+  ///       SocialMediaUsers('India', 'Facebook', 280),
+  ///      SocialMediaUsers('India', 'Instagram', 88),
+  ///       SocialMediaUsers('USA', 'Facebook', 190),
+  ///       SocialMediaUsers('USA', 'Instagram', 120),
+  ///       SocialMediaUsers('Japan', 'Twitter', 48),
+  ///       SocialMediaUsers('Japan', 'Instagram', 31),
+  ///    ];
+  ///    super.initState();
+  /// }
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///       body: SfTreemap(
+  ///         dataCount: _socialMediaUsersData.length,
+  ///         weightValueMapper: (int index) {
+  ///           return _socialMediaUsersData[index].usersInMillions;
+  ///         },
+  ///         enableDrilldown: true,
+  ///         breadcrumbs: TreemapBreadcrumbs(
+  ///           builder:
+  ///           (BuildContext context, TreemapTile tile, bool isCurrent) {
+  ///             return Text(tile.group);
+  ///           },
+  ///           position: TreemapBreadcrumbPosition.bottom,
+  ///         ),
+  ///         levels: [
+  ///           TreemapLevel(
+  ///             groupMapper: (int index) {
+  ///               return _socialMediaUsersData[index].country;
+  ///             },
+  ///             labelBuilder: (BuildContext context, TreemapTile tile) {
+  ///               return Text(tile.group);
+  ///             },
+  ///           ),
+  ///           TreemapLevel(
+  ///             groupMapper: (int index) {
+  ///               return _socialMediaUsersData[index].socialMedia;
+  ///             },
+  ///             labelBuilder: (BuildContext context, TreemapTile tile) {
+  ///               return Text(tile.group);
+  ///             },
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  /// ```
+  final TreemapBreadcrumbPosition position;
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+
+    properties
+        .add(EnumProperty<TreemapBreadcrumbPosition>('position', position));
+    properties.add(
+        ObjectFlagProperty<TreemapBreadcrumbBuilder>.has('builder', builder));
+    if (divider != null) {
+      properties.add(ObjectFlagProperty<Widget>.has('divider', divider));
+    }
   }
 }

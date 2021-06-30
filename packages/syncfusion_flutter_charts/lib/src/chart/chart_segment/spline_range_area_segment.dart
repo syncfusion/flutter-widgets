@@ -69,7 +69,7 @@ class SplineRangeAreaSegment extends ChartSegment {
   @override
   void onPaint(Canvas canvas) {
     final SplineRangeAreaSeries<dynamic, dynamic> splineRangeAreaSeries =
-        _seriesRenderer._series as SplineRangeAreaSeries;
+        _seriesRenderer._series as SplineRangeAreaSeries<dynamic, dynamic>;
     _pathRect = _path.getBounds();
     canvas.drawPath(
         _path, (_series.gradient == null) ? fillPaint! : getFillPaint());

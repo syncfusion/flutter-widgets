@@ -3,11 +3,7 @@ part of pdf;
 /// Details of the searched text
 class MatchedItem {
   //Constructor
-  MatchedItem._(String text, Rect bounds, int pageIndex) {
-    this.text = text;
-    this.bounds = bounds;
-    this.pageIndex = pageIndex;
-  }
+  MatchedItem._(this.text, this.bounds, this.pageIndex);
 
   //Fields
   /// The searched text.

@@ -37,9 +37,8 @@ class _PdfEmbeddedFileSpecification extends _PdfFileSpecificationBase {
   }
 
   String _getEnumName(dynamic text) {
-    text = text.toString();
-    final int index = text.indexOf('.');
-    final String name = text.substring(index + 1);
+    final int index = text.toString().indexOf('.');
+    final String name = text.toString().substring(index + 1);
     return name[0].toUpperCase() + name.substring(1);
   }
 

@@ -20,13 +20,8 @@ class _StackedLineChartPainter extends CustomPainter {
   /// Painter method for stacked line series
   @override
   void paint(Canvas canvas, Size size) {
-    _stackedLinePainter(
-        canvas,
-        seriesRenderer,
-        seriesRenderer._seriesAnimation!,
-        chartState,
-        seriesRenderer._seriesElementAnimation,
-        painterKey);
+    _stackedLinePainter(canvas, seriesRenderer, seriesRenderer._seriesAnimation,
+        chartState, seriesRenderer._seriesElementAnimation, painterKey);
   }
 
   @override

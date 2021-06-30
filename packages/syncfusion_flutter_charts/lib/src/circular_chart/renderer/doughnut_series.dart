@@ -7,12 +7,17 @@ part of charts;
 ///
 /// Provide options for opacity, stroke width, stroke color, and point color mapper to customize the appearance.
 ///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=VJxPp7-2nGk}
+@immutable
 class DoughnutSeries<T, D> extends CircularSeries<T, D> {
   /// Creating an argument constructor of DoughnutSeries class.
   DoughnutSeries(
       {ValueKey<String>? key,
       ChartSeriesRendererFactory<T, D>? onCreateRenderer,
       CircularSeriesRendererCreatedCallback? onRendererCreated,
+      ChartPointInteractionCallback? onPointTap,
+      ChartPointInteractionCallback? onPointDoubleTap,
+      ChartPointInteractionCallback? onPointLongPress,
       List<T>? dataSource,
       required ChartValueMapper<T, D> xValueMapper,
       required ChartValueMapper<T, num> yValueMapper,
@@ -42,8 +47,6 @@ class DoughnutSeries<T, D> extends CircularSeries<T, D> {
       String? name,
       double? opacity,
       double? animationDuration,
-      // ignore: deprecated_member_use_from_same_package
-      SelectionSettings? selectionSettings,
       SelectionBehavior? selectionBehavior,
       SortingOrder? sortingOrder,
       LegendIconType? legendIconType,
@@ -53,6 +56,9 @@ class DoughnutSeries<T, D> extends CircularSeries<T, D> {
           key: key,
           onCreateRenderer: onCreateRenderer,
           onRendererCreated: onRendererCreated,
+          onPointTap: onPointTap,
+          onPointDoubleTap: onPointDoubleTap,
+          onPointLongPress: onPointLongPress,
           dataSource: dataSource,
           xValueMapper: (int index) => xValueMapper(dataSource![index], index),
           yValueMapper: (int index) => yValueMapper(dataSource![index], index),
@@ -92,7 +98,6 @@ class DoughnutSeries<T, D> extends CircularSeries<T, D> {
           dataLabelSettings: dataLabelSettings,
           enableTooltip: enableTooltip,
           name: name,
-          selectionSettings: selectionSettings,
           selectionBehavior: selectionBehavior,
           legendIconType: legendIconType,
           sortingOrder: sortingOrder,
@@ -112,6 +117,104 @@ class DoughnutSeries<T, D> extends CircularSeries<T, D> {
       return seriesRenderer;
     }
     return DoughnutSeriesRenderer();
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is DoughnutSeries &&
+        other.animationDuration == animationDuration &&
+        other.borderColor == borderColor &&
+        other.borderWidth == borderWidth &&
+        other.cornerStyle == cornerStyle &&
+        other.dataLabelMapper == dataLabelMapper &&
+        other.dataLabelSettings == dataLabelSettings &&
+        other.dataSource == dataSource &&
+        other.emptyPointSettings == emptyPointSettings &&
+        other.enableSmartLabels == enableSmartLabels &&
+        other.enableTooltip == enableTooltip &&
+        other.endAngle == endAngle &&
+        other.explode == explode &&
+        other.explodeAll == explodeAll &&
+        other.explodeGesture == explodeGesture &&
+        other.explodeIndex == explodeIndex &&
+        other.explodeOffset == explodeOffset &&
+        other.groupMode == groupMode &&
+        other.groupTo == groupTo &&
+        listEquals(
+            other.initialSelectedDataIndexes, initialSelectedDataIndexes) &&
+        other.innerRadius == innerRadius &&
+        other.legendIconType == legendIconType &&
+        other.name == name &&
+        other.onCreateRenderer == onCreateRenderer &&
+        other.onRendererCreated == onRendererCreated &&
+        other.onPointTap == onPointTap &&
+        other.onPointDoubleTap == onPointDoubleTap &&
+        other.onPointLongPress == onPointLongPress &&
+        other.opacity == opacity &&
+        other.pointColorMapper == pointColorMapper &&
+        other.pointRadiusMapper == pointRadiusMapper &&
+        other.pointRenderMode == pointRenderMode &&
+        other.pointShaderMapper == pointShaderMapper &&
+        other.radius == radius &&
+        other.selectionBehavior == selectionBehavior &&
+        other.sortFieldValueMapper == sortFieldValueMapper &&
+        other.sortingOrder == sortingOrder &&
+        other.startAngle == startAngle &&
+        other.xValueMapper == xValueMapper &&
+        other.yValueMapper == yValueMapper;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      animationDuration,
+      borderColor,
+      borderWidth,
+      cornerStyle,
+      dataLabelMapper,
+      dataLabelSettings,
+      dataSource,
+      emptyPointSettings,
+      enableSmartLabels,
+      enableTooltip,
+      endAngle,
+      explode,
+      explodeAll,
+      explodeGesture,
+      explodeIndex,
+      explodeOffset,
+      groupMode,
+      groupTo,
+      initialSelectedDataIndexes,
+      innerRadius,
+      legendIconType,
+      name,
+      onCreateRenderer,
+      onRendererCreated,
+      onPointTap,
+      onPointDoubleTap,
+      onPointLongPress,
+      opacity,
+      pointColorMapper,
+      pointRadiusMapper,
+      pointRenderMode,
+      pointShaderMapper,
+      radius,
+      selectionBehavior,
+      sortFieldValueMapper,
+      sortingOrder,
+      startAngle,
+      xValueMapper,
+      yValueMapper
+    ];
+    return hashList(values);
   }
 }
 
@@ -139,15 +242,17 @@ class _DoughnutChartPainter extends CustomPainter {
     num? pointStartAngle;
     seriesRenderer = chartState._chartSeries.visibleSeriesRenderers[index]
         as DoughnutSeriesRenderer;
-    pointStartAngle = seriesRenderer._start;
-    seriesRenderer._innerRadius = seriesRenderer._currentInnerRadius;
-    seriesRenderer._radius = seriesRenderer._currentRadius;
+    pointStartAngle = seriesRenderer._segmentRenderingValues['start'];
+    seriesRenderer._innerRadius =
+        seriesRenderer._segmentRenderingValues['currentInnerRadius']!;
+    seriesRenderer._radius =
+        seriesRenderer._segmentRenderingValues['currentRadius']!;
     ChartPoint<dynamic> point;
     seriesRenderer._pointRegions = <_Region>[];
     ChartPoint<dynamic>? _oldPoint;
     final DoughnutSeriesRenderer? oldSeriesRenderer =
-        (chartState._widgetNeedUpdate &&
-                !chartState._isLegendToggled &&
+        (chartState._renderingDetails.widgetNeedUpdate &&
+                !chartState._renderingDetails.isLegendToggled &&
                 chartState._prevSeriesRenderer?._seriesType == 'doughnut')
             ? chartState._prevSeriesRenderer as DoughnutSeriesRenderer
             : null;
@@ -159,7 +264,7 @@ class _DoughnutChartPainter extends CustomPainter {
               oldSeriesRenderer._oldRenderPoints != null &&
               (oldSeriesRenderer._oldRenderPoints!.length - 1 >= i))
           ? oldSeriesRenderer._oldRenderPoints![i]
-          : ((chartState._isLegendToggled &&
+          : ((chartState._renderingDetails.isLegendToggled &&
                   chartState._prevSeriesRenderer?._seriesType == 'doughnut')
               ? chartState._oldPoints![i]
               : null);
@@ -198,7 +303,7 @@ class _DoughnutChartPainter extends CustomPainter {
       }
       if (seriesRenderer._renderList[0].strokeColor != null &&
           seriesRenderer._renderList[0].strokeWidth != null &&
-          seriesRenderer._renderList[0].strokeWidth > 0) {
+          seriesRenderer._renderList[0].strokeWidth > 0 == true) {
         final Paint paint = Paint();
         paint.color = seriesRenderer._renderList[0].strokeColor;
         paint.strokeWidth = seriesRenderer._renderList[0].strokeWidth;

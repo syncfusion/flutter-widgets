@@ -13,8 +13,8 @@ class PdfListFieldItem implements _IPdfWrapper {
       String? text, String? value, PdfListField field, _PdfCrossTable? cTable) {
     _field = field;
     _crossTable = cTable;
-    _text = text == null ? '' : text;
-    _value = value == null ? '' : value;
+    _text = text ?? '';
+    _value = value ?? '';
   }
 
   //Fields
@@ -33,7 +33,7 @@ class PdfListFieldItem implements _IPdfWrapper {
         _assignValues(value, true);
       } else {
         //text index: 1.
-        _text = (_array[1] as _PdfString).value = value;
+        _text = (_array[1]! as _PdfString).value = value;
       }
     }
   }
@@ -46,7 +46,7 @@ class PdfListFieldItem implements _IPdfWrapper {
         _assignValues(value, false);
       } else {
         //value index: 0.
-        _value = (_array[0] as _PdfString).value = value;
+        _value = (_array[0]! as _PdfString).value = value;
       }
     }
   }
@@ -64,14 +64,14 @@ class PdfListFieldItem implements _IPdfWrapper {
     final _PdfDictionary fieldDic = _field!._dictionary;
     if (fieldDic.containsKey(_DictionaryProperties.opt)) {
       final _PdfArray array = _crossTable!
-          ._getObject(fieldDic[_DictionaryProperties.opt]) as _PdfArray;
-      final _PdfArray item = (isText
+          ._getObject(fieldDic[_DictionaryProperties.opt])! as _PdfArray;
+      final _PdfArray item = isText
           ? (_PdfArray().._add(_PdfString(_value!)).._add(_PdfString(value)))
-          : (_PdfArray().._add(_PdfString(value)).._add(_PdfString(_text!))));
+          : (_PdfArray().._add(_PdfString(value)).._add(_PdfString(_text!)));
       for (int i = 0; i < array.count; ++i) {
         final _IPdfPrimitive primitive = _crossTable!._getObject(array[i])!;
         final _PdfArray arr = primitive as _PdfArray;
-        final _PdfString text = _crossTable!._getObject(arr[1]) as _PdfString;
+        final _PdfString text = _crossTable!._getObject(arr[1])! as _PdfString;
         if (text.value == _text || text.value == _value) {
           isText ? _text = value : _value = value;
           array._removeAt(i);

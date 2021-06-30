@@ -30,8 +30,6 @@ abstract class _FinancialSeriesBase<T, D> extends XyDataSeries<T, D> {
       bool? enableTooltip,
       double? animationDuration,
       double? borderWidth,
-      // ignore: deprecated_member_use_from_same_package
-      SelectionSettings? selectionSettings,
       SelectionBehavior? selectionBehavior,
       List<int>? initialSelectedDataIndexes,
       bool? isVisibleInLegend,
@@ -43,7 +41,10 @@ abstract class _FinancialSeriesBase<T, D> extends XyDataSeries<T, D> {
       double? opacity,
       this.showIndicationForSameValues = false,
       List<Trendline>? trendlines,
-      SeriesRendererCreatedCallback? onRendererCreated})
+      SeriesRendererCreatedCallback? onRendererCreated,
+      ChartPointInteractionCallback? onPointTap,
+      ChartPointInteractionCallback? onPointDoubleTap,
+      ChartPointInteractionCallback? onPointLongPress})
       : dashArray = dashArray ?? <double>[0, 0],
         spacing = spacing ?? 0,
         super(
@@ -69,7 +70,6 @@ abstract class _FinancialSeriesBase<T, D> extends XyDataSeries<T, D> {
             enableTooltip: enableTooltip,
             animationDuration: animationDuration,
             borderWidth: borderWidth,
-            selectionSettings: selectionSettings,
             selectionBehavior: selectionBehavior,
             initialSelectedDataIndexes: initialSelectedDataIndexes,
             legendItemText: legendItemText,
@@ -78,6 +78,9 @@ abstract class _FinancialSeriesBase<T, D> extends XyDataSeries<T, D> {
             sortingOrder: sortingOrder,
             opacity: opacity,
             onRendererCreated: onRendererCreated,
+            onPointTap: onPointTap,
+            onPointDoubleTap: onPointDoubleTap,
+            onPointLongPress: onPointLongPress,
             trendlines: trendlines);
 
   final ChartIndexedValueMapper<num>? volumeValueMapper;

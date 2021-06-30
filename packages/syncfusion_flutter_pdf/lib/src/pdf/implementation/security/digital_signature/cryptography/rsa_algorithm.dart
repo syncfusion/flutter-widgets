@@ -11,10 +11,14 @@ class _RsaAlgorithm implements _ICipherBlock {
   Random? _random;
 
   //Properties
+  @override
   String get algorithmName => _Asn1Constants.rsa;
+  @override
   int get inputBlock => _rsaCoreEngine.inputBlockSize;
+  @override
   int get outputBlock => _rsaCoreEngine.outputBlockSize;
   //Implementation
+  @override
   void initialize(bool isEncryption, _ICipherParameter? parameter) {
     _rsaCoreEngine.initialize(isEncryption, parameter);
     _key = parameter as _RsaKeyParam?;
@@ -22,20 +26,21 @@ class _RsaAlgorithm implements _ICipherBlock {
   }
 
   //Implementation
+  @override
   List<int> processBlock(List<int> bytes, int offset, int length) {
     ArgumentError.checkNotNull(_key);
     final BigInt input = _rsaCoreEngine.convertInput(bytes, offset, length);
     BigInt result;
     if (_key is _RsaPrivateKeyParam) {
-      final BigInt? e = (_key as _RsaPrivateKeyParam)._publicExponent;
+      final BigInt? e = (_key! as _RsaPrivateKeyParam)._publicExponent;
       if (e != null) {
         final BigInt m = _key!.modulus!;
         final BigInt r =
-            createRandomInRange(BigInt.one, (m - BigInt.one), _random);
-        final BigInt blindedInput = _getMod((r.modPow(e, m) * input), m);
+            createRandomInRange(BigInt.one, m - BigInt.one, _random);
+        final BigInt blindedInput = _getMod(r.modPow(e, m) * input, m);
         final BigInt blindedResult = _rsaCoreEngine.processBlock(blindedInput);
         final BigInt reverse = r.modInverse(m);
-        result = _getMod((blindedResult * reverse), m);
+        result = _getMod(blindedResult * reverse, m);
       } else {
         result = _rsaCoreEngine.processBlock(input);
       }
@@ -91,7 +96,7 @@ class _RsaCoreAlgorithm {
 
   //Implementation
   void initialize(bool isEncryption, _ICipherParameter? parameters) {
-    if (!(parameters is _RsaKeyParam)) {
+    if (parameters is! _RsaKeyParam) {
       throw ArgumentError.value(parameters, 'parameters', 'Invalid RSA key');
     }
     _key = parameters;
@@ -117,9 +122,9 @@ class _RsaCoreAlgorithm {
     if (_isEncryption) {
       final int outSize = outputBlockSize;
       if (output.length < outSize) {
-        final List<int> bytes = List<int>.generate(outSize, (i) => 0);
+        final List<int> bytes = List<int>.generate(outSize, (int i) => 0);
         int j = 0;
-        for (int i = (bytes.length - output.length);
+        for (int i = bytes.length - output.length;
             j < output.length && i < bytes.length;
             i++) {
           bytes[i] = output[j];

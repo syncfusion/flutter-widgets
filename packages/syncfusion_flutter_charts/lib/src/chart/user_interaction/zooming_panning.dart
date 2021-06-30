@@ -194,10 +194,52 @@ class ZoomPanBehavior {
   ///```
   final Color? selectionRectColor;
 
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is ZoomPanBehavior &&
+        other.enablePinching == enablePinching &&
+        other.enableDoubleTapZooming == enableDoubleTapZooming &&
+        other.enablePanning == enablePanning &&
+        other.enableSelectionZooming == enableSelectionZooming &&
+        other.enableMouseWheelZooming == enableMouseWheelZooming &&
+        other.zoomMode == zoomMode &&
+        other.maximumZoomLevel == maximumZoomLevel &&
+        other.selectionRectBorderWidth == selectionRectBorderWidth &&
+        other.selectionRectBorderColor == selectionRectBorderColor &&
+        other.selectionRectColor == selectionRectColor;
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      enablePinching,
+      enableDoubleTapZooming,
+      enablePanning,
+      enableSelectionZooming,
+      enableMouseWheelZooming,
+      zoomMode,
+      maximumZoomLevel,
+      selectionRectBorderWidth,
+      selectionRectBorderColor,
+      selectionRectColor
+    ];
+    return hashList(values);
+  }
+
   SfCartesianChartState? _chartState;
 
   /// Increases the magnification of the plot area.
   void zoomIn() {
+    _chartState!._canSetRangeController = true;
     final SfCartesianChartState chartState = _chartState!;
     final SfCartesianChart chart = chartState._chart;
     final ZoomPanBehaviorRenderer zoomPanBehaviorRenderer =
@@ -223,8 +265,7 @@ class ZoomPanBehavior {
         }
       }
       if (chart.onZooming != null) {
-        ZoomPanArgs? zoomingArgs;
-        _bindZoomEvent(chart, axisRenderer, zoomingArgs, chart.onZooming!);
+        _bindZoomEvent(chart, axisRenderer, chart.onZooming!);
       }
     }
     if (needZoom == true) {
@@ -234,6 +275,7 @@ class ZoomPanBehavior {
 
   /// Decreases the magnification of the plot area.
   void zoomOut() {
+    _chartState!._canSetRangeController = true;
     final SfCartesianChartState chartState = _chartState!;
     final SfCartesianChart chart = chartState._chart;
     final ZoomPanBehaviorRenderer zoomPanBehaviorRenderer =
@@ -254,8 +296,7 @@ class ZoomPanBehavior {
             : (axisRenderer._zoomFactor < 0.0 ? 0.0 : axisRenderer._zoomFactor);
       }
       if (chart.onZooming != null) {
-        ZoomPanArgs? zoomingArgs;
-        _bindZoomEvent(chart, axisRenderer, zoomingArgs, chart.onZooming!);
+        _bindZoomEvent(chart, axisRenderer, chart.onZooming!);
       }
     }
     zoomPanBehaviorRenderer._createZoomState();
@@ -265,10 +306,9 @@ class ZoomPanBehavior {
   ///
   /// Here, you can pass the zoom factor of an axis to magnify the plot area. The value ranges from 0 to 1.
   void zoomByFactor(double zoomFactor) {
+    _chartState!._canSetRangeController = true;
     final SfCartesianChartState chartState = _chartState!;
     final SfCartesianChart chart = chartState._chart;
-    final ZoomPanBehaviorRenderer zoomPanBehaviorRenderer =
-        chartState._zoomPanBehaviorRenderer;
     ChartAxisRenderer axisRenderer;
     for (int index = 0;
         index < chartState._chartAxis._axisRenderersCollection.length;
@@ -276,10 +316,9 @@ class ZoomPanBehavior {
       axisRenderer = chartState._chartAxis._axisRenderersCollection[index];
       axisRenderer._zoomFactor = zoomFactor;
       if (chart.onZooming != null) {
-        ZoomPanArgs? zoomingArgs;
-        _bindZoomEvent(chart, axisRenderer, zoomingArgs, chart.onZooming!);
+        _bindZoomEvent(chart, axisRenderer, chart.onZooming!);
       }
-      zoomPanBehaviorRenderer._createZoomState();
+      chartState._zoomPanBehaviorRenderer._createZoomState();
     }
   }
 
@@ -288,6 +327,7 @@ class ZoomPanBehavior {
   ///  Here, you can pass the rectangle with the left, right, top, and bottom values,
   /// using which the selection zooming will be performed.
   void zoomByRect(Rect rect) {
+    _chartState!._canSetRangeController = true;
     final SfCartesianChartState chartState = _chartState!;
     chartState._zoomPanBehaviorRenderer._doSelectionZooming(rect);
   }
@@ -297,15 +337,14 @@ class ZoomPanBehavior {
   ///  Here, you need to pass axis, zoom factor, zoom position of the zoom level that needs to be modified.
   void zoomToSingleAxis(
       ChartAxis axis, double zoomPosition, double zoomFactor) {
+    _chartState!._canSetRangeController = true;
     final SfCartesianChartState chartState = _chartState!;
-    final ZoomPanBehaviorRenderer zoomPanBehaviorRenderer =
-        chartState._zoomPanBehaviorRenderer;
     final ChartAxisRenderer? axisRenderer = _findExistingAxisRenderer(
         axis, chartState._chartAxis._axisRenderersCollection);
     if (axisRenderer != null) {
       axisRenderer._zoomFactor = zoomFactor;
       axisRenderer._zoomPosition = zoomPosition;
-      zoomPanBehaviorRenderer._createZoomState();
+      chartState._zoomPanBehaviorRenderer._createZoomState();
     }
   }
 
@@ -314,10 +353,9 @@ class ZoomPanBehavior {
   ///  To perform
   /// this action, the plot area needs to be in zoomed state.
   void panToDirection(String direction) {
+    _chartState!._canSetRangeController = true;
     final SfCartesianChartState chartState = _chartState!;
     final SfCartesianChart chart = chartState._chart;
-    final ZoomPanBehaviorRenderer zoomPanBehaviorRenderer =
-        chartState._zoomPanBehaviorRenderer;
     ChartAxisRenderer axisRenderer;
     direction = direction.toLowerCase();
     for (int axisIndex = 0;
@@ -364,19 +402,17 @@ class ZoomPanBehavior {
         }
       }
       if (chart.onZooming != null) {
-        ZoomPanArgs? zoomingArgs;
-        _bindZoomEvent(chart, axisRenderer, zoomingArgs, chart.onZooming!);
+        _bindZoomEvent(chart, axisRenderer, chart.onZooming!);
       }
     }
-    zoomPanBehaviorRenderer._createZoomState();
+    chartState._zoomPanBehaviorRenderer._createZoomState();
   }
 
   /// Returns the plot area back to its original position after zooming.
   void reset() {
+    _chartState!._canSetRangeController = true;
     final SfCartesianChartState chartState = _chartState!;
     final SfCartesianChart chart = chartState._chart;
-    final ZoomPanBehaviorRenderer zoomPanBehaviorRenderer =
-        chartState._zoomPanBehaviorRenderer;
     ChartAxisRenderer axisRenderer;
     for (int index = 0;
         index < chartState._chartAxis._axisRenderersCollection.length;
@@ -385,11 +421,10 @@ class ZoomPanBehavior {
       axisRenderer._zoomFactor = 1.0;
       axisRenderer._zoomPosition = 0.0;
       if (chart.onZoomReset != null) {
-        ZoomPanArgs? zoomResetArgs;
-        _bindZoomEvent(chart, axisRenderer, zoomResetArgs, chart.onZoomReset!);
+        _bindZoomEvent(chart, axisRenderer, chart.onZoomReset!);
       }
     }
-    zoomPanBehaviorRenderer._createZoomState();
+    chartState._zoomPanBehaviorRenderer._createZoomState();
   }
 }
 
@@ -404,6 +439,7 @@ class ZoomPanBehaviorRenderer with ZoomBehavior {
   late _ZoomRectPainter _painter;
   Offset? _previousMovedPosition;
   bool? _isPanning, _isPinching;
+  //ignore: prefer_final_fields
   bool _canPerformSelection = false;
   Rect _zoomingRect = const Rect.fromLTWH(0, 0, 0, 0);
   bool _delayRedraw = false;
@@ -413,8 +449,8 @@ class ZoomPanBehaviorRenderer with ZoomBehavior {
 
   /// Below method for Double tap Zooming
   void _doubleTapZooming(double xPos, double yPos, double? zoomFactor) {
+    _chartState._canSetRangeController = true;
     _chartState._zoomProgress = true;
-    ZoomPanArgs? zoomStartArgs;
     ChartAxisRenderer axisRenderer;
     double cumulative, origin, maxZoomFactor;
     for (int axisIndex = 0;
@@ -422,8 +458,7 @@ class ZoomPanBehaviorRenderer with ZoomBehavior {
         axisIndex++) {
       axisRenderer = _chartState._chartAxis._axisRenderersCollection[axisIndex];
       if (_chart.onZoomStart != null) {
-        _bindZoomEvent(
-            _chart, axisRenderer, zoomStartArgs, _chart.onZoomStart!);
+        _bindZoomEvent(_chart, axisRenderer, _chart.onZoomStart!);
       }
       axisRenderer._previousZoomFactor = axisRenderer._zoomFactor;
       axisRenderer._previousZoomPosition = axisRenderer._zoomPosition;
@@ -443,9 +478,8 @@ class ZoomPanBehaviorRenderer with ZoomBehavior {
               : origin < 0
                   ? 0
                   : origin;
-          zoomFactor = ((cumulative == 1)
-              ? 1
-              : _minMax(1 / cumulative, 0, 1).toDouble());
+          zoomFactor =
+              cumulative == 1 ? 1 : _minMax(1 / cumulative, 0, 1).toDouble();
           _zoomPosition = (cumulative == 1)
               ? 0
               : axisRenderer._zoomPosition +
@@ -471,8 +505,7 @@ class ZoomPanBehaviorRenderer with ZoomBehavior {
       }
 
       if (_chart.onZoomEnd != null) {
-        ZoomPanArgs? zoomEndArgs;
-        _bindZoomEvent(_chart, axisRenderer, zoomEndArgs, _chart.onZoomEnd!);
+        _bindZoomEvent(_chart, axisRenderer, _chart.onZoomEnd!);
       }
     }
     _createZoomState();
@@ -480,6 +513,7 @@ class ZoomPanBehaviorRenderer with ZoomBehavior {
 
   /// Below method is for panning the zoomed chart
   void _doPan(double xPos, double yPos) {
+    _chartState._canSetRangeController = true;
     num currentScale, value;
     ChartAxisRenderer axisRenderer;
     double currentZoomPosition;
@@ -522,8 +556,7 @@ class ZoomPanBehaviorRenderer with ZoomBehavior {
         }
       }
       if (_chart.onZooming != null) {
-        ZoomPanArgs? zoomingArgs;
-        _bindZoomEvent(_chart, axisRenderer, zoomingArgs, _chart.onZooming!);
+        _bindZoomEvent(_chart, axisRenderer, _chart.onZooming!);
       }
     }
     _createZoomState();
@@ -532,6 +565,7 @@ class ZoomPanBehaviorRenderer with ZoomBehavior {
   ///Below method for drawing selection  rectangle
   void _drawSelectionZoomRect(
       double currentX, double currentY, double startX, double startY) {
+    _chartState._canSetRangeController = true;
     final Rect clipRect = _chartState._chartAxis._axisClipRect;
     final Offset startPosition = Offset(
         (startX < clipRect.left) ? clipRect.left : startX,
@@ -564,22 +598,20 @@ class ZoomPanBehaviorRenderer with ZoomBehavior {
       _rectPath!.close();
     }
     _zoomingRect = _rectPath!.getBounds();
-    _chartState._zoomRepaintNotifier.value++;
+    _chartState._repaintNotifiers['zoom']!.value++;
   }
 
   /// Below method for zooming selected portion
   void _doSelectionZooming(Rect zoomRect) {
-    ZoomPanArgs? zoomEndArgs;
+    _chartState._canSetRangeController = true;
     final Rect rect = _chartState._chartAxis._axisClipRect;
     ChartAxisRenderer axisRenderer;
     for (int axisIndex = 0;
         axisIndex < _chartState._chartAxis._axisRenderersCollection.length;
         axisIndex++) {
       axisRenderer = _chartState._chartAxis._axisRenderersCollection[axisIndex];
-      ZoomPanArgs? zoomStartArgs;
       if (_chart.onZoomStart != null) {
-        _bindZoomEvent(
-            _chart, axisRenderer, zoomStartArgs, _chart.onZoomStart!);
+        _bindZoomEvent(_chart, axisRenderer, _chart.onZoomStart!);
       }
       axisRenderer._previousZoomFactor = axisRenderer._zoomFactor;
       axisRenderer._previousZoomPosition = axisRenderer._zoomPosition;
@@ -613,7 +645,7 @@ class ZoomPanBehaviorRenderer with ZoomBehavior {
         }
       }
       if (_chart.onZoomEnd != null) {
-        _bindZoomEvent(_chart, axisRenderer, zoomEndArgs, _chart.onZoomEnd!);
+        _bindZoomEvent(_chart, axisRenderer, _chart.onZoomEnd!);
       }
     }
 
@@ -625,6 +657,7 @@ class ZoomPanBehaviorRenderer with ZoomBehavior {
   /// Below method is for pinch zooming
   void _performPinchZooming(
       List<PointerEvent> touchStartList, List<PointerEvent> touchMoveList) {
+    _chartState._canSetRangeController = true;
     num touch0StartX,
         touch0StartY,
         touch1StartX,
@@ -636,28 +669,29 @@ class ZoomPanBehaviorRenderer with ZoomBehavior {
     if (!(_zoomingRect.width > 0 && _zoomingRect.height > 0)) {
       _calculateZoomAxesRange(_chart);
       _delayRedraw = true;
-      final Rect offsetRect = _chartState._chartAxis._axisClipRect;
-      final Rect elementOffsetRect = _chartState._containerRect;
-      touch0StartX = touchStartList[0].position.dx - elementOffsetRect.left;
-      touch0StartY = touchStartList[0].position.dy - elementOffsetRect.top;
-      touch0EndX = touchMoveList[0].position.dx - elementOffsetRect.left;
-      touch0EndY = touchMoveList[0].position.dy - elementOffsetRect.top;
-      touch1StartX = touchStartList[1].position.dx - elementOffsetRect.left;
-      touch1StartY = touchStartList[1].position.dy - elementOffsetRect.top;
-      touch1EndX = touchMoveList[1].position.dx - elementOffsetRect.left;
-      touch1EndY = touchMoveList[1].position.dy - elementOffsetRect.top;
+      final Rect clipRect = _chartState._chartAxis._axisClipRect;
+      final Rect containerRect =
+          _chartState._renderingDetails.chartContainerRect;
+      touch0StartX = touchStartList[0].position.dx - containerRect.left;
+      touch0StartY = touchStartList[0].position.dy - containerRect.top;
+      touch0EndX = touchMoveList[0].position.dx - containerRect.left;
+      touch0EndY = touchMoveList[0].position.dy - containerRect.top;
+      touch1StartX = touchStartList[1].position.dx - containerRect.left;
+      touch1StartY = touchStartList[1].position.dy - containerRect.top;
+      touch1EndX = touchMoveList[1].position.dx - containerRect.left;
+      touch1EndY = touchMoveList[1].position.dy - containerRect.top;
       double scaleX, scaleY, clipX, clipY;
       Rect pinchRect;
       scaleX =
           (touch0EndX - touch1EndX).abs() / (touch0StartX - touch1StartX).abs();
       scaleY =
           (touch0EndY - touch1EndY).abs() / (touch0StartY - touch1StartY).abs();
-      clipX = ((offsetRect.left - touch0EndX) / scaleX) +
+      clipX = ((clipRect.left - touch0EndX) / scaleX) +
           math.min(touch0StartX, touch1StartX);
-      clipY = ((offsetRect.top - touch0EndY) / scaleY) +
+      clipY = ((clipRect.top - touch0EndY) / scaleY) +
           math.min(touch0StartY, touch1StartY);
       pinchRect = Rect.fromLTWH(
-          clipX, clipY, offsetRect.width / scaleX, offsetRect.height / scaleY);
+          clipX, clipY, clipRect.width / scaleX, clipRect.height / scaleY);
       _calculatePinchZoomFactor(_chart, pinchRect);
       _chartState._zoomProgress = true;
       _createZoomState();
@@ -666,30 +700,25 @@ class ZoomPanBehaviorRenderer with ZoomBehavior {
 
   /// To create zoomed states
   void _createZoomState() {
+    _chartState._rangeChangeBySlider = false;
+    _chartState._isRedrawByZoomPan = true;
     _chartState._zoomedAxisRendererStates = <ChartAxisRenderer>[];
     _chartState._zoomedAxisRendererStates
         .addAll(_chartState._chartAxis._axisRenderersCollection);
-    _chartState._isLegendToggled = false;
+    _chartState._renderingDetails.isLegendToggled = false;
     _chartState._redraw();
   }
 
   /// Below method is for pinch zooming
   void _calculatePinchZoomFactor(SfCartesianChart chart, Rect pinchRect) {
+    _chartState._canSetRangeController = true;
     final ZoomMode mode = _zoomPanBehavior.zoomMode;
-    num selectionMin;
-    num selectionMax;
-    num rangeMin;
-    num rangeMax;
-    num value;
-    num axisTrans;
-    double currentZoomPosition;
-    double currentZoomFactor;
-    double currentFactor;
-    double currentPosition;
-    final Rect offsetRect = _chartState._chartAxis._axisClipRect;
+    num selectionMin, selectionMax, rangeMin, rangeMax, value, axisTrans;
+    double currentZoomPosition, currentZoomFactor;
+    double currentFactor, currentPosition, maxZoomFactor, minZoomFactor = 1.0;
+    final Rect clipRect = _chartState._chartAxis._axisClipRect;
     final List<_ZoomAxisRange> _zoomAxes = _chartState._zoomAxes;
     ChartAxisRenderer axisRenderer;
-    double maxZoomFactor;
     for (int axisIndex = 0;
         axisIndex < _chartState._chartAxis._axisRenderersCollection.length;
         axisIndex++) {
@@ -701,18 +730,18 @@ class ZoomPanBehaviorRenderer with ZoomBehavior {
           (axisRenderer._orientation == AxisOrientation.vertical &&
               mode != ZoomMode.x)) {
         if (axisRenderer._orientation == AxisOrientation.horizontal) {
-          value = pinchRect.left - offsetRect.left;
-          axisTrans = offsetRect.width / _zoomAxes[axisIndex].delta!;
+          value = pinchRect.left - clipRect.left;
+          axisTrans = clipRect.width / _zoomAxes[axisIndex].delta!;
           rangeMin = value / axisTrans + _zoomAxes[axisIndex].min!;
-          value = pinchRect.left + pinchRect.width - offsetRect.left;
+          value = pinchRect.left + pinchRect.width - clipRect.left;
           rangeMax = value / axisTrans + _zoomAxes[axisIndex].min!;
         } else {
-          value = pinchRect.top - offsetRect.top;
-          axisTrans = offsetRect.height / _zoomAxes[axisIndex].delta!;
-          rangeMin = (value * -1 + offsetRect.height) / axisTrans +
+          value = pinchRect.top - clipRect.top;
+          axisTrans = clipRect.height / _zoomAxes[axisIndex].delta!;
+          rangeMin = (value * -1 + clipRect.height) / axisTrans +
               _zoomAxes[axisIndex].min!;
-          value = pinchRect.top + pinchRect.height - offsetRect.top;
-          rangeMax = (value * -1 + offsetRect.height) / axisTrans +
+          value = pinchRect.top + pinchRect.height - clipRect.top;
+          rangeMax = (value * -1 + clipRect.height) / axisTrans +
               _zoomAxes[axisIndex].min!;
         }
         selectionMin = math.min(rangeMin, rangeMax);
@@ -724,16 +753,26 @@ class ZoomPanBehaviorRenderer with ZoomBehavior {
         currentZoomPosition = currentPosition < 0 ? 0 : currentPosition;
         currentZoomFactor = currentFactor > 1 ? 1 : currentFactor;
         maxZoomFactor = _zoomPanBehavior.maximumZoomLevel ?? 0.1;
+        if (axisRenderer._axis.autoScrollingDelta != null &&
+            axisRenderer._scrollingDelta != null) {
+          //to find zoom factor for corresponding auto scroll delta
+          minZoomFactor =
+              axisRenderer._scrollingDelta! / _zoomAxes[axisIndex].actualDelta!;
+        }
         if (currentZoomFactor < maxZoomFactor) {
           axisRenderer._zoomFactor = maxZoomFactor;
           axisRenderer._zoomPosition = 0.0;
           currentZoomFactor = maxZoomFactor;
         }
+        if (currentZoomFactor > minZoomFactor) {
+          //to restrict zoom factor to corresponding auto scroll delta
+          axisRenderer._zoomFactor = minZoomFactor;
+          currentZoomFactor = minZoomFactor;
+        }
         onPinch(axisRenderer, currentZoomPosition, currentZoomFactor);
       }
       if (chart.onZooming != null) {
-        ZoomPanArgs? zoomingArgs;
-        _bindZoomEvent(chart, axisRenderer, zoomingArgs, chart.onZooming!);
+        _bindZoomEvent(chart, axisRenderer, chart.onZooming!);
       }
     }
   }
@@ -778,15 +817,13 @@ class ZoomPanBehaviorRenderer with ZoomBehavior {
     _chartState._zoomProgress = true;
     _calculateZoomAxesRange(_chart);
     _isPanning = _chart.zoomPanBehavior.enablePanning;
-    ZoomPanArgs? zoomStartArgs, zoomResetArgs;
     ChartAxisRenderer axisRenderer;
     for (int axisIndex = 0;
         axisIndex < _chartState._chartAxis._axisRenderersCollection.length;
         axisIndex++) {
       axisRenderer = _chartState._chartAxis._axisRenderersCollection[axisIndex];
       if (_chart.onZoomStart != null) {
-        _bindZoomEvent(
-            _chart, axisRenderer, zoomStartArgs, _chart.onZoomStart!);
+        _bindZoomEvent(_chart, axisRenderer, _chart.onZoomStart!);
       }
       axisRenderer._previousZoomFactor = axisRenderer._zoomFactor;
       axisRenderer._previousZoomPosition = axisRenderer._zoomPosition;
@@ -830,15 +867,12 @@ class ZoomPanBehaviorRenderer with ZoomBehavior {
             zoomFactor = maxZoomFactor;
           }
           if (_chart.onZoomEnd != null) {
-            ZoomPanArgs? zoomEndArgs;
-            _bindZoomEvent(
-                _chart, axisRenderer, zoomEndArgs, _chart.onZoomEnd!);
+            _bindZoomEvent(_chart, axisRenderer, _chart.onZoomEnd!);
           }
           if (axisRenderer._zoomFactor.toInt() == 1 &&
               axisRenderer._zoomPosition.toInt() == 0 &&
               _chart.onZoomReset != null) {
-            _bindZoomEvent(
-                _chart, axisRenderer, zoomResetArgs, _chart.onZoomReset!);
+            _bindZoomEvent(_chart, axisRenderer, _chart.onZoomReset!);
           }
         }
       }

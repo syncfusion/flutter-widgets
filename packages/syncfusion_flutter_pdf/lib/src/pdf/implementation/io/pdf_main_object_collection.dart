@@ -87,7 +87,7 @@ class _PdfMainObjectCollection {
   }
 
   bool contains(_IPdfPrimitive element) {
-    return (_lookFor(element)! >= 0);
+    return _lookFor(element)! >= 0;
   }
 
   int? _lookFor(_IPdfPrimitive obj) {
@@ -103,10 +103,8 @@ class _PdfMainObjectCollection {
         final _ObjectInfo objectInfo = _objectCollection![i];
         final _IPdfPrimitive? primitive = objectInfo._object;
         final bool isValidType =
-            ((primitive is _PdfName && !(obj is _PdfName)) ||
-                    (!(primitive is _PdfName) && obj is _PdfName))
-                ? false
-                : true;
+            !((primitive is _PdfName && obj is! _PdfName) ||
+                (primitive is! _PdfName && obj is _PdfName));
         if (isValidType && primitive == obj) {
           index = i;
           break;

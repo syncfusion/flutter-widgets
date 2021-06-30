@@ -166,8 +166,8 @@ class _PdfLexer {
     int sequenceInteger = 0;
     int commaIndex;
     String workString;
-    final List<List<int>> res =
-        List.generate(size1, (i) => List.generate(size2, (j) => 0));
+    final List<List<int>> res = List<List<int>>.generate(
+        size1, (int i) => List<int>.generate(size2, (int j) => 0));
     for (int i = 0; i < size1; ++i) {
       for (int j = 0; j < size2; ++j) {
         if (sequenceLength != 0) {
@@ -738,12 +738,12 @@ class _PdfLexer {
       final String end = String.fromCharCode(buffer[bufferEnd - 1]);
       final String start = String.fromCharCode(buffer[bufferEnd - 2]);
       final int value = bufferEnd - bufferStart;
-      if (end == ')' && (start == '\\' || start == '\u0000') && value > 3) {
+      if (end == ')' && (start == r'\' || start == '\u0000') && value > 3) {
         int? index = bufferEnd;
         final String text = String.fromCharCodes(buffer);
         index = text.indexOf(end, bufferStart) + 1;
         int prvIndex = 0;
-        while (text[index! - 2] == '\\') {
+        while (text[index! - 2] == r'\') {
           index = text.indexOf(end, index) + 1;
           if (index > 0) {
             prvIndex = index;
@@ -784,7 +784,7 @@ class _PdfLexer {
         int? index = bufferEnd;
         final String text = String.fromCharCodes(buffer);
         index = text.indexOf(end, bufferStart) + 1;
-        while (text[index! - 2] == '\\') {
+        while (text[index! - 2] == r'\') {
           index = text.indexOf(end, index) + 1;
         }
         if (bufferEnd > index + 1) {

@@ -40,6 +40,7 @@ class PdfPageSettings {
   late _Point _origin;
   PdfPageRotateAngle _rotateAngle = PdfPageRotateAngle.rotateAngle0;
   bool _isRotation = false;
+  // ignore: prefer_final_fields
   bool _isPageAdded = false;
 
   //Properties

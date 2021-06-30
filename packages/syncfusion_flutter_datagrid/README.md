@@ -6,8 +6,6 @@ The Flutter DataTable or DataGrid is used to display and manipulate data in a ta
 
 **Disclaimer:** This is a commercial package. To use this package, you need to have either a Syncfusion commercial license or [Free Syncfusion Community license](https://www.syncfusion.com/products/communitylicense). For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
 
-**Note:** Our packages are now compatible with Flutter for web. However, this will be in beta until Flutter for web becomes stable.
-
 ## Table of contents
 - [DataGrid features](#datagrid-features)
 - [Coming soon](#coming-soon)
@@ -27,9 +25,13 @@ The Flutter DataTable or DataGrid is used to display and manipulate data in a ta
 
 ![Flutter DataGrid shows different column types](https://cdn.syncfusion.com/content/images/Flutter/pub_images/flutter-datagrid-column-types.png)
 
-**Column sizing** - Set the width of columns with various sizing options.
+**Editing** - Allows users to edit cell values. An editor widget can be loaded based on the column type to edit cell values.
 
-**Row height** - Set the height for header and data rows. Also, set the different height for specific rows.
+![Editing in Flutter DataGrid](https://cdn.syncfusion.com/content/images/Flutter/pub_images/flutter-datagrid-editing.png)
+
+**Column sizing** - Set the width of columns with various sizing options. Fit the columns based on the value of the cells to improve readability.
+
+**Row height** - Set the height for header and data rows. Fit the rows based on the value of the cells to improve readability. Also, set the different height for specific rows.
 
 ![Flutter DataGrid shows rows in auto-fit](https://cdn.syncfusion.com/content/images/Flutter/pub_images/flutter-datagrid-auto-row-height.png)
 
@@ -50,13 +52,17 @@ The Flutter DataTable or DataGrid is used to display and manipulate data in a ta
 
 ![Flutter datagrid shows multiple column headers](https://cdn.syncfusion.com/content/images/Flutter/pub_images/flutter-datagrid-stacked-headers.png)
 
-**Load more** - Display an interactive view when the grid reaches its maximum offset while scrolling down. Tapping the interactive view triggers a callback to add more data from the data source of the grid at run time.
+**Load more** - Display an interactive view when the grid reaches its maximum offset while scrolling down.
 
 ![infinite scrolling in Flutter datagrid](https://cdn.syncfusion.com/content/images/Flutter/pub_images/flutter-datagrid-load-more.gif)
 
 **Paging** - Load data in segments. It is useful when loading huge amounts of data.
 
 ![Flutter DataGrid shows rows in page segments](https://cdn.syncfusion.com/content/images/Flutter/pub_images/flutter-datagrid-paging.png)
+
+**Footer** - Show an additional row that can be displayed below to last row. Widgets can also be displayed in the footer row.
+
+[Footer view in Flutter DataGrid](https://cdn.syncfusion.com/content/images/Flutter/pub_images/flutter-datagrid-footer-view.png)
 
 **Freeze Panes** - Freeze the rows and columns when scrolling the grid. 
 
@@ -74,8 +80,7 @@ The Flutter DataTable or DataGrid is used to display and manipulate data in a ta
 
 ## Coming soon
 
-* Editing
-* Column resizing
+* Column resizing 
 * Column drag and drop
 * Grouping
 * Row drag and drop
@@ -85,12 +90,17 @@ The Flutter DataTable or DataGrid is used to display and manipulate data in a ta
 Explore the full capabilities of our Flutter widgets on your device by installing our sample browser applications from the following app stores, and view sample code in GitHub.
 
 <p align="center">
-  <a href="https://play.google.com/store/apps/details?id=com.syncfusion.flutter.examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/google-play.png"/></a>
-  <a href="https://apps.apple.com/us/app/syncfusion-flutter-ui-widgets/id1475231341"><img src="https://cdn.syncfusion.com/content/images/FTControl/apple-button.png"/></a>
+  <a href="https://play.google.com/store/apps/details?id=com.syncfusion.flutter.examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/google-play-store.png"/></a>
+  <a href="https://apps.apple.com/us/app/syncfusion-flutter-ui-widgets/id1475231341"><img src="https://cdn.syncfusion.com/content/images/FTControl/ios-store.png"/></a>
+  <a href="https://flutter.syncfusion.com"><img src="https://cdn.syncfusion.com/content/images/FTControl/web-sample-browser.png"/></a> 
 </p>
 <p align="center">
-  <a href="https://github.com/syncfusion/flutter-examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/GitHub.png"/></a>
-  <a href="https://flutter.syncfusion.com"><img src="https://cdn.syncfusion.com/content/images/FTControl/web_sample_browser.png"/></a>  
+  <a href="https://www.microsoft.com/en-us/p/syncfusion-flutter-gallery/9nhnbwcsf85d?activetab=pivot:overviewtab"><img src="https://cdn.syncfusion.com/content/images/FTControl/windows-store.png"/></a> 
+  <a href="https://install.appcenter.ms/orgs/syncfusion-demos/apps/syncfusion-flutter-gallery/distribution_groups/release"><img src="https://cdn.syncfusion.com/content/images/FTControl/macos-app-center.png"/></a>
+  <a href="https://snapcraft.io/syncfusion-flutter-gallery"><img src="https://cdn.syncfusion.com/content/images/FTControl/snap-store.png"/></a>
+</p>
+<p align="center">
+  <a href="https://github.com/syncfusion/flutter-examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/github-samples.png"/></a>
 </p>
 
 ## Other useful links
@@ -131,7 +141,7 @@ Create the collection of employee data with the required number of data objects.
 ```dart
 List<Employee> employees = <Employee>[];
 
-EmployeeDataSource employeeDataSource;
+late EmployeeDataSource employeeDataSource;
 
 @override
 void initState() {
@@ -178,13 +188,13 @@ class EmployeeDataSource extends DataGridSource {
         .toList();
   }
 
-  List<DataGridRow>  _employees;
+  List<DataGridRow>  _employees = [];
 
   @override
   List<DataGridRow> get rows =>  _employees;
 
   @override
-  DataGridRowAdapter buildRow(DataGridRow row) {
+  DataGridRowAdapter? buildRow(DataGridRow row) {
     return DataGridRowAdapter(
         cells: row.getCells().map<Widget>((dataGridCell) {
       return Container(

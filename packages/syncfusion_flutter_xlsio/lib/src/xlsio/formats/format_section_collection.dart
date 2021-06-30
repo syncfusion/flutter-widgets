@@ -6,8 +6,10 @@ class _FormatSectionCollection {
   _FormatSectionCollection(Workbook workbook,
       [List<_FormatTokenBase>? arrTokens]) {
     _workbook = workbook;
-    _innerList = [];
-    if (arrTokens != null) _parse(arrTokens);
+    _innerList = <_FormatSection?>[];
+    if (arrTokens != null) {
+      _parse(arrTokens);
+    }
   }
 
   /// Index of section with positive number format.
@@ -26,7 +28,7 @@ class _FormatSectionCollection {
   late List<_FormatSection?> _innerList;
 
   // Indexer of the class
-  _FormatSection? operator [](index) => _innerList[index];
+  _FormatSection? operator [](dynamic index) => _innerList[index];
 
   // Returns the count of pivot reference collection.
   int get _count {
@@ -34,7 +36,7 @@ class _FormatSectionCollection {
   }
 
   /// Indicates whether format contains conditions.
-  final _bConditionalFormat = false;
+  final bool _bConditionalFormat = false;
 
   /// Represents the workbook.
   late Workbook _workbook;
@@ -44,7 +46,7 @@ class _FormatSectionCollection {
     final _FormatSection? section = _getSection(value);
 
     if (section == null) {
-      throw FormatException("Can't find required format section.");
+      throw const FormatException("Can't find required format section.");
     }
 
     return section.formatType;
@@ -52,23 +54,25 @@ class _FormatSectionCollection {
 
   /// Splits array of tokens by SectionSeparator.
   void _parse(List<_FormatTokenBase>? arrTokens) {
-    if (arrTokens == null) throw Exception('arrTokens should not be null');
+    if (arrTokens == null) {
+      throw Exception('arrTokens should not be null');
+    }
 
-    List<_FormatTokenBase> arrCurrentSection = [];
+    List<_FormatTokenBase> arrCurrentSection = <_FormatTokenBase>[];
 
     final int len = arrTokens.length;
     for (int i = 0; i < len; i++) {
       final _FormatTokenBase token = arrTokens[i];
 
       if (token._tokenType == _TokenType.section) {
-        _innerList.add(_FormatSection(_workbook, this, arrCurrentSection));
-        arrCurrentSection = [];
+        _innerList.add(_FormatSection(_workbook, arrCurrentSection));
+        arrCurrentSection = <_FormatTokenBase>[];
       } else {
         arrCurrentSection.add(token);
       }
     }
 
-    _innerList.add(_FormatSection(_workbook, this, arrCurrentSection));
+    _innerList.add(_FormatSection(_workbook, arrCurrentSection));
   }
 
   /// Applies format to the value.
@@ -76,7 +80,9 @@ class _FormatSectionCollection {
     final _FormatSection? section = _getSection(value);
 
     if (section != null) {
-      if (!_bConditionalFormat && value < 0 && _count > 1) value = -value;
+      if (!_bConditionalFormat && value < 0 && _count > 1) {
+        value = -value;
+      }
       if ((section.formatType == ExcelFormatType.text) &&
           _innerList.length == _defaultTextSection) {
         if (value == 0.0) {
@@ -86,7 +92,7 @@ class _FormatSectionCollection {
       return section._applyFormat(value, bShowReservedSymbols);
     }
 
-    throw FormatException("Can't locate correct section.");
+    throw const FormatException("Can't locate correct section.");
   }
 
   /// Returns section for formatting with specified index.

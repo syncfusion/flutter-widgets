@@ -37,7 +37,8 @@ class ScheduleViewSettings with Diagnosticable {
       this.hideEmptyScheduleWeek = false,
       this.monthHeaderSettings = const MonthHeaderSettings(),
       this.weekHeaderSettings = const WeekHeaderSettings(),
-      this.dayHeaderSettings = const DayHeaderSettings()});
+      this.dayHeaderSettings = const DayHeaderSettings()})
+      : assert(appointmentItemHeight >= -1);
 
   /// Sets the style to customize month label in [SfCalendar] schedule view.
   ///
@@ -123,7 +124,6 @@ class ScheduleViewSettings with Diagnosticable {
   ///            dayHeaderSettings: DayHeaderSettings(
   ///                dayFormat: 'EEEE',
   ///                width: 70,
-  ///                backgroundColor: Colors.black,
   ///                dayTextStyle: TextStyle(
   ///                  fontSize: 10,
   ///                  fontWeight: FontWeight.w300,
@@ -218,7 +218,10 @@ class ScheduleViewSettings with Diagnosticable {
       return false;
     }
 
-    final ScheduleViewSettings otherStyle = other;
+    late final ScheduleViewSettings otherStyle;
+    if (other is ScheduleViewSettings) {
+      otherStyle = other;
+    }
     return otherStyle.appointmentTextStyle == appointmentTextStyle &&
         otherStyle.appointmentItemHeight == appointmentItemHeight &&
         otherStyle.hideEmptyScheduleWeek == hideEmptyScheduleWeek &&
@@ -295,7 +298,8 @@ class MonthHeaderSettings with Diagnosticable {
       this.height = 150,
       this.textAlign = TextAlign.start,
       this.backgroundColor = const Color.fromRGBO(17, 178, 199, 1),
-      this.monthTextStyle});
+      this.monthTextStyle})
+      : assert(height >= -1);
 
   /// Formats the month label text in the month label [SfCalendar]
   /// schedule view.
@@ -424,7 +428,10 @@ class MonthHeaderSettings with Diagnosticable {
       return false;
     }
 
-    final MonthHeaderSettings otherStyle = other;
+    late final MonthHeaderSettings otherStyle;
+    if (other is MonthHeaderSettings) {
+      otherStyle = other;
+    }
     return otherStyle.monthFormat == monthFormat &&
         otherStyle.height == height &&
         otherStyle.textAlign == textAlign &&
@@ -492,7 +499,8 @@ class WeekHeaderSettings with Diagnosticable {
       this.height = 30,
       this.textAlign = TextAlign.start,
       this.backgroundColor = Colors.transparent,
-      this.weekTextStyle});
+      this.weekTextStyle})
+      : assert(height >= -1);
 
   /// Formats the week start date text in the week label of [SfCalendar]
   /// schedule view.
@@ -645,7 +653,10 @@ class WeekHeaderSettings with Diagnosticable {
       return false;
     }
 
-    final WeekHeaderSettings otherStyle = other;
+    late final WeekHeaderSettings otherStyle;
+    if (other is WeekHeaderSettings) {
+      otherStyle = other;
+    }
     return otherStyle.startDateFormat == startDateFormat &&
         otherStyle.height == height &&
         otherStyle.textAlign == textAlign &&
@@ -689,7 +700,6 @@ class WeekHeaderSettings with Diagnosticable {
 ///            dayHeaderSettings: DayHeaderSettings(
 ///                dayFormat: 'EEEE',
 ///                width: 70,
-///                backgroundColor: Colors.black,
 ///                dayTextStyle: TextStyle(
 ///                  fontSize: 10,
 ///                  fontWeight: FontWeight.w300,
@@ -715,7 +725,8 @@ class DayHeaderSettings with Diagnosticable {
       {this.dayFormat = 'EEE',
       this.width = -1,
       this.dayTextStyle,
-      this.dateTextStyle});
+      this.dateTextStyle})
+      : assert(width >= -1);
 
   /// Formats the day text in the day label of [SfCalendar] schedule view.
   ///
@@ -828,7 +839,10 @@ class DayHeaderSettings with Diagnosticable {
       return false;
     }
 
-    final DayHeaderSettings otherStyle = other;
+    late final DayHeaderSettings otherStyle;
+    if (other is DayHeaderSettings) {
+      otherStyle = other;
+    }
     return otherStyle.dayFormat == dayFormat &&
         otherStyle.width == width &&
         otherStyle.dayTextStyle == dayTextStyle &&

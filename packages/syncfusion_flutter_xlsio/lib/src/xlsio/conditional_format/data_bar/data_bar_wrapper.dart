@@ -245,7 +245,7 @@ class _DataBarWrapper implements DataBar {
   /// This method should be called before several updates to the object will take place.
   void _beginUpdate() {
     _format._beginUpdate();
-    _wrapped = _format._getCondition().dataBar as _DataBarImpl;
+    _wrapped = _format._getCondition().dataBar! as _DataBarImpl;
   }
 
   /// This method should be called after several updates to the object took place.

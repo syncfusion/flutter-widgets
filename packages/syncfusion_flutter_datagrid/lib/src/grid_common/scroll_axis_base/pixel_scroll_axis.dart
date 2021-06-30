@@ -216,7 +216,7 @@ class _PixelScrollAxis extends _ScrollAxisBase {
   /// * isRightToLeft - _optional_ - The boolean value used to calculate
   /// visible columns in right to left mode.
   @override
-  List getScrollLineIndex(int scrollLineIndex, double scrollLineDelta,
+  List<dynamic> getScrollLineIndex(int scrollLineIndex, double scrollLineDelta,
       [bool isRightToLeft = false]) {
     if (!isRightToLeft && scrollBar != null && distances != null) {
       scrollLineIndex =
@@ -268,7 +268,7 @@ class _PixelScrollAxis extends _ScrollAxisBase {
             .toDouble();
       }
     }
-    return [scrollLineIndex, scrollLineDelta];
+    return <dynamic>[scrollLineIndex, scrollLineDelta];
   }
 
   /// Gets the cumulated origin taking scroll position into account.
@@ -363,7 +363,7 @@ class _PixelScrollAxis extends _ScrollAxisBase {
         ? distances!.totalDistance
         : distances!.getCumulatedDistanceAt(last + 1);
 
-    final List<_DoubleSpan> result = [];
+    final List<_DoubleSpan> result = <_DoubleSpan>[];
     for (int n = 0; n < 3; n++) {
       late _ScrollAxisRegion region;
       if (n == 0) {
@@ -567,14 +567,14 @@ class _PixelScrollAxis extends _ScrollAxisBase {
       // total size. Then it should be calculated. This issue is occured in
       // Nested Grid. SD 9312. this will give the exact size of the footer
       // Extent when padding distance is reduced from total distance.
-      final isDistanceCounterSubset = distances is _DistanceCounterSubset;
+      final bool isDistanceCounterSubset = distances is _DistanceCounterSubset;
       if (!isDistanceCounterSubset) {
         // Nested Grid cells in GridControl is not
         // DistanceRangeCounterCollection type.
-        final _DistanceRangeCounterCollection? _distances =
-            distances as _DistanceRangeCounterCollection;
+        final _DistanceRangeCounterCollection _distances =
+            distances! as _DistanceRangeCounterCollection;
         _footerExtent = distances!.totalDistance -
-            _distances!.paddingDistance -
+            _distances.paddingDistance -
             distances!.getCumulatedDistanceAt(n);
       } else {
         _footerExtent =
@@ -605,8 +605,10 @@ class _PixelScrollAxis extends _ScrollAxisBase {
     } else {
       for (int n = from; n <= to; n++) {
         int repeatSizeCount = -1;
-        final double size = getLineSizeWithTwoArgs(n, repeatSizeCount)[0];
-        repeatSizeCount = getLineSizeWithTwoArgs(n, repeatSizeCount)[1];
+        final List<dynamic> lineSize =
+            getLineSizeWithTwoArgs(n, repeatSizeCount);
+        final double size = lineSize[0] as double;
+        repeatSizeCount = lineSize[1] as int;
         final int rangeTo = getRangeToHelper(n, to, repeatSizeCount);
         setLineSize(n, rangeTo, size);
         n = rangeTo;

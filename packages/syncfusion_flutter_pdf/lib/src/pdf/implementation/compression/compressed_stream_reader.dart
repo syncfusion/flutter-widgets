@@ -255,8 +255,9 @@ class _CompressedStreamReader {
         _uncompressedDataLength = -1;
         final Map<String, dynamic> result =
             _decodeDynamicHeader(_currentLengthTree, _currentDistanceTree);
-        _currentLengthTree = result['lengthTree'];
-        _currentDistanceTree = result['distanceTree'];
+        _currentLengthTree = result['lengthTree'] as _DecompressorHuffmanTree;
+        _currentDistanceTree =
+            result['distanceTree'] as _DecompressorHuffmanTree;
         break;
       default:
         throw ArgumentError.value(blockType, 'Wrong block type');
@@ -413,8 +414,8 @@ class _CompressedStreamReader {
       return;
     }
     final Map<String, dynamic> readResult = _readBytes(_tempBuffer, 0, length);
-    _tempBuffer = readResult['buffer'];
-    final int bytesRead = readResult['count'];
+    _tempBuffer = readResult['buffer'] as List<int>;
+    final int bytesRead = readResult['count'] as int;
     for (int i = 0; i < bytesRead; i++) {
       _buffer |= _tempBuffer[i].toUnsigned(32) << _bufferedBits;
       _bufferedBits += 8;
@@ -440,8 +441,8 @@ class _CompressedStreamReader {
     if (offset < buffer.length && (offset + count) <= buffer.length) {
       for (int i = 0; i < count; i++) {
         final Map<String, dynamic> readResult = _readByte();
-        if (readResult['hasRead']) {
-          buffer[offset] = readResult['result'];
+        if (readResult['hasRead'] as bool) {
+          buffer[offset] = readResult['result'] as int;
           offset++;
           readedCount++;
         } else {
@@ -454,7 +455,7 @@ class _CompressedStreamReader {
 
   Map<String, dynamic> _readByte() {
     if (_offset < _data.length) {
-      final int? result = _data[_offset];
+      final int result = _data[_offset];
       _offset = _offset + 1;
       return <String, dynamic>{'hasRead': true, 'result': result};
     } else {
@@ -587,8 +588,8 @@ class _CompressedStreamReader {
 
   int _readPackedBytes(List<int> buffer, int offset, int length) {
     if (offset < 0 || offset > buffer.length - 1) {
-      throw ArgumentError.value(offset, '''Offset can not be less than zero or 
-		  greater than buffer length - 1.''');
+      throw ArgumentError.value(offset,
+          'Offset cannot be less than zero or greater than buffer length - 1.');
     }
 
     if (length < 0) {
@@ -620,9 +621,9 @@ class _CompressedStreamReader {
 
     if (length > 0) {
       final Map<String, dynamic> value = _read(buffer, offset, length);
-      final int val = value['length'];
+      final int val = value['length'] as int;
       result += val.toInt();
-      buffer = value['buffer'];
+      buffer = value['buffer'] as List<int>;
     }
     return result;
   }

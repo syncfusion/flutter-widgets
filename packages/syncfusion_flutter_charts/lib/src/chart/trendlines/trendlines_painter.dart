@@ -11,7 +11,6 @@ class _TrendlinePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    Rect clipRect;
     double animationFactor;
     Animation<double>? trendlineAnimation;
     for (int i = 0;
@@ -19,8 +18,9 @@ class _TrendlinePainter extends CustomPainter {
         i++) {
       final CartesianSeriesRenderer seriesRenderer =
           chartState._chartSeries.visibleSeriesRenderers[i];
+      final _RenderingDetails renderingDetails = chartState._renderingDetails;
       final XyDataSeries<dynamic, dynamic> series =
-          seriesRenderer._series as XyDataSeries;
+          seriesRenderer._series as XyDataSeries<dynamic, dynamic>;
       TrendlineRenderer trendlineRenderer;
       Trendline trendline;
       List<Offset> controlPoints;
@@ -33,11 +33,15 @@ class _TrendlinePainter extends CustomPainter {
           assert(trendline.animationDuration >= 0,
               'The animation duration time for trendlines should be greater than or equal to 0.');
           trendlineAnimation = trendlineAnimations['$i-$j'];
-          if (trendlineRenderer._isNeedRender && trendline.isVisible) {
+          if (trendlineRenderer._isNeedRender &&
+              trendline.isVisible &&
+              trendlineRenderer._pointsData != null &&
+              trendlineRenderer._pointsData!.isNotEmpty) {
             canvas.save();
-            animationFactor = (!seriesRenderer._chartState!._isLegendToggled &&
-                    (seriesRenderer._oldSeries == null))
-                ? trendlineAnimation!.value
+            animationFactor = (renderingDetails.isLegendToggled &&
+                        (seriesRenderer._oldSeries == null)) &&
+                    trendlineAnimation != null
+                ? trendlineAnimation.value
                 : 1;
             final Rect axisClipRect = _calculatePlotOffset(
                 chartState._chartAxis._axisClipRect,
@@ -87,7 +91,9 @@ class _TrendlinePainter extends CustomPainter {
                     trendlineRenderer._points[i + 1].dx,
                     trendlineRenderer._points[i + 1].dy);
               }
-            } else if (trendline.type == TrendlineType.polynomial) {
+            } else if (trendline.type == TrendlineType.polynomial &&
+                trendlineRenderer._pointsData != null &&
+                trendlineRenderer._pointsData!.isNotEmpty) {
               final List<Offset> polynomialPoints =
                   trendlineRenderer.getPolynomialCurve(
                       trendlineRenderer._pointsData!,
@@ -105,61 +111,69 @@ class _TrendlinePainter extends CustomPainter {
                     trendlineRenderer._points[i].dy);
               }
             }
-            if (trendlineRenderer._dashArray != null) {
-              _drawDashedLine(
-                  canvas, trendlineRenderer._dashArray!, paint, path);
-            } else {
-              canvas.drawPath(path, paint);
-            }
-            clipRect = _calculatePlotOffset(
-                Rect.fromLTRB(
-                    chartState._chartAxis._axisClipRect.left -
-                        trendline.markerSettings.width,
-                    chartState._chartAxis._axisClipRect.top -
-                        trendline.markerSettings.height,
-                    chartState._chartAxis._axisClipRect.right +
-                        trendline.markerSettings.width,
-                    chartState._chartAxis._axisClipRect.bottom +
-                        trendline.markerSettings.height),
-                Offset(seriesRenderer._xAxisRenderer!._axis.plotOffset,
-                    seriesRenderer._yAxisRenderer!._axis.plotOffset));
-            canvas.restore();
-            if (trendlineRenderer._visible &&
-                (animationFactor > chartState._trendlineDurationFactor)) {
-              canvas.clipRect(clipRect);
-              if (trendline.markerSettings.isVisible) {
-                for (final CartesianChartPoint<dynamic> point
-                    in trendlineRenderer._pointsData!) {
-                  if (point.isVisible && point.isGap != true) {
-                    if (trendline.markerSettings.shape ==
-                        DataMarkerType.image) {
-                      _drawImageMarker(seriesRenderer, canvas,
-                          point.markerPoint!.x, point.markerPoint!.y);
-                    }
-                    final Paint strokePaint = Paint()
-                      ..color = trendline.markerSettings.borderWidth == 0
-                          ? Colors.transparent
-                          : trendline.markerSettings.borderColor ??
-                              trendlineRenderer._fillColor
-                      ..strokeWidth = trendline.markerSettings.borderWidth
-                      ..style = PaintingStyle.stroke;
+            _drawTrendlineMarker(trendlineRenderer, trendline, seriesRenderer,
+                animationFactor, canvas, path, paint);
+          }
+        }
+      }
+    }
+  }
 
-                    final Paint fillPaint = Paint()
-                      ..color = trendline.markerSettings.color ??
-                          (chartState._chartTheme.brightness == Brightness.light
-                              ? Colors.white
-                              : Colors.black)
-                      ..style = PaintingStyle.fill;
-                    final int index =
-                        trendlineRenderer._pointsData!.indexOf(point);
-                    canvas.drawPath(
-                        trendlineRenderer._markerShapes[index], strokePaint);
-                    canvas.drawPath(
-                        trendlineRenderer._markerShapes[index], fillPaint);
-                  }
-                }
-              }
+  ///To draw the marker on trendline
+  void _drawTrendlineMarker(
+    TrendlineRenderer trendlineRenderer,
+    Trendline trendline,
+    CartesianSeriesRenderer seriesRenderer,
+    double animationFactor,
+    Canvas canvas,
+    Path path,
+    Paint paint,
+  ) {
+    Rect clipRect;
+    final Rect _axisClipRect = chartState._chartAxis._axisClipRect;
+    final _RenderingDetails renderingDetails = chartState._renderingDetails;
+    (trendlineRenderer._dashArray != null)
+        ? _drawDashedLine(canvas, trendlineRenderer._dashArray!, paint, path)
+        : canvas.drawPath(path, paint);
+    clipRect = _calculatePlotOffset(
+        Rect.fromLTRB(
+            _axisClipRect.left - trendline.markerSettings.width,
+            _axisClipRect.top - trendline.markerSettings.height,
+            _axisClipRect.right + trendline.markerSettings.width,
+            _axisClipRect.bottom + trendline.markerSettings.height),
+        Offset(seriesRenderer._xAxisRenderer!._axis.plotOffset,
+            seriesRenderer._yAxisRenderer!._axis.plotOffset));
+    canvas.restore();
+    if (trendlineRenderer._visible &&
+        (animationFactor > chartState._trendlineDurationFactor)) {
+      canvas.clipRect(clipRect);
+
+      if (trendline.markerSettings.isVisible) {
+        for (final CartesianChartPoint<dynamic> point
+            in trendlineRenderer._pointsData!) {
+          if (point.isVisible && point.isGap != true) {
+            if (trendline.markerSettings.shape == DataMarkerType.image) {
+              _drawImageMarker(seriesRenderer, canvas, point.markerPoint!.x,
+                  point.markerPoint!.y);
             }
+            final Paint strokePaint = Paint()
+              ..color = trendline.markerSettings.borderWidth == 0
+                  ? Colors.transparent
+                  : trendline.markerSettings.borderColor ??
+                      trendlineRenderer._fillColor
+              ..strokeWidth = trendline.markerSettings.borderWidth
+              ..style = PaintingStyle.stroke;
+
+            final Paint fillPaint = Paint()
+              ..color = trendline.markerSettings.color ??
+                  (renderingDetails.chartTheme.brightness == Brightness.light
+                      ? Colors.white
+                      : Colors.black)
+              ..style = PaintingStyle.fill;
+            final int index = trendlineRenderer._pointsData!.indexOf(point);
+            canvas.drawPath(
+                trendlineRenderer._markerShapes[index], strokePaint);
+            canvas.drawPath(trendlineRenderer._markerShapes[index], fillPaint);
           }
         }
       }

@@ -75,7 +75,7 @@ class PdfListBoxField extends PdfListField {
   List<int> get selectedIndexes => _selectedIndexes;
   set selectedIndexes(List<int> value) {
     if (value.isNotEmpty) {
-      _selectedIndexes = multiSelect ? value : [value[0]];
+      _selectedIndexes = multiSelect ? value : <int>[value[0]];
     }
   }
 
@@ -86,7 +86,7 @@ class PdfListBoxField extends PdfListField {
   List<String> get selectedValues => _selectedValues;
   set selectedValues(List<String> value) {
     if (value.isNotEmpty) {
-      _selectedValues = multiSelect ? value : [value[0]];
+      _selectedValues = multiSelect ? value : <String>[value[0]];
     }
   }
 
@@ -121,6 +121,7 @@ class PdfListBoxField extends PdfListField {
         template.graphics!, params, items, _selectedIndexes, font, _format);
   }
 
+  @override
   void _draw() {
     super._draw();
     if (!_isLoadedField) {
@@ -171,6 +172,7 @@ class PdfListBoxField extends PdfListField {
     }
   }
 
+  @override
   void _beginSave() {
     super._beginSave();
     _applyAppearance(_getWidgetAnnotation(_dictionary, _crossTable));
@@ -222,6 +224,7 @@ class PdfListBoxField extends PdfListField {
         graphics, prms, items, _selectedIndexes, gp._font!, gp._stringFormat);
   }
 
+  @override
   double _getFontHeight(PdfFontFamily family) {
     double s = 0;
     if (items.count > 0) {
@@ -231,7 +234,7 @@ class PdfListBoxField extends PdfListField {
         final double temp = font.measureString(items[i].text).width;
         max = (max > temp) ? max : temp;
       }
-      s = ((12 * (bounds.size.width - 4 * borderWidth)) / max);
+      s = (12 * (bounds.size.width - 4 * borderWidth)) / max;
       s = (s > 12) ? 12 : s;
     }
     return s;

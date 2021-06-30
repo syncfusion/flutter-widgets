@@ -10,7 +10,7 @@ BigInt _bigIntFromBytes(List<int>? data, [int? sign]) {
       result = BigInt.zero;
       for (int i = 0; i < data.length; i++) {
         final int item = data[data.length - i - 1];
-        result |= (BigInt.from(item) << (8 * i));
+        result |= BigInt.from(item) << (8 * i);
       }
     }
     return result != BigInt.zero
@@ -28,7 +28,7 @@ BigInt _bigIntFromBytes(List<int>? data, [int? sign]) {
       result = BigInt.from(0);
       for (int i = 0; i < data.length; i++) {
         final int item = data[data.length - i - 1];
-        result |= (BigInt.from(item) << (8 * i));
+        result |= BigInt.from(item) << (8 * i);
       }
     }
     if (result != BigInt.zero) {
@@ -60,7 +60,7 @@ List<int> _bigIntToBytes(BigInt number, [bool isSigned = true]) {
       size = (number.bitLength + 8) >> 3;
     }
     final int length = size + paddingBytes;
-    result = List<int>.generate(length, (i) => 0);
+    result = List<int>.generate(length, (int i) => 0);
     for (int i = 0; i < size; i++) {
       result[length - i - 1] = (number & mask).toSigned(32).toInt();
       number = number >> 8;
@@ -70,7 +70,7 @@ List<int> _bigIntToBytes(BigInt number, [bool isSigned = true]) {
       return <int>[0];
     }
     final int length = number.bitLength + (number.isNegative ? 8 : 7) >> 3;
-    result = List<int>.generate(length, (i) => 0);
+    result = List<int>.generate(length, (int i) => 0);
     for (int i = 0; i < length; i++) {
       result[length - i - 1] = (number & mask).toSigned(32).toInt();
       number = number >> 8;
@@ -81,7 +81,7 @@ List<int> _bigIntToBytes(BigInt number, [bool isSigned = true]) {
 
 BigInt _getMod(BigInt n, BigInt m) {
   final BigInt biggie = n.remainder(m);
-  return (biggie.sign >= 0 ? biggie : biggie + m);
+  return biggie.sign >= 0 ? biggie : biggie + m;
 }
 
 BigInt _bigIntFromRamdom(int value, Random? random) {
@@ -93,7 +93,8 @@ BigInt _bigIntFromRamdom(int value, Random? random) {
     result = BigInt.from(0);
   } else {
     final int nBytes = (value + 8 - 1) ~/ 8;
-    final List<int> b = List<int>.generate(nBytes, (i) => random!.nextInt(256));
+    final List<int> b =
+        List<int>.generate(nBytes, (int i) => random!.nextInt(256));
     final int xBits = 8 * nBytes - value;
     b[0] &= (255 >> xBits).toUnsigned(8);
     result = _bigIntFromBytes(b);

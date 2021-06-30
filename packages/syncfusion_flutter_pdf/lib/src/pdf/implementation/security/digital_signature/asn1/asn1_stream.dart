@@ -4,7 +4,7 @@ class _Asn1Stream {
   _Asn1Stream(_StreamReader stream, [int? limit]) {
     _stream = stream;
     _limit = limit ?? getLimit(stream);
-    _buffers = List.generate(16, (i) => <int>[]);
+    _buffers = List<List<int>>.generate(16, (int i) => <int>[]);
   }
   int? _limit;
   List<List<int>>? _buffers;
@@ -63,7 +63,7 @@ class _Asn1Stream {
     }
     List<int> bytes = buffers[length];
     if (bytes.isEmpty) {
-      bytes = buffers[length] = List<int>.generate(length, (i) => 0);
+      bytes = buffers[length] = List<int>.generate(length, (int i) => 0);
     }
     stream.readAll(bytes);
     return bytes;
@@ -74,14 +74,18 @@ class _Asn1Stream {
     if (result == 0x1f) {
       result = 0;
       int b = stream!.readByte()!;
-      if ((b & 0x7f) == 0) throw Exception('Invalid tag number specified');
+      if ((b & 0x7f) == 0) {
+        throw Exception('Invalid tag number specified');
+      }
       while ((b >= 0) && ((b & 0x80) != 0)) {
-        result |= (b & 0x7f);
+        result |= b & 0x7f;
         result <<= 7;
         b = stream.readByte()!;
       }
-      if (b < 0) throw new Exception('End of file detected');
-      result |= (b & 0x7f);
+      if (b < 0) {
+        throw Exception('End of file detected');
+      }
+      result |= b & 0x7f;
     }
     return result;
   }
@@ -119,9 +123,9 @@ class _Asn1Stream {
 
   _Asn1? buildObject(int tag, int tagNumber, int length) {
     final bool isConstructed = (tag & _Asn1Tags.constructed) != 0;
-    final _Asn1StreamHelper stream = new _Asn1StreamHelper(_stream, length);
+    final _Asn1StreamHelper stream = _Asn1StreamHelper(_stream, length);
     if ((tag & _Asn1Tags.tagged) != 0)
-      return new _Asn1Parser(stream).readTaggedObject(isConstructed, tagNumber);
+      return _Asn1Parser(stream).readTaggedObject(isConstructed, tagNumber);
     if (isConstructed) {
       switch (tagNumber) {
         case _Asn1Tags.octetString:
@@ -182,9 +186,9 @@ class _Asn1Stream {
   }
 
   List<int> getBytesfromAsn1EncodeCollection(_Asn1EncodeCollection octets) {
-    final List<int> result = [];
+    final List<int> result = <int>[];
     for (int i = 0; i < octets.count; i++) {
-      final _DerOctet o = octets[i] as _DerOctet;
+      final _DerOctet o = octets[i]! as _DerOctet;
       result.addAll(o.getOctets()!);
     }
     return result;
@@ -205,10 +209,7 @@ class _Asn1Stream {
 }
 
 class _Asn1BaseStream extends _StreamReader {
-  _Asn1BaseStream(_StreamReader? stream, int? lm) {
-    input = stream;
-    limit = lm;
-  }
+  _Asn1BaseStream(this.input, this.limit);
   int? limit;
   late bool closed;
   _StreamReader? input;
@@ -222,7 +223,7 @@ class _Asn1BaseStream extends _StreamReader {
 
   void setParentEndOfFileDetect(bool isDetect) {
     if (input is _Asn1LengthStream) {
-      (input as _Asn1LengthStream).setEndOfFileOnStart(isDetect);
+      (input! as _Asn1LengthStream).setEndOfFileOnStart(isDetect);
     }
   }
 
@@ -297,7 +298,7 @@ class _Asn1StreamHelper extends _Asn1BaseStream {
     if (_remaining == 0) {
       return <int>[];
     }
-    final List<int> bytes = List<int>.generate(_remaining, (i) => 0);
+    final List<int> bytes = List<int>.generate(_remaining, (int i) => 0);
     if ((_remaining -= readData(bytes, 0, bytes.length)) != 0) {
       throw ArgumentError.value(bytes, 'bytes', 'Object truncated');
     }
@@ -318,7 +319,7 @@ class _Asn1StreamHelper extends _Asn1BaseStream {
   int readData(List<int> bytes, int offset, int length) {
     int total = 0;
     while (total < length) {
-      final int count = this.read(bytes, offset + total, length - total);
+      final int count = read(bytes, offset + total, length - total);
       if (count < 1) {
         break;
       }
@@ -355,7 +356,9 @@ class _Asn1LengthStream extends _Asn1BaseStream {
   bool checkEndOfFile() {
     if (byte == 0x00) {
       final int extra = requireByte();
-      if (extra != 0) throw Exception("Invalid content");
+      if (extra != 0) {
+        throw Exception('Invalid content');
+      }
       byte = -1;
       setParentEndOfFileDetect(true);
       return true;
@@ -383,7 +386,7 @@ class _Asn1LengthStream extends _Asn1BaseStream {
     }
     final int numRead = input!.read(buffer, offset + 1, count - 1)!;
     if (numRead <= 0) {
-      throw new Exception();
+      throw Exception();
     }
     buffer[offset] = byte!;
     byte = requireByte();
@@ -399,7 +402,9 @@ class _PushStream extends _StreamReader {
   //Fields
   late _StreamReader _stream;
   int? _buffer;
+  @override
   int get position => _stream.position;
+  @override
   set position(int value) {
     _stream.position = value;
   }

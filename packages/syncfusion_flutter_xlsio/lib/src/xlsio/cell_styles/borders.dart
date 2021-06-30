@@ -200,11 +200,12 @@ class BordersCollection implements Borders {
 
   /// Compares two instances of the Cell borders.
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object toCompare) {
     // ignore: test_types_in_equals
     final BordersCollection toCompareBorders = toCompare as BordersCollection;
 
-    return (all.color == toCompareBorders.all.color &&
+    return all.color == toCompareBorders.all.color &&
         all.colorRgb == toCompareBorders.all.colorRgb &&
         all.lineStyle == toCompareBorders.all.lineStyle &&
         left.color == toCompareBorders.left.color &&
@@ -218,34 +219,15 @@ class BordersCollection implements Borders {
         top.lineStyle == toCompareBorders.top.lineStyle &&
         bottom.color == toCompareBorders.bottom.color &&
         bottom.colorRgb == toCompareBorders.bottom.colorRgb &&
-        bottom.lineStyle == toCompareBorders.bottom.lineStyle);
+        bottom.lineStyle == toCompareBorders.bottom.lineStyle;
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode => hashValues(all, left, right, top, bottom);
 
   /// Crear all the borders.
-  void _clear() {
-    // if (_all != null) {
-    //   _all = null;
-    // }
-
-    // if (_left != null) {
-    //   _left = null;
-    // }
-
-    // if (_right != null) {
-    //   _right = null;
-    // }
-
-    // if (_top != null) {
-    //   _top = null;
-    // }
-
-    // if (_bottom != null) {
-    //   _bottom = null;
-    // }
-  }
+  void _clear() {}
 }
 
 /// Represents cell borders
@@ -254,7 +236,7 @@ class BordersCollectionWrapper implements Borders {
   BordersCollectionWrapper(List<Range> arrRanges, Workbook book) {
     _arrRanges = arrRanges;
     _workbook = book;
-    _bordersCollection = [];
+    _bordersCollection = <Borders>[];
     for (final Range range in _arrRanges) {
       _bordersCollection.add(range.cellStyle.borders);
     }
@@ -286,7 +268,7 @@ class BordersCollectionWrapper implements Borders {
   @override
   Border get left {
     if (_left == null) {
-      final List<Border> borders = [];
+      final List<Border> borders = <Border>[];
       for (final Borders border in _bordersCollection) {
         borders.add(border.left);
       }
@@ -308,7 +290,7 @@ class BordersCollectionWrapper implements Borders {
   @override
   Border get right {
     if (_right == null) {
-      final List<Border?> borders = [];
+      final List<Border?> borders = <Border?>[];
       for (final Borders border in _bordersCollection) {
         borders.add(border.right);
       }
@@ -330,7 +312,7 @@ class BordersCollectionWrapper implements Borders {
   @override
   Border get bottom {
     if (_bottom == null) {
-      final List<Border?> borders = [];
+      final List<Border?> borders = <Border?>[];
       for (final Borders border in _bordersCollection) {
         borders.add(border.bottom);
       }
@@ -352,7 +334,7 @@ class BordersCollectionWrapper implements Borders {
   @override
   Border get top {
     if (_top == null) {
-      final List<Border?> borders = [];
+      final List<Border?> borders = <Border?>[];
       for (final Borders border in _bordersCollection) {
         borders.add(border.top);
       }
@@ -374,7 +356,7 @@ class BordersCollectionWrapper implements Borders {
   @override
   Border get all {
     if (_all == null) {
-      final List<Border?> borders = [];
+      final List<Border?> borders = <Border?>[];
       for (final Borders border in _bordersCollection) {
         borders.add(border.all);
       }

@@ -19,21 +19,6 @@ part of pdf;
 class PdfSecurity {
   //constructor
   /// Initializes a new instance of the [PdfSecurity] class.
-  ///
-  /// ```dart
-  /// //Create a new PDF document.
-  /// PdfDocument document = PdfDocument();
-  /// //Document security
-  /// PdfSecurity security = document.security;
-  /// //Set security options
-  /// security.algorithm = PdfEncryptionAlgorithm.rc4x128Bit;
-  /// security.userPassword = 'password';
-  /// security.ownerPassword = 'syncfusion';
-  /// //Save the document.
-  /// List<int> bytes = document.save();
-  /// //Dispose the document.
-  /// document.dispose();
-  /// ```
   PdfSecurity._() {
     _initialize();
   }
@@ -422,7 +407,7 @@ class PdfPermissions {
   void addAll(List<PdfPermissionsFlags> permission) {
     bool isChanged = false;
     if (permission.isNotEmpty) {
-      permission.forEach((PdfPermissionsFlags flag) {
+      permission.toList().forEach((PdfPermissionsFlags flag) {
         if (!_permissions.contains(flag)) {
           _permissions.add(flag);
           isChanged = true;

@@ -5,12 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
-import '../behavior/zoom_pan_behavior.dart';
+import '../../maps.dart';
 import '../common.dart';
 import '../controller/map_controller.dart';
 import '../elements/legend.dart';
 import '../enum.dart';
-import '../layer/shape_layer.dart';
 import '../settings.dart';
 import '../utils.dart';
 
@@ -34,7 +33,7 @@ class MapBubble extends LeafRenderObjectWidget {
   final MapShapeSource source;
   final Map<String, MapModel> mapDataSource;
   final MapBubbleSettings bubbleSettings;
-  final MapLegendWidget? legend;
+  final MapLegend? legend;
   final bool showDataLabels;
   final SfMapsThemeData themeData;
   final MapController? controller;
@@ -79,27 +78,20 @@ class MapBubble extends LeafRenderObjectWidget {
 class RenderMapBubble extends ShapeLayerChildRenderBoxBase {
   RenderMapBubble({
     required MapShapeSource source,
-    required Map<String, MapModel> mapDataSource,
+    required this.mapDataSource,
     required MapBubbleSettings bubbleSettings,
-    required MapLegendWidget? legend,
-    required bool showDataLabels,
+    required MapLegend? legend,
+    required this.showDataLabels,
     required SfMapsThemeData themeData,
-    required MapController? controller,
-    required AnimationController bubbleAnimationController,
-    required AnimationController dataLabelAnimationController,
-    required AnimationController toggleAnimationController,
-    required AnimationController hoverBubbleAnimationController,
-  })   : _source = source,
-        mapDataSource = mapDataSource,
+    required this.controller,
+    required this.bubbleAnimationController,
+    required this.dataLabelAnimationController,
+    required this.toggleAnimationController,
+    required this.hoverBubbleAnimationController,
+  })  : _source = source,
         _bubbleSettings = bubbleSettings,
         _legend = legend,
-        showDataLabels = showDataLabels,
-        _themeData = themeData,
-        controller = controller,
-        bubbleAnimationController = bubbleAnimationController,
-        dataLabelAnimationController = dataLabelAnimationController,
-        toggleAnimationController = toggleAnimationController,
-        hoverBubbleAnimationController = hoverBubbleAnimationController {
+        _themeData = themeData {
     _bubbleAnimation = CurvedAnimation(
       parent: bubbleAnimationController,
       curve: const Interval(0.2, 1.0, curve: Curves.easeInOut),
@@ -199,9 +191,9 @@ class RenderMapBubble extends ShapeLayerChildRenderBoxBase {
     markNeedsPaint();
   }
 
-  MapLegendWidget? get legend => _legend;
-  MapLegendWidget? _legend;
-  set legend(MapLegendWidget? value) {
+  MapLegend? get legend => _legend;
+  MapLegend? _legend;
+  set legend(MapLegend? value) {
     // Update [MapsShapeLayer.legend] value only when
     // [MapsShapeLayer.legend] property is set to bubble.
     if (_legend != null && _legend!.source != MapElement.bubble ||
@@ -407,7 +399,7 @@ class RenderMapBubble extends ShapeLayerChildRenderBoxBase {
       model =
           mapDataSource.values.elementAt(controller!.currentToggledItemIndex);
     } else {
-      for (final mapModel in mapDataSource.values) {
+      for (final MapModel mapModel in mapDataSource.values) {
         if (mapModel.dataIndex != null &&
             mapModel.legendMapperIndex == controller!.currentToggledItemIndex) {
           model = mapModel;

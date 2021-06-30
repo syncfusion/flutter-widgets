@@ -11,7 +11,7 @@ import '../../linear_gauge/utils/enum.dart';
 class LinearGaugeRange extends SingleChildRenderObjectWidget {
   /// Creates a new range in linear gauge.
   ///
-  LinearGaugeRange(
+  const LinearGaugeRange(
       {Key? key,
       this.startValue = 0,
       double? midValue,
@@ -204,11 +204,12 @@ class LinearGaugeRange extends SingleChildRenderObjectWidget {
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    final linearGaugeScope = LinearGaugeScope.of(context);
+    final LinearGaugeScope linearGaugeScope = LinearGaugeScope.of(context);
     final ThemeData theme = Theme.of(context);
     final bool isDarkTheme = theme.brightness == Brightness.dark;
     return RenderLinearRange(
-        color: color ?? (isDarkTheme ? Color(0xffFF7B7B) : Color(0xffF45656)),
+        color: color ??
+            (isDarkTheme ? const Color(0xffFF7B7B) : const Color(0xffF45656)),
         position: position,
         startValue: startValue,
         midValue: midValue,
@@ -228,11 +229,12 @@ class LinearGaugeRange extends SingleChildRenderObjectWidget {
   @override
   void updateRenderObject(
       BuildContext context, RenderLinearRange renderObject) {
-    final linearGaugeScope = LinearGaugeScope.of(context);
+    final LinearGaugeScope linearGaugeScope = LinearGaugeScope.of(context);
     final ThemeData theme = Theme.of(context);
     final bool isDarkTheme = theme.brightness == Brightness.dark;
     renderObject
-      ..color = color ?? (isDarkTheme ? Color(0xffFF7B7B) : Color(0xffF45656))
+      ..color = color ??
+          (isDarkTheme ? const Color(0xffFF7B7B) : const Color(0xffF45656))
       ..position = position
       ..startValue = startValue
       ..midValue = midValue

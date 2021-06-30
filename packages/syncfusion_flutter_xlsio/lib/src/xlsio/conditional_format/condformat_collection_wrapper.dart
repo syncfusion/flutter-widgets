@@ -5,7 +5,7 @@ class _CondFormatCollectionWrapper implements ConditionalFormats {
   /// Create an instances of culture info class.
   _CondFormatCollectionWrapper(Range range) {
     _range = range;
-    _arrConditionFormat = [];
+    _arrConditionFormat = <ConditionalFormat>[];
     _sheet = range.worksheet;
   }
 

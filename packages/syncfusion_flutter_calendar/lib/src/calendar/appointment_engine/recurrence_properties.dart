@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart'
     show IterableDiagnostics;
+
+import '../common/calendar_view_helper.dart';
 import '../common/enums.dart';
 
 /// Recurrence properties allows to create recurrence rule for an [Appointment].
@@ -28,7 +30,8 @@ import '../common/enums.dart';
 ///
 /// DataSource _getCalendarDataSource() {
 ///    List<Appointment> appointments = <Appointment>[];
-///    RecurrenceProperties recurrence = new RecurrenceProperties();
+///    RecurrenceProperties recurrence =
+///       RecurrenceProperties(startDate: DateTime.now());
 ///    recurrence.recurrenceType = RecurrenceType.daily;
 ///    recurrence.interval = 2;
 ///    recurrence.recurrenceRange = RecurrenceRange.count;
@@ -43,7 +46,7 @@ import '../common/enums.dart';
 ///          color: Colors.blue,
 ///          startTimeZone: '',
 ///          endTimeZone: '',
-///          recurrenceRule: RecurrenceHelper.rRuleGenerator(recurrence,
+///          recurrenceRule: SfCalendar.generateRRule(recurrence,
 ///              DateTime.now(), DateTime.now().add(Duration(hours: 2)))
 ///        ));
 ///
@@ -58,7 +61,7 @@ class RecurrenceProperties with Diagnosticable {
   /// [SfCalendar.generateRRule] method.
   RecurrenceProperties(
       {this.recurrenceType = RecurrenceType.daily,
-      this.recurrenceCount = 1,
+      this.recurrenceCount = 0,
       required this.startDate,
       this.endDate,
       this.interval = 1,
@@ -68,7 +71,17 @@ class RecurrenceProperties with Diagnosticable {
       this.dayOfMonth = 1,
       this.dayOfWeek = 1,
       this.month = 1})
-      : this.weekDays = weekDays ?? <WeekDays>[];
+      : weekDays = weekDays ?? <WeekDays>[],
+        assert(recurrenceCount >= 0),
+        assert(endDate == null ||
+            CalendarViewHelper.isSameOrBeforeDateTime(endDate, startDate)),
+        assert(endDate == null ||
+            CalendarViewHelper.isSameOrAfterDateTime(startDate, endDate)),
+        assert(interval >= 1),
+        assert(week >= -2 && week <= 5),
+        assert(dayOfMonth >= 1 && dayOfMonth <= 31),
+        assert(dayOfWeek >= 1 && dayOfWeek <= 7),
+        assert(month >= 1 && month <= 12);
 
   /// Defines the recurrence type of an [Appointment].
   ///
@@ -94,7 +107,8 @@ class RecurrenceProperties with Diagnosticable {
   ///
   /// DataSource _getCalendarDataSource() {
   ///    List<Appointment> appointments = <Appointment>[];
-  ///    RecurrenceProperties recurrence = new RecurrenceProperties();
+  ///    RecurrenceProperties recurrence =
+  ///       RecurrenceProperties(startDate: DateTime.now());
   ///    recurrence.recurrenceType = RecurrenceType.daily;
   ///    recurrence.interval = 2;
   ///    recurrence.recurrenceRange = RecurrenceRange.count;
@@ -109,7 +123,7 @@ class RecurrenceProperties with Diagnosticable {
   ///          color: Colors.blue,
   ///          startTimeZone: '',
   ///          endTimeZone: '',
-  ///          recurrenceRule: RecurrenceHelper.rRuleGenerator(recurrence,
+  ///          recurrenceRule: SfCalendar.generateRRule(recurrence,
   ///              DateTime.now(), DateTime.now().add(Duration(hours: 2)))
   ///        ));
   ///
@@ -147,7 +161,8 @@ class RecurrenceProperties with Diagnosticable {
   ///
   /// DataSource _getCalendarDataSource() {
   ///    List<Appointment> appointments = <Appointment>[];
-  ///    RecurrenceProperties recurrence = new RecurrenceProperties();
+  ///    RecurrenceProperties recurrence =
+  ///       RecurrenceProperties(startDate: DateTime.now());
   ///    recurrence.recurrenceType = RecurrenceType.daily;
   ///    recurrence.interval = 2;
   ///    recurrence.recurrenceRange = RecurrenceRange.count;
@@ -162,7 +177,7 @@ class RecurrenceProperties with Diagnosticable {
   ///          color: Colors.blue,
   ///          startTimeZone: '',
   ///          endTimeZone: '',
-  ///          recurrenceRule: RecurrenceHelper.rRuleGenerator(recurrence,
+  ///          recurrenceRule: SfCalendar.generateRRule(recurrence,
   ///              DateTime.now(), DateTime.now().add(Duration(hours: 2)))
   ///        ));
   ///
@@ -193,7 +208,8 @@ class RecurrenceProperties with Diagnosticable {
   ///
   /// DataSource _getCalendarDataSource() {
   ///    List<Appointment> appointments = <Appointment>[];
-  ///    RecurrenceProperties recurrence = new RecurrenceProperties();
+  ///    RecurrenceProperties recurrence =
+  ///       RecurrenceProperties(startDate: DateTime.now());
   ///    recurrence.recurrenceType = RecurrenceType.daily;
   ///    recurrence.startDate = DateTime.now().add(Duration(days: 1));
   ///    recurrence.interval = 2;
@@ -209,7 +225,7 @@ class RecurrenceProperties with Diagnosticable {
   ///          color: Colors.blue,
   ///          startTimeZone: '',
   ///          endTimeZone: '',
-  ///          recurrenceRule: RecurrenceHelper.rRuleGenerator(recurrence,
+  ///          recurrenceRule: SfCalendar.generateRRule(recurrence,
   ///              DateTime.now(), DateTime.now().add(Duration(hours: 2)))
   ///        ));
   ///
@@ -246,7 +262,8 @@ class RecurrenceProperties with Diagnosticable {
   ///
   /// DataSource _getCalendarDataSource() {
   ///    List<Appointment> appointments = <Appointment>[];
-  ///    RecurrenceProperties recurrence = new RecurrenceProperties();
+  ///    RecurrenceProperties recurrence =
+  ///       RecurrenceProperties(startDate: DateTime.now());
   ///    recurrence.recurrenceType = RecurrenceType.daily;
   ///    recurrence.interval = 2;
   ///    recurrence.endDate = DateTime.now().add(Duration(days: 10));
@@ -261,7 +278,7 @@ class RecurrenceProperties with Diagnosticable {
   ///          color: Colors.blue,
   ///          startTimeZone: '',
   ///          endTimeZone: '',
-  ///          recurrenceRule: RecurrenceHelper.rRuleGenerator(recurrence,
+  ///          recurrenceRule: SfCalendar.generateRRule(recurrence,
   ///              DateTime.now(), DateTime.now().add(Duration(hours: 2)))
   ///        ));
   ///
@@ -295,7 +312,8 @@ class RecurrenceProperties with Diagnosticable {
   ///
   /// DataSource _getCalendarDataSource() {
   ///    List<Appointment> appointments = <Appointment>[];
-  ///    RecurrenceProperties recurrence = new RecurrenceProperties();
+  ///    RecurrenceProperties recurrence =
+  ///       RecurrenceProperties(startDate: DateTime.now());
   ///    recurrence.recurrenceType = RecurrenceType.daily;
   ///    recurrence.interval = 2;
   ///    recurrence.endDate = DateTime.now().add(Duration(days: 10));
@@ -310,7 +328,7 @@ class RecurrenceProperties with Diagnosticable {
   ///          color: Colors.blue,
   ///          startTimeZone: '',
   ///          endTimeZone: '',
-  ///          recurrenceRule: RecurrenceHelper.rRuleGenerator(recurrence,
+  ///          recurrenceRule: SfCalendar.generateRRule(recurrence,
   ///              DateTime.now(), DateTime.now().add(Duration(hours: 2)))
   ///        ));
   ///
@@ -343,7 +361,8 @@ class RecurrenceProperties with Diagnosticable {
   ///
   /// DataSource _getCalendarDataSource() {
   ///    List<Appointment> appointments = <Appointment>[];
-  ///    RecurrenceProperties recurrence = new RecurrenceProperties();
+  ///    RecurrenceProperties recurrence =
+  ///       RecurrenceProperties(startDate: DateTime.now());
   ///    recurrence.recurrenceType = RecurrenceType.daily;
   ///    recurrence.interval = 2;
   ///    recurrence.endDate = DateTime.now().add(Duration(days: 10));
@@ -358,7 +377,7 @@ class RecurrenceProperties with Diagnosticable {
   ///          color: Colors.blue,
   ///          startTimeZone: '',
   ///          endTimeZone: '',
-  ///          recurrenceRule: RecurrenceHelper.rRuleGenerator(recurrence,
+  ///          recurrenceRule: SfCalendar.generateRRule(recurrence,
   ///              DateTime.now(), DateTime.now().add(Duration(hours: 2)))
   ///        ));
   ///
@@ -390,8 +409,9 @@ class RecurrenceProperties with Diagnosticable {
   ///
   /// DataSource _getCalendarDataSource() {
   ///    List<Appointment> appointments = <Appointment>[];
-  ///    RecurrenceProperties recurrence = new RecurrenceProperties();
-  ///    List<WeekDays> days = List<WeekDays>();
+  ///    RecurrenceProperties recurrence =
+  ///       RecurrenceProperties(startDate: DateTime.now());
+  ///    List<WeekDays> days = <WeekDays>[];
   ///    days.add(WeekDays.monday);
   ///    days.add(WeekDays.wednesday);
   ///    days.add(WeekDays.friday);
@@ -410,7 +430,7 @@ class RecurrenceProperties with Diagnosticable {
   ///          color: Colors.blue,
   ///          startTimeZone: '',
   ///          endTimeZone: '',
-  ///          recurrenceRule: RecurrenceHelper.rRuleGenerator(recurrence,
+  ///          recurrenceRule: SfCalendar.generateRRule(recurrence,
   ///              DateTime.now(), DateTime.now().add(Duration(hours: 2)))
   ///        ));
   ///
@@ -442,7 +462,8 @@ class RecurrenceProperties with Diagnosticable {
   ///
   /// DataSource _getCalendarDataSource() {
   ///    List<Appointment> appointments = <Appointment>[];
-  ///    RecurrenceProperties recurrence = new RecurrenceProperties();
+  ///    RecurrenceProperties recurrence =
+  ///       RecurrenceProperties(startDate: DateTime.now());
   ///    recurrence.week = 4;
   ///    recurrence.recurrenceType = RecurrenceType.monthly;
   ///    recurrence.interval = 1;
@@ -457,7 +478,7 @@ class RecurrenceProperties with Diagnosticable {
   ///          color: Colors.blue,
   ///          startTimeZone: '',
   ///          endTimeZone: '',
-  ///          recurrenceRule: RecurrenceHelper.rRuleGenerator(recurrence,
+  ///          recurrenceRule: SfCalendar.generateRRule(recurrence,
   ///              DateTime.now(), DateTime.now().add(Duration(hours: 2)))
   ///        ));
   ///
@@ -489,7 +510,8 @@ class RecurrenceProperties with Diagnosticable {
   ///
   /// DataSource _getCalendarDataSource() {
   ///    List<Appointment> appointments = <Appointment>[];
-  ///    RecurrenceProperties recurrence = new RecurrenceProperties();
+  ///    RecurrenceProperties recurrence =
+  ///       RecurrenceProperties(startDate: DateTime.now());
   ///    recurrence.recurrenceType = RecurrenceType.monthly;
   ///    recurrence.dayOfMonth = 15;
   ///    recurrence.interval = 1;
@@ -504,7 +526,7 @@ class RecurrenceProperties with Diagnosticable {
   ///          color: Colors.blue,
   ///          startTimeZone: '',
   ///          endTimeZone: '',
-  ///          recurrenceRule: RecurrenceHelper.rRuleGenerator(recurrence,
+  ///          recurrenceRule: SfCalendar.generateRRule(recurrence,
   ///              DateTime.now(), DateTime.now().add(Duration(hours: 2)))
   ///        ));
   ///
@@ -537,7 +559,8 @@ class RecurrenceProperties with Diagnosticable {
   ///
   /// DataSource _getCalendarDataSource() {
   ///    List<Appointment> appointments = <Appointment>[];
-  ///    RecurrenceProperties recurrence = new RecurrenceProperties();
+  ///    RecurrenceProperties recurrence =
+  ///       RecurrenceProperties(startDate: DateTime.now());
   ///    recurrence.dayOfWeek = 7;
   ///    recurrence.week = 4;
   ///    recurrence.recurrenceType = RecurrenceType.monthly;
@@ -553,7 +576,7 @@ class RecurrenceProperties with Diagnosticable {
   ///          color: Colors.blue,
   ///          startTimeZone: '',
   ///          endTimeZone: '',
-  ///          recurrenceRule: RecurrenceHelper.rRuleGenerator(recurrence,
+  ///          recurrenceRule: SfCalendar.generateRRule(recurrence,
   ///              DateTime.now(), DateTime.now().add(Duration(hours: 2)))
   ///        ));
   ///
@@ -587,7 +610,8 @@ class RecurrenceProperties with Diagnosticable {
   ///
   /// DataSource _getCalendarDataSource() {
   ///    List<Appointment> appointments = <Appointment>[];
-  ///    RecurrenceProperties recurrence = new RecurrenceProperties();
+  ///    RecurrenceProperties recurrence =
+  ///       RecurrenceProperties(startDate: DateTime.now());
   ///    recurrence.recurrenceType = RecurrenceType.yearly;
   ///    recurrence.dayOfMonth = 15;
   ///    recurrence.month = 12;
@@ -603,7 +627,7 @@ class RecurrenceProperties with Diagnosticable {
   ///          color: Colors.blue,
   ///          startTimeZone: '',
   ///          endTimeZone: '',
-  ///          recurrenceRule: RecurrenceHelper.rRuleGenerator(recurrence,
+  ///          recurrenceRule: SfCalendar.generateRRule(recurrence,
   ///              DateTime.now(), DateTime.now().add(Duration(hours: 2)))
   ///        ));
   ///
@@ -613,6 +637,7 @@ class RecurrenceProperties with Diagnosticable {
   int month;
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(dynamic other) {
     if (identical(this, other)) {
       return true;
@@ -621,7 +646,10 @@ class RecurrenceProperties with Diagnosticable {
       return false;
     }
 
-    final RecurrenceProperties recurrenceProperties = other;
+    late final RecurrenceProperties recurrenceProperties;
+    if (other is RecurrenceProperties) {
+      recurrenceProperties = other;
+    }
     return recurrenceProperties.recurrenceType == recurrenceType &&
         recurrenceProperties.recurrenceCount == recurrenceCount &&
         recurrenceProperties.startDate == startDate &&
@@ -636,6 +664,7 @@ class RecurrenceProperties with Diagnosticable {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     return hashValues(
         recurrenceType,
@@ -644,7 +673,7 @@ class RecurrenceProperties with Diagnosticable {
         endDate,
         interval,
         recurrenceRange,
-        weekDays,
+        hashList(weekDays),
         week,
         dayOfMonth,
         dayOfWeek,

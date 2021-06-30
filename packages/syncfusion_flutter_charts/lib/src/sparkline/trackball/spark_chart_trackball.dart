@@ -13,6 +13,7 @@ import '../utils/enum.dart';
 /// Provides option to customizes the [activationMode], [width], [color],
 /// [labelStyle], [backgroundColor], [borderColor], [borderWidth].
 ///
+@immutable
 class SparkChartTrackball {
   /// Creates an instance of spark chart trackball to enable the trackball
   /// on the closest data point from the touch position.
@@ -30,7 +31,7 @@ class SparkChartTrackball {
   ///  );
   /// }
   /// ```
-  SparkChartTrackball(
+  const SparkChartTrackball(
       {this.width = 2,
       this.color,
       this.dashArray,

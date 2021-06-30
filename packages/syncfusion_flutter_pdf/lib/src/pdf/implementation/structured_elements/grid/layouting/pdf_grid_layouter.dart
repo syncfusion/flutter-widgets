@@ -114,8 +114,8 @@ class _PdfGridLayouter extends _ElementLayouter {
         final Map<String, dynamic> pageLayoutResult = _raiseBeforePageLayout(
             _currentPage, _currentBounds.rect, _currentRowIndex);
         _currentBounds = _Rectangle.fromRect(pageLayoutResult['currentBounds']);
-        _currentRowIndex = pageLayoutResult['currentRow'];
-        if (pageLayoutResult['cancel']) {
+        _currentRowIndex = pageLayoutResult['currentRow'] as int;
+        if (pageLayoutResult['cancel'] as bool) {
           result = PdfLayoutResult._(_currentPage!, _currentBounds.rect);
           break;
         }
@@ -128,11 +128,11 @@ class _PdfGridLayouter extends _ElementLayouter {
       }
       for (int rowIndex = 0; rowIndex < _grid!.headers.count; rowIndex++) {
         _currentHeaderRowIndex = rowIndex;
-        final PdfGridRow? row = _grid!.headers[rowIndex];
-        final double? headerHeight = _currentBounds.y;
+        final PdfGridRow row = _grid!.headers[rowIndex];
+        final double headerHeight = _currentBounds.y;
         if (startPage != _currentPage) {
           for (int k = _cellStartIndex; k <= _cellEndIndex; k++) {
-            if (row!.cells[k]._isCellMergeContinue) {
+            if (row.cells[k]._isCellMergeContinue) {
               row.cells[k]._isCellMergeContinue = false;
               row.cells[k].value = '';
             }
@@ -453,8 +453,8 @@ class _PdfGridLayouter extends _ElementLayouter {
                     _currentPage, _currentBounds.rect, _currentRowIndex);
             _currentBounds =
                 _Rectangle.fromRect(pageLayoutResult['currentBounds']);
-            _currentRowIndex = pageLayoutResult['currentRow'];
-            if (pageLayoutResult['cancel']) {
+            _currentRowIndex = pageLayoutResult['currentRow'] as int;
+            if (pageLayoutResult['cancel'] as bool) {
               break;
             }
           }
@@ -771,7 +771,7 @@ class _PdfGridLayouter extends _ElementLayouter {
                             _currentBounds.height) {
                       _grid!.rows[i].cells[j].value =
                           _grid!.rows[currRowIndex].cells[j].value;
-                    } else if (!(pdfGrid is PdfGrid)) {
+                    } else if (pdfGrid is! PdfGrid) {
                       _grid!.rows[i].cells[j].value =
                           _grid!.rows[currRowIndex].cells[j].value;
                     }
@@ -937,8 +937,9 @@ class _PdfGridLayouter extends _ElementLayouter {
             (row.cells[i].value is String) ? row.cells[i].value.toString() : '',
             cellstyle,
             row._isHeaderRow);
-        cellstyle = bclResult['style'];
-        final PdfGridBeginCellLayoutArgs? gridbclArgs = bclResult['args'];
+        cellstyle = bclResult['style'] as PdfGridCellStyle;
+        final PdfGridBeginCellLayoutArgs? gridbclArgs =
+            bclResult['args'] as PdfGridBeginCellLayoutArgs?;
         row.cells[i].style = cellstyle;
         if (gridbclArgs != null) {
           skipcell = gridbclArgs.skip;
@@ -1094,10 +1095,11 @@ class _PdfGridLayouter extends _ElementLayouter {
           row.cells[i].value is String ? row.cells[i].value.toString() : '',
           cellstyle,
           row._isHeaderRow);
-      cellstyle = cellLayoutResult['style'];
-      final PdfGridBeginCellLayoutArgs? bclArgs = cellLayoutResult['args'];
+      cellstyle = cellLayoutResult['style'] as PdfGridCellStyle;
+      final PdfGridBeginCellLayoutArgs? bclArgs =
+          cellLayoutResult['args'] as PdfGridBeginCellLayoutArgs?;
       row.cells[i].style = cellstyle;
-      final bool skipcell = bclArgs != null ? bclArgs.skip : false;
+      final bool skipcell = bclArgs != null && bclArgs.skip;
       _PdfStringLayoutResult? stringResult;
       if (!skipcell) {
         stringResult = row.cells[i]._draw(
@@ -1210,13 +1212,13 @@ class _PdfGridLayouter extends _ElementLayouter {
     pageCount = page._document!.pages.count;
     for (int i = 0; i < pageCount; i++) {
       if (m < pageCount && pages.length != pageCount) {
-        final PdfPage? tempPage = page._document!.pages[m];
+        final PdfPage tempPage = page._document!.pages[m];
         if (!pages.contains(tempPage)) {
           pages.add(tempPage);
         }
       }
       if (n < pageCount && pages.length != pageCount) {
-        final PdfPage? tempPage = page._document!.pages[n];
+        final PdfPage tempPage = page._document!.pages[n];
         if (!pages.contains(tempPage)) {
           pages.add(tempPage);
         }

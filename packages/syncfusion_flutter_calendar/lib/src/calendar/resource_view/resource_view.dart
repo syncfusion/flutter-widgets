@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:syncfusion_flutter_calendar/src/calendar/common/calendar_view_helper.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
+import '../common/calendar_view_helper.dart';
+import '../common/event_args.dart';
 import '../settings/resource_view_settings.dart';
 import 'calendar_resource.dart';
 
-/// Holds the resource views of the calendar.
-class ResourceContainer extends CustomPainter {
-  /// Constructor to create the resource views of the calendar.
-  ResourceContainer(
+/// Used to hold the resource view on all timeline views.
+class ResourceViewWidget extends StatefulWidget {
+  /// Constructor to create the resource view widget to holds resource view on
+  /// all timeline views.
+  const ResourceViewWidget(
       this.resources,
       this.resourceViewSettings,
       this.resourceItemHeight,
@@ -19,8 +23,10 @@ class ResourceContainer extends CustomPainter {
       this.isRTL,
       this.textScaleFactor,
       this.mouseHoverPosition,
-      this.imagePainterCollection)
-      : super(repaint: notifier);
+      this.imagePainterCollection,
+      this.width,
+      this.panelHeight,
+      this.resourceViewHeaderBuilder);
 
   /// Holds the resources of the calendar.
   final List<CalendarResource>? resources;
@@ -51,12 +57,395 @@ class ResourceContainer extends CustomPainter {
 
   /// Holds the mouse hovering position used to paint highlight.
   final Offset? mouseHoverPosition;
-  Paint _circlePainter = Paint();
-  TextPainter _namePainter = TextPainter();
-  final double _borderThickness = 5;
+
+  /// Defines the width of the resource view widget.
+  final double width;
+
+  /// Defines the height of the resource view widget.
+  final double panelHeight;
+
+  /// Used to build the widget that replaces the resource view header.
+  final ResourceViewHeaderBuilder? resourceViewHeaderBuilder;
 
   @override
-  void paint(Canvas canvas, Size size) {
+  _ResourceViewWidgetState createState() => _ResourceViewWidgetState();
+}
+
+class _ResourceViewWidgetState extends State<ResourceViewWidget> {
+  @override
+  Widget build(BuildContext context) {
+    final List<Widget> children = <Widget>[];
+    if (widget.resourceViewHeaderBuilder != null) {
+      double yPosition = 0;
+      final int resourceLength = widget.resources!.length;
+      for (int i = 0; i < resourceLength; i++) {
+        final CalendarResource currentResource = widget.resources![i];
+        final Widget child = widget.resourceViewHeaderBuilder!(
+            context,
+            ResourceViewHeaderDetails(
+                currentResource,
+                Rect.fromLTWH(
+                    0, yPosition, widget.width, widget.resourceItemHeight)));
+        children.add(RepaintBoundary(child: child));
+        yPosition += widget.resourceItemHeight;
+      }
+    }
+
+    return _ResourceViewRenderObjectWidget(
+      widget.resources,
+      widget.resourceViewSettings,
+      widget.resourceItemHeight,
+      widget.cellBorderColor,
+      widget.calendarTheme,
+      widget.notifier,
+      widget.isRTL,
+      widget.textScaleFactor,
+      widget.mouseHoverPosition,
+      widget.imagePainterCollection,
+      widget.width,
+      widget.panelHeight,
+      children: children,
+    );
+  }
+}
+
+class _ResourceViewRenderObjectWidget extends MultiChildRenderObjectWidget {
+  _ResourceViewRenderObjectWidget(
+      this.resources,
+      this.resourceViewSettings,
+      this.resourceItemHeight,
+      this.cellBorderColor,
+      this.calendarTheme,
+      this.notifier,
+      this.isRTL,
+      this.textScaleFactor,
+      this.mouseHoverPosition,
+      this.imagePainterCollection,
+      this.width,
+      this.panelHeight,
+      {List<Widget> children = const <Widget>[]})
+      : super(children: children);
+
+  final List<CalendarResource>? resources;
+  final ResourceViewSettings resourceViewSettings;
+  final double resourceItemHeight;
+  final Color? cellBorderColor;
+  final SfCalendarThemeData calendarTheme;
+  final ValueNotifier<bool> notifier;
+  final bool isRTL;
+  final double textScaleFactor;
+  final Offset? mouseHoverPosition;
+  final Map<Object, DecorationImagePainter> imagePainterCollection;
+  final double width;
+  final double panelHeight;
+
+  @override
+  _ResourceViewRenderObject createRenderObject(BuildContext context) {
+    return _ResourceViewRenderObject(
+        resources,
+        resourceViewSettings,
+        resourceItemHeight,
+        cellBorderColor,
+        calendarTheme,
+        notifier,
+        isRTL,
+        textScaleFactor,
+        mouseHoverPosition,
+        imagePainterCollection,
+        width,
+        panelHeight);
+  }
+
+  @override
+  void updateRenderObject(
+      BuildContext context, _ResourceViewRenderObject renderObject) {
+    renderObject
+      ..resources = resources
+      ..resourceViewSettings = resourceViewSettings
+      ..resourceItemHeight = resourceItemHeight
+      ..cellBorderColor = cellBorderColor
+      ..calendarTheme = calendarTheme
+      ..notifier = notifier
+      ..isRTL = isRTL
+      ..textScaleFactor = textScaleFactor
+      ..mouseHoverPosition = mouseHoverPosition
+      ..imagePainterCollection = imagePainterCollection
+      ..width = width
+      ..panelHeight = panelHeight;
+  }
+}
+
+class _ResourceViewRenderObject extends CustomCalendarRenderObject {
+  _ResourceViewRenderObject(
+      this._resources,
+      this._resourceViewSettings,
+      this._resourceItemHeight,
+      this._cellBorderColor,
+      this._calendarTheme,
+      this._notifier,
+      this._isRTL,
+      this._textScaleFactor,
+      this._mouseHoverPosition,
+      this._imagePainterCollection,
+      this._width,
+      this._panelHeight);
+
+  List<CalendarResource>? _resources;
+
+  List<CalendarResource>? get resources => _resources;
+
+  set resources(List<CalendarResource>? value) {
+    if (_resources == value) {
+      return;
+    }
+
+    _resources = value;
+    if (childCount == 0) {
+      markNeedsPaint();
+    } else {
+      markNeedsLayout();
+    }
+  }
+
+  ResourceViewSettings _resourceViewSettings;
+
+  ResourceViewSettings get resourceViewSettings => _resourceViewSettings;
+
+  set resourceViewSettings(ResourceViewSettings value) {
+    if (_resourceViewSettings == value) {
+      return;
+    }
+
+    _resourceViewSettings = value;
+    markNeedsPaint();
+  }
+
+  double _resourceItemHeight;
+
+  double get resourceItemHeight => _resourceItemHeight;
+
+  set resourceItemHeight(double value) {
+    if (_resourceItemHeight == value) {
+      return;
+    }
+
+    _resourceItemHeight = value;
+    if (childCount == 0) {
+      markNeedsPaint();
+    } else {
+      markNeedsLayout();
+    }
+  }
+
+  Color? _cellBorderColor;
+
+  Color? get cellBorderColor => _cellBorderColor;
+
+  set cellBorderColor(Color? value) {
+    if (_cellBorderColor == value) {
+      return;
+    }
+
+    _cellBorderColor = value;
+    if (childCount != 0) {
+      return;
+    }
+
+    markNeedsPaint();
+  }
+
+  SfCalendarThemeData _calendarTheme;
+
+  SfCalendarThemeData get calendarTheme => _calendarTheme;
+
+  set calendarTheme(SfCalendarThemeData value) {
+    if (_calendarTheme == value) {
+      return;
+    }
+
+    _calendarTheme = value;
+    if (childCount != 0) {
+      return;
+    }
+
+    markNeedsPaint();
+  }
+
+  ValueNotifier<bool> _notifier;
+
+  ValueNotifier<bool> get notifier => _notifier;
+
+  set notifier(ValueNotifier<bool> value) {
+    if (_notifier == value) {
+      return;
+    }
+
+    _notifier.removeListener(markNeedsPaint);
+    _notifier = value;
+    _notifier.addListener(markNeedsPaint);
+  }
+
+  bool _isRTL;
+
+  bool get isRTL => _isRTL;
+
+  set isRTL(bool value) {
+    if (_isRTL == value) {
+      return;
+    }
+
+    _isRTL = value;
+    if (childCount == 0) {
+      markNeedsPaint();
+    } else {
+      markNeedsLayout();
+    }
+  }
+
+  double _textScaleFactor;
+
+  double get textScaleFactor => _textScaleFactor;
+
+  set textScaleFactor(double value) {
+    if (_textScaleFactor == value) {
+      return;
+    }
+
+    _textScaleFactor = value;
+    if (childCount != 0) {
+      return;
+    }
+    markNeedsPaint();
+  }
+
+  Offset? _mouseHoverPosition;
+
+  Offset? get mouseHoverPosition => _mouseHoverPosition;
+
+  set mouseHoverPosition(Offset? value) {
+    if (_mouseHoverPosition == value) {
+      return;
+    }
+
+    _mouseHoverPosition = value;
+    if (childCount == 0) {
+      markNeedsPaint();
+    } else {
+      markNeedsLayout();
+    }
+  }
+
+  Map<Object, DecorationImagePainter> _imagePainterCollection;
+
+  Map<Object, DecorationImagePainter> get imagePainterCollection =>
+      _imagePainterCollection;
+
+  set imagePainterCollection(Map<Object, DecorationImagePainter> value) {
+    if (_imagePainterCollection == value) {
+      return;
+    }
+
+    _imagePainterCollection = value;
+    if (childCount != 0) {
+      return;
+    }
+    markNeedsPaint();
+  }
+
+  double _width;
+
+  double get width => _width;
+
+  set width(double value) {
+    if (_width == value) {
+      return;
+    }
+
+    _width = value;
+    if (childCount == 0) {
+      markNeedsPaint();
+    } else {
+      markNeedsLayout();
+    }
+  }
+
+  double _panelHeight;
+
+  double get panelHeight => _panelHeight;
+
+  set panelHeight(double value) {
+    if (_panelHeight == value) {
+      return;
+    }
+
+    _panelHeight = value;
+    if (childCount == 0) {
+      markNeedsPaint();
+    } else {
+      markNeedsLayout();
+    }
+  }
+
+  @override
+  void attach(PipelineOwner owner) {
+    super.attach(owner);
+    _notifier.addListener(markNeedsPaint);
+  }
+
+  @override
+  void detach() {
+    _notifier.removeListener(markNeedsPaint);
+    super.detach();
+  }
+
+  @override
+  void performLayout() {
+    final Size widgetSize = constraints.biggest;
+    size = Size(widgetSize.width.isInfinite ? width : widgetSize.width,
+        widgetSize.height.isInfinite ? panelHeight : widgetSize.height);
+
+    for (dynamic child = firstChild; child != null; child = childAfter(child)) {
+      child.layout(constraints.copyWith(
+          minWidth: width,
+          minHeight: resourceItemHeight,
+          maxWidth: width,
+          maxHeight: resourceItemHeight));
+    }
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    final bool _isNeedCustomPaint = childCount != 0;
+
+    if (!_isNeedCustomPaint) {
+      _resourceViewHeader(context.canvas, size);
+    } else {
+      double yPosition = 0;
+      RenderBox? child = firstChild;
+      final int resourceLength = resources!.length;
+      for (int i = 0; i < resourceLength; i++) {
+        context.paintChild(child!, Offset(0, yPosition));
+        child = childAfter(child);
+
+        if (mouseHoverPosition != null) {
+          final Color resourceHoveringColor =
+              (calendarTheme.brightness == Brightness.dark
+                      ? Colors.white
+                      : Colors.black87)
+                  .withOpacity(0.04);
+          _addHovering(context.canvas, size, yPosition, resourceHoveringColor);
+        }
+
+        yPosition += resourceItemHeight;
+      }
+    }
+  }
+
+  final Paint _circlePainter = Paint();
+  final TextPainter _namePainter = TextPainter();
+  final double _borderThickness = 5;
+
+  void _resourceViewHeader(Canvas canvas, Size size) {
     canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
 
     /// The circle width.
@@ -69,7 +458,17 @@ class ResourceContainer extends CustomPainter {
     final double radius = actualItemHeight < actualItemWidth
         ? actualItemHeight / 2
         : actualItemWidth / 2;
-    _circlePainter.color = cellBorderColor ?? calendarTheme.cellBorderColor;
+    final Color resourceCellBorderColor =
+        cellBorderColor ?? calendarTheme.cellBorderColor;
+    final Color resourceHoveringColor =
+        (calendarTheme.brightness == Brightness.dark
+                ? Colors.white
+                : Colors.black87)
+            .withOpacity(0.04);
+    final TextStyle displayNameTextStyle =
+        resourceViewSettings.displayNameTextStyle ??
+            calendarTheme.displayNameTextStyle;
+    _circlePainter.color = resourceCellBorderColor;
     _circlePainter.strokeWidth = 0.5;
     _circlePainter.style = PaintingStyle.stroke;
     final double lineXPosition = isRTL ? 0.5 : size.width - 0.5;
@@ -82,19 +481,19 @@ class ResourceContainer extends CustomPainter {
         final CalendarResource resource = resources![i];
         _drawResourceBorder(
             resource, canvas, size, actualItemHeight, yPosition, radius);
-        _drawDisplayName(
-            resource, canvas, size, yPosition, actualItemHeight, radius);
+        _drawDisplayName(resource, displayNameTextStyle, canvas, size,
+            yPosition, actualItemHeight, radius);
         _circlePainter.style = PaintingStyle.fill;
         _drawInnerCircle(resource, canvas, size, actualItemWidth,
             actualItemHeight, yPosition);
-        _circlePainter.color = cellBorderColor ?? calendarTheme.cellBorderColor;
+        _circlePainter.color = resourceCellBorderColor;
         _circlePainter.strokeWidth = 0.5;
         _circlePainter.style = PaintingStyle.stroke;
         canvas.drawLine(Offset(0, yPosition), Offset(size.width, yPosition),
             _circlePainter);
 
         if (mouseHoverPosition != null) {
-          _addHovering(canvas, size, yPosition);
+          _addHovering(canvas, size, yPosition, resourceHoveringColor);
         }
 
         yPosition += resourceItemHeight;
@@ -104,24 +503,22 @@ class ResourceContainer extends CustomPainter {
       for (int i = 0; i < count; i++) {
         final CalendarResource resource = resources![i];
         _drawResourceBackground(canvas, size, resource, yPosition);
-        _drawDisplayName(
-            resource, canvas, size, yPosition, actualItemHeight, radius);
-        _addHovering(canvas, size, yPosition);
+        _drawDisplayName(resource, displayNameTextStyle, canvas, size,
+            yPosition, actualItemHeight, radius);
+        _addHovering(canvas, size, yPosition, resourceHoveringColor);
         yPosition += resourceItemHeight;
       }
     }
   }
 
-  void _addHovering(Canvas canvas, Size size, double yPosition) {
+  void _addHovering(
+      Canvas canvas, Size size, double yPosition, Color resourceHoveringColor) {
     if (mouseHoverPosition != null &&
         mouseHoverPosition!.dy > yPosition &&
         mouseHoverPosition!.dy < (yPosition + resourceItemHeight)) {
       _circlePainter.style = PaintingStyle.fill;
-      _circlePainter.color = (calendarTheme.brightness == Brightness.dark
-              ? Colors.white
-              : Colors.black87)
-          .withOpacity(0.04);
-      final double padding = 0.5;
+      _circlePainter.color = resourceHoveringColor;
+      const double padding = 0.5;
       canvas.drawRect(
           Rect.fromLTWH(0, yPosition, size.width, resourceItemHeight - padding),
           _circlePainter);
@@ -130,7 +527,7 @@ class ResourceContainer extends CustomPainter {
 
   void _drawResourceBackground(
       Canvas canvas, Size size, CalendarResource resource, double yPosition) {
-    final double padding = 0.5;
+    const double padding = 0.5;
     _circlePainter.color = resource.color;
     _circlePainter.style = PaintingStyle.fill;
     canvas.drawRect(
@@ -165,11 +562,14 @@ class ResourceContainer extends CustomPainter {
   }
 
   /// Draws the display name of the resource under the circle.
-  void _drawDisplayName(CalendarResource resource, Canvas canvas, Size size,
-      double yPosition, double actualItemHeight, double radius) {
-    final TextStyle displayNameTextStyle =
-        resourceViewSettings.displayNameTextStyle ??
-            calendarTheme.displayNameTextStyle;
+  void _drawDisplayName(
+      CalendarResource resource,
+      TextStyle displayNameTextStyle,
+      Canvas canvas,
+      Size size,
+      double yPosition,
+      double actualItemHeight,
+      double radius) {
     final TextSpan span =
         TextSpan(text: resource.displayName, style: displayNameTextStyle);
     _updateNamePainter(span);
@@ -242,7 +642,7 @@ class ResourceContainer extends CustomPainter {
   /// display name, and fills the resources color in background.
   void _drawInnerCircle(CalendarResource resource, Canvas canvas, Size size,
       double actualItemWidth, double actualItemHeight, double yPosition) {
-    final double padding = 0.3;
+    const double padding = 0.3;
     final double innerCircleWidth =
         actualItemWidth - (_borderThickness * 2) - (padding * 2);
     final double innerCircleHeight =
@@ -270,7 +670,7 @@ class ResourceContainer extends CustomPainter {
         : splitName[0].substring(0, 1);
     final TextSpan span = TextSpan(
         text: shortName,
-        style: TextStyle(
+        style: const TextStyle(
             color: Colors.white,
             fontSize: 20,
             fontWeight: FontWeight.w500,
@@ -282,16 +682,6 @@ class ResourceContainer extends CustomPainter {
     startYPosition =
         innerCircleYPosition + ((innerCircleHeight - _namePainter.height) / 2);
     _namePainter.paint(canvas, Offset(startXPosition, startYPosition));
-  }
-
-  @override
-  bool shouldRepaint(ResourceContainer oldDelegate) {
-    final ResourceContainer oldWidget = oldDelegate;
-    return oldWidget.resourceItemHeight != resourceItemHeight ||
-        !CalendarViewHelper.isResourceCollectionEqual(
-            oldWidget.resources, resources) ||
-        oldWidget.resourceViewSettings != resourceViewSettings ||
-        oldWidget.mouseHoverPosition != mouseHoverPosition;
   }
 
   List<CustomPainterSemantics> _getSemanticsBuilder(Size size) {
@@ -325,13 +715,5 @@ class ResourceContainer extends CustomPainter {
     return (Size size) {
       return _getSemanticsBuilder(size);
     };
-  }
-
-  @override
-  bool shouldRebuildSemantics(ResourceContainer oldDelegate) {
-    final ResourceContainer oldWidget = oldDelegate;
-    return oldWidget.resourceItemHeight != resourceItemHeight ||
-        oldWidget.resources != resources ||
-        oldWidget.resourceViewSettings != resourceViewSettings;
   }
 }

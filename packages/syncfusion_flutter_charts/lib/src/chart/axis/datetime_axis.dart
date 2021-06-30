@@ -8,6 +8,7 @@ part of charts;
 ///
 /// Provides the options for range padding, interval, date format for customizing the appearance.
 ///
+@immutable
 class DateTimeAxis extends ChartAxis {
   /// Creating an argument constructor of DateTimeAxis class.
   DateTimeAxis({
@@ -44,7 +45,7 @@ class DateTimeAxis extends ChartAxis {
     double? interval,
     this.visibleMinimum,
     this.visibleMaximum,
-    dynamic? crossesAt,
+    dynamic crossesAt,
     String? associatedAxisName,
     bool? placeLabelsNearAxisLine,
     List<PlotBand>? plotBands,
@@ -123,7 +124,7 @@ class DateTimeAxis extends ChartAxis {
   ///
   ///Defaults to `DateTimeIntervalType.auto`
   ///
-  ///Also refer DateTimeIntervalType
+  ///Also refer [DateTimeIntervalType]
   ///```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
@@ -204,6 +205,111 @@ class DateTimeAxis extends ChartAxis {
   ///}
   ///```
   final DateTimeIntervalType autoScrollingDeltaType;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is DateTimeAxis &&
+        other.name == name &&
+        other.isVisible == isVisible &&
+        other.title == title &&
+        other.axisLine == axisLine &&
+        other.rangePadding == rangePadding &&
+        other.edgeLabelPlacement == edgeLabelPlacement &&
+        other.labelPosition == labelPosition &&
+        other.tickPosition == tickPosition &&
+        other.labelRotation == labelRotation &&
+        other.labelIntersectAction == labelIntersectAction &&
+        other.labelAlignment == labelAlignment &&
+        other.isInversed == isInversed &&
+        other.opposedPosition == opposedPosition &&
+        other.minorTicksPerInterval == minorTicksPerInterval &&
+        other.maximumLabels == maximumLabels &&
+        other.majorTickLines == majorTickLines &&
+        other.minorTickLines == minorTickLines &&
+        other.majorGridLines == majorGridLines &&
+        other.minorGridLines == minorGridLines &&
+        other.labelStyle == labelStyle &&
+        other.plotOffset == plotOffset &&
+        other.zoomFactor == zoomFactor &&
+        other.zoomPosition == zoomPosition &&
+        other.interactiveTooltip == interactiveTooltip &&
+        other.minimum == minimum &&
+        other.maximum == maximum &&
+        other.interval == interval &&
+        other.visibleMinimum == visibleMinimum &&
+        other.visibleMaximum == visibleMaximum &&
+        other.crossesAt == crossesAt &&
+        other.associatedAxisName == associatedAxisName &&
+        other.placeLabelsNearAxisLine == placeLabelsNearAxisLine &&
+        other.plotBands == plotBands &&
+        other.desiredIntervals == desiredIntervals &&
+        other.rangeController == rangeController &&
+        other.maximumLabelWidth == maximumLabelWidth &&
+        other.labelsExtent == labelsExtent &&
+        other.dateFormat == dateFormat &&
+        other.intervalType == intervalType &&
+        other.autoScrollingDelta == autoScrollingDelta &&
+        other.enableAutoIntervalOnZooming == enableAutoIntervalOnZooming &&
+        other.autoScrollingMode == autoScrollingMode;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      name,
+      isVisible,
+      title,
+      axisLine,
+      rangePadding,
+      labelIntersectAction,
+      labelPosition,
+      tickPosition,
+      edgeLabelPlacement,
+      zoomFactor,
+      zoomPosition,
+      enableAutoIntervalOnZooming,
+      labelRotation,
+      isInversed,
+      opposedPosition,
+      minorTicksPerInterval,
+      maximumLabels,
+      plotOffset,
+      majorTickLines,
+      minorTickLines,
+      majorGridLines,
+      minorGridLines,
+      labelStyle,
+      dateFormat,
+      intervalType,
+      interactiveTooltip,
+      labelFormat,
+      minimum,
+      maximum,
+      labelAlignment,
+      interval,
+      visibleMinimum,
+      visibleMaximum,
+      crossesAt,
+      associatedAxisName,
+      placeLabelsNearAxisLine,
+      plotBands,
+      rangeController,
+      desiredIntervals,
+      maximumLabelWidth,
+      labelsExtent,
+      autoScrollingDeltaType,
+      autoScrollingDelta,
+      autoScrollingMode
+    ];
+    return hashList(values);
+  }
 }
 
 /// Creates an axis renderer for Datetime axis
@@ -284,7 +390,7 @@ class DateTimeAxisRenderer extends ChartAxisRenderer {
         seriesRenderer._minimumY =
             math.min(seriesRenderer._minimumY ?? point.yValue, point.yValue);
         seriesRenderer._maximumY = math.max(
-            (seriesRenderer._maximumY ?? point.maxYValue), point.maxYValue);
+            seriesRenderer._maximumY ?? point.maxYValue, point.maxYValue);
       }
     }
     if (pointIndex >= dataLength - 1) {
@@ -306,8 +412,10 @@ class DateTimeAxisRenderer extends ChartAxisRenderer {
 
   /// Listener for range controller
   void _controlListener() {
+    _chartState._canSetRangeController = false;
     if (_axis.rangeController != null && !_chartState._rangeChangedByChart) {
       _updateRangeControllerValues(this);
+      _chartState._rangeChangeBySlider = true;
       _chartState._redrawByRangeChange();
     }
   }
@@ -321,7 +429,7 @@ class DateTimeAxisRenderer extends ChartAxisRenderer {
       _chartState._rangeChangeBySlider = true;
       _axis.rangeController!.addListener(_controlListener);
     }
-    final Rect containerRect = _chartState._containerRect;
+    final Rect containerRect = _chartState._renderingDetails.chartContainerRect;
     final Rect rect = Rect.fromLTWH(containerRect.left, containerRect.top,
         containerRect.width, containerRect.height);
     _axisSize = Size(rect.width, rect.height);
@@ -341,20 +449,12 @@ class DateTimeAxisRenderer extends ChartAxisRenderer {
     _min ??= 2717008000;
     _max ??= 13085008000;
     _actualRange = _VisibleRange(
-        _chartState._rangeChangeBySlider &&
-                _dateTimeAxis.rangeController != null
-            ? _rangeMinimum ??
-                _dateTimeAxis.rangeController!.start.millisecondsSinceEpoch
-            : _dateTimeAxis.minimum != null
-                ? _dateTimeAxis.minimum!.millisecondsSinceEpoch
-                : _min,
-        _chartState._rangeChangeBySlider &&
-                _dateTimeAxis.rangeController != null
-            ? _rangeMaximum ??
-                _dateTimeAxis.rangeController!.end.millisecondsSinceEpoch
-            : _dateTimeAxis.maximum != null
-                ? _dateTimeAxis.maximum!.millisecondsSinceEpoch
-                : _max);
+        _dateTimeAxis.minimum != null
+            ? _dateTimeAxis.minimum!.millisecondsSinceEpoch
+            : _min,
+        _dateTimeAxis.maximum != null
+            ? _dateTimeAxis.maximum!.millisecondsSinceEpoch
+            : _max);
     if (_actualRange!.minimum == _actualRange!.maximum) {
       _actualRange!.minimum = _actualRange!.minimum - 2592000000;
       _actualRange!.maximum = _actualRange!.maximum + 2592000000;
@@ -373,33 +473,39 @@ class DateTimeAxisRenderer extends ChartAxisRenderer {
       case DateTimeIntervalType.years:
         final int year =
             ((dateTime.year / interval).floor() * interval).floor();
-        dateTime = DateTime(year, dateTime.month, dateTime.day, 0, 0, 0);
+        dateTime = DateTime(year, dateTime.month, dateTime.day, 0, 0, 0, 0);
         break;
       case DateTimeIntervalType.months:
         final int month = ((dateTime.month / interval) * interval).floor();
-        dateTime = DateTime(dateTime.year, month, dateTime.day, 0, 0, 0);
+        dateTime = DateTime(dateTime.year, month, dateTime.day, 0, 0, 0, 0);
         break;
       case DateTimeIntervalType.days:
         final int day = ((dateTime.day / interval) * interval).floor();
-        dateTime = DateTime(dateTime.year, dateTime.month, day, 0, 0, 0);
+        dateTime = DateTime(dateTime.year, dateTime.month, day, 0, 0, 0, 0);
         break;
       case DateTimeIntervalType.hours:
         final int hour =
             ((dateTime.hour / interval).floor() * interval).floor();
-        dateTime =
-            DateTime(dateTime.year, dateTime.month, dateTime.day, hour, 0, 0);
+        dateTime = DateTime(
+            dateTime.year, dateTime.month, dateTime.day, hour, 0, 0, 0);
         break;
       case DateTimeIntervalType.minutes:
         final int minute =
             ((dateTime.minute / interval).floor() * interval).floor();
         dateTime = DateTime(dateTime.year, dateTime.month, dateTime.day,
-            dateTime.hour, minute, 0);
+            dateTime.hour, minute, 0, 0);
         break;
       case DateTimeIntervalType.seconds:
         final int second =
             ((dateTime.second / interval).floor() * interval).floor();
         dateTime = DateTime(dateTime.year, dateTime.month, dateTime.day,
-            dateTime.hour, dateTime.minute, second);
+            dateTime.hour, dateTime.minute, second, 0);
+        break;
+      case DateTimeIntervalType.milliseconds:
+        final int millisecond =
+            ((dateTime.millisecond / interval).floor() * interval).floor();
+        dateTime = DateTime(dateTime.year, dateTime.month, dateTime.day,
+            dateTime.hour, dateTime.minute, dateTime.second, millisecond, 0);
         break;
       case DateTimeIntervalType.auto:
         break;
@@ -409,7 +515,7 @@ class DateTimeAxisRenderer extends ChartAxisRenderer {
 
   /// Increase the range interval based on actual interval type
   DateTime _increaseDateTimeInterval(
-      DateTimeAxisRenderer axisRenderer, int value, dynamic dateInterval) {
+      DateTimeAxisRenderer axisRenderer, int value, num dateInterval) {
     DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(value);
     axisRenderer._visibleRange!.interval = dateInterval;
     final bool isIntervalDecimal = dateInterval % 1 == 0;
@@ -446,6 +552,16 @@ class DateTimeAxisRenderer extends ChartAxisRenderer {
         case DateTimeIntervalType.seconds:
           dateTime = DateTime(dateTime.year, dateTime.month, dateTime.day,
               dateTime.hour, dateTime.minute, dateTime.second + interval, 0);
+          break;
+        case DateTimeIntervalType.milliseconds:
+          dateTime = DateTime(
+              dateTime.year,
+              dateTime.month,
+              dateTime.day,
+              dateTime.hour,
+              dateTime.minute,
+              dateTime.second,
+              dateTime.millisecond + interval);
           break;
         case DateTimeIntervalType.auto:
           break;
@@ -511,6 +627,16 @@ class DateTimeAxisRenderer extends ChartAxisRenderer {
               dateTime.minute,
               dateTime.second,
               (interval * 1000).floor());
+          break;
+        case DateTimeIntervalType.milliseconds:
+          dateTime = DateTime(
+              dateTime.year,
+              dateTime.month,
+              dateTime.day,
+              dateTime.hour,
+              dateTime.minute,
+              dateTime.second,
+              dateTime.millisecond + interval.floor());
           break;
         case DateTimeIntervalType.auto:
           break;
@@ -640,6 +766,30 @@ class DateTimeAxisRenderer extends ChartAxisRenderer {
     }
   }
 
+  /// Calculate millisecond
+  void _calculateMilliSecond(DateTime minimum, DateTime maximum,
+      ChartRangePadding rangePadding, int interval) {
+    final int startMilliSecond =
+        ((minimum.millisecond / interval) * interval).toInt();
+    final int endMilliSecond =
+        maximum.millisecond + (minimum.millisecond - startMilliSecond).toInt();
+    if (rangePadding == ChartRangePadding.round) {
+      _min = DateTime(minimum.year, minimum.month, minimum.day, minimum.hour,
+              minimum.minute, minimum.second, startMilliSecond)
+          .millisecondsSinceEpoch;
+      _max = DateTime(maximum.year, maximum.month, maximum.day, maximum.hour,
+              maximum.minute, maximum.second, endMilliSecond)
+          .millisecondsSinceEpoch;
+    } else {
+      _min = DateTime(minimum.year, minimum.month, minimum.day, minimum.hour,
+              minimum.minute, minimum.second, startMilliSecond + (-interval))
+          .millisecondsSinceEpoch;
+      _max = DateTime(maximum.year, maximum.month, maximum.day, maximum.hour,
+              maximum.minute, maximum.second, endMilliSecond + interval)
+          .millisecondsSinceEpoch;
+    }
+  }
+
   /// Applies range padding to auto, normal, additional, round, and none types.
   @override
   void applyRangePadding(_VisibleRange range, num? interval) {
@@ -676,6 +826,10 @@ class DateTimeAxisRenderer extends ChartAxisRenderer {
             break;
           case DateTimeIntervalType.seconds:
             _calculateSecond(minimum, maximum, rangePadding, interval!.toInt());
+            break;
+          case DateTimeIntervalType.milliseconds:
+            _calculateMilliSecond(
+                minimum, maximum, rangePadding, interval!.toInt());
             break;
           case DateTimeIntervalType.auto:
             break;
@@ -822,6 +976,11 @@ class DateTimeAxisRenderer extends ChartAxisRenderer {
         case DateTimeIntervalType.seconds:
           scrollingDelta = Duration(seconds: _dateTimeAxis.autoScrollingDelta!)
               .inMilliseconds;
+          break;
+        case DateTimeIntervalType.milliseconds:
+          scrollingDelta =
+              Duration(milliseconds: _dateTimeAxis.autoScrollingDelta!)
+                  .inMilliseconds;
           break;
         case DateTimeIntervalType.auto:
           scrollingDelta = _dateTimeAxis.autoScrollingDelta!;

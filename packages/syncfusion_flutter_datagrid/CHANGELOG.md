@@ -1,5 +1,30 @@
 ## Unreleased
 
+**Features**
+* Provided the support to edit cell values. An editor widget can be loaded based on the column type to edit cell values.
+* Provided the support to fit the rows and columns based on the value of the cells to improve readability.
+* Provided the support to highlight a row when mouse hovers over it in Web and Desktop platforms.
+* Provided the support to show an additional row that can be displayed below to last row. Widgets can also be displayed in the footer row.
+* Provided the support to listen the vertical and horizontal scroll changes.
+* Provided the support to write the entire logic for custom sorting instead of performing built-in sorting.
+
+**Breaking changes**
+* [GridTextColumn](https://pub.dev/documentation/syncfusion_flutter_datagrid/latest/datagrid/GridTextColumn-class.html) class has been deprecated. Use [GridColumn](https://pub.dev/documentation/syncfusion_flutter_datagrid/latest/datagrid/GridColumn-class.html) instead.
+
+## [19.1.67-beta] - 06/08/2021
+
+**Bugs**
+
+*  Now, the background color for row is applied when transparent color is set.
+
+## [19.1.56-beta] - 04/13/2021
+
+**Bugs**
+
+*  The column headers are now visible when the rows are empty.
+
+## [19.1.55-beta] - 04/06/2021 
+
 **Bugs**	
 * Now, in Flutter 2.0,  text can be typed in TextField widget when you load it in cells in web platform.
 

@@ -5,6 +5,8 @@ class FormatsCollection {
   /// Initializes new instance and sets its application and parent objects.
   FormatsCollection(Workbook workbook) {
     _parent = workbook;
+    _rawFormats = <int, _Format>{};
+    _hashFormatStrings = <String, _Format>{};
   }
 
   /// Represent the parent.
@@ -43,7 +45,7 @@ class FormatsCollection {
 
   /// Represents the Currency Symbol.
   // ignore: unused_field
-  static const String _currency = '\$';
+  static const String _currency = r'\$';
 
   /// Represents the default exponential Symbol.
   static const String _default_exponential = 'E+';
@@ -52,7 +54,7 @@ class FormatsCollection {
   static const int _default_first_custom_index = 163;
 
   /// Default format Strings.
-  final _defaultFormatString = [
+  final List<String> _defaultFormatString = <String>[
     'General',
     '0',
     '0.00',
@@ -71,11 +73,11 @@ class FormatsCollection {
     r'd\-mmm\-yy',
     r'd\-mmm',
     r'mmm\-yy',
-    'h:mm\\ AM/PM',
-    'h:mm:ss\\ AM/PM',
+    r'h:mm\\ AM/PM',
+    r'h:mm:ss\\ AM/PM',
     'h:mm',
     'h:mm:ss',
-    'm/d/yyyy\\ h:mm',
+    r'm/d/yyyy\\ h:mm',
     r'#,##0_);(#,##0)',
     r'#,##0_);[Red](#,##0)',
     r'#,##0.00_);(#,##0.00)',
@@ -95,10 +97,10 @@ class FormatsCollection {
   static const int _max_formats_count = 242;
 
   /// Index-to-_Format.
-  Map<int, _Format> _rawFormats = <int, _Format>{};
+  late Map<int, _Format> _rawFormats;
 
   /// Dictionary. Key - format string, value - _Format.
-  Map<String, _Format> _hashFormatStrings = <String, _Format>{};
+  late Map<String, _Format> _hashFormatStrings;
 
   /// Gets the number of elements contained in the collection. Read-only
   int get count {
@@ -111,7 +113,7 @@ class FormatsCollection {
   }
 
   /// Indexer of the class
-  _Format operator [](index) => _rawFormats[index]!;
+  _Format operator [](dynamic index) => _rawFormats[index]!;
 
   /// Inserts all default formats into list.
   void _insertDefaultFormats() {
@@ -126,14 +128,16 @@ class FormatsCollection {
         _rawFormats[curFormat._index] = curFormat;
         _hashFormatStrings[curFormat._formatString!] = curFormat;
       }
-      if (iFormatIndex == 22) iFormatIndex = 36;
+      if (iFormatIndex == 22) {
+        iFormatIndex = 36;
+      }
       iFormatIndex++;
     }
   }
 
   /// Gets all used formats.
   List<_Format> _getUsedFormats() {
-    final List<_Format> result = [];
+    final List<_Format> result = <_Format>[];
 
     final List<int> keys = _rawFormats.keys.toList();
     final int index = keys.indexOf(49);
@@ -145,7 +149,9 @@ class FormatsCollection {
       for (int i = index + 1; i < iCount; i++) {
         final _Format format = _rawFormats[keys[i]]!;
 
-        if (format._index >= _default_first_custom_index) result.add(format);
+        if (format._index >= _default_first_custom_index) {
+          result.add(format);
+        }
       }
     }
 
@@ -161,7 +167,9 @@ class FormatsCollection {
 
   /// Method that creates format object based on the format string and registers it in the workbook.
   int _createFormat(String? formatString) {
-    if (formatString == null) throw Exception('formatString');
+    if (formatString == null) {
+      throw Exception('formatString');
+    }
 
     if (formatString.isEmpty) {
       throw Exception('formatString - string cannot be empty');
@@ -176,11 +184,11 @@ class FormatsCollection {
       return format._index;
     }
     if (_parent.cultureInfo._culture == 'en-US') {
-      final String localStr = formatString.replaceAll('\'\$\'', '\$');
+      final String localStr = formatString.replaceAll('\'\$\'', r'\$');
 
       /// To know if the format string to be created is a pre-defined one.
       for (final String formatStr in _hashFormatStrings.keys) {
-        if (formatStr.replaceAll('\\', '').replaceAll('\'\$\'', '\$') ==
+        if (formatStr.replaceAll(r'\\', '').replaceAll('\'\$\'', r'\$') ==
             localStr) {
           final _Format format = _hashFormatStrings[formatStr]!;
           return format._index;
@@ -224,9 +232,8 @@ class FormatsCollection {
     _hashFormatStrings[format._formatString!] = format;
   }
 
-  /// <summary>
   ///  Removes all elements from the IDictionary.
-  /// </summary>
+
   void _clear() {
     for (final MapEntry<String, _Format> format in _hashFormatStrings.entries) {
       format.value._clear();

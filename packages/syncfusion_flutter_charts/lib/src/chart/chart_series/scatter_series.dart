@@ -6,6 +6,7 @@ part of charts;
 ///
 /// The following properties, such as [color], [opacity], [borderWidth], [borderColor] can be used to customize  the appearance of the scatter segment.
 
+@immutable
 class ScatterSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of ScatterSeries class.
   ScatterSeries(
@@ -32,8 +33,6 @@ class ScatterSeries<T, D> extends XyDataSeries<T, D> {
       double? borderWidth,
       LinearGradient? gradient,
       LinearGradient? borderGradient,
-      // ignore: deprecated_member_use_from_same_package
-      SelectionSettings? selectionSettings,
       SelectionBehavior? selectionBehavior,
       bool? isVisibleInLegend,
       LegendIconType? legendIconType,
@@ -41,6 +40,9 @@ class ScatterSeries<T, D> extends XyDataSeries<T, D> {
       String? legendItemText,
       double? opacity,
       SeriesRendererCreatedCallback? onRendererCreated,
+      ChartPointInteractionCallback? onPointTap,
+      ChartPointInteractionCallback? onPointDoubleTap,
+      ChartPointInteractionCallback? onPointLongPress,
       List<int>? initialSelectedDataIndexes})
       : super(
             key: key,
@@ -66,7 +68,6 @@ class ScatterSeries<T, D> extends XyDataSeries<T, D> {
             trendlines: trendlines,
             gradient: gradient,
             borderGradient: borderGradient,
-            selectionSettings: selectionSettings,
             selectionBehavior: selectionBehavior,
             legendItemText: legendItemText,
             isVisibleInLegend: isVisibleInLegend,
@@ -74,6 +75,9 @@ class ScatterSeries<T, D> extends XyDataSeries<T, D> {
             sortingOrder: sortingOrder,
             opacity: opacity,
             onRendererCreated: onRendererCreated,
+            onPointTap: onPointTap,
+            onPointDoubleTap: onPointDoubleTap,
+            onPointLongPress: onPointLongPress,
             initialSelectedDataIndexes: initialSelectedDataIndexes);
 
   /// Create the scatter series renderer.
@@ -88,6 +92,93 @@ class ScatterSeries<T, D> extends XyDataSeries<T, D> {
     }
     return ScatterSeriesRenderer();
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is ScatterSeries &&
+        other.key == key &&
+        other.onCreateRenderer == onCreateRenderer &&
+        other.dataSource == dataSource &&
+        other.xValueMapper == xValueMapper &&
+        other.yValueMapper == yValueMapper &&
+        other.sortFieldValueMapper == sortFieldValueMapper &&
+        other.pointColorMapper == pointColorMapper &&
+        other.dataLabelMapper == dataLabelMapper &&
+        other.sortingOrder == sortingOrder &&
+        other.xAxisName == xAxisName &&
+        other.yAxisName == yAxisName &&
+        other.name == name &&
+        other.color == color &&
+        other.markerSettings == markerSettings &&
+        other.emptyPointSettings == emptyPointSettings &&
+        other.dataLabelSettings == dataLabelSettings &&
+        other.trendlines == trendlines &&
+        other.isVisible == isVisible &&
+        other.enableTooltip == enableTooltip &&
+        other.animationDuration == animationDuration &&
+        other.borderColor == borderColor &&
+        other.borderWidth == borderWidth &&
+        other.gradient == gradient &&
+        other.borderGradient == borderGradient &&
+        other.selectionBehavior == selectionBehavior &&
+        other.isVisibleInLegend == isVisibleInLegend &&
+        other.legendIconType == legendIconType &&
+        other.legendItemText == legendItemText &&
+        other.opacity == opacity &&
+        other.onRendererCreated == onRendererCreated &&
+        other.onPointTap == onPointTap &&
+        other.onPointDoubleTap == onPointDoubleTap &&
+        other.onPointLongPress == onPointLongPress &&
+        other.initialSelectedDataIndexes == initialSelectedDataIndexes;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      key,
+      onCreateRenderer,
+      dataSource,
+      xValueMapper,
+      yValueMapper,
+      sortFieldValueMapper,
+      pointColorMapper,
+      dataLabelMapper,
+      sortingOrder,
+      xAxisName,
+      yAxisName,
+      name,
+      color,
+      markerSettings,
+      emptyPointSettings,
+      dataLabelSettings,
+      trendlines,
+      isVisible,
+      enableTooltip,
+      animationDuration,
+      borderColor,
+      borderWidth,
+      gradient,
+      borderGradient,
+      selectionBehavior,
+      isVisibleInLegend,
+      legendIconType,
+      legendItemText,
+      opacity,
+      onRendererCreated,
+      initialSelectedDataIndexes,
+      onPointTap,
+      onPointDoubleTap,
+      onPointLongPress
+    ];
+    return hashList(values);
+  }
 }
 
 /// Creates series renderer for Scatter series
@@ -99,6 +190,8 @@ class ScatterSeriesRenderer extends XyDataSeriesRenderer {
   CartesianChartPoint<dynamic>? _point;
 
   final bool _isLineType = false;
+
+  ScatterSegment? _segment;
 
   ///Adds the points to the segments .
   ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
@@ -112,12 +205,12 @@ class ScatterSeriesRenderer extends XyDataSeriesRenderer {
       segment._seriesIndex = seriesIndex;
       segment.currentSegmentIndex = pointIndex;
       segment._seriesRenderer = this;
-      segment._series = _series as XyDataSeries;
+      segment._series = _series as XyDataSeries<dynamic, dynamic>;
       segment.animationFactor = animateFactor;
       segment._point = currentPoint;
       segment._currentPoint = currentPoint;
-      if (_chartState!._widgetNeedUpdate &&
-          !_chartState!._isLegendToggled &&
+      if (_renderingDetails!.widgetNeedUpdate &&
+          !_renderingDetails!.isLegendToggled &&
           // ignore: unnecessary_null_comparison
           oldSeriesRenderers != null &&
           oldSeriesRenderers.isNotEmpty &&
@@ -132,6 +225,17 @@ class ScatterSeriesRenderer extends XyDataSeriesRenderer {
             ? segment._oldSeriesRenderer!._dataPoints[pointIndex]
             : null;
         segment._oldSegmentIndex = _getOldSegmentIndex(segment);
+        if ((_chartState!._selectedSegments.length - 1 >= pointIndex) &&
+            _chartState?._selectedSegments[pointIndex]._oldSegmentIndex ==
+                null) {
+          final ChartSegment selectedSegment =
+              _chartState?._selectedSegments[pointIndex] as ChartSegment;
+          selectedSegment._oldSeriesRenderer =
+              oldSeriesRenderers[selectedSegment._seriesIndex];
+          selectedSegment._seriesRenderer = this;
+          selectedSegment._oldSegmentIndex =
+              _getOldSegmentIndex(selectedSegment);
+        }
       }
       final _ChartLocation location = _calculatePoint(
           currentPoint.xValue,
@@ -146,6 +250,7 @@ class ScatterSeriesRenderer extends XyDataSeriesRenderer {
           RRect.fromRectAndRadius(currentPoint.region!, Radius.zero);
       customizeSegment(segment);
       _segments.add(segment);
+      _segment = segment;
     }
     return segment;
   }
@@ -191,8 +296,15 @@ class ScatterSeriesRenderer extends XyDataSeriesRenderer {
       [CartesianSeriesRenderer? seriesRenderer]) {
     final Size size =
         Size(_series.markerSettings.width, _series.markerSettings.height);
-    final Path markerPath = _getMarkerShapesPath(_series.markerSettings.shape,
-        Offset(pointX, pointY), size, seriesRenderer!, index);
+    final Path markerPath = _getMarkerShapesPath(
+        _series.markerSettings.shape,
+        Offset(pointX, pointY),
+        size,
+        seriesRenderer!,
+        index,
+        null,
+        seriesRenderer._seriesElementAnimation,
+        _segment);
     canvas.drawPath(markerPath, fillPaint);
     canvas.drawPath(markerPath, strokePaint);
   }

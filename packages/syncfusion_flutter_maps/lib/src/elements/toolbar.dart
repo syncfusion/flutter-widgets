@@ -4,7 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import '../behavior/zoom_pan_behavior.dart';
+import '../../maps.dart';
 import '../controller/map_controller.dart';
 import '../enum.dart';
 import '../settings.dart';
@@ -32,7 +32,7 @@ class MapToolbar extends StatelessWidget {
         child: Wrap(
           direction: zoomPanBehavior.toolbarSettings.direction,
           spacing: 8.0,
-          children: [
+          children: <Widget>[
             _ToolbarItem(
               controller: controller,
               zoomPanBehavior: zoomPanBehavior,
@@ -197,12 +197,12 @@ class _ToolbarItemState extends State<_ToolbarItem> {
         width: _toolbarItemSize.width,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(_toolbarItemSize.height / 2),
-          boxShadow: [
+          boxShadow: <BoxShadow>[
             BoxShadow(
               color: const Color.fromARGB(61, 0, 0, 0),
               blurRadius:
                   _isHovered ? _hoveredShadowRadius : _defaultShadowRadius,
-              offset: Offset(0.0, 2.0),
+              offset: const Offset(0.0, 2.0),
             ),
           ],
           color: _isLightTheme

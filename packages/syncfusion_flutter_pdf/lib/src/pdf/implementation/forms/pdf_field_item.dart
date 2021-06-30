@@ -110,7 +110,7 @@ class PdfFieldItem {
   PdfBorderStyle? get _borderStyle {
     final int backUpIndex = _field._defaultIndex;
     _field._defaultIndex = _collectionIndex;
-    final PdfBorderStyle? bs = _field._borderStyle;
+    final PdfBorderStyle bs = _field._borderStyle;
     _field._defaultIndex = backUpIndex;
     return bs;
   }

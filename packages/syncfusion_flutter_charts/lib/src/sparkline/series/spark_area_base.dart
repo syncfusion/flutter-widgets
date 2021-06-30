@@ -654,7 +654,7 @@ class _SfSparkAreaChartState extends State<SfSparkAreaChart> {
   /// Method to return the spark area chart widget
   Widget _getSparkAreaChart() {
     return SparkChartContainer(
-        child: Stack(children: [
+        child: Stack(children: <Widget>[
       SfSparkAreaChartRenderObjectWidget(
           data: widget._sparkChartDataDetails.data,
           dataCount: widget._sparkChartDataDetails.dataCount,

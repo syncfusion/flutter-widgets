@@ -98,7 +98,7 @@ class _ChartAxis {
     } else if (targetAxisRenderer is NumericAxisRenderer) {
       targetAxisRenderer._calculateRangeAndInterval(_chartState, 'AxisCross');
     }
-    if (!value.isNaN) {
+    if (value.isNaN == false) {
       currentAxisRenderer._crossValue =
           _updateCrossValue(value, targetAxisRenderer._visibleRange!);
       currentAxisRenderer._crossRange = targetAxisRenderer._visibleRange;
@@ -126,9 +126,8 @@ class _ChartAxis {
           axisIndex++) {
         final dynamic axisRenderer = _verticalAxisRenderers[axisIndex];
         assert(
-            axisRenderer._axis.interval != null
-                ? axisRenderer._axis.interval > 0
-                : true,
+            !(axisRenderer._axis.interval != null) ||
+                (axisRenderer._axis.interval > 0) == true,
             'The vertical axis interval value must be greater than 0.');
         axisRenderer._calculateRangeAndInterval(_chartState);
         _getAxisCrossingValue(axisRenderer);
@@ -143,9 +142,8 @@ class _ChartAxis {
         final dynamic axisRenderer = _horizontalAxisRenderers[axisIndex];
         _calculateLabelRotationAngle(axisRenderer);
         assert(
-            axisRenderer._axis.interval != null
-                ? axisRenderer._axis.interval > 0
-                : true,
+            !(axisRenderer._axis.interval != null) ||
+                (axisRenderer._axis.interval > 0) == true,
             'The horizontal axis interval value must be greater than 0.');
         axisRenderer._calculateRangeAndInterval(_chartState);
         _getAxisCrossingValue(axisRenderer);
@@ -165,7 +163,7 @@ class _ChartAxis {
         titleSize = measureText(axis.title.text!, axis.title.textStyle).height +
             _axisPadding;
       }
-      final Rect rect = _chartState._containerRect;
+      final Rect rect = _chartState._renderingDetails.chartContainerRect;
       final int axisIndex = _getAxisIndex(axisRenderer);
       final double tickSize =
           (axisIndex == 0 && axis.tickPosition == TickPosition.inside)
@@ -315,7 +313,7 @@ class _ChartAxis {
 
   /// Calculate series clip rect size
   void _calculateSeriesClipRect() {
-    final Rect containerRect = _chartState._containerRect;
+    final Rect containerRect = _chartState._renderingDetails.chartContainerRect;
     final num padding = _chartWidget.title.text.isNotEmpty ? 10 : 0;
     _chartState._chartAxis._axisClipRect = Rect.fromLTWH(
         containerRect.left + _leftSize,
@@ -636,7 +634,7 @@ class _ChartAxis {
           final CartesianSeriesRenderer seriesRenderer =
               visibleSeriesRenderer[seriesIndex];
           final XyDataSeries<dynamic, dynamic> series =
-              seriesRenderer._series as XyDataSeries;
+              seriesRenderer._series as XyDataSeries<dynamic, dynamic>;
           if ((axisRenderer._name != null &&
                   axisRenderer._name == series.xAxisName) ||
               (series.xAxisName == null &&
@@ -689,7 +687,7 @@ class _ChartAxis {
               ? _verticalAxisRenderers.add(axisRenderer)
               : _horizontalAxisRenderers.add(axisRenderer);
         }
-        axisRenderer._oldAxis = _chartState._widgetNeedUpdate
+        axisRenderer._oldAxis = _chartState._renderingDetails.widgetNeedUpdate
             ? _getOldAxisRenderer(axisRenderer, _chartState._oldAxisRenderers)
                 ?._axis
             : null;

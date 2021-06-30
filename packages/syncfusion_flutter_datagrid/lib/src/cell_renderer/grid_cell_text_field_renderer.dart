@@ -3,11 +3,12 @@ part of datagrid;
 /// A cell renderer which displays the String value in the cell.
 ///
 /// This renderer is typically used for [GridTextColumn].
-class GridCellTextFieldRenderer<T1, T2>
+class GridCellTextFieldRenderer
     extends GridVirtualizingCellRendererBase<Text, TextField> {
   /// Creates the [GridCellTextFieldRenderer] for [SfDataGrid] widget.
   GridCellTextFieldRenderer(_DataGridStateDetails dataGridStateDetails) {
     _dataGridStateDetails = dataGridStateDetails;
+    super._isEditable = true;
   }
 
   @override
@@ -23,29 +24,33 @@ class GridCellTextFieldRenderer<T1, T2>
       _DataGridSettings dataGridSettings, DataCellBase dataCell) {
     final DataRowBase? dataRow = dataCell._dataRow;
     if (dataRow != null && dataRow.isSelectedRow) {
-      return dataGridSettings.dataGridThemeData!.brightness == Brightness.light
-          ? TextStyle(
-              fontFamily: 'Roboto',
-              fontWeight: FontWeight.w400,
-              fontSize: 14,
-              color: const Color.fromRGBO(0, 0, 0, 0.87))
-          : TextStyle(
-              fontFamily: 'Roboto',
-              fontWeight: FontWeight.w400,
-              fontSize: 14,
-              color: const Color.fromRGBO(255, 255, 255, 1));
+      return dataRow._isHoveredRow
+          ? dataGridSettings.dataGridThemeData!.rowHoverTextStyle
+          : dataGridSettings.dataGridThemeData!.brightness == Brightness.light
+              ? const TextStyle(
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.w400,
+                  fontSize: 14,
+                  color: Color.fromRGBO(0, 0, 0, 0.87))
+              : const TextStyle(
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.w400,
+                  fontSize: 14,
+                  color: Color.fromRGBO(255, 255, 255, 1));
     } else {
-      return dataGridSettings.dataGridThemeData!.brightness == Brightness.light
-          ? TextStyle(
-              fontFamily: 'Roboto',
-              fontWeight: FontWeight.w400,
-              fontSize: 14,
-              color: Colors.black87)
-          : TextStyle(
-              fontFamily: 'Roboto',
-              fontWeight: FontWeight.w400,
-              fontSize: 14,
-              color: Color.fromRGBO(255, 255, 255, 1));
+      return dataRow!._isHoveredRow
+          ? dataGridSettings.dataGridThemeData!.rowHoverTextStyle
+          : dataGridSettings.dataGridThemeData!.brightness == Brightness.light
+              ? const TextStyle(
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.w400,
+                  fontSize: 14,
+                  color: Colors.black87)
+              : const TextStyle(
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.w400,
+                  fontSize: 14,
+                  color: Color.fromRGBO(255, 255, 255, 1));
     }
   }
 }

@@ -21,10 +21,11 @@ class _RangeAreaChartPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final RangeAreaSeries<dynamic, dynamic> series =
-        seriesRenderer._series as RangeAreaSeries;
+        seriesRenderer._series as RangeAreaSeries<dynamic, dynamic>;
     Rect clipRect;
     final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
     final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer!;
+    final _RenderingDetails renderingDetails = chartState._renderingDetails;
     CartesianSeriesRenderer? oldSeriesRenderer;
     final List<CartesianChartPoint<dynamic>> dataPoints =
         seriesRenderer._dataPoints;
@@ -42,10 +43,8 @@ class _RangeAreaChartPainter extends CustomPainter {
     if (seriesRenderer._visible!) {
       assert(
           // ignore: unnecessary_null_comparison
-          series.animationDuration != null
-              ? series.animationDuration >= 0
-              : true,
-          'The animation duration of the range area series must be greater or equal to 0.');
+          !(series.animationDuration != null) || series.animationDuration >= 0,
+          'The animation duration of the fast line series must be greater or equal to 0.');
       final List<CartesianSeriesRenderer> oldSeriesRenderers =
           chartState._oldSeriesRenderers;
       canvas.save();
@@ -65,7 +64,8 @@ class _RangeAreaChartPainter extends CustomPainter {
           ? seriesRenderer._seriesAnimation!.value
           : 1;
       if (seriesRenderer._reAnimate ||
-          ((!(chartState._widgetNeedUpdate || chartState._isLegendToggled) ||
+          ((!(renderingDetails.widgetNeedUpdate ||
+                      renderingDetails.isLegendToggled) ||
                   !chartState._oldSeriesKeys.contains(series.key)) &&
               series.animationDuration > 0)) {
         _performLinearAnimation(
@@ -266,7 +266,7 @@ class _RangeAreaChartPainter extends CustomPainter {
               xAxisRenderer._axis.plotOffset, yAxisRenderer._axis.plotOffset));
       canvas.restore();
       if ((series.animationDuration <= 0 ||
-              !chartState._initialRender! ||
+              !renderingDetails.initialRender! ||
               animationFactor >= chartState._seriesDurationFactor) &&
           (series.markerSettings.isVisible ||
               series.dataLabelSettings.isVisible)) {

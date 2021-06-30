@@ -17,7 +17,8 @@ class PdfDocument {
   /// PdfDocument document = PdfDocument();
   /// //Add a PDF page and draw text.
   /// document.pages.add().graphics.drawString(
-  ///     'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
+  ///     'Hello World!',
+  ///     PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///     brush: PdfSolidBrush(PdfColor(0, 0, 0)),
   ///     bounds: Rect.fromLTWH(0, 0, 150, 20));
   /// //Save the document.
@@ -48,7 +49,8 @@ class PdfDocument {
   /// PdfDocument document = PdfDocument.fromBase64String(pdfData);
   /// //Add a PDF page and draw text.
   /// document.pages.add().graphics.drawString(
-  ///     'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
+  ///     'Hello World!',
+  ///     PdfStandardFont(PdfFontFamily.helvetica, 12),
   ///     brush: PdfSolidBrush(PdfColor(0, 0, 0)),
   ///     bounds: Rect.fromLTWH(0, 0, 150, 20));
   /// //Save the updated PDF document.
@@ -168,7 +170,7 @@ class PdfDocument {
   /// //Create a PDF document instance.
   /// PdfDocument document = PdfDocument();
   /// //Add a new section.
-  /// PdfSection section = document.sections.add();
+  /// PdfSection section = document.sections!.add();
   /// //Create page for the newly added section and draw text.
   /// section.pages.add().graphics.drawString(
   ///     'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
@@ -456,17 +458,15 @@ class PdfDocument {
                 for (int i = 0;
                     i < _form!._crossTable!._document!.pages.count;
                     i++) {
-                  final PdfPage? page = _form!._crossTable!._document!.pages[i];
-                  if (widgetReference == null && page != null) {
-                    widgetReference = page._getWidgetReferences();
-                  }
-                  if (page != null &&
-                      widgetReference != null &&
-                      widgetReference.isNotEmpty) {
+                  final PdfPage page = _form!._crossTable!._document!.pages[i];
+                  widgetReference ??= page._getWidgetReferences();
+                  if (widgetReference.isNotEmpty) {
                     page._createAnnotations(widgetReference);
                   }
                 }
-                if (widgetReference != null) widgetReference.clear();
+                if (widgetReference != null) {
+                  widgetReference.clear();
+                }
                 if (!_form!._formHasKids) {
                   _form!.fields
                       ._createFormFieldsFromWidgets(_form!.fields.count);
@@ -617,7 +617,7 @@ class PdfDocument {
             _PdfName(_DictionaryProperties.catalog));
       }
       if (catalog.containsKey(_DictionaryProperties.type)) {
-        if (!(catalog[_DictionaryProperties.type] as _PdfName)
+        if (!(catalog[_DictionaryProperties.type]! as _PdfName)
             ._name!
             .contains(_DictionaryProperties.catalog)) {
           catalog[_DictionaryProperties.type] =
@@ -681,7 +681,7 @@ class PdfDocument {
         }
       }
       obj ??= _PdfArray().._add(_PdfString.fromBytes(<int>[]));
-      final _PdfString key = obj[0] as _PdfString;
+      final _PdfString key = obj[0]! as _PdfString;
       final _PdfEncryptor encryptor = _PdfEncryptor();
       if (encryptionDict.containsKey(_DictionaryProperties.encryptMetadata)) {
         _IPdfPrimitive? primitive =
@@ -855,9 +855,9 @@ class PdfDocument {
     } else if (obj is _PdfReferenceHolder) {
       final _PdfReferenceHolder holder = obj;
       if (holder._object is _PdfDictionary) {
-        dic = (holder._object as _PdfDictionary?);
+        dic = holder._object as _PdfDictionary?;
       } else if (holder._object is _PdfArray) {
-        obj = (holder._object as _PdfArray?) as _PdfReferenceHolder;
+        obj = (holder._object! as _PdfArray?)! as _PdfReferenceHolder;
       }
     }
     _PdfArray? destination;
@@ -901,7 +901,7 @@ class PdfDocument {
         for (; ni.index < ni.kids.length;) {
           current = ni.kids[ni.index];
           final PdfNamedDestination? ndest =
-              (current as PdfBookmark).namedDestination;
+              (current! as PdfBookmark).namedDestination;
           if (ndest != null) {
             if (ndest.destination != null) {
               final PdfPage page = ndest.destination!.page;
@@ -916,7 +916,7 @@ class PdfDocument {
               list.add(current);
             }
           } else {
-            final PdfDestination? dest = current.destination;
+            final PdfDestination? dest = (current as PdfBookmark).destination;
             final PdfPage page = dest!.page;
             List<dynamic>? list = _bookmarkHashTable!.containsKey(page)
                 ? _bookmarkHashTable![page] as List<dynamic>?

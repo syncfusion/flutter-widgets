@@ -1,3 +1,11 @@
+## [19.2.44]
+**Features**
+* Provided support to display week numbers of the year.
+* Provided ID, recurrence ID, and appointment type support.
+* Provided builder support for the resource header view.
+* Now, the occurrence appointment will contain the occurrence date details in the tap callbacks. 
+* Now, appointments will be displayed based on the `appointmentDisplayMode` in month view when the month cell builder is used.
+
 ## [19.1.54] - 03/30/2021
 **Bug fixes**
 * Now, the localization is working properly for the spanned appointment count text in Flutter event calendar.

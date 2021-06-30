@@ -307,7 +307,7 @@ class _PdfStreamWriter implements _IPdfWriter {
       _stream!._write(pdfObject.toString());
     } else if (pdfObject is double) {
       pdfObject = pdfObject.toStringAsFixed(2);
-      if (pdfObject.endsWith('.00')) {
+      if ((pdfObject as String).endsWith('.00')) {
         if (pdfObject.length == 3) {
           pdfObject = '0';
         } else {

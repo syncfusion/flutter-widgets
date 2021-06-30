@@ -20,8 +20,10 @@ class _BerOctet extends _DerOctet {
     final List<_DerOctet> collection = <_DerOctet>[];
     for (int i = 0; i < _value!.length; i += 1000) {
       final int endIndex = min(_value!.length, i + 1000);
-      collection.add(_DerOctet(List<int>.generate(endIndex - i,
-          (index) => ((i + index) < _value!.length) ? _value![i + index] : 0)));
+      collection.add(_DerOctet(List<int>.generate(
+          endIndex - i,
+          (int index) =>
+              ((i + index) < _value!.length) ? _value![i + index] : 0)));
     }
     return collection;
   }
@@ -31,7 +33,7 @@ class _BerOctet extends _DerOctet {
     if (stream is _Asn1DerStream) {
       stream._stream!.add(_Asn1Tags.constructed | _Asn1Tags.octetString);
       stream._stream!.add(0x80);
-      _octets.forEach((octet) {
+      _octets.forEach((dynamic octet) {
         stream.writeObject(octet);
       });
       stream._stream!.add(0x00);
@@ -55,11 +57,11 @@ class _BerOctet extends _DerOctet {
   static List<int> getBytes(List<_Asn1Encode> octets) {
     final List<int> result = <int>[];
     if (octets.isNotEmpty) {
-      octets.forEach((o) {
+      for (final dynamic o in octets) {
         if (o is _DerOctet) {
           result.addAll(o.getOctets()!);
         }
-      });
+      }
     }
     return result;
   }
@@ -83,7 +85,7 @@ class _BerOctetHelper implements _IAsn1Octet {
 
   List<int> readAll(_StreamReader stream) {
     final List<int> output = <int>[];
-    final List<int> bytes = List<int>.generate(512, (i) => 0);
+    final List<int> bytes = List<int>.generate(512, (int i) => 0);
     int? index;
     while ((index = stream.read(bytes, 0, bytes.length))! > 0) {
       output.addAll(bytes.sublist(0, index));
@@ -92,9 +94,11 @@ class _BerOctetHelper implements _IAsn1Octet {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode => _helper.hashCode;
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
     if (other is _BerOctetHelper) {
       return other._helper == _helper;
@@ -115,8 +119,10 @@ class _BerTagHelper implements _IAsn1Tag {
   int? _tagNumber;
   late _Asn1Parser _helper;
   //Properties
+  @override
   int? get tagNumber => _tagNumber;
   //Implements
+  @override
   _IAsn1? getParser(int tagNumber, bool isExplicit) {
     if (isExplicit) {
       if (!_isConstructed!) {
@@ -128,6 +134,7 @@ class _BerTagHelper implements _IAsn1Tag {
     return _helper.readImplicit(_isConstructed, tagNumber);
   }
 
+  @override
   _Asn1 getAsn1() {
     return _helper.readTaggedObject(_isConstructed!, _tagNumber);
   }
@@ -147,7 +154,8 @@ class _BerSequence extends _DerSequence {
     if (stream is _Asn1DerStream) {
       stream._stream!.add(_Asn1Tags.sequence | _Asn1Tags.constructed);
       stream._stream!.add(0x80);
-      _objects!.forEach((entry) {
+      // ignore: avoid_function_literals_in_foreach_calls
+      _objects!.forEach((dynamic entry) {
         if (entry is _Asn1Encode) {
           stream.writeObject(entry);
         }
@@ -165,10 +173,13 @@ class _BerSequenceHelper implements _IAsn1Collection {
     _helper = helper;
   }
   late _Asn1Parser _helper;
+
+  @override
   _IAsn1? readObject() {
     return _helper.readObject();
   }
 
+  @override
   _Asn1 getAsn1() {
     return _BerSequence.fromCollection(_helper.readCollection());
   }

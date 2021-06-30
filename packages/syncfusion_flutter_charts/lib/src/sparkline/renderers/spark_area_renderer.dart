@@ -12,10 +12,10 @@ import 'renderer_base.dart';
 class SfSparkAreaChartRenderObjectWidget
     extends SfSparkChartRenderObjectWidget {
   /// Creates the render object for spark chart
-  SfSparkAreaChartRenderObjectWidget({
+  const SfSparkAreaChartRenderObjectWidget({
     Key? key,
-    double? borderWidth,
-    Color? borderColor,
+    this.borderWidth,
+    this.borderColor,
     List<dynamic>? data,
     int? dataCount,
     SparkChartIndexedValueMapper<dynamic>? xValueMapper,
@@ -32,19 +32,14 @@ class SfSparkAreaChartRenderObjectWidget
     Color? negativePointColor,
     Color? color,
     SparkChartPlotBand? plotBand,
-    SparkChartMarker? marker,
-    SparkChartLabelDisplayMode? labelDisplayMode,
-    TextStyle? labelStyle,
+    this.marker,
+    this.labelDisplayMode,
+    this.labelStyle,
     ThemeData? themeData,
     SparkChartDataDetails? sparkChartDataDetails,
     List<Offset>? coordinatePoints,
     List<SparkChartPoint>? dataPoints,
-  })  : borderWidth = borderWidth,
-        borderColor = borderColor,
-        marker = marker,
-        labelDisplayMode = labelDisplayMode,
-        labelStyle = labelStyle,
-        super(
+  }) : super(
             key: key,
             data: data,
             dataCount: dataCount,
@@ -279,17 +274,19 @@ class _RenderSparkAreaChart extends RenderSparkChart {
   void processDataSource() {
     super.processDataSource();
     if (dataPoints != null && dataPoints!.isNotEmpty) {
-      final List<SparkChartPoint> temp = List.from(dataPoints!);
-      final List<String> tempDataLabels = List.from(dataLabels!);
+      final List<SparkChartPoint> temp =
+          List<SparkChartPoint>.from(dataPoints!);
+      final List<String> tempDataLabels = List<String>.from(dataLabels!);
       dataLabels!.clear();
       dataPoints!.clear();
-      final SparkChartPoint point1 = SparkChartPoint(x: temp[0].x, y: minY);
+      final SparkChartPoint point1 =
+          SparkChartPoint(x: temp[0].x, y: minY!.toDouble());
       point1.labelX = temp[0].labelX;
       point1.labelY = temp[0].labelY;
       dataPoints!.add(point1);
       dataPoints!.addAll(temp);
       final SparkChartPoint point2 =
-          SparkChartPoint(x: temp[temp.length - 1].x, y: minY);
+          SparkChartPoint(x: temp[temp.length - 1].x, y: minY!.toDouble());
       point2.labelX = temp[temp.length - 1].labelX;
       point2.labelY = temp[temp.length - 1].labelY;
       dataPoints!.add(point2);
@@ -348,24 +345,24 @@ class _RenderSparkAreaChart extends RenderSparkChart {
                         : (coordinatePoints![i].dy + size.height)));
         if (dataPoints![i].dataLabelOffset!.dx <= offset.dx) {
           dataPoints![i].dataLabelOffset =
-              Offset((offset.dx), dataPoints![i].dataLabelOffset!.dy);
+              Offset(offset.dx, dataPoints![i].dataLabelOffset!.dy);
         }
 
         if (dataPoints![i].dataLabelOffset!.dx >= offset.dx + areaSize!.width) {
           dataPoints![i].dataLabelOffset = Offset(
-              ((offset.dx + areaSize!.width) - size.width),
+              (offset.dx + areaSize!.width) - size.width,
               dataPoints![i].dataLabelOffset!.dy);
         }
 
         if (dataPoints![i].dataLabelOffset!.dy <= offset.dy) {
           dataPoints![i].dataLabelOffset = Offset(
               dataPoints![i].dataLabelOffset!.dx,
-              (offset.dy +
+              offset.dy +
                   (marker != null &&
                           marker!.displayMode !=
                               SparkChartMarkerDisplayMode.none
                       ? marker!.size / 2 + size.height
-                      : size.height)));
+                      : size.height));
         }
 
         if (dataPoints![i].dataLabelOffset!.dy >=
@@ -437,11 +434,11 @@ class _RenderSparkAreaChart extends RenderSparkChart {
             _lowPoint!,
             axisCrossesAt!,
             themeData!,
-            lowPointColor!,
-            highPointColor!,
-            negativePointColor!,
-            firstPointColor!,
-            lastPointColor!);
+            lowPointColor,
+            highPointColor,
+            negativePointColor,
+            firstPointColor,
+            lastPointColor);
       }
       if (labelDisplayMode != null &&
           labelDisplayMode != SparkChartLabelDisplayMode.none) {

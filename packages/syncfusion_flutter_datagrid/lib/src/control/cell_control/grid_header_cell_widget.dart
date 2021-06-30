@@ -37,15 +37,11 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
   late PointerDeviceKind _kind;
 
   void _handleOnTapUp(TapUpDetails tapUpDetails) {
-    final DataCellBase? dataCell = widget.dataCell;
-    if (dataCell == null) {
-      return;
-    }
-    final _DataGridSettings? dataGridSettings =
+    final DataCellBase dataCell = widget.dataCell;
+    final _DataGridSettings dataGridSettings =
         dataCell._dataRow!._dataGridStateDetails!();
-    if (dataGridSettings == null) {
-      return;
-    }
+    // Clear editing when tap on the header cell
+    _clearEditing(dataGridSettings);
     if (dataGridSettings.onCellTap != null) {
       final DataGridCellTapDetails details = DataGridCellTapDetails(
           rowColumnIndex:
@@ -64,15 +60,11 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
   }
 
   void _handleOnDoubleTap() {
-    final DataCellBase? dataCell = widget.dataCell;
-    if (dataCell == null) {
-      return;
-    }
-    final _DataGridSettings? dataGridSettings =
+    final DataCellBase dataCell = widget.dataCell;
+    final _DataGridSettings dataGridSettings =
         dataCell._dataRow!._dataGridStateDetails!();
-    if (dataGridSettings == null) {
-      return;
-    }
+    // Clear editing when tap on the header cell
+    _clearEditing(dataGridSettings);
     if (dataGridSettings.onCellDoubleTap != null) {
       final DataGridCellDoubleTapDetails details = DataGridCellDoubleTapDetails(
           rowColumnIndex:
@@ -88,17 +80,11 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
   }
 
   void _handleOnLongPressEnd(LongPressEndDetails longPressEndDetails) {
-    final DataCellBase? dataCell = widget.dataCell;
-    if (dataCell == null) {
-      return;
-    }
-
-    final _DataGridSettings? dataGridSettings =
+    final DataCellBase dataCell = widget.dataCell;
+    final _DataGridSettings dataGridSettings =
         dataCell._dataRow!._dataGridStateDetails!();
-    if (dataGridSettings == null) {
-      return;
-    }
-
+    // Clear editing when tap on the header cell
+    _clearEditing(dataGridSettings);
     if (dataGridSettings.onCellLongPress != null) {
       final DataGridCellLongPressDetails details = DataGridCellLongPressDetails(
           rowColumnIndex:
@@ -112,15 +98,11 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
   }
 
   void _handleOnSecondaryTapUp(TapUpDetails tapUpDetails) {
-    final DataCellBase? dataCell = widget.dataCell;
-    if (dataCell == null) {
-      return;
-    }
-    final _DataGridSettings? dataGridSettings =
-        dataCell._dataRow?._dataGridStateDetails!();
-    if (dataGridSettings == null) {
-      return;
-    }
+    final DataCellBase dataCell = widget.dataCell;
+    final _DataGridSettings dataGridSettings =
+        dataCell._dataRow!._dataGridStateDetails!();
+    // Clear editing when tap on the header cell
+    _clearEditing(dataGridSettings);
     if (dataGridSettings.onCellSecondaryTap != null) {
       final DataGridCellTapDetails details = DataGridCellTapDetails(
           rowColumnIndex:
@@ -135,6 +117,18 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
 
   void _handleOnTapDown(TapDownDetails details) {
     _kind = details.kind!;
+    final DataCellBase dataCell = widget.dataCell;
+    final _DataGridSettings dataGridSettings =
+        dataCell._dataRow!._dataGridStateDetails!();
+    // Clear editing when tap on the header cell
+    _clearEditing(dataGridSettings);
+  }
+
+  /// Helps to clear the editing cell when tap on header cells
+  void _clearEditing(_DataGridSettings dataGridSettings) {
+    if (dataGridSettings.currentCell.isEditing) {
+      dataGridSettings.currentCell._onCellSubmit(dataGridSettings);
+    }
   }
 
   Widget _wrapInsideGestureDetector() {
@@ -165,11 +159,13 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
   Widget _wrapInsideContainer() {
     final _DataGridSettings dataGridSettings =
         widget.dataCell._dataRow!._dataGridStateDetails!();
-    final column = widget.dataCell.gridColumn;
+    final GridColumn? column = widget.dataCell.gridColumn;
 
     Widget checkHeaderCellConstraints(Widget child) {
-      final iconWidth = dataGridSettings.columnSizer._getSortIconWidth(column!);
-      return LayoutBuilder(builder: (context, constraints) {
+      final double iconWidth =
+          dataGridSettings.columnSizer._getSortIconWidth(column!);
+      return LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
         if (_sortDirection == null || constraints.maxWidth < iconWidth) {
           return child;
         } else {
@@ -193,64 +189,29 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
   }
 
   Color? _getHoverBackgroundColor() {
-    final _DataGridSettings? dataGridSettings =
+    final _DataGridSettings dataGridSettings =
         widget.dataCell._dataRow!._dataGridStateDetails!();
-    if (dataGridSettings == null) {
-      return null;
-    }
 
     return dataGridSettings.dataGridThemeData!.headerHoverColor;
   }
 
-  void onMouseHover() {
-    final _DataGridSettings? dataGridSettings =
-        widget.dataCell._dataRow!._dataGridStateDetails!();
-
-    if (dataGridSettings != null) {
-      widget.dataCell
-        .._isDirty = true
-        .._updateColumn();
-      dataGridSettings.source._notifyDataGridPropertyChangeListeners(
-          propertyName: 'hoverOnHeaderCell');
-    }
-  }
-
-  void onMouseExit() {
-    final _DataGridSettings? dataGridSettings =
-        widget.dataCell._dataRow?._dataGridStateDetails!();
-
-    if (dataGridSettings != null) {
-      widget.dataCell
-        .._isDirty = true
-        .._updateColumn();
-      dataGridSettings.source._notifyDataGridPropertyChangeListeners(
-          propertyName: 'hoverOnHeaderCell');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final Widget child = Semantics(
-      label: widget.dataCell.cellValue.toString(),
-      child: MouseRegion(
-        onHover: (event) {
-          onMouseHover();
-        },
-        onExit: (event) {
-          onMouseExit();
-        },
-        child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              mouseCursor: SystemMouseCursors.basic,
-              highlightColor: Colors.transparent,
-              splashColor: Colors.transparent,
-              hoverColor: _getHoverBackgroundColor(),
-              onTap: () {},
-              child: _wrapInsideGestureDetector(),
-            )),
+    final Widget child = MouseRegion(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          focusColor: Colors.transparent,
+          mouseCursor: SystemMouseCursors.basic,
+          highlightColor: Colors.transparent,
+          splashColor: Colors.transparent,
+          hoverColor: _getHoverBackgroundColor(),
+          onTap: () {},
+          child: _wrapInsideGestureDetector(),
+        ),
       ),
     );
+
     return _GridCellRenderObjectWidget(
       key: widget.key,
       dataCell: widget.dataCell,
@@ -262,13 +223,15 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
   void _ensureSortIconVisiblity(
       GridColumn column, _DataGridSettings? dataGridSettings) {
     if (dataGridSettings != null) {
-      final sortColumn = dataGridSettings.source.sortedColumns.firstWhereOrNull(
-          (sortColumn) => sortColumn.name == column.columnName);
+      final SortColumnDetails? sortColumn = dataGridSettings
+          .source.sortedColumns
+          .firstWhereOrNull((SortColumnDetails sortColumn) =>
+              sortColumn.name == column.columnName);
       if (dataGridSettings.source.sortedColumns.isNotEmpty &&
           sortColumn != null) {
-        final sortNumber =
+        final int sortNumber =
             dataGridSettings.source.sortedColumns.indexOf(sortColumn) + 1;
-        final isLight =
+        final bool isLight =
             dataGridSettings.dataGridThemeData!.brightness == Brightness.light;
         _sortDirection = sortColumn.sortDirection;
         _sortIconColor = dataGridSettings.dataGridThemeData!.sortIconColor;
@@ -289,7 +252,7 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
   }
 
   Widget _getCellWithSortIcon(Widget child) {
-    final List<Widget> children = [];
+    final List<Widget> children = <Widget>[];
 
     children.add(_SortIcon(
       sortDirection: _sortDirection!,
@@ -307,7 +270,7 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
             child: Container(child: child),
           ),
           Container(
-            padding: EdgeInsets.only(left: 4.0, right: 4.0),
+            padding: const EdgeInsets.only(left: 4.0, right: 4.0),
             child: Center(child: Row(children: children)),
           )
         ]);
@@ -337,40 +300,43 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
     }
   }
 
-  Future<void> _makeSort(DataCellBase dataCell) async {
-    final GridColumn column = dataCell.gridColumn!;
-    final _DataGridSettings? dataGridSettings =
+  void _makeSort(DataCellBase dataCell) {
+    final _DataGridSettings dataGridSettings =
         widget.dataCell._dataRow!._dataGridStateDetails!();
 
-    if (dataGridSettings != null &&
-        column.allowSorting &&
-        dataGridSettings.allowSorting) {
-      final sortColumnName = column.columnName;
-      final allowMultiSort = dataGridSettings._isDesktop
+    //End-edit before perform sorting
+    if (dataGridSettings.currentCell.isEditing) {
+      dataGridSettings.currentCell
+          ._onCellSubmit(dataGridSettings, canRefresh: false);
+    }
+
+    final GridColumn column = dataCell.gridColumn!;
+
+    if (column.allowSorting && dataGridSettings.allowSorting) {
+      final String sortColumnName = column.columnName;
+      final bool allowMultiSort = dataGridSettings._isDesktop
           ? (dataGridSettings.isControlKeyPressed &&
               dataGridSettings.allowMultiColumnSorting)
           : dataGridSettings.allowMultiColumnSorting;
-      final source = dataGridSettings.source;
+      final DataGridSource source = dataGridSettings.source;
 
-      final sortedColumns = source.sortedColumns;
+      final List<SortColumnDetails> sortedColumns = source.sortedColumns;
       if (sortedColumns.isNotEmpty && allowMultiSort) {
-        var sortedColumn = sortedColumns.firstWhereOrNull(
-            (sortColumn) => sortColumn.name == sortColumnName);
+        SortColumnDetails? sortedColumn = sortedColumns.firstWhereOrNull(
+            (SortColumnDetails sortColumn) =>
+                sortColumn.name == sortColumnName);
         if (sortedColumn == null) {
-          final newSortColumn = SortColumnDetails(
+          final SortColumnDetails newSortColumn = SortColumnDetails(
               name: sortColumnName,
               sortDirection: DataGridSortDirection.ascending);
           sortedColumns.add(newSortColumn);
-          if (!await source._updateDataSource()) {
-            sortedColumns.remove(newSortColumn);
-          }
         } else {
           if (sortedColumn.sortDirection == DataGridSortDirection.descending &&
               dataGridSettings.allowTriStateSorting) {
-            final removedSortColumn = sortedColumns.firstWhereOrNull(
-                (sortColumn) => sortColumn.name == sortColumnName);
+            final SortColumnDetails? removedSortColumn =
+                sortedColumns.firstWhereOrNull((SortColumnDetails sortColumn) =>
+                    sortColumn.name == sortColumnName);
             sortedColumns.remove(removedSortColumn);
-            await source._updateDataSource();
           } else {
             sortedColumn = SortColumnDetails(
                 name: sortedColumn.name,
@@ -378,24 +344,23 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
                         DataGridSortDirection.ascending
                     ? DataGridSortDirection.descending
                     : DataGridSortDirection.ascending);
-            final removedSortColumn = sortedColumns.firstWhereOrNull(
-                (sortColumn) => sortColumn.name == sortedColumn!.name);
-            sortedColumns.remove(removedSortColumn);
-            sortedColumns.add(sortedColumn);
-            if (!await source._updateDataSource()) {
-              sortedColumns.remove(sortedColumn);
-            }
+            final SortColumnDetails? removedSortColumn =
+                sortedColumns.firstWhereOrNull((SortColumnDetails sortColumn) =>
+                    sortColumn.name == sortedColumn!.name);
+            sortedColumns
+              ..remove(removedSortColumn)
+              ..add(sortedColumn);
           }
         }
       } else {
-        var currentSortColumn = sortedColumns.firstWhereOrNull(
-            (sortColumn) => sortColumn.name == sortColumnName);
+        SortColumnDetails? currentSortColumn = sortedColumns.firstWhereOrNull(
+            (SortColumnDetails sortColumn) =>
+                sortColumn.name == sortColumnName);
         if (sortedColumns.isNotEmpty && currentSortColumn != null) {
           if (currentSortColumn.sortDirection ==
                   DataGridSortDirection.descending &&
               dataGridSettings.allowTriStateSorting) {
             sortedColumns.clear();
-            await source._updateDataSource();
           } else {
             currentSortColumn = SortColumnDetails(
                 name: currentSortColumn.name,
@@ -403,38 +368,32 @@ class _GridHeaderCellState extends State<GridHeaderCell> {
                         DataGridSortDirection.ascending
                     ? DataGridSortDirection.descending
                     : DataGridSortDirection.ascending);
-            sortedColumns.clear();
-            sortedColumns.add(currentSortColumn);
-            if (!await source._updateDataSource()) {
-              sortedColumns.remove(currentSortColumn);
-            }
+            sortedColumns
+              ..clear()
+              ..add(currentSortColumn);
           }
         } else {
-          final sortColumn = SortColumnDetails(
+          final SortColumnDetails sortColumn = SortColumnDetails(
               name: sortColumnName,
               sortDirection: DataGridSortDirection.ascending);
           if (sortedColumns.isNotEmpty) {
-            sortedColumns.clear();
-            sortedColumns.add(sortColumn);
-            if (!await source._updateDataSource()) {
-              sortedColumns.remove(sortColumn);
-            }
+            sortedColumns
+              ..clear()
+              ..add(sortColumn);
           } else {
             sortedColumns.add(sortColumn);
-            if (!await source._updateDataSource()) {
-              sortedColumns.remove(sortColumn);
-            }
           }
         }
       }
-      dataGridSettings.source
-          ._notifyDataGridPropertyChangeListeners(propertyName: 'Sorting');
+      // Refreshes the datagrid source and performs sorting based on
+      // `DataGridSource.sortedColumns`.
+      source.sort();
     }
   }
 }
 
 class _SortIcon extends StatefulWidget {
-  _SortIcon({required this.sortDirection, required this.sortIconColor});
+  const _SortIcon({required this.sortDirection, required this.sortIconColor});
   final DataGridSortDirection sortDirection;
   final Color sortIconColor;
   @override
@@ -450,10 +409,10 @@ class _SortIconState extends State<_SortIcon>
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 150),
+      duration: const Duration(milliseconds: 150),
       vsync: this,
     );
-    _sortingAnimation = Tween(begin: 0.0, end: pi).animate(
+    _sortingAnimation = Tween<double>(begin: 0.0, end: pi).animate(
         CurvedAnimation(parent: _animationController, curve: Curves.easeIn));
     if (widget.sortDirection == DataGridSortDirection.descending) {
       _animationController.value = 1.0;
@@ -477,7 +436,7 @@ class _SortIconState extends State<_SortIcon>
     return Container(
         child: AnimatedBuilder(
             animation: _animationController,
-            builder: (context, child) {
+            builder: (BuildContext context, Widget? child) {
               return Transform.rotate(
                   angle: _sortingAnimation.value,
                   child: Icon(Icons.arrow_upward,

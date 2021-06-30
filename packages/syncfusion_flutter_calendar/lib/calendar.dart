@@ -23,5 +23,6 @@ export 'src/calendar/settings/schedule_view_settings.dart';
 export 'src/calendar/settings/time_region.dart';
 export 'src/calendar/settings/time_slot_view_settings.dart';
 export 'src/calendar/settings/view_header_style.dart';
+export 'src/calendar/settings/week_number_style.dart';
 
 export 'src/calendar/sfcalendar.dart';

@@ -36,12 +36,13 @@ class PdfRadioButtonListItem extends PdfCheckFieldBase {
   //Fields
   String? _value = '';
   PdfRadioButtonListField? _field;
+  String? _optionValue;
 
   //Properties
   ///Gets or sets the value.
   String get value {
     if (_isLoadedField) {
-      _value = _getItemValue(this._dictionary, this._crossTable);
+      _value = _getItemValue(_dictionary, _crossTable);
     }
     return _value!;
   }
@@ -140,8 +141,8 @@ class PdfRadioButtonListItem extends PdfCheckFieldBase {
         }
       } else {
         annots!._add(reference);
-        if (!field.page!.annotations.contains(this._widget!)) {
-          field.page!.annotations.add(this._widget!);
+        if (!field.page!.annotations.contains(_widget!)) {
+          field.page!.annotations.add(_widget!);
         }
         field.page!._dictionary
             .setProperty(_DictionaryProperties.annots, annots);
@@ -186,13 +187,12 @@ class PdfRadioButtonListItem extends PdfCheckFieldBase {
     final String str = value;
     if (_dictionary.containsKey(_DictionaryProperties.ap)) {
       _PdfDictionary dic = _crossTable!
-          ._getObject(_dictionary[_DictionaryProperties.ap]) as _PdfDictionary;
+          ._getObject(_dictionary[_DictionaryProperties.ap])! as _PdfDictionary;
       if (dic.containsKey(_DictionaryProperties.n)) {
         final _PdfReference normal =
             _crossTable!._getReference(dic[_DictionaryProperties.n]);
-        dic = _crossTable!._getObject(normal) as _PdfDictionary;
-        final String? dicValue =
-            _getItemValue(this._dictionary, this._crossTable);
+        dic = _crossTable!._getObject(normal)! as _PdfDictionary;
+        final String? dicValue = _getItemValue(_dictionary, _crossTable);
         if (dic.containsKey(dicValue)) {
           final _PdfReference valRef =
               _crossTable!._getReference(dic[dicValue]);
@@ -211,6 +211,7 @@ class PdfRadioButtonListItem extends PdfCheckFieldBase {
     }
   }
 
+  @override
   void _draw() {
     _removeAnnotationFromPage(_field!.page);
     final _PaintParams params = _PaintParams(
@@ -235,27 +236,25 @@ class PdfRadioButtonListItem extends PdfCheckFieldBase {
   @override
   Rect _getBounds() {
     _IPdfPrimitive? array;
-    if (array == null &&
-        this._dictionary.containsKey(_DictionaryProperties.rect)) {
-      array =
-          _crossTable!._getObject(this._dictionary[_DictionaryProperties.rect]);
+    if (array == null && _dictionary.containsKey(_DictionaryProperties.rect)) {
+      array = _crossTable!._getObject(_dictionary[_DictionaryProperties.rect]);
     }
     Rect bounds;
     if (array != null && array is _PdfArray) {
       bounds = array.toRectangle().rect;
       double? y = 0;
-      if ((_PdfCrossTable._dereference(array[1]) as _PdfNumber).value! < 0) {
-        y = (_PdfCrossTable._dereference(array[1]) as _PdfNumber).value
+      if ((_PdfCrossTable._dereference(array[1])! as _PdfNumber).value! < 0) {
+        y = (_PdfCrossTable._dereference(array[1])! as _PdfNumber).value
             as double?;
-        if ((_PdfCrossTable._dereference(array[1]) as _PdfNumber).value! >
-            (_PdfCrossTable._dereference(array[3]) as _PdfNumber).value!) {
+        if ((_PdfCrossTable._dereference(array[1])! as _PdfNumber).value! >
+            (_PdfCrossTable._dereference(array[3])! as _PdfNumber).value!) {
           y = y! - bounds.height;
         }
       }
       bounds = Rect.fromLTWH(
           bounds.left, y! <= 0 ? bounds.top : y, bounds.width, bounds.height);
     } else {
-      bounds = Rect.fromLTWH(0, 0, 0, 0);
+      bounds = const Rect.fromLTWH(0, 0, 0, 0);
     }
     return bounds;
   }

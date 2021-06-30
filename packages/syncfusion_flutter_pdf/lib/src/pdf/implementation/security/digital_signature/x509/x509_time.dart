@@ -8,7 +8,7 @@ class _X509Time extends _Asn1Encode {
   static _X509Time? getTime(dynamic obj) {
     _X509Time? result;
     if (obj == null || obj is _X509Time) {
-      result = obj;
+      result = obj as _X509Time?;
     } else if (obj is _DerUtcTime) {
       result = _X509Time(obj);
     } else if (obj is _GeneralizedTime) {
@@ -23,9 +23,9 @@ class _X509Time extends _Asn1Encode {
     DateTime? result;
     try {
       if (_time is _DerUtcTime) {
-        result = (_time as _DerUtcTime).toAdjustedDateTime;
+        result = (_time! as _DerUtcTime).toAdjustedDateTime;
       } else if (_time is _GeneralizedTime) {
-        result = (_time as _GeneralizedTime).toDateTime();
+        result = (_time! as _GeneralizedTime).toDateTime();
       } else {
         result = DateTime.now();
       }
@@ -43,9 +43,9 @@ class _X509Time extends _Asn1Encode {
   @override
   String toString() {
     if (_time is _DerUtcTime) {
-      return (_time as _DerUtcTime).adjustedTimeString;
+      return (_time! as _DerUtcTime).adjustedTimeString;
     } else if (_time is _GeneralizedTime) {
-      return (_time as _GeneralizedTime)._time;
+      return (_time! as _GeneralizedTime)._time;
     } else {
       return '';
     }

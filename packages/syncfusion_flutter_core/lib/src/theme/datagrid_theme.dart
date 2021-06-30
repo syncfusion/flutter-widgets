@@ -103,6 +103,7 @@ class SfDataGridTheme extends InheritedTheme {
 /// }
 /// ```
 ///
+@immutable
 class SfDataGridThemeData with Diagnosticable {
   /// Create a [SfDataGridThemeData] that's used to configure a
   /// [SfDataGridTheme].
@@ -118,6 +119,8 @@ class SfDataGridThemeData with Diagnosticable {
     Color? headerHoverColor,
     Color? headerColor,
     double? frozenPaneElevation,
+    Color? rowHoverColor,
+    TextStyle? rowHoverTextStyle,
   }) {
     brightness = brightness ?? Brightness.light;
     final bool isLight = brightness == Brightness.light;
@@ -145,16 +148,32 @@ class SfDataGridThemeData with Diagnosticable {
     frozenPaneLineWidth ??= 2;
 
     headerHoverColor ??= isLight
-        ? Color.fromRGBO(245, 245, 245, 1)
-        : Color.fromRGBO(66, 66, 66, 1);
+        ? const Color.fromRGBO(245, 245, 245, 1)
+        : const Color.fromRGBO(66, 66, 66, 1);
 
     sortIconColor ??= isLight ? Colors.black54 : Colors.white54;
 
     headerColor ??= isLight
-        ? Color.fromRGBO(255, 255, 255, 1)
-        : Color.fromRGBO(33, 33, 33, 1);
+        ? const Color.fromRGBO(255, 255, 255, 1)
+        : const Color.fromRGBO(33, 33, 33, 1);
 
     frozenPaneElevation ??= 5.0;
+
+    rowHoverColor ??= isLight
+        ? const Color.fromRGBO(0, 0, 0, 0.08)
+        : const Color.fromRGBO(255, 255, 255, 0.12);
+
+    rowHoverTextStyle ??= isLight
+        ? const TextStyle(
+            fontFamily: 'Roboto',
+            fontWeight: FontWeight.w400,
+            fontSize: 14,
+            color: Colors.black87)
+        : const TextStyle(
+            fontFamily: 'Roboto',
+            fontWeight: FontWeight.w400,
+            fontSize: 14,
+            color: Color.fromRGBO(255, 255, 255, 1));
 
     return SfDataGridThemeData.raw(
       brightness: brightness,
@@ -168,6 +187,8 @@ class SfDataGridThemeData with Diagnosticable {
       sortIconColor: sortIconColor,
       headerColor: headerColor,
       frozenPaneElevation: frozenPaneElevation,
+      rowHoverColor: rowHoverColor,
+      rowHoverTextStyle: rowHoverTextStyle,
     );
   }
 
@@ -190,6 +211,8 @@ class SfDataGridThemeData with Diagnosticable {
     required this.headerColor,
     required this.headerHoverColor,
     required this.frozenPaneElevation,
+    required this.rowHoverColor,
+    required this.rowHoverTextStyle,
   });
 
   /// The brightness of the overall theme of the
@@ -337,6 +360,12 @@ class SfDataGridThemeData with Diagnosticable {
   /// Defaults to 5.0. The value is always non-negative.
   final double frozenPaneElevation;
 
+  /// The color for the row when a pointer is hovering over it.
+  final Color rowHoverColor;
+
+  /// The default [TextStyle] for the row when a pointer is hovering over it.
+  final TextStyle rowHoverTextStyle;
+
   /// Creates a copy of this theme but with the given
   /// fields replaced with the new values.
   SfDataGridThemeData copyWith({
@@ -351,6 +380,10 @@ class SfDataGridThemeData with Diagnosticable {
     Color? headerHoverColor,
     Color? headerColor,
     double? frozenPaneElevation,
+    Color? columnResizeIndicatorColor,
+    double? columnResizeIndicatorStrokeWidth,
+    Color? rowHoverColor,
+    TextStyle? rowHoverTextStyle,
   }) {
     return SfDataGridThemeData.raw(
       brightness: brightness ?? this.brightness,
@@ -364,6 +397,8 @@ class SfDataGridThemeData with Diagnosticable {
       headerColor: headerColor ?? this.headerColor,
       headerHoverColor: headerHoverColor ?? this.headerHoverColor,
       frozenPaneElevation: frozenPaneElevation ?? this.frozenPaneElevation,
+      rowHoverColor: rowHoverColor ?? this.rowHoverColor,
+      rowHoverTextStyle: rowHoverTextStyle ?? this.rowHoverTextStyle,
     );
   }
 
@@ -388,7 +423,10 @@ class SfDataGridThemeData with Diagnosticable {
         headerHoverColor: Color.lerp(a.headerHoverColor, b.headerHoverColor, t),
         headerColor: Color.lerp(a.headerColor, b.headerColor, t),
         frozenPaneElevation:
-            lerpDouble(a.frozenPaneElevation, b.frozenPaneElevation, t));
+            lerpDouble(a.frozenPaneElevation, b.frozenPaneElevation, t),
+        rowHoverColor: Color.lerp(a.rowHoverColor, b.rowHoverColor, t),
+        rowHoverTextStyle:
+            TextStyle.lerp(a.rowHoverTextStyle, b.rowHoverTextStyle, t));
   }
 
   @override
@@ -412,7 +450,8 @@ class SfDataGridThemeData with Diagnosticable {
         other.headerHoverColor == headerHoverColor &&
         other.headerColor == headerColor &&
         other.frozenPaneElevation == frozenPaneElevation &&
-        other.frozenPaneElevation == frozenPaneElevation;
+        other.rowHoverColor == rowHoverColor &&
+        other.rowHoverTextStyle == rowHoverTextStyle;
   }
 
   @override
@@ -428,6 +467,8 @@ class SfDataGridThemeData with Diagnosticable {
       headerHoverColor,
       headerColor,
       frozenPaneElevation,
+      rowHoverColor,
+      rowHoverTextStyle,
     ];
     return hashList(values);
   }
@@ -459,6 +500,11 @@ class SfDataGridThemeData with Diagnosticable {
         defaultValue: defaultData.headerColor));
     properties.add(DoubleProperty('frozenPaneElevation', frozenPaneElevation,
         defaultValue: defaultData.frozenPaneElevation));
+    properties.add(ColorProperty('rowHoverColor', rowHoverColor,
+        defaultValue: defaultData.rowHoverColor));
+    properties.add(DiagnosticsProperty<TextStyle>(
+        'rowHoverTextStyle', rowHoverTextStyle,
+        defaultValue: defaultData.rowHoverTextStyle));
   }
 }
 
@@ -476,6 +522,7 @@ class DataGridCurrentCellStyle {
   final double borderWidth;
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
@@ -489,6 +536,7 @@ class DataGridCurrentCellStyle {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     final List<Object> values = <Object>[
       borderColor,

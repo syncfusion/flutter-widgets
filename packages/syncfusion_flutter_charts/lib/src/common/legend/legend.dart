@@ -17,28 +17,29 @@ class _ChartLegend {
   /// To calculate legend bounds
   void _calculateLegendBounds(Size size) {
     legend = chart.legend;
-    final LegendRenderer legendRenderer = _chartState._legendRenderer;
+    final LegendRenderer legendRenderer =
+        _chartState._renderingDetails.legendRenderer;
+    final List<_MeasureWidgetContext> legendWidgetContext =
+        _chartState._renderingDetails.legendWidgetContext;
+    final _ChartLegend chartLegend = _chartState._renderingDetails.chartLegend;
     shouldRenderLegend = false;
     assert(
-        legend != null && legend!.width != null
-            ? !legend!.width!.contains(RegExp(r'[a-z]')) &&
-                !legend!.width!.contains(RegExp(r'[A-Z]'))
-            : true,
+        !(legend != null && legend!.width != null) ||
+            !legend!.width!.contains(RegExp(r'[a-z]')) &&
+                !legend!.width!.contains(RegExp(r'[A-Z]')),
         'Legend width must be number or percentage value, it should not contain any alphabets in the string.');
     assert(
-        legend != null && legend!.height != null
-            ? !legend!.height!.contains(RegExp(r'[a-z]')) &&
-                !legend!.height!.contains(RegExp(r'[A-Z]'))
-            : true,
+        !(legend != null && legend!.height != null) ||
+            !legend!.height!.contains(RegExp(r'[a-z]')) &&
+                !legend!.height!.contains(RegExp(r'[A-Z]')),
         'Legend height must be number or percentage value, it should not contain any alphabets in the string.');
     if (legend != null && legend!.isVisible!) {
       legendCollections = <_LegendRenderContext>[];
       _calculateSeriesLegends();
       // ignore: unnecessary_null_comparison
-      assert(legend!.itemPadding != null ? legend!.itemPadding >= 0 : true,
+      assert(!(legend!.itemPadding != null) || legend!.itemPadding >= 0,
           'The padding between the legend and chart area should not be less than 0.');
-      if (legendCollections!.isNotEmpty ||
-          _chartState._legendWidgetContext.isNotEmpty) {
+      if (legendCollections!.isNotEmpty || legendWidgetContext.isNotEmpty) {
         num legendHeight = 0,
             legendWidth = 0,
             titleHeight = 0,
@@ -54,7 +55,7 @@ class _ChartLegend {
         Size titleSize;
         const num titleSpace = 10;
         final num padding = legend!.itemPadding;
-        _chartState._chartLegend.isNeedScrollable = false;
+        chartLegend.isNeedScrollable = false;
         final bool isBottomOrTop =
             legendRenderer._legendPosition == LegendPosition.bottom ||
                 legendRenderer._legendPosition == LegendPosition.top;
@@ -76,6 +77,13 @@ class _ChartLegend {
             : isBottomOrTop
                 ? size.width
                 : _percentageToValue('30%', size.width);
+        // To reduce the container width based on offset.
+        if (chartLegend.legend!.offset != null &&
+            (chartLegend.legend!.offset?.dx.isNegative == false)) {
+          maxRenderWidth = maxRenderWidth! -
+              (chartLegend.legend!.offset?.dx as num) * 1.5 +
+              padding;
+        }
 
         if (legend!.title.text != null && legend!.title.text!.isNotEmpty) {
           titleSize = measureText(legend!.title.text!, legend!.title.textStyle);
@@ -83,25 +91,24 @@ class _ChartLegend {
         }
 
         final bool isTemplate = legend!.legendItemBuilder != null;
-        final int length = isTemplate
-            ? _chartState._legendWidgetContext.length
-            : legendCollections!.length;
+        final int length =
+            isTemplate ? legendWidgetContext.length : legendCollections!.length;
         late _MeasureWidgetContext legendContext;
         late _LegendRenderContext legendRenderContext;
         String legendText;
         Size textSize;
         // ignore: unnecessary_null_comparison
-        assert(legend!.iconWidth != null ? legend!.iconWidth >= 0 : true,
+        assert(!(legend!.iconWidth != null) || legend!.iconWidth >= 0,
             'The icon width of legend should not be less than 0.');
         // ignore: unnecessary_null_comparison
-        assert(legend!.iconHeight != null ? legend!.iconHeight >= 0 : true,
+        assert(!(legend!.iconHeight != null) || legend!.iconHeight >= 0,
             'The icon height of legend should not be less than 0.');
         // ignore: unnecessary_null_comparison
-        assert(legend!.padding != null ? legend!.padding >= 0 : true,
+        assert(!(legend!.padding != null) || legend!.padding >= 0,
             'The padding between legend text and legend icon should not be less than 0.');
         for (int i = 0; i < length; i++) {
           if (isTemplate) {
-            legendContext = _chartState._legendWidgetContext[i];
+            legendContext = legendWidgetContext[i];
             currentWidth = legendContext.size!.width + padding;
             currentHeight = legendContext.size!.height + padding;
           } else {
@@ -136,7 +143,7 @@ class _ChartLegend {
               if ((legendWidth + currentWidth) > maxRenderWidth!) {
                 legendWidth = currentWidth;
                 if (legendHeight + currentHeight > maxRenderHeight!) {
-                  _chartState._chartLegend.isNeedScrollable = true;
+                  chartLegend.isNeedScrollable = true;
                 } else {
                   legendHeight = legendHeight + currentHeight;
                 }
@@ -162,7 +169,7 @@ class _ChartLegend {
               if ((legendHeight + currentHeight) > maxRenderHeight!) {
                 legendHeight = currentHeight;
                 if (legendWidth + currentWidth > maxRenderWidth!) {
-                  _chartState._chartLegend.isNeedScrollable = true;
+                  chartLegend.isNeedScrollable = true;
                 } else {
                   legendWidth = legendWidth + currentWidth;
                 }
@@ -205,6 +212,7 @@ class _ChartLegend {
     bool isTrendlineadded = false;
     TrendlineRenderer? trendlineRenderer;
     final CartesianSeries<dynamic, dynamic> series = seriesRenderer._series;
+    final _RenderingDetails _renderingDetails = _chartState._renderingDetails;
     if (trendline != null) {
       isTrendlineadded = true;
       trendlineRenderer = seriesRenderer._trendlineRenderer[trendlineIndex!];
@@ -230,8 +238,8 @@ class _ChartLegend {
           trendline: trendline,
           seriesIndex: index,
           trendlineIndex: isTrendlineadded ? trendlineIndex : null,
-          isSelect: _chartState._isTrendlineToggled
-              ? (isTrendlineadded ? !trendlineRenderer!._visible : true)
+          isSelect: _chartState._isTrendlineToggled == true
+              ? (!isTrendlineadded || !trendlineRenderer!._visible)
               : !series.isVisible,
           text: legendEventArgs?.text ??
               series.legendItemText ??
@@ -248,17 +256,21 @@ class _ChartLegend {
       legendCollections!.add(legendRenderContext);
       if (!seriesRenderer._visible! &&
           series.isVisibleInLegend &&
-          (_chartState._widgetNeedUpdate || _chartState._initialRender) &&
+          (_renderingDetails.widgetNeedUpdate ||
+              _renderingDetails.initialRender!) &&
           (seriesRenderer._oldSeries == null ||
               (!series.isVisible && seriesRenderer._oldSeries!.isVisible))) {
         legendRenderContext.isSelect = true;
-        if (!_chartState._legendToggleStates.contains(legendRenderContext)) {
-          _chartState._legendToggleStates.add(legendRenderContext);
+        if (_chartState._renderingDetails.legendToggleStates
+                .contains(legendRenderContext) ==
+            false) {
+          _chartState._renderingDetails.legendToggleStates
+              .add(legendRenderContext);
         }
-      } else if (_chartState._widgetNeedUpdate &&
+      } else if (_renderingDetails.widgetNeedUpdate &&
           (seriesRenderer._oldSeries != null &&
               (series.isVisible &&
-                  !_chartState._legendToggling &&
+                  _chartState._legendToggling == false &&
                   seriesRenderer._visible!))) {
         final List<CartesianSeriesRenderer> visibleSeriesRenderers =
             _chartState._chartSeries.visibleSeriesRenderers;
@@ -267,16 +279,17 @@ class _ChartLegend {
                 series.name ??
                 'Series $index';
         final int seriesIndex = visibleSeriesRenderers.indexOf(seriesRenderer);
-        final legendToggle = <_LegendRenderContext>[]
+        final List<_LegendRenderContext> legendToggle = <_LegendRenderContext>[]
           //ignore: prefer_spread_collections
-          ..addAll(_chartState._legendToggleStates);
-        for (final legendContext in _chartState._legendToggleStates) {
+          ..addAll(_chartState._renderingDetails.legendToggleStates);
+        for (final _LegendRenderContext legendContext
+            in _chartState._renderingDetails.legendToggleStates) {
           if (seriesIndex == legendContext.seriesIndex &&
               legendContext.text == legendItemText) {
             legendToggle.remove(legendContext);
           }
         }
-        _chartState._legendToggleStates = legendToggle;
+        _chartState._renderingDetails.legendToggleStates = legendToggle;
       }
     }
   }
@@ -305,17 +318,18 @@ class _ChartLegend {
                 final Trendline trendline =
                     xYSeriesRenderer._series.trendlines![j];
                 if (trendline.isVisibleInLegend) {
-                  _chartState._chartLegend._calculateLegends(
+                  _chartState._renderingDetails.chartLegend._calculateLegends(
                       chart, i, xYSeriesRenderer, trendline, j);
                 }
               }
             }
           }
         }
-        if (chart.indicators.isNotEmpty) {
+        if (chart.indicators.isNotEmpty == true) {
           _calculateIndicatorLegends();
         }
-      } else if (_chartState._chartSeries.visibleSeriesRenderers.isNotEmpty) {
+      } else if (_chartState._chartSeries.visibleSeriesRenderers.isNotEmpty ==
+          true) {
         final dynamic seriesRenderer =
             _chartState._chartSeries.visibleSeriesRenderers[0];
         for (int j = 0; j < seriesRenderer._renderPoints.length; j++) {
@@ -328,7 +342,6 @@ class _ChartLegend {
             legendEventArgs.color = chartPoint.fill;
             chart.onLegendItemRender(legendEventArgs);
           }
-
           legendCollections!.add(_LegendRenderContext(
               seriesRenderer: seriesRenderer,
               seriesIndex: j,
@@ -366,6 +379,7 @@ class _ChartLegend {
     for (int i = 0; i < chart.indicators.length; i++) {
       final TechnicalIndicators<dynamic, dynamic> indicator =
           chart.indicators[i];
+      technicalIndicatorsRenderer = _chartState._technicalIndicatorRenderer[i];
       final int count = indicatorTextCollection
               .contains(technicalIndicatorsRenderer?._indicatorType)
           ? _chartState._chartSeries?._getIndicatorId(indicatorTextCollection,
@@ -401,9 +415,10 @@ class _ChartLegend {
         legendCollections!.add(legendRenderContext);
         if (!indicator.isVisible &&
             indicator.isVisibleInLegend &&
-            _chartState._initialRender) {
+            _chartState._renderingDetails.initialRender == true) {
           legendRenderContext.isSelect = true;
-          _chartState._legendToggleStates.add(legendRenderContext);
+          _chartState._renderingDetails.legendToggleStates
+              .add(legendRenderContext);
         }
       }
     }
@@ -418,19 +433,22 @@ class _LegendContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final _ChartLegend chartLegend = chartState._renderingDetails.chartLegend;
     final List<_LegendRenderContext> legendCollections =
-        chartState._chartLegend.legendCollections;
+        chartLegend.legendCollections!;
     final List<Widget> legendWidgets = <Widget>[];
     final Legend legend = chart.legend;
     num titleHeight = 0;
-    chartState._chartLegend.legendRepaintNotifier = ValueNotifier<int>(0);
+
+    final List<_MeasureWidgetContext> legendWidgetContext =
+        chartState._renderingDetails.legendWidgetContext;
+    chartLegend.legendRepaintNotifier = ValueNotifier<int>(0);
     if (legend.legendItemBuilder != null) {
-      for (int i = 0; i < chartState._legendWidgetContext.length; i++) {
+      for (int i = 0; i < legendWidgetContext.length; i++) {
         final _MeasureWidgetContext legendRenderContext =
-            chartState._legendWidgetContext[i];
-        if (legend.overflowMode == LegendItemOverflowMode.none
-            ? legendRenderContext.isRender
-            : true) {
+            legendWidgetContext[i];
+        if (!(legend.overflowMode == LegendItemOverflowMode.none) ||
+            legendRenderContext.isRender) {
           legendWidgets.add(_RenderLegend(
               index: i,
               template: legendRenderContext.widget!,
@@ -441,9 +459,8 @@ class _LegendContainer extends StatelessWidget {
     } else {
       for (int i = 0; i < legendCollections.length; i++) {
         final _LegendRenderContext legendRenderContext = legendCollections[i];
-        if (legend.overflowMode == LegendItemOverflowMode.none
-            ? legendRenderContext.isRender
-            : true) {
+        if (!(legend.overflowMode == LegendItemOverflowMode.none) ||
+            legendRenderContext.isRender) {
           legendWidgets.add(_RenderLegend(
               index: i,
               size: legendRenderContext.size!,
@@ -466,9 +483,12 @@ class _LegendContainer extends StatelessWidget {
       List<Widget> legendWidgets, bool needLegendTitle, num titleHeight) {
     Widget widget;
     final Legend legend = chart.legend;
-    final LegendRenderer legedRenderer = chartState._legendRenderer;
-    final double legendHeight = chartState._chartLegend.legendSize.height;
-    if (chartState._chartLegend.isNeedScrollable) {
+    final _RenderingDetails renderingDetails = chartState._renderingDetails;
+    final _ChartLegend chartLegend = chartState._renderingDetails.chartLegend;
+    final LegendRenderer legedRenderer =
+        chartState._renderingDetails.legendRenderer;
+    final double legendHeight = chartLegend.legendSize.height;
+    if (chartLegend.isNeedScrollable) {
       widget = Container(
           height: needLegendTitle
               ? (legendHeight - titleHeight).abs()
@@ -509,7 +529,7 @@ class _LegendContainer extends StatelessWidget {
           height: needLegendTitle
               ? (legendHeight - titleHeight).abs()
               : legendHeight,
-          width: chartState._chartLegend.legendSize.width,
+          width: chartLegend.legendSize.width,
           child: Wrap(
               direction:
                   legedRenderer._orientation == LegendItemOrientation.horizontal
@@ -520,7 +540,7 @@ class _LegendContainer extends StatelessWidget {
     if (needLegendTitle) {
       final ChartAlignment titleAlign = legend.title.alignment;
       final Color color = chart.legend.title.textStyle.color ??
-          chartState._chartTheme.legendTitleColor;
+          renderingDetails.chartTheme.legendTitleColor;
       final double fontSize = chart.legend.title.textStyle.fontSize;
       final String fontFamily = chart.legend.title.textStyle.fontFamily;
       final FontStyle fontStyle = chart.legend.title.textStyle.fontStyle;

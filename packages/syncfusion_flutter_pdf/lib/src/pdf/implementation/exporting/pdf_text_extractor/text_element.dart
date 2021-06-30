@@ -247,11 +247,11 @@ class _TextElement {
         glyph.toUnicode = character;
         glyph.charSpacing = characterSpacing!;
         if (structure._isStandardFont) {
-          final PdfStandardFont font = structure.font as PdfStandardFont;
+          final PdfStandardFont font = structure.font! as PdfStandardFont;
           glyph.width = font._getCharWidthInternal(character) *
               PdfFont._characterSizeMultiplier;
         } else if (structure._isStandardCJKFont) {
-          final PdfCjkStandardFont font = structure.font as PdfCjkStandardFont;
+          final PdfCjkStandardFont font = structure.font! as PdfCjkStandardFont;
           glyph.width = font._getCharWidthInternal(character) *
               PdfFont._characterSizeMultiplier;
         }
@@ -402,6 +402,7 @@ class _TextElement {
     txtMatrix.type = _MatrixTypes.identity;
     double changeInX = currentLocation.dx.toDouble();
     Offset location = Offset(currentLocation.dx, currentLocation.dy);
+    // ignore: avoid_function_literals_in_foreach_calls
     decodedList.forEach((String word) {
       final double? space = double.tryParse(word);
       if (space != null) {
@@ -429,12 +430,12 @@ class _TextElement {
             glyph.toUnicode = character;
             glyph.charSpacing = this.characterSpacing!;
             if (structure._isStandardFont) {
-              final PdfStandardFont font = structure.font as PdfStandardFont;
+              final PdfStandardFont font = structure.font! as PdfStandardFont;
               glyph.width = font._getCharWidthInternal(character) *
                   PdfFont._characterSizeMultiplier;
             } else if (structure._isStandardCJKFont) {
               final PdfCjkStandardFont font =
-                  structure.font as PdfCjkStandardFont;
+                  structure.font! as PdfCjkStandardFont;
               glyph.width = font._getCharWidthInternal(character) *
                   PdfFont._characterSizeMultiplier;
             }
@@ -595,6 +596,9 @@ class _TextElement {
     glyph.horizontalScaling = textHorizontalScaling!;
     glyph.width = glyphwidth!;
     glyph.charSpacing = characterSpacing!;
+    if (glyphChar == ' ') {
+      glyph.wordSpacing = wordSpacing!;
+    }
     final _MatrixHelper identity = _MatrixHelper(1, 0, 0, 1, 0, 0);
     identity._scale(0.01, 0.01, 0.0, 0.0);
     identity._translate(0.0, 1.0);
@@ -691,7 +695,9 @@ class _TextElement {
     gly.name = letter;
     gly.charId = letter.codeUnitAt(0).toUnsigned(8).toInt();
     gly.transformMatrix = _getTextRenderingMatrix();
-    gly.wordSpacing = wordSpacing!;
+    if (letter == ' ') {
+      gly.wordSpacing = wordSpacing!;
+    }
     double? systemFontGlyph;
     if (fontGlyphWidths != null && fontGlyphWidths!.isNotEmpty) {
       if (reverseMapTable != null && reverseMapTable!.containsKey(letter)) {
@@ -761,7 +767,7 @@ class _TextElement {
 
   void _updateTextMatrixWithSpacing(double space) {
     final double x = -(space * 0.001 * fontSize * textHorizontalScaling! / 100);
-    final Offset point = textLineMatrix!._transform(Offset(0.0, 0.0));
+    final Offset point = textLineMatrix!._transform(const Offset(0.0, 0.0));
     final Offset point2 = textLineMatrix!._transform(Offset(x, 0.0));
     if (point.dx != point2.dx) {
       textLineMatrix!.offsetX = point2.dx;

@@ -143,7 +143,7 @@ class LineSegment extends ChartSegment {
       _oldY1 = _oldSegment?._y1;
       _oldX2 = _oldSegment?._x2;
       _oldY2 = _oldSegment?._y2;
-      if (_oldSegment == null && _chartState._widgetNeedUpdate) {
+      if (_oldSegment == null && _renderingDetails.widgetNeedUpdate) {
         _newlyAddedSegment = true;
         prevX = prevSegment?._x2;
         prevY = prevSegment?._y2;
@@ -190,34 +190,32 @@ class LineSegment extends ChartSegment {
           _oldY2 = _second.y;
         }
       }
-      if (_newlyAddedSegment) {
-        _animateToPoint(
-            canvas,
-            _seriesRenderer,
-            strokePaint!,
-            animationFactor,
-            _currentSegment._x1,
-            _currentSegment._y1,
-            _currentSegment._x2,
-            _currentSegment._y2,
-            prevX,
-            prevY);
-      } else {
-        _animateLineTypeSeries(
-          canvas,
-          _seriesRenderer,
-          strokePaint!,
-          animationFactor,
-          _currentSegment._x1,
-          _currentSegment._y1,
-          _currentSegment._x2,
-          _currentSegment._y2,
-          _oldX1,
-          _oldY1,
-          _oldX2,
-          _oldY2,
-        );
-      }
+      _newlyAddedSegment
+          ? _animateToPoint(
+              canvas,
+              _seriesRenderer,
+              strokePaint!,
+              animationFactor,
+              _currentSegment._x1,
+              _currentSegment._y1,
+              _currentSegment._x2,
+              _currentSegment._y2,
+              prevX,
+              prevY)
+          : _animateLineTypeSeries(
+              canvas,
+              _seriesRenderer,
+              strokePaint!,
+              animationFactor,
+              _currentSegment._x1,
+              _currentSegment._y1,
+              _currentSegment._x2,
+              _currentSegment._y2,
+              _oldX1,
+              _oldY1,
+              _oldX2,
+              _oldY2,
+            );
     } else {
       if (_series.dashArray[0] != 0 && _series.dashArray[1] != 0) {
         _path.moveTo(_x1, _y1);

@@ -34,6 +34,9 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
       this.trendlines,
       this.onRendererCreated,
       this.onCreateRenderer,
+      this.onPointTap,
+      this.onPointDoubleTap,
+      this.onPointLongPress,
       MarkerSettings? markerSettings,
       bool? isVisible,
       bool? enableTooltip,
@@ -44,24 +47,20 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
       List<int>? initialSelectedDataIndexes,
       Color? borderColor,
       double? borderWidth,
-      // ignore: deprecated_member_use_from_same_package
-      SelectionSettings? selectionSettings,
       SelectionBehavior? selectionBehavior,
       bool? isVisibleInLegend,
       LegendIconType? legendIconType,
       double? opacity,
       SortingOrder? sortingOrder})
       : isVisible = isVisible ?? true,
-        markerSettings = markerSettings ?? MarkerSettings(),
-        dataLabelSettings = dataLabelSettings ?? DataLabelSettings(),
+        markerSettings = markerSettings ?? const MarkerSettings(),
+        dataLabelSettings = dataLabelSettings ?? const DataLabelSettings(),
         enableTooltip = enableTooltip ?? true,
         emptyPointSettings = emptyPointSettings ?? EmptyPointSettings(),
         dashArray = dashArray ?? <double>[0, 0],
         initialSelectedDataIndexes = initialSelectedDataIndexes ?? <int>[],
         animationDuration = animationDuration ?? 1500,
         borderColor = borderColor ?? Colors.transparent,
-        // ignore: deprecated_member_use_from_same_package
-        selectionSettings = selectionSettings ?? SelectionSettings(),
         selectionBehavior = selectionBehavior ?? SelectionBehavior(),
         legendIconType = legendIconType ?? LegendIconType.seriesType,
         isVisibleInLegend = isVisibleInLegend ?? true,
@@ -80,7 +79,6 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
             dataLabelSettings: dataLabelSettings,
             enableTooltip: enableTooltip,
             animationDuration: animationDuration,
-            selectionSettings: selectionSettings,
             selectionBehavior: selectionBehavior,
             legendIconType: legendIconType,
             sortingOrder: sortingOrder,
@@ -176,6 +174,69 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   ///}
   ///```
   final SeriesRendererCreatedCallback? onRendererCreated;
+
+  ///Called when tapped on the chart data point.
+  ///
+  ///The user can fetch the series index, point index, viewport point index and
+  /// data of the tapped data point.
+  ///```dart
+  ///Widget build(BuildContext context) {
+  ///    ChartSeriesController _chartSeriesController;
+  ///    return Container(
+  ///        child: SfCartesianChart(
+  ///            series: <LineSeries<SalesData, num>>[
+  ///                LineSeries<SalesData, num>(
+  ///                    onPointTap: (ChartPointDetails details) {
+  ///                       print(details.pointIndex);
+  ///                    },
+  ///                ),
+  ///              ],
+  ///        ));
+  ///}
+  ///```
+  final ChartPointInteractionCallback? onPointTap;
+
+  ///Called when double tapped on the chart data point.
+  ///
+  ///The user can fetch the series index, point index, viewport point index and
+  /// data of the double-tapped data point.
+  ///```dart
+  ///Widget build(BuildContext context) {
+  ///    ChartSeriesController _chartSeriesController;
+  ///    return Container(
+  ///        child: SfCartesianChart(
+  ///            series: <LineSeries<SalesData, num>>[
+  ///                LineSeries<SalesData, num>(
+  ///                    onPointDoubleTap: (ChartPointDetails details) {
+  ///                       print(details.pointIndex);
+  ///                    },
+  ///                ),
+  ///              ],
+  ///        ));
+  ///}
+  ///```
+  final ChartPointInteractionCallback? onPointDoubleTap;
+
+  ///Called when long pressed on the chart data point.
+  ///
+  ///The user can fetch the series index, point index, viewport point index and
+  /// data of the long-pressed data point.
+  ///```dart
+  ///Widget build(BuildContext context) {
+  ///    ChartSeriesController _chartSeriesController;
+  ///    return Container(
+  ///        child: SfCartesianChart(
+  ///            series: <LineSeries<SalesData, num>>[
+  ///                LineSeries<SalesData, num>(
+  ///                    onPointLongPress: (ChartPointDetails details) {
+  ///                       print(details.pointIndex);
+  ///                    },
+  ///                ),
+  ///              ],
+  ///        ));
+  ///}
+  ///```
+  final ChartPointInteractionCallback? onPointLongPress;
 
   ///Data required for rendering the series.
   ///
@@ -439,7 +500,7 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   ///
   ///This callback will be called for all the data points to check if the data is intermediate sum.
   ///
-  /// _Note:_ - This is applicable only for waterfall chart.
+  /// _Note:_  This is applicable only for waterfall chart.
   ///
   ///Defaults to `null`.
   ///
@@ -477,7 +538,7 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   ///
   ///This callback will be called for all the data points to check if the data is total sum.
   ///
-  /// _Note:_ - This is applicable only for waterfall chart.
+  /// _Note:_ This is applicable only for waterfall chart.
   ///
   ///Defaults to `null`.
   ///
@@ -623,7 +684,7 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
 
   ///Indication of data points.
   ///
-  ///Mark the data point location with symbols for better
+  ///Marks the data point location with symbols for better
   ///indication. The shape, color, border, and size of the marker can be customized.
   ///
   ///```dart
@@ -957,29 +1018,6 @@ abstract class CartesianSeries<T, D> extends ChartSeries<T, D> {
   ///        child: SfCartesianChart(
   ///            series: <BarSeries<SalesData, num>>[
   ///                BarSeries<SalesData, num>(
-  ///                  selectionSettings: SelectionSettings(
-  ///                    selectedColor: Colors.red,
-  ///                    unselectedColor: Colors.grey,
-  ///                    selectedOpacity : 0.8,
-  ///                    unselectedOpacity: 0.4
-  ///                  ),
-  ///                ),
-  ///              ],
-  ///        ));
-  ///}
-  ///```
-  @override
-  // ignore: deprecated_member_use_from_same_package
-  final SelectionSettings selectionSettings;
-
-  ///Customizes the data points or series on selection.
-  ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///            series: <BarSeries<SalesData, num>>[
-  ///                BarSeries<SalesData, num>(
   ///                  selectionBehavior: SelectionBehavior(
   ///                    selectedColor: Colors.red,
   ///                    unselectedColor: Colors.grey,
@@ -1121,10 +1159,6 @@ abstract class ChartSeriesRenderer {
   late SfCartesianChart _chart;
 }
 
-/// Called when the series renderer is created
-typedef SeriesRendererCreatedCallback = void Function(
-    ChartSeriesController controller);
-
 ///We can redraw the series with updating or creating new points by using this controller.If we need to access the redrawing methods
 ///in this before we must get the ChartSeriesController onRendererCreated event.
 class ChartSeriesController {
@@ -1264,14 +1298,14 @@ class ChartSeriesController {
         final LogarithmicAxis axis =
             seriesRenderer._xAxisRenderer!._axis as LogarithmicAxis;
         currentPoint.xValue = currentPoint.x;
-        x = _calculateLogBaseValue(x > 1 ? x : 1, axis.logBase);
+        x = _calculateLogBaseValue((x > 1) == true ? x : 1, axis.logBase);
       } else if (seriesRenderer._xAxisRenderer is CategoryAxisRenderer) {
         x = index;
       }
       currentPoint.xValue ??= x;
       currentPoint.yValue = currentPoint.y;
       if (!_needXRecalculation &&
-          (xRange.minimum >= x || xRange.maximum <= x)) {
+          ((xRange.minimum >= x) == true || (xRange.maximum <= x) == true)) {
         _needXRecalculation = true;
       }
       num minYVal = currentPoint.y ?? currentPoint.low;
@@ -1285,7 +1319,8 @@ class ChartSeriesController {
             _calculateLogBaseValue(maxYVal > 1 ? maxYVal : 1, axis.logBase);
       }
       if (!_needYRecalculation &&
-          (yRange.minimum >= minYVal || yRange.maximum <= maxYVal)) {
+          ((yRange.minimum >= minYVal) == true ||
+              (yRange.maximum <= maxYVal) == true)) {
         _needYRecalculation = true;
       }
 
@@ -1392,13 +1427,13 @@ class ChartSeriesController {
     num xValue = _pointToXValue(
         seriesRenderer._chartState!._requireInvertedAxis,
         xAxisRenderer,
-        xAxisRenderer._bounds,
+        rect,
         position.dx - (rect.left + xAxis.plotOffset),
         position.dy - (rect.top + yAxis.plotOffset));
     num yValue = _pointToYValue(
         seriesRenderer._chartState!._requireInvertedAxis,
         yAxisRenderer,
-        yAxisRenderer._bounds,
+        rect,
         position.dx - (rect.left + xAxis.plotOffset),
         position.dy - (rect.top + yAxis.plotOffset));
 
@@ -1468,7 +1503,7 @@ class ChartSeriesController {
         yAxisRenderer,
         isInverted,
         series,
-        seriesRenderer._chartState!._containerRect);
+        seriesRenderer._chartState!._chartAxis._axisClipRect);
 
     return Offset(location.x, location.y);
   }
@@ -1512,22 +1547,24 @@ class ChartSeriesController {
           chartState._trackballBehaviorRenderer._trackballPainter;
       final TrackballBehaviorRenderer trackballBehaviorRenderer =
           chartState._trackballBehaviorRenderer;
+      final _RenderingDetails renderingDetails = chartState._renderingDetails;
 
       //This hides the tooltip if rendered for this current series renderer
       if (tooltip.enable &&
           (tooltip.builder != null
-              ? chartState._tooltipBehaviorRenderer._seriesIndex ==
+              ? renderingDetails.tooltipBehaviorRenderer._seriesIndex ==
                   seriesRenderer._segments[0]._seriesIndex
-              : chartState._tooltipBehaviorRenderer._currentSeries ==
+              : renderingDetails.tooltipBehaviorRenderer._currentSeries ==
                   seriesRenderer)) {
         tooltip.hide();
       }
       //This hides the trackball if rendered for this current series renderer
       if (trackball.enable) {
-        for (final point in trackballBehaviorRenderer._chartPointInfo) {
+        for (final _ChartPointInfo point
+            in trackballBehaviorRenderer._chartPointInfo) {
           if (point.seriesRenderer == seriesRenderer) {
             if (trackballPainter != null) {
-              chartState._trackballRepaintNotifier.value++;
+              chartState._repaintNotifiers['trackball']!.value++;
               trackballPainter.canResetPath = true;
               break;
             } else {
@@ -1543,13 +1580,13 @@ class ChartSeriesController {
       }
       seriesRenderer._reAnimate = seriesRenderer._needsAnimation =
           seriesRenderer._needAnimateSeriesElements = true;
-      chartState._initialRender = false;
+      renderingDetails.initialRender = false;
       //This repaints the datalabels for the series if renderered.
       chartState._renderDataLabel?.state?.repaintDataLabelElements();
 
       //This animates the datalabel templates of the animating series.
       if (seriesRenderer._series.dataLabelSettings.builder != null) {
-        for (final _ChartTemplateInfo template in chartState._templates) {
+        for (final _ChartTemplateInfo template in renderingDetails.templates) {
           if (template.templateType == 'DataLabel' &&
               template.animationDuration > 0 &&
               template.seriesIndex ==
@@ -1663,7 +1700,7 @@ class ChartSeriesController {
     if (needXRecalculation || needYRecalculation) {
       chartState._renderOutsideAxis.state.axisRepaintNotifier.value++;
       chartState._renderInsideAxis.state.axisRepaintNotifier.value++;
-      for (final seriesRenderer
+      for (final CartesianSeriesRenderer seriesRenderer
           in chartState._chartSeries.visibleSeriesRenderers) {
         _repaintSeries(chartState, seriesRenderer);
       }
@@ -1766,6 +1803,8 @@ abstract class CartesianSeriesRenderer extends ChartSeriesRenderer {
   /// Holds the information about chart state class
   SfCartesianChartState? _chartState;
 
+  _RenderingDetails? get _renderingDetails => _chartState?._renderingDetails;
+
   /// Contains the collection of path for markers
   late List<Path?> _markerShapes;
 
@@ -1799,7 +1838,7 @@ abstract class CartesianSeriesRenderer extends ChartSeriesRenderer {
   Animation<double>? _seriesAnimation;
 
   //ignore: prefer_final_fields
-  late Animation<double> _seriesElementAnimation;
+  Animation<double>? _seriesElementAnimation;
 
   //controls the animation of the corresponding series
   late AnimationController _animationController;
@@ -1833,7 +1872,12 @@ abstract class CartesianSeriesRenderer extends ChartSeriesRenderer {
 
   // ignore: prefer_final_fields
   /// It specifies the side by side information of the visible range.
-  _VisibleRange? sideBySideInfo;
+  _VisibleRange? _sideBySideInfo;
+
+  /// Holds the collection of cartesian overall data points
+  // ignore: prefer_final_fields
+  List<CartesianChartPoint<dynamic>?> _overAllDataPoints =
+      <CartesianChartPoint<dynamic>?>[];
 
   /// To create segment for series
   ChartSegment createSegment();

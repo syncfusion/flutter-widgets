@@ -32,8 +32,7 @@ class PdfTextBoxField extends PdfField {
             highlightMode: highlightMode,
             borderStyle: borderStyle,
             tooltip: tooltip) {
-    this.font =
-        font != null ? font : PdfStandardFont(PdfFontFamily.helvetica, 8);
+    this.font = font ?? PdfStandardFont(PdfFontFamily.helvetica, 8);
     _init(text, defaultValue, maxLength, spellCheck, insertSpaces, multiline,
         isPassword, scrollable);
   }
@@ -75,7 +74,7 @@ class PdfTextBoxField extends PdfField {
         final _IPdfPrimitive? textObject =
             _PdfCrossTable._dereference(referenceHolder);
         if (textObject is _PdfStream) {
-          final _PdfStream stream = referenceHolder.object as _PdfStream;
+          final _PdfStream stream = referenceHolder.object! as _PdfStream;
           stream._decompress();
           final List<int> bytes = stream._dataStream!;
           final String data = utf8.decode(bytes);
@@ -122,7 +121,7 @@ class PdfTextBoxField extends PdfField {
         _changed = true;
         _form!._setAppearanceDictionary = true;
         if (_form!._isUR3) {
-          _dictionary._beginSaveList ??= [];
+          _dictionary._beginSaveList ??= <_SavePdfPrimitiveCallback>[];
           _dictionary._beginSaveList!.add(_dictSave);
         }
       } else {
@@ -417,7 +416,7 @@ class PdfTextBoxField extends PdfField {
     this.spellCheck = spellCheck;
     this.insertSpaces = insertSpaces;
     this.multiline = multiline;
-    this.isPassword = password;
+    isPassword = password;
     this.scrollable = scrollable;
   }
 
@@ -509,7 +508,7 @@ class PdfTextBoxField extends PdfField {
   void _beginSave() {
     super._beginSave();
     final _PdfArray? kids = _kids;
-    if ((kids != null)) {
+    if (kids != null) {
       for (int i = 0; i < kids.count; ++i) {
         final _PdfDictionary? widget =
             _crossTable!._getObject(kids[i]) as _PdfDictionary?;
@@ -536,15 +535,15 @@ class PdfTextBoxField extends PdfField {
               if (angle.value == 90) {
                 template = PdfTemplate(bounds.size.height, bounds.size.width);
                 template._content[_DictionaryProperties.matrix] =
-                    _PdfArray([0, 1, -1, 0, bounds.size.width, 0]);
+                    _PdfArray(<num>[0, 1, -1, 0, bounds.size.width, 0]);
               } else if (angle.value == 180) {
                 template = PdfTemplate(bounds.size.width, bounds.size.height);
                 template._content[_DictionaryProperties.matrix] = _PdfArray(
-                    [-1, 0, 0, -1, bounds.size.width, bounds.size.height]);
+                    <num>[-1, 0, 0, -1, bounds.size.width, bounds.size.height]);
               } else if (angle.value == 270) {
                 template = PdfTemplate(bounds.size.height, bounds.size.width);
                 template._content[_DictionaryProperties.matrix] =
-                    _PdfArray([0, -1, 1, 0, 0, bounds.size.height]);
+                    _PdfArray(<num>[0, -1, 1, 0, 0, bounds.size.height]);
               }
               if (template != null) {
                 template._writeTransformation = false;
@@ -556,7 +555,7 @@ class PdfTextBoxField extends PdfField {
           template = PdfTemplate(bounds.size.width, bounds.size.height);
           template._writeTransformation = false;
           template._content[_DictionaryProperties.matrix] =
-              _PdfArray([1, 0, 0, 1, 0, 0]);
+              _PdfArray(<int>[1, 0, 0, 1, 0, 0]);
         }
         if (item != null) {
           _beginMarkupSequence(template.graphics!._streamWriter!._stream!);
@@ -575,6 +574,7 @@ class PdfTextBoxField extends PdfField {
     }
   }
 
+  @override
   double _getFontHeight(PdfFontFamily family) {
     double s = 12;
     if (!multiline) {
@@ -588,6 +588,7 @@ class PdfTextBoxField extends PdfField {
     return s;
   }
 
+  @override
   void _draw() {
     super._draw();
     if (!_isLoadedField && _widget!._pdfAppearance != null) {

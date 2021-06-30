@@ -1,0 +1,4 @@
+dartdoc:
+  ignore:
+    - broken-link
+    - missing-from-search-index

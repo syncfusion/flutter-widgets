@@ -59,17 +59,17 @@ class PdfCheckBoxField extends PdfCheckFieldBase {
           final _IPdfPrimitive? name = PdfField._getValue(
               _dictionary, _crossTable, _DictionaryProperties.v, false);
           if (name != null && name is _PdfName) {
-            _checked = (name._name ==
-                _getItemValue(items![_defaultIndex]._dictionary!, _crossTable));
+            _checked = name._name ==
+                _getItemValue(items![_defaultIndex]._dictionary!, _crossTable);
           }
         } else if (state is _PdfName) {
-          _checked = (state._name != _DictionaryProperties.off);
+          _checked = state._name != _DictionaryProperties.off;
         }
         return _checked;
       }
       if (_dictionary.containsKey(_DictionaryProperties.v)) {
-        final _PdfName chk = _dictionary[_DictionaryProperties.v] as _PdfName;
-        _checked = (chk._name != 'Off') ? true : false;
+        final _PdfName chk = _dictionary[_DictionaryProperties.v]! as _PdfName;
+        _checked = chk._name != 'Off';
       }
     }
     return _checked;
@@ -78,10 +78,14 @@ class PdfCheckBoxField extends PdfCheckFieldBase {
   set isChecked(bool value) {
     if (_isLoadedField) {
       if (_dictionary.containsKey(_DictionaryProperties.v)) {
-        final _PdfName chk = _dictionary[_DictionaryProperties.v] as _PdfName;
-        _checked = (chk._name != 'Off') ? true : false;
+        final _PdfName chk = _dictionary[_DictionaryProperties.v]! as _PdfName;
+        if (chk._name!.isNotEmpty) {
+          _checked = chk._name != 'Off';
+        } else {
+          _dictionary.remove(_DictionaryProperties.v);
+        }
       }
-      this.form!._setAppearanceDictionary = true;
+      form!._setAppearanceDictionary = true;
       if (_form!._needAppearances == false) {
         _changed = true;
       }
@@ -95,7 +99,7 @@ class PdfCheckBoxField extends PdfCheckFieldBase {
       }
       if (_checked) {
         _dictionary._setName(_PdfName(_DictionaryProperties.v),
-            val != null ? val : _DictionaryProperties.yes);
+            val ?? _DictionaryProperties.yes);
       } else {
         _dictionary.remove(_DictionaryProperties.v);
         if (_dictionary.containsKey(_DictionaryProperties.usageApplication)) {
@@ -221,6 +225,7 @@ class PdfCheckBoxField extends PdfCheckFieldBase {
     }
   }
 
+  @override
   void _draw() {
     super._draw();
     final _PdfCheckFieldState state =
@@ -234,7 +239,7 @@ class PdfCheckBoxField extends PdfCheckFieldBase {
           style: borderStyle,
           borderWidth: borderWidth,
           shadowBrush: _shadowBrush);
-      if (_fieldItems != null && _fieldItems!.length > 0) {
+      if (_fieldItems != null && _fieldItems!.isNotEmpty) {
         for (int i = 0; i < _array.count; i++) {
           final PdfCheckBoxField item = _fieldItems![i] as PdfCheckBoxField;
           params._bounds = item.bounds;
@@ -253,7 +258,7 @@ class PdfCheckBoxField extends PdfCheckFieldBase {
       }
     } else {
       final _PdfArray? kids = _kids;
-      if ((kids != null)) {
+      if (kids != null) {
         for (int i = 0; i < kids.count; ++i) {
           final PdfCheckBoxItem item = _items![i] as PdfCheckBoxItem;
           if (item.page != null) {
@@ -278,22 +283,22 @@ class PdfCheckBoxItem extends PdfFieldItem {
     if (_dictionary!.containsKey(_DictionaryProperties.mk)) {
       switch (value) {
         case PdfCheckBoxStyle.check:
-          style = "4";
+          style = '4';
           break;
         case PdfCheckBoxStyle.circle:
-          style = "l";
+          style = 'l';
           break;
         case PdfCheckBoxStyle.cross:
-          style = "8";
+          style = '8';
           break;
         case PdfCheckBoxStyle.diamond:
-          style = "u";
+          style = 'u';
           break;
         case PdfCheckBoxStyle.square:
-          style = "n";
+          style = 'n';
           break;
         case PdfCheckBoxStyle.star:
-          style = "H";
+          style = 'H';
           break;
       }
       final _IPdfPrimitive? mk = _dictionary![_DictionaryProperties.mk];

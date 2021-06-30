@@ -5,6 +5,7 @@ import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:syncfusion_flutter_pdfviewer/src/common/pdfviewer_helper.dart';
 
 import 'bookmark_item.dart';
 import 'bookmark_toolbar.dart';
@@ -21,7 +22,8 @@ const double _kPdfSubBookmarkTitlePosition = 55.0;
 /// BookmarkView of PdfViewer
 class BookmarkView extends StatefulWidget {
   /// BookmarkView Constructor.
-  BookmarkView(Key key, this.pdfDocument, this.controller) : super(key: key);
+  const BookmarkView(Key key, this.pdfDocument, this.controller)
+      : super(key: key);
 
   /// [PdfViewerController] instance of PdfViewer.
   final PdfViewerController controller;
@@ -86,7 +88,9 @@ class BookmarkViewControllerState extends State<BookmarkView> {
   }
 
   /// Opens the bookmark view.
-  void open() {
+  // ignore: avoid_void_async
+  void open() async {
+    await Future<bool>.sync(() => widget.controller.clearSelection());
     _ensureHistoryEntry();
     if (!showBookmark && widget.pdfDocument != null) {
       _bookmarkBase = widget.pdfDocument!.bookmarks;
@@ -98,7 +102,6 @@ class BookmarkViewControllerState extends State<BookmarkView> {
   }
 
   Future<void> _handleClose() async {
-    widget.controller.clearSelection();
     if (showBookmark) {
       setState(() {
         _isExpanded = false;
@@ -116,9 +119,11 @@ class BookmarkViewControllerState extends State<BookmarkView> {
     final Size size = MediaQuery.of(context).size;
     final double diagonal =
         sqrt((size.width * size.width) + (size.height * size.height));
-    _isTablet = (kIsWeb && !(diagonal < _kPdfStandardDiagonalOffset))
-        ? true
-        : diagonal > _kPdfStandardDiagonalOffset;
+    if (kIsDesktop && !(diagonal < _kPdfStandardDiagonalOffset)) {
+      _isTablet = true;
+    } else {
+      _isTablet = diagonal > _kPdfStandardDiagonalOffset;
+    }
   }
 
   void _handleBackPress() {
@@ -189,13 +194,15 @@ class BookmarkViewControllerState extends State<BookmarkView> {
   @override
   Widget build(BuildContext context) {
     _findDevice(context);
-    final hasBookmark =
-        (widget.pdfDocument != null && widget.pdfDocument!.bookmarks.count > 0)
-            ? true
-            : false;
+    final bool hasBookmark;
+    if (widget.pdfDocument != null && widget.pdfDocument!.bookmarks.count > 0) {
+      hasBookmark = true;
+    } else {
+      hasBookmark = false;
+    }
     return Visibility(
       visible: showBookmark,
-      child: Stack(children: [
+      child: Stack(children: <Widget>[
         Visibility(
           visible: _isTablet,
           child: GestureDetector(
@@ -210,7 +217,7 @@ class BookmarkViewControllerState extends State<BookmarkView> {
           child: Container(
             color: _pdfViewerThemeData!.bookmarkViewStyle.backgroundColor,
             width: _isTablet ? _kPdfTabletBookmarkWidth : _totalWidth,
-            child: Column(children: [
+            child: Column(children: <Widget>[
               BookmarkToolbar(_handleClose),
               Expanded(
                 child: hasBookmark

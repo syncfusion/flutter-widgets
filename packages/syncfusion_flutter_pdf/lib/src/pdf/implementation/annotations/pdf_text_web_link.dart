@@ -168,6 +168,7 @@ class PdfTextWebLink extends PdfAnnotation {
   /// PdfDocument document = PdfDocument();
   /// //Create the web link in the PDF page
   /// PdfTextWebLink textWebLink = PdfTextWebLink(
+  ///     url: 'www.google.co.in',
   ///     text: 'google',
   ///     font: PdfStandardFont(PdfFontFamily.timesRoman, 14),
   ///     brush: PdfSolidBrush(PdfColor(0, 0, 0)),

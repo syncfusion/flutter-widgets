@@ -13,8 +13,6 @@ class RangeColumnSegment extends ChartSegment {
   ///Path of the series
   late Path _path;
   late RRect _trackRect;
-  // @override
-  // CartesianChartPoint<dynamic> _currentPoint;
   Paint? _trackerFillPaint, _trackerStrokePaint;
 
   //We are using `segmentRect` to draw the histogram segment in the series.
@@ -25,7 +23,7 @@ class RangeColumnSegment extends ChartSegment {
   /// Gets the color of the series.
   @override
   Paint getFillPaint() {
-    final bool hasPointColor = _series.pointColorMapper != null ? true : false;
+    final bool hasPointColor = _series.pointColorMapper != null;
 
     /// Get and set the paint options for range column series.
     if (_series.gradient == null) {
@@ -63,14 +61,12 @@ class RangeColumnSegment extends ChartSegment {
           ? _series.emptyPointSettings.borderWidth
           : _strokeWidth!;
     _defaultStrokeColor = strokePaint;
-    if (_series.borderGradient != null) {
-      strokePaint!.shader =
-          _series.borderGradient!.createShader(_currentPoint!.region!);
-    } else {
-      strokePaint!.color = _currentPoint!.isEmpty == true
-          ? _series.emptyPointSettings.borderColor
-          : _strokeColor!;
-    }
+    _series.borderGradient != null
+        ? strokePaint!.shader =
+            _series.borderGradient!.createShader(_currentPoint!.region!)
+        : strokePaint!.color = _currentPoint!.isEmpty == true
+            ? _series.emptyPointSettings.borderColor
+            : _strokeColor!;
     _series.borderWidth == 0
         ? strokePaint!.color = Colors.transparent
         : strokePaint!.color;
@@ -80,7 +76,7 @@ class RangeColumnSegment extends ChartSegment {
   /// Method to get series tracker fill.
   Paint _getTrackerFillPaint() {
     final RangeColumnSeries<dynamic, dynamic> _series =
-        this._series as RangeColumnSeries;
+        this._series as RangeColumnSeries<dynamic, dynamic>;
 
     _trackerFillPaint = Paint()
       ..color = _series.trackColor
@@ -92,7 +88,7 @@ class RangeColumnSegment extends ChartSegment {
   /// Method to get series tracker stroke color.
   Paint _getTrackerStrokePaint() {
     final RangeColumnSeries<dynamic, dynamic> _series =
-        this._series as RangeColumnSeries;
+        this._series as RangeColumnSeries<dynamic, dynamic>;
     _trackerStrokePaint = Paint()
       ..color = _series.trackBorderColor
       ..strokeWidth = _series.trackBorderWidth
@@ -111,7 +107,7 @@ class RangeColumnSegment extends ChartSegment {
   @override
   void onPaint(Canvas canvas) {
     final RangeColumnSeries<dynamic, dynamic> _series =
-        this._series as RangeColumnSeries;
+        this._series as RangeColumnSeries<dynamic, dynamic>;
 
     if (_trackerFillPaint != null && _series.isTrackVisible) {
       canvas.drawRRect(_trackRect, _trackerFillPaint!);
@@ -123,7 +119,7 @@ class RangeColumnSegment extends ChartSegment {
 
     if (fillPaint != null) {
       (_series.animationDuration > 0 &&
-              !_seriesRenderer._chartState!._isLegendToggled)
+              !_seriesRenderer._renderingDetails!.isLegendToggled)
           ? _animateRangeColumn(
               canvas,
               _seriesRenderer,
@@ -134,20 +130,18 @@ class RangeColumnSegment extends ChartSegment {
           : canvas.drawRRect(segmentRect, fillPaint!);
     }
     if (strokePaint != null) {
-      if (_series.dashArray[0] != 0 && _series.dashArray[1] != 0) {
-        _drawDashedLine(canvas, _series.dashArray, strokePaint!, _path);
-      } else {
-        (_series.animationDuration > 0 &&
-                !_seriesRenderer._chartState!._isLegendToggled)
-            ? _animateRangeColumn(
-                canvas,
-                _seriesRenderer,
-                strokePaint!,
-                segmentRect,
-                _oldPoint != null ? _oldPoint!.region : _oldRegion,
-                animationFactor)
-            : canvas.drawRRect(segmentRect, strokePaint!);
-      }
+      (_series.dashArray[0] != 0 && _series.dashArray[1] != 0)
+          ? _drawDashedLine(canvas, _series.dashArray, strokePaint!, _path)
+          : (_series.animationDuration > 0 &&
+                  !_seriesRenderer._renderingDetails!.isLegendToggled)
+              ? _animateRangeColumn(
+                  canvas,
+                  _seriesRenderer,
+                  strokePaint!,
+                  segmentRect,
+                  _oldPoint != null ? _oldPoint!.region : _oldRegion,
+                  animationFactor)
+              : canvas.drawRRect(segmentRect, strokePaint!);
     }
   }
 }

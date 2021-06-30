@@ -688,18 +688,23 @@ class _DataEncryption implements _ICipher {
 
   //Properties
   List<int>? get keys => _keys;
+  @override
   String get algorithmName => _Asn1Constants.des;
+  @override
   bool get isBlock => false;
+  @override
   int? get blockSize => _blockSize;
 
   //Implementation
+  @override
   void initialize(bool? isEncryption, _ICipherParameter? parameters) {
-    if (!(parameters is _KeyParameter)) {
+    if (parameters is! _KeyParameter) {
       throw ArgumentError.value(parameters, 'parameters', 'Invalid parameter');
     }
     _keys = generateWorkingKey(isEncryption, parameters.keys);
   }
 
+  @override
   Map<String, dynamic> processBlock(
       List<int>? inBytes, int inOffset, List<int>? outBytes, int? outOffset) {
     ArgumentError.checkNotNull(_keys);
@@ -715,15 +720,16 @@ class _DataEncryption implements _ICipher {
     return <String, dynamic>{'length': _blockSize, 'output': outBytes};
   }
 
+  @override
   void reset() {}
   List<int> generateWorkingKey(bool? isEncrypt, List<int> bytes) {
-    final List<int> newKeys = List<int>.generate(32, (i) => 0);
-    final List<bool> bytes1 = List<bool>.generate(56, (i) => false);
-    final List<bool> bytes2 = List<bool>.generate(56, (i) => false);
+    final List<int> newKeys = List<int>.generate(32, (int i) => 0);
+    final List<bool> bytes1 = List<bool>.generate(56, (int i) => false);
+    final List<bool> bytes2 = List<bool>.generate(56, (int i) => false);
     for (int j = 0; j < 56; j++) {
       final int length = pc1[j];
       bytes1[j] =
-          ((bytes[length.toUnsigned(32) >> 3] & byteBit[length & 07]) != 0);
+          (bytes[length.toUnsigned(32) >> 3] & byteBit[length & 07]) != 0;
     }
     for (int i = 0; i < 16; i++) {
       int a;
@@ -785,16 +791,16 @@ class _DataEncryption implements _ICipher {
     int right = _Asn1Constants.beToUInt32(inputBytes, inOffset + 4);
     int data = (((left >> 4) ^ right) & 0x0f0f0f0f).toUnsigned(32);
     right ^= data;
-    left ^= (data << 4);
+    left ^= data << 4;
     data = ((left >> 16) ^ right) & 0x0000ffff;
     right ^= data;
-    left ^= (data << 16);
+    left ^= data << 16;
     data = ((right >> 2) ^ left) & 0x33333333;
     left ^= data;
-    right ^= (data << 2);
+    right ^= data << 2;
     data = ((right >> 8) ^ left) & 0x00ff00ff;
     left ^= data;
-    right ^= (data << 8);
+    right ^= data << 8;
     right = ((right << 1) | (right >> 31)).toUnsigned(32);
     data = (left ^ right) & 0xaaaaaaaa;
     left ^= data;
@@ -833,16 +839,16 @@ class _DataEncryption implements _ICipher {
     left = ((left << 31) | (left >> 1)).toUnsigned(32);
     data = ((left >> 8) ^ right) & 0x00ff00ff;
     right ^= data;
-    left ^= (data << 8);
+    left ^= data << 8;
     data = ((left >> 2) ^ right) & 0x33333333;
     right ^= data;
-    left ^= (data << 2);
+    left ^= data << 2;
     data = ((right >> 16) ^ left) & 0x0000ffff;
     left ^= data;
-    right ^= (data << 16);
+    right ^= data << 16;
     data = ((right >> 4) ^ left) & 0x0f0f0f0f;
     left ^= data;
-    right ^= (data << 4);
+    right ^= data << 4;
     _Asn1Constants.uInt32ToBe(right, outBytes, outOffset);
     _Asn1Constants.uInt32ToBe(left, outBytes, outOffset + 4);
   }

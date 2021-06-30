@@ -37,6 +37,10 @@ The Flutter Date Range Picker is a lightweight widget that allows users to easil
 
 ![hijri_date_picker](https://cdn.syncfusion.com/content/images/FTControl/date+range+picker/hijricalendar.png)
 
+* **Week numbers** - Display the week numbers of the year in the month view of the Date Range Picker.
+
+![week_numbers](https://cdn.syncfusion.com/content/images/FTControl/date%20range%20picker/datepicker-weeknumber.png)
+
 * **Quick navigation** - Navigate back and forth the date-range views and between different view modes.
 
 * **Enable/disable built-in view switching** - Restrict users from navigating to different picker views by disabling view switching. Select values in terms of month, year, or decade with this feature enabled.
@@ -46,6 +50,10 @@ The Flutter Date Range Picker is a lightweight widget that allows users to easil
 * **Date selection** - Select single, multiple, and range of dates. It also supports programmatic selection.
 
 ![selection_modes](https://cdn.syncfusion.com/content/images/FTControl/Flutter/daterangepicker/selection_mode.png)
+
+* **Extendable range selection** - Extend the selected range with the newly selected dates in the Date Range Picker.
+
+![extendable_range_selection](https://cdn.syncfusion.com/content/images/FTControl/date%20range%20picker/datepicker-extendable-selection.png)
 
 * **Action buttons** - Display action buttons to confirm or cancel the selected date values in SfDateRangePicker and SfHijriDateRangePicker.
 
@@ -86,12 +94,17 @@ The Flutter Date Range Picker is a lightweight widget that allows users to easil
 Explore the full capabilities of our Flutter widgets on your device by installing our sample browser applications from the below app stores, and view samples code in GitHub.
 
 <p align="center">
-  <a href="https://play.google.com/store/apps/details?id=com.syncfusion.flutter.examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/google-play.png"/></a>
-  <a href="https://apps.apple.com/us/app/syncfusion-flutter-ui-widgets/id1475231341"><img src="https://cdn.syncfusion.com/content/images/FTControl/apple-button.png"/></a>
+  <a href="https://play.google.com/store/apps/details?id=com.syncfusion.flutter.examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/google-play-store.png"/></a>
+  <a href="https://apps.apple.com/us/app/syncfusion-flutter-ui-widgets/id1475231341"><img src="https://cdn.syncfusion.com/content/images/FTControl/ios-store.png"/></a>
+  <a href="https://flutter.syncfusion.com"><img src="https://cdn.syncfusion.com/content/images/FTControl/web-sample-browser.png"/></a> 
 </p>
 <p align="center">
-  <a href="https://github.com/syncfusion/flutter-examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/GitHub.png"/></a>
-  <a href="https://flutter.syncfusion.com"><img src="https://cdn.syncfusion.com/content/images/FTControl/web_sample_browser.png"/></a>  
+  <a href="https://www.microsoft.com/en-us/p/syncfusion-flutter-gallery/9nhnbwcsf85d?activetab=pivot:overviewtab"><img src="https://cdn.syncfusion.com/content/images/FTControl/windows-store.png"/></a> 
+  <a href="https://install.appcenter.ms/orgs/syncfusion-demos/apps/syncfusion-flutter-gallery/distribution_groups/release"><img src="https://cdn.syncfusion.com/content/images/FTControl/macos-app-center.png"/></a>
+  <a href="https://snapcraft.io/syncfusion-flutter-gallery"><img src="https://cdn.syncfusion.com/content/images/FTControl/snap-store.png"/></a>
+</p>
+<p align="center">
+  <a href="https://github.com/syncfusion/flutter-examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/github-samples.png"/></a>
 </p>
 
 ## Other useful links

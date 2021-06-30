@@ -1,6 +1,6 @@
 part of charts;
 
-/// This class Renders the area series.
+/// This class renders the area series.
 ///
 /// To render an area chart, create an instance of AreaSeries, and add it to the series collection property of SfCartesianChart.
 /// The area chart shows the filled area to represent the data, but when there are more than a series, this may hide the other series.
@@ -8,6 +8,8 @@ part of charts;
 ///
 /// It provides options for color, opacity, border color, and border width to customize the appearance.
 ///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=E_odUnOsBtQ}
+@immutable
 class AreaSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of AreaSeries class.
   AreaSeries(
@@ -36,19 +38,23 @@ class AreaSeries<T, D> extends XyDataSeries<T, D> {
       double? borderWidth,
       LinearGradient? gradient,
       LinearGradient? borderGradient,
-      // ignore: deprecated_member_use_from_same_package
-      SelectionSettings? selectionSettings,
       SelectionBehavior? selectionBehavior,
       bool? isVisibleInLegend,
       LegendIconType? legendIconType,
       String? legendItemText,
       double? opacity,
       this.borderDrawMode = BorderDrawMode.top,
-      SeriesRendererCreatedCallback? onRendererCreated})
+      SeriesRendererCreatedCallback? onRendererCreated,
+      ChartPointInteractionCallback? onPointTap,
+      ChartPointInteractionCallback? onPointDoubleTap,
+      ChartPointInteractionCallback? onPointLongPress})
       : super(
             key: key,
             onRendererCreated: onRendererCreated,
             onCreateRenderer: onCreateRenderer,
+            onPointTap: onPointTap,
+            onPointDoubleTap: onPointDoubleTap,
+            onPointLongPress: onPointLongPress,
             xValueMapper: xValueMapper,
             yValueMapper: yValueMapper,
             sortFieldValueMapper: sortFieldValueMapper,
@@ -71,7 +77,6 @@ class AreaSeries<T, D> extends XyDataSeries<T, D> {
             borderWidth: borderWidth,
             gradient: gradient,
             borderGradient: borderGradient,
-            selectionSettings: selectionSettings,
             selectionBehavior: selectionBehavior,
             legendItemText: legendItemText,
             isVisibleInLegend: isVisibleInLegend,
@@ -81,7 +86,7 @@ class AreaSeries<T, D> extends XyDataSeries<T, D> {
 
   ///Border type of area series.
   ///
-  ///It have the three types of [BorderDrawMode],
+  ///It has three types of [BorderDrawMode],
   ///
   ///* [BorderDrawMode.all] renders border for all the sides of area.
   ///
@@ -120,6 +125,95 @@ class AreaSeries<T, D> extends XyDataSeries<T, D> {
     }
     return AreaSeriesRenderer();
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is AreaSeries &&
+        other.key == key &&
+        other.onCreateRenderer == onCreateRenderer &&
+        other.dataSource == dataSource &&
+        other.xValueMapper == xValueMapper &&
+        other.yValueMapper == yValueMapper &&
+        other.sortFieldValueMapper == sortFieldValueMapper &&
+        other.pointColorMapper == pointColorMapper &&
+        other.dataLabelMapper == dataLabelMapper &&
+        other.sortingOrder == sortingOrder &&
+        other.xAxisName == xAxisName &&
+        other.yAxisName == yAxisName &&
+        other.name == name &&
+        other.color == color &&
+        other.markerSettings == markerSettings &&
+        other.emptyPointSettings == emptyPointSettings &&
+        other.dataLabelSettings == dataLabelSettings &&
+        other.trendlines == trendlines &&
+        other.isVisible == isVisible &&
+        other.enableTooltip == enableTooltip &&
+        other.dashArray == dashArray &&
+        other.animationDuration == animationDuration &&
+        other.borderColor == borderColor &&
+        other.borderWidth == borderWidth &&
+        other.gradient == gradient &&
+        other.borderGradient == borderGradient &&
+        other.selectionBehavior == selectionBehavior &&
+        other.isVisibleInLegend == isVisibleInLegend &&
+        other.legendIconType == legendIconType &&
+        other.legendItemText == legendItemText &&
+        other.opacity == opacity &&
+        other.borderDrawMode == borderDrawMode &&
+        other.onRendererCreated == onRendererCreated &&
+        other.onPointTap == onPointTap &&
+        other.onPointDoubleTap == onPointDoubleTap &&
+        other.onPointLongPress == onPointLongPress;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      key,
+      onCreateRenderer,
+      dataSource,
+      xValueMapper,
+      yValueMapper,
+      sortFieldValueMapper,
+      pointColorMapper,
+      dataLabelMapper,
+      sortingOrder,
+      xAxisName,
+      yAxisName,
+      name,
+      color,
+      markerSettings,
+      emptyPointSettings,
+      dataLabelSettings,
+      trendlines,
+      isVisible,
+      enableTooltip,
+      dashArray,
+      animationDuration,
+      borderColor,
+      borderWidth,
+      gradient,
+      borderGradient,
+      selectionBehavior,
+      isVisibleInLegend,
+      legendIconType,
+      legendItemText,
+      opacity,
+      borderDrawMode,
+      onRendererCreated,
+      onPointTap,
+      onPointDoubleTap,
+      onPointLongPress
+    ];
+    return hashList(values);
+  }
 }
 
 /// Creates series renderer for Area series
@@ -134,15 +228,17 @@ class AreaSeriesRenderer extends XyDataSeriesRenderer {
     final AreaSegment segment = createSegment();
     final List<CartesianSeriesRenderer> oldSeriesRenderers =
         _chartState!._oldSeriesRenderers;
-    segment._series = _series as XyDataSeries;
+    segment._series = _series as XyDataSeries<dynamic, dynamic>;
     segment.currentSegmentIndex = 0;
-    if (_points != null) segment.points = _points;
+    if (_points != null) {
+      segment.points = _points;
+    }
     segment._seriesRenderer = this;
     segment._seriesIndex = seriesIndex;
     segment.animationFactor = animateFactor;
     segment._path = path;
     segment._strokePath = strokePath;
-    if (_chartState!._widgetNeedUpdate &&
+    if (_renderingDetails!.widgetNeedUpdate &&
         // ignore: unnecessary_null_comparison
         oldSeriesRenderers != null &&
         oldSeriesRenderers.isNotEmpty &&

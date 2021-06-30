@@ -156,6 +156,7 @@ class _SfInheritedTheme extends InheritedTheme {
 ///   );
 /// }
 /// ```
+@immutable
 class SfThemeData with Diagnosticable {
   /// Creating an argument constructor of SfThemeData class.
   factory SfThemeData(

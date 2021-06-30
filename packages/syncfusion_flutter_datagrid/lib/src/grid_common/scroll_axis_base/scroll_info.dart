@@ -25,7 +25,6 @@ class _ScrollInfo extends _ScrollBarBase {
   }
 
   late double _proposedLargeChange;
-  late List list;
 
   /// Occurs when a property value changes.
   _PropertyChangedCallback? onPropertyChangedEvent;
@@ -78,7 +77,7 @@ class _ScrollInfo extends _ScrollBarBase {
   @override
   set value(double value) {
     if (this.value != value) {
-      final e = _ValueChangingArgs(value, this.value);
+      final _ValueChangingArgs e = _ValueChangingArgs(value, this.value);
       if (onValueChanging != null) {
         onValueChanging!(e);
       }
@@ -103,7 +102,7 @@ class _ScrollInfo extends _ScrollBarBase {
   ///
   /// Returns the cloned instance.
   _ScrollInfo clone() {
-    final sb = _ScrollInfo();
+    final _ScrollInfo sb = _ScrollInfo();
     copyTo(sb);
     return sb;
   }
@@ -130,8 +129,8 @@ class _ScrollInfo extends _ScrollBarBase {
   ///
   /// Returns `True` if the specified `ScrollInfo` is equal
   /// to the current `ScrollInfo`, otherwise `false`.
-  bool equals(Object obj) {
-    final _ScrollInfo? sb = obj as _ScrollInfo;
+  bool equals(_ScrollInfo? obj) {
+    final _ScrollInfo? sb = obj;
     if (sb == null) {
       return true;
     }
@@ -154,7 +153,8 @@ class _ScrollInfo extends _ScrollBarBase {
   /// * propertyName - _required_ - Name of the property.
   void onPropertyChanged(String propertyName) {
     if (onPropertyChangedEvent != null) {
-      final propertyChangedArgs = _PropertyChangedArgs(propertyName);
+      final _PropertyChangedArgs propertyChangedArgs =
+          _PropertyChangedArgs(propertyName);
       onPropertyChangedEvent!(propertyChangedArgs);
     }
   }

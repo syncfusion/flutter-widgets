@@ -6,7 +6,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import '../behavior/zoom_pan_behavior.dart';
+import '../../maps.dart';
 import '../common.dart';
 import '../utils.dart';
 
@@ -15,7 +15,7 @@ typedef _ZoomingCallback = void Function(MapZoomDetails details);
 
 typedef _PanningCallback = void Function(MapPanDetails details);
 
-typedef _ZoomToCallback = void Function(double factor, {MapLatLng latlng});
+typedef _ZoomToCallback = void Function(double factor);
 
 typedef _PanToCallback = void Function(MapLatLng? latlng);
 

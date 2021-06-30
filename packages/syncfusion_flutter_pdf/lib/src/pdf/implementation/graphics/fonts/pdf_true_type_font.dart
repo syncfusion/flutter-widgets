@@ -5,19 +5,16 @@ part of pdf;
 /// ```dart
 /// //Create a new PDF document.
 /// PdfDocument document = PdfDocument();
-/// //Add a page to the document.
-/// PdfPage page = document.pages.add();
-/// //Create PDF graphics for the page.
-/// PdfGraphics graphics = page.graphics;
-/// //Create a new PDF true type font instance.
-/// PdfFont font = PdfTrueTypeFont(fontStream, 12);
-/// //Draw string to PDF page.
-/// graphics.drawString('Hello World!', font,
-///     brush: PdfBrushes.black, bounds: Rect.fromLTWH(0, 0, 100, 50));
+/// //Create a new PDF true type font instance and draw string to PDF page.
+/// document.pages.add().graphics.drawString(
+///     'Hello World!',
+///     PdfTrueTypeFont(fontStream, 12),
+///     brush: PdfBrushes.black,
+///     bounds: Rect.fromLTWH(0, 0, 100, 50));
 /// //Saves the document.
-/// List<int> bytes = doc.save();
+/// List<int> bytes = document.save();
 /// //Dispose the document.
-/// doc.dispose();
+/// document.dispose();
 /// ```
 class PdfTrueTypeFont extends PdfFont {
   /// Initializes a new instance of the [PdfTrueTypeFont] class.
@@ -29,19 +26,16 @@ class PdfTrueTypeFont extends PdfFont {
   /// ```dart
   /// //Create a new PDF document.
   /// PdfDocument document = PdfDocument();
-  /// //Add a page to the document.
-  /// PdfPage page = document.pages.add();
-  /// //Create PDF graphics for the page.
-  /// PdfGraphics graphics = page.graphics;
-  /// //Create a new PDF true type font instance.
-  /// PdfFont font = PdfTrueTypeFont(fontStream, 12);
-  /// //Draw string to PDF page.
-  /// graphics.drawString('Hello World!', font,
-  ///     brush: PdfBrushes.black, bounds: Rect.fromLTWH(0, 0, 100, 50));
+  /// //Create a new PDF true type font instance and draw string to PDF page.
+  /// document.pages.add().graphics.drawString(
+  ///     'Hello World!',
+  ///     PdfTrueTypeFont(fontStream, 12),
+  ///     brush: PdfBrushes.black,
+  ///     bounds: Rect.fromLTWH(0, 0, 100, 50));
   /// //Saves the document.
-  /// List<int> bytes = doc.save();
+  /// List<int> bytes = document.save();
   /// //Dispose the document.
-  /// doc.dispose();
+  /// document.dispose();
   /// ```
   PdfTrueTypeFont(List<int> fontData, double size,
       {PdfFontStyle? style, List<PdfFontStyle>? multiStyle}) {
@@ -57,17 +51,16 @@ class PdfTrueTypeFont extends PdfFont {
   /// ```dart
   /// //Create a new PDF document.
   /// PdfDocument document = PdfDocument();
-  /// //Add a page to the document.
-  /// PdfPage page = document.pages.add();
-  /// //Create PDF graphics for the page.
-  /// PdfGraphics graphics = page.graphics;
   /// //Font stream in base64 string format
   /// String base64 = 'AAEAAAATAQAABAAwRFNJRzlPG+EAASMQAAAdgKMbEAAAAAy/k2Tw==';
   /// //Create a new PDF true type font instance with font data as base64 string.
   /// PdfFont font = PdfTrueTypeFont(base64, 12);
   /// //Draw string to PDF page.
-  /// graphics.drawString('Hello World!', font,
-  ///     brush: PdfBrushes.black, bounds: Rect.fromLTWH(0, 0, 100, 50));
+  /// document.pages.add().graphics.drawString(
+  ///     'Hello World!',
+  ///     font,
+  ///     brush: PdfBrushes.black,
+  ///     bounds: Rect.fromLTWH(0, 0, 100, 50));
   /// //Saves the document.
   /// List<int> bytes = doc.save();
   /// //Dispose the document.

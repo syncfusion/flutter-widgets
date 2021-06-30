@@ -19,9 +19,6 @@ class WaterfallSegment extends ChartSegment {
   /// Colors of the negative point, intermediate point and total point.
   Color? _negativePointsColor, _intermediateSumColor, _totalSumColor;
 
-  // @override
-  // CartesianChartPoint<dynamic> _currentPoint;
-
   /// We are using `segmentRect` to draw the bar segment in the series.
   /// we can override this class and customize the waterfall segment by getting `segmentRect`.
   late RRect segmentRect;
@@ -29,7 +26,7 @@ class WaterfallSegment extends ChartSegment {
   /// Gets the color of the series.
   @override
   Paint getFillPaint() {
-    final bool hasPointColor = _series.pointColorMapper != null ? true : false;
+    final bool hasPointColor = _series.pointColorMapper != null;
 
     /// Get and set the paint options for waterfall series.
     if (_series.gradient == null) {
@@ -40,7 +37,7 @@ class WaterfallSegment extends ChartSegment {
                 ? _intermediateSumColor ?? _color!
                 : _currentPoint!.isTotalSum!
                     ? _totalSumColor ?? _color!
-                    : _currentPoint!.yValue < 0
+                    : _currentPoint!.yValue < 0 == true
                         ? _negativePointsColor ?? _color!
                         : _color!)!
         ..style = PaintingStyle.fill;
@@ -64,12 +61,13 @@ class WaterfallSegment extends ChartSegment {
 
   /// Get the color of connector lines.
   Paint _getConnectorLineStrokePaint() {
-    final WaterfallSeries<dynamic, dynamic> series = _series as WaterfallSeries;
+    final WaterfallSeries<dynamic, dynamic> series =
+        _series as WaterfallSeries<dynamic, dynamic>;
     connectorLineStrokePaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = series.connectorLineSettings.width
       ..color = series.connectorLineSettings.color ??
-          _chartState._chartTheme.waterfallConnectorLineColor;
+          _renderingDetails.chartTheme.waterfallConnectorLineColor;
     return connectorLineStrokePaint!;
   }
 
@@ -80,12 +78,10 @@ class WaterfallSegment extends ChartSegment {
       ..style = PaintingStyle.stroke
       ..strokeWidth = _strokeWidth!;
     _defaultStrokeColor = strokePaint;
-    if (_series.borderGradient != null) {
-      strokePaint!.shader =
-          _series.borderGradient!.createShader(_currentPoint!.region!);
-    } else {
-      strokePaint!.color = _strokeColor!;
-    }
+    _series.borderGradient != null
+        ? strokePaint!.shader =
+            _series.borderGradient!.createShader(_currentPoint!.region!)
+        : strokePaint!.color = _strokeColor!;
     _series.borderWidth == 0
         ? strokePaint!.color = Colors.transparent
         : strokePaint!.color;
@@ -100,13 +96,13 @@ class WaterfallSegment extends ChartSegment {
   @override
   void onPaint(Canvas canvas) {
     final WaterfallSeries<dynamic, dynamic> _series =
-        this._series as WaterfallSeries;
+        this._series as WaterfallSeries<dynamic, dynamic>;
     CartesianChartPoint<dynamic> oldPaint;
     final Path linePath = Path();
 
     if (fillPaint != null) {
       (_series.animationDuration > 0 &&
-              !_seriesRenderer._chartState!._isLegendToggled)
+              !_seriesRenderer._renderingDetails!.isLegendToggled)
           ? _animateRangeColumn(
               canvas,
               _seriesRenderer,
@@ -117,20 +113,18 @@ class WaterfallSegment extends ChartSegment {
           : canvas.drawRRect(segmentRect, fillPaint!);
     }
     if (strokePaint != null) {
-      if (_series.dashArray[0] != 0 && _series.dashArray[1] != 0) {
-        _drawDashedLine(canvas, _series.dashArray, strokePaint!, _path);
-      } else {
-        (_series.animationDuration > 0 &&
-                !_seriesRenderer._chartState!._isLegendToggled)
-            ? _animateRangeColumn(
-                canvas,
-                _seriesRenderer,
-                strokePaint!,
-                segmentRect,
-                _oldPoint != null ? _oldPoint!.region : _oldRegion,
-                animationFactor)
-            : canvas.drawRRect(segmentRect, strokePaint!);
-      }
+      (_series.dashArray[0] != 0 && _series.dashArray[1] != 0)
+          ? _drawDashedLine(canvas, _series.dashArray, strokePaint!, _path)
+          : (_series.animationDuration > 0 &&
+                  !_seriesRenderer._renderingDetails!.isLegendToggled)
+              ? _animateRangeColumn(
+                  canvas,
+                  _seriesRenderer,
+                  strokePaint!,
+                  segmentRect,
+                  _oldPoint != null ? _oldPoint!.region : _oldRegion,
+                  animationFactor)
+              : canvas.drawRRect(segmentRect, strokePaint!);
     }
     if (connectorLineStrokePaint != null &&
         _currentPoint!.overallDataPointIndex! > 0) {

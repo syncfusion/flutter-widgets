@@ -9,7 +9,7 @@ class _CipherUtils {
   //Implementation
   _IBufferedCipher getCipher(String algorithm) {
     String? value;
-    if (_algorithms.length > 0) {
+    if (_algorithms.isNotEmpty) {
       value = _algorithms[algorithm];
     }
     if (value != null) {
@@ -19,7 +19,7 @@ class _CipherUtils {
     _ICipher? blockCipher;
     _ICipherBlock? asymBlockCipher;
     String algorithmName = parts[0];
-    if (_algorithms.length > 0) {
+    if (_algorithms.isNotEmpty) {
       value = _algorithms[algorithmName];
     }
     if (value != null) {
@@ -311,8 +311,8 @@ class _SignerUtilities {
     _oids['RIPEMD160withRSA'] = _NistObjectIds.rsaSignatureWithRipeMD160;
   }
   //Fields
-  Map<String?, String> _algms = <String?, String>{};
-  Map<String, _DerObjectID> _oids = <String, _DerObjectID>{};
+  final Map<String?, String> _algms = <String?, String>{};
+  final Map<String, _DerObjectID> _oids = <String, _DerObjectID>{};
   //Implementation
   _ISigner getSigner(String algorithm) {
     _ISigner result;
@@ -342,7 +342,8 @@ class _SignerUtilities {
 
 class _KeyIdentifier extends _Asn1Encode {
   _KeyIdentifier(_Asn1Sequence sequence) {
-    sequence._objects!.forEach((entry) {
+    // ignore: avoid_function_literals_in_foreach_calls
+    sequence._objects!.forEach((dynamic entry) {
       if (entry is _Asn1Tag) {
         switch (entry.tagNumber) {
           case 0:
@@ -396,7 +397,7 @@ class _KeyIdentifier extends _Asn1Encode {
   @override
   String toString() {
     return 'AuthorityKeyIdentifier: KeyID(' +
-        String.fromCharCodes(_keyIdentifier!.getOctets() as Iterable<int>) +
+        String.fromCharCodes(_keyIdentifier!.getOctets()!) +
         ')';
   }
 }

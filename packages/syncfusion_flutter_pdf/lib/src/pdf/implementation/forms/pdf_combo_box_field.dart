@@ -70,11 +70,11 @@ class PdfComboBoxField extends PdfListField {
 
   /// Gets or sets the selected index in the list.
   int get selectedIndex => _selectedIndexes[0];
-  set selectedIndex(int value) => _selectedIndexes = [value];
+  set selectedIndex(int value) => _selectedIndexes = <int>[value];
 
   /// Gets or sets the selected value in the list.
   String get selectedValue => _selectedValues[0];
-  set selectedValue(String value) => _selectedValues = [value];
+  set selectedValue(String value) => _selectedValues = <String>[value];
 
   /// Gets the selected item in the list.
   PdfListFieldItem? get selectedItem => _selectedItems[0];
@@ -116,6 +116,7 @@ class PdfComboBoxField extends PdfListField {
     }
   }
 
+  @override
   void _beginSave() {
     super._beginSave();
     _applyAppearance(_getWidgetAnnotation(_dictionary, _crossTable));
@@ -147,6 +148,7 @@ class PdfComboBoxField extends PdfListField {
     }
   }
 
+  @override
   void _draw() {
     super._draw();
     if (!_isLoadedField && _widget!._pdfAppearance != null) {
@@ -163,7 +165,7 @@ class PdfComboBoxField extends PdfListField {
           foreBrush: _foreBrush,
           borderPen: _borderPen,
           style: borderStyle,
-          borderWidth: this.borderWidth,
+          borderWidth: borderWidth,
           shadowBrush: _shadowBrush);
       final PdfTemplate template = PdfTemplate(rect.width, rect.height);
       String? text = '';
@@ -181,7 +183,7 @@ class PdfComboBoxField extends PdfListField {
           }
         } else if (_dictionary.containsKey(_DictionaryProperties.dv)) {
           if (_dictionary[_DictionaryProperties.dv] is _PdfString) {
-            text = (_dictionary[_DictionaryProperties.dv] as _PdfString).value;
+            text = (_dictionary[_DictionaryProperties.dv]! as _PdfString).value;
           } else {
             final _IPdfPrimitive? str = _PdfCrossTable._dereference(
                 _dictionary[_DictionaryProperties.dv]);
@@ -195,8 +197,8 @@ class PdfComboBoxField extends PdfListField {
         _FieldPainter().drawRectangularControl(template.graphics!, parameters);
         final double borderWidth = parameters._borderWidth!.toDouble();
         final double doubleBorderWidth = 2 * borderWidth;
-        final bool padding = (parameters._style == PdfBorderStyle.inset ||
-            parameters._style == PdfBorderStyle.beveled);
+        final bool padding = parameters._style == PdfBorderStyle.inset ||
+            parameters._style == PdfBorderStyle.beveled;
         final Offset point = padding
             ? Offset(2 * doubleBorderWidth, 2 * borderWidth)
             : Offset(doubleBorderWidth, borderWidth);
@@ -262,9 +264,10 @@ class PdfComboBoxField extends PdfListField {
     }
   }
 
+  @override
   double _getFontHeight(PdfFontFamily family) {
     double fontSize = 0;
-    final List<double> widths = [];
+    final List<double> widths = <double>[];
     if (selectedIndex != -1) {
       final PdfFont itemFont = PdfStandardFont(family, 12);
       widths.add(itemFont.measureString(selectedItem!.text).width);
@@ -278,7 +281,7 @@ class PdfComboBoxField extends PdfListField {
       }
     }
     widths.sort();
-    double s = widths.length > 0
+    double s = widths.isNotEmpty
         ? ((12 * (bounds.size.width - 4 * borderWidth)) /
             widths[widths.length - 1])
         : 12;
@@ -289,7 +292,7 @@ class PdfComboBoxField extends PdfListField {
       if (textSize.width > bounds.width || textSize.height > bounds.height) {
         final double width = bounds.width - 4 * borderWidth;
         final double h = bounds.height - 4 * borderWidth;
-        final double minimumFontSize = 0.248;
+        const double minimumFontSize = 0.248;
         for (double i = 1; i <= bounds.height; i++) {
           font._setSize(i);
           Size textSize = font.measureString(text);

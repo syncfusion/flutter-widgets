@@ -168,7 +168,7 @@ class _PdfCrossTable {
       _PdfReference? xRefReference;
       final Map<String, _IPdfPrimitive> returnedValue = _prepareXRefStream(
           prevXRef.toDouble(), referencePosition!.toDouble(), xRefReference);
-      final _PdfStream xRefStream = returnedValue['xRefStream'] as _PdfStream;
+      final _PdfStream xRefStream = returnedValue['xRefStream']! as _PdfStream;
       xRefReference = returnedValue['reference'] as _PdfReference?;
       xRefStream._blockEncryption = true;
       _doSaveObject(xRefStream, xRefReference!, writer);
@@ -265,9 +265,10 @@ class _PdfCrossTable {
     }
     _document!._currentSavingObject = reference;
     bool archive = false;
-    archive = (object is _PdfDictionary) ? object._archive : true;
+    archive = object is! _PdfDictionary ||
+        (object is _PdfDictionary && object._archive);
     final bool allowedType =
-        !((object is _PdfStream) || !(archive) || (object is _PdfCatalog));
+        !((object is _PdfStream) || !archive || (object is _PdfCatalog));
     bool sigFlag = false;
     if (object is _PdfDictionary &&
         _document!.fileStructure.crossReferenceType ==
@@ -307,7 +308,7 @@ class _PdfCrossTable {
       }
     }
     if (object is _IPdfWrapper) {
-      object = (object as _IPdfWrapper)._element;
+      object = (object! as _IPdfWrapper)._element;
     }
     dynamic reference;
     bool? wasNew = false;
@@ -317,13 +318,13 @@ class _PdfCrossTable {
           _items!._count > object.objectCollectionIndex! - 1) {
         final Map<String, dynamic> result =
             _document!._objects._getReference(object, wasNew);
-        wasNew = result['isNew'];
+        wasNew = result['isNew'] as bool?;
         reference = result['reference'];
       }
     } else {
       final Map<String, dynamic> result =
           _document!._objects._getReference(object, wasNew);
-      wasNew = result['isNew'];
+      wasNew = result['isNew'] as bool?;
       reference = result['reference'];
     }
     if (reference == null) {
@@ -391,10 +392,10 @@ class _PdfCrossTable {
       } else {
         _document!._objects._trySetReference(object, reference);
       }
-      object.objectCollectionIndex = reference._objNum;
+      object.objectCollectionIndex = reference._objNum as int?;
       object.status = _ObjectStatus.none;
     }
-    return reference;
+    return reference as _PdfReference;
   }
 
   _PdfReference getMappedReference(_PdfReference reference) {
@@ -630,11 +631,11 @@ class _PdfCrossTable {
     }
     if (obj is _PdfDictionary) {
       final _PdfDictionary dic = obj;
-      if (!(obj is PdfPage)) {
+      if (obj is! PdfPage) {
         if (dic.containsKey(_DictionaryProperties.type)) {
           final _IPdfPrimitive? objType = dic[_DictionaryProperties.type];
           if (objType is _PdfName) {
-            final _PdfName type = _getObject(objType) as _PdfName;
+            final _PdfName type = _getObject(objType)! as _PdfName;
             if (type._name == 'Page') {
               if (!dic.containsKey(_DictionaryProperties.kids)) {
                 if (_pdfDocument!._isLoadedDocument) {
@@ -746,14 +747,14 @@ class _PdfCrossTable {
     xRefStream[_DictionaryProperties.w] = _PdfArray(paramsFormat);
     if (_crossTable != null) {
       final _PdfDictionary trailer = _crossTable!._trailer!;
-      trailer._items!.keys.forEach((_PdfName? key) {
-        final bool contains = xRefStream!.containsKey(key);
+      for (final _PdfName? key in trailer._items!.keys) {
+        final bool contains = xRefStream.containsKey(key);
         if (!contains &&
             key!._name != _DictionaryProperties.decodeParms &&
             key._name != _DictionaryProperties.filter) {
           xRefStream[key] = trailer[key];
         }
-      });
+      }
     }
     if (prevXRef == 0 && xRefStream.containsKey(_DictionaryProperties.prev)) {
       xRefStream.remove(_DictionaryProperties.prev);
@@ -858,7 +859,7 @@ class _PdfCrossTable {
         }
       } else if (obj is _PdfArray) {
         final _PdfArray array = obj;
-        array._elements.forEach((_IPdfPrimitive? element) {
+        for (final _IPdfPrimitive? element in array._elements) {
           if (element != null && element is _PdfName) {
             final _PdfName name = element;
             if (name._name == 'Indexed') {
@@ -866,7 +867,7 @@ class _PdfCrossTable {
             }
           }
           _decrypt(element!);
-        });
+        }
         _isColorSpace = false;
       } else if (obj is _PdfString) {
         final _PdfString str = obj;

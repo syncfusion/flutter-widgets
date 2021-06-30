@@ -9,7 +9,7 @@ class _FieldPainter {
   //Draws a rectangular control.
   void drawRectangularControl(PdfGraphics graphics, _PaintParams params) {
     graphics.drawRectangle(
-        bounds: params._bounds ?? Rect.fromLTWH(0, 0, 0, 0),
+        bounds: params._bounds ?? const Rect.fromLTWH(0, 0, 0, 0),
         brush: params._backBrush);
     drawBorder(graphics, params._bounds, params._borderPen, params._style,
         params._borderWidth);
@@ -116,9 +116,9 @@ class _FieldPainter {
           if (extraBorder) {
             borderWidth *= 2;
           }
-          double xPosition = (extraBorder
+          double xPosition = extraBorder
               ? 2.0 * paintParams._borderWidth!
-              : paintParams._borderWidth!.toDouble());
+              : paintParams._borderWidth!.toDouble();
           xPosition = max(xPosition, 1);
           final double xOffset = min(borderWidth, xPosition);
 
@@ -130,7 +130,7 @@ class _FieldPainter {
 
           font = PdfStandardFont(PdfFontFamily.zapfDingbats, fontSize);
           if (paintParams._bounds!.width > paintParams._bounds!.height) {
-            yOffset = ((paintParams._bounds!.height - font.height) / 2);
+            yOffset = (paintParams._bounds!.height - font.height) / 2;
           }
         } else {
           font = PdfStandardFont(PdfFontFamily.zapfDingbats, font.size);
@@ -236,7 +236,7 @@ class _FieldPainter {
   //Draws the left top shadow.
   void drawLeftTopShadow(
       PdfGraphics graphics, Rect bounds, int width, PdfBrush? brush) {
-    final List<Offset> points = [
+    final List<Offset> points = <Offset>[
       Offset(bounds.left + width, bounds.top + width),
       Offset(bounds.left + width, bounds.bottom - width),
       Offset(bounds.left + 2 * width, bounds.bottom - 2 * width),
@@ -250,7 +250,7 @@ class _FieldPainter {
   //Draws the right bottom shadow.
   void drawRightBottomShadow(
       PdfGraphics graphics, Rect bounds, int width, PdfBrush? brush) {
-    final List<Offset> points = [
+    final List<Offset> points = <Offset>[
       Offset(bounds.left + width, bounds.bottom - width),
       Offset(bounds.left + 2 * width, bounds.bottom - 2 * width),
       Offset(bounds.right - 2 * width, bounds.bottom - 2 * width),
@@ -372,7 +372,8 @@ class _FieldPainter {
     rectangle.inflate(-1.5 * borderWidth);
     PdfPen? leftTopPen;
     PdfPen? rightBottomPen;
-    final PdfSolidBrush shadowBrush = paintParams._shadowBrush as PdfSolidBrush;
+    final PdfSolidBrush shadowBrush =
+        paintParams._shadowBrush! as PdfSolidBrush;
     final PdfColor shadowColor = shadowBrush.color;
 
     switch (paintParams._style) {
@@ -427,13 +428,13 @@ class _FieldPainter {
     if (graphics._layer != null &&
         graphics._page!._rotation != PdfPageRotateAngle.rotateAngle0) {
       final PdfGraphicsState state = graphics.save();
-      final Size? size = graphics._page!.size;
+      final Size size = graphics._page!.size;
       if (graphics._page!._rotation == PdfPageRotateAngle.rotateAngle90) {
         graphics.translateTransform(graphics.size.height, 0);
         graphics.rotateTransform(90);
         rectangle = Rect.fromLTWH(
             rectangle!.left,
-            size!.height - rectangle.left - rectangle.width,
+            size.height - rectangle.left - rectangle.width,
             rectangle.height,
             rectangle.width);
       } else if (graphics._page!._rotation ==
@@ -442,7 +443,7 @@ class _FieldPainter {
             graphics._page!.size.width, graphics._page!.size.height);
         graphics.rotateTransform(-180);
         rectangle = Rect.fromLTWH(
-            size!.width - rectangle!.left - rectangle.width,
+            size.width - rectangle!.left - rectangle.width,
             size.height - rectangle.top - rectangle.height,
             rectangle.width,
             rectangle.height);
@@ -451,7 +452,7 @@ class _FieldPainter {
         graphics.translateTransform(0, graphics.size.width);
         graphics.rotateTransform(270);
         rectangle = Rect.fromLTWH(
-            size!.width - rectangle!.top - rectangle.height,
+            size.width - rectangle!.top - rectangle.height,
             rectangle.left,
             rectangle.height,
             rectangle.width);
@@ -482,9 +483,9 @@ class _FieldPainter {
           params._style == PdfBorderStyle.beveled;
       final Offset point = padding
           ? Offset(2 * doubleBorderWidth,
-              ((index + 2) * borderWidth + font.size * index))
-          : Offset(doubleBorderWidth,
-              ((index + 1) * borderWidth + font.size * index));
+              (index + 2) * borderWidth + font.size * index)
+          : Offset(
+              doubleBorderWidth, (index + 1) * borderWidth + font.size * index);
       PdfBrush? brush = params._foreBrush;
       double width = params._bounds!.width - doubleBorderWidth;
       final Rect rectangle = Rect.fromLTWH(
@@ -494,7 +495,7 @@ class _FieldPainter {
           params._bounds!.height - (padding ? doubleBorderWidth : borderWidth));
       graphics.setClip(bounds: rectangle, mode: PdfFillMode.winding);
       bool selected = false;
-      for (final selectedIndex in selectedItem) {
+      for (final int selectedIndex in selectedItem) {
         if (selectedIndex == index) {
           selected = true;
         }
@@ -538,15 +539,15 @@ class _FieldPainter {
         params._bounds!.height - (4 * multiplier) * params._borderWidth!);
     // Calculate position of the text.
     if (multiline) {
-      final double? tempHeight =
+      final double tempHeight =
           format.lineSpacing == 0 ? font.height : format.lineSpacing;
       final bool subScript =
           format.subSuperscript == PdfSubSuperscript.subscript;
       final double ascent = font._metrics!._getAscent(format);
       final double descent = font._metrics!._getDescent(format);
       final double shift = subScript
-          ? tempHeight! - (font.height + descent)
-          : tempHeight! - ascent;
+          ? tempHeight - (font.height + descent)
+          : tempHeight - ascent;
       if (rectangle.left == 0 && rectangle.top == 0) {
         rectangle = Rect.fromLTWH(rectangle.left, -(rectangle.top - shift),
             rectangle.width, rectangle.height);

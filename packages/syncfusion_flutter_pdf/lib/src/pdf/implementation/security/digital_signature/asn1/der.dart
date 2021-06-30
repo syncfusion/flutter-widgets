@@ -6,6 +6,7 @@ class _IAsn1String {
 
 class _IAsn1SetHelper implements _IAsn1 {
   _IAsn1? readObject() => null;
+  @override
   _Asn1? getAsn1() => null;
 }
 
@@ -33,6 +34,7 @@ class _ObjectIdentityToken {
 }
 
 abstract class _DerString extends _Asn1 implements _IAsn1String {
+  @override
   String? getString([List<int>? bytes]);
 
   @override
@@ -41,11 +43,13 @@ abstract class _DerString extends _Asn1 implements _IAsn1String {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     return getString().hashCode;
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
     if (other is _DerString) {
       return getString() == other.getString();
@@ -57,15 +61,15 @@ abstract class _DerString extends _Asn1 implements _IAsn1String {
 
 class _DerAsciiString extends _DerString {
   //Constructor
-  _DerAsciiString.fromBytes(List<int> bytes) {
-    _value = utf8.decode(bytes);
-  }
-
   _DerAsciiString(String value, bool isValid) {
     if (isValid && !isAsciiString(value)) {
       throw ArgumentError.value(value, 'value', 'Invalid characters found');
     }
     _value = value;
+  }
+
+  _DerAsciiString.fromBytes(List<int> bytes) {
+    _value = utf8.decode(bytes);
   }
   //Fields
   String? _value;
@@ -82,11 +86,13 @@ class _DerAsciiString extends _DerString {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     return _value.hashCode;
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object asn1) {
     if (asn1 is _DerAsciiString) {
       return _value == asn1._value;
@@ -154,18 +160,20 @@ class _DerBitString extends _DerString {
   @override
   void encode(_DerStream stream) {
     final List<int> bytes =
-        List<int>.generate(getBytes()!.length + 1, (i) => 0);
+        List<int>.generate(getBytes()!.length + 1, (int i) => 0);
     bytes[0] = _extra!;
     List.copyRange(bytes, 1, getBytes()!, 0, bytes.length - 1);
     stream.writeEncoded(_Asn1Tags.bitString, bytes);
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     return _extra.hashCode ^ _Asn1Constants.getHashCode(_data);
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object asn1) {
     if (asn1 is _DerBitString) {
       return _extra == asn1._extra &&
@@ -189,8 +197,8 @@ class _DerBitString extends _DerString {
 
   //Static methods
   static _DerBitString fromAsn1Octets(List<int> bytes) {
-    final int? pad = bytes[0];
-    final List<int> data = List<int>.generate(bytes.length - 1, (i) => 0);
+    final int pad = bytes[0];
+    final List<int> data = List<int>.generate(bytes.length - 1, (int i) => 0);
     List.copyRange(data, 0, bytes, 1, data.length + 1);
     return _DerBitString(data, pad);
   }
@@ -209,7 +217,7 @@ class _DerBitString extends _DerString {
     if (isExplicit || asn1 is _DerBitString) {
       return getDetBitString(asn1);
     }
-    return fromAsn1Octets((asn1 as _Asn1Octet).getOctets()!);
+    return fromAsn1Octets((asn1! as _Asn1Octet).getOctets()!);
   }
 }
 
@@ -233,9 +241,11 @@ class _DerBmpString extends _DerString {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode => _value.hashCode;
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object asn1) {
     if (asn1 is _DerBmpString) {
       return _value == asn1._value;
@@ -246,7 +256,8 @@ class _DerBmpString extends _DerString {
 
   @override
   void encode(_DerStream stream) {
-    final List<int> bytes = List<int>.generate((_value!.length * 2), (i) => 0);
+    final List<int> bytes =
+        List<int>.generate(_value!.length * 2, (int i) => 0);
     for (int i = 0; i != _value!.length; i++) {
       bytes[2 * i] = (_value!.codeUnitAt(i) >> 8).toUnsigned(8);
       bytes[2 * i + 1] = _value!.codeUnitAt(i).toUnsigned(8);
@@ -277,6 +288,7 @@ class _DerPrintableString extends _DerString {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object asn1) {
     if (asn1 is _DerPrintableString) {
       return _value == asn1._value;
@@ -286,6 +298,7 @@ class _DerPrintableString extends _DerString {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode => _value.hashCode;
 }
 
@@ -312,6 +325,7 @@ class _DerBoolean extends _Asn1 {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object asn1) {
     if (asn1 is _DerBoolean) {
       return isTrue == asn1.isTrue;
@@ -321,6 +335,7 @@ class _DerBoolean extends _Asn1 {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     return isTrue.hashCode;
   }
@@ -355,11 +370,13 @@ class _DerInteger extends _Asn1 {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     return _Asn1Constants.getHashCode(_value);
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object asn1) {
     if (asn1 is _DerInteger) {
       return _Asn1Constants.areEqual(_value, asn1._value);
@@ -376,7 +393,7 @@ class _DerInteger extends _Asn1 {
   //Static methods
   static _DerInteger? getNumber(dynamic obj) {
     if (obj == null || obj is _DerInteger) {
-      return obj;
+      return obj as _DerInteger?;
     }
     throw ArgumentError.value(obj, 'obj', 'Invalid entry');
   }
@@ -395,6 +412,7 @@ class _DerNull extends _Asn1Null {
     _bytes = <int>[];
   }
   //Fields
+  @override
   List<int>? _bytes;
   static _DerNull value = _DerNull();
   //Implementation
@@ -404,11 +422,13 @@ class _DerNull extends _Asn1Null {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object asn1) {
     return asn1 is _DerNull;
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     return -1;
   }
@@ -427,9 +447,11 @@ class _DerObjectID extends _Asn1 {
     _bytes = _Asn1Constants.clone(bytes);
   }
   String? _id;
+  @override
   List<int>? _bytes;
+  // ignore: prefer_final_fields
   static List<_DerObjectID?> _objects =
-      List<_DerObjectID?>.generate(1024, (i) => null);
+      List<_DerObjectID?>.generate(1024, (int i) => null);
   //Implemnetation
   List<int>? getBytes() {
     _bytes ??= getOutput();
@@ -443,7 +465,7 @@ class _DerObjectID extends _Asn1 {
     final int first = int.parse(token) * 40;
     token = oidToken.nextToken()!;
     if (token.length <= 18) {
-      stream = writeField(stream, fieldValue: (first + int.parse(token)));
+      stream = writeField(stream, fieldValue: first + int.parse(token));
     } else {
       stream = writeField(stream,
           numberValue: BigInt.parse(token) + BigInt.from(first));
@@ -475,7 +497,7 @@ class _DerObjectID extends _Asn1 {
         stream.add(0);
       } else {
         BigInt value = numberValue;
-        final List<int> bytes = List<int>.generate(byteCount, (i) => 0);
+        final List<int> bytes = List<int>.generate(byteCount, (int i) => 0);
         for (int i = byteCount - 1; i >= 0; i--) {
           bytes[i] = ((value.toSigned(32).toInt() & 0x7f) | 0x80).toUnsigned(8);
           value = value >> 7;
@@ -493,11 +515,13 @@ class _DerObjectID extends _Asn1 {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     return _id.hashCode;
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object asn1) {
     if (asn1 is _DerObjectID) {
       return _id == asn1._id;
@@ -514,7 +538,7 @@ class _DerObjectID extends _Asn1 {
   //Static methods
   static _DerObjectID? getID(dynamic obj) {
     if (obj == null || obj is _DerObjectID) {
-      return obj;
+      return obj as _DerObjectID?;
     } else if (obj is List<int>) {
       return fromOctetString(obj);
     }
@@ -560,9 +584,9 @@ class _DerObjectID extends _Asn1 {
     BigInt? number;
     bool first = true;
     for (int i = 0; i != bytes.length; i++) {
-      final int? entry = bytes[i];
+      final int entry = bytes[i];
       if (value <= 72057594037927808) {
-        value += (entry! & 0x7f);
+        value += entry & 0x7f;
         if ((entry & 0x80) == 0) {
           if (first) {
             if (value < 40) {
@@ -583,10 +607,8 @@ class _DerObjectID extends _Asn1 {
           value <<= 7;
         }
       } else {
-        if (number == null) {
-          number = BigInt.from(value);
-        }
-        number = number | BigInt.from(entry! & 0x7f);
+        number ??= BigInt.from(value);
+        number = number | BigInt.from(entry & 0x7f);
         if ((entry & 0x80) == 0) {
           if (first) {
             result += '2';
@@ -630,9 +652,10 @@ class _DerSequence extends _Asn1Sequence {
   _DerSequence({List<_Asn1Encode?>? array, _Asn1EncodeCollection? collection})
       : super() {
     if (array != null) {
-      array.forEach((entry) {
+      // ignore: prefer_foreach
+      for (final _Asn1Encode? entry in array) {
         _objects!.add(entry);
-      });
+      }
     } else if (collection != null) {
       for (int i = 0; i < collection.count; i++) {
         _objects!.add(collection[i]);
@@ -650,9 +673,8 @@ class _DerSequence extends _Asn1Sequence {
   @override
   void encode(_DerStream outputStream) {
     final _DerStream stream = _DerStream(<int>[]);
-    _objects!.forEach((asn1) {
-      stream.writeObject(asn1);
-    });
+    // ignore: avoid_function_literals_in_foreach_calls
+    _objects!.forEach((dynamic asn1) => stream.writeObject(asn1));
     outputStream.writeEncoded(
         _Asn1Tags.sequence | _Asn1Tags.constructed, stream._stream);
   }
@@ -665,10 +687,12 @@ class _DerSequenceHelper implements _IAsn1Collection {
   //Fields
   late _Asn1Parser _helper;
   //Implementation
+  @override
   _IAsn1? readObject() {
     return _helper.readObject();
   }
 
+  @override
   _Asn1 getAsn1() {
     return _DerSequence(collection: _helper.readCollection());
   }
@@ -682,9 +706,8 @@ class _DerSet extends _Asn1Set {
       bool? isSort})
       : super() {
     if (array != null) {
-      array.forEach((asn1) {
-        addObject(asn1);
-      });
+      // ignore: avoid_function_literals_in_foreach_calls
+      array.forEach((_Asn1Encode? asn1) => addObject(asn1));
       sortObjects();
     } else if (collection != null) {
       isSort ??= true;
@@ -700,9 +723,8 @@ class _DerSet extends _Asn1Set {
   @override
   void encode(_DerStream outputStream) {
     final _DerStream stream = _DerStream(<int>[]);
-    _objects.forEach((entry) {
-      stream.writeObject(entry);
-    });
+    // ignore: avoid_function_literals_in_foreach_calls
+    _objects.forEach((dynamic entry) => stream.writeObject(entry));
     outputStream.writeEncoded(
         _Asn1Tags.setTag | _Asn1Tags.constructed, stream._stream);
   }
@@ -715,10 +737,12 @@ class _DerSetHelper implements _IAsn1SetHelper {
   //Fields
   late _Asn1Parser _helper;
   //Implementation
+  @override
   _IAsn1? readObject() {
     return _helper.readObject();
   }
 
+  @override
   _Asn1 getAsn1() {
     return _DerSet(collection: _helper.readCollection(), isSort: false);
   }
@@ -840,6 +864,7 @@ class _DerUtcTime extends _Asn1 {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object asn1) {
     if (asn1 is _DerUtcTime) {
       return _time == asn1._time;
@@ -849,6 +874,7 @@ class _DerUtcTime extends _Asn1 {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     return _time.hashCode;
   }
@@ -864,6 +890,7 @@ class _DerCatalogue extends _Asn1 {
     _bytes = bytes;
   }
   //Fields
+  @override
   List<int>? _bytes;
   //Implemnetation
   @override
@@ -872,6 +899,7 @@ class _DerCatalogue extends _Asn1 {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object asn1) {
     if (asn1 is _DerCatalogue) {
       return _Asn1Constants.areEqual(_bytes, asn1._bytes);
@@ -881,6 +909,7 @@ class _DerCatalogue extends _Asn1 {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     return _Asn1Constants.getHashCode(_bytes);
   }
@@ -893,10 +922,12 @@ class _DerOctetHelper implements _IAsn1Octet {
   //Fields
   _Asn1StreamHelper? _stream;
   //Implementation
+  @override
   _StreamReader? getOctetStream() {
     return _stream;
   }
 
+  @override
   _Asn1 getAsn1() {
     return _DerOctet(_stream!.toArray());
   }
@@ -920,6 +951,7 @@ class _DerUtf8String extends _DerString {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object asn1) {
     if (asn1 is _DerUtf8String) {
       return _value == asn1._value;
@@ -929,6 +961,7 @@ class _DerUtf8String extends _DerString {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode => _value.hashCode;
 }
 
@@ -951,13 +984,13 @@ class _DerTeleText extends _DerString {
 
   List<int> toByteArray(String value) {
     final List<int> result = <int>[];
-    value.codeUnits.forEach((entry) {
-      result.add(entry.toUnsigned(8));
-    });
+    // ignore: avoid_function_literals_in_foreach_calls
+    value.codeUnits.forEach((int entry) => result.add(entry.toUnsigned(8)));
     return result;
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object asn1) {
     if (asn1 is _DerTeleText) {
       return _value == asn1._value;
@@ -967,5 +1000,6 @@ class _DerTeleText extends _DerString {
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode => _value.hashCode;
 }

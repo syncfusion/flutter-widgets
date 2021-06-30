@@ -32,6 +32,7 @@ class _PainterKey {
 ///
 /// _Note:_ IntereactivetoolTip applicable for axis types and trackball.
 
+@immutable
 class InteractiveTooltip {
   /// Creating an argument constructor of InteractiveTooltip class.
   const InteractiveTooltip(
@@ -276,6 +277,53 @@ class InteractiveTooltip {
   ///}
   ///```
   final bool canShowMarker;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is InteractiveTooltip &&
+        other.enable == enable &&
+        other.color == color &&
+        other.borderColor == borderColor &&
+        other.borderWidth == borderWidth &&
+        other.borderRadius == borderRadius &&
+        other.arrowLength == arrowLength &&
+        other.arrowWidth == arrowWidth &&
+        other.format == format &&
+        other.connectorLineColor == connectorLineColor &&
+        other.connectorLineWidth == connectorLineWidth &&
+        other.connectorLineDashArray == connectorLineDashArray &&
+        other.decimalPlaces == decimalPlaces &&
+        other.canShowMarker == canShowMarker &&
+        other.textStyle == textStyle;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      enable,
+      color,
+      borderColor,
+      borderWidth,
+      borderRadius,
+      arrowLength,
+      arrowWidth,
+      format,
+      connectorLineColor,
+      connectorLineWidth,
+      connectorLineDashArray,
+      decimalPlaces,
+      canShowMarker,
+      textStyle
+    ];
+    return hashList(values);
+  }
 }
 
 class _StackedValues {
@@ -386,7 +434,7 @@ class _ChartPointInfo {
 ///marker to customize the appearance.
 class TrackballMarkerSettings extends MarkerSettings {
   /// Creating an argument constructor of TrackballMarkerSettings class.
-  TrackballMarkerSettings(
+  const TrackballMarkerSettings(
       {this.markerVisibility = TrackballVisibilityMode.auto,
       double? height,
       double? width,
@@ -435,12 +483,48 @@ class TrackballMarkerSettings extends MarkerSettings {
   ///}
   ///```
   final TrackballVisibilityMode markerVisibility;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is TrackballMarkerSettings &&
+        other.markerVisibility == markerVisibility &&
+        other.height == height &&
+        other.width == width &&
+        other.color == color &&
+        other.shape == shape &&
+        other.borderWidth == borderWidth &&
+        other.borderColor == borderColor &&
+        other.image == image;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      markerVisibility,
+      height,
+      width,
+      color,
+      shape,
+      borderWidth,
+      borderColor,
+      image
+    ];
+    return hashList(values);
+  }
 }
 
 ///Options to show the details of the trackball template.
+@immutable
 class TrackballDetails {
   ///Constructor of TrackballDetails class.
-  TrackballDetails(
+  const TrackballDetails(
       [this.point,
       this.series,
       this.pointIndex,
@@ -461,6 +545,34 @@ class TrackballDetails {
 
   /// It specifies the trackball grouping mode info.
   final TrackballGroupingModeInfo? groupingModeInfo;
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is TrackballDetails &&
+        other.point == point &&
+        other.series == series &&
+        other.pointIndex == pointIndex &&
+        other.seriesIndex == seriesIndex &&
+        other.groupingModeInfo == groupingModeInfo;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      point,
+      series,
+      pointIndex,
+      seriesIndex,
+      groupingModeInfo
+    ];
+    return hashList(values);
+  }
 }
 
 /// To get cartesian type data label saturation color.
@@ -472,6 +584,7 @@ Color _getDataLabelSaturationColor(
   final SfCartesianChart chart = _chartState._chart;
   Color color;
   final DataLabelSettings dataLabel = seriesRenderer._series.dataLabelSettings;
+  final _RenderingDetails renderingDetails = _chartState._renderingDetails;
   final ChartDataLabelAlignment labelPosition =
       (seriesRenderer._seriesType == 'rangecolumn' &&
               (dataLabel.labelAlignment == ChartDataLabelAlignment.bottom ||
@@ -500,25 +613,24 @@ Color _getDataLabelSaturationColor(
     switch (seriesType) {
       case 'Line':
         color = _getOuterDataLabelColor(dataLabelSettingsRenderer,
-            chart.plotAreaBackgroundColor, _chartState._chartTheme);
+            chart.plotAreaBackgroundColor, renderingDetails.chartTheme);
         break;
       case 'Column':
         color = (!currentPoint.dataLabelSaturationRegionInside &&
                 (labelPosition == ChartDataLabelAlignment.outer ||
                     (labelPosition == ChartDataLabelAlignment.top &&
                         alignment == ChartAlignment.far) ||
-                    (seriesRenderer._seriesType == 'rangecolumn'
-                        ? (labelPosition == ChartDataLabelAlignment.top &&
-                            alignment == ChartAlignment.near)
-                        : false) ||
+                    seriesRenderer._seriesType == 'rangecolumn' &&
+                        (labelPosition == ChartDataLabelAlignment.top &&
+                            alignment == ChartAlignment.near) ||
                     (labelPosition == ChartDataLabelAlignment.auto &&
                         (!seriesRenderer._seriesType.contains('100') &&
                             seriesRenderer._seriesType != 'stackedbar' &&
                             seriesRenderer._seriesType != 'stackedcolumn'))))
             ? _getOuterDataLabelColor(dataLabelSettingsRenderer,
-                chart.plotAreaBackgroundColor, _chartState._chartTheme)
+                chart.plotAreaBackgroundColor, renderingDetails.chartTheme)
             : _getInnerDataLabelColor(
-                currentPoint, seriesRenderer, _chartState._chartTheme);
+                currentPoint, seriesRenderer, renderingDetails.chartTheme);
         break;
       case 'Circle':
         color = (labelPosition == ChartDataLabelAlignment.middle &&
@@ -530,18 +642,18 @@ Color _getDataLabelSaturationColor(
                 labelPosition == ChartDataLabelAlignment.outer &&
                     alignment == ChartAlignment.near)
             ? _getInnerDataLabelColor(
-                currentPoint, seriesRenderer, _chartState._chartTheme)
+                currentPoint, seriesRenderer, renderingDetails.chartTheme)
             : _getOuterDataLabelColor(dataLabelSettingsRenderer,
-                chart.plotAreaBackgroundColor, _chartState._chartTheme);
+                chart.plotAreaBackgroundColor, renderingDetails.chartTheme);
         break;
 
       case 'area':
         color = (!currentPoint.dataLabelSaturationRegionInside &&
                 currentPoint.labelLocation!.y < currentPoint.markerPoint!.y)
             ? _getOuterDataLabelColor(dataLabelSettingsRenderer,
-                chart.plotAreaBackgroundColor, _chartState._chartTheme)
+                chart.plotAreaBackgroundColor, renderingDetails.chartTheme)
             : _getInnerDataLabelColor(
-                currentPoint, seriesRenderer, _chartState._chartTheme);
+                currentPoint, seriesRenderer, renderingDetails.chartTheme);
         break;
 
       default:
@@ -554,8 +666,7 @@ Color _getDataLabelSaturationColor(
 /// Get the data label color of open-close series
 Color _getOpenCloseDataLabelColor(CartesianChartPoint<dynamic> currentPoint,
     CartesianSeriesRenderer seriesRenderer, SfCartesianChart chart) {
-  Color color;
-  color = seriesRenderer
+  final Color color = seriesRenderer
               ._segments[seriesRenderer._dataPoints.indexOf(currentPoint)]
               .fillPaint!
               .style ==
@@ -586,7 +697,9 @@ Color _getInnerDataLabelColor(CartesianChartPoint<dynamic> currentPoint,
   Color? seriesColor = seriesRenderer._series.color;
   if (seriesRenderer._seriesType == 'waterfall') {
     seriesColor = _getWaterfallSeriesColor(
-        seriesRenderer._series as WaterfallSeries, currentPoint, seriesColor);
+        seriesRenderer._series as WaterfallSeries<dynamic, dynamic>,
+        currentPoint,
+        seriesColor);
   }
   // ignore: prefer_if_null_operators
   innerColor = dataLabelSettingsRenderer._color != null
@@ -618,48 +731,46 @@ void _animateRectSeries(
     Rect? oldSegmentRect,
     num? oldYValue,
     bool? oldSeriesVisible) {
-  final bool comparePrev = seriesRenderer._chartState!._widgetNeedUpdate &&
+  final bool comparePrev = seriesRenderer._renderingDetails!.widgetNeedUpdate &&
       oldYValue != null &&
       !seriesRenderer._reAnimate &&
       oldSegmentRect != null;
-  final bool isLargePrev = oldYValue != null ? oldYValue > yPoint : false;
-  final bool isSingleSeries = seriesRenderer._chartState!._isLegendToggled
-      ? _checkSingleSeries(seriesRenderer)
-      : false;
-  if ((seriesRenderer._seriesType == 'column' &&
-          seriesRenderer._chart.isTransposed) ||
-      (seriesRenderer._seriesType == 'bar' &&
-          !seriesRenderer._chart.isTransposed) ||
-      (seriesRenderer._seriesType == 'histogram' &&
-          seriesRenderer._chart.isTransposed)) {
-    _animateTransposedRectSeries(
-        canvas,
-        seriesRenderer,
-        fillPaint,
-        segmentRect,
-        yPoint,
-        animationFactor,
-        oldSegmentRect,
-        oldSeriesVisible,
-        comparePrev,
-        isLargePrev,
-        isSingleSeries,
-        oldYValue);
-  } else {
-    _animateNormalRectSeries(
-        canvas,
-        seriesRenderer,
-        fillPaint,
-        segmentRect,
-        yPoint,
-        animationFactor,
-        oldSegmentRect,
-        oldSeriesVisible,
-        comparePrev,
-        isLargePrev,
-        isSingleSeries,
-        oldYValue);
-  }
+  final bool isLargePrev = oldYValue != null && oldYValue > yPoint;
+  final bool isSingleSeries =
+      seriesRenderer._renderingDetails!.isLegendToggled &&
+          _checkSingleSeries(seriesRenderer);
+  ((seriesRenderer._seriesType == 'column' &&
+              seriesRenderer._chart.isTransposed) ||
+          (seriesRenderer._seriesType == 'bar' &&
+              !seriesRenderer._chart.isTransposed) ||
+          (seriesRenderer._seriesType == 'histogram' &&
+              seriesRenderer._chart.isTransposed))
+      ? _animateTransposedRectSeries(
+          canvas,
+          seriesRenderer,
+          fillPaint,
+          segmentRect,
+          yPoint,
+          animationFactor,
+          oldSegmentRect,
+          oldSeriesVisible,
+          comparePrev,
+          isLargePrev,
+          isSingleSeries,
+          oldYValue)
+      : _animateNormalRectSeries(
+          canvas,
+          seriesRenderer,
+          fillPaint,
+          segmentRect,
+          yPoint,
+          animationFactor,
+          oldSegmentRect,
+          oldSeriesVisible,
+          comparePrev,
+          isLargePrev,
+          isSingleSeries,
+          oldYValue);
 }
 
 /// To animate transposed bar and column series
@@ -681,19 +792,19 @@ void _animateTransposedRectSeries(
   final double top = segmentRect.top;
   double left = segmentRect.left, right = segmentRect.right;
   Rect? rect;
-  final num defaultCrossesAtValue = 0;
+  const num defaultCrossesAtValue = 0;
   final num crossesAt =
       _getCrossesAtValue(seriesRenderer, seriesRenderer._chartState!) ??
           defaultCrossesAtValue;
   seriesRenderer._needAnimateSeriesElements =
       seriesRenderer._needAnimateSeriesElements ||
           segmentRect.outerRect != oldSegmentRect;
-  if (!seriesRenderer._chartState!._isLegendToggled ||
+  if (!seriesRenderer._renderingDetails!.isLegendToggled ||
       seriesRenderer._reAnimate) {
     width = segmentRect.width *
         ((!comparePrev &&
                 !seriesRenderer._reAnimate &&
-                !seriesRenderer._chartState!._initialRender! &&
+                !seriesRenderer._renderingDetails!.initialRender! &&
                 oldSegmentRect == null &&
                 seriesRenderer._series.key != null &&
                 seriesRenderer._chartState!._oldSeriesKeys
@@ -778,7 +889,7 @@ void _animateTransposedRectSeries(
       }
     }
     rect = Rect.fromLTWH(right - width, top, width, height);
-  } else if (seriesRenderer._chartState!._isLegendToggled &&
+  } else if (seriesRenderer._renderingDetails!.isLegendToggled &&
       oldSegmentRect != null) {
     rect = _performTransposedLegendToggleAnimation(seriesRenderer, segmentRect,
         oldSegmentRect, oldSeriesVisible, isSingleSeries, animationFactor);
@@ -858,19 +969,19 @@ void _animateNormalRectSeries(
   final double left = segmentRect.left;
   double top = segmentRect.top, bottom;
   Rect? rect;
-  final num defaultCrossesAtValue = 0;
+  const num defaultCrossesAtValue = 0;
   final num crossesAt =
       _getCrossesAtValue(seriesRenderer, seriesRenderer._chartState!) ??
           defaultCrossesAtValue;
   seriesRenderer._needAnimateSeriesElements =
       seriesRenderer._needAnimateSeriesElements ||
           segmentRect.outerRect != oldSegmentRect;
-  if (!seriesRenderer._chartState!._isLegendToggled ||
+  if (!seriesRenderer._renderingDetails!.isLegendToggled ||
       seriesRenderer._reAnimate) {
     height = segmentRect.height *
         ((!comparePrev &&
                 !seriesRenderer._reAnimate &&
-                !seriesRenderer._chartState!._initialRender! &&
+                !seriesRenderer._renderingDetails!.initialRender! &&
                 oldSegmentRect == null &&
                 seriesRenderer._series.key != null &&
                 seriesRenderer._chartState!._oldSeriesKeys
@@ -953,7 +1064,7 @@ void _animateNormalRectSeries(
       }
     }
     rect = Rect.fromLTWH(left, top, width, height);
-  } else if (seriesRenderer._chartState!._isLegendToggled &&
+  } else if (seriesRenderer._renderingDetails!.isLegendToggled &&
       oldSegmentRect != null &&
       oldSeriesVisible != null) {
     rect = _performLegendToggleAnimation(seriesRenderer, segmentRect,
@@ -1026,7 +1137,7 @@ void _animateStackedRectSeries(
   List<CartesianSeriesRenderer> seriesCollection;
   Rect? prevRegion;
   final _StackedSeriesBase<dynamic, dynamic> series =
-      seriesRenderer._series as _StackedSeriesBase;
+      seriesRenderer._series as _StackedSeriesBase<dynamic, dynamic>;
   index = seriesRenderer._dataPoints.indexOf(currentPoint);
   seriesCollection = _findSeriesCollection(_chartState);
   seriesIndex = seriesCollection.indexOf(seriesRenderer);
@@ -1084,8 +1195,8 @@ void _drawAnimatedStackedRect(
   double top = segmentRect.top, height = segmentRect.height;
   double right = segmentRect.right, width = segmentRect.width;
   final double height1 = segmentRect.height, top1 = segmentRect.top;
-  final num defaultCrossesAtValue = 0;
-  final crossesAt =
+  const num defaultCrossesAtValue = 0;
+  final num crossesAt =
       _getCrossesAtValue(seriesRenderer, seriesRenderer._chartState!) ??
           defaultCrossesAtValue;
   height = segmentRect.height * animationFactor;
@@ -1095,14 +1206,14 @@ void _drawAnimatedStackedRect(
       (seriesRenderer._seriesType.contains('stackedbar')) &&
           seriesRenderer._chart.isTransposed == true) {
     seriesRenderer._yAxisRenderer!._axis.isInversed != true
-        ? seriesRenderer._dataPoints[index].y > crossesAt
+        ? (seriesRenderer._dataPoints[index].y > crossesAt) == true
             ? prevRegion == null
                 ? top = (segmentRect.top + segmentRect.height) - height
                 : top = prevRegion.top - height
             : prevRegion == null
                 ? top = segmentRect.top
                 : top = prevRegion.bottom
-        : seriesRenderer._dataPoints[index].y > crossesAt
+        : (seriesRenderer._dataPoints[index].y > crossesAt) == true
             ? prevRegion == null
                 ? top = segmentRect.top
                 : top = prevRegion.bottom
@@ -1124,14 +1235,14 @@ void _drawAnimatedStackedRect(
       (seriesRenderer._seriesType.contains('stackedbar')) &&
           seriesRenderer._chart.isTransposed != true) {
     seriesRenderer._yAxisRenderer!._axis.isInversed != true
-        ? seriesRenderer._dataPoints[index].y > crossesAt
+        ? (seriesRenderer._dataPoints[index].y > crossesAt) == true
             ? prevRegion == null
                 ? right = (segmentRect.right - segmentRect.width) + width
                 : right = prevRegion.right + width
             : prevRegion == null
                 ? right = segmentRect.right
                 : right = prevRegion.left
-        : seriesRenderer._dataPoints[index].y > crossesAt
+        : (seriesRenderer._dataPoints[index].y > crossesAt) == true
             ? prevRegion == null
                 ? right = segmentRect.right
                 : right = prevRegion.left
@@ -1152,17 +1263,19 @@ void _drawAnimatedStackedRect(
 }
 
 // This recursive function returns the previous region of the cluster stakced info for animation purposes
-Rect? _getPrevRegion(dynamic yValue,
-    _ClusterStackedItemInfo clusterStackedItemInfo, int index, int k) {
+Rect? _getPrevRegion(num yValue, _ClusterStackedItemInfo clusterStackedItemInfo,
+    int index, int k) {
   Rect? prevRegion;
-  if ((yValue > 0 &&
-          clusterStackedItemInfo.stackedItemInfo[k - 1].seriesRenderer
-                  ._dataPoints[index].yValue >
-              0) ||
-      (yValue < 0 &&
-          clusterStackedItemInfo.stackedItemInfo[k - 1].seriesRenderer
-                  ._dataPoints[index].yValue <
-              0)) {
+  if (((yValue > 0) == true &&
+          (clusterStackedItemInfo.stackedItemInfo[k - 1].seriesRenderer
+                      ._dataPoints[index].yValue >
+                  0) ==
+              true) ||
+      ((yValue < 0) == true &&
+          (clusterStackedItemInfo.stackedItemInfo[k - 1].seriesRenderer
+                      ._dataPoints[index].yValue <
+                  0) ==
+              true)) {
     prevRegion = clusterStackedItemInfo
         .stackedItemInfo[k - 1].seriesRenderer._dataPoints[index].region;
   } else {
@@ -1184,7 +1297,7 @@ bool _checkSingleSeries(CartesianSeriesRenderer seriesRenderer) {
       count++;
     }
   }
-  return count == 1 ? true : false;
+  return count == 1;
 }
 
 /// to animate dynamic update in line, spline, stepLine series
@@ -1290,14 +1403,16 @@ void _animateScatterSeries(
     double animationFactor,
     Canvas canvas,
     Paint fillPaint,
-    Paint strokePaint) {
+    Paint strokePaint,
+    int index,
+    ScatterSegment segment) {
   final CartesianSeries<dynamic, dynamic> series = seriesRenderer._series;
-  final double width = series.markerSettings.width,
+  double width = series.markerSettings.width,
       height = series.markerSettings.height;
-  final DataMarkerType markerType = series.markerSettings.shape;
+  DataMarkerType markerType = series.markerSettings.shape;
   double x = point.markerPoint!.x;
   double y = point.markerPoint!.y;
-  if (seriesRenderer._chartState!._widgetNeedUpdate &&
+  if (seriesRenderer._renderingDetails!.widgetNeedUpdate &&
       _oldPoint != null &&
       !seriesRenderer._reAnimate &&
       _oldPoint.markerPoint != null) {
@@ -1307,44 +1422,63 @@ void _animateScatterSeries(
         animationFactor, y, _oldPoint.markerPoint!.y, y, seriesRenderer);
     animationFactor = 1;
   }
+  if (seriesRenderer._chart.onMarkerRender != null) {
+    final MarkerRenderArgs markerRenderArgs = _triggerMarkerRenderEvent(
+        seriesRenderer,
+        Size(width, height),
+        markerType,
+        index,
+        seriesRenderer._seriesAnimation,
+        segment)!;
+
+    width = markerRenderArgs.markerWidth;
+    height = markerRenderArgs.markerHeight;
+    markerType = markerRenderArgs.shape;
+  }
 
   final Path path = Path();
+  final double animateWidth = (animationFactor * width) / 2;
+  final double animateHeight = (animationFactor * height) / 2;
+  final Rect rect = Rect.fromLTWH(x - animateWidth, y - animateHeight,
+      animationFactor * width, animationFactor * height);
   {
     switch (markerType) {
       case DataMarkerType.circle:
-        ShapeMaker.drawCircle(
-            path, x, y, animationFactor * width, animationFactor * height);
+        ShapePainter.getShapesPath(
+            path: path, rect: rect, shapeType: ShapeMarkerType.circle);
         break;
       case DataMarkerType.rectangle:
-        ShapeMaker.drawRectangle(
-            path, x, y, animationFactor * width, animationFactor * height);
+        ShapePainter.getShapesPath(
+            path: path, rect: rect, shapeType: ShapeMarkerType.rectangle);
         break;
       case DataMarkerType.image:
         _drawImageMarker(seriesRenderer, canvas, x, y);
         break;
       case DataMarkerType.pentagon:
-        ShapeMaker.drawPentagon(
-            path, x, y, animationFactor * width, animationFactor * height);
+        ShapePainter.getShapesPath(
+            path: path, rect: rect, shapeType: ShapeMarkerType.pentagon);
         break;
       case DataMarkerType.verticalLine:
-        ShapeMaker.drawVerticalLine(
-            path, x, y, animationFactor * width, animationFactor * height);
+        ShapePainter.getShapesPath(
+            path: path, rect: rect, shapeType: ShapeMarkerType.verticalLine);
         break;
       case DataMarkerType.invertedTriangle:
-        ShapeMaker.drawInvertedTriangle(
-            path, x, y, animationFactor * width, animationFactor * height);
+        ShapePainter.getShapesPath(
+            path: path,
+            rect: rect,
+            shapeType: ShapeMarkerType.invertedTriangle);
         break;
       case DataMarkerType.horizontalLine:
-        ShapeMaker.drawHorizontalLine(
-            path, x, y, animationFactor * width, animationFactor * height);
+        ShapePainter.getShapesPath(
+            path: path, rect: rect, shapeType: ShapeMarkerType.horizontalLine);
         break;
       case DataMarkerType.diamond:
-        ShapeMaker.drawDiamond(
-            path, x, y, animationFactor * width, animationFactor * height);
+        ShapePainter.getShapesPath(
+            path: path, rect: rect, shapeType: ShapeMarkerType.diamond);
         break;
       case DataMarkerType.triangle:
-        ShapeMaker.drawTriangle(
-            path, x, y, animationFactor * width, animationFactor * height);
+        ShapePainter.getShapesPath(
+            path: path, rect: rect, shapeType: ShapeMarkerType.triangle);
         break;
       case DataMarkerType.none:
         break;
@@ -1616,19 +1750,15 @@ void _animateBoxSeries(
     path.moveTo(centerMax, upperQuartileY);
     path.lineTo(centerMax, lowerQuartileY);
     path.moveTo(centerMax, maxY);
-    if (centerMax < upperQuartileX) {
-      path.lineTo(upperQuartileX, maxY);
-    } else {
-      path.lineTo(upperQuartileX, maxY);
-    }
+    (centerMax < upperQuartileX)
+        ? path.lineTo(upperQuartileX, maxY)
+        : path.lineTo(upperQuartileX, maxY);
     path.moveTo(medianX, upperQuartileY);
     path.lineTo(medianX, lowerQuartileY);
     path.moveTo(centerMin, maxY);
-    if (centerMin > lowerQuartileX) {
-      path.lineTo(lowerQuartileX, maxY);
-    } else {
-      path.lineTo(lowerQuartileX, maxY);
-    }
+    (centerMin > lowerQuartileX)
+        ? path.lineTo(lowerQuartileX, maxY)
+        : path.lineTo(lowerQuartileX, maxY);
     path.moveTo(centerMin, upperQuartileY);
     path.lineTo(centerMin, lowerQuartileY);
     if (showMean) {
@@ -1819,17 +1949,13 @@ void _animateCandleSeries(
           Offset(centerHigh, highY), Offset(centerLow, highY), paint);
     } else {
       path.moveTo(centerHigh, highY);
-      if (centerHigh < closeX) {
-        path.lineTo(closeX, highY);
-      } else {
-        path.lineTo(closeX, highY);
-      }
+      (centerHigh < closeX)
+          ? path.lineTo(closeX, highY)
+          : path.lineTo(closeX, highY);
       path.moveTo(centerLow, highY);
-      if (centerLow > openX) {
-        path.lineTo(openX, highY);
-      } else {
-        path.lineTo(openX, highY);
-      }
+      (centerLow > openX)
+          ? path.lineTo(openX, highY)
+          : path.lineTo(openX, highY);
     }
     if (openX == closeX) {
       canvas.drawLine(Offset(openX, openY), Offset(closeX, closeY), paint);
@@ -1867,14 +1993,12 @@ void _animateCandleSeries(
     }
   }
 
-  if (seriesRenderer._series.dashArray[0] != 0 &&
-      seriesRenderer._series.dashArray[1] != 0 &&
-      paint.style != PaintingStyle.fill &&
-      seriesRenderer._series.animationDuration <= 0) {
-    _drawDashedLine(canvas, seriesRenderer._series.dashArray, paint, path);
-  } else {
-    canvas.drawPath(path, paint);
-  }
+  (seriesRenderer._series.dashArray[0] != 0 &&
+          seriesRenderer._series.dashArray[1] != 0 &&
+          paint.style != PaintingStyle.fill &&
+          seriesRenderer._series.animationDuration <= 0)
+      ? _drawDashedLine(canvas, seriesRenderer._series.dashArray, paint, path)
+      : canvas.drawPath(path, paint);
   if (paint.style == PaintingStyle.fill) {
     if (transposed) {
       if (showSameValue) {
@@ -1920,12 +2044,10 @@ List<CartesianChartPoint<dynamic>>? _getNearestChartPoints(
 
   for (int i = 0; i < dataList.length; i++) {
     xValues.add(dataList[i].xValue);
-    if (cartesianSeriesRenderer is BoxAndWhiskerSeriesRenderer) {
-      yValues.add((dataList[i].maximum! + dataList[i].minimum!) / 2);
-    } else {
-      yValues
-          .add(dataList[i].yValue ?? (dataList[i].high + dataList[i].low) / 2);
-    }
+    (cartesianSeriesRenderer is BoxAndWhiskerSeriesRenderer)
+        ? yValues.add((dataList[i].maximum! + dataList[i].minimum!) / 2)
+        : yValues.add(
+            dataList[i].yValue ?? (dataList[i].high + dataList[i].low) / 2);
   }
   num nearPointX = dataList[0].xValue;
   num nearPointY = actualYAxisRenderer._visibleRange!.minimum;
@@ -1979,12 +2101,9 @@ List<CartesianChartPoint<dynamic>>? _getNearestChartPoints(
 }
 
 /// Return the arguments for zoom event
-ZoomPanArgs _bindZoomEvent(
-    SfCartesianChart chart,
-    ChartAxisRenderer axisRenderer,
-    ZoomPanArgs? zoomPanArgs,
-    ChartZoomingCallback zoomEventType) {
-  zoomPanArgs = ZoomPanArgs(axisRenderer._axis,
+ZoomPanArgs _bindZoomEvent(SfCartesianChart chart,
+    ChartAxisRenderer axisRenderer, ChartZoomingCallback zoomEventType) {
+  final ZoomPanArgs zoomPanArgs = ZoomPanArgs(axisRenderer._axis,
       axisRenderer._previousZoomPosition, axisRenderer._previousZoomFactor);
   zoomPanArgs.currentZoomFactor = axisRenderer._zoomFactor;
   zoomPanArgs.currentZoomPosition = axisRenderer._zoomPosition;
@@ -2034,36 +2153,38 @@ Future<dart_ui.Image> _getImageInfo(ImageProvider imageProvider) async {
 }
 
 //ignore: avoid_void_async
-void _calculateImage(
-    [dynamic? chartState,
-    dynamic? seriesRenderer,
+void _calculateImage(SfCartesianChartState chartState,
+    [CartesianSeriesRenderer? seriesRenderer,
     TrackballBehavior? trackballBehavior]) async {
-  final dynamic chart = chartState?._chart;
+  final SfCartesianChart chart = chartState._chart;
+  // ignore: unnecessary_null_comparison
   if (chart != null && seriesRenderer == null) {
     if (chart.plotAreaBackgroundImage != null) {
       chartState._backgroundImage =
-          await _getImageInfo(chart.plotAreaBackgroundImage);
+          await _getImageInfo(chart.plotAreaBackgroundImage!);
       chartState._renderOutsideAxis.state.axisRepaintNotifier.value++;
     }
     if (chart.legend.image != null) {
-      chartState._legendIconImage = await _getImageInfo(chart.legend.image);
-      chartState._chartLegend.legendRepaintNotifier.value++;
+      chartState._legendIconImage = await _getImageInfo(chart.legend.image!);
+      chartState._renderingDetails.chartLegend.legendRepaintNotifier.value++;
     }
   } else if (trackballBehavior != null &&
       trackballBehavior.markerSettings!.image != null) {
     chartState._trackballMarkerSettingsRenderer._image =
         await _getImageInfo(trackballBehavior.markerSettings!.image!);
-    chartState._trackballRepaintNotifier.value++;
+    chartState._repaintNotifiers['trackball']!.value++;
   } else {
-    final CartesianSeries<dynamic, dynamic> series = seriesRenderer._series;
-    // final MarkerSettingsRenderer markerSettingsRenderer = seriesRenderer._markerSettingsRenderer;
+    final CartesianSeries<dynamic, dynamic> series = seriesRenderer!._series;
     if (series.markerSettings.image != null) {
-      seriesRenderer._markerSettingsRenderer._image =
+      seriesRenderer._markerSettingsRenderer!._image =
           await _getImageInfo(series.markerSettings.image!);
-      seriesRenderer._repaintNotifier.value++;
+      if (!chartState._renderingDetails.isImageDrawn)
+        seriesRenderer._repaintNotifier.value++;
+      chartState._renderingDetails.isImageDrawn = true;
       if (seriesRenderer._seriesType == 'scatter' &&
-          seriesRenderer._chart.legend.isVisible) {
-        seriesRenderer._chartState!._chartLegend.legendRepaintNotifier.value++;
+          seriesRenderer._chart.legend.isVisible!) {
+        seriesRenderer
+            ._renderingDetails!.chartLegend.legendRepaintNotifier.value++;
       }
     }
   }

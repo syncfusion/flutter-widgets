@@ -33,6 +33,7 @@ import 'package:syncfusion_flutter_datepicker/datepicker.dart'
 ///  }
 ///
 ///  ```
+@immutable
 class TimeRegion with Diagnosticable {
   /// Creates a Time region for timeslot views in calendar.
   ///
@@ -474,7 +475,10 @@ class TimeRegion with Diagnosticable {
       return false;
     }
 
-    final TimeRegion region = other;
+    late final TimeRegion region;
+    if (other is TimeRegion) {
+      region = other;
+    }
     return region.textStyle == textStyle &&
         region.startTime == startTime &&
         region.endTime == endTime &&

@@ -60,6 +60,14 @@ Create a highly interactive and customizable Flutter Treemap that has features s
 
 ![Tooltip support](https://cdn.syncfusion.com/content/images/Flutter/pub_images/treemap_images/tooltip.jpg)
 
+**Drilldown** - Drilldown the larger set of hierarchical level data for better visualization.
+
+**Sorting** - Sort the tiles in a ascending or descending order.
+
+**Layout direction** - Layout the tiles in all different corners of the rectangle. The possible layout directions are topLeft, topRight, bottomLeft, and bottomRight.
+
+**PointerOnLegend** - Show a pointer at the top of the bar gradient legend while hovering on the tiles.
+
 **Custom background widgets** - Add any type of custom widgets such as image widget as a background of the tiles to enrich the UI and easily visualize the type of data that a particular tile shows.
 
 ![Treemap customization](https://cdn.syncfusion.com/content/images/Flutter/pub_images/treemap_images/customization.jpg)
@@ -69,12 +77,17 @@ Create a highly interactive and customizable Flutter Treemap that has features s
 Explore the full capability of our Flutter widgets on your device by installing our sample browser application from the following app stores. View sample codes in GitHub.
 
 <p align="center">
-  <a href="https://play.google.com/store/apps/details?id=com.syncfusion.flutter.examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/google-play.png"/></a>
-  <a href="https://apps.apple.com/us/app/syncfusion-flutter-ui-widgets/id1475231341"><img src="https://cdn.syncfusion.com/content/images/FTControl/apple-button.png"/></a>
+  <a href="https://play.google.com/store/apps/details?id=com.syncfusion.flutter.examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/google-play-store.png"/></a>
+  <a href="https://apps.apple.com/us/app/syncfusion-flutter-ui-widgets/id1475231341"><img src="https://cdn.syncfusion.com/content/images/FTControl/ios-store.png"/></a>
+  <a href="https://flutter.syncfusion.com"><img src="https://cdn.syncfusion.com/content/images/FTControl/web-sample-browser.png"/></a> 
 </p>
 <p align="center">
-  <a href="https://github.com/syncfusion/flutter-examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/GitHub.png"/></a>
-  <a href="https://flutter.syncfusion.com"><img src="https://cdn.syncfusion.com/content/images/FTControl/web_sample_browser.png"/></a>
+  <a href="https://www.microsoft.com/en-us/p/syncfusion-flutter-gallery/9nhnbwcsf85d?activetab=pivot:overviewtab"><img src="https://cdn.syncfusion.com/content/images/FTControl/windows-store.png"/></a> 
+  <a href="https://install.appcenter.ms/orgs/syncfusion-demos/apps/syncfusion-flutter-gallery/distribution_groups/release"><img src="https://cdn.syncfusion.com/content/images/FTControl/macos-app-center.png"/></a>
+  <a href="https://snapcraft.io/syncfusion-flutter-gallery"><img src="https://cdn.syncfusion.com/content/images/FTControl/snap-store.png"/></a>
+</p>
+<p align="center">
+  <a href="https://github.com/syncfusion/flutter-examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/github-samples.png"/></a>
 </p>
 
 ## Useful links
@@ -117,37 +130,37 @@ Widget build(BuildContext context) {
 To populate the data source, set its count to the `dataCount` property of the treemap. The data will be grouped based on the values returned from the `TreemapLevel.groupMapper` callback. You can have more than one TreemapLevel in the treemap `levels` collection to form a hierarchical treemap. The quantitative value of the underlying data has to be returned from the `weightValueMapper` callback. Based on this value, every tile (rectangle) will have its size.
 
 ```dart
-List<SocialMediaUsers> _source;
+late List<SocialMediaUsers> _source;
 
 @override
 void initState() {
-   _source = <SocialMediaUsers>[
-      SocialMediaUsers('India', 'Facebook', 25.4),
-      SocialMediaUsers('USA', 'Instagram', 19.11),
-      SocialMediaUsers('Japan', 'Facebook', 13.3),
-      SocialMediaUsers('Germany', 'Instagram', 10.65),
-      SocialMediaUsers('France', 'Twitter', 7.54),
-      SocialMediaUsers('UK', 'Instagram', 4.93),
-   ];
-   super.initState();
+  _source = <SocialMediaUsers>[
+    SocialMediaUsers('India', 'Facebook', 25.4),
+    SocialMediaUsers('USA', 'Instagram', 19.11),
+    SocialMediaUsers('Japan', 'Facebook', 13.3),
+    SocialMediaUsers('Germany', 'Instagram', 10.65),
+    SocialMediaUsers('France', 'Twitter', 7.54),
+    SocialMediaUsers('UK', 'Instagram', 4.93),
+  ];
+  super.initState();
 }
 
 @override
 Widget build(BuildContext context) {
   return Scaffold(
     body: SfTreemap(
-        dataCount: _source.length,
-        weightValueMapper: (int index) {
-          return _source[index].usersInMillions;
-        },
-        levels: [
-          TreemapLevel(
-            groupMapper: (int index) {
-              return _source[index].country;
-            },
-          ),
-        ],
-     ),
+      dataCount: _source.length,
+      weightValueMapper: (int index) {
+        return _source[index].usersInMillions;
+      },
+      levels: [
+        TreemapLevel(
+          groupMapper: (int index) {
+            return _source[index].country;
+          },
+        ),
+      ],
+    ),
   );
 }
 
@@ -173,52 +186,54 @@ Add the basic treemap elements such as tooltip, labels, and legend as shown in t
 * **Legend** -  You can show legend by initializing the `legend` property in the `SfTreemap`. It is possible to customize the legend item's color and text using the `SfTreemap.colorMappers` property.
 
 ```dart
-List<SocialMediaUsers> _source;
+late List<SocialMediaUsers> _source;
 
 @override
 void initState() {
-   _source = <SocialMediaUsers>[
-      SocialMediaUsers('India', 'Facebook', 25.4),
-      SocialMediaUsers('USA', 'Instagram', 19.11),
-      SocialMediaUsers('Japan', 'Facebook', 13.3),
-      SocialMediaUsers('Germany', 'Instagram', 10.65),
-      SocialMediaUsers('France', 'Twitter', 7.54),
-      SocialMediaUsers('UK', 'Instagram', 4.93),
-   ];
-   super.initState();
+  _source = <SocialMediaUsers>[
+    SocialMediaUsers('India', 'Facebook', 25.4),
+    SocialMediaUsers('USA', 'Instagram', 19.11),
+    SocialMediaUsers('Japan', 'Facebook', 13.3),
+    SocialMediaUsers('Germany', 'Instagram', 10.65),
+    SocialMediaUsers('France', 'Twitter', 7.54),
+    SocialMediaUsers('UK', 'Instagram', 4.93),
+  ];
+  super.initState();
 }
 
 @override
 Widget build(BuildContext context) {
   return Scaffold(
     body: SfTreemap(
-        dataCount: _source.length,
-        weightValueMapper: (int index) {
-          return _source[index].usersInMillions;
-        },
-        levels: [
-          TreemapLevel(
-            groupMapper: (int index) {
-              return _source[index].country;
-            },
-            labelBuilder: (BuildContext context, TreemapTile tile) {
-              return Padding(
-                 padding: const EdgeInsets.all(2.5),
-                   child: Text('${tile.group}',
-                    style: TextStyle(color: Colors.black),
-                 ),
-              );
-             },
-             tooltipBuilder: (BuildContext context, TreemapTile tile) {
-                return Padding(
-                   padding: const EdgeInsets.all(10),
-                   child: Text('Country          : ${tile.group}\nSocial media : ${tile.weight}M',
-                      style: TextStyle(color: Colors.black)),
-                );
-             },
-          ),
-        ],
-     ),
+      dataCount: _source.length,
+      weightValueMapper: (int index) {
+        return _source[index].usersInMillions;
+      },
+      levels: [
+        TreemapLevel(
+          groupMapper: (int index) {
+            return _source[index].country;
+          },
+          labelBuilder: (BuildContext context, TreemapTile tile) {
+            return Padding(
+              padding: const EdgeInsets.all(2.5),
+              child: Text(
+                '${tile.group}',
+                style: TextStyle(color: Colors.black),
+              ),
+            );
+          },
+          tooltipBuilder: (BuildContext context, TreemapTile tile) {
+            return Padding(
+              padding: const EdgeInsets.all(10),
+              child: Text(
+                  'Country          : ${tile.group}\nSocial media : ${tile.weight}M',
+                  style: TextStyle(color: Colors.black)),
+            );
+          },
+        ),
+      ],
+    ),
   );
 }
 

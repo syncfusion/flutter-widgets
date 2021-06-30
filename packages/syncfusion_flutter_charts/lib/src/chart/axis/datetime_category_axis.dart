@@ -12,6 +12,7 @@ part of charts;
 /// employee for a month by excluding the weekends.
 ///
 ///Provides options for label placement, interval, date format for customizing the appearance.
+@immutable
 class DateTimeCategoryAxis extends ChartAxis {
   /// Creating an argument constructor of DateTimeCategoryAxis class.
   DateTimeCategoryAxis({
@@ -44,7 +45,7 @@ class DateTimeCategoryAxis extends ChartAxis {
     double? interval,
     this.visibleMinimum,
     this.visibleMaximum,
-    dynamic? crossesAt,
+    dynamic crossesAt,
     String? associatedAxisName,
     bool? placeLabelsNearAxisLine,
     List<PlotBand>? plotBands,
@@ -225,6 +226,109 @@ class DateTimeCategoryAxis extends ChartAxis {
   ///}
   ///```
   final DateTimeIntervalType autoScrollingDeltaType;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is DateTimeCategoryAxis &&
+        other.name == name &&
+        other.isVisible == isVisible &&
+        other.title == title &&
+        other.axisLine == axisLine &&
+        other.rangePadding == rangePadding &&
+        other.labelPlacement == labelPlacement &&
+        other.edgeLabelPlacement == edgeLabelPlacement &&
+        other.labelPosition == labelPosition &&
+        other.tickPosition == tickPosition &&
+        other.labelRotation == labelRotation &&
+        other.labelIntersectAction == labelIntersectAction &&
+        other.labelAlignment == labelAlignment &&
+        other.isInversed == isInversed &&
+        other.opposedPosition == opposedPosition &&
+        other.minorTicksPerInterval == minorTicksPerInterval &&
+        other.maximumLabels == maximumLabels &&
+        other.majorTickLines == majorTickLines &&
+        other.minorTickLines == minorTickLines &&
+        other.majorGridLines == majorGridLines &&
+        other.minorGridLines == minorGridLines &&
+        other.labelStyle == labelStyle &&
+        other.plotOffset == plotOffset &&
+        other.zoomFactor == zoomFactor &&
+        other.zoomPosition == zoomPosition &&
+        other.interactiveTooltip == interactiveTooltip &&
+        other.minimum == minimum &&
+        other.maximum == maximum &&
+        other.interval == interval &&
+        other.visibleMinimum == visibleMinimum &&
+        other.visibleMaximum == visibleMaximum &&
+        other.crossesAt == crossesAt &&
+        other.associatedAxisName == associatedAxisName &&
+        other.placeLabelsNearAxisLine == placeLabelsNearAxisLine &&
+        other.plotBands == plotBands &&
+        other.desiredIntervals == desiredIntervals &&
+        other.rangeController == rangeController &&
+        other.maximumLabelWidth == maximumLabelWidth &&
+        other.labelsExtent == labelsExtent &&
+        other.autoScrollingDelta == autoScrollingDelta &&
+        other.autoScrollingMode == autoScrollingMode &&
+        other.intervalType == intervalType &&
+        other.dateFormat == dateFormat;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      name,
+      isVisible,
+      title,
+      axisLine,
+      rangePadding,
+      labelPlacement,
+      edgeLabelPlacement,
+      labelPosition,
+      tickPosition,
+      labelRotation,
+      labelIntersectAction,
+      labelAlignment,
+      isInversed,
+      opposedPosition,
+      minorTicksPerInterval,
+      maximumLabels,
+      majorTickLines,
+      minorTickLines,
+      majorGridLines,
+      minorGridLines,
+      labelStyle,
+      plotOffset,
+      zoomFactor,
+      zoomPosition,
+      interactiveTooltip,
+      minimum,
+      maximum,
+      interval,
+      visibleMinimum,
+      visibleMaximum,
+      crossesAt,
+      associatedAxisName,
+      placeLabelsNearAxisLine,
+      plotBands,
+      desiredIntervals,
+      rangeController,
+      maximumLabelWidth,
+      labelsExtent,
+      autoScrollingDelta,
+      autoScrollingMode,
+      intervalType,
+      dateFormat
+    ];
+    return hashList(values);
+  }
 }
 
 /// Creates an axis renderer for Category axis
@@ -234,7 +338,7 @@ class DateTimeCategoryAxisRenderer extends ChartAxisRenderer {
       : super(_dateTimeCategoryAxis) {
     _labels = <String>[];
   }
-  dynamic _labels;
+  late List<String> _labels;
   late Rect _rect;
   final DateTimeCategoryAxis _dateTimeCategoryAxis;
   late DateTimeIntervalType _actualIntervalType;
@@ -274,8 +378,10 @@ class DateTimeCategoryAxisRenderer extends ChartAxisRenderer {
 
   /// Listener for range controller
   void _controlListener() {
+    _chartState._canSetRangeController = false;
     if (_axis.rangeController != null && !_chartState._rangeChangedByChart) {
       _updateRangeControllerValues(this);
+      _chartState._rangeChangeBySlider = true;
       _chartState._redrawByRangeChange();
     }
   }
@@ -289,7 +395,7 @@ class DateTimeCategoryAxisRenderer extends ChartAxisRenderer {
       _chartState._rangeChangeBySlider = true;
       _axis.rangeController!.addListener(_controlListener);
     }
-    final Rect containerRect = _chartState._containerRect;
+    final Rect containerRect = _chartState._renderingDetails.chartContainerRect;
     _rect = Rect.fromLTWH(containerRect.left, containerRect.top,
         containerRect.width, containerRect.height);
     _axisSize = Size(_rect.width, _rect.height);
@@ -311,22 +417,12 @@ class DateTimeCategoryAxisRenderer extends ChartAxisRenderer {
     _min ??= 0;
     _max ??= 5;
     _actualRange = _VisibleRange(
-        _chartState._rangeChangeBySlider &&
-                _dateTimeCategoryAxis.rangeController != null
-            ? _rangeMinimum ??
-                _dateTimeCategoryAxis
-                    .rangeController!.start.millisecondsSinceEpoch
-            : _dateTimeCategoryAxis.minimum != null
-                ? _getEffectiveRange(_dateTimeCategoryAxis.minimum, true)
-                : _min,
-        _chartState._rangeChangeBySlider &&
-                _dateTimeCategoryAxis.rangeController != null
-            ? _rangeMaximum ??
-                _dateTimeCategoryAxis
-                    .rangeController!.end.millisecondsSinceEpoch
-            : _dateTimeCategoryAxis.maximum != null
-                ? _getEffectiveRange(_dateTimeCategoryAxis.maximum, false)
-                : _max);
+        _dateTimeCategoryAxis.minimum != null
+            ? _getEffectiveRange(_dateTimeCategoryAxis.minimum, true)
+            : _min,
+        _dateTimeCategoryAxis.maximum != null
+            ? _getEffectiveRange(_dateTimeCategoryAxis.maximum, false)
+            : _max);
 
     ///Below condition is for checking the min, max value is equal
     if ((_actualRange!.minimum == _actualRange!.maximum) &&
@@ -422,8 +518,12 @@ class DateTimeCategoryAxisRenderer extends ChartAxisRenderer {
       rangeChangedArgs.visibleMax = _visibleRange!.maximum;
       rangeChangedArgs.visibleInterval = _visibleRange!.interval;
       _chart.onActualRangeChanged!(rangeChangedArgs);
-      _visibleRange!.minimum = rangeChangedArgs.visibleMin;
-      _visibleRange!.maximum = rangeChangedArgs.visibleMax;
+      _visibleRange!.minimum = rangeChangedArgs.visibleMin is DateTime
+          ? _getEffectiveRange(rangeChangedArgs.visibleMin, true)
+          : rangeChangedArgs.visibleMin;
+      _visibleRange!.maximum = rangeChangedArgs.visibleMax is DateTime
+          ? _getEffectiveRange(rangeChangedArgs.visibleMax, false)
+          : rangeChangedArgs.visibleMax;
       _visibleRange!.delta = _visibleRange!.maximum - _visibleRange!.minimum;
       _visibleRange!.interval = rangeChangedArgs.visibleInterval;
       _zoomFactor = _visibleRange!.delta / (range.delta);
@@ -442,7 +542,7 @@ class DateTimeCategoryAxisRenderer extends ChartAxisRenderer {
   @override
   void generateVisibleLabels() {
     num tempInterval = _visibleRange!.minimum.ceil();
-    num position;
+    int position;
     String labelText;
     _visibleLabels = <AxisLabel>[];
     _dateTimeFormat =
@@ -455,6 +555,7 @@ class DateTimeCategoryAxisRenderer extends ChartAxisRenderer {
         if (position <= -1 ||
             (_labels.isNotEmpty && position >= _labels.length)) {
           continue;
+          // ignore: unnecessary_null_comparison
         } else if (_labels.isNotEmpty && _labels[position] != null) {
           labelText = _getFormattedLabel(_labels[position], _dateFormat);
           _labels[position] = labelText;
@@ -472,9 +573,8 @@ class DateTimeCategoryAxisRenderer extends ChartAxisRenderer {
         .format(DateTime.fromMicrosecondsSinceEpoch(int.parse(label)));
   }
 
-  dynamic _getStartAndEndDate(List<String> labels) {
-    final List<String> values = <String>[]
-      ..addAll(labels)
+  List<DateTime> _getStartAndEndDate(List<String> labels) {
+    final List<String> values = <String>[...labels]
       ..sort((String first, String second) {
         return int.parse(first) < int.parse(second) ? -1 : 1;
       });
@@ -490,7 +590,7 @@ class DateTimeCategoryAxisRenderer extends ChartAxisRenderer {
       return null;
     }
     for (final String label in _labels) {
-      final value = int.parse(label);
+      final int value = int.parse(label);
       if (needMin) {
         if (value > rangeDate.microsecondsSinceEpoch) {
           if (!(_labels.first == label)) {

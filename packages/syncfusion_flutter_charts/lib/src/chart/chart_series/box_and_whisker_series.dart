@@ -8,6 +8,7 @@ part of charts;
 /// Provides options for color, opacity, border color, and border width
 /// to customize the appearance.
 ///
+@immutable
 class BoxAndWhiskerSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of BoxAndWhiskerSeries class.
   BoxAndWhiskerSeries(
@@ -35,8 +36,6 @@ class BoxAndWhiskerSeries<T, D> extends XyDataSeries<T, D> {
       double? borderWidth,
       LinearGradient? gradient,
       LinearGradient? borderGradient,
-      // ignore: deprecated_member_use_from_same_package
-      SelectionSettings? selectionSettings,
       SelectionBehavior? selectionBehavior,
       bool? isVisibleInLegend,
       LegendIconType? legendIconType,
@@ -44,6 +43,9 @@ class BoxAndWhiskerSeries<T, D> extends XyDataSeries<T, D> {
       List<double>? dashArray,
       double? opacity,
       SeriesRendererCreatedCallback? onRendererCreated,
+      ChartPointInteractionCallback? onPointTap,
+      ChartPointInteractionCallback? onPointDoubleTap,
+      ChartPointInteractionCallback? onPointLongPress,
       List<Trendline>? trendlines,
       this.boxPlotMode = BoxPlotMode.normal,
       this.showMean = true})
@@ -52,6 +54,9 @@ class BoxAndWhiskerSeries<T, D> extends XyDataSeries<T, D> {
             onCreateRenderer: onCreateRenderer,
             name: name,
             onRendererCreated: onRendererCreated,
+            onPointTap: onPointTap,
+            onPointDoubleTap: onPointDoubleTap,
+            onPointLongPress: onPointLongPress,
             dashArray: dashArray,
             xValueMapper: xValueMapper,
             yValueMapper: yValueMapper,
@@ -72,7 +77,6 @@ class BoxAndWhiskerSeries<T, D> extends XyDataSeries<T, D> {
             borderWidth: borderWidth ?? 1,
             gradient: gradient,
             borderGradient: borderGradient,
-            selectionSettings: selectionSettings,
             selectionBehavior: selectionBehavior,
             legendItemText: legendItemText,
             isVisibleInLegend: isVisibleInLegend,
@@ -174,13 +178,106 @@ class BoxAndWhiskerSeries<T, D> extends XyDataSeries<T, D> {
     }
     return BoxAndWhiskerSeriesRenderer();
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is BoxAndWhiskerSeries &&
+        other.key == key &&
+        other.onCreateRenderer == onCreateRenderer &&
+        other.dataSource == dataSource &&
+        other.xValueMapper == xValueMapper &&
+        other.yValueMapper == yValueMapper &&
+        other.sortFieldValueMapper == sortFieldValueMapper &&
+        other.pointColorMapper == pointColorMapper &&
+        other.dataLabelMapper == dataLabelMapper &&
+        other.sortingOrder == sortingOrder &&
+        other.xAxisName == xAxisName &&
+        other.yAxisName == yAxisName &&
+        other.name == name &&
+        other.color == color &&
+        other.width == width &&
+        other.markerSettings == markerSettings &&
+        other.dataLabelSettings == dataLabelSettings &&
+        other.trendlines == trendlines &&
+        other.isVisible == isVisible &&
+        other.enableTooltip == enableTooltip &&
+        other.dashArray == dashArray &&
+        other.animationDuration == animationDuration &&
+        other.borderColor == borderColor &&
+        other.borderWidth == borderWidth &&
+        other.gradient == gradient &&
+        other.borderGradient == borderGradient &&
+        other.selectionBehavior == selectionBehavior &&
+        other.isVisibleInLegend == isVisibleInLegend &&
+        other.legendIconType == legendIconType &&
+        other.legendItemText == legendItemText &&
+        other.opacity == opacity &&
+        other.boxPlotMode == boxPlotMode &&
+        other.showMean == showMean &&
+        other.spacing == spacing &&
+        other.onRendererCreated == onRendererCreated &&
+        other.onPointTap == onPointTap &&
+        other.onPointDoubleTap == onPointDoubleTap &&
+        other.onPointLongPress == onPointLongPress;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      key,
+      onCreateRenderer,
+      dataSource,
+      xValueMapper,
+      yValueMapper,
+      sortFieldValueMapper,
+      pointColorMapper,
+      dataLabelMapper,
+      sortingOrder,
+      xAxisName,
+      yAxisName,
+      name,
+      color,
+      width,
+      markerSettings,
+      dataLabelSettings,
+      trendlines,
+      isVisible,
+      enableTooltip,
+      dashArray,
+      animationDuration,
+      borderColor,
+      borderWidth,
+      gradient,
+      borderGradient,
+      selectionBehavior,
+      isVisibleInLegend,
+      legendIconType,
+      legendItemText,
+      opacity,
+      boxPlotMode,
+      showMean,
+      spacing,
+      onRendererCreated,
+      onPointTap,
+      onPointDoubleTap,
+      onPointLongPress
+    ];
+    return hashList(values);
+  }
 }
 
 class _BoxPlotQuartileValues {
   _BoxPlotQuartileValues(
       {this.minimum,
       this.maximum,
-      //ignore: unused_element
+      //ignore: unused_element, avoid_unused_constructor_parameters
       List<num>? outliers,
       this.upperQuartile,
       this.lowerQuartile,
@@ -219,6 +316,7 @@ class BoxAndWhiskerSeriesRenderer extends XyDataSeriesRenderer {
     final int yCount = yValues.length;
     _boxPlotQuartileValues = _BoxPlotQuartileValues();
     _boxPlotQuartileValues.average =
+        //ignore: always_specify_types
         (yValues.fold(0, (num x, y) => (x.toDouble()) + y!)) / yCount;
     if (mode == BoxPlotMode.exclusive) {
       _boxPlotQuartileValues.lowerQuartile =
@@ -284,9 +382,8 @@ class BoxAndWhiskerSeriesRenderer extends XyDataSeriesRenderer {
     final num rank = percentile * (count - 1);
     final int integerRank = (rank.abs()).floor();
     final num fractionRank = rank - integerRank;
-    value =
-        (fractionRank * (yValues[integerRank + 1]! - yValues[integerRank]!) +
-            yValues[integerRank]!);
+    value = fractionRank * (yValues[integerRank + 1]! - yValues[integerRank]!) +
+        yValues[integerRank]!;
     return value.toDouble();
   }
 
@@ -305,7 +402,7 @@ class BoxAndWhiskerSeriesRenderer extends XyDataSeriesRenderer {
     if (count == 1) {
       _boxPlotQuartileValues.lowerQuartile = yValues[0];
       _boxPlotQuartileValues.upperQuartile = yValues[0];
-      return null;
+      return;
     }
     final bool isEvenList = count % 2 == 0;
     final num halfLength = count ~/ 2;
@@ -349,12 +446,12 @@ class BoxAndWhiskerSeriesRenderer extends XyDataSeriesRenderer {
     _segment._seriesIndex = seriesIndex;
     _segment.currentSegmentIndex = pointIndex;
     _segment._seriesRenderer = this;
-    _segment._series = _series as XyDataSeries;
+    _segment._series = _series as XyDataSeries<dynamic, dynamic>;
     _segment.animationFactor = animateFactor;
     _segment._pointColorMapper = currentPoint.pointColorMapper;
     _segment._currentPoint = currentPoint;
-    if (_chartState!._widgetNeedUpdate &&
-        !_chartState!._isLegendToggled &&
+    if (_renderingDetails!.widgetNeedUpdate &&
+        !_renderingDetails!.isLegendToggled &&
         _oldSeriesRenderers != null &&
         _oldSeriesRenderers!.isNotEmpty &&
         _oldSeriesRenderers!.length - 1 >= _segment._seriesIndex &&

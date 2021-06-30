@@ -62,6 +62,7 @@ import 'package:flutter/material.dart';
 ///}
 ///
 /// ```
+@immutable
 class CalendarResource with Diagnosticable {
   /// Creates an resource data for [SfCalendar].
   ///
@@ -229,7 +230,10 @@ class CalendarResource with Diagnosticable {
       return false;
     }
 
-    final CalendarResource resource = other;
+    late final CalendarResource resource;
+    if (other is CalendarResource) {
+      resource = other;
+    }
     return resource.displayName == displayName &&
         resource.id == id &&
         resource.image == image &&

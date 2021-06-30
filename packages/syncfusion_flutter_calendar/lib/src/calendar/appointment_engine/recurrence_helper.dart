@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart' show DateFormat;
+import 'package:syncfusion_flutter_calendar/src/calendar/common/date_time_engine.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 
 import '../common/enums.dart' show RecurrenceType, RecurrenceRange, WeekDays;
@@ -10,7 +11,8 @@ class RecurrenceHelper {
   /// Check the recurrence appointment in between the visible date range.
   static bool _isRecurrenceInBetweenSpecificRange(DateTime appointmentDate,
       Duration duration, DateTime visibleStartDate, DateTime visibleEndTime) {
-    final DateTime appointmentEndDate = addDuration(appointmentDate, duration);
+    final DateTime appointmentEndDate =
+        DateTimeHelper.getDateTimeValue(addDuration(appointmentDate, duration));
 
     /// ignore: lines_longer_than_80_chars
     return isDateWithInDateRange(visibleStartDate, visibleEndTime, appointmentDate) ||
@@ -20,35 +22,809 @@ class RecurrenceHelper {
             appointmentDate, appointmentEndDate, visibleStartDate);
   }
 
-  /// Returns the date time collection of recurring appointment.
-  static List<DateTime> getRecurrenceDateTimeCollection(
+  static List<DateTime> _getDailyRecurrenceDateTimeCollection(
       String rRule, DateTime recurrenceStartDate,
       {Duration? recurrenceDuration,
       DateTime? specificStartDate,
       DateTime? specificEndDate}) {
+    final List<DateTime> recDateCollection = <DateTime>[];
+
     if (specificEndDate != null) {
       specificEndDate = DateTime(specificEndDate.year, specificEndDate.month,
           specificEndDate.day, 23, 59, 59);
     }
 
     recurrenceDuration ??= const Duration();
-    final List<DateTime> recDateCollection = <DateTime>[];
     final bool isSpecificDateRange =
         specificStartDate != null && specificEndDate != null;
-    final List<String> ruleSeparator = <String>['=', ';', ','];
-    const String weeklySeparator = ';';
 
+    if (isSpecificDateRange && recurrenceStartDate.isAfter(specificEndDate)) {
+      return recDateCollection;
+    }
+
+    final int recurrenceStartHour = recurrenceStartDate.hour;
+    final int recurrenceStartMinute = recurrenceStartDate.minute;
+    final int recurrenceStartSecond = recurrenceStartDate.second;
+
+    const List<String> ruleSeparator = <String>['=', ';', ','];
     final List<String> ruleArray = splitRule(rRule, ruleSeparator);
-    int weeklyByDayPos = -1;
+    if (ruleArray.isEmpty) {
+      return recDateCollection;
+    }
+
+    int recurrenceCount = 0;
+    final List<String> values = _findKeyIndex(ruleArray);
+
+    /// Assign only daily recurrence needed values.
+    final String recurrenceCountString = values[0];
+    final String intervalCountString = values[8];
+    final String untilValueString = values[10];
+    if (recurrenceCountString.isNotEmpty) {
+      recurrenceCount = int.parse(recurrenceCountString);
+    }
+
+    final int dailyDayGap =
+        rRule.contains('INTERVAL') ? int.parse(intervalCountString) : 1;
+    DateTime? endDate;
+    if (rRule.contains('UNTIL')) {
+      /// Set the end date value from until date value.
+      endDate = DateTime.parse(untilValueString);
+      endDate = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+      if (isSpecificDateRange) {
+        final DateTime startTime = DateTime(
+            endDate.year,
+            endDate.month,
+            endDate.day,
+            recurrenceStartHour,
+            recurrenceStartMinute,
+            recurrenceStartSecond);
+        final DateTime endTime = startTime.add(recurrenceDuration);
+
+        /// Check the visible start date after of recurrence end date, if
+        /// true then recurrence the empty appointment collection.
+        if (specificStartDate.isAfter(endTime) &&
+            !isSameDate(specificStartDate, endTime)) {
+          return recDateCollection;
+        }
+      }
+    } else if (rRule.contains('COUNT')) {
+      /// Set the end date value from recurrence start date with
+      /// count and interval values.
+      endDate = AppointmentHelper.addDaysWithTime(
+          recurrenceStartDate,
+          (recurrenceCount - 1) * dailyDayGap,
+          recurrenceStartHour,
+          recurrenceStartMinute,
+          recurrenceStartSecond);
+
+      /// Return empty collection when the recurrence end date after of visible
+      /// start date.
+      final DateTime recurrenceEndDate = endDate.add(recurrenceDuration);
+      if (isSpecificDateRange &&
+          specificStartDate.isAfter(recurrenceEndDate) &&
+          !isSameDate(specificStartDate, recurrenceEndDate)) {
+        return recDateCollection;
+      }
+
+      endDate = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+    }
+
+    /// NoEndDate specified rule returns empty collection issue fix.
+    if (isSpecificDateRange) {
+      endDate = endDate == null || endDate.isAfter(specificEndDate)
+          ? specificEndDate
+          : endDate;
+    }
+
+    int recurrenceIncrementCount = 0;
+    DateTime addDate = recurrenceStartDate;
+
+    /// Calculate the initial start date when visible start date specified and
+    /// recurrence start date is before of visible start date
+    if (isSpecificDateRange &&
+        recurrenceStartDate.isBefore(specificStartDate)) {
+      final DateTime recurrenceInitialDate = DateTime(recurrenceStartDate.year,
+          recurrenceStartDate.month, recurrenceStartDate.day);
+      final DateTime visibleInitialDate = DateTime(specificStartDate.year,
+          specificStartDate.month, specificStartDate.day);
+
+      /// Total days difference between the visible start date and recurrence
+      /// start date.
+      final int difference =
+          visibleInitialDate.difference(recurrenceInitialDate).inDays;
+      final int dayDifference = difference % dailyDayGap;
+
+      /// Valid recurrences in between the visible start date and recurrence
+      /// start date.
+      int incrementCount = difference ~/ dailyDayGap;
+
+      /// If day difference is 0 then initial start date is visible start date
+      /// and check the previous recurrence date have long recurrence duration.
+      if (dayDifference == 0) {
+        addDate = DateTime(
+            specificStartDate.year,
+            specificStartDate.month,
+            specificStartDate.day,
+            recurrenceStartHour,
+            recurrenceStartMinute,
+            recurrenceStartSecond);
+      } else {
+        /// If day difference is not 0 then initial start date is after the
+        /// visible start date so calculate the recurrence from the date before
+        /// the visible start date. check the previous recurrence date have
+        /// long recurrence duration.
+        addDate = AppointmentHelper.addDaysWithTime(
+            visibleInitialDate,
+            -dayDifference,
+            recurrenceStartHour,
+            recurrenceStartMinute,
+            recurrenceStartSecond);
+      }
+
+      final DateTime recurrenceEndDate = addDate.add(recurrenceDuration);
+      if (incrementCount > 0 && !isSameDate(addDate, recurrenceEndDate)) {
+        final int durationDifference = recurrenceEndDate.hour > addDate.hour
+            ? recurrenceDuration.inDays
+            : recurrenceDuration.inDays + 1;
+        final int intervalCount =
+            ((durationDifference ~/ dailyDayGap) * dailyDayGap) +
+                (durationDifference % dailyDayGap == 0 ? 0 : dailyDayGap);
+        addDate = AppointmentHelper.addDaysWithTime(addDate, -intervalCount,
+            recurrenceStartHour, recurrenceStartMinute, recurrenceStartSecond);
+        incrementCount -= intervalCount ~/ dailyDayGap;
+      }
+
+      recurrenceIncrementCount = incrementCount;
+
+      /// Reset to recurrence start date when the initial recurrence start date
+      /// before the recurrence start date
+      if (addDate.isBefore(recurrenceStartDate)) {
+        addDate = recurrenceStartDate;
+      }
+
+      /// Reset the recurrence count to 0 when its value less than 0.
+      if (recurrenceIncrementCount < 0) {
+        recurrenceIncrementCount = 0;
+      }
+    }
+
+    while (recurrenceIncrementCount < recurrenceCount ||
+        (endDate != null &&
+            (addDate.isBefore(endDate) || isSameDate(addDate, endDate)))) {
+      if (isSpecificDateRange) {
+        if (_isRecurrenceInBetweenSpecificRange(
+            addDate, recurrenceDuration, specificStartDate, specificEndDate)) {
+          recDateCollection.add(addDate);
+        }
+
+        if (addDate.isAfter(specificEndDate)) {
+          break;
+        }
+      } else {
+        recDateCollection.add(addDate);
+      }
+
+      addDate = AppointmentHelper.addDaysWithTime(addDate, dailyDayGap,
+          recurrenceStartHour, recurrenceStartMinute, recurrenceStartSecond);
+      recurrenceIncrementCount++;
+    }
+
+    return recDateCollection;
+  }
+
+  static List<DateTime> _getWeeklyRecurrenceDateTimeCollection(
+      String rRule, DateTime recurrenceStartDate,
+      {Duration? recurrenceDuration,
+      DateTime? specificStartDate,
+      DateTime? specificEndDate}) {
+    final List<DateTime> recDateCollection = <DateTime>[];
+
+    if (specificEndDate != null) {
+      specificEndDate = DateTime(specificEndDate.year, specificEndDate.month,
+          specificEndDate.day, 23, 59, 59);
+    }
+
+    recurrenceDuration ??= const Duration();
+    final bool isSpecificDateRange =
+        specificStartDate != null && specificEndDate != null;
+
+    if (isSpecificDateRange && recurrenceStartDate.isAfter(specificEndDate)) {
+      return recDateCollection;
+    }
+
+    const List<String> ruleSeparator = <String>['=', ';', ','];
+    const String weeklySeparator = ';';
+    const List<String> weekDaysString = <String>[
+      'SU',
+      'MO',
+      'TU',
+      'WE',
+      'TH',
+      'FR',
+      'SA'
+    ];
+    final List<String> ruleArray = splitRule(rRule, ruleSeparator);
+    if (ruleArray.isEmpty) {
+      return recDateCollection;
+    }
+    final List<String> values = _findKeyIndex(ruleArray);
+    final String recurrenceCountString = values[0];
+    final String intervalCountString = values[8];
+    final String untilValueString = values[10];
+
+    final List<String> weeklyRule = rRule.split(weeklySeparator);
+    final List<String> weeklyByDayRules = _findWeeklyRule(weeklyRule);
+    final int weeklyByDayPos =
+        weeklyByDayRules.isNotEmpty ? int.parse(weeklyByDayRules[1]) : -1;
+
+    final int recurrenceStartHour = recurrenceStartDate.hour;
+    final int recurrenceStartMinute = recurrenceStartDate.minute;
+    final int recurrenceStartSecond = recurrenceStartDate.second;
+    final int recurrenceCount =
+        recurrenceCountString.isNotEmpty ? int.parse(recurrenceCountString) : 0;
+
+    int tempCount = 0;
+    final int weeklyWeekGap = ruleArray.length > 4 && rRule.contains('INTERVAL')
+        ? int.parse(intervalCountString)
+        : 1;
+    assert(weeklyByDayPos != -1, 'Invalid weekly recurrence rule');
+    final List<int> weekDays = <int>[];
+    final String ruleDaysString = weeklyRule[weeklyByDayPos];
+    for (int i = 0; i < weekDaysString.length; i++) {
+      if (!ruleDaysString.contains(weekDaysString[i])) {
+        continue;
+      }
+
+      weekDays.add(i);
+    }
+
+    weekDays.sort();
+    final int weekDaysCount = weekDays.length;
+    assert(weekDaysCount != 0, 'Invalid weekly recurrence rule');
+
+    final int weekDay = recurrenceStartDate.weekday % DateTime.daysPerWeek;
+    DateTime? endDate;
+    if (rRule.contains('UNTIL')) {
+      /// Set the end date value from until date value.
+      endDate = DateTime.parse(untilValueString);
+      endDate = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+      if (isSpecificDateRange) {
+        final DateTime startTime = DateTime(
+            endDate.year,
+            endDate.month,
+            endDate.day,
+            recurrenceStartHour,
+            recurrenceStartMinute,
+            recurrenceStartSecond);
+        final DateTime endTime = startTime.add(recurrenceDuration);
+
+        /// Check the visible start date after of recurrence end date, if
+        /// true then recurrence the empty appointment collection.
+        if (specificStartDate.isAfter(endTime) &&
+            !isSameDate(specificStartDate, endTime)) {
+          return recDateCollection;
+        }
+      }
+    } else if (rRule.contains('COUNT')) {
+      int tempRecurrenceCount = recurrenceCount;
+
+      int initialWeekDay = weekDay;
+
+      /// Remove the recurrence on current week.
+      /// Eg., Week Mar 21 - 27 and recurrence start date is Mar 26 then remove
+      /// recurrence placed on Mar 26, 27 and start with Mar 28.
+      while (initialWeekDay < DateTime.daysPerWeek) {
+        if (weekDays.contains(initialWeekDay)) {
+          tempRecurrenceCount--;
+        }
+
+        initialWeekDay++;
+      }
+
+      /// Calculate the full weeks(sunday to saturday) occupies the recurrences.
+      /// Eg., if recurrence count is 20 each week have 3 occurrence then
+      /// full weeks count is 6.
+      final int totalWeeks = tempRecurrenceCount ~/ weekDaysCount;
+
+      /// Calculate the remaining and in between weeks occurrences.
+      /// Eg., if recurrence count is 20 each week have 3 occurrence then
+      /// remaining count is 2.
+      int remainingCount = tempRecurrenceCount % weekDaysCount;
+
+      /// Calculate the total days on full weeks.
+      int totalDays = totalWeeks * DateTime.daysPerWeek * weeklyWeekGap;
+
+      /// Add initial week days from recurrence start date to week end and
+      /// add interval time after the initial week.
+      totalDays += DateTime.daysPerWeek -
+          weekDay +
+          (DateTime.daysPerWeek * (weeklyWeekGap - 1));
+
+      /// Calculate the next week occurrences and it failed when
+      /// initial week have occurrences more than count value
+      /// some times count value less than the by day specified count
+      /// Eg., StartTime Apr 28, 2021(WE) by day WE, TH, SA and count is 2 then
+      /// recurrence end date is Apr 29, 2021. In the above case remaining
+      /// count value goes to negative.
+      if (remainingCount != 0 && tempRecurrenceCount > 0) {
+        /// Calculate the in between week days.
+        int additionalDays = 0;
+        while (additionalDays < DateTime.daysPerWeek && remainingCount != 0) {
+          if (weekDays.contains(additionalDays % DateTime.daysPerWeek)) {
+            remainingCount--;
+          }
+
+          additionalDays++;
+        }
+
+        /// Above loop add additional 1 day because condition failed after
+        /// increment. so decrement the days count by 1.
+        totalDays += additionalDays - 1;
+      } else if (remainingCount != 0 && tempRecurrenceCount < 0) {
+        /// some times count value less than the by day specified count
+        /// Eg., StartTime Apr 28, 2021(WE) by day WE, TH, SA and count is 2
+        /// then recurrence end date is Apr 29, 2021. In the above case
+        /// remaining count value goes to negative.
+
+        /// Calculate the in between week days.
+        int additionalDays = weekDay;
+        int currentRecurrenceCount = recurrenceCount;
+        while (additionalDays < DateTime.daysPerWeek &&
+            currentRecurrenceCount != 0) {
+          if (weekDays.contains(additionalDays)) {
+            currentRecurrenceCount--;
+          }
+
+          additionalDays++;
+        }
+
+        /// Above loop add additional 1 day because condition failed after
+        /// increment. so decrement the days count by 1.
+        totalDays = additionalDays - weekDay - 1;
+        if (totalDays < 0) {
+          totalDays = 0;
+        }
+      } else {
+        /// Calculate the exact end date of the week.
+        int additionalDays = 1;
+        while (additionalDays <= DateTime.daysPerWeek) {
+          /// Decrement the day and check the date week day is weekly recurrence
+          /// specified week day. If true then break and additionalDays variable
+          /// have the difference between the initial and indexed position.
+          if (weekDays.contains((DateTime.daysPerWeek - additionalDays) % 7)) {
+            break;
+          }
+
+          additionalDays++;
+        }
+
+        /// Subtract the total days by additionalDays and week interval because
+        /// the recurrence placed on first week so the interval does not have a
+        /// recurrences so remove the interval.
+        /// Eg., If the interval is 2 then the 1st week have occurrences and
+        /// 2nd week does not have occurrences.
+        totalDays -=
+            additionalDays + (DateTime.daysPerWeek * (weeklyWeekGap - 1));
+      }
+
+      endDate = AppointmentHelper.addDaysWithTime(
+          recurrenceStartDate,
+          totalDays,
+          recurrenceStartHour,
+          recurrenceStartMinute,
+          recurrenceStartSecond);
+
+      /// Return empty collection when the recurrence end date after of visible
+      /// start date.
+      final DateTime recurrenceEndDate = endDate.add(recurrenceDuration);
+      if (isSpecificDateRange &&
+          specificStartDate.isAfter(recurrenceEndDate) &&
+          !isSameDate(specificStartDate, recurrenceEndDate)) {
+        return recDateCollection;
+      }
+
+      endDate = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+    }
+
+    /// NoEndDate specified rule returns empty collection issue fix.
+    if (isSpecificDateRange) {
+      endDate = endDate == null || endDate.isAfter(specificEndDate)
+          ? specificEndDate
+          : endDate;
+    }
+
+    DateTime addDate = recurrenceStartDate;
+    if (isSpecificDateRange &&
+        recurrenceStartDate.isBefore(specificStartDate)) {
+      final DateTime startDate =
+          DateTime(addDate.year, addDate.month, addDate.day);
+
+      /// Calculate the total days between the recurrence start and visible
+      /// start date.
+      int daysDifference = specificStartDate.difference(startDate).inDays;
+      final DateTime recurrenceEndDate = addDate.add(recurrenceDuration);
+
+      /// Calculate day difference between the recurrence start and end date.
+      final int durationDifference = isSameDate(recurrenceEndDate, addDate)
+          ? 0
+          : recurrenceEndDate.hour > addDate.hour
+              ? recurrenceDuration.inDays
+              : recurrenceDuration.inDays + 1;
+
+      /// Remove the duration day difference from total days difference because
+      /// if the recurrence placed saturday, sunday and it duration is 2 days
+      /// then saturday recurrence end with monday but the visible start date
+      /// from sunday. When recurrence duration does not considered then the
+      /// recurrence dates only have sunday date and it does not consider the
+      /// saturday date.
+      daysDifference -= durationDifference;
+      daysDifference = daysDifference < 0 ? 0 : daysDifference;
+      int tempRecurrenceCount = 0;
+      int initialWeekDay = weekDay;
+
+      int initialWeekDaysCount = 0;
+
+      /// Remove the initial week recurrences and days because if the
+      /// recurrence start date is tuesday then calculate the occurrences
+      /// from tuesday to saturday and remove it from total days count.
+      while (initialWeekDay < DateTime.daysPerWeek &&
+          daysDifference > initialWeekDaysCount) {
+        if (weekDays.contains(initialWeekDay)) {
+          tempRecurrenceCount++;
+        }
+
+        initialWeekDay++;
+        initialWeekDaysCount++;
+      }
+
+      final bool isOccurrenceInInitialWeek =
+          initialWeekDaysCount + weekDay < DateTime.daysPerWeek;
+      daysDifference -= isOccurrenceInInitialWeek ? 0 : initialWeekDaysCount;
+
+      /// Calculate and remove the interval week after the initial week on
+      /// total days difference.
+      final int initialWeekGap = isOccurrenceInInitialWeek
+          ? 0
+          : DateTime.daysPerWeek * (weeklyWeekGap - 1);
+      daysDifference -= initialWeekGap;
+
+      /// Calculate the total valid weeks(sunday to saturday) in between the
+      /// recurrence start and visible start date.
+      final int totalWeeks =
+          daysDifference ~/ (DateTime.daysPerWeek * weeklyWeekGap);
+      tempRecurrenceCount += totalWeeks * weekDaysCount;
+
+      /// Calculate the valid week start date near to visible start date
+      /// by adding the valid weeks in between the recurrence start and visible
+      /// start date(totalWeeks * DateTime.daysPerWeek * weeklyWeekGap) and
+      /// recurrence start date week remaining days to week end
+      /// (DateTime.daysPerWeek - weekDay) + initialWeekGap.
+      addDate = AppointmentHelper.addDaysWithTime(
+          addDate,
+          (totalWeeks * DateTime.daysPerWeek * weeklyWeekGap) +
+              (isOccurrenceInInitialWeek
+                  ? daysDifference
+                  : DateTime.daysPerWeek - weekDay) +
+              initialWeekGap,
+          recurrenceStartHour,
+          recurrenceStartMinute,
+          recurrenceStartSecond);
+
+      tempCount = tempRecurrenceCount;
+    }
+
+    final bool isWeeklySelected = weeklyRule[weeklyByDayPos].length > 6;
+
+    /// Below code modified for fixing issue while setting rule as
+    /// "FREQ=WEEKLY;COUNT=10;BYDAY=MO" along with specified start and end
+    /// dates.
+    while ((tempCount < recurrenceCount && isWeeklySelected) ||
+        (endDate != null &&
+            (addDate.isBefore(endDate) || addDate == endDate))) {
+      final bool isRecurrenceDate =
+          weekDays.contains(addDate.weekday % DateTime.daysPerWeek);
+      if (isSpecificDateRange) {
+        if (_isRecurrenceInBetweenSpecificRange(addDate, recurrenceDuration,
+                specificStartDate, specificEndDate) &&
+            isRecurrenceDate) {
+          recDateCollection.add(addDate);
+        }
+
+        if (addDate.isAfter(specificEndDate)) {
+          break;
+        }
+      } else if (isRecurrenceDate) {
+        recDateCollection.add(addDate);
+      }
+
+      if (isRecurrenceDate) {
+        tempCount++;
+      }
+
+      addDate = addDate.weekday == DateTime.saturday
+          ? AppointmentHelper.addDaysWithTime(
+              addDate,
+              ((weeklyWeekGap - 1) * DateTime.daysPerWeek) + 1,
+              recurrenceStartHour,
+              recurrenceStartMinute,
+              recurrenceStartSecond)
+          : AppointmentHelper.addDaysWithTime(addDate, 1, recurrenceStartHour,
+              recurrenceStartMinute, recurrenceStartSecond);
+    }
+
+    return recDateCollection;
+  }
+
+  static List<DateTime> _getMonthlyRecurrenceDateTimeCollection(
+      String rRule, DateTime recurrenceStartDate,
+      {Duration? recurrenceDuration,
+      DateTime? specificStartDate,
+      DateTime? specificEndDate}) {
+    final List<DateTime> recDateCollection = <DateTime>[];
+
+    if (specificEndDate != null) {
+      specificEndDate = DateTime(specificEndDate.year, specificEndDate.month,
+          specificEndDate.day, 23, 59, 59);
+    }
+
+    recurrenceDuration ??= const Duration();
+    final bool isSpecificDateRange =
+        specificStartDate != null && specificEndDate != null;
+
+    if (isSpecificDateRange && recurrenceStartDate.isAfter(specificEndDate)) {
+      return recDateCollection;
+    }
+
+    final List<String> ruleSeparator = <String>['=', ';', ','];
+    final List<String> ruleArray = splitRule(rRule, ruleSeparator);
+    if (ruleArray.isEmpty) {
+      return recDateCollection;
+    }
+
     int recCount = 0;
     final List<String> values = _findKeyIndex(ruleArray);
     final String recurCount = values[0];
-    final String daily = values[1];
-    final String weekly = values[2];
-    final String monthly = values[3];
-    final String yearly = values[4];
     final String bySetPosCount = values[6];
-    final String interval = values[7];
+    final String intervalCount = values[8];
+    final String untilValue = values[10];
+    final String byDay = values[12];
+    final String byDayValue = values[13];
+    final String byMonthDay = values[14];
+    final String byMonthDayCount = values[15];
+
+    final int recurrenceStartHour = recurrenceStartDate.hour;
+    final int recurrenceStartMinute = recurrenceStartDate.minute;
+    final int recurrenceStartSecond = recurrenceStartDate.second;
+    DateTime addDate = recurrenceStartDate;
+    if (recurCount.isNotEmpty) {
+      recCount = int.parse(recurCount);
+    }
+
+    final int monthlyMonthGap = ruleArray.length > 4 && intervalCount.isNotEmpty
+        ? int.parse(intervalCount)
+        : 1;
+    DateTime? endDate;
+    if (rRule.contains('UNTIL')) {
+      endDate = DateTime.parse(untilValue);
+      endDate = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+      if (isSpecificDateRange) {
+        final DateTime startTime = DateTime(
+            endDate.year,
+            endDate.month,
+            endDate.day,
+            recurrenceStartHour,
+            recurrenceStartMinute,
+            recurrenceStartSecond);
+        final DateTime endTime = startTime.add(recurrenceDuration);
+
+        /// Check the visible start date after of recurrence end date, if
+        /// true then recurrence the empty appointment collection.
+        if (specificStartDate.isAfter(endTime) &&
+            !isSameDate(specificStartDate, endTime)) {
+          return recDateCollection;
+        }
+      }
+    }
+
+    /// NoEndDate specified rule returns empty collection issue fix.
+    if (isSpecificDateRange && !rRule.contains('COUNT')) {
+      endDate = endDate == null || endDate.isAfter(specificEndDate)
+          ? specificEndDate
+          : endDate;
+
+      final int addedDateMonth = addDate.month;
+      final int addedDateYear = addDate.year;
+      final int viewStartDateMonth = specificStartDate.month;
+      final int viewStartDateYear = specificStartDate.year;
+      if (addedDateYear < viewStartDateYear ||
+          (viewStartDateMonth >= addedDateMonth &&
+              viewStartDateYear == addedDateYear)) {
+        /// Calculate the total months between the recurrence start date and
+        /// visible start date.
+        final int totalMonths = (viewStartDateMonth - addedDateMonth) +
+            ((viewStartDateYear - addedDateYear) * 12);
+
+        /// Calculate the valid month count between the recurrence start date
+        /// and visible start date.
+        final int validMonths = totalMonths ~/ monthlyMonthGap;
+        addDate = DateTime(
+            addedDateYear, addedDateMonth + (validMonths * monthlyMonthGap));
+        if (addDate.isBefore(recurrenceStartDate)) {
+          addDate = recurrenceStartDate;
+        }
+      }
+    }
+
+    if (byMonthDay == 'BYMONTHDAY') {
+      final int monthDate = int.parse(byMonthDayCount);
+      final DateTime temp = DateTime(addDate.year, addDate.month, monthDate,
+          recurrenceStartHour, recurrenceStartMinute, recurrenceStartSecond);
+
+      /// Check the month date greater than recurrence start date and the
+      /// month have the date value.
+      /// Eg., Recurrence start date as Feb 28 and recurrence month day as
+      /// 30 then check the 30 greater than 28 and feb have 30 date.
+      if (temp.day == monthDate &&
+          (temp.isAfter(recurrenceStartDate) ||
+              isSameDate(temp, recurrenceStartDate))) {
+        addDate = temp;
+      } else {
+        /// Check the month date less than recurrence start date or the
+        /// month does not have the date
+        /// Eg., Recurrence start date as Feb 28 and recurrence month day as
+        /// 30 and feb 30 does not exist so move the recurrence to next
+        /// month and check next month have date 30 if exists then start the
+        /// recurrence from mar 30.
+        addDate = DateTime(addDate.year, addDate.month + monthlyMonthGap, 1,
+            recurrenceStartHour, recurrenceStartMinute, recurrenceStartSecond);
+        final DateTime tempDate = DateTime(
+            addDate.year,
+            addDate.month,
+            monthDate,
+            recurrenceStartHour,
+            recurrenceStartMinute,
+            recurrenceStartSecond);
+        if (tempDate.day == monthDate) {
+          addDate = tempDate;
+        }
+      }
+
+      final int yearValue = addDate.year;
+      int monthValue = addDate.month;
+      int tempCount = 0;
+      while (tempCount < recCount ||
+          (endDate != null &&
+              (addDate.isBefore(endDate) || addDate == endDate))) {
+        if (addDate.day != monthDate) {
+          /// Check the month date day equal to updated date day value because
+          /// if we create the date time for February 30 then the date return
+          /// March 1 or 2 based on leap year.
+          monthValue += monthlyMonthGap;
+          addDate = DateTime(
+              yearValue,
+              monthValue,
+              monthDate,
+              recurrenceStartHour,
+              recurrenceStartMinute,
+              recurrenceStartSecond);
+          continue;
+        }
+
+        if (isSpecificDateRange) {
+          if (_isRecurrenceInBetweenSpecificRange(addDate, recurrenceDuration,
+              specificStartDate, specificEndDate)) {
+            recDateCollection.add(addDate);
+          }
+
+          if (addDate.isAfter(specificEndDate)) {
+            break;
+          }
+        } else {
+          recDateCollection.add(addDate);
+        }
+
+        monthValue += monthlyMonthGap;
+        addDate = DateTime(yearValue, monthValue, monthDate,
+            recurrenceStartHour, recurrenceStartMinute, recurrenceStartSecond);
+
+        tempCount++;
+      }
+    } else if (byDay == 'BYDAY') {
+      int tempCount = 0;
+      final int nthWeekDay = _getWeekDay(byDayValue);
+      final int bySetPosValue = int.parse(bySetPosCount);
+
+      void _updateValidDate() {
+        final DateTime monthStart = DateTime(addDate.year, addDate.month, 1,
+            recurrenceStartHour, recurrenceStartMinute, recurrenceStartSecond);
+        final int monthStartWeekday = monthStart.weekday % DateTime.daysPerWeek;
+        final DateTime weekStartDate = AppointmentHelper.addDaysWithTime(
+            monthStart,
+            -monthStartWeekday,
+            recurrenceStartHour,
+            recurrenceStartMinute,
+            recurrenceStartSecond);
+        int nthWeek = bySetPosValue;
+        if (monthStartWeekday <= nthWeekDay) {
+          nthWeek = bySetPosValue - 1;
+        }
+
+        if (bySetPosValue.isNegative) {
+          addDate = _getRecurrenceDateForNegativeValue(
+              bySetPosValue, monthStart, nthWeekDay);
+        } else {
+          addDate = AppointmentHelper.addDaysWithTime(
+              weekStartDate,
+              (nthWeek * DateTime.daysPerWeek) + nthWeekDay,
+              recurrenceStartHour,
+              recurrenceStartMinute,
+              recurrenceStartSecond);
+        }
+      }
+
+      _updateValidDate();
+      if (addDate.isBefore(recurrenceStartDate)) {
+        addDate = DateTime(addDate.year, addDate.month + monthlyMonthGap, 1,
+            recurrenceStartHour, recurrenceStartMinute, recurrenceStartSecond);
+        _updateValidDate();
+      }
+
+      while (tempCount < recCount ||
+          (endDate != null &&
+              (addDate.isBefore(endDate) || addDate == endDate))) {
+        if (isSpecificDateRange) {
+          if (_isRecurrenceInBetweenSpecificRange(addDate, recurrenceDuration,
+              specificStartDate, specificEndDate)) {
+            recDateCollection.add(addDate);
+          }
+
+          if (addDate.isAfter(specificEndDate)) {
+            break;
+          }
+        } else {
+          recDateCollection.add(addDate);
+        }
+
+        addDate = DateTime(addDate.year, addDate.month + monthlyMonthGap, 1,
+            recurrenceStartHour, recurrenceStartMinute, recurrenceStartSecond);
+        _updateValidDate();
+        tempCount++;
+      }
+    }
+
+    return recDateCollection;
+  }
+
+  static List<DateTime> _getYearlyRecurrenceDateTimeCollection(
+      String rRule, DateTime recurrenceStartDate,
+      {Duration? recurrenceDuration,
+      DateTime? specificStartDate,
+      DateTime? specificEndDate}) {
+    final List<DateTime> recDateCollection = <DateTime>[];
+
+    if (specificEndDate != null) {
+      specificEndDate = DateTime(specificEndDate.year, specificEndDate.month,
+          specificEndDate.day, 23, 59, 59);
+    }
+
+    recurrenceDuration ??= const Duration();
+    final bool isSpecificDateRange =
+        specificStartDate != null && specificEndDate != null;
+
+    if (isSpecificDateRange && recurrenceStartDate.isAfter(specificEndDate)) {
+      return recDateCollection;
+    }
+
+    final List<String> ruleSeparator = <String>['=', ';', ','];
+    final List<String> ruleArray = splitRule(rRule, ruleSeparator);
+    if (ruleArray.isEmpty) {
+      return recDateCollection;
+    }
+
+    int recCount = 0;
+    final List<String> values = _findKeyIndex(ruleArray);
+    final String recurCount = values[0];
+    final String bySetPosCount = values[6];
     final String intervalCount = values[8];
     final String untilValue = values[10];
     final String byDay = values[12];
@@ -56,376 +832,124 @@ class RecurrenceHelper {
     final String byMonthDay = values[14];
     final String byMonthDayCount = values[15];
     final String byMonthCount = values[17];
-    final List<String> weeklyRule = rRule.split(weeklySeparator);
-    final List<String> weeklyRules = _findWeeklyRule(weeklyRule);
-    if (weeklyRules.isNotEmpty) {
-      weeklyByDayPos = int.parse(weeklyRules[1]);
+
+    final int recurrenceStartHour = recurrenceStartDate.hour;
+    final int recurrenceStartMinute = recurrenceStartDate.minute;
+    final int recurrenceStartSecond = recurrenceStartDate.second;
+    DateTime addDate = recurrenceStartDate;
+    if (recurCount.isNotEmpty) {
+      recCount = int.parse(recurCount);
     }
 
-    if (ruleArray.isNotEmpty && rRule.isNotEmpty) {
-      final int recurrenceStartHour = recurrenceStartDate.hour;
-      final int recurrenceStartMinute = recurrenceStartDate.minute;
-      final int recurrenceStartSecond = recurrenceStartDate.second;
-      DateTime addDate = recurrenceStartDate;
-      if (recurCount.isNotEmpty) {
-        recCount = int.parse(recurCount);
-      }
+    DateTime? endDate;
+    if (rRule.contains('UNTIL')) {
+      endDate = DateTime.parse(untilValue);
+      endDate = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+      if (isSpecificDateRange) {
+        final DateTime startTime = DateTime(
+            endDate.year,
+            endDate.month,
+            endDate.day,
+            recurrenceStartHour,
+            recurrenceStartMinute,
+            recurrenceStartSecond);
+        final DateTime endTime = startTime.add(recurrenceDuration);
 
-      DateTime? endDate;
-      if (rRule.contains('UNTIL')) {
-        endDate = DateTime.parse(untilValue);
-        endDate = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 0);
-        if (isSpecificDateRange) {
-          endDate =
-              (endDate.isAfter(specificEndDate) || endDate == specificEndDate)
-                  ? specificEndDate
-                  : endDate;
+        /// Check the visible start date after of recurrence end date, if
+        /// true then recurrence the empty appointment collection.
+        if (specificStartDate.isAfter(endTime) &&
+            !isSameDate(specificStartDate, endTime)) {
+          return recDateCollection;
         }
       }
+    }
 
-      /// NoEndDate specified rule returns empty collection issue fix.
-      if (isSpecificDateRange && !rRule.contains('COUNT') && endDate == null) {
-        endDate = specificEndDate;
+    final int yearlyYearGap = ruleArray.length > 4 && intervalCount.isNotEmpty
+        ? int.parse(intervalCount)
+        : 1;
+
+    /// NoEndDate specified rule returns empty collection issue fix.
+    if (isSpecificDateRange && !rRule.contains('COUNT')) {
+      endDate = endDate == null || endDate.isAfter(specificEndDate)
+          ? specificEndDate
+          : endDate;
+
+      final int addedDateYear = addDate.year;
+      final int viewStartDateYear = specificStartDate.year;
+      if (addedDateYear < viewStartDateYear) {
+        /// Calculate the valid year count between the recurrence start date
+        /// and visible start date.
+        final int inBetweenYears =
+            (viewStartDateYear - addedDateYear) ~/ yearlyYearGap;
+        addDate = DateTime(addedDateYear + (inBetweenYears * yearlyYearGap));
+        if (addDate.isBefore(recurrenceStartDate)) {
+          addDate = recurrenceStartDate;
+        }
+      }
+    }
+
+    if (byMonthDay == 'BYMONTHDAY') {
+      final int monthIndex = int.parse(byMonthCount);
+      final int dayIndex = int.parse(byMonthDayCount);
+      if (monthIndex < 0 || monthIndex > 12) {
+        return recDateCollection;
       }
 
-      if (daily == 'DAILY') {
-        if (!rRule.contains('BYDAY')) {
-          final int dailyDayGap =
-              !rRule.contains('INTERVAL') ? 1 : int.parse(intervalCount);
-          int tempCount = 0;
-          while (tempCount < recCount ||
-              (endDate != null &&
-                  (addDate.isBefore(endDate) ||
-                      isSameDate(addDate, endDate)))) {
-            if (isSpecificDateRange) {
-              if (_isRecurrenceInBetweenSpecificRange(addDate,
-                  recurrenceDuration, specificStartDate, specificEndDate)) {
-                recDateCollection.add(addDate);
-              }
-            } else {
-              recDateCollection.add(addDate);
-            }
+      final int daysInMonth = DateTimeHelper.getDateTimeValue(
+              addDays(DateTime(addDate.year, addDate.month + 1, 1), -1))
+          .day;
+      if (daysInMonth < dayIndex) {
+        return recDateCollection;
+      }
 
-            addDate = AppointmentHelper.addDaysWithTime(
-                addDate,
-                dailyDayGap,
-                recurrenceStartHour,
-                recurrenceStartMinute,
-                recurrenceStartSecond);
-            tempCount++;
+      final DateTime specificDate = DateTime(addDate.year, monthIndex, dayIndex,
+          recurrenceStartHour, recurrenceStartMinute, recurrenceStartSecond);
+      if (specificDate.isBefore(recurrenceStartDate)) {
+        addDate = DateTime(
+            specificDate.year + yearlyYearGap,
+            specificDate.month,
+            specificDate.day,
+            recurrenceStartHour,
+            recurrenceStartMinute,
+            recurrenceStartSecond);
+      } else {
+        addDate = specificDate;
+      }
+
+      int tempCount = 0;
+      while (tempCount < recCount ||
+          (endDate != null &&
+              (addDate.isBefore(endDate) || addDate == endDate))) {
+        if (isSpecificDateRange) {
+          if (_isRecurrenceInBetweenSpecificRange(addDate, recurrenceDuration,
+              specificStartDate, specificEndDate)) {
+            recDateCollection.add(addDate);
+          }
+
+          if (addDate.isAfter(specificEndDate)) {
+            break;
           }
         } else {
-          while (recDateCollection.length < recCount ||
-              (endDate != null &&
-                  (addDate.isBefore(endDate) || addDate == endDate))) {
-            if (addDate.weekday != DateTime.sunday &&
-                addDate.weekday != DateTime.saturday) {
-              if (isSpecificDateRange) {
-                if (_isRecurrenceInBetweenSpecificRange(addDate,
-                    recurrenceDuration, specificStartDate, specificEndDate)) {
-                  recDateCollection.add(addDate);
-                }
-              } else {
-                recDateCollection.add(addDate);
-              }
-            }
-
-            addDate = AppointmentHelper.addDaysWithTime(
-                addDate,
-                1,
-                recurrenceStartHour,
-                recurrenceStartMinute,
-                recurrenceStartSecond);
-          }
+          recDateCollection.add(addDate);
         }
-      } else if (weekly == 'WEEKLY') {
-        int tempCount = 0;
-        final int weeklyWeekGap = ruleArray.length > 4 && interval == 'INTERVAL'
-            ? int.parse(intervalCount)
-            : 1;
-        assert(weeklyByDayPos != -1, 'Invalid weekly recurrence rule');
-        final bool isWeeklySelected = weeklyRule[weeklyByDayPos].length > 6;
 
-        /// Below code modified for fixing issue while setting rule as
-        /// "FREQ=WEEKLY;COUNT=10;BYDAY=MO" along with specified start and end
-        /// dates.
-        while ((tempCount < recCount && isWeeklySelected) ||
-            (endDate != null &&
-                (addDate.isBefore(endDate) || addDate == endDate))) {
-          if (isSpecificDateRange) {
-            if (_isRecurrenceInBetweenSpecificRange(addDate, recurrenceDuration,
-                specificStartDate, specificEndDate)) {
-              _setWeeklyRecurrenceDate(
-                  addDate, weeklyRule, weeklyByDayPos, recDateCollection);
-            }
+        addDate = DateTime(
+            addDate.year + yearlyYearGap,
+            addDate.month,
+            addDate.day,
+            recurrenceStartHour,
+            recurrenceStartMinute,
+            recurrenceStartSecond);
+        tempCount++;
+      }
+    } else if (byDay == 'BYDAY') {
+      int tempCount = 0;
+      final int monthIndex = int.parse(byMonthCount);
+      final int bySetPosValue = int.parse(bySetPosCount);
+      final int nthWeekDay = _getWeekDay(byDayValue);
 
-            if (addDate.isAfter(specificEndDate)) {
-              break;
-            }
-          } else {
-            _setWeeklyRecurrenceDate(
-                addDate, weeklyRule, weeklyByDayPos, recDateCollection);
-          }
-
-          if (_isRecurrenceDate(addDate, weeklyRule, weeklyByDayPos)) {
-            tempCount++;
-          }
-
-          addDate = addDate.weekday == DateTime.saturday
-              ? AppointmentHelper.addDaysWithTime(
-                  addDate,
-                  ((weeklyWeekGap - 1) * DateTime.daysPerWeek) + 1,
-                  recurrenceStartHour,
-                  recurrenceStartMinute,
-                  recurrenceStartSecond)
-              : AppointmentHelper.addDaysWithTime(
-                  addDate,
-                  1,
-                  recurrenceStartHour,
-                  recurrenceStartMinute,
-                  recurrenceStartSecond);
-        }
-      } else if (monthly == 'MONTHLY') {
-        final int monthlyMonthGap =
-            ruleArray.length > 4 && interval == 'INTERVAL'
-                ? int.parse(intervalCount)
-                : 1;
-        if (byMonthDay == 'BYMONTHDAY') {
-          final int monthDate = int.parse(byMonthDayCount);
-          final int currDate = int.parse(recurrenceStartDate.day.toString());
-          final DateTime temp = DateTime(
-              addDate.year,
-              addDate.month,
-              monthDate,
-              recurrenceStartHour,
-              recurrenceStartMinute,
-              recurrenceStartSecond);
-
-          /// Check the month date greater than recurrence start date and the
-          /// month have the date value.
-          /// Eg., Recurrence start date as Feb 28 and recurrence month day as
-          /// 30 then check the 30 greater than 28 and feb have 30 date.
-          if (monthDate >= currDate && temp.day == monthDate) {
-            addDate = temp;
-          } else {
-            /// Check the month date less than recurrence start date or the
-            /// month does not have the date
-            /// Eg., Recurrence start date as Feb 28 and recurrence month day as
-            /// 30 and feb 30 does not exist so move the recurrence to next
-            /// month and check next month have date 30 if exists then start the
-            /// recurrence from mar 30.
-            addDate = DateTime(
-                addDate.year,
-                addDate.month + 1,
-                1,
-                recurrenceStartHour,
-                recurrenceStartMinute,
-                recurrenceStartSecond);
-            final DateTime tempDate = DateTime(
-                addDate.year,
-                addDate.month,
-                monthDate,
-                recurrenceStartHour,
-                recurrenceStartMinute,
-                recurrenceStartSecond);
-            if (tempDate.day == monthDate) {
-              addDate = tempDate;
-            }
-          }
-
-          final int yearValue = addDate.year;
-          int monthValue = addDate.month;
-          int tempCount = 0;
-          while (tempCount < recCount ||
-              (endDate != null &&
-                  (addDate.isBefore(endDate) || addDate == endDate))) {
-            if (addDate.day != monthDate) {
-              monthValue += monthlyMonthGap;
-              addDate = DateTime(
-                  yearValue,
-                  monthValue,
-                  monthDate,
-                  recurrenceStartHour,
-                  recurrenceStartMinute,
-                  recurrenceStartSecond);
-              continue;
-            }
-
-            if (isSpecificDateRange) {
-              if (_isRecurrenceInBetweenSpecificRange(addDate,
-                  recurrenceDuration, specificStartDate, specificEndDate)) {
-                recDateCollection.add(addDate);
-              }
-
-              if (addDate.isAfter(specificEndDate)) {
-                break;
-              }
-            } else {
-              recDateCollection.add(addDate);
-            }
-
-            monthValue += monthlyMonthGap;
-            addDate = DateTime(
-                yearValue,
-                monthValue,
-                monthDate,
-                recurrenceStartHour,
-                recurrenceStartMinute,
-                recurrenceStartSecond);
-
-            tempCount++;
-          }
-        } else if (byDay == 'BYDAY') {
-          int tempRecDateCollectionCount = 0;
-          while (recDateCollection.length < recCount ||
-              (endDate != null &&
-                  (addDate.isBefore(endDate) || addDate == endDate))) {
-            final DateTime monthStart = DateTime(
-                addDate.year,
-                addDate.month,
-                1,
-                recurrenceStartHour,
-                recurrenceStartMinute,
-                recurrenceStartSecond);
-            final DateTime weekStartDate = AppointmentHelper.addDaysWithTime(
-                monthStart,
-                -monthStart.weekday,
-                recurrenceStartHour,
-                recurrenceStartMinute,
-                recurrenceStartSecond);
-            final int monthStartWeekday = monthStart.weekday;
-            final int nthWeekDay = _getWeekDay(byDayValue);
-            int nthWeek;
-            if (monthStartWeekday <= nthWeekDay) {
-              nthWeek = int.parse(bySetPosCount) - 1;
-            } else {
-              nthWeek = int.parse(bySetPosCount);
-            }
-
-            final int bySetPosValue = int.parse(bySetPosCount);
-            if (bySetPosValue.isNegative) {
-              addDate = _getRecurrenceDateForNegativeValue(
-                  bySetPosValue, monthStart, nthWeekDay);
-            } else {
-              addDate = AppointmentHelper.addDaysWithTime(
-                  weekStartDate,
-                  (nthWeek * DateTime.daysPerWeek) + nthWeekDay,
-                  recurrenceStartHour,
-                  recurrenceStartMinute,
-                  recurrenceStartSecond);
-            }
-
-            if (addDate.isBefore(recurrenceStartDate)) {
-              addDate = DateTime(
-                  addDate.year,
-                  addDate.month + 1,
-                  addDate.day,
-                  recurrenceStartHour,
-                  recurrenceStartMinute,
-                  recurrenceStartSecond);
-              continue;
-            }
-
-            if (isSpecificDateRange) {
-              if (_isRecurrenceInBetweenSpecificRange(addDate,
-                      recurrenceDuration, specificStartDate, specificEndDate) &&
-                  (tempRecDateCollectionCount < recCount ||
-                      rRule.contains('UNTIL'))) {
-                recDateCollection.add(addDate);
-              }
-
-              if (addDate.isAfter(specificEndDate)) {
-                break;
-              }
-            } else {
-              recDateCollection.add(addDate);
-            }
-
-            addDate = DateTime(
-                addDate.year,
-                addDate.month + monthlyMonthGap,
-                addDate.day - (addDate.day - 1),
-                recurrenceStartHour,
-                recurrenceStartMinute,
-                recurrenceStartSecond);
-
-            tempRecDateCollectionCount++;
-          }
-        }
-      } else if (yearly == 'YEARLY') {
-        final int yearlyYearGap = ruleArray.length > 4 && interval == 'INTERVAL'
-            ? int.parse(intervalCount)
-            : 1;
-        if (byMonthDay == 'BYMONTHDAY') {
-          final int monthIndex = int.parse(byMonthCount);
-          final int dayIndex = int.parse(byMonthDayCount);
-          if (monthIndex > 0 && monthIndex <= 12) {
-            final int bound =
-                addDays(DateTime(addDate.year, addDate.month + 1, 1), -1).day;
-            if (bound >= dayIndex) {
-              final DateTime specificDate = DateTime(
-                  addDate.year,
-                  monthIndex,
-                  dayIndex,
-                  recurrenceStartHour,
-                  recurrenceStartMinute,
-                  recurrenceStartSecond);
-              if (specificDate.isBefore(addDate)) {
-                addDate = specificDate;
-                addDate = DateTime(
-                    addDate.year + 1,
-                    addDate.month,
-                    addDate.day,
-                    recurrenceStartHour,
-                    recurrenceStartMinute,
-                    recurrenceStartSecond);
-                if (isSpecificDateRange) {
-                  if (_isRecurrenceInBetweenSpecificRange(addDate,
-                      recurrenceDuration, specificStartDate, specificEndDate)) {
-                    recDateCollection.add(addDate);
-                  }
-                } else {
-                  recDateCollection.add(addDate);
-                }
-              } else {
-                addDate = specificDate;
-              }
-
-              int tempCount = 0;
-              while (tempCount < recCount ||
-                  (endDate != null &&
-                      (addDate.isBefore(endDate) || addDate == endDate))) {
-                if (!recDateCollection.contains(addDate)) {
-                  if (isSpecificDateRange) {
-                    if (_isRecurrenceInBetweenSpecificRange(
-                        addDate,
-                        recurrenceDuration,
-                        specificStartDate,
-                        specificEndDate)) {
-                      recDateCollection.add(addDate);
-                    }
-
-                    if (addDate.isAfter(specificEndDate)) {
-                      break;
-                    }
-                  } else {
-                    recDateCollection.add(addDate);
-                  }
-                }
-
-                addDate = DateTime(
-                    addDate.year + yearlyYearGap,
-                    addDate.month,
-                    addDate.day,
-                    recurrenceStartHour,
-                    recurrenceStartMinute,
-                    recurrenceStartSecond);
-                tempCount++;
-              }
-            }
-          }
-        } else if (byDay == 'BYDAY') {
-          final int monthIndex = int.parse(byMonthCount);
+      void _updateValidNextDate() {
+        while (true) {
           DateTime monthStart = DateTime(
               addDate.year,
               monthIndex,
@@ -433,22 +957,19 @@ class RecurrenceHelper {
               recurrenceStartHour,
               recurrenceStartMinute,
               recurrenceStartSecond);
-          DateTime weekStartDate = AppointmentHelper.addDaysWithTime(
+          final int monthStartWeekday =
+              monthStart.weekday % DateTime.daysPerWeek;
+          final DateTime weekStartDate = AppointmentHelper.addDaysWithTime(
               monthStart,
-              -monthStart.weekday,
+              -monthStartWeekday,
               recurrenceStartHour,
               recurrenceStartMinute,
               recurrenceStartSecond);
-          int monthStartWeekday = monthStart.weekday;
-          int nthWeekDay = _getWeekDay(byDayValue);
-          int nthWeek;
+          int nthWeek = bySetPosValue;
           if (monthStartWeekday <= nthWeekDay) {
-            nthWeek = int.parse(bySetPosCount) - 1;
-          } else {
-            nthWeek = int.parse(bySetPosCount);
+            nthWeek = bySetPosValue - 1;
           }
 
-          final int bySetPosValue = int.parse(bySetPosCount);
           if (bySetPosValue.isNegative) {
             monthStart = _getRecurrenceDateForNegativeValue(
                 bySetPosValue, monthStart, nthWeekDay);
@@ -461,179 +982,110 @@ class RecurrenceHelper {
                 recurrenceStartSecond);
           }
 
-          if ((monthStart.month != addDate.month &&
-                  monthStart.isBefore(addDate)) ||
-              (monthStart.month == addDate.month &&
-                  (monthStart.isBefore(addDate) ||
-                      monthStart.isBefore(recurrenceStartDate)))) {
+          if (monthStart.month != monthIndex ||
+              monthStart.isBefore(recurrenceStartDate)) {
             addDate = DateTime(
-                addDate.year + 1,
-                addDate.month,
-                addDate.day,
+                monthStart.year + yearlyYearGap,
+                monthStart.month,
+                monthStart.day,
                 recurrenceStartHour,
                 recurrenceStartMinute,
                 recurrenceStartSecond);
-            monthStart = DateTime(
-                addDate.year,
-                monthIndex,
-                1,
-                recurrenceStartHour,
-                recurrenceStartMinute,
-                recurrenceStartSecond);
-            weekStartDate = AppointmentHelper.addDaysWithTime(
-                monthStart,
-                -monthStart.weekday,
-                recurrenceStartHour,
-                recurrenceStartMinute,
-                recurrenceStartSecond);
-            monthStartWeekday = monthStart.weekday;
-            nthWeekDay = _getWeekDay(byDayValue);
-            if (monthStartWeekday <= nthWeekDay) {
-              nthWeek = int.parse(bySetPosCount) - 1;
-            } else {
-              nthWeek = int.parse(bySetPosCount);
-            }
-
-            final int bySetPosValue = int.parse(bySetPosCount);
-            if (bySetPosValue.isNegative) {
-              monthStart = _getRecurrenceDateForNegativeValue(
-                  bySetPosValue, monthStart, nthWeekDay);
-            } else {
-              monthStart = AppointmentHelper.addDaysWithTime(
-                  weekStartDate,
-                  (nthWeek * DateTime.daysPerWeek) + nthWeekDay,
-                  recurrenceStartHour,
-                  recurrenceStartMinute,
-                  recurrenceStartSecond);
-            }
-
-            addDate = monthStart;
-
-            if (!recDateCollection.contains(addDate)) {
-              if (isSpecificDateRange) {
-                if (_isRecurrenceInBetweenSpecificRange(addDate,
-                    recurrenceDuration, specificStartDate, specificEndDate)) {
-                  recDateCollection.add(addDate);
-                }
-              } else {
-                recDateCollection.add(addDate);
-              }
-            }
-          } else {
-            addDate = monthStart;
+            continue;
           }
 
-          int tempCount = 0;
-          while (tempCount < recCount ||
-              (endDate != null &&
-                  (addDate.isBefore(endDate) || addDate == endDate))) {
-            if (!recDateCollection.contains(addDate)) {
-              if (isSpecificDateRange) {
-                if (_isRecurrenceInBetweenSpecificRange(addDate,
-                    recurrenceDuration, specificStartDate, specificEndDate)) {
-                  recDateCollection.add(addDate);
-                }
-
-                if (addDate.isAfter(specificEndDate)) {
-                  break;
-                }
-              } else {
-                recDateCollection.add(addDate);
-              }
-            }
-
-            addDate = DateTime(
-                addDate.year + yearlyYearGap,
-                addDate.month,
-                addDate.day,
-                recurrenceStartHour,
-                recurrenceStartMinute,
-                recurrenceStartSecond);
-
-            monthStart = DateTime(
-                addDate.year,
-                monthIndex,
-                1,
-                recurrenceStartHour,
-                recurrenceStartMinute,
-                recurrenceStartSecond);
-
-            weekStartDate = AppointmentHelper.addDaysWithTime(
-                monthStart,
-                -monthStart.weekday,
-                recurrenceStartHour,
-                recurrenceStartMinute,
-                recurrenceStartSecond);
-            monthStartWeekday = monthStart.weekday;
-            nthWeekDay = _getWeekDay(byDayValue);
-            if (monthStartWeekday <= nthWeekDay) {
-              nthWeek = int.parse(bySetPosCount) - 1;
-            } else {
-              nthWeek = int.parse(bySetPosCount);
-            }
-
-            final int bySetPosValue = int.parse(bySetPosCount);
-            if (bySetPosValue.isNegative) {
-              monthStart = _getRecurrenceDateForNegativeValue(
-                  bySetPosValue, monthStart, nthWeekDay);
-            } else {
-              monthStart = AppointmentHelper.addDaysWithTime(
-                  weekStartDate,
-                  (nthWeek * DateTime.daysPerWeek) + nthWeekDay,
-                  recurrenceStartHour,
-                  recurrenceStartMinute,
-                  recurrenceStartSecond);
-            }
-
-            if (monthStart.month != addDate.month &&
-                monthStart.isBefore(addDate)) {
-              addDate = monthStart;
-              addDate = DateTime(
-                  addDate.year + 1,
-                  addDate.month,
-                  addDate.day,
-                  recurrenceStartHour,
-                  recurrenceStartMinute,
-                  recurrenceStartSecond);
-              if (!recDateCollection.contains(addDate)) {
-                if (isSpecificDateRange) {
-                  if (_isRecurrenceInBetweenSpecificRange(addDate,
-                      recurrenceDuration, specificStartDate, specificEndDate)) {
-                    recDateCollection.add(addDate);
-                  }
-
-                  if (addDate.isAfter(specificEndDate)) {
-                    break;
-                  }
-                } else {
-                  recDateCollection.add(addDate);
-                }
-              }
-            } else {
-              addDate = monthStart;
-            }
-
-            tempCount++;
-          }
+          addDate = monthStart;
+          break;
         }
+      }
+
+      _updateValidNextDate();
+      while (tempCount < recCount ||
+          (endDate != null &&
+              (addDate.isBefore(endDate) || addDate == endDate))) {
+        if (isSpecificDateRange) {
+          if (_isRecurrenceInBetweenSpecificRange(addDate, recurrenceDuration,
+              specificStartDate, specificEndDate)) {
+            recDateCollection.add(addDate);
+          }
+
+          if (addDate.isAfter(specificEndDate)) {
+            break;
+          }
+        } else {
+          recDateCollection.add(addDate);
+        }
+
+        addDate = DateTime(
+            addDate.year + yearlyYearGap,
+            addDate.month,
+            addDate.day,
+            recurrenceStartHour,
+            recurrenceStartMinute,
+            recurrenceStartSecond);
+
+        tempCount++;
+        _updateValidNextDate();
       }
     }
 
     return recDateCollection;
   }
 
+  /// Returns the date time collection of recurring appointment.
+  static List<DateTime> getRecurrenceDateTimeCollection(
+      String rRule, DateTime recurrenceStartDate,
+      {Duration? recurrenceDuration,
+      DateTime? specificStartDate,
+      DateTime? specificEndDate}) {
+    /// Return empty collection when recurrence rule is empty.
+    if (rRule.isEmpty) {
+      return <DateTime>[];
+    }
+
+    if (rRule.contains('DAILY')) {
+      return _getDailyRecurrenceDateTimeCollection(rRule, recurrenceStartDate,
+          recurrenceDuration: recurrenceDuration,
+          specificStartDate: specificStartDate,
+          specificEndDate: specificEndDate);
+    } else if (rRule.contains('WEEKLY')) {
+      return _getWeeklyRecurrenceDateTimeCollection(rRule, recurrenceStartDate,
+          recurrenceDuration: recurrenceDuration,
+          specificStartDate: specificStartDate,
+          specificEndDate: specificEndDate);
+    } else if (rRule.contains('MONTHLY')) {
+      return _getMonthlyRecurrenceDateTimeCollection(rRule, recurrenceStartDate,
+          recurrenceDuration: recurrenceDuration,
+          specificStartDate: specificStartDate,
+          specificEndDate: specificEndDate);
+    } else if (rRule.contains('YEARLY')) {
+      return _getYearlyRecurrenceDateTimeCollection(rRule, recurrenceStartDate,
+          recurrenceDuration: recurrenceDuration,
+          specificStartDate: specificStartDate,
+          specificEndDate: specificEndDate);
+    }
+
+    return <DateTime>[];
+  }
+
   /// Returns the recurrence properties based on the given recurrence rule and
   /// the recurrence start date.
   static RecurrenceProperties parseRRule(String rRule, DateTime recStartDate) {
-    final DateTime recurrenceStartDate = recStartDate;
     final RecurrenceProperties recProp =
         RecurrenceProperties(startDate: recStartDate);
+
+    if (rRule.isEmpty) {
+      return recProp;
+    }
+
     final List<String> ruleSeparator = <String>['=', ';', ','];
-    const String weeklySeparator = ';';
     final List<String> ruleArray = splitRule(rRule, ruleSeparator);
+    if (ruleArray.isEmpty) {
+      return recProp;
+    }
+
+    const String weeklySeparator = ';';
     final List<String> weeklyRule = rRule.split(weeklySeparator);
-    int weeklyByDayPos = -1;
-    int recCount = 0;
     final List<String> resultList = _findKeyIndex(ruleArray);
     final String recurCount = resultList[0];
     final String daily = resultList[1];
@@ -649,144 +1101,79 @@ class RecurrenceHelper {
     final String byMonthDayCount = resultList[15];
     final String byMonthCount = resultList[17];
     final List<String> weeklyRules = _findWeeklyRule(weeklyRule);
-    if (weeklyRules.isNotEmpty) {
-      weeklyByDayPos = int.parse(weeklyRules[1]);
+    final int weeklyByDayPos =
+        weeklyRules.isNotEmpty ? int.parse(weeklyRules[1]) : -1;
+
+    if (rRule.contains('COUNT')) {
+      recProp.recurrenceRange = RecurrenceRange.count;
+      recProp.recurrenceCount =
+          recurCount.isNotEmpty ? int.parse(recurCount) : 0;
+    } else if (rRule.contains('UNTIL')) {
+      recProp.recurrenceRange = RecurrenceRange.endDate;
+      final DateTime endDate = DateTime.parse(untilValue);
+      recProp.endDate =
+          DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+    } else {
+      recProp.recurrenceRange = RecurrenceRange.noEndDate;
     }
 
-    if (ruleArray.isNotEmpty && rRule.isNotEmpty) {
-      DateTime addDate = recurrenceStartDate;
-      if (recurCount.isNotEmpty) {
-        recCount = int.parse(recurCount);
+    recProp.interval = intervalCount.isNotEmpty ? int.parse(intervalCount) : 1;
+    if (daily == 'DAILY') {
+      recProp.recurrenceType = RecurrenceType.daily;
+    } else if (weekly == 'WEEKLY') {
+      recProp.recurrenceType = RecurrenceType.weekly;
+
+      if (weeklyByDayPos == -1) {
+        return recProp;
       }
 
-      if (!rRule.contains('COUNT') && !rRule.contains('UNTIL')) {
-        recProp.recurrenceRange = RecurrenceRange.noEndDate;
-      } else if (rRule.contains('COUNT')) {
-        recProp.recurrenceRange = RecurrenceRange.count;
-        recProp.recurrenceCount = recCount;
-      } else if (rRule.contains('UNTIL')) {
-        recProp.recurrenceRange = RecurrenceRange.endDate;
-        DateTime endDate = DateTime.parse(untilValue);
-        endDate =
-            DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
-        recProp.endDate = endDate;
+      final String weeklyByDayString = weeklyRule[weeklyByDayPos];
+      if (weeklyByDayString.contains('SU')) {
+        recProp.weekDays.add(WeekDays.sunday);
+      }
+      if (weeklyByDayString.contains('MO')) {
+        recProp.weekDays.add(WeekDays.monday);
       }
 
-      recProp.interval =
-          intervalCount.isNotEmpty ? int.parse(intervalCount) : 1;
-      if (daily == 'DAILY') {
-        recProp.recurrenceType = RecurrenceType.daily;
+      if (weeklyByDayString.contains('TU')) {
+        recProp.weekDays.add(WeekDays.tuesday);
+      }
 
-        if (rRule.contains('BYDAY')) {
-          recProp.weekDays = <WeekDays>[
-            WeekDays.monday,
-            WeekDays.tuesday,
-            WeekDays.wednesday,
-            WeekDays.thursday,
-            WeekDays.friday
-          ];
-        }
-      } else if (weekly == 'WEEKLY') {
-        recProp.recurrenceType = RecurrenceType.weekly;
-        int i = 0;
+      if (weeklyByDayString.contains('WE')) {
+        recProp.weekDays.add(WeekDays.wednesday);
+      }
 
-        while (i < DateTime.daysPerWeek && weeklyByDayPos != -1) {
-          switch (addDate.weekday) {
-            case DateTime.sunday:
-              {
-                if (weeklyRule[weeklyByDayPos].contains('SU')) {
-                  recProp.weekDays.add(WeekDays.sunday);
-                }
+      if (weeklyByDayString.contains('TH')) {
+        recProp.weekDays.add(WeekDays.thursday);
+      }
 
-                break;
-              }
+      if (weeklyByDayString.contains('FR')) {
+        recProp.weekDays.add(WeekDays.friday);
+      }
 
-            case DateTime.monday:
-              {
-                if (weeklyRule[weeklyByDayPos].contains('MO')) {
-                  recProp.weekDays.add(WeekDays.monday);
-                }
-
-                break;
-              }
-
-            case DateTime.tuesday:
-              {
-                if (weeklyRule[weeklyByDayPos].contains('TU')) {
-                  recProp.weekDays.add(WeekDays.tuesday);
-                }
-
-                break;
-              }
-
-            case DateTime.wednesday:
-              {
-                if (weeklyRule[weeklyByDayPos].contains('WE')) {
-                  recProp.weekDays.add(WeekDays.wednesday);
-                }
-
-                break;
-              }
-
-            case DateTime.thursday:
-              {
-                if (weeklyRule[weeklyByDayPos].contains('TH')) {
-                  recProp.weekDays.add(WeekDays.thursday);
-                }
-
-                break;
-              }
-
-            case DateTime.friday:
-              {
-                if (weeklyRule[weeklyByDayPos].contains('FR')) {
-                  recProp.weekDays.add(WeekDays.friday);
-                }
-
-                break;
-              }
-
-            case DateTime.saturday:
-              {
-                if (weeklyRule[weeklyByDayPos].contains('SA')) {
-                  recProp.weekDays.add(WeekDays.saturday);
-                }
-
-                break;
-              }
-          }
-
-          addDate = addDate.weekday == 6
-              ? addDays(
-                  addDate, ((recProp.interval - 1) * DateTime.daysPerWeek) + 1)
-              : addDays(addDate, 1);
-          i = i + 1;
-        }
-      } else if (monthly == 'MONTHLY') {
-        recProp.recurrenceType = RecurrenceType.monthly;
-        if (byMonthDay == 'BYMONTHDAY') {
-          recProp.week = 0;
-          recProp.dayOfMonth =
-              byMonthDayCount.isNotEmpty ? int.parse(byMonthDayCount) : 1;
-        } else if (byDay == 'BYDAY') {
-          recProp.week =
-              bySetPosCount.isNotEmpty ? int.parse(bySetPosCount) : 0;
-          recProp.dayOfWeek =
-              byDayValue.isNotEmpty ? _getWeekDay(byDayValue) : 1;
-        }
-      } else if (yearly == 'YEARLY') {
-        recProp.recurrenceType = RecurrenceType.yearly;
-        if (byMonthDay == 'BYMONTHDAY') {
-          recProp.month = byMonthCount.isNotEmpty ? int.parse(byMonthCount) : 1;
-          recProp.dayOfMonth =
-              byMonthDayCount.isNotEmpty ? int.parse(byMonthDayCount) : 1;
-        } else if (byDay == 'BYDAY') {
-          recProp.month = byMonthCount.isNotEmpty ? int.parse(byMonthCount) : 1;
-          recProp.week =
-              bySetPosCount.isNotEmpty ? int.parse(bySetPosCount) : 0;
-          recProp.dayOfWeek =
-              byDayValue.isNotEmpty ? _getWeekDay(byDayValue) : 1;
-        }
+      if (weeklyByDayString.contains('SA')) {
+        recProp.weekDays.add(WeekDays.saturday);
+      }
+    } else if (monthly == 'MONTHLY') {
+      recProp.recurrenceType = RecurrenceType.monthly;
+      if (byMonthDay == 'BYMONTHDAY') {
+        recProp.week = 0;
+        recProp.dayOfMonth =
+            byMonthDayCount.isNotEmpty ? int.parse(byMonthDayCount) : 1;
+      } else if (byDay == 'BYDAY') {
+        recProp.week = bySetPosCount.isNotEmpty ? int.parse(bySetPosCount) : 0;
+        recProp.dayOfWeek = byDayValue.isNotEmpty ? _getWeekDay(byDayValue) : 1;
+      }
+    } else if (yearly == 'YEARLY') {
+      recProp.recurrenceType = RecurrenceType.yearly;
+      if (byMonthDay == 'BYMONTHDAY') {
+        recProp.month = byMonthCount.isNotEmpty ? int.parse(byMonthCount) : 1;
+        recProp.dayOfMonth =
+            byMonthDayCount.isNotEmpty ? int.parse(byMonthDayCount) : 1;
+      } else if (byDay == 'BYDAY') {
+        recProp.month = byMonthCount.isNotEmpty ? int.parse(byMonthCount) : 1;
+        recProp.week = bySetPosCount.isNotEmpty ? int.parse(bySetPosCount) : 0;
+        recProp.dayOfWeek = byDayValue.isNotEmpty ? _getWeekDay(byDayValue) : 1;
       }
     }
 
@@ -808,25 +1195,12 @@ class RecurrenceHelper {
             (startDate.isBefore(endDate!) || startDate == endDate))) {
       rRule = 'FREQ=DAILY';
 
-      if (recurrenceProperties.weekDays.contains(WeekDays.monday) &&
-          recurrenceProperties.weekDays.contains(WeekDays.tuesday) &&
-          recurrenceProperties.weekDays.contains(WeekDays.wednesday) &&
-          recurrenceProperties.weekDays.contains(WeekDays.thursday) &&
-          recurrenceProperties.weekDays.contains(WeekDays.friday)) {
-        if (diffTimeSpan.inHours > 24) {
-          isValidRecurrence = false;
-        }
+      if (diffTimeSpan.inHours >= recurrenceProperties.interval * 24) {
+        isValidRecurrence = false;
+      }
 
-        rRule = rRule + ';BYDAY=MO,TU,WE,TH,FR';
-      } else {
-        if (diffTimeSpan.inHours >= recurrenceProperties.interval * 24) {
-          isValidRecurrence = false;
-        }
-
-        if (recurrenceProperties.interval > 0) {
-          rRule =
-              rRule + ';INTERVAL=' + recurrenceProperties.interval.toString();
-        }
+      if (recurrenceProperties.interval > 0) {
+        rRule = rRule + ';INTERVAL=' + recurrenceProperties.interval.toString();
       }
 
       if (recurrenceProperties.recurrenceRange == RecurrenceRange.count) {
@@ -1087,8 +1461,8 @@ class RecurrenceHelper {
         rRule =
             rRule + ';BYMONTHDAY=' + recurrenceProperties.dayOfMonth.toString();
       } else {
-        final DateTime firstDate =
-            addDays(DateTime.now(), -(DateTime.now().weekday - 1));
+        final DateTime firstDate = DateTimeHelper.getDateTimeValue(
+            addDays(DateTime.now(), -(DateTime.now().weekday - 1)));
         final List<String> dayNames =
             List<int>.generate(DateTime.daysPerWeek, (int index) => index)
                 .map((int value) => DateFormat(DateFormat.ABBR_WEEKDAY)
@@ -1160,8 +1534,8 @@ class RecurrenceHelper {
             ';BYMONTH=' +
             recurrenceProperties.month.toString();
       } else {
-        final DateTime firstDate =
-            addDays(DateTime.now(), -(DateTime.now().weekday - 1));
+        final DateTime firstDate = DateTimeHelper.getDateTimeValue(
+            addDays(DateTime.now(), -(DateTime.now().weekday - 1)));
         final List<String> dayNames =
             List<int>.generate(DateTime.daysPerWeek, (int index) => index)
                 .map((int value) => DateFormat(DateFormat.ABBR_WEEKDAY)
@@ -1226,7 +1600,7 @@ class RecurrenceHelper {
     final Duration diffTimeSpan = appEndTime.difference(appStartTime);
     int recCount = 0;
     final DateTime prevDate = DateTime.utc(1);
-    final bool isValidRecurrence = true;
+    const bool isValidRecurrence = true;
 
     recCount = recurrenceProperties.recurrenceCount;
     switch (recurrenceProperties.recurrenceType) {
@@ -1374,8 +1748,8 @@ class RecurrenceHelper {
 
   static int _getWeekDay(String weekDay) {
     int index = 1;
-    final DateTime firstDate =
-        addDays(DateTime.now(), -(DateTime.now().weekday - 1));
+    final DateTime firstDate = DateTimeHelper.getDateTimeValue(
+        addDays(DateTime.now(), -(DateTime.now().weekday - 1)));
     final List<String> dayNames =
         List<int>.generate(DateTime.daysPerWeek, (int index) => index)
             .map((int value) => DateFormat(DateFormat.ABBR_WEEKDAY)
@@ -1419,148 +1793,6 @@ class RecurrenceHelper {
     return result;
   }
 
-  static bool _isRecurrenceDate(
-      DateTime addDate, List<String> weeklyRule, int weeklyByDayPos) {
-    bool isRecurrenceDate = false;
-    switch (addDate.weekday) {
-      case DateTime.sunday:
-        {
-          if (weeklyRule[weeklyByDayPos].contains('SU')) {
-            isRecurrenceDate = true;
-          }
-
-          break;
-        }
-
-      case DateTime.monday:
-        {
-          if (weeklyRule[weeklyByDayPos].contains('MO')) {
-            isRecurrenceDate = true;
-          }
-
-          break;
-        }
-
-      case DateTime.tuesday:
-        {
-          if (weeklyRule[weeklyByDayPos].contains('TU')) {
-            isRecurrenceDate = true;
-          }
-
-          break;
-        }
-
-      case DateTime.wednesday:
-        {
-          if (weeklyRule[weeklyByDayPos].contains('WE')) {
-            isRecurrenceDate = true;
-          }
-
-          break;
-        }
-
-      case DateTime.thursday:
-        {
-          if (weeklyRule[weeklyByDayPos].contains('TH')) {
-            isRecurrenceDate = true;
-          }
-
-          break;
-        }
-
-      case DateTime.friday:
-        {
-          if (weeklyRule[weeklyByDayPos].contains('FR')) {
-            isRecurrenceDate = true;
-          }
-
-          break;
-        }
-
-      case DateTime.saturday:
-        {
-          if (weeklyRule[weeklyByDayPos].contains('SA')) {
-            isRecurrenceDate = true;
-          }
-
-          break;
-        }
-    }
-
-    return isRecurrenceDate;
-  }
-
-  static void _setWeeklyRecurrenceDate(
-      DateTime addDate,
-      List<String> weeklyRule,
-      int weeklyByDayPos,
-      List<DateTime> recDateCollection) {
-    switch (addDate.weekday) {
-      case DateTime.sunday:
-        {
-          if (weeklyRule[weeklyByDayPos].contains('SU')) {
-            recDateCollection.add(addDate);
-          }
-
-          break;
-        }
-
-      case DateTime.monday:
-        {
-          if (weeklyRule[weeklyByDayPos].contains('MO')) {
-            recDateCollection.add(addDate);
-          }
-
-          break;
-        }
-
-      case DateTime.tuesday:
-        {
-          if (weeklyRule[weeklyByDayPos].contains('TU')) {
-            recDateCollection.add(addDate);
-          }
-
-          break;
-        }
-
-      case DateTime.wednesday:
-        {
-          if (weeklyRule[weeklyByDayPos].contains('WE')) {
-            recDateCollection.add(addDate);
-          }
-
-          break;
-        }
-
-      case DateTime.thursday:
-        {
-          if (weeklyRule[weeklyByDayPos].contains('TH')) {
-            recDateCollection.add(addDate);
-          }
-
-          break;
-        }
-
-      case DateTime.friday:
-        {
-          if (weeklyRule[weeklyByDayPos].contains('FR')) {
-            recDateCollection.add(addDate);
-          }
-
-          break;
-        }
-
-      case DateTime.saturday:
-        {
-          if (weeklyRule[weeklyByDayPos].contains('SA')) {
-            recDateCollection.add(addDate);
-          }
-
-          break;
-        }
-    }
-  }
-
   /// Returns the recurrence start date for negative recurrence value.
   static DateTime _getRecurrenceDateForNegativeValue(
       int bySetPosCount, DateTime date, int weekDay) {
@@ -1569,7 +1801,7 @@ class RecurrenceHelper {
       lastDate = AppointmentHelper.getMonthEndDate(date);
     } else if (bySetPosCount == -2) {
       lastDate = AppointmentHelper.getMonthEndDate(date)
-          .subtract(Duration(days: DateTime.daysPerWeek));
+          .subtract(const Duration(days: DateTime.daysPerWeek));
     }
 
     if (lastDate == null) {

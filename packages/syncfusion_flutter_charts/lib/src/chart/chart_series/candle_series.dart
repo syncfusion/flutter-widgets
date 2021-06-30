@@ -10,6 +10,8 @@ part of charts;
 /// Provides options for color, opacity, border color, and border width
 /// to customize the appearance.
 ///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=g5cniDExpRw}
+@immutable
 class CandleSeries<T, D> extends _FinancialSeriesBase<T, D> {
   /// Creating an argument constructor of CandleSeries class.
   CandleSeries({
@@ -37,8 +39,6 @@ class CandleSeries<T, D> extends _FinancialSeriesBase<T, D> {
     bool? enableTooltip,
     double? animationDuration,
     double? borderWidth,
-    // ignore: deprecated_member_use_from_same_package
-    SelectionSettings? selectionSettings,
     SelectionBehavior? selectionBehavior,
     bool? isVisibleInLegend,
     LegendIconType? legendIconType,
@@ -46,6 +46,9 @@ class CandleSeries<T, D> extends _FinancialSeriesBase<T, D> {
     List<double>? dashArray,
     double? opacity,
     SeriesRendererCreatedCallback? onRendererCreated,
+    ChartPointInteractionCallback? onPointTap,
+    ChartPointInteractionCallback? onPointDoubleTap,
+    ChartPointInteractionCallback? onPointLongPress,
     List<int>? initialSelectedDataIndexes,
     bool? showIndicationForSameValues,
     List<Trendline>? trendlines,
@@ -54,6 +57,9 @@ class CandleSeries<T, D> extends _FinancialSeriesBase<T, D> {
             onCreateRenderer: onCreateRenderer,
             name: name,
             onRendererCreated: onRendererCreated,
+            onPointTap: onPointTap,
+            onPointDoubleTap: onPointDoubleTap,
+            onPointLongPress: onPointLongPress,
             dashArray: dashArray,
             xValueMapper: xValueMapper,
             lowValueMapper: lowValueMapper,
@@ -78,7 +84,6 @@ class CandleSeries<T, D> extends _FinancialSeriesBase<T, D> {
             enableTooltip: enableTooltip,
             animationDuration: animationDuration,
             borderWidth: borderWidth ?? 2,
-            selectionSettings: selectionSettings,
             selectionBehavior: selectionBehavior,
             legendItemText: legendItemText,
             isVisibleInLegend: isVisibleInLegend,
@@ -104,6 +109,99 @@ class CandleSeries<T, D> extends _FinancialSeriesBase<T, D> {
     }
     return CandleSeriesRenderer();
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is CandleSeries &&
+        other.key == key &&
+        other.onCreateRenderer == onCreateRenderer &&
+        other.dataSource == dataSource &&
+        other.xValueMapper == xValueMapper &&
+        other.lowValueMapper == lowValueMapper &&
+        other.highValueMapper == highValueMapper &&
+        other.openValueMapper == openValueMapper &&
+        other.closeValueMapper == closeValueMapper &&
+        other.sortFieldValueMapper == sortFieldValueMapper &&
+        other.pointColorMapper == pointColorMapper &&
+        other.dataLabelMapper == dataLabelMapper &&
+        other.sortingOrder == sortingOrder &&
+        other.xAxisName == xAxisName &&
+        other.yAxisName == yAxisName &&
+        other.name == name &&
+        other.bearColor == bearColor &&
+        other.bullColor == bullColor &&
+        other.enableSolidCandles == enableSolidCandles &&
+        other.emptyPointSettings == emptyPointSettings &&
+        other.dataLabelSettings == dataLabelSettings &&
+        other.trendlines == trendlines &&
+        other.isVisible == isVisible &&
+        other.enableTooltip == enableTooltip &&
+        other.dashArray == dashArray &&
+        other.animationDuration == animationDuration &&
+        other.borderWidth == borderWidth &&
+        other.selectionBehavior == selectionBehavior &&
+        other.isVisibleInLegend == isVisibleInLegend &&
+        other.legendIconType == legendIconType &&
+        other.legendItemText == legendItemText &&
+        other.opacity == opacity &&
+        other.showIndicationForSameValues == showIndicationForSameValues &&
+        other.initialSelectedDataIndexes == other.initialSelectedDataIndexes &&
+        other.onRendererCreated == onRendererCreated &&
+        other.onPointTap == onPointTap &&
+        other.onPointDoubleTap == onPointDoubleTap &&
+        other.onPointLongPress == onPointLongPress;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      key,
+      onCreateRenderer,
+      dataSource,
+      xValueMapper,
+      lowValueMapper,
+      highValueMapper,
+      openValueMapper,
+      closeValueMapper,
+      sortFieldValueMapper,
+      pointColorMapper,
+      dataLabelMapper,
+      sortingOrder,
+      xAxisName,
+      yAxisName,
+      name,
+      bearColor,
+      bullColor,
+      enableSolidCandles,
+      emptyPointSettings,
+      dataLabelSettings,
+      isVisible,
+      enableTooltip,
+      animationDuration,
+      borderWidth,
+      selectionBehavior,
+      isVisibleInLegend,
+      legendIconType,
+      legendItemText,
+      dashArray,
+      opacity,
+      onRendererCreated,
+      initialSelectedDataIndexes,
+      showIndicationForSameValues,
+      trendlines,
+      onPointTap,
+      onPointDoubleTap,
+      onPointLongPress
+    ];
+    return hashList(values);
+  }
 }
 
 /// Creates series renderer for Candle series
@@ -112,9 +210,11 @@ class CandleSeriesRenderer extends _FinancialSerieBaseRenderer {
   CandleSeriesRenderer();
 
   // Store the rect position //
+  @override
   late num _rectPosition;
 
   // Store the rect count //
+  @override
   late num _rectCount;
 
   late CandleSegment _candleSegment, _segment;
@@ -136,12 +236,12 @@ class CandleSeriesRenderer extends _FinancialSerieBaseRenderer {
       _segment._seriesIndex = seriesIndex;
       _segment.currentSegmentIndex = pointIndex;
       _segment._seriesRenderer = this;
-      _segment._series = _series as XyDataSeries;
+      _segment._series = _series as XyDataSeries<dynamic, dynamic>;
       _segment.animationFactor = animateFactor;
       _segment._pointColorMapper = currentPoint.pointColorMapper;
       _segment._currentPoint = currentPoint;
-      if (_chartState!._widgetNeedUpdate &&
-          !_chartState!._isLegendToggled &&
+      if (_renderingDetails!.widgetNeedUpdate &&
+          !_renderingDetails!.isLegendToggled &&
           _oldSeriesRenderers != null &&
           _oldSeriesRenderers!.isNotEmpty &&
           _oldSeriesRenderers!.length - 1 >= _segment._seriesIndex &&
@@ -175,7 +275,7 @@ class CandleSeriesRenderer extends _FinancialSerieBaseRenderer {
   /// Changes the series color, border color, and border width.
   @override
   void customizeSegment(ChartSegment _segment) {
-    _candleSeries = _series as CandleSeries;
+    _candleSeries = _series as CandleSeries<dynamic, dynamic>;
     _candelSereisRenderer = _segment._seriesRenderer as CandleSeriesRenderer;
     _candleSegment = _candelSereisRenderer._candleSegment;
 
@@ -185,14 +285,17 @@ class CandleSeriesRenderer extends _FinancialSerieBaseRenderer {
           ? _candleSeries.bullColor
           : _candleSeries.bearColor;
     } else {
-      _candleSegment._isSolid = !_candleSegment._isBull ? true : false;
+      _candleSegment._isSolid = !_candleSegment._isBull;
       _candleSegment.currentSegmentIndex! - 1 >= 0 &&
               _candleSegment
-                      ._seriesRenderer
-                      ._dataPoints[_candleSegment.currentSegmentIndex! - 1]
-                      .close >
-                  _candleSegment._seriesRenderer
-                      ._dataPoints[_candleSegment.currentSegmentIndex!].close
+                          ._seriesRenderer
+                          ._dataPoints[_candleSegment.currentSegmentIndex! - 1]
+                          .close >
+                      _candleSegment
+                          ._seriesRenderer
+                          ._dataPoints[_candleSegment.currentSegmentIndex!]
+                          .close ==
+                  true
           ? _candleSegment._color = _candleSeries.bearColor
           : _candleSegment._color = _candleSeries.bullColor;
     }

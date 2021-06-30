@@ -173,7 +173,7 @@ class _ContentLexer {
         !_isContentEnded) {
       _isArtifactContentEnds = true;
       if (String.fromCharCode(int.parse(_nextChar)) == ')' &&
-          String.fromCharCode(int.parse(_currentChar)) != '\\') {
+          String.fromCharCode(int.parse(_currentChar)) != r'\') {
         _isArtifactContentEnds = false;
         _isContentEnded = true;
       }
@@ -220,7 +220,7 @@ class _ContentLexer {
     String literal = '';
     while (true) {
       ch = String.fromCharCode(int.parse(ch));
-      if (ch == '\\') {
+      if (ch == r'\') {
         literal += ch;
         ch = String.fromCharCode(int.parse(_getNextChar()));
         literal += ch;
@@ -346,7 +346,7 @@ class _ContentLexer {
     switch (ch) {
       case '*':
       case '\'':
-      case '\"':
+      case '"':
       case '1':
       case '0':
         return true;

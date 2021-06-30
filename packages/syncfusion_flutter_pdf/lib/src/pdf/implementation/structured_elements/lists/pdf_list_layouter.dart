@@ -90,7 +90,7 @@ class _PdfListLayouter extends _ElementLayouter {
     }
 
     if (curList is PdfOrderedList) {
-      markerMaxWidth = _getMarkerMaxWidth(curList as PdfOrderedList, info);
+      markerMaxWidth = _getMarkerMaxWidth(curList! as PdfOrderedList, info);
     }
 
     final bool useOnePage = param.format!.layoutType == PdfLayoutType.onePage;
@@ -102,7 +102,7 @@ class _PdfListLayouter extends _ElementLayouter {
       if (!cancel) {
         pageResult = _layoutOnPage(pageResult)!;
         endArgs = _afterPageLayouted(bounds.rect, currentPage, curList!);
-        cancel = (endArgs == null) ? false : endArgs.cancel;
+        cancel = endArgs != null && endArgs.cancel;
       }
       if (useOnePage || cancel) {
         break;
@@ -144,7 +144,7 @@ class _PdfListLayouter extends _ElementLayouter {
     double? height = 0;
     double resultantHeight = 0;
     double? y = bounds.y;
-    final double? x = bounds.x;
+    final double x = bounds.x;
     size = _Size(bounds.size.width, bounds.size.height);
     size.width = size.width - indent!;
 
@@ -156,10 +156,10 @@ class _PdfListLayouter extends _ElementLayouter {
           _beforeItemLayout(item, currentPage!);
         }
         final Map<String, dynamic> returnedValue = _drawItem(
-            pageResult!, x!, curList!, index, indent!, info, item, height!, y!);
-        pageResult = returnedValue['pageResult'];
-        height = returnedValue['height'];
-        y = returnedValue['y'];
+            pageResult!, x, curList!, index, indent!, info, item, height!, y!);
+        pageResult = returnedValue['pageResult'] as _PageLayoutResult?;
+        height = returnedValue['height'] as double?;
+        y = returnedValue['y'] as double?;
         resultantHeight += height!;
         if (pageResult!.broken) {
           return pageResult;
@@ -172,7 +172,7 @@ class _PdfListLayouter extends _ElementLayouter {
 
         if (item.subList != null && item.subList!.items.count > 0) {
           if (curList is PdfOrderedList) {
-            final PdfOrderedList oList = curList as PdfOrderedList;
+            final PdfOrderedList oList = curList! as PdfOrderedList;
             oList.marker._currentIndex = index;
             final _ListInfo listInfo =
                 _ListInfo(curList, index, oList.marker._getNumber());
@@ -193,7 +193,7 @@ class _PdfListLayouter extends _ElementLayouter {
           curList = item.subList;
           if (curList is PdfOrderedList) {
             markerMaxWidth =
-                _getMarkerMaxWidth(curList as PdfOrderedList, info);
+                _getMarkerMaxWidth(curList! as PdfOrderedList, info);
           }
           index = -1;
           indent = indent! + curList!.indent;
@@ -238,7 +238,7 @@ class _PdfListLayouter extends _ElementLayouter {
     _PdfStringLayoutResult? result;
 
     bool wroteMaker = false;
-    final double? textIndent = curList.textIndent;
+    final double textIndent = curList.textIndent;
 
     final double posY = height + y;
     double posX = indent + x;
@@ -345,22 +345,22 @@ class _PdfListLayouter extends _ElementLayouter {
       itemSize.width = itemSize.width - pageResult.markerWidth!;
 
       if (item.textIndent == 0) {
-        itemSize.width = itemSize.width - textIndent!;
+        itemSize.width = itemSize.width - textIndent;
       } else {
         itemSize.width = itemSize.width - item.textIndent;
       }
 
       if (((itemSize.width <= 0) || (itemSize.width < itemFont!.size)) &&
           currentPage != null) {
-        throw Exception('''There is not enough space to layout the item text. 
-            Marker is too long or there is no enough space to draw it.''');
+        throw Exception(
+            'There is not enough space to layout the item text. Marker is too long or there is no enough space to draw it.');
       }
 
       double itemX = posX;
 
       if (!marker._rightToLeft) {
         if (item.textIndent == 0) {
-          itemX += textIndent!;
+          itemX += textIndent;
         } else {
           itemX += item.textIndent;
         }
@@ -433,7 +433,7 @@ class _PdfListLayouter extends _ElementLayouter {
       pageResult.markerX += result._size.width;
 
       if (item.textIndent == 0) {
-        pageResult.markerX += textIndent!;
+        pageResult.markerX += textIndent;
       } else {
         pageResult.markerX += item.textIndent;
       }
@@ -476,16 +476,16 @@ class _PdfListLayouter extends _ElementLayouter {
   /// Sets the current parameters.
   void _setCurrentParameters(dynamic value) {
     if (value.brush != null) {
-      currentBrush = value.brush;
+      currentBrush = value.brush as PdfBrush?;
     }
     if (value.pen != null) {
-      currentPen = value.pen;
+      currentPen = value.pen as PdfPen?;
     }
     if (value.font != null) {
-      currentFont = value.font;
+      currentFont = value.font as PdfFont?;
     }
     if (value.stringFormat != null) {
-      currentFormat = value.stringFormat;
+      currentFormat = value.stringFormat as PdfStringFormat?;
     }
   }
 
@@ -523,7 +523,7 @@ class _PdfListLayouter extends _ElementLayouter {
         if (listInfo.list is PdfUnorderedList) {
           break;
         }
-        orderedList = listInfo.list as PdfOrderedList;
+        orderedList = listInfo.list! as PdfOrderedList;
         if (orderedList.marker.style == PdfNumberStyle.none) {
           break;
         }

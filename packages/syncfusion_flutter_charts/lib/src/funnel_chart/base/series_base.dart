@@ -77,8 +77,11 @@ class _FunnelSeries {
     final ChartIndexedValueMapper<String>? textMapping =
         currentSeries.textFieldMapper;
     final List<PointInfo<dynamic>> points = seriesRenderer._renderPoints;
+    PointInfo<dynamic> currentPoint;
+    List<_MeasureWidgetContext> legendToggles;
+    _MeasureWidgetContext item;
+    _LegendRenderContext legendRenderContext;
     for (int i = 0; i < points.length; i++) {
-      PointInfo<dynamic> currentPoint;
       currentPoint = points[i];
       // ignore: unnecessary_null_comparison
       currentPoint.fill = currentPoint.isEmpty && empty.color != null
@@ -105,11 +108,11 @@ class _FunnelSeries {
               : currentPoint.y!.toString());
 
       if (_chartState._chart.legend.legendItemBuilder != null) {
-        final List<_MeasureWidgetContext> legendToggles =
-            _chartState._legendToggleTemplateStates;
+        legendToggles =
+            _chartState._renderingDetails.legendToggleTemplateStates;
         if (legendToggles.isNotEmpty) {
           for (int j = 0; j < legendToggles.length; j++) {
-            final _MeasureWidgetContext item = legendToggles[j];
+            item = legendToggles[j];
             if (i == item.pointIndex) {
               currentPoint.isVisible = false;
               break;
@@ -117,10 +120,12 @@ class _FunnelSeries {
           }
         }
       } else {
-        if (_chartState._legendToggleStates.isNotEmpty) {
-          for (int j = 0; j < _chartState._legendToggleStates.length; j++) {
-            final _LegendRenderContext legendRenderContext =
-                _chartState._legendToggleStates[j];
+        if (_chartState._renderingDetails.legendToggleStates.isNotEmpty) {
+          for (int j = 0;
+              j < _chartState._renderingDetails.legendToggleStates.length;
+              j++) {
+            legendRenderContext =
+                _chartState._renderingDetails.legendToggleStates[j];
             if (i == legendRenderContext.seriesIndex) {
               currentPoint.isVisible = false;
               break;
@@ -143,9 +148,9 @@ class _FunnelSeries {
 
   /// To initialise series properties
   void _initializeSeriesProperties(FunnelSeriesRenderer seriesRenderer) {
-    final Rect chartAreaRect = _chartState._chartAreaRect;
+    final Rect chartAreaRect = _chartState._renderingDetails.chartAreaRect;
     final FunnelSeries<dynamic, dynamic> series = seriesRenderer._series;
-    final bool reverse = seriesRenderer._seriesType == 'pyramid' ? true : false;
+    final bool reverse = seriesRenderer._seriesType == 'pyramid';
     seriesRenderer._triangleSize = Size(
         _percentToValue(series.width, chartAreaRect.width)!.toDouble(),
         _percentToValue(series.height, chartAreaRect.height)!.toDouble());
@@ -164,10 +169,9 @@ class _FunnelSeries {
     double y;
     assert(
         // ignore: unnecessary_null_comparison
-        seriesRenderer._series.gapRatio != null
-            ? seriesRenderer._series.gapRatio >= 0 &&
-                seriesRenderer._series.gapRatio <= 1
-            : true,
+        !(seriesRenderer._series.gapRatio != null) ||
+            seriesRenderer._series.gapRatio >= 0 &&
+                seriesRenderer._series.gapRatio <= 1,
         'The gap ratio for the funnel chart must be between 0 and 1.');
     final double gapRatio = min(max(seriesRenderer._series.gapRatio, 0), 1);
     final double coEff =
@@ -208,22 +212,23 @@ class _FunnelSeries {
     final SfFunnelChartState chartState = _chartState;
     final PointInfo<dynamic> point = seriesRenderer._renderPoints[pointIndex];
     if (seriesRenderer._series.explode) {
-      if (chartState._explodedPoints.isNotEmpty) {
+      if (chartState._renderingDetails.explodedPoints.isNotEmpty) {
         existExplodedRegion = true;
-        final int previousIndex = chartState._explodedPoints[0];
+        final int previousIndex =
+            chartState._renderingDetails.explodedPoints[0];
         seriesRenderer._renderPoints[previousIndex].explodeDistance = 0;
         point.explodeDistance =
             previousIndex == pointIndex ? 0 : seriesRenderer._explodeDistance;
-        chartState._explodedPoints[0] = pointIndex;
+        chartState._renderingDetails.explodedPoints[0] = pointIndex;
         if (previousIndex == pointIndex) {
-          chartState._explodedPoints = <int>[];
+          chartState._renderingDetails.explodedPoints = <int>[];
         }
-        chartState._seriesRepaintNotifier.value++;
+        chartState._renderingDetails.seriesRepaintNotifier.value++;
       }
       if (!existExplodedRegion) {
         point.explodeDistance = seriesRenderer._explodeDistance;
-        chartState._explodedPoints.add(pointIndex);
-        chartState._seriesRepaintNotifier.value++;
+        chartState._renderingDetails.explodedPoints.add(pointIndex);
+        chartState._renderingDetails.seriesRepaintNotifier.value++;
       }
       _calculateFunnelPathRegion(pointIndex, seriesRenderer);
     }
@@ -234,13 +239,13 @@ class _FunnelSeries {
       int pointIndex, FunnelSeriesRenderer seriesRenderer) {
     num lineWidth, topRadius, bottomRadius, endTop, endBottom, top, bottom;
     num? minRadius, bottomY;
-    late num endMin;
+    num endMin = 0;
     final Size area = seriesRenderer._triangleSize;
     const num offset = 0;
     final PointInfo<dynamic> currentPoint =
         seriesRenderer._renderPoints[pointIndex];
     currentPoint.pathRegion = <Offset>[];
-    final Rect rect = _chartState._chartContainerRect;
+    final Rect rect = _chartState._renderingDetails.chartContainerRect;
     //ignore: prefer_if_null_operators
     final num extraSpace = (currentPoint.explodeDistance != null
             ? currentPoint.explodeDistance!
@@ -259,15 +264,14 @@ class _FunnelSeries {
                 (area.height - neckSize.height));
     topRadius = (area.width / 2) - lineWidth / 2;
     endTop = topRadius + lineWidth;
-    if (bottom > area.height - neckSize.height ||
-        area.height == neckSize.height) {
-      lineWidth = neckSize.width;
-    } else {
-      lineWidth = neckSize.width +
-          (area.width - neckSize.width) *
-              ((area.height - neckSize.height - bottom) /
-                  (area.height - neckSize.height));
-    }
+    lineWidth = (bottom > area.height - neckSize.height ||
+            area.height == neckSize.height)
+        ? neckSize.width
+        : neckSize.width +
+            (area.width - neckSize.width) *
+                ((area.height - neckSize.height - bottom) /
+                    (area.height - neckSize.height));
+
     bottomRadius = (area.width / 2) - (lineWidth / 2);
     endBottom = bottomRadius + lineWidth;
     if (top >= area.height - neckSize.height) {
@@ -282,6 +286,23 @@ class _FunnelSeries {
     top += seriesTop;
     bottom += seriesTop;
     bottomY = (bottomY != null) ? (bottomY + seriesTop) : null;
+    final List<num> values = <num>[
+      emptySpaceAtLeft,
+      offset,
+      topRadius,
+      endTop,
+      endBottom,
+      bottomRadius,
+      endMin,
+      top,
+      bottom
+    ];
+    _addPathToCurrentPoint(currentPoint, values, minRadius, bottomY);
+    _calculatePathSegment(seriesRenderer._seriesType, currentPoint);
+  }
+
+  void _addPathToCurrentPoint(PointInfo<dynamic> currentPoint, List<num> values,
+      num? minRadius, num? bottomY) {
     late num line1X,
         line1Y,
         line2X,
@@ -294,23 +315,22 @@ class _FunnelSeries {
         line5Y,
         line6X,
         line6Y;
-    line1X = emptySpaceAtLeft + offset + topRadius;
-    line1Y = top;
-    line2X = emptySpaceAtLeft + offset + endTop;
-    line2Y = top;
-    line4X = emptySpaceAtLeft + offset + endBottom;
-    line4Y = bottom;
-    line5X = emptySpaceAtLeft + offset + bottomRadius;
-    line5Y = bottom;
-    line3X = emptySpaceAtLeft + offset + endBottom;
-    line3Y = bottom;
-    line6X = emptySpaceAtLeft + offset + bottomRadius;
-    line6Y = bottom;
+    line1X = values[0] + values[1] + values[2];
+    line1Y = values[7];
+    line2X = values[0] + values[1] + values[3];
+    line2Y = values[7];
+    line4X = values[0] + values[1] + values[4];
+    line4Y = values[8];
+    line5X = values[0] + values[1] + values[5];
+    line5Y = values[8];
+    line3X = values[0] + values[1] + values[4];
+    line3Y = values[8];
+    line6X = values[0] + values[1] + values[5];
+    line6Y = values[8];
     if (bottomY != null) {
-      line3X = emptySpaceAtLeft + offset + endMin;
+      line3X = values[0] + values[1] + values[6];
       line3Y = bottomY;
-      line6X =
-          emptySpaceAtLeft + offset + ((minRadius != null) ? minRadius : 0);
+      line6X = values[0] + values[1] + ((minRadius != null) ? minRadius : 0);
       line6Y = bottomY;
     }
     currentPoint.pathRegion.add(Offset(line1X.toDouble(), line1Y.toDouble()));
@@ -319,7 +339,6 @@ class _FunnelSeries {
     currentPoint.pathRegion.add(Offset(line4X.toDouble(), line4Y.toDouble()));
     currentPoint.pathRegion.add(Offset(line5X.toDouble(), line5Y.toDouble()));
     currentPoint.pathRegion.add(Offset(line6X.toDouble(), line6Y.toDouble()));
-    _calculatePathSegment(seriesRenderer._seriesType, currentPoint);
   }
 
   /// To calculate the funnel segments and render path
@@ -368,7 +387,9 @@ class _FunnelSeries {
         canvas,
         _StyleOptions(
             fill: fillColor,
-            strokeWidth: _chartState._animateCompleted ? strokeWidth : 0,
+            strokeWidth: _chartState._renderingDetails.animateCompleted
+                ? strokeWidth
+                : 0,
             strokeColor: strokeColor,
             opacity: opacity),
         path);
@@ -380,39 +401,60 @@ class _FunnelSeries {
     final SfFunnelChart chart = _chartState._chart;
     final FunnelSeriesRenderer seriesRenderer =
         _chartState._chartSeries.visibleSeriesRenderers[0];
-    final List<int> selectionData = _chartState._selectionData;
+    final List<int> selectionData = _chartState._renderingDetails.selectionData;
     int? currentSelectedIndex;
+    const int seriesIndex = 0;
     if (seriesRenderer._isSelectionEnable && mode == chart.selectionGesture) {
       if (selectionData.isNotEmpty) {
         if (!chart.enableMultiSelection &&
-            _chartState._selectionData.isNotEmpty &&
-            _chartState._selectionData.length > 1) {
-          if (_chartState._selectionData.contains(pointIndex)) {
+            _chartState._renderingDetails.selectionData.isNotEmpty &&
+            _chartState._renderingDetails.selectionData.length > 1) {
+          if (_chartState._renderingDetails.selectionData
+              .contains(pointIndex)) {
             currentSelectedIndex = pointIndex;
           }
-          _chartState._selectionData.clear();
+          _chartState._renderingDetails.selectionData.clear();
           if (currentSelectedIndex != null) {
-            _chartState._selectionData.add(pointIndex);
+            _chartState._renderingDetails.selectionData.add(pointIndex);
           }
         }
+
+        int selectionIndex;
         for (int i = 0; i < selectionData.length; i++) {
-          final int selectionIndex = selectionData[i];
+          selectionIndex = selectionData[i];
           if (!chart.enableMultiSelection) {
             isPointAlreadySelected =
                 selectionData.length == 1 && pointIndex == selectionIndex;
-            selectionData.removeAt(i);
-            _chartState._seriesRepaintNotifier.value++;
+            if (seriesRenderer._selectionBehavior.toggleSelection == true ||
+                !isPointAlreadySelected) {
+              selectionData.removeAt(i);
+            }
+            _chartState._renderingDetails.seriesRepaintNotifier.value++;
+            if (chart.onSelectionChanged != null) {
+              chart.onSelectionChanged!(_getSelectionEventArgs(
+                  seriesRenderer, seriesIndex, selectionIndex));
+            }
           } else if (pointIndex == selectionIndex) {
-            selectionData.removeAt(i);
+            if (seriesRenderer._selectionBehavior.toggleSelection == true) {
+              selectionData.removeAt(i);
+            }
             isPointAlreadySelected = true;
-            _chartState._seriesRepaintNotifier.value++;
+            _chartState._renderingDetails.seriesRepaintNotifier.value++;
+            if (chart.onSelectionChanged != null) {
+              chart.onSelectionChanged!(_getSelectionEventArgs(
+                  seriesRenderer, seriesIndex, selectionIndex));
+            }
             break;
           }
         }
       }
       if (!isPointAlreadySelected) {
         selectionData.add(pointIndex);
-        _chartState._seriesRepaintNotifier.value++;
+        _chartState._renderingDetails.seriesRepaintNotifier.value++;
+        if (chart.onSelectionChanged != null) {
+          chart.onSelectionChanged!(
+              _getSelectionEventArgs(seriesRenderer, seriesIndex, pointIndex));
+        }
       }
     }
   }
@@ -424,20 +466,13 @@ class _FunnelSeries {
       SfFunnelChartState _chartState,
       PointInfo<dynamic> point) {
     _StyleOptions? pointStyle;
-    final SfFunnelChart chart = _chartState._chart;
-    final dynamic selection = seriesRenderer._series.selectionBehavior.enable
-        ? seriesRenderer._series.selectionBehavior
-        : seriesRenderer._series.selectionSettings;
-    const int seriesIndex = 0;
-    final List<int> selectionData = _chartState._selectionData;
-    if (selection.enable) {
+    final dynamic selection = seriesRenderer._series.selectionBehavior;
+    final List<int> selectionData = _chartState._renderingDetails.selectionData;
+    if (selection.enable == true) {
       if (selectionData.isNotEmpty) {
+        int selectionIndex;
         for (int i = 0; i < selectionData.length; i++) {
-          final int selectionIndex = selectionData[i];
-          if (chart.onSelectionChanged != null) {
-            chart.onSelectionChanged!(_getSelectionEventArgs(
-                seriesRenderer, seriesIndex, selectionIndex));
-          }
+          selectionIndex = selectionData[i];
           if (currentPointIndex == selectionIndex) {
             pointStyle = _StyleOptions(
                 fill: _selectionArgs != null
@@ -472,8 +507,8 @@ class _FunnelSeries {
 
   /// To perform selection event and return selectionArgs
   SelectionArgs _getSelectionEventArgs(
-      dynamic seriesRenderer, int seriesIndex, int pointIndex) {
-    final SfFunnelChart chart = seriesRenderer._chartState!._chart;
+      FunnelSeriesRenderer seriesRenderer, int seriesIndex, int pointIndex) {
+    final SfFunnelChart chart = seriesRenderer._chartState._chart;
     if (pointIndex < chart.series.dataSource!.length) {
       final dynamic selectionBehavior = seriesRenderer._selectionBehavior;
       _selectionArgs = SelectionArgs(

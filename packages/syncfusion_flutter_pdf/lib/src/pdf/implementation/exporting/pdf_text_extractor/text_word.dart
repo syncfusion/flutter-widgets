@@ -3,15 +3,9 @@ part of pdf;
 /// Details of a word present in the line.
 class TextWord {
   //constructor
-  TextWord._(String text, String fontName, List<PdfFontStyle> fontStyle,
-      List<TextGlyph> glyphs,
-      [Rect bounds = const Rect.fromLTWH(0, 0, 0, 0), double fontSize = 0]) {
-    this.text = text;
-    this.fontName = fontName;
-    this.fontStyle = fontStyle;
+  TextWord._(this.text, this.fontName, this.fontStyle, List<TextGlyph> glyphs,
+      [this.bounds = const Rect.fromLTWH(0, 0, 0, 0), this.fontSize = 0]) {
     _glyphs = glyphs;
-    this.bounds = bounds;
-    this.fontSize = fontSize;
   }
 
   //Fields

@@ -10,7 +10,7 @@ import '../../linear_gauge/utils/enum.dart';
 class LinearWidgetPointer extends SingleChildRenderObjectWidget
     implements LinearMarkerPointer {
   /// Creates a widget marker pointer.
-  LinearWidgetPointer(
+  const LinearWidgetPointer(
       {Key? key,
       required this.value,
       this.onValueChanged,
@@ -209,7 +209,7 @@ class LinearWidgetPointer extends SingleChildRenderObjectWidget
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    final scope = LinearGaugeScope.of(context);
+    final LinearGaugeScope scope = LinearGaugeScope.of(context);
     return RenderLinearWidgetPointer(
         value: value,
         onValueChanged: onValueChanged,
@@ -224,7 +224,7 @@ class LinearWidgetPointer extends SingleChildRenderObjectWidget
   @override
   void updateRenderObject(
       BuildContext context, RenderLinearWidgetPointer renderObject) {
-    final scope = LinearGaugeScope.of(context);
+    final LinearGaugeScope scope = LinearGaugeScope.of(context);
 
     renderObject
       ..value = value

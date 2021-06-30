@@ -68,7 +68,7 @@ class HiloSegment extends ChartSegment {
   /// Calculates the rendering bounds of a segment.
   @override
   void calculateSegmentPoints() {
-    _hiloSeries = _series as HiloSeries;
+    _hiloSeries = _series as HiloSeries<dynamic, dynamic>;
     _x = _high = _low = double.nan;
     _lowPoint = _currentPoint!.lowPoint!;
     _highPoint = _currentPoint!.highPoint!;
@@ -97,8 +97,8 @@ class HiloSegment extends ChartSegment {
   @override
   void onPaint(Canvas canvas) {
     if (_series.animationDuration > 0 &&
-        !_seriesRenderer._chartState!._isLegendToggled) {
-      if (!_seriesRenderer._chartState!._widgetNeedUpdate ||
+        !_seriesRenderer._renderingDetails!.isLegendToggled) {
+      if (!_seriesRenderer._renderingDetails!.widgetNeedUpdate ||
           _seriesRenderer._reAnimate) {
         if (_isTransposed) {
           _lowX = _lowPoint.x;

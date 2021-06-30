@@ -627,7 +627,7 @@ class PdfGridCell {
       _value._parentCell = this;
       _value._isChildGrid = true;
       for (int i = 0; i < _value.rows.count; i++) {
-        final PdfGridRow row = _value.rows[i];
+        final PdfGridRow row = _value.rows[i] as PdfGridRow;
         for (int j = 0; j < row.cells.count; j++) {
           final PdfGridCell cell = row.cells[j];
           cell._parent = this;
@@ -678,7 +678,7 @@ class PdfGridCell {
       if (!_finished) {
         temp = (_remainingString != null && _remainingString!.isNotEmpty)
             ? _remainingString
-            : value;
+            : value as String;
       }
       final _PdfStringLayoutResult result = layouter._layout(
           temp!, element.font, element.stringFormat ?? stringFormat,
@@ -686,12 +686,12 @@ class PdfGridCell {
       height += result._size.height +
           ((style.borders.top.width + style.borders.bottom.width) * 2);
     } else if (value is String || _remainingString is String) {
-      String? currentValue = value;
+      String? currentValue = value as String;
       if (!_finished) {
         currentValue =
             (_remainingString != null && _remainingString!.isNotEmpty)
                 ? _remainingString
-                : value;
+                : value as String;
       }
       final _PdfStringLayoutResult result = layouter._layout(
           currentValue!, _getTextFont()!, stringFormat,
@@ -699,7 +699,7 @@ class PdfGridCell {
       height += result._size.height +
           ((style.borders.top.width + style.borders.bottom.width) * 2);
     } else if (value is PdfGrid) {
-      height = value._size.height;
+      height = value._size.height as double;
     } else if (value is PdfImage) {
       final PdfImage img = _value as PdfImage;
       height = img.height / (96 / 72);
@@ -771,7 +771,7 @@ class PdfGridCell {
       if (!_finished) {
         temp = (_remainingString != null && _remainingString!.isNotEmpty)
             ? _remainingString
-            : value;
+            : value as String;
       }
       final _PdfStringLayoutResult result = layouter._layout(
           temp!, element.font, element.stringFormat ?? stringFormat,
@@ -797,9 +797,9 @@ class PdfGridCell {
   }
 
   PdfGraphics _drawCellBorders(PdfGraphics graphics, _Rectangle bounds) {
-    final PdfBorders? borders = style.borders;
+    final PdfBorders borders = style.borders;
     if (_row!._grid.style.borderOverlapStyle == PdfBorderOverlapStyle.inside) {
-      bounds.x = bounds.x + borders!.left.width;
+      bounds.x = bounds.x + borders.left.width;
       bounds.y = bounds.y + borders.top.width;
       bounds.width = bounds.width - borders.right.width;
       bounds.height = bounds.height - borders.bottom.width;
@@ -916,7 +916,7 @@ class PdfGridCell {
     final PdfPen? textPen = _getTextPen();
     final PdfBrush? textBrush = _getTextBrush();
     final PdfFont? font = _getTextFont();
-    final PdfStringFormat? strFormat = style.stringFormat ?? stringFormat;
+    final PdfStringFormat strFormat = style.stringFormat ?? stringFormat;
     _Rectangle innerLayoutArea = bounds._clone();
     if (innerLayoutArea.height >= graphics!.clientSize.height) {
       if (_row!._grid.allowRowBreakingAcrossPages) {
@@ -968,7 +968,7 @@ class PdfGridCell {
       final PdfTextElement textelement = value as PdfTextElement;
       final PdfPage? page = graphics._page;
       textelement._isPdfTextElement = true;
-      final String? textElementString = textelement.text;
+      final String textElementString = textelement.text;
       PdfTextLayoutResult? textlayoutresult;
       if (_finished) {
         textlayoutresult = textelement.draw(
@@ -986,7 +986,7 @@ class PdfGridCell {
         _remainingString = null;
         _finished = true;
       }
-      textelement.text = textElementString!;
+      textelement.text = textElementString;
     } else if (value is String || _remainingString is String) {
       String? temp;
       _Rectangle layoutRectangle;
@@ -1029,7 +1029,7 @@ class PdfGridCell {
       if (_finished) {
         temp = _remainingString != null && _remainingString!.isEmpty
             ? _remainingString
-            : value;
+            : value as String;
         graphics.drawString(temp!, font,
             pen: textPen,
             brush: textBrush,
@@ -1155,7 +1155,7 @@ class PdfGridCell {
         for (int rowIndex = 0;
             rowIndex < c._row!._grid.rows.count;
             rowIndex++) {
-          final PdfGridRow? r = c._row!._grid.rows[rowIndex];
+          final PdfGridRow r = c._row!._grid.rows[rowIndex];
           if (r == c._row) {
             for (int cellIndex = 0;
                 cellIndex < _row!.cells.count;
@@ -1279,21 +1279,21 @@ class PdfGridCell {
   _Rectangle _adjustContentLayoutArea(_Rectangle bounds) {
     PdfPaddings? padding = style.cellPadding;
     if (value is PdfGrid) {
-      final _Size? size = (value as PdfGrid)._gridSize;
+      final _Size size = (value as PdfGrid)._gridSize;
       if (padding == null) {
         padding = _row!._grid.style.cellPadding;
         bounds.width = bounds.width - (padding.right + padding.left);
         bounds.height = bounds.height - (padding.bottom + padding.top);
         if (stringFormat.alignment == PdfTextAlignment.center) {
           bounds.x =
-              bounds.x + padding.left + ((bounds.width - size!.width) / 2);
+              bounds.x + padding.left + ((bounds.width - size.width) / 2);
           bounds.y =
               bounds.y + padding.top + ((bounds.height - size.height) / 2);
         } else if (stringFormat.alignment == PdfTextAlignment.left) {
           bounds.x = bounds.x + padding.left;
           bounds.y = bounds.y + padding.top;
         } else if (stringFormat.alignment == PdfTextAlignment.right) {
-          bounds.x = bounds.x + padding.left + (bounds.width - size!.width);
+          bounds.x = bounds.x + padding.left + (bounds.width - size.width);
           bounds.y = bounds.y + padding.top;
           bounds.width = size.width;
         }
@@ -1303,14 +1303,14 @@ class PdfGridCell {
 
         if (stringFormat.alignment == PdfTextAlignment.center) {
           bounds.x =
-              bounds.x + padding.left + ((bounds.width - size!.width) / 2);
+              bounds.x + padding.left + ((bounds.width - size.width) / 2);
           bounds.y =
               bounds.y + padding.top + ((bounds.height - size.height) / 2);
         } else if (stringFormat.alignment == PdfTextAlignment.left) {
           bounds.x = bounds.x + padding.left;
           bounds.y = bounds.y + padding.top;
         } else if (stringFormat.alignment == PdfTextAlignment.right) {
-          bounds.x = bounds.x + padding.left + (bounds.width - size!.width);
+          bounds.x = bounds.x + padding.left + (bounds.width - size.width);
           bounds.y = bounds.y + padding.top;
           bounds.width = size.width;
         }
@@ -1414,10 +1414,10 @@ class PdfGridCell {
           totalHeight += isHeader
               ? _row!._grid.headers[i].height
               : _row!._grid.rows[i].height;
-          final PdfGridRow? row = _row!._grid.rows[i];
+          final PdfGridRow row = _row!._grid.rows[i];
           final int rowIndex = _row!._grid.rows._indexOf(row);
           if (rowSpan > 1) {
-            for (int cellIndex = 0; cellIndex < row!.cells.count; cellIndex++) {
+            for (int cellIndex = 0; cellIndex < row.cells.count; cellIndex++) {
               final PdfGridCell cell = row.cells[cellIndex];
               if (cell.rowSpan > 1) {
                 double tempHeight = 0;
@@ -1504,10 +1504,10 @@ class PdfGridCell {
             image, Rect.fromLTWH(x, y, bounds.width, bounds.height / 2));
       }
     } else if (_imagePosition == PdfGridImagePosition.tile) {
-      final double? cellLeft = bounds.x;
+      final double cellLeft = bounds.x;
       final double cellTop = bounds.y;
-      final pWidth = _physicalDimension(image, true);
-      final pHeight = _physicalDimension(image, false);
+      final double pWidth = _physicalDimension(image, true);
+      final double pHeight = _physicalDimension(image, false);
       double? x = cellLeft;
       double y = cellTop;
       for (; y < bounds.bottom;) {
@@ -1515,15 +1515,18 @@ class PdfGridCell {
           if (x + pWidth > bounds.right && y + pHeight > bounds.bottom) {
             final PdfTemplate template =
                 PdfTemplate(bounds.right - x, bounds.bottom - y);
-            template.graphics!.drawImage(image!, Rect.fromLTWH(0, 0, 0, 0));
+            template.graphics!
+                .drawImage(image!, const Rect.fromLTWH(0, 0, 0, 0));
             graphics!.drawPdfTemplate(template, Offset(x, y));
           } else if (x + pWidth > bounds.right) {
             final PdfTemplate template = PdfTemplate(bounds.right - x, pHeight);
-            template.graphics!.drawImage(image!, Rect.fromLTWH(0, 0, 0, 0));
+            template.graphics!
+                .drawImage(image!, const Rect.fromLTWH(0, 0, 0, 0));
             graphics!.drawPdfTemplate(template, Offset(x, y));
           } else if (y + pHeight > bounds.bottom) {
             final PdfTemplate template = PdfTemplate(pWidth, bounds.bottom - y);
-            template.graphics!.drawImage(image!, Rect.fromLTWH(0, 0, 0, 0));
+            template.graphics!
+                .drawImage(image!, const Rect.fromLTWH(0, 0, 0, 0));
             graphics!.drawPdfTemplate(template, Offset(x, y));
           } else {
             graphics!.drawImage(image!, Rect.fromLTWH(x, y, 0, 0));

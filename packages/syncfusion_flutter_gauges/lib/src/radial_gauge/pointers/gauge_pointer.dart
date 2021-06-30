@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import '../common/common.dart';
-import '../utils/enum.dart';
+
+import '../../radial_gauge/utils/enum.dart';
+import '../../radial_gauge/utils/radial_callback_args.dart';
 
 /// [GaugePointer] has properties for customizing gauge pointers.
 abstract class GaugePointer {

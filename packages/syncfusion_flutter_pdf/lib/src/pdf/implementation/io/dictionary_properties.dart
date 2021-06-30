@@ -258,8 +258,11 @@ class _DictionaryProperties {
   static const String reason = 'Reason';
   static const String location = 'Location';
   static const String contactInfo = 'ContactInfo';
-  static const String byteRange = "ByteRange";
+  static const String byteRange = 'ByteRange';
   static const String reference = 'Reference';
   static const String sigRef = 'SigRef';
   static const String data = 'Data';
+  static const String xfdf = 'xfdf';
+  static const String field = 'field';
+  static const String value = 'value';
 }

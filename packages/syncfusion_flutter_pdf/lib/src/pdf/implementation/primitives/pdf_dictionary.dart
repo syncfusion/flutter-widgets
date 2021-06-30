@@ -39,7 +39,7 @@ class _PdfDictionary implements _IPdfPrimitive, _IPdfChangable {
     if (value == null) {
       throw ArgumentError.value(value, 'value', 'value cannot be null');
     }
-    _items![checkName(key)] = value;
+    _items![checkName(key)] = value as _IPdfPrimitive?;
     modify();
     return value;
   }
@@ -230,16 +230,16 @@ class _PdfDictionary implements _IPdfPrimitive, _IPdfChangable {
                         final _PdfReferenceHolder fieldRef =
                             fields._elements[k]! as _PdfReferenceHolder;
                         final _PdfDictionary field1 =
-                            fieldRef.object as _PdfDictionary;
+                            fieldRef.object! as _PdfDictionary;
                         if (field1._items!.containsKey(
                                 _PdfName(_DictionaryProperties.t)) &&
                             field._items!.containsKey(
                                 _PdfName(_DictionaryProperties.t))) {
                           final _PdfString parentSignatureName =
-                              field1._items![_PdfName(_DictionaryProperties.t)]
+                              field1._items![_PdfName(_DictionaryProperties.t)]!
                                   as _PdfString;
                           final _PdfString childName =
-                              field._items![_PdfName(_DictionaryProperties.t)]
+                              field._items![_PdfName(_DictionaryProperties.t)]!
                                   as _PdfString;
                           if (parentSignatureName.value == childName.value) {
                             fields._remove(refHolder);
@@ -294,7 +294,7 @@ class _PdfDictionary implements _IPdfPrimitive, _IPdfChangable {
     for (int i = 0; i < keys.length; i++) {
       final _IPdfPrimitive? primitive = _items![keys[i]];
       if (primitive is _IPdfChangable &&
-          (primitive as _IPdfChangable).changed!) {
+          (primitive! as _IPdfChangable).changed!) {
         result = true;
         break;
       }
@@ -367,7 +367,7 @@ class _PdfDictionary implements _IPdfPrimitive, _IPdfChangable {
       dateTimeString.value = dateTimeString.value!.replaceFirst('191', '20');
     }
     final bool containPrefixD = dateTimeString.value!.contains(prefixD);
-    final String dateTimeFormat = 'yyyyMMddHHmmss';
+    const String dateTimeFormat = 'yyyyMMddHHmmss';
     dateTimeString.value =
         dateTimeString.value!.padRight(dateTimeFormat.length, '0');
     String localTime = ''.padRight(dateTimeFormat.length);
@@ -504,10 +504,10 @@ class _PdfDictionary implements _IPdfPrimitive, _IPdfChangable {
 
   @override
   _IPdfPrimitive? _clone(_PdfCrossTable crossTable) {
-    if (!(this is _PdfStream)) {
+    if (this is! _PdfStream) {
       if (clonedObject != null &&
           (clonedObject is _PdfDictionary == true) &&
-          (clonedObject as _PdfDictionary)._crossTable == crossTable) {
+          (clonedObject! as _PdfDictionary)._crossTable == crossTable) {
         return clonedObject;
       } else {
         clonedObject = null;
@@ -518,7 +518,7 @@ class _PdfDictionary implements _IPdfPrimitive, _IPdfChangable {
       final _PdfName? name = key;
       final _IPdfPrimitive obj = value!;
       final _IPdfPrimitive? newObj = obj._clone(crossTable);
-      if (!(newObj is _PdfNull)) {
+      if (newObj is! _PdfNull) {
         newDict[name] = newObj;
       }
     });
@@ -527,7 +527,7 @@ class _PdfDictionary implements _IPdfPrimitive, _IPdfChangable {
     newDict.freezeChanges(this);
     newDict._crossTable = crossTable;
 
-    if (!(this is _PdfStream)) {
+    if (this is! _PdfStream) {
       clonedObject = newDict;
     }
     return newDict;

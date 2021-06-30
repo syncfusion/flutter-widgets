@@ -156,7 +156,7 @@ class _TextLayouter extends _ElementLayouter {
         if (!cancel) {
           pageResult = _layoutOnPage(text!, currentPage!, currentBounds, param);
           endArgs = _raisePageLayouted(pageResult);
-          cancel = endArgs == null ? false : endArgs.cancel;
+          cancel = endArgs != null && endArgs.cancel;
         }
         if (!pageResult.end && !cancel) {
           if (element!._isPdfTextElement) {

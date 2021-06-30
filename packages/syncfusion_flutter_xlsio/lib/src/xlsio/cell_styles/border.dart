@@ -56,8 +56,7 @@ class Border {
 /// Represent cell individual border.
 class CellBorder implements Border {
   /// Creates a instance of Border
-  CellBorder(LineStyle mline, String mcolor) {
-    lineStyle = mline;
+  CellBorder(this.lineStyle, String mcolor) {
     color = mcolor;
   }
 
@@ -113,7 +112,7 @@ class CellBorderWrapper implements Border {
   final String _color = '#000000';
 
   /// Gets/sets borderline color Rgb.
-  final Color _colorRgb = Color.fromARGB(255, 0, 0, 0);
+  final Color _colorRgb = const Color.fromARGB(255, 0, 0, 0);
 
   /// Gets/sets border line style.
   @override
@@ -174,7 +173,7 @@ class CellBorderWrapper implements Border {
         colorStyle = border!.colorRgb;
         first = false;
       } else if (border!.colorRgb != colorStyle) {
-        return Color.fromARGB(255, 0, 0, 0);
+        return const Color.fromARGB(255, 0, 0, 0);
       }
     }
     return colorStyle;

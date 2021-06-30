@@ -9,6 +9,7 @@ part of charts;
 ///
 ///The [upperLineColor] property is used to define the color for the line that indicates [overbought] region, and
 ///the [lowerLineColor] property is used to define the color for the line that indicates [oversold] region.
+@immutable
 class RsiIndicator<T, D> extends TechnicalIndicators<T, D> {
   /// Creating an argument constructor of RsiIndicator class.
   RsiIndicator(
@@ -36,7 +37,8 @@ class RsiIndicator<T, D> extends TechnicalIndicators<T, D> {
       this.upperLineColor = Colors.red,
       this.upperLineWidth = 2,
       this.lowerLineColor = Colors.green,
-      this.lowerLineWidth = 2})
+      this.lowerLineWidth = 2,
+      ChartIndicatorRenderCallback? onRenderDetailsUpdate})
       : super(
             isVisible: isVisible,
             xAxisName: xAxisName,
@@ -55,7 +57,8 @@ class RsiIndicator<T, D> extends TechnicalIndicators<T, D> {
             legendItemText: legendItemText,
             signalLineColor: signalLineColor,
             signalLineWidth: signalLineWidth,
-            period: period);
+            period: period,
+            onRenderDetailsUpdate: onRenderDetailsUpdate);
 
   ///ShowZones boolean value for RSI indicator
   ///
@@ -176,46 +179,99 @@ class RsiIndicator<T, D> extends TechnicalIndicators<T, D> {
   ///```
   final double lowerLineWidth;
 
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is RsiIndicator &&
+        other.isVisible == isVisible &&
+        other.xAxisName == xAxisName &&
+        other.yAxisName == yAxisName &&
+        other.seriesName == seriesName &&
+        other.dashArray == dashArray &&
+        other.animationDuration == animationDuration &&
+        other.dataSource == dataSource &&
+        other.xValueMapper == xValueMapper &&
+        other.highValueMapper == highValueMapper &&
+        other.lowValueMapper == lowValueMapper &&
+        other.closeValueMapper == closeValueMapper &&
+        other.period == period &&
+        other.name == name &&
+        other.isVisibleInLegend == isVisibleInLegend &&
+        other.legendIconType == legendIconType &&
+        other.legendItemText == legendItemText &&
+        other.signalLineColor == signalLineColor &&
+        other.signalLineWidth == signalLineWidth &&
+        other.showZones == showZones &&
+        other.overbought == overbought &&
+        other.oversold == oversold &&
+        other.upperLineColor == upperLineColor &&
+        other.upperLineWidth == upperLineWidth &&
+        other.lowerLineColor == lowerLineColor &&
+        other.lowerLineWidth == lowerLineWidth;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      isVisible,
+      xAxisName,
+      yAxisName,
+      seriesName,
+      dashArray,
+      animationDuration,
+      dataSource,
+      xValueMapper,
+      highValueMapper,
+      lowValueMapper,
+      closeValueMapper,
+      name,
+      isVisibleInLegend,
+      legendIconType,
+      legendItemText,
+      signalLineColor,
+      signalLineWidth,
+      period,
+      showZones,
+      overbought,
+      oversold,
+      upperLineColor,
+      upperLineWidth,
+      lowerLineColor,
+      lowerLineWidth
+    ];
+    return hashList(values);
+  }
+
   /// To initialise indicators collections
   // ignore:unused_element
   void _initSeriesCollection(
       RsiIndicator<dynamic, dynamic> indicator,
       SfCartesianChart chart,
       TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
-    // Decides the type of renderer class to be used
-    final bool isLine = true;
     technicalIndicatorsRenderer._targetSeriesRenderers =
         <CartesianSeriesRenderer>[];
-    technicalIndicatorsRenderer._setSeriesProperties(
-        indicator,
-        indicator.name ?? 'RSI',
-        indicator.signalLineColor,
-        indicator.signalLineWidth,
-        chart);
-    if (indicator.showZones == true) {
-      technicalIndicatorsRenderer._setSeriesProperties(indicator, 'UpperLine',
-          indicator.upperLineColor, indicator.upperLineWidth, chart, isLine);
-      technicalIndicatorsRenderer._setSeriesProperties(indicator, 'LowerLine',
-          indicator.lowerLineColor, indicator.lowerLineWidth, chart, isLine);
-    }
   }
 
   /// To initialise data source of technical indicators
   // ignore:unused_element
-  void _initDataSource(RsiIndicator<dynamic, dynamic> indicator,
-      TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
+  void _initDataSource(
+    RsiIndicator<dynamic, dynamic> indicator,
+    TechnicalIndicatorsRenderer technicalIndicatorsRenderer,
+    SfCartesianChart chart,
+  ) {
     final List<CartesianChartPoint<dynamic>> signalCollection =
-        <CartesianChartPoint<dynamic>>[];
-    final List<CartesianChartPoint<dynamic>> lowerCollection =
-        <CartesianChartPoint<dynamic>>[];
-    final List<CartesianChartPoint<dynamic>> upperCollection =
-        <CartesianChartPoint<dynamic>>[];
-    final CartesianSeriesRenderer signalSeriesRenderer =
-        technicalIndicatorsRenderer._targetSeriesRenderers[0];
-    final List<CartesianChartPoint<dynamic>> validData =
-        technicalIndicatorsRenderer._dataPoints!;
-    final List<dynamic> xValues = <dynamic>[];
-    final List<dynamic> signalXValues = <dynamic>[];
+            <CartesianChartPoint<dynamic>>[],
+        lowerCollection = <CartesianChartPoint<dynamic>>[],
+        upperCollection = <CartesianChartPoint<dynamic>>[],
+        validData = technicalIndicatorsRenderer._dataPoints!;
+
+    final List<dynamic> xValues = <dynamic>[], signalXValues = <dynamic>[];
 
     if (validData.isNotEmpty &&
         validData.length >= indicator.period &&
@@ -226,20 +282,16 @@ class RsiIndicator<T, D> extends TechnicalIndicators<T, D> {
               validData[i].x,
               indicator.overbought,
               validData[i],
-              technicalIndicatorsRenderer._targetSeriesRenderers[1],
               upperCollection.length));
           lowerCollection.add(technicalIndicatorsRenderer._getDataPoint(
               validData[i].x,
               indicator.oversold,
               validData[i],
-              technicalIndicatorsRenderer._targetSeriesRenderers[2],
               lowerCollection.length));
           xValues.add(validData[i].x);
         }
       }
-      num prevClose = validData[0].close ?? 0;
-      num gain = 0;
-      num loss = 0;
+      num prevClose = validData[0].close ?? 0, gain = 0, loss = 0;
       for (int i = 1; i <= indicator.period; i++) {
         final num close = validData[i].close ?? 0.0;
         if (close > prevClose) {
@@ -256,7 +308,6 @@ class RsiIndicator<T, D> extends TechnicalIndicators<T, D> {
           validData[indicator.period].x,
           100 - (100 / (1 + (gain / loss))),
           validData[indicator.period],
-          signalSeriesRenderer,
           signalCollection.length));
       signalXValues.add(validData[indicator.period].x);
 
@@ -277,13 +328,29 @@ class RsiIndicator<T, D> extends TechnicalIndicators<T, D> {
               validData[j].x,
               100 - (100 / (1 + (gain / loss))),
               validData[j],
-              signalSeriesRenderer,
               signalCollection.length));
           signalXValues.add(validData[j].x);
         }
       }
     }
     technicalIndicatorsRenderer._renderPoints = signalCollection;
+    // Decides the type of renderer class to be used
+    const bool isLine = true;
+    // final CartesianSeriesRenderer signalSeriesRenderer =
+    //     technicalIndicatorsRenderer._targetSeriesRenderers[0];
+    technicalIndicatorsRenderer._setSeriesProperties(
+        indicator,
+        indicator.name ?? 'RSI',
+        indicator.signalLineColor,
+        indicator.signalLineWidth,
+        chart);
+    if (indicator.showZones == true) {
+      technicalIndicatorsRenderer._setSeriesProperties(indicator, 'UpperLine',
+          indicator.upperLineColor, indicator.upperLineWidth, chart, isLine);
+      technicalIndicatorsRenderer._setSeriesProperties(indicator, 'LowerLine',
+          indicator.lowerLineColor, indicator.lowerLineWidth, chart, isLine);
+    }
+
     technicalIndicatorsRenderer._setSeriesRange(signalCollection, indicator,
         signalXValues, technicalIndicatorsRenderer._targetSeriesRenderers[0]);
     if (indicator.showZones) {

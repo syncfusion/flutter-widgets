@@ -6,7 +6,7 @@ part of pdf;
 /// //Create a new PDF documentation
 /// PdfDocument document = PdfDocument();
 /// //Create a new PDF section
-/// PdfSection section = document.sections.add();
+/// PdfSection section = document.sections!.add();
 /// //Create a new PDF page and draw the text
 /// section.pages.add().graphics.drawString(
 ///     'Hello World!!!', PdfStandardFont(PdfFontFamily.helvetica, 27),
@@ -54,7 +54,7 @@ class PdfSection implements _IPdfWrapper {
   /// //Create a new PDF documentation
   /// PdfDocument document = PdfDocument();
   /// //Create a new PDF section
-  /// PdfSection section = document.sections.add();
+  /// PdfSection section = document.sections!.add();
   /// //Sets the page settings of the section
   /// section.pageSettings =
   ///     PdfPageSettings(PdfPageSize.a4, PdfPageOrientation.portrait);
@@ -83,7 +83,7 @@ class PdfSection implements _IPdfWrapper {
   /// //Create a new PDF documentation
   /// PdfDocument document = PdfDocument();
   /// //Create a new PDF section
-  /// PdfSection section = document.sections.add();
+  /// PdfSection section = document.sections!.add();
   /// //Create a new PDF page and draw the text
   /// section.pages.add().graphics.drawString(
   ///     'Hello World!!!', PdfStandardFont(PdfFontFamily.helvetica, 27),
@@ -103,7 +103,7 @@ class PdfSection implements _IPdfWrapper {
   /// //Create a new PDF documentation
   /// PdfDocument document = PdfDocument();
   /// //Create a new PDF section
-  /// PdfSection section = document.sections.add();
+  /// PdfSection section = document.sections!.add();
   /// //Sets the page settings of the section
   /// section.pageSettings =
   ///     PdfPageSettings(PdfPageSize.a4, PdfPageOrientation.portrait);
@@ -143,7 +143,13 @@ class PdfSection implements _IPdfWrapper {
   }
 
   /// Gets the document.
-  PdfDocument? get _document => _sectionCollection!._document;
+  PdfDocument? get _document {
+    if (_sectionCollection != null) {
+      return _sectionCollection!._document;
+    } else {
+      return null;
+    }
+  }
 
   /// Gets the count of the pages in the section.
   int get _count => _pageReferences!.count;
@@ -226,9 +232,9 @@ class PdfSection implements _IPdfWrapper {
         final _Size size = includeMargins
             ? _Size.fromSize(pageSettings._getActualSize())
             : pageSettings.size as _Size;
-        final double? left = includeMargins ? pageSettings.margins.left : 0;
-        final double? top = includeMargins ? pageSettings.margins.top : 0;
-        return _Rectangle(left!, top!, size.width, size.height);
+        final double left = includeMargins ? pageSettings.margins.left : 0;
+        final double top = includeMargins ? pageSettings.margins.top : 0;
+        return _Rectangle(left, top, size.width, size.height);
       }
     } else {
       final _Rectangle bounds = _Rectangle.empty;

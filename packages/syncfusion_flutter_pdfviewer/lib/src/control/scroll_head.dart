@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
+import 'package:syncfusion_flutter_pdfviewer/src/common/pdfviewer_helper.dart';
 
 /// Height of the ScrollHead.
 const double kPdfScrollHeadHeight = 32.0;
@@ -14,7 +15,7 @@ const double kPdfScrollHeadHeight = 32.0;
 @immutable
 class ScrollHead extends StatefulWidget {
   /// Constructor for ScrollHead.
-  ScrollHead(
+  const ScrollHead(
       this.scrollHeadOffset, this.pdfViewerController, this.isMobileWebView);
 
   /// Position of the [ScrollHead] in [SfPdfViewer].
@@ -48,56 +49,58 @@ class _ScrollHeadState extends State<ScrollHead> {
 
   @override
   Widget build(BuildContext context) {
-    if (kIsWeb) {
+    if (kIsDesktop) {
       return Container(
         alignment: Alignment.topRight,
         margin: EdgeInsets.only(top: widget.scrollHeadOffset),
         child: Material(
           color: Colors.grey,
-          borderRadius: BorderRadius.all(Radius.circular(7.0)),
+          borderRadius: const BorderRadius.all(Radius.circular(7.0)),
           child: Container(
             constraints: BoxConstraints.tight(
-              Size(10.0, 54.0),
+              const Size(10.0, 54.0),
             ),
           ),
         ),
       );
     }
+    const List<BoxShadow> boxShadows = <BoxShadow>[
+      BoxShadow(
+        color: Color.fromRGBO(0, 0, 0, 0.14),
+        blurRadius: 2,
+        offset: Offset(0, 0),
+      ),
+      BoxShadow(
+        color: Color.fromRGBO(0, 0, 0, 0.12),
+        blurRadius: 2,
+        offset: Offset(0, 2),
+      ),
+      BoxShadow(
+        color: Color.fromRGBO(0, 0, 0, 0.2),
+        blurRadius: 3,
+        offset: Offset(0, 1),
+      ),
+    ];
     return Container(
       margin: EdgeInsets.only(top: widget.scrollHeadOffset),
       child: Stack(
         children: <Widget>[
           Material(
-            borderRadius: BorderRadius.only(
+            borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(kPdfScrollHeadHeight),
               bottomLeft: Radius.circular(kPdfScrollHeadHeight),
             ),
             child: Container(
               decoration: BoxDecoration(
                 color: _pdfViewerThemeData!.scrollHeadStyle.backgroundColor,
-                borderRadius: BorderRadius.only(
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(kPdfScrollHeadHeight),
                   bottomLeft: Radius.circular(kPdfScrollHeadHeight),
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Color.fromRGBO(0, 0, 0, 0.14),
-                    blurRadius: 2,
-                    offset: Offset(0, 0),
-                  ),
-                  BoxShadow(
-                    color: Color.fromRGBO(0, 0, 0, 0.12),
-                    blurRadius: 2,
-                    offset: Offset(0, 2),
-                  ),
-                  BoxShadow(
-                    color: Color.fromRGBO(0, 0, 0, 0.2),
-                    blurRadius: 3,
-                    offset: Offset(0, 1),
-                  ),
-                ],
+                // ignore: unnecessary_new
+                boxShadow: boxShadows,
               ),
-              constraints: BoxConstraints.tightFor(
+              constraints: const BoxConstraints.tightFor(
                   width: kPdfScrollHeadHeight, height: kPdfScrollHeadHeight),
             ),
           ),

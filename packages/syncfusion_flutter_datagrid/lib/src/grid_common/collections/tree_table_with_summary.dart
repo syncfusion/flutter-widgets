@@ -73,7 +73,7 @@ class _TreeTableWithSummaryBranch extends _TreeTableBranch
   ///
   /// Gets the tree this branch belongs to.
   _TreeTableWithSummary get treeTableWithSummary =>
-      super.tree as _TreeTableWithSummary;
+      super.tree! as _TreeTableWithSummary;
 
   /// Gets a value indicating whether this node has summaries or not.
   @override
@@ -81,8 +81,9 @@ class _TreeTableWithSummaryBranch extends _TreeTableBranch
 
   /// Gets the parent branch.
   @override
-  _TreeTableWithSummaryBranch? get parent =>
-      super.parent != null ? super.parent as _TreeTableWithSummaryBranch : null;
+  _TreeTableWithSummaryBranch? get parent => super.parent != null
+      ? super.parent! as _TreeTableWithSummaryBranch
+      : null;
 
   /// Sets the parent branch.
   @override
@@ -100,7 +101,8 @@ class _TreeTableWithSummaryBranch extends _TreeTableBranch
   /// The left branch node cast to _TreeTableSummaryNodeBase.
   ///
   /// Returns the left branch node cast to _TreeTableSummaryNodeBase.
-  _TreeTableSummaryNodeBase? getLeftNode() => left as _TreeTableSummaryNodeBase;
+  _TreeTableSummaryNodeBase? getLeftNode() =>
+      left! as _TreeTableSummaryNodeBase;
 
   /// Gets the right branch node cast to _TreeTableSummaryNodeBase.
   ///
@@ -109,7 +111,7 @@ class _TreeTableWithSummaryBranch extends _TreeTableBranch
 
   /// Returns the left branch node cast to _TreeTableSummaryNodeBase.
   _TreeTableSummaryNodeBase? getRightNode() =>
-      right as _TreeTableSummaryNodeBase;
+      right! as _TreeTableSummaryNodeBase;
 
   /// Gets an array of summary objects.
   ///
@@ -129,7 +131,7 @@ class _TreeTableWithSummaryBranch extends _TreeTableBranch
       if (left != null && right != null) {
         int reuseLeft = 0;
         int reuseRight = 0;
-        _summaries = [];
+        _summaries = <_TreeTableSummaryBase>[];
         for (int i = 0; i < _summaries!.length; i++) {
           _summaries![i] = left[i].combine(right[i]);
           // preserve memory optimization
@@ -169,7 +171,7 @@ class _TreeTableWithSummaryBranch extends _TreeTableBranch
     } else if (notifyParentRecordSource) {
       if (tree != null && tree!.tag is _TreeTableSummaryArraySourceBase) {
         final _TreeTableSummaryArraySourceBase _treeTag =
-            tree!.tag as _TreeTableSummaryArraySourceBase;
+            tree!.tag! as _TreeTableSummaryArraySourceBase;
         _treeTag.invalidateSummariesBottomUp();
       }
     }
@@ -193,12 +195,13 @@ class _TreeTableWithSummaryBranch extends _TreeTableBranch
 /// A tree leaf with value and summary information.
 class _TreeTableWithSummaryEntryBase extends _TreeTableEntry
     with _TreeTableSummaryNodeBase {
-  static List<_TreeTableSummaryBase> emptySummaryArray = [];
+  static List<_TreeTableSummaryBase> emptySummaryArray =
+      <_TreeTableSummaryBase>[];
   List<_TreeTableSummaryBase>? _summaries;
 
   /// Gets the tree this leaf belongs to.
   _TreeTableWithSummary get treeTableWithSummary =>
-      tree as _TreeTableWithSummary;
+      tree! as _TreeTableWithSummary;
 
   /// Gets a value indicating whether the node has summaries or not.
   @override
@@ -208,7 +211,7 @@ class _TreeTableWithSummaryEntryBase extends _TreeTableEntry
   @override
   _TreeTableWithSummaryBranch? get parent {
     if (super.parent is _TreeTableWithSummaryBranch) {
-      return super.parent as _TreeTableWithSummaryBranch;
+      return super.parent! as _TreeTableWithSummaryBranch;
     } else {
       return null;
     }
@@ -227,7 +230,7 @@ class _TreeTableWithSummaryEntryBase extends _TreeTableEntry
   /// Returns the value as `_TreeTableSummaryArraySourceBase`.
   _TreeTableSummaryArraySourceBase? getSummaryArraySource() {
     if (value is _TreeTableSummaryArraySourceBase) {
-      return value as _TreeTableSummaryArraySourceBase;
+      return value! as _TreeTableSummaryArraySourceBase;
     } else {
       return null;
     }
@@ -245,7 +248,7 @@ class _TreeTableWithSummaryEntryBase extends _TreeTableEntry
     final _TreeTableSummaryArraySourceBase? summaryArraySource =
         getSummaryArraySource();
     if (summaryArraySource != null) {
-      final bool summaryChanged = false;
+      const bool summaryChanged = false;
       summaries =
           summaryArraySource.getSummaries(emptySummaries, summaryChanged);
     }
@@ -287,7 +290,7 @@ class _TreeTableWithSummaryEntryBase extends _TreeTableEntry
     _summaries = null;
     if (value is _TreeTableSummaryArraySourceBase && tree != null) {
       final _TreeTableSummaryArraySourceBase _tree =
-          tree!.tag as _TreeTableSummaryArraySourceBase;
+          tree!.tag! as _TreeTableSummaryArraySourceBase;
       _tree.invalidateSummary();
     }
 
@@ -296,7 +299,7 @@ class _TreeTableWithSummaryEntryBase extends _TreeTableEntry
     } else if (notifyParentRecordSource) {
       if (tree != null && tree!.tag is _TreeTableSummaryArraySourceBase) {
         final _TreeTableSummaryArraySourceBase _tree =
-            tree!.tag as _TreeTableSummaryArraySourceBase;
+            tree!.tag! as _TreeTableSummaryArraySourceBase;
         _tree.invalidateSummariesBottomUp();
       }
     }
@@ -446,7 +449,7 @@ class _TreeTableWithSummary extends _TreeTable {
   @override
   _TreeTableWithSummaryEntryBase? operator [](int index) {
     if (super[index] is _TreeTableWithSummaryEntryBase) {
-      return super[index] as _TreeTableWithSummaryEntryBase;
+      return super[index]! as _TreeTableWithSummaryEntryBase;
     } else {
       return null;
     }
@@ -471,7 +474,7 @@ class _TreeTableWithSummaryEnumerator extends _TreeTableEnumerator {
   @override
   _TreeTableWithSummaryEntryBase? get current {
     if (super.current is _TreeTableWithSummaryEntryBase) {
-      return super.current as _TreeTableWithSummaryEntryBase;
+      return super.current! as _TreeTableWithSummaryEntryBase;
     } else {
       return null;
     }

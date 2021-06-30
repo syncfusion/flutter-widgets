@@ -24,7 +24,7 @@ class _StackedAreaChartPainter extends CustomPainter {
         canvas,
         seriesRenderer,
         chartState,
-        seriesRenderer._seriesAnimation!,
+        seriesRenderer._seriesAnimation,
         seriesRenderer._seriesElementAnimation,
         painterKey);
   }

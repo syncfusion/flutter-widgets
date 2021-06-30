@@ -26,10 +26,10 @@ class _HomePage extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Syncfusion Flutter PDF Viewer'),
+        title: const Text('Syncfusion Flutter PDF Viewer'),
         actions: <Widget>[
           IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.bookmark,
               color: Colors.white,
             ),

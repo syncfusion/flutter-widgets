@@ -4,9 +4,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+// ignore: unused_import
+import 'package:flutter/services.dart';
+import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
-import '../behavior/zoom_pan_behavior.dart';
+import '../../maps.dart';
 import '../common.dart';
 import '../controller/map_controller.dart';
 import '../enum.dart';
@@ -115,7 +118,7 @@ class _RenderMarkerContainer extends RenderStack {
       final _RenderMapMarker marker = child as _RenderMapMarker;
       final StackParentData childParentData =
           // ignore: avoid_as
-          child.parentData as StackParentData;
+          child.parentData! as StackParentData;
       child.layout(constraints, parentUsesSize: true);
       childParentData.offset = pixelFromLatLng(marker.latitude,
           marker.longitude, containerSize, translation, factor);
@@ -137,7 +140,7 @@ class _RenderMarkerContainer extends RenderStack {
     while (child != null) {
       final StackParentData childParentData =
           // ignore: avoid_as
-          child.parentData as StackParentData;
+          child.parentData! as StackParentData;
       final Rect childRect = Rect.fromLTWH(childParentData.offset.dx,
           childParentData.offset.dy, child.size.width, child.size.height);
       if (sublayer != null || controller.visibleBounds!.overlaps(childRect)) {
@@ -161,8 +164,8 @@ class _RenderMarkerContainer extends RenderStack {
 /// for child in [MapMarker] constructor.
 ///
 /// ```dart
-/// List<Model> data;
-/// MapShapeSource _mapSource;
+/// late List<Model> data;
+/// late MapShapeSource _mapSource;
 ///
 /// @override
 /// void initState() {
@@ -239,8 +242,8 @@ class MapMarker extends SingleChildRenderObjectWidget {
   /// Sets the latitude for the marker on the map.
   ///
   /// ```dart
-  /// List<Model> data;
-  /// MapShapeSource _mapSource;
+  /// late List<Model> data;
+  /// late MapShapeSource _mapSource;
   ///
   /// @override
   /// void initState() {
@@ -305,8 +308,8 @@ class MapMarker extends SingleChildRenderObjectWidget {
   /// Sets the longitude for the marker on the map.
   ///
   /// ```dart
-  /// List<Model> data;
-  /// MapShapeSource _mapSource;
+  /// late List<Model> data;
+  /// late MapShapeSource _mapSource;
   ///
   /// @override
   /// void initState() {
@@ -376,8 +379,8 @@ class MapMarker extends SingleChildRenderObjectWidget {
   /// marker.
   ///
   /// ```dart
-  /// List<Model> data;
-  /// MapShapeSource _mapSource;
+  /// late List<Model> data;
+  /// late MapShapeSource _mapSource;
   ///
   /// @override
   /// void initState() {
@@ -443,8 +446,8 @@ class MapMarker extends SingleChildRenderObjectWidget {
   /// Sets the icon color for the marker.
   ///
   /// ```dart
-  /// List<Model> data;
-  /// MapShapeSource _mapSource;
+  /// late List<Model> data;
+  /// late MapShapeSource _mapSource;
   ///
   /// @override
   /// void initState() {
@@ -510,8 +513,8 @@ class MapMarker extends SingleChildRenderObjectWidget {
   /// Sets the icon's stroke color for the marker.
   ///
   /// ```dart
-  /// List<Model> data;
-  /// MapShapeSource _mapSource;
+  /// late List<Model> data;
+  /// late MapShapeSource _mapSource;
   ///
   /// @override
   /// void initState() {
@@ -578,8 +581,8 @@ class MapMarker extends SingleChildRenderObjectWidget {
   /// Sets the icon's stroke width for the marker.
   ///
   /// ```dart
-  /// List<Model> data;
-  /// MapShapeSource _mapSource;
+  /// late List<Model> data;
+  /// late MapShapeSource _mapSource;
   ///
   /// @override
   /// void initState() {
@@ -648,8 +651,8 @@ class MapMarker extends SingleChildRenderObjectWidget {
   /// Defaults to [MapIconType.circle].
   ///
   /// ```dart
-  /// List<Model> data;
-  /// MapShapeSource _mapSource;
+  /// late List<Model> data;
+  /// late MapShapeSource _mapSource;
   ///
   /// @override
   /// void initState() {
@@ -753,20 +756,18 @@ class _RenderMapMarker extends RenderProxyBox
     required double? iconStrokeWidth,
     required MapIconType iconType,
     required SfMapsThemeData themeData,
-    required MapMarker marker,
-  })   : _longitude = longitude,
+    required this.marker,
+  })  : _longitude = longitude,
         _latitude = latitude,
         _markerSize = markerSize,
         _iconColor = iconColor,
         _iconStrokeColor = iconStrokeColor,
         _iconStrokeWidth = iconStrokeWidth,
         _iconType = iconType,
-        _themeData = themeData,
-        marker = marker {
+        _themeData = themeData {
     _tapGestureRecognizer = TapGestureRecognizer()..onTapUp = _handleTapUp;
   }
 
-  final MapIconShape _iconShape = const MapIconShape();
   final Size _defaultMarkerSize = const Size(14.0, 14.0);
   late TapGestureRecognizer _tapGestureRecognizer;
 
@@ -873,12 +874,12 @@ class _RenderMapMarker extends RenderProxyBox
   void _handlePointerExit(PointerExitEvent event) {
     final _RenderMarkerContainer markerContainer =
         // ignore: avoid_as
-        parent as _RenderMarkerContainer;
+        parent! as _RenderMarkerContainer;
     if (markerContainer.markerTooltipBuilder != null) {
       final ShapeLayerChildRenderBoxBase tooltipRenderBox =
-          markerContainer.controller.tooltipKey?.currentContext!
+          markerContainer.controller.tooltipKey!.currentContext!
               // ignore: avoid_as
-              .findRenderObject() as ShapeLayerChildRenderBoxBase;
+              .findRenderObject()! as ShapeLayerChildRenderBoxBase;
       tooltipRenderBox.hideTooltip();
     }
   }
@@ -887,7 +888,7 @@ class _RenderMapMarker extends RenderProxyBox
     int? sublayerIndex;
     final _RenderMarkerContainer markerContainerRenderBox =
         // ignore: avoid_as
-        parent as _RenderMarkerContainer;
+        parent! as _RenderMarkerContainer;
     if (markerContainerRenderBox.markerTooltipBuilder != null) {
       if (markerContainerRenderBox.sublayer != null) {
         sublayerIndex = markerContainerRenderBox.container.ancestor!.sublayers!
@@ -895,11 +896,11 @@ class _RenderMapMarker extends RenderProxyBox
       }
 
       final ShapeLayerChildRenderBoxBase tooltipRenderBox =
-          markerContainerRenderBox.controller.tooltipKey?.currentContext!
+          markerContainerRenderBox.controller.tooltipKey!.currentContext!
               // ignore: avoid_as
-              .findRenderObject() as ShapeLayerChildRenderBoxBase;
+              .findRenderObject()! as ShapeLayerChildRenderBoxBase;
       // ignore: avoid_as
-      final StackParentData childParentData = parentData as StackParentData;
+      final StackParentData childParentData = parentData! as StackParentData;
       tooltipRenderBox.paintTooltip(
           markerContainerRenderBox.getMarkerIndex(marker),
           childParentData.offset & size,
@@ -959,17 +960,39 @@ class _RenderMapMarker extends RenderProxyBox
     }
   }
 
+  ShapeMarkerType _getShapeType() {
+    switch (_iconType) {
+      case MapIconType.circle:
+        return ShapeMarkerType.circle;
+      case MapIconType.diamond:
+        return ShapeMarkerType.diamond;
+      case MapIconType.rectangle:
+        return ShapeMarkerType.rectangle;
+      case MapIconType.triangle:
+        return ShapeMarkerType.triangle;
+    }
+  }
+
+  Paint? _getBorderPaint() {
+    if (_iconStrokeWidth != null && _iconStrokeWidth! > 0) {
+      return Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = _iconStrokeWidth ?? _themeData.markerIconStrokeWidth
+        ..color = _iconStrokeColor ?? _themeData.markerIconStrokeColor!;
+    }
+
+    return null;
+  }
+
   @override
   void paint(PaintingContext context, Offset offset) {
     if (child == null) {
-      _iconShape.paint(context, offset,
-          parentBox: this,
-          themeData: _themeData,
-          iconSize: size,
-          color: _iconColor ?? _themeData.markerIconColor,
-          strokeColor: _iconStrokeColor ?? _themeData.markerIconStrokeColor,
-          strokeWidth: _iconStrokeWidth ?? _themeData.markerIconStrokeWidth,
-          iconType: _iconType);
+      ShapePainter.paint(
+          canvas: context.canvas,
+          rect: paintBounds,
+          shapeType: _getShapeType(),
+          paint: Paint()..color = _iconColor ?? _themeData.markerIconColor,
+          borderPaint: _getBorderPaint());
     } else {
       context.paintChild(child!, offset);
     }

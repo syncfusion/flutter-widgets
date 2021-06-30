@@ -2,6 +2,98 @@
 
 ## Slider
 
+### Breaking changes
+
+The following `divisor` related properties were renamed into `divider` but the behavior of those properties are same as before. The APIs changes are,
+
+* The `divisors` property has been renamed into `dividers`.
+
+* The `divisorShape` property with type `SfDivisorShape` has been renamed into `dividerShape` with type `SfDividerShape`.
+
+* The `activeDivisorRadius` property has been renamed into `activeDividerRadius` in the `SfSliderThemeData`.
+
+* The `activeDivisorStrokeColor` property has been renamed into `activeDividerStrokeColor` in the `SfSliderThemeData`.
+
+* The `activeDivisorStrokeWidth` property has been renamed into `activeDividerStrokeWidth` in the `SfSliderThemeData`.
+
+* The `activeDivisorColor` property has been renamed into `activeDividerColor` in the `SfSliderThemeData`.
+
+* The `disabledActiveDivisorColor` property has been renamed into `disabledActiveDividerColor` in the `SfSliderThemeData`.
+
+* The `inactiveDivisorRadius` property has been renamed into `inactiveDividerRadius` in the `SfSliderThemeData`.
+
+* The `inactiveDivisorStrokeColor` property has been renamed into the `inactiveDividerStrokeColor` in the `SfSliderThemeData`.
+
+* The `inactiveDivisorStrokeWidth` property has been renamed into the `inactiveDividerStrokeWidth` in the `SfSliderThemeData`.
+
+* The `inactiveDivisorColor` property has been renamed into the `inactiveDividerColor` in the `SfSliderThemeData`.
+
+* The `disabledInactiveDivisorColor` property has been renamed into the `disabledInactiveDividerColor` in the `SfSliderThemeData`.
+
+## Range Slider
+
+### Breaking changes
+
+The following `divisor` related properties were renamed into `divider` but the behavior of those properties are same as before. The APIs changes are,
+
+* The `divisors` property has been renamed into `dividers`.
+
+* The `divisorShape` property with type `SfDivisorShape` has been renamed into `dividerShape` with type `SfDividerShape`.
+
+* The `activeDivisorRadius` property has been renamed into `activeDividerRadius` in the `SfRangeSliderThemeData`.
+
+* The `activeDivisorStrokeColor` property has been renamed into `activeDividerStrokeColor` in the `SfRangeSliderThemeData`.
+
+* The `activeDivisorStrokeWidth` property has been renamed into `activeDividerStrokeWidth` in the `SfRangeSliderThemeData`.
+
+* The `activeDivisorColor` property has been renamed into `activeDividerColor` in the `SfRangeSliderThemeData`.
+
+* The `disabledActiveDivisorColor` property has been renamed into `disabledActiveDividerColor` in the `SfRangeSliderThemeData`.
+
+* The `inactiveDivisorRadius` property has been renamed into `inactiveDividerRadius` in the `SfRangeSliderThemeData`.
+
+* The `inactiveDivisorStrokeColor` property has been renamed into the `inactiveDividerStrokeColor` in the `SfRangeSliderThemeData`.
+
+* The `inactiveDivisorStrokeWidth` property has been renamed into the `inactiveDividerStrokeWidth` in the `SfRangeSliderThemeData`.
+
+* The `inactiveDivisorColor` property has been renamed into the `inactiveDividerColor` in the `SfRangeSliderThemeData`.
+
+* The `disabledInactiveDivisorColor` property has been renamed into the `disabledInactiveDividerColor` in the `SfRangeSliderThemeData`.
+
+## Range Selector
+
+### Breaking changes
+
+The following `divisor` related properties were renamed into `divider` but the behavior of those properties are same as before. The APIs changes are,
+
+* The `divisors` property has been renamed into `dividers`.
+
+* The `divisorShape` property with type `SfDivisorShape` has been renamed into `dividerShape` with type `SfDividerShape`.
+
+* The `activeDivisorRadius` property has been renamed into `activeDividerRadius` in the `SfRangeSelectorThemeData`.
+
+* The `activeDivisorStrokeColor` property has been renamed into `activeDividerStrokeColor` in the `SfRangeSelectorThemeData`.
+
+* The `activeDivisorStrokeWidth` property has been renamed into `activeDividerStrokeWidth` in the `SfRangeSelectorThemeData`.
+
+* The `activeDivisorColor` property has been renamed into `activeDividerColor` in the `SfRangeSelectorThemeData`.
+
+* The `disabledActiveDivisorColor` property has been renamed into `disabledActiveDividerColor` in the `SfRangeSelectorThemeData`.
+
+* The `inactiveDivisorRadius` property has been renamed into `inactiveDividerRadius` in the `SfRangeSelectorThemeData`.
+
+* The `inactiveDivisorStrokeColor` property has been renamed into the `inactiveDividerStrokeColor` in the `SfRangeSelectorThemeData`.
+
+* The `inactiveDivisorStrokeWidth` property has been renamed into the `inactiveDividerStrokeWidth` in the `SfRangeSelectorThemeData`.
+
+* The `inactiveDivisorColor` property has been renamed into the `inactiveDividerColor` in the `SfRangeSelectorThemeData`.
+
+* The `disabledInactiveDivisorColor` property has been renamed into the `disabledInactiveDividerColor` in the `SfRangeSelectorThemeData`.
+
+## [19.1.54-beta] - 03/30/2021
+
+## Slider
+
 ### Features
 
 * Support has been provided for vertical orientation.
@@ -122,7 +214,7 @@ The Flutter Slider is a lightweight widget that allows you to select a single va
 
 * **Numeric and date support** - Provides functionality for selecting numeric and date values. For date, support is provided up to the seconds interval.
 * **Labels** - Render labels for date and numeric values with the option to customize their formats based on your requirements.
-* **Ticks and divisors** - Provides the option to show ticks and divisors based on the slider interval. Also, minor ticks can be enabled to indicate the values between each interval. These options present the selected value in a more intuitive way for end users.
+* **Ticks and dividers** - Provides the option to show ticks and dividers based on the slider interval. Also, minor ticks can be enabled to indicate the values between each interval. These options present the selected value in a more intuitive way for end users.
 * **Thumb icon support** - Accepts custom widgets like icon or text inside the thumb.
 * **Tooltip** - Render a tooltip to show the selected value clearly. You can also customize the format of the text shown in the tooltip. Paddle and rectangular shape tooltips are supported.
 * **Highly customizable** - In addition to the rich set of built-in features, the control is fully customizable through its wide range options.
@@ -135,9 +227,9 @@ The Flutter Slider is a lightweight widget that allows you to select a single va
 * **Interval selection** - Allows users to select a particular interval by tapping or clicking in it. Both thumbs will be moved to the current interval with smooth animation.
 * **Thumb icon support** - Accepts custom widgets like icon or text inside the left and right thumbs.
 * **Paddle tooltip** - Paddle shape tooltip support has been provided.
-* Support has been provided to customize the radius of the active and inactive divisor using the `activeDivisorRadius` and `inactiveDivisorRadius` properties respectively in the `SfRangeSliderThemeData`.
-* Support has been provided to customize the stroke width of the active and inactive divisor using the `activeDivisorStrokeWidth` and `inactiveDivisorStrokeWidth` properties respectively in the `SfRangeSliderThemeData`.
-* Support has been provided to customize the stroke color of the active and inactive divisor using the `activeDivisorStrokeColor` and `inactiveDivisorStrokeColor` properties respectively in the `SfRangeSliderThemeData`.
+* Support has been provided to customize the radius of the active and inactive divider using the `activeDividerRadius` and `inactiveDividerRadius` properties respectively in the `SfRangeSliderThemeData`.
+* Support has been provided to customize the stroke width of the active and inactive divider using the `activeDividerStrokeWidth` and `inactiveDividerStrokeWidth` properties respectively in the `SfRangeSliderThemeData`.
+* Support has been provided to customize the stroke color of the active and inactive divider using the `activeDividerStrokeColor` and `inactiveDividerStrokeColor` properties respectively in the `SfRangeSliderThemeData`.
 * Support has been provided to customize the thumb stroke using the `thumbStrokeWidth` property in the `SfRangeSliderThemeData`.
 * Support has been provided to customize the stroke color of the thumb using the `thumbStrokeColor` property in the `SfRangeSliderThemeData`.
 
@@ -175,18 +267,18 @@ The Flutter Slider is a lightweight widget that allows you to select a single va
     * Added a new argument named as `paint` for customizing the thumb.
     * Removed the argument `isEnabled`.
 
-* The following arguments are added, removed and modified in the `getPreferredRect` method of `SfDivisorShape`:
+* The following arguments are added, removed and modified in the `getPreferredRect` method of `SfDividerShape`:
 
-    * Added a new argument named `isActive`, which is used to find whether active or inactive divisor is being drawn.
+    * Added a new argument named `isActive`, which is used to find whether active or inactive divider is being drawn.
     * Removed the argument `isEnabled`.
 
-* The following arguments are added, removed and modified in the `paint` method of `SfDivisorShape`:
+* The following arguments are added, removed and modified in the `paint` method of `SfDividerShape`:
 
     * Modified the argument `animation` to `enableAnimation`.
     * Modified the type of the argument parentBox from `RenderProxyBox` to `RenderBox`.
     * Added a new argument named as `currentValues` that holds the current thumb values for `SfRangeSlider`.
     * Added a new argument named as `currentValue` that holds the current thumb value for `SfSlider`.
-    * Added a new argument named `paint` for customizing the divisor.
+    * Added a new argument named `paint` for customizing the divider.
     * Added a new argument named `thumbCenter` that holds the current thumb pixel position of `SfSlider`.
     * Removed the argument `isEnabled`.
 
@@ -225,9 +317,9 @@ The Flutter Slider is a lightweight widget that allows you to select a single va
 * **Thumb icon support** - Accepts custom widgets like icon or text inside the left and right thumbs.
 * **Paddle tooltip** - Paddle shape tooltip support has been provided.
 * **Interval selection** - Allows selecting a particular interval by tapping or clicking in it. Both the thumbs will be moved to the current interval with animation.
-* Support has been provided to customize the radius of the active and inactive divisor using the `activeDivisorRadius` and `inactiveDivisorRadius` properties respectively in the `SfRangeSelectorThemeData`.
-* Support has been provided to customize the stroke width of the active and inactive divisor using the `activeDivisorStrokeWidth` and `inactiveDivisorStrokeWidth` properties respectively in the `SfRangeSelectorThemeData`.
-* Support has been provided to customize the stroke color of the active and inactive divisor using the `activeDivisorStrokeColor` and `inactiveDivisorStrokeColor` properties respectively in the `SfRangeSelectorThemeData`.
+* Support has been provided to customize the radius of the active and inactive divider using the `activeDividerRadius` and `inactiveDividerRadius` properties respectively in the `SfRangeSelectorThemeData`.
+* Support has been provided to customize the stroke width of the active and inactive divider using the `activeDividerStrokeWidth` and `inactiveDividerStrokeWidth` properties respectively in the `SfRangeSelectorThemeData`.
+* Support has been provided to customize the stroke color of the active and inactive divider using the `activeDividerStrokeColor` and `inactiveDividerStrokeColor` properties respectively in the `SfRangeSelectorThemeData`.
 * Support has been provided to customize the thumb stroke using the `thumbStrokeWidth` property in the `SfRangeSelectorThemeData`.
 * Support has been provided to customize the stroke color of the thumb using the `thumbStrokeColor` property in the `SfRangeSelectorThemeData`.
 
@@ -267,18 +359,18 @@ The Flutter Slider is a lightweight widget that allows you to select a single va
     * Added a new argument named as `paint` for customizing the thumb.
     * Removed the argument `isEnabled`.
 
-* The following arguments are added, removed and modified in the `getPreferredRect` method of `SfDivisorShape`:
+* The following arguments are added, removed and modified in the `getPreferredRect` method of `SfDividerShape`:
 
-    * Added a new argument named `isActive`, which is used to find whether active or inactive divisor is being drawn.
+    * Added a new argument named `isActive`, which is used to find whether active or inactive divider is being drawn.
     * Removed the argument `isEnabled`.
 
-* The following arguments are added, removed and modified in the `paint` method of `SfDivisorShape`:
+* The following arguments are added, removed and modified in the `paint` method of `SfDividerShape`:
 
     * Modified the argument `animation` to `enableAnimation`.
     * Modified the type of the argument parentBox from `RenderProxyBox` to `RenderBox`.
     * Added a new argument named as `currentValues` that holds the current thumb values for `SfRangeSelector`.
     * Added a new argument named as `currentValue` that holds the current thumb value for `SfSlider`.
-    * Added a new argument named `paint` for customizing the divisor.
+    * Added a new argument named `paint` for customizing the divider.
     * Added a new argument named `thumbCenter` that holds the current thumb pixel position of `SfSlider`.
     * Removed the argument `isEnabled`.
 
@@ -342,6 +434,6 @@ Includes the Range Slider and Range Selector widgets with these features:
 * Numeric and date values
 * Labels
 * Ticks
-* Divisors
+* Dividers
 * Tooltip
 * Child (Range Selector only)

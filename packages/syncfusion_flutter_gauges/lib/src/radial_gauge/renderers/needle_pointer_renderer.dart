@@ -1,9 +1,11 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
-import '../common/common.dart';
-import '../pointers/needle_pointer.dart';
+
+import '../../radial_gauge/pointers/needle_pointer.dart';
+import '../../radial_gauge/pointers/pointer_painting_details.dart';
 
 ///  The [NeedlePointerRenderer] has methods to render marker pointer
 ///

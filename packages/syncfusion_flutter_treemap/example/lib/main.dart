@@ -30,7 +30,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    _source = <SocialMediaUsers>[
+    _source = const <SocialMediaUsers>[
       SocialMediaUsers('India', 'Facebook', 25.4),
       SocialMediaUsers('USA', 'Instagram', 19.11),
       SocialMediaUsers('Japan', 'Facebook', 13.3),
@@ -44,13 +44,13 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Treemap demo')),
+      appBar: AppBar(title: const Text('Treemap demo')),
       body: SfTreemap(
         dataCount: _source.length,
         weightValueMapper: (int index) {
           return _source[index].usersInMillions;
         },
-        levels: [
+        levels: <TreemapLevel>[
           TreemapLevel(
             groupMapper: (int index) {
               return _source[index].country;
@@ -59,8 +59,8 @@ class _MyHomePageState extends State<MyHomePage> {
               return Padding(
                 padding: const EdgeInsets.all(2.5),
                 child: Text(
-                  '${tile.group}',
-                  style: TextStyle(color: Colors.black),
+                  tile.group,
+                  style: const TextStyle(color: Colors.black),
                 ),
               );
             },
@@ -69,7 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 padding: const EdgeInsets.all(10),
                 child: Text(
                     '''Country          : ${tile.group}\nSocial media : ${tile.weight}M''',
-                    style: TextStyle(color: Colors.black)),
+                    style: const TextStyle(color: Colors.black)),
               );
             },
           ),
@@ -79,10 +79,17 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
+/// Represents the class for social media users.
 class SocialMediaUsers {
+  /// Constructor of [SocialMediaUsers].
   const SocialMediaUsers(this.country, this.socialMedia, this.usersInMillions);
 
+  /// Specifies the country.
   final String country;
+
+  /// Specifies the type of social media.
   final String socialMedia;
+
+  /// Specifies the users count.
   final double usersInMillions;
 }

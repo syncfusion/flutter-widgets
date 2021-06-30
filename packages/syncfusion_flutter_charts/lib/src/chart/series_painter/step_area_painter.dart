@@ -20,7 +20,6 @@ class _StepAreaChartPainter extends CustomPainter {
   /// Painter method for step area series
   @override
   void paint(Canvas canvas, Size size) {
-    Rect clipRect;
     double animationFactor;
     CartesianChartPoint<dynamic>? prevPoint, point, oldChartPoint;
     _ChartLocation? currentPoint,
@@ -33,10 +32,10 @@ class _StepAreaChartPainter extends CustomPainter {
         chartState._oldSeriesRenderers;
     final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
     final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer!;
+    final _RenderingDetails renderingDetails = chartState._renderingDetails;
     final StepAreaSeries<dynamic, dynamic> _series =
-        seriesRenderer._series as StepAreaSeries;
-    final Path _path = Path();
-    final Path _strokePath = Path();
+        seriesRenderer._series as StepAreaSeries<dynamic, dynamic>;
+    final Path _path = Path(), _strokePath = Path();
     final List<Offset> _points = <Offset>[];
     final num? crossesAt = _getCrossesAtValue(seriesRenderer, chartState);
     final num origin = crossesAt ?? 0;
@@ -45,16 +44,15 @@ class _StepAreaChartPainter extends CustomPainter {
     if (seriesRenderer._visible!) {
       assert(
           // ignore: unnecessary_null_comparison
-          _series.animationDuration != null
-              ? _series.animationDuration >= 0
-              : true,
+          !(_series.animationDuration != null) ||
+              _series.animationDuration >= 0,
           'The animation duration of the step area series must be greater or equal to 0.');
       canvas.save();
       final List<CartesianChartPoint<dynamic>> dataPoints =
           seriesRenderer._dataPoints;
       final int seriesIndex = painterKey.index;
       final StepAreaSeries<dynamic, dynamic> series =
-          seriesRenderer._series as StepAreaSeries;
+          seriesRenderer._series as StepAreaSeries<dynamic, dynamic>;
       final Rect axisClipRect = _calculatePlotOffset(
           chartState._chartAxis._axisClipRect,
           Offset(seriesRenderer._xAxisRenderer!._axis.plotOffset,
@@ -69,7 +67,8 @@ class _StepAreaChartPainter extends CustomPainter {
           ? seriesRenderer._seriesAnimation!.value
           : 1;
       if (seriesRenderer._reAnimate ||
-          ((!(chartState._widgetNeedUpdate || chartState._isLegendToggled) ||
+          ((!(renderingDetails.widgetNeedUpdate ||
+                      renderingDetails.isLegendToggled) ||
                   !chartState._oldSeriesKeys
                       .contains(seriesRenderer._series.key)) &&
               seriesRenderer._series.animationDuration > 0)) {
@@ -154,35 +153,41 @@ class _StepAreaChartPainter extends CustomPainter {
             seriesRenderer._createSegments(_path, _strokePath, painterKey.index,
                 animationFactor, _points));
       }
+      _drawSeries(canvas, animationFactor);
+    }
+  }
 
-      clipRect = _calculatePlotOffset(
-          Rect.fromLTRB(
-              chartState._chartAxis._axisClipRect.left -
-                  seriesRenderer._series.markerSettings.width,
-              chartState._chartAxis._axisClipRect.top -
-                  seriesRenderer._series.markerSettings.height,
-              chartState._chartAxis._axisClipRect.right +
-                  seriesRenderer._series.markerSettings.width,
-              chartState._chartAxis._axisClipRect.bottom +
-                  seriesRenderer._series.markerSettings.height),
-          Offset(seriesRenderer._xAxisRenderer!._axis.plotOffset,
-              seriesRenderer._yAxisRenderer!._axis.plotOffset));
-      canvas.restore();
-      if ((series.animationDuration <= 0 ||
-              !chartState._initialRender! ||
-              animationFactor >= chartState._seriesDurationFactor) &&
-          (series.markerSettings.isVisible ||
-              series.dataLabelSettings.isVisible)) {
-        // ignore: unnecessary_null_comparison
-        assert(seriesRenderer != null,
-            'The step area series should be available to render a marker on it.');
-        canvas.clipRect(clipRect);
-        seriesRenderer._renderSeriesElements(
-            chart, canvas, seriesRenderer._seriesElementAnimation);
-      }
-      if (animationFactor >= 1) {
-        chartState._setPainterKey(painterKey.index, painterKey.name, true);
-      }
+  ///Draw series elements and add cliprect
+  void _drawSeries(Canvas canvas, double animationFactor) {
+    final StepAreaSeries<dynamic, dynamic> series =
+        seriesRenderer._series as StepAreaSeries<dynamic, dynamic>;
+    final Rect clipRect = _calculatePlotOffset(
+        Rect.fromLTRB(
+            chartState._chartAxis._axisClipRect.left -
+                series.markerSettings.width,
+            chartState._chartAxis._axisClipRect.top -
+                series.markerSettings.height,
+            chartState._chartAxis._axisClipRect.right +
+                series.markerSettings.width,
+            chartState._chartAxis._axisClipRect.bottom +
+                series.markerSettings.height),
+        Offset(seriesRenderer._xAxisRenderer!._axis.plotOffset,
+            seriesRenderer._yAxisRenderer!._axis.plotOffset));
+    canvas.restore();
+    if ((series.animationDuration <= 0 ||
+            !chartState._renderingDetails.initialRender! ||
+            animationFactor >= chartState._seriesDurationFactor) &&
+        (series.markerSettings.isVisible ||
+            series.dataLabelSettings.isVisible)) {
+      // ignore: unnecessary_null_comparison
+      assert(seriesRenderer != null,
+          'The step area series should be available to render a marker on it.');
+      canvas.clipRect(clipRect);
+      seriesRenderer._renderSeriesElements(
+          chart, canvas, seriesRenderer._seriesElementAnimation);
+    }
+    if (animationFactor >= 1) {
+      chartState._setPainterKey(painterKey.index, painterKey.name, true);
     }
   }
 
@@ -206,9 +211,8 @@ class _StepAreaChartPainter extends CustomPainter {
     double y = currentPoint.y;
     double? previousPointY = previousPoint?.y;
     final bool closed =
-        stepAreaSeries.emptyPointSettings.mode == EmptyPointMode.drop
-            ? _getSeriesVisibility(seriesRenderer._dataPoints, pointIndex)
-            : false;
+        stepAreaSeries.emptyPointSettings.mode == EmptyPointMode.drop &&
+            _getSeriesVisibility(seriesRenderer._dataPoints, pointIndex);
     if (oldPoint != null) {
       if (chartState._chart.isTransposed) {
         x = _getAnimateValue(

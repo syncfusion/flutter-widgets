@@ -2,6 +2,16 @@ part of datagrid;
 
 /// A base class which provides functionalities for [DataCell].
 abstract class DataCellBase {
+  /// Creates [DataCell] for [SfDataGrid]
+  DataCellBase() {
+    _isVisible = true;
+    _isEnsured = false;
+    _isDirty = false;
+    _columnSpan = 0;
+    _rowSpan = 0;
+    _isEditing = false;
+  }
+
   Widget? _columnElement;
 
   Key? _key;
@@ -12,13 +22,13 @@ abstract class DataCellBase {
 
   CellType? _cellType;
 
-  bool _isVisible = true;
+  late bool _isVisible;
 
-  bool _isEnsured = false;
+  late bool _isEnsured;
 
   DataRowBase? _dataRow;
 
-  bool _isDirty = false;
+  late bool _isDirty;
 
   /// The column index of the [DataCell].
   int columnIndex = -1;
@@ -29,17 +39,18 @@ abstract class DataCellBase {
   /// [GridColumn] which is associated with [DataCell].
   GridColumn? gridColumn;
 
-  /// The cell value of the column element associated with the [DataCell].
-  Object? cellValue;
-
   /// Decides whether the [DataCell] has the currentcell.
   bool isCurrentCell = false;
 
-  int _columnSpan = 0;
+  late int _columnSpan;
 
-  int _rowSpan = 0;
+  late int _rowSpan;
 
   StackedHeaderCell? _stackedHeaderCell;
+
+  Widget? _editingWidget;
+
+  late bool _isEditing;
 
   /// Decides whether the [DataCell] is visible.
   bool get isVisible => _isVisible;
@@ -53,6 +64,7 @@ abstract class DataCellBase {
       final _DataGridSettings dataGridSettings =
           _dataRow!._dataGridStateDetails!();
       if (rowIndex <= _GridIndexResolver.getHeaderIndex(dataGridSettings) ||
+          _GridIndexResolver.isFooterWidgetRow(rowIndex, dataGridSettings) ||
           dataGridSettings.selectionMode == SelectionMode.none) {
         return;
       }

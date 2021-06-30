@@ -88,7 +88,7 @@ class UPCERenderer extends SymbologyRenderer {
           : size.height;
       final int codeLength = codeValue.length;
       for (int j = 0; j < codeLength; j++) {
-        final bool canDraw = codeValue[j] == '1' ? true : false;
+        final bool canDraw = codeValue[j] == '1';
         if (canDraw &&
             (left >= barCodeRect.left && left + ratio < barCodeRect.right)) {
           final Rect individualBarRect = Rect.fromLTRB(

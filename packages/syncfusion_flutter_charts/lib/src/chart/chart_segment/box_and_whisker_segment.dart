@@ -101,7 +101,7 @@ class BoxAndWhiskerSegment extends ChartSegment {
   /// Calculates the rendering bounds of a segment.
   @override
   void calculateSegmentPoints() {
-    _boxAndWhiskerSeries = _series as BoxAndWhiskerSeries;
+    _boxAndWhiskerSeries = _series as BoxAndWhiskerSeries<dynamic, dynamic>;
     _x = _max = double.nan;
     _isTransposed = _seriesRenderer._chartState!._requireInvertedAxis;
     _minPoint = _currentPoint!.minimumPoint!;
@@ -122,11 +122,10 @@ class BoxAndWhiskerSegment extends ChartSegment {
     _medianX = _currentPoint!.medianPoint!.x;
     _medianY = _currentPoint!.medianPoint!.y;
 
-    if (_lowerY > _upperY) {
-      _centersY = _upperY + ((_upperY - _lowerY).abs() / 2);
-    } else {
-      _centersY = _lowerY + ((_lowerY - _upperY).abs() / 2);
-    }
+    _centersY = (_lowerY > _upperY)
+        ? (_upperY + ((_upperY - _lowerY).abs() / 2))
+        : (_lowerY + ((_lowerY - _upperY).abs() / 2));
+
     _topRectY = _centersY - ((_centersY - _upperY).abs() * 1);
     _bottomRectY = _centersY + ((_centersY - _lowerY).abs() * 1);
   }
@@ -163,8 +162,8 @@ class BoxAndWhiskerSegment extends ChartSegment {
   /// To draw mean line path of box and whisker segments
   void _drawMeanLine(
       Canvas canvas, Offset position, Size size, bool isTransposed) {
-    final x = !isTransposed ? position.dx : position.dy;
-    final y = !isTransposed ? position.dy : position.dx;
+    final double x = !isTransposed ? position.dx : position.dy;
+    final double y = !isTransposed ? position.dy : position.dx;
     if (_series.animationDuration <= 0 ||
         animationFactor >= _seriesRenderer._chartState!._seriesDurationFactor) {
       /// `0.15` is animation duration of mean point value, as like marker.
@@ -208,9 +207,9 @@ class BoxAndWhiskerSegment extends ChartSegment {
   @override
   void onPaint(Canvas canvas) {
     if (fillPaint != null && _seriesRenderer._reAnimate ||
-        (!(_seriesRenderer._chartState!._widgetNeedUpdate &&
+        (!(_seriesRenderer._renderingDetails!.widgetNeedUpdate &&
             _oldSeriesRenderer != null &&
-            !_seriesRenderer._chartState!._isLegendToggled))) {
+            !_seriesRenderer._renderingDetails!.isLegendToggled))) {
       _path = Path();
       if (!_isTransposed &&
           _currentPoint!.lowerQuartile! > _currentPoint!.upperQuartile!) {
@@ -219,7 +218,7 @@ class BoxAndWhiskerSegment extends ChartSegment {
         _lowerY = temp;
       }
 
-      if (_seriesRenderer._chartState!._isLegendToggled) {
+      if (_seriesRenderer._renderingDetails!.isLegendToggled) {
         animationFactor = 1;
       }
       if (_lowerY > _upperY) {
@@ -357,7 +356,7 @@ class BoxAndWhiskerSegment extends ChartSegment {
           }
         }
       }
-    } else if (!_seriesRenderer._chartState!._isLegendToggled) {
+    } else if (!_seriesRenderer._renderingDetails!.isLegendToggled) {
       final BoxAndWhiskerSegment currentSegment = _seriesRenderer
           ._segments[currentSegmentIndex!] as BoxAndWhiskerSegment;
       final BoxAndWhiskerSegment? oldSegment = (currentSegment

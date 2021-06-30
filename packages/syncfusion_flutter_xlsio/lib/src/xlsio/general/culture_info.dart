@@ -100,10 +100,10 @@ class NumberFormatInfo {
   /// Represents Currency Symbol.
   String get _currencySymbol {
     if (_currencySymbolField == null) {
-      final format = NumberFormat.currency(locale: _locale);
+      final NumberFormat format = NumberFormat.currency(locale: _locale);
       _currencySymbolField = format.currencySymbol;
     } else {
-      _currencySymbolField = '\$';
+      _currencySymbolField = r'\$';
     }
     return _currencySymbolField!;
   }
@@ -136,7 +136,8 @@ class DateTimeFormatInfo {
   /// The custom format string for a short time value.
   String? _shortTimePattern = ':';
 
-  final _fractionSeperators = ['/', '-', '.'];
+  /// Fraction seperators collection.
+  final List<String> _fractionSeperators = <String>['/', '-', '.'];
 
   /// Represents the DateTime symbols map.
   late Map<dynamic, dynamic> _dateTimeSymbols;
@@ -173,9 +174,9 @@ class DateTimeFormatInfo {
   String get dateSeparator {
     if (_dateSeparator == null) {
       if (_dateSymbols != null) {
-        final dateFormat = _dateSymbols!.DATEFORMATS[3];
+        final String dateFormat = _dateSymbols!.DATEFORMATS[3];
         for (final String fraction in _fractionSeperators) {
-          final index = dateFormat.indexOf(fraction);
+          final int index = dateFormat.indexOf(fraction);
           if (index != -1) {
             _dateSeparator = dateFormat[index];
             break;

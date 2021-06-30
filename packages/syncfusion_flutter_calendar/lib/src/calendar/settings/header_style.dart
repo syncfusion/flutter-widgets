@@ -101,7 +101,10 @@ class CalendarHeaderStyle with Diagnosticable {
       return false;
     }
 
-    final CalendarHeaderStyle otherStyle = other;
+    late final CalendarHeaderStyle otherStyle;
+    if (other is CalendarHeaderStyle) {
+      otherStyle = other;
+    }
     return otherStyle.textStyle == textStyle &&
         otherStyle.textAlign == textAlign &&
         otherStyle.backgroundColor == backgroundColor;

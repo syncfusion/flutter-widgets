@@ -16,15 +16,14 @@ class RenderLinearWidgetPointer extends RenderProxyBox {
       required LinearMarkerAlignment markerAlignment,
       Animation<double>? pointerAnimation,
       VoidCallback? onAnimationCompleted,
-      AnimationController? animationController})
+      this.animationController})
       : _value = value,
         _onValueChanged = onValueChanged,
         _offset = offset,
         _position = position,
         _markerAlignment = markerAlignment,
         _pointerAnimation = pointerAnimation,
-        _onAnimationCompleted = onAnimationCompleted,
-        animationController = animationController;
+        _onAnimationCompleted = onAnimationCompleted;
 
   /// Gets or sets the shape pointer old value.
   double? oldValue;
@@ -151,14 +150,18 @@ class RenderLinearWidgetPointer extends RenderProxyBox {
   }
 
   void _addAnimationListener() {
-    if (pointerAnimation == null) return;
+    if (pointerAnimation == null) {
+      return;
+    }
 
     pointerAnimation!.addListener(markNeedsPaint);
     pointerAnimation!.addStatusListener(_animationStatusListener);
   }
 
   void _removeAnimationListener() {
-    if (pointerAnimation == null) return;
+    if (pointerAnimation == null) {
+      return;
+    }
 
     pointerAnimation!.removeListener(markNeedsPaint);
     pointerAnimation!.removeStatusListener(_animationStatusListener);
@@ -183,8 +186,8 @@ class RenderLinearWidgetPointer extends RenderProxyBox {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    if ((pointerAnimation == null ||
-        (pointerAnimation != null && pointerAnimation!.value > 0))) {
+    if (pointerAnimation == null ||
+        (pointerAnimation != null && pointerAnimation!.value > 0)) {
       super.paint(context, offset);
     }
   }

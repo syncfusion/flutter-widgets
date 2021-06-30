@@ -121,7 +121,10 @@ class DateRangePickerHeaderStyle with Diagnosticable {
       return false;
     }
 
-    final DateRangePickerHeaderStyle otherStyle = other;
+    late final DateRangePickerHeaderStyle otherStyle;
+    if (other is DateRangePickerHeaderStyle) {
+      otherStyle = other;
+    }
     return otherStyle.textStyle == textStyle &&
         otherStyle.textAlign == textAlign &&
         otherStyle.backgroundColor == backgroundColor;
@@ -248,7 +251,10 @@ class DateRangePickerViewHeaderStyle with Diagnosticable {
       return false;
     }
 
-    final DateRangePickerViewHeaderStyle otherStyle = other;
+    late final DateRangePickerViewHeaderStyle otherStyle;
+    if (other is DateRangePickerViewHeaderStyle) {
+      otherStyle = other;
+    }
     return otherStyle.backgroundColor == backgroundColor &&
         otherStyle.textStyle == textStyle;
   }
@@ -265,6 +271,119 @@ class DateRangePickerViewHeaderStyle with Diagnosticable {
     return hashValues(
       backgroundColor,
       textStyle,
+    );
+  }
+}
+
+/// Sets the style to customize the week number of [SfDateRangePicker].
+///
+/// Allows to customize the [backgroundColor], [textStyle]
+/// week number in month view of date Range Picker.
+///
+/// ```dart
+/// Widget build(BuildContext context) {
+///   return Scaffold(
+///   body: SfDateRangePicker(
+///     view: DateRangePickerView.month,
+///     monthViewSettings: const DateRangePickerMonthViewSettings(
+///     showWeekNumber: true,
+///     weekNumberStyle: const DateRangePickerWeekNumberStyle(
+///         textStyle: TextStyle(fontStyle: FontStyle.italic),
+///         backgroundColor: Colors.purple),
+///     ),
+///   ),
+///  );
+/// }
+///
+/// ```
+@immutable
+class DateRangePickerWeekNumberStyle with Diagnosticable {
+  /// Creates a week number style for month view in [SfDateRangePicker].
+  ///
+  /// The properties allows to customize the week number [SfDateRangePicker].
+  const DateRangePickerWeekNumberStyle({this.textStyle, this.backgroundColor});
+
+  /// The color which fills the background of [SfDateRangePicker] view header in
+  /// month view.
+  ///
+  /// Defaults to null.
+  ///
+  /// Using a [SfDateRangePickerTheme] gives more fine-grained control over the
+  /// appearance of various components of the date range picker.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///   body: SfDateRangePicker(
+  ///     view: DateRangePickerView.month,
+  ///     monthViewSettings: const DateRangePickerMonthViewSettings(
+  ///     showWeekNumber: true,
+  ///     weekNumberStyle: const DateRangePickerWeekNumberStyle(
+  ///         textStyle: TextStyle(fontStyle: FontStyle.italic),
+  ///         backgroundColor: Colors.purple),
+  ///     ),
+  ///   ),
+  ///  );
+  /// }
+  ///
+  /// ```
+  final Color? backgroundColor;
+
+  /// The text style for the text in the [SfDateRangePicker] view header view of
+  /// month view.
+  ///
+  /// Defaults to null.
+  ///
+  /// Using a [SfDateRangePickerTheme] gives more fine-grained control over the
+  /// appearance of various components of the date range picker.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///   body: SfDateRangePicker(
+  ///     view: DateRangePickerView.month,
+  ///     monthViewSettings: const DateRangePickerMonthViewSettings(
+  ///     showWeekNumber: true,
+  ///     weekNumberStyle: const DateRangePickerWeekNumberStyle(
+  ///         textStyle: TextStyle(fontStyle: FontStyle.italic),
+  ///         backgroundColor: Colors.purple),
+  ///     ),
+  ///   ),
+  ///  );
+  /// }
+  ///
+  /// ```
+  final TextStyle? textStyle;
+
+  @override
+  bool operator ==(dynamic other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    late final DateRangePickerWeekNumberStyle otherStyle;
+    if (other is DateRangePickerWeekNumberStyle) {
+      otherStyle = other;
+    }
+    return otherStyle.textStyle == textStyle &&
+        otherStyle.backgroundColor == backgroundColor;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<TextStyle>('textStyle', textStyle));
+    properties.add(ColorProperty('backgroundColor', backgroundColor));
+  }
+
+  @override
+  int get hashCode {
+    return hashValues(
+      textStyle,
+      backgroundColor,
     );
   }
 }
@@ -295,7 +414,7 @@ class DateRangePickerViewHeaderStyle with Diagnosticable {
 ///                  backgroundColor: Colors.blue,
 ///                  textStyle:
 ///                      TextStyle(fontWeight: FontWeight.w400, fontSize: 15,
-///                           Colors.black)),
+///                           color: Colors.black)),
 ///              enableSwipeSelection: false,
 ///              blackoutDates: <DateTime>[
 ///                DateTime.now().add(Duration(days: 4))
@@ -332,7 +451,12 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
       this.enableSwipeSelection = true,
       this.blackoutDates,
       this.specialDates,
-      this.weekendDays = const <int>[6, 7]});
+      this.weekendDays = const <int>[6, 7],
+      this.showWeekNumber = false,
+      this.weekNumberStyle = const DateRangePickerWeekNumberStyle()})
+      : assert(numberOfWeeksInView >= 1 && numberOfWeeksInView <= 6),
+        assert(firstDayOfWeek >= 1 && firstDayOfWeek <= 7),
+        assert(viewHeaderHeight >= -1);
 
   /// Formats a text in the [SfDateRangePicker] month view view header.
   ///
@@ -665,6 +789,52 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
   /// ```
   final List<int> weekendDays;
 
+  /// Used to displays the week number of the year in the month view of
+  /// the SfDateRangePicker.
+  ///
+  /// In the month view, it is displayed at the the left side of the month view
+  /// as a separate column in the DateRangePicker.
+  ///
+  /// Defaults to false
+  ///
+  /// see also: [weekNumberStyle]
+  ///
+  /// ``` dart
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     body: SfDateRangePicker(
+  ///       view: DateRangePickerView.month,
+  ///       monthViewSettings: const DateRangePickerMonthViewSettings(
+  ///       showWeekNumber: true,
+  ///       ),
+  ///      ),
+  ///    );
+  ///  }
+  final bool showWeekNumber;
+
+  /// Defines the text style for the text in the week number panel of the
+  /// SfDateRangePicker.
+  ///
+  /// Defaults to null
+  ///
+  /// see also: [showWeekNumber]
+  ///
+  /// ``` dart
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///   body: SfDateRangePicker(
+  ///     view: DateRangePickerView.month,
+  ///     monthViewSettings: const DateRangePickerMonthViewSettings(
+  ///     showWeekNumber: true,
+  ///     weekNumberStyle: const DateRangePickerWeekNumberStyle(
+  ///         textStyle: TextStyle(fontStyle: FontStyle.italic),
+  ///         backgroundColor: Colors.purple),
+  ///     ),
+  ///   ),
+  ///  );
+  /// }
+  final DateRangePickerWeekNumberStyle weekNumberStyle;
+
   @override
   bool operator ==(dynamic other) {
     if (identical(this, other)) {
@@ -674,7 +844,10 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
       return false;
     }
 
-    final DateRangePickerMonthViewSettings otherStyle = other;
+    late final DateRangePickerMonthViewSettings otherStyle;
+    if (other is DateRangePickerMonthViewSettings) {
+      otherStyle = other;
+    }
     return otherStyle.dayFormat == dayFormat &&
         otherStyle.numberOfWeeksInView == numberOfWeeksInView &&
         otherStyle.firstDayOfWeek == firstDayOfWeek &&
@@ -684,15 +857,17 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
         otherStyle.blackoutDates == blackoutDates &&
         otherStyle.specialDates == specialDates &&
         otherStyle.weekendDays == weekendDays &&
-        otherStyle.enableSwipeSelection == enableSwipeSelection;
+        otherStyle.enableSwipeSelection == enableSwipeSelection &&
+        otherStyle.showWeekNumber == showWeekNumber &&
+        otherStyle.weekNumberStyle == weekNumberStyle;
   }
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(IterableDiagnostics(blackoutDates)
+    properties.add(IterableDiagnostics<DateTime>(blackoutDates)
         .toDiagnosticsNode(name: 'blackoutDates'));
-    properties.add(IterableDiagnostics(specialDates)
+    properties.add(IterableDiagnostics<DateTime>(specialDates)
         .toDiagnosticsNode(name: 'specialDates'));
     properties.add(IntProperty('numberOfWeeksInView', numberOfWeeksInView));
     properties.add(IntProperty('firstDayOfWeek', firstDayOfWeek));
@@ -704,6 +879,8 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
         'enableSwipeSelection', enableSwipeSelection));
     properties.add(viewHeaderStyle.toDiagnosticsNode(name: 'viewHeaderStyle'));
     properties.add(IterableProperty<int>('weekendDays', weekendDays));
+    properties.add(DiagnosticsProperty<bool>('showWeekNumber', showWeekNumber));
+    properties.add(weekNumberStyle.toDiagnosticsNode(name: 'weekNumberStyle'));
   }
 
   @override
@@ -716,6 +893,8 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
         viewHeaderHeight,
         showTrailingAndLeadingDates,
         numberOfWeeksInView,
+        showWeekNumber,
+        weekNumberStyle,
         hashList(specialDates),
         hashList(blackoutDates),
         hashList(weekendDays));
@@ -1050,7 +1229,10 @@ class DateRangePickerYearCellStyle with Diagnosticable {
       return false;
     }
 
-    final DateRangePickerYearCellStyle otherStyle = other;
+    late final DateRangePickerYearCellStyle otherStyle;
+    if (other is DateRangePickerYearCellStyle) {
+      otherStyle = other;
+    }
     return otherStyle.textStyle == textStyle &&
         otherStyle.todayTextStyle == todayTextStyle &&
         otherStyle.leadingDatesTextStyle == leadingDatesTextStyle &&
@@ -1983,7 +2165,10 @@ class DateRangePickerMonthCellStyle with Diagnosticable {
       return false;
     }
 
-    final DateRangePickerMonthCellStyle otherStyle = other;
+    late final DateRangePickerMonthCellStyle otherStyle;
+    if (other is DateRangePickerMonthCellStyle) {
+      otherStyle = other;
+    }
     return otherStyle.textStyle == textStyle &&
         otherStyle.todayTextStyle == todayTextStyle &&
         otherStyle.trailingDatesTextStyle == trailingDatesTextStyle &&
@@ -2171,11 +2356,10 @@ class DateRangePickerValueChangeNotifier with Diagnosticable {
 ///}
 ///
 ///class MyAppState extends State<MyApp> {
-///  DateRangePickerController _pickerController;
+///  DateRangePickerController _pickerController = DateRangePickerController();
 ///
 ///  @override
 ///  void initState() {
-///    _pickerController = DateRangePickerController();
 ///    _pickerController.selectedDates = <DateTime>[
 ///      DateTime.now().add(Duration(days: 2)),
 ///      DateTime.now().add(Duration(days: 4)),
@@ -2242,11 +2426,11 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   /// ``` dart
   ///
   /// class MyAppState extends State<MyApp> {
-  ///  DateRangePickerController _pickerController;
+  ///  DateRangePickerController _pickerController =
+  ///  DateRangePickerController();
   ///
   ///  @override
   ///  void initState() {
-  ///    _pickerController = DateRangePickerController();
   ///    _pickerController.selectedDate = DateTime.now().add((Duration(
   ///                                days: 4)));
   ///    super.initState();
@@ -2301,11 +2485,10 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   /// ``` dart
   ///
   /// class MyAppState extends State<MyApp> {
-  ///  DateRangePickerController _pickerController;
+  /// DateRangePickerController _pickerController = DateRangePickerController();
   ///
   ///  @override
   ///  void initState() {
-  ///    _pickerController = DateRangePickerController();
   ///    _pickerController.selectedDates = <DateTime>[
   ///      DateTime.now().add((Duration(days: 4))),
   ///      DateTime.now().add((Duration(days: 7))),
@@ -2363,11 +2546,10 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   /// ``` dart
   ///
   /// class MyAppState extends State<MyApp> {
-  ///  DateRangePickerController _pickerController;
+  /// DateRangePickerController _pickerController = DateRangePickerController();
   ///
   ///  @override
   ///  void initState() {
-  ///    _pickerController = DateRangePickerController();
   ///    _pickerController.selectedRange = PickerDateRange(
   ///        DateTime.now().add(Duration(days: 4)),
   ///        DateTime.now().add(Duration(days: 5)));
@@ -2422,11 +2604,10 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   /// ``` dart
   ///
   /// class MyAppState extends State<MyApp> {
-  ///  DateRangePickerController _pickerController;
+  /// DateRangePickerController _pickerController = DateRangePickerController();
   ///
   ///  @override
   ///  void initState() {
-  ///    _pickerController = DateRangePickerController();
   ///    _pickerController.selectedRanges = <PickerDateRange>[
   ///      PickerDateRange(DateTime.now().subtract(Duration(days: 4)),
   ///          DateTime.now().add(Duration(days: 4))),
@@ -2481,11 +2662,10 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   /// ``` dart
   ///
   /// class MyAppState extends State<MyApp> {
-  ///  DateRangePickerController _pickerController;
+  /// DateRangePickerController _pickerController = DateRangePickerController();
   ///
   ///  @override
   ///  void initState() {
-  ///    _pickerController = DateRangePickerController();
   ///    _pickerController.displayDate = DateTime(2022, 02, 05);
   ///    super.initState();
   ///  }
@@ -2525,11 +2705,10 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   /// ```dart
   ///
   /// class MyAppState extends State<MyApp> {
-  ///  DateRangePickerController _pickerController;
+  /// DateRangePickerController _pickerController = DateRangePickerController();
   ///
   ///  @override
   ///  void initState() {
-  ///    _pickerController = DateRangePickerController();
   ///    _pickerController.view = DateRangePickerView.year;
   ///    super.initState();
   ///  }
@@ -2572,13 +2751,7 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   ///}
   ///
   ///class MyAppState extends State<MyApp> {
-  ///  DateRangePickerController _pickerController;
-  ///
-  ///  @override
-  ///  void initState() {
-  ///    _pickerController = DateRangePickerController();
-  ///    super.initState();
-  ///  }
+  /// DateRangePickerController _pickerController = DateRangePickerController();
   ///
   ///  @override
   ///  Widget build(BuildContext context) {
@@ -2589,7 +2762,7 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   ///            IconButton(
   ///              icon: Icon(Icons.arrow_forward),
   ///              onPressed: () {
-  ///                _pickerController.forward();
+  ///                _pickerController.forward!();
   ///              },
   ///            )
   ///          ],
@@ -2597,7 +2770,7 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   ///          leading: IconButton(
   ///            icon: Icon(Icons.arrow_back),
   ///            onPressed: () {
-  ///              _pickerController.backward();
+  ///              _pickerController.backward!();
   ///            },
   ///          ),
   ///        ),
@@ -2629,13 +2802,7 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   ///}
   ///
   ///class MyAppState extends State<MyApp> {
-  ///  DateRangePickerController _pickerController;
-  ///
-  ///  @override
-  ///  void initState() {
-  ///    _pickerController = DateRangePickerController();
-  ///    super.initState();
-  ///  }
+  /// DateRangePickerController _pickerController = DateRangePickerController();
   ///
   ///  @override
   ///  Widget build(BuildContext context) {
@@ -2646,7 +2813,7 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   ///            IconButton(
   ///              icon: Icon(Icons.arrow_forward),
   ///              onPressed: () {
-  ///                _pickerController.forward();
+  ///                _pickerController.forward!();
   ///              },
   ///            )
   ///          ],
@@ -2654,7 +2821,7 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   ///          leading: IconButton(
   ///            icon: Icon(Icons.arrow_back),
   ///            onPressed: () {
-  ///              _pickerController.backward();
+  ///              _pickerController.backward!();
   ///            },
   ///          ),
   ///        ),
@@ -2676,11 +2843,11 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<DateTime>('displayDate', displayDate));
     properties.add(DiagnosticsProperty<DateTime>('selectedDate', selectedDate));
-    properties.add(IterableDiagnostics(selectedDates)
+    properties.add(IterableDiagnostics<DateTime>(selectedDates)
         .toDiagnosticsNode(name: 'selectedDates'));
     properties.add(
         DiagnosticsProperty<PickerDateRange>('selectedRange', selectedRange));
-    properties.add(IterableDiagnostics(selectedRanges)
+    properties.add(IterableDiagnostics<PickerDateRange>(selectedRanges)
         .toDiagnosticsNode(name: 'selectedRanges'));
     properties.add(EnumProperty<DateRangePickerView>('view', view));
   }
@@ -2707,7 +2874,32 @@ enum DateRangePickerSelectionMode {
   /// of dates.
   ///
   /// See also: [PickerDateRange].
-  multiRange
+  multiRange,
+
+  /// Extends the selected range with the new selected date in the date range
+  /// picker.
+  /// If a new date, after the existing selected range’s end date, is selected,
+  /// the newly selected range’s start date stays unchanged while the end date
+  /// will be changed to the newly selected date.
+  /// Similarly, if a new date, before the existing selected range’s start date,
+  /// is selected, the newly selected range’s start date will be changed to the
+  /// newly selected date while the end date still is unchanged.
+  /// Selecting a date between the ranges will update the range end date if the
+  /// date selection index is half or more of the total dates count and vice
+  /// versa for range start date.
+  /// The range selection will not be updated if you tap on the blackout and
+  /// disabled dates.
+  ///
+  /// _Note:_ The hovering effect which occurrs while extend the range will not
+  /// be displayed when the [DateRangePickerNavigationMode] set as
+  /// [DateRangePickerNavigationMode.scroll].
+  ///
+  /// See also:
+  ///
+  /// [pickerDateRange]
+  ///
+  /// [HijriDateRange]
+  extendableRange,
 }
 
 /// Available views for [SfDateRangePicker].

@@ -7,6 +7,7 @@ class _AesEngine implements _ICipher {
   }
 
   //Fields
+  @override
   int? blockSize;
   List<List<int>>? _key;
   late int rounds;
@@ -55,8 +56,8 @@ class _AesEngine implements _ICipher {
           keyLength, 'keyLength', 'Key length not 128/192/256 bits.');
     }
     rounds = keyLength + 6;
-    final List<List<int>> newKey =
-        List.generate((rounds + 1), (i) => List.generate(4, (j) => 0));
+    final List<List<int>> newKey = List<List<int>>.generate(
+        rounds + 1, (int i) => List<int>.generate(4, (int j) => 0));
     int t = 0;
     for (int i = 0; i < keys.length; t++) {
       newKey[t >> 2][t & 3] = _convertToUnsignedInt32(keys, i);

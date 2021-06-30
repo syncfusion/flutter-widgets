@@ -58,7 +58,7 @@ enum PdfVerticalAlignment {
 /// PdfDocument document = PdfDocument()
 ///   ..pages.add().graphics.drawString(
 ///       'Hello World!', PdfStandardFont(PdfFontFamily.helvetica, 12),
-///       format: PdfStringFormat(textDirection: PdfTextAlignment.none));
+///       format: PdfStringFormat(textDirection: PdfTextDirection.none));
 /// //Save the document.
 /// List<int> bytes = document.save();
 /// //Close the document.
@@ -132,7 +132,7 @@ class _TextRenderingMode {
 ///           dashStyle: PdfDashStyle.custom, lineCap: PdfLineCap.round)
 ///         ..dashPattern = [4, 2, 1, 3],
 ///       bounds: Rect.fromLTWH(0, 0, 200, 100));
-/// /Save the document.
+/// //Save the document.
 /// List<int> bytes = document.save();
 /// //Close the document.
 /// document.dispose();
@@ -167,7 +167,7 @@ enum PdfDashStyle {
 ///           dashStyle: PdfDashStyle.custom, lineJoin: PdfLineJoin.bevel)
 ///         ..dashPattern = [4, 2, 1, 3],
 ///       bounds: Rect.fromLTWH(0, 0, 200, 100));
-/// /Save the document.
+/// //Save the document.
 /// List<int> bytes = document.save();
 /// //Close the document.
 /// document.dispose();
@@ -197,7 +197,7 @@ enum PdfLineJoin {
 ///           dashStyle: PdfDashStyle.custom, lineCap: PdfLineCap.round)
 ///         ..dashPattern = [4, 2, 1, 3],
 ///       bounds: Rect.fromLTWH(0, 0, 200, 100));
-/// /Save the document.
+/// //Save the document.
 /// List<int> bytes = document.save();
 /// //Close the document.
 /// document.dispose();

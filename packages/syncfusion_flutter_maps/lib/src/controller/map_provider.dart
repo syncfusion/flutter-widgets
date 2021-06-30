@@ -30,13 +30,14 @@ abstract class MapProvider {
 ///
 /// [MapShapeSource.asset] for the [SfMaps] widget shorthand,
 /// backed up by [AssetMapProvider].
+@immutable
 class AssetMapProvider extends MapProvider {
   /// Creates an object that decodes a [String] buffer as a map.
   AssetMapProvider(String assetName) : assert(assetName.isNotEmpty) {
     _shapePath = assetName;
   }
 
-  late String _shapePath;
+  late final String _shapePath;
 
   @override
   Future<String> loadString() async {
@@ -76,17 +77,18 @@ class AssetMapProvider extends MapProvider {
 ///
 /// [MapShapeSource.network] for the [SfMaps] widget shorthand,
 /// backed up by [NetworkMapProvider].
+@immutable
 class NetworkMapProvider extends MapProvider {
   /// Creates an object that decodes the map at the given URL.
   NetworkMapProvider(String url) : assert(url.isNotEmpty) {
     _url = url;
   }
 
-  late String _url;
+  late final String _url;
 
   @override
   Future<String> loadString() async {
-    final response = await http.get(Uri.tryParse(_url)!);
+    final http.Response response = await http.get(Uri.tryParse(_url)!);
     if (response.statusCode == 200) {
       return response.body;
     } else {
@@ -127,13 +129,14 @@ class NetworkMapProvider extends MapProvider {
 ///
 /// [MapShapeSource.memory] for the [SfMaps] widget shorthand,
 /// backed up by [MemoryMapProvider].
+@immutable
 class MemoryMapProvider extends MapProvider {
   /// Creates an object that decodes a [Uint8List] buffer as a map.
   MemoryMapProvider(Uint8List bytes) {
     _mapBytes = bytes;
   }
 
-  late Uint8List _mapBytes;
+  late final Uint8List _mapBytes;
 
   @override
   Future<String> loadString() async {

@@ -22,16 +22,15 @@ class _BarChartPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
     final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer!;
+    final _RenderingDetails renderingDetails = chartState._renderingDetails;
     final List<CartesianChartPoint<dynamic>> dataPoints =
         seriesRenderer._dataPoints;
     final BarSeries<dynamic, dynamic> series =
-        seriesRenderer._series as BarSeries;
+        seriesRenderer._series as BarSeries<dynamic, dynamic>;
     if (seriesRenderer._visible!) {
       assert(
           // ignore: unnecessary_null_comparison
-          series.animationDuration != null
-              ? series.animationDuration >= 0
-              : true,
+          !(series.animationDuration != null) || series.animationDuration >= 0,
           'The animation duration of the bar series must be greater than or equal to 0.');
       Rect axisClipRect, clipRect;
       double animationFactor;
@@ -77,7 +76,7 @@ class _BarChartPainter extends CustomPainter {
               xAxisRenderer._axis.plotOffset, yAxisRenderer._axis.plotOffset));
       canvas.restore();
       if ((series.animationDuration <= 0 ||
-              (!chartState._initialRender! &&
+              (!renderingDetails.initialRender! &&
                   !seriesRenderer._needAnimateSeriesElements) ||
               animationFactor >= chartState._seriesDurationFactor) &&
           (series.markerSettings.isVisible ||

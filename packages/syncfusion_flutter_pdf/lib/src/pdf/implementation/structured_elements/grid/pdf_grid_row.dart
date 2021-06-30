@@ -440,7 +440,7 @@ class PdfGridRowCollection {
 
   //Fields
   late PdfGrid _grid;
-  late List _rows;
+  late List<PdfGridRow> _rows;
 
   //Properties
   /// Gets the rows count.
@@ -728,11 +728,11 @@ class PdfGridRowCollection {
     if (index < 0 || index >= _rows.length) {
       throw IndexError(index, _rows);
     }
-    return _rows[index]!;
+    return _rows[index];
   }
 
   int _indexOf(PdfGridRow? row) {
-    return _rows.indexOf(row);
+    return _rows.indexOf(row!);
   }
 }
 

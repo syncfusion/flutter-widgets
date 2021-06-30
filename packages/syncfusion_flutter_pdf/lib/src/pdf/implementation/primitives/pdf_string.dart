@@ -37,10 +37,9 @@ class _PdfString implements _IPdfPrimitive {
     isParentDecrypted = false;
   }
 
-  _PdfString.fromBytes(List<int> value) {
-    data = value;
-    if (value.isNotEmpty) {
-      this.value = String.fromCharCodes(data as Iterable<int>);
+  _PdfString.fromBytes(this.data) {
+    if (data!.isNotEmpty) {
+      value = String.fromCharCodes(data!);
     }
     _isHex = true;
     decrypted = false;
@@ -73,7 +72,6 @@ class _PdfString implements _IPdfPrimitive {
         : _PdfString.stringMark.codeUnitAt(0));
     if (data != null && data!.isNotEmpty) {
       List<int> tempData;
-      bool needStartMark = false;
       if (_isHex!) {
         tempData = _getHexBytes(data!);
       } else if (isAsciiEncode) {
@@ -84,8 +82,7 @@ class _PdfString implements _IPdfPrimitive {
         }
       } else if (utf8.encode(value!).length != value!.length) {
         tempData = _toUnicodeArray(value!, true);
-        tempData = _escapeSymbols(result);
-        needStartMark = true;
+        tempData = _escapeSymbols(tempData);
       } else {
         tempData = <int>[];
         for (int i = 0; i < value!.length; i++) {
@@ -108,13 +105,6 @@ class _PdfString implements _IPdfPrimitive {
         tempData = _getHexBytes(tempData);
       }
       result.addAll(tempData);
-      if (needStartMark) {
-        result.insert(
-            0,
-            _isHex!
-                ? _PdfString.hexStringMark.codeUnitAt(0)
-                : _PdfString.stringMark.codeUnitAt(0));
-      }
     }
     result.add(_isHex!
         ? _PdfString.hexStringMark.codeUnitAt(1)
@@ -227,7 +217,7 @@ class _PdfString implements _IPdfPrimitive {
     int value = 0;
     bool start = true;
     final List<int> list = <int>[];
-    hexNumbers.forEach((int digit) {
+    hexNumbers.toList().forEach((int digit) {
       if (start) {
         value = (digit << 4).toUnsigned(8);
         start = false;

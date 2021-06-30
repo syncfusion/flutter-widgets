@@ -161,9 +161,11 @@ class _LineScrollAxis extends _ScrollAxisBase {
     int repeatSizeCount = -1;
 
     for (int index = 0; index < lineCount; index++) {
-      final bool hide = scrollLinesHost!.getHidden(index, repeatSizeCount)[0];
-      repeatSizeCount = scrollLinesHost!.getHidden(index, repeatSizeCount)[1];
-      final value = hide == true ? 0.0 : 1.0;
+      final List<dynamic> hiddenValue =
+          scrollLinesHost!.getHidden(index, repeatSizeCount);
+      final bool hide = hiddenValue[0] as bool;
+      repeatSizeCount = hiddenValue[1] as int;
+      final double value = hide == true ? 0.0 : 1.0;
       final int rangeTo =
           getRangeToHelper(index, lineCount - 1, repeatSizeCount);
       _distances!.setRange(index, rangeTo, value);
@@ -208,11 +210,11 @@ class _LineScrollAxis extends _ScrollAxisBase {
   /// * isRightToLeft - _required_ - The boolean value used to calculate visible
   /// columns in right to left mode.
   @override
-  List getScrollLineIndex(int scrollLineIndex, double scrollLineDelta,
+  List<dynamic> getScrollLineIndex(int scrollLineIndex, double scrollLineDelta,
       [bool isRightToLeft = false]) {
     scrollLineIndex = scrollBarValueToLineIndex(scrollBar!.value);
     scrollLineDelta = 0.0;
-    return [scrollLineIndex, scrollLineDelta];
+    return <dynamic>[scrollLineIndex, scrollLineDelta];
   }
 
   /// This method is called in response to a MouseWheel event.
@@ -236,9 +238,11 @@ class _LineScrollAxis extends _ScrollAxisBase {
     final int to = insertAt + count - 1;
     int repeatSizeCount = -1;
     for (int index = insertAt; index <= to; index++) {
-      final bool hide = scrollLinesHost!.getHidden(index, repeatSizeCount)[0];
-      repeatSizeCount = scrollLinesHost!.getHidden(index, repeatSizeCount)[1];
-      final value = hide == true ? 0.0 : 1.0;
+      final List<dynamic> hiddenValue =
+          scrollLinesHost!.getHidden(index, repeatSizeCount);
+      final bool hide = hiddenValue[0] as bool;
+      repeatSizeCount = hiddenValue[1] as int;
+      final double value = hide == true ? 0.0 : 1.0;
       final int rangeTo = getRangeToHelper(index, to, repeatSizeCount);
       distances!.setRange(index, rangeTo, value);
       index = rangeTo;
@@ -261,12 +265,12 @@ class _LineScrollAxis extends _ScrollAxisBase {
     bool lastVisible = false;
     _VisibleLineInfo? firstLine, lastLine;
 
-    final List lineValues = getLinesAndVisibility(
+    final List<dynamic> lineValues = getLinesAndVisibility(
         first, last, true, firstVisible, lastVisible, firstLine, lastLine);
-    firstVisible = lineValues[0];
-    lastVisible = lineValues[1];
-    firstLine = lineValues[2];
-    lastLine = lineValues[3];
+    firstVisible = lineValues[0] as bool;
+    lastVisible = lineValues[1] as bool;
+    firstLine = lineValues[2] as _VisibleLineInfo?;
+    lastLine = lineValues[3] as _VisibleLineInfo?;
     if (firstLine == null || lastLine == null) {
       return _DoubleSpan.empty();
     }
@@ -373,7 +377,7 @@ class _LineScrollAxis extends _ScrollAxisBase {
   @override
   List<_DoubleSpan> rangeToRegionPoints(
       int first, int last, bool allowEstimatesForOutOfViewLines) {
-    final List<_DoubleSpan> result = [];
+    final List<_DoubleSpan> result = <_DoubleSpan>[];
     for (int n = 0; n < 3; n++) {
       late _ScrollAxisRegion region;
       if (n == 0) {
@@ -543,7 +547,7 @@ class _LineScrollAxis extends _ScrollAxisBase {
     final _ScrollBarBase sb = scrollBar!;
     final bool isMinimum = sb.minimum == sb.value;
     sb.minimum = headerLineCount.toDouble();
-    final maximum = _distances!.totalDistance - footerLineCount;
+    final double maximum = _distances!.totalDistance - footerLineCount;
     sb
       ..maximum = max(maximum, 0)
       ..smallChange = 1

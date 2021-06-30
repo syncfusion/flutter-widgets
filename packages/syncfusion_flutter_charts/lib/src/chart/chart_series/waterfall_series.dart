@@ -7,6 +7,7 @@ part of charts;
 /// WaterfallSeries is similar to range column series,
 /// in range column high and low value should be there, but in waterfall
 /// we have find the endValue and originValue of each data point.
+@immutable
 class WaterfallSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of WaterfallSeries class.
   WaterfallSeries(
@@ -42,8 +43,6 @@ class WaterfallSeries<T, D> extends XyDataSeries<T, D> {
       Color? borderColor,
       List<Trendline>? trendlines,
       double? borderWidth,
-      // ignore: deprecated_member_use_from_same_package
-      SelectionSettings? selectionSettings,
       SelectionBehavior? selectionBehavior,
       bool? isVisibleInLegend,
       LegendIconType? legendIconType,
@@ -51,6 +50,9 @@ class WaterfallSeries<T, D> extends XyDataSeries<T, D> {
       double? opacity,
       List<double>? dashArray,
       SeriesRendererCreatedCallback? onRendererCreated,
+      ChartPointInteractionCallback? onPointTap,
+      ChartPointInteractionCallback? onPointDoubleTap,
+      ChartPointInteractionCallback? onPointLongPress,
       List<int>? initialSelectedDataIndexes})
       : super(
             key: key,
@@ -78,7 +80,6 @@ class WaterfallSeries<T, D> extends XyDataSeries<T, D> {
             animationDuration: animationDuration,
             borderColor: borderColor,
             borderWidth: borderWidth,
-            selectionSettings: selectionSettings,
             selectionBehavior: selectionBehavior,
             legendItemText: legendItemText,
             isVisibleInLegend: isVisibleInLegend,
@@ -87,6 +88,9 @@ class WaterfallSeries<T, D> extends XyDataSeries<T, D> {
             opacity: opacity,
             dashArray: dashArray,
             onRendererCreated: onRendererCreated,
+            onPointTap: onPointTap,
+            onPointDoubleTap: onPointDoubleTap,
+            onPointLongPress: onPointLongPress,
             initialSelectedDataIndexes: initialSelectedDataIndexes);
 
   ///Color of the negative data points in the series.
@@ -225,6 +229,113 @@ class WaterfallSeries<T, D> extends XyDataSeries<T, D> {
   ///```
   final BorderRadius borderRadius;
 
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is WaterfallSeries &&
+        other.key == key &&
+        other.onCreateRenderer == onCreateRenderer &&
+        other.dataSource == dataSource &&
+        other.xValueMapper == xValueMapper &&
+        other.yValueMapper == yValueMapper &&
+        other.intermediateSumPredicate == intermediateSumPredicate &&
+        other.totalSumPredicate == totalSumPredicate &&
+        other.negativePointsColor == negativePointsColor &&
+        other.intermediateSumColor == intermediateSumColor &&
+        other.totalSumColor == totalSumColor &&
+        other.sortFieldValueMapper == sortFieldValueMapper &&
+        other.dataLabelMapper == dataLabelMapper &&
+        other.pointColorMapper == pointColorMapper &&
+        other.sortingOrder == sortingOrder &&
+        other.connectorLineSettings == connectorLineSettings &&
+        other.xAxisName == xAxisName &&
+        other.yAxisName == yAxisName &&
+        other.name == name &&
+        other.spacing == spacing &&
+        other.color == color &&
+        other.width == width &&
+        other.markerSettings == markerSettings &&
+        other.emptyPointSettings == emptyPointSettings &&
+        other.dataLabelSettings == dataLabelSettings &&
+        other.trendlines == trendlines &&
+        other.gradient == gradient &&
+        other.borderGradient == borderGradient &&
+        other.borderRadius == borderRadius &&
+        other.borderColor == borderColor &&
+        other.borderWidth == borderWidth &&
+        other.isVisible == isVisible &&
+        other.enableTooltip == enableTooltip &&
+        other.dashArray == dashArray &&
+        other.animationDuration == animationDuration &&
+        other.selectionBehavior == selectionBehavior &&
+        other.isVisibleInLegend == isVisibleInLegend &&
+        other.legendIconType == legendIconType &&
+        other.legendItemText == legendItemText &&
+        other.opacity == opacity &&
+        other.onRendererCreated == onRendererCreated &&
+        other.onPointTap == onPointTap &&
+        other.onPointDoubleTap == onPointDoubleTap &&
+        other.onPointLongPress == onPointLongPress &&
+        other.initialSelectedDataIndexes == initialSelectedDataIndexes;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      key,
+      onCreateRenderer,
+      dataSource,
+      xValueMapper,
+      yValueMapper,
+      intermediateSumPredicate,
+      totalSumPredicate,
+      negativePointsColor,
+      intermediateSumColor,
+      totalSumColor,
+      sortFieldValueMapper,
+      dataLabelMapper,
+      pointColorMapper,
+      sortingOrder,
+      connectorLineSettings,
+      xAxisName,
+      yAxisName,
+      name,
+      spacing,
+      color,
+      width,
+      markerSettings,
+      emptyPointSettings,
+      dataLabelSettings,
+      trendlines,
+      gradient,
+      borderGradient,
+      borderWidth,
+      borderRadius,
+      borderColor,
+      isVisible,
+      enableTooltip,
+      dashArray,
+      animationDuration,
+      selectionBehavior,
+      isVisibleInLegend,
+      legendIconType,
+      legendItemText,
+      opacity,
+      onRendererCreated,
+      initialSelectedDataIndexes,
+      onPointTap,
+      onPointDoubleTap,
+      onPointLongPress
+    ];
+    return hashList(values);
+  }
+
   /// Create the waterfall series renderer.
   WaterfallSeriesRenderer createRenderer(ChartSeries<T, D> series) {
     WaterfallSeriesRenderer seriesRenderer;
@@ -254,7 +365,7 @@ class WaterfallSeriesRenderer extends XyDataSeriesRenderer {
     final WaterfallSegment segment = createSegment();
     final List<CartesianSeriesRenderer>? oldSeriesRenderers =
         _chartState!._oldSeriesRenderers;
-    _waterfallSeries = _series as WaterfallSeries;
+    _waterfallSeries = _series as WaterfallSeries<dynamic, dynamic>;
     final BorderRadius borderRadius = _waterfallSeries.borderRadius;
     segment._seriesIndex = seriesIndex;
     segment.currentSegmentIndex = pointIndex;
@@ -266,9 +377,9 @@ class WaterfallSeriesRenderer extends XyDataSeriesRenderer {
     segment._chartState = _chartState!;
     segment.animationFactor = animateFactor;
     segment._currentPoint = currentPoint;
-    if (_chartState!._widgetNeedUpdate &&
+    if (_renderingDetails!.widgetNeedUpdate &&
         _chartState!._zoomPanBehaviorRenderer._isPinching != true &&
-        !_chartState!._isLegendToggled &&
+        !_renderingDetails!.isLegendToggled &&
         oldSeriesRenderers != null &&
         oldSeriesRenderers.isNotEmpty &&
         oldSeriesRenderers.length - 1 >= segment._seriesIndex &&
@@ -281,7 +392,7 @@ class WaterfallSeriesRenderer extends XyDataSeriesRenderer {
           ? segment._oldSeriesRenderer!._dataPoints[pointIndex]
           : null;
       segment._oldSegmentIndex = _getOldSegmentIndex(segment);
-    } else if (_chartState!._isLegendToggled &&
+    } else if (_renderingDetails!.isLegendToggled &&
         // ignore: unnecessary_null_comparison
         _chartState!._segments != null &&
         _chartState!._segments.isNotEmpty) {

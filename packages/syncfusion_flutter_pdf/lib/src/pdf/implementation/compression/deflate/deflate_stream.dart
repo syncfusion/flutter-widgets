@@ -26,8 +26,8 @@ class _DeflateStream {
     while (true) {
       final Map<String, dynamic> inflateResult =
           _inflater._inflate(array!, cOffset, rCount);
-      length = inflateResult['count'];
-      array = inflateResult['data'];
+      length = inflateResult['count'] as int?;
+      array = inflateResult['data'] as List<int>;
       cOffset += length!;
       rCount -= length;
       if (rCount == 0) {
@@ -37,8 +37,8 @@ class _DeflateStream {
         break;
       }
       final Map<String, dynamic> result = _readBytes();
-      final int? bytes = result['count'];
-      _buffer = result['buffer'];
+      final int? bytes = result['count'] as int?;
+      _buffer = result['buffer'] as List<int>;
       if (bytes == 0) {
         break;
       }

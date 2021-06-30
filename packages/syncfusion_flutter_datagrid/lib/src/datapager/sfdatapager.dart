@@ -39,7 +39,6 @@ bool _suspendDataPagerUpdate = false;
 ///      ),
 ///      body: Column(
 ///        children: [
-///
 ///          SfDataGrid(
 ///            source: _ dataGridSource,
 ///            columns: <GridColumn>[
@@ -55,7 +54,7 @@ bool _suspendDataPagerUpdate = false;
 ///            delegate: dataGridSource,
 ///            controller:dataPagerController
 ///          ),
-///          FlatButton(
+///          TextButton(
 ///            child: Text('Next'),
 ///           onPressed: {
 ///              dataPagerController.nextPage();
@@ -72,30 +71,29 @@ bool _suspendDataPagerUpdate = false;
 /// [SfDataGrid]
 ///
 /// ```dart
-/// class  PaginatedDataGridSource extends DataGridSource<Employee> {
-/// final List<Employee>_paginatedData= <Employee>[];
+/// class  PaginatedDataGridSource extends DataGridSource {
+///   final List<Employee> _paginatedData= <Employee>[];
 ///
-/// int StartRowIndex= 0, endRowIndex = 0, rowsPerPage = 20;
+///   int StartRowIndex= 0, endRowIndex = 0, rowsPerPage = 20;
 ///
-///  @override
-///  List<Employee> get dataSource => _paginatedData;
+///   @override
+///   List<DataGridRow> get rows => _paginatedData
+///       .map<DataGridRow>((dataRow) => DataGridRow(cells: [
+///             DataGridCell<int>(columnName: 'id', value: dataRow.id),
+///             DataGridCell<String>(columnName: 'name', value: dataRow.name),
+///             DataGridCell<String>(
+///                 columnName: 'designation', value: dataRow.designation),
+///             DataGridCell<int>(columnName: 'salary', value: dataRow.salary),
+///           ]))
+///       .toList();
 ///
-///  @override
-///  Object getValue(Employee employee, String columnName) {
-///    switch (columnName) {
-///      case 'designation':
-///        return employee.designation;
-///        break;
-///      case 'salary':
-///        return employee.salary;
-///        break;
-///      case 'employeeName':
-///        return employee.employeeName;
-///      default:
-///        return '';
-///        break;
-///    }
-///  }
+///   @override
+///   DataGridRowAdapter? buildRow(DataGridRow row) {
+///     return DataGridRowAdapter(
+///         cells: row.getCells().map<Widget>((dataCell) {
+///           return Text(dataCell.value.toString());
+///         }).toList());
+///   }
 ///
 ///  @override
 ///  Future<bool> handlePageChange(int oldPageIndex, int newPageIndex) async {
@@ -278,7 +276,8 @@ class SfDataPager extends StatefulWidget {
       this.onPageNavigationStart,
       this.onPageNavigationEnd,
       this.controller})
-      : assert(pageCount > 0);
+      : assert(pageCount > 0),
+        super(key: key);
 
   /// The number of pages required to display in [SfDataPager].
   /// Calculate the number of pages by dividing the total number of items
@@ -314,7 +313,7 @@ class SfDataPager extends StatefulWidget {
   final int initialPageIndex;
 
   /// A builder callback that builds the widget for the specific page Item.
-  final DataPagerItemBuilderCallback? pageItemBuilder;
+  final DataPagerItemBuilderCallback<Widget>? pageItemBuilder;
 
   /// An object that can be used to control the position to which this page is
   /// scrolled.
@@ -429,7 +428,7 @@ class _SfDataPagerState extends State<SfDataPager> {
   }
 
   void _onInitialDataPagerLoaded() {
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
       if (widget.initialPageIndex > 0) {
         _handleDataPagerControlPropertyChanged(property: 'initialPageIndex');
       } else {
@@ -515,7 +514,7 @@ class _SfDataPagerState extends State<SfDataPager> {
             canChangePage ? _lastPageIndex : _currentPageIndex);
         break;
       case 'previous':
-        final previousIndex = _getPreviousPageIndex();
+        final int previousIndex = _getPreviousPageIndex();
         if (previousIndex.isNegative || previousIndex == _currentPageIndex) {
           return;
         }
@@ -530,7 +529,7 @@ class _SfDataPagerState extends State<SfDataPager> {
             canChangePage ? previousIndex : _currentPageIndex);
         break;
       case 'next':
-        final nextPageIndex = _getNextPageIndex();
+        final int nextPageIndex = _getNextPageIndex();
         if (nextPageIndex > _lastPageIndex ||
             nextPageIndex.isNegative ||
             nextPageIndex == _currentPageIndex) {
@@ -565,7 +564,7 @@ class _SfDataPagerState extends State<SfDataPager> {
         _handleScrollPositionChanged();
         break;
       case 'selectedPageIndex':
-        final selectedPageIndex = _controller!.selectedPageIndex;
+        final int selectedPageIndex = _controller!.selectedPageIndex;
         if (selectedPageIndex < 0 ||
             selectedPageIndex > _lastPageIndex ||
             selectedPageIndex == _currentPageIndex) {
@@ -598,7 +597,7 @@ class _SfDataPagerState extends State<SfDataPager> {
 
   void _raisePageNavigationStart(int pageIndex) {
     if (widget.onPageNavigationStart == null) {
-      return null;
+      return;
     }
 
     widget.onPageNavigationStart!(pageIndex);
@@ -606,7 +605,7 @@ class _SfDataPagerState extends State<SfDataPager> {
 
   void _raisePageNavigationEnd(int pageIndex) {
     if (widget.onPageNavigationEnd == null) {
-      return null;
+      return;
     }
 
     widget.onPageNavigationEnd!(pageIndex);
@@ -645,13 +644,13 @@ class _SfDataPagerState extends State<SfDataPager> {
   }
 
   void _moveToNextPage() {
-    final nextIndex = _getNextPageIndex();
+    final int nextIndex = _getNextPageIndex();
     final double distance = getScrollOffset(nextIndex);
     _scrollTo(distance);
   }
 
   void _moveToPreviousPage() {
-    final previousIndex = _getPreviousPageIndex();
+    final int previousIndex = _getPreviousPageIndex();
     final double distance = getScrollOffset(previousIndex);
     _scrollTo(distance);
   }
@@ -664,7 +663,7 @@ class _SfDataPagerState extends State<SfDataPager> {
       return;
     }
 
-    Future.delayed(Duration.zero, () {
+    Future<void>.delayed(Duration.zero, () {
       _scrollController!.animateTo(offset,
           duration: const Duration(milliseconds: 250),
           curve: Curves.fastOutSlowIn);
@@ -688,11 +687,11 @@ class _SfDataPagerState extends State<SfDataPager> {
   Widget _getChildrenBasedOnDirection(List<Widget> children) {
     if (widget.direction == Axis.vertical) {
       return Column(
-        children: List.from(children),
+        children: List<Widget>.from(children),
       );
     } else {
       return Row(
-        children: List.from(children),
+        children: List<Widget>.from(children),
       );
     }
   }
@@ -718,7 +717,7 @@ class _SfDataPagerState extends State<SfDataPager> {
   Widget _getIcon(String type, IconData iconData, bool visible) {
     Icon buildIcon() {
       return Icon(iconData,
-          key: ValueKey(type),
+          key: ValueKey<String>(type),
           size: 20,
           color: visible
               ? _dataPagerThemeData!.brightness == Brightness.light
@@ -731,7 +730,7 @@ class _SfDataPagerState extends State<SfDataPager> {
 
     if (widget.direction == Axis.vertical) {
       return RotatedBox(
-          key: ValueKey(type), quarterTurns: 1, child: buildIcon());
+          key: ValueKey<String>(type), quarterTurns: 1, child: buildIcon());
     } else {
       return buildIcon();
     }
@@ -774,8 +773,8 @@ class _SfDataPagerState extends State<SfDataPager> {
   }
 
   void _updateConstraintChanged(BoxConstraints constraint) {
-    final currentWidth = _getTotalDataPagerWidth(constraint);
-    final currentHeight = _getTotalDataPagerHeight(constraint);
+    final double currentWidth = _getTotalDataPagerWidth(constraint);
+    final double currentHeight = _getTotalDataPagerHeight(constraint);
 
     if (currentWidth != _width || currentHeight != _height) {
       _width = currentWidth;
@@ -841,12 +840,13 @@ class _SfDataPagerState extends State<SfDataPager> {
   }
 
   void _arrangeScrollableItems() {
-    _itemGenerator._items
-        .sort((first, second) => first.index.compareTo(second.index));
+    _itemGenerator._items.sort(
+        (_ScrollableDataPagerItem first, _ScrollableDataPagerItem second) =>
+            first.index.compareTo(second.index));
 
-    for (final element in _itemGenerator._items) {
+    for (final _ScrollableDataPagerItem element in _itemGenerator._items) {
       if (element.visible) {
-        final buttonSize = _getButtonSize();
+        final double buttonSize = _getButtonSize();
         final double xPos = widget.direction == Axis.horizontal
             ? _isRTL
                 ? _scrollViewExtent - (element.index * buttonSize) - buttonSize
@@ -869,14 +869,16 @@ class _SfDataPagerState extends State<SfDataPager> {
   Widget _buildDataPagerItem(
       {_ScrollableDataPagerItem? element, String? type, IconData? iconData}) {
     final ThemeData _flutterTheme = Theme.of(context);
-    late Widget? pagerItem;
+    Widget? pagerItem;
     Key? pagerItemKey;
     Color itemColor = _dataPagerThemeData!.itemColor;
     bool visible = true;
     late Border border;
 
     // DataPageItemBuilder callback
-    pagerItem = widget.pageItemBuilder?.call(type ?? element!.index.toString());
+    if (widget.pageItemBuilder != null) {
+      pagerItem = widget.pageItemBuilder!(type ?? element!.index.toString());
+    }
 
     void _setBorder() {
       border = _dataPagerThemeData!.itemBorderWidth != null &&
@@ -978,7 +980,7 @@ class _SfDataPagerState extends State<SfDataPager> {
 
   // Header
   Widget? _buildHeader() {
-    final List<Widget> children = [];
+    final List<Widget> children = <Widget>[];
 
     IconData getFirstIcon() {
       if (_isRTL && widget.direction == Axis.vertical) {
@@ -1011,7 +1013,7 @@ class _SfDataPagerState extends State<SfDataPager> {
 
   // Footer
   Widget? _buildFooter() {
-    final List<Widget> children = [];
+    final List<Widget> children = <Widget>[];
 
     IconData getNextIcon() {
       if (_isRTL && widget.direction == Axis.horizontal) {
@@ -1045,14 +1047,12 @@ class _SfDataPagerState extends State<SfDataPager> {
   Widget _buildBody(BoxConstraints constraint) {
     _pageCount = widget.pageCount.toInt();
 
-    final buttonSize = _getButtonSize();
+    final double buttonSize = _getButtonSize();
     _scrollViewExtent = buttonSize * _pageCount;
 
-    final size = _getSizeConstraint(constraint);
-    final visibleItemsSize = (size -
-        (_headerExtent +
-            _footerExtent +
-            (widget.visibleItemsCount * buttonSize)));
+    final double size = _getSizeConstraint(constraint);
+    final double visibleItemsSize = size -
+        (_headerExtent + _footerExtent + widget.visibleItemsCount * buttonSize);
 
     // Reset the scroll offset
     // Case: VisibleItemsCount get fit into the view on orientation changed
@@ -1107,9 +1107,10 @@ class _SfDataPagerState extends State<SfDataPager> {
       child: _DataPagerItemPanelRenderObject(
         isDirty: _isDirty,
         viewSize: _getScrollViewSize(),
-        children: List.from(_itemGenerator._items
+        children: List<_DataPagerItemRenderObject>.from(_itemGenerator._items
             .map<_DataPagerItemRenderObject>(
-                (element) => _DataPagerItemRenderObject(
+                (_ScrollableDataPagerItem element) =>
+                    _DataPagerItemRenderObject(
                       key: element.key,
                       isDirty: _isDirty,
                       element: element,
@@ -1126,7 +1127,7 @@ class _SfDataPagerState extends State<SfDataPager> {
         _scrollController!.hasClients &&
         _scrollController!.offset > 0.0 &&
         _scrollViewPortSize > previousScrollViewPortSize) {
-      WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      WidgetsBinding.instance?.addPostFrameCallback((_) {
         _handleScrollPositionChanged();
       });
     } else {
@@ -1135,7 +1136,7 @@ class _SfDataPagerState extends State<SfDataPager> {
   }
 
   Widget _buildDataPager(BoxConstraints constraint) {
-    final List<Widget> children = [];
+    final List<Widget> children = <Widget>[];
 
     final Widget? header = _buildHeader();
     if (header != null) {
@@ -1147,10 +1148,8 @@ class _SfDataPagerState extends State<SfDataPager> {
       children.add(footer);
     }
 
-    final Widget? body = _buildBody(constraint);
-    if (body != null) {
-      children.insert(1, body);
-    }
+    final Widget body = _buildBody(constraint);
+    children.insert(1, body);
 
     return _getChildrenBasedOnDirection(children);
   }
@@ -1278,11 +1277,11 @@ class _SfDataPagerState extends State<SfDataPager> {
       elevation: 0.0,
       color: _dataPagerThemeData!.backgroundColor,
       child: LayoutBuilder(
-        builder: (context, constraint) {
+        builder: (BuildContext context, BoxConstraints constraint) {
           _updateConstraintChanged(constraint);
 
           if (_isDesktop && widget.direction == Axis.horizontal) {
-            final List<Widget> children = [];
+            final List<Widget> children = <Widget>[];
 
             _buildDataPagerWithLabel(constraint, children);
 
@@ -1328,7 +1327,7 @@ class _SfDataPagerState extends State<SfDataPager> {
 
 class _DataPagerItemGenerator {
   _DataPagerItemGenerator();
-  final List<_ScrollableDataPagerItem> _items = [];
+  final List<_ScrollableDataPagerItem> _items = <_ScrollableDataPagerItem>[];
 
   _ScrollableDataPagerItem createItem(int index) {
     final _ScrollableDataPagerItem element = _ScrollableDataPagerItem();
@@ -1342,21 +1341,22 @@ class _DataPagerItemGenerator {
   }
 
   void ensureItems(int startIndex, int endIndex) {
-    for (final item in _items) {
+    for (final _ScrollableDataPagerItem item in _items) {
       item.isEnsured = false;
     }
 
     _ScrollableDataPagerItem? indexer(int index) {
-      return _items.firstWhereOrNull((element) => element.index == index);
+      return _items.firstWhereOrNull(
+          (_ScrollableDataPagerItem element) => element.index == index);
     }
 
     for (int index = startIndex; index <= endIndex; index++) {
-      var _scrollableElement = indexer(index);
+      _ScrollableDataPagerItem? _scrollableElement = indexer(index);
 
       if (_scrollableElement == null) {
         final _ScrollableDataPagerItem? reUseScrollableElement =
-            _items.firstWhereOrNull(
-                (element) => element.index == -1 || !element.isEnsured);
+            _items.firstWhereOrNull((_ScrollableDataPagerItem element) =>
+                element.index == -1 || !element.isEnsured);
 
         updateScrollableItem(reUseScrollableElement, index);
       }
@@ -1368,12 +1368,12 @@ class _DataPagerItemGenerator {
           ..isEnsured = true
           ..visibility = true;
       } else {
-        final element = createItem(index);
+        final _ScrollableDataPagerItem element = createItem(index);
         _items.add(element);
       }
     }
 
-    for (final item in _items) {
+    for (final _ScrollableDataPagerItem item in _items) {
       if (!item.isEnsured || item.index == -1) {
         item
           ..isEnsured = false
@@ -1388,7 +1388,7 @@ class _DataPagerItemGenerator {
         ..index = index
         ..isEnsured = true;
     } else {
-      final element = createItem(index);
+      final _ScrollableDataPagerItem element = createItem(index);
       _items.add(element);
     }
   }
@@ -1443,10 +1443,8 @@ class _DataPagerItemRenderObject extends SingleChildRenderObjectWidget {
 }
 
 class _DataPagerItemRenderBox extends RenderProxyBox {
-  _DataPagerItemRenderBox(
-      {required _ScrollableDataPagerItem element, required bool isDirty})
-      : element = element,
-        _isDirty = isDirty;
+  _DataPagerItemRenderBox({required this.element, required bool isDirty})
+      : _isDirty = isDirty;
 
   _ScrollableDataPagerItem element;
 
@@ -1474,7 +1472,9 @@ class _DataPagerItemPanelRenderObject extends MultiChildRenderObjectWidget {
       required this.isDirty,
       required this.viewSize,
       required this.children})
-      : super(key: key, children: RepaintBoundary.wrapAll(List.from(children)));
+      : super(
+            key: key,
+            children: RepaintBoundary.wrapAll(List<Widget>.from(children)));
 
   @override
   final List<_DataPagerItemRenderObject> children;
@@ -1559,14 +1559,14 @@ class _DataPagerItemPanelRenderBox extends RenderBox
           child.parentData! as _DataPagerItemPanelParentData;
       if (child is _DataPagerItemRenderBox) {
         if (child.element.visible) {
-          final childRect = child.pageItemRect;
+          final Rect childRect = child.pageItemRect;
           childParentData.offset = Offset(childRect.left, childRect.top);
           child.layout(
               BoxConstraints.tightFor(
                   width: childRect.width, height: childRect.height),
               parentUsesSize: true);
         } else {
-          child.layout(BoxConstraints.tightFor(width: 0.0, height: 0.0),
+          child.layout(const BoxConstraints.tightFor(width: 0.0, height: 0.0),
               parentUsesSize: false);
         }
       }
@@ -1603,7 +1603,7 @@ class _DataPagerItemBoxPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final BoxPainter painter = decoration.createBoxPainter();
-    painter.paint(canvas, Offset(0, 0), imageConfig.copyWith(size: size));
+    painter.paint(canvas, Offset.zero, imageConfig.copyWith(size: size));
   }
 
   @override
@@ -1626,7 +1626,7 @@ class _DataPagerChangeNotifier {
 
   void _notifyDataPagerListeners(String propertyName) {
     if (_listeners != null) {
-      for (final listener in _listeners!) {
+      for (final Function listener in _listeners!) {
         listener(property: propertyName);
       }
     }

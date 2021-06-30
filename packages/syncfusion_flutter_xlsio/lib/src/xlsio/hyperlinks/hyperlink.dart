@@ -7,7 +7,18 @@ class Hyperlink {
     _worksheet = sheet;
   }
 
+  /// Creates an instance of Hyperlink with parameters.
+  Hyperlink.add(this.address,
+      [this.screenTip, this.textToDisplay, HyperlinkType? type]) {
+    if (type != null) {
+      this.type = type;
+    } else {
+      type = HyperlinkType.url;
+    }
+  }
+
   /// Represents hyperlink id.
+  // ignore: prefer_final_fields
   int _rId = -1;
 
   /// Represents the hyperlink location.
@@ -19,9 +30,11 @@ class Hyperlink {
   late Worksheet _worksheet;
 
   /// Row index
+  // ignore: prefer_final_fields
   int _row = 0;
 
   /// Column Index
+  // ignore: prefer_final_fields
   int _column = 0;
 
   /// Represents the Hyperlink built in style.
@@ -29,6 +42,7 @@ class Hyperlink {
   BuiltInStyles? _bHyperlinkStyle;
 
   /// Represent the hyperlink applied object name.
+  // ignore: prefer_final_fields
   ExcelHyperlinkAttachedType _attachedType = ExcelHyperlinkAttachedType.range;
 
   /// Represents tooltip String.

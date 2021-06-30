@@ -2,18 +2,21 @@ part of datagrid;
 
 class _VisualContainerHelper {
   _VisualContainerHelper({required this.rowGenerator}) {
+    _isDirty = false;
+    _isGridLoaded = false;
+    _needToSetHorizontalOffset = false;
     rowHeightsProvider = onCreateRowHeights();
     columnWidthsProvider = onCreateColumnWidths();
   }
 
   bool _isPreGenerator = false;
   bool _needToRefreshColumn = false;
-  bool _isGridLoaded = false;
   int _headerLineCount = 1;
-  bool _isDirty = false;
 
+  late bool _isDirty;
+  late bool _isGridLoaded;
   // Used to set the horizontal offset for LTR to RTL and vise versa,
-  bool _needToSetHorizontalOffset = false;
+  late bool _needToSetHorizontalOffset;
 
   _DataGridStateDetails? get dataGridStateDetails =>
       rowGenerator.dataGridStateDetails;
@@ -164,7 +167,7 @@ class _VisualContainerHelper {
       return;
     }
 
-    final visibleRows = scrollRows.getVisibleLines();
+    final _VisibleLinesCollection visibleRows = scrollRows.getVisibleLines();
 
     int endIndex = 0;
 
@@ -174,34 +177,36 @@ class _VisualContainerHelper {
 
     endIndex = visibleRows[visibleRows.lastBodyVisibleIndex].lineIndex;
 
-    const headerStart = 0;
+    const int headerStart = 0;
 
-    final headerEnd = scrollRows.headerLineCount - 1;
+    final int headerEnd = scrollRows.headerLineCount - 1;
     rowHeightHelper(headerStart, headerEnd, RowRegion.header);
 
     rowHeightManager.updateRegion(headerStart, headerEnd, RowRegion.header);
 
-    final footerStart =
+    final int footerStart =
         visibleRows.length > visibleRows.firstFooterVisibleIndex &&
                 scrollRows.footerLineCount > 0
             ? visibleRows[visibleRows.firstFooterVisibleIndex].lineIndex
             : -1;
-    final footerEnd =
+    final int footerEnd =
         scrollRows.footerLineCount > 0 ? scrollRows.lineCount - 1 : -1;
 
     rowHeightHelper(footerStart, footerEnd, RowRegion.footer);
 
     rowHeightManager.updateRegion(footerStart, footerEnd, RowRegion.footer);
 
-    final bodyStart = visibleRows[visibleRows.firstBodyVisibleIndex].origin;
+    final double bodyStart =
+        visibleRows[visibleRows.firstBodyVisibleIndex].origin;
 
-    final bodyEnd = visibleRows[visibleRows.firstFooterVisibleIndex - 1].corner;
+    final double bodyEnd =
+        visibleRows[visibleRows.firstFooterVisibleIndex - 1].corner;
 
-    final bodyStartLineIndex =
+    final int bodyStartLineIndex =
         visibleRows[visibleRows.firstBodyVisibleIndex].lineIndex;
 
-    var current = bodyStart;
-    var currentEnd = endIndex;
+    double current = bodyStart;
+    int currentEnd = endIndex;
 
     final _LineSizeCollection lineSizeCollection =
         rowHeights as _LineSizeCollection;
@@ -209,10 +214,12 @@ class _VisualContainerHelper {
     for (int index = bodyStartLineIndex;
         current <= bodyEnd && index < scrollRows.firstFooterLineIndex;
         index++) {
-      var height = rowHeights[index];
+      double height = rowHeights[index];
 
-      if (!rowHeightManager.contains(index, RowRegion.body)) {
-        final rowHeight = rowGenerator._queryRowHeight(index, height);
+      if (!rowHeightManager.contains(index, RowRegion.body) &&
+          !_GridIndexResolver.isFooterWidgetRow(
+              index, dataGridStateDetails!())) {
+        final double rowHeight = rowGenerator._queryRowHeight(index, height);
         if (rowHeight != height) {
           height = rowHeight;
           rowHeights.setRange(index, index, height);
@@ -227,13 +234,13 @@ class _VisualContainerHelper {
         bodyStartLineIndex, currentEnd, RowRegion.body);
 
     if (rowHeightManager.dirtyRows.isNotEmpty) {
-      for (final index in rowHeightManager.dirtyRows) {
+      for (final int index in rowHeightManager.dirtyRows) {
         if (index < 0 || index >= rowHeights.lineCount) {
           continue;
         }
 
-        final height = rowHeights[index];
-        final rowHeight = rowGenerator._queryRowHeight(index, height);
+        final double height = rowHeights[index];
+        final double rowHeight = rowGenerator._queryRowHeight(index, height);
         if (rowHeight != height) {
           rowHeights.setRange(index, index, rowHeight);
         }
@@ -254,8 +261,8 @@ class _VisualContainerHelper {
     final _DataGridSettings dataGridSettings = dataGridStateDetails!();
     for (int index = startIndex; index <= endIndex; index++) {
       if (!rowHeightManager.contains(index, region)) {
-        final height = dataGridSettings.container.rowHeights[index];
-        final rowHeight = rowGenerator._queryRowHeight(index, height);
+        final double height = dataGridSettings.container.rowHeights[index];
+        final double rowHeight = rowGenerator._queryRowHeight(index, height);
         if (rowHeight != height) {
           rowHeights.setRange(index, index, rowHeight);
 
@@ -339,8 +346,8 @@ class _VisualContainerHelper {
 
   List<int> _getStartEndIndex(
       _VisibleLinesCollection visibleLines, int region) {
-    var startIndex = 0;
-    var endIndex = -1;
+    int startIndex = 0;
+    int endIndex = -1;
     switch (region) {
       case 0:
         if (visibleLines.firstBodyVisibleIndex > 0) {
@@ -353,7 +360,7 @@ class _VisualContainerHelper {
         if ((visibleLines.firstBodyVisibleIndex <= 0 &&
                 visibleLines.lastBodyVisibleIndex < 0) ||
             visibleLines.length <= visibleLines.firstBodyVisibleIndex) {
-          return [startIndex, endIndex];
+          return <int>[startIndex, endIndex];
         } else {
           startIndex =
               visibleLines[visibleLines.firstBodyVisibleIndex].lineIndex;
@@ -369,7 +376,7 @@ class _VisualContainerHelper {
         break;
     }
 
-    return [startIndex, endIndex];
+    return <int>[startIndex, endIndex];
   }
 
   void _refreshDefaultLineSize() {
@@ -379,7 +386,7 @@ class _VisualContainerHelper {
   }
 
   void _refreshHeaderLineCount() {
-    final dataGridSettings = dataGridStateDetails!();
+    final _DataGridSettings dataGridSettings = dataGridStateDetails!();
     _headerLineCount = 1;
     if (dataGridSettings.stackedHeaderRows.isNotEmpty) {
       _headerLineCount += dataGridSettings.stackedHeaderRows.length;
@@ -414,7 +421,7 @@ class _VisualContainerHelper {
   }
 
   void _updateColumnCount(_DataGridSettings dataGridSettings) {
-    final columnCount = dataGridSettings.columns.length;
+    final int columnCount = dataGridSettings.columns.length;
     this.columnCount = columnCount;
   }
 
@@ -427,7 +434,17 @@ class _VisualContainerHelper {
         ? dataGridSettings.source._effectiveRows.length
         : 0;
     _rowCount += dataGridSettings.headerLineCount;
-    this.rowCount = _rowCount;
+
+    // Add footer row widget to the rows
+    if (dataGridSettings.footer != null) {
+      _rowCount++;
+      rowCount = _rowCount;
+      // set footer row height
+      rowHeights[rowCount - 1] = dataGridSettings.footerHeight;
+    } else {
+      rowCount = _rowCount;
+    }
+
     _updateFreezePaneRows(dataGridSettings);
     // FLUT-2047 Need to mark all visible rows height as dirty when
     // updating the row count if onQueryRowHeight is not null.
@@ -441,7 +458,7 @@ class _VisualContainerHelper {
   }
 
   void _updateFreezePaneColumns(_DataGridSettings dataGridSettings) {
-    final frozenColumnCount = _GridIndexResolver.resolveToScrollColumnIndex(
+    final int frozenColumnCount = _GridIndexResolver.resolveToScrollColumnIndex(
         dataGridSettings, dataGridSettings.frozenColumnsCount);
     if (frozenColumnCount > 0 && columnCount >= frozenColumnCount) {
       frozenColumns = frozenColumnCount;
@@ -449,7 +466,8 @@ class _VisualContainerHelper {
       frozenColumns = 0;
     }
 
-    final footerFrozenColumnsCount = dataGridSettings.footerFrozenColumnsCount;
+    final int footerFrozenColumnsCount =
+        dataGridSettings.footerFrozenColumnsCount;
     if (footerFrozenColumnsCount > 0 &&
         columnCount > frozenColumnCount + footerFrozenColumnsCount) {
       footerFrozenColumns = footerFrozenColumnsCount;
@@ -459,7 +477,7 @@ class _VisualContainerHelper {
   }
 
   void _updateFreezePaneRows(_DataGridSettings dataGridSettings) {
-    final frozenRowCount = _GridIndexResolver.resolveToRowIndex(
+    final int frozenRowCount = _GridIndexResolver.resolveToRowIndex(
         dataGridSettings, dataGridSettings.frozenRowsCount);
     if (frozenRowCount > 0 && rowCount >= frozenRowCount) {
       frozenRows = _headerLineCount + dataGridSettings.frozenRowsCount;
@@ -477,8 +495,36 @@ class _VisualContainerHelper {
     }
   }
 
-  void _refreshView() {
+  /// Helps to reset the [DataGridRow] on each [DataRow] to refresh the
+  /// [SfDataGrid] with editing and sorting is enabled.
+  ///
+  /// cause:
+  /// * Instead of setting -1 to each rows on editing to refresh.
+  void _updateDataGridRows(_DataGridSettings dataGridSettings) {
     void resetRowIndex(DataRowBase dataRow) {
+      if (dataRow.rowType == RowType.dataRow) {
+        final int resolvedRowIndex = _GridIndexResolver.resolveToRecordIndex(
+            dataGridSettings, dataRow.rowIndex);
+        if (resolvedRowIndex.isNegative) {
+          return;
+        }
+
+        dataRow._dataGridRow =
+            dataGridSettings.source._effectiveRows[resolvedRowIndex];
+        dataRow._dataGridRowAdapter = _SfDataGridHelper.getDataGridRowAdapter(
+            dataGridSettings, dataRow._dataGridRow!);
+        dataRow._rowIndexChanged();
+      }
+    }
+
+    rowGenerator.items.forEach(resetRowIndex);
+  }
+
+  void _refreshView({bool clearEditing = true}) {
+    void resetRowIndex(DataRowBase dataRow) {
+      if (!clearEditing && dataRow._isEditing) {
+        return;
+      }
       dataRow.rowIndex = -1;
     }
 
@@ -492,25 +538,33 @@ class _VisualContainerHelper {
         .._updateColumn();
     }
 
-    for (final dataRow in rowGenerator.items) {
+    for (final DataRowBase dataRow in rowGenerator.items) {
       dataRow
         .._isDirty = true
         .._visibleColumns.forEach(updateColumn);
     }
   }
 
-  void resetSwipeOffset() {
-    final dataGridSettings = dataGridStateDetails!();
+  void resetSwipeOffset({DataRowBase? swipedRow, bool canUpdate = false}) {
+    final _DataGridSettings dataGridSettings = dataGridStateDetails!();
     if (!dataGridSettings.allowSwiping) {
       return;
     }
 
-    final swipedRow = dataGridSettings.rowGenerator.items.firstWhereOrNull(
-      (row) => row._isSwipingRow && dataGridSettings.swipingOffset.abs() > 0,
-    );
+    swipedRow = swipedRow ??
+        dataGridSettings.rowGenerator.items
+            .firstWhereOrNull((DataRowBase row) => row._isSwipingRow);
+
     if (swipedRow != null) {
       swipedRow._isSwipingRow = false;
-      dataGridSettings.swipingOffset = 0.0;
+    }
+
+    dataGridSettings.swipingOffset = 0.0;
+    dataGridSettings.isSwipingApplied = false;
+
+    if (canUpdate) {
+      dataGridSettings.source
+          ._notifyDataGridPropertyChangeListeners(propertyName: 'Swiping');
     }
   }
 }
@@ -519,7 +573,7 @@ class _RowHeightManager {
   _Range header = _Range();
   _Range body = _Range();
   _Range footer = _Range();
-  List<int> dirtyRows = [];
+  List<int> dirtyRows = <int>[];
 
   bool contains(int index, RowRegion region) {
     _Range range;

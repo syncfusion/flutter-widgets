@@ -21,21 +21,19 @@ class _StepLineChartPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     double animationFactor;
-    Rect clipRect;
     final StepLineSeries<dynamic, dynamic> series =
-        seriesRenderer._series as StepLineSeries;
+        seriesRenderer._series as StepLineSeries<dynamic, dynamic>;
     final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
     final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer!;
+    final _RenderingDetails renderingDetails = chartState._renderingDetails;
     final List<CartesianChartPoint<dynamic>> dataPoints =
         seriesRenderer._dataPoints;
     if (seriesRenderer._visible!) {
       canvas.save();
       assert(
           // ignore: unnecessary_null_comparison
-          series.animationDuration != null
-              ? series.animationDuration >= 0
-              : true,
-          'The animation duration of the step line series must be greater or equal to 0.');
+          !(series.animationDuration != null) || series.animationDuration >= 0,
+          'The animation duration of the fast line series must be greater or equal to 0.');
       final int seriesIndex = painterKey.index;
       seriesRenderer._storeSeriesProperties(chartState, seriesIndex);
       animationFactor = seriesRenderer._seriesAnimation != null
@@ -47,7 +45,8 @@ class _StepLineChartPainter extends CustomPainter {
               xAxisRenderer._axis.plotOffset, yAxisRenderer._axis.plotOffset));
       canvas.clipRect(axisClipRect);
       if (seriesRenderer._reAnimate ||
-          ((!(chartState._widgetNeedUpdate || chartState._isLegendToggled) ||
+          ((!(renderingDetails.widgetNeedUpdate ||
+                      renderingDetails.isLegendToggled) ||
                   !chartState._oldSeriesKeys.contains(series.key)) &&
               series.animationDuration > 0)) {
         _performLinearAnimation(
@@ -81,7 +80,7 @@ class _StepLineChartPainter extends CustomPainter {
             midX = _nextPoint.xValue;
             midY = currentPoint.yValue;
           } else if (_nextPoint.isDrop) {
-            _nextPoint = getDropValue(dataPoints, pointIndex);
+            _nextPoint = _getDropValue(dataPoints, pointIndex);
             midX = _nextPoint?.xValue;
             midY = currentPoint.yValue;
           }
@@ -107,41 +106,48 @@ class _StepLineChartPainter extends CustomPainter {
           endPoint = startPoint = midX = midY = null;
         }
       }
-      clipRect = _calculatePlotOffset(
-          Rect.fromLTRB(
-              chartState._chartAxis._axisClipRect.left -
-                  series.markerSettings.width,
-              chartState._chartAxis._axisClipRect.top -
-                  series.markerSettings.height,
-              chartState._chartAxis._axisClipRect.right +
-                  series.markerSettings.width,
-              chartState._chartAxis._axisClipRect.bottom +
-                  series.markerSettings.height),
-          Offset(
-              xAxisRenderer._axis.plotOffset, yAxisRenderer._axis.plotOffset));
+      _drawSeries(canvas, animationFactor);
+    }
+  }
 
-      canvas.restore();
-      if ((series.animationDuration <= 0 ||
-              (!chartState._initialRender! &&
-                  !seriesRenderer._needAnimateSeriesElements) ||
-              animationFactor >= chartState._seriesDurationFactor) &&
-          (series.markerSettings.isVisible ||
-              series.dataLabelSettings.isVisible)) {
-        // ignore: unnecessary_null_comparison
-        assert(seriesRenderer != null,
-            'The step line series should be available to render a marker on it.');
-        canvas.clipRect(clipRect);
-        seriesRenderer._renderSeriesElements(
-            chart, canvas, seriesRenderer._seriesElementAnimation);
-      }
-      if (seriesRenderer._visible! && animationFactor >= 1) {
-        chartState._setPainterKey(seriesIndex, painterKey.name, true);
-      }
+  ///Draw series elements and add cliprect
+  void _drawSeries(Canvas canvas, double animationFactor) {
+    final StepLineSeries<dynamic, dynamic> series =
+        seriesRenderer._series as StepLineSeries<dynamic, dynamic>;
+    final Rect clipRect = _calculatePlotOffset(
+        Rect.fromLTRB(
+            chartState._chartAxis._axisClipRect.left -
+                series.markerSettings.width,
+            chartState._chartAxis._axisClipRect.top -
+                series.markerSettings.height,
+            chartState._chartAxis._axisClipRect.right +
+                series.markerSettings.width,
+            chartState._chartAxis._axisClipRect.bottom +
+                series.markerSettings.height),
+        Offset(seriesRenderer._xAxisRenderer!._axis.plotOffset,
+            seriesRenderer._yAxisRenderer!._axis.plotOffset));
+
+    canvas.restore();
+    if ((series.animationDuration <= 0 ||
+            (!chartState._renderingDetails.initialRender! &&
+                !seriesRenderer._needAnimateSeriesElements) ||
+            animationFactor >= chartState._seriesDurationFactor) &&
+        (series.markerSettings.isVisible ||
+            series.dataLabelSettings.isVisible)) {
+      // ignore: unnecessary_null_comparison
+      assert(seriesRenderer != null,
+          'The step line series should be available to render a marker on it.');
+      canvas.clipRect(clipRect);
+      seriesRenderer._renderSeriesElements(
+          chart, canvas, seriesRenderer._seriesElementAnimation);
+    }
+    if (seriesRenderer._visible! && animationFactor >= 1) {
+      chartState._setPainterKey(painterKey.index, painterKey.name, true);
     }
   }
 
   /// To get point value in the drop mode
-  CartesianChartPoint<dynamic>? getDropValue(
+  CartesianChartPoint<dynamic>? _getDropValue(
       List<CartesianChartPoint<dynamic>> points, int pointIndex) {
     CartesianChartPoint<dynamic>? value;
     for (int i = pointIndex; i < points.length - 1; i++) {

@@ -4,7 +4,7 @@ part of xlsio;
 class MergedCellCollection {
   /// Create an instances of merged cell collection.
   MergedCellCollection() {
-    _mergecell = [];
+    _mergecell = <MergeCell>[];
   }
 
   late List<MergeCell> _mergecell;
@@ -15,7 +15,7 @@ class MergedCellCollection {
   }
 
   /// Merged cell index.
-  MergeCell operator [](index) => _mergecell[index];
+  MergeCell operator [](dynamic index) => _mergecell[index];
 
   /// Add merged cell to the collection.
   MergeCell addCell(MergeCell mergeCell) {

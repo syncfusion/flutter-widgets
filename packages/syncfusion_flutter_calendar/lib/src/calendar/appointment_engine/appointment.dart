@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart'
     show IterableDiagnostics;
 
+import '../../../calendar.dart';
+import '../common/enums.dart';
+
 /// Appointment data for calendar.
 ///
 /// An object that contains properties to hold the detailed information about
@@ -57,12 +60,18 @@ class Appointment with Diagnosticable {
     this.notes,
     this.location,
     this.resourceIds,
+    this.recurrenceId,
+    this.id,
     required this.startTime,
     required this.endTime,
     this.subject = '',
     this.color = Colors.lightBlue,
     this.recurrenceExceptionDates,
-  });
+  }) {
+    recurrenceRule = recurrenceId != null ? null : recurrenceRule;
+    _appointmentType = _getAppointmentType();
+    id = id ?? hashCode;
+  }
 
   /// The start time for an [Appointment] in [SfCalendar].
   ///
@@ -195,7 +204,7 @@ class Appointment with Diagnosticable {
   ///   return DataSource(appointments);
   /// }
   ///  ```
-  bool isAllDay = false;
+  bool isAllDay;
 
   /// The subject for the [Appointment] in [SfCalendar].
   ///
@@ -398,7 +407,8 @@ class Appointment with Diagnosticable {
   ///
   /// DataSource _getCalendarDataSource() {
   ///    List<Appointment> appointments = <Appointment>[];
-  ///    RecurrenceProperties recurrence = new RecurrenceProperties();
+  ///    RecurrenceProperties recurrence =
+  ///       RecurrenceProperties(startDate: DateTime.now());
   ///    recurrence.recurrenceType = RecurrenceType.daily;
   ///    recurrence.interval = 2;
   ///    recurrence.recurrenceRange = RecurrenceRange.count;
@@ -411,7 +421,7 @@ class Appointment with Diagnosticable {
   ///        color: Colors.blue,
   ///        startTimeZone: '',
   ///        endTimeZone: '',
-  ///        recurrenceRule: SfCalendar.rRuleGenerator(recurrence,
+  ///        recurrenceRule: SfCalendar.generateRRule(recurrence,
   ///            DateTime.now(), DateTime.now().add(Duration(hours: 2)))));
   ///
   ///    return DataSource(appointments);
@@ -449,7 +459,8 @@ class Appointment with Diagnosticable {
   ///
   /// DataSource _getCalendarDataSource() {
   ///    List<Appointment> appointments = <Appointment>[];
-  ///    RecurrenceProperties recurrence = new RecurrenceProperties();
+  ///    RecurrenceProperties recurrence =
+  ///      RecurrenceProperties(startDate: DateTime.now());
   ///    recurrence.recurrenceType = RecurrenceType.daily;
   ///    recurrence.interval = 2;
   ///    recurrence.recurrenceRange = RecurrenceRange.noEndDate;
@@ -466,7 +477,7 @@ class Appointment with Diagnosticable {
   ///            notes: '',
   ///            location: '',
   ///            endTimeZone: '',
-  ///            recurrenceRule: RecurrenceHelper.rRuleGenerator(
+  ///            recurrenceRule: SfCalendar.generateRRule(
   ///                recurrence, DateTime.now(), DateTime.now().add(
   ///                Duration(hours: 2))),
   ///            recurrenceExceptionDates: [
@@ -504,7 +515,8 @@ class Appointment with Diagnosticable {
   ///
   /// DataSource _getCalendarDataSource() {
   ///    List<Appointment> appointments = <Appointment>[];
-  ///    RecurrenceProperties recurrence = new RecurrenceProperties();
+  ///    RecurrenceProperties recurrence =
+  ///       RecurrenceProperties(startDate: DateTime.now());
   ///    recurrence.recurrenceType = RecurrenceType.daily;
   ///    recurrence.interval = 2;
   ///    recurrence.recurrenceRange = RecurrenceRange.noEndDate;
@@ -521,7 +533,7 @@ class Appointment with Diagnosticable {
   ///            notes: '',
   ///            location: '',
   ///            endTimeZone: '',
-  ///            recurrenceRule: RecurrenceHelper.rRuleGenerator(
+  ///            recurrenceRule: SfCalendar.generateRRule(
   ///                recurrence, DateTime.now(), DateTime.now().add(
   ///                Duration(hours: 2))),
   ///            recurrenceExceptionDates: [
@@ -559,7 +571,8 @@ class Appointment with Diagnosticable {
   ///
   /// DataSource _getCalendarDataSource() {
   ///    List<Appointment> appointments = <Appointment>[];
-  ///    RecurrenceProperties recurrence = new RecurrenceProperties();
+  ///    RecurrenceProperties recurrence =
+  ///       RecurrenceProperties(startDate: DateTime.now());
   ///    recurrence.recurrenceType = RecurrenceType.daily;
   ///    recurrence.interval = 2;
   ///    recurrence.recurrenceRange = RecurrenceRange.noEndDate;
@@ -576,7 +589,7 @@ class Appointment with Diagnosticable {
   ///            notes: '',
   ///            location: '',
   ///            endTimeZone: '',
-  ///            recurrenceRule: RecurrenceHelper.rRuleGenerator(
+  ///            recurrenceRule: SfCalendar.generateRRule(
   ///                recurrence, DateTime.now(), DateTime.now().add(
   ///                Duration(hours: 2))),
   ///            recurrenceExceptionDates: [
@@ -648,7 +661,142 @@ class Appointment with Diagnosticable {
   /// ```
   List<Object>? resourceIds;
 
+  /// Defines the recurrence id for an [Appointment] in [SfCalendar],
+  /// The recurrence id is used to create an exception appointment
+  /// in a recurrence series.
+  ///
+  /// Defaults to null.
+  /// The [recurrenceId] of the exception appointment and the [id] of
+  /// the pattern appointment should be same. The [recurrenceId] should be
+  /// specified only for exception appointments. It is not required for
+  /// occurrence, and normal appointments.
+  ///
+  /// _Note:_ The exception appointment should be a normal appointment and
+  /// should not be created as recurring appointment, since its occurrence
+  /// from recurrence pattern.
+  ///
+  /// Exception recurrence appointment should not have a RRule. If the exception
+  /// appointment has RRule, it will not be considered.
+  ///
+  /// ```dart
+  ///AppointmentDataSource _getDataSource() {
+  ///  List<Appointment> appointments = <Appointment>[];
+  ///  final DateTime exceptionDate = DateTime(2021, 04, 20);
+  ///
+  ///  final Appointment recurrenceAppointment = Appointment(
+  ///    startTime: DateTime(2021, 04, 12, 10),
+  ///    endTime: DateTime(2021, 04, 12, 12),
+  ///    subject: 'Scrum meeting',
+  ///    id: '01',
+  ///    recurrenceRule: 'FREQ=DAILY;INTERVAL=1;COUNT=10',
+  ///    recurrenceExceptionDates: <DateTime>[exceptionDate],
+  ///  );
+  ///  appointments.add(recurrenceAppointment);
+  ///
+  ///  final Appointment exceptionAppointment = Appointment(
+  ///      startTime: exceptionDate.add(Duration(hours: 10)),
+  ///      endTime: exceptionDate.add(Duration(hours: 12)),
+  ///      subject: 'Meeting',
+  ///      id: '02',
+  ///      recurrenceId: recurrenceAppointment.id);
+  ///
+  ///  appointments.add(exceptionAppointment);
+  ///
+  ///  return AppointmentDataSource(appointments);
+  /// }
+  ///
+  /// ```
+  Object? recurrenceId;
+
+  /// Defines the id for an [Appointment] in [SfCalendar].
+  ///
+  /// The unique identifier for the appointment. It must be mentioned to add
+  /// an exception appointment to the recurrence series.
+  ///
+  /// Defaults to the hash code of the appointment.
+  /// [id] can be set to all the appointment types where the internally
+  /// created occurrence appointment will have the same [id] value as
+  /// the pattern appointment.
+  ///
+  /// The exception appointment should have the different [id] value compared
+  /// to the pattern appointment. But the [recurrenceId] of the exception
+  /// appointment and the [id] value of the pattern appointment should be same.
+  /// ```dart
+  /// AppointmentDataSource _getDataSource() {
+  ///     List<Appointment> appointments = <Appointment>[];
+  ///
+  ///     appointments.add(Appointment(
+  ///       startTime: DateTime(2021, 04, 12, 10),
+  ///       endTime: DateTime(2021, 04, 12, 12),
+  ///       subject: 'Scrum meeting',
+  ///       id: '01',
+  ///       recurrenceRule: 'FREQ=DAILY;INTERVAL=1;COUNT=10',
+  ///     ));
+  ///     appointments.add(Appointment(
+  ///       startTime: DateTime(2021, 04, 12, 16),
+  ///       endTime: DateTime(2021, 04, 12, 17),
+  ///       subject: 'Meeting',
+  ///       id: '02',
+  ///     ));
+  ///     appointments.add(Appointment(
+  ///       startTime: DateTime(2021, 04, 13, 09),
+  ///       endTime: DateTime(2021, 04, 13, 10),
+  ///       subject: 'Discussion',
+  ///     ));
+  ///
+  ///     return AppointmentDataSource(appointments);
+  ///   }
+  ///
+  /// ```
+  Object? id;
+
+  AppointmentType _appointmentType = AppointmentType.normal;
+
+  ///Specifies the appointment type, which is used to distinguish appointments
+  /// based on their functionality.
+  /// This is read-only.
+  /// Defines the appointment type for the [Appointment].
+  ///
+  /// Also refer: [AppointmentType].
+  ///
+  /// ``` dart
+  ///Widget build(BuildContext context) {
+  ///    return Container(
+  ///      child: SfCalendar(
+  ///        view: CalendarView.day,
+  ///        dataSource: dataSource,
+  ///               onTap: (CalendarTapDetails details){
+  ///                 for(int i=0; i<details.appointments.length; i++){
+  ///                   AppointmentType appointmentTpe =
+  ///                     details.appointments[i].appointmentType);
+  ///               },
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  ///  ```
+  AppointmentType get appointmentType => _appointmentType;
+
+  /// Here we used isOccurrenceAppointment keyword to identify the
+  /// occurrence appointment When we clone the pattern appointment for
+  /// occurrence appointment we have append the string in the notes and here we
+  /// identify based on the string and removed the appended string.
+  AppointmentType _getAppointmentType() {
+    if (recurrenceId != null) {
+      return AppointmentType.changedOccurrence;
+    } else if (recurrenceRule != null && recurrenceRule!.isNotEmpty) {
+      if (notes != null && notes!.contains('isOccurrenceAppointment')) {
+        notes = notes!.replaceAll('isOccurrenceAppointment', '');
+        return AppointmentType.occurrence;
+      }
+
+      return AppointmentType.pattern;
+    }
+    return AppointmentType.normal;
+  }
+
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(dynamic other) {
     if (identical(this, other)) {
       return true;
@@ -657,7 +805,10 @@ class Appointment with Diagnosticable {
       return false;
     }
 
-    final Appointment otherStyle = other;
+    late final Appointment otherStyle;
+    if (other is Appointment) {
+      otherStyle = other;
+    }
     return otherStyle.startTime == startTime &&
         otherStyle.endTime == endTime &&
         otherStyle.startTimeZone == startTimeZone &&
@@ -668,19 +819,26 @@ class Appointment with Diagnosticable {
         otherStyle.resourceIds == resourceIds &&
         otherStyle.subject == subject &&
         otherStyle.color == color &&
-        otherStyle.recurrenceExceptionDates == recurrenceExceptionDates;
+        otherStyle.recurrenceExceptionDates == recurrenceExceptionDates &&
+        otherStyle.recurrenceId == recurrenceId &&
+        otherStyle.id == id &&
+        otherStyle.appointmentType == appointmentType;
   }
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
     return hashValues(
       startTimeZone,
       endTimeZone,
       recurrenceRule,
-      isAllDay = false,
+      isAllDay,
       notes,
       location,
       hashList(resourceIds),
+      recurrenceId,
+      id,
+      appointmentType,
       startTime,
       endTime,
       subject,
@@ -699,6 +857,10 @@ class Appointment with Diagnosticable {
     properties.add(StringProperty('location', location));
     properties.add(StringProperty('subject', subject));
     properties.add(ColorProperty('color', color));
+    properties.add(DiagnosticsProperty<Object>('recurrenceId', recurrenceId));
+    properties.add(DiagnosticsProperty<Object>('id', id));
+    properties
+        .add(EnumProperty<AppointmentType>('appointmentType', appointmentType));
     properties.add(DiagnosticsProperty<DateTime>('startTime', startTime));
     properties.add(DiagnosticsProperty<DateTime>('endTime', endTime));
     properties.add(IterableDiagnostics<DateTime>(recurrenceExceptionDates)

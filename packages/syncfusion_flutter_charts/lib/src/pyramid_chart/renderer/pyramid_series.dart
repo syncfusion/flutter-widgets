@@ -6,6 +6,9 @@ class _PyramidSeriesBase<T, D> extends ChartSeries<T, D>
     this.key,
     this.onCreateRenderer,
     this.onRendererCreated,
+    this.onPointTap,
+    this.onPointDoubleTap,
+    this.onPointLongPress,
     this.dataSource,
     this.xValueMapper,
     this.yValueMapper,
@@ -27,8 +30,6 @@ class _PyramidSeriesBase<T, D> extends ChartSeries<T, D>
     DataLabelSettings? dataLabelSettings,
     double? animationDuration,
     double? opacity,
-    // ignore: deprecated_member_use_from_same_package
-    SelectionSettings? selectionSettings,
     SelectionBehavior? selectionBehavior,
     List<int>? initialSelectedDataIndexes,
   })  : height = height ?? '80%',
@@ -42,12 +43,10 @@ class _PyramidSeriesBase<T, D> extends ChartSeries<T, D>
         borderColor = borderColor ?? Colors.transparent,
         borderWidth = borderWidth ?? 0.0,
         legendIconType = legendIconType ?? LegendIconType.seriesType,
-        dataLabelSettings = dataLabelSettings ?? DataLabelSettings(),
+        dataLabelSettings = dataLabelSettings ?? const DataLabelSettings(),
         animationDuration = animationDuration ?? 1500,
         opacity = opacity ?? 1,
         initialSelectedDataIndexes = initialSelectedDataIndexes ?? <int>[],
-        // ignore: deprecated_member_use_from_same_package
-        selectionSettings = selectionSettings ?? SelectionSettings(),
         selectionBehavior = selectionBehavior ?? SelectionBehavior(),
         super(
             name: name,
@@ -428,25 +427,6 @@ class _PyramidSeriesBase<T, D> extends ChartSeries<T, D>
   ///    return Container(
   ///        child: SfPyramidChart(
   ///            series: PyramidSeries<ChartData, String>(
-  ///               selectionSettings: SelectionSettings(
-  ///                    selectedColor: Colors.red,
-  ///                    unselectedColor: Colors.grey
-  ///                  ),
-  ///             )
-  ///        ));
-  ///}
-  ///```
-  @override
-  // ignore: deprecated_member_use_from_same_package
-  final SelectionSettings selectionSettings;
-
-  ///Customizes the selection of series.
-  ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfPyramidChart(
-  ///            series: PyramidSeries<ChartData, String>(
   ///               selectionBehavior: SelectionBehavior(
   ///                    selectedColor: Colors.red,
   ///                    unselectedColor: Colors.grey
@@ -579,10 +559,73 @@ class _PyramidSeriesBase<T, D> extends ChartSeries<T, D>
   ///```
   final PyramidSeriesRendererCreatedCallback? onRendererCreated;
 
+  ///Called when tapped on the chart data point.
+  ///
+  ///The user can fetch the series index, point index, viewport point index and
+  /// data of the tapped data point.
+  ///```dart
+  ///Widget build(BuildContext context) {
+  ///    ChartSeriesController _chartSeriesController;
+  ///    return Container(
+  ///        child: SfCartesianChart(
+  ///            series: <LineSeries<SalesData, num>>[
+  ///                LineSeries<SalesData, num>(
+  ///                    onPointTap: (ChartPointDetails details) {
+  ///                       print(details.pointIndex);
+  ///                    },
+  ///                ),
+  ///              ],
+  ///        ));
+  ///}
+  ///```
+  final ChartPointInteractionCallback? onPointTap;
+
+  ///Called when double tapped on the chart data point.
+  ///
+  ///The user can fetch the series index, point index, viewport point index and
+  /// data of the double-tapped data point.
+  ///```dart
+  ///Widget build(BuildContext context) {
+  ///    ChartSeriesController _chartSeriesController;
+  ///    return Container(
+  ///        child: SfCartesianChart(
+  ///            series: <LineSeries<SalesData, num>>[
+  ///                LineSeries<SalesData, num>(
+  ///                    onPointDoubleTap: (ChartPointDetails details) {
+  ///                       print(details.pointIndex);
+  ///                    },
+  ///                ),
+  ///              ],
+  ///        ));
+  ///}
+  ///```
+  final ChartPointInteractionCallback? onPointDoubleTap;
+
+  ///Called when long pressed on the chart data point.
+  ///
+  ///The user can fetch the series index, point index, viewport point index and
+  /// data of the long-pressed data point.
+  ///```dart
+  ///Widget build(BuildContext context) {
+  ///    ChartSeriesController _chartSeriesController;
+  ///    return Container(
+  ///        child: SfCartesianChart(
+  ///            series: <LineSeries<SalesData, num>>[
+  ///                LineSeries<SalesData, num>(
+  ///                    onPointLongPress: (ChartPointDetails details) {
+  ///                       print(details.pointIndex);
+  ///                    },
+  ///                ),
+  ///              ],
+  ///        ));
+  ///}
+  ///```
+  final ChartPointInteractionCallback? onPointLongPress;
+
   @override
   void calculateEmptyPointValue(
       int pointIndex, dynamic currentPoint, dynamic seriesRenderer) {
-    final List<dynamic> dataPoints = seriesRenderer._dataPoints;
+    final List<PointInfo<dynamic>> dataPoints = seriesRenderer._dataPoints;
     final EmptyPointSettings empty = emptyPointSettings;
     final int pointLength = dataPoints.length;
     final PointInfo<dynamic> point = dataPoints[pointIndex];
@@ -619,12 +662,16 @@ class _PyramidSeriesBase<T, D> extends ChartSeries<T, D>
 ///
 /// Provides the property of color, [opacity], border color and border width for customizing the appearance.
 ///
+@immutable
 class PyramidSeries<T, D> extends _PyramidSeriesBase<T, D> {
   /// Creating an argument constructor of PyramidSeries class.
   PyramidSeries({
     ValueKey<String>? key,
     ChartSeriesRendererFactory<T, D>? onCreateRenderer,
     PyramidSeriesRendererCreatedCallback? onRendererCreated,
+    ChartPointInteractionCallback? onPointTap,
+    ChartPointInteractionCallback? onPointDoubleTap,
+    ChartPointInteractionCallback? onPointLongPress,
     List<T>? dataSource,
     ChartValueMapper<T, D>? xValueMapper,
     ChartValueMapper<T, num>? yValueMapper,
@@ -646,14 +693,15 @@ class PyramidSeries<T, D> extends _PyramidSeriesBase<T, D> {
     num? explodeIndex,
     ActivationMode? explodeGesture,
     String? explodeOffset,
-    // ignore: deprecated_member_use_from_same_package
-    SelectionSettings? selectionSettings,
     SelectionBehavior? selectionBehavior,
     List<int>? initialSelectedDataIndexes,
   }) : super(
           key: key,
           onCreateRenderer: onCreateRenderer,
           onRendererCreated: onRendererCreated,
+          onPointTap: onPointTap,
+          onPointDoubleTap: onPointDoubleTap,
+          onPointLongPress: onPointLongPress,
           dataSource: dataSource,
           xValueMapper: (int index) => xValueMapper!(dataSource![index], index),
           yValueMapper: (int index) => yValueMapper!(dataSource![index], index),
@@ -679,7 +727,6 @@ class PyramidSeries<T, D> extends _PyramidSeriesBase<T, D> {
           explodeIndex: explodeIndex,
           explodeOffset: explodeOffset,
           explodeGesture: explodeGesture,
-          selectionSettings: selectionSettings,
           selectionBehavior: selectionBehavior,
           initialSelectedDataIndexes: initialSelectedDataIndexes,
         );
@@ -695,6 +742,82 @@ class PyramidSeries<T, D> extends _PyramidSeriesBase<T, D> {
       return seriesRenderer;
     }
     return PyramidSeriesRenderer();
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is PyramidSeries &&
+        other.onCreateRenderer == onCreateRenderer &&
+        other.onRendererCreated == onRendererCreated &&
+        other.onPointTap == onPointTap &&
+        other.onPointDoubleTap == onPointDoubleTap &&
+        other.onPointLongPress == onPointLongPress &&
+        other.dataSource == dataSource &&
+        other.xValueMapper == xValueMapper &&
+        other.yValueMapper == yValueMapper &&
+        other.pointColorMapper == pointColorMapper &&
+        other.textFieldMapper == textFieldMapper &&
+        other.name == name &&
+        other.height == height &&
+        other.width == width &&
+        other.pyramidMode == pyramidMode &&
+        other.gapRatio == gapRatio &&
+        other.legendIconType == legendIconType &&
+        other.emptyPointSettings == emptyPointSettings &&
+        other.dataLabelSettings == dataLabelSettings &&
+        other.animationDuration == animationDuration &&
+        other.opacity == opacity &&
+        other.borderColor == borderColor &&
+        other.borderWidth == borderWidth &&
+        other.explode == explode &&
+        other.explodeIndex == explodeIndex &&
+        other.explodeGesture == explodeGesture &&
+        other.explodeOffset == explodeOffset &&
+        other.selectionBehavior == selectionBehavior &&
+        listEquals(
+            other.initialSelectedDataIndexes, initialSelectedDataIndexes);
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      onCreateRenderer,
+      onRendererCreated,
+      onPointTap,
+      onPointDoubleTap,
+      onPointLongPress,
+      dataSource,
+      xValueMapper,
+      yValueMapper,
+      pointColorMapper,
+      textFieldMapper,
+      name,
+      height,
+      width,
+      pyramidMode,
+      gapRatio,
+      legendIconType,
+      emptyPointSettings,
+      dataLabelSettings,
+      animationDuration,
+      opacity,
+      borderColor,
+      borderWidth,
+      explode,
+      explodeIndex,
+      explodeGesture,
+      explodeOffset,
+      selectionBehavior,
+      initialSelectedDataIndexes
+    ];
+    return hashList(values);
   }
 }
 
@@ -721,30 +844,31 @@ class _PyramidChartPainter extends CustomPainter {
     seriesRenderer =
         chartState._chartSeries.visibleSeriesRenderers[seriesIndex];
 
+    double animationFactor, factor, height;
     for (int pointIndex = 0;
         pointIndex < seriesRenderer._renderPoints!.length;
         pointIndex++) {
       if (seriesRenderer._renderPoints![pointIndex].isVisible) {
-        final double animationFactor =
-            seriesAnimation != null ? seriesAnimation!.value : 1;
+        animationFactor = seriesAnimation != null ? seriesAnimation!.value : 1;
         if (seriesRenderer._series.animationDuration > 0 &&
-            !chartState._isLegendToggled) {
-          final double factor = (chartState._chartAreaRect.top +
-                  chartState._chartAreaRect.height) -
+            !chartState._renderingDetails.isLegendToggled) {
+          factor = (chartState._renderingDetails.chartAreaRect.top +
+                  chartState._renderingDetails.chartAreaRect.height) -
               animationFactor *
-                  (chartState._chartAreaRect.top +
-                      chartState._chartAreaRect.height);
-          final double height = chartState._chartAreaRect.top +
-              chartState._chartAreaRect.height -
+                  (chartState._renderingDetails.chartAreaRect.top +
+                      chartState._renderingDetails.chartAreaRect.height);
+          height = chartState._renderingDetails.chartAreaRect.top +
+              chartState._renderingDetails.chartAreaRect.height -
               factor;
           canvas.clipRect(Rect.fromLTRB(
               0,
-              chartState._chartAreaRect.top +
-                  chartState._chartAreaRect.height -
+              chartState._renderingDetails.chartAreaRect.top +
+                  chartState._renderingDetails.chartAreaRect.height -
                   height,
-              chartState._chartAreaRect.left + chartState._chartAreaRect.width,
-              chartState._chartAreaRect.top +
-                  chartState._chartAreaRect.height));
+              chartState._renderingDetails.chartAreaRect.left +
+                  chartState._renderingDetails.chartAreaRect.width,
+              chartState._renderingDetails.chartAreaRect.top +
+                  chartState._renderingDetails.chartAreaRect.height));
         }
         chartState._chartSeries
             ._calculatePyramidSegments(canvas, pointIndex, seriesRenderer);
@@ -781,10 +905,6 @@ class PyramidSeriesRenderer extends ChartSeriesRenderer {
   // ignore: prefer_final_fields
   bool _isSelectionEnable = false;
 }
-
-/// Called when the pyramid series is created
-typedef PyramidSeriesRendererCreatedCallback = void Function(
-    PyramidSeriesController controller);
 
 ///We can redraw the series with updating or creating new points by using this controller.If we need to access the redrawing methods
 ///in this before we must get the ChartSeriesController onRendererCreated event.
@@ -888,8 +1008,9 @@ class PyramidSeriesController {
 
   /// Add or update the data points on dynamic series update
   void _addOrUpdateDataPoints(List<int> indexes, bool needUpdate) {
+    int dataIndex;
     for (int i = 0; i < indexes.length; i++) {
-      final int dataIndex = indexes[i];
+      dataIndex = indexes[i];
       _addOrUpdateDataPoint(dataIndex, needUpdate);
     }
   }
@@ -925,8 +1046,9 @@ class PyramidSeriesController {
     ///Remove the redudant index from the list
     final List<int> indexList = removedDataIndexes.toSet().toList();
     indexList.sort((int b, int a) => a.compareTo(b));
+    int dataIndex;
     for (int i = 0; i < indexList.length; i++) {
-      final int dataIndex = indexList[i];
+      dataIndex = indexList[i];
       _removeDataPoint(dataIndex);
     }
   }
@@ -951,10 +1073,10 @@ class PyramidSeriesController {
       _chartState._renderDataLabel!.state?.render();
     }
     if (seriesRenderer._series.dataLabelSettings.isVisible &&
-        _chartState._chartTemplate != null &&
+        _chartState._renderingDetails.chartTemplate != null &&
         // ignore: unnecessary_null_comparison
-        _chartState._chartTemplate!.state != null) {
-      _chartState._chartTemplate!.state.templateRender();
+        _chartState._renderingDetails.chartTemplate!.state != null) {
+      _chartState._renderingDetails.chartTemplate!.state.templateRender();
     }
   }
 }

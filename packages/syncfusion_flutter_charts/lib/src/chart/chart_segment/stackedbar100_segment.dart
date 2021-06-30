@@ -9,8 +9,6 @@ part of charts;
 class StackedBar100Segment extends ChartSegment {
   /// staked value of the segment
   late double stackValues;
-  // @override
-  // CartesianChartPoint<dynamic> _currentPoint;
 
   ///Render path.
   late Path _path;

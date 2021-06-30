@@ -8,6 +8,8 @@ part of charts;
 /// to plot a point.
 ///
 /// Provide the options for color, opacity, border color, and border width to customize the appearance.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=zhcxdh4-Jt8}
 class LineSeries<T, D> extends XyDataSeries<T, D> {
   /// Creating an argument constructor of LineSeries class.
   LineSeries(
@@ -32,8 +34,6 @@ class LineSeries<T, D> extends XyDataSeries<T, D> {
       bool? enableTooltip,
       List<double>? dashArray,
       double? animationDuration,
-      // ignore: deprecated_member_use_from_same_package
-      SelectionSettings? selectionSettings,
       SelectionBehavior? selectionBehavior,
       bool? isVisibleInLegend,
       LegendIconType? legendIconType,
@@ -41,11 +41,17 @@ class LineSeries<T, D> extends XyDataSeries<T, D> {
       String? legendItemText,
       double? opacity,
       List<int>? initialSelectedDataIndexes,
-      SeriesRendererCreatedCallback? onRendererCreated})
+      SeriesRendererCreatedCallback? onRendererCreated,
+      ChartPointInteractionCallback? onPointTap,
+      ChartPointInteractionCallback? onPointDoubleTap,
+      ChartPointInteractionCallback? onPointLongPress})
       : super(
             key: key,
             onRendererCreated: onRendererCreated,
             onCreateRenderer: onCreateRenderer,
+            onPointTap: onPointTap,
+            onPointDoubleTap: onPointDoubleTap,
+            onPointLongPress: onPointLongPress,
             name: name,
             xValueMapper: xValueMapper,
             yValueMapper: yValueMapper,
@@ -65,7 +71,6 @@ class LineSeries<T, D> extends XyDataSeries<T, D> {
             enableTooltip: enableTooltip,
             dashArray: dashArray,
             animationDuration: animationDuration,
-            selectionSettings: selectionSettings,
             selectionBehavior: selectionBehavior,
             legendItemText: legendItemText,
             isVisibleInLegend: isVisibleInLegend,
@@ -85,6 +90,93 @@ class LineSeries<T, D> extends XyDataSeries<T, D> {
       return seriesRenderer;
     }
     return LineSeriesRenderer();
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is LineSeries &&
+        other.key == key &&
+        other.onCreateRenderer == onCreateRenderer &&
+        other.dataSource == dataSource &&
+        other.xValueMapper == xValueMapper &&
+        other.yValueMapper == yValueMapper &&
+        other.sortFieldValueMapper == sortFieldValueMapper &&
+        other.dataLabelMapper == dataLabelMapper &&
+        other.pointColorMapper == pointColorMapper &&
+        other.sortingOrder == sortingOrder &&
+        other.xAxisName == xAxisName &&
+        other.yAxisName == yAxisName &&
+        other.name == name &&
+        other.color == color &&
+        other.width == width &&
+        other.markerSettings == markerSettings &&
+        other.emptyPointSettings == emptyPointSettings &&
+        other.dataLabelSettings == dataLabelSettings &&
+        other.trendlines == trendlines &&
+        other.isVisible == isVisible &&
+        other.enableTooltip == enableTooltip &&
+        other.dashArray == dashArray &&
+        other.animationDuration == animationDuration &&
+        other.gradient == gradient &&
+        other.selectionBehavior == selectionBehavior &&
+        other.isVisibleInLegend == isVisibleInLegend &&
+        other.legendIconType == legendIconType &&
+        other.legendItemText == legendItemText &&
+        other.opacity == opacity &&
+        other.onRendererCreated == onRendererCreated &&
+        other.onPointTap == onPointTap &&
+        other.onPointDoubleTap == onPointDoubleTap &&
+        other.onPointLongPress == onPointLongPress &&
+        other.initialSelectedDataIndexes == initialSelectedDataIndexes;
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      key,
+      onCreateRenderer,
+      dataSource,
+      xValueMapper,
+      yValueMapper,
+      sortFieldValueMapper,
+      dataLabelMapper,
+      pointColorMapper,
+      sortingOrder,
+      xAxisName,
+      yAxisName,
+      name,
+      color,
+      width,
+      markerSettings,
+      emptyPointSettings,
+      dataLabelSettings,
+      trendlines,
+      isVisible,
+      enableTooltip,
+      dashArray,
+      animationDuration,
+      gradient,
+      selectionBehavior,
+      isVisibleInLegend,
+      legendIconType,
+      legendItemText,
+      opacity,
+      onRendererCreated,
+      initialSelectedDataIndexes,
+      onPointTap,
+      onPointDoubleTap,
+      onPointLongPress
+    ];
+    return hashList(values);
   }
 }
 
@@ -106,7 +198,7 @@ class LineSeriesRenderer extends XyDataSeriesRenderer {
       double animateFactor) {
     _segment = createSegment();
     _oldSeriesRenderers = _chartState!._oldSeriesRenderers;
-    _segment._series = _series as XyDataSeries;
+    _segment._series = _series as XyDataSeries<dynamic, dynamic>;
     _segment._seriesRenderer = this;
     _segment._seriesIndex = seriesIndex;
     _segment._currentPoint = currentPoint;
@@ -116,7 +208,7 @@ class LineSeriesRenderer extends XyDataSeriesRenderer {
     _segment._chartState = _chartState!;
     _segment.animationFactor = animateFactor;
     _segment._pointColorMapper = currentPoint.pointColorMapper;
-    if (_chartState!._widgetNeedUpdate &&
+    if (_renderingDetails!.widgetNeedUpdate &&
         _oldSeriesRenderers != null &&
         _oldSeriesRenderers!.isNotEmpty &&
         _oldSeriesRenderers!.length - 1 >= _segment._seriesIndex &&

@@ -4,6 +4,8 @@
 
 Flutter PDF is a feature-rich and high-performance non-UI PDF library written natively in Dart. It allows you to add robust PDF functionalities to Flutter applications.
 
+See an interactive demo here: https://flutter.syncfusion.com/#/pdf/invoice
+
 ## Overview
 
 The PDF package is a non-UI, reusable Flutter library for creating PDF reports programmatically with formatted text, images, shapes, tables, links, lists, headers, footers, and more. The library can be used to create, read, edit, and secure PDF documents in Flutter mobile and web platforms without dependency on Adobe Acrobat. The creation of a PDF follows the most popular PDF 1.7 (ISO 32000-1) and latest PDF 2.0 (ISO 32000-2) specifications.
@@ -60,12 +62,17 @@ The following are the key features of Syncfusion Flutter PDF:
 Explore the full capability of our Flutter widgets on your device by installing our sample browser application from the following app stores and viewing the sample code in GitHub.
 
 <p align="center">
-  <a href="https://play.google.com/store/apps/details?id=com.syncfusion.flutter.examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/google-play.png"/></a>
-  <a href="https://apps.apple.com/us/app/syncfusion-flutter-ui-widgets/id1475231341"><img src="https://cdn.syncfusion.com/content/images/FTControl/apple-button.png"/></a>
+  <a href="https://play.google.com/store/apps/details?id=com.syncfusion.flutter.examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/google-play-store.png"/></a>
+  <a href="https://apps.apple.com/us/app/syncfusion-flutter-ui-widgets/id1475231341"><img src="https://cdn.syncfusion.com/content/images/FTControl/ios-store.png"/></a>
+  <a href="https://flutter.syncfusion.com"><img src="https://cdn.syncfusion.com/content/images/FTControl/web-sample-browser.png"/></a> 
 </p>
 <p align="center">
-  <a href="https://github.com/syncfusion/flutter-examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/GitHub.png"/></a>
-  <a href="https://flutter.syncfusion.com"><img src="https://cdn.syncfusion.com/content/images/FTControl/web_sample_browser.png"/></a>  
+  <a href="https://www.microsoft.com/en-us/p/syncfusion-flutter-gallery/9nhnbwcsf85d?activetab=pivot:overviewtab"><img src="https://cdn.syncfusion.com/content/images/FTControl/windows-store.png"/></a> 
+  <a href="https://install.appcenter.ms/orgs/syncfusion-demos/apps/syncfusion-flutter-gallery/distribution_groups/release"><img src="https://cdn.syncfusion.com/content/images/FTControl/macos-app-center.png"/></a>
+  <a href="https://snapcraft.io/syncfusion-flutter-gallery"><img src="https://cdn.syncfusion.com/content/images/FTControl/snap-store.png"/></a>
+</p>
+<p align="center">
+  <a href="https://github.com/syncfusion/flutter-examples"><img src="https://cdn.syncfusion.com/content/images/FTControl/github-samples.png"/></a>
 </p>
 
 ## Other useful links
@@ -590,7 +597,7 @@ File('output.pdf').writeAsBytesSync(document.save());
 document.dispose();
 ```
 
-Refer to our [documentation](https://help.syncfusion.com/flutter/pdf/overview) for more details.
+Refer to our [documentation](https://help.syncfusion.com/flutter/pdf/working-with-forms) for more details.
 
 ### Digital signature
 
@@ -642,7 +649,7 @@ File('output.pdf').writeAsBytesSync(document.save());
 document.dispose();
 ```
 
-Refer to our [documentation](https://help.syncfusion.com/flutter/pdf/overview) for more details.
+Refer to our [documentation](https://help.syncfusion.com/flutter/pdf/working-with-digital-signature) for more details.
 
 
 ## Support and feedback

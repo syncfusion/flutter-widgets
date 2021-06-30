@@ -16,7 +16,7 @@ import '../sfcalendar.dart';
 class AllDayAppointmentLayout extends StatefulWidget {
   /// Constructor to create the all day appointment layout that holds the
   /// all day appointment views in calendar widget.
-  AllDayAppointmentLayout(
+  const AllDayAppointmentLayout(
       this.calendar,
       this.view,
       this.visibleDates,
@@ -116,7 +116,7 @@ class _AllDayAppointmentLayoutState extends State<AllDayAppointmentLayout> {
 
   /// It holds the children of the widget, it holds empty when
   /// appointment builder is null.
-  List<Widget> _children = <Widget>[];
+  final List<Widget> _children = <Widget>[];
 
   @override
   void initState() {
@@ -167,9 +167,9 @@ class _AllDayAppointmentLayoutState extends State<AllDayAppointmentLayout> {
             context,
             CalendarAppointmentDetails(
                 date,
-                List.unmodifiable([
-                  appointmentView.appointment!.data ??
-                      appointmentView.appointment!
+                List<dynamic>.unmodifiable(<dynamic>[
+                  CalendarViewHelper.getAppointmentDetail(
+                      appointmentView.appointment!)
                 ]),
                 Rect.fromLTWH(
                     appointmentView.appointmentRect!.left,
@@ -212,7 +212,7 @@ class _AllDayAppointmentLayoutState extends State<AllDayAppointmentLayout> {
             context,
             CalendarAppointmentDetails(
                 date,
-                List.unmodifiable(
+                List<dynamic>.unmodifiable(
                     CalendarViewHelper.getCustomAppointments(moreAppointments)),
                 Rect.fromLTWH(
                     widget.isRTL
@@ -266,7 +266,6 @@ class _AllDayAppointmentLayoutState extends State<AllDayAppointmentLayout> {
         _updateCalendarStateDetails.allDayAppointmentViewCollection;
     final double cellWidth =
         (widget.width - widget.timeLabelWidth) / widget.visibleDates.length;
-    final double cellEndPadding = widget.calendar.cellEndPadding;
     const double cornerRadius = (kAllDayAppointmentHeight * 0.1) > 2
         ? 2
         : kAllDayAppointmentHeight * 0.1;
@@ -285,7 +284,7 @@ class _AllDayAppointmentLayoutState extends State<AllDayAppointmentLayout> {
             Rect.fromLTRB(
                 ((widget.visibleDates.length - appointmentView.endIndex) *
                         cellWidth) +
-                    cellEndPadding,
+                    widget.calendar.cellEndPadding,
                 (kAllDayAppointmentHeight * appointmentView.position)
                     .toDouble(),
                 (widget.visibleDates.length - appointmentView.startIndex) *
@@ -304,7 +303,7 @@ class _AllDayAppointmentLayoutState extends State<AllDayAppointmentLayout> {
                     .toDouble(),
                 (appointmentView.endIndex * cellWidth) +
                     widget.timeLabelWidth -
-                    cellEndPadding,
+                    widget.calendar.cellEndPadding,
                 ((kAllDayAppointmentHeight * appointmentView.position) +
                         kAllDayAppointmentHeight -
                         1)
@@ -506,8 +505,7 @@ class _AllDayAppointmentRenderWidget extends MultiChildRenderObjectWidget {
   }
 }
 
-class _AllDayAppointmentRenderObject extends RenderBox
-    with ContainerRenderObjectMixin<RenderBox, CalendarParentData> {
+class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
   _AllDayAppointmentRenderObject(
       this.calendar,
       this._view,
@@ -763,25 +761,18 @@ class _AllDayAppointmentRenderObject extends RenderBox
   /// Ref: assembleSemanticsNode method in RenderParagraph class
   /// (https://github.com/flutter/flutter/blob/master/packages/flutter/lib/src/rendering/paragraph.dart)
   List<SemanticsNode>? _cacheNodes;
-  Paint _rectPainter = Paint();
-  TextPainter _textPainter = TextPainter(
+  final Paint _rectPainter = Paint();
+  final TextPainter _textPainter = TextPainter(
       textDirection: TextDirection.ltr,
       maxLines: 1,
       textAlign: TextAlign.left,
       textWidthBasis: TextWidthBasis.longestLine);
-  TextPainter _expanderTextPainter = TextPainter(
+  final TextPainter _expanderTextPainter = TextPainter(
       textDirection: TextDirection.ltr, textAlign: TextAlign.left, maxLines: 1);
   late BoxPainter _boxPainter;
   bool _isHoveringAppointment = false;
   int _maxPosition = 0;
   double _cellWidth = 0;
-
-  @override
-  void setupParentData(RenderObject child) {
-    if (child.parentData is! CalendarParentData) {
-      child.parentData = CalendarParentData();
-    }
-  }
 
   /// attach will called when the render object rendered in view.
   @override
@@ -794,6 +785,86 @@ class _AllDayAppointmentRenderObject extends RenderBox
   @override
   bool hitTestSelf(Offset position) {
     return true;
+  }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
+    RenderBox? child = firstChild;
+    if (child == null) {
+      return false;
+    }
+
+    final int maxPosition = allDayPainterHeight ~/ kAllDayAppointmentHeight;
+    final double maximumBottomPosition =
+        allDayPainterHeight - kAllDayAppointmentHeight;
+    for (int i = 0; i < appointmentCollection.length; i++) {
+      final AppointmentView appointmentView = appointmentCollection[i];
+      if (appointmentView.appointment == null ||
+          child == null ||
+          appointmentView.appointmentRect == null) {
+        continue;
+      }
+
+      final RRect appointmentRect = appointmentView.appointmentRect!;
+      if (!isRTL &&
+          (appointmentRect.left < timeLabelWidth - 1 ||
+              appointmentRect.right > size.width + 1 ||
+              (appointmentRect.bottom > maximumBottomPosition &&
+                  appointmentView.maxPositions > maxPosition))) {
+        child = childAfter(child);
+        continue;
+      } else if (isRTL &&
+          (appointmentRect.right > size.width - timeLabelWidth + 1 ||
+              appointmentRect.left < 0 ||
+              (appointmentRect.bottom > maximumBottomPosition &&
+                  appointmentView.maxPositions > maxPosition))) {
+        child = childAfter(child);
+        continue;
+      }
+
+      final Offset offset = Offset(appointmentRect.left, appointmentRect.top);
+      final bool isHit = result.addWithPaintOffset(
+        offset: offset,
+        position: position,
+        hitTest: (BoxHitTestResult result, Offset? transformed) {
+          assert(transformed == position - offset);
+          return child!.hitTest(result, position: transformed!);
+        },
+      );
+      if (isHit) {
+        return true;
+      }
+      child = childAfter(child);
+    }
+
+    _cellWidth = (size.width - timeLabelWidth) / visibleDates.length;
+    final List<int> keys = moreAppointmentIndex.keys.toList();
+    for (int i = 0; i < keys.length; i++) {
+      if (child == null) {
+        continue;
+      }
+
+      final int index = keys[i];
+      final double leftPosition = isRTL
+          ? ((visibleDates.length - index - 1) * _cellWidth) +
+              calendar.cellEndPadding
+          : timeLabelWidth + (index * _cellWidth);
+      final Offset offset = Offset(leftPosition, maximumBottomPosition);
+      final bool isHit = result.addWithPaintOffset(
+        offset: offset,
+        position: position,
+        hitTest: (BoxHitTestResult result, Offset? transformed) {
+          assert(transformed == position - offset);
+          return child!.hitTest(result, position: transformed!);
+        },
+      );
+      if (isHit) {
+        return true;
+      }
+      child = childAfter(child);
+    }
+
+    return false;
   }
 
   /// detach will called when the render object removed from view.
@@ -843,11 +914,15 @@ class _AllDayAppointmentRenderObject extends RenderBox
           maxHeight: appointmentRect.height,
           minWidth: appointmentRect.width,
           maxWidth: appointmentRect.width));
+      final CalendarParentData childParentData =
+          child.parentData! as CalendarParentData;
+      childParentData.offset =
+          Offset(appointmentRect.left, appointmentRect.top);
       child = childAfter(child);
     }
 
     _cellWidth = (size.width - timeLabelWidth) / visibleDates.length;
-    final double appointmentHeight = kAllDayAppointmentHeight - 1;
+    const double appointmentHeight = kAllDayAppointmentHeight - 1;
     final double maxAppointmentWidth = _cellWidth - calendar.cellEndPadding;
     final List<int> keys = moreAppointmentIndex.keys.toList();
     for (int i = 0; i < keys.length; i++) {
@@ -860,6 +935,14 @@ class _AllDayAppointmentRenderObject extends RenderBox
           maxHeight: appointmentHeight,
           minWidth: maxAppointmentWidth,
           maxWidth: maxAppointmentWidth));
+      final CalendarParentData childParentData =
+          child.parentData! as CalendarParentData;
+      final int index = keys[i];
+      final double leftPosition = isRTL
+          ? ((visibleDates.length - index - 1) * _cellWidth) +
+              calendar.cellEndPadding
+          : timeLabelWidth + (index * _cellWidth);
+      childParentData.offset = Offset(leftPosition, maximumBottomPosition);
       child = childAfter(child);
     }
   }
@@ -886,7 +969,6 @@ class _AllDayAppointmentRenderObject extends RenderBox
     _rectPainter.isAntiAlias = true;
     _cellWidth = (size.width - timeLabelWidth) / visibleDates.length;
     const double textPadding = 3;
-    final double cellEndPadding = calendar.cellEndPadding;
     _maxPosition = 0;
     if (appointmentCollection.isNotEmpty) {
       _maxPosition = appointmentCollection
@@ -935,7 +1017,7 @@ class _AllDayAppointmentRenderObject extends RenderBox
       }
 
       if (child != null) {
-        child.paint(context, Offset(rect.left, rect.top));
+        context.paintChild(child, Offset(rect.left, rect.top));
         child = childAfter(child);
       } else {
         final CalendarAppointment appointment = appointmentView.appointment!;
@@ -973,8 +1055,8 @@ class _AllDayAppointmentRenderObject extends RenderBox
               visibleDates[visibleDates.length - 1]);
           double? iconSize = _getTextSize(
               rect,
-              (calendar.appointmentTextStyle.fontSize! *
-                  _textPainter.textScaleFactor));
+              calendar.appointmentTextStyle.fontSize! *
+                  _textPainter.textScaleFactor);
           if (AppointmentHelper.canAddForwardSpanIcon(
               appStartTime, appEndTime, viewStartDate, viewEndDate)) {
             canAddForwardIcon = true;
@@ -1000,9 +1082,12 @@ class _AllDayAppointmentRenderObject extends RenderBox
             context.canvas,
             Offset(
                 xPosition, rect.top + (rect.height - _textPainter.height) / 2));
-        if (appointment.recurrenceRule != null &&
-            appointment.recurrenceRule!.isNotEmpty) {
-          _addRecurrenceIcon(context.canvas, rect, textPadding);
+        final bool isRecurrenceAppointment =
+            appointment.recurrenceRule != null &&
+                appointment.recurrenceRule!.isNotEmpty;
+        if (isRecurrenceAppointment || appointment.recurrenceId != null) {
+          _addRecurrenceIcon(
+              context.canvas, rect, textPadding, isRecurrenceAppointment);
         }
 
         if (canAddSpanIcon) {
@@ -1025,6 +1110,7 @@ class _AllDayAppointmentRenderObject extends RenderBox
 
       if (selectionNotifier.value != null &&
           selectionNotifier.value!.appointmentView != null &&
+          selectionNotifier.value!.appointmentView == appointmentView &&
           selectionNotifier.value!.appointmentView!.appointment != null &&
           selectionNotifier.value!.appointmentView!.appointment ==
               appointmentView.appointment) {
@@ -1034,7 +1120,7 @@ class _AllDayAppointmentRenderObject extends RenderBox
 
     if (selectionNotifier.value != null &&
         selectionNotifier.value!.selectedDate != null) {
-      _addSelectionForAllDayPanel(context.canvas, size, cellEndPadding);
+      _addSelectionForAllDayPanel(context.canvas, size);
     }
 
     if (isExpandable && _maxPosition > position && !isExpanding) {
@@ -1049,9 +1135,9 @@ class _AllDayAppointmentRenderObject extends RenderBox
 
           final double xPosition = isRTL
               ? ((visibleDates.length - index - 1) * _cellWidth) +
-                  cellEndPadding
+                  calendar.cellEndPadding
               : timeLabelWidth + (index * _cellWidth);
-          child.paint(context, Offset(xPosition, endYPosition));
+          context.paintChild(child, Offset(xPosition, endYPosition));
           child = childAfter(child);
         }
       } else {
@@ -1094,7 +1180,7 @@ class _AllDayAppointmentRenderObject extends RenderBox
     final double textSize =
         _getTextSize(rect, calendar.appointmentTextStyle.fontSize!);
     final TextSpan icon = AppointmentHelper.getSpanIcon(
-        calendar.appointmentTextStyle.color!, textSize, isRTL ? false : true);
+        calendar.appointmentTextStyle.color!, textSize, !isRTL);
     final double leftPadding = isMobilePlatform ? 1 : 2;
     _textPainter.text = icon;
     _textPainter.layout(
@@ -1125,7 +1211,7 @@ class _AllDayAppointmentRenderObject extends RenderBox
     final double textSize =
         _getTextSize(rect, calendar.appointmentTextStyle.fontSize!);
     final TextSpan icon = AppointmentHelper.getSpanIcon(
-        calendar.appointmentTextStyle.color!, textSize, isRTL ? true : false);
+        calendar.appointmentTextStyle.color!, textSize, isRTL);
     final double leftPadding = isMobilePlatform ? 1 : 2;
     _textPainter.text = icon;
     _textPainter.layout(
@@ -1226,8 +1312,7 @@ class _AllDayAppointmentRenderObject extends RenderBox
         Rect.fromLTWH(leftPosition, 0, _cellWidth, size.height), _rectPainter);
   }
 
-  void _addSelectionForAllDayPanel(
-      Canvas canvas, Size size, double appointmentEndPadding) {
+  void _addSelectionForAllDayPanel(Canvas canvas, Size size) {
     final int index = DateTimeHelper.getIndex(
         visibleDates, selectionNotifier.value!.selectedDate!);
     Decoration? selectionDecoration = calendar.selectionDecoration;
@@ -1267,13 +1352,13 @@ class _AllDayAppointmentRenderObject extends RenderBox
     double xValue = timeLabelWidth + (index * _cellWidth);
     if (isRTL) {
       xValue = size.width - xValue - _cellWidth;
-      rect = Rect.fromLTRB(xValue + appointmentEndPadding, 0,
+      rect = Rect.fromLTRB(xValue + calendar.cellEndPadding, 0,
           xValue + _cellWidth, kAllDayAppointmentHeight - 1);
     } else {
       rect = Rect.fromLTRB(
           xValue,
           0,
-          xValue + _cellWidth - appointmentEndPadding,
+          xValue + _cellWidth - calendar.cellEndPadding,
           kAllDayAppointmentHeight - 1);
     }
 
@@ -1329,11 +1414,14 @@ class _AllDayAppointmentRenderObject extends RenderBox
     }
   }
 
-  void _addRecurrenceIcon(Canvas canvas, RRect rect, double textPadding) {
+  void _addRecurrenceIcon(Canvas canvas, RRect rect, double textPadding,
+      bool isRecurrenceAppointment) {
     final double textSize =
         _getTextSize(rect, calendar.appointmentTextStyle.fontSize!);
     final TextSpan icon = AppointmentHelper.getRecurrenceIcon(
-        calendar.appointmentTextStyle.color!, textSize);
+        calendar.appointmentTextStyle.color!,
+        textSize,
+        isRecurrenceAppointment);
     _textPainter.text = icon;
     _textPainter.layout(
         minWidth: 0,
@@ -1405,11 +1493,6 @@ class _AllDayAppointmentRenderObject extends RenderBox
   void clearSemantics() {
     super.clearSemantics();
     _cacheNodes = null;
-  }
-
-  @override
-  void visitChildrenForSemantics(RenderObjectVisitor visitor) {
-    return;
   }
 
   List<CustomPainterSemantics> _getSemanticsBuilder(Size size) {

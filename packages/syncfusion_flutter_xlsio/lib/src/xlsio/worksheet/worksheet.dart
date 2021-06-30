@@ -35,11 +35,11 @@ class Worksheet {
   final int _defaultIndentWidth = 12;
 
   /// Represent the hyperlink relation id
-  final List<String> _hyperlinkRelationId = [];
+  final List<String> _hyperlinkRelationId = <String>[];
 
   /// Represents auto fit manager.
   _AutoFitManager get _autoFitManager {
-    final autoFit = _AutoFitManager._withSheet(this);
+    final _AutoFitManager autoFit = _AutoFitManager._withSheet(this);
     return autoFit;
   }
 
@@ -182,7 +182,8 @@ class Worksheet {
   }
 
   /// Gets/Sets a Conditional Format collections in the worksheet.
-  List<_ConditionalFormatsImpl> conditionalFormats = [];
+  List<_ConditionalFormatsImpl> conditionalFormats =
+      <_ConditionalFormatsImpl>[];
 
   /// Gets/Sets a rows collections in the worksheet.
   ///
@@ -265,9 +266,9 @@ class Worksheet {
     } else if (cellReference.length < 2) {
       throw Exception('cellReference cannot be less then 2 symbols');
     } else if (cellReference.isEmpty) {
-      throw ('cellReference - Value cannot be empty.');
+      throw 'cellReference - Value cannot be empty.';
     }
-    final cells = cellReference.split(':');
+    final List<String> cells = cellReference.split(':');
     int firstRow = 0;
     int lastRow = 0;
     int firstColumn = 0;
@@ -282,9 +283,13 @@ class Worksheet {
       for (int j = 0, len = cellReference.length; j < len; j++) {
         final String ch = cellReference[j];
         if (_isNumeric(ch)) {
-          if (iDigitStart < 0) iDigitStart = j;
+          if (iDigitStart < 0) {
+            iDigitStart = j;
+          }
         } else if (!_isNumeric(ch)) {
-          if (iLetterStart < 0) iLetterStart = j;
+          if (iLetterStart < 0) {
+            iLetterStart = j;
+          }
 
           iLetterCount++;
         }
@@ -296,7 +301,7 @@ class Worksheet {
         iLetterStart = 0;
       }
       if (cellReference.length < 2) {
-        throw ('cellReference - name cannot be less then 2 symbols.');
+        throw 'cellReference - name cannot be less then 2 symbols.';
       }
 
       final String strNumber = cellReference.substring(iDigitStart);
@@ -317,7 +322,9 @@ class Worksheet {
   /// Convert seconds into minute and minutes into hour.
   static String _convertSecondsMinutesToHours(String value, double dNumber) {
     bool isDateValue = false;
-    if ((dNumber % 1) == 0) isDateValue = true;
+    if ((dNumber % 1) == 0) {
+      isDateValue = true;
+    }
     final CultureInfo currentCulture = CultureInfo.currentCulture;
     if (!isDateValue &&
         (dNumber > -657435.0) &&
@@ -326,16 +333,16 @@ class Worksheet {
             _SecondToken._defaultMilliSecondHalf) {
       final String decimalSeparator =
           currentCulture.numberFormat.numberDecimalSeparator;
-      final RegExp regex = RegExp('([0-9]*:[0-9]*:[0-9]*\"' +
+      final RegExp regex = RegExp('([0-9]*:[0-9]*:[0-9]*"' +
           decimalSeparator +
           '[0-9]*' +
-          '|[0-9]*:[0-9]*:[0-9]*|[0-9]*:[0-9]*\"' +
+          '|[0-9]*:[0-9]*:[0-9]*|[0-9]*:[0-9]*"' +
           decimalSeparator +
           '[0-9]*|[0-9]*:[0-9]*)');
-      final matches = regex.allMatches(value);
+      final List<RegExpMatch> matches = regex.allMatches(value).toList();
       for (final Match match in matches) {
         final String semiColon = currentCulture.dateTimeFormat.timeSeparator;
-        final String valueFormat = _SecondToken._defaultFormatLong;
+        const String valueFormat = _SecondToken._defaultFormatLong;
         final List<String> timeValues =
             match.pattern.toString().split(semiColon.toString());
         final int minutesValue = Range._fromOADate(dNumber).minute;
@@ -417,7 +424,7 @@ class Worksheet {
   /// ```
   int getColumnIndex(String columnName) {
     if (columnName.isEmpty) {
-      throw ('columnName - name cannot be less then 1 symbols.');
+      throw 'columnName - name cannot be less then 1 symbols.';
     }
 
     int iColumn = 0;
@@ -431,7 +438,9 @@ class Worksheet {
               ? (currentChar.codeUnitAt(0) - 'a'.codeUnitAt(0))
               : (currentChar.codeUnitAt(0) - 'A'.codeUnitAt(0)));
     }
-    if (iColumn < 0) iColumn = -iColumn;
+    if (iColumn < 0) {
+      iColumn = -iColumn;
+    }
     return iColumn;
   }
 
@@ -449,7 +458,6 @@ class Worksheet {
   /// workbook.dispose();
   /// ```
   void enableSheetCalculations() {
-    _book._enabledCalcEngine = true;
     if (calcEngine == null) {
       CalcEngine.parseArgumentSeparator =
           _book._getCultureInfo().textInfo.argumentSeparator;
@@ -499,7 +507,9 @@ class Worksheet {
       return range.text!;
     } else if (range.dateTime != null) {
       return range.dateTime!;
-    } else if (range.number != null) return range.number!;
+    } else if (range.number != null) {
+      return range.number!;
+    }
     return '';
   }
 
@@ -886,7 +896,7 @@ class Worksheet {
 
     if (row != null) {
       final int firstColumn = getFirstColumn();
-      final lastColumn = getLastColumn();
+      final int lastColumn = getLastColumn();
       final Range rowRange =
           getRangeByIndex(iRow, firstColumn, iRow, lastColumn);
 
@@ -963,9 +973,10 @@ class Worksheet {
       if (range._rowSpan > 1) {
         continue;
       }
-      final List result = _measureCell(range, true, false, isMergedAndWrapped);
-      curSize = result[0];
-      isMergedAndWrapped = result[1];
+      final List<dynamic> result =
+          _measureCell(range, true, false, isMergedAndWrapped);
+      curSize = result[0] as _SizeF;
+      isMergedAndWrapped = result[1] as bool;
       if (maxSize._height < curSize._height &&
           !(range.number != null &&
               _book._standardFontSize == range.cellStyle.fontSize)) {
@@ -1021,15 +1032,15 @@ class Worksheet {
   }
 
   /// Gets size of string that contain cell found by cellindex.
-  List _measureCell(Range range, bool bAutoFitRows, bool ignoreRotation,
-      bool bIsMergedAndWrapped) {
+  List<dynamic> _measureCell(Range range, bool bAutoFitRows,
+      bool ignoreRotation, bool bIsMergedAndWrapped) {
     final int iColumn = range.column;
     bool isMerged = false;
     final String? strText = range.text;
 
     if (strText == null || strText.isEmpty) {
       bIsMergedAndWrapped = false;
-      return [_SizeF(0, 0), bIsMergedAndWrapped];
+      return <dynamic>[_SizeF(0, 0), bIsMergedAndWrapped];
     }
 
     if (range.rowSpan != 0 || range.columnSpan != 0) {
@@ -1050,9 +1061,9 @@ class Worksheet {
       if (indentLevel > 0 || rotation == 255) {
         final Font fontStyle =
             Font._withNameSize(format.fontName, format.fontSize);
-        final Rectangle rectF = Rectangle(0, 0, 1800, 100);
+        const Rectangle<num> rectF = Rectangle<num>(0, 0, 1800, 100);
         defWidth =
-            ((_book._getMeasuredRectangle('0', fontStyle, rectF).width + 0.05));
+            _book._getMeasuredRectangle('0', fontStyle, rectF).width + 0.05;
 
         if (rotation == 255) {
           defWidth += _standardWidth;
@@ -1084,13 +1095,13 @@ class Worksheet {
 
       if (!ignoreRotation && !isMerged && rotation > 0) {
         if (rotation == 255) {
-          curSize._width = (_book._convertToPixels(
+          curSize._width = _book._convertToPixels(
                   _autoFitManager
                       ._calculateWrappedCell(format, strText, defWidth.toInt())
                       .toDouble(),
                   6) -
-              defWidth);
-        } else if ((rotation != 90 && rotation != 180)) {
+              defWidth;
+        } else if (rotation != 90 && rotation != 180) {
           curSize._width =
               _updateTextWidthOrHeightByRotation(curSize, rotation, false);
         }
@@ -1105,7 +1116,7 @@ class Worksheet {
     }
     bIsMergedAndWrapped = isMerged && format.wrapText;
 
-    return [curSize, bIsMergedAndWrapped];
+    return <dynamic>[curSize, bIsMergedAndWrapped];
   }
 
   /// Updates indent size.
@@ -1130,9 +1141,13 @@ class Worksheet {
       return bUpdateHeight ? size._width : size._height;
     }
 
-    if (rotation > 90) rotation -= 90;
+    if (rotation > 90) {
+      rotation -= 90;
+    }
 
-    if (bUpdateHeight) rotation = 90 - rotation;
+    if (bUpdateHeight) {
+      rotation = 90 - rotation;
+    }
 
     final double fPart = sin(_defaultAxeInRadians * rotation) * size._height;
     final double fResult = cos(_defaultAxeInRadians * rotation) * size._width;
@@ -1174,10 +1189,12 @@ class Worksheet {
       throw Exception('rowIndex');
     }
     rowCount ??= 1;
-    if (rowCount < 0) throw Exception('count');
+    if (rowCount < 0) {
+      throw Exception('count');
+    }
     insertOptions ??= ExcelInsertOptions.formatDefault;
     final bool isLastRow = (rowIndex + rowCount) >= workbook._maxRowCount;
-    final int columnIndex = 1;
+    const int columnIndex = 1;
     final int lastRow = getLastRow();
     if (!isLastRow) {
       for (int count = 1; count <= rowCount; count++) {
@@ -1299,7 +1316,9 @@ class Worksheet {
       throw Exception('rowIndex');
     }
     rowCount ??= 1;
-    if (rowCount < 0) throw Exception('count');
+    if (rowCount < 0) {
+      throw Exception('count');
+    }
     for (int count = 1; count <= rowCount; count++) {
       final int lastRow = getLastRow();
       for (int i = rowIndex; i <= lastRow; i++) {
@@ -1373,107 +1392,160 @@ class Worksheet {
           'Value cannot be less 1 and greater than max column index.');
     }
     columnCount ??= 1;
-    if (columnCount < 0) throw Exception('count');
+    if (columnCount < 0) {
+      throw Exception('count');
+    }
     insertOptions ??= ExcelInsertOptions.formatDefault;
     final int firstRow = getFirstRow();
     final int lastRow = getLastRow();
     final int lastColumn = getLastColumn();
-    for (int i = lastRow; i >= firstRow; i--) {
-      if (rows[i] != null) {
-        for (int count = 1; count <= columnCount; count++) {
-          for (int j = lastColumn + columnCount; j >= columnIndex; j--) {
-            final Range? range = rows[i]!.ranges[j];
-            if (range == null &&
-                j != columnIndex &&
-                rows[i]!.ranges[j - 1] != null) {
-              final double columnWidth = rows[i]!.ranges[j - 1]!.columnWidth;
-              rows[i]!.ranges[j] = Range(this);
-              rows[i]!.ranges[j] = rows[i]!.ranges[j - 1];
-              rows[i]!.ranges[j]!._index = j;
-              rows[i]!.ranges[j]!.row = rows[i]!.ranges[j]!.row;
-              rows[i]!.ranges[j]!.lastRow = rows[i]!.ranges[j]!.lastRow;
-              rows[i]!.ranges[j]!.column = rows[i]!.ranges[j]!.column + 1;
-              rows[i]!.ranges[j]!.lastColumn =
-                  rows[i]!.ranges[j]!.lastColumn + 1;
-              if (rows[i]!.ranges[j]!.columnWidth != 0.0) {
-                rows[i]!.ranges[j]!._columnObj = null;
-                rows[i]!.ranges[j]!.columnWidth = columnWidth;
-              }
-            } else if (range != null &&
-                j != columnIndex &&
-                rows[i]!.ranges[j - 1] != null) {
-              final double columnWidth = rows[i]!.ranges[j - 1]!.columnWidth;
-              rows[i]!.ranges[j] = rows[i]!.ranges[j - 1];
-              rows[i]!.ranges[j]!._index = j;
-              rows[i]!.ranges[j]!.row = rows[i]!.ranges[j]!.row;
-              rows[i]!.ranges[j]!.lastRow = rows[i]!.ranges[j]!.lastRow;
-              rows[i]!.ranges[j]!.column = rows[i]!.ranges[j]!.column + 1;
-              rows[i]!.ranges[j]!.lastColumn =
-                  rows[i]!.ranges[j]!.lastColumn + 1;
-              if (rows[i]!.ranges[j]!.columnWidth != 0.0) {
-                rows[i]!.ranges[j]!._columnObj = null;
-                rows[i]!.ranges[j]!.columnWidth = columnWidth;
-              }
-            } else if (j == columnIndex &&
-                rows[i]!.ranges[j] == rows[i]!.ranges[columnIndex]) {
-              if (insertOptions == ExcelInsertOptions.formatAsBefore) {
-                if (rows[i]!.ranges[j - 1] != null) {
-                  rows[i]!.ranges[j] = Range(this);
-                  rows[i]!.ranges[j]!._index = j;
-                  rows[i]!.ranges[j]!.row = rows[i]!.ranges[j - 1]!.row;
-                  rows[i]!.ranges[j]!.lastRow = rows[i]!.ranges[j - 1]!.lastRow;
-                  rows[i]!.ranges[j]!.column =
-                      rows[i]!.ranges[j - 1]!.column + 1;
-                  rows[i]!.ranges[j]!.lastColumn =
-                      rows[i]!.ranges[j - 1]!.lastColumn + 1;
-                  rows[i]!.ranges[j]!.cellStyle =
-                      rows[i]!.ranges[j - 1]!.cellStyle;
-                  if (rows[i]!.ranges[j - 1]!.columnWidth != 0.0) {
-                    rows[i]!.ranges[j]!.columnWidth =
-                        rows[i]!.ranges[j - 1]!.columnWidth;
+    if (rows.count > 0) {
+      for (int i = lastRow; i >= firstRow; i--) {
+        if (rows[i] != null) {
+          for (int count = 1; count <= columnCount; count++) {
+            for (int j = lastColumn + columnCount; j >= columnIndex; j--) {
+              final Range? range = rows[i]!.ranges[j];
+              if (range == null &&
+                  j != columnIndex &&
+                  rows[i]!.ranges[j - 1] != null) {
+                rows[i]!.ranges[j] = Range(this);
+                rows[i]!.ranges[j] = rows[i]!.ranges[j - 1];
+                rows[i]!.ranges[j]!._index = j;
+                rows[i]!.ranges[j]!.row = rows[i]!.ranges[j]!.row;
+                rows[i]!.ranges[j]!.lastRow = rows[i]!.ranges[j]!.lastRow;
+                rows[i]!.ranges[j]!.column = rows[i]!.ranges[j]!.column + 1;
+                rows[i]!.ranges[j]!.lastColumn =
+                    rows[i]!.ranges[j]!.lastColumn + 1;
+              } else if (range != null &&
+                  j != columnIndex &&
+                  rows[i]!.ranges[j - 1] != null) {
+                rows[i]!.ranges[j] = rows[i]!.ranges[j - 1];
+                rows[i]!.ranges[j]!._index = j;
+                rows[i]!.ranges[j]!.row = rows[i]!.ranges[j]!.row;
+                rows[i]!.ranges[j]!.lastRow = rows[i]!.ranges[j]!.lastRow;
+                rows[i]!.ranges[j]!.column = rows[i]!.ranges[j]!.column + 1;
+                rows[i]!.ranges[j]!.lastColumn =
+                    rows[i]!.ranges[j]!.lastColumn + 1;
+              } else if (j == columnIndex &&
+                  rows[i]!.ranges[j] == rows[i]!.ranges[columnIndex]) {
+                if (insertOptions == ExcelInsertOptions.formatAsBefore) {
+                  if (rows[i]!.ranges[j - 1] != null) {
+                    rows[i]!.ranges[j] = Range(this);
+                    rows[i]!.ranges[j]!._index = j;
+                    rows[i]!.ranges[j]!.row = rows[i]!.ranges[j - 1]!.row;
+                    rows[i]!.ranges[j]!.lastRow =
+                        rows[i]!.ranges[j - 1]!.lastRow;
+                    rows[i]!.ranges[j]!.column =
+                        rows[i]!.ranges[j - 1]!.column + 1;
+                    rows[i]!.ranges[j]!.lastColumn =
+                        rows[i]!.ranges[j - 1]!.lastColumn + 1;
+                    rows[i]!.ranges[j]!.cellStyle =
+                        rows[i]!.ranges[j - 1]!.cellStyle;
+                  } else {
+                    rows[i]!.ranges[j] = null;
+                  }
+                } else if (insertOptions == ExcelInsertOptions.formatAsAfter) {
+                  if (rows[i]!.ranges[j + 1] != null) {
+                    rows[i]!.ranges[j] = Range(this);
+                    rows[i]!.ranges[j]!._index = j;
+                    rows[i]!.ranges[j]!.row = rows[i]!.ranges[j + 1]!.row;
+                    rows[i]!.ranges[j]!.lastRow =
+                        rows[i]!.ranges[j + 1]!.lastRow;
+                    rows[i]!.ranges[j]!.column =
+                        rows[i]!.ranges[j + 1]!.column - 1;
+                    rows[i]!.ranges[j]!.lastColumn =
+                        rows[i]!.ranges[j + 1]!.lastColumn - 1;
+                    rows[i]!.ranges[j]!.cellStyle =
+                        rows[i]!.ranges[j + 1]!.cellStyle;
+                  } else {
+                    rows[i]!.ranges[j] = null;
                   }
                 } else {
                   rows[i]!.ranges[j] = null;
                 }
-              } else if (insertOptions == ExcelInsertOptions.formatAsAfter) {
-                if (rows[i]!.ranges[j + 1] != null) {
-                  rows[i]!.ranges[j] = Range(this);
-                  rows[i]!.ranges[j]!._index = j;
-                  rows[i]!.ranges[j]!.row = rows[i]!.ranges[j + 1]!.row;
-                  rows[i]!.ranges[j]!.lastRow = rows[i]!.ranges[j + 1]!.lastRow;
-                  rows[i]!.ranges[j]!.column =
-                      rows[i]!.ranges[j + 1]!.column - 1;
-                  rows[i]!.ranges[j]!.lastColumn =
-                      rows[i]!.ranges[j + 1]!.lastColumn - 1;
-                  rows[i]!.ranges[j]!.cellStyle =
-                      rows[i]!.ranges[j + 1]!.cellStyle;
-                  if (rows[i]!.ranges[j + 1]!.columnWidth != 0.0) {
-                    rows[i]!.ranges[j]!.columnWidth =
-                        rows[i]!.ranges[j + 1]!.columnWidth;
-                  }
-                }
               } else {
                 rows[i]!.ranges[j] = null;
               }
-            } else {
-              rows[i]!.ranges[j] = null;
             }
           }
         }
       }
-    }
-    if (hyperlinks.count > 0) {
-      for (final Hyperlink link in hyperlinks.innerList) {
-        if (link._attachedType == ExcelHyperlinkAttachedType.range &&
-            link._column >= columnIndex) {
-          link._column = link._column + columnCount;
+      if (hyperlinks.count > 0) {
+        for (final Hyperlink link in hyperlinks.innerList) {
+          if (link._attachedType == ExcelHyperlinkAttachedType.range &&
+              link._column >= columnIndex) {
+            link._column = link._column + columnCount;
+          }
         }
       }
-    }
-    if (insertOptions == ExcelInsertOptions.formatDefault &&
-        lastColumn >= columnIndex) {
-      if (columns.count > 0 && columns.count >= columnIndex) {
-        columns.innerList.removeAt(0);
+      if (insertOptions == ExcelInsertOptions.formatAsAfter) {
+        for (int count = 1; count <= columnCount; count++) {
+          for (int j = lastColumn + columnCount; j > columnIndex; j--) {
+            if (j > 1) {
+              if (columns[j] == null && columns[j - 1] == null) {
+                columns[j - 1] = Column(this);
+                columns[j - 1]!.index = j - 1;
+                columns[j] = Column(this);
+                columns[j]!.index = j;
+              } else if (columns[j] == null && columns[j - 1] != null) {
+                columns[j] = Column(this);
+                columns[j]!.index = j;
+                columns[j]!.width = columns[j - 1]!.width;
+              } else if (columns[j] != null && columns[j - 1] == null) {
+                columns[j - 1] = Column(this);
+                columns[j - 1]!.index = j - 1;
+                columns[j]!.width = columns[j - 1]!.width;
+              } else {
+                columns[j]!.width = columns[j - 1]!.width;
+              }
+            } else {
+              if (columns[j] == null) {
+                columns[j] = Column(this);
+                columns[j]!.index = j;
+              }
+              columns[j]!.width = 0.0;
+            }
+          }
+        }
+      } else if (insertOptions == ExcelInsertOptions.formatAsBefore ||
+          insertOptions == ExcelInsertOptions.formatDefault) {
+        for (int count = 1; count <= columnCount; count++) {
+          for (int j = lastColumn + columnCount; j >= columnIndex; j--) {
+            if (j > 1) {
+              if (columns[j] == null && columns[j - 1] == null) {
+                columns[j - 1] = Column(this);
+                columns[j - 1]!.index = j - 1;
+                columns[j] = Column(this);
+                columns[j]!.index = j;
+              } else if (columns[j] == null && columns[j - 1] != null) {
+                columns[j] = Column(this);
+                columns[j]!.index = j;
+                columns[j]!.width = columns[j - 1]!.width;
+              } else if (columns[j] != null && columns[j - 1] == null) {
+                columns[j - 1] = Column(this);
+                columns[j - 1]!.index = j - 1;
+                columns[j]!.width = columns[j - 1]!.width;
+              } else {
+                columns[j]!.width = columns[j - 1]!.width;
+              }
+            } else {
+              if (columns[j] == null) {
+                columns[j] = Column(this);
+                columns[j]!.index = j;
+              }
+              columns[j]!.width = 0.0;
+            }
+          }
+        }
+      }
+      if (insertOptions == ExcelInsertOptions.formatDefault) {
+        for (int z = columnIndex; z < columnIndex + columnCount; z++) {
+          if (columns[z] == null) {
+            columns[z] = Column(this);
+            columns[z]!.index = z;
+          }
+          columns[z]!.width = 0.0;
+        }
       }
     }
   }
@@ -1503,7 +1575,9 @@ class Worksheet {
           'Value cannot be less 1 and greater than max column index.');
     }
     columnCount ??= 1;
-    if (columnCount < 0) throw Exception('count');
+    if (columnCount < 0) {
+      throw Exception('count');
+    }
     final int firstRow = getFirstRow();
     final int lastRow = getLastRow();
     final int lastColumn = getLastColumn();
@@ -1543,30 +1617,26 @@ class Worksheet {
         }
       }
     }
-    if (hyperlinks.count > 0) {
-      for (final Hyperlink link in hyperlinks.innerList) {
-        if (link._attachedType == ExcelHyperlinkAttachedType.range &&
-            link._column >= columnIndex) {
-          link._column = link._column - columnCount;
+    for (int count = 1; count <= columnCount; count++) {
+      for (int j = columnIndex; j <= lastColumn + columnCount; j++) {
+        if (columns[j] == null && columns[j + 1] == null) {
+          columns[j + 1] = Column(this);
+          columns[j + 1]!.index = j + 1;
+          columns[j] = Column(this);
+          columns[j]!.index = j;
         }
-      }
-    }
-    for (int k = 1; k <= columnCount; k++) {
-      if (columns.count > 0) {
-        for (int z = 0; z < columns.count - 1; z++) {
-          if (columns[z].index >= columnIndex && columns[z + 1].width != 0.0) {
-            columns[z].width = columns[z + 1].width;
-          }
+        if (columns[j] == null && columns[j + 1] != null) {
+          columns[j] = Column(this);
+          columns[j]!.index = j;
+          columns[j]!.width = columns[j + 1]!.width;
         }
-        final int lastCol = getLastColumn() + 1;
-        for (final Column col in columns.innerList) {
-          if (col.index >= lastCol) {
-            col.width = 0.0;
-          }
+        if (columns[j] != null && columns[j + 1] == null) {
+          columns[j + 1] = Column(this);
+          columns[j + 1]!.index = j + 1;
+          columns[j]!.width = columns[j + 1]!.width;
+        } else {
+          columns[j]!.width = columns[j + 1]!.width;
         }
-      }
-      if (columns.count == 1 && columns[0].index == columnIndex) {
-        columns[0].width = 0.0;
       }
     }
   }
@@ -1581,7 +1651,7 @@ class Worksheet {
   late List<int> _saltValue;
 
   /// Spin count to loop the hash algorithm.
-  int _spinCount = 500;
+  final int _spinCount = 500;
 
   /// Hash value to ensure the sheet protected password.
   late List<int> _hashValue;
@@ -1599,7 +1669,7 @@ class Worksheet {
   int _isPassword = 0;
 
   /// Represent the flag for sheet protection.
-  final List<bool> _flag = [];
+  final List<bool> _flag = <bool>[];
 
   /// Default password hash value.
   static const int _defPasswordConst = 52811;
@@ -1705,9 +1775,8 @@ class Worksheet {
     if (length <= 0) {
       Exception('length');
     }
-    final List<int> result = List.filled(length, 0, growable: false);
-    final rnd = Random(Range._toOADate(DateTime.now()).toInt());
-    // final rnd = Random();
+    final List<int> result = List<int>.filled(length, 0, growable: false);
+    final Random rnd = Random(Range._toOADate(DateTime.now()).toInt());
     final int iMaxValue = _maxPassWordLength + 1;
 
     for (int i = 0; i < length; i++) {
@@ -1731,7 +1800,7 @@ class Worksheet {
       final int curNumber = _getUInt16FromBits(bits);
       usHash ^= curNumber;
     }
-    return (usHash ^ password.length ^ _defPasswordConst);
+    return usHash ^ password.length ^ _defPasswordConst;
   }
 
   /// Convert code units to Unicode byte array.
@@ -1748,11 +1817,11 @@ class Worksheet {
 
   /// Converts character to 15 bits sequence
   static List<bool> _getCharBits15(String char) {
-    final List<bool> arrResult = List.filled(15, false, growable: false);
+    final List<bool> arrResult = List<bool>.filled(15, false, growable: false);
     final int usSource = char.codeUnitAt(0);
     int curBit = 1;
     for (int i = 0; i < 15; i++) {
-      arrResult[i] = ((usSource & curBit) == curBit);
+      arrResult[i] = (usSource & curBit) == curBit;
       curBit <<= 1;
     }
 
@@ -1761,12 +1830,16 @@ class Worksheet {
 
   /// Rotate bits
   static List<bool> _rotateBits(List<bool> bits, int count) {
-    if (bits.isEmpty) return bits;
+    if (bits.isEmpty) {
+      return bits;
+    }
 
-    if (count < 0) throw Exception('Count can\'t be less than zero');
+    if (count < 0) {
+      throw Exception('Count can\'t be less than zero');
+    }
 
     final List<bool> arrResult =
-        List.filled(bits.length, false, growable: false);
+        List<bool>.filled(bits.length, false, growable: false);
     // ignore: prefer_final_locals
     for (int i = 0, len = bits.length; i < len; i++) {
       final int newPos = (i + count) % len;
@@ -1777,13 +1850,16 @@ class Worksheet {
 
   /// Converts bits array to UInt16 value.
   static int _getUInt16FromBits(List<bool> bits) {
-    if (bits.length > 16) throw Exception('There cannot be more than 16 bits');
+    if (bits.length > 16) {
+      throw Exception('There cannot be more than 16 bits');
+    }
 
     int usResult = 0;
     int curBit = 1;
-    // ignore: prefer_final_locals
-    for (int i = 0, len = bits.length; i < len; i++) {
-      if (bits[i]) usResult += curBit;
+    for (int i = 0; i < bits.length; i++) {
+      if (bits[i]) {
+        usResult += curBit;
+      }
       curBit <<= 1;
     }
 
@@ -1791,7 +1867,7 @@ class Worksheet {
   }
 
   /// Represents Protection Attributes
-  final List<String> _protectionAttributes = [
+  final List<String> _protectionAttributes = <String>[
     'sheet',
     'objects',
     'scenarios',
@@ -1811,7 +1887,7 @@ class Worksheet {
   ];
 
   /// Represents the defeault values for sheet Protection.
-  final List<bool> _defaultValues = [
+  final List<bool> _defaultValues = <bool>[
     false,
     false,
     false,
@@ -1850,10 +1926,7 @@ class Worksheet {
     if (iColumn < 1) {
       throw Exception('iColumn cannot be less then 1');
     }
-    Column? column;
-    if (columns.innerList.isNotEmpty && columns.contains(iColumn)) {
-      column = columns.getColumn(iColumn);
-    }
+    final Column? column = columns[iColumn];
 
     double dResult;
 
@@ -1878,13 +1951,13 @@ class Worksheet {
   }
 
   /// Sets column width in pixels for the specified column.
-  void _setColumnWidthInPixels(int iColumn, int value, bool isBestFit) {
+  void _setColumnWidthInPixels(int iColumn, int value) {
     final double dColumnWidth = _pixelsToColumnWidth(value);
-    _setColumnWidth(iColumn, dColumnWidth, isBestFit);
+    _setColumnWidth(iColumn, dColumnWidth);
   }
 
   /// Sets column width for the specified column.
-  void _setColumnWidth(int iColumn, double value, bool isBestFit) {
+  void _setColumnWidth(int iColumn, double value) {
     if (iColumn < 1 || iColumn > _book._maxColumnCount) {
       throw Exception(
           'Column index cannot be larger then 256 or less then one');
@@ -1893,16 +1966,19 @@ class Worksheet {
     if (iOldValue != value) {
       Column? colInfo;
       if (iColumn < columns.count) {
-        colInfo = columns.getColumn(iColumn);
+        colInfo = columns[iColumn];
       }
 
       if (colInfo == null) {
-        colInfo = columns.add();
+        colInfo = Column(this);
         colInfo.index = iColumn;
         colInfo.width = _standardWidth;
+        columns[iColumn] = colInfo;
       }
 
-      if (value > 255) value = 255;
+      if (value > 255) {
+        value = 255;
+      }
       colInfo.width = value;
 
       // colInfo._isBestFit = isBestFit;
@@ -1986,10 +2062,111 @@ class Worksheet {
     return i;
   }
 
-  // /// Converts width displayed by Excel to width that should be written into file.
-  // double _evaluateFileColumnWidth(int realWidth) {
-  //   return _book._widthToFileWidth(realWidth / 256.0) * 256;
-  // }
+  /// Imports collection of ExcelDataRows into a worksheet.
+  /// ```dart
+  /// //Create a new Excel Document.
+  /// final Workbook workbook = Workbook();
+  /// // Accessing sheet via index.
+  /// final Worksheet sheet = workbook.worksheets[0];
+  ///
+  /// // Create Data Rows for importing.
+  /// final List<ExcelDataRow> dataRows = _buildReportDataRows();
+  /// // Import the Data Rows in Worksheet.
+  /// sheet.importData(dataRows, 1, 1);
+  ///
+  /// //Save and Dispose.
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// saveAsExcel(bytes, 'ExcelworksheetProtectionAllOption1.xlsx');
+  /// workbook.dispose();
+  ///
+  /// // Custom Report class.
+  /// class _Report {
+  ///   _Report(String name, int juneToJuly, int julyToDec) {
+  ///     salesPerson = name;
+  ///     salesJanJune = juneToJuly;
+  ///     salesJulyDec = julyToDec;
+  ///   }
+  ///   late String salesPerson;
+  ///   late int salesJanJune;
+  ///   late int salesJulyDec;
+  /// }
+  ///
+  /// // Create collection objects for Report class.
+  /// List<_Report> _getSalesReports() {
+  ///   final List<_Report> reports = List.empty(growable: true);
+  ///   reports.add(_Report("Andy Bernard", 45000, 58000));
+  ///   reports.add(_Report("Jim Halpert", 34000, 65000));
+  ///   reports.add(_Report("Karen Fillippelli", 75000, 64000));
+  ///   reports.add(_Report("Phyllis Lapin", 56500, 33600));
+  ///   reports.add(_Report("Stanley Hudson", 46500, 52000));
+  ///   return reports;
+  /// }
+  ///
+  /// // Create Data Rows with Collection objects of Report class.
+  /// List<ExcelDataRow> _buildReportDataRows() {
+  ///   List<ExcelDataRow> excelDataRows = [];
+  ///   final List<_Report> reports = _getSalesReports();
+  ///
+  ///   excelDataRows = reports.map<ExcelDataRow>((dataRow) {
+  ///     return ExcelDataRow(cells: [
+  ///       ExcelDataCell(columnName: 'Sales Person', value: dataRow.salesPerson),
+  ///       ExcelDataCell(
+  ///           columnName: 'Sales Jan to June', value: dataRow.salesJanJune),
+  ///       ExcelDataCell(
+  ///           columnName: 'Sales July to Dec', value: dataRow.salesJulyDec),
+  ///     ]);
+  ///   }).toList();
+  ///
+  ///   return excelDataRows;
+  /// }
+  /// ```
+  void importData(
+      List<ExcelDataRow> excelDataRows, int rowIndex, int colIndex) {
+    for (int i = 0; i <= excelDataRows.length; i++) {
+      final ExcelDataRow dataRow =
+          i > 0 ? excelDataRows[i - 1] : excelDataRows[i];
+      for (int j = 0; j < dataRow.cells.length; j++) {
+        final ExcelDataCell dataCell = dataRow.cells[j];
+        final Range range = getRangeByIndex(rowIndex + i, colIndex + j);
+        if (i == 0) {
+          range.value = dataCell.columnHeader;
+        } else if (dataCell.value != null) {
+          if (dataCell.value is Hyperlink) {
+            final Hyperlink link = dataCell.value! as Hyperlink;
+            hyperlinks.add(range, link.type, link.address, link.screenTip,
+                link.textToDisplay);
+          } else if (dataCell.value is Picture) {
+            final Picture picture = dataCell.value! as Picture;
+            picture.row = range.row;
+            picture.column = range.column;
+            pictures.innerList.add(picture);
+            final Hyperlink? link = picture.hyperlink;
+            if (link != null) {
+              hyperlinks.addImage(
+                  picture, link.type, link.address, link.screenTip);
+            }
+            final int width = picture.width;
+            final int height = picture.height;
+            if (_innerGetColumnWidth(range.column) <
+                _pixelsToColumnWidth(width)) {
+              _setColumnWidthInPixels(range.column, width);
+            }
+            if (range.rowHeight < height) {
+              range._setRowHeight(
+                  _book._convertFromPixel(height.toDouble(), 6), true);
+            }
+          } else {
+            range.value = dataCell.value;
+          }
+        }
+      }
+    }
+  }
+
+  /// Converts width displayed by Excel to width that should be written into file.
+  double _evaluateFileColumnWidth(double realWidth) {
+    return _book._widthToFileWidth(realWidth);
+  }
 
   /// Clear the worksheet.
   void _clear() {

@@ -12,7 +12,7 @@ import 'renderer_base.dart';
 class SfSparkLineChartRenderObjectWidget
     extends SfSparkChartRenderObjectWidget {
   /// Creates the render object for spark chart
-  SfSparkLineChartRenderObjectWidget(
+  const SfSparkLineChartRenderObjectWidget(
       {Key? key,
       this.width,
       this.dashArray,
@@ -303,14 +303,14 @@ class _RenderSparkLineChart extends RenderSparkChart {
           if (labelDisplayMode != SparkChartLabelDisplayMode.none &&
               labelStyle != null) {
             size = getTextSize(dataLabels![i], labelStyle!);
-            yPosition = (marker != null &&
+            yPosition = marker != null &&
                     marker!.displayMode != SparkChartMarkerDisplayMode.none
                 ? (dataPoints![i].y > 0
                     ? (coordinatePoints![i].dy - size.height - marker!.size / 2)
                     : (coordinatePoints![i].dy + marker!.size / 2))
                 : dataPoints![i].y > 0
                     ? (coordinatePoints![i].dy - size.height)
-                    : (coordinatePoints![i].dy));
+                    : (coordinatePoints![i].dy);
             dataPoints![i].dataLabelOffset = Offset(
                 (offset.dx + coordinatePoints![i].dx) - size.width / 2,
                 offset.dy + yPosition);
@@ -341,14 +341,14 @@ class _RenderSparkLineChart extends RenderSparkChart {
               labelStyle != null) {
             size = getTextSize(dataLabels![i], labelStyle!);
 
-            yPosition = (marker != null &&
+            yPosition = marker != null &&
                     marker!.displayMode != SparkChartMarkerDisplayMode.none
                 ? (dataPoints![i].y > 0
                     ? (coordinatePoints![i].dy - size.height - marker!.size / 2)
                     : (coordinatePoints![i].dy + marker!.size / 2))
                 : dataPoints![i].y > 0
                     ? (coordinatePoints![i].dy - size.height)
-                    : (coordinatePoints![i].dy));
+                    : (coordinatePoints![i].dy);
             dataPoints![i].dataLabelOffset = Offset(
                 (offset.dx + coordinatePoints![i].dx) - size.width / 2,
                 offset.dy + yPosition);
@@ -365,22 +365,22 @@ class _RenderSparkLineChart extends RenderSparkChart {
       SparkChartPoint dataPoint, Size size, Offset offset) {
     if (dataPoint.dataLabelOffset!.dx <= offset.dx) {
       dataPoint.dataLabelOffset =
-          Offset((offset.dx), dataPoint.dataLabelOffset!.dy);
+          Offset(offset.dx, dataPoint.dataLabelOffset!.dy);
     }
     if (dataPoint.dataLabelOffset!.dx >= offset.dx + areaSize!.width) {
       dataPoint.dataLabelOffset = Offset(
-          ((offset.dx + areaSize!.width) - size.width),
+          (offset.dx + areaSize!.width) - size.width,
           dataPoint.dataLabelOffset!.dy);
     }
 
     if (dataPoint.dataLabelOffset!.dy <= offset.dy) {
       dataPoint.dataLabelOffset = Offset(
           dataPoint.dataLabelOffset!.dx,
-          (offset.dy +
+          offset.dy +
               (marker != null &&
                       marker!.displayMode != SparkChartMarkerDisplayMode.none
                   ? marker!.size / 2 + size.height
-                  : size.height)));
+                  : size.height));
     }
 
     if (dataPoint.dataLabelOffset!.dy >= offset.dy + areaSize!.height) {

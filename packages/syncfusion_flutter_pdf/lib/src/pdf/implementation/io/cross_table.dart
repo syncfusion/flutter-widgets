@@ -159,7 +159,7 @@ class _CrossTable {
       final Map<String, dynamic> tempResult =
           parser._parseCrossReferenceTable(_objects, this);
       _trailer = tempResult['object'] as _PdfDictionary?;
-      _objects = tempResult['objects'];
+      _objects = tempResult['objects'] as Map<int, _ObjectInformation>;
     } catch (e) {
       throw ArgumentError.value(_trailer, 'Invalid cross reference table.');
     }
@@ -167,12 +167,12 @@ class _CrossTable {
     while (trailer.containsKey(_DictionaryProperties.prev)) {
       if (_whiteSpace != 0) {
         final _PdfNumber number =
-            trailer[_DictionaryProperties.prev] as _PdfNumber;
+            trailer[_DictionaryProperties.prev]! as _PdfNumber;
         number.value = number.value! + _whiteSpace;
         _isStructureAltered = true;
       }
       position =
-          (trailer[_DictionaryProperties.prev] as _PdfNumber).value!.toInt();
+          (trailer[_DictionaryProperties.prev]! as _PdfNumber).value!.toInt();
       final _PdfReader tokenReader = _PdfReader(_reader!._streamReader._data);
       tokenReader.position = position;
       String? token = tokenReader._getNextToken();
@@ -187,7 +187,7 @@ class _CrossTable {
             final Map<String, dynamic> tempResults =
                 parser._parseCrossReferenceTable(_objects, this);
             trailer = tempResults['object'] as _PdfDictionary;
-            _objects = tempResults['objects'];
+            _objects = tempResults['objects'] as Map<int, _ObjectInformation>;
             parser._setOffset(position);
             continue;
           }
@@ -199,13 +199,13 @@ class _CrossTable {
         final Map<String, dynamic> tempResults =
             parser._parseCrossReferenceTable(_objects, this);
         trailer = tempResults['object'] as _PdfDictionary;
-        _objects = tempResults['objects'];
+        _objects = tempResults['objects'] as Map<int, _ObjectInformation>;
         if (trailer.containsKey(_DictionaryProperties.size) &&
             _trailer!.containsKey(_DictionaryProperties.size)) {
-          if ((trailer[_DictionaryProperties.size] as _PdfNumber).value! >
-              (_trailer![_DictionaryProperties.size] as _PdfNumber).value!) {
-            (_trailer![_DictionaryProperties.size] as _PdfNumber).value =
-                (trailer[_DictionaryProperties.size] as _PdfNumber).value;
+          if ((trailer[_DictionaryProperties.size]! as _PdfNumber).value! >
+              (_trailer![_DictionaryProperties.size]! as _PdfNumber).value!) {
+            (_trailer![_DictionaryProperties.size]! as _PdfNumber).value =
+                (trailer[_DictionaryProperties.size]! as _PdfNumber).value;
           }
         }
       }
@@ -275,8 +275,8 @@ class _CrossTable {
       final _SubSection ss = subSections[i];
       final Map<String, dynamic> result =
           _parseWithHashTable(stream, ss, objects, ssIndex);
-      ssIndex = result['index'];
-      objects = result['objects'];
+      ssIndex = result['index'] as int?;
+      objects = result['objects'] as Map<int, _ObjectInformation>?;
     }
     return objects;
   }
@@ -292,7 +292,7 @@ class _CrossTable {
       final int fields = entry.count;
       final List<int> format = List<int>.filled(fields, 0, growable: true);
       for (int i = 0; i < fields; ++i) {
-        final _PdfNumber formatNumber = entry[i] as _PdfNumber;
+        final _PdfNumber formatNumber = entry[i]! as _PdfNumber;
         format[i] = formatNumber.value!.toInt();
       }
       final List<int> reference = List<int>.filled(fields, 0, growable: true);
@@ -385,9 +385,9 @@ class _CrossTable {
         }
         for (int i = 0; i < indices.count; ++i) {
           int n = 0, c = 0;
-          n = (indices[i] as _PdfNumber).value!.toInt();
+          n = (indices[i]! as _PdfNumber).value!.toInt();
           ++i;
-          c = (indices[i] as _PdfNumber).value!.toInt();
+          c = (indices[i]! as _PdfNumber).value!.toInt();
           subSections.add(_SubSection(c, n));
         }
       }
@@ -398,18 +398,18 @@ class _CrossTable {
   void _parseSubsection(
       _PdfParser parser, Map<int, _ObjectInformation>? table) {
     // Read the initial number of the subsection.
-    _PdfNumber integer = parser._simple() as _PdfNumber;
+    _PdfNumber integer = parser._simple()! as _PdfNumber;
 
     _initialNumberOfSubsection = integer.value!.toInt();
     // Read the total number of subsection.
-    integer = parser._simple() as _PdfNumber;
+    integer = parser._simple()! as _PdfNumber;
 
     _totalNumberOfSubsection = integer.value!.toInt();
     _initialSubsectionCount = _initialNumberOfSubsection;
     for (int i = 0; i < _totalNumberOfSubsection; ++i) {
-      integer = parser._simple() as _PdfNumber;
+      integer = parser._simple()! as _PdfNumber;
       final int offset = integer.value!.toInt();
-      integer = parser._simple() as _PdfNumber;
+      integer = parser._simple()! as _PdfNumber;
       final int genNum = integer.value!.toInt();
       final String flag = parser._getObjectFlag();
       if (flag == 'n') {
@@ -469,7 +469,7 @@ class _CrossTable {
     while (pos > 0) {
       reader.position = pos;
       final Map<String, dynamic> result = reader._copyBytes(data, 0, maxSize);
-      data = result['buffer'];
+      data = result['buffer'] as List<int>?;
       final String start = String.fromCharCodes(data!);
       final int index = start.lastIndexOf('startxref');
       if (index >= 0) {
@@ -484,13 +484,13 @@ class _CrossTable {
     if (archive == null) {
       return _parser;
     } else {
-      final _PdfStream? stream = archive.archive;
+      final _PdfStream stream = archive.archive;
       _PdfParser? parser;
       if (_readersTable.containsKey(stream)) {
         parser = _readersTable[stream];
       }
       if (parser == null) {
-        final _PdfReader reader = _PdfReader(stream!._dataStream);
+        final _PdfReader reader = _PdfReader(stream._dataStream);
         parser = _PdfParser(this, reader, _crossTable);
         _readersTable[stream] = parser;
       }
@@ -551,7 +551,7 @@ class _ObjectInformation {
         }
         _offset = indices[index * 2 + 1];
         final int first =
-            (_archive!.archive[_DictionaryProperties.first] as _PdfNumber)
+            (_archive!.archive[_DictionaryProperties.first]! as _PdfNumber)
                 .value!
                 .toInt();
         _offset = _offset! + first;
@@ -586,8 +586,7 @@ typedef _GetArchive = _PdfStream Function(int archiveNumber);
 
 class _SubSection {
   //constructor
-  _SubSection(int count, [int? start]) {
-    this.count = count;
+  _SubSection(this.count, [int? start]) {
     startNumber = start ?? 0;
   }
 

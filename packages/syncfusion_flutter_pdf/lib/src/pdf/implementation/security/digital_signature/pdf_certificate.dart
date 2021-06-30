@@ -43,7 +43,7 @@ class PdfCertificate {
     String certificateAlias = '';
     final List<String> keys = _pkcsCertificate.getContentTable().keys.toList();
     bool isContinue = true;
-    keys.forEach((key) {
+    keys.toList().forEach((String key) {
       if (isContinue &&
           _pkcsCertificate.isKey(key) &&
           _pkcsCertificate.getKey(key)!._key!.isPrivate!) {
@@ -65,6 +65,7 @@ class PdfCertificate {
     _validTo = certificate._c!.endDate!.toDateTime();
     _version = certificate._c!.version;
     final List<int> serialNumber = <int>[]
+      // ignore: prefer_spread_collections
       ..addAll(certificate._c!.serialNumber!._value!.reversed.toList());
     _serialNumber = serialNumber;
   }
@@ -85,7 +86,7 @@ class PdfCertificate {
             result = '';
           } else {
             result += name[i];
-            if (name[i] == '\\') {
+            if (name[i] == r'\') {
               result += name[++i];
             } else if (name[i] == '"') {
               isInitialSeparator = false;
@@ -93,7 +94,7 @@ class PdfCertificate {
           }
         } else {
           result += name[i];
-          if (name[i] == '\\') {
+          if (name[i] == r'\') {
             result += name[++i];
           } else if (name[i] == '"') {
             isInitialSeparator = true;
@@ -118,7 +119,8 @@ class PdfCertificate {
   void _addStringToDictionary(String name, Map<String?, String?>? dictionary) {
     int index = name.indexOf('=');
     if (index > 0) {
-      final List<String?> keyNameArray = List<String?>.generate(2, (i) => null);
+      final List<String?> keyNameArray =
+          List<String?>.generate(2, (int i) => null);
       keyNameArray[0] = name.substring(0, index).trimLeft().trimRight();
       index++;
       keyNameArray[1] =

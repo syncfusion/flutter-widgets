@@ -1,8 +1,16 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import '../common/common.dart';
-import '../pointers/gauge_pointer.dart';
-import '../renderers/needle_pointer_renderer.dart';
-import '../utils/enum.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
+
+import '../../radial_gauge/axis/radial_axis_scope.dart';
+import '../../radial_gauge/pointers/gauge_pointer.dart';
+import '../../radial_gauge/pointers/needle_pointer_renderer.dart';
+import '../../radial_gauge/renderers/needle_pointer_renderer.dart';
+import '../../radial_gauge/styles/radial_knob_style.dart';
+import '../../radial_gauge/styles/radial_tail_style.dart';
+import '../../radial_gauge/utils/enum.dart';
+import '../../radial_gauge/utils/radial_callback_args.dart';
+import '../../radial_gauge/utils/radial_gauge_typedef.dart';
 
 /// Create the pointer to indicate the value with needle or arrow shape.
 ///
@@ -20,18 +28,19 @@ import '../utils/enum.dart';
 ///        ));
 ///}
 /// ```
-class NeedlePointer extends GaugePointer {
+class NeedlePointer extends LeafRenderObjectWidget implements GaugePointer {
   /// Create a needle pointer with the default or required properties.
   ///
   /// The arguments [value], must not be null and [animationDuration],
   /// [needleLength], [needleStartWidth], [needleEndWidth] must be non-negative.
-  NeedlePointer(
-      {double value = 0,
-      bool enableDragging = false,
-      ValueChanged<double>? onValueChanged,
-      ValueChanged<double>? onValueChangeStart,
-      ValueChanged<double>? onValueChangeEnd,
-      ValueChanged<ValueChangingArgs>? onValueChanging,
+  const NeedlePointer(
+      {Key? key,
+      this.value = 0,
+      this.enableDragging = false,
+      this.onValueChanged,
+      this.onValueChangeStart,
+      this.onValueChangeEnd,
+      this.onValueChanging,
       KnobStyle? knobStyle,
       this.tailStyle,
       this.gradient,
@@ -40,11 +49,11 @@ class NeedlePointer extends GaugePointer {
       this.needleStartWidth = 1,
       this.needleEndWidth = 10,
       this.onCreatePointerRenderer,
-      bool enableAnimation = false,
-      double animationDuration = 1000,
-      AnimationType animationType = AnimationType.ease,
+      this.enableAnimation = false,
+      this.animationDuration = 1000,
+      this.animationType = AnimationType.ease,
       this.needleColor})
-      : knobStyle = knobStyle ?? KnobStyle(knobRadius: 0.08),
+      : knobStyle = knobStyle ?? const KnobStyle(knobRadius: 0.08),
         assert(animationDuration > 0,
             'Animation duration must be a non-negative value'),
         assert(needleLength >= 0, 'Needle length must be greater than zero.'),
@@ -52,16 +61,7 @@ class NeedlePointer extends GaugePointer {
             'Needle start width must be greater than zero.'),
         assert(
             needleEndWidth >= 0, 'Needle end width must be greater than zero.'),
-        super(
-            value: value,
-            enableDragging: enableDragging,
-            onValueChanged: onValueChanged,
-            onValueChangeStart: onValueChangeStart,
-            onValueChangeEnd: onValueChangeEnd,
-            onValueChanging: onValueChanging,
-            animationType: animationType,
-            enableAnimation: enableAnimation,
-            animationDuration: animationDuration);
+        super(key: key);
 
   /// The style to use for the needle knob.
   ///
@@ -74,7 +74,7 @@ class NeedlePointer extends GaugePointer {
   /// Also refer [KnobStyle].
   ///
   /// ```dart
-  ///Widget build(BuildContext context) {
+  /// Widget build(BuildContext context) {
   ///    return Container(
   ///        child: SfRadialGauge(
   ///          axes:<RadialAxis>[RadialAxis
@@ -272,55 +272,307 @@ class NeedlePointer extends GaugePointer {
   final NeedlePointerRendererFactory<NeedlePointerRenderer>?
       onCreatePointerRenderer;
 
+  /// Specifies the duration of the pointer animation.
+  ///
+  /// Duration is defined in milliseconds.
+  ///
+  /// Defaults to `1000`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///             pointers: <GaugePointer>[NeedlePointer(value: 50,
+  ///             enableAnimation: true, animationDuration: 2000 )],
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
   @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) {
-      return true;
+  final double animationDuration;
+
+  /// Specifies the different type of animation for pointer.
+  ///
+  /// Different type of animation provides visually appealing way
+  /// when the pointer moves from one value to another.
+  ///
+  /// Defaults to `AnimationType.linear`.
+  ///
+  /// Also refer [AnimationType]
+  ///
+  ///```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///             pointers: <GaugePointer>[NeedlePointer(value: 50,
+  ///             animationType: AnimationType.ease
+  ///             enableAnimation: true, animationDuration: 2000 )],
+  ///            )]
+  ///        ));
+  ///}
+  ///```
+  @override
+  final AnimationType animationType;
+
+  /// Whether to enable the pointer animation.
+  ///
+  /// Set [enableAnimation] is true, the pointer value will cause the pointer
+  /// to animate to the new value.
+  /// The animation duration is specified by [animationDuration].
+  ///
+  /// Defaults to `false`.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///             pointers: <GaugePointer>[NeedlePointer(value: 50,
+  ///             enableAnimation: true)],
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  @override
+  final bool enableAnimation;
+
+  /// Whether to allow the pointer dragging.
+  ///
+  /// It provides an option to drag a pointer from one value to another.
+  /// It is used to change the value at run time.
+  ///
+  /// Defaults to `false`.
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///             pointers: <GaugePointer>[NeedlePointer(value: 50,
+  ///             enableDragging: true)],
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  @override
+  final bool enableDragging;
+
+  /// Called when the user is done selecting a new value of the pointer
+  /// by dragging.
+  ///
+  /// This callback shouldn't be used to update the pointer
+  /// value (use onValueChanged for that),
+  /// but rather to know when the user has completed selecting a new value
+  /// by ending a drag.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Container(
+  ///      child: SfRadialGauge(axes: <RadialAxis>[
+  ///    RadialAxis(
+  ///      pointers: <GaugePointer>[
+  ///        NeedlePointer(
+  ///            value: 50,
+  ///            onValueChangeStart: (double newValue) {
+  ///              setState(() {
+  ///                print('Ended change on $newValue');
+  ///              });
+  ///            })
+  ///      ],
+  ///    )
+  ///  ]));
+  /// }
+  /// ```
+  @override
+  final ValueChanged<double>? onValueChangeEnd;
+
+  /// Called when the user starts selecting a new value of pointer by dragging.
+  ///
+  /// This callback shouldn't be used to update the pointer value
+  /// (use onValueChanged for that), but rather to be notified  when the user
+  /// has started selecting a new value by starting a drag.
+
+  /// The value passed will be the last value that the pointer had before
+  /// the change began.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Container(
+  ///      child: SfRadialGauge(axes: <RadialAxis>[
+  ///    RadialAxis(
+  ///      pointers: <GaugePointer>[
+  ///        NeedlePointer(
+  ///            value: 50,
+  ///            onValueChangeStart: (double startValue) {
+  ///              setState(() {
+  ///                print('Started change at $startValue');
+  ///              });
+  ///            })
+  ///      ],
+  ///    )
+  ///  ]));
+  /// }
+  /// ```
+  @override
+  final ValueChanged<double>? onValueChangeStart;
+
+  /// Called during a drag when the user is selecting a new value for the
+  /// pointer by dragging.
+  ///
+  /// The pointer passes the new value to the callback but does not actually
+  /// change state until the parent widget rebuilds the pointer
+  /// with the new value.
+  ///
+  /// The callback provided to onValueChanged should update the state
+  /// of the parent [StatefulWidget] using the [State.setState] method,
+  /// so that the parent gets rebuilt; for example:
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///  return Container(
+  ///      child: SfRadialGauge(axes: <RadialAxis>[
+  ///    RadialAxis(
+  ///      pointers: <GaugePointer>[
+  ///        NeedlePointer(
+  ///            value: _currentValue,
+  ///            onValueChanged: (double newValue) {
+  ///              setState(() {
+  ///                _currentValue = newValue;
+  ///              });
+  ///            })
+  ///      ],
+  ///    )
+  ///  ]));
+  /// }
+  /// ```
+  @override
+  final ValueChanged<double>? onValueChanged;
+
+  /// Called during a drag when the user is selecting before a new value
+  /// for the pointer by dragging.
+  ///
+  /// This callback shouldn't be used to update the pointer value
+  /// (use onValueChanged for that), but rather to know the new value before
+  /// when the user has completed selecting a new value by drag.
+  ///
+  /// To restrict the update of current drag pointer value,
+  /// set [ValueChangingArgs.cancel] is true.
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return Container(
+  ///       child: SfRadialGauge(axes: <RadialAxis>[
+  ///     RadialAxis(
+  ///       pointers: <GaugePointer>[
+  ///         NeedlePointer(
+  ///             value: 50,
+  ///             onValueChanging: (ValueChangingArgs args) {
+  ///               setState(() {
+  ///                 if (args.value > 10) {
+  ///                   args.cancel = false;
+  ///                 }
+  ///               });
+  ///             })
+  ///       ],
+  ///     )
+  ///   ]));
+  /// }
+  /// ```
+  @override
+  final ValueChanged<ValueChangingArgs>? onValueChanging;
+
+  /// Specifies the value to the pointer.
+  ///
+  /// Changing the pointer value will cause the pointer to animate to the
+  /// new value.
+  ///
+  /// Defaults to `0`.
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfRadialGauge(
+  ///          axes:<RadialAxis>[RadialAxis(
+  ///             pointers: <GaugePointer>[NeedlePointer(value: 50,
+  ///             )],
+  ///            )]
+  ///        ));
+  ///}
+  /// ```
+  @override
+  final double value;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) {
+    final SfGaugeThemeData gaugeTheme = SfGaugeTheme.of(context)!;
+    final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
+
+    NeedlePointerRenderer? needlePointerRenderer;
+    if (onCreatePointerRenderer != null) {
+      needlePointerRenderer = onCreatePointerRenderer!();
+      needlePointerRenderer.pointer = this;
     }
-    if (other.runtimeType != runtimeType) {
-      return false;
-    }
-    return other is NeedlePointer &&
-        other.value == value &&
-        other.enableDragging == enableDragging &&
-        other.onValueChanged == onValueChanged &&
-        other.onValueChangeStart == onValueChangeStart &&
-        other.onValueChanging == onValueChanging &&
-        other.onValueChangeEnd == onValueChangeEnd &&
-        other.enableAnimation == enableAnimation &&
-        other.animationDuration == animationDuration &&
-        other.knobStyle == knobStyle &&
-        other.tailStyle == tailStyle &&
-        other.gradient == gradient &&
-        other.needleLength == needleLength &&
-        other.lengthUnit == lengthUnit &&
-        other.needleStartWidth == needleStartWidth &&
-        other.needleEndWidth == needleEndWidth &&
-        other.onCreatePointerRenderer == onCreatePointerRenderer &&
-        other.needleColor == needleColor;
+
+    return RenderNeedlePointer(
+        value: value,
+        enableDragging: enableDragging,
+        onValueChanged: onValueChanged,
+        onValueChangeStart: onValueChangeStart,
+        onValueChangeEnd: onValueChangeEnd,
+        onValueChanging: onValueChanging,
+        knobStyle: knobStyle,
+        tailStyle: tailStyle,
+        gradient: gradient,
+        needleLength: needleLength,
+        lengthUnit: lengthUnit,
+        needleStartWidth: needleStartWidth,
+        needleEndWidth: needleEndWidth,
+        needlePointerRenderer: needlePointerRenderer,
+        needleColor: needleColor,
+        pointerAnimationController: radialAxisScope.animationController,
+        pointerInterval: radialAxisScope.pointerInterval,
+        isRadialGaugeAnimationEnabled:
+            radialAxisScope.isRadialGaugeAnimationEnabled,
+        enableAnimation: enableAnimation,
+        animationType: animationType,
+        repaintNotifier: radialAxisScope.repaintNotifier,
+        gaugeThemeData: gaugeTheme);
   }
 
   @override
-  int get hashCode {
-    final List<Object?> values = <Object?>[
-      value,
-      enableDragging,
-      onValueChanged,
-      onValueChangeStart,
-      onValueChanging,
-      onValueChangeEnd,
-      enableAnimation,
-      animationDuration,
-      knobStyle,
-      tailStyle,
-      gradient,
-      needleLength,
-      lengthUnit,
-      needleStartWidth,
-      needleEndWidth,
-      needleColor,
-      onCreatePointerRenderer
-    ];
-    return hashList(values);
+  void updateRenderObject(
+      BuildContext context, RenderNeedlePointer renderObject) {
+    final SfGaugeThemeData gaugeTheme = SfGaugeTheme.of(context)!;
+    final RadialAxisScope radialAxisScope = RadialAxisScope.of(context);
+    NeedlePointerRenderer? needlePointerRenderer;
+    if (onCreatePointerRenderer != null) {
+      needlePointerRenderer = onCreatePointerRenderer!();
+      needlePointerRenderer.pointer = this;
+    }
+
+    renderObject
+      ..enableDragging = enableDragging
+      ..onValueChanged = onValueChanged
+      ..onValueChangeStart = onValueChangeStart
+      ..onValueChangeEnd = onValueChangeEnd
+      ..onValueChanging = onValueChanging
+      ..knobStyle = knobStyle
+      ..tailStyle = tailStyle
+      ..gradient = gradient
+      ..needleLength = needleLength
+      ..lengthUnit = lengthUnit
+      ..needleStartWidth = needleStartWidth
+      ..needleEndWidth = needleEndWidth
+      ..needlePointerRenderer = needlePointerRenderer
+      ..needleColor = needleColor
+      ..enableAnimation = enableAnimation
+      ..animationType = animationType
+      ..pointerAnimationController = radialAxisScope.animationController
+      ..repaintNotifier = radialAxisScope.repaintNotifier
+      ..isRadialGaugeAnimationEnabled =
+          radialAxisScope.isRadialGaugeAnimationEnabled
+      ..gaugeThemeData = gaugeTheme
+      ..value = value;
+    super.updateRenderObject(context, renderObject);
   }
 }

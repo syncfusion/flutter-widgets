@@ -11,6 +11,7 @@ part of charts;
 ///
 /// Provides the options x, y, coordinateUnit, and widget to customize the cartesian chart annotation.
 ///
+@immutable
 class CartesianChartAnnotation {
   /// Creating an argument constructor of CartesianChartAnnotation class.
   const CartesianChartAnnotation(
@@ -254,4 +255,41 @@ class CartesianChartAnnotation {
   ///}
   ///```
   final ChartAlignment verticalAlignment;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    return other is CartesianChartAnnotation &&
+        other.widget == widget &&
+        other.coordinateUnit == coordinateUnit &&
+        other.region == region &&
+        other.horizontalAlignment == horizontalAlignment &&
+        other.verticalAlignment == verticalAlignment &&
+        other.x == x &&
+        other.y == y &&
+        other.xAxisName == xAxisName &&
+        other.yAxisName == yAxisName;
+  }
+
+  @override
+  int get hashCode {
+    final List<Object?> values = <Object?>[
+      widget,
+      coordinateUnit,
+      region,
+      horizontalAlignment,
+      verticalAlignment,
+      x,
+      y,
+      xAxisName,
+      yAxisName
+    ];
+    return hashList(values);
+  }
 }

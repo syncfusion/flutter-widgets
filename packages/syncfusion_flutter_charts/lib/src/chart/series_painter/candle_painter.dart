@@ -28,16 +28,14 @@ class _CandlePainter extends CustomPainter {
     Rect clipRect;
     double animationFactor;
     final CandleSeries<dynamic, dynamic> series =
-        seriesRenderer._series as CandleSeries;
+        seriesRenderer._series as CandleSeries<dynamic, dynamic>;
     CartesianChartPoint<dynamic> point;
     if (seriesRenderer._visible!) {
       canvas.save();
       assert(
           // ignore: unnecessary_null_comparison
-          series.animationDuration != null
-              ? series.animationDuration >= 0
-              : true,
-          'The animation duration of the candle series must be greater or equal to 0.');
+          !(series.animationDuration != null) || series.animationDuration >= 0,
+          'The animation duration of the bar series must be greater than or equal to 0.');
       final int seriesIndex = painterKey.index;
       seriesRenderer._storeSeriesProperties(chartState, seriesIndex);
       final Rect axisClipRect = _calculatePlotOffset(
@@ -64,7 +62,7 @@ class _CandlePainter extends CustomPainter {
               painterKey.index,
               point,
               pointIndex,
-              seriesRenderer.sideBySideInfo);
+              seriesRenderer._sideBySideInfo);
 
           if (point.isVisible && !point.isGap) {
             seriesRenderer._drawSegment(

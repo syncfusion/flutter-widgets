@@ -1753,6 +1753,7 @@ const List<int> _kDateCollection = <int>[
 /// final HijriDateTime date = HijriDateTime(1442, 02, 10);
 ///
 /// ```
+@immutable
 class HijriDateTime {
   /// Creates a instance for HijriDateTime instance with given data.
   HijriDateTime(this.year, this.month, this.day)
@@ -1823,16 +1824,16 @@ class HijriDateTime {
 
   /// Returns true if [this] occurs at the same moment as [other].
   ///
-  /// The comparison is independent of whether the time is in UTC or in the local
-  /// time zone.
+  /// The comparison is independent of whether the time is in UTC or in the
+  /// local time zone.
   bool isBefore(HijriDateTime other) {
     return _date.millisecondsSinceEpoch < other._date.millisecondsSinceEpoch;
   }
 
   /// Returns true if [this] occurs at the same moment as [other].
   ///
-  /// The comparison is independent of whether the time is in UTC or in the local
-  /// time zone.
+  /// The comparison is independent of whether the time is in UTC or in the
+  /// local time zone.
   bool isAtSameMomentAs(HijriDateTime other) {
     return _date.millisecondsSinceEpoch == other._date.millisecondsSinceEpoch;
   }
@@ -1861,7 +1862,9 @@ class HijriDateTime {
   }
 
   String _twoDigits(int n) {
-    if (n >= 10) return '$n';
+    if (n >= 10) {
+      return '$n';
+    }
     return '0$n';
   }
 
@@ -1873,7 +1876,8 @@ class HijriDateTime {
   /// returns the previous date from the given value.
   HijriDateTime _getPreviousDate(HijriDateTime date, int day) {
     if (day <= 0) {
-      date = getPreviousMonthDate(date);
+      // ignore: avoid_as
+      date = getPreviousMonthDate(date) as HijriDateTime;
       final int? monthLength = date.getNumberOfDatesInMonth();
 
       /// Return same date when dates count in month not specified.
@@ -1892,7 +1896,8 @@ class HijriDateTime {
   HijriDateTime _getNextDate(int? monthLength, HijriDateTime date, int day) {
     if (monthLength != null && day > monthLength) {
       day -= monthLength;
-      date = getNextMonthDate(date);
+      // ignore: avoid_as
+      date = getNextMonthDate(date) as HijriDateTime;
       monthLength = date.getNumberOfDatesInMonth();
 
       /// Return same date when dates count in month not specified.
@@ -1961,7 +1966,8 @@ class HijriDateTime {
       return false;
     }
 
-    final HijriDateTime otherStyle = other;
+    // ignore: avoid_as, test_types_in_equals
+    final HijriDateTime otherStyle = other as HijriDateTime;
     return otherStyle.month == month &&
         otherStyle.year == year &&
         otherStyle.day == day;
@@ -2007,7 +2013,7 @@ HijriDateTime convertToHijriDate(DateTime date) {
   year = c - 4716;
   final int modifiedJulianDate = julianNumber - 2400000;
   // date calculation for year after 2077
-  final double iYear = 10631.0 / 30.0;
+  const double iYear = 10631.0 / 30.0;
   int z = julianNumber - 1948084;
   final int cyc = (z / 10631.0).floor();
   z = z - 10631 * cyc;

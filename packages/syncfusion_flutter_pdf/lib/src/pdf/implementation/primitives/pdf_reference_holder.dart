@@ -16,13 +16,12 @@ class _PdfReferenceHolder implements _IPdfPrimitive {
   }
 
   _PdfReferenceHolder.fromReference(
-      _PdfReference reference, _PdfCrossTable? crossTable) {
+      this.reference, _PdfCrossTable? crossTable) {
     if (crossTable != null) {
       this.crossTable = crossTable;
     } else {
       throw ArgumentError.value(crossTable, 'crossTable value cannot be null');
     }
-    this.reference = reference;
   }
 
   //Fields
@@ -110,17 +109,17 @@ class _PdfReferenceHolder implements _IPdfPrimitive {
       if (!writer._document!._isLoadedDocument) {
         object!.isSaving = true;
       }
-      final _PdfCrossTable? crossTable = writer._document!._crossTable;
+      final _PdfCrossTable crossTable = writer._document!._crossTable;
       _PdfReference? pdfReference;
       if (writer._document!.fileStructure.incrementalUpdate &&
           writer._document!._isStreamCopied) {
         if (reference == null) {
-          pdfReference = crossTable!._getReference(object);
+          pdfReference = crossTable._getReference(object);
         } else {
           pdfReference = reference;
         }
       } else {
-        pdfReference = crossTable!._getReference(object);
+        pdfReference = crossTable._getReference(object);
       }
       pdfReference!.save(writer);
     }
@@ -155,13 +154,13 @@ class _PdfReferenceHolder implements _IPdfPrimitive {
     _IPdfPrimitive? temp;
     _PdfReference reference;
     if (object is _PdfNumber) {
-      return _PdfNumber((object as _PdfNumber).value!);
+      return _PdfNumber((object! as _PdfNumber).value!);
     }
 
     if (object is _PdfDictionary) {
       // Meaning the referenced page is not available for import.
       final _PdfName type = _PdfName(_DictionaryProperties.type);
-      final _PdfDictionary dict = object as _PdfDictionary;
+      final _PdfDictionary dict = object! as _PdfDictionary;
       if (dict.containsKey(type)) {
         final _PdfName? pageName = dict[type] as _PdfName?;
         if (pageName != null) {
@@ -172,7 +171,7 @@ class _PdfReferenceHolder implements _IPdfPrimitive {
       }
     }
     if (object is _PdfName) {
-      return _PdfName((object as _PdfName)._name);
+      return _PdfName((object! as _PdfName)._name);
     }
 
     // Resolves circular references.
@@ -194,7 +193,7 @@ class _PdfReferenceHolder implements _IPdfPrimitive {
     if (this.reference != null) {
       crossTable._prevReference!.add(this.reference);
     }
-    if (!(object is _PdfCatalog)) {
+    if (object is! _PdfCatalog) {
       temp = object!._clone(crossTable);
     } else {
       temp = crossTable._document!._catalog;
