@@ -61,7 +61,9 @@ void _calculateDataLabelPosition(
         ? point.upperQuartile!
         : point.lowerQuartile!;
   }
-  // ignore: prefer_final_fields
+  // ignore: prefer_final_locals
+  List<String> labelList = <String>[];
+  // ignore: prefer_final_locals
   String label = point.dataLabelMapper ??
       point.label ??
       _getLabelText(
@@ -76,11 +78,63 @@ void _calculateDataLabelPosition(
           seriesRenderer);
   if (isRangeSeries) {
     point.label2 = point.dataLabelMapper ??
+        point.label2 ??
         _getLabelText(!inversed ? point.low : point.high, seriesRenderer);
+    if (seriesRenderer._seriesType == 'hiloopenclose' ||
+        seriesRenderer._seriesType.contains('candle')) {
+      point.label3 = point.dataLabelMapper ??
+          point.label3 ??
+          _getLabelText(
+              (point.open > point.close) == true
+                  ? !inversed
+                      ? point.close
+                      : point.open
+                  : !inversed
+                      ? point.open
+                      : point.close,
+              seriesRenderer);
+      point.label4 = point.dataLabelMapper ??
+          point.label4 ??
+          _getLabelText(
+              (point.open > point.close) == true
+                  ? !inversed
+                      ? point.open
+                      : point.close
+                  : !inversed
+                      ? point.close
+                      : point.open,
+              seriesRenderer);
+    }
   } else if (isBoxSeries) {
     point.label2 = point.dataLabelMapper ??
+        point.label2 ??
         _getLabelText(
             !inversed ? point.minimum : point.maximum, seriesRenderer);
+    point.label3 = point.dataLabelMapper ??
+        point.label3 ??
+        _getLabelText(
+            point.lowerQuartile! > point.upperQuartile!
+                ? !inversed
+                    ? point.upperQuartile
+                    : point.lowerQuartile
+                : !inversed
+                    ? point.lowerQuartile
+                    : point.upperQuartile,
+            seriesRenderer);
+    point.label4 = point.dataLabelMapper ??
+        point.label4 ??
+        _getLabelText(
+            point.lowerQuartile! > point.upperQuartile!
+                ? !inversed
+                    ? point.lowerQuartile
+                    : point.upperQuartile
+                : !inversed
+                    ? point.upperQuartile
+                    : point.lowerQuartile,
+            seriesRenderer);
+    point.label5 = point.dataLabelMapper ??
+        point.label5 ??
+        _getLabelText(point.median, seriesRenderer);
   }
   DataLabelRenderArgs dataLabelArgs;
   TextStyle? dataLabelStyle = dataLabelSettingsRenderer._textStyle;
@@ -91,21 +145,37 @@ void _calculateDataLabelPosition(
   dataLabelStyle = dataLabelSettingsRenderer._originalStyle;
   if (chart.onDataLabelRender != null &&
       !seriesRenderer._visibleDataPoints![index].labelRenderEvent) {
+    labelList.add(label);
+    if (isRangeSeries) {
+      labelList.add(point.label2!);
+      if (seriesRenderer._seriesType == 'hiloopenclose' ||
+          seriesRenderer._seriesType.contains('candle')) {
+        labelList.add(point.label3!);
+        labelList.add(point.label4!);
+      }
+    } else if (isBoxSeries) {
+      labelList.add(point.label2!);
+      labelList.add(point.label3!);
+      labelList.add(point.label4!);
+      labelList.add(point.label5!);
+    }
     seriesRenderer._visibleDataPoints![index].labelRenderEvent = true;
-    dataLabelArgs = DataLabelRenderArgs(
-        seriesRenderer._series,
-        seriesRenderer._dataPoints,
-        index,
-        seriesRenderer._visibleDataPoints![index].overallDataPointIndex);
-    dataLabelArgs.text = label;
-    dataLabelArgs.textStyle = dataLabelStyle!;
-    dataLabelArgs.color = seriesRenderer._series.dataLabelSettings.color;
-    chart.onDataLabelRender!(dataLabelArgs);
-    label = point.label = dataLabelArgs.text;
-    index = dataLabelArgs.pointIndex!;
-    point._dataLabelStyle = dataLabelArgs.textStyle;
-    point._dataLabelColor = dataLabelArgs.color;
-    dataLabelSettingsRenderer._offset = dataLabelArgs.offset;
+    for (int i = 0; i < labelList.length; i++) {
+      dataLabelArgs = DataLabelRenderArgs(
+          seriesRenderer._series,
+          seriesRenderer._dataPoints,
+          index,
+          seriesRenderer._visibleDataPoints![index].overallDataPointIndex);
+      dataLabelArgs.text = labelList[i];
+      dataLabelArgs.textStyle = dataLabelStyle!;
+      dataLabelArgs.color = seriesRenderer._series.dataLabelSettings.color;
+      chart.onDataLabelRender!(dataLabelArgs);
+      labelList[i] = dataLabelArgs.text;
+      index = dataLabelArgs.pointIndex!;
+      point._dataLabelStyle = dataLabelArgs.textStyle;
+      point._dataLabelColor = dataLabelArgs.color;
+      dataLabelSettingsRenderer._offset = dataLabelArgs.offset;
+    }
   }
   dataLabelSettingsRenderer._textStyle = dataLabelStyle;
   if (chart.onDataLabelRender != null) {
@@ -159,7 +229,7 @@ void _calculateDataLabelPosition(
             fontWeight: FontWeight.normal,
             fontSize: 12)
         : dataLabelStyle!;
-    point.label = label;
+    point.label = labelList.isNotEmpty ? labelList[0] : label;
     if (label.isNotEmpty) {
       _ChartLocation? chartLocation,
           chartLocation2,
@@ -170,6 +240,7 @@ void _calculateDataLabelPosition(
           dataLabel.builder == null ? measureText(label, font) : templateSize!;
       chartLocation = _ChartLocation(markerPointX, markerPointY);
       if (isRangeSeries || isBoxSeries) {
+        point.label2 = labelList.isNotEmpty ? labelList[1] : point.label2;
         textSize2 = dataLabel.builder == null
             ? measureText(point.label2!, font)
             : templateSize!;
@@ -251,49 +322,54 @@ void _calculateDataLabelPosition(
           seriesRenderer._seriesType.contains('candle') ||
           isBoxSeries) {
         if (!isBoxSeries) {
-          point.label3 = point.dataLabelMapper ??
-              _getLabelText(
-                  (point.open > point.close) == true
-                      ? !inversed
-                          ? point.close
-                          : point.open
-                      : !inversed
-                          ? point.open
-                          : point.close,
-                  seriesRenderer);
-          point.label4 = point.dataLabelMapper ??
-              _getLabelText(
-                  (point.open > point.close) == true
-                      ? !inversed
-                          ? point.open
-                          : point.close
-                      : !inversed
-                          ? point.close
-                          : point.open,
-                  seriesRenderer);
+          point.label3 = labelList.isNotEmpty ? labelList[2] : point.label3;
+          point.label4 = labelList.isNotEmpty ? labelList[3] : point.label4;
+          // point.label3 = point.dataLabelMapper ??
+          //     _getLabelText(
+          //         (point.open > point.close) == true
+          //             ? !inversed
+          //                 ? point.close
+          //                 : point.open
+          //             : !inversed
+          //                 ? point.open
+          //                 : point.close,
+          //         seriesRenderer);
+          // point.label4 = point.dataLabelMapper ??
+          //     _getLabelText(
+          //         (point.open > point.close) == true
+          //             ? !inversed
+          //                 ? point.open
+          //                 : point.close
+          //             : !inversed
+          //                 ? point.close
+          //                 : point.open,
+          //         seriesRenderer);
         } else {
-          point.label3 = point.dataLabelMapper ??
-              _getLabelText(
-                  point.lowerQuartile! > point.upperQuartile!
-                      ? !inversed
-                          ? point.upperQuartile
-                          : point.lowerQuartile
-                      : !inversed
-                          ? point.lowerQuartile
-                          : point.upperQuartile,
-                  seriesRenderer);
-          point.label4 = point.dataLabelMapper ??
-              _getLabelText(
-                  point.lowerQuartile! > point.upperQuartile!
-                      ? !inversed
-                          ? point.lowerQuartile
-                          : point.upperQuartile
-                      : !inversed
-                          ? point.upperQuartile
-                          : point.lowerQuartile,
-                  seriesRenderer);
-          point.label5 = point.dataLabelMapper ??
-              _getLabelText(point.median, seriesRenderer);
+          point.label3 = labelList.isNotEmpty ? labelList[2] : point.label3;
+          point.label4 = labelList.isNotEmpty ? labelList[3] : point.label4;
+          point.label5 = labelList.isNotEmpty ? labelList[4] : point.label5;
+          // point.label3 = point.dataLabelMapper ??
+          //     _getLabelText(
+          //         point.lowerQuartile! > point.upperQuartile!
+          //             ? !inversed
+          //                 ? point.upperQuartile
+          //                 : point.lowerQuartile
+          //             : !inversed
+          //                 ? point.lowerQuartile
+          //                 : point.upperQuartile,
+          //         seriesRenderer);
+          // point.label4 = point.dataLabelMapper ??
+          //     _getLabelText(
+          //         point.lowerQuartile! > point.upperQuartile!
+          //             ? !inversed
+          //                 ? point.lowerQuartile
+          //                 : point.upperQuartile
+          //             : !inversed
+          //                 ? point.upperQuartile
+          //                 : point.lowerQuartile,
+          //         seriesRenderer);
+          // point.label5 = point.dataLabelMapper ??
+          //     _getLabelText(point.median, seriesRenderer);
         }
         textSize3 = dataLabel.builder == null
             ? measureText(point.label3!, font)
@@ -1157,7 +1233,6 @@ void _drawDataLabel(
   final String? label = point.label;
   dataLabelStyle = dataLabelSettingsRenderer._textStyle;
   if (label != null &&
-      label.isNotEmpty &&
       // ignore: unnecessary_null_comparison
       point != null &&
       point.isVisible &&
@@ -1329,14 +1404,28 @@ void _drawDataLabelRectAndText(
       }
       canvas.translate(-point.dataLabelRegion!.center.dx,
           -point.dataLabelRegion!.center.dy - y);
-      canvas.drawPath(path, strokePaint);
+      if (point.label!.isNotEmpty) {
+        canvas.drawPath(path, strokePaint);
+      }
       canvas.restore();
       if (isRangeSeries || isBoxSeries) {
-        canvas.drawPath(path2, strokePaint);
-        canvas.drawPath(path3, strokePaint);
-        canvas.drawPath(path4, strokePaint);
+        if (point.label2!.isNotEmpty) {
+          canvas.drawPath(path2, strokePaint);
+        }
+        if (seriesRenderer._seriesType == 'hiloopenclose' ||
+            seriesRenderer._seriesType.contains('candle') ||
+            isBoxSeries) {
+          if (point.label3!.isNotEmpty) {
+            canvas.drawPath(path3, strokePaint);
+          }
+          if (point.label4!.isNotEmpty) {
+            canvas.drawPath(path4, strokePaint);
+          }
+        }
         if (isBoxSeries) {
-          canvas.drawPath(path5, strokePaint);
+          if (point.label5!.isNotEmpty) {
+            canvas.drawPath(path5, strokePaint);
+          }
         }
       }
     }
@@ -1367,14 +1456,28 @@ void _drawDataLabelRectAndText(
       }
       canvas.translate(-point.dataLabelRegion!.center.dx,
           -point.dataLabelRegion!.center.dy - y);
-      canvas.drawPath(path, paint);
+      if (point.label!.isNotEmpty) {
+        canvas.drawPath(path, paint);
+      }
       canvas.restore();
       if (isRangeSeries || isBoxSeries) {
-        canvas.drawPath(path2, paint);
-        canvas.drawPath(path3, paint);
-        canvas.drawPath(path4, paint);
+        if (point.label2!.isNotEmpty) {
+          canvas.drawPath(path2, paint);
+        }
+        if (seriesRenderer._seriesType == 'hiloopenclose' ||
+            seriesRenderer._seriesType.contains('candle') ||
+            isBoxSeries) {
+          if (point.label3!.isNotEmpty) {
+            canvas.drawPath(path3, paint);
+          }
+          if (point.label4!.isNotEmpty) {
+            canvas.drawPath(path4, paint);
+          }
+        }
         if (isBoxSeries) {
-          canvas.drawPath(path5, paint);
+          if (point.label5!.isNotEmpty) {
+            canvas.drawPath(path5, paint);
+          }
         }
       }
     }

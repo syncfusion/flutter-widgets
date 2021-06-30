@@ -27,7 +27,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/foundation.dart';
 //ignore: implementation_imports
 import 'package:flutter/src/foundation/platform.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:intl/intl.dart' show NumberFormat;
 import 'package:syncfusion_flutter_core/core.dart';
@@ -212,3 +211,4 @@ part './src/common/user_interaction/tooltip.dart';
 part './src/common/utils/enum.dart';
 part './src/common/utils/helper.dart';
 part './src/common/utils/typedef.dart';
+

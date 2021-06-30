@@ -755,9 +755,9 @@ class MacdIndicatorRenderParams extends IndicatorRenderParams {
   final List<CartesianChartPoint<dynamic>>? macdHistogramValues;
 }
 
-/// Holds the ChartIndicator values
+/// Holds the TechnicalIndicatorRenderDetails values
 class TechnicalIndicatorRenderDetails {
-  /// Creating an argument constructor of ChartIndicator class.
+  /// Creating an argument constructor of TechnicalIndicatorRenderDetails class.
   TechnicalIndicatorRenderDetails(
       this.signalLineColor, this.signalLineWidth, this.signalLineDashArray);
 

@@ -375,7 +375,7 @@ class TechnicalIndicators<T, D> {
   ///  indicators: <TechnicalIndicators<dynamic, dynamic>>[
   ///            SmaIndicator<dynamic, dynamic>(
   /// onRenderDetailsUpdate: (IndicatorRenderParams params) {
-  ///             return ChartIndicator(Colors.cyan, 3.0, <double>[5,5]);
+  ///             return TechnicalIndicatorRenderDetails(Colors.cyan, 3.0, <double>[5,5]);
   ///                },
   /// )],
   ///        ));

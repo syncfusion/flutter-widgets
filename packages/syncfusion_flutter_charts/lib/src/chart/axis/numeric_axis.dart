@@ -556,9 +556,6 @@ class NumericAxisRenderer extends ChartAxisRenderer {
             ? minimumVisibleRange
             : num.tryParse(
                 minimumVisibleRange.toStringAsFixed(fractionDigitValue))!;
-        if (minimumVisibleRange % 1 == 0) {
-          minimumVisibleRange = minimumVisibleRange.round();
-        }
         if (minimumVisibleRange.toString().split('.').length > 1) {
           final String str = minimumVisibleRange.toString();
           final List<String>? list = str.split('.');
@@ -570,7 +567,8 @@ class NumericAxisRenderer extends ChartAxisRenderer {
                   list[1] == '00' ||
                   list[1] == '000' ||
                   list[1] == '0000' ||
-                  list[1] == '00000')) {
+                  list[1] == '00000' ||
+                  minimumVisibleRange % 1 == 0)) {
             minimumVisibleRange = minimumVisibleRange.round();
           }
         }

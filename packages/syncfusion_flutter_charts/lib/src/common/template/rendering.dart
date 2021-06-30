@@ -239,8 +239,8 @@ class _ChartTemplateRenderBox extends RenderShiftedBox {
               : _chartState._annotationRegions.add(rect);
           childParentData.offset = Offset(locationX, locationY);
         } else {
-          child!
-              .layout(constraints.copyWith(maxWidth: 0), parentUsesSize: true);
+          child!.layout(constraints.copyWith(maxWidth: 0, maxHeight: 0),
+              parentUsesSize: true);
         }
       }
     } else {

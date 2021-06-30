@@ -153,6 +153,8 @@ class SfTooltipState extends State<SfTooltip>
 
   Object? _previousTooltipData;
 
+  late int _showDuration;
+
   ///Setter for the boundary rect within which the tooltip could be shown
   set boundaryRect(Rect value) {
     if (renderBox != null) {
@@ -192,16 +194,17 @@ class SfTooltipState extends State<SfTooltip>
       _template = template;
       _previousTooltipData = tooltipData;
       _animating = true;
+      _showDuration = duration;
+      if (tooltipContent != null) {
+        renderBox!._stringValue = tooltipContent;
+      }
+      if (tooltipHeader != null) {
+        renderBox!._header = tooltipHeader;
+      }
       if (mounted) {
         setState(() {
           animationController!.duration = Duration(milliseconds: duration!);
           if (animationController?.status != AnimationStatus.forward) {
-            if (tooltipContent != null) {
-              renderBox!._stringValue = tooltipContent;
-            }
-            if (tooltipHeader != null) {
-              renderBox!._header = tooltipHeader;
-            }
             animationController!.forward(from: 0.0);
           }
         });
@@ -501,7 +504,9 @@ class TooltipRenderBox extends RenderShiftedBox {
     calculateLocation(_position != null ? (_position!) : parentOffset);
     context.canvas.translate(relativeOffset.dx, relativeOffset.dy);
     if (_tooltipState._show) {
-      if ((_animationFactor == 0 || _tooltip.animationDuration == 0) &&
+      if (((_animationController.value == 0 ||
+                  _tooltipState._showDuration == 0) &&
+              _animationController.status != AnimationStatus.dismissed) &&
           _tooltipState.widget.onTooltipRender != null) {
         final TooltipRenderArgs tooltipRenderArgs = TooltipRenderArgs(_header,
             _stringValue, _x != null && _y != null ? Offset(_x!, _y!) : null);
