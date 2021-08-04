@@ -496,7 +496,9 @@ class SfDividerShape {
 /// shapes.
 class SfOverlayShape {
   /// Enables subclasses to provide constant constructors.
-  const SfOverlayShape();
+  const SfOverlayShape({this.overlayColor});
+
+  final Color? overlayColor;
 
   /// Returns the size based on the values passed to it.
   Size getPreferredSize(SfSliderThemeData themeData) {
@@ -517,7 +519,7 @@ class SfOverlayShape {
 
     if (paint == null) {
       paint = Paint();
-      paint.color = themeData.overlayColor!;
+      paint.color = overlayColor ?? themeData.overlayColor!;
     }
     context.canvas.drawCircle(center, tween.evaluate(animation), paint);
   }
