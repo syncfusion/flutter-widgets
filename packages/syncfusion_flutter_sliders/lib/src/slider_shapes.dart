@@ -289,7 +289,9 @@ class SfTrackShape {
 /// shapes.
 class SfThumbShape {
   /// Enables subclasses to provide constant constructors.
-  const SfThumbShape();
+  const SfThumbShape({this.thumbRadius});
+
+  final double? thumbRadius;
 
   bool _isThumbOverlap(RenderBaseSlider parentBox) {
     return parentBox.showOverlappingThumbStroke;
@@ -311,7 +313,7 @@ class SfThumbShape {
       required Animation<double> enableAnimation,
       required TextDirection textDirection,
       required SfThumb? thumb}) {
-    final double radius = getPreferredSize(themeData).width / 2;
+    final double radius = thumbRadius ?? getPreferredSize(themeData).width / 2;
     final bool isThumbStroke = themeData.thumbStrokeColor != null &&
         themeData.thumbStrokeColor != Colors.transparent &&
         themeData.thumbStrokeWidth != null &&
