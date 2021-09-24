@@ -1,4 +1,17 @@
 ## Unreleased
+ 
+**Features**
+* Provided the support to resize the columns by tapping and dragging the right border of the column header.
+* Provided the support to show an additional unbound row to display a summary or totals. Users can display a minimum, maximum, average, and count in columns.
+* Provided the support to export the DataGrid content, such as rows, stacked header rows, and table summary rows, to Excel and PDF format with several customization options.
+* Provided the support to show a checkbox in each row to select entire rows when the boxes are checked. Users can select or deselect all the rows by selecting the checkbox in the header.
+* Provided the support to sort all the rows in DataGrid instead of current page alone when the paging is used.
+* Provided the support to set the size for the page buttons in `SfDataPager`.
+ 
+**Breaking changes**
+* The `onCellRenderersCreated` callback has been removed from the `SfDataGrid`.
+
+## [19.2.44-beta] - 06/30/2021
 
 **Features**
 * Provided the support to edit cell values. An editor widget can be loaded based on the column type to edit cell values.
@@ -10,6 +23,8 @@
 
 **Breaking changes**
 * [GridTextColumn](https://pub.dev/documentation/syncfusion_flutter_datagrid/latest/datagrid/GridTextColumn-class.html) class has been deprecated. Use [GridColumn](https://pub.dev/documentation/syncfusion_flutter_datagrid/latest/datagrid/GridColumn-class.html) instead.
+* \#I324459 - The DataGrid's built-in left and top borders have been removed. Set the required border configuration in the [Container](https://api.flutter.dev/flutter/widgets/Container-class.html) widget and add `SfDataGrid` as a child.
+* The `DataGridSource` class's `handleSort` method has been removed. To write the whole logic for custom sorting, override the `performSorting` method in `DataGridSource` class.
 
 ## [19.1.67-beta] - 06/08/2021
 

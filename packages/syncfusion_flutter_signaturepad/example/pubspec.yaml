@@ -14,7 +14,6 @@ dependencies:
   syncfusion_flutter_signaturepad:
     path: ../
 
-
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

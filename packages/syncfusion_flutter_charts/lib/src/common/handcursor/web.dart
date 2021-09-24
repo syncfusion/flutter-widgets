@@ -10,20 +10,22 @@ class HandCursor extends MouseRegion {
   HandCursor({required Widget child})
       : super(
           child: child,
-          onHover: _mouseHover,
-          onExit: _mouseExit,
+          onHover: mouseHover,
+          onExit: mouseExit,
         );
 
   static final html.Element? _appContainer =
       html.window.document.getElementById('app-container');
 
-  static void _mouseHover(PointerEvent event) {
+  /// Method called when the mouse is hovered
+  static void mouseHover(PointerEvent event) {
     if (_appContainer != null) {
       _appContainer!.style.cursor = 'pointer';
     }
   }
 
-  static void _mouseExit(PointerEvent event) {
+  /// Method is called when the mouse point exit
+  static void mouseExit(PointerEvent event) {
     if (_appContainer != null) {
       _appContainer!.style.cursor = 'default';
     }

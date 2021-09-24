@@ -1,4 +1,22 @@
-part of charts;
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_core/core.dart';
+
+import '../../common/utils/helper.dart';
+import '../axis/axis.dart';
+import '../axis/category_axis.dart';
+import '../axis/datetime_axis.dart';
+import '../axis/datetime_category_axis.dart';
+import '../axis/logarithmic_axis.dart';
+import '../axis/numeric_axis.dart';
+import '../base/chart_base.dart';
+import '../chart_series/xy_data_series.dart';
+import '../common/cartesian_state_properties.dart';
+import '../utils/enum.dart';
+import '../utils/helper.dart';
 
 /// Render plot band.
 ///
@@ -634,12 +652,21 @@ class PlotBand {
   }
 }
 
+/// Method to get the plot band painter
+CustomPainter getPlotBandPainter(
+    {required CartesianStateProperties stateProperties,
+    required bool shouldRenderAboveSeries}) {
+  return _PlotBandPainter(
+      stateProperties: stateProperties,
+      shouldRenderAboveSeries: shouldRenderAboveSeries);
+}
+
 class _PlotBandPainter extends CustomPainter {
   _PlotBandPainter(
-      {required this.chartState, required this.shouldRenderAboveSeries})
-      : chart = chartState._chart;
+      {required this.stateProperties, required this.shouldRenderAboveSeries})
+      : chart = stateProperties.chart;
 
-  final SfCartesianChartState chartState;
+  final CartesianStateProperties stateProperties;
 
   final SfCartesianChart chart;
 
@@ -650,20 +677,22 @@ class _PlotBandPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     Rect clipRect;
     for (int axisIndex = 0;
-        axisIndex < chartState._chartAxis._axisRenderersCollection.length;
+        axisIndex < stateProperties.chartAxis.axisRenderersCollection.length;
         axisIndex++) {
       final ChartAxisRenderer axisRenderer =
-          chartState._chartAxis._axisRenderersCollection[axisIndex];
-      final ChartAxis axis = axisRenderer._axis;
+          stateProperties.chartAxis.axisRenderersCollection[axisIndex];
+      final ChartAxisRendererDetails axisDetails =
+          AxisHelper.getAxisRendererDetails(axisRenderer);
+      final ChartAxis axis = axisDetails.axis;
       for (int j = 0; j < axis.plotBands.length; j++) {
         final PlotBand plotBand = axis.plotBands[j];
         if (plotBand.isVisible &&
             shouldRenderAboveSeries != plotBand.shouldRenderAboveSeries) {
           clipRect = Rect.fromLTRB(
-              chartState._chartAxis._axisClipRect.left,
-              chartState._chartAxis._axisClipRect.top,
-              chartState._chartAxis._axisClipRect.right,
-              chartState._chartAxis._axisClipRect.bottom);
+              stateProperties.chartAxis.axisClipRect.left,
+              stateProperties.chartAxis.axisClipRect.top,
+              stateProperties.chartAxis.axisClipRect.right,
+              stateProperties.chartAxis.axisClipRect.bottom);
           canvas.clipRect(clipRect);
           _renderPlotBand(canvas, axisRenderer, plotBand);
         }
@@ -672,8 +701,10 @@ class _PlotBandPainter extends CustomPainter {
   }
 
   /// To find the start and end location for plotband
-  _ChartLocation _getStartAndEndValues(ChartAxisRenderer axisRenderer,
+  ChartLocation _getStartAndEndValues(ChartAxisRenderer axisRenderer,
       dynamic start, dynamic end, PlotBand plotBand, bool isNeedRepeat) {
+    final ChartAxisRendererDetails axisDetails =
+        AxisHelper.getAxisRendererDetails(axisRenderer);
     dynamic startValue = start is String && num.tryParse(start) != null
         ? num.tryParse(start)
         : start;
@@ -691,57 +722,58 @@ class _PlotBandPainter extends CustomPainter {
           : endValue is DateTime
               ? endValue.millisecondsSinceEpoch
               : endValue;
-    } else if (axisRenderer is CategoryAxisRenderer) {
+    } else if (axisDetails is CategoryAxisDetails) {
       startValue = startValue is num
           ? startValue
-          : axisRenderer._labels.indexOf(startValue);
+          : axisDetails.labels.indexOf(startValue);
       endValue = isNeedRepeat
           ? plotBand.repeatUntil is num
               ? plotBand.repeatUntil.floor()
-              : axisRenderer._labels.indexOf(plotBand.repeatUntil)
+              : axisDetails.labels.indexOf(plotBand.repeatUntil)
           : endValue is num
               ? endValue
-              : axisRenderer._labels.indexOf(endValue);
+              : axisDetails.labels.indexOf(endValue);
     }
-    if (axisRenderer is DateTimeCategoryAxisRenderer) {
+    if (axisDetails is DateTimeCategoryAxisDetails) {
       startValue = startValue is num
           ? startValue
           : (startValue is DateTime
-              ? axisRenderer._labels.indexOf(axisRenderer._axis.isVisible
-                  ? axisRenderer._dateFormat.format(startValue)
+              ? axisDetails.labels.indexOf(axisDetails.axis.isVisible
+                  ? axisDetails.dateFormat.format(startValue)
                   : startValue.microsecondsSinceEpoch.toString())
-              : axisRenderer._labels.indexOf(startValue));
+              : axisDetails.labels.indexOf(startValue));
       endValue = isNeedRepeat
           ? plotBand.repeatUntil is num
               ? plotBand.repeatUntil.floor()
-              : axisRenderer._labels.indexOf(plotBand.repeatUntil)
+              : axisDetails.labels.indexOf(plotBand.repeatUntil)
           : endValue is num
               ? endValue
               : endValue is DateTime
-                  ? axisRenderer._labels.indexOf(axisRenderer._axis.isVisible
-                      ? axisRenderer._dateFormat.format(endValue)
+                  ? axisDetails.labels.indexOf(axisDetails.axis.isVisible
+                      ? axisDetails.dateFormat.format(endValue)
                       : endValue.microsecondsSinceEpoch.toString())
-                  : axisRenderer._labels.indexOf(endValue);
+                  : axisDetails.labels.indexOf(endValue);
     } else if (axisRenderer is LogarithmicAxisRenderer ||
         axisRenderer is NumericAxisRenderer) {
       endValue = isNeedRepeat ? plotBand.repeatUntil : endValue;
     }
-    return _ChartLocation(startValue.toDouble(), endValue.toDouble());
+    return ChartLocation(startValue.toDouble(), endValue.toDouble());
   }
 
   /// Render a method for plotband
   void _renderPlotBand(
       Canvas canvas, ChartAxisRenderer axisRenderer, PlotBand plotBand) {
     num startValue, endValue;
-
+    final ChartAxisRendererDetails axisDetails =
+        AxisHelper.getAxisRendererDetails(axisRenderer);
     final bool isNeedRepeat = plotBand.isRepeatable &&
         plotBand.repeatUntil != null &&
         plotBand.repeatEvery != null;
 
-    final _ChartLocation startAndEndValues = _getStartAndEndValues(
+    final ChartLocation startAndEndValues = _getStartAndEndValues(
         axisRenderer,
-        plotBand.start ?? axisRenderer._visibleRange!.minimum,
-        plotBand.end ?? axisRenderer._visibleRange!.maximum,
+        plotBand.start ?? axisDetails.visibleRange!.minimum,
+        plotBand.end ?? axisDetails.visibleRange!.maximum,
         plotBand,
         isNeedRepeat);
     startValue = startAndEndValues.x;
@@ -769,10 +801,12 @@ class _PlotBandPainter extends CustomPainter {
   num _getPlotBandValue(ChartAxisRenderer axisRenderer, PlotBand plotBand,
       num value, num increment) {
     final int addValue = increment.toInt();
+    final ChartAxisRendererDetails axisDetails =
+        AxisHelper.getAxisRendererDetails(axisRenderer);
     DateTimeIntervalType intervalType;
-    if (axisRenderer is DateTimeAxisRenderer) {
+    if (axisDetails is DateTimeAxisDetails) {
       intervalType = (plotBand.sizeType == DateTimeIntervalType.auto)
-          ? axisRenderer._actualIntervalType
+          ? axisDetails.actualIntervalType
           : plotBand.sizeType;
       DateTime date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
       switch (intervalType) {
@@ -817,90 +851,96 @@ class _PlotBandPainter extends CustomPainter {
   /// Render plotband element
   void _renderPlotBandElement(ChartAxisRenderer axisRenderer, num startValue,
       num endValue, PlotBand plotBand, Canvas canvas) {
-    _ChartLocation startPoint, endPoint, segmentStartPoint, segmentEndPoint;
+    ChartLocation startPoint, endPoint, segmentStartPoint, segmentEndPoint;
     Rect plotBandRect;
     int textAngle;
     double? left, top, bottom, right;
-    final ChartAxis axis = axisRenderer._axis;
-    final Rect axisRect = _calculatePlotOffset(
-        chartState._chartAxis._axisClipRect,
+    final ChartAxisRendererDetails axisDetails =
+        AxisHelper.getAxisRendererDetails(axisRenderer);
+    final ChartAxis axis = axisDetails.axis;
+    final Rect axisRect = calculatePlotOffset(
+        stateProperties.chartAxis.axisClipRect,
         Offset(
-            axisRenderer._orientation == AxisOrientation.horizontal
+            axisDetails.orientation == AxisOrientation.horizontal
                 ? axis.plotOffset
                 : 0,
-            axisRenderer._orientation == AxisOrientation.vertical
+            axisDetails.orientation == AxisOrientation.vertical
                 ? axis.plotOffset
                 : 0));
 
     startValue = axis is LogarithmicAxis
-        ? _calculateLogBaseValue(startValue, axis.logBase)
+        ? calculateLogBaseValue(startValue, axis.logBase)
         : startValue;
     endValue = axis is LogarithmicAxis
-        ? _calculateLogBaseValue(endValue, axis.logBase)
+        ? calculateLogBaseValue(endValue, axis.logBase)
         : endValue;
 
     endValue < 0
-        ? endValue <= axisRenderer._visibleRange!.minimum
-            ? endValue = axisRenderer._visibleRange!.minimum
+        ? endValue <= axisDetails.visibleRange!.minimum
+            ? endValue = axisDetails.visibleRange!.minimum
             : endValue = endValue
-        : endValue >= axisRenderer._visibleRange!.maximum
-            ? endValue = axisRenderer._visibleRange!.maximum
+        : endValue >= axisDetails.visibleRange!.maximum
+            ? endValue = axisDetails.visibleRange!.maximum
             : endValue = endValue;
 
     startValue < 0
-        ? startValue <= axisRenderer._visibleRange!.minimum
-            ? startValue = axisRenderer._visibleRange!.minimum
+        ? startValue <= axisDetails.visibleRange!.minimum
+            ? startValue = axisDetails.visibleRange!.minimum
             : startValue = startValue
-        : startValue >= axisRenderer._visibleRange!.maximum
-            ? startValue = axisRenderer._visibleRange!.maximum
+        : startValue >= axisDetails.visibleRange!.maximum
+            ? startValue = axisDetails.visibleRange!.maximum
             : startValue = startValue;
 
-    startPoint = _calculatePoint(startValue, startValue, axisRenderer,
-        axisRenderer, chartState._requireInvertedAxis, null, axisRect);
-    endPoint = _calculatePoint(endValue, endValue, axisRenderer, axisRenderer,
-        chartState._requireInvertedAxis, null, axisRect);
+    startPoint = calculatePoint(startValue, startValue, axisDetails,
+        axisDetails, stateProperties.requireInvertedAxis, null, axisRect);
+    endPoint = calculatePoint(endValue, endValue, axisDetails, axisDetails,
+        stateProperties.requireInvertedAxis, null, axisRect);
 
     ChartAxisRenderer? segmentAxisRenderer;
     if (plotBand.associatedAxisStart != null ||
         plotBand.associatedAxisEnd != null) {
       if (axis.associatedAxisName == null) {
         segmentAxisRenderer =
-            (axisRenderer._orientation == AxisOrientation.horizontal)
-                ? chartState._chartAxis._primaryYAxisRenderer
-                : chartState._chartAxis._primaryXAxisRenderer;
+            (axisDetails.orientation == AxisOrientation.horizontal)
+                ? stateProperties.chartAxis.primaryYAxisRenderer
+                : stateProperties.chartAxis.primaryXAxisRenderer;
       } else {
         for (int axisIndex = 0;
-            axisIndex < chartState._chartAxis._axisRenderersCollection.length;
+            axisIndex <
+                stateProperties.chartAxis.axisRenderersCollection.length;
             axisIndex++) {
           final ChartAxisRenderer targetAxisRenderer =
-              chartState._chartAxis._axisRenderersCollection[axisIndex];
-          if (axis.associatedAxisName == targetAxisRenderer._name) {
+              stateProperties.chartAxis.axisRenderersCollection[axisIndex];
+          final ChartAxisRendererDetails targetAxisDetails =
+              AxisHelper.getAxisRendererDetails(targetAxisRenderer);
+          if (axis.associatedAxisName == targetAxisDetails.name) {
             segmentAxisRenderer = axisRenderer;
           }
         }
       }
-      final _ChartLocation startAndEndValues = _getStartAndEndValues(
+      final ChartLocation startAndEndValues = _getStartAndEndValues(
           segmentAxisRenderer!,
           plotBand.associatedAxisStart ?? startValue,
           plotBand.associatedAxisEnd ?? endValue,
           plotBand,
           false);
-
-      if (segmentAxisRenderer._orientation == AxisOrientation.horizontal) {
-        segmentStartPoint = _calculatePoint(
+      final ChartAxisRendererDetails segmentAxisDetails =
+          AxisHelper.getAxisRendererDetails(segmentAxisRenderer);
+      if (segmentAxisDetails.orientation == AxisOrientation.horizontal) {
+        segmentStartPoint = calculatePoint(
             startAndEndValues.x,
             startValue,
-            segmentAxisRenderer,
-            axisRenderer,
-            chartState._requireInvertedAxis,
+            segmentAxisDetails,
+            axisDetails,
+            stateProperties.requireInvertedAxis,
             null,
             axisRect);
-        segmentEndPoint = _calculatePoint(
+        segmentEndPoint = calculatePoint(
             startAndEndValues.y,
             endValue,
-            segmentAxisRenderer,
-            axisRenderer,
-            chartState._requireInvertedAxis,
+            segmentAxisDetails,
+            axisDetails,
+            stateProperties.requireInvertedAxis,
             null,
             axisRect);
         left = plotBand.associatedAxisStart != null
@@ -910,20 +950,20 @@ class _PlotBandPainter extends CustomPainter {
             ? segmentEndPoint.x
             : axisRect.right;
       } else {
-        segmentStartPoint = _calculatePoint(
+        segmentStartPoint = calculatePoint(
             startValue,
             startAndEndValues.x,
-            axisRenderer,
-            segmentAxisRenderer,
-            chartState._requireInvertedAxis,
+            axisDetails,
+            segmentAxisDetails,
+            stateProperties.requireInvertedAxis,
             null,
             axisRect);
-        segmentEndPoint = _calculatePoint(
+        segmentEndPoint = calculatePoint(
             endValue,
             startAndEndValues.y,
-            axisRenderer,
-            segmentAxisRenderer,
-            chartState._requireInvertedAxis,
+            axisDetails,
+            segmentAxisDetails,
+            stateProperties.requireInvertedAxis,
             null,
             axisRect);
         top = plotBand.associatedAxisStart != null
@@ -935,7 +975,7 @@ class _PlotBandPainter extends CustomPainter {
       }
     }
 
-    if (axisRenderer._orientation == AxisOrientation.horizontal) {
+    if (axisDetails.orientation == AxisOrientation.horizontal) {
       textAngle =
           plotBand.textAngle != null ? plotBand.textAngle!.toInt() : 270;
       plotBandRect = Rect.fromLTRB(left ?? startPoint.x, top ?? axisRect.top,
@@ -971,15 +1011,14 @@ class _PlotBandPainter extends CustomPainter {
         ..close();
 
       final Paint paint = Paint();
-      Path dashPath;
+      Path? _dashPath;
       if (needDashLine) {
         paint.isAntiAlias = false;
-        dashPath = !kIsWeb
-            ? _dashPath(path,
-                dashArray: _CircularIntervalList<double>(dashArray))!
+        _dashPath = !kIsWeb
+            ? dashPath(path, dashArray: CircularIntervalList<double>(dashArray))
             : path;
       } else {
-        dashPath = path;
+        _dashPath = path;
       }
       // ignore: unnecessary_null_comparison
       if (path != null) {
@@ -998,9 +1037,9 @@ class _PlotBandPainter extends CustomPainter {
             // ignore: unnecessary_null_comparison
             plotBand.borderColor != null &&
             // ignore: unnecessary_null_comparison
-            dashPath != null) {
+            _dashPath != null) {
           canvas.drawPath(
-              dashPath,
+              _dashPath,
               paint
                 ..color = plotBand.borderColor.withOpacity(plotBand.opacity)
                 ..style = PaintingStyle.stroke
@@ -1016,11 +1055,11 @@ class _PlotBandPainter extends CustomPainter {
       if (plotBand.horizontalTextPadding != null &&
           plotBand.horizontalTextPadding != '') {
         if (plotBand.horizontalTextPadding!.contains('%')) {
-          x = _percentageToValue(
+          x = percentageToValue(
               plotBand.horizontalTextPadding!,
               chart.isTransposed
-                  ? chartState._chartAxis._axisClipRect.bottom
-                  : chartState._chartAxis._axisClipRect.right);
+                  ? stateProperties.chartAxis.axisClipRect.bottom
+                  : stateProperties.chartAxis.axisClipRect.right);
         } else if (plotBand.verticalTextPadding!.contains('px')) {
           x = double.parse(plotBand.horizontalTextPadding!
               .substring(0, plotBand.horizontalTextPadding!.length - 2));
@@ -1031,11 +1070,11 @@ class _PlotBandPainter extends CustomPainter {
       if (plotBand.verticalTextPadding != null &&
           plotBand.verticalTextPadding != '') {
         if (plotBand.verticalTextPadding!.contains('%')) {
-          y = _percentageToValue(
+          y = percentageToValue(
               plotBand.verticalTextPadding!,
               chart.isTransposed
-                  ? chartState._chartAxis._axisClipRect.right
-                  : chartState._chartAxis._axisClipRect.bottom);
+                  ? stateProperties.chartAxis.axisClipRect.right
+                  : stateProperties.chartAxis.axisClipRect.bottom);
         } else if (plotBand.verticalTextPadding!.contains('px')) {
           y = double.parse(plotBand.verticalTextPadding!
               .substring(0, plotBand.verticalTextPadding!.length - 2));
@@ -1044,7 +1083,7 @@ class _PlotBandPainter extends CustomPainter {
         }
       }
 
-      _drawText(
+      drawText(
           canvas,
           plotBand.text!,
           Offset(
@@ -1052,10 +1091,11 @@ class _PlotBandPainter extends CustomPainter {
                   ? (plotBandRect.left +
                           plotBandRect.width / 2 -
                           ((plotBandRect.left ==
-                                  chartState._chartAxis._axisClipRect.right)
+                                  stateProperties.chartAxis.axisClipRect.right)
                               ? 0
                               : (plotBandRect.right ==
-                                      chartState._chartAxis._axisClipRect.left)
+                                      stateProperties
+                                          .chartAxis.axisClipRect.left)
                                   ? textSize.width
                                   : textSize.width / 2) +
                           x!) +
@@ -1067,11 +1107,11 @@ class _PlotBandPainter extends CustomPainter {
                   ? (plotBandRect.top +
                           plotBandRect.height / 2 -
                           ((plotBandRect.bottom ==
-                                  chartState._chartAxis._axisClipRect.top)
+                                  stateProperties.chartAxis.axisClipRect.top)
                               ? textSize.height
                               : (plotBandRect.top ==
-                                      chartState
-                                          ._chartAxis._axisClipRect.bottom)
+                                      stateProperties
+                                          .chartAxis.axisClipRect.bottom)
                                   ? 0 + y!
                                   : textSize.height + y!)) +
                       (textAngle != 0 ? textSize.height / 2 : 0)

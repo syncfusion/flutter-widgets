@@ -11,7 +11,7 @@ class _DesEdeAlogorithm extends _DataEncryption {
   @override
   int? get blockSize => _blockSize;
   @override
-  String get algorithmName => _Asn1Constants.desEde;
+  String get algorithmName => _Asn1.desEde;
   //Implementation
   @override
   void initialize(bool? forEncryption, _ICipherParameter? parameters) {

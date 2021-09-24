@@ -126,17 +126,20 @@ public class SwiftSyncfusionFlutterPdfViewerPlugin: NSObject, FlutterPlugin {
             let page = self.document!.page(at: Int(index))
             var pageRect = page!.getBoxRect(.mediaBox)
             if #available(iOS 10.0, *) {
-                let renderer = UIGraphicsImageRenderer(size: pageRect.size)
-                
+              let format = UIGraphicsImageRendererFormat()
+               if #available(iOS 12.0, *) {
+                  format.preferredRange = .standard
+               } else {
+                   format.prefersExtendedRange = false
+                 }
+                let renderer = UIGraphicsImageRenderer(size: pageRect.size,format: format)
                 let img = renderer.image { ctx in
-                    
                     let mediaBox = page!.getBoxRect(.mediaBox)
                     ctx.cgContext.beginPage(mediaBox: &pageRect)
                     let transform = page!.getDrawingTransform(.mediaBox, rect: mediaBox, rotate: 0, preserveAspectRatio: true)
                     ctx.cgContext.translateBy(x: 0.0, y: mediaBox.size.height)
                     ctx.cgContext.scaleBy(x: 1, y: -1)
                     ctx.cgContext.concatenate(transform)
-                    
                     ctx.cgContext.drawPDFPage(page!)
                     ctx.cgContext.endPage()
                 }

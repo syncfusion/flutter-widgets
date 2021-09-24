@@ -1765,8 +1765,7 @@ class CalcEngine {
       col = _grid!.getFirstColumn();
     }
 
-    result = _getValueFromArg(
-        sheet + RangeInfo._getAlphaLabel(col) + row.toString());
+    result = _getValueFromArg(sheet + _getAlphaLabel(col) + row.toString());
     if (!_isIndexInteriorFormula && result.isEmpty) {
       return '0';
     }
@@ -3510,7 +3509,7 @@ class CalcEngine {
       final int c2 = _getColIndex(cells[last]!);
       final int c = _getColIndex(_cell);
       if (c >= c1 && c <= c2) {
-        s = RangeInfo._getAlphaLabel(c) + r1.toString();
+        s = _getAlphaLabel(c) + r1.toString();
       }
     }
     return s;
@@ -3555,7 +3554,7 @@ class CalcEngine {
         args = 'A' +
             args.substring(0, i) +
             ':' +
-            RangeInfo._getAlphaLabel(count) +
+            _getAlphaLabel(count) +
             args.substring(i + 1);
         i = args.indexOf(':');
       }
@@ -3631,8 +3630,7 @@ class CalcEngine {
     for (i = row1; i <= row2; ++i) {
       for (j = col1; j <= col2; ++j) {
         try {
-          cells[k++] =
-              book + sheet + RangeInfo._getAlphaLabel(j) + i.toString();
+          cells[k++] = book + sheet + _getAlphaLabel(j) + i.toString();
         } catch (e) {
           continue;
         }
@@ -4397,7 +4395,7 @@ class CalcEngine {
           }
 
           sumRange = sumRange.substring(0, i + 1) +
-              RangeInfo._getAlphaLabel(col) +
+              _getAlphaLabel(col) +
               row.toString();
           s2 = _getCellsFromArgs(sumRange);
         }
@@ -4723,7 +4721,7 @@ class CalcEngine {
             col += count - s2.length;
           }
           calculateRange = calculateRange.substring(0, i + 1) +
-              RangeInfo._getAlphaLabel(col) +
+              _getAlphaLabel(col) +
               row.toString();
           s2 = _getCellsFromArgs(calculateRange);
         }
@@ -5226,7 +5224,7 @@ class CalcEngine {
             family._parentObjectToToken!.isEmpty)
         ? ''
         : family._parentObjectToToken![grd].toString();
-    cell1 = cell1 + RangeInfo._getAlphaLabel(col) + row.toString();
+    cell1 = cell1 + _getAlphaLabel(col) + row.toString();
     final Worksheet? saveGrid = _grid;
     final String saveCell = _cell;
     _cell = cell1;
@@ -5340,9 +5338,9 @@ class CalcEngine {
         if (height != criteriaHeight) {
           row = startRow + criteriaHeight;
         }
-        sumRange = RangeInfo._getAlphaLabel(startCol) +
+        sumRange = _getAlphaLabel(startCol) +
             sumRange.substring(1, i + 1) +
-            RangeInfo._getAlphaLabel(col) +
+            _getAlphaLabel(col) +
             row.toString();
       } else {
         int resultRow = 0, resultCol = 0;
@@ -5351,7 +5349,7 @@ class CalcEngine {
         resultCol = _getColIndex(sumRange);
         resultRow += criteriaHeight;
         resultCol += crietriaWidth;
-        resultVal = RangeInfo._getAlphaLabel(resultCol);
+        resultVal = _getAlphaLabel(resultCol);
         sumRange = sumRange + ':' + resultVal + resultRow.toString();
       }
       s2 = _getCellsFromArgs(sumRange);

@@ -137,6 +137,12 @@
       "type": "text"
   },
 
+  "weeknumberLabel": "Week",
+  "@weeknumberLabel": {
+      "description": "Label that is displayed prefix to week number.",
+      "type": "text"
+  },
+
   "muharramLabel": "Muharram",
   "@muharramLabel": {
       "description": "The header string for the first month of hirji calendar.",

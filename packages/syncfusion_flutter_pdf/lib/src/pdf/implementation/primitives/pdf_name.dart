@@ -17,22 +17,18 @@ class _PdfName implements _IPdfPrimitive {
 
   //Implementation
   String _escapeString(String value) {
-    if (value.isEmpty) {
-      throw ArgumentError.value(value, 'empty string');
-    } else {
-      String result = '';
-      for (int i = 0; i < value.length; i++) {
-        final int code = value.codeUnitAt(i);
-        if (code == _replacements[3]) {
-          result += r'\r';
-        } else if (code == _replacements[2]) {
-          result += '\n';
-        } else {
-          result += value[i];
-        }
+    String result = '';
+    for (int i = 0; i < value.length; i++) {
+      final int code = value.codeUnitAt(i);
+      if (code == _replacements[3]) {
+        result += r'\r';
+      } else if (code == _replacements[2]) {
+        result += '\n';
+      } else {
+        result += value[i];
       }
-      return result;
     }
+    return result;
   }
 
   @override

@@ -21,7 +21,7 @@ export './src/linear_gauge/pointers/linear_marker_pointer.dart';
 export './src/linear_gauge/pointers/linear_shape_pointer.dart';
 export './src/linear_gauge/pointers/linear_widget_pointer.dart';
 export './src/linear_gauge/range/linear_gauge_range.dart';
-export './src/linear_gauge/utils/enum.dart';
+export './src/linear_gauge/utils/enum.dart' hide ConstrainedBy;
 export './src/linear_gauge/utils/linear_gauge_typedef.dart';
 // export circular gauge library
 export './src/radial_gauge/annotation/gauge_annotation.dart';

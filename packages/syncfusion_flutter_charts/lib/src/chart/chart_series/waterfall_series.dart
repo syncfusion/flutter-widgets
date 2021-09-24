@@ -1,4 +1,22 @@
-part of charts;
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+
+import '../../chart/utils/enum.dart';
+import '../../circular_chart/renderer/circular_chart_annotation.dart';
+import '../../common/series/chart_series.dart';
+import '../../common/user_interaction/selection_behavior.dart';
+import '../../common/utils/enum.dart';
+import '../../common/utils/typedef.dart';
+import '../base/chart_base.dart';
+import '../common/data_label.dart';
+import '../common/marker.dart';
+import '../series_painter/waterfall_painter.dart';
+import '../trendlines/trendlines.dart';
+import 'xy_data_series.dart';
 
 /// Renders the waterfall series.
 ///
@@ -48,11 +66,13 @@ class WaterfallSeries<T, D> extends XyDataSeries<T, D> {
       LegendIconType? legendIconType,
       String? legendItemText,
       double? opacity,
+      double? animationDelay,
       List<double>? dashArray,
       SeriesRendererCreatedCallback? onRendererCreated,
       ChartPointInteractionCallback? onPointTap,
       ChartPointInteractionCallback? onPointDoubleTap,
       ChartPointInteractionCallback? onPointLongPress,
+      CartesianShaderCallback? onCreateShader,
       List<int>? initialSelectedDataIndexes})
       : super(
             key: key,
@@ -86,6 +106,8 @@ class WaterfallSeries<T, D> extends XyDataSeries<T, D> {
             legendIconType: legendIconType,
             sortingOrder: sortingOrder,
             opacity: opacity,
+            animationDelay: animationDelay,
+            onCreateShader: onCreateShader,
             dashArray: dashArray,
             onRendererCreated: onRendererCreated,
             onPointTap: onPointTap,
@@ -278,10 +300,12 @@ class WaterfallSeries<T, D> extends XyDataSeries<T, D> {
         other.legendIconType == legendIconType &&
         other.legendItemText == legendItemText &&
         other.opacity == opacity &&
+        other.animationDelay == animationDelay &&
         other.onRendererCreated == onRendererCreated &&
         other.onPointTap == onPointTap &&
         other.onPointDoubleTap == onPointDoubleTap &&
         other.onPointLongPress == onPointLongPress &&
+        other.onCreateShader == onCreateShader &&
         other.initialSelectedDataIndexes == initialSelectedDataIndexes;
   }
 
@@ -327,6 +351,7 @@ class WaterfallSeries<T, D> extends XyDataSeries<T, D> {
       legendIconType,
       legendItemText,
       opacity,
+      animationDelay,
       onRendererCreated,
       initialSelectedDataIndexes,
       onPointTap,
@@ -348,126 +373,6 @@ class WaterfallSeries<T, D> extends XyDataSeries<T, D> {
     }
     return WaterfallSeriesRenderer();
   }
-}
-
-/// Creates series renderer for waterfall series
-class WaterfallSeriesRenderer extends XyDataSeriesRenderer {
-  /// Calling the default constructor of WaterfallSeriesRenderer class.
-  WaterfallSeriesRenderer();
-  late num _rectPosition;
-  late num _rectCount;
-
-  late WaterfallSeries<dynamic, dynamic> _waterfallSeries;
-
-  /// To add waterfall segments in segments list
-  ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
-      int pointIndex, int seriesIndex, double animateFactor) {
-    final WaterfallSegment segment = createSegment();
-    final List<CartesianSeriesRenderer>? oldSeriesRenderers =
-        _chartState!._oldSeriesRenderers;
-    _waterfallSeries = _series as WaterfallSeries<dynamic, dynamic>;
-    final BorderRadius borderRadius = _waterfallSeries.borderRadius;
-    segment._seriesIndex = seriesIndex;
-    segment.currentSegmentIndex = pointIndex;
-    segment.points
-        .add(Offset(currentPoint.markerPoint!.x, currentPoint.markerPoint!.y));
-    segment._seriesRenderer = this;
-    segment._series = _waterfallSeries;
-    segment._chart = _chart;
-    segment._chartState = _chartState!;
-    segment.animationFactor = animateFactor;
-    segment._currentPoint = currentPoint;
-    if (_renderingDetails!.widgetNeedUpdate &&
-        _chartState!._zoomPanBehaviorRenderer._isPinching != true &&
-        !_renderingDetails!.isLegendToggled &&
-        oldSeriesRenderers != null &&
-        oldSeriesRenderers.isNotEmpty &&
-        oldSeriesRenderers.length - 1 >= segment._seriesIndex &&
-        oldSeriesRenderers[segment._seriesIndex]._seriesName ==
-            segment._seriesRenderer._seriesName) {
-      segment._oldSeriesRenderer = oldSeriesRenderers[segment._seriesIndex];
-      segment._oldPoint = (segment._oldSeriesRenderer!._segments.isNotEmpty &&
-              segment._oldSeriesRenderer!._segments[0] is WaterfallSegment &&
-              segment._oldSeriesRenderer!._dataPoints.length - 1 >= pointIndex)
-          ? segment._oldSeriesRenderer!._dataPoints[pointIndex]
-          : null;
-      segment._oldSegmentIndex = _getOldSegmentIndex(segment);
-    } else if (_renderingDetails!.isLegendToggled &&
-        // ignore: unnecessary_null_comparison
-        _chartState!._segments != null &&
-        _chartState!._segments.isNotEmpty) {
-      segment._oldSeriesVisible =
-          _chartState!._oldSeriesVisible[segment._seriesIndex];
-      WaterfallSegment oldSegment;
-      for (int i = 0; i < _chartState!._segments.length; i++) {
-        oldSegment = _chartState!._segments[i] as WaterfallSegment;
-        if (oldSegment.currentSegmentIndex == segment.currentSegmentIndex &&
-            oldSegment._seriesIndex == segment._seriesIndex) {
-          segment._oldRegion = oldSegment.segmentRect.outerRect;
-        }
-      }
-    }
-    segment._path = _findingRectSeriesDashedBorder(
-        currentPoint, _waterfallSeries.borderWidth);
-    // ignore: unnecessary_null_comparison
-    if (borderRadius != null) {
-      segment.segmentRect =
-          _getRRectFromRect(currentPoint.region!, borderRadius);
-    }
-    segment._segmentRect = segment.segmentRect;
-    customizeSegment(segment);
-    _segments.add(segment);
-    return segment;
-  }
-
-  /// To render waterfall series segments
-  //ignore: unused_element
-  void _drawSegment(Canvas canvas, ChartSegment segment) {
-    if (segment._seriesRenderer._isSelectionEnable) {
-      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
-          segment._seriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer?._selectionRenderer?._checkWithSelectionState(
-          _segments[segment.currentSegmentIndex!], _chart);
-    }
-    segment.onPaint(canvas);
-  }
-
-  /// Creates a segment for a data point in the series.
-  @override
-  WaterfallSegment createSegment() => WaterfallSegment();
-
-  /// Changes the series color, border color, and border width.
-  @override
-  void customizeSegment(ChartSegment segment) {
-    final WaterfallSegment waterfallSegment = segment as WaterfallSegment;
-    waterfallSegment._color = segment._seriesRenderer._seriesColor;
-    waterfallSegment._negativePointsColor =
-        _waterfallSeries.negativePointsColor;
-    waterfallSegment._intermediateSumColor =
-        _waterfallSeries.intermediateSumColor;
-    waterfallSegment._totalSumColor = _waterfallSeries.totalSumColor;
-    waterfallSegment._strokeColor = segment._series.borderColor;
-    waterfallSegment._strokeWidth = segment._series.borderWidth;
-    waterfallSegment.strokePaint = waterfallSegment.getStrokePaint();
-    waterfallSegment.fillPaint = waterfallSegment.getFillPaint();
-    waterfallSegment.connectorLineStrokePaint =
-        waterfallSegment._getConnectorLineStrokePaint();
-  }
-
-  ///Draws the marker with different shapes and color of the appropriate data point in the series.
-  @override
-  void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
-      Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer? seriesRenderer]) {
-    canvas.drawPath(seriesRenderer!._markerShapes[index]!, fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes[index]!, strokePaint);
-  }
-
-  /// Draws data label text of the appropriate data point in a series.
-  @override
-  void drawDataLabel(int index, Canvas canvas, String dataLabel, double pointX,
-          double pointY, int angle, TextStyle style) =>
-      _drawText(canvas, dataLabel, Offset(pointX, pointY), style, angle);
 }
 
 ///Options to customize the waterfall chart connector line.

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 
 /// Height of the bookmark header bar.
 const double _kPdfHeaderBarHeight = 53.0;
@@ -81,41 +81,46 @@ class _BookmarkToolbarState extends State<BookmarkToolbar> {
         offset: Offset(0, 1),
       ),
     ];
-    return Container(
-      height: _kPdfHeaderBarHeight,
-      margin: const EdgeInsets.only(bottom: 3),
-      decoration: BoxDecoration(
-        color: _pdfViewerThemeData!.bookmarkViewStyle.headerBarColor,
-        boxShadow: boxShadows,
-      ),
-      child: Stack(
-        children: <Widget>[
-          Positioned(
-            top: _kPdfHeaderTextTopPosition,
-            left: _kPdfHeaderTextLeftPosition,
-            height: _kPdfHeaderTextHeight,
-            child: Text(
-              _localizations!.pdfBookmarksLabel,
-              style: _pdfViewerThemeData!.bookmarkViewStyle.headerTextStyle,
-            ),
-          ),
-          Positioned(
-            top: _kPdfCloseIconTopPosition,
-            right: _kPdfCloseIconRightPosition,
-            height: _kPdfCloseIconHeight,
-            width: _kPdfCloseIconWidth,
-            child: RawMaterialButton(
-              onPressed: () {
-                widget.onCloseButtonPressed();
-              },
-              child: Icon(
-                Icons.close,
-                size: _kPdfCloseIconSize,
-                color: _pdfViewerThemeData!.bookmarkViewStyle.closeIconColor,
+    return Semantics(
+      label: _localizations!.pdfBookmarksLabel,
+      child: Container(
+        height: _kPdfHeaderBarHeight,
+        margin: const EdgeInsets.only(bottom: 3),
+        decoration: BoxDecoration(
+          color: _pdfViewerThemeData!.bookmarkViewStyle.headerBarColor,
+          boxShadow: boxShadows,
+        ),
+        child: Stack(
+          children: <Widget>[
+            Positioned(
+              top: _kPdfHeaderTextTopPosition,
+              left: _kPdfHeaderTextLeftPosition,
+              height: _kPdfHeaderTextHeight,
+              child: Text(
+                _localizations!.pdfBookmarksLabel,
+                style: _pdfViewerThemeData!.bookmarkViewStyle.headerTextStyle,
+                semanticsLabel: '',
               ),
             ),
-          ),
-        ],
+            Positioned(
+              top: _kPdfCloseIconTopPosition,
+              right: _kPdfCloseIconRightPosition,
+              height: _kPdfCloseIconHeight,
+              width: _kPdfCloseIconWidth,
+              child: RawMaterialButton(
+                onPressed: () {
+                  widget.onCloseButtonPressed();
+                },
+                child: Icon(
+                  Icons.close,
+                  size: _kPdfCloseIconSize,
+                  color: _pdfViewerThemeData!.bookmarkViewStyle.closeIconColor,
+                  semanticLabel: 'Close Bookmark',
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

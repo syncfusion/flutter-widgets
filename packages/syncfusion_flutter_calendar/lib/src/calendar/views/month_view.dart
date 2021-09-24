@@ -176,8 +176,8 @@ class _MonthViewWidgetState extends State<MonthViewWidget> {
         if (widget.calendar.dataSource != null &&
             !AppointmentHelper.isCalendarAppointment(
                 widget.calendar.dataSource!)) {
-          monthCellAppointment =
-              CalendarViewHelper.getCustomAppointments(appointments);
+          monthCellAppointment = CalendarViewHelper.getCustomAppointments(
+              appointments, widget.calendar.dataSource);
         }
 
         final Widget child = widget.builder!(
@@ -705,7 +705,8 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
     final Size widgetSize = constraints.biggest;
     size = Size(widgetSize.width.isInfinite ? width : widgetSize.width,
         widgetSize.height.isInfinite ? height : widgetSize.height);
-    final double cellWidth = size.width / DateTime.daysPerWeek;
+    final double cellWidth =
+        (size.width - weekNumberPanelWidth) / DateTime.daysPerWeek;
     final double cellHeight = size.height / rowCount;
     for (dynamic child = firstChild; child != null; child = childAfter(child)) {
       child.layout(constraints.copyWith(
@@ -788,8 +789,8 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
             currentVisibleDate.weekday == DateTime.monday &&
             (showTrailingAndLeadingDates ||
                 (!showTrailingAndLeadingDates &&
-                    (i >= (DateTime.daysPerWeek * 2)) &&
-                    (i <= visibleDatesCount - (DateTime.daysPerWeek * 2))))) {
+                    (i > (DateTime.daysPerWeek * 2)) &&
+                    (i < visibleDatesCount - (DateTime.daysPerWeek * 2))))) {
           _drawWeekNumber(
               context.canvas, size, currentVisibleDate, cellHeight, yPosition);
         }
@@ -1073,8 +1074,8 @@ class _MonthViewRenderObject extends CustomCalendarRenderObject {
           currentVisibleDate.weekday == DateTime.monday &&
           (showTrailingAndLeadingDates ||
               (!showTrailingAndLeadingDates &&
-                  (i >= (DateTime.daysPerWeek * 2)) &&
-                  (i <= visibleDatesCount - (DateTime.daysPerWeek * 2))))) {
+                  (i > (DateTime.daysPerWeek * 2)) &&
+                  (i < visibleDatesCount - (DateTime.daysPerWeek * 2))))) {
         _drawWeekNumber(
             canvas, size, currentVisibleDate, cellHeight, yPosition);
       }

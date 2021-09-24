@@ -22,6 +22,7 @@
 "allowedViewTimelineWorkWeekLabel" : "Isikhathi seviki lomsebenzi", 
 "allowedViewTimelineMonthLabel" : "Inyanga Yesikhathi", 
 "todayLabel" : "Namuhla", 
+"weeknumberLabel" : "Isonto", 
 "muharramLabel" : "UMuharram", 
 "safarLabel" : "I-Safar", 
 "rabi1Label" : "URabi 'al-awwal", 

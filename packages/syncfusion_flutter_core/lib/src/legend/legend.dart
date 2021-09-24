@@ -6,8 +6,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
-
 import '../utils/shape_helper.dart';
+import '../utils/shape_helper.dart' as shape_helper;
 
 /// Callback which returns toggled indices and teh current toggled index.
 typedef ToggledIndicesChangedCallback = void Function(
@@ -44,6 +44,10 @@ enum LegendOverflowMode {
 
   /// It will wrap and place the remaining legend items to next line.
   wrap,
+
+  /// It will wrap and place the remaining legend items to next
+  /// line with scrolling.
+  wrapScroll,
 
   /// Exceeding items will be clipped.
   none,
@@ -135,13 +139,18 @@ class ItemRendererDetails {
 /// Represents the class of items in legends.
 class LegendItem {
   /// Creates a [LegendItem].
-  const LegendItem({
-    required this.text,
-    this.color,
-    this.shader,
-    this.imageProvider,
-    this.iconType,
-  }) : assert(color != null || shader != null || imageProvider != null);
+  const LegendItem(
+      {required this.text,
+      this.color,
+      this.shader,
+      this.imageProvider,
+      this.iconType,
+      this.iconStrokeWidth,
+      this.overlayMarkerType,
+      this.degree,
+      this.endAngle,
+      this.startAngle})
+      : assert(color != null || shader != null || imageProvider != null);
 
   /// Specifies the text of the legend.
   final String text;
@@ -157,6 +166,21 @@ class LegendItem {
 
   /// Specifies the type of the icon.
   final ShapeMarkerType? iconType;
+
+  /// Specifies the stroke width of the icon.
+  final double? iconStrokeWidth;
+
+  /// Specifies the overlay marker for cartesian line type icon.
+  final ShapeMarkerType? overlayMarkerType;
+
+  /// Specifies the start angle for radial bar icon.
+  final double? startAngle;
+
+  /// Specifies the degree for radial bar icon.
+  final double? degree;
+
+  /// Specifies the end angle for radial bar icon.
+  final double? endAngle;
 }
 
 /// Represents the class for legends.
@@ -172,14 +196,17 @@ class SfLegend extends StatefulWidget {
     this.overflowMode = LegendOverflowMode.wrap,
     this.spacing = 5.0,
     this.itemSpacing = 10.0,
+    this.itemRunSpacing,
     this.iconSize = const Size(8.0, 8.0),
     this.iconBorder,
     this.direction,
+    this.scrollDirection,
     this.width,
     this.height,
     this.alignment = LegendAlignment.center,
     this.offset,
     this.padding = const EdgeInsets.all(10.0),
+    this.margin,
     this.textStyle,
     this.iconType = ShapeMarkerType.circle,
     this.imageProvider,
@@ -218,11 +245,16 @@ class SfLegend extends StatefulWidget {
     this.border,
     this.offset,
     this.padding,
+    this.margin,
     this.position = LegendPosition.top,
     this.overflowMode = LegendOverflowMode.wrap,
     this.itemSpacing = 10.0,
+    this.itemRunSpacing,
     this.spacing = 5.0,
     this.direction,
+    this.scrollDirection,
+    this.width,
+    this.height,
     this.alignment = LegendAlignment.center,
     this.toggledItemColor,
     this.onToggledIndicesChanged,
@@ -238,8 +270,6 @@ class SfLegend extends StatefulWidget {
         iconBorder = null,
         segmentSize = null,
         labelsPlacement = null,
-        width = null,
-        height = null,
         edgeLabelsPlacement = null,
         labelOverflow = null,
         segmentPaintingStyle = null,
@@ -264,8 +294,10 @@ class SfLegend extends StatefulWidget {
     this.overflowMode = LegendOverflowMode.scroll,
     this.itemSpacing = 2.0,
     this.direction,
+    this.scrollDirection,
     this.offset,
     this.padding = const EdgeInsets.all(10.0),
+    this.margin,
     this.textStyle,
     this.segmentSize,
     this.labelsPlacement,
@@ -286,6 +318,7 @@ class SfLegend extends StatefulWidget {
         imageProvider = null,
         iconSize = Size.zero,
         iconBorder = null,
+        itemRunSpacing = null,
         spacing = 0.0,
         itemBuilder = null,
         itemCount = 0,
@@ -325,6 +358,9 @@ class SfLegend extends StatefulWidget {
   /// Specifies the space between the each legend items.
   final double itemSpacing;
 
+  /// Specifies the cross axis run spacing for the wrapped elements.
+  final double? itemRunSpacing;
+
   /// Specifies the shape of the legend icon.
   final ShapeMarkerType? iconType;
 
@@ -340,6 +376,9 @@ class SfLegend extends StatefulWidget {
   /// Arranges the legend items in either horizontal or vertical direction.
   final Axis? direction;
 
+  /// Scroll the legend items in either horizontal or vertical direction.
+  final Axis? scrollDirection;
+
   /// Specifies the alignment of legend.
   final LegendAlignment? alignment;
 
@@ -352,8 +391,11 @@ class SfLegend extends StatefulWidget {
   /// Places the legend in custom position.
   final Offset? offset;
 
-  /// Sets the padding around the legend.
+  /// Empty space inside the decoration.
   final EdgeInsetsGeometry? padding;
+
+  /// Empty space outside the decoration.
+  final EdgeInsetsGeometry? margin;
 
   /// Customizes the legend item's text style.
   final TextStyle? textStyle;
@@ -398,7 +440,7 @@ class SfLegend extends StatefulWidget {
   /// Specifies the toggle item's color. Applicable for vector builder.
   final Color? toggledItemColor;
 
-  /// Avoid the legend rendering is its size is greater than its child.
+  /// Avoid the legend rendering if its size is greater than its child.
   final bool isComplex;
 
   /// Returns a widget for the given value.
@@ -543,6 +585,7 @@ class _SfLegendState extends State<SfLegend> {
           itemBuilder: widget.itemBuilder,
           itemCount: widget.itemCount,
           itemSpacing: widget.itemSpacing,
+          itemRunSpacing: widget.itemRunSpacing,
           overflowMode: widget.overflowMode,
           onItemRenderer: widget.onItemRenderer,
           onToggledIndicesChanged: widget.onToggledIndicesChanged,
@@ -596,12 +639,27 @@ class _SfLegendState extends State<SfLegend> {
     if (widget.title == null) {
       if (widget.overflowMode == LegendOverflowMode.scroll) {
         current = SingleChildScrollView(
-          scrollDirection: widget.position == LegendPosition.top ||
-                  widget.position == LegendPosition.bottom
-              ? Axis.horizontal
-              : Axis.vertical,
+          scrollDirection: widget.scrollDirection ??
+              (widget.position == LegendPosition.top ||
+                      widget.position == LegendPosition.bottom
+                  ? Axis.horizontal
+                  : Axis.vertical),
           child: current,
         );
+      } else if (widget.overflowMode == LegendOverflowMode.wrapScroll) {
+        current = SingleChildScrollView(
+          scrollDirection: widget.direction == Axis.horizontal
+              ? Axis.vertical
+              : Axis.horizontal,
+          child: current,
+        );
+      } else if (widget.overflowMode == LegendOverflowMode.none) {
+        current = SingleChildScrollView(
+            scrollDirection: widget.scrollDirection == Axis.horizontal
+                ? Axis.horizontal
+                : Axis.vertical,
+            physics: const NeverScrollableScrollPhysics(),
+            child: current);
       }
     } else {
       if (widget.position == LegendPosition.top ||
@@ -613,10 +671,37 @@ class _SfLegendState extends State<SfLegend> {
           children: <Widget>[
             widget.title!,
             if (widget.overflowMode == LegendOverflowMode.scroll)
-              SingleChildScrollView(
-                  scrollDirection: Axis.horizontal, child: current)
+              (widget.width != null || widget.height != null)
+                  ? Expanded(
+                      child: SingleChildScrollView(
+                          scrollDirection:
+                              widget.scrollDirection ?? Axis.horizontal,
+                          child: current),
+                    )
+                  : SingleChildScrollView(
+                      scrollDirection:
+                          widget.scrollDirection ?? Axis.horizontal,
+                      child: current)
+            else if (widget.overflowMode == LegendOverflowMode.wrapScroll)
+              Expanded(
+                child: SingleChildScrollView(
+                    scrollDirection: widget.direction == Axis.horizontal
+                        ? Axis.vertical
+                        : Axis.horizontal,
+                    child: current),
+              )
+            else if (widget.overflowMode == LegendOverflowMode.none)
+              Expanded(
+                  child: SingleChildScrollView(
+                      scrollDirection: widget.direction == Axis.horizontal
+                          ? Axis.horizontal
+                          : Axis.vertical,
+                      physics: const NeverScrollableScrollPhysics(),
+                      child: current))
             else
-              current
+              (widget.width != null || widget.height != null)
+                  ? Expanded(child: current)
+                  : current
           ],
         );
       } else {
@@ -628,8 +713,23 @@ class _SfLegendState extends State<SfLegend> {
               fit: FlexFit.loose,
               child: widget.overflowMode == LegendOverflowMode.scroll
                   ? SingleChildScrollView(
-                      scrollDirection: Axis.vertical, child: current)
-                  : current,
+                      scrollDirection: widget.scrollDirection ?? Axis.vertical,
+                      child: current)
+                  : widget.overflowMode == LegendOverflowMode.wrapScroll
+                      ? SingleChildScrollView(
+                          scrollDirection: widget.direction == Axis.horizontal
+                              ? Axis.vertical
+                              : Axis.horizontal,
+                          child: current)
+                      : widget.overflowMode == LegendOverflowMode.none
+                          ? SingleChildScrollView(
+                              scrollDirection:
+                                  widget.direction == Axis.horizontal
+                                      ? Axis.vertical
+                                      : Axis.horizontal,
+                              physics: const NeverScrollableScrollPhysics(),
+                              child: current)
+                          : current,
             ),
           ],
         );
@@ -649,12 +749,16 @@ class _SfLegendState extends State<SfLegend> {
       );
     }
 
-    if (widget.width != null && widget.height != null) {
-      current = Container(
+    if (widget.width != null || widget.height != null) {
+      current = SizedBox(
         width: widget.width,
         height: widget.height,
         child: current,
       );
+    }
+
+    if (widget.margin != null) {
+      current = Padding(padding: widget.margin!, child: current);
     }
 
     return current;
@@ -756,6 +860,7 @@ class _VectorLegend extends StatefulWidget {
     this.itemBuilder,
     this.itemCount,
     this.itemSpacing,
+    this.itemRunSpacing,
     this.overflowMode,
     this.onItemRenderer,
     this.onToggledIndicesChanged,
@@ -819,6 +924,9 @@ class _VectorLegend extends StatefulWidget {
   /// Specifies the space between the each legend items.
   final double? itemSpacing;
 
+  /// Specifies the cross axis run spacing for the wrapped elements.
+  final double? itemRunSpacing;
+
   /// Arranges the legend items in either horizontal or vertical direction.
   final Axis? direction;
 
@@ -841,6 +949,7 @@ class _VectorLegendState extends State<_VectorLegend>
           text: item.text,
           textStyle: widget.textStyle,
           iconType: item.iconType ?? widget.iconType,
+          iconStrokeWidth: item.iconStrokeWidth,
           imageProvider: item.imageProvider ?? widget.imageProvider,
           shader: item.shader,
           iconSize: widget.iconSize,
@@ -852,6 +961,10 @@ class _VectorLegendState extends State<_VectorLegend>
           toggledTextOpacity: widget.toggledTextOpacity,
           onToggledIndicesChanged: widget.onToggledIndicesChanged,
           onItemRenderer: widget.onItemRenderer,
+          overlayMarkerType: item.overlayMarkerType,
+          degree: item.degree,
+          startAngle: item.startAngle,
+          endAngle: item.endAngle,
         ));
       }
     } else if (widget.itemCount != null &&
@@ -886,13 +999,13 @@ class _VectorLegendState extends State<_VectorLegend>
 
   @override
   void dispose() {
-    widget.toggledIndices?.clear();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
+
     final Widget current = Wrap(
       direction: widget.direction ??
           (widget.position == LegendPosition.top ||
@@ -900,22 +1013,11 @@ class _VectorLegendState extends State<_VectorLegend>
               ? Axis.horizontal
               : Axis.vertical),
       spacing: widget.itemSpacing!,
-      runSpacing: 6,
+      runSpacing: widget.itemRunSpacing ?? 6.0,
       runAlignment: WrapAlignment.center,
       alignment: WrapAlignment.start,
       children: _buildLegendItems(themeData),
     );
-
-    if (widget.overflowMode == LegendOverflowMode.none) {
-      return SingleChildScrollView(
-        scrollDirection: widget.position == LegendPosition.top ||
-                widget.position == LegendPosition.bottom
-            ? Axis.horizontal
-            : Axis.vertical,
-        physics: const NeverScrollableScrollPhysics(),
-        child: current,
-      );
-    }
 
     return current;
   }
@@ -930,6 +1032,7 @@ class _LegendItem extends StatefulWidget {
     this.text,
     this.textStyle,
     this.iconType,
+    this.iconStrokeWidth,
     this.imageProvider,
     this.shader,
     this.iconSize = Size.zero,
@@ -941,6 +1044,10 @@ class _LegendItem extends StatefulWidget {
     required this.toggledIndices,
     required this.onToggledIndicesChanged,
     this.onItemRenderer,
+    this.overlayMarkerType,
+    this.degree,
+    this.startAngle,
+    this.endAngle,
   });
 
   /// Specifies the item index.
@@ -957,6 +1064,9 @@ class _LegendItem extends StatefulWidget {
 
   /// Specifies the shape of the legend icon.
   final ShapeMarkerType? iconType;
+
+  /// Specifies the stroke width of the legend icon.
+  final double? iconStrokeWidth;
 
   /// Identifies an image.
   final ImageProvider? imageProvider;
@@ -991,6 +1101,18 @@ class _LegendItem extends StatefulWidget {
   /// Called every time while rendering a legend item.
   final ItemRenderCallback? onItemRenderer;
 
+  /// Specifies the overlay marker  for cartesian line type icon.
+  final ShapeMarkerType? overlayMarkerType;
+
+  /// Specifies the start angle for radial bar icon.
+  final double? startAngle;
+
+  /// Specifies the degree for radial bar icon.
+  final double? degree;
+
+  /// Specifies the end angle for radial bar icon.
+  final double? endAngle;
+
   @override
   _LegendItemState createState() => _LegendItemState();
 }
@@ -1012,12 +1134,16 @@ class _LegendItemState extends State<_LegendItem>
     Widget current = CustomPaint(
       size: widget.iconSize,
       painter: _LegendIconShape(
-        color: details.color,
-        iconType: details.iconType,
-        iconBorder: details.iconBorder,
-        image: snapshot.data,
-        shader: widget.shader,
-      ),
+          color: details.color,
+          iconType: details.iconType,
+          iconBorder: details.iconBorder,
+          iconStrokeWidth: widget.iconStrokeWidth,
+          image: snapshot.data,
+          shader: widget.shader,
+          overlayMarkerType: widget.overlayMarkerType,
+          degree: widget.degree,
+          startAngle: widget.startAngle,
+          endAngle: widget.endAngle),
     );
 
     if (widget.shader != null &&
@@ -1042,15 +1168,14 @@ class _LegendItemState extends State<_LegendItem>
 
   void _handleTapUp(TapUpDetails details) {
     if (widget.toggledIndices != null) {
-      final List<int> toggledIndices = List<int>.from(widget.toggledIndices!);
-      if (!toggledIndices.contains(widget.index)) {
-        toggledIndices.add(widget.index);
-        _toggleAnimationController.forward();
+      final List<int> newToggledIndices =
+          List<int>.from(widget.toggledIndices!);
+      if (!newToggledIndices.contains(widget.index)) {
+        newToggledIndices.add(widget.index);
       } else {
-        toggledIndices.remove(widget.index);
-        _toggleAnimationController.reverse();
+        newToggledIndices.remove(widget.index);
       }
-      widget.onToggledIndicesChanged?.call(toggledIndices, widget.index);
+      widget.onToggledIndicesChanged?.call(newToggledIndices, widget.index);
     }
   }
 
@@ -1060,7 +1185,7 @@ class _LegendItemState extends State<_LegendItem>
       return null;
     }
 
-    _completer ??= Completer<ImageInfo>();
+    _completer = Completer<ImageInfo>();
     _imageStream?.removeListener(imageStreamListener(_completer!));
     _imageStream = widget.imageProvider!.resolve(const ImageConfiguration());
     _imageStream!.addListener(imageStreamListener(_completer!));
@@ -1094,6 +1219,14 @@ class _LegendItemState extends State<_LegendItem>
         : null;
     _iconColorTween = ColorTween(begin: begin, end: widget.toggledColor);
     _opacityTween = Tween<double>(begin: 1.0, end: widget.toggledTextOpacity);
+
+    if (widget.toggledIndices != null) {
+      if (widget.toggledIndices!.contains(widget.index)) {
+        _toggleAnimationController.value = 1.0;
+      } else {
+        _toggleAnimationController.value = 0.0;
+      }
+    }
 
     _obtainImage = _retrieveImageFromProvider();
     super.initState();
@@ -1155,14 +1288,21 @@ class _LegendItemState extends State<_LegendItem>
             }
           }
         } else {
+          final Color? referenceIconColor =
+              _iconColorTween.evaluate(_toggleAnimation);
           final ItemRendererDetails details = ItemRendererDetails(
             index: widget.index,
             text: widget.text!,
-            color: _iconColorTween.evaluate(_toggleAnimation),
+            color: referenceIconColor,
             iconType: widget.iconType!,
             iconBorder: widget.iconBorder,
           );
           widget.onItemRenderer?.call(details);
+          if (referenceIconColor != null &&
+              referenceIconColor != details.color) {
+            _iconColorTween.begin = details.color!;
+            details.color = _iconColorTween.evaluate(_toggleAnimation);
+          }
           current = Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
@@ -1200,13 +1340,17 @@ class _LegendItemState extends State<_LegendItem>
 /// Represents the class for rendering icon shape.
 class _LegendIconShape extends CustomPainter {
   /// Represents [LegendIconShape]
-  _LegendIconShape({
-    required this.color,
-    required this.iconType,
-    this.iconBorder,
-    this.image,
-    this.shader,
-  });
+  _LegendIconShape(
+      {required this.color,
+      required this.iconType,
+      this.iconBorder,
+      this.iconStrokeWidth,
+      this.image,
+      this.shader,
+      this.overlayMarkerType,
+      this.degree,
+      this.startAngle,
+      this.endAngle});
 
   /// Specifies the color of the icon.
   final Color? color;
@@ -1217,11 +1361,26 @@ class _LegendIconShape extends CustomPainter {
   /// Specifies the border of the icon.
   final BorderSide? iconBorder;
 
+  /// Specifies the stroke width of the icon.
+  final double? iconStrokeWidth;
+
   /// Identifies an image.
   final ui.Image? image;
 
   /// Specifies the shader of the icon.
   final Shader? shader;
+
+  /// Specifies the overlay marker for cartesian line icon type icon.
+  final ShapeMarkerType? overlayMarkerType;
+
+  /// Specifies the start angle for radial bar icon.
+  final double? startAngle;
+
+  /// Specifies the degree for radial bar icon.
+  final double? degree;
+
+  /// Specifies the end angle for radial bar icon.
+  final double? endAngle;
 
   Paint _getFillPaint() {
     final Paint paint = Paint();
@@ -1234,18 +1393,32 @@ class _LegendIconShape extends CustomPainter {
     return paint;
   }
 
+  Paint? _getStrokePaint() {
+    if (iconStrokeWidth != null && color != null) {
+      return Paint()
+        ..style = PaintingStyle.stroke
+        ..color = color!
+        ..strokeWidth = iconStrokeWidth!;
+    }
+
+    return iconBorder?.toPaint();
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
     if (iconType == ShapeMarkerType.image && image != null) {
       paintImage(canvas: canvas, rect: Offset.zero & size, image: image!);
     } else {
-      ShapePainter.paint(
-        canvas: canvas,
-        rect: Offset.zero & size,
-        shapeType: iconType!,
-        paint: _getFillPaint(),
-        borderPaint: iconBorder?.toPaint(),
-      );
+      shape_helper.paint(
+          canvas: canvas,
+          rect: Offset.zero & size,
+          shapeType: iconType!,
+          paint: _getFillPaint(),
+          borderPaint: _getStrokePaint(),
+          overlayMarkerType: overlayMarkerType,
+          degree: degree,
+          startAngle: startAngle,
+          endAngle: endAngle);
     }
   }
 

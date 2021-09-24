@@ -1,3 +1,9 @@
+## Unreleased
+
+**Features**
+* Added a Today button in the Date Range Picker to move to today’s date.
+* Added a selectable day predicate callback to decide whether a cell is selectable or not.
+
 ## [19.2.44]
 **Features**
 * Provided support to display week numbers of the year.

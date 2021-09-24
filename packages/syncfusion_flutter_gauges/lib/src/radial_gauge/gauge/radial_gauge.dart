@@ -225,7 +225,7 @@ class SfRadialGaugeState extends State<SfRadialGauge>
 
   /// Method to convert the [SfRadialGauge] as an image.
   ///
-  /// Returns the [dart:ui.image]
+  /// Returns the `dart:ui.image`
   ///
   ///As this method is in the widget’s state class, you have to use a global
   ///key to access the state to call this method.

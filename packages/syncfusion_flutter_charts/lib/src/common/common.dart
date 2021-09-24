@@ -1,7 +1,19 @@
-part of charts;
+import 'dart:ui';
 
-class _ChartContainer extends SingleChildRenderObjectWidget {
-  const _ChartContainer({required Widget child}) : super(child: child);
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+
+import '../chart/utils/enum.dart';
+import 'utils/enum.dart';
+import 'utils/helper.dart';
+import 'utils/typedef.dart';
+
+/// Represents the chart container
+class ChartContainer extends SingleChildRenderObjectWidget {
+  /// Creates an instance for chart container
+  const ChartContainer({required Widget child}) : super(child: child);
 
   @override
   RenderObject createRenderObject(BuildContext context) {
@@ -60,7 +72,7 @@ class ChartTitle {
       this.borderColor = Colors.transparent,
       this.borderWidth = 0,
       this.backgroundColor})
-      : textStyle = _getTextStyle(
+      : textStyle = getTextStyle(
             textStyle: textStyle,
             fontSize: 15.0,
             fontFamily: 'Segoe UI',
@@ -210,108 +222,6 @@ class ChartTitle {
   }
 }
 
-/// This class has the property of the chart text style.
-///
-/// ChartTextStyle is the type of argument in the [ChartTitle] class, it used to set the text style of the chart title.
-/// It has the properties to customize the chart title text.
-///
-/// Provides the options of color, font family, font style, font size, and font-weight to customize the appearance.
-///
-@Deprecated('Use [TextStyle] instead of [ChartTextStyle] ')
-class ChartTextStyle extends TextStyle {
-  /// Creating an argument constructor of ChartTextStyle class.
-  const ChartTextStyle(
-      {this.color,
-      this.fontFamily = 'Roboto',
-      this.fontStyle = FontStyle.normal,
-      this.fontWeight = FontWeight.normal,
-      this.fontSize = 12})
-      : super(
-          color: color,
-          fontFamily: fontFamily,
-          fontStyle: fontStyle,
-          fontWeight: fontWeight,
-          fontSize: fontSize,
-          inherit: true,
-        );
-
-  /// To set the color of chart text.
-  ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///               primaryXAxis: CategoryAxis(
-  ///                      labelStyle: ChartTextStyle(color: Colors.black),
-  ///                  ));
-  ///}
-  ///```
-  @override
-  final Color? color;
-
-  /// To set the font family of chart text.
-  ///
-  /// Defaults to `Roboto`
-  ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///               primaryXAxis: CategoryAxis(
-  ///                      labelStyle: ChartTextStyle(fontFamily: 'Roboto'),
-  ///                  ));
-  ///}
-  ///```
-  @override
-  final String fontFamily;
-
-  /// To set the font style of chart text.
-  ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///               primaryXAxis: CategoryAxis(
-  ///                      labelStyle: ChartTextStyle(fontStyle: FontStyle.normal),
-  ///                  ));
-  ///}
-  ///```
-  @override
-  final FontStyle fontStyle;
-
-  /// To set the font weight of chart text.
-  ///
-  /// Defaults to `FontStyle.normal`
-  ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///               primaryXAxis: CategoryAxis(
-  ///                      labelStyle: ChartTextStyle(fontWeight: FontWeight.normal),
-  ///                  ));
-  ///}
-  ///```
-  @override
-  final FontWeight fontWeight;
-
-  /// To change the font size of chart text
-  ///
-  /// Defaults to `12`
-  ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///               primaryXAxis: CategoryAxis(
-  ///                      labelStyle: ChartTextStyle(fontSize: 12),
-  ///                  ));
-  ///}
-  ///```
-  @override
-  final double fontSize;
-}
-
 ///Identify the series in chart.
 ///
 ///Legend contains list of chart series/data points in chart. It helps to
@@ -360,7 +270,7 @@ class Legend {
         iconBorderWidth = iconBorderWidth ?? 0.0,
         opacity = opacity ?? 1.0,
         padding = padding ?? 10.0,
-        textStyle = _getTextStyle(
+        textStyle = getTextStyle(
             textStyle: textStyle,
             fontSize: 13.0,
             fontStyle: FontStyle.normal,
@@ -802,6 +712,7 @@ class Legend {
   ///}
   ///```
   final ImageProvider? image;
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) {
@@ -870,25 +781,44 @@ class Legend {
 
 /// Legend renderer class for mutable fields and methods
 class LegendRenderer {
-  /// Creates an argument constructor for  Leged renderer class
-  LegendRenderer(this._legend);
+  /// Creates an argument constructor for  Legend renderer class
+  LegendRenderer(this.legend);
 
-  //ignore: unused_field
-  final Legend? _legend;
-  final _LegendRenderer _renderer = _LegendRenderer();
-  late LegendPosition _legendPosition;
-  late LegendItemOrientation _orientation;
+  /// Holds the legend value
+  final Legend? legend;
+
+  /// Specifies the legend position value
+  late LegendPosition legendPosition;
+
+  /// Specifies the value of legend item orientation
+  late LegendItemOrientation orientation;
 }
 
-class _MeasureWidgetContext {
-  _MeasureWidgetContext(
+/// Represents the class of measure widget context
+class MeasureWidgetContext {
+  /// Creates an instance of measure widget context
+  MeasureWidgetContext(
       {this.context, this.key, this.widget, this.seriesIndex, this.pointIndex});
+
+  /// Specifies the context value
   BuildContext? context;
+
+  /// Holds the series index value
   int? seriesIndex;
+
+  /// Holds the point index value
   int? pointIndex;
+
+  /// Holds the value of key
   Key? key;
+
+  /// Holds the value of size
   Size? size;
+
+  /// Specifies the widget value
   Widget? widget;
+
+  /// Specifies whether to render the legend
   bool isRender = false;
 }
 
@@ -902,7 +832,7 @@ class _MeasureWidgetContext {
 class LegendTitle {
   /// Creating an argument constructor of LegendTitle class.
   LegendTitle({this.text, TextStyle? textStyle, ChartAlignment? alignment})
-      : textStyle = _getTextStyle(
+      : textStyle = getTextStyle(
             textStyle: textStyle,
             fontSize: 12.0,
             fontStyle: FontStyle.normal,
@@ -1008,7 +938,7 @@ class LegendTitle {
 ///
 /// Defaults to `EmptyPointMode.gap`.
 ///
-/// _Note:_ This is common for cartesian, circular, pyramid and funnel charts.
+/// _Note:_ This is common for Cartesian, circular, pyramid and funnel charts.
 class EmptyPointSettings {
   /// Creating an argument constructor of EmptyPointSettings class.
   EmptyPointSettings(

@@ -2,35 +2,38 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:syncfusion_flutter_core/core.dart';
+import 'package:syncfusion_flutter_core/core.dart' as core;
 
 import '../../linear_gauge/utils/enum.dart';
+import 'linear_marker_pointer.dart';
 
 /// Represents the render object of shape pointer.
-class RenderLinearShapePointer extends RenderBox {
+class RenderLinearShapePointer extends RenderLinearPointerBase {
   /// Creates a instance for [RenderLinearShapePointer].
-  RenderLinearShapePointer(
-      {required double value,
-      ValueChanged? onValueChanged,
-      required Color color,
-      required Color borderColor,
-      required double borderWidth,
-      required double width,
-      required double height,
-      required double offset,
-      required LinearElementPosition position,
-      required LinearShapePointerType shapeType,
-      required double elevation,
-      required LinearGaugeOrientation orientation,
-      required Color elevationColor,
-      required LinearMarkerAlignment markerAlignment,
-      required bool isMirrored,
-      Animation<double>? pointerAnimation,
-      VoidCallback? onAnimationCompleted,
-      this.animationController})
-      : _value = value,
-        _onValueChanged = onValueChanged,
-        _color = color,
+  RenderLinearShapePointer({
+    required double value,
+    ValueChanged<double>? onChanged,
+    ValueChanged<double>? onChangeStart,
+    ValueChanged<double>? onChangeEnd,
+    required Color color,
+    required Color borderColor,
+    required double borderWidth,
+    required double width,
+    required double height,
+    required double offset,
+    required LinearElementPosition position,
+    required LinearShapePointerType shapeType,
+    required double elevation,
+    required LinearGaugeOrientation orientation,
+    required Color elevationColor,
+    required LinearMarkerAlignment markerAlignment,
+    required bool isMirrored,
+    required bool isAxisInversed,
+    Animation<double>? pointerAnimation,
+    VoidCallback? onAnimationCompleted,
+    required LinearMarkerDragBehavior dragBehavior,
+    AnimationController? animationController,
+  })  : _color = color,
         _borderColor = borderColor,
         _borderWidth = borderWidth,
         _shapeType = shapeType,
@@ -39,12 +42,20 @@ class RenderLinearShapePointer extends RenderBox {
         _elevationColor = elevationColor,
         _width = width,
         _height = height,
-        _offset = offset,
-        _position = position,
-        _markerAlignment = markerAlignment,
-        _isMirrored = isMirrored,
-        _onAnimationCompleted = onAnimationCompleted,
-        _pointerAnimation = pointerAnimation {
+        super(
+            value: value,
+            onChanged: onChanged,
+            onChangeStart: onChangeStart,
+            onChangeEnd: onChangeEnd,
+            offset: offset,
+            position: position,
+            dragBehavior: dragBehavior,
+            markerAlignment: markerAlignment,
+            isMirrored: isMirrored,
+            isAxisInversed: isAxisInversed,
+            pointerAnimation: pointerAnimation,
+            animationController: animationController,
+            onAnimationCompleted: onAnimationCompleted) {
     _shapePaint = Paint();
     _borderPaint = Paint();
   }
@@ -53,12 +64,6 @@ class RenderLinearShapePointer extends RenderBox {
   Paint? _borderPaint;
 
   Rect _shapeRect = Rect.zero;
-
-  /// Shape Pointer old value.
-  double? oldValue;
-
-  /// Gets or Sets the animation controller assigned to [RenderLinearShapePointer].
-  AnimationController? animationController;
 
   /// Gets the orientation to [RenderLinearShapePointer].
   LinearGaugeOrientation? get orientation => _orientation;
@@ -87,43 +92,6 @@ class RenderLinearShapePointer extends RenderBox {
     }
     _shapeType = value;
     markNeedsPaint();
-  }
-
-  /// Gets the value assigned to [RenderLinearShapePointer].
-  double get value => _value;
-  double _value;
-
-  /// Sets the value for [RenderLinearShapePointer].
-  set value(double value) {
-    if (value == _value) {
-      return;
-    }
-
-    if (animationController != null && animationController!.isAnimating) {
-      oldValue = _value;
-      animationController!.stop();
-    }
-
-    _value = value;
-
-    if (animationController != null && oldValue != value) {
-      animationController!.forward(from: 0.01);
-    }
-
-    markNeedsLayout();
-  }
-
-  /// Gets the onValueChanged assigned to [RenderLinearShapePointer].
-  ValueChanged? get onValueChanged => _onValueChanged;
-  ValueChanged? _onValueChanged;
-
-  /// Sets the onValueChanged callback for [RenderLinearShapePointer].
-  set onValueChanged(ValueChanged? value) {
-    if (value == _onValueChanged) {
-      return;
-    }
-
-    _onValueChanged = value;
   }
 
   /// Gets the width assigned to [RenderLinearShapePointer].
@@ -196,34 +164,6 @@ class RenderLinearShapePointer extends RenderBox {
     markNeedsPaint();
   }
 
-  /// Gets the offset assigned to [RenderLinearShapePointer].
-  double get offset => _offset;
-  double _offset;
-
-  /// Sets the offset for [RenderLinearShapePointer].
-  set offset(double value) {
-    if (value == _offset) {
-      return;
-    }
-
-    _offset = value;
-    markNeedsLayout();
-  }
-
-  /// Gets the position assigned to [RenderLinearShapePointer].
-  LinearElementPosition get position => _position;
-  LinearElementPosition _position;
-
-  /// Sets the position for [RenderLinearShapePointer].
-  set position(LinearElementPosition value) {
-    if (value == _position) {
-      return;
-    }
-
-    _position = value;
-    markNeedsLayout();
-  }
-
   /// Gets the elevation assigned to [RenderLinearShapePointer].
   double get elevation => _elevation;
   double _elevation;
@@ -249,62 +189,6 @@ class RenderLinearShapePointer extends RenderBox {
     }
 
     _elevationColor = value;
-    markNeedsPaint();
-  }
-
-  /// Gets the animation assigned to [RenderLinearShapePointer].
-  Animation<double>? get pointerAnimation => _pointerAnimation;
-  Animation<double>? _pointerAnimation;
-
-  /// Sets the animation animation for [RenderLinearShapePointer].
-  set pointerAnimation(Animation<double>? value) {
-    if (value == _pointerAnimation) {
-      return;
-    }
-
-    _removeAnimationListener();
-    _pointerAnimation = value;
-    _addAnimationListener();
-  }
-
-  /// Gets the Marker Alignment assigned to [RenderLinearShapePointer].
-  LinearMarkerAlignment? get markerAlignment => _markerAlignment;
-  LinearMarkerAlignment? _markerAlignment;
-
-  /// Sets the Marker Alignment for [RenderLinearShapePointer].
-  set markerAlignment(LinearMarkerAlignment? value) {
-    if (value == _markerAlignment) {
-      return;
-    }
-
-    _markerAlignment = value;
-    markNeedsLayout();
-  }
-
-  /// Gets the animation completed callback.
-  VoidCallback? get onAnimationCompleted => _onAnimationCompleted;
-  VoidCallback? _onAnimationCompleted;
-
-  /// Sets the animation completed callback.
-  set onAnimationCompleted(VoidCallback? value) {
-    if (value == _onAnimationCompleted) {
-      return;
-    }
-
-    _onAnimationCompleted = value;
-  }
-
-  /// Gets the isMirrored to [RenderLinearShapePointer].
-  bool get isMirrored => _isMirrored;
-  bool _isMirrored;
-
-  /// Sets the isMirrored for [RenderLinearShapePointer].
-  set isMirrored(bool value) {
-    if (value == _isMirrored) {
-      return;
-    }
-
-    _isMirrored = value;
     markNeedsPaint();
   }
 
@@ -388,35 +272,35 @@ class RenderLinearShapePointer extends RenderBox {
         }
       }
 
-      late ShapeMarkerType markerType;
+      late core.ShapeMarkerType markerType;
 
       switch (gaugeShapeType) {
         case LinearShapePointerType.circle:
-          markerType = ShapeMarkerType.circle;
+          markerType = core.ShapeMarkerType.circle;
           break;
         case LinearShapePointerType.rectangle:
-          markerType = ShapeMarkerType.rectangle;
+          markerType = core.ShapeMarkerType.rectangle;
           break;
         case LinearShapePointerType.triangle:
-          markerType = ShapeMarkerType.triangle;
+          markerType = core.ShapeMarkerType.triangle;
           if (orientation == LinearGaugeOrientation.vertical) {
-            markerType = ShapeMarkerType.verticalTriangle;
+            markerType = core.ShapeMarkerType.verticalTriangle;
           }
           break;
         case LinearShapePointerType.invertedTriangle:
-          markerType = ShapeMarkerType.invertedTriangle;
+          markerType = core.ShapeMarkerType.invertedTriangle;
           if (orientation == LinearGaugeOrientation.vertical) {
-            markerType = ShapeMarkerType.verticalInvertedTriangle;
+            markerType = core.ShapeMarkerType.verticalInvertedTriangle;
           }
           break;
         case LinearShapePointerType.diamond:
-          markerType = ShapeMarkerType.diamond;
+          markerType = core.ShapeMarkerType.diamond;
           break;
         default:
           break;
       }
 
-      ShapePainter.paint(
+      core.paint(
           canvas: canvas,
           rect: _shapeRect,
           elevation: elevation,

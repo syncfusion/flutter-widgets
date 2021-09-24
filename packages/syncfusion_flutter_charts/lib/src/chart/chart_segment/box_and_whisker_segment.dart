@@ -1,4 +1,18 @@
-part of charts;
+import 'dart:ui';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:syncfusion_flutter_charts/src/chart/chart_series/series.dart';
+import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
+
+import '../chart_series/box_and_whisker_series.dart';
+import '../chart_series/xy_data_series.dart';
+import '../common/common.dart';
+import '../common/renderer.dart';
+import '../common/segment_properties.dart';
+import '../utils/helper.dart';
+import 'chart_segment.dart';
 
 /// Creates the segments for box and whisker series.
 ///
@@ -8,155 +22,183 @@ part of charts;
 /// Gets the path and fill color from the `series` to render the box and whisker segment.
 ///
 class BoxAndWhiskerSegment extends ChartSegment {
-  late double _x,
-      _min,
-      _max,
-      _maxY,
-      _lowerX,
+  late double _maxY,
       _lowerY,
-      _upperX,
       _upperY,
       _centerMax,
       _centerMin,
       _minY,
       _centersY,
-      _topRectY,
       _topLineY,
-      _bottomRectY,
       _bottomLineY,
       _medianX,
       _medianY;
-  late Path _path;
+
   late Paint _meanPaint;
-  // ignore: unused_field
-  Color? _pointColorMapper;
 
   late bool _isTransposed;
 
-  late _ChartLocation _minPoint, _maxPoint, _centerMinPoint, _centerMaxPoint;
+  late ChartLocation _centerMinPoint, _centerMaxPoint;
 
   late BoxAndWhiskerSeries<dynamic, dynamic> _boxAndWhiskerSeries;
+
+  late SegmentProperties _segmentProperties;
+
+  bool _isInitialize = false;
 
   /// Gets the color of the series.
   @override
   Paint getFillPaint() {
+    _setSegmentProperties();
+
     /// Get and set the paint options for box and whisker series.
-    if (_series.gradient == null) {
+    if (_segmentProperties.series.gradient == null) {
       fillPaint = Paint()
-        ..color = _currentPoint!.isEmpty == true
-            ? _series.emptyPointSettings.color
-            : (_currentPoint!.pointColorMapper ?? _color!)
+        ..color = _segmentProperties.currentPoint!.isEmpty == true
+            ? _segmentProperties.series.emptyPointSettings.color
+            : (_segmentProperties.currentPoint!.pointColorMapper ??
+                _segmentProperties.color!)
         ..style = PaintingStyle.fill;
     } else {
-      fillPaint = _getLinearGradientPaint(
-          _series.gradient!,
-          _currentPoint!.region!,
-          _seriesRenderer._chartState!._requireInvertedAxis);
+      fillPaint = getLinearGradientPaint(
+          _segmentProperties.series.gradient!,
+          _segmentProperties.currentPoint!.region!,
+          SeriesHelper.getSeriesRendererDetails(
+                  _segmentProperties.seriesRenderer)
+              .stateProperties
+              .requireInvertedAxis);
     }
-    assert(_series.opacity >= 0,
+    assert(_segmentProperties.series.opacity >= 0 == true,
         'The opacity value of the box plot series should be greater than or equal to 0.');
-    assert(_series.opacity <= 1,
+    assert(_segmentProperties.series.opacity <= 1 == true,
         'The opacity value of the box plot series should be less than or equal to 1.');
-    fillPaint!.color =
-        (_series.opacity < 1 && fillPaint!.color != Colors.transparent)
-            ? fillPaint!.color.withOpacity(_series.opacity)
-            : fillPaint!.color;
-    _defaultFillColor = fillPaint;
+    fillPaint!.color = (_segmentProperties.series.opacity < 1 == true &&
+            fillPaint!.color != Colors.transparent)
+        ? fillPaint!.color.withOpacity(_segmentProperties.series.opacity)
+        : fillPaint!.color;
+    _segmentProperties.defaultFillColor = fillPaint;
+    setShader(_segmentProperties, fillPaint!);
     return fillPaint!;
   }
 
   /// Gets the border color of the series.
   @override
   Paint getStrokePaint() {
+    _setSegmentProperties();
     strokePaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = _currentPoint!.isEmpty == true
-          ? _series.emptyPointSettings.borderWidth
-          : _strokeWidth!;
+      ..strokeWidth = _segmentProperties.currentPoint!.isEmpty == true
+          ? _segmentProperties.series.emptyPointSettings.borderWidth
+          : _segmentProperties.strokeWidth!;
     _meanPaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = _currentPoint!.isEmpty == true
-          ? _series.emptyPointSettings.borderWidth
-          : _strokeWidth!;
-    if (_series.borderGradient != null) {
-      strokePaint!.shader =
-          _series.borderGradient!.createShader(_currentPoint!.region!);
-      _meanPaint.shader =
-          _series.borderGradient!.createShader(_currentPoint!.region!);
+      ..strokeWidth = _segmentProperties.currentPoint!.isEmpty == true
+          ? _segmentProperties.series.emptyPointSettings.borderWidth
+          : _segmentProperties.strokeWidth!;
+    if (_segmentProperties.series.borderGradient != null) {
+      strokePaint!.shader = _segmentProperties.series.borderGradient!
+          .createShader(_segmentProperties.currentPoint!.region!);
+      _meanPaint.shader = _segmentProperties.series.borderGradient!
+          .createShader(_segmentProperties.currentPoint!.region!);
     } else {
-      strokePaint!.color = _currentPoint!.isEmpty == true
-          ? _series.emptyPointSettings.borderColor
-          : _strokeColor!;
-      _meanPaint.color = _currentPoint!.isEmpty == true
-          ? _series.emptyPointSettings.borderColor
-          : _strokeColor!;
+      strokePaint!.color = _segmentProperties.currentPoint!.isEmpty == true
+          ? _segmentProperties.series.emptyPointSettings.borderColor
+          : _segmentProperties.strokeColor!;
+      _meanPaint.color = _segmentProperties.currentPoint!.isEmpty == true
+          ? _segmentProperties.series.emptyPointSettings.borderColor
+          : _segmentProperties.strokeColor!;
     }
-    _series.borderWidth == 0
+    _segmentProperties.series.borderWidth == 0
         ? strokePaint!.color = Colors.transparent
         : strokePaint!.color;
-    _defaultStrokeColor = strokePaint;
+    _segmentProperties.defaultStrokeColor = strokePaint;
     return strokePaint!;
   }
 
   /// Calculates the rendering bounds of a segment.
   @override
   void calculateSegmentPoints() {
-    _boxAndWhiskerSeries = _series as BoxAndWhiskerSeries<dynamic, dynamic>;
-    _x = _max = double.nan;
-    _isTransposed = _seriesRenderer._chartState!._requireInvertedAxis;
-    _minPoint = _currentPoint!.minimumPoint!;
-    _maxPoint = _currentPoint!.maximumPoint!;
-    _centerMinPoint = _currentPoint!.centerMinimumPoint!;
-    _centerMaxPoint = _currentPoint!.centerMaximumPoint!;
-    _x = _minPoint.x;
-    _min = _minPoint.y;
-    _max = _maxPoint.y;
+    _setSegmentProperties();
+    _boxAndWhiskerSeries =
+        _segmentProperties.series as BoxAndWhiskerSeries<dynamic, dynamic>;
+    _segmentProperties.x = _segmentProperties.max = double.nan;
+    _isTransposed =
+        SeriesHelper.getSeriesRendererDetails(_segmentProperties.seriesRenderer)
+            .stateProperties
+            .requireInvertedAxis;
+    _segmentProperties.minPoint =
+        _segmentProperties.currentPoint!.minimumPoint!;
+    _segmentProperties.maxPoint =
+        _segmentProperties.currentPoint!.maximumPoint!;
+    _centerMinPoint = _segmentProperties.currentPoint!.centerMinimumPoint!;
+    _centerMaxPoint = _segmentProperties.currentPoint!.centerMaximumPoint!;
+    _segmentProperties.x = _segmentProperties.minPoint.x;
+    _segmentProperties.min = _segmentProperties.minPoint.y;
+    _segmentProperties.max = _segmentProperties.maxPoint.y;
     _centerMax = _centerMaxPoint.x;
     _maxY = _centerMaxPoint.y;
     _centerMin = _centerMinPoint.x;
     _minY = _centerMinPoint.y;
-    _lowerX = _currentPoint!.lowerQuartilePoint!.x;
-    _lowerY = _currentPoint!.lowerQuartilePoint!.y;
-    _upperX = _currentPoint!.upperQuartilePoint!.x;
-    _upperY = _currentPoint!.upperQuartilePoint!.y;
-    _medianX = _currentPoint!.medianPoint!.x;
-    _medianY = _currentPoint!.medianPoint!.y;
+    _segmentProperties.lowerX =
+        _segmentProperties.currentPoint!.lowerQuartilePoint!.x;
+    _lowerY = _segmentProperties.currentPoint!.lowerQuartilePoint!.y;
+    _segmentProperties.upperX =
+        _segmentProperties.currentPoint!.upperQuartilePoint!.x;
+    _upperY = _segmentProperties.currentPoint!.upperQuartilePoint!.y;
+    _medianX = _segmentProperties.currentPoint!.medianPoint!.x;
+    _medianY = _segmentProperties.currentPoint!.medianPoint!.y;
 
     _centersY = (_lowerY > _upperY)
         ? (_upperY + ((_upperY - _lowerY).abs() / 2))
         : (_lowerY + ((_lowerY - _upperY).abs() / 2));
 
-    _topRectY = _centersY - ((_centersY - _upperY).abs() * 1);
-    _bottomRectY = _centersY + ((_centersY - _lowerY).abs() * 1);
+    _segmentProperties.topRectY = _centersY - ((_centersY - _upperY).abs() * 1);
+    _segmentProperties.bottomRectY =
+        _centersY + ((_centersY - _lowerY).abs() * 1);
   }
 
   /// To draw rect path of box and whisker segments
   void _drawRectPath() {
-    _path.moveTo(!_isTransposed ? _lowerX : _topRectY,
-        !_isTransposed ? _topRectY : _upperY);
-    _path.lineTo(!_isTransposed ? _upperX : _topRectY,
-        !_isTransposed ? _topRectY : _lowerY);
-    _path.lineTo(!_isTransposed ? _upperX : _bottomRectY,
-        !_isTransposed ? _bottomRectY : _lowerY);
-    _path.lineTo(!_isTransposed ? _lowerX : _bottomRectY,
-        !_isTransposed ? _bottomRectY : _upperY);
-    _path.lineTo(!_isTransposed ? _lowerX : _topRectY,
-        !_isTransposed ? _topRectY : _upperY);
-    _path.close();
+    _segmentProperties.path.moveTo(
+        !_isTransposed
+            ? _segmentProperties.lowerX
+            : _segmentProperties.topRectY,
+        !_isTransposed ? _segmentProperties.topRectY : _upperY);
+    _segmentProperties.path.lineTo(
+        !_isTransposed
+            ? _segmentProperties.upperX
+            : _segmentProperties.topRectY,
+        !_isTransposed ? _segmentProperties.topRectY : _lowerY);
+    _segmentProperties.path.lineTo(
+        !_isTransposed
+            ? _segmentProperties.upperX
+            : _segmentProperties.bottomRectY,
+        !_isTransposed ? _segmentProperties.bottomRectY : _lowerY);
+    _segmentProperties.path.lineTo(
+        !_isTransposed
+            ? _segmentProperties.lowerX
+            : _segmentProperties.bottomRectY,
+        !_isTransposed ? _segmentProperties.bottomRectY : _upperY);
+    _segmentProperties.path.lineTo(
+        !_isTransposed
+            ? _segmentProperties.lowerX
+            : _segmentProperties.topRectY,
+        !_isTransposed ? _segmentProperties.topRectY : _upperY);
+    _segmentProperties.path.close();
   }
 
   /// To draw line path of box and whisker segments
   void _drawLine(Canvas canvas) {
-    canvas.drawLine(
-        Offset(_lowerX, _topLineY), Offset(_upperX, _topLineY), strokePaint!);
-    canvas.drawLine(Offset(_centerMax, _topRectY),
+    canvas.drawLine(Offset(_segmentProperties.lowerX, _topLineY),
+        Offset(_segmentProperties.upperX, _topLineY), strokePaint!);
+    canvas.drawLine(Offset(_centerMax, _segmentProperties.topRectY),
         Offset(_centerMax, _topLineY), strokePaint!);
-    canvas.drawLine(
-        Offset(_lowerX, _medianY), Offset(_upperX, _medianY), strokePaint!);
-    canvas.drawLine(Offset(_centerMax, _bottomRectY),
+    canvas.drawLine(Offset(_segmentProperties.lowerX, _medianY),
+        Offset(_segmentProperties.upperX, _medianY), strokePaint!);
+    canvas.drawLine(Offset(_centerMax, _segmentProperties.bottomRectY),
         Offset(_centerMax, _bottomLineY), strokePaint!);
-    canvas.drawLine(Offset(_lowerX, _bottomLineY),
-        Offset(_upperX, _bottomLineY), strokePaint!);
+    canvas.drawLine(Offset(_segmentProperties.lowerX, _bottomLineY),
+        Offset(_segmentProperties.upperX, _bottomLineY), strokePaint!);
   }
 
   /// To draw mean line path of box and whisker segments
@@ -164,11 +206,15 @@ class BoxAndWhiskerSegment extends ChartSegment {
       Canvas canvas, Offset position, Size size, bool isTransposed) {
     final double x = !isTransposed ? position.dx : position.dy;
     final double y = !isTransposed ? position.dy : position.dx;
-    if (_series.animationDuration <= 0 ||
-        animationFactor >= _seriesRenderer._chartState!._seriesDurationFactor) {
+    final SeriesRendererDetails seriesRendererDetails =
+        SeriesHelper.getSeriesRendererDetails(
+            _segmentProperties.seriesRenderer);
+    if (_segmentProperties.series.animationDuration <= 0 == true ||
+        animationFactor >=
+            seriesRendererDetails.stateProperties.seriesDurationFactor) {
       /// `0.15` is animation duration of mean point value, as like marker.
       final double opacity = (animationFactor -
-              _seriesRenderer._chartState!._seriesDurationFactor) *
+              seriesRendererDetails.stateProperties.seriesDurationFactor) *
           (1 / 0.15);
       _meanPaint.color = Color.fromRGBO(_meanPaint.color.red,
           _meanPaint.color.green, _meanPaint.color.blue, opacity);
@@ -181,22 +227,26 @@ class BoxAndWhiskerSegment extends ChartSegment {
 
   /// To draw line path of box and whisker segments
   void _drawFillLine(Canvas canvas) {
-    final bool isOpen =
-        _currentPoint!.lowerQuartile! > _currentPoint!.upperQuartile!;
+    final bool isOpen = _segmentProperties.currentPoint!.lowerQuartile! >
+        _segmentProperties.currentPoint!.upperQuartile!;
     canvas.drawLine(
-        Offset(_topRectY, _maxY),
+        Offset(_segmentProperties.topRectY, _maxY),
         Offset(
-            _topRectY +
-                ((isOpen ? (_lowerX - _centerMax) : (_upperX - _centerMax))
+            _segmentProperties.topRectY +
+                ((isOpen
+                            ? (_segmentProperties.lowerX - _centerMax)
+                            : (_segmentProperties.upperX - _centerMax))
                         .abs() *
                     animationFactor),
             _maxY),
         strokePaint!);
     canvas.drawLine(
-        Offset(_bottomRectY, _maxY),
+        Offset(_segmentProperties.bottomRectY, _maxY),
         Offset(
-            _bottomRectY -
-                ((isOpen ? (_upperX - _centerMin) : (_lowerX - _centerMin))
+            _segmentProperties.bottomRectY -
+                ((isOpen
+                            ? (_segmentProperties.upperX - _centerMin)
+                            : (_segmentProperties.lowerX - _centerMin))
                         .abs() *
                     animationFactor),
             _maxY),
@@ -206,101 +256,132 @@ class BoxAndWhiskerSegment extends ChartSegment {
   /// Draws segment in series bounds.
   @override
   void onPaint(Canvas canvas) {
-    if (fillPaint != null && _seriesRenderer._reAnimate ||
-        (!(_seriesRenderer._renderingDetails!.widgetNeedUpdate &&
-            _oldSeriesRenderer != null &&
-            !_seriesRenderer._renderingDetails!.isLegendToggled))) {
-      _path = Path();
+    _setSegmentProperties();
+    final SeriesRendererDetails seriesRendererDetails =
+        SeriesHelper.getSeriesRendererDetails(
+            _segmentProperties.seriesRenderer);
+    if (fillPaint != null && seriesRendererDetails.reAnimate == true ||
+        (!(seriesRendererDetails
+                    .stateProperties.renderingDetails.widgetNeedUpdate ==
+                true &&
+            _segmentProperties.oldSeriesRenderer != null &&
+            seriesRendererDetails
+                    .stateProperties.renderingDetails.isLegendToggled ==
+                false))) {
+      _segmentProperties.path = Path();
       if (!_isTransposed &&
-          _currentPoint!.lowerQuartile! > _currentPoint!.upperQuartile!) {
+          _segmentProperties.currentPoint!.lowerQuartile! >
+                  _segmentProperties.currentPoint!.upperQuartile! ==
+              true) {
         final double temp = _upperY;
         _upperY = _lowerY;
         _lowerY = temp;
       }
 
-      if (_seriesRenderer._renderingDetails!.isLegendToggled) {
+      if (seriesRendererDetails
+              .stateProperties.renderingDetails.isLegendToggled ==
+          true) {
         animationFactor = 1;
       }
       if (_lowerY > _upperY) {
         _centersY = _upperY + ((_upperY - _lowerY).abs() / 2);
-        _topRectY = _centersY - ((_centersY - _upperY).abs() * animationFactor);
-        _bottomRectY =
+        _segmentProperties.topRectY =
+            _centersY - ((_centersY - _upperY).abs() * animationFactor);
+        _segmentProperties.bottomRectY =
             _centersY + ((_centersY - _lowerY).abs() * animationFactor);
       } else {
         _centersY = _lowerY + ((_lowerY - _upperY).abs() / 2);
-        _topRectY = _centersY - ((_centersY - _upperY).abs() * animationFactor);
-        _bottomRectY =
+        _segmentProperties.topRectY =
+            _centersY - ((_centersY - _upperY).abs() * animationFactor);
+        _segmentProperties.bottomRectY =
             _centersY + ((_centersY - _lowerY).abs() * animationFactor);
       }
-      _topLineY = _topRectY - ((_topRectY - _maxY).abs() * animationFactor);
-      _bottomLineY =
-          _bottomRectY + ((_bottomRectY - _minY).abs() * animationFactor);
+      _topLineY = _segmentProperties.topRectY -
+          ((_segmentProperties.topRectY - _maxY).abs() * animationFactor);
+      _bottomLineY = _segmentProperties.bottomRectY +
+          ((_segmentProperties.bottomRectY - _minY).abs() * animationFactor);
 
       _bottomLineY = _minY < _lowerY
-          ? _bottomRectY + ((_upperY - _maxY).abs() * animationFactor)
+          ? _segmentProperties.bottomRectY +
+              ((_upperY - _maxY).abs() * animationFactor)
           : _bottomLineY;
 
       _topLineY = _maxY > _upperY
-          ? _topRectY - ((_lowerY - _minY).abs() * animationFactor)
+          ? _segmentProperties.topRectY -
+              ((_lowerY - _minY).abs() * animationFactor)
           : _topLineY;
 
       if (_isTransposed) {
-        if (_lowerX > _upperX) {
-          _centersY = _upperX + ((_lowerX - _upperX).abs() / 2);
-          _topRectY =
-              _centersY + ((_centersY - _lowerX).abs() * animationFactor);
-          _bottomRectY =
-              _centersY - ((_centersY - _upperX).abs() * animationFactor);
+        if (_segmentProperties.lowerX > _segmentProperties.upperX == true) {
+          _centersY = _segmentProperties.upperX +
+              ((_segmentProperties.lowerX - _segmentProperties.upperX).abs() /
+                  2);
+          _segmentProperties.topRectY = _centersY +
+              ((_centersY - _segmentProperties.lowerX).abs() * animationFactor);
+          _segmentProperties.bottomRectY = _centersY -
+              ((_centersY - _segmentProperties.upperX).abs() * animationFactor);
         } else {
-          _centersY = _lowerX + (_upperX - _lowerX).abs() / 2;
-          _topRectY =
-              _centersY + ((_centersY - _upperX).abs() * animationFactor);
-          _bottomRectY =
-              _centersY - ((_centersY - _lowerX).abs() * animationFactor);
+          _centersY = _segmentProperties.lowerX +
+              (_segmentProperties.upperX - _segmentProperties.lowerX).abs() / 2;
+          _segmentProperties.topRectY = _centersY +
+              ((_centersY - _segmentProperties.upperX).abs() * animationFactor);
+          _segmentProperties.bottomRectY = _centersY -
+              ((_centersY - _segmentProperties.lowerX).abs() * animationFactor);
         }
-        _path.moveTo(_centerMax, _upperY);
-        _path.lineTo(_centerMax, _lowerY);
-        if (_centerMax < _upperX) {
-          _path.moveTo(_bottomRectY, _maxY);
-          _path.lineTo(
-              _topRectY - ((_lowerX - _centerMax).abs() * animationFactor),
-              _maxY);
-        } else {
-          _path.moveTo(_topRectY, _maxY);
-          _path.lineTo(
-              _topRectY + ((_upperX - _centerMax).abs() * animationFactor),
-              _maxY);
-        }
-        _path.moveTo(_medianX, _upperY);
-        _path.lineTo(_medianX, _lowerY);
-        if (_centerMin > _lowerX) {
-          _path.moveTo(_topRectY, _maxY);
-          _path.lineTo(
-              _bottomRectY + ((_upperX - _centerMin).abs() * animationFactor),
+        _segmentProperties.path.moveTo(_centerMax, _upperY);
+        _segmentProperties.path.lineTo(_centerMax, _lowerY);
+        if (_centerMax < _segmentProperties.upperX) {
+          _segmentProperties.path.moveTo(_segmentProperties.bottomRectY, _maxY);
+          _segmentProperties.path.lineTo(
+              _segmentProperties.topRectY -
+                  ((_segmentProperties.lowerX - _centerMax).abs() *
+                      animationFactor),
               _maxY);
         } else {
-          _path.moveTo(_bottomRectY, _maxY);
-          _path.lineTo(
-              _bottomRectY - ((_lowerX - _centerMin).abs() * animationFactor),
+          _segmentProperties.path.moveTo(_segmentProperties.topRectY, _maxY);
+          _segmentProperties.path.lineTo(
+              _segmentProperties.topRectY +
+                  ((_segmentProperties.upperX - _centerMax).abs() *
+                      animationFactor),
               _maxY);
         }
-        _path.moveTo(_centerMin, _upperY);
-        _path.lineTo(_centerMin, _lowerY);
+        _segmentProperties.path.moveTo(_medianX, _upperY);
+        _segmentProperties.path.lineTo(_medianX, _lowerY);
+        if (_centerMin > _segmentProperties.lowerX) {
+          _segmentProperties.path.moveTo(_segmentProperties.topRectY, _maxY);
+          _segmentProperties.path.lineTo(
+              _segmentProperties.bottomRectY +
+                  ((_segmentProperties.upperX - _centerMin).abs() *
+                      animationFactor),
+              _maxY);
+        } else {
+          _segmentProperties.path.moveTo(_segmentProperties.bottomRectY, _maxY);
+          _segmentProperties.path.lineTo(
+              _segmentProperties.bottomRectY -
+                  ((_segmentProperties.lowerX - _centerMin).abs() *
+                      animationFactor),
+              _maxY);
+        }
+        _segmentProperties.path.moveTo(_centerMin, _upperY);
+        _segmentProperties.path.lineTo(_centerMin, _lowerY);
         if (_boxAndWhiskerSeries.showMean) {
           _drawMeanLine(
               canvas,
-              Offset(_currentPoint!.centerMeanPoint!.y,
-                  _currentPoint!.centerMeanPoint!.x),
-              Size(_series.markerSettings.width, _series.markerSettings.height),
+              Offset(_segmentProperties.currentPoint!.centerMeanPoint!.y,
+                  _segmentProperties.currentPoint!.centerMeanPoint!.x),
+              Size(_segmentProperties.series.markerSettings.width,
+                  _segmentProperties.series.markerSettings.height),
               _isTransposed);
         }
 
-        _lowerX == _upperX
-            ? canvas.drawLine(
-                Offset(_lowerX, _lowerY), Offset(_upperX, _upperY), fillPaint!)
+        _segmentProperties.lowerX == _segmentProperties.upperX
+            ? canvas.drawLine(Offset(_segmentProperties.lowerX, _lowerY),
+                Offset(_segmentProperties.upperX, _upperY), fillPaint!)
             : _drawRectPath();
       } else {
-        if (_currentPoint!.lowerQuartile! > _currentPoint!.upperQuartile!) {
+        if (_segmentProperties.currentPoint!.lowerQuartile! >
+                _segmentProperties.currentPoint!.upperQuartile! ==
+            true) {
           final double temp = _upperY;
           _upperY = _lowerY;
           _lowerY = temp;
@@ -309,38 +390,42 @@ class BoxAndWhiskerSegment extends ChartSegment {
         if (_boxAndWhiskerSeries.showMean) {
           _drawMeanLine(
               canvas,
-              Offset(_currentPoint!.centerMeanPoint!.x,
-                  _currentPoint!.centerMeanPoint!.y),
-              Size(_series.markerSettings.width, _series.markerSettings.height),
+              Offset(_segmentProperties.currentPoint!.centerMeanPoint!.x,
+                  _segmentProperties.currentPoint!.centerMeanPoint!.y),
+              Size(_segmentProperties.series.markerSettings.width,
+                  _segmentProperties.series.markerSettings.height),
               _isTransposed);
         }
         _lowerY == _upperY
-            ? canvas.drawLine(
-                Offset(_lowerX, _lowerY), Offset(_upperX, _upperY), fillPaint!)
+            ? canvas.drawLine(Offset(_segmentProperties.lowerX, _lowerY),
+                Offset(_segmentProperties.upperX, _upperY), fillPaint!)
             : _drawRectPath();
       }
 
-      if (_series.dashArray[0] != 0 &&
-          _series.dashArray[1] != 0 &&
-          _series.animationDuration <= 0) {
-        canvas.drawPath(_path, fillPaint!);
-        _drawDashedLine(canvas, _series.dashArray, strokePaint!, _path);
+      if (_segmentProperties.series.dashArray[0] != 0 &&
+          _segmentProperties.series.dashArray[1] != 0 &&
+          _segmentProperties.series.animationDuration <= 0 == true) {
+        canvas.drawPath(_segmentProperties.path, fillPaint!);
+        drawDashedLine(canvas, _segmentProperties.series.dashArray,
+            strokePaint!, _segmentProperties.path);
       } else {
-        canvas.drawPath(_path, fillPaint!);
-        canvas.drawPath(_path, strokePaint!);
+        canvas.drawPath(_segmentProperties.path, fillPaint!);
+        canvas.drawPath(_segmentProperties.path, strokePaint!);
       }
       if (fillPaint!.style == PaintingStyle.fill) {
         if (_isTransposed) {
-          if (_currentPoint!.lowerQuartile! > _currentPoint!.upperQuartile!) {
+          if (_segmentProperties.currentPoint!.lowerQuartile! >
+                  _segmentProperties.currentPoint!.upperQuartile! ==
+              true) {
             _drawFillLine(canvas);
           }
           if (_boxAndWhiskerSeries.showMean) {
             _drawMeanLine(
                 canvas,
-                Offset(_currentPoint!.centerMeanPoint!.y,
-                    _currentPoint!.centerMeanPoint!.x),
-                Size(_series.markerSettings.width,
-                    _series.markerSettings.height),
+                Offset(_segmentProperties.currentPoint!.centerMeanPoint!.y,
+                    _segmentProperties.currentPoint!.centerMeanPoint!.x),
+                Size(_segmentProperties.series.markerSettings.width,
+                    _segmentProperties.series.markerSettings.height),
                 _isTransposed);
           }
         } else {
@@ -348,50 +433,64 @@ class BoxAndWhiskerSegment extends ChartSegment {
           if (_boxAndWhiskerSeries.showMean) {
             _drawMeanLine(
                 canvas,
-                Offset(_currentPoint!.centerMeanPoint!.x,
-                    _currentPoint!.centerMeanPoint!.y),
-                Size(_series.markerSettings.width,
-                    _series.markerSettings.height),
+                Offset(_segmentProperties.currentPoint!.centerMeanPoint!.x,
+                    _segmentProperties.currentPoint!.centerMeanPoint!.y),
+                Size(_segmentProperties.series.markerSettings.width,
+                    _segmentProperties.series.markerSettings.height),
                 _isTransposed);
           }
         }
       }
-    } else if (!_seriesRenderer._renderingDetails!.isLegendToggled) {
-      final BoxAndWhiskerSegment currentSegment = _seriesRenderer
-          ._segments[currentSegmentIndex!] as BoxAndWhiskerSegment;
-      final BoxAndWhiskerSegment? oldSegment = (currentSegment
-                  ._oldSeriesRenderer!._segments.isNotEmpty &&
-              currentSegment._oldSeriesRenderer!._segments[0]
-                  is BoxAndWhiskerSegment &&
-              currentSegment._oldSeriesRenderer!._segments.length - 1 >=
-                  currentSegmentIndex!)
-          ? currentSegment._oldSeriesRenderer!._segments[currentSegmentIndex!]
-              as BoxAndWhiskerSegment?
-          : null;
-      _animateBoxSeries(
+    } else if (seriesRendererDetails
+            .stateProperties.renderingDetails.isLegendToggled ==
+        false) {
+      final BoxAndWhiskerSegment currentSegment = seriesRendererDetails
+          .segments[currentSegmentIndex!] as BoxAndWhiskerSegment;
+      final SegmentProperties chartSegmentPropeties =
+          SegmentHelper.getSegmentProperties(currentSegment);
+      final SeriesRendererDetails oldSeriesRendererDetails =
+          SeriesHelper.getSeriesRendererDetails(
+              chartSegmentPropeties.oldSeriesRenderer!);
+      final BoxAndWhiskerSegment? oldSegment =
+          (oldSeriesRendererDetails.segments.isNotEmpty == true &&
+                  oldSeriesRendererDetails.segments[0]
+                      is BoxAndWhiskerSegment &&
+                  oldSeriesRendererDetails.segments.length - 1 >=
+                          currentSegmentIndex! ==
+                      true)
+              ? oldSeriesRendererDetails.segments[currentSegmentIndex!]
+                  as BoxAndWhiskerSegment?
+              : null;
+      SegmentProperties? oldSegmentProperties;
+      if (oldSegment != null) {
+        oldSegmentProperties = SegmentHelper.getSegmentProperties(oldSegment);
+      }
+
+      animateBoxSeries(
           _boxAndWhiskerSeries.showMean,
-          Offset(_currentPoint!.centerMeanPoint!.x,
-              _currentPoint!.centerMeanPoint!.y),
-          Offset(_currentPoint!.centerMeanPoint!.y,
-              _currentPoint!.centerMeanPoint!.x),
-          Size(_series.markerSettings.width, _series.markerSettings.height),
-          _max,
+          Offset(_segmentProperties.currentPoint!.centerMeanPoint!.x,
+              _segmentProperties.currentPoint!.centerMeanPoint!.y),
+          Offset(_segmentProperties.currentPoint!.centerMeanPoint!.y,
+              _segmentProperties.currentPoint!.centerMeanPoint!.x),
+          Size(_segmentProperties.series.markerSettings.width,
+              _segmentProperties.series.markerSettings.height),
+          _segmentProperties.max,
           _isTransposed,
-          _currentPoint!.lowerQuartile!,
-          _currentPoint!.upperQuartile!,
+          _segmentProperties.currentPoint!.lowerQuartile!,
+          _segmentProperties.currentPoint!.upperQuartile!,
           _minY,
           _maxY,
           oldSegment?._minY,
           oldSegment?._maxY,
-          _lowerX,
+          _segmentProperties.lowerX,
           _lowerY,
-          _upperX,
+          _segmentProperties.upperX,
           _upperY,
           _centerMin,
           _centerMax,
-          oldSegment?._lowerX,
+          oldSegmentProperties?.lowerX,
           oldSegment?._lowerY,
-          oldSegment?._upperX,
+          oldSegmentProperties?.upperX,
           oldSegment?._upperY,
           oldSegment?._centerMin,
           oldSegment?._centerMax,
@@ -401,7 +500,16 @@ class BoxAndWhiskerSegment extends ChartSegment {
           fillPaint!,
           strokePaint!,
           canvas,
-          _seriesRenderer);
+          SeriesHelper.getSeriesRendererDetails(
+              _segmentProperties.seriesRenderer));
+    }
+  }
+
+  /// Method to set segment properties
+  void _setSegmentProperties() {
+    if (!_isInitialize) {
+      _segmentProperties = SegmentHelper.getSegmentProperties(this);
+      _isInitialize = true;
     }
   }
 }

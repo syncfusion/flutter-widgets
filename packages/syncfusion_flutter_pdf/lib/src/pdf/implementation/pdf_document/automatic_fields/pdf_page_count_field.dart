@@ -140,11 +140,11 @@ class PdfPageCountField extends _PdfSingleValueField {
       if (_isSectionPageCount) {
         final PdfSection section = page._section!;
         final int count = section._count;
-        return _PdfNumberConvertor._convert(count, numberStyle);
+        return PdfAutomaticField._convert(count, numberStyle);
       } else {
         final PdfDocument document = page._section!._parent!._document!;
         final int number = document.pages.count;
-        return _PdfNumberConvertor._convert(number, numberStyle);
+        return PdfAutomaticField._convert(number, numberStyle);
       }
     }
     return result;

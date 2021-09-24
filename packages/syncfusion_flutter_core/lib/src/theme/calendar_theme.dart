@@ -119,6 +119,7 @@ class SfCalendarThemeData with Diagnosticable {
     Color? todayHighlightColor,
     Color? viewHeaderBackgroundColor,
     Color? weekNumberBackgroundColor,
+    Color? allDayPanelColor,
     TextStyle? todayTextStyle,
     TextStyle? agendaDayTextStyle,
     TextStyle? agendaDateTextStyle,
@@ -132,6 +133,7 @@ class SfCalendarThemeData with Diagnosticable {
     TextStyle? blackoutDatesTextStyle,
     TextStyle? displayNameTextStyle,
     TextStyle? weekNumberTextStyle,
+    TextStyle? timeIndicatorTextStyle,
   }) {
     brightness = brightness ?? Brightness.light;
     final bool isLight = brightness == Brightness.light;
@@ -166,6 +168,7 @@ class SfCalendarThemeData with Diagnosticable {
     leadingDatesBackgroundColor ??= Colors.transparent;
     viewHeaderBackgroundColor ??= Colors.transparent;
     weekNumberBackgroundColor = Colors.grey.withOpacity(0.19);
+    allDayPanelColor ??= Colors.transparent;
     cellBorderColor ??=
         isLight ? Colors.black.withOpacity(0.16) : Colors.white30;
     todayTextStyle ??= isLight
@@ -236,6 +239,11 @@ class SfCalendarThemeData with Diagnosticable {
             color: Colors.black87, fontSize: 13, fontFamily: 'Roboto')
         : const TextStyle(
             color: Colors.white, fontSize: 13, fontFamily: 'Roboto');
+    timeIndicatorTextStyle ??= isLight
+        ? const TextStyle(
+            color: null, fontWeight: FontWeight.w500, fontSize: 10)
+        : const TextStyle(
+            color: null, fontWeight: FontWeight.w500, fontSize: 10);
 
     return SfCalendarThemeData.raw(
         brightness: brightness,
@@ -254,6 +262,7 @@ class SfCalendarThemeData with Diagnosticable {
         todayBackgroundColor: todayBackgroundColor,
         trailingDatesBackgroundColor: trailingDatesBackgroundColor,
         leadingDatesBackgroundColor: leadingDatesBackgroundColor,
+        allDayPanelColor: allDayPanelColor,
         trailingDatesTextStyle: trailingDatesTextStyle,
         blackoutDatesTextStyle: blackoutDatesTextStyle,
         displayNameTextStyle: displayNameTextStyle,
@@ -263,7 +272,8 @@ class SfCalendarThemeData with Diagnosticable {
         viewHeaderBackgroundColor: viewHeaderBackgroundColor,
         weekNumberBackgroundColor: weekNumberBackgroundColor,
         selectionBorderColor: selectionBorderColor,
-        weekNumberTextStyle: weekNumberTextStyle);
+        weekNumberTextStyle: weekNumberTextStyle,
+        timeIndicatorTextStyle: timeIndicatorTextStyle);
   }
 
   /// Create a [SfCalendarThemeData] given a set of exact values.
@@ -298,7 +308,9 @@ class SfCalendarThemeData with Diagnosticable {
       required this.todayHighlightColor,
       required this.weekNumberBackgroundColor,
       required this.selectionBorderColor,
-      required this.weekNumberTextStyle});
+      required this.weekNumberTextStyle,
+      required this.timeIndicatorTextStyle,
+      required this.allDayPanelColor});
 
   /// The brightness of the overall theme of the
   /// application for the calendar widgets.
@@ -867,76 +879,123 @@ class SfCalendarThemeData with Diagnosticable {
   /// ```
   final TextStyle weekNumberTextStyle;
 
+  /// Specifies the text style for the timeIndicator text of dragging
+  /// appointment in calendar.
+  ///
+  /// ```dart
+  ///Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///    appBar: AppBar(),
+  ///      body: Center(
+  ///        child: SfTheme(
+  ///          data: SfThemeData(
+  ///            calendarThemeData: SfCalendarThemeData(
+  ///            timeIndicatorTextStyle: TextStyle(color: Colors.grey,
+  ///            fontSize: 20),
+  ///            )
+  ///          ),
+  ///          child: SfCalendar(),
+  ///          ),
+  ///      )
+  ///   );
+  ///}
+  /// ```
+  final TextStyle timeIndicatorTextStyle;
+
+  /// Specifies the background for all day panel.
+  ///
+  /// ```dart
+  ///Widget build(BuildContext context) {
+  ///    return Scaffold(
+  ///    appBar: AppBar(),
+  ///      body: Center(
+  ///        child: SfTheme(
+  ///          data: SfThemeData(
+  ///            calendarThemeData: SfCalendarThemeData(
+  ///            allDayPanelColor: Colors.blue),
+  ///            )
+  ///          ),
+  ///          child: SfCalendar(),
+  ///          ),
+  ///      )
+  ///   );
+  ///}
+  /// ```
+  final Color? allDayPanelColor;
+
   /// Creates a copy of this theme but with the given
   /// fields replaced with the new values.
-  SfCalendarThemeData copyWith({
-    Brightness? brightness,
-    Color? backgroundColor,
-    TextStyle? headerTextStyle,
-    Color? headerBackgroundColor,
-    Color? agendaBackgroundColor,
-    Color? cellBorderColor,
-    TextStyle? viewHeaderDateTextStyle,
-    TextStyle? viewHeaderDayTextStyle,
-    TextStyle? agendaDayTextStyle,
-    TextStyle? agendaDateTextStyle,
-    TextStyle? timeTextStyle,
-    TextStyle? activeDatesTextStyle,
-    Color? activeDatesBackgroundColor,
-    Color? todayBackgroundColor,
-    Color? trailingDatesBackgroundColor,
-    Color? leadingDatesBackgroundColor,
-    TextStyle? trailingDatesTextStyle,
-    TextStyle? blackoutDatesTextStyle,
-    TextStyle? displayNameTextStyle,
-    TextStyle? leadingDatesTextStyle,
-    TextStyle? todayTextStyle,
-    TextStyle? weekNumberTextStyle,
-    Color? todayHighlightColor,
-    Color? viewHeaderBackgroundColor,
-    Color? weekNumberBackgroundColor,
-    Color? selectionBorderColor,
-  }) {
+  SfCalendarThemeData copyWith(
+      {Brightness? brightness,
+      Color? backgroundColor,
+      TextStyle? headerTextStyle,
+      Color? headerBackgroundColor,
+      Color? agendaBackgroundColor,
+      Color? cellBorderColor,
+      TextStyle? viewHeaderDateTextStyle,
+      TextStyle? viewHeaderDayTextStyle,
+      TextStyle? agendaDayTextStyle,
+      TextStyle? agendaDateTextStyle,
+      TextStyle? timeTextStyle,
+      TextStyle? activeDatesTextStyle,
+      Color? activeDatesBackgroundColor,
+      Color? todayBackgroundColor,
+      Color? trailingDatesBackgroundColor,
+      Color? leadingDatesBackgroundColor,
+      TextStyle? trailingDatesTextStyle,
+      TextStyle? blackoutDatesTextStyle,
+      TextStyle? displayNameTextStyle,
+      TextStyle? leadingDatesTextStyle,
+      TextStyle? todayTextStyle,
+      TextStyle? weekNumberTextStyle,
+      TextStyle? timeIndicatorTextStyle,
+      Color? todayHighlightColor,
+      Color? viewHeaderBackgroundColor,
+      Color? weekNumberBackgroundColor,
+      Color? selectionBorderColor,
+      Color? allDayPanelColor}) {
     return SfCalendarThemeData.raw(
-      brightness: brightness ?? this.brightness,
-      backgroundColor: backgroundColor ?? this.backgroundColor,
-      headerTextStyle: headerTextStyle ?? this.headerTextStyle,
-      headerBackgroundColor:
-          headerBackgroundColor ?? this.headerBackgroundColor,
-      agendaBackgroundColor:
-          agendaBackgroundColor ?? this.agendaBackgroundColor,
-      cellBorderColor: cellBorderColor ?? this.cellBorderColor,
-      viewHeaderDateTextStyle:
-          viewHeaderDateTextStyle ?? this.viewHeaderDateTextStyle,
-      viewHeaderDayTextStyle:
-          viewHeaderDayTextStyle ?? this.viewHeaderDayTextStyle,
-      agendaDayTextStyle: agendaDayTextStyle ?? this.agendaDayTextStyle,
-      agendaDateTextStyle: agendaDateTextStyle ?? this.agendaDateTextStyle,
-      timeTextStyle: timeTextStyle ?? this.timeTextStyle,
-      activeDatesTextStyle: activeDatesTextStyle ?? this.activeDatesTextStyle,
-      activeDatesBackgroundColor:
-          activeDatesBackgroundColor ?? this.activeDatesBackgroundColor,
-      todayBackgroundColor: todayBackgroundColor ?? this.todayBackgroundColor,
-      trailingDatesBackgroundColor:
-          trailingDatesBackgroundColor ?? this.trailingDatesBackgroundColor,
-      leadingDatesBackgroundColor:
-          leadingDatesBackgroundColor ?? this.leadingDatesBackgroundColor,
-      trailingDatesTextStyle:
-          trailingDatesTextStyle ?? this.trailingDatesTextStyle,
-      blackoutDatesTextStyle:
-          blackoutDatesTextStyle ?? this.blackoutDatesTextStyle,
-      displayNameTextStyle: displayNameTextStyle ?? this.displayNameTextStyle,
-      leadingDatesTextStyle:
-          leadingDatesTextStyle ?? this.leadingDatesTextStyle,
-      todayTextStyle: todayTextStyle ?? this.todayTextStyle,
-      weekNumberTextStyle: weekNumberTextStyle ?? this.weekNumberTextStyle,
-      todayHighlightColor: todayHighlightColor ?? this.todayHighlightColor,
-      viewHeaderBackgroundColor:
-          viewHeaderBackgroundColor ?? this.viewHeaderBackgroundColor,
-      weekNumberBackgroundColor:
-          weekNumberBackgroundColor ?? this.weekNumberBackgroundColor,
-      selectionBorderColor: selectionBorderColor ?? this.selectionBorderColor,
-    );
+        brightness: brightness ?? this.brightness,
+        backgroundColor: backgroundColor ?? this.backgroundColor,
+        headerTextStyle: headerTextStyle ?? this.headerTextStyle,
+        headerBackgroundColor:
+            headerBackgroundColor ?? this.headerBackgroundColor,
+        agendaBackgroundColor:
+            agendaBackgroundColor ?? this.agendaBackgroundColor,
+        cellBorderColor: cellBorderColor ?? this.cellBorderColor,
+        viewHeaderDateTextStyle:
+            viewHeaderDateTextStyle ?? this.viewHeaderDateTextStyle,
+        viewHeaderDayTextStyle:
+            viewHeaderDayTextStyle ?? this.viewHeaderDayTextStyle,
+        agendaDayTextStyle: agendaDayTextStyle ?? this.agendaDayTextStyle,
+        agendaDateTextStyle: agendaDateTextStyle ?? this.agendaDateTextStyle,
+        timeTextStyle: timeTextStyle ?? this.timeTextStyle,
+        activeDatesTextStyle: activeDatesTextStyle ?? this.activeDatesTextStyle,
+        activeDatesBackgroundColor:
+            activeDatesBackgroundColor ?? this.activeDatesBackgroundColor,
+        todayBackgroundColor: todayBackgroundColor ?? this.todayBackgroundColor,
+        trailingDatesBackgroundColor:
+            trailingDatesBackgroundColor ?? this.trailingDatesBackgroundColor,
+        leadingDatesBackgroundColor:
+            leadingDatesBackgroundColor ?? this.leadingDatesBackgroundColor,
+        trailingDatesTextStyle:
+            trailingDatesTextStyle ?? this.trailingDatesTextStyle,
+        blackoutDatesTextStyle:
+            blackoutDatesTextStyle ?? this.blackoutDatesTextStyle,
+        displayNameTextStyle: displayNameTextStyle ?? this.displayNameTextStyle,
+        leadingDatesTextStyle:
+            leadingDatesTextStyle ?? this.leadingDatesTextStyle,
+        todayTextStyle: todayTextStyle ?? this.todayTextStyle,
+        weekNumberTextStyle: weekNumberTextStyle ?? this.weekNumberTextStyle,
+        todayHighlightColor: todayHighlightColor ?? this.todayHighlightColor,
+        timeIndicatorTextStyle:
+            timeIndicatorTextStyle ?? this.timeIndicatorTextStyle,
+        viewHeaderBackgroundColor:
+            viewHeaderBackgroundColor ?? this.viewHeaderBackgroundColor,
+        weekNumberBackgroundColor:
+            weekNumberBackgroundColor ?? this.weekNumberBackgroundColor,
+        selectionBorderColor: selectionBorderColor ?? this.selectionBorderColor,
+        allDayPanelColor: allDayPanelColor ?? this.allDayPanelColor);
   }
 
   /// Linearly interpolate between two themes.
@@ -967,7 +1026,9 @@ class SfCalendarThemeData with Diagnosticable {
         viewHeaderBackgroundColor: Color.lerp(
             a.viewHeaderBackgroundColor, b.viewHeaderBackgroundColor, t),
         weekNumberBackgroundColor: Color.lerp(
-            a.weekNumberBackgroundColor, b.weekNumberBackgroundColor, t));
+            a.weekNumberBackgroundColor, b.weekNumberBackgroundColor, t),
+        allDayPanelColor:
+            Color.lerp(a.allDayPanelColor, b.allDayPanelColor, t));
   }
 
   @override
@@ -1003,7 +1064,9 @@ class SfCalendarThemeData with Diagnosticable {
         other.todayHighlightColor == todayHighlightColor &&
         other.viewHeaderBackgroundColor == viewHeaderBackgroundColor &&
         other.weekNumberBackgroundColor == weekNumberBackgroundColor &&
-        other.selectionBorderColor == selectionBorderColor;
+        other.selectionBorderColor == selectionBorderColor &&
+        other.allDayPanelColor == allDayPanelColor &&
+        other.timeIndicatorTextStyle == timeIndicatorTextStyle;
   }
 
   @override
@@ -1033,6 +1096,8 @@ class SfCalendarThemeData with Diagnosticable {
       viewHeaderBackgroundColor,
       weekNumberBackgroundColor,
       selectionBorderColor,
+      allDayPanelColor,
+      timeIndicatorTextStyle,
     ];
     return hashList(values);
   }
@@ -1072,5 +1137,7 @@ class SfCalendarThemeData with Diagnosticable {
         defaultValue: defaultData.weekNumberBackgroundColor));
     properties.add(ColorProperty('selectionBorderColor', selectionBorderColor,
         defaultValue: defaultData.selectionBorderColor));
+    properties.add(ColorProperty('allDayPanelColor ', allDayPanelColor,
+        defaultValue: defaultData.allDayPanelColor));
   }
 }

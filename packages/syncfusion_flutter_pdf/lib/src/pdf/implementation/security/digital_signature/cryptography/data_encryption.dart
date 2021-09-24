@@ -689,7 +689,7 @@ class _DataEncryption implements _ICipher {
   //Properties
   List<int>? get keys => _keys;
   @override
-  String get algorithmName => _Asn1Constants.des;
+  String get algorithmName => _Asn1.des;
   @override
   bool get isBlock => false;
   @override
@@ -787,8 +787,8 @@ class _DataEncryption implements _ICipher {
 
   void encryptData(List<int>? keys, List<int> inputBytes, int inOffset,
       List<int> outBytes, int outOffset) {
-    int left = _Asn1Constants.beToUInt32(inputBytes, inOffset);
-    int right = _Asn1Constants.beToUInt32(inputBytes, inOffset + 4);
+    int left = _Asn1.beToUInt32(inputBytes, inOffset);
+    int right = _Asn1.beToUInt32(inputBytes, inOffset + 4);
     int data = (((left >> 4) ^ right) & 0x0f0f0f0f).toUnsigned(32);
     right ^= data;
     left ^= data << 4;
@@ -849,7 +849,7 @@ class _DataEncryption implements _ICipher {
     data = ((right >> 4) ^ left) & 0x0f0f0f0f;
     left ^= data;
     right ^= data << 4;
-    _Asn1Constants.uInt32ToBe(right, outBytes, outOffset);
-    _Asn1Constants.uInt32ToBe(left, outBytes, outOffset + 4);
+    _Asn1.uInt32ToBe(right, outBytes, outOffset);
+    _Asn1.uInt32ToBe(left, outBytes, outOffset + 4);
   }
 }

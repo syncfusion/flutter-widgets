@@ -847,9 +847,9 @@ class RenderLinearAxis extends RenderBox {
     final double tickSize = getTickSize() - tickMarginSize;
     final double axisSize = getAxisLineThickness();
     final LinearElementPosition position =
-        LinearGaugeHelper.getEffectiveElementPosition(tickPosition, isMirrored);
+        getEffectiveElementPosition(tickPosition, isMirrored);
     final LinearLabelPosition labelPlacement =
-        LinearGaugeHelper.getEffectiveLabelPosition(labelPosition, isMirrored);
+        getEffectiveLabelPosition(labelPosition, isMirrored);
 
     switch (position) {
       case LinearElementPosition.inside:
@@ -896,9 +896,9 @@ class RenderLinearAxis extends RenderBox {
     final double labelSize = getEffectiveLabelSize() - labelMarginSize;
     final double axisSize = getAxisLineThickness();
     final LinearElementPosition position =
-        LinearGaugeHelper.getEffectiveElementPosition(tickPosition, isMirrored);
+        getEffectiveElementPosition(tickPosition, isMirrored);
     final LinearLabelPosition labelPlacement =
-        LinearGaugeHelper.getEffectiveLabelPosition(labelPosition, isMirrored);
+        getEffectiveLabelPosition(labelPosition, isMirrored);
 
     switch (position) {
       case LinearElementPosition.inside:
@@ -1350,7 +1350,7 @@ class RenderLinearAxis extends RenderBox {
   void _drawMinorTicks(double minorTickLeftPosition, double top,
       int majorTickIndex, Canvas canvas) {
     final LinearElementPosition position =
-        LinearGaugeHelper.getEffectiveElementPosition(tickPosition, isMirrored);
+        getEffectiveElementPosition(tickPosition, isMirrored);
 
     if (_isHorizontalOrientation) {
       if (position == LinearElementPosition.outside) {
@@ -1537,14 +1537,14 @@ class RenderLinearAxis extends RenderBox {
               _axisLineRect, Radius.circular(thickness)));
           break;
         case LinearEdgeStyle.startCurve:
-          _path.addRRect(LinearGaugeHelper.getStartCurve(
+          _path.addRRect(getStartCurve(
               isHorizontal: _isHorizontalOrientation,
               isAxisInversed: isAxisInversed,
               rect: _axisLineRect,
               radius: thickness / 2));
           break;
         case LinearEdgeStyle.endCurve:
-          _path.addRRect(LinearGaugeHelper.getEndCurve(
+          _path.addRRect(getEndCurve(
               isHorizontal: _isHorizontalOrientation,
               isAxisInversed: isAxisInversed,
               rect: _axisLineRect,

@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 /// Defines the localized resource values used by the Syncfusion Widgets.
 ///
@@ -63,6 +63,9 @@ abstract class SfLocalizations {
   /// Label that is displayed in the calendar header view when calendar shows
   /// date picker on header interaction.
   String get todayLabel;
+
+  /// Label that is displayed prefix to week number.
+  String get weeknumberLabel;
 
   /// The header string for the first month of hirji calendar
   String get muharramLabel;
@@ -252,34 +255,37 @@ class _DefaultLocalizations implements SfLocalizations {
   String get daySpanCountLabel => 'Day';
 
   @override
-  String get allowedViewDayLabel => 'DAY';
+  String get allowedViewDayLabel => '';
 
   @override
-  String get allowedViewWeekLabel => 'WEEK';
+  String get allowedViewWeekLabel => '';
 
   @override
-  String get allowedViewWorkWeekLabel => 'WORK WEEK';
+  String get allowedViewWorkWeekLabel => '';
 
   @override
-  String get allowedViewMonthLabel => 'MONTH';
+  String get allowedViewMonthLabel => '';
 
   @override
-  String get allowedViewScheduleLabel => 'SCHEDULE';
+  String get allowedViewScheduleLabel => '';
 
   @override
-  String get allowedViewTimelineDayLabel => 'TIMELINE DAY';
+  String get allowedViewTimelineDayLabel => '';
 
   @override
-  String get allowedViewTimelineWeekLabel => 'TIMELINE WEEK';
+  String get allowedViewTimelineWeekLabel => '';
 
   @override
-  String get allowedViewTimelineWorkWeekLabel => 'TIMELINE WORK WEEK';
+  String get allowedViewTimelineWorkWeekLabel => '';
 
   @override
-  String get allowedViewTimelineMonthLabel => 'TIMELINE MONTH';
+  String get allowedViewTimelineMonthLabel => '';
 
   @override
   String get todayLabel => 'TODAY';
+
+  @override
+  String get weeknumberLabel => 'Week';
 
   @override
   String get muharramLabel => 'Muharram';

@@ -145,11 +145,11 @@ class PdfPageNumberField extends _PdfMultipleValueField {
     if (_isSectionPageNumber) {
       final PdfSection section = page!._section!;
       final int index = section._indexOf(page) + 1;
-      return _PdfNumberConvertor._convert(index, numberStyle);
+      return PdfAutomaticField._convert(index, numberStyle);
     } else {
       final PdfDocument document = page!._section!._parent!._document!;
       final int pageIndex = document.pages.indexOf(page) + 1;
-      return _PdfNumberConvertor._convert(pageIndex, numberStyle);
+      return PdfAutomaticField._convert(pageIndex, numberStyle);
     }
   }
 }

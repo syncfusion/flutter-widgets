@@ -1,4 +1,6 @@
-part of charts;
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 /// Holds the gestures for chart.
 ///

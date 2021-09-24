@@ -8,6 +8,15 @@ import 'package:flutter/material.dart';
 ///
 /// ![header with different style in calendar](https://help.syncfusion.com/flutter/calendar/images/headers/header-style.png)
 ///
+/// See also:
+/// * [SfCalendar.headerHeight], which allows to customize seize of the header
+/// view in calendar.
+/// * [SfCalendar.headerDateFormat], to format the date string in the header
+/// view of calendar.
+/// * Knowledge base: [How to style a header](https://www.syncfusion.com/kb/12144/how-to-style-a-header-in-the-flutter-calendar)
+/// * Knowledge base: [How to add custom header and view header](https://www.syncfusion.com/kb/10997/how-to-add-custom-header-and-view-header-in-the-flutter-calendar)
+///
+///
 /// ```dart
 ///Widget build(BuildContext context) {
 ///  return Container(
@@ -36,6 +45,11 @@ class CalendarHeaderStyle with Diagnosticable {
   /// Using a [SfCalendarTheme] gives more fine-grained control over the
   /// appearance of various components of the calendar.
   ///
+  /// See also:
+  /// * [SfCalendar.headerDateFormat], to format the date string in the header
+  /// view of calendar.
+  /// * Knowledge base: [How to style a header](https://www.syncfusion.com/kb/12144/how-to-style-a-header-in-the-flutter-calendar)
+  ///
   /// ```dart
   ///Widget build(BuildContext context) {
   ///  return Container(
@@ -54,6 +68,9 @@ class CalendarHeaderStyle with Diagnosticable {
   /// How the text should  be aligned horizontally in [SfCalendar] header view.
   ///
   /// Defaults to `TextAlign.start`.
+  ///
+  /// See also:
+  /// * Knowledge base: [How to style a header](https://www.syncfusion.com/kb/12144/how-to-style-a-header-in-the-flutter-calendar)
   ///
   /// ```dart
   ///Widget build(BuildContext context) {
@@ -76,6 +93,11 @@ class CalendarHeaderStyle with Diagnosticable {
   ///
   /// Using a [SfCalendarTheme] gives more fine-grained control over the
   /// appearance of various components of the calendar.
+  ///
+  /// See also:
+  /// * [SfCalendar.headerHeight], which allows to customize seize of the header
+  /// view in calendar.
+  /// * Knowledge base: [How to style a header](https://www.syncfusion.com/kb/12144/how-to-style-a-header-in-the-flutter-calendar)
   ///
   /// ```dart
   ///Widget build(BuildContext context) {

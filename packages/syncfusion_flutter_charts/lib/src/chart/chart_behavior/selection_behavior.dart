@@ -1,4 +1,8 @@
-part of charts;
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import '../../circular_chart/renderer/common.dart';
+import '../chart_segment/chart_segment.dart';
 
 /// Customizes the selection in chart.
 ///
@@ -27,7 +31,7 @@ abstract class ChartSelectionBehavior {
   ///
   void onLongPress(double xPos, double yPos);
 
-  /// It gets the fill property of the seleted item in the series
+  /// It gets the fill property of the selected item in the series
   ///
   /// * paint - Paint value of the selected item.
   /// * seriesIndex - Series index of the selected point
@@ -37,7 +41,7 @@ abstract class ChartSelectionBehavior {
   Paint getSelectedItemFill(Paint paint, int seriesIndex, int pointIndex,
       List<ChartSegment> selectedSegments);
 
-  /// It gets the fill property of the unseleted item in the series
+  /// It gets the fill property of the unselected item in the series
   ///
   /// * paint - Paint value of the unselected item.
   /// * seriesIndex - Series index of the unselected point
@@ -47,7 +51,7 @@ abstract class ChartSelectionBehavior {
   Paint getUnselectedItemFill(Paint paint, int seriesIndex, int pointIndex,
       List<ChartSegment> unselectedSegments);
 
-  /// It gets the border property of the seleted item in the series
+  /// It gets the border property of the selected item in the series
   ///
   /// * paint - Paint value of the selected item.
   /// * seriesIndex - Series index of the selected point
@@ -57,7 +61,7 @@ abstract class ChartSelectionBehavior {
   Paint getSelectedItemBorder(Paint paint, int seriesIndex, int pointIndex,
       List<ChartSegment> selectedSegments);
 
-  /// It gets the border property of the seleted item in the series
+  /// It gets the border property of the selected item in the series
   ///
   /// * paint - Paint value of the unselected item.
   /// * seriesIndex - Series index of the unselected point
@@ -67,17 +71,17 @@ abstract class ChartSelectionBehavior {
   Paint getUnselectedItemBorder(Paint paint, int seriesIndex, int pointIndex,
       List<ChartSegment> unselectedSegments);
 
-  /// It gets the fill property of the seleted item in the series
+  /// It gets the fill property of the selected item in the series
   ///
   /// * color - Color value of the selected item.
   /// * seriesIndex - Series index of the selected point
   /// * pointIndex - Point index of the selected point in the series.
-  /// * selectedregion -  Value of Selected region in the series.
+  /// * selected region -  Value of Selected region in the series.
   ///
   Color getCircularSelectedItemFill(Color color, int seriesIndex,
-      int pointIndex, List<_Region> selectedRegions);
+      int pointIndex, List<Region> selectedRegions);
 
-  /// It gets the circular fill property of the unseleted item in the series
+  /// It gets the circular fill property of the unselected item in the series
   ///
   /// * color - Color value of the unselected item.
   /// * seriesIndex - Series index of the unselected point
@@ -85,7 +89,7 @@ abstract class ChartSelectionBehavior {
   /// * unselectedRegion -  Value of unSelected region in the series.
   ///
   Color getCircularUnSelectedItemFill(Color color, int seriesIndex,
-      int pointIndex, List<_Region> unselectedRegions);
+      int pointIndex, List<Region> unselectedRegions);
 
   /// It gets the circular border property of the seleted item in the series
   ///
@@ -95,9 +99,9 @@ abstract class ChartSelectionBehavior {
   /// * selectedRegion -  Value of Selected region of the series.
   ///
   Color getCircularSelectedItemBorder(Color color, int seriesIndex,
-      int pointIndex, List<_Region> selectedRegions);
+      int pointIndex, List<Region> selectedRegions);
 
-  /// It gets the circular border property of the unseleted item in the series
+  /// It gets the circular border property of the unselected item in the series
   ///
   /// * color - Color value of the unselected item.
   /// * seriesIndex - Series index of the unselected point
@@ -105,5 +109,5 @@ abstract class ChartSelectionBehavior {
   /// * unselectedRegion -  Value of UnSelected region in the series.
   ///
   Color getCircularUnSelectedItemBorder(Color color, int seriesIndex,
-      int pointIndex, List<_Region> unselectedRegions);
+      int pointIndex, List<Region> unselectedRegions);
 }

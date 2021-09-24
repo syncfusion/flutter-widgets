@@ -1,3 +1,14 @@
+/// Syncfusion Flutter Treemap library for creating interactive treemap to
+/// visualize flat and hierarchical data as rectangles that are sized and
+/// colored based on quantitative variables using squarified, slice, and dice
+/// algorithms.
+///
+/// To use, `import package:syncfusion_flutter_treemap/treemap.dart`;
+///
+/// See also:
+/// * [Syncfusion Flutter Treemap product page](https://www.syncfusion.com/flutter-widgets/flutter-treemap)
+/// * [User guide documentation for Treemap](https://help.syncfusion.com/flutter/treemap/overview)
+/// * [Knowledge base](https://www.syncfusion.com/kb/flutter/sftreemap)
 library treemap;
 
 import 'package:flutter/foundation.dart';
@@ -46,7 +57,7 @@ typedef TreemapTileWidgetBuilder = Widget? Function(
 /// Signature to return a widget based on the given tile.
 ///
 /// isCurrent - Specifies whether the current tile’s descendants are in visual.
-/// For example, if we drilling down into [0] -> [1] -> [2] level, only the
+/// For example, if we drilling down into `0` -> `1` -> `2` level, only the
 /// second level tiles will be visible, and the rest are hidden in the
 /// background.
 ///
@@ -90,7 +101,7 @@ enum TreemapBreadcrumbPosition {
 /// the values returned in the [TreemapLevel.groupMapper] callback will form as
 /// inner tiles of the tile formed in the previous level for which the indices
 /// match.This hierarchy will go on till the last [TreemapLevel] in the
-/// [Treemap.levels] collection.
+/// [SfTreemap.levels] collection.
 ///
 /// ```dart
 /// late List<SocialMediaUsers> _socialMediaUsersData;
@@ -149,12 +160,12 @@ class TreemapLevel extends DiagnosticableTree {
   /// The levels collection which forms either flat or hierarchal treemap.
   ///
   /// You can have more than one [TreemapLevel] in this collection to form a
-  /// hierarchal treemap. The 0th index of the [TreemapLevel.levels] collection
+  /// hierarchal treemap. The 0th index of the [Treemap.levels] collection
   /// forms the base level of the treemap or flat treemap. From the 1st index,
   /// the values returned in the [TreemapLevel.groupMapper] callback will form
   /// as inner tiles of the tile formed in the previous level for which the
   /// indices match.This hierarchy will go on till the last [TreemapLevel] in
-  /// the [TreemapLevel.levels] collection.
+  /// the [Treemap.levels] collection.
   ///
   /// ```dart
   /// late List<SocialMediaUsers> _socialMediaUsersData;
@@ -2314,16 +2325,16 @@ class SfTreemap extends StatelessWidget {
 
   /// Represents the layout direction of the tiles.
   ///
-  /// * The `TreemapLayoutDirection.topLeft` will layout the tiles from top-left
+  /// * The [TreemapLayoutDirection.topLeft] will layout the tiles from top-left
   /// to bottom-right of the rectangle.
-  /// * The `TreemapLayoutDirection.topRight` will layout the tiles from
+  /// * The [TreemapLayoutDirection.topRight] will layout the tiles from
   /// top-right to bottom-left of the rectangle.
-  /// * The `TreemapLayoutDirection.bottomLeft` will start layout the tiles
+  /// * The [TreemapLayoutDirection.bottomLeft] will start layout the tiles
   /// from bottom-left to top-right of the rectangle.
-  /// * The `TreemapLayoutDirection.bottomRight` will start layout the tiles
+  /// * The [TreemapLayoutDirection.bottomRight] will start layout the tiles
   /// from bottom-right to top-left of the rectangle.
   ///
-  /// Defaults to `TreemapLayoutDirection.topLeft`.
+  /// Defaults to [TreemapLayoutDirection.topLeft].
   ///
   /// ```dart
   /// late List<SocialMediaUsers> _socialMediaUsersData;

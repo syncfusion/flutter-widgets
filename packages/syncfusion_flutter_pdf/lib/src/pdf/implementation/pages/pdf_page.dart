@@ -69,6 +69,9 @@ class PdfPage implements _IPdfWrapper {
   late bool _graphicStateUpdated;
   bool _isDefaultGraphics = false;
   PdfFormFieldsTabOrder _formFieldsTabOrder = PdfFormFieldsTabOrder.none;
+  PdfPageRotateAngle? _rotation;
+  Rect _cBox = Rect.zero;
+  Rect _mBox = Rect.zero;
 
   /// Raises before the page saves.
   Function? _beginSave;
@@ -90,10 +93,18 @@ class PdfPage implements _IPdfWrapper {
       if (_size == null || (_size!.width == 0 && _size!.height == 0)) {
         double width = 0;
         double height = 0;
-        final _IPdfPrimitive? primitive = _dictionary._getValue(
+        final _IPdfPrimitive? mBox = _dictionary._getValue(
             _DictionaryProperties.mediaBox, _DictionaryProperties.parent);
-        if (primitive is _PdfArray) {
-          final _PdfArray mBox = primitive;
+        final _IPdfPrimitive? cBox = _dictionary._getValue(
+            _DictionaryProperties.cropBox, _DictionaryProperties.parent);
+        if (cBox != null && cBox is _PdfArray) {
+          final num c0 = (cBox[0]! as _PdfNumber).value!;
+          final num? c1 = (cBox[1]! as _PdfNumber).value;
+          final num c2 = (cBox[2]! as _PdfNumber).value!;
+          final num? c3 = (cBox[3]! as _PdfNumber).value;
+          width = (c2 - c0).toDouble();
+          height = c3 != 0 ? (c3! - c1!).toDouble() : c1!.toDouble();
+        } else if (mBox != null && mBox is _PdfArray) {
           final num m0 = (mBox[0]! as _PdfNumber).value!;
           final num? m1 = (mBox[1]! as _PdfNumber).value;
           final num m2 = (mBox[2]! as _PdfNumber).value!;
@@ -133,6 +144,42 @@ class PdfPage implements _IPdfWrapper {
         return null;
       }
     }
+  }
+
+  /// Gets the crop box.
+  Rect get _cropBox {
+    if (_cBox.isEmpty) {
+      final _IPdfPrimitive? cBox = _dictionary._getValue(
+          _DictionaryProperties.cropBox, _DictionaryProperties.parent);
+      if (cBox != null && cBox is _PdfArray) {
+        final double width = (cBox[2]! as _PdfNumber).value!.toDouble();
+        final double height = (cBox[3]! as _PdfNumber).value != 0
+            ? (cBox[3]! as _PdfNumber).value!.toDouble()
+            : (cBox[1]! as _PdfNumber).value!.toDouble();
+        final double x = (cBox[0]! as _PdfNumber).value!.toDouble();
+        final double y = (cBox[1]! as _PdfNumber).value!.toDouble();
+        _cBox = _calculateBounds(x, y, width, height);
+      }
+    }
+    return _cBox;
+  }
+
+  /// Gets the media box.
+  Rect get _mediaBox {
+    if (_mBox.isEmpty) {
+      final _IPdfPrimitive? mBox = _dictionary._getValue(
+          _DictionaryProperties.mediaBox, _DictionaryProperties.parent);
+      if (mBox != null && mBox is _PdfArray) {
+        final double width = (mBox[2]! as _PdfNumber).value!.toDouble();
+        final double height = (mBox[3]! as _PdfNumber).value != 0
+            ? (mBox[3]! as _PdfNumber).value!.toDouble()
+            : (mBox[1]! as _PdfNumber).value!.toDouble();
+        final double x = (mBox[0]! as _PdfNumber).value!.toDouble();
+        final double y = (mBox[1]! as _PdfNumber).value!.toDouble();
+        _mBox = _calculateBounds(x, y, width, height);
+      }
+    }
+    return _mBox;
   }
 
   /// Gets a collection of the annotations of the page- Read only.
@@ -313,7 +360,32 @@ class PdfPage implements _IPdfWrapper {
 
   PdfPageOrientation get _orientation => _obtainOrientation();
 
-  PdfPageRotateAngle get _rotation => _obtainRotation();
+  /// Gets or sets the rotation of PDF page
+  ///
+  /// This property only works on existing PDF document pages
+  ///
+  /// ```dart
+  /// //Create a new PDF document.
+  /// PdfDocument document = PdfDocument(inputBytes: data);
+  /// //Rotation of the PDF page
+  /// PdfPageRotateAngle rotation = document.pages[0].rotation;
+  /// //Save the document.
+  /// List<int> bytes = document.save();
+  /// //Dispose the document.
+  /// document.dispose();
+  /// ```
+  PdfPageRotateAngle get rotation {
+    _rotation ??= _obtainRotation();
+    return _rotation!;
+  }
+
+  set rotation(PdfPageRotateAngle angle) {
+    if (_isLoadedPage && rotation != angle) {
+      _rotation = angle;
+      _dictionary[_DictionaryProperties.rotate] =
+          _PdfNumber(PdfSectionCollection._rotateFactor * angle.index);
+    }
+  }
 
   //Public methods
   /// Get the PDF page size reduced by page margins and
@@ -420,11 +492,11 @@ class PdfPage implements _IPdfWrapper {
   }
 
   PdfPageRotateAngle _getRotationFromAngle(int angle) {
-    if (angle == 90) {
+    if (angle == 1) {
       return PdfPageRotateAngle.rotateAngle90;
-    } else if (angle == 180) {
+    } else if (angle == 2) {
       return PdfPageRotateAngle.rotateAngle180;
-    } else if (angle == 270) {
+    } else if (angle == 3) {
       return PdfPageRotateAngle.rotateAngle270;
     } else {
       return PdfPageRotateAngle.rotateAngle0;
@@ -797,6 +869,14 @@ class PdfPage implements _IPdfWrapper {
         _DictionaryProperties.annots, _DictionaryProperties.parent);
     return (obj != null && obj is _PdfReferenceHolder ? obj.object : obj)
         as _PdfArray?;
+  }
+
+  Rect _calculateBounds(double x, double y, double width, double height) {
+    width = width - x;
+    if (height != y) {
+      height = height - y;
+    }
+    return Rect.fromLTWH(x, y, width, height);
   }
 
   //_IPdfWrapper elements

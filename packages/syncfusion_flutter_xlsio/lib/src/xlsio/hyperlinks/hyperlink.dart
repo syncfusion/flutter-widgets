@@ -17,10 +17,6 @@ class Hyperlink {
     }
   }
 
-  /// Represents hyperlink id.
-  // ignore: prefer_final_fields
-  int _rId = -1;
-
   /// Represents the hyperlink location.
   // ignore: unused_field
   String? _location;

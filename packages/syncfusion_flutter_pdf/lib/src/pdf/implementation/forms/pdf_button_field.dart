@@ -213,8 +213,7 @@ class PdfButtonField extends PdfField {
         borderPen: _borderPen,
         style: _borderStyle,
         borderWidth: _borderWidth,
-        shadowBrush: PdfSolidBrush(_backColor),
-        rotationAngle: 0);
+        shadowBrush: PdfSolidBrush(_backColor));
     _FieldPainter().drawButton(
         template.graphics!,
         paintParams,
@@ -235,8 +234,7 @@ class PdfButtonField extends PdfField {
         borderPen: _borderPen,
         style: _borderStyle,
         borderWidth: _borderWidth,
-        shadowBrush: PdfSolidBrush(_backColor),
-        rotationAngle: 0);
+        shadowBrush: PdfSolidBrush(_backColor));
     _FieldPainter().drawPressedButton(
         template.graphics!,
         paintParams,
@@ -340,8 +338,7 @@ class PdfButtonField extends PdfField {
             borderPen: _borderPen,
             style: borderStyle,
             borderWidth: borderWidth,
-            shadowBrush: _shadowBrush,
-            rotationAngle: 0);
+            shadowBrush: _shadowBrush);
         final PdfTemplate template = PdfTemplate(rect.width, rect.height);
         _FieldPainter()
             .drawButton(template.graphics!, params, text, font, _stringFormat);
@@ -430,11 +427,10 @@ class PdfButtonField extends PdfField {
         borderPen: gp._borderPen,
         style: gp._style,
         borderWidth: gp._borderWidth,
-        shadowBrush: gp._shadowBrush,
-        rotationAngle: 0);
+        shadowBrush: gp._shadowBrush);
     if (_dictionary.containsKey(_DictionaryProperties.ap) &&
         !(graphics!._layer != null &&
-            graphics._page!._rotation != PdfPageRotateAngle.rotateAngle0)) {
+            graphics._page!.rotation != PdfPageRotateAngle.rotateAngle0)) {
       _IPdfPrimitive? buttonAppearance = _dictionary[_DictionaryProperties.ap];
       buttonAppearance ??= widget![_DictionaryProperties.ap];
       _PdfDictionary? buttonResource =
@@ -455,7 +451,7 @@ class PdfButtonField extends PdfField {
     } else if (_dictionary.containsKey(_DictionaryProperties.kids) &&
         item != null &&
         !(graphics!._layer != null &&
-            graphics._page!._rotation != PdfPageRotateAngle.rotateAngle0)) {
+            graphics._page!.rotation != PdfPageRotateAngle.rotateAngle0)) {
       _IPdfPrimitive? buttonAppearance =
           item._dictionary[_DictionaryProperties.ap];
       buttonAppearance ??= widget![_DictionaryProperties.ap];

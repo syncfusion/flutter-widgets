@@ -1,6 +1,8 @@
 import 'package:syncfusion_flutter_core/core.dart';
+import '../appointment_engine/appointment_helper.dart';
 import 'enums.dart';
 
+// ignore: avoid_classes_with_only_static_members
 /// Holds the static helper methods used for date calculation in calendar.
 class DateTimeHelper {
   /// Calculate the visible dates count based on calendar view
@@ -316,7 +318,8 @@ class DateTimeHelper {
   /// Returns week number for the given date.
   static int getWeekNumberOfYear(DateTime date) {
     final DateTime yearEndDate = DateTime(date.year - 1, 12, 31);
-    final int dayOfYear = date.difference(yearEndDate).inDays;
+    final int dayOfYear =
+        AppointmentHelper.getDifference(yearEndDate, date).inDays;
     int weekNumber = (dayOfYear - date.weekday + 10) ~/ 7;
     if (weekNumber < 1) {
       weekNumber = getWeeksInYear(date.year - 1);

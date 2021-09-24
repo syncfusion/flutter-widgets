@@ -339,7 +339,7 @@ class _PdfSignatureDictionary implements _IPdfWrapper {
     final List<int>? sh = pkcs7
         .getSequenceDataSet(
             hash, ocspByte, crlBytes, _sig!.cryptographicStandard)
-        .getEncoded(_Asn1Constants.der);
+        .getEncoded(_Asn1.der);
     List<int>? extSignature;
     if (externalSigner != null) {
       final SignerResult? signerResult = externalSigner.sign(sh!);

@@ -16,6 +16,8 @@ The Flutter PDF Viewer plugin lets you view the PDF documents seamlessly and eff
     - [Customize the visibility of scroll head and scroll status](#customize-the-visibility-of-scroll-head-and-scroll-status)
     - [Customize the visibility of page navigation dialog](#customize-the-visibility-of-page-navigation-dialog)
 	- [Enable or disable the double-tap zoom ](#enable-or-disable-the-double-tap-zoom)
+	- [Change the page layout](#change-the-page-layout)
+	- [Switch scroll direction](#switch-scroll-direction)
 	- [Change the zoom level factor](#change-the-zoom-level-factor)
 	- [Navigate to the desired pages](#navigate-to-the-desired-pages)
 	- [Navigate to the desired bookmark topics](#navigate-to-the-desired-bookmark-topics)
@@ -30,6 +32,8 @@ The Flutter PDF Viewer plugin lets you view the PDF documents seamlessly and eff
 * **Virtual Scrolling** - Easily scroll through the pages in the document with a fluent experience. The pages are rendered only when required to increase the loading and scrolling performance.
 
 * **Magnification** - The content of the document can be efficiently zoomed in and out.
+
+* **Page Layout and Scroll Options** - Layout the pages efficiently in a page by page (single page) scrolling mode or continuous scrolling mode. Also, scroll through pages in both horizontal and vertical direction.
 
 * **Page navigation** - Navigate to the desired pages instantly.
 ![syncfusion_flutter_pdfviewer_page_navigation](https://cdn.syncfusion.com/content/images/PDFViewer/pagination-dialog.png)
@@ -143,6 +147,36 @@ Widget build(BuildContext context) {
           child: SfPdfViewer.network(
               'https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf',
               canShowPaginationDialog: false)));
+}
+```
+
+## Change the page layout
+
+Page layout modes describe how the PDF page is displayed. As a default, the page layout will be in continuous mode. You can change the page layout mode using the **pageLayoutMode** property.
+
+```dart
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+      body: Container(
+          child: SfPdfViewer.network(
+              'https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf', 
+             pageLayoutMode: PdfPageLayoutMode.single)));
+}
+```
+
+## Switch scroll direction
+
+Scrolling options describe how the PDF pages can be scrolled. As a default, the page will be scrolled in vertical direction. You can change the scroll direction using the **scrollDirection** property. In Single page layout mode, only horizontal scrolling is supported.
+
+```dart
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+      body: Container(
+          child: SfPdfViewer.network(
+              'https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf', 
+             scrollDirection: PdfScrollDirection.horizontal)));
 }
 ```
 
@@ -436,4 +470,4 @@ Widget build(BuildContext context) {
 
 Founded in 2001 and headquartered in Research Triangle Park, N.C., Syncfusion has more than 20,000 customers and more than 1 million users, including large financial institutions, Fortune 500 companies, and global IT consultancies.
 
-Today we provide 1,000+ controls and frameworks for web ([ASP.NET Core](https://www.syncfusion.com/aspnet-core-ui-controls), [ASP.NET MVC](https://www.syncfusion.com/aspnet-mvc-ui-controls), [ASP.NET WebForms](https://www.syncfusion.com/jquery/aspnet-web-forms-ui-controls), [JavaScript](https://www.syncfusion.com/javascript-ui-controls), [Angular](https://www.syncfusion.com/angular-ui-components), [React](https://www.syncfusion.com/react-ui-components), [Vue](https://www.syncfusion.com/vue-ui-components), and [Blazor](https://www.syncfusion.com/blazor-components), mobile ([Xamarin](https://www.syncfusion.com/xamarin-ui-controls), [Flutter](https://www.syncfusion.com/flutter-widgets), [UWP](https://www.syncfusion.com/uwp-ui-controls), and [JavaScript](https://www.syncfusion.com/javascript-ui-controls)), and desktop development ([WinForms](https://www.syncfusion.com/winforms-ui-controls), [WPF](https://www.syncfusion.com/wpf-ui-controls), and [UWP](https://www.syncfusion.com/uwp-ui-controls)). We provide ready-to deploy enterprise software for dashboards, reports, data integration, and big data processing. Many customers have saved millions in licensing fees by deploying our software.
+Today we provide 1,000+ controls and frameworks for web ([ASP.NET Core](https://www.syncfusion.com/aspnet-core-ui-controls), [ASP.NET MVC](https://www.syncfusion.com/aspnet-mvc-ui-controls), [ASP.NET WebForms](https://www.syncfusion.com/jquery/aspnet-web-forms-ui-controls), [JavaScript](https://www.syncfusion.com/javascript-ui-controls), [Angular](https://www.syncfusion.com/angular-ui-components), [React](https://www.syncfusion.com/react-ui-components), [Vue](https://www.syncfusion.com/vue-ui-components), and [Blazor](https://www.syncfusion.com/blazor-components), mobile ([Xamarin](https://www.syncfusion.com/xamarin-ui-controls), [Flutter](https://www.syncfusion.com/flutter-widgets), [UWP](https://www.syncfusion.com/uwp-ui-controls), and [JavaScript](https://www.syncfusion.com/javascript-ui-controls)), and desktop development ([WinForms](https://www.syncfusion.com/winforms-ui-controls), [WPF](https://www.syncfusion.com/wpf-ui-controls), [UWP](https://www.syncfusion.com/uwp-ui-controls) and [WinUI](https://www.syncfusion.com/winui-controls)). We provide ready-to deploy enterprise software for dashboards, reports, data integration, and big data processing. Many customers have saved millions in licensing fees by deploying our software.

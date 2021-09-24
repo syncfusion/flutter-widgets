@@ -8,8 +8,7 @@ class _PaintParams {
       Rect? bounds,
       PdfBorderStyle? style,
       int? borderWidth,
-      PdfBrush? shadowBrush,
-      int? rotationAngle}) {
+      PdfBrush? shadowBrush}) {
     _backBrush = backBrush;
     _foreBrush = foreBrush;
     _borderPen = borderPen;
@@ -17,7 +16,6 @@ class _PaintParams {
     _style = style;
     _borderWidth = borderWidth;
     _shadowBrush = shadowBrush;
-    _rotationAngle = rotationAngle;
   }
   // Fields
   PdfBrush? _backBrush;
@@ -27,5 +25,4 @@ class _PaintParams {
   PdfBorderStyle? _style;
   int? _borderWidth;
   PdfBrush? _shadowBrush;
-  int? _rotationAngle;
 }

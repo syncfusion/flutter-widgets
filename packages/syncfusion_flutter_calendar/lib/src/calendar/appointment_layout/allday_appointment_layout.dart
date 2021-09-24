@@ -169,7 +169,7 @@ class _AllDayAppointmentLayoutState extends State<AllDayAppointmentLayout> {
                 date,
                 List<dynamic>.unmodifiable(<dynamic>[
                   CalendarViewHelper.getAppointmentDetail(
-                      appointmentView.appointment!)
+                      appointmentView.appointment!, widget.calendar.dataSource)
                 ]),
                 Rect.fromLTWH(
                     appointmentView.appointmentRect!.left,
@@ -190,9 +190,11 @@ class _AllDayAppointmentLayoutState extends State<AllDayAppointmentLayout> {
       final double cellWidth =
           (widget.width - widget.timeLabelWidth) / widget.visibleDates.length;
 
+      final double cellEndPadding = CalendarViewHelper.getCellEndPadding(
+          widget.calendar.cellEndPadding, widget.isMobilePlatform);
+
       /// Calculate the maximum appointment width based on cell end padding.
-      final double maxAppointmentWidth =
-          cellWidth - widget.calendar.cellEndPadding;
+      final double maxAppointmentWidth = cellWidth - cellEndPadding;
       for (int i = 0; i < keys.length; i++) {
         final int index = keys[i];
         final DateTime date = widget.visibleDates[index];
@@ -213,7 +215,8 @@ class _AllDayAppointmentLayoutState extends State<AllDayAppointmentLayout> {
             CalendarAppointmentDetails(
                 date,
                 List<dynamic>.unmodifiable(
-                    CalendarViewHelper.getCustomAppointments(moreAppointments)),
+                    CalendarViewHelper.getCustomAppointments(
+                        moreAppointments, widget.calendar.dataSource)),
                 Rect.fromLTWH(
                     widget.isRTL
                         ? widget.width - xPosition - maxAppointmentWidth
@@ -270,6 +273,9 @@ class _AllDayAppointmentLayoutState extends State<AllDayAppointmentLayout> {
         ? 2
         : kAllDayAppointmentHeight * 0.1;
 
+    final double cellEndPadding = CalendarViewHelper.getCellEndPadding(
+        widget.calendar.cellEndPadding, widget.isMobilePlatform);
+
     /// Calculate the maximum position of the appointment this widget can hold.
     final int position = widget.allDayPainterHeight ~/ kAllDayAppointmentHeight;
     for (int i = 0; i < _appointmentCollection.length; i++) {
@@ -284,7 +290,7 @@ class _AllDayAppointmentLayoutState extends State<AllDayAppointmentLayout> {
             Rect.fromLTRB(
                 ((widget.visibleDates.length - appointmentView.endIndex) *
                         cellWidth) +
-                    widget.calendar.cellEndPadding,
+                    cellEndPadding,
                 (kAllDayAppointmentHeight * appointmentView.position)
                     .toDouble(),
                 (widget.visibleDates.length - appointmentView.startIndex) *
@@ -303,7 +309,7 @@ class _AllDayAppointmentLayoutState extends State<AllDayAppointmentLayout> {
                     .toDouble(),
                 (appointmentView.endIndex * cellWidth) +
                     widget.timeLabelWidth -
-                    widget.calendar.cellEndPadding,
+                    cellEndPadding,
                 ((kAllDayAppointmentHeight * appointmentView.position) +
                         kAllDayAppointmentHeight -
                         1)
@@ -838,6 +844,8 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
     }
 
     _cellWidth = (size.width - timeLabelWidth) / visibleDates.length;
+    final double cellEndPadding = CalendarViewHelper.getCellEndPadding(
+        calendar.cellEndPadding, isMobilePlatform);
     final List<int> keys = moreAppointmentIndex.keys.toList();
     for (int i = 0; i < keys.length; i++) {
       if (child == null) {
@@ -846,8 +854,7 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
 
       final int index = keys[i];
       final double leftPosition = isRTL
-          ? ((visibleDates.length - index - 1) * _cellWidth) +
-              calendar.cellEndPadding
+          ? ((visibleDates.length - index - 1) * _cellWidth) + cellEndPadding
           : timeLabelWidth + (index * _cellWidth);
       final Offset offset = Offset(leftPosition, maximumBottomPosition);
       final bool isHit = result.addWithPaintOffset(
@@ -923,7 +930,9 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
 
     _cellWidth = (size.width - timeLabelWidth) / visibleDates.length;
     const double appointmentHeight = kAllDayAppointmentHeight - 1;
-    final double maxAppointmentWidth = _cellWidth - calendar.cellEndPadding;
+    final double cellEndPadding = CalendarViewHelper.getCellEndPadding(
+        calendar.cellEndPadding, isMobilePlatform);
+    final double maxAppointmentWidth = _cellWidth - cellEndPadding;
     final List<int> keys = moreAppointmentIndex.keys.toList();
     for (int i = 0; i < keys.length; i++) {
       if (child == null) {
@@ -939,8 +948,7 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
           child.parentData! as CalendarParentData;
       final int index = keys[i];
       final double leftPosition = isRTL
-          ? ((visibleDates.length - index - 1) * _cellWidth) +
-              calendar.cellEndPadding
+          ? ((visibleDates.length - index - 1) * _cellWidth) + cellEndPadding
           : timeLabelWidth + (index * _cellWidth);
       childParentData.offset = Offset(leftPosition, maximumBottomPosition);
       child = childAfter(child);
@@ -950,6 +958,7 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
   @override
   void paint(PaintingContext context, Offset offset) {
     _textPainter.textScaleFactor = _textScaleFactor;
+    double leftPosition = 0, rightPosition = size.width;
     if (view == CalendarView.day) {
       _rectPainter.strokeWidth = 0.5;
       _rectPainter.color =
@@ -964,7 +973,27 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
               isRTL ? size.width - timeLabelWidth + 0.5 : timeLabelWidth - 0.5,
               size.height),
           _rectPainter);
+
+      leftPosition = isRTL ? 0 : timeLabelWidth;
+      rightPosition = isRTL ? size.width - timeLabelWidth : size.width;
+
+      final double viewHeaderHeight = CalendarViewHelper.getViewHeaderHeight(
+          calendar.viewHeaderHeight, view);
+      _rectPainter.color = calendar.timeSlotViewSettings.allDayPanelColor ??
+          calendarTheme.allDayPanelColor!;
+      context.canvas.drawRect(
+          Rect.fromLTRB(
+              isRTL ? size.width - timeLabelWidth : 0,
+              viewHeaderHeight,
+              isRTL ? size.width : timeLabelWidth,
+              size.height),
+          _rectPainter);
     }
+    _rectPainter.color = calendar.timeSlotViewSettings.allDayPanelColor ??
+        calendarTheme.allDayPanelColor!;
+    context.canvas.drawRect(
+        Rect.fromLTRB(leftPosition, 0, rightPosition, size.height),
+        _rectPainter);
 
     _rectPainter.isAntiAlias = true;
     _cellWidth = (size.width - timeLabelWidth) / visibleDates.length;
@@ -1127,6 +1156,8 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
       if (child != null) {
         final double endYPosition =
             allDayPainterHeight - kAllDayAppointmentHeight;
+        final double cellEndPadding = CalendarViewHelper.getCellEndPadding(
+            calendar.cellEndPadding, isMobilePlatform);
         final List<int> keys = moreAppointmentIndex.keys.toList();
         for (final int index in keys) {
           if (child == null) {
@@ -1135,7 +1166,7 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
 
           final double xPosition = isRTL
               ? ((visibleDates.length - index - 1) * _cellWidth) +
-                  calendar.cellEndPadding
+                  cellEndPadding
               : timeLabelWidth + (index * _cellWidth);
           context.paintChild(child, Offset(xPosition, endYPosition));
           child = childAfter(child);
@@ -1316,6 +1347,8 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
     final int index = DateTimeHelper.getIndex(
         visibleDates, selectionNotifier.value!.selectedDate!);
     Decoration? selectionDecoration = calendar.selectionDecoration;
+    final double cellEndPadding = CalendarViewHelper.getCellEndPadding(
+        calendar.cellEndPadding, isMobilePlatform);
 
     /// Set the default selection decoration background color with opacity
     /// value based on theme brightness when selected date hold all day
@@ -1352,13 +1385,10 @@ class _AllDayAppointmentRenderObject extends CustomCalendarRenderObject {
     double xValue = timeLabelWidth + (index * _cellWidth);
     if (isRTL) {
       xValue = size.width - xValue - _cellWidth;
-      rect = Rect.fromLTRB(xValue + calendar.cellEndPadding, 0,
-          xValue + _cellWidth, kAllDayAppointmentHeight - 1);
+      rect = Rect.fromLTRB(xValue + cellEndPadding, 0, xValue + _cellWidth,
+          kAllDayAppointmentHeight - 1);
     } else {
-      rect = Rect.fromLTRB(
-          xValue,
-          0,
-          xValue + _cellWidth - calendar.cellEndPadding,
+      rect = Rect.fromLTRB(xValue, 0, xValue + _cellWidth - cellEndPadding,
           kAllDayAppointmentHeight - 1);
     }
 

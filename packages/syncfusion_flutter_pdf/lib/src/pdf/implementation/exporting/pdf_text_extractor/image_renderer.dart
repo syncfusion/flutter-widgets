@@ -618,7 +618,7 @@ class _ImageRenderer {
       if (_isCurrentPositionChanged) {
         _isCurrentPositionChanged = false;
         _endTextPosition = currentLocation!;
-        _textElementWidth = element._render(
+        final Map<String, dynamic> renderedResult = element._render(
             _graphicsObject,
             Offset(_endTextPosition.dx,
                 _endTextPosition.dy + ((-textLeading!) / 4)),
@@ -629,10 +629,12 @@ class _ImageRenderer {
             structure.differencesDictionary,
             structure.differenceEncoding,
             tempTextMatrix);
+        _textElementWidth = renderedResult['textElementWidth'] as double;
+        textMatrix = renderedResult['tempTextMatrix'] as _MatrixHelper;
       } else {
         _endTextPosition = Offset(
             _endTextPosition.dx + _textElementWidth, _endTextPosition.dy);
-        _textElementWidth = element._render(
+        final Map<String, dynamic> renderedResult = element._render(
             _graphicsObject,
             Offset(
                 _endTextPosition.dx, _endTextPosition.dy + (-textLeading! / 4)),
@@ -643,6 +645,8 @@ class _ImageRenderer {
             structure.differencesDictionary,
             structure.differenceEncoding,
             tempTextMatrix);
+        _textElementWidth = renderedResult['textElementWidth'] as double;
+        textMatrix = renderedResult['tempTextMatrix'] as _MatrixHelper;
       }
       if (!structure.isWhiteSpace) {
         if (_whiteSpace.isNotEmpty &&
@@ -654,8 +658,10 @@ class _ImageRenderer {
                   element.textLineMatrix!.offsetY &&
               _whiteSpace[0].textLineMatrix!.offsetY ==
                   element.textLineMatrix!.offsetY) {
-            element.textElementGlyphList
-                .insert(0, _whiteSpace[0].textElementGlyphList[0]);
+            if (_whiteSpace[0]._text.isNotEmpty) {
+              element.textElementGlyphList
+                  .insert(0, _whiteSpace[0].textElementGlyphList[0]);
+            }
             extractTextElement.add(_whiteSpace[0]);
           }
           _whiteSpace = <_TextElement>[];
@@ -744,7 +750,7 @@ class _ImageRenderer {
         _endTextPosition = Offset(
             _endTextPosition.dx + _textElementWidth, _endTextPosition.dy);
       }
-      _textElementWidth = element._renderWithSpacing(
+      final Map<String, dynamic> renderedResult = element._renderWithSpacing(
           _graphicsObject,
           Offset(_endTextPosition.dx, _endTextPosition.dy - fontSize!),
           decodedList,
@@ -756,6 +762,8 @@ class _ImageRenderer {
           structure.differencesDictionary,
           structure.differenceEncoding,
           tempTextMatrix);
+      _textElementWidth = renderedResult['textElementWidth'] as double;
+      textMatrix = renderedResult['tempTextMatrix'] as _MatrixHelper;
       if (!structure.isWhiteSpace) {
         if (_whiteSpace.isNotEmpty &&
             extractTextElement.isNotEmpty &&
@@ -765,7 +773,8 @@ class _ImageRenderer {
                       .offsetY ==
                   element.textLineMatrix!.offsetY &&
               _whiteSpace[0].textLineMatrix!.offsetY ==
-                  element.textLineMatrix!.offsetY) {
+                  element.textLineMatrix!.offsetY &&
+              _whiteSpace[0].textElementGlyphList.isNotEmpty) {
             element.textElementGlyphList
                 .insert(0, _whiteSpace[0].textElementGlyphList[0]);
             extractTextElement.add(_whiteSpace[0]);

@@ -1,4 +1,25 @@
-## [unreleased]
+## Unreleased
+
+**Features**
+
+* Support for screen reading has been provided.	
+* Now, PDF document can be viewed page by page horizontally.
+* Horizontal scrolling support has been provided.
+* Support for text selection and text search in rotated document has been provided.
+
+# [19.2.57-beta] - 08/24/2021
+
+* Now, SfPdfViewer widget won't be rebuilding continuously without any user interaction.
+
+# [19.2.51-beta] - 08/03/2021
+
+* Now, `searchText` method works properly in `onDocumentLoaded` callback.
+
+# [19.2.46-beta] - 07/06/2021
+
+* Now, Grayscale images will be displayed properly in a PDF document while viewing in iOS 14.1 or later versions.
+
+## [19.2.44-beta] - 06/30/2021
 
 * The macOS platform support has been provided.
 

@@ -1,500 +1,58 @@
-part of charts;
+import 'dart:math' as math;
+import 'dart:ui';
 
-/// Calculating data label position and updating the label region for current data point
-void _calculateDataLabelPosition(
-    CartesianSeriesRenderer seriesRenderer,
-    CartesianChartPoint<dynamic> point,
-    int index,
-    SfCartesianChartState _chartState,
-    DataLabelSettingsRenderer dataLabelSettingsRenderer,
-    Animation<double> dataLabelAnimation,
-    [Size? templateSize,
-    Offset? templateLocation]) {
-  final SfCartesianChart chart = _chartState._chart;
-  final CartesianSeries<dynamic, dynamic> series = seriesRenderer._series;
-  if (dataLabelSettingsRenderer._angle.isNegative) {
-    final int angle = dataLabelSettingsRenderer._angle + 360;
-    dataLabelSettingsRenderer._angle = angle;
-  }
-  final DataLabelSettings dataLabel = series.dataLabelSettings;
-  Size? textSize, textSize2, textSize3, textSize4, textSize5;
-  double? value1, value2;
-  const int boxPlotPadding = 8;
-  final Rect rect = _calculatePlotOffset(
-      _chartState._chartAxis._axisClipRect,
-      Offset(seriesRenderer._xAxisRenderer!._axis.plotOffset,
-          seriesRenderer._yAxisRenderer!._axis.plotOffset));
-  if (seriesRenderer._seriesType.contains('hilo') ||
-      seriesRenderer._seriesType.contains('candle')) {
-    value1 = ((point.open != null &&
-                point.close != null &&
-                (point.close < point.open) == true)
-            ? point.close
-            : point.open)
-        ?.toDouble();
-    value2 = ((point.open != null &&
-                point.close != null &&
-                (point.close > point.open) == true)
-            ? point.close
-            : point.open)
-        ?.toDouble();
-  }
-  final bool transposed = _chartState._requireInvertedAxis;
-  final bool inversed = seriesRenderer._yAxisRenderer!._axis.isInversed;
-  final Rect clipRect = _calculatePlotOffset(
-      _chartState._chartAxis._axisClipRect,
-      Offset(seriesRenderer._xAxisRenderer!._axis.plotOffset,
-          seriesRenderer._yAxisRenderer!._axis.plotOffset));
-  final bool isRangeSeries = seriesRenderer._seriesType.contains('range') ||
-      seriesRenderer._seriesType.contains('hilo') ||
-      seriesRenderer._seriesType.contains('candle');
-  final bool isBoxSeries = seriesRenderer._seriesType.contains('boxandwhisker');
-  if (isBoxSeries) {
-    value1 = (point.upperQuartile != null &&
-            point.lowerQuartile != null &&
-            point.upperQuartile! < point.lowerQuartile!)
-        ? point.upperQuartile!
-        : point.lowerQuartile!;
-    value2 = (point.upperQuartile != null &&
-            point.lowerQuartile != null &&
-            point.upperQuartile! > point.lowerQuartile!)
-        ? point.upperQuartile!
-        : point.lowerQuartile!;
-  }
-  // ignore: prefer_final_locals
-  List<String> labelList = <String>[];
-  // ignore: prefer_final_locals
-  String label = point.dataLabelMapper ??
-      point.label ??
-      _getLabelText(
-          isRangeSeries
-              ? (!inversed ? point.high : point.low)
-              : isBoxSeries
-                  ? (!inversed ? point.maximum : point.minimum)
-                  : ((dataLabel.showCumulativeValues &&
-                          point.cumulativeValue != null)
-                      ? point.cumulativeValue
-                      : point.yValue),
-          seriesRenderer);
-  if (isRangeSeries) {
-    point.label2 = point.dataLabelMapper ??
-        point.label2 ??
-        _getLabelText(!inversed ? point.low : point.high, seriesRenderer);
-    if (seriesRenderer._seriesType == 'hiloopenclose' ||
-        seriesRenderer._seriesType.contains('candle')) {
-      point.label3 = point.dataLabelMapper ??
-          point.label3 ??
-          _getLabelText(
-              (point.open > point.close) == true
-                  ? !inversed
-                      ? point.close
-                      : point.open
-                  : !inversed
-                      ? point.open
-                      : point.close,
-              seriesRenderer);
-      point.label4 = point.dataLabelMapper ??
-          point.label4 ??
-          _getLabelText(
-              (point.open > point.close) == true
-                  ? !inversed
-                      ? point.open
-                      : point.close
-                  : !inversed
-                      ? point.close
-                      : point.open,
-              seriesRenderer);
-    }
-  } else if (isBoxSeries) {
-    point.label2 = point.dataLabelMapper ??
-        point.label2 ??
-        _getLabelText(
-            !inversed ? point.minimum : point.maximum, seriesRenderer);
-    point.label3 = point.dataLabelMapper ??
-        point.label3 ??
-        _getLabelText(
-            point.lowerQuartile! > point.upperQuartile!
-                ? !inversed
-                    ? point.upperQuartile
-                    : point.lowerQuartile
-                : !inversed
-                    ? point.lowerQuartile
-                    : point.upperQuartile,
-            seriesRenderer);
-    point.label4 = point.dataLabelMapper ??
-        point.label4 ??
-        _getLabelText(
-            point.lowerQuartile! > point.upperQuartile!
-                ? !inversed
-                    ? point.lowerQuartile
-                    : point.upperQuartile
-                : !inversed
-                    ? point.upperQuartile
-                    : point.lowerQuartile,
-            seriesRenderer);
-    point.label5 = point.dataLabelMapper ??
-        point.label5 ??
-        _getLabelText(point.median, seriesRenderer);
-  }
-  DataLabelRenderArgs dataLabelArgs;
-  TextStyle? dataLabelStyle = dataLabelSettingsRenderer._textStyle;
-  //ignore: prefer_conditional_assignment
-  if (dataLabelSettingsRenderer._originalStyle == null) {
-    dataLabelSettingsRenderer._originalStyle = dataLabel.textStyle;
-  }
-  dataLabelStyle = dataLabelSettingsRenderer._originalStyle;
-  if (chart.onDataLabelRender != null &&
-      !seriesRenderer._visibleDataPoints![index].labelRenderEvent) {
-    labelList.add(label);
-    if (isRangeSeries) {
-      labelList.add(point.label2!);
-      if (seriesRenderer._seriesType == 'hiloopenclose' ||
-          seriesRenderer._seriesType.contains('candle')) {
-        labelList.add(point.label3!);
-        labelList.add(point.label4!);
-      }
-    } else if (isBoxSeries) {
-      labelList.add(point.label2!);
-      labelList.add(point.label3!);
-      labelList.add(point.label4!);
-      labelList.add(point.label5!);
-    }
-    seriesRenderer._visibleDataPoints![index].labelRenderEvent = true;
-    for (int i = 0; i < labelList.length; i++) {
-      dataLabelArgs = DataLabelRenderArgs(
-          seriesRenderer._series,
-          seriesRenderer._dataPoints,
-          index,
-          seriesRenderer._visibleDataPoints![index].overallDataPointIndex);
-      dataLabelArgs.text = labelList[i];
-      dataLabelArgs.textStyle = dataLabelStyle!;
-      dataLabelArgs.color = seriesRenderer._series.dataLabelSettings.color;
-      chart.onDataLabelRender!(dataLabelArgs);
-      labelList[i] = dataLabelArgs.text;
-      index = dataLabelArgs.pointIndex!;
-      point._dataLabelStyle = dataLabelArgs.textStyle;
-      point._dataLabelColor = dataLabelArgs.color;
-      dataLabelSettingsRenderer._offset = dataLabelArgs.offset;
-    }
-  }
-  dataLabelSettingsRenderer._textStyle = dataLabelStyle;
-  if (chart.onDataLabelRender != null) {
-    dataLabelSettingsRenderer._color = point._dataLabelColor;
-    dataLabelSettingsRenderer._textStyle = point._dataLabelStyle;
-    dataLabelStyle = dataLabelSettingsRenderer._textStyle!;
-  }
-  // ignore: unnecessary_null_comparison
-  if (point != null &&
-      point.isVisible &&
-      point.isGap != true &&
-      (point.y != 0 || dataLabel.showZeroValue)) {
-    final double markerPointX = dataLabel.builder == null
-        ? seriesRenderer._seriesType.contains('hilo') ||
-                seriesRenderer._seriesType == 'candle' ||
-                isBoxSeries
-            ? seriesRenderer._chartState!._requireInvertedAxis
-                ? point.region!.centerRight.dx
-                : point.region!.topCenter.dx
-            : point.markerPoint!.x
-        : templateLocation!.dx;
-    final double markerPointY = dataLabel.builder == null
-        ? seriesRenderer._seriesType.contains('hilo') ||
-                seriesRenderer._seriesType == 'candle' ||
-                isBoxSeries
-            ? seriesRenderer._chartState!._requireInvertedAxis
-                ? point.region!.centerRight.dy
-                : point.region!.topCenter.dy
-            : point.markerPoint!.y
-        : templateLocation!.dy;
-    final _ChartLocation markerPoint2 = _calculatePoint(
-        point.xValue,
-        seriesRenderer._yAxisRenderer!._axis.isInversed ? value2 : value1,
-        seriesRenderer._xAxisRenderer!,
-        seriesRenderer._yAxisRenderer!,
-        _chartState._requireInvertedAxis,
-        series,
-        rect);
-    final _ChartLocation markerPoint3 = _calculatePoint(
-        point.xValue,
-        seriesRenderer._yAxisRenderer!._axis.isInversed ? value1 : value2,
-        seriesRenderer._xAxisRenderer!,
-        seriesRenderer._yAxisRenderer!,
-        _chartState._requireInvertedAxis,
-        series,
-        rect);
-    final TextStyle font = (dataLabelSettingsRenderer._textStyle == null)
-        ? const TextStyle(
-            fontFamily: 'Roboto',
-            fontStyle: FontStyle.normal,
-            fontWeight: FontWeight.normal,
-            fontSize: 12)
-        : dataLabelStyle!;
-    point.label = labelList.isNotEmpty ? labelList[0] : label;
-    if (label.isNotEmpty) {
-      _ChartLocation? chartLocation,
-          chartLocation2,
-          chartLocation3,
-          chartLocation4,
-          chartLocation5;
-      textSize =
-          dataLabel.builder == null ? measureText(label, font) : templateSize!;
-      chartLocation = _ChartLocation(markerPointX, markerPointY);
-      if (isRangeSeries || isBoxSeries) {
-        point.label2 = labelList.isNotEmpty ? labelList[1] : point.label2;
-        textSize2 = dataLabel.builder == null
-            ? measureText(point.label2!, font)
-            : templateSize!;
-        chartLocation2 = _ChartLocation(
-            dataLabel.builder == null
-                ? seriesRenderer._seriesType.contains('hilo') ||
-                        seriesRenderer._seriesType == 'candle' ||
-                        isBoxSeries
-                    ? seriesRenderer._chartState!._requireInvertedAxis
-                        ? point.region!.centerLeft.dx
-                        : point.region!.bottomCenter.dx
-                    : point.markerPoint2!.x
-                : templateLocation!.dx,
-            dataLabel.builder == null
-                ? seriesRenderer._seriesType.contains('hilo') ||
-                        seriesRenderer._seriesType == 'candle' ||
-                        isBoxSeries
-                    ? seriesRenderer._chartState!._requireInvertedAxis
-                        ? point.region!.centerLeft.dy
-                        : point.region!.bottomCenter.dy
-                    : point.markerPoint2!.y
-                : templateLocation!.dy);
-        if (isBoxSeries) {
-          if (!seriesRenderer._chartState!._requireInvertedAxis) {
-            chartLocation.y = chartLocation.y - boxPlotPadding;
-            chartLocation2.y = chartLocation2.y + boxPlotPadding;
-          } else {
-            chartLocation.x = chartLocation.x + boxPlotPadding;
-            chartLocation2.x = chartLocation2.x - boxPlotPadding;
-          }
-        }
-      }
-      final List<_ChartLocation?> alignedLabelLocations =
-          _getAlignedLabelLocations(_chartState, seriesRenderer, point,
-              dataLabel, chartLocation, chartLocation2, textSize);
-      chartLocation = alignedLabelLocations[0];
-      chartLocation2 = alignedLabelLocations[1];
-      if (!seriesRenderer._seriesType.contains('column') &&
-          !seriesRenderer._seriesType.contains('waterfall') &&
-          !seriesRenderer._seriesType.contains('bar') &&
-          !seriesRenderer._seriesType.contains('histogram') &&
-          !seriesRenderer._seriesType.contains('rangearea') &&
-          !seriesRenderer._seriesType.contains('hilo') &&
-          !seriesRenderer._seriesType.contains('candle') &&
-          !isBoxSeries) {
-        chartLocation!.y = _calculatePathPosition(
-            chartLocation.y,
-            dataLabel.labelAlignment,
-            textSize,
-            dataLabel.borderWidth,
-            seriesRenderer,
-            index,
-            transposed,
-            chartLocation,
-            _chartState,
-            point,
-            Size(
-                series.markerSettings.isVisible
-                    ? series.markerSettings.width / 2
-                    : 0,
-                series.markerSettings.isVisible
-                    ? series.markerSettings.height / 2
-                    : 0));
-      } else {
-        final List<_ChartLocation?> _locations = _getLabelLocations(
-            index,
-            _chartState,
-            seriesRenderer,
-            point,
-            dataLabel,
-            chartLocation,
-            chartLocation2,
-            textSize,
-            textSize2);
-        chartLocation = _locations[0];
-        chartLocation2 = _locations[1];
-      }
-      if (seriesRenderer._seriesType == 'hiloopenclose' ||
-          seriesRenderer._seriesType.contains('candle') ||
-          isBoxSeries) {
-        if (!isBoxSeries) {
-          point.label3 = labelList.isNotEmpty ? labelList[2] : point.label3;
-          point.label4 = labelList.isNotEmpty ? labelList[3] : point.label4;
-          // point.label3 = point.dataLabelMapper ??
-          //     _getLabelText(
-          //         (point.open > point.close) == true
-          //             ? !inversed
-          //                 ? point.close
-          //                 : point.open
-          //             : !inversed
-          //                 ? point.open
-          //                 : point.close,
-          //         seriesRenderer);
-          // point.label4 = point.dataLabelMapper ??
-          //     _getLabelText(
-          //         (point.open > point.close) == true
-          //             ? !inversed
-          //                 ? point.open
-          //                 : point.close
-          //             : !inversed
-          //                 ? point.close
-          //                 : point.open,
-          //         seriesRenderer);
-        } else {
-          point.label3 = labelList.isNotEmpty ? labelList[2] : point.label3;
-          point.label4 = labelList.isNotEmpty ? labelList[3] : point.label4;
-          point.label5 = labelList.isNotEmpty ? labelList[4] : point.label5;
-          // point.label3 = point.dataLabelMapper ??
-          //     _getLabelText(
-          //         point.lowerQuartile! > point.upperQuartile!
-          //             ? !inversed
-          //                 ? point.upperQuartile
-          //                 : point.lowerQuartile
-          //             : !inversed
-          //                 ? point.lowerQuartile
-          //                 : point.upperQuartile,
-          //         seriesRenderer);
-          // point.label4 = point.dataLabelMapper ??
-          //     _getLabelText(
-          //         point.lowerQuartile! > point.upperQuartile!
-          //             ? !inversed
-          //                 ? point.lowerQuartile
-          //                 : point.upperQuartile
-          //             : !inversed
-          //                 ? point.upperQuartile
-          //                 : point.lowerQuartile,
-          //         seriesRenderer);
-          // point.label5 = point.dataLabelMapper ??
-          //     _getLabelText(point.median, seriesRenderer);
-        }
-        textSize3 = dataLabel.builder == null
-            ? measureText(point.label3!, font)
-            : templateSize;
-        if (seriesRenderer._seriesType.contains('hilo')) {
-          chartLocation3 = (point.open > point.close) == true
-              ? _ChartLocation(point.centerClosePoint!.x + textSize3!.width,
-                  point.closePoint!.y)
-              : _ChartLocation(point.centerOpenPoint!.x - textSize3!.width,
-                  point.openPoint!.y);
-        } else if (seriesRenderer._seriesType == 'candle' &&
-            seriesRenderer._chartState!._requireInvertedAxis) {
-          chartLocation3 = (point.open > point.close) == true
-              ? _ChartLocation(point.closePoint!.x, markerPoint2.y + 1)
-              : _ChartLocation(point.openPoint!.x, markerPoint2.y + 1);
-        } else if (isBoxSeries) {
-          chartLocation3 = (seriesRenderer._chartState!._requireInvertedAxis)
-              ? _ChartLocation(point.lowerQuartilePoint!.x + boxPlotPadding,
-                  markerPoint2.y + 1)
-              : _ChartLocation(
-                  point.region!.topCenter.dx, markerPoint2.y - boxPlotPadding);
-        } else {
-          chartLocation3 =
-              _ChartLocation(point.region!.topCenter.dx, markerPoint2.y);
-        }
-        textSize4 = dataLabel.builder == null
-            ? measureText(point.label4!, font)
-            : templateSize;
-        if (seriesRenderer._seriesType.contains('hilo')) {
-          chartLocation4 = (point.open > point.close) == true
-              ? _ChartLocation(point.centerOpenPoint!.x - textSize4!.width,
-                  point.openPoint!.y)
-              : _ChartLocation(point.centerClosePoint!.x + textSize4!.width,
-                  point.closePoint!.y);
-        } else if (seriesRenderer._seriesType == 'candle' &&
-            seriesRenderer._chartState!._requireInvertedAxis) {
-          chartLocation4 = (point.open > point.close) == true
-              ? _ChartLocation(point.openPoint!.x, markerPoint3.y + 1)
-              : _ChartLocation(point.closePoint!.x, markerPoint3.y + 1);
-        } else if (isBoxSeries) {
-          chartLocation4 = (seriesRenderer._chartState!._requireInvertedAxis)
-              ? _ChartLocation(point.upperQuartilePoint!.x - boxPlotPadding,
-                  markerPoint3.y + 1)
-              : _ChartLocation(point.region!.bottomCenter.dx,
-                  markerPoint3.y + boxPlotPadding);
-        } else {
-          chartLocation4 =
-              _ChartLocation(point.region!.bottomCenter.dx, markerPoint3.y + 1);
-        }
-        if (isBoxSeries) {
-          textSize5 = measureText(point.label5!, font);
-          chartLocation5 = (!seriesRenderer._chartState!._requireInvertedAxis)
-              ? _ChartLocation(
-                  point.centerMedianPoint!.x, point.centerMedianPoint!.y)
-              : _ChartLocation(
-                  point.centerMedianPoint!.x, point.centerMedianPoint!.y);
-        }
-        final List<_ChartLocation?> alignedLabelLocations2 =
-            _getAlignedLabelLocations(_chartState, seriesRenderer, point,
-                dataLabel, chartLocation3, chartLocation4, textSize3!);
-        chartLocation3 = alignedLabelLocations2[0];
-        chartLocation4 = alignedLabelLocations2[1];
-        final List<_ChartLocation?> _locations = _getLabelLocations(
-            index,
-            _chartState,
-            seriesRenderer,
-            point,
-            dataLabel,
-            chartLocation3,
-            chartLocation4,
-            textSize3,
-            textSize4!);
-        chartLocation3 = _locations[0];
-        chartLocation4 = _locations[1];
-      }
-      _calculateDataLabelRegion(
-          point,
-          dataLabel,
-          _chartState,
-          chartLocation!,
-          chartLocation2,
-          isRangeSeries,
-          clipRect,
-          textSize,
-          textSize2,
-          chartLocation3,
-          chartLocation4,
-          chartLocation5,
-          textSize3,
-          textSize4,
-          textSize5,
-          seriesRenderer,
-          index);
-    }
-  }
-}
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
+import 'package:syncfusion_flutter_core/core.dart';
+
+import '../../common/event_args.dart';
+import '../../common/utils/enum.dart';
+import '../../common/utils/helper.dart';
+import '../axis/logarithmic_axis.dart';
+import '../axis/numeric_axis.dart';
+import '../base/chart_base.dart';
+import '../chart_series/series.dart';
+import '../chart_series/waterfall_series.dart';
+import '../chart_series/xy_data_series.dart';
+import '../common/cartesian_state_properties.dart';
+import '../common/common.dart';
+import '../common/data_label.dart';
+import '../utils/helper.dart';
 
 ///Calculating the label location based on alignment value
-List<_ChartLocation?> _getAlignedLabelLocations(
-    SfCartesianChartState _chartState,
-    CartesianSeriesRenderer seriesRenderer,
+List<ChartLocation?> _getAlignedLabelLocations(
+    CartesianStateProperties stateProperties,
+    SeriesRendererDetails seriesRendererDetails,
     CartesianChartPoint<dynamic> point,
     DataLabelSettings dataLabel,
-    _ChartLocation chartLocation,
-    _ChartLocation? chartLocation2,
+    ChartLocation chartLocation,
+    ChartLocation? chartLocation2,
     Size textSize) {
-  final SfCartesianChart chart = _chartState._chart;
+  final SfCartesianChart chart = stateProperties.chart;
   final XyDataSeries<dynamic, dynamic> series =
-      seriesRenderer._series as XyDataSeries<dynamic, dynamic>;
-  final bool transposed = _chartState._requireInvertedAxis;
-  final bool isRangeSeries = seriesRenderer._seriesType.contains('range') ||
-      seriesRenderer._seriesType.contains('hilo') ||
-      seriesRenderer._seriesType.contains('candle');
-  final bool isBoxSeries = seriesRenderer._seriesType.contains('boxandwhisker');
+      seriesRendererDetails.series as XyDataSeries<dynamic, dynamic>;
+  final bool transposed = stateProperties.requireInvertedAxis;
+  final bool isRangeSeries =
+      seriesRendererDetails.seriesType.contains('range') == true ||
+          seriesRendererDetails.seriesType.contains('hilo') == true ||
+          seriesRendererDetails.seriesType.contains('candle') == true;
+  final bool isBoxSeries =
+      seriesRendererDetails.seriesType.contains('boxandwhisker');
   final double alignmentValue = textSize.height +
       (series.markerSettings.isVisible
           ? ((series.markerSettings.borderWidth * 2) +
               series.markerSettings.height)
           : 0);
-  if ((seriesRenderer._seriesType.contains('bar') && !chart.isTransposed) ||
-      (seriesRenderer._seriesType.contains('column') && chart.isTransposed) ||
-      (seriesRenderer._seriesType.contains('waterfall') &&
+  if ((seriesRendererDetails.seriesType.contains('bar') == true &&
+          !chart.isTransposed) ||
+      (seriesRendererDetails.seriesType.contains('column') == true &&
           chart.isTransposed) ||
-      seriesRenderer._seriesType.contains('hilo') ||
-      seriesRenderer._seriesType.contains('candle') ||
+      (seriesRendererDetails.seriesType.contains('waterfall') == true &&
+          chart.isTransposed) ||
+      seriesRendererDetails.seriesType.contains('hilo') == true ||
+      seriesRendererDetails.seriesType.contains('candle') == true ||
       isBoxSeries) {
     chartLocation.x = (dataLabel.labelAlignment == ChartDataLabelAlignment.auto)
         ? chartLocation.x
@@ -556,35 +114,37 @@ List<_ChartLocation?> _getAlignedLabelLocations(
                   transposed);
     }
   }
-  return <_ChartLocation?>[chartLocation, chartLocation2];
+  return <ChartLocation?>[chartLocation, chartLocation2];
 }
 
-///calculating the label loaction based on dataLabel position value
+///calculating the label location based on dataLabel position value
 ///(for range and rect series only)
-List<_ChartLocation?> _getLabelLocations(
+List<ChartLocation?> _getLabelLocations(
     int index,
-    SfCartesianChartState _chartState,
-    CartesianSeriesRenderer seriesRenderer,
+    CartesianStateProperties stateProperties,
+    SeriesRendererDetails seriesRendererDetails,
     CartesianChartPoint<dynamic> point,
     DataLabelSettings dataLabel,
-    _ChartLocation? chartLocation,
-    _ChartLocation? chartLocation2,
+    ChartLocation? chartLocation,
+    ChartLocation? chartLocation2,
     Size textSize,
     Size? textSize2) {
-  final bool transposed = _chartState._requireInvertedAxis;
+  final bool transposed = stateProperties.requireInvertedAxis;
   final EdgeInsets margin = dataLabel.margin;
-  final bool isRangeSeries = seriesRenderer._seriesType.contains('range') ||
-      seriesRenderer._seriesType.contains('hilo') ||
-      seriesRenderer._seriesType.contains('candle');
-  final bool isBoxSeries = seriesRenderer._seriesType.contains('boxandwhisker');
-  final bool inversed = seriesRenderer._yAxisRenderer!._axis.isInversed;
+  final bool isRangeSeries =
+      seriesRendererDetails.seriesType.contains('range') == true ||
+          seriesRendererDetails.seriesType.contains('hilo') == true ||
+          seriesRendererDetails.seriesType.contains('candle') == true;
+  final bool isBoxSeries =
+      seriesRendererDetails.seriesType.contains('boxandwhisker');
+  final bool inversed = seriesRendererDetails.yAxisDetails!.axis.isInversed;
   final num value = isRangeSeries
       ? point.high
       : isBoxSeries
           ? point.maximum
           : point.yValue;
   final bool minus = (value < 0 && !inversed) || (!(value < 0) && inversed);
-  if (!_chartState._requireInvertedAxis) {
+  if (!stateProperties.requireInvertedAxis) {
     chartLocation!.y = !isBoxSeries
         ? _calculateRectPosition(
             chartLocation.y,
@@ -596,12 +156,12 @@ List<_ChartLocation?> _getLabelLocations(
                     ? dataLabel.labelAlignment
                     : ChartDataLabelAlignment.auto)
                 : dataLabel.labelAlignment,
-            seriesRenderer,
+            seriesRendererDetails,
             textSize,
             dataLabel.borderWidth,
             index,
             chartLocation,
-            _chartState,
+            stateProperties,
             transposed,
             margin)
         : chartLocation.y;
@@ -611,8 +171,9 @@ List<_ChartLocation?> _getLabelLocations(
             chartLocation.x,
             point.region!,
             minus,
-            seriesRenderer._seriesType.contains('hilo') ||
-                    seriesRenderer._seriesType.contains('candle') ||
+            seriesRendererDetails.seriesType.contains('hilo') == true ||
+                    seriesRendererDetails.seriesType.contains('candle') ==
+                        true ||
                     isBoxSeries
                 ? ChartDataLabelAlignment.auto
                 : isRangeSeries
@@ -623,44 +184,44 @@ List<_ChartLocation?> _getLabelLocations(
                         ? dataLabel.labelAlignment
                         : ChartDataLabelAlignment.auto)
                     : dataLabel.labelAlignment,
-            seriesRenderer,
+            seriesRendererDetails,
             textSize,
             dataLabel.borderWidth,
             index,
             chartLocation,
-            _chartState,
+            stateProperties,
             transposed,
             margin)
         : chartLocation.x;
   }
   chartLocation2 = isRangeSeries
-      ? _getSecondLabelLocation(index, _chartState, seriesRenderer, point,
-          dataLabel, chartLocation, chartLocation2!, textSize)
+      ? _getSecondLabelLocation(index, stateProperties, seriesRendererDetails,
+          point, dataLabel, chartLocation, chartLocation2!, textSize)
       : chartLocation2;
-  return <_ChartLocation?>[chartLocation, chartLocation2];
+  return <ChartLocation?>[chartLocation, chartLocation2];
 }
 
 ///Finding range series second label location
-_ChartLocation _getSecondLabelLocation(
+ChartLocation _getSecondLabelLocation(
     int index,
-    SfCartesianChartState _chartState,
-    CartesianSeriesRenderer seriesRenderer,
+    CartesianStateProperties stateProperties,
+    SeriesRendererDetails seriesRendererDetails,
     CartesianChartPoint<dynamic> point,
     DataLabelSettings dataLabel,
-    _ChartLocation chartLocation,
-    _ChartLocation chartLocation2,
+    ChartLocation chartLocation,
+    ChartLocation chartLocation2,
     Size textSize) {
-  final bool inversed = seriesRenderer._yAxisRenderer!._axis.isInversed;
-  final bool transposed = _chartState._requireInvertedAxis;
+  final bool inversed = seriesRendererDetails.yAxisDetails!.axis.isInversed;
+  final bool transposed = stateProperties.requireInvertedAxis;
   final EdgeInsets margin = dataLabel.margin;
   bool minus;
 
-  minus = (seriesRenderer._seriesType == 'boxandwhisker')
+  minus = (seriesRendererDetails.seriesType == 'boxandwhisker')
       ? (point.minimum! < 0 && !inversed) || (!(point.minimum! < 0) && inversed)
       : ((point.low < 0) == true && !inversed) ||
           ((point.low < 0) == false && inversed);
 
-  if (!_chartState._requireInvertedAxis) {
+  if (!stateProperties.requireInvertedAxis) {
     chartLocation2.y = _calculateRectPosition(
         chartLocation2.y,
         point.region!,
@@ -668,12 +229,12 @@ _ChartLocation _getSecondLabelLocation(
         dataLabel.labelAlignment == ChartDataLabelAlignment.top
             ? ChartDataLabelAlignment.auto
             : ChartDataLabelAlignment.top,
-        seriesRenderer,
+        seriesRendererDetails,
         textSize,
         dataLabel.borderWidth,
         index,
         chartLocation,
-        _chartState,
+        stateProperties,
         transposed,
         margin);
   } else {
@@ -684,85 +245,86 @@ _ChartLocation _getSecondLabelLocation(
         dataLabel.labelAlignment == ChartDataLabelAlignment.top
             ? ChartDataLabelAlignment.auto
             : ChartDataLabelAlignment.top,
-        seriesRenderer,
+        seriesRendererDetails,
         textSize,
         dataLabel.borderWidth,
         index,
         chartLocation,
-        _chartState,
+        stateProperties,
         transposed,
         margin);
   }
   return chartLocation2;
 }
 
-///Setting datalabel region
+///Setting data label region
 void _calculateDataLabelRegion(
     CartesianChartPoint<dynamic> point,
     DataLabelSettings dataLabel,
-    SfCartesianChartState _chartState,
-    _ChartLocation chartLocation,
-    _ChartLocation? chartLocation2,
+    CartesianStateProperties stateProperties,
+    ChartLocation chartLocation,
+    ChartLocation? chartLocation2,
     bool isRangeSeries,
     Rect clipRect,
     Size textSize,
     Size? textSize2,
-    _ChartLocation? chartLocation3,
-    _ChartLocation? chartLocation4,
-    _ChartLocation? chartLocation5,
+    ChartLocation? chartLocation3,
+    ChartLocation? chartLocation4,
+    ChartLocation? chartLocation5,
     Size? textSize3,
     Size? textSize4,
     Size? textSize5,
-    CartesianSeriesRenderer seriesRenderer,
+    SeriesRendererDetails seriesRendererDetails,
     int index) {
   final DataLabelSettingsRenderer dataLabelSettingsRenderer =
-      seriesRenderer._dataLabelSettingsRenderer;
+      seriesRendererDetails.dataLabelSettingsRenderer;
   Rect? rect, rect2, rect3, rect4, rect5;
   final EdgeInsets margin = dataLabel.margin;
-  final bool isBoxSeries = seriesRenderer._seriesType.contains('boxandwhisker');
+  final bool isBoxSeries =
+      seriesRendererDetails.seriesType.contains('boxandwhisker');
   rect = _calculateLabelRect(chartLocation, textSize, margin,
-      dataLabelSettingsRenderer._color != null || dataLabel.useSeriesColor);
+      dataLabelSettingsRenderer.color != null || dataLabel.useSeriesColor);
   // if angle is given label will
-  rect = ((index == 0 || index == seriesRenderer._dataPoints.length - 1) &&
-          (dataLabelSettingsRenderer._angle / 90) % 2 == 1 &&
-          !_chartState._requireInvertedAxis)
-      ? rect
-      : (dataLabelSettingsRenderer._angle / 90) % 2 == 1
+  rect =
+      ((index == 0 || index == seriesRendererDetails.dataPoints.length - 1) &&
+              (dataLabelSettingsRenderer.angle / 90) % 2 == 1 &&
+              !stateProperties.requireInvertedAxis)
           ? rect
-          : _validateRect(rect, clipRect);
+          : (dataLabelSettingsRenderer.angle / 90) % 2 == 1
+              ? rect
+              : _validateRect(rect, clipRect);
   if (isRangeSeries || isBoxSeries) {
     rect2 = _calculateLabelRect(chartLocation2!, textSize2!, margin,
-        dataLabelSettingsRenderer._color != null || dataLabel.useSeriesColor);
+        dataLabelSettingsRenderer.color != null || dataLabel.useSeriesColor);
     rect2 = _validateRect(rect2, clipRect);
   }
-  if ((seriesRenderer._seriesType.contains('candle') ||
-          seriesRenderer._seriesType.contains('hilo') ||
+  if ((seriesRendererDetails.seriesType.contains('candle') == true ||
+          seriesRendererDetails.seriesType.contains('hilo') == true ||
           isBoxSeries) &&
       (chartLocation3 != null ||
           chartLocation4 != null ||
           chartLocation5 != null)) {
     rect3 = _calculateLabelRect(chartLocation3!, textSize3!, margin,
-        dataLabelSettingsRenderer._color != null || dataLabel.useSeriesColor);
+        dataLabelSettingsRenderer.color != null || dataLabel.useSeriesColor);
     rect3 = _validateRect(rect3, clipRect);
 
     rect4 = _calculateLabelRect(chartLocation4!, textSize4!, margin,
-        dataLabelSettingsRenderer._color != null || dataLabel.useSeriesColor);
+        dataLabelSettingsRenderer.color != null || dataLabel.useSeriesColor);
     rect4 = _validateRect(rect4, clipRect);
 
     if (isBoxSeries) {
       rect5 = _calculateLabelRect(chartLocation5!, textSize5!, margin,
-          dataLabelSettingsRenderer._color != null || dataLabel.useSeriesColor);
+          dataLabelSettingsRenderer.color != null || dataLabel.useSeriesColor);
       rect5 = _validateRect(rect5, clipRect);
     }
   }
-  if (dataLabelSettingsRenderer._color != null ||
+  if (dataLabelSettingsRenderer.color != null ||
       dataLabel.useSeriesColor ||
       // ignore: unnecessary_null_comparison
       (dataLabel.borderColor != null && dataLabel.borderWidth > 0)) {
     final RRect fillRect =
         _calculatePaddedFillRect(rect, dataLabel.borderRadius, margin);
-    point.labelLocation = _ChartLocation(
-        fillRect.center.dx - textSize.width / 2,
+    point.labelLocation = ChartLocation(fillRect.center.dx - textSize.width / 2,
         fillRect.center.dy - textSize.height / 2);
     point.dataLabelRegion = Rect.fromLTWH(point.labelLocation!.x,
         point.labelLocation!.y, textSize.width, textSize.height);
@@ -770,32 +332,32 @@ void _calculateDataLabelRegion(
       point.labelFillRect = fillRect;
     } else {
       final Rect rect = fillRect.middleRect;
-      if (seriesRenderer._seriesType == 'candle' &&
-          _chartState._requireInvertedAxis &&
+      if (seriesRendererDetails.seriesType == 'candle' &&
+          stateProperties.requireInvertedAxis &&
           (point.close > point.high) == true) {
-        point.labelLocation = _ChartLocation(
+        point.labelLocation = ChartLocation(
             rect.left - rect.width - textSize.width,
             rect.top + rect.height / 2 - textSize.height / 2);
       } else if (isBoxSeries &&
-          _chartState._requireInvertedAxis &&
+          stateProperties.requireInvertedAxis &&
           point.upperQuartile! > point.maximum!) {
-        point.labelLocation = _ChartLocation(
+        point.labelLocation = ChartLocation(
             rect.left - rect.width - textSize.width,
             rect.top + rect.height / 2 - textSize.height / 2);
-      } else if (seriesRenderer._seriesType == 'candle' &&
-          !_chartState._requireInvertedAxis &&
+      } else if (seriesRendererDetails.seriesType == 'candle' &&
+          !stateProperties.requireInvertedAxis &&
           (point.close > point.high) == true) {
-        point.labelLocation = _ChartLocation(
+        point.labelLocation = ChartLocation(
             rect.left + rect.width / 2 - textSize.width / 2,
             rect.top + rect.height + textSize.height);
       } else if (isBoxSeries &&
-          !_chartState._requireInvertedAxis &&
+          !stateProperties.requireInvertedAxis &&
           point.upperQuartile! > point.maximum!) {
-        point.labelLocation = _ChartLocation(
+        point.labelLocation = ChartLocation(
             rect.left + rect.width / 2 - textSize.width / 2,
             rect.top + rect.height + textSize.height);
       } else {
-        point.labelLocation = _ChartLocation(
+        point.labelLocation = ChartLocation(
             rect.left + rect.width / 2 - textSize.width / 2,
             rect.top + rect.height / 2 - textSize.height / 2);
       }
@@ -806,7 +368,7 @@ void _calculateDataLabelRegion(
     if (isRangeSeries || isBoxSeries) {
       final RRect fillRect2 =
           _calculatePaddedFillRect(rect2!, dataLabel.borderRadius, margin);
-      point.labelLocation2 = _ChartLocation(
+      point.labelLocation2 = ChartLocation(
           fillRect2.center.dx - textSize2!.width / 2,
           fillRect2.center.dy - textSize2.height / 2);
       point.dataLabelRegion2 = Rect.fromLTWH(point.labelLocation2!.x,
@@ -815,7 +377,7 @@ void _calculateDataLabelRegion(
         point.labelFillRect2 = fillRect2;
       } else {
         final Rect rect2 = fillRect2.middleRect;
-        point.labelLocation2 = _ChartLocation(
+        point.labelLocation2 = ChartLocation(
             rect2.left + rect2.width / 2 - textSize2.width / 2,
             rect2.top + rect2.height / 2 - textSize2.height / 2);
         point.dataLabelRegion2 = Rect.fromLTWH(point.labelLocation2!.x,
@@ -823,12 +385,12 @@ void _calculateDataLabelRegion(
         point.labelFillRect2 = _rectToRrect(rect2, dataLabel.borderRadius);
       }
     }
-    if (seriesRenderer._seriesType.contains('candle') ||
-        seriesRenderer._seriesType.contains('hilo') ||
+    if (seriesRendererDetails.seriesType.contains('candle') == true ||
+        seriesRendererDetails.seriesType.contains('hilo') == true ||
         isBoxSeries && (rect3 != null || rect4 != null || rect5 != null)) {
       final RRect fillRect3 =
           _calculatePaddedFillRect(rect3!, dataLabel.borderRadius, margin);
-      point.labelLocation3 = _ChartLocation(
+      point.labelLocation3 = ChartLocation(
           fillRect3.center.dx - textSize3!.width / 2,
           fillRect3.center.dy - textSize3.height / 2);
       point.dataLabelRegion3 = Rect.fromLTWH(point.labelLocation3!.x,
@@ -837,7 +399,7 @@ void _calculateDataLabelRegion(
         point.labelFillRect3 = fillRect3;
       } else {
         final Rect rect3 = fillRect3.middleRect;
-        point.labelLocation3 = _ChartLocation(
+        point.labelLocation3 = ChartLocation(
             rect3.left + rect3.width / 2 - textSize3.width / 2,
             rect3.top + rect3.height / 2 - textSize3.height / 2);
         point.dataLabelRegion3 = Rect.fromLTWH(point.labelLocation3!.x,
@@ -846,7 +408,7 @@ void _calculateDataLabelRegion(
       }
       final RRect fillRect4 =
           _calculatePaddedFillRect(rect4!, dataLabel.borderRadius, margin);
-      point.labelLocation4 = _ChartLocation(
+      point.labelLocation4 = ChartLocation(
           fillRect4.center.dx - textSize4!.width / 2,
           fillRect4.center.dy - textSize4.height / 2);
       point.dataLabelRegion4 = Rect.fromLTWH(point.labelLocation4!.x,
@@ -855,7 +417,7 @@ void _calculateDataLabelRegion(
         point.labelFillRect4 = fillRect4;
       } else {
         final Rect rect4 = fillRect4.middleRect;
-        point.labelLocation4 = _ChartLocation(
+        point.labelLocation4 = ChartLocation(
             rect4.left + rect4.width / 2 - textSize4.width / 2,
             rect4.top + rect4.height / 2 - textSize4.height / 2);
         point.dataLabelRegion4 = Rect.fromLTWH(point.labelLocation4!.x,
@@ -865,7 +427,7 @@ void _calculateDataLabelRegion(
       if (isBoxSeries) {
         final RRect fillRect5 =
             _calculatePaddedFillRect(rect5!, dataLabel.borderRadius, margin);
-        point.labelLocation5 = _ChartLocation(
+        point.labelLocation5 = ChartLocation(
             fillRect5.center.dx - textSize5!.width / 2,
             fillRect5.center.dy - textSize5.height / 2);
         point.dataLabelRegion5 = Rect.fromLTWH(point.labelLocation5!.x,
@@ -874,7 +436,7 @@ void _calculateDataLabelRegion(
           point.labelFillRect5 = fillRect5;
         } else {
           final Rect rect5 = fillRect5.middleRect;
-          point.labelLocation5 = _ChartLocation(
+          point.labelLocation5 = ChartLocation(
               rect5.left + rect5.width / 2 - textSize5.width / 2,
               rect5.top + rect5.height / 2 - textSize5.height / 2);
           point.dataLabelRegion5 = Rect.fromLTWH(point.labelLocation5!.x,
@@ -884,86 +446,86 @@ void _calculateDataLabelRegion(
       }
     }
   } else {
-    if (seriesRenderer._seriesType == 'candle' &&
-        _chartState._requireInvertedAxis &&
+    if (seriesRendererDetails.seriesType == 'candle' &&
+        stateProperties.requireInvertedAxis &&
         (point.close > point.high) == true) {
-      point.labelLocation = _ChartLocation(
+      point.labelLocation = ChartLocation(
           rect.left - rect.width - textSize.width - 2,
           rect.top + rect.height / 2 - textSize.height / 2);
     } else if (isBoxSeries &&
-        _chartState._requireInvertedAxis &&
+        stateProperties.requireInvertedAxis &&
         point.upperQuartile! > point.maximum!) {
-      point.labelLocation = _ChartLocation(
+      point.labelLocation = ChartLocation(
           rect.left - rect.width - textSize.width - 2,
           rect.top + rect.height / 2 - textSize.height / 2);
-    } else if (seriesRenderer._seriesType == 'candle' &&
-        !_chartState._requireInvertedAxis &&
+    } else if (seriesRendererDetails.seriesType == 'candle' &&
+        !stateProperties.requireInvertedAxis &&
         (point.close > point.high) == true) {
-      point.labelLocation = _ChartLocation(
+      point.labelLocation = ChartLocation(
           rect.left + rect.width / 2 - textSize.width / 2,
           rect.top + rect.height + textSize.height / 2);
     } else if (isBoxSeries &&
-        !_chartState._requireInvertedAxis &&
+        !stateProperties.requireInvertedAxis &&
         point.upperQuartile! > point.maximum!) {
-      point.labelLocation = _ChartLocation(
+      point.labelLocation = ChartLocation(
           rect.left + rect.width / 2 - textSize.width / 2,
           rect.top + rect.height + textSize.height / 2);
     } else {
-      point.labelLocation = _ChartLocation(
+      point.labelLocation = ChartLocation(
           rect.left + rect.width / 2 - textSize.width / 2,
           rect.top + rect.height / 2 - textSize.height / 2);
     }
     point.dataLabelRegion = Rect.fromLTWH(point.labelLocation!.x,
         point.labelLocation!.y, textSize.width, textSize.height);
     if (isRangeSeries || isBoxSeries) {
-      if (seriesRenderer._seriesType == 'candle' &&
-          _chartState._requireInvertedAxis &&
+      if (seriesRendererDetails.seriesType == 'candle' &&
+          stateProperties.requireInvertedAxis &&
           (point.close > point.high) == true) {
-        point.labelLocation2 = _ChartLocation(
+        point.labelLocation2 = ChartLocation(
             rect2!.left + rect2.width + textSize2!.width + 2,
             rect2.top + rect2.height / 2 - textSize2.height / 2);
       } else if (isBoxSeries &&
-          _chartState._requireInvertedAxis &&
+          stateProperties.requireInvertedAxis &&
           point.upperQuartile! > point.maximum!) {
-        point.labelLocation2 = _ChartLocation(
+        point.labelLocation2 = ChartLocation(
             rect2!.left + rect2.width + textSize2!.width + 2,
             rect2.top + rect2.height / 2 - textSize2.height / 2);
-      } else if (seriesRenderer._seriesType == 'candle' &&
-          !_chartState._requireInvertedAxis &&
+      } else if (seriesRendererDetails.seriesType == 'candle' &&
+          !stateProperties.requireInvertedAxis &&
           (point.close > point.high) == true) {
-        point.labelLocation2 = _ChartLocation(
+        point.labelLocation2 = ChartLocation(
             rect2!.left + rect2.width / 2 - textSize2!.width / 2,
             rect2.top - rect2.height - textSize2.height);
       } else if (isBoxSeries &&
-          !_chartState._requireInvertedAxis &&
+          !stateProperties.requireInvertedAxis &&
           point.upperQuartile! > point.maximum!) {
-        point.labelLocation2 = _ChartLocation(
+        point.labelLocation2 = ChartLocation(
             rect2!.left + rect2.width / 2 - textSize2!.width / 2,
             rect2.top - rect2.height - textSize2.height);
       } else {
-        point.labelLocation2 = _ChartLocation(
+        point.labelLocation2 = ChartLocation(
             rect2!.left + rect2.width / 2 - textSize2!.width / 2,
             rect2.top + rect2.height / 2 - textSize2.height / 2);
       }
       point.dataLabelRegion2 = Rect.fromLTWH(point.labelLocation2!.x,
           point.labelLocation2!.y, textSize2.width, textSize2.height);
     }
-    if ((seriesRenderer._seriesType.contains('candle') ||
-            seriesRenderer._seriesType.contains('hilo') ||
+    if ((seriesRendererDetails.seriesType.contains('candle') == true ||
+            seriesRendererDetails.seriesType.contains('hilo') == true ||
             isBoxSeries) &&
         (rect3 != null || rect4 != null)) {
-      point.labelLocation3 = _ChartLocation(
+      point.labelLocation3 = ChartLocation(
           rect3!.left + rect3.width / 2 - textSize3!.width / 2,
           rect3.top + rect3.height / 2 - textSize3.height / 2);
       point.dataLabelRegion3 = Rect.fromLTWH(point.labelLocation3!.x,
           point.labelLocation3!.y, textSize3.width, textSize3.height);
-      point.labelLocation4 = _ChartLocation(
+      point.labelLocation4 = ChartLocation(
           rect4!.left + rect4.width / 2 - textSize4!.width / 2,
           rect4.top + rect4.height / 2 - textSize4.height / 2);
       point.dataLabelRegion4 = Rect.fromLTWH(point.labelLocation4!.x,
           point.labelLocation4!.y, textSize4.width, textSize4.height);
       if (rect5 != null) {
-        point.labelLocation5 = _ChartLocation(
+        point.labelLocation5 = ChartLocation(
             rect5.left + rect5.width / 2 - textSize5!.width / 2,
             rect5.top + rect5.height / 2 - textSize5.height / 2);
         point.dataLabelRegion5 = Rect.fromLTWH(point.labelLocation5!.x,
@@ -979,32 +541,32 @@ double _calculatePathPosition(
     ChartDataLabelAlignment position,
     Size size,
     double borderWidth,
-    CartesianSeriesRenderer seriesRenderer,
+    SeriesRendererDetails seriesRendererDetails,
     int index,
     bool inverted,
-    _ChartLocation point,
-    SfCartesianChartState _chartState,
+    ChartLocation point,
+    CartesianStateProperties stateProperties,
     CartesianChartPoint<dynamic> currentPoint,
     Size markerSize) {
   final XyDataSeries<dynamic, dynamic> series =
-      seriesRenderer._series as XyDataSeries<dynamic, dynamic>;
+      seriesRendererDetails.series as XyDataSeries<dynamic, dynamic>;
   const double padding = 5;
   final bool needFill = series.dataLabelSettings.color != null ||
       series.dataLabelSettings.color != Colors.transparent ||
       series.dataLabelSettings.useSeriesColor;
   final num fillSpace = needFill ? padding : 0;
-  if (seriesRenderer._seriesType.contains('area') &&
-      !seriesRenderer._seriesType.contains('rangearea') &&
-      seriesRenderer._yAxisRenderer!._axis.isInversed) {
+  if (seriesRendererDetails.seriesType.contains('area') == true &&
+      seriesRendererDetails.seriesType.contains('rangearea') == false &&
+      seriesRendererDetails.yAxisDetails!.axis.isInversed == true) {
     position = position == ChartDataLabelAlignment.top
         ? ChartDataLabelAlignment.bottom
         : (position == ChartDataLabelAlignment.bottom
             ? ChartDataLabelAlignment.top
             : position);
   }
-  position = (_chartState._chartSeries.visibleSeriesRenderers.length == 1 &&
-          (seriesRenderer._seriesType == 'stackedarea100' ||
-              seriesRenderer._seriesType == 'stackedline100') &&
+  position = (stateProperties.chartSeries.visibleSeriesRenderers.length == 1 &&
+          (seriesRendererDetails.seriesType == 'stackedarea100' ||
+              seriesRendererDetails.seriesType == 'stackedline100') &&
           position == ChartDataLabelAlignment.auto)
       ? ChartDataLabelAlignment.bottom
       : position;
@@ -1028,15 +590,15 @@ double _calculatePathPosition(
       break;
     case ChartDataLabelAlignment.auto:
       labelLocation = _calculatePathActualPosition(
-          seriesRenderer,
+          seriesRendererDetails,
           size,
           index,
           inverted,
           borderWidth,
           point,
-          _chartState,
+          stateProperties,
           currentPoint,
-          seriesRenderer._yAxisRenderer!._axis.isInversed);
+          seriesRendererDetails.yAxisDetails!.axis.isInversed);
       break;
     case ChartDataLabelAlignment.middle:
       break;
@@ -1067,23 +629,23 @@ double _calculateAlignment(double value, double labelLocation,
 
 ///Calculate label position for non rect series
 double _calculatePathActualPosition(
-    CartesianSeriesRenderer seriesRenderer,
+    SeriesRendererDetails seriesRendererDetails,
     Size size,
     int index,
     bool inverted,
     double borderWidth,
-    _ChartLocation point,
-    SfCartesianChartState _chartState,
+    ChartLocation point,
+    CartesianStateProperties stateProperties,
     CartesianChartPoint<dynamic> currentPoint,
     bool inversed) {
   final XyDataSeries<dynamic, dynamic> series =
-      seriesRenderer._series as XyDataSeries<dynamic, dynamic>;
+      seriesRendererDetails.series as XyDataSeries<dynamic, dynamic>;
   late double yLocation;
   bool isBottom, isOverLap = true;
   Rect labelRect;
   int positionIndex;
   final ChartDataLabelAlignment position =
-      _getActualPathDataLabelAlignment(seriesRenderer, index, inversed);
+      _getActualPathDataLabelAlignment(seriesRendererDetails, index, inversed);
   isBottom = position == ChartDataLabelAlignment.bottom;
   final List<String?> dataLabelPosition = List<String?>.filled(5, null);
   dataLabelPosition[0] = 'DataLabelPosition.Outer';
@@ -1098,24 +660,24 @@ double _calculatePathActualPosition(
         position,
         size,
         borderWidth,
-        seriesRenderer,
+        seriesRendererDetails,
         index,
         inverted,
         point,
-        _chartState,
+        stateProperties,
         currentPoint,
         Size(
             series.markerSettings.width / 2, series.markerSettings.height / 2));
     labelRect = _calculateLabelRect(
-        _ChartLocation(point.x, yLocation),
+        ChartLocation(point.x, yLocation),
         size,
         series.dataLabelSettings.margin,
         series.dataLabelSettings.color != null ||
             series.dataLabelSettings.useSeriesColor);
     isOverLap = labelRect.top < 0 ||
         ((labelRect.top + labelRect.height) >
-            _chartState._chartAxis._axisClipRect.height) ||
-        _findingCollision(labelRect, _chartState._renderDatalabelRegions);
+            stateProperties.chartAxis.axisClipRect.height) ||
+        findingCollision(labelRect, stateProperties.renderDatalabelRegions);
     positionIndex = isBottom ? positionIndex - 1 : positionIndex + 1;
     isBottom = false;
   }
@@ -1124,15 +686,17 @@ double _calculatePathActualPosition(
 
 /// Finding the label position for non rect series
 ChartDataLabelAlignment _getActualPathDataLabelAlignment(
-    CartesianSeriesRenderer seriesRenderer, int index, bool inversed) {
-  final List<CartesianChartPoint<dynamic>> points = seriesRenderer._dataPoints;
+    SeriesRendererDetails seriesRendererDetails, int index, bool inversed) {
+  final List<CartesianChartPoint<dynamic>> points =
+      seriesRendererDetails.dataPoints;
   final num yValue = points[index].yValue;
   final CartesianChartPoint<dynamic>? _nextPoint =
       points.length - 1 > index ? points[index + 1] : null;
   final CartesianChartPoint<dynamic>? previousPoint =
       index > 0 ? points[index - 1] : null;
   ChartDataLabelAlignment position;
-  if (seriesRenderer._seriesType == 'bubble' || index == points.length - 1) {
+  if (seriesRendererDetails.seriesType == 'bubble' ||
+      index == points.length - 1) {
     position = ChartDataLabelAlignment.top;
   } else {
     if (index == 0) {
@@ -1197,7 +761,7 @@ ChartDataLabelAlignment _getPosition(int position) {
 
 /// getting label rect
 Rect _calculateLabelRect(
-    _ChartLocation location, Size textSize, EdgeInsets margin, bool needRect) {
+    ChartLocation location, Size textSize, EdgeInsets margin, bool needRect) {
   return needRect
       ? Rect.fromLTWH(
           location.x - (textSize.width / 2) - margin.left,
@@ -1209,10 +773,10 @@ Rect _calculateLabelRect(
 }
 
 /// Below method is for Rendering data label
-void _drawDataLabel(
+void drawDataLabel(
     Canvas canvas,
-    CartesianSeriesRenderer seriesRenderer,
-    SfCartesianChartState _chartState,
+    SeriesRendererDetails seriesRendererDetails,
+    CartesianStateProperties stateProperties,
     DataLabelSettings dataLabel,
     CartesianChartPoint<dynamic> point,
     int index,
@@ -1220,24 +784,25 @@ void _drawDataLabel(
     DataLabelSettingsRenderer dataLabelSettingsRenderer) {
   double x = 0;
   double y = 0;
-  if (dataLabelSettingsRenderer._offset != null) {
-    x = dataLabelSettingsRenderer._offset!.dx;
-    y = dataLabelSettingsRenderer._offset!.dy;
+  if (dataLabelSettingsRenderer.offset != null) {
+    x = dataLabelSettingsRenderer.offset!.dx;
+    y = dataLabelSettingsRenderer.offset!.dy;
   }
   final double opacity =
       // ignore: unnecessary_null_comparison
-      seriesRenderer._needAnimateSeriesElements && dataLabelAnimation != null
+      seriesRendererDetails.needAnimateSeriesElements == true &&
+              dataLabelAnimation != null
           ? dataLabelAnimation.value
           : 1;
   TextStyle? dataLabelStyle;
   final String? label = point.label;
-  dataLabelStyle = dataLabelSettingsRenderer._textStyle;
+  dataLabelStyle = dataLabelSettingsRenderer.textStyle;
   if (label != null &&
       // ignore: unnecessary_null_comparison
       point != null &&
       point.isVisible &&
       point.isGap != true &&
-      _isLabelWithinRange(seriesRenderer, point)) {
+      isLabelWithinRange(seriesRendererDetails, point)) {
     final TextStyle font = (dataLabelStyle == null)
         ? const TextStyle(
             fontFamily: 'Roboto',
@@ -1246,16 +811,16 @@ void _drawDataLabel(
             fontSize: 12)
         : dataLabelStyle;
     final Color fontColor = font.color ??
-        _getDataLabelSaturationColor(
-            point, seriesRenderer, _chartState, dataLabelSettingsRenderer);
+        getDataLabelSaturationColor(point, seriesRendererDetails,
+            stateProperties, dataLabelSettingsRenderer);
     final Rect labelRect = (point.labelFillRect != null)
         ? Rect.fromLTWH(point.labelFillRect!.left, point.labelFillRect!.top,
             point.labelFillRect!.width, point.labelFillRect!.height)
         : Rect.fromLTWH(point.labelLocation!.x, point.labelLocation!.y,
             point.dataLabelRegion!.width, point.dataLabelRegion!.height);
-    final bool isDatalabelCollide = (_chartState._requireInvertedAxis ||
-            (dataLabelSettingsRenderer._angle / 90) % 2 != 1) &&
-        _findingCollision(labelRect, _chartState._renderDatalabelRegions);
+    final bool isDatalabelCollide = (stateProperties.requireInvertedAxis ||
+            (dataLabelSettingsRenderer.angle / 90) % 2 != 1) &&
+        findingCollision(labelRect, stateProperties.renderDatalabelRegions);
     if (!(label.isNotEmpty && isDatalabelCollide)
         // ignore: unnecessary_null_comparison
         ||
@@ -1283,30 +848,45 @@ void _drawDataLabel(
           decorationThickness: font.decorationThickness,
           debugLabel: font.debugLabel,
           fontFamilyFallback: font.fontFamilyFallback);
-      _drawDataLabelRectAndText(canvas, seriesRenderer, index, dataLabel, point,
-          _textStyle, opacity, label, x, y, _chartState, _chartState._chart);
-      _chartState._renderDatalabelRegions.add(labelRect);
+      _drawDataLabelRectAndText(
+          canvas,
+          seriesRendererDetails,
+          index,
+          dataLabel,
+          point,
+          _textStyle,
+          opacity,
+          label,
+          x,
+          y,
+          stateProperties,
+          stateProperties.chart);
+      stateProperties.renderDatalabelRegions.add(labelRect);
     }
   }
 }
 
-void _triggerDataLabelEvent(SfCartesianChart chart,
+/// Method to trigger the data label event
+void triggerDataLabelEvent(SfCartesianChart chart,
     List<CartesianSeriesRenderer> visibleSeriesRenderer, Offset position) {
+  SeriesRendererDetails seriesRendererDetails;
   for (int seriesIndex = 0;
       seriesIndex < visibleSeriesRenderer.length;
       seriesIndex++) {
     final CartesianSeriesRenderer seriesRenderer =
         visibleSeriesRenderer[seriesIndex];
+    seriesRendererDetails =
+        SeriesHelper.getSeriesRendererDetails(seriesRenderer);
     final List<CartesianChartPoint<dynamic>>? dataPoints =
-        seriesRenderer._visibleDataPoints;
+        seriesRendererDetails.visibleDataPoints;
     for (int pointIndex = 0; pointIndex < dataPoints!.length; pointIndex++) {
-      if (seriesRenderer._series.dataLabelSettings.isVisible &&
+      if (seriesRendererDetails.series.dataLabelSettings.isVisible == true &&
           dataPoints[pointIndex].dataLabelRegion != null &&
           dataPoints[pointIndex].dataLabelRegion!.contains(position)) {
         final CartesianChartPoint<dynamic> point = dataPoints[pointIndex];
         final Offset position =
             Offset(point.labelLocation!.x, point.labelLocation!.y);
-        _dataLabelTapEvent(chart, seriesRenderer._series.dataLabelSettings,
+        dataLabelTapEvent(chart, seriesRendererDetails.series.dataLabelSettings,
             pointIndex, point, position, seriesIndex);
         break;
       }
@@ -1314,10 +894,10 @@ void _triggerDataLabelEvent(SfCartesianChart chart,
   }
 }
 
-///Draw the datalabel text and datalabel rect
+///Draw the data label text and data label rect
 void _drawDataLabelRectAndText(
     Canvas canvas,
-    CartesianSeriesRenderer seriesRenderer,
+    SeriesRendererDetails seriesRendererDetails,
     int index,
     DataLabelSettings dataLabel,
     CartesianChartPoint<dynamic> point,
@@ -1326,36 +906,38 @@ void _drawDataLabelRectAndText(
     String label,
     double x,
     double y,
-    SfCartesianChartState _chartState,
+    CartesianStateProperties stateProperties,
     [SfCartesianChart? chart]) {
   final DataLabelSettingsRenderer dataLabelSettingsRenderer =
-      seriesRenderer._dataLabelSettingsRenderer;
+      seriesRendererDetails.dataLabelSettingsRenderer;
   final String? label2 = point.dataLabelMapper ?? point.label2;
   final String? label3 = point.dataLabelMapper ?? point.label3;
   final String? label4 = point.dataLabelMapper ?? point.label4;
   final String? label5 = point.dataLabelMapper ?? point.label5;
-  final bool isRangeSeries = seriesRenderer._seriesType.contains('range') ||
-      seriesRenderer._seriesType.contains('hilo') ||
-      seriesRenderer._seriesType.contains('candle');
-  final bool isBoxSeries = seriesRenderer._seriesType.contains('boxandwhisker');
+  final bool isRangeSeries =
+      seriesRendererDetails.seriesType.contains('range') == true ||
+          seriesRendererDetails.seriesType.contains('hilo') == true ||
+          seriesRendererDetails.seriesType.contains('candle') == true;
+  final bool isBoxSeries =
+      seriesRendererDetails.seriesType.contains('boxandwhisker');
   double padding = 0.0;
   // ignore: unnecessary_null_comparison
-  if (dataLabelSettingsRenderer._angle != null &&
-      dataLabelSettingsRenderer._angle > 0) {
+  if (dataLabelSettingsRenderer.angle != null &&
+      dataLabelSettingsRenderer.angle > 0) {
     final Rect rect = rotatedTextSize(
         Size(point.dataLabelRegion!.width, point.dataLabelRegion!.height),
-        dataLabelSettingsRenderer._angle);
-    if (_chartState._chartAxis._axisClipRect.top >
+        dataLabelSettingsRenderer.angle);
+    if (stateProperties.chartAxis.axisClipRect.top >
         point.dataLabelRegion!.center.dy + rect.top) {
       padding = (point.dataLabelRegion!.center.dy + rect.top) -
-          _chartState._chartAxis._axisClipRect.top;
-    } else if (_chartState._chartAxis._axisClipRect.bottom <
+          stateProperties.chartAxis.axisClipRect.top;
+    } else if (stateProperties.chartAxis.axisClipRect.bottom <
         point.dataLabelRegion!.center.dy + rect.bottom) {
       padding = (point.dataLabelRegion!.center.dy + rect.bottom) -
-          _chartState._chartAxis._axisClipRect.bottom;
+          stateProperties.chartAxis.axisClipRect.bottom;
     }
   }
-  if (dataLabelSettingsRenderer._color != null ||
+  if (dataLabelSettingsRenderer.color != null ||
       dataLabel.useSeriesColor ||
       // ignore: unnecessary_null_comparison
       (dataLabel.borderColor != null && dataLabel.borderWidth > 0)) {
@@ -1373,8 +955,8 @@ void _drawDataLabelRectAndText(
     final Path path4 = Path();
     final RRect? fillRect5 = point.labelFillRect5;
     final Path path5 = Path();
-    if (seriesRenderer._seriesType.contains('hilo') ||
-        seriesRenderer._seriesType.contains('candle') ||
+    if (seriesRendererDetails.seriesType.contains('hilo') == true ||
+        seriesRendererDetails.seriesType.contains('candle') == true ||
         isBoxSeries) {
       path3.addRRect(fillRect3!);
       path4.addRRect(fillRect4!);
@@ -1398,9 +980,9 @@ void _drawDataLabelRectAndText(
       canvas.translate(point.dataLabelRegion!.center.dx + x,
           point.dataLabelRegion!.center.dy - padding);
       // ignore: unnecessary_null_comparison
-      if (dataLabelSettingsRenderer._angle != null &&
-          dataLabelSettingsRenderer._angle > 0) {
-        canvas.rotate((dataLabelSettingsRenderer._angle * math.pi) / 180);
+      if (dataLabelSettingsRenderer.angle != null &&
+          dataLabelSettingsRenderer.angle > 0) {
+        canvas.rotate((dataLabelSettingsRenderer.angle * math.pi) / 180);
       }
       canvas.translate(-point.dataLabelRegion!.center.dx,
           -point.dataLabelRegion!.center.dy - y);
@@ -1412,8 +994,8 @@ void _drawDataLabelRectAndText(
         if (point.label2!.isNotEmpty) {
           canvas.drawPath(path2, strokePaint);
         }
-        if (seriesRenderer._seriesType == 'hiloopenclose' ||
-            seriesRenderer._seriesType.contains('candle') ||
+        if (seriesRendererDetails.seriesType == 'hiloopenclose' ||
+            seriesRendererDetails.seriesType.contains('candle') == true ||
             isBoxSeries) {
           if (point.label3!.isNotEmpty) {
             canvas.drawPath(path3, strokePaint);
@@ -1429,17 +1011,17 @@ void _drawDataLabelRectAndText(
         }
       }
     }
-    if (dataLabelSettingsRenderer._color != null || dataLabel.useSeriesColor) {
-      Color? seriesColor = seriesRenderer._seriesColor!;
-      if (seriesRenderer._seriesType == 'waterfall') {
-        seriesColor = _getWaterfallSeriesColor(
-            seriesRenderer._series as WaterfallSeries<dynamic, dynamic>,
+    if (dataLabelSettingsRenderer.color != null || dataLabel.useSeriesColor) {
+      Color? seriesColor = seriesRendererDetails.seriesColor!;
+      if (seriesRendererDetails.seriesType == 'waterfall') {
+        seriesColor = getWaterfallSeriesColor(
+            seriesRendererDetails.series as WaterfallSeries<dynamic, dynamic>,
             point,
             seriesColor);
       }
       final Paint paint = Paint()
-        ..color = dataLabelSettingsRenderer._color != Colors.transparent
-            ? ((dataLabelSettingsRenderer._color ??
+        ..color = dataLabelSettingsRenderer.color != Colors.transparent
+            ? ((dataLabelSettingsRenderer.color ??
                     (point.pointColorMapper ?? seriesColor!))
                 .withOpacity((opacity - (1 - dataLabel.opacity)) < 0
                     ? 0
@@ -1450,9 +1032,9 @@ void _drawDataLabelRectAndText(
       canvas.translate(point.dataLabelRegion!.center.dx + x,
           point.dataLabelRegion!.center.dy - padding);
       // ignore: unnecessary_null_comparison
-      if (dataLabelSettingsRenderer._angle != null &&
-          dataLabelSettingsRenderer._angle > 0) {
-        canvas.rotate((dataLabelSettingsRenderer._angle * math.pi) / 180);
+      if (dataLabelSettingsRenderer.angle != null &&
+          dataLabelSettingsRenderer.angle > 0) {
+        canvas.rotate((dataLabelSettingsRenderer.angle * math.pi) / 180);
       }
       canvas.translate(-point.dataLabelRegion!.center.dx,
           -point.dataLabelRegion!.center.dy - y);
@@ -1464,8 +1046,8 @@ void _drawDataLabelRectAndText(
         if (point.label2!.isNotEmpty) {
           canvas.drawPath(path2, paint);
         }
-        if (seriesRenderer._seriesType == 'hiloopenclose' ||
-            seriesRenderer._seriesType.contains('candle') ||
+        if (seriesRendererDetails.seriesType == 'hiloopenclose' ||
+            seriesRendererDetails.seriesType.contains('candle') == true ||
             isBoxSeries) {
           if (point.label3!.isNotEmpty) {
             canvas.drawPath(path3, paint);
@@ -1483,53 +1065,53 @@ void _drawDataLabelRectAndText(
     }
   }
 
-  seriesRenderer.drawDataLabel(
+  seriesRendererDetails.renderer.drawDataLabel(
       index,
       canvas,
       label,
-      dataLabelSettingsRenderer._angle != 0
+      dataLabelSettingsRenderer.angle != 0
           ? point.dataLabelRegion!.center.dx + x
           : point.labelLocation!.x + x,
-      dataLabelSettingsRenderer._angle != 0
+      dataLabelSettingsRenderer.angle != 0
           ? point.dataLabelRegion!.center.dy - y - padding
           : point.labelLocation!.y - y,
-      dataLabelSettingsRenderer._angle,
+      dataLabelSettingsRenderer.angle,
       _textStyle);
 
   if (isRangeSeries || isBoxSeries) {
-    if (_withInRange(isBoxSeries ? point.minimum : point.low,
-        seriesRenderer._yAxisRenderer!._visibleRange!)) {
-      seriesRenderer.drawDataLabel(
+    if (withInRange(isBoxSeries ? point.minimum : point.low,
+        seriesRendererDetails.yAxisDetails!.visibleRange!)) {
+      seriesRendererDetails.renderer.drawDataLabel(
           index,
           canvas,
           label2!,
           point.labelLocation2!.x + x,
           point.labelLocation2!.y - y,
-          dataLabelSettingsRenderer._angle,
+          dataLabelSettingsRenderer.angle,
           _textStyle);
     }
-    if (seriesRenderer._seriesType == 'hiloopenclose' &&
+    if (seriesRendererDetails.seriesType == 'hiloopenclose' &&
         (label3 != null &&
                 label4 != null &&
                 (point.labelLocation3!.y - point.labelLocation4!.y).round() >=
                     8 ||
             (point.labelLocation4!.x - point.labelLocation3!.x).round() >=
                 15)) {
-      seriesRenderer.drawDataLabel(
+      seriesRendererDetails.renderer.drawDataLabel(
           index,
           canvas,
           label3!,
           point.labelLocation3!.x + x,
           point.labelLocation3!.y + y,
-          dataLabelSettingsRenderer._angle,
+          dataLabelSettingsRenderer.angle,
           _textStyle);
-      seriesRenderer.drawDataLabel(
+      seriesRendererDetails.renderer.drawDataLabel(
           index,
           canvas,
           label4!,
           point.labelLocation4!.x + x,
           point.labelLocation3!.y + y,
-          dataLabelSettingsRenderer._angle,
+          dataLabelSettingsRenderer.angle,
           _textStyle);
     } else if (label3 != null &&
         label4 != null &&
@@ -1537,7 +1119,7 @@ void _drawDataLabelRectAndText(
             (point.labelLocation4!.x - point.labelLocation3!.x).round() >=
                 15)) {
       final Color fontColor =
-          _getOpenCloseDataLabelColor(point, seriesRenderer, chart!);
+          getOpenCloseDataLabelColor(point, seriesRendererDetails, chart!);
       final TextStyle _textStyleOpenClose = TextStyle(
           color: fontColor.withOpacity(opacity),
           fontSize: _textStyle.fontSize,
@@ -1563,40 +1145,40 @@ void _drawDataLabelRectAndText(
           fontFamilyFallback: _textStyle.fontFamilyFallback);
       if ((point.labelLocation2!.y - point.labelLocation3!.y).abs() >= 8 ||
           (point.labelLocation2!.x - point.labelLocation3!.x).abs() >= 8) {
-        seriesRenderer.drawDataLabel(
+        seriesRendererDetails.renderer.drawDataLabel(
             index,
             canvas,
             label3,
             point.labelLocation3!.x + x,
             point.labelLocation3!.y + y,
-            dataLabelSettingsRenderer._angle,
+            dataLabelSettingsRenderer.angle,
             _textStyleOpenClose);
       }
       if ((point.labelLocation!.y - point.labelLocation4!.y).abs() >= 8 ||
           (point.labelLocation!.x - point.labelLocation4!.x).abs() >= 8) {
-        seriesRenderer.drawDataLabel(
+        seriesRendererDetails.renderer.drawDataLabel(
             index,
             canvas,
             label4,
             point.labelLocation4!.x + x,
             point.labelLocation4!.y + y,
-            dataLabelSettingsRenderer._angle,
+            dataLabelSettingsRenderer.angle,
             _textStyleOpenClose);
       }
       if (label5 != null && point.labelLocation5 != null) {
-        seriesRenderer.drawDataLabel(
+        seriesRendererDetails.renderer.drawDataLabel(
             index,
             canvas,
             label5,
             point.labelLocation5!.x + x,
             point.labelLocation5!.y + y,
-            dataLabelSettingsRenderer._angle,
+            dataLabelSettingsRenderer.angle,
             _textStyleOpenClose);
       }
 
       if (isBoxSeries) {
         if (point.outliers!.isNotEmpty) {
-          final List<_ChartLocation> outliersLocation = <_ChartLocation>[];
+          final List<ChartLocation> outliersLocation = <ChartLocation>[];
           final List<Size> outliersTextSize = <Size>[];
           final List<Rect> outliersRect = <Rect>[];
           const int outlierPadding = 12;
@@ -1604,17 +1186,18 @@ void _drawDataLabelRectAndText(
               outlierIndex < point.outliers!.length;
               outlierIndex++) {
             point.outliersLabel.add(point.dataLabelMapper ??
-                _getLabelText(point.outliers![outlierIndex], seriesRenderer));
+                _getLabelText(
+                    point.outliers![outlierIndex], seriesRendererDetails));
             outliersTextSize.add(measureText(
                 point.outliersLabel[outlierIndex],
-                dataLabelSettingsRenderer._textStyle == null
+                dataLabelSettingsRenderer.textStyle == null
                     ? const TextStyle(
                         fontFamily: 'Roboto',
                         fontStyle: FontStyle.normal,
                         fontWeight: FontWeight.normal,
                         fontSize: 12)
-                    : dataLabelSettingsRenderer._originalStyle!));
-            outliersLocation.add(_ChartLocation(
+                    : dataLabelSettingsRenderer.originalStyle!));
+            outliersLocation.add(ChartLocation(
                 point.outliersPoint[outlierIndex].x,
                 point.outliersPoint[outlierIndex].y + outlierPadding));
             // ignore: unnecessary_null_comparison
@@ -1623,16 +1206,18 @@ void _drawDataLabelRectAndText(
                   outliersLocation[outlierIndex],
                   outliersTextSize[outlierIndex],
                   dataLabel.margin,
-                  dataLabelSettingsRenderer._color != null ||
+                  dataLabelSettingsRenderer.color != null ||
                       dataLabel.useSeriesColor));
               outliersRect[outlierIndex] = _validateRect(
                   outliersRect[outlierIndex],
-                  _calculatePlotOffset(
-                      _chartState._chartAxis._axisClipRect,
-                      Offset(seriesRenderer._xAxisRenderer!._axis.plotOffset,
-                          seriesRenderer._yAxisRenderer!._axis.plotOffset)));
+                  calculatePlotOffset(
+                      stateProperties.chartAxis.axisClipRect,
+                      Offset(
+                          seriesRendererDetails.xAxisDetails!.axis.plotOffset,
+                          seriesRendererDetails
+                              .yAxisDetails!.axis.plotOffset)));
             }
-            if (dataLabelSettingsRenderer._color != null ||
+            if (dataLabelSettingsRenderer.color != null ||
                 dataLabel.useSeriesColor ||
                 // ignore: unnecessary_null_comparison
                 (dataLabel.borderColor != null && dataLabel.borderWidth > 0)) {
@@ -1646,7 +1231,7 @@ void _drawDataLabelRectAndText(
                   point.outliersFillRect.add(outliersFillRect);
                 } else {
                   final Rect outliersRect = outliersFillRect.middleRect;
-                  point.outliersLocation.add(_ChartLocation(
+                  point.outliersLocation.add(ChartLocation(
                       outliersRect.left +
                           outliersRect.width / 2 -
                           outliersTextSize[outlierIndex].width / 2,
@@ -1666,9 +1251,9 @@ void _drawDataLabelRectAndText(
                 final Path outlierPath = Path();
                 outlierPath.addRRect(fillOutlierRect);
                 final Paint paint = Paint()
-                  ..color = (dataLabelSettingsRenderer._color ??
+                  ..color = (dataLabelSettingsRenderer.color ??
                           (point.pointColorMapper ??
-                              seriesRenderer._seriesColor!))
+                              seriesRendererDetails.seriesColor!))
                       .withOpacity((opacity - (1 - dataLabel.opacity)) < 0
                           ? 0
                           : opacity - (1 - dataLabel.opacity))
@@ -1689,7 +1274,7 @@ void _drawDataLabelRectAndText(
             } else {
               // ignore: unnecessary_null_comparison
               if (outliersRect[outlierIndex] != null) {
-                point.outliersLocation.add(_ChartLocation(
+                point.outliersLocation.add(ChartLocation(
                     outliersRect[outlierIndex].left +
                         outliersRect[outlierIndex].width / 2 -
                         outliersTextSize[outlierIndex].width / 2,
@@ -1705,13 +1290,13 @@ void _drawDataLabelRectAndText(
             }
             final String outlierLabel =
                 point.dataLabelMapper ?? point.outliersLabel[outlierIndex];
-            seriesRenderer.drawDataLabel(
+            seriesRendererDetails.renderer.drawDataLabel(
                 index,
                 canvas,
                 outlierLabel,
                 point.outliersLocation[outlierIndex].x + x,
                 point.outliersLocation[outlierIndex].y + y,
-                dataLabelSettingsRenderer._angle,
+                dataLabelSettingsRenderer.angle,
                 _textStyle);
           }
         }
@@ -1722,7 +1307,7 @@ void _drawDataLabelRectAndText(
 
 /// Following method returns the data label text
 String _getLabelText(
-    dynamic labelValue, CartesianSeriesRenderer seriesRenderer) {
+    dynamic labelValue, SeriesRendererDetails seriesRendererDetails) {
   if (labelValue.toString().split('.').length > 1) {
     final String str = labelValue.toString();
     final List<String> list = str.split('.');
@@ -1736,7 +1321,7 @@ String _getLabelText(
       labelValue = labelValue.round();
     }
   }
-  final dynamic yAxis = seriesRenderer._yAxisRenderer!._axis;
+  final dynamic yAxis = seriesRendererDetails.yAxisDetails!.axis;
   if (yAxis is NumericAxis || yAxis is LogarithmicAxis) {
     final dynamic value = yAxis?.numberFormat != null
         ? yAxis.numberFormat.format(labelValue)
@@ -1755,21 +1340,21 @@ double _calculateRectPosition(
     Rect rect,
     bool isMinus,
     ChartDataLabelAlignment position,
-    CartesianSeriesRenderer seriesRenderer,
+    SeriesRendererDetails seriesRendererDetails,
     Size textSize,
     double borderWidth,
     int index,
-    _ChartLocation point,
-    SfCartesianChartState _chartState,
+    ChartLocation point,
+    CartesianStateProperties stateProperties,
     bool inverted,
     EdgeInsets margin) {
   final XyDataSeries<dynamic, dynamic> series =
-      seriesRenderer._series as XyDataSeries<dynamic, dynamic>;
+      seriesRendererDetails.series as XyDataSeries<dynamic, dynamic>;
   double padding;
-  padding = seriesRenderer._seriesType.contains('hilo') ||
-          seriesRenderer._seriesType.contains('candle') ||
-          seriesRenderer._seriesType.contains('rangecolumn') ||
-          seriesRenderer._seriesType.contains('boxandwhisker')
+  padding = seriesRendererDetails.seriesType.contains('hilo') == true ||
+          seriesRendererDetails.seriesType.contains('candle') == true ||
+          seriesRendererDetails.seriesType.contains('rangecolumn') == true ||
+          seriesRendererDetails.seriesType.contains('boxandwhisker') == true
       ? 2
       : 5;
   final bool needFill = series.dataLabelSettings.color != null ||
@@ -1778,7 +1363,7 @@ double _calculateRectPosition(
   final double textLength = !inverted ? textSize.height : textSize.width;
   final double extraSpace =
       borderWidth + textLength / 2 + padding + (needFill ? padding : 0);
-  if (seriesRenderer._seriesType.contains('stack')) {
+  if (seriesRendererDetails.seriesType.contains('stack') == true) {
     position = position == ChartDataLabelAlignment.outer
         ? ChartDataLabelAlignment.top
         : position;
@@ -1809,13 +1394,13 @@ double _calculateRectPosition(
           labelLocation,
           rect,
           isMinus,
-          seriesRenderer,
+          seriesRendererDetails,
           textSize,
           index,
           point,
           inverted,
           borderWidth,
-          _chartState,
+          stateProperties,
           margin);
       break;
     case ChartDataLabelAlignment.top:
@@ -1825,7 +1410,7 @@ double _calculateRectPosition(
           labelLocation,
           rect,
           position,
-          seriesRenderer,
+          seriesRendererDetails,
           index,
           extraSpace,
           isMinus,
@@ -1842,90 +1427,94 @@ double _calculateRectActualPosition(
     double labelLocation,
     Rect rect,
     bool minus,
-    CartesianSeriesRenderer seriesRenderer,
+    SeriesRendererDetails seriesRendererDetails,
     Size textSize,
     int index,
-    _ChartLocation point,
+    ChartLocation point,
     bool inverted,
     double borderWidth,
-    SfCartesianChartState _chartState,
+    CartesianStateProperties stateProperties,
     EdgeInsets margin) {
   late double location;
   Rect labelRect;
   bool isOverLap = true;
   int position = 0;
   final XyDataSeries<dynamic, dynamic> series =
-      seriesRenderer._series as XyDataSeries<dynamic, dynamic>;
+      seriesRendererDetails.series as XyDataSeries<dynamic, dynamic>;
   final int finalPosition =
-      seriesRenderer._seriesType.contains('range') ? 2 : 4;
+      seriesRendererDetails.seriesType.contains('range') == true ? 2 : 4;
   while (isOverLap && position < finalPosition) {
     location = _calculateRectPosition(
         labelLocation,
         rect,
         minus,
         _getPosition(position),
-        seriesRenderer,
+        seriesRendererDetails,
         textSize,
         borderWidth,
         index,
         point,
-        _chartState,
+        stateProperties,
         inverted,
         margin);
     if (!inverted) {
       labelRect = _calculateLabelRect(
-          _ChartLocation(point.x, location),
+          ChartLocation(point.x, location),
           textSize,
           margin,
           series.dataLabelSettings.color != null ||
               series.dataLabelSettings.useSeriesColor);
       isOverLap = labelRect.top < 0 ||
-          labelRect.top > _chartState._chartAxis._axisClipRect.height ||
+          labelRect.top > stateProperties.chartAxis.axisClipRect.height ||
           ((series.dataLabelSettings.angle / 90) % 2 != 1 &&
-              _findingCollision(
-                  labelRect, _chartState._renderDatalabelRegions));
+              findingCollision(
+                  labelRect, stateProperties.renderDatalabelRegions));
     } else {
       labelRect = _calculateLabelRect(
-          _ChartLocation(location, point.y),
+          ChartLocation(location, point.y),
           textSize,
           margin,
           series.dataLabelSettings.color != null ||
               series.dataLabelSettings.useSeriesColor);
       isOverLap = labelRect.left < 0 ||
           labelRect.left + labelRect.width >
-              _chartState._chartAxis._axisClipRect.right ||
+              stateProperties.chartAxis.axisClipRect.right ||
           (series.dataLabelSettings.angle % 180 != 0 &&
-              _findingCollision(
-                  labelRect, _chartState._renderDatalabelRegions));
+              findingCollision(
+                  labelRect, stateProperties.renderDatalabelRegions));
     }
-    seriesRenderer._dataPoints[index].dataLabelSaturationRegionInside =
+    seriesRendererDetails.dataPoints[index].dataLabelSaturationRegionInside =
         isOverLap ||
-            seriesRenderer._dataPoints[index].dataLabelSaturationRegionInside;
+            seriesRendererDetails
+                    .dataPoints[index].dataLabelSaturationRegionInside ==
+                true;
     position++;
   }
   return location;
 }
 
-///calculation for top and outer position of datalabel for rect series
+///calculation for top and outer position of data label for rect series
 double _calculateTopAndOuterPosition(
     Size textSize,
     double location,
     Rect rect,
     ChartDataLabelAlignment position,
-    CartesianSeriesRenderer seriesRenderer,
+    SeriesRendererDetails seriesRendererDetails,
     int index,
     double extraSpace,
     bool isMinus,
-    _ChartLocation point,
+    ChartLocation point,
     bool inverted,
     double borderWidth) {
   final XyDataSeries<dynamic, dynamic> series =
-      seriesRenderer._series as XyDataSeries<dynamic, dynamic>;
+      seriesRendererDetails.series as XyDataSeries<dynamic, dynamic>;
   final num markerHeight =
       series.markerSettings.isVisible ? series.markerSettings.height / 2 : 0;
-  if (((isMinus && !seriesRenderer._seriesType.contains('range')) &&
+  if (((isMinus &&
+              seriesRendererDetails.seriesType.contains('range') == false) &&
           position == ChartDataLabelAlignment.top) ||
-      ((!isMinus || seriesRenderer._seriesType.contains('range')) &&
+      ((!isMinus ||
+              seriesRendererDetails.seriesType.contains('range') == true) &&
           position == ChartDataLabelAlignment.outer)) {
     location = !inverted
         ? location - extraSpace - markerHeight
@@ -1938,7 +1527,7 @@ double _calculateTopAndOuterPosition(
   return location;
 }
 
-/// Add padding for fill rect (if datalabel fill color is given)
+/// Add padding for fill rect (if data label fill color is given)
 RRect _calculatePaddedFillRect(Rect rect, double radius, EdgeInsets margin) {
   rect = Rect.fromLTRB(rect.left - margin.left, rect.top - margin.top,
       rect.right + margin.right, rect.bottom + margin.bottom);
@@ -1974,40 +1563,534 @@ Rect _validateRect(Rect rect, Rect clipRect) {
 }
 
 /// It returns a boolean value that labels within range or not
-bool _isLabelWithinRange(CartesianSeriesRenderer seriesRenderer,
+bool isLabelWithinRange(SeriesRendererDetails seriesRendererDetails,
     CartesianChartPoint<dynamic> point) {
-  bool withInRange = true;
-  final bool isBoxSeries = seriesRenderer._seriesType.contains('boxandwhisker');
-  if (seriesRenderer._yAxisRenderer is! LogarithmicAxisRenderer) {
-    withInRange = _withInRange(
-            point.xValue, seriesRenderer._xAxisRenderer!._visibleRange!) &&
-        (seriesRenderer._seriesType.contains('range') ||
-                seriesRenderer._seriesType == 'hilo'
+  bool isWithInRange = true;
+  final bool isBoxSeries =
+      seriesRendererDetails.seriesType.contains('boxandwhisker');
+  if (seriesRendererDetails.yAxisDetails is! LogarithmicAxisDetails) {
+    isWithInRange = withInRange(
+            point.xValue, seriesRendererDetails.xAxisDetails!.visibleRange!) &&
+        (seriesRendererDetails.seriesType.contains('range') ||
+                seriesRendererDetails.seriesType == 'hilo'
             ? (isBoxSeries && point.minimum != null && point.maximum != null) ||
                 (!isBoxSeries && point.low != null && point.high != null) &&
-                    (_withInRange(isBoxSeries ? point.minimum : point.low,
-                            seriesRenderer._yAxisRenderer!._visibleRange!) ||
-                        _withInRange(isBoxSeries ? point.maximum : point.high,
-                            seriesRenderer._yAxisRenderer!._visibleRange!))
-            : seriesRenderer._seriesType == 'hiloopenclose' ||
-                    seriesRenderer._seriesType.contains('candle') ||
+                    (withInRange(
+                            isBoxSeries ? point.minimum : point.low,
+                            seriesRendererDetails
+                                .yAxisDetails!.visibleRange!) ||
+                        withInRange(isBoxSeries ? point.maximum : point.high,
+                            seriesRendererDetails.yAxisDetails!.visibleRange!))
+            : seriesRendererDetails.seriesType == 'hiloopenclose' ||
+                    seriesRendererDetails.seriesType.contains('candle') ||
                     isBoxSeries
-                ? (_withInRange(isBoxSeries ? point.minimum : point.low,
-                        seriesRenderer._yAxisRenderer!._visibleRange!) &&
-                    _withInRange(isBoxSeries ? point.maximum : point.high,
-                        seriesRenderer._yAxisRenderer!._visibleRange!) &&
-                    _withInRange(isBoxSeries ? point.lowerQuartile : point.open,
-                        seriesRenderer._yAxisRenderer!._visibleRange!) &&
-                    _withInRange(
-                        isBoxSeries ? point.upperQuartile : point.close,
-                        seriesRenderer._yAxisRenderer!._visibleRange!))
-                : _withInRange(
-                    seriesRenderer._seriesType.contains('100')
+                ? (withInRange(isBoxSeries ? point.minimum : point.low,
+                        seriesRendererDetails.yAxisDetails!.visibleRange!) &&
+                    withInRange(isBoxSeries ? point.maximum : point.high,
+                        seriesRendererDetails.yAxisDetails!.visibleRange!) &&
+                    withInRange(isBoxSeries ? point.lowerQuartile : point.open,
+                        seriesRendererDetails.yAxisDetails!.visibleRange!) &&
+                    withInRange(isBoxSeries ? point.upperQuartile : point.close,
+                        seriesRendererDetails.yAxisDetails!.visibleRange!))
+                : withInRange(
+                    seriesRendererDetails.seriesType.contains('100')
                         ? point.cumulativeValue
-                        : seriesRenderer._seriesType == 'waterfall'
+                        : seriesRendererDetails.seriesType == 'waterfall'
                             ? point.endValue ?? 0
                             : point.yValue,
-                    seriesRenderer._yAxisRenderer!._visibleRange!));
+                    seriesRendererDetails.yAxisDetails!.visibleRange!));
   }
-  return withInRange;
+  return isWithInRange;
+}
+
+/// Calculating data label position and updating the label region for current data point
+void calculateDataLabelPosition(
+    SeriesRendererDetails seriesRendererDetails,
+    CartesianChartPoint<dynamic> point,
+    int index,
+    CartesianStateProperties stateProperties,
+    DataLabelSettingsRenderer dataLabelSettingsRenderer,
+    Animation<double> dataLabelAnimation,
+    [Size? templateSize,
+    Offset? templateLocation]) {
+  final SfCartesianChart chart = stateProperties.chart;
+  final CartesianSeries<dynamic, dynamic> series = seriesRendererDetails.series;
+  if (dataLabelSettingsRenderer.angle.isNegative) {
+    final int angle = dataLabelSettingsRenderer.angle + 360;
+    dataLabelSettingsRenderer.angle = angle;
+  }
+  final DataLabelSettings dataLabel = series.dataLabelSettings;
+  Size? textSize, textSize2, textSize3, textSize4, textSize5;
+  double? value1, value2;
+  const int boxPlotPadding = 8;
+  final Rect rect = calculatePlotOffset(
+      stateProperties.chartAxis.axisClipRect,
+      Offset(seriesRendererDetails.xAxisDetails!.axis.plotOffset,
+          seriesRendererDetails.yAxisDetails!.axis.plotOffset));
+  if (seriesRendererDetails.seriesType.contains('hilo') == true ||
+      seriesRendererDetails.seriesType.contains('candle') == true) {
+    value1 = ((point.open != null &&
+                point.close != null &&
+                (point.close < point.open) == true)
+            ? point.close
+            : point.open)
+        ?.toDouble();
+    value2 = ((point.open != null &&
+                point.close != null &&
+                (point.close > point.open) == true)
+            ? point.close
+            : point.open)
+        ?.toDouble();
+  }
+  final bool transposed = stateProperties.requireInvertedAxis;
+  final bool inversed = seriesRendererDetails.yAxisDetails!.axis.isInversed;
+  final Rect clipRect = calculatePlotOffset(
+      stateProperties.chartAxis.axisClipRect,
+      Offset(seriesRendererDetails.xAxisDetails!.axis.plotOffset,
+          seriesRendererDetails.yAxisDetails!.axis.plotOffset));
+  final bool isRangeSeries =
+      seriesRendererDetails.seriesType.contains('range') == true ||
+          seriesRendererDetails.seriesType.contains('hilo') == true ||
+          seriesRendererDetails.seriesType.contains('candle') == true;
+  final bool isBoxSeries =
+      seriesRendererDetails.seriesType.contains('boxandwhisker');
+  if (isBoxSeries) {
+    value1 = (point.upperQuartile != null &&
+            point.lowerQuartile != null &&
+            point.upperQuartile! < point.lowerQuartile!)
+        ? point.upperQuartile!
+        : point.lowerQuartile!;
+    value2 = (point.upperQuartile != null &&
+            point.lowerQuartile != null &&
+            point.upperQuartile! > point.lowerQuartile!)
+        ? point.upperQuartile!
+        : point.lowerQuartile!;
+  }
+  // ignore: prefer_final_locals
+  List<String> labelList = <String>[];
+  // ignore: prefer_final_locals
+  String label = point.dataLabelMapper ??
+      point.label ??
+      _getLabelText(
+          isRangeSeries
+              ? (!inversed ? point.high : point.low)
+              : isBoxSeries
+                  ? (!inversed ? point.maximum : point.minimum)
+                  : ((dataLabel.showCumulativeValues &&
+                          point.cumulativeValue != null)
+                      ? point.cumulativeValue
+                      : point.yValue),
+          seriesRendererDetails);
+  if (isRangeSeries) {
+    point.label2 = point.dataLabelMapper ??
+        point.label2 ??
+        _getLabelText(
+            !inversed ? point.low : point.high, seriesRendererDetails);
+    if (seriesRendererDetails.seriesType == 'hiloopenclose' ||
+        seriesRendererDetails.seriesType.contains('candle') == true) {
+      point.label3 = point.dataLabelMapper ??
+          point.label3 ??
+          _getLabelText(
+              (point.open > point.close) == true
+                  ? !inversed
+                      ? point.close
+                      : point.open
+                  : !inversed
+                      ? point.open
+                      : point.close,
+              seriesRendererDetails);
+      point.label4 = point.dataLabelMapper ??
+          point.label4 ??
+          _getLabelText(
+              (point.open > point.close) == true
+                  ? !inversed
+                      ? point.open
+                      : point.close
+                  : !inversed
+                      ? point.close
+                      : point.open,
+              seriesRendererDetails);
+    }
+  } else if (isBoxSeries) {
+    point.label2 = point.dataLabelMapper ??
+        point.label2 ??
+        _getLabelText(
+            !inversed ? point.minimum : point.maximum, seriesRendererDetails);
+    point.label3 = point.dataLabelMapper ??
+        point.label3 ??
+        _getLabelText(
+            point.lowerQuartile! > point.upperQuartile!
+                ? !inversed
+                    ? point.upperQuartile
+                    : point.lowerQuartile
+                : !inversed
+                    ? point.lowerQuartile
+                    : point.upperQuartile,
+            seriesRendererDetails);
+    point.label4 = point.dataLabelMapper ??
+        point.label4 ??
+        _getLabelText(
+            point.lowerQuartile! > point.upperQuartile!
+                ? !inversed
+                    ? point.lowerQuartile
+                    : point.upperQuartile
+                : !inversed
+                    ? point.upperQuartile
+                    : point.lowerQuartile,
+            seriesRendererDetails);
+    point.label5 = point.dataLabelMapper ??
+        point.label5 ??
+        _getLabelText(point.median, seriesRendererDetails);
+  }
+  DataLabelRenderArgs dataLabelArgs;
+  TextStyle? dataLabelStyle = dataLabelSettingsRenderer.textStyle;
+  //ignore: prefer_conditional_assignment
+  if (dataLabelSettingsRenderer.originalStyle == null) {
+    dataLabelSettingsRenderer.originalStyle = dataLabel.textStyle;
+  }
+  dataLabelStyle = dataLabelSettingsRenderer.originalStyle;
+  if (chart.onDataLabelRender != null &&
+      seriesRendererDetails.visibleDataPoints![index].labelRenderEvent ==
+          false) {
+    labelList.add(label);
+    if (isRangeSeries) {
+      labelList.add(point.label2!);
+      if (seriesRendererDetails.seriesType == 'hiloopenclose' ||
+          seriesRendererDetails.seriesType.contains('candle') == true) {
+        labelList.add(point.label3!);
+        labelList.add(point.label4!);
+      }
+    } else if (isBoxSeries) {
+      labelList.add(point.label2!);
+      labelList.add(point.label3!);
+      labelList.add(point.label4!);
+      labelList.add(point.label5!);
+    }
+    seriesRendererDetails.visibleDataPoints![index].labelRenderEvent = true;
+    for (int i = 0; i < labelList.length; i++) {
+      dataLabelArgs = DataLabelRenderArgs(
+          seriesRendererDetails.series,
+          seriesRendererDetails.dataPoints,
+          index,
+          seriesRendererDetails
+              .visibleDataPoints![index].overallDataPointIndex);
+      dataLabelArgs.text = labelList[i];
+      dataLabelArgs.textStyle = dataLabelStyle!;
+      dataLabelArgs.color =
+          seriesRendererDetails.series.dataLabelSettings.color;
+      chart.onDataLabelRender!(dataLabelArgs);
+      labelList[i] = dataLabelArgs.text;
+      index = dataLabelArgs.pointIndex!;
+      CartesianPointHelper.setDataLabelTextStyle(
+          point, dataLabelArgs.textStyle);
+      CartesianPointHelper.setDataLabelColor(point, dataLabelArgs.color);
+      dataLabelSettingsRenderer.offset = dataLabelArgs.offset;
+    }
+  }
+  dataLabelSettingsRenderer.textStyle = dataLabelStyle;
+  if (chart.onDataLabelRender != null) {
+    dataLabelSettingsRenderer.color =
+        CartesianPointHelper.getDataLabelColor(point);
+    dataLabelSettingsRenderer.textStyle =
+        CartesianPointHelper.getDataLabelTextStyle(point);
+    dataLabelStyle = dataLabelSettingsRenderer.textStyle;
+  }
+  // ignore: unnecessary_null_comparison
+  if (point != null &&
+      point.isVisible &&
+      point.isGap != true &&
+      (point.y != 0 || dataLabel.showZeroValue)) {
+    final double markerPointX = dataLabel.builder == null
+        ? seriesRendererDetails.seriesType.contains('hilo') == true ||
+                seriesRendererDetails.seriesType == 'candle' ||
+                isBoxSeries
+            ? seriesRendererDetails.stateProperties.requireInvertedAxis == true
+                ? point.region!.centerRight.dx
+                : point.region!.topCenter.dx
+            : point.markerPoint!.x
+        : templateLocation!.dx;
+    final double markerPointY = dataLabel.builder == null
+        ? seriesRendererDetails.seriesType.contains('hilo') == true ||
+                seriesRendererDetails.seriesType == 'candle' ||
+                isBoxSeries
+            ? seriesRendererDetails.stateProperties.requireInvertedAxis == true
+                ? point.region!.centerRight.dy
+                : point.region!.topCenter.dy
+            : point.markerPoint!.y
+        : templateLocation!.dy;
+    final ChartLocation markerPoint2 = calculatePoint(
+        point.xValue,
+        seriesRendererDetails.yAxisDetails!.axis.isInversed == true
+            ? value2
+            : value1,
+        seriesRendererDetails.xAxisDetails!,
+        seriesRendererDetails.yAxisDetails!,
+        stateProperties.requireInvertedAxis,
+        series,
+        rect);
+    final ChartLocation markerPoint3 = calculatePoint(
+        point.xValue,
+        seriesRendererDetails.yAxisDetails!.axis.isInversed == true
+            ? value1
+            : value2,
+        seriesRendererDetails.xAxisDetails!,
+        seriesRendererDetails.yAxisDetails!,
+        stateProperties.requireInvertedAxis,
+        series,
+        rect);
+    final TextStyle font = (dataLabelSettingsRenderer.textStyle == null)
+        ? const TextStyle(
+            fontFamily: 'Roboto',
+            fontStyle: FontStyle.normal,
+            fontWeight: FontWeight.normal,
+            fontSize: 12)
+        : dataLabelStyle!;
+    point.label = labelList.isNotEmpty ? labelList[0] : label;
+    if (point.label!.isNotEmpty) {
+      ChartLocation? chartLocation,
+          chartLocation2,
+          chartLocation3,
+          chartLocation4,
+          chartLocation5;
+      textSize = dataLabel.builder == null
+          ? measureText(point.label!, font)
+          : templateSize!;
+      chartLocation = ChartLocation(markerPointX, markerPointY);
+      if (isRangeSeries || isBoxSeries) {
+        point.label2 = labelList.isNotEmpty ? labelList[1] : point.label2;
+        textSize2 = dataLabel.builder == null
+            ? measureText(point.label2!, font)
+            : templateSize!;
+        chartLocation2 = ChartLocation(
+            dataLabel.builder == null
+                ? seriesRendererDetails.seriesType.contains('hilo') == true ||
+                        seriesRendererDetails.seriesType == 'candle' ||
+                        isBoxSeries
+                    ? seriesRendererDetails
+                                .stateProperties.requireInvertedAxis ==
+                            true
+                        ? point.region!.centerLeft.dx
+                        : point.region!.bottomCenter.dx
+                    : point.markerPoint2!.x
+                : templateLocation!.dx,
+            dataLabel.builder == null
+                ? seriesRendererDetails.seriesType.contains('hilo') == true ||
+                        seriesRendererDetails.seriesType == 'candle' ||
+                        isBoxSeries
+                    ? seriesRendererDetails
+                                .stateProperties.requireInvertedAxis ==
+                            true
+                        ? point.region!.centerLeft.dy
+                        : point.region!.bottomCenter.dy
+                    : point.markerPoint2!.y
+                : templateLocation!.dy);
+        if (isBoxSeries) {
+          if (seriesRendererDetails.stateProperties.requireInvertedAxis ==
+              false) {
+            chartLocation.y = chartLocation.y - boxPlotPadding;
+            chartLocation2.y = chartLocation2.y + boxPlotPadding;
+          } else {
+            chartLocation.x = chartLocation.x + boxPlotPadding;
+            chartLocation2.x = chartLocation2.x - boxPlotPadding;
+          }
+        }
+      }
+      final List<ChartLocation?> alignedLabelLocations =
+          _getAlignedLabelLocations(stateProperties, seriesRendererDetails,
+              point, dataLabel, chartLocation, chartLocation2, textSize);
+      chartLocation = alignedLabelLocations[0];
+      chartLocation2 = alignedLabelLocations[1];
+      if (seriesRendererDetails.seriesType.contains('column') == false &&
+          seriesRendererDetails.seriesType.contains('waterfall') == false &&
+          seriesRendererDetails.seriesType.contains('bar') == false &&
+          seriesRendererDetails.seriesType.contains('histogram') == false &&
+          seriesRendererDetails.seriesType.contains('rangearea') == false &&
+          seriesRendererDetails.seriesType.contains('hilo') == false &&
+          seriesRendererDetails.seriesType.contains('candle') == false &&
+          !isBoxSeries) {
+        chartLocation!.y = _calculatePathPosition(
+            chartLocation.y,
+            dataLabel.labelAlignment,
+            textSize,
+            dataLabel.borderWidth,
+            seriesRendererDetails,
+            index,
+            transposed,
+            chartLocation,
+            stateProperties,
+            point,
+            Size(
+                series.markerSettings.isVisible
+                    ? series.markerSettings.width / 2
+                    : 0,
+                series.markerSettings.isVisible
+                    ? series.markerSettings.height / 2
+                    : 0));
+      } else {
+        final List<ChartLocation?> _locations = _getLabelLocations(
+            index,
+            stateProperties,
+            seriesRendererDetails,
+            point,
+            dataLabel,
+            chartLocation,
+            chartLocation2,
+            textSize,
+            textSize2);
+        chartLocation = _locations[0];
+        chartLocation2 = _locations[1];
+      }
+      if (seriesRendererDetails.seriesType == 'hiloopenclose' ||
+          seriesRendererDetails.seriesType.contains('candle') == true ||
+          isBoxSeries) {
+        if (!isBoxSeries) {
+          point.label3 = labelList.isNotEmpty ? labelList[2] : point.label3;
+          point.label4 = labelList.isNotEmpty ? labelList[3] : point.label4;
+          // point.label3 = point.dataLabelMapper ??
+          //     _getLabelText(
+          //         (point.open > point.close) == true
+          //             ? !inversed
+          //                 ? point.close
+          //                 : point.open
+          //             : !inversed
+          //                 ? point.open
+          //                 : point.close,
+          //         seriesRenderer);
+          // point.label4 = point.dataLabelMapper ??
+          //     _getLabelText(
+          //         (point.open > point.close) == true
+          //             ? !inversed
+          //                 ? point.open
+          //                 : point.close
+          //             : !inversed
+          //                 ? point.close
+          //                 : point.open,
+          //         seriesRenderer);
+        } else {
+          point.label3 = labelList.isNotEmpty ? labelList[2] : point.label3;
+          point.label4 = labelList.isNotEmpty ? labelList[3] : point.label4;
+          point.label5 = labelList.isNotEmpty ? labelList[4] : point.label5;
+          // point.label3 = point.dataLabelMapper ??
+          //     _getLabelText(
+          //         point.lowerQuartile! > point.upperQuartile!
+          //             ? !inversed
+          //                 ? point.upperQuartile
+          //                 : point.lowerQuartile
+          //             : !inversed
+          //                 ? point.lowerQuartile
+          //                 : point.upperQuartile,
+          //         seriesRenderer);
+          // point.label4 = point.dataLabelMapper ??
+          //     _getLabelText(
+          //         point.lowerQuartile! > point.upperQuartile!
+          //             ? !inversed
+          //                 ? point.lowerQuartile
+          //                 : point.upperQuartile
+          //             : !inversed
+          //                 ? point.upperQuartile
+          //                 : point.lowerQuartile,
+          //         seriesRenderer);
+          // point.label5 = point.dataLabelMapper ??
+          //     _getLabelText(point.median, seriesRenderer);
+        }
+        textSize3 = dataLabel.builder == null
+            ? measureText(point.label3!, font)
+            : templateSize;
+        if (seriesRendererDetails.seriesType.contains('hilo') == true) {
+          chartLocation3 = (point.open > point.close) == true
+              ? ChartLocation(point.centerClosePoint!.x + textSize3!.width,
+                  point.closePoint!.y)
+              : ChartLocation(point.centerOpenPoint!.x - textSize3!.width,
+                  point.openPoint!.y);
+        } else if (seriesRendererDetails.seriesType == 'candle' &&
+            seriesRendererDetails.stateProperties.requireInvertedAxis == true) {
+          chartLocation3 = (point.open > point.close) == true
+              ? ChartLocation(point.closePoint!.x, markerPoint2.y + 1)
+              : ChartLocation(point.openPoint!.x, markerPoint2.y + 1);
+        } else if (isBoxSeries) {
+          chartLocation3 = (seriesRendererDetails
+                      .stateProperties.requireInvertedAxis ==
+                  true)
+              ? ChartLocation(point.lowerQuartilePoint!.x + boxPlotPadding,
+                  markerPoint2.y + 1)
+              : ChartLocation(
+                  point.region!.topCenter.dx, markerPoint2.y - boxPlotPadding);
+        } else {
+          chartLocation3 =
+              ChartLocation(point.region!.topCenter.dx, markerPoint2.y);
+        }
+        textSize4 = dataLabel.builder == null
+            ? measureText(point.label4!, font)
+            : templateSize;
+        if (seriesRendererDetails.seriesType.contains('hilo') == true) {
+          chartLocation4 = (point.open > point.close) == true
+              ? ChartLocation(point.centerOpenPoint!.x - textSize4!.width,
+                  point.openPoint!.y)
+              : ChartLocation(point.centerClosePoint!.x + textSize4!.width,
+                  point.closePoint!.y);
+        } else if (seriesRendererDetails.seriesType == 'candle' &&
+            seriesRendererDetails.stateProperties.requireInvertedAxis == true) {
+          chartLocation4 = (point.open > point.close) == true
+              ? ChartLocation(point.openPoint!.x, markerPoint3.y + 1)
+              : ChartLocation(point.closePoint!.x, markerPoint3.y + 1);
+        } else if (isBoxSeries) {
+          chartLocation4 =
+              (seriesRendererDetails.stateProperties.requireInvertedAxis ==
+                      true)
+                  ? ChartLocation(point.upperQuartilePoint!.x - boxPlotPadding,
+                      markerPoint3.y + 1)
+                  : ChartLocation(point.region!.bottomCenter.dx,
+                      markerPoint3.y + boxPlotPadding);
+        } else {
+          chartLocation4 =
+              ChartLocation(point.region!.bottomCenter.dx, markerPoint3.y + 1);
+        }
+        if (isBoxSeries) {
+          textSize5 = measureText(point.label5!, font);
+          chartLocation5 =
+              (seriesRendererDetails.stateProperties.requireInvertedAxis ==
+                      false)
+                  ? ChartLocation(
+                      point.centerMedianPoint!.x, point.centerMedianPoint!.y)
+                  : ChartLocation(
+                      point.centerMedianPoint!.x, point.centerMedianPoint!.y);
+        }
+        final List<ChartLocation?> alignedLabelLocations2 =
+            _getAlignedLabelLocations(stateProperties, seriesRendererDetails,
+                point, dataLabel, chartLocation3, chartLocation4, textSize3!);
+        chartLocation3 = alignedLabelLocations2[0];
+        chartLocation4 = alignedLabelLocations2[1];
+        final List<ChartLocation?> _locations = _getLabelLocations(
+            index,
+            stateProperties,
+            seriesRendererDetails,
+            point,
+            dataLabel,
+            chartLocation3,
+            chartLocation4,
+            textSize3,
+            textSize4!);
+        chartLocation3 = _locations[0];
+        chartLocation4 = _locations[1];
+      }
+      _calculateDataLabelRegion(
+          point,
+          dataLabel,
+          stateProperties,
+          chartLocation!,
+          chartLocation2,
+          isRangeSeries,
+          clipRect,
+          textSize,
+          textSize2,
+          chartLocation3,
+          chartLocation4,
+          chartLocation5,
+          textSize3,
+          textSize4,
+          textSize5,
+          seriesRendererDetails,
+          index);
+    }
+  }
 }

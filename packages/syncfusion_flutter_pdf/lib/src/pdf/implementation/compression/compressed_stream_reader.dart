@@ -298,7 +298,7 @@ class _CompressedStreamReader {
       }
 
       arrDecoderCodeLengths[
-              _Utils.def_huffman_dyntree_codelengths_order[iCurrentCode++]] =
+              _defHuffmanDyntreeCodelengthsOrder[iCurrentCode++]] =
           len.toUnsigned(8);
     }
     final _DecompressorHuffmanTree treeInternalDecoder =
@@ -556,12 +556,12 @@ class _CompressedStreamReader {
           final int end = (_dataLength % _maxValue).toInt();
 
           if (start < end) {
-            _checksumUpdate(_blockBuffer, start, end - start);
+            _updateChecksum(_blockBuffer, start, end - start);
           } else {
-            _checksumUpdate(_blockBuffer, start, _maxValue - start);
+            _updateChecksum(_blockBuffer, start, _maxValue - start);
 
             if (end > 0) {
-              _checksumUpdate(_blockBuffer, 0, end);
+              _updateChecksum(_blockBuffer, 0, end);
             }
           }
         }
@@ -581,9 +581,8 @@ class _CompressedStreamReader {
     };
   }
 
-  void _checksumUpdate(List<int>? buffer, int offset, int length) {
-    _checkSum =
-        _ChecksumCalculator._checksumUpdate(_checkSum, buffer, offset, length);
+  void _updateChecksum(List<int>? buffer, int offset, int length) {
+    _checkSum = _checksumUpdate(_checkSum, buffer, offset, length);
   }
 
   int _readPackedBytes(List<int> buffer, int offset, int length) {
@@ -620,8 +619,8 @@ class _CompressedStreamReader {
     }
 
     if (length > 0) {
-      final Map<String, dynamic> value = _read(buffer, offset, length);
-      final int val = value['length'] as int;
+      final Map<String, dynamic> value = _readBytes(buffer, offset, length);
+      final int val = value['count'] as int;
       result += val.toInt();
       buffer = value['buffer'] as List<int>;
     }

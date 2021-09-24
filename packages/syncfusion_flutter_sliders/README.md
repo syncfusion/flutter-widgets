@@ -53,6 +53,8 @@ This library is used to create three different types of sliders, namely slider, 
 * **Orientation** - Supports both horizontal and vertical orientations.
 ![slider orientation](https://cdn.syncfusion.com/content/images/Flutter/pub_images/slider_images/slider_orientation.png)
 
+* **Inversed vertical slider** - Provides an option to change the minimum and maximum positions of the vertical slider.
+
 ## Range slider features
 
 Range slider supports all the above-mentioned features of the slider in addition to:
@@ -60,11 +62,15 @@ Range slider supports all the above-mentioned features of the slider in addition
 * **Orientation** - Supports both horizontal and vertical orientations.
 ![range slider orientation](https://cdn.syncfusion.com/content/images/Flutter/pub_images/range_slider_images/range_slider_orientation.png)
 
+* **Inversed vertical range slider** - Provides an option to change the minimum and maximum positions of the vertical range slider.
+
+* **Drag mode** - Various dragging options are available to control thumb dragging. The available options are `onThumb`, `betweenThumbs`, and `both`.
+
 * **Interval selection** - Allows users to select a particular interval by tapping or clicking in it. Both thumbs will be moved to the current interval with animation.
 
 ## Range selector features
 
-Range selector supports all the above-mentioned features(except orientation) of the range slider in addition to:
+Range selector supports all the above-mentioned features(except orientation and inversed slider) of the range slider in addition to:
 
 * **Child support** - Add a child of any type inside the range selector. It is also possible to add Charts. With the built-in integration, range selector is smart enough to handle features like segment selection or zooming of a chart based on the selected range in the range selector. Similar to the range slider, it also supports both numeric and date values.
 
@@ -390,4 +396,4 @@ The following screenshot illustrates the result of the above code sample.
 
 Founded in 2001 and headquartered in Research Triangle Park, N.C., Syncfusion has more than 20,000 customers and more than 1 million users, including large financial institutions, Fortune 500 companies, and global IT consultancies.
 
-Today we provide 1,000+ controls and frameworks for web ([ASP.NET Core](https://www.syncfusion.com/aspnet-core-ui-controls), [ASP.NET MVC](https://www.syncfusion.com/aspnet-mvc-ui-controls), [ASP.NET WebForms](https://www.syncfusion.com/jquery/aspnet-web-forms-ui-controls), [JavaScript](https://www.syncfusion.com/javascript-ui-controls), [Angular](https://www.syncfusion.com/angular-ui-components), [React](https://www.syncfusion.com/react-ui-components), [Vue](https://www.syncfusion.com/vue-ui-components), and [Blazor](https://www.syncfusion.com/blazor-components)), mobile ([Xamarin](https://www.syncfusion.com/xamarin-ui-controls), [Flutter](https://www.syncfusion.com/flutter-widgets), [UWP](https://www.syncfusion.com/uwp-ui-controls), and [JavaScript](https://www.syncfusion.com/javascript-ui-controls)), and desktop development ([WinForms](https://www.syncfusion.com/winforms-ui-controls), [WPF](https://www.syncfusion.com/wpf-ui-controls), and [UWP](https://www.syncfusion.com/uwp-ui-controls)). We provide ready-to deploy enterprise software for dashboards, reports, data integration, and big data processing. Many customers have saved millions in licensing fees by deploying our software.
+Today we provide 1,000+ controls and frameworks for web ([ASP.NET Core](https://www.syncfusion.com/aspnet-core-ui-controls), [ASP.NET MVC](https://www.syncfusion.com/aspnet-mvc-ui-controls), [ASP.NET WebForms](https://www.syncfusion.com/jquery/aspnet-web-forms-ui-controls), [JavaScript](https://www.syncfusion.com/javascript-ui-controls), [Angular](https://www.syncfusion.com/angular-ui-components), [React](https://www.syncfusion.com/react-ui-components), [Vue](https://www.syncfusion.com/vue-ui-components), and [Blazor](https://www.syncfusion.com/blazor-components)), mobile ([Xamarin](https://www.syncfusion.com/xamarin-ui-controls), [Flutter](https://www.syncfusion.com/flutter-widgets), [UWP](https://www.syncfusion.com/uwp-ui-controls), and [JavaScript](https://www.syncfusion.com/javascript-ui-controls)), and desktop development ([WinForms](https://www.syncfusion.com/winforms-ui-controls), [WPF](https://www.syncfusion.com/wpf-ui-controls), [UWP](https://www.syncfusion.com/uwp-ui-controls) and [WinUI](https://www.syncfusion.com/winui-controls)). We provide ready-to deploy enterprise software for dashboards, reports, data integration, and big data processing. Many customers have saved millions in licensing fees by deploying our software.

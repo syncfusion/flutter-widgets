@@ -1,12 +1,30 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/core.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'picker_helper.dart';
 
 /// Sets the style for customizing the [SfDateRangePicker] header view.
 ///
 /// Allows to customize the [textStyle], [textAlign] and [backgroundColor] of
 /// the header view in [SfDateRangePicker].
+///
+/// See also:
+/// * [DateRangePickerMonthViewSettings], which allows to customize the month
+/// view of the date range picker.
+/// * [DateRangePickerViewHeaderStyle], which allows to customize the view
+/// header view of the month view in date range picker.
+/// * [SfDateRangePicker.headerHeight], which is the size of the header view in
+/// the date range picker.
+/// * [SfDateRangePicker.showNavigationArrow], which displays the navigation
+/// arrows on the header view of the date range picker.
+/// * [SfDateRangePicker.monthFormat], which allows to customize the month text
+/// in the header view also in the year cell view of date range picker.
+/// * Knowledge base: [How to style a header](https://www.syncfusion.com/kb/12342/how-to-style-a-header-in-the-flutter-date-range-picker-sfdaterangepicker)
+/// * Knowledge base: [How to select all days when clicking on the day header](https://www.syncfusion.com/kb/12353/how-to-select-all-days-when-clicking-on-the-day-header-in-the-flutter-date-range-picker)
+/// * Knowledge base: [How to restrict the year view navigation when tapping on header view](https://www.syncfusion.com/kb/12113/how-to-restrict-the-year-view-navigation-while-tapping-header-of-the-flutter-date-range)
+/// * Knowledge base: [How to customize the header in Flutter multi date range picker](https://www.syncfusion.com/kb/11897/how-to-customize-the-header-in-the-flutter-multi-date-range-picker-sfdaterangepicker)
+/// * Knowledge base: [How to customize the header view](https://www.syncfusion.com/kb/11427/how-to-customize-the-header-view-of-the-flutter-date-range-picker)
 ///
 /// ``` dart
 /// Widget build(BuildContext context) {
@@ -40,6 +58,17 @@ class DateRangePickerHeaderStyle with Diagnosticable {
   /// Using a [SfDateRangePickerTheme] gives more fine-grained control over the
   /// appearance of various components of the date range picker.
   ///
+  /// See also:
+  /// * [SfDateRangePicker.monthFormat], which allows to customize the month
+  /// text in the header view also in the year cell view of date range picker.
+  /// * [textAlign], which aligns the text in the header view of the date
+  /// range picker.
+  /// * [textStyle], which fills the background of the header view in the date
+  /// range picker.
+  /// * Knowledge base: [How to style a header](https://www.syncfusion.com/kb/12342/how-to-style-a-header-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the header view](https://www.syncfusion.com/kb/11427/how-to-customize-the-header-view-of-the-flutter-date-range-picker)
+  ///
+  ///
   /// ``` dart
   ///
   /// Widget build(BuildContext context) {
@@ -67,6 +96,18 @@ class DateRangePickerHeaderStyle with Diagnosticable {
   ///
   /// Defaults to `TextAlign.left`.
   ///
+  /// See also:
+  /// * [textStyle], which allows to set style for the header text in the
+  /// date range picker.
+  /// * [SfDateRangePicker.showNavigationArrow], which displays the navigation
+  /// arrows on the header view of the date range picker.
+  /// * [SfDateRangePicker.monthFormat], which allows to customize the month
+  /// text in the header view also in the year cell view of date range picker.
+  /// * Knowledge base: [How to style a header](https://www.syncfusion.com/kb/12342/how-to-style-a-header-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the header view](https://www.syncfusion.com/kb/11427/how-to-customize-the-header-view-of-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to navigate to the previous or next dates using navigation arrows](https://www.syncfusion.com/kb/12270/how-to-navigate-to-the-previous-or-next-views-using-navigation-arrows-in-the-flutter-date)
+  ///
+  ///
   /// ```dart
   ///
   /// Widget build(BuildContext context) {
@@ -92,6 +133,16 @@ class DateRangePickerHeaderStyle with Diagnosticable {
   ///
   /// Using a [SfDateRangePickerTheme] gives more fine-grained control over the
   /// appearance of various components of the date range picker.
+  ///
+  /// See also:
+  /// * [SfDateRangePicker.monthFormat], which allows to customize the month
+  /// text in the header view also in the year cell view of date range picker.
+  /// * [textAlign], which aligns the text in the header view of the date
+  /// range picker.
+  /// * [textStyle], which fills the background of the header view in the date
+  /// range picker.
+  /// * Knowledge base: [How to style a header](https://www.syncfusion.com/kb/12342/how-to-style-a-header-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the header view](https://www.syncfusion.com/kb/11427/how-to-customize-the-header-view-of-the-flutter-date-range-picker)
   ///
   /// ```dart
   ///
@@ -153,6 +204,15 @@ class DateRangePickerHeaderStyle with Diagnosticable {
 /// Allows to customize the [textStyle] and [backgroundColor] of the view header
 /// view in month view of [SfDateRangePicker].
 ///
+/// See also:
+/// * [DateRangePickerHeaderStyle], which used to customize the header view of
+/// the date range picker.
+/// * [SfDateRangePicker.todayHighlightColor], which highlights the today date
+/// in the date range picker.
+/// * [DateRangePickerMonthViewSettings.viewHeaderHeight], which is the size
+/// for the view header view in date range picker.
+/// * Knowledge base: [How to replace the view header with the custom widget](https://www.syncfusion.com/kb/12098/how-to-replace-the-view-header-with-the-custom-widget-in-flutter-date-range-picker)
+///
 /// ```dart
 ///
 /// Widget build(BuildContext context) {
@@ -189,6 +249,15 @@ class DateRangePickerViewHeaderStyle with Diagnosticable {
   /// Using a [SfDateRangePickerTheme] gives more fine-grained control over the
   /// appearance of various components of the date range picker.
   ///
+  /// See also:
+  /// * [textStyle], which used to style the text in the view header view of the
+  /// month view in date range picker.
+  /// * [DateRangePickerMonthViewSettings.viewHeaderHeight], which is the size
+  /// for the view header view in date range picker.
+  /// * [SfDateRangePicker.todayHighlightColor], which highlights the today date
+  /// in the date range picker.
+  /// * Knowledge base: [How to replace the view header with the custom widget](https://www.syncfusion.com/kb/12098/how-to-replace-the-view-header-with-the-custom-widget-in-flutter-date-range-picker)
+  ///
   /// ```dart
   ///
   ///Widget build(BuildContext context) {
@@ -217,6 +286,15 @@ class DateRangePickerViewHeaderStyle with Diagnosticable {
   ///
   /// Using a [SfDateRangePickerTheme] gives more fine-grained control over the
   /// appearance of various components of the date range picker.
+  ///
+  /// See also:
+  /// * [backgroundColor], which fills the background of the view header view
+  /// in the date range picker.
+  /// * [DateRangePickerMonthViewSettings.viewHeaderHeight], which is the size
+  /// for the view header view in date range picker.
+  /// * [SfDateRangePicker.todayHighlightColor], which highlights the today date
+  /// in the date range picker.
+  /// * Knowledge base: [How to replace the view header with the custom widget](https://www.syncfusion.com/kb/12098/how-to-replace-the-view-header-with-the-custom-widget-in-flutter-date-range-picker)
   ///
   /// ```dart
   ///
@@ -280,6 +358,12 @@ class DateRangePickerViewHeaderStyle with Diagnosticable {
 /// Allows to customize the [backgroundColor], [textStyle]
 /// week number in month view of date Range Picker.
 ///
+/// See also:
+/// * [DateRangePickerMonthViewSettings], which is used to customize the month
+/// view of the date range picker.
+/// * [HijriDatePickerMonthViewSettings], which is used to customize the month
+/// view of the hijri date range picker.
+///
 /// ```dart
 /// Widget build(BuildContext context) {
 ///   return Scaffold(
@@ -311,6 +395,10 @@ class DateRangePickerWeekNumberStyle with Diagnosticable {
   /// Using a [SfDateRangePickerTheme] gives more fine-grained control over the
   /// appearance of various components of the date range picker.
   ///
+  /// See also:
+  /// * [textStyle], which used to customize the style for the text in the
+  /// week number view of month view in date range picker.
+  ///
   /// ```dart
   /// Widget build(BuildContext context) {
   ///   return Scaffold(
@@ -336,6 +424,10 @@ class DateRangePickerWeekNumberStyle with Diagnosticable {
   ///
   /// Using a [SfDateRangePickerTheme] gives more fine-grained control over the
   /// appearance of various components of the date range picker.
+  ///
+  /// See also:
+  /// * [backgroundColor], which fills the background of the week number view in
+  /// the date range picker.
   ///
   /// ```dart
   /// Widget build(BuildContext context) {
@@ -395,6 +487,34 @@ class DateRangePickerWeekNumberStyle with Diagnosticable {
 /// [dayFormat], [viewHeaderHeight], [showTrailingAndLeadingDates],
 /// [viewHeaderStyle], [enableSwipeSelection], [blackoutDates], [specialDates]
 /// and [weekendDays] in month view of date range picker.
+///
+/// See also:
+/// * [HijriDatePickerMonthViewSettings], which used to customize the month view
+/// of the hijri date range picker.
+/// * [DateRangePickerMonthCellStyle], which used to customize the month cell of
+/// the month view in the date range picker.
+/// * [HijriDatePickerMonthCellStyle], which used to customize the month cell of
+/// the month view in the hijri date range picker.
+/// * [SfDateRangePicker.cellBuilder],which allows to set custom widget for the
+/// picker cells in the date range picker.
+/// * [DateRangePickerYearCellStyle], which allows to customize the year cell of
+///  the year, decade and century views of the date range picker.
+/// * [SfDateRangePicker.backgroundColor], which fills the background of the
+/// date range picker.
+/// * [SfDateRangePicker.todayHighlightColor], which highlights the today date
+/// cell in the date range picker.
+/// * Knowledge base: [How to customize leading and trailing dates using cell builder](https://www.syncfusion.com/kb/12674/how-to-customize-leading-and-trailing-dates-using-cell-builder-in-the-flutter-date-range)
+/// * Knowledge base: [How to customize the special dates using builder](https://www.syncfusion.com/kb/12374/how-to-customize-the-special-dates-using-builder-in-the-flutter-date-range-picker)
+/// * Knowledge base: [How to update blackout dates using onViewChanged callback](https://www.syncfusion.com/kb/12372/how-to-update-blackout-dates-using-onviewchanged-callback-in-the-flutter-date-range-picker)
+/// * Knowledge base: [How to select all days when clicking on the day header](https://www.syncfusion.com/kb/12353/how-to-select-all-days-when-clicking-on-the-day-header-in-the-flutter-date-range-picker)
+/// * Knowledge base: [How to change the first day of week](https://www.syncfusion.com/kb/12221/how-to-change-the-first-day-of-week-in-the-flutter-date-range-picker-sfdaterangepicker)
+/// * Knowledge base: [How to customize the date range picker cells using builder](https://www.syncfusion.com/kb/12208/how-to-customize-the-date-range-picker-cells-using-builder-in-the-flutter-sfdaterangepicker)
+/// * Knowledge base: [How to change the week end dates](https://www.syncfusion.com/kb/12182/how-to-change-the-week-end-dates-in-the-flutter-date-range-picker-sfdaterangepicker)
+/// * Knowledge base: [How to change the number of weeks](https://www.syncfusion.com/kb/12167/how-to-change-the-number-of-weeks-in-the-flutter-date-range-picker-sfdaterangepicker)
+/// * Knowledge base: [How to add active dates](https://www.syncfusion.com/kb/12075/how-to-add-active-dates-in-the-flutter-date-range-picker-sfdaterangepicker)
+/// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+/// * Knowledge base: [How to create timeline date picker](https://www.syncfusion.com/kb/12474/how-to-create-timeline-date-picker-in-flutter)
+/// * Knowledge base: [How to restrict swipe gesture for range selection](https://www.syncfusion.com/kb/12117/how-to-restrict-swipe-gesture-for-range-selection-in-the-flutter-date-range-picker)
 ///
 /// ```dart
 ///
@@ -464,6 +584,17 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
   ///
   /// Defaults to `EE`.
   ///
+  /// See also:
+  /// * [viewHeaderStyle], which used to customize the view header view of the
+  /// date range picker.
+  /// * [SfDateRangePicker.backgroundColor], which fills the background of the
+  /// date range picker.
+  /// * [SfDateRangePicker.todayHighlightColor], which highlights the today date
+  /// in the date range picker.
+  /// * [viewHeaderHeight], which is the size for the view header view in the
+  /// month view of date range picker.
+  /// * Knowledge base: [How to replace the view header with the custom widget](https://www.syncfusion.com/kb/12098/how-to-replace-the-view-header-with-the-custom-widget-in-flutter-date-range-picker)
+  ///
   /// ```dart
   ///
   /// Widget build(BuildContext context) {
@@ -498,6 +629,14 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
   /// See also: [DateRangePickerMonthCellStyle] to know about leading and
   /// trailing dates style.
   ///
+  /// See also:
+  /// * [showTrailingAndLeadingDates], which used to display the previous month
+  /// and next month dates on the month view of the date range picker.
+  /// * [firstDayOfWeek], which used to customize the week start day of the
+  /// month view in date range picker.
+  /// * Knowledge base: [How to change the number of weeks](https://www.syncfusion.com/kb/12167/how-to-change-the-number-of-weeks-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to create timeline date picker](https://www.syncfusion.com/kb/12474/how-to-create-timeline-date-picker-in-flutter)
+  ///
   /// ```dart
   ///
   /// Widget build(BuildContext context) {
@@ -529,6 +668,14 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
   /// as [DateRangePickerSelectionMode.range] or
   /// [DateRangePickerSelectionMode.multiRange].
   ///
+  /// See also:
+  /// * [DateRangePickerSelectionMode], which contains different selection modes
+  /// for the date range picker.
+  /// * [SfDateRangePicker.enableMultiView], which displays two date range
+  /// picker side by side based on the [SfDateRangePicker.navigationDirection]
+  /// value.
+  /// * Knowledge base: [How to restrict swipe gesture for range selection](https://www.syncfusion.com/kb/12117/how-to-restrict-swipe-gesture-for-range-selection-in-the-flutter-date-range-picker)
+  ///
   /// ```dart
   ///
   /// Widget build(BuildContext context) {
@@ -556,6 +703,15 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
   ///
   /// Defaults to `7` which indicates `DateTime.sunday`.
   ///
+  /// See also:
+  /// * [showWeekNumber], which displays the week number of the year in the
+  /// month view of the date range picker.
+  /// * [showTrailingAndLeadingDates], which used to display the previous month
+  /// and next month dates on the month view of the date range picker.
+  /// * [numberOfWeeksInView], which used to customize the displaying week count
+  /// in the month view of date range picker.
+  /// * Knowledge base: [How to change the first day of week](https://www.syncfusion.com/kb/12221/how-to-change-the-first-day-of-week-in-the-flutter-date-range-picker-sfdaterangepicker)
+  ///
   /// ```dart
   ///
   /// Widget build(BuildContext context) {
@@ -580,7 +736,16 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
   /// Allows to customize the [textStyle] and [backgroundColor] of the view
   /// header view in month view of [SfDateRangePicker].
   ///
-  /// See also: [DateRangePickerViewHeaderStyle].
+  /// See also:
+  /// * [DateRangePickerViewHeaderStyle], to know more about the available
+  /// option for customize the view header view of month view.
+  /// * [viewHeaderHeight], which is the size for the view header view in the
+  /// month view of date range picker.
+  /// * [dayFormat], which is used to customize the format of the view header
+  /// text in the month view of date range picker.
+  /// * [SfDateRangePicker.todayHighlightColor], which highlights the today date
+  /// cell in the date range picker.
+  /// * Knowledge base: [How to replace the view header with the custom widget](https://www.syncfusion.com/kb/12098/how-to-replace-the-view-header-with-the-custom-widget-in-flutter-date-range-picker)
   ///
   /// ```dart
   ///
@@ -613,6 +778,15 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
   /// Defaults to `30`.
   ///
   /// ![view header with height as 100](https://help.syncfusion.com/flutter/daterangepicker/images/headers/viewheaderheight.png)
+  ///
+  /// See also:
+  /// * [viewHeaderStyle], which used to customize the view header view of the
+  /// month view in date range picker.
+  /// * [dayFormat], which is used to customize the format of the view header
+  /// text in the month view of date range picker.
+  /// * [SfDateRangePicker.todayHighlightColor], which highlights the today date
+  /// cell in the date range picker.
+  /// * Knowledge base: [How to replace the view header with the custom widget](https://www.syncfusion.com/kb/12098/how-to-replace-the-view-header-with-the-custom-widget-in-flutter-date-range-picker)
   ///
   /// ```dart
   ///
@@ -668,6 +842,22 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
   /// _Note:_ This property not applicable when the
   /// [SfDateRangePicker.pickerMode] set as [DateRangePickerMode.hijri].
   ///
+  /// See also:
+  /// * [numberOfWeeksInView], which used to customize the displaying week count
+  /// displayed in the month view of date range picker.
+  /// * [firstDayOfWeek], which used to customize the first week day of the
+  /// month view in date range picker.
+  /// * [DateRangePickerMonthCellStyle.trailingDatesTextStyle], which used to
+  /// customize the trailing dates cell text in the month view.
+  /// * [DateRangePickerMonthCellStyle.leadingDatesTextStyle], which used to
+  /// customize the leading dates cell text in the month view.
+  /// * [DateRangePickerMonthCellStyle.trailingDatesDecoration], which used to
+  /// customize the trailing dates with decoration in the month view.
+  /// * [DateRangePickerMonthCellStyle.leadingDatesDecoration], which used to
+  /// customize the leading dates with decoration in the month view.
+  /// * Knowledge base: [How to customize leading and trailing dates using cell builder](https://www.syncfusion.com/kb/12674/how-to-customize-leading-and-trailing-dates-using-cell-builder-in-the-flutter-date-range)
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  ///
   /// ```dart
   ///
   /// Widget build(BuildContext context) {
@@ -697,8 +887,19 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
   /// customize the appearance of blackout dates in month view.
   ///
   /// See also:
-  /// [DateRangePickerMonthCellStyle.blackoutDateTextStyle]
-  /// [DateRangePickerMonthCellStyle.blackoutDatesDecoration].
+  /// * [DateRangePickerMonthCellStyle.blackoutDateTextStyle], which used to set
+  /// text style for the black out date cell in the month view.
+  /// * [DateRangePickerMonthCellStyle.blackoutDatesDecoration], which used to
+  /// set the decoration for the black out date cell in the month view.
+  /// * [specialDates], which is the list of dates to highlight the specific
+  /// dates in the month view.
+  /// * [weekendDays], which used to change the week end days in the month view.
+  /// * [SfDateRangePicker.enablePastDates], which allows to enable the dates
+  /// that falls before the today date for interaction.
+  /// * Knowledge base: [How to update blackout dates using onViewChanged callback](https://www.syncfusion.com/kb/12372/how-to-update-blackout-dates-using-onviewchanged-callback-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to add active dates](https://www.syncfusion.com/kb/12075/how-to-add-active-dates-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  ///
   ///
   /// ```dart
   ///
@@ -734,8 +935,14 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
   /// customize the appearance of blackout dates in month view.
   ///
   /// See also:
-  /// [DateRangePickerMonthCellStyle.specialDatesTextStyle]
-  /// [DateRangePickerMonthCellStyle.specialDatesDecoration].
+  /// [DateRangePickerMonthCellStyle.specialDatesTextStyle],which used to set
+  /// text style for the text in special dates cell in the month view.
+  /// [DateRangePickerMonthCellStyle.specialDatesDecoration], which used to set
+  /// decoration for the special dates cell in the month view.
+  /// * [blackoutDates], which is the list of dates to restrict the interaction
+  /// for specific dates in month view.
+  /// * Knowledge base: [How to customize the special dates using builder](https://www.syncfusion.com/kb/12374/how-to-customize-the-special-dates-using-builder-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ```dart
   ///
@@ -770,6 +977,21 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
   /// using the [DateRangePickerMonthCellStyle.weekendTextStyle] or
   /// [DateRangePickerMonthCellStyle.weekendDatesDecoration] property.
   ///
+  /// See also:
+  /// * [DateRangePickerMonthCellStyle.weekendTextStyle], which used to set
+  /// text style for the week end cell text in month view.
+  /// * [DateRangePickerMonthCellStyle.weekendDatesDecoration], which used to
+  /// set decoration for the week end cell text in month view.
+  /// * [specialDates], which used to highlight specific dates in the month view
+  /// of date range picker.
+  /// * [blackoutDates], which used to restrict the user interaction for the
+  /// specific dates in teh month view of date range picker.
+  /// * [numberOfWeeksInView],  which allows to customize the displaying week
+  /// count in month view of date range picker.
+  /// * Knowledge base: [How to change the week end dates](https://www.syncfusion.com/kb/12182/how-to-change-the-week-end-dates-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to change the number of weeks](https://www.syncfusion.com/kb/12167/how-to-change-the-number-of-weeks-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  ///
   /// ```dart
   ///
   /// Widget build(BuildContext context) {
@@ -797,7 +1019,13 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
   ///
   /// Defaults to false
   ///
-  /// see also: [weekNumberStyle]
+  /// see also:
+  /// * [weekNumberStyle], which used to customize the week number view of the
+  /// month view in the date range picker.
+  /// * [numberOfWeeksInView],  which allows to customize the displaying week
+  /// count in month view of date range picker.
+  /// * [firstDayOfWeek], which used to customize the start day of the week in
+  /// month view of date range picker.
   ///
   /// ``` dart
   /// Widget build(BuildContext context) {
@@ -817,7 +1045,13 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
   ///
   /// Defaults to null
   ///
-  /// see also: [showWeekNumber]
+  /// see also:
+  /// * [showWeekNumber], which allows to display the week number of the year in
+  /// the month view of the date range picker.
+  /// * [numberOfWeeksInView],  which allows to customize the displaying week
+  /// count in month view of date range picker.
+  /// * [firstDayOfWeek], which used to customize the start day of the week in
+  /// month view of date range picker.
   ///
   /// ``` dart
   /// Widget build(BuildContext context) {
@@ -910,6 +1144,35 @@ class DateRangePickerMonthViewSettings with Diagnosticable {
 /// [disabledDatesDecoration] in year, decade and century view of the
 /// [SfDateRangePicker].
 ///
+/// See also:
+/// * [DateRangePickerMonthCellStyle], which allows to customize the month cell
+/// of the month view of the date range picker
+/// * [SfDateRangePicker.cellBuilder], which allows to set custom widget for the
+/// picker cells in the date range picker.
+/// * [DateRangePickerMonthViewSettings], which allows to customize the month
+/// view of the date range picker.
+/// * [SfDateRangePicker.selectionColor], which fills the background of the
+/// selected cells in the date range picker.
+/// * [SfDateRangePicker.startRangeSelectionColor], which fills the background
+/// of the first cell of the range selection in date range picker.
+/// * [SfDateRangePicker.endRangeSelectionColor], which fills the background of
+/// the last cell of the range selection in date range picker.
+/// * [SfDateRangePicker.rangeSelectionColor], which fills the background of the
+///  in between cells of date range picker in range selection.
+/// * [SfDateRangePicker.selectionTextStyle], which is used to set the text
+/// style for the text in the selected cell of date range picker.
+/// * [SfDateRangePicker.rangeTextStyle], which is used to set text style for
+/// the text in the selected range cell's of date range picker.
+/// * [SfDateRangePicker.backgroundColor], which fills the background of the
+/// date range picker.
+/// * [SfDateRangePicker.todayHighlightColor], which highlights the today date
+/// cell in the date range picker.
+/// * Knowledge base: [How to customize leading and trailing dates using cell builder](https://www.syncfusion.com/kb/12674/how-to-customize-leading-and-trailing-dates-using-cell-builder-in-the-flutter-date-range)
+/// * Knowledge base: [How to select all days when clicking on the day header](https://www.syncfusion.com/kb/12353/how-to-select-all-days-when-clicking-on-the-day-header-in-the-flutter-date-range-picker)
+/// * Knowledge base: [How to customize the date range picker cells using builder](https://www.syncfusion.com/kb/12208/how-to-customize-the-date-range-picker-cells-using-builder-in-the-flutter-sfdaterangepicker)
+/// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+/// * Knowledge base: [How to style the year, decade and century views](https://www.syncfusion.com/kb/12321/how-to-style-the-year-decade-century-views-in-the-flutter-date-range-picker)
+///
 /// ``` dart
 ///
 /// Widget build(BuildContext context) {
@@ -966,6 +1229,22 @@ class DateRangePickerYearCellStyle with Diagnosticable {
   /// Using a [SfDateRangePickerTheme] gives more fine-grained control over the
   /// appearance of various components of the date range picker.
   ///
+  /// See also:
+  /// * [cellDecoration], which used to set decoration for the year cells in the
+  /// year view of the date range picker.
+  /// * [todayTextStyle], which used to set text style for the today cell in the
+  /// year view of the date range picker.
+  /// * [disabledDatesTextStyle], which used to set text style for the disabled
+  /// cell in the year view of the date range picker.
+  /// * [leadingDatesTextStyle], which used to set text style for the leading
+  /// date cells in the year views of the dat range picker.
+  /// * [SfDateRangePicker.selectionTextStyle], which is used to set the text
+  /// style for the text in the selected cell of date range picker.
+  /// * [SfDateRangePicker.rangeTextStyle], which is used to set text style for
+  /// the text in the selected range cell's of date range picker.
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the year, decade and century views](https://www.syncfusion.com/kb/12321/how-to-style-the-year-decade-century-views-in-the-flutter-date-range-picker)
+  ///
   /// ``` dart
   ///
   /// Widget build(BuildContext context) {
@@ -996,6 +1275,22 @@ class DateRangePickerYearCellStyle with Diagnosticable {
   ///
   /// Using a [SfDateRangePickerTheme] gives more fine-grained control over the
   /// appearance of various components of the date range picker.
+  ///
+  /// See also:
+  /// * [todayCellDecoration], which used to set decoration for the today cell
+  /// in the year views of date range picker.
+  /// * [textStyle], which used to set text style for the year cell in the
+  /// year views of the date range picker.
+  /// * [disabledDatesTextStyle], which used to set text style for the disabled
+  /// cell in the year views of the date range picker.
+  /// * [leadingDatesTextStyle], which used to set text style for the leading
+  /// date cells in the year views of the dat range picker.
+  /// * [SfDateRangePicker.selectionTextStyle], which is used to set the text
+  /// style for the text in the selected cell of date range picker.
+  /// * [SfDateRangePicker.rangeTextStyle], which is used to set text style for
+  /// the text in the selected range cell's of date range picker.
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the year, decade and century views](https://www.syncfusion.com/kb/12321/how-to-style-the-year-decade-century-views-in-the-flutter-date-range-picker)
   ///
   /// ```dart
   ///
@@ -1031,6 +1326,22 @@ class DateRangePickerYearCellStyle with Diagnosticable {
   /// _Note:_ This property not applicable when the
   /// [SfDateRangePicker.pickerMode] set as [DateRangePickerMode.hijri].
   ///
+  /// See also:
+  /// * [leadingDatesDecoration], which used to set decoration for the leading
+  /// date cells in the year views of date range picker.
+  /// * [textStyle], which used to set text style for the year cell in the
+  /// year views of the date range picker.
+  /// * [disabledDatesTextStyle], which used to set text style for the disabled
+  /// cell in the year views of the date range picker.
+  /// * [leadingDatesTextStyle], which used to set text style for the leading
+  /// date cells in the year views of the dat range picker.
+  /// * [SfDateRangePicker.selectionTextStyle], which is used to set the text
+  /// style for the text in the selected cell of date range picker.
+  /// * [SfDateRangePicker.rangeTextStyle], which is used to set text style for
+  /// the text in the selected range cell's of date range picker.
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the year, decade and century views](https://www.syncfusion.com/kb/12321/how-to-style-the-year-decade-century-views-in-the-flutter-date-range-picker)
+  ///
   /// ```dart
   ///
   /// Widget build(BuildContext context) {
@@ -1063,6 +1374,22 @@ class DateRangePickerYearCellStyle with Diagnosticable {
   ///
   /// Using a [SfDateRangePickerTheme] gives more fine-grained control over the
   /// appearance of various components of the date range picker.
+  ///
+  /// See also:
+  /// * [disabledDatesDecoration], which used to set decoration for the disabled
+  /// date cells in the year views of date range picker.
+  /// * [textStyle], which used to set text style for the year cell in the
+  /// year views of the date range picker.
+  /// * [todayTextStyle], which used to set text style for the today date
+  /// cell in the year views of the date range picker.
+  /// * [leadingDatesTextStyle], which used to set text style for the leading
+  /// date cells in the year views of the dat range picker.
+  /// * [SfDateRangePicker.selectionTextStyle], which is used to set the text
+  /// style for the text in the selected cell of date range picker.
+  /// * [SfDateRangePicker.rangeTextStyle], which is used to set text style for
+  /// the text in the selected range cell's of date range picker.
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the year, decade and century views](https://www.syncfusion.com/kb/12321/how-to-style-the-year-decade-century-views-in-the-flutter-date-range-picker)
   ///
   /// ```dart
   ///
@@ -1097,6 +1424,26 @@ class DateRangePickerYearCellStyle with Diagnosticable {
   /// Using a [SfDateRangePickerTheme] gives more fine-grained control over the
   /// appearance of various components of the date range picker.
   ///
+  /// See also:
+  /// * [disabledDatesTextStyle], which used to set text style for the disabled
+  /// date cells in the year views of date range picker.
+  /// * [cellDecoration], which used to set decoration for the year cell in the
+  /// year views of the date range picker.
+  /// * [todayCellDecoration], which used to set decoration for the today date
+  /// cell in the year views of the date range picker.
+  /// * [leadingDatesDecoration], which used to set decoration for the leading
+  /// date cells in the year views of the dat range picker.
+  /// * [SfDateRangePicker.selectionColor], which fills the background of the
+  /// selected cells in the date range picker.
+  /// * [SfDateRangePicker.startRangeSelectionColor], which fills the background
+  /// of the first cell of the range selection in date range picker.
+  /// * [SfDateRangePicker.endRangeSelectionColor], which fills the background
+  /// of the last cell of the range selection in date range picker.
+  /// * [SfDateRangePicker.rangeSelectionColor], which fills the background of
+  /// the in between cells of date range picker in range selection.
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the year, decade and century views](https://www.syncfusion.com/kb/12321/how-to-style-the-year-decade-century-views-in-the-flutter-date-range-picker)
+  ///
   /// ```dart
   ///
   /// Widget build(BuildContext context) {
@@ -1129,6 +1476,26 @@ class DateRangePickerYearCellStyle with Diagnosticable {
   /// Using a [SfDateRangePickerTheme] gives more fine-grained control over the
   /// appearance of various components of the date range picker.
   ///
+  /// See also:
+  /// * [textStyle], which used to set text style for the year cells in the
+  /// year views of date range picker.
+  /// * [disabledDatesDecoration], which used to set decoration for the disabled
+  /// year cells in the year views of the date range picker.
+  /// * [todayCellDecoration], which used to set decoration for the today date
+  /// cell in the year views of the date range picker.
+  /// * [leadingDatesDecoration], which used to set decoration for the leading
+  /// date cells in the year views of the dat range picker.
+  /// * [SfDateRangePicker.selectionColor], which fills the background of the
+  /// selected cells in the date range picker.
+  /// * [SfDateRangePicker.startRangeSelectionColor], which fills the background
+  /// of the first cell of the range selection in date range picker.
+  /// * [SfDateRangePicker.endRangeSelectionColor], which fills the background
+  /// of the last cell of the range selection in date range picker.
+  /// * [SfDateRangePicker.rangeSelectionColor], which fills the background of
+  /// the in between cells of date range picker in range selection.
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the year, decade and century views](https://www.syncfusion.com/kb/12321/how-to-style-the-year-decade-century-views-in-the-flutter-date-range-picker)
+  ///
   /// ```dart
   ///
   /// Widget build(BuildContext context) {
@@ -1160,6 +1527,26 @@ class DateRangePickerYearCellStyle with Diagnosticable {
   ///
   /// Using a [SfDateRangePickerTheme] gives more fine-grained control over the
   /// appearance of various components of the date range picker.
+  ///
+  /// See also:
+  /// * [todayTextStyle], which used to set text style for the today date cell
+  /// in the year views of date range picker.
+  /// * [disabledDatesDecoration], which used to set decoration for the disabled
+  /// year cells in the year views of the date range picker.
+  /// * [todayCellDecoration], which used to set decoration for the today date
+  /// cell in the year views of the date range picker.
+  /// * [leadingDatesDecoration], which used to set decoration for the leading
+  /// date cells in the year views of the dat range picker.
+  /// * [SfDateRangePicker.selectionColor], which fills the background of the
+  /// selected cells in the date range picker.
+  /// * [SfDateRangePicker.startRangeSelectionColor], which fills the background
+  /// of the first cell of the range selection in date range picker.
+  /// * [SfDateRangePicker.endRangeSelectionColor], which fills the background
+  /// of the last cell of the range selection in date range picker.
+  /// * [SfDateRangePicker.rangeSelectionColor], which fills the background of
+  /// the in between cells of date range picker in range selection.
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the year, decade and century views](https://www.syncfusion.com/kb/12321/how-to-style-the-year-decade-century-views-in-the-flutter-date-range-picker)
   ///
   /// ```dart
   ///
@@ -1195,6 +1582,26 @@ class DateRangePickerYearCellStyle with Diagnosticable {
   ///
   /// _Note:_ This property not applicable when the
   /// [SfDateRangePicker.pickerMode] set as [DateRangePickerMode.hijri].
+  ///
+  /// See also:
+  /// * [leadingDatesTextStyle], which used to set text style for the leading
+  ///  date cell in the year views of date range picker.
+  /// * [disabledDatesDecoration], which used to set decoration for the disabled
+  /// year cells in the year views of the date range picker.
+  /// * [todayCellDecoration], which used to set decoration for the today date
+  /// cell in the year views of the date range picker.
+  /// * [cellDecoration], which used to set decoration for the year cells in the
+  /// year views of the dat range picker.
+  /// * [SfDateRangePicker.selectionColor], which fills the background of the
+  /// selected cells in the date range picker.
+  /// * [SfDateRangePicker.startRangeSelectionColor], which fills the background
+  /// of the first cell of the range selection in date range picker.
+  /// * [SfDateRangePicker.endRangeSelectionColor], which fills the background
+  /// of the last cell of the range selection in date range picker.
+  /// * [SfDateRangePicker.rangeSelectionColor], which fills the background of
+  /// the in between cells of date range picker in range selection.
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the year, decade and century views](https://www.syncfusion.com/kb/12321/how-to-style-the-year-decade-century-views-in-the-flutter-date-range-picker)
   ///
   /// ```dart
   ///
@@ -1289,6 +1696,36 @@ class DateRangePickerYearCellStyle with Diagnosticable {
 /// [leadingDatesDecoration], and [weekendDatesDecoration]  in the month cells
 /// of the date range picker.
 ///
+/// See also:
+/// * [DateRangePickerMonthViewSettings], which allows to customize the month
+/// view of the date range picker
+/// * [SfDateRangePicker.cellBuilder], which allows to set custom widget for the
+///  picker cells in the date range picker.
+/// * [DateRangePickerYearCellStyle], which allows to customize the year cell of
+/// the year, decade and century views of the date range picker.
+/// * [SfDateRangePicker.selectionColor], which fills the background of the
+/// selected cells in the date range picker.
+/// * [SfDateRangePicker.startRangeSelectionColor], which fills the background
+/// of the first cell of the range selection in date range picker.
+/// * [SfDateRangePicker.endRangeSelectionColor], which fills the background of
+/// the last cell of the range selection in date range picker.
+/// * [SfDateRangePicker.rangeSelectionColor], which fills the background of the
+///  in between cells of date range picker in range selection.
+/// * [SfDateRangePicker.selectionTextStyle], which is used to set the text
+/// style for the text in the selected cell of date range picker.
+/// * [SfDateRangePicker.rangeTextStyle], which is used to set text style for
+/// the text in the selected range cell's of date range picker.
+/// * [SfDateRangePicker.backgroundColor], which fills the background of the
+/// date range picker.
+/// * [SfDateRangePicker.todayHighlightColor], which highlights the today date
+/// cell in the date range picker.
+/// * Knowledge base: [How to customize leading and trailing dates using cell builder](https://www.syncfusion.com/kb/12674/how-to-customize-leading-and-trailing-dates-using-cell-builder-in-the-flutter-date-range)
+/// * Knowledge base: [How to customize the special dates using builder](https://www.syncfusion.com/kb/12374/how-to-customize-the-special-dates-using-builder-in-the-flutter-date-range-picker)
+/// * Knowledge base: [How to customize the date range picker cells using builder](https://www.syncfusion.com/kb/12208/how-to-customize-the-date-range-picker-cells-using-builder-in-the-flutter-sfdaterangepicker)
+/// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+/// * Knowledge base: [How to style the current month date cell](https://www.syncfusion.com/kb/12190/how-to-style-the-current-month-date-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+/// * Knowledge base: [How to customize the month cell](https://www.syncfusion.com/kb/11307/how-to-customize-the-month-cell-of-the-flutter-date-range-picker-sfdaterangepicker)
+///
 /// ``` dart
 ///
 /// Widget build(BuildContext context) {
@@ -1370,6 +1807,34 @@ class DateRangePickerMonthCellStyle with Diagnosticable {
   /// Using a [SfDateRangePickerTheme] gives more fine-grained control over the
   /// appearance of various components of the date range picker.
   ///
+  /// See also:
+  /// * [cellDecoration], which used to set decoration for the month cells in
+  /// the month view of the date range picker.
+  /// * [todayTextStyle], which used to set text style for the today date cell
+  /// in the month view of the date range picker.
+  /// * [leadingDatesTextStyle], which used to set the text style for the
+  /// leading dates cells in the month view of the date range picker.
+  /// * [trailingDatesTextStyle], which used to set the text style for the
+  /// trailing dates cells in the month view of the date range picker.
+  /// * [disabledDatesTextStyle], which used to set the text style for the
+  /// disabled cells in the month view of the date range picker.
+  /// * [blackoutDateTextStyle], which used to set the text style for the black
+  /// out dates cells in the month view of date range picker.
+  /// * [specialDatesTextStyle], which used to set the text style for the
+  /// special dates cells in the month view of date range picker.
+  /// * [weekendTextStyle], which used to set text style for the the week end
+  /// date cells in the date range picker.
+  /// * [SfDateRangePicker.selectionTextStyle], which is used to set the text
+  /// style for the text in the selected cell of date range picker.
+  /// * [SfDateRangePicker.rangeTextStyle], which is used to set text style for
+  /// the text in the selected range cell's of date range picker.
+  /// * Knowledge base: [How to customize leading and trailing dates using cell builder](https://www.syncfusion.com/kb/12674/how-to-customize-leading-and-trailing-dates-using-cell-builder-in-the-flutter-date-range)
+  /// * Knowledge base: [How to customize the special dates using builder](https://www.syncfusion.com/kb/12374/how-to-customize-the-special-dates-using-builder-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the date range picker cells using builder](https://www.syncfusion.com/kb/12208/how-to-customize-the-date-range-picker-cells-using-builder-in-the-flutter-sfdaterangepicker)
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the current month date cell](https://www.syncfusion.com/kb/12190/how-to-style-the-current-month-date-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the month cell](https://www.syncfusion.com/kb/11307/how-to-customize-the-month-cell-of-the-flutter-date-range-picker-sfdaterangepicker)
+  ///
   /// ``` dart
   ///
   /// Widget build(BuildContext context) {
@@ -1402,6 +1867,34 @@ class DateRangePickerMonthCellStyle with Diagnosticable {
   ///
   /// Using a [SfDateRangePickerTheme] gives more fine-grained control over the
   /// appearance of various components of the date range picker.
+  ///
+  /// See also:
+  /// * [todayCellDecoration], which used to set decoration for the today month
+  /// cell in the month view of the date range picker.
+  /// * [textStyle], which used to set text style for the month cells in the
+  /// month view of the date range picker.
+  /// * [leadingDatesTextStyle], which used to set the text style for the
+  /// leading dates cells in the month view of the date range picker.
+  /// * [trailingDatesTextStyle], which used to set the text style for the
+  /// trailing dates cells in the month view of the date range picker.
+  /// * [disabledDatesTextStyle], which used to set the text style for the
+  /// disabled cells in the month view of the date range picker.
+  /// * [blackoutDateTextStyle], which used to set the text style for the black
+  /// out dates cells in the month view of date range picker.
+  /// * [specialDatesTextStyle], which used to set the text style for the
+  /// special dates cells in the month view of date range picker.
+  /// * [weekendTextStyle], which used to set text style for the the week end
+  /// date cells in the date range picker.
+  /// * [SfDateRangePicker.selectionTextStyle], which is used to set the text
+  /// style for the text in the selected cell of date range picker.
+  /// * [SfDateRangePicker.rangeTextStyle], which is used to set text style for
+  /// the text in the selected range cell's of date range picker.
+  /// * Knowledge base: [How to customize leading and trailing dates using cell builder](https://www.syncfusion.com/kb/12674/how-to-customize-leading-and-trailing-dates-using-cell-builder-in-the-flutter-date-range)
+  /// * Knowledge base: [How to customize the special dates using builder](https://www.syncfusion.com/kb/12374/how-to-customize-the-special-dates-using-builder-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the date range picker cells using builder](https://www.syncfusion.com/kb/12208/how-to-customize-the-date-range-picker-cells-using-builder-in-the-flutter-sfdaterangepicker)
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the current month date cell](https://www.syncfusion.com/kb/12190/how-to-style-the-current-month-date-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the month cell](https://www.syncfusion.com/kb/11307/how-to-customize-the-month-cell-of-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ``` dart
   ///
@@ -1443,7 +1936,35 @@ class DateRangePickerMonthCellStyle with Diagnosticable {
   /// This property not applicable when the [SfDateRangePicker.pickerMode] set
   /// as [DateRangePickerMode.hijri].
   ///
-  /// See also:[DateRangePickerMonthViewSettings.showTrailingAndLeadingDates].
+  /// See also:
+  /// * [DateRangePickerMonthViewSettings.showTrailingAndLeadingDates], which
+  /// used to display the previous and next month cell dates in the month view.
+  /// * [trailingDatesDecoration], which used to set decoration for the trailing
+  /// date cells in the month view of the date range picker.
+  /// * [textStyle], which used to set text style for the month cells in the
+  /// month view of the date range picker.
+  /// * [leadingDatesTextStyle], which used to set the text style for the
+  /// leading dates cells in the month view of the date range picker.
+  /// * [todayTextStyle], which used to set the text style for the today date
+  /// cell in the month view of the date range picker.
+  /// * [disabledDatesTextStyle], which used to set the text style for the
+  /// disabled cells in the month view of the date range picker.
+  /// * [blackoutDateTextStyle], which used to set the text style for the black
+  /// out dates cells in the month view of date range picker.
+  /// * [specialDatesTextStyle], which used to set the text style for the
+  /// special dates cells in the month view of date range picker.
+  /// * [weekendTextStyle], which used to set text style for the the week end
+  /// date cells in the date range picker.
+  /// * [SfDateRangePicker.selectionTextStyle], which is used to set the text
+  /// style for the text in the selected cell of date range picker.
+  /// * [SfDateRangePicker.rangeTextStyle], which is used to set text style for
+  /// the text in the selected range cell's of date range picker.
+  /// * Knowledge base: [How to customize leading and trailing dates using cell builder](https://www.syncfusion.com/kb/12674/how-to-customize-leading-and-trailing-dates-using-cell-builder-in-the-flutter-date-range)
+  /// * Knowledge base: [How to customize the special dates using builder](https://www.syncfusion.com/kb/12374/how-to-customize-the-special-dates-using-builder-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the date range picker cells using builder](https://www.syncfusion.com/kb/12208/how-to-customize-the-date-range-picker-cells-using-builder-in-the-flutter-sfdaterangepicker)
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the current month date cell](https://www.syncfusion.com/kb/12190/how-to-style-the-current-month-date-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the month cell](https://www.syncfusion.com/kb/11307/how-to-customize-the-month-cell-of-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ``` dart
   ///
@@ -1485,7 +2006,35 @@ class DateRangePickerMonthCellStyle with Diagnosticable {
   /// This property not applicable when the [SfDateRangePicker.pickerMode] set
   /// as [DateRangePickerMode.hijri].
   ///
-  /// See also:[DateRangePickerMonthViewSettings.showTrailingAndLeadingDates].
+  /// See also:
+  /// * [DateRangePickerMonthViewSettings.showTrailingAndLeadingDates], which
+  /// used to display the previous and next month cell dates in the month view.
+  /// * [leadingDatesDecoration], which used to set decoration for the leading
+  /// date cells in the month view of the date range picker.
+  /// * [textStyle], which used to set text style for the month cells in the
+  /// month view of the date range picker.
+  /// * [trailingDatesTextStyle], which used to set the text style for the
+  /// trailing dates cells in the month view of the date range picker.
+  /// * [todayTextStyle], which used to set the text style for the today date
+  /// cell in the month view of the date range picker.
+  /// * [disabledDatesTextStyle], which used to set the text style for the
+  /// disabled cells in the month view of the date range picker.
+  /// * [blackoutDateTextStyle], which used to set the text style for the black
+  /// out dates cells in the month view of date range picker.
+  /// * [specialDatesTextStyle], which used to set the text style for the
+  /// special dates cells in the month view of date range picker.
+  /// * [weekendTextStyle], which used to set text style for the the week end
+  /// date cells in the date range picker.
+  /// * [SfDateRangePicker.selectionTextStyle], which is used to set the text
+  /// style for the text in the selected cell of date range picker.
+  /// * [SfDateRangePicker.rangeTextStyle], which is used to set text style for
+  /// the text in the selected range cell's of date range picker.
+  /// * Knowledge base: [How to customize leading and trailing dates using cell builder](https://www.syncfusion.com/kb/12674/how-to-customize-leading-and-trailing-dates-using-cell-builder-in-the-flutter-date-range)
+  /// * Knowledge base: [How to customize the special dates using builder](https://www.syncfusion.com/kb/12374/how-to-customize-the-special-dates-using-builder-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the date range picker cells using builder](https://www.syncfusion.com/kb/12208/how-to-customize-the-date-range-picker-cells-using-builder-in-the-flutter-sfdaterangepicker)
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the current month date cell](https://www.syncfusion.com/kb/12190/how-to-style-the-current-month-date-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the month cell](https://www.syncfusion.com/kb/11307/how-to-customize-the-month-cell-of-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ``` dart
   ///
@@ -1521,9 +2070,38 @@ class DateRangePickerMonthCellStyle with Diagnosticable {
   /// appearance of various components of the date range picker.
   ///
   /// See also:
-  /// [SfDateRangePicker.minDate].
-  /// [SfDateRangePicker.maxDate].
-  /// [SfDateRangePicker.enablePastDates].
+  /// * [SfDateRangePicker.minDate], which is the minimum available date for the
+  /// date range picker.
+  /// * [SfDateRangePicker.maxDate], which is the last available date for the
+  /// date range picker.
+  /// * [SfDateRangePicker.enablePastDates], which allows to enable the dates
+  /// that falls before the today date for interaction.
+  /// * [disabledDatesDecoration], which used to set decoration for the disabled
+  /// date cells in the month view of the date range picker.
+  /// * [textStyle], which used to set text style for the month cells in the
+  /// month view of the date range picker.
+  /// * [trailingDatesTextStyle], which used to set the text style for the
+  /// trailing dates cells in the month view of the date range picker.
+  /// * [todayTextStyle], which used to set the text style for the today date
+  /// cell in the month view of the date range picker.
+  /// * [leadingDatesTextStyle], which used to set the text style for the
+  /// leading date cells in the month view of the date range picker.
+  /// * [blackoutDateTextStyle], which used to set the text style for the black
+  /// out dates cells in the month view of date range picker.
+  /// * [specialDatesTextStyle], which used to set the text style for the
+  /// special dates cells in the month view of date range picker.
+  /// * [weekendTextStyle], which used to set text style for the the week end
+  /// date cells in the date range picker.
+  /// * [SfDateRangePicker.selectionTextStyle], which is used to set the text
+  /// style for the text in the selected cell of date range picker.
+  /// * [SfDateRangePicker.rangeTextStyle], which is used to set text style for
+  /// the text in the selected range cell's of date range picker.
+  /// * Knowledge base: [How to customize leading and trailing dates using cell builder](https://www.syncfusion.com/kb/12674/how-to-customize-leading-and-trailing-dates-using-cell-builder-in-the-flutter-date-range)
+  /// * Knowledge base: [How to customize the special dates using builder](https://www.syncfusion.com/kb/12374/how-to-customize-the-special-dates-using-builder-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the date range picker cells using builder](https://www.syncfusion.com/kb/12208/how-to-customize-the-date-range-picker-cells-using-builder-in-the-flutter-sfdaterangepicker)
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the current month date cell](https://www.syncfusion.com/kb/12190/how-to-style-the-current-month-date-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the month cell](https://www.syncfusion.com/kb/11307/how-to-customize-the-month-cell-of-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ``` dart
   ///
@@ -1634,7 +2212,37 @@ class DateRangePickerMonthCellStyle with Diagnosticable {
   /// Using a [SfDateRangePickerTheme] gives more fine-grained control over the
   /// appearance of various components of the date range picker.
   ///
-  /// See also: [DateRangePickerMonthViewSettings.blackoutDates].
+  /// See also:
+  /// * [DateRangePickerMonthViewSettings.blackoutDates], which is used to
+  /// disable interaction for the specific month dates in month view.
+  /// * [SfDateRangePicker.enablePastDates], which allows to enable the dates
+  /// that falls before the today date for interaction.
+  /// * [blackoutDatesDecoration], which used to set decoration for the black
+  /// out date cells in the month view of the date range picker.
+  /// * [textStyle], which used to set text style for the month cells in the
+  /// month view of the date range picker.
+  /// * [trailingDatesTextStyle], which used to set the text style for the
+  /// trailing dates cells in the month view of the date range picker.
+  /// * [todayTextStyle], which used to set the text style for the today date
+  /// cell in the month view of the date range picker.
+  /// * [leadingDatesTextStyle], which used to set the text style for the
+  /// leading date cells in the month view of the date range picker.
+  /// * [disabledDatesTextStyle], which used to set the text style for the
+  /// disabled date cells in the month view of date range picker.
+  /// * [specialDatesTextStyle], which used to set the text style for the
+  /// special dates cells in the month view of date range picker.
+  /// * [weekendTextStyle], which used to set text style for the the week end
+  /// date cells in the date range picker.
+  /// * [SfDateRangePicker.selectionTextStyle], which is used to set the text
+  /// style for the text in the selected cell of date range picker.
+  /// * [SfDateRangePicker.rangeTextStyle], which is used to set text style for
+  /// the text in the selected range cell's of date range picker.
+  /// * Knowledge base: [How to customize leading and trailing dates using cell builder](https://www.syncfusion.com/kb/12674/how-to-customize-leading-and-trailing-dates-using-cell-builder-in-the-flutter-date-range)
+  /// * Knowledge base: [How to customize the special dates using builder](https://www.syncfusion.com/kb/12374/how-to-customize-the-special-dates-using-builder-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the date range picker cells using builder](https://www.syncfusion.com/kb/12208/how-to-customize-the-date-range-picker-cells-using-builder-in-the-flutter-sfdaterangepicker)
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the current month date cell](https://www.syncfusion.com/kb/12190/how-to-style-the-current-month-date-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the month cell](https://www.syncfusion.com/kb/11307/how-to-customize-the-month-cell-of-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ``` dart
   ///
@@ -1668,7 +2276,35 @@ class DateRangePickerMonthCellStyle with Diagnosticable {
   /// Using a [SfDateRangePickerTheme] gives more fine-grained control over the
   /// appearance of various components of the date range picker.
   ///
-  /// See also: [DateRangePickerMonthViewSettings.weekendDays].
+  /// See also:
+  /// * [DateRangePickerMonthViewSettings.weekendDays], which is used change the
+  /// week ends for month.
+  /// * [weekendDatesDecoration], which used to set decoration for the weekend
+  /// date cells in the month view of the date range picker.
+  /// * [textStyle], which used to set text style for the month cells in the
+  /// month view of the date range picker.
+  /// * [trailingDatesTextStyle], which used to set the text style for the
+  /// trailing dates cells in the month view of the date range picker.
+  /// * [todayTextStyle], which used to set the text style for the today date
+  /// cell in the month view of the date range picker.
+  /// * [leadingDatesTextStyle], which used to set the text style for the
+  /// leading date cells in the month view of the date range picker.
+  /// * [disabledDatesTextStyle], which used to set the text style for the
+  /// disabled date cells in the month view of date range picker.
+  /// * [specialDatesTextStyle], which used to set the text style for the
+  /// special dates cells in the month view of date range picker.
+  /// * [blackoutDateTextStyle], which used to set the text style for the black
+  /// out dates cells in the month view of date range picker.
+  /// * [SfDateRangePicker.selectionTextStyle], which is used to set the text
+  /// style for the text in the selected cell of date range picker.
+  /// * [SfDateRangePicker.rangeTextStyle], which is used to set text style for
+  /// the text in the selected range cell's of date range picker.
+  /// * Knowledge base: [How to customize leading and trailing dates using cell builder](https://www.syncfusion.com/kb/12674/how-to-customize-leading-and-trailing-dates-using-cell-builder-in-the-flutter-date-range)
+  /// * Knowledge base: [How to customize the special dates using builder](https://www.syncfusion.com/kb/12374/how-to-customize-the-special-dates-using-builder-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the date range picker cells using builder](https://www.syncfusion.com/kb/12208/how-to-customize-the-date-range-picker-cells-using-builder-in-the-flutter-sfdaterangepicker)
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the current month date cell](https://www.syncfusion.com/kb/12190/how-to-style-the-current-month-date-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the month cell](https://www.syncfusion.com/kb/11307/how-to-customize-the-month-cell-of-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ``` dart
   ///
@@ -1702,7 +2338,35 @@ class DateRangePickerMonthCellStyle with Diagnosticable {
   /// Using a [SfDateRangePickerTheme] gives more fine-grained control over the
   /// appearance of various components of the date range picker.
   ///
-  /// See also: [DateRangePickerMonthViewSettings.specialDates].
+  /// See also:
+  /// * [DateRangePickerMonthViewSettings.specialDates], which is used highlight
+  /// the specific dates in the month view.
+  /// * [specialDatesDecoration], which used to set decoration for the special
+  /// date cells in the month view of the date range picker.
+  /// * [textStyle], which used to set text style for the month cells in the
+  /// month view of the date range picker.
+  /// * [trailingDatesTextStyle], which used to set the text style for the
+  /// trailing dates cells in the month view of the date range picker.
+  /// * [todayTextStyle], which used to set the text style for the today date
+  /// cell in the month view of the date range picker.
+  /// * [leadingDatesTextStyle], which used to set the text style for the
+  /// leading date cells in the month view of the date range picker.
+  /// * [disabledDatesTextStyle], which used to set the text style for the
+  /// disabled date cells in the month view of date range picker.
+  /// * [blackoutDateTextStyle], which used to set the text style for the black
+  /// out dates cells in the month view of date range picker.
+  /// * [weekendTextStyle], which used to set the text style for the weekend
+  /// date cells in the month view of date range picker.
+  /// * [SfDateRangePicker.selectionTextStyle], which is used to set the text
+  /// style for the text in the selected cell of date range picker.
+  /// * [SfDateRangePicker.rangeTextStyle], which is used to set text style for
+  /// the text in the selected range cell's of date range picker.
+  /// * Knowledge base: [How to customize leading and trailing dates using cell builder](https://www.syncfusion.com/kb/12674/how-to-customize-leading-and-trailing-dates-using-cell-builder-in-the-flutter-date-range)
+  /// * Knowledge base: [How to customize the special dates using builder](https://www.syncfusion.com/kb/12374/how-to-customize-the-special-dates-using-builder-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the date range picker cells using builder](https://www.syncfusion.com/kb/12208/how-to-customize-the-date-range-picker-cells-using-builder-in-the-flutter-sfdaterangepicker)
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the current month date cell](https://www.syncfusion.com/kb/12190/how-to-style-the-current-month-date-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the month cell](https://www.syncfusion.com/kb/11307/how-to-customize-the-month-cell-of-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ``` dart
   ///
@@ -1734,6 +2398,36 @@ class DateRangePickerMonthCellStyle with Diagnosticable {
   ///
   /// Using a [SfDateRangePickerTheme] gives more fine-grained control over the
   /// appearance of various components of the date range picker.
+  ///
+  /// See also:
+  /// * [DateRangePickerMonthViewSettings.specialDates], which is used highlight
+  /// the specific dates in the month view.
+  /// * [specialDatesTextStyle], which used to set text style for the special
+  /// date cells in the month view of the date range picker.
+  /// * [cellDecoration], which used to set decoration for the month cells
+  /// in the month view of the date range picker.
+  /// * [trailingDatesDecoration], which used to set the decoration for the
+  /// trailing dates cells in the month view of the date range picker.
+  /// * [todayCellDecoration], which used to set the decoration for the today
+  /// date cell in the month view of the date range picker.
+  /// * [leadingDatesDecoration], which used to set the decoration for the
+  /// leading date cells in the month view of the date range picker.
+  /// * [disabledDatesDecoration], which used to set the decoration for the
+  /// disabled date cells in the month view of date range picker.
+  /// * [weekendDatesDecoration], which used to set the decoration for the
+  /// weekend date cells in the month view of date range picker.
+  /// * [blackoutDatesDecoration], which used to set decoration for the blackout
+  /// date cells in the month view of date range picker.
+  /// * [SfDateRangePicker.selectionTextStyle], which is used to set the text
+  /// style for the text in the selected cell of date range picker.
+  /// * [SfDateRangePicker.rangeTextStyle], which is used to set text style for
+  /// the text in the selected range cell's of date range picker.
+  /// * Knowledge base: [How to customize leading and trailing dates using cell builder](https://www.syncfusion.com/kb/12674/how-to-customize-leading-and-trailing-dates-using-cell-builder-in-the-flutter-date-range)
+  /// * Knowledge base: [How to customize the special dates using builder](https://www.syncfusion.com/kb/12374/how-to-customize-the-special-dates-using-builder-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the date range picker cells using builder](https://www.syncfusion.com/kb/12208/how-to-customize-the-date-range-picker-cells-using-builder-in-the-flutter-sfdaterangepicker)
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the current month date cell](https://www.syncfusion.com/kb/12190/how-to-style-the-current-month-date-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the month cell](https://www.syncfusion.com/kb/11307/how-to-customize-the-month-cell-of-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ```dart
   ///
@@ -1768,6 +2462,36 @@ class DateRangePickerMonthCellStyle with Diagnosticable {
   /// Using a [SfDateRangePickerTheme] gives more fine-grained control over the
   /// appearance of various components of the date range picker.
   ///
+  /// See also:
+  /// * [DateRangePickerMonthViewSettings.weekendDates], which is used to change
+  /// the weekends for the month in month view.
+  /// * [weekendTextStyle], which used to set text style for the special
+  /// date cells in the month view of the date range picker.
+  /// * [cellDecoration], which used to set decoration for the month cells
+  /// in the month view of the date range picker.
+  /// * [trailingDatesDecoration], which used to set the decoration for the
+  /// trailing dates cells in the month view of the date range picker.
+  /// * [todayCellDecoration], which used to set the decoration for the today
+  /// date cell in the month view of the date range picker.
+  /// * [leadingDatesDecoration], which used to set the decoration for the
+  /// leading date cells in the month view of the date range picker.
+  /// * [disabledDatesDecoration], which used to set the decoration for the
+  /// disabled date cells in the month view of date range picker.
+  /// * [specialDatesDecoration], which used to set the decoration for the
+  /// special date cells in the month view of date range picker.
+  /// * [blackoutDatesDecoration], which used to set decoration for the blackout
+  /// date cells in the month view of date range picker.
+  /// * [SfDateRangePicker.selectionTextStyle], which is used to set the text
+  /// style for the text in the selected cell of date range picker.
+  /// * [SfDateRangePicker.rangeTextStyle], which is used to set text style for
+  /// the text in the selected range cell's of date range picker.
+  /// * Knowledge base: [How to customize leading and trailing dates using cell builder](https://www.syncfusion.com/kb/12674/how-to-customize-leading-and-trailing-dates-using-cell-builder-in-the-flutter-date-range)
+  /// * Knowledge base: [How to customize the special dates using builder](https://www.syncfusion.com/kb/12374/how-to-customize-the-special-dates-using-builder-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the date range picker cells using builder](https://www.syncfusion.com/kb/12208/how-to-customize-the-date-range-picker-cells-using-builder-in-the-flutter-sfdaterangepicker)
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the current month date cell](https://www.syncfusion.com/kb/12190/how-to-style-the-current-month-date-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the month cell](https://www.syncfusion.com/kb/11307/how-to-customize-the-month-cell-of-the-flutter-date-range-picker-sfdaterangepicker)
+  ///
   /// ```dart
   ///
   /// Widget build(BuildContext context) {
@@ -1800,6 +2524,36 @@ class DateRangePickerMonthCellStyle with Diagnosticable {
   ///
   /// Using a [SfDateRangePickerTheme] gives more fine-grained control over the
   /// appearance of various components of the date range picker.
+  ///
+  /// See also:
+  /// * [DateRangePickerMonthViewSettings.blackoutDates], which is used to
+  /// disable interactions for specific dates  in month view.
+  /// * [blackoutDateTextStyle], which used to set text style for the blackout
+  /// date cells in the month view of the date range picker.
+  /// * [cellDecoration], which used to set decoration for the month cells
+  /// in the month view of the date range picker.
+  /// * [trailingDatesDecoration], which used to set the decoration for the
+  /// trailing dates cells in the month view of the date range picker.
+  /// * [todayCellDecoration], which used to set the decoration for the today
+  /// date cell in the month view of the date range picker.
+  /// * [leadingDatesDecoration], which used to set the decoration for the
+  /// leading date cells in the month view of the date range picker.
+  /// * [disabledDatesDecoration], which used to set the decoration for the
+  /// disabled date cells in the month view of date range picker.
+  /// * [specialDatesDecoration], which used to set the decoration for the
+  /// special date cells in the month view of date range picker.
+  /// * [weekendDatesDecoration], which used to set decoration for the weekend
+  /// date cells in the month view of date range picker.
+  /// * [SfDateRangePicker.selectionTextStyle], which is used to set the text
+  /// style for the text in the selected cell of date range picker.
+  /// * [SfDateRangePicker.rangeTextStyle], which is used to set text style for
+  /// the text in the selected range cell's of date range picker.
+  /// * Knowledge base: [How to customize leading and trailing dates using cell builder](https://www.syncfusion.com/kb/12674/how-to-customize-leading-and-trailing-dates-using-cell-builder-in-the-flutter-date-range)
+  /// * Knowledge base: [How to customize the special dates using builder](https://www.syncfusion.com/kb/12374/how-to-customize-the-special-dates-using-builder-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the date range picker cells using builder](https://www.syncfusion.com/kb/12208/how-to-customize-the-date-range-picker-cells-using-builder-in-the-flutter-sfdaterangepicker)
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the current month date cell](https://www.syncfusion.com/kb/12190/how-to-style-the-current-month-date-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the month cell](https://www.syncfusion.com/kb/11307/how-to-customize-the-month-cell-of-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ```dart
   ///
@@ -1838,8 +2592,36 @@ class DateRangePickerMonthCellStyle with Diagnosticable {
   /// appearance of various components of the date range picker.
   ///
   /// See also:
-  /// [SfDateRangePicker.minDate].
-  /// [SfDateRangePicker.maxDate].
+  /// * [SfDateRangePicker.minDate], which is the least available date in the
+  /// date range picker.
+  /// * [SfDateRangePicker.maxDate], which is the last available date in the
+  /// date range picker.
+  /// * [disabledDatesTextStyle], which used to set text style for the disabled
+  /// date cells in the month view of the date range picker.
+  /// * [cellDecoration], which used to set decoration for the month cells
+  /// in the month view of the date range picker.
+  /// * [trailingDatesDecoration], which used to set the decoration for the
+  /// trailing dates cells in the month view of the date range picker.
+  /// * [todayCellDecoration], which used to set the decoration for the today
+  /// date cell in the month view of the date range picker.
+  /// * [leadingDatesDecoration], which used to set the decoration for the
+  /// leading date cells in the month view of the date range picker.
+  /// * [blackoutDatesDecoration], which used to set the decoration for the
+  /// blackout date cells in the month view of date range picker.
+  /// * [specialDatesDecoration], which used to set the decoration for the
+  /// special date cells in the month view of date range picker.
+  /// * [weekendDatesDecoration], which used to set decoration for the weekend
+  /// date cells in the month view of date range picker.
+  /// * [SfDateRangePicker.selectionTextStyle], which is used to set the text
+  /// style for the text in the selected cell of date range picker.
+  /// * [SfDateRangePicker.rangeTextStyle], which is used to set text style for
+  /// the text in the selected range cell's of date range picker.
+  /// * Knowledge base: [How to customize leading and trailing dates using cell builder](https://www.syncfusion.com/kb/12674/how-to-customize-leading-and-trailing-dates-using-cell-builder-in-the-flutter-date-range)
+  /// * Knowledge base: [How to customize the special dates using builder](https://www.syncfusion.com/kb/12374/how-to-customize-the-special-dates-using-builder-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the date range picker cells using builder](https://www.syncfusion.com/kb/12208/how-to-customize-the-date-range-picker-cells-using-builder-in-the-flutter-sfdaterangepicker)
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the current month date cell](https://www.syncfusion.com/kb/12190/how-to-style-the-current-month-date-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the month cell](https://www.syncfusion.com/kb/11307/how-to-customize-the-month-cell-of-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ```dart
   ///
@@ -1873,6 +2655,34 @@ class DateRangePickerMonthCellStyle with Diagnosticable {
   /// Using a [SfDateRangePickerTheme] gives more fine-grained control over the
   /// appearance of various components of the date range picker.
   ///
+  /// See also:
+  /// * [textStyle], which used to set text style for the month cells in the
+  /// month view of the date range picker.
+  /// * [disabledDatesDecoration], which used to set decoration for the disabled
+  /// date cells in the month view of the date range picker.
+  /// * [trailingDatesDecoration], which used to set the decoration for the
+  /// trailing dates cells in the month view of the date range picker.
+  /// * [todayCellDecoration], which used to set the decoration for the today
+  /// date cell in the month view of the date range picker.
+  /// * [leadingDatesDecoration], which used to set the decoration for the
+  /// leading date cells in the month view of the date range picker.
+  /// * [blackoutDatesDecoration], which used to set the decoration for the
+  /// blackout date cells in the month view of date range picker.
+  /// * [specialDatesDecoration], which used to set the decoration for the
+  /// special date cells in the month view of date range picker.
+  /// * [weekendDatesDecoration], which used to set decoration for the weekend
+  /// date cells in the month view of date range picker.
+  /// * [SfDateRangePicker.selectionTextStyle], which is used to set the text
+  /// style for the text in the selected cell of date range picker.
+  /// * [SfDateRangePicker.rangeTextStyle], which is used to set text style for
+  /// the text in the selected range cell's of date range picker.
+  /// * Knowledge base: [How to customize leading and trailing dates using cell builder](https://www.syncfusion.com/kb/12674/how-to-customize-leading-and-trailing-dates-using-cell-builder-in-the-flutter-date-range)
+  /// * Knowledge base: [How to customize the special dates using builder](https://www.syncfusion.com/kb/12374/how-to-customize-the-special-dates-using-builder-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the date range picker cells using builder](https://www.syncfusion.com/kb/12208/how-to-customize-the-date-range-picker-cells-using-builder-in-the-flutter-sfdaterangepicker)
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the current month date cell](https://www.syncfusion.com/kb/12190/how-to-style-the-current-month-date-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the month cell](https://www.syncfusion.com/kb/11307/how-to-customize-the-month-cell-of-the-flutter-date-range-picker-sfdaterangepicker)
+  ///
   /// ```dart
   ///
   /// Widget build(BuildContext context) {
@@ -1904,6 +2714,34 @@ class DateRangePickerMonthCellStyle with Diagnosticable {
   ///
   /// Using a [SfDateRangePickerTheme] gives more fine-grained control over the
   /// appearance of various components of the date range picker.
+  ///
+  /// See also:
+  /// * [todayTextStyle], which used to set text style for the today date cell
+  /// in the month view of the date range picker.
+  /// * [disabledDatesDecoration], which used to set decoration for the disabled
+  /// date cells in the month view of the date range picker.
+  /// * [trailingDatesDecoration], which used to set the decoration for the
+  /// trailing dates cells in the month view of the date range picker.
+  /// * [cellDecoration], which used to set the decoration for the month cells
+  /// in the month view of the date range picker.
+  /// * [leadingDatesDecoration], which used to set the decoration for the
+  /// leading date cells in the month view of the date range picker.
+  /// * [blackoutDatesDecoration], which used to set the decoration for the
+  /// blackout date cells in the month view of date range picker.
+  /// * [specialDatesDecoration], which used to set the decoration for the
+  /// special date cells in the month view of date range picker.
+  /// * [weekendDatesDecoration], which used to set decoration for the weekend
+  /// date cells in the month view of date range picker.
+  /// * [SfDateRangePicker.selectionTextStyle], which is used to set the text
+  /// style for the text in the selected cell of date range picker.
+  /// * [SfDateRangePicker.rangeTextStyle], which is used to set text style for
+  /// the text in the selected range cell's of date range picker.
+  /// * Knowledge base: [How to customize leading and trailing dates using cell builder](https://www.syncfusion.com/kb/12674/how-to-customize-leading-and-trailing-dates-using-cell-builder-in-the-flutter-date-range)
+  /// * Knowledge base: [How to customize the special dates using builder](https://www.syncfusion.com/kb/12374/how-to-customize-the-special-dates-using-builder-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the date range picker cells using builder](https://www.syncfusion.com/kb/12208/how-to-customize-the-date-range-picker-cells-using-builder-in-the-flutter-sfdaterangepicker)
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the current month date cell](https://www.syncfusion.com/kb/12190/how-to-style-the-current-month-date-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the month cell](https://www.syncfusion.com/kb/11307/how-to-customize-the-month-cell-of-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ```dart
   ///
@@ -1945,7 +2783,35 @@ class DateRangePickerMonthCellStyle with Diagnosticable {
   /// This property not applicable when the [SfDateRangePicker.pickerMode] set
   /// as [DateRangePickerMode.hijri].
   ///
-  /// See also:[DateRangePickerMonthViewSettings.showTrailingAndLeadingDates].
+  /// See also:
+  /// * [DateRangePickerMonthViewSettings.showTrailingAndLeadingDates], which
+  /// used to display the previous and next month dates in the month view.
+  /// * [trailingDatesTextStyle], which used to set text style for the trailing
+  ///  date cell in the month view of the date range picker.
+  /// * [disabledDatesDecoration], which used to set decoration for the disabled
+  /// date cells in the month view of the date range picker.
+  /// * [todayCellDecoration], which used to set the decoration for the today
+  /// date cell in the month view of the date range picker.
+  /// * [cellDecoration], which used to set the decoration for the month cells
+  /// in the month view of the date range picker.
+  /// * [leadingDatesDecoration], which used to set the decoration for the
+  /// leading date cells in the month view of the date range picker.
+  /// * [blackoutDatesDecoration], which used to set the decoration for the
+  /// blackout date cells in the month view of date range picker.
+  /// * [specialDatesDecoration], which used to set the decoration for the
+  /// special date cells in the month view of date range picker.
+  /// * [weekendDatesDecoration], which used to set decoration for the weekend
+  /// date cells in the month view of date range picker.
+  /// * [SfDateRangePicker.selectionTextStyle], which is used to set the text
+  /// style for the text in the selected cell of date range picker.
+  /// * [SfDateRangePicker.rangeTextStyle], which is used to set text style for
+  /// the text in the selected range cell's of date range picker.
+  /// * Knowledge base: [How to customize leading and trailing dates using cell builder](https://www.syncfusion.com/kb/12674/how-to-customize-leading-and-trailing-dates-using-cell-builder-in-the-flutter-date-range)
+  /// * Knowledge base: [How to customize the special dates using builder](https://www.syncfusion.com/kb/12374/how-to-customize-the-special-dates-using-builder-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the date range picker cells using builder](https://www.syncfusion.com/kb/12208/how-to-customize-the-date-range-picker-cells-using-builder-in-the-flutter-sfdaterangepicker)
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the current month date cell](https://www.syncfusion.com/kb/12190/how-to-style-the-current-month-date-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the month cell](https://www.syncfusion.com/kb/11307/how-to-customize-the-month-cell-of-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ```dart
   ///
@@ -1987,7 +2853,36 @@ class DateRangePickerMonthCellStyle with Diagnosticable {
   /// This property not applicable when the [SfDateRangePicker.pickerMode] set
   /// as [DateRangePickerMode.hijri].
   ///
-  /// See also:[DateRangePickerMonthViewSettings.showLeadingAndTrailingDate].
+  /// See also:
+  /// * [DateRangePickerMonthViewSettings.showTrailingAndLeadingDates], which
+  /// used to display the previous and next month dates in the month view.
+  /// * [leadingDatesTextStyle], which used to set text style for the leading
+  ///  date cell in the month view of the date range picker.
+  /// * [disabledDatesDecoration], which used to set decoration for the disabled
+  /// date cells in the month view of the date range picker.
+  /// * [todayCellDecoration], which used to set the decoration for the today
+  /// date cell in the month view of the date range picker.
+  /// * [cellDecoration], which used to set the decoration for the month cells
+  /// in the month view of the date range picker.
+  /// * [trailingDatesDecoration], which used to set the decoration for the
+  /// trailing date cells in the month view of the date range picker.
+  /// * [blackoutDatesDecoration], which used to set the decoration for the
+  /// blackout date cells in the month view of date range picker.
+  /// * [specialDatesDecoration], which used to set the decoration for the
+  /// special date cells in the month view of date range picker.
+  /// * [weekendDatesDecoration], which used to set decoration for the weekend
+  /// date cells in the month view of date range picker.
+  /// * [SfDateRangePicker.selectionTextStyle], which is used to set the text
+  /// style for the text in the selected cell of date range picker.
+  /// * [SfDateRangePicker.rangeTextStyle], which is used to set text style for
+  /// the text in the selected range cell's of date range picker.
+  /// * Knowledge base: [How to customize leading and trailing dates using cell builder](https://www.syncfusion.com/kb/12674/how-to-customize-leading-and-trailing-dates-using-cell-builder-in-the-flutter-date-range)
+  /// * Knowledge base: [How to customize the special dates using builder](https://www.syncfusion.com/kb/12374/how-to-customize-the-special-dates-using-builder-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the date range picker cells using builder](https://www.syncfusion.com/kb/12208/how-to-customize-the-date-range-picker-cells-using-builder-in-the-flutter-sfdaterangepicker)
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the current month date cell](https://www.syncfusion.com/kb/12190/how-to-style-the-current-month-date-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the month cell](https://www.syncfusion.com/kb/11307/how-to-customize-the-month-cell-of-the-flutter-date-range-picker-sfdaterangepicker)
+  ///
   ///
   /// ```dart
   ///
@@ -2246,6 +3141,8 @@ class DateRangePickerMonthCellStyle with Diagnosticable {
   }
 }
 
+/// Signature for the callback that reports when the picker controller value
+/// changed.
 typedef DateRangePickerValueChangedCallback = void Function(String);
 
 /// Notifier used to notify the when the objects properties changed.
@@ -2341,9 +3238,50 @@ class DateRangePickerValueChangeNotifier with Diagnosticable {
 /// select the dates or ranges programmatically on [SfDateRangePicker] on
 /// initial load and in run time.
 ///
-/// See also: [DateRangePickerSelectionMode]
-///
 /// Defaults to null.
+///
+/// See also:
+/// * [SfDateRangePicker.initialDisplayDate], which used to navigate the date
+/// range picker to the specific date initially.
+/// * [SfDateRangePicker.initialSelectedDate], which allows to select date
+/// programmatically initially on date range picker.
+/// * [SfDateRangePicker.initialSelectedDates], which allows to list of select
+/// date programmatically initially on date range picker.
+/// * [SfDateRangePicker.initialSelectedRange], which allows to select a range
+/// of dates programmatically initially on date range picker.
+/// * [SfDateRangePicker.initialSelectedRanges], which allows to select a ranges
+/// of dates programmatically initially on date range picker.
+/// * [selectedDate],which allows to select date
+/// programmatically dynamically on date range picker.
+/// * [selectedDates], which allows to select dates
+/// programmatically dynamically on date range picker.
+/// * [selectedRange], which allows to select range
+/// of dates programmatically dynamically on date range picker.
+/// * [selectedRanges], which allows to select
+/// ranges of dates programmatically dynamically on date range picker.
+/// * [SfDateRangePicker.selectionMode], which allows to customize the selection
+/// mode with available mode options.
+/// * [SfDateRangePicker.onViewChanged], the callback which notifies when the
+/// current view visible date changed on the date range picker.
+/// * [SfDateRangePicker.onSelectionChanged], the callback which notifies when
+/// the selected cell changed on the the date range picker.
+/// * [SfDateRangePicker.showActionButtons], which allows to cancel of confirm
+/// the selection in the date range picker.
+/// * [SfDateRangePicker.onSubmit], the callback which notifies when the
+/// selected value confirmed through confirm button on date range picker.
+/// * [SfDateRangePicker.onCancel], the callback which notifies when the
+/// selected value canceled and reverted to previous  confirmed value through
+/// cancel button on date range picker.
+/// * Knowledge base: [How to get the selected date](https://www.syncfusion.com/kb/11410/how-to-get-the-selected-date-from-the-flutter-date-range-picker-sfdaterangepicker)
+/// * Knowledge base: [How to select a week](https://www.syncfusion.com/kb/11412/how-to-select-a-week-in-the-flutter-date-range-picker-sfdaterangepicker)
+/// * Knowledge base: [How to select all days when clicking on the day header](https://www.syncfusion.com/kb/12353/how-to-select-all-days-when-clicking-on-the-day-header-in-the-flutter-date-range-picker)
+/// * Knowledge base: [How to confirm or cancel the selection](https://www.syncfusion.com/kb/12546/how-to-confirm-or-cancel-the-selection-in-the-flutter-date-range-picker)
+/// * Knowledge base: [How to select previous or next dates bases on selected date](https://www.syncfusion.com/kb/12354/how-to-select-previous-or-next-dates-based-on-the-selected-date-in-the-flutter-date-range)
+/// * Knowledge base: [How to get the start and end date of the selected range](https://www.syncfusion.com/kb/12248/how-to-get-the-start-and-end-date-of-the-selected-range-in-the-flutter-date-range-picker)
+/// * Knowledge base: [How to programmatically select the date](https://www.syncfusion.com/kb/12114/how-to-programmatically-select-the-date-in-the-flutter-date-range-picker-sfdaterangepicker)
+/// * Knowledge base: [How to do programmatic navigation](https://www.syncfusion.com/kb/12140/how-to-do-programmatic-navigation-using-flutter-date-range-picker-sfdaterangepicker)
+/// * Knowledge base: [How to programmatically navigate to adjacent dates](https://www.syncfusion.com/kb/12137/how-to-programmatically-navigate-to-the-adjacent-dates-in-the-flutter-date-range-picker)
+/// * Knowledge base: [How to programmatically navigate](https://www.syncfusion.com/kb/12135/how-to-programmatically-navigate-to-the-date-in-the-flutter-date-range-picker)
 ///
 /// This example demonstrates how to use the [SfDateRangePickerController] for
 /// [SfDateRangePicker].
@@ -2423,6 +3361,29 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   /// It is only applicable when the [DateRangePickerSelectionMode] set as
   /// [DateRangePickerSelectionMode.single].
   ///
+  /// See also:
+  /// * [SfDateRangePicker.initialSelectedDate], which allows to select date
+  /// programmatically initially on date range picker.
+  /// * [selectedDates], which allows to select dates
+  /// programmatically dynamically on date range picker.
+  /// * [selectedRange], which allows to select range
+  /// of dates programmatically dynamically on date range picker.
+  /// * [selectedRanges], which allows to select
+  /// ranges of dates programmatically dynamically on date range picker.
+  /// * [SfDateRangePicker.selectionMode], which allows to customize the
+  /// selection mode with available mode options.
+  /// * [SfDateRangePicker.onSelectionChanged], the callback which notifies when
+  /// the selected cell changed on the the date range picker.
+  /// * [SfDateRangePicker.showActionButtons], which allows to cancel of confirm
+  /// the selection in the date range picker.
+  /// * [SfDateRangePicker.onSubmit], the callback which notifies when the
+  /// selected value confirmed through confirm button on date range picker.
+  /// * [SfDateRangePicker.onCancel], the callback which notifies when the
+  /// selected value canceled and reverted to previous  confirmed value through
+  /// cancel button on date range picker.
+  /// * Knowledge base: [How to get the selected date](https://www.syncfusion.com/kb/11410/how-to-get-the-selected-date-from-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to programmatically select the date](https://www.syncfusion.com/kb/12114/how-to-programmatically-select-the-date-in-the-flutter-date-range-picker-sfdaterangepicker)
+  ///
   /// ``` dart
   ///
   /// class MyAppState extends State<MyApp> {
@@ -2481,6 +3442,31 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   ///
   /// It is only applicable when the [selectionMode] set as
   /// [DateRangePickerSelectionMode.multiple].
+  ///
+  /// See also:
+  /// * [SfDateRangePicker.initialSelectedDates], which allows to list of select
+  /// date programmatically initially on date range picker.
+  /// * [selectedDate],which allows to select date
+  /// programmatically dynamically on date range picker.
+  /// * [selectedRange], which allows to select range
+  /// of dates programmatically dynamically on date range picker.
+  /// * [selectedRanges], which allows to select
+  /// ranges of dates programmatically dynamically on date range picker.
+  /// * [SfDateRangePicker.selectionMode], which allows to customize the
+  /// selection mode with available mode options.
+  /// * [SfDateRangePicker.onSelectionChanged], the callback which notifies when
+  /// the selected cell changed on the the date range picker.
+  /// * [SfDateRangePicker.showActionButtons], which allows to cancel of confirm
+  /// the selection in the date range picker.
+  /// * [SfDateRangePicker.onSubmit], the callback which notifies when the
+  /// selected value confirmed through confirm button on date range picker.
+  /// * [SfDateRangePicker.onCancel], the callback which notifies when the
+  /// selected value canceled and reverted to previous  confirmed value through
+  /// cancel button on date range picker.
+  /// * Knowledge base: [How to get the selected date](https://www.syncfusion.com/kb/11410/how-to-get-the-selected-date-from-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to select a week](https://www.syncfusion.com/kb/11412/how-to-select-a-week-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to select previous or next dates bases on selected date](https://www.syncfusion.com/kb/12354/how-to-select-previous-or-next-dates-based-on-the-selected-date-in-the-flutter-date-range)
+  /// * Knowledge base: [How to programmatically select the date](https://www.syncfusion.com/kb/12114/how-to-programmatically-select-the-date-in-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ``` dart
   ///
@@ -2543,6 +3529,31 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   /// It is only applicable when the [selectionMode] set as
   /// [DateRangePickerSelectionMode.range].
   ///
+  /// See also:
+  /// * [SfDateRangePicker.initialSelectedRange], which allows to select a range
+  /// of dates programmatically initially on date range picker.
+  /// * [selectedDate],which allows to select date
+  /// programmatically dynamically on date range picker.
+  /// * [selectedDates], which allows to select dates
+  /// programmatically dynamically on date range picker.
+  /// * [selectedRanges], which allows to select
+  /// ranges of dates programmatically dynamically on date range picker.
+  /// * [SfDateRangePicker.selectionMode], which allows to customize the
+  /// selection mode with available mode options.
+  /// * [SfDateRangePicker.onSelectionChanged], the callback which notifies when
+  /// the selected cell changed on the the date range picker.
+  /// * [SfDateRangePicker.showActionButtons], which allows to cancel of confirm
+  /// the selection in the date range picker.
+  /// * [SfDateRangePicker.onSubmit], the callback which notifies when the
+  /// selected value confirmed through confirm button on date range picker.
+  /// * [SfDateRangePicker.onCancel], the callback which notifies when the
+  /// selected value canceled and reverted to previous  confirmed value through
+  /// cancel button on date range picker.
+  /// * Knowledge base: [How to select a week](https://www.syncfusion.com/kb/11412/how-to-select-a-week-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to select previous or next dates bases on selected date](https://www.syncfusion.com/kb/12354/how-to-select-previous-or-next-dates-based-on-the-selected-date-in-the-flutter-date-range)
+  /// * Knowledge base: [How to get the start and end date of the selected range](https://www.syncfusion.com/kb/12248/how-to-get-the-start-and-end-date-of-the-selected-range-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to programmatically select the date](https://www.syncfusion.com/kb/12114/how-to-programmatically-select-the-date-in-the-flutter-date-range-picker-sfdaterangepicker)
+  ///
   /// ``` dart
   ///
   /// class MyAppState extends State<MyApp> {
@@ -2601,6 +3612,32 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   /// It is only applicable when the [selectionMode] set as
   /// [DateRangePickerSelectionMode.multiRange].
   ///
+  /// See also:
+  /// * [SfDateRangePicker.initialSelectedRanges], which allows to select a
+  /// ranges of dates programmatically initially on date range picker.
+  /// * [selectedDate],which allows to select date
+  /// programmatically dynamically on date range picker.
+  /// * [selectedDates], which allows to select dates
+  /// programmatically dynamically on date range picker.
+  /// * [selectedRange], which allows to select range
+  /// of dates programmatically dynamically on date range picker.
+  /// * [SfDateRangePicker.selectionMode], which allows to customize the
+  /// selection mode with available mode options.
+  /// * [SfDateRangePicker.onSelectionChanged], the callback which notifies when
+  /// the selected cell changed on the the date range picker.
+  /// * [SfDateRangePicker.showActionButtons], which allows to cancel of confirm
+  /// the selection in the date range picker.
+  /// * [SfDateRangePicker.onSubmit], the callback which notifies when the
+  /// selected value confirmed through confirm button on date range picker.
+  /// * [SfDateRangePicker.onCancel], the callback which notifies when the
+  /// selected value canceled and reverted to previous  confirmed value through
+  /// cancel button on date range picker.
+  /// * Knowledge base: [How to get the selected date](https://www.syncfusion.com/kb/11410/how-to-get-the-selected-date-from-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to select a week](https://www.syncfusion.com/kb/11412/how-to-select-a-week-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to select previous or next dates bases on selected date](https://www.syncfusion.com/kb/12354/how-to-select-previous-or-next-dates-based-on-the-selected-date-in-the-flutter-date-range)
+  /// * Knowledge base: [How to get the start and end date of the selected range](https://www.syncfusion.com/kb/12248/how-to-get-the-start-and-end-date-of-the-selected-range-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to programmatically select the date](https://www.syncfusion.com/kb/12114/how-to-programmatically-select-the-date-in-the-flutter-date-range-picker-sfdaterangepicker)
+  ///
   /// ``` dart
   ///
   /// class MyAppState extends State<MyApp> {
@@ -2658,6 +3695,15 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   /// [SfDateRangePicker.maxDate] the widget will move the widgets min or max
   /// date.
   ///
+  /// See also:
+  /// * [SfDateRangePicker.initialDisplayDate], which used to navigate the date
+  /// range picker to the specific date initially.
+  /// * [SfDateRangePicker.onViewChanged], the callback which notifies when the
+  /// current view visible date changed on the date range picker.
+  /// * Knowledge base: [How to do programmatic navigation](https://www.syncfusion.com/kb/12140/how-to-do-programmatic-navigation-using-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to programmatically navigate to adjacent dates](https://www.syncfusion.com/kb/12137/how-to-programmatically-navigate-to-the-adjacent-dates-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to programmatically navigate](https://www.syncfusion.com/kb/12135/how-to-programmatically-navigate-to-the-date-in-the-flutter-date-range-picker)
+  ///
   ///
   /// ``` dart
   ///
@@ -2702,6 +3748,17 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   ///
   /// The [SfDateRangePicker] will display the view sets to this property.
   ///
+  /// See also:
+  /// * [SfDateRangePicker.view], which used to display the required view on
+  /// the date range picker initially.
+  /// * [SfDateRangePicker.onViewChanged], the callback which notifies when the
+  /// current view visible date changed on the date range picker.
+  /// * [DateRangePickerView], to know more about the available view options in
+  /// date range picker.
+  /// * Knowledge base: [How to do programmatic navigation](https://www.syncfusion.com/kb/12140/how-to-do-programmatic-navigation-using-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to programmatically navigate to adjacent dates](https://www.syncfusion.com/kb/12137/how-to-programmatically-navigate-to-the-adjacent-dates-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to programmatically navigate](https://www.syncfusion.com/kb/12135/how-to-programmatically-navigate-to-the-date-in-the-flutter-date-range-picker)
+  ///
   /// ```dart
   ///
   /// class MyAppState extends State<MyApp> {
@@ -2742,6 +3799,17 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   ///
   /// _Note:_ If the current view has the maximum date range, it will not move
   /// to the next view.
+  ///
+  /// See also:
+  /// * [SfDateRangePicker.showNavigationArrow], which allows to display the
+  /// navigation arrows on the header view of the date range picker.
+  /// * [backward], which used to navigate to the previous view of the date
+  /// range picker programmatically.
+  /// * [SfDateRangePicker.onViewChanged], the callback which notifies when the
+  /// current view visible date changed on the date range picker.
+  /// * Knowledge base: [How to do programmatic navigation](https://www.syncfusion.com/kb/12140/how-to-do-programmatic-navigation-using-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to programmatically navigate to adjacent dates](https://www.syncfusion.com/kb/12137/how-to-programmatically-navigate-to-the-adjacent-dates-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to programmatically navigate](https://www.syncfusion.com/kb/12135/how-to-programmatically-navigate-to-the-date-in-the-flutter-date-range-picker)
   ///
   /// ```dart
   ///
@@ -2793,6 +3861,17 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
   ///
   /// _Note:_ If the current view has the minimum date range, it will not move
   /// to the previous view.
+  ///
+  /// See also:
+  /// * [SfDateRangePicker.showNavigationArrow], which allows to display the
+  /// navigation arrows on the header view of the date range picker.
+  /// * [forward], which used to navigate to the next view of the date
+  /// range picker programmatically.
+  /// * [SfDateRangePicker.onViewChanged], the callback which notifies when the
+  /// current view visible date changed on the date range picker.
+  /// * Knowledge base: [How to do programmatic navigation](https://www.syncfusion.com/kb/12140/how-to-do-programmatic-navigation-using-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to programmatically navigate to adjacent dates](https://www.syncfusion.com/kb/12137/how-to-programmatically-navigate-to-the-adjacent-dates-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to programmatically navigate](https://www.syncfusion.com/kb/12135/how-to-programmatically-navigate-to-the-date-in-the-flutter-date-range-picker)
   ///
   /// ```dart
   ///
@@ -2854,6 +3933,9 @@ class DateRangePickerController extends DateRangePickerValueChangeNotifier {
 }
 
 /// Selection modes for [SfDateRangePicker].
+///
+/// [DateRangePickerSelectionShape], which used to set different shape for the
+/// selection view in date range picker.
 enum DateRangePickerSelectionMode {
   /// - DateRangePickerSelectionMode.single, Allows to select a single date,
   /// selecting a new date will remove the selection for previous date and
@@ -2895,14 +3977,18 @@ enum DateRangePickerSelectionMode {
   /// [DateRangePickerNavigationMode.scroll].
   ///
   /// See also:
-  ///
-  /// [pickerDateRange]
-  ///
-  /// [HijriDateRange]
+  /// * [pickerDateRange], which used to store the start and end date of the
+  /// range in date range picker.
+  /// [HijriDateRange], which used to store the start and end date of the
+  /// range in hijri date range picker.
   extendableRange,
 }
 
 /// Available views for [SfDateRangePicker].
+///
+/// See also:
+/// * [HijriDatePickerView], which used to set different views for hijri date
+/// range picker.
 enum DateRangePickerView {
   /// - DateRangePickerView.month, Displays the month view.
   month,
@@ -2921,6 +4007,10 @@ enum DateRangePickerView {
 }
 
 /// The shape for the selection view in [SfDateRangePicker].
+///
+/// See also:
+/// * [DateRangePickerSelectionMode], which used to set different selectio modes
+/// for date range picker.
 enum DateRangePickerSelectionShape {
   /// - DateRangePickerSelectionShape.circle, Draws the date selection in circle
   /// shape.
@@ -2932,6 +4022,10 @@ enum DateRangePickerSelectionShape {
 }
 
 /// A direction in which the [SfDateRangePicker] navigates.
+///
+/// See also:
+/// * [DateRangePickerNavigationMode], which used to set different navigation
+/// modes for calendar.
 enum DateRangePickerNavigationDirection {
   /// - DateRangePickerNavigationDirection.vertical, Navigates in top and bottom
   /// direction.
@@ -2943,6 +4037,10 @@ enum DateRangePickerNavigationDirection {
 }
 
 /// A type specifies how the date picker navigation interaction works.
+///
+/// See also:
+/// * [DateRangePickerNavigationDirection], which allows to navigate through
+/// date picker views with different modes.
 enum DateRangePickerNavigationMode {
   /// Disables the next or previous view dates to be shown by scrolling or
   /// swipe interaction in [SfDateRangePicker] and [SfHijriDateRangePicker].
@@ -2979,6 +4077,12 @@ enum DateRangePickerNavigationMode {
 ///
 /// Details for [DateRangePickerViewChangedCallback], such as [visibleDateRange]
 /// and [view].
+///
+/// See also:
+/// * [SfDateRangePicker.onViewChanged], which receives the information.
+/// * [SfDateRangePicker], which passes the information to one of its receiver.
+/// * [DateRangePickerViewChangedCallback], signature when the current visible
+/// dates changed in date range picker.
 @immutable
 class DateRangePickerViewChangedArgs {
   /// Creates details for [DateRangePickerViewChangedCallback].
@@ -2999,6 +4103,12 @@ class DateRangePickerViewChangedArgs {
 ///
 /// Details for [DateRangePickerSelectionChangedCallback], such as selected
 /// value.
+///
+/// See also:
+/// * [SfDateRangePicker.onSelectionChanged], which receives the information.
+/// * [SfDateRangePicker], which passes the information to one of its receiver.
+/// * [DateRangePickerSelectionChangedCallback], signature when the selectoin
+/// changed in date range picker.
 @immutable
 class DateRangePickerSelectionChangedArgs {
   /// Creates details for [DateRangePickerSelectionChangedCallback].
@@ -3023,6 +4133,19 @@ class DateRangePickerSelectionChangedArgs {
 
 /// Defines a range of dates, covers the dates in between the given [startDate]
 /// and [endDate] as a range.
+///
+/// See also:
+/// * [HijriDateRange], which is used to store the range value for hijri date
+/// range picker.
+/// * [DateRangePickerSelectionMode], which is used to handle different
+/// available selection modes in date range picker.
+/// * [SfDateRangePicker.initialSelectedRange], which allows to select a range
+/// of dates programmatically initially on date range picker.
+/// * [SfDateRangePicker.initialSelectedRanges], which allows to select a ranges
+/// of dates programmatically initially on date range picker.
+/// * [DateRangePickerController.selectedRange], which allows to select range
+/// of dates programmatically dynamically on date range picker.
+/// * [DateRangePickerController.selectedRanges], which allows to select
 @immutable
 class PickerDateRange with Diagnosticable {
   /// Creates a picker date range with the given start and end date.
@@ -3044,10 +4167,24 @@ class PickerDateRange with Diagnosticable {
 
 /// Signature for a function that creates a widget based on date range picker
 /// cell details.
+///
+/// See also:
+/// * [SfDateRangePicker.cellBuilder], which matches this signature.
+/// * [SfDateRangePicker], which uses this signature in one of it's callback.
 typedef DateRangePickerCellBuilder = Widget Function(
     BuildContext context, DateRangePickerCellDetails cellDetails);
 
+/// Signature for predicating dates for enabled date selections.
+///
+/// [SelectableDayPredicate] parameter used to specify allowable days in the
+/// SfDateRangePicker.
+typedef DateRangePickerSelectableDayPredicate = bool Function(DateTime date);
+
 /// Contains the details that needed on calendar cell builder.
+///
+/// See also:
+/// * [SfDateRangePicker.cellBuilder], which matches this signature.
+/// * [SfDateRangePicker], which uses this signature in one of it's callback.
 class DateRangePickerCellDetails {
   /// Constructor to store the details that needed on calendar cell builder.
   DateRangePickerCellDetails(

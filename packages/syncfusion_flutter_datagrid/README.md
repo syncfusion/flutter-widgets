@@ -39,7 +39,7 @@ The Flutter DataTable or DataGrid is used to display and manipulate data in a ta
 
 ![Columns are sorted in flutter datagrid](https://cdn.syncfusion.com/content/images/Flutter/pub_images/flutter-datagrid-sorting.gif)
 
-**Selection** - Select one or more rows. Keyboard navigation is supported for web platforms.
+**Selection** - Select one or more rows. Keyboard navigation is supported for web platforms. Built-in checkbox columns allow display of a checkbox in each row to select entire rows when the boxes are checked. Users can also select or deselect all the rows by selecting the checkbox in the header.
 
 ![Flutter DataGrid shows rows with selection](https://cdn.syncfusion.com/content/images/Flutter/pub_images/flutter-datagrid-selection.png)
 
@@ -52,6 +52,14 @@ The Flutter DataTable or DataGrid is used to display and manipulate data in a ta
 
 ![Flutter datagrid shows multiple column headers](https://cdn.syncfusion.com/content/images/Flutter/pub_images/flutter-datagrid-stacked-headers.png)
 
+**Summary row** - Show an additional unbound row to display a summary or totals. Users can display a minimum, maximum, average, and count in columns.
+
+![Flutter datagrid shows table summary rows](https://cdn.syncfusion.com/content/images/Flutter/pub_images/flutter-datagrid-table-summary-row.png)
+
+**Column resizing** - Resize the columns by tapping and dragging the right border of the column header.
+
+![Column resizing in Flutter datagrid](https://cdn.syncfusion.com/content/images/Flutter/pub_images/flutter-datagrid-column-resizing.gif)
+
 **Load more** - Display an interactive view when the grid reaches its maximum offset while scrolling down.
 
 ![infinite scrolling in Flutter datagrid](https://cdn.syncfusion.com/content/images/Flutter/pub_images/flutter-datagrid-load-more.gif)
@@ -62,7 +70,7 @@ The Flutter DataTable or DataGrid is used to display and manipulate data in a ta
 
 **Footer** - Show an additional row that can be displayed below to last row. Widgets can also be displayed in the footer row.
 
-[Footer view in Flutter DataGrid](https://cdn.syncfusion.com/content/images/Flutter/pub_images/flutter-datagrid-footer-view.png)
+![Footer view in Flutter DataGrid](https://cdn.syncfusion.com/content/images/Flutter/pub_images/flutter-datagrid-footer-view.png)
 
 **Freeze Panes** - Freeze the rows and columns when scrolling the grid. 
 
@@ -72,6 +80,8 @@ The Flutter DataTable or DataGrid is used to display and manipulate data in a ta
 
 **Pull to refresh** - Allows users to refresh data when the DataGrid is pulled down.
 
+**Exporting** - Export the DataGrid content, such as rows, stacked header rows, and table summary rows, to Excel and PDF format with several customization options.
+
 **Theme** - Use a dark or light theme.
 
 **Accessibility** - The DataGrid can easily be accessed by screen readers.
@@ -80,7 +90,6 @@ The Flutter DataTable or DataGrid is used to display and manipulate data in a ta
 
 ## Coming soon
 
-* Column resizing 
 * Column drag and drop
 * Grouping
 * Row drag and drop
@@ -242,7 +251,7 @@ Widget build(BuildContext context) {
     body: SfDataGrid(
       source: employeeDataSource,
       columns: <GridColumn>[
-        GridTextColumn(
+        GridColumn(
             columnName: 'id',
             label: Container(
                 padding: EdgeInsets.all(16.0),
@@ -250,20 +259,20 @@ Widget build(BuildContext context) {
                 child: Text(
                   'ID',
                 ))),
-        GridTextColumn(
+        GridColumn(
             columnName: 'name',
             label: Container(
                 padding: EdgeInsets.all(16.0),
                 alignment: Alignment.centerLeft,
                 child: Text('Name'))),
-        GridTextColumn(
+        GridColumn(
             columnName: 'designation',
             width: 120,
             label: Container(
                 padding: EdgeInsets.all(16.0),
                 alignment: Alignment.centerLeft,
                 child: Text('Designation'))),
-        GridTextColumn(
+        GridColumn(
             columnName: 'salary',
             label: Container(
                 padding: EdgeInsets.all(16.0),
@@ -288,4 +297,4 @@ The following screenshot illustrates the result of the above code sample.
 
 Founded in 2001 and headquartered in Research Triangle Park, N.C., Syncfusion has more than 20,000 customers and more than 1 million users, including large financial institutions, Fortune 500 companies, and global IT consultancies.
 
-Today we provide 1,600+ controls and frameworks for web ([ASP.NET Core](https://www.syncfusion.com/aspnet-core-ui-controls), [ASP.NET MVC](https://www.syncfusion.com/aspnet-mvc-ui-controls), [ASP.NET WebForms](https://www.syncfusion.com/jquery/aspnet-web-forms-ui-controls), [JavaScript](https://www.syncfusion.com/javascript-ui-controls), [Angular](https://www.syncfusion.com/angular-ui-components), [React](https://www.syncfusion.com/react-ui-components), [Vue](https://www.syncfusion.com/vue-ui-components), and [Blazor](https://www.syncfusion.com/blazor-components)) , mobile ([Xamarin](https://www.syncfusion.com/xamarin-ui-controls), [Flutter](https://www.syncfusion.com/flutter-widgets), [UWP](https://www.syncfusion.com/uwp-ui-controls), and [JavaScript](https://www.syncfusion.com/javascript-ui-controls)), and desktop development ([WinForms](https://www.syncfusion.com/winforms-ui-controls), [WPF](https://www.syncfusion.com/wpf-ui-controls), and [UWP](https://www.syncfusion.com/uwp-ui-controls)). We provide ready-to- deploy enterprise software for dashboards, reports, data integration, and big data processing. Many customers have saved millions in licensing fees by deploying our software.
+Today we provide 1,600+ controls and frameworks for web ([ASP.NET Core](https://www.syncfusion.com/aspnet-core-ui-controls), [ASP.NET MVC](https://www.syncfusion.com/aspnet-mvc-ui-controls), [ASP.NET WebForms](https://www.syncfusion.com/jquery/aspnet-web-forms-ui-controls), [JavaScript](https://www.syncfusion.com/javascript-ui-controls), [Angular](https://www.syncfusion.com/angular-ui-components), [React](https://www.syncfusion.com/react-ui-components), [Vue](https://www.syncfusion.com/vue-ui-components), and [Blazor](https://www.syncfusion.com/blazor-components)) , mobile ([Xamarin](https://www.syncfusion.com/xamarin-ui-controls), [Flutter](https://www.syncfusion.com/flutter-widgets), [UWP](https://www.syncfusion.com/uwp-ui-controls), and [JavaScript](https://www.syncfusion.com/javascript-ui-controls)), and desktop development ([WinForms](https://www.syncfusion.com/winforms-ui-controls), [WPF](https://www.syncfusion.com/wpf-ui-controls), [UWP](https://www.syncfusion.com/uwp-ui-controls) and [WinUI](https://www.syncfusion.com/winui-controls)). We provide ready-to- deploy enterprise software for dashboards, reports, data integration, and big data processing. Many customers have saved millions in licensing fees by deploying our software.

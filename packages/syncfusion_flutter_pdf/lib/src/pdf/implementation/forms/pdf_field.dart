@@ -2771,10 +2771,11 @@ class _GraphicsProperties {
     _shadowBrush = field._shadowBrush;
     _font = field._font;
     _stringFormat = field._format;
-    if (field.page != null &&
-        field.page!._rotation != PdfPageRotateAngle.rotateAngle0) {
+    if ((!field._isLoadedField) &&
+        field.page != null &&
+        field.page!.rotation != PdfPageRotateAngle.rotateAngle0) {
       _bounds =
-          _rotateTextbox(field.bounds, field.page!.size, field.page!._rotation);
+          _rotateTextbox(field.bounds, field.page!.size, field.page!.rotation);
     }
   }
 
@@ -2788,10 +2789,11 @@ class _GraphicsProperties {
     _shadowBrush = item._shadowBrush;
     _font = item._font;
     _stringFormat = item._format;
-    if (item.page != null &&
-        item.page!._rotation != PdfPageRotateAngle.rotateAngle0) {
+    if ((!item._field._isLoadedField) &&
+        item.page != null &&
+        item.page!.rotation != PdfPageRotateAngle.rotateAngle0) {
       _bounds =
-          _rotateTextbox(item.bounds, item.page!.size, item.page!._rotation);
+          _rotateTextbox(item.bounds, item.page!.size, item.page!.rotation);
     }
   }
 

@@ -1,12 +1,11 @@
-import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/physics.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../../maps.dart';
@@ -17,6 +16,7 @@ import '../elements/toolbar.dart';
 import '../elements/tooltip.dart';
 import '../layer/layer_base.dart';
 import '../layer/vector_layers.dart';
+import '../layer/zoomable.dart';
 import '../settings.dart';
 import '../utils.dart';
 
@@ -135,6 +135,7 @@ class TileLayer extends StatefulWidget {
     required this.urlTemplate,
     required this.initialFocalLatLng,
     required this.initialZoomLevel,
+    this.initialLatLngBounds,
     required this.zoomPanBehavior,
     required this.sublayers,
     required this.initialMarkersCount,
@@ -150,6 +151,7 @@ class TileLayer extends StatefulWidget {
   final String urlTemplate;
   final MapLatLng initialFocalLatLng;
   final int initialZoomLevel;
+  final MapLatLngBounds? initialLatLngBounds;
   final MapZoomPanBehavior? zoomPanBehavior;
   final List<MapSublayer>? sublayers;
   final int initialMarkersCount;
@@ -168,7 +170,6 @@ class TileLayer extends StatefulWidget {
 class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   // Both width and height of each tile is 256.
   static const double tileSize = 256;
-  static const double _frictionCoefficient = 0.05;
   // The [globalTileStart] represents the tile start factor value based on
   // the zoom level.
   static const Offset _globalTileStart = Offset.zero;
@@ -179,44 +180,16 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   late double _currentZoomLevel;
   late int _nextZoomLevel;
-  late double _touchStartZoomLevel;
-  late MapLatLng _touchStartLatLng;
   late MapLatLng _currentFocalLatLng;
-  late Offset _touchStartLocalPoint;
-  late Offset _touchStartGlobalPoint;
   late bool _isDesktop;
-  late double _maximumReachedScaleOnInteraction;
-  late MapLatLng _newFocalLatLng;
   late SfMapsThemeData _mapsThemeData;
   late MapLayerInheritedWidget _ancestor;
-  late AnimationController _zoomLevelAnimationController;
-  late AnimationController _focalLatLngAnimationController;
-  late CurvedAnimation _flingZoomLevelCurvedAnimation;
-  late CurvedAnimation _flingFocalLatLngCurvedAnimation;
-  late CurvedAnimation _zoomLevelCurvedAnimation;
-  late CurvedAnimation _focalLatLngCurvedAnimation;
-  late MapLatLngTween _focalLatLngTween;
-  late Tween<double> _zoomLevelTween;
 
   Size? _size;
   MapController? _controller;
-  int _pointerCount = 0;
-  Gesture? _gestureType;
-  Timer? _doubleTapTimer;
-  bool _isSizeChanged = false;
   bool _hasSublayer = false;
-  bool _isZoomedUsingToolbar = false;
-  bool _isFlingAnimationActive = false;
-  bool _doubleTapEnabled = false;
   List<Widget>? _markers;
-  MapZoomDetails? _zoomDetails;
-  MapPanDetails? _panDetails;
-  Timer? _zoomingDelayTimer;
-  MapLatLng? _mouseCenterLatLng;
-  double? _mouseStartZoomLevel;
-  Offset? _mouseStartLocalPoint;
-  Offset? _mouseStartGlobalPoint;
-  Offset? _touchStartOffset;
+  ZoomableController? _zoomController;
 
   bool _hasTooltipBuilder() {
     if (widget.markerTooltipBuilder != null) {
@@ -370,26 +343,20 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     TileZoomLevelDetails? level = _levels[zoom];
     if (level == null) {
+      final double levelIndex = zoom.toDouble();
       // The [_levels] collection contains each integer zoom level origin,
       // scale and translationPoint. The scale and translationPoint are
       // calculated in every pinch zoom level for scaling the tiles.
-      level = _levels[zoom.toDouble()] = TileZoomLevelDetails();
-      level.origin = _getLevelOrigin(_currentFocalLatLng, zoom.toDouble());
-      level.zoomLevel = zoom.toDouble();
+      level = _levels[levelIndex] = TileZoomLevelDetails();
+      level.origin = _getLevelOrigin(_currentFocalLatLng, levelIndex);
+      level.zoomLevel = levelIndex;
 
-      if (_gestureType != null && _gestureType == Gesture.scale) {
+      if (levelsCount == 0 ||
+          (_zoomController != null &&
+              _zoomController!.actionType == ActionType.pinch)) {
         _updateZoomLevelTransform(
             level, _currentFocalLatLng, _currentZoomLevel);
-      } else {
-        level.scale = 1.0;
-        level.translatePoint = Offset.zero;
       }
-    }
-
-    // Recalculate tiles bounds origin for all existing zoom level
-    // when size changed.
-    if (_isSizeChanged) {
-      _updateZoomLevelTransforms(_currentFocalLatLng, _currentZoomLevel);
     }
 
     final double totalTileWidth = getTotalTileWidth(level.zoomLevel);
@@ -540,597 +507,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     );
   }
 
-  void _handlePointerDown(PointerDownEvent event) {
-    if (_zoomLevelAnimationController.isAnimating && !_doubleTapEnabled) {
-      _zoomLevelAnimationController.stop();
-      _isZoomedUsingToolbar = false;
-      _handleZoomingAnimationEnd();
-    }
-
-    if (_focalLatLngAnimationController.isAnimating) {
-      _focalLatLngAnimationController.stop();
-      _handleFocalLatLngAnimationEnd();
-    }
-
-    if (widget.zoomPanBehavior != null &&
-        widget.zoomPanBehavior!.enableDoubleTapZooming) {
-      _doubleTapTimer ??= Timer(kDoubleTapTimeout, _resetDoubleTapTimer);
-    }
-
-    widget.zoomPanBehavior?.handleEvent(event);
-  }
-
-  void _handlePointerMove(PointerMoveEvent event) {
-    widget.zoomPanBehavior?.handleEvent(event);
-  }
-
-  void _handlePointerUp(PointerUpEvent event) {
-    if (_doubleTapTimer != null && _doubleTapTimer!.isActive) {
-      _pointerCount++;
-    }
-
-    if (_pointerCount == 2) {
-      _touchStartLocalPoint = event.localPosition;
-      // ignore: avoid_as
-      final RenderBox renderBox = context.findRenderObject()! as RenderBox;
-      _touchStartGlobalPoint = renderBox.localToGlobal(_touchStartLocalPoint);
-      _resetDoubleTapTimer();
-      _handleDoubleTap();
-    }
-
-    widget.zoomPanBehavior?.handleEvent(event);
-  }
-
-  void _resetDoubleTapTimer() {
-    _pointerCount = 0;
-    if (_doubleTapTimer != null) {
-      _doubleTapTimer!.cancel();
-      _doubleTapTimer = null;
-    }
-  }
-
-  // This method called when start pinch zooming or panning action.
-  void _handleScaleStart(ScaleStartDetails details) {
-    if (widget.zoomPanBehavior != null &&
-        !_zoomLevelAnimationController.isAnimating &&
-        !_focalLatLngAnimationController.isAnimating) {
-      if (widget.zoomPanBehavior!.enablePinching ||
-          widget.zoomPanBehavior!.enablePanning) {
-        _gestureType = null;
-        _touchStartOffset =
-            _getTouchStartOffset(details.localFocalPoint, details.focalPoint);
-      }
-    }
-  }
-
-  Offset _getTouchStartOffset(Offset localFocalPoint, Offset globalFocalPoint) {
-    _maximumReachedScaleOnInteraction = 1.0;
-    _touchStartLocalPoint = localFocalPoint;
-    _touchStartGlobalPoint = globalFocalPoint;
-    _touchStartZoomLevel = _currentZoomLevel;
-    _calculateLatLngFromTappedPoint();
-    final MapLatLng touchStartFocalLatLng =
-        _calculateVisibleLatLng(_touchStartLocalPoint, _touchStartZoomLevel);
-    return _pixelFromLatLng(touchStartFocalLatLng, _touchStartZoomLevel);
-  }
-
-  // This method called when doing pinch zooming or panning action.
-  void _handleScaleUpdate(ScaleUpdateDetails details) {
-    if (widget.zoomPanBehavior != null &&
-        !_doubleTapEnabled &&
-        (widget.zoomPanBehavior!.enablePinching ||
-            widget.zoomPanBehavior!.enablePanning)) {
-      final double zoomLevel = _touchStartZoomLevel + log(details.scale) / ln2;
-      if (zoomLevel > widget.zoomPanBehavior!.maxZoomLevel ||
-          zoomLevel < widget.zoomPanBehavior!.minZoomLevel) {
-        _resetDoubleTapTimer();
-        return;
-      }
-
-      _gestureType ??= _getGestureType(details.scale, details.localFocalPoint);
-      if (_gestureType == null) {
-        return;
-      }
-
-      if (_controller!.localScale < details.scale) {
-        _maximumReachedScaleOnInteraction = details.scale;
-      }
-
-      _resetDoubleTapTimer();
-      _controller!.localScale = details.scale;
-      final double newZoomLevel =
-          _getZoomLevel(_touchStartZoomLevel + log(details.scale) / ln2);
-      switch (_gestureType!) {
-        case Gesture.scale:
-          if (widget.zoomPanBehavior!.enablePinching &&
-              !_focalLatLngAnimationController.isAnimating) {
-            final MapLatLng newFocalLatLng =
-                _calculateVisibleLatLng(_touchStartLocalPoint, newZoomLevel);
-            _controller!
-              ..isInInteractive = true
-              ..gesture = _gestureType
-              ..localScale = details.scale
-              ..pinchCenter = _touchStartLocalPoint;
-            _invokeOnZooming(newZoomLevel, _touchStartLocalPoint,
-                _touchStartGlobalPoint, newFocalLatLng);
-          }
-          return;
-        case Gesture.pan:
-          if (widget.zoomPanBehavior!.enablePanning &&
-              !_zoomLevelAnimationController.isAnimating) {
-            _touchStartOffset ??= _getTouchStartOffset(
-                details.localFocalPoint, details.focalPoint);
-            final MapLatLng newFocalLatLng =
-                _calculateVisibleLatLng(details.localFocalPoint, newZoomLevel);
-            final Offset newFocalOffset =
-                _pixelFromLatLng(newFocalLatLng, newZoomLevel);
-
-            _controller!
-              ..isInInteractive = true
-              ..gesture = _gestureType
-              ..localScale = 1.0
-              ..panDistance = _touchStartOffset! - newFocalOffset;
-            _invokeOnPanning(newZoomLevel,
-                localFocalPoint: details.localFocalPoint,
-                globalFocalPoint: details.focalPoint,
-                touchStartLocalPoint: _touchStartLocalPoint,
-                newFocalLatLng: newFocalLatLng);
-          }
-          return;
-      }
-    }
-  }
-
-  // This method is called when the pinching or panning action ends.
-  void _handleScaleEnd(ScaleEndDetails details) {
-    if (widget.zoomPanBehavior != null &&
-        details.velocity.pixelsPerSecond.distance >= kMinFlingVelocity) {
-      _resetDoubleTapTimer();
-      if (_gestureType == Gesture.pan &&
-          widget.zoomPanBehavior!.enablePanning &&
-          !_zoomLevelAnimationController.isAnimating) {
-        _startFlingAnimationForPanning(details);
-      } else if (_gestureType == Gesture.scale &&
-          widget.zoomPanBehavior!.enablePinching &&
-          !_focalLatLngAnimationController.isAnimating) {
-        _startFlingAnimationForPinching(details);
-      }
-    }
-
-    _controller!.localScale = 1.0;
-    _touchStartOffset = null;
-    _gestureType = null;
-    _panDetails = null;
-    _zoomDetails = null;
-    _invalidateSublayer();
-  }
-
-  void _handleDoubleTap() {
-    if (_gestureType == null && widget.zoomPanBehavior != null) {
-      _zoomLevelAnimationController.duration =
-          const Duration(milliseconds: 200);
-      _touchStartZoomLevel = _currentZoomLevel;
-      _calculateLatLngFromTappedPoint();
-      // When double tapping, we had incremented zoom level by one from the
-      // currentZoomLevel.
-      double newZoomLevel = _currentZoomLevel + 1;
-      newZoomLevel = newZoomLevel.clamp(widget.zoomPanBehavior!.minZoomLevel,
-          widget.zoomPanBehavior!.maxZoomLevel);
-      if (newZoomLevel == _currentZoomLevel) {
-        return;
-      }
-      _doubleTapEnabled = true;
-      final MapLatLng newFocalLatLng =
-          _calculateVisibleLatLng(_touchStartLocalPoint, newZoomLevel);
-      _invokeOnZooming(newZoomLevel, _touchStartLocalPoint,
-          _touchStartGlobalPoint, newFocalLatLng);
-    }
-  }
-
-  // This methods performs fling animation for panning.
-  void _startFlingAnimationForPanning(ScaleEndDetails details) {
-    _isFlingAnimationActive = true;
-    final Offset currentFocalOffset =
-        _pixelFromLatLng(_currentFocalLatLng, _currentZoomLevel);
-    final MapLatLng newFocalLatLng = _pixelToLatLng(
-        Offset(
-            FrictionSimulation(
-              _frictionCoefficient,
-              currentFocalOffset.dx,
-              -details.velocity.pixelsPerSecond.dx,
-            ).finalX,
-            FrictionSimulation(
-              _frictionCoefficient,
-              currentFocalOffset.dy,
-              -details.velocity.pixelsPerSecond.dy,
-            ).finalX),
-        _currentZoomLevel);
-    _gestureType = null;
-    _focalLatLngAnimationController.duration = _getFlingAnimationDuration(
-        details.velocity.pixelsPerSecond.distance, _frictionCoefficient);
-    widget.zoomPanBehavior!.focalLatLng = newFocalLatLng;
-  }
-
-  // This methods performs fling animation for pinching.
-  void _startFlingAnimationForPinching(ScaleEndDetails details) {
-    _isFlingAnimationActive = true;
-    final int direction =
-        _controller!.localScale >= _maximumReachedScaleOnInteraction ? 1 : -1;
-    double newZoomLevel = _currentZoomLevel +
-        (direction *
-            (details.velocity.pixelsPerSecond.distance / kMaxFlingVelocity) *
-            widget.zoomPanBehavior!.maxZoomLevel);
-    newZoomLevel = newZoomLevel.clamp(widget.zoomPanBehavior!.minZoomLevel,
-        widget.zoomPanBehavior!.maxZoomLevel);
-    _gestureType = null;
-    _zoomLevelAnimationController.duration = _getFlingAnimationDuration(
-        details.velocity.pixelsPerSecond.distance, _frictionCoefficient);
-    widget.zoomPanBehavior!.zoomLevel = newZoomLevel;
-  }
-
-  // Returns the animation duration for the given distance and
-  // friction co-efficient.
-  Duration _getFlingAnimationDuration(
-      double distance, double frictionCoefficient) {
-    final int duration =
-        (log(10.0 / distance) / log(frictionCoefficient / 100)).round();
-    final int durationInMs = (duration * 1000).round();
-    return Duration(milliseconds: durationInMs < 350 ? 350 : durationInMs);
-  }
-
-  // This method called when doing mouse wheel action in web.
-  void _handleMouseWheelZooming(PointerSignalEvent event) {
-    if (widget.zoomPanBehavior != null &&
-        widget.zoomPanBehavior!.enablePinching) {
-      if (event is PointerScrollEvent) {
-        widget.zoomPanBehavior!.handleEvent(event);
-        _gestureType = Gesture.scale;
-        _mouseStartZoomLevel ??= _currentZoomLevel;
-        _mouseCenterLatLng ??= _currentFocalLatLng;
-        _mouseStartLocalPoint ??= event.localPosition;
-        _mouseStartGlobalPoint ??= event.position;
-
-        final MapZoomPanBehavior zoomPanBehavior = widget.zoomPanBehavior!;
-        final Offset localPointCenterDiff = Offset(
-            (_size!.width / 2) - _mouseStartLocalPoint!.dx,
-            (_size!.height / 2) - _mouseStartLocalPoint!.dy);
-        final Offset actualCenterPixelPosition =
-            _pixelFromLatLng(_mouseCenterLatLng!, _mouseStartZoomLevel!);
-        final Offset point = actualCenterPixelPosition - localPointCenterDiff;
-        _touchStartLatLng = _pixelToLatLng(point, _mouseStartZoomLevel!);
-        double scale = _controller!.tileLayerLocalScale -
-            (event.scrollDelta.dy / _size!.height);
-        _controller!.tileLayerLocalScale = scale;
-        final double newZoomLevel =
-            _getZoomLevel(_mouseStartZoomLevel! + log(scale) / ln2);
-        // If the scale * _mouseStartZoomLevel value goes beyond
-        // minZoomLevel, set the min scale value.
-        if (scale * _mouseStartZoomLevel! < zoomPanBehavior.minZoomLevel) {
-          scale = zoomPanBehavior.minZoomLevel / _mouseStartZoomLevel!;
-        }
-        // If the scale * _mouseStartZoomLevel value goes beyond
-        // maxZoomLevel, set the max scale value.
-        else if (scale * _mouseStartZoomLevel! > zoomPanBehavior.maxZoomLevel) {
-          scale = zoomPanBehavior.maxZoomLevel / _mouseStartZoomLevel!;
-        }
-
-        _controller!
-          ..isInInteractive = true
-          ..gesture = _gestureType
-          ..localScale = scale
-          ..pinchCenter = event.localPosition;
-        final MapLatLng newFocalLatLng =
-            _calculateVisibleLatLng(event.localPosition, newZoomLevel);
-        _invokeOnZooming(newZoomLevel, _mouseStartLocalPoint!,
-            _mouseStartGlobalPoint!, newFocalLatLng);
-
-        _zoomingDelayTimer?.cancel();
-        _zoomingDelayTimer = Timer(const Duration(milliseconds: 300), () {
-          _invalidateSublayer();
-          _controller!.tileLayerLocalScale = 1.0;
-          _mouseStartZoomLevel = null;
-          _mouseStartLocalPoint = null;
-          _mouseStartGlobalPoint = null;
-          _gestureType = null;
-          _mouseCenterLatLng = null;
-        });
-      }
-    }
-  }
-
-  // Calculate the actual latLng value in the place of tapped location.
-  void _calculateLatLngFromTappedPoint() {
-    final Offset localPointCenterDiff = Offset(
-        (_size!.width / 2) - _touchStartLocalPoint.dx,
-        (_size!.height / 2) - _touchStartLocalPoint.dy);
-    final Offset actualCenterPixelPosition =
-        _pixelFromLatLng(_currentFocalLatLng, _touchStartZoomLevel);
-    final Offset point = actualCenterPixelPosition - localPointCenterDiff;
-    _touchStartLatLng = _pixelToLatLng(point, _touchStartZoomLevel);
-
-    final Rect newVisibleBounds = Rect.fromCenter(
-        center: _pixelFromLatLng(_currentFocalLatLng, _touchStartZoomLevel),
-        width: _size!.width,
-        height: _size!.height);
-    final MapLatLngBounds newVisibleLatLng = MapLatLngBounds(
-        _pixelToLatLng(newVisibleBounds.topRight, _touchStartZoomLevel),
-        _pixelToLatLng(newVisibleBounds.bottomLeft, _touchStartZoomLevel));
-    _zoomDetails = MapZoomDetails(newVisibleBounds: newVisibleLatLng);
-    _panDetails = MapPanDetails(newVisibleBounds: newVisibleLatLng);
-    _newFocalLatLng = _currentFocalLatLng;
-  }
-
-  // Check whether gesture type is scale or pan.
-  Gesture? _getGestureType(double scale, Offset focalPoint) {
-    // The minimum distance required to start scale or pan gesture.
-    const int minScaleDistance = 3;
-    final Offset distance = focalPoint - _touchStartLocalPoint;
-    if (scale == 1) {
-      return distance.dx.abs() > minScaleDistance ||
-              distance.dy.abs() > minScaleDistance
-          ? Gesture.pan
-          : null;
-    }
-
-    return (distance.dx.abs() > minScaleDistance ||
-            distance.dy.abs() > minScaleDistance)
-        ? Gesture.scale
-        : null;
-  }
-
-  // Calculate new focal coordinate value while scaling, panning or mouse wheel
-  // actions.
-  MapLatLng _calculateVisibleLatLng(
-      Offset localFocalPoint, double newZoomLevel) {
-    final Offset focalStartPoint =
-        _pixelFromLatLng(_touchStartLatLng, newZoomLevel);
-    final Offset newCenterPoint = focalStartPoint -
-        localFocalPoint +
-        Offset(_size!.width / 2, _size!.height / 2);
-    return _pixelToLatLng(newCenterPoint, newZoomLevel);
-  }
-
-  // Restricting new zoom level value either to
-  // [widget.zoomPanBehavior.minZoomLevel] or
-  // [widget.zoomPanBehavior.maxZoomLevel] if the new zoom level value is not
-  // in zoom level range.
-  double _getZoomLevel(double zoomLevel) {
-    return zoomLevel.isNaN
-        ? widget.zoomPanBehavior!.minZoomLevel
-        : zoomLevel.clamp(
-            widget.zoomPanBehavior!.minZoomLevel,
-            widget.zoomPanBehavior!.maxZoomLevel,
-          );
-  }
-
-  // This method called for both pinch zooming action and mouse wheel zooming
-  // action for passing [MapZoomDetails] parameters to notify user about the
-  // zooming details.
-  void _invokeOnZooming(double newZoomLevel,
-      [Offset? localFocalPoint,
-      Offset? globalFocalPoint,
-      MapLatLng? newFocalLatLng]) {
-    final Rect newVisibleBounds = Rect.fromCenter(
-        center: _pixelFromLatLng(newFocalLatLng!, newZoomLevel),
-        width: _size!.width,
-        height: _size!.height);
-
-    _zoomDetails = MapZoomDetails(
-        localFocalPoint: localFocalPoint,
-        globalFocalPoint: globalFocalPoint,
-        previousZoomLevel: widget.zoomPanBehavior!.zoomLevel,
-        newZoomLevel: newZoomLevel,
-        previousVisibleBounds: _zoomDetails != null
-            ? _zoomDetails!.newVisibleBounds
-            : _controller!.visibleLatLngBounds,
-        newVisibleBounds: MapLatLngBounds(
-            _pixelToLatLng(newVisibleBounds.topRight, newZoomLevel),
-            _pixelToLatLng(newVisibleBounds.bottomLeft, newZoomLevel)));
-    _newFocalLatLng = newFocalLatLng;
-    if (widget.onWillZoom == null || widget.onWillZoom!(_zoomDetails!)) {
-      widget.zoomPanBehavior?.onZooming(_zoomDetails!);
-    }
-  }
-
-  // This method invoked when user override the [onZooming] method in
-  // [ZoomPanBehavior] and called [super.onZooming(details)].
-  void _handleZooming(MapZoomDetails details) {
-    if (_gestureType != null) {
-      // Updating map while pinching and scrolling.
-      _currentZoomLevel = details.newZoomLevel!;
-      _controller!.tileZoomLevel = _currentZoomLevel;
-      _currentFocalLatLng = _newFocalLatLng;
-      _controller!.visibleFocalLatLng = _currentFocalLatLng;
-      _controller!.visibleLatLngBounds = details.newVisibleBounds;
-      widget.zoomPanBehavior!.focalLatLng = _currentFocalLatLng;
-      setState(() {
-        _handleTransform();
-      });
-    } else {
-      // Updating map via toolbar or double tap or fling animation end.
-      final Rect newVisibleBounds = Rect.fromCenter(
-          center: _pixelFromLatLng(_currentFocalLatLng, details.newZoomLevel!),
-          width: _size!.width,
-          height: _size!.height);
-      _controller!.visibleLatLngBounds = MapLatLngBounds(
-          _pixelToLatLng(newVisibleBounds.topRight, details.newZoomLevel!),
-          _pixelToLatLng(newVisibleBounds.bottomLeft, details.newZoomLevel!));
-      _isZoomedUsingToolbar = _currentZoomLevel != details.newZoomLevel!;
-    }
-
-    widget.zoomPanBehavior!.zoomLevel = details.newZoomLevel!;
-  }
-
-  // This method called when dynamically changing the [zoomLevel] property of
-  // ZoomPanBehavior.
-  void _handleZoomLevelChange(double zoomLevel) {
-    if (_gestureType == null &&
-        _currentZoomLevel != widget.zoomPanBehavior!.zoomLevel) {
-      if (!_isFlingAnimationActive && !_doubleTapEnabled) {
-        _zoomLevelAnimationController.duration =
-            const Duration(milliseconds: 650);
-      }
-
-      _zoomLevelTween.begin = _currentZoomLevel;
-      _zoomLevelTween.end = widget.zoomPanBehavior!.zoomLevel;
-      _zoomLevelAnimationController.forward(from: 0.0);
-    }
-  }
-
-  void _handleZoomLevelAnimation() {
-    if (_zoomLevelTween.end != null) {
-      _currentZoomLevel = _zoomLevelTween.evaluate(_isFlingAnimationActive
-          ? _flingZoomLevelCurvedAnimation
-          : _zoomLevelCurvedAnimation);
-    }
-
-    if (_isFlingAnimationActive || _doubleTapEnabled) {
-      _currentFocalLatLng =
-          _calculateVisibleLatLng(_touchStartLocalPoint, _currentZoomLevel);
-    }
-
-    _handleZoomPanAnimation();
-  }
-
-  void _handleZoomPanAnimation() {
-    setState(() {
-      _handleTransform();
-      if (_hasSublayer) {
-        _controller!.visibleFocalLatLng = _currentFocalLatLng;
-        _controller!.tileZoomLevel = _currentZoomLevel;
-        _invalidateSublayer();
-      } else {
-        _controller!.notifyRefreshListeners();
-      }
-    });
-  }
-
-  void _handleZoomLevelAnimationStatusChange(AnimationStatus status) {
-    if (status == AnimationStatus.completed) {
-      _handleZoomingAnimationEnd();
-    }
-  }
-
-  void _handleZoomingAnimationEnd() {
-    _isFlingAnimationActive = false;
-    if (_zoomLevelTween.end != null &&
-        !_isZoomedUsingToolbar &&
-        !_doubleTapEnabled) {
-      _touchStartLocalPoint =
-          _pixelFromLatLng(_currentFocalLatLng, _zoomLevelTween.begin!);
-      // ignore: avoid_as
-      final RenderBox renderBox = context.findRenderObject()! as RenderBox;
-      _invokeOnZooming(_currentZoomLevel, _touchStartLocalPoint,
-          renderBox.localToGlobal(_touchStartLocalPoint), _currentFocalLatLng);
-    } else {
-      _isZoomedUsingToolbar = false;
-      _doubleTapEnabled = false;
-    }
-  }
-
-  void _invokeOnPanning(double newZoomLevel,
-      {required Offset localFocalPoint,
-      required Offset globalFocalPoint,
-      required Offset touchStartLocalPoint,
-      required MapLatLng newFocalLatLng}) {
-    final Rect newVisibleBounds = Rect.fromCenter(
-        center: _pixelFromLatLng(newFocalLatLng, newZoomLevel),
-        width: _size!.width,
-        height: _size!.height);
-
-    _panDetails = MapPanDetails(
-        globalFocalPoint: globalFocalPoint,
-        localFocalPoint: localFocalPoint,
-        zoomLevel: widget.zoomPanBehavior!.zoomLevel,
-        delta: localFocalPoint - touchStartLocalPoint,
-        previousVisibleBounds: _panDetails != null
-            ? _panDetails!.newVisibleBounds
-            : _controller!.visibleLatLngBounds,
-        newVisibleBounds: MapLatLngBounds(
-            _pixelToLatLng(newVisibleBounds.topRight, newZoomLevel),
-            _pixelToLatLng(newVisibleBounds.bottomLeft, newZoomLevel)));
-    _newFocalLatLng = newFocalLatLng;
-    if (widget.onWillPan == null || widget.onWillPan!(_panDetails!)) {
-      widget.zoomPanBehavior?.onPanning(_panDetails!);
-    }
-  }
-
-  // This method invoked when user override the [onPanning] method in
-  // [ZoomPanBehavior] and called [super.onPanning(details)].
-  void _handlePanning(MapPanDetails details) {
-    setState(() {
-      _currentFocalLatLng = _newFocalLatLng;
-      widget.zoomPanBehavior!.focalLatLng = _currentFocalLatLng;
-      _controller!.visibleFocalLatLng = _currentFocalLatLng;
-      _controller!.visibleLatLngBounds = details.newVisibleBounds;
-      _handleTransform();
-    });
-  }
-
-  // This method called when dynamically changing the [focalLatLng] property of
-  // ZoomPanBehavior.
-  void _handleFocalLatLngChange(MapLatLng? latlng) {
-    if (_gestureType == null &&
-        _currentFocalLatLng != widget.zoomPanBehavior!.focalLatLng) {
-      if (!_isFlingAnimationActive) {
-        _focalLatLngAnimationController.duration =
-            const Duration(milliseconds: 650);
-      }
-
-      _focalLatLngTween.begin = _currentFocalLatLng;
-      _focalLatLngTween.end = widget.zoomPanBehavior!.focalLatLng;
-      _focalLatLngAnimationController.forward(from: 0.0);
-    }
-  }
-
-  void _handleFocalLatLngAnimation() {
-    if (_focalLatLngTween.end != null) {
-      _currentFocalLatLng = _focalLatLngTween.evaluate(_isFlingAnimationActive
-          ? _flingFocalLatLngCurvedAnimation
-          : _focalLatLngCurvedAnimation);
-    }
-
-    _handleZoomPanAnimation();
-  }
-
-  void _handleFocalLatLngAnimationStatusChange(AnimationStatus status) {
-    if (status == AnimationStatus.completed && _focalLatLngTween.end != null) {
-      _handleFocalLatLngAnimationEnd();
-    }
-  }
-
-  void _handleFocalLatLngAnimationEnd() {
-    _isFlingAnimationActive = false;
-    final Offset previousFocalPoint =
-        _pixelFromLatLng(_focalLatLngTween.begin!, _currentZoomLevel);
-    final Offset currentFocalPoint =
-        _pixelFromLatLng(_currentFocalLatLng, _currentZoomLevel);
-    // ignore: avoid_as
-    final RenderBox renderBox = context.findRenderObject()! as RenderBox;
-    _invokeOnPanning(_currentZoomLevel,
-        localFocalPoint: currentFocalPoint,
-        globalFocalPoint: renderBox.localToGlobal(currentFocalPoint),
-        touchStartLocalPoint: previousFocalPoint,
-        newFocalLatLng: _currentFocalLatLng);
-  }
-
-  // This method invoked when user called the [reset] method in
-  // [ZoomPanBehavior].
-  void _handleReset() {
-    widget.zoomPanBehavior!.zoomLevel = widget.zoomPanBehavior!.minZoomLevel;
-  }
-
-  void _invalidateSublayer() {
-    _controller!
-      ..isInInteractive = false
-      ..normalize = Offset.zero
-      ..gesture = null
-      ..localScale = 1.0;
-    if (_hasSublayer) {
-      _controller!.notifyRefreshListeners();
-    }
-  }
-
   // Scale and transform the existing level tiles if the current zoom level
   // value is in-between the zoom levels i.e.,fractional value. Request
   // new tiles if the current zoom level value reached next zoom level.
@@ -1201,34 +577,27 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     final List<Widget> children = <Widget>[];
     Widget current;
 
-    current = Listener(
-      onPointerDown: _handlePointerDown,
-      onPointerMove: _handlePointerMove,
-      onPointerUp: _handlePointerUp,
-      onPointerSignal: _handleMouseWheelZooming,
-      child: GestureDetector(
-        onScaleStart: _handleScaleStart,
-        onScaleUpdate: _handleScaleUpdate,
-        onScaleEnd: _handleScaleEnd,
-        child: Stack(children: <Widget>[
-          _buildTiles(),
-          if (_hasSublayer)
-            SublayerContainer(ancestor: _ancestor, children: widget.sublayers!),
-          if (_markers != null && _markers!.isNotEmpty)
-            MarkerContainer(
-              markerTooltipBuilder: widget.markerTooltipBuilder,
-              controller: _controller!,
-              children: _markers,
-            ),
-        ]),
-      ),
-    );
+    current = Stack(children: <Widget>[
+      _buildTiles(),
+      if (_hasSublayer)
+        SublayerContainer(ancestor: _ancestor, children: widget.sublayers!),
+      if (_markers != null && _markers!.isNotEmpty)
+        MarkerContainer(
+          markerTooltipBuilder: widget.markerTooltipBuilder,
+          controller: _controller!,
+          children: _markers,
+        ),
+    ]);
 
     children.add(current);
     if (widget.zoomPanBehavior != null) {
-      children.add(BehaviorViewRenderObjectWidget(
+      children.add(BehaviorView(
+        zoomLevel: _currentZoomLevel,
+        focalLatLng: _currentFocalLatLng,
         controller: _controller!,
-        zoomPanBehavior: widget.zoomPanBehavior!,
+        behavior: widget.zoomPanBehavior!,
+        onWillZoom: widget.onWillZoom,
+        onWillPan: widget.onWillPan,
       ));
       if (_isDesktop && widget.zoomPanBehavior!.showToolbar) {
         children.add(MapToolbar(
@@ -1257,24 +626,81 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     );
   }
 
-  void _initializeMapController() {
-    if (_controller == null) {
-      _ancestor = context
-          .dependOnInheritedWidgetOfExactType<MapLayerInheritedWidget>()!;
-      _controller = _ancestor.controller
-        ..addZoomingListener(_handleZooming)
-        ..addPanningListener(_handlePanning)
-        ..addResetListener(_handleReset)
+  void _handledZoomPanChange() {
+    if (SchedulerBinding.instance!.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
+      SchedulerBinding.instance!.addPostFrameCallback((Duration duration) {
+        _handledZoomPanChange();
+      });
+      return;
+    }
+
+    setState(() {
+      _currentZoomLevel = _zoomController!.zoomLevel;
+      final Offset point = Offset(
+          (_size!.width / 2) - _zoomController!.actualRect.left,
+          (_size!.height / 2) - _zoomController!.actualRect.top);
+      final MapLatLng newFocalLatLng = pixelToLatLng(
+          point, Size.square(getTotalTileWidth(_currentZoomLevel)));
+      _currentFocalLatLng = newFocalLatLng;
+      _handleTransform();
+      if (_hasSublayer) {
+        _controller!
+          ..visibleFocalLatLng = _currentFocalLatLng
+          ..tileZoomLevel = _currentZoomLevel;
+        if (_zoomController!.actionType == ActionType.fling) {
+          _invalidateSublayer();
+        }
+      }
+      _controller!.notifyZoomPanListeners();
+    });
+  }
+
+  void _invalidateSublayer() {
+    _controller!
+      ..isInInteractive = false
+      ..normalize = Offset.zero
+      ..panDistance = Offset.zero
+      ..gesture = null
+      ..localScale = 1.0;
+  }
+
+  void _initializeController() {
+    _ancestor =
+        context.dependOnInheritedWidgetOfExactType<MapLayerInheritedWidget>()!;
+    _controller ??= _ancestor.controller
+      ..tileZoomLevel = _currentZoomLevel
+      ..visibleFocalLatLng = _currentFocalLatLng;
+    if (_ancestor.zoomController != null) {
+      _zoomController ??= _ancestor.zoomController!
+        ..addListener(_handledZoomPanChange);
+    }
+  }
+
+  void _validateInitialBounds() {
+    final MapLatLngBounds? bounds =
+        widget.zoomPanBehavior?.latLngBounds ?? widget.initialLatLngBounds;
+    if (bounds != null) {
+      final double zoomLevel =
+          getZoomLevel(bounds, _controller!.layerType!, _size!);
+      _currentFocalLatLng = getFocalLatLng(bounds);
+      if (widget.zoomPanBehavior != null) {
+        _currentZoomLevel = zoomLevel.clamp(
+            widget.zoomPanBehavior!.minZoomLevel,
+            widget.zoomPanBehavior!.maxZoomLevel);
+      } else {
+        _currentZoomLevel =
+            zoomLevel.clamp(kDefaultMinZoomLevel, kDefaultMaxZoomLevel);
+      }
+      _nextZoomLevel = _currentZoomLevel.floor();
+      _controller!
         ..tileZoomLevel = _currentZoomLevel
-        ..visibleFocalLatLng = _currentFocalLatLng
-        ..onZoomLevelChange = _handleZoomLevelChange
-        ..onPanChange = _handleFocalLatLngChange;
+        ..visibleFocalLatLng = _currentFocalLatLng;
     }
   }
 
   @override
   void initState() {
-    super.initState();
     _currentFocalLatLng =
         widget.zoomPanBehavior?.focalLatLng ?? widget.initialFocalLatLng;
     _currentZoomLevel = (widget.zoomPanBehavior != null &&
@@ -1293,33 +719,14 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       final MapMarker marker = widget.markerBuilder!(context, i);
       _markers!.add(marker);
     }
-
-    _zoomLevelAnimationController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 650))
-      ..addListener(_handleZoomLevelAnimation)
-      ..addStatusListener(_handleZoomLevelAnimationStatusChange);
-    _focalLatLngAnimationController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 650))
-      ..addListener(_handleFocalLatLngAnimation)
-      ..addStatusListener(_handleFocalLatLngAnimationStatusChange);
-    _flingZoomLevelCurvedAnimation = CurvedAnimation(
-        parent: _zoomLevelAnimationController, curve: Curves.decelerate);
-    _flingFocalLatLngCurvedAnimation = CurvedAnimation(
-        parent: _focalLatLngAnimationController, curve: Curves.decelerate);
-    _zoomLevelCurvedAnimation = CurvedAnimation(
-        parent: _zoomLevelAnimationController, curve: Curves.easeInOut);
-    _focalLatLngCurvedAnimation = CurvedAnimation(
-        parent: _focalLatLngAnimationController, curve: Curves.easeInOut);
-
-    _focalLatLngTween = MapLatLngTween();
-    _zoomLevelTween = Tween<double>();
     _hasSublayer = widget.sublayers != null && widget.sublayers!.isNotEmpty;
     widget.controller?.addListener(refreshMarkers);
+    super.initState();
   }
 
   @override
   void didChangeDependencies() {
-    _initializeMapController();
+    _initializeController();
     super.didChangeDependencies();
   }
 
@@ -1331,24 +738,9 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    if (_controller != null) {
-      _controller!
-        ..removeZoomingListener(_handleZooming)
-        ..removePanningListener(_handlePanning)
-        ..removeResetListener(_handleReset);
-      _controller = null;
+    if (_zoomController != null) {
+      _zoomController!.removeListener(_handledZoomPanChange);
     }
-
-    _zoomLevelAnimationController
-      ..removeListener(_handleZoomLevelAnimation)
-      ..removeStatusListener(_handleZoomLevelAnimationStatusChange)
-      ..dispose();
-
-    _focalLatLngAnimationController
-      ..removeListener(_handleFocalLatLngAnimation)
-      ..removeStatusListener(_handleFocalLatLngAnimationStatusChange)
-      ..dispose();
-
     widget.controller?.removeListener(refreshMarkers);
     _controller?.dispose();
     _markers!.clear();
@@ -1377,12 +769,16 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        if (_size != null) {
-          _isSizeChanged = _size!.width != constraints.maxWidth ||
-              _size!.height != constraints.maxHeight;
+        final Size newSize = getBoxSize(constraints);
+        if (_size == null || _size != newSize) {
+          _size = newSize;
+          _controller!.tileLayerBoxSize = _size;
+          _validateInitialBounds();
+          // Recalculate tiles bounds origin for all existing zoom level
+          // when size changed.
+          _updateZoomLevelTransforms(_currentFocalLatLng, _currentZoomLevel);
         }
-        _size = getBoxSize(constraints);
-        _controller!.tileLayerBoxSize = _size;
+
         return _buildTileLayer();
       },
     );

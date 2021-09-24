@@ -1,4 +1,21 @@
-part of charts;
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+
+import '../../chart/utils/enum.dart';
+import '../../common/common.dart';
+import '../../common/series/chart_series.dart';
+import '../../common/user_interaction/selection_behavior.dart';
+import '../../common/utils/enum.dart';
+import '../../common/utils/typedef.dart';
+import '../common/data_label.dart';
+import '../common/marker.dart';
+import '../series_painter/area_painter.dart';
+import '../trendlines/trendlines.dart';
+import 'xy_data_series.dart';
 
 /// This class renders the area series.
 ///
@@ -43,11 +60,13 @@ class AreaSeries<T, D> extends XyDataSeries<T, D> {
       LegendIconType? legendIconType,
       String? legendItemText,
       double? opacity,
+      double? animationDelay,
       this.borderDrawMode = BorderDrawMode.top,
       SeriesRendererCreatedCallback? onRendererCreated,
       ChartPointInteractionCallback? onPointTap,
       ChartPointInteractionCallback? onPointDoubleTap,
-      ChartPointInteractionCallback? onPointLongPress})
+      ChartPointInteractionCallback? onPointLongPress,
+      CartesianShaderCallback? onCreateShader})
       : super(
             key: key,
             onRendererCreated: onRendererCreated,
@@ -82,7 +101,9 @@ class AreaSeries<T, D> extends XyDataSeries<T, D> {
             isVisibleInLegend: isVisibleInLegend,
             legendIconType: legendIconType,
             sortingOrder: sortingOrder,
-            opacity: opacity);
+            opacity: opacity,
+            animationDelay: animationDelay,
+            onCreateShader: onCreateShader);
 
   ///Border type of area series.
   ///
@@ -166,11 +187,13 @@ class AreaSeries<T, D> extends XyDataSeries<T, D> {
         other.legendIconType == legendIconType &&
         other.legendItemText == legendItemText &&
         other.opacity == opacity &&
+        other.animationDelay == animationDelay &&
         other.borderDrawMode == borderDrawMode &&
         other.onRendererCreated == onRendererCreated &&
         other.onPointTap == onPointTap &&
         other.onPointDoubleTap == onPointDoubleTap &&
-        other.onPointLongPress == onPointLongPress;
+        other.onPointLongPress == onPointLongPress &&
+        other.onCreateShader == onCreateShader;
   }
 
   @override
@@ -206,6 +229,7 @@ class AreaSeries<T, D> extends XyDataSeries<T, D> {
       legendIconType,
       legendItemText,
       opacity,
+      animationDelay,
       borderDrawMode,
       onRendererCreated,
       onPointTap,
@@ -214,86 +238,4 @@ class AreaSeries<T, D> extends XyDataSeries<T, D> {
     ];
     return hashList(values);
   }
-}
-
-/// Creates series renderer for Area series
-class AreaSeriesRenderer extends XyDataSeriesRenderer {
-  /// Calling the default constructor of AreaSeriesRenderer class.
-  AreaSeriesRenderer();
-
-  /// Creates a segment for a data point in the series.
-  ChartSegment _createSegments(
-      Path path, Path strokePath, int seriesIndex, double animateFactor,
-      [List<Offset>? _points]) {
-    final AreaSegment segment = createSegment();
-    final List<CartesianSeriesRenderer> oldSeriesRenderers =
-        _chartState!._oldSeriesRenderers;
-    segment._series = _series as XyDataSeries<dynamic, dynamic>;
-    segment.currentSegmentIndex = 0;
-    if (_points != null) {
-      segment.points = _points;
-    }
-    segment._seriesRenderer = this;
-    segment._seriesIndex = seriesIndex;
-    segment.animationFactor = animateFactor;
-    segment._path = path;
-    segment._strokePath = strokePath;
-    if (_renderingDetails!.widgetNeedUpdate &&
-        // ignore: unnecessary_null_comparison
-        oldSeriesRenderers != null &&
-        oldSeriesRenderers.isNotEmpty &&
-        oldSeriesRenderers.length - 1 >= segment._seriesIndex &&
-        oldSeriesRenderers[segment._seriesIndex]._seriesName ==
-            segment._seriesRenderer._seriesName) {
-      segment._oldSeriesRenderer = oldSeriesRenderers[segment._seriesIndex];
-      segment._oldSegmentIndex = 0;
-    }
-    customizeSegment(segment);
-    segment._chart = _chart;
-    segment._chartState = _chartState!;
-    _segments.add(segment);
-    return segment;
-  }
-
-  /// To draw area segments
-  //ignore: unused_element
-  void _drawSegment(Canvas canvas, ChartSegment segment) {
-    if (segment._seriesRenderer._isSelectionEnable) {
-      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
-          segment._seriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer?._selectionRenderer?._checkWithSelectionState(
-          _segments[segment.currentSegmentIndex!], _chart);
-    }
-    segment.onPaint(canvas);
-  }
-
-  /// To create area series segments
-  @override
-  AreaSegment createSegment() => AreaSegment();
-
-  /// Changes the series color, border color, and border width.
-  @override
-  void customizeSegment(ChartSegment segment) {
-    final AreaSegment areaSegment = segment as AreaSegment;
-    areaSegment._color = areaSegment._seriesRenderer._seriesColor;
-    areaSegment._strokeColor = areaSegment._seriesRenderer._seriesColor;
-    areaSegment._strokeWidth = areaSegment._series.width;
-    areaSegment.strokePaint = areaSegment.getStrokePaint();
-    areaSegment.fillPaint = areaSegment.getFillPaint();
-  }
-
-  /// Draws marker with different shape and color of the appropriate data point in the series.
-  @override
-  void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
-      Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer? seriesRenderer]) {
-    canvas.drawPath(seriesRenderer!._markerShapes[index]!, fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes[index]!, strokePaint);
-  }
-
-  /// Draws data label text of the appropriate data point in a series.
-  @override
-  void drawDataLabel(int index, Canvas canvas, String dataLabel, double pointX,
-          double pointY, int angle, TextStyle style) =>
-      _drawText(canvas, dataLabel, Offset(pointX, pointY), style, angle);
 }

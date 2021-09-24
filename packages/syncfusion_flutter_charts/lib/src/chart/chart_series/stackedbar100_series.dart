@@ -1,4 +1,22 @@
-part of charts;
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+
+import '../../chart/utils/enum.dart';
+import '../../common/common.dart';
+import '../../common/series/chart_series.dart';
+import '../../common/user_interaction/selection_behavior.dart';
+import '../../common/utils/enum.dart';
+import '../../common/utils/typedef.dart';
+import '../base/chart_base.dart';
+import '../common/data_label.dart';
+import '../common/marker.dart';
+import '../series_painter/stacked_bar_painter.dart';
+import '../trendlines/trendlines.dart';
+import 'stacked_series_base.dart';
 
 /// Renders the 100% stacked bar series.
 ///
@@ -13,7 +31,7 @@ part of charts;
 ///
 /// {@youtube 560 315 https://www.youtube.com/watch?v=NCUDBD_ClHo}
 @immutable
-class StackedBar100Series<T, D> extends _StackedSeriesBase<T, D> {
+class StackedBar100Series<T, D> extends StackedSeriesBase<T, D> {
   /// Creating an argument constructor of StackedBar100Series class.
   StackedBar100Series(
       {ValueKey<String>? key,
@@ -50,10 +68,12 @@ class StackedBar100Series<T, D> extends _StackedSeriesBase<T, D> {
       String? legendItemText,
       List<double>? dashArray,
       double? opacity,
+      double? animationDelay,
       SeriesRendererCreatedCallback? onRendererCreated,
       ChartPointInteractionCallback? onPointTap,
       ChartPointInteractionCallback? onPointDoubleTap,
       ChartPointInteractionCallback? onPointLongPress,
+      CartesianShaderCallback? onCreateShader,
       List<int>? initialSelectedDataIndexes})
       : super(
             key: key,
@@ -90,6 +110,8 @@ class StackedBar100Series<T, D> extends _StackedSeriesBase<T, D> {
             legendIconType: legendIconType,
             sortingOrder: sortingOrder,
             opacity: opacity,
+            animationDelay: animationDelay,
+            onCreateShader: onCreateShader,
             onRendererCreated: onRendererCreated,
             onPointTap: onPointTap,
             onPointDoubleTap: onPointDoubleTap,
@@ -137,6 +159,7 @@ class StackedBar100Series<T, D> extends _StackedSeriesBase<T, D> {
         other.legendIconType == legendIconType &&
         other.legendItemText == legendItemText &&
         other.opacity == opacity &&
+        other.animationDelay == animationDelay &&
         other.trackColor == trackColor &&
         other.trackBorderColor == trackBorderColor &&
         other.trackBorderWidth == trackBorderWidth &&
@@ -148,6 +171,7 @@ class StackedBar100Series<T, D> extends _StackedSeriesBase<T, D> {
         other.onPointTap == onPointTap &&
         other.onPointDoubleTap == onPointDoubleTap &&
         other.onPointLongPress == onPointLongPress &&
+        other.onCreateShader == onCreateShader &&
         other.initialSelectedDataIndexes == initialSelectedDataIndexes;
   }
 
@@ -185,6 +209,7 @@ class StackedBar100Series<T, D> extends _StackedSeriesBase<T, D> {
       legendIconType,
       legendItemText,
       opacity,
+      animationDelay,
       trackColor,
       trackBorderColor,
       trackBorderWidth,
@@ -213,85 +238,5 @@ class StackedBar100Series<T, D> extends _StackedSeriesBase<T, D> {
       return stackedBarSeriesRenderer;
     }
     return StackedBar100SeriesRenderer();
-  }
-}
-
-/// Creates series renderer for Stacked bar 100 series
-class StackedBar100SeriesRenderer extends _StackedSeriesRenderer {
-  /// Calling the default constructor of StackedBar100SeriesRenderer class.
-  StackedBar100SeriesRenderer();
-
-  @override
-  late num _rectPosition;
-  @override
-  late num _rectCount;
-
-  /// Stacked Bar segment is created here
-  // ignore: unused_element
-  ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
-      int pointIndex, int seriesIndex, double animateFactor) {
-    final StackedBar100Segment segment = createSegment();
-    final StackedBar100Series<dynamic, dynamic> _stackedBar100Series =
-        _series as StackedBar100Series<dynamic, dynamic>;
-    _isRectSeries = true;
-    // ignore: unnecessary_null_comparison
-    if (segment != null) {
-      segment._seriesIndex = seriesIndex;
-      segment.currentSegmentIndex = pointIndex;
-      segment.points.add(
-          Offset(currentPoint.markerPoint!.x, currentPoint.markerPoint!.y));
-      segment._seriesRenderer = this;
-      segment._series = _stackedBar100Series;
-      segment._currentPoint = currentPoint;
-      segment.animationFactor = animateFactor;
-      segment._path = _findingRectSeriesDashedBorder(
-          currentPoint, _stackedBar100Series.borderWidth);
-      segment.segmentRect = _getRRectFromRect(
-          currentPoint.region!, _stackedBar100Series.borderRadius);
-      segment._segmentRect = segment.segmentRect;
-      segment._oldSegmentIndex = _getOldSegmentIndex(segment);
-      customizeSegment(segment);
-      segment.strokePaint = segment.getStrokePaint();
-      segment.fillPaint = segment.getFillPaint();
-      _segments.add(segment);
-    }
-    return segment;
-  }
-
-  /// To render stacked bar 100 series segments
-  //ignore: unused_element
-  void _drawSegment(Canvas canvas, ChartSegment segment) {
-    if (segment._seriesRenderer._isSelectionEnable) {
-      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
-          segment._seriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer?._selectionRenderer?._checkWithSelectionState(
-          _segments[segment.currentSegmentIndex!], _chart);
-    }
-    segment.onPaint(canvas);
-  }
-
-  @override
-  StackedBar100Segment createSegment() => StackedBar100Segment();
-
-  @override
-  void customizeSegment(ChartSegment segment) {
-    final StackedBar100Segment bar100Segment = segment as StackedBar100Segment;
-    bar100Segment._color = bar100Segment._currentPoint!.pointColorMapper ??
-        bar100Segment._seriesRenderer._seriesColor;
-    bar100Segment._strokeColor = bar100Segment._series.borderColor;
-    bar100Segment._strokeWidth = bar100Segment._series.borderWidth;
-  }
-
-  @override
-  void drawDataLabel(int index, Canvas canvas, String dataLabel, double pointX,
-          double pointY, int angle, TextStyle style) =>
-      _drawText(canvas, dataLabel, Offset(pointX, pointY), style, angle);
-
-  @override
-  void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
-      Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer? seriesRenderer]) {
-    canvas.drawPath(seriesRenderer!._markerShapes[index]!, fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes[index]!, strokePaint);
   }
 }

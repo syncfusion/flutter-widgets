@@ -12,7 +12,7 @@ class _RsaAlgorithm implements _ICipherBlock {
 
   //Properties
   @override
-  String get algorithmName => _Asn1Constants.rsa;
+  String get algorithmName => _Asn1.rsa;
   @override
   int get inputBlock => _rsaCoreEngine.inputBlockSize;
   @override

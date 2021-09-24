@@ -1,7 +1,27 @@
-part of charts;
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_core/core.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
+import '../../chart/common/data_label.dart';
+import '../../chart/utils/enum.dart';
+import '../../chart/utils/helper.dart';
+import '../../circular_chart/renderer/circular_chart_annotation.dart';
+import '../../circular_chart/renderer/data_label_renderer.dart';
+import '../../circular_chart/utils/enum.dart';
+import '../../circular_chart/utils/helper.dart';
+import '../../common/event_args.dart';
+import '../../common/state_properties.dart';
+import '../../common/template/rendering.dart';
+import '../../common/utils/enum.dart';
+import '../../common/utils/helper.dart';
+import '../base/pyramid_base.dart';
+import '../base/pyramid_state_properties.dart';
+import '../renderer/renderer_extension.dart';
+import '../utils/common.dart';
 
 /// Method for checking if point is within polygon
-bool _isPointInPolygon(List<Offset> polygon, Offset point) {
+bool isPointInPolygon(List<Offset> polygon, Offset point) {
   bool p = false;
   int i = -1;
   final int l = polygon.length;
@@ -21,25 +41,25 @@ bool _isPointInPolygon(List<Offset> polygon, Offset point) {
 }
 
 /// To add chart templates
-void _findTemplates(dynamic _chartState) {
+void findTemplates(dynamic _stateProperties) {
   Offset labelLocation;
   const num lineLength = 10;
   PointInfo<dynamic> point;
   Widget labelWidget;
-  _chartState._renderingDetails.dataLabelTemplateRegions = <Rect>[];
-  _chartState._renderingDetails.templates = <_ChartTemplateInfo>[];
+  _stateProperties.renderingDetails.dataLabelTemplateRegions = <Rect>[];
+  _stateProperties.renderingDetails.templates = <ChartTemplateInfo>[];
   dynamic series;
   dynamic seriesRenderer;
   ChartAlignment labelAlign;
   for (int k = 0;
-      k < _chartState._chartSeries.visibleSeriesRenderers.length;
+      k < _stateProperties.chartSeries.visibleSeriesRenderers.length;
       k++) {
-    seriesRenderer = _chartState._chartSeries.visibleSeriesRenderers[k];
-    series = seriesRenderer._series;
+    seriesRenderer = _stateProperties.chartSeries.visibleSeriesRenderers[k];
+    series = seriesRenderer.series;
     if (series.dataLabelSettings.isVisible == true &&
         series.dataLabelSettings.builder != null) {
-      for (int i = 0; i < seriesRenderer._renderPoints.length; i++) {
-        point = seriesRenderer._renderPoints[i];
+      for (int i = 0; i < seriesRenderer.renderPoints.length; i++) {
+        point = seriesRenderer.renderPoints[i];
         if (point.isVisible) {
           labelWidget = series.dataLabelSettings
               .builder(series.dataSource[i], point, series, i, k);
@@ -58,13 +78,13 @@ void _findTemplates(dynamic _chartState) {
                 ? ChartAlignment.far
                 : ChartAlignment.near;
           }
-          _chartState._renderingDetails.templates.add(_ChartTemplateInfo(
+          _stateProperties.renderingDetails.templates.add(ChartTemplateInfo(
               key: GlobalKey(),
               templateType: 'DataLabel',
               pointIndex: i,
               seriesIndex: k,
               needMeasure: true,
-              clipRect: _chartState._renderingDetails.chartAreaRect,
+              clipRect: _stateProperties.renderingDetails.chartAreaRect,
               animationDuration: 500,
               widget: labelWidget,
               horizontalAlignment: labelAlign,
@@ -77,58 +97,60 @@ void _findTemplates(dynamic _chartState) {
 }
 
 /// To render a template
-void _renderTemplates(dynamic _chartState) {
-  if (_chartState._renderingDetails.templates.isNotEmpty == true) {
-    _ChartTemplateInfo chartTemplateInfo;
-    for (int i = 0; i < _chartState._renderingDetails.templates.length; i++) {
-      chartTemplateInfo = _chartState._renderingDetails.templates[i];
+void renderTemplates(StateProperties stateProperties) {
+  if (stateProperties.renderingDetails.templates.isNotEmpty == true) {
+    ChartTemplateInfo chartTemplateInfo;
+    for (int i = 0;
+        i < stateProperties.renderingDetails.templates.length;
+        i++) {
+      chartTemplateInfo = stateProperties.renderingDetails.templates[i];
       chartTemplateInfo.animationDuration =
-          _chartState._renderingDetails.initialRender == false
+          stateProperties.renderingDetails.initialRender == false
               ? 0
               : chartTemplateInfo.animationDuration;
     }
-    _chartState._renderingDetails.chartTemplate = _ChartTemplate(
-        templates: _chartState._renderingDetails.templates,
-        render: _chartState._renderingDetails.animateCompleted,
-        chartState: _chartState);
-    _chartState._renderingDetails.chartWidgets
-        .add(_chartState._renderingDetails.chartTemplate);
+    stateProperties.renderingDetails.chartTemplate = ChartTemplate(
+        templates: stateProperties.renderingDetails.templates,
+        render: stateProperties.renderingDetails.animateCompleted,
+        stateProperties: stateProperties);
+    stateProperties.renderingDetails.chartWidgets!
+        .add(stateProperties.renderingDetails.chartTemplate!);
   }
 }
 
 ///To get pyramid series data label saturation color
-Color _getPyramidFunnelColor(PointInfo<dynamic> currentPoint,
-    dynamic seriesRenderer, dynamic _chartState) {
+Color getPyramidFunnelColor(PointInfo<dynamic> currentPoint,
+    dynamic seriesRenderer, dynamic _stateProperties) {
   Color color;
-  final dynamic series = seriesRenderer._series;
+  final dynamic series = seriesRenderer.series;
   final DataLabelSettings dataLabel = series.dataLabelSettings;
   final DataLabelSettingsRenderer dataLabelSettingsRenderer =
-      seriesRenderer._dataLabelSettingsRenderer;
+      seriesRenderer.dataLabelSettingsRenderer;
   color = (currentPoint.renderPosition == null ||
           currentPoint.renderPosition == ChartDataLabelPosition.inside &&
               !currentPoint.saturationRegionOutside)
-      ? _innerColor(dataLabelSettingsRenderer._color, currentPoint.fill,
-          _chartState._renderingDetails.chartTheme)
-      : _outerColor(
-          dataLabelSettingsRenderer._color,
+      ? innerColor(dataLabelSettingsRenderer.color, currentPoint.fill,
+          _stateProperties.renderingDetails.chartTheme)
+      : outerColor(
+          dataLabelSettingsRenderer.color,
           dataLabel.useSeriesColor
               ? currentPoint.fill
-              : (_chartState._chart.backgroundColor != null
-                  ? _chartState
-                      ._renderingDetails.chartTheme.plotAreaBackgroundColor
+              : (_stateProperties.chart.backgroundColor != null
+                  ? _stateProperties
+                      .renderingDetails.chartTheme.plotAreaBackgroundColor
                   : null),
-          _chartState._renderingDetails.chartTheme);
+          _stateProperties.renderingDetails.chartTheme);
 
-  return _getSaturationColor(color);
+  return getSaturationColor(color);
 }
 
 ///To get inner data label color
-Color _innerColor(
+Color innerColor(
         Color? dataLabelColor, Color? pointColor, SfChartThemeData theme) =>
     dataLabelColor ?? pointColor ?? Colors.black;
 
 ///To get outer data label color
-Color _outerColor(Color? dataLabelColor, Color? backgroundColor,
+Color outerColor(Color? dataLabelColor, Color? backgroundColor,
         SfChartThemeData theme) =>
     // ignore: prefer_if_null_operators
     dataLabelColor != null
@@ -141,13 +163,13 @@ Color _outerColor(Color? dataLabelColor, Color? backgroundColor,
                 : Colors.black;
 
 ///To get outer data label text style
-TextStyle _getDataLabelTextStyle(
-    dynamic seriesRenderer, PointInfo<dynamic> point, dynamic chartState,
+TextStyle getDataLabelTextStyle(
+    dynamic seriesRenderer, PointInfo<dynamic> point, dynamic stateProperties,
     [double? animateOpacity]) {
-  final dynamic series = seriesRenderer._series;
+  final dynamic series = seriesRenderer.series;
   final DataLabelSettings dataLabel = series.dataLabelSettings;
   final Color fontColor = dataLabel.textStyle.color ??
-      _getPyramidFunnelColor(point, seriesRenderer, chartState);
+      getPyramidFunnelColor(point, seriesRenderer, stateProperties);
   final TextStyle textStyle = TextStyle(
       color: fontColor.withOpacity(animateOpacity ?? 1),
       fontSize: dataLabel.textStyle.fontSize,
@@ -175,25 +197,25 @@ TextStyle _getDataLabelTextStyle(
 }
 
 /// To check the point explosion
-bool _isNeedExplode(int pointIndex, dynamic series, dynamic _chartState) {
+bool isNeedExplode(int pointIndex, dynamic series, dynamic stateProperties) {
   bool isNeedExplode = false;
   if (series.explode == true) {
-    if (_chartState._renderingDetails.initialRender == true) {
+    if (stateProperties.renderingDetails.initialRender == true) {
       if (pointIndex == series.explodeIndex) {
-        _chartState._renderingDetails.explodedPoints.add(pointIndex);
+        stateProperties.renderingDetails.explodedPoints.add(pointIndex);
         isNeedExplode = true;
       }
-    } else if (_chartState._renderingDetails.widgetNeedUpdate == true ||
-        _chartState._renderingDetails.isLegendToggled == true) {
+    } else if (stateProperties.renderingDetails.widgetNeedUpdate == true ||
+        stateProperties.renderingDetails.isLegendToggled == true) {
       isNeedExplode =
-          _chartState._renderingDetails.explodedPoints.contains(pointIndex);
+          stateProperties.renderingDetails.explodedPoints.contains(pointIndex);
     }
   }
   return isNeedExplode;
 }
 
 /// To return data label rect calculation method based on position
-Rect? _getDataLabelRect(Position position, ConnectorType connectorType,
+Rect? getDataLabelRect(Position position, ConnectorType connectorType,
     EdgeInsets margin, Path connectorPath, Offset endPoint, Size textSize) {
   Rect? rect;
   const int lineLength = 10;
@@ -229,4 +251,386 @@ Rect? _getDataLabelRect(Position position, ConnectorType connectorType,
       break;
   }
   return rect;
+}
+
+/// To render pyramid data labels
+void renderPyramidDataLabel(
+    PyramidSeriesRendererExtension seriesRenderer,
+    Canvas canvas,
+    PyramidStateProperties stateProperties,
+    Animation<double> animation) {
+  PointInfo<dynamic> point;
+  final SfPyramidChart chart = stateProperties.chart;
+  final DataLabelSettings dataLabel = seriesRenderer.series.dataLabelSettings;
+  final DataLabelSettingsRenderer dataLabelSettingsRenderer =
+      seriesRenderer.dataLabelSettingsRenderer;
+  String? label;
+  // ignore: unnecessary_null_comparison
+  final double animateOpacity = animation != null ? animation.value : 1;
+  DataLabelRenderArgs dataLabelArgs;
+  TextStyle dataLabelStyle;
+  final List<Rect> renderDataLabelRegions = <Rect>[];
+  Size textSize;
+  for (int pointIndex = 0;
+      pointIndex < seriesRenderer.renderPoints!.length;
+      pointIndex++) {
+    point = seriesRenderer.renderPoints![pointIndex];
+    if (point.isVisible && (point.y != 0 || dataLabel.showZeroValue)) {
+      label = point.text;
+      dataLabelStyle = dataLabel.textStyle;
+      dataLabelSettingsRenderer.color =
+          seriesRenderer.series.dataLabelSettings.color;
+      if (chart.onDataLabelRender != null &&
+          !seriesRenderer.renderPoints![pointIndex].labelRenderEvent) {
+        dataLabelArgs = DataLabelRenderArgs(seriesRenderer,
+            seriesRenderer.renderPoints, pointIndex, pointIndex);
+        dataLabelArgs.text = label!;
+        dataLabelArgs.textStyle = dataLabelStyle;
+        dataLabelArgs.color = dataLabelSettingsRenderer.color;
+        chart.onDataLabelRender!(dataLabelArgs);
+        label = point.text = dataLabelArgs.text;
+        dataLabelStyle = dataLabelArgs.textStyle;
+        pointIndex = dataLabelArgs.pointIndex!;
+        dataLabelSettingsRenderer.color = dataLabelArgs.color;
+        seriesRenderer.dataPoints[pointIndex].labelRenderEvent = true;
+      }
+      dataLabelStyle = chart.onDataLabelRender == null
+          ? getDataLabelTextStyle(
+              seriesRenderer, point, stateProperties, animateOpacity)
+          : dataLabelStyle;
+      textSize = measureText(label!, dataLabelStyle);
+
+      // Label check after event
+      if (label != '') {
+        if (dataLabel.labelPosition == ChartDataLabelPosition.inside) {
+          _setPyramidInsideLabelPosition(
+              dataLabel,
+              point,
+              textSize,
+              stateProperties,
+              canvas,
+              renderDataLabelRegions,
+              pointIndex,
+              label,
+              seriesRenderer,
+              animateOpacity,
+              dataLabelStyle);
+        } else {
+          point.renderPosition = ChartDataLabelPosition.outside;
+          dataLabelStyle = getDataLabelTextStyle(
+              seriesRenderer, point, stateProperties, animateOpacity);
+          _renderOutsidePyramidDataLabel(
+              canvas,
+              label,
+              point,
+              textSize,
+              pointIndex,
+              seriesRenderer,
+              stateProperties,
+              dataLabelStyle,
+              renderDataLabelRegions,
+              animateOpacity);
+        }
+      }
+    }
+  }
+}
+
+/// To calculate pyramid inside label position
+void _setPyramidInsideLabelPosition(
+    DataLabelSettings dataLabel,
+    PointInfo<dynamic> point,
+    Size textSize,
+    PyramidStateProperties stateProperties,
+    Canvas canvas,
+    List<Rect> renderDataLabelRegions,
+    int pointIndex,
+    String label,
+    PyramidSeriesRendererExtension seriesRenderer,
+    double animateOpacity,
+    TextStyle dataLabelStyle) {
+  final num angle = dataLabel.angle;
+  Offset labelLocation;
+  final SmartLabelMode smartLabelMode = stateProperties.chart.smartLabelMode;
+  const int labelPadding = 2;
+  labelLocation = point.symbolLocation;
+  labelLocation = Offset(
+      labelLocation.dx -
+          (textSize.width / 2) +
+          (angle == 0 ? 0 : textSize.width / 2),
+      labelLocation.dy -
+          (textSize.height / 2) +
+          (angle == 0 ? 0 : textSize.height / 2));
+  point.labelRect = Rect.fromLTWH(
+      labelLocation.dx - labelPadding,
+      labelLocation.dy - labelPadding,
+      textSize.width + (2 * labelPadding),
+      textSize.height + (2 * labelPadding));
+  final bool isDataLabelCollide =
+      findingCollision(point.labelRect!, renderDataLabelRegions, point.region);
+  if (isDataLabelCollide && smartLabelMode == SmartLabelMode.shift) {
+    point.saturationRegionOutside = true;
+    point.renderPosition = ChartDataLabelPosition.outside;
+    dataLabelStyle = getDataLabelTextStyle(
+        seriesRenderer, point, stateProperties, animateOpacity);
+    _renderOutsidePyramidDataLabel(
+        canvas,
+        label,
+        point,
+        textSize,
+        pointIndex,
+        seriesRenderer,
+        stateProperties,
+        dataLabelStyle,
+        renderDataLabelRegions,
+        animateOpacity);
+  } else if (smartLabelMode == SmartLabelMode.none ||
+      (!isDataLabelCollide && smartLabelMode == SmartLabelMode.shift) ||
+      (!isDataLabelCollide && smartLabelMode == SmartLabelMode.hide)) {
+    point.renderPosition = ChartDataLabelPosition.inside;
+    _drawPyramidLabel(
+        point.labelRect!,
+        labelLocation,
+        label,
+        null,
+        canvas,
+        seriesRenderer,
+        point,
+        pointIndex,
+        stateProperties,
+        dataLabelStyle,
+        renderDataLabelRegions,
+        animateOpacity);
+  }
+}
+
+/// To render outside pyramid data label
+void _renderOutsidePyramidDataLabel(
+    Canvas canvas,
+    String label,
+    PointInfo<dynamic> point,
+    Size textSize,
+    int pointIndex,
+    PyramidSeriesRendererExtension seriesRenderer,
+    PyramidStateProperties stateProperties,
+    TextStyle textStyle,
+    List<Rect> renderDataLabelRegions,
+    double animateOpacity) {
+  Path connectorPath;
+  Rect? rect;
+  Offset labelLocation;
+  final EdgeInsets margin = seriesRenderer.series.dataLabelSettings.margin;
+  final ConnectorLineSettings connector =
+      seriesRenderer.series.dataLabelSettings.connectorLineSettings;
+  const num regionPadding = 12;
+  connectorPath = Path();
+  final num connectorLength = percentToValue(connector.length ?? '0%',
+          stateProperties.renderingDetails.chartAreaRect.width / 2)! +
+      seriesRenderer.maximumDataLabelRegion.width / 2 -
+      regionPadding;
+  final Offset startPoint = Offset(
+      seriesRenderer.renderPoints![pointIndex].region!.right,
+      seriesRenderer.renderPoints![pointIndex].region!.top +
+          seriesRenderer.renderPoints![pointIndex].region!.height / 2);
+  final double dx = seriesRenderer.renderPoints![pointIndex].symbolLocation.dx +
+      connectorLength;
+  final Offset endPoint = Offset(
+      (dx + textSize.width + margin.left + margin.right >
+              stateProperties.renderingDetails.chartAreaRect.right)
+          ? dx -
+              (percentToValue(seriesRenderer.series.explodeOffset,
+                  stateProperties.renderingDetails.chartAreaRect.width)!)
+          : dx,
+      seriesRenderer.renderPoints![pointIndex].symbolLocation.dy);
+  connectorPath.moveTo(startPoint.dx, startPoint.dy);
+  if (connector.type == ConnectorType.line) {
+    connectorPath.lineTo(endPoint.dx, endPoint.dy);
+  }
+  point.dataLabelPosition = Position.right;
+  rect = getDataLabelRect(point.dataLabelPosition!, connector.type, margin,
+      connectorPath, endPoint, textSize);
+  if (rect != null) {
+    point.labelRect = rect;
+    labelLocation = Offset(rect.left + margin.left,
+        rect.top + rect.height / 2 - textSize.height / 2);
+    final Rect containerRect = stateProperties.renderingDetails.chartAreaRect;
+    if (seriesRenderer.series.dataLabelSettings.builder == null) {
+      Rect? lastRenderedLabelRegion;
+      if (renderDataLabelRegions.isNotEmpty) {
+        lastRenderedLabelRegion =
+            renderDataLabelRegions[renderDataLabelRegions.length - 1];
+      }
+      if (!_isPyramidLabelIntersect(rect, lastRenderedLabelRegion) &&
+          (rect.left > containerRect.left &&
+              rect.left + rect.width <
+                  containerRect.left + containerRect.width) &&
+          rect.top > containerRect.top &&
+          rect.top + rect.height < containerRect.top + containerRect.height) {
+        _drawPyramidLabel(
+            rect,
+            labelLocation,
+            label,
+            connectorPath,
+            canvas,
+            seriesRenderer,
+            point,
+            pointIndex,
+            stateProperties,
+            textStyle,
+            renderDataLabelRegions,
+            animateOpacity);
+      } else {
+        if (pointIndex != 0) {
+          const num connectorLinePadding = 15;
+          const num padding = 2;
+          final Rect previousRenderedRect =
+              renderDataLabelRegions[renderDataLabelRegions.length - 1];
+          rect = Rect.fromLTWH(rect.left, previousRenderedRect.bottom + padding,
+              rect.width, rect.height);
+          labelLocation = Offset(
+              rect.left + margin.left,
+              previousRenderedRect.bottom +
+                  padding +
+                  rect.height / 2 -
+                  textSize.height / 2);
+          connectorPath = Path();
+          connectorPath.moveTo(startPoint.dx, startPoint.dy);
+          connectorPath.lineTo(
+              rect.left - connectorLinePadding, rect.top + rect.height / 2);
+          connectorPath.lineTo(rect.left, rect.top + rect.height / 2);
+        }
+        if (rect.bottom <
+            stateProperties.renderingDetails.chartAreaRect.bottom) {
+          _drawPyramidLabel(
+              rect,
+              labelLocation,
+              label,
+              connectorPath,
+              canvas,
+              seriesRenderer,
+              point,
+              pointIndex,
+              stateProperties,
+              textStyle,
+              renderDataLabelRegions,
+              animateOpacity);
+        }
+      }
+    }
+  }
+}
+
+/// To check whether labels intersect
+bool _isPyramidLabelIntersect(Rect rect, Rect? previousRect) {
+  bool isIntersect = false;
+  const num padding = 2;
+  if (previousRect != null && (rect.top - padding) < previousRect.bottom) {
+    isIntersect = true;
+  }
+  return isIntersect;
+}
+
+/// To draw pyramid data label
+void _drawPyramidLabel(
+    Rect labelRect,
+    Offset location,
+    String? label,
+    Path? connectorPath,
+    Canvas canvas,
+    PyramidSeriesRendererExtension seriesRenderer,
+    PointInfo<dynamic> point,
+    int pointIndex,
+    PyramidStateProperties stateProperties,
+    TextStyle textStyle,
+    List<Rect> renderDataLabelRegions,
+    double animateOpacity) {
+  Paint rectPaint;
+  final DataLabelSettings dataLabel = seriesRenderer.series.dataLabelSettings;
+  final DataLabelSettingsRenderer dataLabelSettingsRenderer =
+      seriesRenderer.dataLabelSettingsRenderer;
+  final ConnectorLineSettings connector = dataLabel.connectorLineSettings;
+  if (connectorPath != null) {
+    canvas.drawPath(
+        connectorPath,
+        Paint()
+          ..color = connector.width <= 0
+              ? Colors.transparent
+              : connector.color ??
+                  point.fill.withOpacity(
+                      !stateProperties.renderingDetails.isLegendToggled
+                          ? animateOpacity
+                          : dataLabel.opacity)
+          ..strokeWidth = connector.width
+          ..style = PaintingStyle.stroke);
+  }
+
+  if (dataLabel.builder == null) {
+    final double strokeWidth = dataLabel.borderWidth;
+    final Color? labelFill = dataLabelSettingsRenderer.color ??
+        (dataLabel.useSeriesColor
+            ? point.fill
+            : dataLabelSettingsRenderer.color);
+    final Color? strokeColor =
+        dataLabel.borderColor.withOpacity(dataLabel.opacity);
+    // ignore: unnecessary_null_comparison
+    if (strokeWidth != null && strokeWidth > 0) {
+      rectPaint = Paint()
+        ..color = strokeColor!.withOpacity(
+            !stateProperties.renderingDetails.isLegendToggled
+                ? animateOpacity
+                : dataLabel.opacity)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = strokeWidth;
+      drawLabelRect(
+          rectPaint,
+          Rect.fromLTRB(
+              labelRect.left, labelRect.top, labelRect.right, labelRect.bottom),
+          dataLabel.borderRadius,
+          canvas);
+    }
+    if (labelFill != null) {
+      drawLabelRect(
+          Paint()
+            ..color = labelFill
+                .withOpacity(!stateProperties.renderingDetails.isLegendToggled
+                    ? (animateOpacity - (1 - dataLabel.opacity)) < 0
+                        ? 0
+                        : animateOpacity - (1 - dataLabel.opacity)
+                    : dataLabel.opacity)
+            ..style = PaintingStyle.fill,
+          Rect.fromLTRB(
+              labelRect.left, labelRect.top, labelRect.right, labelRect.bottom),
+          dataLabel.borderRadius,
+          canvas);
+    }
+    drawText(canvas, label!, location, textStyle, dataLabel.angle);
+    renderDataLabelRegions.add(labelRect);
+  }
+}
+
+/// method to trigger the pyramid data label event
+void triggerPyramidDataLabelEvent(
+    SfPyramidChart chart,
+    PyramidSeriesRendererExtension seriesRenderer,
+    PyramidStateProperties chartState,
+    Offset position) {
+  const int seriesIndex = 0;
+  DataLabelSettings dataLabel;
+  PointInfo<dynamic> point;
+  Offset labelLocation;
+  for (int pointIndex = 0;
+      pointIndex < seriesRenderer.renderPoints!.length;
+      pointIndex++) {
+    dataLabel = seriesRenderer.series.dataLabelSettings;
+    point = seriesRenderer.renderPoints![pointIndex];
+    labelLocation = point.symbolLocation;
+    if (dataLabel.isVisible &&
+        seriesRenderer.renderPoints![pointIndex].labelRect != null &&
+        seriesRenderer.renderPoints![pointIndex].labelRect!
+            .contains(position)) {
+      position = Offset(labelLocation.dx, labelLocation.dy);
+      dataLabelTapEvent(chart, seriesRenderer.series.dataLabelSettings,
+          pointIndex, point, position, seriesIndex);
+    }
+  }
 }

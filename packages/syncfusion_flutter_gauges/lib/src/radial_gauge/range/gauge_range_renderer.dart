@@ -443,6 +443,23 @@ class RenderGaugeRange extends RenderBox {
         getDegreeToRadian((endFactor * _sweepAngle) + axisRenderer!.startAngle);
     _rangeEndRadian = endRadian - _rangeStartRadian;
 
+    // To render the range in clock wise if the start value is greater than the end value
+    // for full circle axis track.
+    if (axisRenderer!.startAngle == axisRenderer!.endAngle &&
+        startValue > endValue) {
+      final double midFactor = (axisRenderer!.renderer != null &&
+              axisRenderer!.renderer!.valueToFactor(axisRenderer!.maximum) !=
+                  null)
+          ? axisRenderer!.renderer!.valueToFactor(axisRenderer!.maximum) ??
+              axisRenderer!.valueToFactor(axisRenderer!.maximum)
+          : axisRenderer!.valueToFactor(axisRenderer!.maximum);
+      final double midRadian = getDegreeToRadian(
+          (midFactor * _sweepAngle) + axisRenderer!.startAngle);
+      final double startRadian = getDegreeToRadian(axisRenderer!.startAngle);
+      _rangeEndRadian =
+          (midRadian - _rangeStartRadian) + (endRadian - startRadian);
+    }
+
     _rangeRect = Rect.fromLTRB(
         -(_radius - (_actualStartWidth / 2 + _totalOffset)),
         -(_radius - (_actualStartWidth / 2 + _totalOffset)),

@@ -10,7 +10,7 @@ class LinearTickStyle {
 
   /// Specifies the length of major and minor ticks.
   ///
-  /// Defaults to 8.0 for [majorTicks] and 4.0 for [minorTicks].
+  /// Defaults to 8.0 for `majorTicks `and 4.0 for `minorTicks`.
   ///
   /// This snippet shows how to set tick length.
   ///
@@ -52,9 +52,9 @@ class LinearTickStyle {
   /// ```dart
   ///
   /// SfLinearGauge(majorTickStyle: LinearTickStyle(
-  /// color: Colors.Blue)
+  /// color: Colors.blue),
   /// minorTickStyle: LinearTickStyle(
-  /// color: Colors.Green,)
+  /// color: Colors.green),
   /// )
   /// ```
   ///

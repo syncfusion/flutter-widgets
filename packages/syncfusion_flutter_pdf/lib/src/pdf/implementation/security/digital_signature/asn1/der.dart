@@ -169,15 +169,14 @@ class _DerBitString extends _DerString {
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
-    return _extra.hashCode ^ _Asn1Constants.getHashCode(_data);
+    return _extra.hashCode ^ _Asn1.getHashCode(_data);
   }
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object asn1) {
     if (asn1 is _DerBitString) {
-      return _extra == asn1._extra &&
-          _Asn1Constants.areEqual(_data, asn1._data);
+      return _extra == asn1._extra && _Asn1.areEqual(_data, asn1._data);
     } else {
       return false;
     }
@@ -372,14 +371,14 @@ class _DerInteger extends _Asn1 {
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
-    return _Asn1Constants.getHashCode(_value);
+    return _Asn1.getHashCode(_value);
   }
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object asn1) {
     if (asn1 is _DerInteger) {
-      return _Asn1Constants.areEqual(_value, asn1._value);
+      return _Asn1.areEqual(_value, asn1._value);
     } else {
       return false;
     }
@@ -444,7 +443,7 @@ class _DerObjectID extends _Asn1 {
   }
   _DerObjectID.fromBytes(List<int> bytes) {
     _id = getObjectID(bytes);
-    _bytes = _Asn1Constants.clone(bytes);
+    _bytes = _Asn1.clone(bytes);
   }
   String? _id;
   @override
@@ -628,10 +627,10 @@ class _DerObjectID extends _Asn1 {
   }
 
   static _DerObjectID? fromOctetString(List<int> bytes) {
-    final int hashCode = _Asn1Constants.getHashCode(bytes);
+    final int hashCode = _Asn1.getHashCode(bytes);
     final int first = hashCode & 1023;
     final _DerObjectID? entry = _objects[first];
-    if (entry != null && _Asn1Constants.areEqual(bytes, entry.getBytes())) {
+    if (entry != null && _Asn1.areEqual(bytes, entry.getBytes())) {
       return entry;
     }
     _objects[first] = _DerObjectID.fromBytes(bytes);
@@ -902,7 +901,7 @@ class _DerCatalogue extends _Asn1 {
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object asn1) {
     if (asn1 is _DerCatalogue) {
-      return _Asn1Constants.areEqual(_bytes, asn1._bytes);
+      return _Asn1.areEqual(_bytes, asn1._bytes);
     } else {
       return false;
     }
@@ -911,7 +910,7 @@ class _DerCatalogue extends _Asn1 {
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
-    return _Asn1Constants.getHashCode(_bytes);
+    return _Asn1.getHashCode(_bytes);
   }
 }
 

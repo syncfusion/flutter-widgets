@@ -1,7 +1,14 @@
-part of charts;
+import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
+import '../circular_chart/renderer/common.dart';
+import 'common.dart';
+import 'legend/legend.dart';
+import 'legend/renderer.dart';
+import 'template/rendering.dart';
+import 'user_interaction/tooltip.dart';
 
 /// Represents the rendering details of the chart
-class _RenderingDetails {
+class RenderingDetails {
   /// Specifies the animation controller of chart
   late AnimationController animationController;
 
@@ -11,23 +18,23 @@ class _RenderingDetails {
   /// Specifies the series repaint notifier
   late ValueNotifier<int> seriesRepaintNotifier;
 
-  /// Specifies the chart element animatioon
+  /// Specifies the chart element animation
   late Animation<double> chartElementAnimation;
 
   /// Specifies the context for legend
-  late List<_MeasureWidgetContext> legendWidgetContext;
+  late List<MeasureWidgetContext> legendWidgetContext;
 
   /// Specifies the context for legend toggle template
-  late List<_MeasureWidgetContext> legendToggleTemplateStates;
+  late List<MeasureWidgetContext> legendToggleTemplateStates;
 
   /// Specifies the legend toggle states
-  late List<_LegendRenderContext> legendToggleStates;
+  late List<LegendRenderContext> legendToggleStates;
 
   /// Specifies whether the legend is toggled
   late bool isLegendToggled;
 
   /// Specifies the chart legend
-  late _ChartLegend chartLegend;
+  late ChartLegend chartLegend;
 
   /// Specifies the chart legend renderer
   late LegendRenderer legendRenderer;
@@ -36,7 +43,7 @@ class _RenderingDetails {
   late TooltipBehaviorRenderer tooltipBehaviorRenderer;
 
   /// Specifies the chart interaction
-  _ChartInteraction? currentActive;
+  ChartInteraction? currentActive;
 
   /// Specifies the tap position
   Offset? tapPosition;
@@ -54,10 +61,10 @@ class _RenderingDetails {
   late List<Rect> dataLabelTemplateRegions;
 
   /// Specifies the list of template info
-  late List<_ChartTemplateInfo> templates;
+  late List<ChartTemplateInfo> templates;
 
   /// Specifies the chart template
-  _ChartTemplate? chartTemplate;
+  ChartTemplate? chartTemplate;
 
   /// Specifies the chart theme
   late SfChartThemeData chartTheme;
@@ -88,7 +95,4 @@ class _RenderingDetails {
 
   /// Specifies the list of chart widget
   List<Widget>? chartWidgets;
-
-  /// Specifies the image drawn in the marker or not.
-  bool isImageDrawn = false;
 }

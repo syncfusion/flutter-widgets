@@ -1,4 +1,22 @@
-part of charts;
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+
+import '../../chart/utils/enum.dart';
+import '../../common/common.dart';
+import '../../common/series/chart_series.dart';
+import '../../common/user_interaction/selection_behavior.dart';
+import '../../common/utils/enum.dart';
+import '../../common/utils/typedef.dart';
+import '../base/chart_base.dart';
+import '../common/data_label.dart';
+import '../common/marker.dart';
+import '../series_painter/spline_painter.dart';
+import '../trendlines/trendlines.dart';
+import 'xy_data_series.dart';
 
 /// Renders the spline series.
 ///
@@ -39,10 +57,12 @@ class SplineSeries<T, D> extends XyDataSeries<T, D> {
       SortingOrder? sortingOrder,
       String? legendItemText,
       double? opacity,
+      double? animationDelay,
       SeriesRendererCreatedCallback? onRendererCreated,
       ChartPointInteractionCallback? onPointTap,
       ChartPointInteractionCallback? onPointDoubleTap,
       ChartPointInteractionCallback? onPointLongPress,
+      CartesianShaderCallback? onCreateShader,
       List<int>? initialSelectedDataIndexes})
       : super(
             key: key,
@@ -72,6 +92,8 @@ class SplineSeries<T, D> extends XyDataSeries<T, D> {
             legendIconType: legendIconType,
             sortingOrder: sortingOrder,
             opacity: opacity,
+            animationDelay: animationDelay,
+            onCreateShader: onCreateShader,
             onRendererCreated: onRendererCreated,
             onPointTap: onPointTap,
             onPointDoubleTap: onPointDoubleTap,
@@ -171,10 +193,12 @@ class SplineSeries<T, D> extends XyDataSeries<T, D> {
         other.legendIconType == legendIconType &&
         other.legendItemText == legendItemText &&
         other.opacity == opacity &&
+        other.animationDelay == animationDelay &&
         other.onRendererCreated == onRendererCreated &&
         other.onPointTap == onPointTap &&
         other.onPointDoubleTap == onPointDoubleTap &&
         other.onPointLongPress == onPointLongPress &&
+        other.onCreateShader == onCreateShader &&
         other.initialSelectedDataIndexes == initialSelectedDataIndexes &&
         other.cardinalSplineTension == cardinalSplineTension &&
         other.splineType == splineType;
@@ -211,6 +235,7 @@ class SplineSeries<T, D> extends XyDataSeries<T, D> {
       legendIconType,
       legendItemText,
       opacity,
+      animationDelay,
       onRendererCreated,
       initialSelectedDataIndexes,
       cardinalSplineTension,
@@ -221,98 +246,4 @@ class SplineSeries<T, D> extends XyDataSeries<T, D> {
     ];
     return hashList(values);
   }
-}
-
-/// Creates series renderer for Spline series
-class SplineSeriesRenderer extends XyDataSeriesRenderer {
-  /// Calling the default constructor of SplineSeriesRenderer class.
-  SplineSeriesRenderer();
-
-  final List<num?> _xValueList = <num?>[];
-  final List<num?> _yValueList = <num?>[];
-
-  /// Spline segment is created here
-  ChartSegment _createSegments(
-      CartesianChartPoint<dynamic> currentPoint,
-      CartesianChartPoint<dynamic> nextPoint,
-      int pointIndex,
-      int seriesIndex,
-      double animateFactor) {
-    final SplineSegment segment = createSegment() as SplineSegment;
-    final List<CartesianSeriesRenderer> _oldSeriesRenderers =
-        _chartState!._oldSeriesRenderers;
-    _isRectSeries = false;
-    // ignore: unnecessary_null_comparison
-    if (segment != null) {
-      segment._chart = _chart;
-      segment._chartState = _chartState!;
-      segment.animationFactor = animateFactor;
-      segment._currentPoint = currentPoint;
-      segment._nextPoint = nextPoint;
-      segment._pointColorMapper = currentPoint.pointColorMapper;
-      segment.currentSegmentIndex = pointIndex;
-      segment._seriesIndex = seriesIndex;
-      segment._series = _series as XyDataSeries<dynamic, dynamic>;
-      segment._seriesRenderer = this;
-      if (_renderingDetails!.widgetNeedUpdate &&
-          // ignore: unnecessary_null_comparison
-          _oldSeriesRenderers != null &&
-          _oldSeriesRenderers.isNotEmpty &&
-          _oldSeriesRenderers.length - 1 >= segment._seriesIndex &&
-          _oldSeriesRenderers[segment._seriesIndex]._seriesName ==
-              segment._seriesRenderer._seriesName) {
-        segment._oldSeriesRenderer = _oldSeriesRenderers[segment._seriesIndex];
-        segment._oldSeries = segment._oldSeriesRenderer!._series
-            as XyDataSeries<dynamic, dynamic>;
-      }
-      segment.calculateSegmentPoints();
-      segment.points.add(
-          Offset(currentPoint.markerPoint!.x, currentPoint.markerPoint!.y));
-      segment.points.add(Offset(segment._x2, segment._y2));
-      customizeSegment(segment);
-      segment.strokePaint = segment.getStrokePaint();
-      segment.fillPaint = segment.getFillPaint();
-      _segments.add(segment);
-    }
-    return segment;
-  }
-
-  /// To render spline series segments
-  //ignore: unused_element
-  void _drawSegment(Canvas canvas, ChartSegment segment) {
-    if (segment._seriesRenderer._isSelectionEnable) {
-      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
-          segment._seriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer?._selectionRenderer?._checkWithSelectionState(
-          _segments[segment.currentSegmentIndex!], _chart);
-    }
-    segment.onPaint(canvas);
-  }
-
-  /// Creates a segment for a data point in the series.
-  @override
-  ChartSegment createSegment() => SplineSegment();
-
-  /// Changes the series color, border color, and border width.
-  @override
-  void customizeSegment(ChartSegment segment) {
-    segment._color = segment._seriesRenderer._seriesColor;
-    segment._strokeColor = segment._seriesRenderer._seriesColor;
-    segment._strokeWidth = segment._series.width;
-  }
-
-  ///Draws marker with different shape and color of the appropriate data point in the series.
-  @override
-  void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
-      Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer? seriesRenderer]) {
-    canvas.drawPath(seriesRenderer!._markerShapes[index]!, fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes[index]!, strokePaint);
-  }
-
-  /// Draws data label text of the appropriate data point in a series.
-  @override
-  void drawDataLabel(int index, Canvas canvas, String dataLabel, double pointX,
-          double pointY, int angle, TextStyle style) =>
-      _drawText(canvas, dataLabel, Offset(pointX, pointY), style, angle);
 }

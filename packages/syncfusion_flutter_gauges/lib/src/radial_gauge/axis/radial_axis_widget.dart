@@ -1339,7 +1339,9 @@ class RenderRadialAxisWidget extends RenderBox {
       late double begin, end;
       if (pointer is RenderRangePointer) {
         animationStartValue = pointer.animationStartValue ?? 0;
-        animationEndValue = pointer.getSweepAngle();
+        animationEndValue = isInversed
+            ? _getSweepAngle(pointer.getSweepAngle())
+            : pointer.getSweepAngle();
         pointer.animationStartValue = animationEndValue;
       } else {
         animationStartValue = _getSweepAngle(pointer.oldValue ?? minimum);
@@ -2087,7 +2089,9 @@ class RenderRadialAxisWidget extends RenderBox {
   ///Method to calculate teh sweep angle of axis
   double getAxisSweepAngle() {
     final double actualEndAngle = endAngle > 360 ? endAngle % 360 : endAngle;
-    double totalAngle = actualEndAngle - startAngle;
+    final double actualStartAngle =
+        startAngle > 360 ? startAngle % 360 : startAngle;
+    double totalAngle = actualEndAngle - actualStartAngle;
     totalAngle = totalAngle <= 0 ? (totalAngle + 360) : totalAngle;
     _sweepAngle = totalAngle;
     return _sweepAngle;

@@ -1,11 +1,20 @@
-part of charts;
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import '../../chart/common/data_label.dart';
+import '../../chart/utils/enum.dart';
+import '../../circular_chart/renderer/chart_point.dart';
+import '../../circular_chart/renderer/renderer_base.dart';
+import '../common.dart';
+import '../user_interaction/selection_behavior.dart';
+import '../utils/enum.dart';
+import '../utils/typedef.dart';
 
 /// This class holds the property of series.
 ///
-/// ChartSeries has roperty to render the series if the Property data source is empty it renders an empty chart.
+/// ChartSeries has property to render the series if the Property data source is empty it renders an empty chart.
 /// ChartSeries is the base class, it has the property to set the name, data source, border color and width to customize the series.
 ///
-/// Provides options that are extended by the other subclasses such as name, point color mapper, data label mapper, animation
+/// Provides options that are extended by the other sub classes such as name, point color mapper, data label mapper, animation
 /// duration and border-width and color for customize the appearance of the chart.
 ///
 class ChartSeries<T, D> {
@@ -29,6 +38,7 @@ class ChartSeries<T, D> {
       this.legendIconType,
       this.opacity,
       this.sortingOrder,
+      this.animationDelay,
       this.isVisible})
       : enableTooltip = enableTooltip ?? true;
 
@@ -465,6 +475,28 @@ class ChartSeries<T, D> {
   ///}
   ///```
   final bool? isVisible;
+
+  /// Delay duration of the series animation.It takes a millisecond value as input.
+  /// By default, the series will get animated for the specified duration.
+  /// If animationDelay is specified, then the series will begin to animate
+  /// after the specified duration.
+  ///
+  /// Defaults to 0 for all the series except ErrorBarSeries.
+  /// The default value for the ErrorBarSeries is 1500.
+  ///
+  ///```dart
+  /// Widget build(BuildContext context) {
+  ///    return Container(
+  ///        child: SfCartesianChart(
+  ///            series: <BarSeries<SalesData, num>>[
+  ///                BarSeries<SalesData, num>(
+  ///                    animationDelay: 300,
+  ///                ),
+  ///              ],
+  ///        ));
+  /// }
+  ///```
+  final double? animationDelay;
 }
 
 /// This class Provides method to calculate the Empty Point value.
@@ -478,9 +510,9 @@ abstract class CircularChartEmptyPointBehavior {
 /// Data points with a null value are considered empty points.
 /// Empty data points are ignored and are not plotted in the chart.
 ///
-/// Provides Emptypoints value calculations.
+/// Provides Empty points value calculations.
 abstract class TriangularChartEmptyPointBehavior {
-  /// to calculte the values of the empty points.
+  /// to calculate the values of the empty points.
   void calculateEmptyPointValue(
       int pointIndex, dynamic currentPoint, dynamic seriesRenderer);
 }

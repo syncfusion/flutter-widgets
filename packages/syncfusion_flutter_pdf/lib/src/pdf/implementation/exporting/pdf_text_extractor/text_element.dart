@@ -214,7 +214,7 @@ class _TextElement {
         currentTransformationMatrix!;
   }
 
-  double _render(
+  Map<String, dynamic> _render(
       _GraphicsObject? g,
       Offset currentLocation,
       double? textScaling,
@@ -300,10 +300,24 @@ class _TextElement {
         if (charCode.toUnsigned(8) > 126 &&
             fontEncoding == 'MacRomanEncoding' &&
             !isEmbeddedFont) {
-          txtMatrix = drawSystemFontGlyphShape(letter, g!, txtMatrix);
+          isTextGlyphAdded = true;
+          final _MatrixHelper? tempMatrix =
+              drawSystemFontGlyphShape(letter, g!, txtMatrix);
+          if (tempMatrix != null) {
+            txtMatrix = tempMatrix;
+          } else {
+            isTextGlyphAdded = false;
+          }
         } else {
           if (renderingMode == 1) {
-            txtMatrix = drawSystemFontGlyphShape(letter, g!, txtMatrix);
+            isTextGlyphAdded = true;
+            final _MatrixHelper? tempMatrix =
+                drawSystemFontGlyphShape(letter, g!, txtMatrix);
+            if (tempMatrix != null) {
+              txtMatrix = tempMatrix;
+            } else {
+              isTextGlyphAdded = false;
+            }
           } else if (reverseMapTable!.isNotEmpty &&
               reverseMapTable!.containsKey(letter)) {
             final int tempCharCode = reverseMapTable![letter]!.toInt();
@@ -322,7 +336,13 @@ class _TextElement {
                 characterMapTable.containsKey(charCode)) {
               final String tempLetter = characterMapTable[charCode]![0];
               isTextGlyphAdded = true;
-              txtMatrix = drawSystemFontGlyphShape(tempLetter, g!, txtMatrix);
+              final _MatrixHelper? tempMatrix =
+                  drawSystemFontGlyphShape(tempLetter, g!, txtMatrix);
+              if (tempMatrix != null) {
+                txtMatrix = tempMatrix;
+              } else {
+                isTextGlyphAdded = false;
+              }
             }
           }
           if (!isTextGlyphAdded) {
@@ -383,10 +403,13 @@ class _TextElement {
       }
     }
     changeInX = location.dx - changeInX;
-    return changeInX;
+    return <String, dynamic>{
+      'textElementWidth': changeInX,
+      'tempTextMatrix': txtMatrix
+    };
   }
 
-  double _renderWithSpacing(
+  Map<String, dynamic> _renderWithSpacing(
       _GraphicsObject? g,
       Offset currentLocation,
       List<String> decodedList,
@@ -488,8 +511,15 @@ class _TextElement {
                   characterMapTable.containsKey(charCode)) {
                 final String tempLetter = characterMapTable[charCode]!;
                 isTextGlyphAdded = true;
-                txtMatrix = drawSystemFontGlyphShape(tempLetter, g!, txtMatrix);
                 isComplexScript = true;
+                final _MatrixHelper? tempMatrix =
+                    drawSystemFontGlyphShape(tempLetter, g!, txtMatrix);
+                if (tempMatrix != null) {
+                  txtMatrix = tempMatrix;
+                } else {
+                  isTextGlyphAdded = false;
+                  isComplexScript = false;
+                }
               }
             }
             if (!isComplexScript) {
@@ -501,10 +531,24 @@ class _TextElement {
                 if (charCode.toUnsigned(8) > 126 &&
                     fontEncoding == 'MacRomanEncoding' &&
                     !isEmbeddedFont) {
-                  txtMatrix = drawSystemFontGlyphShape(letter, g!, txtMatrix);
+                  isTextGlyphAdded = true;
+                  final _MatrixHelper? tempMatrix =
+                      drawSystemFontGlyphShape(letter, g!, txtMatrix);
+                  if (tempMatrix != null) {
+                    txtMatrix = tempMatrix;
+                  } else {
+                    isTextGlyphAdded = false;
+                  }
                 } else {
                   if (renderingMode == 1) {
-                    txtMatrix = drawSystemFontGlyphShape(letter, g!, txtMatrix);
+                    isTextGlyphAdded = true;
+                    final _MatrixHelper? tempMatrix =
+                        drawSystemFontGlyphShape(letter, g!, txtMatrix);
+                    if (tempMatrix != null) {
+                      txtMatrix = tempMatrix;
+                    } else {
+                      isTextGlyphAdded = false;
+                    }
                   } else {
                     if (reverseMapTable!.isNotEmpty &&
                         reverseMapTable!.containsKey(letter)) {
@@ -514,8 +558,13 @@ class _TextElement {
                         characterMapTable.containsKey(charCode)) {
                       final String tempLetter = characterMapTable[charCode]![0];
                       isTextGlyphAdded = true;
-                      txtMatrix =
+                      final _MatrixHelper? tempMatrix =
                           drawSystemFontGlyphShape(tempLetter, g!, txtMatrix);
+                      if (tempMatrix != null) {
+                        txtMatrix = tempMatrix;
+                      } else {
+                        isTextGlyphAdded = false;
+                      }
                     }
                   }
                   if (characterMapTable.isNotEmpty &&
@@ -581,7 +630,10 @@ class _TextElement {
       }
     });
     changeInX = location.dx - changeInX;
-    return changeInX;
+    return <String, dynamic>{
+      'textElementWidth': changeInX,
+      'tempTextMatrix': txtMatrix
+    };
   }
 
   _MatrixHelper? drawGlyphs(double? glyphwidth, _GraphicsObject g,
@@ -704,6 +756,8 @@ class _TextElement {
         final int charCode = reverseMapTable![letter]!.toInt();
         if (fontGlyphWidths!.containsKey(charCode)) {
           systemFontGlyph = fontGlyphWidths![charCode]! * charSizeMultiplier;
+        } else {
+          return null;
         }
       } else if (fontGlyphWidths!.containsKey(letter.codeUnitAt(0))) {
         systemFontGlyph =

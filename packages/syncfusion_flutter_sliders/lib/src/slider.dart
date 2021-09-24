@@ -93,7 +93,7 @@ import 'slider_shapes.dart';
 ///  value: _value,
 ///  interval: 1,
 ///  dateFormat: DateFormat.y(),
-/// dateIntervalType: DateIntervalType.years,
+///  dateIntervalType: DateIntervalType.years,
 ///  onChanged: (dynamic newValue) {
 ///    setState(() {
 ///      _value = newValue;
@@ -141,7 +141,8 @@ class SfSlider extends StatefulWidget {
       this.minorTickShape = const SfMinorTickShape(),
       this.tooltipShape = const SfRectangularTooltipShape(),
       this.thumbIcon})
-      : _sliderType = SliderType.horizontal,
+      : isInversed = false,
+        _sliderType = SliderType.horizontal,
         _tooltipPosition = null,
         assert(min != max),
         assert(interval == null || interval > 0),
@@ -203,6 +204,7 @@ class SfSlider extends StatefulWidget {
       this.showLabels = false,
       this.showDividers = false,
       this.enableTooltip = false,
+      this.isInversed = false,
       this.activeColor,
       this.inactiveColor,
       this.labelPlacement = LabelPlacement.onTicks,
@@ -338,8 +340,9 @@ class SfSlider extends StatefulWidget {
   /// For example, if [min] is DateTime(2000, 01, 01, 00) and
   /// [max] is DateTime(2005, 12, 31, 24), [interval] is 1.0,
   /// [dateFormat] is DateFormat.y(), and
-  /// [dateIntervalType] is DateIntervalType.years, then the slider will render
-  /// the labels, major ticks, and dividers at 2000, 2001, 2002 and so on.
+  /// [dateIntervalType] is [DateIntervalType.years], then the slider will
+  /// render the labels, major ticks, and dividers at 2000, 2001, 2002 and so
+  /// on.
   ///
   /// Defaults to `null`. Must be greater than 0.
   ///
@@ -424,7 +427,7 @@ class SfSlider extends StatefulWidget {
   ///
   /// For example, if [min] is `DateTime(2015, 01, 01)` and
   /// [max] is `DateTime(2020, 01, 01)` and
-  /// [stepDuration] is `SliderDuration(years: 1, months: 6)`,
+  /// [stepDuration] is `SliderStepDuration(years: 1, months: 6)`,
   /// the slider will move the thumb at DateTime(2015, 01, 01),
   /// DateTime(2016, 07, 01), DateTime(2018, 01, 01),and DateTime(2019, 07, 01).
   ///
@@ -441,7 +444,7 @@ class SfSlider extends StatefulWidget {
   ///      max: DateTime(2020, 01, 01),
   ///      value: _value,
   ///      enableTooltip: true,
-  ///      stepDuration: SliderDuration(years: 1, months: 6),
+  ///      stepDuration: SliderStepDuration(years: 1, months: 6),
   ///      interval: 2,
   ///      showLabels: true,
   ///      showTicks: true,
@@ -635,6 +638,30 @@ class SfSlider extends StatefulWidget {
   /// * [tooltipTextFormatterCallback], for changing the default tooltip text.
   /// * [SfSliderThemeData](https://pub.dev/documentation/syncfusion_flutter_core/latest/theme/SfSliderThemeData-class.html), for customizing the appearance of the tooltip text.
   final bool enableTooltip;
+
+  /// Option to inverse the slider.
+  ///
+  /// Defaults to false.
+  ///
+  /// This snippet shows how to inverse the [SfSlider].
+  ///
+  /// ```dart
+  /// double _value = 4.0;
+  ///
+  /// SfSlider.vertical(
+  ///   min: 0.0,
+  ///   max: 10.0,
+  ///   value: _value,
+  ///   interval: 1,
+  ///   isInversed = true,
+  ///   onChanged: (dynamic newValue) {
+  ///     setState(() {
+  ///       _value = newValue;
+  ///     });
+  ///    },
+  /// )
+  /// ```
+  final bool isInversed;
 
   /// Color applied to the inactive track and active dividers.
   ///
@@ -1011,6 +1038,8 @@ class SfSlider extends StatefulWidget {
     properties.add(DiagnosticsProperty<dynamic>('value', value));
     properties.add(DiagnosticsProperty<dynamic>('min', min));
     properties.add(DiagnosticsProperty<dynamic>('max', max));
+    properties.add(DiagnosticsProperty<bool>('isInversed', isInversed,
+        defaultValue: false));
     properties.add(ObjectFlagProperty<ValueChanged<double>>(
         'onChanged', onChanged,
         ifNull: 'disabled'));
@@ -1167,15 +1196,7 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
       activeDividerStrokeWidth: sliderThemeData.activeDividerStrokeWidth,
       inactiveDividerStrokeWidth: sliderThemeData.inactiveDividerStrokeWidth,
     );
-    if (widget._sliderType == SliderType.vertical) {
-      return sliderThemeData.copyWith(
-          tickSize: sliderThemeData.tickSize ?? const Size(8.0, 1.0),
-          minorTickSize: sliderThemeData.minorTickSize ?? const Size(5.0, 1.0),
-          labelOffset: sliderThemeData.labelOffset ??
-              (widget.showTicks
-                  ? const Offset(5.0, 0.0)
-                  : const Offset(13.0, 0.0)));
-    } else {
+    if (widget._sliderType == SliderType.horizontal) {
       return sliderThemeData.copyWith(
           tickSize: sliderThemeData.tickSize ?? const Size(1.0, 8.0),
           minorTickSize: sliderThemeData.minorTickSize ?? const Size(1.0, 5.0),
@@ -1183,6 +1204,14 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
               (widget.showTicks
                   ? const Offset(0.0, 5.0)
                   : const Offset(0.0, 13.0)));
+    } else {
+      return sliderThemeData.copyWith(
+          tickSize: sliderThemeData.tickSize ?? const Size(8.0, 1.0),
+          minorTickSize: sliderThemeData.minorTickSize ?? const Size(5.0, 1.0),
+          labelOffset: sliderThemeData.labelOffset ??
+              (widget.showTicks
+                  ? const Offset(5.0, 0.0)
+                  : const Offset(13.0, 0.0)));
     }
   }
 
@@ -1226,6 +1255,9 @@ class _SfSliderState extends State<SfSlider> with TickerProviderStateMixin {
         showLabels: widget.showLabels,
         showDividers: widget.showDividers,
         enableTooltip: widget.enableTooltip,
+        isInversed: widget._sliderType == SliderType.horizontal &&
+                Directionality.of(context) == TextDirection.rtl ||
+            widget.isInversed,
         inactiveColor:
             widget.inactiveColor ?? themeData.primaryColor.withOpacity(0.24),
         activeColor: widget.activeColor ?? themeData.primaryColor,
@@ -1268,6 +1300,7 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
       required this.showLabels,
       required this.showDividers,
       required this.enableTooltip,
+      required this.isInversed,
       required this.inactiveColor,
       required this.activeColor,
       required this.labelPlacement,
@@ -1306,6 +1339,7 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
   final bool showLabels;
   final bool showDividers;
   final bool enableTooltip;
+  final bool isInversed;
 
   final Color inactiveColor;
   final Color activeColor;
@@ -1346,6 +1380,7 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
         showLabels: showLabels,
         showDividers: showDividers,
         enableTooltip: enableTooltip,
+        isInversed: isInversed,
         labelPlacement: labelPlacement,
         numberFormat: numberFormat,
         dateFormat: dateFormat,
@@ -1383,6 +1418,7 @@ class _SliderRenderObjectWidget extends RenderObjectWidget {
       ..showLabels = showLabels
       ..showDividers = showDividers
       ..enableTooltip = enableTooltip
+      ..isInversed = isInversed
       ..labelPlacement = labelPlacement
       ..numberFormat = numberFormat
       ..dateFormat = dateFormat
@@ -1504,6 +1540,7 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
     required bool showLabels,
     required bool showDividers,
     required bool enableTooltip,
+    required bool isInversed,
     required LabelPlacement labelPlacement,
     required NumberFormat numberFormat,
     required DateFormat? dateFormat,
@@ -1529,34 +1566,36 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
         _semanticFormatterCallback = semanticFormatterCallback,
         _onChanged = onChanged,
         super(
-            min: min,
-            max: max,
-            sliderType: sliderType,
-            interval: interval,
-            stepSize: stepSize,
-            stepDuration: stepDuration,
-            minorTicksPerInterval: minorTicksPerInterval,
-            showTicks: showTicks,
-            showLabels: showLabels,
-            showDividers: showDividers,
-            enableTooltip: enableTooltip,
-            labelPlacement: labelPlacement,
-            numberFormat: numberFormat,
-            dateFormat: dateFormat,
-            dateIntervalType: dateIntervalType,
-            labelFormatterCallback: labelFormatterCallback,
-            tooltipTextFormatterCallback: tooltipTextFormatterCallback,
-            trackShape: trackShape,
-            dividerShape: dividerShape,
-            overlayShape: overlayShape,
-            thumbShape: thumbShape,
-            tickShape: tickShape,
-            minorTickShape: minorTickShape,
-            tooltipShape: tooltipShape,
-            tooltipPosition: tooltipPosition,
-            sliderThemeData: sliderThemeData,
-            textDirection: textDirection,
-            mediaQueryData: mediaQueryData) {
+          min: min,
+          max: max,
+          sliderType: sliderType,
+          interval: interval,
+          stepSize: stepSize,
+          stepDuration: stepDuration,
+          minorTicksPerInterval: minorTicksPerInterval,
+          showTicks: showTicks,
+          showLabels: showLabels,
+          showDividers: showDividers,
+          enableTooltip: enableTooltip,
+          isInversed: isInversed,
+          labelPlacement: labelPlacement,
+          numberFormat: numberFormat,
+          dateFormat: dateFormat,
+          dateIntervalType: dateIntervalType,
+          labelFormatterCallback: labelFormatterCallback,
+          tooltipTextFormatterCallback: tooltipTextFormatterCallback,
+          trackShape: trackShape,
+          dividerShape: dividerShape,
+          overlayShape: overlayShape,
+          thumbShape: thumbShape,
+          tickShape: tickShape,
+          minorTickShape: minorTickShape,
+          tooltipShape: tooltipShape,
+          tooltipPosition: tooltipPosition,
+          sliderThemeData: sliderThemeData,
+          textDirection: textDirection,
+          mediaQueryData: mediaQueryData,
+        ) {
     final GestureArenaTeam team = GestureArenaTeam();
     if (sliderType == SliderType.horizontal) {
       horizontalDragGestureRecognizer = HorizontalDragGestureRecognizer()
@@ -1674,6 +1713,7 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
     _thumbIcon = _updateChild(_thumbIcon, value, ChildElements.startThumbIcon);
   }
 
+  @override
   bool get isInteractive => onChanged != null;
 
   double get actualValue =>
@@ -1714,9 +1754,9 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
 
   void _onTapDown(TapDownDetails details) {
     currentPointerType = PointerType.down;
-    mainAxisOffset = sliderType == SliderType.vertical
-        ? globalToLocal(details.globalPosition).dy
-        : globalToLocal(details.globalPosition).dx;
+    mainAxisOffset = sliderType == SliderType.horizontal
+        ? globalToLocal(details.globalPosition).dx
+        : globalToLocal(details.globalPosition).dy;
     _beginInteraction();
   }
 
@@ -1829,9 +1869,9 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
         ..style = PaintingStyle.fill
         ..strokeWidth = 0;
 
-      final dynamic actualText = sliderType == SliderType.vertical
-          ? getValueFromPosition(trackRect.bottom - thumbCenter.dy)
-          : getValueFromPosition(thumbCenter.dx - offset.dx);
+      final dynamic actualText = sliderType == SliderType.horizontal
+          ? getValueFromPosition(thumbCenter.dx - offset.dx)
+          : getValueFromPosition(trackRect.bottom - thumbCenter.dy);
       final String tooltipText = tooltipTextFormatterCallback(
           actualText, getFormattedText(actualText));
       final TextSpan textSpan =
@@ -1924,43 +1964,61 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
   bool get validForMouseTracker => _validForMouseTracker;
 
   @override
-  bool hitTestSelf(Offset position) => isInteractive;
-
-  @override
   void performLayout() {
     super.performLayout();
     final BoxConstraints contentConstraints = BoxConstraints.tightFor(
-        width: sliderThemeData.thumbRadius * 2,
-        height: sliderThemeData.thumbRadius * 2);
+        width: actualThumbSize.width, height: actualThumbSize.height);
     _thumbIcon?.layout(contentConstraints, parentUsesSize: true);
   }
 
   @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    if (size.contains(position) && isInteractive) {
+      if (_thumbIcon != null &&
+          ((_thumbIcon!.parentData! as BoxParentData).offset & _thumbIcon!.size)
+              .contains(position)) {
+        final Offset center = _thumbIcon!.size.center(Offset.zero);
+        result.addWithRawTransform(
+          transform: MatrixUtils.forceToPoint(center),
+          position: position,
+          hitTest: (BoxHitTestResult result, Offset? position) {
+            return thumbIcon!.hitTest(result, position: center);
+          },
+        );
+      }
+      result.add(BoxHitTestEntry(this, position));
+      return true;
+    }
+
+    return false;
+  }
+
+  @override
   void paint(PaintingContext context, Offset offset) {
-    final Offset actualTrackOffset = sliderType == SliderType.vertical
+    final Offset actualTrackOffset = sliderType == SliderType.horizontal
         ? Offset(
-            offset.dx +
-                (size.width - actualHeight) / 2 +
-                trackOffset.dy -
-                maxTrackHeight / 2,
-            offset.dy)
-        : Offset(
             offset.dx,
             offset.dy +
                 (size.height - actualHeight) / 2 +
                 trackOffset.dy -
-                maxTrackHeight / 2);
+                maxTrackHeight / 2)
+        : Offset(
+            offset.dx +
+                (size.width - actualHeight) / 2 +
+                trackOffset.dx -
+                maxTrackHeight / 2,
+            offset.dy);
 
     // Drawing track.
     final Rect trackRect =
         trackShape.getPreferredRect(this, sliderThemeData, actualTrackOffset);
     final double thumbPosition = getFactorFromValue(actualValue) *
-        (sliderType == SliderType.vertical
-            ? trackRect.height
-            : trackRect.width);
-    final Offset thumbCenter = sliderType == SliderType.vertical
-        ? Offset(trackRect.center.dx, trackRect.bottom - thumbPosition)
-        : Offset(trackRect.left + thumbPosition, trackRect.center.dy);
+        (sliderType == SliderType.horizontal
+            ? trackRect.width
+            : trackRect.height);
+    final Offset thumbCenter = sliderType == SliderType.horizontal
+        ? Offset(trackRect.left + thumbPosition, trackRect.center.dy)
+        : Offset(trackRect.center.dx, trackRect.bottom - thumbPosition);
 
     trackShape.paint(context, actualTrackOffset, thumbCenter, null, null,
         parentBox: this,
@@ -1986,6 +2044,11 @@ class _RenderSlider extends RenderBaseSlider implements MouseTrackerAnnotation {
         thumb: null,
         paint: null);
 
+    if (_thumbIcon != null) {
+      (_thumbIcon!.parentData! as BoxParentData).offset = thumbCenter -
+          Offset(_thumbIcon!.size.width / 2, _thumbIcon!.size.height / 2) -
+          offset;
+    }
     // Drawing thumb.
     thumbShape.paint(context, thumbCenter,
         parentBox: this,

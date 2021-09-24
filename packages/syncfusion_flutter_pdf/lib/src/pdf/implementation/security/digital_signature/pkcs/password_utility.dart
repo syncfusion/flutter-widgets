@@ -310,8 +310,8 @@ abstract class _PasswordGenerator {
   int? _count;
   _ICipherParameter generateParam(int? keySize, [String? algorithm, int? size]);
   void init(List<int> password, List<int> value, int count) {
-    _password = _Asn1Constants.clone(password);
-    _value = _Asn1Constants.clone(value);
+    _password = _Asn1.clone(password);
+    _value = _Asn1.clone(value);
     _count = count;
   }
 

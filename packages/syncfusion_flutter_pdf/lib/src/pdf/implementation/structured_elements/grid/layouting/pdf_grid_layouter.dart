@@ -965,7 +965,9 @@ class _PdfGridLayouter extends _ElementLayouter {
                       i + row.cells[i].columnSpan > _cellEndIndex + 1)) &&
               row.cells[i].columnSpan - _cellEndIndex + i - 1 > 0) {
             row.cells[row._rowOverflowIndex + 1].value =
-                stringResult != null ? stringResult._remainder : null;
+                stringResult != null && stringResult._remainder != null
+                    ? stringResult._remainder
+                    : '';
             row.cells[row._rowOverflowIndex + 1].stringFormat =
                 row.cells[i].stringFormat;
             row.cells[row._rowOverflowIndex + 1].style = row.cells[i].style;

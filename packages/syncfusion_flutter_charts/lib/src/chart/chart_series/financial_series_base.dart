@@ -1,7 +1,23 @@
-part of charts;
+import 'dart:ui';
 
-abstract class _FinancialSeriesBase<T, D> extends XyDataSeries<T, D> {
-  _FinancialSeriesBase(
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+
+import '../../chart/utils/enum.dart';
+import '../../common/common.dart';
+import '../../common/user_interaction/selection_behavior.dart';
+import '../../common/utils/enum.dart';
+import '../../common/utils/typedef.dart';
+import '../common/data_label.dart';
+import '../common/marker.dart';
+import '../trendlines/trendlines.dart';
+import 'xy_data_series.dart';
+
+/// Represents the financial series base
+abstract class FinancialSeriesBase<T, D> extends XyDataSeries<T, D> {
+  /// Creates an instance of financial series base
+  FinancialSeriesBase(
       {ValueKey<String>? key,
       ChartSeriesRendererFactory<T, D>? onCreateRenderer,
       required List<T> dataSource,
@@ -39,12 +55,14 @@ abstract class _FinancialSeriesBase<T, D> extends XyDataSeries<T, D> {
       this.bearColor,
       this.bullColor,
       double? opacity,
+      double? animationDelay,
       this.showIndicationForSameValues = false,
       List<Trendline>? trendlines,
       SeriesRendererCreatedCallback? onRendererCreated,
       ChartPointInteractionCallback? onPointTap,
       ChartPointInteractionCallback? onPointDoubleTap,
-      ChartPointInteractionCallback? onPointLongPress})
+      ChartPointInteractionCallback? onPointLongPress,
+      CartesianShaderCallback? onCreateShader})
       : dashArray = dashArray ?? <double>[0, 0],
         spacing = spacing ?? 0,
         super(
@@ -77,18 +95,33 @@ abstract class _FinancialSeriesBase<T, D> extends XyDataSeries<T, D> {
             legendIconType: legendIconType,
             sortingOrder: sortingOrder,
             opacity: opacity,
+            animationDelay: animationDelay,
+            onCreateShader: onCreateShader,
             onRendererCreated: onRendererCreated,
             onPointTap: onPointTap,
             onPointDoubleTap: onPointDoubleTap,
             onPointLongPress: onPointLongPress,
             trendlines: trendlines);
 
+  /// Specifies the volume value mapper
   final ChartIndexedValueMapper<num>? volumeValueMapper;
+
+  /// Specifies the open value mapper
   final ChartIndexedValueMapper<num?>? openValueMapper;
+
+  /// Specifies the close value mapper
   final ChartIndexedValueMapper<num?>? closeValueMapper;
+
+  /// Specifies the bear color
   final Color? bearColor;
+
+  /// Specifies the bull color
   final Color? bullColor;
+
+  /// Specifies whether the solid candles
   final bool? enableSolidCandles;
+
+  /// Specifies the dash array
   @override
   final List<double> dashArray;
 
@@ -125,13 +158,4 @@ abstract class _FinancialSeriesBase<T, D> extends XyDataSeries<T, D> {
   ///
   ///Defaults to `false`
   final bool showIndicationForSameValues;
-}
-
-abstract class _FinancialSerieBaseRenderer extends XyDataSeriesRenderer {
-  _FinancialSerieBaseRenderer();
-
-  // ignore:unused_field
-  late num _rectPosition;
-  // ignore:unused_field
-  late num _rectCount;
 }

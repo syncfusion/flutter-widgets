@@ -1,14 +1,18 @@
 import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_pdf/pdf.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
+import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:syncfusion_flutter_pdfviewer/src/common/pdfviewer_helper.dart';
 
 import 'bookmark_item.dart';
 import 'bookmark_toolbar.dart';
+
+///Triggers when the bookmark is opened or closed
+typedef _BookmarkView = void Function(bool);
 
 /// Standard tablet width of the bookmark view.
 const double _kPdfTabletBookmarkWidth = 400.0;
@@ -22,7 +26,8 @@ const double _kPdfSubBookmarkTitlePosition = 55.0;
 /// BookmarkView of PdfViewer
 class BookmarkView extends StatefulWidget {
   /// BookmarkView Constructor.
-  const BookmarkView(Key key, this.pdfDocument, this.controller)
+  const BookmarkView(
+      Key key, this.pdfDocument, this.controller, this._bookmarkView)
       : super(key: key);
 
   /// [PdfViewerController] instance of PdfViewer.
@@ -30,6 +35,9 @@ class BookmarkView extends StatefulWidget {
 
   /// [PdfDocument] instance of PDF library.
   final PdfDocument? pdfDocument;
+
+  ///Triggers when the bookmark is opened or closed
+  final _BookmarkView _bookmarkView;
 
   @override
   State<StatefulWidget> createState() => BookmarkViewControllerState();
@@ -98,6 +106,7 @@ class BookmarkViewControllerState extends State<BookmarkView> {
     }
     setState(() {
       showBookmark = true;
+      widget._bookmarkView(true);
     });
   }
 
@@ -106,6 +115,7 @@ class BookmarkViewControllerState extends State<BookmarkView> {
       setState(() {
         _isExpanded = false;
         showBookmark = false;
+        widget._bookmarkView(false);
       });
       if (_historyEntry != null && Navigator.canPop(context)) {
         await Navigator.of(context).maybePop();

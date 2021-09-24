@@ -35,6 +35,8 @@ Create a highly interactive and customizable Flutter Maps that has features set 
 
 ![maps marker](https://cdn.syncfusion.com/content/images/Flutter/pub_images/maps_images/map_marker.png)
 
+**Marker alignment** - Marker can be aligned in various alignment positions based on its coordinate point.
+
 **Shape selection** - Select a shape in order to highlight that area on a map. You can use the callback for doing any action during shape selection.
 
 ![maps selection](https://cdn.syncfusion.com/content/images/Flutter/pub_images/maps_images/map_selection.png)
@@ -57,6 +59,8 @@ Add a shape sublayer with GeoJSON data on another shape layer to show more detai
 **Vector layer**
 Add shapes such as polylines, lines, polygons, circles, and arcs as a sublayer in the shape layer.
 
+**Vector line stroke cap** - Provides a stroke cap option to customize the map vector lines and polylines.
+
 **Zooming and panning** - Zoom in shape layer for a closer look at a specific region by pinching, scrolling the mouse wheel or track pad, or using the toolbar on the web. Pan the map to navigate across the regions.
 
 ![maps zoompan](https://cdn.syncfusion.com/content/images/zoompan.gif)
@@ -71,6 +75,8 @@ Add shapes such as polylines, lines, polygons, circles, and arcs as a sublayer i
 
 ![tile layer marker](https://cdn.syncfusion.com/content/images/Tile_withmarker.png)
 
+**Marker alignment** - Marker can be aligned in various alignment positions based on its coordinate point.
+
 **Shape sublayer**
 Add a shape sublayer with GeoJSON data on the tile layer to show more details about a particular region.
 
@@ -83,6 +89,8 @@ Add shapes such as polylines, lines, polygons, circles, and arcs as a sublayer i
 
 ![tile layer polyline](https://cdn.syncfusion.com/content/images/FTControl/polyline.jpg)
 
+**Vector line stroke cap** - Provides a stroke cap option to customize the map vector lines and polylines.
+
 **Zooming and panning** - Zoom in tile layer for a closer look at a specific region by pinching, scrolling the mouse wheel or track pad, or using the toolbar on the web. Pan the map to navigate across the regions.
 
 **Inverted circle** - Support has been provided for applying color to the inverted circle with the inner circle being transparent and the outer portion covered by an overlay color.
@@ -92,6 +100,8 @@ Add shapes such as polylines, lines, polygons, circles, and arcs as a sublayer i
 **Inverted polygon** - Support has been provided for applying color to the inverted polygon with the inner polygon being transparent and the outer portion covered by an overlay color.
 
 ![inverted polygon](https://cdn.syncfusion.com/content/images/Flutter/pub_images/maps_images/inverted-polygon.png)
+
+**Custom bounds** - Provides an option to specify the visual limits for viewing a specific region in Maps.
 
 ## Get the demo application
 
@@ -337,4 +347,4 @@ The following screenshot illustrates the result of the above code sample.
 
 Founded in 2001 and headquartered in Research Triangle Park, N.C., Syncfusion has more than 20,000 customers and more than 1 million users, including large financial institutions, Fortune 500 companies, and global IT consultancies.
 
-Today we provide 1,000+ controls and frameworks for web ([ASP.NET Core](https://www.syncfusion.com/aspnet-core-ui-controls), [ASP.NET MVC](https://www.syncfusion.com/aspnet-mvc-ui-controls), [ASP.NET WebForms](https://www.syncfusion.com/jquery/aspnet-web-forms-ui-controls), [JavaScript](https://www.syncfusion.com/javascript-ui-controls), [Angular](https://www.syncfusion.com/angular-ui-components), [React](https://www.syncfusion.com/react-ui-components), [Vue](https://www.syncfusion.com/vue-ui-components), and [Blazor](https://www.syncfusion.com/blazor-components)), mobile ([Xamarin](https://www.syncfusion.com/xamarin-ui-controls), [Flutter](https://www.syncfusion.com/flutter-widgets), [UWP](https://www.syncfusion.com/uwp-ui-controls), and [JavaScript](https://www.syncfusion.com/javascript-ui-controls)), and desktop development ([WinForms](https://www.syncfusion.com/winforms-ui-controls), [WPF](https://www.syncfusion.com/wpf-ui-controls), and [UWP](https://www.syncfusion.com/uwp-ui-controls)). We provide ready-to-deploy enterprise software for dashboards, reports, data integration, and big data processing. Many customers have saved millions in licensing fees by deploying our software.
+Today we provide 1,000+ controls and frameworks for web ([ASP.NET Core](https://www.syncfusion.com/aspnet-core-ui-controls), [ASP.NET MVC](https://www.syncfusion.com/aspnet-mvc-ui-controls), [ASP.NET WebForms](https://www.syncfusion.com/jquery/aspnet-web-forms-ui-controls), [JavaScript](https://www.syncfusion.com/javascript-ui-controls), [Angular](https://www.syncfusion.com/angular-ui-components), [React](https://www.syncfusion.com/react-ui-components), [Vue](https://www.syncfusion.com/vue-ui-components), and [Blazor](https://www.syncfusion.com/blazor-components)), mobile ([Xamarin](https://www.syncfusion.com/xamarin-ui-controls), [Flutter](https://www.syncfusion.com/flutter-widgets), [UWP](https://www.syncfusion.com/uwp-ui-controls), and [JavaScript](https://www.syncfusion.com/javascript-ui-controls)), and desktop development ([WinForms](https://www.syncfusion.com/winforms-ui-controls), [WPF](https://www.syncfusion.com/wpf-ui-controls), [UWP](https://www.syncfusion.com/uwp-ui-controls) and [WinUI](https://www.syncfusion.com/winui-controls)). We provide ready-to-deploy enterprise software for dashboards, reports, data integration, and big data processing. Many customers have saved millions in licensing fees by deploying our software.

@@ -1,4 +1,14 @@
-part of charts;
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import '../../chart/chart_series/series.dart';
+import '../../chart/chart_series/xy_data_series.dart';
+import '../../chart/common/trackball_marker_settings.dart';
+import '../../chart/utils/enum.dart';
+import '../../circular_chart/renderer/circular_series_controller.dart';
+import '../../funnel_chart/renderer/funnel_series.dart';
+import '../../pyramid_chart/renderer/series_controller.dart';
+import '../event_args.dart';
+import '../series/chart_series.dart';
 
 /// typedef belongs SfCartesianChart
 
@@ -30,7 +40,7 @@ typedef ChartLegendRenderCallback = void Function(
 
 /// Returns the Trendline args
 typedef ChartTrendlineRenderCallback = void Function(
-    TrendlineRenderArgs trendlineRenderArgs);
+    TrendlineRenderParams trendlineRenderParams);
 
 ///Returns the TrackballArgs.
 typedef ChartTrackballCallback = void Function(TrackballArgs trackballArgs);
@@ -169,7 +179,7 @@ typedef CircularShaderCallback = Shader Function(
 typedef CircularSeriesRendererCreatedCallback = void Function(
     CircularSeriesController controller);
 
-/// typedef belongs to SfFunnelChart
+// typedef belongs to SfFunnelChart
 
 /// Returns the LegendRenderArgs.
 typedef FunnelLegendRenderCallback = void Function(
@@ -196,7 +206,7 @@ typedef FunnelTouchInteractionCallback = void Function(
 typedef FunnelSeriesRendererCreatedCallback = void Function(
     FunnelSeriesController controller);
 
-/// typedef belongs to SfPyramidChart
+// typedef belongs to SfPyramidChart
 
 /// Returns the LegendRenderArgs.
 typedef PyramidLegendRenderCallback = void Function(
@@ -222,3 +232,10 @@ typedef PyramidTouchInteractionCallback = void Function(
 /// Called when the pyramid series is created
 typedef PyramidSeriesRendererCreatedCallback = void Function(
     PyramidSeriesController controller);
+
+/// Callback definition for error bar event.
+typedef ChartErrorBarRenderCallback = void Function(
+    ErrorBarRenderDetails errorBarRenderDetails);
+
+//// Callback definition for cartesian shader events.
+typedef CartesianShaderCallback = Shader Function(ShaderDetails shaderDetails);

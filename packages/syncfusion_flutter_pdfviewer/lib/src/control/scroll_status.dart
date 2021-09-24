@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 /// Bottom position of the [ScrollStatus] widget.
 const double _kPdfScrollStatusBottomPosition = 25.0;
@@ -10,10 +10,13 @@ const double _kPdfScrollStatusBottomPosition = 25.0;
 @immutable
 class ScrollStatus extends StatefulWidget {
   /// Constructs the Scroll status for PdfViewer Widget
-  const ScrollStatus(this.pdfViewerController);
+  const ScrollStatus(this.pdfViewerController, {this.isSinglePageView = false});
 
   /// PdfViewer controller of PdfViewer
   final PdfViewerController pdfViewerController;
+
+  /// Determines layout option in PdfViewer.
+  final bool isSinglePageView;
 
   @override
   _ScrollStatusState createState() => _ScrollStatusState();

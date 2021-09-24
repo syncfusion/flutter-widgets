@@ -1,8 +1,6 @@
-part of charts;
-
 /// Orientation of an axis.
 ///
-/// The Axis Orientation can be changed either to vertical or horizontal
+/// The axis orientation can be changed either to vertical or horizontal
 enum AxisOrientation {
   /// - AxisOrientation.vertical, renders the axis vertically.
   vertical,
@@ -13,11 +11,11 @@ enum AxisOrientation {
 
 /// Padding for axis ranges.
 enum ChartRangePadding {
-  /// - ChartRangePadding.auto, will apply None as padding for horizontal numeric axis, while the
-  /// vertical numeric axis takes Normal as padding calculation.
+  /// - ChartRangePadding.auto, will apply `none` as padding for horizontal numeric axis, while the
+  /// vertical numeric axis takes `normal` as padding calculation.
   auto,
 
-  /// - ChartRangePadding.none, will not add any padding to the min and max values.
+  /// - ChartRangePadding.none, will not add any padding to the minimum and maximum values.
   none,
 
   /// - ChartRangePadding.normal, will apply padding to the axis based on the default range calculation.
@@ -26,7 +24,7 @@ enum ChartRangePadding {
   /// - ChartRangePadding.additional, will add an interval to the minimum and maximum of the axis.
   additional,
 
-  /// - ChartRangePadding.round, will round the minimum and maximum values to the nearest possible value,
+  /// - ChartRangePadding.round, will round the minimum and maximum values to the nearest possible value.
   round
 }
 
@@ -39,7 +37,7 @@ enum LabelPlacement {
   onTicks
 }
 
-/// Action while the axis label intersects.Axis Label placements can be determined when the axis labels get intesected.
+/// Action while the axis label intersects. Axis label placements can be determined when the axis labels get intersected.
 ///
 enum AxisLabelIntersectAction {
   /// - AxisLabelIntersectAction.none, will not perform any action on intersecting labels.
@@ -169,7 +167,7 @@ enum TickPosition {
 
 /// Trendline type
 ///
-/// On the basis of the trend line type, the trend line is rendered
+/// On the basis of the trendline type, the trendline is rendered
 enum TrendlineType {
   /// - TrendlineType.linear, displays linear trendline type
   linear,
@@ -194,16 +192,16 @@ enum TrendlineType {
 ///
 ///  Based on the activation mode, the user interaction will be triggered.
 enum ActivationMode {
-  /// - ActivationMode.singleTap , activates the appropriate feature on single tap.
+  /// - ActivationMode.singleTap, activates the appropriate feature on single tap.
   singleTap,
 
-  /// - ActivationMode.doubleTap , activates on double tap.
+  /// - ActivationMode.doubleTap, activates on double tap.
   doubleTap,
 
-  /// - ActivationMode.longPress , activates on longPress.
+  /// - ActivationMode.longPress, activates on longPress.
   longPress,
 
-  /// - ActivationMode.none , does not activate any feature.
+  /// - ActivationMode.none, does not activate any feature.
   none
 }
 
@@ -281,7 +279,10 @@ enum CoordinateUnit {
   point,
 
   /// - CoordinateUnit.logicalPixel, places the annotation concerning to the pixel value.
-  logicalPixel
+  logicalPixel,
+
+  /// - CoordinateUnit.percentage, places the annotation concerning to the percentage value.
+  percentage
 }
 
 /// Annotation is a note by way of explanation or comment added to the chart.
@@ -406,7 +407,7 @@ enum ChartSwipeDirection {
   /// the direction is `ChartSwipeDirection.start`
   start,
 
-  ///if the swipe happens from right to left direction, the
+  ///If the swipe happens from right to left direction, the
   /// direction is `ChartSwipeDirection.end`.
   end
 }
@@ -419,9 +420,53 @@ enum ChartSwipeDirection {
 ///
 ///Defaults to `AutoScrollingMode.end`.
 enum AutoScrollingMode {
-  ///`AutoScrollingMode.start`, If the chart is scrolled from left to right direction
+  ///`AutoScrollingMode.start`, if the chart is scrolled from left to right direction
   start,
 
-  ///`AutoScrollingMode.end`, If the chart is scrolled from right to left direction
+  ///`AutoScrollingMode.end`, if the chart is scrolled from right to left direction
   end
+}
+
+/// Determines the type of the Error Bar.
+enum ErrorBarType {
+  /// The horizontal and vertical error values should be fixed.
+  fixed,
+
+  /// The horizontal and vertical error values changes into error percentages.
+  percentage,
+
+  /// The horizontal and vertical error values changes depends on the deviation values.
+  standardDeviation,
+
+  /// The horizontal and vertical error values changes depends on approximate
+  /// error values of all points.
+  standardError,
+
+  /// It determines the positive and negative error values in both horizontal
+  /// and vertical direction.
+  custom
+}
+
+/// Determines the error bar direction.
+enum Direction {
+  /// Determines the error bar direction in positive side.
+  plus,
+
+  /// Determines the error bar direction in negative side.
+  minus,
+
+  /// Determines the error bar direction in both positive and negative sides.
+  both
+}
+
+/// Determines mode of the error bar.
+enum RenderingMode {
+  ///  Determines the vertical side of the error bar.
+  vertical,
+
+  /// Determines the horizontal side of the error bar.
+  horizontal,
+
+  /// Determines both the vertical and horizontal sides of the error bar.
+  both
 }

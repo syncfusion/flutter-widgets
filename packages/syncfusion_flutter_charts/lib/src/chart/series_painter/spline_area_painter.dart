@@ -1,21 +1,148 @@
-part of charts;
+import 'dart:math' as math_lib;
+import 'dart:ui';
 
-class _SplineAreaChartPainter extends CustomPainter {
-  _SplineAreaChartPainter(
-      {required this.chartState,
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+
+import '../../../charts.dart';
+import '../../common/rendering_details.dart';
+import '../../common/user_interaction/selection_behavior.dart';
+import '../axis/axis.dart';
+import '../base/chart_base.dart';
+import '../chart_segment/chart_segment.dart';
+import '../chart_segment/spline_area_segment.dart';
+import '../chart_series/series.dart';
+import '../chart_series/series_renderer_properties.dart';
+import '../chart_series/spline_area_series.dart';
+import '../chart_series/xy_data_series.dart';
+import '../common/cartesian_state_properties.dart';
+import '../common/common.dart';
+import '../common/segment_properties.dart';
+import '../utils/enum.dart';
+import '../utils/helper.dart';
+
+/// Creates series renderer for Spline area series
+class SplineAreaSeriesRenderer extends XyDataSeriesRenderer {
+  /// Calling the default constructor of SplineAreaSeriesRenderer class.
+  SplineAreaSeriesRenderer();
+
+  /// SplineArea segment is created here
+  ChartSegment _createSegments(int seriesIndex, SfCartesianChart chart,
+      double animateFactor, Path path, Path strokePath,
+      [List<Offset>? _points]) {
+    final SeriesRendererDetails seriesRendererDetails =
+        SeriesHelper.getSeriesRendererDetails(this);
+    final SplineAreaSegment segment = createSegment();
+    final SegmentProperties segmentProperties =
+        SegmentProperties(seriesRendererDetails.stateProperties, segment);
+    seriesRendererDetails.isRectSeries = false;
+    // ignore: unnecessary_null_comparison
+    if (segment != null) {
+      segmentProperties.seriesIndex = seriesIndex;
+      segment.currentSegmentIndex = 0;
+      segment.animationFactor = animateFactor;
+      segmentProperties.series =
+          seriesRendererDetails.series as XyDataSeries<dynamic, dynamic>;
+      segmentProperties.seriesRenderer = this;
+      if (_points != null) {
+        segment.points = _points;
+      }
+      segmentProperties.path = path;
+      segmentProperties.strokePath = strokePath;
+      SegmentHelper.setSegmentProperties(segment, segmentProperties);
+      customizeSegment(segment);
+      segmentProperties.oldSegmentIndex = 0;
+      segment.strokePaint = segment.getStrokePaint();
+      segment.fillPaint = segment.getFillPaint();
+      seriesRendererDetails.segments.add(segment);
+    }
+    return segment;
+  }
+
+  /// To render spline area series segments
+  //ignore: unused_element
+  void _drawSegment(Canvas canvas, ChartSegment segment) {
+    final SeriesRendererDetails seriesRendererDetails =
+        SeriesHelper.getSeriesRendererDetails(this);
+    final SegmentProperties segmentProperties =
+        SegmentHelper.getSegmentProperties(segment);
+    final SeriesRendererDetails currentDetails =
+        SeriesHelper.getSeriesRendererDetails(segmentProperties.seriesRenderer);
+    if (currentDetails.isSelectionEnable == true) {
+      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
+          currentDetails.selectionBehaviorRenderer;
+      SelectionHelper.getRenderingDetails(selectionBehaviorRenderer!)
+          .selectionRenderer
+          ?.checkWithSelectionState(
+              seriesRendererDetails.segments[0], seriesRendererDetails.chart);
+    }
+    segment.onPaint(canvas);
+  }
+
+  /// Creates a segment for a data point in the series.
+  @override
+  SplineAreaSegment createSegment() => SplineAreaSegment();
+
+  /// Changes the series color, border color, and border width.
+  @override
+  void customizeSegment(ChartSegment segment) {
+    final SegmentProperties segmentProperties =
+        SegmentHelper.getSegmentProperties(segment);
+    final SeriesRendererDetails seriesRendererDetails =
+        SeriesHelper.getSeriesRendererDetails(segmentProperties.seriesRenderer);
+    segmentProperties.color = seriesRendererDetails.seriesColor;
+    segmentProperties.strokeColor = seriesRendererDetails.seriesColor;
+    segmentProperties.strokeWidth = segmentProperties.series.width;
+  }
+
+  ///Draws marker with different shape and color of the appropriate data point in the series.
+  @override
+  void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
+      Paint strokePaint, double pointX, double pointY,
+      [CartesianSeriesRenderer? seriesRenderer]) {
+    final SeriesRendererDetails seriesRendererDetails =
+        SeriesHelper.getSeriesRendererDetails(seriesRenderer!);
+    canvas.drawPath(seriesRendererDetails.markerShapes[index]!, fillPaint);
+    canvas.drawPath(seriesRendererDetails.markerShapes[index]!, strokePaint);
+  }
+
+  /// Draws data label text of the appropriate data point in a series.
+  @override
+  void drawDataLabel(int index, Canvas canvas, String dataLabel, double pointX,
+          double pointY, int angle, TextStyle style) =>
+      drawText(canvas, dataLabel, Offset(pointX, pointY), style, angle);
+}
+
+/// Represents the SplineArea Chart painter
+class SplineAreaChartPainter extends CustomPainter {
+  /// Calling the default constructor of SplineAreaChartPainter class.
+  SplineAreaChartPainter(
+      {required this.stateProperties,
       required this.seriesRenderer,
       required this.isRepaint,
       required this.animationController,
       required ValueNotifier<num> notifier,
       required this.painterKey})
-      : chart = chartState._chart,
+      : chart = stateProperties.chart,
         super(repaint: notifier);
-  final SfCartesianChartState chartState;
+
+  /// Represents the Cartesian state properties
+  final CartesianStateProperties stateProperties;
+
+  /// Represents the Cartesian chart.
   final SfCartesianChart chart;
+
+  /// Specifies whether to repaint the series.
   final bool isRepaint;
+
+  /// Specifies the value of animation controller.
   final AnimationController animationController;
+
+  /// Specifies the spline area series renderer
   final SplineAreaSeriesRenderer seriesRenderer;
-  final _PainterKey painterKey;
+
+  /// Specifies the painter key value
+  final PainterKey painterKey;
 
   /// Painter method for spline area series
   @override
@@ -23,95 +150,108 @@ class _SplineAreaChartPainter extends CustomPainter {
     double animationFactor;
     CartesianChartPoint<dynamic>? prevPoint, point, oldChartPoint;
     CartesianSeriesRenderer? oldSeriesRenderer;
-    _ChartLocation? currentPoint, originPoint, oldPointLocation;
-    final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
-    final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer!;
-    final _RenderingDetails renderingDetails = chartState._renderingDetails;
+    SeriesRendererDetails? oldSeriesRendererDetails;
+    ChartLocation? currentPoint, originPoint, oldPointLocation;
+    final SeriesRendererDetails seriesRendererDetails =
+        SeriesHelper.getSeriesRendererDetails(seriesRenderer);
+    final ChartAxisRendererDetails xAxisDetails =
+        seriesRendererDetails.xAxisDetails!;
+    final ChartAxisRendererDetails yAxisDetails =
+        seriesRendererDetails.yAxisDetails!;
+    final RenderingDetails renderingDetails = stateProperties.renderingDetails;
     Rect clipRect;
     final SplineAreaSeries<dynamic, dynamic> series =
-        seriesRenderer._series as SplineAreaSeries<dynamic, dynamic>;
-    if (!seriesRenderer._hasDataLabelTemplate) {
-      seriesRenderer._drawControlPoints.clear();
+        seriesRendererDetails.series as SplineAreaSeries<dynamic, dynamic>;
+    if (seriesRendererDetails.hasDataLabelTemplate == false) {
+      seriesRendererDetails.drawControlPoints.clear();
     }
     final Path _path = Path();
     final Path _strokePath = Path();
     final List<Offset> _points = <Offset>[];
-    final num? crossesAt = _getCrossesAtValue(seriesRenderer, chartState);
+    final num? crossesAt = getCrossesAtValue(seriesRenderer, stateProperties);
     final num origin = crossesAt ?? 0;
     double? startControlX, startControlY, endControlX, endControlY;
-    if (seriesRenderer._visible!) {
+    if (seriesRendererDetails.visible! == true) {
       assert(
           // ignore: unnecessary_null_comparison
           !(series.animationDuration != null) || series.animationDuration >= 0,
           'The animation duration of the fast line series must be greater or equal to 0.');
       final List<CartesianSeriesRenderer> oldSeriesRenderers =
-          chartState._oldSeriesRenderers;
+          stateProperties.oldSeriesRenderers;
       final List<CartesianChartPoint<dynamic>> dataPoints =
-          seriesRenderer._dataPoints;
+          seriesRendererDetails.dataPoints;
       canvas.save();
       final int seriesIndex = painterKey.index;
-      seriesRenderer._storeSeriesProperties(chartState, seriesIndex);
+      seriesRendererDetails.storeSeriesProperties(stateProperties, seriesIndex);
       final bool isTransposed =
-          seriesRenderer._chartState!._requireInvertedAxis;
-      final Rect axisClipRect = _calculatePlotOffset(
-          chartState._chartAxis._axisClipRect,
-          Offset(
-              xAxisRenderer._axis.plotOffset, yAxisRenderer._axis.plotOffset));
+          seriesRendererDetails.stateProperties.requireInvertedAxis;
+      final Rect axisClipRect = calculatePlotOffset(
+          stateProperties.chartAxis.axisClipRect,
+          Offset(xAxisDetails.axis.plotOffset, yAxisDetails.axis.plotOffset));
       canvas.clipRect(axisClipRect);
-      animationFactor = seriesRenderer._seriesAnimation != null
-          ? seriesRenderer._seriesAnimation!.value
+      animationFactor = seriesRendererDetails.seriesAnimation != null
+          ? seriesRendererDetails.seriesAnimation!.value
           : 1;
+      stateProperties.shader = null;
+      if (series.onCreateShader != null) {
+        stateProperties.shader = series.onCreateShader!(
+            ShaderDetails(stateProperties.chartAxis.axisClipRect, 'series'));
+      }
+      oldSeriesRenderer = getOldSeriesRenderer(stateProperties,
+          seriesRendererDetails, seriesIndex, oldSeriesRenderers);
 
-      oldSeriesRenderer = _getOldSeriesRenderer(
-          chartState, seriesRenderer, seriesIndex, oldSeriesRenderers);
+      oldSeriesRendererDetails = oldSeriesRenderer == null
+          ? null
+          : SeriesHelper.getSeriesRendererDetails(oldSeriesRenderer);
 
-      if (seriesRenderer._reAnimate ||
+      if (seriesRendererDetails.reAnimate == true ||
           ((!(renderingDetails.widgetNeedUpdate ||
                       renderingDetails.isLegendToggled) ||
-                  !chartState._oldSeriesKeys.contains(series.key)) &&
+                  !stateProperties.oldSeriesKeys.contains(series.key)) &&
               series.animationDuration > 0)) {
-        _performLinearAnimation(
-            chartState, xAxisRenderer._axis, canvas, animationFactor);
+        performLinearAnimation(
+            stateProperties, xAxisDetails.axis, canvas, animationFactor);
       }
-      if (!seriesRenderer._hasDataLabelTemplate) {
-        _calculateSplineAreaControlPoints(seriesRenderer);
+      if (seriesRendererDetails.hasDataLabelTemplate == false) {
+        calculateSplineAreaControlPoints(seriesRenderer);
       }
 
-      if (seriesRenderer._visibleDataPoints == null ||
-          seriesRenderer._visibleDataPoints!.isNotEmpty) {
-        seriesRenderer._visibleDataPoints = <CartesianChartPoint<dynamic>>[];
+      if (seriesRendererDetails.visibleDataPoints == null ||
+          seriesRendererDetails.visibleDataPoints!.isNotEmpty == true) {
+        seriesRendererDetails.visibleDataPoints =
+            <CartesianChartPoint<dynamic>>[];
       }
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
-        seriesRenderer._calculateRegionData(
-            chartState, seriesRenderer, painterKey.index, point, pointIndex);
+        seriesRendererDetails.calculateRegionData(stateProperties,
+            seriesRendererDetails, painterKey.index, point, pointIndex);
         if (point.isVisible && !point.isDrop) {
           //Stores the old data point details of the corresponding point index
-          oldChartPoint = _getOldChartPoint(
-              chartState,
-              seriesRenderer,
+          oldChartPoint = getOldChartPoint(
+              stateProperties,
+              seriesRendererDetails,
               SplineAreaSegment,
               seriesIndex,
               pointIndex,
               oldSeriesRenderer,
               oldSeriesRenderers);
           oldPointLocation = oldChartPoint != null
-              ? _calculatePoint(
+              ? calculatePoint(
                   oldChartPoint.xValue,
                   oldChartPoint.yValue,
-                  oldSeriesRenderer!._xAxisRenderer!,
-                  oldSeriesRenderer._yAxisRenderer!,
+                  oldSeriesRendererDetails!.xAxisDetails!,
+                  oldSeriesRendererDetails.yAxisDetails!,
                   isTransposed,
-                  oldSeriesRenderer._series,
+                  oldSeriesRendererDetails.series,
                   axisClipRect)
               : null;
-          currentPoint = _calculatePoint(point.xValue, point.yValue,
-              xAxisRenderer, yAxisRenderer, isTransposed, series, axisClipRect);
-          originPoint = _calculatePoint(
+          currentPoint = calculatePoint(point.xValue, point.yValue,
+              xAxisDetails, yAxisDetails, isTransposed, series, axisClipRect);
+          originPoint = calculatePoint(
               point.xValue,
-              math_lib.max(yAxisRenderer._visibleRange!.minimum, origin),
-              xAxisRenderer,
-              yAxisRenderer,
+              math_lib.max(yAxisDetails.visibleRange!.minimum, origin),
+              xAxisDetails,
+              yAxisDetails,
               isTransposed,
               series,
               axisClipRect);
@@ -126,37 +266,37 @@ class _SplineAreaChartPainter extends CustomPainter {
           //calculates animation values for control points and data points
           if (oldPointLocation != null) {
             isTransposed
-                ? x = _getAnimateValue(animationFactor, x, oldPointLocation.x,
-                    currentPoint.x, seriesRenderer)
-                : y = _getAnimateValue(animationFactor, y, oldPointLocation.y,
-                    currentPoint.y, seriesRenderer);
+                ? x = getAnimateValue(animationFactor, x, oldPointLocation.x,
+                    currentPoint.x, seriesRendererDetails)
+                : y = getAnimateValue(animationFactor, y, oldPointLocation.y,
+                    currentPoint.y, seriesRendererDetails);
             if (point.startControl != null) {
-              startControlY = _getAnimateValue(
+              startControlY = getAnimateValue(
                   animationFactor,
                   startControlY,
                   oldChartPoint!.startControl!.y,
                   point.startControl!.y,
-                  seriesRenderer);
-              startControlX = _getAnimateValue(
+                  seriesRendererDetails);
+              startControlX = getAnimateValue(
                   animationFactor,
                   startControlX,
                   oldChartPoint.startControl!.x,
                   point.startControl!.x,
-                  seriesRenderer);
+                  seriesRendererDetails);
             }
             if (point.endControl != null) {
-              endControlX = _getAnimateValue(
+              endControlX = getAnimateValue(
                   animationFactor,
                   endControlX,
                   oldChartPoint!.endControl!.x,
                   point.endControl!.x,
-                  seriesRenderer);
-              endControlY = _getAnimateValue(
+                  seriesRendererDetails);
+              endControlY = getAnimateValue(
                   animationFactor,
                   endControlY,
                   oldChartPoint.endControl!.y,
                   point.endControl!.y,
-                  seriesRenderer);
+                  seriesRendererDetails);
             }
           } else {
             if (point.startControl != null) {
@@ -227,39 +367,38 @@ class _SplineAreaChartPainter extends CustomPainter {
                 painterKey.index, chart, animationFactor, _path, _strokePath));
       }
 
-      clipRect = _calculatePlotOffset(
+      clipRect = calculatePlotOffset(
           Rect.fromLTRB(
-              chartState._chartAxis._axisClipRect.left -
+              stateProperties.chartAxis.axisClipRect.left -
                   series.markerSettings.width,
-              chartState._chartAxis._axisClipRect.top -
+              stateProperties.chartAxis.axisClipRect.top -
                   series.markerSettings.height,
-              chartState._chartAxis._axisClipRect.right +
+              stateProperties.chartAxis.axisClipRect.right +
                   series.markerSettings.width,
-              chartState._chartAxis._axisClipRect.bottom +
+              stateProperties.chartAxis.axisClipRect.bottom +
                   series.markerSettings.height),
-          Offset(
-              xAxisRenderer._axis.plotOffset, yAxisRenderer._axis.plotOffset));
+          Offset(xAxisDetails.axis.plotOffset, yAxisDetails.axis.plotOffset));
       canvas.restore();
       if ((series.animationDuration <= 0 ||
               !renderingDetails.initialRender! ||
-              animationFactor >= chartState._seriesDurationFactor) &&
+              animationFactor >= stateProperties.seriesDurationFactor) &&
           (series.markerSettings.isVisible ||
               series.dataLabelSettings.isVisible)) {
         // ignore: unnecessary_null_comparison
         assert(seriesRenderer != null,
             'The spline area series should be available to render a marker on it.');
         canvas.clipRect(clipRect);
-        seriesRenderer._renderSeriesElements(
-            chart, canvas, seriesRenderer._seriesElementAnimation);
+        seriesRendererDetails.renderSeriesElements(
+            chart, canvas, seriesRendererDetails.seriesElementAnimation);
       }
       if (animationFactor >= 1) {
-        chartState._setPainterKey(painterKey.index, painterKey.name, true);
+        stateProperties.setPainterKey(painterKey.index, painterKey.name, true);
       }
     }
   }
 
   @override
-  bool shouldRepaint(_SplineAreaChartPainter oldDelegate) => isRepaint;
+  bool shouldRepaint(SplineAreaChartPainter oldDelegate) => isRepaint;
 
   /// It returns the visibility of area series
   bool _getSeriesVisibility(

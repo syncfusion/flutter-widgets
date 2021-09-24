@@ -1,26 +1,52 @@
-part of charts;
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import '../../chart/chart_series/series.dart';
+import '../../chart/chart_series/series_renderer_properties.dart';
+import '../../chart/chart_series/xy_data_series.dart';
+import '../../chart/common/cartesian_state_properties.dart';
+import '../../chart/common/data_label.dart';
+import '../../chart/common/data_label_renderer.dart';
+import '../../chart/utils/helper.dart';
+import '../state_properties.dart';
 
+import '../utils/enum.dart';
+import '../utils/helper.dart';
+
+/// Represents the render template class
 // ignore: must_be_immutable
-class _RenderTemplate extends StatefulWidget {
+class RenderTemplate extends StatefulWidget {
+  /// Creates an instance of render template
   // ignore: prefer_const_constructors_in_immutables
-  _RenderTemplate(
+  RenderTemplate(
       {required this.template,
       this.needMeasure,
       required this.templateLength,
       required this.templateIndex,
-      required this.chartState});
-  final _ChartTemplateInfo template;
+      required this.stateProperties});
+
+  /// Hold the value of chart template info
+  final ChartTemplateInfo template;
+
+  /// Specifies whether to measure the template
   bool? needMeasure;
+
+  /// Specifies the template length
   final int templateLength;
+
+  /// Specifies the template index value
   final int templateIndex;
-  final dynamic chartState;
+
+  /// Holds the value of state properties
+  final StateProperties stateProperties;
+
+  /// Specifies whether it is annotation
   bool? isAnnotation;
 
   @override
   State<StatefulWidget> createState() => _RenderTemplateState();
 }
 
-class _RenderTemplateState extends State<_RenderTemplate>
+class _RenderTemplateState extends State<RenderTemplate>
     with TickerProviderStateMixin {
   late List<AnimationController> templateControllerList;
   AnimationController? animationController;
@@ -34,34 +60,40 @@ class _RenderTemplateState extends State<_RenderTemplate>
 
   @override
   Widget build(BuildContext context) {
-    final _ChartTemplateInfo templateInfo = widget.template;
+    final ChartTemplateInfo templateInfo = widget.template;
     Widget currentWidget = Container();
     Widget renderWidget;
     if (templateInfo.templateType == 'DataLabel') {
       renderWidget = _ChartTemplateRenderObject(
           child: templateInfo.widget!,
           templateInfo: templateInfo,
-          chartState: widget.chartState,
+          stateProperties: widget.stateProperties,
           animationController: animationController);
     } else {
       renderWidget = _ChartTemplateRenderObject(
           child: templateInfo.widget!,
           templateInfo: templateInfo,
-          chartState: widget.chartState,
+          stateProperties: widget.stateProperties,
           animationController: animationController);
     }
     if (templateInfo.animationDuration > 0) {
-      final dynamic seriesRenderer = (templateInfo.templateType == 'DataLabel')
-          ? widget.chartState._chartSeries
-              .visibleSeriesRenderers[templateInfo.seriesIndex]
-          : null;
+      final dynamic stateProperties = widget.stateProperties;
+      final dynamic seriesRendererDetails =
+          (templateInfo.templateType == 'DataLabel')
+              ? stateProperties is CartesianStateProperties
+                  ? SeriesHelper.getSeriesRendererDetails(stateProperties
+                      .chartSeries
+                      .visibleSeriesRenderers[templateInfo.seriesIndex!])
+                  : stateProperties.chartSeries
+                      .visibleSeriesRenderers[templateInfo.seriesIndex!]
+              : null;
       final Orientation? orientation =
-          widget.chartState._renderingDetails.oldDeviceOrientation;
+          widget.stateProperties.renderingDetails.oldDeviceOrientation;
       final bool needsAnimate =
           orientation == MediaQuery.of(context).orientation &&
-              (!(seriesRenderer != null &&
-                      seriesRenderer is CartesianSeriesRenderer) ||
-                  seriesRenderer._needAnimateSeriesElements);
+              (!(seriesRendererDetails != null &&
+                      seriesRendererDetails is SeriesRendererDetails) ||
+                  seriesRendererDetails.needAnimateSeriesElements == true);
       animationController = AnimationController(
           duration: Duration(milliseconds: widget.template.animationDuration),
           vsync: this);
@@ -101,20 +133,20 @@ class _ChartTemplateRenderObject extends SingleChildRenderObjectWidget {
       {Key? key,
       required Widget child,
       required this.templateInfo,
-      required this.chartState,
+      required this.stateProperties,
       required this.animationController})
       : super(key: key, child: child);
 
-  final _ChartTemplateInfo templateInfo;
+  final ChartTemplateInfo templateInfo;
 
-  final dynamic chartState;
+  final StateProperties stateProperties;
 
   final AnimationController? animationController;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _ChartTemplateRenderBox(
-        templateInfo, chartState, animationController);
+        templateInfo, stateProperties, animationController);
   }
 
   @override
@@ -127,19 +159,19 @@ class _ChartTemplateRenderObject extends SingleChildRenderObjectWidget {
 /// Render the annotation widget in the respective position.
 class _ChartTemplateRenderBox extends RenderShiftedBox {
   _ChartTemplateRenderBox(
-      this._templateInfo, this._chartState, this._animationController,
+      this._templateInfo, this.stateProperties, this._animationController,
       [RenderBox? child])
       : super(child);
 
-  _ChartTemplateInfo _templateInfo;
+  ChartTemplateInfo _templateInfo;
 
-  final dynamic _chartState;
+  final dynamic stateProperties;
 
   final AnimationController? _animationController;
 
-  _ChartTemplateInfo get templateInfo => _templateInfo;
+  ChartTemplateInfo get templateInfo => _templateInfo;
 
-  set templateInfo(_ChartTemplateInfo value) {
+  set templateInfo(ChartTemplateInfo value) {
     if (_templateInfo != value) {
       _templateInfo = value;
       markNeedsLayout();
@@ -173,70 +205,83 @@ class _ChartTemplateRenderBox extends RenderShiftedBox {
                     ? child!.size.height / 2
                     : child!.size.height);
         if (_templateInfo.templateType == 'DataLabel' &&
-            _chartState is SfCartesianChartState) {
-          final dynamic seriesRenderer = _chartState
-              ._chartSeries.visibleSeriesRenderers[_templateInfo.seriesIndex];
-          seriesRenderer._chartState = _chartState;
-          seriesRenderer._dataLabelSettingsRenderer = DataLabelSettingsRenderer(
-              seriesRenderer._series.dataLabelSettings);
-          final CartesianChartPoint<dynamic>? point =
-              seriesRenderer._dataPoints != null
-                  ? (seriesRenderer._dataPoints.isNotEmpty == true)
-                      ? seriesRenderer._dataPoints[_templateInfo.pointIndex]
-                      : null
-                  : null;
-          if (seriesRenderer._isRectSeries == true ||
-              seriesRenderer._seriesType.contains('hilo') == true ||
-              seriesRenderer._seriesType.contains('candle') == true ||
-              seriesRenderer._seriesType.contains('box') == true) {
-            seriesRenderer._sideBySideInfo =
-                _calculateSideBySideInfo(seriesRenderer, _chartState);
+            stateProperties is CartesianStateProperties) {
+          final SeriesRendererDetails seriesRendererDetails =
+              SeriesHelper.getSeriesRendererDetails(stateProperties.chartSeries
+                  .visibleSeriesRenderers[_templateInfo.seriesIndex]);
+          seriesRendererDetails.stateProperties = stateProperties;
+          seriesRendererDetails.dataLabelSettingsRenderer =
+              DataLabelSettingsRenderer(
+                  seriesRendererDetails.series.dataLabelSettings);
+          final CartesianChartPoint<dynamic>? point = seriesRendererDetails
+                      .dataPoints !=
+                  null
+              ? (seriesRendererDetails.dataPoints.isNotEmpty == true)
+                  ? seriesRendererDetails.dataPoints[_templateInfo.pointIndex!]
+                  : null
+              : null;
+          if (seriesRendererDetails.isRectSeries == true ||
+              seriesRendererDetails.seriesType.contains('hilo') == true ||
+              seriesRendererDetails.seriesType.contains('candle') == true ||
+              seriesRendererDetails.seriesType.contains('box') == true) {
+            seriesRendererDetails.sideBySideInfo = calculateSideBySideInfo(
+                seriesRendererDetails.renderer, stateProperties);
           }
-          seriesRenderer._hasDataLabelTemplate = true;
-          if (seriesRenderer._seriesType.contains('spline') == true) {
-            if (seriesRenderer._drawControlPoints.isNotEmpty == true) {
-              seriesRenderer._drawControlPoints.clear();
+          seriesRendererDetails.hasDataLabelTemplate = true;
+          if (seriesRendererDetails.seriesType.contains('spline') == true) {
+            if (seriesRendererDetails.drawControlPoints.isNotEmpty == true) {
+              seriesRendererDetails.drawControlPoints.clear();
             }
-            _calculateSplineAreaControlPoints(seriesRenderer);
+            calculateSplineAreaControlPoints(seriesRendererDetails.renderer);
           }
-          if (point != null && seriesRenderer._seriesType != 'boxandwhisker') {
+          if (point != null &&
+              seriesRendererDetails.seriesType != 'boxandwhisker') {
             if (point.region == null) {
-              if (seriesRenderer._visibleDataPoints == null ||
-                  seriesRenderer._visibleDataPoints.length >=
-                          seriesRenderer._dataPoints.length ==
+              if (seriesRendererDetails.visibleDataPoints == null ||
+                  seriesRendererDetails.visibleDataPoints!.length >=
+                          seriesRendererDetails.dataPoints.length ==
                       true) {
-                seriesRenderer._visibleDataPoints =
+                seriesRendererDetails.visibleDataPoints =
                     <CartesianChartPoint<dynamic>>[];
               }
-              seriesRenderer._calculateRegionData(_chartState, seriesRenderer,
-                  0, point, _templateInfo.pointIndex, null, null, null, null);
+              seriesRendererDetails.calculateRegionData(
+                  stateProperties,
+                  seriesRendererDetails,
+                  0,
+                  point,
+                  _templateInfo.pointIndex!,
+                  null,
+                  null,
+                  null,
+                  null);
             }
-            _calculateDataLabelPosition(
-                seriesRenderer,
+            calculateDataLabelPosition(
+                seriesRendererDetails,
                 point,
                 _templateInfo.pointIndex!,
-                _chartState,
-                seriesRenderer._dataLabelSettingsRenderer,
+                stateProperties,
+                seriesRendererDetails.dataLabelSettingsRenderer,
                 _animationController!,
                 size,
                 _templateInfo.location);
             locationX = point.labelLocation!.x;
             locationY = point.labelLocation!.y;
-            isLabelWithInRange = _isLabelWithinRange(seriesRenderer, point);
+            isLabelWithInRange =
+                isLabelWithinRange(seriesRendererDetails, point);
           }
         }
         final Rect rect =
             Rect.fromLTWH(locationX, locationY, size.width, size.height);
         final List<Rect> dataLabelTemplateRegions =
-            _chartState._renderingDetails.dataLabelTemplateRegions;
+            stateProperties.renderingDetails.dataLabelTemplateRegions;
         final bool isCollide = (_templateInfo.templateType == 'DataLabel') &&
-            _findingCollision(rect, dataLabelTemplateRegions);
+            findingCollision(rect, dataLabelTemplateRegions);
         if (!isCollide &&
             _isTemplateWithinBounds(_templateInfo.clipRect, rect) &&
             isLabelWithInRange) {
           (_templateInfo.templateType == 'DataLabel')
               ? dataLabelTemplateRegions.add(rect)
-              : _chartState._annotationRegions.add(rect);
+              : stateProperties.annotationRegions.add(rect);
           childParentData.offset = Offset(locationX, locationY);
         } else {
           child!.layout(constraints.copyWith(maxWidth: 0, maxHeight: 0),
@@ -256,27 +301,33 @@ class _ChartTemplateRenderBox extends RenderShiftedBox {
       templateRect.top + templateRect.height <= bounds.top + bounds.height;
 }
 
+/// Represents the chart template class
 // ignore: must_be_immutable
-class _ChartTemplate extends StatefulWidget {
+class ChartTemplate extends StatefulWidget {
+  /// Creates an instance of chart template class
   // ignore: prefer_const_constructors_in_immutables
-  _ChartTemplate(
+  ChartTemplate(
       {required this.templates,
       required this.render,
-      required this.chartState});
+      required this.stateProperties});
 
-  List<_ChartTemplateInfo> templates;
+  /// Holds the list of chart template info
+  List<ChartTemplateInfo> templates;
 
+  /// Specifies whether the template is rendered
   bool render = false;
 
-  dynamic chartState;
+  /// Holds the value of state properties
+  StateProperties stateProperties;
 
+  /// Holds the value of chart template state
   late _ChartTemplateState state;
 
   @override
   State<StatefulWidget> createState() => _ChartTemplateState();
 }
 
-class _ChartTemplateState extends State<_ChartTemplate> {
+class _ChartTemplateState extends State<ChartTemplate> {
   @override
   void initState() {
     widget.state = this;
@@ -288,15 +339,15 @@ class _ChartTemplateState extends State<_ChartTemplate> {
     widget.state = this;
     Widget renderTemplate = Container();
     final bool animationCompleted =
-        widget.chartState._renderingDetails.animateCompleted;
+        widget.stateProperties.renderingDetails.animateCompleted;
     if (animationCompleted && widget.templates.isNotEmpty) {
       final List<Widget> renderWidgets = <Widget>[];
       for (int i = 0; i < widget.templates.length; i++) {
-        renderWidgets.add(_RenderTemplate(
+        renderWidgets.add(RenderTemplate(
           template: widget.templates[i],
           templateIndex: i,
           templateLength: widget.templates.length,
-          chartState: widget.chartState,
+          stateProperties: widget.stateProperties,
         ));
       }
       renderTemplate = Stack(children: renderWidgets);
@@ -313,8 +364,10 @@ class _ChartTemplateState extends State<_ChartTemplate> {
   }
 }
 
-class _ChartTemplateInfo {
-  _ChartTemplateInfo(
+/// Represents the chart template info class
+class ChartTemplateInfo {
+  /// Creates an instance of chart template info class
+  ChartTemplateInfo(
       {required this.key,
       required this.widget,
       required this.location,
@@ -328,19 +381,49 @@ class _ChartTemplateInfo {
       ChartAlignment? verticalAlignment})
       : horizontalAlignment = horizontalAlignment ?? ChartAlignment.center,
         verticalAlignment = verticalAlignment ?? ChartAlignment.center;
+
+  /// Specifies the key value
   Key? key;
+
+  /// Specifies the widget
   Widget? widget;
+
+  /// Holds the size value
   late Size size;
+
+  /// Holds the point value
   late dynamic point;
+
+  /// Holds the value of location
   Offset location;
+
+  /// Specifies the build context value
   late BuildContext context;
+
+  /// Specifies the animation duration
   int animationDuration;
+
+  /// Specifies the value of animation controller
   late AnimationController animationController;
+
+  /// Specifies the point index value
   int? pointIndex;
+
+  /// Specifies the series index value
   int? seriesIndex;
+
+  /// Specifies the clip rect value
   Rect clipRect;
+
+  /// Holds the template type
   String templateType;
+
+  /// Holds the value of horizontal alignment
   ChartAlignment horizontalAlignment;
+
+  /// Holds the value of vertical alignment
   ChartAlignment verticalAlignment;
+
+  /// Specifies whether to measure the template
   bool needMeasure;
 }
