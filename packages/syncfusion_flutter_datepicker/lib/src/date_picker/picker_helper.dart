@@ -6,6 +6,7 @@ import 'package:syncfusion_flutter_core/localizations.dart';
 import 'date_picker_manager.dart';
 import 'hijri_date_picker_manager.dart';
 
+// ignore: avoid_classes_with_only_static_members
 /// Holds the static helper methods of the date picker.
 class DateRangePickerHelper {
   /// Return the index value based on RTL.
@@ -930,15 +931,15 @@ class DateRangePickerHelper {
   }
 }
 
-///
+/// Holds the hovering data details
 class HoveringDetails {
-  ///
+  /// Create instance of hovering details.
   HoveringDetails(this.hoveringRange, this.offset);
 
-  ///
+  /// Holds the current hovering range for extendable range selection
   final dynamic hoveringRange;
 
-  ///
+  /// Current hovering offset.
   final Offset? offset;
 }
 

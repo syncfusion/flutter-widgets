@@ -589,7 +589,7 @@ class _CertificateIdentifier {
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
     if (other is _CertificateIdentifier) {
-      return _Asn1Constants.areEqual(_id, other._id);
+      return _Asn1.areEqual(_id, other._id);
     } else {
       return false;
     }
@@ -597,5 +597,5 @@ class _CertificateIdentifier {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => _Asn1Constants.getHashCode(_id);
+  int get hashCode => _Asn1.getHashCode(_id);
 }

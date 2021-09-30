@@ -1,4 +1,11 @@
-part of charts;
+import 'dart:ui';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+
+import '../../common/utils/enum.dart';
+import '../../common/utils/typedef.dart';
+import 'technical_indicator.dart';
 
 ///Renders stochastic indicator.
 ///
@@ -17,6 +24,7 @@ class StochasticIndicator<T, D> extends TechnicalIndicators<T, D> {
       String? seriesName,
       List<double>? dashArray,
       double? animationDuration,
+      double? animationDelay,
       List<T>? dataSource,
       ChartValueMapper<T, D>? xValueMapper,
       ChartValueMapper<T, num>? highValueMapper,
@@ -49,6 +57,7 @@ class StochasticIndicator<T, D> extends TechnicalIndicators<T, D> {
             seriesName: seriesName,
             dashArray: dashArray,
             animationDuration: animationDuration,
+            animationDelay: animationDelay,
             dataSource: dataSource,
             xValueMapper: xValueMapper,
             highValueMapper: highValueMapper,
@@ -267,6 +276,7 @@ class StochasticIndicator<T, D> extends TechnicalIndicators<T, D> {
         other.seriesName == seriesName &&
         other.dashArray == dashArray &&
         other.animationDuration == animationDuration &&
+        other.animationDelay == animationDelay &&
         other.dataSource == dataSource &&
         other.xValueMapper == xValueMapper &&
         other.highValueMapper == highValueMapper &&
@@ -302,6 +312,7 @@ class StochasticIndicator<T, D> extends TechnicalIndicators<T, D> {
       seriesName,
       dashArray,
       animationDuration,
+      animationDelay,
       dataSource,
       xValueMapper,
       highValueMapper,
@@ -328,188 +339,5 @@ class StochasticIndicator<T, D> extends TechnicalIndicators<T, D> {
       dPeriod
     ];
     return hashList(values);
-  }
-
-  /// To initialise indicators collections
-  // ignore:unused_element
-  void _initSeriesCollection(
-      StochasticIndicator<dynamic, dynamic> indicator,
-      SfCartesianChart chart,
-      TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
-    technicalIndicatorsRenderer._targetSeriesRenderers =
-        <CartesianSeriesRenderer>[];
-  }
-
-  /// To initialise data source of technical indicators
-// ignore:unused_element
-  void _initDataSource(
-    StochasticIndicator<dynamic, dynamic> indicator,
-    TechnicalIndicatorsRenderer technicalIndicatorsRenderer,
-    SfCartesianChart chart,
-  ) {
-    List<CartesianChartPoint<dynamic>> signalCollection =
-            <CartesianChartPoint<dynamic>>[],
-        source = <CartesianChartPoint<dynamic>>[],
-        periodCollection = <CartesianChartPoint<dynamic>>[];
-    final List<CartesianChartPoint<dynamic>> lowerCollection =
-            <CartesianChartPoint<dynamic>>[],
-        upperCollection = <CartesianChartPoint<dynamic>>[];
-    final List<CartesianChartPoint<dynamic>> validData =
-        technicalIndicatorsRenderer._dataPoints!;
-    final List<dynamic> xValues = <dynamic>[];
-    late List<dynamic> collection, signalX, periodX;
-    if (validData.isNotEmpty &&
-        validData.length >= indicator.period &&
-        indicator.period > 0) {
-      if (indicator.showZones) {
-        for (int i = 0; i < validData.length; i++) {
-          upperCollection.add(technicalIndicatorsRenderer._getDataPoint(
-              validData[i].x,
-              indicator.overbought,
-              validData[i],
-              upperCollection.length));
-          lowerCollection.add(technicalIndicatorsRenderer._getDataPoint(
-              validData[i].x,
-              indicator.oversold,
-              validData[i],
-              lowerCollection.length));
-          xValues.add(validData[i].x);
-        }
-      }
-      source = _calculatePeriod(indicator.period, indicator.kPeriod.toInt(),
-          validData, technicalIndicatorsRenderer);
-      collection = _stochasticCalculation(indicator.period,
-          indicator.kPeriod.toInt(), source, technicalIndicatorsRenderer);
-      periodCollection = collection[0];
-      periodX = collection[1];
-      collection = _stochasticCalculation(
-          (indicator.period + indicator.kPeriod - 1).toInt(),
-          indicator.dPeriod.toInt(),
-          source,
-          technicalIndicatorsRenderer);
-      signalCollection = collection[0];
-      signalX = collection[1];
-    }
-    technicalIndicatorsRenderer._renderPoints = signalCollection;
-    technicalIndicatorsRenderer._stochasticperiod = periodCollection;
-    // Decides the type of renderer class to be used
-    const bool isLine = true;
-    technicalIndicatorsRenderer._setSeriesProperties(
-        indicator,
-        indicator.name ?? 'Stocastic',
-        indicator.signalLineColor,
-        indicator.signalLineWidth,
-        chart);
-    technicalIndicatorsRenderer._setSeriesProperties(indicator, 'PeriodLine',
-        indicator.periodLineColor, indicator.periodLineWidth, chart, isLine);
-    if (showZones) {
-      technicalIndicatorsRenderer._setSeriesProperties(indicator, 'UpperLine',
-          indicator.upperLineColor, indicator.upperLineWidth, chart, isLine);
-      technicalIndicatorsRenderer._setSeriesProperties(indicator, 'LowerLine',
-          indicator.lowerLineColor, indicator.lowerLineWidth, chart, isLine);
-    }
-    technicalIndicatorsRenderer._setSeriesRange(signalCollection, indicator,
-        signalX, technicalIndicatorsRenderer._targetSeriesRenderers[0]);
-    technicalIndicatorsRenderer._setSeriesRange(periodCollection, indicator,
-        periodX, technicalIndicatorsRenderer._targetSeriesRenderers[1]);
-    if (indicator.showZones) {
-      technicalIndicatorsRenderer._setSeriesRange(upperCollection, indicator,
-          xValues, technicalIndicatorsRenderer._targetSeriesRenderers[2]);
-      technicalIndicatorsRenderer._setSeriesRange(lowerCollection, indicator,
-          xValues, technicalIndicatorsRenderer._targetSeriesRenderers[3]);
-    }
-  }
-
-  /// To calculate the values of the stochastic indicator
-  List<dynamic> _stochasticCalculation(
-      int period,
-      int kPeriod,
-      List<CartesianChartPoint<dynamic>> data,
-      TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
-    final List<CartesianChartPoint<dynamic>> pointCollection =
-        <CartesianChartPoint<dynamic>>[];
-    final List<dynamic> xValues = <dynamic>[];
-    if (data.length >= period + kPeriod && kPeriod > 0) {
-      final int count = period + (kPeriod - 1);
-      final List<num> temp = <num>[], values = <num>[];
-      for (int i = 0; i < data.length; i++) {
-        final num value = data[i].y;
-        temp.add(value);
-      }
-      num length = temp.length;
-      while (length >= count) {
-        num sum = 0;
-        for (int i = period - 1; i < (period + kPeriod - 1); i++) {
-          sum = sum + temp[i];
-        }
-        sum = sum / kPeriod;
-        final String _sum = sum.toStringAsFixed(2);
-        values.add(double.parse(_sum));
-        temp.removeRange(0, 1);
-        length = temp.length;
-      }
-      final int len = count - 1;
-      for (int i = 0; i < data.length; i++) {
-        if (!(i < len)) {
-          pointCollection.add(technicalIndicatorsRenderer._getDataPoint(
-              data[i].x, values[i - len], data[i], pointCollection.length));
-          xValues.add(data[i].x);
-          data[i].y = values[i - len];
-        }
-      }
-    }
-
-    return <dynamic>[pointCollection, xValues];
-  }
-
-  /// To return list of stochastic indicator points
-  List<CartesianChartPoint<dynamic>> _calculatePeriod(
-      int period,
-      int kPeriod,
-      List<CartesianChartPoint<dynamic>> data,
-      TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
-    // This has been null before
-    final List<num> lowValue = List<num>.filled(data.length, -1);
-    final List<num> highValue = List<num>.filled(data.length, -1);
-    final List<num> closeValue = List<num>.filled(data.length, -1);
-    final List<CartesianChartPoint<dynamic>> modifiedSource =
-        <CartesianChartPoint<dynamic>>[];
-
-    for (int j = 0; j < data.length; j++) {
-      lowValue[j] = data[j].low ?? 0;
-      highValue[j] = data[j].high ?? 0;
-      closeValue[j] = data[j].close ?? 0;
-    }
-    if (data.length > period) {
-      final List<num> mins = <num>[], maxs = <num>[];
-      for (int i = 0; i < period - 1; ++i) {
-        maxs.add(0);
-        mins.add(0);
-        modifiedSource.add(technicalIndicatorsRenderer._getDataPoint(
-            data[i].x, data[i].close, data[i], modifiedSource.length));
-      }
-      num? min, max;
-      for (int i = period - 1; i < data.length; ++i) {
-        for (int j = 0; j < period; ++j) {
-          min ??= lowValue[i - j];
-          max ??= highValue[i - j];
-          min = math.min(min, lowValue[i - j]);
-          max = math.max(max, highValue[i - j]);
-        }
-        maxs.add(max!);
-        mins.add(min!);
-        min = null;
-        max = null;
-      }
-
-      for (int i = period - 1; i < data.length; ++i) {
-        num top = 0, bottom = 0;
-        top += closeValue[i] - mins[i];
-        bottom += maxs[i] - mins[i];
-        modifiedSource.add(technicalIndicatorsRenderer._getDataPoint(
-            data[i].x, (top / bottom) * 100, data[i], modifiedSource.length));
-      }
-    }
-    return modifiedSource;
   }
 }

@@ -60,11 +60,11 @@ class _PageResourceLoader {
       }
     }
     // m_commonMatrix = commonMatrix;
-    if (page._rotation == PdfPageRotateAngle.rotateAngle90) {
+    if (page.rotation == PdfPageRotateAngle.rotateAngle90) {
       pageResources.resources[_DictionaryProperties.rotate] = 90.toDouble();
-    } else if (page._rotation == PdfPageRotateAngle.rotateAngle180) {
+    } else if (page.rotation == PdfPageRotateAngle.rotateAngle180) {
       pageResources.resources[_DictionaryProperties.rotate] = 180.toDouble();
-    } else if (page._rotation == PdfPageRotateAngle.rotateAngle270) {
+    } else if (page.rotation == PdfPageRotateAngle.rotateAngle270) {
       pageResources.resources[_DictionaryProperties.rotate] = 270.toDouble();
     }
     return pageResources;

@@ -97,6 +97,5 @@ class HyperlinkCollection {
   /// Add hyperlink to the hyperlinks collection.
   void addHyperlink(Hyperlink hyperlink) {
     innerList.add(hyperlink);
-    hyperlink._rId = count;
   }
 }

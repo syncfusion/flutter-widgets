@@ -1,4 +1,11 @@
-part of datagrid;
+import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_core/localizations.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
+
+import '../datagrid_widget/sfdatagrid.dart';
 
 /// Signature for the [SfDataPager.pageItemBuilder] callback.
 typedef DataPagerItemBuilderCallback<Widget> = Widget? Function(String text);
@@ -18,61 +25,60 @@ bool _suspendDataPagerUpdate = false;
 
 /// A controller for [SfDataPager].
 ///
-/// The following code initializes the data source and controller.
+///The following code initializes the data source and controller.
 ///
 /// ```dart
 /// PaginatedDataGridSource dataGridSource = PaginatedDataGridSource();
 /// DataPagerController dataPagerController = DataPagerController();
-/// final List<Employee> paginatedDataTable = <Employee>[];
+/// finalList<Employee>paginatedDataTable=<Employee>[];
 ///```
 ///
-/// The following code example shows how to  initialize the [SfDataPager]
+///The following code example shows how to initialize the [SfDataPager]
 /// with [SfDataGrid]
 ///
 /// ```dart
 ///
-///  @override
-///  Widget build(BuildContext context) {
-///    return Scaffold(
-///      appBar: AppBar(
-///        title: const Text('Syncfusion Flutter DataGrid'),
-///      ),
-///      body: Column(
-///        children: [
-///          SfDataGrid(
-///            source: _ dataGridSource,
-///            columns: <GridColumn>[
-///              GridNumericColumn(mappingName: 'id', headerText: 'ID'),
-///              GridTextColumn(mappingName: 'name', headerText: 'Name'),
-///              GridTextColumn(mappingName: 'designation', headerText: 'Designation'),
-///              GridNumericColumn(mappingName: 'salary', headerText: 'Salary'),
-///            ],
-///          ),
-///          SfDataPager(
-///            pageCount: paginatedDataTable.length / rowsPerPage,
-///            visibleItemsCount: 5,
-///            delegate: dataGridSource,
-///            controller:dataPagerController
-///          ),
-///          TextButton(
-///            child: Text('Next'),
-///           onPressed: {
-///              dataPagerController.nextPage();
-///            },
-///          )
-///
-///        ],
-///      ),
-///    );
-///  }
+/// @override
+/// Widget build(BuildContext context) {
+///  return Scaffold(
+///   appBar: AppBar(
+///    title: const Text('Syncfusion Flutter DataGrid'),
+///   ),
+///   body: Column(
+///    children: [
+///     SfDataGrid(
+///      source: _ dataGridSource,
+///      columns: <GridColumn>[
+///       GridNumericColumn(mappingName: 'id', headerText: 'ID'),
+///       GridTextColumn(mappingName: 'name', headerText: 'Name'),
+///       GridTextColumn(mappingName: 'designation', headerText: 'Designation'),
+///       GridNumericColumn(mappingName: 'salary', headerText: 'Salary'),
+///      ],
+///     ),
+///     SfDataPager(
+///      pageCount: paginatedDataTable.length / rowsPerPage,
+///      visibleItemsCount: 5,
+///      delegate: dataGridSource,
+///          controller:dataPagerController
+///     ),
+///     TextButton(
+///       child:Text('Next'),
+///       onPressed:{
+///         dataPagerController.nextPage();
+///       },
+///     )
+///    ],
+///   ),
+///  );
+/// }
 /// ```
 ///
-/// The following code example shows how to initialize the [DataGridSource] to
+///The following code example shows how to initialize the [DataGridSource] to
 /// [SfDataGrid]
 ///
 /// ```dart
-/// class  PaginatedDataGridSource extends DataGridSource {
-///   final List<Employee> _paginatedData= <Employee>[];
+/// class PaginatedDataGridSource extends DataGridSource {
+///   finalList<Employee> _paginatedData=<Employee>[];
 ///
 ///   int StartRowIndex= 0, endRowIndex = 0, rowsPerPage = 20;
 ///
@@ -95,16 +101,16 @@ bool _suspendDataPagerUpdate = false;
 ///         }).toList());
 ///   }
 ///
-///  @override
-///  Future<bool> handlePageChange(int oldPageIndex, int newPageIndex) async {
+/// @override
+/// Future<bool> handlePageChange(int oldPageIndex, int newPageIndex) async {
 ///    startRowIndex = newPageIndex * rowsPerPage;
 ///    endRowIndex = startRowsIndex + rowsPerPage;
-///    _paginatedData =  paginatedDataTable
-///        .getRange(startRowIndex, endRowIndex)
-///        .toList(growable: false);
-///    notifyDataSourceListeners();
-///    return true;
-///  }
+///  _paginatedData = paginatedDataTable
+///    .getRange(startRowIndex, endRowIndex)
+///    .toList(growable: false);
+///  notifyDataSourceListeners();
+///  return true;
+/// }
 ///
 ///```
 /// See also:
@@ -144,42 +150,9 @@ class DataPagerController extends _DataPagerChangeNotifier {
   }
 }
 
-/// A delegate that provides the row count details and method to listen the
-/// page navigation in [SfDataPager].
-///
-/// The following code initializes the data source and controller.
-///
-/// ```dart
-/// final List<Employee> paginatedDataTable = <Employee>[];
-/// ```
-///
-///  The following code example shows how to initialize the [DataPagerDelegate].
-///
-/// ```dart
-/// class  PaginatedDataGridSource extends DataPagerDelegate{
-///  @override
-///  Future<bool> handlePageChange(int oldPageIndex, int newPageIndex) async {
-///    _paginatedData =  paginatedDataTable
-///        .getRange(startRowIndex, endRowIndex )
-///        .toList(growable: false);
-///    notifyListeners();
-///    return true;
-///  }
-/// }
-/// ```
-class DataPagerDelegate {
-  /// Called when the page is navigated.
-  ///
-  /// Return true, if the navigation should be performed. Otherwise, return
-  /// false to disable the navigation for specific page index.
-  Future<bool> handlePageChange(int oldPageIndex, int newPageIndex) async {
-    return true;
-  }
-}
-
 /// A widget that provides the paging functionality.
 ///
-/// A [SfDataPager] shows [pageCount] number of pages required to display.
+/// A [SfDataPager] shows[pageCount] number of pages required to display.
 ///
 /// Data is read lazily from a [DataPagerDelegate]. The widget is presented as
 /// card.
@@ -191,9 +164,9 @@ class DataPagerDelegate {
 ///
 /// ```dart
 /// PaginatedDataGridSource dataGridSource = PaginatedDataGridSource();
-/// final List<Employee> paginatedDataTable = <Employee>[];
+/// finalList<Employee>paginatedDataTable=<Employee>[];
 /// ```
-/// The following code example shows how to  initialize the [SfDataPager]
+///The following code example shows how to initialize the [SfDataPager]
 /// with [SfDataGrid]
 ///
 /// ```dart
@@ -222,7 +195,7 @@ class DataPagerDelegate {
 /// }
 /// ```
 ///
-/// The following code example shows how to initialize the [DataGridSource]
+///The following code example shows how to initialize the [DataGridSource]
 /// to [SfDataGrid]
 ///
 /// ```dart
@@ -248,15 +221,15 @@ class DataPagerDelegate {
 ///   }
 ///
 ///  @override
-///  Future<bool> handlePageChange(int oldPageIndex, int newPageIndex) async {
+/// Future<bool> handlePageChange(int oldPageIndex, int newPageIndex) async {
 ///     startRowIndex = newPageIndex * rowsPerPage;
 ///     endRowIndex = startRowIndex + rowsPerPage;
-///    _paginatedData =  paginatedDataTable
-///        .getRange(startRowIndex, endRowIndex)
-///        .toList(growable: false);
-///    notifyDataSourceListeners();
-///    return true;
-///  }
+///  _paginatedData = paginatedDataTable
+///    .getRange(startRowIndex, endRowIndex)
+///    .toList(growable: false);
+///  notifyDataSourceListeners();
+///  return true;
+/// }
 /// }
 ///
 /// ```
@@ -270,6 +243,15 @@ class SfDataPager extends StatefulWidget {
       required this.delegate,
       Key? key,
       this.direction = Axis.horizontal,
+      this.itemWidth = 50.0,
+      this.itemHeight = 50.0,
+      this.itemPadding = const EdgeInsets.all(5),
+      this.navigationItemHeight = 50.0,
+      this.navigationItemWidth = 50.0,
+      this.firstPageItemVisible = true,
+      this.lastPageItemVisible = true,
+      this.nextPageItemVisible = true,
+      this.previousPageItemVisible = true,
       this.visibleItemsCount = 5,
       this.initialPageIndex = 0,
       this.pageItemBuilder,
@@ -277,6 +259,12 @@ class SfDataPager extends StatefulWidget {
       this.onPageNavigationEnd,
       this.controller})
       : assert(pageCount > 0),
+        assert(itemHeight > 0 && itemWidth > 0),
+        assert((firstPageItemVisible ||
+                lastPageItemVisible ||
+                nextPageItemVisible ||
+                previousPageItemVisible) &&
+            (navigationItemHeight > 0 && navigationItemWidth > 0)),
         super(key: key);
 
   /// The number of pages required to display in [SfDataPager].
@@ -288,6 +276,51 @@ class SfDataPager extends StatefulWidget {
 
   /// The maximum number of Items to show in view.
   final int visibleItemsCount;
+
+  /// The width of each item except the navigation items such as First, Last, Next and Previous page items.
+  ///
+  /// Defaults to 50.0
+  final double itemWidth;
+
+  /// The height of each item except the navigation items such as First, Last, Next and Previous page items.
+  ///
+  /// Defaults to 50.0
+  final double itemHeight;
+
+  /// The padding of each item including navigation items such as First, Last, Next and Previous page items.
+  ///
+  /// Defaults to EdgeInsets.all(5.0)
+  final EdgeInsetsGeometry itemPadding;
+
+  /// Decides whether first page navigation item should be visible.
+  ///
+  /// Defaults to true.
+  final bool firstPageItemVisible;
+
+  /// Decides whether last page navigation item should be visible.
+  ///
+  /// Defaults to true.
+  final bool lastPageItemVisible;
+
+  /// Decides whether previous page navigation item should be visible.
+  ///
+  /// Defaults to true.
+  final bool previousPageItemVisible;
+
+  /// Decides whether next page navigation item should be visible.
+  ///
+  /// Defaults to true.
+  final bool nextPageItemVisible;
+
+  /// The height of navigation items such as First, Last, Next and Previous page items.
+  ///
+  /// Defaults to 50.0
+  final double navigationItemHeight;
+
+  /// The width of navigation items such as First, Last, Next and Previous page items.
+  ///
+  /// Defaults to 50.0
+  final double navigationItemWidth;
 
   /// Determines the direction of the data pager whether vertical or
   /// horizontal.
@@ -353,11 +386,7 @@ class SfDataPager extends StatefulWidget {
 }
 
 class _SfDataPagerState extends State<SfDataPager> {
-  static const double _defaultPageItemWidth = 50.0;
-  static const double _defaultPageItemHeight = 50.0;
-  static const EdgeInsets _defaultPageItemPadding = EdgeInsets.all(5);
-  static const Size _defaultPagerDimension =
-      Size(300.0, _defaultPageItemHeight);
+  Size _defaultPagerDimension = Size.zero;
   static const Size _defaultPagerLabelDimension = Size(200.0, 50.0);
   static const double _kMobileViewWidthOnWeb = 767.0;
 
@@ -418,6 +447,11 @@ class _SfDataPagerState extends State<SfDataPager> {
   @override
   void initState() {
     super.initState();
+
+    /// Set page count in DataGridSource.
+    _setPageCountInDataGridSource(widget.pageCount);
+    _defaultPagerDimension = Size(300.0, _getDefaultDimensionHeight());
+
     _scrollController = ScrollController()
       ..addListener(_handleScrollPositionChanged);
     _itemGenerator = _DataPagerItemGenerator();
@@ -469,8 +503,19 @@ class _SfDataPagerState extends State<SfDataPager> {
     }
   }
 
+  /// Helps to set or remove the page count in DataGridSource when SfDataPager with
+  /// SfDataGrid.
+  void _setPageCountInDataGridSource(double pageCount) {
+    if (widget.delegate is DataGridSource) {
+      setPageCount(widget.delegate, pageCount);
+    }
+  }
+
   Future<void> _handlePageItemTapped(int index) async {
     _suspendDataPagerUpdate = true;
+    if (index > widget.pageCount - 1) {
+      index -= 1;
+    }
     final bool canChange = await _canChangePage(index);
 
     if (canChange) {
@@ -614,7 +659,7 @@ class _SfDataPagerState extends State<SfDataPager> {
   // ScrollController helpers
 
   double _getCumulativeSize(int index) {
-    return index * _getButtonSize();
+    return index * _getButtonSize(widget.itemHeight, widget.itemWidth);
   }
 
   int _getNextPageIndex() {
@@ -630,7 +675,8 @@ class _SfDataPagerState extends State<SfDataPager> {
   double getScrollOffset(int index) {
     final double origin = _getCumulativeSize(index);
     final double scrollOffset = _scrollController!.offset;
-    final double corner = origin + _getButtonSize();
+    final double corner =
+        origin + _getButtonSize(widget.itemHeight, widget.itemWidth);
     final double currentViewSize = scrollOffset + _scrollViewPortSize;
     double offset = 0;
     if (corner > currentViewSize) {
@@ -696,11 +742,29 @@ class _SfDataPagerState extends State<SfDataPager> {
     }
   }
 
-  double _getButtonSize() {
+  double _getButtonSize(double height, double width) {
     if (widget.direction == Axis.vertical) {
-      return _defaultPageItemHeight;
+      return height;
     } else {
-      return _defaultPageItemWidth;
+      return width;
+    }
+  }
+
+  double _getDefaultDimensionHeight() {
+    if (widget.direction == Axis.horizontal) {
+      //  In horizontal direction, If itemHeight > navigationItemHeight
+      // then the item page button height is greater than datapager height.
+      //  So we have to set the larger height as dataPager height.
+      return widget.itemHeight > widget.navigationItemHeight
+          ? widget.itemHeight
+          : widget.navigationItemHeight;
+    } else {
+      //  In vertical direction, If itemWidth > navigationItemWidth
+      // then the item page button width is greater than datapager height.
+      //  So we have to set the larger height as dataPager height.
+      return widget.itemWidth > widget.navigationItemWidth
+          ? widget.itemWidth
+          : widget.navigationItemWidth;
     }
   }
 
@@ -818,7 +882,8 @@ class _SfDataPagerState extends State<SfDataPager> {
   // Ensuring and Generating
 
   void _preGenerateItem(double width) {
-    _itemGenerator.preGenerateItems(0, width ~/ _getButtonSize());
+    _itemGenerator.preGenerateItems(
+        0, width ~/ _getButtonSize(widget.itemHeight, widget.itemWidth));
   }
 
   void _ensureItems() {
@@ -826,7 +891,8 @@ class _SfDataPagerState extends State<SfDataPager> {
       return;
     }
 
-    final double buttonSize = _getButtonSize();
+    final double buttonSize =
+        _getButtonSize(widget.itemHeight, widget.itemWidth);
     final int startIndex =
         _scrollController!.offset <= _scrollController!.position.minScrollExtent
             ? 0
@@ -843,22 +909,49 @@ class _SfDataPagerState extends State<SfDataPager> {
     _itemGenerator._items.sort(
         (_ScrollableDataPagerItem first, _ScrollableDataPagerItem second) =>
             first.index.compareTo(second.index));
+    double getDifferenceInSize(double itemSize, double navigationItemSize) {
+      if (itemSize > navigationItemSize) {
+        return 0;
+      } else {
+        return (navigationItemSize - itemSize) / 2;
+      }
+    }
 
     for (final _ScrollableDataPagerItem element in _itemGenerator._items) {
       if (element.visible) {
-        final double buttonSize = _getButtonSize();
-        final double xPos = widget.direction == Axis.horizontal
+        final double buttonSize =
+            _getButtonSize(widget.itemHeight, widget.itemWidth);
+
+        double xPos = widget.direction == Axis.horizontal
             ? _isRTL
                 ? _scrollViewExtent - (element.index * buttonSize) - buttonSize
                 : element.index * buttonSize
             : 0.0;
 
-        final double yPos = widget.direction == Axis.vertical
+        //  In vertical direction, If navigationItemWidth>itemWidth,
+        //  the items will  align from starting position in order of aligning at the center
+        //  So we have to align the scrollable item at the center
+        if (widget.direction == Axis.vertical &&
+            widget.itemWidth != widget.navigationItemWidth) {
+          xPos +=
+              getDifferenceInSize(widget.itemWidth, widget.navigationItemWidth);
+        }
+
+        double yPos = widget.direction == Axis.vertical
             ? element.index * buttonSize
             : 0.0;
 
-        element.elementRect = Rect.fromLTWH(
-            xPos, yPos, _defaultPageItemWidth, _defaultPageItemHeight);
+        //  In horizontal direction, If navigationItemHeight>itemHeight,
+        //  the items will  align from starting position in order of aligning at the center
+        //  So we have to align the scrollable item at the center
+        if (widget.direction == Axis.horizontal &&
+            widget.itemHeight != widget.navigationItemHeight) {
+          yPos += getDifferenceInSize(
+              widget.itemHeight, widget.navigationItemHeight);
+        }
+
+        element.elementRect =
+            Rect.fromLTWH(xPos, yPos, widget.itemWidth, widget.itemHeight);
       }
     }
   }
@@ -867,7 +960,12 @@ class _SfDataPagerState extends State<SfDataPager> {
 
   // Item builder
   Widget _buildDataPagerItem(
-      {_ScrollableDataPagerItem? element, String? type, IconData? iconData}) {
+      {_ScrollableDataPagerItem? element,
+      String? type,
+      IconData? iconData,
+      double? height,
+      double? width,
+      EdgeInsetsGeometry? padding}) {
     final ThemeData _flutterTheme = Theme.of(context);
     Widget? pagerItem;
     Key? pagerItemKey;
@@ -924,10 +1022,10 @@ class _SfDataPagerState extends State<SfDataPager> {
 
     return Container(
       key: pagerItemKey,
-      width: _defaultPageItemWidth,
-      height: _defaultPageItemHeight,
+      width: width,
+      height: height,
       child: Padding(
-        padding: _defaultPageItemPadding,
+        padding: padding!,
         child: CustomPaint(
           key: pagerItemKey,
           painter: _DataPagerItemBoxPainter(
@@ -999,14 +1097,33 @@ class _SfDataPagerState extends State<SfDataPager> {
     }
 
     //FirstIcon
-    children.add(_buildDataPagerItem(type: 'First', iconData: getFirstIcon()));
+
+    if (widget.firstPageItemVisible) {
+      children.add(_buildDataPagerItem(
+          type: 'First',
+          iconData: getFirstIcon(),
+          height: widget.navigationItemHeight,
+          width: widget.navigationItemWidth,
+          padding: widget.itemPadding));
+    }
 
     //PreviousIcon
-    children.add(
-        _buildDataPagerItem(type: 'Previous', iconData: getPreviousIcon()));
+
+    if (widget.previousPageItemVisible) {
+      children.add(_buildDataPagerItem(
+          type: 'Previous',
+          iconData: getPreviousIcon(),
+          height: widget.navigationItemHeight,
+          width: widget.navigationItemWidth,
+          padding: widget.itemPadding));
+    }
 
     //Set headerExtent
-    _headerExtent = children.isEmpty ? 0.0 : children.length * _getButtonSize();
+    _headerExtent = children.isEmpty
+        ? 0.0
+        : children.length *
+            _getButtonSize(
+                widget.navigationItemHeight, widget.navigationItemWidth);
 
     return children.isEmpty ? null : _getChildrenBasedOnDirection(children);
   }
@@ -1032,22 +1149,44 @@ class _SfDataPagerState extends State<SfDataPager> {
     }
 
     //NextIcon
-    children.add(_buildDataPagerItem(type: 'Next', iconData: getNextIcon()));
+
+    if (widget.nextPageItemVisible) {
+      children.add(_buildDataPagerItem(
+          type: 'Next',
+          iconData: getNextIcon(),
+          height: widget.navigationItemHeight,
+          width: widget.navigationItemWidth,
+          padding: widget.itemPadding));
+    }
 
     //LastIcon
-    children.add(_buildDataPagerItem(type: 'Last', iconData: getLastIcon()));
+
+    if (widget.lastPageItemVisible) {
+      children.add(_buildDataPagerItem(
+          type: 'Last',
+          iconData: getLastIcon(),
+          height: widget.navigationItemHeight,
+          width: widget.navigationItemWidth,
+          padding: widget.itemPadding));
+    }
 
     //Set footerExtent
-    _footerExtent = children.isEmpty ? 0.0 : children.length * _getButtonSize();
+    _footerExtent = children.isEmpty
+        ? 0.0
+        : children.length *
+            _getButtonSize(
+                widget.navigationItemHeight, widget.navigationItemWidth);
 
     return children.isEmpty ? null : _getChildrenBasedOnDirection(children);
   }
 
   // Body
   Widget _buildBody(BoxConstraints constraint) {
+    final int _oldPageCount = _pageCount;
     _pageCount = widget.pageCount.toInt();
 
-    final double buttonSize = _getButtonSize();
+    final double buttonSize =
+        _getButtonSize(widget.itemHeight, widget.itemWidth);
     _scrollViewExtent = buttonSize * _pageCount;
 
     final double size = _getSizeConstraint(constraint);
@@ -1074,7 +1213,7 @@ class _SfDataPagerState extends State<SfDataPager> {
     // After we scrolled some distance on previous orientation.
     // Issue: https://github.com/flutter/flutter/issues/60288
     // Need to remove once it fixed
-    _resetScrollOffset(preScrollViewPortSize);
+    _resetScrollOffset(preScrollViewPortSize, _oldPageCount);
 
     if (!_isPregenerateItems) {
       _preGenerateItem(_scrollViewPortSize);
@@ -1094,6 +1233,8 @@ class _SfDataPagerState extends State<SfDataPager> {
         height: widget.direction == Axis.horizontal
             ? _defaultPagerDimension.height
             : _scrollViewPortSize,
+        clipBehavior: Clip.antiAlias,
+        decoration: const BoxDecoration(color: Colors.transparent),
         child: child);
   }
 
@@ -1114,21 +1255,34 @@ class _SfDataPagerState extends State<SfDataPager> {
                       key: element.key,
                       isDirty: _isDirty,
                       element: element,
-                      child: _buildDataPagerItem(element: element),
+                      child: _buildDataPagerItem(
+                          element: element,
+                          height: widget.itemHeight,
+                          width: widget.itemWidth,
+                          padding: widget.itemPadding),
                     ))
             .toList(growable: false)),
       ),
     );
   }
 
-  void _resetScrollOffset(double previousScrollViewPortSize) {
+  void _resetScrollOffset(
+      double previousScrollViewPortSize, int _oldPageCount) {
     if (_isPregenerateItems &&
-        _isOrientationChanged &&
         _scrollController!.hasClients &&
         _scrollController!.offset > 0.0 &&
-        _scrollViewPortSize > previousScrollViewPortSize) {
+        ((_isOrientationChanged &&
+                _scrollViewPortSize > previousScrollViewPortSize) ||
+            _oldPageCount != _pageCount)) {
       WidgetsBinding.instance?.addPostFrameCallback((_) {
         _handleScrollPositionChanged();
+        if (_oldPageCount != _pageCount) {
+          if (_currentPageIndex > _pageCount - 1) {
+            _canChangePage(_pageCount - 1);
+          } else {
+            _canChangePage(0);
+          }
+        }
       });
     } else {
       _isOrientationChanged = false;
@@ -1149,7 +1303,11 @@ class _SfDataPagerState extends State<SfDataPager> {
     }
 
     final Widget body = _buildBody(constraint);
-    children.insert(1, body);
+    if (header == null) {
+      children.insert(0, body);
+    } else {
+      children.insert(1, body);
+    }
 
     return _getChildrenBasedOnDirection(children);
   }
@@ -1249,8 +1407,16 @@ class _SfDataPagerState extends State<SfDataPager> {
         isDelegateChanged ||
         oldWidget.pageCount != widget.pageCount ||
         oldWidget.direction != widget.direction ||
+        oldWidget.navigationItemHeight != widget.navigationItemHeight ||
+        oldWidget.navigationItemWidth != widget.navigationItemWidth ||
+        oldWidget.itemWidth != widget.itemWidth ||
+        oldWidget.itemHeight != widget.itemHeight ||
         oldWidget.visibleItemsCount != widget.visibleItemsCount ||
         oldWidget.initialPageIndex != widget.initialPageIndex) {
+      /// Set page count in DataGridSource.
+      _setPageCountInDataGridSource(widget.pageCount);
+      _defaultPagerDimension = Size(300.0, _getDefaultDimensionHeight());
+
       if (isDelegateChanged) {
         _removeDelegateListener(oldWidget);
         _addDelegateListener();
@@ -1318,6 +1484,8 @@ class _SfDataPagerState extends State<SfDataPager> {
         ..dispose();
     }
 
+    /// Helps to remove the pageCount in DataGridSource.
+    _setPageCountInDataGridSource(0.0);
     _controller = null;
     _imageConfiguration = null;
     _removeDelegateListener(widget);

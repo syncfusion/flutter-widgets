@@ -13,14 +13,6 @@ import 'controller/map_provider.dart';
 
 // ignore_for_file: public_member_api_docs
 
-// Default hover color opacity value.
-const double hoverColorOpacity = 0.7;
-
-// If shape color opacity is same hover color opacity,
-// hover is not visible in UI.
-// So need to decrease hover opacity
-const double minHoverOpacity = 0.5;
-
 // Using this factor, the tooltip position of the bubble and marker is
 // determined from the total height.
 const double tooltipHeightFactor = 0.25;
@@ -29,6 +21,22 @@ const double minimumLatitude = -85.05112878;
 const double maximumLatitude = 85.05112878;
 const double minimumLongitude = -180;
 const double maximumLongitude = 180;
+
+const double kDefaultMinZoomLevel = 1.0;
+const double kDefaultMaxZoomLevel = 15.0;
+
+// Combines the two color values and returns a new saturated color. We have
+// used black color as default mix color.
+Color getSaturatedColor(Color color, [Color mix = Colors.black]) {
+  const double factor = 0.2;
+  return color == Colors.transparent
+      ? color
+      : Color.fromRGBO(
+          ((1 - factor) * color.red + factor * mix.red).toInt(),
+          ((1 - factor) * color.green + factor * mix.green).toInt(),
+          ((1 - factor) * color.blue + factor * mix.blue).toInt(),
+          1);
+}
 
 Size getBoxSize(BoxConstraints constraints) {
   final double width = constraints.hasBoundedWidth ? constraints.maxWidth : 300;
@@ -44,8 +52,8 @@ Offset pixelFromLatLng(num latitude, num longitude, Size size,
   final double y =
       0.5 - log((1.0 + sinLatitude) / (1.0 - sinLatitude)) / (4.0 * pi);
   final double mapSize = size.longestSide * scale;
-  final double dx = offset.dx + ((x * mapSize + 0.5).clamp(0.0, mapSize - 1));
-  final double dy = offset.dy + ((y * mapSize + 0.5).clamp(0.0, mapSize - 1));
+  final double dx = offset.dx + ((x * mapSize).clamp(0.0, mapSize));
+  final double dy = offset.dy + ((y * mapSize).clamp(0.0, mapSize));
   return Offset(dx, dy);
 }
 
@@ -64,6 +72,43 @@ MapLatLng pixelToLatLng(Offset offset, Size size,
   final double latitude = 90 - 360 * atan(exp(-y * 2 * pi)) / pi;
   final double longitude = 360 * x;
   return MapLatLng(latitude, longitude);
+}
+
+MapLatLng getFocalLatLng(MapLatLngBounds bounds) {
+  final double latitude =
+      (bounds.southwest.latitude + bounds.northeast.latitude) / 2;
+  final double longitude =
+      (bounds.southwest.longitude + bounds.northeast.longitude) / 2;
+  return MapLatLng(latitude, longitude);
+}
+
+double getZoomLevel(MapLatLngBounds bounds, LayerType layerType, Size size,
+    [double actualShapeSizeFactor = 1.0]) {
+  switch (layerType) {
+    case LayerType.shape:
+      final Offset northEast = pixelFromLatLng(
+          bounds.northeast.latitude, bounds.northeast.longitude, size);
+      final Offset southWest = pixelFromLatLng(
+          bounds.southwest.latitude, bounds.southwest.longitude, size);
+      final Rect boundsRect = Rect.fromPoints(northEast, southWest);
+      final double latZoom = size.height / boundsRect.height;
+      final double lngZoom = size.width / boundsRect.width;
+      return min(latZoom.abs(), lngZoom.abs()) / actualShapeSizeFactor;
+    case LayerType.tile:
+      // Calculating the scale value for the given bounds using the
+      // default tile layer size with default minimum zoom level.
+      final Size tileLayerSize =
+          Size.square(getTotalTileWidth(kDefaultMinZoomLevel));
+      final Offset northEast = pixelFromLatLng(
+          bounds.northeast.latitude, bounds.northeast.longitude, tileLayerSize);
+      final Offset southWest = pixelFromLatLng(
+          bounds.southwest.latitude, bounds.southwest.longitude, tileLayerSize);
+      final Rect boundsRect = Rect.fromPoints(northEast, southWest);
+      // Converting scale into zoom level.
+      final double latZoomLevel = log(boundsRect.height / size.height) / log(2);
+      final double lngZoomLevel = log(boundsRect.width / size.width) / log(2);
+      return min(latZoomLevel.abs(), lngZoomLevel.abs()) + 1;
+  }
 }
 
 String getTrimText(String text, TextStyle style, double maxWidth,

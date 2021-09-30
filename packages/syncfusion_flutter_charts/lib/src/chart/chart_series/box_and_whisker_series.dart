@@ -1,4 +1,20 @@
-part of charts;
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+
+import '../../chart/utils/enum.dart';
+import '../../common/series/chart_series.dart';
+import '../../common/user_interaction/selection_behavior.dart';
+import '../../common/utils/enum.dart';
+import '../../common/utils/typedef.dart';
+import '../common/data_label.dart';
+import '../common/marker.dart';
+import '../series_painter/box_and_whisker_painter.dart';
+import '../trendlines/trendlines.dart';
+import 'xy_data_series.dart';
 
 /// This class holds the properties of the Box and Whisker series.
 ///
@@ -42,10 +58,12 @@ class BoxAndWhiskerSeries<T, D> extends XyDataSeries<T, D> {
       String? legendItemText,
       List<double>? dashArray,
       double? opacity,
+      double? animationDelay,
       SeriesRendererCreatedCallback? onRendererCreated,
       ChartPointInteractionCallback? onPointTap,
       ChartPointInteractionCallback? onPointDoubleTap,
       ChartPointInteractionCallback? onPointLongPress,
+      CartesianShaderCallback? onCreateShader,
       List<Trendline>? trendlines,
       this.boxPlotMode = BoxPlotMode.normal,
       this.showMean = true})
@@ -83,6 +101,8 @@ class BoxAndWhiskerSeries<T, D> extends XyDataSeries<T, D> {
             legendIconType: legendIconType,
             sortingOrder: sortingOrder,
             opacity: opacity,
+            animationDelay: animationDelay,
+            onCreateShader: onCreateShader,
             trendlines: trendlines);
 
   ///To change the box plot rendering mode.
@@ -219,13 +239,15 @@ class BoxAndWhiskerSeries<T, D> extends XyDataSeries<T, D> {
         other.legendIconType == legendIconType &&
         other.legendItemText == legendItemText &&
         other.opacity == opacity &&
+        other.animationDelay == animationDelay &&
         other.boxPlotMode == boxPlotMode &&
         other.showMean == showMean &&
         other.spacing == spacing &&
         other.onRendererCreated == onRendererCreated &&
         other.onPointTap == onPointTap &&
         other.onPointDoubleTap == onPointDoubleTap &&
-        other.onPointLongPress == onPointLongPress;
+        other.onPointLongPress == onPointLongPress &&
+        other.onCreateShader == onCreateShader;
   }
 
   @override
@@ -261,6 +283,7 @@ class BoxAndWhiskerSeries<T, D> extends XyDataSeries<T, D> {
       legendIconType,
       legendItemText,
       opacity,
+      animationDelay,
       boxPlotMode,
       showMean,
       spacing,
@@ -273,8 +296,10 @@ class BoxAndWhiskerSeries<T, D> extends XyDataSeries<T, D> {
   }
 }
 
-class _BoxPlotQuartileValues {
-  _BoxPlotQuartileValues(
+/// Represents the class for box plot quartile values
+class BoxPlotQuartileValues {
+  /// Creates an instance of box plot quartile values
+  BoxPlotQuartileValues(
       {this.minimum,
       this.maximum,
       //ignore: unused_element, avoid_unused_constructor_parameters
@@ -284,238 +309,28 @@ class _BoxPlotQuartileValues {
       this.average,
       this.median,
       this.mean});
+
+  /// Specifies the value of minimum
   num? minimum;
+
+  /// Specifies the value of maximum
   num? maximum;
+
+  /// Specifies the list of outliers
   List<num>? outliers = <num>[];
+
+  /// Specifies the value of the upper quartiles
   double? upperQuartile;
+
+  /// Specifies the value of lower quartiles
   double? lowerQuartile;
+
+  /// Specifies the value of average
   num? average;
+
+  /// Specifies the value of median
   num? median;
+
+  /// Specifies the mean value
   num? mean;
-}
-
-/// Creates series renderer for Box and Whisker series
-class BoxAndWhiskerSeriesRenderer extends XyDataSeriesRenderer {
-  /// Calling the default constructor of BoxAndWhiskerSeriesRenderer class.
-  BoxAndWhiskerSeriesRenderer();
-
-  late num _rectPosition;
-
-  late num _rectCount;
-
-  late BoxAndWhiskerSegment _segment;
-
-  List<CartesianSeriesRenderer>? _oldSeriesRenderers;
-
-  late _BoxPlotQuartileValues _boxPlotQuartileValues;
-
-  /// To find the minimum, maximum, quartile and median value
-  /// of a box plot series.
-  void _findBoxPlotValues(List<num?> yValues,
-      CartesianChartPoint<dynamic> point, BoxPlotMode mode) {
-    final int yCount = yValues.length;
-    _boxPlotQuartileValues = _BoxPlotQuartileValues();
-    _boxPlotQuartileValues.average =
-        //ignore: always_specify_types
-        (yValues.fold(0, (num x, y) => (x.toDouble()) + y!)) / yCount;
-    if (mode == BoxPlotMode.exclusive) {
-      _boxPlotQuartileValues.lowerQuartile =
-          _getExclusiveQuartileValue(yValues, yCount, 0.25);
-      _boxPlotQuartileValues.upperQuartile =
-          _getExclusiveQuartileValue(yValues, yCount, 0.75);
-      _boxPlotQuartileValues.median =
-          _getExclusiveQuartileValue(yValues, yCount, 0.5);
-    } else if (mode == BoxPlotMode.inclusive) {
-      _boxPlotQuartileValues.lowerQuartile =
-          _getInclusiveQuartileValue(yValues, yCount, 0.25);
-      _boxPlotQuartileValues.upperQuartile =
-          _getInclusiveQuartileValue(yValues, yCount, 0.75);
-      _boxPlotQuartileValues.median =
-          _getInclusiveQuartileValue(yValues, yCount, 0.5);
-    } else {
-      _boxPlotQuartileValues.median = _getMedian(yValues);
-      _getQuartileValues(yValues, yCount, _boxPlotQuartileValues);
-    }
-    _getMinMaxOutlier(yValues, yCount, _boxPlotQuartileValues);
-    point.minimum = _boxPlotQuartileValues.minimum;
-    point.maximum = _boxPlotQuartileValues.maximum;
-    point.lowerQuartile = _boxPlotQuartileValues.lowerQuartile;
-    point.upperQuartile = _boxPlotQuartileValues.upperQuartile;
-    point.median = _boxPlotQuartileValues.median;
-    point.outliers = _boxPlotQuartileValues.outliers;
-    point.mean = _boxPlotQuartileValues.average;
-  }
-
-  /// To find exclusive quartile values.
-  double _getExclusiveQuartileValue(
-      List<num?> yValues, int count, num percentile) {
-    if (count == 0) {
-      return 0;
-    } else if (count == 1) {
-      return yValues[0]!.toDouble();
-    }
-    num value = 0;
-    final num rank = percentile * (count + 1);
-    final int integerRank = (rank.abs()).floor();
-    final num fractionRank = rank - integerRank;
-    if (integerRank == 0) {
-      value = yValues[0]!;
-    } else if (integerRank > count - 1) {
-      value = yValues[count - 1]!;
-    } else {
-      value =
-          fractionRank * (yValues[integerRank]! - yValues[integerRank - 1]!) +
-              yValues[integerRank - 1]!;
-    }
-    return value.toDouble();
-  }
-
-  /// To find inclusive quartile values.
-  double _getInclusiveQuartileValue(
-      List<num?> yValues, int count, num percentile) {
-    if (count == 0) {
-      return 0;
-    } else if (count == 1) {
-      return yValues[0]!.toDouble();
-    }
-    num value = 0;
-    final num rank = percentile * (count - 1);
-    final int integerRank = (rank.abs()).floor();
-    final num fractionRank = rank - integerRank;
-    value = fractionRank * (yValues[integerRank + 1]! - yValues[integerRank]!) +
-        yValues[integerRank]!;
-    return value.toDouble();
-  }
-
-  /// To find a midian value of each box plot point.
-  double _getMedian(List<num?> values) {
-    final int half = (values.length / 2).floor();
-    return (values.length % 2 != 0
-            ? values[half]!
-            : ((values[half - 1]! + values[half]!) / 2.0))
-        .toDouble();
-  }
-
-  /// To get the quartile values.
-  void _getQuartileValues(dynamic yValues, num count,
-      _BoxPlotQuartileValues _boxPlotQuartileValues) {
-    if (count == 1) {
-      _boxPlotQuartileValues.lowerQuartile = yValues[0];
-      _boxPlotQuartileValues.upperQuartile = yValues[0];
-      return;
-    }
-    final bool isEvenList = count % 2 == 0;
-    final num halfLength = count ~/ 2;
-    final List<num?> lowerQuartileArray = yValues.sublist(0, halfLength);
-    final List<num?> upperQuartileArray =
-        yValues.sublist(isEvenList ? halfLength : halfLength + 1, count);
-    _boxPlotQuartileValues.lowerQuartile = _getMedian(lowerQuartileArray);
-    _boxPlotQuartileValues.upperQuartile = _getMedian(upperQuartileArray);
-  }
-
-  /// To get the outliers values of box plot series.
-  void _getMinMaxOutlier(List<num?> yValues, int count,
-      _BoxPlotQuartileValues _boxPlotQuartileValues) {
-    final double interquartile = _boxPlotQuartileValues.upperQuartile! -
-        _boxPlotQuartileValues.lowerQuartile!;
-    final num rangeIQR = 1.5 * interquartile;
-    for (int i = 0; i < count; i++) {
-      if (yValues[i]! < _boxPlotQuartileValues.lowerQuartile! - rangeIQR) {
-        _boxPlotQuartileValues.outliers!.add(yValues[i]!);
-      } else {
-        _boxPlotQuartileValues.minimum = yValues[i];
-        break;
-      }
-    }
-    for (int i = count - 1; i >= 0; i--) {
-      if (yValues[i]! > _boxPlotQuartileValues.upperQuartile! + rangeIQR) {
-        _boxPlotQuartileValues.outliers!.add(yValues[i]!);
-      } else {
-        _boxPlotQuartileValues.maximum = yValues[i];
-        break;
-      }
-    }
-  }
-
-  /// Range box plot _segment is created here
-  ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
-      int pointIndex, int seriesIndex, double animateFactor) {
-    _segment = createSegment();
-    _oldSeriesRenderers = _chartState!._oldSeriesRenderers;
-    _isRectSeries = false;
-    _segment._seriesIndex = seriesIndex;
-    _segment.currentSegmentIndex = pointIndex;
-    _segment._seriesRenderer = this;
-    _segment._series = _series as XyDataSeries<dynamic, dynamic>;
-    _segment.animationFactor = animateFactor;
-    _segment._pointColorMapper = currentPoint.pointColorMapper;
-    _segment._currentPoint = currentPoint;
-    if (_renderingDetails!.widgetNeedUpdate &&
-        !_renderingDetails!.isLegendToggled &&
-        _oldSeriesRenderers != null &&
-        _oldSeriesRenderers!.isNotEmpty &&
-        _oldSeriesRenderers!.length - 1 >= _segment._seriesIndex &&
-        _oldSeriesRenderers![_segment._seriesIndex]._seriesName ==
-            _segment._seriesRenderer._seriesName) {
-      _segment._oldSeriesRenderer = _oldSeriesRenderers![_segment._seriesIndex];
-      _segment._oldSegmentIndex = _getOldSegmentIndex(_segment);
-    }
-    _segment.calculateSegmentPoints();
-    //stores the points for rendering box and whisker - high, low and rect points
-    _segment.points
-      ..add(Offset(currentPoint.markerPoint!.x, _segment._maxPoint.y))
-      ..add(Offset(currentPoint.markerPoint!.x, _segment._minPoint.y))
-      ..add(Offset(_segment._lowerX, _segment._topRectY))
-      ..add(Offset(_segment._upperX, _segment._topRectY))
-      ..add(Offset(_segment._upperX, _segment._bottomRectY))
-      ..add(Offset(_segment._lowerX, _segment._bottomRectY));
-    customizeSegment(_segment);
-    _segment.strokePaint = _segment.getStrokePaint();
-    _segment.fillPaint = _segment.getFillPaint();
-    _segments.add(_segment);
-    return _segment;
-  }
-
-  @override
-  BoxAndWhiskerSegment createSegment() => BoxAndWhiskerSegment();
-
-  /// Changes the series color, border color, and border width.
-  @override
-  void customizeSegment(ChartSegment _segment) {
-    final BoxAndWhiskerSegment boxSegment = _segment as BoxAndWhiskerSegment;
-    boxSegment._color = boxSegment._currentPoint!.pointColorMapper ??
-        _segment._seriesRenderer._seriesColor;
-    boxSegment._strokeColor = _segment._series.borderColor;
-    boxSegment._strokeWidth = _segment._series.borderWidth;
-    boxSegment.strokePaint = boxSegment.getStrokePaint();
-    boxSegment.fillPaint = boxSegment.getFillPaint();
-  }
-
-  /// To draw box plot series segments
-  //ignore: unused_element
-  void _drawSegment(Canvas canvas, ChartSegment _segment) {
-    if (_segment._seriesRenderer._isSelectionEnable) {
-      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
-          _segment._seriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer?._selectionRenderer?._checkWithSelectionState(
-          _segments[_segment.currentSegmentIndex!], _chart);
-    }
-    _segment.onPaint(canvas);
-  }
-
-  ///Draws outlier with different shape and color of the appropriate
-  ///data point in the series.
-  @override
-  void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
-      Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer? seriesRenderer]) {
-    canvas.drawPath(seriesRenderer!._markerShapes[index]!, fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes[index]!, strokePaint);
-  }
-
-  /// Draws data label text of the appropriate data point in a series.
-  @override
-  void drawDataLabel(int index, Canvas canvas, String dataLabel, double pointX,
-          double pointY, int angle, TextStyle style) =>
-      _drawText(canvas, dataLabel, Offset(pointX, pointY), style, angle);
 }

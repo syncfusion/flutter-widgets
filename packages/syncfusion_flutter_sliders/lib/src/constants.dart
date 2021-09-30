@@ -28,8 +28,6 @@ const double defaultElevation = 1.0;
 const double tappedElevation = 6.0;
 const Color shadowColor = Colors.black;
 
-const double minPreferredTouchWidth = 20;
-
 enum PointerType { down, move, up }
 
 /// Represents the [SfRangeSlider] or [SfRangeSelector] child elements.

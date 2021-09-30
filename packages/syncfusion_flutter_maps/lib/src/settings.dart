@@ -1731,10 +1731,78 @@ class MapSelectionSettings extends DiagnosticableTree {
 class MapTooltipSettings extends DiagnosticableTree {
   /// Creates a [MapTooltipSettings].
   const MapTooltipSettings({
+    this.hideDelay = 3.0,
     this.color,
     this.strokeWidth,
     this.strokeColor,
   });
+
+  /// Specifies the duration of the tooltip visibility.
+  ///
+  /// The default value of the [hideDelay] property is 3.
+  ///
+  /// By default, the tooltip will disappear after 3 seconds of inactivity. You
+  /// can always show the tooltip without hiding it by setting double.infinity
+  /// to the [hideDelay] property.
+  ///
+  /// When you perform a zoom/pan operation, a window resize, or a change of
+  /// orientation, the tooltip will disappear.
+  ///
+  /// ```dart
+  /// late MapShapeSource _mapSource;
+  /// late List<DataModel> _data;
+  ///
+  /// @override
+  /// void initState() {
+  ///   _data = <DataModel>[
+  ///     DataModel('Asia', '44,579,000 sq. km.'),
+  ///     DataModel('Africa', '30,370,000 sq. km.'),
+  ///     DataModel('Europe', '10,180,000 sq. km.'),
+  ///     DataModel('North America', '24,709,000 sq. km.'),
+  ///     DataModel('South America', '17,840,000 sq. km.'),
+  ///     DataModel('Australia', '8,600,000 sq. km.'),
+  ///   ];
+  ///
+  ///   _mapSource = MapShapeSource.asset(
+  ///     "assets/world_map.json",
+  ///     shapeDataField: "continent",
+  ///     dataCount: _data.length,
+  ///     primaryValueMapper: (int index) => _data[index].continent,
+  ///   );
+  ///   super.initState();
+  /// }
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     body: SfMaps(
+  ///       layers: <MapLayer>[
+  ///         MapShapeLayer(
+  ///           source: _mapSource,
+  ///           tooltipSettings: MapTooltipSettings(
+  ///             hideDelay: double.infinity,
+  ///           ),
+  ///           shapeTooltipBuilder: (BuildContext context, int index) {
+  ///             if (index == 0) {
+  ///               return Icon(Icons.airplanemode_inactive);
+  ///             } else {
+  ///               return Icon(Icons.airplanemode_active);
+  ///             }
+  ///           },
+  ///         ),
+  ///       ],
+  ///     ),
+  ///   );
+  /// }
+  ///
+  /// class DataModel {
+  ///   const DataModel(this.continent, this.area);
+  ///
+  ///   final String continent;
+  ///   final String area;
+  /// }
+  /// ```
+  final double hideDelay;
 
   /// Fills the tooltip by this color.
   ///
@@ -1804,7 +1872,8 @@ class MapTooltipSettings extends DiagnosticableTree {
   /// }
   /// ```
   /// See also:
-  /// * [textStyle], for customizing the style of the tooltip text.
+  /// * [strokeColor], for customizing the stroke color of the tooltip.
+  /// * [strokeWidth] for customizing the stroke width of the tooltip.
   final Color? color;
 
   /// Specifies the stroke width applies to the tooltip.
@@ -1965,18 +2034,19 @@ class MapTooltipSettings extends DiagnosticableTree {
       return false;
     }
     return other is MapTooltipSettings &&
+        other.hideDelay == hideDelay &&
         other.color == color &&
         other.strokeWidth == strokeWidth &&
         other.strokeColor == strokeColor;
   }
 
   @override
-  int get hashCode => hashValues(color, strokeWidth, strokeColor);
+  int get hashCode => hashValues(hideDelay, color, strokeWidth, strokeColor);
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-
+    properties.add(DoubleProperty('hideDelay', hideDelay));
     if (color != null) {
       properties.add(ColorProperty('color', color));
     }

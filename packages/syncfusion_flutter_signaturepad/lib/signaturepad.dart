@@ -20,10 +20,11 @@ const double _kMaximumStrokeWidth = 5.0;
 const double _kDefaultHeight = 250.0;
 const double _kDefaultWidth = 250.0;
 
-/// Signature used by [SfSignaturePad] for [OnDraw] callback.
+/// Signature used by [SfSignaturePad] for [SfSignaturePad.onDraw] callback.
 typedef SignatureDrawCallback = void Function(Offset offset, DateTime time);
 
-/// Signature used by [SfSignaturePad] for [OnDrawStart] callback.
+/// Signature used by [SfSignaturePad] for [SfSignaturePad.onDrawStart]
+/// callback.
 typedef SignatureOnDrawStartCallback = bool Function();
 
 /// The Signature Pad widget allows you to capture smooth and more realistic
@@ -45,20 +46,22 @@ typedef SignatureOnDrawStartCallback = bool Function();
 /// * The background color of the [SfSignaturePad] can be customized using the
 /// [backgroundColor] property.
 ///
-/// The [onDrawStart], [onDraw] and [onDrawEnd] allows you to handle the gestures
-/// in [SfSignaturePad]
+/// The [onDrawStart], [onDraw] and [onDrawEnd] allows you to handle the
+/// gestures in [SfSignaturePad]
 ///
-/// The [toImage] allows you to export the signature in [SfSignaturePad] to an
-/// image.
-/// The [clear] allows you to clear all the signature strokes in
-/// [SfSignaturePad].
-/// The [renderToContext2D] allows you to export the signature in
-/// [SfSignaturePad] to a html canvas. [renderToContext2D] is used to export the
-/// signature as an image in web platform.
+/// The [SfSignaturePadState.toImage] allows you to export the signature in
+/// [SfSignaturePad] to an image.
+/// The [SfSignaturePadState.clear] allows you to clear all the signature
+/// strokes in [SfSignaturePad].
+/// The [SfSignaturePadState.renderToContext2D] allows you to export the
+/// signature in [SfSignaturePad] to a html canvas.
+/// [SfSignaturePadState.renderToContext2D] is used to export the signature as
+/// an image in web platform.
 ///
-/// Note - Since the [toImage], [clear] and [renderToContext2D] are defined in
-/// state object of [SfSignaturePad], you have to use a global key assigned to
-/// the [SfSignaturePad] instance to call these methods.
+/// Note - Since the [SfSignaturePadState.toImage], [SfSignaturePadState.clear]
+/// and [SfSignaturePadState.renderToContext2D] are defined in state object of
+/// [SfSignaturePad], you have to use a global key assigned to the
+/// [SfSignaturePad] instance to call these methods.
 ///
 /// ## Example
 ///
@@ -78,8 +81,8 @@ typedef SignatureOnDrawStartCallback = bool Function();
 ///   key: _signaturePadKey,
 ///  );
 ///  ```
-/// * Handle the start, ondraw and completion of signature gestures in [SfSignaturePad]
-/// from [onDrawStart], [onDraw] and [onDrawEnd].
+/// * Handle the start, ondraw and completion of signature gestures in
+/// [SfSignaturePad] from [onDrawStart], [onDraw] and [onDrawEnd].
 /// ```dart
 /// SfSignaturePad(
 ///   onDrawStart: () {
@@ -93,13 +96,13 @@ typedef SignatureOnDrawStartCallback = bool Function();
 ///      print("Signature has been completed in Signature Pad");
 ///   });
 /// ```
-/// * Call [clear] using state object to clear all the drawn strokes in the
-/// [SfSignaturePad].
+/// * Call [SfSignaturePadState.clear] using state object to clear all the drawn
+/// strokes in the [SfSignaturePad].
 /// ```dart
 /// _signaturePadKey.currentState!.clear();
 /// ```
-/// * Call [toImage] using state object to convert the signature to an image
-/// representation.
+/// * Call [SfSignaturePadState.toImage] using state object to convert the
+/// signature to an image representation.
 /// ```dart
 /// ui.Image image = await _signaturePadKey.currentState!.toImage();
 /// ```
@@ -123,14 +126,14 @@ class SfSignaturePad extends StatefulWidget {
   ///  );
   /// ```
   ///
-  /// * Call [clear] using state object to clear all the drawn strokes in the
-  /// [SfSignaturePad].
+  /// * Call [SfSignaturePadState.clear] using state object to clear all the
+  /// drawn strokes in the [SfSignaturePad].
   /// ```dart
   /// _signaturePadKey.currentState.clear();
   ///```
   ///
-  /// * Call [toImage] using state object to convert the signature to an image
-  /// representation.
+  /// * Call [SfSignaturePadState.toImage] using state object to convert the
+  /// signature to an image representation.
   /// ```dart
   /// ui.Image image = await _signaturePadKey.currentState.toImage();
   /// ```
@@ -300,7 +303,8 @@ class SfSignaturePad extends StatefulWidget {
 
 /// This class maintains the state of the [SfSignaturePad] widget.
 class SfSignaturePadState extends State<SfSignaturePad> {
-  /// Creates an unmodifiable ui.Path collection which represents the strokes in the [SfSignaturePad].
+  /// Creates an unmodifiable ui.Path collection which represents the strokes in
+  /// the [SfSignaturePad].
   ///
   /// Since this method is defined in the state object of [SfSignaturePad],
   /// you have to use a global key assigned to the [SfSignaturePad] to call this
@@ -404,7 +408,8 @@ class SfSignaturePadState extends State<SfSignaturePad> {
   /// Since this method is defined in the state object  of [SfSignaturePad],
   /// you have to use a global key assigned to the [SfSignaturePad] instance
   /// to call this method.
-  /// This snippet shows how to use [renderToContext2D] in [SfSignaturePadState].
+  /// This snippet shows how to use [renderToContext2D] in
+  /// [SfSignaturePadState].
   ///
   /// Note: It requires `dart:html` import.
   ///

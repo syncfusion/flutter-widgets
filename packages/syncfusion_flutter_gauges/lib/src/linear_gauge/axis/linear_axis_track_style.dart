@@ -58,7 +58,7 @@ class LinearAxisTrackStyle {
   ///
   /// SfLinearGauge(
   /// axisLineStyle: LinearAxisLineStyle(
-  /// borderColor: Colors.Brown )
+  /// borderColor: Colors.brown )
   /// )
   /// ```
   final Color? borderColor;
@@ -89,7 +89,7 @@ class LinearAxisTrackStyle {
   ///
   /// SfLinearGauge(
   /// axisLineStyle: LinearAxisLineStyle(
-  /// edgeStyle: LinearEdgeStyle.endCurce)
+  /// edgeStyle: LinearEdgeStyle.endCurve)
   /// )
   /// ```
   ///
@@ -111,7 +111,7 @@ class LinearAxisTrackStyle {
   /// Colors.green,
   /// ], stops: <double>[
   /// 0.3,
-  /// 0.5
+  /// 0.5,
   /// 0.8 ]),))
   /// ```
   ///

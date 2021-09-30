@@ -454,7 +454,7 @@ class _Pkcs7Padding implements _IPadding {
   _Pkcs7Padding();
   //Properties
   @override
-  String get paddingName => _Asn1Constants.pkcs7;
+  String get paddingName => _Asn1.pkcs7;
   //Implementation
   @override
   void initialize(Random? random) {}

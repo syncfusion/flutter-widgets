@@ -81,7 +81,7 @@ class _PdfCmsSigner {
       }
       final List<int> dig = alg
           .getMessageDigest(hashAlgorithm!)
-          .convert(_signCert!._c!.getEncoded(_Asn1Constants.der))
+          .convert(_signCert!._c!.getEncoded(_Asn1.der))
           .bytes as List<int>;
       aaV2._encodableObjects.add(_DerOctet(dig));
       v._encodableObjects.add(_DerSet(array: <_Asn1Encode>[
@@ -145,7 +145,7 @@ class _PdfCmsSigner {
     // ignore: avoid_function_literals_in_foreach_calls
     _certificates.forEach((_X509Certificate? xcert) {
       v._encodableObjects.add(
-          _Asn1Stream(_StreamReader(xcert!._c!.getEncoded(_Asn1Constants.der)))
+          _Asn1Stream(_StreamReader(xcert!._c!.getEncoded(_Asn1.der)))
               .readAsn1());
     });
     final _DerSet dercertificates = _DerSet(collection: v);
@@ -153,8 +153,8 @@ class _PdfCmsSigner {
     signerinfo._encodableObjects
         .add(_DerInteger(_bigIntToBytes(BigInt.from(_signerVersion))));
     v = _Asn1EncodeCollection();
-    v._encodableObjects.add(getIssuer(
-        _signCert!._c!.tbsCertificate!.getEncoded(_Asn1Constants.der)));
+    v._encodableObjects
+        .add(getIssuer(_signCert!._c!.tbsCertificate!.getEncoded(_Asn1.der)));
     v._encodableObjects
         .add(_DerInteger(_bigIntToBytes(_signCert!._c!.serialNumber!.value)));
     signerinfo._encodableObjects.add(_DerSequence(collection: v));

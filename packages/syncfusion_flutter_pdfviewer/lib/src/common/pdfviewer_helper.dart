@@ -1,15 +1,19 @@
 import 'dart:io';
 import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
+import 'package:syncfusion_flutter_pdfviewer/src/common/mobile_helper.dart'
+    if (dart.library.html) 'package:syncfusion_flutter_pdfviewer/src/common/web_helper.dart'
+    as helper;
 import 'package:syncfusion_flutter_pdfviewer/src/control/pdftextline.dart';
 
 /// Indicates whether the current environment is running in Desktop
 bool kIsDesktop = kIsWeb || Platform.isMacOS;
 
 /// Indicates whether the current environment is running in macOS
-bool kIsMacOS = !kIsWeb && Platform.isMacOS;
+bool kIsMacOS = helper.getPlatformType() == 'macos';
 
 /// TextSelectionHelper for storing information of text selection.
 class TextSelectionHelper {

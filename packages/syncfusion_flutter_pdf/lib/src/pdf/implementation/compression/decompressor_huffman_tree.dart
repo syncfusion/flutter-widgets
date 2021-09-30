@@ -106,7 +106,7 @@ class _DecompressorHuffmanTree {
       code -= blCount[bits] << (16 - bits);
       final int start = code & 0x1ff80;
       for (int i = start; i < end; i += increment) {
-        tree[_Utils.bitReverse(i)] = ((-pointer << 4) | bits).toSigned(16);
+        tree[_bitReverse(i)] = ((-pointer << 4) | bits).toSigned(16);
         pointer += 1 << (bits - 9);
       }
     }
@@ -117,7 +117,7 @@ class _DecompressorHuffmanTree {
         continue;
       }
       code = nextCode[bits];
-      int revcode = _Utils.bitReverse(code);
+      int revcode = _bitReverse(code);
       if (bits <= 9) {
         do {
           tree[revcode] = ((i << 4) | bits).toSigned(16);

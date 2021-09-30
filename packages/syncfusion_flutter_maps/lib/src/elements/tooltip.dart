@@ -198,7 +198,6 @@ class _RenderMapTooltip extends ShapeLayerChildRenderBoxBase {
   static const double tooltipTriangleHeight = 7;
   final _MapTooltipState _state;
   final _TooltipShape _tooltipShape = const _TooltipShape();
-  final Duration _waitDuration = const Duration(seconds: 3);
   final Duration _hideDeferDuration = const Duration(milliseconds: 500);
   late Animation<double> _scaleAnimation;
   Timer? _showTimer;
@@ -287,9 +286,13 @@ class _RenderMapTooltip extends ShapeLayerChildRenderBoxBase {
   }
 
   void _startShowTimer() {
+    if (_tooltipSettings.hideDelay == double.infinity) {
+      return;
+    }
     _showTimer?.cancel();
     if (_pointerKind == PointerKind.touch) {
-      _showTimer = Timer(_waitDuration, hideTooltip);
+      _showTimer = Timer(
+          Duration(seconds: _tooltipSettings.hideDelay.toInt()), hideTooltip);
     }
   }
 
@@ -375,6 +378,8 @@ class _RenderMapTooltip extends ShapeLayerChildRenderBoxBase {
     _scaleAnimation.addListener(markNeedsPaint);
     if (_state.widget.controller != null) {
       _state.widget.controller!
+        ..addZoomPanListener(_handleReset)
+        ..addRefreshListener(_handleReset)
         ..addZoomingListener(_handleZooming)
         ..addPanningListener(_handlePanning)
         ..addResetListener(_handleReset);
@@ -388,6 +393,8 @@ class _RenderMapTooltip extends ShapeLayerChildRenderBoxBase {
     _scaleAnimation.removeListener(markNeedsPaint);
     if (_state.widget.controller != null) {
       _state.widget.controller!
+        ..removeZoomPanListener(_handleReset)
+        ..removeRefreshListener(_handleReset)
         ..removeZoomingListener(_handleZooming)
         ..removePanningListener(_handlePanning)
         ..removeResetListener(_handleReset);

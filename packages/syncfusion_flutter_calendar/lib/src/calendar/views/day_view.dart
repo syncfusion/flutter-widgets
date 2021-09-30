@@ -767,17 +767,18 @@ class _TimeSlotRenderObject extends CustomCalendarRenderObject {
   }
 
   void _addMouseHoveringForTimeSlot(Canvas canvas, Size size) {
-    const double padding = 0.5;
+    const double strokeWidth = 2;
+    const double padding = strokeWidth / 2;
     double left = (calendarCellNotifier.value!.dx ~/ _cellWidth) * _cellWidth;
     double top = (calendarCellNotifier.value!.dy ~/ timeIntervalHeight) *
         timeIntervalHeight;
     _linePainter.style = PaintingStyle.stroke;
-    _linePainter.strokeWidth = 2;
+    _linePainter.strokeWidth = strokeWidth;
     _linePainter.color = calendarTheme.selectionBorderColor!.withOpacity(0.4);
     left += isRTL ? 0 : timeLabelWidth;
-    top = top == 0 ? padding : top;
     double height = timeIntervalHeight;
-    if (top == padding) {
+    if (top == 0) {
+      top = padding;
       height -= padding;
     }
 

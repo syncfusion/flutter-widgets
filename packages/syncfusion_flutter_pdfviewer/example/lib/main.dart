@@ -32,6 +32,7 @@ class _HomePage extends State<HomePage> {
             icon: const Icon(
               Icons.bookmark,
               color: Colors.white,
+              semanticLabel: 'Bookmark',
             ),
             onPressed: () {
               _pdfViewerKey.currentState?.openBookmarkView();

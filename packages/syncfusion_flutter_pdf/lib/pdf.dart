@@ -7,6 +7,7 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:ui';
+
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -73,7 +74,6 @@ part 'src/pdf/implementation/io/enums.dart';
 part 'src/pdf/implementation/io/pdf_operators.dart';
 part 'src/pdf/implementation/io/decode_big_endian.dart';
 part 'src/pdf/implementation/general/pdf_collection.dart';
-part 'src/pdf/implementation/general/utils.dart';
 part 'src/pdf/implementation/graphics/pdf_transparency.dart';
 part 'src/pdf/implementation/graphics/fonts/pdf_font.dart';
 part 'src/pdf/implementation/graphics/fonts/pdf_standard_font.dart';
@@ -88,7 +88,6 @@ part 'src/pdf/implementation/graphics/fonts/pdf_string_layouter.dart';
 part 'src/pdf/implementation/graphics/fonts/pdf_string_layout_result.dart';
 part 'src/pdf/implementation/graphics/fonts/string_tokenizer.dart';
 part 'src/pdf/implementation/graphics/fonts/pdf_cid_font.dart';
-part 'src/pdf/implementation/graphics/fonts/pdf_cjk_font_descryptor_factory.dart';
 part 'src/pdf/implementation/graphics/brushes/pdf_brush.dart';
 part 'src/pdf/implementation/graphics/brushes/pdf_solid_brush.dart';
 part 'src/pdf/implementation/pdf_document/automatic_fields/pdf_automatic_field.dart';
@@ -98,7 +97,6 @@ part 'src/pdf/implementation/pdf_document/automatic_fields/pdf_composite_field.d
 part 'src/pdf/implementation/pdf_document/automatic_fields/pdf_multiple_value_field.dart';
 part 'src/pdf/implementation/pdf_document/automatic_fields/pdf_template_value_pair.dart';
 part 'src/pdf/implementation/pdf_document/automatic_fields/pdf_page_number_field.dart';
-part 'src/pdf/implementation/pdf_document/automatic_fields/pdf_number_convertor.dart';
 part 'src/pdf/implementation/pdf_document/automatic_fields/pdf_single_value_field.dart';
 part 'src/pdf/implementation/pdf_document/automatic_fields/pdf_page_count_field.dart';
 part 'src/pdf/implementation/pdf_document/automatic_fields/pdf_static_field.dart';
@@ -272,4 +270,3 @@ part 'src/pdf/implementation/security/digital_signature/pdf_pkcs_certificate.dar
 part 'src/pdf/implementation/security/digital_signature/pdf_signature.dart';
 part 'src/pdf/implementation/security/digital_signature/pdf_signature_dictionary.dart';
 part 'src/pdf/implementation/security/digital_signature/pdf_external_signer.dart';
-

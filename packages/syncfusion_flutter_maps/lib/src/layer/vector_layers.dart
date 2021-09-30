@@ -41,6 +41,50 @@ Offset _getScaledOffset(Offset offset, MapController controller) {
   return offset;
 }
 
+// To calculate a point along a line with a radius away from another point.
+Offset _getPointAlongLineWithCap(
+    Offset start, Offset end, double capRadius, bool canUpdateStartPoint) {
+  // Calculate distance between two points.
+  // i.e, d = sqrt[(x1 - x2)^2 + (y1 - y2)^2].
+  // Here, x1 = end point's dx value, x2 = start point's dx value,
+  // y1 = end point's dy value and y2 = start point's dy value.
+  final double lineLength = sqrt((end.dx - start.dx) * (end.dx - start.dx) +
+      (end.dy - start.dy) * (end.dy - start.dy));
+  if (canUpdateStartPoint) {
+    // Calculated the center point, if the distance between the two points
+    // is less than the cap diameter.
+    if (lineLength < (capRadius * 2)) {
+      return start + ((end - start) / 2);
+    }
+    // Calculate ratio of distances from start point towards end point
+    // i.e, d = r / l. Here, r = capRadius and l = lineLength.
+    final double startPointDifference = capRadius / lineLength;
+    // Then the required point is ((1 − d)x1 + dx2, (1 − d)y1 + dy2).
+    // Here, x1 = start point's dx value, x2 = end point's dx value,
+    // y1 = start point's dy value, y2 = end point's dy value
+    // and d = startPointDifference.
+    return Offset(
+        (1 - startPointDifference) * start.dx + startPointDifference * end.dx,
+        (1 - startPointDifference) * start.dy + startPointDifference * end.dy);
+  } else {
+    // Returned the start point, if the distance between the two points
+    // is less than the cap radius.
+    if (lineLength < capRadius) {
+      return start;
+    }
+    // Calculate ratio of distances from end point towards start point
+    // i.e, d = (l - r) / l. Here, r = capRadius and l = lineLength.
+    final double endPointDifference = (lineLength - capRadius) / lineLength;
+    // Then the required point is ((1 − d)x1 + dx2, (1 − d)y1 + dy2).
+    // Here, x1 = start point's dx value, x2 = end point's dx value,
+    // y1 = start point's dy value, y2 = end point's dy value
+    // and d = endPointDifference.
+    return Offset(
+        (1 - endPointDifference) * start.dx + endPointDifference * end.dx,
+        (1 - endPointDifference) * start.dy + endPointDifference * end.dy);
+  }
+}
+
 void _drawInvertedPath(
     PaintingContext context,
     Path path,
@@ -75,13 +119,10 @@ void _drawInvertedPath(
 Color _getHoverColor(
     Color? elementColor, Color layerColor, SfMapsThemeData themeData) {
   final Color color = elementColor ?? layerColor;
-  final bool canAdjustHoverOpacity =
-      double.parse(color.opacity.toStringAsFixed(2)) != hoverColorOpacity;
   return themeData.shapeHoverColor != null &&
           themeData.shapeHoverColor != Colors.transparent
       ? themeData.shapeHoverColor!
-      : color.withOpacity(
-          canAdjustHoverOpacity ? hoverColorOpacity : minHoverOpacity);
+      : getSaturatedColor(color);
 }
 
 /// Base class for all vector layers.
@@ -171,6 +212,7 @@ class MapLineLayer extends MapVectorLayer {
     this.animation,
     this.color,
     this.width = 2,
+    this.strokeCap = StrokeCap.butt,
     this.dashArray = const <double>[0, 0],
     IndexedWidgetBuilder? tooltipBuilder,
   }) : super(key: key, tooltipBuilder: tooltipBuilder);
@@ -476,6 +518,72 @@ class MapLineLayer extends MapVectorLayer {
   /// [color], to set the color.
   final double width;
 
+  /// Applies stroke cap to the start and end of all [lines]. You can set
+  /// [StrokeCap.round] to get a semi-circle or [StrokeCap.square] to get
+  /// a semi-square at the edges of the line.
+  ///
+  /// The default value is [StrokeCap.butt] which doesn't apply any cap
+  /// at the ends.
+  ///
+  /// ```dart
+  /// late List<Model> _lines;
+  /// late MapShapeSource _mapSource;
+  ///
+  ///  @override
+  ///  void initState() {
+  ///    _mapSource = MapShapeSource.asset(
+  ///      "assets/world_map.json",
+  ///      shapeDataField: "continent",
+  ///    );
+  ///
+  ///    _lines = <Model>[
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+  ///      Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+  ///    ];
+  ///
+  ///    super.initState();
+  ///  }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             sublayers: [
+  ///               MapLineLayer(
+  ///                 lines: List<MapLine>.generate(
+  ///                   _lines.length,
+  ///                   (int index) {
+  ///                     return MapLine(
+  ///                       from: _lines[index].from,
+  ///                       to: _lines[index].to,
+  ///                     );
+  ///                   },
+  ///                 ).toSet(),
+  ///                 strokeCap: StrokeCap.round,
+  ///               ),
+  ///             ],
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  ///
+  /// class Model {
+  ///   Model(this.from, this.to);
+  ///
+  ///   MapLatLng from;
+  ///   MapLatLng to;
+  /// }
+  /// ```
+  /// See also:
+  /// * [MapLine.strokeCap] for setting stroke cap for each [MapLine].
+  final StrokeCap strokeCap;
+
   /// Apply same dash pattern for all the [MapLine] in the [lines] collection.
   ///
   /// A sequence of dash and gap will be rendered based on the values in this
@@ -558,6 +666,7 @@ class MapLineLayer extends MapVectorLayer {
       animation: animation,
       color: color,
       width: width,
+      strokeCap: strokeCap,
       dashArray: dashArray,
       tooltipBuilder: tooltipBuilder,
       lineLayer: this,
@@ -582,6 +691,7 @@ class MapLineLayer extends MapVectorLayer {
       properties.add(ColorProperty('color', color));
     }
     properties.add(DoubleProperty('width', width));
+    properties.add(DiagnosticsProperty<StrokeCap>('strokeCap', strokeCap));
   }
 }
 
@@ -591,6 +701,7 @@ class _MapLineLayer extends StatefulWidget {
     required this.animation,
     required this.color,
     required this.width,
+    required this.strokeCap,
     required this.dashArray,
     required this.tooltipBuilder,
     required this.lineLayer,
@@ -600,6 +711,7 @@ class _MapLineLayer extends StatefulWidget {
   final Animation<double>? animation;
   final Color? color;
   final double width;
+  final StrokeCap strokeCap;
   final List<double> dashArray;
   final IndexedWidgetBuilder? tooltipBuilder;
   final MapLineLayer lineLayer;
@@ -656,6 +768,7 @@ class _MapLineLayerState extends State<_MapLineLayer>
               ? const Color.fromRGBO(140, 140, 140, 1)
               : const Color.fromRGBO(208, 208, 208, 1)),
       width: widget.width,
+      strokeCap: widget.strokeCap,
       dashArray: widget.dashArray,
       tooltipBuilder: widget.tooltipBuilder,
       lineLayer: widget.lineLayer,
@@ -674,6 +787,7 @@ class _MapLineLayerRenderObject extends LeafRenderObjectWidget {
     required this.animation,
     required this.color,
     required this.width,
+    required this.strokeCap,
     required this.dashArray,
     required this.tooltipBuilder,
     required this.lineLayer,
@@ -688,6 +802,7 @@ class _MapLineLayerRenderObject extends LeafRenderObjectWidget {
   final Animation<double>? animation;
   final Color color;
   final double width;
+  final StrokeCap strokeCap;
   final List<double> dashArray;
   final IndexedWidgetBuilder? tooltipBuilder;
   final MapLineLayer lineLayer;
@@ -704,6 +819,7 @@ class _MapLineLayerRenderObject extends LeafRenderObjectWidget {
       animation: animation,
       color: color,
       width: width,
+      strokeCap: strokeCap,
       dashArray: dashArray,
       tooltipBuilder: tooltipBuilder,
       context: context,
@@ -722,6 +838,7 @@ class _MapLineLayerRenderObject extends LeafRenderObjectWidget {
       ..animation = animation
       ..color = color
       ..width = width
+      ..strokeCap = strokeCap
       ..dashArray = dashArray
       ..tooltipBuilder = tooltipBuilder
       ..context = context
@@ -737,6 +854,7 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
     required Animation<double>? animation,
     required Color color,
     required double width,
+    required StrokeCap strokeCap,
     required List<double> dashArray,
     required IndexedWidgetBuilder? tooltipBuilder,
     required this.context,
@@ -750,6 +868,7 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
         _animation = animation,
         _color = color,
         _width = width,
+        _strokeCap = strokeCap,
         _dashArray = dashArray,
         _tooltipBuilder = tooltipBuilder,
         _themeData = themeData {
@@ -835,6 +954,16 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
       return;
     }
     _width = value;
+    markNeedsPaint();
+  }
+
+  StrokeCap get strokeCap => _strokeCap;
+  StrokeCap _strokeCap;
+  set strokeCap(StrokeCap value) {
+    if (_strokeCap == value) {
+      return;
+    }
+    _strokeCap = value;
     markNeedsPaint();
   }
 
@@ -1030,6 +1159,7 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
     super.attach(owner);
     if (_controller != null) {
       _controller!
+        ..addZoomPanListener(markNeedsPaint)
         ..addZoomingListener(_handleZooming)
         ..addPanningListener(_handlePanning)
         ..addResetListener(markNeedsPaint)
@@ -1043,6 +1173,7 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
   void detach() {
     if (_controller != null) {
       _controller!
+        ..removeZoomPanListener(markNeedsPaint)
         ..removeZoomingListener(_handleZooming)
         ..removePanningListener(_handlePanning)
         ..removeResetListener(markNeedsPaint)
@@ -1096,6 +1227,16 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
         translationOffset,
         _controller!.shapeLayerSizeFactor,
       );
+      final double strokeWidth =
+          _getCurrentWidth(line.width ?? _width, _controller!);
+      final StrokeCap strokeCap = line.strokeCap ?? _strokeCap;
+      final bool hasCap = strokeCap != StrokeCap.butt;
+      if (hasCap) {
+        startPoint = _getPointAlongLineWithCap(
+            startPoint, endPoint, strokeWidth / 2, true);
+        endPoint = _getPointAlongLineWithCap(
+            startPoint, endPoint, strokeWidth / 2, false);
+      }
 
       if (_previousHoverItem != null &&
           _previousHoverItem == line &&
@@ -1109,7 +1250,9 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
         paint.color = line.color ?? _color;
       }
 
-      paint.strokeWidth = _getCurrentWidth(line.width ?? _width, _controller!);
+      paint
+        ..strokeWidth = strokeWidth
+        ..strokeCap = strokeCap;
       path
         ..reset()
         ..moveTo(startPoint.dx, startPoint.dy)
@@ -1120,7 +1263,8 @@ class _RenderMapLine extends RenderBox implements MouseTrackerAnnotation {
 
       if (line.dashArray != null) {
         assert(line.dashArray!.length >= 2 && line.dashArray!.length.isEven);
-        _drawDashedLine(context.canvas, line.dashArray!, paint, path);
+        _drawDashedLine(context.canvas, line.dashArray!, paint, path,
+            hasCap ? strokeWidth / 2 : 0);
       } else {
         _drawDashedLine(context.canvas, _dashArray, paint, path);
       }
@@ -2045,6 +2189,7 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
     super.attach(owner);
     if (_controller != null) {
       _controller!
+        ..addZoomPanListener(markNeedsPaint)
         ..addZoomingListener(_handleZooming)
         ..addPanningListener(_handlePanning)
         ..addResetListener(markNeedsPaint)
@@ -2058,6 +2203,7 @@ class _RenderMapArc extends RenderBox implements MouseTrackerAnnotation {
   void detach() {
     if (_controller != null) {
       _controller!
+        ..removeZoomPanListener(markNeedsPaint)
         ..removeZoomingListener(_handleZooming)
         ..removePanningListener(_handlePanning)
         ..removeResetListener(markNeedsPaint)
@@ -2247,6 +2393,7 @@ class MapPolylineLayer extends MapVectorLayer {
     this.animation,
     this.color,
     this.width = 2,
+    this.strokeCap = StrokeCap.butt,
     this.dashArray = const <double>[0, 0],
     IndexedWidgetBuilder? tooltipBuilder,
   }) : super(key: key, tooltipBuilder: tooltipBuilder);
@@ -2524,6 +2671,71 @@ class MapPolylineLayer extends MapVectorLayer {
   /// [color], for setting the color.
   final double width;
 
+  /// Applies stroke cap to the start and end of all [polylines]. You can set
+  /// [StrokeCap.round] to get a semi-circle or [StrokeCap.square] to get a
+  /// semi-square at the edges of the polyline.
+  ///
+  /// The default value is [StrokeCap.butt] which doesn't apply any cap
+  /// at the ends.
+  ///
+  /// See also:
+  ///  * [MapPolyline.strokeCap] for setting stroke cap for each [MapPolyline].
+  ///
+  /// ```dart
+  ///  late List<MapLatLng> _polyLines;
+  ///  late MapShapeSource _mapSource;
+  ///
+  ///   @override
+  ///   void initState() {
+  ///     _polyLines = <MapLatLng>[
+  ///       MapLatLng(13.0827, 80.2707),
+  ///       MapLatLng(14.4673, 78.8242),
+  ///       MapLatLng(14.9091, 78.0092),
+  ///       MapLatLng(16.2160, 77.3566),
+  ///       MapLatLng(17.1557, 76.8697),
+  ///       MapLatLng(18.0975, 75.4249),
+  ///       MapLatLng(18.5204, 73.8567),
+  ///       MapLatLng(19.0760, 72.8777),
+  ///     ];
+  ///
+  ///     _mapSource = MapShapeSource.asset(
+  ///       'assets/india.json',
+  ///       shapeDataField: 'name',
+  ///     );
+  ///
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             sublayers: [
+  ///               MapPolylineLayer(
+  ///                 polylines: List<MapPolyline>.generate(
+  ///                   _polyLines.length,
+  ///                   (int index) {
+  ///                     return MapPolyline(
+  ///                       points: _polyLines,
+  ///                     );
+  ///                   },
+  ///                 ).toSet(),
+  ///                 strokeCap: StrokeCap.round,
+  ///               ),
+  ///             ],
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  /// ```
+  /// See also:
+  /// * [MapPolyline.strokeCap] for setting stroke cap for each [MapPolyline].
+  final StrokeCap strokeCap;
+
   /// Apply same dash pattern for all the [MapPolyline] in the [polylines]
   /// collection.
   ///
@@ -2595,6 +2807,7 @@ class MapPolylineLayer extends MapVectorLayer {
       animation: animation,
       color: color,
       width: width,
+      strokeCap: strokeCap,
       dashArray: dashArray,
       tooltipBuilder: tooltipBuilder,
       polylineLayer: this,
@@ -2618,6 +2831,7 @@ class MapPolylineLayer extends MapVectorLayer {
       properties.add(ColorProperty('color', color));
     }
     properties.add(DoubleProperty('width', width));
+    properties.add(DiagnosticsProperty<StrokeCap>('strokeCap', strokeCap));
   }
 }
 
@@ -2627,6 +2841,7 @@ class _MapPolylineLayer extends StatefulWidget {
     required this.animation,
     required this.color,
     required this.width,
+    required this.strokeCap,
     required this.dashArray,
     required this.tooltipBuilder,
     required this.polylineLayer,
@@ -2636,6 +2851,7 @@ class _MapPolylineLayer extends StatefulWidget {
   final Animation<double>? animation;
   final Color? color;
   final double width;
+  final StrokeCap strokeCap;
   final List<double> dashArray;
   final IndexedWidgetBuilder? tooltipBuilder;
   final MapPolylineLayer polylineLayer;
@@ -2692,6 +2908,7 @@ class _MapPolylineLayerState extends State<_MapPolylineLayer>
               ? const Color.fromRGBO(140, 140, 140, 1)
               : const Color.fromRGBO(208, 208, 208, 1)),
       width: widget.width,
+      strokeCap: widget.strokeCap,
       dashArray: widget.dashArray,
       tooltipBuilder: widget.tooltipBuilder,
       polylineLayer: widget.polylineLayer,
@@ -2710,6 +2927,7 @@ class _MapPolylineLayerRenderObject extends LeafRenderObjectWidget {
     required this.animation,
     required this.color,
     required this.width,
+    required this.strokeCap,
     required this.dashArray,
     required this.tooltipBuilder,
     required this.polylineLayer,
@@ -2724,6 +2942,7 @@ class _MapPolylineLayerRenderObject extends LeafRenderObjectWidget {
   final Animation<double>? animation;
   final Color color;
   final double width;
+  final StrokeCap strokeCap;
   final List<double> dashArray;
   final IndexedWidgetBuilder? tooltipBuilder;
   final MapPolylineLayer polylineLayer;
@@ -2740,6 +2959,7 @@ class _MapPolylineLayerRenderObject extends LeafRenderObjectWidget {
       animation: animation,
       color: color,
       width: width,
+      strokeCap: strokeCap,
       dashArray: dashArray,
       tooltipBuilder: tooltipBuilder,
       context: context,
@@ -2759,6 +2979,7 @@ class _MapPolylineLayerRenderObject extends LeafRenderObjectWidget {
       ..animation = animation
       ..color = color
       ..width = width
+      ..strokeCap = strokeCap
       ..dashArray = dashArray
       ..tooltipBuilder = tooltipBuilder
       ..context = context
@@ -2774,6 +2995,7 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
     required Animation<double>? animation,
     required Color color,
     required double width,
+    required StrokeCap strokeCap,
     required List<double> dashArray,
     required IndexedWidgetBuilder? tooltipBuilder,
     required this.context,
@@ -2786,6 +3008,7 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
         _polylines = polylines,
         _color = color,
         _width = width,
+        _strokeCap = strokeCap,
         _dashArray = dashArray,
         _animation = animation,
         _tooltipBuilder = tooltipBuilder,
@@ -2869,6 +3092,16 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
       return;
     }
     _width = value;
+    markNeedsPaint();
+  }
+
+  StrokeCap get strokeCap => _strokeCap;
+  StrokeCap _strokeCap;
+  set strokeCap(StrokeCap value) {
+    if (_strokeCap == value) {
+      return;
+    }
+    _strokeCap = value;
     markNeedsPaint();
   }
 
@@ -3042,6 +3275,7 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
     super.attach(owner);
     if (_controller != null) {
       _controller!
+        ..addZoomPanListener(markNeedsPaint)
         ..addZoomingListener(_handleZooming)
         ..addPanningListener(_handlePanning)
         ..addResetListener(markNeedsPaint)
@@ -3055,6 +3289,7 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
   void detach() {
     if (_controller != null) {
       _controller!
+        ..removeZoomPanListener(markNeedsPaint)
         ..removeZoomingListener(_handleZooming)
         ..removePanningListener(_handlePanning)
         ..removeResetListener(markNeedsPaint)
@@ -3109,18 +3344,65 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
     final Offset translationOffset = _getTranslation(_controller!);
     _controller!.applyTransform(context, offset, true);
     for (final MapPolyline polyline in polylines) {
+      final int polylinePointsLength = polyline.points.length;
       final MapLatLng startCoordinate = polyline.points[0];
-      final Offset startPoint = pixelFromLatLng(
+      final MapLatLng endCoordinate = polyline.points[polylinePointsLength - 1];
+      final double strokeWidth =
+          _getCurrentWidth(polyline.width ?? _width, _controller!);
+      final StrokeCap strokeCap = polyline.strokeCap ?? _strokeCap;
+      final bool hasCap = strokeCap != StrokeCap.butt;
+      Offset startPoint = pixelFromLatLng(
           startCoordinate.latitude,
           startCoordinate.longitude,
           boxSize,
           translationOffset,
           _controller!.shapeLayerSizeFactor);
+      Offset endPoint = pixelFromLatLng(
+          endCoordinate.latitude,
+          endCoordinate.longitude,
+          boxSize,
+          translationOffset,
+          _controller!.shapeLayerSizeFactor);
+
+      if (hasCap) {
+        final MapLatLng? secondCoordinate =
+            polylinePointsLength > 1 ? polyline.points[1] : null;
+        final MapLatLng? beforeEndCoordinate = polylinePointsLength > 1
+            ? polyline.points[polylinePointsLength - 2]
+            : null;
+        if (secondCoordinate != null) {
+          final Offset secondPoint = pixelFromLatLng(
+              secondCoordinate.latitude,
+              secondCoordinate.longitude,
+              boxSize,
+              translationOffset,
+              _controller!.shapeLayerSizeFactor);
+          startPoint = _getPointAlongLineWithCap(
+              startPoint, secondPoint, strokeWidth / 2, true);
+        }
+
+        if (beforeEndCoordinate != null) {
+          final Offset beforeEndPoint = pixelFromLatLng(
+              beforeEndCoordinate.latitude,
+              beforeEndCoordinate.longitude,
+              boxSize,
+              translationOffset,
+              _controller!.shapeLayerSizeFactor);
+          endPoint = _getPointAlongLineWithCap(
+              beforeEndPoint, endPoint, strokeWidth / 2, false);
+        }
+      }
+
+      paint
+        ..strokeWidth = strokeWidth
+        ..strokeCap = strokeCap
+        ..strokeJoin =
+            strokeCap == StrokeCap.round ? StrokeJoin.round : StrokeJoin.miter;
       path
         ..reset()
         ..moveTo(startPoint.dx, startPoint.dy);
 
-      for (int j = 1; j < polyline.points.length; j++) {
+      for (int j = 1; j < polylinePointsLength; j++) {
         final MapLatLng nextCoordinate = polyline.points[j];
         final Offset nextPoint = pixelFromLatLng(
             nextCoordinate.latitude,
@@ -3128,7 +3410,11 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
             boxSize,
             translationOffset,
             _controller!.shapeLayerSizeFactor);
-        path.lineTo(nextPoint.dx, nextPoint.dy);
+        if (j < polylinePointsLength - 1) {
+          path.lineTo(nextPoint.dx, nextPoint.dy);
+        } else {
+          path.lineTo(endPoint.dx, endPoint.dy);
+        }
       }
 
       if (_previousHoverItem != null &&
@@ -3143,8 +3429,6 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
         paint.color = polyline.color ?? _color;
       }
 
-      paint.strokeWidth =
-          _getCurrentWidth(polyline.width ?? _width, _controller!);
       if (_animation != null) {
         path = _getAnimatedPath(path, _animation!);
       }
@@ -3152,7 +3436,8 @@ class _RenderMapPolyline extends RenderBox implements MouseTrackerAnnotation {
       if (polyline.dashArray != null) {
         assert(polyline.dashArray!.length >= 2 &&
             polyline.dashArray!.length.isEven);
-        _drawDashedLine(context.canvas, polyline.dashArray!, paint, path);
+        _drawDashedLine(context.canvas, polyline.dashArray!, paint, path,
+            hasCap ? strokeWidth / 2 : 0);
       } else {
         _drawDashedLine(context.canvas, _dashArray, paint, path);
       }
@@ -3619,8 +3904,8 @@ class _MapPolygonLayerState extends State<_MapPolygonLayer>
                 ErrorSummary('Incorrect MapPolygon arguments.'),
                 ErrorDescription(
                     'Inverted polygons cannot be customized individually.'),
-                ErrorHint(
-                    '''To customize all the polygon's color, use MapPolygonLayer.color''')
+                ErrorHint('To customize all the polygon\'s color,'
+                    ' use MapPolygonLayer.color')
               ]));
           assert(
               polygon.strokeColor == null,
@@ -3628,8 +3913,8 @@ class _MapPolygonLayerState extends State<_MapPolygonLayer>
                 ErrorSummary('Incorrect MapPolygon arguments.'),
                 ErrorDescription(
                     'Inverted polygons cannot be customized individually.'),
-                ErrorHint(
-                    '''To customize all the polygon's stroke color, use MapPolygonLayer.strokeColor''')
+                ErrorHint('To customize all the polygon\'s stroke color,'
+                    ' use MapPolygonLayer.strokeColor')
               ]));
           assert(
               polygon.strokeWidth == null,
@@ -3637,8 +3922,8 @@ class _MapPolygonLayerState extends State<_MapPolygonLayer>
                 ErrorSummary('Incorrect MapPolygon arguments.'),
                 ErrorDescription(
                     'Inverted polygons cannot be customized individually.'),
-                ErrorHint(
-                    '''To customize all the polygon's stroke width, use MapPolygonLayer.strokeWidth''')
+                ErrorHint('To customize all the polygon\'s stroke width,'
+                    ' use MapPolygonLayer.strokeWidth')
               ]));
         }
       }
@@ -3909,10 +4194,7 @@ class _RenderMapPolygon extends RenderBox implements MouseTrackerAnnotation {
       return _themeData.shapeHoverColor!;
     }
     final Color color = polygon.color ?? _color;
-    return color.withOpacity(
-        (double.parse(color.opacity.toStringAsFixed(2)) != hoverColorOpacity)
-            ? hoverColorOpacity
-            : minHoverOpacity);
+    return getSaturatedColor(color);
   }
 
   Color _getHoverStrokeColor(MapPolygon polygon) {
@@ -3920,11 +4202,7 @@ class _RenderMapPolygon extends RenderBox implements MouseTrackerAnnotation {
       return _themeData.shapeHoverStrokeColor!;
     }
     final Color strokeColor = polygon.strokeColor ?? _strokeColor;
-    return strokeColor.withOpacity(
-        (double.parse(strokeColor.opacity.toStringAsFixed(2)) !=
-                hoverColorOpacity)
-            ? hoverColorOpacity
-            : minHoverOpacity);
+    return getSaturatedColor(strokeColor);
   }
 
   void _handlePointerExit(PointerExitEvent event) {
@@ -3999,7 +4277,7 @@ class _RenderMapPolygon extends RenderBox implements MouseTrackerAnnotation {
         : size;
     final Offset translationOffset = getTranslationOffset(_controller!);
     for (final MapPolygon polygon in _polygonsInList!.reversed) {
-      if (polygon.onTap != null || _tooltipBuilder != null || canHover) {
+      if (polygon.onTap != null || _tooltipBuilder != null || isDesktop) {
         final Path path = Path();
 
         final MapLatLng startCoordinate = polygon.points[0];
@@ -4059,6 +4337,7 @@ class _RenderMapPolygon extends RenderBox implements MouseTrackerAnnotation {
     super.attach(owner);
     if (_controller != null) {
       _controller!
+        ..addZoomPanListener(markNeedsPaint)
         ..addZoomingListener(_handleZooming)
         ..addPanningListener(_handlePanning)
         ..addResetListener(markNeedsPaint)
@@ -4071,6 +4350,7 @@ class _RenderMapPolygon extends RenderBox implements MouseTrackerAnnotation {
   void detach() {
     if (_controller != null) {
       _controller!
+        ..removeZoomPanListener(markNeedsPaint)
         ..removeZoomingListener(_handleZooming)
         ..removePanningListener(_handlePanning)
         ..removeResetListener(markNeedsPaint)
@@ -4142,7 +4422,9 @@ class _RenderMapPolygon extends RenderBox implements MouseTrackerAnnotation {
       if (!isInverted) {
         _updateFillColor(polygon, fillPaint);
         _updateStroke(polygon, strokePaint);
-        context.canvas..drawPath(path, fillPaint)..drawPath(path, strokePaint);
+        context.canvas
+          ..drawPath(path, fillPaint)
+          ..drawPath(path, strokePaint);
       }
     }
 
@@ -4291,7 +4573,7 @@ class MapCircleLayer extends MapVectorLayer {
   /// to the outer region of the highlighted circles.
   ///
   /// Only one [MapCircleLayer.inverted] can be added and must be positioned at
-  /// the top of all sublayers added under the [sublayers] property.
+  /// the top of all sublayers added under the [MapLayer.sublayers] property.
   ///
   /// ```dart
   ///  late List<MapLatLng> _circles;
@@ -4792,8 +5074,8 @@ class _MapCircleLayerState extends State<_MapCircleLayer>
                 ErrorSummary('Incorrect MapCircle arguments.'),
                 ErrorDescription(
                     'Inverted circles cannot be customized individually.'),
-                ErrorHint(
-                    '''To customize all the circle's color, use MapCircleLayer.color''')
+                ErrorHint('To customize all the circle\'s color,'
+                    ' use MapCircleLayer.color')
               ]));
           assert(
               circle.strokeColor == null,
@@ -4801,8 +5083,8 @@ class _MapCircleLayerState extends State<_MapCircleLayer>
                 ErrorSummary('Incorrect MapCircle arguments.'),
                 ErrorDescription(
                     'Inverted circles cannot be customized individually.'),
-                ErrorHint(
-                    '''To customize all the circle's stroke color, use MapCircleLayer.strokeColor''')
+                ErrorHint('To customize all the circle\'s stroke color,'
+                    ' use MapCircleLayer.strokeColor')
               ]));
           assert(
               circle.strokeWidth == null,
@@ -4810,8 +5092,8 @@ class _MapCircleLayerState extends State<_MapCircleLayer>
                 ErrorSummary('Incorrect MapCircle arguments.'),
                 ErrorDescription(
                     'Inverted circles cannot be customized individually.'),
-                ErrorHint(
-                    '''To customize all the circle's stroke width, use MapCircleLayer.strokeWidth''')
+                ErrorHint('To customize all the circle\'s stroke width,'
+                    ' use MapCircleLayer.strokeWidth')
               ]));
         }
       }
@@ -5097,10 +5379,7 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
       return _themeData.shapeHoverColor!;
     }
     final Color color = circle.color ?? _color;
-    return color.withOpacity(
-        (double.parse(color.opacity.toStringAsFixed(2)) != hoverColorOpacity)
-            ? hoverColorOpacity
-            : minHoverOpacity);
+    return getSaturatedColor(color);
   }
 
   Color _getHoverStrokeColor(MapCircle circle) {
@@ -5108,11 +5387,7 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
       return _themeData.shapeHoverStrokeColor!;
     }
     final Color strokeColor = circle.strokeColor ?? _strokeColor;
-    return strokeColor.withOpacity(
-        (double.parse(strokeColor.opacity.toStringAsFixed(2)) !=
-                hoverColorOpacity)
-            ? hoverColorOpacity
-            : minHoverOpacity);
+    return getSaturatedColor(strokeColor);
   }
 
   void _handlePointerExit(PointerExitEvent event) {
@@ -5216,7 +5491,7 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
     final Offset translationOffset = getTranslationOffset(_controller!);
 
     for (final MapCircle circle in _circlesInList!.reversed) {
-      if (circle.onTap != null || _tooltipBuilder != null || canHover) {
+      if (circle.onTap != null || _tooltipBuilder != null || isDesktop) {
         final Path path = Path();
         Offset center = pixelFromLatLng(
           circle.center.latitude,
@@ -5247,6 +5522,7 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
     super.attach(owner);
     if (_controller != null) {
       _controller!
+        ..addZoomPanListener(markNeedsPaint)
         ..addZoomingListener(_handleZooming)
         ..addPanningListener(_handlePanning)
         ..addResetListener(markNeedsPaint)
@@ -5260,6 +5536,7 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
   void detach() {
     if (_controller != null) {
       _controller!
+        ..removeZoomPanListener(markNeedsPaint)
         ..removeZoomingListener(_handleZooming)
         ..removePanningListener(_handlePanning)
         ..removeResetListener(markNeedsPaint)
@@ -5344,7 +5621,9 @@ class _RenderMapCircle extends RenderBox implements MouseTrackerAnnotation {
       if (!isInverted) {
         _updateFillColor(circle, fillPaint);
         _updateStroke(circle, strokePaint);
-        context.canvas..drawPath(path, fillPaint)..drawPath(path, strokePaint);
+        context.canvas
+          ..drawPath(path, fillPaint)
+          ..drawPath(path, strokePaint);
       }
     }
 
@@ -5487,6 +5766,7 @@ class MapLine extends DiagnosticableTree {
     this.dashArray,
     this.color,
     this.width,
+    this.strokeCap,
     this.onTap,
   });
 
@@ -5825,6 +6105,70 @@ class MapLine extends DiagnosticableTree {
   ///```
   final double? width;
 
+  /// Applies stroke cap to the start and end of the line. You can set
+  /// [StrokeCap.round] to get a semi-circle or [StrokeCap.square] to get
+  /// a semi-square at the edges of the line.
+  ///
+  /// The default value is [StrokeCap.butt] which doesn't apply any cap
+  /// at the ends.
+  ///
+  /// ```dart
+  ///   late List<Model> _lines;
+  ///   late MapShapeSource _mapSource;
+  ///
+  ///   @override
+  ///   void initState() {
+  ///     _mapSource = MapShapeSource.asset(
+  ///       "assets/world_map.json",
+  ///       shapeDataField: "continent",
+  ///     );
+  ///
+  ///     _lines = <Model>[
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(44.9778, -93.2650)),
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(33.4484, -112.0740)),
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(29.7604, -95.3698)),
+  ///       Model(MapLatLng(40.7128, -74.0060), MapLatLng(39.7392, -104.9903)),
+  ///     ];
+  ///
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             sublayers: [
+  ///               MapLineLayer(
+  ///                 lines: List<MapLine>.generate(
+  ///                   _lines.length,
+  ///                   (int index) {
+  ///                     return MapLine(
+  ///                       from: _lines[index].from,
+  ///                       to: _lines[index].to,
+  ///                       strokeCap: StrokeCap.round,
+  ///                     );
+  ///                   },
+  ///                 ).toSet(),
+  ///               ),
+  ///             ],
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  ///
+  /// class Model {
+  ///   Model(this.from, this.to);
+  ///
+  ///   MapLatLng from;
+  ///   MapLatLng to;
+  /// }
+  ///```
+  final StrokeCap? strokeCap;
+
   /// Callback to receive tap event for this line.
   ///
   /// You can customize the appearance of the tapped line based on the index
@@ -5917,6 +6261,10 @@ class MapLine extends DiagnosticableTree {
       properties.add(DoubleProperty('width', width));
     }
 
+    if (strokeCap != null) {
+      properties.add(DiagnosticsProperty<StrokeCap>('strokeCap', strokeCap));
+    }
+
     properties.add(ObjectFlagProperty<VoidCallback>.has('onTap', onTap));
   }
 }
@@ -5986,6 +6334,7 @@ class MapPolyline extends DiagnosticableTree {
     this.dashArray,
     this.color,
     this.width,
+    this.strokeCap,
     this.onTap,
   });
 
@@ -6238,6 +6587,65 @@ class MapPolyline extends DiagnosticableTree {
   /// ```
   final double? width;
 
+  /// Applies stroke cap to the start and end of the [MapPolyline]. You can set
+  /// [StrokeCap.round] to get a semi-circle or [StrokeCap.square] to get a
+  /// semi-square at the edges of the polyline.
+  ///
+  /// By default, the [StrokeCap.butt] which doesn't apply any cap at endings.
+  ///
+  /// ```dart
+  ///  late List<MapLatLng> _polyLines;
+  ///  late MapShapeSource _mapSource;
+  ///
+  ///   @override
+  ///   void initState() {
+  ///     _polyLines = <MapLatLng>[
+  ///       MapLatLng(13.0827, 80.2707),
+  ///       MapLatLng(14.4673, 78.8242),
+  ///       MapLatLng(14.9091, 78.0092),
+  ///       MapLatLng(16.2160, 77.3566),
+  ///       MapLatLng(17.1557, 76.8697),
+  ///       MapLatLng(18.0975, 75.4249),
+  ///       MapLatLng(18.5204, 73.8567),
+  ///       MapLatLng(19.0760, 72.8777),
+  ///     ];
+  ///
+  ///     _mapSource = MapShapeSource.asset(
+  ///       'assets/india.json',
+  ///       shapeDataField: 'name',
+  ///     );
+  ///
+  ///     super.initState();
+  ///   }
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       body: SfMaps(
+  ///         layers: [
+  ///           MapShapeLayer(
+  ///             source: _mapSource,
+  ///             sublayers: [
+  ///               MapPolylineLayer(
+  ///                 polylines: List<MapPolyline>.generate(
+  ///                   _polyLines.length,
+  ///                   (int index) {
+  ///                     return MapPolyline(
+  ///                       points: _polyLines,
+  ///                       strokeCap: StrokeCap.round,
+  ///                     );
+  ///                   },
+  ///                 ).toSet(),
+  ///               ),
+  ///             ],
+  ///           ),
+  ///         ],
+  ///       ),
+  ///     );
+  ///   }
+  /// ```
+  final StrokeCap? strokeCap;
+
   /// Callback to receive tap event for this polyline.
   ///
   /// You can customize the appearance of the tapped polyline based on the
@@ -6322,6 +6730,10 @@ class MapPolyline extends DiagnosticableTree {
 
     if (width != null) {
       properties.add(DoubleProperty('width', width));
+    }
+
+    if (strokeCap != null) {
+      properties.add(DiagnosticsProperty<StrokeCap>('strokeCap', strokeCap));
     }
 
     properties.add(ObjectFlagProperty<VoidCallback>.has('onTap', onTap));
@@ -7781,6 +8193,7 @@ class MapArc extends DiagnosticableTree {
 Path? _dashPath(
   Path? source, {
   required _IntervalList<double> dashArray,
+  double capRadius = 0,
 }) {
   if (source == null) {
     return null;
@@ -7793,8 +8206,17 @@ Path? _dashPath(
     while (distance < matric.length) {
       final double length = dashArray.next;
       if (canDraw) {
-        path.addPath(
-            matric.extractPath(distance, distance + length), Offset.zero);
+        double startPoint = distance;
+        double endPoint = distance + length;
+        if (capRadius != 0) {
+          startPoint = _getPointAlongLineWithCap(
+                  Offset(startPoint, 0), Offset(endPoint, 0), capRadius, true)
+              .dx;
+          endPoint = _getPointAlongLineWithCap(
+                  Offset(startPoint, 0), Offset(endPoint, 0), capRadius, false)
+              .dx;
+        }
+        path.addPath(matric.extractPath(startPoint, endPoint), Offset.zero);
       }
       distance += length;
       canDraw = !canDraw;
@@ -7804,7 +8226,8 @@ Path? _dashPath(
 }
 
 void _drawDashedLine(
-    Canvas canvas, List<double> dashArray, Paint paint, Path path) {
+    Canvas canvas, List<double> dashArray, Paint paint, Path path,
+    [double capRadius = 0]) {
   bool even = false;
   for (int i = 1; i < dashArray.length; i = i + 2) {
     if (dashArray[i] == 0) {
@@ -7817,6 +8240,7 @@ void _drawDashedLine(
         _dashPath(
           path,
           dashArray: _IntervalList<double>(dashArray),
+          capRadius: capRadius,
         )!,
         paint);
   } else {

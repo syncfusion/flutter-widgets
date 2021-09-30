@@ -1,4 +1,22 @@
-part of charts;
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+
+import '../../chart/utils/enum.dart';
+import '../../common/common.dart';
+import '../../common/series/chart_series.dart';
+import '../../common/user_interaction/selection_behavior.dart';
+import '../../common/utils/enum.dart';
+import '../../common/utils/typedef.dart';
+import '../base/chart_base.dart';
+import '../common/data_label.dart';
+import '../common/marker.dart';
+import '../series_painter/spline_range_area_painter.dart';
+import '../trendlines/trendlines.dart';
+import 'xy_data_series.dart';
 
 /// Renders the spline range area series.
 ///
@@ -42,10 +60,12 @@ class SplineRangeAreaSeries<T, D> extends XyDataSeries<T, D> {
       LegendIconType? legendIconType,
       String? legendItemText,
       double? opacity,
+      double? animationDelay,
       SeriesRendererCreatedCallback? onRendererCreated,
       ChartPointInteractionCallback? onPointTap,
       ChartPointInteractionCallback? onPointDoubleTap,
       ChartPointInteractionCallback? onPointLongPress,
+      CartesianShaderCallback? onCreateShader,
       this.borderDrawMode = RangeAreaBorderMode.all})
       : super(
             key: key,
@@ -81,7 +101,9 @@ class SplineRangeAreaSeries<T, D> extends XyDataSeries<T, D> {
             onPointTap: onPointTap,
             onPointDoubleTap: onPointDoubleTap,
             onPointLongPress: onPointLongPress,
-            opacity: opacity);
+            opacity: opacity,
+            animationDelay: animationDelay,
+            onCreateShader: onCreateShader);
 
   ///Border type of the spline range area series.
   ///
@@ -169,11 +191,13 @@ class SplineRangeAreaSeries<T, D> extends XyDataSeries<T, D> {
         other.legendIconType == legendIconType &&
         other.legendItemText == legendItemText &&
         other.opacity == opacity &&
+        other.animationDelay == animationDelay &&
         other.borderDrawMode == borderDrawMode &&
         other.onRendererCreated == onRendererCreated &&
         other.onPointTap == onPointTap &&
         other.onPointDoubleTap == onPointDoubleTap &&
         other.onPointLongPress == onPointLongPress &&
+        other.onCreateShader == onCreateShader &&
         other.cardinalSplineTension == cardinalSplineTension &&
         other.splineType == splineType;
   }
@@ -212,6 +236,7 @@ class SplineRangeAreaSeries<T, D> extends XyDataSeries<T, D> {
       legendIconType,
       legendItemText,
       opacity,
+      animationDelay,
       borderDrawMode,
       onRendererCreated,
       cardinalSplineTension,
@@ -222,77 +247,4 @@ class SplineRangeAreaSeries<T, D> extends XyDataSeries<T, D> {
     ];
     return hashList(values);
   }
-}
-
-/// Creates series renderer for Spline range area series
-class SplineRangeAreaSeriesRenderer extends XyDataSeriesRenderer {
-  /// Calling the default constructor of SplineRangeAreaSeriesRenderer class.
-  SplineRangeAreaSeriesRenderer();
-
-  /// SplineRangeArea segment is created here
-  ChartSegment _createSegments(int seriesIndex, SfCartesianChart chart,
-      double animateFactor, Path path, Path strokePath,
-      [List<Offset>? _points]) {
-    final SplineRangeAreaSegment segment = createSegment();
-    _isRectSeries = false;
-    // ignore: unnecessary_null_comparison
-    if (segment != null) {
-      segment._seriesIndex = seriesIndex;
-      segment.animationFactor = animateFactor;
-      segment._series = _series as XyDataSeries<dynamic, dynamic>;
-      segment._seriesRenderer = this;
-      if (_points != null) {
-        segment.points = _points;
-      }
-      segment._chart = chart;
-      segment._path = path;
-      segment._strokePath = strokePath;
-      segment._oldSegmentIndex = 0;
-      customizeSegment(segment);
-      segment.strokePaint = segment.getStrokePaint();
-      segment.fillPaint = segment.getFillPaint();
-      _segments.add(segment);
-    }
-    return segment;
-  }
-
-  /// To render spline range area series segments
-  //ignore: unused_element
-  void _drawSegment(Canvas canvas, ChartSegment segment) {
-    if (segment._seriesRenderer._isSelectionEnable) {
-      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
-          segment._seriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer?._selectionRenderer
-          ?._checkWithSelectionState(_segments[0], _chart);
-    }
-    segment.onPaint(canvas);
-  }
-
-  @override
-  SplineRangeAreaSegment createSegment() => SplineRangeAreaSegment();
-
-  /// Changes the series color, border color, and border width.
-  @override
-  void customizeSegment(ChartSegment segment) {
-    segment._color = segment._seriesRenderer._seriesColor;
-    segment._strokeColor = segment._seriesRenderer._seriesColor;
-    segment._strokeWidth = segment._series.width;
-  }
-
-  ///Draws marker with different shape and color of the appropriate data point in the series.
-  @override
-  void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
-      Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer? seriesRenderer]) {
-    canvas.drawPath(seriesRenderer!._markerShapes[index]!, fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes2[index]!, fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes[index]!, strokePaint);
-    canvas.drawPath(seriesRenderer._markerShapes2[index]!, strokePaint);
-  }
-
-  /// Draws data label text of the appropriate data point in a series.
-  @override
-  void drawDataLabel(int index, Canvas canvas, String dataLabel, double pointX,
-          double pointY, int angle, TextStyle style) =>
-      _drawText(canvas, dataLabel, Offset(pointX, pointY), style, angle);
 }

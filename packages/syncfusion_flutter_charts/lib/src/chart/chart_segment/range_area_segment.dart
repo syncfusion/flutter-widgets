@@ -1,63 +1,76 @@
-part of charts;
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:syncfusion_flutter_charts/src/chart/common/common.dart';
+import '../chart_series/range_area_series.dart';
+import '../common/renderer.dart';
+import '../common/segment_properties.dart';
+import '../utils/enum.dart';
+import '../utils/helper.dart';
+import 'chart_segment.dart';
 
 /// Creates the segments for range area series.
 ///
-/// Generates the range area series points and has the [calculateSegmentPoints] method overrided to customize
+/// Generates the range area series points and has the [calculateSegmentPoints] method overrides to customize
 /// the range area segment point calculation.
 ///
 /// Gets the path and color from the `series`.
 class RangeAreaSegment extends ChartSegment {
-  late Path _path;
-  Path? _borderPath;
-
-  ///For storing the path in RangeAreaBorderMode.excludeSides mode
-  Rect? _pathRect;
+  late SegmentProperties _segmentProperties;
+  bool _isInitialize = false;
 
   /// Gets the color of the series.
   @override
   Paint getFillPaint() {
+    _setSegmentProperties();
     fillPaint = Paint();
-    if (_series.gradient == null) {
-      if (_color != null) {
-        fillPaint!.color = _color!;
+    if (_segmentProperties.series.gradient == null) {
+      if (_segmentProperties.color != null) {
+        fillPaint!.color = _segmentProperties.color!;
         fillPaint!.style = PaintingStyle.fill;
       }
     } else {
-      fillPaint = (_pathRect != null)
-          ? _getLinearGradientPaint(_series.gradient!, _pathRect!,
-              _seriesRenderer._chartState!._requireInvertedAxis)
+      fillPaint = (_segmentProperties.pathRect != null)
+          ? getLinearGradientPaint(
+              _segmentProperties.series.gradient!,
+              _segmentProperties.pathRect!,
+              _segmentProperties.stateProperties.requireInvertedAxis)
           : fillPaint;
     }
-    assert(_series.opacity >= 0,
+    assert(_segmentProperties.series.opacity >= 0 == true,
         'The opacity value of the range area series should be greater than or equal to 0.');
-    assert(_series.opacity <= 1,
+    assert(_segmentProperties.series.opacity <= 1 == true,
         'The opacity value of the range area series should be less than or equal to 1.');
-    fillPaint!.color =
-        (_series.opacity < 1 && fillPaint!.color != Colors.transparent)
-            ? fillPaint!.color.withOpacity(_series.opacity)
-            : fillPaint!.color;
-    _defaultFillColor = fillPaint;
+    fillPaint!.color = (_segmentProperties.series.opacity < 1 == true &&
+            fillPaint!.color != Colors.transparent)
+        ? fillPaint!.color.withOpacity(_segmentProperties.series.opacity)
+        : fillPaint!.color;
+    _segmentProperties.defaultFillColor = fillPaint;
+    setShader(_segmentProperties, fillPaint!);
     return fillPaint!;
   }
 
   /// Gets the border color of the series.
   @override
   Paint getStrokePaint() {
+    _setSegmentProperties();
     final Paint _strokePaint = Paint();
     _strokePaint
       ..style = PaintingStyle.stroke
-      ..strokeWidth = _series.borderWidth;
-    if (_series.borderGradient != null && _borderPath != null) {
-      _strokePaint.shader =
-          _series.borderGradient!.createShader(_borderPath!.getBounds());
-    } else if (_strokeColor != null) {
-      _strokePaint.color = _series.borderColor;
+      ..strokeWidth = _segmentProperties.series.borderWidth;
+    if (_segmentProperties.series.borderGradient != null &&
+        _segmentProperties.borderPath != null) {
+      _strokePaint.shader = _segmentProperties.series.borderGradient!
+          .createShader(_segmentProperties.borderPath!.getBounds());
+    } else if (_segmentProperties.strokeColor != null) {
+      _strokePaint.color = _segmentProperties.series.borderColor;
     }
-    _series.borderWidth == 0
+    _segmentProperties.series.borderWidth == 0
         ? _strokePaint.color = Colors.transparent
         : _strokePaint.color;
     _strokePaint.strokeCap = StrokeCap.round;
-    _defaultStrokeColor = _strokePaint;
+    _segmentProperties.defaultStrokeColor = _strokePaint;
     return _strokePaint;
   }
 
@@ -68,20 +81,29 @@ class RangeAreaSegment extends ChartSegment {
   /// Draws segment in series bounds.
   @override
   void onPaint(Canvas canvas) {
+    _setSegmentProperties();
     final RangeAreaSeries<dynamic, dynamic> _series =
-        this._series as RangeAreaSeries<dynamic, dynamic>;
-    _pathRect = _path.getBounds();
-    canvas.drawPath(
-        _path, (_series.gradient == null) ? fillPaint! : getFillPaint());
+        _segmentProperties.series as RangeAreaSeries<dynamic, dynamic>;
+    _segmentProperties.pathRect = _segmentProperties.path.getBounds();
+    canvas.drawPath(_segmentProperties.path,
+        (_series.gradient == null) ? fillPaint! : getFillPaint());
     strokePaint = getStrokePaint();
     if (strokePaint!.color != Colors.transparent) {
-      _drawDashedLine(
+      drawDashedLine(
           canvas,
           _series.dashArray,
           strokePaint!,
           _series.borderDrawMode == RangeAreaBorderMode.all
-              ? _path
-              : _borderPath!);
+              ? _segmentProperties.path
+              : _segmentProperties.borderPath!);
+    }
+  }
+
+  /// Method to set segment properties
+  void _setSegmentProperties() {
+    if (!_isInitialize) {
+      _segmentProperties = SegmentHelper.getSegmentProperties(this);
+      _isInitialize = true;
     }
   }
 }

@@ -1,4 +1,18 @@
-part of charts;
+import 'dart:ui';
+
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+
+import '../../circular_chart/renderer/circular_chart_annotation.dart';
+import '../../circular_chart/utils/enum.dart';
+import '../../common/utils/enum.dart';
+import '../../common/utils/typedef.dart';
+import '../chart_series/series_renderer_properties.dart';
+import '../chart_series/xy_data_series.dart';
+import '../common/cartesian_state_properties.dart';
+import '../common/data_label_renderer.dart';
+import '../utils/enum.dart';
 
 /// Customizes the data label.
 ///
@@ -31,7 +45,7 @@ class DataLabelSettings {
       this.showZeroValue = true,
       this.borderColor = Colors.transparent,
       this.borderWidth = 0,
-      this.labelIntersectAction = LabelIntersectAction.hide,
+      this.labelIntersectAction = LabelIntersectAction.shift,
       this.connectorLineSettings = const ConnectorLineSettings(),
       this.labelPosition = ChartDataLabelPosition.inside});
 
@@ -315,7 +329,9 @@ class DataLabelSettings {
   ///
   ///The intersecting data labels can be hidden.
   ///
-  ///Defaults to `LabelIntersectAction.hide`.
+  /// _Note:_ This is applicable for pie and doughnut series types alone.
+  ///
+  ///Defaults to `LabelIntersectAction.shift`.
   ///
   ///Also refer [LabelIntersectAction].
   ///```dart
@@ -357,7 +373,7 @@ class DataLabelSettings {
   ///```
   final ChartWidgetBuilder<dynamic>? builder;
 
-  /// To show the cummulative values in stacked type series charts.
+  /// To show the cumulative values in stacked type series charts.
   ///
   /// Defaults to `false`.
   ///
@@ -484,39 +500,52 @@ class DataLabelSettings {
   }
 }
 
-///Datalabel renderer class for mutable fields and methods
+///Data label renderer class for mutable fields and methods
 class DataLabelSettingsRenderer {
   /// Creates an argument constructor for DataLabelSettings renderer class
-  DataLabelSettingsRenderer(this._dataLabelSettings) {
-    _angle = _dataLabelSettings.angle;
-    _offset = _dataLabelSettings.offset;
-    _color = _dataLabelSettings.color;
+  DataLabelSettingsRenderer(this.dataLabelSettings) {
+    angle = dataLabelSettings.angle;
+    offset = dataLabelSettings.offset;
+    color = dataLabelSettings.color;
   }
 
-  final DataLabelSettings _dataLabelSettings;
+  /// Represents the data label settings
+  final DataLabelSettings dataLabelSettings;
 
-  Color? _color;
+  /// Holds the color value
+  Color? color;
 
-  TextStyle? _textStyle;
+  /// Holds the text style value
+  TextStyle? textStyle;
 
-  TextStyle? _originalStyle;
+  /// Holds the value of original style
+  TextStyle? originalStyle;
 
-  late int _angle;
+  /// Holds the value of angle
+  late int angle;
 
-  Offset? _offset;
+  /// Specifies the value of offset
+  Offset? offset;
 
   /// To render charts with data labels
-  void _renderDataLabel(
-      SfCartesianChartState chartState,
-      CartesianSeriesRenderer seriesRenderer,
+  void renderDataLabel(
+      CartesianStateProperties stateProperties,
+      SeriesRendererDetails seriesRendererDetails,
       CartesianChartPoint<dynamic> point,
       Animation<double> animationController,
       Canvas canvas,
       int labelIndex,
       DataLabelSettingsRenderer dataLabelSettingsRenderer) {
-    _calculateDataLabelPosition(seriesRenderer, point, labelIndex, chartState,
-        dataLabelSettingsRenderer, animationController);
-    _drawDataLabel(canvas, seriesRenderer, chartState, _dataLabelSettings,
-        point, labelIndex, animationController, dataLabelSettingsRenderer);
+    calculateDataLabelPosition(seriesRendererDetails, point, labelIndex,
+        stateProperties, dataLabelSettingsRenderer, animationController);
+    drawDataLabel(
+        canvas,
+        seriesRendererDetails,
+        stateProperties,
+        dataLabelSettings,
+        point,
+        labelIndex,
+        animationController,
+        dataLabelSettingsRenderer);
   }
 }

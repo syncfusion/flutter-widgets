@@ -1,22 +1,25 @@
 import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_core/core_internal.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
+
 import 'date_picker_manager.dart';
 import 'hijri_date_picker_manager.dart';
 import 'month_view.dart';
 import 'picker_helper.dart';
 import 'year_view.dart';
 
+/// Signature for callback that reports that the picker state value changed.
 typedef UpdatePickerState = void Function(
     PickerStateArgs updatePickerStateDetails);
 
@@ -27,6 +30,10 @@ typedef UpdatePickerState = void Function(
 /// view changes available in the [DateRangePickerViewChangedArgs].
 ///
 /// Used by [SfDateRangePicker.onViewChanged].
+///
+/// See also:
+/// * [SfDateRangePicker.onViewChanged], which matches this signature.
+/// * [SfDateRangePicker], which uses this signature in one of it's callback.
 typedef DateRangePickerViewChangedCallback = void Function(
     DateRangePickerViewChangedArgs dateRangePickerViewChangedArgs);
 
@@ -37,6 +44,11 @@ typedef DateRangePickerViewChangedCallback = void Function(
 /// view changes available in the [HijriDatePickerViewChangedArgs].
 ///
 /// Used by [SfHijriDateRangePicker.onViewChanged].
+///
+/// See also:
+/// * [SfHijriDateRangePicker.onViewChanged], which matches this signature.
+/// * [SfHijriDateRangePicker], which uses this signature in one of it's
+/// callback.
 typedef HijriDatePickerViewChangedCallback = void Function(
     HijriDatePickerViewChangedArgs hijriDatePickerViewChangedArgs);
 
@@ -48,6 +60,13 @@ typedef HijriDatePickerViewChangedCallback = void Function(
 ///
 /// Used by [SfDateRangePicker.onSelectionChanged] and
 /// [SfHijriDateRangePicker.onSelectionChanged].
+///
+/// See also:
+/// * [SfDateRangePicker.onSelectionChanged], which matches this signature.
+/// * [SfHijriDateRangePicker.onSelectionChanged], which matches this signature.
+/// * [SfDateRangePicker], which uses this signature in one of it's callback.
+/// * [SfHijriDateRangePicker], which uses this signature in one of it's
+/// callback.
 typedef DateRangePickerSelectionChangedCallback = void Function(
     DateRangePickerSelectionChangedArgs dateRangePickerSelectionChangedArgs);
 
@@ -127,12 +146,20 @@ void _raisePickerViewChangedCallback(_SfDateRangePicker picker,
 /// {@youtube 560 315 https://www.youtube.com/watch?v=3TyuUVExuPs}
 ///
 /// See also:
-/// * [SfDateRangePickerThemeData]
-/// * [DateRangePickerHeaderStyle]
-/// * [DateRangePickerViewHeaderStyle]
-/// * [DateRangePickerMonthViewSettings]
-/// * [DateRangePickerYearCellStyle]
-/// * [DateRangePickerMonthCellStyle]
+/// * [SfDateRangePickerThemeData], which used to set consistent look for the
+/// date range picker element.
+/// * [DateRangePickerHeaderStyle], which used to customize the header view of
+/// the date range picker.
+/// * [DateRangePickerViewHeaderStyle], which used to customize the view header
+/// view of the date range picker.
+/// * [DateRangePickerMonthViewSettings], which used to customize the month view
+/// of the date range picker.
+/// * [DateRangePickerYearCellStyle], which used to customize the year, decade
+/// and century views cell of the date range picker.
+/// * [DateRangePickerMonthCellStyle], which used to customize the month cells
+/// of month view in date range picker.
+/// * [SfHijriDateRangePicker], Material widget, which used to display and
+/// handle the hijri date time values.
 ///
 /// ``` dart
 ///class MyApp extends StatefulWidget {
@@ -175,51 +202,53 @@ class SfDateRangePicker extends StatelessWidget {
   ///
   /// When the visible view changes, the widget will call the [onViewChanged]
   /// callback with the current view and the current view visible dates.
-  SfDateRangePicker({
-    Key? key,
-    DateRangePickerView view = DateRangePickerView.month,
-    this.selectionMode = DateRangePickerSelectionMode.single,
-    this.headerHeight = 40,
-    this.todayHighlightColor,
-    this.backgroundColor,
-    DateTime? initialSelectedDate,
-    List<DateTime>? initialSelectedDates,
-    PickerDateRange? initialSelectedRange,
-    List<PickerDateRange>? initialSelectedRanges,
-    this.toggleDaySelection = false,
-    this.enablePastDates = true,
-    this.showNavigationArrow = false,
-    this.confirmText = 'OK',
-    this.cancelText = 'CANCEL',
-    this.showActionButtons = false,
-    this.selectionShape = DateRangePickerSelectionShape.circle,
-    this.navigationDirection = DateRangePickerNavigationDirection.horizontal,
-    this.allowViewNavigation = true,
-    this.navigationMode = DateRangePickerNavigationMode.snap,
-    this.enableMultiView = false,
-    this.controller,
-    this.onViewChanged,
-    this.onSelectionChanged,
-    this.onCancel,
-    this.onSubmit,
-    this.headerStyle = const DateRangePickerHeaderStyle(),
-    this.yearCellStyle = const DateRangePickerYearCellStyle(),
-    this.monthViewSettings = const DateRangePickerMonthViewSettings(),
-    this.monthCellStyle = const DateRangePickerMonthCellStyle(),
-    DateTime? minDate,
-    DateTime? maxDate,
-    DateTime? initialDisplayDate,
-    double viewSpacing = 20,
-    this.selectionRadius = -1,
-    this.selectionColor,
-    this.startRangeSelectionColor,
-    this.endRangeSelectionColor,
-    this.rangeSelectionColor,
-    this.selectionTextStyle,
-    this.rangeTextStyle,
-    this.monthFormat,
-    this.cellBuilder,
-  })  : assert(headerHeight >= -1),
+  SfDateRangePicker(
+      {Key? key,
+      DateRangePickerView view = DateRangePickerView.month,
+      this.selectionMode = DateRangePickerSelectionMode.single,
+      this.headerHeight = 40,
+      this.todayHighlightColor,
+      this.backgroundColor,
+      DateTime? initialSelectedDate,
+      List<DateTime>? initialSelectedDates,
+      PickerDateRange? initialSelectedRange,
+      List<PickerDateRange>? initialSelectedRanges,
+      this.toggleDaySelection = false,
+      this.enablePastDates = true,
+      this.showNavigationArrow = false,
+      this.confirmText = 'OK',
+      this.cancelText = 'CANCEL',
+      this.showActionButtons = false,
+      this.selectionShape = DateRangePickerSelectionShape.circle,
+      this.navigationDirection = DateRangePickerNavigationDirection.horizontal,
+      this.allowViewNavigation = true,
+      this.navigationMode = DateRangePickerNavigationMode.snap,
+      this.enableMultiView = false,
+      this.controller,
+      this.onViewChanged,
+      this.onSelectionChanged,
+      this.onCancel,
+      this.onSubmit,
+      this.headerStyle = const DateRangePickerHeaderStyle(),
+      this.yearCellStyle = const DateRangePickerYearCellStyle(),
+      this.monthViewSettings = const DateRangePickerMonthViewSettings(),
+      this.monthCellStyle = const DateRangePickerMonthCellStyle(),
+      DateTime? minDate,
+      DateTime? maxDate,
+      DateTime? initialDisplayDate,
+      double viewSpacing = 20,
+      this.selectionRadius = -1,
+      this.selectionColor,
+      this.startRangeSelectionColor,
+      this.endRangeSelectionColor,
+      this.rangeSelectionColor,
+      this.selectionTextStyle,
+      this.rangeTextStyle,
+      this.monthFormat,
+      this.cellBuilder,
+      this.showTodayButton = false,
+      this.selectableDayPredicate})
+      : assert(headerHeight >= -1),
         assert(minDate == null || maxDate == null || minDate.isBefore(maxDate)),
         assert(minDate == null || maxDate == null || maxDate.isAfter(minDate)),
         assert(viewSpacing >= 0),
@@ -259,7 +288,14 @@ class SfDateRangePicker extends StatelessWidget {
   ///  null, then this property will be ignored and widget will display the view
   ///  described in [controller.view] property.
   ///
-  /// Also refer [DateRangePickerView].
+  /// See also:
+  /// * [DateRangePickerView], to know more about the available views in the
+  /// date range picker.
+  /// * [DateRangePickerController.view], which used to changed the view of
+  /// date range picker dynamically.
+  /// * [allowViewNavigation], which allows to navigate to different date range
+  /// picker views quick and easily by tapping on the header.
+  /// * [How to switch between the date range picker views when calendar has appointments](https://www.syncfusion.com/kb/11305/how-to-switch-between-the-date-range-picker-views-in-the-flutter-date-range-picker)
   ///
   /// ```dart
   ///Widget build(BuildContext context) {
@@ -293,7 +329,66 @@ class SfDateRangePicker extends StatelessWidget {
   /// [DateRangePickerMonthViewSettings.enableSwipeSelection] set as [false] the
   /// navigation through swiping will work as it is without any restriction.
   ///
-  /// See also: [DateRangePickerMonthViewSettings.enableSwipeSelection].
+  /// See also:
+  /// * [DateRangePickerMonthViewSettings.enableSwipeSelection], which allows to
+  /// select the cells on swipe when the selection mode set as
+  /// [DateRangePickerSelectionMode.range],
+  /// [DateRangePickerSelectionMode.multiRange], and
+  /// [DateRangePickerSelectionMode.extendableRange].
+  /// * [DateRangePickerSelectionMode], to know more about the available
+  /// selection modes in date range picker.
+  /// * [allowViewNavigation], which allows to navigate between views quickly,
+  /// and setting this property as `false`, allows to select the cells on
+  /// year, decade and century view of date range picker.
+  /// * [selectionShape], which allows to customize the shape of the selection
+  /// view in date range picker.
+  /// * [onSelectionChanged], callback which notifies whenever the selection
+  /// changed on date range picker.
+  /// * [selectionColor], which fills the background of the selected cells in
+  /// the date range picker.
+  /// * [startRangeSelectionColor], which fills the background of the first cell
+  /// of the range selection in date range picker.
+  /// * [endRangeSelectionColor], which fills the background of the last cell of
+  /// the range selection in date range picker.
+  /// * [rangeSelectionColor], which fills the background of the in between
+  /// cells of date range picker in range selection.
+  /// * [selectionRadius], which is the radius for the selection view in the
+  /// date range picker when the selection shape set as
+  /// [DateRangePickerSelectionShape.circle].
+  /// * [selectionTextStyle], which is used to set the text style for the text
+  /// in the selected cell of date range picker.
+  /// * [rangeTextStyle], which is used to set text style for the text in the
+  /// selected range cell's of date range picker.
+  /// * [toggleDaySelection], which allows to deselect a date when the selection
+  /// mode set as [DateRangePickerSelectionMode.single].
+  /// * [showActionButtons], which displays action buttons on bottom of date
+  /// range picker, which allows to confirm and cancel the selection.
+  /// * [onSubmit], callback which notifies when the selection confirmed
+  /// through the ok button of [showActionButtons].
+  /// * [onCancel], callback which notifies when the selection canceled through
+  /// the cancel button of [showActionButtons].
+  /// * [initialSelectedDate], which allows to select date programmatically
+  /// initially on date range picker.
+  /// * [initialSelectedDates], which allows to list of select date
+  /// programmatically initially on date range picker.
+  /// * [initialSelectedRange], which allows to select a range of dates
+  /// programmatically initially on date range picker.
+  /// * [initialSelectedRanges], which allows to select a ranges of dates
+  /// programmatically initially on date range picker.
+  /// * [DateRangePickerController.selectedDate],which allows to select date
+  /// programmatically dynamically on date range picker.
+  /// * [DateRangePickerController.selectedDates], which allows to select dates
+  /// programmatically dynamically on date range picker.
+  /// * [DateRangePickerController.selectedRange], which allows to select range
+  /// of dates programmatically dynamically on date range picker.
+  /// * [DateRangePickerController.selectedRanges], which allows to select
+  /// ranges of dates programmatically dynamically on date range picker.
+  /// * Knowledge base: [Range selection using multiple view picker](https://www.syncfusion.com/kb/11534/range-selection-using-the-multiple-view-picker-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to get the selected date](https://www.syncfusion.com/kb/11410/how-to-get-the-selected-date-from-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to select a week](https://www.syncfusion.com/kb/11412/how-to-select-a-week-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to select all days when clicking on the day header](https://www.syncfusion.com/kb/12353/how-to-select-all-days-when-clicking-on-the-day-header-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to get the start and end date of the selected range](https://www.syncfusion.com/kb/12248/how-to-get-the-start-and-end-date-of-the-selected-range-in-the-flutter-date-range-picker)
+  ///
   ///
   /// ``` dart
   ///  Widget build(BuildContext context) {
@@ -319,7 +414,20 @@ class SfDateRangePicker extends StatelessWidget {
   /// [DateRangePickerHeaderStyle.backgroundColor] of the header view in
   /// [SfDateRangePicker].
   ///
-  /// See also: [DateRangePickerHeaderStyle]
+  /// See also:
+  /// * [DateRangePickerHeaderStyle], which contains options to customize the
+  /// header view of the date range picker.
+  /// * [headerHeight], which is the size of the header view in the date range
+  /// picker.
+  /// * [showNavigationArrow], which displays the navigation arrows on the
+  /// header view of the date range picker.
+  /// * [monthFormat], which allows to customize the month text in the header
+  /// view also in the year cell view of date range picker.
+  /// * Knowledge base: [How to style a header](https://www.syncfusion.com/kb/12342/how-to-style-a-header-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to select all days when clicking on the day header](https://www.syncfusion.com/kb/12353/how-to-select-all-days-when-clicking-on-the-day-header-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to restrict the year view navigation when tapping on header view](https://www.syncfusion.com/kb/12113/how-to-restrict-the-year-view-navigation-while-tapping-header-of-the-flutter-date-range)
+  /// * Knowledge base: [How to customize the header in Flutter multi date range picker](https://www.syncfusion.com/kb/11897/how-to-customize-the-header-in-the-flutter-multi-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the header view](https://www.syncfusion.com/kb/11427/how-to-customize-the-header-view-of-the-flutter-date-range-picker)
   ///
   /// ``` dart
   /// Widget build(BuildContext context) {
@@ -351,6 +459,18 @@ class SfDateRangePicker extends StatelessWidget {
   /// _Note:_ If [showNavigationArrows] set as true the arrows will shrink or
   /// grow based on the given header height value.
   ///
+  /// See also:
+  /// * [headerStyle], which allows to customize the header view of the
+  /// date range picker.
+  /// * [showNavigationArrow], which displays the navigation arrows on the
+  /// header view of the date range picker.
+  /// * Knowledge base: [How to style a header](https://www.syncfusion.com/kb/12342/how-to-style-a-header-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to select all days when clicking on the day header](https://www.syncfusion.com/kb/12353/how-to-select-all-days-when-clicking-on-the-day-header-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to restrict the year view navigation when tapping on header view](https://www.syncfusion.com/kb/12113/how-to-restrict-the-year-view-navigation-while-tapping-header-of-the-flutter-date-range)
+  /// * Knowledge base: [How to customize the header in Flutter multi date range picker](https://www.syncfusion.com/kb/11897/how-to-customize-the-header-in-the-flutter-multi-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the header view](https://www.syncfusion.com/kb/11427/how-to-customize-the-header-view-of-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to navigate to the previous or next views using navigation arrows](https://www.syncfusion.com/kb/12270/how-to-navigate-to-the-previous-or-next-views-using-navigation-arrows-in-the-flutter-date)
+  ///
   /// ```dart
   ///
   /// Widget build(BuildContext context) {
@@ -375,6 +495,16 @@ class SfDateRangePicker extends StatelessWidget {
   ///
   /// Defaults to null.
   ///
+  /// See also:
+  /// * [SfDateRangePickerThemeData], to handle theming with date range picker
+  /// for giving consistent look.
+  /// * [monthCellStyle], which allows to customize the month cells in the
+  /// date range picker.
+  /// * [yearCellStyle], which allows to customize the year cells in the date
+  /// range picker.
+  /// * Knowledge base: [How to style the current month date cell](https://www.syncfusion.com/kb/12190/how-to-style-the-current-month-date-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the year, decade and century views](https://www.syncfusion.com/kb/12321/how-to-style-the-year-decade-century-views-in-the-flutter-date-range-picker)
+  ///
   /// ```dart
   ///
   /// Widget build(BuildContext context) {
@@ -395,6 +525,11 @@ class SfDateRangePicker extends StatelessWidget {
   /// The color to fill the background of the [SfDateRangePicker].
   ///
   /// Defaults to null.
+  ///
+  /// See also:
+  /// * [SfDateRangePickerThemeData], to handle theming with date range picker
+  /// for giving consistent look.
+  /// * Knowledge base: [How to add an image as background](https://www.syncfusion.com/kb/12233/how-to-add-an-image-as-background-in-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ```dart
   ///
@@ -423,6 +558,21 @@ class SfDateRangePicker extends StatelessWidget {
   ///
   /// Defaults to `false`.
   ///
+  /// See also:
+  /// * [selectionMode], which allows to set different selection modes for
+  /// date range picker.
+  /// * [selectionShape], which allows to customize the shape of the selection
+  /// view in date range picker.
+  /// * [onSelectionChanged], callback which notifies whenever the selection
+  /// changed on date range picker.
+  /// * [selectionRadius], which is the radius for the selection view in the
+  /// date range picker when the selection shape set as
+  /// [DateRangePickerSelectionShape.circle].
+  /// * [initialSelectedDate], which allows to select date programmatically
+  /// initially on date range picker.
+  /// * [DateRangePickerController.selectedDate],which allows to select date
+  /// programmatically dynamically on date range picker.
+  /// * Knowledge base: [How to deselect the selected date](https://www.syncfusion.com/kb/12138/how-to-deselect-the-selected-date-in-the-flutter-date-range-picker-sfdaterangepicker)
   /// ```dart
   ///
   /// Widget build(BuildContext context) {
@@ -450,6 +600,13 @@ class SfDateRangePicker extends StatelessWidget {
   ///
   /// Defaults to `true`.
   ///
+  /// See also:
+  /// * [view], which allows to set different views which display initially on
+  /// date range picker.
+  /// * [DateRangePickerController.view], which allows to set different views
+  /// dynamically on date range picker.
+  /// * Knowledge base: [How to restrict the year view navigation while tapping header](https://www.syncfusion.com/kb/12113/how-to-restrict-the-year-view-navigation-while-tapping-header-of-the-flutter-date-range)
+  ///
   /// ```dart
   ///
   /// Widget build(BuildContext context) {
@@ -468,6 +625,18 @@ class SfDateRangePicker extends StatelessWidget {
   /// A builder that builds a widget that replaces the cell in a month, year,
   /// decade and century views. The month cell, year cell, decade cell,
   /// century cell was differentiated by picker view.
+  ///
+  /// See also:
+  /// * [monthViewSettings], which allows to customize the month view in the
+  /// date range picker.
+  /// * [monthCellStyle], which allows to customize the month cells in the date
+  /// range picker.
+  /// * [yearCellStyle], which allows to customize the year cells in the date
+  /// range picker.
+  /// * Knowledge base: [How to customize the leading and trailing dates using cell builder](https://www.syncfusion.com/kb/12674/how-to-customize-leading-and-trailing-dates-using-cell-builder-in-the-flutter-date-range)
+  /// * Knowledge base: [How to customize special dates using builder](https://www.syncfusion.com/kb/12374/how-to-customize-the-special-dates-using-builder-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to select all days when clicking on day header](https://www.syncfusion.com/kb/12353/how-to-select-all-days-when-clicking-on-the-day-header-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the date range picker cells using builder](https://www.syncfusion.com/kb/12208/how-to-customize-the-date-range-picker-cells-using-builder-in-the-flutter-sfdaterangepicker)
   ///
   /// ```dart
   ///
@@ -529,6 +698,65 @@ class SfDateRangePicker extends StatelessWidget {
   /// ```
   final DateRangePickerCellBuilder? cellBuilder;
 
+  /// Displays the today button on the bottom of date range picker.
+  ///
+  /// The today button allows to navigate to the today date quickly in all
+  /// view of date range picker.
+  ///
+  /// Defaults to `false`.
+  ///
+  /// See also:
+  /// * [showActionButtons], which used to handle the selected value.
+  ///
+  /// ```dart
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///    return MaterialApp(
+  ///      home: Scaffold(
+  ///        body: SfDateRangePicker(
+  ///          showTodayButton: true,
+  ///        ),
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// ```
+  final bool showTodayButton;
+
+  /// An [selectableDayPredicate] callback to decide whether the cell is
+  /// selectable or not in date range picker.
+  ///
+  /// Note: This callback is not applicable when the [navigationMode] set as
+  /// [DateRangePickerNavigationMode.scroll].
+  ///
+  /// Defaults to null.
+  ///
+  /// See also:
+  /// [DateRangePickerMonthViewSettings.blackoutDates], which allows to disable
+  /// interaction for specific dates.
+  ///
+  /// ```dart
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return MaterialApp(
+  ///       home: Scaffold(
+  ///         body: SfDateRangePicker(
+  ///           initialDisplayDate: DateTime(2022),
+  ///           selectableDayPredicate: (DateTime dateTime) {
+  ///             if (dateTime != DateTime(2022)) {
+  ///               return false;
+  ///             }
+  ///             return true;
+  ///           },
+  ///         ),
+  ///       ));
+  /// }
+  ///
+  /// ```
+  final DateRangePickerSelectableDayPredicate? selectableDayPredicate;
+
   /// Used to enable or disable showing multiple views
   ///
   /// When setting this [enableMultiView] property set to [true] displaying
@@ -548,6 +776,15 @@ class SfDateRangePicker extends StatelessWidget {
   /// eg., May, 2020 - June, 2020
   ///
   /// Defaults to `false`.
+  ///
+  /// See also:
+  /// * [viewSpacing], which fills the space between the pickers in the date
+  /// range picker.
+  /// * [navigationDirection], which allows to arrange and navigate the
+  /// multiview in either in [DateRangePickerNavigationDirection.vertical] or
+  /// [DateRangePickerNavigationDirection.horizontal] in date range picker.
+  /// * Knowledge base: [How to show tow pickers vertically](https://www.syncfusion.com/kb/12193/how-to-show-two-pickers-vertically-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to use multiple picker](https://www.syncfusion.com/kb/11806/how-to-use-multiple-picker-in-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ```dart
   ///
@@ -572,6 +809,15 @@ class SfDateRangePicker extends StatelessWidget {
   ///
   /// This value not applicable on [SfDateRangePicker] when
   /// [navigationMode] is [DateRangePickerNavigationMode.scroll].
+  ///
+  /// See also:
+  /// * [enableMultiView], which allows displays multiple date picker side by
+  /// side in date range picker.
+  /// * [navigationDirection], which allows to arrange and navigate the
+  /// multiview in either in [DateRangePickerNavigationDirection.vertical] or
+  /// [DateRangePickerNavigationDirection.horizontal] in date range picker.
+  /// * Knowledge base: [How to show tow pickers vertically](https://www.syncfusion.com/kb/12193/how-to-show-two-pickers-vertically-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to use multiple picker](https://www.syncfusion.com/kb/11806/how-to-use-multiple-picker-in-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ```dart
   ///
@@ -598,6 +844,26 @@ class SfDateRangePicker extends StatelessWidget {
   ///
   /// ```dart
   ///
+  /// See also:
+  /// * [selectionShape], which allows to customize the shape of the selection
+  /// view in date range picker.
+  /// * [selectionColor], which fills the background of the selected cells in
+  /// the date range picker.
+  /// * [startRangeSelectionColor], which fills the background of the first cell
+  /// of the range selection in date range picker.
+  /// * [endRangeSelectionColor], which fills the background of the last cell of
+  /// the range selection in date range picker.
+  /// * [rangeSelectionColor], which fills the background of the in between
+  /// cells of date range picker in range selection.
+  /// * [selectionTextStyle], which is used to set the text style for the text
+  /// in the selected cell of date range picker.
+  /// * [rangeTextStyle], which is used to set text style for the text in the
+  /// selected range cell's of date range picker.
+  /// * Knowledge base: [How to change the selection radius](https://www.syncfusion.com/kb/12230/how-to-change-the-selection-radius-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected range cells](https://www.syncfusion.com/kb/12148/how-to-customize-the-selected-range-cells-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to change the selection shape](https://www.syncfusion.com/kb/11900/how-to-change-the-selection-shape-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected month cell](https://www.syncfusion.com/kb/11441/how-to-customize-the-selected-month-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  ///
   /// Widget build(BuildContext context) {
   ///    return MaterialApp(
   ///      home: Scaffold(
@@ -621,6 +887,25 @@ class SfDateRangePicker extends StatelessWidget {
   ///
   /// Using a [SfDateRangePickerTheme] gives more fine-grained control over the
   /// appearance of various components of the date range picker.
+  ///
+  /// See also:
+  /// * [selectionRadius], which is the radius for the selection view in the
+  /// date range picker when the selection shape set as
+  /// [DateRangePickerSelectionShape.circle].
+  /// * [selectionColor], which fills the background of the selected cells in
+  /// the date range picker.
+  /// * [startRangeSelectionColor], which fills the background of the first cell
+  /// of the range selection in date range picker.
+  /// * [endRangeSelectionColor], which fills the background of the last cell of
+  /// the range selection in date range picker.
+  /// * [rangeSelectionColor], which fills the background of the in between
+  /// cells of date range picker in range selection.
+  /// * [rangeTextStyle], which is used to set text style for the text in the
+  /// selected range cell's of date range picker.
+  /// * Knowledge base: [How to change the selection radius](https://www.syncfusion.com/kb/12230/how-to-change-the-selection-radius-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected range cells](https://www.syncfusion.com/kb/12148/how-to-customize-the-selected-range-cells-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to change the selection shape](https://www.syncfusion.com/kb/11900/how-to-change-the-selection-shape-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected month cell](https://www.syncfusion.com/kb/11441/how-to-customize-the-selected-month-cell-in-the-flutter-date-range-picker-sfda
   ///
   /// ``` dart
   ///
@@ -661,8 +946,31 @@ class SfDateRangePicker extends StatelessWidget {
   /// [DateRangePickerSelectionMode.multiRange].
   ///
   /// See also:
-  /// [PickerDateRange]
-  /// [DateRangePickerSelectionMode]
+  /// * [PickerDateRange], which used to holds the start and end date of the
+  /// selected range.
+  /// * [selectionMode], which allows to customize the selection modes with the
+  /// available modes.
+  /// * [selectionShape], which allows to customize the shape of the selection
+  /// view in date range picker.
+  /// * [selectionColor], which fills the background of the selected cells in
+  /// the date range picker.
+  /// * [startRangeSelectionColor], which fills the background of the first cell
+  /// of the range selection in date range picker.
+  /// * [endRangeSelectionColor], which fills the background of the last cell of
+  /// the range selection in date range picker.
+  /// * [rangeSelectionColor], which fills the background of the in between
+  /// cells of date range picker in range selection.
+  /// * [selectionRadius], which is the radius for the selection view in the
+  /// date range picker when the selection shape set as
+  /// [DateRangePickerSelectionShape.circle].
+  /// * [selectionTextStyle], which is used to set the text style for the text
+  /// in the selected cell of date range picker.
+  /// * Knowledge base: [Range selection using multiple view picker](https://www.syncfusion.com/kb/11534/range-selection-using-the-multiple-view-picker-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to change the selection radius](https://www.syncfusion.com/kb/12230/how-to-change-the-selection-radius-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected range cells](https://www.syncfusion.com/kb/12148/how-to-customize-the-selected-range-cells-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to change the selection shape](https://www.syncfusion.com/kb/11900/how-to-change-the-selection-shape-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected month cell](https://www.syncfusion.com/kb/11441/how-to-customize-the-selected-month-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  ///
   ///
   /// ``` dart
   ///
@@ -698,6 +1006,28 @@ class SfDateRangePicker extends StatelessWidget {
   /// [DateRangePickerSelectionMode.single] of
   /// [DateRangePickerSelectionMode.multiple].
   ///
+  /// See more:
+  /// * [selectionShape], which allows to customize the shape of the selection
+  /// view in date range picker.
+  /// * [startRangeSelectionColor], which fills the background of the first cell
+  /// of the range selection in date range picker.
+  /// * [endRangeSelectionColor], which fills the background of the last cell of
+  /// the range selection in date range picker.
+  /// * [rangeSelectionColor], which fills the background of the in between
+  /// cells of date range picker in range selection.
+  /// * [selectionRadius], which is the radius for the selection view in the
+  /// date range picker when the selection shape set as
+  /// [DateRangePickerSelectionShape.circle].
+  /// * [selectionTextStyle], which is used to set the text style for the text
+  /// in the selected cell of date range picker.
+  /// * [rangeTextStyle], which is used to set text style for the text in the
+  /// selected range cell's of date range picker.
+  /// * Knowledge base: [Range selection using multiple view picker](https://www.syncfusion.com/kb/11534/range-selection-using-the-multiple-view-picker-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to change the selection radius](https://www.syncfusion.com/kb/12230/how-to-change-the-selection-radius-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected range cells](https://www.syncfusion.com/kb/12148/how-to-customize-the-selected-range-cells-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to change the selection shape](https://www.syncfusion.com/kb/11900/how-to-change-the-selection-shape-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected month cell](https://www.syncfusion.com/kb/11441/how-to-customize-the-selected-month-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  ///
   /// ``` dart
   ///
   /// @override
@@ -731,6 +1061,29 @@ class SfDateRangePicker extends StatelessWidget {
   /// Note : It is applies only when the [DateRangePickerSelectionMode] set as
   /// [DateRangePickerSelectionMode.range] of
   /// [DateRangePickerSelectionMode.multiRange].
+  ///
+  /// See also:
+  /// * [selectionShape], which allows to customize the shape of the selection
+  /// view in date range picker.
+  /// * [selectionColor], which fills the background of the selected cells in
+  /// the date range picker.
+  /// * [endRangeSelectionColor], which fills the background of the last cell of
+  /// the range selection in date range picker.
+  /// * [rangeSelectionColor], which fills the background of the in between
+  /// cells of date range picker in range selection.
+  /// * [selectionRadius], which is the radius for the selection view in the
+  /// date range picker when the selection shape set as
+  /// [DateRangePickerSelectionShape.circle].
+  /// * [selectionTextStyle], which is used to set the text style for the text
+  /// in the selected cell of date range picker.
+  /// * [rangeTextStyle], which is used to set text style for the text in the
+  /// selected range cell's of date range picker.
+  /// * [toggleDaySelection], which allows to deselect a date when the selection
+  /// mode set as [DateRangePickerSelectionMode.single].
+  /// * Knowledge base: [How to change the selection radius](https://www.syncfusion.com/kb/12230/how-to-change-the-selection-radius-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected range cells](https://www.syncfusion.com/kb/12148/how-to-customize-the-selected-range-cells-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to change the selection shape](https://www.syncfusion.com/kb/11900/how-to-change-the-selection-shape-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected month cell](https://www.syncfusion.com/kb/11441/how-to-customize-the-selected-month-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ``` dart
   ///
@@ -766,6 +1119,27 @@ class SfDateRangePicker extends StatelessWidget {
   /// [DateRangePickerSelectionMode.range] of
   /// [DateRangePickerSelectionMode.multiRange].
   ///
+  /// See also:
+  /// * [selectionShape], which allows to customize the shape of the selection
+  /// view in date range picker.
+  /// * [selectionColor], which fills the background of the selected cells in
+  /// the date range picker.
+  /// * [startRangeSelectionColor], which fills the background of the first cell
+  /// of the range selection in date range picker.
+  /// * [endRangeSelectionColor], which fills the background of the last cell of
+  /// the range selection in date range picker.
+  /// * [selectionRadius], which is the radius for the selection view in the
+  /// date range picker when the selection shape set as
+  /// [DateRangePickerSelectionShape.circle].
+  /// * [selectionTextStyle], which is used to set the text style for the text
+  /// in the selected cell of date range picker.
+  /// * [rangeTextStyle], which is used to set text style for the text in the
+  /// selected range cell's of date range picker.
+  /// * Knowledge base: [How to change the selection radius](https://www.syncfusion.com/kb/12230/how-to-change-the-selection-radius-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected range cells](https://www.syncfusion.com/kb/12148/how-to-customize-the-selected-range-cells-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to change the selection shape](https://www.syncfusion.com/kb/11900/how-to-change-the-selection-shape-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected month cell](https://www.syncfusion.com/kb/11441/how-to-customize-the-selected-month-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  ///
   /// ``` dart
   ///
   ///  Widget build(BuildContext context) {
@@ -798,6 +1172,27 @@ class SfDateRangePicker extends StatelessWidget {
   /// Note : It is applies only when the [DateRangePickerSelectionMode] set as
   /// [DateRangePickerSelectionMode.range] of
   /// [DateRangePickerSelectionMode.multiRange].
+  ///
+  /// See also:
+  /// * [selectionShape], which allows to customize the shape of the selection
+  /// view in date range picker.
+  /// * [selectionColor], which fills the background of the selected cells in
+  /// the date range picker.
+  /// * [startRangeSelectionColor], which fills the background of the first cell
+  /// of the range selection in date range picker.
+  /// * [rangeSelectionColor], which fills the background of the in between
+  /// cells of date range picker in range selection.
+  /// * [selectionRadius], which is the radius for the selection view in the
+  /// date range picker when the selection shape set as
+  /// [DateRangePickerSelectionShape.circle].
+  /// * [selectionTextStyle], which is used to set the text style for the text
+  /// in the selected cell of date range picker.
+  /// * [rangeTextStyle], which is used to set text style for the text in the
+  /// selected range cell's of date range picker.
+  /// * Knowledge base: [How to change the selection radius](https://www.syncfusion.com/kb/12230/how-to-change-the-selection-radius-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected range cells](https://www.syncfusion.com/kb/12148/how-to-customize-the-selected-range-cells-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to change the selection shape](https://www.syncfusion.com/kb/11900/how-to-change-the-selection-shape-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected month cell](https://www.syncfusion.com/kb/11441/how-to-customize-the-selected-month-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ``` dart
   ///
@@ -833,7 +1228,30 @@ class SfDateRangePicker extends StatelessWidget {
   /// and [DateRangePickerMonthViewSettings.weekendDays] in month view of
   /// date range picker.
   ///
-  /// See also: [DateRangePickerMonthViewSettings]
+  /// See also:
+  /// * [DateRangePickerMonthViewSettings], to know more about available options
+  /// to customize the month view of date range picker
+  /// * [monthCellStyle], which allows to customize the month cell of the month
+  /// view of the date range picker
+  /// * [cellBuilder], which allows to set custom widget for the picker cells
+  /// in the date range picker.
+  /// * [yearCellStyle], which allows to customize the year cell of the year,
+  /// decade and century views of the date range picker.
+  /// * [backgroundColor], which fills the background of the date range picker.
+  /// * [todayHighlightColor], which highlights the today date cell in the date
+  /// range picker.
+  /// * Knowledge base: [How to customize leading and trailing dates using cell builder](https://www.syncfusion.com/kb/12674/how-to-customize-leading-and-trailing-dates-using-cell-builder-in-the-flutter-date-range)
+  /// * Knowledge base: [How to customize the special dates using builder](https://www.syncfusion.com/kb/12374/how-to-customize-the-special-dates-using-builder-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to update blackout dates using onViewChanged callback](https://www.syncfusion.com/kb/12372/how-to-update-blackout-dates-using-onviewchanged-callback-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to select all days when clicking on the day header](https://www.syncfusion.com/kb/12353/how-to-select-all-days-when-clicking-on-the-day-header-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to change the first day of week](https://www.syncfusion.com/kb/12221/how-to-change-the-first-day-of-week-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the date range picker cells using builder](https://www.syncfusion.com/kb/12208/how-to-customize-the-date-range-picker-cells-using-builder-in-the-flutter-sfdaterangepicker)
+  /// * Knowledge base: [How to change the week end dates](https://www.syncfusion.com/kb/12182/how-to-change-the-week-end-dates-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to change the number of weeks](https://www.syncfusion.com/kb/12167/how-to-change-the-number-of-weeks-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to add active dates](https://www.syncfusion.com/kb/12075/how-to-add-active-dates-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to create timeline date picker](https://www.syncfusion.com/kb/12474/how-to-create-timeline-date-picker-in-flutter)
+  /// * Knowledge base: [How to restrict swipe gesture for range selection](https://www.syncfusion.com/kb/12117/how-to-restrict-swipe-gesture-for-range-selection-in-the-flutter-date-range-picker)
   ///
   /// ```dart
   ///
@@ -887,7 +1305,35 @@ class SfDateRangePicker extends StatelessWidget {
   /// [DateRangePickerYearCellStyle.disabledDatesDecoration] in year, decade and
   /// century view of the date range picker.
   ///
-  /// See also: [DateRangePickerYearCellStyle].
+  /// See also:
+  /// * [DateRangePickerYearCellStyle], to know more about available options
+  /// to customize the year cells of date range picker
+  /// * [monthCellStyle], which allows to customize the month cell of the month
+  /// view of the date range picker
+  /// * [cellBuilder], which allows to set custom widget for the picker cells
+  /// in the date range picker.
+  /// * [monthViewSettings], which allows to customize the month view of the
+  /// date range picker.
+  /// * [selectionColor], which fills the background of the selected cells in
+  /// the date range picker.
+  /// * [startRangeSelectionColor], which fills the background of the first cell
+  /// of the range selection in date range picker.
+  /// * [endRangeSelectionColor], which fills the background of the last cell of
+  /// the range selection in date range picker.
+  /// * [rangeSelectionColor], which fills the background of the in between
+  /// cells of date range picker in range selection.
+  /// * [selectionTextStyle], which is used to set the text style for the text
+  /// in the selected cell of date range picker.
+  /// * [rangeTextStyle], which is used to set text style for the text in the
+  /// selected range cell's of date range picker.
+  /// * [backgroundColor], which fills the background of the date range picker.
+  /// * [todayHighlightColor], which highlights the today date cell in the date
+  /// range picker.
+  /// * Knowledge base: [How to customize leading and trailing dates using cell builder](https://www.syncfusion.com/kb/12674/how-to-customize-leading-and-trailing-dates-using-cell-builder-in-the-flutter-date-range)
+  /// * Knowledge base: [How to select all days when clicking on the day header](https://www.syncfusion.com/kb/12353/how-to-select-all-days-when-clicking-on-the-day-header-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the date range picker cells using builder](https://www.syncfusion.com/kb/12208/how-to-customize-the-date-range-picker-cells-using-builder-in-the-flutter-sfdaterangepicker)
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the year, decade and century views](https://www.syncfusion.com/kb/12321/how-to-style-the-year-decade-century-views-in-the-flutter-date-range-picker)
   ///
   /// ``` dart
   ///
@@ -946,7 +1392,36 @@ class SfDateRangePicker extends StatelessWidget {
   /// [DateRangePickerMonthCellStyle.weekendDatesDecoration]  in the month cells
   /// of the date range picker.
   ///
-  /// See also: [DateRangePickerMonthCellStyle]
+  /// See also:
+  /// * [DateRangePickerMonthCellStyle] to know more about available options
+  /// to customize the month cell of date range picker
+  /// * [monthViewSettings], which allows to customize the month view of the
+  /// date range picker
+  /// * [cellBuilder], which allows to set custom widget for the picker cells
+  /// in the date range picker.
+  /// * [yearCellStyle], which allows to customize the year cell of the year,
+  /// decade and century views of the date range picker.
+  /// * [selectionColor], which fills the background of the selected cells in
+  /// the date range picker.
+  /// * [startRangeSelectionColor], which fills the background of the first cell
+  /// of the range selection in date range picker.
+  /// * [endRangeSelectionColor], which fills the background of the last cell of
+  /// the range selection in date range picker.
+  /// * [rangeSelectionColor], which fills the background of the in between
+  /// cells of date range picker in range selection.
+  /// * [selectionTextStyle], which is used to set the text style for the text
+  /// in the selected cell of date range picker.
+  /// * [rangeTextStyle], which is used to set text style for the text in the
+  /// selected range cell's of date range picker.
+  /// * [backgroundColor], which fills the background of the date range picker.
+  /// * [todayHighlightColor], which highlights the today date cell in the date
+  /// range picker.
+  /// * Knowledge base: [How to customize leading and trailing dates using cell builder](https://www.syncfusion.com/kb/12674/how-to-customize-leading-and-trailing-dates-using-cell-builder-in-the-flutter-date-range)
+  /// * Knowledge base: [How to customize the special dates using builder](https://www.syncfusion.com/kb/12374/how-to-customize-the-special-dates-using-builder-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the date range picker cells using builder](https://www.syncfusion.com/kb/12208/how-to-customize-the-date-range-picker-cells-using-builder-in-the-flutter-sfdaterangepicker)
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the current month date cell](https://www.syncfusion.com/kb/12190/how-to-style-the-current-month-date-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the month cell](https://www.syncfusion.com/kb/11307/how-to-customize-the-month-cell-of-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ``` dart
   ///
@@ -995,6 +1470,33 @@ class SfDateRangePicker extends StatelessWidget {
   /// not [null] then this property will be ignored and the widget render the
   /// dates based on the date given in [controller.displayDate].
   ///
+  /// See also:
+  /// * [DateRangePickerController.displayDate], which allows to move the
+  /// date range picker to specific date.
+  /// * [DateRangePickerController.forward], which allows to navigate to next
+  /// view of the date range picker programmatically.
+  /// * [DateRangePickerController.backward], which allows to navigate to
+  /// previous view of the date range picker programmatically.
+  /// * [onViewChanged], the callback which will notify that the current visible
+  /// dates were changed in date range picker.
+  /// * [initialSelectedDate], which allows to select date programmatically
+  /// initially on date range picker.
+  /// * [initialSelectedDates], which allows to list of select date
+  /// programmatically initially on date range picker.
+  /// * [initialSelectedRange], which allows to select a range of dates
+  /// programmatically initially on date range picker.
+  /// * [initialSelectedRanges], which allows to select a ranges of dates
+  /// programmatically initially on date range picker.
+  /// * [minDate], which is the least available date for the date range picker.
+  /// * [maxDate], which is the last available date for the date range picker.
+  /// * [showNavigationArrow], which display the navigation arrows on the header
+  /// view of the date range picker.
+  /// * Knowledge base: [How to navigate to the previous or next views using navigation arrows](https://www.syncfusion.com/kb/12270/how-to-navigate-to-the-previous-or-next-views-using-navigation-arrows-in-the-flutter-date)
+  /// * Knowledge base: [How to do programmatic navigation](https://www.syncfusion.com/kb/12140/how-to-do-programmatic-navigation-using-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to programmatically navigate to adjacent dates](https://www.syncfusion.com/kb/12137/how-to-programmatically-navigate-to-the-adjacent-dates-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to programmatically navigate](https://www.syncfusion.com/kb/12135/how-to-programmatically-navigate-to-the-date-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to restrict date range picker within date limit](https://www.syncfusion.com/kb/11329/how-to-restrict-date-range-picker-within-the-date-limit-in-the-flutter-date-range-picker)
+  ///
   /// ```dart
   ///
   /// Widget build(BuildContext context) {
@@ -1023,6 +1525,43 @@ class SfDateRangePicker extends StatelessWidget {
   ///
   /// It is only applicable when the [selectionMode] set as
   /// [DateRangePickerSelectionMode.single].
+  ///
+  /// See also:
+  /// * [initialDisplayDate], which used to navigate the date range picker to
+  /// the specific date initially.
+  /// * [initialSelectedDates], which allows to list of select date
+  /// programmatically initially on date range picker.
+  /// * [initialSelectedRange], which allows to select a range of dates
+  /// programmatically initially on date range picker.
+  /// * [initialSelectedRanges], which allows to select a ranges of dates
+  /// programmatically initially on date range picker.
+  /// * [DateRangePickerController.selectedDate],which allows to select date
+  /// programmatically dynamically on date range picker.
+  /// * [DateRangePickerController.selectedDates], which allows to select dates
+  /// programmatically dynamically on date range picker.
+  /// * [DateRangePickerController.selectedRange], which allows to select range
+  /// of dates programmatically dynamically on date range picker.
+  /// * [DateRangePickerController.selectedRanges], which allows to select
+  /// ranges of dates programmatically dynamically on date range picker.
+  /// * [selectionMode], which allows to customize the selection mode with
+  /// available mode options.
+  /// * [onSelectionChanged], the callback which notifies when the selection
+  /// cell changed on the date range picker.
+  /// * [showActionButtons], which allows to cancel of confirm the selection in
+  /// the date range picker.
+  /// * [onSubmit], the callback which notifies when the selected value
+  /// confirmed through confirm button on date range picker.
+  /// * [onCancel], the callback which notifies when the selected value canceled
+  /// and reverted to previous  confirmed value through cancel button on date
+  /// range picker.
+  /// * Knowledge base: [How to get the selected date](https://www.syncfusion.com/kb/11410/how-to-get-the-selected-date-from-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to confirm or cancel the selection](https://www.syncfusion.com/kb/12546/how-to-confirm-or-cancel-the-selection-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to change the selection radius](https://www.syncfusion.com/kb/12230/how-to-change-the-selection-radius-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected range cells](https://www.syncfusion.com/kb/12148/how-to-customize-the-selected-range-cells-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to deselect the selected date](https://www.syncfusion.com/kb/12138/how-to-deselect-the-selected-date-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to programmatically select the date](https://www.syncfusion.com/kb/12114/how-to-programmatically-select-the-date-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to change the selection shape](https://www.syncfusion.com/kb/11900/how-to-change-the-selection-shape-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected month cell](https://www.syncfusion.com/kb/11441/how-to-customize-the-selected-month-cell-in-the-flutter-date-range-picker-sfdaterangepicker)///
   ///
   /// ```dart
   ///
@@ -1055,9 +1594,15 @@ class SfDateRangePicker extends StatelessWidget {
   ///
   ///
   /// See also:
-  /// [initialDisplayDate].
-  /// [maxDate].
-  /// [controller.displayDate].
+  /// * [initialDisplayDate], which used to navigate the date range picker to
+  /// the specific date on initially.
+  /// * [maxDate], which is last available date for the date range picker.
+  /// * [controller.displayDate], which used to navigate the date range picker
+  /// to specific date on dynamically.
+  /// * [enablePastDates], which allows to enable the dates that falls before
+  /// the today date for interaction.
+  /// * Knowledge base: [How to enable or disable the past dates](https://www.syncfusion.com/kb/12168/how-to-enable-or-disable-the-past-dates-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to restrict date range picker within the date limit](https://www.syncfusion.com/kb/11329/how-to-restrict-date-range-picker-within-the-date-limit-in-the-flutter-date-range-picker)
   ///
   /// ``` dart
   ///
@@ -1089,10 +1634,15 @@ class SfDateRangePicker extends StatelessWidget {
   /// this property.
   ///
   /// See also:
-  ///
-  /// [initialDisplayDate].
-  /// [minDate].
-  /// [controller.displayDate].
+  /// * [initialDisplayDate], which used to navigate the date range picker to
+  /// the specific date on initially.
+  /// * [minDate], which is least available date for the date range picker.
+  /// * [controller.displayDate], which used to navigate the date range picker
+  /// to specific date on dynamically.
+  /// * [enablePastDates], which allows to enable the dates that falls before
+  /// the today date for interaction.
+  /// * Knowledge base: [How to enable or disable the past dates](https://www.syncfusion.com/kb/12168/how-to-enable-or-disable-the-past-dates-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to restrict date range picker within the date limit](https://www.syncfusion.com/kb/11329/how-to-restrict-date-range-picker-within-the-date-limit-in-the-flutter-date-range-picker)
   ///
   /// ``` dart
   ///
@@ -1117,6 +1667,13 @@ class SfDateRangePicker extends StatelessWidget {
   /// and selection interactions to that dates were restricted.
   ///
   /// Defaults to `true`.
+  ///
+  /// See also:
+  /// * [minDate], which is the least available date for the date range picker.
+  /// * [maxDate], which is last available date for the date range picker.
+  /// * Knowledge base: [How to enable or disable the past dates](https://www.syncfusion.com/kb/12168/how-to-enable-or-disable-the-past-dates-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to restrict date range picker within the date limit](https://www.syncfusion.com/kb/11329/how-to-restrict-date-range-picker-within-the-date-limit-in-the-flutter-date-range-picker)
+  ///
   ///
   /// ``` dart
   ///
@@ -1147,6 +1704,41 @@ class SfDateRangePicker extends StatelessWidget {
   /// It is only applicable when the [selectionMode] set as
   /// [DateRangePickerSelectionMode.multiple].
   ///
+  ///
+  /// See also:
+  /// * [initialDisplayDate], which used to navigate the date range picker to
+  /// the specific date initially.
+  /// * [initialSelectedDate], which allows to select date programmatically
+  /// initially on date range picker.
+  /// * [initialSelectedRange], which allows to select a range of dates
+  /// programmatically initially on date range picker.
+  /// * [initialSelectedRanges], which allows to select a ranges of dates
+  /// programmatically initially on date range picker.
+  /// * [DateRangePickerController.selectedDate],which allows to select date
+  /// programmatically dynamically on date range picker.
+  /// * [DateRangePickerController.selectedDates], which allows to select dates
+  /// programmatically dynamically on date range picker.
+  /// * [DateRangePickerController.selectedRange], which allows to select range
+  /// of dates programmatically dynamically on date range picker.
+  /// * [DateRangePickerController.selectedRanges], which allows to select
+  /// ranges of dates programmatically dynamically on date range picker.
+  /// * [selectionMode], which allows to customize the selection mode with
+  /// available mode options.
+  /// * [onSelectionChanged], the callback which notifies when the selection
+  /// cell changed on the date range picker.
+  /// * [showActionButtons], which allows to cancel of confirm the selection in
+  /// the date range picker.
+  /// * [onSubmit], the callback which notifies when the selected value
+  /// confirmed through confirm button on date range picker.
+  /// * [onCancel], the callback which notifies when the selected value canceled
+  /// and reverted to previous  confirmed value through cancel button on date
+  /// range picker.
+  /// * Knowledge base: [How to get the selected date](https://www.syncfusion.com/kb/11410/how-to-get-the-selected-date-from-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to confirm or cancel the selection](https://www.syncfusion.com/kb/12546/how-to-confirm-or-cancel-the-selection-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to change the selection radius](https://www.syncfusion.com/kb/12230/how-to-change-the-selection-radius-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to programmatically select the date](https://www.syncfusion.com/kb/12114/how-to-programmatically-select-the-date-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to change the selection shape](https://www.syncfusion.com/kb/11900/how-to-change-the-selection-shape-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected month cell](https://www.syncfusion.com/kb/11441/how-to-customize-the-selected-month-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ```dart
   ///
@@ -1184,7 +1776,47 @@ class SfDateRangePicker extends StatelessWidget {
   /// It is only applicable when the [selectionMode] set as
   /// [DateRangePickerSelectionMode.range].
   ///
-  /// See also: [PickerDateRange].
+  /// See also:
+  /// * [PickerDateRange], which is used to store the start and end date of the
+  /// range selection.
+  /// * [initialDisplayDate], which used to navigate the date range picker to
+  /// the specific date initially.
+  /// * [initialSelectedDate], which allows to select date programmatically
+  /// initially on date range picker.
+  /// * [initialSelectedDates], which allows to list of select date
+  /// programmatically initially on date range picker.
+  /// * [initialSelectedRanges], which allows to select a ranges of dates
+  /// programmatically initially on date range picker.
+  /// * [DateRangePickerController.selectedDate],which allows to select date
+  /// programmatically dynamically on date range picker.
+  /// * [DateRangePickerController.selectedDates], which allows to select dates
+  /// programmatically dynamically on date range picker.
+  /// * [DateRangePickerController.selectedRange], which allows to select range
+  /// of dates programmatically dynamically on date range picker.
+  /// * [DateRangePickerController.selectedRanges], which allows to select
+  /// ranges of dates programmatically dynamically on date range picker.
+  /// * [selectionMode], which allows to customize the selection mode with
+  /// available mode options.
+  /// * [onSelectionChanged], the callback which notifies when the selection
+  /// cell changed on the date range picker.
+  /// * [showActionButtons], which allows to cancel of confirm the selection in
+  /// the date range picker.
+  /// * [onSubmit], the callback which notifies when the selected value
+  /// confirmed through confirm button on date range picker.
+  /// * [onCancel], the callback which notifies when the selected value canceled
+  /// and reverted to previous  confirmed value through cancel button on date
+  /// range picker.
+  /// * Knowledge base: [Range selection using multiple view picker](https://www.syncfusion.com/kb/11534/range-selection-using-the-multiple-view-picker-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to select a week](https://www.syncfusion.com/kb/11412/how-to-select-a-week-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to confirm or cancel the selection](https://www.syncfusion.com/kb/12546/how-to-confirm-or-cancel-the-selection-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to select previous or next dates bases on selected date](https://www.syncfusion.com/kb/12354/how-to-select-previous-or-next-dates-based-on-the-selected-date-in-the-flutter-date-range)
+  /// * Knowledge base: [How to change the selection radius](https://www.syncfusion.com/kb/12230/how-to-change-the-selection-radius-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to get the start and end date of the selected range](https://www.syncfusion.com/kb/12248/how-to-get-the-start-and-end-date-of-the-selected-range-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the selected range cells](https://www.syncfusion.com/kb/12148/how-to-customize-the-selected-range-cells-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to restrict swipe gesture for range selection](https://www.syncfusion.com/kb/12117/how-to-restrict-swipe-gesture-for-range-selection-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to programmatically select the date](https://www.syncfusion.com/kb/12114/how-to-programmatically-select-the-date-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to change the selection shape](https://www.syncfusion.com/kb/11900/how-to-change-the-selection-shape-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected month cell](https://www.syncfusion.com/kb/11441/how-to-customize-the-selected-month-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ```dart
   ///
@@ -1219,7 +1851,47 @@ class SfDateRangePicker extends StatelessWidget {
   /// It is only applicable when the [selectionMode] set as
   /// [DateRangePickerSelectionMode.multiRange].
   ///
-  /// See also: [PickerDateRange].
+  /// See also:
+  /// * [PickerDateRange], which is used to store the start and end date of the
+  /// range selection.
+  /// * [initialDisplayDate], which used to navigate the date range picker to
+  /// the specific date initially.
+  /// * [initialSelectedDate], which allows to select date programmatically
+  /// initially on date range picker.
+  /// * [initialSelectedDates], which allows to list of select date
+  /// programmatically initially on date range picker.
+  /// * [initialSelectedRange], which allows to select a range of dates
+  /// programmatically initially on date range picker.
+  /// * [DateRangePickerController.selectedDate],which allows to select date
+  /// programmatically dynamically on date range picker.
+  /// * [DateRangePickerController.selectedDates], which allows to select dates
+  /// programmatically dynamically on date range picker.
+  /// * [DateRangePickerController.selectedRange], which allows to select range
+  /// of dates programmatically dynamically on date range picker.
+  /// * [DateRangePickerController.selectedRanges], which allows to select
+  /// ranges of dates programmatically dynamically on date range picker.
+  /// * [selectionMode], which allows to customize the selection mode with
+  /// available mode options.
+  /// * [onSelectionChanged], the callback which notifies when the selection
+  /// cell changed on the date range picker.
+  /// * [showActionButtons], which allows to cancel of confirm the selection in
+  /// the date range picker.
+  /// * [onSubmit], the callback which notifies when the selected value
+  /// confirmed through confirm button on date range picker.
+  /// * [onCancel], the callback which notifies when the selected value canceled
+  /// and reverted to previous  confirmed value through cancel button on date
+  /// range picker.
+  /// * Knowledge base: [Range selection using multiple view picker](https://www.syncfusion.com/kb/11534/range-selection-using-the-multiple-view-picker-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to select a week](https://www.syncfusion.com/kb/11412/how-to-select-a-week-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to confirm or cancel the selection](https://www.syncfusion.com/kb/12546/how-to-confirm-or-cancel-the-selection-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to select previous or next dates bases on selected date](https://www.syncfusion.com/kb/12354/how-to-select-previous-or-next-dates-based-on-the-selected-date-in-the-flutter-date-range)
+  /// * Knowledge base: [How to change the selection radius](https://www.syncfusion.com/kb/12230/how-to-change-the-selection-radius-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to get the start and end date of the selected range](https://www.syncfusion.com/kb/12248/how-to-get-the-start-and-end-date-of-the-selected-range-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the selected range cells](https://www.syncfusion.com/kb/12148/how-to-customize-the-selected-range-cells-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to restrict swipe gesture for range selection](https://www.syncfusion.com/kb/12117/how-to-restrict-swipe-gesture-for-range-selection-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to programmatically select the date](https://www.syncfusion.com/kb/12114/how-to-programmatically-select-the-date-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to change the selection shape](https://www.syncfusion.com/kb/11900/how-to-change-the-selection-shape-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected month cell](https://www.syncfusion.com/kb/11441/how-to-customize-the-selected-month-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ```dart
   ///
@@ -1273,12 +1945,57 @@ class SfDateRangePicker extends StatelessWidget {
   /// select the dates or ranges programmatically on [SfDateRangePicker] on
   /// initial load and in run time.
   ///
-  /// See also: [DateRangePickerSelectionMode]
   ///
   /// Defaults to null.
   ///
+  /// See also:
+  /// * [DateRangePickerController], to know more about the controller and it's
+  /// usage with the date range picker.
+  /// * [initialDisplayDate], which used to navigate the date range picker to
+  /// the specific date initially.
+  /// * [initialSelectedDate], which allows to select date programmatically
+  /// initially on date range picker.
+  /// * [initialSelectedDates], which allows to list of select date
+  /// programmatically initially on date range picker.
+  /// * [initialSelectedRange], which allows to select a range of dates
+  /// programmatically initially on date range picker.
+  /// * [initialSelectedRanges], which allows to select a ranges of dates
+  /// programmatically initially on date range picker.
+  /// * [DateRangePickerController.selectedDate],which allows to select date
+  /// programmatically dynamically on date range picker.
+  /// * [DateRangePickerController.selectedDates], which allows to select dates
+  /// programmatically dynamically on date range picker.
+  /// * [DateRangePickerController.selectedRange], which allows to select range
+  /// of dates programmatically dynamically on date range picker.
+  /// * [DateRangePickerController.selectedRanges], which allows to select
+  /// ranges of dates programmatically dynamically on date range picker.
+  /// * [selectionMode], which allows to customize the selection mode with
+  /// available mode options.
+  /// * [onViewChanged], the callback which notifies when the current view
+  /// visible date changed on the date range picker.
+  /// * [onSelectionChanged], the callback which notifies when the selected cell
+  /// changed on the the date range picker.
+  /// * [showActionButtons], which allows to cancel of confirm the selection in
+  /// the date range picker.
+  /// * [onSubmit], the callback which notifies when the selected value
+  /// confirmed through confirm button on date range picker.
+  /// * [onCancel], the callback which notifies when the selected value canceled
+  /// and reverted to previous  confirmed value through cancel button on date
+  /// range picker.
+  /// * Knowledge base: [How to get the selected date](https://www.syncfusion.com/kb/11410/how-to-get-the-selected-date-from-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to select a week](https://www.syncfusion.com/kb/11412/how-to-select-a-week-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to select all days when clicking on the day header](https://www.syncfusion.com/kb/12353/how-to-select-all-days-when-clicking-on-the-day-header-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to confirm or cancel the selection](https://www.syncfusion.com/kb/12546/how-to-confirm-or-cancel-the-selection-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to select previous or next dates bases on selected date](https://www.syncfusion.com/kb/12354/how-to-select-previous-or-next-dates-based-on-the-selected-date-in-the-flutter-date-range)
+  /// * Knowledge base: [How to get the start and end date of the selected range](https://www.syncfusion.com/kb/12248/how-to-get-the-start-and-end-date-of-the-selected-range-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to programmatically select the date](https://www.syncfusion.com/kb/12114/how-to-programmatically-select-the-date-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to do programmatic navigation](https://www.syncfusion.com/kb/12140/how-to-do-programmatic-navigation-using-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to programmatically navigate to adjacent dates](https://www.syncfusion.com/kb/12137/how-to-programmatically-navigate-to-the-adjacent-dates-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to programmatically navigate](https://www.syncfusion.com/kb/12135/how-to-programmatically-navigate-to-the-date-in-the-flutter-date-range-picker)
+  ///
   /// This example demonstrates how to use the [SfDateRangePickerController] for
   /// [SfDateRangePicker].
+  ///
   ///
   /// ``` dart
   ///
@@ -1346,6 +2063,13 @@ class SfDateRangePicker extends StatelessWidget {
   /// [false] the navigation arrows will be shown, only whn the
   /// [showNavigationArrow] property set as [true].
   ///
+  /// See also:
+  /// * [DateRangePickerController.forward], which allows to navigate to next
+  /// view of the date range picker programmatically.
+  /// * [DateRangePickerController.backward], which allows to navigate to
+  /// previous view of the date range picker programmatically.
+  ///  * Knowledge base: [How to navigate to the previous or next dates using navigation arrows](https://www.syncfusion.com/kb/12270/how-to-navigate-to-the-previous-or-next-views-using-navigation-arrows-in-the-flutter-date)
+  ///
   /// ``` dart
   ///
   ///Widget build(BuildContext context) {
@@ -1371,6 +2095,17 @@ class SfDateRangePicker extends StatelessWidget {
   /// vertical direction instead of the horizontal direction.
   ///
   /// Defaults to `DateRangePickerNavigationDirection.horizontal`.
+  ///
+  /// See also:
+  /// * [navigationMode], which allows to customize the navigation mode with
+  /// available options.
+  /// * [minDate], which is the least available date in the date range picker.
+  /// * [maxDate], which is the last available date in the date range picker.
+  /// * [enableMultiView], which allows to display multiple picker side by
+  /// side based on the navigation direction.
+  /// * Knowledge base: [How to show two pickers vertically](https://www.syncfusion.com/kb/12193/how-to-show-two-pickers-vertically-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to change the navigation direction](https://www.syncfusion.com/kb/12176/how-to-change-the-navigation-direction-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to restrict swipe gesture for range selection](https://www.syncfusion.com/kb/12117/how-to-restrict-swipe-gesture-for-range-selection-in-the-flutter-date-range-picker)
   ///
   /// ``` dart
   ///
@@ -1406,6 +2141,32 @@ class SfDateRangePicker extends StatelessWidget {
   /// [DateRangePickerSelectionShape.circle], then the circle radius can be
   /// adjusted in month view by using the [selectionRadius] property.
   ///
+  /// See also:
+  /// * [selectionMode], which allows to customize the selection mode with
+  /// available mode options.
+  /// * [allowViewNavigation], which allows to navigate between views quickly,
+  /// and setting this property as `false`, allows to select the cells on
+  /// year, decade and century view of date range picker.
+  /// * [selectionColor], which fills the background of the selected cells in
+  /// the date range picker.
+  /// * [startRangeSelectionColor], which fills the background of the first cell
+  /// of the range selection in date range picker.
+  /// * [endRangeSelectionColor], which fills the background of the last cell of
+  /// the range selection in date range picker.
+  /// * [rangeSelectionColor], which fills the background of the in between
+  /// cells of date range picker in range selection.
+  /// * [selectionRadius], which is the radius for the selection view in the
+  /// date range picker when the selection shape set as
+  /// [DateRangePickerSelectionShape.circle].
+  /// * [selectionTextStyle], which is used to set the text style for the text
+  /// in the selected cell of date range picker.
+  /// * [rangeTextStyle], which is used to set text style for the text in the
+  /// selected range cell's of date range picker.
+  /// * Knowledge base: [How to change the selection radius](https://www.syncfusion.com/kb/12230/how-to-change-the-selection-radius-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected range cells](https://www.syncfusion.com/kb/12148/how-to-customize-the-selected-range-cells-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to change the selection shape](https://www.syncfusion.com/kb/11900/how-to-change-the-selection-shape-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected month cell](https://www.syncfusion.com/kb/11441/how-to-customize-the-selected-month-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  ///
   /// ``` dart
   ///
   /// Widget build(BuildContext context) {
@@ -1435,6 +2196,18 @@ class SfDateRangePicker extends StatelessWidget {
   ///
   /// Defaults to null.
   ///
+  /// See also:
+  /// * [headerStyle], which used to customize the header view of the date range
+  /// picker.
+  /// * [headerHeight], which is the size of the header view in the date range
+  /// picker.
+  /// * [yearCellStyle], which is used to customize the year, decade and century
+  /// view cells in the date range picker.
+  /// * Knowledge base: [How to customize the header view](https://www.syncfusion.com/kb/11427/how-to-customize-the-header-view-of-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the header in the flutter multi date range picker](https://www.syncfusion.com/kb/11897/how-to-customize-the-header-in-the-flutter-multi-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to change the month format](https://www.syncfusion.com/kb/12169/how-to-change-the-month-format-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the year decade and century views](https://www.syncfusion.com/kb/12321/how-to-style-the-year-decade-century-views-in-the-flutter-date-range-picker)
+  ///
   /// ``` dart
   ///
   /// Widget build(BuildContext context) {
@@ -1458,6 +2231,18 @@ class SfDateRangePicker extends StatelessWidget {
   ///
   /// Defaults to [DateRangePickerNavigationMode.snap]
   ///
+  /// See also:
+  /// * [navigationDirection], which allows to customize the navigation
+  /// direction of the date range picker with available options.
+  /// * [minDate], which is the least available date in the date range picker.
+  /// * [maxDate], which is the last available date in the date range picker.
+  /// * [enableMultiView], which allows to display multiple picker side by
+  /// side based on the navigation direction.
+  /// * Knowledge base: [How to show two pickers vertically](https://www.syncfusion.com/kb/12193/how-to-show-two-pickers-vertically-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to change the navigation direction](https://www.syncfusion.com/kb/12176/how-to-change-the-navigation-direction-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to restrict the view navigation](https://www.syncfusion.com/kb/12500/how-to-restrict-the-view-navigation-in-the-flutter-date-range-picker)
+  ///
+  ///
   /// ``` dart
   ///
   /// Widget build(BuildContext context) {
@@ -1475,6 +2260,28 @@ class SfDateRangePicker extends StatelessWidget {
   ///
   /// The visible date range and the visible view which visible on view when the
   /// view changes available in the [DateRangePickerViewChangedArgs].
+  ///
+  /// See also:
+  /// * [onSelectionChanged], callback which notifies whenever the selection
+  /// changed on date range picker.
+  /// * [onSubmit], callback which notifies when the selection confirmed
+  /// through the ok button of [showActionButtons].
+  /// * [onCancel], callback which notifies when the selection canceled through
+  /// the cancel button of [showActionButtons].
+  /// * [DateRangePickerViewChangedArgs], which contains the visible date range
+  /// details of the current visible view.
+  /// * [initialDisplayDate], which is used to navigate the date range picker to
+  /// specific date on initially.
+  /// * [DateRangePickerController.displayDate], which allows to move the
+  /// date range picker to specific date.
+  /// * [DateRangePickerController.forward], which allows to navigate to next
+  /// view of the date range picker programmatically.
+  /// * [DateRangePickerController.backward], which allows to navigate to
+  /// previous view of the date range picker programmatically.
+  /// * Knowledge base: [How to update blackout dates using onViewChanged callback](https://www.syncfusion.com/kb/12372/how-to-update-blackout-dates-using-onviewchanged-callback-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the header in flutter multi date range picker](https://www.syncfusion.com/kb/11897/how-to-customize-the-header-in-the-flutter-multi-date-range-picker-sfdaterangepicker)
+  ///
+  ///
   ///
   /// ``` dart
   ///
@@ -1501,6 +2308,48 @@ class SfDateRangePicker extends StatelessWidget {
   ///
   /// The dates or ranges that selected when the selection changes available in
   /// the [DateRangePickerSelectionChangedArgs].
+  ///
+  /// See also:
+  /// * [onViewChanged], callback which notifies when the current view visible
+  /// dates changed on date range picker.
+  /// * [DateRangePickerMonthViewSettings.enableSwipeSelection], which allows to
+  /// select the cells on swipe when the selection mode set as
+  /// [DateRangePickerSelectionMode.range],
+  /// [DateRangePickerSelectionMode.multiRange], and
+  /// [DateRangePickerSelectionMode.extendableRange].
+  /// * [selectionMode], which allows to customize the selection mode with
+  /// available mode options.
+  /// * [allowViewNavigation], which allows to navigate between views quickly,
+  /// and setting this property as `false`, allows to select the cells on
+  /// year, decade and century view of date range picker.
+  /// * [toggleDaySelection], which allows to deselect a date when the selection
+  /// mode set as [DateRangePickerSelectionMode.single].
+  /// * [showActionButtons], which displays action buttons on bottom of date
+  /// range picker, which allows to confirm and cancel the selection.
+  /// * [onSubmit], callback which notifies when the selection confirmed
+  /// through the ok button of [showActionButtons].
+  /// * [onCancel], callback which notifies when the selection canceled through
+  /// the cancel button of [showActionButtons].
+  /// * [initialSelectedDate], which allows to select date programmatically
+  /// initially on date range picker.
+  /// * [initialSelectedDates], which allows to list of select date
+  /// programmatically initially on date range picker.
+  /// * [initialSelectedRange], which allows to select a range of dates
+  /// programmatically initially on date range picker.
+  /// * [initialSelectedRanges], which allows to select a ranges of dates
+  /// programmatically initially on date range picker.
+  /// * [DateRangePickerController.selectedDate],which allows to select date
+  /// programmatically dynamically on date range picker.
+  /// * [DateRangePickerController.selectedDates], which allows to select dates
+  /// programmatically dynamically on date range picker.
+  /// * [DateRangePickerController.selectedRange], which allows to select range
+  /// of dates programmatically dynamically on date range picker.
+  /// * [DateRangePickerController.selectedRanges], which allows to select
+  /// ranges of dates programmatically dynamically on date range picker.
+  /// * Knowledge base: [How to get the selected date](https://www.syncfusion.com/kb/11410/how-to-get-the-selected-date-from-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to confirm or cancel the selection](https://www.syncfusion.com/kb/12546/how-to-confirm-or-cancel-the-selection-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to select previous or next dates bases on selected date](https://www.syncfusion.com/kb/12354/how-to-select-previous-or-next-dates-based-on-the-selected-date-in-the-flutter-date-range)
+  /// * Knowledge base: [How to get the start and end date of the selected range](https://www.syncfusion.com/kb/12248/how-to-get-the-start-and-end-date-of-the-selected-range-in-the-flutter-date-range-picker)
   ///
   /// ``` dart
   ///
@@ -1542,9 +2391,17 @@ class SfDateRangePicker extends StatelessWidget {
 
   /// Text that displays on the confirm button.
   ///
-  /// See also
-  /// [showActionButtons]
-  /// [onSelectionChanged].
+  /// See also:
+  /// * [showActionButtons], which allows to display action buttons at the
+  /// bottom of the date range picker to handle the selection.
+  /// * [onSelectionChanged], callback which notifies whenever the selection
+  /// changed on date range picker.
+  /// * [cancelText], which is text that display on the cancel button.
+  /// * [onSubmit], callback which notifies when the selection confirmed
+  /// through the ok button of [showActionButtons].
+  /// * [onCancel], callback which notifies when the selection canceled through
+  /// the cancel button of [showActionButtons].
+  /// * Knowledge base: [How to confirm or cancel the selection](https://www.syncfusion.com/kb/12546/how-to-confirm-or-cancel-the-selection-in-the-flutter-date-range-picker)
   ///
   /// ``` dart
   ///
@@ -1566,9 +2423,17 @@ class SfDateRangePicker extends StatelessWidget {
 
   /// Text that displays on the cancel button.
   ///
-  /// See also
-  /// [showActionButtons]
-  /// [onCancel].
+  /// See also:
+  /// * [showActionButtons], which allows to display action buttons at the
+  /// bottom of the date range picker to handle the selection.
+  /// * [onSelectionChanged], callback which notifies whenever the selection
+  /// changed on date range picker.
+  /// * [confirmText], which is text that display on the confirm button.
+  /// * [onSubmit], callback which notifies when the selection confirmed
+  /// through the ok button of [showActionButtons].
+  /// * [onCancel], callback which notifies when the selection canceled through
+  /// the cancel button of [showActionButtons].
+  /// * Knowledge base: [How to confirm or cancel the selection](https://www.syncfusion.com/kb/12546/how-to-confirm-or-cancel-the-selection-in-the-flutter-date-range-picker)
   ///
   /// ```dart
   ///
@@ -1594,6 +2459,31 @@ class SfDateRangePicker extends StatelessWidget {
   /// The [onSubmit] and [onCancel] callback is called based on the
   /// actions of the buttons.
   ///
+  /// See also:
+  /// * [DateRangePickerMonthViewSettings.enableSwipeSelection], which allows to
+  /// select the cells on swipe when the selection mode set as
+  /// [DateRangePickerSelectionMode.range],
+  /// [DateRangePickerSelectionMode.multiRange], and
+  /// [DateRangePickerSelectionMode.extendableRange].
+  /// * [selectionMode], which allows to customize the selection mode with
+  /// available mode options.
+  /// * [allowViewNavigation], which allows to navigate between views quickly,
+  /// and setting this property as `false`, allows to select the cells on
+  /// year, decade and century view of date range picker.
+  /// * [onSelectionChanged], callback which notifies whenever the selection
+  /// changed on date range picker.
+  /// * [selectionRadius], which is the radius for the selection view in the
+  /// date range picker when the selection shape set as
+  /// [DateRangePickerSelectionShape.circle].
+  /// * [onSubmit], callback which notifies when the selection confirmed
+  /// through the ok button of [showActionButtons].
+  /// * [onCancel], callback which notifies when the selection canceled through
+  /// the cancel button of [showActionButtons].
+  /// * Knowledge base: [How to get the selected date](https://www.syncfusion.com/kb/11410/how-to-get-the-selected-date-from-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to confirm or cancel the selection](https://www.syncfusion.com/kb/12546/how-to-confirm-or-cancel-the-selection-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to get the start and end date of the selected range](https://www.syncfusion.com/kb/12248/how-to-get-the-start-and-end-date-of-the-selected-range-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to programmatically select the date](https://www.syncfusion.com/kb/12114/how-to-programmatically-select-the-date-in-the-flutter-date-range-picker-sfdaterangepicker)
+  ///
   /// ``` dart
   ///
   /// @override
@@ -1616,8 +2506,16 @@ class SfDateRangePicker extends StatelessWidget {
   /// Called whenever the cancel button tapped on date range picker.
   /// It reset the selected values to confirmed selected values.
   ///
-  /// See also
-  /// [showActionButtons].
+  /// See also:
+  /// * [showActionButtons], which allows to display action buttons at the
+  /// bottom of the date range picker to handle the selection.
+  /// * [onSelectionChanged], callback which notifies whenever the selection
+  /// changed on date range picker.
+  /// * [cancelText], which is text that display on the cancel button.
+  /// * [confirmText], which is text that display on the confirm button
+  /// * [onSubmit], callback which notifies when the selection confirmed
+  /// through the ok button of [showActionButtons].
+  /// * Knowledge base: [How to confirm or cancel the selection](https://www.syncfusion.com/kb/12546/how-to-confirm-or-cancel-the-selection-in-the-flutter-date-range-picker)
   ///
   /// ```dart
   ///
@@ -1642,8 +2540,16 @@ class SfDateRangePicker extends StatelessWidget {
   /// The dates or ranges that have been selected are confirmed and the
   /// selected value is available in the value argument.
   ///
-  /// See also
-  /// [showActionButtons].
+  /// See also:
+  /// * [showActionButtons], which allows to display action buttons at the
+  /// bottom of the date range picker to handle the selection.
+  /// * [onSelectionChanged], callback which notifies whenever the selection
+  /// changed on date range picker.
+  /// * [cancelText], which is text that display on the cancel button.
+  /// * [confirmText], which is text that display on the confirm button
+  /// * [onCancel], callback which notifies when the selection canceled through
+  /// the cancel button of [showActionButtons].
+  /// * Knowledge base: [How to confirm or cancel the selection](https://www.syncfusion.com/kb/12546/how-to-confirm-or-cancel-the-selection-in-the-flutter-date-range-picker)
   ///
   /// ```dart
   ///
@@ -1719,6 +2625,8 @@ class SfDateRangePicker extends StatelessWidget {
       confirmText: confirmText,
       cancelText: cancelText,
       showActionButtons: showActionButtons,
+      showTodayButton: showTodayButton,
+      selectableDayPredicate: selectableDayPredicate,
     );
   }
 
@@ -1795,6 +2703,11 @@ class SfDateRangePicker extends StatelessWidget {
         .add(monthViewSettings.toDiagnosticsNode(name: 'monthViewSettings'));
 
     properties.add(monthCellStyle.toDiagnosticsNode(name: 'monthCellStyle'));
+
+    properties
+        .add(DiagnosticsProperty<bool>('showTodayButton', showTodayButton));
+    properties.add(DiagnosticsProperty<DateRangePickerSelectableDayPredicate>(
+        'selectableDayPredicate', selectableDayPredicate));
   }
 }
 
@@ -1846,12 +2759,21 @@ class SfDateRangePicker extends StatelessWidget {
 /// [HijriDatePickerYearCellStyle], [HijriDatePickerMonthCellStyle]
 ///
 /// See also:
-/// * [SfDateRangePickerThemeData]
-/// * [DateRangePickerHeaderStyle]
-/// * [DateRangePickerViewHeaderStyle]
-/// * [HijriDatePickerMonthViewSettings]
-/// * [HijriDatePickerYearCellStyle]
-/// * [HijriDatePickerMonthCellStyle]
+/// * [SfDateRangePickerThemeData], which used to set consistent look for the
+/// hijri date range picker element.
+/// * [DateRangePickerHeaderStyle], which used to customize the header view of
+/// the hijri date range picker.
+/// * [DateRangePickerViewHeaderStyle], which used to customize the view header
+/// view of the hijri date range picker.
+/// * [HijriDatePickerMonthViewSettings], which used to customize the month view
+/// of the hijri date range picker.
+/// * [HijriDatePickerYearCellStyle], which used to customize the year, decade
+/// and century views cell of the hijri date range picker.
+/// * [HijriDatePickerMonthCellStyle], which used to customize the month cells
+/// of month view in hijri date range picker.
+/// * [SfDateRangePicker], Material widget, which used to display and
+/// handle the gregorian date time values.
+/// * Knowledge base: [How to use hijri date picker](https://www.syncfusion.com/kb/12200/how-to-use-hijri-date-range-picker-sfhijridaterangepicker-in-flutter)
 ///
 /// ``` dart
 ///class MyApp extends StatefulWidget {
@@ -1938,6 +2860,8 @@ class SfHijriDateRangePicker extends StatelessWidget {
     this.rangeTextStyle,
     this.monthFormat,
     this.cellBuilder,
+    this.showTodayButton = false,
+    this.selectableDayPredicate,
   })  : initialSelectedDate =
             controller != null && controller.selectedDate != null
                 ? controller.selectedDate
@@ -1976,6 +2900,16 @@ class SfHijriDateRangePicker extends StatelessWidget {
   ///
   /// Also refer [HijriDatePickerView].
   ///
+  /// See also:
+  /// * [HijriDatePickerView], to know more about the available views in the
+  /// hijri date range picker.
+  /// * [HijriDatePickerController.view], which used to changed the view of
+  /// hijri date range picker dynamically.
+  /// * [allowViewNavigation], which allows to navigate to different hijri date
+  ///  range picker views quick and easily by tapping on the header.
+  /// * [How to switch between the date range picker views when calendar has appointments](https://www.syncfusion.com/kb/11305/how-to-switch-between-the-date-range-picker-views-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to use hijri date picker](https://www.syncfusion.com/kb/12200/how-to-use-hijri-date-range-picker-sfhijridaterangepicker-in-flutter)
+  ///
   /// ```dart
   ///Widget build(BuildContext context) {
   ///    return MaterialApp(
@@ -2007,7 +2941,67 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// [false] the navigation through swiping will work as it is without any
   /// restriction.
   ///
-  /// See also: [HijriDatePickerMonthViewSettings.enableSwipeSelection].
+  /// See also:
+  /// * [HijriDatePickerMonthViewSettings.enableSwipeSelection], which allows to
+  /// select the cells on swipe when the selection mode set as
+  /// [DateRangePickerSelectionMode.range],
+  /// [DateRangePickerSelectionMode.multiRange], and
+  /// [DateRangePickerSelectionMode.extendableRange].
+  /// * [DateRangePickerSelectionMode], to know more about the available
+  /// selection modes in hijri date range picker.
+  /// * [allowViewNavigation], which allows to navigate between views quickly,
+  /// and setting this property as `false`, allows to select the cells on
+  /// year and decade view of the hijri date range picker.
+  /// * [selectionShape], which allows to customize the shape of the selection
+  /// view in hijri date range picker.
+  /// * [onSelectionChanged], callback which notifies whenever the selection
+  /// changed on hijri date range picker.
+  /// * [selectionColor], which fills the background of the selected cells in
+  /// the hijri date range picker.
+  /// * [startRangeSelectionColor], which fills the background of the first cell
+  /// of the range selection in hijri date range picker.
+  /// * [endRangeSelectionColor], which fills the background of the last cell of
+  /// the range selection in hijri date range picker.
+  /// * [rangeSelectionColor], which fills the background of the in between
+  /// cells of hijri date range picker in range selection.
+  /// * [selectionRadius], which is the radius for the selection view in the
+  /// hijri date range picker when the selection shape set as
+  /// [DateRangePickerSelectionShape.circle].
+  /// * [selectionTextStyle], which is used to set the text style for the text
+  /// in the selected cell of hijri date range picker.
+  /// * [rangeTextStyle], which is used to set text style for the text in the
+  /// selected range cell's of hijri date range picker.
+  /// * [toggleDaySelection], which allows to deselect a date when the selection
+  /// mode set as [DateRangePickerSelectionMode.single].
+  /// * [showActionButtons], which displays action buttons on bottom of hijri
+  ///  date range picker, which allows to confirm and cancel the selection.
+  /// * [onSubmit], callback which notifies when the selection confirmed
+  /// through the ok button of [showActionButtons].
+  /// * [onCancel], callback which notifies when the selection canceled through
+  /// the cancel button of [showActionButtons].
+  /// * [initialSelectedDate], which allows to select date programmatically
+  /// initially on hijri date range picker.
+  /// * [initialSelectedDates], which allows to list of select date
+  /// programmatically initially on hijri date range picker.
+  /// * [initialSelectedRange], which allows to select a range of dates
+  /// programmatically initially on hijri date range picker.
+  /// * [initialSelectedRanges], which allows to select a ranges of dates
+  /// programmatically initially on hijri date range picker.
+  /// * [HijriDatePickerController.selectedDate],which allows to select date
+  /// programmatically dynamically on hijri date range picker.
+  /// * [HijriDatePickerController.selectedDates], which allows to select dates
+  /// programmatically dynamically on hijri date range picker.
+  /// * [HijriDatePickerController.selectedRange], which allows to select range
+  /// of dates programmatically dynamically on hijri date range picker.
+  /// * [HijriDatePickerController.selectedRanges], which allows to select
+  /// ranges of dates programmatically dynamically on hijri date range picker.
+  /// * Knowledge base: [How to use hijri date range picker](https://www.syncfusion.com/kb/12200/how-to-use-hijri-date-range-picker-sfhijridaterangepicker-in-flutter)
+  /// * Knowledge base: [Range selection using multiple view picker](https://www.syncfusion.com/kb/11534/range-selection-using-the-multiple-view-picker-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to get the selected date](https://www.syncfusion.com/kb/11410/how-to-get-the-selected-date-from-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to select a week](https://www.syncfusion.com/kb/11412/how-to-select-a-week-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to select all days when clicking on the day header](https://www.syncfusion.com/kb/12353/how-to-select-all-days-when-clicking-on-the-day-header-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to get the start and end date of the selected range](https://www.syncfusion.com/kb/12248/how-to-get-the-start-and-end-date-of-the-selected-range-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to use hijri date picker](https://www.syncfusion.com/kb/12200/how-to-use-hijri-date-range-picker-sfhijridaterangepicker-in-flutter)
   ///
   /// ``` dart
   ///  Widget build(BuildContext context) {
@@ -2033,7 +3027,19 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// [DateRangePickerHeaderStyle.backgroundColor] of the header view in
   /// [SfHijriDateRangePicker].
   ///
-  /// See also: [DateRangePickerHeaderStyle]
+  /// See also:
+  /// * [DateRangePickerHeaderStyle], which contains options to customize the
+  /// header view of the hijri date range picker.
+  /// * [headerHeight], which is the size of the header view in the hijri date
+  /// range picker.
+  /// * [showNavigationArrow], which displays the navigation arrows on the
+  /// header view of the hijri date range picker.
+  /// * Knowledge base: [How to style a header](https://www.syncfusion.com/kb/12342/how-to-style-a-header-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to select all days when clicking on the day header](https://www.syncfusion.com/kb/12353/how-to-select-all-days-when-clicking-on-the-day-header-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to restrict the year view navigation when tapping on header view](https://www.syncfusion.com/kb/12113/how-to-restrict-the-year-view-navigation-while-tapping-header-of-the-flutter-date-range)
+  /// * Knowledge base: [How to customize the header in Flutter multi date range picker](https://www.syncfusion.com/kb/11897/how-to-customize-the-header-in-the-flutter-multi-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the header view](https://www.syncfusion.com/kb/11427/how-to-customize-the-header-view-of-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to use hijri date picker](https://www.syncfusion.com/kb/12200/how-to-use-hijri-date-range-picker-sfhijridaterangepicker-in-flutter)
   ///
   /// ``` dart
   /// Widget build(BuildContext context) {
@@ -2064,6 +3070,19 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// _Note:_ If [showNavigationArrows] set as true the arrows will shrink or
   /// grow based on the given header height value.
   ///
+  /// See also:
+  /// * [headerStyle], which allows to customize the header view of the hijri
+  /// date range picker.
+  /// * [showNavigationArrow], which displays the navigation arrows on the
+  /// header view of the hijri date range picker.
+  /// * Knowledge base: [How to style a header](https://www.syncfusion.com/kb/12342/how-to-style-a-header-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to select all days when clicking on the day header](https://www.syncfusion.com/kb/12353/how-to-select-all-days-when-clicking-on-the-day-header-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to restrict the year view navigation when tapping on header view](https://www.syncfusion.com/kb/12113/how-to-restrict-the-year-view-navigation-while-tapping-header-of-the-flutter-date-range)
+  /// * Knowledge base: [How to customize the header in Flutter multi date range picker](https://www.syncfusion.com/kb/11897/how-to-customize-the-header-in-the-flutter-multi-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the header view](https://www.syncfusion.com/kb/11427/how-to-customize-the-header-view-of-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to navigate to the previous or next views using navigation arrows](https://www.syncfusion.com/kb/12270/how-to-navigate-to-the-previous-or-next-views-using-navigation-arrows-in-the-flutter-date)
+  /// * Knowledge base: [How to use hijri date picker](https://www.syncfusion.com/kb/12200/how-to-use-hijri-date-range-picker-sfhijridaterangepicker-in-flutter)
+  ///
   /// ```dart
   ///
   /// Widget build(BuildContext context) {
@@ -2088,6 +3107,17 @@ class SfHijriDateRangePicker extends StatelessWidget {
   ///
   /// Defaults to null.
   ///
+  /// See also:
+  /// * [SfDateRangePickerThemeData], to handle theming with hijri date range
+  /// picker for giving consistent look.
+  /// * [monthCellStyle], which allows to customize the month cells in the
+  /// hijri date range picker.
+  /// * [yearCellStyle], which allows to customize the year cells in the hijri
+  /// date range picker.
+  /// * Knowledge base: [How to style the current month date cell](https://www.syncfusion.com/kb/12190/how-to-style-the-current-month-date-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the year, decade and century views](https://www.syncfusion.com/kb/12321/how-to-style-the-year-decade-century-views-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to use hijri date picker](https://www.syncfusion.com/kb/12200/how-to-use-hijri-date-range-picker-sfhijridaterangepicker-in-flutter)
+  ///
   /// ```dart
   ///
   /// Widget build(BuildContext context) {
@@ -2108,6 +3138,11 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// The color to fill the background of the [SfHijriDateRangePicker].
   ///
   /// Defaults to null.
+  ///
+  /// See also:
+  /// * [SfDateRangePickerThemeData], to handle theming with hijri date range
+  /// picker for giving consistent look.
+  /// * Knowledge base: [How to add an image as background](https://www.syncfusion.com/kb/12233/how-to-add-an-image-as-background-in-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ```dart
   ///
@@ -2136,6 +3171,22 @@ class SfHijriDateRangePicker extends StatelessWidget {
   ///
   /// Defaults to `false`.
   ///
+  /// See also:
+  /// * [selectionMode], which allows to set different selection modes for
+  /// hijri date range picker.
+  /// * [selectionShape], which allows to customize the shape of the selection
+  /// view in hijri date range picker.
+  /// * [onSelectionChanged], callback which notifies whenever the selection
+  /// changed on hijri date range picker.
+  /// * [selectionRadius], which is the radius for the selection view in the
+  /// hijri date range picker when the selection shape set as
+  /// [DateRangePickerSelectionShape.circle].
+  /// * [initialSelectedDate], which allows to select date programmatically
+  /// initially on hijri date range picker.
+  /// * [HijriDatePickerController.selectedDate],which allows to select date
+  /// programmatically dynamically on hijri date range picker.
+  /// * Knowledge base: [How to deselect the selected date](https://www.syncfusion.com/kb/12138/how-to-deselect-the-selected-date-in-the-flutter-date-range-picker-sfdaterangepicker)
+  ///
   /// ```dart
   ///
   /// Widget build(BuildContext context) {
@@ -2154,8 +3205,19 @@ class SfHijriDateRangePicker extends StatelessWidget {
   final bool toggleDaySelection;
 
   /// A builder that builds a widget that replaces the cell in a month, year,
-  /// decade and century views. The month cell, year cell, decade cell,
-  /// century cell was differentiated by picker view.
+  /// and decade views. The month cell, year cell, decade cell,
+  /// was differentiated by picker view.
+  ///
+  /// See also:
+  /// * [monthViewSettings], which allows to customize the month view in the
+  /// hijri date range picker.
+  /// * [monthCellStyle], which allows to customize the month cells in the hijri
+  /// date range picker.
+  /// * [yearCellStyle], which allows to customize the year cells in the hijri
+  /// date range picker.
+  /// * Knowledge base: [How to customize special dates using builder](https://www.syncfusion.com/kb/12374/how-to-customize-the-special-dates-using-builder-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to select all days when clicking on day header](https://www.syncfusion.com/kb/12353/how-to-select-all-days-when-clicking-on-the-day-header-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the date range picker cells using builder](https://www.syncfusion.com/kb/12208/how-to-customize-the-date-range-picker-cells-using-builder-in-the-flutter-sfdaterangepicker)
   ///
   /// ```dart
   ///
@@ -2217,6 +3279,65 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// ```
   final HijriDateRangePickerCellBuilder? cellBuilder;
 
+  /// Displays the today button on the bottom of the SfHijriDateRangePicker.
+  ///
+  /// The today button allows to navigate to the today date quickly in all view
+  /// of the SfHijriDateRangePicker.
+  ///
+  /// Defaults to `false`.
+  ///
+  /// See also:
+  /// * [showActionButtons], which used to handle the selected value.
+  ///
+  /// ```dart
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///    return MaterialApp(
+  ///      home: Scaffold(
+  ///        body: SfHijriDateRangePicker(
+  ///          showTodayButton: true,
+  ///        ),
+  ///      ),
+  ///    );
+  ///  }
+  ///
+  /// ```
+  final bool showTodayButton;
+
+  /// An [selectableDayPredicate] callback to decide whether the cell is
+  /// selectable or not in hijri date range picker.
+  ///
+  /// Note: This callback is not applicable when the [navigationMode] set as
+  /// [DateRangePickerNavigationMode.scroll].
+  ///
+  /// Defaults to null.
+  ///
+  /// See also:
+  /// [HijriDatePickerMonthViewSettings.blackoutDates], which allows to
+  /// disable interaction for specific dates.
+  ///
+  /// ```dart
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return MaterialApp(
+  ///       home: Scaffold(
+  ///         body: SfHijriDateRangePicker(
+  ///           initialDisplayDate: HijriDateTime(1442, 1, 1),
+  ///           selectableDayPredicate: (HijriDateTime dateTime) {
+  ///             if (dateTime != HijriDateTime(1442, 1, 1)) {
+  ///               return false;
+  ///             }
+  ///             return true;
+  ///           },
+  ///         ),
+  ///       ));
+  /// }
+  ///
+  /// ```
+  final HijriDatePickerSelectableDayPredicate? selectableDayPredicate;
+
   /// Used to enable or disable the view switching between
   /// [HijriDatePickerView] through interaction in the
   /// [SfHijriDateRangePicker] header.
@@ -2227,6 +3348,13 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// navigation.
   ///
   /// Defaults to `true`.
+  ///
+  /// See also:
+  /// * [view], which allows to set different views which display initially on
+  /// hijri date range picker.
+  /// * [HijriDatePickerController.view], which allows to set different views
+  /// dynamically on hijri date range picker.
+  /// * Knowledge base: [How to restrict the year view navigation while tapping header](https://www.syncfusion.com/kb/12113/how-to-restrict-the-year-view-navigation-while-tapping-header-of-the-flutter-date-range)
   ///
   /// ```dart
   ///
@@ -2249,8 +3377,6 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// multiple views and provide quick navigation and dates selection.
   /// It is applicable for all the [HijriDatePickerView] types.
   ///
-  /// Decade view does not show trailing cells when the [enableMultiView]
-  /// property is enabled.
   ///
   /// Enabling this [enableMultiView] property is recommended for web
   /// browser and larger android and iOS devices(iPad, tablet, etc.,)
@@ -2262,6 +3388,16 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// eg., Muharram, 1442 - Safar, 1442
   ///
   /// Defaults to `false`.
+  ///
+  /// See also:
+  /// * [viewSpacing], which fills the space between the pickers in the hijri
+  /// date range picker.
+  /// * [navigationDirection], which allows to arrange and navigate the
+  /// multiview in either in [DateRangePickerNavigationDirection.vertical] or
+  /// [DateRangePickerNavigationDirection.horizontal] in hijri date range
+  /// picker.
+  /// * Knowledge base: [How to show tow pickers vertically](https://www.syncfusion.com/kb/12193/how-to-show-two-pickers-vertically-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to use multiple picker](https://www.syncfusion.com/kb/11806/how-to-use-multiple-picker-in-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ```dart
   ///
@@ -2288,6 +3424,16 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// This value not applicable on [SfHijriDateRangePicker] when
   /// [navigationMode] is [DateRangePickerNavigationMode.scroll].
   ///
+  /// See also:
+  /// * [enableMultiView], which allows displays multiple date picker side by
+  /// side in hijri date range picker.
+  /// * [navigationDirection], which allows to arrange and navigate the
+  /// multiview in either in [DateRangePickerNavigationDirection.vertical] or
+  /// [DateRangePickerNavigationDirection.horizontal] in hijri date range
+  /// picker.
+  /// * Knowledge base: [How to show tow pickers vertically](https://www.syncfusion.com/kb/12193/how-to-show-two-pickers-vertically-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to use multiple picker](https://www.syncfusion.com/kb/11806/how-to-use-multiple-picker-in-the-flutter-date-range-picker-sfdaterangepicker)
+  ///
   /// ```dart
   ///
   /// Widget build(BuildContext context) {
@@ -2310,6 +3456,26 @@ class SfHijriDateRangePicker extends StatelessWidget {
   ///
   /// _Note:_ This only applies if the [DateRangePickerSelectionMode] is set
   /// to [DateRangePickerSelectionMode.circle].
+  ///
+  /// See also:
+  /// * [selectionShape], which allows to customize the shape of the selection
+  /// view in hijri date range picker.
+  /// * [selectionColor], which fills the background of the selected cells in
+  /// the hijri date range picker.
+  /// * [startRangeSelectionColor], which fills the background of the first cell
+  /// of the range selection in hijri date range picker.
+  /// * [endRangeSelectionColor], which fills the background of the last cell of
+  /// the range selection in hijri date range picker.
+  /// * [rangeSelectionColor], which fills the background of the in between
+  /// cells of hijri date range picker in range selection.
+  /// * [selectionTextStyle], which is used to set the text style for the text
+  /// in the selected cell of hijri date range picker.
+  /// * [rangeTextStyle], which is used to set text style for the text in the
+  /// selected range cell's of hijri date range picker.
+  /// * Knowledge base: [How to change the selection radius](https://www.syncfusion.com/kb/12230/how-to-change-the-selection-radius-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected range cells](https://www.syncfusion.com/kb/12148/how-to-customize-the-selected-range-cells-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to change the selection shape](https://www.syncfusion.com/kb/11900/how-to-change-the-selection-shape-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected month cell](https://www.syncfusion.com/kb/11441/how-to-customize-the-selected-month-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ```dart
   ///
@@ -2336,6 +3502,25 @@ class SfHijriDateRangePicker extends StatelessWidget {
   ///
   /// Using a [SfDateRangePickerTheme] gives more fine-grained control over the
   /// appearance of various components of the date range picker.
+  ///
+  /// See also:
+  /// * [selectionRadius], which is the radius for the selection view in the
+  /// hijri date range picker when the selection shape set as
+  /// [DateRangePickerSelectionShape.circle].
+  /// * [selectionColor], which fills the background of the selected cells in
+  /// the hijri date range picker.
+  /// * [startRangeSelectionColor], which fills the background of the first cell
+  /// of the range selection in hijri date range picker.
+  /// * [endRangeSelectionColor], which fills the background of the last cell of
+  /// the range selection in hijri date range picker.
+  /// * [rangeSelectionColor], which fills the background of the in between
+  /// cells of hijri date range picker in range selection.
+  /// * [rangeTextStyle], which is used to set text style for the text in the
+  /// selected range cell's of hijri date range picker.
+  /// * Knowledge base: [How to change the selection radius](https://www.syncfusion.com/kb/12230/how-to-change-the-selection-radius-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected range cells](https://www.syncfusion.com/kb/12148/how-to-customize-the-selected-range-cells-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to change the selection shape](https://www.syncfusion.com/kb/11900/how-to-change-the-selection-shape-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected month cell](https://www.syncfusion.com/kb/11441/how-to-customize-the-selected-month-cell-in-the-flutter-date-range-picker-sfda
   ///
   /// ``` dart
   ///
@@ -2376,8 +3561,30 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// [DateRangePickerSelectionMode.multiRange].
   ///
   /// See also:
-  /// [HijriDateRange]
-  /// [DateRangePickerSelectionMode]
+  /// * [HijriDateRange], which used to holds the start and end date of the
+  /// selected range.
+  /// * [selectionMode], which allows to customize the selection modes with the
+  /// available modes.
+  /// * [selectionShape], which allows to customize the shape of the selection
+  /// view in hijri date range picker.
+  /// * [selectionColor], which fills the background of the selected cells in
+  /// the hijri date range picker.
+  /// * [startRangeSelectionColor], which fills the background of the first cell
+  /// of the range selection in hijri date range picker.
+  /// * [endRangeSelectionColor], which fills the background of the last cell of
+  /// the range selection in hijri date range picker.
+  /// * [rangeSelectionColor], which fills the background of the in between
+  /// cells of hijri date range picker in range selection.
+  /// * [selectionRadius], which is the radius for the selection view in the
+  /// hijri date range picker when the selection shape set as
+  /// [DateRangePickerSelectionShape.circle].
+  /// * [selectionTextStyle], which is used to set the text style for the text
+  /// in the selected cell of hijri date range picker.
+  /// * Knowledge base: [Range selection using multiple view picker](https://www.syncfusion.com/kb/11534/range-selection-using-the-multiple-view-picker-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to change the selection radius](https://www.syncfusion.com/kb/12230/how-to-change-the-selection-radius-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected range cells](https://www.syncfusion.com/kb/12148/how-to-customize-the-selected-range-cells-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to change the selection shape](https://www.syncfusion.com/kb/11900/how-to-change-the-selection-shape-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected month cell](https://www.syncfusion.com/kb/11441/how-to-customize-the-selected-month-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ``` dart
   ///
@@ -2413,6 +3620,28 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// [DateRangePickerSelectionMode.single] of
   /// [DateRangePickerSelectionMode.multiple].
   ///
+  /// See more:
+  /// * [selectionShape], which allows to customize the shape of the selection
+  /// view in hijri date range picker.
+  /// * [startRangeSelectionColor], which fills the background of the first cell
+  /// of the range selection in hijri date range picker.
+  /// * [endRangeSelectionColor], which fills the background of the last cell of
+  /// the range selection in hijri date range picker.
+  /// * [rangeSelectionColor], which fills the background of the in between
+  /// cells of hijri date range picker in range selection.
+  /// * [selectionRadius], which is the radius for the selection view in the
+  /// hijri date range picker when the selection shape set as
+  /// [DateRangePickerSelectionShape.circle].
+  /// * [selectionTextStyle], which is used to set the text style for the text
+  /// in the selected cell of hijri date range picker.
+  /// * [rangeTextStyle], which is used to set text style for the text in the
+  /// selected range cell's of hijri date range picker.
+  /// * Knowledge base: [Range selection using multiple view picker](https://www.syncfusion.com/kb/11534/range-selection-using-the-multiple-view-picker-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to change the selection radius](https://www.syncfusion.com/kb/12230/how-to-change-the-selection-radius-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected range cells](https://www.syncfusion.com/kb/12148/how-to-customize-the-selected-range-cells-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to change the selection shape](https://www.syncfusion.com/kb/11900/how-to-change-the-selection-shape-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected month cell](https://www.syncfusion.com/kb/11441/how-to-customize-the-selected-month-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  ///
   /// ``` dart
   ///
   /// @override
@@ -2446,6 +3675,29 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// Note : It is applies only when the [DateRangePickerSelectionMode] set as
   /// [DateRangePickerSelectionMode.range] of
   /// [DateRangePickerSelectionMode.multiRange].
+  ///
+  /// See also:
+  /// * [selectionShape], which allows to customize the shape of the selection
+  /// view in hijri date range picker.
+  /// * [selectionColor], which fills the background of the selected cells in
+  /// the hijri date range picker.
+  /// * [endRangeSelectionColor], which fills the background of the last cell of
+  /// the range selection in hijri date range picker.
+  /// * [rangeSelectionColor], which fills the background of the in between
+  /// cells of hijri date range picker in range selection.
+  /// * [selectionRadius], which is the radius for the selection view in the
+  /// hijri date range picker when the selection shape set as
+  /// [DateRangePickerSelectionShape.circle].
+  /// * [selectionTextStyle], which is used to set the text style for the text
+  /// in the selected cell of hijri date range picker.
+  /// * [rangeTextStyle], which is used to set text style for the text in the
+  /// selected range cell's of hijri date range picker.
+  /// * [toggleDaySelection], which allows to deselect a date when the selection
+  /// mode set as [DateRangePickerSelectionMode.single].
+  /// * Knowledge base: [How to change the selection radius](https://www.syncfusion.com/kb/12230/how-to-change-the-selection-radius-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected range cells](https://www.syncfusion.com/kb/12148/how-to-customize-the-selected-range-cells-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to change the selection shape](https://www.syncfusion.com/kb/11900/how-to-change-the-selection-shape-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected month cell](https://www.syncfusion.com/kb/11441/how-to-customize-the-selected-month-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ``` dart
   ///
@@ -2482,6 +3734,27 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// [DateRangePickerSelectionMode.range] of
   /// [DateRangePickerSelectionMode.multiRange].
   ///
+  /// See also:
+  /// * [selectionShape], which allows to customize the shape of the selection
+  /// view in hijri date range picker.
+  /// * [selectionColor], which fills the background of the selected cells in
+  /// the hijri date range picker.
+  /// * [startRangeSelectionColor], which fills the background of the first cell
+  /// of the range selection in hijri date range picker.
+  /// * [endRangeSelectionColor], which fills the background of the last cell of
+  /// the range selection in hijri date range picker.
+  /// * [selectionRadius], which is the radius for the selection view in the
+  /// hijri date range picker when the selection shape set as
+  /// [DateRangePickerSelectionShape.circle].
+  /// * [selectionTextStyle], which is used to set the text style for the text
+  /// in the selected cell of hijri date range picker.
+  /// * [rangeTextStyle], which is used to set text style for the text in the
+  /// selected range cell's of hijri date range picker.
+  /// * Knowledge base: [How to change the selection radius](https://www.syncfusion.com/kb/12230/how-to-change-the-selection-radius-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected range cells](https://www.syncfusion.com/kb/12148/how-to-customize-the-selected-range-cells-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to change the selection shape](https://www.syncfusion.com/kb/11900/how-to-change-the-selection-shape-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected month cell](https://www.syncfusion.com/kb/11441/how-to-customize-the-selected-month-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  ///
   /// ``` dart
   ///
   ///  Widget build(BuildContext context) {
@@ -2515,6 +3788,27 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// [DateRangePickerSelectionMode.range] of
   /// [DateRangePickerSelectionMode.multiRange].
   ///
+  /// See also:
+  /// * [selectionShape], which allows to customize the shape of the selection
+  /// view in hijri date range picker.
+  /// * [selectionColor], which fills the background of the selected cells in
+  /// the hijri date range picker.
+  /// * [startRangeSelectionColor], which fills the background of the first cell
+  /// of the range selection in hijri date range picker.
+  /// * [rangeSelectionColor], which fills the background of the in between
+  /// cells of hijri date range picker in range selection.
+  /// * [selectionRadius], which is the radius for the selection view in the
+  /// hijri date range picker when the selection shape set as
+  /// [DateRangePickerSelectionShape.circle].
+  /// * [selectionTextStyle], which is used to set the text style for the text
+  /// in the selected cell of hijri date range picker.
+  /// * [rangeTextStyle], which is used to set text style for the text in the
+  /// selected range cell's of hijri date range picker.
+  /// * Knowledge base: [How to change the selection radius](https://www.syncfusion.com/kb/12230/how-to-change-the-selection-radius-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected range cells](https://www.syncfusion.com/kb/12148/how-to-customize-the-selected-range-cells-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to change the selection shape](https://www.syncfusion.com/kb/11900/how-to-change-the-selection-shape-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected month cell](https://www.syncfusion.com/kb/11441/how-to-customize-the-selected-month-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  ///
   /// ``` dart
   ///
   ///  Widget build(BuildContext context) {
@@ -2546,7 +3840,28 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// and [HijriDatePickerMonthViewSettings.weekendDays] in month view of
   /// date range picker.
   ///
-  /// See also: [HijriDatePickerMonthViewSettings]
+  /// See also:
+  /// * [HijriDatePickerMonthViewSettings], to know more about available options
+  /// to customize the month view of hijri date range picker
+  /// * [monthCellStyle], which allows to customize the month cell of the month
+  /// view of the hijri date range picker
+  /// * [cellBuilder], which allows to set custom widget for the picker cells
+  /// in the hijri date range picker.
+  /// * [yearCellStyle], which allows to customize the year cell of the year,
+  /// and decade views of the hijri date range picker.
+  /// * [backgroundColor], which fills the background of the hijri date range
+  /// picker.
+  /// * [todayHighlightColor], which highlights the today date cell in the hijri
+  /// date range picker.
+  /// * Knowledge base: [How to customize the special dates using builder](https://www.syncfusion.com/kb/12374/how-to-customize-the-special-dates-using-builder-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to update blackout dates using onViewChanged callback](https://www.syncfusion.com/kb/12372/how-to-update-blackout-dates-using-onviewchanged-callback-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to select all days when clicking on the day header](https://www.syncfusion.com/kb/12353/how-to-select-all-days-when-clicking-on-the-day-header-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to change the first day of week](https://www.syncfusion.com/kb/12221/how-to-change-the-first-day-of-week-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the date range picker cells using builder](https://www.syncfusion.com/kb/12208/how-to-customize-the-date-range-picker-cells-using-builder-in-the-flutter-sfdaterangepicker)
+  /// * Knowledge base: [How to change the week end dates](https://www.syncfusion.com/kb/12182/how-to-change-the-week-end-dates-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to add active dates](https://www.syncfusion.com/kb/12075/how-to-add-active-dates-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to restrict swipe gesture for range selection](https://www.syncfusion.com/kb/12117/how-to-restrict-swipe-gesture-for-range-selection-in-the-flutter-date-range-picker)
   ///
   /// ```dart
   ///
@@ -2596,7 +3911,35 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// [HijriDatePickerYearCellStyle.disabledDatesDecoration] in year and
   /// decade view of the date range picker.
   ///
-  /// See also: [HijriDatePickerYearCellStyle].
+  /// See also:
+  /// * [HijriDatePickerYearCellStyle], to know more about available options
+  /// to customize the year cells of hijri date range picker
+  /// * [monthCellStyle], which allows to customize the month cell of the month
+  /// view of the hijri date range picker
+  /// * [cellBuilder], which allows to set custom widget for the picker cells
+  /// in the hijri date range picker.
+  /// * [monthViewSettings], which allows to customize the month view of the
+  /// hijri date range picker.
+  /// * [selectionColor], which fills the background of the selected cells in
+  /// the hijri date range picker.
+  /// * [startRangeSelectionColor], which fills the background of the first cell
+  /// of the range selection in hijri date range picker.
+  /// * [endRangeSelectionColor], which fills the background of the last cell of
+  /// the range selection in hijri date range picker.
+  /// * [rangeSelectionColor], which fills the background of the in between
+  /// cells of hijri date range picker in range selection.
+  /// * [selectionTextStyle], which is used to set the text style for the text
+  /// in the selected cell of hijri date range picker.
+  /// * [rangeTextStyle], which is used to set text style for the text in the
+  /// selected range cell's of hijri date range picker.
+  /// * [backgroundColor], which fills the background of the hijri date range
+  /// picker.
+  /// * [todayHighlightColor], which highlights the today date cell in the hijri
+  /// date range picker.
+  /// * Knowledge base: [How to select all days when clicking on the day header](https://www.syncfusion.com/kb/12353/how-to-select-all-days-when-clicking-on-the-day-header-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the date range picker cells using builder](https://www.syncfusion.com/kb/12208/how-to-customize-the-date-range-picker-cells-using-builder-in-the-flutter-sfdaterangepicker)
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the year, decade and century views](https://www.syncfusion.com/kb/12321/how-to-style-the-year-decade-century-views-in-the-flutter-date-range-picker)
   ///
   /// ``` dart
   ///
@@ -2645,7 +3988,36 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// [HijriDatePickerMonthCellStyle.weekendDatesDecoration]  in the month
   /// cells of the date range picker.
   ///
-  /// See also: [HijriDatePickerMonthCellStyle]
+  /// See also:
+  /// * [HijriDatePickerMonthCellStyle] to know more about available options
+  /// to customize the month cell of hijri date range picker
+  /// * [monthViewSettings], which allows to customize the month view of the
+  /// hijri date range picker
+  /// * [cellBuilder], which allows to set custom widget for the picker cells
+  /// in the hijri date range picker.
+  /// * [yearCellStyle], which allows to customize the year cell of the year,
+  /// and decade views of the hijri date range picker.
+  /// * [selectionColor], which fills the background of the selected cells in
+  /// the hijri date range picker.
+  /// * [startRangeSelectionColor], which fills the background of the first cell
+  /// of the range selection in hijri date range picker.
+  /// * [endRangeSelectionColor], which fills the background of the last cell of
+  /// the range selection in hijri date range picker.
+  /// * [rangeSelectionColor], which fills the background of the in between
+  /// cells of hijri date range picker in range selection.
+  /// * [selectionTextStyle], which is used to set the text style for the text
+  /// in the selected cell of hijri date range picker.
+  /// * [rangeTextStyle], which is used to set text style for the text in the
+  /// selected range cell's of hijri date range picker.
+  /// * [backgroundColor], which fills the background of the hijri date range
+  /// picker.
+  /// * [todayHighlightColor], which highlights the today date cell in the hijri
+  /// date range picker.
+  /// * Knowledge base: [How to customize the special dates using builder](https://www.syncfusion.com/kb/12374/how-to-customize-the-special-dates-using-builder-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the date range picker cells using builder](https://www.syncfusion.com/kb/12208/how-to-customize-the-date-range-picker-cells-using-builder-in-the-flutter-sfdaterangepicker)
+  /// * Knowledge base: [How to apply theming](https://www.syncfusion.com/kb/11898/how-to-apply-theming-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the current month date cell](https://www.syncfusion.com/kb/12190/how-to-style-the-current-month-date-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the month cell](https://www.syncfusion.com/kb/11307/how-to-customize-the-month-cell-of-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ``` dart
   ///
@@ -2689,6 +4061,35 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// not [null] then this property will be ignored and the widget render the
   /// dates based on the date given in [controller.displayDate].
   ///
+  /// See also:
+  /// * [HijriDatePickerController.displayDate], which allows to move the
+  /// hijri date range picker to specific date.
+  /// * [HijriDatePickerController.forward], which allows to navigate to next
+  /// view of the hijri date range picker programmatically.
+  /// * [HijriDatePickerController.backward], which allows to navigate to
+  /// previous view of the date range picker programmatically.
+  /// * [onViewChanged], the callback which will notify that the current visible
+  /// dates were changed in hijri date range picker.
+  /// * [initialSelectedDate], which allows to select date programmatically
+  /// initially on hijri date range picker.
+  /// * [initialSelectedDates], which allows to list of select date
+  /// programmatically initially on hijri date range picker.
+  /// * [initialSelectedRange], which allows to select a range of dates
+  /// programmatically initially on hijri date range picker.
+  /// * [initialSelectedRanges], which allows to select a ranges of dates
+  /// programmatically initially on hijri date range picker.
+  /// * [minDate], which is the least available date for the hijri date range
+  /// picker.
+  /// * [maxDate], which is the last available date for the hijri date range
+  /// picker.
+  /// * [showNavigationArrow], which display the navigation arrows on the header
+  /// view of the hijri date range picker.
+  /// * Knowledge base: [How to navigate to the previous or next views using navigation arrows](https://www.syncfusion.com/kb/12270/how-to-navigate-to-the-previous-or-next-views-using-navigation-arrows-in-the-flutter-date)
+  /// * Knowledge base: [How to do programmatic navigation](https://www.syncfusion.com/kb/12140/how-to-do-programmatic-navigation-using-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to programmatically navigate to adjacent dates](https://www.syncfusion.com/kb/12137/how-to-programmatically-navigate-to-the-adjacent-dates-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to programmatically navigate](https://www.syncfusion.com/kb/12135/how-to-programmatically-navigate-to-the-date-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to restrict date range picker within date limit](https://www.syncfusion.com/kb/11329/how-to-restrict-date-range-picker-within-the-date-limit-in-the-flutter-date-range-picker)
+  ///
   /// ```dart
   ///
   /// Widget build(BuildContext context) {
@@ -2718,6 +4119,43 @@ class SfHijriDateRangePicker extends StatelessWidget {
   ///
   /// It is only applicable when the [selectionMode] set as
   /// [DateRangePickerSelectionMode.single].
+  ///
+  /// See also:
+  /// * [initialDisplayDate], which used to navigate the hijri date range picker
+  ///  to the specific date initially.
+  /// * [initialSelectedDates], which allows to list of select date
+  /// programmatically initially on hijri date range picker.
+  /// * [initialSelectedRange], which allows to select a range of dates
+  /// programmatically initially on hijri date range picker.
+  /// * [initialSelectedRanges], which allows to select a ranges of dates
+  /// programmatically initially on hijri date range picker.
+  /// * [HijriDatePickerController.selectedDate],which allows to select date
+  /// programmatically dynamically on hijri date range picker.
+  /// * [HijriDatePickerController.selectedDates], which allows to select dates
+  /// programmatically dynamically on hijri date range picker.
+  /// * [HijriDatePickerController.selectedRange], which allows to select range
+  /// of dates programmatically dynamically on hijri date range picker.
+  /// * [HijriDatePickerController.selectedRanges], which allows to select
+  /// ranges of dates programmatically dynamically on hijri date range picker.
+  /// * [selectionMode], which allows to customize the selection mode with
+  /// available mode options.
+  /// * [onSelectionChanged], the callback which notifies when the selection
+  /// cell changed on the hijri date range picker.
+  /// * [showActionButtons], which allows to cancel of confirm the selection in
+  /// the hijri date range picker.
+  /// * [onSubmit], the callback which notifies when the selected value
+  /// confirmed through confirm button on hijri date range picker.
+  /// * [onCancel], the callback which notifies when the selected value canceled
+  /// and reverted to previous  confirmed value through cancel button on hijri
+  /// date range picker.
+  /// * Knowledge base: [How to get the selected date](https://www.syncfusion.com/kb/11410/how-to-get-the-selected-date-from-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to confirm or cancel the selection](https://www.syncfusion.com/kb/12546/how-to-confirm-or-cancel-the-selection-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to change the selection radius](https://www.syncfusion.com/kb/12230/how-to-change-the-selection-radius-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected range cells](https://www.syncfusion.com/kb/12148/how-to-customize-the-selected-range-cells-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to deselect the selected date](https://www.syncfusion.com/kb/12138/how-to-deselect-the-selected-date-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to programmatically select the date](https://www.syncfusion.com/kb/12114/how-to-programmatically-select-the-date-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to change the selection shape](https://www.syncfusion.com/kb/11900/how-to-change-the-selection-shape-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected month cell](https://www.syncfusion.com/kb/11441/how-to-customize-the-selected-month-cell-in-the-flutter-date-range-picker-sfdaterangepicker)///
   ///
   /// ```dart
   ///
@@ -2751,10 +4189,16 @@ class SfHijriDateRangePicker extends StatelessWidget {
   ///
   ///
   /// See also:
-  /// [initialDisplayDate].
-  /// [maxDate].
-  /// [controller.displayDate].
-  /// [HijriDateTime].
+  /// * [initialDisplayDate], which used to navigate the hijri date range picker
+  /// to the specific date on initially.
+  /// * [maxDate], which is last available date for the hijri date range picker.
+  /// * [controller.displayDate], which used to navigate the hijri date range
+  /// picker to specific date on dynamically.
+  /// * [enablePastDates], which allows to enable the dates that falls before
+  /// the today date for interaction.
+  /// * [HijriDateTime], which handles the hijri date value details.
+  /// * Knowledge base: [How to enable or disable the past dates](https://www.syncfusion.com/kb/12168/how-to-enable-or-disable-the-past-dates-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to restrict date range picker within the date limit](https://www.syncfusion.com/kb/11329/how-to-restrict-date-range-picker-within-the-date-limit-in-the-flutter-date-range-picker)
   ///
   /// ``` dart
   ///
@@ -2786,11 +4230,17 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// set to this property.
   ///
   /// See also:
-  ///
-  /// [initialDisplayDate].
-  /// [minDate].
-  /// [controller.displayDate].
-  /// [HijriDateTime].
+  /// * [initialDisplayDate], which used to navigate the hijri date range picker
+  /// to the specific date on initially.
+  /// * [minDate], which is least available date for the hijri date range
+  /// picker.
+  /// * [controller.displayDate], which used to navigate the hijri date range
+  /// picker to specific date on dynamically.
+  /// * [enablePastDates], which allows to enable the dates that falls before
+  /// the today date for interaction.
+  /// * [HijriDateTime], which handles the date value in hijri type.
+  /// * Knowledge base: [How to enable or disable the past dates](https://www.syncfusion.com/kb/12168/how-to-enable-or-disable-the-past-dates-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to restrict date range picker within the date limit](https://www.syncfusion.com/kb/11329/how-to-restrict-date-range-picker-within-the-date-limit-in-the-flutter-date-range-picker)
   ///
   /// ``` dart
   ///
@@ -2815,6 +4265,13 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// and selection interactions to that dates were restricted.
   ///
   /// Defaults to `true`.
+  ///
+  /// See also:
+  /// * [minDate], which is the least available date for the hijri date range
+  /// picker.
+  /// * [maxDate], which is last available date for the hijri date range picker.
+  /// * Knowledge base: [How to enable or disable the past dates](https://www.syncfusion.com/kb/12168/how-to-enable-or-disable-the-past-dates-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to restrict date range picker within the date limit](https://www.syncfusion.com/kb/11329/how-to-restrict-date-range-picker-within-the-date-limit-in-the-flutter-date-range-picker)
   ///
   /// ``` dart
   ///
@@ -2846,6 +4303,40 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// It is only applicable when the [selectionMode] set as
   /// [DateRangePickerSelectionMode.multiple].
   ///
+  /// See also:
+  /// * [initialDisplayDate], which used to navigate the hijri date range picker
+  /// to the specific date initially.
+  /// * [initialSelectedDate], which allows to select date programmatically
+  /// initially on hijri date range picker.
+  /// * [initialSelectedRange], which allows to select a range of dates
+  /// programmatically initially on hijri date range picker.
+  /// * [initialSelectedRanges], which allows to select a ranges of dates
+  /// programmatically initially on hijri date range picker.
+  /// * [HijriDatePickerController.selectedDate],which allows to select date
+  /// programmatically dynamically on hijri date range picker.
+  /// * [HijriDatePickerController.selectedDates], which allows to select dates
+  /// programmatically dynamically on hijri date range picker.
+  /// * [HijriDatePickerController.selectedRange], which allows to select range
+  /// of dates programmatically dynamically on hijri date range picker.
+  /// * [HijriDatePickerController.selectedRanges], which allows to select
+  /// ranges of dates programmatically dynamically on hijri date range picker.
+  /// * [selectionMode], which allows to customize the selection mode with
+  /// available mode options.
+  /// * [onSelectionChanged], the callback which notifies when the selection
+  /// cell changed on the hijri date range picker.
+  /// * [showActionButtons], which allows to cancel of confirm the selection in
+  /// the hijri date range picker.
+  /// * [onSubmit], the callback which notifies when the selected value
+  /// confirmed through confirm button on hijri date range picker.
+  /// * [onCancel], the callback which notifies when the selected value canceled
+  /// and reverted to previous  confirmed value through cancel button on hijri
+  /// date range picker.
+  /// * Knowledge base: [How to get the selected date](https://www.syncfusion.com/kb/11410/how-to-get-the-selected-date-from-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to confirm or cancel the selection](https://www.syncfusion.com/kb/12546/how-to-confirm-or-cancel-the-selection-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to change the selection radius](https://www.syncfusion.com/kb/12230/how-to-change-the-selection-radius-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to programmatically select the date](https://www.syncfusion.com/kb/12114/how-to-programmatically-select-the-date-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to change the selection shape](https://www.syncfusion.com/kb/11900/how-to-change-the-selection-shape-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected month cell](https://www.syncfusion.com/kb/11441/how-to-customize-the-selected-month-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ```dart
   ///
@@ -2883,7 +4374,47 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// It is only applicable when the [selectionMode] set as
   /// [DateRangePickerSelectionMode.range].
   ///
-  /// See also: [HijriDateRange].
+  /// See also:
+  /// * [HijriDateRange], which is used to store the start and end date of the
+  /// range selection.
+  /// * [initialDisplayDate], which used to navigate the hijri date range picker
+  /// to the specific date initially.
+  /// * [initialSelectedDate], which allows to select date programmatically
+  /// initially on hijri date range picker.
+  /// * [initialSelectedDates], which allows to list of select date
+  /// programmatically initially on hijri date range picker.
+  /// * [initialSelectedRanges], which allows to select a ranges of dates
+  /// programmatically initially on hijri date range picker.
+  /// * [HijriDatePickerController.selectedDate],which allows to select date
+  /// programmatically dynamically on hijri date range picker.
+  /// * [HijriDatePickerController.selectedDates], which allows to select dates
+  /// programmatically dynamically on hijri date range picker.
+  /// * [HijriDatePickerController.selectedRange], which allows to select range
+  /// of dates programmatically dynamically on hijri date range picker.
+  /// * [HijriDatePickerController.selectedRanges], which allows to select
+  /// ranges of dates programmatically dynamically on hijri date range picker.
+  /// * [selectionMode], which allows to customize the selection mode with
+  /// available mode options.
+  /// * [onSelectionChanged], the callback which notifies when the selection
+  /// cell changed on the hijri date range picker.
+  /// * [showActionButtons], which allows to cancel of confirm the selection in
+  /// the hijri date range picker.
+  /// * [onSubmit], the callback which notifies when the selected value
+  /// confirmed through confirm button on hijri date range picker.
+  /// * [onCancel], the callback which notifies when the selected value canceled
+  /// and reverted to previous  confirmed value through cancel button on hijri
+  /// date range picker.
+  /// * Knowledge base: [Range selection using multiple view picker](https://www.syncfusion.com/kb/11534/range-selection-using-the-multiple-view-picker-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to select a week](https://www.syncfusion.com/kb/11412/how-to-select-a-week-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to confirm or cancel the selection](https://www.syncfusion.com/kb/12546/how-to-confirm-or-cancel-the-selection-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to select previous or next dates bases on selected date](https://www.syncfusion.com/kb/12354/how-to-select-previous-or-next-dates-based-on-the-selected-date-in-the-flutter-date-range)
+  /// * Knowledge base: [How to change the selection radius](https://www.syncfusion.com/kb/12230/how-to-change-the-selection-radius-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to get the start and end date of the selected range](https://www.syncfusion.com/kb/12248/how-to-get-the-start-and-end-date-of-the-selected-range-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the selected range cells](https://www.syncfusion.com/kb/12148/how-to-customize-the-selected-range-cells-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to restrict swipe gesture for range selection](https://www.syncfusion.com/kb/12117/how-to-restrict-swipe-gesture-for-range-selection-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to programmatically select the date](https://www.syncfusion.com/kb/12114/how-to-programmatically-select-the-date-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to change the selection shape](https://www.syncfusion.com/kb/11900/how-to-change-the-selection-shape-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected month cell](https://www.syncfusion.com/kb/11441/how-to-customize-the-selected-month-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ```dart
   ///
@@ -2918,7 +4449,47 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// It is only applicable when the [selectionMode] set as
   /// [DateRangePickerSelectionMode.multiRange].
   ///
-  /// See also: [HijriDateRange].
+  /// See also:
+  /// * [HijriDateRange], which is used to store the start and end date of the
+  /// range selection.
+  /// * [initialDisplayDate], which used to navigate the hijri date range picker
+  /// to the specific date initially.
+  /// * [initialSelectedDate], which allows to select date programmatically
+  /// initially on hijri date range picker.
+  /// * [initialSelectedDates], which allows to list of select date
+  /// programmatically initially on hijri date range picker.
+  /// * [initialSelectedRange], which allows to select a range of dates
+  /// programmatically initially on hijri date range picker.
+  /// * [HijriDatePickerController.selectedDate],which allows to select date
+  /// programmatically dynamically on hijri date range picker.
+  /// * [HijriDatePickerController.selectedDates], which allows to select dates
+  /// programmatically dynamically on hijri date range picker.
+  /// * [HijriDatePickerController.selectedRange], which allows to select range
+  /// of dates programmatically dynamically on hijri date range picker.
+  /// * [HijriDatePickerController.selectedRanges], which allows to select
+  /// ranges of dates programmatically dynamically on hijri date range picker.
+  /// * [selectionMode], which allows to customize the selection mode with
+  /// available mode options.
+  /// * [onSelectionChanged], the callback which notifies when the selection
+  /// cell changed on the hijri date range picker.
+  /// * [showActionButtons], which allows to cancel of confirm the selection in
+  /// the hijri date range picker.
+  /// * [onSubmit], the callback which notifies when the selected value
+  /// confirmed through confirm button on hijri date range picker.
+  /// * [onCancel], the callback which notifies when the selected value canceled
+  /// and reverted to previous confirmed value through cancel button on hijri
+  /// date range picker.
+  /// * Knowledge base: [Range selection using multiple view picker](https://www.syncfusion.com/kb/11534/range-selection-using-the-multiple-view-picker-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to select a week](https://www.syncfusion.com/kb/11412/how-to-select-a-week-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to confirm or cancel the selection](https://www.syncfusion.com/kb/12546/how-to-confirm-or-cancel-the-selection-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to select previous or next dates bases on selected date](https://www.syncfusion.com/kb/12354/how-to-select-previous-or-next-dates-based-on-the-selected-date-in-the-flutter-date-range)
+  /// * Knowledge base: [How to change the selection radius](https://www.syncfusion.com/kb/12230/how-to-change-the-selection-radius-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to get the start and end date of the selected range](https://www.syncfusion.com/kb/12248/how-to-get-the-start-and-end-date-of-the-selected-range-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the selected range cells](https://www.syncfusion.com/kb/12148/how-to-customize-the-selected-range-cells-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to restrict swipe gesture for range selection](https://www.syncfusion.com/kb/12117/how-to-restrict-swipe-gesture-for-range-selection-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to programmatically select the date](https://www.syncfusion.com/kb/12114/how-to-programmatically-select-the-date-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to change the selection shape](https://www.syncfusion.com/kb/11900/how-to-change-the-selection-shape-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected month cell](https://www.syncfusion.com/kb/11441/how-to-customize-the-selected-month-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ```dart
   ///
@@ -2976,9 +4547,53 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// programmatically on [SfHijriDateRangePicker] on initial load and in run
   /// time.
   ///
-  /// See also: [DateRangePickerSelectionMode]
   ///
   /// Defaults to null.
+  ///
+  /// See also:
+  /// * [HijriDatePickerController], to know more about the controller and it's
+  /// usage with the hijri date range picker.
+  /// * [initialDisplayDate], which used to navigate the hijri date range picker
+  /// to the specific date initially.
+  /// * [initialSelectedDate], which allows to select date programmatically
+  /// initially on hijri date range picker.
+  /// * [initialSelectedDates], which allows to list of select date
+  /// programmatically initially on hijri date range picker.
+  /// * [initialSelectedRange], which allows to select a range of dates
+  /// programmatically initially on hijri date range picker.
+  /// * [initialSelectedRanges], which allows to select a ranges of dates
+  /// programmatically initially on hijri date range picker.
+  /// * [HijriDatePickerController.selectedDate],which allows to select date
+  /// programmatically dynamically on hijri date range picker.
+  /// * [HijriDatePickerController.selectedDates], which allows to select dates
+  /// programmatically dynamically on hijri date range picker.
+  /// * [HijriDatePickerController.selectedRange], which allows to select range
+  /// of dates programmatically dynamically on hijri date range picker.
+  /// * [HijriDatePickerController.selectedRanges], which allows to select
+  /// ranges of dates programmatically dynamically on hijri date range picker.
+  /// * [selectionMode], which allows to customize the selection mode with
+  /// available mode options.
+  /// * [onViewChanged], the callback which notifies when the current view
+  /// visible date changed on the hijri date range picker.
+  /// * [onSelectionChanged], the callback which notifies when the selected cell
+  /// changed on the the hijri date range picker.
+  /// * [showActionButtons], which allows to cancel of confirm the selection in
+  /// the hijri date range picker.
+  /// * [onSubmit], the callback which notifies when the selected value
+  /// confirmed through confirm button on hijri date range picker.
+  /// * [onCancel], the callback which notifies when the selected value canceled
+  /// and reverted to previous  confirmed value through cancel button on hijri
+  /// date range picker.
+  /// * Knowledge base: [How to get the selected date](https://www.syncfusion.com/kb/11410/how-to-get-the-selected-date-from-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to select a week](https://www.syncfusion.com/kb/11412/how-to-select-a-week-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to select all days when clicking on the day header](https://www.syncfusion.com/kb/12353/how-to-select-all-days-when-clicking-on-the-day-header-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to confirm or cancel the selection](https://www.syncfusion.com/kb/12546/how-to-confirm-or-cancel-the-selection-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to select previous or next dates bases on selected date](https://www.syncfusion.com/kb/12354/how-to-select-previous-or-next-dates-based-on-the-selected-date-in-the-flutter-date-range)
+  /// * Knowledge base: [How to get the start and end date of the selected range](https://www.syncfusion.com/kb/12248/how-to-get-the-start-and-end-date-of-the-selected-range-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to programmatically select the date](https://www.syncfusion.com/kb/12114/how-to-programmatically-select-the-date-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to do programmatic navigation](https://www.syncfusion.com/kb/12140/how-to-do-programmatic-navigation-using-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to programmatically navigate to adjacent dates](https://www.syncfusion.com/kb/12137/how-to-programmatically-navigate-to-the-adjacent-dates-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to programmatically navigate](https://www.syncfusion.com/kb/12135/how-to-programmatically-navigate-to-the-date-in-the-flutter-date-range-picker)
   ///
   /// This example demonstrates how to use the [HijriDatePickerController]
   /// for [SfHijriDateRangePicker].
@@ -3050,6 +4665,14 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// [false] the navigation arrows will be shown, only whn the
   /// [showNavigationArrow] property set as [true].
   ///
+  /// See also:
+  /// * [HijriDatePickerController.forward], which allows to navigate to next
+  /// view of the date range picker programmatically.
+  /// * [HijriDatePickerController.backward], which allows to navigate to
+  /// previous view of the date range picker programmatically.
+  ///  * Knowledge base: [How to navigate to the previous or next dates using navigation arrows](https://www.syncfusion.com/kb/12270/how-to-navigate-to-the-previous-or-next-views-using-navigation-arrows-in-the-flutter-date)
+  ///
+  ///
   /// ``` dart
   ///
   ///Widget build(BuildContext context) {
@@ -3075,6 +4698,18 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// the vertical direction instead of the horizontal direction.
   ///
   /// Defaults to `DateRangePickerNavigationDirection.horizontal`.
+  ///
+  /// See also:
+  /// * [navigationMode], which allows to customize the navigation mode with
+  /// available options.
+  /// * [minDate], which is the least available date in the hijri date range
+  /// picker.
+  /// * [maxDate], which is the last available date in the hijri date range
+  /// picker.
+  /// * [enableMultiView], which allows to display multiple date side by
+  /// side based on the navigation direction.
+  /// * Knowledge base: [How to show two pickers vertically](https://www.syncfusion.com/kb/12193/how-to-show-two-pickers-vertically-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to change the navigation direction](https://www.syncfusion.com/kb/12176/how-to-change-the-navigation-direction-in-the-flutter-date-range-picker-sfdaterangepicker)
   ///
   /// ``` dart
   ///
@@ -3110,6 +4745,32 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// [DateRangePickerSelectionShape.circle], then the circle radius can be
   /// adjusted in month view by using the [selectionRadius] property.
   ///
+  /// See also:
+  /// * [selectionMode], which allows to customize the selection mode with
+  /// available mode options.
+  /// * [allowViewNavigation], which allows to navigate between views quickly,
+  /// and setting this property as `false`, allows to select the cells on
+  /// year and decade view of hijri date range picker.
+  /// * [selectionColor], which fills the background of the selected cells in
+  /// the hijri date range picker.
+  /// * [startRangeSelectionColor], which fills the background of the first cell
+  /// of the range selection in hijri date range picker.
+  /// * [endRangeSelectionColor], which fills the background of the last cell of
+  /// the range selection in hijri date range picker.
+  /// * [rangeSelectionColor], which fills the background of the in between
+  /// cells of hijri date range picker in range selection.
+  /// * [selectionRadius], which is the radius for the selection view in the
+  /// hijri date range picker when the selection shape set as
+  /// [DateRangePickerSelectionShape.circle].
+  /// * [selectionTextStyle], which is used to set the text style for the text
+  /// in the selected cell of hijri date range picker.
+  /// * [rangeTextStyle], which is used to set text style for the text in the
+  /// selected range cell's of hijri date range picker.
+  /// * Knowledge base: [How to change the selection radius](https://www.syncfusion.com/kb/12230/how-to-change-the-selection-radius-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected range cells](https://www.syncfusion.com/kb/12148/how-to-customize-the-selected-range-cells-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to change the selection shape](https://www.syncfusion.com/kb/11900/how-to-change-the-selection-shape-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to customize the selected month cell](https://www.syncfusion.com/kb/11441/how-to-customize-the-selected-month-cell-in-the-flutter-date-range-picker-sfdaterangepicker)
+  ///
   /// ``` dart
   ///
   /// Widget build(BuildContext context) {
@@ -3139,6 +4800,18 @@ class SfHijriDateRangePicker extends StatelessWidget {
   ///
   /// Defaults to null.
   ///
+  /// See also:
+  /// * [headerStyle], which used to customize the header view of the hijri date
+  /// range picker.
+  /// * [headerHeight], which is the size of the header view in the hijri date
+  /// range picker.
+  /// * [yearCellStyle], which is used to customize the year and decade view
+  /// cells in the hijri date range picker.
+  /// * Knowledge base: [How to customize the header view](https://www.syncfusion.com/kb/11427/how-to-customize-the-header-view-of-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the header in the flutter multi date range picker](https://www.syncfusion.com/kb/11897/how-to-customize-the-header-in-the-flutter-multi-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to change the month format](https://www.syncfusion.com/kb/12169/how-to-change-the-month-format-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to style the year decade and century views](https://www.syncfusion.com/kb/12321/how-to-style-the-year-decade-century-views-in-the-flutter-date-range-picker)
+  ///
   /// ``` dart
   ///
   /// Widget build(BuildContext context) {
@@ -3162,6 +4835,19 @@ class SfHijriDateRangePicker extends StatelessWidget {
   ///
   /// Defaults to [DateRangePickerNavigationMode.snap]
   ///
+  /// See also:
+  /// * [navigationDirection], which allows to customize the navigation
+  /// direction of the hijri date range picker with available options.
+  /// * [minDate], which is the least available date in the hijri date range
+  /// picker.
+  /// * [maxDate], which is the last available date in the hijri date range
+  /// picker.
+  /// * [enableMultiView], which allows to display multiple picker side by
+  /// side based on the navigation direction.
+  /// * Knowledge base: [How to show two pickers vertically](https://www.syncfusion.com/kb/12193/how-to-show-two-pickers-vertically-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to change the navigation direction](https://www.syncfusion.com/kb/12176/how-to-change-the-navigation-direction-in-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to restrict the view navigation](https://www.syncfusion.com/kb/12500/how-to-restrict-the-view-navigation-in-the-flutter-date-range-picker)
+  ///
   /// ``` dart
   ///
   /// Widget build(BuildContext context) {
@@ -3179,6 +4865,26 @@ class SfHijriDateRangePicker extends StatelessWidget {
   ///
   /// The visible date range and the visible view which visible on view when the
   /// view changes available in the [HijriDatePickerViewChangedArgs].
+  ///
+  /// See also:
+  /// * [onSelectionChanged], callback which notifies whenever the selection
+  /// changed on hijri date range picker.
+  /// * [onSubmit], callback which notifies when the selection confirmed
+  /// through the ok button of [showActionButtons].
+  /// * [onCancel], callback which notifies when the selection canceled through
+  /// the cancel button of [showActionButtons].
+  /// * [HijriDatePickerViewChangedArgs], which contains the visible date range
+  /// details of the current visible view.
+  /// * [initialDisplayDate], which is used to navigate the hijri date range
+  /// picker to specific date on initially.
+  /// * [HijriDatePickerController.displayDate], which allows to move the
+  /// hijri date range picker to specific date.
+  /// * [HijriDatePickerController.forward], which allows to navigate to next
+  /// view of the hijri date range picker programmatically.
+  /// * [HijriDatePickerController.backward], which allows to navigate to
+  ///  previous view of the hijri date range picker programmatically.
+  /// * Knowledge base: [How to update blackout dates using onViewChanged callback](https://www.syncfusion.com/kb/12372/how-to-update-blackout-dates-using-onviewchanged-callback-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to customize the header in flutter multi date range picker](https://www.syncfusion.com/kb/11897/how-to-customize-the-header-in-the-flutter-multi-date-range-picker-sfdaterangepicker)
   ///
   /// ``` dart
   ///
@@ -3206,6 +4912,48 @@ class SfHijriDateRangePicker extends StatelessWidget {
   ///
   /// The dates or ranges that selected when the selection changes available in
   /// the [DateRangePickerSelectionChangedArgs].
+  ///
+  /// See also:
+  /// * [onViewChanged], callback which notifies when the current view visible
+  /// dates changed on hijri date range picker.
+  /// * [HijriDatePickerMonthViewSettings.enableSwipeSelection], which allows to
+  /// select the cells on swipe when the selection mode set as
+  /// [DateRangePickerSelectionMode.range],
+  /// [DateRangePickerSelectionMode.multiRange], and
+  /// [DateRangePickerSelectionMode.extendableRange].
+  /// * [selectionMode], which allows to customize the selection mode with
+  /// available mode options.
+  /// * [allowViewNavigation], which allows to navigate between views quickly,
+  /// and setting this property as `false`, allows to select the cells on
+  /// year and decade view of hijri date range picker.
+  /// * [toggleDaySelection], which allows to deselect a date when the selection
+  /// mode set as [DateRangePickerSelectionMode.single].
+  /// * [showActionButtons], which displays action buttons on bottom of date
+  /// range picker, which allows to confirm and cancel the selection.
+  /// * [onSubmit], callback which notifies when the selection confirmed
+  /// through the ok button of [showActionButtons].
+  /// * [onCancel], callback which notifies when the selection canceled through
+  /// the cancel button of [showActionButtons].
+  /// * [initialSelectedDate], which allows to select date programmatically
+  /// initially on hijri date range picker.
+  /// * [initialSelectedDates], which allows to list of select date
+  /// programmatically initially on hijri date range picker.
+  /// * [initialSelectedRange], which allows to select a range of dates
+  /// programmatically initially on hijri date range picker.
+  /// * [initialSelectedRanges], which allows to select a ranges of dates
+  /// programmatically initially on hijri date range picker.
+  /// * [HijriDatePickerController.selectedDate],which allows to select date
+  /// programmatically dynamically on hijri date range picker.
+  /// * [HijriDatePickerController.selectedDates], which allows to select dates
+  /// programmatically dynamically on hijri date range picker.
+  /// * [HijriDatePickerController.selectedRange], which allows to select range
+  /// of dates programmatically dynamically on hijri date range picker.
+  /// * [HijriDatePickerController.selectedRanges], which allows to select
+  /// ranges of dates programmatically dynamically on hijri date range picker.
+  /// * Knowledge base: [How to get the selected date](https://www.syncfusion.com/kb/11410/how-to-get-the-selected-date-from-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to confirm or cancel the selection](https://www.syncfusion.com/kb/12546/how-to-confirm-or-cancel-the-selection-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to select previous or next dates bases on selected date](https://www.syncfusion.com/kb/12354/how-to-select-previous-or-next-dates-based-on-the-selected-date-in-the-flutter-date-range)
+  /// * Knowledge base: [How to get the start and end date of the selected range](https://www.syncfusion.com/kb/12248/how-to-get-the-start-and-end-date-of-the-selected-range-in-the-flutter-date-range-picker)
   ///
   /// ``` dart
   ///
@@ -3247,9 +4995,17 @@ class SfHijriDateRangePicker extends StatelessWidget {
 
   /// Text that displays on the confirm button.
   ///
-  /// See also
-  /// [showActionButtons]
-  /// [onSelectionChanged].
+  /// See also:
+  /// * [showActionButtons], which allows to display action buttons at the
+  /// bottom of the hijri date range picker to handle the selection.
+  /// * [onSelectionChanged], callback which notifies whenever the selection
+  /// changed on hijri date range picker.
+  /// * [cancelText], which is text that display on the cancel button.
+  /// * [onSubmit], callback which notifies when the selection confirmed
+  /// through the ok button of [showActionButtons].
+  /// * [onCancel], callback which notifies when the selection canceled through
+  /// the cancel button of [showActionButtons].
+  /// * Knowledge base: [How to confirm or cancel the selection](https://www.syncfusion.com/kb/12546/how-to-confirm-or-cancel-the-selection-in-the-flutter-date-range-picker)
   ///
   /// ``` dart
   ///
@@ -3271,9 +5027,17 @@ class SfHijriDateRangePicker extends StatelessWidget {
 
   /// Text that displays on the cancel button.
   ///
-  /// See also
-  /// [showActionButtons]
-  /// [onCancel].
+  /// See also:
+  /// * [showActionButtons], which allows to display action buttons at the
+  /// bottom of the hijri date range picker to handle the selection.
+  /// * [onSelectionChanged], callback which notifies whenever the selection
+  /// changed on hijri date range picker.
+  /// * [confirmText], which is text that display on the confirm button.
+  /// * [onSubmit], callback which notifies when the selection confirmed
+  /// through the ok button of [showActionButtons].
+  /// * [onCancel], callback which notifies when the selection canceled through
+  /// the cancel button of [showActionButtons].
+  /// * Knowledge base: [How to confirm or cancel the selection](https://www.syncfusion.com/kb/12546/how-to-confirm-or-cancel-the-selection-in-the-flutter-date-range-picker)
   ///
   /// ```dart
   ///
@@ -3299,6 +5063,31 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// The [onSubmit] and [onCancel] callback is called based on the
   /// actions of the buttons.
   ///
+  /// See also:
+  /// * [HijriDatePickerMonthViewSettings.enableSwipeSelection], which allows to
+  /// select the cells on swipe when the selection mode set as
+  /// [DateRangePickerSelectionMode.range],
+  /// [DateRangePickerSelectionMode.multiRange], and
+  /// [DateRangePickerSelectionMode.extendableRange].
+  /// * [selectionMode], which allows to customize the selection mode with
+  /// available mode options.
+  /// * [allowViewNavigation], which allows to navigate between views quickly,
+  /// and setting this property as `false`, allows to select the cells on
+  /// year and decade view of hijri date range picker.
+  /// * [onSelectionChanged], callback which notifies whenever the selection
+  /// changed on hijri date range picker.
+  /// * [selectionRadius], which is the radius for the selection view in the
+  /// hijri date range picker when the selection shape set as
+  /// [DateRangePickerSelectionShape.circle].
+  /// * [onSubmit], callback which notifies when the selection confirmed
+  /// through the ok button of [showActionButtons].
+  /// * [onCancel], callback which notifies when the selection canceled through
+  /// the cancel button of [showActionButtons].
+  /// * Knowledge base: [How to get the selected date](https://www.syncfusion.com/kb/11410/how-to-get-the-selected-date-from-the-flutter-date-range-picker-sfdaterangepicker)
+  /// * Knowledge base: [How to confirm or cancel the selection](https://www.syncfusion.com/kb/12546/how-to-confirm-or-cancel-the-selection-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to get the start and end date of the selected range](https://www.syncfusion.com/kb/12248/how-to-get-the-start-and-end-date-of-the-selected-range-in-the-flutter-date-range-picker)
+  /// * Knowledge base: [How to programmatically select the date](https://www.syncfusion.com/kb/12114/how-to-programmatically-select-the-date-in-the-flutter-date-range-picker-sfdaterangepicker)
+  ///
   /// ``` dart
   ///
   /// @override
@@ -3321,8 +5110,16 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// Called whenever the cancel button tapped on date range picker.
   /// It reset the selected values to confirmed selected values.
   ///
-  /// See also
-  /// [showActionButtons].
+  /// See also:
+  /// * [showActionButtons], which allows to display action buttons at the
+  /// bottom of the hijri date range picker to handle the selection.
+  /// * [onSelectionChanged], callback which notifies whenever the selection
+  /// changed on hijri date range picker.
+  /// * [cancelText], which is text that display on the cancel button.
+  /// * [confirmText], which is text that display on the confirm button
+  /// * [onSubmit], callback which notifies when the selection confirmed
+  /// through the ok button of [showActionButtons].
+  /// * Knowledge base: [How to confirm or cancel the selection](https://www.syncfusion.com/kb/12546/how-to-confirm-or-cancel-the-selection-in-the-flutter-date-range-picker)
   ///
   /// ```dart
   ///
@@ -3347,8 +5144,16 @@ class SfHijriDateRangePicker extends StatelessWidget {
   /// The dates or ranges that have been selected are confirmed and the
   /// selected value is available in the value argument.
   ///
-  /// See also
-  /// [showActionButtons].
+  /// See also:
+  /// * [showActionButtons], which allows to display action buttons at the
+  /// bottom of the hijri date range picker to handle the selection.
+  /// * [onSelectionChanged], callback which notifies whenever the selection
+  /// changed on hijri date range picker.
+  /// * [cancelText], which is text that display on the cancel button.
+  /// * [confirmText], which is text that display on the confirm button
+  /// * [onCancel], callback which notifies when the selection canceled through
+  /// the cancel button of [showActionButtons].
+  /// * Knowledge base: [How to confirm or cancel the selection](https://www.syncfusion.com/kb/12546/how-to-confirm-or-cancel-the-selection-in-the-flutter-date-range-picker)
   ///
   /// ```dart
   ///
@@ -3425,6 +5230,8 @@ class SfHijriDateRangePicker extends StatelessWidget {
       cancelText: cancelText,
       showActionButtons: showActionButtons,
       isHijri: true,
+      showTodayButton: showTodayButton,
+      selectableDayPredicate: selectableDayPredicate,
     );
   }
 
@@ -3501,57 +5308,64 @@ class SfHijriDateRangePicker extends StatelessWidget {
         .add(monthViewSettings.toDiagnosticsNode(name: 'monthViewSettings'));
 
     properties.add(monthCellStyle.toDiagnosticsNode(name: 'monthCellStyle'));
+
+    properties
+        .add(DiagnosticsProperty<bool>('showTodayButton', showTodayButton));
+    properties.add(DiagnosticsProperty<HijriDatePickerSelectableDayPredicate>(
+        'selectableDayPredicate', selectableDayPredicate));
   }
 }
 
 @immutable
 class _SfDateRangePicker extends StatefulWidget {
-  const _SfDateRangePicker({
-    Key? key,
-    required this.view,
-    required this.selectionMode,
-    this.isHijri = false,
-    required this.headerHeight,
-    this.todayHighlightColor,
-    this.backgroundColor,
-    this.initialSelectedDate,
-    this.initialSelectedDates,
-    this.initialSelectedRange,
-    this.initialSelectedRanges,
-    this.toggleDaySelection = false,
-    this.enablePastDates = true,
-    this.showNavigationArrow = false,
-    required this.selectionShape,
-    required this.navigationDirection,
-    this.controller,
-    this.onViewChanged,
-    this.onSelectionChanged,
-    this.onCancel,
-    this.onSubmit,
-    required this.headerStyle,
-    required this.yearCellStyle,
-    required this.monthViewSettings,
-    required this.initialDisplayDate,
-    this.confirmText = 'OK',
-    this.cancelText = 'CANCEL',
-    this.showActionButtons = false,
-    required this.minDate,
-    required this.maxDate,
-    required this.monthCellStyle,
-    this.allowViewNavigation = true,
-    this.enableMultiView = false,
-    required this.navigationMode,
-    required this.viewSpacing,
-    required this.selectionRadius,
-    this.selectionColor,
-    this.startRangeSelectionColor,
-    this.endRangeSelectionColor,
-    this.rangeSelectionColor,
-    this.selectionTextStyle,
-    this.rangeTextStyle,
-    this.monthFormat,
-    this.cellBuilder,
-  }) : super(key: key);
+  const _SfDateRangePicker(
+      {Key? key,
+      required this.view,
+      required this.selectionMode,
+      this.isHijri = false,
+      required this.headerHeight,
+      this.todayHighlightColor,
+      this.backgroundColor,
+      this.initialSelectedDate,
+      this.initialSelectedDates,
+      this.initialSelectedRange,
+      this.initialSelectedRanges,
+      this.toggleDaySelection = false,
+      this.enablePastDates = true,
+      this.showNavigationArrow = false,
+      required this.selectionShape,
+      required this.navigationDirection,
+      this.controller,
+      this.onViewChanged,
+      this.onSelectionChanged,
+      this.onCancel,
+      this.onSubmit,
+      required this.headerStyle,
+      required this.yearCellStyle,
+      required this.monthViewSettings,
+      required this.initialDisplayDate,
+      this.confirmText = 'OK',
+      this.cancelText = 'CANCEL',
+      this.showActionButtons = false,
+      required this.minDate,
+      required this.maxDate,
+      required this.monthCellStyle,
+      this.allowViewNavigation = true,
+      this.enableMultiView = false,
+      required this.navigationMode,
+      required this.viewSpacing,
+      required this.selectionRadius,
+      this.selectionColor,
+      this.startRangeSelectionColor,
+      this.endRangeSelectionColor,
+      this.rangeSelectionColor,
+      this.selectionTextStyle,
+      this.rangeTextStyle,
+      this.monthFormat,
+      this.cellBuilder,
+      this.showTodayButton = false,
+      this.selectableDayPredicate})
+      : super(key: key);
 
   final DateRangePickerView view;
 
@@ -3638,6 +5452,10 @@ class _SfDateRangePicker extends StatefulWidget {
   final VoidCallback? onCancel;
 
   final Function(Object)? onSubmit;
+
+  final bool showTodayButton;
+
+  final dynamic selectableDayPredicate;
 
   @override
   _SfDateRangePickerState createState() => _SfDateRangePickerState();
@@ -3739,21 +5557,23 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker> {
     final ThemeData themeData = Theme.of(context);
     _datePickerTheme = pickerTheme.copyWith(
         todayTextStyle: pickerTheme.todayTextStyle.color == null
-            ? pickerTheme.todayTextStyle.copyWith(color: themeData.accentColor)
+            ? pickerTheme.todayTextStyle
+                .copyWith(color: themeData.colorScheme.secondary)
             : pickerTheme.todayTextStyle,
         todayCellTextStyle: pickerTheme.todayCellTextStyle.color == null
             ? pickerTheme.todayCellTextStyle
-                .copyWith(color: themeData.accentColor)
+                .copyWith(color: themeData.colorScheme.secondary)
             : pickerTheme.todayCellTextStyle,
-        selectionColor: pickerTheme.selectionColor ?? themeData.accentColor,
-        startRangeSelectionColor:
-            pickerTheme.startRangeSelectionColor ?? themeData.accentColor,
+        selectionColor:
+            pickerTheme.selectionColor ?? themeData.colorScheme.secondary,
+        startRangeSelectionColor: pickerTheme.startRangeSelectionColor ??
+            themeData.colorScheme.secondary,
         rangeSelectionColor: pickerTheme.rangeSelectionColor ??
-            themeData.accentColor.withOpacity(0.1),
-        endRangeSelectionColor:
-            pickerTheme.endRangeSelectionColor ?? themeData.accentColor,
+            themeData.colorScheme.secondary.withOpacity(0.1),
+        endRangeSelectionColor: pickerTheme.endRangeSelectionColor ??
+            themeData.colorScheme.secondary,
         todayHighlightColor:
-            pickerTheme.todayHighlightColor ?? themeData.accentColor);
+            pickerTheme.todayHighlightColor ?? themeData.colorScheme.secondary);
     _isRtl = direction == TextDirection.rtl;
     _isMobilePlatform =
         DateRangePickerHelper.isMobileLayout(Theme.of(context).platform);
@@ -3946,11 +5766,12 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker> {
           ? _minPickerHeight
           : constraints.maxHeight;
 
-      final double actionButtonsHeight = widget.showActionButtons
-          ? _minHeight! * 0.1 < 50
-              ? 50
-              : _minHeight! * 0.1
-          : 0;
+      final double actionButtonsHeight =
+          (widget.showActionButtons || widget.showTodayButton)
+              ? _minHeight! * 0.1 < 50
+                  ? 50
+                  : _minHeight! * 0.1
+              : 0;
       _handleScrollViewSizeChanged(_minHeight!, _minWidth!, previousHeight,
           previousWidth, actionButtonsHeight);
 
@@ -4071,6 +5892,8 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker> {
           _scrollViewKey.currentState!._position = 0.0;
           _scrollViewKey.currentState!._children.clear();
           _scrollViewKey.currentState!._updateVisibleDates();
+          _scrollViewKey.currentState!
+              ._triggerSelectableDayPredicates(_currentViewVisibleDates);
         }
       });
     } else if (value == 'displayDate') {
@@ -4651,7 +6474,8 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker> {
       return Stack(
         children: <Widget>[
           scrollView,
-          _getActionsButton(topPosition + scrollViewHeight, actionButtonsHeight)
+          _getActionsButton(
+              topPosition + scrollViewHeight, actionButtonsHeight),
         ],
       );
     } else {
@@ -4849,6 +6673,7 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker> {
         _datePickerTheme,
         null,
         _textScaleFactor,
+        null,
         getPickerStateDetails: _getPickerStateValues,
         updatePickerStateDetails: _updatePickerStateValues,
         isRtl: _isRtl,
@@ -4957,10 +6782,9 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker> {
   }
 
   Widget _getActionsButton(double top, double actionButtonsHeight) {
-    if (!widget.showActionButtons) {
+    if (!widget.showActionButtons && !widget.showTodayButton) {
       return Container(width: 0, height: 0);
     }
-
     Color textColor =
         widget.todayHighlightColor ?? _datePickerTheme.todayHighlightColor!;
     if (textColor == Colors.transparent) {
@@ -4969,36 +6793,69 @@ class _SfDateRangePickerState extends State<_SfDateRangePicker> {
               _datePickerTheme.todayTextStyle;
       textColor = style.color != null ? style.color! : Colors.blue;
     }
+    final Widget actionButtons = widget.showActionButtons
+        ? Container(
+            alignment: AlignmentDirectional.centerEnd,
+            constraints: const BoxConstraints(minHeight: 52.0),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: OverflowBar(
+              spacing: 8,
+              children: <Widget>[
+                TextButton(
+                  child: Text(
+                    widget.cancelText,
+                    style: TextStyle(color: textColor),
+                  ),
+                  onPressed: _handleCancel,
+                ),
+                TextButton(
+                  child: Text(
+                    widget.confirmText,
+                    style: TextStyle(color: textColor),
+                  ),
+                  onPressed: _handleOk,
+                ),
+              ],
+            ),
+          )
+        : Container(width: 0, height: 0);
+    final Widget todayButton = widget.showTodayButton
+        ? Container(
+            alignment: AlignmentDirectional.centerStart,
+            constraints: const BoxConstraints(minHeight: 52.0),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: OverflowBar(
+              spacing: 8,
+              children: <Widget>[
+                TextButton(
+                  child: Text(
+                    _localizations.todayLabel,
+                    style: TextStyle(color: textColor),
+                  ),
+                  onPressed: () {
+                    if (widget.allowViewNavigation) {
+                      _controller.view = widget.isHijri
+                          ? HijriDatePickerView.month
+                          : DateRangePickerView.month;
+                    }
 
+                    _controller.displayDate =
+                        DateRangePickerHelper.getToday(widget.isHijri);
+                  },
+                ),
+              ],
+            ),
+          )
+        : Container(width: 0, height: 0);
     return Positioned(
       top: top,
       left: 0,
       right: 0,
       height: actionButtonsHeight,
-      child: Container(
-        alignment: AlignmentDirectional.centerEnd,
-        constraints: const BoxConstraints(minHeight: 52.0),
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: OverflowBar(
-          spacing: 8,
-          children: <Widget>[
-            TextButton(
-              child: Text(
-                widget.cancelText,
-                style: TextStyle(color: textColor),
-              ),
-              onPressed: _handleCancel,
-            ),
-            TextButton(
-              child: Text(
-                widget.confirmText,
-                style: TextStyle(color: textColor),
-              ),
-              onPressed: _handleOk,
-            ),
-          ],
-        ),
-      ),
+      child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[todayButton, actionButtons]),
     );
   }
 
@@ -5857,7 +7714,8 @@ class _PickerHeaderViewState extends State<_PickerHeaderView> {
       headerWidth = widget.width - (arrowWidth * 2);
     }
 
-    Color arrowColor = widget.headerStyle.textStyle != null
+    Color arrowColor = widget.headerStyle.textStyle != null &&
+            widget.headerStyle.textStyle!.color != null
         ? widget.headerStyle.textStyle!.color!
         : (widget.datePickerTheme.headerTextStyle.color!);
     arrowColor = arrowColor.withOpacity(arrowColor.opacity * 0.6);
@@ -6541,12 +8399,19 @@ class _PickerViewHeaderPainter extends CustomPainter {
 @immutable
 class _PickerScrollView extends StatefulWidget {
   /// Constructor to create the picker scroll view instance.
-  const _PickerScrollView(this.picker, this.controller, this.width, this.height,
-      this.isRtl, this.datePickerTheme, this.locale, this.textScaleFactor,
-      {Key? key,
-      required this.getPickerStateValues,
-      required this.updatePickerStateValues})
-      : super(key: key);
+  const _PickerScrollView(
+    this.picker,
+    this.controller,
+    this.width,
+    this.height,
+    this.isRtl,
+    this.datePickerTheme,
+    this.locale,
+    this.textScaleFactor, {
+    Key? key,
+    required this.getPickerStateValues,
+    required this.updatePickerStateValues,
+  }) : super(key: key);
 
   /// Holds the picker instance to access the picker details.
   final _SfDateRangePicker picker;
@@ -6591,6 +8456,8 @@ class _PickerScrollViewState extends State<_PickerScrollView>
   // the three children which to be added into the layout
   final List<_PickerView> _children = <_PickerView>[];
 
+  Map<List<dynamic>, List<dynamic>>? _disabledDates;
+
   // holds the index of the current displaying view
   int _currentChildIndex = 1;
 
@@ -6631,6 +8498,7 @@ class _PickerScrollViewState extends State<_PickerScrollView>
   @override
   void initState() {
     _updateVisibleDates();
+    _triggerSelectableDayPredicates(_currentViewVisibleDates);
     _animationController = AnimationController(
         duration: const Duration(milliseconds: 250),
         vsync: this,
@@ -6662,7 +8530,7 @@ class _PickerScrollViewState extends State<_PickerScrollView>
       _children.clear();
     }
 
-    if (oldWidget.picker.controller != widget.picker.controller) {
+    if (oldWidget.picker.controller != widget.controller) {
       _position = 0;
       _children.clear();
       _updateVisibleDates();
@@ -6673,6 +8541,7 @@ class _PickerScrollViewState extends State<_PickerScrollView>
       _position = 0;
       _children.clear();
       _updateVisibleDates();
+      _triggerSelectableDayPredicates(_currentViewVisibleDates);
     }
 
     _updateSettings(oldWidget);
@@ -6721,6 +8590,7 @@ class _PickerScrollViewState extends State<_PickerScrollView>
                     oldWidget.picker.isHijri))) {
       _children.clear();
       _position = 0;
+      _triggerSelectableDayPredicates(_currentViewVisibleDates);
     }
 
     if (DateRangePickerHelper.getNumberOfWeeksInView(
@@ -6731,6 +8601,7 @@ class _PickerScrollViewState extends State<_PickerScrollView>
             oldWidget.picker.monthViewSettings.firstDayOfWeek) {
       _updateVisibleDates();
       _position = 0;
+      _triggerSelectableDayPredicates(_currentViewVisibleDates);
     }
 
     /// Update the selection when [allowViewNavigation] property in
@@ -6742,24 +8613,26 @@ class _PickerScrollViewState extends State<_PickerScrollView>
         pickerView != DateRangePickerView.month) {
       _position = 0;
       _children.clear();
+      _triggerSelectableDayPredicates(_currentViewVisibleDates);
     }
 
-    if (oldWidget.picker.controller != widget.picker.controller ||
-        widget.picker.controller == null) {
+    if (oldWidget.picker.controller != widget.controller ||
+        widget.controller == null) {
       widget.getPickerStateValues(_pickerStateDetails);
       super.didUpdateWidget(oldWidget);
       return;
     }
 
     if (oldWidget.picker.controller?.displayDate !=
-            widget.picker.controller?.displayDate ||
+            widget.controller?.displayDate ||
         !isSameDate(
             _pickerStateDetails.currentDate, widget.controller.displayDate)) {
-      _pickerStateDetails.currentDate = widget.picker.controller?.displayDate;
+      _pickerStateDetails.currentDate = widget.controller?.displayDate;
       _updateVisibleDates();
+      _triggerSelectableDayPredicates(_currentViewVisibleDates);
     }
 
-    _drawSelection(oldWidget.picker.controller, widget.picker.controller);
+    _drawSelection(oldWidget.picker.controller, widget.controller);
     widget.getPickerStateValues(_pickerStateDetails);
     super.didUpdateWidget(oldWidget);
   }
@@ -6981,6 +8854,9 @@ class _PickerScrollViewState extends State<_PickerScrollView>
       _tween.end = -widget.width;
     }
 
+    /// returns the disable dates collection when right to left swiping
+    _triggerSelectableDayPredicates(_getCurrentVisibleDates(true));
+
     _animationController.duration = const Duration(milliseconds: 500);
     _animationController
         .forward()
@@ -7010,6 +8886,9 @@ class _PickerScrollViewState extends State<_PickerScrollView>
       _tween.begin = 0;
       _tween.end = widget.width;
     }
+
+    /// returns the disable dates collection when left to right swiping
+    _triggerSelectableDayPredicates(_getCurrentVisibleDates(false));
 
     _animationController.duration = const Duration(milliseconds: 500);
     _animationController
@@ -7287,6 +9166,7 @@ class _PickerScrollViewState extends State<_PickerScrollView>
       widget.datePickerTheme,
       _focusNode,
       widget.textScaleFactor,
+      DateRangePickerHelper.cloneList(_disabledDates?.values.first),
       key: key,
       getPickerStateDetails: (PickerStateArgs details) {
         _getPickerViewStateDetails(details);
@@ -7342,6 +9222,14 @@ class _PickerScrollViewState extends State<_PickerScrollView>
       view = _getView(visibleDates, view.key!);
       _children[index] = view;
     } // check and update the visible appointments in the view
+    else if (_disabledDates != null &&
+        _disabledDates!.isNotEmpty &&
+        _disabledDates!.keys.first == viewDates &&
+        !DateRangePickerHelper.isDateCollectionEquals(
+            view.disableDatePredicates, _disabledDates!.values.first)) {
+      view = _getView(viewDates, view.key!);
+      _children[index] = view;
+    }
 
     return view;
   }
@@ -7569,27 +9457,32 @@ class _PickerScrollViewState extends State<_PickerScrollView>
     return _previousViewKey.currentState!;
   }
 
+  /// Return the current view visible dates for picker based on view index.
+  List<dynamic> _getCurrentVisibleDates(bool isNextView) {
+    if (isNextView) {
+      if (_currentChildIndex == 0) {
+        return _visibleDates;
+      } else if (_currentChildIndex == 1) {
+        return _nextViewVisibleDates;
+      } else {
+        return _previousViewVisibleDates;
+      }
+    } else {
+      if (_currentChildIndex == 0) {
+        return _nextViewVisibleDates;
+      } else if (_currentChildIndex == 1) {
+        return _previousViewVisibleDates;
+      } else {
+        return _visibleDates;
+      }
+    }
+  }
+
   /// Updates the current view visible dates for picker in the swiping end
   void _updateCurrentViewVisibleDates({bool isNextView = false}) {
     final DateRangePickerView pickerView =
         DateRangePickerHelper.getPickerView(widget.controller.view);
-    if (isNextView) {
-      if (_currentChildIndex == 0) {
-        _currentViewVisibleDates = _visibleDates;
-      } else if (_currentChildIndex == 1) {
-        _currentViewVisibleDates = _nextViewVisibleDates;
-      } else {
-        _currentViewVisibleDates = _previousViewVisibleDates;
-      }
-    } else {
-      if (_currentChildIndex == 0) {
-        _currentViewVisibleDates = _nextViewVisibleDates;
-      } else if (_currentChildIndex == 1) {
-        _currentViewVisibleDates = _previousViewVisibleDates;
-      } else {
-        _currentViewVisibleDates = _visibleDates;
-      }
-    }
+    _currentViewVisibleDates = _getCurrentVisibleDates(isNextView);
 
     _pickerStateDetails.currentViewVisibleDates = _currentViewVisibleDates;
     _pickerStateDetails.currentDate = _currentViewVisibleDates[0];
@@ -8094,13 +9987,13 @@ class _PickerScrollViewState extends State<_PickerScrollView>
         widget.isRtl
             ? _moveToPreviousViewWithAnimation()
             : _moveToNextViewWithAnimation();
-        result = KeyEventResult.handled;
+        return KeyEventResult.handled;
       } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft &&
           canMoveToPreviousView) {
         widget.isRtl
             ? _moveToNextViewWithAnimation()
             : _moveToPreviousViewWithAnimation();
-        result = KeyEventResult.handled;
+        return KeyEventResult.handled;
       }
       result = KeyEventResult.ignored;
     }
@@ -8144,6 +10037,10 @@ class _PickerScrollViewState extends State<_PickerScrollView>
     if (DateRangePickerHelper.isDateWithInVisibleDates(
             currentVisibleView.visibleDates,
             widget.picker.monthViewSettings.blackoutDates,
+            selectedDate) ||
+        DateRangePickerHelper.isDateWithInVisibleDates(
+            currentVisibleView.visibleDates,
+            currentVisibleView.disableDatePredicates,
             selectedDate) ||
         !DateRangePickerHelper.isEnabledDate(
             widget.picker.minDate,
@@ -8439,6 +10336,9 @@ class _PickerScrollViewState extends State<_PickerScrollView>
             return;
           }
 
+          final bool isNextView = difference < 0;
+          _triggerSelectableDayPredicates(_getCurrentVisibleDates(isNextView));
+
           _position = difference;
           setState(() {
             /* Updates the widget navigated distance and moves the widget
@@ -8589,6 +10489,7 @@ class _PickerScrollViewState extends State<_PickerScrollView>
               _animationController.reset();
             }
 
+            _triggerSelectableDayPredicates(_currentViewVisibleDates);
             _animationController.duration = const Duration(milliseconds: 250);
             _animationController.forward();
           }
@@ -8640,6 +10541,9 @@ class _PickerScrollViewState extends State<_PickerScrollView>
                   widget.picker.isHijri)) {
             return;
           }
+
+          final bool isNextView = difference < 0;
+          _triggerSelectableDayPredicates(_getCurrentVisibleDates(isNextView));
 
           _position = difference;
           setState(() {
@@ -8784,11 +10688,84 @@ class _PickerScrollViewState extends State<_PickerScrollView>
               _animationController.reset();
             }
 
+            _triggerSelectableDayPredicates(_currentViewVisibleDates);
             _animationController.duration = const Duration(milliseconds: 250);
             _animationController.forward();
           }
         }
     }
+  }
+
+  /// Check the date cell is disable date or not, based on the callback returns
+  /// the value is false. If the date is disabled date, it holds the list of
+  /// dates collection. Which is the list of dates to restrict the interaction.
+  /// It is applicable for all views.
+  void _triggerSelectableDayPredicates(List<dynamic> visibleDates) {
+    if (widget.picker.selectableDayPredicate == null ||
+        _disabledDates != null &&
+            _disabledDates!.isNotEmpty &&
+            _disabledDates!.keys.first == visibleDates) {
+      return;
+    }
+
+    final DateRangePickerView view =
+        DateRangePickerHelper.getPickerView(widget.controller.view);
+    final int viewCount = _isMultiViewEnabled(widget.picker) ? 2 : 1;
+
+    _disabledDates ??= <List<dynamic>, List<dynamic>>{};
+    _disabledDates!.clear();
+
+    final List<dynamic> disabledDateCollection = <dynamic>[];
+
+    switch (view) {
+      case DateRangePickerView.month:
+        final int datesCount =
+            visibleDates.length ~/ (widget.picker.enableMultiView ? 2 : 1);
+        for (int i = 0; i < viewCount; i++) {
+          int midDateIndex = datesCount ~/ 2;
+          if (i == 1) {
+            midDateIndex = datesCount + (datesCount ~/ 2);
+          }
+          for (int j = i * datesCount; j < ((i + 1) * datesCount); j++) {
+            final int numberOfWeeksInView =
+                DateRangePickerHelper.getNumberOfWeeksInView(
+                    widget.picker.monthViewSettings, widget.picker.isHijri);
+            final bool showLeadingTrailingDates =
+                DateRangePickerHelper.canShowLeadingAndTrailingDates(
+                    widget.picker.monthViewSettings, widget.picker.isHijri);
+            final bool isCurrentMonthDate =
+                DateRangePickerHelper.isDateAsCurrentMonthDate(
+                    visibleDates[midDateIndex],
+                    numberOfWeeksInView,
+                    showLeadingTrailingDates,
+                    visibleDates[j],
+                    widget.picker.isHijri);
+            if (isCurrentMonthDate) {
+              final bool isSelectedDayPredicate =
+                  widget.picker.selectableDayPredicate(visibleDates[j]) as bool;
+              if (!isSelectedDayPredicate) {
+                disabledDateCollection.add(visibleDates[j]);
+              }
+            }
+          }
+        }
+        break;
+      case DateRangePickerView.year:
+      case DateRangePickerView.century:
+      case DateRangePickerView.decade:
+        if (widget.picker.allowViewNavigation) {
+          break;
+        }
+        for (int i = 0; i < visibleDates.length; i++) {
+          final bool isSelectedDayPredicate =
+              widget.picker.selectableDayPredicate(visibleDates[i]) as bool;
+          if (!isSelectedDayPredicate) {
+            disabledDateCollection.add(visibleDates[i]);
+          }
+        }
+    }
+
+    _disabledDates![visibleDates] = disabledDateCollection;
   }
 }
 
@@ -8797,20 +10774,21 @@ class _PickerScrollViewState extends State<_PickerScrollView>
 class _PickerView extends StatefulWidget {
   /// Constructor to create picker view instance.
   const _PickerView(
-      this.picker,
-      this.controller,
-      this.visibleDates,
-      this.enableMultiView,
-      this.width,
-      this.height,
-      this.datePickerTheme,
-      this.focusNode,
-      this.textScaleFactor,
-      {Key? key,
-      required this.getPickerStateDetails,
-      required this.updatePickerStateDetails,
-      this.isRtl = false})
-      : super(key: key);
+    this.picker,
+    this.controller,
+    this.visibleDates,
+    this.enableMultiView,
+    this.width,
+    this.height,
+    this.datePickerTheme,
+    this.focusNode,
+    this.textScaleFactor,
+    this.disableDatePredicates, {
+    Key? key,
+    required this.getPickerStateDetails,
+    required this.updatePickerStateDetails,
+    this.isRtl = false,
+  }) : super(key: key);
 
   /// Holds the visible dates for the picker view.
   final List<dynamic> visibleDates;
@@ -8846,6 +10824,8 @@ class _PickerView extends StatefulWidget {
 
   /// Defines the text scale factor of [SfDateRangePicker].
   final double textScaleFactor;
+
+  final List<dynamic>? disableDatePredicates;
 
   @override
   _PickerViewState createState() => _PickerViewState();
@@ -8995,44 +10975,46 @@ class _PickerViewState extends State<_PickerView>
     final int rowCount = DateRangePickerHelper.getNumberOfWeeksInView(
         widget.picker.monthViewSettings, widget.picker.isHijri);
     return MonthView(
-        widget.visibleDates,
-        rowCount,
-        widget.picker.monthCellStyle,
-        widget.picker.selectionTextStyle,
-        widget.picker.rangeTextStyle,
-        widget.picker.selectionColor,
-        widget.picker.startRangeSelectionColor,
-        widget.picker.endRangeSelectionColor,
-        widget.picker.rangeSelectionColor,
-        widget.datePickerTheme,
-        widget.isRtl,
-        widget.picker.todayHighlightColor,
-        widget.picker.minDate,
-        widget.picker.maxDate,
-        widget.picker.enablePastDates,
-        DateRangePickerHelper.canShowLeadingAndTrailingDates(
-            widget.picker.monthViewSettings, widget.picker.isHijri),
-        widget.picker.monthViewSettings.blackoutDates,
-        widget.picker.monthViewSettings.specialDates,
-        widget.picker.monthViewSettings.weekendDays,
-        widget.picker.selectionShape,
-        widget.picker.selectionRadius,
-        _mouseHoverPosition,
-        widget.enableMultiView,
-        widget.picker.viewSpacing,
-        ValueNotifier<bool>(false),
-        widget.textScaleFactor,
-        widget.picker.selectionMode,
-        widget.picker.isHijri,
-        localizations,
-        widget.picker.navigationDirection,
-        width,
-        height,
-        widget.getPickerStateDetails,
-        widget.picker.cellBuilder,
-        widget.picker.monthViewSettings.showWeekNumber,
-        widget.picker.monthViewSettings.weekNumberStyle,
-        _isMobilePlatform);
+      widget.visibleDates,
+      rowCount,
+      widget.picker.monthCellStyle,
+      widget.picker.selectionTextStyle,
+      widget.picker.rangeTextStyle,
+      widget.picker.selectionColor,
+      widget.picker.startRangeSelectionColor,
+      widget.picker.endRangeSelectionColor,
+      widget.picker.rangeSelectionColor,
+      widget.datePickerTheme,
+      widget.isRtl,
+      widget.picker.todayHighlightColor,
+      widget.picker.minDate,
+      widget.picker.maxDate,
+      widget.picker.enablePastDates,
+      DateRangePickerHelper.canShowLeadingAndTrailingDates(
+          widget.picker.monthViewSettings, widget.picker.isHijri),
+      widget.picker.monthViewSettings.blackoutDates,
+      widget.picker.monthViewSettings.specialDates,
+      widget.picker.monthViewSettings.weekendDays,
+      widget.picker.selectionShape,
+      widget.picker.selectionRadius,
+      _mouseHoverPosition,
+      widget.enableMultiView,
+      widget.picker.viewSpacing,
+      ValueNotifier<bool>(false),
+      widget.textScaleFactor,
+      widget.picker.selectionMode,
+      widget.picker.isHijri,
+      localizations,
+      widget.picker.navigationDirection,
+      width,
+      height,
+      widget.getPickerStateDetails,
+      widget.picker.cellBuilder,
+      widget.picker.monthViewSettings.showWeekNumber,
+      widget.picker.monthViewSettings.weekNumberStyle,
+      _isMobilePlatform,
+      widget.disableDatePredicates,
+    );
   }
 
   Widget _getViewHeader(double viewHeaderHeight, Locale locale,
@@ -9315,7 +11297,8 @@ class _PickerViewState extends State<_PickerView>
         localizations,
         widget.picker.navigationDirection,
         widget.width,
-        widget.height);
+        widget.height,
+        widget.disableDatePredicates);
   }
 
   GestureDragStartCallback? _getDragStartCallback() {
@@ -9614,7 +11597,9 @@ class _PickerViewState extends State<_PickerView>
     }
 
     if (DateRangePickerHelper.isDateWithInVisibleDates(widget.visibleDates,
-        widget.picker.monthViewSettings.blackoutDates, selectedDate)) {
+            widget.picker.monthViewSettings.blackoutDates, selectedDate) ||
+        DateRangePickerHelper.isDateWithInVisibleDates(
+            widget.visibleDates, widget.disableDatePredicates, selectedDate)) {
       return;
     }
 
@@ -9670,7 +11655,9 @@ class _PickerViewState extends State<_PickerView>
     }
 
     if (DateRangePickerHelper.isDateWithInVisibleDates(widget.visibleDates,
-        widget.picker.monthViewSettings.blackoutDates, selectedDate)) {
+            widget.picker.monthViewSettings.blackoutDates, selectedDate) ||
+        DateRangePickerHelper.isDateWithInVisibleDates(
+            widget.visibleDates, widget.disableDatePredicates, selectedDate)) {
       return;
     }
 
@@ -10017,12 +12004,14 @@ class _PickerViewState extends State<_PickerView>
 
     final dynamic selectedDate = widget.visibleDates[index];
     if (!DateRangePickerHelper.isBetweenMinMaxDateCell(
-        selectedDate,
-        widget.picker.minDate,
-        widget.picker.maxDate,
-        widget.picker.enablePastDates,
-        widget.controller.view,
-        widget.picker.isHijri)) {
+            selectedDate,
+            widget.picker.minDate,
+            widget.picker.maxDate,
+            widget.picker.enablePastDates,
+            widget.controller.view,
+            widget.picker.isHijri) ||
+        DateRangePickerHelper.isDateWithInVisibleDates(
+            widget.visibleDates, widget.disableDatePredicates, selectedDate)) {
       return;
     }
 
@@ -10045,12 +12034,14 @@ class _PickerViewState extends State<_PickerView>
 
     final dynamic selectedDate = widget.visibleDates[index];
     if (!DateRangePickerHelper.isBetweenMinMaxDateCell(
-        selectedDate,
-        widget.picker.minDate,
-        widget.picker.maxDate,
-        widget.picker.enablePastDates,
-        widget.controller.view,
-        widget.picker.isHijri)) {
+            selectedDate,
+            widget.picker.minDate,
+            widget.picker.maxDate,
+            widget.picker.enablePastDates,
+            widget.controller.view,
+            widget.picker.isHijri) ||
+        DateRangePickerHelper.isDateWithInVisibleDates(
+            widget.visibleDates, widget.disableDatePredicates, selectedDate)) {
       return;
     }
 
@@ -10096,7 +12087,9 @@ class _PickerViewState extends State<_PickerView>
       }
 
       if (DateRangePickerHelper.isDateWithInVisibleDates(widget.visibleDates,
-          widget.picker.monthViewSettings.blackoutDates, selectedDate)) {
+              widget.picker.monthViewSettings.blackoutDates, selectedDate) ||
+          DateRangePickerHelper.isDateWithInVisibleDates(widget.visibleDates,
+              widget.disableDatePredicates, selectedDate)) {
         return;
       }
 
@@ -10279,12 +12272,14 @@ class _PickerViewState extends State<_PickerView>
     widget.getPickerStateDetails(_pickerStateDetails);
     if (!widget.picker.allowViewNavigation) {
       if (!DateRangePickerHelper.isBetweenMinMaxDateCell(
-          date,
-          widget.picker.minDate,
-          widget.picker.maxDate,
-          widget.picker.enablePastDates,
-          widget.controller.view,
-          widget.picker.isHijri)) {
+              date,
+              widget.picker.minDate,
+              widget.picker.maxDate,
+              widget.picker.enablePastDates,
+              widget.controller.view,
+              widget.picker.isHijri) ||
+          DateRangePickerHelper.isDateWithInVisibleDates(
+              widget.visibleDates, widget.disableDatePredicates, date)) {
         return;
       }
 

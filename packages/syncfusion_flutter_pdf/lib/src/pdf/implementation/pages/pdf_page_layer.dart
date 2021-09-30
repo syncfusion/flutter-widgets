@@ -205,8 +205,8 @@ class PdfPageLayer implements _IPdfWrapper {
       _graphics!._setTransparencyGroup(page!);
     }
     if (page != null &&
-        page._isLoadedPage &&
-        (page._rotation != PdfPageRotateAngle.rotateAngle0 ||
+        !page._isLoadedPage &&
+        (page.rotation != PdfPageRotateAngle.rotateAngle0 ||
             page._dictionary.containsKey(_DictionaryProperties.rotate))) {
       _PdfArray? cropBox;
       if (page._dictionary.containsKey(_DictionaryProperties.cropBox)) {
@@ -239,12 +239,12 @@ class PdfPageLayer implements _IPdfWrapper {
       rotation = page._dictionary[_DictionaryProperties.rotate] as _PdfNumber?;
       rotation ??= rotation = _PdfCrossTable._dereference(
           page._dictionary[_DictionaryProperties.rotate]) as _PdfNumber?;
-    } else if (page._rotation != PdfPageRotateAngle.rotateAngle0) {
-      if (page._rotation == PdfPageRotateAngle.rotateAngle90) {
+    } else if (page.rotation != PdfPageRotateAngle.rotateAngle0) {
+      if (page.rotation == PdfPageRotateAngle.rotateAngle90) {
         rotation = _PdfNumber(90);
-      } else if (page._rotation == PdfPageRotateAngle.rotateAngle180) {
+      } else if (page.rotation == PdfPageRotateAngle.rotateAngle180) {
         rotation = _PdfNumber(180);
-      } else if (page._rotation == PdfPageRotateAngle.rotateAngle270) {
+      } else if (page.rotation == PdfPageRotateAngle.rotateAngle270) {
         rotation = _PdfNumber(270);
       }
     }

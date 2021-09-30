@@ -66,8 +66,12 @@ class PdfListFieldItem implements _IPdfWrapper {
       final _PdfArray array = _crossTable!
           ._getObject(fieldDic[_DictionaryProperties.opt])! as _PdfArray;
       final _PdfArray item = isText
-          ? (_PdfArray().._add(_PdfString(_value!)).._add(_PdfString(value)))
-          : (_PdfArray().._add(_PdfString(value)).._add(_PdfString(_text!)));
+          ? (_PdfArray()
+            .._add(_PdfString(_value!))
+            .._add(_PdfString(value)))
+          : (_PdfArray()
+            .._add(_PdfString(value))
+            .._add(_PdfString(_text!)));
       for (int i = 0; i < array.count; ++i) {
         final _IPdfPrimitive primitive = _crossTable!._getObject(array[i])!;
         final _PdfArray arr = primitive as _PdfArray;

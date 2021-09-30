@@ -1,4 +1,20 @@
-part of charts;
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+
+import '../../chart/utils/enum.dart';
+import '../../common/common.dart';
+import '../../common/series/chart_series.dart';
+import '../../common/user_interaction/selection_behavior.dart';
+import '../../common/utils/enum.dart';
+import '../../common/utils/typedef.dart';
+import '../common/data_label.dart';
+import '../series_painter/hiloopenclose_painter.dart';
+import '../trendlines/trendlines.dart';
+import 'financial_series_base.dart';
 
 /// Renders the HiloOpenClose series.
 ///
@@ -8,7 +24,7 @@ part of charts;
 /// and add it to the series collection property of [SfCartesianChart].
 ///
 /// {@youtube 560 315 https://www.youtube.com/watch?v=g5cniDExpRw}
-class HiloOpenCloseSeries<T, D> extends _FinancialSeriesBase<T, D> {
+class HiloOpenCloseSeries<T, D> extends FinancialSeriesBase<T, D> {
   /// Creating an argument constructor of HiloOpenCloseSeries class.
   HiloOpenCloseSeries(
       {ValueKey<String>? key,
@@ -41,6 +57,7 @@ class HiloOpenCloseSeries<T, D> extends _FinancialSeriesBase<T, D> {
       String? legendItemText,
       List<double>? dashArray,
       double? opacity,
+      double? animationDelay,
       double? spacing,
       List<int>? initialSelectedDataIndexes,
       bool? showIndicationForSameValues,
@@ -48,7 +65,8 @@ class HiloOpenCloseSeries<T, D> extends _FinancialSeriesBase<T, D> {
       SeriesRendererCreatedCallback? onRendererCreated,
       ChartPointInteractionCallback? onPointTap,
       ChartPointInteractionCallback? onPointDoubleTap,
-      ChartPointInteractionCallback? onPointLongPress})
+      ChartPointInteractionCallback? onPointLongPress,
+      CartesianShaderCallback? onCreateShader})
       : super(
             key: key,
             onCreateRenderer: onCreateRenderer,
@@ -88,6 +106,8 @@ class HiloOpenCloseSeries<T, D> extends _FinancialSeriesBase<T, D> {
             legendIconType: legendIconType,
             sortingOrder: sortingOrder,
             opacity: opacity,
+            animationDelay: animationDelay,
+            onCreateShader: onCreateShader,
             bearColor: bearColor ?? Colors.red,
             bullColor: bullColor ?? Colors.green,
             initialSelectedDataIndexes: initialSelectedDataIndexes,
@@ -153,13 +173,15 @@ class HiloOpenCloseSeries<T, D> extends _FinancialSeriesBase<T, D> {
         other.legendIconType == legendIconType &&
         other.legendItemText == legendItemText &&
         other.opacity == opacity &&
+        other.animationDelay == animationDelay &&
         other.spacing == spacing &&
         other.showIndicationForSameValues == showIndicationForSameValues &&
         other.initialSelectedDataIndexes == other.initialSelectedDataIndexes &&
         other.onRendererCreated == onRendererCreated &&
         other.onPointTap == onPointTap &&
         other.onPointDoubleTap == onPointDoubleTap &&
-        other.onPointLongPress == onPointLongPress;
+        other.onPointLongPress == onPointLongPress &&
+        other.onCreateShader == onCreateShader;
   }
 
   @override
@@ -196,6 +218,7 @@ class HiloOpenCloseSeries<T, D> extends _FinancialSeriesBase<T, D> {
       legendItemText,
       dashArray,
       opacity,
+      animationDelay,
       spacing,
       onRendererCreated,
       initialSelectedDataIndexes,
@@ -207,101 +230,4 @@ class HiloOpenCloseSeries<T, D> extends _FinancialSeriesBase<T, D> {
     ];
     return hashList(values);
   }
-}
-
-/// Creates series renderer for Hilo open close series
-class HiloOpenCloseSeriesRenderer extends XyDataSeriesRenderer {
-  /// Calling the default constructor of HiloOpenCloseSeriesRenderer class.
-  HiloOpenCloseSeriesRenderer();
-
-  // Store the rect position //
-  late num _rectPosition;
-
-  // Store the rect count //
-  late num _rectCount;
-
-  late HiloOpenCloseSeries<dynamic, dynamic> _hiloOpenCloseSeries;
-
-  late HiloOpenCloseSegment _segment;
-
-  List<CartesianSeriesRenderer>? _oldSeriesRenderers;
-
-  /// HiloOpenClose _segment is created here
-  ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
-      int pointIndex, int seriesIndex, double animateFactor) {
-    _segment = createSegment();
-    _oldSeriesRenderers = _chartState!._oldSeriesRenderers;
-    _isRectSeries = false;
-    // ignore: unnecessary_null_comparison
-    if (_segment != null) {
-      _segment._seriesIndex = seriesIndex;
-      _segment.currentSegmentIndex = pointIndex;
-      _segment._seriesRenderer = this;
-      _segment._series = _series as XyDataSeries<dynamic, dynamic>;
-      _segment.animationFactor = animateFactor;
-      _segment._pointColorMapper = currentPoint.pointColorMapper;
-      _segment._currentPoint = currentPoint;
-      if (_renderingDetails!.widgetNeedUpdate &&
-          !_renderingDetails!.isLegendToggled &&
-          _oldSeriesRenderers != null &&
-          _oldSeriesRenderers!.isNotEmpty &&
-          _oldSeriesRenderers!.length - 1 >= _segment._seriesIndex &&
-          _oldSeriesRenderers![_segment._seriesIndex]._seriesName ==
-              _segment._seriesRenderer._seriesName) {
-        _segment._oldSeriesRenderer =
-            _oldSeriesRenderers![_segment._seriesIndex];
-        _segment._oldSegmentIndex = _getOldSegmentIndex(_segment);
-      }
-      _segment.calculateSegmentPoints();
-      //stores the points for rendering Hilo open close segment, High, low, open, close
-      _segment.points
-        ..add(Offset(currentPoint.markerPoint!.x, _segment._highPoint.y))
-        ..add(Offset(currentPoint.markerPoint!.x, _segment._lowPoint.y))
-        ..add(Offset(_segment._openX, _segment._openY))
-        ..add(Offset(_segment._closeX, _segment._closeY));
-      customizeSegment(_segment);
-      _segment.strokePaint = _segment.getStrokePaint();
-      _segment.fillPaint = _segment.getFillPaint();
-      _segments.add(_segment);
-    }
-    return _segment;
-  }
-
-  /// To render hilo open close series segments
-  //ignore: unused_element
-  void _drawSegment(Canvas canvas, ChartSegment _segment) {
-    if (_segment._seriesRenderer._isSelectionEnable) {
-      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
-          _segment._seriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer?._selectionRenderer?._checkWithSelectionState(
-          _segments[_segment.currentSegmentIndex!], _chart);
-    }
-    _segment.onPaint(canvas);
-  }
-
-  @override
-  HiloOpenCloseSegment createSegment() => HiloOpenCloseSegment();
-
-  /// Changes the series color, border color, and border width.
-  @override
-  void customizeSegment(ChartSegment _segment) {
-    _hiloOpenCloseSeries = _series as HiloOpenCloseSeries<dynamic, dynamic>;
-    _segment._color = _segment._seriesRenderer._seriesColor;
-    _segment._strokeColor = _segment is HiloOpenCloseSegment && _segment._isBull
-        ? _hiloOpenCloseSeries.bullColor
-        : _hiloOpenCloseSeries.bearColor;
-    _segment._strokeWidth = _segment._series.borderWidth;
-  }
-
-  ///Draws marker with different shape and color of the appropriate data point in the series.
-  @override
-  void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
-      Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer? seriesRenderer]) {}
-
-  /// Draws data label text of the appropriate data point in a series.
-  @override
-  void drawDataLabel(int index, Canvas canvas, String dataLabel, double pointX,
-          double pointY, int angle, TextStyle style) =>
-      _drawText(canvas, dataLabel, Offset(pointX, pointY), style, angle);
 }

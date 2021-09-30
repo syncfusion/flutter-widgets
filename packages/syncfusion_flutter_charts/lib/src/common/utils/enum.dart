@@ -1,5 +1,3 @@
-part of charts;
-
 /// Legend Position in charts.
 
 enum LegendPosition {

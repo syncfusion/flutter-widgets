@@ -7,6 +7,7 @@ import '../maps.dart';
 import 'controller/map_controller.dart';
 import 'enum.dart';
 import 'layer/layer_base.dart';
+import 'layer/zoomable.dart';
 import 'utils.dart';
 
 // ignore_for_file: public_member_api_docs
@@ -51,10 +52,10 @@ class TileZoomLevelDetails {
   late double zoomLevel;
 
   /// Provides the distance moved from the origin when doing pinch zooming.
-  late Offset translatePoint;
+  Offset translatePoint = Offset.zero;
 
   /// Represents the fractional zoom value.
-  late double scale;
+  double scale = 1.0;
 }
 
 class MapModel {
@@ -167,11 +168,17 @@ class MapModel {
 class MapLayerInheritedWidget extends InheritedWidget {
   /// Creates [MapLayerInheritedWidget].
   const MapLayerInheritedWidget(
-      {required Widget child, required this.controller, this.sublayers})
+      {required Widget child,
+      required this.controller,
+      this.zoomController,
+      this.sublayers})
       : super(child: child);
 
   /// Creates [MapController].
   final MapController controller;
+
+  /// Creates [ZoomableController].
+  final ZoomableController? zoomController;
 
   /// Collection of [MapShapeSublayer], [MapLineLayer], [MapPolylineLayer],
   /// [MapPolygonLayer], [MapCircleLayer], and [MapArcLayer].

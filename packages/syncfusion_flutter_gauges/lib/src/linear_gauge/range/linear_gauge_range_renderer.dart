@@ -341,7 +341,7 @@ class RenderLinearRange extends RenderOpacity {
 
   void _getRangeOffsets() {
     final LinearElementPosition rangeElementPosition =
-        LinearGaugeHelper.getEffectiveElementPosition(position, isMirrored);
+        getEffectiveElementPosition(position, isMirrored);
     double _bottom = _rangeOffset.dy + _rangeRect.height;
 
     if (orientation == LinearGaugeOrientation.vertical) {
@@ -408,14 +408,14 @@ class RenderLinearRange extends RenderOpacity {
               rangeRect, Radius.circular(startThickness / 2)));
           break;
         case LinearEdgeStyle.startCurve:
-          _path.addRRect(LinearGaugeHelper.getStartCurve(
+          _path.addRRect(getStartCurve(
               isHorizontal: _isHorizontal,
               isAxisInversed: isAxisInversed,
               rect: rangeRect,
               radius: startThickness / 2));
           break;
         case LinearEdgeStyle.endCurve:
-          _path.addRRect(LinearGaugeHelper.getEndCurve(
+          _path.addRRect(getEndCurve(
               isHorizontal: _isHorizontal,
               isAxisInversed: isAxisInversed,
               rect: rangeRect,

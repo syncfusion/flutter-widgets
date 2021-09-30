@@ -1,5 +1,3 @@
-part of charts;
-
 /// Data points grouping mode.
 enum CircularChartGroupMode {
   /// - CircularChartGroupMode.point, groups the points based on length.
@@ -20,11 +18,14 @@ enum Position {
 
 /// Data labels intersect action.
 enum LabelIntersectAction {
-  ///- `LabelIntersectAction.hide,`, hides the intersecting labels.
+  ///- `LabelIntersectAction.hide`, hides the intersecting labels.
   hide,
 
   /// - `LabelIntersectAction.none`, will not perform any action on intersection.
-  none
+  none,
+
+  /// - `LabelIntersectAction.shift`, will shift and position the intersecting labels smartly. If the labels are moved out of the chart area, then the labels will be trimmed and the eclipse will be shown for the trimmed labels.
+  shift
 }
 
 /// Type of connector line.

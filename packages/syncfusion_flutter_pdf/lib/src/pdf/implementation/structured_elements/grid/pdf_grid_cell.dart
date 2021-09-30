@@ -1358,11 +1358,10 @@ class PdfGridCell {
       for (int i = currentColIndex; i < currentColIndex + span; i++) {
         if (_row!._grid.style.allowHorizontalOverflow) {
           double width;
-          final double compWidth =
-              _row!._grid._gridSize.width < g!.clientSize.width
-                  ? _row!._grid._gridSize.width
-                  : g.clientSize.width;
-          if (_row!._grid._gridSize.width > g.clientSize.width) {
+          final double compWidth = _row!._grid._size.width < g!.clientSize.width
+              ? _row!._grid._size.width
+              : g.clientSize.width;
+          if (_row!._grid._size.width > g.clientSize.width) {
             width = bounds.x + totalWidth + _row!._grid.columns[i].width;
           } else {
             width = totalWidth + _row!._grid.columns[i].width;

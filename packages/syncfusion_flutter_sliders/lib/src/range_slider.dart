@@ -130,6 +130,7 @@ class SfRangeSlider extends StatefulWidget {
       this.showDividers = false,
       this.enableTooltip = false,
       this.enableIntervalSelection = false,
+      this.dragMode = SliderDragMode.onThumb,
       this.inactiveColor,
       this.activeColor,
       this.labelPlacement = LabelPlacement.onTicks,
@@ -148,7 +149,8 @@ class SfRangeSlider extends StatefulWidget {
       this.tooltipShape = const SfRectangularTooltipShape(),
       this.startThumbIcon,
       this.endThumbIcon})
-      : _sliderType = SliderType.horizontal,
+      : isInversed = false,
+        _sliderType = SliderType.horizontal,
         _tooltipPosition = null,
         assert(min != max),
         assert(interval == null || interval > 0),
@@ -209,6 +211,8 @@ class SfRangeSlider extends StatefulWidget {
       this.showDividers = false,
       this.enableTooltip = false,
       this.enableIntervalSelection = false,
+      this.dragMode = SliderDragMode.onThumb,
+      this.isInversed = false,
       this.inactiveColor,
       this.activeColor,
       this.labelPlacement = LabelPlacement.onTicks,
@@ -350,7 +354,7 @@ class SfRangeSlider extends StatefulWidget {
   /// For example, if [min] is DateTime(2000, 01, 01, 00) and
   /// [max] is DateTime(2005, 12, 31, 24), [interval] is 1.0,
   /// [dateFormat] is DateFormat.y(), and
-  /// [dateIntervalType] is DateIntervalType.years, then the range slider will
+  /// [dateIntervalType] is [DateIntervalType.years], then the range slider will
   /// render the labels, major ticks, and dividers at 2000, 2001, 2002 and
   /// so on.
   ///
@@ -438,7 +442,7 @@ class SfRangeSlider extends StatefulWidget {
   ///
   /// For example, if [min] is DateTime(2015, 01, 01) and
   /// [max] is DateTime(2020, 01, 01) and
-  /// [stepDuration] is SliderDuration(years: 1, months: 6),
+  /// [stepDuration] is SliderStepDuration(years: 1, months: 6),
   /// the range slider will move the thumbs at DateTime(2015, 01, 01),
   /// DateTime(2016, 07, 01), DateTime(2018, 01, 01),and DateTime(2019, 07, 01).
   ///
@@ -456,7 +460,7 @@ class SfRangeSlider extends StatefulWidget {
   ///      max: DateTime(2020, 01, 01),
   ///      values: _values,
   ///      enableTooltip: true,
-  ///      stepDuration: SliderDuration(years: 1, months: 6),
+  ///      stepDuration: SliderStepDuration(years: 1, months: 6),
   ///      interval: 2,
   ///      showLabels: true,
   ///      showTicks: true,
@@ -683,6 +687,72 @@ class SfRangeSlider extends StatefulWidget {
   /// )
   /// ```
   final bool enableIntervalSelection;
+
+  /// Represents the behavior of thumb dragging in the [SfRangeSlider].
+  ///
+  /// When [dragMode] is set to [SliderDragMode.onThumb], individual thumb can
+  /// be moved by dragging it.
+  ///
+  /// When [dragMode] is set to [SliderDragMode.betweenThumbs], both the thumbs
+  /// can be moved at the same time by dragging in the area between start and
+  /// end thumbs. The range between the start and end thumb will always be the
+  /// same. Hence, it is not possible to move the individual thumb.
+  ///
+  /// When [dragMode] is set to [SliderDragMode.both], individual thumb can be
+  /// moved by dragging it, and also both the thumbs can be moved at the same
+  /// time by dragging in the area between start and end thumbs.
+  ///
+  /// Defaults to [SliderDragMode.onThumb].
+  ///
+  /// This code snippet shows the behavior of thumb dragging.
+  ///
+  /// ```dart
+  /// SfRangeValues _values = SfRangeValues(4.0, 8.0);
+  ///
+  /// SfRangeSlider(
+  ///   min: 0.0,
+  ///   max: 10.0,
+  ///   interval: 2,
+  ///   showLabels: true,
+  ///   dragMode: SliderDragMode.betweenThumbs,
+  ///   values: _values,
+  ///   onChanged: (SfRangeValues newValues) {
+  ///     setState(() {
+  ///       _values = newValues;
+  ///     });
+  ///   }
+  /// )
+  /// ```
+  ///
+  /// See also:
+  /// * The [enableIntervalSelection], to select the particular interval based
+  /// on the position of the tap or click.
+  final SliderDragMode dragMode;
+
+  /// Option to inverse the range slider.
+  ///
+  /// Defaults to false.
+  ///
+  /// This snippet shows how to inverse the [SfRangeSlider].
+  ///
+  /// ```dart
+  /// double _value = 4.0;
+  ///
+  /// SfRangeSlider.vertical(
+  ///   min: 0.0,
+  ///   max: 10.0,
+  ///   value: _value,
+  ///   interval: 2,
+  ///   isInversed = true,
+  ///   onChanged: (SfRangeValues newValues) {
+  ///     setState(() {
+  ///       _value = newValue;
+  ///     });
+  ///    },
+  /// )
+  /// ```
+  ///
+  final bool isInversed;
 
   /// Color applied to the inactive track and active dividers.
   ///
@@ -1111,6 +1181,8 @@ class SfRangeSlider extends StatefulWidget {
     );
     properties.add(DiagnosticsProperty<dynamic>('min', min));
     properties.add(DiagnosticsProperty<dynamic>('max', max));
+    properties.add(DiagnosticsProperty<bool>('isInversed', isInversed,
+        defaultValue: false));
     properties.add(ObjectFlagProperty<ValueChanged<SfRangeValues>>(
         'onChanged', onChanged,
         ifNull: 'disabled'));
@@ -1294,16 +1366,7 @@ class _SfRangeSliderState extends State<SfRangeSlider>
           rangeSliderThemeData.inactiveDividerStrokeWidth,
     );
 
-    if (widget._sliderType == SliderType.vertical) {
-      return rangeSliderThemeData.copyWith(
-          tickSize: rangeSliderThemeData.tickSize ?? const Size(8.0, 1.0),
-          minorTickSize:
-              rangeSliderThemeData.minorTickSize ?? const Size(5.0, 1.0),
-          labelOffset: rangeSliderThemeData.labelOffset ??
-              (widget.showTicks
-                  ? const Offset(5.0, 0.0)
-                  : const Offset(13.0, 0.0)));
-    } else {
+    if (widget._sliderType == SliderType.horizontal) {
       return rangeSliderThemeData.copyWith(
           tickSize: rangeSliderThemeData.tickSize ?? const Size(1.0, 8.0),
           minorTickSize:
@@ -1312,6 +1375,15 @@ class _SfRangeSliderState extends State<SfRangeSlider>
               (widget.showTicks
                   ? const Offset(0.0, 5.0)
                   : const Offset(0.0, 13.0)));
+    } else {
+      return rangeSliderThemeData.copyWith(
+          tickSize: rangeSliderThemeData.tickSize ?? const Size(8.0, 1.0),
+          minorTickSize:
+              rangeSliderThemeData.minorTickSize ?? const Size(5.0, 1.0),
+          labelOffset: rangeSliderThemeData.labelOffset ??
+              (widget.showTicks
+                  ? const Offset(5.0, 0.0)
+                  : const Offset(13.0, 0.0)));
     }
   }
 
@@ -1366,7 +1438,11 @@ class _SfRangeSliderState extends State<SfRangeSlider>
       showLabels: widget.showLabels,
       showDividers: widget.showDividers,
       enableTooltip: widget.enableTooltip,
+      dragMode: widget.dragMode,
       enableIntervalSelection: widget.enableIntervalSelection,
+      isInversed: widget._sliderType == SliderType.horizontal &&
+              Directionality.of(context) == TextDirection.rtl ||
+          widget.isInversed,
       inactiveColor:
           widget.inactiveColor ?? themeData.primaryColor.withOpacity(0.24),
       activeColor: widget.activeColor ?? themeData.primaryColor,
@@ -1412,6 +1488,8 @@ class _RangeSliderRenderObjectWidget extends RenderObjectWidget {
     required this.showDividers,
     required this.enableTooltip,
     required this.enableIntervalSelection,
+    required this.dragMode,
+    required this.isInversed,
     required this.inactiveColor,
     required this.activeColor,
     required this.labelPlacement,
@@ -1451,10 +1529,12 @@ class _RangeSliderRenderObjectWidget extends RenderObjectWidget {
   final bool showDividers;
   final bool enableTooltip;
   final bool enableIntervalSelection;
+  final bool isInversed;
 
   final Color inactiveColor;
   final Color activeColor;
 
+  final SliderDragMode dragMode;
   final LabelPlacement labelPlacement;
   final NumberFormat numberFormat;
   final DateIntervalType? dateIntervalType;
@@ -1493,6 +1573,8 @@ class _RangeSliderRenderObjectWidget extends RenderObjectWidget {
       showDividers: showDividers,
       enableTooltip: enableTooltip,
       enableIntervalSelection: enableIntervalSelection,
+      dragMode: dragMode,
+      isInversed: isInversed,
       labelPlacement: labelPlacement,
       numberFormat: numberFormat,
       dateFormat: dateFormat,
@@ -1533,6 +1615,8 @@ class _RangeSliderRenderObjectWidget extends RenderObjectWidget {
       ..showDividers = showDividers
       ..enableTooltip = enableTooltip
       ..enableIntervalSelection = enableIntervalSelection
+      ..dragMode = dragMode
+      ..isInversed = isInversed
       ..labelPlacement = labelPlacement
       ..numberFormat = numberFormat
       ..dateFormat = dateFormat
@@ -1661,6 +1745,8 @@ class _RenderRangeSlider extends RenderBaseRangeSlider {
     required bool showDividers,
     required bool enableTooltip,
     required bool enableIntervalSelection,
+    required SliderDragMode dragMode,
+    required bool isInversed,
     required LabelPlacement labelPlacement,
     required NumberFormat numberFormat,
     required DateFormat? dateFormat,
@@ -1697,7 +1783,8 @@ class _RenderRangeSlider extends RenderBaseRangeSlider {
             showDividers: showDividers,
             enableTooltip: enableTooltip,
             enableIntervalSelection: enableIntervalSelection,
-            dragMode: SliderDragMode.onThumb,
+            dragMode: dragMode,
+            isInversed: isInversed,
             labelPlacement: labelPlacement,
             numberFormat: numberFormat,
             dateFormat: dateFormat,
@@ -1749,6 +1836,7 @@ class _RenderRangeSlider extends RenderBaseRangeSlider {
     markNeedsSemanticsUpdate();
   }
 
+  @override
   bool get isInteractive => onChanged != null;
 
   @override
@@ -1842,8 +1930,7 @@ class _RenderRangeSlider extends RenderBaseRangeSlider {
   void performLayout() {
     super.performLayout();
     final BoxConstraints contentConstraints = BoxConstraints.tightFor(
-        width: sliderThemeData.thumbRadius * 2,
-        height: sliderThemeData.thumbRadius * 2);
+        width: actualThumbSize.width, height: actualThumbSize.height);
     startThumbIcon?.layout(contentConstraints, parentUsesSize: true);
     endThumbIcon?.layout(contentConstraints, parentUsesSize: true);
   }
@@ -1870,23 +1957,20 @@ class _RenderRangeSlider extends RenderBaseRangeSlider {
   }
 
   @override
-  bool hitTestSelf(Offset position) => isInteractive;
-
-  @override
   void paint(PaintingContext context, Offset offset) {
-    final Offset actualTrackOffset = sliderType == SliderType.vertical
+    final Offset actualTrackOffset = sliderType == SliderType.horizontal
         ? Offset(
-            offset.dx +
-                (size.width - actualHeight) / 2 +
-                trackOffset.dy -
-                maxTrackHeight / 2,
-            offset.dy)
-        : Offset(
             offset.dx,
             offset.dy +
                 (size.height - actualHeight) / 2 +
                 trackOffset.dy -
-                maxTrackHeight / 2);
+                maxTrackHeight / 2)
+        : Offset(
+            offset.dx +
+                (size.width - actualHeight) / 2 +
+                trackOffset.dx -
+                maxTrackHeight / 2,
+            offset.dy);
 
     drawRangeSliderElements(context, offset, actualTrackOffset);
   }
@@ -1947,12 +2031,12 @@ class _RenderRangeSlider extends RenderBaseRangeSlider {
       _decreaseEndAction,
     );
     // Split the semantics node area between the start and end nodes.
-    final Rect startRect = sliderType == SliderType.vertical
-        ? Rect.fromPoints(node.rect.bottomRight, node.rect.centerLeft)
-        : Rect.fromPoints(node.rect.topLeft, node.rect.bottomCenter);
-    final Rect endRect = sliderType == SliderType.vertical
-        ? Rect.fromPoints(node.rect.centerLeft, node.rect.topRight)
-        : Rect.fromPoints(node.rect.topCenter, node.rect.bottomRight);
+    final Rect startRect = sliderType == SliderType.horizontal
+        ? Rect.fromPoints(node.rect.topLeft, node.rect.bottomCenter)
+        : Rect.fromPoints(node.rect.bottomRight, node.rect.centerLeft);
+    final Rect endRect = sliderType == SliderType.horizontal
+        ? Rect.fromPoints(node.rect.topCenter, node.rect.bottomRight)
+        : Rect.fromPoints(node.rect.centerLeft, node.rect.topRight);
     if (sliderType == SliderType.vertical ||
         textDirection == TextDirection.ltr) {
       startSemanticsNode!.rect = startRect;

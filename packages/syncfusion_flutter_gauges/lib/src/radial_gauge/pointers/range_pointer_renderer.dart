@@ -551,7 +551,11 @@ class RenderRangePointer extends RenderBox {
   /// Returns the sweep radian for pointer.
   double _getPointerSweepRadian(double sweepRadian) {
     if (pointerAnimation != null && _isAnimating) {
-      return getDegreeToRadian(_sweepAngle * _pointerAnimation!.value);
+      if (axisRenderer != null && axisRenderer!.isInversed) {
+        return sweepRadian * _pointerAnimation!.value;
+      } else {
+        return getDegreeToRadian(_sweepAngle * _pointerAnimation!.value);
+      }
     } else {
       return sweepRadian;
     }

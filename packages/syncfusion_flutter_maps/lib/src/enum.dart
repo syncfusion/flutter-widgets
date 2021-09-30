@@ -77,10 +77,10 @@ enum MapToolbarPosition {
 /// Option to place the labels either between the bars or on the bar in bar
 /// legend.
 enum MapLegendLabelsPlacement {
-  /// [MapLegendLabelPlacement.Item] places labels in the center of the bar.
+  /// [MapLegendLabelsPlacement.onItem] places labels in the center of the bar.
   onItem,
 
-  /// [MapLegendLabelPlacement.betweenItems] places labels in-between two bars.
+  /// [MapLegendLabelsPlacement.betweenItems] places labels in-between two bars.
   betweenItems
 }
 

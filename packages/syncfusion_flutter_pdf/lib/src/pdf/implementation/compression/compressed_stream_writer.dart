@@ -1,52 +1,71 @@
 part of pdf;
 
-class _Utils {
-  static const List<int> def_reverse_bits = <int>[
-    0,
-    8,
-    4,
-    12,
-    2,
-    10,
-    6,
-    14,
-    1,
-    9,
-    5,
-    13,
-    3,
-    11,
-    7,
-    15
-  ];
-  static const List<int> def_huffman_dyntree_codelengths_order = <int>[
-    16,
-    17,
-    18,
-    0,
-    8,
-    7,
-    9,
-    6,
-    10,
-    5,
-    11,
-    4,
-    12,
-    3,
-    13,
-    2,
-    14,
-    1,
-    15
-  ];
-  static int bitReverse(int value) {
-    return (def_reverse_bits[(value & 15)] << 12 |
-            def_reverse_bits[((value >> 4) & 15)] << 8 |
-            def_reverse_bits[((value >> 8) & 15)] << 4 |
-            def_reverse_bits[(value >> 12)])
-        .toSigned(16);
+int _checkSumBitOffset = 16;
+int _checksumBase = 65521;
+int _checksumIterationCount = 3800;
+int _checksumUpdate(int checksum, List<int>? buffer, int offset, int length) {
+  int checksumUint = checksum.toUnsigned(32);
+  int s1 = checksumUint & 65535;
+  int s2 = checksumUint >> _checkSumBitOffset;
+  while (length > 0) {
+    int steps = min(length, _checksumIterationCount);
+    length -= steps;
+    while (--steps >= 0) {
+      s1 = s1 + (buffer![offset++] & 255).toUnsigned(32);
+      s2 += s1;
+    }
+    s1 %= _checksumBase;
+    s2 %= _checksumBase;
   }
+  checksumUint = (s2 << _checkSumBitOffset) | s1;
+  return checksumUint;
+}
+
+List<int> _defReverseBits = <int>[
+  0,
+  8,
+  4,
+  12,
+  2,
+  10,
+  6,
+  14,
+  1,
+  9,
+  5,
+  13,
+  3,
+  11,
+  7,
+  15
+];
+List<int> _defHuffmanDyntreeCodelengthsOrder = <int>[
+  16,
+  17,
+  18,
+  0,
+  8,
+  7,
+  9,
+  6,
+  10,
+  5,
+  11,
+  4,
+  12,
+  3,
+  13,
+  2,
+  14,
+  1,
+  15
+];
+int _bitReverse(int value) {
+  return (_defReverseBits[(value & 15)] << 12 |
+          _defReverseBits[((value >> 4) & 15)] << 8 |
+          _defReverseBits[((value >> 8) & 15)] << 4 |
+          _defReverseBits[(value >> 12)])
+      .toSigned(16);
 }
 
 class _CompressedStreamWriter {
@@ -260,19 +279,19 @@ class _CompressedStreamWriter {
           List<int>.filled(def_huffman_literal_alphabet_length, 0);
       int i = 0;
       while (i < 144) {
-        _arrLiteralCodes![i] = _Utils.bitReverse((0x030 + i) << 8);
+        _arrLiteralCodes![i] = _bitReverse((0x030 + i) << 8);
         _arrLiteralLengths[i++] = 8;
       }
       while (i < 256) {
-        _arrLiteralCodes![i] = _Utils.bitReverse(((0x190 - 144) + i) << 7);
+        _arrLiteralCodes![i] = _bitReverse(((0x190 - 144) + i) << 7);
         _arrLiteralLengths[i++] = 9;
       }
       while (i < 280) {
-        _arrLiteralCodes![i] = _Utils.bitReverse(((0x000 - 256) + i) << 9);
+        _arrLiteralCodes![i] = _bitReverse(((0x000 - 256) + i) << 9);
         _arrLiteralLengths[i++] = 7;
       }
       while (i < def_huffman_literal_alphabet_length) {
-        _arrLiteralCodes![i] = _Utils.bitReverse(((0x0c0 - 280) + i) << 8);
+        _arrLiteralCodes![i] = _bitReverse(((0x0c0 - 280) + i) << 8);
         _arrLiteralLengths[i++] = 8;
       }
       _arrDistanceCodes =
@@ -281,7 +300,7 @@ class _CompressedStreamWriter {
           List<int>.filled(def_huffman_distances_alphabet_length, 0);
 
       for (i = 0; i < def_huffman_distances_alphabet_length; i++) {
-        _arrDistanceCodes[i] = _Utils.bitReverse(i << 11);
+        _arrDistanceCodes[i] = _bitReverse(i << 11);
         _arrDistanceLengths[i] = 5;
       }
     }
@@ -317,8 +336,7 @@ class _CompressedStreamWriter {
     if (_bStreamClosed) {
       throw Exception('Stream was closed.');
     }
-    _checksum = _ChecksumCalculator._checksumUpdate(
-        _checksum, _inputBuffer, offset, length);
+    _checksum = _checksumUpdate(_checksum, _inputBuffer, offset, length);
 
     while (!_needsInput || !_pendingBufferIsFlushed) {
       _pendingBufferFlush();
@@ -897,30 +915,5 @@ class _CompressedStreamWriter {
     if (_bCloseStream) {
       _stream.clear();
     }
-  }
-}
-
-class _ChecksumCalculator {
-  static const int checkSumBitOffset = 16;
-  static const int checksumBase = 65521;
-  static const int checksumIterationCount = 3800;
-
-  static int _checksumUpdate(
-      int checksum, List<int>? buffer, int offset, int length) {
-    int checksumUint = checksum.toUnsigned(32);
-    int s1 = checksumUint & 65535;
-    int s2 = checksumUint >> checkSumBitOffset;
-    while (length > 0) {
-      int steps = min(length, checksumIterationCount);
-      length -= steps;
-      while (--steps >= 0) {
-        s1 = s1 + (buffer![offset++] & 255).toUnsigned(32);
-        s2 += s1;
-      }
-      s1 %= checksumBase;
-      s2 %= checksumBase;
-    }
-    checksumUint = (s2 << checkSumBitOffset) | s1;
-    return checksumUint;
   }
 }

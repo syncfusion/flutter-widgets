@@ -162,6 +162,7 @@ class _RenderMapDataLabel extends ShapeLayerChildRenderBoxBase {
     dataLabelAnimationController.addListener(markNeedsPaint);
     if (controller != null) {
       controller!
+        ..addZoomPanListener(_handleZoomPanChange)
         ..addZoomingListener(_handleZooming)
         ..addPanningListener(_handlePanning)
         ..addRefreshListener(_handleRefresh)
@@ -188,6 +189,10 @@ class _RenderMapDataLabel extends ShapeLayerChildRenderBoxBase {
   }
 
   void _handlePanning(MapPanDetails details) {
+    markNeedsPaint();
+  }
+
+  void _handleZoomPanChange() {
     markNeedsPaint();
   }
 

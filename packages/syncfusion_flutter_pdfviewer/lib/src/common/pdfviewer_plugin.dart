@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/common/pdfviewer_helper.dart';
 
-import 'package:syncfusion_flutter_pdfviewer_platform_interface/pdfviewer_platform_interface.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:syncfusion_flutter_pdfviewer/src/common/pdfviewer_helper.dart';
+import 'package:syncfusion_flutter_pdfviewer_platform_interface/pdfviewer_platform_interface.dart';
 
 /// Establishes communication between native(Android and iOS) code
 /// and flutter code using [MethodChannel]

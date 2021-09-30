@@ -264,46 +264,9 @@ class _FieldPainter {
   void drawButton(PdfGraphics g, _PaintParams paintParams, String text,
       PdfFont font, PdfStringFormat? format) {
     drawRectangularControl(g, paintParams);
-    Rect? rectangle = paintParams._bounds;
-
-    if ((g._layer != null &&
-            g._page != null &&
-            g._page!._rotation != PdfPageRotateAngle.rotateAngle0) ||
-        (paintParams._rotationAngle! > 0)) {
-      final PdfGraphicsState state = g.save();
-
-      if ((g._layer != null) &&
-          (g._page!._rotation != PdfPageRotateAngle.rotateAngle0)) {
-        if (g._page!._rotation == PdfPageRotateAngle.rotateAngle90) {
-          g.translateTransform(g.size.height, 0);
-          g.rotateTransform(90);
-          final double y =
-              g._page!.size.height - (rectangle!.left + rectangle.width);
-          final double x = rectangle.top;
-          rectangle = Rect.fromLTWH(x, y, rectangle.height, rectangle.width);
-        } else if (g._page!._rotation == PdfPageRotateAngle.rotateAngle180) {
-          g.translateTransform(g._page!.size.width, g._page!.size.height);
-          g.rotateTransform(-180);
-          final Size size = g._page!.size;
-          final double x = size.width - (rectangle!.left + rectangle.width);
-          final double y = size.height - (rectangle.top + rectangle.height);
-          rectangle = Rect.fromLTWH(x, y, rectangle.width, rectangle.height);
-        } else if (g._page!._rotation == PdfPageRotateAngle.rotateAngle270) {
-          g.translateTransform(0, g.size.width);
-          g.rotateTransform(270);
-          final double x =
-              g._page!.size.width - (rectangle!.top + rectangle.height);
-          final double y = rectangle.left;
-          rectangle = Rect.fromLTWH(x, y, rectangle.height, rectangle.width);
-        }
-      }
-      g.drawString(text, font,
-          brush: paintParams._foreBrush, bounds: rectangle, format: format);
-      g.restore(state);
-    } else {
-      g.drawString(text, font,
-          brush: paintParams._foreBrush, bounds: rectangle, format: format);
-    }
+    final Rect? rectangle = paintParams._bounds;
+    g.drawString(text, font,
+        brush: paintParams._foreBrush, bounds: rectangle, format: format);
   }
 
   void drawPressedButton(PdfGraphics g, _PaintParams paintParams, String text,
@@ -424,46 +387,9 @@ class _FieldPainter {
   void drawComboBox(PdfGraphics graphics, _PaintParams paintParams,
       String? text, PdfFont? font, PdfStringFormat? format) {
     drawRectangularControl(graphics, paintParams);
-    Rect? rectangle = paintParams._bounds;
-    if (graphics._layer != null &&
-        graphics._page!._rotation != PdfPageRotateAngle.rotateAngle0) {
-      final PdfGraphicsState state = graphics.save();
-      final Size size = graphics._page!.size;
-      if (graphics._page!._rotation == PdfPageRotateAngle.rotateAngle90) {
-        graphics.translateTransform(graphics.size.height, 0);
-        graphics.rotateTransform(90);
-        rectangle = Rect.fromLTWH(
-            rectangle!.left,
-            size.height - rectangle.left - rectangle.width,
-            rectangle.height,
-            rectangle.width);
-      } else if (graphics._page!._rotation ==
-          PdfPageRotateAngle.rotateAngle180) {
-        graphics.translateTransform(
-            graphics._page!.size.width, graphics._page!.size.height);
-        graphics.rotateTransform(-180);
-        rectangle = Rect.fromLTWH(
-            size.width - rectangle!.left - rectangle.width,
-            size.height - rectangle.top - rectangle.height,
-            rectangle.width,
-            rectangle.height);
-      } else if (graphics._page!._rotation ==
-          PdfPageRotateAngle.rotateAngle270) {
-        graphics.translateTransform(0, graphics.size.width);
-        graphics.rotateTransform(270);
-        rectangle = Rect.fromLTWH(
-            size.width - rectangle!.top - rectangle.height,
-            rectangle.left,
-            rectangle.height,
-            rectangle.width);
-      }
-      graphics.drawString(text!, font!,
-          brush: paintParams._foreBrush, bounds: rectangle, format: format);
-      graphics.restore(state);
-    } else {
-      graphics.drawString(text!, font!,
-          brush: paintParams._foreBrush, bounds: rectangle, format: format);
-    }
+    final Rect? rectangle = paintParams._bounds;
+    graphics.drawString(text!, font!,
+        brush: paintParams._foreBrush, bounds: rectangle, format: format);
   }
 
   //Draws the list box

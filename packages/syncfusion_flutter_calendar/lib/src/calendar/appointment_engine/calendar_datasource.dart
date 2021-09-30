@@ -20,6 +20,38 @@ import '../resource_view/calendar_resource.dart';
 /// Allows to add and remove an [Appointment] from the collection and also
 /// allows to reset the appointment collection for [SfCalendar].
 ///
+/// See also:
+/// * [Appointment], the object which holds the details of the appointment.
+/// * [CalendarResource], the object which holds the details of the resource
+/// in the calendar.
+/// * [SfCalendar.loadMoreWidgetBuilder], allows to build an widget which will
+/// display when appointments loaded on demand in the calendar.
+/// * [SfCalendar.resourceViewHeaderBuilder], to set custom widget for the
+/// resource view in the calendar.
+/// * [resourceViewSettings], to customize the resource view in the calendar.
+/// * [SfCalendar.appointmentBuilder], to set custom widget for the appointment
+/// view in the calendar.
+/// * [SfCalendar.appointmentTextStyle], to customize the text style for the
+/// appointments in calendar.
+/// * [SfCalendar.appointmentTimeTextFormat], to customize the time format for
+/// the appointment view in calendar.
+/// * Knowledge base: [How to perform the crud operations using firestore database](https://www.syncfusion.com/kb/12661/how-to-perform-the-crud-operations-in-flutter-calendar-using-firestore-database)
+/// * Knowledge base: [How to load appointments on demand](https://www.syncfusion.com/kb/12658/how-to-load-appointments-on-demand-in-flutter-calendar)
+/// * Knowledge base: [How to load google calendar events in iOS](https://www.syncfusion.com/kb/12647/how-to-load-the-google-calendar-events-to-the-flutter-calendar-sfcalendar-in-ios)
+/// * Knowledge base: [How to get the appointments between the given start and end date](https://www.syncfusion.com/kb/12549/how-to-get-the-appointments-between-the-given-start-and-end-date-in-the-flutter-calendar)
+/// * Knowledge base: [How to get the current month appointments](https://www.syncfusion.com/kb/12477/how-to-get-the-current-month-appointments-in-the-flutter-calendar)
+/// * Knowledge base: [How to load data from offline sqlite database](https://www.syncfusion.com/kb/12399/how-to-load-data-from-offline-sqlite-database-to-flutter-calendar)
+/// * Knowledge base: [How to create time table](https://www.syncfusion.com/kb/12392/how-to-create-time-table-using-flutter-event-calendar)
+/// * Knowledge base: [How to add google calendar events](https://www.syncfusion.com/kb/12116/how-to-add-google-calendar-events-to-the-flutter-event-calendar-sfcalendar)
+/// * Knowledge base: [How to add a custom appointments of business objects](https://www.syncfusion.com/kb/11529/how-to-add-a-custom-appointments-or-objects-in-the-flutter-calendar)
+/// * Knowledge base: [How to add additional attributes in events](https://www.syncfusion.com/kb/12209/how-to-add-additional-attributes-in-events-in-the-flutter-calendar)
+/// * Knowledge base: [How to work with the firebase database and flutter calendar for appointments](https://www.syncfusion.com/kb/12067/how-to-work-with-the-firebase-database-and-the-flutter-calendar-for-appointments)
+/// * Knowledge base: [How to integrate [SfCalendar] with [SfDateRangePicker]](https://www.syncfusion.com/kb/12047/how-to-integrate-event-calendar-sfcalendar-with-date-picker-sfdaterangepicker-in-flutter)
+/// * Knowledge base: [How to handle appointments for multiple resources](https://www.syncfusion.com/kb/11812/how-to-handle-appointments-for-multiple-resources-in-the-flutter-calendar)
+/// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
+/// * Knowledge base: [How to design and configure your appointment editor](https://www.syncfusion.com/kb/11204/how-to-design-and-configure-your-appointment-editor-in-flutter-calendar)
+/// * Knowledge base: [How to load offline json data](https://www.syncfusion.com/kb/11466/how-to-load-the-json-data-offline-for-the-flutter-calendar-appointments)
+///
 /// ```dart
 ///Widget build(BuildContext context) {
 ///   return Container(
@@ -121,10 +153,41 @@ import '../resource_view/calendar_resource.dart';
 ///    return MeetingDataSource(appointments);
 ///  }
 ///  ```
-abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
+@optionalTypeArgs
+abstract class CalendarDataSource<T extends Object?>
+    extends CalendarDataSourceChangeNotifier {
   /// Tha collection of appointments to be rendered on [SfCalendar].
   ///
   /// Defaults to `null`.
+  ///
+  /// See also:
+  /// * [Appointment], the object to hold the data for the event in the
+  /// calendar.
+  /// * [resources], to set and handle the resource collection to the
+  /// [SfCalendar].
+  /// * [SfCalendar.appointmentBuilder], to set custom widget for the
+  /// appointment view in the calendar
+  /// * [SfCalendar.loadMoreWidgetBuilder], the widget which will be displayed
+  /// when the appointments loading on the view in calendar.
+  /// * [SfCalendar.appointmentTextStyle], to customize the appointment text,
+  /// when the builder not added.
+  /// * [SfCalendar.appointmentTimeTextFormat], to customize the time text
+  /// format in the appointment view of calendar.
+  /// * [handleLoadMore], method to load the appointment when the view changed
+  /// in calendar, and on [CalendarView.schedule] when the view reached it's
+  /// start or end position.
+  /// * Knowledge base: [How to perform the crud operations using firestore database](https://www.syncfusion.com/kb/12661/how-to-perform-the-crud-operations-in-flutter-calendar-using-firestore-database)
+  /// * Knowledge base: [How to load appointments on demand](https://www.syncfusion.com/kb/12658/how-to-load-appointments-on-demand-in-flutter-calendar)
+  /// * Knowledge base: [How to create time table](https://www.syncfusion.com/kb/12392/how-to-create-time-table-using-flutter-event-calendar)
+  /// * Knowledge base: [How to add a custom appointments of business objects](https://www.syncfusion.com/kb/11529/how-to-add-a-custom-appointments-or-objects-in-the-flutter-calendar)
+  /// * Knowledge base: [How to add additional attributes in events](https://www.syncfusion.com/kb/12209/how-to-add-additional-attributes-in-events-in-the-flutter-calendar)
+  /// * Knowledge base: [How to work with the firebase database and flutter calendar for appointments](https://www.syncfusion.com/kb/12067/how-to-work-with-the-firebase-database-and-the-flutter-calendar-for-appointments)
+  /// * Knowledge base: [How to integrate [SfCalendar] with [SfDateRangePicker]](https://www.syncfusion.com/kb/12047/how-to-integrate-event-calendar-sfcalendar-with-date-picker-sfdaterangepicker-in-flutter)
+  /// * Knowledge base: [How to handle appointments for multiple resources](https://www.syncfusion.com/kb/11812/how-to-handle-appointments-for-multiple-resources-in-the-flutter-calendar)
+  /// * Knowledge base: [How to view schedule](https://www.syncfusion.com/kb/11803/how-to-view-schedule-in-the-flutter-calendar)
+  /// * Knowledge base: [How to design and configure your appointment editor](https://www.syncfusion.com/kb/11204/how-to-design-and-configure-your-appointment-editor-in-flutter-calendar)
+  /// * Knowledge base: [How to load offline json data](https://www.syncfusion.com/kb/11466/how-to-load-the-json-data-offline-for-the-flutter-calendar-appointments)
+  /// * Knowledge base: [How to delete an appointment](https://www.syncfusion.com/kb/11522/how-to-delete-an-appointment-in-the-flutter-calendar)
   ///
   /// ```dat
   ///
@@ -143,6 +206,16 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   ///
   /// endDate - optional - The end date till which
   /// to obtain the visible appointments.
+  ///
+  /// See also:
+  /// * [Appointment], the object to hold the data for the event in the
+  /// calendar.
+  /// * [getPatternAppointment], which allows to get the pattern appointment of
+  /// the given occurrence appointment in calendar.
+  /// * [getOccurrenceAppointment],  which allows to get the occurrence
+  /// appointment of the pattern appointment in the calendar.
+  /// * Knowledge base: [How to get the appointments between the given start and end date](https://www.syncfusion.com/kb/12549/how-to-get-the-appointments-between-the-given-start-and-end-date-in-the-flutter-calendar)
+  /// * Knowledge base: [How to get the current month appointments](https://www.syncfusion.com/kb/12477/how-to-get-the-current-month-appointments-in-the-flutter-calendar)
   ///
   /// ```dart
   ///
@@ -246,70 +319,79 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// date - required - The date on which the
   /// occurrence appointment is requested.
   ///
+  /// See also:
+  /// * [Appointment], the object to hold the data for the event in the
+  /// calendar.
+  /// * [getVisibleAppointments], which allows to get the appointment
+  /// collection between the given date range.
+  /// * [getPatternAppointment], which allows to get the pattern appointment of
+  /// the given occurrence appointment in calendar.
+  /// * [SfCalendar.getRecurrenceDateTimeCollection], which used to get the
+  /// recurrence date time collection for the given recurrence rule.
+  ///
   /// ```dart
   ///
   /// class MyAppState extends State<MyApp>{
+  ///   late CalendarController _calendarController;
+  ///   late _AppointmentDataSource _dataSource;
+  ///   late Appointment recurrenceApp;
   ///
-  ///  CalendarController _calendarController;
-  ///  _AppointmentDataSource _dataSource;
-  ///  Appointment recurrenceApp;
-  ///  @override
-  ///  initState(){
-  ///    _calendarController = CalendarController();
-  ///	   _dataSource = _getCalendarDataSource();
-  ///    super.initState();
-  ///  }
+  ///   @override
+  ///   initState(){
+  ///     _calendarController = CalendarController();
+  ///     _dataSource = _getCalendarDataSource();
+  ///     super.initState();
+  ///   }
   ///
-  ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return MaterialApp(
-  ///      home: Scaffold(
-  ///        body: SfCalendar(
-  ///          view: CalendarView.month,
-  ///          controller: _calendarController,
-  ///		       dataSource: _dataSource,
-  ///		       onTap: (CalendarTapDetails details) {
-  ///          	DateTime date = details.date;
-  ///          	String calendarTimeZone = '';
-  ///          	Appointment appointment = _dataSource.getOccurrenceAppointment(
-  ///              	recurrenceApp, date, calendarTimeZone);
-  ///        },
-  ///        ),
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return MaterialApp(
+  ///       home: Scaffold(
+  ///         body: SfCalendar(
+  ///           view: CalendarView.month,
+  ///           controller: _calendarController,
+  ///           dataSource: _dataSource,
+  ///           initialDisplayDate: DateTime(2020,11,27,9),
+  ///           onTap: (CalendarTapDetails details) {
+  ///             final DateTime? date = details.date;
+  ///            final Appointment? occurrenceAppointment =
+  ///             _dataSource.getOccurrenceAppointment(
+  ///                                                 recurrenceApp, date!, '');
+  ///           },
+  ///         ),
   ///      ),
-  ///    );
-  ///  }
-  ///}
-  ///
-  ///  _AppointmentDataSource _getCalendarDataSource() {
-  ///  List<Appointment> appointments = <Appointment>[];
-  ///  recurrenceApp = appointments.add(Appointment(
-  ///     startTime: DateTime(2020,11,27,9),
-  ///     endTime: DateTime(2020,11,27,9).add(Duration(hours: 2)),
-  ///     subject: 'Meeting',
-  ///     color: Colors.cyanAccent,
-  ///     startTimeZone: '',
-  ///     endTimeZone: '',
-  ///     recurrenceRule: 'FREQ=DAILY;INTERVAL=2;COUNT=5',
+  ///     );
+  ///   }
+  ///   _AppointmentDataSource _getCalendarDataSource() {
+  ///     final List<Appointment> appointments = <Appointment>[];
+  ///    recurrenceApp = Appointment(
+  ///       startTime: DateTime(2020,11,27,9),
+  ///       endTime: DateTime(2020,11,27,9).add(const Duration(hours: 2)),
+  ///       subject: 'Meeting',
+  ///       color: Colors.cyanAccent,
+  ///       startTimeZone: '',
+  ///       endTimeZone: '',
+  ///      recurrenceRule: 'FREQ=DAILY;INTERVAL=2;COUNT=5',
+  ///     );
+  ///     appointments.add(recurrenceApp);
+  ///     appointments.add(Appointment(
+  ///         startTime: DateTime(2020,11,28,5),
+  ///         endTime: DateTime(2020,11,30,7),
+  ///         subject: 'Discussion',
+  ///         color: Colors.orangeAccent,
+  ///         startTimeZone: '',
+  ///         endTimeZone: '',
+  ///         isAllDay: true
   ///     ));
-  ///  appointments.add(recurrenceApp);
-  ///  appointments.add(Appointment(
-  ///     startTime: DateTime(2020,11,28,5),
-  ///     endTime: DateTime(2020,11,30,7),
-  ///     subject: 'Discussion',
-  ///     color: Colors.orangeAccent,
-  ///     startTimeZone: '',
-  ///     endTimeZone: '',
-  ///     isAllDay: true
-  ///     ));
-  ///  return _AppointmentDataSource(appointments);
+  ///     return _AppointmentDataSource(appointments);
+  ///   }
+  /// }
+  /// class _AppointmentDataSource extends CalendarDataSource {
+  ///   _AppointmentDataSource(List<Appointment> source){
+  ///     appointments = source;
   ///   }
   /// }
   ///
-  /// class _AppointmentDataSource extends CalendarDataSource {
-  ///  _AppointmentDataSource(List<Appointment> source){
-  ///     appointments = source;
-  ///  }
-  ///}
   /// ```
   Appointment? getOccurrenceAppointment(
       Object? patternAppointment, DateTime date, String calendarTimeZone) {
@@ -360,70 +442,80 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// occurrenceAppointment - required - The occurrence appointment for which
   /// the Pattern appointment is obtained.
   ///
+  /// * [Appointment], the object to hold the data for the event in the
+  /// calendar.
+  /// * [getVisibleAppointments], which allows to get the appointment
+  /// collection between the given date range.
+  /// * [getOccurrenceAppointment], which allows to get the occurrence
+  /// appointment of the given pattern appointment in calendar.
+  /// * [SfCalendar.getRecurrenceDateTimeCollection], which used to get the
+  /// recurrence date time collection for the given recurrence rule.
+  ///
   /// ```dart
   ///
   /// class MyAppState extends State<MyApp>{
-  ///
-  ///  CalendarController _calendarController;
-  ///  _AppointmentDataSource _dataSource;
-  ///  Appointment recurrenceApp;
-  ///  @override
-  ///  initState(){
-  ///    _calendarController = CalendarController();
-  ///	   _dataSource = _getCalendarDataSource();
-  ///    super.initState();
-  ///  }
-  ///
-  ///  @override
-  ///  Widget build(BuildContext context) {
-  ///    return MaterialApp(
-  ///      home: Scaffold(
-  ///        body: SfCalendar(
-  ///          view: CalendarView.month,
-  ///          controller: _calendarController,
-  ///		       dataSource: _dataSource,
-  ///		       onTap: (CalendarTapDetails details) {
-  ///          	DateTime date = details.date;
-  ///          	String calendarTimeZone = '';
-  ///          	Appointment appointment = _dataSource.getPatternAppointment(
-  ///              	occurrenceAppointment, calendarTimeZone);
-  ///        },
-  ///        ),
-  ///      ),
-  ///    );
-  ///  }
-  ///}
-  ///
-  ///  _AppointmentDataSource _getCalendarDataSource() {
-  ///  List<Appointment> appointments = <Appointment>[];
-  ///  recurrenceApp = appointments.add(Appointment(
-  ///     startTime: DateTime(2020,11,27,9),
-  ///     endTime: DateTime(2020,11,27,9).add(Duration(hours: 2)),
-  ///     subject: 'Meeting',
-  ///     color: Colors.cyanAccent,
-  ///     startTimeZone: '',
-  ///     endTimeZone: '',
-  ///     recurrenceRule: 'FREQ=DAILY;INTERVAL=2;COUNT=5',
+  ///   late CalendarController _calendarController;
+  ///   late _AppointmentDataSource _dataSource;
+  ///   late Appointment recurrenceApp;
+  ///   @override
+  ///   initState(){
+  ///     _calendarController = CalendarController();
+  ///     _dataSource = _getCalendarDataSource();
+  ///     super.initState();
+  ///   }
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///     return MaterialApp(
+  ///       home: Scaffold(
+  ///         body: SfCalendar(
+  ///           view: CalendarView.month,
+  ///           controller: _calendarController,
+  ///           dataSource: _dataSource,
+  ///           initialDisplayDate: DateTime(2020,11,27,9),
+  ///           onTap: (CalendarTapDetails details) {
+  ///             if(details.appointments!.isNotEmpty &&
+  ///                                             details.appointments != null){
+  ///               final dynamic occurrenceAppointment =
+  ///                                                 details.appointments![0];
+  ///               final Appointment? patternAppointment =
+  ///               _dataSource.getPatternAppointment(
+  ///                                occurrenceAppointment, '') as Appointment?;
+  ///             }
+  ///           },
+  ///         ),
+  ///       ),
+  ///     );
+  ///   }
+  ///   _AppointmentDataSource _getCalendarDataSource() {
+  ///     List<Appointment> appointments = <Appointment>[];
+  ///     recurrenceApp = Appointment(
+  ///       startTime: DateTime(2020,11,27,9),
+  ///       endTime: DateTime(2020,11,27,9).add(Duration(hours: 2)),
+  ///       subject: 'Meeting',
+  ///       color: Colors.cyanAccent,
+  ///       startTimeZone: '',
+  ///       endTimeZone: '',
+  ///       recurrenceRule: 'FREQ=DAILY;INTERVAL=2;COUNT=5',
+  ///     );
+  ///     appointments.add(recurrenceApp);
+  ///     appointments.add(Appointment(
+  ///         startTime: DateTime(2020,11,28,5),
+  ///         endTime: DateTime(2020,11,30,7),
+  ///         subject: 'Discussion',
+  ///         color: Colors.orangeAccent,
+  ///         startTimeZone: '',
+  ///         endTimeZone: '',
+  ///         isAllDay: true
   ///     ));
-  ///  appointments.add(recurrenceApp);
-  ///  appointments.add(Appointment(
-  ///     startTime: DateTime(2020,11,28,5),
-  ///     endTime: DateTime(2020,11,30,7),
-  ///     subject: 'Discussion',
-  ///     color: Colors.orangeAccent,
-  ///     startTimeZone: '',
-  ///     endTimeZone: '',
-  ///     isAllDay: true
-  ///     ));
-  ///  return _AppointmentDataSource(appointments);
+  ///     return _AppointmentDataSource(appointments);
+  ///   }
+  /// }
+  /// class _AppointmentDataSource extends CalendarDataSource {
+  ///   _AppointmentDataSource(List<Appointment> source){
+  ///     appointments = source;
   ///   }
   /// }
   ///
-  /// class _AppointmentDataSource extends CalendarDataSource {
-  ///  _AppointmentDataSource(List<Appointment> source){
-  ///     appointments = source;
-  ///  }
-  ///}
   /// ```
   Object? getPatternAppointment(
       Object? occurrenceAppointment, String calendarTimeZone) {
@@ -452,7 +544,8 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
           dataSourceAppointments[i];
       if ((dataSourceAppointment.id ==
               occurrenceCalendarAppointment.recurrenceId) ||
-          (dataSourceAppointment.id == occurrenceCalendarAppointment.id)) {
+          (occurrenceCalendarAppointment.recurrenceId == null &&
+              dataSourceAppointment.id == occurrenceCalendarAppointment.id)) {
         return dataSourceAppointment.data;
       }
     }
@@ -463,6 +556,21 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// [SfCalendar].
   ///
   /// Defaults to `null`.
+  ///
+  /// See also:
+  /// * [CalendarResource], the object to hold the data for the resource in the
+  /// calendar.
+  /// * [appointments], to set and handle the resource collection to the
+  /// [SfCalendar].
+  /// * [TimeRegion], the object to hold the data for the special time region in
+  /// the calendar.
+  /// * [SfCalendar.resourceViewHeaderBuilder], to set custom widget for the
+  /// resource view in the calendar.
+  /// * [resourceViewSettings], to customize the resource view in the calendar.
+  /// * Knowledge base: [How to add resources](https://www.syncfusion.com/kb/12070/how-to-add-resources-in-the-flutter-calendar)
+  /// * Knowledge base: [How to handle appointments for multiple resources](https://www.syncfusion.com/kb/11812/how-to-handle-appointments-for-multiple-resources-in-the-flutter-calendar)
+  /// * Knowledge base: [How to customize the resource view](https://www.syncfusion.com/kb/12351/how-to-customize-the-resource-view-in-the-flutter-calendar)
+  /// * Knowledge base: [How to add appointment for the selected resources using appointment editor](https://www.syncfusion.com/kb/12109/how-to-add-appointment-for-the-selected-resources-using-appointment-editor-in-the-flutter)
   ///
   /// ```dart
   ///
@@ -488,7 +596,17 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// It is mandatory to override this method to set custom appointments
   /// collection to the [appointments].
   ///
-  /// See also: [Appointment.startTime]
+  /// See also:
+  /// * [Appointment.startTime], the date time value in which the appointment
+  /// will start.
+  /// * [isAllDay], which used to map the custom appointment's
+  /// [Appointment.isAllDay] property to the [Appointment].
+  /// * [getEndTime], which used to map the custom appointment's
+  /// [Appointment.endTime] property to the [Appointment].
+  /// * [getStartTimeZone], which used to map the custom appointment's
+  /// [Appointment.startTimeZone] property to the [Appointment].
+  /// * [SfCalendar.timeZone], to set the timezone for the calendar.
+  /// * [The documentation for time zone](https://help.syncfusion.com/flutter/calendar/timezone)
   ///
   /// ```dart
   ///  @override
@@ -509,7 +627,17 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// It is mandatory to override this method to set custom appointments
   /// collection to the [appointments].
   ///
-  /// See also: [Appointment.endTime]
+  /// See also:
+  /// * [Appointment.endTime], the date time value in which the appointment
+  /// will end.
+  /// * [isAllDay], which used to map the custom appointment's
+  /// [Appointment.isAllDay] property to the [Appointment].
+  /// * [getStartTime], which used to map the custom appointment
+  /// [Appointment.startTime] property to the [Appointment].
+  /// * [getEndTimeZone], which used to map the custom appointment's
+  /// [Appointment.endTimeZone] property to the [Appointment].
+  /// * [SfCalendar.timeZone], to set the timezone for the calendar.
+  /// * [The documentation for time zone](https://help.syncfusion.com/flutter/calendar/timezone)
   ///
   /// ```dart
   ///  @override
@@ -527,7 +655,12 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// _Note:_ It is applicable only when the custom appointments set to the
   /// [appointments].
   ///
-  /// See also: [Appointment.subject]
+  /// See also:
+  /// * [Appointment.subject], which holds the subject of the appointment which
+  /// will be displayed on the event UI.
+  /// * [SfCalendar.appointmentTextStyle], to customize the appointment text,
+  /// when the builder not added.
+  /// * Knowledge base: [How to style appointments](https://www.syncfusion.com/kb/12162/how-to-style-the-appointment-in-the-flutter-calendar)
   ///
   /// ```dart
   ///  @override
@@ -545,7 +678,19 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// _Note:_ It is applicable only when the custom appointments set to the
   /// [appointments].
   ///
-  /// See also: [Appointment.isAllDay]
+  /// See also:
+  /// * [Appointment.isAllDay], which defines whether the event is a day long or
+  ///  not.
+  /// * [getStartTime], which used to map the custom appointment
+  /// [Appointment.startTime] property to the [Appointment].
+  /// * [getEndTime], which used to map the custom appointment
+  /// [Appointment.endTime] property to the [Appointment].
+  /// * [getStartTimeZone], which used to map the custom appointment's
+  /// [Appointment.startTimeZone] property to the [Appointment].
+  /// * [getEndTimeZone], which used to map the custom appointment's
+  /// [Appointment.endTimeZone] property to the [Appointment].
+  /// * [SfCalendar.timeZone], to set the timezone for the calendar.
+  /// * [The documentation for time zone](https://help.syncfusion.com/flutter/calendar/timezone)
   ///
   /// ```dart
   ///  @override
@@ -563,7 +708,14 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// _Note:_ It is applicable only when the custom appointments set to the
   /// [appointments].
   ///
-  /// See also: [Appointment.color]
+  /// See also:
+  /// * [Appointment.color], which fills the background of the appointment view
+  /// in the [SfCalendar].
+  /// * [SfCalendar.appointmentTextStyle], to customize the appointment text,
+  /// when the builder not added.
+  /// * [SfCalendar.appointmentBuilder], to set custom widget for the
+  /// appointment view in the calendar
+  /// * Knowledge base: [How to style appointments](https://www.syncfusion.com/kb/12162/how-to-style-the-appointment-in-the-flutter-calendar)
   ///
   /// ```dart
   ///  @override
@@ -581,7 +733,12 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// _Note:_ It is applicable only when the custom appointments set to the
   /// [appointments].
   ///
-  /// See also: [Appointment.notes]
+  /// See also:
+  /// * [Appointment.notes], which stored some note of the appointment in the
+  /// calendar.
+  /// * [getLocation], which maps the custom appointment's
+  /// [Appointment.location] property to the [Appointment]
+  ///
   ///
   /// ```dart
   ///  @override
@@ -599,7 +756,11 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// _Note:_ It is applicable only when the custom appointments set to the
   /// [appointments].
   ///
-  /// See also: [Appointment.location].
+  /// See also:
+  /// * [Appointment.location], which used to store the location data of the
+  /// event in the calendar.
+  /// * [getNotes], which maps the custom appointment's [Appointment.notes]
+  /// property to the [Appointment]
   ///
   /// ```dart
   ///  @override
@@ -617,7 +778,14 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// _Note:_ It is applicable only when the custom appointments set to the
   /// [appointments].
   ///
-  /// See also: [Appointment.startTimeZone].
+  /// See also:
+  /// * [Appointment.startTimeZone], which sets the time zone for the start time
+  /// of the appointment.
+  /// * [getEndTime], which used to map the custom appointment's
+  /// [Appointment.endTime] property to the [Appointment].
+  /// * [SfCalendar.timeZone], to set the timezone for the calendar.
+  /// * [The documentation for time zone](https://help.syncfusion.com/flutter/calendar/timezone)
+  ///
   ///
   /// ```dart
   ///  @override
@@ -635,7 +803,13 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// _Note:_ It is applicable only when the custom appointments set to the
   /// [appointments].
   ///
-  /// See also: [Appointment.endTimeZone].
+  /// See also:
+  /// * [Appointment.endTimeZone], which sets the time zone for the end time
+  /// of the appointment.
+  /// * [getStartTime], which used to map the custom appointment's
+  /// [Appointment.startTime] property to the [Appointment].
+  /// * [SfCalendar.timeZone], to set the timezone for the calendar.
+  /// * [The documentation for time zone](https://help.syncfusion.com/flutter/calendar/timezone)
   ///
   /// ```dart
   ///  @override
@@ -653,7 +827,18 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// _Note:_ It is applicable only when the custom appointments set to the
   /// [appointments].
   ///
-  /// See also: [Appointment.recurrenceRule].
+  /// See also:
+  /// * [Appointment.recurrenceRule], which used to recur the appointment based
+  /// on the given rule.
+  /// * [RecurrenceProperties], which used to create the recurrence rule based
+  /// on the values set to these properties.
+  /// * [SfCalendar.generateRRule], which used to generate recurrence rule
+  /// based on the [RecurrenceProperties] values.
+  /// * [SfCalendar.getRecurrenceDateTimeCollection], to get the recurrence date
+  /// time collection based on the given recurrence rule and start date.
+  /// * Knowledge base: [How to use a negative value for bysetpos in rrule](https://www.syncfusion.com/kb/12552/how-to-use-a-negative-value-for-bysetpos-in-a-rrule-of-recurrence-appointment-in-the)
+  /// * Knowledge base: [How to get the recurrence date collection](https://www.syncfusion.com/kb/12344/how-to-get-the-recurrence-date-collection-in-the-flutter-calendar)
+  /// * Knowledge base: [How to add recurring appointments until specified date](https://www.syncfusion.com/kb/12158/how-to-add-recurring-appointments-until-the-specified-date-in-the-flutter-calendar)
   ///
   /// ```dart
   ///  @override
@@ -671,7 +856,16 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// _Note:_ It is applicable only when the custom appointments set to the
   /// [appointments].
   ///
-  /// See also: [Appointment.recurrenceExceptionDates].
+  /// See also:
+  /// * [Appointment.recurrenceExceptionDates], which used to exclude some dates
+  /// from the recurrence series of the appointment.
+  /// * [getRecurrenceRule],which used to map the custom appointment's
+  /// [Appointment.recurrenceRule] property of the [Appointment].
+  /// * [RecurrenceProperties], which used to create the recurrence rule based
+  /// on the values set to these properties.
+  /// * [SfCalendar.generateRRule], which used to generate recurrence rule
+  /// based on the [RecurrenceProperties] values.
+  /// * Knowledge base: [How to exclude the dates from the recurrence appointments](https://www.syncfusion.com/kb/12161/how-to-exclude-the-dates-from-recurrence-appointments-in-the-flutter-calendar)
   ///
   /// ```dart
   ///  @override
@@ -688,9 +882,18 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// [appointments].
   ///
   /// See also:
-  ///
   /// * [Appointment.resourceIds], the ids of the [CalendarResource] that shares
   /// this [Appointment].
+  /// * [CalendarResource], object which contains the resource data.
+  /// * [ResourceViewSettings], the settings have properties which allow to
+  /// customize the resource view of the [SfCalendar].
+  /// * [CalendarResource.id], the unique id for the [CalendarResource] view of
+  /// [SfCalendar].
+  /// * [resources], which used to set and handle the resources collection to
+  /// the calendar.
+  /// * Knowledge base: [How to add appointment for the selected resource using appointment editor](https://www.syncfusion.com/kb/12109/how-to-add-appointment-for-the-selected-resources-using-appointment-editor-in-the-flutter)
+  /// * Knowledge base: [How to add resources](https://www.syncfusion.com/kb/12070/how-to-add-resources-in-the-flutter-calendar)
+  /// * Knowledge base: [How to handle appointments for muliple resources](https://www.syncfusion.com/kb/11812/how-to-handle-appointments-for-multiple-resources-in-the-flutter-calendar)
   ///
   /// ```dart
   ///  @override
@@ -708,7 +911,11 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// _Note:_ It is applicable only when the custom appointments set to the
   /// [appointments].
   ///
-  /// See also: [Appointment.recurrenceId].
+  /// See also:
+  /// * [Appointment.recurrenceId], which used to handle the changed or
+  /// exception occurrence appointments in calendar.
+  /// * [getId], which used to map the custom appointment's [Appointment.id]
+  /// property of the [Appointment].
   ///
   /// ```dart
   ///  @override
@@ -726,7 +933,11 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// _Note:_ It is applicable only when the custom appointments set to the
   /// [appointments].
   ///
-  /// See also: [Appointment.id].
+  /// See also:
+  /// * [Appointment.id], which holds an unique identification number for the
+  /// appointment in the calendar.
+  /// * [getRecurrenceRule], which used to map the custom appointment's
+  /// [Appointment.recurrenceRule] property to the [Appointment].
   ///
   /// ```dart
   ///  @override
@@ -736,11 +947,64 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
   /// ```
   Object? getId(int index) => null;
 
+  /// Converts the [Appointment] data to the custom business object data.
+  ///
+  /// Note_:_ When business object used to set data for [SfCalendar], this
+  /// method must be implemented to get the data with business object type when
+  /// drag and drop and appointment resizing enabled.
+  ///
+  /// ```dart
+  ///
+  ///class _DataSource extends CalendarDataSource<_Meeting> {
+  ///   _DataSource(List<_Meeting> source) {
+  ///     appointments = source;
+  ///   }
+  ///
+  ///   @override
+  ///   DateTime getStartTime(int index) {
+  ///     return appointments![index].from as DateTime;
+  ///   }
+  ///
+  ///   @override
+  ///   DateTime getEndTime(int index) {
+  ///     return appointments![index].to as DateTime;
+  ///   }
+  ///
+  ///   @override
+  ///   String getSubject(int index) {
+  ///     return appointments![index].content as String;
+  ///   }
+  ///
+  ///   @override
+  ///   Color getColor(int index) {
+  ///     return appointments![index].background as Color;
+  ///   }
+  ///
+  ///   @override
+  ///   _Meeting convertAppointmentToObject(
+  ///       _Meeting customData, Appointment appointment) {
+  ///     return _Meeting(
+  ///         from: appointment.startTime,
+  ///         to: appointment.endTime,
+  ///         content: appointment.subject,
+  ///         background: appointment.color,
+  ///         isAllDay: appointment.isAllDay);
+  ///   }
+  /// }
+  ///
+  /// ```
+  T? convertAppointmentToObject(T customData, Appointment appointment) => null;
+
   /// Called when loadMoreAppointments function is called from the
   /// loadMoreWidgetBuilder.
   /// Call the [notifyListeners] to notify the calendar for data source changes.
   ///
-  /// See also: [SfCalendar.loadMoreWidgetBuilder]
+  /// See also:
+  /// * [SfCalendar.loadMoreWidgetBuilder], which used to set custom widget,
+  /// which will be displayed when the appointment is loading on view.
+  /// * [notifyListeners], to add, remove or reset the appointment and resource
+  ///  collection.
+  /// * Knowledge base: [How to load appointments on demand](https://www.syncfusion.com/kb/12658/how-to-load-appointments-on-demand-in-flutter-calendar)
   ///
   /// ```dart
   ///  @override
@@ -778,7 +1042,9 @@ abstract class CalendarDataSource extends CalendarDataSourceChangeNotifier {
 /// Signature for callback that reports that a appointment collection set to the
 /// [CalendarDataSource] modified.
 ///
-/// See also: [CalendarDataSourceAction]
+/// See also:
+/// [CalendarDataSourceAction], the actions which can be performed using the
+/// calendar.
 typedef CalendarDataSourceCallback = void Function(
     CalendarDataSourceAction, List<dynamic>);
 

@@ -328,7 +328,7 @@ class PdfTextExtractor {
                     renderer.imageRenderGlyphList[m].toUnicode,
                     textElement.fontName,
                     textElement.fontStyle,
-                    glyphBounds,
+                    _calculateBounds(glyphBounds),
                     textElement.fontSize);
                 tempText += textGlyph.text;
                 glyphs.add(textGlyph);
@@ -611,7 +611,7 @@ class PdfTextExtractor {
         renderer.imageRenderGlyphList[i].toUnicode,
         textElement.fontName,
         textElement.fontStyle,
-        glyphBounds,
+        _calculateBounds(glyphBounds),
         textElement.fontSize);
     dx = renderer.imageRenderGlyphList[i].boundingRect.left;
     dy = renderer.imageRenderGlyphList[i].boundingRect.top;
@@ -663,8 +663,8 @@ class PdfTextExtractor {
             0.001) {
       if (x > endGlyph.boundingRect.left) {
         width = (x - endGlyph.boundingRect.left) + endGlyph.boundingRect.width;
-        if (page._rotation == PdfPageRotateAngle.rotateAngle0 ||
-            page._rotation == PdfPageRotateAngle.rotateAngle180) {
+        if (page.rotation == PdfPageRotateAngle.rotateAngle0 ||
+            page.rotation == PdfPageRotateAngle.rotateAngle180) {
           width = startGlyph.boundingRect.height;
           for (int i = 0; i < length; i++) {
             height += glyphs[index + i].boundingRect.width;
@@ -692,8 +692,8 @@ class PdfTextExtractor {
           !((startGlyph.boundingRect.top - endGlyph.boundingRect.top).abs() <
               0.001)) {
         height = 0;
-        if (page._rotation == PdfPageRotateAngle.rotateAngle0 ||
-            page._rotation == PdfPageRotateAngle.rotateAngle180) {
+        if (page.rotation == PdfPageRotateAngle.rotateAngle0 ||
+            page.rotation == PdfPageRotateAngle.rotateAngle180) {
           width = startGlyph.boundingRect.height;
           for (int i = 0; i < length; i++) {
             height += glyphs[index + i].boundingRect.width;
@@ -718,7 +718,7 @@ class PdfTextExtractor {
         }
       }
     }
-    return Rect.fromLTWH(x, y, width, height);
+    return _calculateBounds(Rect.fromLTWH(x, y, width, height));
   }
 
   bool _hasEscapeCharacter(String text) {
@@ -733,6 +733,17 @@ class PdfTextExtractor {
         text.contains(r'\v') ||
         text.contains(r"\'") ||
         text.contains(r'\u0000');
+  }
+
+  Rect _calculateBounds(Rect bounds) {
+    if (_currentPage != null &&
+        _currentPage!._cropBox != Rect.zero &&
+        _currentPage!._cropBox != _currentPage!._mediaBox) {
+      final double x = bounds.left - _currentPage!._cropBox.left;
+      final double y = bounds.top + _currentPage!._cropBox.top;
+      return Rect.fromLTWH(x, y, bounds.width, bounds.height);
+    }
+    return bounds;
   }
 
   TextLine _prepareTextLine(TextLine textLine, _ImageRenderer renderer,
@@ -750,7 +761,7 @@ class PdfTextExtractor {
         renderer.imageRenderGlyphList[glyphIndex - 1].boundingRect.right -
             renderer.imageRenderGlyphList[lineStartIndex].boundingRect.left,
         renderer.imageRenderGlyphList[glyphIndex - 1].boundingRect.height);
-
+    textLine.bounds = _calculateBounds(textLine.bounds);
     for (int i = lineStartIndex; i < glyphIndex; i++) {
       final _Glyph glyph = renderer.imageRenderGlyphList[i];
       if (i == 0) {
@@ -901,10 +912,11 @@ class PdfTextExtractor {
               final double d = double.tryParse(elements[3])!;
               final double e = double.tryParse(elements[4])!;
               final double f = double.tryParse(elements[5])!;
-              _textLineMatrix = _textMatrix = _MatrixHelper(a, b, c, d, e, f);
+              _textLineMatrix = _MatrixHelper(a, b, c, d, e, f);
+              _textMatrix = _MatrixHelper(a, b, c, d, e, f);
               if (_textMatrix!.offsetY == _textLineMatrix!.offsetY &&
                   _textMatrix!.offsetX != _textLineMatrix!.offsetX) {
-                _textLineMatrix = _textMatrix;
+                _textLineMatrix = _textMatrix!._clone();
               }
               if (_textLineMatrix!.offsetY != _currentTextMatrix!.offsetY ||
                   ((_textLineMatrix!.offsetX != _currentTextMatrix!.offsetX) &&
@@ -943,7 +955,7 @@ class PdfTextExtractor {
           case 'TD':
             {
               textLeading = double.tryParse(elements![1]);
-              _textLineMatrix = _textMatrix = _MatrixHelper(
+              _textMatrix = _MatrixHelper(
                       1,
                       0,
                       0,
@@ -951,6 +963,7 @@ class PdfTextExtractor {
                       double.tryParse(elements[0])!,
                       double.tryParse(elements[1])!) *
                   _textLineMatrix!;
+              _textLineMatrix = _textMatrix!._clone();
               if (_textLineMatrix!.offsetY != _currentTextMatrix!.offsetY ||
                   (_hasBDC &&
                       _textLineMatrix!.offsetX != _currentTextMatrix!.offsetX &&
@@ -962,7 +975,7 @@ class PdfTextExtractor {
             }
           case 'Td':
             {
-              _textLineMatrix = _textMatrix = _MatrixHelper(
+              _textMatrix = _MatrixHelper(
                       1,
                       0,
                       0,
@@ -970,6 +983,7 @@ class PdfTextExtractor {
                       double.tryParse(elements![0])!,
                       double.tryParse(elements[1])!) *
                   _textLineMatrix!;
+              _textLineMatrix = _textMatrix!._clone();
               if (_textLineMatrix!.offsetY != _currentTextMatrix!.offsetY ||
                   (_hasBDC &&
                       _textLineMatrix!.offsetX !=
@@ -995,13 +1009,15 @@ class PdfTextExtractor {
             }
           case 'BT':
             {
-              _textLineMatrix = _textMatrix = _MatrixHelper(0, 0, 0, 0, 0, 0);
+              _textMatrix = _MatrixHelper(0, 0, 0, 0, 0, 0);
+              _textLineMatrix = _MatrixHelper(0, 0, 0, 0, 0, 0);
               break;
             }
           case 'T*':
             {
-              _textLineMatrix = _textMatrix =
+              _textMatrix =
                   _MatrixHelper(1, 0, 0, 1, 0, textLeading!) * _textLineMatrix!;
+              _textLineMatrix = _textMatrix!._clone();
               break;
             }
           case 'Tf':
@@ -1050,12 +1066,12 @@ class PdfTextExtractor {
                   ? _renderTextElementTJ(
                       elements!, token, pageResources, horizontalScaling)
                   : _renderTextElement(elements!, token, pageResources);
-              _currentTextMatrix = _textLineMatrix;
+              _currentTextMatrix = _textLineMatrix!._clone();
               prevY = currentY;
               resultantText += currentText!;
-              _textMatrix = _textLineMatrix;
+              _textMatrix = _textLineMatrix!._clone();
               if (currentToken == 'TJ') {
-                _hasBDC = true;
+                _hasBDC = false;
               }
               break;
             }
@@ -1085,10 +1101,11 @@ class PdfTextExtractor {
               if ((prevXPosition - currentXPosition) > 0) {
                 hasNoSpacing = true;
               }
-              _textLineMatrix = _textMatrix =
+              _textMatrix =
                   _MatrixHelper(1, 0, 0, 1, 0, textLeading!) * _textLineMatrix!;
+              _textLineMatrix = _textMatrix!._clone();
               currentText = _renderTextElement(elements!, token, pageResources);
-              _currentTextMatrix = _textLineMatrix;
+              _currentTextMatrix = _textLineMatrix!._clone();
               resultantText += currentText!;
               break;
             }
@@ -1252,7 +1269,7 @@ class PdfTextExtractor {
           _textLineMatrix =
               _updateTextMatrix(_characterWidth, horizontalScaling);
           _tempBoundingRectangle = boundingRect;
-          _textMatrix = _textLineMatrix;
+          _textMatrix = _textLineMatrix!._clone();
         }
       }
     }

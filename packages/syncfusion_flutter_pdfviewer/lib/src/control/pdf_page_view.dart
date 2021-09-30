@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -6,15 +7,13 @@ import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/common/pdfviewer_helper.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/control/pdf_scrollable.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/control/pdfviewer_canvas.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:syncfusion_flutter_pdfviewer/src/common/mobile_helper.dart'
     if (dart.library.html) 'package:syncfusion_flutter_pdfviewer/src/common/web_helper.dart'
     as helper;
-
-import 'enums.dart';
+import 'package:syncfusion_flutter_pdfviewer/src/common/pdfviewer_helper.dart';
+import 'package:syncfusion_flutter_pdfviewer/src/control/pdf_scrollable.dart';
+import 'package:syncfusion_flutter_pdfviewer/src/control/pdfviewer_canvas.dart';
+import 'package:syncfusion_flutter_pdfviewer/src/control/single_page_view.dart';
 
 /// Wrapper class of [Image] widget which shows the PDF pages as an image
 class PdfPageView extends StatefulWidget {
@@ -37,12 +36,18 @@ class PdfPageView extends StatefulWidget {
     this.onTextSelectionChanged,
     this.onTextSelectionDragStarted,
     this.onTextSelectionDragEnded,
-    this.onDocumentLinkNavigationInvoked,
     this.searchTextHighlightColor,
     this.textCollection,
     this.isMobileWebView,
     this.pdfTextSearchResult,
     this.pdfScrollableStateKey,
+    this.singlePageViewStateKey,
+    this.scrollDirection,
+    this.onPdfPagePointerDown,
+    this.onPdfPagePointerMove,
+    this.onPdfPagePointerUp,
+    this.semanticLabel,
+    this.isSinglePageView,
   ) : super(key: key);
 
   /// Image stream
@@ -102,14 +107,32 @@ class PdfPageView extends StatefulWidget {
   /// PdfTextSearchResult instance
   final PdfTextSearchResult pdfTextSearchResult;
 
-  /// Triggered while document link navigation.
-  final Function(double value) onDocumentLinkNavigationInvoked;
-
   /// If true,MobileWebView is enabled.Default value is false.
   final bool isMobileWebView;
 
   /// Key to access scrollable.
   final GlobalKey<PdfScrollableState> pdfScrollableStateKey;
+
+  /// Key to access single page view state.
+  final GlobalKey<SinglePageViewState> singlePageViewStateKey;
+
+  /// Represents the scroll direction of PdfViewer.
+  final PdfScrollDirection scrollDirection;
+
+  /// Triggers when pointer down event is called on pdf page.
+  final PointerDownEventListener onPdfPagePointerDown;
+
+  /// Triggers when pointer move event is called on pdf page.
+  final PointerMoveEventListener onPdfPagePointerMove;
+
+  /// Triggers when pointer up event is called on pdf page.
+  final PointerUpEventListener onPdfPagePointerUp;
+
+  /// A Semantic description of the page.
+  final String? semanticLabel;
+
+  /// Determines layout option in PdfViewer.
+  final bool isSinglePageView;
 
   @override
   State<StatefulWidget> createState() {
@@ -121,12 +144,12 @@ class PdfPageView extends StatefulWidget {
 class PdfPageViewState extends State<PdfPageView> {
   SfPdfViewerThemeData? _pdfViewerThemeData;
   final GlobalKey _canvasKey = GlobalKey();
-  final double _jumpOffset = 10.0;
   int _lastTap = DateTime.now().millisecondsSinceEpoch;
   int _consecutiveTaps = 1;
+  final double _jumpOffset = 10.0;
 
   /// Mouse cursor for mouse region widget
-  SystemMouseCursor cursor = SystemMouseCursors.basic;
+  SystemMouseCursor _cursor = SystemMouseCursors.basic;
 
   /// focus node of pdf page view.
   FocusNode focusNode = FocusNode();
@@ -164,354 +187,298 @@ class PdfPageViewState extends State<PdfPageView> {
     super.dispose();
   }
 
-  void _scroll(bool isReachedTop, bool isSelectionScroll) {
-    if (isSelectionScroll) {
-      canvasRenderBox!.getSelectionDetails().endBubbleY =
-          canvasRenderBox!.getSelectionDetails().endBubbleY! +
-              (isReachedTop ? -3 : 3);
-    }
-
-    final double position = widget.pdfViewerController.scrollOffset.dy +
-        (isReachedTop ? -_jumpOffset : _jumpOffset);
-
-    WidgetsBinding.instance?.addPostFrameCallback((Duration timeStamp) {
-      widget.pdfScrollableStateKey.currentState?.jumpTo(yOffset: position);
-    });
-  }
-
-  void _scrollWhileSelection() {
-    if (canvasRenderBox != null &&
-        canvasRenderBox!.getSelectionDetails().isCursorExit &&
-        canvasRenderBox!.getSelectionDetails().mouseSelectionEnabled) {
-      final TextSelectionHelper details =
-          canvasRenderBox!.getSelectionDetails();
-      final int viewId = canvasRenderBox!.getSelectionDetails().viewId ?? 0;
-      if (details.isCursorReachedTop &&
-          widget.pdfViewerController.pageNumber >= viewId + 1) {
-        _scroll(details.isCursorReachedTop, true);
-      } else if (!details.isCursorReachedTop &&
-          widget.pdfViewerController.pageNumber <= viewId + 1) {
-        _scroll(details.isCursorReachedTop, true);
-      }
-      if (widget.onTextSelectionChanged != null) {
-        widget.onTextSelectionChanged!(
-            PdfTextSelectionChangedDetails(null, null));
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     PaintingBinding.instance?.imageCache?.clear();
     PaintingBinding.instance?.imageCache?.clearLiveImages();
+    final double pageSpacing =
+        widget.pageIndex == widget.pdfViewerController.pageCount - 1
+            ? 0.0
+            : widget.pageSpacing;
+    final double heightSpacing =
+        widget.scrollDirection == PdfScrollDirection.horizontal
+            ? 0.0
+            : pageSpacing;
+    final double widthSpacing =
+        widget.scrollDirection == PdfScrollDirection.horizontal &&
+                !widget.isSinglePageView
+            ? pageSpacing
+            : 0.0;
     if (widget.imageStream != null) {
-      _scrollWhileSelection();
-      final Widget page = Container(
-          height: widget.height + widget.pageSpacing,
-          alignment: Alignment.topCenter,
-          child: Column(children: <Widget>[
-            Image.memory(widget.imageStream!,
-                width: widget.width,
-                height: widget.height,
-                fit: BoxFit.fitWidth,
-                alignment: Alignment.center),
-            Container(
-              height: widget.pageSpacing,
-              color: _pdfViewerThemeData!.backgroundColor,
-            )
-          ]));
-      final Widget pdfPage = (kIsDesktop && !widget.isMobileWebView)
-          ? Container(
-              height: widget.height + widget.pageSpacing,
-              width: widget.width,
-              color: Colors.white,
-              alignment: Alignment.topCenter,
-              child: page,
-            )
-          : Container(
-              height: widget.height + widget.pageSpacing,
-              width: widget.width,
-              color: Colors.white,
-              alignment: Alignment.topCenter,
-              child: page,
-            );
+      final PdfPageRotateAngle rotatedAngle =
+          widget.pdfDocument!.pages[widget.pageIndex].rotation;
+      final Widget image = Image.memory(
+        widget.imageStream!,
+        width: widget.width,
+        height: widget.height,
+        fit: BoxFit.fitWidth,
+        semanticLabel: widget.semanticLabel,
+        alignment: Alignment.center,
+      );
+      final Widget pdfPage = Container(
+        height: widget.height + heightSpacing,
+        width: widget.width + widthSpacing,
+        color: Colors.white,
+        alignment: Alignment.topCenter,
+        child: widget.scrollDirection == PdfScrollDirection.vertical
+            ? Column(children: <Widget>[
+                image,
+                Container(
+                  height: pageSpacing,
+                  color: _pdfViewerThemeData!.backgroundColor,
+                )
+              ])
+            : Row(children: <Widget>[
+                image,
+                Container(
+                  width: widget.isSinglePageView ? 0.0 : pageSpacing,
+                  color: _pdfViewerThemeData!.backgroundColor,
+                )
+              ]),
+      );
+      int quarterTurns = 0;
+      if (rotatedAngle == PdfPageRotateAngle.rotateAngle90) {
+        quarterTurns = 1;
+      } else if (rotatedAngle == PdfPageRotateAngle.rotateAngle180) {
+        quarterTurns = 2;
+      } else if (rotatedAngle == PdfPageRotateAngle.rotateAngle270) {
+        quarterTurns = 3;
+      }
+      final bool isRotatedTo90or270 =
+          rotatedAngle == PdfPageRotateAngle.rotateAngle90 ||
+              rotatedAngle == PdfPageRotateAngle.rotateAngle270;
       final Widget canvasContainer = Container(
-          height: widget.height,
-          width: widget.width,
+          height: isRotatedTo90or270 ? widget.width : widget.height,
+          width: isRotatedTo90or270 ? widget.height : widget.width,
           alignment: Alignment.topCenter,
           child: PdfViewerCanvas(
-            _canvasKey,
-            widget.height,
-            widget.width,
-            widget.pdfDocument,
-            widget.pageIndex,
-            widget.pdfPages,
-            widget.interactionMode,
-            widget.pdfViewerController,
-            widget.enableDocumentLinkAnnotation,
-            widget.enableTextSelection,
-            widget.onTextSelectionChanged,
-            widget.onTextSelectionDragStarted,
-            widget.onTextSelectionDragEnded,
-            widget.onDocumentLinkNavigationInvoked,
-            widget.textCollection,
-            widget.searchTextHighlightColor,
-            widget.pdfTextSearchResult,
-            widget.isMobileWebView,
-            widget.pdfScrollableStateKey,
-            widget.viewportGlobalRect,
-          ));
+              _canvasKey,
+              isRotatedTo90or270 ? widget.width : widget.height,
+              isRotatedTo90or270 ? widget.height : widget.width,
+              widget.pdfDocument,
+              widget.pageIndex,
+              widget.pdfPages,
+              widget.interactionMode,
+              widget.pdfViewerController,
+              widget.enableDocumentLinkAnnotation,
+              widget.enableTextSelection,
+              widget.onTextSelectionChanged,
+              widget.onTextSelectionDragStarted,
+              widget.onTextSelectionDragEnded,
+              widget.textCollection,
+              widget.searchTextHighlightColor,
+              widget.pdfTextSearchResult,
+              widget.isMobileWebView,
+              widget.pdfScrollableStateKey,
+              widget.singlePageViewStateKey,
+              widget.viewportGlobalRect,
+              widget.scrollDirection,
+              widget.isSinglePageView));
       final Widget canvas = (kIsDesktop &&
               !widget.isMobileWebView &&
               canvasRenderBox != null)
-          ? Listener(
-              onPointerSignal: (PointerSignalEvent details) {
-                canvasRenderBox!.updateContextMenuPosition();
-              },
-              onPointerDown: (PointerDownEvent details) {
-                if (kIsDesktop && !widget.isMobileWebView) {
-                  final int now = DateTime.now().millisecondsSinceEpoch;
-                  if (now - _lastTap <= 500) {
-                    _consecutiveTaps++;
-                    if (_consecutiveTaps == 2 &&
-                        details.buttons != kSecondaryButton) {
-                      canvasRenderBox!.handleDoubleTapDown(details);
-                    }
-                    if (_consecutiveTaps == 3 &&
-                        details.buttons != kSecondaryButton) {
-                      canvasRenderBox!.handleTripleTapDown(details);
-                    }
-                  } else {
-                    _consecutiveTaps = 1;
+          ? RotatedBox(
+              quarterTurns: quarterTurns,
+              child: Listener(
+                onPointerSignal: (PointerSignalEvent details) {
+                  if (widget.isSinglePageView &&
+                      details is PointerScrollEvent) {
+                    widget.singlePageViewStateKey.currentState?.jumpTo(
+                        yOffset: widget.pdfViewerController.scrollOffset.dy +
+                            (details.scrollDelta.dy.isNegative
+                                ? -_jumpOffset
+                                : _jumpOffset));
                   }
-                  _lastTap = now;
-                }
-              },
-              child: RawKeyboardListener(
-                autofocus: true,
-                focusNode: focusNode,
-                onKey: (RawKeyEvent event) {
-                  final bool isPrimaryKeyPressed =
-                      kIsWeb ? event.isControlPressed : event.isMetaPressed;
-                  if ((canvasRenderBox!
-                              .getSelectionDetails()
-                              .mouseSelectionEnabled ||
-                          canvasRenderBox!
-                              .getSelectionDetails()
-                              .selectionEnabled) &&
-                      isPrimaryKeyPressed &&
-                      event.logicalKey == LogicalKeyboardKey.keyC) {
-                    Clipboard.setData(ClipboardData(
-                        text:
-                            canvasRenderBox!.getSelectionDetails().copiedText ??
-                                ''));
-                  }
-                  if (isPrimaryKeyPressed &&
-                      event.logicalKey == LogicalKeyboardKey.digit0) {
-                    widget.pdfViewerController.zoomLevel = 1.0;
-                  }
-                  if (isPrimaryKeyPressed &&
-                      event.logicalKey == LogicalKeyboardKey.minus) {
-                    if (event.runtimeType.toString() == 'RawKeyDownEvent') {
-                      double zoomLevel = widget.pdfViewerController.zoomLevel;
-                      if (zoomLevel >= 1.0 && zoomLevel <= 1.25) {
-                        zoomLevel = 1.0;
-                      } else if (zoomLevel > 1.25 && zoomLevel <= 1.50) {
-                        zoomLevel = 1.25;
-                      } else if (zoomLevel > 1.50 && zoomLevel <= 2.0) {
-                        zoomLevel = 1.50;
-                      } else {
-                        zoomLevel = 2.0;
+                  canvasRenderBox!.updateContextMenuPosition();
+                },
+                onPointerDown: (PointerDownEvent details) {
+                  widget.onPdfPagePointerDown(details);
+                  if (kIsDesktop && !widget.isMobileWebView) {
+                    final int now = DateTime.now().millisecondsSinceEpoch;
+                    if (now - _lastTap <= 500) {
+                      _consecutiveTaps++;
+                      if (_consecutiveTaps == 2 &&
+                          details.buttons != kSecondaryButton) {
+                        focusNode.requestFocus();
+                        canvasRenderBox!.handleDoubleTapDown(details);
                       }
-                      widget.pdfViewerController.zoomLevel = zoomLevel;
-                    }
-                  }
-                  if (isPrimaryKeyPressed &&
-                      event.logicalKey == LogicalKeyboardKey.equal) {
-                    if (event.runtimeType.toString() == 'RawKeyDownEvent') {
-                      double zoomLevel = widget.pdfViewerController.zoomLevel;
-                      if (zoomLevel >= 1.0 && zoomLevel < 1.25) {
-                        zoomLevel = 1.25;
-                      } else if (zoomLevel >= 1.25 && zoomLevel < 1.50) {
-                        zoomLevel = 1.50;
-                      } else if (zoomLevel >= 1.50 && zoomLevel < 2.0) {
-                        zoomLevel = 2.0;
-                      } else {
-                        zoomLevel = 3.0;
+                      if (_consecutiveTaps == 3 &&
+                          details.buttons != kSecondaryButton) {
+                        focusNode.requestFocus();
+                        canvasRenderBox!.handleTripleTapDown(details);
                       }
-                      widget.pdfViewerController.zoomLevel = zoomLevel;
+                    } else {
+                      _consecutiveTaps = 1;
                     }
-                  }
-                  if (event.runtimeType.toString() == 'RawKeyDownEvent') {
-                    if (event.logicalKey == LogicalKeyboardKey.home ||
-                        (kIsMacOS &&
-                            event.logicalKey == LogicalKeyboardKey.fn &&
-                            event.logicalKey == LogicalKeyboardKey.arrowLeft)) {
-                      widget.pdfViewerController.jumpToPage(1);
-                    } else if (event.logicalKey == LogicalKeyboardKey.end ||
-                        (kIsMacOS &&
-                            event.logicalKey == LogicalKeyboardKey.fn &&
-                            event.logicalKey ==
-                                LogicalKeyboardKey.arrowRight)) {
-                      widget.pdfViewerController
-                          .jumpToPage(widget.pdfViewerController.pageCount);
-                    } else if (event.logicalKey ==
-                        LogicalKeyboardKey.arrowRight) {
-                      widget.pdfViewerController.nextPage();
-                    } else if (event.logicalKey ==
-                        LogicalKeyboardKey.arrowLeft) {
-                      widget.pdfViewerController.previousPage();
-                    }
-                  }
-                  if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
-                    _scroll(true, false);
-                  }
-                  if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
-                    _scroll(false, false);
+                    _lastTap = now;
                   }
                 },
-                child: MouseRegion(
-                  cursor: cursor,
-                  onHover: (PointerHoverEvent details) {
-                    if (canvasRenderBox != null) {
-                      if (widget.interactionMode ==
-                          PdfInteractionMode.selection) {
-                        final bool isText = canvasRenderBox!
-                                .findTextWhileHover(details.localPosition) !=
-                            null;
-                        final bool isTOC =
-                            canvasRenderBox!.findTOC(details.localPosition);
-                        if (isTOC) {
-                          cursor = SystemMouseCursors.click;
-                        } else if (isText && !isTOC) {
-                          cursor = SystemMouseCursors.text;
+                onPointerMove: (PointerMoveEvent details) {
+                  focusNode.requestFocus();
+                  widget.onPdfPagePointerMove(details);
+                  if (widget.interactionMode == PdfInteractionMode.pan) {
+                    _cursor = SystemMouseCursors.grabbing;
+                  }
+                },
+                onPointerUp: (PointerUpEvent details) {
+                  widget.onPdfPagePointerUp(details);
+                  if (widget.interactionMode == PdfInteractionMode.pan) {
+                    _cursor = SystemMouseCursors.grab;
+                  }
+                },
+                child: RawKeyboardListener(
+                  focusNode: focusNode,
+                  onKey: (RawKeyEvent event) {
+                    final bool isPrimaryKeyPressed =
+                        kIsMacOS ? event.isMetaPressed : event.isControlPressed;
+                    if ((canvasRenderBox!
+                                .getSelectionDetails()
+                                .mouseSelectionEnabled ||
+                            canvasRenderBox!
+                                .getSelectionDetails()
+                                .selectionEnabled) &&
+                        isPrimaryKeyPressed &&
+                        event.logicalKey == LogicalKeyboardKey.keyC) {
+                      Clipboard.setData(ClipboardData(
+                          text: canvasRenderBox!
+                                  .getSelectionDetails()
+                                  .copiedText ??
+                              ''));
+                    }
+                    if (isPrimaryKeyPressed &&
+                        event.logicalKey == LogicalKeyboardKey.digit0) {
+                      widget.pdfViewerController.zoomLevel = 1.0;
+                    }
+                    if (isPrimaryKeyPressed &&
+                        event.logicalKey == LogicalKeyboardKey.minus) {
+                      if (event.runtimeType.toString() == 'RawKeyDownEvent') {
+                        double zoomLevel = widget.pdfViewerController.zoomLevel;
+                        if (zoomLevel >= 1.0 && zoomLevel <= 1.25) {
+                          zoomLevel = 1.0;
+                        } else if (zoomLevel > 1.25 && zoomLevel <= 1.50) {
+                          zoomLevel = 1.25;
+                        } else if (zoomLevel > 1.50 && zoomLevel <= 2.0) {
+                          zoomLevel = 1.50;
                         } else {
-                          cursor = SystemMouseCursors.basic;
+                          zoomLevel = 2.0;
                         }
-                      } else {
-                        final bool isTOC =
-                            canvasRenderBox!.findTOC(details.localPosition);
-                        if (isTOC) {
-                          cursor = SystemMouseCursors.click;
-                        } else if (cursor != SystemMouseCursors.grab) {
-                          cursor = SystemMouseCursors.grab;
-                        }
+                        widget.pdfViewerController.zoomLevel = zoomLevel;
                       }
                     }
+                    if (isPrimaryKeyPressed &&
+                        event.logicalKey == LogicalKeyboardKey.equal) {
+                      if (event.runtimeType.toString() == 'RawKeyDownEvent') {
+                        double zoomLevel = widget.pdfViewerController.zoomLevel;
+                        if (zoomLevel >= 1.0 && zoomLevel < 1.25) {
+                          zoomLevel = 1.25;
+                        } else if (zoomLevel >= 1.25 && zoomLevel < 1.50) {
+                          zoomLevel = 1.50;
+                        } else if (zoomLevel >= 1.50 && zoomLevel < 2.0) {
+                          zoomLevel = 2.0;
+                        } else {
+                          zoomLevel = 3.0;
+                        }
+                        widget.pdfViewerController.zoomLevel = zoomLevel;
+                      }
+                    }
+                    if (event.runtimeType.toString() == 'RawKeyDownEvent') {
+                      if (event.logicalKey == LogicalKeyboardKey.home ||
+                          (kIsMacOS &&
+                              event.logicalKey == LogicalKeyboardKey.fn &&
+                              event.logicalKey ==
+                                  LogicalKeyboardKey.arrowLeft)) {
+                        widget.pdfViewerController.jumpToPage(1);
+                      } else if (event.logicalKey == LogicalKeyboardKey.end ||
+                          (kIsMacOS &&
+                              event.logicalKey == LogicalKeyboardKey.fn &&
+                              event.logicalKey ==
+                                  LogicalKeyboardKey.arrowRight)) {
+                        widget.pdfViewerController
+                            .jumpToPage(widget.pdfViewerController.pageCount);
+                      } else if (event.logicalKey ==
+                          LogicalKeyboardKey.arrowRight) {
+                        widget.pdfViewerController.nextPage();
+                      } else if (event.logicalKey ==
+                          LogicalKeyboardKey.arrowLeft) {
+                        widget.pdfViewerController.previousPage();
+                      }
+                    }
+                    if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+                      canvasRenderBox!.scroll(true, false);
+                    }
+                    if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+                      canvasRenderBox!.scroll(false, false);
+                    }
                   },
-                  child: canvasContainer,
+                  child: MouseRegion(
+                    cursor: _cursor,
+                    onHover: (PointerHoverEvent details) {
+                      setState(() {
+                        if (canvasRenderBox != null) {
+                          if (widget.interactionMode ==
+                              PdfInteractionMode.selection) {
+                            final bool isText = canvasRenderBox!
+                                    .findTextWhileHover(
+                                        details.localPosition) !=
+                                null;
+                            final bool isTOC =
+                                canvasRenderBox!.findTOC(details.localPosition);
+                            if (isTOC) {
+                              _cursor = SystemMouseCursors.click;
+                            } else if (isText && !isTOC) {
+                              if (isRotatedTo90or270) {
+                                _cursor = SystemMouseCursors.verticalText;
+                              } else {
+                                _cursor = SystemMouseCursors.text;
+                              }
+                            } else {
+                              _cursor = SystemMouseCursors.basic;
+                            }
+                          } else {
+                            final bool isTOC =
+                                canvasRenderBox!.findTOC(details.localPosition);
+                            if (isTOC) {
+                              _cursor = SystemMouseCursors.click;
+                            } else if (_cursor != SystemMouseCursors.grab) {
+                              _cursor = SystemMouseCursors.grab;
+                            }
+                          }
+                        }
+                      });
+                    },
+                    child: canvasContainer,
+                  ),
                 ),
               ),
             )
-          : canvasContainer;
-      final List<Widget> child = <Widget>[
+          : RotatedBox(
+              quarterTurns: quarterTurns,
+              child: Listener(
+                  onPointerDown: (PointerDownEvent details) {
+                    widget.onPdfPagePointerDown(details);
+                  },
+                  child: canvasContainer));
+      return Stack(children: <Widget>[
         pdfPage,
         canvas,
-      ];
-      if (kIsDesktop && !widget.isMobileWebView) {
-        final double widthFactor =
-            widget.pdfScrollableStateKey.currentState!.paddingWidthScale == 0
-                ? widget.pdfViewerController.zoomLevel
-                : widget.pdfScrollableStateKey.currentState!.paddingWidthScale;
-        child.insert(
-            0,
-            MouseRegion(
-              cursor: cursor,
-              onHover: (PointerHoverEvent details) {
-                if (widget.interactionMode == PdfInteractionMode.pan) {
-                  cursor = SystemMouseCursors.grab;
-                } else {
-                  cursor = SystemMouseCursors.basic;
-                }
-              },
-              child: FittedBox(
-                fit: BoxFit.fitWidth,
-                clipBehavior: Clip.hardEdge,
-                child: Container(
-                  alignment: Alignment.topLeft,
-                  height: widget.height + widget.pageSpacing,
-                  width: widget.parentViewport.width / widthFactor.clamp(1, 3),
-                ),
-              ),
-            ));
-      } else {
-        // ignore: cast_nullable_to_non_nullable
-        if (((widget.pdfScrollableStateKey.currentWidget as PdfScrollable)
-                    .pdfDimension
-                    .height) *
-                (widget.pdfScrollableStateKey.currentState!
-                            .paddingHeightScale ==
-                        0
-                    ? widget.pdfViewerController.zoomLevel
-                    : widget.pdfScrollableStateKey.currentState!
-                        .paddingHeightScale) <
-            widget.parentViewport.height) {
-          final double paddingHeight = (widget.height <
-                  (widget.parentViewport.height /
-                      (widget.pdfScrollableStateKey.currentState!
-                                  .paddingHeightScale ==
-                              0
-                          ? widget.pdfViewerController.zoomLevel
-                          : widget.pdfScrollableStateKey.currentState!
-                              .paddingHeightScale)))
-              ? (widget.parentViewport.height /
-                      (widget.pdfScrollableStateKey.currentState!
-                                  .paddingHeightScale ==
-                              0
-                          ? widget.pdfViewerController.zoomLevel
-                          : widget.pdfScrollableStateKey.currentState!
-                              .paddingHeightScale)) -
-                  widget.height
-              : 0;
-          if (paddingHeight > 0) {
-            final Widget emptyContainer = Container(
-              alignment: Alignment.topCenter,
-              width: widget.width,
-              height: (paddingHeight / 2)
-                  .clamp(0, widget.parentViewport.height - widget.height),
-            );
-            return Column(
-              children: <Widget>[
-                emptyContainer,
-                Stack(alignment: Alignment.topCenter, children: child),
-              ],
-            );
-          }
-        }
-      }
-      return Stack(alignment: Alignment.topCenter, children: child);
+      ]);
     } else {
+      final BorderSide borderSide = BorderSide(
+          width: widget.isSinglePageView ? pageSpacing / 2 : pageSpacing,
+          color: _pdfViewerThemeData!.backgroundColor);
       final Widget child = Container(
-        height: widget.height + widget.pageSpacing,
-        width: widget.width,
-        alignment: Alignment.topCenter,
+        height: widget.height + heightSpacing,
+        width: widget.width + widthSpacing,
         color: Colors.white,
         foregroundDecoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-                width: widget.pageSpacing,
-                color: _pdfViewerThemeData!.backgroundColor),
-          ),
+          border: widget.isSinglePageView
+              ? Border(left: borderSide, right: borderSide)
+              : widget.scrollDirection == PdfScrollDirection.horizontal
+                  ? Border(right: borderSide)
+                  : Border(bottom: borderSide),
         ),
       );
-      if (kIsDesktop &&
-          !widget.isMobileWebView &&
-          widget.parentViewport.width >
-              (widget.width * widget.pdfViewerController.zoomLevel)) {
-        return FittedBox(
-          fit: BoxFit.fitWidth,
-          clipBehavior: Clip.hardEdge,
-          child: Container(
-            alignment: Alignment.topCenter,
-            height: widget.height + widget.pageSpacing,
-            width: widget.parentViewport.width /
-                widget.pdfViewerController.zoomLevel,
-            child: child,
-          ),
-        );
-      } else {
-        return child;
-      }
+      return child;
     }
   }
 }

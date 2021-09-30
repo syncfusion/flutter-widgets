@@ -1,4 +1,20 @@
-part of charts;
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+
+import '../../chart/utils/enum.dart';
+import '../../common/common.dart';
+import '../../common/series/chart_series.dart';
+import '../../common/user_interaction/selection_behavior.dart';
+import '../../common/utils/enum.dart';
+import '../../common/utils/typedef.dart';
+import '../common/data_label.dart';
+import '../series_painter/candle_painter.dart';
+import '../trendlines/trendlines.dart';
+import 'financial_series_base.dart';
 
 /// This class holds the properties of the candle series.
 ///
@@ -12,7 +28,7 @@ part of charts;
 ///
 /// {@youtube 560 315 https://www.youtube.com/watch?v=g5cniDExpRw}
 @immutable
-class CandleSeries<T, D> extends _FinancialSeriesBase<T, D> {
+class CandleSeries<T, D> extends FinancialSeriesBase<T, D> {
   /// Creating an argument constructor of CandleSeries class.
   CandleSeries({
     ValueKey<String>? key,
@@ -45,10 +61,12 @@ class CandleSeries<T, D> extends _FinancialSeriesBase<T, D> {
     String? legendItemText,
     List<double>? dashArray,
     double? opacity,
+    double? animationDelay,
     SeriesRendererCreatedCallback? onRendererCreated,
     ChartPointInteractionCallback? onPointTap,
     ChartPointInteractionCallback? onPointDoubleTap,
     ChartPointInteractionCallback? onPointLongPress,
+    CartesianShaderCallback? onCreateShader,
     List<int>? initialSelectedDataIndexes,
     bool? showIndicationForSameValues,
     List<Trendline>? trendlines,
@@ -90,6 +108,8 @@ class CandleSeries<T, D> extends _FinancialSeriesBase<T, D> {
             legendIconType: legendIconType,
             sortingOrder: sortingOrder,
             opacity: opacity,
+            animationDelay: animationDelay,
+            onCreateShader: onCreateShader,
             bearColor: bearColor ?? Colors.red,
             bullColor: bullColor ?? Colors.green,
             enableSolidCandles: enableSolidCandles ?? false,
@@ -151,12 +171,14 @@ class CandleSeries<T, D> extends _FinancialSeriesBase<T, D> {
         other.legendIconType == legendIconType &&
         other.legendItemText == legendItemText &&
         other.opacity == opacity &&
+        other.animationDelay == animationDelay &&
         other.showIndicationForSameValues == showIndicationForSameValues &&
         other.initialSelectedDataIndexes == other.initialSelectedDataIndexes &&
         other.onRendererCreated == onRendererCreated &&
         other.onPointTap == onPointTap &&
         other.onPointDoubleTap == onPointDoubleTap &&
-        other.onPointLongPress == onPointLongPress;
+        other.onPointLongPress == onPointLongPress &&
+        other.onCreateShader == onCreateShader;
   }
 
   @override
@@ -192,6 +214,7 @@ class CandleSeries<T, D> extends _FinancialSeriesBase<T, D> {
       legendItemText,
       dashArray,
       opacity,
+      animationDelay,
       onRendererCreated,
       initialSelectedDataIndexes,
       showIndicationForSameValues,
@@ -202,127 +225,4 @@ class CandleSeries<T, D> extends _FinancialSeriesBase<T, D> {
     ];
     return hashList(values);
   }
-}
-
-/// Creates series renderer for Candle series
-class CandleSeriesRenderer extends _FinancialSerieBaseRenderer {
-  /// Calling the default constructor of CandleSeriesRenderer class.
-  CandleSeriesRenderer();
-
-  // Store the rect position //
-  @override
-  late num _rectPosition;
-
-  // Store the rect count //
-  @override
-  late num _rectCount;
-
-  late CandleSegment _candleSegment, _segment;
-
-  late CandleSeries<dynamic, dynamic> _candleSeries;
-
-  late CandleSeriesRenderer _candelSereisRenderer;
-
-  List<CartesianSeriesRenderer>? _oldSeriesRenderers;
-
-  /// Range column _segment is created here
-  ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
-      int pointIndex, int seriesIndex, double animateFactor) {
-    _segment = createSegment();
-    _oldSeriesRenderers = _chartState!._oldSeriesRenderers;
-    _isRectSeries = false;
-    // ignore: unnecessary_null_comparison
-    if (_segment != null) {
-      _segment._seriesIndex = seriesIndex;
-      _segment.currentSegmentIndex = pointIndex;
-      _segment._seriesRenderer = this;
-      _segment._series = _series as XyDataSeries<dynamic, dynamic>;
-      _segment.animationFactor = animateFactor;
-      _segment._pointColorMapper = currentPoint.pointColorMapper;
-      _segment._currentPoint = currentPoint;
-      if (_renderingDetails!.widgetNeedUpdate &&
-          !_renderingDetails!.isLegendToggled &&
-          _oldSeriesRenderers != null &&
-          _oldSeriesRenderers!.isNotEmpty &&
-          _oldSeriesRenderers!.length - 1 >= _segment._seriesIndex &&
-          _oldSeriesRenderers![_segment._seriesIndex]._seriesName ==
-              _segment._seriesRenderer._seriesName) {
-        _segment._oldSeriesRenderer =
-            _oldSeriesRenderers![_segment._seriesIndex];
-        _segment._oldSegmentIndex = _getOldSegmentIndex(_segment);
-      }
-      _segment.calculateSegmentPoints();
-      //stores the points for rendering candle - high, low and rect points
-      _segment.points
-        ..add(Offset(currentPoint.markerPoint!.x, _segment._highPoint.y))
-        ..add(Offset(currentPoint.markerPoint!.x, _segment._lowPoint.y))
-        ..add(Offset(_segment._openX, _segment._topRectY))
-        ..add(Offset(_segment._closeX, _segment._topRectY))
-        ..add(Offset(_segment._closeX, _segment._bottomRectY))
-        ..add(Offset(_segment._openX, _segment._bottomRectY));
-      _candleSegment = _segment;
-      customizeSegment(_segment);
-      _segment.strokePaint = _segment.getStrokePaint();
-      _segment.fillPaint = _segment.getFillPaint();
-      _segments.add(_segment);
-    }
-    return _segment;
-  }
-
-  @override
-  CandleSegment createSegment() => CandleSegment();
-
-  /// Changes the series color, border color, and border width.
-  @override
-  void customizeSegment(ChartSegment _segment) {
-    _candleSeries = _series as CandleSeries<dynamic, dynamic>;
-    _candelSereisRenderer = _segment._seriesRenderer as CandleSeriesRenderer;
-    _candleSegment = _candelSereisRenderer._candleSegment;
-
-    if (_candleSeries.enableSolidCandles!) {
-      _candleSegment._isSolid = true;
-      _candleSegment._color = _candleSegment._isBull
-          ? _candleSeries.bullColor
-          : _candleSeries.bearColor;
-    } else {
-      _candleSegment._isSolid = !_candleSegment._isBull;
-      _candleSegment.currentSegmentIndex! - 1 >= 0 &&
-              _candleSegment
-                          ._seriesRenderer
-                          ._dataPoints[_candleSegment.currentSegmentIndex! - 1]
-                          .close >
-                      _candleSegment
-                          ._seriesRenderer
-                          ._dataPoints[_candleSegment.currentSegmentIndex!]
-                          .close ==
-                  true
-          ? _candleSegment._color = _candleSeries.bearColor
-          : _candleSegment._color = _candleSeries.bullColor;
-    }
-    _segment._strokeWidth = _segment._series.borderWidth;
-  }
-
-  /// To draw candle series segments
-  //ignore: unused_element
-  void _drawSegment(Canvas canvas, ChartSegment _segment) {
-    if (_segment._seriesRenderer._isSelectionEnable) {
-      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
-          _segment._seriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer?._selectionRenderer?._checkWithSelectionState(
-          _segments[_segment.currentSegmentIndex!], _chart);
-    }
-    _segment.onPaint(canvas);
-  }
-
-  ///Draws marker with different shape and color of the appropriate data point in the series.
-  @override
-  void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
-      Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer? seriesRenderer]) {}
-
-  /// Draws data label text of the appropriate data point in a series.
-  @override
-  void drawDataLabel(int index, Canvas canvas, String dataLabel, double pointX,
-          double pointY, int angle, TextStyle style) =>
-      _drawText(canvas, dataLabel, Offset(pointX, pointY), style, angle);
 }

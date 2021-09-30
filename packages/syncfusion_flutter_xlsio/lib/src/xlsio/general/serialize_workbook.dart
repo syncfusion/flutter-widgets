@@ -448,6 +448,7 @@ class SerializeWorkbook {
         return;
       }
       builder.element('hyperlinks', nest: () {
+        int id = 1;
         for (final Hyperlink link in sheet.hyperlinks.innerList) {
           if (link._attachedType == ExcelHyperlinkAttachedType.range) {
             builder.element('hyperlink', nest: () {
@@ -456,10 +457,10 @@ class SerializeWorkbook {
                 builder.attribute('location', link.address);
               } else {
                 builder.attribute('ref', link.reference);
-                final String id = link._rId.toString();
                 final String rId = 'rId' + id.toString();
                 builder.attribute('r:id', rId);
                 _relationId.add(rId);
+                id++;
               }
               if (link.screenTip != null) {
                 builder.attribute('tooltip', link.screenTip!);
@@ -874,16 +875,18 @@ class SerializeWorkbook {
           'http://schemas.openxmlformats.org/package/2006/relationships');
 
       if (sheet.hyperlinks.count > 0) {
+        int id = 1;
         for (final Hyperlink link in sheet.hyperlinks.innerList) {
           if (link._attachedType == ExcelHyperlinkAttachedType.range &&
               link.type != HyperlinkType.workbook) {
             builder.element('Relationship', nest: () {
-              builder.attribute('Id', 'rId' + link._rId.toString());
+              builder.attribute('Id', 'rId' + id.toString());
               builder.attribute('Type',
                   'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink');
               builder.attribute('Target', link.address);
               builder.attribute('TargetMode', 'External');
             });
+            id++;
           }
         }
       }

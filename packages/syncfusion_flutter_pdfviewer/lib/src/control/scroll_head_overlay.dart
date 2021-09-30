@@ -1,18 +1,19 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_core/interactive_scroll_viewer_internal.dart';
+import 'package:syncfusion_flutter_core/localizations.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:syncfusion_flutter_pdfviewer/src/common/pdfviewer_helper.dart';
-import 'package:syncfusion_flutter_pdfviewer/src/control/interactive_scrollable.dart';
+import 'package:syncfusion_flutter_pdfviewer/src/control/pdf_page_view.dart';
 import 'package:syncfusion_flutter_pdfviewer/src/control/pdf_scrollable.dart';
 import 'package:syncfusion_flutter_pdfviewer/src/control/scroll_head.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_core/localizations.dart';
 
 import '../common/pdfviewer_helper.dart';
 import 'scroll_status.dart';
 
 /// Height of the scroll head.
-const double _kPdfScrollHeadHeight = 32.0;
+const double _kPdfScrollHeadHeight = 48.0;
 
 /// Height of the scroll bar
 const double _kPdfScrollBarHeight = 54.0;
@@ -31,17 +32,19 @@ class ScrollHeadOverlay extends StatefulWidget {
       this.pdfViewerController,
       this.isMobileWebView,
       this.pdfDimension,
+      this.totalImageSize,
       this.viewportDimension,
       this.currentOffset,
       this.maxScale,
       this.minScale,
       this.onDoubleTapZoomInvoked,
-      this.forcePixel,
-      this.onDoubleTap,
       this.enableDoubleTapZooming,
       this.interactionMode,
       this.scaleEnabled,
       this.maxPdfPageWidth,
+      this.pdfPages,
+      this.scrollDirection,
+      this.isBookmarkViewOpen,
       this.child,
       {Key? key,
       this.transformationController,
@@ -107,14 +110,8 @@ class ScrollHeadOverlay extends StatefulWidget {
   /// onPdfOffsetChanged callback
   final OffsetChangedCallback? onPdfOffsetChanged;
 
-  /// Triggers after double tap zoom for set pixel
-  final Function(Offset value, {bool isZoomInitiated}) forcePixel;
-
   /// Trigger while double tap zoom for set zoom level
-  final double Function(double value) onDoubleTapZoomInvoked;
-
-  /// Triggered when double tap
-  final GestureTapCallback? onDoubleTap;
+  final Function(double value) onDoubleTapZoomInvoked;
 
   /// Indicates interaction mode of pdfViewer.
   final PdfInteractionMode interactionMode;
@@ -124,6 +121,19 @@ class ScrollHeadOverlay extends StatefulWidget {
 
   /// Represents the maximum page width.
   final double maxPdfPageWidth;
+
+  /// Represents the scroll direction of PdfViewer.
+  final PdfScrollDirection scrollDirection;
+
+  /// PdfPages collection.
+  final Map<int, PdfPageInfo> pdfPages;
+
+  /// Total image size of the PdfViewer.
+  final Size totalImageSize;
+
+  /// Indicates whether the built-in bookmark view in the [SfPdfViewer] is
+  /// opened or not.
+  final bool isBookmarkViewOpen;
 
   @override
   ScrollHeadOverlayState createState() => ScrollHeadOverlayState();
@@ -138,11 +148,13 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
   SfLocalizations? _localizations;
   final GlobalKey _childKey = GlobalKey();
   bool _isInteractionEnded = true;
-  Offset _tapPosition = Offset.zero;
   double _scale = 1;
 
-  /// Scroll head Offset
-  double _scrollHeadOffset = 0;
+  /// Scroll head y position.
+  double _scrollHeadPositionY = 0;
+
+  ///  Scroll head x position.
+  double _scrollHeadPositionX = 0;
 
   /// If true,scroll head dragging is ended.
   bool _isScrollHeadDragged = false;
@@ -167,47 +179,96 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
     super.dispose();
   }
 
-  /// This method use to get the tap positions
-  void _handleDoubleTapDown(TapDownDetails details) {
-    _tapPosition = details.localPosition;
-  }
-
-  // Handles the double tap behavior.
-  void _handleDoubleTap() {
-    widget.onDoubleTap?.call();
+  Offset _onDoubleTapZoomInvoked(Offset offset, Offset tapPosition) {
+    widget.onDoubleTapZoomInvoked(widget.pdfViewerController.zoomLevel);
+    widget.pdfViewerController.zoomLevel =
+        widget.transformationController!.value.getMaxScaleOnAxis();
+    final double pdfPageHeight =
+        widget.pdfPages[widget.pdfViewerController.pageNumber]!.pageSize.height;
+    final double totalPageOffset = widget
+            .pdfPages[widget.pdfViewerController.pageCount]!.pageOffset +
+        widget.pdfPages[widget.pdfViewerController.pageNumber]!.pageSize.width;
     if (widget.pdfViewerController.zoomLevel <= 1) {
-      final Offset normalizedOffset = (-_tapPosition -
-              widget.currentOffset * widget.pdfViewerController.zoomLevel) /
-          widget.pdfViewerController.zoomLevel;
-      widget.pdfViewerController.zoomLevel = 2;
-      final Offset offset = (-_tapPosition - normalizedOffset * 2) / 2;
-      widget.pdfViewerController.zoomLevel = widget.onDoubleTapZoomInvoked(2);
+      //check if the total page offset less than viewport width in horizontal scroll direction
+      if (widget.scrollDirection == PdfScrollDirection.vertical ||
+          (widget.scrollDirection == PdfScrollDirection.horizontal &&
+              (totalPageOffset < widget.viewportDimension.width))) {
+        // set x offset as zero
+        offset = Offset(0, offset.dy);
+      }
+    } else {
       if (kIsDesktop && !widget.isMobileWebView) {
-        if (widget.viewportDimension.width >
+        if (widget.viewportDimension.width <
             widget.maxPdfPageWidth * widget.pdfViewerController.zoomLevel) {
-          widget.forcePixel(Offset(0, offset.dy), isZoomInitiated: true);
-        } else {
-          final double clampedX = _tapPosition.dx > widget.maxPdfPageWidth
+          final double clampedX = tapPosition.dx > widget.maxPdfPageWidth
               ? ((widget.maxPdfPageWidth * 2) -
                       widget.viewportDimension.width) /
                   2
               : 0;
-          widget.forcePixel(Offset(clampedX, offset.dy), isZoomInitiated: true);
+          offset = Offset(
+              (widget.scrollDirection == PdfScrollDirection.vertical)
+                  ? clampedX
+                  : offset.dx,
+              offset.dy);
         }
-      } else {
-        widget.forcePixel(offset, isZoomInitiated: true);
-      }
-    } else {
-      final Offset normalizedOffset = (-_tapPosition -
-              widget.currentOffset * widget.pdfViewerController.zoomLevel) /
-          widget.pdfViewerController.zoomLevel;
-      widget.pdfViewerController.zoomLevel = 1;
-      final Offset offset = (-_tapPosition - normalizedOffset * 1) / 1;
-      widget.pdfViewerController.zoomLevel = widget.onDoubleTapZoomInvoked(1);
-      if (!kIsDesktop || kIsDesktop && widget.isMobileWebView) {
-        widget.forcePixel(offset, isZoomInitiated: true);
       }
     }
+    final double widthFactor = (widget.pdfDimension.width) -
+        (widget.viewportDimension.width / widget.pdfViewerController.zoomLevel);
+    if (widget.viewportDimension.height > pdfPageHeight &&
+        (widget.scrollDirection == PdfScrollDirection.horizontal ||
+            (widget.pdfViewerController.pageCount == 1 &&
+                widget.scrollDirection == PdfScrollDirection.vertical))) {
+      offset = Offset(
+          (widget.scrollDirection == PdfScrollDirection.vertical)
+              ? offset.dx.clamp(-widthFactor, widthFactor.abs())
+              : offset.dx,
+          ((tapPosition.dy > widget.viewportDimension.height / 2)
+                  ? offset.dy +
+                      (widget.viewportDimension.height -
+                              widget
+                                  .pdfPages[
+                                      widget.pdfViewerController.pageNumber]!
+                                  .pageSize
+                                  .height) /
+                          2
+                  : offset.dy / 2)
+              .clamp(
+                  0,
+                  ((widget.viewportDimension.height -
+                                  widget
+                                      .pdfPages[widget
+                                          .pdfViewerController.pageNumber]!
+                                      .pageSize
+                                      .height) /
+                              2 +
+                          widget
+                              .pdfPages[widget.pdfViewerController.pageNumber]!
+                              .pageSize
+                              .height) /
+                      2));
+    } else {
+      if ((widget.viewportDimension.width > totalPageOffset) &&
+          (widget.pdfDimension.width >= widget.viewportDimension.width)) {
+        offset = Offset(
+            (offset.dx - (widget.viewportDimension.width - totalPageOffset))
+                .clamp(
+                    0,
+                    (offset.dx -
+                            (widget.viewportDimension.width - totalPageOffset))
+                        .abs()),
+            offset.dy);
+      }
+      offset = Offset(
+          offset.dx,
+          offset.dy.clamp(
+              0,
+              (widget.pdfDimension.height -
+                      (widget.viewportDimension.height /
+                          widget.pdfViewerController.zoomLevel))
+                  .abs()));
+    }
+    return offset;
   }
 
   @override
@@ -215,71 +276,95 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
     WidgetsBinding.instance?.addPostFrameCallback((Duration timeStamp) {
       _updateScrollHeadPosition();
     });
-    final Widget scrollable = GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onDoubleTapDown: ((!kIsDesktop && widget.enableDoubleTapZooming) ||
-                (kIsDesktop &&
-                    widget.interactionMode == PdfInteractionMode.pan) ||
-                (kIsDesktop &&
-                    widget.isMobileWebView &&
-                    widget.enableDoubleTapZooming))
-            ? _handleDoubleTapDown
-            : null,
-        onDoubleTap: ((!kIsDesktop && widget.enableDoubleTapZooming) ||
-                (kIsDesktop &&
-                    widget.interactionMode == PdfInteractionMode.pan) ||
-                (kIsDesktop &&
-                    widget.isMobileWebView &&
-                    widget.enableDoubleTapZooming))
-            ? _handleDoubleTap
-            : null,
-        child: InteractiveScrollable(
-          widget.child,
-          minScale: widget.minScale,
-          maxScale: widget.maxScale,
-          transformationController: widget.transformationController,
-          key: _childKey,
-          // ignore: avoid_bool_literals_in_conditional_expressions
-          scaleEnabled: ((kIsDesktop && widget.isMobileWebView) ||
-                  !kIsDesktop ||
-                  (kIsDesktop && widget.scaleEnabled))
-              ? true
-              : false,
-          panEnabled: widget.isPanEnabled,
-          onInteractionStart: _handleInteractionStart,
-          onInteractionUpdate: _handleInteractionChanged,
-          onInteractionEnd: _handleInteractionEnd,
-          constrained: false,
-        ));
-
+    // ignore: avoid_bool_literals_in_conditional_expressions
+    final bool _enableDoubleTapZoom = ((!kIsDesktop &&
+                widget.enableDoubleTapZooming) ||
+            (kIsDesktop && widget.interactionMode == PdfInteractionMode.pan) ||
+            (kIsDesktop &&
+                widget.isMobileWebView &&
+                widget.enableDoubleTapZooming))
+        ? true
+        : false;
+    final Widget scrollable = InteractiveScrollViewer(
+      widget.child,
+      minScale: widget.minScale,
+      maxScale: widget.maxScale,
+      onDoubleTapZoomInvoked: _onDoubleTapZoomInvoked,
+      transformationController: widget.transformationController,
+      key: _childKey,
+      enableDoubleTapZooming: _enableDoubleTapZoom,
+      // ignore: avoid_bool_literals_in_conditional_expressions
+      scaleEnabled: ((kIsDesktop && widget.isMobileWebView) ||
+              !kIsDesktop ||
+              (kIsDesktop && widget.scaleEnabled))
+          ? true
+          : false,
+      panEnabled: widget.isPanEnabled,
+      onInteractionStart: _handleInteractionStart,
+      onInteractionUpdate: _handleInteractionChanged,
+      onInteractionEnd: _handleInteractionEnd,
+      constrained: false,
+    );
+    final Offset scrollHeadOffset =
+        Offset(_scrollHeadPositionX, _scrollHeadPositionY);
+    final bool hasBiggerWidth =
+        widget.totalImageSize.width > widget.viewportDimension.width;
+    final bool hasBiggerHeight =
+        widget.totalImageSize.height > widget.viewportDimension.height;
+    final bool enableScrollHead = hasBiggerWidth || hasBiggerHeight;
+    bool canShowScrollHead =
+        !enableScrollHead ? enableScrollHead : widget.canShowScrollHead;
+    if (kIsDesktop && enableScrollHead) {
+      canShowScrollHead = true;
+    }
+    if (widget.pdfViewerController.pageCount == 1) {
+      canShowScrollHead = false;
+    }
     return Stack(
       children: <Widget>[
         scrollable,
-        Align(
-          alignment: Alignment.topRight,
-          child: GestureDetector(
-            onVerticalDragStart: _handleScrollHeadDragStart,
-            onVerticalDragUpdate: _handleScrollHeadDragUpdate,
-            onVerticalDragEnd: _handleScrollHeadDragEnd,
-            onTap: () {
-              if (!kIsDesktop || (kIsDesktop && widget.isMobileWebView)) {
-                _textFieldController.clear();
-                if (!FocusScope.of(context).hasPrimaryFocus) {
-                  FocusScope.of(context).unfocus();
-                }
-                if (widget.canShowPaginationDialog) {
-                  _showPaginationDialog();
-                }
+        GestureDetector(
+          onVerticalDragStart: (DragStartDetails details) {
+            _handleScrollHeadDragStart(details, true);
+          },
+          onVerticalDragUpdate: _handleVerticalScrollHeadDragUpdate,
+          onVerticalDragEnd: _handleScrollHeadDragEnd,
+          onHorizontalDragStart:
+              (widget.scrollDirection == PdfScrollDirection.horizontal)
+                  ? (DragStartDetails details) {
+                      _handleScrollHeadDragStart(details, false);
+                    }
+                  : null,
+          onHorizontalDragUpdate:
+              (widget.scrollDirection == PdfScrollDirection.horizontal)
+                  ? _handleScrollHeadDragUpdate
+                  : null,
+          onHorizontalDragEnd:
+              (widget.scrollDirection == PdfScrollDirection.horizontal)
+                  ? _handleScrollHeadDragEnd
+                  : null,
+          onTap: () {
+            if (!kIsDesktop || (kIsDesktop && widget.isMobileWebView)) {
+              _textFieldController.clear();
+              if (!FocusScope.of(context).hasPrimaryFocus) {
+                FocusScope.of(context).unfocus();
               }
-            },
-            child: Visibility(
-                visible: kIsDesktop
-                    ? widget.pdfViewerController.pageCount > 1
-                    : widget.canShowScrollHead &&
-                        widget.pdfViewerController.pageCount > 1,
-                child: ScrollHead(_scrollHeadOffset, widget.pdfViewerController,
-                    widget.isMobileWebView)),
-          ),
+              if (widget.canShowPaginationDialog) {
+                _showPaginationDialog();
+              }
+            }
+          },
+          child: Visibility(
+              visible: canShowScrollHead,
+              child: ScrollHead(
+                  hasBiggerWidth,
+                  hasBiggerHeight,
+                  scrollHeadOffset,
+                  widget.pdfViewerController,
+                  widget.isMobileWebView,
+                  widget.scrollDirection,
+                  widget.isBookmarkViewOpen,
+                  PdfPageLayoutMode.continuous)),
         ),
         Visibility(
             visible: _isScrollHeadDragged && widget.canShowScrollStatus,
@@ -420,14 +505,48 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
   }
 
   /// updates UI when scroll head drag is started.
-  void _handleScrollHeadDragStart(DragStartDetails details) {
-    _isScrollHeadDragged = true;
+  void _handleScrollHeadDragStart(
+      DragStartDetails details, bool isVerticalDrag) {
+    _isInteractionEnded = false;
+    if (widget.scrollDirection == PdfScrollDirection.horizontal &&
+        isVerticalDrag) {
+      _isScrollHeadDragged = false;
+    } else {
+      _isScrollHeadDragged = true;
+    }
   }
 
   /// updates UI when scroll head drag is updating.
   void _handleScrollHeadDragUpdate(DragUpdateDetails details) {
+    _isInteractionEnded = false;
     if (!widget.viewportDimension.isEmpty) {
-      final double dragOffset = details.delta.dy + _scrollHeadOffset;
+      final double dragOffset = details.delta.dx + _scrollHeadPositionX;
+      final double scrollHeadPosition = widget.viewportDimension.width -
+          (kIsDesktop ? _kPdfScrollBarHeight : _kPdfScrollHeadHeight);
+      if (dragOffset < scrollHeadPosition && dragOffset >= 0) {
+        widget.onPdfOffsetChanged!(Offset(
+            (widget.pdfDimension.width -
+                    (widget.viewportDimension.width / _scale)) *
+                (dragOffset / scrollHeadPosition),
+            widget.currentOffset.dy));
+        _scrollHeadPositionX = dragOffset;
+      } else {
+        if (dragOffset < 0) {
+          widget.onPdfOffsetChanged!(Offset(0, widget.currentOffset.dy));
+        } else {
+          widget.onPdfOffsetChanged!(Offset(
+              widget.pdfDimension.width -
+                  (widget.viewportDimension.width / _scale),
+              widget.currentOffset.dy));
+        }
+      }
+    }
+  }
+
+  /// updates UI when scroll head drag is updating.
+  void _handleVerticalScrollHeadDragUpdate(DragUpdateDetails details) {
+    if (!widget.viewportDimension.isEmpty) {
+      final double dragOffset = details.delta.dy + _scrollHeadPositionY;
       final double scrollHeadPosition = widget.viewportDimension.height -
           (kIsDesktop ? _kPdfScrollBarHeight : _kPdfScrollHeadHeight);
       if (dragOffset < scrollHeadPosition && dragOffset >= 0) {
@@ -436,7 +555,7 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
             (widget.pdfDimension.height -
                     (widget.viewportDimension.height / _scale)) *
                 (dragOffset / scrollHeadPosition)));
-        _scrollHeadOffset = dragOffset;
+        _scrollHeadPositionY = dragOffset;
       } else {
         if (dragOffset < 0) {
           widget.onPdfOffsetChanged!(Offset(widget.currentOffset.dx, 0));
@@ -452,6 +571,7 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
 
   /// updates UI when scroll head is dragged.
   void _handleScrollHeadDragEnd(DragEndDetails details) {
+    _isInteractionEnded = true;
     _isScrollHeadDragged = false;
   }
 
@@ -476,22 +596,35 @@ class ScrollHeadOverlayState extends State<ScrollHeadOverlay> {
 
   /// updates the scroll head position based on the interaction results.
   void _updateScrollHeadPosition() {
-    if (widget.pdfDimension.height > 0 &&
-        widget.viewportDimension.height > 0 &&
-        widget.pdfDimension.height > widget.viewportDimension.height) {
+    if (widget.pdfDimension.height > 0 && widget.viewportDimension.height > 0) {
       _scale = widget.transformationController!.value.getMaxScaleOnAxis();
-      final double currentOffset =
+      final double currentOffsetX =
+          widget.transformationController!.toScene(Offset.zero).dx;
+      final double currentOffsetY =
           widget.transformationController!.toScene(Offset.zero).dy;
-      final double scrollPercent = currentOffset.abs() /
+      final double scrollPercentX = currentOffsetX.abs() /
+          (widget.pdfDimension.width -
+              (widget.viewportDimension.width / _scale));
+      final double scrollPercentY = currentOffsetY.abs() /
           (widget.pdfDimension.height -
               (widget.viewportDimension.height / _scale));
-      final double scrollHeadMaxExtent = widget.viewportDimension.height -
+      final double scrollHeadMaxExtentX = widget.viewportDimension.width -
           (kIsDesktop ? _kPdfScrollBarHeight : _kPdfScrollHeadHeight);
-      final double newPosition =
-          (scrollPercent * scrollHeadMaxExtent).clamp(1, scrollHeadMaxExtent);
-      if (newPosition.round() != _scrollHeadOffset.round() &&
+      final double scrollHeadMaxExtentY = widget.viewportDimension.height -
+          (kIsDesktop ? _kPdfScrollBarHeight : _kPdfScrollHeadHeight);
+      final double newPositionX = (scrollPercentX * scrollHeadMaxExtentX)
+          .clamp(1, scrollHeadMaxExtentX);
+      final double newPositionY = (scrollPercentY * scrollHeadMaxExtentY)
+          .clamp(1, scrollHeadMaxExtentY);
+      if (newPositionX.round() != _scrollHeadPositionX.round() &&
           _isInteractionEnded) {
-        _scrollHeadOffset = newPosition;
+        _scrollHeadPositionX = newPositionX;
+        widget.onPdfOffsetChanged!(
+            widget.transformationController!.toScene(Offset.zero));
+      }
+      if (newPositionY.round() != _scrollHeadPositionY.round() &&
+          _isInteractionEnded) {
+        _scrollHeadPositionY = newPositionY;
         widget.onPdfOffsetChanged!(
             widget.transformationController!.toScene(Offset.zero));
       }

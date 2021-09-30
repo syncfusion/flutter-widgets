@@ -1753,17 +1753,17 @@ class Worksheet {
 
   /// Protects the worksheet based on the Excel 2013.
   void _advancedSheetProtection(String password) {
-    _algorithmName = _SecurityHelper._sha512Alogrithm;
+    _algorithmName = _sha512Alogrithm;
     _saltValue = _createSalt(16);
-    final Hash algorithm = _SecurityHelper._getAlgorithm(_algorithmName!);
+    final Hash algorithm = _getAlgorithm(_algorithmName!);
     List<int> arrPassword = utf8.encode(password).toList();
     arrPassword = _convertCodeUnitsToUnicodeByteArray(arrPassword);
-    List<int> temp = _SecurityHelper._combineArray(_saltValue, arrPassword);
+    List<int> temp = _combineArray(_saltValue, arrPassword);
     final List<int> h0 = algorithm.convert(temp).bytes.toList();
     List<int> h1 = h0;
     for (int iterator = 0; iterator < _spinCount; iterator++) {
-      final List<int> arrIterator = _BitConverter._getBytes(iterator);
-      temp = _SecurityHelper._combineArray(h1, arrIterator);
+      final List<int> arrIterator = _getBytes(iterator);
+      temp = _combineArray(h1, arrIterator);
       temp = Uint8List.fromList(temp);
       h1 = algorithm.convert(temp).bytes.toList();
     }
@@ -1950,10 +1950,46 @@ class Worksheet {
     return _book._pixelsToWidth(pixels);
   }
 
-  /// Sets column width in pixels for the specified column.
-  void _setColumnWidthInPixels(int iColumn, int value) {
-    final double dColumnWidth = _pixelsToColumnWidth(value);
-    _setColumnWidth(iColumn, dColumnWidth);
+  /// Sets column width in pixels for the specified row.
+  ///  ```dart
+  /// //Create a new Excel Document.
+  /// final Workbook workbook = Workbook();
+  /// // Accessing sheet via index.
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// // set columnWidth in pixels.
+  /// sheet.setColumnWidthInPixels(2, 20);
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// File('ColumnWidth.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
+  void setColumnWidthInPixels(int iColumnIndex, int columnWidth) {
+    final double dColumnWidth = _pixelsToColumnWidth(columnWidth);
+    _setColumnWidth(iColumnIndex, dColumnWidth);
+  }
+
+  /// Sets Rows Heights in pixels for the specified column.
+  ///  ```dart
+  /// //Create a new Excel Document.
+  /// final Workbook workbook = Workbook();
+  /// // Accessing sheet via index.
+  /// final Worksheet sheet = workbook.worksheets[0];
+  /// // set row height in pixels.
+  /// sheet.setRowHeightInPixels(2, 30);
+  /// final List<int> bytes = workbook.saveAsStream();
+  /// File('RowHeight.xlsx').writeAsBytes(bytes);
+  /// workbook.dispose();
+  /// ```
+  void setRowHeightInPixels(int iRowIndex, double rowHeight) {
+    if (iRowIndex < 1 || iRowIndex > _book._maxRowCount) {
+      throw Exception(
+          'iRowIndex ,Value cannot be less 1 and greater than max row index.');
+    }
+
+    if (rowHeight < 0) {
+      throw Exception('value');
+    }
+
+    _innerSetRowHeight(iRowIndex, rowHeight, true, 5);
   }
 
   /// Sets column width for the specified column.
@@ -2149,7 +2185,7 @@ class Worksheet {
             final int height = picture.height;
             if (_innerGetColumnWidth(range.column) <
                 _pixelsToColumnWidth(width)) {
-              _setColumnWidthInPixels(range.column, width);
+              setColumnWidthInPixels(range.column, width);
             }
             if (range.rowHeight < height) {
               range._setRowHeight(

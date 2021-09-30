@@ -15,7 +15,9 @@ class LinearShapePointer extends LeafRenderObjectWidget
   const LinearShapePointer(
       {Key? key,
       required this.value,
-      this.onValueChanged,
+      this.onChanged,
+      this.onChangeStart,
+      this.onChangeEnd,
       this.enableAnimation = true,
       this.animationDuration = 1000,
       this.animationType = LinearAnimationType.ease,
@@ -26,6 +28,7 @@ class LinearShapePointer extends LeafRenderObjectWidget
       this.markerAlignment = LinearMarkerAlignment.center,
       this.position = LinearElementPosition.outside,
       this.shapeType = LinearShapePointerType.invertedTriangle,
+      this.dragBehavior = LinearMarkerDragBehavior.free,
       this.color,
       this.borderColor,
       this.borderWidth = 0.0,
@@ -34,7 +37,7 @@ class LinearShapePointer extends LeafRenderObjectWidget
       : offset = offset > 0 ? offset : 0,
         super(key: key);
 
-  /// Specifies the pointer value of [ShapePointer].
+  /// Specifies the pointer value of [LinearShapePointer].
   /// This value must be between the min and max value of an axis track.
   ///
   /// Defaults to 0.
@@ -65,7 +68,7 @@ class LinearShapePointer extends LeafRenderObjectWidget
   /// SfLinearGauge (
   /// markerPointers: [
   /// LinearShapePointer(
-  /// value: 20
+  /// value: 20,
   /// enableAnimation: true,
   ///  )])
   /// ```
@@ -85,7 +88,7 @@ class LinearShapePointer extends LeafRenderObjectWidget
   /// SfLinearGauge (
   /// markerPointers: [
   /// LinearShapePointer(
-  /// value: 20
+  /// value: 20,
   /// enableAnimation: true,
   /// animationDuration: 4000
   ///  )])
@@ -105,7 +108,7 @@ class LinearShapePointer extends LeafRenderObjectWidget
   /// SfLinearGauge (
   /// markerPointers: [
   /// LinearShapePointer(
-  /// value: 20
+  /// value: 20,
   /// enableAnimation: true,
   /// animationType: LinearAnimationType.linear
   ///  )])
@@ -125,7 +128,7 @@ class LinearShapePointer extends LeafRenderObjectWidget
   /// SfLinearGauge (
   /// markerPointers: [
   /// LinearShapePointer(
-  /// value: 50
+  /// value: 50,
   /// width: 30
   ///  )])
   /// ```
@@ -145,7 +148,7 @@ class LinearShapePointer extends LeafRenderObjectWidget
   /// SfLinearGauge (
   /// markerPointers: [
   /// LinearShapePointer(
-  /// value: 50
+  /// value: 50,
   /// margin: 10
   ///  )])
   /// ```
@@ -164,7 +167,7 @@ class LinearShapePointer extends LeafRenderObjectWidget
   /// SfLinearGauge (
   /// markerPointers: [
   /// LinearShapePointer(
-  /// value: 50
+  /// value: 50,
   /// height: 30
   ///  )])
   /// ```
@@ -182,7 +185,7 @@ class LinearShapePointer extends LeafRenderObjectWidget
   /// SfLinearGauge (
   /// markerPointers: [
   /// LinearShapePointer(
-  /// value: 50
+  /// value: 50,
   /// position: LinearElementPosition.inside
   ///  )])
   /// ```
@@ -190,25 +193,64 @@ class LinearShapePointer extends LeafRenderObjectWidget
   @override
   final LinearElementPosition position;
 
-  /// Signature for callbacks that report that an underlying value has changed.
+  /// Signature for a callback that report that a value was changed for a marker pointer.
   ///
-  /// This snippet shows how to call onvaluechange function in [SfLinearGauge].
+  /// This snippet shows how to call onChanged function in [SfLinearGauge].
   ///
   /// ```dart
   ///
   /// SfLinearGauge(
   /// markerPointers: [
   /// LinearShapePointer(
-  /// value: _pointerValue
-  /// onValueChanged: (value) =>
-  /// {setState(() =>
-  /// {_pointerValue = value})},
+  ///  value: _pointerValue,
+  ///  onChanged: (double value){
+  ///    setState((){
+  ///       _pointerValue = value;
+  ///    })
+  ///   }
   /// )])
   ///
   /// ```
-  ///
   @override
-  final ValueChanged? onValueChanged;
+  final ValueChanged<double>? onChanged;
+
+  /// Signature for a callback that reports the value of a marker pointer has started to change.
+  ///
+  /// This snippet shows how to call onChangeStart callback in [SfLinearGauge].
+  ///
+  /// ```dart
+  ///
+  /// SfLinearGauge(
+  /// markerPointers: [
+  /// LinearShapePointer(
+  /// value: _pointerValue,
+  /// onChangeStart: (double startValue) {
+  ///     print('Start value $startValue');
+  ///   },
+  ///)])
+  ///
+  /// ```
+  @override
+  final ValueChanged<double>? onChangeStart;
+
+  /// Signature for a callback that reports the value changes are ended for a marker pointer.
+  ///
+  /// This snippet shows how to call onChangeEnd callback in [SfLinearGauge].
+  ///
+  /// ```dart
+  ///
+  /// SfLinearGauge(
+  /// markerPointers: [
+  /// LinearShapePointer(
+  /// value: _pointerValue,
+  /// onChangeEnd: (double endValue) {
+  ///     print('End value $endValue');
+  ///   },
+  ///)])
+  ///
+  /// ```
+  @override
+  final ValueChanged<double>? onChangeEnd;
 
   /// Specifies the built-in shape of shape marker pointer.
   ///
@@ -221,7 +263,7 @@ class LinearShapePointer extends LeafRenderObjectWidget
   /// SfLinearGauge (
   /// markerPointers: [
   /// LinearShapePointer(
-  /// value: 50
+  /// value: 50,
   /// shapeType: LinearShapePointerType.triangle
   ///  )])
   /// ```
@@ -240,7 +282,7 @@ class LinearShapePointer extends LeafRenderObjectWidget
   /// SfLinearGauge (
   /// markerPointers: [
   /// LinearShapePointer(
-  /// color: Colors.Grey
+  /// color: Colors.grey
   ///  )])
   /// ```
   ///
@@ -258,7 +300,7 @@ class LinearShapePointer extends LeafRenderObjectWidget
   /// SfLinearGauge (
   /// markerPointers: [
   /// LinearShapePointer(
-  /// borderColor: Colors.Orange
+  /// borderColor: Colors.orange
   ///  )])
   /// ```
   ///
@@ -292,7 +334,7 @@ class LinearShapePointer extends LeafRenderObjectWidget
   /// SfLinearGauge (
   /// markerPointers: [
   /// LinearShapePointer(
-  /// value: 50
+  /// value: 50,
   /// elevation: 2
   ///  )])
   /// ```
@@ -301,7 +343,7 @@ class LinearShapePointer extends LeafRenderObjectWidget
 
   /// Specifies elevation color for shape pointers with [elevation]
   ///
-  /// Defaults to [Colors.Black].
+  /// Defaults to [Colors.black].
   ///
   /// This snippet shows how to set elevation color for shape pointers.
   ///
@@ -310,7 +352,7 @@ class LinearShapePointer extends LeafRenderObjectWidget
   /// SfLinearGauge (
   /// markerPointers: [
   /// LinearShapePointer(
-  /// value: 50
+  /// value: 50,
   /// elevationColor: Colors.grey[50]
   ///  )])
   /// ```
@@ -319,7 +361,7 @@ class LinearShapePointer extends LeafRenderObjectWidget
 
   /// Specifies the alignment for shape marker pointer.
   ///
-  /// Defaults to [MarkerAlignment.center].
+  /// Defaults to [LinearMarkerAlignment.center].
   ///
   /// This snippet shows how to set a shape to shape-pointer.
   ///
@@ -328,8 +370,8 @@ class LinearShapePointer extends LeafRenderObjectWidget
   /// SfLinearGauge (
   /// markerPointers: [
   /// LinearShapePointer(
-  /// value: 50
-  /// markerAlignment: MarkerAlignment.end
+  /// value: 50,
+  /// markerAlignment: LinearMarkerAlignment.end
   ///  )])
   /// ```
   ///
@@ -354,6 +396,51 @@ class LinearShapePointer extends LeafRenderObjectWidget
   @override
   final VoidCallback? onAnimationCompleted;
 
+  /// Specifies the drag behavior for shape marker pointer.
+  ///
+  /// Defaults to [LinearMarkerDragBehavior.free].
+  ///
+  /// This snippet shows how to set drag behavior for a shape-pointer.
+  ///
+  /// ```dart
+  /// double _startMarkerValue = 30.0;
+  /// double _endMarkerValue = 60.0;
+  ///
+  /// @override
+  /// Widget build(BuildContext context) {
+  ///   return MaterialApp(
+  ///     home: Scaffold(
+  ///       appBar: AppBar(
+  ///         title: const Text('Drag behavior'),
+  ///       ),
+  ///       body: SfLinearGauge(
+  ///         markerPointers: [
+  ///           LinearShapePointer(
+  ///             value: _startMarkerValue,
+  ///             dragBehavior: LinearMarkerDragBehavior.constrained,
+  ///             onChanged: (double value) {
+  ///               setState(() {
+  ///                 _startMarkerValue = value;
+  ///               });
+  ///             },
+  ///           ),
+  ///           LinearShapePointer(
+  ///             value: _endMarkerValue,
+  ///             onChanged: (double value) {
+  ///               setState(() {
+  ///                 _endMarkerValue = value;
+  ///               });
+  ///             },
+  ///           )
+  ///         ],
+  ///       ),
+  ///     ),
+  ///   );
+  /// }
+  /// ```
+  @override
+  final LinearMarkerDragBehavior dragBehavior;
+
   @override
   RenderObject createRenderObject(BuildContext context) {
     final LinearGaugeScope linearGaugeScope = LinearGaugeScope.of(context);
@@ -361,7 +448,9 @@ class LinearShapePointer extends LeafRenderObjectWidget
     final bool isDarkTheme = theme.brightness == Brightness.dark;
     return RenderLinearShapePointer(
         value: value,
-        onValueChanged: onValueChanged,
+        onChanged: onChanged,
+        onChangeStart: onChangeStart,
+        onChangeEnd: onChangeEnd,
         color: color ?? (isDarkTheme ? Colors.white70 : Colors.black54),
         borderColor:
             borderColor ?? (isDarkTheme ? Colors.white70 : Colors.black54),
@@ -376,8 +465,10 @@ class LinearShapePointer extends LeafRenderObjectWidget
         elevationColor: elevationColor,
         orientation: linearGaugeScope.orientation,
         isMirrored: linearGaugeScope.isMirrored,
+        isAxisInversed: linearGaugeScope.isAxisInversed,
         markerAlignment: markerAlignment,
         animationController: linearGaugeScope.animationController,
+        dragBehavior: dragBehavior,
         onAnimationCompleted: onAnimationCompleted,
         pointerAnimation: linearGaugeScope.animation);
   }
@@ -391,7 +482,9 @@ class LinearShapePointer extends LeafRenderObjectWidget
 
     renderObject
       ..value = value
-      ..onValueChanged = onValueChanged
+      ..onChanged = onChanged
+      ..onChangeStart = onChangeStart
+      ..onChangeEnd = onChangeEnd
       ..color = color ?? (isDarkTheme ? Colors.white70 : Colors.black54)
       ..borderColor =
           borderColor ?? (isDarkTheme ? Colors.white70 : Colors.black54)
@@ -406,8 +499,10 @@ class LinearShapePointer extends LeafRenderObjectWidget
       ..elevationColor = elevationColor
       ..orientation = linearGaugeScope.orientation
       ..isMirrored = linearGaugeScope.isMirrored
+      ..isAxisInversed = linearGaugeScope.isAxisInversed
       ..markerAlignment = markerAlignment
       ..onAnimationCompleted = onAnimationCompleted
+      ..dragBehavior = dragBehavior
       ..animationController = linearGaugeScope.animationController
       ..pointerAnimation = linearGaugeScope.animation;
 

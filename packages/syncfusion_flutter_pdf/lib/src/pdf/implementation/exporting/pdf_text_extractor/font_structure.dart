@@ -2529,6 +2529,9 @@ class _FontStructure {
     if (decodedText.contains('\u0092')) {
       decodedText = decodedText.replaceAll('\u0092', '’');
     }
+    if (decodedText.contains(RegExp('[\n-\r]'))) {
+      decodedText = decodedText.replaceAll(RegExp('[\n-\r]'), '’');
+    }
     isWhiteSpace = decodedText.isEmpty || (decodedText.trimRight() == '');
     return decodedText;
   }
@@ -2726,13 +2729,17 @@ class _FontStructure {
                 isHex = true;
               } else {
                 listElement = encodedText;
-                decodedList.add(listElement);
+                if (listElement.trim() != '') {
+                  decodedList.add(listElement);
+                }
                 break;
               }
             }
             if (textEnd < 0 && encodedText.isNotEmpty) {
               listElement = encodedText;
-              decodedList.add(listElement);
+              if (listElement.trim() != '') {
+                decodedList.add(listElement);
+              }
               break;
             } else if (textEnd > 0) {
               while (encodedText[textEnd - 1] == r'\') {
@@ -2748,7 +2755,9 @@ class _FontStructure {
             }
             if (textStart != 0) {
               listElement = encodedText.substring(0, textStart);
-              decodedList.add(listElement);
+              if (listElement.trim() != '') {
+                decodedList.add(listElement);
+              }
             }
             final String tempString =
                 encodedText.substring(textStart + 1, textEnd);
@@ -2784,6 +2793,15 @@ class _FontStructure {
             if (cidToGidTable != null && !isTextExtraction) {
               listElement = mapCidToGid(listElement);
             }
+            if (encodedText
+                .substring(textEnd + 1, encodedText.length)
+                .trim()
+                .isEmpty) {
+              listElement = listElement.trimRight();
+            }
+            if (listElement.contains(RegExp('[\n-\r]'))) {
+              listElement = listElement.replaceAll(RegExp('[\n-\r]'), '');
+            }
             if (listElement.isNotEmpty) {
               if (listElement[0].codeUnitAt(0) >= 3584 &&
                   listElement[0].codeUnitAt(0) <= 3711 &&
@@ -2815,7 +2833,7 @@ class _FontStructure {
                 decodedList.add(listElement);
               }
             } else {
-              listElement += 's';
+              listElement = listElement.trimRight() + 's';
               decodedList.add(listElement);
             }
             encodedText =

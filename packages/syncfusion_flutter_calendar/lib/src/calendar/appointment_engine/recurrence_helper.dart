@@ -6,6 +6,7 @@ import '../common/enums.dart' show RecurrenceType, RecurrenceRange, WeekDays;
 import 'appointment_helper.dart';
 import 'recurrence_properties.dart';
 
+// ignore: avoid_classes_with_only_static_members
 /// Holds the static helper methods used for handling recurrence in calendar.
 class RecurrenceHelper {
   /// Check the recurrence appointment in between the visible date range.
@@ -130,8 +131,9 @@ class RecurrenceHelper {
 
       /// Total days difference between the visible start date and recurrence
       /// start date.
-      final int difference =
-          visibleInitialDate.difference(recurrenceInitialDate).inDays;
+      final int difference = AppointmentHelper.getDifference(
+              recurrenceInitialDate, visibleInitialDate)
+          .inDays;
       final int dayDifference = difference % dailyDayGap;
 
       /// Valid recurrences in between the visible start date and recurrence
@@ -441,7 +443,8 @@ class RecurrenceHelper {
 
       /// Calculate the total days between the recurrence start and visible
       /// start date.
-      int daysDifference = specificStartDate.difference(startDate).inDays;
+      int daysDifference =
+          AppointmentHelper.getDifference(startDate, specificStartDate).inDays;
       final DateTime recurrenceEndDate = addDate.add(recurrenceDuration);
 
       /// Calculate day difference between the recurrence start and end date.
@@ -731,7 +734,7 @@ class RecurrenceHelper {
       }
     } else if (byDay == 'BYDAY') {
       int tempCount = 0;
-      final int nthWeekDay = _getWeekDay(byDayValue);
+      final int nthWeekDay = _getWeekDay(byDayValue) % DateTime.daysPerWeek;
       final int bySetPosValue = int.parse(bySetPosCount);
 
       void _updateValidDate() {
@@ -946,7 +949,7 @@ class RecurrenceHelper {
       int tempCount = 0;
       final int monthIndex = int.parse(byMonthCount);
       final int bySetPosValue = int.parse(bySetPosCount);
-      final int nthWeekDay = _getWeekDay(byDayValue);
+      final int nthWeekDay = _getWeekDay(byDayValue) % DateTime.daysPerWeek;
 
       void _updateValidNextDate() {
         while (true) {
@@ -1323,7 +1326,8 @@ class RecurrenceHelper {
 
         if (dayKey.isNotEmpty) {
           if (count != 0) {
-            final Duration tempTimeSpan = addDate.difference(prevDate);
+            final Duration tempTimeSpan =
+                AppointmentHelper.getDifference(prevDate, addDate);
             if (tempTimeSpan <= diffTimeSpan) {
               isValidRecurrence = false;
             } else {
@@ -1492,14 +1496,15 @@ class RecurrenceHelper {
         rRule = rRule + ';UNTIL=' + format.format(endDate!);
       }
 
-      if (DateTime(
+      if (AppointmentHelper.getDifference(
+              startDate,
+              DateTime(
                   startDate.year,
                   startDate.month + recurrenceProperties.interval,
                   startDate.day,
                   startDate.hour,
                   startDate.minute,
-                  startDate.second)
-              .difference(startDate) <
+                  startDate.second)) <
           diffTimeSpan) {
         isValidRecurrence = false;
       }
@@ -1567,14 +1572,15 @@ class RecurrenceHelper {
         rRule = rRule + ';UNTIL=' + format.format(endDate!);
       }
 
-      if (DateTime(
+      if (AppointmentHelper.getDifference(
+              startDate,
+              DateTime(
                   startDate.year + recurrenceProperties.interval,
                   startDate.month,
                   startDate.day,
                   startDate.hour,
                   startDate.minute,
-                  startDate.second)
-              .difference(startDate) <
+                  startDate.second)) <
           diffTimeSpan) {
         isValidRecurrence = false;
       }
@@ -1597,7 +1603,8 @@ class RecurrenceHelper {
         ? appStartTime
         : recPropStartDate;
     final DateTime? endDate = recPropEndDate;
-    final Duration diffTimeSpan = appEndTime.difference(appStartTime);
+    final Duration diffTimeSpan =
+        AppointmentHelper.getDifference(appStartTime, appEndTime);
     int recCount = 0;
     final DateTime prevDate = DateTime.utc(1);
     const bool isValidRecurrence = true;
@@ -1818,7 +1825,7 @@ class RecurrenceHelper {
   /// Returns the last week date for the given weekday.
   static DateTime _getLastWeekDay(DateTime date, int dayOfWeek) {
     final DateTime currentDate = date;
-    final int currentDateWeek = currentDate.weekday;
+    final int currentDateWeek = currentDate.weekday % DateTime.daysPerWeek;
     int otherMonthCount = -currentDateWeek + (dayOfWeek - DateTime.daysPerWeek);
     if (otherMonthCount.abs() >= DateTime.daysPerWeek) {
       otherMonthCount += DateTime.daysPerWeek;

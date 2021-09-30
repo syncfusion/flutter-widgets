@@ -451,8 +451,8 @@ class SfRangeSelector extends StatefulWidget {
   /// For example, if [min] is DateTime(2000, 01, 01, 00) and
   /// [max] is DateTime(2005, 12, 31, 24), [interval] is 1.0,
   /// [dateFormat] is DateFormat.y(), and
-  /// [dateIntervalType] is DateIntervalType.years, then the range selector will
-  /// render the labels, major ticks, and dividers at 2000, 2001, 2002 and
+  /// [dateIntervalType] is [DateIntervalType.years], then the range selector
+  /// will render the labels, major ticks, and dividers at 2000, 2001, 2002 and
   /// so on.
   ///
   /// Defaults to null. Must be greater than 0.
@@ -537,9 +537,9 @@ class SfRangeSelector extends StatefulWidget {
   ///
   /// For example, if [min] is DateTime(2015, 01, 01) and
   /// [max] is DateTime(2020, 01, 01) and
-  /// [stepDuration] is SliderDuration(years: 1, months: 6), the range selector
-  /// will move the thumbs at DateTime(2015, 01, 01), DateTime(2016, 07, 01),
-  /// DateTime(2018, 01, 01),and DateTime(2019, 07, 01).
+  /// [stepDuration] is SliderStepDuration(years: 1, months: 6), the range
+  /// selector will move the thumbs at DateTime(2015, 01, 01),
+  /// DateTime(2016, 07, 01), DateTime(2018, 01, 01),and DateTime(2019, 07, 01).
   ///
   /// Defaults to `null`.
   ///
@@ -552,7 +552,7 @@ class SfRangeSelector extends StatefulWidget {
   ///      initialValues: SfRangeValues(
   ///                         DateTime(2017, 04,01), DateTime(2018, 08, 01)),
   ///      enableTooltip: true,
-  ///      stepDuration: SliderDuration(years: 1, months: 6),
+  ///      stepDuration: SliderStepDuration(years: 1, months: 6),
   ///      interval: 2,
   ///      showLabels: true,
   ///      showTicks: true,
@@ -836,19 +836,19 @@ class SfRangeSelector extends StatefulWidget {
 
   /// Represents the behavior of thumb dragging in the [SfRangeSelector].
   ///
-  /// When [dragMode] is set to `SliderDragMode.onThumb`,
+  /// When [dragMode] is set to [SliderDragMode.onThumb],
   /// individual thumb can be moved by dragging it.
   ///
-  /// When [dragMode] is set to `SliderDragMode.betweenThumbs`, both the thumbs
+  /// When [dragMode] is set to [SliderDragMode.betweenThumbs], both the thumbs
   /// can be moved at the same time by dragging in the area between start and
   /// end thumbs. The range between the start and end thumb will always
   /// be the same. Hence, it is not possible to move the individual thumb.
   ///
-  /// When [dragMode] is set to `SliderDragMode.both`, individual thumb
+  /// When [dragMode] is set to [SliderDragMode.both], individual thumb
   /// can be moved by dragging it, and also both the thumbs can be moved
   /// at the same time by dragging in the area between start and end thumbs.
   ///
-  /// Defaults to `SliderDragMode.onThumb`.
+  /// Defaults to [SliderDragMode.onThumb].
   ///
   /// This code snippet shows the behavior of thumb dragging.
   ///
@@ -1700,6 +1700,7 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
       showLabels: showLabels,
       showDividers: showDividers,
       enableTooltip: enableTooltip,
+      isInversed: Directionality.of(context) == TextDirection.rtl,
       enableIntervalSelection: enableIntervalSelection,
       deferUpdate: deferUpdate,
       dragMode: dragMode,
@@ -1730,7 +1731,7 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
     renderObject
       ..min = min
       ..max = max
-      ..isEnabled = enabled
+      ..isInteractive = enabled
       ..interval = interval
       ..stepSize = stepSize
       ..stepDuration = stepDuration
@@ -1740,6 +1741,7 @@ class _RangeSelectorRenderObjectWidget extends RenderObjectWidget {
       ..showLabels = showLabels
       ..showDividers = showDividers
       ..enableTooltip = enableTooltip
+      ..isInversed = Directionality.of(context) == TextDirection.rtl
       ..enableIntervalSelection = enableIntervalSelection
       ..deferUpdate = deferUpdate
       ..dragMode = dragMode
@@ -1874,6 +1876,7 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
     required bool showLabels,
     required bool showDividers,
     required bool enableTooltip,
+    required bool isInversed,
     required bool enableIntervalSelection,
     required bool deferUpdate,
     required SliderDragMode dragMode,
@@ -1912,6 +1915,7 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
             showLabels: showLabels,
             showDividers: showDividers,
             enableTooltip: enableTooltip,
+            isInversed: isInversed,
             enableIntervalSelection: enableIntervalSelection,
             dragMode: dragMode,
             labelPlacement: labelPlacement,
@@ -1941,16 +1945,17 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
   late Color _activeRegionColor;
   Timer? _deferUpdateTimer;
 
-  bool get isEnabled => _isEnabled;
+  @override
+  bool get isInteractive => _isEnabled;
   bool _isEnabled;
-  set isEnabled(bool value) {
+  set isInteractive(bool value) {
     if (_isEnabled == value) {
       return;
     }
-    final bool wasEnabled = isEnabled;
+    final bool wasEnabled = isInteractive;
     _isEnabled = value;
-    if (wasEnabled != isEnabled) {
-      if (isEnabled) {
+    if (wasEnabled != isInteractive) {
+      if (isInteractive) {
         _state.stateController.forward();
       } else {
         _state.stateController.reverse();
@@ -2132,7 +2137,7 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
 
   void _drawRegions(PaintingContext context, Rect trackRect, Offset offset,
       Offset startThumbCenter, Offset endThumbCenter) {
-    final Paint paint = Paint()
+    final Paint inactivePaint = Paint()
       ..isAntiAlias = true
       ..color = _inactiveRegionColor;
     if (child != null && child!.size.height > 1 && child!.size.width > 1) {
@@ -2160,22 +2165,23 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
       context.canvas.drawRect(
           Rect.fromLTRB(trackRect.left, offset.dy, leftThumbCenter.dx,
               trackRect.top + inactiveRegionAdj),
-          paint);
-      paint.color = _activeRegionColor;
+          inactivePaint);
+      final Paint activePaint = Paint()
+        ..isAntiAlias = true
+        ..color = _activeRegionColor;
       context.canvas.drawRect(
           Rect.fromLTRB(leftThumbCenter.dx, offset.dy, rightThumbCenter.dx,
               trackRect.top + activeRegionAdj),
-          paint);
-      paint.color = _inactiveRegionColor;
+          activePaint);
       context.canvas.drawRect(
           Rect.fromLTRB(rightThumbCenter.dx, offset.dy, trackRect.right,
               trackRect.top + inactiveRegionAdj),
-          paint);
+          inactivePaint);
     }
   }
 
   void _increaseStartAction() {
-    if (isEnabled) {
+    if (isInteractive) {
       final SfRangeValues newValues =
           SfRangeValues(increasedStartValue, values.end);
       if (getNumerizedValue(newValues.start) <=
@@ -2186,38 +2192,25 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
   }
 
   void _decreaseStartAction() {
-    if (isEnabled) {
+    if (isInteractive) {
       _updateNewValues(SfRangeValues(decreasedStartValue, values.end));
     }
   }
 
   void _increaseEndAction() {
-    if (isEnabled) {
+    if (isInteractive) {
       _updateNewValues(SfRangeValues(values.start, increasedEndValue));
     }
   }
 
   void _decreaseEndAction() {
-    if (isEnabled) {
+    if (isInteractive) {
       final SfRangeValues newValues =
           SfRangeValues(values.start, decreasedEndValue);
       if (getNumerizedValue(newValues.start) <=
           (getNumerizedValue(newValues.end))) {
         _updateNewValues(newValues);
       }
-    }
-  }
-
-  @override
-  bool hitTestSelf(Offset position) => isEnabled;
-
-  @override
-  bool hitTestChildren(BoxHitTestResult result, {Offset? position}) => false;
-
-  @override
-  void setupParentData(RenderObject child) {
-    if (child.parentData is! BoxParentData) {
-      child.parentData = BoxParentData();
     }
   }
 
@@ -2294,8 +2287,7 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
     }
 
     final BoxConstraints contentConstraints = BoxConstraints.tightFor(
-        width: sliderThemeData.thumbRadius * 2,
-        height: sliderThemeData.thumbRadius * 2);
+        width: actualThumbSize.width, height: actualThumbSize.height);
     startThumbIcon?.layout(contentConstraints, parentUsesSize: true);
     endThumbIcon?.layout(contentConstraints, parentUsesSize: true);
 
@@ -2355,9 +2347,9 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
     VoidCallback decreaseAction,
   ) {
     final SemanticsConfiguration config = SemanticsConfiguration();
-    config.isEnabled = isEnabled;
+    config.isEnabled = isInteractive;
     config.textDirection = textDirection;
-    if (isEnabled) {
+    if (isInteractive) {
       config.onIncrease = increaseAction;
       config.onDecrease = decreaseAction;
     }
@@ -2437,7 +2429,7 @@ class _RenderRangeSelector extends RenderBaseRangeSlider {
   @override
   void describeSemanticsConfiguration(SemanticsConfiguration config) {
     super.describeSemanticsConfiguration(config);
-    config.isSemanticBoundary = isEnabled;
+    config.isSemanticBoundary = isInteractive;
   }
 
   @override

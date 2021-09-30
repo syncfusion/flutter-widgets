@@ -383,7 +383,7 @@ class _AutoFitManager {
     for (final int key in columnsWidth.keys) {
       final int num12 = columnsWidth[key]!;
       if (num12 != 0) {
-        _worksheet._setColumnWidthInPixels(key, num12);
+        _worksheet.setColumnWidthInPixels(key, num12);
       }
     }
   }

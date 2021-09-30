@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_core/legend_internal.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
+import 'package:syncfusion_flutter_maps/maps.dart';
 import 'package:syncfusion_flutter_maps/src/controller/map_controller.dart';
 
 import '../common.dart';
@@ -542,8 +543,8 @@ class MapLegend extends DiagnosticableTree {
   /// icon will have the default color.
   ///
   /// See also:
-  /// * [legend], to enable the legend toggle interaction and customize
-  /// the appearance of the legend items.
+  /// * [MapShapeLayer.legend], to enable the legend toggle interaction and
+  /// customize the appearance of the legend items.
   final MapElement source;
 
   /// Sets a title for the legend.
@@ -1888,7 +1889,7 @@ class MapLegend extends DiagnosticableTree {
 
   /// Returns a widget for the given value.
   ///
-  /// The pointer is used to indicate the exact colour of the hovering
+  /// The pointer is used to indicate the exact color of the hovering
   /// shape or bubble on the segment.
   ///
   /// The [pointerBuilder] will be called when the user interacts with the

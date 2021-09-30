@@ -59,8 +59,8 @@ enum DateIntervalType {
   /// For example, if `min` is DateTime(2000, 01, 01, 00) and
   /// `max` is DateTime(2000, 12, 31, 24) and `interval` is 3 and
   /// `dateIntervalType` is [months] then range slider will render labels
-  /// for [Jan 01, 2000], [Apr 01, 2000], [Jul 01, 2000], [Oct 01, 2000]
-  /// and [Jan 01, 2001] respectively.
+  /// for `Jan 01, 2000`, `Apr 01, 2000`, `Jul 01, 2000`, `Oct 01, 2000`
+  /// and `Jan 01, 2001` respectively.
   months,
 
   /// Date interval is day.
@@ -68,8 +68,8 @@ enum DateIntervalType {
   /// For example, if `min` is DateTime(2000, 01, 01, 00) and
   /// `max` is DateTime(2000, 01, 25, 24) and `interval` is 5 and
   /// `dateIntervalType` is [days] then range slider will render labels
-  /// for [Jan 01, 2000], [Jan 06, 2000], [Jan 11, 2000], [Jan 16, 2000],
-  /// [Jan 21, 2001] and [Jan 26, 2001] respectively.
+  /// for `Jan 01, 2000`, `Jan 06, 2000`, `Jan 11, 2000`, `Jan 16, 2000`,
+  /// `Jan 21, 2001` and `Jan 26, 2001` respectively.
   days,
 
   /// Date interval is hour.
@@ -77,7 +77,7 @@ enum DateIntervalType {
   /// For example, if `min` is DateTime(2000, 01, 01, 09) and
   /// `max` is DateTime(2000, 01, 01, 17) and `interval` is 4 and
   /// `dateIntervalType` is [hours] then range slider will render labels for
-  /// [Jan 01, 2000 09:00], [Jan 01, 2000 13:00], and [Jan 01, 2000 17:00]
+  /// `Jan 01, 2000 09:00`, `Jan 01, 2000 13:00`, and `Jan 01, 2000 17:00`
   /// respectively.
   hours,
 
@@ -86,8 +86,8 @@ enum DateIntervalType {
   /// For example, if `min` is DateTime(2000, 01, 01, 09) and
   /// `max` is DateTime(2000, 01, 01, 10) and `interval` is 15 and
   /// `dateIntervalType` is [minutes] then range slider will render labels for
-  /// [Jan 01, 2000 09:00], [Jan 01, 2000 09:15], [Jan 01, 2000 09:30],
-  /// [Jan 01, 2000 09:45]and [Jan 01, 2000 10:00] respectively.
+  /// `Jan 01, 2000 09:00`, `Jan 01, 2000 09:15`, `Jan 01, 2000 09:30`,
+  /// `Jan 01, 2000 09:45` and `Jan 01, 2000 10:00` respectively.
   minutes,
 
   /// Date interval is second.
@@ -95,8 +95,8 @@ enum DateIntervalType {
   /// For example, if `min` is DateTime(2000, 01, 01, 09, 00) and
   /// `max` is DateTime(2000, 01, 01, 09, 01) and `interval` is 20 and
   /// `dateIntervalType` is [seconds] then range slider will render labels for
-  /// [Jan 01, 2000 09:00:00], [Jan 01, 2000 09:00:20], [Jan 01, 2000 09:00:40],
-  /// and [Jan 01, 2000 09:01:00] respectively.
+  /// `Jan 01, 2000 09:00:00`, `Jan 01, 2000 09:00:20`, `Jan 01, 2000 09:00:40`,
+  /// and `Jan 01, 2000 09:01:00` respectively.
   seconds
 }
 
@@ -106,7 +106,13 @@ enum SfThumb {
   start,
 
   /// end represents the [SfRangeValues.end] thumb.
-  end
+  end,
+
+  /// both represents the [SfRangeValues.start] and [SfRangeValues.end] thumb.
+  both,
+
+  /// represents none of the thumb.
+  none
 }
 
 /// Represents the dragging behavior of the [SfRangeSelector] thumbs.

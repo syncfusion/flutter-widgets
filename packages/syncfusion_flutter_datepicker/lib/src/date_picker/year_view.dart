@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -48,7 +46,8 @@ class YearView extends StatefulWidget {
       this.localizations,
       this.navigationDirection,
       this.width,
-      this.height);
+      this.height,
+      this.disableDatesCollection);
 
   /// Defines the year cell style.
   final dynamic cellStyle;
@@ -154,6 +153,9 @@ class YearView extends StatefulWidget {
 
   /// Defines the year view maximum row count.
   static const int maxRowCount = 4;
+
+  /// Holds the list of dates for selectable day predicate.
+  final List<dynamic>? disableDatesCollection;
 
   @override
   _YearViewState createState() => _YearViewState();
@@ -332,6 +334,7 @@ class _YearViewState extends State<YearView> {
               widget.isHijri,
               widget.localizations,
               widget.navigationDirection,
+              widget.disableDatesCollection,
               widgets: _children);
         }
       case DateRangePickerSelectionMode.multiple:
@@ -367,6 +370,7 @@ class _YearViewState extends State<YearView> {
               widget.isHijri,
               widget.localizations,
               widget.navigationDirection,
+              widget.disableDatesCollection,
               widgets: _children);
         }
       case DateRangePickerSelectionMode.range:
@@ -402,6 +406,7 @@ class _YearViewState extends State<YearView> {
               widget.isHijri,
               widget.localizations,
               widget.navigationDirection,
+              widget.disableDatesCollection,
               widgets: _children);
         }
       case DateRangePickerSelectionMode.extendableRange:
@@ -437,6 +442,7 @@ class _YearViewState extends State<YearView> {
               widget.isHijri,
               widget.localizations,
               widget.navigationDirection,
+              widget.disableDatesCollection,
               widgets: _children);
         }
       case DateRangePickerSelectionMode.multiRange:
@@ -472,6 +478,7 @@ class _YearViewState extends State<YearView> {
               widget.isHijri,
               widget.localizations,
               widget.navigationDirection,
+              widget.disableDatesCollection,
               widgets: _children);
         }
     }
@@ -591,6 +598,7 @@ class _SingleSelectionRenderWidget extends MultiChildRenderObjectWidget {
       this.isHijri,
       this.localizations,
       this.navigationDirection,
+      this.disableDatesCollection,
       {required List<Widget> widgets})
       : super(children: widgets);
 
@@ -678,6 +686,8 @@ class _SingleSelectionRenderWidget extends MultiChildRenderObjectWidget {
   /// Specifies the localizations.
   final SfLocalizations localizations;
 
+  final List<dynamic>? disableDatesCollection;
+
   @override
   _SingleSelectionRenderObject createRenderObject(BuildContext context) {
     return _SingleSelectionRenderObject(
@@ -709,7 +719,8 @@ class _SingleSelectionRenderWidget extends MultiChildRenderObjectWidget {
         isHijri,
         navigationDirection,
         localizations,
-        selectedDate);
+        selectedDate,
+        disableDatesCollection);
   }
 
   @override
@@ -744,7 +755,8 @@ class _SingleSelectionRenderWidget extends MultiChildRenderObjectWidget {
       ..navigationDirection = navigationDirection
       ..monthFormat = monthFormat
       ..locale = locale
-      ..view = view;
+      ..view = view
+      ..disableDatesCollection = disableDatesCollection;
   }
 }
 
@@ -780,6 +792,7 @@ class _MultiSelectionRenderWidget extends MultiChildRenderObjectWidget {
       this.isHijri,
       this.localizations,
       this.navigationDirection,
+      this.disableDatesCollection,
       {required List<Widget> widgets})
       : super(children: widgets);
 
@@ -867,6 +880,8 @@ class _MultiSelectionRenderWidget extends MultiChildRenderObjectWidget {
   /// Specifies the localizations.
   final SfLocalizations localizations;
 
+  final List<dynamic>? disableDatesCollection;
+
   @override
   _MultipleSelectionRenderObject createRenderObject(BuildContext context) {
     return _MultipleSelectionRenderObject(
@@ -898,7 +913,8 @@ class _MultiSelectionRenderWidget extends MultiChildRenderObjectWidget {
         isHijri,
         navigationDirection,
         localizations,
-        selectedDates);
+        selectedDates,
+        disableDatesCollection);
   }
 
   @override
@@ -933,7 +949,8 @@ class _MultiSelectionRenderWidget extends MultiChildRenderObjectWidget {
       ..navigationDirection = navigationDirection
       ..monthFormat = monthFormat
       ..locale = locale
-      ..view = view;
+      ..view = view
+      ..disableDatesCollection = disableDatesCollection;
   }
 }
 
@@ -969,6 +986,7 @@ class _RangeSelectionRenderWidget extends MultiChildRenderObjectWidget {
       this.isHijri,
       this.localizations,
       this.navigationDirection,
+      this.disableDatesCollection,
       {required List<Widget> widgets})
       : super(children: widgets);
 
@@ -1056,6 +1074,8 @@ class _RangeSelectionRenderWidget extends MultiChildRenderObjectWidget {
   /// Specifies the localizations.
   final SfLocalizations localizations;
 
+  final List<dynamic>? disableDatesCollection;
+
   @override
   _RangeSelectionRenderObject createRenderObject(BuildContext context) {
     return _RangeSelectionRenderObject(
@@ -1087,7 +1107,8 @@ class _RangeSelectionRenderWidget extends MultiChildRenderObjectWidget {
         isHijri,
         navigationDirection,
         localizations,
-        selectedRange);
+        selectedRange,
+        disableDatesCollection);
   }
 
   @override
@@ -1122,7 +1143,8 @@ class _RangeSelectionRenderWidget extends MultiChildRenderObjectWidget {
       ..navigationDirection = navigationDirection
       ..monthFormat = monthFormat
       ..locale = locale
-      ..view = view;
+      ..view = view
+      ..disableDatesCollection = disableDatesCollection;
   }
 }
 
@@ -1159,6 +1181,7 @@ class _ExtendableRangeSelectionRenderWidget
       this.isHijri,
       this.localizations,
       this.navigationDirection,
+      this.disableDatesCollection,
       {required List<Widget> widgets})
       : super(children: widgets);
 
@@ -1246,6 +1269,8 @@ class _ExtendableRangeSelectionRenderWidget
   /// Specifies the localizations.
   final SfLocalizations localizations;
 
+  final List<dynamic>? disableDatesCollection;
+
   @override
   _ExtendableRangeSelectionRenderObject createRenderObject(
       BuildContext context) {
@@ -1278,7 +1303,8 @@ class _ExtendableRangeSelectionRenderWidget
         isHijri,
         navigationDirection,
         localizations,
-        selectedRange);
+        selectedRange,
+        disableDatesCollection);
   }
 
   @override
@@ -1313,7 +1339,8 @@ class _ExtendableRangeSelectionRenderWidget
       ..navigationDirection = navigationDirection
       ..monthFormat = monthFormat
       ..locale = locale
-      ..view = view;
+      ..view = view
+      ..disableDatesCollection = disableDatesCollection;
   }
 }
 
@@ -1349,6 +1376,7 @@ class _MultiRangeSelectionRenderWidget extends MultiChildRenderObjectWidget {
       this.isHijri,
       this.localizations,
       this.navigationDirection,
+      this.disableDatesCollection,
       {required List<Widget> widgets})
       : super(children: widgets);
 
@@ -1437,6 +1465,8 @@ class _MultiRangeSelectionRenderWidget extends MultiChildRenderObjectWidget {
   /// Specifies the localizations.
   final SfLocalizations localizations;
 
+  final List<dynamic>? disableDatesCollection;
+
   @override
   _MultiRangeSelectionRenderObject createRenderObject(BuildContext context) {
     return _MultiRangeSelectionRenderObject(
@@ -1468,7 +1498,8 @@ class _MultiRangeSelectionRenderWidget extends MultiChildRenderObjectWidget {
         isHijri,
         navigationDirection,
         localizations,
-        selectedRanges);
+        selectedRanges,
+        disableDatesCollection);
   }
 
   @override
@@ -1503,7 +1534,8 @@ class _MultiRangeSelectionRenderWidget extends MultiChildRenderObjectWidget {
       ..monthFormat = monthFormat
       ..locale = locale
       ..navigationDirection = navigationDirection
-      ..view = view;
+      ..view = view
+      ..disableDatesCollection = disableDatesCollection;
   }
 }
 
@@ -1539,7 +1571,8 @@ abstract class _IYearViewRenderObject extends RenderBox
       this._view,
       this._isHijri,
       this._navigationDirection,
-      this.localizations);
+      this.localizations,
+      this._disableDatesCollection);
 
   DateRangePickerNavigationDirection _navigationDirection;
 
@@ -1988,6 +2021,23 @@ abstract class _IYearViewRenderObject extends RenderBox
     }
   }
 
+  List<dynamic>? _disableDatesCollection;
+
+  List<dynamic>? get disableDatesCollection => _disableDatesCollection;
+
+  set disableDatesCollection(List<dynamic>? value) {
+    if (_disableDatesCollection == value) {
+      return;
+    }
+
+    _disableDatesCollection = value;
+    if (childCount == 0) {
+      markNeedsPaint();
+    } else {
+      markNeedsLayout();
+    }
+  }
+
   /// Specifies the localizations.
   SfLocalizations localizations;
 
@@ -2146,6 +2196,9 @@ abstract class _IYearViewRenderObject extends RenderBox
   /// draw selection when the cell have custom widget.
   void drawCustomCellSelection(Canvas canvas, Rect rect, int index);
 
+  /// Check and return that the given date index is between range or not.
+  bool isBetweenRange(int index);
+
   List<CustomPainterSemantics> _getSemanticsBuilder(Size size) {
     final List<CustomPainterSemantics> semanticsBuilder =
         <CustomPainterSemantics>[];
@@ -2197,7 +2250,9 @@ abstract class _IYearViewRenderObject extends RenderBox
         }
 
         if (!DateRangePickerHelper.isBetweenMinMaxDateCell(
-            date, _minDate, _maxDate, _enablePastDates, _view, _isHijri)) {
+                date, _minDate, _maxDate, _enablePastDates, _view, _isHijri) ||
+            DateRangePickerHelper.isDateWithInVisibleDates(
+                visibleDates, disableDatesCollection, date)) {
           semanticsBuilder.add(CustomPainterSemantics(
             rect: Rect.fromLTWH(startXPosition + left, startYPosition + top,
                 cellWidth, cellHeight),
@@ -2409,7 +2464,6 @@ abstract class _IYearViewRenderObject extends RenderBox
 
     final List<bool> hoveringDetails = rangeSelectionYearView
         ._getSelectedRangePosition(currentIndex, hoveringIndex);
-    final bool isSelectedDate = hoveringDetails[0];
     final bool isStartRange = hoveringDetails[1];
     final bool isEndRange = hoveringDetails[2];
     final bool isBetweenRange = hoveringDetails[3];
@@ -2420,99 +2474,38 @@ abstract class _IYearViewRenderObject extends RenderBox
       highlightPadding = maximumHighlight;
     }
 
-    final Rect rect = Rect.fromLTRB(
-        xPosition,
-        yPosition + centerYPosition - highlightPadding - textHalfHeight,
-        xPosition + cellWidth,
-        yPosition + centerYPosition + highlightPadding + textHalfHeight);
+    Rect rect = const Rect.fromLTRB(0, 0, 0, 0);
+    final double startYPosition =
+        yPosition + centerYPosition - highlightPadding - textHalfHeight;
+    final double endYPosition =
+        yPosition + centerYPosition + highlightPadding + textHalfHeight;
+    final double endXPosition = xPosition + cellWidth;
     final double cornerRadius = isBetweenRange
         ? 0
         : (selectionShape == DateRangePickerSelectionShape.circle
-            ? rect.height / 2
+            ? (endYPosition - startYPosition) / 2
             : 3);
-    final double leftRadius = isStartRange || isSelectedDate ? cornerRadius : 0;
-    final double rightRadius = isEndRange || isSelectedDate ? cornerRadius : 0;
-
-    final RRect roundRect = RRect.fromRectAndCorners(rect,
-        topLeft: Radius.circular(leftRadius),
-        bottomLeft: Radius.circular(leftRadius),
-        bottomRight: Radius.circular(rightRadius),
-        topRight: Radius.circular(rightRadius));
 
     _todayHighlightPaint.style = PaintingStyle.stroke;
     _todayHighlightPaint.strokeWidth = 1.0;
     _todayHighlightPaint.color = selectionColor != null
         ? selectionColor!.withOpacity(0.4)
         : datePickerTheme.selectionColor!.withOpacity(0.4);
-    final Path path = Path();
-    if (isStartRange || isSelectedDate) {
-      switch (selectionShape) {
-        case DateRangePickerSelectionShape.circle:
-          path.addArc(
-              Rect.fromCenter(
-                  center: Offset(roundRect.left + leftRadius,
-                      roundRect.top + (roundRect.height / 2)),
-                  width: leftRadius * 1.5,
-                  height: roundRect.height),
-              pi / 2,
-              pi);
-          break;
-        case DateRangePickerSelectionShape.rectangle:
-          path.addRRect(RRect.fromLTRBR(
-              rect.left + selectionPadding,
-              rect.top,
-              rect.right - selectionPadding,
-              rect.bottom,
-              Radius.circular(leftRadius)));
-      }
-      canvas.drawPath(
-          DateRangePickerHelper.getDashedPath(
-              path,
-              isStartRange || isSelectedDate,
-              isEndRange,
-              selectionShape == DateRangePickerSelectionShape.rectangle),
-          _todayHighlightPaint);
+    if (isStartRange) {
+      rect = Rect.fromLTRB(endXPosition - cornerRadius, startYPosition,
+          endXPosition, endYPosition);
     } else if (isEndRange) {
-      switch (selectionShape) {
-        case DateRangePickerSelectionShape.circle:
-          path.addArc(
-              Rect.fromCenter(
-                  center: Offset(roundRect.right - rightRadius,
-                      roundRect.top + (roundRect.height / 2)),
-                  width: rightRadius * 1.5,
-                  height: roundRect.height),
-              -(pi / 2),
-              pi);
-          break;
-        case DateRangePickerSelectionShape.rectangle:
-          path.addRRect(RRect.fromLTRBR(
-              rect.left + selectionPadding,
-              rect.top,
-              rect.right - selectionPadding,
-              rect.bottom,
-              Radius.circular(rightRadius)));
-      }
-      canvas.drawPath(
-          DateRangePickerHelper.getDashedPath(
-              path,
-              isStartRange || isSelectedDate,
-              isEndRange,
-              selectionShape == DateRangePickerSelectionShape.rectangle),
-          _todayHighlightPaint);
+      rect = Rect.fromLTRB(
+          xPosition, startYPosition, xPosition + cornerRadius, endYPosition);
+    } else if (isBetweenRange) {
+      rect = Rect.fromLTRB(
+          xPosition, startYPosition, xPosition + cellWidth, endYPosition);
     }
 
     DateRangePickerHelper.drawDashedLine(
-        roundRect.left + leftRadius,
-        roundRect.top,
-        roundRect.right - rightRadius,
-        canvas,
-        _todayHighlightPaint);
+        rect.left, rect.top, rect.right, canvas, _todayHighlightPaint);
     DateRangePickerHelper.drawDashedLine(
-        roundRect.left + leftRadius,
-        roundRect.bottom,
-        roundRect.right - rightRadius,
-        canvas,
-        _todayHighlightPaint);
+        rect.left, rect.bottom, rect.right, canvas, _todayHighlightPaint);
   }
 
   void _drawTodayHighlight(
@@ -2576,8 +2569,8 @@ abstract class _IYearViewRenderObject extends RenderBox
   }
 
   TextStyle _updateCellTextStyle(int j, bool isCurrentDate, bool isSelected,
-      bool isEnableDate, bool isActiveDate) {
-    if (!isEnableDate) {
+      bool isEnableDate, bool isActiveDate, bool isDisabledDate) {
+    if (!isEnableDate || isDisabledDate) {
       return cellStyle.disabledDatesTextStyle as TextStyle? ??
           datePickerTheme.disabledCellTextStyle;
     }
@@ -2599,9 +2592,9 @@ abstract class _IYearViewRenderObject extends RenderBox
     return cellStyle.textStyle as TextStyle? ?? datePickerTheme.cellTextStyle;
   }
 
-  Decoration? _updateCellDecoration(
-      int j, bool isCurrentDate, bool isEnableDate, bool isActiveDate) {
-    if (!isEnableDate) {
+  Decoration? _updateCellDecoration(int j, bool isCurrentDate,
+      bool isEnableDate, bool isActiveDate, bool isDisabledDate) {
+    if (!isEnableDate || isDisabledDate) {
       return cellStyle.disabledDatesDecoration as Decoration?;
     }
 
@@ -2648,7 +2641,8 @@ class _SingleSelectionRenderObject extends _IYearViewRenderObject {
       bool isHijri,
       DateRangePickerNavigationDirection navigationDirection,
       SfLocalizations localizations,
-      this._selectedDate)
+      this._selectedDate,
+      List<dynamic>? disableDatesCollection)
       : super(
             visibleDates,
             cellStyle,
@@ -2677,7 +2671,8 @@ class _SingleSelectionRenderObject extends _IYearViewRenderObject {
             view,
             isHijri,
             navigationDirection,
-            localizations);
+            localizations,
+            disableDatesCollection);
 
   dynamic _selectedDate;
 
@@ -2763,6 +2758,11 @@ class _SingleSelectionRenderObject extends _IYearViewRenderObject {
 
     return selectedIndex;
   }
+
+  @override
+  bool isBetweenRange(int index) {
+    return false;
+  }
 }
 
 class _MultipleSelectionRenderObject extends _IYearViewRenderObject {
@@ -2795,7 +2795,8 @@ class _MultipleSelectionRenderObject extends _IYearViewRenderObject {
       bool isHijri,
       DateRangePickerNavigationDirection navigationDirection,
       SfLocalizations localizations,
-      this._selectedDates)
+      this._selectedDates,
+      List<dynamic>? disableDatesCollection)
       : super(
             visibleDates,
             cellStyle,
@@ -2824,7 +2825,8 @@ class _MultipleSelectionRenderObject extends _IYearViewRenderObject {
             view,
             isHijri,
             navigationDirection,
-            localizations);
+            localizations,
+            disableDatesCollection);
 
   List<dynamic>? _selectedDates;
 
@@ -2911,6 +2913,11 @@ class _MultipleSelectionRenderObject extends _IYearViewRenderObject {
 
     return selectedIndex;
   }
+
+  @override
+  bool isBetweenRange(int index) {
+    return false;
+  }
 }
 
 class _RangeSelectionRenderObject extends _IYearViewRenderObject {
@@ -2943,7 +2950,8 @@ class _RangeSelectionRenderObject extends _IYearViewRenderObject {
       bool isHijri,
       DateRangePickerNavigationDirection navigationDirection,
       SfLocalizations localizations,
-      this._selectedRange)
+      this._selectedRange,
+      List<dynamic>? disableDatesCollection)
       : super(
             visibleDates,
             cellStyle,
@@ -2972,7 +2980,8 @@ class _RangeSelectionRenderObject extends _IYearViewRenderObject {
             view,
             isHijri,
             navigationDirection,
-            localizations);
+            localizations,
+            disableDatesCollection);
 
   dynamic _selectedRange;
 
@@ -3148,6 +3157,16 @@ class _RangeSelectionRenderObject extends _IYearViewRenderObject {
 
     return _selectedIndex;
   }
+
+  @override
+  bool isBetweenRange(int index) {
+    /// This method will return list of boolean indicating whether selected date
+    /// index is either it is start or end range or selected date and is between
+    /// range as a list, in this list the isBetweenRange boolean index is 3,
+    /// hence we used 3 here.
+    final List<bool> selectionDetails = _getSelectedRangePosition(index);
+    return selectionDetails[3];
+  }
 }
 
 class _ExtendableRangeSelectionRenderObject extends _IYearViewRenderObject {
@@ -3180,7 +3199,8 @@ class _ExtendableRangeSelectionRenderObject extends _IYearViewRenderObject {
       bool isHijri,
       DateRangePickerNavigationDirection navigationDirection,
       SfLocalizations localizations,
-      this._selectedRange)
+      this._selectedRange,
+      List<dynamic>? disableDatesCollection)
       : super(
             visibleDates,
             cellStyle,
@@ -3209,7 +3229,8 @@ class _ExtendableRangeSelectionRenderObject extends _IYearViewRenderObject {
             view,
             isHijri,
             navigationDirection,
-            localizations);
+            localizations,
+            disableDatesCollection);
 
   dynamic _selectedRange;
 
@@ -3387,6 +3408,17 @@ class _ExtendableRangeSelectionRenderObject extends _IYearViewRenderObject {
 
     return _selectedIndex;
   }
+
+  @override
+  bool isBetweenRange(int index) {
+    /// This method will return list of boolean indicating whether selected date
+    /// index is either it is start or end range or selected date and is between
+    /// range as a list, in this list the isBetweenRange boolean index is 3,
+    /// hence we used 3 here.
+    final List<bool> selectionDetails =
+        _getSelectedRangePosition(index, _selectedIndex);
+    return selectionDetails[3];
+  }
 }
 
 class _MultiRangeSelectionRenderObject extends _IYearViewRenderObject {
@@ -3419,7 +3451,8 @@ class _MultiRangeSelectionRenderObject extends _IYearViewRenderObject {
       bool isHijri,
       DateRangePickerNavigationDirection navigationDirection,
       SfLocalizations localizations,
-      this._selectedRanges)
+      this._selectedRanges,
+      List<dynamic>? disableDatesCollection)
       : super(
             visibleDates,
             cellStyle,
@@ -3448,7 +3481,8 @@ class _MultiRangeSelectionRenderObject extends _IYearViewRenderObject {
             view,
             isHijri,
             navigationDirection,
-            localizations);
+            localizations,
+            disableDatesCollection);
 
   List<dynamic>? _selectedRanges;
 
@@ -3638,6 +3672,16 @@ class _MultiRangeSelectionRenderObject extends _IYearViewRenderObject {
 
     return selectedIndex;
   }
+
+  @override
+  bool isBetweenRange(int index) {
+    /// This method will return list of boolean indicating whether selected date
+    /// index is either it is start or end range or selected date and is between
+    /// range as a list, in this list the isBetweenRange boolean index is 3,
+    /// hence we used 3 here.
+    final List<bool> selectionDetails = _getSelectedRangePosition(index);
+    return selectionDetails[3];
+  }
 }
 
 /// Check the date cell placed in current view or not.
@@ -3748,8 +3792,11 @@ void _drawYearCells(
             yearView.enablePastDates,
             view,
             yearView.isHijri);
+        final bool isDisabledDate =
+            DateRangePickerHelper.isDateWithInVisibleDates(
+                yearView.visibleDates, yearView.disableDatesCollection, date);
 
-        if (isSelected && isEnableDate) {
+        if (isSelected && isEnableDate && !isDisabledDate) {
           yearView.drawCustomCellSelection(
               canvas,
               Rect.fromLTRB(xPosition, yPosition, xPosition + cellWidth,
@@ -3759,8 +3806,9 @@ void _drawYearCells(
 
         child!.paint(context, Offset(xPosition, yPosition));
 
-        if (!isSelected &&
+        if ((!isSelected || (yearView.isBetweenRange(currentIndex))) &&
             isEnableDate &&
+            !isDisabledDate &&
             yearView.mouseHoverPosition.value != null &&
             yearView.mouseHoverPosition.value!.offset != null) {
           if (xPosition <= yearView.mouseHoverPosition.value!.offset!.dx &&
@@ -3863,10 +3911,13 @@ void _drawYearCells(
           yearView.isHijri);
       final bool isActiveDate = _isCurrentViewDateCell(
           date, j, yearView.visibleDates, yearView.enableMultiView, view);
-      final TextStyle style = yearView._updateCellTextStyle(
-          j, isCurrentDate, isSelected, isEnableDate, isActiveDate);
+      final bool isDisabledDate =
+          DateRangePickerHelper.isDateWithInVisibleDates(
+              yearView.visibleDates, yearView.disableDatesCollection, date);
+      final TextStyle style = yearView._updateCellTextStyle(j, isCurrentDate,
+          isSelected, isEnableDate, isActiveDate, isDisabledDate);
       final Decoration? yearDecoration = yearView._updateCellDecoration(
-          j, isCurrentDate, isEnableDate, isActiveDate);
+          j, isCurrentDate, isEnableDate, isActiveDate, isDisabledDate);
 
       final TextSpan yearText = TextSpan(
         text: yearView._getCellText(date),
@@ -3879,7 +3930,7 @@ void _drawYearCells(
       final double highlightPadding =
           yearView.selectionRadius == -1 ? 10 : yearView.selectionRadius;
       final double textHalfHeight = yearView._textPainter.height / 2;
-      if (isSelected && isEnableDate) {
+      if (isSelected && isEnableDate && !isDisabledDate) {
         yearView.drawSelection(
             canvas,
             cellWidth,
@@ -3933,8 +3984,9 @@ void _drawYearCells(
             cellHeight);
       }
 
-      if (!isSelected &&
+      if ((!isSelected || (yearView.isBetweenRange(currentIndex))) &&
           isEnableDate &&
+          !isDisabledDate &&
           yearView.mouseHoverPosition.value != null &&
           yearView.mouseHoverPosition.value!.offset != null) {
         yearView._addMouseHovering(

@@ -1,4 +1,23 @@
-part of charts;
+import 'dart:math' as math;
+import 'dart:math';
+import 'dart:ui';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:intl/intl.dart' show NumberFormat;
+import 'package:syncfusion_flutter_core/core.dart';
+
+import '../../common/event_args.dart';
+import '../axis/axis.dart';
+import '../axis/plotband.dart';
+import '../base/chart_base.dart';
+import '../chart_series/series_renderer_properties.dart';
+import '../chart_series/xy_data_series.dart';
+import '../common/cartesian_state_properties.dart';
+import '../common/common.dart' show updateErrorBarAxisRange;
+import '../common/interactive_tooltip.dart';
+import '../utils/enum.dart';
+import '../utils/helper.dart';
 
 ///Logarithmic axis uses logarithmic scale and displays numbers as axis labels.
 ///
@@ -307,179 +326,119 @@ class LogarithmicAxis extends ChartAxis {
 /// Creates an axis renderer for Logarithmic axis
 class LogarithmicAxisRenderer extends ChartAxisRenderer {
   /// Creating an argument constructor of LogarithmicAxisRenderer class.
-  LogarithmicAxisRenderer(this._logarithmicAxis) : super(_logarithmicAxis);
+  LogarithmicAxisRenderer(LogarithmicAxis logarithmicAxis,
+      CartesianStateProperties stateProperties) {
+    _axisDetails =
+        LogarithmicAxisDetails(logarithmicAxis, stateProperties, this);
+    AxisHelper.setAxisRendererDetails(this, _axisDetails);
+  }
 
-  final LogarithmicAxis _logarithmicAxis;
+  late LogarithmicAxisDetails _axisDetails;
 
-  /// Find the series min and max values of an series
-  void _findAxisMinMaxValues(CartesianSeriesRenderer seriesRenderer,
-      CartesianChartPoint<dynamic> point, int pointIndex, int dataLength,
-      [bool? isXVisibleRange, bool? isYVisibleRange]) {
-    final String seriesType = seriesRenderer._seriesType;
-    point.xValue = point.x;
-    point.yValue = point.y;
-    seriesRenderer._minimumX ??= point.xValue;
-    seriesRenderer._maximumX ??= point.xValue;
-    if (!seriesType.contains('range') &&
-        (!seriesType.contains('hilo')) &&
-        (!seriesType.contains('candle'))) {
-      seriesRenderer._minimumY ??= point.yValue;
-      seriesRenderer._maximumY ??= point.yValue;
+  /// Calculates the visible range for an axis in chart.
+  @override
+  void calculateVisibleRange(Size availableSize) {
+    _axisDetails.setOldRangeFromRangeController();
+    _axisDetails.visibleRange =
+        _axisDetails.stateProperties.rangeChangeBySlider &&
+                _axisDetails.rangeMinimum != null &&
+                _axisDetails.rangeMaximum != null
+            ? VisibleRange(_axisDetails.rangeMinimum, _axisDetails.rangeMaximum)
+            : VisibleRange(_axisDetails.actualRange!.minimum,
+                _axisDetails.actualRange!.maximum);
+    _axisDetails.visibleRange!.delta = _axisDetails.actualRange!.delta;
+    _axisDetails.visibleRange!.interval = _axisDetails.actualRange!.interval;
+    bool canAutoScroll = false;
+    if (_axisDetails.logarithmicAxis.autoScrollingDelta != null &&
+        _axisDetails.logarithmicAxis.autoScrollingDelta! > 0 &&
+        !_axisDetails.stateProperties.isRedrawByZoomPan) {
+      canAutoScroll = true;
+      _axisDetails.updateAutoScrollingDelta(
+          _axisDetails.logarithmicAxis.autoScrollingDelta!, this);
     }
-    _lowMin ??= point.low;
-    _lowMax ??= point.low;
-    _highMin ??= point.high;
-    _highMax ??= point.high;
-    if (point.xValue != null) {
-      seriesRenderer._minimumX =
-          math.min(seriesRenderer._minimumX!, point.xValue);
-      seriesRenderer._maximumX =
-          math.max(seriesRenderer._maximumX!, point.xValue);
+    if ((!canAutoScroll || _axisDetails.stateProperties.zoomedState == true) &&
+        !(_axisDetails.stateProperties.rangeChangeBySlider &&
+            !_axisDetails.stateProperties.canSetRangeController)) {
+      _axisDetails.setZoomFactorAndPosition(
+          this, _axisDetails.stateProperties.zoomedAxisRendererStates);
     }
-    if (point.yValue != null &&
-        (!seriesType.contains('range') &&
-            !seriesType.contains('hilo') &&
-            !seriesType.contains('candle'))) {
-      seriesRenderer._minimumY =
-          math.min(seriesRenderer._minimumY!, point.yValue);
-      seriesRenderer._maximumY =
-          math.max(seriesRenderer._maximumY!, point.yValue);
-    }
-    if (point.high != null) {
-      _highMin = math.min(_highMin!, point.high);
-      _highMax = math.max(_highMax!, point.high);
-    }
-    if (point.low != null) {
-      _lowMin = math.min(_lowMin!, point.low);
-      _lowMax = math.max(_lowMax!, point.low);
-    }
-    if (pointIndex >= dataLength - 1) {
-      if (seriesType.contains('range') ||
-          seriesType.contains('hilo') ||
-          seriesType.contains('candle')) {
-        _lowMin ??= 0;
-        _lowMax ??= 5;
-        _highMin ??= 0;
-        _highMax ??= 5;
-        seriesRenderer._minimumY =
-            math.min(_lowMin!.toDouble(), _highMin!.toDouble());
-        seriesRenderer._maximumY =
-            math.max(_lowMax!.toDouble(), _highMax!.toDouble());
+    if (_axisDetails.zoomFactor < 1 ||
+        _axisDetails.zoomPosition > 0 ||
+        (_axisDetails.axis.rangeController != null &&
+                !_axisDetails
+                    .stateProperties.renderingDetails.initialRender!) &&
+            !(_axisDetails.stateProperties.rangeChangeBySlider ||
+                !_axisDetails.stateProperties.canSetRangeController)) {
+      _axisDetails.stateProperties.zoomProgress = true;
+      _axisDetails.calculateZoomRange(this, availableSize);
+      _axisDetails.visibleRange!.delta = _axisDetails.visibleRange!.maximum -
+          _axisDetails.visibleRange!.minimum;
+      _axisDetails.visibleRange!.interval =
+          _axisDetails.axis.enableAutoIntervalOnZooming &&
+                  _axisDetails.stateProperties.zoomProgress
+              ? (_axisDetails.axisRenderer as LogarithmicAxisRenderer)
+                  .calculateLogNiceInterval(_axisDetails.visibleRange!.delta)
+              : _axisDetails.visibleRange!.interval;
+      _axisDetails.visibleRange!.interval =
+          _axisDetails.visibleRange!.interval.floor() == 0
+              ? 1
+              : _axisDetails.visibleRange!.interval.floor();
+      if (_axisDetails.axis.rangeController != null &&
+          _axisDetails.stateProperties.isRedrawByZoomPan &&
+          _axisDetails.stateProperties.canSetRangeController &&
+          _axisDetails.stateProperties.zoomProgress) {
+        _axisDetails.stateProperties.rangeChangedByChart = true;
+        _axisDetails.setRangeControllerValues(this);
       }
-      seriesRenderer._minimumX ??= 0;
-      seriesRenderer._minimumY ??= 0;
-      seriesRenderer._maximumX ??= 5;
-      seriesRenderer._maximumY ??= 5;
     }
+    _axisDetails.setZoomValuesFromRangeController();
   }
 
-  /// Listener for range controller
-  void _controlListener() {
-    _chartState._canSetRangeController = false;
-    if (_axis.rangeController != null && !_chartState._rangeChangedByChart) {
-      _updateRangeControllerValues(this);
-      _chartState._rangeChangeBySlider = true;
-      _chartState._redrawByRangeChange();
+  /// Applies range padding to auto, normal, additional, round, and none types.
+  @override
+  void applyRangePadding(VisibleRange range, num interval) {}
+
+  /// Generates the visible axis labels.
+  @override
+  void generateVisibleLabels() {
+    num tempInterval = _axisDetails.visibleRange!.minimum;
+    String labelText;
+    _axisDetails.visibleLabels = <AxisLabel>[];
+    for (;
+        tempInterval <= _axisDetails.visibleRange!.maximum;
+        tempInterval += _axisDetails.visibleRange!.interval) {
+      labelText = pow(_axisDetails.logarithmicAxis.logBase, tempInterval)
+          .floor()
+          .toString();
+      if (_axisDetails.logarithmicAxis.numberFormat != null) {
+        labelText = _axisDetails.logarithmicAxis.numberFormat!.format(
+            pow(_axisDetails.logarithmicAxis.logBase, tempInterval).floor());
+      }
+      if (_axisDetails.logarithmicAxis.labelFormat != null &&
+          _axisDetails.logarithmicAxis.labelFormat != '') {
+        labelText = _axisDetails.logarithmicAxis.labelFormat!
+            .replaceAll(RegExp('{value}'), labelText);
+      }
+      _axisDetails.triggerLabelRenderEvent(labelText, tempInterval);
     }
+
+    /// Get the maximum label of width and height in axis.
+    _axisDetails.calculateMaximumLabelSize(this, _axisDetails.stateProperties);
   }
 
-  /// Calculate the range and interval
-  void _calculateRangeAndInterval(SfCartesianChartState chartState,
-      [String? type]) {
-    _chartState = chartState;
-    _chart = chartState._chart;
-    if (_logarithmicAxis.rangeController != null) {
-      _chartState._rangeChangeBySlider = true;
-      _logarithmicAxis.rangeController!.addListener(_controlListener);
-    }
-    final Rect containerRect = _chartState._renderingDetails.chartContainerRect;
-    final Rect rect = Rect.fromLTWH(containerRect.left, containerRect.top,
-        containerRect.width, containerRect.height);
-    _axisSize = Size(rect.width, rect.height);
-    calculateRange(this);
-    _calculateActualRange();
-    calculateVisibleRange(_axisSize);
-
-    /// Setting range as visible zoomRange
-    if ((_logarithmicAxis.visibleMinimum != null ||
-            _logarithmicAxis.visibleMaximum != null) &&
-        (_logarithmicAxis.visibleMinimum != _logarithmicAxis.visibleMaximum) &&
-        (!_chartState._isRedrawByZoomPan)) {
-      _chartState._isRedrawByZoomPan = false;
-      _visibleRange!.minimum = _logarithmicAxis.visibleMinimum != null
-          ? (math.log(_logarithmicAxis.visibleMinimum!) / (math.log(10)))
-              .round()
-          : _visibleRange!.minimum;
-      _visibleRange!.maximum = _logarithmicAxis.visibleMaximum != null
-          ? (math.log(_logarithmicAxis.visibleMaximum!) / (math.log(10)))
-              .round()
-          : _visibleRange!.maximum;
-      _visibleRange!.delta = _visibleRange!.maximum - _visibleRange!.minimum;
-      _zoomFactor = _visibleRange!.delta / (_actualRange!.delta);
-      _zoomPosition = (_visibleRange!.minimum - _actualRange!.minimum) /
-          _actualRange!.delta;
-    }
-
-    ActualRangeChangedArgs rangeChangedArgs;
-    if (_chart.onActualRangeChanged != null) {
-      final _VisibleRange range = _actualRange!;
-      rangeChangedArgs = ActualRangeChangedArgs(_name!, _logarithmicAxis,
-          range.minimum, range.maximum, range.interval, _orientation!);
-      rangeChangedArgs.visibleMin = _visibleRange!.minimum;
-      rangeChangedArgs.visibleMax = _visibleRange!.maximum;
-      rangeChangedArgs.visibleInterval = _visibleRange!.interval;
-      _chart.onActualRangeChanged!(rangeChangedArgs);
-      _visibleRange!.minimum = rangeChangedArgs.visibleMin;
-      _visibleRange!.maximum = rangeChangedArgs.visibleMax;
-      _visibleRange!.delta = _visibleRange!.maximum - _visibleRange!.minimum;
-      _visibleRange!.interval = rangeChangedArgs.visibleInterval;
-      _zoomFactor = _visibleRange!.delta / range.delta;
-      _zoomPosition =
-          (_visibleRange!.minimum - _actualRange!.minimum) / range.delta;
-    }
-    if (type == null && type != 'AxisCross' && _logarithmicAxis.isVisible) {
-      generateVisibleLabels();
-    }
-  }
-
-  /// Calculate the required values of the actual range for logarithmic axis
-  void _calculateActualRange() {
-    num logStart, logEnd;
-    _min ??= 0;
-    _max ??= 5;
-    _min = _logarithmicAxis.minimum ?? _min;
-    _max = _logarithmicAxis.maximum ?? _max;
-    if (_axis.anchorRangeToVisiblePoints &&
-        _needCalculateYrange(_logarithmicAxis.minimum, _logarithmicAxis.maximum,
-            _chartState, _orientation!)) {
-      final _VisibleRange range = _calculateYRangeOnZoomX(_actualRange!, this);
-      _min = range.minimum;
-      _max = range.maximum;
-    }
-    _min = _min! < 0 ? 0 : _min;
-    logStart = _calculateLogBaseValue(_min!, _logarithmicAxis.logBase);
-    logStart = logStart.isFinite ? logStart : _min!;
-    logEnd = _calculateLogBaseValue(_max!, _logarithmicAxis.logBase);
-    logEnd = logEnd.isFinite ? logEnd : _max!;
-    _min = (logStart / 1).floor();
-    _max = (logEnd / 1).ceil();
-    if (_min == _max) {
-      _max = _max! + 1;
-    }
-    _actualRange = _VisibleRange(_min, _max);
-    _actualRange!.delta = _actualRange!.maximum - _actualRange!.minimum;
-    _actualRange!.interval = _logarithmicAxis.interval ??
-        calculateLogNiceInterval(_actualRange!.delta);
-  }
+  /// Finds the interval of an axis.
+  @override
+  num? calculateInterval(VisibleRange range, Size availableSize) => null;
 
   /// To get the axis interval for logarithmic axis
   num calculateLogNiceInterval(num delta) {
     final List<num> intervalDivisions = <num>[10, 5, 2, 1];
     final num actualDesiredIntervalCount =
-        _calculateDesiredIntervalCount(_axisSize, this);
+        _axisDetails.calculateDesiredIntervalCount(
+            _axisDetails.axisSize, _axisDetails.axisRenderer);
     num niceInterval = delta;
     final num minInterval =
-        math.pow(10, _calculateLogBaseValue(niceInterval, 10).floor());
+        math.pow(10, calculateLogBaseValue(niceInterval, 10).floor());
     for (int i = 0; i < intervalDivisions.length; i++) {
       final num interval = intervalDivisions[i];
       final num currentInterval = minInterval * interval;
@@ -490,90 +449,178 @@ class LogarithmicAxisRenderer extends ChartAxisRenderer {
     }
     return niceInterval;
   }
+}
 
-  /// Calculates the visible range for an axis in chart.
-  @override
-  void calculateVisibleRange(Size availableSize) {
-    _setOldRangeFromRangeController();
-    _visibleRange = _chartState._rangeChangeBySlider &&
-            _rangeMinimum != null &&
-            _rangeMaximum != null
-        ? _VisibleRange(_rangeMinimum, _rangeMaximum)
-        : _VisibleRange(_actualRange!.minimum, _actualRange!.maximum);
-    _visibleRange!.delta = _actualRange!.delta;
-    _visibleRange!.interval = _actualRange!.interval;
-    bool canAutoScroll = false;
-    if (_logarithmicAxis.autoScrollingDelta != null &&
-        _logarithmicAxis.autoScrollingDelta! > 0 &&
-        !_chartState._isRedrawByZoomPan) {
-      canAutoScroll = true;
-      super._updateAutoScrollingDelta(
-          _logarithmicAxis.autoScrollingDelta!, this);
+/// This class holds the details of LogarithmicAxis
+class LogarithmicAxisDetails extends ChartAxisRendererDetails {
+  ///Argument constructor for LogarthmicAxisDetails class
+  LogarithmicAxisDetails(this.logarithmicAxis,
+      CartesianStateProperties stateProperties, ChartAxisRenderer axisRenderer)
+      : super(logarithmicAxis, stateProperties, axisRenderer);
+
+  /// Specifies the value of logarithmic axis
+  final LogarithmicAxis logarithmicAxis;
+
+  /// Find the series min and max values of an series
+  void findAxisMinMaxValues(SeriesRendererDetails seriesRendererDetails,
+      CartesianChartPoint<dynamic> point, int pointIndex, int dataLength,
+      [bool? isXVisibleRange, bool? isYVisibleRange]) {
+    final String seriesType = seriesRendererDetails.seriesType;
+    point.xValue = point.x;
+    point.yValue = point.y;
+    seriesRendererDetails.minimumX ??= point.xValue;
+    seriesRendererDetails.maximumX ??= point.xValue;
+    if (!seriesType.contains('range') &&
+        (!seriesType.contains('hilo')) &&
+        (!seriesType.contains('candle'))) {
+      seriesRendererDetails.minimumY ??= point.yValue;
+      seriesRendererDetails.maximumY ??= point.yValue;
     }
-    if ((!canAutoScroll || _chartState._zoomedState == true) &&
-        !(_chartState._rangeChangeBySlider &&
-            !_chartState._canSetRangeController)) {
-      _setZoomFactorAndPosition(this, _chartState._zoomedAxisRendererStates);
+    lowMin ??= point.low;
+    lowMax ??= point.low;
+    highMin ??= point.high;
+    highMax ??= point.high;
+    if (point.xValue != null) {
+      seriesRendererDetails.minimumX =
+          math.min(seriesRendererDetails.minimumX!, point.xValue as num);
+      seriesRendererDetails.maximumX =
+          math.max(seriesRendererDetails.maximumX!, point.xValue as num);
     }
-    if (_zoomFactor < 1 ||
-        _zoomPosition > 0 ||
-        (_axis.rangeController != null &&
-                !_chartState._renderingDetails.initialRender!) &&
-            !(_chartState._rangeChangeBySlider ||
-                !_chartState._canSetRangeController)) {
-      _chartState._zoomProgress = true;
-      _calculateZoomRange(this, availableSize);
-      _visibleRange!.delta = _visibleRange!.maximum - _visibleRange!.minimum;
-      _visibleRange!.interval =
-          _axis.enableAutoIntervalOnZooming && _chartState._zoomProgress
-              ? calculateLogNiceInterval(_visibleRange!.delta)
-              : _visibleRange!.interval;
-      _visibleRange!.interval = _visibleRange!.interval.floor() == 0
-          ? 1
-          : _visibleRange!.interval.floor();
-      if (_axis.rangeController != null &&
-          _chartState._isRedrawByZoomPan &&
-          _chartState._canSetRangeController &&
-          _chartState._zoomProgress) {
-        _chartState._rangeChangedByChart = true;
-        _setRangeControllerValues(this);
+    if (point.yValue != null &&
+        (!seriesType.contains('range') &&
+            !seriesType.contains('hilo') &&
+            !seriesType.contains('candle'))) {
+      seriesRendererDetails.minimumY =
+          math.min(seriesRendererDetails.minimumY!, point.yValue as num);
+      seriesRendererDetails.maximumY =
+          math.max(seriesRendererDetails.maximumY!, point.yValue as num);
+    }
+    if (point.high != null) {
+      highMin = math.min(highMin!, point.high);
+      highMax = math.max(highMax!, point.high);
+    }
+    if (point.low != null) {
+      lowMin = math.min(lowMin!, point.low);
+      lowMax = math.max(lowMax!, point.low);
+    }
+    if (seriesType == 'errorbar') {
+      updateErrorBarAxisRange(seriesRendererDetails, point);
+    }
+    if (pointIndex >= dataLength - 1) {
+      if (seriesType.contains('range') ||
+          seriesType.contains('hilo') ||
+          seriesType.contains('candle')) {
+        lowMin ??= 0;
+        lowMax ??= 5;
+        highMin ??= 0;
+        highMax ??= 5;
+        seriesRendererDetails.minimumY =
+            math.min(lowMin!.toDouble(), highMin!.toDouble());
+        seriesRendererDetails.maximumY =
+            math.max(lowMax!.toDouble(), highMax!.toDouble());
       }
+      seriesRendererDetails.minimumX ??= 0;
+      seriesRendererDetails.minimumY ??= 0;
+      seriesRendererDetails.maximumX ??= 5;
+      seriesRendererDetails.maximumY ??= 5;
     }
-    _setZoomValuesFromRangeController();
   }
 
-  /// Applies range padding to auto, normal, additional, round, and none types.
-  @override
-  void applyRangePadding(_VisibleRange range, num interval) {}
-
-  /// Generates the visible axis labels.
-  @override
-  void generateVisibleLabels() {
-    num tempInterval = _visibleRange!.minimum;
-    String labelText;
-    _visibleLabels = <AxisLabel>[];
-    for (;
-        tempInterval <= _visibleRange!.maximum;
-        tempInterval += _visibleRange!.interval) {
-      labelText =
-          pow(_logarithmicAxis.logBase, tempInterval).floor().toString();
-      if (_logarithmicAxis.numberFormat != null) {
-        labelText = _logarithmicAxis.numberFormat!
-            .format(pow(_logarithmicAxis.logBase, tempInterval).floor());
-      }
-      if (_logarithmicAxis.labelFormat != null &&
-          _logarithmicAxis.labelFormat != '') {
-        labelText = _logarithmicAxis.labelFormat!
-            .replaceAll(RegExp('{value}'), labelText);
-      }
-      _triggerLabelRenderEvent(labelText, tempInterval);
+  /// Listener for range controller
+  void _controlListener() {
+    stateProperties.canSetRangeController = false;
+    if (axis.rangeController != null && !stateProperties.rangeChangedByChart) {
+      updateRangeControllerValues(this);
+      stateProperties.rangeChangeBySlider = true;
+      stateProperties.redrawByRangeChange();
     }
-
-    /// Get the maximum label of width and height in axis.
-    _calculateMaximumLabelSize(this, _chartState);
   }
 
-  /// Finds the interval of an axis.
-  @override
-  num? calculateInterval(_VisibleRange range, Size availableSize) => null;
+  /// Calculate the range and interval
+  void calculateRangeAndInterval(CartesianStateProperties stateProperties,
+      [String? type]) {
+    chart = stateProperties.chart;
+    if (logarithmicAxis.rangeController != null) {
+      stateProperties.rangeChangeBySlider = true;
+      logarithmicAxis.rangeController!.addListener(_controlListener);
+    }
+    final Rect containerRect =
+        stateProperties.renderingDetails.chartContainerRect;
+    final Rect rect = Rect.fromLTWH(containerRect.left, containerRect.top,
+        containerRect.width, containerRect.height);
+    axisSize = Size(rect.width, rect.height);
+    axisRenderer.calculateRange(axisRenderer);
+    _calculateActualRange();
+    axisRenderer.calculateVisibleRange(axisSize);
+
+    /// Setting range as visible zoomRange
+    if ((logarithmicAxis.visibleMinimum != null ||
+            logarithmicAxis.visibleMaximum != null) &&
+        (logarithmicAxis.visibleMinimum != logarithmicAxis.visibleMaximum) &&
+        (!stateProperties.isRedrawByZoomPan)) {
+      stateProperties.isRedrawByZoomPan = false;
+      visibleRange!.minimum = logarithmicAxis.visibleMinimum != null
+          ? (math.log(logarithmicAxis.visibleMinimum!) / (math.log(10))).round()
+          : actualRange!.minimum;
+      visibleRange!.maximum = logarithmicAxis.visibleMaximum != null
+          ? (math.log(logarithmicAxis.visibleMaximum!) / (math.log(10))).round()
+          : actualRange!.maximum;
+      visibleRange!.delta = visibleRange!.maximum - visibleRange!.minimum;
+      zoomFactor = visibleRange!.delta / (actualRange!.delta);
+      zoomPosition =
+          (visibleRange!.minimum - actualRange!.minimum) / actualRange!.delta;
+    }
+
+    ActualRangeChangedArgs rangeChangedArgs;
+    if (chart.onActualRangeChanged != null) {
+      final VisibleRange range = actualRange!;
+      rangeChangedArgs = ActualRangeChangedArgs(name!, logarithmicAxis,
+          range.minimum, range.maximum, range.interval, orientation!);
+      rangeChangedArgs.visibleMin = visibleRange!.minimum;
+      rangeChangedArgs.visibleMax = visibleRange!.maximum;
+      rangeChangedArgs.visibleInterval = visibleRange!.interval;
+      chart.onActualRangeChanged!(rangeChangedArgs);
+      visibleRange!.minimum = rangeChangedArgs.visibleMin;
+      visibleRange!.maximum = rangeChangedArgs.visibleMax;
+      visibleRange!.delta = visibleRange!.maximum - visibleRange!.minimum;
+      visibleRange!.interval = rangeChangedArgs.visibleInterval;
+      zoomFactor = visibleRange!.delta / range.delta;
+      zoomPosition =
+          (visibleRange!.minimum - actualRange!.minimum) / range.delta;
+    }
+    if (type == null && type != 'AxisCross' && logarithmicAxis.isVisible) {
+      axisRenderer.generateVisibleLabels();
+    }
+  }
+
+  /// Calculate the required values of the actual range for logarithmic axis
+  void _calculateActualRange() {
+    num logStart, logEnd;
+    this.min ??= 0;
+    this.max ??= 5;
+    this.min = logarithmicAxis.minimum ?? this.min;
+    this.max = logarithmicAxis.maximum ?? this.max;
+    if (axis.anchorRangeToVisiblePoints &&
+        needCalculateYrange(logarithmicAxis.minimum, logarithmicAxis.maximum,
+            stateProperties, orientation!)) {
+      final VisibleRange range = calculateYRangeOnZoomX(actualRange!, this);
+      this.min = range.minimum;
+      this.max = range.maximum;
+    }
+    this.min = this.min! < 0 ? 0 : this.min;
+    logStart = calculateLogBaseValue(this.min!, logarithmicAxis.logBase);
+    logStart = logStart.isFinite ? logStart : this.min!;
+    logEnd = calculateLogBaseValue(this.max!, logarithmicAxis.logBase);
+    logEnd = logEnd.isFinite ? logEnd : this.max!;
+    this.min = (logStart / 1).floor();
+    this.max = (logEnd / 1).ceil();
+    if (this.min == this.max) {
+      this.max = this.max! + 1;
+    }
+    actualRange = VisibleRange(this.min, this.max);
+    actualRange!.delta = actualRange!.maximum - actualRange!.minimum;
+    actualRange!.interval = logarithmicAxis.interval ??
+        (axisRenderer as LogarithmicAxisRenderer)
+            .calculateLogNiceInterval(actualRange!.delta);
+  }
 }

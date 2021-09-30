@@ -92,12 +92,12 @@ class Range {
   /// ```
   String get addressGlobal {
     final String result = worksheet.name + '!';
-    final String cell0 = r'\$' + _getCellNameWithSymbol(row, column);
+    final String cell0 = r'$' + _getCellNameWithSymbol(row, column);
 
     if (isSingleRange) {
       return result + cell0;
     } else {
-      final String cell1 = r'\$' + _getCellNameWithSymbol(lastRow, lastColumn);
+      final String cell1 = r'$' + _getCellNameWithSymbol(lastRow, lastColumn);
       return result + cell0 + ':' + cell1;
     }
   }
@@ -1090,7 +1090,7 @@ class Range {
   static void _updateCellValue(
       Worksheet worksheet, int column, int row, bool updateCellVaue) {
     if (worksheet.calcEngine != null && updateCellVaue) {
-      final String cellRef = RangeInfo._getAlphaLabel(column) + row.toString();
+      final String cellRef = _getAlphaLabel(column) + row.toString();
       worksheet.calcEngine!._pullUpdatedValue(cellRef);
     }
   }

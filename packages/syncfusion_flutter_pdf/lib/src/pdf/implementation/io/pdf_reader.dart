@@ -299,7 +299,7 @@ class _PdfReader {
     _skipWhiteSpace();
     character = _peek();
     if (_isDelimiter(_getEqualChar(character))) {
-      final Map<String, dynamic> result = _appendChar(token);
+      final Map<String, dynamic> result = _appendCharacter(token);
       character = result['character'] as int?;
       token = result['token'] as String?;
       return token;
@@ -307,7 +307,7 @@ class _PdfReader {
     while (character != -1 &&
         !_isSeparator(_getEqualChar(character)) &&
         token != '\u0000') {
-      final Map<String, dynamic> result = _appendChar(token);
+      final Map<String, dynamic> result = _appendCharacter(token);
       character = result['character'] as int?;
       token = result['token'] as String?;
       character = _peek();
@@ -315,7 +315,7 @@ class _PdfReader {
     return token;
   }
 
-  Map<String, dynamic> _appendChar(String? token) {
+  Map<String, dynamic> _appendCharacter(String? token) {
     final int character = _read();
     if (character != -1) {
       token = token! + String.fromCharCode(character);
@@ -366,7 +366,7 @@ class _PdfReader {
     character = _peek();
     //Return the character if it is a delimiter character.
     if (_isJsonDelimiter(_getEqualChar(character))) {
-      final Map<String, dynamic> result = _appendChar(token);
+      final Map<String, dynamic> result = _appendCharacter(token);
       character = result['character'] as int;
       return token = result['token'] as String;
     }

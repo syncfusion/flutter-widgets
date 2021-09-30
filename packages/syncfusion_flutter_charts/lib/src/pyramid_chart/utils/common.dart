@@ -1,4 +1,8 @@
-part of charts;
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import '../../chart/utils/enum.dart';
+import '../../circular_chart/utils/enum.dart';
 
 /// This is similar to the point of the Cartesian chart.
 class PointInfo<D> {
@@ -84,10 +88,4 @@ class PointInfo<D> {
   /// To execute OnDataLabelRender event or not.
   // ignore: prefer_final_fields
   bool labelRenderEvent = false;
-
-  /// Stores the tooltip label text.
-  String? _tooltipLabelText;
-
-  /// Stores the tooltip header text.
-  String? _tooltipHeaderText;
 }

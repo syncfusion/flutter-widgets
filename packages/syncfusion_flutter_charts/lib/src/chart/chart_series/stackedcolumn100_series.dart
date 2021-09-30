@@ -1,4 +1,22 @@
-part of charts;
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+
+import '../../chart/utils/enum.dart';
+import '../../common/common.dart';
+import '../../common/series/chart_series.dart';
+import '../../common/user_interaction/selection_behavior.dart';
+import '../../common/utils/enum.dart';
+import '../../common/utils/typedef.dart';
+import '../base/chart_base.dart';
+import '../common/data_label.dart';
+import '../common/marker.dart';
+import '../series_painter/stacked_column_painter.dart';
+import '../trendlines/trendlines.dart';
+import 'stacked_series_base.dart';
 
 /// Renders the 100% stacked column series.
 ///
@@ -9,11 +27,11 @@ part of charts;
 ///  and add it to the series collection property of [SfCartesianChart].
 ///
 ///Provides options to customize properties such as [color], [opacity],
-///[borderWidth], [borderColor], [borderRadius] of the StackedColumn100 segemnts.
+///[borderWidth], [borderColor], [borderRadius] of the StackedColumn100 segments.
 ///
 /// {@youtube 560 315 https://www.youtube.com/watch?v=NCUDBD_ClHo}
 @immutable
-class StackedColumn100Series<T, D> extends _StackedSeriesBase<T, D> {
+class StackedColumn100Series<T, D> extends StackedSeriesBase<T, D> {
   /// Creating an argument constructor of StackedColumn100Series class.
   StackedColumn100Series(
       {ValueKey<String>? key,
@@ -50,10 +68,12 @@ class StackedColumn100Series<T, D> extends _StackedSeriesBase<T, D> {
       String? legendItemText,
       List<double>? dashArray,
       double? opacity,
+      double? animationDelay,
       SeriesRendererCreatedCallback? onRendererCreated,
       ChartPointInteractionCallback? onPointTap,
       ChartPointInteractionCallback? onPointDoubleTap,
       ChartPointInteractionCallback? onPointLongPress,
+      CartesianShaderCallback? onCreateShader,
       List<int>? initialSelectedDataIndexes})
       : super(
             key: key,
@@ -90,6 +110,8 @@ class StackedColumn100Series<T, D> extends _StackedSeriesBase<T, D> {
             legendIconType: legendIconType,
             sortingOrder: sortingOrder,
             opacity: opacity,
+            animationDelay: animationDelay,
+            onCreateShader: onCreateShader,
             onRendererCreated: onRendererCreated,
             onPointTap: onPointTap,
             onPointDoubleTap: onPointDoubleTap,
@@ -137,6 +159,7 @@ class StackedColumn100Series<T, D> extends _StackedSeriesBase<T, D> {
         other.legendIconType == legendIconType &&
         other.legendItemText == legendItemText &&
         other.opacity == opacity &&
+        other.animationDelay == animationDelay &&
         other.trackColor == trackColor &&
         other.trackBorderColor == trackBorderColor &&
         other.trackBorderWidth == trackBorderWidth &&
@@ -148,6 +171,7 @@ class StackedColumn100Series<T, D> extends _StackedSeriesBase<T, D> {
         other.onPointTap == onPointTap &&
         other.onPointDoubleTap == onPointDoubleTap &&
         other.onPointLongPress == onPointLongPress &&
+        other.onCreateShader == onCreateShader &&
         other.initialSelectedDataIndexes == initialSelectedDataIndexes;
   }
 
@@ -185,6 +209,7 @@ class StackedColumn100Series<T, D> extends _StackedSeriesBase<T, D> {
       legendIconType,
       legendItemText,
       opacity,
+      animationDelay,
       trackColor,
       trackBorderColor,
       trackBorderWidth,
@@ -213,91 +238,5 @@ class StackedColumn100Series<T, D> extends _StackedSeriesBase<T, D> {
       return stackedAreaSeriesRenderer;
     }
     return StackedColumn100SeriesRenderer();
-  }
-}
-
-/// Creates series renderer for Stacked column 100 series
-class StackedColumn100SeriesRenderer extends _StackedSeriesRenderer {
-  /// Calling the default constructor of StackedColumn100SeriesRenderer class.
-  StackedColumn100SeriesRenderer();
-
-  @override
-  late num _rectPosition;
-  @override
-  late num _rectCount;
-
-  /// Stacked Column 100 segment is created here
-  // ignore: unused_element
-  ChartSegment _createSegments(CartesianChartPoint<dynamic> currentPoint,
-      int pointIndex, int seriesIndex, double animateFactor) {
-    final StackedColumn100Segment segment = createSegment();
-    final StackedColumn100Series<dynamic, dynamic> _stackedColumn100Series =
-        _series as StackedColumn100Series<dynamic, dynamic>;
-    _isRectSeries = true;
-    // ignore: unnecessary_null_comparison
-    if (segment != null) {
-      segment._seriesIndex = seriesIndex;
-      segment.currentSegmentIndex = pointIndex;
-      segment.points.add(
-          Offset(currentPoint.markerPoint!.x, currentPoint.markerPoint!.y));
-      segment._seriesRenderer = this;
-      segment._series = _stackedColumn100Series;
-      segment._currentPoint = currentPoint;
-      segment.animationFactor = animateFactor;
-      segment._path = _findingRectSeriesDashedBorder(
-          currentPoint, _stackedColumn100Series.borderWidth);
-      segment.segmentRect = _getRRectFromRect(
-          currentPoint.region!, _stackedColumn100Series.borderRadius);
-      segment._segmentRect = segment.segmentRect;
-      segment._oldSegmentIndex = _getOldSegmentIndex(segment);
-      customizeSegment(segment);
-      segment.strokePaint = segment.getStrokePaint();
-      segment.fillPaint = segment.getFillPaint();
-      _segments.add(segment);
-    }
-    return segment;
-  }
-
-  /// To render stacked column 100 series segments
-  //ignore: unused_element
-  void _drawSegment(Canvas canvas, ChartSegment segment) {
-    if (segment._seriesRenderer._isSelectionEnable) {
-      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
-          segment._seriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer?._selectionRenderer?._checkWithSelectionState(
-          _segments[segment.currentSegmentIndex!], _chart);
-    }
-    segment.onPaint(canvas);
-  }
-
-  /// Creates a segment for a data point in the series.
-  @override
-  StackedColumn100Segment createSegment() => StackedColumn100Segment();
-
-  /// Changes the series color, border color, and border width.
-  @override
-  void customizeSegment(ChartSegment segment) {
-    final StackedColumn100Segment column100Segment =
-        segment as StackedColumn100Segment;
-    column100Segment._color =
-        column100Segment._currentPoint!.pointColorMapper ??
-            column100Segment._seriesRenderer._seriesColor;
-    column100Segment._strokeColor = column100Segment._series.borderColor;
-    column100Segment._strokeWidth = column100Segment._series.borderWidth;
-  }
-
-  /// Draws data label text of the appropriate data point in a series.
-  @override
-  void drawDataLabel(int index, Canvas canvas, String dataLabel, double pointX,
-          double pointY, int angle, TextStyle style) =>
-      _drawText(canvas, dataLabel, Offset(pointX, pointY), style, angle);
-
-  /// Draws marker with different shape and color of the appropriate data point in the series.
-  @override
-  void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
-      Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer? seriesRenderer]) {
-    canvas.drawPath(seriesRenderer!._markerShapes[index]!, fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes[index]!, strokePaint);
   }
 }

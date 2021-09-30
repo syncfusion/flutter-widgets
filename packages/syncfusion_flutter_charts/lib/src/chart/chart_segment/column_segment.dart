@@ -1,4 +1,14 @@
-part of charts;
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+import '../chart_series/column_series.dart';
+import '../chart_series/series.dart';
+import '../common/common.dart';
+import '../common/renderer.dart';
+import '../common/segment_properties.dart';
+import '../utils/helper.dart';
+import 'chart_segment.dart';
 
 /// Creates the segments for column series.
 ///
@@ -8,85 +18,67 @@ part of charts;
 /// It gets the path, stroke color and fill color from the `series` to render the column segment.
 ///
 class ColumnSegment extends ChartSegment {
-  /// Render path.
-  late Path _path;
-  late RRect _trackRect;
-  Paint? _trackerFillPaint, _trackerStrokePaint;
-
   /// Rectangle of the segment this could be used to render the segment while overriding this segment
   late RRect segmentRect;
+
+  late SegmentProperties _segmentProperties;
+  bool _isInitialize = false;
 
   /// Gets the color of the series.
   @override
   Paint getFillPaint() {
+    _setSegmentProperties();
+
     /// Get and set the paint options for column series.
-    if (_series.gradient == null) {
+    if (_segmentProperties.series.gradient == null) {
       fillPaint = Paint()
-        ..color = _currentPoint!.isEmpty == true
-            ? _series.emptyPointSettings.color
-            : (_currentPoint!.pointColorMapper ?? _color!)
+        ..color = _segmentProperties.currentPoint!.isEmpty == true
+            ? _segmentProperties.series.emptyPointSettings.color
+            : (_segmentProperties.currentPoint!.pointColorMapper ??
+                _segmentProperties.color!)
         ..style = PaintingStyle.fill;
     } else {
-      fillPaint = _getLinearGradientPaint(
-          _series.gradient!,
-          _currentPoint!.region!,
-          _seriesRenderer._chartState!._requireInvertedAxis);
+      fillPaint = getLinearGradientPaint(
+          _segmentProperties.series.gradient!,
+          _segmentProperties.currentPoint!.region!,
+          SeriesHelper.getSeriesRendererDetails(
+                  _segmentProperties.seriesRenderer)
+              .stateProperties
+              .requireInvertedAxis);
     }
-    assert(_series.opacity >= 0,
+    assert(_segmentProperties.series.opacity >= 0 == true,
         'The opacity value of the column series should be greater than or equal to 0.');
-    assert(_series.opacity <= 1,
+    assert(_segmentProperties.series.opacity <= 1 == true,
         'The opacity value of the column series should be less than or equal to 1.');
-    fillPaint!.color =
-        (_series.opacity < 1 && fillPaint!.color != Colors.transparent)
-            ? fillPaint!.color.withOpacity(_series.opacity)
-            : fillPaint!.color;
-    _defaultFillColor = fillPaint;
+    fillPaint!.color = (_segmentProperties.series.opacity < 1 == true &&
+            fillPaint!.color != Colors.transparent)
+        ? fillPaint!.color.withOpacity(_segmentProperties.series.opacity)
+        : fillPaint!.color;
+    _segmentProperties.defaultFillColor = fillPaint;
+    setShader(_segmentProperties, fillPaint!);
     return fillPaint!;
   }
 
   /// Gets the border color of the series.
   @override
   Paint getStrokePaint() {
+    _setSegmentProperties();
     strokePaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = _currentPoint!.isEmpty == true
-          ? _series.emptyPointSettings.borderWidth
-          : _strokeWidth!;
-    _series.borderGradient != null
-        ? strokePaint!.shader =
-            _series.borderGradient!.createShader(_currentPoint!.region!)
-        : strokePaint!.color = _currentPoint!.isEmpty == true
-            ? _series.emptyPointSettings.borderColor
-            : _strokeColor!;
-    _series.borderWidth == 0
+      ..strokeWidth = _segmentProperties.currentPoint!.isEmpty == true
+          ? _segmentProperties.series.emptyPointSettings.borderWidth
+          : _segmentProperties.strokeWidth!;
+    _segmentProperties.series.borderGradient != null
+        ? strokePaint!.shader = _segmentProperties.series.borderGradient!
+            .createShader(_segmentProperties.currentPoint!.region!)
+        : strokePaint!.color = _segmentProperties.currentPoint!.isEmpty == true
+            ? _segmentProperties.series.emptyPointSettings.borderColor
+            : _segmentProperties.strokeColor!;
+    _segmentProperties.series.borderWidth == 0
         ? strokePaint!.color = Colors.transparent
         : strokePaint!.color;
-    _defaultStrokeColor = strokePaint;
+    _segmentProperties.defaultStrokeColor = strokePaint;
     return strokePaint!;
-  }
-
-  /// Method to get series tracker fill.
-  Paint _getTrackerFillPaint() {
-    final ColumnSeries<dynamic, dynamic> columnSeries =
-        _series as ColumnSeries<dynamic, dynamic>;
-    _trackerFillPaint = Paint()
-      ..color = columnSeries.trackColor
-      ..style = PaintingStyle.fill;
-    return _trackerFillPaint!;
-  }
-
-  /// Method to getseries tracker stroke color.
-  Paint _getTrackerStrokePaint() {
-    final ColumnSeries<dynamic, dynamic> columnSeries =
-        _series as ColumnSeries<dynamic, dynamic>;
-    _trackerStrokePaint = Paint()
-      ..color = columnSeries.trackBorderColor
-      ..strokeWidth = columnSeries.trackBorderWidth
-      ..style = PaintingStyle.stroke;
-    columnSeries.trackBorderWidth == 0
-        ? _trackerStrokePaint!.color = Colors.transparent
-        : _trackerStrokePaint!.color;
-    return _trackerStrokePaint!;
   }
 
   /// Calculates the rendering bounds of a segment.
@@ -96,40 +88,57 @@ class ColumnSegment extends ChartSegment {
   /// Draws segment in series bounds.
   @override
   void onPaint(Canvas canvas) {
+    _setSegmentProperties();
     final ColumnSeries<dynamic, dynamic> columnSeries =
-        _series as ColumnSeries<dynamic, dynamic>;
+        _segmentProperties.series as ColumnSeries<dynamic, dynamic>;
 
-    if (_trackerFillPaint != null && columnSeries.isTrackVisible) {
-      _drawSegmentRect(canvas, _trackRect, _trackerFillPaint!);
+    if (_segmentProperties.trackerFillPaint != null &&
+        columnSeries.isTrackVisible) {
+      _drawSegmentRect(canvas, _segmentProperties.trackRect,
+          _segmentProperties.trackerFillPaint!);
     }
 
-    if (_trackerStrokePaint != null && columnSeries.isTrackVisible) {
-      _drawSegmentRect(canvas, _trackRect, _trackerStrokePaint!);
+    if (_segmentProperties.trackerStrokePaint != null &&
+        columnSeries.isTrackVisible) {
+      _drawSegmentRect(canvas, _segmentProperties.trackRect,
+          _segmentProperties.trackerStrokePaint!);
     }
 
     if (fillPaint != null) {
       _drawSegmentRect(canvas, segmentRect, fillPaint!);
     }
     if (strokePaint != null) {
-      (_series.dashArray[0] != 0 && _series.dashArray[1] != 0)
-          ? _drawDashedLine(canvas, _series.dashArray, strokePaint!, _path)
+      (_segmentProperties.series.dashArray[0] != 0 &&
+              _segmentProperties.series.dashArray[1] != 0)
+          ? drawDashedLine(canvas, _segmentProperties.series.dashArray,
+              strokePaint!, _segmentProperties.path)
           : _drawSegmentRect(canvas, segmentRect, strokePaint!);
     }
   }
 
-  /// To draw sgement rect for  column segment
+  /// To draw segment rect for  column segment
   void _drawSegmentRect(Canvas canvas, RRect segmentRect, Paint paint) {
-    (_series.animationDuration > 0)
-        ? _animateRectSeries(
+    (_segmentProperties.series.animationDuration > 0 == true)
+        ? animateRectSeries(
             canvas,
-            _seriesRenderer,
+            _segmentProperties.seriesRenderer,
             paint,
             segmentRect,
-            _currentPoint!.yValue,
+            _segmentProperties.currentPoint!.yValue,
             animationFactor,
-            _oldPoint != null ? _oldPoint!.region : _oldRegion,
-            _oldPoint?.yValue,
-            _oldSeriesVisible)
+            _segmentProperties.oldPoint != null
+                ? _segmentProperties.oldPoint!.region
+                : _segmentProperties.oldRegion,
+            _segmentProperties.oldPoint?.yValue,
+            _segmentProperties.oldSeriesVisible)
         : canvas.drawRRect(segmentRect, paint);
+  }
+
+  /// Method to set segment properties
+  void _setSegmentProperties() {
+    if (!_isInitialize) {
+      _segmentProperties = SegmentHelper.getSegmentProperties(this);
+      _isInitialize = true;
+    }
   }
 }

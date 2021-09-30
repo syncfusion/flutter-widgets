@@ -222,6 +222,6 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     workbook.dispose();
 
     //Save and launch the file.
-    await FileSaveHelper.saveAndLaunchFile(bytes, 'Invoice.xlsx');
+    await saveAndLaunchFile(bytes, 'Invoice.xlsx');
   }
 }

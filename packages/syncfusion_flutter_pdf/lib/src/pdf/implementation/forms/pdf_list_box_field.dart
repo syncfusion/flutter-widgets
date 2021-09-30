@@ -147,28 +147,9 @@ class PdfListBoxField extends PdfListField {
         page!.graphics.drawPdfTemplate(template, bounds.topLeft, rect.size);
       }
     } else {
-      final PdfGraphics graphics = page!.graphics;
       final PdfTemplate template = PdfTemplate(bounds.width, bounds.height);
-      if (_flattenField && graphics._page != null) {
-        graphics.save();
-        final double width = page!.graphics.size.width;
-        final double height = page!.graphics.size.height;
-        if (graphics._page!._rotation == PdfPageRotateAngle.rotateAngle90) {
-          page!.graphics.translateTransform(width, height);
-          page!.graphics.rotateTransform(90);
-        } else if (graphics._page!._rotation ==
-            PdfPageRotateAngle.rotateAngle180) {
-          page!.graphics.translateTransform(width, height);
-          page!.graphics.rotateTransform(-180);
-        } else if (graphics._page!._rotation ==
-            PdfPageRotateAngle.rotateAngle270) {
-          page!.graphics.translateTransform(width, height);
-          page!.graphics.rotateTransform(270);
-        }
-      }
       _drawListBox(template.graphics!);
       page!.graphics.drawPdfTemplate(template, bounds.topLeft);
-      graphics.restore();
     }
   }
 

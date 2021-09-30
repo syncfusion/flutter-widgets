@@ -1,5 +1,13 @@
-//Event Arguments
-part of charts;
+import 'package:flutter/material.dart';
+import '../chart/axis/axis.dart';
+import '../chart/chart_series/xy_data_series.dart';
+import '../chart/common/common.dart';
+import '../chart/common/data_label.dart';
+import '../chart/common/interactive_tooltip.dart';
+import '../chart/technical_indicators/technical_indicator.dart';
+import '../chart/utils/enum.dart';
+import 'user_interaction/tooltip.dart';
+import 'utils/enum.dart';
 
 ///Holds the arguments for the event onTooltipRender.
 ///
@@ -33,7 +41,7 @@ class TooltipArgs {
   /// Get the overall index value of the tooltip.
   final num? pointIndex;
 
-  /// Get the viewport index value of the tooltip.
+  /// Get the view port index value of the tooltip.
   final num? viewportPointIndex;
 }
 
@@ -44,7 +52,6 @@ class TooltipArgs {
 ///
 /// It has the public properties of axis name, axis type, actual minimum, and maximum, visible minimum and maximum and axis orientation.
 class ActualRangeChangedArgs {
-  //doubt
   /// Creating an argument constructor of ActualRangeChangedArgs class.
   ActualRangeChangedArgs(
       [this.axisName,
@@ -117,7 +124,7 @@ class AxisLabelRenderArgs {
 }
 
 /// Holds label text, axis name, orientation of the axis, trimmed text and text styles such as color,
-/// font size, and font weight for label formatter evet
+/// font size, and font weight for label formatter event
 class AxisLabelRenderDetails {
   /// Creating an argument constructor of AxisLabelRenderDetails class.
   AxisLabelRenderDetails(this.value, this.text, this.actualText, this.textStyle,
@@ -228,7 +235,7 @@ class DataLabelRenderArgs {
   /// argument sets the vertical component to dy.
   Offset? offset;
 
-  /// Get the viewport index value of a data label.
+  /// Get the view port index value of a data label.
   final int? viewportPointIndex;
 }
 
@@ -257,45 +264,46 @@ class LegendRenderArgs {
   Color? color;
 }
 
-///Holds the arguments for the event onTrendlineRender.
-///
-/// Event is triggered when the trend line is rendered, trendline arguments such as [opacity], [color], and [dashArray] can be customized.
-class TrendlineRenderArgs {
-  /// Creating an argument constructor of TrendlineRenderArgs class.
-  TrendlineRenderArgs(
+/// Holds the onRenderDetailsUpdate callback arguments of trendline.
+class TrendlineRenderParams {
+  /// Creating an argument constructor of TrendlineRenderParams class.
+  TrendlineRenderParams(
       [this.intercept,
-      this.trendlineIndex,
       this.seriesIndex,
       this.trendlineName,
       this.seriesName,
-      this.data]);
+      this.calculatedDataPoints,
+      this.slope,
+      this.rSquaredValue]);
 
   /// Get the intercept value.
   final double? intercept;
 
-  /// Get the index of the trendline.
-  final int? trendlineIndex;
-
   /// Get the index of the series.
   final int? seriesIndex;
 
-  /// Get the name of the trendline.
+  ///Gets the name of the trendline.
+  ///
+  ///If the user specifies a value for the `name` property in the series,
+  ///that value can be fetched here. If it is null, then the name generated
+  ///internally for the trendline can be fetched here.
   final String? trendlineName;
 
-  /// Get the name of the series.
+  /// Gets the name of the series.
+  ///
+  ///If the user specifies a value for the `name` property in the series,
+  ///that value can be fetched here. If it is null, then the name generated
+  ///internally for the series can be fetched here.
   final String? seriesName;
 
-  /// Get and set the color of the trendline.
-  late Color color;
-
-  /// Get and set the opacity value.
-  late double opacity;
-
-  /// Get and set the dash array value of a trendline.
-  List<double>? dashArray;
-
   /// Get the data points of the trendline.
-  final List<CartesianChartPoint<dynamic>>? data;
+  final List<Offset>? calculatedDataPoints;
+
+  /// Gets the r-squared value.
+  final double? rSquaredValue;
+
+  /// Gets the slope value.
+  final List<double>? slope;
 }
 
 /// Holds arguments for onTrackballPositionChanging event.
@@ -303,7 +311,7 @@ class TrendlineRenderArgs {
 /// The event is triggered when the trackball is rendered and provides options to customize the label text.
 class TrackballArgs {
   ///  Get and set the trackball tooltip text.
-  _ChartPointInfo chartPointInfo = _ChartPointInfo();
+  ChartPointInfo chartPointInfo = ChartPointInfo();
 }
 
 /// Holds the onCrosshairPositionChanging event arguments.
@@ -320,7 +328,7 @@ class CrosshairRenderArgs {
   /// Get the type of chart axis and its properties.
   final ChartAxis? axis;
 
-  /// Get and set the crosshair tooltip text.
+  /// Get and set the crosshair text.
   late String text;
 
   /// Get and set the color of the crosshair line.
@@ -366,7 +374,7 @@ class ZoomPanArgs {
   /// Get and set the current zoom factor.
   late double currentZoomFactor;
 
-  /// Get the previous zooom position.
+  /// Get the previous zoom position.
   final double? previousZoomPosition;
 
   /// Get the previous zoom factor.
@@ -394,13 +402,13 @@ class PointTapArgs {
   /// Get the list of data points.
   final List<dynamic>? dataPoints;
 
-  /// Get the viewport index value.
+  /// Get the view port index value.
   final num? viewportPointIndex;
 }
 
 ///Holds the arguments of `onPointTap`, `onPointDoubleTap` and `onPointLongPress` callbacks.
 ///
-///The user can fetch the series index, point index, viewport point index and data of the current point.
+///The user can fetch the series index, point index, view port point index and data of the current point.
 class ChartPointDetails {
   /// Creating an argument constructor of PointTapArgs class.
   ChartPointDetails(
@@ -418,7 +426,7 @@ class ChartPointDetails {
   /// Get the list of data points.
   final List<dynamic>? dataPoints;
 
-  /// Get the viewport index value.
+  /// Get the view port index value.
   final num? viewportPointIndex;
 }
 
@@ -522,7 +530,7 @@ class SelectionArgs {
   /// Get the overall index value of the selected data points.
   final int pointIndex;
 
-  /// Get the viewport index value of the selected data points.
+  /// Get the view port index value of the selected data points.
   final int viewportPointIndex;
 }
 
@@ -602,7 +610,7 @@ class MarkerRenderArgs {
   /// Get and set the border width of marker.
   late double borderWidth;
 
-  /// Get the viewport index value of the marker.
+  /// Get the view port index value of the marker.
   final num? viewportPointIndex;
 }
 
@@ -631,7 +639,7 @@ class DataLabelTapDetails {
   /// Get the data label customization options specified in that particular series.
   final DataLabelSettings dataLabelSettings;
 
-  /// Get the viewport index value of the tapped data label.
+  /// Get the view port index value of the tapped data label.
   final int viewportPointIndex;
 }
 
@@ -651,6 +659,18 @@ class ChartShaderDetails {
 
   ///Holds the doughnut and radial bar chart's inner rect value.
   final Rect? innerRect;
+}
+
+/// Holds the onCreateShader callback arguments
+class ShaderDetails {
+  /// Creating an argument constructor of ShaderDetails class.
+  ShaderDetails(this.rect, this.renderType);
+
+  /// Holds the chart area rect.
+  final Rect rect;
+
+  ///Conveys whether the current rendering element is 'series' or 'legend'.
+  final String renderType;
 }
 
 /// Holds the onRenderDetailsUpdate callback arguments.
@@ -769,4 +789,43 @@ class TechnicalIndicatorRenderDetails {
 
   ///Dash array of the signal line
   final List<double>? signalLineDashArray;
+}
+
+/// Holds the ErrorBarRenderDetails values.
+class ErrorBarRenderDetails {
+  /// Creating an argument constructor of ErrorBarRenderDetails class.
+  ErrorBarRenderDetails(
+      this.pointIndex, this.viewPortPointIndex, this.calculatedErrorBarValues);
+
+  /// Specifies the overall point index.
+  final int? pointIndex;
+
+  /// Specifies the current point index.
+  final int? viewPortPointIndex;
+
+  ///	Specifies the current data point's error values.
+  final ErrorBarValues? calculatedErrorBarValues;
+}
+
+/// Holds the error values of data point.
+class ErrorBarValues {
+  /// Creating an argument constructor of ErrorBarValues class.
+  ErrorBarValues(
+    this.horizontalPositiveErrorValue,
+    this.horizontalNegativeErrorValue,
+    this.verticalPositiveErrorValue,
+    this.verticalNegativeErrorValue,
+  );
+
+  /// Holds the positive error value in horizontal point.
+  final double? horizontalPositiveErrorValue;
+
+  /// Holds the negative error value in horizontal point.
+  final double? horizontalNegativeErrorValue;
+
+  /// Holds the positive error value in vertical point.
+  final double? verticalPositiveErrorValue;
+
+  /// Holds the negative error value in vertical point.
+  final double? verticalNegativeErrorValue;
 }

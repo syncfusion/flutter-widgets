@@ -1,7 +1,23 @@
-part of charts;
+import 'dart:ui';
 
-abstract class _StackedSeriesBase<T, D> extends XyDataSeries<T, D> {
-  _StackedSeriesBase(
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+
+import '../../chart/utils/enum.dart';
+import '../../common/common.dart';
+import '../../common/user_interaction/selection_behavior.dart';
+import '../../common/utils/enum.dart';
+import '../../common/utils/typedef.dart';
+import '../common/data_label.dart';
+import '../common/marker.dart';
+import '../trendlines/trendlines.dart';
+import 'xy_data_series.dart';
+
+/// Represents the stacked series base class
+abstract class StackedSeriesBase<T, D> extends XyDataSeries<T, D> {
+  /// Creates an instance of stacked series renderer
+  StackedSeriesBase(
       {ValueKey<String>? key,
       ChartSeriesRendererFactory<T, D>? onCreateRenderer,
       required List<T> dataSource,
@@ -45,6 +61,8 @@ abstract class _StackedSeriesBase<T, D> extends XyDataSeries<T, D> {
       ChartPointInteractionCallback? onPointTap,
       ChartPointInteractionCallback? onPointDoubleTap,
       ChartPointInteractionCallback? onPointLongPress,
+      CartesianShaderCallback? onCreateShader,
+      double? animationDelay,
       double? opacity})
       : borderRadius = borderRadius ?? const BorderRadius.all(Radius.zero),
         trackColor = trackColor ?? Colors.grey,
@@ -90,7 +108,9 @@ abstract class _StackedSeriesBase<T, D> extends XyDataSeries<T, D> {
             onPointTap: onPointTap,
             onPointDoubleTap: onPointDoubleTap,
             onPointLongPress: onPointLongPress,
-            opacity: opacity);
+            opacity: opacity,
+            animationDelay: animationDelay,
+            onCreateShader: onCreateShader);
 
   ///Customizes the corners of the column. Each corner can be customized with a desired
   ///value or with a single value.
@@ -232,44 +252,14 @@ abstract class _StackedSeriesBase<T, D> extends XyDataSeries<T, D> {
   ///}
   ///```
   final double trackPadding;
+
+  /// Specifies the dash array
   @override
   final List<double> dashArray;
+
+  /// Specifies the group name
   final String groupName;
 }
 
-abstract class _StackedSeriesRenderer extends XyDataSeriesRenderer {
-  _StackedSeriesRenderer();
-
-  // Store the stacking values //
-  //ignore: prefer_final_fields
-  List<_StackedValues> _stackingValues = <_StackedValues>[];
-
-  // Store the percentage values //
-  //ignore: prefer_final_fields
-  List<num> _percentageValues = <num>[];
-
-  // Store the rect position //
-  late num _rectPosition;
-
-  // Store the rect count //
-  late num _rectCount;
-
-  @override
-  ChartSegment createSegment();
-
-  /// Changes the series color, border color, and border width.
-  @override
-  // ignore: unused_element
-  void customizeSegment(ChartSegment segment) {}
-
-  /// Draws data label text of the appropriate data point in a series.
-  @override
-  void drawDataLabel(int index, Canvas canvas, String dataLabel, double pointX,
-      double pointY, int angle, TextStyle style) {}
-
-  ///Draws marker with different shape and color of the appropriate data point in the series.
-  @override
-  void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
-      Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer? seriesRenderer]) {}
-}
+/// Represents the Stacked series renderer class
+abstract class StackedSeriesRenderer extends XyDataSeriesRenderer {}

@@ -1,4 +1,20 @@
-part of charts;
+import 'dart:async';
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import '../../common/utils/helper.dart';
+import '../axis/axis.dart';
+import '../axis/category_axis.dart';
+import '../axis/datetime_category_axis.dart';
+import '../base/chart_base.dart';
+import '../chart_behavior/chart_behavior.dart';
+import '../chart_series/series.dart';
+import '../chart_series/series_renderer_properties.dart';
+import '../chart_series/xy_data_series.dart';
+import '../common/cartesian_state_properties.dart';
+import '../utils/enum.dart';
+import '../utils/helper.dart';
+import 'crosshair_painter.dart';
 
 /// This class has the properties of the crosshair behavior.
 ///
@@ -185,7 +201,8 @@ class CrosshairBehavior {
     return hashList(values);
   }
 
-  SfCartesianChartState? _chartState;
+  /// Represents the cartesian state properties
+  late CartesianStateProperties _stateProperties;
 
   /// Displays the crosshair at the specified x and y-positions.
   ///
@@ -195,42 +212,11 @@ class CrosshairBehavior {
   /// coordinateUnit - specify the type of x and y values given.'pixel' or 'point' for logica pixel and chart data point respectively.
   /// Defaults to `'point'`.
   void show(dynamic x, double y, [String coordinateUnit = 'point']) {
-    final SfCartesianChartState chartState = _chartState!;
     final CrosshairBehaviorRenderer crosshairBehaviorRenderer =
-        chartState._crosshairBehaviorRenderer;
-    if (coordinateUnit != 'pixel') {
-      final CartesianSeriesRenderer seriesRenderer = crosshairBehaviorRenderer
-          ._crosshairPainter!.chartState._chartSeries.visibleSeriesRenderers[0];
-      final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
-      final _ChartLocation location = _calculatePoint(
-          (x is DateTime && xAxisRenderer is! DateTimeCategoryAxisRenderer)
-              ? x.millisecondsSinceEpoch
-              : ((x is DateTime &&
-                      xAxisRenderer is DateTimeCategoryAxisRenderer)
-                  ? xAxisRenderer._labels
-                      .indexOf(xAxisRenderer._dateFormat.format(x))
-                  : ((x is String && xAxisRenderer is CategoryAxisRenderer)
-                      ? xAxisRenderer._labels.indexOf(x)
-                      : x)),
-          y,
-          xAxisRenderer,
-          seriesRenderer._yAxisRenderer!,
-          seriesRenderer._chartState!._requireInvertedAxis,
-          seriesRenderer._series,
-          seriesRenderer._chartState!._chartAxis._axisClipRect);
-      x = location.x;
-      y = location.y.truncateToDouble();
-    }
-
-    if (crosshairBehaviorRenderer._crosshairPainter != null &&
-        activationMode != ActivationMode.none &&
-        x != null) {
-      crosshairBehaviorRenderer._crosshairPainter!
-          ._generateAllPoints(Offset(x.toDouble(), y));
-      crosshairBehaviorRenderer._crosshairPainter!.canResetPath = false;
-      crosshairBehaviorRenderer._crosshairPainter!.chartState
-          ._repaintNotifiers['crosshair']!.value++;
-    }
+        _stateProperties.crosshairBehaviorRenderer;
+    final CrosshairRenderingDetails renderingDetails =
+        CrosshairHelper.getRenderingDetails(crosshairBehaviorRenderer);
+    renderingDetails.internalShow(x, y, coordinateUnit);
   }
 
   /// Displays the crosshair at the specified point index.
@@ -238,53 +224,58 @@ class CrosshairBehavior {
   ///
   /// pointIndex - index of point at which the crosshair needs to be shown.
   void showByIndex(int pointIndex) {
-    final SfCartesianChartState chartState = _chartState!;
     final CrosshairBehaviorRenderer crosshairBehaviorRenderer =
-        chartState._crosshairBehaviorRenderer;
-    if (_validIndex(
-        pointIndex, 0, crosshairBehaviorRenderer._crosshairPainter!.chart)) {
-      if (crosshairBehaviorRenderer._crosshairPainter != null &&
+        _stateProperties.crosshairBehaviorRenderer;
+    final CrosshairRenderingDetails renderingDetails =
+        CrosshairHelper.getRenderingDetails(crosshairBehaviorRenderer);
+    if (validIndex(pointIndex, 0, renderingDetails.crosshairPainter!.chart)) {
+      if (renderingDetails.crosshairPainter != null &&
           activationMode != ActivationMode.none) {
         final List<CartesianSeriesRenderer> visibleSeriesRenderer =
-            crosshairBehaviorRenderer._crosshairPainter!.chartState._chartSeries
+            renderingDetails.crosshairPainter!.stateProperties.chartSeries
                 .visibleSeriesRenderers;
-        final CartesianSeriesRenderer seriesRenderer = visibleSeriesRenderer[0];
-        crosshairBehaviorRenderer._crosshairPainter!._generateAllPoints(Offset(
-            seriesRenderer._dataPoints[pointIndex].markerPoint!.x,
-            seriesRenderer._dataPoints[pointIndex].markerPoint!.y));
-        crosshairBehaviorRenderer._crosshairPainter!.canResetPath = false;
-        crosshairBehaviorRenderer._crosshairPainter!.chartState
-            ._repaintNotifiers['crosshair']!.value++;
+        final SeriesRendererDetails seriesRendererDetails =
+            SeriesHelper.getSeriesRendererDetails(visibleSeriesRenderer[0]);
+        renderingDetails.crosshairPainter!.generateAllPoints(Offset(
+            seriesRendererDetails.dataPoints[pointIndex].markerPoint!.x,
+            seriesRendererDetails.dataPoints[pointIndex].markerPoint!.y));
+        renderingDetails.crosshairPainter!.canResetPath = false;
+        renderingDetails.crosshairPainter!.stateProperties
+            .repaintNotifiers['crosshair']!.value++;
       }
     }
   }
 
   /// Hides the crosshair if it is displayed.
   void hide() {
-    final SfCartesianChartState chartState = _chartState!;
     final CrosshairBehaviorRenderer crosshairBehaviorRenderer =
-        chartState._crosshairBehaviorRenderer;
-    if (crosshairBehaviorRenderer._crosshairPainter != null) {
-      crosshairBehaviorRenderer._crosshairPainter!.canResetPath = false;
-      ValueNotifier<int>(crosshairBehaviorRenderer._crosshairPainter!.chartState
-          ._repaintNotifiers['crosshair']!.value++);
-      crosshairBehaviorRenderer._crosshairPainter!.timer?.cancel();
-      if (!chartState._isTouchUp) {
-        crosshairBehaviorRenderer._crosshairPainter!.chartState
-            ._repaintNotifiers['crosshair']!.value++;
-        crosshairBehaviorRenderer._crosshairPainter!.canResetPath = true;
+        _stateProperties.crosshairBehaviorRenderer;
+    final CrosshairRenderingDetails renderingDetails =
+        CrosshairHelper.getRenderingDetails(crosshairBehaviorRenderer);
+    if (renderingDetails.crosshairPainter != null) {
+      renderingDetails.crosshairPainter!.canResetPath = false;
+      ValueNotifier<int>(renderingDetails.crosshairPainter!.stateProperties
+          .repaintNotifiers['crosshair']!.value++);
+      renderingDetails.crosshairPainter!.timer?.cancel();
+      if (!_stateProperties.isTouchUp) {
+        renderingDetails.crosshairPainter!.stateProperties
+            .repaintNotifiers['crosshair']!.value++;
+        renderingDetails.crosshairPainter!.canResetPath = true;
+        renderingDetails.position = null;
       } else {
         if (!shouldAlwaysShow) {
           final double duration = (hideDelay == 0 &&
-                  crosshairBehaviorRenderer
-                      ._crosshairPainter!.chartState._enableDoubleTap)
+                  renderingDetails
+                          .crosshairPainter!.stateProperties.enableDoubleTap ==
+                      true)
               ? 200
               : hideDelay;
-          crosshairBehaviorRenderer._crosshairPainter!.timer =
+          renderingDetails.crosshairPainter!.timer =
               Timer(Duration(milliseconds: duration.toInt()), () {
-            crosshairBehaviorRenderer._crosshairPainter!.chartState
-                ._repaintNotifiers['crosshair']!.value++;
-            crosshairBehaviorRenderer._crosshairPainter!.canResetPath = true;
+            renderingDetails.crosshairPainter!.stateProperties
+                .repaintNotifiers['crosshair']!.value++;
+            renderingDetails.crosshairPainter!.canResetPath = true;
+            renderingDetails.position = null;
           });
         }
       }
@@ -292,76 +283,149 @@ class CrosshairBehavior {
   }
 }
 
-/// Cross hair renderer class for mutable fields and methods
+/// Crosshair renderer class for mutable fields and methods
 class CrosshairBehaviorRenderer with ChartBehavior {
   /// Creates an argument constructor for Crosshair renderer class
-  CrosshairBehaviorRenderer(this._chartState);
+  CrosshairBehaviorRenderer(this._stateProperties) {
+    _crosshairRenderingDetails = CrosshairRenderingDetails(_stateProperties);
+  }
 
-  SfCartesianChart get _chart => _chartState._chart;
+  final CartesianStateProperties _stateProperties;
 
-  final SfCartesianChartState _chartState;
-
-  CrosshairBehavior get _crosshairBehavior => _chart.crosshairBehavior;
-
-  /// Touch position
-  Offset? _position;
-
-  /// Holds the instance of CrosshairPainter
-  _CrosshairPainter? _crosshairPainter;
-
-  /// Check whether long press activated or not.
-  //ignore: prefer_final_fields
-  bool _isLongPressActivated = false;
+  /// Specifies the value of crosshair rendering details
+  late CrosshairRenderingDetails _crosshairRenderingDetails;
 
   /// Enables the crosshair on double tap.
   @override
   void onDoubleTap(double xPos, double yPos) =>
-      _crosshairBehavior.show(xPos, yPos, 'pixel');
+      _crosshairRenderingDetails._crosshairBehavior.show(xPos, yPos, 'pixel');
 
   /// Enables the crosshair on long press.
   @override
   void onLongPress(double xPos, double yPos) =>
-      _crosshairBehavior.show(xPos, yPos, 'pixel');
+      _crosshairRenderingDetails._crosshairBehavior.show(xPos, yPos, 'pixel');
 
   /// Enables the crosshair on touch down.
   @override
   void onTouchDown(double xPos, double yPos) =>
-      _crosshairBehavior.show(xPos, yPos, 'pixel');
+      _crosshairRenderingDetails._crosshairBehavior.show(xPos, yPos, 'pixel');
 
   /// Enables the crosshair on touch move.
   @override
   void onTouchMove(double xPos, double yPos) =>
-      _crosshairBehavior.show(xPos, yPos, 'pixel');
+      _crosshairRenderingDetails._crosshairBehavior.show(xPos, yPos, 'pixel');
 
   /// Enables the crosshair on touch up.
   @override
-  void onTouchUp(double xPos, double yPos) => _crosshairBehavior.hide();
+  void onTouchUp(double xPos, double yPos) =>
+      _crosshairRenderingDetails._crosshairBehavior.hide();
 
   /// Enables the crosshair on mouse hover.
   @override
   void onEnter(double xPos, double yPos) =>
-      _crosshairBehavior.show(xPos, yPos, 'pixel');
+      _crosshairRenderingDetails._crosshairBehavior.show(xPos, yPos, 'pixel');
 
   /// Disables the crosshair on mouse exit.
   @override
-  void onExit(double xPos, double yPos) => _crosshairBehavior.hide();
+  void onExit(double xPos, double yPos) =>
+      _crosshairRenderingDetails._crosshairBehavior.hide();
 
   /// Draws the crosshair.
   @override
   void onPaint(Canvas canvas) {
-    if (_crosshairPainter != null) {
-      _crosshairPainter!._drawCrosshair(canvas);
+    if (_crosshairRenderingDetails.crosshairPainter != null) {
+      _crosshairRenderingDetails.crosshairPainter!.drawCrosshair(canvas);
     }
   }
+}
+
+/// Represents the class that holds the rendering details of cross hair
+class CrosshairRenderingDetails {
+  /// Creates an instance of cross hair rendering details
+  CrosshairRenderingDetails(this._stateProperties);
+
+  final CartesianStateProperties _stateProperties;
+
+  SfCartesianChart get _chart => _stateProperties.chart;
+
+  CrosshairBehavior get _crosshairBehavior => _chart.crosshairBehavior;
+
+  /// Touch position
+  Offset? position;
+
+  /// Holds the instance of CrosshairPainter
+  CrosshairPainter? crosshairPainter;
+
+  /// Check whether long press activated or not.
+  bool isLongPressActivated = false;
 
   /// To draw cross hair line
-  void _drawLine(Canvas canvas, Paint? paint, int? seriesIndex) {
+  void drawLine(Canvas canvas, Paint? paint, int? seriesIndex) {
     assert(_crosshairBehavior.lineWidth >= 0,
         'Line width value of crosshair should be greater than 0.');
-    if (_crosshairPainter != null && paint != null) {
-      _crosshairPainter!._drawCrosshairLine(canvas, paint, seriesIndex);
+    if (crosshairPainter != null && paint != null) {
+      crosshairPainter!.drawCrosshairLine(canvas, paint, seriesIndex);
     }
   }
 
-  Paint? _linePainter(Paint paint) => _crosshairPainter?._getLinePainter(paint);
+  /// To get the paint value for the crosshair.
+  Paint? linePainter(Paint paint) => crosshairPainter?.getLinePainter(paint);
+
+  /// To show the crosshair with provided coordinates
+  void internalShow(dynamic x, double y, [String coordinateUnit = 'point']) {
+    final CrosshairBehaviorRenderer crosshairBehaviorRenderer =
+        _stateProperties.crosshairBehaviorRenderer;
+    if (coordinateUnit != 'pixel') {
+      final SeriesRendererDetails seriesRendererDetails =
+          SeriesHelper.getSeriesRendererDetails(
+              _stateProperties.chartSeries.visibleSeriesRenderers[0]);
+      final ChartAxisRendererDetails xAxisDetails =
+          seriesRendererDetails.xAxisDetails!;
+      final ChartLocation location = calculatePoint(
+          (x is DateTime && xAxisDetails is! DateTimeCategoryAxisDetails)
+              ? x.millisecondsSinceEpoch
+              : ((x is DateTime && xAxisDetails is DateTimeCategoryAxisDetails)
+                  ? xAxisDetails.labels
+                      .indexOf(xAxisDetails.dateFormat.format(x))
+                  : ((x is String && xAxisDetails is CategoryAxisDetails)
+                      ? xAxisDetails.labels.indexOf(x)
+                      : x)),
+          y,
+          xAxisDetails,
+          seriesRendererDetails.yAxisDetails!,
+          seriesRendererDetails.stateProperties.requireInvertedAxis,
+          seriesRendererDetails.series,
+          seriesRendererDetails.stateProperties.chartAxis.axisClipRect);
+      x = location.x;
+      y = location.y.truncateToDouble();
+    }
+
+    final CrosshairRenderingDetails renderingDetails =
+        CrosshairHelper.getRenderingDetails(crosshairBehaviorRenderer);
+    if (renderingDetails.crosshairPainter != null &&
+        _chart.crosshairBehavior.activationMode != ActivationMode.none &&
+        x != null) {
+      renderingDetails.crosshairPainter!
+          .generateAllPoints(Offset(x.toDouble(), y));
+      renderingDetails.crosshairPainter!.canResetPath = false;
+      renderingDetails.crosshairPainter!.stateProperties
+          .repaintNotifiers['crosshair']!.value++;
+    }
+  }
+}
+
+// ignore: avoid_classes_with_only_static_members
+/// Helper class to get the crosshair rendering details instance from its renderer
+class CrosshairHelper {
+  /// Returns the crosshair rendering details instance from its renderer
+  static CrosshairRenderingDetails getRenderingDetails(
+      CrosshairBehaviorRenderer renderer) {
+    return renderer._crosshairRenderingDetails;
+  }
+
+  /// Method to set the cartesian state properties
+  static void setStateProperties(CrosshairBehavior crosshairBehavior,
+      CartesianStateProperties stateProperties) {
+    crosshairBehavior._stateProperties = stateProperties;
+  }
 }

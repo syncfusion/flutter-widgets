@@ -149,7 +149,7 @@ class PdfPageCollection {
     final _PdfDictionary parent = result['node'] as _PdfDictionary;
     localIndex = result['index'] as int?;
     if (parent.containsKey(_DictionaryProperties.rotate)) {
-      final int rotationValue = page._rotation.index * 90;
+      final int rotationValue = page.rotation.index * 90;
       final _PdfNumber parentRotation =
           parent[_DictionaryProperties.rotate]! as _PdfNumber;
       if (parentRotation.value!.toInt() != rotationValue &&

@@ -218,7 +218,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
                 date,
                 List<dynamic>.unmodifiable(<dynamic>[
                   CalendarViewHelper.getAppointmentDetail(
-                      appointmentView.appointment!)
+                      appointmentView.appointment!, widget.calendar.dataSource)
                 ]),
                 Rect.fromLTWH(
                     appointmentView.appointmentRect!.left,
@@ -257,7 +257,7 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
                   date,
                   List<dynamic>.unmodifiable(
                       CalendarViewHelper.getCustomAppointments(
-                          moreAppointments)),
+                          moreAppointments, widget.calendar.dataSource)),
                   Rect.fromLTWH(moreRegionRect.left, moreRegionRect.top,
                       moreRegionRect.width, moreRegionRect.height),
                   isMoreAppointmentRegion: true));
@@ -528,7 +528,8 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
         (cellHeight - startPosition) / maximumDisplayCount;
     // right side padding used to add padding on appointment view right side
     // in month view
-    final double cellEndPadding = widget.calendar.cellEndPadding;
+    final double cellEndPadding = CalendarViewHelper.getCellEndPadding(
+        widget.calendar.cellEndPadding, widget.isMobilePlatform);
     for (int i = 0; i < _appointmentCollection.length; i++) {
       final AppointmentView appointmentView = _appointmentCollection[i];
       if (appointmentView.canReuse || appointmentView.appointment == null) {
@@ -632,7 +633,8 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
     final double cellWidth = width / count;
     final double cellHeight = widget.timeIntervalHeight;
     double xPosition = timeLabelWidth;
-    final double cellEndPadding = widget.calendar.cellEndPadding;
+    final double cellEndPadding = CalendarViewHelper.getCellEndPadding(
+        widget.calendar.cellEndPadding, widget.isMobilePlatform);
 
     final int timeInterval = CalendarViewHelper.getTimeInterval(
         widget.calendar.timeSlotViewSettings);
@@ -660,7 +662,10 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
 
       if (column == -1 ||
           appointment.isSpanned ||
-          (appointment.endTime.difference(appointment.startTime).inDays > 0) ||
+          AppointmentHelper.getDifference(
+                      appointment.startTime, appointment.endTime)
+                  .inDays >
+              0 ||
           appointment.isAllDay) {
         continue;
       }
@@ -681,11 +686,10 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
             timeLabelWidth;
       }
 
-      Duration difference =
-          appointment.actualEndTime.difference(appointment.actualStartTime);
+      Duration difference = AppointmentHelper.getDifference(
+          appointment.actualStartTime, appointment.actualEndTime);
       final double minuteHeight = cellHeight / timeInterval;
       double yPosition = totalMins * minuteHeight;
-
       double height = difference.inMinutes * minuteHeight;
       if (widget.calendar.timeSlotViewSettings.minimumAppointmentDuration !=
               null &&
@@ -793,7 +797,8 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
     final double cellWidth = widget.timeIntervalHeight;
     double xPosition = 0;
     double yPosition = 0;
-    final double cellEndPadding = widget.calendar.cellEndPadding;
+    final double cellEndPadding = CalendarViewHelper.getCellEndPadding(
+        widget.calendar.cellEndPadding, widget.isMobilePlatform);
     final double slotHeight =
         isResourceEnabled ? widget.resourceItemHeight! : widget.height;
     final double timelineAppointmentHeight = _getTimelineAppointmentHeight(
@@ -842,7 +847,8 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
       }
 
       final DateTime endTime = appointment.actualEndTime;
-      final Duration difference = endTime.difference(startTime);
+      final Duration difference =
+          AppointmentHelper.getDifference(startTime, endTime);
 
       /// The width for the appointment UI, calculated based on the date
       /// difference between the start and end time of the appointment.
@@ -914,15 +920,17 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
     double yPosition = 0;
     final int timeInterval = CalendarViewHelper.getTimeInterval(
         widget.calendar.timeSlotViewSettings);
-    final double cellEndPadding = widget.calendar.cellEndPadding;
+    final double cellEndPadding = CalendarViewHelper.getCellEndPadding(
+        widget.calendar.cellEndPadding, widget.isMobilePlatform);
     final int viewStartHour =
         widget.calendar.timeSlotViewSettings.startHour.toInt();
     final double viewStartMinutes =
         (widget.calendar.timeSlotViewSettings.startHour - viewStartHour) * 60;
     final double timelineAppointmentHeight = _getTimelineAppointmentHeight(
         widget.calendar.timeSlotViewSettings, widget.view);
-    final double slotHeight =
-        isResourceEnabled ? widget.resourceItemHeight! : widget.height;
+    final double slotHeight = isResourceEnabled
+        ? widget.resourceItemHeight! - cellEndPadding
+        : widget.height - cellEndPadding;
     for (int i = 0; i < _appointmentCollection.length; i++) {
       final AppointmentView appointmentView = _appointmentCollection[i];
       if (appointmentView.canReuse || appointmentView.appointment == null) {
@@ -1031,8 +1039,8 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
       if (widget.calendar.timeSlotViewSettings.minimumAppointmentDuration !=
               null &&
           widget.calendar.timeSlotViewSettings.minimumAppointmentDuration! >
-              appointment.actualEndTime
-                  .difference(appointment.actualStartTime)) {
+              AppointmentHelper.getDifference(
+                  appointment.actualStartTime, appointment.actualEndTime)) {
         final double minWidth =
             AppointmentHelper.getAppointmentHeightFromDuration(
                 widget.calendar.timeSlotViewSettings.minimumAppointmentDuration,
@@ -1041,15 +1049,12 @@ class _AppointmentLayoutState extends State<AppointmentLayout> {
         width = width > minWidth ? width : minWidth;
       }
 
-      width = width - cellEndPadding;
       final Radius cornerRadius = Radius.circular(
           (appointmentHeight * 0.1) > 2 ? 2 : (appointmentHeight * 0.1));
+      width = width > 1 ? width - 1 : 0;
       final RRect rect = RRect.fromRectAndRadius(
-          Rect.fromLTWH(
-              widget.isRTL ? xPosition - width : xPosition,
-              yPosition,
-              width > 0 ? width : 0,
-              appointmentHeight > 1 ? appointmentHeight - 1 : 0),
+          Rect.fromLTWH(widget.isRTL ? xPosition - width : xPosition, yPosition,
+              width, appointmentHeight > 1 ? appointmentHeight - 1 : 0),
           cornerRadius);
       appointmentView.appointmentRect = rect;
     }

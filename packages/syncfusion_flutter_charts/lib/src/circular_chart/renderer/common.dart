@@ -1,520 +1,111 @@
-part of charts;
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
+import '../../chart/common/data_label.dart';
+import '../../chart/utils/enum.dart';
+import '../../common/utils/helper.dart';
+import '../base/circular_base.dart';
+import '../base/circular_state_properties.dart';
+import 'chart_point.dart';
+import 'circular_series.dart';
+import 'radial_bar_series.dart';
+import 'renderer_extension.dart';
 
-/// It is the data type for the circular chart and it has the properties is used to assign at the value
-/// declaration of the circular chart.
+/// Represents the region
 ///
-/// It provides the options for color, stroke color, fill color, radius, angle to customize the circular chart.
-///
-class ChartPoint<D> {
-  /// Creating an argument constructor of ChartPoint class.
-  ChartPoint([this.x, this.y, this.radius, this.pointColor, this.sortValue]);
+class Region {
+  /// Creates the instance for region
+  ///
+  Region(this.start, this.end, this.startAngle, this.endAngle, this.seriesIndex,
+      this.pointIndex, this.center, this.innerRadius, this.outerRadius);
 
-  /// X value of chart point
-  dynamic x;
-
-  /// Y value of chart point
-  num? y;
-
-  /// Degree of chart point
-  num? degree;
-
-  /// Start angle of chart point
-  num? startAngle;
-
-  /// End angle of chart point
-  num? endAngle;
-
-  /// Middle angle of chart point
-  num? midAngle;
-
-  /// Center position of chart point
-  Offset? center;
-
-  /// Text value of chart point
-  String? text;
-
-  /// Fill  color of the chart point
-  late Color fill;
-
-  /// Color of chart point
-  late Color color;
-
-  /// Stroke color of chart point
-  late Color strokeColor;
-
-  /// Sort value of chart point
-  D? sortValue;
-
-  /// Stroke width of chart point
-  late num strokeWidth;
-
-  /// Inner radius of chart point
-  num? innerRadius;
-
-  /// Outer radius of chart point
-  num? outerRadius;
-
-  /// To set the explode value of chart point
-  bool? isExplode;
-
-  /// To set the shadow value of chart point
-  bool? isShadow;
-
-  /// to set the empty value of chart point
-  bool isEmpty = false;
-
-  /// To set the visibility of chart point
-  bool isVisible = true;
-
-  /// To set the selected or unselected of chart point
-  bool isSelected = false;
-
-  /// Data label positin of chart point
-  late Position dataLabelPosition;
-
-  /// Render position of chart point
-  ChartDataLabelPosition? renderPosition;
-
-  /// Label rect of chart point.
-  late Rect labelRect;
-
-  /// Size of the Data label of chart point
-  Size dataLabelSize = const Size(0, 0);
-
-  /// Saturation region value of chart point
-  bool saturationRegionOutside = false;
-
-  /// Y ratio of chart point
-  late num yRatio;
-
-  /// Height Ratio of chart point
-  late num heightRatio;
-
-  /// Radius of the chart point
-  String? radius;
-
-  /// Color property of the chart point
-  Color? pointColor;
-
-  /// To execute onTooltipRender event or not.
-  // ignore: prefer_final_fields
-  bool isTooltipRenderEvent = false;
-
-  /// To execute OnDataLabelRender event or not.
-  // ignore: prefer_final_fields
-  bool labelRenderEvent = false;
-
-  /// Current point index.
-  late int index;
-
-  // Data type
-  dynamic _data;
-
-  /// PointShader Mapper
-  ChartShaderMapper<dynamic>? _pointShaderMapper;
-
-  /// Shader of chart point
-  Shader? get shader =>
-      _pointShaderMapper != null && center != null && outerRadius != null
-          ? _pointShaderMapper!(
-              _data,
-              index,
-              fill,
-              Rect.fromCircle(
-                center: center!,
-                radius: outerRadius!.toDouble(),
-              ),
-            )
-          : null;
-
-  /// Path of circular Series
-  Rect? _pathRect;
-
-  /// Stores the tooltip label text.
-  late String _tooltipLabelText;
-
-  /// Stores the tooltip header text.
-  late String _tooltipHeaderText;
-}
-
-class _Region {
-  _Region(
-      this.start,
-      this.end,
-      this.startAngle,
-      this.endAngle,
-      this.seriesIndex,
-      this.pointIndex,
-      this.center,
-      this.innerRadius,
-      this.outerRadius);
+  /// Specifies the series index
   int seriesIndex;
+
+  /// Specifies the point index
   int pointIndex;
+
+  /// Specifies the start angle
   num startAngle;
+
+  /// Specifies the start value
   num start;
+
+  /// Specifies the end value
   num end;
+
+  /// Specifies the end angle
   num endAngle;
+
+  ///Specifies the center value
   Offset? center;
+
+  /// Specifies the value of inner radius
   num? innerRadius;
+
+  /// Specifies the value of outer radius
   num outerRadius;
 }
 
-class _StyleOptions {
-  _StyleOptions({this.fill, this.strokeWidth, this.strokeColor, this.opacity});
+/// Represents the style options
+///
+class StyleOptions {
+  /// Creates the instance of style options
+  ///
+  StyleOptions({this.fill, this.strokeWidth, this.strokeColor, this.opacity});
+
+  /// Specifies the value of fill
   Color? fill;
+
+  /// Specifies the value of stroke color
   Color? strokeColor;
+
+  /// Specifies the value of opacity
   double? opacity;
+
+  /// Specifies the value of stroke width
   num? strokeWidth;
 }
 
-/// This class holds the properties of the connector line.
+/// Represents the circular chart interaction
 ///
-/// ConnectorLineSetting is the Argument type of [DataLabelSettings], It is used to customize the data label connected lines while the data label
-/// position is outside the chart. It is enabled by setting the data label visibility.
-///
-/// It provides the options for length, width, color, and enum type [ConnectorType] to customize the appearance.
-///
-class ConnectorLineSettings {
-  /// Creating an argument constructor of ConnectorLineSettings class.
-  const ConnectorLineSettings(
-      {this.length, double? width, ConnectorType? type, this.color})
-      : width = width ?? 1.0,
-        type = type ?? ConnectorType.line;
-
-  ///Length of the connector line.
+class ChartInteraction {
+  /// Creates the instance for circular chart interaction
   ///
-  ///Defaults to `null`
-  ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           dataLabelSettings: DataLabelSettings(
-  ///            connectorLineSettings: ConnectorLineSettings(
-  ///            length: '8%
-  ///           )
-  ///          )
-  ///        ));
-  ///}
-  ///```
-  final String? length;
-
-  ///Width of the connector line.
-  ///
-  ///Defaults to `1.0`
-  ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           dataLabelSettings: DataLabelSettings(
-  ///            connectorLineSettings: ConnectorLineSettings(
-  ///            width: 2
-  ///           )
-  ///          )
-  ///        ));
-  ///}
-  ///```
-  final double width;
-
-  ///Color of the connector line.
-  ///
-  ///Defaults to `null`
-  ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           dataLabelSettings: DataLabelSettings(
-  ///            connectorLineSettings: ConnectorLineSettings(
-  ///            color: Colors.red,
-  ///           )
-  ///          )
-  ///        ));
-  ///}
-  ///```
-  final Color? color;
-
-  ///Type of the connector line.
-  ///
-  ///Defaults to `ConnectorType.line`
-  ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCartesianChart(
-  ///           dataLabelSettings: DataLabelSettings(
-  ///            connectorLineSettings: ConnectorLineSettings(
-  ///             type: ConnectorType.curve
-  ///           )
-  ///          )
-  ///        ));
-  ///}
-  ///```
-  final ConnectorType type;
-
-  @override
-  // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  bool operator ==(Object other) {
-    if (identical(this, other)) {
-      return true;
-    }
-    if (other.runtimeType != runtimeType) {
-      return false;
-    }
-
-    return other is ConnectorLineSettings &&
-        other.length == length &&
-        other.width == width &&
-        other.color == color &&
-        other.type == type;
-  }
-
-  @override
-  // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode {
-    final List<Object?> values = <Object?>[length, width, color, type];
-    return hashList(values);
-  }
-}
-
-class _ChartInteraction {
-  _ChartInteraction(this.seriesIndex, this.pointIndex, this.series, this.point,
+  ChartInteraction(this.seriesIndex, this.pointIndex, this.series, this.point,
       [this.region]);
+
+  /// Specifies the value of series index
   int? seriesIndex;
+
+  /// Specifies the value of point index
   int? pointIndex;
+
+  /// Specifies the value of series
   dynamic series;
+
+  /// Specifies the point value
   dynamic point;
-  _Region? region;
-}
 
-/// Customizes the annotation of the circular chart.
-///
-///Circular chart allows you to mark the specific area of interest in the chart area.
-/// You can add the custom widgets using this annotation feature, It has the properties for customizing the appearance.
-///
-/// The angle, orientation, height, and width of the inserted annotation can all be customized.
-///
-/// It provides options for angle, height, width, vertical and horizontal alignment to customize the appearance.
-///
-@immutable
-class CircularChartAnnotation {
-  /// Creating an argument constructor of CircularChartAnnotation class.
-  const CircularChartAnnotation(
-      {int? angle,
-      String? radius,
-      this.widget,
-      String? height,
-      String? width,
-      ChartAlignment? horizontalAlignment,
-      ChartAlignment? verticalAlignment})
-      : angle = angle ?? 0,
-        radius = radius ?? '0%',
-        height = height ?? '0%',
-        width = width ?? '0%',
-        verticalAlignment = verticalAlignment ?? ChartAlignment.center,
-        horizontalAlignment = horizontalAlignment ?? ChartAlignment.center;
-
-  ///Angle to rotate the annotation.
-  ///
-  ///Defaults to `0`
-  ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCircularChart(
-  ///            annotations: <CircularChartAnnotation>[
-  ///                CircularChartAnnotation(
-  ///                    angle: 40,
-  ///                    child: Container(
-  ///                    child: const Text('Empty data')),
-  ///              ),
-  ///             ],
-  ///        ));
-  ///}
-  ///```
-  final int angle;
-
-  ///Radius for placing the annotation.
-  ///
-  ///The value ranges from 0% to 100%.
-  ///
-  ///Defaults to `0%`
-  ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCircularChart(
-  ///            annotations: <CircularChartAnnotation>[
-  ///                CircularChartAnnotation(
-  ///                    radius: '10%'
-  ///                    child: Container(
-  ///                    child: const Text('Empty data'),
-  ///               ),
-  ///              ),
-  ///             ],
-  ///        ));
-  ///}
-  ///```
-  final String radius;
-
-  ///Considers any widget as annotation.
-  ///
-  ///Defaults to `null`
-  ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCircularChart(
-  ///            annotations: <CircularChartAnnotation>[
-  ///                CircularChartAnnotation(
-  ///                    child: Container(
-  ///                     child:Text('Annotation')),
-  ///              ),
-  ///             ],
-  ///        ));
-  ///}
-  ///```
-  final Widget? widget;
-
-  ///Height of the annotation.
-  ///
-  ///Defaults to `0%`.
-  ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCircularChart(
-  ///            annotations: <CircularChartAnnotation>[
-  ///                CircularChartAnnotation(
-  ///                    height: '10%',
-  ///                    child: Container(
-  ///                    child: const Text('Empty data'),
-  ///                 ),
-  ///              ),
-  ///             ],
-  ///        ));
-  ///}
-  ///```
-  final String height;
-
-  ///Width of the annotation.
-  ///
-  ///Defaults to `0%`.
-  ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCircularChart(
-  ///            annotations: <CircularChartAnnotation>[
-  ///                CircularChartAnnotation(
-  ///                    width: '10%',
-  ///                    child: Container(
-  ///                    child: const Text('Empty data'),
-  ///                 ),
-  ///              ),
-  ///             ],
-  ///        ));
-  ///}
-  ///```
-  final String width;
-
-  ///Aligns the annotation horizontally.
-  ///
-  ///Alignment can be set to near, far, or center.
-  ///
-  ///Defaults to `ChartAlignment.center`
-  ///
-  ///Also refer [ChartAlignment]
-  ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCircularChart(
-  ///            annotations: <CircularChartAnnotation>[
-  ///                CircularChartAnnotation(
-  ///                    horizontalAlignment: ChartAlignment.near
-  ///                    child: Container(
-  ///                    child: const Text('Empty data'),
-  ///                 ),
-  ///              ),
-  ///             ],
-  ///        ));
-  ///}
-  ///```
-  final ChartAlignment horizontalAlignment;
-
-  ///Aligns the annotation vertically.
-  ///
-  ///Alignment can be set to near, far, or center.
-  ///
-  ///Defaults to `ChartAlignment.center`
-  ///
-  ///Also refer [ChartAlignment]
-  ///
-  ///```dart
-  ///Widget build(BuildContext context) {
-  ///    return Container(
-  ///        child: SfCircularChart(
-  ///            annotations: <CircularChartAnnotation>[
-  ///                CircularChartAnnotation(
-  ///                    verticalAlignment: ChartAlignment.near
-  ///                    child: Container(
-  ///                    child: const Text('Empty data'),
-  ///                 ),
-  ///              ),
-  ///             ],
-  ///        ));
-  ///}
-  ///```
-  final ChartAlignment verticalAlignment;
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) {
-      return true;
-    }
-    if (other.runtimeType != runtimeType) {
-      return false;
-    }
-
-    return other is CircularChartAnnotation &&
-        other.angle == angle &&
-        other.radius == radius &&
-        other.height == height &&
-        other.horizontalAlignment == horizontalAlignment &&
-        other.verticalAlignment == verticalAlignment &&
-        other.widget == widget &&
-        other.width == width;
-  }
-
-  @override
-  int get hashCode {
-    final List<Object?> values = <Object?>[
-      angle,
-      radius,
-      height,
-      horizontalAlignment,
-      verticalAlignment,
-      widget,
-      width
-    ];
-    return hashList(values);
-  }
+  /// Specifies the value of region
+  Region? region;
 }
 
 ///To get circular series data label saturation color
-Color _getCircularDataLabelColor(ChartPoint<dynamic> currentPoint,
-    CircularSeriesRenderer seriesRenderer, SfCircularChartState _chartState) {
+Color getCircularDataLabelColor(
+    ChartPoint<dynamic> currentPoint,
+    CircularSeriesRendererExtension seriesRenderer,
+    CircularStateProperties stateProperties) {
   Color color;
-  final DataLabelSettings dataLabel = seriesRenderer._series.dataLabelSettings;
+  final DataLabelSettings dataLabel = seriesRenderer.series.dataLabelSettings;
   final DataLabelSettingsRenderer dataLabelSettingsRenderer =
-      seriesRenderer._dataLabelSettingsRenderer;
-  final String seriesType = seriesRenderer._seriesType == 'pie'
+      seriesRenderer.dataLabelSettingsRenderer;
+  final String seriesType = seriesRenderer.seriesType == 'pie'
       ? 'Pie'
-      : seriesRenderer._seriesType == 'doughnut'
+      : seriesRenderer.seriesType == 'doughnut'
           ? 'Doughnut'
-          : seriesRenderer._seriesType == 'radialbar'
+          : seriesRenderer.seriesType == 'radialbar'
               ? 'RadialBar'
               : 'Default';
   switch (seriesType) {
@@ -522,30 +113,30 @@ Color _getCircularDataLabelColor(ChartPoint<dynamic> currentPoint,
     case 'Doughnut':
       color = (currentPoint.renderPosition == ChartDataLabelPosition.inside &&
               !currentPoint.saturationRegionOutside)
-          ? _getInnerColor(dataLabelSettingsRenderer._color, currentPoint.fill,
-              _chartState._renderingDetails.chartTheme)
-          : _getOuterColor(
-              dataLabelSettingsRenderer._color,
+          ? getInnerColor(dataLabelSettingsRenderer.color, currentPoint.fill,
+              stateProperties.renderingDetails.chartTheme)
+          : getOuterColor(
+              dataLabelSettingsRenderer.color,
               dataLabel.useSeriesColor
                   ? currentPoint.fill
-                  : (_chartState._chart.backgroundColor ??
-                      _chartState._renderingDetails.chartTheme
-                          .plotAreaBackgroundColor),
-              _chartState._renderingDetails.chartTheme);
+                  : (stateProperties.chart.backgroundColor ??
+                      stateProperties
+                          .renderingDetails.chartTheme.plotAreaBackgroundColor),
+              stateProperties.renderingDetails.chartTheme);
       break;
     case 'RadialBar':
       final RadialBarSeries<dynamic, dynamic> radialBar =
-          seriesRenderer._series as RadialBarSeries<dynamic, dynamic>;
+          seriesRenderer.series as RadialBarSeries<dynamic, dynamic>;
       color = radialBar.trackColor;
       break;
     default:
       color = Colors.white;
   }
-  return _getSaturationColor(color);
+  return getSaturationColor(color);
 }
 
 ///To get inner data label color
-Color _getInnerColor(
+Color getInnerColor(
         Color? dataLabelColor, Color? pointColor, SfChartThemeData theme) =>
     // ignore: prefer_if_null_operators
     dataLabelColor != null
@@ -558,7 +149,7 @@ Color _getInnerColor(
                 : Colors.black;
 
 ///To get outer data label color
-Color _getOuterColor(
+Color getOuterColor(
         Color? dataLabelColor, Color backgroundColor, SfChartThemeData theme) =>
     // ignore: prefer_if_null_operators
     dataLabelColor != null
@@ -570,15 +161,15 @@ Color _getOuterColor(
                 : Colors.black;
 
 /// To check whether any point is selected
-bool _checkIsAnyPointSelect(CircularSeriesRenderer seriesRenderer,
+bool checkIsAnyPointSelect(CircularSeriesRendererExtension seriesRenderer,
     ChartPoint<dynamic>? point, SfCircularChart chart) {
   bool isAnyPointSelected = false;
-  final CircularSeries<dynamic, dynamic> series = seriesRenderer._series;
+  final CircularSeries<dynamic, dynamic> series = seriesRenderer.series;
   if (series.initialSelectedDataIndexes.isNotEmpty) {
     int data;
     for (int i = 0; i < series.initialSelectedDataIndexes.length; i++) {
       data = series.initialSelectedDataIndexes[i];
-      for (int j = 0; j < seriesRenderer._renderPoints!.length; j++) {
+      for (int j = 0; j < seriesRenderer.renderPoints!.length; j++) {
         if (j == data) {
           isAnyPointSelected = true;
           break;
@@ -587,4 +178,189 @@ bool _checkIsAnyPointSelect(CircularSeriesRenderer seriesRenderer,
     }
   }
   return isAnyPointSelected;
+}
+
+/// Represents the circular chart segment
+abstract class CircularChartSegment {
+  /// To get point color of current point
+  Color? getPointColor(
+      CircularSeriesRendererExtension seriesRenderer,
+      ChartPoint<dynamic> point,
+      int pointIndex,
+      int seriesIndex,
+      Color color,
+      double opacity);
+
+  /// To get opacity of current point
+  double getOpacity(
+      CircularSeriesRendererExtension seriesRenderer,
+      ChartPoint<dynamic>? point,
+      int pointIndex,
+      int seriesIndex,
+      double opacity);
+
+  /// To get Stroke color of current point
+  Color getPointStrokeColor(
+      CircularSeriesRendererExtension seriesRenderer,
+      ChartPoint<dynamic>? point,
+      int pointIndex,
+      int seriesIndex,
+      Color strokeColor);
+
+  /// To get Stroke width of current point
+  num getPointStrokeWidth(
+      CircularSeriesRendererExtension seriesRenderer,
+      ChartPoint<dynamic>? point,
+      int pointIndex,
+      int seriesIndex,
+      num strokeWidth);
+}
+
+/// Represents the label segment
+abstract class LabelSegment {
+  /// To get label text content
+  String getLabelContent(
+      CircularSeriesRendererExtension seriesRenderer,
+      ChartPoint<dynamic> point,
+      int pointIndex,
+      int seriesIndex,
+      String content);
+
+  /// To get text style of current point
+  TextStyle getDataLabelStyle(
+      CircularSeriesRendererExtension seriesRenderer,
+      ChartPoint<dynamic> point,
+      int pointIndex,
+      int seriesIndex,
+      TextStyle style,
+      SfCircularChartState _chartState);
+
+  /// To get data label color
+  Color? getDataLabelColor(CircularSeriesRendererExtension seriesRenderer,
+      ChartPoint<dynamic> point, int pointIndex, int seriesIndex, Color? color);
+
+  /// To get the data label stroke color
+  Color getDataLabelStrokeColor(
+      CircularSeriesRendererExtension seriesRenderer,
+      ChartPoint<dynamic> point,
+      int pointIndex,
+      int seriesIndex,
+      Color strokeColor);
+
+  /// To get label stroke width
+  double getDataLabelStrokeWidth(
+      CircularSeriesRendererExtension seriesRenderer,
+      ChartPoint<dynamic> point,
+      int pointIndex,
+      int seriesIndex,
+      double strokeWidth);
+}
+
+/// Represents the chart series renderer
+class ChartSeriesRender with CircularChartSegment, LabelSegment {
+  /// Creates an instance for chart series renderer
+  ChartSeriesRender();
+
+  /// Creates an instance for chart series renderer
+  @override
+  Color? getPointColor(
+          CircularSeriesRendererExtension seriesRenderer,
+          ChartPoint<dynamic> point,
+          int pointIndex,
+          int seriesIndex,
+          Color color,
+          double opacity) =>
+      color.withOpacity(opacity);
+
+  /// To get point stroke color
+  @override
+  Color getPointStrokeColor(
+          CircularSeriesRendererExtension seriesRenderer,
+          ChartPoint<dynamic>? point,
+          int pointIndex,
+          int seriesIndex,
+          Color strokeColor) =>
+      strokeColor;
+
+  /// To get point stroke width
+  @override
+  num getPointStrokeWidth(
+          CircularSeriesRendererExtension seriesRenderer,
+          ChartPoint<dynamic>? point,
+          int pointIndex,
+          int seriesIndex,
+          num strokeWidth) =>
+      strokeWidth;
+
+  /// To return label text
+  @override
+  String getLabelContent(
+          CircularSeriesRendererExtension seriesRenderer,
+          ChartPoint<dynamic> point,
+          int pointIndex,
+          int seriesIndex,
+          String content) =>
+      content;
+
+  /// To return text style of label
+  @override
+  TextStyle getDataLabelStyle(
+      CircularSeriesRendererExtension seriesRenderer,
+      ChartPoint<dynamic> point,
+      int pointIndex,
+      int seriesIndex,
+      TextStyle style,
+      SfCircularChartState _chartState) {
+    final DataLabelSettings dataLabel = seriesRenderer.series.dataLabelSettings;
+    final Color fontColor = dataLabel.textStyle.color ??
+        getCircularDataLabelColor(
+            point, seriesRenderer, seriesRenderer.stateProperties);
+    final TextStyle textStyle = TextStyle(
+        color: fontColor,
+        fontSize: dataLabel.textStyle.fontSize,
+        fontFamily: dataLabel.textStyle.fontFamily,
+        fontStyle: dataLabel.textStyle.fontStyle,
+        fontWeight: dataLabel.textStyle.fontWeight);
+    return textStyle;
+  }
+
+  /// To return label color
+  @override
+  Color? getDataLabelColor(
+          CircularSeriesRendererExtension seriesRenderer,
+          ChartPoint<dynamic> point,
+          int pointIndex,
+          int seriesIndex,
+          Color? color) =>
+      color;
+
+  /// To return label stroke color
+  @override
+  Color getDataLabelStrokeColor(
+          CircularSeriesRendererExtension seriesRenderer,
+          ChartPoint<dynamic> point,
+          int pointIndex,
+          int seriesIndex,
+          Color? strokeColor) =>
+      strokeColor ?? point.fill;
+
+  /// To return label stroke width
+  @override
+  double getDataLabelStrokeWidth(
+          CircularSeriesRendererExtension seriesRenderer,
+          ChartPoint<dynamic> point,
+          int pointIndex,
+          int seriesIndex,
+          double strokeWidth) =>
+      strokeWidth;
+
+  /// To return opacity of current point
+  @override
+  double getOpacity(
+          CircularSeriesRendererExtension seriesRenderer,
+          ChartPoint<dynamic>? point,
+          int pointIndex,
+          int seriesIndex,
+          double opacity) =>
+      opacity;
 }

@@ -1,4 +1,18 @@
-part of charts;
+import 'dart:math' as math;
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_core/core.dart';
+import '../../common/event_args.dart';
+import '../axis/axis.dart';
+import '../axis/plotband.dart';
+import '../chart_series/series.dart';
+import '../chart_series/series_renderer_properties.dart';
+import '../chart_series/xy_data_series.dart';
+import '../common/cartesian_state_properties.dart';
+import '../common/interactive_tooltip.dart';
+import '../utils/enum.dart';
+import '../utils/helper.dart';
 
 /// This class has the properties of the category axis.
 ///
@@ -291,234 +305,287 @@ class CategoryAxis extends ChartAxis {
 /// Creates an axis renderer for Category axis
 class CategoryAxisRenderer extends ChartAxisRenderer {
   /// Creating an argument constructor of CategoryAxisRenderer class.
-  CategoryAxisRenderer(this._categoryAxis) : super(_categoryAxis) {
-    _labels = <String>[];
-  }
-  late List<String> _labels;
-  late Rect _rect;
-  final CategoryAxis _categoryAxis;
-
-  void _findAxisMinMaxValues(CartesianSeriesRenderer seriesRenderer,
-      CartesianChartPoint<dynamic> point, int pointIndex, int dataLength,
-      [bool? isXVisibleRange, bool? isYVisibleRange]) {
-    if (_categoryAxis.arrangeByIndex) {
-      // ignore: unnecessary_null_comparison
-      pointIndex < _labels.length && _labels[pointIndex] != null
-          ? _labels[pointIndex] += ', ' + point.x
-          : _labels.add(point.x.toString());
-      point.xValue = pointIndex;
-    } else {
-      if (!_labels.contains(point.x.toString())) {
-        _labels.add(point.x.toString());
-      }
-      point.xValue = _labels.indexOf(point.x.toString());
-    }
-    point.yValue = point.y;
-    _setCategoryMinMaxValues(this, isXVisibleRange!, isYVisibleRange!, point,
-        pointIndex, dataLength, seriesRenderer);
+  CategoryAxisRenderer(
+      CategoryAxis _categoryAxis, CartesianStateProperties _stateProperties) {
+    _axisDetails = CategoryAxisDetails(_categoryAxis, this, _stateProperties);
+    AxisHelper.setAxisRendererDetails(this, _axisDetails);
   }
 
-  /// Listener for range controller
-  void _controlListener() {
-    _chartState._canSetRangeController = false;
-    if (_axis.rangeController != null && !_chartState._rangeChangedByChart) {
-      _updateRangeControllerValues(this);
-      _chartState._rangeChangeBySlider = true;
-      _chartState._redrawByRangeChange();
-    }
-  }
-
-  /// Calculate the range and interval
-  void _calculateRangeAndInterval(SfCartesianChartState chartState,
-      [String? type]) {
-    _chartState = chartState;
-    _chart = chartState._chart;
-    if (_axis.rangeController != null) {
-      _chartState._rangeChangeBySlider = true;
-      _axis.rangeController!.addListener(_controlListener);
-    }
-    final Rect containerRect = _chartState._renderingDetails.chartContainerRect;
-    _rect = Rect.fromLTWH(containerRect.left, containerRect.top,
-        containerRect.width, containerRect.height);
-    _axisSize = Size(_rect.width, _rect.height);
-    calculateRange(this);
-    _calculateActualRange();
-    if (_actualRange != null) {
-      applyRangePadding(_actualRange!, _actualRange!.interval);
-      if (type == null && type != 'AxisCross' && _categoryAxis.isVisible) {
-        generateVisibleLabels();
-      }
-    }
-  }
-
-  /// Calculate the required values of the actual range for the category axis
-  void _calculateActualRange() {
-    if (_min != null && _max != null) {
-      _actualRange = _VisibleRange(
-          _categoryAxis.minimum ?? _min, _categoryAxis.maximum ?? _max);
-      final List<CartesianSeriesRenderer> seriesRenderers = _seriesRenderers;
-      CartesianSeriesRenderer seriesRenderer;
-      for (int i = 0; i < seriesRenderers.length; i++) {
-        seriesRenderer = seriesRenderers[i];
-        if ((_actualRange!.maximum > seriesRenderer._dataPoints.length - 1) ==
-            true) {
-          for (int i = _labels.length; i < _actualRange!.maximum + 1; i++) {
-            _labels.add(i.toString());
-          }
-        }
-      }
-      _actualRange = _VisibleRange(
-          _categoryAxis.minimum ?? _min, _categoryAxis.maximum ?? _max);
-
-      ///Below condition is for checking the min, max value is equal
-      if ((_actualRange!.minimum == _actualRange!.maximum) &&
-          (_categoryAxis.labelPlacement == LabelPlacement.onTicks)) {
-        _actualRange!.maximum += 1;
-      }
-      _actualRange!.delta = _actualRange!.maximum - _actualRange!.minimum;
-      _actualRange!.interval = _categoryAxis.interval ??
-          calculateInterval(_actualRange!, Size(_rect.width, _rect.height));
-      _actualRange!.delta = _actualRange!.maximum - _actualRange!.minimum;
-    }
-  }
+  late CategoryAxisDetails _axisDetails;
 
   /// Calculates the visible range for an axis in chart.
   @override
   void calculateVisibleRange(Size availableSize) {
-    _setOldRangeFromRangeController();
-    _visibleRange = _chartState._rangeChangeBySlider &&
-            _rangeMinimum != null &&
-            _rangeMaximum != null
-        ? _VisibleRange(_rangeMinimum, _rangeMaximum)
-        : _VisibleRange(_actualRange!.minimum, _actualRange!.maximum);
-    _visibleRange!.delta = _actualRange!.delta;
-    _visibleRange!.interval = _actualRange!.interval;
+    _axisDetails.setOldRangeFromRangeController();
+    _axisDetails.visibleRange =
+        _axisDetails.stateProperties.rangeChangeBySlider &&
+                _axisDetails.rangeMinimum != null &&
+                _axisDetails.rangeMaximum != null
+            ? VisibleRange(_axisDetails.rangeMinimum, _axisDetails.rangeMaximum)
+            : VisibleRange(_axisDetails.actualRange!.minimum,
+                _axisDetails.actualRange!.maximum);
+    _axisDetails.visibleRange!.delta = _axisDetails.actualRange!.delta;
+    _axisDetails.visibleRange!.interval = _axisDetails.actualRange!.interval;
     bool canAutoScroll = false;
-    if (_categoryAxis.autoScrollingDelta != null &&
-        _categoryAxis.autoScrollingDelta! > 0 &&
-        !_chartState._isRedrawByZoomPan) {
+    if (_axisDetails._categoryAxis.autoScrollingDelta != null &&
+        _axisDetails._categoryAxis.autoScrollingDelta! > 0 &&
+        !_axisDetails.stateProperties.isRedrawByZoomPan) {
       canAutoScroll = true;
-      super._updateAutoScrollingDelta(_categoryAxis.autoScrollingDelta!, this);
+      _axisDetails.updateAutoScrollingDelta(
+          _axisDetails._categoryAxis.autoScrollingDelta!, this);
     }
-    if ((!canAutoScroll || _chartState._zoomedState == true) &&
-        !(_chartState._rangeChangeBySlider &&
-            !_chartState._canSetRangeController)) {
-      _setZoomFactorAndPosition(this, _chartState._zoomedAxisRendererStates);
+    if ((!canAutoScroll || _axisDetails.stateProperties.zoomedState == true) &&
+        !(_axisDetails.stateProperties.rangeChangeBySlider &&
+            !_axisDetails.stateProperties.canSetRangeController)) {
+      _axisDetails.setZoomFactorAndPosition(
+          this, _axisDetails.stateProperties.zoomedAxisRendererStates);
     }
-    if (_zoomFactor < 1 ||
-        _zoomPosition > 0 ||
-        (_axis.rangeController != null &&
-            !_chartState._renderingDetails.initialRender!)) {
-      _chartState._zoomProgress = true;
-      _calculateZoomRange(this, availableSize);
-      if (_axis.rangeController != null &&
-          _chartState._isRedrawByZoomPan &&
-          _chartState._canSetRangeController &&
-          _chartState._zoomProgress) {
-        _chartState._rangeChangedByChart = true;
-        _setRangeControllerValues(this);
+    if (_axisDetails.zoomFactor < 1 ||
+        _axisDetails.zoomPosition > 0 ||
+        (_axisDetails.axis.rangeController != null &&
+            !_axisDetails.stateProperties.renderingDetails.initialRender!)) {
+      _axisDetails.stateProperties.zoomProgress = true;
+      _axisDetails.calculateZoomRange(this, availableSize);
+      if (_axisDetails.axis.rangeController != null &&
+          _axisDetails.stateProperties.isRedrawByZoomPan &&
+          _axisDetails.stateProperties.canSetRangeController &&
+          _axisDetails.stateProperties.zoomProgress) {
+        _axisDetails.stateProperties.rangeChangedByChart = true;
+        _axisDetails.setRangeControllerValues(this);
       }
     }
-    _setZoomValuesFromRangeController();
+    _axisDetails.setZoomValuesFromRangeController();
   }
 
   /// Applies range padding
   @override
-  void applyRangePadding(_VisibleRange range, num? interval) {
+  void applyRangePadding(VisibleRange range, num? interval) {
     ActualRangeChangedArgs rangeChangedArgs;
-    if (_categoryAxis.labelPlacement == LabelPlacement.betweenTicks) {
+    if (_axisDetails._categoryAxis.labelPlacement ==
+        LabelPlacement.betweenTicks) {
       range.minimum -= 0.5;
       range.maximum += 0.5;
       range.delta = range.maximum - range.minimum;
     }
 
-    if (!(_categoryAxis.minimum != null && _categoryAxis.maximum != null)) {
+    if (!(_axisDetails._categoryAxis.minimum != null &&
+        _axisDetails._categoryAxis.maximum != null)) {
       ///Calculating range padding
-      _applyRangePadding(this, _chartState, range, interval!);
+      _axisDetails.applyRangePaddings(
+          this, _axisDetails.stateProperties, range, interval!);
     }
 
-    calculateVisibleRange(Size(_rect.width, _rect.height));
+    calculateVisibleRange(
+        Size(_axisDetails.rect.width, _axisDetails.rect.height));
 
     /// Setting range as visible zoomRange
-    if ((_categoryAxis.visibleMinimum != null ||
-            _categoryAxis.visibleMaximum != null) &&
-        (_categoryAxis.visibleMinimum != _categoryAxis.visibleMaximum) &&
-        (!_chartState._isRedrawByZoomPan)) {
-      _chartState._isRedrawByZoomPan = false;
-      _visibleRange!.minimum = _visibleMinimum ??
-          _categoryAxis.visibleMinimum ??
-          _visibleRange!.minimum;
-      _visibleRange!.maximum = _visibleMaximum ??
-          _categoryAxis.visibleMaximum ??
-          _visibleRange!.maximum;
-      if (_categoryAxis.labelPlacement == LabelPlacement.betweenTicks) {
-        _visibleRange!.minimum = _categoryAxis.visibleMinimum != null
-            ? (_visibleMinimum ?? _categoryAxis.visibleMinimum!) - 0.5
-            : _visibleRange!.minimum;
-        _visibleRange!.maximum = _categoryAxis.visibleMaximum != null
-            ? (_visibleMaximum ?? _categoryAxis.visibleMaximum!) + 0.5
-            : _visibleRange!.maximum;
+    if ((_axisDetails._categoryAxis.visibleMinimum != null ||
+            _axisDetails._categoryAxis.visibleMaximum != null) &&
+        (_axisDetails._categoryAxis.visibleMinimum !=
+            _axisDetails._categoryAxis.visibleMaximum) &&
+        (!_axisDetails.stateProperties.isRedrawByZoomPan)) {
+      _axisDetails.stateProperties.isRedrawByZoomPan = false;
+      _axisDetails.visibleRange!.minimum = _axisDetails.visibleMinimum ??
+          _axisDetails._categoryAxis.visibleMinimum ??
+          _axisDetails.actualRange!.minimum;
+      _axisDetails.visibleRange!.maximum = _axisDetails.visibleMaximum ??
+          _axisDetails._categoryAxis.visibleMaximum ??
+          _axisDetails.actualRange!.maximum;
+      if (_axisDetails._categoryAxis.labelPlacement ==
+          LabelPlacement.betweenTicks) {
+        _axisDetails.visibleRange!.minimum =
+            _axisDetails._categoryAxis.visibleMinimum != null
+                ? (_axisDetails.visibleMinimum ??
+                        _axisDetails._categoryAxis.visibleMinimum!) -
+                    0.5
+                : _axisDetails.visibleRange!.minimum;
+        _axisDetails.visibleRange!.maximum =
+            _axisDetails._categoryAxis.visibleMaximum != null
+                ? (_axisDetails.visibleMaximum ??
+                        _axisDetails._categoryAxis.visibleMaximum!) +
+                    0.5
+                : _axisDetails.visibleRange!.maximum;
       }
-      _visibleRange!.delta = _visibleRange!.maximum - _visibleRange!.minimum;
-      _visibleRange!.interval = interval == null
-          ? calculateInterval(_visibleRange!, _axisSize)
-          : _visibleRange!.interval;
-      _zoomFactor = _visibleRange!.delta / (range.delta);
-      _zoomPosition =
-          (_visibleRange!.minimum - _actualRange!.minimum) / range.delta;
+      _axisDetails.visibleRange!.delta = _axisDetails.visibleRange!.maximum -
+          _axisDetails.visibleRange!.minimum;
+      _axisDetails.visibleRange!.interval = interval == null
+          ? calculateInterval(_axisDetails.visibleRange!, _axisDetails.axisSize)
+          : _axisDetails.visibleRange!.interval;
+      _axisDetails.zoomFactor =
+          _axisDetails.visibleRange!.delta / (range.delta);
+      _axisDetails.zoomPosition = (_axisDetails.visibleRange!.minimum -
+              _axisDetails.actualRange!.minimum) /
+          range.delta;
     }
-    if (_chart.onActualRangeChanged != null) {
-      rangeChangedArgs = ActualRangeChangedArgs(_name!, _categoryAxis,
-          range.minimum, range.maximum, range.interval, _orientation!);
-      rangeChangedArgs.visibleMin = _visibleRange!.minimum;
-      rangeChangedArgs.visibleMax = _visibleRange!.maximum;
-      rangeChangedArgs.visibleInterval = _visibleRange!.interval;
-      _chart.onActualRangeChanged!(rangeChangedArgs);
-      _visibleRange!.minimum = rangeChangedArgs.visibleMin;
-      _visibleRange!.maximum = rangeChangedArgs.visibleMax;
-      _visibleRange!.delta = _visibleRange!.maximum - _visibleRange!.minimum;
-      _visibleRange!.interval = rangeChangedArgs.visibleInterval;
-      _zoomFactor = _visibleRange!.delta / (range.delta);
-      _zoomPosition =
-          (_visibleRange!.minimum - _actualRange!.minimum) / range.delta;
+    if (_axisDetails.chart.onActualRangeChanged != null) {
+      rangeChangedArgs = ActualRangeChangedArgs(
+          _axisDetails.name!,
+          _axisDetails._categoryAxis,
+          range.minimum,
+          range.maximum,
+          range.interval,
+          _axisDetails.orientation!);
+      rangeChangedArgs.visibleMin = _axisDetails.visibleRange!.minimum;
+      rangeChangedArgs.visibleMax = _axisDetails.visibleRange!.maximum;
+      rangeChangedArgs.visibleInterval = _axisDetails.visibleRange!.interval;
+      _axisDetails.chart.onActualRangeChanged!(rangeChangedArgs);
+      _axisDetails.visibleRange!.minimum = rangeChangedArgs.visibleMin;
+      _axisDetails.visibleRange!.maximum = rangeChangedArgs.visibleMax;
+      _axisDetails.visibleRange!.delta = _axisDetails.visibleRange!.maximum -
+          _axisDetails.visibleRange!.minimum;
+      _axisDetails.visibleRange!.interval = rangeChangedArgs.visibleInterval;
+      _axisDetails.zoomFactor =
+          _axisDetails.visibleRange!.delta / (range.delta);
+      _axisDetails.zoomPosition = (_axisDetails.visibleRange!.minimum -
+              _axisDetails.actualRange!.minimum) /
+          range.delta;
     }
   }
 
   /// Generates the visible axis labels.
   @override
   void generateVisibleLabels() {
-    num tempInterval = _visibleRange!.minimum.ceil();
+    num tempInterval = _axisDetails.visibleRange!.minimum.ceil();
     int position;
     String labelText;
-    _visibleLabels = <AxisLabel>[];
+    _axisDetails.visibleLabels = <AxisLabel>[];
     for (;
-        tempInterval <= _visibleRange!.maximum;
-        tempInterval += _visibleRange!.interval) {
-      if (_withInRange(tempInterval, _visibleRange!)) {
+        tempInterval <= _axisDetails.visibleRange!.maximum;
+        tempInterval += _axisDetails.visibleRange!.interval) {
+      if (withInRange(tempInterval, _axisDetails.visibleRange!)) {
         position = tempInterval.round();
         if (position <= -1 ||
-            (_labels.isNotEmpty && position >= _labels.length)) {
+            (_axisDetails.labels.isNotEmpty &&
+                position >= _axisDetails.labels.length)) {
           continue;
           // ignore: unnecessary_null_comparison
-        } else if (_labels.isNotEmpty && _labels[position] != null) {
-          labelText = _labels[position];
+        } else if (_axisDetails.labels.isNotEmpty &&
+            _axisDetails.labels[position] != null) {
+          labelText = _axisDetails.labels[position];
         } else {
           continue;
         }
-        _triggerLabelRenderEvent(labelText, tempInterval);
+        _axisDetails.triggerLabelRenderEvent(labelText, tempInterval);
       }
     }
-    _calculateMaximumLabelSize(this, _chartState);
+    _axisDetails.calculateMaximumLabelSize(this, _axisDetails.stateProperties);
   }
 
   /// Finds the interval of an axis.
   @override
-  num calculateInterval(_VisibleRange range, Size availableSize) => math
+  num calculateInterval(VisibleRange range, Size availableSize) => math
       .max(
           1,
-          (_actualRange!.delta /
-                  _calculateDesiredIntervalCount(
-                      Size(_rect.width, _rect.height), this))
+          (_axisDetails.actualRange!.delta /
+                  _axisDetails.calculateDesiredIntervalCount(
+                      Size(_axisDetails.rect.width, _axisDetails.rect.height),
+                      this))
               .floor())
       .toInt();
+}
+
+/// Represents the cartegory axis details class
+class CategoryAxisDetails extends ChartAxisRendererDetails {
+  /// Creates an instance an in
+  CategoryAxisDetails(this._categoryAxis, ChartAxisRenderer axisRenderer,
+      CartesianStateProperties _stateProperties)
+      : super(_categoryAxis, _stateProperties, axisRenderer) {
+    labels = <String>[];
+  }
+
+  /// Specifies the list of labels
+  late List<String> labels;
+
+  /// Represents the rect value
+  late Rect rect;
+  final CategoryAxis _categoryAxis;
+
+  /// Method to find the axis minimum and maximum value
+  void findAxisMinMaxValues(SeriesRendererDetails seriesRendererDetails,
+      CartesianChartPoint<dynamic> point, int pointIndex, int dataLength,
+      [bool? isXVisibleRange, bool? isYVisibleRange]) {
+    if (_categoryAxis.arrangeByIndex) {
+      // ignore: unnecessary_null_comparison
+      pointIndex < labels.length && labels[pointIndex] != null
+          ? labels[pointIndex] += ', ' + point.x
+          : labels.add(point.x.toString());
+      point.xValue = pointIndex;
+    } else {
+      if (!labels.contains(point.x.toString())) {
+        labels.add(point.x.toString());
+      }
+      point.xValue = labels.indexOf(point.x.toString());
+    }
+    point.yValue = point.y;
+    setCategoryMinMaxValues(axisRenderer, isXVisibleRange!, isYVisibleRange!,
+        point, pointIndex, dataLength, seriesRendererDetails);
+  }
+
+  /// Listener for range controller
+  void _controlListener() {
+    stateProperties.canSetRangeController = false;
+    if (_categoryAxis.rangeController != null &&
+        !stateProperties.rangeChangedByChart) {
+      updateRangeControllerValues(this);
+      stateProperties.rangeChangeBySlider = true;
+      stateProperties.redrawByRangeChange();
+    }
+  }
+
+  /// Calculate the range and interval
+  void calculateRangeAndInterval(CartesianStateProperties stateProperties,
+      [String? type]) {
+    chart = stateProperties.chart;
+    if (axis.rangeController != null) {
+      stateProperties.rangeChangeBySlider = true;
+      axis.rangeController!.addListener(_controlListener);
+    }
+    final Rect containerRect =
+        stateProperties.renderingDetails.chartContainerRect;
+    rect = Rect.fromLTWH(containerRect.left, containerRect.top,
+        containerRect.width, containerRect.height);
+    axisSize = Size(rect.width, rect.height);
+    axisRenderer.calculateRange(axisRenderer);
+    _calculateActualRange();
+    if (actualRange != null) {
+      axisRenderer.applyRangePadding(actualRange!, actualRange!.interval);
+      if (type == null && type != 'AxisCross' && _categoryAxis.isVisible) {
+        axisRenderer.generateVisibleLabels();
+      }
+    }
+  }
+
+  /// Calculate the required values of the actual range for the category axis
+  void _calculateActualRange() {
+    if (min != null && max != null) {
+      actualRange = VisibleRange(
+          _categoryAxis.minimum ?? min, _categoryAxis.maximum ?? max);
+      CartesianSeriesRenderer seriesRenderer;
+      for (int i = 0; i < seriesRenderers.length; i++) {
+        seriesRenderer = seriesRenderers[i];
+        final SeriesRendererDetails seriesRendererDetails =
+            SeriesHelper.getSeriesRendererDetails(seriesRenderer);
+        if ((actualRange!.maximum >
+                seriesRendererDetails.dataPoints.length - 1) ==
+            true) {
+          for (int i = labels.length; i < actualRange!.maximum + 1; i++) {
+            labels.add(i.toString());
+          }
+        }
+      }
+      actualRange = VisibleRange(
+          _categoryAxis.minimum ?? min, _categoryAxis.maximum ?? max);
+
+      ///Below condition is for checking the min, max value is equal
+      if ((actualRange!.minimum == actualRange!.maximum) &&
+          (_categoryAxis.labelPlacement == LabelPlacement.onTicks)) {
+        actualRange!.maximum += 1;
+      }
+      actualRange!.delta = actualRange!.maximum - actualRange!.minimum;
+      actualRange!.interval = _categoryAxis.interval ??
+          axisRenderer.calculateInterval(
+              actualRange!, Size(rect.width, rect.height));
+      actualRange!.delta = actualRange!.maximum - actualRange!.minimum;
+    }
+  }
 }

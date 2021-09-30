@@ -7,6 +7,7 @@ import 'package:syncfusion_flutter_core/core.dart';
 import 'package:syncfusion_flutter_core/localizations.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
+import '../../../calendar.dart';
 import '../appointment_engine/appointment_helper.dart';
 import '../common/calendar_view_helper.dart';
 import '../common/event_args.dart';
@@ -33,7 +34,8 @@ class AgendaViewLayout extends StatefulWidget {
       this.isMobilePlatform,
       this.appointmentBuilder,
       this.width,
-      this.height);
+      this.height,
+      this.calendar);
 
   /// Defines the month view customization details.
   final MonthViewSettings? monthViewSettings;
@@ -84,6 +86,9 @@ class AgendaViewLayout extends StatefulWidget {
   /// Defines the height of the agenda appointment layout widget.
   final double height;
 
+  /// Defines the calendar widget.
+  final SfCalendar calendar;
+
   @override
   _AgendaViewLayoutState createState() => _AgendaViewLayoutState();
 }
@@ -132,7 +137,8 @@ class _AgendaViewLayoutState extends State<AgendaViewLayout> {
         final CalendarAppointmentDetails details = CalendarAppointmentDetails(
             widget.selectedDate!,
             List<dynamic>.unmodifiable(<dynamic>[
-              CalendarViewHelper.getAppointmentDetail(view.appointment!)
+              CalendarViewHelper.getAppointmentDetail(
+                  view.appointment!, widget.calendar.dataSource)
             ]),
             view.appointmentRect!.outerRect);
         final Widget child = widget.appointmentBuilder!(context, details);

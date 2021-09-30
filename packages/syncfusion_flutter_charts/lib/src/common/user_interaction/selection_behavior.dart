@@ -1,4 +1,18 @@
-part of charts;
+import 'dart:ui';
+
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_charts/src/chart/common/cartesian_state_properties.dart';
+import 'package:syncfusion_flutter_core/core.dart';
+
+import '../../chart/chart_behavior/selection_behavior.dart';
+import '../../chart/chart_segment/chart_segment.dart';
+import '../../chart/chart_series/series.dart';
+import '../../chart/chart_series/series_renderer_properties.dart';
+import '../../chart/user_interaction/selection_renderer.dart';
+import '../../chart/utils/helper.dart';
+import '../../circular_chart/renderer/common.dart';
 
 ///Provides options for the selection of series or data points.
 ///
@@ -274,7 +288,8 @@ class SelectionBehavior {
     return hashList(values);
   }
 
-  dynamic _chartState;
+  /// Specifies the value of selection behavior renderer
+  SelectionBehaviorRenderer? _selectionBehaviorRenderer;
 
   ////Selects or deselects the specified data point in the series.
   ///
@@ -312,28 +327,38 @@ class SelectionBehavior {
   ///```dart
 
   void selectDataPoints(int pointIndex, [int seriesIndex = 0]) {
-    final dynamic seriesRenderer =
-        _chartState._chartSeries.visibleSeriesRenderers[seriesIndex];
+    final dynamic seriesRenderer = _selectionBehaviorRenderer!._selectionDetails
+        .stateProperties.chartSeries.visibleSeriesRenderers[seriesIndex];
     assert(
-        seriesRenderer._chartState! is SfCartesianChartState == false ||
-            _getVisibleDataPointIndex(pointIndex, seriesRenderer) != null,
+        seriesRenderer is CartesianSeriesRenderer == false ||
+            getVisibleDataPointIndex(pointIndex,
+                    SeriesHelper.getSeriesRendererDetails(seriesRenderer)) !=
+                null,
         'Provided point index is not in the visible range. Provide point index which is in the visible range.');
-    final SelectionBehaviorRenderer selectionBehaviorRenderer =
-        seriesRenderer._selectionBehaviorRenderer;
-    selectionBehaviorRenderer._selectionRenderer
+    _selectionBehaviorRenderer = seriesRenderer is CartesianSeriesRenderer
+        ? SeriesHelper.getSeriesRendererDetails(seriesRenderer)
+            .selectionBehaviorRenderer
+        : _selectionBehaviorRenderer;
+    _selectionBehaviorRenderer!._selectionDetails.selectionRenderer
         ?.selectDataPoints(pointIndex, seriesIndex);
   }
 
   /// provides the list of selected point indices for given series.
   List<int> getSelectedDataPoints(CartesianSeries<dynamic, dynamic> _series) {
     List<ChartSegment> selectedItems = <ChartSegment>[];
-    final dynamic seriesRenderer =
-        _chartState._chartSeries.visibleSeriesRenderers[0];
-    final SelectionBehaviorRenderer selectionBehaviorRenderer =
-        seriesRenderer._selectionBehaviorRenderer;
+    final dynamic seriesRenderer = _selectionBehaviorRenderer!._selectionDetails
+        .stateProperties.chartSeries.visibleSeriesRenderers[0];
+    SelectionBehaviorRenderer _selectionRenderer;
+    if (seriesRenderer is CartesianSeriesRenderer) {
+      _selectionRenderer = SeriesHelper.getSeriesRendererDetails(seriesRenderer)
+          .selectionBehaviorRenderer!;
+    } else {
+      _selectionRenderer = seriesRenderer.selectionBehaviorRenderer;
+    }
+
     final List<int> selectedPoints = <int>[];
-    selectedItems =
-        selectionBehaviorRenderer._selectionRenderer!.selectedSegments;
+    selectedItems = _selectionRenderer
+        ._selectionDetails.selectionRenderer!.selectedSegments;
     for (int i = 0; i < selectedItems.length; i++) {
       selectedPoints.add(selectedItems[i].currentSegmentIndex!);
     }
@@ -343,68 +368,23 @@ class SelectionBehavior {
 
 /// Selection renderer class for mutable fields and methods
 class SelectionBehaviorRenderer with ChartSelectionBehavior {
-  /// Creates an argument constructor for SelectionBehavior renderer class
-  SelectionBehaviorRenderer(
-      this._selectionBehavior, this._chart, this._sfChartState);
-
-  final dynamic _chart;
-
-  final dynamic _sfChartState;
-
-  final dynamic _selectionBehavior;
-
-  _SelectionRenderer? _selectionRenderer;
-
-  // ignore: unused_element
-  void _selectRange() {
-    bool isSelect = false;
-    final CartesianSeriesRenderer seriesRenderer =
-        _selectionRenderer!.seriesRenderer;
-    final SfCartesianChartState chartState = _selectionRenderer!._chartState;
-    if (_selectionBehavior.enable == true &&
-        _selectionBehavior.selectionController != null) {
-      _selectionBehavior.selectionController.addListener(() {
-        chartState._isRangeSelectionSlider = true;
-        _selectionRenderer!.selectedSegments.clear();
-        _selectionRenderer!.unselectedSegments?.clear();
-        final dynamic start = _selectionBehavior.selectionController.start;
-        final dynamic end = _selectionBehavior.selectionController.end;
-        for (int i = 0; i < seriesRenderer._dataPoints.length; i++) {
-          final num xValue = seriesRenderer._dataPoints[i].xValue;
-          isSelect = start is DateTime
-              ? (xValue >= start.millisecondsSinceEpoch &&
-                  xValue <= end.millisecondsSinceEpoch)
-              : (xValue >= start && xValue <= end);
-
-          isSelect
-              ? _selectionRenderer!.selectedSegments
-                  .add(seriesRenderer._segments[i])
-              : _selectionRenderer!.unselectedSegments
-                  ?.add(seriesRenderer._segments[i]);
-        }
-        _selectionRenderer!
-            ._selectedSegmentsColors(_selectionRenderer!.selectedSegments);
-        _selectionRenderer!
-            ._unselectedSegmentsColors(_selectionRenderer!.unselectedSegments!);
-
-        for (final CartesianSeriesRenderer _seriesRenderer
-            in _sfChartState._chartSeries.visibleSeriesRenderers) {
-          ValueNotifier<int>(_seriesRenderer._repaintNotifier.value++);
-        }
-      });
-    }
-    if (chartState._renderingDetails.initialRender!) {
-      chartState._isRangeSelectionSlider = false;
-    }
-    _selectionRenderer!._chartState = chartState;
+  /// Creates an argument constructor for SelectionSettings renderer class
+  SelectionBehaviorRenderer(SelectionBehavior selectionBehavior, dynamic chart,
+      dynamic stateProperties) {
+    _selectionDetails =
+        SelectionDetails(selectionBehavior, chart, stateProperties, this);
   }
+
+  /// Holds the selection details instance for the chart
+  late SelectionDetails _selectionDetails;
 
   /// Specifies the index of the data point that needs to be selected initially while
   /// rendering a chart.
   /// ignore: unused_element
   void _selectedDataPointIndex(
           CartesianSeriesRenderer seriesRenderer, List<int> selectedData) =>
-      _selectionRenderer?.selectedDataPointIndex(seriesRenderer, selectedData);
+      _selectionDetails.selectionRenderer
+          ?.selectedDataPointIndex(seriesRenderer, selectedData);
 
   /// Gets the selected item color of a Cartesian series.
   @override
@@ -433,39 +413,126 @@ class SelectionBehaviorRenderer with ChartSelectionBehavior {
   /// Gets the selected item color of a circular series.
   @override
   Color getCircularSelectedItemFill(Color color, int seriesIndex,
-          int pointIndex, List<_Region> selectedRegions) =>
+          int pointIndex, List<Region> selectedRegions) =>
       color;
 
   /// Gets the unselected item color of a circular series.
   @override
   Color getCircularUnSelectedItemFill(Color color, int seriesIndex,
-          int pointIndex, List<_Region> unselectedRegions) =>
+          int pointIndex, List<Region> unselectedRegions) =>
       color;
 
   /// Gets the selected item border color of a circular series.
   @override
   Color getCircularSelectedItemBorder(Color color, int seriesIndex,
-          int pointIndex, List<_Region> selectedRegions) =>
+          int pointIndex, List<Region> selectedRegions) =>
       color;
 
   /// Gets the unselected item border color of a circular series.
   @override
   Color getCircularUnSelectedItemBorder(Color color, int seriesIndex,
-          int pointIndex, List<_Region> unselectedRegions) =>
+          int pointIndex, List<Region> unselectedRegions) =>
       color;
 
   /// Performs the double-tap action on the chart.
   @override
   void onDoubleTap(double xPos, double yPos) =>
-      _selectionRenderer?.performSelection(Offset(xPos, yPos));
+      _selectionDetails.selectionRenderer?.performSelection(Offset(xPos, yPos));
 
   /// Performs the long press action on the chart.
   @override
   void onLongPress(double xPos, double yPos) =>
-      _selectionRenderer?.performSelection(Offset(xPos, yPos));
+      _selectionDetails.selectionRenderer?.performSelection(Offset(xPos, yPos));
 
   /// Performs the touch-down action on the chart.
   @override
   void onTouchDown(double xPos, double yPos) =>
-      _selectionRenderer?.performSelection(Offset(xPos, yPos));
+      _selectionDetails.selectionRenderer?.performSelection(Offset(xPos, yPos));
+}
+
+/// Holds the properties of the selection behavior renderer
+class SelectionDetails {
+  /// Argument constructor for SelectionDetails class
+  SelectionDetails(this.selectionBehavior, this.chart, this.stateProperties,
+      this.selectionBehaviorRenderer);
+
+  /// Specifies the chart instance
+  final dynamic chart;
+
+  /// Holds the state properties value
+  final dynamic stateProperties;
+
+  /// Holds the value of selection behavior
+  // ignore: deprecated_member_use_from_same_package
+  final dynamic selectionBehavior;
+
+  /// Holds the selection renderer value
+  SelectionRenderer? selectionRenderer;
+
+  /// Holds the selection behavior renderer instance
+  final SelectionBehaviorRenderer selectionBehaviorRenderer;
+
+  /// Method to select the range
+  void selectRange() {
+    bool isSelect = false;
+    final SeriesRendererDetails seriesRendererDetails =
+        selectionRenderer!.seriesRendererDetails;
+    final CartesianStateProperties stateProperties =
+        selectionRenderer!.stateProperties;
+    if (selectionBehavior.enable == true &&
+        selectionBehavior.selectionController != null) {
+      selectionBehavior.selectionController.addListener(() {
+        stateProperties.isRangeSelectionSlider = true;
+        selectionRenderer!.selectedSegments.clear();
+        selectionRenderer!.unselectedSegments?.clear();
+        final dynamic start = selectionBehavior.selectionController.start;
+        final dynamic end = selectionBehavior.selectionController.end;
+        for (int i = 0; i < seriesRendererDetails.dataPoints.length; i++) {
+          final num xValue = seriesRendererDetails.dataPoints[i].xValue;
+          isSelect = start is DateTime
+              ? (xValue >= start.millisecondsSinceEpoch &&
+                  xValue <= end.millisecondsSinceEpoch)
+              : (xValue >= start && xValue <= end);
+
+          isSelect
+              ? selectionRenderer!.selectedSegments
+                  .add(seriesRendererDetails.segments[i])
+              : selectionRenderer!.unselectedSegments
+                  ?.add(seriesRendererDetails.segments[i]);
+        }
+        selectionRenderer!
+            .selectedSegmentsColors(selectionRenderer!.selectedSegments);
+        selectionRenderer!
+            .unselectedSegmentsColors(selectionRenderer!.unselectedSegments!);
+
+        for (final CartesianSeriesRenderer _seriesRenderer
+            in stateProperties.chartSeries.visibleSeriesRenderers) {
+          ValueNotifier<int>(
+              SeriesHelper.getSeriesRendererDetails(_seriesRenderer)
+                  .repaintNotifier
+                  .value++);
+        }
+      });
+    }
+    if (stateProperties.renderingDetails.initialRender! == true) {
+      stateProperties.isRangeSelectionSlider = false;
+    }
+    selectionRenderer!.stateProperties = stateProperties;
+  }
+}
+
+// ignore: avoid_classes_with_only_static_members
+/// Helper class to get the selection details instance from its renderer.
+class SelectionHelper {
+  /// Returns the selection details instance from its renderer
+  static SelectionDetails getRenderingDetails(
+      SelectionBehaviorRenderer renderer) {
+    return renderer._selectionDetails;
+  }
+
+  /// Method to set the selection behavior renderer
+  static void setSelectionBehaviorRenderer(SelectionBehavior selectionBehavior,
+      SelectionBehaviorRenderer selectionBehaviorRenderer) {
+    selectionBehavior._selectionBehaviorRenderer = selectionBehaviorRenderer;
+  }
 }

@@ -1,4 +1,20 @@
-part of charts;
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+
+import '../../chart/common/data_label.dart';
+import '../../chart/utils/enum.dart';
+import '../../common/common.dart';
+import '../../common/user_interaction/selection_behavior.dart';
+import '../../common/utils/enum.dart';
+import '../../common/utils/typedef.dart';
+import '../base/circular_base.dart';
+import '../utils/enum.dart';
+import 'circular_series.dart';
+import 'renderer_base.dart';
+import 'renderer_extension.dart';
 
 /// This class has the properties of the Doughnut series.
 ///
@@ -43,10 +59,12 @@ class DoughnutSeries<T, D> extends CircularSeries<T, D> {
       double? strokeWidth,
       DataLabelSettings? dataLabelSettings,
       bool? enableTooltip,
-      bool? enableSmartLabels,
+      @Deprecated('Use LabelIntersectAction.shift in dataLabelSettings.labelIntersectAction instead')
+          bool? enableSmartLabels,
       String? name,
       double? opacity,
       double? animationDuration,
+      double? animationDelay,
       SelectionBehavior? selectionBehavior,
       SortingOrder? sortingOrder,
       LegendIconType? legendIconType,
@@ -79,6 +97,7 @@ class DoughnutSeries<T, D> extends CircularSeries<T, D> {
               ? (int index) => sortFieldValueMapper(dataSource![index], index)
               : null,
           animationDuration: animationDuration,
+          animationDelay: animationDelay,
           startAngle: startAngle,
           endAngle: endAngle,
           radius: radius,
@@ -116,7 +135,7 @@ class DoughnutSeries<T, D> extends CircularSeries<T, D> {
           'This onCreateRenderer callback function should return value as extends from ChartSeriesRenderer class and should not be return value as null');
       return seriesRenderer;
     }
-    return DoughnutSeriesRenderer();
+    return DoughnutSeriesRendererExtension();
   }
 
   @override
@@ -130,6 +149,7 @@ class DoughnutSeries<T, D> extends CircularSeries<T, D> {
 
     return other is DoughnutSeries &&
         other.animationDuration == animationDuration &&
+        other.animationDelay == animationDelay &&
         other.borderColor == borderColor &&
         other.borderWidth == borderWidth &&
         other.cornerStyle == cornerStyle &&
@@ -175,6 +195,7 @@ class DoughnutSeries<T, D> extends CircularSeries<T, D> {
   int get hashCode {
     final List<Object?> values = <Object?>[
       animationDuration,
+      animationDelay,
       borderColor,
       borderWidth,
       cornerStyle,
@@ -216,120 +237,4 @@ class DoughnutSeries<T, D> extends CircularSeries<T, D> {
     ];
     return hashList(values);
   }
-}
-
-class _DoughnutChartPainter extends CustomPainter {
-  _DoughnutChartPainter({
-    required this.chartState,
-    required this.index,
-    required this.isRepaint,
-    this.animationController,
-    this.seriesAnimation,
-    required ValueNotifier<num> notifier,
-  }) : super(repaint: notifier);
-  final SfCircularChartState chartState;
-  final int index;
-  final bool isRepaint;
-  final AnimationController? animationController;
-  final Animation<double>? seriesAnimation;
-
-  late DoughnutSeriesRenderer seriesRenderer;
-
-  /// To paint series
-  @override
-  void paint(Canvas canvas, Size size) {
-    final SfCircularChart chart = chartState._chart;
-    num? pointStartAngle;
-    seriesRenderer = chartState._chartSeries.visibleSeriesRenderers[index]
-        as DoughnutSeriesRenderer;
-    pointStartAngle = seriesRenderer._segmentRenderingValues['start'];
-    seriesRenderer._innerRadius =
-        seriesRenderer._segmentRenderingValues['currentInnerRadius']!;
-    seriesRenderer._radius =
-        seriesRenderer._segmentRenderingValues['currentRadius']!;
-    ChartPoint<dynamic> point;
-    seriesRenderer._pointRegions = <_Region>[];
-    ChartPoint<dynamic>? _oldPoint;
-    final DoughnutSeriesRenderer? oldSeriesRenderer =
-        (chartState._renderingDetails.widgetNeedUpdate &&
-                !chartState._renderingDetails.isLegendToggled &&
-                chartState._prevSeriesRenderer?._seriesType == 'doughnut')
-            ? chartState._prevSeriesRenderer as DoughnutSeriesRenderer
-            : null;
-    seriesRenderer._renderPaths.clear();
-    seriesRenderer._renderList.clear();
-    for (int i = 0; i < seriesRenderer._renderPoints!.length; i++) {
-      point = seriesRenderer._renderPoints![i];
-      _oldPoint = (oldSeriesRenderer != null &&
-              oldSeriesRenderer._oldRenderPoints != null &&
-              (oldSeriesRenderer._oldRenderPoints!.length - 1 >= i))
-          ? oldSeriesRenderer._oldRenderPoints![i]
-          : ((chartState._renderingDetails.isLegendToggled &&
-                  chartState._prevSeriesRenderer?._seriesType == 'doughnut')
-              ? chartState._oldPoints![i]
-              : null);
-      pointStartAngle = seriesRenderer._circularRenderPoint(
-          chart,
-          seriesRenderer,
-          point,
-          pointStartAngle,
-          point.innerRadius,
-          point.outerRadius,
-          canvas,
-          index,
-          i,
-          seriesAnimation?.value ?? 1,
-          1,
-          _checkIsAnyPointSelect(seriesRenderer, point, chart),
-          _oldPoint,
-          chartState._oldPoints);
-    }
-
-    if (seriesRenderer._renderList.isNotEmpty) {
-      Shader? _chartShader;
-      if (chart.onCreateShader != null) {
-        ChartShaderDetails chartShaderDetails;
-        chartShaderDetails = ChartShaderDetails(seriesRenderer._renderList[1],
-            seriesRenderer._renderList[2], 'series');
-        _chartShader = chart.onCreateShader!(chartShaderDetails);
-      }
-      for (int k = 0; k < seriesRenderer._renderPaths.length; k++) {
-        _drawPath(
-            canvas,
-            seriesRenderer._renderList[0],
-            seriesRenderer._renderPaths[k],
-            seriesRenderer._renderList[1],
-            _chartShader);
-      }
-      if (seriesRenderer._renderList[0].strokeColor != null &&
-          seriesRenderer._renderList[0].strokeWidth != null &&
-          seriesRenderer._renderList[0].strokeWidth > 0 == true) {
-        final Paint paint = Paint();
-        paint.color = seriesRenderer._renderList[0].strokeColor;
-        paint.strokeWidth = seriesRenderer._renderList[0].strokeWidth;
-        paint.style = PaintingStyle.stroke;
-        for (int k = 0; k < seriesRenderer._renderPaths.length; k++) {
-          canvas.drawPath(seriesRenderer._renderPaths[k], paint);
-        }
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(_DoughnutChartPainter oldDelegate) => isRepaint;
-}
-
-/// Creates series renderer for Doughnut series
-class DoughnutSeriesRenderer extends CircularSeriesRenderer {
-  /// Calling the default constructor of DoughnutSeriesRenderer class.
-  DoughnutSeriesRenderer();
-
-  /// stores the series of the corresponding series for renderer
-  late CircularSeries<dynamic, dynamic> series;
-
-  //ignore: unused_field
-  late num _innerRadius;
-
-  //ignore: unused_field
-  late num _radius;
 }

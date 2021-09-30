@@ -3,14 +3,11 @@ import 'package:flutter/foundation.dart';
 import '../treemap.dart';
 import 'layouts.dart';
 
-typedef _DrillDownCallback = void Function(
-    TreemapTile tile, bool isForwardDrilldown);
+typedef _DrillDownCallback = void Function(TreemapTile tile, bool isDrilledIn);
 
 /// Whenever the user modifies a selection, hover or drilldown, the controller
 /// notifies its listeners.
 class TreemapController {
-  /// Which is represents the treemap size is changed or not.
-  bool isSizeChanged = false;
   ObserverList<VoidCallback>? _selectionListeners =
       ObserverList<VoidCallback>();
   ObserverList<VoidCallback>? _hoverListeners = ObserverList<VoidCallback>();
@@ -63,9 +60,9 @@ class TreemapController {
   }
 
   /// This method should be called whenever the drilldown visible index changes.
-  void notifyDrilldownListeners(TreemapTile tile, bool isForwardDrillDown) {
+  void notifyDrilldownListeners(TreemapTile tile, bool isDrilledIn) {
     for (final _DrillDownCallback listener in _drillDownListeners!) {
-      listener(tile, isForwardDrillDown);
+      listener(tile, isDrilledIn);
     }
   }
 

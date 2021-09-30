@@ -237,6 +237,13 @@ class RenderMapBubble extends ShapeLayerChildRenderBoxBase {
     markNeedsPaint();
   }
 
+  void _handleZoomPanChange() {
+    if (_currentHoverItem != null) {
+      onExit();
+    }
+    markNeedsPaint();
+  }
+
   void _handleRefresh() {
     markNeedsPaint();
   }
@@ -290,15 +297,10 @@ class RenderMapBubble extends ShapeLayerChildRenderBoxBase {
 
   Color _getHoverFillColor(double opacity, Color defaultColor, MapModel model) {
     final Color bubbleColor = model.bubbleColor ?? defaultColor;
-    final bool canAdjustHoverOpacity = (model.bubbleColor != null &&
-            double.parse(model.bubbleColor!.opacity.toStringAsFixed(2)) !=
-                hoverColorOpacity) ||
-        _bubbleSettings.color!.opacity != hoverColorOpacity;
     return _themeData.bubbleHoverColor != null &&
             _themeData.bubbleHoverColor != Colors.transparent
         ? _themeData.bubbleHoverColor!
-        : bubbleColor.withOpacity(
-            canAdjustHoverOpacity ? hoverColorOpacity : minHoverOpacity);
+        : getSaturatedColor(bubbleColor);
   }
 
   @override
@@ -316,6 +318,7 @@ class RenderMapBubble extends ShapeLayerChildRenderBoxBase {
     hoverBubbleAnimationController.addListener(markNeedsPaint);
     if (controller != null) {
       controller!
+        ..addZoomPanListener(_handleZoomPanChange)
         ..addToggleListener(_handleToggleChange)
         ..addZoomingListener(_handleZooming)
         ..addPanningListener(_handlePanning)
@@ -383,14 +386,10 @@ class RenderMapBubble extends ShapeLayerChildRenderBoxBase {
 
   Color _getHoverStrokeColor() {
     final Color bubbleStrokeColor = _bubbleSettings.strokeColor!;
-    final bool canAdjustHoverOpacity =
-        double.parse(bubbleStrokeColor.opacity.toStringAsFixed(2)) !=
-            hoverColorOpacity;
-    return _themeData.bubbleHoverStrokeColor != null &&
-            _themeData.bubbleHoverStrokeColor != Colors.transparent
+    return (_themeData.bubbleHoverStrokeColor != null &&
+            _themeData.bubbleHoverStrokeColor != Colors.transparent)
         ? _themeData.bubbleHoverStrokeColor!
-        : bubbleStrokeColor.withOpacity(
-            canAdjustHoverOpacity ? hoverColorOpacity : minHoverOpacity);
+        : getSaturatedColor(bubbleStrokeColor);
   }
 
   void _updateToggledBubbleTweenColor() {

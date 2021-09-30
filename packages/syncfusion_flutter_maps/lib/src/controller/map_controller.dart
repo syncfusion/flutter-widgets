@@ -30,6 +30,7 @@ class MapController {
   ObserverList<VoidCallback>? _refreshListeners = ObserverList<VoidCallback>();
   ObserverList<VoidCallback>? _resetListeners = ObserverList<VoidCallback>();
   ObserverList<VoidCallback>? _toggledListeners = ObserverList<VoidCallback>();
+  ObserverList<VoidCallback>? _zoomPanListeners = ObserverList<VoidCallback>();
 
   double shapeLayerSizeFactor = 1.0;
   double localScale = 1.0;
@@ -82,6 +83,20 @@ class MapController {
 
   void notifyToggleListeners() {
     for (final VoidCallback listener in _toggledListeners!) {
+      listener();
+    }
+  }
+
+  void addZoomPanListener(VoidCallback listener) {
+    _zoomPanListeners?.add(listener);
+  }
+
+  void removeZoomPanListener(VoidCallback listener) {
+    _zoomPanListeners?.remove(listener);
+  }
+
+  void notifyZoomPanListeners() {
+    for (final VoidCallback listener in _zoomPanListeners!) {
       listener();
     }
   }
@@ -256,6 +271,7 @@ class MapController {
   void dispose() {
     _listeners = null;
     _toggledListeners = null;
+    _zoomPanListeners = null;
     _zoomingListeners = null;
     _panningListeners = null;
     _resetListeners = null;

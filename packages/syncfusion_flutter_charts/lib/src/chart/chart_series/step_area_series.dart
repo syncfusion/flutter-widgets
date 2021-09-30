@@ -1,4 +1,22 @@
-part of charts;
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+
+import '../../chart/utils/enum.dart';
+import '../../common/common.dart';
+import '../../common/series/chart_series.dart';
+import '../../common/user_interaction/selection_behavior.dart';
+import '../../common/utils/enum.dart';
+import '../../common/utils/typedef.dart';
+import '../base/chart_base.dart';
+import '../common/data_label.dart';
+import '../common/marker.dart';
+import '../series_painter/step_area_painter.dart';
+import '../trendlines/trendlines.dart';
+import 'xy_data_series.dart';
 
 /// Renders the step area series.
 ///
@@ -47,10 +65,12 @@ class StepAreaSeries<T, D> extends XyDataSeries<T, D> {
       LegendIconType? legendIconType,
       String? legendItemText,
       double? opacity,
+      double? animationDelay,
       SeriesRendererCreatedCallback? onRendererCreated,
       ChartPointInteractionCallback? onPointTap,
       ChartPointInteractionCallback? onPointDoubleTap,
       ChartPointInteractionCallback? onPointLongPress,
+      CartesianShaderCallback? onCreateShader,
       this.borderDrawMode = BorderDrawMode.top})
       : super(
             key: key,
@@ -86,7 +106,9 @@ class StepAreaSeries<T, D> extends XyDataSeries<T, D> {
             onPointTap: onPointTap,
             onPointDoubleTap: onPointDoubleTap,
             onPointLongPress: onPointLongPress,
-            opacity: opacity);
+            opacity: opacity,
+            animationDelay: animationDelay,
+            onCreateShader: onCreateShader);
 
   ///Border type of step area series.
   ///
@@ -161,11 +183,13 @@ class StepAreaSeries<T, D> extends XyDataSeries<T, D> {
         other.legendIconType == legendIconType &&
         other.legendItemText == legendItemText &&
         other.opacity == opacity &&
+        other.animationDelay == animationDelay &&
         other.borderDrawMode == borderDrawMode &&
         other.onRendererCreated == onRendererCreated &&
         other.onPointTap == onPointTap &&
         other.onPointDoubleTap == onPointDoubleTap &&
-        other.onPointLongPress == onPointLongPress;
+        other.onPointLongPress == onPointLongPress &&
+        other.onCreateShader == onCreateShader;
   }
 
   @override
@@ -201,6 +225,7 @@ class StepAreaSeries<T, D> extends XyDataSeries<T, D> {
       legendIconType,
       legendItemText,
       opacity,
+      animationDelay,
       borderDrawMode,
       onRendererCreated,
       onPointTap,
@@ -209,75 +234,4 @@ class StepAreaSeries<T, D> extends XyDataSeries<T, D> {
     ];
     return hashList(values);
   }
-}
-
-/// Creates series renderer for Step area series
-class StepAreaSeriesRenderer extends XyDataSeriesRenderer {
-  /// Calling the default constructor of StepAreaSeriesRenderer class.
-  StepAreaSeriesRenderer();
-
-  /// StepArea segment is created here
-  ChartSegment _createSegments(
-      Path path, Path strokePath, int seriesIndex, double animateFactor,
-      [List<Offset>? _points]) {
-    final StepAreaSegment segment = createSegment();
-    _isRectSeries = false;
-    segment._path = path;
-    segment._strokePath = strokePath;
-    segment._seriesIndex = seriesIndex;
-    segment._seriesRenderer = this;
-    segment._series = _series as XyDataSeries<dynamic, dynamic>;
-    if (_points != null) {
-      segment.points = _points;
-    }
-    segment._chart = _chart;
-    segment._chartState = _chartState!;
-    segment.animationFactor = animateFactor;
-    segment.calculateSegmentPoints();
-    segment._oldSegmentIndex = 0;
-    customizeSegment(segment);
-    segment.strokePaint = segment.getStrokePaint();
-    segment.fillPaint = segment.getFillPaint();
-    _segments.add(segment);
-    return segment;
-  }
-
-  /// To render step area series segments
-  //ignore: unused_element
-  void _drawSegment(Canvas canvas, ChartSegment segment) {
-    if (segment._seriesRenderer._isSelectionEnable) {
-      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
-          segment._seriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer?._selectionRenderer
-          ?._checkWithSelectionState(_segments[0], _chart);
-    }
-    segment.onPaint(canvas);
-  }
-
-  /// Creates a segment for a data point in the series.
-  @override
-  StepAreaSegment createSegment() => StepAreaSegment();
-
-  /// Changes the series color, border color, and border width.
-  @override
-  void customizeSegment(ChartSegment segment) {
-    segment._color = segment._seriesRenderer._seriesColor;
-    segment._strokeColor = segment._series.borderColor;
-    segment._strokeWidth = segment._series.borderWidth;
-  }
-
-  /// Draws marker with different shape and color of the appropriate data point in the series.
-  @override
-  void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
-      Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer? seriesRenderer]) {
-    canvas.drawPath(seriesRenderer!._markerShapes[index]!, fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes[index]!, strokePaint);
-  }
-
-  /// Draws data label text of the appropriate data point in a series.
-  @override
-  void drawDataLabel(int index, Canvas canvas, String dataLabel, double pointX,
-          double pointY, int angle, TextStyle style) =>
-      _drawText(canvas, dataLabel, Offset(pointX, pointY), style, angle);
 }

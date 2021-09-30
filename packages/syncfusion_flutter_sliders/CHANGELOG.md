@@ -2,6 +2,17 @@
 
 ## Slider
 
+* Provides an option to change the minimum and maximum positions of the vertical slider.
+
+## Range Slider
+
+* Provides an option to change the minimum and maximum positions of the vertical range slider.
+* Provides various dragging options to control thumb dragging. The available options are `onThumb`, `betweenThumbs`, and `both`.
+
+## [19.2.44-beta] - 06/29/2021
+
+## Slider
+
 ### Breaking changes
 
 The following `divisor` related properties were renamed into `divider` but the behavior of those properties are same as before. The APIs changes are,

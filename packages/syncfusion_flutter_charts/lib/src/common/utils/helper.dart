@@ -1,7 +1,43 @@
-part of charts;
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_charts/src/chart/axis/axis.dart';
+import 'package:syncfusion_flutter_charts/src/common/rendering_details.dart';
+import 'package:syncfusion_flutter_charts/src/pyramid_chart/utils/common.dart';
+import 'package:syncfusion_flutter_charts/src/pyramid_chart/utils/helper.dart';
+import 'package:syncfusion_flutter_core/core.dart';
+import 'package:syncfusion_flutter_core/legend_internal.dart'
+    hide LegendPosition;
+import 'package:syncfusion_flutter_core/legend_internal.dart' as legend_common;
+import 'package:syncfusion_flutter_core/theme.dart';
+
+import '../../chart/base/chart_base.dart';
+import '../../chart/chart_series/financial_series_base.dart';
+import '../../chart/chart_series/series.dart';
+import '../../chart/chart_series/series_renderer_properties.dart';
+import '../../chart/chart_series/xy_data_series.dart';
+import '../../chart/common/cartesian_state_properties.dart';
+import '../../chart/common/data_label.dart';
+import '../../chart/technical_indicators/technical_indicator.dart';
+import '../../chart/utils/enum.dart';
+import '../../chart/utils/helper.dart';
+import '../../circular_chart/base/circular_base.dart';
+import '../../circular_chart/renderer/common.dart';
+import '../../funnel_chart/base/funnel_base.dart';
+import '../../pyramid_chart/base/pyramid_base.dart';
+import '../common.dart';
+import '../event_args.dart';
+import '../legend/legend.dart';
+import '../legend/renderer.dart';
+import '../state_properties.dart';
+import '../utils/enum.dart';
+import 'typedef.dart';
 
 /// `onDataLabelTapped` event for all series.
-void _dataLabelTapEvent(dynamic chart, DataLabelSettings dataLabelSettings,
+void dataLabelTapEvent(dynamic chart, DataLabelSettings dataLabelSettings,
     int pointIndex, dynamic point, Offset position, int seriesIndex) {
   DataLabelTapDetails datalabelArgs;
   datalabelArgs = DataLabelTapDetails(
@@ -16,7 +52,7 @@ void _dataLabelTapEvent(dynamic chart, DataLabelSettings dataLabelSettings,
 }
 
 ///To get saturation color
-Color _getSaturationColor(Color color) {
+Color getSaturationColor(Color color) {
   Color saturationColor;
   final num contrast =
       ((color.red * 299 + color.green * 587 + color.blue * 114) / 1000).round();
@@ -25,32 +61,32 @@ Color _getSaturationColor(Color color) {
 }
 
 /// To get point from data and return point data
-CartesianChartPoint<dynamic> _getPointFromData(
-    CartesianSeriesRenderer seriesRenderer, int pointIndex) {
+CartesianChartPoint<dynamic> getPointFromData(
+    SeriesRendererDetails seriesRendererDetails, int pointIndex) {
   final XyDataSeries<dynamic, dynamic> series =
-      seriesRenderer._series as XyDataSeries<dynamic, dynamic>;
+      seriesRendererDetails.series as XyDataSeries<dynamic, dynamic>;
   final ChartIndexedValueMapper<dynamic>? xValue = series.xValueMapper;
   final ChartIndexedValueMapper<dynamic>? yValue = series.yValueMapper;
   final dynamic xVal = xValue!(pointIndex);
-  final dynamic yVal = (seriesRenderer._seriesType.contains('range') ||
-          seriesRenderer._seriesType.contains('hilo') ||
-          seriesRenderer._seriesType == 'candle')
+  final dynamic yVal = (seriesRendererDetails.seriesType.contains('range') ||
+          seriesRendererDetails.seriesType.contains('hilo') ||
+          seriesRendererDetails.seriesType == 'candle')
       ? null
       : yValue!(pointIndex);
 
   final CartesianChartPoint<dynamic> point =
       CartesianChartPoint<dynamic>(xVal, yVal);
-  if (seriesRenderer._seriesType.contains('range') ||
-      seriesRenderer._seriesType.contains('hilo') ||
-      seriesRenderer._seriesType == 'candle') {
+  if (seriesRendererDetails.seriesType.contains('range') ||
+      seriesRendererDetails.seriesType.contains('hilo') ||
+      seriesRendererDetails.seriesType == 'candle') {
     final ChartIndexedValueMapper<num>? highValue = series.highValueMapper;
     final ChartIndexedValueMapper<num>? lowValue = series.lowValueMapper;
     point.high = highValue!(pointIndex);
     point.low = lowValue!(pointIndex);
   }
-  if (series is _FinancialSeriesBase) {
-    if (seriesRenderer._seriesType == 'hiloopenclose' ||
-        seriesRenderer._seriesType == 'candle') {
+  if (series is FinancialSeriesBase) {
+    if (seriesRendererDetails.seriesType == 'hiloopenclose' ||
+        seriesRendererDetails.seriesType == 'candle') {
       final ChartIndexedValueMapper<num>? openValue = series.openValueMapper;
       final ChartIndexedValueMapper<num>? closeValue = series.closeValueMapper;
       point.open = openValue!(pointIndex);
@@ -60,8 +96,34 @@ CartesianChartPoint<dynamic> _getPointFromData(
   return point;
 }
 
+/// To calculate dash array path for series
+Path? dashPath(
+  Path? source, {
+  required CircularIntervalList<double> dashArray,
+}) {
+  if (source == null) {
+    return null;
+  }
+  const double intialValue = 0.0;
+  final Path path = Path();
+  for (final PathMetric measurePath in source.computeMetrics()) {
+    double distance = intialValue;
+    bool draw = true;
+    while (distance < measurePath.length) {
+      final double length = dashArray.next;
+      if (draw) {
+        path.addPath(
+            measurePath.extractPath(distance, distance + length), Offset.zero);
+      }
+      distance += length;
+      draw = !draw;
+    }
+  }
+  return path;
+}
+
 /// To return textstyle
-TextStyle _getTextStyle(
+TextStyle getTextStyle(
     {TextStyle? textStyle,
     Color? fontColor,
     double? fontSize,
@@ -109,12 +171,19 @@ TextStyle _getTextStyle(
   }
 }
 
-Widget? _getElements(
-    dynamic _chartState, Widget chartWidget, BoxConstraints constraints) {
-  final dynamic chart = _chartState._chart;
-  final _ChartLegend chartLegend = _chartState._renderingDetails.chartLegend;
+/// Method to get the elements
+Widget? getElements(StateProperties stateProperties, Widget chartWidget,
+    BoxConstraints constraints) {
+  final dynamic chart = stateProperties.chart;
+  final ChartLegend chartLegend = stateProperties.renderingDetails.chartLegend;
   final LegendPosition legendPosition =
-      _chartState._renderingDetails.legendRenderer._legendPosition;
+      stateProperties.renderingDetails.legendRenderer.legendPosition;
+  final LegendRenderer legendRenderer =
+      stateProperties.renderingDetails.legendRenderer;
+  final Legend legend = chart.legend;
+  final List<MeasureWidgetContext> legendWidgetContext =
+      stateProperties.renderingDetails.legendWidgetContext;
+
   double legendHeight, legendWidth, chartHeight, chartWidth;
   Widget? element;
 
@@ -136,419 +205,540 @@ Widget? _getElements(
     legendWidth = chartLegend.legendSize.width;
     chartHeight = chartLegend.chartSize.height - legendHeight;
     chartWidth = chartLegend.chartSize.width - legendWidth;
-    final Widget legendBorderWidget =
-        CustomPaint(painter: _ChartLegendStylePainter(chartState: _chartState));
-    final Widget legendWidget = Container(
-        height: legendHeight,
-        width: legendWidth,
-        decoration: BoxDecoration(color: chart.legend.backgroundColor),
-        child: _LegendContainer(chartState: _chartState));
-    switch (legendPosition) {
-      case LegendPosition.bottom:
-      case LegendPosition.top:
-        element = _getBottomAndTopLegend(
-            _chartState,
-            chartWidget,
-            constraints,
-            legendWidget,
-            legendBorderWidget,
-            legendHeight,
-            legendWidth,
-            chartHeight);
-        break;
-      case LegendPosition.right:
-      case LegendPosition.left:
-        element = _getLeftAndRightLegend(
-            _chartState,
-            chartWidget,
-            constraints,
-            legendWidget,
-            legendBorderWidget,
-            legendHeight,
-            legendWidth,
-            chartWidth);
-        break;
-      case LegendPosition.auto:
-        break;
+
+    // To determine the toggled indices of the legend items
+    final List<int> toggledIndices = chartLegend.toggledIndices;
+    if (chart is SfCartesianChart) {
+      toggledIndices.clear();
+      if (legend.legendItemBuilder == null) {
+        final List<LegendRenderContext> legendCollections =
+            stateProperties.renderingDetails.chartLegend.legendCollections!;
+        for (int i = 0; i < legendCollections.length; i++) {
+          final LegendRenderContext context = legendCollections[i];
+          for (final LegendRenderContext toggledItem
+              in stateProperties.renderingDetails.legendToggleStates) {
+            final bool isTrendline = context.isTrendline ?? false;
+            if (context.text == toggledItem.text &&
+                (!isTrendline ||
+                    (context.series == toggledItem.series) ||
+                    (context.seriesRenderer.seriesName ==
+                        toggledItem.seriesRenderer.seriesName))) {
+              if (!isTrendline || !toggledIndices.contains(i))
+                toggledIndices.add(i);
+              if (!isTrendline &&
+                  context.indicatorRenderer == null &&
+                  context.series.trendlines != null) {
+                int trendlineCount = context.series.trendlines.length;
+                while (trendlineCount > 0) {
+                  toggledIndices.add(i + trendlineCount);
+                  trendlineCount--;
+                }
+              }
+              break;
+            }
+          }
+        }
+      } else {
+        final List<MeasureWidgetContext> legendToggles =
+            stateProperties.renderingDetails.legendToggleTemplateStates;
+        for (final MeasureWidgetContext currentItem in legendWidgetContext) {
+          for (int i = 0; i < legendToggles.length; i++) {
+            final MeasureWidgetContext item = legendToggles[i];
+            if (currentItem.seriesIndex == item.seriesIndex &&
+                currentItem.pointIndex == item.pointIndex) {
+              toggledIndices.add(legendWidgetContext.indexOf(currentItem));
+              break;
+            }
+          }
+        }
+      }
+      toggledIndices.sort();
+    }
+
+    if (legend.legendItemBuilder != null) {
+      element = SfLegend.builder(
+          title: getLegendTitleWidget(legend, stateProperties.renderingDetails),
+          child: chartWidget,
+          itemCount: legendWidgetContext.length,
+          toggledIndices: chartLegend.toggledIndices,
+          color: chartLegend.legend!.backgroundColor,
+          border: getLegendBorder(
+              chartLegend.legend!.borderColor, chartLegend.legend!.borderWidth),
+          position: getEffectiveChartLegendPosition(legendPosition),
+          direction: getEffectiveChartLegendOrientation(
+              chartLegend.legend!, legendRenderer),
+          scrollDirection: getEffectiveChartLegendOrientation(
+              chartLegend.legend!, legendRenderer),
+          alignment: getEffectiveLegendAlignment(chartLegend.legend!.alignment),
+          itemBuilder: (BuildContext context, int index) {
+            if (legendWidgetContext.isNotEmpty) {
+              final MeasureWidgetContext legendRenderContext =
+                  legendWidgetContext[index];
+              return legendRenderContext.widget!;
+            }
+            return Container();
+          },
+          overflowMode: getEffectiveLegendItemOverflowMode(
+              chartLegend.legend!.overflowMode, chartLegend),
+          width: legendWidth,
+          height: legendHeight,
+          spacing: chartLegend.legend!.padding,
+          itemSpacing: 0,
+          itemRunSpacing: 0,
+          padding: const EdgeInsets.all(0),
+          margin: getEffectiveLegendMargin(chartLegend, legendPosition),
+          toggledItemColor:
+              stateProperties.renderingDetails.chartTheme.brightness ==
+                      Brightness.light
+                  ? Colors.white.withOpacity(0.5)
+                  : Colors.grey[850]!.withOpacity(0.5),
+          onToggledIndicesChanged:
+              (List<int> toggledIndices, int toggledIndex) {
+            if (chart is SfCartesianChart) {
+              cartesianToggle(
+                  toggledIndex, stateProperties as CartesianStateProperties);
+            } else {
+              circularAndTriangularToggle(toggledIndex, stateProperties);
+              chartLegend.toggledIndices = toggledIndices;
+            }
+          });
+    } else {
+      element = SfLegend(
+          title: getLegendTitleWidget(legend, stateProperties.renderingDetails),
+          child: chartWidget,
+          toggledIndices: chartLegend.toggledIndices,
+          items: chartLegend.legendItems,
+          offset: legend.offset,
+          width: legendWidth,
+          height: legendHeight,
+          onItemRenderer: (ItemRendererDetails args) {
+            args.text = chartLegend.legendItems[args.index].text;
+            if (chartLegend.legendItems[args.index].shader == null ||
+                chartLegend.legendItems[args.index].iconStrokeWidth != null) {
+              args.color = chartLegend.legendItems[args.index].color;
+            }
+            args.iconType = chartLegend.legendItems[args.index].iconType!;
+          },
+          color: chartLegend.legend!.backgroundColor,
+          border: getLegendBorder(
+              chartLegend.legend!.borderColor, chartLegend.legend!.borderWidth),
+          position: getEffectiveChartLegendPosition(legendPosition),
+          direction: getEffectiveChartLegendOrientation(
+              chartLegend.legend!, legendRenderer),
+          scrollDirection: getEffectiveChartLegendOrientation(
+              chartLegend.legend!, legendRenderer),
+          alignment: getEffectiveLegendAlignment(chartLegend.legend!.alignment),
+          overflowMode: getEffectiveLegendItemOverflowMode(
+              chartLegend.legend!.overflowMode, chartLegend),
+          iconSize: Size(
+              chartLegend.legend!.iconWidth, chartLegend.legend!.iconHeight),
+          iconBorder: getLegendIconBorder(chartLegend.legend!.iconBorderColor,
+              chartLegend.legend!.iconBorderWidth),
+          textStyle: chartLegend.legend!.textStyle.copyWith(
+              color: legend.textStyle.color ??
+                  stateProperties.renderingDetails.chartTheme.legendTextColor,
+              fontSize: legend.textStyle.fontSize! /
+                  MediaQuery.of(stateProperties.chartState.context)
+                      .textScaleFactor),
+          spacing: legend.padding,
+          itemSpacing: legend.itemPadding,
+          itemRunSpacing: legend.itemPadding,
+          padding: getEffectiveLegendPadding(
+              chartLegend, legendRenderer, legendPosition),
+          margin: getEffectiveLegendMargin(chartLegend, legendPosition),
+          toggledIconColor: const Color.fromRGBO(211, 211, 211, 1),
+          toggledTextOpacity: 0.2,
+          onToggledIndicesChanged:
+              (List<int> toggledIndices, int toggledIndex) {
+            if (chart is SfCartesianChart) {
+              cartesianToggle(
+                  toggledIndex, stateProperties as CartesianStateProperties);
+            } else {
+              circularAndTriangularToggle(toggledIndex, stateProperties);
+              chartLegend.toggledIndices = toggledIndices;
+            }
+          });
     }
   }
-  return element!;
+  return element;
 }
 
-Widget _getBottomAndTopLegend(
-    dynamic _chartState,
-    Widget chartWidget,
-    BoxConstraints constraints,
-    Widget legendWidget,
-    Widget legendBorderWidget,
-    double legendHeight,
-    double legendWidth,
-    double chartHeight) {
-  Widget element;
-  final dynamic chart = _chartState._chart;
-  const double legendPadding = 5;
-  const double padding = 10;
+/// To get effective legend position for SfLegend
+legend_common.LegendPosition getEffectiveChartLegendPosition(
+    LegendPosition position) {
+  switch (position) {
+    case LegendPosition.top:
+      return legend_common.LegendPosition.top;
+    case LegendPosition.bottom:
+      return legend_common.LegendPosition.bottom;
+    case LegendPosition.left:
+      return legend_common.LegendPosition.left;
+    case LegendPosition.right:
+      return legend_common.LegendPosition.right;
+    default:
+      return legend_common.LegendPosition.bottom;
+  }
+}
+
+/// To get effective legend orientation for SfLegend
+Axis getEffectiveChartLegendOrientation(
+    Legend legend, LegendRenderer renderer) {
+  final LegendItemOrientation legendOrientation = renderer.orientation;
+  if (legend.orientation == LegendItemOrientation.auto) {
+    if (legendOrientation == LegendItemOrientation.horizontal) {
+      return Axis.horizontal;
+    } else {
+      return Axis.vertical;
+    }
+  } else {
+    if (legend.orientation == LegendItemOrientation.horizontal) {
+      return Axis.horizontal;
+    } else {
+      return Axis.vertical;
+    }
+  }
+}
+
+/// To get effective legend alignment for SfLegend
+LegendAlignment getEffectiveLegendAlignment(ChartAlignment alignment) {
+  LegendAlignment legendAlignment;
+  switch (alignment) {
+    case ChartAlignment.near:
+      legendAlignment = LegendAlignment.near;
+      break;
+    case ChartAlignment.far:
+      legendAlignment = LegendAlignment.far;
+      break;
+    case ChartAlignment.center:
+      legendAlignment = LegendAlignment.center;
+      break;
+  }
+  return legendAlignment;
+}
+
+/// To get effective legend items overflow mode for SfLegend
+LegendOverflowMode getEffectiveLegendItemOverflowMode(
+    LegendItemOverflowMode overflowMode, ChartLegend chartLegend) {
+  LegendOverflowMode mode;
+  switch (overflowMode) {
+    case LegendItemOverflowMode.wrap:
+      if (chartLegend.isNeedScrollable) {
+        mode = LegendOverflowMode.wrapScroll;
+      } else {
+        mode = LegendOverflowMode.wrap;
+      }
+      break;
+    case LegendItemOverflowMode.scroll:
+      mode = LegendOverflowMode.scroll;
+      break;
+    case LegendItemOverflowMode.none:
+      mode = LegendOverflowMode.none;
+      break;
+  }
+  return mode;
+}
+
+/// To get border for SfLegend container
+BorderSide? getLegendBorder(Color borderColor, double borderWidth) {
+  if (borderColor != null && borderWidth > 0) {
+    return BorderSide(color: borderColor, width: borderWidth);
+  }
+
+  return null;
+}
+
+/// To get icon border for legendItemsin SfLegend
+BorderSide? getLegendIconBorder(Color iconBorderColor, double iconBorderWidth) {
+  if (iconBorderColor != null && iconBorderWidth > 0) {
+    return BorderSide(color: iconBorderColor, width: iconBorderWidth);
+  }
+
+  return null;
+}
+
+/// To get legend title widget for SfLegend
+Widget? getLegendTitleWidget(Legend legend, RenderingDetails renderingDetails) {
+  final LegendTitle legendTitle = legend.title;
+  if (legendTitle.text != null && legendTitle.text!.isNotEmpty) {
+    final ChartAlignment titleAlign = legendTitle.alignment;
+    final Color color = legendTitle.textStyle.color ??
+        renderingDetails.chartTheme.legendTitleColor;
+    final double? fontSize = legendTitle.textStyle.fontSize;
+    final String? fontFamily = legendTitle.textStyle.fontFamily;
+    final FontStyle? fontStyle = legendTitle.textStyle.fontStyle;
+    final FontWeight? fontWeight = legendTitle.textStyle.fontWeight;
+    final num titleHeight =
+        measureText(legend.title.text!, legend.title.textStyle).height + 10;
+    renderingDetails.chartLegend.titleHeight = titleHeight.toDouble();
+    return Container(
+        height: titleHeight.toDouble(),
+        width: renderingDetails.chartLegend.legendSize.width,
+        alignment: titleAlign == ChartAlignment.center
+            ? Alignment.center
+            : titleAlign == ChartAlignment.near
+                ? Alignment.centerLeft
+                : Alignment.centerRight,
+        child: Container(
+          child: Text(legend.title.text!,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                  color: color,
+                  fontSize: fontSize,
+                  fontFamily: fontFamily,
+                  fontStyle: fontStyle,
+                  fontWeight: fontWeight)),
+        ));
+  } else {
+    return null;
+  }
+}
+
+/// To get outer padding or margin for legend container
+EdgeInsetsGeometry getEffectiveLegendMargin(
+    ChartLegend chartLegend, LegendPosition legendPosition) {
+  final dynamic chart = chartLegend.chart;
+  final EdgeInsets margin;
   final bool needPadding = chart is SfCircularChart ||
       chart is SfPyramidChart ||
       chart is SfFunnelChart;
-  final _ChartLegend chartLegend = _chartState._renderingDetails.chartLegend;
-  final LegendPosition legendPosition =
-      _chartState._renderingDetails.legendRenderer._legendPosition;
-  final double legendLeft = (chartLegend.chartSize.width < legendWidth)
-      ? 0
-      : ((chart.legend.alignment == ChartAlignment.near)
-          ? 0
-          : (chart.legend.alignment == ChartAlignment.center)
-              ? chartLegend.chartSize.width / 2 -
-                  chartLegend.legendSize.width / 2
-              : chartLegend.chartSize.width - chartLegend.legendSize.width);
-  bool needRender = true;
-  final EdgeInsets margin;
-  if (chartLegend.legend?.offset != null) {
-    if (chart.legend.offset.dx.isNegative == true) {
-      if (legendLeft + chart.legend.offset.dx < 0) {
-        needRender = false;
-      } else {
-        if (legendLeft + chart.legend.offset.dx > chartLegend.chartSize.width) {
-          needRender = false;
-        }
-      }
-    }
-    if (legendPosition == LegendPosition.top) {
-      if (chart.legend.offset.dy.isNegative == true) {
-        if (legendPadding + chart.legend.offset.dy < 0) {
-          needRender = false;
-        }
-      } else {
-        if (legendPadding + chart.legend.offset.dy >
-            chartLegend.chartSize.height) {
-          needRender = false;
-        }
-      }
-    } else if (legendPosition == LegendPosition.bottom) {
-      if (chart.legend.offset.dy.isNegative == true) {
-        if (chartHeight + legendPadding + chart.legend.offset.dy < 0) {
-          needRender = false;
-        }
-      } else {
-        if (chartHeight +
-                legendPadding +
-                chart.legend.offset.dy +
-                legendHeight / 2 >
-            chartLegend.chartSize.height) {
-          needRender = false;
-        }
-      }
-    }
-  }
-  if (chartLegend.legend?.offset == null) {
-    margin = (legendPosition == LegendPosition.top)
-        ? EdgeInsets.fromLTRB(
-            legendLeft + (needPadding ? padding : 0), legendPadding, 0, 0)
-        : EdgeInsets.fromLTRB(legendLeft, chartHeight + legendPadding, 0, 0);
-  } else {
-    if (needRender) {
-      margin = (legendPosition == LegendPosition.top)
-          ? EdgeInsets.fromLTRB(
-              legendLeft + (needPadding ? padding : 0) + chart.legend.offset.dx,
-              legendPadding + chart.legend.offset.dy,
-              0,
-              0)
-          : EdgeInsets.fromLTRB(legendLeft + chart.legend.offset.dx,
-              chartHeight + legendPadding + chart.legend.offset.dy, 0, 0);
-    } else {
-      margin = const EdgeInsets.all(0);
-    }
-  }
-  legendWidget = Container(
-    child: Stack(children: <Widget>[
-      Container(
-          margin: margin,
-          height: legendHeight,
-          width: legendWidth,
-          child: legendBorderWidget),
-      Container(
-          margin: margin,
-          height: legendHeight,
-          width: legendWidth,
-          child: legendWidget)
-    ]),
-  );
+  final ChartAlignment legendAlignment = chartLegend.legend!.alignment;
+  const double legendMargin = 5;
+
   if (legendPosition == LegendPosition.top) {
-    if (chartLegend.legend?.offset == null) {
-      element = Container(
-          height: constraints.maxHeight,
-          width: constraints.maxWidth,
-          child: Stack(
-            children: <Widget>[
-              legendWidget,
-              Container(
-                margin: EdgeInsets.fromLTRB(
-                    needPadding ? padding : 0, legendHeight + padding, 0, 0),
-                height: chartHeight,
-                width: chartLegend.chartSize.width,
-                child: chartWidget,
-              )
-            ],
-          ));
-    } else {
-      if (needRender) {
-        element = Container(
-            height: constraints.maxHeight,
-            width: constraints.maxWidth,
-            child: Stack(
-              children: <Widget>[
-                chartWidget,
-                legendWidget,
-              ],
-            ));
-      } else {
-        element = Container(
-          height: constraints.maxHeight,
-          width: constraints.maxWidth,
-          child: chartWidget,
-        );
-      }
-    }
+    margin = EdgeInsets.fromLTRB(
+        needPadding && legendAlignment == ChartAlignment.near
+            ? legendMargin * 2
+            : 0,
+        legendMargin,
+        needPadding && legendAlignment == ChartAlignment.far
+            ? legendMargin * 2
+            : 0,
+        legendMargin);
+  } else if (legendPosition == LegendPosition.bottom) {
+    margin = EdgeInsets.fromLTRB(
+        needPadding && legendAlignment == ChartAlignment.near
+            ? legendMargin * 2
+            : 0,
+        legendMargin,
+        needPadding && legendAlignment == ChartAlignment.far
+            ? legendMargin * 2
+            : 0,
+        needPadding ? legendMargin : 0);
+  } else if (legendPosition == LegendPosition.right) {
+    margin = EdgeInsets.fromLTRB(legendMargin, 0,
+        needPadding ? 3 * legendMargin : 0, needPadding ? 3 * legendMargin : 0);
+  } else if (legendPosition == LegendPosition.left) {
+    margin = EdgeInsets.fromLTRB(needPadding ? legendMargin / 2 : 0, 0, 0,
+        needPadding ? 3 * legendMargin : 0);
   } else {
-    if (chartLegend.legend?.offset == null) {
-      element = Container(
-          margin: EdgeInsets.fromLTRB(
-              needPadding ? padding : 0, needPadding ? padding : 0, 0, 0),
-          height: constraints.maxHeight,
-          width: constraints.maxWidth,
-          child: Stack(
-            children: <Widget>[
-              Container(
-                height: chartHeight,
-                width: chartLegend.chartSize.width,
-                child: chartWidget,
-              ),
-              legendWidget,
-            ],
-          ));
-    } else {
-      if (needRender) {
-        element = Container(
-            height: constraints.maxHeight,
-            width: constraints.maxWidth,
-            child: Stack(
-              children: <Widget>[
-                chartWidget,
-                legendWidget,
-              ],
-            ));
-      } else {
-        element = Container(
-          height: constraints.maxHeight,
-          width: constraints.maxWidth,
-          child: chartWidget,
-        );
-      }
-    }
+    margin = const EdgeInsets.all(0);
   }
-  return element;
+
+  return margin;
 }
 
-/// To return top and bottom position legend widget
-Widget _getLeftAndRightLegend(
-    dynamic _chartState,
-    Widget chartWidget,
-    BoxConstraints constraints,
-    Widget legendWidget,
-    Widget legendBorderWidget,
-    double legendHeight,
-    double legendWidth,
-    double chartWidth) {
-  Widget element;
-  const double legendPadding = 5;
-  const double padding = 10;
-  final dynamic chart = _chartState._chart;
-  bool needRender = true;
+/// To get internal padding for legend container
+EdgeInsetsGeometry getEffectiveLegendPadding(ChartLegend chartLegend,
+    LegendRenderer legendRenderer, LegendPosition legendPosition) {
+  final dynamic chart = chartLegend.chart;
+  final Legend legend = chartLegend.legend!;
+  final LegendItemOrientation legendOrientation = legendRenderer.orientation;
+  final LegendItemOverflowMode overflowMode = legend.overflowMode;
+  final EdgeInsetsGeometry padding;
+  final double legendPadding = legend.itemPadding;
   final bool needPadding = chart is SfCircularChart ||
       chart is SfPyramidChart ||
       chart is SfFunnelChart;
-  final _ChartLegend chartLegend = _chartState._renderingDetails.chartLegend;
-  final LegendPosition legendPosition =
-      _chartState._renderingDetails.legendRenderer._legendPosition;
-  final double legendTop = (chartLegend.chartSize.height < legendHeight)
-      ? 0
-      : ((chart.legend.alignment == ChartAlignment.near)
-          ? 0
-          : (chart.legend.alignment == ChartAlignment.center)
-              ? chartLegend.chartSize.height / 2 -
-                  chartLegend.legendSize.height / 2
-              : chartLegend.chartSize.height - chartLegend.legendSize.height);
-  final EdgeInsets margin;
+  final bool needTitle =
+      legend.title.text != null && legend.title.text!.isNotEmpty;
 
-  if (chartLegend.legend?.offset != null) {
-    if (legendPosition == LegendPosition.left) {
-      if (chart.legend.offset.dx.isNegative == true) {
-        if (legendPadding / 2 + chart.legend.offset.dx < legendPadding) {
-          needRender = false;
-        }
+  if (legendPosition == LegendPosition.top ||
+      legendPosition == LegendPosition.bottom) {
+    if (legendOrientation == LegendItemOrientation.horizontal) {
+      if (overflowMode == LegendItemOverflowMode.wrap) {
+        padding = !chartLegend.isNeedScrollable
+            ? EdgeInsets.fromLTRB(legendPadding, 0, 0, 0)
+            : EdgeInsets.fromLTRB(
+                legendPadding, legendPadding / 2, 0, legendPadding / 2);
+      } else if (overflowMode == LegendItemOverflowMode.scroll) {
+        padding = EdgeInsets.fromLTRB(legendPadding, 0, 0, 0);
       } else {
-        if (chart.legend.offset.dx > chartWidth == true) {
-          needRender = false;
-        }
-      }
-    } else if (legendPosition == LegendPosition.right) {
-      if (chart.legend.offset.dx.isNegative == true) {
-        if (chartWidth + legendPadding + chart.legend.offset.dx < 0) {
-          needRender = false;
-        }
-      } else {
-        if (chartWidth + chart.legend.offset.dx - legendPadding > chartWidth) {
-          needRender = false;
-        }
-      }
-    }
-
-    if (chart.legend.offset.dy.isNegative == true) {
-      if (legendTop + chart.legend.offset.dy < 0) {
-        needRender = false;
+        padding = EdgeInsets.fromLTRB(
+            legendPadding,
+            needPadding && needTitle ? (legendPadding / 2) : 0,
+            needPadding && needTitle ? legendPadding : 0,
+            needPadding && needTitle ? (legendPadding / 2) : 0);
       }
     } else {
-      if (chart.legend.offset.dy + legendTop > chartLegend.chartSize.height ==
-          true) {
-        needRender = false;
+      if (overflowMode == LegendItemOverflowMode.wrap) {
+        padding = !chartLegend.isNeedScrollable
+            ? EdgeInsets.fromLTRB(0, legendPadding / 2, 0, 0)
+            : EdgeInsets.fromLTRB(legendPadding, legendPadding / 2, 0, 0);
+      } else if (overflowMode == LegendItemOverflowMode.scroll) {
+        padding = EdgeInsets.fromLTRB(legendPadding / 2, legendPadding / 2,
+            needTitle ? (legendPadding / 2) : 0, legendPadding / 2);
+      } else {
+        padding = EdgeInsets.fromLTRB(needTitle ? legendPadding : 0,
+            legendPadding / 2, needTitle ? legendPadding : 0, 0);
       }
     }
-  }
-  if (chartLegend.legend?.offset == null) {
-    margin = (legendPosition == LegendPosition.left)
-        ? EdgeInsets.fromLTRB(legendPadding / 2, legendTop, 0, 0)
-        : EdgeInsets.fromLTRB(chartWidth + legendPadding, legendTop, 0, 0);
-  } else {
-    if (needRender) {
-      margin = (legendPosition == LegendPosition.left)
-          ? EdgeInsets.fromLTRB(legendPadding / 2 + chart.legend.offset.dx,
-              legendTop + chart.legend.offset.dy, 0, 0)
-          : EdgeInsets.fromLTRB(
-              chartWidth + legendPadding + chart.legend.offset.dx,
-              legendTop + chart.legend.offset.dy,
-              0,
-              0);
-    } else {
-      margin = const EdgeInsets.all(0);
-    }
-  }
-  legendWidget = Container(
-    child: Stack(children: <Widget>[
-      Container(
-        margin: margin,
-        height: legendHeight,
-        width: legendWidth,
-        child: legendBorderWidget,
-      ),
-      Container(
-        margin: margin,
-        height: legendHeight,
-        width: legendWidth,
-        child: legendWidget,
-      )
-    ]),
-  );
-  if (legendPosition == LegendPosition.left) {
-    if (chartLegend.legend?.offset == null) {
-      element = Container(
-          height: constraints.maxHeight,
-          width: constraints.maxWidth,
-          child: Stack(
-            children: <Widget>[
-              legendWidget,
-              Container(
-                margin: EdgeInsets.fromLTRB(
-                    legendWidth + (needPadding ? padding : 0),
-                    needPadding ? chart.margin.top : 0,
-                    0,
-                    0),
-                height: chartLegend.chartSize.height,
-                width: chartWidth,
-                child: chartWidget,
-              )
-            ],
-          ));
-    } else {
-      if (needRender) {
-        element = Container(
-            height: constraints.maxHeight,
-            width: constraints.maxWidth,
-            child: Stack(
-              children: <Widget>[
-                chartWidget,
-                legendWidget,
-              ],
-            ));
+  } else if (legendPosition == LegendPosition.right ||
+      legendPosition == LegendPosition.left) {
+    if (legendOrientation == LegendItemOrientation.horizontal) {
+      if (overflowMode == LegendItemOverflowMode.wrap) {
+        padding = !chartLegend.isNeedScrollable
+            ? EdgeInsets.fromLTRB(
+                needTitle ? 0 : legendPadding,
+                needTitle ? (legendPadding / 2) : 0,
+                0,
+                needTitle ? (legendPadding / 2) : 0)
+            : EdgeInsets.fromLTRB(
+                needTitle ? (legendPadding / 2) : legendPadding,
+                legendPadding / 2,
+                0,
+                legendPadding / 2);
+      } else if (overflowMode == LegendItemOverflowMode.scroll) {
+        padding = EdgeInsets.fromLTRB(
+            legendPadding,
+            needTitle ? (legendPadding / 2) : 0,
+            0,
+            needTitle ? (legendPadding / 2) : 0);
       } else {
-        element = Container(
-          height: constraints.maxHeight,
-          width: constraints.maxWidth,
-          child: chartWidget,
-        );
+        padding = EdgeInsets.fromLTRB(
+            legendPadding,
+            needTitle ? (legendPadding / 2) : 0,
+            needTitle ? legendPadding : 0,
+            0);
+      }
+    } else {
+      if (overflowMode == LegendItemOverflowMode.wrap) {
+        padding = !chartLegend.isNeedScrollable
+            ? EdgeInsets.fromLTRB(needPadding ? (legendPadding / 2) : 0,
+                legendPadding / 2, 0, needTitle ? (legendPadding / 2) : 0)
+            : EdgeInsets.fromLTRB(legendPadding, legendPadding / 2, 0,
+                needTitle ? (legendPadding / 2) : 0);
+      } else if (overflowMode == LegendItemOverflowMode.scroll) {
+        padding = EdgeInsets.fromLTRB(legendPadding / 2, legendPadding / 2,
+            legendPadding / 2, legendPadding / 2);
+      } else {
+        padding = EdgeInsets.fromLTRB(
+            0, legendPadding / 2, 0, needTitle ? legendPadding / 2 : 0);
       }
     }
   } else {
-    if (chartLegend.legend?.offset == null) {
-      element = Container(
-          height: constraints.maxHeight,
-          width: constraints.maxWidth,
-          child: Stack(
-            children: <Widget>[
-              Container(
-                margin:
-                    EdgeInsets.only(top: needPadding ? chart.margin.top : 0),
-                height: chartLegend.chartSize.height,
-                width: chartWidth,
-                child: chartWidget,
-              ),
-              legendWidget
-            ],
-          ));
-    } else {
-      if (needRender) {
-        element = Container(
-            height: constraints.maxHeight,
-            width: constraints.maxWidth,
-            child: Stack(
-              children: <Widget>[
-                chartWidget,
-                legendWidget,
-              ],
-            ));
-      } else {
-        element = Container(
-          height: constraints.maxHeight,
-          width: constraints.maxWidth,
-          child: chartWidget,
-        );
-      }
-    }
+    padding = const EdgeInsets.all(0);
   }
-  return element;
+  return padding;
 }
 
-class _MeasureWidgetSize extends StatelessWidget {
-  const _MeasureWidgetSize(
-      {this.chartState,
+/// Method to handle cartesian series legend toggling for SfLegend
+void cartesianToggle(int index, CartesianStateProperties stateProperties) {
+  LegendTapArgs legendTapArgs;
+  MeasureWidgetContext _measureWidgetContext;
+  LegendRenderContext _legendRenderContext;
+  final SfCartesianChart chart = stateProperties.chart;
+  stateProperties.isTooltipHidden = true;
+  if (chart.onLegendTapped != null) {
+    if (chart.legend.legendItemBuilder != null) {
+      _measureWidgetContext =
+          stateProperties.renderingDetails.legendWidgetContext[index];
+      legendTapArgs = LegendTapArgs(
+          stateProperties.chartSeries
+              .visibleSeriesRenderers[_measureWidgetContext.seriesIndex!],
+          _measureWidgetContext.seriesIndex!,
+          0);
+    } else {
+      _legendRenderContext = stateProperties
+          .renderingDetails.chartLegend.legendCollections![index];
+      legendTapArgs = LegendTapArgs(
+          _legendRenderContext.series, _legendRenderContext.seriesIndex, 0);
+    }
+    chart.onLegendTapped!(legendTapArgs);
+  }
+  if (chart.legend.toggleSeriesVisibility == true) {
+    if (chart.legend.legendItemBuilder != null) {
+      legendToggleTemplateState(
+          stateProperties.renderingDetails.legendWidgetContext[index],
+          stateProperties,
+          '');
+    } else {
+      cartesianLegendToggleState(
+          stateProperties
+              .renderingDetails.chartLegend.legendCollections![index],
+          stateProperties);
+    }
+    stateProperties.renderingDetails.isLegendToggled = true;
+    stateProperties.legendToggling = true;
+    stateProperties.redraw();
+  }
+}
+
+/// Method to handle Circular and triangular series legend toggling for SfLegend
+void circularAndTriangularToggle(int index, dynamic stateProperties) {
+  LegendTapArgs legendTapArgs;
+  const int seriesIndex = 0;
+  final dynamic chart = stateProperties.chart;
+  final ChartLegend chartLegend = stateProperties.renderingDetails.chartLegend;
+  stateProperties.isTooltipHidden = true;
+  if (chart.onLegendTapped != null) {
+    if (chart != null) {
+      legendTapArgs = LegendTapArgs(chart.series, seriesIndex, index);
+    } else {
+      legendTapArgs =
+          LegendTapArgs(chart._series[seriesIndex], seriesIndex, index);
+    }
+    chart.onLegendTapped(legendTapArgs);
+  }
+  if (chart.legend.toggleSeriesVisibility == true) {
+    if (chart.legend.legendItemBuilder != null) {
+      final MeasureWidgetContext legendWidgetContext =
+          stateProperties.renderingDetails.legendWidgetContext[index];
+      legendToggleTemplateState(legendWidgetContext, stateProperties, '');
+    } else {
+      legendToggleState(chartLegend.legendCollections![index], stateProperties);
+    }
+    stateProperties.renderingDetails.isLegendToggled = true;
+    stateProperties.redraw();
+  }
+}
+
+/// Represents the value of measure widget size
+class MeasureWidgetSize extends StatelessWidget {
+  /// Creates an instance of measure widget size
+  const MeasureWidgetSize(
+      {required this.stateProperties,
       this.currentWidget,
       this.opacityValue,
       this.currentKey,
       this.seriesIndex,
       this.pointIndex,
       this.type});
-  final dynamic chartState;
+
+  /// Holds the state properties value
+  final StateProperties stateProperties;
+
+  /// Holds the value of current widget
   final Widget? currentWidget;
+
+  /// Holds the opacity value
   final double? opacityValue;
+
+  /// Holds the current key value
   final Key? currentKey;
+
+  /// Holds the series index value
   final int? seriesIndex;
+
+  /// Holds the point index value
   final int? pointIndex;
+
+  /// Holds the value of type
   final String? type;
   @override
   Widget build(BuildContext context) {
-    final List<_MeasureWidgetContext> templates =
-        chartState._renderingDetails.legendWidgetContext;
-    templates.add(_MeasureWidgetContext(
+    final List<MeasureWidgetContext> templates =
+        stateProperties.renderingDetails.legendWidgetContext;
+    templates.add(MeasureWidgetContext(
         widget: currentWidget,
         key: currentKey,
         context: context,
@@ -561,14 +751,14 @@ class _MeasureWidgetSize extends StatelessWidget {
 }
 
 /// To return legend template toggled state
-bool _legendToggleTemplateState(
-    _MeasureWidgetContext currentItem, dynamic _chartState, String checkType) {
+bool legendToggleTemplateState(MeasureWidgetContext currentItem,
+    StateProperties stateProperties, String checkType) {
   bool needSelect = false;
-  final List<_MeasureWidgetContext> legendToggles =
-      _chartState._renderingDetails.legendToggleTemplateStates;
+  final List<MeasureWidgetContext> legendToggles =
+      stateProperties.renderingDetails.legendToggleTemplateStates;
   if (legendToggles.isNotEmpty) {
     for (int i = 0; i < legendToggles.length; i++) {
-      final _MeasureWidgetContext item = legendToggles[i];
+      final MeasureWidgetContext item = legendToggles[i];
       if (currentItem.seriesIndex == item.seriesIndex &&
           currentItem.pointIndex == item.pointIndex) {
         if (checkType != 'isSelect') {
@@ -589,13 +779,14 @@ bool _legendToggleTemplateState(
 }
 
 /// To add legend toggle states in legend toggles list
-void _legendToggleState(_LegendRenderContext currentItem, dynamic _chartState) {
+void legendToggleState(
+    LegendRenderContext currentItem, StateProperties stateProperties) {
   bool needSelect = false;
-  final List<_LegendRenderContext> legendToggles =
-      _chartState._renderingDetails.legendToggleStates;
+  final List<LegendRenderContext> legendToggles =
+      stateProperties.renderingDetails.legendToggleStates;
   if (legendToggles.isNotEmpty) {
     for (int i = 0; i < legendToggles.length; i++) {
-      final _LegendRenderContext item = legendToggles[i];
+      final LegendRenderContext item = legendToggles[i];
       if (currentItem.seriesIndex == item.seriesIndex) {
         needSelect = true;
         legendToggles.removeAt(i);
@@ -610,18 +801,19 @@ void _legendToggleState(_LegendRenderContext currentItem, dynamic _chartState) {
 }
 
 /// To add cartesian legend toggle states
-void _cartesianLegendToggleState(
-    _LegendRenderContext currentItem, dynamic _chartState) {
+void cartesianLegendToggleState(
+    LegendRenderContext currentItem, CartesianStateProperties stateProperties) {
   bool needSelect = false;
-  final List<_LegendRenderContext> legendToggles =
-      _chartState._renderingDetails.legendToggleStates;
+  final List<LegendRenderContext> legendToggles =
+      stateProperties.renderingDetails.legendToggleStates;
   if (currentItem.trendline == null ||
-      _chartState._chartSeries.visibleSeriesRenderers[currentItem.seriesIndex]
-              ._visible ==
+      SeriesHelper.getSeriesRendererDetails(stateProperties
+                  .chartSeries.visibleSeriesRenderers[currentItem.seriesIndex])
+              .visible! ==
           true) {
     if (legendToggles.isNotEmpty) {
       for (int i = 0; i < legendToggles.length; i++) {
-        final _LegendRenderContext item = legendToggles[i];
+        final LegendRenderContext item = legendToggles[i];
         if (currentItem.trendline != null &&
             currentItem.text == item.text &&
             (currentItem.seriesIndex == item.seriesIndex &&
@@ -640,20 +832,25 @@ void _cartesianLegendToggleState(
     }
     if (!needSelect) {
       if (!(currentItem.seriesRenderer is TechnicalIndicators
-          ? !currentItem.indicatorRenderer!._visible!
-          : currentItem.seriesRenderer._visible == false &&
-              _chartState._isTrendlineToggled == false)) {
+          ? !currentItem.indicatorRenderer!.visible!
+          : SeriesHelper.getSeriesRendererDetails(
+                          currentItem.seriesRenderer.renderer)
+                      .visible ==
+                  false &&
+              stateProperties.isTrendlineToggled == false)) {
         needSelect = false;
-        final CartesianSeriesRenderer seriesRenderer = _chartState
-            ._chartSeries.visibleSeriesRenderers[currentItem.seriesIndex];
+        final SeriesRendererDetails seriesRendererDetails =
+            SeriesHelper.getSeriesRendererDetails(stateProperties
+                .chartSeries.visibleSeriesRenderers[currentItem.seriesIndex]);
         if (currentItem.trendlineIndex != null) {
-          seriesRenderer._minimumX = 1 / 0;
-          seriesRenderer._minimumY = 1 / 0;
-          seriesRenderer._maximumX = -1 / 0;
-          seriesRenderer._maximumY = -1 / 0;
+          seriesRendererDetails.minimumX = 1 / 0;
+          seriesRendererDetails.minimumY = 1 / 0;
+          seriesRendererDetails.maximumX = -1 / 0;
+          seriesRendererDetails.maximumY = -1 / 0;
         }
-        _chartState._chartSeries
-            .visibleSeriesRenderers[currentItem.seriesIndex] = seriesRenderer;
+        stateProperties
+                .chartSeries.visibleSeriesRenderers[currentItem.seriesIndex] =
+            seriesRendererDetails.renderer;
         if (!legendToggles.contains(currentItem)) {
           legendToggles.add(currentItem);
         }
@@ -663,7 +860,7 @@ void _cartesianLegendToggleState(
 }
 
 /// For checking whether elements collide
-bool _findingCollision(Rect rect, List<Rect> regions, [Rect? pathRect]) {
+bool findingCollision(Rect rect, List<Rect> regions, [Rect? pathRect]) {
   bool isCollide = false;
   if (pathRect != null &&
       (pathRect.left < rect.left &&
@@ -687,8 +884,45 @@ bool _findingCollision(Rect rect, List<Rect> regions, [Rect? pathRect]) {
   return isCollide;
 }
 
+/// To find the labels are intersect.
+bool isOverlap(Rect currentRect, Rect rect) {
+  return currentRect.left < rect.left + rect.width &&
+      currentRect.left + currentRect.width > rect.left &&
+      currentRect.top < (rect.top + rect.height) &&
+      (currentRect.height + currentRect.top) > rect.top;
+}
+
+/// To trim the text by given width
+String getTrimmedText(String text, num labelsExtent, TextStyle labelStyle,
+    [ChartAxisRenderer? axisRenderer]) {
+  String label = text;
+  ChartAxisRendererDetails? axisRendererDetails;
+  axisRendererDetails = axisRenderer != null
+      ? AxisHelper.getAxisRendererDetails(axisRenderer)
+      : null;
+  num size = axisRenderer != null
+      ? measureText(text, axisRendererDetails!.axis.labelStyle,
+              axisRendererDetails.labelRotation)
+          .width
+      : measureText(label, labelStyle).width;
+  if (size > labelsExtent) {
+    final int textLength = text.length;
+    for (int i = textLength - 1; i >= 0; --i) {
+      label = text.substring(0, i) + '...';
+      size = axisRenderer != null
+          ? measureText(label, labelStyle, axisRendererDetails!.labelRotation)
+              .width
+          : measureText(label, labelStyle).width;
+      if (size <= labelsExtent) {
+        return label == '...' ? '' : label;
+      }
+    }
+  }
+  return label == '...' ? '' : label;
+}
+
 /// To get equivalent value for the percentage
-num _getValueByPercentage(num value1, num value2) {
+num getValueByPercentage(num value1, num value2) {
   return value1.isNegative
       ? (num.tryParse('-' +
           (num.tryParse(value1.toString().replaceAll(RegExp('-'), ''))! %
@@ -697,12 +931,13 @@ num _getValueByPercentage(num value1, num value2) {
       : (value1 % value2);
 }
 
-Widget _renderChartTitle(dynamic _chartState) {
+/// Method to render the chart title
+Widget renderChartTitle(StateProperties stateProperties) {
   Widget titleWidget;
-  final dynamic widget = _chartState._chart;
+  final dynamic widget = stateProperties.chart;
   if (widget.title.text != null && widget.title.text.isNotEmpty == true) {
     final SfChartThemeData chartTheme =
-        _chartState._renderingDetails.chartTheme;
+        stateProperties.renderingDetails.chartTheme;
     final Color color =
         widget.title.textStyle.color ?? chartTheme.titleTextColor;
     final double fontSize = widget.title.textStyle.fontSize;
@@ -745,27 +980,27 @@ Widget _renderChartTitle(dynamic _chartState) {
 }
 
 /// To get the legend template widgets
-List<Widget> _bindLegendTemplateWidgets(dynamic widgetState) {
+List<Widget> bindLegendTemplateWidgets(dynamic stateProperties) {
   Widget legendWidget;
-  final dynamic widget = widgetState._chart;
+  final dynamic widget = stateProperties.chart;
   final List<Widget> templates = <Widget>[];
-  widgetState._renderingDetails.chartWidgets = <Widget>[];
+  stateProperties.renderingDetails.chartWidgets = <Widget>[];
 
   if (widget.legend.isVisible == true &&
       widget.legend.legendItemBuilder != null) {
     for (int i = 0;
-        i < widgetState._chartSeries.visibleSeriesRenderers.length;
+        i < stateProperties.chartSeries.visibleSeriesRenderers.length;
         i++) {
       final dynamic seriesRenderer =
-          widgetState._chartSeries.visibleSeriesRenderers[i];
-      for (int j = 0; j < seriesRenderer._renderPoints.length; j++) {
+          stateProperties.chartSeries.visibleSeriesRenderers[i];
+      for (int j = 0; j < seriesRenderer.renderPoints.length; j++) {
         legendWidget = widget.legend.legendItemBuilder(
-            seriesRenderer._renderPoints[j].x,
+            seriesRenderer.renderPoints[j].x,
             seriesRenderer,
-            seriesRenderer._renderPoints[j],
+            seriesRenderer.renderPoints[j],
             j);
-        templates.add(_MeasureWidgetSize(
-            chartState: widgetState,
+        templates.add(MeasureWidgetSize(
+            stateProperties: stateProperties,
             type: 'Legend',
             seriesIndex: i,
             pointIndex: j,
@@ -779,7 +1014,7 @@ List<Widget> _bindLegendTemplateWidgets(dynamic widgetState) {
 }
 
 /// To check whether indexes are valid
-bool _validIndex(int? _pointIndex, int? _seriesIndex, dynamic chart) {
+bool validIndex(int? _pointIndex, int? _seriesIndex, dynamic chart) {
   return _seriesIndex != null &&
       _pointIndex != null &&
       _seriesIndex >= 0 &&
@@ -788,8 +1023,8 @@ bool _validIndex(int? _pointIndex, int? _seriesIndex, dynamic chart) {
       _pointIndex < chart.series[_seriesIndex].dataSource.length;
 }
 
-//this method removes the given listener from the animation controller and then dsiposes it.
-void _disposeAnimationController(
+/// This method removes the given listener from the animation controller and then dsiposes it.
+void disposeAnimationController(
     AnimationController? animationController, VoidCallback listener) {
   if (animationController != null) {
     animationController.removeListener(listener);
@@ -798,16 +1033,18 @@ void _disposeAnimationController(
   }
 }
 
-void _calculatePointSeriesIndex(
-    dynamic chart, dynamic _chartState, Offset? position,
-    [_Region? pointRegion, ActivationMode? activationMode]) {
+/// Method to calculate the series point index
+void calculatePointSeriesIndex(
+    dynamic chart, dynamic stateProperties, Offset? position,
+    [Region? pointRegion, ActivationMode? activationMode]) {
   if (chart is SfCartesianChart) {
     for (int i = 0;
-        i < _chartState._chartSeries.visibleSeriesRenderers.length;
+        i < stateProperties.chartSeries.visibleSeriesRenderers.length;
         i++) {
-      final CartesianSeriesRenderer seriesRenderer =
-          _chartState._chartSeries.visibleSeriesRenderers[i];
-      final String _seriesType = seriesRenderer._seriesType;
+      final SeriesRendererDetails seriesRendererDetails =
+          SeriesHelper.getSeriesRendererDetails(
+              stateProperties.chartSeries.visibleSeriesRenderers[i]);
+      final String _seriesType = seriesRendererDetails.seriesType;
       int? pointIndex;
       final double padding = (_seriesType == 'bubble') ||
               (_seriesType == 'scatter') ||
@@ -821,7 +1058,7 @@ void _calculatePointSeriesIndex(
           : 15;
 
       /// Regional padding to detect smooth touch
-      seriesRenderer._regionalData!
+      seriesRendererDetails.regionalData!
           .forEach((dynamic regionRect, dynamic values) {
         final Rect region = regionRect[0];
         final double left = region.left - padding;
@@ -834,33 +1071,36 @@ void _calculatePointSeriesIndex(
         }
       });
 
-      if (pointIndex != null) {
-        if ((seriesRenderer._series.onPointTap != null ||
-                seriesRenderer._series.onPointDoubleTap != null ||
-                seriesRenderer._series.onPointLongPress != null) &&
+      if (pointIndex != null &&
+          !seriesRendererDetails
+              .stateProperties.renderingDetails.isLegendToggled) {
+        if ((seriesRendererDetails.series.onPointTap != null ||
+                seriesRendererDetails.series.onPointDoubleTap != null ||
+                seriesRendererDetails.series.onPointLongPress != null) &&
             activationMode != null) {
           ChartPointDetails pointInteractionDetails;
           pointInteractionDetails = ChartPointDetails(
               i,
               pointIndex!,
-              seriesRenderer._dataPoints,
-              seriesRenderer
-                  ._visibleDataPoints![pointIndex!].overallDataPointIndex);
+              seriesRendererDetails.dataPoints,
+              seriesRendererDetails
+                  .visibleDataPoints![pointIndex!].overallDataPointIndex);
           activationMode == ActivationMode.singleTap
-              ? seriesRenderer._series.onPointTap!(pointInteractionDetails)
+              ? seriesRendererDetails
+                  .series.onPointTap!(pointInteractionDetails)
               : activationMode == ActivationMode.doubleTap
-                  ? seriesRenderer
-                      ._series.onPointDoubleTap!(pointInteractionDetails)
-                  : seriesRenderer
-                      ._series.onPointLongPress!(pointInteractionDetails);
+                  ? seriesRendererDetails
+                      .series.onPointDoubleTap!(pointInteractionDetails)
+                  : seriesRendererDetails
+                      .series.onPointLongPress!(pointInteractionDetails);
         } else {
           PointTapArgs pointTapArgs;
           pointTapArgs = PointTapArgs(
               i,
               pointIndex!,
-              seriesRenderer._dataPoints,
-              seriesRenderer
-                  ._visibleDataPoints![pointIndex!].overallDataPointIndex);
+              seriesRendererDetails.dataPoints,
+              seriesRendererDetails
+                  .visibleDataPoints![pointIndex!].overallDataPointIndex);
           chart.onPointTapped!(pointTapArgs);
         }
       }
@@ -875,8 +1115,8 @@ void _calculatePointSeriesIndex(
       pointInteractionDetails = ChartPointDetails(
           pointRegion?.seriesIndex,
           pointRegion?.pointIndex,
-          _chartState
-              ._chartSeries.visibleSeriesRenderers[seriesIndex]._dataPoints,
+          stateProperties
+              .chartSeries.visibleSeriesRenderers[seriesIndex].dataPoints,
           pointRegion?.pointIndex);
       activationMode == ActivationMode.singleTap
           ? chart.series[seriesIndex].onPointTap!(pointInteractionDetails)
@@ -890,17 +1130,17 @@ void _calculatePointSeriesIndex(
       pointTapArgs = PointTapArgs(
           pointRegion?.seriesIndex,
           pointRegion?.pointIndex,
-          _chartState
-              ._chartSeries.visibleSeriesRenderers[seriesIndex]._dataPoints,
+          stateProperties
+              .chartSeries.visibleSeriesRenderers[seriesIndex].dataPoints,
           pointRegion?.pointIndex);
       chart.onPointTapped!(pointTapArgs);
     }
   } else {
     int? index;
     const int seriesIndex = 0;
-    for (int i = 0; i < _chartState._renderPoints!.length; i++) {
-      if (_chartState._renderPoints![i].region != null &&
-          _chartState._renderPoints![i].region!.contains(position) == true) {
+    for (int i = 0; i < stateProperties.renderPoints!.length; i++) {
+      if (stateProperties.renderPoints![i].region != null &&
+          stateProperties.renderPoints![i].region!.contains(position) == true) {
         index = i;
         break;
       }
@@ -912,7 +1152,7 @@ void _calculatePointSeriesIndex(
           activationMode != null) {
         ChartPointDetails pointInteractionDetails;
         pointInteractionDetails = ChartPointDetails(
-            seriesIndex, index, _chartState._dataPoints, index);
+            seriesIndex, index, stateProperties.dataPoints, index);
         activationMode == ActivationMode.singleTap
             ? chart.series.onPointTap!(pointInteractionDetails)
             : activationMode == ActivationMode.doubleTap
@@ -921,9 +1161,57 @@ void _calculatePointSeriesIndex(
       } else {
         PointTapArgs pointTapArgs;
         pointTapArgs =
-            PointTapArgs(seriesIndex, index, _chartState._dataPoints, index);
+            PointTapArgs(seriesIndex, index, stateProperties.dataPoints, index);
         chart.onPointTapped!(pointTapArgs);
       }
     }
   }
+}
+
+/// Point to pixel
+/// Used dynamic as the seriesRenderer can either be funnel or pyramid type series renderer.
+Offset pyramidFunnelPointToPixel(
+    PointInfo<dynamic> point, dynamic seriesRenderer) {
+  Offset location;
+  if (point.region == null) {
+    final dynamic x = point.x;
+    final num y = point.y!;
+    for (int i = 0; i < seriesRenderer.dataPoints.length; i++) {
+      if (seriesRenderer.dataPoints[i].x == x &&
+          seriesRenderer.dataPoints[i].y == y) {
+        point = seriesRenderer.dataPoints[i];
+      }
+    }
+  }
+  if (seriesRenderer.series.dataLabelSettings.isVisible == false) {
+    point.symbolLocation = Offset(point.region!.left + point.region!.width / 2,
+        point.region!.top + point.region!.height / 2);
+  }
+  location = point.symbolLocation;
+  location = Offset(location.dx, location.dy);
+  return location;
+}
+
+/// Pixel to point
+PointInfo<dynamic> pyramidFunnelPixelToPoint(
+    Offset position, dynamic seriesRenderer) {
+  final dynamic chartState = seriesRenderer.stateProperties;
+  const int seriesIndex = 0;
+
+  late int? pointIndex;
+  bool isPoint;
+  for (int j = 0; j < seriesRenderer.renderPoints!.length; j++) {
+    if (seriesRenderer.renderPoints![j].isVisible == true) {
+      isPoint = isPointInPolygon(
+          seriesRenderer.renderPoints![j].pathRegion, position);
+      if (isPoint) {
+        pointIndex = j;
+        break;
+      }
+    }
+  }
+  final PointInfo<dynamic> chartPoint = chartState
+      .chartSeries.visibleSeriesRenderers[seriesIndex].renderPoints[pointIndex];
+
+  return chartPoint;
 }

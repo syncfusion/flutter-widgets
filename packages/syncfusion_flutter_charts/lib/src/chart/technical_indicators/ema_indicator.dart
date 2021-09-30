@@ -1,4 +1,9 @@
-part of charts;
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+
+import '../../common/utils/enum.dart';
+import '../../common/utils/typedef.dart';
+import 'technical_indicator.dart';
 
 ///Renders EMA indicator
 ///
@@ -16,6 +21,7 @@ class EmaIndicator<T, D> extends TechnicalIndicators<T, D> {
       String? seriesName,
       List<double>? dashArray,
       double? animationDuration,
+      double? animationDelay,
       List<T>? dataSource,
       ChartValueMapper<T, D>? xValueMapper,
       ChartValueMapper<T, num>? highValueMapper,
@@ -39,6 +45,7 @@ class EmaIndicator<T, D> extends TechnicalIndicators<T, D> {
             seriesName: seriesName,
             dashArray: dashArray,
             animationDuration: animationDuration,
+            animationDelay: animationDelay,
             dataSource: dataSource,
             xValueMapper: xValueMapper,
             highValueMapper: highValueMapper,
@@ -89,6 +96,7 @@ class EmaIndicator<T, D> extends TechnicalIndicators<T, D> {
         other.seriesName == seriesName &&
         other.dashArray == dashArray &&
         other.animationDuration == animationDuration &&
+        other.animationDelay == animationDelay &&
         other.dataSource == dataSource &&
         other.xValueMapper == xValueMapper &&
         other.highValueMapper == highValueMapper &&
@@ -114,6 +122,7 @@ class EmaIndicator<T, D> extends TechnicalIndicators<T, D> {
       seriesName,
       dashArray,
       animationDuration,
+      animationDelay,
       dataSource,
       xValueMapper,
       highValueMapper,
@@ -130,84 +139,5 @@ class EmaIndicator<T, D> extends TechnicalIndicators<T, D> {
       period
     ];
     return hashList(values);
-  }
-
-  /// To initialise indicators collections
-  // ignore:unused_element
-  void _initSeriesCollection(
-      TechnicalIndicators<dynamic, dynamic> indicator,
-      SfCartesianChart chart,
-      TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
-    technicalIndicatorsRenderer._targetSeriesRenderers =
-        <CartesianSeriesRenderer>[];
-  }
-
-  /// To initialise data source of technical indicators
-  // ignore:unused_element
-  void _initDataSource(
-      TechnicalIndicators<dynamic, dynamic> indicator,
-      TechnicalIndicatorsRenderer technicalIndicatorsRenderer,
-      SfCartesianChart chart) {
-    final List<CartesianChartPoint<dynamic>> validData =
-        technicalIndicatorsRenderer._dataPoints!;
-    if (validData.isNotEmpty &&
-        validData.length > indicator.period &&
-        indicator is EmaIndicator &&
-        indicator.period > 0) {
-      _calculateEMAPoints(
-          indicator, validData, technicalIndicatorsRenderer, chart);
-    }
-  }
-
-  /// To calculate the rendering points of the EMA indicator
-  void _calculateEMAPoints(
-      EmaIndicator<dynamic, dynamic> indicator,
-      List<CartesianChartPoint<dynamic>> validData,
-      TechnicalIndicatorsRenderer technicalIndicatorsRenderer,
-      SfCartesianChart chart) {
-    final int period = indicator.period;
-    final List<CartesianChartPoint<dynamic>> points =
-        <CartesianChartPoint<dynamic>>[];
-    final List<dynamic> xValues = <dynamic>[];
-    CartesianChartPoint<dynamic> point;
-    if (validData.length >= period && period > 0) {
-      num sum = 0, average = 0;
-      final num k = 2 / (period + 1);
-      for (int i = 0; i < period; i++) {
-        sum += technicalIndicatorsRenderer._getFieldValue(
-            validData, i, valueField);
-      }
-      average = sum / period;
-      point = technicalIndicatorsRenderer._getDataPoint(validData[period - 1].x,
-          average, validData[period - 1], points.length);
-      points.add(point);
-      xValues.add(point.x);
-      int index = period;
-      while (index < validData.length) {
-        if (validData[index].isVisible ||
-            validData[index].isGap == true ||
-            validData[index].isDrop == true) {
-          final num prevAverage = points[index - period].y;
-          final num yValue = (technicalIndicatorsRenderer._getFieldValue(
-                          validData, index, valueField) -
-                      prevAverage) *
-                  k +
-              prevAverage;
-          point = technicalIndicatorsRenderer._getDataPoint(
-              validData[index].x, yValue, validData[index], points.length);
-          points.add(point);
-          xValues.add(point.x);
-        }
-        index++;
-      }
-    }
-    technicalIndicatorsRenderer._renderPoints = points;
-    technicalIndicatorsRenderer._setSeriesProperties(
-        indicator,
-        indicator.name ?? 'EMA',
-        indicator.signalLineColor,
-        indicator.signalLineWidth,
-        chart);
-    technicalIndicatorsRenderer._setSeriesRange(points, indicator, xValues);
   }
 }

@@ -22,6 +22,7 @@
 "allowedViewTimelineWorkWeekLabel" : "Linggo ng Trabaho ng Timeline", 
 "allowedViewTimelineMonthLabel" : "Buwan ng Timeline", 
 "todayLabel" : "Ngayon", 
+"weeknumberLabel" : "Linggo", 
 "muharramLabel" : "Muharram", 
 "safarLabel" : "Safar", 
 "rabi1Label" : "Rabi 'al-awwal", 

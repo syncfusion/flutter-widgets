@@ -1,4 +1,8 @@
-part of charts;
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import '../../common/utils/enum.dart';
+import '../utils/enum.dart';
 
 /// This class has the properties of cartesian chart annotation.
 ///
@@ -96,7 +100,9 @@ class CartesianChartAnnotation {
   ///```
   final AnnotationRegion region;
 
-  ///Specifies the x-values as pixel or point values based on the coordinateUnit.
+  ///Specifies the x-values as pixel, point or percentage values based on the coordinateUnit.
+  ///
+  /// Percentage value refers to the overall width of the chart. i.e. 100% is equal to the width of the chart.
   ///
   ///Defaults to `null`
   ///
@@ -119,7 +125,9 @@ class CartesianChartAnnotation {
   ///```
   final dynamic x;
 
-  ///Specifies the y-values as pixel or point values based on the coordinateUnit.
+  ///Specifies the y-values as pixel , point or percentage values based on the coordinateUnit.
+  ///
+  /// Percentage value refers to the overall height of the chart. i.e. 100% is equal to the height of the chart.
   ///
   ///Defaults to `null`
   ///
@@ -140,7 +148,7 @@ class CartesianChartAnnotation {
   ///        ));
   ///}
   ///```
-  final num y;
+  final dynamic y;
 
   ///Specifies the x-axis name to the annotation that should be bound.
   ///

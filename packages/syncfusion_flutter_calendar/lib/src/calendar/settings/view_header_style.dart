@@ -8,6 +8,13 @@ import 'package:flutter/material.dart';
 ///
 /// ![view header with different style in calendar](https://help.syncfusion.com/flutter/calendar/images/headers/viewheader-style.png)
 ///
+/// See also:
+/// * [SfCalendar.viewHeaderHeight], to customize the size of the view header
+/// view in calendar.
+/// * Knowledge base: [How to format day and date of view header](https://www.syncfusion.com/kb/12339/how-to-format-the-view-header-day-and-date-in-the-flutter-calendar)
+/// * Knowledge base: [How to add custom header and view header](https://www.syncfusion.com/kb/10997/how-to-add-custom-header-and-view-header-in-the-flutter-calendar)
+/// * Knowledge base: [How to highlight tapped date in view header](https://www.syncfusion.com/kb/12469/how-to-highlight-the-tapped-view-header-in-the-flutter-calendar)
+///
 /// ```dart
 ///
 ///Widget build(BuildContext context) {
@@ -38,6 +45,15 @@ class ViewHeaderStyle with Diagnosticable {
   /// Using a [SfCalendarTheme] gives more fine-grained control over the
   /// appearance of various components of the calendar.
   ///
+  /// See also:
+  /// * [dayTextStyle], which used to customize the text style of the day text
+  /// in the view header view.
+  /// * [dateTextStyle], which used to customize the text style of the date text
+  /// in the view header view.
+  /// * [SfCalendar.viewHeaderHeight], which customizes the size of the view
+  /// header view in the calendar.
+  ///
+  ///
   /// ```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
@@ -66,6 +82,12 @@ class ViewHeaderStyle with Diagnosticable {
   /// The text color set to this doesn't apply for the today cell in view header
   /// of day/week/workweek view.
   ///
+  /// See also:
+  /// * [dayTextStyle], which used to customize the text style of the day text
+  /// in the view header view.
+  /// * [backgroundColor], which fills the background of the view header view
+  /// in calendar.
+  ///
   /// ```dart
   ///Widget build(BuildContext context) {
   ///    return Container(
@@ -87,6 +109,12 @@ class ViewHeaderStyle with Diagnosticable {
   ///
   /// Using a [SfCalendarTheme] gives more fine-grained control over the
   /// appearance of various components of the calendar.
+  ///
+  /// See also:
+  /// * [dateTextStyle], which used to customize the text style of the date text
+  /// in the view header view.
+  /// * [backgroundColor], which fills the background of the view header view
+  /// in calendar.
   ///
   /// ```dart
   ///Widget build(BuildContext context) {

@@ -1,4 +1,11 @@
-part of charts;
+import 'dart:ui';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+
+import '../../common/utils/enum.dart';
+import '../../common/utils/typedef.dart';
+import 'technical_indicator.dart';
 
 ///Renders simple moving average (SMA) indicator.
 ///
@@ -16,6 +23,7 @@ class SmaIndicator<T, D> extends TechnicalIndicators<T, D> {
       String? seriesName,
       List<double>? dashArray,
       double? animationDuration,
+      double? animationDelay,
       List<T>? dataSource,
       ChartValueMapper<T, D>? xValueMapper,
       ChartValueMapper<T, num>? highValueMapper,
@@ -39,6 +47,7 @@ class SmaIndicator<T, D> extends TechnicalIndicators<T, D> {
             seriesName: seriesName,
             dashArray: dashArray,
             animationDuration: animationDuration,
+            animationDelay: animationDelay,
             dataSource: dataSource,
             xValueMapper: xValueMapper,
             highValueMapper: highValueMapper,
@@ -56,7 +65,7 @@ class SmaIndicator<T, D> extends TechnicalIndicators<T, D> {
 
   ///ValueField value for sma indicator.
   ///
-  ///Valuefield detemines the field for the rendering of sma indicator.
+  ///Value field determines the field for the rendering of sma indicator.
   ///
   ///Defaults to `close`.
   ///
@@ -89,6 +98,7 @@ class SmaIndicator<T, D> extends TechnicalIndicators<T, D> {
         other.seriesName == seriesName &&
         other.dashArray == dashArray &&
         other.animationDuration == animationDuration &&
+        other.animationDelay == animationDelay &&
         other.dataSource == dataSource &&
         other.xValueMapper == xValueMapper &&
         other.highValueMapper == highValueMapper &&
@@ -114,6 +124,7 @@ class SmaIndicator<T, D> extends TechnicalIndicators<T, D> {
       seriesName,
       dashArray,
       animationDuration,
+      animationDelay,
       dataSource,
       xValueMapper,
       highValueMapper,
@@ -130,76 +141,5 @@ class SmaIndicator<T, D> extends TechnicalIndicators<T, D> {
       period
     ];
     return hashList(values);
-  }
-
-  /// To initialise indicators collections
-  // ignore:unused_element
-  void _initSeriesCollection(
-      TechnicalIndicators<dynamic, dynamic> indicator,
-      SfCartesianChart chart,
-      TechnicalIndicatorsRenderer technicalIndicatorsRenderer) {
-    technicalIndicatorsRenderer._targetSeriesRenderers =
-        <CartesianSeriesRenderer>[];
-  }
-
-  /// To initialise data source of technical indicators
-  // ignore:unused_element
-  void _initDataSource(
-    SmaIndicator<dynamic, dynamic> indicator,
-    TechnicalIndicatorsRenderer technicalIndicatorsRenderer,
-    SfCartesianChart chart,
-  ) {
-    final List<CartesianChartPoint<dynamic>> smaPoints =
-        <CartesianChartPoint<dynamic>>[];
-    final List<CartesianChartPoint<dynamic>> points =
-        technicalIndicatorsRenderer._dataPoints!;
-    final List<dynamic> xValues = <dynamic>[];
-    CartesianChartPoint<dynamic> point;
-    if (points.isNotEmpty) {
-      final List<CartesianChartPoint<dynamic>> validData = points;
-
-      if (validData.length >= indicator.period && indicator.period > 0) {
-        num average = 0, sum = 0;
-
-        for (int i = 0; i < indicator.period; i++) {
-          sum += technicalIndicatorsRenderer._getFieldValue(
-              validData, i, valueField);
-        }
-
-        average = sum / indicator.period;
-        point = technicalIndicatorsRenderer._getDataPoint(
-            validData[indicator.period - 1].x,
-            average,
-            validData[indicator.period - 1],
-            smaPoints.length);
-        smaPoints.add(point);
-        xValues.add(point.x);
-
-        int index = indicator.period;
-        while (index < validData.length) {
-          sum -= technicalIndicatorsRenderer._getFieldValue(
-              validData, index - indicator.period, valueField);
-          sum += technicalIndicatorsRenderer._getFieldValue(
-              validData, index, valueField);
-          average = sum / indicator.period;
-          point = technicalIndicatorsRenderer._getDataPoint(
-              validData[index].x, average, validData[index], smaPoints.length);
-          smaPoints.add(point);
-          xValues.add(point.x);
-          index++;
-        }
-      }
-      technicalIndicatorsRenderer._renderPoints = smaPoints;
-      technicalIndicatorsRenderer._setSeriesProperties(
-          indicator,
-          indicator.name ?? 'SMA',
-          indicator.signalLineColor,
-          indicator.signalLineWidth,
-          chart);
-      // final CartesianSeriesRenderer signalSeriesRenderer =
-      // technicalIndicatorsRenderer._targetSeriesRenderers[0];
-      technicalIndicatorsRenderer._setSeriesRange(
-          smaPoints, indicator, xValues);
-    }
   }
 }

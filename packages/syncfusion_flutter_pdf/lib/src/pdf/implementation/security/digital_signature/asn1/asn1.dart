@@ -188,6 +188,67 @@ abstract class _Asn1 extends _Asn1Encode {
     }
     return value;
   }
+
+  static const String nullValue = 'NULL';
+  static const String der = 'DER';
+  static const String desEde = 'DESede';
+  static const String des = 'DES';
+  static const String rsa = 'RSA';
+  static const String pkcs7 = 'PKCS7';
+  static int getHashCode(List<int>? data) {
+    if (data == null) {
+      return 0;
+    }
+    int i = data.length;
+    int hc = i + 1;
+    while (--i >= 0) {
+      hc = (hc * 257).toSigned(32);
+      hc = (hc ^ data[i].toUnsigned(8)).toSigned(32);
+    }
+    return hc;
+  }
+
+  static bool areEqual(List<int>? a, List<int>? b) {
+    if (a == b) {
+      return true;
+    }
+    if (a == null || b == null) {
+      return false;
+    }
+    return haveSameContents(a, b);
+  }
+
+  static bool haveSameContents(List<int> a, List<int> b) {
+    int i = a.length;
+    if (i != b.length) {
+      return false;
+    }
+    while (i != 0) {
+      --i;
+      if (a[i] != b[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  static List<int> clone(List<int> data) {
+    return List<int>.generate(data.length, (int i) => data[i]);
+  }
+
+  static void uInt32ToBe(int n, List<int> bs, int off) {
+    bs[off] = (n >> 24).toUnsigned(8);
+    bs[off + 1] = (n >> 16).toUnsigned(8);
+    bs[off + 2] = (n >> 8).toUnsigned(8);
+    bs[off + 3] = n.toUnsigned(8);
+  }
+
+  static int beToUInt32(List<int> bs, int off) {
+    return bs[off].toUnsigned(8) << 24 |
+        bs[off + 1].toUnsigned(8) << 16 |
+        bs[off + 2].toUnsigned(8) << 8 |
+        bs[off + 3].toUnsigned(8);
+  }
 }
 
 abstract class _Asn1Encode implements _IAsn1 {
@@ -199,7 +260,7 @@ abstract class _Asn1Encode implements _IAsn1 {
     if (encoding == null) {
       return (_Asn1DerStream(<int>[])..writeObject(this))._stream;
     } else {
-      if (encoding == _Asn1Constants.der) {
+      if (encoding == _Asn1.der) {
         final _DerStream stream = _DerStream(<int>[])..writeObject(this);
         return stream._stream;
       }
@@ -208,7 +269,7 @@ abstract class _Asn1Encode implements _IAsn1 {
   }
 
   List<int>? getDerEncoded() {
-    return getEncoded(_Asn1Constants.der);
+    return getEncoded(_Asn1.der);
   }
 
   @override
@@ -252,7 +313,7 @@ class _Asn1Octet extends _Asn1 implements _IAsn1Octet {
     _value = value;
   }
   _Asn1Octet.fromObject(_Asn1Encode obj) {
-    _value = obj.getEncoded(_Asn1Constants.der);
+    _value = obj.getEncoded(_Asn1.der);
   }
   //Fields
   List<int>? _value;
@@ -270,14 +331,14 @@ class _Asn1Octet extends _Asn1 implements _IAsn1Octet {
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode {
-    return _Asn1Constants.getHashCode(getOctets());
+    return _Asn1.getHashCode(getOctets());
   }
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object asn1) {
     if (asn1 is _DerOctet) {
-      return _Asn1Constants.areEqual(getOctets(), asn1.getOctets());
+      return _Asn1.areEqual(getOctets(), asn1.getOctets());
     } else {
       return false;
     }
@@ -330,7 +391,7 @@ abstract class _Asn1Null extends _Asn1 {
 
   @override
   String toString() {
-    return _Asn1Constants.nullValue;
+    return _Asn1.nullValue;
   }
 
   @override
@@ -952,69 +1013,6 @@ class _OctetStream extends _StreamReader {
       }
     }
     return result;
-  }
-}
-
-class _Asn1Constants {
-  static const String nullValue = 'NULL';
-  static const String der = 'DER';
-  static const String desEde = 'DESede';
-  static const String des = 'DES';
-  static const String rsa = 'RSA';
-  static const String pkcs7 = 'PKCS7';
-  static int getHashCode(List<int>? data) {
-    if (data == null) {
-      return 0;
-    }
-    int i = data.length;
-    int hc = i + 1;
-    while (--i >= 0) {
-      hc = (hc * 257).toSigned(32);
-      hc = (hc ^ data[i].toUnsigned(8)).toSigned(32);
-    }
-    return hc;
-  }
-
-  static bool areEqual(List<int>? a, List<int>? b) {
-    if (a == b) {
-      return true;
-    }
-    if (a == null || b == null) {
-      return false;
-    }
-    return haveSameContents(a, b);
-  }
-
-  static bool haveSameContents(List<int> a, List<int> b) {
-    int i = a.length;
-    if (i != b.length) {
-      return false;
-    }
-    while (i != 0) {
-      --i;
-      if (a[i] != b[i]) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  static List<int> clone(List<int> data) {
-    return List<int>.generate(data.length, (int i) => data[i]);
-  }
-
-  static void uInt32ToBe(int n, List<int> bs, int off) {
-    bs[off] = (n >> 24).toUnsigned(8);
-    bs[off + 1] = (n >> 16).toUnsigned(8);
-    bs[off + 2] = (n >> 8).toUnsigned(8);
-    bs[off + 3] = n.toUnsigned(8);
-  }
-
-  static int beToUInt32(List<int> bs, int off) {
-    return bs[off].toUnsigned(8) << 24 |
-        bs[off + 1].toUnsigned(8) << 16 |
-        bs[off + 2].toUnsigned(8) << 8 |
-        bs[off + 3].toUnsigned(8);
   }
 }
 

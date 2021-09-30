@@ -193,6 +193,7 @@ class _BookmarkItemState extends State<BookmarkItem> {
                     Icons.arrow_back,
                     size: _kPdfBackIconSize,
                     color: _pdfViewerThemeData!.bookmarkViewStyle.backIconColor,
+                    semanticLabel: 'Previous level bookmark',
                   ),
                 ),
               ),
@@ -221,6 +222,7 @@ class _BookmarkItemState extends State<BookmarkItem> {
                     size: _kPdfExpandIconSize,
                     color: _pdfViewerThemeData!
                         .bookmarkViewStyle.navigationIconColor,
+                    semanticLabel: 'Next level bookmark',
                   ),
                 ),
               ),

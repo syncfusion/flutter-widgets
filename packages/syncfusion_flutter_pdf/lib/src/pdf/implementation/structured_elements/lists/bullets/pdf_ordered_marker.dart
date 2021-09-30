@@ -176,6 +176,6 @@ class PdfOrderedMarker extends PdfMarker {
   //Implementation
   /// Gets the marker number.
   String _getNumber() {
-    return _PdfNumberConvertor._convert(_startNumber + _currentIndex, style);
+    return PdfAutomaticField._convert(_startNumber + _currentIndex, style);
   }
 }

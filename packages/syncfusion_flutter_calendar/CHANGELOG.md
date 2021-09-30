@@ -1,4 +1,22 @@
-## [19.2.44]
+## Unreleased
+
+**Features**
+* Provided resize, drag-and-drop support to reschedule appointments in the event calendar.
+
+**Breaking changes**
+* The default `cellEndPadding` value has been changed in the SfCalendar.
+
+**Enhancements**
+* Now the calendar will return the recurrence appointment details in the given custom data type instead of `Appointment` type by overriding the `convertAppointmentToObject` method of the `CalendarDataSource`.
+
+## [19.2.55] - 08/11/2021
+**Bug fixes**
+* Now, the appointment will not intersect when the end time and start time of different appointment is 24 hours for two consecutive days.
+
+**Features**
+* Provided support to customize the background color of the all-day panel.
+
+## [19.2.44] - 06/30/2021
 **Features**
 * Provided support to display week numbers of the year.
 * Provided ID, recurrence ID, and appointment type support.

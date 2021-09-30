@@ -378,14 +378,14 @@ class RenderLinearBarPointer extends RenderOpacity {
             RRect.fromRectAndRadius(_barRect, Radius.circular(thickness / 2)));
         break;
       case LinearEdgeStyle.startCurve:
-        _path.addRRect(LinearGaugeHelper.getStartCurve(
+        _path.addRRect(getStartCurve(
             isHorizontal: _isHorizontal,
             isAxisInversed: isAxisInversed,
             rect: _barRect,
             radius: thickness / 2));
         break;
       case LinearEdgeStyle.endCurve:
-        _path.addRRect(LinearGaugeHelper.getEndCurve(
+        _path.addRRect(getEndCurve(
             isHorizontal: _isHorizontal,
             isAxisInversed: isAxisInversed,
             rect: _barRect,

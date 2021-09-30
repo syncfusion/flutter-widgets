@@ -1,4 +1,24 @@
-## Unreleased
+## [19.2.56-beta.1] - 08/17/2021
+
+**Bugs**
+
+* Resolved the RangeError while extracting text lines from the PDF document.
+* The TextLine extraction bounds related issue has been resolved now.
+
+## [19.2.56-beta] - 08/17/2021
+
+**Features**
+
+* Provided the support to get or set rotation in an existing PDF page.
+
+## [19.2.48-beta] - 07/20/2021
+
+**Bugs**
+
+* The white space missing issue while extracting text has been resolved now.
+* The unhandled exception when encrypting PDF document is resolved now.
+
+## [19.2.44-beta] - 06/30/2021
 
 **Features**
 

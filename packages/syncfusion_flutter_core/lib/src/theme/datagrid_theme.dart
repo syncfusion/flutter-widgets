@@ -120,6 +120,8 @@ class SfDataGridThemeData with Diagnosticable {
     Color? headerColor,
     double? frozenPaneElevation,
     Color? rowHoverColor,
+    Color? columnResizeIndicatorColor,
+    double? columnResizeIndicatorStrokeWidth,
     TextStyle? rowHoverTextStyle,
   }) {
     brightness = brightness ?? Brightness.light;
@@ -159,6 +161,11 @@ class SfDataGridThemeData with Diagnosticable {
 
     frozenPaneElevation ??= 5.0;
 
+    columnResizeIndicatorColor ??=
+        isLight ? Colors.blue[500]! : Colors.tealAccent[200]!;
+
+    columnResizeIndicatorStrokeWidth ??= 2;
+
     rowHoverColor ??= isLight
         ? const Color.fromRGBO(0, 0, 0, 0.08)
         : const Color.fromRGBO(255, 255, 255, 0.12);
@@ -188,6 +195,8 @@ class SfDataGridThemeData with Diagnosticable {
       headerColor: headerColor,
       frozenPaneElevation: frozenPaneElevation,
       rowHoverColor: rowHoverColor,
+      columnResizeIndicatorColor: columnResizeIndicatorColor,
+      columnResizeIndicatorStrokeWidth: columnResizeIndicatorStrokeWidth,
       rowHoverTextStyle: rowHoverTextStyle,
     );
   }
@@ -211,6 +220,8 @@ class SfDataGridThemeData with Diagnosticable {
     required this.headerColor,
     required this.headerHoverColor,
     required this.frozenPaneElevation,
+    required this.columnResizeIndicatorColor,
+    required this.columnResizeIndicatorStrokeWidth,
     required this.rowHoverColor,
     required this.rowHoverTextStyle,
   });
@@ -360,6 +371,12 @@ class SfDataGridThemeData with Diagnosticable {
   /// Defaults to 5.0. The value is always non-negative.
   final double frozenPaneElevation;
 
+  /// The color of the line which indicates the column resizing.
+  final Color columnResizeIndicatorColor;
+
+  /// The width of the line which indicates the column resizing.
+  final double columnResizeIndicatorStrokeWidth;
+
   /// The color for the row when a pointer is hovering over it.
   final Color rowHoverColor;
 
@@ -397,6 +414,10 @@ class SfDataGridThemeData with Diagnosticable {
       headerColor: headerColor ?? this.headerColor,
       headerHoverColor: headerHoverColor ?? this.headerHoverColor,
       frozenPaneElevation: frozenPaneElevation ?? this.frozenPaneElevation,
+      columnResizeIndicatorColor:
+          columnResizeIndicatorColor ?? this.columnResizeIndicatorColor,
+      columnResizeIndicatorStrokeWidth: columnResizeIndicatorStrokeWidth ??
+          this.columnResizeIndicatorStrokeWidth,
       rowHoverColor: rowHoverColor ?? this.rowHoverColor,
       rowHoverTextStyle: rowHoverTextStyle ?? this.rowHoverTextStyle,
     );
@@ -425,6 +446,12 @@ class SfDataGridThemeData with Diagnosticable {
         frozenPaneElevation:
             lerpDouble(a.frozenPaneElevation, b.frozenPaneElevation, t),
         rowHoverColor: Color.lerp(a.rowHoverColor, b.rowHoverColor, t),
+        columnResizeIndicatorColor: Color.lerp(
+            a.columnResizeIndicatorColor, b.columnResizeIndicatorColor, t),
+        columnResizeIndicatorStrokeWidth: lerpDouble(
+            a.columnResizeIndicatorStrokeWidth,
+            b.columnResizeIndicatorStrokeWidth,
+            t),
         rowHoverTextStyle:
             TextStyle.lerp(a.rowHoverTextStyle, b.rowHoverTextStyle, t));
   }
@@ -451,6 +478,9 @@ class SfDataGridThemeData with Diagnosticable {
         other.headerColor == headerColor &&
         other.frozenPaneElevation == frozenPaneElevation &&
         other.rowHoverColor == rowHoverColor &&
+        other.columnResizeIndicatorColor == columnResizeIndicatorColor &&
+        other.columnResizeIndicatorStrokeWidth ==
+            columnResizeIndicatorStrokeWidth &&
         other.rowHoverTextStyle == rowHoverTextStyle;
   }
 
@@ -468,6 +498,8 @@ class SfDataGridThemeData with Diagnosticable {
       headerColor,
       frozenPaneElevation,
       rowHoverColor,
+      columnResizeIndicatorColor,
+      columnResizeIndicatorStrokeWidth,
       rowHoverTextStyle,
     ];
     return hashList(values);
@@ -500,6 +532,12 @@ class SfDataGridThemeData with Diagnosticable {
         defaultValue: defaultData.headerColor));
     properties.add(DoubleProperty('frozenPaneElevation', frozenPaneElevation,
         defaultValue: defaultData.frozenPaneElevation));
+    properties.add(ColorProperty(
+        'columnResizeIndicatorColor', columnResizeIndicatorColor,
+        defaultValue: defaultData.columnResizeIndicatorColor));
+    properties.add(DoubleProperty(
+        'columnResizeIndicatorStrokeWidth', columnResizeIndicatorStrokeWidth,
+        defaultValue: defaultData.columnResizeIndicatorStrokeWidth));
     properties.add(ColorProperty('rowHoverColor', rowHoverColor,
         defaultValue: defaultData.rowHoverColor));
     properties.add(DiagnosticsProperty<TextStyle>(

@@ -586,17 +586,12 @@ class PdfBookmark extends PdfBookmarkBase {
               }
 
               if (page != null) {
-                double? topValue =
+                final double topValue =
                     (top == null) ? 0 : page.size.height - top.value!;
                 final double leftValue =
                     (left == null) ? 0 : left.value! as double;
-
-                if (page._isLoadedPage &&
-                    page._rotation != PdfPageRotateAngle.rotateAngle0) {
-                  topValue = _checkRotation(page, top, left);
-                }
                 _destination =
-                    PdfDestination(page, Offset(leftValue, topValue!));
+                    PdfDestination(page, Offset(leftValue, topValue));
                 if (zoom != null) {
                   _destination!.zoom = zoom.value!.toDouble();
                 }
@@ -751,20 +746,5 @@ class PdfBookmark extends PdfBookmarkBase {
       }
     }
     return _destination;
-  }
-
-  double? _checkRotation(PdfPage page, _PdfNumber? top, _PdfNumber? left) {
-    double? topValue = 0;
-
-    left = (left == null) ? _PdfNumber(0) : left;
-
-    if (page._rotation == PdfPageRotateAngle.rotateAngle90) {
-      topValue = (top == null) ? 0 : left.value! as double;
-    } else if (page._rotation == PdfPageRotateAngle.rotateAngle180) {
-      topValue = (top == null) ? 0 : top.value! as double;
-    } else if (page._rotation == PdfPageRotateAngle.rotateAngle270) {
-      topValue = (top == null) ? 0 : page.size.width - left.value!;
-    }
-    return topValue;
   }
 }

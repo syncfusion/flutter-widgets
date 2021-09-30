@@ -1,4 +1,21 @@
-part of charts;
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+
+import '../../chart/utils/enum.dart';
+import '../../common/common.dart';
+import '../../common/series/chart_series.dart';
+import '../../common/user_interaction/selection_behavior.dart';
+import '../../common/utils/enum.dart';
+import '../../common/utils/typedef.dart';
+import '../common/data_label.dart';
+import '../common/marker.dart';
+import '../series_painter/histogram_painter.dart';
+import '../trendlines/trendlines.dart';
+import 'xy_data_series.dart';
 
 /// This class has the properties of the column series.
 ///
@@ -47,6 +64,7 @@ class HistogramSeries<T, D> extends XyDataSeries<T, D> {
       LegendIconType? legendIconType,
       String? legendItemText,
       double? opacity,
+      double? animationDelay,
       List<double>? dashArray,
       this.binInterval,
       this.showNormalDistributionCurve = false,
@@ -56,7 +74,8 @@ class HistogramSeries<T, D> extends XyDataSeries<T, D> {
       SeriesRendererCreatedCallback? onRendererCreated,
       ChartPointInteractionCallback? onPointTap,
       ChartPointInteractionCallback? onPointDoubleTap,
-      ChartPointInteractionCallback? onPointLongPress})
+      ChartPointInteractionCallback? onPointLongPress,
+      CartesianShaderCallback? onCreateShader})
       : super(
             key: key,
             onCreateRenderer: onCreateRenderer,
@@ -91,6 +110,8 @@ class HistogramSeries<T, D> extends XyDataSeries<T, D> {
             onPointDoubleTap: onPointDoubleTap,
             onPointLongPress: onPointLongPress,
             opacity: opacity,
+            animationDelay: animationDelay,
+            onCreateShader: onCreateShader,
             dashArray: dashArray);
 
   ///Interval value by which the data points are grouped and rendered as bars, in histogram series.
@@ -389,6 +410,7 @@ class HistogramSeries<T, D> extends XyDataSeries<T, D> {
         other.legendIconType == legendIconType &&
         other.legendItemText == legendItemText &&
         other.opacity == opacity &&
+        other.animationDelay == animationDelay &&
         other.trackColor == trackColor &&
         other.trackBorderColor == trackBorderColor &&
         other.trackBorderWidth == trackBorderWidth &&
@@ -404,7 +426,8 @@ class HistogramSeries<T, D> extends XyDataSeries<T, D> {
         other.onRendererCreated == onRendererCreated &&
         other.onPointTap == onPointTap &&
         other.onPointDoubleTap == onPointDoubleTap &&
-        other.onPointLongPress == onPointLongPress;
+        other.onPointLongPress == onPointLongPress &&
+        other.onCreateShader == onCreateShader;
   }
 
   @override
@@ -440,6 +463,7 @@ class HistogramSeries<T, D> extends XyDataSeries<T, D> {
       legendIconType,
       legendItemText,
       opacity,
+      animationDelay,
       trackColor,
       trackBorderColor,
       trackBorderWidth,
@@ -461,209 +485,24 @@ class HistogramSeries<T, D> extends XyDataSeries<T, D> {
   }
 }
 
-class _HistogramValues {
-  _HistogramValues(
+/// Represents the histogram values
+class HistogramValues {
+  /// Creates an instance of histogram values
+  HistogramValues(
       {this.sDValue, this.mean, this.binWidth, this.yValues, this.minValue});
+
+  /// Specifies the value of SD
   num? sDValue;
+
+  /// Specifies the value of mean
   num? mean;
+
+  /// Specifies the value of bin width
   num? binWidth;
+
+  /// Specifies the minimum value
   num? minValue;
+
+  /// Specifies the list of y values
   List<num>? yValues = <num>[];
-}
-
-/// Creates series renderer for Histogram series
-class HistogramSeriesRenderer extends XyDataSeriesRenderer {
-  late num _rectPosition;
-  late num _rectCount;
-  late _HistogramValues _histogramValues;
-  late HistogramSegment _segment;
-  List<CartesianSeriesRenderer>? _oldSeriesRenderers;
-  late HistogramSeries<dynamic, dynamic> _histogramSeries;
-  BorderRadius? _borderRadius;
-
-  /// To get the proper data for histogram series
-  void _processData(HistogramSeries<dynamic, dynamic> series, List<num> yValues,
-      num yValuesCount) {
-    _histogramValues = _HistogramValues();
-    _histogramValues.yValues = yValues;
-    final num mean = yValuesCount / _histogramValues.yValues!.length;
-    _histogramValues.mean = mean;
-    num sumValue = 0;
-    num sDValue;
-    for (int value = 0; value < _histogramValues.yValues!.length; value++) {
-      sumValue += (_histogramValues.yValues![value] - _histogramValues.mean!) *
-          (_histogramValues.yValues![value] - _histogramValues.mean!);
-    }
-    sDValue = math.sqrt(sumValue / _histogramValues.yValues!.length - 1).isNaN
-        ? 0
-        : (math.sqrt(sumValue / _histogramValues.yValues!.length - 1)).round();
-    _histogramValues.sDValue = sDValue;
-  }
-
-  /// Find the path for distribution line in the histogram
-  Path _findNormalDistributionPath(
-      HistogramSeries<dynamic, dynamic> series, SfCartesianChart chart) {
-    final num min = _xAxisRenderer!._visibleRange!.minimum;
-    final num max = _xAxisRenderer!._visibleRange!.maximum;
-    num xValue, yValue;
-    final Path path = Path();
-    _ChartLocation pointLocation;
-    const num pointsCount = 500;
-    final num del = (max - min) / (pointsCount - 1);
-    for (int i = 0; i < pointsCount; i++) {
-      xValue = min + i * del;
-      yValue = math.exp(-(xValue - _histogramValues.mean!) *
-              (xValue - _histogramValues.mean!) /
-              (2 * _histogramValues.sDValue! * _histogramValues.sDValue!)) /
-          (_histogramValues.sDValue! * math.sqrt(2 * math.pi));
-      pointLocation = _calculatePoint(
-          xValue,
-          yValue *
-              _histogramValues.binWidth! *
-              _histogramValues.yValues!.length,
-          _xAxisRenderer!,
-          _yAxisRenderer!,
-          _chartState!._requireInvertedAxis,
-          series,
-          _chartState!._chartAxis._axisClipRect);
-      i == 0
-          ? path.moveTo(pointLocation.x, pointLocation.y)
-          : path.lineTo(pointLocation.x, pointLocation.y);
-    }
-    return path;
-  }
-
-  /// To add histogram segments to segments list
-  ChartSegment _createSegments(
-      CartesianChartPoint<dynamic> currentPoint,
-      int pointIndex,
-      _VisibleRange sideBySideInfo,
-      int seriesIndex,
-      double animateFactor) {
-    _segment = createSegment();
-    _oldSeriesRenderers = _chartState!._oldSeriesRenderers;
-    _histogramSeries = _series as HistogramSeries<dynamic, dynamic>;
-    _borderRadius = _histogramSeries.borderRadius;
-    _segment._seriesRenderer = this;
-    _segment._series = _histogramSeries;
-    _segment._chart = _chart;
-    _segment._chartState = _chartState!;
-    _segment._seriesIndex = seriesIndex;
-    _segment.currentSegmentIndex = pointIndex;
-    _segment.points
-        .add(Offset(currentPoint.markerPoint!.x, currentPoint.markerPoint!.y));
-    _segment.animationFactor = animateFactor;
-    final num origin = math.max(_yAxisRenderer!._visibleRange!.minimum, 0);
-    currentPoint.region = _calculateRectangle(
-        currentPoint.xValue + sideBySideInfo.minimum,
-        currentPoint.yValue,
-        currentPoint.xValue + sideBySideInfo.maximum,
-        math.max(_yAxisRenderer!._visibleRange!.minimum, 0),
-        this,
-        _chartState!);
-    _segment._currentPoint = currentPoint;
-    if (_renderingDetails!.widgetNeedUpdate &&
-        !_renderingDetails!.isLegendToggled &&
-        _oldSeriesRenderers != null &&
-        _oldSeriesRenderers!.isNotEmpty &&
-        _oldSeriesRenderers!.length - 1 >= _segment._seriesIndex &&
-        _oldSeriesRenderers![_segment._seriesIndex]._seriesName ==
-            _segment._seriesRenderer._seriesName) {
-      _segment._oldSeriesRenderer = _oldSeriesRenderers![_segment._seriesIndex];
-      _segment._oldPoint = (_segment._oldSeriesRenderer!._segments.isNotEmpty &&
-              _segment._oldSeriesRenderer!._segments[0] is HistogramSegment &&
-              _segment._oldSeriesRenderer!._dataPoints.length - 1 >= pointIndex)
-          ? _segment._oldSeriesRenderer!._dataPoints[pointIndex]
-          : null;
-      _segment._oldSegmentIndex = _getOldSegmentIndex(_segment);
-    } else if (_renderingDetails!.isLegendToggled &&
-        // ignore: unnecessary_null_comparison
-        _chartState!._segments != null &&
-        _chartState!._segments.isNotEmpty) {
-      _segment._oldSeriesVisible =
-          _chartState!._oldSeriesVisible[_segment._seriesIndex];
-      for (int i = 0; i < _chartState!._segments.length; i++) {
-        final HistogramSegment oldSegment =
-            _chartState!._segments[i] as HistogramSegment;
-        if (oldSegment.currentSegmentIndex == _segment.currentSegmentIndex &&
-            oldSegment._seriesIndex == _segment._seriesIndex) {
-          _segment._oldRegion = oldSegment.segmentRect.outerRect;
-        }
-      }
-    }
-    _segment._path = _findingRectSeriesDashedBorder(
-        currentPoint, _histogramSeries.borderWidth);
-    if (_borderRadius != null) {
-      _segment.segmentRect =
-          _getRRectFromRect(currentPoint.region!, _borderRadius!);
-    }
-    //Tracker rect
-    if (_histogramSeries.isTrackVisible) {
-      currentPoint.trackerRectRegion = _calculateShadowRectangle(
-          currentPoint.xValue + sideBySideInfo.minimum,
-          currentPoint.yValue,
-          currentPoint.xValue + sideBySideInfo.maximum,
-          origin,
-          this,
-          _chartState!,
-          Offset(_segment._seriesRenderer._xAxisRenderer!._axis.plotOffset,
-              _segment._seriesRenderer._yAxisRenderer!._axis.plotOffset));
-      if (_borderRadius != null) {
-        _segment._trackRect =
-            _getRRectFromRect(currentPoint.trackerRectRegion!, _borderRadius!);
-      }
-    }
-    _segment._segmentRect = _segment.segmentRect;
-    customizeSegment(_segment);
-    _segments.add(_segment);
-    return _segment;
-  }
-
-  /// To render histogram series segments
-  //ignore: unused_element
-  void _drawSegment(Canvas canvas, ChartSegment segment) {
-    if (_segment._seriesRenderer._isSelectionEnable) {
-      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
-          _segment._seriesRenderer._selectionBehaviorRenderer;
-      selectionBehaviorRenderer?._selectionRenderer?._checkWithSelectionState(
-          _segments[segment.currentSegmentIndex!], _chart);
-    }
-    segment.onPaint(canvas);
-  }
-
-  /// Creates a segment for a data point in the series.
-  @override
-  HistogramSegment createSegment() => HistogramSegment();
-
-  /// Changes the series color, border color, and border width.
-  @override
-  void customizeSegment(ChartSegment segment) {
-    final HistogramSegment histogramSegment = segment as HistogramSegment;
-    histogramSegment._color =
-        histogramSegment._currentPoint!.pointColorMapper ??
-            segment._seriesRenderer._seriesColor;
-    histogramSegment._strokeColor = segment._series.borderColor;
-    histogramSegment._strokeWidth = segment._series.borderWidth;
-    histogramSegment.strokePaint = histogramSegment.getStrokePaint();
-    histogramSegment.fillPaint = histogramSegment.getFillPaint();
-    histogramSegment._trackerFillPaint =
-        histogramSegment._getTrackerFillPaint();
-    histogramSegment._trackerStrokePaint =
-        histogramSegment._getTrackerStrokePaint();
-  }
-
-  ///Draws marker with different shape and color of the appropriate data point in the series.
-  @override
-  void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
-      Paint strokePaint, double pointX, double pointY,
-      [CartesianSeriesRenderer? seriesRenderer]) {
-    canvas.drawPath(seriesRenderer!._markerShapes[index]!, fillPaint);
-    canvas.drawPath(seriesRenderer._markerShapes[index]!, strokePaint);
-  }
-
-  /// Draws data label text of the appropriate data point in a series.
-  @override
-  void drawDataLabel(int index, Canvas canvas, String dataLabel, double pointX,
-          double pointY, int angle, TextStyle style) =>
-      _drawText(canvas, dataLabel, Offset(pointX, pointY), style, angle);
 }

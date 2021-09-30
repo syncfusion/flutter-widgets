@@ -1156,14 +1156,12 @@ Path _getMarkerShapesPath(
   switch (markerType) {
     case DataMarkerType.circle:
       {
-        ShapeMaker.drawCircle(
-            path, position.dx, position.dy, size.width, size.height);
+        drawCircle(path, position.dx, position.dy, size.width, size.height);
       }
       break;
     case DataMarkerType.rectangle:
       {
-        ShapeMaker.drawRectangle(
-            path, position.dx, position.dy, size.width, size.height);
+        drawRectangle(path, position.dx, position.dy, size.width, size.height);
       }
       break;
     case DataMarkerType.image:
@@ -1171,38 +1169,35 @@ Path _getMarkerShapesPath(
       break;
     case DataMarkerType.pentagon:
       {
-        ShapeMaker.drawPentagon(
-            path, position.dx, position.dy, size.width, size.height);
+        drawPentagon(path, position.dx, position.dy, size.width, size.height);
       }
       break;
     case DataMarkerType.verticalLine:
       {
-        ShapeMaker.drawVerticalLine(
+        drawVerticalLine(
             path, position.dx, position.dy, size.width, size.height);
       }
       break;
     case DataMarkerType.invertedTriangle:
       {
-        ShapeMaker.drawInvertedTriangle(
+        drawInvertedTriangle(
             path, position.dx, position.dy, size.width, size.height);
       }
       break;
     case DataMarkerType.horizontalLine:
       {
-        ShapeMaker.drawHorizontalLine(
+        drawHorizontalLine(
             path, position.dx, position.dy, size.width, size.height);
       }
       break;
     case DataMarkerType.diamond:
       {
-        ShapeMaker.drawDiamond(
-            path, position.dx, position.dy, size.width, size.height);
+        drawDiamond(path, position.dx, position.dy, size.width, size.height);
       }
       break;
     case DataMarkerType.triangle:
       {
-        ShapeMaker.drawTriangle(
-            path, position.dx, position.dy, size.width, size.height);
+        drawTriangle(path, position.dx, position.dy, size.width, size.height);
       }
       break;
     case DataMarkerType.none:

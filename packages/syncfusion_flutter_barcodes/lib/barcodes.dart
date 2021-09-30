@@ -5,6 +5,8 @@
 ///
 /// To use, import `package:syncfusion_flutter_barcodes/barcodes.dart`.
 ///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=ckAHrT2CR8A}
+///
 /// See also:
 /// * [Syncfusion Flutter Barcodes product page](https://www.syncfusion.com/flutter-widgets/flutter-barcodes)
 /// * [User guide documentation](https://help.syncfusion.com/flutter/barcode/getting-started)

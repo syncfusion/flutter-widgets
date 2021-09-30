@@ -1,103 +1,262 @@
-part of charts;
+import 'dart:math' as math_lib;
+import 'dart:ui';
 
-class _AreaChartPainter extends CustomPainter {
-  _AreaChartPainter(
-      {required this.chartState,
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+
+import '../../../charts.dart';
+import '../../common/rendering_details.dart';
+import '../../common/user_interaction/selection_behavior.dart';
+import '../axis/axis.dart';
+import '../base/chart_base.dart';
+import '../chart_segment/area_segment.dart';
+import '../chart_segment/chart_segment.dart';
+import '../chart_series/area_series.dart';
+import '../chart_series/series.dart';
+import '../chart_series/series_renderer_properties.dart';
+import '../chart_series/xy_data_series.dart';
+import '../common/cartesian_state_properties.dart';
+import '../common/common.dart';
+import '../common/segment_properties.dart';
+import '../utils/enum.dart';
+import '../utils/helper.dart';
+
+/// Creates series renderer for Area series
+class AreaSeriesRenderer extends XyDataSeriesRenderer {
+  /// Calling the default constructor of AreaSeriesRenderer class.
+  AreaSeriesRenderer();
+
+  late SeriesRendererDetails _currentSeriesDetails;
+  late SeriesRendererDetails _segmentSeriesDetails;
+
+  /// Creates a segment for a data point in the series.
+  ChartSegment _createSegments(
+      Path path, Path strokePath, int seriesIndex, double animateFactor,
+      [List<Offset>? _points]) {
+    _currentSeriesDetails = SeriesHelper.getSeriesRendererDetails(this);
+    final AreaSegment segment = createSegment();
+    SegmentHelper.setSegmentProperties(segment,
+        SegmentProperties(_currentSeriesDetails.stateProperties, segment));
+    final SegmentProperties segmentProperties =
+        SegmentHelper.getSegmentProperties(segment);
+    final List<CartesianSeriesRenderer> oldSeriesRenderers =
+        _currentSeriesDetails.stateProperties.oldSeriesRenderers;
+    segmentProperties.series =
+        _currentSeriesDetails.series as XyDataSeries<dynamic, dynamic>;
+    segment.currentSegmentIndex = 0;
+    if (_points != null) {
+      segment.points = _points;
+    }
+    segmentProperties.seriesRenderer = this;
+    segmentProperties.seriesIndex = seriesIndex;
+    segment.animationFactor = animateFactor;
+    segmentProperties.path = path;
+    segmentProperties.strokePath = strokePath;
+    _segmentSeriesDetails =
+        SeriesHelper.getSeriesRendererDetails(segmentProperties.seriesRenderer);
+    if (_currentSeriesDetails
+                .stateProperties.renderingDetails.widgetNeedUpdate ==
+            true &&
+        // ignore: unnecessary_null_comparison
+        oldSeriesRenderers != null &&
+        oldSeriesRenderers.isNotEmpty &&
+        oldSeriesRenderers.length - 1 >= segmentProperties.seriesIndex &&
+        SeriesHelper.getSeriesRendererDetails(
+                    oldSeriesRenderers[segmentProperties.seriesIndex])
+                .seriesName ==
+            _segmentSeriesDetails.seriesName) {
+      segmentProperties.oldSeriesRenderer =
+          oldSeriesRenderers[segmentProperties.seriesIndex];
+      segmentProperties.oldSegmentIndex = 0;
+    }
+    customizeSegment(segment);
+    _currentSeriesDetails.segments.add(segment);
+    return segment;
+  }
+
+  /// To draw area segments
+  //ignore: unused_element
+  void _drawSegment(Canvas canvas, ChartSegment segment) {
+    if (_segmentSeriesDetails.isSelectionEnable == true) {
+      final SelectionBehaviorRenderer? selectionBehaviorRenderer =
+          _segmentSeriesDetails.selectionBehaviorRenderer;
+      SelectionHelper.getRenderingDetails(selectionBehaviorRenderer!)
+          .selectionRenderer
+          ?.checkWithSelectionState(
+              _currentSeriesDetails.segments[segment.currentSegmentIndex!],
+              _currentSeriesDetails.chart);
+    }
+    segment.onPaint(canvas);
+  }
+
+  /// To create area series segments
+  @override
+  AreaSegment createSegment() => AreaSegment();
+
+  /// Changes the series color, border color, and border width.
+  @override
+  void customizeSegment(ChartSegment segment) {
+    final AreaSegment areaSegment = segment as AreaSegment;
+    final SegmentProperties segmentProperties =
+        SegmentHelper.getSegmentProperties(areaSegment);
+    segmentProperties.color = _segmentSeriesDetails.seriesColor;
+    segmentProperties.strokeColor = _segmentSeriesDetails.seriesColor;
+    segmentProperties.strokeWidth = segmentProperties.series.width;
+    areaSegment.strokePaint = areaSegment.getStrokePaint();
+    areaSegment.fillPaint = areaSegment.getFillPaint();
+  }
+
+  /// Draws marker with different shape and color of the appropriate data point in the series.
+  @override
+  void drawDataMarker(int index, Canvas canvas, Paint fillPaint,
+      Paint strokePaint, double pointX, double pointY,
+      [CartesianSeriesRenderer? seriesRenderer]) {
+    final SeriesRendererDetails seriesRendererDetails =
+        SeriesHelper.getSeriesRendererDetails(seriesRenderer!);
+    canvas.drawPath(seriesRendererDetails.markerShapes[index]!, fillPaint);
+    canvas.drawPath(seriesRendererDetails.markerShapes[index]!, strokePaint);
+  }
+
+  /// Draws data label text of the appropriate data point in a series.
+  @override
+  void drawDataLabel(int index, Canvas canvas, String dataLabel, double pointX,
+          double pointY, int angle, TextStyle style) =>
+      drawText(canvas, dataLabel, Offset(pointX, pointY), style, angle);
+}
+
+/// Represents the area chart painter
+class AreaChartPainter extends CustomPainter {
+  /// Creates an instance of area chart painter
+  AreaChartPainter(
+      {required this.stateProperties,
       required this.seriesRenderer,
       required this.isRepaint,
       required this.animationController,
       required ValueNotifier<num> notifier,
       required this.painterKey})
-      : chart = chartState._chart,
+      : chart = stateProperties.chart,
         super(repaint: notifier);
-  final SfCartesianChartState chartState;
+
+  /// Represents the Cartesian state properties
+  final CartesianStateProperties stateProperties;
+
+  /// Represents the value of chart
   final SfCartesianChart chart;
+
+  /// Specifies whether to repaint the series
   final bool isRepaint;
+
+  /// Specifies the value of animation controller
   final Animation<double> animationController;
+
+  /// Specifies the area series renderer
   final AreaSeriesRenderer seriesRenderer;
-  final _PainterKey painterKey;
+
+  /// Specifies the painter key value
+  final PainterKey painterKey;
 
   /// Painter method for area series
   @override
   void paint(Canvas canvas, Size size) {
     final int seriesIndex = painterKey.index;
     Rect clipRect;
+    final SeriesRendererDetails seriesRendererDetails =
+        SeriesHelper.getSeriesRendererDetails(seriesRenderer);
     final AreaSeries<dynamic, dynamic> series =
-        seriesRenderer._series as AreaSeries<dynamic, dynamic>;
-    seriesRenderer._storeSeriesProperties(chartState, seriesIndex);
+        seriesRendererDetails.series as AreaSeries<dynamic, dynamic>;
+    seriesRendererDetails.storeSeriesProperties(stateProperties, seriesIndex);
     double animationFactor;
     CartesianChartPoint<dynamic>? prevPoint, point, _point;
-    _ChartLocation? currentPoint, originPoint, _oldPoint;
-    final ChartAxisRenderer xAxisRenderer = seriesRenderer._xAxisRenderer!;
-    final ChartAxisRenderer yAxisRenderer = seriesRenderer._yAxisRenderer!;
-    final _RenderingDetails renderingDetails = chartState._renderingDetails;
+    ChartLocation? currentPoint, originPoint, _oldPoint;
+    final ChartAxisRendererDetails xAxisDetails =
+        seriesRendererDetails.xAxisDetails!;
+    final ChartAxisRendererDetails yAxisDetails =
+        seriesRendererDetails.yAxisDetails!;
+    final RenderingDetails renderingDetails = stateProperties.renderingDetails;
     CartesianSeriesRenderer? oldSeriesRenderer;
+    SeriesRendererDetails? oldSeriesRendererDetails;
     final Path _path = Path();
     final Path _strokePath = Path();
-    final num? crossesAt = _getCrossesAtValue(seriesRenderer, chartState);
+    final num? crossesAt = getCrossesAtValue(seriesRenderer, stateProperties);
     final num origin = crossesAt ?? 0;
     final List<Offset> _points = <Offset>[];
-    if (seriesRenderer._visible!) {
+    if (seriesRendererDetails.visible! == true) {
       assert(
           // ignore: unnecessary_null_comparison
           !(series.animationDuration != null) || series.animationDuration >= 0,
           'The animation duration of the area series must be greater than or equal to 0.');
       final List<CartesianSeriesRenderer> oldSeriesRenderers =
-          chartState._oldSeriesRenderers;
+          stateProperties.oldSeriesRenderers;
       final List<CartesianChartPoint<dynamic>> dataPoints =
-          seriesRenderer._dataPoints;
+          seriesRendererDetails.dataPoints;
       final bool widgetNeedUpdate = renderingDetails.widgetNeedUpdate;
       final bool isLegendToggled = renderingDetails.isLegendToggled;
       final bool isTransposed =
-          seriesRenderer._chartState!._requireInvertedAxis;
+          seriesRendererDetails.stateProperties.requireInvertedAxis;
       canvas.save();
-      animationFactor = seriesRenderer._seriesAnimation != null
-          ? seriesRenderer._seriesAnimation!.value
+      animationFactor = seriesRendererDetails.seriesAnimation != null
+          ? seriesRendererDetails.seriesAnimation!.value
           : 1;
-      final Rect axisClipRect = _calculatePlotOffset(
-          chartState._chartAxis._axisClipRect,
-          Offset(
-              xAxisRenderer._axis.plotOffset, yAxisRenderer._axis.plotOffset));
+      stateProperties.shader = null;
+      if (series.onCreateShader != null) {
+        stateProperties.shader = series.onCreateShader!(
+            ShaderDetails(stateProperties.chartAxis.axisClipRect, 'series'));
+      }
+      final Rect axisClipRect = calculatePlotOffset(
+          stateProperties.chartAxis.axisClipRect,
+          Offset(xAxisDetails.axis.plotOffset, yAxisDetails.axis.plotOffset));
       canvas.clipRect(axisClipRect);
 
-      oldSeriesRenderer = _getOldSeriesRenderer(
-          chartState, seriesRenderer, seriesIndex, oldSeriesRenderers);
+      oldSeriesRenderer = getOldSeriesRenderer(stateProperties,
+          seriesRendererDetails, seriesIndex, oldSeriesRenderers);
 
-      if (seriesRenderer._reAnimate ||
-          ((!(widgetNeedUpdate || isLegendToggled) ||
-                  !chartState._oldSeriesKeys.contains(series.key)) &&
-              series.animationDuration > 0)) {
-        _performLinearAnimation(
-            chartState, xAxisRenderer._axis, canvas, animationFactor);
+      if (oldSeriesRenderer != null) {
+        oldSeriesRendererDetails =
+            SeriesHelper.getSeriesRendererDetails(oldSeriesRenderer);
       }
-      if (seriesRenderer._visibleDataPoints == null ||
-          seriesRenderer._visibleDataPoints!.isNotEmpty) {
-        seriesRenderer._visibleDataPoints = <CartesianChartPoint<dynamic>>[];
+
+      if (seriesRendererDetails.reAnimate == true ||
+          ((!(widgetNeedUpdate || isLegendToggled) ||
+                  !stateProperties.oldSeriesKeys.contains(series.key)) &&
+              series.animationDuration > 0)) {
+        performLinearAnimation(
+            stateProperties, xAxisDetails.axis, canvas, animationFactor);
+      }
+      if (seriesRendererDetails.visibleDataPoints == null ||
+          seriesRendererDetails.visibleDataPoints!.isNotEmpty == true) {
+        seriesRendererDetails.visibleDataPoints =
+            <CartesianChartPoint<dynamic>>[];
       }
       for (int pointIndex = 0; pointIndex < dataPoints.length; pointIndex++) {
         point = dataPoints[pointIndex];
-        seriesRenderer._calculateRegionData(
-            chartState, seriesRenderer, painterKey.index, point, pointIndex);
+        seriesRendererDetails.calculateRegionData(stateProperties,
+            seriesRendererDetails, painterKey.index, point, pointIndex);
         if (point.isVisible && !point.isDrop) {
-          _point = _getOldChartPoint(chartState, seriesRenderer, AreaSegment,
-              seriesIndex, pointIndex, oldSeriesRenderer, oldSeriesRenderers);
+          _point = getOldChartPoint(
+              stateProperties,
+              seriesRendererDetails,
+              AreaSegment,
+              seriesIndex,
+              pointIndex,
+              oldSeriesRenderer,
+              oldSeriesRenderers);
           _oldPoint = _point != null
-              ? _calculatePoint(
+              ? calculatePoint(
                   _point.xValue,
                   _point.yValue,
-                  oldSeriesRenderer!._xAxisRenderer!,
-                  oldSeriesRenderer._yAxisRenderer!,
+                  oldSeriesRendererDetails!.xAxisDetails!,
+                  oldSeriesRendererDetails.yAxisDetails!,
                   isTransposed,
-                  oldSeriesRenderer._series,
+                  oldSeriesRendererDetails.series,
                   axisClipRect)
               : null;
-          currentPoint = _calculatePoint(point.xValue, point.yValue,
-              xAxisRenderer, yAxisRenderer, isTransposed, series, axisClipRect);
-          originPoint = _calculatePoint(
+          currentPoint = calculatePoint(point.xValue, point.yValue,
+              xAxisDetails, yAxisDetails, isTransposed, series, axisClipRect);
+          originPoint = calculatePoint(
               point.xValue,
-              math_lib.max(yAxisRenderer._visibleRange!.minimum, origin),
-              xAxisRenderer,
-              yAxisRenderer,
+              math_lib.max(yAxisDetails.visibleRange!.minimum, origin),
+              xAxisDetails,
+              yAxisDetails,
               isTransposed,
               series,
               axisClipRect);
@@ -109,10 +268,10 @@ class _AreaChartPainter extends CustomPainter {
                   _getSeriesVisibility(dataPoints, pointIndex);
           if (_oldPoint != null) {
             isTransposed
-                ? x = _getAnimateValue(animationFactor, x, _oldPoint.x,
-                    currentPoint.x, seriesRenderer)
-                : y = _getAnimateValue(animationFactor, y, _oldPoint.y,
-                    currentPoint.y, seriesRenderer);
+                ? x = getAnimateValue(animationFactor, x, _oldPoint.x,
+                    currentPoint.x, seriesRendererDetails)
+                : y = getAnimateValue(animationFactor, y, _oldPoint.y,
+                    currentPoint.y, seriesRendererDetails);
           }
           if (prevPoint == null ||
               dataPoints[pointIndex - 1].isGap == true ||
@@ -160,39 +319,38 @@ class _AreaChartPainter extends CustomPainter {
       }
       // ignore: unnecessary_null_comparison
       if (_path != null) {
-        seriesRenderer._drawSegment(
+        seriesRendererDetails.drawSegment(
             canvas,
             seriesRenderer._createSegments(_path, _strokePath, painterKey.index,
                 animationFactor, _points));
       }
-      clipRect = _calculatePlotOffset(
+      clipRect = calculatePlotOffset(
           Rect.fromLTRB(
-              chartState._chartAxis._axisClipRect.left -
+              stateProperties.chartAxis.axisClipRect.left -
                   series.markerSettings.width,
-              chartState._chartAxis._axisClipRect.top -
+              stateProperties.chartAxis.axisClipRect.top -
                   series.markerSettings.height,
-              chartState._chartAxis._axisClipRect.right +
+              stateProperties.chartAxis.axisClipRect.right +
                   series.markerSettings.width,
-              chartState._chartAxis._axisClipRect.bottom +
+              stateProperties.chartAxis.axisClipRect.bottom +
                   series.markerSettings.height),
-          Offset(
-              xAxisRenderer._axis.plotOffset, yAxisRenderer._axis.plotOffset));
+          Offset(xAxisDetails.axis.plotOffset, yAxisDetails.axis.plotOffset));
       canvas.restore();
       if ((series.animationDuration <= 0 ||
               (!renderingDetails.initialRender! &&
-                  !seriesRenderer._needAnimateSeriesElements) ||
-              animationFactor >= chartState._seriesDurationFactor) &&
+                  seriesRendererDetails.needAnimateSeriesElements == false) ||
+              animationFactor >= stateProperties.seriesDurationFactor) &&
           (series.markerSettings.isVisible ||
               series.dataLabelSettings.isVisible)) {
         // ignore: unnecessary_null_comparison
         assert(seriesRenderer != null,
             'The area series should be available to render a marker on it.');
         canvas.clipRect(clipRect);
-        seriesRenderer._renderSeriesElements(
-            chart, canvas, seriesRenderer._seriesElementAnimation);
+        seriesRendererDetails.renderSeriesElements(
+            chart, canvas, seriesRendererDetails.seriesElementAnimation);
       }
       if (animationFactor >= 1) {
-        chartState._setPainterKey(painterKey.index, painterKey.name, true);
+        stateProperties.setPainterKey(painterKey.index, painterKey.name, true);
       }
     }
   }
@@ -209,5 +367,5 @@ class _AreaChartPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_AreaChartPainter oldDelegate) => isRepaint;
+  bool shouldRepaint(AreaChartPainter oldDelegate) => isRepaint;
 }

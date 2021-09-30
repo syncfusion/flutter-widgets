@@ -1,4 +1,16 @@
-part of charts;
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:syncfusion_flutter_charts/src/chart/chart_series/series.dart';
+import 'package:syncfusion_flutter_charts/src/chart/chart_series/series_renderer_properties.dart';
+import '../chart_series/series_renderer_properties.dart';
+import '../chart_series/xy_data_series.dart';
+import '../common/common.dart';
+import '../common/segment_properties.dart';
+import '../series_painter/bubble_painter.dart';
+import '../utils/helper.dart';
+import 'chart_segment.dart';
 
 /// Creates the segments for bubble series.
 ///
@@ -12,143 +24,155 @@ class BubbleSegment extends ChartSegment {
   ///Center position of the bubble and size
   late double _centerX, _centerY, _radius, _size;
 
+  late SegmentProperties _segmentProperties;
+  bool _isInitialize = false;
+
   /// Gets the color of the series.
   @override
   Paint getFillPaint() {
-    final bool hasPointColor = _series.pointColorMapper != null;
-    if (_series.gradient == null) {
-      if (_color != null) {
+    _setSegmentProperties();
+    final SegmentProperties bubbleSegmentProperties = _segmentProperties;
+    final bool hasPointColor =
+        bubbleSegmentProperties.series.pointColorMapper != null;
+    if (bubbleSegmentProperties.series.gradient == null) {
+      if (bubbleSegmentProperties.color != null) {
         fillPaint = Paint()
-          ..color = _currentPoint!.isEmpty == true
-              ? _series.emptyPointSettings.color
-              : ((hasPointColor && _currentPoint!.pointColorMapper != null)
-                  ? _currentPoint!.pointColorMapper!
-                  : _color!)
+          ..color = bubbleSegmentProperties.currentPoint!.isEmpty == true
+              ? bubbleSegmentProperties.series.emptyPointSettings.color
+              : ((hasPointColor &&
+                      bubbleSegmentProperties.currentPoint!.pointColorMapper !=
+                          null)
+                  ? bubbleSegmentProperties.currentPoint!.pointColorMapper!
+                  : bubbleSegmentProperties.color!)
           ..style = PaintingStyle.fill;
       }
     } else {
-      fillPaint = _getLinearGradientPaint(
-          _series.gradient!,
-          _currentPoint!.region!,
-          _seriesRenderer._chartState!._requireInvertedAxis);
+      fillPaint = getLinearGradientPaint(
+          bubbleSegmentProperties.series.gradient!,
+          bubbleSegmentProperties.currentPoint!.region!,
+          SeriesHelper.getSeriesRendererDetails(
+                  bubbleSegmentProperties.seriesRenderer)
+              .stateProperties
+              .requireInvertedAxis);
     }
-    assert(_series.opacity >= 0,
+    assert(bubbleSegmentProperties.series.opacity >= 0,
         'The opacity value of the bubble series should be greater than or equal to 0.');
-    assert(_series.opacity <= 1,
+    assert(bubbleSegmentProperties.series.opacity <= 1,
         'The opacity value of the bubble series should be less than or equal to 1.');
     if (fillPaint?.color != null) {
-      fillPaint!.color =
-          (_series.opacity < 1 && fillPaint!.color != Colors.transparent)
-              ? fillPaint!.color.withOpacity(_series.opacity)
-              : fillPaint!.color;
+      fillPaint!.color = (bubbleSegmentProperties.series.opacity < 1 &&
+              fillPaint!.color != Colors.transparent)
+          ? fillPaint!.color.withOpacity(bubbleSegmentProperties.series.opacity)
+          : fillPaint!.color;
     }
-    _defaultFillColor = fillPaint;
+    bubbleSegmentProperties.defaultFillColor = fillPaint;
+    setShader(_segmentProperties, fillPaint!);
     return fillPaint!;
   }
 
   /// Gets the border color of the series.
   @override
   Paint getStrokePaint() {
+    _setSegmentProperties();
+    final SegmentProperties bubbleSegmentProperties = _segmentProperties;
     final Paint _strokePaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = _currentPoint!.isEmpty == true
-          ? _series.emptyPointSettings.borderWidth
-          : _strokeWidth!;
-    _series.borderGradient != null
-        ? _strokePaint.shader =
-            _series.borderGradient!.createShader(_currentPoint!.region!)
-        : _strokePaint.color = _currentPoint!.isEmpty == true
-            ? _series.emptyPointSettings.borderColor
-            : _strokeColor!;
-    _series.borderWidth == 0
+      ..strokeWidth = bubbleSegmentProperties.currentPoint!.isEmpty == true
+          ? bubbleSegmentProperties.series.emptyPointSettings.borderWidth
+          : bubbleSegmentProperties.strokeWidth!;
+    bubbleSegmentProperties.series.borderGradient != null
+        ? _strokePaint.shader = bubbleSegmentProperties.series.borderGradient!
+            .createShader(bubbleSegmentProperties.currentPoint!.region!)
+        : _strokePaint.color =
+            bubbleSegmentProperties.currentPoint!.isEmpty == true
+                ? bubbleSegmentProperties.series.emptyPointSettings.borderColor
+                : bubbleSegmentProperties.strokeColor!;
+    bubbleSegmentProperties.series.borderWidth == 0
         ? _strokePaint.color = Colors.transparent
         : _strokePaint.color;
-    _defaultStrokeColor = _strokePaint;
+    bubbleSegmentProperties.defaultStrokeColor = _strokePaint;
     return _strokePaint;
   }
 
   /// Calculates the rendering bounds of a segment.
   @override
   void calculateSegmentPoints() {
-    _centerX = _centerY = double.nan;
-    final Rect rect = _calculatePlotOffset(
-        _seriesRenderer._chartState!._chartAxis._axisClipRect,
-        Offset(_seriesRenderer._xAxisRenderer!._axis.plotOffset,
-            _seriesRenderer._yAxisRenderer!._axis.plotOffset));
-    final _ChartLocation localtion = _calculatePoint(
-        _currentPoint!.xValue,
-        _currentPoint!.yValue,
-        _seriesRenderer._xAxisRenderer!,
-        _seriesRenderer._yAxisRenderer!,
-        _seriesRenderer._chartState!._requireInvertedAxis,
-        _series,
-        rect);
-    _centerX = localtion.x;
-    _centerY = localtion.y;
-    if (_seriesRenderer is BubbleSeriesRenderer)
-      _radius = _calculateBubbleRadius(_seriesRenderer as BubbleSeriesRenderer);
-    _currentPoint!.region = Rect.fromLTRB(
-        localtion.x - 2 * _radius,
-        localtion.y - 2 * _radius,
-        localtion.x + 2 * _radius,
-        localtion.y + 2 * _radius);
-    _size = _radius = _currentPoint!.region!.width / 2;
-  }
+    _setSegmentProperties();
 
-  /// To calculate and return the bubble size
-  double _calculateBubbleRadius(BubbleSeriesRenderer _seriesRenderer) {
-    final BubbleSeries<dynamic, dynamic> bubbleSeries =
-        _series as BubbleSeries<dynamic, dynamic>;
-    num bubbleRadius, sizeRange, radiusRange, maxSize, minSize;
-    maxSize = _seriesRenderer._maxSize!;
-    minSize = _seriesRenderer._minSize!;
-    sizeRange = maxSize - minSize;
-    final double bubbleSize = ((_currentPoint!.bubbleSize) ?? 4).toDouble();
-    assert(bubbleSeries.minimumRadius >= 0 && bubbleSeries.maximumRadius >= 0,
-        'The min radius and max radius of the bubble should be greater than or equal to 0.');
-    if (bubbleSeries.sizeValueMapper == null) {
-      // ignore: unnecessary_null_comparison
-      bubbleSeries.minimumRadius != null
-          ? bubbleRadius = bubbleSeries.minimumRadius
-          : bubbleRadius = bubbleSeries.maximumRadius;
-    } else {
-      if (sizeRange == 0) {
-        bubbleRadius = bubbleSize == 0
-            ? bubbleSeries.minimumRadius
-            : bubbleSeries.maximumRadius;
-      } else {
-        radiusRange =
-            (bubbleSeries.maximumRadius - bubbleSeries.minimumRadius) * 2;
-        bubbleRadius =
-            (((bubbleSize.abs() - minSize) * radiusRange) / sizeRange) +
-                bubbleSeries.minimumRadius;
-      }
-    }
-    return bubbleRadius.toDouble();
+    final SegmentProperties bubbleSegmentProperties = _segmentProperties;
+    final SeriesRendererDetails seriesRendererDetails =
+        SeriesHelper.getSeriesRendererDetails(
+            bubbleSegmentProperties.seriesRenderer);
+    _centerX = _centerY = double.nan;
+    final Rect rect = calculatePlotOffset(
+        seriesRendererDetails.stateProperties.chartAxis.axisClipRect,
+        Offset(seriesRendererDetails.xAxisDetails!.axis.plotOffset,
+            seriesRendererDetails.yAxisDetails!.axis.plotOffset));
+    final ChartLocation location = calculatePoint(
+        bubbleSegmentProperties.currentPoint!.xValue,
+        bubbleSegmentProperties.currentPoint!.yValue,
+        seriesRendererDetails.xAxisDetails!,
+        seriesRendererDetails.yAxisDetails!,
+        seriesRendererDetails.stateProperties.requireInvertedAxis,
+        bubbleSegmentProperties.series,
+        rect);
+    _centerX = location.x;
+    _centerY = location.y;
+    if (bubbleSegmentProperties.seriesRenderer is BubbleSeriesRenderer)
+      _radius = calculateBubbleRadius(
+          seriesRendererDetails,
+          bubbleSegmentProperties.series,
+          bubbleSegmentProperties.currentPoint!);
+    bubbleSegmentProperties.currentPoint!.region = Rect.fromLTRB(
+        location.x - 2 * _radius,
+        location.y - 2 * _radius,
+        location.x + 2 * _radius,
+        location.y + 2 * _radius);
+    _size = _radius = bubbleSegmentProperties.currentPoint!.region!.width / 2;
   }
 
   /// Draws segment in series bounds.
   @override
   void onPaint(Canvas canvas) {
-    _segmentRect = RRect.fromRectAndRadius(_currentPoint!.region!, Radius.zero);
-    if (_seriesRenderer._renderingDetails!.widgetNeedUpdate &&
-        !_seriesRenderer._reAnimate &&
-        !_seriesRenderer._renderingDetails!.isLegendToggled &&
-        _seriesRenderer._chartState!._oldSeriesRenderers.isNotEmpty &&
-        _oldSeriesRenderer != null &&
-        _oldSeriesRenderer!._segments.isNotEmpty &&
-        _oldSeriesRenderer!._segments[0] is BubbleSegment &&
-        _series.animationDuration > 0 &&
-        _oldPoint != null) {
+    _setSegmentProperties();
+
+    final SegmentProperties bubbleSegmentProperties = _segmentProperties;
+    bubbleSegmentProperties.segmentRect = RRect.fromRectAndRadius(
+        bubbleSegmentProperties.currentPoint!.region!, Radius.zero);
+    final SeriesRendererDetails seriesRendererDetails =
+        SeriesHelper.getSeriesRendererDetails(
+            bubbleSegmentProperties.seriesRenderer);
+    if (seriesRendererDetails.stateProperties.renderingDetails.widgetNeedUpdate == true &&
+        seriesRendererDetails.reAnimate == false &&
+        seriesRendererDetails
+                .stateProperties.renderingDetails.isLegendToggled ==
+            false &&
+        seriesRendererDetails.stateProperties.oldSeriesRenderers.isNotEmpty ==
+            true &&
+        bubbleSegmentProperties.oldSeriesRenderer != null &&
+        SeriesHelper.getSeriesRendererDetails(
+                    bubbleSegmentProperties.oldSeriesRenderer!)
+                .segments
+                .isNotEmpty ==
+            true &&
+        SeriesHelper.getSeriesRendererDetails(
+                bubbleSegmentProperties.oldSeriesRenderer!)
+            .segments[0] is BubbleSegment &&
+        bubbleSegmentProperties.series.animationDuration > 0 &&
+        bubbleSegmentProperties.oldPoint != null) {
       final BubbleSegment currentSegment =
-          _seriesRenderer._segments[currentSegmentIndex!] as BubbleSegment;
+          seriesRendererDetails.segments[currentSegmentIndex!] as BubbleSegment;
+      final SegmentProperties seriesSegmentProperties =
+          SegmentHelper.getSegmentProperties(currentSegment);
+      final SeriesRendererDetails oldSeriesDetails =
+          SeriesHelper.getSeriesRendererDetails(
+              seriesSegmentProperties.oldSeriesRenderer!);
       final BubbleSegment? oldSegment =
-          (currentSegment._oldSeriesRenderer!._segments.length - 1 >=
-                  currentSegmentIndex!)
-              ? currentSegment._oldSeriesRenderer!
-                  ._segments[currentSegmentIndex!] as BubbleSegment?
+          (oldSeriesDetails.segments.length - 1 >= currentSegmentIndex! == true)
+              ? oldSeriesDetails.segments[currentSegmentIndex!]
+                  as BubbleSegment?
               : null;
-      _animateBubbleSeries(
+      animateBubbleSeries(
           canvas,
           _centerX,
           _centerY,
@@ -159,12 +183,20 @@ class BubbleSegment extends ChartSegment {
           _radius,
           strokePaint!,
           fillPaint!,
-          _seriesRenderer);
+          bubbleSegmentProperties.seriesRenderer);
     } else {
       canvas.drawCircle(
           Offset(_centerX, _centerY), _radius * animationFactor, fillPaint!);
       canvas.drawCircle(
           Offset(_centerX, _centerY), _radius * animationFactor, strokePaint!);
+    }
+  }
+
+  /// Method to set segment properties
+  void _setSegmentProperties() {
+    if (!_isInitialize) {
+      _segmentProperties = SegmentHelper.getSegmentProperties(this);
+      _isInitialize = true;
     }
   }
 }
