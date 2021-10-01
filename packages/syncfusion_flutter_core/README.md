@@ -15,8 +15,8 @@ Syncfusion Flutter Core is a dependent package for the following Syncfusion Flut
 * [syncfusion_flutter_sliders](https://pub.dev/packages/syncfusion_flutter_sliders)
 * [syncfusion_flutter_signaturepad](https://pub.dev/packages/syncfusion_flutter_signaturepad)
 * [syncfusion_flutter_barcodes](https://pub.dev/packages/syncfusion_flutter_barcodes)
-* [syncfusion_flutter_officechart](https://pub.dev/packages/syncfusion_flutter_officechart)
-* [syncfusion_flutter_officecore](https://pub.dev/packages/syncfusion_flutter_officecore)
+* [syncfusion_officechart](https://pub.dev/packages/syncfusion_officechart)
+* [syncfusion_officecore](https://pub.dev/packages/syncfusion_officecore)
 * [syncfusion_localizations](https://pub.dev/packages/syncfusion_localizations)
 
 **Disclaimer:** This is a commercial package. To use this package, you need to have either Syncfusion Commercial License or [Free Syncfusion Community license](https://www.syncfusion.com/products/communitylicense). For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
