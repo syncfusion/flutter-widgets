@@ -3,7 +3,7 @@
 Flutter OfficeCore is a dependent package for the following Syncfusion Flutter packages.
 
 * [syncfusion_flutter_xlsio](https://pub.dev/packages/syncfusion_flutter_xlsio)
-* [syncfusion_flutter_officechart](https://pub.dev/packages/syncfusion_officechart)
+* [syncfusion_officechart](https://pub.dev/packages/syncfusion_officechart)
 
 **Disclaimer:** This is a commercial package. To use this package, you need to have either Syncfusion Commercial License or [Free Syncfusion Community license](https://www.syncfusion.com/products/communitylicense). For more details, please check the [LICENSE](https://github.com/syncfusion/flutter-examples/blob/master/LICENSE) file.
 

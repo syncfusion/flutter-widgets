@@ -14,5 +14,5 @@ dependencies:
   image: ^3.0.1
   intl: ^0.17.0
   crypto: ^3.0.0
-  syncfusion_flutter_officecore: 
+  syncfusion_officecore: 
     path: ../syncfusion_officecore
