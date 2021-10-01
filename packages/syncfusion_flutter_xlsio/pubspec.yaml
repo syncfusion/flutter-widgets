@@ -15,4 +15,4 @@ dependencies:
   intl: ^0.17.0
   crypto: ^3.0.0
   syncfusion_officecore: 
-    path: ../syncfusion_flutter_officecore
+    path: ../syncfusion_officecore
