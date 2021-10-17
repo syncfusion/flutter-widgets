@@ -283,10 +283,23 @@ extension DataGridPdfExportExtensions on SfDataGridState {
 /// Override this class and required methods from this class to perform the customized exporting operation.
 
 class DataGridToPdfConverter {
+  /// constructor to customize fonts and string format
+  DataGridToPdfConverter({this.font, this.pdfStringFormat});
   /// Decides whether the  headers should be repeated to all pages in the pdf document.
   ///
   /// Defaults to true.
   bool canRepeatHeaders = true;
+
+  /// Set a custom font to export pdf for unsupported languages like persian ,...
+  /// ex: ByteData data = await rootBundle.load('assets/fonts/a.ttf');
+  ///   List<int> fontBytes =
+  ///       data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+  /// PdfFont? font = PdfTrueTypeFont(fontBytes, 10)
+  PdfFont? font;
+
+  /// Support both rtl and ltr languages
+  /// ex: PdfStringFormat(textDirection: PdfTextDirection.rightToLeft)
+  PdfStringFormat? pdfStringFormat;
 
   /// Decides whether the Stacked headers should be exported in the pdf document.
   ///
@@ -414,6 +427,12 @@ class DataGridToPdfConverter {
     //export pdf grid into pdf document
     final PdfGrid pdfGrid = exportToPdfGrid(dataGrid, rows);
 
+    // set custom font and alignment
+    pdfGrid.style.font = font;
+    pdfGrid.beginCellLayout = (Object sender, PdfGridBeginCellLayoutArgs args) {
+      args.style?.stringFormat = pdfStringFormat;
+    };
+
     //Draw the pdf grid into pdf document
     pdfGrid.draw(page: pdfPage, bounds: const Rect.fromLTWH(0, 0, 0, 0));
 
@@ -520,7 +539,7 @@ class DataGridToPdfConverter {
     for (final StackedHeaderCell column in stackedHeaderRow.cells) {
       int columnSpanValue = 0;
       final List<int> columnSequences =
-          getColumnSequences(dataGrid.columns, column);
+      getColumnSequences(dataGrid.columns, column);
       for (final List<int> indexes in getConsecutiveRanges(columnSequences)) {
         _columnIndex = indexes.reduce(min);
         columnSpanValue = indexes.length;
@@ -580,16 +599,16 @@ class DataGridToPdfConverter {
   @protected
   Object? getCellValue(GridColumn column, DataGridRow row) {
     final DataGridCell cellValue = row.getCells().firstWhereOrNull(
-        (DataGridCell element) => element.columnName == column.columnName)!;
+            (DataGridCell element) => element.columnName == column.columnName)!;
     return cellValue.value;
   }
 
   void _exportCellToPdf(
-    DataGridExportCellType cellType,
-    PdfGridCell pdfCell,
-    Object? cellValue,
-    GridColumn column,
-  ) {
+      DataGridExportCellType cellType,
+      PdfGridCell pdfCell,
+      Object? cellValue,
+      GridColumn column,
+      ) {
     if (cellExport != null) {
       final DataGridCellPdfExportDetails details = DataGridCellPdfExportDetails(
           cellType, pdfCell, cellValue, column.columnName);
@@ -601,7 +620,7 @@ class DataGridToPdfConverter {
       PdfPage pdfPage, PdfDocumentTemplate pdfDocumentTemplate) {
     if (headerFooterExport != null) {
       final DataGridPdfHeaderFooterExportDetails details =
-          DataGridPdfHeaderFooterExportDetails(pdfPage, pdfDocumentTemplate);
+      DataGridPdfHeaderFooterExportDetails(pdfPage, pdfDocumentTemplate);
       headerFooterExport!(details);
     }
   }
@@ -662,8 +681,8 @@ class DataGridToPdfConverter {
 
       for (final GridSummaryColumn summaryColumn in summaryRow.columns) {
         final GridColumn? column = dataGrid.columns.firstWhereOrNull(
-            (GridColumn element) =>
-                element.columnName == summaryColumn.columnName);
+                (GridColumn element) =>
+            element.columnName == summaryColumn.columnName);
         final int summaryColumnIndex = getSummaryColumnIndex(
             dataGrid.columns, summaryColumn.columnName, excludeColumns);
 
@@ -688,15 +707,15 @@ class DataGridToPdfConverter {
 
   void _exportTableSummaryCell(
       {int columnSpan = 0,
-      int startColumnIndex = 0,
-      GridColumn? column,
-      required PdfGrid pdfGrid,
-      required SfDataGrid dataGrid,
-      GridSummaryColumn? summaryColumn,
-      PdfGridRow? tableSummaryRow,
-      required GridTableSummaryRow summaryRow}) {
+        int startColumnIndex = 0,
+        GridColumn? column,
+        required PdfGrid pdfGrid,
+        required SfDataGrid dataGrid,
+        GridSummaryColumn? summaryColumn,
+        PdfGridRow? tableSummaryRow,
+        required GridTableSummaryRow summaryRow}) {
     final GridColumn? column = dataGrid.columns.firstWhereOrNull(
-        (GridColumn column) => column.columnName == summaryColumn?.columnName);
+            (GridColumn column) => column.columnName == summaryColumn?.columnName);
     final RowColumnIndex rowColumnIndex = RowColumnIndex(
         rowIndex, column != null ? dataGrid.columns.indexOf(column) : 0);
 
