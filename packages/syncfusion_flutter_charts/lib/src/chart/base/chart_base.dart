@@ -330,7 +330,7 @@ class SfCartesianChart extends StatefulWidget {
 
   ///Border width of the plot area.
   ///
-  ///Defaults to `0`.
+  ///Defaults to `0.7`.
   ///
   ///```dart
   ///Widget build(BuildContext context) {
