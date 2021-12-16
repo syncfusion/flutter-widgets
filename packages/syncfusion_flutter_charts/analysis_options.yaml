@@ -1,0 +1,17 @@
+include: package:syncfusion_flutter_core/analysis_options.yaml
+
+analyzer:
+  errors:
+    include_file_not_found: ignore
+    lines_longer_than_80_chars: ignore
+    avoid_as: ignore
+    cast_nullable_to_non_nullable: ignore
+    implicit_dynamic_parameter: ignore
+    field_initializer_not_assignable: ignore
+    invalid_assignment: ignore
+    unnecessary_null_comparison: ignore
+    unnecessary_nullable_for_final_variable_declarations: ignore
+    must_be_immutable: ignore
+    avoid_equals_and_hash_code_on_mutable_classes: ignore
+    unnecessary_null_checks: ignore
+    noop_primitive_operations: ignore

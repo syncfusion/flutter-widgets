@@ -1,0 +1,5 @@
+include: package:syncfusion_flutter_core/analysis_options.yaml
+
+analyzer:
+  errors:
+    include_file_not_found: ignore

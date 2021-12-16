@@ -1,0 +1,7 @@
+include: lib/analysis_options.yaml
+
+analyzer:
+  errors:
+    library_private_types_in_public_api: ignore
+    lines_longer_than_80_chars: ignore
+    avoid_dynamic_calls: ignore
