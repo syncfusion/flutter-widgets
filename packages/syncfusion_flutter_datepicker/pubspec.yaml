@@ -12,4 +12,3 @@ dependencies:
   intl: ">=0.15.0 <0.20.0"
   syncfusion_flutter_core:
     path: ../syncfusion_flutter_core
-
